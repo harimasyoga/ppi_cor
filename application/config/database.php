@@ -82,10 +82,9 @@ $db['default'] = array(
 	'password' => 'primapaper2022',
 	'database' => 'n1576051_db_penjualan',
 
-	'username' => 'root',
-	'password' => '',
-	'database' => 'db_penjualan',
-0',
+	// 'username' => 'root',
+	// 'password' => '',
+	// 'database' => 'db_penjualan',
 	// 'database' => 'ppin8794_db_corr_ppi',
 	// 'database' => 'ppin8794_db_corr_ppi_v2',
 
