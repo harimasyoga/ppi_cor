@@ -34,7 +34,7 @@
   	<?php echo $this->session->flashdata('msg'); ?>
 
     <div class="card-body login-card-body">
-      <p class="login-box-msg">Sign in</p>
+      <p class="login-box-msg"><b>Sign In</b></p>
 
       <?= form_open('Login/aksi_login'); ?>
         <div class="input-group mb-3">
@@ -54,16 +54,16 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-8">
+          <!-- <div class="col-8">
             <div class="icheck-primary">
-              <!-- <input type="checkbox" id="remember">
+              <input type="checkbox" id="remember">
               <label for="remember">
                 Remember Me
-              </label> -->
+              </label>
             </div>
-          </div>
+          </div> -->
           <!-- /.col -->
-          <div class="col-4">
+          <div class="col-4" >
             <button type="submit" class="btn btn-primary btn-block">Sign In</button>
           </div>
           <!-- /.col -->

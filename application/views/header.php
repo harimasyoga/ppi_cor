@@ -47,7 +47,9 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 					<a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
 				</li>
 				<li class="nav-item">
-					<?= $this->session->userdata('username') ?> , <a href="#"><?= $this->session->userdata('level') ?></a>
+					<li class="nav-link" style="padding-left:0px;" >
+						<b><?= $this->session->userdata('username') ?></b> , <a href="#"><?= $this->session->userdata('level') ?></a>
+					</li>
 				</li>
 			</ul>
 
@@ -58,20 +60,20 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 				<!-- Notifications Dropdown Menu -->
 				<li class="nav-item dropdown">
 					<a class="nav-link" href="<?= base_url('Login/logout') ?>">
-						Logout
+						<i class="fas fa-sign-out-alt"></i> <b>Logout</b>
 					</a>
 				</li>
-				<li class="nav-item">
+				<!-- <li class="nav-item">
 					<a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
 						<i class="fas fa-th-large"></i>
 					</a>
-				</li>
+				</li> -->
 			</ul>
 		</nav>
 		<!-- /.navbar -->
 
 		<!-- Main Sidebar Container -->
-		<aside class="main-sidebar sidebar-dark-primary elevation-4">
+		<aside class="main-sidebar sidebar-dark-primary elevation-4" >
 			<!-- Brand Logo -->
 			<!-- <a href="<?= base_url('assets/') ?>index3.html" class="brand-link">
       <img src="<?= base_url('assets/') ?>dist/img/AdminLTELogo.png"
@@ -90,7 +92,8 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 					</div>
 					<div class="info">
 						<a href="<?= base_url('Master') ?>" class="d-block">
-							<h2><?= $setting->singkatan ?></h2>
+							<h2><i class="fa fa-box-open"></i>
+								<?= $setting->singkatan ?></h2>
 						</a>
 					</div>
 				</div>
@@ -104,16 +107,16 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 							<a href="<?= base_url('Master') ?>" class="nav-link">
 								<i class="nav-icon fas fa-tachometer-alt"></i>
 								<p>
-									Dashboard
+									<b>Dashboard</b>
 								</p>
 							</a>
 						</li>
 						<?php if (in_array($this->session->userdata('level'), ['Admin','Marketing'])): ?>
 						<li class="nav-item has-treeview">
 							<a href="#" class="nav-link">
-								<i class="nav-icon fas fa-copy"></i>
+								<i class="nav-icon fas fa-home"></i>
 								<p>
-									Master
+									<b>Master</b>
 									<i class="fas fa-angle-left right"></i>
 								</p>
 							</a>
@@ -122,13 +125,13 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								<?php if ($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'Marketing') : ?>
 									<li class="nav-item">
 										<a href="<?= base_url('Master/Produk') ?>" class="nav-link">
-											<i class="far fa-circle nav-icon"></i>
+											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>Produk</p>
 										</a>
 									</li>
 									<li class="nav-item">
 										<a href="<?= base_url('Master/Pelanggan') ?>" class="nav-link">
-											<i class="far fa-circle nav-icon"></i>
+											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>Pelanggan</p>
 										</a>
 									</li>
@@ -137,7 +140,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								<?php if ($this->session->userdata('level') == 'Admin') : ?>
 									<li class="nav-item">
 										<a href="<?= base_url('Master/User') ?>" class="nav-link">
-											<i class="far fa-circle nav-icon"></i>
+											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>User</p>
 										</a>
 									</li>
@@ -151,7 +154,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 							<a href="#" class="nav-link">
 								<i class="nav-icon fas fa-edit"></i>
 								<p>
-									Transaksi
+									<b>Transaksi</b>
 									<i class="fas fa-angle-left right"></i>
 								</p>
 							</a>
@@ -160,28 +163,34 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								
 									<li class="nav-item">
 										<a href="<?= base_url('Transaksi/PO') ?>" class="nav-link">
-											<i class="far fa-circle nav-icon"></i>
+											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>PO</p>
 										</a>
 									</li>
 
 									<li class="nav-item">
 										<a href="<?= base_url('Transaksi/SO') ?>" class="nav-link">
-											<i class="far fa-circle nav-icon"></i>
+											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>SO</p>
 										</a>
 									</li>
 
 									<li class="nav-item">
 										<a href="<?= base_url('Transaksi/WO') ?>" class="nav-link">
-											<i class="far fa-circle nav-icon"></i>
+											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>WO</p>
 										</a>
 									</li>
 									<li class="nav-item">
 										<a href="<?= base_url('Transaksi/SuratJalan') ?>" class="nav-link">
-											<i class="far fa-circle nav-icon"></i>
+											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>Surat Jalan</p>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="<?= base_url('Transaksi/SuratJalan') ?>" class="nav-link">
+											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
+											<p>Planning Corr</p>
 										</a>
 									</li>
 
@@ -192,9 +201,9 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 						<?php if (in_array($this->session->userdata('level'), ['Admin','Marketing','PPIC','Owner'])): ?>
 						<li class="nav-item has-treeview">
 							<a href="#" class="nav-link">
-								<i class="nav-icon fas fa-edit"></i>
+								<i class="nav-icon fas fa-check-double"></i>
 								<p>
-									Approval
+									<b>Approval</b>
 									<i class="fas fa-angle-left right"></i>
 								</p>
 							</a>
@@ -203,7 +212,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								
 									<li class="nav-item">
 										<a href="<?= base_url('Transaksi/PO') ?>" class="nav-link">
-											<i class="far fa-circle nav-icon"></i>
+										&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>PO</p>
 										</a>
 									</li>
@@ -234,6 +243,10 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 					</ul>
 				</nav>
 				<!-- /.sidebar-menu -->
+			</div>
+			<div style="position:absolute;bottom:0;right:0;left:0;padding:5px 5px 5px 10px; background-image: linear-gradient(180deg,#cc193800 10%,#450410ad 100%);">
+				
+				<img width="50"  src="<?= base_url('assets/gambar/ppi.png')?>" alt="">
 			</div>
 			<!-- /.sidebar -->
 		</aside>
