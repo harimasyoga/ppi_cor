@@ -5,7 +5,7 @@
 		<div class="container-fluid">
 			<div class="row mb-2">
 				<div class="col-sm-6">
-					<h1>Data Transaksi </h1>
+					<h1><b>Data Transaksi</b> </h1>
 				</div>
 				<div class="col-sm-6">
 					<ol class="breadcrumb float-sm-right">
@@ -31,7 +31,7 @@
 			</div>
 			<div class="card-body">
 				<?php if (!in_array($this->session->userdata('level'), ['Marketing','PPIC','Owner'])): ?>
-					<button type="button" class="tambah_data btn  btn-outline-primary pull-right">Tambah Data</button>
+					<button type="button" class="tambah_data btn  btn-outline-primary pull-right"><i class="fa fa-plus" ></i> <b>Tambah Data</b></button>
 				<?php endif ?>
 				<br><br>
 
