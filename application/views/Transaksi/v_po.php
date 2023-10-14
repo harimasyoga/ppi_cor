@@ -35,7 +35,7 @@
 				<?php endif ?>
 				<br><br>
 
-				<table id="datatable" class="table table-bordered table-striped" width="100%">
+				<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 					<thead>
 						<tr>
 							<th style="width:5%">No</th>
@@ -73,7 +73,7 @@
 			<div class="modal-body">
 				<form role="form" method="post" id="myForm">
 					<div class="form-group row">
-						<table width="100%" border="0">
+						<table width="95%" border="0">
 							<tr>
 								<td width="15%">No PO</td>
 								<td>
@@ -84,8 +84,8 @@
 								<td width="15%"></td>
 								<td width="15%">Nama Pelanggan</td>
 								<td width="30%">
-									<select class="form-control select2" name="id_pelanggan" id="id_pelanggan" style="width: 100%;">
-										<option value="">Pilih</option>
+									<select class="form-control select2" name="id_pelanggan" id="id_pelanggan" style="width: 100%;" onchange="setProduk(this.value,0)">
+										<!-- <option value="">Pilih</option> -->
 										<?php foreach ($pelanggan as $r) : ?>
 											<option value="<?= $r->id_pelanggan ?>" detail="<?= $r->kota . "|" . $r->no_telp . "|" . $r->fax . "|" . $r->top ?>">
 												<?= $r->id_pelanggan . " | " . $r->nm_pelanggan ?>
@@ -98,17 +98,11 @@
 								<td width="15%">Tgl PO</td>
 								<td><input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>" readonly></td>
 								<td width="15%"></td>
-								<td width="15%" rowspan="2" style="padding-left: 20px;" valign="top">
-									Kota <br>
-									No Telepon <br>
-									FAX <br>
-									TOP
+								<td width="15%">
+									Kota
 								</td>
-								<td rowspan="2" valign="top">
-									<font id="txt_kota"> </font> <br>
-									<font id="txt_no_telp"> </font> <br>
-									<font id="txt_fax"> </font> <br>
-									<font id="txt_top"> </font> <br>
+								<td>
+									<font id="txt_kota"></font>
 								</td>
 							</tr>
 							<tr>
@@ -117,52 +111,78 @@
 									<input type="text" class="form-control" name="kode_po" id="kode_po">
 								</td>
 								<td width="15%"></td>
+								<td width="15%">
+									No Telepon 
+								</td>
+								<td>
+									<font id="txt_no_telp"></font>
+								</td>
+								
 							</tr>
 							<tr>
 								<td width="15%">ETA</td>
 								<td>
 									<input type="date" class="form-control" name="eta" id="eta">
 								</td>
+								<td width="15%"></td>
+								<td width="15%">
+									FAX
+								</td>
+								<td>
+									<font id="txt_fax"></font>
+								</td>
+							</tr>
+							<tr>
+								<td width="15%"></td>
 								<td></td>
+								<td width="15%"></td>
+								<td width="15%">
+									TOP
+								</td>
+								<td>
+									<font id="txt_top"></font> <br>
+								</td>
 							</tr>
 						</table>
 					</div>
+					<hr>
 
 					<div class="form-group row">
-						<table class="table" id="table-produk" style="width: 90%" align="center">
-							<thead>
+						<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table-produk" style="width: 100%" align="center">
+							<thead class="color-tabel">
 								<tr>
-									<th width="10%">#</th>
-									<th>Nama Produk</th>
+									<th width="10%">Delete</th>
+									<th width="10%">Produk</th>
 									<th width="10%">Qty</th>
-									<th width="15%">PPN</th>
+									<th width="10%">PPN</th>
 									<?php if ($this->session->userdata('level') != "PPIC"): ?>
 										
 										<th width="10%">Price Include</th>
 										<th width="10%">Price Exlude</th>
 
 									<?php endif ?>
-									<th width="50%">Detail Produk</th>
+									<th width="40%">Detail Produk</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr id="itemRow0">
-									<td><a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)"><i class="fa fa-trash"></i> </a></td>
 									<td>
-										<select class="form-control select2" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(0)">
-											<option value="">Pilih</option>
-											<?php foreach ($produk as $r) : ?>
-												<option value="<?= $r->kode_mc ?>" detail="<?= $r->kode_mc . "|" . $r->nm_produk . "|" . $r->ukuran . "|" . $r->material . "|" . $r->flute . "|" . $r->creasing . "|" . $r->warna ?>"><?= $r->kode_mc ?></option>
-											<?php endforeach ?>
+										<a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)"><i class="far fa-trash-alt" style="color:#fff"></i> </a></td>
+									<td>
+										<select class="form-control select2" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(this.value)">
+											<!-- <option value="">Pilih</option> -->
+											<!-- <?php foreach ($produk as $r) : ?>
+												<option value="<?= $r->kode_mc ?>" detail="<?= $r->kode_mc . "|" . $r->nm_produk . "|" . $r->ukuran . "|" . $r->material . "|" . $r->flute . "|" . $r->creasing . "|" . $r->warna ?>"><?= $r->nm_produk ?></option>
+											<?php endforeach ?> -->
 										</select>
 									</td>
 									<td>
 										<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0'>
 									</td>
 									<td>
-										<select class="form-control" name="ppn[0]" id="ppn0">
-											<option value="">Pilih</option>
-											<option value="KB">KB</option>
+										<select class="form-control select2" name="ppn[0]" id="ppn0">
+											<!-- <option value="">Pilih</option> -->
+											<!-- <option value="KB">KB</option> -->
 											<option value="PP">PP</option>
 											<option value="NP">NP</option>
 										</select>
@@ -181,10 +201,10 @@
 							</tbody>
 						</table>
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label"></label>
+					<div class="form-group row" style="justify-content: left; ">
+						<!-- <label class="col-sm-2 col-form-label"></label> -->
 						<div class="col-sm-4">
-							<button type="button" onclick="addRow()" class="btn-tambah-produk btn  btn-outline-primary">Tambah Produk</button>
+							<button type="button" onclick="addRow()" class="btn-tambah-produk btn  btn-success"><b><i class="fa fa-plus" ></i> Tambah Produk</b></button>
 							<input type="hidden" name="bucket" id="bucket" value="0">
 						</div>
 					</div>
@@ -209,7 +229,10 @@
 	$(document).ready(function() {
 		load_data();
 		getMax();
-		$('.select2').select2();
+		$('.select2').select2({
+			placeholder: '--- Pilih ---',
+			dropdownAutoWidth: true
+		});
 	});
 
 	status = "insert";
@@ -221,6 +244,33 @@
 		$("#status").val("insert");
 	});
 
+	function setProduk(pelanggan,id) {
+		if (pelanggan!=''){
+			option = "";
+			$.ajax({
+				type: 'POST',
+				url: "<?php echo base_url(); ?>Transaksi/load_produk",
+				data: { idp: pelanggan, kd: '' },
+				dataType: 'json',
+				success:function(data){			
+					if(data.message == "Success"){						
+						option = "<option>-- Pilih --</option>";
+						$.each(data.data, function(index, val) {
+							
+						option += "<option value='"+val.kode_mc+"'>"+val.nm_produk+"</option>";
+	
+						});
+	
+						$('#id_produk'+id).html(option);
+					}else{	
+						option += "<option value=''></option>";
+						$('#id_produk'+id).html(option);						
+						$("#txt_detail_produk"+id).html("");	
+					}
+				}
+			});
+		}
+	}
 
 	function load_data() {
 
@@ -526,57 +576,66 @@
 
 	});
 
-	function setDetailProduk(e) {
-		if ($("#id_produk" + e).val() == "") {
-			return;
+	function setDetailProduk(kd) {
+		// if ($("#id_produk" + e).val() == "") {
+		// 	return;
+		// }
+
+		// arr_detail = $('#id_produk' + e + ' option:selected').attr('detail');
+
+		// if (typeof arr_detail === 'undefined') {
+		// 	return;
+		// }
+
+		// arr_detail = arr_detail.split("|");
+		// // console.log(arr_detail);
+		if(kd!=''){
+
+			html_produk="";
+			$.ajax({
+				type: 'POST',
+				url: "<?php echo base_url(); ?>Transaksi/load_produk",
+				data: { idp: '', kd: kd },
+				dataType: 'json',
+				success:function(data){			
+					if(data.message == "Success"){
+						$.each(data.data, function(index, val) {
+							
+						(val.kategori =='K_BOX')? uk = val.ukuran : uk = val.ukuran_sheet;
+
+						html_produk += "<table class='table' border='0' width='100%' style='font-size:12px'><tr> <tr> <td style=list-style:none;><b>Nama Produk : </b>"+ val.nm_produk +"</td><td style=list-style:none;><b>Ukuran : </b>"+ uk +"</td><td style=list-style:none;><b>Material : </b>"+ val.material +"</td></tr><tr> <td style=list-style:none;><b>Flute : </b>"+ val.flute +"</td> <td style=list-style:none;><b>Creasing : </b>"+ val.creasing +"-"+ val.creasing2 +"-"+ val.creasing3 +"</td> <td style=list-style:none;><b>Warna : </b>"+ val.warna +"</td> </tr> <tr> </table>";
+	
+						});
+	
+						$('#txt_detail_produk0').html(html_produk);	
+						
+					}else{
+						$("#txt_detail_produk0").html("");		
+					}
+				}
+			});
 		}
 
-		arr_detail = $('#id_produk' + e + ' option:selected').attr('detail');
-
-		if (typeof arr_detail === 'undefined') {
-			return;
-		}
-
-		arr_detail = arr_detail.split("|");
-		// console.log(arr_detail);
-
-		$("#txt_detail_produk" + e).html(
-			'<table width="100%" style="font-size:12px">' +
-			'<tr>' +
-			'<td>' +
-			'<ul>' +
-			'<li>Nama Produk : ' + arr_detail[1] + '</li>' +
-			'<li>Ukuran : ' + arr_detail[2] + '</li>' +
-			'<li>Material : ' + arr_detail[3] + '</li>' +
-			'</ul>' +
-			'</td>' +
-			'<td>' +
-			'<ul>' +
-			'<li>Flute : ' + arr_detail[4] + '</li>' +
-			'<li>Creasing : ' + arr_detail[5] + '</li>' +
-			'<li>Warna : ' + arr_detail[6] + '</li>' +
-			'</ul>' +
-			'</td>' +
-			'<tr>' +
-			'</table>'
-		);
 	}
 
 	var rowNum = 0;
 
 	function addRow() {
+
 		var b = $('#bucket').val();
 
 		if (b == -1) {
 			b = 0;
 			rowNum = 0;
 		}
-		var s = $('#qty' + b).val();
-		var ppn = $('#ppn' + b).val();
-		var price_inc = $('#price_inc' + b).val();
-		var price_exc = $('#price_exc' + b).val();
-		var ss = $('#id_produk' + b).val();
+		var s           = $('#qty' + b).val();
+		var ppn         = $('#ppn' + b).val();
+		var price_inc   = $('#price_inc' + b).val();
+		var price_exc   = $('#price_exc' + b).val();
+		var ss          = $('#id_produk' + b).val();
 
+		var idp         = $('#id_pelanggan').val();
+		setProduk(idp,rowNum);
 			
 		if (s != '0' && s != '' && ss != '' && ppn != '' && price_inc != '' && price_exc != '' && price_inc != '0' && price_exc != '0') {
 			$('#removeRow').show();
@@ -589,10 +648,10 @@
 				if ('<?= $this->session->userdata('level') ?>' != 'PPIC') {
 					td_harga = `
 						<td>
-						 <input type="text" name="price_inc[${rowNum}]" id="price_inc${rowNum}"  class="angka form-control" value="0" >' +
+						 <input type="text" name="price_inc[${rowNum}]" id="price_inc${rowNum}"  class="angka form-control" value="0" >
 						</td>
 						<td>
-						 <input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" value="0" >' +
+						 <input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" value="0" >
 						</td>
 					`
 				}
@@ -600,25 +659,21 @@
 
 				$('#table-produk').append(
 					'<tr id="itemRow' + rowNum + '">' +
-					'<td><a class="btn btn-danger"  id="btn-hapus-' + rowNum + '" onclick="removeRow(' + rowNum + ')"><i class="fa fa-trash"></i> </a></td>' +
+					'<td><a class="btn btn-danger"  id="btn-hapus-' + rowNum + '" onclick="removeRow(' + rowNum + ')"><i class="far fa-trash-alt" style="color:#fff"></i> </a></td>' +
 					'<td>' +
-					'<select class="form-control select2" name="id_produk[' + rowNum + ']" id="id_produk' + rowNum + '" style="width: 100%;" onchange="setDetailProduk(' + rowNum + ')">' +
-					'<option value="">Pilih</option>' +
-					'<?php foreach ($produk as $r) : ?>' +
-					'<option value="<?= $r->kode_mc ?>" detail="<?= $r->kode_mc . "|" . $r->nm_produk . "|" . $r->ukuran . "|" . $r->material . "|" . $r->flute . "|" . $r->creasing . "|" . $r->warna ?>"><?= $r->kode_mc ?></option>' +
-					'<?php endforeach ?>' +
-					'</select>' +
+						'<select class="form-control select2" name="id_produk[' + rowNum + ']" id="id_produk' + rowNum + '" style="width: 100%;" onchange="setDetailProduk(' + rowNum + ')">' +
+						'</select>' +
 					'</td>' +
 					'<td>' +
-					' <input type="text" name="qty[' + rowNum + ']" id="qty' + rowNum + '"  class="angka form-control" value="0" >' +
+						' <input type="text" name="qty[' + rowNum + ']" id="qty' + rowNum + '"  class="angka form-control" value="0" >' +
 					'</td>' +
 					'<td>' +
-					'<select class="form-control" name="ppn[' + rowNum + ']" id="ppn' + rowNum + '">' +
-					'<option value="">Pilih</option>' +
-					'<option value="KB">KB</option>' +
-					'<option value="PP">PP</option>' +
-					'<option value="NP">NP</option>' +
-					'</select>' +
+						'<select class="form-control select2" name="ppn[' + rowNum + ']" id="ppn' + rowNum + '">' +
+							'<option value="">Pilih</option>' +
+							// '<option value="KB">KB</option>' +
+							'<option value="PP">PP</option>' +
+							'<option value="NP">NP</option>' +
+						'</select>' +
 					'</td>' +
 					
 					td_harga
@@ -626,6 +681,10 @@
 					'<td id="txt_detail_produk' + rowNum + '">' +
 					'</td>' +
 					'</tr>)');
+				$('.select2').select2({
+					placeholder: '--- Pilih ---',
+					dropdownAutoWidth: true
+				});
 				$('#bucket').val(rowNum);
 				$('#qty' + rowNum).focus();
 			} else {
