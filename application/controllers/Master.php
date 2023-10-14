@@ -54,6 +54,46 @@ class Master extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function plhWilayah(){
+		$v_prov = $_POST["prov"];
+		$v_kab = $_POST["kab"];
+		$v_kec = $_POST["kec"];
+
+		if($v_prov == 0 && $v_kab == 0 && $v_kec == 0){
+			$prov = $this->db->query("SELECT*FROM m_provinsi")->result();
+			$kab = 0;
+			$kec = 0;
+			$kel = 0;
+		}else if($v_prov != 0 && $v_kab == 0 && $v_kec == 0){
+			$prov = $this->db->query("SELECT*FROM m_provinsi")->result();
+			$kab = $this->db->query("SELECT*FROM m_kab WHERE prov_id='$v_prov'")->result();
+			$kec = 0;
+			$kel = 0;
+		}else if($v_prov != 0 && $v_kab != 0 && $v_kec == 0){
+			$prov = $this->db->query("SELECT*FROM m_provinsi")->result();
+			$kab = $this->db->query("SELECT*FROM m_kab WHERE prov_id='$v_prov'")->result();
+			$kec = $this->db->query("SELECT*FROM m_kec WHERE kab_id='$v_kab'")->result();
+			$kel = 0;
+		}else if($v_prov != 0 && $v_kab != 0 && $v_kec != 0){
+			$prov = $this->db->query("SELECT*FROM m_provinsi")->result();
+			$kab = $this->db->query("SELECT*FROM m_kab WHERE prov_id='$v_prov'")->result();
+			$kec = $this->db->query("SELECT*FROM m_kec WHERE kab_id='$v_kab'")->result();
+			$kel = $this->db->query("SELECT*FROM m_kel WHERE kec_id='$v_kec'")->result();
+		}else{
+			$prov = 0;
+			$kab = 0;
+			$kec = 0;
+			$kel = 0;
+		}
+
+		echo json_encode(array(
+			'prov' => $prov,
+			'kab' => $kab,
+			'kec' => $kec,
+			'kel' => $kel,
+		));
+	}
+
 	function User()
 	{
 		$data = array(

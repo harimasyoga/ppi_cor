@@ -69,44 +69,83 @@
   				<form role="form" method="post" id="myForm">
 
   					<div class="form-group row">
-  						<label class="col-sm-2 col-form-label">ID Pelanggan</label>
+  						<label class="col-sm-2 col-form-label">ID PELANGGAN</label>
   						<div class="col-sm-10">
   							<input type="text" class="form-control" id="no_pelanggan" placeholder="Masukan.." maxlength="6">
   						</div>
   					</div>
   					<div class="form-group row">
-  						<label class="col-sm-2 col-form-label">Nama pelanggan</label>
+  						<label class="col-sm-2 col-form-label">NAMA PELANGGAN</label>
+  						<div class="col-sm-10">
+  							<input type="hidden" class="form-control" id="id_pelanggan">
+  							<input type="text" class="form-control" id="nm_pelanggan" placeholder="Masukan..">
+  						</div>
+  					</div>
+					  <div class="form-group row">
+  						<label class="col-sm-2 col-form-label">ATTN</label>
   						<div class="col-sm-10">
   							<input type="hidden" class="form-control" id="id_pelanggan">
   							<input type="text" class="form-control" id="nm_pelanggan" placeholder="Masukan..">
   						</div>
   					</div>
   					<div class="form-group row">
-  						<label class="col-sm-2 col-form-label">Alamat</label>
+  						<label class="col-sm-2 col-form-label">PROVINSI</label>
+  						<div class="col-sm-10">
+							<select class="form-control select2" id="provinsi"></select>
+							<input type="hidden" id="hide_prov_id">
+							<input type="hidden" id="hide_prov_nama">
+  						</div>
+  					</div>
+					<div class="form-group row">
+  						<label class="col-sm-2 col-form-label">KOTA / KABUPATEN</label>
+  						<div class="col-sm-10 kota_kab">
+							<select class="form-control select2" id="kota_kab"></select>
+							<input type="hidden" id="hide_kota_kab_id">
+							<input type="hidden" id="hide_kota_kab_nama">
+  						</div>
+  					</div>
+					<div class="form-group row">
+  						<label class="col-sm-2 col-form-label">KECAMATAN</label>
+  						<div class="col-sm-10">
+  							<!-- <input type="text" class="form-control" id="kecamatan" placeholder="Masukan.."> -->
+							<select class="form-control select2" id="kecamatan"></select>
+							<input type="hidden" id="hide_kec_id">
+							<input type="hidden" id="hide_kec_nama">
+  						</div>
+  					</div>
+					<div class="form-group row">
+  						<label class="col-sm-2 col-form-label">KELURAHAN</label>
+  						<div class="col-sm-10">
+  							<!-- <input type="text" class="form-control" id="kelurahan" placeholder="Masukan.."> -->
+							  <select class="form-control select2" id="kelurahan"></select>
+  						</div>
+  					</div>
+					<div class="form-group row">
+  						<label class="col-sm-2 col-form-label">DESA</label>
+  						<div class="col-sm-10">
+  							<input type="text" class="form-control" id="desa" placeholder="Masukan..">
+  						</div>
+  					</div>
+					<div class="form-group row">
+  						<label class="col-sm-2 col-form-label">KODE POS</label>
+  						<div class="col-sm-10">
+  							<input type="text" class="form-control" id="kode_pos" placeholder="Masukan..">
+  						</div>
+  					</div>
+					<div class="form-group row">
+  						<label class="col-sm-2 col-form-label">ALAMAT</label>
   						<div class="col-sm-10">
   							<textarea class="form-control" id="alamat" placeholder="Masukan.."></textarea>
   						</div>
   					</div>
   					<div class="form-group row">
-  						<label class="col-sm-2 col-form-label">Alamat Kirim</label>
+  						<label class="col-sm-2 col-form-label">ALAMAT KIRIM</label>
   						<div class="col-sm-10">
   							<textarea class="form-control" id="alamat_kirim" placeholder="Masukan.."></textarea>
   						</div>
   					</div>
   					<div class="form-group row">
-  						<label class="col-sm-2 col-form-label">Nama Gedung / Lokasi</label>
-  						<div class="col-sm-10">
-  							<input type="text" class="form-control" id="lokasi" placeholder="Masukan..">
-  						</div>
-  					</div>
-  					<div class="form-group row">
-  						<label class="col-sm-2 col-form-label">Kota</label>
-  						<div class="col-sm-10">
-  							<input type="text" class="form-control" id="kota" placeholder="Masukan..">
-  						</div>
-  					</div>
-  					<div class="form-group row">
-  						<label class="col-sm-2 col-form-label">No Telepon</label>
+  						<label class="col-sm-2 col-form-label">NO TELP. / NO. HP</label>
   						<div class="col-sm-10">
   							<input type="text" class="angka form-control" id="no_telp" placeholder="Masukan..">
   						</div>
@@ -138,7 +177,9 @@
   <script type="text/javascript">
   	rowNum = 0;
   	$(document).ready(function() {
-  		load_data();
+		$(".select2").select2();
+		load_data();
+		plhWilayah(0,0,0);
   	});
 
   	status = "insert";
@@ -149,27 +190,140 @@
   		status = "insert";
   	});
 
+	function plhWilayah(prov = 0, kab = 0, kec = 0) {
+		hide_prov_id = $('#hide_prov_id').val()
+		hide_prov_nama = $('#hide_prov_nama').val()
+		hide_kota_kab_id = $('#hide_kota_kab_id').val()
+		hide_kota_kab_nama = $('#hide_kota_kab_nama').val()
+		hide_kec_id = $('#hide_kec_id').val()
+		hide_kec_nama = $('#hide_kec_nama').val()
+		alert("prov: "+hide_prov_id+" - "+hide_prov_nama+". kab: "+hide_kota_kab_id+" - "+hide_kota_kab_nama+". kec: "+hide_kec_id+" - "+hide_kec_nama)
 
-  	/* $('.tambah_data').click(function() {
-  	      toastr.success('Berhasil');
-  	    });*/
+		if(prov == 0){
+			$("#kota_kab").val("").prop("disabled", true).html(`<option value="">PILIH</option>`);
+			$("#kecamatan").val("").prop("disabled", true).html(`<option value="">PILIH</option>`);
+			$("#kelurahan").val("").prop("disabled", true).html(`<option value="">PILIH</option>`);
+		}
+		if(kab == 0){
+			$("#kecamatan").val("").prop("disabled", true).html(`<option value="">PILIH</option>`);
+			$("#kelurahan").val("").prop("disabled", true).html(`<option value="">PILIH</option>`);
+		}
+		if(kec == 0){
+			$("#kelurahan").val("").prop("disabled", true).html(`<option value="">PILIH</option>`);
+		}
+
+		$.ajax({
+			url: '<?php echo base_url("/Master/plhWilayah")?>',
+			type: "POST",
+			data: ({
+				prov,kab,kec
+			}),
+			success: function(json){
+				data = JSON.parse(json)
+				console.log(data.prov)
+				console.log(data.kab)
+				console.log(data.kec)
+				console.log(data.kel)
+
+				// PROVINSI
+				let htmlProv = ''
+				if(prov == ""){
+					htmlProv += `<option value="">PILIH</option>`
+				}else{
+					htmlProv += `<option value="${hide_prov_id}" data-nama="${hide_prov_nama}">${hide_prov_nama}</option>`
+				}
+				data.prov.forEach(loadProv);
+				function loadProv(r, index) {
+					htmlProv += `<option value="${r.prov_id}" data-nama="${r.prov_name}">${r.prov_name}</option>`;
+				}
+				$("#provinsi").html(htmlProv)
+
+				// KABUPATEN
+				let htmlKab = ''
+				if(prov != 0 && kab == 0 && kec == 0){
+					if(kab == ""){
+						htmlKab += `<option value="">PILIH</option>`
+					}else{
+						htmlKab += `<option value="${hide_kota_kab_id}" data-nama="${hide_kota_kab_nama}">${hide_kota_kab_nama}</option>`
+					}
+					data.kab.forEach(loadKab);
+					function loadKab(r, index) {
+						htmlKab += `<option value="${r.kab_id}" data-nama="${r.kab_name}">${r.kab_name}</option>`;
+					}
+					$("#kota_kab").prop("disabled", false).html(htmlKab)
+				}
+
+				// KECAMATAN
+				let htmlKec = ''
+				if(prov != 0 && kab != 0 && kec == 0){
+					if(kec == ""){
+						htmlKec += `<option value="">PILIH</option>`
+					}else{
+						htmlKec += `<option value="${hide_kec_id}" data-nama="${hide_kec_nama}">${hide_kec_nama}</option>`
+					}
+					data.kec.forEach(loadKec);
+					function loadKec(r, index) {
+						htmlKec += `<option value="${r.kec_id}" data-nama="${r.kec_name}">${r.kec_name}</option>`;
+					}
+					$("#kecamatan").prop("disabled", false).html(htmlKec)
+				}
+
+				// KELURAHAN
+				// let htmlKec = ''
+				if(prov != 0 && kab != 0 && kec != 0){
+					alert('kel')
+					// if(kec == ""){
+					// 	htmlKec += `<option value="">PILIH</option>`
+					// }else{
+					// 	htmlKec += `<option value="${hide_kec_id}" data-nama="${hide_kec_nama}">${hide_kec_nama}</option>`
+					// }
+					// data.kec.forEach(loadKec);
+					// function loadKec(r, index) {
+					// 	htmlKec += `<option value="${r.kec_id}" data-nama="${r.kec_name}">${r.kec_name}</option>`;
+					// }
+					// $("#kelurahan").prop("disabled", false).html(htmlKec)
+				}
+			}
+		})
+	}
+
+	$('#provinsi').on('change', function() {
+		let prov = $('#provinsi option:selected').val();
+		let prov_name = $('#provinsi option:selected').attr('data-nama');
+		$('#hide_prov_id').val(prov)
+		$('#hide_prov_nama').val(prov_name)
+		plhWilayah(prov,0,0);
+	})
+
+	$('#kota_kab').on('change', function() {
+		let provinsi = $('#provinsi').val()
+		let kab = $('#kota_kab option:selected').val();
+		let kab_name = $('#kota_kab option:selected').attr('data-nama');
+		$('#hide_kota_kab_id').val(kab)
+		$('#hide_kota_kab_nama').val(kab_name)
+		plhWilayah(provinsi,kab,0);
+	})
+
+	$('#kecamatan').on('change', function() {
+		let provinsi = $('#provinsi').val()
+		let kab = $('#kota_kab').val()
+		let kec = $('#kecamatan option:selected').val();
+		let kec_name = $('#kecamatan option:selected').attr('data-nama');
+		$('#hide_kec_id').val(kec)
+		$('#hide_kec_nama').val(kec_name)
+		plhWilayah(provinsi,kab,kec);
+	})
 
   	function load_data() {
-
-
   		var table = $('#datatable').DataTable();
-
   		table.destroy();
-
   		tabel = $('#datatable').DataTable({
-
   			"processing": true,
   			"pageLength": true,
   			"paging": true,
   			"ajax": {
   				"url": '<?php echo base_url(); ?>Master/load_data/pelanggan',
   				"type": "POST",
-  				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}),
   			},
   			responsive: true,
   			"pageLength": 25,
@@ -177,7 +331,6 @@
   				"emptyTable": "Tidak ada data.."
   			}
   		});
-
   	}
 
   	function reloadTable() {
@@ -190,18 +343,23 @@
   		no_pelanggan = $("#no_pelanggan").val();
   		nm_pelanggan = $("#nm_pelanggan").val();
   		no_telp = $("#no_telp").val();
-  		kota = $("#kota").val();
+		provinsi = $("#provinsi").val();
+		kota_kab = $("#kota_kab").val();
+		kecamatan = $("#kecamatan").val();
+		kelurahan = $("#kelurahan").val();
+		desa = $("#desa").val();
+		kode_pos = $("#kode_pos").val();
+  		// kota = $("#kota").val();
   		fax = $("#fax").val();
   		top1 = $("#top").val();
   		alamat = $("textarea#alamat").val();
   		alamat_kirim = $("textarea#alamat_kirim").val();
-  		lokasi = $("#lokasi").val();
+  		// lokasi = $("#lokasi").val();
 
-  		if (no_pelanggan == '' || nm_pelanggan == '' || fax == '' || no_telp == '' || kota == '' || top1 == '' || alamat_kirim == '' || lokasi == '') {
+  		if (no_pelanggan == '' || nm_pelanggan == '' || fax == '' || no_telp == '' || top1 == '' || alamat == '' ||  alamat_kirim == '' || provinsi == '' || kota_kab == '' || kecamatan == '' || kelurahan == '' || desa == '' || kode_pos == '') {
   			toastr.info('Harap Lengkapi Form');
   			return;
   		}
-
 
   		$.ajax({
   			url: '<?php echo base_url(); ?>/master/insert/' + status,
@@ -212,10 +370,9 @@
   				nm_pelanggan,
   				no_telp,
   				alamat,
-  				kota,
+  				alamat_kirim,
   				fax,
   				top1,
-  				alamat_kirim,
   				lokasi,
   				jenis: 'm_pelanggan',
   				status: status
