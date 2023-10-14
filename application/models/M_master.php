@@ -91,12 +91,6 @@ class M_master extends CI_Model{
 	
     
     function m_pelanggan($table,$status){
-        
-        // if ($status == 'insert') {
-        //     $id = "CS".$this->get_data_max($table,"id_pelanggan");
-        // }else{
-            // $id = $this->input->post('id_pelanggan');
-        // }
 		$id = $this->input->post('no_pelanggan');
 
         $data = array(
@@ -112,7 +106,6 @@ class M_master extends CI_Model{
             );
 
         if ($status == 'insert') {
-
             $this->db->set("add_user", $this->username);
             $result= $this->db->insert($table,$data);
         }else{
@@ -120,8 +113,7 @@ class M_master extends CI_Model{
             $this->db->set("edit_time", date('Y-m-d H:i:s'));
             $result= $this->db->update($table,$data,array('id_pelanggan' => $id));
         }
-        
-
+		
         return $result;
     }
     
@@ -191,6 +183,8 @@ class M_master extends CI_Model{
                 'l_lebar' => $this->input->post('l_lebar'),
                 'l_tinggi' => $this->input->post('l_tinggi'),
                 'creasing' => $this->input->post('creasing'),
+                'creasing2' => $this->input->post('creasing2'),
+                'creasing3' => $this->input->post('creasing3'),
                 'flute' => $this->input->post('flute'),
                 'berat_bersih' => $this->input->post('berat_bersih'),
                 'luas_bersih' => $this->input->post('luas_bersih'),
