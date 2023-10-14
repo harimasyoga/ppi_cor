@@ -28,6 +28,38 @@ class Transaksi extends CI_Controller
 		$this->load->view('Transaksi/v_po', $data);
 		$this->load->view('footer');
 	}
+    
+    function load_produk(){
+        
+		$pl = $this->input->post('idp');
+		$kd = $this->input->post('kd');
+
+        if($pl !='' && $kd ==''){
+            $cek ="where no_customer = '$pl' ";
+        }else if($pl =='' && $kd !=''){
+            $cek ="where kode_mc = '$kd' ";
+        }else {
+            $cek ="";
+        }
+
+        $query = $this->db->query("SELECT * FROM m_produk $cek order by id ")->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
 
 	public function SO()
 	{
