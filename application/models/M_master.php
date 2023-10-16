@@ -91,27 +91,29 @@ class M_master extends CI_Model{
 	
     
     function m_pelanggan($table,$status){
-		$id = $this->input->post('no_pelanggan');
-
-        $data = array(
-                'id_pelanggan'  => $id,
-                'nm_pelanggan'  => $this->input->post('nm_pelanggan'),
-                'alamat'  => $this->input->post('alamat'),
-                'no_telp'  => $this->input->post('no_telp'),
-                'alamat_kirim'  => $this->input->post('alamat_kirim'),
-                'lokasi'  => $this->input->post('lokasi'),
-                'kota'  => $this->input->post('kota'),
-                'fax'  => $this->input->post('fax'),
-                'top'  => $this->input->post('top1')
-            );
+		$data = array(
+			'nm_pelanggan' => $_POST["nm_pelanggan"],
+			'attn' => $_POST["attn"],
+			'alamat' => $_POST["alamat"],
+			'alamat_kirim' => $_POST["alamat_kirim"],
+			'prov' => ($_POST["provinsi"] == 0 || $_POST["provinsi"] == null || $_POST["provinsi"] == "") ? null : $_POST["provinsi"],
+			'kab' => ($_POST["kota_kab"] == 0 || $_POST["kota_kab"] == null || $_POST["kota_kab"] == "") ? null : $_POST["kota_kab"],
+			'kec' => ($_POST["kecamatan"] == 0 || $_POST["kecamatan"] == null || $_POST["kecamatan"] == "") ? null : $_POST["kecamatan"],
+			'kel' => ($_POST["kelurahan"] == 0 || $_POST["kelurahan"] == null || $_POST["kelurahan"] == "") ? null : $_POST["kelurahan"],
+			'kode_pos' => $_POST["kode_pos"],
+			'fax' => $_POST["fax"],
+			'top' => $_POST["top1"],
+			'no_telp' => $_POST["no_telp"],
+		);
 
         if ($status == 'insert') {
             $this->db->set("add_user", $this->username);
-            $result= $this->db->insert($table,$data);
+            $result= $this->db->insert($table, $data);
         }else{
             $this->db->set("edit_user", $this->username);
             $this->db->set("edit_time", date('Y-m-d H:i:s'));
-            $result= $this->db->update($table,$data,array('id_pelanggan' => $id));
+            $this->db->where("id_pelanggan", $_POST["id_pelanggan"]);
+            $result= $this->db->update($table, $data);
         }
 		
         return $result;
@@ -254,7 +256,21 @@ class M_master extends CI_Model{
 
     }
 
+	function m_sales($jenis, $status){
+		$data = array(
+			'nm_sales' => $_POST["nm_sales"],
+			'no_sales' => $_POST["no_hp"],
+		);
 
+		if($status == "insert"){
+			$result = $this->db->insert($jenis, $data);
+		}else{
+			$this->db->where("id_sales", $_POST["id_sales"]);
+			$result = $this->db->update($jenis, $data);
+		}
+
+		return $result;
+	}
 
 }
 

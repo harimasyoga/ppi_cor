@@ -54,6 +54,13 @@ class Master extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function Sales()
+	{
+		$this->load->view('header');
+		$this->load->view('Master/v_sales');
+		$this->load->view('footer');
+	}
+
 	function plhWilayah(){
 		$v_prov = $_POST["prov"];
 		$v_kab = $_POST["kab"];
@@ -119,25 +126,11 @@ class Master extends CI_Controller
 
 	function Insert()
 	{
-
-		$jenis      = $this->input->post('jenis');
-		$status      = $this->input->post('status');
-		// m_pelanggan
-		if($jenis == 'm_pelanggan'){
-			$cekid = $this->input->post('no_pelanggan');
-			$cek = $this->m_master->get_data_one("m_pelanggan","id_pelanggan",$cekid)->num_rows();
-			if ($cek > 0 ) {
-				echo json_encode(array('data' => false));
-			}else{
-				$result = $this->m_master->$jenis($jenis, $status);
-				echo json_encode(array('data' => true));
-			}
-		}else{
-			$result = $this->m_master->$jenis($jenis, $status);
-			echo json_encode($result);
-		}
-
-		// echo json_encode($result);
+		$jenis = $this->input->post('jenis');
+		$status = $this->input->post('status');
+		
+		$result = $this->m_master->$jenis($jenis, $status);
+		echo json_encode($result);
 	}
 
 	function load_data()
@@ -147,50 +140,66 @@ class Master extends CI_Controller
 		$data = array();
 
 		if ($jenis == "pelanggan") {
-			$query = $this->m_master->query("SELECT * FROM m_pelanggan order by id_pelanggan")->result();
+			$query = $this->m_master->query("SELECT prov.prov_name,kab.kab_name,kec.kec_name,kel.kel_name,pel.* FROM m_pelanggan pel
+			LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
+			LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
+			LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
+			LEFT JOIN m_kel kel ON pel.kel=kel.kel_id ORDER BY pel.nm_pelanggan")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
-
-				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id_pelanggan . "'" . ',' . "'detail'" . ')">' . $r->id_pelanggan . "<a>";
+				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_pelanggan."'".','."'detail'".')">'.$i."<a>";
 				$row[] = $r->nm_pelanggan;
-				$row[] = $r->alamat;
-				$row[] = $r->kota;
-				$row[] = $r->no_telp;
-				$row[] = $r->fax;
-				$row[] = $aksi = '<button type="button" onclick="tampil_edit(' . "'" . $r->id_pelanggan . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-xs">
-                               Edit
-                            </button>
-                            <button type="button" onclick="deleteData(' . "'" . $r->id_pelanggan . "'" . ')" class="btn btn-danger btn-xs">
-                               Hapus
-                            </button> ';
+				$row[] = $r->alamat_kirim;
+				$row[] = ($r->prov_name == "" || $r->prov_name == null) ? '-' : $r->prov_name;
+				$row[] = ($r->kab_name == "" || $r->kab_name == null) ? '-' : $r->kab_name;
+				$row[] = ($r->kec_name == "" || $r->kec_name == null) ? '-' : $r->kec_name;
+				$row[] = ($r->kel_name == "" || $r->kel_name == null) ? '-' : $r->kel_name;
 
+				$idPelanggan = $r->id_pelanggan;
+				$cekProduk = $this->db->query("SELECT * FROM m_produk WHERE no_customer='$idPelanggan'")->num_rows();
+				$btnEdit = '<button type="button" onclick="tampil_edit('."'".$r->id_pelanggan."'".','."'edit'".')" class="btn btn-warning btn-xs">Edit</button>';
+				$btnHapus = '<button type="button" onclick="deleteData('."'".$r->id_pelanggan."'".')" class="btn btn-danger btn-xs">Hapus</button>';
+				$row[] = ($cekProduk == 0) ? $btnEdit.' '.$btnHapus : $btnEdit ;
 				$data[] = $row;
-
 				$i++;
 			}
 		} else if ($jenis == "produk") {
-			$query = $this->m_master->query("SELECT * FROM m_produk order by id")->result();
+			$query = $this->m_master->query("SELECT * FROM m_produk ORDER BY nm_produk")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
-
-				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')">' . $r->kode_mc . "<a>";
+				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_produk."'".','."'detail'".')">'.$i."<a>";
 				$row[] = $r->nm_produk;
 				$row[] = $r->ukuran;
-				$row[] = $r->material;
+				$row[] = $r->ukuran_sheet;
+				$row[] = $r->kualitas;
 				$row[] = $r->flute;
-				$row[] = $r->creasing;
-				$row[] = $r->warna;
-				$row[] = $aksi = '<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-xs">
-					Edit
-				</button>
-				<button type="button" onclick="deleteData(' . "'" . $r->id . "'" . ')" class="btn btn-danger btn-xs">
-					Hapus
-				</button> ';
+				$row[] = $r->berat_bersih;
 
+				$kodeMc = $r->kode_mc;
+				$cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE kode_mc='$kodeMc'")->num_rows();
+				$btnEdit = '<button type="button" onclick="tampil_edit('."'".$r->id_produk."'".','."'edit'".')" class="btn btn-warning btn-xs">Edit</button>';
+				$btnHapus = '<button type="button" onclick="deleteData('."'".$r->id_produk."'".')" class="btn btn-danger btn-xs">Hapus</button>';
+				$row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit ;
 				$data[] = $row;
+				$i++;
+			}
+		} else if ($jenis == "sales") {
+			$query = $this->m_master->query("SELECT * FROM m_sales ORDER BY nm_sales")->result();
+			$i = 1;
+			foreach ($query as $r) {
+				$row = array();
+				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_sales."'".','."'detail'".')">'.$i."<a>";
+				$row[] = $r->nm_sales;
+				$row[] = $r->no_sales;
 
+				// $cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE kode_mc='$kodeMc'")->num_rows();
+				$cekPO = 0;	
+				$btnEdit = '<button type="button" onclick="tampil_edit('."'".$r->id_sales."'".','."'edit'".')" class="btn btn-warning btn-xs">Edit</button>';
+				$btnHapus = '<button type="button" onclick="deleteData('."'".$r->id_sales."'".')" class="btn btn-danger btn-xs">Hapus</button>';
+				$row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit ;
+				$data[] = $row;
 				$i++;
 			}
 		} else if ($jenis == "user") {
@@ -252,5 +261,59 @@ class Master extends CI_Controller
 
 		$data =  $this->m_master->get_data_one($jenis, $field, $id)->row();
 		echo json_encode($data);
+	}
+
+	function getPlhCustomer()
+	{
+		$data = $this->db->query("SELECT prov.prov_name,kab.kab_name,kec.kec_name,kel.kel_name,pel.* FROM m_pelanggan pel
+		LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
+		LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
+		LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
+		LEFT JOIN m_kel kel ON pel.kel=kel.kel_id ORDER BY nm_pelanggan")->result();
+		echo json_encode($data);
+	}
+
+	function getEditProduk()
+	{
+		$id = $_POST["id"];
+		$data = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$id'")->row();
+		$pelanggan = $this->db->query("SELECT*FROM m_pelanggan pel
+		LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
+		LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
+		LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
+		LEFT JOIN m_kel kel ON pel.kel=kel.kel_id
+		ORDER BY id_pelanggan")->result();
+		$id_pelanggan = $data->no_customer;
+		$wilayah = $this->db->query("SELECT prov.prov_name,kab.kab_name,kec.kec_name,kel.kel_name,pel.* FROM m_pelanggan pel
+		LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
+		LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
+		LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
+		LEFT JOIN m_kel kel ON pel.kel=kel.kel_id
+		WHERE pel.id_pelanggan='$id_pelanggan'")->row();
+		$po = $this->db->query("SELECT*FROM trs_po WHERE id_pelanggan='$id_pelanggan'")->row();
+		echo json_encode(array(
+			'produk' => $data,
+			'pelanggan' => $pelanggan,
+			'wilayah' => $wilayah,
+			'po' => $po,
+		));
+	}
+
+	function getEditPelanggan()
+	{
+		$id = $_POST["id"];
+		$data =  $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id'")->row();
+		$prov = $this->db->query("SELECT*FROM m_provinsi")->result();
+		$wilayah = $this->db->query("SELECT prov.prov_name,kab.kab_name,kec.kec_name,kel.kel_name,pel.* FROM m_pelanggan pel
+		LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
+		LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
+		LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
+		LEFT JOIN m_kel kel ON pel.kel=kel.kel_id
+		WHERE pel.id_pelanggan='$id'")->row();
+		echo json_encode(array(
+			'pelanggan' => $data,
+			'prov' => $prov,
+			'wilayah' => $wilayah,
+		));
 	}
 }

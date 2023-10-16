@@ -128,15 +128,21 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 
 								<?php if ($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'Marketing') : ?>
 									<li class="nav-item">
-										<a href="<?= base_url('Master/Produk') ?>" class="nav-link">
+										<a href="<?= base_url('Master/Sales') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>Produk</p>
+											<p>Sales</p>
 										</a>
 									</li>
 									<li class="nav-item">
 										<a href="<?= base_url('Master/Pelanggan') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>Pelanggan</p>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="<?= base_url('Master/Produk') ?>" class="nav-link">
+											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
+											<p>Produk</p>
 										</a>
 									</li>
 								<?php endif ?>
