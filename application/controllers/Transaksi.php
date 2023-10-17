@@ -12,15 +12,15 @@ class Transaksi extends CI_Controller
 		}
 		$this->load->model('m_master');
 		$this->load->model('m_transaksi');
-		$this->load->model('m_fungsi');
 	}
 
 	public function PO()
 	{
 		$data = array(
 			'judul' => "Purchase Order",
-			'produk' => $this->db->query("SELECT * FROM m_produk order by id")->result(),
-			'pelanggan' => $this->db->query("SELECT * FROM m_pelanggan order by id_pelanggan")->result(),
+			'produk' => $this->db->query("SELECT * FROM m_produk order by id_produk")->result(),
+			'sales' => $this->db->query("SELECT * FROM m_sales order by id_sales")->result(),
+			'pelanggan' => $this->db->query("SELECT * FROM m_pelanggan a left join m_kab b on a.kab=b.kab_id order by id_pelanggan")->result(),
 			'level' => $this->session->userdata('level'). "aa"
 		);
 
@@ -42,7 +42,7 @@ class Transaksi extends CI_Controller
             $cek ="";
         }
 
-        $query = $this->db->query("SELECT * FROM m_produk $cek order by id ")->result();
+        $query = $this->db->query("SELECT * FROM m_produk $cek order by id_produk ")->result();
 
             if (!$query) {
                 $response = [
@@ -124,8 +124,9 @@ class Transaksi extends CI_Controller
 		$fieald = $this->input->post('fieald');
 
 		$data = [
-			'no' => $this->m_master->get_data_max($table, $fieald),
-			'tahun' => date('Y-m')
+			'no'       => $this->m_master->get_data_max($table, $fieald),
+			'bln'      => $this->m_master->get_romawi(date('m')),
+			'tahun'    => date('Y')
 		];
 		echo json_encode($data);
 	}
@@ -133,42 +134,76 @@ class Transaksi extends CI_Controller
 	function Insert()
 	{
 
-		$jenis      = $this->input->post('jenis');
-		$status      = $this->input->post('status');
+		$jenis    = $this->input->post('jenis');
+		$status   = $this->input->post('status');
 
-		$result     = $this->m_transaksi->$jenis($jenis, $status);
-
-
+		$result   = $this->m_transaksi->$jenis($jenis, $status);
 		echo json_encode($result);
 	}
 
 	function load_data()
 	{
-		$jenis = $this->uri->segment(3);
-
-		$data = array();
+		$jenis        = $this->uri->segment(3);
+		$data         = array();
 
 		if ($jenis == "po") {
-			$query = $this->m_master->query("SELECT * FROM trs_po order by id")->result();
+			$query = $this->m_master->query("SELECT * FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan order by id")->result();
 			$i = 1;
 			foreach ($query as $r) {
-				$row = array();
+				$row    = array();
+                $time   = substr($r->add_time, 0,10);
+
+                if($r->status_app1=='N')
+                {
+                    $btn1   = 'btn-warning';
+                    $i1     = '<i class="fas fa-lock"></i> &nbsp;';
+                }else{
+                    $btn1   = 'btn-success';
+                    $i1     = '<i class="fas fa-check-circle"></i> &nbsp;';
+                }
+                
+                if($r->status_app2=='N')
+                {
+                    $btn2   = 'btn-warning';
+                    $i2     = '<i class="fas fa-lock"></i> &nbsp;';
+                }else{
+                    $btn2   = 'btn-success';
+                    $i2     = '<i class="fas fa-check-circle"></i> &nbsp;';
+                }
+                
+                if($r->status_app3=='N')
+                {
+                    $btn3   = 'btn-warning';
+                    $i3     = '<i class="fas fa-lock"></i> &nbsp;';
+                }else{
+                    $btn3   = 'btn-success';
+                    $i3     = '<i class="fas fa-check-circle"></i> &nbsp;';
+                }
+                
+                if($r->status == 'Open')
+                {
+                    $btn_s   = 'btn-info';
+                }else{
+                    $btn_s   = 'btn-danger';
+                }
 
 				$row[] = $i;
 				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')">' . $r->no_po . "<a>";
-				$row[] = $r->add_time;
-				$row[] = $r->status;
+				$row[] = $this->m_fungsi->tanggal_format_indonesia($time);
+				$row[] = '<button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status.'</button>';
 				$row[] = $r->kode_po;
 				$row[] = $r->total_qty;
-				$row[] = $r->id_pelanggan;
 				$row[] = $r->nm_pelanggan;
+                
 				$row[] = '
-					<button type="button" class="btn btn-sm btn-default">Marketing ('.$r->status_app1.') = '.$r->time_app1.'</button>
-					<button type="button" class="btn btn-sm btn-default">PPIC ('.$r->status_app2.') = '.$r->time_app2.'</button>
-					<button type="button" class="btn btn-sm btn-default">Owner ('.$r->status_app3.') = '.$r->time_app3.'</button>
+					<button type="button" class="btn btn-sm '.$btn1.' ">'.$i1.'M - '.$r->time_app1.'</button>  <br>
+					<button type="button" class="btn btn-sm '.$btn2.' ">'.$i2.'P - '.$r->time_app2.'</button>  <br>
+					<button type="button" class="btn btn-sm '.$btn3.' ">'.$i3.'O - '.$r->time_app3.'</button>
 				';
 
-				$aksi = '-';
+				// $aksi = '-';
+                $aksi = '<div class="text-center">
+					<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a></div>';
 
 				if (!in_array($this->session->userdata('level'), ['Admin','Marketing','PPIC','Owner'])){
 
@@ -368,9 +403,11 @@ class Transaksi extends CI_Controller
 		if ($jenis == "trs_po") {
 			$header =  $this->m_master->get_data_one($jenis, $field, $id)->row();
 			// $data = $this->m_master->get_data_one("trs_po_detail", "no_po", $header->no_po)->result();
-			$data = $this->db->query("
-					SELECT * FROM trs_po a JOIN trs_po_detail b 
-					ON a.no_po = b.no_po
+			$data = $this->db->query("SELECT * FROM trs_po a 
+                    JOIN trs_po_detail b ON a.no_po = b.no_po
+                    JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+                    LEFT JOIN m_kab d ON c.kab=d.kab_id
+                    LEFT JOIN m_produk e ON b.kode_mc=e.kode_mc
 					WHERE a.no_po = '".$header->no_po."'
 				")->result();
 
@@ -455,25 +492,28 @@ class Transaksi extends CI_Controller
 	{
 		$id  = $_GET['no_po'];
 
-		$query = $this->m_master->get_data_one("trs_po_detail", "no_po", $id);
+		// $query = $this->m_master->get_data_one("trs_po_detail", "no_po", $id);
+        $query = $this->db->query("SELECT * FROM trs_po a 
+        JOIN trs_po_detail b ON a.no_po = b.no_po
+        JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+        LEFT JOIN m_kab d ON c.kab=d.kab_id
+        LEFT JOIN m_produk e ON b.kode_mc=e.kode_mc
+        WHERE a.no_po = '$id' ");
 
 		$html = '';
 
 
 		if ($query->num_rows() > 0) {
-
 			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:14px;font-family: ;">
                         <tr style="font-weight: bold;">
                             <td colspan="15" align="center">
-                              <h3> PURCHASE ORDER </h3>
-                              <br>
-                              ' . $id . '
+                            ( No. ' . $id . ' )
                             </td>
                         </tr>
                  </table><br>';
 
 			$html .= '<table width="100%" border="1" cellspacing="0" style="font-size:12px;font-family: ;">
-                        <tr >
+                        <tr style="background-color: #cccccc">
                             <th align="center">No</th>
                             <th align="center">Sheet Ukuran <br> (mm)</th>
                             <th align="center">Creasing <br> (mm)</th>
@@ -503,7 +543,7 @@ class Transaksi extends CI_Controller
 				$tot_total += $total;
 			}
 			$html .= '
-                            <tr style="background-color: #959a9a">
+                            <tr style="background-color: #cccccc">
                                 <td align="center" colspan="6">Total</td>
                                 <td align="right" >' . number_format($tot_total, 0, ",", ".") . '</td>
                             </tr>';
@@ -513,7 +553,8 @@ class Transaksi extends CI_Controller
 			$html .= '<h1> Data Kosong </h1>';
 		}
 
-		$this->m_fungsi->_mpdf($html);
+		// $this->m_fungsi->_mpdf($html);
+		$this->m_fungsi->template_kop('PURCHASE ORDER',$html,'L','1');
 		// $this->m_fungsi->mPDFP($html);
 	}
 
