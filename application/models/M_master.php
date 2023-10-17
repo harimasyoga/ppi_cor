@@ -152,60 +152,44 @@ class M_master extends CI_Model{
     }
     
     function m_produk($table,$status){
-        $id = $this->input->post('id');
-        $kode_mc = $this->input->post('kode_mc');
-        $kode_mc_lama = $this->input->post('kode_mc_lama');
-        
-        $cek = $this->db->query("SELECT Kode_mc FROM m_produk WHERE Kode_mc = '".$kode_mc."' ")->num_rows();
-
-        if ($status == 'insert') {
-            if ($cek > 0 ) {
-                return false;
-            }
-        }else{
-            if (($kode_mc != $kode_mc_lama) and $cek > 0) {
-                return false;
-            }
-        }
-
         $data = array(
-                'kode_mc'  => $kode_mc,
-                'nm_produk'  => $this->input->post('nm_produk'),
-                'no_customer' => $this->input->post('no_customer'),
-                'customer' => $this->input->post('customer'),
-                'ukuran' => $this->input->post('ukuran'),
-                'ukuran_sheet' => $this->input->post('ukuran_sheet'),
-                'ukuran_sheet_p' => $this->input->post('ukuran_sheet_p'),
-                'ukuran_sheet_l' => $this->input->post('ukuran_sheet_l'),
-                'sambungan' => $this->input->post('sambungan'),
-                'tipe' => $this->input->post('tipe'),
-                'material' => $this->input->post('material'),
-                'wall' => $this->input->post('wall'),
-                'l_panjang' => $this->input->post('l_panjang'),
-                'l_lebar' => $this->input->post('l_lebar'),
-                'l_tinggi' => $this->input->post('l_tinggi'),
-                'creasing' => $this->input->post('creasing'),
-                'creasing2' => $this->input->post('creasing2'),
-                'creasing3' => $this->input->post('creasing3'),
-                'flute' => $this->input->post('flute'),
-                'berat_bersih' => $this->input->post('berat_bersih'),
-                'luas_bersih' => $this->input->post('luas_bersih'),
-                'kualitas' => $this->input->post('kualitas'),
-                'warna' => $this->input->post('warna'),
-                'no_design' => $this->input->post('no_design'),
-                'design' => $this->input->post('design'),
-                'tipe_box' => $this->input->post('tipe_box'),
-                'jenis_produk' => $this->input->post('jenis_produk'),
-                'kategori' => $this->input->post('kategori'),
-                'COA' => $this->input->post('COA'),
-                'jml_ikat' => $this->input->post('jml_ikat'),
-                'jml_palet' => $this->input->post('jml_palet'),
-                'jml_paku' => $this->input->post('jml_paku'),
-                'no_pisau' => $this->input->post('no_pisau'),
-                'no_karet' => $this->input->post('no_karet'),
-                'toleransi_kirim' => $this->input->post('toleransi_kirim'),
-                'spesial_req' => $this->input->post('spesial_req')
-            );
+			'kode_mc'  => $this->input->post('kode_mc'),
+			'nm_produk'  => $this->input->post('nm_produk'),
+			'no_customer' => $this->input->post('no_customer'),
+			'customer' => $this->input->post('customer'),
+			'ukuran' => $this->input->post('ukuran'),
+			'ukuran_sheet' => $this->input->post('ukuran_sheet'),
+			'ukuran_sheet_p' => $this->input->post('ukuran_sheet_p'),
+			'ukuran_sheet_l' => $this->input->post('ukuran_sheet_l'),
+			'sambungan' => $this->input->post('sambungan'),
+			'tipe' => $this->input->post('tipe'),
+			'material' => $this->input->post('material'),
+			'wall' => $this->input->post('wall'),
+			'l_panjang' => $this->input->post('l_panjang'),
+			'l_lebar' => $this->input->post('l_lebar'),
+			'l_tinggi' => $this->input->post('l_tinggi'),
+			'creasing' => $this->input->post('creasing'),
+			'creasing2' => $this->input->post('creasing2'),
+			'creasing3' => $this->input->post('creasing3'),
+			'flute' => $this->input->post('flute'),
+			'berat_bersih' => $this->input->post('berat_bersih'),
+			'luas_bersih' => $this->input->post('luas_bersih'),
+			'kualitas' => $this->input->post('kualitas'),
+			'warna' => $this->input->post('warna'),
+			'no_design' => $this->input->post('no_design'),
+			'design' => $this->input->post('design'),
+			'tipe_box' => $this->input->post('tipe_box'),
+			'jenis_produk' => $this->input->post('jenis_produk'),
+			'kategori' => $this->input->post('kategori'),
+			'COA' => $this->input->post('COA'),
+			'jml_ikat' => $this->input->post('jml_ikat'),
+			'jml_palet' => $this->input->post('jml_palet'),
+			'jml_paku' => $this->input->post('jml_paku'),
+			'no_pisau' => $this->input->post('no_pisau'),
+			'no_karet' => $this->input->post('no_karet'),
+			'toleransi_kirim' => $this->input->post('toleransi_kirim'),
+			'spesial_req' => $this->input->post('spesial_req')
+		);
 
         if ($status == 'insert') {
             $this->db->set("add_user", $this->username);
@@ -213,7 +197,8 @@ class M_master extends CI_Model{
         }else{
             $this->db->set("edit_user", $this->username);
             $this->db->set("edit_time", date('Y-m-d H:i:s'));
-            $result= $this->db->update($table,$data,array('id' => $id));
+            $this->db->where("id_produk", $this->input->post('id'));
+            $result= $this->db->update($table, $data);
         }
 
         return $result;
