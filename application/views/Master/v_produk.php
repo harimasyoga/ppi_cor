@@ -35,14 +35,14 @@
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead>
 						<tr>
-							<th style="width:12%">Kode MC</th>
-							<th style="width:16%">Nama Produk</th>
-							<th style="width:12%">Ukuran Box</th>
-							<th style="width:12%">Material</th>
-							<th style="width:12%">Flute</th>
-							<th style="width:12%">Creasing</th>
-							<th style="width:12%">Warna</th>
-							<th style="width:12%">Aksi</th>
+							<th style="width:5%">NO.</th>
+							<th style="width:23%">NAMA</th>
+							<th style="width:14%">BOX</th>
+							<th style="width:14%">SHEET</th>
+							<th style="width:14%">KUALITAS</th>
+							<th style="width:10%">FLUTE</th>
+							<th style="width:10%">BB</th>
+							<th style="width:10%">AKSI</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -81,32 +81,57 @@
 							<td style="width:10%;border:0;padding:0"></td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0">KODE MC</td>
-							<td colspan="3">
+							<td style="padding:5px 0;font-weight:bold">CUSTOMER</td>
+							<td style="padding:5px 0" colspan="9">
+								<select class="form-control select2" id="no_customer"></select>
+							</td>
+						</tr>
+						<tr>
+							<td style="padding:5px 0;font-weight:bold">ATTN</td>
+							<td style="padding:5px 0" colspan="4" id="attn"></td>
+							<td style="padding:5px 0;font-weight:bold">PROVINSI</td>
+							<td style="padding:5px 0" colspan="4" id="provinsi"></td>
+						</tr>
+						<tr>
+							<td style="padding:5px 0;font-weight:bold">ALAMAT</td>
+							<td style="padding:5px 5px 5px 0;vertical-align:top" colspan="4" rowspan="4" id="alamat"></td>
+							<td style="padding:5px 0;font-weight:bold">KABUPATEN</td>
+							<td style="padding:5px 0" colspan="4" id="kabupaten">
+							</td>
+						</tr>
+						<tr>
+							<td style="padding:5px 0"></td>
+							<td style="padding:5px 0;font-weight:bold">KECAMATAN</td>
+							<td style="padding:5px 0" colspan="4" id="kecamatan">
+							</td>
+						</tr>
+						<tr>
+							<td style="padding:5px 0"></td>
+							<td style="padding:5px 0;font-weight:bold">KELURAHAN</td>
+							<td style="padding:5px 0" colspan="4" id="kelurahan">
+							</td>
+						</tr>
+						<tr>
+							<td style="padding:5px 0"></td>
+							<td style="padding:5px 0;color:#fff" colspan="5">-</td>
+						</tr>
+						<tr>
+							<td style="padding:5px 0;font-weight:bold">NAMA PRODUK</td>
+							<td style="padding:5px 0" colspan="7">
+								<input type="text" class="form-control" id="nm_produk" placeholder="NAMA PRODUK" autocomplete="off">
+							</td>
+						</tr>
+						<tr>
+							<td style="padding:5px 0;font-weight:bold">KODE MC</td>
+							<td style="padding:5px 0" colspan="7">
+								<input type="hidden" class="form-control" id="customer">
 								<input type="hidden" class="form-control" id="id">
 								<input type="hidden" class="form-control" id="kode_mc_lama">
 								<input type="text" class="form-control" id="kode_mc" placeholder="KODE MC" autocomplete="off">
 							</td>
-							<td></td>
-							<td style="padding:5px 0">NAMA PRODUK</td>
-							<td style="padding:5px 0" colspan="3"><input type="text" class="form-control" id="nm_produk" placeholder="NAMA PRODUK" autocomplete="off"></td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0">NO CUSTOMER</td>
-							<td style="padding:5px 0" colspan="3">
-								<select class="form-control select2" id="no_customer">
-									<option value="">PILIH</option>
-									<?php foreach ($pelanggan as $r) : ?>
-										<option value="<?= $r->id_pelanggan ?>" data-detail="<?= $r->nm_pelanggan?>"><?= $r->id_pelanggan . ' | ' . $r->nm_pelanggan ?></option>
-									<?php endforeach ?>
-								</select>
-							</td>
-							<td></td>
-							<td style="padding:5px 0">CUSTOMER</td>
-							<td style="padding:5px 0" colspan="3"><input type="text" class="form-control" id="customer" placeholder="" disabled></td>
-						</tr>
-						<tr>
-							<td style="padding:5px 0">KATEGORI</td>
+							<td style="padding:5px 0;font-weight:bold">KATEGORI</td>
 							<td style="padding:5px 0" colspan="3">
 								<select class="form-control" id="kategori">
 									<option value="">PILIH</option>
@@ -115,25 +140,25 @@
 								</select>
 							</td>
 							<td></td>
-							<td style="padding:5px 0">TYPE</td>
+							<td style="padding:5px 0;font-weight:bold">TYPE</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="tipe" placeholder="-" disabled></td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0">P / L / T</td>
+							<td style="padding:5px 0;font-weight:bold">P / L / T</td>
 							<td style="padding:5px 2px 5px 0"><input type="text" class="form-control" id="l_panjang" placeholder="P" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="berhitung()"></td>
 							<td style="padding:5px 2px"><input type="text" class="form-control" id="l_lebar" placeholder="L" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="berhitung()"></td>
 							<td style="padding:5px 0 5px 2px"><input type="text" class="form-control" id="l_tinggi" placeholder="T" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="berhitung()"></td>
 							<td></td>
-							<td style="padding:5px 0">UKURAN BOX</td>
+							<td style="padding:5px 0;font-weight:bold">UKURAN BOX</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="ukuran" placeholder="-" autocomplete="off" disabled></td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0">CREASING</td>
+							<td style="padding:5px 0;font-weight:bold">CREASING</td>
 							<td style="padding:5px 2px 5px 0"><input type="text" class="form-control" id="creasing" placeholder="1" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off"></td>
 							<td style="padding:5px 2px"><input type="text" class="form-control" id="creasing2" placeholder="2" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off"></td>
 							<td style="padding:5px 0 5px 2px"><input type="text" class="form-control" id="creasing3" placeholder="3" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off"></td>
 							<td></td>
-							<td style="padding:5px 0">UKURAN SHEET</td>
+							<td style="padding:5px 0;font-weight:bold">UKURAN SHEET</td>
 							<td style="padding:5px 5px 5px 0">
 								<input type="number" class="form-control" placeholder="PANJANG" name="ukuran_sheet_p" id="ukuran_sheet_p" disabled>
 							</td>
@@ -143,11 +168,11 @@
 							</td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0">FLUTE</td>
+							<td style="padding:5px 0;font-weight:bold">FLUTE</td>
 							<td style="padding:5px 0">
 								<select class="form-control" id="flute">
 									<option value="">PILIH</option>
-									<option value="CB">CB</option>
+									<option value="BCF">BCF</option>
 									<option value="CF">CF</option>
 									<option value="BF">BF</option>
 								</select>
@@ -200,56 +225,56 @@
 							</td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0">KUALITAS</td>
+							<td style="padding:5px 0;font-weight:bold">KUALITAS</td>
 							<td style="padding:5px 0" colspan="3"><input type="text" class="form-control" id="kualitas" placeholder="-" disabled></td>
 							<td></td>
-							<td style="padding:5px 0">MATERIAL</td>
+							<td style="padding:5px 0;font-weight:bold">MATERIAL</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="material" placeholder="-" disabled></td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0">BERAT BERSIH</td>
+							<td style="padding:5px 0;font-weight:bold">BERAT BERSIH</td>
 							<td style="padding:5px 0"><input type="text" class="form-control" id="berat_bersih" placeholder="-" disabled></td>
-							<td style="padding:5px 0 5px 5px">LUAS BERSIH</td>
+							<td style="padding:5px 0 5px 5px;font-weight:bold">LUAS BERSIH</td>
 							<td style="padding:5px 0"><input type="text" class="form-control" id="luas_bersih" placeholder="-" disabled></td>
 							<td></td>
-							<td style="padding:5px 0">TOLERANSI KIRIM</td>
+							<td style="padding:5px 0;font-weight:bold">TOLERANSI KIRIM</td>
 							<td style="padding:5px 0"><input type="text" class="form-control" id="toleransi_kirim" maxlength="3" onkeypress="return hanyaAngka(event)" placeholder="-"></td>
 							<td style="padding:5px 0 5px 5px">%</td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0">SAMBUNGAN</td>
+							<td style="padding:5px 0;font-weight:bold">SAMBUNGAN</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="sambungan" placeholder="-" autocomplete="off"></td>
-							<td style="padding:5px 0 5px 5px">NO DESIGN</td>
+							<td style="padding:5px 0 5px 5px;font-weight:bold">NO DESIGN</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="no_design" placeholder="-" autocomplete="off"></td>
-							<td style="padding:5px 0 5px 5px">TIPE BOX</td>
+							<td style="padding:5px 0 5px 5px;font-weight:bold">TIPE BOX</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="tipe_box" placeholder="-" autocomplete="off"></td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0">WARNA</td>
+							<td style="padding:5px 0;font-weight:bold">WARNA</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="warna" placeholder="-" autocomplete="off"></td>
-							<td style="padding:5px 0 5px 5px">DESIGN</td>
+							<td style="padding:5px 0 5px 5px;font-weight:bold">DESIGN</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="design" placeholder="-" autocomplete="off"></td>
-							<td style="padding:5px 0 5px 5px">JENIS PRODUK</td>
+							<td style="padding:5px 0 5px 5px;font-weight:bold">JENIS PRODUK</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="jenis_produk" placeholder="-" autocomplete="off"></td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0">JML IKAT</td>
+							<td style="padding:5px 0;font-weight:bold">JML IKAT</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="jml_ikat" placeholder="-" autocomplete="off"></td>
-							<td style="padding:5px 0 5px 5px">JML PALET</td>
+							<td style="padding:5px 0 5px 5px;font-weight:bold">JML PALET</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="jml_palet" placeholder="-" autocomplete="off"></td>
-							<td style="padding:5px 0 5px 5px">JML PAKU</td>
+							<td style="padding:5px 0 5px 5px;font-weight:bold">JML PAKU</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="jml_paku" placeholder="-" autocomplete="off"></td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0 5px 5px">NO KARET</td>
+							<td style="padding:5px 0 5px 5px;font-weight:bold">NO KARET</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="no_karet" placeholder="-" autocomplete="off"></td>
-							<td style="padding:5px 0 5px 5px">NO PISAU</td>
+							<td style="padding:5px 0 5px 5px;font-weight:bold">NO PISAU</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="no_pisau" placeholder="-" autocomplete="off"></td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0 5px 5px">SPESIAL REQUEST</td>
+							<td style="padding:5px 0 5px 5px;font-weight:bold">SPESIAL REQUEST</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="spesial_req" placeholder="-" autocomplete="off"></td>
-							<td style="padding:5px 0 5px 5px">COA</td>
+							<td style="padding:5px 0 5px 5px;font-weight:bold">COA</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="COA" placeholder="-" autocomplete="off"></td>
 						</tr>
 					</table>
@@ -269,18 +294,18 @@
 	rowNum = 0;
 	$(document).ready(function() {
 		load_data();
+		$('.select2').select2({
+			dropdownAutoWidth: true
+		});
 	});
 
 	status = "insert";
 	$(".tambah_data").click(function(event) {
-		kosong();
-		$("#modalForm").modal("show");
-		$("#judul").html('<h3> Form Tambah Data</h3>');
 		status = "insert";
-		$('.select2').select2({
-			// placeholder: 'PILIH',
-			dropdownAutoWidth: true
-		});
+		kosong();
+		getPlhCustomer()
+		$("#judul").html('<h3> Form Tambah Data</h3>');
+		$("#modalForm").modal("show");
 	});
 
 	function load_data() {
@@ -309,6 +334,7 @@
 	}
 
 	function simpan() {
+		$("#btn-simpan").prop("disabled", true);
 		id = $("#id").val();
 		kode_mc = $("#kode_mc").val();
 		kode_mc_lama = $("#kode_mc_lama").val();
@@ -362,6 +388,7 @@
 
 		if (kode_mc == '' || nm_produk == '' || no_customer == '' || customer == '' || ukuran == '' || ukuran_sheet == '' || sambungan == '' || tipe == '' || material == '' || wall == '' || creasing == '' || creasing2 == '' || creasing3 == '' || flute == '' || berat_bersih == '' || luas_bersih == '' || kualitas == '' || warna == '' || no_design == '' || design == '' || tipe_box == '' || jenis_produk == '' || kategori == '' || cCOA == '' || jml_ikat == '' || jml_palet == '' || jml_paku == '' || no_pisau == '' || no_karet == '' || toleransi_kirim == '' || spesial_req == '') {
 			toastr.info('Harap Lengkapi Form');
+			$("#btn-simpan").prop("disabled", false);
 			return;
 		}
 
@@ -379,6 +406,7 @@
 					$("#modalForm").modal("hide");
 				} else {
 					toastr.error('Gagal Simpan / Kode MC sudah tersedia');
+					$("#btn-simpan").prop("disabled", false);
 				}
 				reloadTable();
 			},
@@ -388,7 +416,56 @@
 		});
 	}
 
+	$('#no_customer').on('change', function() {
+		let detail = $('#no_customer option:selected').attr('data-detail');
+		let attn = $('#no_customer option:selected').attr('attn');
+		let prov = $('#no_customer option:selected').attr('prov');
+		let kab = $('#no_customer option:selected').attr('kab');
+		let kec = $('#no_customer option:selected').attr('kec');
+		let kel = $('#no_customer option:selected').attr('kel');
+		let alamat = $('#no_customer option:selected').attr('alamat');
+		// alert(detail+" - "+attn+" - "+prov+" - "+kab+" - "+kec+" - "+kel+" - "+alamat)
+		$("#attn").html(attn);
+		$("#provinsi").html(prov);
+		$("#kabupaten").html(kab);
+		$("#kecamatan").html(kec);
+		$("#kelurahan").html(kel);
+		$("#alamat").html(alamat);
+
+		$("#customer").val(detail);
+		let cust = $("#no_customer").val();
+		if(cust == ""){
+			kosong()
+		}
+	})
+
+	function getPlhCustomer() {
+		$.ajax({
+			url: '<?php echo base_url('Master/getPlhCustomer')?>',
+			type: "POST",
+			success: function(json) {
+				data = JSON.parse(json)
+				console.log(data)
+
+				let htmlCust = ''	
+				htmlCust += `<option value="">PILIH</option>`
+				data.forEach(loadCust)
+				function loadCust(r, index) {
+					htmlCust += `<option value="${r.id_pelanggan}" data-detail="${r.nm_pelanggan}" attn="${r.attn}" prov="${r.prov_name}" kab="${r.kab_name}" kec="${r.kec_name}" kel="${r.kel_name}" alamat="${r.alamat}">${r.nm_pelanggan}</option>`
+				}
+				$("#no_customer").prop("disabled", false).html(htmlCust)
+			}
+		})
+	}
+
 	function kosong() {
+		$("#attn").html("-");
+		$("#alamat").html("-");
+		$("#provinsi").html("-");
+		$("#kabupaten").html("-");
+		$("#kecamatan").html("-");
+		$("#kelurahan").html("-");
+
 		$("#id").val("");
 		$("#kode_mc").val("");
 		$("#nm_produk").val("");
@@ -430,7 +507,7 @@
 		$("#toleransi_kirim").val(0);
 		$("#spesial_req").val("-");
 		status = 'insert';
-		$("#btn-simpan").show();
+		$("#btn-simpan").show().prop("disabled", false);
 		zFlute("disable");
 	}
 
@@ -460,7 +537,6 @@
 
 	function tampil_edit(id, act) {
 		kosong();
-		status = 'update';
 		$("#modalForm").modal("show");
 		if (act == 'detail') {
 			$("#judul").html('<h3> Detail Data</h3>');
@@ -474,54 +550,85 @@
 		status = "update";
 
 		$.ajax({
-			url: '<?php echo base_url('Master/get_edit'); ?>',
+			url: '<?php echo base_url('Master/getEditProduk'); ?>',
 			type: 'POST',
-			data: {
-				id,
-				jenis: "m_produk",
-				field: 'id'
-			},
-			dataType: "JSON",
+			data: ({
+				id
+			})
 		})
-		.done(function(data) {
-			$("#id").val(data.id);
-			$("#kode_mc").val(data.kode_mc);
-			$("#kode_mc_lama").val(data.kode_mc);
-			$("#nm_produk").val(data.nm_produk);
-			$("#no_customer").val(data.no_customer);
-			$("#customer").val(data.customer);
-			$("#ukuran").val(data.ukuran);
-			// $("#ukuran_sheet").val(data.ukuran_sheet);
-			$("#ukuran_sheet_p").val(data.ukuran_sheet_p);
-			$("#ukuran_sheet_l").val(data.ukuran_sheet_l);
-			$("#sambungan").val(data.sambungan);
-			$("#tipe").val(data.tipe);
-			$("#material").val(data.material);
-			$("#wall").val(data.wall);
-			$("#l_panjang").val(data.l_panjang);
-			$("#l_lebar").val(data.l_lebar);
-			$("#l_tinggi").val(data.l_tinggi);
-			$("#creasing").val(data.creasing);
-			$("#creasing2").val(data.creasing2);
-			$("#creasing3").val(data.creasing3);
-			$("#flute").val(data.flute);
-			$("#berat_bersih").val(data.berat_bersih);
-			$("#luas_bersih").val(data.luas_bersih);
-			$("#kualitas").val(data.kualitas);
-			$("#warna").val(data.warna);
-			$("#no_design").val(data.no_design);
-			$("#design").val(data.design);
-			$("#tipe_box").val(data.tipe_box);
-			$("#jenis_produk").val(data.jenis_produk);
-			$("#kategori").val(data.kategori);
-			$("#COA").val(data.COA);
-			$("#jml_ikat").val(data.jml_ikat);
-			$("#jml_palet").val(data.jml_palet);
-			$("#jml_paku").val(data.jml_paku);
-			$("#no_pisau").val(data.no_pisau);
-			$("#no_karet").val(data.no_karet);
-			$("#toleransi_kirim").val(data.toleransi_kirim);
-			$("#spesial_req").val(data.spesial_req);
+		.done(function(json) {
+			data = JSON.parse(json)
+			console.log(data)
+			$("#id").val(data.produk.id);
+			$("#customer").val(data.produk.customer);
+			
+			let htmlCust = ''
+			htmlCust += `<option value="${data.produk.no_customer}"
+				data-detail="${data.produk.customer}"
+				attn="${data.wilayah.attn}"
+				prov="${data.wilayah.prov_name}"
+				kab="${data.wilayah.kab_name}"
+				kec="${data.wilayah.kec_name}"
+				kel="${data.wilayah.kel_name}"
+				alamat="${data.wilayah.alamat}">
+					${data.produk.customer}
+			</option>`
+			data.pelanggan.forEach(loadCust)
+			function loadCust(r, index) {
+				htmlCust += `<option value="${r.id_pelanggan}"
+					data-detail="${r.nm_pelanggan}"
+					attn="${r.attn}"
+					prov="${r.prov_name}"
+					kab="${r.kab_name}"
+					kec="${r.kec_name}"
+					kel="${r.kel_name}"
+					alamat="${r.alamat}">
+						${r.nm_pelanggan}
+				</option>`
+			}
+			$("#no_customer").html(htmlCust);
+
+			$("#attn").html(data.wilayah.attn);
+			$("#alamat").html(data.wilayah.alamat);
+			$("#provinsi").html((data.wilayah.prov_name == null) ? '-' : data.wilayah.prov_name);
+			$("#kabupaten").html((data.wilayah.kab_name == null) ? '-' : data.wilayah.kab_name);
+			$("#kecamatan").html((data.wilayah.kec_name == null) ? '-' : data.wilayah.kec_name);
+			$("#kelurahan").html((data.wilayah.kel_name == null) ? '-' : data.wilayah.kel_name);
+
+			$("#kode_mc").val(data.produk.kode_mc);
+			$("#kode_mc_lama").val(data.produk.kode_mc);
+			$("#nm_produk").val(data.produk.nm_produk);
+			$("#ukuran").val(data.produk.ukuran);
+			$("#ukuran_sheet_p").val(data.produk.ukuran_sheet_p);
+			$("#ukuran_sheet_l").val(data.produk.ukuran_sheet_l);
+			$("#sambungan").val(data.produk.sambungan);
+			$("#tipe").val(data.produk.tipe);
+			$("#material").val(data.produk.material);
+			$("#wall").val(data.produk.wall);
+			$("#l_panjang").val(data.produk.l_panjang);
+			$("#l_lebar").val(data.produk.l_lebar);
+			$("#l_tinggi").val(data.produk.l_tinggi);
+			$("#creasing").val(data.produk.creasing);
+			$("#creasing2").val(data.produk.creasing2);
+			$("#creasing3").val(data.produk.creasing3);
+			$("#flute").val(data.produk.flute);
+			$("#berat_bersih").val(data.produk.berat_bersih);
+			$("#luas_bersih").val(data.produk.luas_bersih);
+			$("#kualitas").val(data.produk.kualitas);
+			$("#warna").val(data.produk.warna);
+			$("#no_design").val(data.produk.no_design);
+			$("#design").val(data.produk.design);
+			$("#tipe_box").val(data.produk.tipe_box);
+			$("#jenis_produk").val(data.produk.jenis_produk);
+			$("#kategori").val(data.produk.kategori);
+			$("#COA").val(data.produk.COA);
+			$("#jml_ikat").val(data.produk.jml_ikat);
+			$("#jml_palet").val(data.produk.jml_palet);
+			$("#jml_paku").val(data.produk.jml_paku);
+			$("#no_pisau").val(data.produk.no_pisau);
+			$("#no_karet").val(data.produk.no_karet);
+			$("#toleransi_kirim").val(data.produk.toleransi_kirim);
+			$("#spesial_req").val(data.produk.spesial_req);
 		})
 	}
 
@@ -555,15 +662,6 @@
 		var url = "<?php echo base_url('Laporan/Laporan_Stok'); ?>";
 		window.open(url, '_blank');
 	}
-
-	$('#no_customer').on('change', function() {
-		let detail = $('#no_customer option:selected').attr('data-detail');
-		$("#customer").val(detail);
-		let cust = $("#no_customer").val();
-		if(cust == ""){
-			kosong()
-		}
-	})
 
 	function hanyaAngka(evt) {
 		var charCode = (evt.which) ? evt.which : event.keyCode
@@ -657,7 +755,7 @@
 			zFlute("disable");
 			ruk_p = 0;
 			ruk_l = 0;
-		} else if(plh_flute == "CB"){
+		} else if(plh_flute == "BCF"){
 			zFlute("false");
 			$("#wall").val("DOUBLE");
 			ruk_p = 2 * (r_panjang + r_lebar) + 61;
@@ -763,7 +861,7 @@
 		let plh_flute = $("#flute").val();
 		if(plh_flute == ""){
 			getNilaiFlute = 0;
-		} else if(plh_flute == "CB"){
+		} else if(plh_flute == "BCF"){
 			getNilaiFlute = parseFloat((parseInt(kk) + cariBF + parseInt(clcl) + cariCF + parseInt(blbl)) / 1000).toFixed(4);
 		} else if(plh_flute == "CF") {
 			getNilaiFlute = parseFloat((parseInt(kk) + cariCF + parseInt(blbl)) / 1000).toFixed(4);
