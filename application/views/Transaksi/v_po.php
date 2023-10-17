@@ -38,15 +38,17 @@
 				<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 					<thead>
 						<tr>
-							<th style="text-align: center width:5%">No</th>
-							<th style="text-align: center">No PO</th>
-							<th style="text-align: center">Tgl PO</th>
-							<th style="text-align: center">Status</th>
-							<th style="text-align: center">Kode PO</th>
-							<th style="text-align: center">Total Qty</th>
-							<th style="text-align: center">Nama Pelanggan</th>
-							<th style="text-align: center">Approval</th>
-							<th style="width:10%; text-align: center">Aksi</th>
+							<th style="text-align: center; width:5%">No</th>
+							<th style="text-align: center; width:10%">No PO</th>
+							<th style="text-align: center; width:10%">Tgl PO</th>
+							<th style="text-align: center; width:5%">Status</th>
+							<th style="text-align: center; width:10%">Kode PO</th>
+							<!-- <th style="text-align: center">Total Qty</th> -->
+							<th style="text-align: center; width:15%">Nama Pelanggan</th>
+							<th style="text-align: center; width:10%">Marketing</th>
+							<th style="text-align: center; width:10%">PPIC</th>
+							<th style="text-align: center; width:10%">Owner</th>
+							<th style="text-align: center; width:15%;">Aksi</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -160,22 +162,33 @@
 							<thead class="color-tabel">
 								<tr>
 									<th width="10%">Delete</th>
-									<th width="10%">Produk</th>
+									<th width="10%">Item</th>
 									<th width="10%">Qty</th>
 									<th width="10%">PPN</th>
+
 									<?php if ($this->session->userdata('level') != "PPIC"): ?>
 										
 										<th width="10%">Price Exlude</th>
 										<th width="10%">Price Include</th>
 
 									<?php endif ?>
-									<th width="40%">Detail Produk</th>
+
+									<?php {
+										if ($this->session->userdata('level') == "developer" || $this->session->userdata('level') == "owner") ?>
+										
+										<th width="10%">P11</th>
+
+									<?php } ?>
+									<th width="40%">Detail Item</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr id="itemRow0">
 									<td>
-										<a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)"><i class="far fa-trash-alt" style="color:#fff"></i> </a></td>
+										<div class="text-center">
+											<a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
+										</div>
+									</td>
 									<td>
 										<select class="form-control select2" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(this.value,0)">
 										</select>
@@ -200,6 +213,16 @@
 										<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" value='0'>
 									</td>
 									<?php endif ?>
+
+									<?php { 
+									if ($this->session->userdata('level') == 'owner' || $this->session->userdata('level')  == 'developer') 
+									?>
+										<td>
+											<input type="text" name="p11[0]" id="p110"  class="angka form-control" disabled value="0" >
+										
+										</td>
+									<?php } ?>
+									
 									<td id="txt_detail_produk0">
 									</td>
 								</tr>
@@ -267,7 +290,7 @@
 						if(data.message == "Success"){						
 							option = "<option>-- Pilih --</option>";
 							$.each(data.data, function(index, val) {
-							option += "<option value='"+val.kode_mc+"'>"+val.nm_produk+"</option>";
+							option += "<option value='"+val.id_produk+"'>"+val.nm_produk+"</option>";
 							});
 		
 							$('#id_produk'+id).html(option);
@@ -471,7 +494,7 @@
 				$.each(data, function(index, value) {
 					$("#btn-hapus-" + index).hide();
 					
-					var option = $("<option selected></option>").val(value.kode_mc).text(value.nm_produk);
+					var option = $("<option selected></option>").val(value.id_produk).text(value.nm_produk);
 					
 					$('#id_produk' + index).append(option).trigger('change');
 					$("#qty" + index).val(value.qty);
@@ -600,7 +623,7 @@
 	{
 		if(qty < 500 ){			
 			toastr.error(
-				'Qty tidak boleh di Bawah 500, <br> Hubungi Marketing'
+				'RM tidak boleh di Bawah 500, <br> Hubungi Marketing'
 			);
 			$("#"+id).val("0");
 			return;
@@ -639,19 +662,20 @@
 						<table class='table' border='0' width='100%' style='font-size:12px'>
 						<tr> 
 							<tr> 
-								<td style=list-style:none;><b>Nama Produk : </b>${ val.nm_produk }</td>
+								<td style=list-style:none;><b>Nama Item : </b>${ val.nm_produk }</td>
 								<td style=list-style:none;><b>Ukuran : </b>${ uk }</td>
 								<td style=list-style:none;><b>Material : </b>${ val.kualitas }</td>
 							</tr>
 							<tr> 
 								<td style=list-style:none;><b>Flute : </b>${ val.flute }</td> 
 								<td style=list-style:none;><b>Creasing : </b>${ val.creasing }-${ val.creasing2 }-${ val.creasing3 }</td> 
-								<td style=list-style:none;><b>Warna : </b>${ val.warna }</td> 
+								<td style=list-style:none;><b>Toleransi : </b>${ val.toleransi_kirim }</td> 
 							</tr> 
 							<tr> 
-								<td style=list-style:none;><b>RM : </b></td> 
-								<td style=list-style:none;><b>BB : </b></td> 
-								<td style=list-style:none;><b>Ton : </b></td> 
+								<td style=list-style:none; id="rm${id}"><b>RM : </b>
+								</td> 
+								<td style=list-style:none;><b>BB : ${ val.berat_bersih }</b></td> 
+								<td style=list-style:none; id="ton${id}"><b>Ton : </b></td>  
 							</tr> 
 						<tr> </table>`;
 	
@@ -684,6 +708,7 @@
 		var price_inc   = $('#price_inc' + b).val();
 		var price_exc   = $('#price_exc' + b).val();
 		var ss          = $('#id_produk' + b).val();
+		var user_lev 	= "<?= $this->session->userdata('nm_user') ?>";
 
 		var idp         = $('#id_pelanggan').val();
 		setProduk(idp,rowNum+1);
@@ -708,10 +733,24 @@
 					`
 				}
 
+				if (user_lev == 'owner' || user_lev == 'developer') 
+				{
+					p11_tambahan = `
+						<td>
+							<input type="text" name="p11[${rowNum}]" id="p11${rowNum}"  class="angka form-control"  disabled value="0">
+						 
+						</td>
+					`
+				}
+				
 
 				$('#table-produk').append(
 					`<tr id="itemRow${ rowNum }">
-					<td><a class="btn btn-danger"  id="btn-hapus-${ rowNum }" onclick="removeRow(${ rowNum })"><i class="far fa-trash-alt" style="color:#fff"></i> </a></td>
+					<td>
+						<div class="text-center">
+						<a class="btn btn-danger"  id="btn-hapus-${ rowNum }" onclick="removeRow(${ rowNum })"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
+						</div>
+					</td>
 					<td>
 						<select class="form-control select2" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }" style="width: 100%;" onchange="setDetailProduk(this.value,${ rowNum })">
 						</select>
@@ -725,9 +764,8 @@
 							<option value="NP">NP</option>
 						</select>
 					</td>
-					${
-					td_harga
-					}
+					${ td_harga }
+					${ p11_tambahan }
 					<td id="txt_detail_produk${ rowNum }"> 
 					</td>
 					</tr>)`);
@@ -788,38 +826,159 @@
 		var cek = id.substr(0,9);
 		var id2 = id.substr(9,1);
 		
-		if(cek=='price_exc'){
+		if(cek=='price_exc')
+		{
 			inc = Math.trunc(val *1.11);
 			$('#price_inc'+id2).val(inc);
+			hitung_p11(inc,id2);
 		}else {
 			exc = Math.trunc(val /1.11);
 			$('#price_exc'+id2).val(exc);
+			hitung_p11(val,id2);
 		}
 	}
 
-	function Hitung_rm(val,id) 
+	function hitung_p11(inc,id)
 	{
-		// var cek       = id.substr(0,3);
-		// var id2       = id.substr(3,1);
-		
-		// var produk   = $('#id_produk'+id2).val();
-		
-		// // alert(produk);
-		// // swal({
-		// // 	title: "HARGA BARANG",
-		// // 	html: "Harga tidak boleh lebih kecil dari harga sebelumnya",
-		// // 	type: "info",
-		// // 	confirmButtonText: "OK"
-		// // });
-		// if(produk=='' || produk=='undefined' || produk=='-- Pilih --'){
-		// 	toastr.error('Pilih Produk Dahulu');
-		// 	$('#'+id).val(0);
-		// 	$('#'+id).focus();
-		// 	return;
-		// }else{
-		// 	// hitung out
+		var produk   = $('#id_produk'+id).val();
 
-		// }
+		$.ajax({
+			type        : 'POST',
+			url         : "<?php echo base_url(); ?>Transaksi/load_produk",
+			data        : { idp: '', kd: produk },
+			dataType    : 'json',
+			success:function(data){			
+				if(data.message == "Success"){
+					$.each(data.data, function(index, val) {
+						if(val.tipe=='SHEET')
+						{
+							if(val.flute=='BCF')
+							{
+								$.ajax({
+									type        : 'POST',
+									url         : "<?php echo base_url(); ?>Transaksi/cek_bcf",
+									data        : {kd: val.kualitas },
+									dataType    : 'json',
+									success:function(data){		
+										
+										var subs    = val.kualitas.split("/");
+										var subs2   = subs[1].substring(1,4);
+										var subs3   = subs[2].substring(1,4);
+										var subs4   = subs[3].substring(1,4);
+
+										var cek1    = (subs2=='150') ? 300 : 0;
+										var cek2    = (subs3=='150') ? 300 : 0;
+										var cek3    = (subs4=='150') ? 300 : 0;
+
+										var totsub      = cek1 + cek2 + cek3 + data.bcf;
+
+										var rumus = totsub * (val.ukuran_sheet_p/1000) * (val.ukuran_sheet_l/1000);
+
+										var selisih = rumus - inc;
+
+										p11 = selisih / rumus * 100;
+
+										$('#p11'+id).val( p11.toFixed(1)+' %');
+
+
+
+									}
+								});
+								
+							}else
+							{
+								$.ajax({
+									type        : 'POST',
+									url         : "<?php echo base_url(); ?>Transaksi/cek_flute",
+									data        : {kd: val.kualitas, flute : val.flute },
+									dataType    : 'json',
+									success:function(data2){		
+										
+										var subs    = val.kualitas.split("/");
+										var subs2   = subs[1].substring(1,4);
+
+										var cek1    = (subs2=='150') ? 300 : 0;
+
+										var totsub      = cek1 + data2.flute;
+
+										var rumus = totsub * (val.ukuran_sheet_p/1000) * (val.ukuran_sheet_l/1000);
+
+										var selisih = rumus - inc;
+
+										p11 = selisih / rumus * 100;
+
+										$('#p11'+id).val( p11.toFixed(1)+' %');
+
+
+
+									}
+								});
+							}
+						}
+					
+					});
+
+					// $('#rm'+id).html("<b> RM : </b>"+rm);	
+					// $('#ton'+id).html("<b> Ton : </b>"+ton);	
+					
+				}else{
+					// $("#txt_detail_produk"+id).html("");		
+				}
+			}
+		});
+	}
+
+	function Hitung_rm(isi,id) 
+	{
+		var cek       = id.substr(0,3);
+		var id2       = id.substr(3,1);
+		
+		var produk   = $('#id_produk'+id2).val();
+		
+		// alert(produk);
+		// swal({
+		// 	title: "HARGA BARANG",
+		// 	html: "Harga tidak boleh lebih kecil dari harga sebelumnya",
+		// 	type: "info",
+		// 	confirmButtonText: "OK"
+		// });
+		if(produk=='' || produk=='undefined' || produk=='-- Pilih --'){
+			toastr.error('Pilih Produk Dahulu');
+			$('#'+id).val(0);
+			$('#'+id).focus();
+			return;
+		}else{
+			// hitung out
+			
+			$.ajax({
+				type        : 'POST',
+				url         : "<?php echo base_url(); ?>Transaksi/load_produk",
+				data        : { idp: '', kd: produk },
+				dataType    : 'json',
+				success:function(data){			
+					if(data.message == "Success"){
+						$.each(data.data, function(index, val) {
+							
+							out = Math.trunc(1800/val.ukuran_sheet_l);
+							if(out >= 5){
+								out = 5;
+							}
+
+							rm   = val.ukuran_sheet_p * isi / out / 1000;
+							ton  = Math.trunc(isi * val.berat_bersih);
+						
+						});
+	
+						$('#rm'+id2).html("<b> RM : </b>"+rm);	
+						$('#ton'+id2).html("<b> Ton : </b>"+ton);	
+						
+					}else{
+						// $("#txt_detail_produk"+id).html("");		
+					}
+				}
+			});
+
+		}
 		
 	}
 

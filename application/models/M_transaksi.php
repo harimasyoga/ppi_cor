@@ -39,7 +39,7 @@ class M_transaksi extends CI_Model
 				'eta'             => $params->eta,
 				'qty'             => $params->qty[$key],
 				
-				'kode_mc'         => $params->id_produk[$key],
+				'id_produk'         => $params->id_produk[$key],
 					
 				'id_pelanggan'    => $pelanggan->id_pelanggan,
 				'ppn'             => $params->ppn[$key],
@@ -60,7 +60,7 @@ class M_transaksi extends CI_Model
 					array(
 						'no_po' => $params->no_po,
 						// 'kode_mc' => $produk->kode_mc
-						'kode_mc' => $params->id_produk[$key]
+						'id_produk' => $params->id_produk[$key]
 					)
 				);
 			}
@@ -73,7 +73,7 @@ class M_transaksi extends CI_Model
 			'tgl_po'         => $params->tgl_po,
 			'kode_po'        => $params->kode_po,
 			'eta'            => $params->eta,
-			'id_sales'       => $params->id_sales[$key],
+			'id_sales'       => $params->id_sales,
 			'id_pelanggan'   => $pelanggan->id_pelanggan,
 			// 'nm_pelanggan'   => $pelanggan->nm_pelanggan,
 			// 'alamat'         => $pelanggan->alamat,
@@ -108,37 +108,37 @@ class M_transaksi extends CI_Model
 
 		$total_qty = 0;
 		foreach ($params->id_produk as $key => $value) {
-			$produk = $this->m_master->get_data_one("m_produk", "kode_mc", $params->id_produk[$key])->row();
+			$produk = $this->m_master->get_data_one("m_produk", "id_produk", $params->id_produk[$key])->row();
 
 			$data = array(
-				'no_so'       => $params->no_so,
-				'no_po'       => $params->no_po,
-				'tgl_so'       => $params->tgl_so,
-				'salesman'       => $params->salesman,
-				'kode_po'       => $detail_po->kode_po,
-				'tgl_po'       => $params->tgl_po,
-				'qty'       => $params->qty[$key],
-				'kode_mc'       => $produk->kode_mc,
-				'nm_produk'     => $produk->nm_produk,
-				'ukuran'        => $produk->ukuran,
+				'no_so'           => $params->no_so,
+				'no_po'           => $params->no_po,
+				'tgl_so'          => $params->tgl_so,
+				'salesman'        => $params->salesman,
+				'kode_po'         => $detail_po->kode_po,
+				'tgl_po'          => $params->tgl_po,
+				'qty'             => $params->qty[$key],
+				'kode_mc'         => $produk->kode_mc,
+				'nm_produk'       => $produk->nm_produk,
+				'ukuran'          => $produk->ukuran,
 
-				'material'      => $produk->material,
-				'flute'         => $produk->flute,
-				'creasing'      => $produk->creasing,
-				'warna'         => $produk->warna,
-				'kualitas'         => $produk->kualitas,
-				'jenis_produk'      => $produk->jenis_produk,
-				'tipe_box'         => $produk->tipe_box,
+				'material'        => $produk->material,
+				'flute'           => $produk->flute,
+				'creasing'        => $produk->creasing,
+				'warna'           => $produk->warna,
+				'kualitas'        => $produk->kualitas,
+				'jenis_produk'    => $produk->jenis_produk,
+				'tipe_box'        => $produk->tipe_box,
 
-				'id_pelanggan'  => $detail_po->id_pelanggan,
-				'nm_pelanggan'  => $detail_po->nm_pelanggan,
-				'alamat'        => $detail_po->alamat,
-				'kota'          => $detail_po->kota,
-				'no_telp'       => $detail_po->no_telp,
-				'fax'           => $detail_po->fax,
-				'alamat_kirim'       => $detail_po->alamat_kirim,
-				'lokasi'           => $detail_po->lokasi,
-				'top'           => $detail_po->top
+				'id_pelanggan'    => $detail_po->id_pelanggan,
+				'nm_pelanggan'    => $detail_po->nm_pelanggan,
+				'alamat'          => $detail_po->alamat,
+				'kota'            => $detail_po->kota,
+				'no_telp'         => $detail_po->no_telp,
+				'fax'             => $detail_po->fax,
+				'alamat_kirim'    => $detail_po->alamat_kirim,
+				'lokasi'          => $detail_po->lokasi,
+				'top'             => $detail_po->top
 			);
 
 

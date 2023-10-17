@@ -29,7 +29,8 @@ class Transaksi extends CI_Controller
 		$this->load->view('footer');
 	}
     
-    function load_produk(){
+    function load_produk()
+    {
         
 		$pl = $this->input->post('idp');
 		$kd = $this->input->post('kd');
@@ -37,7 +38,7 @@ class Transaksi extends CI_Controller
         if($pl !='' && $kd ==''){
             $cek ="where no_customer = '$pl' ";
         }else if($pl =='' && $kd !=''){
-            $cek ="where kode_mc = '$kd' ";
+            $cek ="where id_produk = '$kd' ";
         }else {
             $cek ="";
         }
@@ -156,49 +157,63 @@ class Transaksi extends CI_Controller
                 if($r->status_app1=='N')
                 {
                     $btn1   = 'btn-warning';
-                    $i1     = '<i class="fas fa-lock"></i> &nbsp;';
+                    $i1     = '<i class="fas fa-lock"></i>';
                 }else{
                     $btn1   = 'btn-success';
-                    $i1     = '<i class="fas fa-check-circle"></i> &nbsp;';
+                    $i1     = '<i class="fas fa-check-circle"></i>';
                 }
                 
                 if($r->status_app2=='N')
                 {
                     $btn2   = 'btn-warning';
-                    $i2     = '<i class="fas fa-lock"></i> &nbsp;';
+                    $i2     = '<i class="fas fa-lock"></i>';
                 }else{
                     $btn2   = 'btn-success';
-                    $i2     = '<i class="fas fa-check-circle"></i> &nbsp;';
+                    $i2     = '<i class="fas fa-check-circle"></i>';
                 }
                 
                 if($r->status_app3=='N')
                 {
                     $btn3   = 'btn-warning';
-                    $i3     = '<i class="fas fa-lock"></i> &nbsp;';
+                    $i3     = '<i class="fas fa-lock"></i>';
                 }else{
                     $btn3   = 'btn-success';
-                    $i3     = '<i class="fas fa-check-circle"></i> &nbsp;';
+                    $i3     = '<i class="fas fa-check-circle"></i>';
                 }
                 
                 if($r->status == 'Open')
                 {
                     $btn_s   = 'btn-info';
+                }else if($r->status == 'Approve')
+                {
+                    $btn_s   = 'btn-success';
                 }else{
                     $btn_s   = 'btn-danger';
                 }
 
 				$row[] = $i;
-				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')">' . $r->no_po . "<a>";
-				$row[] = $this->m_fungsi->tanggal_format_indonesia($time);
-				$row[] = '<button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status.'</button>';
-				$row[] = $r->kode_po;
-				$row[] = $r->total_qty;
-				$row[] = $r->nm_pelanggan;
+				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')">' . $r->no_po . "<a></div>";
+
+				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).'</div>';
+
+                $time1 = ($r->time_app1 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app1,0,10));
+                $time2 = ($r->time_app2 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app2,0,10));
+                $time3 = ($r->time_app3 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app3,0,10));
+
+				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status.'</button></div>';
+				$row[] = '<div class="text-center">'.$r->kode_po.'</div>';
+				// $row[] = $r->total_qty;
+				$row[] = '<div class="text-center">'.$r->nm_pelanggan.'</div>';
                 
-				$row[] = '
-					<button type="button" class="btn btn-sm '.$btn1.' ">'.$i1.'M - '.$r->time_app1.'</button>  <br>
-					<button type="button" class="btn btn-sm '.$btn2.' ">'.$i2.'P - '.$r->time_app2.'</button>  <br>
-					<button type="button" class="btn btn-sm '.$btn3.' ">'.$i3.'O - '.$r->time_app3.'</button>
+				$row[] = '<div class="text-center">
+					<button type="button" title="'.$time1.'" style="text-align: center;" class="btn btn-sm '.$btn1.' ">'.$i1.'</button></div>
+				';
+				
+                $row[] = '<div class="text-center">
+					<button type="button" title="'.$time2.'"  style="text-align: center;" class="btn btn-sm '.$btn2.' ">'.$i2.'</button></div>
+				';
+                $row[] = '<div class="text-center">
+					<button type="button" title="'.$time3.'"  style="text-align: center;" class="btn btn-sm '.$btn3.' ">'.$i3.'</button></div>
 				';
 
 				// $aksi = '-';
@@ -241,7 +256,7 @@ class Transaksi extends CI_Controller
 					
 				}
 
-				$row[] = $aksi;
+				$row[] = '<div>'.$aksi.'</div>';
 
 				$data[] = $row;
 
@@ -258,7 +273,7 @@ class Transaksi extends CI_Controller
 				$row[] = $r->tgl_so;
 				$row[] = $r->status;
 				$row[] = $r->no_po;
-				$row[] = $r->kode_mc;
+				$row[] = $r->id_produk;
 				$row[] = $r->qty;
 				$row[] = $r->id_pelanggan;
 				$row[] = $r->nm_pelanggan;
@@ -290,7 +305,7 @@ class Transaksi extends CI_Controller
 				$row[] = $r->no_so;
 				$row[] = $r->tgl_so;
 				$row[] = $r->status;
-				$row[] = $r->kode_mc;
+				$row[] = $r->id_produk;
 				$row[] = $r->qty;
 				$row[] = $r->id_pelanggan;
 				$row[] = $r->nm_pelanggan;
@@ -323,7 +338,7 @@ class Transaksi extends CI_Controller
 				$row[] = $r->tgl_surat_jalan;
 				$row[] = $r->status;
 				$row[] = $r->no_po;
-				$row[] = $r->kode_mc;
+				$row[] = $r->id_produk;
 				$row[] = $r->tot_qty;
 				$row[] = $r->id_pelanggan;
 				$row[] = $r->nm_pelanggan;
@@ -407,7 +422,7 @@ class Transaksi extends CI_Controller
                     JOIN trs_po_detail b ON a.no_po = b.no_po
                     JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
                     LEFT JOIN m_kab d ON c.kab=d.kab_id
-                    LEFT JOIN m_produk e ON b.kode_mc=e.kode_mc
+                    LEFT JOIN m_produk e ON b.id_produk=e.id_produk
 					WHERE a.no_po = '".$header->no_po."'
 				")->result();
 
@@ -415,12 +430,12 @@ class Transaksi extends CI_Controller
 			$data =  $this->m_master->query(
 				"SELECT a.*,IFNULL(b.qty_so,0)qty_so FROM `trs_po_detail` a 
                         LEFT JOIN (
-                            SELECT SUM(qty) AS qty_so,no_po,kode_mc FROM `trs_so_detail` WHERE STATUS <> 'Batal'
+                            SELECT SUM(qty) AS qty_so,no_po,id_produk FROM `trs_so_detail` WHERE STATUS <> 'Batal'
 
-                            GROUP BY no_po,kode_mc
+                            GROUP BY no_po,id_produk
                         )b
                         ON a.`no_po` = b.no_po
-                        AND a.`kode_mc` = b.kode_mc
+                        AND a.`id_produk` = b.id_produk
 
                         WHERE a.no_po ='" . $id . "'
                         AND STATUS NOT IN ('Batal','Closed')
@@ -488,6 +503,23 @@ class Transaksi extends CI_Controller
 		echo json_encode($valid);
 	}
 
+    function cek_bcf()
+    {
+        $kualitas = $this->input->post("kd");
+        echo json_encode(array(
+			"bcf" => cek_subs_bcf($kualitas)
+		));
+    }
+
+    function cek_flute()
+    {
+        $kualitas   = $this->input->post("kd");
+        $flute      = $this->input->post("flute");
+        echo json_encode(array(
+			"flute" => cek_subs_flute($kualitas,$flute)
+		));
+    }
+
 	function Cetak_PO()
 	{
 		$id  = $_GET['no_po'];
@@ -497,7 +529,7 @@ class Transaksi extends CI_Controller
         JOIN trs_po_detail b ON a.no_po = b.no_po
         JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
         LEFT JOIN m_kab d ON c.kab=d.kab_id
-        LEFT JOIN m_produk e ON b.kode_mc=e.kode_mc
+        LEFT JOIN m_produk e ON b.id_produk=e.id_produk
         WHERE a.no_po = '$id' ");
 
 		$html = '';
