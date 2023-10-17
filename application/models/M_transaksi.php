@@ -20,44 +20,31 @@ class M_transaksi extends CI_Model
 
 	function trs_po($table, $status)
 	{
-		$params = (object)$this->input->post();
+		$params       = (object)$this->input->post();
+		$pono         = $this->m_master->get_data_max($table, 'no_po');
+		$bln          = $this->m_master->get_romawi(date('m'));
+		$tahun        = date('Y');
+		$nopo         = 'PO/'.$tahun.'/'.$bln.'/'.$pono;
 
+		$pelanggan    = $this->m_master->get_data_one("m_pelanggan", "id_pelanggan", $params->id_pelanggan)->row();
 
-		$pelanggan = $this->m_master->get_data_one("m_pelanggan", "id_pelanggan", $params->id_pelanggan)->row();
-
-		$total_qty = 0;
+		$total_qty    = 0;
 		foreach ($params->id_produk as $key => $value) {
-			$produk = $this->m_master->get_data_one("m_produk", "kode_mc", $params->id_produk[$key])->row();
+			// $produk = $this->m_master->get_data_one("m_produk", "kode_mc", $params->id_produk[$key])->row();
 
 			$data = array(
-				'no_po'       => $params->no_po,
-				'tgl_po'       => $params->tgl_po,
-				'kode_po'       => $params->kode_po,
-				'eta'       => $params->eta,
-				'qty'       => $params->qty[$key],
-				'kode_mc'       => $produk->kode_mc,
-				'nm_produk'     => $produk->nm_produk,
-				'ukuran'        => $produk->ukuran,
-				'material'      => $produk->material,
-				'flute'         => $produk->flute,
-				'creasing'      => $produk->creasing,
-				'warna'         => $produk->warna,
-				'kualitas'         => $produk->kualitas,
-				'jenis_produk'      => $produk->jenis_produk,
-				'tipe_box'         => $produk->tipe_box,
+				'no_po'           => $nopo,
+				'tgl_po'          => $params->tgl_po,
+				'kode_po'         => $params->kode_po,
+				'eta'             => $params->eta,
+				'qty'             => $params->qty[$key],
 				
-				'id_pelanggan'  => $pelanggan->id_pelanggan,
-				'nm_pelanggan'  => $pelanggan->nm_pelanggan,
-				'alamat'        => $pelanggan->alamat,
-				'kota'          => $pelanggan->kota,
-				'no_telp'       => $pelanggan->no_telp,
-				'fax'           => $pelanggan->fax,
-				'alamat_kirim'       => $pelanggan->alamat_kirim,
-				'lokasi'           => $pelanggan->lokasi,
-				'top'           => $pelanggan->top,
-				'ppn'           => $params->ppn[$key],
-				'price_inc'           => $params->price_inc[$key],
-				'price_exc'           => $params->price_exc[$key]
+				'kode_mc'         => $params->id_produk[$key],
+					
+				'id_pelanggan'    => $pelanggan->id_pelanggan,
+				'ppn'             => $params->ppn[$key],
+				'price_inc'       => $params->price_inc[$key],
+				'price_exc'       => $params->price_exc[$key]
 			);
 
 			if ($status == 'insert') {
@@ -72,7 +59,8 @@ class M_transaksi extends CI_Model
 					$data,
 					array(
 						'no_po' => $params->no_po,
-						'kode_mc' => $produk->kode_mc
+						// 'kode_mc' => $produk->kode_mc
+						'kode_mc' => $params->id_produk[$key]
 					)
 				);
 			}
@@ -81,20 +69,21 @@ class M_transaksi extends CI_Model
 		}
 
 		$data = array(
-			'no_po'       => $params->no_po,
-			'tgl_po'       => $params->tgl_po,
-			'kode_po'       => $params->kode_po,
-			'eta'       => $params->eta,
-			'id_pelanggan'  => $pelanggan->id_pelanggan,
-			'nm_pelanggan'  => $pelanggan->nm_pelanggan,
-			'alamat'        => $pelanggan->alamat,
-			'alamat_kirim'          => $pelanggan->alamat_kirim,
-			'lokasi'       => $pelanggan->lokasi,
-			'kota'          => $pelanggan->kota,
-			'no_telp'       => $pelanggan->no_telp,
-			'fax'           => $pelanggan->fax,
-			'top'           => $pelanggan->top,
-			'total_qty'           => $total_qty
+			'no_po'          => $nopo,
+			'tgl_po'         => $params->tgl_po,
+			'kode_po'        => $params->kode_po,
+			'eta'            => $params->eta,
+			'id_sales'       => $params->id_sales[$key],
+			'id_pelanggan'   => $pelanggan->id_pelanggan,
+			// 'nm_pelanggan'   => $pelanggan->nm_pelanggan,
+			// 'alamat'         => $pelanggan->alamat,
+			// 'alamat_kirim'   => $pelanggan->alamat_kirim,
+			// 'lokasi'         => $pelanggan->lokasi,
+			// 'kota'           => $pelanggan->kota,
+			// 'no_telp'        => $pelanggan->no_telp,
+			// 'fax'            => $pelanggan->fax,
+			// 'top'            => $pelanggan->top,
+			'total_qty'      => $total_qty
 		);
 
 		if ($status == 'insert') {

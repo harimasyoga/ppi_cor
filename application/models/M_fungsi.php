@@ -15,15 +15,16 @@ class M_fungsi extends CI_Model {
 	//function getAll($limit, $offset)
     function getAll($tabel,$field1,$limit, $offset)
 	{
-		$this->db->select('*');
+		$this->db->SELECT('*');
 		$this->db->from($tabel);
 		$this->db->order_by($field1, 'asc');
 		$this->db->limit($limit,$offset);
 		return $this->db->get();
 	}
+
     function getcari($tabel,$field,$field1,$limit, $offset,$lccari)
 	{
-		$this->db->select('*');
+		$this->db->SELECT('*');
 		$this->db->from($tabel);
         $this->db->or_like($field, $lccari);  
         $this->db->or_like($field1, $lccari);      
@@ -34,7 +35,7 @@ class M_fungsi extends CI_Model {
     
     function getAllc($tabel,$field1)
 	{
-		$this->db->select('*');
+		$this->db->SELECT('*');
 		$this->db->from($tabel);
 		$this->db->order_by($field1, 'asc');
 		//$this->db->limit($limit,$offset);
@@ -49,7 +50,7 @@ class M_fungsi extends CI_Model {
     
 	function get_count_cari($tabel,$field1,$field2,$data)
 	{
-        $this->db->select('*');
+        $this->db->SELECT('*');
 		$this->db->from($tabel);
         $this->db->or_like($field1, $data);  
         $this->db->or_like($field2, $data);      
@@ -57,9 +58,10 @@ class M_fungsi extends CI_Model {
 		return $this->db->get()->num_rows();
 		//return $this->db->get('ms_fungsi')->num_rows();
 	}
+
     function get_count_teang($tabel,$field,$field1,$lccari)
 	{
-        $this->db->select('*');
+        $this->db->SELECT('*');
 		$this->db->from($tabel);
         $this->db->or_like($field, $lccari);  
         $this->db->or_like($field1, $lccari);      
@@ -67,24 +69,27 @@ class M_fungsi extends CI_Model {
 		return $this->db->get()->num_rows();
 		//return $this->db->get('ms_fungsi')->num_rows();
 	}
+
 	// Ambil by ID
 	function get_by_id($tabel,$field1,$id)
 	{
-		$this->db->select('*');
+		$this->db->SELECT('*');
 		$this->db->from($tabel);
 		$this->db->where($field1, $id);
 		return $this->db->get();
 	}
+
 	//cari
     function cari($tabel,$field1,$field2,$limit, $offset,$data)
 	{
-		$this->db->select('*');
+		$this->db->SELECT('*');
 		$this->db->from($tabel);
         $this->db->or_like($field2, $data);  
         $this->db->or_like($field1, $data);      
 		$this->db->order_by($field1, 'asc');
 		return $this->db->get();
 	}
+
 	// Simpan data
 	function save($tabel,$data)
 	{
@@ -198,7 +203,6 @@ class M_fungsi extends CI_Model {
 		return $hasil;  
 	}
 	
- 
 	function terbilang_angka($number)
 	{
 		if (!is_numeric($number))
@@ -225,156 +229,110 @@ class M_fungsi extends CI_Model {
 			$hasil = $hasil;
 		}
 		return $hasil;  
-	} 
-
-	function mPDFP($html){
-		$mpdf = new \Mpdf\Mpdf;
-		$mpdf = new \Mpdf\Mpdf([
-			'default_font_size' => 9
-		]);
-		$mpdf->AddPage('P','','','','',10,10,10,10);
-		$mpdf->WriteHTML($html);
-		$mpdf->Output();
-	}
-    
-    
-    function _mpdf($judul='',$isi='',$lMargin='',$rMargin='',$font=0,$orientasi='') {
+	}    
         
-        ini_set("memory_limit","512M");
-        // $this->load->library('mpdf');
-        $this->load->library('Mpdf');
-
-        
-        $this->mpdf->defaultheaderfontsize = 6;	/* in pts */
-        $this->mpdf->defaultheaderfontstyle = BI;	/* blank, B, I, or BI */
-        $this->mpdf->defaultheaderline = 1; 	/* 1 to include line below header/above footer */
-
-        $this->mpdf->defaultfooterfontsize = 6;	/* in pts */
-        $this->mpdf->defaultfooterfontstyle = BI;	/* blank, B, I, or BI */
-        $this->mpdf->defaultfooterline = 1; 
-        $this->mpdf->SetLeftMargin = $lMargin;
-        $this->mpdf->SetRightMargin = $rMargin;
-        //$this->mpdf->SetHeader('SIMAKDA||');
-        $jam = date("H:i:s");
-      
-        $this->mpdf->AddPage($orientasi,'','','','',$lMargin,$rMargin);
-        
-        if (!empty($judul)) $this->mpdf->writeHTML($judul);
-        $this->mpdf->writeHTML($isi);         
-        $this->mpdf->Output();
-               
-    }
-
-
-    function _mpdf_margin($judul='',$isi='',$lMargin='',$rMargin='',$tMargin='',$bMargin='',$font=0,$orientasi='',$jdlsave='') {
-        
-        ini_set("memory_limit","512M");
-        $this->load->library('mpdf');
-        
-        $this->mpdf->defaultheaderfontsize = 6;	/* in pts */
-        $this->mpdf->defaultheaderfontstyle = BI;	/* blank, B, I, or BI */
-        $this->mpdf->defaultheaderline = 1; 	/* 1 to include line below header/above footer */
-
-        $this->mpdf->defaultfooterfontsize = 6;	/* in pts */
-        $this->mpdf->defaultfooterfontstyle = BI;	/* blank, B, I, or BI */
-        $this->mpdf->defaultfooterline = 1; 
-        $this->mpdf->SetLeftMargin = $lMargin;
-        $this->mpdf->SetRightMargin = $rMargin;
-        $jam = date("H:i:s");
-        
-        
-        $this->mpdf->writeHTML($isi);         
-        $this->mpdf->Output($jdlsave,'I');
-        
-    }
-
-    
-        
-    function  tanggal_format_indonesia($tgl){
-            
-        $tanggal  = explode('-',$tgl); 
-        $bulan  = $this-> getBulan($tanggal[1]);
-        $tahun  =  $tanggal[0];
+    function  tanggal_format_indonesia($tgl)
+	{
+        $tanggal    = explode('-',$tgl);
+        $bulan      = $this-> getBulan($tanggal[1]);
+        $tahun      = $tanggal[0];
         return  $tanggal[2].' '.$bulan.' '.$tahun;
-
     }
 
-    function  periode_indonesia($tgl){
+    function  periode_indonesia($tgl)
+	{
             
-        $tanggal  = explode('-',$tgl); 
-        $bulan  = $this-> getBulan($tanggal[1]);
-        $tahun  =  $tanggal[0];
+        $tanggal    = explode('-',$tgl);
+        $bulan      = $this-> getBulan($tanggal[1]);
+        $tahun      = $tanggal[0];
         return  $bulan.' '.$tahun;
 
     }
 	
-	function  tanggal_format_indonesia_sebelum($tgl){
-        $tanggal  = explode('-',$tgl);
-		$tanggal1 = $tanggal[2]-1;
-        $bulan  = $this-> getBulan($tanggal[1]);
-        $tahun  =  $tanggal[0];
+	function  tanggal_format_indonesia_sebelum($tgl)
+	{
+        $tanggal    = explode('-',$tgl);
+		$tanggal1         = $tanggal[2]-1;
+		$bulan            = $this-> getBulan($tanggal[1]);
+		$tahun            = $tanggal[0];
         return  $tanggal1.' '.$bulan.' '.$tahun;
     }
     
-    function  tanggal_ind($tgl){
-            
-        $tanggal  = explode('-',$tgl); 
-        $bulan  = $tanggal[1];
-        $tahun  =  $tanggal[0];
+    function  tanggal_ind($tgl)
+	{        
+        $tanggal    = explode('-',$tgl);
+        $bulan      = $tanggal[1];
+        $tahun      = $tanggal[0];
         return  $tanggal[2].'-'.$bulan.'-'.$tahun;
 
     }
         
-    function  getBulan($bln){
-        switch  ($bln){
-        case  1:
-        return  "Januari";
-        break;
-        case  2:
-        return  "Februari";
-        break;
-        case  3:
-        return  "Maret";
-        break;
-        case  4:
-        return  "April";
-        break;
-        case  5:
-        return  "Mei";
-        break;
-        case  6:
-        return  "Juni";
-        break;
-        case  7:
-        return  "Juli";
-        break;
-        case  8:
-        return  "Agustus";
-        break;
-        case  9:
-        return  "September";
-        break;
-        case  10:
-        return  "Oktober";
-        break;
-        case  11:
-        return  "November";
-        break;
-        case  12:
-        return  "Desember";
-        break;
-    }
+    function  getBulan($bln)
+	{
+        switch  ($bln)
+		{
+			case  1:
+				return  "Januari";
+			break;
+
+			case  2:
+				return  "Februari";
+			break;
+
+			case  3:
+				return  "Maret";
+			break;
+
+			case  4:
+				return  "April";
+			break;
+
+			case  5:
+				return  "Mei";
+			break;
+
+			case  6:
+				return  "Juni";
+			break;
+
+			case  7:
+				return  "Juli";
+			break;
+
+			case  8:
+				return  "Agustus";
+			break;
+
+			case  9:
+				return  "September";
+			break;
+
+			case  10:
+				return  "Oktober";
+			break;
+
+			case  11:
+				return  "November";
+			break;
+
+			case  12:
+				return  "Desember";
+			break;
+		}
     }
     
-    function right($value, $count){
-    return substr($value, ($count*-1));
+    function right($value, $count)
+	{
+		return substr($value, ($count*-1));
     }
 
-    function left($string, $count){
-    return substr($string, 0, $count);
+    function left($string, $count)
+	{
+		return substr($string, 0, $count);
     }    
     
-    function  dotrek($rek){
+    function  dotrek($rek)
+	{
 				$nrek=strlen($rek);
 				switch ($nrek) {
                 case 1:
@@ -401,48 +359,248 @@ class M_fungsi extends CI_Model {
 				return $rek;
     }
     
+	function template_kop($judul, $body, $position, $cekpdf)
+	{
+		$param    = $judul;
+		$unit     = $this->session->userdata('unit');
+		$avatar   = $this->session->userdata('avatar_cabang');
+
+		$profile  = $this->db->query("SELECT*FROM m_setting")->row();
+		$nm_toko  = $profile->nm_toko;
+		$alamat   = $profile->alamat;
+		$alamat2  = $profile->alamat2;
+		$phone    = $profile->no_telp;
+		$whatsapp = $profile->no_telp;
+		$npwp     = '-';
+		$chari    = '';
+		$chari .= "
+			 <table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:12px; color:#000;\" width=\"100%\"  border=\"0\" cellspacing=\"0\" cellpadding=\"0\">
+			 <thead>
+				  <tr>
+					   <td rowspan=\"6\" align=\"center\">
+							<img src=\"" . base_url() . "assets/gambar/ppi.png\"  width=\"70\" height=\"70\" />
+					   </td>
+					   <td colspan=\"20\">
+							<b>
+								 <tr>
+									  <td style=\"font-size:10px;border-bottom: none;\"><b><br>$nm_toko</b></td>
+								 </tr>
+								 <tr>
+									  <td style=\"font-size:9px;\">$alamat</td>
+								 </tr>
+								 <tr>
+									  <td style=\"font-size:9px;\">$alamat2</td>
+								 </tr>
+								 <tr>
+									  <td style=\"font-size:9px;\">Wa :$whatsapp    Telp :$phone </td>
+								 </tr>
+								 <tr>
+									  <td style=\"font-size:9px;\">No. NPWP : $npwp</td>
+								 </tr>
+							</b>
+					   </td>
+				  </tr>
+			 </table>";
+		$chari .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:12px\" width=\"100%\" align=\"center\" border=\"0\">
+				  <tr>
+					   <td> &nbsp; </td>
+				  </tr> 
+			 </table>";
+								 
+		$chari .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:2px\" width=\"100%\" align=\"center\" border=\"1\">     
+				  <tr>
+					   <td colspan=\"20\" style=\"border-top: none;border-right: none;border-left: none;\"></td>
+				  </tr> 
+			 </table>";
+		$chari .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:2px\" width=\"100%\" align=\"center\" border=\"1\">     
+				  <tr>
+					   <td colspan=\"20\" style=\"border-top: none;border-right: none;border-left: none;\"></td>
+				  </tr> 
+			 </table>";
+		$chari .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:12px\" width=\"100%\" align=\"center\" border=\"0\">     
+				  <tr>
+					   <td>&nbsp;</td>
+				  </tr> 
+			 </table>";
+		$chari .= "
+			 <table style=\"border-collapse:collapse;font-family: Tahoma; font-size:11px\" width=\"100%\" align=\"center\" border=\"0\" cellspacing=\"1\" cellpadding=\"3\">
+				  <tr>
+					   <td colspan=\"20\" width=\"15%\" style=\"text-align:center; font-size:20px;\"><b>" . $param . "</b></td>
+				  </tr>
+			 </table>";
+			 
+		$chari .= $body;
+		$data['prev']    = $chari;
+		$judul           = $param;
+
+		switch ($cekpdf) {
+			case 0;
+				echo ("<title>$judul</title>");
+				echo ($chari);
+				break;
+
+			case 1;
+				// $this->M_cetak->mpdf('L', 'A4', $judul, $chari, '.PDF', 10, 10, 10, 2);
+			//   $this->mpdf( $judul,$chari,'','', $position);
+				$this->_mpdf_hari($position, 'A4', $judul, $chari, '.PDF', 10, 10, 10, 2);
+			
+
+				break;
+			case 2;
+				header("Cache-Control: no-cache, no-store, must-revalidate");
+				header("Content-Type: application/vnd-ms-excel");
+				header("Content-Disposition: attachment; filename= $judul.xls");
+				$this->load->view('app/master_cetak', $data);
+				break;
+		}
+
+	}
+
+	function _mpdf_hari($form='',$uk='' , $judul='',$isi='',$jdlsave='',$lMargin='',$rMargin='',$font=10,$orientasi='',$hal='',$tab='',$tMargin='')
+    {
+        ini_set("memory_limit", "-1");
+        ini_set("MAX_EXECUTION_TIME","-1");
+		ini_set("pcre.backtrack_limit", "5000000");
+		set_time_limit(0);
+		
+        $jam = date("H:i:s");
+		if ($hal==''){
+			$hal1=1;
+		} 
+		if($hal!==''){
+			$hal1=$hal;
+		}
+		if ($font==''){
+			$size=12;
+		}else{
+			$size=$font;
+		} 
+
+		if ($tMargin=='' ){
+			$tMargin=10;
+		}
+		
+		if($lMargin==''){
+			$lMargin=15;
+		}
+
+		if($rMargin==''){
+			$rMargin=15;
+		}
+
+        $this->load->library('Mpdf');
+
+        $this->mpdf = new \Mpdf\Mpdf( array(190,236),$size,'',$lMargin,$rMargin,$tMargin);
+
+        $this->mpdf->AddPage($form,$uk);
+
+		$this->mpdf->SetFooter('Tercetak {DATE j-m-Y H:i:s} |Halaman {PAGENO} / {nb}| ');
+
+		$this->mpdf->setTitle($judul);
+
+        $this->mpdf->writeHTML($isi);
+
+		$this->mpdf->output($jdlsave,'I');
+    }
+
+	
+	function mPDFP($html)
+	{
+		$mpdf = new \Mpdf\Mpdf;
+		$mpdf = new \Mpdf\Mpdf([
+			'default_font_size' => 9
+		]);
+		$mpdf->AddPage('P','','','','',10,10,10,10);
+		$mpdf->WriteHTML($html);
+		$mpdf->Output();
+	}
     
-  //wahyu tambah ----------------------------------------	
-        function  rev_date($tgl){
-			$t=explode("-",$tgl);
-			$tanggal  =  $t[2];
-			$bulan    =  $t[1];
-			$tahun    =  $t[0];
-			return  $tanggal.'-'.$bulan.'-'.$tahun;
-
-        }
+    
+    function _mpdf($judul='',$isi='',$lMargin='',$rMargin='',$font=0,$orientasi='') 
+	{
         
-        function  rev_date1($tgl){
-			$t=explode("-",$tgl);
-			$tanggal  =  $t[0];
-			$bulan    =  $t[1];
-			$tahun    =  $t[2];
-			return  $tahun.'-'.$bulan.'-'.$tanggal;
-
-        }
+        ini_set("memory_limit","512M");
+        // $this->load->library('mpdf');
+        $this->load->library('Mpdf');
         
+        $this->mpdf->defaultheaderfontsize = 6;	/* in pts */
+        $this->mpdf->defaultheaderfontstyle = BI;	/* blank, B, I, or BI */
+        $this->mpdf->defaultheaderline = 1; 	/* 1 to include line below header/above footer */
+
+        $this->mpdf->defaultfooterfontsize = 6;	/* in pts */
+        $this->mpdf->defaultfooterfontstyle = BI;	/* blank, B, I, or BI */
+        $this->mpdf->defaultfooterline = 1; 
+        $this->mpdf->SetLeftMargin = $lMargin;
+        $this->mpdf->SetRightMargin = $rMargin;
+        //$this->mpdf->SetHeader('SIMAKDA||');
+        $jam = date("H:i:s");
+      
+        $this->mpdf->AddPage($orientasi,'','','','',$lMargin,$rMargin);
         
+        if (!empty($judul)) $this->mpdf->writeHTML($judul);
+        $this->mpdf->writeHTML($isi);         
+        $this->mpdf->Output();
+               
+    }
 
-		function get_sclient($hasil,$tabel)
-		{
-			$this->db->select($hasil);
-			$q = $this->db->get($tabel);
-			$data  = $q->result_array();
-			$baris = $q->num_rows();
-			return $data[0][$hasil];
-		}
 
-		function get_nama($kode,$hasil,$tabel,$field)
-		{
-			$this->db->select($hasil);
-			$this->db->where($field, $kode);
-			$q = $this->db->get($tabel);
-			$data  = $q->result_array();
-			$baris = $q->num_rows();
-			return $data[0][$hasil];
-		}
-// -----------------------------------------------------
-    function rp_minus($nilai){
+    function _mpdf_margin($judul='',$isi='',$lMargin='',$rMargin='',$tMargin='',$bMargin='',$font=0,$orientasi='',$jdlsave='') 
+	{
+        
+        ini_set("memory_limit","512M");
+        $this->load->library('mpdf');
+        
+        $this->mpdf->defaultheaderfontsize = 6;	/* in pts */
+        $this->mpdf->defaultheaderfontstyle = BI;	/* blank, B, I, or BI */
+        $this->mpdf->defaultheaderline = 1; 	/* 1 to include line below header/above footer */
+
+        $this->mpdf->defaultfooterfontsize = 6;	/* in pts */
+        $this->mpdf->defaultfooterfontstyle = BI;	/* blank, B, I, or BI */
+        $this->mpdf->defaultfooterline = 1; 
+        $this->mpdf->SetLeftMargin = $lMargin;
+        $this->mpdf->SetRightMargin = $rMargin;
+        $jam = date("H:i:s");
+        
+        $this->mpdf->writeHTML($isi);         
+        $this->mpdf->Output($jdlsave,'I');
+        
+    }
+    
+	function  rev_date($tgl)
+	{
+		$t=explode("-",$tgl);
+		$tanggal  =  $t[0];
+		$bulan    =  $t[1];
+		$tahun    =  $t[2];
+		return  $tahun.'-'.$bulan.'-'.$tanggal;
+
+	}
+	
+	function get_sclient($hasil,$tabel)
+	{
+		$this->db->SELECT($hasil);
+		$q        = $this->db->get($tabel);
+		$data     = $q->result_array();
+		$baris    = $q->num_rows();
+		return $data[0][$hasil];
+	}
+
+	function get_nama($kode,$hasil,$tabel,$field)
+	{
+		$this->db->SELECT($hasil);
+		$this->db->where($field, $kode);
+		$q        = $this->db->get($tabel);
+		$data     = $q->result_array();
+		$baris    = $q->num_rows();
+		return $data[0][$hasil];
+	}
+	
+    function rp_minus($nilai)
+	{
         if($nilai<0){
             $nilai = $nilai * (-1);
             $nilai = '('.number_format($nilai,"2",",",".").')';    
@@ -453,7 +611,8 @@ class M_fungsi extends CI_Model {
         return $nilai;
     }  	        
 
-    function persen($nilai,$nilai2){
+    function persen($nilai,$nilai2)
+	{
             if($nilai != 0){
                 $persen = $this->rp_minus((($nilai2 - $nilai)/$nilai)*100);
             }else{
@@ -466,7 +625,8 @@ class M_fungsi extends CI_Model {
           return $persen;  
 	 }
 
-    function persen_real($ang,$real){
+    function persen_real($ang,$real)
+	{
             if($ang != 0){
                 $persen = $this->rp_minus(($real * 100)/$ang);
             }else{
@@ -478,120 +638,23 @@ class M_fungsi extends CI_Model {
             } 
           return $persen;  
 	}
-	 
-        function combo_beban($id='',$script=''){
-        $cRet    = '';                        
-        $cRet    = "<select name=\"$id\" id=\"$id\" $script >";
-        $cRet   .= "<option value=''>Pilih Beban</option>";                 
-        $cRet   .= "<option value='1'>UP/GU</option>";                
-        $cRet   .= "<option value='3'>TU</option>";                        
-        $cRet   .= "</select>";        
-        return $cRet;
-    }
 
-    function qsisa_bankkasda($tgl,$nomor=''){
-        $hasil  = 0;
-        $csql ="select *,sisa=terima-keluar from(
-        		select a.kode,a.nama,isnull(nilai,0) [terima],
-					(
-						select sum(nilai) from(
-							select isnull(sum(f.nilai),0) [nilai] from trhsp2d e join trdspp f on e.no_spp=f.no_spp  
-							where status_bud='1' and e.tgl_kas_bud<='$tgl' and e.bank_bud=a.kode and f.no_spp<>'$nomor'
-							union all 
-							select isnull(sum(nilai),0) [nilai] from transfer_bank_kasda where kd_bank_bud1=a.kode and tgl_kas<='$tgl' and no_kas<>'$nomor'
-						)as g
-					) [keluar] 
-					from ms_bank a left join 
-					(
-						select kd_bank_bud,sum(nilai) [nilai] from(
-							select b.kd_bank_bud,sum(c.rupiah) [nilai] from trhkasin_ppkd b join trdkasin_ppkd c 
-							on b.no_sts=c.no_sts and b.kd_skpd=c.kd_skpd where b.tgl_kas<='$tgl' group by b.kd_bank_bud
-							union all 
-							select kd_bank_bud2 as kd_bank_bud,isnull(sum(nilai),0) [nilai] from transfer_bank_kasda where tgl_kas<='$tgl' and no_kas<>'$nomor'
-							group by kd_bank_bud2
-						)as h group by kd_bank_bud
-					) d 
-					on a.kode=d.kd_bank_bud where a.rekening<>''
-				)as g order by kode  ";
-        $hasil = $this->db->query($csql);
-        return $hasil;
-    }    
-
-
-    function qsisa_bankkasda_bln($blnawal,$blnakhir){
-        $hasil  = 0;
-        /*
-        $csql ="select *,sisa=terima-keluar from(
-					select a.kode,a.nama,isnull(nilai,0) [terima],(select isnull(sum(f.nilai),0) [nilai] from trhsp2d e join trdspp f on e.no_spp=f.no_spp  where status_bud='1' 
-					and month(e.tgl_kas_bud)>='$blnawal' and month(e.tgl_kas_bud)<='$blnakhir' and e.bank_bud=a.kode) [keluar] 
-					from ms_bank a left join 
-					(select b.kd_bank_bud,sum(c.rupiah) [nilai] from trhkasin_ppkd b join trdkasin_ppkd c 
-					on b.no_sts=c.no_sts and b.kd_skpd=c.kd_skpd where month(b.tgl_kas)>='$blnawal' and month(b.tgl_kas)<='$blnakhir' group by b.kd_bank_bud) d 
-					on a.kode=d.kd_bank_bud where a.rekening<>''
-				)as g order by kode ";
-		*/
-        $csql ="select *,sisa=terima-keluar from(
-        		select a.kode,a.nama,isnull(nilai,0) [terima],
-					(
-						select sum(nilai) from(
-							select isnull(sum(f.nilai),0) [nilai] from trhsp2d e join trdspp f on e.no_spp=f.no_spp  
-							where status_bud='1' and month(e.tgl_kas_bud)<='$blnakhir' and e.bank_bud=a.kode
-							union all 
-							select isnull(sum(nilai),0) [nilai] from transfer_bank_kasda where kd_bank_bud1=a.kode and month(tgl_kas)<='$blnakhir'
-						)as g
-					) [keluar] 
-					from ms_bank a left join 
-					(
-						select kd_bank_bud,sum(nilai) [nilai] from(
-							select b.kd_bank_bud,sum(c.rupiah) [nilai] from trhkasin_ppkd b join trdkasin_ppkd c 
-							on b.no_sts=c.no_sts and b.kd_skpd=c.kd_skpd where month(b.tgl_kas)<='$blnakhir' group by b.kd_bank_bud
-							union all 
-							select kd_bank_bud2 as kd_bank_bud,isnull(sum(nilai),0) [nilai] from transfer_bank_kasda where month(tgl_kas)<='$blnakhir'
-							group by kd_bank_bud2
-						)as h group by kd_bank_bud
-					) d 
-					on a.kode=d.kd_bank_bud where a.rekening<>''
-				)as g order by kode ";
-
-        $hasil = $this->db->query($csql);
-        return $hasil;
-    }   
-
-
-
-    function q_ttd($ttd,$kode){
+    function q_ttd($ttd,$kode)
+	{
         $hasil = 0;
-        $csql ="select nip,nama,jabatan,pangkat from ms_ttd where nip='$ttd' and kode='$kode'";
+        $csql ="SELECT nip,nama,jabatan,pangkat from ms_ttd where nip='$ttd' and kode='$kode'";
         $hasil = $this->db->query($csql);
         return $hasil;
     } 	
 
 
-    function cek_menu_user($user,$menuid){
+    function cek_menu_user($user,$menuid)
+	{
         $hasil = 0;
-        $csql ="select dbo.cek_menu_user('$user','$menuid') as jumlah";
+        $csql ="SELECT dbo.cek_menu_user('$user','$menuid') as jumlah";
         $hasil = $this->db->query($csql);
         $hasil = $hasil->row('jumlah');
         return $hasil;        
     }
 
-    function rekapt_puskesmas_bln($kdrek5,$kd_skpd,$bln,$thn){
-        $hasil = array();
-        $this->db->trans_start();
-        $asg = $this->db->query("rekap_terima_puskesmas_bln '$kdrek5','$kd_skpd','$bln','$thn'");
-        $this->db->trans_complete();
-        if ($this->db->trans_status() === FALSE) {
-               $hasil = array('pesan' =>0,'query' => '');
-        } else{
-               $hasil = array('pesan' =>1,'query' => $asg);
-        }
-        return $hasil;
-    } 
-
-    
-// -----------------------------------------------------	
-
 }
-
-/* End of file fungsi_model.php */
-/* Location: ./application/models/fungsi_model.php */
