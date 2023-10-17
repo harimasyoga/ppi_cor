@@ -126,7 +126,7 @@
 							<td style="padding:5px 0" colspan="7">
 								<input type="hidden" class="form-control" id="customer">
 								<input type="hidden" class="form-control" id="id">
-								<input type="hidden" class="form-control" id="kode_mc_lama">
+								<!-- <input type="hidden" class="form-control" id="kode_mc_lama"> -->
 								<input type="text" class="form-control" id="kode_mc" placeholder="KODE MC" autocomplete="off">
 							</td>
 						</tr>
@@ -337,7 +337,7 @@
 		$("#btn-simpan").prop("disabled", true);
 		id = $("#id").val();
 		kode_mc = $("#kode_mc").val();
-		kode_mc_lama = $("#kode_mc_lama").val();
+		// kode_mc_lama = $("#kode_mc_lama").val();
 		nm_produk = $("#nm_produk").val();
 		no_customer = $("#no_customer").val();
 		customer = $("#customer").val();
@@ -393,10 +393,10 @@
 		}
 
 		$.ajax({
-			url: '<?php echo base_url(); ?>/master/insert/' + status,
+			url: '<?php echo base_url(); ?>/master/insert/'+status,
 			type: "POST",
 			data: ({
-				id, kode_mc, kode_mc_lama, nm_produk, no_customer, customer, ukuran, ukuran_sheet, sambungan, tipe, material, wall, l_panjang, l_lebar, l_tinggi, creasing, creasing2, creasing3, flute, berat_bersih, luas_bersih, kualitas, warna, no_design, design, tipe_box, jenis_produk, kategori, COA:cCOA, jml_ikat, jml_palet, jml_paku, no_pisau, no_karet, toleransi_kirim, spesial_req, ukuran_sheet_p, ukuran_sheet_l, jenis: 'm_produk', status: status
+				id, kode_mc, nm_produk, no_customer, customer, ukuran, ukuran_sheet, sambungan, tipe, material, wall, l_panjang, l_lebar, l_tinggi, creasing, creasing2, creasing3, flute, berat_bersih, luas_bersih, kualitas, warna, no_design, design, tipe_box, jenis_produk, kategori, COA:cCOA, jml_ikat, jml_palet, jml_paku, no_pisau, no_karet, toleransi_kirim, spesial_req, ukuran_sheet_p, ukuran_sheet_l, jenis: 'm_produk', status: status
 			}),
 			dataType: "JSON",
 			success: function(data) {
@@ -451,7 +451,7 @@
 				htmlCust += `<option value="">PILIH</option>`
 				data.forEach(loadCust)
 				function loadCust(r, index) {
-					htmlCust += `<option value="${r.id_pelanggan}" data-detail="${r.nm_pelanggan}" attn="${r.attn}" prov="${r.prov_name}" kab="${r.kab_name}" kec="${r.kec_name}" kel="${r.kel_name}" alamat="${r.alamat}">${r.nm_pelanggan}</option>`
+					htmlCust += `<option value="${r.id_pelanggan}" data-detail="${(r.nm_pelanggan == null) ? '-' : r.nm_pelanggan}" attn="${(r.attn == null) ? '-' : r.attn}" prov="${(r.prov_name == null) ? '-' : r.prov_name}" kab="${(r.kab_name == null) ? '-' : r.kab_name}" kec="${(r.kec_name == null) ? '-' : r.kec_name}" kel="${(r.kel_name == null) ? '-' : r.kel_name}" alamat="${(r.alamat == null) ? '-' : r.alamat}">${r.nm_pelanggan}</option>`
 				}
 				$("#no_customer").prop("disabled", false).html(htmlCust)
 			}
@@ -559,7 +559,7 @@
 		.done(function(json) {
 			data = JSON.parse(json)
 			console.log(data)
-			$("#id").val(data.produk.id);
+			$("#id").val(data.produk.id_produk);
 			$("#customer").val(data.produk.customer);
 			
 			let htmlCust = ''
@@ -578,10 +578,10 @@
 				htmlCust += `<option value="${r.id_pelanggan}"
 					data-detail="${r.nm_pelanggan}"
 					attn="${r.attn}"
-					prov="${r.prov_name}"
-					kab="${r.kab_name}"
-					kec="${r.kec_name}"
-					kel="${r.kel_name}"
+					prov="${(r.prov_name == null) ? '-' : r.prov_name}"
+					kab="${(r.kab_name == null) ? '-' : r.kab_name}"
+					kec="${(r.kec_name == null) ? '-' : r.kec_name}"
+					kel="${(r.kel_name == null) ? '-' : r.kel_name}"
 					alamat="${r.alamat}">
 						${r.nm_pelanggan}
 				</option>`
@@ -596,7 +596,7 @@
 			$("#kelurahan").html((data.wilayah.kel_name == null) ? '-' : data.wilayah.kel_name);
 
 			$("#kode_mc").val(data.produk.kode_mc);
-			$("#kode_mc_lama").val(data.produk.kode_mc);
+			// $("#kode_mc_lama").val(data.produk.kode_mc);
 			$("#nm_produk").val(data.produk.nm_produk);
 			$("#ukuran").val(data.produk.ukuran);
 			$("#ukuran_sheet_p").val(data.produk.ukuran_sheet_p);

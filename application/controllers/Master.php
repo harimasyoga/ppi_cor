@@ -177,8 +177,8 @@ class Master extends CI_Controller
 				$row[] = $r->flute;
 				$row[] = $r->berat_bersih;
 
-				$kodeMc = $r->kode_mc;
-				$cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE kode_mc='$kodeMc'")->num_rows();
+				$idProduk = $r->id_produk;
+				$cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE id_produk='$idProduk'")->num_rows();
 				$btnEdit = '<button type="button" onclick="tampil_edit('."'".$r->id_produk."'".','."'edit'".')" class="btn btn-warning btn-xs">Edit</button>';
 				$btnHapus = '<button type="button" onclick="deleteData('."'".$r->id_produk."'".')" class="btn btn-danger btn-xs">Hapus</button>';
 				$row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit ;

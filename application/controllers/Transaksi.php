@@ -1335,4 +1335,36 @@ class Transaksi extends CI_Controller
 
 		$this->m_fungsi->_mpdf($html);
 	}
+
+	function soPlhNoPO()
+	{
+		$po = $this->db->query("SELECT c.nm_pelanggan,s.nm_sales,p.* FROM trs_po p
+		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+		INNER JOIN m_sales s ON p.id_sales=s.id_sales WHERE status_app1='Y' AND status_app2='Y' AND status_app3='Y'")->result();
+		echo json_encode(array(
+			'po' => $po,
+		));
+	}
+
+	function soPlhItems()
+	{
+		$no_po = $_POST["no_po"];
+		$poDetail = $this->db->query("SELECT p.nm_produk,p.ukuran,p.ukuran_sheet,p.flute,p.kualitas,d.* FROM trs_po_detail d
+		INNER JOIN m_produk p ON d.id_produk=p.id_produk
+		WHERE d.status='Approve' AND d.no_po='$no_po' AND no_so IS NULL AND tgl_so IS NULL")->result();
+		echo json_encode(array(
+			'po_detail' => $poDetail,
+		));
+	}
+
+	function soNoSo()
+	{
+		$item = $_POST["item"];
+		$cekSo = $this->db->query("SELECT COUNT(d.id_produk) AS jmlNoSo,d.no_so FROM trs_po_detail d
+		WHERE d.id_produk='$item' AND d.no_so IS NOT NULL
+		GROUP BY d.id_produk,d.no_so")->result();
+		echo json_encode(array(
+			'siu' => $cekSo,
+		));
+	}
 }
