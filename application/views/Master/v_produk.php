@@ -36,13 +36,13 @@
 					<thead>
 						<tr>
 							<th style="width:5%">NO.</th>
-							<th style="width:23%">NAMA</th>
+							<th style="width:20%">CUSTOMER</th>
+							<th style="width:23%">ITEM</th>
 							<th style="width:14%">BOX</th>
 							<th style="width:14%">SHEET</th>
+							<th style="width:5%">FLUTE</th>
 							<th style="width:14%">KUALITAS</th>
-							<th style="width:10%">FLUTE</th>
-							<th style="width:10%">BB</th>
-							<th style="width:10%">AKSI</th>
+							<th style="width:5%">AKSI</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -116,7 +116,7 @@
 							<td style="padding:5px 0;color:#fff" colspan="5">-</td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0;font-weight:bold">NAMA PRODUK</td>
+							<td style="padding:5px 0;font-weight:bold">NAMA ITEM</td>
 							<td style="padding:5px 0" colspan="7">
 								<input type="text" class="form-control" id="nm_produk" placeholder="NAMA PRODUK" autocomplete="off">
 							</td>
@@ -124,9 +124,8 @@
 						<tr>
 							<td style="padding:5px 0;font-weight:bold">KODE MC</td>
 							<td style="padding:5px 0" colspan="7">
-								<input type="hidden" class="form-control" id="customer">
+								<!-- <input type="hidden" class="form-control" id="customer"> -->
 								<input type="hidden" class="form-control" id="id">
-								<!-- <input type="hidden" class="form-control" id="kode_mc_lama"> -->
 								<input type="text" class="form-control" id="kode_mc" placeholder="KODE MC" autocomplete="off">
 							</td>
 						</tr>
@@ -160,10 +159,10 @@
 							<td></td>
 							<td style="padding:5px 0;font-weight:bold">UKURAN SHEET</td>
 							<td style="padding:5px 5px 5px 0">
-								<input type="number" class="form-control" placeholder="PANJANG" name="ukuran_sheet_p" id="ukuran_sheet_p" disabled>
+								<input type="text" class="form-control" placeholder="PANJANG" name="ukuran_sheet_p" id="ukuran_sheet_p" disabled>
 							</td>
 							<td style="padding:5px 0 5px 5px">
-								<input type="number" class="form-control" placeholder="LEBAR" name="ukuran_sheet_l" id="ukuran_sheet_l" disabled>
+								<input type="text" class="form-control" placeholder="LEBAR" name="ukuran_sheet_l" id="ukuran_sheet_l" disabled>
 								<input type="hidden" class="form-control" id="ukuran_sheet" placeholder="-" autocomplete="off" disabled>
 							</td>
 						</tr>
@@ -316,12 +315,12 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url(); ?>Master/load_data/produk',
+				"url": '<?php echo base_url(); ?>Transaksi/load_data/produk',
 				"type": "POST",
 				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}),
 			},
 			responsive: true,
-			"pageLength": 25,
+			"pageLength": 10,
 			"language": {
 				"emptyTable": "Tidak ada data.."
 			}
@@ -337,10 +336,9 @@
 		$("#btn-simpan").prop("disabled", true);
 		id = $("#id").val();
 		kode_mc = $("#kode_mc").val();
-		// kode_mc_lama = $("#kode_mc_lama").val();
 		nm_produk = $("#nm_produk").val();
 		no_customer = $("#no_customer").val();
-		customer = $("#customer").val();
+		// customer = $("#customer").val();
 		ukuran = $("#ukuran").val();
 		ukuran_sheet = $("#ukuran_sheet").val();
 		sambungan = $("#sambungan").val();
@@ -386,32 +384,33 @@
 			return;
 		}
 
-		if (kode_mc == '' || nm_produk == '' || no_customer == '' || customer == '' || ukuran == '' || ukuran_sheet == '' || sambungan == '' || tipe == '' || material == '' || wall == '' || creasing == '' || creasing2 == '' || creasing3 == '' || flute == '' || berat_bersih == '' || luas_bersih == '' || kualitas == '' || warna == '' || no_design == '' || design == '' || tipe_box == '' || jenis_produk == '' || kategori == '' || cCOA == '' || jml_ikat == '' || jml_palet == '' || jml_paku == '' || no_pisau == '' || no_karet == '' || toleransi_kirim == '' || spesial_req == '') {
+		if (kode_mc == '' || nm_produk == '' || no_customer == '' || ukuran == '' || ukuran_sheet == '' || sambungan == '' || tipe == '' || material == '' || wall == '' || creasing == '' || creasing2 == '' || creasing3 == '' || flute == '' || berat_bersih == '' || luas_bersih == '' || kualitas == '' || warna == '' || no_design == '' || design == '' || tipe_box == '' || jenis_produk == '' || kategori == '' || cCOA == '' || jml_ikat == '' || jml_palet == '' || jml_paku == '' || no_pisau == '' || no_karet == '' || toleransi_kirim == '' || spesial_req == '') {
 			toastr.info('Harap Lengkapi Form');
 			$("#btn-simpan").prop("disabled", false);
 			return;
 		}
 
 		$.ajax({
-			url: '<?php echo base_url(); ?>/master/insert/'+status,
+			url: '<?php echo base_url('Master/Insert') ?>',
 			type: "POST",
 			data: ({
-				id, kode_mc, nm_produk, no_customer, customer, ukuran, ukuran_sheet, sambungan, tipe, material, wall, l_panjang, l_lebar, l_tinggi, creasing, creasing2, creasing3, flute, berat_bersih, luas_bersih, kualitas, warna, no_design, design, tipe_box, jenis_produk, kategori, COA:cCOA, jml_ikat, jml_palet, jml_paku, no_pisau, no_karet, toleransi_kirim, spesial_req, ukuran_sheet_p, ukuran_sheet_l, jenis: 'm_produk', status: status
+				id, kode_mc, nm_produk, no_customer, ukuran, ukuran_sheet, sambungan, tipe, material, wall, l_panjang, l_lebar, l_tinggi, creasing, creasing2, creasing3, flute, berat_bersih, luas_bersih, kualitas, warna, no_design, design, tipe_box, jenis_produk, kategori, COA:cCOA, jml_ikat, jml_palet, jml_paku, no_pisau, no_karet, toleransi_kirim, spesial_req, ukuran_sheet_p, ukuran_sheet_l, jenis: 'm_produk', status: status
 			}),
-			dataType: "JSON",
-			success: function(data) {
-				if (data) {
-					toastr.success('Berhasil Disimpan');
+			success: function(json) {
+				data = JSON.parse(json)
+				// console.log(data)
+				if(data.result == true) {
+					toastr.success('BERHASIL DISIMPAN!');
 					kosong();
 					$("#modalForm").modal("hide");
-				} else {
-					toastr.error('Gagal Simpan / Kode MC sudah tersedia');
+					reloadTable();
+				}else{
+					toastr.error('ITEM SUDAH ADA!');
 					$("#btn-simpan").prop("disabled", false);
 				}
-				reloadTable();
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				toastr.error('Terjadi Kesalahan');
+				toastr.error('TERJADI KESALAHAN!');
 			}
 		});
 	}
@@ -445,7 +444,7 @@
 			type: "POST",
 			success: function(json) {
 				data = JSON.parse(json)
-				console.log(data)
+				// console.log(data)
 
 				let htmlCust = ''	
 				htmlCust += `<option value="">PILIH</option>`
@@ -469,8 +468,8 @@
 		$("#id").val("");
 		$("#kode_mc").val("");
 		$("#nm_produk").val("");
-		$("#no_customer").val("");
-		$("#customer").val("");
+		$("#no_customer").val("").prop("disabled", true);
+		// $("#customer").val("");
 		$("#ukuran").val("");
 		$("#ukuran_sheet").val("");
 		$("#ukuran_sheet_p").val("");
@@ -485,10 +484,10 @@
 		$("#nilai_sheet_panjang").val("");
 		$("#nilai_sheet_lebar").val("");
 		$("#nilai_flute").val("");
-		$("#creasing").val("");
-		$("#creasing2").val("");
-		$("#creasing3").val("");
-		$("#flute").val("");
+		$("#creasing").val("").prop("disabled", false);
+		$("#creasing2").val("").prop("disabled", false);
+		$("#creasing3").val("").prop("disabled", false);
+		$("#flute").val("").prop("disabled", false);
 		$("#berat_bersih").val("");
 		$("#luas_bersih").val("");
 		$("#kualitas").val("");
@@ -497,7 +496,7 @@
 		$("#design").val("-");
 		$("#tipe_box").val("-");
 		$("#jenis_produk").val("-");
-		$("#kategori").val("");
+		$("#kategori").val("").prop("disabled", false);
 		$("#COA").val("-");
 		$("#jml_ikat").val("-");
 		$("#jml_palet").val("-");
@@ -558,9 +557,9 @@
 		})
 		.done(function(json) {
 			data = JSON.parse(json)
-			console.log(data)
+			// console.log(data)
 			$("#id").val(data.produk.id_produk);
-			$("#customer").val(data.produk.customer);
+			// $("#customer").val(data.produk.customer);
 			
 			let htmlCust = ''
 			htmlCust += `<option value="${data.produk.no_customer}"
@@ -573,20 +572,15 @@
 				alamat="${data.wilayah.alamat}">
 					${data.produk.customer}
 			</option>`
-			data.pelanggan.forEach(loadCust)
-			function loadCust(r, index) {
-				htmlCust += `<option value="${r.id_pelanggan}"
-					data-detail="${r.nm_pelanggan}"
-					attn="${r.attn}"
-					prov="${(r.prov_name == null) ? '-' : r.prov_name}"
-					kab="${(r.kab_name == null) ? '-' : r.kab_name}"
-					kec="${(r.kec_name == null) ? '-' : r.kec_name}"
-					kel="${(r.kel_name == null) ? '-' : r.kel_name}"
-					alamat="${r.alamat}">
+			if(data.poDetail.length == 0){
+				data.pelanggan.forEach(loadCust)
+				function loadCust(r, index) {
+					htmlCust += `<option value="${r.id_pelanggan}" data-detail="${r.nm_pelanggan}" attn="${r.attn}" prov="${(r.prov_name == null) ? '-' : r.prov_name}" kab="${(r.kab_name == null) ? '-' : r.kab_name}" kec="${(r.kec_name == null) ? '-' : r.kec_name}" kel="${(r.kel_name == null) ? '-' : r.kel_name}" alamat="${r.alamat}">
 						${r.nm_pelanggan}
-				</option>`
+					</option>`
+				}
 			}
-			$("#no_customer").html(htmlCust);
+			$("#no_customer").html(htmlCust).prop("disabled", (data.poDetail.length == 0) ? false : true);
 
 			$("#attn").html(data.wilayah.attn);
 			$("#alamat").html(data.wilayah.alamat);
@@ -608,10 +602,10 @@
 			$("#l_panjang").val(data.produk.l_panjang);
 			$("#l_lebar").val(data.produk.l_lebar);
 			$("#l_tinggi").val(data.produk.l_tinggi);
-			$("#creasing").val(data.produk.creasing);
-			$("#creasing2").val(data.produk.creasing2);
-			$("#creasing3").val(data.produk.creasing3);
-			$("#flute").val(data.produk.flute);
+			$("#creasing").val(data.produk.creasing).prop("disabled", (data.poDetail.length == 0) ? false : true);
+			$("#creasing2").val(data.produk.creasing2).prop("disabled", (data.poDetail.length == 0) ? false : true);
+			$("#creasing3").val(data.produk.creasing3).prop("disabled", (data.poDetail.length == 0) ? false : true);
+			$("#flute").val(data.produk.flute).prop("disabled", (data.poDetail.length == 0) ? false : true);
 			$("#berat_bersih").val(data.produk.berat_bersih);
 			$("#luas_bersih").val(data.produk.luas_bersih);
 			$("#kualitas").val(data.produk.kualitas);
@@ -620,7 +614,7 @@
 			$("#design").val(data.produk.design);
 			$("#tipe_box").val(data.produk.tipe_box);
 			$("#jenis_produk").val(data.produk.jenis_produk);
-			$("#kategori").val(data.produk.kategori);
+			$("#kategori").val(data.produk.kategori).prop("disabled", (data.poDetail.length == 0) ? false : true);
 			$("#COA").val(data.produk.COA);
 			$("#jml_ikat").val(data.produk.jml_ikat);
 			$("#jml_palet").val(data.produk.jml_palet);
@@ -634,7 +628,6 @@
 
 
 	function deleteData(id) {
-		// alert(id);
 		let cek = confirm("Apakah Anda Yakin?");
 
 		if (cek) {
@@ -643,8 +636,7 @@
 				data: ({
 					id: id,
 					jenis: 'm_produk',
-					// field: 'kode_mc'
-					field: 'id'
+					field: 'id_produk'
 				}),
 				type: "POST",
 				success: function(data) {
@@ -697,8 +689,8 @@
 			$("#flute").val("");
 			$("#tipe").val("BOX");
 			$("#ukuran").val("-");
-			$("#ukuran_sheet_p").val("-");
-			$("#ukuran_sheet_l").val("-");
+			$("#ukuran_sheet_p").val("");
+			$("#ukuran_sheet_l").val("");
 			$("#creasing").val(0);
 			$("#creasing2").val(0);
 			$("#creasing3").val(0);
@@ -714,8 +706,8 @@
 			$("#flute").val("");
 			$("#tipe").val("SHEET");
 			$("#ukuran").val("-");
-			$("#ukuran_sheet_p").val("-");
-			$("#ukuran_sheet_l").val("-");
+			$("#ukuran_sheet_p").val("");
+			$("#ukuran_sheet_l").val("");
 			$("#creasing").val(0);
 			$("#creasing2").val(0);
 			$("#creasing3").val(0);

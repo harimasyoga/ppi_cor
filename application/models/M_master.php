@@ -191,15 +191,29 @@ class M_master extends CI_Model{
 			'spesial_req' => $this->input->post('spesial_req')
 		);
 
-        if ($status == 'insert') {
-            $this->db->set("add_user", $this->username);
-            $result= $this->db->insert($table,$data);
-        }else{
-            $this->db->set("edit_user", $this->username);
-            $this->db->set("edit_time", date('Y-m-d H:i:s'));
-            $this->db->where("id_produk", $this->input->post('id'));
-            $result= $this->db->update($table, $data);
-        }
+		// CEK PRODUK JIKA ADA UKURAN FLUTE SUBSTANCE YANG SAMA
+		$noCust = $this->input->post('no_customer');
+		$l_panjang = $this->input->post('l_panjang');
+		$l_lebar = $this->input->post('l_lebar');
+		$l_tinggi = $this->input->post('l_tinggi');
+		$ukSheetP = $this->input->post('ukuran_sheet_p');
+		$ukSheetL = $this->input->post('ukuran_sheet_l');
+		$kualitas = $this->input->post('kualitas');
+		$cekProduk = $this->db->query("SELECT*FROM m_produk WHERE no_customer='$noCust' AND l_panjang='$l_panjang' AND l_lebar='$l_lebar' AND l_tinggi='$l_tinggi' AND ukuran_sheet_p='$ukSheetP' AND ukuran_sheet_l='$ukSheetL' AND kualitas='$kualitas'");
+		
+		if ($status == 'insert') {
+			if($cekProduk->num_rows() > 0){
+				$result= array('result' => false);
+			}else{
+				$this->db->set("add_user", $this->username);
+				$result= array('result' => $this->db->insert($table,$data));
+			}
+		}else{
+			$this->db->set("edit_user", $this->username);
+			$this->db->set("edit_time", date('Y-m-d H:i:s'));
+			$this->db->where("id_produk", $this->input->post('id'));
+			$result= array('result' => $this->db->update($table, $data));
+		}
 
         return $result;
     }

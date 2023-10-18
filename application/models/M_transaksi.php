@@ -473,4 +473,26 @@ class M_transaksi extends CI_Model
 
 		return $valid;
 	}
+
+	function simpanSO()
+	{
+		foreach($this->cart->contents() as $r){
+			$id = $r['id'];
+			$no_po = $r['options']['no_po'];
+			$kode_po = $r['options']['kode_po'];
+			$id_produk = $r['options']['id_produk'];
+			$no_so = $r['options']['no_so'];
+
+			$this->db->set("no_so", $no_so);
+			$this->db->set("tgl_so", $_POST["tgl_so"]);
+			$this->db->set("status_so", 'Open');
+			$this->db->where("id", $id);
+			$this->db->where("no_po", $no_po);
+			$this->db->where("kode_po", $kode_po);
+			$this->db->where("id_produk", $id_produk);
+			$result = $this->db->update('trs_po_detail');
+		}
+
+		return $result;
+	}
 }
