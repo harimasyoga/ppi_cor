@@ -5,3 +5,16 @@
     justify-content:center;
     color: #000;
 }
+
+.input-border-none {
+    border          : none;
+    border-width    : 0;
+    box-shadow      : none;
+    background      : none;
+
+}
+
+.input-border-none:focus {
+    outline:none;
+
+}

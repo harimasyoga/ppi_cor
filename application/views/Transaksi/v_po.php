@@ -88,7 +88,8 @@
 									<select class="form-control select2" name="id_pelanggan" id="id_pelanggan" style="width: 100%;" onchange="setProduk(this.value,0)">
 										<!-- <option value="">Pilih</option> -->
 										<?php foreach ($pelanggan as $r) : ?>
-											<option value="<?= $r->id_pelanggan ?>" detail="<?= $r->kab_name . "|" . $r->no_telp . "|" . $r->fax . "|" . $r->top ?>">
+											<option value="<?= $r->id_pelanggan ?>" detail="
+											<?= $r->kab_name . "|" . $r->no_telp . "|" . $r->fax . "|" . $r->top ?>">
 												<?= $r->id_pelanggan . " | " . $r->nm_pelanggan ?>
 											</option>
 										<?php endforeach ?>
@@ -109,7 +110,7 @@
 							<tr>
 								<td width="15%">Kode PO</td>
 								<td>
-									<input type="text" class="form-control" name="kode_po" id="kode_po">
+									<input type="text" class="form-control" name="kode_po" id="kode_po" oninput="this.value = this.value.toUpperCase()" >
 								</td>
 								<td width="15%"></td>
 								<td width="15%">
@@ -123,7 +124,7 @@
 							<tr>
 								<td width="15%">ETA</td>
 								<td>
-									<input type="date" class="form-control" name="eta" id="eta" value="">
+									<input type="date" class="form-control" name="eta" id="eta" value="" >
 								</td>
 								<td width="15%"></td>
 								<td width="15%">
@@ -150,7 +151,7 @@
 									TOP
 								</td>
 								<td>
-									<font id="txt_top"></font> <br>
+									<font id="txt_top"></font>
 								</td>
 							</tr>
 						</table>
@@ -161,7 +162,7 @@
 						<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table-produk" style="width: 100%" align="center">
 							<thead class="color-tabel">
 								<tr>
-									<th width="10%">Delete</th>
+									<th width="10%" id="header_del">Delete</th>
 									<th width="10%">Item</th>
 									<th width="10%">Qty</th>
 									<th width="10%">PPN</th>
@@ -173,18 +174,22 @@
 
 									<?php endif ?>
 
-									<?php {
-										if ($this->session->userdata('level') == "developer" || $this->session->userdata('level') == "owner") ?>
+									<?php if ($this->session->userdata('level') == "Admin" || $this->session->userdata('level') == "Owner")  {
+										?>
 										
 										<th width="10%">P11</th>
+										
+										<?php } else { ?>
+
+											<th type="hidden" width="10%">P11</th>
 
 									<?php } ?>
-									<th width="40%">Detail Item</th>
+									<th width="20%">Detail Item</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr id="itemRow0">
-									<td>
+									<td id="detail-hapus-0">
 										<div class="text-center">
 											<a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
 										</div>
@@ -194,7 +199,7 @@
 										</select>
 									</td>
 									<td>
-										<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onchange="cekqty(this.value,this.id), Hitung_rm(this.value,this.id)">
+										<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onchange="Hitung_rm(this.value,this.id)">
 									</td>
 									<td>
 										<select class="form-control select2" name="ppn[0]" id="ppn0" >
@@ -207,21 +212,29 @@
 									<?php if ($this->session->userdata('level') != "PPIC"): ?>
 									
 									<td>
-										<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" value='0'>
+										<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
 									</td>
 									<td>
-										<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" value='0'>
+										<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
 									</td>
 									<?php endif ?>
 
-									<?php { 
-									if ($this->session->userdata('level') == 'owner' || $this->session->userdata('level')  == 'developer') 
+									<?php if ($this->session->userdata('level') == 'Owner' || $this->session->userdata('level')  == 'Admin')  { 
+									
 									?>
 										<td>
-											<input type="text" name="p11[0]" id="p110"  class="angka form-control" disabled value="0" >
+											<input type="text" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
 										
 										</td>
-									<?php } ?>
+
+									<?php }else{ ?>
+
+										<td>
+											<input type="hidden" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
+										
+										</td>
+
+									<?php }?>
 									
 									<td id="txt_detail_produk0">
 									</td>
@@ -283,7 +296,7 @@
 				option = "";
 				$.ajax({
 					type: 'POST',
-					url: "<?php echo base_url(); ?>Transaksi/load_produk",
+					url: "<?= base_url(); ?>Transaksi/load_produk",
 					data: { idp: pelanggan, kd: '' },
 					dataType: 'json',
 					success:function(data){			
@@ -320,7 +333,7 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url(); ?>Transaksi/load_data/po',
+				"url": '<?= base_url(); ?>Transaksi/load_data/po',
 				"type": "POST",
 				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
 			},
@@ -356,6 +369,8 @@
 
 			produk   = $("#id_produk" + i).val();
 			qty      = $("#qty" + i).val();
+			p11      = $("#p11" + i).val();
+			alert(p11);
 
 			if (produk == '' || qty == '' || qty == '0') {
 				toastr.info('Harap Lengkapi Form');
@@ -364,7 +379,6 @@
 
 			arr_produk.push(produk);
 		}
-
 		let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) != index)
 
 		if (findDuplicates(arr_produk).length > 0) {
@@ -375,7 +389,7 @@
 		// console.log($('#myForm').serialize());
 
 		$.ajax({
-			url        : '<?php echo base_url(); ?>Transaksi/insert',
+			url        : '<?= base_url(); ?>Transaksi/insert',
 			type       : "POST",
 			data       : $('#myForm').serialize(),
 			dataType   : "JSON",
@@ -448,13 +462,15 @@
 	}
 
 	var no_po = ''
+
 	function tampil_edit(id, act) 
 	{
 		kosong('s');
 		$(".btn-tambah-produk").hide();
 		$("#btn-print").show();
 		$("#status").val("update");
-		status = 'update';
+		status    = 'update';
+
 		$("#modalForm").modal("show");
 		if (act == 'detail') {
 			$("#judul").html('<h3> Detail Data</h3>');
@@ -467,16 +483,17 @@
 		status = "update";
 
 		$.ajax({
-				url: '<?php echo base_url('Transaksi/get_edit'); ?>',
+				url: '<?= base_url('Transaksi/get_edit'); ?>',
 				type: 'POST',
 				data: {
-					id: id,
-					jenis: "trs_po",
-					field: 'id'
+					id       : id,
+					jenis    : "trs_po",
+					field    : 'id'
 				},
 				dataType: "JSON",
 			})
 			.done(function(data) {
+				
 				btn_verif(data)
 				no_po = data[0].no_po
 
@@ -484,23 +501,30 @@
 				$("#tgl_po").val(data[0].tgl_po);
 				$('#id_pelanggan').val(data[0].id_pelanggan).trigger('change');
 
-				$("#kode_po").val(data[0].kode_po);
-				$("#eta").val(data[0].eta);
-				$("#txt_kota").html(": " + data[0].kab_name);
-				$("#txt_no_telp").html(": " + data[0].no_telp);
-				$("#txt_fax").html(": " + data[0].fax);
-				$("#txt_top").html(": " + data[0].top);
+				kodepo    = (data[0].kode_po == '' ) ? '-' : data[0].kode_po ;
+				eta       = (data[0].eta == '' ) ? '-' : data[0].eta ;
+				
+				$("#kode_po").val(kodepo);
+				$("#eta").val(eta); 
+				
+				$("#header_del").hide();
 
 				$.each(data, function(index, value) {
+					$("#detail-hapus-" + index).hide();
 					$("#btn-hapus-" + index).hide();
 					
-					var option = $("<option selected></option>").val(value.id_produk).text(value.nm_produk);
+					var opt_produk = $("<option selected></option>").val(value.id_produk).text(value.nm_produk);
+
+					var opt_ppn = $("<option selected></option>").val(value.ppn).text(value.ppn);
 					
-					$('#id_produk' + index).append(option).trigger('change');
+					$('#id_produk' + index).append(opt_produk).trigger('change');
 					$("#qty" + index).val(value.qty);
-					$("#ppn" + index).val(value.ppn);
+					$('#ppn' + index).append(opt_ppn).trigger('change');
+					// $("#ppn" + index).val(value.ppn);
 					$("#price_inc" + index).val(value.price_inc);
 					$("#price_exc" + index).val(value.price_exc);
+					alert(value.p11);
+					$("#p11" + index).val(value.p11);
 
 					if (act == 'detail') {
 						$("#qty" + index).prop("disabled", true);
@@ -516,6 +540,7 @@
 						$("#price_exc" + index).prop("disabled", false);
 					}
 
+					
 					if (index != (data.length) - 1) {
 						addRow();
 					}
@@ -527,7 +552,7 @@
 	function getMax() 
 	{
 		$.ajax({
-			url: '<?php echo base_url('Transaksi/getMax'); ?>',
+			url: '<?= base_url('Transaksi/getMax'); ?>',
 			type: 'POST',
 			data: {
 				table: "trs_po",
@@ -550,7 +575,7 @@
 
 		if (cek) {
 			$.ajax({
-				url: '<?php echo base_url(); ?>Transaksi/hapus',
+				url: '<?= base_url(); ?>Transaksi/hapus',
 				data: ({
 					id: id,
 					jenis: 'trs_po',
@@ -576,7 +601,7 @@
 
 		if (cek) {
 			$.ajax({
-				url: '<?php echo base_url(); ?>Transaksi/prosesData',
+				url: '<?= base_url(); ?>Transaksi/prosesData',
 				data: ({
 					id: no_po,
 					status: tipe,
@@ -612,23 +637,17 @@
 		arr_detail = arr_detail.split("|");
 		// console.log(arr_detail);
 
-		$("#txt_kota").html(": " + arr_detail[0]);
-		$("#txt_no_telp").html(": " + arr_detail[1]);
-		$("#txt_fax").html(": " + arr_detail[2]);
-		$("#txt_top").html(": " + arr_detail[3]);
+		var kab_name  = (arr_detail[0] == '' ) ? '-' : arr_detail[0] ;
+		var telp      = (arr_detail[1] == '' ) ? '-' : arr_detail[1] ;
+		var fax       = (arr_detail[2] == '' || arr_detail[2] == null ) ? '-' : arr_detail[2] ;
+		var top       = (arr_detail[3] == '' || arr_detail[3] == null ) ? '-' : arr_detail[3] ;
+		
+		$("#txt_kota").html(": " + kab_name);
+		$("#txt_no_telp").html(": " + telp);
+		$("#txt_fax").html(": " + fax);
+		$("#txt_top").html(": " + top);
 
 	});
-
-	function cekqty(qty,id) 
-	{
-		if(qty < 500 ){			
-			toastr.error(
-				'RM tidak boleh di Bawah 500, <br> Hubungi Marketing'
-			);
-			$("#"+id).val("0");
-			return;
-		}	
-	}
 
 	function setDetailProduk(kd,id) 
 	{
@@ -649,7 +668,7 @@
 			html_produk="";
 			$.ajax({
 				type        : 'POST',
-				url         : "<?php echo base_url(); ?>Transaksi/load_produk",
+				url         : "<?= base_url(); ?>Transaksi/load_produk",
 				data        : { idp: '', kd: kd },
 				dataType    : 'json',
 				success:function(data){			
@@ -659,7 +678,7 @@
 						(val.kategori =='K_BOX')? uk = val.ukuran : uk = val.ukuran_sheet;
 
 						html_produk += `
-						<table class='table' border='0' width='100%' style='font-size:12px'>
+						<table class='table' border='0' style='font-size:12px'>
 						<tr> 
 							<tr> 
 								<td style=list-style:none;><b>Nama Item : </b>${ val.nm_produk }</td>
@@ -672,10 +691,22 @@
 								<td style=list-style:none;><b>Toleransi : </b>${ val.toleransi_kirim }</td> 
 							</tr> 
 							<tr> 
-								<td style=list-style:none; id="rm${id}"><b>RM : </b>
+								<td style=list-style:none;><b>RM : <input type="text" class="input-border-none" name="rm[${id}]" id="rm${id}" readonly >
+								</b>
 								</td> 
-								<td style=list-style:none;><b>BB : ${ val.berat_bersih }</b></td> 
-								<td style=list-style:none; id="ton${id}"><b>Ton : </b></td>  
+
+								<td style=list-style:none;><b>BB : <input type="text" class="input-border-none" name="bb[${id}]" id="bb${id}" value="${val.berat_bersih}" readonly ></b>
+								</td> 
+
+								<td style=list-style:none;><b>Ton : <input type="text" class="input-border-none" name="ton[${id}]" id="ton${id}" readonly >
+								</b></td>  
+							</tr> 
+							<tr> 
+								<td colspan="3" style=list-style:none;>
+									<b>Harga / Kg : 
+									</b>
+									<input type="text" class="input-border-none" name="hrg_kg[${id}]" id="hrg_kg${id}" readonly >
+								</td> 
 							</tr> 
 						<tr> </table>`;
 	
@@ -707,8 +738,9 @@
 		var ppn         = $('#ppn' + b).val();
 		var price_inc   = $('#price_inc' + b).val();
 		var price_exc   = $('#price_exc' + b).val();
+		var p11         = $('#p11' + b).val();
 		var ss          = $('#id_produk' + b).val();
-		var user_lev 	= "<?= $this->session->userdata('nm_user') ?>";
+		var user_lev    = "<?= $this->session->userdata('level') ?>";
 
 		var idp         = $('#id_pelanggan').val();
 		setProduk(idp,rowNum+1);
@@ -724,20 +756,20 @@
 				if ('<?= $this->session->userdata('level') ?>' != 'PPIC') {
 					td_harga = `
 						<td>
-							<input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" value="0" >
+							<input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
 						 
 						</td>
 						<td>
-							<input type="text" name="price_inc[${rowNum}]" id="price_inc${rowNum}"  class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" value="0" >
+							<input type="text" name="price_inc[${rowNum}]" id="price_inc${rowNum}"  class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
 						</td>
 					`
 				}
 
-				if (user_lev == 'owner' || user_lev == 'developer') 
+				if (user_lev == 'Owner' || user_lev == 'Admin') 
 				{
 					p11_tambahan = `
 						<td>
-							<input type="text" name="p11[${rowNum}]" id="p11${rowNum}"  class="angka form-control"  disabled value="0">
+							<input type="text" name="p11[${rowNum}]" id="p11${rowNum}"  class="angka form-control" readonly value="0">
 						 
 						</td>
 					`
@@ -746,7 +778,7 @@
 
 				$('#table-produk').append(
 					`<tr id="itemRow${ rowNum }">
-					<td>
+					<td id="detail-hapus-${ rowNum }">
 						<div class="text-center">
 						<a class="btn btn-danger"  id="btn-hapus-${ rowNum }" onclick="removeRow(${ rowNum })"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
 						</div>
@@ -756,7 +788,7 @@
 						</select>
 					</td>
 					<td>
-						 <input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onchange="cekqty(this.value,this.id), Hitung_rm(this.value,this.id)">
+						 <input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onchange="Hitung_rm(this.value,this.id)">
 					</td>
 					<td>
 						<select class="form-control select2" name="ppn[${ rowNum }]" id="ppn${ rowNum }">
@@ -809,10 +841,12 @@
 		$('#bucket').val(rowNum);
 		$('#id_produk0').val('').trigger('change');
 		$('#qty0').val('0');
+		$('#p110').val('0');
 		$('#price_inc0').val('0');
 		$('#price_exc0').val('0');
 		$('#txt_detail_produk0').html('');
 		$("#btn-hapus-0").show();
+		$("#detail-hapus-0").show();
 
 		$("#qty0").prop("disabled", false);
 		$("#id_produk0").prop("disabled", false);
@@ -830,33 +864,47 @@
 		{
 			inc = Math.trunc(val *1.11);
 			$('#price_inc'+id2).val(inc);
-			hitung_p11(inc,id2);
 		}else {
 			exc = Math.trunc(val /1.11);
 			$('#price_exc'+id2).val(exc);
-			hitung_p11(val,id2);
 		}
 	}
 
-	function hitung_p11(inc,id)
-	{
-		var produk   = $('#id_produk'+id).val();
+	function hitung_p11(val,id)
+	{		
+		
+		var cek = id.substr(0,9);
+		var id2 = id.substr(9,1);
+
+		alert(cek);
+		if(cek=='price_exc')
+		{
+			var inc = $('#price_inc'+id2).val();
+			var exc = val;
+		}else {
+			var inc = val;
+			var exc = $('#price_exc'+id2).val();
+		}
+
+		var produk   = $('#id_produk'+id2).val();
 
 		$.ajax({
 			type        : 'POST',
-			url         : "<?php echo base_url(); ?>Transaksi/load_produk",
+			url         : "<?= base_url(); ?>Transaksi/load_produk_1",
 			data        : { idp: '', kd: produk },
 			dataType    : 'json',
-			success:function(data){			
-				if(data.message == "Success"){
-					$.each(data.data, function(index, val) {
+			success:function(val){			
+				
+						hrg_kg   = Math.trunc(exc / val.berat_bersih);
+						$('#hrg_kg'+id2).val(hrg_kg);	
+
 						if(val.tipe=='SHEET')
 						{
 							if(val.flute=='BCF')
 							{
 								$.ajax({
 									type        : 'POST',
-									url         : "<?php echo base_url(); ?>Transaksi/cek_bcf",
+									url         : "<?= base_url(); ?>Transaksi/cek_bcf",
 									data        : {kd: val.kualitas },
 									dataType    : 'json',
 									success:function(data){		
@@ -878,7 +926,7 @@
 
 										p11 = selisih / rumus * 100;
 
-										$('#p11'+id).val( p11.toFixed(1)+' %');
+										$('#p11'+id2).val('- '+ p11.toFixed(1)+' %');
 
 
 
@@ -889,7 +937,7 @@
 							{
 								$.ajax({
 									type        : 'POST',
-									url         : "<?php echo base_url(); ?>Transaksi/cek_flute",
+									url         : "<?= base_url(); ?>Transaksi/cek_flute",
 									data        : {kd: val.kualitas, flute : val.flute },
 									dataType    : 'json',
 									success:function(data2){		
@@ -907,7 +955,7 @@
 
 										p11 = selisih / rumus * 100;
 
-										$('#p11'+id).val( p11.toFixed(1)+' %');
+										$('#p11'+id2).val( p11.toFixed(1)+' %');
 
 
 
@@ -916,14 +964,6 @@
 							}
 						}
 					
-					});
-
-					// $('#rm'+id).html("<b> RM : </b>"+rm);	
-					// $('#ton'+id).html("<b> Ton : </b>"+ton);	
-					
-				}else{
-					// $("#txt_detail_produk"+id).html("");		
-				}
 			}
 		});
 	}
@@ -935,15 +975,16 @@
 		
 		var produk   = $('#id_produk'+id2).val();
 		
-		// alert(produk);
-		// swal({
-		// 	title: "HARGA BARANG",
-		// 	html: "Harga tidak boleh lebih kecil dari harga sebelumnya",
-		// 	type: "info",
-		// 	confirmButtonText: "OK"
-		// });
 		if(produk=='' || produk=='undefined' || produk=='-- Pilih --'){
-			toastr.error('Pilih Produk Dahulu');
+			// toastr.error('Pilih Produk Dahulu');
+			swal({
+				title: "Produk Kosong",
+				text: "Pilih Produk Dahulu !",
+				type: "error",
+				confirmButtonText: "OK",
+				confirmButtoncolor: "black"
+			});
+			
 			$('#'+id).val(0);
 			$('#'+id).focus();
 			return;
@@ -952,7 +993,7 @@
 			
 			$.ajax({
 				type        : 'POST',
-				url         : "<?php echo base_url(); ?>Transaksi/load_produk",
+				url         : "<?= base_url(); ?>Transaksi/load_produk",
 				data        : { idp: '', kd: produk },
 				dataType    : 'json',
 				success:function(data){			
@@ -964,13 +1005,22 @@
 								out = 5;
 							}
 
-							rm   = val.ukuran_sheet_p * isi / out / 1000;
-							ton  = Math.trunc(isi * val.berat_bersih);
+							rm       = val.ukuran_sheet_p * isi / out / 1000;
+							ton      = Math.trunc(isi * val.berat_bersih);
 						
 						});
+
+						
+						if(rm < 500 ){			
+							toastr.error(
+								'RM tidak boleh di Bawah 500, <br> Hubungi Marketing'
+							);
+							$("#"+id).val("0");
+							return;
+						}	
 	
-						$('#rm'+id2).html("<b> RM : </b>"+rm);	
-						$('#ton'+id2).html("<b> Ton : </b>"+ton);	
+						$('#rm'+id2).val(rm);	
+						$('#ton'+id2).val(ton);	
 						
 					}else{
 						// $("#txt_detail_produk"+id).html("");		
@@ -985,7 +1035,7 @@
 	function Cetak() 
 	{
 		no_po = $("#no_po").val();
-		var url = "<?php echo base_url('Transaksi/Cetak_PO'); ?>";
+		var url = "<?= base_url('Transaksi/Cetak_PO'); ?>";
 		window.open(url + '?no_po=' + no_po, '_blank');
 	}
 	
