@@ -148,8 +148,9 @@ class Master extends CI_Controller
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
-				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_pelanggan."'".','."'detail'".')">'.$i."<a>";
+				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_pelanggan."'".','."'detail'".')">'.$i."<a></div>";
 				$row[] = $r->nm_pelanggan;
+				$row[] = $r->attn;
 				$row[] = $r->alamat_kirim;
 				$row[] = ($r->prov_name == "" || $r->prov_name == null) ? '-' : $r->prov_name;
 				$row[] = ($r->kab_name == "" || $r->kab_name == null) ? '-' : $r->kab_name;
@@ -165,17 +166,17 @@ class Master extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "produk") {
-			$query = $this->m_master->query("SELECT * FROM m_produk ORDER BY nm_produk")->result();
+			$query = $this->m_master->query("SELECT c.nm_pelanggan,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan ORDER BY nm_produk")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
-				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_produk."'".','."'detail'".')">'.$i."<a>";
+				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_produk."'".','."'detail'".')">'.$i."<a></div>";
+				$row[] = $r->nm_pelanggan;
 				$row[] = $r->nm_produk;
 				$row[] = $r->ukuran;
 				$row[] = $r->ukuran_sheet;
-				$row[] = $r->kualitas;
 				$row[] = $r->flute;
-				$row[] = $r->berat_bersih;
+				$row[] = $r->kualitas;
 
 				$idProduk = $r->id_produk;
 				$cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE id_produk='$idProduk'")->num_rows();
@@ -194,8 +195,8 @@ class Master extends CI_Controller
 				$row[] = $r->nm_sales;
 				$row[] = $r->no_sales;
 
-				// $cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE kode_mc='$kodeMc'")->num_rows();
-				$cekPO = 0;	
+				$idSales = $r->id_sales;
+				$cekPO = $this->db->query("SELECT COUNT(id_sales) AS jmlSales FROM trs_po WHERE id_sales='$idSales' GROUP BY id_sales")->num_rows();
 				$btnEdit = '<button type="button" onclick="tampil_edit('."'".$r->id_sales."'".','."'edit'".')" class="btn btn-warning btn-xs">Edit</button>';
 				$btnHapus = '<button type="button" onclick="deleteData('."'".$r->id_sales."'".')" class="btn btn-danger btn-xs">Hapus</button>';
 				$row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit ;
@@ -276,7 +277,9 @@ class Master extends CI_Controller
 	function getEditProduk()
 	{
 		$id = $_POST["id"];
-		$data = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$id'")->row();
+		$data = $this->db->query("SELECT c.nm_pelanggan AS customer,p.* FROM m_produk p
+		INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan
+		WHERE p.id_produk='$id'")->row();
 		$pelanggan = $this->db->query("SELECT*FROM m_pelanggan pel
 		LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
 		LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
@@ -290,12 +293,13 @@ class Master extends CI_Controller
 		LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
 		LEFT JOIN m_kel kel ON pel.kel=kel.kel_id
 		WHERE pel.id_pelanggan='$id_pelanggan'")->row();
-		$po = $this->db->query("SELECT*FROM trs_po WHERE id_pelanggan='$id_pelanggan'")->row();
+		$id_produk = $data->id_produk;
+		$poDetail = $this->db->query("SELECT*FROM trs_po_detail WHERE id_produk='$id_produk'")->result();
 		echo json_encode(array(
 			'produk' => $data,
 			'pelanggan' => $pelanggan,
 			'wilayah' => $wilayah,
-			'po' => $po,
+			'poDetail' => $poDetail,
 		));
 	}
 

@@ -30,12 +30,13 @@
 					<thead>
 						<tr>
 							<th style="width:5%">NO.</th>
-							<th style="width:%">NO. SO</th>
-							<th style="width:%">TGL. SO</th>
-							<th style="width:%">STATUS</th>
-							<th style="width:%">NO. PO</th>
-							<th style="width:%">KODE MC</th>
-							<th style="width:10%">AKSI</th>
+							<th style="width:15%">TGL. SO</th>
+							<th style="width:15%">NO. SO</th>
+							<th style="width:15%">STATUS</th>
+							<th style="width:15%">ITEM</th>
+							<th style="width:15%">NO. PO</th>
+							<th style="width:15%">KODE. PO</th>
+							<th style="width:5%">AKSI</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
@@ -58,8 +59,8 @@
 			<div class="modal-body">
 				<table style="width:100%">
 					<tr>
-						<td style="width:10%;padding:5px;border:1px solid #000"></td>
-						<td style="width:90%;padding:5px;border:1px solid #000"></td>
+						<td style="width:10%;padding:0;border:0"></td>
+						<td style="width:90%;padding:0;border:0"></td>
 					</tr>
 					<tr>
 						<td style="padding:5px 0;font-weight:bold">TANGGAL SO</td>
@@ -70,6 +71,7 @@
 					<tr>
 						<td style="padding:5px 0;font-weight:bold">NO. PO</td>
 						<td style="padding:5px 0">
+							<input type="hidden" id="h_kode_po">
 							<select name="no_po" id="no_po" class="form-control select2"></select>
 						</td>
 					</tr>
@@ -86,7 +88,7 @@
 						</td>
 					</tr>
 					<tr>
-						<td style="padding:5px 0;font-weight:bold">ITEMS</td>
+						<td style="padding:5px 0;font-weight:bold">ITEM</td>
 						<td style="padding:5px 0">
 							<input type="hidden" id="idpodetail">
 							<select name="items" id="items" class="form-control select2"></select>
@@ -111,7 +113,7 @@
 					<tr>
 						<td style="padding:5px 0;font-weight:bold">NO. SO</td>
 						<td style="padding:5px 0">
-							<input type="text" name="no_so" id="no_so" class="form-control">
+							<input type="text" name="no_so" id="no_so" class="form-control" autocomplete="off">
 						</td>
 					</tr>
 					<tr>
@@ -125,17 +127,7 @@
 					</tr>
 				</table>
 
-				<table id="table-nopo" class="table table-bordered table-striped" width="100%">
-					<thead>
-						<tr>
-							<th style="width:5%">NO.</th>
-							<th style="width:35%">ITEMS</th>
-							<th style="width:35%">NO. SO</th>
-							<th style="width:25%">AKSI</th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
+				<div id="table-nopo"></div>
 
 			</div>
 			
@@ -151,9 +143,15 @@
 	status ="insert";
 
 	$(document).ready(function () {
-		// load_data();
+		load_data()
 		$('.select2').select2();
+		$("#table-nopo").load("<?php echo base_url('Transaksi/destroy') ?>");
 	});
+
+	function reloadTable() {
+		table = $('#datatable').DataTable();
+		tabel.ajax.reload(null, false);
+	}
 
 	$(".tambah_data").click(function(event) {
 		kosong();
@@ -162,8 +160,28 @@
 		$("#judul").html('<h3>Form Tambah Data</h3>');
 	});
 
+	function load_data() {
+		let table = $('#datatable').DataTable();
+		table.destroy();
+		tabel = $('#datatable').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url": '<?php echo base_url(); ?>Transaksi/load_data/trs_so_detail',
+				"type": "POST",
+			},
+			responsive: true,
+			"pageLength": 10,
+			"language": {
+				"emptyTable": "Tidak ada data.."
+			}
+		});
+	}
+
 	function kosong(){
 		$("#tgl_so").val()
+		$("#h_kode_po").val("")
 		$("#idpodetail").val("")
 		$("#marketing").val("")
 		$("#customer").val("")
@@ -172,6 +190,7 @@
 		$("#flute").html("-")
 		$("#substance").html("-")
 		$("#no_so").val("").prop("disabled", true)
+		$("#btn-simpan").prop("disabled", false);
 		soPlhNoPO()
 	}
 
@@ -188,9 +207,10 @@
 					htmlPo += `<option value="">PILIH</option>`
 				data.po.forEach(loadPo);
 				function loadPo(r, index) {
-					htmlPo += `<option value="${r.no_po}" data-sales="${r.nm_sales}" data-cust="${r.nm_pelanggan}">${r.no_po} | ${r.kode_po}</option>`;
+					htmlPo += `<option value="${r.no_po}" data-sales="${r.nm_sales}" data-cust="${r.nm_pelanggan}" data-kdpo="${r.kode_po}">${r.no_po} . KODE : ${r.kode_po}</option>`;
 				}
 				$("#no_po").prop("disabled", false).html(htmlPo)
+				$("#h_kode_po").val("")
 			}
 		})
 	}
@@ -199,6 +219,7 @@
 		let no_po = $('#no_po option:selected').val();
 		let sales = $('#no_po option:selected').attr('data-sales');
 		let cust = $('#no_po option:selected').attr('data-cust');
+		let kdpo = $('#no_po option:selected').attr('data-kdpo');
 		// alert(no_po+" - "+sales+" - "+cust)
 		$("#uk_box").html("-")
 		$("#uk_sheet").html("-")
@@ -207,6 +228,7 @@
 		$("#no_so").val("").prop("disabled", true)
 		$("#marketing").val(sales)
 		$("#customer").val(cust)
+		$("#h_kode_po").val(kdpo)
 		soPlhItems(no_po)
 	})
 
@@ -221,7 +243,7 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				console.log(data)
+				// console.log(data)
 				let tf = '';
 				(data.po_detail.length == 0) ? tf = true : tf = false
 				let htmlDetail = ''
@@ -262,7 +284,7 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				console.log(data)
+				// console.log(data)
 				let tf = ''
 				let no_so = ''
 				let tmbhNoso = ''
@@ -289,21 +311,92 @@
 	}
 
 	function addItems(){
+		let nm_produk = $('#items option:selected').attr('data-nm_produk')
 		let idpodetail = $("#idpodetail").val()
 		let no_po = $("#no_po").val()
-		let items = $("#items").val()
+		let kode_po = $("#h_kode_po").val()
+		let item = $("#items").val()
 		let no_so = $("#no_so").val()
-		alert(idpodetail+' - '+no_po+" - "+items+" - "+no_so)
-		// 6 - PO/2023/X/0003 - 2 - TESTES
-		// $.ajax({
-		// 	url: '',
-		// 	type: "POST",
-		// 	data: ({
-		// 		idpodetail, no_po, items, no_so
-		// 	}),
-		// 	success: function(res){
-
-		// 	}
-		// })
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/addItems')?>',
+			type: "POST",
+			data: ({
+				idpodetail, nm_produk, no_po, kode_po, item, no_so
+			}),
+			success: function(res){
+				data = JSON.parse(res);
+				// console.log(data)
+				if(data.data){
+					toastr.success('BERHASIL!')
+					showCartItem()
+				}else{
+					toastr.error(data.isi)
+				}
+			}
+		})
 	}
+
+	function showCartItem(){
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/showCartItem')?>',
+			type: "POST",
+			success: function(res){
+				$('#table-nopo').load("<?php echo base_url('Transaksi/showCartItem')?>")
+			}
+		})
+	}
+
+	function hapusCartItem(rowid){
+		// alert(rowid)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/hapusCartItem')?>',
+			type: "POST",
+			data: ({
+				rowid
+			}),
+			success: function(res){
+				$('#table-nopo').load("<?php echo base_url('Transaksi/showCartItem')?>")
+			}
+		})
+	}
+
+	function simpan(){
+		let vvvv = $("#table-nopo-value").val()
+		let tgl_so = $("#tgl_so").val()
+		
+		if(vvvv === undefined){
+			toastr.error('DATA KOSONG!');
+			return
+		}
+
+		$("#btn-simpan").prop("disabled", true)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/simpanSO')?>',
+			type: "POST",
+			data: ({
+				tgl_so
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				// console.log(data)
+				if(data) {
+					toastr.success('BERHASIL DISIMPAN!');
+					$("#modalForm").modal("hide");
+					reloadTable();
+				}else{
+					toastr.error('ADA YANG SALAH!');
+					$("#btn-simpan").prop("disabled", false);
+				}
+			}
+		})
+	}
+
+	function tampil_edit(id, aksi){
+		alert(id+" - "+aksi)
+	}
+
+	function batalData(id){
+		alert(id)
+	}
+
 </script>

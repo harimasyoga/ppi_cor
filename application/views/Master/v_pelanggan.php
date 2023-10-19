@@ -37,12 +37,13 @@
   					<thead>
   						<tr>
   							<th style="width:5%">NO.</th>
-  							<th style="width:15%">NAMA PELANGGAN</th>
-  							<th style="width:14%">ALAMAT</th>
-  							<th style="width:14%">PROVINSI</th>
-  							<th style="width:14%">KAB.</th>
-  							<th style="width:14%">KEC.</th>
-  							<th style="width:14%">KEL.</th>
+  							<th style="width:13%">NAMA</th>
+  							<th style="width:12%">ATTN</th>
+  							<th style="width:12%">ALAMAT</th>
+  							<th style="width:12%">PROVINSI</th>
+  							<th style="width:12%">KAB.</th>
+  							<th style="width:12%">KEC.</th>
+  							<th style="width:12%">KEL.</th>
   							<th style="width:10%">AKSI</th>
   						</tr>
   					</thead>
@@ -334,7 +335,7 @@
   				"type": "POST",
   			},
   			responsive: true,
-  			"pageLength": 25,
+  			"pageLength": 10,
   			"language": {
   				"emptyTable": "Tidak ada data.."
   			}
