@@ -38,6 +38,12 @@ class M_transaksi extends CI_Model
 				'kode_po'         => $params->kode_po,
 				'eta'             => $params->eta,
 				'qty'             => $params->qty[$key],
+				'p11'             => $params->p11[$key],
+				
+				'rm'              => $params->rm[$key],
+				'bb'              => $params->bb[$key],
+				'ton'             => $params->ton[$key],
+				'harga_kg'        => $params->hrg_kg[$key],
 				
 				'id_produk'         => $params->id_produk[$key],
 					
@@ -118,6 +124,7 @@ class M_transaksi extends CI_Model
 				'kode_po'         => $detail_po->kode_po,
 				'tgl_po'          => $params->tgl_po,
 				'qty'             => $params->qty[$key],
+
 				'kode_mc'         => $produk->kode_mc,
 				'nm_produk'       => $produk->nm_produk,
 				'ukuran'          => $produk->ukuran,
@@ -138,7 +145,7 @@ class M_transaksi extends CI_Model
 				'fax'             => $detail_po->fax,
 				'alamat_kirim'    => $detail_po->alamat_kirim,
 				'lokasi'          => $detail_po->lokasi,
-				'top'             => $detail_po->top
+				'top'             => $detail_po->top,
 			);
 
 

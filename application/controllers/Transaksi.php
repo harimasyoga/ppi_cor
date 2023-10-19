@@ -61,6 +61,25 @@ class Transaksi extends CI_Controller
             $json = json_encode($response);
             print_r($json);
     }
+   
+    function load_produk_1()
+    {
+        
+		$pl = $this->input->post('idp');
+		$kd = $this->input->post('kd');
+
+        if($pl !='' && $kd ==''){
+            $cek ="where no_customer = '$pl' ";
+        }else if($pl =='' && $kd !=''){
+            $cek ="where id_produk = '$kd' ";
+        }else {
+            $cek ="";
+        }
+
+        $query = $this->db->query("SELECT * FROM m_produk $cek order by id_produk ")->row();
+
+        echo json_encode($query);
+    }
 
 	public function SO()
 	{
@@ -158,6 +177,10 @@ class Transaksi extends CI_Controller
                 {
                     $btn1   = 'btn-warning';
                     $i1     = '<i class="fas fa-lock"></i>';
+                }else  if($r->status_app1=='R')
+                {
+                    $btn1   = 'btn-danger';
+                    $i1     = '<i class="fas fa-times"></i>';
                 }else{
                     $btn1   = 'btn-success';
                     $i1     = '<i class="fas fa-check-circle"></i>';
@@ -196,9 +219,11 @@ class Transaksi extends CI_Controller
 
 				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).'</div>';
 
-                $time1 = ($r->time_app1 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app1,0,10));
-                $time2 = ($r->time_app2 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app2,0,10));
-                $time3 = ($r->time_app3 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app3,0,10));
+                $time1 = ( ($r->time_app1 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app1,0,10)) ) . ' - ' .substr($r->time_app1,10,9) ;
+
+                $time2 = ( ($r->time_app2 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app2,0,10)) ) . ' - ' .substr($r->time_app2,10,9);
+
+                $time3 = ( ($r->time_app3 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app3,0,10)) ) . ' - ' .substr($r->time_app3,10,9);
 
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status.'</button></div>';
 				$row[] = '<div class="text-center">'.$r->kode_po.'</div>';
