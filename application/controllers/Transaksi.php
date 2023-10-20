@@ -294,8 +294,7 @@ class Transaksi extends CI_Controller
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
-				// $row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id."'".','."'detail'".')">'.$i."<a></div>";
+				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'".$r->no_so."'".','."'".$r->nm_produk."'".','."'detail'".')">'.$i."<a></div>";
 				$row[] = $r->tgl_so;
 				$row[] = $r->no_so;
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm btn-info">'.$r->status_so.'</button></div>';
@@ -304,7 +303,7 @@ class Transaksi extends CI_Controller
 				$row[] = $r->kode_po;
 
 				if ($r->status_so == 'Open') {
-					$aksi = '<button type="button" onclick="tampil_edit('."'".$r->id."'".','."'edit'".')" class="btn btn-warning btn-xs">
+					$aksi = '<button type="button" onclick="tampil_edit('."'".$r->id."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'".$r->no_so."'".','."'".$r->nm_produk."'".','."'edit'".')" class="btn btn-warning btn-xs">
 						Edit
 					</button>
 					<button type="button" onclick="batalData('."'".$r->id."'".')" class="btn btn-danger btn-xs">
@@ -1409,7 +1408,8 @@ class Transaksi extends CI_Controller
 	function soPlhItems()
 	{
 		$no_po = $_POST["no_po"];
-		$poDetail = $this->db->query("SELECT p.nm_produk,p.ukuran,p.ukuran_sheet,p.flute,p.kualitas,d.* FROM trs_po_detail d
+		$poDetail = $this->db->query("SELECT p.nm_produk,p.kode_mc,p.ukuran,p.ukuran_sheet,p.flute,p.kualitas,d.* FROM trs_po_detail d
+		INNER JOIN trs_po o ON d.no_po=o.no_po AND d.kode_po=o.kode_po
 		INNER JOIN m_produk p ON d.id_produk=p.id_produk
 		WHERE d.status='Approve' AND d.no_po='$no_po' AND no_so IS NULL AND tgl_so IS NULL")->result();
 		echo json_encode(array(
@@ -1452,10 +1452,22 @@ class Transaksi extends CI_Controller
 				),
 			);
 
+			$no_so = $_POST["no_so"];
+			$cekNoSO = $this->db->query("SELECT*FROM trs_po_detail WHERE no_so='$no_so' LIMIT 1")->num_rows();
+			if($cekNoSO != 0){
+				echo json_encode(array('data' => false, 'isi' => 'NO. SO SUDAH ADA!'));
+				return;
+			}
+
 			if($this->cart->total_items() != 0){
 				foreach($this->cart->contents() as $r){
 					if($r['id'] == $_POST["idpodetail"]){
-						echo json_encode(array('data' => false, 'isi' => 'SUDAH ADA!'));
+						echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
+						return;
+					}
+
+					if($r['name'] == $no_so){
+						echo json_encode(array('data' => false, 'isi' => 'NO. SO SUDAH ADA!'));
 						return;
 					}
 				}
@@ -1491,18 +1503,16 @@ class Transaksi extends CI_Controller
 		$i = 0;
 		foreach($this->cart->contents() as $r){
 			$i++;
-			$html .='<tbody>
-				<tr>
-					<td>'.$i.'</td>
-					<td>'.$r['options']['nm_produk'].'</td>
-					<td>'.$r['options']['no_po'].'</td>
-					<td>'.$r['options']['kode_po'].'</td>
-					<td>'.$r['name'].'</td>
-					<td>
-						<button class="btn btn-danger" onclick="hapusCartItem('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
-					</td>
-				</tr>
-			</tbody>';
+			$html .='<tr>
+				<td>'.$i.'</td>
+				<td>'.$r['options']['nm_produk'].'</td>
+				<td>'.$r['options']['no_po'].'</td>
+				<td>'.$r['options']['kode_po'].'</td>
+				<td>'.$r['name'].'</td>
+				<td>
+					<button class="btn btn-danger" onclick="hapusCartItem('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
+				</td>
+			</tr>';
 		}
 
 		$html .= '</table>';
@@ -1522,5 +1532,236 @@ class Transaksi extends CI_Controller
 	{
 		$result = $this->m_transaksi->simpanSO();
 		echo json_encode($result);
+	}
+
+	function detailSO()
+	{
+		$id = $_POST["id"];
+		$no_po = $_POST["no_po"];
+		$kode_po = $_POST["kode_po"];
+		$no_so = $_POST["no_so"];
+		$nm_produk = $_POST["nm_produk"];
+		$aksi = $_POST["aksi"];
+
+		$html = '';
+		$html .='<table class="table table-bordered table-striped" style="width:100%">
+			<thead>
+				<tr>
+					<th style="width:5%">NO.</th>
+					<th style="width:40%">ITEM</th>
+					<th style="width:40%">NO. SO</th>
+					<th style="width:15%;text-align:center">AKSI</th>
+				</tr>
+			</thead>';
+
+		$getSO = $this->db->query("SELECT p.nm_produk,d.* FROM trs_po_detail d
+		INNER JOIN m_produk p ON d.id_produk=p.id_produk
+		WHERE no_po='$no_po' AND kode_po='$kode_po'");
+		$i = 0;
+		foreach($getSO->result() as $r){
+			$i++;
+			($r->id == $id) ? $bold = 'style="font-weight:bold"' : $bold = '';
+			$idSo = $r->id;
+			$print = base_url('Transaksi/laporanSO?id=').$r->id;
+			$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="editData('."".$idSo."".')"><i class="fas fa-pen"></i></button>
+				<button type="button" class="btn btn-danger btn-sm" onclick="batalData('."".$idSo."".')"><i class="fas fa-times"></button>';
+			$btnpPrint = '<a href="'.$print.'" target="_blank" class="lbl-besar"><button type="button" class="btn btn-light btn-sm"><i class="fas fa-print"></i></button></a>';
+			if($r->no_so == null){
+				$btnAksi = '-';
+			}else{
+				if($aksi == 'detail'){
+					$btnAksi = $btnpPrint;
+				}else{
+					$btnAksi = $btnpPrint.' '.$btnEdit;
+				}
+			}
+			$html .='<tr>
+				<td class="text-center" '.$bold.'>'.$i.'</td>
+				<td '.$bold.'>'.$r->nm_produk.'</td>
+				<td '.$bold.'>'.$r->no_so.'</td>
+				<td class="text-center" '.$bold.'>'.$btnAksi.'</td>
+			</tr>';
+		}
+		$html .= '</table>';
+		echo $html;
+	}
+
+	function laporanSO(){
+		$id = $_GET["id"];
+		$data = $this->db->query("SELECT c.nm_pelanggan,c.top,c.fax,c.no_telp,c.alamat,s.nm_sales,p.time_app1,p.time_app2,p.time_app3,i.*,d.* FROM trs_po_detail d
+		INNER JOIN trs_po p ON p.no_po=d.no_po AND p.kode_po=d.kode_po
+		INNER JOIN m_produk i ON d.id_produk=i.id_produk
+		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+		INNER JOIN m_sales s ON p.id_sales=s.id_sales
+		WHERE d.id='$id'")->row();
+
+		$html = '<table style="margin-bottom:5px;border-collapse:collapse;vertical-align:top;width:100%;font-weight:bold">
+			<tr>
+				<th style="width:25%"></th>
+				<th style="width:75%"></th>
+			</tr>
+			<tr>
+				<td style="border:0;text-align:center" rowspan="4">
+					<img src="'.base_url('assets/gambar/ppi.png').'" width="160" height="140">
+				</td>
+				<td style="border:0;font-size:30px;padding:19px 0 0">PT. PRIMA PAPER INDONESIA</td>
+			</tr>
+			<tr>
+				<td style="border:0;font-size:12px">DUSUN TIMANG KULON, DESA WONOKERTO, KEC.WONOGIRI, KAB.WONOGIRI</td>
+			</tr>
+			<tr>
+				<td style="border:0;font-size:12px;padding:0 0 27px">WONOGIRI - JAWA TENGAH - INDONESIA. KODE POS 57615</td>
+			</tr>
+		</table>';
+
+		$html .='<table style="margin-bottom:30px;font-size:12px;border-collapse:collapse;vertical-align:top;width:100%">
+			<tr>
+				<td style="width:10%;border:0;padding:0"></td>
+				<td style="width:1%;border:0;padding:0"></td>
+				<td style="width:55%;border:0;padding:0"></td>
+				<td style="width:11%;border:0;padding:0"></td>
+				<td style="width:1%;border:0;padding:0"></td>
+				<td style="width:22%;border:0;padding:0"></td>
+			</tr>
+			<tr>
+				<td style="border-top:1px solid #000;padding:1px" colspan="6"></td>
+			</tr>
+			<tr>
+				<td style="border-top:1px solid #000;font-size:16px;padding:15px 0 2xp;text-align:center;font-weight:bold" colspan="6">SALES ORDER</td>
+			</tr>
+			<tr>
+				<td style="font-size:14px;padding:2px 0 25px;font-style:italic;text-align:center" colspan="6">( NO. SO : '.$data->no_so.' )</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Tanggal SO</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->tgl_so.'</td>
+				<td style="padding:5px 0">Created By</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->add_user_so.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">No. PO</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->no_po.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Sales</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->nm_sales.'</td>
+			</tr>
+			<tr>
+				<td style="padding:15px" colspan="6"></td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Customer</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->nm_pelanggan.'</td>
+				<td style="padding:5px 0">TOP</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->top.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0" rowspan="3">Alamat</td>
+				<td rowspan="3">:</td>
+				<td style="padding:5px" rowspan="3">'.$data->alamat.'</td>
+				<td style="padding:5px 0">PO. Date</td>
+				<td>:</td>
+				<td style="padding:5px"></td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">No. Hp</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->no_telp.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">FAX</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->fax.'</td>
+			</tr>
+			<tr>
+				<td style="padding:15px" colspan="6"></td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Description</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Kode. PO</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->kode_po.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Kode. MC</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->kode_mc.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Item</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->nm_produk.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Uk. Box</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->ukuran.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Uk. Sheet</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->ukuran_sheet.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Creasing</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->creasing.' - '.$data->creasing2.' - '.$data->creasing3.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Kualitas</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->kualitas.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Flute</td>
+				<td>:</td>
+				<td style="padding:5px">'.$data->flute.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Qty PO</td>
+				<td>:</td>
+				<td style="padding:5px">'.number_format($data->qty).'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">Keterangan</td>
+				<td>:</td>
+				<td style="padding:5px"></td>
+			</tr>
+		</table>';
+
+		$html .='<table style="font-size:12px;text-align:center;border-collapse:collapse;vertical-align:top;width:100%">
+			<tr>
+				<td style="width:30%;border:0;padding:0"></td>
+				<td style="width:5%;border:0;padding:0"></td>
+				<td style="width:30%;border:0;padding:0"></td>
+				<td style="width:5%;border:0;padding:0"></td>
+				<td style="width:30%;border:0;padding:0"></td>
+			</tr>
+			<tr>
+				<td style="padding:5px">Marketing<br/>'.strtoupper($data->nm_sales).'</td>
+				<td></td>
+				<td style="padding:5px">PPIC<br/>DION AGUS PRANOTO</td>
+				<td></td>
+				<td style="padding:5px">Owner<br/>WILLIAM ALEXANDER HARTONO</td>
+			</tr>
+			<tr>
+				<td style="padding:100px 0 0">'.strtoupper($this->m_fungsi->tanggal_format_indonesia(substr($data->time_app1,0,10))).'<br/>'.substr($data->time_app1,11,10).'</td>
+				<td></td>
+				<td style="padding:100px 0 0">'.strtoupper($this->m_fungsi->tanggal_format_indonesia(substr($data->time_app2,0,10))).'<br/>'.substr($data->time_app2,11,10).'</td>
+				<td></td>
+				<td style="padding:100px 0 0">'.strtoupper($this->m_fungsi->tanggal_format_indonesia(substr($data->time_app3,0,10))).'<br/>'.substr($data->time_app3,11,10).'</td>
+			</tr>
+		</table>';
+
+		
+		$this->m_fungsi->newMpdf($html, 10, 10, 10, 10, 'P', 'A4');
 	}
 }

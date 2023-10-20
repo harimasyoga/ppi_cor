@@ -494,8 +494,6 @@ class M_fungsi extends CI_Model {
 
         $this->load->library('Mpdf');
 
-        $this->mpdf = new \Mpdf\Mpdf( array(190,236),$size,'',$lMargin,$rMargin,$tMargin);
-
         $this->mpdf->AddPage($form,$uk);
 
 		$this->mpdf->SetFooter('Tercetak {DATE j-m-Y H:i:s} |Halaman {PAGENO} / {nb}| ');
@@ -656,5 +654,25 @@ class M_fungsi extends CI_Model {
         $hasil = $hasil->row('jumlah');
         return $hasil;        
     }
+
+	function newMpdf($html,$top,$right,$bottom,$left,$orientasi,$kertas){
+		$this->load->library('mpdf');
+
+		if($kertas == 'F4'){
+			$orr = array(210, 330);
+		}else{ // A4
+			$orr = array(210, 297);
+		}
+		$this->mpdf->AddPageByArray(array(
+			'orientation' => $orientasi,
+			'margin-top' => $top,
+			'margin-right' => $right,
+			'margin-bottom' => $bottom,
+			'margin-left' => $left,
+			'sheet-size' => $orr,
+		));
+		$this->mpdf->writeHTML($html);         
+        $this->mpdf->Output();
+	}
 
 }
