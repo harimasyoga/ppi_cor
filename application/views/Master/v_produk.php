@@ -118,7 +118,7 @@
 						<tr>
 							<td style="padding:5px 0;font-weight:bold">NAMA ITEM</td>
 							<td style="padding:5px 0" colspan="7">
-								<input type="text" class="form-control" id="nm_produk" placeholder="NAMA PRODUK" autocomplete="off">
+								<input type="text" class="form-control" id="nm_produk" placeholder="NAMA PRODUK" autocomplete="off" oninput="this.value = this.value.toUpperCase()">
 							</td>
 						</tr>
 						<tr>
@@ -315,9 +315,8 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url(); ?>Transaksi/load_data/produk',
+				"url": '<?php echo base_url(); ?>Master/load_data/produk',
 				"type": "POST",
-				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}),
 			},
 			responsive: true,
 			"pageLength": 10,

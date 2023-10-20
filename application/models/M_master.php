@@ -156,7 +156,7 @@ class M_master extends CI_Model{
 			'kode_mc'  => $this->input->post('kode_mc'),
 			'nm_produk'  => $this->input->post('nm_produk'),
 			'no_customer' => $this->input->post('no_customer'),
-			'customer' => $this->input->post('customer'),
+			// 'customer' => $this->input->post('customer'),
 			'ukuran' => $this->input->post('ukuran'),
 			'ukuran_sheet' => $this->input->post('ukuran_sheet'),
 			'ukuran_sheet_p' => $this->input->post('ukuran_sheet_p'),

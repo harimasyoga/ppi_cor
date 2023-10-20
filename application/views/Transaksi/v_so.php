@@ -15,7 +15,7 @@
 	</section>
 
 	<section class="content">
-		<div class="card">
+		<div class="card card-list-so">
 			<div class="card-header">
 				<h3 class="card-title"><?= $judul ?></h3>
 				<div class="card-tools">
@@ -95,6 +95,10 @@
 						</td>
 					</tr>
 					<tr>
+						<td style="padding:5px 0;font-weight:bold">KODE. MC</td>
+						<td style="padding:5px 0" id="kode_mc">-</td>
+					</tr>
+					<tr>
 						<td style="padding:5px 0;font-weight:bold">UK. BOX</td>
 						<td style="padding:5px 0" id="uk_box">-</td>
 					</tr>
@@ -111,29 +115,45 @@
 						<td style="padding:5px 0" id="substance">-</td>
 					</tr>
 					<tr>
+						<td style="padding:5px 0;font-weight:bold">QTY PO</td>
+						<td style="padding:5px 0" id="qty_po">-</td>
+					</tr>
+					<tr>
 						<td style="padding:5px 0;font-weight:bold">NO. SO</td>
 						<td style="padding:5px 0">
-							<input type="text" name="no_so" id="no_so" class="form-control" autocomplete="off">
+							<input type="text" name="no_so" id="no_so" class="form-control" autocomplete="off" oninput="this.value = this.value.toUpperCase()">
 						</td>
 					</tr>
 					<tr>
 						<td></td>
 						<td style="padding:5px 0">
-						<button type="button" class="btn btn-success" id="btn-simpan" onclick="addItems()"><i class="fas fa-plus-square"></i> Tambah</button>
+							<button type="button" class="btn btn-success" id="btn-simpan" onclick="addItems()"><i class="fas fa-plus-square"></i> Tambah</button>
 						</td>
 					</tr>
 					<tr>
 						<td style="padding:5px;border:00" colspan="2"></td>
 					</tr>
 				</table>
-
 				<div id="table-nopo"></div>
-
 			</div>
-			
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i> Simpan</button>
-				<button type="button" class="btn btn-outline-secondary" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> Print</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="modalFormDetail">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="judul-detail"></h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div id="modal-detail-so"></div>
 			</div>
 		</div>
 	</div>
@@ -145,7 +165,6 @@
 	$(document).ready(function () {
 		load_data()
 		$('.select2').select2();
-		$("#table-nopo").load("<?php echo base_url('Transaksi/destroy') ?>");
 	});
 
 	function reloadTable() {
@@ -154,6 +173,7 @@
 	}
 
 	$(".tambah_data").click(function(event) {
+		$("#table-nopo").load("<?php echo base_url('Transaksi/destroy') ?>")
 		kosong();
 		status = "insert";
 		$("#modalForm").modal("show");
@@ -189,6 +209,8 @@
 		$("#uk_sheet").html("-")
 		$("#flute").html("-")
 		$("#substance").html("-")
+		$("#kode_mc").html("-")
+		$("#qty_po").html("-")
 		$("#no_so").val("").prop("disabled", true)
 		$("#btn-simpan").prop("disabled", false);
 		soPlhNoPO()
@@ -225,6 +247,8 @@
 		$("#uk_sheet").html("-")
 		$("#flute").html("-")
 		$("#substance").html("-")
+		$("#kode_mc").html("-")
+		$("#qty_po").html("-")
 		$("#no_so").val("").prop("disabled", true)
 		$("#marketing").val(sales)
 		$("#customer").val(cust)
@@ -250,7 +274,7 @@
 					htmlDetail += `<option value="">PILIH</option>`
 				data.po_detail.forEach(loadDetail);
 				function loadDetail(r, index) {
-					htmlDetail += `<option value="${r.id_produk}" data-idpodetail="${r.id}" data-nm_produk="${r.nm_produk}" data-ukuran="${r.ukuran}" data-ukuran_sheet="${r.ukuran_sheet}" data-flute="${r.flute}" data-kualitas="${r.kualitas}">${r.nm_produk} | ${r.ukuran} | ${r.ukuran_sheet} | ${r.flute} | ${r.kualitas}</option>`;
+					htmlDetail += `<option value="${r.id_produk}" data-idpodetail="${r.id}" data-nm_produk="${r.nm_produk}" data-ukuran="${r.ukuran}" data-ukuran_sheet="${r.ukuran_sheet}" data-flute="${r.flute}" data-kualitas="${r.kualitas}" data-kode_mc="${r.kode_mc}" data-qty="${r.qty}">${r.nm_produk} | ${r.kode_mc} | ${r.ukuran} | ${r.ukuran_sheet} | ${r.flute} | ${r.kualitas} | ${r.qty}</option>`;
 				}
 				$("#items").prop("disabled", tf).html(htmlDetail)
 			}
@@ -265,11 +289,15 @@
 		let ukuran_sheet = $('#items option:selected').attr('data-ukuran_sheet')
 		let flute = $('#items option:selected').attr('data-flute')
 		let kualitas = $('#items option:selected').attr('data-kualitas')
+		let kode_mc = $('#items option:selected').attr('data-kode_mc')
+		let qty = $('#items option:selected').attr('data-qty')
 		$("#idpodetail").val(idpodetail)
 		$("#uk_box").html((item == "") ? '-' : ukuran)
 		$("#uk_sheet").html((item == "") ? '-' : ukuran_sheet)
 		$("#flute").html((item == "") ? '-' : flute)
 		$("#substance").html((item == "") ? '-' : kualitas)
+		$("#kode_mc").html((item == "") ? '-' : kode_mc)
+		$("#qty_po").html((item == "") ? '-' : qty)
 		// $("#no_so").val("").prop("disabled", true)
 		soNoSo(item)
 	})
@@ -298,9 +326,9 @@
 					}else{
 						tf = true
 						if(data.siu[0].jmlNoSo.length == 1){
-							tmbhNoso = `.0${parseInt(data.siu[0].jmlNoSo)+1}`
+							tmbhNoso = `.0${data.siu[0].jmlNoSo}`
 						}else{
-							tmbhNoso = `.${parseInt(data.siu[0].jmlNoSo)+1}`
+							tmbhNoso = `.${data.siu[0].jmlNoSo}`
 						}
 						no_so = data.siu[0].no_so + tmbhNoso
 					}
@@ -327,10 +355,11 @@
 				data = JSON.parse(res);
 				// console.log(data)
 				if(data.data){
-					toastr.success('BERHASIL!')
+					swal("BERHASIL", "", "success")
 					showCartItem()
 				}else{
-					toastr.error(data.isi)
+					// toastr.error(data.isi)
+					swal(data.isi, "", "error")
 				}
 			}
 		})
@@ -380,23 +409,41 @@
 				data = JSON.parse(res)
 				// console.log(data)
 				if(data) {
-					toastr.success('BERHASIL DISIMPAN!');
+					swal("BERHASIL DISIMPAN!", "", "success")
 					$("#modalForm").modal("hide");
 					reloadTable();
 				}else{
-					toastr.error('ADA YANG SALAH!');
+					swal("ADA YANG SALAH!", "", "error")
 					$("#btn-simpan").prop("disabled", false);
 				}
 			}
 		})
 	}
 
-	function tampil_edit(id, aksi){
-		alert(id+" - "+aksi)
+	function tampil_edit(id, no_po, kode_po, no_so, nm_produk, aksi){
+		let judul = `NO PO : <b>${no_po}</b> . KODE PO : <b>${kode_po}</b>`
+		$("#judul-detail").html(`. . .`)
+		$("#modal-detail-so").html(`. . .`)
+		$("#modalFormDetail").modal("show");
+
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/detailSO')?>',
+			type: "POST",
+			data: ({
+				id, no_po, kode_po, no_so, nm_produk, aksi
+			}),
+			success: function(res){
+				$("#judul-detail").html(judul)
+				$("#modal-detail-so").html(res)
+			}
+		})
+	}
+
+	function editData(id){
+		alert('edit: '+id)
 	}
 
 	function batalData(id){
-		alert(id)
+		alert('batal: '+id)
 	}
-
 </script>

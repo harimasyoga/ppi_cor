@@ -493,6 +493,8 @@ class M_transaksi extends CI_Model
 			$this->db->set("no_so", $no_so);
 			$this->db->set("tgl_so", $_POST["tgl_so"]);
 			$this->db->set("status_so", 'Open');
+			$this->db->set("add_time_so", date('Y-m-d H:i:s'));
+			$this->db->set("add_user_so", $this->username);
 			$this->db->where("id", $id);
 			$this->db->where("no_po", $no_po);
 			$this->db->where("kode_po", $kode_po);
