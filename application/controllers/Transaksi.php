@@ -226,6 +226,7 @@ class Transaksi extends CI_Controller
                 $time3 = ( ($r->time_app3 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app3,0,10)) ) . ' - ' .substr($r->time_app3,10,9);
 
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status.'</button></div>';
+                
 				$row[] = '<div class="text-center">'.$r->kode_po.'</div>';
 				// $row[] = $r->total_qty;
 				$row[] = '<div class="text-center">'.$r->nm_pelanggan.'</div>';
