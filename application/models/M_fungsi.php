@@ -494,7 +494,7 @@ class M_fungsi extends CI_Model {
 
         $this->load->library('Mpdf');
 
-        $this->mpdf = new \Mpdf\Mpdf( array(190,236),$size,'',$lMargin,$rMargin,$tMargin);
+        // $this->mpdf = new \Mpdf\Mpdf( array(190,236),$size,'',$lMargin,$rMargin,$tMargin);
 
         $this->mpdf->AddPage($form,$uk);
 
