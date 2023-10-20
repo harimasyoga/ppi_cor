@@ -63,7 +63,7 @@
 <!-- /.content-wrapper -->
 
 <div class="modal fade" id="modalForm">
-	<div class="modal-dialog modal-xl">
+	<div class="modal-dialog modal-full">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h4 class="modal-title" id="judul"></h4>
@@ -177,11 +177,11 @@
 									<?php if ($this->session->userdata('level') == "Admin" || $this->session->userdata('level') == "Owner")  {
 										?>
 										
-										<th width="10%">P11</th>
+										<th width="10%" id="header_p11" >P11</th>
 										
 										<?php } else { ?>
 
-											<th type="hidden" width="10%">P11</th>
+											<th type="hidden" width="10%" id="header_p11" >P11</th>
 
 									<?php } ?>
 									<th width="20%">Detail Item</th>
@@ -199,7 +199,7 @@
 										</select>
 									</td>
 									<td>
-										<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onchange="Hitung_rm(this.value,this.id)">
+										<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0'  onchange="Hitung_rm(this.value,this.id)">
 									</td>
 									<td>
 										<select class="form-control select2" name="ppn[0]" id="ppn0" >
@@ -213,9 +213,13 @@
 									
 									<td>
 										<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+
+										<input class="form-control input-border-none" type="text" name="price_exc_rp[0]" id="price_exc_rp0" style="color:red">
 									</td>
 									<td>
 										<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+
+										<input class="form-control input-border-none" type="text" name="price_inc_rp[0]" id="price_inc_rp0" style="color:red">
 									</td>
 									<?php endif ?>
 
@@ -251,10 +255,16 @@
 					</div>
 			</div>
 					<div class="modal-footer">
+
 						<button type="button" class="btn btn-outline-success btn-verif" style="display: none;" onclick="prosesData('Y')"><i class="fas fa-check"></i> Verifikasi</button>
+
 						<button type="button" class="btn btn-outline-danger btn-verif" style="display: none;" onclick="prosesData('R')"><i class="fas fa-times"></i> Reject</button>
-						<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan</b></button>
-						<button type="button" class="btn btn-outline-secondary" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> Print</button>
+
+						<button type="button" class="btn btn-outline-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan</b></button>
+
+						<button type="button" class="btn btn-outline-danger" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> Print</button>
+
+						<button type="button" class="btn btn-outline-danger" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-times-circle"></i> <b> Batal</b></button>
 					</div>
 			</form>
 			<input type="hidden" name="bucket" id="bucket" value="0">
@@ -286,6 +296,10 @@
 		$("#status").val("insert");
 		$("#id_produk0").val("").prop("disabled", true).html(`<option value="">-- Pilih --</option>`);
 	});
+
+	function close_modal(){
+		$('#modalForm').modal('hide');
+	}
 
 	function setProduk(pelanggan,id) 
 	{
@@ -360,7 +374,13 @@
 		sales           = $("#id_sales").val();
 
 		if (id_pelanggan == '' || kode_po == '' || eta == '' || eta == 'undefined' || sales=='' ) {
-			toastr.info('Harap Lengkapi Form');
+			// toastr.info('Harap Lengkapi Form');
+			swal({
+				title               : "Cek Kembali",
+				html                : "Harap Lengkapi Form Dahulu",
+				type                : "info",
+				confirmButtonText   : "OK"
+			});
 			return;
 		}
 
@@ -370,10 +390,16 @@
 			produk   = $("#id_produk" + i).val();
 			qty      = $("#qty" + i).val();
 			p11      = $("#p11" + i).val();
-			alert(p11);
 
 			if (produk == '' || qty == '' || qty == '0') {
-				toastr.info('Harap Lengkapi Form');
+				// toastr.info('Harap Lengkapi Form');
+				// return;
+				swal({
+					title               : "Cek Kembali",
+					html                : "Harap Lengkapi Form Dahulu",
+					type                : "info",
+					confirmButtonText   : "OK"
+				});
 				return;
 			}
 
@@ -382,7 +408,14 @@
 		let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) != index)
 
 		if (findDuplicates(arr_produk).length > 0) {
-			toastr.info('Tidak boleh ada produk yang sama');
+			// toastr.info('Tidak boleh ada produk yang sama');
+			// return;
+			swal({
+				title               : "Cek Kembali",
+				html                : "Tidak boleh ada produk yang sama",
+				type                : "info",
+				confirmButtonText   : "OK"
+			});
 			return;
 		}
 
@@ -395,16 +428,36 @@
 			dataType   : "JSON",
 			success: function(data) {
 				if (data) {
-					toastr.success('Berhasil Disimpan');
+					// toastr.success('Berhasil Disimpan');
+					swal({
+						title               : "Data",
+						html                : "Berhasil Disimpan",
+						type                : "success",
+						confirmButtonText   : "OK"
+					});
 					kosong();
 					$("#modalForm").modal("hide");
 				} else {
-					toastr.error('Gagal Simpan');
+					// toastr.error('Gagal Simpan');
+					swal({
+						title               : "Cek Kembali",
+						html                : "Gagal Simpan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
 				}
 				reloadTable();
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				toastr.error('Terjadi Kesalahan');
+				// toastr.error('Terjadi Kesalahan');
+				swal({
+					title               : "Cek Kembali",
+					html                : "Terjadi Kesalahan",
+					type                : "error",
+					confirmButtonText   : "OK"
+				});
+				return;
 			}
 		});
 
@@ -438,6 +491,8 @@
 		$("#btn-simpan").show();
 
 		$(".btn-tambah-produk").show();
+		$('#removeRow').show();
+		$("#header_del").show();
 	}
 
 	function btn_verif(data)
@@ -523,7 +578,10 @@
 					// $("#ppn" + index).val(value.ppn);
 					$("#price_inc" + index).val(value.price_inc);
 					$("#price_exc" + index).val(value.price_exc);
-					alert(value.p11);
+					
+					$('#price_exc_rp'+index).val(format_angka(value.price_exc));
+					$('#price_inc_rp'+index).val(format_angka(value.price_inc));
+					
 					$("#p11" + index).val(value.p11);
 
 					if (act == 'detail') {
@@ -563,7 +621,14 @@
 				$("#no_po").val("PO/" + data.tahun + "/" + data.bln + "/" + data.no);
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				toastr.error('Terjadi Kesalahan');
+				// toastr.error('Terjadi Kesalahan');
+				swal({
+					title               : "Cek Kembali",
+					html                : "Terjadi Kesalahan",
+					type                : "error",
+					confirmButtonText   : "OK"
+				});
+				return;
 			}
 		});
 
@@ -584,10 +649,23 @@
 				type: "POST",
 				success: function(data) {
 					toastr.success('Data Berhasil Di Hapus');
+					swal({
+						title               : "Data",
+						html                : "Data Berhasil Di Hapus",
+						type                : "success",
+						confirmButtonText   : "OK"
+					});
 					reloadTable();
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
-					toastr.error('Terjadi Kesalahan');
+					// toastr.error('Terjadi Kesalahan');
+					swal({
+						title               : "Cek Kembali",
+						html                : "Terjadi Kesalahan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
 				}
 			});
 		}
@@ -609,12 +687,25 @@
 				}),
 				type: "POST",
 				success: function(data) {
-					toastr.success('Data Berhasil Diproses');
+					// toastr.success('Data Berhasil Diproses');
+					swal({
+						title               : "Data",
+						html                : "Data Berhasil Diproses",
+						type                : "success",
+						confirmButtonText   : "OK"
+					});
 					reloadTable();
 					$("#modalForm").modal("hide");
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
-					toastr.error('Terjadi Kesalahan');
+					// toastr.error('Terjadi Kesalahan');
+					swal({
+						title               : "Cek Kembali",
+						html                : "Terjadi Kesalahan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
 				}
 			});
 		}
@@ -677,7 +768,7 @@
 							
 						(val.kategori =='K_BOX')? uk = val.ukuran : uk = val.ukuran_sheet;
 
-						html_produk += `
+						html_produk = `
 						<table class='table' border='0' style='font-size:12px'>
 						<tr> 
 							<tr> 
@@ -709,6 +800,15 @@
 								</td> 
 							</tr> 
 						<tr> </table>`;
+
+						if(status=='update'){
+							
+							var inc= $('#price_inc'+id).val();
+							var qty= $('#qty'+id).val();
+
+							hitung_p11(inc,'price_inc'+id);
+							Hitung_rm(qty,'qty'+id);
+						}
 	
 						});
 	
@@ -757,10 +857,14 @@
 					td_harga = `
 						<td>
 							<input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
+
+							<input class="form-control input-border-none" type="text" name="price_exc_rp[${rowNum}]" id="price_exc_rp${rowNum}" style="color:red">
 						 
 						</td>
 						<td>
 							<input type="text" name="price_inc[${rowNum}]" id="price_inc${rowNum}"  class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
+
+							<input class="form-control input-border-none" type="text" name="price_inc_rp[${rowNum}]" id="price_inc_rp${rowNum}" style="color:red">
 						</td>
 					`
 				}
@@ -789,7 +893,9 @@
 					</td>
 					<td>
 						 <input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onchange="Hitung_rm(this.value,this.id)">
+
 					</td>
+
 					<td>
 						<select class="form-control select2" name="ppn[${ rowNum }]" id="ppn${ rowNum }">
 							<option value="PP">PP</option>
@@ -808,11 +914,24 @@
 				$('#bucket').val(rowNum);
 				$('#qty' + rowNum).focus();
 			} else {
-				toastr.info('Maksimal 5 Produk');
+				// toastr.info('Maksimal 5 Produk');
+				swal({
+						title               : "Cek Kembali",
+						html                : "Maksimal 5 Produk",
+						type                : "info",
+						confirmButtonText   : "OK"
+					});
 				return;
 			}
 		} else {
-			toastr.info('Isi form diatas terlebih dahulu');
+			// toastr.info('Isi form diatas terlebih dahulu');
+			// return;
+			swal({
+					title               : "Cek Kembali",
+					html                : "Isi form diatas terlebih dahulu",
+					type                : "info",
+					confirmButtonText   : "OK"
+				});
 			return;
 		}
 	}
@@ -823,7 +942,15 @@
 			jQuery('#itemRow' + e).remove();
 			rowNum--;
 		} else {
-			toastr.error('Baris pertama tidak bisa dihapus');
+			// toastr.error('Baris pertama tidak bisa dihapus');
+			// return;
+
+			swal({
+					title               : "Cek Kembali",
+					html                : "Baris pertama tidak bisa dihapus",
+					type                : "error",
+					confirmButtonText   : "OK"
+				});
 			return;
 		}
 		$('#bucket').val(rowNum);
@@ -864,11 +991,18 @@
 		{
 			inc = Math.trunc(val *1.11);
 			$('#price_inc'+id2).val(inc);
+
+			$('#price_exc_rp'+id2).val(format_angka(val));
+			$('#price_inc_rp'+id2).val(format_angka(inc));
 		}else {
 			exc = Math.trunc(val /1.11);
 			$('#price_exc'+id2).val(exc);
+
+			$('#price_exc_rp'+id2).val(format_angka(exc));
+			$('#price_inc_rp'+id2).val(format_angka(val));
 		}
 	}
+
 
 	function hitung_p11(val,id)
 	{		
@@ -876,7 +1010,6 @@
 		var cek = id.substr(0,9);
 		var id2 = id.substr(9,1);
 
-		alert(cek);
 		if(cek=='price_exc')
 		{
 			var inc = $('#price_inc'+id2).val();
@@ -929,12 +1062,10 @@
 										$('#p11'+id2).val('- '+ p11.toFixed(1)+' %');
 
 
-
 									}
 								});
 								
-							}else
-							{
+							} else {
 								$.ajax({
 									type        : 'POST',
 									url         : "<?= base_url(); ?>Transaksi/cek_flute",
@@ -962,6 +1093,10 @@
 									}
 								});
 							}
+						} else {
+							p11 = exc/ val.berat_bersih;
+							$('#p11'+id2).val( '- 0 %');
+
 						}
 					
 			}
@@ -981,8 +1116,7 @@
 				title: "Produk Kosong",
 				text: "Pilih Produk Dahulu !",
 				type: "error",
-				confirmButtonText: "OK",
-				confirmButtoncolor: "black"
+				confirmButtonText: "OK"
 			});
 			
 			$('#'+id).val(0);
@@ -1010,12 +1144,19 @@
 						
 						});
 
-						
-						if(rm < 500 ){			
-							toastr.error(
-								'RM tidak boleh di Bawah 500, <br> Hubungi Marketing'
-							);
+						if(rm < 500 && status !=='update'){			
+							// toastr.error(
+							// 	'RM tidak boleh di Bawah 500, <br> Hubungi Marketing'
+							// );
+
+							swal({
+								title               : "Cek Kembali",
+								html                : " Tidak boleh di Bawah 500 ! <br> Hubungi Marketing </b> ",
+								type                : "error",
+								confirmButtonText   : "OK"
+							});
 							$("#"+id).val("0");
+							$("#qty"+id2).val("0");
 							return;
 						}	
 	
