@@ -304,6 +304,7 @@
 
 	function soNoSo(item){
 		// alert(item)
+		$("#no_so").val("CEK NO SO . . .").prop("disabled", true)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/soNoSo')?>',
 			type: "POST",
@@ -313,27 +314,22 @@
 			success: function(json){
 				data = JSON.parse(json)
 				// console.log(data)
-				let tf = ''
+				// let tf = true
 				let no_so = ''
 				let tmbhNoso = ''
 				if(item == ''){
-					tf = true
+					// tf = true
 					no_so = ''
 				}else{	
-					if(data.siu.length == 0){
-						tf = false
-						no_so = ''
+					if(data.data.length == 0){
+						// tf = false
+						no_so = data.produk.kode_mc
 					}else{
-						tf = true
-						if(data.siu[0].jmlNoSo.length == 1){
-							tmbhNoso = `.0${data.siu[0].jmlNoSo}`
-						}else{
-							tmbhNoso = `.${data.siu[0].jmlNoSo}`
-						}
-						no_so = data.siu[0].no_so + tmbhNoso
+						// tf = false
+						no_so = `${data.produk.kode_mc}.${data.jml_produk}`
 					}
 				}
-				$("#no_so").val(no_so).prop("disabled", tf)
+				$("#no_so").val(no_so).prop("disabled", true)
 			}
 		})
 	}
@@ -355,7 +351,8 @@
 				data = JSON.parse(res);
 				// console.log(data)
 				if(data.data){
-					swal("BERHASIL", "", "success")
+					// swal("BERHASIL", "", "success")
+					toastr.success("BERHASIL")
 					showCartItem()
 				}else{
 					// toastr.error(data.isi)

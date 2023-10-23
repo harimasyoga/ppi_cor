@@ -16,16 +16,7 @@ class Master extends CI_Controller
 
 	public function index()
 	{
-
-		$data = array(
-			/*'produk' => $this->db->query("SELECT * FROM m_produk WHERE stok < 50 ORDER BY stok"),
-                      'sales_produk' => $this->db->query("SELECT tanggal, SUM(total) total,SUM(total_perawatan) total_perawatan FROM (
-                            SELECT tanggal,CASE WHEN LEFT(id_produk,1) = 'P' THEN total ELSE 0 END total,
-                            CASE WHEN LEFT(id_produk,1) = 'R' THEN total ELSE 0 END total_perawatan 
-                            FROM `tr_penjualan_detail` 
-                            WHERE YEAR(tanggal) = YEAR(CURDATE()) AND MONTH(tanggal) = MONTH(CURDATE()) 
-                            ) z GROUP BY tanggal")->result()*/);
-
+		$data = array();
 		$this->load->view('header');
 		$this->load->view('home');
 		$this->load->view('footer');
@@ -140,27 +131,27 @@ class Master extends CI_Controller
 		$data = array();
 
 		if ($jenis == "pelanggan") {
-			$query = $this->m_master->query("SELECT prov.prov_name,kab.kab_name,kec.kec_name,kel.kel_name,pel.* FROM m_pelanggan pel
+			$query = $this->m_master->query("SELECT prov.prov_name,kab.kab_name,kec.kec_name,kel.kel_name,les.nm_sales,pel.* FROM m_pelanggan pel
 			LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
 			LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
 			LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
-			LEFT JOIN m_kel kel ON pel.kel=kel.kel_id ORDER BY pel.nm_pelanggan")->result();
+			LEFT JOIN m_kel kel ON pel.kel=kel.kel_id
+			LEFT JOIN m_sales les ON pel.id_sales=les.id_sales
+			-- WHERE pel.id_pelanggan='47'
+			ORDER BY pel.nm_pelanggan ")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_pelanggan."'".','."'detail'".')">'.$i."<a></div>";
 				$row[] = $r->nm_pelanggan;
-				$row[] = $r->attn;
 				$row[] = $r->alamat_kirim;
-				$row[] = ($r->prov_name == "" || $r->prov_name == null) ? '-' : $r->prov_name;
-				$row[] = ($r->kab_name == "" || $r->kab_name == null) ? '-' : $r->kab_name;
-				$row[] = ($r->kec_name == "" || $r->kec_name == null) ? '-' : $r->kec_name;
-				$row[] = ($r->kel_name == "" || $r->kel_name == null) ? '-' : $r->kel_name;
+				$row[] = ($r->nm_sales == 0) ? '-' : $r->nm_sales;
+				$row[] = ($r->top == 0 || $r->top == "" || $r->top == null) ? '-' : $r->top;
 
 				$idPelanggan = $r->id_pelanggan;
 				$cekProduk = $this->db->query("SELECT * FROM m_produk WHERE no_customer='$idPelanggan'")->num_rows();
-				$btnEdit = '<button type="button" onclick="tampil_edit('."'".$r->id_pelanggan."'".','."'edit'".')" class="btn btn-warning btn-xs">Edit</button>';
-				$btnHapus = '<button type="button" onclick="deleteData('."'".$r->id_pelanggan."'".')" class="btn btn-danger btn-xs">Hapus</button>';
+				$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_pelanggan."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
+				$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_pelanggan."'".')"><i class="fas fa-times"></i></button>';
 				$row[] = ($cekProduk == 0) ? $btnEdit.' '.$btnHapus : $btnEdit ;
 				$data[] = $row;
 				$i++;
@@ -180,9 +171,10 @@ class Master extends CI_Controller
 
 				$idProduk = $r->id_produk;
 				$cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE id_produk='$idProduk'")->num_rows();
-				$btnEdit = '<button type="button" onclick="tampil_edit('."'".$r->id_produk."'".','."'edit'".')" class="btn btn-warning btn-xs">Edit</button>';
-				$btnHapus = '<button type="button" onclick="deleteData('."'".$r->id_produk."'".')" class="btn btn-danger btn-xs">Hapus</button>';
-				$row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit ;
+				$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_produk."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
+				$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_produk."'".')"><i class="fas fa-times"></i></button>';
+				($cekPO == 0) ? $btnAksi = $btnEdit.' '.$btnHapus : $btnAksi = $btnEdit;
+				$row[] = '<div class="text-center">'.$btnAksi.'</div>';
 				$data[] = $row;
 				$i++;
 			}
@@ -197,9 +189,10 @@ class Master extends CI_Controller
 
 				$idSales = $r->id_sales;
 				$cekPO = $this->db->query("SELECT COUNT(id_sales) AS jmlSales FROM trs_po WHERE id_sales='$idSales' GROUP BY id_sales")->num_rows();
-				$btnEdit = '<button type="button" onclick="tampil_edit('."'".$r->id_sales."'".','."'edit'".')" class="btn btn-warning btn-xs">Edit</button>';
-				$btnHapus = '<button type="button" onclick="deleteData('."'".$r->id_sales."'".')" class="btn btn-danger btn-xs">Hapus</button>';
-				$row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit ;
+				// <button type="button" class="btn btn-warning btn-sm" onclick="editData('."".$idSo."".')"><i class="fas fa-pen"></i></button>
+				$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_sales."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
+				$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_sales."'".')"><i class="fas fa-times"></i></button>';
+				$row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit;
 				$data[] = $row;
 				$i++;
 			}
@@ -266,58 +259,78 @@ class Master extends CI_Controller
 
 	function getPlhCustomer()
 	{
-		$data = $this->db->query("SELECT prov.prov_name,kab.kab_name,kec.kec_name,kel.kel_name,pel.* FROM m_pelanggan pel
-		LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
-		LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
-		LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
-		LEFT JOIN m_kel kel ON pel.kel=kel.kel_id ORDER BY nm_pelanggan")->result();
+		$data = $this->db->query("SELECT s.nm_sales,p.* FROM m_pelanggan p
+		LEFT JOIN m_sales s ON p.id_sales=s.id_sales
+		ORDER BY p.nm_pelanggan")->result();
+		echo json_encode($data);
+	}
+
+	function getPlhSales()
+	{
+		$data = $this->db->query("SELECT*FROM m_sales ORDER BY nm_sales")->result();
 		echo json_encode($data);
 	}
 
 	function getEditProduk()
 	{
 		$id = $_POST["id"];
-		$data = $this->db->query("SELECT c.nm_pelanggan AS customer,p.* FROM m_produk p
+		$data = $this->db->query("SELECT s.nm_sales,c.nm_pelanggan AS customer,c.kode_unik,p.* FROM m_produk p
 		INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan
+		LEFT JOIN m_sales s ON c.id_sales=s.id_sales
 		WHERE p.id_produk='$id'")->row();
 		$pelanggan = $this->db->query("SELECT*FROM m_pelanggan pel
 		LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
 		LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
 		LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
 		LEFT JOIN m_kel kel ON pel.kel=kel.kel_id
+		LEFT JOIN m_sales sal ON pel.id_sales=sal.id_sales
 		ORDER BY id_pelanggan")->result();
 		$id_pelanggan = $data->no_customer;
-		$wilayah = $this->db->query("SELECT prov.prov_name,kab.kab_name,kec.kec_name,kel.kel_name,pel.* FROM m_pelanggan pel
-		LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
-		LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
-		LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
-		LEFT JOIN m_kel kel ON pel.kel=kel.kel_id
-		WHERE pel.id_pelanggan='$id_pelanggan'")->row();
+		// $wilayah = $this->db->query("SELECT prov.prov_name,kab.kab_name,kec.kec_name,kel.kel_name,pel.* FROM m_pelanggan pel
+		// LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
+		// LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
+		// LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
+		// LEFT JOIN m_kel kel ON pel.kel=kel.kel_id
+		// WHERE pel.id_pelanggan='$id_pelanggan'")->row();
 		$id_produk = $data->id_produk;
 		$poDetail = $this->db->query("SELECT*FROM trs_po_detail WHERE id_produk='$id_produk'")->result();
 		echo json_encode(array(
 			'produk' => $data,
 			'pelanggan' => $pelanggan,
-			'wilayah' => $wilayah,
+			// 'wilayah' => $wilayah,
 			'poDetail' => $poDetail,
 		));
+	}
+
+	function buatKodeMC(){
+		$result = $this->m_master->buatKodeMC();
+		echo json_encode($result);
 	}
 
 	function getEditPelanggan()
 	{
 		$id = $_POST["id"];
-		$data =  $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id'")->row();
+		$data =  $this->db->query("SELECT s.nm_sales,p.* FROM m_pelanggan p
+		INNER JOIN m_sales s ON p.id_sales=s.id_sales
+		WHERE p.id_pelanggan='$id'")->row();
 		$prov = $this->db->query("SELECT*FROM m_provinsi")->result();
+		$sales = $this->db->query("SELECT*FROM m_sales ORDER BY nm_sales")->result();
 		$wilayah = $this->db->query("SELECT prov.prov_name,kab.kab_name,kec.kec_name,kel.kel_name,pel.* FROM m_pelanggan pel
 		LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
 		LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
 		LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
 		LEFT JOIN m_kel kel ON pel.kel=kel.kel_id
 		WHERE pel.id_pelanggan='$id'")->row();
+		$cekPO = $this->db->query("SELECT p.id_pelanggan FROM m_pelanggan p
+		INNER JOIN trs_po o ON p.id_pelanggan=o.id_pelanggan
+		WHERE p.id_pelanggan='$id'
+		GROUP BY p.id_pelanggan")->num_rows();
 		echo json_encode(array(
 			'pelanggan' => $data,
 			'prov' => $prov,
+			'sales' => $sales,
 			'wilayah' => $wilayah,
+			'cek_po' => $cekPO,
 		));
 	}
 }

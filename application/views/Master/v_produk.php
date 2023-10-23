@@ -41,8 +41,8 @@
 							<th style="width:14%">BOX</th>
 							<th style="width:14%">SHEET</th>
 							<th style="width:5%">FLUTE</th>
-							<th style="width:14%">KUALITAS</th>
-							<th style="width:5%">AKSI</th>
+							<th style="width:10%">KUALITAS</th>
+							<th style="width:9%">AKSI</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -83,50 +83,20 @@
 						<tr>
 							<td style="padding:5px 0;font-weight:bold">CUSTOMER</td>
 							<td style="padding:5px 0" colspan="9">
+								<input type="hidden" id="kode_unik">
 								<select class="form-control select2" id="no_customer"></select>
 							</td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0;font-weight:bold">ATTN</td>
-							<td style="padding:5px 0" colspan="4" id="attn"></td>
-							<td style="padding:5px 0;font-weight:bold">PROVINSI</td>
-							<td style="padding:5px 0" colspan="4" id="provinsi"></td>
-						</tr>
-						<tr>
-							<td style="padding:5px 0;font-weight:bold">ALAMAT</td>
-							<td style="padding:5px 5px 5px 0;vertical-align:top" colspan="4" rowspan="4" id="alamat"></td>
-							<td style="padding:5px 0;font-weight:bold">KABUPATEN</td>
-							<td style="padding:5px 0" colspan="4" id="kabupaten">
+							<td style="padding:5px 0;font-weight:bold">SALES</td>
+							<td style="padding:5px 0" colspan="3">
+								<input type="text" id="nm_sales" class="form-control" disabled>
 							</td>
-						</tr>
-						<tr>
-							<td style="padding:5px 0"></td>
-							<td style="padding:5px 0;font-weight:bold">KECAMATAN</td>
-							<td style="padding:5px 0" colspan="4" id="kecamatan">
-							</td>
-						</tr>
-						<tr>
-							<td style="padding:5px 0"></td>
-							<td style="padding:5px 0;font-weight:bold">KELURAHAN</td>
-							<td style="padding:5px 0" colspan="4" id="kelurahan">
-							</td>
-						</tr>
-						<tr>
-							<td style="padding:5px 0"></td>
-							<td style="padding:5px 0;color:#fff" colspan="5">-</td>
 						</tr>
 						<tr>
 							<td style="padding:5px 0;font-weight:bold">NAMA ITEM</td>
 							<td style="padding:5px 0" colspan="7">
 								<input type="text" class="form-control" id="nm_produk" placeholder="NAMA PRODUK" autocomplete="off" oninput="this.value = this.value.toUpperCase()">
-							</td>
-						</tr>
-						<tr>
-							<td style="padding:5px 0;font-weight:bold">KODE MC</td>
-							<td style="padding:5px 0" colspan="7">
-								<!-- <input type="hidden" class="form-control" id="customer"> -->
-								<input type="hidden" class="form-control" id="id">
-								<input type="text" class="form-control" id="kode_mc" placeholder="KODE MC" autocomplete="off">
 							</td>
 						</tr>
 						<tr>
@@ -139,14 +109,35 @@
 								</select>
 							</td>
 							<td></td>
-							<td style="padding:5px 0;font-weight:bold">TYPE</td>
-							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="tipe" placeholder="-" disabled></td>
+							<td style="padding:5px 0;font-weight:bold">TIPE BOX</td>
+							<td style="padding:5px 0" colspan="2">
+								<select id="tipe_box" class="form-control">
+									<option value="">PILIH</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="padding:5px 0;font-weight:bold">FLUTE</td>
+							<td style="padding:5px 0" colspan="3">
+								<select class="form-control" id="flute" onchange="cflute()">
+									<option value="">PILIH</option>
+									<option value="BCF">BCF</option>
+									<option value="CF">CF</option>
+									<option value="BF">BF</option>
+								</select>
+								<input type="hidden" id="wall">
+							</td>
+							<td style="padding:5px 0"></td>
+							<td style="padding:5px 0;font-weight:bold">SAMBUNGAN</td>
+							<td style="padding:5px 0" colspan="2">
+								<select id="sambungan" class="form-control" onchange="cflute()"></select>
+							</td>
 						</tr>
 						<tr>
 							<td style="padding:5px 0;font-weight:bold">P / L / T</td>
-							<td style="padding:5px 2px 5px 0"><input type="text" class="form-control" id="l_panjang" placeholder="P" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="berhitung()"></td>
-							<td style="padding:5px 2px"><input type="text" class="form-control" id="l_lebar" placeholder="L" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="berhitung()"></td>
-							<td style="padding:5px 0 5px 2px"><input type="text" class="form-control" id="l_tinggi" placeholder="T" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="berhitung()"></td>
+							<td style="padding:5px 2px 5px 0"><input type="text" class="form-control" id="l_panjang" placeholder="P" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="cflute()"></td>
+							<td style="padding:5px 2px"><input type="text" class="form-control" id="l_lebar" placeholder="L" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="cflute()"></td>
+							<td style="padding:5px 0 5px 2px"><input type="text" class="form-control" id="l_tinggi" placeholder="T" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="cflute()"></td>
 							<td></td>
 							<td style="padding:5px 0;font-weight:bold">UKURAN BOX</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="ukuran" placeholder="-" autocomplete="off" disabled></td>
@@ -165,21 +156,6 @@
 								<input type="text" class="form-control" placeholder="LEBAR" name="ukuran_sheet_l" id="ukuran_sheet_l" disabled>
 								<input type="hidden" class="form-control" id="ukuran_sheet" placeholder="-" autocomplete="off" disabled>
 							</td>
-						</tr>
-						<tr>
-							<td style="padding:5px 0;font-weight:bold">FLUTE</td>
-							<td style="padding:5px 0">
-								<select class="form-control" id="flute">
-									<option value="">PILIH</option>
-									<option value="BCF">BCF</option>
-									<option value="CF">CF</option>
-									<option value="BF">BF</option>
-								</select>
-							</td>
-							<td colspan="3"><input type="hidden" id="nilai_flute"></td>
-							<td colspan="3"><input type="hidden" id="nilai_sheet_panjang"></td>
-							<td colspan="3"><input type="hidden" id="nilai_sheet_lebar"></td>
-							<td colspan="3"><input type="hidden" id="wall"></td>
 						</tr>
 						<tr>
 							<td style="padding:5px">
@@ -224,6 +200,13 @@
 							</td>
 						</tr>
 						<tr>
+							<td style="padding:5px 0;font-weight:bold">KODE MC</td>
+							<td style="padding:5px 0" colspan="7">
+								<input type="hidden" class="form-control" id="id">
+								<input type="text" class="form-control" id="kode_mc" placeholder="KODE MC" autocomplete="off" disabled>
+							</td>
+						</tr>
+						<tr>
 							<td style="padding:5px 0;font-weight:bold">KUALITAS</td>
 							<td style="padding:5px 0" colspan="3"><input type="text" class="form-control" id="kualitas" placeholder="-" disabled></td>
 							<td></td>
@@ -241,12 +224,8 @@
 							<td style="padding:5px 0 5px 5px">%</td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0;font-weight:bold">SAMBUNGAN</td>
-							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="sambungan" placeholder="-" autocomplete="off"></td>
-							<td style="padding:5px 0 5px 5px;font-weight:bold">NO DESIGN</td>
+							<td style="padding:5px 0;font-weight:bold">NO DESIGN</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="no_design" placeholder="-" autocomplete="off"></td>
-							<td style="padding:5px 0 5px 5px;font-weight:bold">TIPE BOX</td>
-							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="tipe_box" placeholder="-" autocomplete="off"></td>
 						</tr>
 						<tr>
 							<td style="padding:5px 0;font-weight:bold">WARNA</td>
@@ -265,13 +244,13 @@
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="jml_paku" placeholder="-" autocomplete="off"></td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0 5px 5px;font-weight:bold">NO KARET</td>
+							<td style="padding:5px 0;font-weight:bold">NO KARET</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="no_karet" placeholder="-" autocomplete="off"></td>
 							<td style="padding:5px 0 5px 5px;font-weight:bold">NO PISAU</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="no_pisau" placeholder="-" autocomplete="off"></td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0 5px 5px;font-weight:bold">SPESIAL REQUEST</td>
+							<td style="padding:5px 0;font-weight:bold">SPESIAL REQUEST</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="spesial_req" placeholder="-" autocomplete="off"></td>
 							<td style="padding:5px 0 5px 5px;font-weight:bold">COA</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="COA" placeholder="-" autocomplete="off"></td>
@@ -341,7 +320,6 @@
 		ukuran = $("#ukuran").val();
 		ukuran_sheet = $("#ukuran_sheet").val();
 		sambungan = $("#sambungan").val();
-		tipe = $("#tipe").val();
 		material = $("#material").val();
 		wall = $("#wall").val();
 		l_panjang = $("#l_panjang").val();
@@ -375,16 +353,16 @@
 		$("#ukuran_sheet").val(ukuran_sheet)
 
 		if(kategori == 'K_SHEET' && (l_panjang == '' || l_lebar == '')){
-			toastr.info('Harap Lengkapi Form');
+			swal("HARAP LENGKAPI FORM!", "", "info")
 			return;
 		}
 		if(kategori == 'K_BOX' && (l_panjang == '' || l_lebar == '' || l_tinggi == '')){
-			toastr.info('Harap Lengkapi Form');
+			swal("HARAP LENGKAPI FORM!", "", "info")
 			return;
 		}
 
-		if (kode_mc == '' || nm_produk == '' || no_customer == '' || ukuran == '' || ukuran_sheet == '' || sambungan == '' || tipe == '' || material == '' || wall == '' || creasing == '' || creasing2 == '' || creasing3 == '' || flute == '' || berat_bersih == '' || luas_bersih == '' || kualitas == '' || warna == '' || no_design == '' || design == '' || tipe_box == '' || jenis_produk == '' || kategori == '' || cCOA == '' || jml_ikat == '' || jml_palet == '' || jml_paku == '' || no_pisau == '' || no_karet == '' || toleransi_kirim == '' || spesial_req == '') {
-			toastr.info('Harap Lengkapi Form');
+		if (kode_mc == '' || nm_produk == '' || no_customer == '' || ukuran == '' || ukuran_sheet == '' || sambungan == '' || material == '' || wall == '' || creasing == '' || creasing2 == '' || creasing3 == '' || flute == '' || berat_bersih == '' || luas_bersih == '' || kualitas == '' || warna == '' || no_design == '' || design == '' || tipe_box == '' || jenis_produk == '' || kategori == '' || cCOA == '' || jml_ikat == '' || jml_palet == '' || jml_paku == '' || no_pisau == '' || no_karet == '' || toleransi_kirim == '' || spesial_req == '') {
+			swal("HARAP LENGKAPI FORM!", "", "info")
 			$("#btn-simpan").prop("disabled", false);
 			return;
 		}
@@ -393,7 +371,7 @@
 			url: '<?php echo base_url('Master/Insert') ?>',
 			type: "POST",
 			data: ({
-				id, kode_mc, nm_produk, no_customer, ukuran, ukuran_sheet, sambungan, tipe, material, wall, l_panjang, l_lebar, l_tinggi, creasing, creasing2, creasing3, flute, berat_bersih, luas_bersih, kualitas, warna, no_design, design, tipe_box, jenis_produk, kategori, COA:cCOA, jml_ikat, jml_palet, jml_paku, no_pisau, no_karet, toleransi_kirim, spesial_req, ukuran_sheet_p, ukuran_sheet_l, jenis: 'm_produk', status: status
+				id, kode_mc, nm_produk, no_customer, ukuran, ukuran_sheet, sambungan, material, wall, l_panjang, l_lebar, l_tinggi, creasing, creasing2, creasing3, flute, berat_bersih, luas_bersih, kualitas, warna, no_design, design, tipe_box, jenis_produk, kategori, COA:cCOA, jml_ikat, jml_palet, jml_paku, no_pisau, no_karet, toleransi_kirim, spesial_req, ukuran_sheet_p, ukuran_sheet_l, jenis: 'm_produk', status: status
 			}),
 			success: function(json) {
 				data = JSON.parse(json)
@@ -404,7 +382,7 @@
 					$("#modalForm").modal("hide");
 					reloadTable();
 				}else{
-					toastr.error('ITEM SUDAH ADA!');
+					swal("ITEM SUDAH ADA!", "", "error")
 					$("#btn-simpan").prop("disabled", false);
 				}
 			},
@@ -415,41 +393,31 @@
 	}
 
 	$('#no_customer').on('change', function() {
-		let detail = $('#no_customer option:selected').attr('data-detail');
-		let attn = $('#no_customer option:selected').attr('attn');
-		let prov = $('#no_customer option:selected').attr('prov');
-		let kab = $('#no_customer option:selected').attr('kab');
-		let kec = $('#no_customer option:selected').attr('kec');
-		let kel = $('#no_customer option:selected').attr('kel');
-		let alamat = $('#no_customer option:selected').attr('alamat');
-		// alert(detail+" - "+attn+" - "+prov+" - "+kab+" - "+kec+" - "+kel+" - "+alamat)
-		$("#attn").html(attn);
-		$("#provinsi").html(prov);
-		$("#kabupaten").html(kab);
-		$("#kecamatan").html(kec);
-		$("#kelurahan").html(kel);
-		$("#alamat").html(alamat);
-
-		$("#customer").val(detail);
-		let cust = $("#no_customer").val();
-		if(cust == ""){
+		let no_cust = $('#no_customer').val()
+		let nm_sales = $('#no_customer option:selected').attr('data-sales')
+		let kode_unik = $('#no_customer option:selected').attr('kode_unik')
+		$("#nm_sales").val(nm_sales)
+		$("#kode_unik").val(kode_unik)
+		if(no_cust == ""){
 			kosong()
+			$("#no_customer").prop("disabled", false);
 		}
+		buatKodeMC()
 	})
 
 	function getPlhCustomer() {
+		$("#no_customer").html(`<option value="">PILIH</option>`).prop("disabled", true)
 		$.ajax({
 			url: '<?php echo base_url('Master/getPlhCustomer')?>',
 			type: "POST",
 			success: function(json) {
 				data = JSON.parse(json)
 				// console.log(data)
-
 				let htmlCust = ''	
 				htmlCust += `<option value="">PILIH</option>`
 				data.forEach(loadCust)
 				function loadCust(r, index) {
-					htmlCust += `<option value="${r.id_pelanggan}" data-detail="${(r.nm_pelanggan == null) ? '-' : r.nm_pelanggan}" attn="${(r.attn == null) ? '-' : r.attn}" prov="${(r.prov_name == null) ? '-' : r.prov_name}" kab="${(r.kab_name == null) ? '-' : r.kab_name}" kec="${(r.kec_name == null) ? '-' : r.kec_name}" kel="${(r.kel_name == null) ? '-' : r.kel_name}" alamat="${(r.alamat == null) ? '-' : r.alamat}">${r.nm_pelanggan}</option>`
+					htmlCust += `<option value="${r.id_pelanggan}" data-sales="${r.nm_sales}" kode_unik="${r.kode_unik}">${r.nm_pelanggan} | ${r.kode_unik}</option>`
 				}
 				$("#no_customer").prop("disabled", false).html(htmlCust)
 			}
@@ -457,43 +425,33 @@
 	}
 
 	function kosong() {
-		$("#attn").html("-");
-		$("#alamat").html("-");
-		$("#provinsi").html("-");
-		$("#kabupaten").html("-");
-		$("#kecamatan").html("-");
-		$("#kelurahan").html("-");
-
 		$("#id").val("");
-		$("#kode_mc").val("");
+		$("#kode_mc").val("").prop("disabled", true);
 		$("#nm_produk").val("");
+		$("#kode_unik").val("");
 		$("#no_customer").val("").prop("disabled", true);
-		// $("#customer").val("");
+		$("#nm_sales").val("-");
 		$("#ukuran").val("");
 		$("#ukuran_sheet").val("");
 		$("#ukuran_sheet_p").val("");
 		$("#ukuran_sheet_l").val("");
-		$("#sambungan").val("-");
-		$("#tipe").val("");
+		$("#sambungan").html(`<option value="">PILIH</option>`).prop("disabled", true);
 		$("#material").val("");
 		$("#wall").val("");
 		$("#l_panjang").val("").prop("disabled", true);
 		$("#l_lebar").val("").prop("disabled", true);
 		$("#l_tinggi").val("").prop("disabled", true);
-		$("#nilai_sheet_panjang").val("");
-		$("#nilai_sheet_lebar").val("");
-		$("#nilai_flute").val("");
 		$("#creasing").val("").prop("disabled", false);
 		$("#creasing2").val("").prop("disabled", false);
 		$("#creasing3").val("").prop("disabled", false);
-		$("#flute").val("").prop("disabled", false);
+		$("#flute").val("").prop("disabled", true);
 		$("#berat_bersih").val("");
 		$("#luas_bersih").val("");
 		$("#kualitas").val("");
 		$("#warna").val("-");
 		$("#no_design").val("-");
 		$("#design").val("-");
-		$("#tipe_box").val("-");
+		$("#tipe_box").html(`<option value="">PILIH</option>`).prop("disabled", true);
 		$("#jenis_produk").val("-");
 		$("#kategori").val("").prop("disabled", false);
 		$("#COA").val("-");
@@ -526,11 +484,12 @@
 		$("#F_C").val("").prop("disabled", ket);
 		$("#M_BL").val("").prop("disabled", ket);
 		$("#F_BL").val("").prop("disabled", ket);
-		$("#wall").val("-");
-		$("#material").val("-");
-		$("#kualitas").val("-");
-		$("#berat_bersih").val("-");
-		$("#luas_bersih").val("-");
+		$("#wall").val("");
+		$("#material").val("");
+		$("#kualitas").val("");
+		$("#berat_bersih").val("");
+		$("#luas_bersih").val("");
+		$("#kode_mc").val("")
 	}
 
 	function tampil_edit(id, act) {
@@ -561,41 +520,26 @@
 			// $("#customer").val(data.produk.customer);
 			
 			let htmlCust = ''
-			htmlCust += `<option value="${data.produk.no_customer}"
-				data-detail="${data.produk.customer}"
-				attn="${data.wilayah.attn}"
-				prov="${data.wilayah.prov_name}"
-				kab="${data.wilayah.kab_name}"
-				kec="${data.wilayah.kec_name}"
-				kel="${data.wilayah.kel_name}"
-				alamat="${data.wilayah.alamat}">
+			htmlCust += `<option value="${data.produk.no_customer}" data-sales="${data.produk.nm_sales}" kode_unik="${data.produk.kode_unik}">
 					${data.produk.customer}
 			</option>`
 			if(data.poDetail.length == 0){
 				data.pelanggan.forEach(loadCust)
 				function loadCust(r, index) {
-					htmlCust += `<option value="${r.id_pelanggan}" data-detail="${r.nm_pelanggan}" attn="${r.attn}" prov="${(r.prov_name == null) ? '-' : r.prov_name}" kab="${(r.kab_name == null) ? '-' : r.kab_name}" kec="${(r.kec_name == null) ? '-' : r.kec_name}" kel="${(r.kel_name == null) ? '-' : r.kel_name}" alamat="${r.alamat}">
+					htmlCust += `<option value="${r.id_pelanggan}" data-sales="${r.nm_sales}" kode_unik="${r.kode_unik}">
 						${r.nm_pelanggan}
 					</option>`
 				}
 			}
 			$("#no_customer").html(htmlCust).prop("disabled", (data.poDetail.length == 0) ? false : true);
+			$("#nm_sales").val(data.produk.nm_sales);
 
-			$("#attn").html(data.wilayah.attn);
-			$("#alamat").html(data.wilayah.alamat);
-			$("#provinsi").html((data.wilayah.prov_name == null) ? '-' : data.wilayah.prov_name);
-			$("#kabupaten").html((data.wilayah.kab_name == null) ? '-' : data.wilayah.kab_name);
-			$("#kecamatan").html((data.wilayah.kec_name == null) ? '-' : data.wilayah.kec_name);
-			$("#kelurahan").html((data.wilayah.kel_name == null) ? '-' : data.wilayah.kel_name);
-
-			$("#kode_mc").val(data.produk.kode_mc);
+			$("#kode_mc").val(data.produk.kode_mc).prop("disabled", true);
 			// $("#kode_mc_lama").val(data.produk.kode_mc);
 			$("#nm_produk").val(data.produk.nm_produk);
 			$("#ukuran").val(data.produk.ukuran);
 			$("#ukuran_sheet_p").val(data.produk.ukuran_sheet_p);
 			$("#ukuran_sheet_l").val(data.produk.ukuran_sheet_l);
-			$("#sambungan").val(data.produk.sambungan);
-			$("#tipe").val(data.produk.tipe);
 			$("#material").val(data.produk.material);
 			$("#wall").val(data.produk.wall);
 			$("#l_panjang").val(data.produk.l_panjang);
@@ -611,7 +555,10 @@
 			$("#warna").val(data.produk.warna);
 			$("#no_design").val(data.produk.no_design);
 			$("#design").val(data.produk.design);
-			$("#tipe_box").val(data.produk.tipe_box);
+
+			$("#tipe_box").html((data.produk.kategori == 'K_BOX') ? `<option value="${data.produk.tipe_box}">${data.produk.tipe_box}</option>` : `<option value="-">-</option>`).prop("disabled", (data.poDetail.length == 0 && data.produk.kategori == 'K_BOX') ? false : true);
+			$("#sambungan").html((data.produk.kategori == 'K_BOX') ? `<option value="${data.produk.sambungan}">${data.produk.sambungan}</option><option value="">PILIH</option><option value="G">GLUE</option><option value="S">STICHING</option><option value="D">DIE CUT</option>` : `<option value="-">-</option>`).prop("disabled", (data.poDetail.length == 0 && data.produk.kategori == 'K_BOX') ? false : true);
+
 			$("#jenis_produk").val(data.produk.jenis_produk);
 			$("#kategori").val(data.produk.kategori).prop("disabled", (data.poDetail.length == 0) ? false : true);
 			$("#COA").val(data.produk.COA);
@@ -667,60 +614,38 @@
 		let l_lebar = $("#l_lebar").val();
 		let l_tinggi = $("#l_tinggi").val();
 
+		$("#kode_mc").val("")
+		$("#ukuran").val("-")
+		$("#creasing").val(0)
+		$("#creasing2").val(0)
+		$("#creasing3").val(0)
+		$("#ukuran_sheet_p").val("")
+		$("#ukuran_sheet_l").val("")
+
 		if(plh_tipe == ""){
 			zFlute("disable");
-			$("#tipe").val("-");
-			$("#ukuran").val("-");
-			$("#ukuran_sheet_p").val("");
-			$("#ukuran_sheet_l").val("");
-			$("#creasing").val(0);
-			$("#creasing2").val(0);
-			$("#creasing3").val(0);
-
+			$("#flute").val("").prop("disabled", true);
+			$("#sambungan").html(`<option value="">PILIH</option>`).prop("disabled", true);
+			$("#tipe_box").html(`<option value="">PILIH</option>`).prop("disabled", true);
 			$("#l_panjang").val("").prop("disabled", true);
 			$("#l_lebar").val("").prop("disabled", true);
 			$("#l_tinggi").val("").prop("disabled", true);
-			$("#nilai_sheet_panjang").val("");
-			$("#nilai_sheet_lebar").val("");
-			$("#nilai_flute").val("");
 		} else if(plh_tipe == "K_BOX"){
 			zFlute("disable");
-			$("#flute").val("");
-			$("#tipe").val("BOX");
-			$("#ukuran").val("-");
-			$("#ukuran_sheet_p").val("");
-			$("#ukuran_sheet_l").val("");
-			$("#creasing").val(0);
-			$("#creasing2").val(0);
-			$("#creasing3").val(0);
-
+			$("#flute").val("").prop("disabled", false);
+			$("#sambungan").html(`<option value="">PILIH</option><option value="G">GLUE</option><option value="S">STICHING</option><option value="D">DIE CUT</option>`).prop("disabled", false);
+			$("#tipe_box").html(`<option value="A1">A1</option>`).prop("disabled", false);
 			$("#l_panjang").val("").prop("disabled", false);
 			$("#l_lebar").val("").prop("disabled", false);
 			$("#l_tinggi").val("").prop("disabled", false);
-			$("#nilai_sheet_panjang").val("");
-			$("#nilai_sheet_lebar").val("");
-			$("#nilai_flute").val("");
 		} else if(plh_tipe == "K_SHEET"){
 			zFlute("disable");
-			$("#flute").val("");
-			$("#tipe").val("SHEET");
-			$("#ukuran").val("-");
-			$("#ukuran_sheet_p").val("");
-			$("#ukuran_sheet_l").val("");
-			$("#creasing").val(0);
-			$("#creasing2").val(0);
-			$("#creasing3").val(0);
-
+			$("#flute").val("").prop("disabled", false);
+			$("#sambungan").html(`<option value="-">-</option>`).prop("disabled", true);
+			$("#tipe_box").html(`<option value="-">-</option>`).prop("disabled", true);
 			$("#l_panjang").val("").prop("disabled", false);
 			$("#l_lebar").val("").prop("disabled", false);
 			$("#l_tinggi").val("").prop("disabled", true);
-			$("#nilai_sheet_panjang").val("");
-			$("#nilai_sheet_lebar").val("");
-			$("#nilai_flute").val("");
-		} else {
-			zFlute("disable");
-			$("#flute").val("");
-			$("#tipe").val("-");
 		}
 	})
 
@@ -728,29 +653,11 @@
 		let tipee = $("#kategori").val();
 		let plh_flute = $("#flute").val();
 
-		let r_panjang = parseInt(document.getElementById('l_panjang').value);
-		let r_lebar = parseInt(document.getElementById('l_lebar').value);
-		let r_tinggi = parseInt(document.getElementById('l_tinggi').value);
-
-		if(isNaN(r_panjang)){
-			r_panjang = 0;
-		}
-		if(isNaN(r_lebar)){
-			r_lebar = 0;
-		}
-		if(isNaN(r_tinggi)){
-			r_tinggi = 0;
-		}
-
 		if(plh_flute == ""){
 			zFlute("disable");
-			ruk_p = 0;
-			ruk_l = 0;
 		} else if(plh_flute == "BCF"){
 			zFlute("false");
 			$("#wall").val("DOUBLE");
-			ruk_p = 2 * (r_panjang + r_lebar) + 61;
-			ruk_l = r_lebar + r_tinggi + 23;
 		} else if(plh_flute == "CF") {
 			zFlute("disable");
 			$("#M_K").val("").prop("disabled", false);
@@ -760,8 +667,6 @@
 			$("#M_BL").val("").prop("disabled", false);
 			$("#F_BL").val("").prop("disabled", false);
 			$("#wall").val("SINGLE");
-			ruk_p = 2 * (r_panjang + r_lebar) + 43;
-			ruk_l = r_lebar + r_tinggi + 13;
 		} else if(plh_flute == "BF") {
 			zFlute("disable");
 			$("#M_K").val("").prop("disabled", false);
@@ -771,24 +676,9 @@
 			$("#M_BL").val("").prop("disabled", false);
 			$("#F_BL").val("").prop("disabled", false);
 			$("#wall").val("SINGLE");
-			ruk_p = 2 * (r_panjang + r_lebar) + 39;
-			ruk_l = r_lebar + r_tinggi + 9;
 		} else {
-			zFlute("disable");
-			ruk_p = 0;
-			ruk_l = 0;
+			zFlute("disable")
 		}
-
-		if(tipee == "K_BOX"){
-			$("#ukuran_sheet_p").val(ruk_p);
-			$("#ukuran_sheet_l").val(ruk_l);
-		}else{ // SHEET
-			$("#ukuran_sheet_p").val(r_panjang);
-			$("#ukuran_sheet_l").val(r_lebar);
-		}
-		
-		document.getElementById('nilai_sheet_panjang').value = ruk_p;
-		document.getElementById('nilai_sheet_lebar').value = ruk_l;
 	})
 
 	function cflute(){
@@ -802,6 +692,11 @@
 		let cc = document.getElementById('F_C').value;
 		let bl = document.getElementById('M_BL').value;
 		let blbl = document.getElementById('F_BL').value;
+		let tipee = $("#kategori").val();
+		let plh_flute = $("#flute").val();
+		let r_panjang = parseInt(document.getElementById('l_panjang').value);
+		let r_lebar = parseInt(document.getElementById('l_lebar').value);
+		let r_tinggi = parseInt(document.getElementById('l_tinggi').value);
 
 		if(k == "" || kk == ""){
 			gabKK = "";
@@ -843,84 +738,192 @@
 			txtBL = "/" + bl;
 		}
 
-		document.getElementById('kualitas').value = gabKK + gabBB + gabCL + gabCC + gabBL;
-		document.getElementById('material').value = txtK + txtB + txtCL + txtCC + txtBL;
+		let txtKualitas = ''
+		let txtMaterial = ''
+		if(plh_flute == "BCF"){
+			if(gabKK == "" || gabBB == "" || gabCL == "" || gabCC == "" || gabBL == ""){
+				txtKualitas = ''
+				txtMaterial = ''
+			}else{
+				txtKualitas = gabKK + gabBB + gabCL + gabCC + gabBL
+				txtMaterial = txtK + txtB + txtCL + txtCC + txtBL
+			}
+		}else if(plh_flute == "CF"){
+			if(gabKK == "" || gabCC == "" || gabBL == ""){
+				txtKualitas = ''
+				txtMaterial = ''
+			}else{
+				txtKualitas = gabKK + gabCL + gabCC + gabBL
+				txtMaterial = txtK + txtCC + txtBL
+			}
+		}else if(plh_flute == "BF"){
+			if(gabKK == "" || gabBB == "" || gabBL == ""){
+				txtKualitas = ''
+				txtMaterial = ''
+			}else{
+				txtKualitas = gabKK + gabBB + gabCL + gabBL
+				txtMaterial = txtK + txtB + txtBL
+			}
+		}else{
+			txtKualitas = ''
+			txtMaterial = ''
+		}
+		document.getElementById('kualitas').value = txtKualitas
+		document.getElementById('material').value = txtMaterial
 
-		let cariBF = Math.round(bb  * 1.36);
-		let cariCF = Math.round(cc  * 1.46);
-
-		let plh_flute = $("#flute").val();
+		let cariBF = parseFloat(bb  * 1.36)
+		let cariCF = parseFloat(cc  * 1.46)
+		let getNilaiFlute = 0
 		if(plh_flute == ""){
 			getNilaiFlute = 0;
 		} else if(plh_flute == "BCF"){
-			getNilaiFlute = parseFloat((parseInt(kk) + cariBF + parseInt(clcl) + cariCF + parseInt(blbl)) / 1000).toFixed(4);
+			getNilaiFlute = parseFloat((parseInt(kk) + cariBF + parseInt(clcl) + cariCF + parseInt(blbl)) / 1000);
 		} else if(plh_flute == "CF") {
-			getNilaiFlute = parseFloat((parseInt(kk) + cariCF + parseInt(blbl)) / 1000).toFixed(4);
+			getNilaiFlute = parseFloat((parseInt(kk) + cariCF + parseInt(blbl)) / 1000);
 		} else if(plh_flute == "BF") {
-			getNilaiFlute = parseFloat((parseInt(kk) + cariBF + parseInt(blbl)) / 1000).toFixed(4);
+			getNilaiFlute = parseFloat((parseInt(kk) + cariBF + parseInt(blbl)) / 1000);
 		} else {
 			getNilaiFlute = 0;
 		}
 
-		document.getElementById('nilai_flute').value = getNilaiFlute;
-		// alert(getNilaiFlute)
-		berhitung()
-	}
+		if(isNaN(r_panjang)){
+			r_panjang = 0;
+		}
+		if(isNaN(r_lebar)){
+			r_lebar = 0;
+		}
+		if(isNaN(r_tinggi)){
+			r_tinggi = 0;
+		}
 
-	function berhitung(){
-		let plh_tipe = $("#kategori").val();
-		let l_panjang = $("#l_panjang").val();
-		let l_lebar = $("#l_lebar").val();
-		let l_tinggi = $("#l_tinggi").val();
-		let l_qty = $("#l_qty").val();
-
-		if(plh_tipe == "K_BOX"){
-			if(l_panjang == '' || l_panjang == 0 || l_lebar == '' || l_lebar == 0 || l_tinggi == '' || l_tinggi == 0){
-				txtPL = "";
+		let ruk_p = '';
+		let ruk_l = '';
+		let tfx = '';
+		if(tipee == "K_BOX"){
+			if(r_panjang == '' || r_panjang == 0 || r_lebar == '' || r_lebar == 0 || r_tinggi == 0 || r_tinggi == ''){
+				ruk_p = '';
+				ruk_l = '';
 			}else{
-				txtPL = l_panjang + " X " + l_lebar + " X " + l_tinggi;
+				if(plh_flute == ""){
+					ruk_p = '';
+					ruk_l = '';
+				} else if(plh_flute == "BCF"){
+					ruk_p = 2 * (r_panjang + r_lebar) + 61;
+					ruk_l = r_lebar + r_tinggi + 23;
+				} else if(plh_flute == "CF") {
+					ruk_p = 2 * (r_panjang + r_lebar) + 43;
+					ruk_l = r_lebar + r_tinggi + 13;
+				} else if(plh_flute == "BF") {
+					ruk_p = 2 * (r_panjang + r_lebar) + 39;
+					ruk_l = r_lebar + r_tinggi + 9;
+				} else {
+					ruk_p = '';
+					ruk_l = '';
+				}
 			}
-		}else if(plh_tipe == "K_SHEET"){
-			if(l_panjang == '' || l_panjang == 0 || l_lebar == '' || l_lebar == 0){
+			tfx = 4
+		}else{
+			if(r_panjang == '' || r_panjang == 0 || r_lebar == '' || r_lebar == 0){
+				ruk_p = '';
+				ruk_l = '';
+			}else{
+				ruk_p = r_panjang;
+				ruk_l = r_lebar;
+			}
+			tfx = 3
+		}
+		document.getElementById('ukuran_sheet_p').value = ruk_p;
+		document.getElementById('ukuran_sheet_l').value = ruk_l;
+
+		if(tipee == "K_BOX"){
+			if(r_panjang == '' || r_panjang == 0 || r_lebar == '' || r_lebar == 0 || r_tinggi == '' || r_tinggi == 0){
 				txtPL = "";
 			}else{
-				txtPL = l_panjang + " X " + l_lebar;
+				txtPL = r_panjang + " X " + r_lebar + " X " + r_tinggi;
+			}
+		}else if(tipee == "K_SHEET"){
+			if(r_panjang == '' || r_panjang == 0 || r_lebar == '' || r_lebar == 0){
+				txtPL = "";
+			}else{
+				txtPL = r_panjang + " X " + r_lebar;
 			}
 		}else{
 			txtPL = "";
 		}
+		document.getElementById('ukuran').value = txtPL;
 
-		if(plh_tipe == ""){
-			zFlute("disable");
-		} else if(plh_tipe == "K_BOX"){
-			$("#ukuran").val(txtPL);
-			uSPjg = "nilai_sheet_panjang"
-			uSLbr = "nilai_sheet_lebar";
-		} else if(plh_tipe == "K_SHEET"){
-			$("#ukuran").val("-");
-			uSPjg = "l_panjang"
-			uSLbr = "l_lebar";
-		} else {		
-			$("#ukuran").val("-");
-		}
-
-		///////
-
-		let nilaiFlute = document.getElementById('nilai_flute').value;
-
-		let h_panjang = parseFloat(document.getElementById(uSPjg).value / 1000);
-		let h_lebar = parseFloat(document.getElementById(uSLbr).value / 1000);
-
-		let nilaiBeratBersih = parseFloat(nilaiFlute * h_panjang * h_lebar).toFixed(3);
+		let h_panjang = parseFloat(ruk_p / 1000);
+		let h_lebar = parseFloat(ruk_l / 1000);
+		let nilaiBeratBersih = parseFloat(getNilaiFlute * h_panjang * h_lebar).toFixed(tfx);
 		let nilaiLuasBersih = parseFloat(h_panjang * h_lebar).toFixed(3);
-
-		if(isNaN(nilaiFlute) || isNaN(h_panjang) || isNaN(h_lebar) || isNaN(nilaiBeratBersih) || nilaiBeratBersih == 0 || isNaN(nilaiLuasBersih) || nilaiLuasBersih == 0){
+		if(isNaN(getNilaiFlute) || isNaN(h_panjang) || isNaN(h_lebar) || isNaN(nilaiBeratBersih) || nilaiBeratBersih == 0 || isNaN(nilaiLuasBersih) || nilaiLuasBersih == 0){
 			document.getElementById('berat_bersih').value = "";
 			document.getElementById('luas_bersih').value = "";
 		} else {
 			document.getElementById('berat_bersih').value = nilaiBeratBersih;
 			document.getElementById('luas_bersih').value = nilaiLuasBersih;
 		}
-    }
+		buatKodeMC()
+	}
 
+	function buatKodeMC(){
+		document.getElementById('kode_mc').value = `CEK KODE MC . . .`
+		let mcNoCust = $("#no_customer").val()
+		let mcKodeUnik = $("#kode_unik").val()
+		let mcKategori = $("#kategori").val()
+		let mcPanjang = $("#l_panjang").val()
+		let mcLebar = $("#l_lebar").val()
+		let mcTinggi = ($("#l_tinggi").val() == '' || $("#l_tinggi").val() == null) ? 0 : $("#l_tinggi").val()
+		let mcPSheet = $("#ukuran_sheet_p").val()
+		let mcLSheet = $("#ukuran_sheet_l").val()
+		let mcFlute = $("#flute").val()
+		let mcTipeBox = $("#tipe_box").val()
+		let mcSambungan = $("#sambungan").val()
+		let mcKualitas = $("#kualitas").val()
+
+		let mcKodeMc = ''
+		$.ajax({
+			url: '<?php echo base_url('Master/buatKodeMC')?>',
+			type: "POST",
+			data: ({
+				mcNoCust, mcKodeUnik, mcKategori, mcPanjang, mcLebar, mcTinggi, mcFlute, mcTipeBox, mcSambungan, mcKualitas
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				// console.log(data)
+				// if(mcKualitas == ''){
+				// 	mcKodeMc = ''
+				// }else{
+				if(mcNoCust == '' || mcKodeUnik == '' || mcKategori == '' || mcSambungan == '' || mcFlute == ''){
+					mcKodeMc = ''
+				}else{
+					if(mcKategori == 'K_BOX'){
+						if(mcSambungan == '' && mcTipeBox == ''){
+							mcKodeMc = ''
+						}else{
+							if(mcFlute == ''){
+								mcKodeMc = ''
+							}else{
+								mcKodeMc = `${mcKodeUnik}-${mcTipeBox}-${mcSambungan}-${mcFlute}-${data.mcNoUrut}`
+							}
+						}
+					}else if(mcKategori == 'K_SHEET'){
+						if(mcPanjang == ''){
+							mcKodeMc = ''
+						}else{
+							if(mcLebar == ''){
+								mcKodeMc = ''
+							}else{
+								mcKodeMc = `${mcKodeUnik}-${mcPanjang}-${mcLebar}-${mcFlute}-${data.mcNoUrut}`
+							}
+						}
+					}else{
+						mcKodeMc = ''
+					}
+				}
+				// }
+				document.getElementById('kode_mc').value = mcKodeMc
+			}
+		})
+	}
 </script>

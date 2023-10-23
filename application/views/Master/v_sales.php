@@ -30,9 +30,9 @@
 					<thead>
 						<tr>
 							<th style="width:5%">NO.</th>
-							<th style="width:33%">NAMA</th>
-							<th style="width:31%">NO. HP</th>
-							<th style="width:31%">AKSI</th>
+							<th style="width:45%">NAMA</th>
+							<th style="width:40%">NO. HP</th>
+							<th style="width:10%">AKSI</th>
 						</tr>
 					</thead>
 					<tbody>
