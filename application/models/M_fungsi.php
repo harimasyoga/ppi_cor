@@ -371,38 +371,36 @@ class M_fungsi extends CI_Model {
 		$alamat2  = $profile->alamat2;
 		$phone    = $profile->no_telp;
 		$whatsapp = $profile->no_telp;
+		$kodepos  = $profile->kode_pos;
 		$npwp     = '-';
 		$chari    = '';
 		$chari .= "
-			 <table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:12px; color:#000;\" width=\"100%\"  border=\"0\" cellspacing=\"0\" cellpadding=\"0\">
+			 <table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:12px; color:#000;\" width=\"100%\"  border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\">
 			 <thead>
 				  <tr>
-					   <td rowspan=\"6\" align=\"center\">
-							<img src=\"" . base_url() . "assets/gambar/ppi.png\"  width=\"70\" height=\"70\" />
+					   <td rowspan=\"5\" align=\"center\">
+							<img src=\"" . base_url() . "assets/gambar/ppi.png\"  width=\"110\" height=\"100\" />
 					   </td>
 					   <td colspan=\"20\">
 							<b>
 								 <tr>
-									  <td style=\"font-size:10px;border-bottom: none;\"><b><br>$nm_toko</b></td>
+									  <td align=\"center\" style=\"font-size:30;border-bottom: none;\"><b>$nm_toko</b></td>
 								 </tr>
 								 <tr>
-									  <td style=\"font-size:9px;\">$alamat</td>
+									  <td align=\"center\" style=\"font-size:10px;\">$alamat</td>
 								 </tr>
 								 <tr>
-									  <td style=\"font-size:9px;\">$alamat2</td>
+									  <td align=\"center\" style=\"font-size:10px;\">$alamat2  Kode Pos $kodepos </td>
 								 </tr>
 								 <tr>
-									  <td style=\"font-size:9px;\">Wa :$whatsapp    Telp :$phone </td>
-								 </tr>
-								 <tr>
-									  <td style=\"font-size:9px;\">No. NPWP : $npwp</td>
+									  <td align=\"center\" style=\"font-size:10px;\">Wa : $whatsapp  |  Telp : $phone </td>
 								 </tr>
 							</b>
 					   </td>
 				  </tr>
 			 </table>";
 		$chari .= "
-			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:12px\" width=\"100%\" align=\"center\" border=\"0\">
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:8px\" width=\"100%\" align=\"center\" border=\"0\">
 				  <tr>
 					   <td> &nbsp; </td>
 				  </tr> 

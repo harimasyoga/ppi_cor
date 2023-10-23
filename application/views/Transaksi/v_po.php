@@ -89,8 +89,8 @@
 										<!-- <option value="">Pilih</option> -->
 										<?php foreach ($pelanggan as $r) : ?>
 											<option value="<?= $r->id_pelanggan ?>" detail="
-											<?= $r->kab_name . "|" . $r->no_telp . "|" . $r->fax . "|" . $r->top ?>">
-												<?= $r->id_pelanggan . " | " . $r->nm_pelanggan ?>
+											<?=$r->kab_name."|".$r->no_telp . "|" . $r->fax . "|" . $r->top . "|" . $r->nm_sales ?>">
+												<?= $r->id_pelanggan . "|" . $r->nm_pelanggan ?>
 											</option>
 										<?php endforeach ?>
 									</select>
@@ -104,7 +104,8 @@
 									Kota
 								</td>
 								<td>
-									<font id="txt_kota"></font>
+									<!-- <font id=""></font> -->
+									<input type="text" class="form-control" name="txt_kota" id="txt_kota" value="" readonly>
 								</td>
 							</tr>
 							<tr>
@@ -117,7 +118,7 @@
 									No Telepon 
 								</td>
 								<td>
-									<font id="txt_no_telp"></font>
+									<input type="text" class="form-control" name="txt_no_telp" id="txt_no_telp" value="" readonly>
 								</td>
 								
 							</tr>
@@ -131,27 +132,29 @@
 									FAX
 								</td>
 								<td>
-									<font id="txt_fax"></font>
+									<input type="text" class="form-control" name="txt_fax" id="txt_fax" value="" readonly>
 								</td>
 							</tr>
 							<tr>
 							<td width="15%">Marketing</td>
 								<td>
-									<select class="form-control select2" name="id_sales" id="id_sales" style="width: 100%;" >
-										<!-- <option value="">Pilih</option> -->
+									<!-- <select class="form-control select2" name="id_sales" id="id_sales" style="width: 100%;" >
+										<option value="">Pilih</option>
 										<?php foreach ($sales as $r) : ?>
 											<option value="<?= $r->id_sales ?>">
 												<?= $r->nm_sales ?>
 											</option>
 										<?php endforeach ?>
-									</select>
+									</select> -->
+									<!-- <font id="txt_marketing"></font> -->
+									<input type="text" class="form-control" name="txt_marketing" id="txt_marketing" value="" readonly>
 								</td>
 								<td width="15%"></td>
 								<td width="15%">
 									TOP
 								</td>
 								<td>
-									<font id="txt_top"></font>
+									<input type="text" class="form-control" name="txt_top" id="txt_top" value="" readonly>
 								</td>
 							</tr>
 						</table>
@@ -177,9 +180,9 @@
 									<?php if ($this->session->userdata('level') == "Admin" || $this->session->userdata('level') == "Owner")  {
 										?>
 										
-										<th width="10%" id="header_p11" >P11</th>
+											<th width="10%" id="header_p11" >P11</th>
 										
-										<?php } else { ?>
+									<?php } else { ?>
 
 											<th type="hidden" width="10%" id="header_p11" >P11</th>
 
@@ -223,22 +226,11 @@
 									</td>
 									<?php endif ?>
 
-									<?php if ($this->session->userdata('level') == 'Owner' || $this->session->userdata('level')  == 'Admin')  { 
-									
-									?>
-										<td>
+										<td id="p11_det0">
 											<input type="text" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
 										
 										</td>
 
-									<?php }else{ ?>
-
-										<td>
-											<input type="hidden" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
-										
-										</td>
-
-									<?php }?>
 									
 									<td id="txt_detail_produk0">
 									</td>
@@ -351,8 +343,13 @@
 				"type": "POST",
 				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
 			},
+			"aLengthMenu": [
+                    [5, 10, 15, 20, -1],
+                    [5, 10, 15, 20, "Semua"] // change per page values here
+                ],		
+
 			responsive: true,
-			"pageLength": 25,
+			"pageLength": 5,
 			"language": {
 				"emptyTable": "Tidak ada data.."
 			}
@@ -479,10 +476,11 @@
 		$("#kode_po").val("");
 		$("#eta").val("");
 
-		$("#txt_kota").html(": -");
-		$("#txt_no_telp").html(": -");
-		$("#txt_fax").html(": -");
-		$("#txt_top").html(": -");
+		$("#txt_kota").val("");
+		$("#txt_no_telp").val("");
+		$("#txt_fax").val("");
+		$("#txt_top").val("");
+		$("#txt_marketing").val("");
 
 		clearRow();
 		status = 'insert';
@@ -502,13 +500,22 @@
 
 
 		if (data[0].status == 'Open') {
-			if ('<?= $this->session->userdata('level') ?>' == 'Marketing' && data[0].status_app1 == 'N' ) {
+			if ('<?= $this->session->userdata('level') ?>' == 'Admin'){
 				$(".btn-verif").show()
 			}
-			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data[0].status_app1 == 'Y' && data[0].status_app2 == 'N' ) {
+
+			if ('<?= $this->session->userdata('level') ?>' == 'Marketing' && data[0].status_app1 == 'N' ) 
+			{
 				$(".btn-verif").show()
 			}
-			if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data[0].status_app1 == 'Y' && data[0].status_app2 == 'Y'  && data[0].status_app3 == 'N' ) {
+
+			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data[0].status_app1 == 'Y' && data[0].status_app2 == 'N' ) 
+			{
+				$(".btn-verif").show()
+			}
+
+			if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data[0].status_app1 == 'Y' && data[0].status_app2 == 'Y'  && data[0].status_app3 == 'N' ) 
+			{
 				$(".btn-verif").show()
 			}
 		}
@@ -521,6 +528,7 @@
 	function tampil_edit(id, act) 
 	{
 		kosong('s');
+		var cek = '<?= $this->session->userdata('level') ?>';
 		$(".btn-tambah-produk").hide();
 		$("#btn-print").show();
 		$("#status").val("update");
@@ -564,9 +572,24 @@
 				
 				$("#header_del").hide();
 
+				if (cek == 'Admin' || cek == 'Owner')
+				{
+					$("#header_p11").show();
+				}else{
+					$("#header_p11").hide();
+				}
+
 				$.each(data, function(index, value) {
 					$("#detail-hapus-" + index).hide();
 					$("#btn-hapus-" + index).hide();
+
+					if (cek == 'Admin' || cek == 'Owner')
+					{
+						$("#p11_det" + index).show();
+					}else{
+						$("#p11_det" + index).hide();
+					}
+					
 					
 					var opt_produk = $("<option selected></option>").val(value.id_produk).text(value.nm_produk);
 
@@ -728,15 +751,18 @@
 		arr_detail = arr_detail.split("|");
 		// console.log(arr_detail);
 
-		var kab_name  = (arr_detail[0] == '' ) ? '-' : arr_detail[0] ;
+		// var kab_name  = (arr_detail[0] == '' ) ? '-' : arr_detail[0] ;
+		var kab_name  = (arr_detail[0] == '' || arr_detail[0] == null ) ? '-' : arr_detail[0].trim() ;
 		var telp      = (arr_detail[1] == '' ) ? '-' : arr_detail[1] ;
 		var fax       = (arr_detail[2] == '' || arr_detail[2] == null ) ? '-' : arr_detail[2] ;
 		var top       = (arr_detail[3] == '' || arr_detail[3] == null ) ? '-' : arr_detail[3] ;
+		var sales     = (arr_detail[4] == '' || arr_detail[4] == null ) ? '-' : arr_detail[4] ;
 		
-		$("#txt_kota").html(": " + kab_name);
-		$("#txt_no_telp").html(": " + telp);
-		$("#txt_fax").html(": " + fax);
-		$("#txt_top").html(": " + top);
+		$("#txt_kota").val(kab_name);
+		$("#txt_no_telp").val(telp);
+		$("#txt_fax").val(fax);
+		$("#txt_top").val(top);
+		$("#txt_marketing").val(sales);
 
 	});
 
@@ -869,15 +895,17 @@
 					`
 				}
 
-				if (user_lev == 'Owner' || user_lev == 'Admin') 
-				{
+				// if (user_lev == 'Owner' || user_lev == 'Admin') 
+				// {
 					p11_tambahan = `
-						<td>
+						<td id="p11_det${rowNum}">
 							<input type="text" name="p11[${rowNum}]" id="p11${rowNum}"  class="angka form-control" readonly value="0">
 						 
 						</td>
-					`
-				}
+					`;
+				// }else{
+				// 	p11_tambahan = ``;
+				// }
 				
 
 				$('#table-produk').append(
@@ -974,6 +1002,7 @@
 		$('#txt_detail_produk0').html('');
 		$("#btn-hapus-0").show();
 		$("#detail-hapus-0").show();
+		$("#p11_det0").show();
 
 		$("#qty0").prop("disabled", false);
 		$("#id_produk0").prop("disabled", false);
@@ -1031,7 +1060,7 @@
 						hrg_kg   = Math.trunc(exc / val.berat_bersih);
 						$('#hrg_kg'+id2).val(hrg_kg);	
 
-						if(val.tipe=='SHEET')
+						if(val.kategori=='K_SHEET')
 						{
 							if(val.flute=='BCF')
 							{
@@ -1078,17 +1107,15 @@
 
 										var cek1    = (subs2=='150') ? 300 : 0;
 
-										var totsub      = cek1 + data2.flute;
+										var totsub  = cek1 + data2.flute;
 
-										var rumus = totsub * (val.ukuran_sheet_p/1000) * (val.ukuran_sheet_l/1000);
+										var rumus   = totsub * (val.ukuran_sheet_p/1000) * (val.ukuran_sheet_l/1000);
 
 										var selisih = rumus - inc;
 
-										p11 = selisih / rumus * 100;
+										p11         = selisih / rumus * 100;
 
-										$('#p11'+id2).val( p11.toFixed(1)+' %');
-
-
+										$('#p11'+id2).val('- '+ p11.toFixed(1)+' %');
 
 									}
 								});
@@ -1127,45 +1154,39 @@
 			
 			$.ajax({
 				type        : 'POST',
-				url         : "<?= base_url(); ?>Transaksi/load_produk",
+				url         : "<?= base_url(); ?>Transaksi/load_produk_1",
 				data        : { idp: '', kd: produk },
 				dataType    : 'json',
-				success:function(data){			
-					if(data.message == "Success"){
-						$.each(data.data, function(index, val) {
-							
-							out = Math.trunc(1800/val.ukuran_sheet_l);
-							if(out >= 5){
-								out = 5;
-							}
-
-							rm       = val.ukuran_sheet_p * isi / out / 1000;
-							ton      = Math.trunc(isi * val.berat_bersih);
-						
-						});
-
-						if(rm < 500 && status !=='update'){			
-							// toastr.error(
-							// 	'RM tidak boleh di Bawah 500, <br> Hubungi Marketing'
-							// );
-
-							swal({
-								title               : "Cek Kembali",
-								html                : " Tidak boleh di Bawah 500 ! <br> Hubungi Marketing </b> ",
-								type                : "error",
-								confirmButtonText   : "OK"
-							});
-							$("#"+id).val("0");
-							$("#qty"+id2).val("0");
-							return;
-						}	
-	
-						$('#rm'+id2).val(rm);	
-						$('#ton'+id2).val(ton);	
-						
-					}else{
-						// $("#txt_detail_produk"+id).html("");		
+				success:function(val){		
+					
+					out = Math.trunc(1800/val.ukuran_sheet_l);
+					if(out >= 5){
+						out = 5;
 					}
+
+					rm       = Math.ceil(val.ukuran_sheet_p * isi / out / 1000);
+					ton      = Math.ceil(isi * val.berat_bersih);
+					
+
+					if(rm < 500 && status !=='update'){			
+						// toastr.error(
+						// 	'RM tidak boleh di Bawah 500, <br> Hubungi Marketing'
+						// );
+
+						swal({
+							title               : "Cek Kembali",
+							html                : " Tidak boleh di Bawah 500 ! <br> Hubungi Marketing </b> ",
+							type                : "error",
+							confirmButtonText   : "OK"
+						});
+						$("#"+id).val("0");
+						$("#qty"+id2).val("0");
+						return;
+					}	
+
+					$('#rm'+id2).val(rm);	
+					$('#ton'+id2).val(ton);	
+						
 				}
 			});
 

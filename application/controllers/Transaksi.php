@@ -20,7 +20,10 @@ class Transaksi extends CI_Controller
 			'judul' => "Purchase Order",
 			'produk' => $this->db->query("SELECT * FROM m_produk order by id_produk")->result(),
 			'sales' => $this->db->query("SELECT * FROM m_sales order by id_sales")->result(),
-			'pelanggan' => $this->db->query("SELECT * FROM m_pelanggan a left join m_kab b on a.kab=b.kab_id order by id_pelanggan")->result(),
+			'pelanggan' => $this->db->query("SELECT * FROM m_pelanggan a 
+            left join m_kab b on a.kab=b.kab_id 
+            Left Join m_sales c on a.id_sales=c.id_sales
+            order by id_pelanggan")->result(),
 			'level' => $this->session->userdata('level'). "aa"
 		);
 
@@ -226,7 +229,7 @@ class Transaksi extends CI_Controller
                 $time3 = ( ($r->time_app3 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app3,0,10)) ) . ' - ' .substr($r->time_app3,10,9);
 
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status.'</button></div>';
-                
+
 				$row[] = '<div class="text-center">'.$r->kode_po.'</div>';
 				// $row[] = $r->total_qty;
 				$row[] = '<div class="text-center">'.$r->nm_pelanggan.'</div>';
@@ -242,39 +245,48 @@ class Transaksi extends CI_Controller
 					<button type="button" title="'.$time3.'"  style="text-align: center;" class="btn btn-sm '.$btn3.' ">'.$i3.'</button></div>
 				';
 
-				// $aksi = '-';
-                $aksi = '<div class="text-center">
-					<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a></div>';
+				$aksi = '-';
+                $aksi = '
+                    <div class="text-center">
+                        <a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
-				if (!in_array($this->session->userdata('level'), ['Admin','Marketing','PPIC','Owner'])){
+                        <a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a>
+                    </div>
+                    ';
+
+				if (!in_array($this->session->userdata('level'), ['Admin','Marketing','PPIC','Owner']))
+                {
 
 					if ($r->status == 'Open' && $r->status_app1 == 'N') {
-						$aksi =  '
-	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-xs">
-	                               Edit
+						$aksi = '<div class="text-center">
+	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" class="btn btn-info btn-sm">
+                                    <i class="fa fa-edit"></i>
 	                            </button>
-	                            <button type="button" onclick="deleteData(' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-xs">
-	                               Hapus
-	                            </button> ';
+
+	                            <button type="button" onclick="deleteData(' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
+                                    <i class="fa fa-trash-alt"></i>
+	                            </button> 
+                                </div>
+                                ';
 					}
 				}else{
 					if ($this->session->userdata('level') == 'Marketing' && $r->status_app1 == 'N' ) {
 						$aksi =  '
-	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-xs">
-	                               Proses Data
+	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
+                                    <i class="fa fa-check"></i>
 	                            </button> ';
 					}
 
 					if ($this->session->userdata('level') == 'PPIC' && $r->status_app1 == 'Y' && $r->status_app2 == 'N' ) {
 						$aksi =  '
-	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-xs">
+	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
 	                               Proses Data
 	                            </button> ';
 					}
 
 					if ($this->session->userdata('level') == 'Owner' && $r->status_app1 == 'Y' && $r->status_app2 == 'Y'  && $r->status_app3 == 'N' ) {
 						$aksi =  '
-	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-xs">
+	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
 	                               Proses Data
 	                            </button> ';
 					}
@@ -550,6 +562,12 @@ class Transaksi extends CI_Controller
 		$id  = $_GET['no_po'];
 
 		// $query = $this->m_master->get_data_one("trs_po_detail", "no_po", $id);
+        $query_header = $this->db->query("SELECT * FROM trs_po a 
+        JOIN m_pelanggan b ON a.id_pelanggan=b.id_pelanggan 
+        WHERE a.no_po = '$id' ");
+        
+        $data = $query_header->row();
+        
         $query = $this->db->query("SELECT * FROM trs_po a 
         JOIN trs_po_detail b ON a.no_po = b.no_po
         JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
@@ -561,49 +579,79 @@ class Transaksi extends CI_Controller
 
 
 		if ($query->num_rows() > 0) {
+
 			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:14px;font-family: ;">
                         <tr style="font-weight: bold;">
                             <td colspan="15" align="center">
-                            ( No. ' . $id . ' )
+                            <b>( No. ' . $id . ' )</b>
                             </td>
                         </tr>
                  </table><br>';
 
-			$html .= '<table width="100%" border="1" cellspacing="0" style="font-size:12px;font-family: ;">
+            $html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
+
+            <tr>
+                <td width="10 %"  align="left">Tgl PO</td>
+                <td width="5%" > : </td>
+                <td width="85 %" > '. $this->m_fungsi->tanggal_format_indonesia($data->tgl_po) .'<td>
+            </tr>
+            <tr>
+                <td align="left">Customer</td>
+                <td> : </td>
+                <td> '. $data->nm_pelanggan .'<td>
+            </tr>
+            <tr>
+                <td align="left">ETA</td>
+                <td> : </td>
+                <td> '. $this->m_fungsi->tanggal_format_indonesia($data->eta) .'<td>
+            </tr>
+            </table><br>';
+
+			$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
                         <tr style="background-color: #cccccc">
-                            <th align="center">No</th>
-                            <th align="center">Sheet Ukuran <br> (mm)</th>
-                            <th align="center">Creasing <br> (mm)</th>
-                            <th align="center">Kualitas</th>
-                            <th align="center">Jumlah <br> (Lbr)</th>
-                            <th align="center">Harga <br> (Rp)</th>
-                            <th align="center">Total Harga <br> (Rp)</th>
+                            <th width="3%" align="center">No</th>
+                            <th width="10%" align="center">Item</th>
+                            <th width="12%" align="center">Flute : RM : BB</th>
+                            <th width="10%" align="center">Uk. Box</th>
+                            <th width="10%" align="center">Uk. Sheet</th>
+                            <th width="10%" align="center">Creasing </th>
+                            <th width="10%" align="center">Kualitas</th>
+                            <th width="10%" align="center">Qty</th>
+                            <th width="10%" align="center">Harga <br> (Rp)</th>
+                            <th width="10%" align="center">Total <br> (Rp)</th>
                         </tr>';
 			$no = 1;
 			$tot_qty = $tot_value = $tot_total = 0;
 			foreach ($query->result() as $r) {
 
-				$total = $r->qty * $r->harga;
+                $total = $r->price_inc*$r->qty;
 				$html .= '
+
                             <tr >
                                 <td align="center">' . $no . '</td>
-                                <td align="center">' . $r->ukuran . '</td>
-                                <td align="center">' . $r->creasing . '</td>
+                                <td align="center">' . $r->nm_produk . '</td>
+                                <td align="center">' . $r->flute . ' : ' . $r->rm . ' : ' . $r->bb . '</td>
+                                <td align="center">' . $r->l_panjang . ' x ' . $r->l_lebar . ' x ' . $r->l_tinggi . '</td>
+                                <td align="center">' . $r->ukuran_sheet . '</td>
+                                <td align="center">' . $r->creasing . ' : ' . $r->creasing2 . ' : ' . $r->creasing3 . '</td>
                                 <td align="left">' . $r->kualitas . '</td>
-                                <td align="center">' . number_format($r->qty) . '</td>
-                                <td align="center">' . number_format($r->harga, 0, ",", ".") . '</td>
+                                <td align="right">' . number_format($r->qty, 0, ",", ".") . '</td>
+                                <td align="right">' . number_format($r->price_inc, 0, ",", ".") . '</td>
                                 <td align="right">' . number_format($total, 0, ",", ".") . '</td>
                             </tr>';
 
 				$no++;
 				$tot_qty += $r->qty;
+				$tot_price_inc += $r->price_inc;
 				$tot_total += $total;
 			}
-			$html .= '
-                            <tr style="background-color: #cccccc">
-                                <td align="center" colspan="6">Total</td>
-                                <td align="right" >' . number_format($tot_total, 0, ",", ".") . '</td>
-                            </tr>';
+			$html .='
+                        <tr style="background-color: #cccccc">
+                            <td align="center" colspan="7"><b>Total</b></td>
+                            <td align="right" ><b>' . number_format($tot_qty, 0, ",", ".") . '</b></td>
+                            <td align="right" ><b>' . number_format($tot_price_inc, 0, ",", ".") . '</b></td>
+                            <td align="right" ><b>' . number_format($tot_total, 0, ",", ".") . '</b></td>
+                        </tr>';
 			$html .= '
                  </table>';
 		} else {
@@ -611,7 +659,95 @@ class Transaksi extends CI_Controller
 		}
 
 		// $this->m_fungsi->_mpdf($html);
-		$this->m_fungsi->template_kop('PURCHASE ORDER',$html,'L','1');
+		$this->m_fungsi->template_kop('PURCHASE ORDER',$html,'P','1');
+		// $this->m_fungsi->mPDFP($html);
+	}
+
+    function Cetak_wa_po()
+	{
+		$id  = $_GET['no_po'];
+
+		// $query = $this->m_master->get_data_one("trs_po_detail", "no_po", $id);
+        $query = $this->db->query("SELECT * FROM trs_po a 
+        JOIN trs_po_detail b ON a.no_po = b.no_po
+        JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+        LEFT JOIN m_kab d ON c.kab=d.kab_id
+        LEFT JOIN m_produk e ON b.id_produk=e.id_produk
+        WHERE a.no_po = '$id' ");
+
+		$html = '';
+
+
+		if ($query->num_rows() > 0) {
+
+            $data = $query->row();
+
+			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:14px;">
+                        <tr style="font-weight: bold;">
+                            <td colspan="15" align="center">
+                            ( No. ' . $id . ' )
+                            </td>
+                        </tr>
+                 </table><br>';
+
+			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:22px;">
+                        <tr align="left" style="background-color: #cccccc">
+                            <th>PO '. $data->nm_pelanggan .' </th>
+                        </tr>
+                        <tr align="left">
+                            <th>RM </th>';
+                        
+			$no = 1;
+			foreach ($query->result() as $r) { 
+				$html .= '
+                            <tr>
+                                <td>' . $no . '. ' . $r->rm . '</td>
+                            </tr>';
+				$no++;
+			}
+
+            $html .= '
+            <tr align="left">
+                <th>Berat Bersih : Tonase</th>
+            </tr>';
+
+            $no       = 1;
+            $toton    = 0;
+            foreach ($query->result() as $r) { 
+				$html .= '
+                            <tr>
+                                <td>' . $no . '. ' . $r->bb . ' : ' . $r->ton . ' Kg</td>
+                            </tr>';
+                $toton += $r->ton;
+				$no++;
+			}
+
+            $html .= '
+            </th>
+            <tr align="left">
+                <th>Total Tonase PO : '. $toton .' Kg</th>
+            </tr>';
+            
+            $html .= '
+            </th>
+            <tr align="left">
+                <th>Harga P11 : '. $data->p11 .' Kg</th>
+            </tr>';
+            
+            $html .= '
+            </th>
+            <tr align="left">
+                <th>Roll Produksi Sudah Ada</th>
+            </tr>';
+
+                        
+			$html .= '</table>';
+		} else {
+			$html .= '<h1> Data Kosong </h1>';
+		}
+
+		// $this->m_fungsi->_mpdf($html);
+		$this->m_fungsi->template_kop('PURCHASE ORDER',$html,'L','0');
 		// $this->m_fungsi->mPDFP($html);
 	}
 

@@ -45,7 +45,7 @@ class M_transaksi extends CI_Model
 				'ton'             => $params->ton[$key],
 				'harga_kg'        => $params->hrg_kg[$key],
 				
-				'id_produk'         => $params->id_produk[$key],
+				'id_produk'       => $params->id_produk[$key],
 					
 				'id_pelanggan'    => $pelanggan->id_pelanggan,
 				'ppn'             => $params->ppn[$key],
@@ -79,7 +79,7 @@ class M_transaksi extends CI_Model
 			'tgl_po'         => $params->tgl_po,
 			'kode_po'        => $params->kode_po,
 			'eta'            => $params->eta,
-			'id_sales'       => $params->id_sales,
+			'id_sales'       => $params->txt_marketing,
 			'id_pelanggan'   => $pelanggan->id_pelanggan,
 			// 'nm_pelanggan'   => $pelanggan->nm_pelanggan,
 			// 'alamat'         => $pelanggan->alamat,
@@ -476,6 +476,58 @@ class M_transaksi extends CI_Model
 			$this->db->set("status", 'Reject');
 			$this->db->where("no_po",$id);
 			$valid = $this->db->update("trs_po_detail");
+		}
+
+		// KHUSUS ADMIN //
+
+		if ($this->session->userdata('level') == "Admin") {
+			$app = "3";
+			if ($status == 'Y') {
+				// header
+				
+				$this->db->set("status", 'Approve');
+				$this->db->set("status_app1", $status);
+				$this->db->set("user_app1", $this->username);
+				$this->db->set("time_app1", $this->waktu);
+				
+				$this->db->set("status_app2", $status);
+				$this->db->set("user_app2", $this->username);
+				$this->db->set("time_app2", $this->waktu);
+				
+				$this->db->set("status_app3", $status);
+				$this->db->set("user_app3", $this->username);
+				$this->db->set("time_app3", $this->waktu);
+
+				$this->db->where("no_po",$id);
+				$valid = $this->db->update("trs_po");
+
+				// detail
+				$this->db->set("status", 'Approve');
+				$this->db->where("no_po",$id);
+				$valid = $this->db->update("trs_po_detail");
+			}else{
+
+				$this->db->set("status", 'Reject');
+				$this->db->set("status_app1", $status);
+				$this->db->set("user_app1", $this->username);
+				$this->db->set("time_app1", $this->waktu);
+				
+				$this->db->set("status_app2", $status);
+				$this->db->set("user_app2", $this->username);
+				$this->db->set("time_app2", $this->waktu);
+				
+				$this->db->set("status_app3", $status);
+				$this->db->set("user_app3", $this->username);
+				$this->db->set("time_app3", $this->waktu);
+
+				$this->db->where("no_po",$id);
+				$valid = $this->db->update("trs_po");
+
+				// detail
+				$this->db->set("status", 'Reject');
+				$this->db->where("no_po",$id);
+				$valid = $this->db->update("trs_po_detail");
+			}
 		}
 
 		return $valid;
