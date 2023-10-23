@@ -1398,7 +1398,7 @@ class Transaksi extends CI_Controller
 		$po = $this->db->query("SELECT c.nm_pelanggan,s.nm_sales,p.* FROM trs_po p
 		INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
-		INNER JOIN m_sales s ON p.id_sales=s.id_sales
+		INNER JOIN m_sales s ON c.id_sales=s.id_sales
 		WHERE status_app1='Y' AND status_app2='Y' AND status_app3='Y' AND d.no_so IS NULL AND d.tgl_so IS NULL AND d.status_so IS NULL
 		GROUP BY p.no_po,p.kode_po")->result();
 		echo json_encode(array(
@@ -1421,11 +1421,21 @@ class Transaksi extends CI_Controller
 	function soNoSo()
 	{
 		$item = $_POST["item"];
-		$cekSo = $this->db->query("SELECT COUNT(d.id_produk) AS jmlNoSo,d.no_so FROM trs_po_detail d
+		$cekSo = $this->db->query("SELECT COUNT(d.id_produk) AS jmlNoSo,p.kode_mc,d.no_so FROM trs_po_detail d
+		INNER JOIN m_produk p ON d.id_produk=p.id_produk
 		WHERE d.id_produk='$item' AND d.no_so IS NOT NULL
-		GROUP BY d.id_produk,d.no_so")->result();
+		GROUP BY d.id_produk,d.no_so");
+		$produk = $this->db->query("SELECT kode_mc FROM m_produk WHERE id_produk='$item'")->row();
+		// $cnt = str_pad($cekProduk->num_rows()+1, 4, "0", STR_PAD_LEFT);
+		if($cekSo->num_rows() == 0){
+			$jml = '';
+		}else{
+			$jml = str_pad($cekSo->num_rows(), 2, "0", STR_PAD_LEFT);
+		}
 		echo json_encode(array(
-			'siu' => $cekSo,
+			'data' => $cekSo->result(),
+			'produk' => $produk,
+			'jml_produk' => $jml,
 		));
 	}
 
@@ -1747,18 +1757,25 @@ class Transaksi extends CI_Controller
 				<td style="width:30%;border:0;padding:0"></td>
 			</tr>
 			<tr>
-				<td style="padding:5px">Marketing<br/>'.strtoupper($data->nm_sales).'</td>
+				<td style="padding:5px">Marketing</td>
 				<td></td>
-				<td style="padding:5px">PPIC<br/>DION AGUS PRANOTO</td>
+				<td style="padding:5px">PPIC</td>
 				<td></td>
-				<td style="padding:5px">Owner<br/>WILLIAM ALEXANDER HARTONO</td>
+				<td style="padding:5px">Owner</td>
 			</tr>
 			<tr>
-				<td style="padding:100px 0 0">'.strtoupper($this->m_fungsi->tanggal_format_indonesia(substr($data->time_app1,0,10))).'<br/>'.substr($data->time_app1,11,10).'</td>
+				<td style="padding:5px">'.strtoupper($data->nm_sales).'</td>
 				<td></td>
-				<td style="padding:100px 0 0">'.strtoupper($this->m_fungsi->tanggal_format_indonesia(substr($data->time_app2,0,10))).'<br/>'.substr($data->time_app2,11,10).'</td>
+				<td style="padding:5px">DION AGUS PRANOTO</td>
 				<td></td>
-				<td style="padding:100px 0 0">'.strtoupper($this->m_fungsi->tanggal_format_indonesia(substr($data->time_app3,0,10))).'<br/>'.substr($data->time_app3,11,10).'</td>
+				<td style="padding:5px">WILLIAM ALEXANDER HARTONO</td>
+			</tr>
+			<tr>
+				<td style="padding:5px">'.strtoupper($this->m_fungsi->tanggal_format_indonesia(substr($data->time_app1,0,10))).'<br/>'.substr($data->time_app1,11,10).'</td>
+				<td></td>
+				<td style="padding:5px">'.strtoupper($this->m_fungsi->tanggal_format_indonesia(substr($data->time_app2,0,10))).'<br/>'.substr($data->time_app2,11,10).'</td>
+				<td></td>
+				<td style="padding:5px">'.strtoupper($this->m_fungsi->tanggal_format_indonesia(substr($data->time_app3,0,10))).'<br/>'.substr($data->time_app3,11,10).'</td>
 			</tr>
 		</table>';
 

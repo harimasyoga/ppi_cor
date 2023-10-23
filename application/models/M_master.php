@@ -91,35 +91,55 @@ class M_master extends CI_Model{
 	
     
     function m_pelanggan($table,$status){
-		$data = array(
-			'nm_pelanggan' => $_POST["nm_pelanggan"],
-			'attn' => $_POST["attn"],
-			'alamat' => $_POST["alamat"],
-			'alamat_kirim' => $_POST["alamat_kirim"],
-			'prov' => ($_POST["provinsi"] == 0 || $_POST["provinsi"] == null || $_POST["provinsi"] == "") ? null : $_POST["provinsi"],
-			'kab' => ($_POST["kota_kab"] == 0 || $_POST["kota_kab"] == null || $_POST["kota_kab"] == "") ? null : $_POST["kota_kab"],
-			'kec' => ($_POST["kecamatan"] == 0 || $_POST["kecamatan"] == null || $_POST["kecamatan"] == "") ? null : $_POST["kecamatan"],
-			'kel' => ($_POST["kelurahan"] == 0 || $_POST["kelurahan"] == null || $_POST["kelurahan"] == "") ? null : $_POST["kelurahan"],
-			'kode_pos' => $_POST["kode_pos"],
-			'fax' => $_POST["fax"],
-			'top' => $_POST["top1"],
-			'no_telp' => $_POST["no_telp"],
-		);
+		$kode_lama = $_POST["kode_lama"];
+		$kode_pelanggan = $_POST["kode_pelanggan"];
+		$cekKode = $this->db->query("SELECT*FROM m_pelanggan WHERE kode_unik='$kode_pelanggan'")->num_rows();
+		if($status == 'update' && $kode_lama != $kode_pelanggan && $cekKode > 0){
+			return array(
+				'data' => false,
+				'isi' => 'KODE PELANGGAN SUDAH ADA!',
+			);
+		}else if($status == 'insert' && $cekKode > 0){
+			return array(
+				'data' => false,
+				'isi' => 'KODE PELANGGAN SUDAH ADA!',
+			);
+		}else{
+			$data = array(
+				'id_sales' => $_POST["id_sales"],
+				'kode_unik' => $_POST["kode_pelanggan"],
+				'nm_pelanggan' => $_POST["nm_pelanggan"],
+				'attn' => $_POST["attn"],
+				'alamat' => $_POST["alamat"],
+				'alamat_kirim' => $_POST["alamat_kirim"],
+				'prov' => ($_POST["provinsi"] == 0 || $_POST["provinsi"] == null || $_POST["provinsi"] == "") ? null : $_POST["provinsi"],
+				'kab' => ($_POST["kota_kab"] == 0 || $_POST["kota_kab"] == null || $_POST["kota_kab"] == "") ? null : $_POST["kota_kab"],
+				'kec' => ($_POST["kecamatan"] == 0 || $_POST["kecamatan"] == null || $_POST["kecamatan"] == "") ? null : $_POST["kecamatan"],
+				'kel' => ($_POST["kelurahan"] == 0 || $_POST["kelurahan"] == null || $_POST["kelurahan"] == "") ? null : $_POST["kelurahan"],
+				'kode_pos' => $_POST["kode_pos"],
+				'fax' => $_POST["fax"],
+				'top' => $_POST["top1"],
+				'no_telp' => $_POST["no_telp"],
+			);
 
-        if ($status == 'insert') {
-            $this->db->set("add_user", $this->username);
-            $result= $this->db->insert($table, $data);
-        }else{
-            $this->db->set("edit_user", $this->username);
-            $this->db->set("edit_time", date('Y-m-d H:i:s'));
-            $this->db->where("id_pelanggan", $_POST["id_pelanggan"]);
-            $result= $this->db->update($table, $data);
-        }
-		
+			if ($status == 'insert') {
+				$this->db->set("add_user", $this->username);
+				$inputData = $this->db->insert($table, $data);
+			}else{
+				$this->db->set("edit_user", $this->username);
+				$this->db->set("edit_time", date('Y-m-d H:i:s'));
+				$this->db->where("id_pelanggan", $_POST["id_pelanggan"]);
+				$inputData = $this->db->update($table, $data);
+			}
+			
+			return array(
+				'data' => true,
+				'isi' => $inputData,
+			);
+		}
         return $result;
     }
-    
-    
+
     function tb_user($table,$status){
         
         
@@ -156,13 +176,11 @@ class M_master extends CI_Model{
 			'kode_mc'  => $this->input->post('kode_mc'),
 			'nm_produk'  => $this->input->post('nm_produk'),
 			'no_customer' => $this->input->post('no_customer'),
-			// 'customer' => $this->input->post('customer'),
 			'ukuran' => $this->input->post('ukuran'),
 			'ukuran_sheet' => $this->input->post('ukuran_sheet'),
 			'ukuran_sheet_p' => $this->input->post('ukuran_sheet_p'),
 			'ukuran_sheet_l' => $this->input->post('ukuran_sheet_l'),
 			'sambungan' => $this->input->post('sambungan'),
-			'tipe' => $this->input->post('tipe'),
 			'material' => $this->input->post('material'),
 			'wall' => $this->input->post('wall'),
 			'l_panjang' => $this->input->post('l_panjang'),
@@ -217,6 +235,35 @@ class M_master extends CI_Model{
 
         return $result;
     }
+
+	function buatKodeMC(){
+		$mcNoCust = $_POST["mcNoCust"];
+		$mcKodeUnik = $_POST["mcKodeUnik"];
+		$mcKategori = $_POST["mcKategori"];
+		$mcPanjang = $_POST["mcPanjang"];
+		$mcLebar = $_POST["mcLebar"];
+		$mcTinggi = $_POST["mcTinggi"];
+		$mcFlute = $_POST["mcFlute"];
+		$mcTipeBox = $_POST["mcTipeBox"];
+		$mcSambungan = $_POST["mcSambungan"];
+		$mcKualitas = $_POST["mcKualitas"];
+
+		if($mcKategori == 'K_BOX'){
+			$opsiWhere = "AND p.tipe_box='$mcTipeBox' AND p.sambungan='$mcSambungan'";
+		}else{
+			$opsiWhere = "AND p.l_panjang='$mcPanjang' AND p.l_lebar='$mcLebar'";
+		}
+		// AND p.l_panjang='$mcPanjang' AND p.l_lebar='$mcLebar' AND p.l_tinggi='$mcTinggi'
+		// AND p.kualitas='$mcKualitas'
+		$cekProduk = $this->db->query("SELECT p.* FROM m_produk p
+		INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan
+		WHERE c.kode_unik='$mcKodeUnik' AND p.flute='$mcFlute' $opsiWhere");
+		$cnt = str_pad($cekProduk->num_rows()+1, 4, "0", STR_PAD_LEFT);
+
+		return array(
+			'mcNoUrut' => $cnt,
+		);
+	}
 
     function m_setting($table,$status){
         
