@@ -3,7 +3,7 @@
 		<div class="container-fluid">
 			<div class="row mb-2">
 				<div class="col-sm-6">
-					<h1>Data Master</h1>
+					<h1><b>Data Master</b></h1>
 				</div>
 				<div class="col-sm-6">
 					<ol class="breadcrumb float-sm-right">
@@ -24,7 +24,7 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<button type="button" class="tambah_data btn  btn-outline-primary pull-right">Tambah Data</button>
+				<button type="button" class="tambah_data btn btn-outline-primary pull-right"><i class="fa fa-plus"></i> <b>Tambah Data</b></button>
 				<br><br>
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead>
@@ -211,6 +211,8 @@
 					toastr.error('Terjadi Kesalahan');
 				}
 			});
+		}else{
+			toastr.info('Gak Jadi');
 		}
 	}
 

@@ -5,7 +5,7 @@
 		<div class="container-fluid">
 			<div class="row mb-2">
 				<div class="col-sm-6">
-					<h1>Data Master </h1>
+					<h1><b>Data Master</b></h1>
 				</div>
 				<div class="col-sm-6">
 					<ol class="breadcrumb float-sm-right">
@@ -29,7 +29,7 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<button type="button" class="tambah_data btn  btn-outline-primary pull-right">Tambah Data</button>
+				<button type="button" class="tambah_data btn  btn-outline-primary pull-right"><i class="fa fa-plus"></i> <b>Tambah Data</b></button>
 				<!-- <button type="button" class="btn-cetak btn  btn-outline-success pull-right" onclick="cetak(1)">Export Excel</button> -->
 				<br><br>
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
@@ -37,12 +37,11 @@
 						<tr>
 							<th style="width:5%">NO.</th>
 							<th style="width:20%">CUSTOMER</th>
-							<th style="width:23%">ITEM</th>
-							<th style="width:14%">BOX</th>
-							<th style="width:14%">SHEET</th>
+							<th style="width:25%">ITEM</th>
+							<th style="width:25%">KODE MC</th>
 							<th style="width:5%">FLUTE</th>
 							<th style="width:10%">KUALITAS</th>
-							<th style="width:9%">AKSI</th>
+							<th style="width:10%">AKSI</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -83,7 +82,9 @@
 						<tr>
 							<td style="padding:5px 0;font-weight:bold">CUSTOMER</td>
 							<td style="padding:5px 0" colspan="9">
+								<input type="hidden" id="h_kode_unik">
 								<input type="hidden" id="kode_unik">
+								<input type="hidden" id="h_id_pelanggan">
 								<select class="form-control select2" id="no_customer"></select>
 							</td>
 						</tr>
@@ -111,6 +112,7 @@
 							<td></td>
 							<td style="padding:5px 0;font-weight:bold">TIPE BOX</td>
 							<td style="padding:5px 0" colspan="2">
+								<input type="hidden" id="h_tipe_box">
 								<select id="tipe_box" class="form-control">
 									<option value="">PILIH</option>
 								</select>
@@ -119,6 +121,7 @@
 						<tr>
 							<td style="padding:5px 0;font-weight:bold">FLUTE</td>
 							<td style="padding:5px 0" colspan="3">
+								<input type="hidden" id="h_flute">
 								<select class="form-control" id="flute" onchange="cflute()">
 									<option value="">PILIH</option>
 									<option value="BCF">BCF</option>
@@ -130,14 +133,24 @@
 							<td style="padding:5px 0"></td>
 							<td style="padding:5px 0;font-weight:bold">SAMBUNGAN</td>
 							<td style="padding:5px 0" colspan="2">
+								<input type="hidden" id="h_sambungan">
 								<select id="sambungan" class="form-control" onchange="cflute()"></select>
 							</td>
 						</tr>
 						<tr>
 							<td style="padding:5px 0;font-weight:bold">P / L / T</td>
-							<td style="padding:5px 2px 5px 0"><input type="text" class="form-control" id="l_panjang" placeholder="P" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="cflute()"></td>
-							<td style="padding:5px 2px"><input type="text" class="form-control" id="l_lebar" placeholder="L" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="cflute()"></td>
-							<td style="padding:5px 0 5px 2px"><input type="text" class="form-control" id="l_tinggi" placeholder="T" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="cflute()"></td>
+							<td style="padding:5px 2px 5px 0">
+								<input type="hidden" id="h_panjang">
+								<input type="text" class="form-control" id="l_panjang" placeholder="P" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="cflute()">
+							</td>
+							<td style="padding:5px 2px">
+								<input type="hidden" id="h_lebar">
+								<input type="text" class="form-control" id="l_lebar" placeholder="L" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="cflute()">
+							</td>
+							<td style="padding:5px 0 5px 2px">
+								<input type="hidden" id="h_tinggi">
+								<input type="text" class="form-control" id="l_tinggi" placeholder="T" maxlength="4" onkeypress="return hanyaAngka(event)" autocomplete="off" onchange="cflute()">
+							</td>
 							<td></td>
 							<td style="padding:5px 0;font-weight:bold">UKURAN BOX</td>
 							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="ukuran" placeholder="-" autocomplete="off" disabled></td>
@@ -202,22 +215,35 @@
 						<tr>
 							<td style="padding:5px 0;font-weight:bold">KODE MC</td>
 							<td style="padding:5px 0" colspan="7">
-								<input type="hidden" class="form-control" id="id">
+								<input type="hidden" id="id">
+								<input type="hidden" id="h_kode_mc">
 								<input type="text" class="form-control" id="kode_mc" placeholder="KODE MC" autocomplete="off" disabled>
 							</td>
 						</tr>
 						<tr>
 							<td style="padding:5px 0;font-weight:bold">KUALITAS</td>
-							<td style="padding:5px 0" colspan="3"><input type="text" class="form-control" id="kualitas" placeholder="-" disabled></td>
+							<td style="padding:5px 0" colspan="3">
+								<input type="hidden" id="h_kualitas">
+								<input type="text" class="form-control" id="kualitas" placeholder="-" disabled>
+							</td>
 							<td></td>
 							<td style="padding:5px 0;font-weight:bold">MATERIAL</td>
-							<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="material" placeholder="-" disabled></td>
+							<td style="padding:5px 0" colspan="2">
+								<input type="hidden" id="h_material">
+								<input type="text" class="form-control" id="material" placeholder="-" disabled>
+							</td>
 						</tr>
 						<tr>
 							<td style="padding:5px 0;font-weight:bold">BERAT BERSIH</td>
-							<td style="padding:5px 0"><input type="text" class="form-control" id="berat_bersih" placeholder="-" disabled></td>
+							<td style="padding:5px 0">
+								<input type="hidden" id="h_berat_bersih">
+								<input type="text" class="form-control" id="berat_bersih" placeholder="-" disabled>
+							</td>
 							<td style="padding:5px 0 5px 5px;font-weight:bold">LUAS BERSIH</td>
-							<td style="padding:5px 0"><input type="text" class="form-control" id="luas_bersih" placeholder="-" disabled></td>
+							<td style="padding:5px 0">
+								<input type="hidden" id="h_luas_bersih">
+								<input type="text" class="form-control" id="luas_bersih" placeholder="-" disabled>
+							</td>
 							<td></td>
 							<td style="padding:5px 0;font-weight:bold">TOLERANSI KIRIM</td>
 							<td style="padding:5px 0"><input type="text" class="form-control" id="toleransi_kirim" maxlength="3" onkeypress="return hanyaAngka(event)" placeholder="-"></td>
@@ -315,8 +341,8 @@
 		id = $("#id").val();
 		kode_mc = $("#kode_mc").val();
 		nm_produk = $("#nm_produk").val();
+		h_id_pelanggan = $("#h_id_pelanggan").val();
 		no_customer = $("#no_customer").val();
-		// customer = $("#customer").val();
 		ukuran = $("#ukuran").val();
 		ukuran_sheet = $("#ukuran_sheet").val();
 		sambungan = $("#sambungan").val();
@@ -354,16 +380,18 @@
 
 		if(kategori == 'K_SHEET' && (l_panjang == '' || l_lebar == '')){
 			swal("HARAP LENGKAPI FORM!", "", "info")
+			$("#btn-simpan").prop("disabled", false)
 			return;
 		}
 		if(kategori == 'K_BOX' && (l_panjang == '' || l_lebar == '' || l_tinggi == '')){
 			swal("HARAP LENGKAPI FORM!", "", "info")
+			$("#btn-simpan").prop("disabled", false)
 			return;
 		}
 
 		if (kode_mc == '' || nm_produk == '' || no_customer == '' || ukuran == '' || ukuran_sheet == '' || sambungan == '' || material == '' || wall == '' || creasing == '' || creasing2 == '' || creasing3 == '' || flute == '' || berat_bersih == '' || luas_bersih == '' || kualitas == '' || warna == '' || no_design == '' || design == '' || tipe_box == '' || jenis_produk == '' || kategori == '' || cCOA == '' || jml_ikat == '' || jml_palet == '' || jml_paku == '' || no_pisau == '' || no_karet == '' || toleransi_kirim == '' || spesial_req == '') {
 			swal("HARAP LENGKAPI FORM!", "", "info")
-			$("#btn-simpan").prop("disabled", false);
+			$("#btn-simpan").prop("disabled", false)
 			return;
 		}
 
@@ -371,7 +399,7 @@
 			url: '<?php echo base_url('Master/Insert') ?>',
 			type: "POST",
 			data: ({
-				id, kode_mc, nm_produk, no_customer, ukuran, ukuran_sheet, sambungan, material, wall, l_panjang, l_lebar, l_tinggi, creasing, creasing2, creasing3, flute, berat_bersih, luas_bersih, kualitas, warna, no_design, design, tipe_box, jenis_produk, kategori, COA:cCOA, jml_ikat, jml_palet, jml_paku, no_pisau, no_karet, toleransi_kirim, spesial_req, ukuran_sheet_p, ukuran_sheet_l, jenis: 'm_produk', status: status
+				id, kode_mc, nm_produk, h_id_pelanggan, no_customer, ukuran, ukuran_sheet, sambungan, material, wall, l_panjang, l_lebar, l_tinggi, creasing, creasing2, creasing3, flute, berat_bersih, luas_bersih, kualitas, warna, no_design, design, tipe_box, jenis_produk, kategori, COA:cCOA, jml_ikat, jml_palet, jml_paku, no_pisau, no_karet, toleransi_kirim, spesial_req, ukuran_sheet_p, ukuran_sheet_l, jenis: 'm_produk', status: status
 			}),
 			success: function(json) {
 				data = JSON.parse(json)
@@ -396,6 +424,7 @@
 		let no_cust = $('#no_customer').val()
 		let nm_sales = $('#no_customer option:selected').attr('data-sales')
 		let kode_unik = $('#no_customer option:selected').attr('kode_unik')
+		$("#h_id_pelanggan").val(no_cust)
 		$("#nm_sales").val(nm_sales)
 		$("#kode_unik").val(kode_unik)
 		if(no_cust == ""){
@@ -425,10 +454,24 @@
 	}
 
 	function kosong() {
+		$("#h_kode_unik").val("")
+		$("#h_tipe_box").val("")
+		$("#h_flute").val("")
+		$("#h_sambungan").val("")
+		$("#h_panjang").val("")
+		$("#h_lebar").val("")
+		$("#h_tinggi").val("")
+		$("#h_material").val("")
+		$("#h_kualitas").val("")
+		$("#h_kode_mc").val("")
+		$("#h_berat_bersih").val("")
+		$("#h_luas_bersih").val("")
+
 		$("#id").val("");
 		$("#kode_mc").val("").prop("disabled", true);
 		$("#nm_produk").val("");
 		$("#kode_unik").val("");
+		$("#h_id_pelanggan").val("");
 		$("#no_customer").val("").prop("disabled", true);
 		$("#nm_sales").val("-");
 		$("#ukuran").val("");
@@ -489,7 +532,7 @@
 		$("#kualitas").val("");
 		$("#berat_bersih").val("");
 		$("#luas_bersih").val("");
-		$("#kode_mc").val("")
+		$("#kode_mc").val("");
 	}
 
 	function tampil_edit(id, act) {
@@ -500,7 +543,7 @@
 			$("#btn-simpan").hide();
 		} else {
 			$("#judul").html('<h3> Form Edit Data</h3>');
-			$("#btn-simpan").show();
+			$("#btn-simpan").show().prop("disabled", true)
 		}
 		$("#jenis").val('Update');
 
@@ -516,35 +559,36 @@
 		.done(function(json) {
 			data = JSON.parse(json)
 			// console.log(data)
+
 			$("#id").val(data.produk.id_produk);
-			// $("#customer").val(data.produk.customer);
-			
+			$("#h_id_pelanggan").val(data.produk.no_customer);
 			let htmlCust = ''
 			htmlCust += `<option value="${data.produk.no_customer}" data-sales="${data.produk.nm_sales}" kode_unik="${data.produk.kode_unik}">
-					${data.produk.customer}
+					${data.produk.customer} | ${data.produk.kode_unik}
 			</option>`
 			if(data.poDetail.length == 0){
 				data.pelanggan.forEach(loadCust)
 				function loadCust(r, index) {
 					htmlCust += `<option value="${r.id_pelanggan}" data-sales="${r.nm_sales}" kode_unik="${r.kode_unik}">
-						${r.nm_pelanggan}
+						${r.nm_pelanggan} | ${r.kode_unik}
 					</option>`
 				}
 			}
+			$("#kode_unik").val(data.produk.kode_unik)
 			$("#no_customer").html(htmlCust).prop("disabled", (data.poDetail.length == 0) ? false : true);
 			$("#nm_sales").val(data.produk.nm_sales);
 
+			$("#h_kode_mc").val(data.produk.kode_mc);
 			$("#kode_mc").val(data.produk.kode_mc).prop("disabled", true);
-			// $("#kode_mc_lama").val(data.produk.kode_mc);
 			$("#nm_produk").val(data.produk.nm_produk);
 			$("#ukuran").val(data.produk.ukuran);
 			$("#ukuran_sheet_p").val(data.produk.ukuran_sheet_p);
 			$("#ukuran_sheet_l").val(data.produk.ukuran_sheet_l);
 			$("#material").val(data.produk.material);
 			$("#wall").val(data.produk.wall);
-			$("#l_panjang").val(data.produk.l_panjang);
-			$("#l_lebar").val(data.produk.l_lebar);
-			$("#l_tinggi").val(data.produk.l_tinggi);
+			$("#l_panjang").val(data.produk.l_panjang).prop("disabled", (data.poDetail.length == 0) ? false : true)
+			$("#l_lebar").val(data.produk.l_lebar).prop("disabled", (data.poDetail.length == 0) ? false : true)
+			$("#l_tinggi").val(data.produk.l_tinggi).prop("disabled", (data.poDetail.length == 0 && data.produk.kategori == 'K_BOX') ? false : true)
 			$("#creasing").val(data.produk.creasing).prop("disabled", (data.poDetail.length == 0) ? false : true);
 			$("#creasing2").val(data.produk.creasing2).prop("disabled", (data.poDetail.length == 0) ? false : true);
 			$("#creasing3").val(data.produk.creasing3).prop("disabled", (data.poDetail.length == 0) ? false : true);
@@ -569,6 +613,20 @@
 			$("#no_karet").val(data.produk.no_karet);
 			$("#toleransi_kirim").val(data.produk.toleransi_kirim);
 			$("#spesial_req").val(data.produk.spesial_req);
+
+			$("#h_kode_unik").val(data.produk.kode_unik)
+			$("#h_tipe_box").val(data.produk.tipe_box)
+			$("#h_flute").val(data.produk.flute)
+			$("#h_sambungan").val(data.produk.sambungan)
+			$("#h_panjang").val(data.produk.l_panjang)
+			$("#h_lebar").val(data.produk.l_lebar)
+			$("#h_tinggi").val(data.produk.l_tinggi)
+			$("#h_kualitas").val(data.produk.kualitas)
+			$("#h_material").val(data.produk.material)
+			$("#h_berat_bersih").val(data.produk.berat_bersih)
+			$("#h_luas_bersih").val(data.produk.luas_bersih)
+
+			$("#btn-simpan").prop("disabled", false)
 		})
 	}
 
@@ -614,6 +672,7 @@
 		let l_lebar = $("#l_lebar").val();
 		let l_tinggi = $("#l_tinggi").val();
 
+		$("#h_kode_mc").val("")
 		$("#kode_mc").val("")
 		$("#ukuran").val("-")
 		$("#creasing").val(0)
@@ -698,6 +757,22 @@
 		let r_lebar = parseInt(document.getElementById('l_lebar').value);
 		let r_tinggi = parseInt(document.getElementById('l_tinggi').value);
 
+		let h_kode_mc = $("#h_kode_mc").val()
+		let kode_unik = $("#kode_unik").val()
+		let h_kode_unik = $("#h_kode_unik").val()
+		let h_tipe_box = $("#h_tipe_box").val()
+		let h_flute = $("#h_flute").val()
+		let sambungan = $("#sambungan").val()
+		let h_sambungan = $("#h_sambungan").val()
+		let hi_panjang = $("#h_panjang").val()
+		let hi_lebar = $("#h_lebar").val()
+		let hi_tinggi = $("#h_tinggi").val()
+		let kualitas = $("#kualitas").val()
+		let h_kualitas = $("#h_kualitas").val()
+		let h_material = $("#h_material").val()
+		let h_berat_bersih = $("#h_berat_bersih").val()
+		let h_luas_bersih = $("#h_luas_bersih").val()
+
 		if(k == "" || kk == ""){
 			gabKK = "";
 			txtK = "";
@@ -768,8 +843,6 @@
 			txtKualitas = ''
 			txtMaterial = ''
 		}
-		document.getElementById('kualitas').value = txtKualitas
-		document.getElementById('material').value = txtMaterial
 
 		let cariBF = parseFloat(bb  * 1.36)
 		let cariCF = parseFloat(cc  * 1.46)
@@ -841,33 +914,53 @@
 			}else{
 				txtPL = r_panjang + " X " + r_lebar + " X " + r_tinggi;
 			}
-		}else if(tipee == "K_SHEET"){
-			if(r_panjang == '' || r_panjang == 0 || r_lebar == '' || r_lebar == 0){
-				txtPL = "";
-			}else{
-				txtPL = r_panjang + " X " + r_lebar;
-			}
 		}else{
-			txtPL = "";
+			txtPL = "-";
 		}
 		document.getElementById('ukuran').value = txtPL;
 
+		// HITUNG
 		let h_panjang = parseFloat(ruk_p / 1000);
 		let h_lebar = parseFloat(ruk_l / 1000);
 		let nilaiBeratBersih = parseFloat(getNilaiFlute * h_panjang * h_lebar).toFixed(tfx);
 		let nilaiLuasBersih = parseFloat(h_panjang * h_lebar).toFixed(3);
-		if(isNaN(getNilaiFlute) || isNaN(h_panjang) || isNaN(h_lebar) || isNaN(nilaiBeratBersih) || nilaiBeratBersih == 0 || isNaN(nilaiLuasBersih) || nilaiLuasBersih == 0){
-			document.getElementById('berat_bersih').value = "";
-			document.getElementById('luas_bersih').value = "";
-		} else {
-			document.getElementById('berat_bersih').value = nilaiBeratBersih;
-			document.getElementById('luas_bersih').value = nilaiLuasBersih;
+
+		// KONDISI UPDATE
+		let cekKualitas = ''
+		let cekMaterial = ''
+		let cekBB = ''
+		let cekLB = ''
+		if(status == 'update' && tipee == 'K_BOX' && kode_unik == h_kode_unik && plh_flute == h_flute && sambungan == h_sambungan && r_panjang == hi_panjang && r_lebar == hi_lebar && r_tinggi == hi_tinggi){
+			cekKualitas = h_kualitas
+			cekMaterial = h_material
+			cekBB = h_berat_bersih
+			cekLB = h_luas_bersih
+		}else if(status == 'update' && tipee == 'K_SHEET' && kode_unik == h_kode_unik && plh_flute == h_flute && r_panjang == hi_panjang && r_lebar == hi_lebar && r_tinggi == hi_tinggi){
+			cekKualitas = h_kualitas
+			cekMaterial = h_material
+			cekBB = h_berat_bersih
+			cekLB = h_luas_bersih
+		}else{
+			cekKualitas = txtKualitas
+			cekMaterial = txtMaterial
+			if(isNaN(getNilaiFlute) || isNaN(h_panjang) || isNaN(h_lebar) || isNaN(nilaiBeratBersih) || nilaiBeratBersih == 0 || isNaN(nilaiLuasBersih) || nilaiLuasBersih == 0){
+				cekBB = ""
+				cekLB = ""
+			}else{
+				cekBB = nilaiBeratBersih
+				cekLB = nilaiLuasBersih
+			}
 		}
+		document.getElementById('kualitas').value = cekKualitas
+		document.getElementById('material').value = cekMaterial
+		document.getElementById('berat_bersih').value = cekBB
+		document.getElementById('luas_bersih').value = cekLB
+
 		buatKodeMC()
 	}
 
 	function buatKodeMC(){
-		document.getElementById('kode_mc').value = `CEK KODE MC . . .`
+		$("#kode_mc").val("").attr("placeholder", "CEK PROSES KODE MC . . .")
 		let mcNoCust = $("#no_customer").val()
 		let mcKodeUnik = $("#kode_unik").val()
 		let mcKategori = $("#kategori").val()
@@ -881,49 +974,62 @@
 		let mcSambungan = $("#sambungan").val()
 		let mcKualitas = $("#kualitas").val()
 
+		let h_kode_mc = $("#h_kode_mc").val()
+		// console.log(h_kode_mc)
+		let h_kode_unik = $("#h_kode_unik").val()
+		let h_tipe_box = $("#h_tipe_box").val()
+		let h_flute = $("#h_flute").val()
+		let h_sambungan = $("#h_sambungan").val()
+		let hi_panjang = $("#h_panjang").val()
+		let hi_lebar = $("#h_lebar").val()
+		let hi_tinggi = $("#h_tinggi").val()
+		let h_kualitas = $("#h_kualitas").val()
+
 		let mcKodeMc = ''
-		$.ajax({
-			url: '<?php echo base_url('Master/buatKodeMC')?>',
-			type: "POST",
-			data: ({
-				mcNoCust, mcKodeUnik, mcKategori, mcPanjang, mcLebar, mcTinggi, mcFlute, mcTipeBox, mcSambungan, mcKualitas
-			}),
-			success: function(res){
-				data = JSON.parse(res)
-				// console.log(data)
-				// if(mcKualitas == ''){
-				// 	mcKodeMc = ''
-				// }else{
-				if(mcNoCust == '' || mcKodeUnik == '' || mcKategori == '' || mcSambungan == '' || mcFlute == ''){
-					mcKodeMc = ''
-				}else{
-					if(mcKategori == 'K_BOX'){
-						if(mcSambungan == '' && mcTipeBox == ''){
-							mcKodeMc = ''
-						}else{
-							if(mcFlute == ''){
-								mcKodeMc = ''
-							}else{
-								mcKodeMc = `${mcKodeUnik}-${mcTipeBox}-${mcSambungan}-${mcFlute}-${data.mcNoUrut}`
-							}
-						}
-					}else if(mcKategori == 'K_SHEET'){
-						if(mcPanjang == ''){
-							mcKodeMc = ''
-						}else{
-							if(mcLebar == ''){
-								mcKodeMc = ''
-							}else{
-								mcKodeMc = `${mcKodeUnik}-${mcPanjang}-${mcLebar}-${mcFlute}-${data.mcNoUrut}`
-							}
-						}
-					}else{
+		if(status == 'update' && mcKategori == 'K_BOX' && mcKodeUnik == h_kode_unik && mcFlute == h_flute && mcSambungan == h_sambungan && mcPanjang == hi_panjang && mcLebar == hi_lebar && mcTinggi == hi_tinggi){
+			document.getElementById('kode_mc').value = h_kode_mc
+		}else if(status == 'update' && mcKategori == 'K_SHEET' && mcKodeUnik == h_kode_unik && mcFlute == h_flute && mcPanjang == hi_panjang && mcLebar == hi_lebar && mcTinggi == hi_tinggi){
+			document.getElementById('kode_mc').value = h_kode_mc
+		}else{
+			$.ajax({
+				url: '<?php echo base_url('Master/buatKodeMC')?>',
+				type: "POST",
+				data: ({
+					mcNoCust, mcKodeUnik, mcKategori, mcPanjang, mcLebar, mcTinggi, mcFlute, mcTipeBox, mcSambungan, mcKualitas
+				}),
+				success: function(res){
+					data = JSON.parse(res)
+					// console.log(data)
+					if(mcNoCust == '' || mcKodeUnik == '' || mcKategori == '' || mcSambungan == '' || mcFlute == ''){
 						mcKodeMc = ''
+					}else{
+						if(mcKategori == 'K_BOX'){
+							if(mcSambungan == '' && mcTipeBox == ''){
+								mcKodeMc = ''
+							}else{
+								if(mcFlute == ''){
+									mcKodeMc = ''
+								}else{
+									mcKodeMc = `${mcKodeUnik}-${mcTipeBox}-${mcSambungan}-${mcFlute}-${data.mcNoUrut}`
+								}
+							}
+						}else if(mcKategori == 'K_SHEET'){
+							if(mcPanjang == ''){
+								mcKodeMc = ''
+							}else{
+								if(mcLebar == ''){
+									mcKodeMc = ''
+								}else{
+									mcKodeMc = `${mcKodeUnik}-${mcPanjang}-${mcLebar}-${mcFlute}-${data.mcNoUrut}`
+								}
+							}
+						}else{
+							mcKodeMc = ''
+						}
 					}
+					document.getElementById('kode_mc').value = mcKodeMc
 				}
-				// }
-				document.getElementById('kode_mc').value = mcKodeMc
-			}
-		})
+			})
+		}
 	}
 </script>
