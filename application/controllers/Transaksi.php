@@ -315,18 +315,16 @@ class Transaksi extends CI_Controller
 				$row[] = $r->no_po;
 				$row[] = $r->kode_po;
 
+				// <button type="button" onclick="tampil_edit('."'".$r->id."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'".$r->no_so."'".','."'".$r->nm_produk."'".','."'edit'".')" class="btn btn-warning btn-xs">Edit</button>
+				$print = base_url('Transaksi/laporanSO?id=').$r->id;
 				if ($r->status_so == 'Open') {
-					$aksi = '<button type="button" onclick="tampil_edit('."'".$r->id."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'".$r->no_so."'".','."'".$r->nm_produk."'".','."'edit'".')" class="btn btn-warning btn-xs">
-						Edit
-					</button>
-					<button type="button" onclick="batalData('."'".$r->id."'".')" class="btn btn-danger btn-xs">
-						Batal
-                    </button>';
+					$aksi = '<a href="'.$print.'" target="_blank" class="lbl-besar"><button type="button" class="btn btn-light btn-sm"><i class="fas fa-print"></i></button></a>
+					<button type="button" onclick="batalDataSO('."'".$r->id."'".')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
 				}else{
 					$aksi = '-';
 				}
 
-				$row[] = $aksi;
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
 				$data[] = $row;
 				$i++;
 			}
@@ -1696,8 +1694,8 @@ class Transaksi extends CI_Controller
 				<tr>
 					<th style="width:5%">NO.</th>
 					<th style="width:40%">ITEM</th>
-					<th style="width:40%">NO. SO</th>
-					<th style="width:15%;text-align:center">AKSI</th>
+					<th style="width:45%">NO. SO</th>
+					<th style="width:10%;text-align:center">AKSI</th>
 				</tr>
 			</thead>';
 
@@ -1710,8 +1708,8 @@ class Transaksi extends CI_Controller
 			($r->id == $id) ? $bold = 'style="font-weight:bold"' : $bold = '';
 			$idSo = $r->id;
 			$print = base_url('Transaksi/laporanSO?id=').$r->id;
-			$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="editData('."".$idSo."".')"><i class="fas fa-pen"></i></button>
-				<button type="button" class="btn btn-danger btn-sm" onclick="batalData('."".$idSo."".')"><i class="fas fa-times"></button>';
+			// <button type="button" class="btn btn-warning btn-sm" onclick="editData('."".$idSo."".')"><i class="fas fa-pen"></i></button>
+			$btnEdit = '<button type="button" class="btn btn-danger btn-sm" onclick="batalDataSO('."".$idSo."".')"><i class="fas fa-times"></button>';
 			$btnpPrint = '<a href="'.$print.'" target="_blank" class="lbl-besar"><button type="button" class="btn btn-light btn-sm"><i class="fas fa-print"></i></button></a>';
 			if($r->no_so == null){
 				$btnAksi = '-';
@@ -1739,7 +1737,7 @@ class Transaksi extends CI_Controller
 		INNER JOIN trs_po p ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 		INNER JOIN m_produk i ON d.id_produk=i.id_produk
 		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
-		INNER JOIN m_sales s ON p.id_sales=s.id_sales
+		INNER JOIN m_sales s ON c.id_sales=s.id_sales
 		WHERE d.id='$id'")->row();
 
 		$html = '<table style="margin-bottom:5px;border-collapse:collapse;vertical-align:top;width:100%;font-weight:bold">
@@ -1761,7 +1759,7 @@ class Transaksi extends CI_Controller
 			</tr>
 		</table>';
 
-		$html .='<table style="margin-bottom:30px;font-size:12px;border-collapse:collapse;vertical-align:top;width:100%">
+		$html .='<table style="font-size:12px;border-collapse:collapse;vertical-align:top;width:100%">
 			<tr>
 				<td style="width:10%;border:0;padding:0"></td>
 				<td style="width:1%;border:0;padding:0"></td>
@@ -1774,7 +1772,7 @@ class Transaksi extends CI_Controller
 				<td style="border-top:1px solid #000;padding:1px" colspan="6"></td>
 			</tr>
 			<tr>
-				<td style="border-top:1px solid #000;font-size:16px;padding:15px 0 2xp;text-align:center;font-weight:bold" colspan="6">SALES ORDER</td>
+				<td style="border-top:1px solid #000;font-size:20px;font-family:Tahoma;padding:15px 0 2xp;text-align:center;font-weight:bold" colspan="6">SALES ORDER</td>
 			</tr>
 			<tr>
 				<td style="font-size:14px;padding:2px 0 25px;font-style:italic;text-align:center" colspan="6">( NO. SO : '.$data->no_so.' )</td>
@@ -1782,7 +1780,7 @@ class Transaksi extends CI_Controller
 			<tr>
 				<td style="padding:5px 0">Tanggal SO</td>
 				<td>:</td>
-				<td style="padding:5px">'.$data->tgl_so.'</td>
+				<td style="padding:5px">'.$this->m_fungsi->tanggal_format_indonesia($data->tgl_so).'</td>
 				<td style="padding:5px 0">Created By</td>
 				<td>:</td>
 				<td style="padding:5px">'.$data->add_user_so.'</td>
@@ -1791,30 +1789,32 @@ class Transaksi extends CI_Controller
 				<td style="padding:5px 0">No. PO</td>
 				<td>:</td>
 				<td style="padding:5px">'.$data->no_po.'</td>
+				<td style="padding:5px 0;font-weight:bold;color:#f00;font-size:16px;font-family:Tahoma">ETA</td>
 			</tr>
 			<tr>
-				<td style="padding:5px 0">Sales</td>
-				<td>:</td>
-				<td style="padding:5px">'.$data->nm_sales.'</td>
+				<td style="padding:5px 0 15px">Sales</td>
+				<td style="padding:5px 0 15px">:</td>
+				<td style="padding:5px 5px 15px">'.$data->nm_sales.'</td>
+				<td style="padding:5px 0 15px;font-weight:bold;color:#f00;font-size:16px;font-family:Tahoma" colspan="3">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($data->eta)).'</td>
 			</tr>
 			<tr>
-				<td style="padding:15px" colspan="6"></td>
+				<td style="border-top:1px solid #000" colspan="6"></td>
 			</tr>
 			<tr>
-				<td style="padding:5px 0">Customer</td>
-				<td>:</td>
-				<td style="padding:5px">'.$data->nm_pelanggan.'</td>
-				<td style="padding:5px 0">TOP</td>
-				<td>:</td>
-				<td style="padding:5px">'.$data->top.'</td>
+				<td style="padding:10px 0 5px">Customer</td>
+				<td style="padding:10px 0 5px">:</td>
+				<td style="padding:10px 5px 5px">'.$data->nm_pelanggan.'</td>
+				<td style="padding:10px 0 5px">TOP</td>
+				<td style="padding:10px 0 5px">:</td>
+				<td style="padding:10px 5px 5px">'.$data->top.'</td>
 			</tr>
 			<tr>
 				<td style="padding:5px 0" rowspan="3">Alamat</td>
-				<td rowspan="3">:</td>
+				<td style="padding:5px 0" rowspan="3">:</td>
 				<td style="padding:5px" rowspan="3">'.$data->alamat.'</td>
 				<td style="padding:5px 0">PO. Date</td>
-				<td>:</td>
-				<td style="padding:5px"></td>
+				<td style="padding:5px 0">:</td>
+				<td style="padding:5px">'.$this->m_fungsi->tanggal_format_indonesia($data->tgl_po).'</td>
 			</tr>
 			<tr>
 				<td style="padding:5px 0">No. Hp</td>
@@ -1822,15 +1822,15 @@ class Transaksi extends CI_Controller
 				<td style="padding:5px">'.$data->no_telp.'</td>
 			</tr>
 			<tr>
-				<td style="padding:5px 0">FAX</td>
-				<td>:</td>
-				<td style="padding:5px">'.$data->fax.'</td>
+				<td style="padding:5px 0 15px">FAX</td>
+				<td style="padding:5px 0 15px">:</td>
+				<td style="padding:5px 5px 15px">'.$data->fax.'</td>
 			</tr>
 			<tr>
-				<td style="padding:15px" colspan="6"></td>
+				<td style="border-top:1px solid #000" colspan="6"></td>
 			</tr>
 			<tr>
-				<td style="padding:5px 0">Description</td>
+				<td style="padding:10px 0">Description</td>
 			</tr>
 			<tr>
 				<td style="padding:5px 0">Kode. PO</td>
@@ -1878,19 +1878,22 @@ class Transaksi extends CI_Controller
 				<td style="padding:5px">'.number_format($data->qty).'</td>
 			</tr>
 			<tr>
-				<td style="padding:5px 0">Keterangan</td>
-				<td>:</td>
-				<td style="padding:5px"></td>
+				<td style="padding:5px 0 15px">Keterangan</td>
+				<td style="padding:5px 0 15px">:</td>
+				<td style="padding:5px 5px 15px"></td>
+			</tr>
+			<tr>
+				<td style="border-top:1px solid #000" colspan="6"></td>
 			</tr>
 		</table>';
 
 		$html .='<table style="font-size:12px;text-align:center;border-collapse:collapse;vertical-align:top;width:100%">
 			<tr>
-				<td style="width:30%;border:0;padding:0"></td>
-				<td style="width:5%;border:0;padding:0"></td>
-				<td style="width:30%;border:0;padding:0"></td>
-				<td style="width:5%;border:0;padding:0"></td>
-				<td style="width:30%;border:0;padding:0"></td>
+				<td style="width:30%;border:0;padding:5px"></td>
+				<td style="width:5%;border:0;padding:5px"></td>
+				<td style="width:30%;border:0;padding:5px"></td>
+				<td style="width:5%;border:0;padding:5px"></td>
+				<td style="width:30%;border:0;padding:5px"></td>
 			</tr>
 			<tr>
 				<td style="padding:5px">Marketing</td>
@@ -1907,15 +1910,20 @@ class Transaksi extends CI_Controller
 				<td style="padding:5px">WILLIAM ALEXANDER HARTONO</td>
 			</tr>
 			<tr>
-				<td style="padding:5px">'.strtoupper($this->m_fungsi->tanggal_format_indonesia(substr($data->time_app1,0,10))).'<br/>'.substr($data->time_app1,11,10).'</td>
+				<td style="padding:5px">'.$this->m_fungsi->tanggal_format_indonesia(substr($data->time_app1,0,10)).' '.substr($data->time_app1,11,10).'</td>
 				<td></td>
-				<td style="padding:5px">'.strtoupper($this->m_fungsi->tanggal_format_indonesia(substr($data->time_app2,0,10))).'<br/>'.substr($data->time_app2,11,10).'</td>
+				<td style="padding:5px">'.$this->m_fungsi->tanggal_format_indonesia(substr($data->time_app2,0,10)).' '.substr($data->time_app2,11,10).'</td>
 				<td></td>
-				<td style="padding:5px">'.strtoupper($this->m_fungsi->tanggal_format_indonesia(substr($data->time_app3,0,10))).'<br/>'.substr($data->time_app3,11,10).'</td>
+				<td style="padding:5px">'.$this->m_fungsi->tanggal_format_indonesia(substr($data->time_app3,0,10)).' '.substr($data->time_app3,11,10).'</td>
 			</tr>
 		</table>';
 
-		
-		$this->m_fungsi->newMpdf($html, 10, 10, 10, 10, 'P', 'A4');
+		$judul = 'SALES ORDER '.$data->no_so;
+		$this->m_fungsi->newMpdf($judul, $html, 10, 10, 10, 10, 'P', 'A4');
+	}
+
+	function batalDataSO(){
+		$result = $this->m_transaksi->batalDataSO();
+		echo json_encode($result);
 	}
 }

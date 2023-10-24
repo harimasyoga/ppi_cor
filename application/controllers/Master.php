@@ -164,8 +164,7 @@ class Master extends CI_Controller
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_produk."'".','."'detail'".')">'.$i."<a></div>";
 				$row[] = $r->nm_pelanggan;
 				$row[] = $r->nm_produk;
-				$row[] = $r->ukuran;
-				$row[] = $r->ukuran_sheet;
+				$row[] = $r->kode_mc;
 				$row[] = $r->flute;
 				$row[] = $r->kualitas;
 
@@ -188,8 +187,8 @@ class Master extends CI_Controller
 				$row[] = $r->no_sales;
 
 				$idSales = $r->id_sales;
-				$cekPO = $this->db->query("SELECT COUNT(id_sales) AS jmlSales FROM trs_po WHERE id_sales='$idSales' GROUP BY id_sales")->num_rows();
-				// <button type="button" class="btn btn-warning btn-sm" onclick="editData('."".$idSo."".')"><i class="fas fa-pen"></i></button>
+				$cekPO = $this->db->query("SELECT COUNT(c.id_sales) AS jmlSales FROM trs_po p INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+				WHERE c.id_sales='$idSales' GROUP BY c.id_sales")->num_rows();
 				$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_sales."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
 				$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_sales."'".')"><i class="fas fa-times"></i></button>';
 				$row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit;

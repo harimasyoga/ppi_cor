@@ -30,13 +30,13 @@
 					<thead>
 						<tr>
 							<th style="width:5%">NO.</th>
-							<th style="width:15%">TGL. SO</th>
-							<th style="width:15%">NO. SO</th>
-							<th style="width:15%">STATUS</th>
+							<th style="width:10%">TGL. SO</th>
+							<th style="width:20%">NO. SO</th>
+							<th style="width:10%">STATUS</th>
 							<th style="width:15%">ITEM</th>
 							<th style="width:15%">NO. PO</th>
 							<th style="width:15%">KODE. PO</th>
-							<th style="width:5%">AKSI</th>
+							<th style="width:10%">AKSI</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
@@ -440,7 +440,28 @@
 		alert('edit: '+id)
 	}
 
-	function batalData(id){
-		alert('batal: '+id)
+	function batalDataSO(id){
+		let cek = confirm("Apakah Anda Yakin?");
+		// alert('batal: '+id)
+		if(cek){
+			$.ajax({
+				url: '<?php echo base_url('Transaksi/batalDataSO')?>',
+				type: "POST",
+				data: ({
+					id
+				}),
+				success: function(res){
+					data = JSON.parse(res)
+					if(data.data){
+						swal(data.msg, "", "success")
+						$("#modalForm").modal("hide")
+						reloadTable()
+					}
+				}
+			})
+		}else{
+			toastr.info('BATAL SO TIDAK JADI!');
+		}
+
 	}
 </script>

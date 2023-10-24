@@ -556,4 +556,18 @@ class M_transaksi extends CI_Model
 
 		return $result;
 	}
+
+	function batalDataSO(){
+		$this->db->set('no_so', null);
+		$this->db->set('tgl_so', null);
+		$this->db->set('status_so', null);
+		$this->db->set('add_time_so', '0000-00-00 00:00:00');
+		$this->db->set('add_user_so', null);
+		$this->db->where('id', $_POST["id"]);
+		$result = $this->db->update('trs_po_detail');
+		return array(
+			'data' => $result,
+			'msg' => 'BERHASIL HAPUS!'
+		);
+	}
 }
