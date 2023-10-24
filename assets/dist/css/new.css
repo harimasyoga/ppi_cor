@@ -18,3 +18,38 @@
     outline:none;
 
 }
+
+.posisi-tengah {
+    vertical-align: middle !important;
+}
+
+.trapesium {
+    /* position:relative; */
+    /* background: url(../../img/search-icon-blue.png); */
+    background: url(../../gambar/kupingan1.png) right center no-repeat;
+    background-size: 30% 100%;
+}
+
+/* .trapesium:before {
+        content         : '';
+        position        : absolute;
+        top             : -1px;
+        left            : 24px;
+        bottom          : -1px;
+        border:10px solid #000;
+        border-width: 10px;
+        border-color: #000 transparent #000 #000;
+        z-index         : 1;
+}
+
+.trapesium:after {
+        content         : '';
+        position        : absolute;
+        top             : -2px;
+        left            : 23px;
+        bottom          : -2px;
+        border:10px solid #fff;
+        border-width: 10px;
+        border-color: #fff transparent #fff #fff;
+        z-index         : 2;
+} */

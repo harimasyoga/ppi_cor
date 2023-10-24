@@ -68,7 +68,7 @@
   <!-- /.content-wrapper -->
 
 <div class="modal fade" id="modalForm">
-  <div class="modal-dialog modal-xl">
+  <div class="modal-dialog modal-full">
     <div class="modal-content">
       <div class="modal-header">
         <h4 class="modal-title" id="judul"></h4>
@@ -84,7 +84,6 @@
             <tr>
               <td width="15%">No WO</td>
               <td>
-
                 <input type="hidden" class="form-control" value="trs_wo" name="jenis" id="jenis" >
                 <input type="hidden" class="form-control" value="" name="status" id="status" >
                 <input type="text" class="form-control" name="no_wo" id="no_wo" readonly>
@@ -96,31 +95,31 @@
               </td>
             </tr>
             <tr>
-              <td width="15%">Tgl WO</td>
+              <td>Tgl WO</td>
               <td><input type="date" class="form-control" name="tgl_wo"  id="tgl_wo" value="<?= date('Y-m-d') ?>" readonly></td>
-              <td width="15%"></td>
-              <td width="15%">Out</td>
+              <td></td>
+              <td>Out</td>
               <td><input type="text" class="form-control" name="line" id="line" ></td>
             </tr>
             <tr>
-              <td width="15%">NO SO</td>
+              <td>NO SO</td>
               <td>
                 <select class="form-control select2" name="no_so" id="no_so" style="width: 100%;" onchange="setDetailSO()">
                   <option value="">Pilih</option>
                   <?php foreach ($getSO as $r): ?>
-                    <option value="<?= $r->no_so ?>" detail="<?= $r->no_so ?>"><?= $r->no_so ?></option>
+                    <option value="<?= $r->no_so ?>" detail="<?= $r->no_so ?>">[ <?= $r->no_so ?> ] - [ <?= $r->nm_produk ?> ]</option>
                   <?php endforeach ?>
                 </select>
                 
               </td>
-              <td width="15%"></td>
-              <td width="15%">Lebar Kertas</td>
+              <td></td>
+              <td>Lebar Kertas</td>
               <td><input type="text" class="form-control" name="no_artikel" id="no_artikel" ></td>
             <tr>
-              <td width="15%"></td>
+              <td>NO PO</td>
+              <td><input type="text" name="nopo" id="nopo" class="form-control" readonly></td>
               <td></td>
-              <td width="15%"></td>
-              <td width="15%">Batch No</td>
+              <td>Batch No</td>
               <td><input type="text" class="form-control" name="batchno" id="batchno" ></td>
               
             </tr>
@@ -130,12 +129,12 @@
         </div>
 
         <div class="form-group row">
-          <table class="table" id="table-produk" style="width: 80%;display: ;" align="center" >
+          <table class="table" id="table-produk" style="width: 100%;display: ;" align="center" >
             <thead>
-                <tr>
-                    <th>Nama Produk</th>
+                <tr class="color-tabel">
+                    <th>Nama Item</th>
                     <th width="10%">Qty</th>
-                    <th width="50%">Detail Produk</th>
+                    <th width="50%">Detail Item</th>
                 </tr>
             </thead>
             <tbody>
@@ -154,90 +153,224 @@
                   
               </tr>
             </tbody>
-          </table>   
+          </table> 
+            
+          <table width="100%">
+            <tr> <td>&nbsp;</td> </tr>
+          </table>
 
-          <table width="100%" border="1" cellspacing="0" style="font-size:12px;font-family: ;">  
+          <table border="1" width="100%">
             <tr>
-                <td align="center" width="%" rowspan="2">No</td>
-                <td align="center" width="%" rowspan="2">PROSES PRODUKSI</td>
-                <td align="center" width="%" colspan="2">HASIL PRODUKSI</td>
-                <td align="center" width="%" rowspan="2">RUSAK</td>
-                <td align="center" width="%" rowspan="2">HASIL BAIK</td>
-                <td align="center" width="%" rowspan="2">KETERANGAN</td>
+              <td width="15%" style="border: 1px solid white;" > </td>
+              <td width="5%" style="border: 1px solid white;border-left: 1px solid white;border-right: 1px solid black;"> </td>
+              <td width="15%"> </td>
+              <td width="15%"> <br>&nbsp;</br> </td>
+              <td width="15%"> </td>
+              <td width="15%"> </td>
+              <td width="20%" style="border: 1px solid white;border-left: 1px solid black;border-left: 1px solid black;" > &nbsp; 
+                <input style="text-align: left;" type="text" class="input-border-none" name="creasing1" id="creasing1" value="127">
+              </td>
             </tr>
             <tr>
-                <td align="center" width="%" >TGL</td>
-                <td align="center" width="%" >HASIL JADI</td>
+              <td style="border: 1px solid white;border-left: 1px solid white;" > 
+                <br>&nbsp;</br>
+              </td>
+              <td class="trapesium" > </td>
+              <td> </td>
+              <td> </td>
+              <td> </td>
+              <td> </td>
+              <td style="border: 1px solid white;border-left: 1px solid black;" > &nbsp;
+                <input style="text-align: left;" type="text" class="input-border-none" name="creasing2" id="creasing2" value="275">
+              </td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid white;" > <br>&nbsp;</br></td>
+              <td style="border: 1px solid white;border-left: 1px solid white;border-right: 1px solid black;" align="right">
+                <input style="text-align: right;" type="text" class="input-border-none" name="kupingan" id="kupingan" value="30"></td>
+              <td> </td>
+              <td> </td>
+              <td> </td>
+              <td> </td>
+              <td style="border: 1px solid white;border-left: 1px solid black;" > &nbsp; 
+                <input style="text-align: left;" type="text" class="input-border-none" name="creasing3" id="creasing3" value="127">
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="border: 1px solid white;border-top: 1px solid black;" > <br>&nbsp;</br>
+              </td>
+              <td align="center" style="border: 1px solid white;border-top: 1px solid black;"> 
+              </td>
+              <td align="center" style="border: 1px solid white;border-top: 1px solid black;" > 
+                <input style="text-align: center;" class="input-border-none" type="text" name="p1" id="p1" value="315">
+              </td>
+              <td align="center" style="border: 1px solid white;border-top: 1px solid black;" > 
+                <input style="text-align: center;" class="input-border-none" type="text" name="l1" id="l1" value="222">
+              </td>
+              <td align="center" style="border: 1px solid white;border-top: 1px solid black;" > 
+                <input style="text-align: center;" class="input-border-none" type="text" name="p2" id="p2" value="315"> 
+              </td>
+              <td align="center" style="border: 1px solid white;border-top: 1px solid black;" > 
+                <input style="text-align: center;" class="input-border-none" type="text" name="p3" id="p3" value="222">
+              </td>
+              <td align="center" style="border: 1px solid white;border-top: 1px solid black;" > </td>
+            </tr>
+
+          </table>
+
+
+          <table border="0" width="100%">
+            <tr>
+              <td>
+                <br>&nbsp;</br>
+                <br>&nbsp;</br>
+              </td>
+            </tr>
+          </table>
+
+          <table class="table" id="table-produk" width="100%" border="1" cellspacing="0" style="font-size:12px;">  
+            <tr>
+              <td align="center" width="10%" rowspan="2" class="posisi-tengah color-tabel"><b>No</b></td>
+              <td align="center" width="20%" rowspan="2" class="posisi-tengah color-tabel"><b>PROSES PRODUKSI</b></td>
+              <td align="center" width="30%" colspan="2" class="posisi-tengah color-tabel"><b>HASIL PRODUKSI</b></td>
+              <td align="center" width="10%" rowspan="2" class="posisi-tengah color-tabel"><b>RUSAK</b></td>
+              <td align="center" width="10%" rowspan="2" class="posisi-tengah color-tabel"><b>HASIL BAIK</b></td>
+              <td align="center" width="20%" rowspan="2" class="posisi-tengah color-tabel"><b>KETERANGAN</b></td>
+            </tr>
+            <tr>
+                <td align="center" width="15%" class="color-tabel"><b> TGL </b></td>
+                <td align="center" width="15%" class="color-tabel"><b> HASIL JADI </b></td>
             </tr>
 
             <tr>
-                <td align="center" width="3%" >1</td>
-                <td align="" width="20%" >CORUUGATOR</td>
-                <td align="" width="10%" ><input type="date" id="tgl_crg" name="tgl_crg" class="form-control" ></td>
-                <td align="" width="10%" ><input type="text" id="hasil_crg" name="hasil_crg" class="form-control" ></td>
-                <td align="" width="15%" ><input type="text" id="rusak_crg" name="rusak_crg" class="form-control" ></td>
-                <td align="" width="15%" ><input type="text" id="baik_crg" name="baik_crg" class="form-control" ></td>
-                <td align="" width="15%" ><input type="text" id="ket_crg" name="ket_crg" class="form-control" ></td>
+                <td class="posisi-tengah" align="center"  ><b>1</b></td>
+                <td class="posisi-tengah"  ><b>CORRUGATOR</b></td>
+                <td>
+                  <input type="date" id="tgl_crg" name="tgl_crg" class="form-control" ></td>
+                <td>
+                  <input type="text" id="hasil_crg" name="hasil_crg" class="form-control" ></td>
+                <td>
+                  <input type="text" id="rusak_crg" name="rusak_crg" class="form-control" ></td>
+                <td>
+                  <input type="text" id="baik_crg" name="baik_crg" class="form-control" ></td>
+                <td>
+                  <input type="text" id="ket_crg" name="ket_crg" class="form-control" ></td>
             </tr>
             <tr>
-                <td align="center" width="%" >2</td>
-                <td align="" width="%" >FLEXO</td>
-                <td align="" width="%" ><input type="date" id="tgl_flx" name="tgl_flx" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="hasil_flx" name="hasil_flx" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="rusak_flx" name="rusak_flx" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="baik_flx" name="baik_flx" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="ket_flx" name="ket_flx" class="form-control" ></td>
+                <td class="posisi-tengah" align="center"><b>2</b></td>
+                <td class="posisi-tengah"><b>FLEXO</b></td>
+                <td>
+                  <input type="date" id="tgl_flx" name="tgl_flx" class="form-control" ></td>
+                <td>
+                  <input type="text" id="hasil_flx" name="hasil_flx" class="form-control" ></td>
+                <td>
+                  <input type="text" id="rusak_flx" name="rusak_flx" class="form-control" ></td>
+                <td>
+                  <input type="text" id="baik_flx" name="baik_flx" class="form-control" ></td>
+                <td>
+                  <input type="text" id="ket_flx" name="ket_flx" class="form-control" ></td>
             </tr>
             <tr>
-                <td align="center" width="%" rowspan="4" valign="middle">3</td>
-                <td align="" width="%" >CONVERTING</td>
-                <td align="" width="%" style="border-bottom:hidden;border-right:hidden"></td>
-                <td align="" width="%" style="border-bottom:hidden;border-right:hidden"></td>
-                <td align="" width="%" style="border-bottom:hidden;border-right:hidden"></td>
-                <td align="" width="%" style="border-bottom:hidden;border-right:hidden"></td>
-                <td align="" width="%" style="border-bottom:hidden;"></td>
+                <td rowspan="6" align="center"><b>3</b></td>
+                <td class="posisi-tengah"><b>FINISHING</b></td>
+                <td style="border-bottom:hidden;border-right:hidden"></td>
+                <td style="border-bottom:hidden;border-right:hidden"></td>
+                <td style="border-bottom:hidden;border-right:hidden"></td>
+                <td style="border-bottom:hidden;border-right:hidden"></td>
+                <td style="border-bottom:hidden;"></td>
             </tr>
             <tr>
-                <td align="right" width="%" >GLUE</td>
-                <td align="" width="%" style="border-top:hidden;border-right:hidden"><input type="date" id="tgl_glu" name="tgl_glu" class="form-control" ></td>
-                <td align="" width="%" style="border-top:hidden;border-right:hidden"><input type="text" id="hasil_glu" name="hasil_glu" class="form-control" ></td>
-                <td align="" width="%" style="border-top:hidden;border-right:hidden"><input type="text" id="rusak_glu" name="rusak_glu" class="form-control" ></td>
-                <td align="" width="%" style="border-top:hidden;border-right:hidden"><input type="text" id="baik_glu" name="baik_glu" class="form-control" ></td>
-                <td align="" width="%" style="border-top:hidden;"><input type="text" id="ket_glu" name="ket_glu" class="form-control" ></td>
+                <td class="posisi-tengah"  align="right" ><b>Glue</b></td>
+                <td style="border-top:hidden;border-right:hidden">
+                  <input type="date" id="tgl_glu" name="tgl_glu" class="form-control" ></td>
+                <td style="border-top:hidden;border-right:hidden">
+                  <input type="text" id="hasil_glu" name="hasil_glu" class="form-control" ></td>
+                <td style="border-top:hidden;border-right:hidden">
+                  <input type="text" id="rusak_glu" name="rusak_glu" class="form-control" ></td>
+                <td style="border-top:hidden;border-right:hidden">
+                  <input type="text" id="baik_glu" name="baik_glu" class="form-control" ></td>
+                <td style="border-top:hidden;">
+                  <input type="text" id="ket_glu" name="ket_glu" class="form-control" ></td>
             </tr>
             <tr>
-                <td align="right" width="%" >STITCHING</td>
-                <td align="" width="%" ><input type="date" id="tgl_stc" name="tgl_stc" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="hasil_stc" name="hasil_stc" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="rusak_stc" name="rusak_stc" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="baik_stc" name="baik_stc" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="ket_stc" name="ket_stc" class="form-control" ></td>
+                <td class="posisi-tengah"  align="right" ><b>Stitching</b></td>
+                <td>
+                  <input type="date" id="tgl_stc" name="tgl_stc" class="form-control" ></td>
+                <td>
+                  <input type="text" id="hasil_stc" name="hasil_stc" class="form-control" ></td>
+                <td>
+                  <input type="text" id="rusak_stc" name="rusak_stc" class="form-control" ></td>
+                <td>
+                  <input type="text" id="baik_stc" name="baik_stc" class="form-control" ></td>
+                <td>
+                  <input type="text" id="ket_stc" name="ket_stc" class="form-control" ></td>
             </tr>
             <tr>
-                <td align="right" width="%" >DIE CUT</td>
-                <td align="" width="%" ><input type="date" id="tgl_dic" name="tgl_dic" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="hasil_dic" name="hasil_dic" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="rusak_dic" name="rusak_dic" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="baik_dic" name="baik_dic" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="ket_dic" name="ket_dic" class="form-control" ></td>
+                <td class="posisi-tengah" align="right" ><b>Die Cut</b></td>
+                <td>
+                  <input type="date" id="tgl_dic" name="tgl_dic" class="form-control" ></td>
+                <td>
+                  <input type="text" id="hasil_dic" name="hasil_dic" class="form-control" ></td>
+                <td>
+                  <input type="text" id="rusak_dic" name="rusak_dic" class="form-control" ></td>
+                <td>
+                  <input type="text" id="baik_dic" name="baik_dic" class="form-control" ></td>
+                <td>
+                  <input type="text" id="ket_dic" name="ket_dic" class="form-control" ></td>
             </tr>
             <tr>
-                <td align="center" width="%" >4</td>
-                <td align="" width="%" >GUDANG</td>
-                <td align="" width="%" ><input type="date" id="tgl_gdg" name="tgl_gdg" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="hasil_gdg" name="hasil_gdg" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="rusak_gdg" name="rusak_gdg" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="baik_gdg" name="baik_gdg" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="ket_gdg" name="ket_gdg" class="form-control" ></td>
+                <td class="posisi-tengah" align="right" ><b>Asembly Partisi</b></td>
+                <td>
+                  <input type="date" id="tgl_asembly" name="tgl_asem" class="form-control" ></td>
+                <td>
+                  <input type="text" id="hasil_asembly" name="hasil_asembly" class="form-control" ></td>
+                <td>
+                  <input type="text" id="rusak_asembly" name="rusak_asembly" class="form-control" ></td>
+                <td>
+                  <input type="text" id="baik_asembly" name="baik_asembly" class="form-control" ></td>
+                <td>
+                  <input type="text" id="ket_asembly" name="ket_asembly" class="form-control" ></td>
             </tr>
             <tr>
-                <td align="center" width="%" >5</td>
-                <td align="" width="%" >EXPEDISI / PENGIRIMAN</td>
-                <td align="" width="%" ><input type="date" id="tgl_exp" name="tgl_exp" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="hasil_exp" name="hasil_exp" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="rusak_exp" name="rusak_exp" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="baik_exp" name="baik_exp" class="form-control" ></td>
-                <td align="" width="%" ><input type="text" id="ket_exp" name="ket_exp" class="form-control" ></td>
+                <td class="posisi-tengah" align="right" ><b>Slitter Manual</b></td>
+                <td>
+                  <input type="date" id="tgl_sliter" name="tgl_sliter" class="form-control" ></td>
+                <td>
+                  <input type="text" id="hasil_sliter" name="hasil_sliter" class="form-control" ></td>
+                <td>
+                  <input type="text" id="rusak_sliter" name="rusak_sliter" class="form-control" ></td>
+                <td>
+                  <input type="text" id="baik_sliter" name="baik_sliter" class="form-control" ></td>
+                <td>
+                  <input type="text" id="ket_sliter" name="ket_sliter" class="form-control" ></td>
+            </tr>
+            <tr>
+                <td class="posisi-tengah" align="center" ><b>4</b></td>
+                <td><b>GUDANG<b></td>
+                <td>
+                  <input type="date" id="tgl_gdg" name="tgl_gdg" class="form-control" ></td>
+                <td>
+                  <input type="text" id="hasil_gdg" name="hasil_gdg" class="form-control" ></td>
+                <td>
+                  <input type="text" id="rusak_gdg" name="rusak_gdg" class="form-control" ></td>
+                <td>
+                  <input type="text" id="baik_gdg" name="baik_gdg" class="form-control" ></td>
+                <td>
+                  <input type="text" id="ket_gdg" name="ket_gdg" class="form-control" ></td>
+            </tr>
+            <tr>
+                <td class="posisi-tengah" align="center" ><b>5</b></td>
+                <td><b>EXPEDISI / PENGIRIMAN</b></td>
+                <td>
+                  <input type="date" id="tgl_exp" name="tgl_exp" class="form-control" ></td>
+                <td>
+                  <input type="text" id="hasil_exp" name="hasil_exp" class="form-control" ></td>
+                <td>
+                  <input type="text" id="rusak_exp" name="rusak_exp" class="form-control" ></td>
+                <td>
+                  <input type="text" id="baik_exp" name="baik_exp" class="form-control" ></td>
+                <td>
+                  <input type="text" id="ket_exp" name="ket_exp" class="form-control" ></td>
             </tr>
         </table>
         </div>
@@ -267,7 +400,7 @@
   rowNum = 0;
   $(document).ready(function () {
      load_data();
-     getMax();
+    //  getMax();
      $('.select2').select2();
   });
 
@@ -357,7 +490,7 @@
      $('#no_so').prop('disabled',false);
 
      if (c != 's') {
-       getMax();
+      //  getMax();
       
      }
 
@@ -461,24 +594,35 @@
 
             $('#no_so').val(data.header.no_so).trigger('change');
 
-            $("#txt_detail_produk0").html('<table width="100%" style="font-size:12px">'+
-                                        '<tr>'+
-                                          '<td>'+
-                                              '<ul>'+
-                                                '<li>Nama Produk : '+data.header.nm_produk+'</li>'+
-                                                '<li>Ukuran : '+data.header.ukuran+'</li>'+
-                                                '<li>Jenis Produk : '+data.header.jenis_produk+'</li>'+
-                                              '</ul>'+
-                                          '</td>'+
-                                          '<td>'+
-                                              '<ul>'+
-                                                '<li>Tipe Box : '+data.header.tipe_box+'</li>'+
-                                                '<li>Kualitas : '+data.header.kualitas+'</li>'+
-                                                '<li>Warna : '+data.header.warna+'</li>'+
-                                              '</ul>'+
-                                          '</td>'+
-                                        '<tr>'+
-                                      '</table>');
+            $("#txt_detail_produk0").html(`
+            <table class="table" width="100%" style="font-size:12px">
+            <tr>
+              <tr style=list-style:none;>
+                  <td><b>Nama Item </b>: ${data.nm_produk}</td>
+                  <td><b>Ukuran Box </b>: ${data.ukuran}</td>
+                  <td><b>Kualitas </b>: ${data.kualitas}</td>
+              </tr>
+              <tr style=list-style:none;>
+                  <td><b>flute </b>: ${data.flute}</td>
+                  <td><b>Ukuran Sheet </b>: ${data.ukuran_sheet}</td>
+                  <td><b>Toleransi </b>: ${data.toleransi_kirim} %</td>
+              </tr>
+              <tr style=list-style:none;>
+                  <td><b>RM </b>: ${data.rm}</td>
+                  <td><b>BB </b>: ${data.bb}</td>
+                  <td><b>TON </b>: ${data.ton}</td>
+              </tr>
+              <tr style=list-style:none;>
+                  <td><b>Jenis Item </b>: ${data.jenis_produk}</td>
+                  <td><b>Creasing </b>: ${ data.creasing }-${ data.creasing2 }-${ data.creasing3 }</td>
+                  <td><b>Warna </b>: ${data.warna}</td>
+              </tr>
+              <tr style=list-style:none;>
+                <td><b>Tipe Box </b>: ${data.tipe_box}</td>
+                <td><b>Joint </b>: ${$join}</td>
+              </tr>
+            <tr>
+            </table>`);
 
             $("#tgl_crg").val(data.detail.tgl_crg);
             $("#hasil_crg").val(data.detail.hasil_crg);
@@ -564,6 +708,12 @@
     id = $("#no_so").val();
 
     if (id == "") {
+      // swal({
+      //     title               : "Cek Kembali",
+      //     html                : "NO SO Tidak Terdeteksi",
+      //     type                : "info",
+      //     confirmButtonText   : "OK"
+      //   });
       return;
     }
 
@@ -574,28 +724,49 @@
         dataType: "JSON",
     })
     .done(function(data) {
-       $("#pelanggan").val(data.id_pelanggan+' || '+data.nm_pelanggan);
-       $("#kode_mc0").val(data.kode_mc+' || '+data.nm_produk);
-       $("#qty0").val(data.qty);
+      
+      $("#pelanggan").val(data.id_pelanggan+' || '+data.nm_pelanggan);
+      $("#kode_mc0").val(data.kode_mc+' || '+data.nm_produk);
+      $("#qty0").val(data.qty);
+      $("#nopo").val(data.no_po);
+      $("#no_wo").val('WO-'+data.no_so);
 
-       $("#txt_detail_produk0").html('<table width="100%" style="font-size:12px">'+
-                                        '<tr>'+
-                                          '<td>'+
-                                              '<ul>'+
-                                                '<li>Nama Produk : '+data.nm_produk+'</li>'+
-                                                '<li>Ukuran : '+data.ukuran+'</li>'+
-                                                '<li>Jenis Produk : '+data.jenis_produk+'</li>'+
-                                              '</ul>'+
-                                          '</td>'+
-                                          '<td>'+
-                                              '<ul>'+
-                                                '<li>Tipe Box : '+data.tipe_box+'</li>'+
-                                                '<li>Kualitas : '+data.kualitas+'</li>'+
-                                                '<li>Warna : '+data.warna+'</li>'+
-                                              '</ul>'+
-                                          '</td>'+
-                                        '<tr>'+
-                                      '</table>');
+      if (data.sambungan == 'G'){
+        $join = 'Glue';
+      } else if (data.sambungan == 'S'){
+        $join = 'Stitching';
+      }else {
+        $join = 'Die Cut';
+      }
+
+      $("#txt_detail_produk0").html(`<table id="datatable" class="table table-bordered table-striped table-scrollable" border="0" width="100%" style="font-size:12px">
+        <tr>
+            <tr style=list-style:none;>
+                  <td><b>Nama Item </b>: ${data.nm_produk}</td>
+                  <td><b>Ukuran Box </b>: ${data.ukuran}</td>
+                  <td><b>Kualitas </b>: ${data.kualitas}</td>
+            </tr>
+            <tr style=list-style:none;>
+                  <td><b>flute </b>: ${data.flute}</td>
+                  <td><b>Ukuran Sheet </b>: ${data.ukuran_sheet}</td>
+                  <td><b>Toleransi </b>: ${data.toleransi_kirim} %</td>
+            </tr>
+            <tr style=list-style:none;>
+                  <td><b>RM </b>: ${data.rm}</td>
+                  <td><b>BB </b>: ${data.bb}</td>
+                  <td><b>TON </b>: ${data.ton}</td>
+            </tr>
+            <tr style=list-style:none;>
+                  <td><b>Jenis Item </b>: ${data.jenis_produk}</td>
+                  <td><b>Creasing </b>: ${ data.creasing }-${ data.creasing2 }-${ data.creasing3 }</td>
+                  <td><b>Warna </b>: ${data.warna}</td>
+            </tr>
+            <tr style=list-style:none;>
+              <td><b>Tipe Box </b>: ${data.tipe_box}</td>
+              <td><b>Joint </b>: ${$join}</td>
+            </tr>
+          <tr>
+          </table>`);
 
           
     }) 
