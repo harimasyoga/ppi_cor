@@ -101,7 +101,11 @@ class Transaksi extends CI_Controller
 	{
 		$data = array(
 			'judul' => "Order Produksi",
-			'getSO' => $this->db->query("SELECT * FROM trs_so_detail WHERE Status = 'Open' order by id")->result(),
+			'getSO' => $this->db->query("SELECT b.nm_produk,a.* 
+            FROM trs_po_detail a
+            JOIN m_produk b ON a.id_produk=b.id_produk
+            JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+            WHERE no_so IS NOT NULL AND tgl_so IS NOT NULL AND status_so IS NOT NULL")->result(),
 		);
 
 
@@ -235,66 +239,68 @@ class Transaksi extends CI_Controller
 				$row[] = '<div class="text-center">'.$r->nm_pelanggan.'</div>';
                 
 				$row[] = '<div class="text-center">
-					<button type="button" title="'.$time1.'" style="text-align: center;" class="btn btn-sm '.$btn1.' ">'.$i1.'</button></div>
+					<button onclick="data_sementara(`Marketing`,' . "'" . $time1 . "'" . ',' . "'" . $r->no_po . "'" . ')" type="button" title="'.$time1.'" style="text-align: center;" class="btn btn-sm '.$btn1.' ">'.$i1.'</button></div>
 				';
 				
                 $row[] = '<div class="text-center">
-					<button type="button" title="'.$time2.'"  style="text-align: center;" class="btn btn-sm '.$btn2.' ">'.$i2.'</button></div>
+					<button onclick="data_sementara(`PPIC`,' . "'" . $time2 . "'" . ',' . "'" . $r->no_po . "'" . ')"  type="button" title="'.$time2.'"  style="text-align: center;" class="btn btn-sm '.$btn2.' ">'.$i2.'</button></div>
 				';
                 $row[] = '<div class="text-center">
-					<button type="button" title="'.$time3.'"  style="text-align: center;" class="btn btn-sm '.$btn3.' ">'.$i3.'</button></div>
+					<button onclick="data_sementara(`Owner`,' . "'" . $time3 . "'" . ',' . "'" . $r->no_po . "'" . ')"  type="button" title="'.$time3.'"  style="text-align: center;" class="btn btn-sm '.$btn3.' ">'.$i3.'</button></div>
 				';
 
-				$aksi = '-';
+				// $aksi = '-';
                 $aksi = '
-                    <div class="text-center">
                         <a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
                         <a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a>
-                    </div>
                     ';
 
 				if (!in_array($this->session->userdata('level'), ['Admin','Marketing','PPIC','Owner']))
                 {
 
 					if ($r->status == 'Open' && $r->status_app1 == 'N') {
-						$aksi = '<div class="text-center">
+						$aksi .= ' 
 	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" class="btn btn-info btn-sm">
                                     <i class="fa fa-edit"></i>
 	                            </button>
 
 	                            <button type="button" onclick="deleteData(' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
                                     <i class="fa fa-trash-alt"></i>
-	                            </button> 
-                                </div>
+	                            </button>  
                                 ';
 					}
 				}else{
 					if ($this->session->userdata('level') == 'Marketing' && $r->status_app1 == 'N' ) {
-						$aksi =  '
-	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
+						$aksi .=  ' 
+	                            <button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
                                     <i class="fa fa-check"></i>
-	                            </button> ';
+	                            </button>  ';
 					}
 
 					if ($this->session->userdata('level') == 'PPIC' && $r->status_app1 == 'Y' && $r->status_app2 == 'N' ) {
-						$aksi =  '
-	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
-	                               Proses Data
+						$aksi .=  ' 
+	                            <button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
 	                            </button> ';
 					}
 
 					if ($this->session->userdata('level') == 'Owner' && $r->status_app1 == 'Y' && $r->status_app2 == 'Y'  && $r->status_app3 == 'N' ) {
-						$aksi =  '
-	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
-	                               Proses Data
-	                            </button> ';
+						$aksi .=  ' 
+	                            <button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
+	                            </button>  ';
+					}
+
+                    if ($this->session->userdata('level') == 'Admin' && ($r->status_app1 == 'N' || $r->status_app2 == 'N' || $r->status_app3 == 'N') ) {
+						$aksi .=  '
+	                            <button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
+                                    <i class="fa fa-check"></i>
+	                            </button>';
 					}
 
 					
 				}
 
-				$row[] = '<div>'.$aksi.'</div>';
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
 
 				$data[] = $row;
 
@@ -463,21 +469,18 @@ class Transaksi extends CI_Controller
 					WHERE a.no_po = '".$header->no_po."'
 				")->result();
 
-		} else if ($jenis == "trs_po_detail") {
+		} else if ($jenis == "trs_so_detail") {
 			$data =  $this->m_master->query(
-				"SELECT a.*,IFNULL(b.qty_so,0)qty_so FROM `trs_po_detail` a 
-                        LEFT JOIN (
-                            SELECT SUM(qty) AS qty_so,no_po,id_produk FROM `trs_so_detail` WHERE STATUS <> 'Batal'
-
-                            GROUP BY no_po,id_produk
-                        )b
-                        ON a.`no_po` = b.no_po
-                        AND a.`id_produk` = b.id_produk
-
-                        WHERE a.no_po ='" . $id . "'
-                        AND STATUS NOT IN ('Batal','Closed')
-                        "
-			)->result();
+				"SELECT * 
+                FROM trs_po_detail a
+                JOIN m_produk b ON a.id_produk=b.id_produk
+                JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+                WHERE no_so = '".$id."'
+                AND no_so IS NOT NULL 
+                AND tgl_so IS NOT NULL 
+                AND status_so IS NOT NULL 
+                "
+			)->row();
 		} else if ($jenis == "trs_wo") {
 			$header =  $this->m_master->get_data_one($jenis, $field, $id)->row();
 			$detail = $this->m_master->get_data_one("trs_wo_detail", "no_wo", $header->no_wo)->row();
@@ -731,14 +734,24 @@ class Transaksi extends CI_Controller
             $html .= '
             </th>
             <tr align="left">
-                <th>Harga P11 : '. $data->p11 .' Kg</th>
+                <th>Harga P11 : '. $data->p11 .' %</th>
             </tr>';
             
             $html .= '
             </th>
             <tr align="left">
                 <th>Roll Produksi Sudah Ada</th>
-            </tr>';
+            </tr>
+            <tr align="left">
+                <th>ETA : '. $this->m_fungsi->tanggal_format_indonesia($data->eta) .' </th>
+            </tr>
+            <tr align="left">
+                <th>ETA 14 Hari Setelah Acc  PO</th>
+            </tr>
+            <tr align="left">
+                <th>Cust Bisa Menyesuaikan Kita</th>
+            </tr>
+            ';
 
                         
 			$html .= '</table>';

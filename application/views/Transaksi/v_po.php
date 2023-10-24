@@ -217,7 +217,7 @@
 									<td>
 										<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
 
-										<input class="form-control input-border-none" type="text" name="price_exc_rp[0]" id="price_exc_rp0" style="color:red">
+										<input class="form-control input-border-none" type="text" name="price_exc_rp[0]" id="price_exc_rp0" style="color:red" readonly>
 									</td>
 									<td>
 										<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
@@ -266,6 +266,34 @@
 	<!-- /.modal-dialog -->
 </div>
 <!-- /.modal -->
+
+
+
+<!-- modal keterangan -->
+<div class="modal fade" id="modalket">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" style="color:green" id="judul2"></h4>
+			</div>
+			<div class="modal-body">
+				<table border="0">
+					<tr>
+						<td width="35%" ><h3>No PO</h3></td>
+						<td width="10%" ><h3> : </h3></td>
+						<td width="55%"  id="nopo_ket"></td>
+					</tr>
+					<tr>
+						<td><h3>Tanggal Verifikasi</h3></td>
+						<td><h3> : </h3></td>
+						<td id="tgl_ket"></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- end modal keterangan -->
 
 <script type="text/javascript">
 	rowNum = 0;
@@ -498,7 +526,6 @@
 		
 		$(".btn-verif").hide()
 
-
 		if (data[0].status == 'Open') {
 			if ('<?= $this->session->userdata('level') ?>' == 'Admin'){
 				$(".btn-verif").show()
@@ -696,6 +723,13 @@
 
 	}
 
+	function data_sementara(data,tgl,nopo){
+		$("#modalket").modal("show");
+		$("#judul2").html('<b>'+data+'</b>');
+		$("#nopo_ket").html('<h3><b>'+nopo+'</b></h3>');
+		$("#tgl_ket").html('<h3><b>'+tgl+'</b></h3>');
+	}
+
 	function prosesData(tipe) 
 	{
 		let cek = confirm("Apakah Anda Yakin?");
@@ -800,7 +834,7 @@
 							<tr> 
 								<td style=list-style:none;><b>Nama Item : </b>${ val.nm_produk }</td>
 								<td style=list-style:none;><b>Ukuran : </b>${ uk }</td>
-								<td style=list-style:none;><b>Material : </b>${ val.kualitas }</td>
+								<td style=list-style:none;><b>Kualitas : </b>${ val.kualitas }</td>
 							</tr>
 							<tr> 
 								<td style=list-style:none;><b>Flute : </b>${ val.flute }</td> 
@@ -884,7 +918,7 @@
 						<td>
 							<input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
 
-							<input class="form-control input-border-none" type="text" name="price_exc_rp[${rowNum}]" id="price_exc_rp${rowNum}" style="color:red">
+							<input class="form-control input-border-none" type="text" name="price_exc_rp[${rowNum}]" id="price_exc_rp${rowNum}" style="color:red" readonly>
 						 
 						</td>
 						<td>

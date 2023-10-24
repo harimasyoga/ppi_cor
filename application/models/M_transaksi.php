@@ -79,7 +79,7 @@ class M_transaksi extends CI_Model
 			'tgl_po'         => $params->tgl_po,
 			'kode_po'        => $params->kode_po,
 			'eta'            => $params->eta,
-			'id_sales'       => $params->txt_marketing,
+			// 'id_sales'       => $params->txt_marketing,
 			'id_pelanggan'   => $pelanggan->id_pelanggan,
 			// 'nm_pelanggan'   => $pelanggan->nm_pelanggan,
 			// 'alamat'         => $pelanggan->alamat,
@@ -435,48 +435,10 @@ class M_transaksi extends CI_Model
 	}
 
 	function verifPO(){
-		$id	= $this->input->post('id');
-		$status	= $this->input->post('status');
+		$id       = $this->input->post('id');
+		$status   = $this->input->post('status');
 
-		$app = "";
-
-		if ($this->session->userdata('level') == "Marketing") {
-			$app = "1";
-		}else if ($this->session->userdata('level') == "PPIC") {
-			$app = "2";
-		}else if ($this->session->userdata('level') == "Owner") {
-			$app = "3";
-			if ($status == 'Y') {
-				$this->db->set("status", 'Approve');
-			}
-		}
-
-		if ($status == 'R') {
-			$this->db->set("status", 'Reject');
-		}
-
-
-		$this->db->set("status_app".$app, $status);
-		$this->db->set("user_app".$app, $this->username);
-		$this->db->set("time_app".$app, $this->waktu);
-
-		$this->db->where("no_po",$id);
-		$valid = $this->db->update("trs_po");
-
-		if ($this->session->userdata('level') == "Owner") {
-			$app = "3";
-			if ($status == 'Y') {
-				$this->db->set("status", 'Approve');
-				$this->db->where("no_po",$id);
-				$valid = $this->db->update("trs_po_detail");
-			}
-		}
-
-		if ($status == 'R') {
-			$this->db->set("status", 'Reject');
-			$this->db->where("no_po",$id);
-			$valid = $this->db->update("trs_po_detail");
-		}
+		$app      = "";
 
 		// KHUSUS ADMIN //
 
@@ -528,7 +490,49 @@ class M_transaksi extends CI_Model
 				$this->db->where("no_po",$id);
 				$valid = $this->db->update("trs_po_detail");
 			}
+		}else {
+
+			if ($this->session->userdata('level') == "Marketing") {
+				$app = "1";
+			}else if ($this->session->userdata('level') == "PPIC") {
+				$app = "2";
+			}else if ($this->session->userdata('level') == "Owner") {
+				$app = "3";
+				if ($status == 'Y') {
+					$this->db->set("status", 'Approve');
+				}
+			}
+	
+			if ($status == 'R') {
+				$this->db->set("status", 'Reject');
+			}
+	
+	
+			$this->db->set("status_app".$app, $status);
+			$this->db->set("user_app".$app, $this->username);
+			$this->db->set("time_app".$app, $this->waktu);
+	
+			$this->db->where("no_po",$id);
+			$valid = $this->db->update("trs_po");
+	
+			if ($this->session->userdata('level') == "Owner") {
+				$app = "3";
+				if ($status == 'Y') {
+					$this->db->set("status", 'Approve');
+					$this->db->where("no_po",$id);
+					$valid = $this->db->update("trs_po_detail");
+				}
+			}
+	
+			if ($status == 'R') {
+				$this->db->set("status", 'Reject');
+				$this->db->where("no_po",$id);
+				$valid = $this->db->update("trs_po_detail");
+			}
+
 		}
+
+		
 
 		return $valid;
 	}
