@@ -545,6 +545,32 @@ class M_transaksi extends CI_Model
 			$kode_po = $r['options']['kode_po'];
 			$id_produk = $r['options']['id_produk'];
 			$no_so = $r['options']['no_so'];
+			$id_pelanggan = $r['options']['id_pelanggan'];
+			$jml_so = $r['options']['jml_so'];
+
+			$tmbhUrutSo = $this->db->query("SELECT urut_so FROM trs_so_detail
+			WHERE id_pelanggan='$id_pelanggan' AND no_po='$no_po' AND kode_po='$kode_po'
+			ORDER BY urut_so DESC LIMIT 1");
+			($tmbhUrutSo->num_rows() == 0) ? $urut = 1 : $urut = $tmbhUrutSo->row()->urut_so + 1;
+			$data = array(
+				'id_pelanggan' => $id_pelanggan,
+				'id_produk' => $id_produk,
+				'eta_so' => $_POST["tgl_so"],
+				'no_po' => $no_po,
+				'kode_po' => $kode_po,
+				'no_so' => $no_so,
+				'urut_so' => $urut,
+				'rpt' => 1,
+				'qty_so' => $jml_so,
+				'status' => 'Open',
+				'ket_so' => '',
+				'add_time' => date('Y-m-d H:i:s'),
+				'add_user' => $this->username,
+				// 'urut_so' => $tmbhUrutSo->row()->urut_so,
+				// 'num_rows' => $tmbhUrutSo->num_rows(),
+				// 'urut' => $urut,
+			);
+			$result = $this->db->insert('trs_so_detail', $data);
 
 			$this->db->set("no_so", $no_so);
 			$this->db->set("tgl_so", $_POST["tgl_so"]);
@@ -561,17 +587,72 @@ class M_transaksi extends CI_Model
 		return $result;
 	}
 
+	function editBagiSO()
+	{
+		$id = $_POST["i"];
+		$editQtypoSo = $_POST["editQtypoSo"];
+
+		if($_POST["editTglSo"] == ""){
+			$result = array(
+				'data' => false,
+				'msg' => 'ETA SO TIDAK BOLEH KOSONG!',
+			);
+		}else if($_POST["editQtySo"] == 0 || $_POST["editQtySo"] == ""){
+			$result = array(
+				'data' => false,
+				'msg' => 'QTY SO TIDAK BOLEH KOSONG!',
+			);
+		}else if($_POST["editQtySo"] > $_POST["editQtypoSo"]){
+			$result = array(
+				'data' => false,
+				'msg' => 'QTY SO LEBIH DARI QTY PO!',
+			);
+		}else{
+			$this->db->set("eta_so", $_POST["editTglSo"]);
+			$this->db->set("qty_so", $_POST["editQtySo"]);
+			$this->db->set("ket_so", $_POST["editKetSo"]);
+			$this->db->set("edit_time", date('Y-m-d H:i:s'));
+			$this->db->set("edit_user", $this->username);
+			$this->db->where("id", $id);
+			$insert = $this->db->update('trs_so_detail');
+			$result = array(
+				'data' => $insert,
+				'msg' => 'BERHASIL EDIT DATA!',
+			);
+		}
+
+		return $result;
+	}
+
+	function simpanCartItemSO()
+	{
+		foreach($this->cart->contents() as $r){
+			$data = array(
+				'id_pelanggan' => $r['options']['id_pelanggan'],
+				'id_produk' => $r['options']['id_produk'],
+				'eta_so' => $r['options']['eta_so'],
+				'no_po' => $r['options']['no_po'],
+				'kode_po' => $r['options']['kode_po'],
+				'no_so' => $r['options']['no_so'],
+				'urut_so' => $r['options']['urut_so'],
+				'rpt' => $r['options']['rpt'],
+				'qty_so' => $r['options']['qty_so'],
+				'status' => 'Open',
+				'ket_so' => $r['options']['ket_so'],
+				'add_time' => date('Y-m-d H:i:s'),
+				'add_user' => $this->username,
+			);
+			$result = $this->db->insert('trs_so_detail', $data);
+		}
+		return $result;
+	}
+
 	function batalDataSO(){
-		$this->db->set('no_so', null);
-		$this->db->set('tgl_so', null);
-		$this->db->set('status_so', null);
-		$this->db->set('add_time_so', '0000-00-00 00:00:00');
-		$this->db->set('add_user_so', null);
-		$this->db->where('id', $_POST["id"]);
-		$result = $this->db->update('trs_po_detail');
+		$this->db->where('id', $_POST["i"]);
+		$result = $this->db->delete('trs_so_detail');
 		return array(
 			'data' => $result,
-			'msg' => 'BERHASIL HAPUS!'
+			'msg' => 'BERHASIL HAPUS DATA SO!'
 		);
 	}
 }

@@ -59,13 +59,17 @@
 			<div class="modal-body">
 				<table style="width:100%">
 					<tr>
-						<td style="width:10%;padding:0;border:0"></td>
+						<td style="width:10%;padding:0;border:0">
+							<input type="hidden" id="h_id">
+							<input type="hidden" id="h_no_po">
+							<input type="hidden" id="h_kodepo">
+						</td>
 						<td style="width:90%;padding:0;border:0"></td>
 					</tr>
 					<tr>
 						<td style="padding:5px 0;font-weight:bold">TANGGAL SO</td>
 						<td style="padding:5px 0">
-							<input type="date" name="tgl_so" id="tgl_so" class="form-control" value="<?= date('Y-m-d')?>" disabled>
+							<input type="date" name="tgl_so" id="tgl_so" class="form-control" value="<?= date('Y-m-d')?>">
 						</td>
 					</tr>
 					<tr>
@@ -127,7 +131,7 @@
 					<tr>
 						<td></td>
 						<td style="padding:5px 0">
-							<button type="button" class="btn btn-success" id="btn-simpan" onclick="addItems()"><i class="fas fa-plus-square"></i> Tambah</button>
+							<button type="button" class="btn btn-success" id="btn-show-simpan" onclick="addItems()"><i class="fas fa-plus-square"></i> Tambah</button>
 						</td>
 					</tr>
 					<tr>
@@ -173,7 +177,7 @@
 	}
 
 	$(".tambah_data").click(function(event) {
-		$("#table-nopo").load("<?php echo base_url('Transaksi/destroy') ?>")
+		$("#table-nopo").load("<?php echo base_url('Transaksi/destroySO') ?>")
 		kosong();
 		status = "insert";
 		$("#modalForm").modal("show");
@@ -229,7 +233,7 @@
 					htmlPo += `<option value="">PILIH</option>`
 				data.po.forEach(loadPo);
 				function loadPo(r, index) {
-					htmlPo += `<option value="${r.no_po}" data-sales="${r.nm_sales}" data-cust="${r.nm_pelanggan}" data-kdpo="${r.kode_po}">${r.no_po} . KODE : ${r.kode_po}</option>`;
+					htmlPo += `<option value="${r.no_po}" data-sales="${r.nm_sales}" data-cust="${r.nm_pelanggan}" data-idpelanggan="${r.id_pelanggan}" data-kdpo="${r.kode_po}" data-kdunik="${r.kode_unik}">${r.no_po} . KODE : ${r.kode_po}</option>`;
 				}
 				$("#no_po").prop("disabled", false).html(htmlPo)
 				$("#h_kode_po").val("")
@@ -238,6 +242,7 @@
 	}
 
 	$('#no_po').on('change', function() {
+		$("#items").prop("disabled", true).html(`<option value="">PILIH</option>`)
 		let no_po = $('#no_po option:selected').val();
 		let sales = $('#no_po option:selected').attr('data-sales');
 		let cust = $('#no_po option:selected').attr('data-cust');
@@ -304,6 +309,9 @@
 
 	function soNoSo(item){
 		// alert(item)
+		let kdunik = $('#no_po option:selected').attr('data-kdunik')
+
+		$("#btn-show-simpan").prop("disabled", true)
 		$("#no_so").val("CEK NO SO . . .").prop("disabled", true)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/soNoSo')?>',
@@ -314,22 +322,13 @@
 			success: function(json){
 				data = JSON.parse(json)
 				// console.log(data)
-				// let tf = true
-				let no_so = ''
-				let tmbhNoso = ''
-				if(item == ''){
-					// tf = true
+				if(data.data == null){
 					no_so = ''
-				}else{	
-					if(data.data.length == 0){
-						// tf = false
-						no_so = data.produk.kode_mc
-					}else{
-						// tf = false
-						no_so = `${data.produk.kode_mc}.${data.jml_produk}`
-					}
+				}else{
+					no_so = `${kdunik}-${data.data.kode_po}`
 				}
 				$("#no_so").val(no_so).prop("disabled", true)
+				$("#btn-show-simpan").prop("disabled", false)
 			}
 		})
 	}
@@ -341,38 +340,31 @@
 		let kode_po = $("#h_kode_po").val()
 		let item = $("#items").val()
 		let no_so = $("#no_so").val()
+		let jml_so = $('#items option:selected').attr('data-qty')
+		let idpelanggan = $('#no_po option:selected').attr('data-idpelanggan')
+
+		$("#btn-show-simpan").prop("disabled", true)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/addItems')?>',
 			type: "POST",
 			data: ({
-				idpodetail, nm_produk, no_po, kode_po, item, no_so
+				idpodetail, idpelanggan, nm_produk, no_po, kode_po, item, no_so, jml_so
 			}),
 			success: function(res){
 				data = JSON.parse(res);
-				// console.log(data)
+				console.log(data)
 				if(data.data){
-					// swal("BERHASIL", "", "success")
 					toastr.success("BERHASIL")
-					showCartItem()
+					$('#table-nopo').load("<?php echo base_url('Transaksi/showCartItem')?>")
 				}else{
-					// toastr.error(data.isi)
 					swal(data.isi, "", "error")
 				}
+				$("#btn-show-simpan").prop("disabled", false)
 			}
 		})
 	}
 
-	function showCartItem(){
-		$.ajax({
-			url: '<?php echo base_url('Transaksi/showCartItem')?>',
-			type: "POST",
-			success: function(res){
-				$('#table-nopo').load("<?php echo base_url('Transaksi/showCartItem')?>")
-			}
-		})
-	}
-
-	function hapusCartItem(rowid){
+	function hapusCartItem(rowid, i, opsi){
 		// alert(rowid)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/hapusCartItem')?>',
@@ -381,7 +373,11 @@
 				rowid
 			}),
 			success: function(res){
-				$('#table-nopo').load("<?php echo base_url('Transaksi/showCartItem')?>")
+				if(opsi == 'ListAddBagiSO'){
+					$('#list-bagi-so-'+i).load("<?php echo base_url('Transaksi/ListAddBagiSO')?>")
+				}else{
+					$('#table-nopo').load("<?php echo base_url('Transaksi/showCartItem')?>")
+				}
 			}
 		})
 	}
@@ -417,17 +413,21 @@
 		})
 	}
 
-	function tampil_edit(id, no_po, kode_po, no_so, nm_produk, aksi){
+	function tampilEditSO(id, no_po, kode_po, aksi){
+		$("#h_id").val(id)
+		$("#h_no_po").val(no_po)
+		$("#h_kodepo").val(kode_po)
 		let judul = `NO PO : <b>${no_po}</b> . KODE PO : <b>${kode_po}</b>`
 		$("#judul-detail").html(`. . .`)
 		$("#modal-detail-so").html(`. . .`)
 		$("#modalFormDetail").modal("show");
+		$("#table-nopo").load("<?php echo base_url('Transaksi/destroySO') ?>")
 
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/detailSO')?>',
 			type: "POST",
 			data: ({
-				id, no_po, kode_po, no_so, nm_produk, aksi
+				id, no_po, kode_po, aksi
 			}),
 			success: function(res){
 				$("#judul-detail").html(judul)
@@ -436,32 +436,151 @@
 		})
 	}
 
-	function editData(id){
-		alert('edit: '+id)
+	function addBagiSO(i){
+		// console.log(i)
+		// $("#addBagiSO").prop('disabled', true)
+		let htmlBagiSo = ''
+		htmlBagiSo += `<table style="font-weight:bold;margin-top:10px">
+			<tr>
+				<td style="border:0">ETA SO</td>
+				<td style="border:0">:</td>
+				<td style="border:0"><input type="date" class="form-control" id="form-bagi-eta-so" value=""></td>
+			</tr>
+			<tr>
+				<td style="border:0">QTY SO</td>
+				<td style="border:0">:</td>
+				<td style="border:0"><input type="number" class="form-control" id="form-bagi-qty-so" autocomplete="off" placeholder="QTY"></td>
+			</tr>
+			<tr>
+				<td style="border:0">KETERANGAN</td>
+				<td style="border:0">:</td>
+				<td style="border:0"><textarea class="form-control" id="form-bagi-ket-so" rows="2" style="resize:none"></textarea></td>
+			</tr>
+			<tr>
+				<td style="border:0" colspan="2"></td>
+				<td style="border:0"><button type="button" class="btn btn-success btn-sm" id="btnAddBagiSO" onclick="btnAddBagiSO(${i})"><i class="fas fa-plus"></i> BAGI</button></td>
+			</tr>
+		</table>`
+		$("#add-bagi-so-"+i).html(htmlBagiSo)
 	}
 
-	function batalDataSO(id){
+	function btnAddBagiSO(i){
+		let fBagiEtaSo = $("#form-bagi-eta-so").val()
+		let fBagiQtySo = $("#form-bagi-qty-so").val()
+		let fBagiKetSo = $("#form-bagi-ket-so").val()
+		$("#btnAddBagiSO").prop('disabled', true)
+		$("#hapusCartItemSO").prop('disabled', true)
+		$("#simpanCartItemSO").prop('disabled', true)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/btnAddBagiSO')?>',
+			type: "POST",
+			data: ({
+				i, fBagiEtaSo, fBagiQtySo, fBagiKetSo
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				// console.log(data)
+				if(data.data){
+					$("#form-bagi-eta-so").val("")
+					$("#form-bagi-qty-so").val("")
+					$("#form-bagi-ket-so").val("")
+					$("#list-bagi-so-"+i).load("<?php echo base_url('Transaksi/ListAddBagiSO')?>")
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
+				$("#btnAddBagiSO").prop('disabled', false)
+				$("#hapusCartItemSO").prop('disabled', false)
+				$("#simpanCartItemSO").prop('disabled', false)
+			}
+		})
+	}
+
+	function editBagiSO(i){
+		// alert('edit so')
+		let id = $("#h_id").val()
+		let no_po = $("#h_no_po").val()
+		let kode_po = $("#h_kodepo").val()
+
+		let editTglSo = $("#edit-tgl-so"+i).val()
+		let editQtySo = $("#edit-qty-so"+i).val()
+		let editKetSo = $("#edit-ket-so"+i).val()
+		let editQtypoSo = $("#edit-qtypo-so"+i).val()
+		$("#editBagiSO"+i).prop('disabled', true)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/editBagiSO')?>',
+			type: "POST",
+			data: ({
+				i, editTglSo, editQtySo, editKetSo, editQtypoSo
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				// console.log(data)
+				if(data.data){
+					swal("EDIT BERHASIL!", "", "success")
+					tampilEditSO(id, no_po, kode_po, 'edit')
+				}else{
+					toastr.error(data.msg);
+				}
+				$("#editBagiSO"+i).prop('disabled', false)
+			}
+		})
+	}
+
+	function simpanCartItemSO(){
+		// alert('simpanSO')
+		let id = $("#h_id").val()
+		let no_po = $("#h_no_po").val()
+		let kode_po = $("#h_kodepo").val()
+
+		$("#btnAddBagiSO").prop('disabled', true)
+		$("#hapusCartItemSO").prop('disabled', true)
+		$("#simpanCartItemSO").prop('disabled', true)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/simpanCartItemSO')?>',
+			type: "POST",
+			// data: ({}),
+			success: function(res){
+				data = JSON.parse(res)
+				// console.log(data)
+				if(data){
+					swal("BERHASIL BAGI DATA SO!", "", "success")
+					tampilEditSO(id, no_po, kode_po, 'edit')
+				}else{
+					toastr.error('Ada kesalahan!');
+				}
+				$("#btnAddBagiSO").prop('disabled', false)
+				$("#hapusCartItemSO").prop('disabled', false)
+				$("#simpanCartItemSO").prop('disabled', false)
+			}
+		})
+	}
+
+	function batalDataSO(i){
+		// alert('batal: '+i)
+		let id = $("#h_id").val()
+		let no_po = $("#h_no_po").val()
+		let kode_po = $("#h_kodepo").val()
+
 		let cek = confirm("Apakah Anda Yakin?");
-		// alert('batal: '+id)
 		if(cek){
 			$.ajax({
 				url: '<?php echo base_url('Transaksi/batalDataSO')?>',
 				type: "POST",
 				data: ({
-					id
+					i
 				}),
 				success: function(res){
 					data = JSON.parse(res)
+					// console.log(data)
 					if(data.data){
 						swal(data.msg, "", "success")
-						$("#modalForm").modal("hide")
-						reloadTable()
+						tampilEditSO(id, no_po, kode_po, 'edit')
 					}
 				}
 			})
 		}else{
-			toastr.info('BATAL SO TIDAK JADI!');
+			toastr.info('BATAL SO TIDAK JADI!')
 		}
-
 	}
+
 </script>
