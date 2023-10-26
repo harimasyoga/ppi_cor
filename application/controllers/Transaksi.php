@@ -331,7 +331,7 @@ class Transaksi extends CI_Controller
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
-				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'".$r->no_so."'".','."'".$r->nm_produk."'".','."'detail'".')">'.$i."<a></div>";
+				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampilEditSO('."'".$r->id."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'detail'".')">'.$i."<a></div>";
 				$row[] = $r->tgl_so;
 				$row[] = $r->no_so;
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm btn-info">'.$r->status_so.'</button></div>';
@@ -339,11 +339,9 @@ class Transaksi extends CI_Controller
 				$row[] = $r->no_po;
 				$row[] = $r->kode_po;
 
-				// <button type="button" onclick="tampil_edit('."'".$r->id."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'".$r->no_so."'".','."'".$r->nm_produk."'".','."'edit'".')" class="btn btn-warning btn-xs">Edit</button>
-				$print = base_url('Transaksi/laporanSO?id=').$r->id;
+				// $print = base_url('Transaksi/laporanSO?id=').$r->id;
 				if ($r->status_so == 'Open') {
-					$aksi = '<a href="'.$print.'" target="_blank" class="lbl-besar"><button type="button" class="btn btn-light btn-sm"><i class="fas fa-print"></i></button></a>
-					<button type="button" onclick="batalDataSO('."'".$r->id."'".')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+					$aksi = '<button type="button" onclick="tampilEditSO('."'".$r->id."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
 				}else{
 					$aksi = '-';
 				}
@@ -1557,7 +1555,7 @@ class Transaksi extends CI_Controller
 
 	function soPlhNoPO()
 	{
-		$po = $this->db->query("SELECT c.nm_pelanggan,s.nm_sales,p.* FROM trs_po p
+		$po = $this->db->query("SELECT c.kode_unik,c.nm_pelanggan,s.nm_sales,p.* FROM trs_po p
 		INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 		INNER JOIN m_sales s ON c.id_sales=s.id_sales
@@ -1583,25 +1581,15 @@ class Transaksi extends CI_Controller
 	function soNoSo()
 	{
 		$item = $_POST["item"];
-		$cekSo = $this->db->query("SELECT COUNT(d.id_produk) AS jmlNoSo,p.kode_mc,d.no_so FROM trs_po_detail d
+		$data = $this->db->query("SELECT d.kode_po FROM trs_po_detail d
 		INNER JOIN m_produk p ON d.id_produk=p.id_produk
-		WHERE d.id_produk='$item' AND d.no_so IS NOT NULL
-		GROUP BY d.id_produk,d.no_so");
-		$produk = $this->db->query("SELECT kode_mc FROM m_produk WHERE id_produk='$item'")->row();
-		// $cnt = str_pad($cekProduk->num_rows()+1, 4, "0", STR_PAD_LEFT);
-		if($cekSo->num_rows() == 0){
-			$jml = '';
-		}else{
-			$jml = str_pad($cekSo->num_rows(), 2, "0", STR_PAD_LEFT);
-		}
+		WHERE d.id_produk='$item'")->row();
 		echo json_encode(array(
-			'data' => $cekSo->result(),
-			'produk' => $produk,
-			'jml_produk' => $jml,
+			'data' => $data,
 		));
 	}
 
-	function destroy()
+	function destroySO()
 	{
 		$this->cart->destroy();
 	}
@@ -1610,41 +1598,30 @@ class Transaksi extends CI_Controller
 	{
 		if($_POST["no_so"] == ""){
 			echo json_encode(array('data' => false, 'isi' => 'NO. SO TIDAK BOLEH KOSONG!'));
+			// return;
 		}else{
 			$data = array(
 				'id' => $_POST['idpodetail'],
-				'name' => $_POST['no_so'],
+				'name' => $_POST['idpodetail'],
 				'price' => 0,
-				'qty' => $_POST['idpodetail'],
+				'qty' => 1,
 				'options' => array(
 					'nm_produk' => $_POST['nm_produk'],
 					'no_po' => $_POST['no_po'],
 					'kode_po' => $_POST['kode_po'],
 					'id_produk' => $_POST['item'],
+					'id_pelanggan' => $_POST['idpelanggan'],
 					'no_so' => $_POST['no_so'],
-				),
+					'jml_so' => $_POST['jml_so'],
+				)
 			);
-
-			$no_so = $_POST["no_so"];
-			$cekNoSO = $this->db->query("SELECT*FROM trs_po_detail WHERE no_so='$no_so' LIMIT 1")->num_rows();
-			if($cekNoSO != 0){
-				echo json_encode(array('data' => false, 'isi' => 'NO. SO SUDAH ADA!'));
-				return;
-			}
-
 			if($this->cart->total_items() != 0){
 				foreach($this->cart->contents() as $r){
 					if($r['id'] == $_POST["idpodetail"]){
 						echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
 						return;
 					}
-
-					if($r['name'] == $no_so){
-						echo json_encode(array('data' => false, 'isi' => 'NO. SO SUDAH ADA!'));
-						return;
-					}
 				}
-				
 				$this->cart->insert($data);
 				echo json_encode(array('data' => true, 'isi' => $data));
 			}else{
@@ -1657,17 +1634,16 @@ class Transaksi extends CI_Controller
 	function showCartItem()
 	{
 		$html = '';
-		$html .='<table id="table-nopo" class="table table-bordered table-striped" style="width:100%">';
-
 		if($this->cart->total_items() != 0){
+			$html .='<table class="table table-bordered table-striped" style="width:100%">';
 			$html .='<thead>
 				<tr>
 					<input type="hidden" id="table-nopo-value" value="isi">
 					<th style="width:5%">NO.</th>
-					<th style="width:28%">ITEM</th>
-					<th style="width:19%">NO. PO</th>
-					<th style="width:19%">KODE. PO</th>
-					<th style="width:19%">NO. SO</th>
+					<th style="width:25%">ITEM</th>
+					<th style="width:25%">NO. PO</th>
+					<th style="width:25%">NO. SO</th>
+					<th style="width:10%">QTY SO</th>
 					<th style="width:10%">AKSI</th>
 				</tr>
 			</thead>';
@@ -1680,15 +1656,18 @@ class Transaksi extends CI_Controller
 				<td>'.$i.'</td>
 				<td>'.$r['options']['nm_produk'].'</td>
 				<td>'.$r['options']['no_po'].'</td>
-				<td>'.$r['options']['kode_po'].'</td>
-				<td>'.$r['name'].'</td>
+				<td>'.$r['options']['no_so'].'</td>
+				<td>'.$r['options']['jml_so'].'</td>
 				<td>
-					<button class="btn btn-danger" onclick="hapusCartItem('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
+					<button class="btn btn-danger" onclick="hapusCartItem('."'".$r['rowid']."'".','."hapusCartItem".','."'showCartItem'".')"><i class="fas fa-times"></i> BATAL</button>
 				</td>
 			</tr>';
 		}
 
-		$html .= '</table>';
+		if($this->cart->total_items() != 0){
+			$html .= '</table>';
+		}
+
 		echo $html;
 	}
 
@@ -1712,8 +1691,6 @@ class Transaksi extends CI_Controller
 		$id = $_POST["id"];
 		$no_po = $_POST["no_po"];
 		$kode_po = $_POST["kode_po"];
-		$no_so = $_POST["no_so"];
-		$nm_produk = $_POST["nm_produk"];
 		$aksi = $_POST["aksi"];
 
 		$html = '';
@@ -1721,8 +1698,8 @@ class Transaksi extends CI_Controller
 			<thead>
 				<tr>
 					<th style="width:5%">NO.</th>
-					<th style="width:40%">ITEM</th>
-					<th style="width:45%">NO. SO</th>
+					<th style="width:75%">ITEM</th>
+					<th style="width:10%">QTY PO</th>
 					<th style="width:10%;text-align:center">AKSI</th>
 				</tr>
 			</thead>';
@@ -1735,35 +1712,212 @@ class Transaksi extends CI_Controller
 		$i = 0;
 		foreach($getSO->result() as $r){
 			$i++;
-			($r->id == $id) ? $bold = 'style="font-weight:bold"' : $bold = '';
-			$idSo = $r->id;
-			$print = base_url('Transaksi/laporanSO?id=').$r->id;
-			// <button type="button" class="btn btn-warning btn-sm" onclick="editData('."".$idSo."".')"><i class="fas fa-pen"></i></button>
-			$btnEdit = '<button type="button" class="btn btn-danger btn-sm" onclick="batalDataSO('."".$idSo."".')"><i class="fas fa-times"></button>';
-			$btnpPrint = '<a href="'.$print.'" target="_blank" class="lbl-besar"><button type="button" class="btn btn-light btn-sm"><i class="fas fa-print"></i></button></a>';
-			if($r->no_so == null){
-				$btnAksi = '-';
+			$idPoSo = $r->id;
+			($r->id == $id) ? $bHead = 'background:#ccc;border:1px solid #888;' : $bHead = '';
+			($r->id == $id) ? $bold = 'font-weight:bold;"' : $bold = 'font-weight:normal;';
+			($r->id == $id) ? $borLf = 'border-left:3px solid #0f0;' : $borLf = '';
+			if($aksi == 'detail'){
+				$btnBagi = '<i class="fas fa-minus"></i>';
 			}else{
-				if($aksi == 'detail'){
-					$btnAksi = $btnpPrint;
-				}else{
-					$btnAksi = $btnpPrint.' '.$btnEdit;
-				}
+				($r->id == $id) ? $btnBagi = '<button type="button" class="btn btn-success btn-sm" id="addBagiSO" onclick="addBagiSO('."'".$r->id."'".')"><i class="fas fa-plus"></i></button>' : $btnBagi = '<i class="fas fa-minus"></i>';
 			}
-			$html .='<tr>
-				<td class="text-center" '.$bold.'>'.$i.'</td>
-				<td '.$bold.'>'.$r->nm_produk.'</td>
-				<td '.$bold.'>'.$r->no_so.'</td>
-				<td class="text-center" '.$bold.'>'.$btnAksi.'</td>
+			$html .='<tr style="'.$borLf.'">
+				<td style="'.$bold.'" class="text-center">'.$i.'</td>
+				<td style="'.$bold.'">'.$r->nm_produk.'</td>
+				<td style="'.$bold.'">'.number_format($r->qty).'</td>
+				<td style="'.$bold.'" class="text-center">'.$btnBagi.'</td>
+			</tr>';
+			
+			$html .='<tr style="'.$borLf.'">
+				<td colspan="4">
+					<table class="table table-bordered table-striped" style="margin:0;width:100%">
+						<thead>
+							<tr>
+								<th style="width:5%;'.$bHead.''.$bold.'" class="text-center">NO.</th>
+								<th style="width:10%;'.$bHead.''.$bold.'">ETA SO</th>
+								<th style="width:30%;'.$bHead.''.$bold.'">NO. SO</th>
+								<th style="width:15%;'.$bHead.''.$bold.'">QTY SO</th>
+								<th style="width:25%;'.$bHead.''.$bold.'">KETERANGAN</th>
+								<th style="width:15%;'.$bHead.''.$bold.'" class="text-center">AKSI</th>
+							</tr>
+						</thead>';
+
+			$l = 0 ;
+			$dataSO = $this->db->query("SELECT p.nm_produk,s.* FROM trs_so_detail s
+			INNER JOIN m_produk p ON s.id_produk=p.id_produk
+			WHERE s.id_produk='$r->id_produk' AND s.no_po='$r->no_po' AND s.kode_po='$r->kode_po' AND s.no_so='$r->no_so'");
+
+			$dataHapusSO = $this->db->query("SELECT COUNT(so.rpt) AS jml_rpt FROM trs_po_detail ps
+			INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
+			WHERE ps.id='$idPoSo' GROUP BY so.no_po,so.kode_po,so.no_so,so.id_produk");
+			
+			($r->id == $id) ? $bTd = 'border:1px solid #999;' : $bTd = '';
+			foreach($dataSO->result() as $so){
+				$l++;
+				if($r->id == $id){
+					if($so->rpt == 1){
+						$btnHapus = '';
+					}else{
+						if($dataHapusSO->row()->jml_rpt == $so->rpt){
+							$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>';
+						}else{
+							$btnHapus = '';
+						}
+					}
+				}else{
+					$btnHapus = '';
+				}
+
+				$link = base_url('Transaksi/laporanSO?id=').$so->id;
+				$print = '<a href="'.$link.'" target="_blank"><button type="button" class="btn btn-dark btn-sm"><i class="fas fa-print"></i></button></a>';
+				if($aksi == 'detail'){
+					$diss = 'disabled';
+					$rTxt = '1';
+					$btnAksi = $print;
+				}else{
+					($r->id == $id) ? $diss = '' : $diss = 'disabled';
+					($r->id == $id) ? $rTxt = 2 : $rTxt = 1;
+					($r->id == $id) ? $btnAksi = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi = $print;
+				}
+				
+				$urut_so = str_pad($so->urut_so, 2, "0", STR_PAD_LEFT);
+				$rpt = str_pad($so->rpt, 2, "0", STR_PAD_LEFT);
+				$html .='<tr>
+					<td style="'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
+					<td style="'.$bTd.''.$bold.'"><input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$diss.'></td>
+					<td style="'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
+					<td style="'.$bTd.''.$bold.'"><input type="number" id="edit-qty-so'.$so->id.'" class="form-control" value="'.$so->qty_so.'" '.$diss.'></td>
+					<td style="'.$bTd.''.$bold.'"><textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt.'" style="resize:none" '.$diss.'>'.$so->ket_so.'</textarea></td>
+					<td style="'.$bTd.''.$bold.'" class="text-center">
+						<input type="hidden" id="edit-qtypo-so'.$so->id.'" value="'.$r->qty.'">
+						'.$btnAksi.' '.$btnHapus.'
+					</td>
+				</tr>';
+			}
+			$html .= '</table>
+					<div id="add-bagi-so-'.$r->id.'"></div>
+					<div id="list-bagi-so-'.$r->id.'"></div>
+				</td>
 			</tr>';
 		}
+
 		$html .= '</table>';
 		echo $html;
 	}
 
+	function editBagiSO()
+	{
+		$result = $this->m_transaksi->editBagiSO();
+		echo json_encode($result);
+	}
+
+	function btnAddBagiSO()
+	{
+		if($_POST["fBagiEtaSo"] == "" || $_POST["fBagiQtySo"] == "" || $_POST["fBagiQtySo"] == 0 || $_POST["fBagiQtySo"] < 0){
+			echo json_encode(array('data' => false, 'msg' => 'ETA, QTY SO TIDAK BOLEH KOSONG!'));
+		}else{
+			$id = $_POST["i"];
+			$getData = $this->db->query("SELECT COUNT(so.rpt) AS jml_rpt,so.* FROM trs_po_detail ps
+			INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
+			WHERE ps.id='$id'
+			GROUP BY so.no_po,so.kode_po,so.no_so,so.id_produk");
+
+			if($this->cart->total_items() != 0){
+				foreach($this->cart->contents() as $r){
+					if($r['id'] == $_POST["i"]){
+						$rpt = $r['options']['rpt'] + 1;
+					}
+				}
+				$i = $this->cart->total_items()+1;
+			}else{
+				$rpt = $getData->row()->jml_rpt + 1;
+				$i = 1;
+			}
+
+			$data = array(
+				'id' => $_POST['i'],
+				'name' => $_POST['i'],
+				'price' => 0,
+				'qty' => 1,
+				'options' => array(
+					'id_pelanggan' => $getData->row()->id_pelanggan,
+					'id_produk' => $getData->row()->id_produk,
+					'no_po' => $getData->row()->no_po,
+					'kode_po' => $getData->row()->kode_po,
+					'no_so' => $getData->row()->no_so,
+					'urut_so' => $getData->row()->urut_so,
+					'rpt' => $rpt,
+					'eta_so' => $_POST['fBagiEtaSo'],
+					'qty_so' => $_POST['fBagiQtySo'],
+					'ket_so' => $_POST['fBagiKetSo'],
+					'total_items' => $i,
+				)
+			);
+
+			$this->cart->insert($data);
+			echo json_encode(array('data' => true, 'msg' => $data));
+		}
+	}
+
+	function ListAddBagiSO(){
+		$html = '';
+		if($this->cart->total_items() != 0){
+			$html .='<table class="table table-bordered table-striped" style="margin:10px 0 0;border:0;width:100%">';
+			$html .='<thead>
+				<tr>
+					<th style="width:5%;background:#ccc;border:1px solid #888" class="text-center">NO.</th>
+					<th style="width:20%;background:#ccc;border:1px solid #888">ETA SO</th>
+					<th style="width:30%;background:#ccc;border:1px solid #888">NO. SO</th>
+					<th style="width:10%;background:#ccc;border:1px solid #888">QTY SO</th>
+					<th style="width:25%;background:#ccc;border:1px solid #888">KETERANGAN</th>
+					<th style="width:10%;background:#ccc;border:1px solid #888" class="text-center">AKSI</th>
+				</tr>
+			</thead>';
+		}
+
+		$i = 0;
+		foreach($this->cart->contents() as $r){
+			$i++;
+			$urut_so = str_pad($r['options']['urut_so'], 2, "0", STR_PAD_LEFT);
+			$rpt = str_pad($r['options']['rpt'], 2, "0", STR_PAD_LEFT);
+			($this->cart->total_items() == $r['options']['total_items']) ?
+				$btnAksi = '<button class="btn btn-danger btn-sm" id="hapusCartItemSO" onclick="hapusCartItem('."'".$r['rowid']."'".','."'".$r['id']."'".','."'ListAddBagiSO'".')"><i class="fas fa-times"></i> <b>BATAL</b></button>' : $btnAksi = '-' ;
+			$html .='<tr>
+				<td style="border:1px solid #999" class="text-center">'.$i.'</td>
+				<td style="border:1px solid #999">'.$r['options']['eta_so'].'</td>
+				<td style="border:1px solid #999">'.$r['options']['no_so'].'.'.$urut_so.'.'.$rpt.'</td>
+				<td style="border:1px solid #999">'.number_format($r['options']['qty_so']).'</td>
+				<td style="border:1px solid #999">'.$r['options']['ket_so'].'</td>
+				<td style="border:1px solid #999" class="text-center">'.$btnAksi.'</td>
+			</tr>';
+		}
+
+		if($this->cart->total_items() != 0){
+			$html .= '<tr>
+				<td style="font-weight:bold;background:#fff;padding:12px 0;border:0" colspan="6">
+					<button class="btn btn-primary btn-sm" id="simpanCartItemSO" onclick="simpanCartItemSO()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
+				</td>
+			</tr>';
+			$html .= '</table>';
+		}
+
+		echo $html;
+	}
+
+	function simpanCartItemSO()
+	{
+		$result = $this->m_transaksi->simpanCartItemSO();
+		echo json_encode($result);
+	}
+
+	function batalDataSO(){
+		$result = $this->m_transaksi->batalDataSO();
+		echo json_encode($result);
+	}
+
 	function laporanSO(){
 		$id = $_GET["id"];
-		$data = $this->db->query("SELECT c.nm_pelanggan,c.top,c.fax,c.no_telp,c.alamat,s.nm_sales,p.time_app1,p.time_app2,p.time_app3,i.*,d.* FROM trs_po_detail d
+		$data = $this->db->query("SELECT c.nm_pelanggan,c.top,c.fax,c.no_telp,c.alamat,s.nm_sales,p.eta,p.tgl_po,p.time_app1,p.time_app2,p.time_app3,i.*,d.* FROM trs_so_detail d
 		INNER JOIN trs_po p ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 		INNER JOIN m_produk i ON d.id_produk=i.id_produk
 		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
@@ -1789,6 +1943,9 @@ class Transaksi extends CI_Controller
 			</tr>
 		</table>';
 
+		$urutSo = str_pad($data->urut_so, 2, "0", STR_PAD_LEFT);
+		$rpt = str_pad($data->rpt, 2, "0", STR_PAD_LEFT);
+		($data->ket_so == "") ? $ketSO = '-' : $ketSO = $data->ket_so;
 		$html .='<table style="font-size:12px;border-collapse:collapse;vertical-align:top;width:100%">
 			<tr>
 				<td style="width:10%;border:0;padding:0"></td>
@@ -1805,15 +1962,15 @@ class Transaksi extends CI_Controller
 				<td style="border-top:1px solid #000;font-size:20px;font-family:Tahoma;padding:15px 0 2xp;text-align:center;font-weight:bold" colspan="6">SALES ORDER</td>
 			</tr>
 			<tr>
-				<td style="font-size:14px;padding:2px 0 25px;font-style:italic;text-align:center" colspan="6">( NO. SO : '.$data->no_so.' )</td>
+				<td style="font-size:14px;padding:2px 0 25px;font-style:italic;text-align:center" colspan="6">( NO. SO : '.$data->no_so.'.'.$urutSo.'.'.$rpt.' )</td>
 			</tr>
 			<tr>
 				<td style="padding:5px 0">Tanggal SO</td>
 				<td>:</td>
-				<td style="padding:5px">'.$this->m_fungsi->tanggal_format_indonesia($data->tgl_so).'</td>
+				<td style="padding:5px">'.$this->m_fungsi->tanggal_format_indonesia($data->eta).'</td>
 				<td style="padding:5px 0">Created By</td>
 				<td>:</td>
-				<td style="padding:5px">'.$data->add_user_so.'</td>
+				<td style="padding:5px">'.$data->add_user.'</td>
 			</tr>
 			<tr>
 				<td style="padding:5px 0">No. PO</td>
@@ -1825,7 +1982,7 @@ class Transaksi extends CI_Controller
 				<td style="padding:5px 0 15px">Sales</td>
 				<td style="padding:5px 0 15px">:</td>
 				<td style="padding:5px 5px 15px">'.$data->nm_sales.'</td>
-				<td style="padding:5px 0 15px;font-weight:bold;color:#f00;font-size:16px;font-family:Tahoma" colspan="3">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($data->eta)).'</td>
+				<td style="padding:5px 0 15px;font-weight:bold;color:#f00;font-size:16px;font-family:Tahoma" colspan="3">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($data->eta_so)).'</td>
 			</tr>
 			<tr>
 				<td style="border-top:1px solid #000" colspan="6"></td>
@@ -1905,12 +2062,12 @@ class Transaksi extends CI_Controller
 			<tr>
 				<td style="padding:5px 0">Qty PO</td>
 				<td>:</td>
-				<td style="padding:5px">'.number_format($data->qty).'</td>
+				<td style="padding:5px">'.number_format($data->qty_so).'</td>
 			</tr>
 			<tr>
 				<td style="padding:5px 0 15px">Keterangan</td>
 				<td style="padding:5px 0 15px">:</td>
-				<td style="padding:5px 5px 15px"></td>
+				<td style="padding:5px 5px 25px">'.$ketSO.'</td>
 			</tr>
 			<tr>
 				<td style="border-top:1px solid #000" colspan="6"></td>
@@ -1948,12 +2105,7 @@ class Transaksi extends CI_Controller
 			</tr>
 		</table>';
 
-		$judul = 'SALES ORDER '.$data->no_so;
+		$judul = 'SO - '.$data->no_so.'.'.$urutSo.'.'.$rpt;
 		$this->m_fungsi->newMpdf($judul, $html, 10, 10, 10, 10, 'P', 'A4');
-	}
-
-	function batalDataSO(){
-		$result = $this->m_transaksi->batalDataSO();
-		echo json_encode($result);
 	}
 }
