@@ -84,6 +84,24 @@ class Transaksi extends CI_Controller
         echo json_encode($query);
     }
 
+    function set_ukuran()
+    {
+        
+		$fl       = $this->input->post('fl');
+        $query    = $this->db->query("SELECT * FROM m_scoring where jenis_flute    = '$fl' ")->row();
+
+        echo json_encode($query);
+    }
+
+    function cek_kode()
+    {
+        $kode_po    = $this->input->post('kode_po');
+        $query      = $this->db->query("SELECT count(*)jum FROM trs_po where kode_po    = '$kode_po' ")->row();
+
+        echo json_encode($query);
+    }
+
+
 	public function SO()
 	{
 		$data = array(
@@ -101,11 +119,11 @@ class Transaksi extends CI_Controller
 	{
 		$data = array(
 			'judul' => "Order Produksi",
-			'getSO' => $this->db->query("SELECT b.nm_produk,a.* 
-            FROM trs_po_detail a
+			'getSO' => $this->db->query("SELECT b.nm_produk,c.*,a.* 
+            FROM trs_so_detail a
             JOIN m_produk b ON a.id_produk=b.id_produk
             JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
-            WHERE no_so IS NOT NULL AND tgl_so IS NOT NULL AND status_so IS NOT NULL")->result(),
+            WHERE status='Open' ")->result(),
 		);
 
 
@@ -470,13 +488,10 @@ class Transaksi extends CI_Controller
 		} else if ($jenis == "trs_so_detail") {
 			$data =  $this->m_master->query(
 				"SELECT * 
-                FROM trs_po_detail a
+                FROM trs_so_detail a
                 JOIN m_produk b ON a.id_produk=b.id_produk
                 JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
-                WHERE no_so = '".$id."'
-                AND no_so IS NOT NULL 
-                AND tgl_so IS NOT NULL 
-                AND status_so IS NOT NULL 
+                WHERE concat(no_so,'.',urut_so,'.',rpt) = '".$id."'
                 "
 			)->row();
 		} else if ($jenis == "trs_wo") {
@@ -1712,9 +1727,11 @@ class Transaksi extends CI_Controller
 				</tr>
 			</thead>';
 
-		$getSO = $this->db->query("SELECT p.nm_produk,d.* FROM trs_po_detail d
-		INNER JOIN m_produk p ON d.id_produk=p.id_produk
+		$getSO = $this->db->query("SELECT b.nm_produk,a.* 
+        FROM trs_so_detail a
+		JOIN m_produk b ON d.id_produk=b.id_produk
 		WHERE no_po='$no_po' AND kode_po='$kode_po'");
+
 		$i = 0;
 		foreach($getSO->result() as $r){
 			$i++;
