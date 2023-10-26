@@ -264,5 +264,21 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 				
 				<img width="50"  src="<?= base_url('assets/gambar/ppi.png')?>" alt="">
 			</div>
+			
 			<!-- /.sidebar -->
+
+			
 		</aside>
+
+		<!-- loading -->
+			
+		<div class="modal fade" id="loading" data-backdrop="static" data-keyboard="false" data-toggle="modal" role="dialog" style="z-index: 1053;">
+		<div class="modal-dialog modal-xl" >
+			<div class="text-center" style="margin-top: 300px;">
+				<button class="btn btn-dark" type="button" disabled>
+					<span class="spinner-border text-light" role="status" aria-hidden="true"></span>
+					<span style="font-size:50px; color:#fff;" ><h3>Loading...</h3></span>
+				</button>
+			</div>
+		</div>
+		</div>

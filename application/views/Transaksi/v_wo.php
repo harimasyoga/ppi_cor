@@ -82,11 +82,15 @@
         <div class="form-group row">
           <table width="100%" border="0">
             <tr>
-              <td width="15%">No WO</td>
+            <td width="15%">NO SO</td>
               <td>
-                <input type="hidden" class="form-control" value="trs_wo" name="jenis" id="jenis" >
-                <input type="hidden" class="form-control" value="" name="status" id="status" >
-                <input type="text" class="form-control" name="no_wo" id="no_wo" readonly>
+                <select class="form-control select2" name="no_so" id="no_so" style="width: 100%;" onchange="setDetailSO();">
+                  <option value="">Pilih</option>
+                  <?php foreach ($getSO as $r): ?>
+                    <option value="<?= $r->no_so ?>.<?= $r->urut_so ?>.<?= $r->rpt ?>" detail="<?= $r->no_so ?>">[ <?= $r->no_so ?>.<?= $r->urut_so ?>.<?= $r->rpt ?> ] - [ <?= $r->nm_produk ?> ]</option>
+                  <?php endforeach ?>
+                </select>
+                
               </td>
               <td width="15%"></td>
               <td width="15%">Pelanggan</td>
@@ -95,26 +99,23 @@
               </td>
             </tr>
             <tr>
-              <td>Tgl WO</td>
-              <td><input type="date" class="form-control" name="tgl_wo"  id="tgl_wo" value="<?= date('Y-m-d') ?>" readonly></td>
+              <td >No WO</td>
+              <td>
+                <input type="hidden" class="form-control" value="trs_wo" name="jenis" id="jenis" >
+                <input type="hidden" class="form-control" value="" name="status" id="status" >
+                <input type="text" class="form-control" name="no_wo" id="no_wo" readonly>
+              </td>
               <td></td>
               <td>Out</td>
               <td><input type="text" class="form-control" name="line" id="line" ></td>
             </tr>
             <tr>
-              <td>NO SO</td>
-              <td>
-                <select class="form-control select2" name="no_so" id="no_so" style="width: 100%;" onchange="setDetailSO()">
-                  <option value="">Pilih</option>
-                  <?php foreach ($getSO as $r): ?>
-                    <option value="<?= $r->no_so ?>" detail="<?= $r->no_so ?>">[ <?= $r->no_so ?> ] - [ <?= $r->nm_produk ?> ]</option>
-                  <?php endforeach ?>
-                </select>
-                
-              </td>
+              <td>Tgl WO</td>
+              <td><input type="date" class="form-control" name="tgl_wo"  id="tgl_wo" value="<?= date('Y-m-d') ?>" readonly></td>
               <td></td>
               <td>Lebar Kertas</td>
               <td><input type="text" class="form-control" name="no_artikel" id="no_artikel" ></td>
+            </tr>
             <tr>
               <td>NO PO</td>
               <td><input type="text" name="nopo" id="nopo" class="form-control" readonly></td>
@@ -158,62 +159,117 @@
           <table width="100%">
             <tr> <td>&nbsp;</td> </tr>
           </table>
-
-          <table border="1" width="100%">
+          <?php 
+            $box        = "border: 1px solid black";
+            $bottom     = "border-bottom : 1px solid black;";
+            $angka_b    = 'style="text-align: center;color:red;font-weight:bold;"';
+            $angka_s    = 'style="text-align: left;color:red;font-weight:bold"';
+          ?>
+          <table border="0" width="100%" id="tabel_box">
             <tr>
-              <td width="15%" style="border: 1px solid white;" > </td>
-              <td width="5%" style="border: 1px solid white;border-left: 1px solid white;border-right: 1px solid black;"> </td>
-              <td width="15%"> </td>
-              <td width="15%"> <br>&nbsp;</br> </td>
-              <td width="15%"> </td>
-              <td width="15%"> </td>
-              <td width="20%" style="border: 1px solid white;border-left: 1px solid black;border-left: 1px solid black;" > &nbsp; 
-                <input style="text-align: left;" type="text" class="input-border-none" name="creasing1" id="creasing1" value="127">
+              
+              <td width="15%" > </td>
+              <td width="5%" style="border-right: 1px solid black;"> </td>
+              <td width="15%" style="<?= $box ?>" > </td>
+              <td width="15%" style="<?= $box ?>" > <br>&nbsp;</br> </td>
+              <td width="15%" style="<?= $box ?>" > </td>
+              <td width="15%" style="<?= $box ?>" > </td>
+              <td width="20%" style="border-left: 1px solid black;border-left: 1px solid black;" > &nbsp; 
+                <input <?= $angka_s ?> type="text" class="angka input-border-none" name="flap1" id="flap1" value="0">
               </td>
             </tr>
             <tr>
-              <td style="border: 1px solid white;border-left: 1px solid white;" > 
+              <td style="" > 
                 <br>&nbsp;</br>
               </td>
               <td class="trapesium" > </td>
-              <td> </td>
-              <td> </td>
-              <td> </td>
-              <td> </td>
-              <td style="border: 1px solid white;border-left: 1px solid black;" > &nbsp;
-                <input style="text-align: left;" type="text" class="input-border-none" name="creasing2" id="creasing2" value="275">
+              <td style="<?= $box ?>" > </td>
+              <td style="<?= $box ?>" > </td>
+              <td style="<?= $box ?>" > </td>
+              <td style="<?= $box ?>" > </td>
+              <td style="border-left: 1px solid black;" > &nbsp;
+                <input <?= $angka_s ?> type="text" class="angka input-border-none" name="creasing2" id="creasing2" value="0">
               </td>
             </tr>
             <tr>
-              <td style="border: 1px solid white;" > <br>&nbsp;</br></td>
-              <td style="border: 1px solid white;border-left: 1px solid white;border-right: 1px solid black;" align="right">
-                <input style="text-align: right;" type="text" class="input-border-none" name="kupingan" id="kupingan" value="30"></td>
-              <td> </td>
-              <td> </td>
-              <td> </td>
-              <td> </td>
-              <td style="border: 1px solid white;border-left: 1px solid black;" > &nbsp; 
-                <input style="text-align: left;" type="text" class="input-border-none" name="creasing3" id="creasing3" value="127">
+              <td> <br>&nbsp;</br></td>
+              <td style="border-right: 1px solid black;" align="right">
+                <input style="text-align: right;color:red;font-weight:bold;" type="text" class="angka input-border-none" name="kupingan" id="kupingan" value="30"></td>
+              <td style =" <?= $box ?>" > </td>
+              <td style =" <?= $box ?>" > </td>
+              <td style =" <?= $box ?>" > </td>
+              <td style =" <?= $box ?>" > </td>
+              <td style=" border-left: 1px solid black;" > &nbsp; 
+                <input <?= $angka_s ?> type="text" class="angka input-border-none" name="flap2" id="flap2" value="0">
               </td>
             </tr>
             <tr>
-              <td align="center" style="border: 1px solid white;border-top: 1px solid black;" > <br>&nbsp;</br>
+              <td align="center" > <br>&nbsp;</br>
               </td>
-              <td align="center" style="border: 1px solid white;border-top: 1px solid black;"> 
+              <td align="center"> 
               </td>
-              <td align="center" style="border: 1px solid white;border-top: 1px solid black;" > 
-                <input style="text-align: center;" class="input-border-none" type="text" name="p1" id="p1" value="315">
+              <td align="center" > 
+                <input <?= $angka_b ?> class="angka input-border-none" type="text" name="p1" id="p1" value="0">
               </td>
-              <td align="center" style="border: 1px solid white;border-top: 1px solid black;" > 
-                <input style="text-align: center;" class="input-border-none" type="text" name="l1" id="l1" value="222">
+              <td align="center" > 
+                <input <?= $angka_b ?> class="angka input-border-none" type="text" name="l1" id="l1" value="0">
               </td>
-              <td align="center" style="border: 1px solid white;border-top: 1px solid black;" > 
-                <input style="text-align: center;" class="input-border-none" type="text" name="p2" id="p2" value="315"> 
+              <td align="center" > 
+                <input <?= $angka_b ?> class="angka input-border-none" type="text" name="p2" id="p2" value="0"> 
               </td>
-              <td align="center" style="border: 1px solid white;border-top: 1px solid black;" > 
-                <input style="text-align: center;" class="input-border-none" type="text" name="p3" id="p3" value="222">
+              <td align="center" > 
+                <input <?= $angka_b ?> class="angka input-border-none" type="text" name="l2" id="l2" value="0">
               </td>
-              <td align="center" style="border: 1px solid white;border-top: 1px solid black;" > </td>
+              <td align="center" > </td>
+            </tr>
+
+          </table>
+          
+          <table border="0" width="100%" id="tabel_sheet">
+            <tr>
+              <td width="15%"> </td>
+              <td width="5%"> </td>
+              <td width="15%" style="border-top: 1px solid #000;<?= $bottom ?>border-left: 1px solid #000" > </td>
+              <td width="15%" style="border-top: 1px solid #000;<?= $bottom ?>"> <br>&nbsp;</br> </td>
+              <td width="15%" style="border-top: 1px solid #000;<?= $bottom ?>"> </td>
+              <td width="15%" style="border-top: 1px solid #000;<?= $bottom ?>border-right: 1px solid #000"> </td>
+              <td width="20%">
+                <input <?= $angka_s ?> type="text" class="angka input-border-none" name="flap1_sheet" id="flap1_sheet" value="127">
+              </td>
+            </tr>
+            <tr>
+              <td> 
+                <br>&nbsp;</br>
+              </td>
+              <td> </td>
+              <td style="<?= $bottom ?>border-left: 1px solid #000" > </td>
+              <td style="<?= $bottom ?>"> </td>
+              <td style="<?= $bottom ?>"> </td>
+              <td style="<?= $bottom ?>border-right: 1px solid #000" > </td>
+              <td>
+                <input <?= $angka_s ?> type="text" class="angka input-border-none" name="creasing2_sheet" id="creasing2_sheet" value="275">
+              </td>
+            </tr>
+            <tr>
+              <td> <br>&nbsp;</br></td>
+              <td></td>
+              <td style="<?= $bottom ?> border-left: 1px solid #000" > </td>
+              <td style="<?= $bottom ?>" > </td>
+              <td style="<?= $bottom ?>" > </td>
+              <td style="<?= $bottom ?> border-right: 1px solid #000" > </td>
+              <td>
+                <input <?= $angka_s ?> type="text" class="angka input-border-none" name="flap2_sheet" id="flap2_sheet" value="127">
+              </td>
+            </tr>
+            <tr>
+              <td align="center" > <br>&nbsp;</br>
+              </td>
+              <td align="center" > 
+              </td>
+              <td align="center" colspan="4"> 
+                <input <?= $angka_b ?> class="angka input-border-none" type="text" name="p1_sheet" id="p1_sheet" value="222">
+              </td>
+              <td align="center"> </td>
             </tr>
 
           </table>
@@ -384,7 +440,10 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i> Simpan</button>
+        <button type="button" class="btn btn-outline-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i> Simpan</button>
+
+        <button type="button" class="btn btn-outline-danger" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-times-circle"></i> <b> Batal</b></button>
+        
         <button type="button" class="btn btn-outline-secondary" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> Print</button>
       </div>
       </form>
@@ -396,11 +455,14 @@
 </div>
 <!-- /.modal -->
 
+
 <script type="text/javascript">
   rowNum = 0;
   $(document).ready(function () {
      load_data();
     //  getMax();
+    $('#tabel_box').hide();
+    $('#tabel_sheet').hide();
      $('.select2').select2();
   });
 
@@ -408,7 +470,6 @@
   $(".tambah_data").click(function(event) {
     kosong();
     $("#modalForm").modal("show");
-    
 
     $("#judul").html('<h3> Form Tambah Data</h3>');
     status = "insert";
@@ -448,14 +509,21 @@
   }
 
   function simpan(){
-    no_so = $('#no_so').val();
-    line  = $("#line").val();
-    no_artikel  = $("#no_artikel").val();
-    batchno = $("#batchno").val();
+    no_so         = $('#no_so').val();
+    line          = $("#line").val();
+    no_artikel    = $("#no_artikel").val();
+    batchno       = $("#batchno").val();
 
     if (no_so == '' || no_so == null || line == '' || no_artikel == '' || batchno == '' ) {
-      toastr.info('Harap Lengkapi Form');
-      return;
+      // toastr.info('Harap Lengkapi Form');
+      // return;
+      swal({
+          title               : "Cek Kembali",
+          html                : "Harap Lengkapi Form",
+          type                : "info",
+          confirmButtonText   : "OK"
+        });
+        return;
     }
 
 
@@ -466,90 +534,131 @@
           dataType: "JSON",
           success: function(data)
           {           
-              if (data) {
-                toastr.success('Berhasil Disimpan'); 
-                kosong();
-                $("#modalForm").modal("hide");
+            if (data) {
+              // toastr.success('Berhasil Disimpan'); 
+              swal({
+                title               : "Data",
+                html                : "Berhasil Disimpan",
+                type                : "success",
+                confirmButtonText   : "OK"
+              });
+              kosong();
+              $("#modalForm").modal("hide");
 
-                setTimeout(function(){ location.reload(); }, 1000);
-              }else{
-                toastr.error('Gagal Simpan'); 
-              }
-              // reloadTable();
+              setTimeout(function(){ location.reload(); }, 1000);
+            }else{
+              // toastr.error('Gagal Simpan'); 
+              swal({
+                title               : "Cek Kembali",
+                html                : "Gagal Simpan",
+                type                : "error",
+                confirmButtonText   : "OK"
+              });
+              return;
+            }
+            // reloadTable();
           },
           error: function (jqXHR, textStatus, errorThrown)
           {
-             toastr.error('Terjadi Kesalahan '); 
+            //  toastr.error('Terjadi Kesalahan '); 
+            swal({
+              title               : "Cek Kembali",
+              html                : "Terjadi Kesalahan",
+              type                : "error",
+              confirmButtonText   : "OK"
+            });
+            return;
           }
       });
      
   }
 
   function kosong(c =''){
-     $("#tgl_wo").val("<?= date('Y-m-d') ?>");
-     $('#no_so').prop('disabled',false);
 
-     if (c != 's') {
-      //  getMax();
-      
-     }
+    $("#tgl_wo").val("<?= date('Y-m-d') ?>");
+    $('#no_so').prop('disabled',false);
 
-     $('#no_so').val('').trigger('change');
+    if (c != 's') {
+    //  getMax();
+    
+    }
 
-     $("#btn-print").hide();
+    $('#no_so').val('').trigger('change');
 
-     status = 'insert';
-     $("#status").val(status);
-     $("#salesman").val("");
+    $("#btn-print").hide();
 
-     $("#btn-simpan").show();
+    status    = 'insert';
+    $("#status").val(status);
+    $("#salesman").val("");
 
-     $("#pelanggan").val('');
-      $("#kode_mc0").val('');
-      $("#qty0").val('');
-      $("#txt_detail_produk0").html('');
+    $("#btn-simpan").show();
 
-      $("#line").val('');
-      $("#no_artikel").val('');
-      $("#batchno").val('');
-     
-     $(".btn-tambah-produk").show();
+    $("#pelanggan").val('');
+    $("#no_wo").val('');
+    $("#nopo").val('');
+    $("#kode_mc0").val('');
+    $("#qty0").val('');
+    $("#txt_detail_produk0").html('');
 
-     $("#tgl_crg").val('');
-      $("#hasil_crg").val('');
-      $("#rusak_crg").val('');
-      $("#baik_crg").val('');
-      $("#ket_crg").val('');
-      $("#tgl_flx").val('');
-      $("#hasil_flx").val('');
-      $("#rusak_flx").val('');
-      $("#baik_flx").val('');
-      $("#ket_flx").val('');
-      $("#tgl_glu").val('');
-      $("#hasil_glu").val('');
-      $("#rusak_glu").val('');
-      $("#baik_glu").val('');
-      $("#ket_glu").val('');
-      $("#tgl_stc").val('');
-      $("#hasil_stc").val('');
-      $("#rusak_stc").val('');
-      $("#baik_stc").val('');
-      $("#ket_stc").val('');
-      $("#tgl_dic").val('');
-      $("#hasil_dic").val('');
-      $("#rusak_dic").val('');
-      $("#baik_dic").val('');
-      $("#ket_dic").val('');
-      $("#tgl_gdg").val('');
-      $("#hasil_gdg").val('');
-      $("#rusak_gdg").val('');
-      $("#baik_gdg").val('');
-      $("#ket_gdg").val('');
-      $("#tgl_exp").val('');
-      $("#hasil_exp").val('');
-      $("#rusak_exp").val('');
-      $("#baik_exp").val('');
-      $("#ket_exp").val('');
+    $("#line").val('');
+    $("#no_artikel").val('');
+    $("#batchno").val('');
+
+    $(".btn-tambah-produk").show();
+
+    $("#tgl_crg").val('');
+    $("#hasil_crg").val('');
+    $("#rusak_crg").val('');
+    $("#baik_crg").val('');
+    $("#ket_crg").val('');
+
+    $("#tgl_flx").val('');
+    $("#hasil_flx").val('');
+    $("#rusak_flx").val('');
+    $("#baik_flx").val('');
+    $("#ket_flx").val('');
+
+    $("#tgl_glu").val('');
+    $("#hasil_glu").val('');
+    $("#rusak_glu").val('');
+    $("#baik_glu").val('');
+    $("#ket_glu").val('');
+
+    $("#tgl_stc").val('');
+    $("#hasil_stc").val('');
+    $("#rusak_stc").val('');
+    $("#baik_stc").val('');
+    $("#ket_stc").val('');
+
+    $("#tgl_dic").val('');
+    $("#hasil_dic").val('');
+    $("#rusak_dic").val('');
+    $("#baik_dic").val('');
+    $("#ket_dic").val('');
+
+    $("#tgl_asembly").val('');
+    $("#hasil_asembly").val('');
+    $("#rusak_asembly").val('');
+    $("#baik_asembly").val('');
+    $("#ket_asembly").val('');
+    
+    $("#tgl_sliter").val('');
+    $("#hasil_sliter").val('');
+    $("#rusak_sliter").val('');
+    $("#baik_sliter").val('');
+    $("#ket_sliter").val('');
+    
+    $("#tgl_gdg").val(''); 
+    $("#hasil_gdg").val('');
+    $("#rusak_gdg").val('');
+    $("#baik_gdg").val('');
+    $("#ket_gdg").val('');
+
+    $("#tgl_exp").val('');
+    $("#hasil_exp").val('');
+    $("#rusak_exp").val('');
+    $("#baik_exp").val('');
+    $("#ket_exp").val('');
   }
 
 
@@ -603,9 +712,9 @@
                   <td><b>Kualitas </b>: ${data.kualitas}</td>
               </tr>
               <tr style=list-style:none;>
-                  <td><b>flute </b>: ${data.flute}</td>
-                  <td><b>Ukuran Sheet </b>: ${data.ukuran_sheet}</td>
-                  <td><b>Toleransi </b>: ${data.toleransi_kirim} %</td>
+                <td><b>Kode MC </b>: ${data.kode_mc}</td>
+                <td><b>Ukuran Sheet </b>: ${data.ukuran_sheet}</td>
+                <td><b>flute </b>: ${data.flute}</td>
               </tr>
               <tr style=list-style:none;>
                   <td><b>RM </b>: ${data.rm}</td>
@@ -620,6 +729,7 @@
               <tr style=list-style:none;>
                 <td><b>Tipe Box </b>: ${data.tipe_box}</td>
                 <td><b>Joint </b>: ${$join}</td>
+                <td><b>Toleransi </b>: ${data.toleransi_kirim} %</td>
               </tr>
             <tr>
             </table>`);
@@ -675,7 +785,14 @@
           },
           error: function (jqXHR, textStatus, errorThrown)
           {
-             toastr.error('Terjadi Kesalahan'); 
+              // toastr.error('Terjadi Kesalahan'); 
+              swal({
+                title               : "Cek Kembali",
+                html                : "Terjadi Kesalahan",
+                type                : "error",
+                confirmButtonText   : "OK"
+              });
+              return;
           }
       });
       
@@ -691,12 +808,25 @@
         data  : ({id:id,jenis:'trs_wo',field:'id'}),
         type  : "POST",
         success : function(data){
-          toastr.success('Data Berhasil Di Batalkan'); 
+          // toastr.success('Data Berhasil Di Batalkan'); 
+          swal({
+						title               : "Data",
+						html                : "Data Berhasil Di Batalkan",
+						type                : "success",
+						confirmButtonText   : "OK"
+					});
           reloadTable();
         },
         error: function (jqXHR, textStatus, errorThrown)
         {
-           toastr.error('Terjadi Kesalahan'); 
+          //  toastr.error('Terjadi Kesalahan'); 
+            swal({
+              title               : "Cek Kembali",
+              html                : "Terjadi Kesalahan",
+              type                : "error",
+              confirmButtonText   : "OK"
+            });
+            return;
         }
       });
     }
@@ -704,7 +834,9 @@
    
   }
 
-  function setDetailSO() {
+  function setDetailSO() 
+  {
+    
     id = $("#no_so").val();
 
     if (id == "") {
@@ -714,65 +846,128 @@
       //     type                : "info",
       //     confirmButtonText   : "OK"
       //   });
+      $("#loading").hide();
       return;
     }
-
+    
+    // $("#loading").show();
+    show_loading();
     $.ajax({
         url: '<?php echo base_url('Transaksi/get_edit'); ?>',
         type: 'POST',
         data: {id: id,jenis : "trs_so_detail",field:'no_so'},
         dataType: "JSON",
-    })
-    .done(function(data) {
-      
-      $("#pelanggan").val(data.id_pelanggan+' || '+data.nm_pelanggan);
-      $("#kode_mc0").val(data.kode_mc+' || '+data.nm_produk);
-      $("#qty0").val(data.qty);
-      $("#nopo").val(data.no_po);
-      $("#no_wo").val('WO-'+data.no_so);
+        success: function(data)
+        {  
+          $("#pelanggan").val(data.id_pelanggan+' || '+data.nm_pelanggan);
+          $("#kode_mc0").val(data.kode_mc+' || '+data.nm_produk);
+          $("#qty0").val(data.qty_so);
+          $("#nopo").val(data.no_po);
+          $("#no_wo").val('WO-'+data.no_so+'.'+data.urut_so+'.'+data.rpt);
 
-      if (data.sambungan == 'G'){
-        $join = 'Glue';
-      } else if (data.sambungan == 'S'){
-        $join = 'Stitching';
-      }else {
-        $join = 'Die Cut';
-      }
+          if (data.sambungan == 'G'){
+            $join = 'Glue';
+          } else if (data.sambungan == 'S'){
+            $join = 'Stitching';
+          }else {
+            $join = 'Die Cut';
+          }
 
-      $("#txt_detail_produk0").html(`<table id="datatable" class="table table-bordered table-striped table-scrollable" border="0" width="100%" style="font-size:12px">
-        <tr>
-            <tr style=list-style:none;>
+          $("#txt_detail_produk0").html(`<table id="datatable" class="table table-bordered table-striped table-scrollable" border="0" width="100%" style="font-size:12px">
+            <tr>
+                <tr style=list-style:none;>
                   <td><b>Nama Item </b>: ${data.nm_produk}</td>
                   <td><b>Ukuran Box </b>: ${data.ukuran}</td>
                   <td><b>Kualitas </b>: ${data.kualitas}</td>
-            </tr>
-            <tr style=list-style:none;>
-                  <td><b>flute </b>: ${data.flute}</td>
+                </tr>
+                <tr style=list-style:none;>
+                  <td><b>Kode MC </b>: ${data.kode_mc}</td>
                   <td><b>Ukuran Sheet </b>: ${data.ukuran_sheet}</td>
-                  <td><b>Toleransi </b>: ${data.toleransi_kirim} %</td>
-            </tr>
-            <tr style=list-style:none;>
+                  <td><b>flute </b>: ${data.flute}</td>
+                      
+                </tr>
+                <tr style=list-style:none;>
                   <td><b>RM </b>: ${data.rm}</td>
                   <td><b>BB </b>: ${data.bb}</td>
                   <td><b>TON </b>: ${data.ton}</td>
-            </tr>
-            <tr style=list-style:none;>
-                  <td><b>Jenis Item </b>: ${data.jenis_produk}</td>
-                  <td><b>Creasing </b>: ${ data.creasing }-${ data.creasing2 }-${ data.creasing3 }</td>
-                  <td><b>Warna </b>: ${data.warna}</td>
-            </tr>
-            <tr style=list-style:none;>
-              <td><b>Tipe Box </b>: ${data.tipe_box}</td>
-              <td><b>Joint </b>: ${$join}</td>
-            </tr>
-          <tr>
-          </table>`);
+                </tr>
+                <tr style=list-style:none;>
+                      <td><b>Jenis Item </b>: ${data.jenis_produk}</td>
+                      <td><b>Creasing </b>: ${ data.creasing }-${ data.creasing2 }-${ data.creasing3 }</td>
+                      <td><b>Warna </b>: ${data.warna}</td>
+                </tr>
+                <tr style=list-style:none;>
+                  <td><b>Tipe Box </b>: ${data.tipe_box}</td>
+                  <td><b>Joint </b>: ${$join}</td>
+                  <td><b>Toleransi </b>: ${data.toleransi_kirim} %</td>
+                </tr>
+              <tr>
+              </table>`);
 
-          
-    }) 
+          set_ukuran(data);
+
+        }
+    })
+    // .done(function(data) {
+    // }) 
   }
 
+  function set_ukuran(data)
+  {
+    var fl = data.flute;
 
+    $.ajax({
+        url         : '<?php echo base_url(); ?>Transaksi/set_ukuran',
+        type        : "POST",
+        data        : {fl},
+        dataType    : "JSON",
+        success: function(val)
+        {      
+          if(data.kategori=='K_BOX')
+          {
+            $('#tabel_sheet').hide();
+            $('#tabel_box').show();
+            $('#p1').val(parseFloat(val.p1)+parseFloat(data.l_panjang));
+            $('#l1').val(parseFloat(val.l1)+parseFloat(data.l_lebar));
+            $('#p2').val(parseFloat(val.p2)+parseFloat(data.l_panjang));
+            $('#l2').val(parseFloat(val.l2)+parseFloat(data.l_lebar));
+            $('#flap1').val(parseFloat(val.f1)+(parseFloat(data.l_lebar/2)));
+            $('#creasing2').val(parseFloat(val.t)+parseFloat(data.l_tinggi));
+            $('#flap2').val(parseFloat(val.f2)+(parseFloat(data.l_lebar/2)));
+            $('#kupingan').val(parseFloat(val.kupingan));
+          }else{
+
+            $('#tabel_sheet').show();
+            $('#tabel_box').hide();
+            $('#p1_sheet').val(data.ukuran_sheet_p);
+            $('#flap1_sheet').val((data.l_lebar/2));
+            $('#creasing2_sheet').val(data.l_tinggi);
+            $('#flap2_sheet').val((data.l_lebar/2));
+          }
+          close_loading();
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+            // toastr.error('Terjadi Kesalahan '); 
+            swal({
+              title               : "Cek Kembali",
+              html                : "Terjadi Kesalahan",
+              type                : "error",
+              confirmButtonText   : "OK"
+            });
+            close_loading();
+            return;
+        }
+        
+    });
+    
+  }
+
+  function close_modal()
+  {
+		$('#modalForm').modal('hide');
+	}
+  
   function Cetak(){
     no_wo = $("#no_wo").val();
     var url    = "<?php echo base_url('Transaksi/Cetak_WO'); ?>";

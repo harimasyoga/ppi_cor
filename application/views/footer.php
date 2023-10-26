@@ -62,28 +62,49 @@
     $("input.angka").keypress(function(event) { //input text number only
       return /\d/.test(String.fromCharCode(event.keyCode));
     });
+
+    
+    $("#loading").modal("hide");
     
       
   });
 
   function format_angka(num) 
-    {
-	
-      num                   = num.toString().replace(/\$|\,/g,'');
-      if(isNaN(num))
-      num                   = "0";
-      sign                  = (num == (num = Math.abs(num)));
-      num                   = Math.floor(num*100+0.50000000001);
-      cents                 = num%100;
-      num                   = Math.floor(num/100).toString();
-      if(cents<10)
-      cents                 = "0" + cents;
-      for (var i = 0; i < Math.floor((num.length-(1+i))/3); i++)
-      num                   = num.substring(0,num.length-(4*i+3))+'.'+
-      num.substring(num.length-(4*i+3));
-      //return (((sign)?'':'-') + '' + num + '.' + cents);
-      return (((sign)?''    : '-') + '' + num);
-    }
+  {
+
+    num                   = num.toString().replace(/\$|\,/g,'');
+    if(isNaN(num))
+    num                   = "0";
+    sign                  = (num == (num = Math.abs(num)));
+    num                   = Math.floor(num*100+0.50000000001);
+    cents                 = num%100;
+    num                   = Math.floor(num/100).toString();
+    if(cents<10)
+    cents                 = "0" + cents;
+    for (var i = 0; i < Math.floor((num.length-(1+i))/3); i++)
+    num                   = num.substring(0,num.length-(4*i+3))+'.'+
+    num.substring(num.length-(4*i+3));
+    //return (((sign)?'':'-') + '' + num + '.' + cents);
+    return (((sign)?''    : '-') + '' + num);
+  }
+
+  function alltrim(kata) {
+    b = (kata.split(' ').join(''));
+    c = (b.replace(/\s/g, ""));
+    return c
+  }
+
+  function show_loading()
+  {
+    $('#loading').show();
+    $('#loading').modal('show');
+  }
+ 
+  function close_loading()
+  {    
+    $('#loading').hide();
+    $('.modal-backdrop').hide();
+  }
 
 </script>
 

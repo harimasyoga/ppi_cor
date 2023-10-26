@@ -212,28 +212,27 @@ class M_transaksi extends CI_Model
 			// code...
 			$detail_so = $this->m_master->get_data_one("trs_so_detail", "no_so", $params->no_so)->row();
 
-
 			$data = array(
-				'no_wo'       => $params->no_wo,
-				'line'       => $params->line,
-				'no_artikel'       => $params->no_artikel,
+				'no_wo'         => $params->no_wo,
+				'line'          => $params->line,
+				'no_artikel'    => $params->no_artikel,
 				'batchno'       => $params->batchno,
-				'tgl_wo'       => $params->tgl_wo,
-				'no_so'       => $detail_so->no_so,
-				'tgl_so'       => $detail_so->tgl_so,
-				'no_po'       => $detail_so->no_po,
+				'tgl_wo'        => $params->tgl_wo,
+				'no_so'         => $detail_so->no_so,
+				'tgl_so'        => $detail_so->tgl_so,
+				'no_po'         => $detail_so->no_po,
 				'kode_po'       => $detail_so->kode_po,
-				'tgl_po'       => $detail_so->tgl_po,
-				'qty'       => $detail_so->qty,
+				'tgl_po'        => $detail_so->tgl_po,
+				'qty'           => $detail_so->qty,
 				'kode_mc'       => $detail_so->kode_mc,
 				'nm_produk'     => $detail_so->nm_produk,
 				'ukuran'        => $detail_so->ukuran,
 				'harga'         => $detail_so->harga,
 				'warna'         => $detail_so->warna,
-				'kualitas'         => $detail_so->kualitas,
+				'kualitas'      => $detail_so->kualitas,
 				'flute'         => $detail_so->flute,
-				'jenis_produk'      => $detail_so->jenis_produk,
-				'tipe_box'         => $detail_so->tipe_box,
+				'jenis_produk'  => $detail_so->jenis_produk,
+				'tipe_box'      => $detail_so->tipe_box,
 				'id_pelanggan'  => $detail_so->id_pelanggan,
 				'nm_pelanggan'  => $detail_so->nm_pelanggan
 			);
@@ -241,7 +240,7 @@ class M_transaksi extends CI_Model
 
 		$data_detail = array(
 			'no_wo'       => $params->no_wo,
-			'tgl_wo'       => $params->tgl_wo,
+			'tgl_wo'      => $params->tgl_wo,
 			'tgl_crg'     => $params->tgl_crg,
 			'hasil_crg'   => $params->hasil_crg,
 			'rusak_crg'   => $params->rusak_crg,

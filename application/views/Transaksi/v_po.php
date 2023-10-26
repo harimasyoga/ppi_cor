@@ -111,7 +111,7 @@
 							<tr>
 								<td width="15%">Kode PO</td>
 								<td>
-									<input type="text" class="form-control" name="kode_po" id="kode_po" oninput="this.value = this.value.toUpperCase()" >
+									<input type="text" class="form-control" name="kode_po" id="kode_po" onchange="cek_kode_po(this.value)" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " >
 								</td>
 								<td width="15%"></td>
 								<td width="15%">
@@ -323,6 +323,7 @@
 
 	function setProduk(pelanggan,id) 
 	{
+		// clearRow();
 		if (status == 'insert' ){
 
 			$("#id_produk"+id).val("").prop("disabled", false);
@@ -393,6 +394,7 @@
 
 	function simpan() 
 	{
+		show_loading();
 		id_pelanggan    = $("#id_id_pelanggan").val();
 		kode_po         = $("#kode_po").val();
 		eta             = $("#eta").val();
@@ -406,6 +408,7 @@
 				type                : "info",
 				confirmButtonText   : "OK"
 			});
+			close_loading();
 			return;
 		}
 
@@ -425,6 +428,7 @@
 					type                : "info",
 					confirmButtonText   : "OK"
 				});
+				close_loading();
 				return;
 			}
 
@@ -441,6 +445,7 @@
 				type                : "info",
 				confirmButtonText   : "OK"
 			});
+			close_loading();
 			return;
 		}
 
@@ -460,6 +465,7 @@
 						type                : "success",
 						confirmButtonText   : "OK"
 					});
+					close_loading();
 					kosong();
 					$("#modalForm").modal("hide");
 				} else {
@@ -470,6 +476,7 @@
 						type                : "error",
 						confirmButtonText   : "OK"
 					});
+					close_loading();
 					return;
 				}
 				reloadTable();
@@ -482,6 +489,7 @@
 					type                : "error",
 					confirmButtonText   : "OK"
 				});
+				close_loading();
 				return;
 			}
 		});
@@ -554,7 +562,8 @@
 
 	function tampil_edit(id, act) 
 	{
-		kosong('s');
+		// kosong('s');
+		kosong();
 		var cek = '<?= $this->session->userdata('level') ?>';
 		$(".btn-tambah-produk").hide();
 		$("#btn-print").show();
@@ -607,14 +616,15 @@
 				}
 
 				$.each(data, function(index, value) {
-					$("#detail-hapus-" + index).hide();
-					$("#btn-hapus-" + index).hide();
+					$("#detail-hapus-0").hide();
+					$("#detail-hapus-"+index).hide();
+					$("#btn-hapus-"+index).hide();
 
 					if (cek == 'Admin' || cek == 'Owner')
 					{
-						$("#p11_det" + index).show();
+						$("#p11_det"+index).show();
 					}else{
-						$("#p11_det" + index).hide();
+						$("#p11_det"+index).hide();
 					}
 					
 					
@@ -622,32 +632,31 @@
 
 					var opt_ppn = $("<option selected></option>").val(value.ppn).text(value.ppn);
 					
-					$('#id_produk' + index).append(opt_produk).trigger('change');
-					$("#qty" + index).val(value.qty);
-					$('#ppn' + index).append(opt_ppn).trigger('change');
-					// $("#ppn" + index).val(value.ppn);
-					$("#price_inc" + index).val(value.price_inc);
-					$("#price_exc" + index).val(value.price_exc);
+					$('#id_produk'+index).append(opt_produk).trigger('change');
+					$("#qty"+index).val(value.qty);
+					$('#ppn'+index).append(opt_ppn).trigger('change');
+					// $("#ppn"+index).val(value.ppn);
+					$("#price_inc"+index).val(value.price_inc);
+					$("#price_exc"+index).val(value.price_exc);
 					
 					$('#price_exc_rp'+index).val(format_angka(value.price_exc));
 					$('#price_inc_rp'+index).val(format_angka(value.price_inc));
 					
-					$("#p11" + index).val(value.p11);
+					$("#p11"+index).val(value.p11);
 
 					if (act == 'detail') {
-						$("#qty" + index).prop("disabled", true);
-						$("#id_produk" + index).prop("disabled", true);
-						$("#ppn" + index).prop("disabled", true);
-						$("#price_inc" + index).prop("disabled", true);
-						$("#price_exc" + index).prop("disabled", true);
+						$("#qty"+index).prop("disabled", true);
+						$("#id_produk"+index).prop("disabled", true);
+						$("#ppn"+index).prop("disabled", true);
+						$("#price_inc"+index).prop("disabled", true);
+						$("#price_exc"+index).prop("disabled", true);
 					} else {
-						$("#qty" + index).prop("disabled", false);
-						$("#id_produk" + index).prop("disabled", false);
-						$("#ppn" + index).prop("disabled", false);
-						$("#price_inc" + index).prop("disabled", false);
-						$("#price_exc" + index).prop("disabled", false);
+						$("#qty"+index).prop("disabled", false);
+						$("#id_produk"+index).prop("disabled", false);
+						$("#ppn"+index).prop("disabled", false);
+						$("#price_inc"+index).prop("disabled", false);
+						$("#price_exc"+index).prop("disabled", false);
 					}
-
 					
 					if (index != (data.length) - 1) {
 						addRow();
@@ -815,16 +824,14 @@
 		// arr_detail = arr_detail.split("|");
 		// // console.log(arr_detail);
 		if(kd!=''){
-
+			show_loading();
 			html_produk="";
 			$.ajax({
 				type        : 'POST',
-				url         : "<?= base_url(); ?>Transaksi/load_produk",
+				url         : "<?= base_url(); ?>Transaksi/load_produk_1",
 				data        : { idp: '', kd: kd },
 				dataType    : 'json',
-				success:function(data){			
-					if(data.message == "Success"){
-						$.each(data.data, function(index, val) {
+				success:function(val){			
 							
 						(val.kategori =='K_BOX')? uk = val.ukuran : uk = val.ukuran_sheet;
 
@@ -870,13 +877,9 @@
 							Hitung_rm(qty,'qty'+id);
 						}
 	
-						});
-	
 						$('#txt_detail_produk'+id).html(html_produk);	
-						
-					}else{
-						$("#txt_detail_produk"+id).html("");		
-					}
+						close_loading();
+					
 				}
 			});
 		}
@@ -1033,6 +1036,8 @@
 		$('#p110').val('0');
 		$('#price_inc0').val('0');
 		$('#price_exc0').val('0');
+		$('#price_exc_rp0').val('0');
+		$('#price_inc_rp0').val('0');
 		$('#txt_detail_produk0').html('');
 		$("#btn-hapus-0").show();
 		$("#detail-hapus-0").show();
@@ -1226,6 +1231,31 @@
 
 		}
 		
+	}
+
+	function cek_kode_po(kode_po)
+	{
+		$.ajax({
+				type        : 'POST',
+				url         : "<?= base_url(); ?>Transaksi/cek_kode",
+				data        : { kode_po },
+				dataType    : 'json',
+				success:function(val){		
+
+					if(val.jum>0){
+						swal({
+							title               : "Cek Kembali",
+							html                : "KODE PO SUDAH PERNAH DI PAKAI",
+							type                : "error",
+							confirmButtonText   : "OK"
+						});
+						$('#kode_po').val('');
+						$('#kode_po').focus();
+						return; 
+					}
+						
+				}
+			});
 	}
 
 	function Cetak() 
