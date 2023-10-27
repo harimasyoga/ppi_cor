@@ -589,11 +589,10 @@ class M_transaksi extends CI_Model
 				'qty_so' => $jml_so,
 				'status' => 'Open',
 				'ket_so' => '',
+				'rm' => $r['options']['rm'],
+				'ton' => $r['options']['ton'],
 				'add_time' => date('Y-m-d H:i:s'),
 				'add_user' => $this->username,
-				// 'urut_so' => $tmbhUrutSo->row()->urut_so,
-				// 'num_rows' => $tmbhUrutSo->num_rows(),
-				// 'urut' => $urut,
 			);
 			$result = $this->db->insert('trs_so_detail', $data);
 
@@ -615,7 +614,6 @@ class M_transaksi extends CI_Model
 	function editBagiSO()
 	{
 		$id = $_POST["i"];
-		$editQtypoSo = $_POST["editQtypoSo"];
 
 		if($_POST["editTglSo"] == ""){
 			$result = array(
@@ -633,17 +631,32 @@ class M_transaksi extends CI_Model
 				'msg' => 'QTY SO LEBIH DARI QTY PO!',
 			);
 		}else{
-			$this->db->set("eta_so", $_POST["editTglSo"]);
-			$this->db->set("qty_so", $_POST["editQtySo"]);
-			$this->db->set("ket_so", $_POST["editKetSo"]);
-			$this->db->set("edit_time", date('Y-m-d H:i:s'));
-			$this->db->set("edit_user", $this->username);
-			$this->db->where("id", $id);
-			$insert = $this->db->update('trs_so_detail');
-			$result = array(
-				'data' => $insert,
-				'msg' => 'BERHASIL EDIT DATA!',
-			);
+			$produk = $this->db->query("SELECT p.* FROM m_produk p INNER JOIN trs_so_detail s ON p.id_produk=s.id_produk WHERE s.id='$id' GROUP BY p.id_produk");
+			$RumusOut = 1800 / $produk->row()->ukuran_sheet_l;
+			(floor($RumusOut) >= 5) ? $out = 5 : $out = (floor($RumusOut));
+			$rm = ($produk->row()->ukuran_sheet_p * $_POST["editQtySo"] / $out) / 1000;
+			$ton = $_POST["editQtySo"] * $produk->row()->berat_bersih;
+			if($rm < 500){
+				$result = array(
+					'data' => false,
+					'msg' => 'RM KURANG!',
+					// 'p' => $produk->row()->ukuran_sheet_p, 'l' => $produk->row()->ukuran_sheet_l, 'bb' => $produk->row()->berat_bersih, 'RumusOut' => $RumusOut, 'out' => $out, 'rm' => $rm, 'ton' => $ton,
+				);
+			}else{
+				$this->db->set("eta_so", $_POST["editTglSo"]);
+				$this->db->set("qty_so", $_POST["editQtySo"]);
+				$this->db->set("ket_so", $_POST["editKetSo"]);
+				$this->db->set("rm", round($rm));
+				$this->db->set("ton", round($ton));
+				$this->db->set("edit_time", date('Y-m-d H:i:s'));
+				$this->db->set("edit_user", $this->username);
+				$this->db->where("id", $id);
+				$insert = $this->db->update('trs_so_detail');
+				$result = array(
+					'data' => $insert,
+					'msg' => 'BERHASIL EDIT DATA!',
+				);
+			}
 		}
 
 		return $result;
@@ -664,6 +677,8 @@ class M_transaksi extends CI_Model
 				'qty_so' => $r['options']['qty_so'],
 				'status' => 'Open',
 				'ket_so' => $r['options']['ket_so'],
+				'rm' => $r['options']['rm'],
+				'ton' => $r['options']['ton'],
 				'add_time' => date('Y-m-d H:i:s'),
 				'add_user' => $this->username,
 			);

@@ -166,7 +166,25 @@ class Master extends CI_Controller
 				$row[] = $r->nm_produk;
 				$row[] = $r->kode_mc;
 				$row[] = $r->flute;
-				$row[] = $r->kualitas;
+
+				$expKualitas = explode("/", $r->kualitas);
+				if($r->flute == 'BCF'){
+					$kualitas = $expKualitas[0].' - '.$expKualitas[1].' - '.$expKualitas[2].' - '.$expKualitas[3].' - '.$expKualitas[4];
+					if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
+						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+					}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
+						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+					}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
+						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+					}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
+						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+					}else{
+						$kualitas = $r->kualitas;
+					}
+				}else{
+					$kualitas = $r->kualitas;
+				}
+				$row[] = $kualitas;
 
 				$idProduk = $r->id_produk;
 				$cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE id_produk='$idProduk'")->num_rows();

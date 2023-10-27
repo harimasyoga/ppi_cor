@@ -64,7 +64,7 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body">
+			<div class="modal-body" style="overflow:auto;white-space:nowrap">
 				<form role="form" method="post" id="myForm">
 					<table width="100%" cellspacing="5">
 						<tr>
