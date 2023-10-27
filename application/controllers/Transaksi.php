@@ -351,7 +351,7 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_wo") {
-			$query = $this->m_master->query("SELECT * FROM trs_wo order by id")->result();
+			$query = $this->m_master->query("SELECT * FROM trs_wo a JOIN trs_wo_detail b ON a.no_wo=b.no_wo order by id")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
@@ -1704,8 +1704,8 @@ class Transaksi extends CI_Controller
 				</tr>
 			</thead>';
 
-		$getSO = $this->db->query("SELECT b.nm_produk,a.* 
-        FROM trs_so_detail a
+		$getSO = $this->db->query("SELECT b.nm_produk,d.* 
+        FROM trs_po_detail d
 		JOIN m_produk b ON d.id_produk=b.id_produk
 		WHERE no_po='$no_po' AND kode_po='$kode_po'");
 

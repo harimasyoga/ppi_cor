@@ -133,19 +133,19 @@
           <table class="table" id="table-produk" style="width: 100%;display: ;" align="center" >
             <thead>
                 <tr class="color-tabel">
-                    <th>Nama Item</th>
+                    <th width="20%">Nama Item</th>
                     <th width="10%">Qty</th>
-                    <th width="50%">Detail Item</th>
+                    <th >Detail Item</th>
                 </tr>
             </thead>
             <tbody>
               <tr id="itemRow0">
                   <td>
-                    <input type="text" id="kode_mc0" class="form-control" readonly>
+                    <input type="text" id="id_produk0" class="form-control" readonly>
 
                   </td>
                   <td>
-                      <input type="text" name="qty" id="qty0" class="form-control" readonly>
+                      <input type="text" name="qty0" id="qty0" class="form-control" readonly>
                   </td>
                   <td id="txt_detail_produk0">
                       
@@ -377,7 +377,7 @@
             <tr>
                 <td class="posisi-tengah" align="right" ><b>Asembly Partisi</b></td>
                 <td>
-                  <input type="date" id="tgl_asembly" name="tgl_asem" class="form-control" ></td>
+                  <input type="date" id="tgl_asembly" name="tgl_asembly" class="form-control" ></td>
                 <td>
                   <input type="text" id="hasil_asembly" name="hasil_asembly" class="form-control" ></td>
                 <td>
@@ -463,7 +463,10 @@
     //  getMax();
     $('#tabel_box').hide();
     $('#tabel_sheet').hide();
-     $('.select2').select2();
+     $('.select2').select2({
+			placeholder: '--- Pilih ---',
+			dropdownAutoWidth: true
+		});
   });
 
   status ="insert";
@@ -596,7 +599,7 @@
     $("#pelanggan").val('');
     $("#no_wo").val('');
     $("#nopo").val('');
-    $("#kode_mc0").val('');
+    $("#id_produk0").val('');
     $("#qty0").val('');
     $("#txt_detail_produk0").html('');
 
@@ -695,7 +698,7 @@
             $("#no_so").val(data.header.no_so);
             $("#no_artikel").val(data.header.no_artikel);
             $("#batchno").val(data.header.batchno);
-            $("#kode_mc0").val(data.header.kode_mc);
+            $("#id_produk0").val(data.header.id_produk);
             $("#qty0").val(data.header.qty);
 
             $('#no_so').prop('disabled',true);
@@ -704,7 +707,7 @@
             $('#no_so').val(data.header.no_so).trigger('change');
 
             $("#txt_detail_produk0").html(`
-            <table class="table" width="100%" style="font-size:12px">
+            <table class="table" width="100%" style="font-size:14px">
             <tr>
               <tr style=list-style:none;>
                   <td><b>Nama Item </b>: ${data.nm_produk}</td>
@@ -718,7 +721,7 @@
               </tr>
               <tr style=list-style:none;>
                   <td><b>RM </b>: ${data.rm}</td>
-                  <td><b>BB </b>: ${data.bb}</td>
+                  <td><b>BB </b>: ${data.berat_bersih}</td>
                   <td><b>TON </b>: ${data.ton}</td>
               </tr>
               <tr style=list-style:none;>
@@ -860,7 +863,7 @@
         success: function(data)
         {  
           $("#pelanggan").val(data.id_pelanggan+' || '+data.nm_pelanggan);
-          $("#kode_mc0").val(data.kode_mc+' || '+data.nm_produk);
+          $("#id_produk0").val(data.id_produk+' || '+data.nm_produk);
           $("#qty0").val(data.qty_so);
           $("#nopo").val(data.no_po);
           $("#no_wo").val('WO-'+data.no_so+'.'+data.urut_so+'.'+data.rpt);
@@ -873,7 +876,7 @@
             $join = 'Die Cut';
           }
 
-          $("#txt_detail_produk0").html(`<table id="datatable" class="table table-bordered table-striped table-scrollable" border="0" width="100%" style="font-size:12px">
+          $("#txt_detail_produk0").html(`<table id="datatable" class="table table-bordered table-striped table-scrollable" border="0" width="100%" style="font-size:14px">
             <tr>
                 <tr style=list-style:none;>
                   <td><b>Nama Item </b>: ${data.nm_produk}</td>
@@ -888,7 +891,7 @@
                 </tr>
                 <tr style=list-style:none;>
                   <td><b>RM </b>: ${data.rm}</td>
-                  <td><b>BB </b>: ${data.bb}</td>
+                  <td><b>BB </b>: ${data.berat_bersih}</td>
                   <td><b>TON </b>: ${data.ton}</td>
                 </tr>
                 <tr style=list-style:none;>
