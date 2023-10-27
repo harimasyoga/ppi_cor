@@ -210,7 +210,14 @@ class M_transaksi extends CI_Model
 
 		if (!empty($params->no_so)) {
 			// code...
-			$detail_so = $this->m_master->get_data_one("trs_so_detail", "no_so", $params->no_so)->row();
+			// $detail_so = $this->m_master->get_data_one("trs_so_detail", "no_so", $params->no_so)->row();
+
+			$detail_so = $this->db->query("SELECT * 
+            FROM trs_so_detail a
+            JOIN m_produk b ON a.id_produk=b.id_produk
+            JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+			JOIN trs_po_detail d ON d.no_po=a.no_po and d.kode_po=a.kode_po and d.no_so=a.no_so and d.id_produk=a.id_produk
+            WHERE a.status='Open' and concat(a.no_so,'.',a.urut_so,'.',a.rpt) = '$params->no_so' ")->row();
 
 			$data = array(
 				'no_wo'         => $params->no_wo,
@@ -218,64 +225,83 @@ class M_transaksi extends CI_Model
 				'no_artikel'    => $params->no_artikel,
 				'batchno'       => $params->batchno,
 				'tgl_wo'        => $params->tgl_wo,
-				'no_so'         => $detail_so->no_so,
+				'p1'  			=> $params->p1,
+				'l1'  			=> $params->l1,
+				'p2'  			=> $params->p2,
+				'l2'  			=> $params->l2,
+				'flap1'  		=> $params->flap1,
+				'creasing2'  	=> $params->creasing2,
+				'flap2'  		=> $params->flap2,
+				'kupingan '  	=> $params->kupingan,
+				'no_so'         => $params->no_so,
 				'tgl_so'        => $detail_so->tgl_so,
 				'no_po'         => $detail_so->no_po,
 				'kode_po'       => $detail_so->kode_po,
 				'tgl_po'        => $detail_so->tgl_po,
-				'qty'           => $detail_so->qty,
-				'kode_mc'       => $detail_so->kode_mc,
-				'nm_produk'     => $detail_so->nm_produk,
-				'ukuran'        => $detail_so->ukuran,
-				'harga'         => $detail_so->harga,
-				'warna'         => $detail_so->warna,
-				'kualitas'      => $detail_so->kualitas,
-				'flute'         => $detail_so->flute,
-				'jenis_produk'  => $detail_so->jenis_produk,
-				'tipe_box'      => $detail_so->tipe_box,
+				'qty'           => $detail_so->qty_so,
 				'id_pelanggan'  => $detail_so->id_pelanggan,
-				'nm_pelanggan'  => $detail_so->nm_pelanggan
+				
 			);
 		}
 
 		$data_detail = array(
-			'no_wo'       => $params->no_wo,
-			'tgl_wo'      => $params->tgl_wo,
-			'tgl_crg'     => $params->tgl_crg,
-			'hasil_crg'   => $params->hasil_crg,
-			'rusak_crg'   => $params->rusak_crg,
-			'baik_crg'    => $params->baik_crg,
-			'ket_crg'     => $params->ket_crg,
-			'tgl_flx'     => $params->tgl_flx,
-			'hasil_flx'   => $params->hasil_flx,
-			'rusak_flx'   => $params->rusak_flx,
-			'baik_flx'    => $params->baik_flx,
-			'ket_flx'     => $params->ket_flx,
-			'tgl_glu'     => $params->tgl_glu,
-			'hasil_glu'   => $params->hasil_glu,
-			'rusak_glu'   => $params->rusak_glu,
-			'baik_glu'    => $params->baik_glu,
-			'ket_glu'     => $params->ket_glu,
-			'tgl_stc'     => $params->tgl_stc,
-			'hasil_stc'   => $params->hasil_stc,
-			'rusak_stc'   => $params->rusak_stc,
-			'baik_stc'    => $params->baik_stc,
-			'ket_stc'     => $params->ket_stc,
-			'tgl_dic'     => $params->tgl_dic,
-			'hasil_dic'   => $params->hasil_dic,
-			'rusak_dic'   => $params->rusak_dic,
-			'baik_dic'    => $params->baik_dic,
-			'ket_dic'     => $params->ket_dic,
-			'tgl_gdg'     => $params->tgl_gdg,
-			'hasil_gdg'   => $params->hasil_gdg,
-			'rusak_gdg'   => $params->rusak_gdg,
-			'baik_gdg'    => $params->baik_gdg,
-			'ket_gdg'     => $params->ket_gdg,
-			'tgl_exp'     => $params->tgl_exp,
-			'hasil_exp'   => $params->hasil_exp,
-			'rusak_exp'   => $params->rusak_exp,
-			'baik_exp'    => $params->baik_exp,
-			'ket_exp'     => $params->ket_exp,
+			'no_wo'            => $params->no_wo,
+			'tgl_wo'           => $params->tgl_wo,
+
+			'tgl_crg'          => $params->tgl_crg,
+			'hasil_crg'        => $params->hasil_crg,
+			'rusak_crg'        => $params->rusak_crg,
+			'baik_crg'         => $params->baik_crg,
+			'ket_crg'          => $params->ket_crg,
+
+			'tgl_flx'          => $params->tgl_flx,
+			'hasil_flx'        => $params->hasil_flx,
+			'rusak_flx'        => $params->rusak_flx,
+			'baik_flx'         => $params->baik_flx,
+			'ket_flx'          => $params->ket_flx,
+
+			'tgl_glu'          => $params->tgl_glu,
+			'hasil_glu'        => $params->hasil_glu,
+			'rusak_glu'        => $params->rusak_glu,
+			'baik_glu'         => $params->baik_glu,
+			'ket_glu'          => $params->ket_glu,
+
+			'tgl_stc'          => $params->tgl_stc,
+			'hasil_stc'        => $params->hasil_stc,
+			'rusak_stc'        => $params->rusak_stc,
+			'baik_stc'         => $params->baik_stc,
+			'ket_stc'          => $params->ket_stc,
+
+			'tgl_dic'          => $params->tgl_dic,
+			'hasil_dic'        => $params->hasil_dic,
+			'rusak_dic'        => $params->rusak_dic,
+			'baik_dic'         => $params->baik_dic,
+			'ket_dic'          => $params->ket_dic,
+
+			'tgl_asembly'      => $params->tgl_asembly,
+			'hasil_asembly'    => $params->hasil_asembly,
+			'rusak_asembly'    => $params->rusak_asembly,
+			'baik_asembly'     => $params->baik_asembly,
+			'ket_asembly'      => $params->ket_asembly,
+			
+			'tgl_sliter'       => $params->tgl_sliter,
+			'hasil_sliter'     => $params->hasil_sliter,
+			'rusak_sliter'     => $params->rusak_sliter,
+			'baik_sliter'      => $params->baik_sliter,
+			'ket_sliter'       => $params->ket_sliter,
+
+
+			'tgl_gdg'          => $params->tgl_gdg,
+			'hasil_gdg'        => $params->hasil_gdg,
+			'rusak_gdg'        => $params->rusak_gdg,
+			'baik_gdg'         => $params->baik_gdg,
+			'ket_gdg'          => $params->ket_gdg,
+
+			'tgl_exp'          => $params->tgl_exp,
+			'hasil_exp'        => $params->hasil_exp,
+			'rusak_exp'        => $params->rusak_exp,
+			'baik_exp'         => $params->baik_exp,
+			'ket_exp'          => $params->ket_exp,
 		);
 
 

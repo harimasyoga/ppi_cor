@@ -1169,7 +1169,7 @@
 		});
 	}
 
-	function Hitung_rm(isi,id) 
+	function Hitung_rm(qty,id) 
 	{
 		var cek       = id.substr(0,3);
 		var id2       = id.substr(3,1);
@@ -1203,8 +1203,8 @@
 						out = 5;
 					}
 
-					rm       = Math.ceil(val.ukuran_sheet_p * isi / out / 1000);
-					ton      = Math.ceil(isi * val.berat_bersih);
+					rm       = Math.ceil(val.ukuran_sheet_p * qty / out / 1000);
+					ton      = Math.ceil(qty * val.berat_bersih);
 					
 
 					if(rm < 500 && status !=='update'){			

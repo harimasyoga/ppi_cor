@@ -351,7 +351,7 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_wo") {
-			$query = $this->m_master->query("SELECT * FROM trs_wo order by id")->result();
+			$query = $this->m_master->query("SELECT * FROM trs_wo a JOIN trs_wo_detail b ON a.no_wo=b.no_wo order by id")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
