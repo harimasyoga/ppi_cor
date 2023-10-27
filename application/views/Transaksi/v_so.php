@@ -31,11 +31,9 @@
 						<tr>
 							<th style="width:5%">NO.</th>
 							<th style="width:10%">TGL. SO</th>
-							<th style="width:20%">NO. SO</th>
-							<th style="width:10%">STATUS</th>
-							<th style="width:15%">ITEM</th>
+							<th style="width:30%">ITEM</th>
 							<th style="width:15%">NO. PO</th>
-							<th style="width:15%">KODE. PO</th>
+							<th style="width:30%">NO. SO</th>
 							<th style="width:10%">AKSI</th>
 						</tr>
 					</thead>
@@ -56,7 +54,7 @@
 				</button>
 			</div>
 
-			<div class="modal-body">
+			<div class="modal-body" style="overflow:auto;white-space:nowrap">
 				<table style="width:100%">
 					<tr>
 						<td style="width:10%;padding:0;border:0">
@@ -148,7 +146,7 @@
 </div>
 
 <div class="modal fade" id="modalFormDetail">
-	<div class="modal-dialog modal-xl">
+	<div class="modal-dialog modal-full">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h4 class="modal-title" id="judul-detail"></h4>
@@ -156,7 +154,7 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body">
+			<div class="modal-body" style="overflow:auto;white-space:nowrap">
 				<div id="modal-detail-so"></div>
 			</div>
 		</div>
@@ -279,7 +277,7 @@
 					htmlDetail += `<option value="">PILIH</option>`
 				data.po_detail.forEach(loadDetail);
 				function loadDetail(r, index) {
-					htmlDetail += `<option value="${r.id_produk}" data-idpodetail="${r.id}" data-nm_produk="${r.nm_produk}" data-ukuran="${r.ukuran}" data-ukuran_sheet="${r.ukuran_sheet}" data-flute="${r.flute}" data-kualitas="${r.kualitas}" data-kode_mc="${r.kode_mc}" data-qty="${r.qty}">${r.nm_produk} | ${r.kode_mc} | ${r.ukuran} | ${r.ukuran_sheet} | ${r.flute} | ${r.kualitas} | ${r.qty}</option>`;
+					htmlDetail += `<option value="${r.id_produk}" data-idpodetail="${r.id}" data-nm_produk="${r.nm_produk}" data-ukuran="${r.ukuran}" data-ukuran_sheet="${r.ukuran_sheet}" data-flute="${r.flute}" data-kualitas="${r.kualitas}" data-kode_mc="${r.kode_mc}" data-qty="${r.qty}" rm="${r.rm}" ton="${r.ton}">${r.nm_produk} | ${r.kode_mc} | ${r.ukuran} | ${r.ukuran_sheet} | ${r.flute} | ${r.kualitas} | ${r.qty}</option>`;
 				}
 				$("#items").prop("disabled", tf).html(htmlDetail)
 			}
@@ -341,6 +339,8 @@
 		let item = $("#items").val()
 		let no_so = $("#no_so").val()
 		let jml_so = $('#items option:selected').attr('data-qty')
+		let rm = $('#items option:selected').attr('rm')
+		let ton = $('#items option:selected').attr('ton')
 		let idpelanggan = $('#no_po option:selected').attr('data-idpelanggan')
 
 		$("#btn-show-simpan").prop("disabled", true)
@@ -348,11 +348,11 @@
 			url: '<?php echo base_url('Transaksi/addItems')?>',
 			type: "POST",
 			data: ({
-				idpodetail, idpelanggan, nm_produk, no_po, kode_po, item, no_so, jml_so
+				idpodetail, idpelanggan, nm_produk, no_po, kode_po, item, no_so, jml_so, rm, ton
 			}),
 			success: function(res){
 				data = JSON.parse(res);
-				console.log(data)
+				// console.log(data)
 				if(data.data){
 					toastr.success("BERHASIL")
 					$('#table-nopo').load("<?php echo base_url('Transaksi/showCartItem')?>")
@@ -519,7 +519,7 @@
 					swal("EDIT BERHASIL!", "", "success")
 					tampilEditSO(id, no_po, kode_po, 'edit')
 				}else{
-					toastr.error(data.msg);
+					toastr.error(`<b>${data.msg}</b>`);
 				}
 				$("#editBagiSO"+i).prop('disabled', false)
 			}
