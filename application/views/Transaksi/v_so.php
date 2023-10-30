@@ -31,10 +31,11 @@
 						<tr>
 							<th style="width:5%">NO.</th>
 							<th style="width:10%">TGL. SO</th>
-							<th style="width:30%">ITEM</th>
+							<th style="width:20%">KODE MC</th>
+							<th style="width:20%">ITEM</th>
 							<th style="width:15%">NO. PO</th>
-							<th style="width:30%">NO. SO</th>
-							<th style="width:10%">AKSI</th>
+							<th style="width:25%">NO. SO</th>
+							<th style="width:5%">AKSI</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
@@ -204,6 +205,9 @@
 	function kosong(){
 		$("#tgl_so").val()
 		$("#h_kode_po").val("")
+		$("#h_id").val("")
+		$("#h_no_po").val("")
+		$("#h_kodepo").val("")
 		$("#idpodetail").val("")
 		$("#marketing").val("")
 		$("#customer").val("")
@@ -439,6 +443,9 @@
 	function addBagiSO(i){
 		// console.log(i)
 		// $("#addBagiSO").prop('disabled', true)
+		let hQtyPo = $("#hide-qtypo-so"+i).val()
+		let hRmPo = $("#hide-rmpo-so"+i).val()
+		let hTonPo = $("#hide-tonpo-so"+i).val()
 		let htmlBagiSo = ''
 		htmlBagiSo += `<table style="font-weight:bold;margin-top:10px">
 			<tr>
@@ -458,13 +465,13 @@
 			</tr>
 			<tr>
 				<td style="border:0" colspan="2"></td>
-				<td style="border:0"><button type="button" class="btn btn-success btn-sm" id="btnAddBagiSO" onclick="btnAddBagiSO(${i})"><i class="fas fa-plus"></i> BAGI</button></td>
+				<td style="border:0"><button type="button" class="btn btn-success btn-sm" id="btnAddBagiSO" onclick="btnAddBagiSO(${i}, ${hQtyPo} ,${hRmPo} ,${hTonPo})"><i class="fas fa-plus"></i> BAGI</button></td>
 			</tr>
 		</table>`
 		$("#add-bagi-so-"+i).html(htmlBagiSo)
 	}
 
-	function btnAddBagiSO(i){
+	function btnAddBagiSO(i, hQtyPo, hRmPo, hTonPo){
 		let fBagiEtaSo = $("#form-bagi-eta-so").val()
 		let fBagiQtySo = $("#form-bagi-qty-so").val()
 		let fBagiKetSo = $("#form-bagi-ket-so").val()
@@ -475,7 +482,7 @@
 			url: '<?php echo base_url('Transaksi/btnAddBagiSO')?>',
 			type: "POST",
 			data: ({
-				i, fBagiEtaSo, fBagiQtySo, fBagiKetSo
+				i, fBagiEtaSo, fBagiQtySo, fBagiKetSo, hQtyPo, hRmPo, hTonPo
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -581,6 +588,29 @@
 		}else{
 			toastr.info('BATAL SO TIDAK JADI!')
 		}
+	}
+
+	function hapusListSO(id){
+		// alert('hapus')
+		$("#hapusListSO").prop('disabled', true)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/hapusListSO')?>',
+			type: "POST",
+			data: ({
+				id
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				// console.log(data)
+				if(data.data){
+					swal(data.msg, "", "success")
+					$("#modalFormDetail").modal("hide")
+					reloadTable()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
+			}
+		})
 	}
 
 </script>
