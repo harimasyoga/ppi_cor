@@ -325,7 +325,7 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_so_detail") {
-			$query = $this->m_master->query("SELECT d.id AS id_po_detail,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,s.* FROM trs_po_detail d
+			$query = $this->m_master->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,s.* FROM trs_po_detail d
 			INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so=s.no_so AND d.id_produk=s.id_produk
 			INNER JOIN m_produk p ON d.id_produk=p.id_produk
 			WHERE d.no_so IS NOT NULL AND d.tgl_so IS NOT NULL AND d.status_so IS NOT NULL
@@ -335,8 +335,8 @@ class Transaksi extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampilEditSO('."'".$r->id_po_detail."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'detail'".')">'.$i."<a></div>";
 				$row[] = $r->tgl_so;
+				$row[] = $r->kode_mc;
 				$row[] = $r->nm_produk;
-				// $row[] = '<div class="text-center"><button type="button" class="btn btn-sm btn-info">'.$r->status_so.'</button></div>';
 				$row[] = $r->no_po;
 
 				$urut_so = str_pad($r->urut_so, 2, "0", STR_PAD_LEFT);
@@ -1659,7 +1659,7 @@ class Transaksi extends CI_Controller
 				<td>'.$r['options']['nm_produk'].'</td>
 				<td>'.$r['options']['no_po'].'</td>
 				<td>'.$r['options']['no_so'].'</td>
-				<td>'.$r['options']['jml_so'].'</td>
+				<td>'.number_format($r['options']['jml_so']).'</td>
 				<td>
 					<button class="btn btn-danger" onclick="hapusCartItem('."'".$r['rowid']."'".','."hapusCartItem".','."'showCartItem'".')"><i class="fas fa-times"></i> BATAL</button>
 				</td>
@@ -1721,7 +1721,10 @@ class Transaksi extends CI_Controller
 			if($aksi == 'detail'){
 				$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
 			}else{
-				($r->id == $id) ? $btnBagi = '<button type="button" class="btn btn-success btn-sm" id="addBagiSO" onclick="addBagiSO('."'".$r->id."'".')"><i class="fas fa-plus"></i></button>' : $btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
+				($r->id == $id) ?
+					$btnBagi = '<button type="button" class="btn btn-success btn-sm" id="addBagiSO" onclick="addBagiSO('."'".$r->id."'".')"><i class="fas fa-plus"></i></button>
+						<button type="button" class="btn btn-danger btn-sm" id="hapusListSO" onclick="hapusListSO('."'".$r->id."'".')"><i class="fas fa-trash"></i></button>' :
+					$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
 			}
 			$html .='<tr style="'.$borLf.'">
 				<td style="'.$bold.'" class="text-center">'.$i.'</td>
@@ -1763,23 +1766,28 @@ class Transaksi extends CI_Controller
 				$sumTon = 0 ;
 				foreach($dataSO->result() as $so){
 					$l++;
-					if($so->status == 'Close'){
+					if($aksi == 'detail'){
 						$btnHapus = '';
 					}else{
-						if($r->id == $id){
-							if($so->rpt == 1){
-								$btnHapus = '';
-							}else{
-								if($dataHapusSO->row()->jml_rpt == $so->rpt){
-									$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>';
-								}else{
-									$btnHapus = '';
-								}
-							}
-						}else{
+						if($so->status == 'Close'){
 							$btnHapus = '';
+						}else{
+							if($r->id == $id){
+								if($so->rpt == 1){
+									$btnHapus = '';
+								}else{
+									if($dataHapusSO->row()->jml_rpt == $so->rpt){
+										$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>';
+									}else{
+										$btnHapus = '';
+									}
+								}
+							}else{
+								$btnHapus = '';
+							}
 						}
 					}
+
 
 					$link = base_url('Transaksi/laporanSO?id=').$so->id;
 					$print = '<a href="'.$link.'" target="_blank"><button type="button" class="btn btn-dark btn-sm"><i class="fas fa-print"></i></button></a>';
@@ -1831,6 +1839,11 @@ class Transaksi extends CI_Controller
 				}
 
 				$html .= '</table>
+						<div>
+							<input type="hidden" id="hide-qtypo-so'.$r->id.'" value="'.$sumQty.'">
+							<input type="hidden" id="hide-rmpo-so'.$r->id.'" value="'.$sumRm.'">
+							<input type="hidden" id="hide-tonpo-so'.$r->id.'" value="'.$sumTon.'">
+						</div>
 						<div id="add-bagi-so-'.$r->id.'"></div>
 						<div id="list-bagi-so-'.$r->id.'"></div>
 					</td>
@@ -1861,7 +1874,7 @@ class Transaksi extends CI_Controller
 			$ton = $_POST["fBagiQtySo"] * $produk->row()->berat_bersih;
 
 			if($rm < 500){
-				echo json_encode(array('data' => false, 'msg' => 'RM KURANG!'));
+				echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm).' . RM KURANG!'));
 			}else{
 				$getData = $this->db->query("SELECT COUNT(so.rpt) AS jml_rpt,so.* FROM trs_po_detail ps
 				INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
@@ -1873,10 +1886,22 @@ class Transaksi extends CI_Controller
 						if($r['id'] == $_POST["i"]){
 							$rpt = $r['options']['rpt'] + 1;
 						}
+						if($r['options']['qty_po'] == $_POST["hQtyPo"]){
+							$hQtyPo = 0;
+						}
+						if($r['options']['hRmPo'] == $_POST["hRmPo"]){
+							$hRmPo = 0;
+						}
+						if($r['options']['hTonPo'] == $_POST["hTonPo"]){
+							$hTonPo = 0;
+						}
 					}
 					$i = $this->cart->total_items()+1;
 				}else{
 					$rpt = $getData->row()->jml_rpt + 1;
+					$hQtyPo = $_POST["hQtyPo"];
+					$hRmPo = $_POST["hRmPo"];
+					$hTonPo = $_POST["hTonPo"];
 					$i = 1;
 				}
 
@@ -1899,6 +1924,9 @@ class Transaksi extends CI_Controller
 						'rm' => round($rm),
 						'ton' => round($ton),
 						'total_items' => $i,
+						'qty_po' => $hQtyPo,
+						'hRmPo' => $hRmPo,
+						'hTonPo' => $hTonPo,
 					)
 				);
 
@@ -1927,6 +1955,9 @@ class Transaksi extends CI_Controller
 		}
 
 		$i = 0;
+		$sumQty = 0;
+		$sumRm = 0;
+		$sumTon = 0;
 		foreach($this->cart->contents() as $r){
 			$i++;
 			$urut_so = str_pad($r['options']['urut_so'], 2, "0", STR_PAD_LEFT);
@@ -1939,14 +1970,27 @@ class Transaksi extends CI_Controller
 				<td style="border:1px solid #999">'.$r['options']['no_so'].'.'.$urut_so.'.'.$rpt.'</td>
 				<td style="border:1px solid #999">'.number_format($r['options']['qty_so']).'</td>
 				<td style="border:1px solid #999">'.$r['options']['ket_so'].'</td>
-				<td style="border:1px solid #999">'.$r['options']['rm'].'</td>
-				<td style="border:1px solid #999">'.$r['options']['ton'].'</td>
+				<td style="border:1px solid #999">'.number_format($r['options']['rm']).'</td>
+				<td style="border:1px solid #999">'.number_format($r['options']['ton']).'</td>
 				<td style="border:1px solid #999" class="text-center">'.$btnAksi.'</td>
 			</tr>';
+
+			$sumQty += $r['options']['qty_po'] + $r['options']['qty_so'];
+			$sumRm += $r['options']['hRmPo'] + $r['options']['rm'];
+			$sumTon += $r['options']['hTonPo'] + $r['options']['ton'];
 		}
 
 		if($this->cart->total_items() != 0){
 			$html .= '<tr>
+				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center">'.$r['options']['rpt'].'</td>
+				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center" colspan="2"></td>
+				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center">'.number_format($sumQty).'</td>
+				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center"></td>
+				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center">'.number_format($sumRm).'</td>
+				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center">'.number_format($sumTon).'</td>
+				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center"></td>
+			</tr>
+			<tr>
 				<td style="font-weight:bold;background:#fff;padding:12px 0;border:0" colspan="6">
 					<button class="btn btn-primary btn-sm" id="simpanCartItemSO" onclick="simpanCartItemSO()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
 				</td>
@@ -1963,8 +2007,15 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
-	function batalDataSO(){
+	function batalDataSO()
+	{
 		$result = $this->m_transaksi->batalDataSO();
+		echo json_encode($result);
+	}
+
+	function hapusListSO()
+	{
+		$result = $this->m_transaksi->hapusListSO();
 		echo json_encode($result);
 	}
 

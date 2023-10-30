@@ -639,7 +639,7 @@ class M_transaksi extends CI_Model
 			if($rm < 500){
 				$result = array(
 					'data' => false,
-					'msg' => 'RM KURANG!',
+					'msg' => 'RM '.round($rm).' . RM KURANG!',
 					// 'p' => $produk->row()->ukuran_sheet_p, 'l' => $produk->row()->ukuran_sheet_l, 'bb' => $produk->row()->berat_bersih, 'RumusOut' => $RumusOut, 'out' => $out, 'rm' => $rm, 'ton' => $ton,
 				);
 			}else{
@@ -692,7 +692,45 @@ class M_transaksi extends CI_Model
 		$result = $this->db->delete('trs_so_detail');
 		return array(
 			'data' => $result,
-			'msg' => 'BERHASIL HAPUS DATA SO!'
+			'msg' => 'BERHASIL BATAL DATA SO!'
 		);
+	}
+
+	function hapusListSO()
+	{
+		$id = $_POST["id"];
+		$getSoDetail = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id'")->row();
+		$cekWo = $this->db->query("SELECT*FROM trs_wo
+		WHERE no_po='$getSoDetail->no_po' AND kode_po='$getSoDetail->kode_po'
+		GROUP BY no_po,kode_po;");
+
+		if($cekWo->num_rows() != 0){
+			return array(
+				'data' => false,
+				'msg' => 'SO SUDAH MASUK WO!'
+			);
+		}else{
+			$this->db->where('no_po', $getSoDetail->no_po);
+			$this->db->where('kode_po', $getSoDetail->kode_po);
+			$this->db->where('id_produk', $getSoDetail->id_produk);
+			$hapusDetailSO = $this->db->delete('trs_so_detail');
+
+			$this->db->set('no_so', null);
+			$this->db->set('tgl_so', null);
+			$this->db->set('status_so', null);
+			$this->db->set('add_time_so', '0000-00-00 00:00:00');
+			$this->db->set('add_user_so', null);
+			$this->db->where('no_po', $getSoDetail->no_po);
+			$this->db->where('kode_po', $getSoDetail->kode_po);
+			$this->db->where('id_produk', $getSoDetail->id_produk);
+			$updateDetailPO = $this->db->update('trs_po_detail');
+
+			return array(
+				'hapusDetailSO' => $hapusDetailSO,
+				'updateDetailPO' => $updateDetailPO,
+				'data' => true,
+				'msg' => 'BERHASIL HAPUS DATA SO!',
+			);
+		}
 	}
 }
