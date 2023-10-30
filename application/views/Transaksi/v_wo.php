@@ -41,18 +41,18 @@
           <table id="datatable" class="table table-bordered table-striped" width="100%">
             <thead>
             <tr>
-              <th style="width:5%">No</th>
-              <th style="width:%">No WO</th>
-              <th style="width:%">Tgl WO</th>
-              <th style="width:%">No SO</th>
-              <th style="width:%">Tgl SO</th>
-              <th style="width:%">Status</th>
-              <th style="width:%">Kode MC</th>
-              <th style="width:%">Total Qty</th>
-              <th style="width:%">ID Pelanggan</th>
-              <th style="width:%">Nama Pelanggan</th>
+              <th style="text-align: center; width:5%">No</th>
+              <th style="text-align: center; width:15%">No WO</th>
+              <th style="text-align: center; width:10%">Tgl WO</th>
+              <!-- <th style="text-align: center; width:15%">No SO</th> -->
+              <th style="text-align: center; width:10%">Tgl SO</th>
+              <th style="text-align: center; width:5%">Status</th>
+              <th style="text-align: center; width:10%">Kode MC</th>
+              <th style="text-align: center; width:5%">Qty</th>
+              <!-- <th style="text-align: center; width:%">ID Pelanggan</th> -->
+              <th style="text-align: center; width:15%">Pelanggan</th>
 
-              <th style="width:10%">Aksi</th>
+              <th style="text-align: center; width:10%">Aksi</th>
             </tr>
             </thead>
             <tbody>
@@ -114,7 +114,7 @@
               <td><input type="date" class="form-control" name="tgl_wo"  id="tgl_wo" value="<?= date('Y-m-d') ?>" readonly></td>
               <td></td>
               <td>Lebar Kertas</td>
-              <td><input type="text" class="form-control" name="no_artikel" id="no_artikel" ></td>
+              <td><input type="text" class="angka form-control" name="no_artikel" id="no_artikel" ></td>
             </tr>
             <tr>
               <td>NO PO</td>
@@ -141,8 +141,7 @@
             <tbody>
               <tr id="itemRow0">
                   <td>
-                    <input type="text" id="id_produk0" class="form-control" readonly>
-
+                    <input type="text" id="id_produk" class="form-control" readonly>
                   </td>
                   <td>
                       <input type="text" name="qty0" id="qty0" class="form-control" readonly>
@@ -302,13 +301,15 @@
                 <td class="posisi-tengah" align="center"  ><b>1</b></td>
                 <td class="posisi-tengah"  ><b>CORRUGATOR</b></td>
                 <td>
-                  <input type="date" id="tgl_crg" name="tgl_crg" class="form-control" ></td>
+                  <input type="date" class="form-control" id="tgl_crg" name="tgl_crg"  value="<?= date('Y-m-d') ?>">
+                
+                </td>
                 <td>
-                  <input type="text" id="hasil_crg" name="hasil_crg" class="form-control" ></td>
+                  <input type="text" id="hasil_crg" name="hasil_crg" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="rusak_crg" name="rusak_crg" class="form-control" ></td>
+                  <input type="text" id="rusak_crg" name="rusak_crg" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="baik_crg" name="baik_crg" class="form-control" ></td>
+                  <input type="text" id="baik_crg" name="baik_crg" class="angka form-control" ></td>
                 <td>
                   <input type="text" id="ket_crg" name="ket_crg" class="form-control" ></td>
             </tr>
@@ -316,87 +317,87 @@
                 <td class="posisi-tengah" align="center"><b>2</b></td>
                 <td class="posisi-tengah"><b>FLEXO</b></td>
                 <td>
-                  <input type="date" id="tgl_flx" name="tgl_flx" class="form-control" ></td>
+                  <input type="date" id="tgl_flx" name="tgl_flx" class="form-control" value="<?= date('Y-m-d') ?>"></td>
                 <td>
-                  <input type="text" id="hasil_flx" name="hasil_flx" class="form-control" ></td>
+                  <input type="text" id="hasil_flx" name="hasil_flx" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="rusak_flx" name="rusak_flx" class="form-control" ></td>
+                  <input type="text" id="rusak_flx" name="rusak_flx" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="baik_flx" name="baik_flx" class="form-control" ></td>
+                  <input type="text" id="baik_flx" name="baik_flx" class="angka form-control" ></td>
                 <td>
                   <input type="text" id="ket_flx" name="ket_flx" class="form-control" ></td>
             </tr>
             <tr>
                 <td rowspan="6" align="center"><b>3</b></td>
                 <td class="posisi-tengah"><b>FINISHING</b></td>
-                <td style="border-bottom:hidden;border-right:hidden"></td>
-                <td style="border-bottom:hidden;border-right:hidden"></td>
-                <td style="border-bottom:hidden;border-right:hidden"></td>
-                <td style="border-bottom:hidden;border-right:hidden"></td>
-                <td style="border-bottom:hidden;"></td>
+                <td style="border-right:hidden"></td>
+                <td style="border-right:hidden"></td>
+                <td style="border-right:hidden"></td>
+                <td style="border-right:hidden"></td>
+                <td style=""></td>
             </tr>
             <tr>
                 <td class="posisi-tengah"  align="right" ><b>Glue</b></td>
-                <td style="border-top:hidden;border-right:hidden">
-                  <input type="date" id="tgl_glu" name="tgl_glu" class="form-control" ></td>
-                <td style="border-top:hidden;border-right:hidden">
-                  <input type="text" id="hasil_glu" name="hasil_glu" class="form-control" ></td>
-                <td style="border-top:hidden;border-right:hidden">
-                  <input type="text" id="rusak_glu" name="rusak_glu" class="form-control" ></td>
-                <td style="border-top:hidden;border-right:hidden">
-                  <input type="text" id="baik_glu" name="baik_glu" class="form-control" ></td>
-                <td style="border-top:hidden;">
+                <td style="">
+                  <input type="date" id="tgl_glu" name="tgl_glu" class="form-control" value="<?= date('Y-m-d') ?>"></td>
+                <td style="">
+                  <input type="text" id="hasil_glu" name="hasil_glu" class="angka form-control" ></td>
+                <td style="">
+                  <input type="text" id="rusak_glu" name="rusak_glu" class="angka form-control" ></td>
+                <td style="">
+                  <input type="text" id="baik_glu" name="baik_glu" class="angka form-control" ></td>
+                <td style="">
                   <input type="text" id="ket_glu" name="ket_glu" class="form-control" ></td>
             </tr>
             <tr>
                 <td class="posisi-tengah"  align="right" ><b>Stitching</b></td>
                 <td>
-                  <input type="date" id="tgl_stc" name="tgl_stc" class="form-control" ></td>
+                  <input type="date" id="tgl_stc" name="tgl_stc" class="form-control" value="<?= date('Y-m-d') ?>"></td>
                 <td>
-                  <input type="text" id="hasil_stc" name="hasil_stc" class="form-control" ></td>
+                  <input type="text" id="hasil_stc" name="hasil_stc" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="rusak_stc" name="rusak_stc" class="form-control" ></td>
+                  <input type="text" id="rusak_stc" name="rusak_stc" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="baik_stc" name="baik_stc" class="form-control" ></td>
+                  <input type="text" id="baik_stc" name="baik_stc" class="angka form-control" ></td>
                 <td>
                   <input type="text" id="ket_stc" name="ket_stc" class="form-control" ></td>
             </tr>
             <tr>
                 <td class="posisi-tengah" align="right" ><b>Die Cut</b></td>
                 <td>
-                  <input type="date" id="tgl_dic" name="tgl_dic" class="form-control" ></td>
+                  <input type="date" id="tgl_dic" name="tgl_dic" class="form-control" value="<?= date('Y-m-d') ?>"></td>
                 <td>
-                  <input type="text" id="hasil_dic" name="hasil_dic" class="form-control" ></td>
+                  <input type="text" id="hasil_dic" name="hasil_dic" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="rusak_dic" name="rusak_dic" class="form-control" ></td>
+                  <input type="text" id="rusak_dic" name="rusak_dic" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="baik_dic" name="baik_dic" class="form-control" ></td>
+                  <input type="text" id="baik_dic" name="baik_dic" class="angka form-control" ></td>
                 <td>
                   <input type="text" id="ket_dic" name="ket_dic" class="form-control" ></td>
             </tr>
             <tr>
                 <td class="posisi-tengah" align="right" ><b>Asembly Partisi</b></td>
                 <td>
-                  <input type="date" id="tgl_asembly" name="tgl_asembly" class="form-control" ></td>
+                  <input type="date" id="tgl_asembly" name="tgl_asembly" class="form-control" value="<?= date('Y-m-d') ?>"></td>
                 <td>
-                  <input type="text" id="hasil_asembly" name="hasil_asembly" class="form-control" ></td>
+                  <input type="text" id="hasil_asembly" name="hasil_asembly" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="rusak_asembly" name="rusak_asembly" class="form-control" ></td>
+                  <input type="text" id="rusak_asembly" name="rusak_asembly" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="baik_asembly" name="baik_asembly" class="form-control" ></td>
+                  <input type="text" id="baik_asembly" name="baik_asembly" class="angka form-control" ></td>
                 <td>
                   <input type="text" id="ket_asembly" name="ket_asembly" class="form-control" ></td>
             </tr>
             <tr>
                 <td class="posisi-tengah" align="right" ><b>Slitter Manual</b></td>
                 <td>
-                  <input type="date" id="tgl_sliter" name="tgl_sliter" class="form-control" ></td>
+                  <input type="date" id="tgl_sliter" name="tgl_sliter" class="form-control" value="<?= date('Y-m-d') ?>" ></td>
                 <td>
-                  <input type="text" id="hasil_sliter" name="hasil_sliter" class="form-control" ></td>
+                  <input type="text" id="hasil_sliter" name="hasil_sliter" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="rusak_sliter" name="rusak_sliter" class="form-control" ></td>
+                  <input type="text" id="rusak_sliter" name="rusak_sliter" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="baik_sliter" name="baik_sliter" class="form-control" ></td>
+                  <input type="text" id="baik_sliter" name="baik_sliter" class="angka form-control" ></td>
                 <td>
                   <input type="text" id="ket_sliter" name="ket_sliter" class="form-control" ></td>
             </tr>
@@ -404,13 +405,13 @@
                 <td class="posisi-tengah" align="center" ><b>4</b></td>
                 <td><b>GUDANG<b></td>
                 <td>
-                  <input type="date" id="tgl_gdg" name="tgl_gdg" class="form-control" ></td>
+                  <input type="date" id="tgl_gdg" name="tgl_gdg" class="form-control" value="<?= date('Y-m-d') ?>"></td>
                 <td>
-                  <input type="text" id="hasil_gdg" name="hasil_gdg" class="form-control" ></td>
+                  <input type="text" id="hasil_gdg" name="hasil_gdg" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="rusak_gdg" name="rusak_gdg" class="form-control" ></td>
+                  <input type="text" id="rusak_gdg" name="rusak_gdg" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="baik_gdg" name="baik_gdg" class="form-control" ></td>
+                  <input type="text" id="baik_gdg" name="baik_gdg" class="angka form-control" ></td>
                 <td>
                   <input type="text" id="ket_gdg" name="ket_gdg" class="form-control" ></td>
             </tr>
@@ -418,13 +419,13 @@
                 <td class="posisi-tengah" align="center" ><b>5</b></td>
                 <td><b>EXPEDISI / PENGIRIMAN</b></td>
                 <td>
-                  <input type="date" id="tgl_exp" name="tgl_exp" class="form-control" ></td>
+                  <input type="date" id="tgl_exp" name="tgl_exp" class="form-control" value="<?= date('Y-m-d') ?>"></td>
                 <td>
-                  <input type="text" id="hasil_exp" name="hasil_exp" class="form-control" ></td>
+                  <input type="text" id="hasil_exp" name="hasil_exp" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="rusak_exp" name="rusak_exp" class="form-control" ></td>
+                  <input type="text" id="rusak_exp" name="rusak_exp" class="angka form-control" ></td>
                 <td>
-                  <input type="text" id="baik_exp" name="baik_exp" class="form-control" ></td>
+                  <input type="text" id="baik_exp" name="baik_exp" class="angka form-control" ></td>
                 <td>
                   <input type="text" id="ket_exp" name="ket_exp" class="form-control" ></td>
             </tr>
@@ -441,10 +442,10 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i> Simpan</button>
+        
+        <button type="button" class="btn btn-outline-danger" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> Print</button>
 
         <button type="button" class="btn btn-outline-danger" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-times-circle"></i> <b> Batal</b></button>
-        
-        <button type="button" class="btn btn-outline-secondary" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> Print</button>
       </div>
       </form>
         <input type="hidden" name="bucket" id="bucket" value="0">
@@ -579,6 +580,15 @@
   function kosong(c =''){
 
     $("#tgl_wo").val("<?= date('Y-m-d') ?>");
+    $("#tgl_crg").val("<?= date('Y-m-d') ?>");
+    $("#tgl_flx").val("<?= date('Y-m-d') ?>");
+    $("#tgl_glu").val("<?= date('Y-m-d') ?>");
+    $("#tgl_stc").val("<?= date('Y-m-d') ?>");
+    $("#tgl_dic").val("<?= date('Y-m-d') ?>");
+    $("#tgl_asembly").val("<?= date('Y-m-d') ?>");
+    $("#tgl_sliter").val("<?= date('Y-m-d') ?>");
+    $("#tgl_gdg").val("<?= date('Y-m-d') ?>");
+    $("#tgl_exp").val("<?= date('Y-m-d') ?>");
     $('#no_so').prop('disabled',false);
 
     if (c != 's') {
@@ -599,7 +609,7 @@
     $("#pelanggan").val('');
     $("#no_wo").val('');
     $("#nopo").val('');
-    $("#id_produk0").val('');
+    $("#id_produk").val('');
     $("#qty0").val('');
     $("#txt_detail_produk0").html('');
 
@@ -609,43 +619,36 @@
 
     $(".btn-tambah-produk").show();
 
-    $("#tgl_crg").val('');
     $("#hasil_crg").val('');
     $("#rusak_crg").val('');
     $("#baik_crg").val('');
     $("#ket_crg").val('');
 
-    $("#tgl_flx").val('');
     $("#hasil_flx").val('');
     $("#rusak_flx").val('');
     $("#baik_flx").val('');
     $("#ket_flx").val('');
 
-    $("#tgl_glu").val('');
     $("#hasil_glu").val('');
     $("#rusak_glu").val('');
     $("#baik_glu").val('');
     $("#ket_glu").val('');
 
-    $("#tgl_stc").val('');
     $("#hasil_stc").val('');
     $("#rusak_stc").val('');
     $("#baik_stc").val('');
     $("#ket_stc").val('');
 
-    $("#tgl_dic").val('');
     $("#hasil_dic").val('');
     $("#rusak_dic").val('');
     $("#baik_dic").val('');
     $("#ket_dic").val('');
 
-    $("#tgl_asembly").val('');
     $("#hasil_asembly").val('');
     $("#rusak_asembly").val('');
     $("#baik_asembly").val('');
     $("#ket_asembly").val('');
-    
-    $("#tgl_sliter").val('');
+
     $("#hasil_sliter").val('');
     $("#rusak_sliter").val('');
     $("#baik_sliter").val('');
@@ -666,14 +669,17 @@
 
 
   function tampil_edit(id,act){
-    kosong('s');
+    kosong('s'); 
+    show_loading();
     $(".btn-tambah-produk").hide();
     
     $("#btn-print").show();
 
     $("#status").val("update");
     status = 'update';
+
     $("#modalForm").modal("show");
+
     if (act =='detail') {
       $("#judul").html('<h3> Detail Data</h3>');
       $("#btn-simpan").hide();
@@ -682,15 +688,21 @@
       $("#btn-simpan").show();
     }
 
-    status = "update";
 
-         $.ajax({
-              url: '<?php echo base_url('Transaksi/get_edit'); ?>',
-              type: 'POST',
-              data: {id: id,jenis : "trs_wo",field:'id'},
-              dataType: "JSON",
-          })
-          .done(function(data) {
+      $.ajax({
+          url: '<?php echo base_url('Transaksi/get_edit'); ?>',
+          type: 'POST',
+          data: {id: id,jenis : "trs_wo",field:'id'},
+          dataType: "JSON",
+          success : function(data){
+            if (data.sambungan == 'G'){
+              $join = 'Glue';
+            } else if (data.sambungan == 'S'){
+              $join = 'Stitching';
+            }else {
+              $join = 'Die Cut';
+            }
+            
             $("#no_wo").val(data.header.no_wo);
             $("#pelanggan").val(data.header.id_pelanggan+' || '+data.header.nm_pelanggan);
             $("#tgl_wo").val(data.header.tgl_wo);
@@ -698,7 +710,7 @@
             $("#no_so").val(data.header.no_so);
             $("#no_artikel").val(data.header.no_artikel);
             $("#batchno").val(data.header.batchno);
-            $("#id_produk0").val(data.header.id_produk);
+            $("#id_produk").val(data.header.id_produk);
             $("#qty0").val(data.header.qty);
 
             $('#no_so').prop('disabled',true);
@@ -742,38 +754,90 @@
             $("#rusak_crg").val(data.detail.rusak_crg);
             $("#baik_crg").val(data.detail.baik_crg);
             $("#ket_crg").val(data.detail.ket_crg);
+
             $("#tgl_flx").val(data.detail.tgl_flx);
             $("#hasil_flx").val(data.detail.hasil_flx);
             $("#rusak_flx").val(data.detail.rusak_flx);
             $("#baik_flx").val(data.detail.baik_flx);
             $("#ket_flx").val(data.detail.ket_flx);
+
             $("#tgl_glu").val(data.detail.tgl_glu);
             $("#hasil_glu").val(data.detail.hasil_glu);
             $("#rusak_glu").val(data.detail.rusak_glu);
             $("#baik_glu").val(data.detail.baik_glu);
             $("#ket_glu").val(data.detail.ket_glu);
+
             $("#tgl_stc").val(data.detail.tgl_stc);
             $("#hasil_stc").val(data.detail.hasil_stc);
             $("#rusak_stc").val(data.detail.rusak_stc);
             $("#baik_stc").val(data.detail.baik_stc);
             $("#ket_stc").val(data.detail.ket_stc);
+
             $("#tgl_dic").val(data.detail.tgl_dic);
             $("#hasil_dic").val(data.detail.hasil_dic);
             $("#rusak_dic").val(data.detail.rusak_dic);
             $("#baik_dic").val(data.detail.baik_dic);
             $("#ket_dic").val(data.detail.ket_dic);
+
+            $("#tgl_asembly").val(data.detail.tgl_asembly);
+            $("#hasil_asembly").val(data.detail.hasil_asembly);
+            $("#rusak_asembly").val(data.detail.rusak_asembly);
+            $("#baik_asembly").val(data.detail.baik_asembly);
+            $("#ket_asembly").val(data.detail.ket_asembly);
+            
+            $("#tgl_sliter").val(data.detail.tgl_sliter);
+            $("#hasil_sliter").val(data.detail.hasil_sliter);
+            $("#rusak_sliter").val(data.detail.rusak_sliter);
+            $("#baik_sliter").val(data.detail.baik_sliter);
+            $("#ket_sliter").val(data.detail.ket_sliter);
+            
             $("#tgl_gdg").val(data.detail.tgl_gdg);
             $("#hasil_gdg").val(data.detail.hasil_gdg);
             $("#rusak_gdg").val(data.detail.rusak_gdg);
             $("#baik_gdg").val(data.detail.baik_gdg);
             $("#ket_gdg").val(data.detail.ket_gdg);
+
             $("#tgl_exp").val(data.detail.tgl_exp);
             $("#hasil_exp").val(data.detail.hasil_exp);
             $("#rusak_exp").val(data.detail.rusak_exp);
             $("#baik_exp").val(data.detail.baik_exp);
             $("#ket_exp").val(data.detail.ket_exp);
+
+            if(data.header.kategori=='K_BOX')
+            {
+              $('#tabel_sheet').hide();
+              $('#tabel_box').show();
+              $('#p1').val(parseFloat(data.header.p1));
+              $('#l1').val(parseFloat(data.header.l1));
+              $('#p2').val(parseFloat(data.header.p2));
+              $('#l2').val(parseFloat(data.header.l2));
+              $('#flap1').val(parseFloat(data.header.flap1));
+              $('#creasing2').val(parseFloat(data.header.creasing2));
+              $('#flap2').val(parseFloat(data.header.flap2));
+              $('#kupingan').val(parseFloat(data.header.kupingan));
+            }else{
+
+              $('#tabel_sheet').show();
+              $('#tabel_box').hide();
+              $('#p1_sheet').val(data.header.p1_sheet);
+              $('#flap1_sheet').val((data.header.flap1));
+              $('#creasing2_sheet').val(data.header.creasing2);
+              $('#flap2_sheet').val((data.header.flap2));
+            }
               
-          }) 
+          },
+          error: function (jqXHR, textStatus, errorThrown)
+          {
+              // toastr.error('Terjadi Kesalahan'); 
+              swal({
+                title               : "Cek Kembali",
+                html                : "Terjadi Kesalahan",
+                type                : "error",
+                confirmButtonText   : "OK"
+              });
+              return;
+          }
+      })
 
   }
 
@@ -863,7 +927,7 @@
         success: function(data)
         {  
           $("#pelanggan").val(data.id_pelanggan+' || '+data.nm_pelanggan);
-          $("#id_produk0").val(data.id_produk+' || '+data.nm_produk);
+          $("#id_produk").val(data.id_produk+' || '+data.nm_produk);
           $("#qty0").val(data.qty_so);
           $("#nopo").val(data.no_po);
           $("#no_wo").val('WO-'+data.no_so+'.'+data.urut_so+'.'+data.rpt);
@@ -907,7 +971,13 @@
               <tr>
               </table>`);
 
-          set_ukuran(data);
+          if(status=='update'){
+            close_loading();
+
+          }else{
+
+            set_ukuran(data);
+          }
 
         }
     })

@@ -351,29 +351,38 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_wo") {
-			$query = $this->m_master->query("SELECT * FROM trs_wo a JOIN trs_wo_detail b ON a.no_wo=b.no_wo order by id")->result();
+			$query = $this->m_master->query("SELECT a.id as id_wo,a.*,b.*,c.*,d.* FROM trs_wo a 
+            JOIN trs_wo_detail b ON a.no_wo=b.no_wo 
+            JOIN m_produk c ON a.id_produk=c.id_produk 
+            JOIN m_pelanggan d ON a.id_pelanggan=d.id_pelanggan 
+            order by a.id")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
 
-				$row[] = $i;
-				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')">' . $r->no_wo . "<a>";
-				$row[] = $r->tgl_wo;
-				$row[] = $r->no_so;
-				$row[] = $r->tgl_so;
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id_wo . "'" . ',' . "'detail'" . ')">' . $r->no_wo . "<a>";
+                
+				$row[] = $this->m_fungsi->tanggal_ind($r->tgl_wo);
+				// $row[] = $r->no_so;
+				$row[] = $this->m_fungsi->tanggal_ind($r->tgl_so);
 				$row[] = $r->status;
-				$row[] = $r->id_produk;
-				$row[] = $r->qty;
-				$row[] = $r->id_pelanggan;
+				$row[] = $r->kode_mc;
+				$row[] = '<div class="text-center">'.$r->qty.'</div';
+				// $row[] = $r->id_pelanggan;
 				$row[] = $r->nm_pelanggan;
 
 				if ($r->status == 'Open') {
-					$aksi = ' <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-xs">
-                               Edit
+
+                    $aksi = ' <button type="button" onclick="tampil_edit(' . "'" . $r->id_wo . "'" . ',' . "'edit'" . ')" class="btn btn-info btn-sm">
+                                <i class="fa fa-edit"></i>
                             </button>
-                            <button type="button" onclick="deleteData(' . "'" . $r->id . "'" . ')" class="btn btn-danger btn-xs">
-                               Batal
-                            </button> ';
+
+                            <button type="button" onclick="deleteData(' . "'" . $r->id_wo . "'" . ')" class="btn btn-danger btn-sm">
+                                <i class="fa fa-trash-alt"></i>
+                            </button>  
+                            ';
+
 				} else {
 					$aksi = '-';
 				}

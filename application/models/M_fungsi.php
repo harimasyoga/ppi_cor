@@ -490,17 +490,17 @@ class M_fungsi extends CI_Model {
 			$rMargin=15;
 		}
 
-     $this->load->library('Mpdf');
+		$this->load->library('Mpdf');
 
-     // $this->mpdf = new \Mpdf\Mpdf( array(190,236),$size,'',$lMargin,$rMargin,$tMargin);
+		// $this->mpdf = new \Mpdf\Mpdf( array(190,236),$size,'',$lMargin,$rMargin,$tMargin);
 
-     $this->mpdf->AddPage($form,$uk);
+		$this->mpdf->AddPage($form,$uk);
 
 		$this->mpdf->SetFooter('Tercetak {DATE j-m-Y H:i:s} |Halaman {PAGENO} / {nb}| ');
 
 		$this->mpdf->setTitle($judul);
 
-        $this->mpdf->writeHTML($isi);
+		$this->mpdf->writeHTML($isi);
 
 		$this->mpdf->output($jdlsave,'I');
     }
