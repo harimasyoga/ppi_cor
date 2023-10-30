@@ -219,27 +219,55 @@ class M_transaksi extends CI_Model
 			JOIN trs_po_detail d ON d.no_po=a.no_po and d.kode_po=a.kode_po and d.no_so=a.no_so and d.id_produk=a.id_produk
             WHERE a.status='Open' and concat(a.no_so,'.',a.urut_so,'.',a.rpt) = '$params->no_so' ")->row();
 
+			if($detail_so->kategori=='K_BOX')
+			{
+				$p1_sheet   = '-';
+				$p1         = $params->p1;
+				$l1         = $params->l1;
+				$p2         = $params->p2;
+				$l2         = $params->l2;
+				$flap1      = $params->flap1;
+				$creasing2  = $params->creasing2;
+				$flap2      = $params->flap2;
+				$kupingan   = $params->kupingan;
+			}else{
+				$p1_sheet   = $params->p1_sheet;
+				$p1         = '-';
+				$l1         = '-';
+				$p2         = '-';
+				$l2         = '-';
+				$flap1      = $params->flap1_sheet;
+				$creasing2  = $params->creasing2_sheet;
+				$flap2      = $params->flap2_sheet;
+				$kupingan   = '-';
+
+			}
+
 			$data = array(
 				'no_wo'         => $params->no_wo,
 				'line'          => $params->line,
 				'no_artikel'    => $params->no_artikel,
 				'batchno'       => $params->batchno,
 				'tgl_wo'        => $params->tgl_wo,
-				'p1'  			=> $params->p1,
-				'l1'  			=> $params->l1,
-				'p2'  			=> $params->p2,
-				'l2'  			=> $params->l2,
-				'flap1'  		=> $params->flap1,
-				'creasing2'  	=> $params->creasing2,
-				'flap2'  		=> $params->flap2,
-				'kupingan '  	=> $params->kupingan,
+
+				'p1_sheet'		=> $p1,
+				'p1'  			=> $p1,
+				'l1'  			=> $l1,
+				'p2'  			=> $p2,
+				'l2'  			=> $l2,
+				'flap1'  		=> $flap1,
+				'creasing2'  	=> $creasing2,
+				'flap2'  		=> $flap2,
+				'kupingan '  	=> $kupingan,
 				'no_so'         => $params->no_so,
 				'tgl_so'        => $detail_so->tgl_so,
 				'no_po'         => $detail_so->no_po,
 				'kode_po'       => $detail_so->kode_po,
 				'tgl_po'        => $detail_so->tgl_po,
 				'qty'           => $detail_so->qty_so,
+				'id_produk'     => $detail_so->id_produk,
 				'id_pelanggan'  => $detail_so->id_pelanggan,
+				'kategori'      => $detail_so->kategori,
 				
 			);
 		}
@@ -290,7 +318,6 @@ class M_transaksi extends CI_Model
 			'baik_sliter'      => $params->baik_sliter,
 			'ket_sliter'       => $params->ket_sliter,
 
-
 			'tgl_gdg'          => $params->tgl_gdg,
 			'hasil_gdg'        => $params->hasil_gdg,
 			'rusak_gdg'        => $params->rusak_gdg,
@@ -313,15 +340,34 @@ class M_transaksi extends CI_Model
 			$this->db->set("add_user", $this->username);
 			$result = $this->db->insert("trs_wo_detail", $data_detail);
 
-			$this->db->query("UPDATE trs_so_detail SET status ='Closed' WHERE no_so = '" . $params->no_so . "' ");
+			$this->db->query("UPDATE trs_so_detail SET status ='Close' WHERE concat ( no_so,'.',urut_so,'.',rpt ) = '" . $params->no_so . "'"); 
 		} else {
 
+			
+			$p1_sheet   = '-';
+			$p1         = $params->p1;
+			$l1         = $params->l1;
+			$p2         = $params->p2;
+			$l2         = $params->l2;
+			$flap1      = $params->flap1;
+			$creasing2  = $params->creasing2;
+			$flap2      = $params->flap2;
 
 			$data_update = array(
-				'no_wo'       => $params->no_wo,
-				'line'       => $params->line,
-				'no_artikel'       => $params->no_artikel,
-				'batchno'       => $params->batchno
+				'no_wo'       	=> $params->no_wo,
+				'line'       	=> $params->line,
+				'no_artikel'    => $params->no_artikel,
+				'batchno'       => $params->batchno,
+
+				'p1_sheet'		=> $p1_sheet,
+				'p1'  			=> $p1,
+				'l1'  			=> $l1,
+				'p2'  			=> $p2,
+				'l2'  			=> $l2,
+				'flap1'  		=> $flap1,
+				'creasing2'  	=> $creasing2,
+				'flap2'  		=> $flap2,
+				'kupingan'  	=> $params->kupingan,
 			);
 
 			$this->db->set("edit_user", $this->username);
@@ -337,7 +383,7 @@ class M_transaksi extends CI_Model
 
 			$this->db->set("edit_user", $this->username);
 			$this->db->set("edit_time", date('Y-m-d H:i:s'));
-			$result = $this->db->update(
+			$result = $this->db->update( 
 				"trs_wo_detail",
 				$data_detail,
 				array(
@@ -438,12 +484,15 @@ class M_transaksi extends CI_Model
 			$data = $this->db->query("SELECT * FROM trs_wo WHERE id ='" . $id . "' ")->row();
 
 			$this->db->set("Status", 'Open');
-			$this->db->where("no_so", $data->no_so);
+			$this->db->where("concat(no_so,'.',urut_so,'.',rpt)", $data->no_so);
 			$query = $this->db->update("trs_so_detail");
 
-			$this->db->set("Status", 'Batal');
+			// $this->db->set("Status", 'Batal');
 			$this->db->where("no_wo", $data->no_wo);
-			$query = $this->db->update("trs_wo_detail");
+			$query = $this->db->delete("trs_wo_detail");
+
+			$this->db->where("no_wo", $data->no_wo);
+			$query = $this->db->delete("trs_wo");
 		} else if ($jenis == "trs_surat_jalan") {
 			$data = $this->db->query("SELECT * FROM trs_surat_jalan WHERE id ='" . $id . "' ")->row();
 
