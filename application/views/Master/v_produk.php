@@ -224,6 +224,7 @@
 							<td style="padding:5px 0;font-weight:bold">KUALITAS</td>
 							<td style="padding:5px 0" colspan="3">
 								<input type="hidden" id="h_kualitas">
+								<input type="hidden" id="h_kualitas_isi">
 								<input type="text" class="form-control" id="kualitas" placeholder="-" disabled>
 							</td>
 							<td></td>
@@ -358,6 +359,7 @@
 		berat_bersih = $("#berat_bersih").val();
 		luas_bersih = $("#luas_bersih").val();
 		kualitas = $("#kualitas").val();
+		kualitas_isi = $("#h_kualitas_isi").val()
 		warna = $("#warna").val();
 		no_design = $("#no_design").val();
 		design = $("#design").val();
@@ -399,7 +401,7 @@
 			url: '<?php echo base_url('Master/Insert') ?>',
 			type: "POST",
 			data: ({
-				id, kode_mc, nm_produk, h_id_pelanggan, no_customer, ukuran, ukuran_sheet, sambungan, material, wall, l_panjang, l_lebar, l_tinggi, creasing, creasing2, creasing3, flute, berat_bersih, luas_bersih, kualitas, warna, no_design, design, tipe_box, jenis_produk, kategori, COA:cCOA, jml_ikat, jml_palet, jml_paku, no_pisau, no_karet, toleransi_kirim, spesial_req, ukuran_sheet_p, ukuran_sheet_l, jenis: 'm_produk', status: status
+				id, kode_mc, nm_produk, h_id_pelanggan, no_customer, ukuran, ukuran_sheet, sambungan, material, wall, l_panjang, l_lebar, l_tinggi, creasing, creasing2, creasing3, flute, berat_bersih, luas_bersih, kualitas, kualitas_isi, warna, no_design, design, tipe_box, jenis_produk, kategori, COA:cCOA, jml_ikat, jml_palet, jml_paku, no_pisau, no_karet, toleransi_kirim, spesial_req, ukuran_sheet_p, ukuran_sheet_l, jenis: 'm_produk', status: status
 			}),
 			success: function(json) {
 				data = JSON.parse(json)
@@ -463,6 +465,7 @@
 		$("#h_tinggi").val("")
 		$("#h_material").val("")
 		$("#h_kualitas").val("")
+		$("#h_kualitas_isi").val("")
 		$("#h_kode_mc").val("")
 		$("#h_berat_bersih").val("")
 		$("#h_luas_bersih").val("")
@@ -622,6 +625,7 @@
 			$("#h_lebar").val(data.produk.l_lebar)
 			$("#h_tinggi").val(data.produk.l_tinggi)
 			$("#h_kualitas").val(data.produk.kualitas)
+			$("#h_kualitas_isi").val(data.produk.kualitas_isi)
 			$("#h_material").val(data.produk.material)
 			$("#h_berat_bersih").val(data.produk.berat_bersih)
 			$("#h_luas_bersih").val(data.produk.luas_bersih)
@@ -847,17 +851,21 @@
 		let cariBF = parseFloat(bb  * 1.36)
 		let cariCF = parseFloat(cc  * 1.46)
 		let getNilaiFlute = 0
-		if(plh_flute == ""){
-			getNilaiFlute = 0;
-		} else if(plh_flute == "BCF"){
+		let kualitasIsi = 0
+		if(plh_flute == "BCF"){
 			getNilaiFlute = parseFloat((parseInt(kk) + cariBF + parseInt(clcl) + cariCF + parseInt(blbl)) / 1000);
+			kualitasIsi = kk+'/'+bb+'/'+clcl+'/'+cc+'/'+blbl;
 		} else if(plh_flute == "CF") {
 			getNilaiFlute = parseFloat((parseInt(kk) + cariCF + parseInt(blbl)) / 1000);
+			kualitasIsi = kk+'/'+cc+'/'+blbl;
 		} else if(plh_flute == "BF") {
 			getNilaiFlute = parseFloat((parseInt(kk) + cariBF + parseInt(blbl)) / 1000);
+			kualitasIsi = kk+'/'+bb+'/'+blbl;
 		} else {
-			getNilaiFlute = 0;
+			getNilaiFlute = 0
+			kualitasIsi = 0
 		}
+		$("#h_kualitas_isi").val(kualitasIsi)
 
 		if(isNaN(r_panjang)){
 			r_panjang = 0;

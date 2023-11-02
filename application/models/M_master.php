@@ -193,6 +193,7 @@ class M_master extends CI_Model{
 			'berat_bersih' => $this->input->post('berat_bersih'),
 			'luas_bersih' => $this->input->post('luas_bersih'),
 			'kualitas' => $this->input->post('kualitas'),
+			'kualitas_isi' => $this->input->post('kualitas_isi'),
 			'warna' => $this->input->post('warna'),
 			'no_design' => $this->input->post('no_design'),
 			'design' => $this->input->post('design'),

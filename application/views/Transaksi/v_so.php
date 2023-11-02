@@ -504,6 +504,7 @@
 
 	function editBagiSO(i){
 		// alert('edit so')
+		show_loading()
 		let id = $("#h_id").val()
 		let no_po = $("#h_no_po").val()
 		let kode_po = $("#h_kodepo").val()
@@ -520,8 +521,9 @@
 				i, editTglSo, editQtySo, editKetSo, editQtypoSo
 			}),
 			success: function(res){
+				close_loading()
 				data = JSON.parse(res)
-				// console.log(data)
+				console.log(data)
 				if(data.data){
 					swal("EDIT BERHASIL!", "", "success")
 					tampilEditSO(id, no_po, kode_po, 'edit')
@@ -535,6 +537,7 @@
 
 	function simpanCartItemSO(){
 		// alert('simpanSO')
+		show_loading()
 		let id = $("#h_id").val()
 		let no_po = $("#h_no_po").val()
 		let kode_po = $("#h_kodepo").val()
@@ -547,6 +550,7 @@
 			type: "POST",
 			// data: ({}),
 			success: function(res){
+				close_loading()
 				data = JSON.parse(res)
 				// console.log(data)
 				if(data){
@@ -570,6 +574,7 @@
 
 		let cek = confirm("Apakah Anda Yakin?");
 		if(cek){
+			show_loading()
 			$.ajax({
 				url: '<?php echo base_url('Transaksi/batalDataSO')?>',
 				type: "POST",
@@ -577,6 +582,7 @@
 					i
 				}),
 				success: function(res){
+					close_loading()
 					data = JSON.parse(res)
 					// console.log(data)
 					if(data.data){
@@ -591,6 +597,7 @@
 	}
 
 	function hapusListSO(id){
+		show_loading()
 		// alert('hapus')
 		$("#hapusListSO").prop('disabled', true)
 		$.ajax({
@@ -602,6 +609,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				// console.log(data)
+				close_loading()
 				if(data.data){
 					swal(data.msg, "", "success")
 					$("#modalFormDetail").modal("hide")
