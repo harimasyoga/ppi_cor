@@ -118,7 +118,7 @@ class Transaksi extends CI_Controller
 	public function WO()
 	{
 		$data = array(
-			'judul' => "Order Produksi",
+			'judul' => "Work Order",
 			'getSO' => $this->db->query("SELECT b.nm_produk,c.*,a.* 
             FROM trs_so_detail a
             JOIN m_produk b ON a.id_produk=b.id_produk
@@ -192,7 +192,7 @@ class Transaksi extends CI_Controller
 		$data         = array();
 
 		if ($jenis == "po") {
-			$query = $this->m_master->query("SELECT * FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan order by id")->result();
+			$query = $this->m_master->query("SELECT * FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan order by id desc")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row    = array();
@@ -239,7 +239,7 @@ class Transaksi extends CI_Controller
                     $btn_s   = 'btn-danger';
                 }
 
-				$row[] = $i;
+				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')">' . $r->no_po . "<a></div>";
 
 				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).'</div>';
@@ -274,16 +274,16 @@ class Transaksi extends CI_Controller
                         <a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a>
                     ';
 
-				if (!in_array($this->session->userdata('level'), ['Admin','Marketing','PPIC','Owner']))
+				if (!in_array($this->session->userdata('level'), ['Marketing','PPIC','Owner']))
                 {
 
 					if ($r->status == 'Open' && $r->status_app1 == 'N') {
 						$aksi .= ' 
-	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" class="btn btn-info btn-sm">
+	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
                                     <i class="fa fa-edit"></i>
 	                            </button>
 
-	                            <button type="button" onclick="deleteData(' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
+	                            <button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
                                     <i class="fa fa-trash-alt"></i>
 	                            </button>  
                                 ';
@@ -299,12 +299,14 @@ class Transaksi extends CI_Controller
 					if ($this->session->userdata('level') == 'PPIC' && $r->status_app1 == 'Y' && $r->status_app2 == 'N' ) {
 						$aksi .=  ' 
 	                            <button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
+									<i class="fa fa-check"></i>
 	                            </button> ';
 					}
 
 					if ($this->session->userdata('level') == 'Owner' && $r->status_app1 == 'Y' && $r->status_app2 == 'Y'  && $r->status_app3 == 'N' ) {
 						$aksi .=  ' 
 	                            <button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
+									<i class="fa fa-check"></i>
 	                            </button>  ';
 					}
 
@@ -355,14 +357,20 @@ class Transaksi extends CI_Controller
             JOIN trs_wo_detail b ON a.no_wo=b.no_wo 
             JOIN m_produk c ON a.id_produk=c.id_produk 
             JOIN m_pelanggan d ON a.id_pelanggan=d.id_pelanggan 
-            order by a.id")->result();
+            order by a.id desc")->result();
 			$i = 1;
 			foreach ($query as $r) {
-				$row = array();
+				if($r->kategori=='K_BOX'){
+					$type ='BOX';
+				}else{
+					$type ='SHEET';
+				}
 
+				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id_wo . "'" . ',' . "'detail'" . ')">' . $r->no_wo . "<a>";
                 
+				$row[] = $type;
 				$row[] = $this->m_fungsi->tanggal_ind($r->tgl_wo);
 				// $row[] = $r->no_so;
 				$row[] = $this->m_fungsi->tanggal_ind($r->tgl_so);
@@ -374,9 +382,12 @@ class Transaksi extends CI_Controller
 
 				if ($r->status == 'Open') {
 
-                    $aksi = ' <button type="button" onclick="tampil_edit(' . "'" . $r->id_wo . "'" . ',' . "'edit'" . ')" class="btn btn-info btn-sm">
+                    $aksi = ' 
+							<button type="button" onclick="tampil_edit(' . "'" . $r->id_wo . "'" . ',' . "'edit'" . ')" class="btn btn-info btn-sm">
                                 <i class="fa fa-edit"></i>
                             </button>
+
+							<a target="_blank" class="btn btn-sm btn-warning" href="' . base_url("Transaksi/Cetak_WO?no_wo=" . $r->no_wo . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
                             <button type="button" onclick="deleteData(' . "'" . $r->id_wo . "'" . ')" class="btn btn-danger btn-sm">
                                 <i class="fa fa-trash-alt"></i>
@@ -966,177 +977,323 @@ class Transaksi extends CI_Controller
 	function Cetak_WO()
 	{
 		$id  = $_GET['no_wo'];
-		$query = $this->m_master->get_data_one("trs_wo", "no_wo", $id);
+		// $query = $this->m_master->get_data_one("trs_wo", "no_wo", $id);
+		$query = $this->db->query("SELECT a.id as id_wo,a.*,b.*,c.*,d.*,e.* FROM trs_wo a 
+				JOIN trs_wo_detail b ON a.no_wo=b.no_wo 
+				JOIN m_produk c ON a.id_produk=c.id_produk 
+				JOIN m_pelanggan d ON a.id_pelanggan=d.id_pelanggan 				
+				JOIN trs_so_detail e ON a.no_so=concat(e.no_so,'.',e.urut_so,'.',e.rpt)
+				WHERE a.no_wo='$id'
+				order by a.id");
+		$data = $query->row();
+
+		if ($data->sambungan == 'G'){
+			$join = 'Glue';
+		  } else if ($data->sambungan == 'S'){
+			$join = 'Stitching';
+		  }else {
+			$join = 'Die Cut';
+		  }
+		
 		$data_detail = $this->m_master->get_data_one("trs_wo_detail", "no_wo", $id)->row();
 
-		$html = '';
+		$html       = '';
+		$box        = "border: 1px solid black";
+		$angka_b    = 'style="text-align: center;color:red;font-weight:bold;"';
+		$angka_s    = 'style="text-align: left;color:red;font-weight:bold"';
+		$bottom     = "border-bottom: 1px solid black;";
+		$top        = "border-top: 1px solid black;";
 
 		if ($query->num_rows() > 0) {
-			$data = $query->row();
 
-			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:14px;font-family: ;">
+			$html .= '<table width="100%" border="0" cellspacing="0" cellpadding="0" style="font-size:14px;font-family: ;">
+                            
                             <tr style="font-weight: bold;">
                                 <td colspan="15" align="center">
-                                  <u><h3> ORDER PRODUKSI </h3></u>
-                                </td>
-                            </tr>
-                            <tr style="font-weight: bold;">
-                                <td colspan="15" align="center">
-                                  ' . $data->no_wo . '
+                                <b> ( ' . $data->no_wo . ' )</b>
                                 </td>
                             </tr>
                      </table><br>';
 
-			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:14px;font-family: ;">  
-                            <tr>
-                                <td width="20%" >No SO</td>
-                                <td width="30%">: ' . $data->no_so . '</td>
-                                <td width="30%" /td>
-                                <td width="15%" >TGL WO</td>
-                                <td width="20%" >' . $data->tgl_wo . '</td>
-                            </tr>
-                            <tr>
-                                <td>TGL</td>
-                                <td>: ' . $data->tgl_so . '</td>
-                                <td></td>
-                                <td>Out</td>
-                                <td>' . $data->line . '</td>
-                            </tr>
-                            <tr>
-                                <td>NAMA PELANGGAN</td>
-                                <td>: ' . $data->nm_pelanggan . '</td>
-                                <td></td>
-                                <td>Tgl Kirim</td>
-                                <td>' . $data->tgl_wo . '</td>
-                            </tr>
-                            <tr>
-                                <td>JENIS PRODUK</td>
-                                <td>: ' . $data->jenis_produk . '</td>
-                                <td></td>
-                                <td>No Batch</td>
-                                <td>' . $data->batchno . '</td>
-                            </tr>
-                            <tr>
-                                <td>LEBAR KERTAS</td>
-                                <td colspan="4">: ' . $data->no_artikel . '</td>
-                            </tr>
-                            <tr>
-                                <td>NAMA BARANG</td>
-                                <td colspan="4">: ' . $data->nm_produk . '</td>
-                            </tr>
-                            <tr>
-                                <td>UKURAN SHEET</td>
-                                <td colspan="4">: ' . $data->ukuran . '</td>
-                            </tr>
-                            <tr>
-                                <td>KUALITAS</td>
-                                <td colspan="4">: ' . $data->kualitas . '</td>
-                            </tr>
-                            <tr>
-                                <td>TYPE BOX</td>
-                                <td colspan="4">: ' . $data->tipe_box . '</td>
-                            </tr>
-                            <tr>
-                                <td>WARNA</td>
-                                <td colspan="4">: ' . $data->warna . '</td>
-                            </tr>
-                            <tr>
-                                <td style="border-bottom:1px solid;">JUMLAH ORDER</td>
-                                <td style="border-bottom:1px solid;">: ' . number_format($data->qty) . '</td>
-                                <td colspan="3"></td>
-                            </tr>
-                        </table>';
+					 $html .= '<table width="100%" cellspacing="1" cellpadding="3" border="0" style="font-size:12px;font-family: ;">  
+					 <tr>
+						 <td width="15%" >CUSTOMER</td>
+						 <td width="30%" >: <b>' . $data->nm_pelanggan . '</b></td>
+						 <td width="10%" > </td>
+						 <td width="15%" >Tgl Wo</td>
+						 <td width="30%" >: <b>' . $this->m_fungsi->tanggal_format_indonesia($data->tgl_wo) . '</b></td>
+					 </tr>
+					 <tr>
+						 <td>Item</td>
+						 <td>: <b>' . $data->nm_produk . '</b></td>
+						 <td></td>
+						 <td width="15%" >No Po</td>
+						 <td width="20%" >: <b>' . $data->no_po . '</b></td>
+					 </tr>
+					 <tr>
+						 <td>Ukuran Box</td>
+						 <td>: <b>' . $data->ukuran . '</b></td>
+						 <td></td>
+						 <td>Out</td>
+						 <td>: <b>' . $data->line . '</b></td>
+					 </tr>
+					 <tr>
+						 <td>Ukuran Sheet</td>
+						 <td >: <b>' . $data->ukuran_sheet . '</b></td>
+						 <td></td>
+						 <td>Tgl Kirim</td>
+						 <td style="color:red" >: <b>' . $this->m_fungsi->tanggal_format_indonesia($data->tgl_wo) . '</b></td>
+					 </tr>
+					 <tr>
+						 <td>Lebar Kertas</td>
+						 <td >: <b>' . $data->no_artikel . '</b></td>
+						 <td></td>
+						 <td>ETA</td>
+						 <td style="color:red" >: <b>' . $this->m_fungsi->tanggal_format_indonesia($data->eta_so) . '</b></td>
+					 </tr>
+					 <tr>
+						 <td>Kualitas</td>
+						 <td >: <b>' . $data->kualitas . '</b></td>
+						 <td></td>
+						 <td>No Batch</td>
+						 <td>: <b>' . $data->batchno . '</b></td>
+					 </tr>
+					 <tr>
+						 <td>Type Box</td>
+						 <td>: <b>' . $data->tipe_box . '</b></td>
+						 <td></td>
+						 <td>Berat Box</td>
+						 <td>: <b>' . $data->berat_bersih . ' Kg</b></td>
+					 </tr>
+					 <tr>
+						 <td>Warna</td>
+						 <td>: <b>' . $data->warna . '</b></td>
+						 <td></td>
+						 <td>Flute</td>
+						 <td>: <b>' . $data->flute . '</b></td>
+					 </tr>
+					 <tr>
+						 <td style="">Jumlah Order</td>
+						 <td style="">: <b>' . number_format($data->qty) . '</b> PCS</td>
+						 <td></td>
+						 <td>Joint</td>
+						 <td>: <b>' . $join . '</b></td>
+					 </tr><br>
+				 </table>';
+
+			if ( $data->kategori == 'K_BOX')
+			{
+				$html .='<br><br>
+				<table border="0" cellspacing="0" width="100%" id="tabel_box">
+					<tr>
+					
+					<td width="15%" > </td>
+					<td width="5%" style="border-right: 1px solid black;"> </td>
+					<td width="15%" style=" '. $box .'" > </td>
+					<td width="15%" style=" '. $box .'" > <br>&nbsp;</br> </td>
+					<td width="15%" style=" '. $box .'" > </td>
+					<td width="15%" style=" '. $box .'" > </td>
+					<td width="20%" style="border-left: 1px solid black;border-left: 1px solid black;" > &nbsp; ' . $data->flap1 . '
+					</td>
+					</tr>
+					<tr>
+					<td style="" > 
+						<br>&nbsp;</br>
+					</td>
+					<td style="background-size: 30% 100%;" ><img src="'.base_url('assets/gambar/kupingan1.png').'" width="50" height="50"> </td>
+					<td style="'. $box .'" > </td>
+					<td style="'. $box .'" > </td>
+					<td style="'. $box .'" > </td>
+					<td style="'. $box .'" > </td>
+					<td style="border-left: 1px solid black;" > &nbsp; ' . $data->creasing2 . '
+					</td>
+					</tr>
+					<tr>
+					<td> <br>&nbsp;</br></td>
+					<td style="border-right: 1px solid black;" align="right">' . $data->kupingan . '</td>
+					<td style =" '. $box .'" > </td>
+					<td style =" '. $box .'" > </td>
+					<td style =" '. $box .'" > </td>
+					<td style =" '. $box .'" > </td>
+					<td style=" border-left: 1px solid black;" > &nbsp; ' . $data->flap2 . '
+					</td>
+					</tr>
+					<tr>
+					<td align="center" > <br>&nbsp;</br>
+					</td>
+					<td align="center"> 
+					</td>
+					<td align="center" > ' . $data->p1 . '
+					</td>
+					<td align="center" > ' . $data->l1 . '
+					</td>
+					<td align="center" > ' . $data->p2 . '
+					</td>
+					<td align="center" > ' . $data->l2 . '
+					</td>
+					<td align="center" > </td>
+					</tr>
+
+				</table>';
+
+			}else{
+				
+				$html .='<br><br>
+				<table border="0" cellspacing="0" cellpadding="0" width="100%" id="tabel_sheet">
+					<tr>
+					<td width="15%"> <br>&nbsp;</td>
+					<td width="5%"> </td>
+					<td width="15%" style="'. $top .'border-left: 1px solid #000" > </td>
+					<td width="15%" style="'. $top .'"></td>
+					<td width="15%" style="'. $top .'"> </td>
+					<td width="15%" style="'. $top .'border-right: 1px solid #000"></td>
+					<td width="20%"> &nbsp; ' . $data->flap1 . '
+					</td>
+					</tr>
+					<tr>
+					<td> 
+						<br>&nbsp;</br>
+					</td>
+					<td> </td>
+					<td style="'. $top .'border-left: 1px solid #000" > </td>
+					<td style="'. $top .'"> </td>
+					<td style="'. $top .'"> </td>
+					<td style="'. $top .'border-right: 1px solid #000" > </td>
+					<td> &nbsp; ' . $data->creasing2 . '
+					</td>
+					</tr>
+					<tr>
+					<td> <br>&nbsp;</br></td>
+					<td></td>
+					<td style="'. $top .''.$bottom.' border-left: 1px solid #000" > </td>
+					<td style="'. $top .''.$bottom.'" > </td>
+					<td style="'. $top .''.$bottom.'" > </td>
+					<td style="'. $top .''.$bottom.' border-right: 1px solid #000" > </td>
+					<td> &nbsp; ' . $data->flap2 . '
+					</td>
+					</tr>
+					<tr>
+					<td align="center" > <br>&nbsp;</br>
+					</td>
+					<td align="center" > 
+					</td>
+					<td align="center" colspan="4"> '.$data->p1_sheet .'
+					</td>
+					<td align="center"> </td>
+					</tr>
+
+				</table> ';
+
+			}
 
 			$html .= '<br>
-                        <table width="100%" border="1" cellspacing="0" style="font-size:12px;font-family: ;">  
+                        <table width="100%" border="1" cellspacing="0" cellpadding="3" style="font-size:12px;font-family: ;">  
                             <tr>
-                                <td align="center" width="%" rowspan="2">No</td>
-                                <td align="center" width="%" rowspan="2">PROSES PRODUKSI</td>
-                                <td align="center" width="%" colspan="2">HASIL PRODUKSI</td>
-                                <td align="center" width="%" rowspan="2">RUSAK</td>
-                                <td align="center" width="%" rowspan="2">HASIL BAIK</td>
-                                <td align="center" width="%" rowspan="2">KETERANGAN</td>
+                                <td align="center" width="%" rowspan="2" style="background-color: #cccccc" >No</td>
+                                <td align="center" width="%" rowspan="2" style="background-color: #cccccc" >PROSES PRODUKSI</td>
+                                <td align="center" width="%" colspan="2" style="background-color: #cccccc" >HASIL PRODUKSI</td>
+                                <td align="center" width="%" rowspan="2" style="background-color: #cccccc" >RUSAK</td>
+                                <td align="center" width="%" rowspan="2" style="background-color: #cccccc" >HASIL BAIK</td>
+                                <td align="center" width="%" rowspan="2" style="background-color: #cccccc" >KETERANGAN</td>
                             </tr>
                             <tr>
-                                <td align="center" width="%" >TGL</td>
-                                <td align="center" width="%" >HASIL JADI</td>
+                                <td align="center" width="%" style="background-color: #cccccc">TGL</td>
+                                <td align="center" width="%" style="background-color: #cccccc">HASIL JADI</td>
                             </tr>
 
                             <tr>
-                                <td align="center" width="3%" >1</td>
+                                <td align="center" width="5%" >1</td>
                                 <td align="" width="20%" >CORUUGATOR</td>
-                                <td align="" width="10%" >' . (($data_detail->tgl_crg) == '0000-00-00' ? '' : $data_detail->tgl_crg) . '</td>
-                                <td align="" width="10%" >' . $data_detail->hasil_crg . '</td>
-                                <td align="" width="15%" >' . $data_detail->rusak_crg . '</td>
-                                <td align="" width="15%" >' . $data_detail->baik_crg . '</td>
+                                <td align="" width="20%" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_crg) == '0000-00-00' ? '' : $data_detail->tgl_crg)) . '</td>
+                                <td align="center" width="1%" >' . $data_detail->hasil_crg . '</td>
+                                <td align="center" width="15%" >' . $data_detail->rusak_crg . '</td>
+                                <td align="center" width="15%" >' . $data_detail->baik_crg . '</td>
                                 <td align="" width="15%" >' . $data_detail->ket_crg . '</td>
                             </tr>
                             <tr>
-                                <td align="center" width="%" >2</td>
-                                <td align="" width="%" >FLEXO</td>
-                                <td align="" width="%" >' . (($data_detail->tgl_flx) == '0000-00-00' ? '' : $data_detail->tgl_flx) . '</td>
-                                <td align="" width="%" >' . $data_detail->hasil_flx . '</td>
-                                <td align="" width="%" >' . $data_detail->rusak_flx . '</td>
-                                <td align="" width="%" >' . $data_detail->baik_flx . '</td>
-                                <td align="" width="%" >' . $data_detail->ket_flx . '</td>
+                                <td align="center">2</td>
+                                <td align="" >FLEXO</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_flx) == '0000-00-00' ? '' : $data_detail->tgl_flx)) . '</td>
+                                <td align="center" >' . $data_detail->hasil_flx . '</td>
+                                <td align="center" >' . $data_detail->rusak_flx . '</td>
+                                <td align="center" >' . $data_detail->baik_flx . '</td>
+                                <td align="" >' . $data_detail->ket_flx . '</td>
                             </tr>
                             <tr>
-                                <td align="center" width="%" rowspan="4" valign="middle">3</td>
-                                <td align="" width="%" >CONVERTING</td>
-                                <td align="" width="%" style="border-bottom:hidden;border-right:hidden"></td>
-                                <td align="" width="%" style="border-bottom:hidden;border-right:hidden"></td>
-                                <td align="" width="%" style="border-bottom:hidden;border-right:hidden"></td>
-                                <td align="" width="%" style="border-bottom:hidden;border-right:hidden"></td>
-                                <td align="" width="%" style="border-bottom:hidden;"></td>
+                                <td align="center" rowspan="6" valign="middle">3</td>
+                                <td align="" >FINISHING</td>
+                                <td align="" style="border-bottom:hidden;border-right:hidden"></td>
+                                <td align="" style="border-bottom:hidden;border-right:hidden"></td>
+                                <td align="" style="border-bottom:hidden;border-right:hidden"></td>
+                                <td align="" style="border-bottom:hidden;border-right:hidden"></td>
+                                <td align="" style="border-bottom:hidden;"></td>
                             </tr>
                             <tr>
-                                <td align="right" width="%" >GLUE</td>
-                                <td align="" width="%" style="border-top:hidden;border-right:hidden">' . (($data_detail->tgl_glu) == '0000-00-00' ? '' : $data_detail->tgl_glu) . '</td>
-                                <td align="" width="%" style="border-top:hidden;border-right:hidden;border-right:hidden">' . $data_detail->hasil_glu . '</td>
-                                <td align="" width="%" style="border-top:hidden;border-right:hidden">' . $data_detail->rusak_glu . '</td>
-                                <td align="" width="%" style="border-top:hidden;border-right:hidden">' . $data_detail->baik_glu . '</td>
-                                <td align="" width="%" style="border-top:hidden;">' . $data_detail->ket_glu . '</td>
+                                <td align="right" >Glue</td>
+                                <td align="" style="border-top:hidden;border-right:hidden">' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_glu) == '0000-00-00' ? '' : $data_detail->tgl_glu)) . '</td>
+                                <td align="center" style="border-top:hidden;border-right:hidden;border-right:hidden">' . $data_detail->hasil_glu . '</td>
+                                <td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->rusak_glu . '</td>
+                                <td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->baik_glu . '</td>
+                                <td align="" style="border-top:hidden;">' . $data_detail->ket_glu . '</td>
                             </tr>
                             <tr>
-                                <td align="right" width="%" >STITCHING</td>
-                                <td align="" width="%" >' . (($data_detail->tgl_stc) == '0000-00-00' ? '' : $data_detail->tgl_stc) . '</td>
-                                <td align="" width="%" >' . $data_detail->hasil_stc . '</td>
-                                <td align="" width="%" >' . $data_detail->rusak_stc . '</td>
-                                <td align="" width="%" >' . $data_detail->baik_stc . '</td>
-                                <td align="" width="%" >' . $data_detail->ket_stc . '</td>
+                                <td align="right" >Stitching</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_stc) == '0000-00-00' ? '' : $data_detail->tgl_stc)) . '</td>
+                                <td align="center" >' . $data_detail->hasil_stc . '</td>
+                                <td align="center" >' . $data_detail->rusak_stc . '</td>
+                                <td align="center" >' . $data_detail->baik_stc . '</td>
+                                <td align="" >' . $data_detail->ket_stc . '</td>
                             </tr>
                             <tr>
-                                <td align="right" width="%" >DIE CUT</td>
-                                <td align="" width="%" >' . (($data_detail->tgl_dic) == '0000-00-00' ? '' : $data_detail->tgl_dic) . '</td>
-                                <td align="" width="%" >' . $data_detail->hasil_dic . '</td>
-                                <td align="" width="%" >' . $data_detail->rusak_dic . '</td>
-                                <td align="" width="%" >' . $data_detail->baik_dic . '</td>
-                                <td align="" width="%" >' . $data_detail->ket_dic . '</td>
+                                <td align="right" >Die Cut</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_dic) == '0000-00-00' ? '' : $data_detail->tgl_dic)) . '</td>
+                                <td align="center" >' . $data_detail->hasil_dic . '</td>
+                                <td align="center" >' . $data_detail->rusak_dic . '</td>
+                                <td align="center" >' . $data_detail->baik_dic . '</td>
+                                <td align="" >' . $data_detail->ket_dic . '</td>
                             </tr>
                             <tr>
-                                <td align="center" width="%" >4</td>
-                                <td align="" width="%" >GUDANG</td>
-                                <td align="" width="%" >' . (($data_detail->tgl_gdg) == '0000-00-00' ? '' : $data_detail->tgl_gdg) . '</td>
-                                <td align="" width="%" >' . $data_detail->hasil_gdg . '</td>
-                                <td align="" width="%" >' . $data_detail->rusak_gdg . '</td>
-                                <td align="" width="%" >' . $data_detail->baik_gdg . '</td>
-                                <td align="" width="%" >' . $data_detail->ket_gdg . '</td>
+                                <td align="right" >Asembly Partisi</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_dic) == '0000-00-00' ? '' : $data_detail->tgl_dic)) . '</td>
+                                <td align="center" >' . $data_detail->hasil_dic . '</td>
+                                <td align="center" >' . $data_detail->rusak_dic . '</td>
+                                <td align="center" >' . $data_detail->baik_dic . '</td>
+                                <td align="" >' . $data_detail->ket_dic . '</td>
                             </tr>
                             <tr>
-                                <td align="center" width="%" >5</td>
-                                <td align="" width="%" >EXPEDISI / PENGIRIMAN</td>
-                                <td align="" width="%" >' . (($data_detail->tgl_exp) == '0000-00-00' ? '' : $data_detail->tgl_exp) . '</td>
-                                <td align="" width="%" >' . $data_detail->hasil_exp . '</td>
-                                <td align="" width="%" >' . $data_detail->rusak_exp . '</td>
-                                <td align="" width="%" >' . $data_detail->baik_exp . '</td>
-                                <td align="" width="%" >' . $data_detail->ket_exp . '</td>
+                                <td align="right" >Slitter Manual</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_dic) == '0000-00-00' ? '' : $data_detail->tgl_dic)) . '</td>
+                                <td align="center" >' . $data_detail->hasil_dic . '</td>
+                                <td align="center" >' . $data_detail->rusak_dic . '</td>
+                                <td align="center" >' . $data_detail->baik_dic . '</td>
+                                <td align="" >' . $data_detail->ket_dic . '</td>
+                            </tr>
+                            <tr>
+                                <td align="center" >4</td>
+                                <td align="" >GUDANG</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_gdg) == '0000-00-00' ? '' : $data_detail->tgl_gdg)) . '</td>
+                                <td align="center" >' . $data_detail->hasil_gdg . '</td>
+                                <td align="center" >' . $data_detail->rusak_gdg . '</td>
+                                <td align="center" >' . $data_detail->baik_gdg . '</td>
+                                <td align="" >' . $data_detail->ket_gdg . '</td>
+                            </tr>
+                            <tr>
+                                <td align="center" >5</td>
+                                <td align="" >EXPEDISI / PENGIRIMAN</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_exp) == '0000-00-00' ? '' : $data_detail->tgl_exp)) . '</td>
+                                <td align="center" >' . $data_detail->hasil_exp . '</td>
+                                <td align="center" >' . $data_detail->rusak_exp . '</td>
+                                <td align="center" >' . $data_detail->baik_exp . '</td>
+                                <td align="" >' . $data_detail->ket_exp . '</td>
                             </tr>
                         </table>';
 		} else {
 			$html .= '<h1> Data Kosong </h1>';
 		}
 
-		$this->m_fungsi->_mpdf($html);
+		// $this->m_fungsi->_mpdf($html);
+		
+		$this->m_fungsi->template_kop('WORK ORDER',$html,'P','1');
 		// $this->m_fungsi->mPDFP($html);
 	}
 

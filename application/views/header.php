@@ -83,7 +83,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 		<!-- /.navbar -->
 
 		<!-- Main Sidebar Container -->
-		<aside class="main-sidebar sidebar-dark-primary elevation-4" >
+		<aside class="main-sidebar sidebar-dark-primary elevation-1" >
 			<!-- Brand Logo -->
 			<!-- <a href="<?= base_url('assets/') ?>index3.html" class="brand-link">
       <img src="<?= base_url('assets/') ?>dist/img/AdminLTELogo.png"
@@ -96,20 +96,31 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 			<!-- Sidebar -->
 			<div class="sidebar">
 				<!-- Sidebar user (optional) -->
-				<div class="user-panel mt-3 pb-3 mb-3 d-flex">
-					<div class="image">
-						<!-- <img src="<?= base_url('assets/') ?>dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image"> -->
-					</div>
-					<div class="info">
-						<a href="<?= base_url('Master') ?>" class="d-block">
-							<h2><i class="fa fa-box-open"></i>
-								<?= $setting->singkatan ?></h2>
-						</a>
+				<div class="user-panel mt-3 pb-3 mb-3 d-flex" >
+				<!-- <div class="user-panel mt-3 pb-3 mb-3 d-flex"> -->
+					<!-- <div class="image">
+						<img src="<?= base_url('assets/') ?>dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+					</div> -->
+					<!-- <div class="info"> -->
+					<div class="">
+						<nav class="mt-2" style="font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">
+							<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+								<!-- Add icons to the links using the .nav-icon class
+					with font-awesome or any other icon font library -->
+								<li class="nav-item has-treeview">
+								<a href="<?= base_url('Master') ?>" class="nav-link">
+									<h2><i class="fa fa-box-open"></i>
+										<?= $setting->singkatan ?></h2>
+								</a>
+								</li>
+							</ul>
+						</nav>
 					</div>
 				</div>
+				
 
 				<!-- Sidebar Menu -->
-				<nav class="mt-2">
+				<nav class="mt-2" style="font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">
 					<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 						<!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
@@ -292,10 +303,17 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 				</nav>
 				<!-- /.sidebar-menu -->
 			</div>
-			<div style="position:absolute;bottom:0;right:0;left:0;padding:5px 5px 5px 10px; background-image: linear-gradient(180deg,#cc193800 10%,#450410ad 100%);">
+			<!-- /menu footer buttons -->
+			<div class="sidebar-footer">			
+              <a data-toggle="tooltip" data-placement="top" title="Logout">
+                <img width="50"  src="<?= base_url('assets/gambar/ppi.png')?>" alt=""></span>
+              </a>
+            </div>
+			<!-- <div style="position:absolute;bottom:0;right:0;left:0;padding:5px 5px 5px 10px; background-image: linear-gradient(180deg,#cc193800 10%,#450410ad 100%);">
 				
 				<img width="50"  src="<?= base_url('assets/gambar/ppi.png')?>" alt="">
-			</div>
+			</div> -->
+            <!-- /menu footer buttons -->
 			
 			<!-- /.sidebar -->
 

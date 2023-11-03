@@ -4,12 +4,12 @@
 	<section class="content-header">
 		<div class="container-fluid">
 			<div class="row mb-2">
-				<div class="col-sm-6">
-					<h1><b>Data Transaksi</b> </h1>
+				<div class="col-sm-6" style="font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;" >
+					<!-- <h1><b>Data Transaksi</b> </h1> -->
 				</div>
 				<div class="col-sm-6">
 					<ol class="breadcrumb float-sm-right">
-						<li class="breadcrumb-item active"><a href="#"><?= $judul ?></a></li>
+						<!-- <li class="breadcrumb-item active"><a href="#"><?= $judul ?></a></li> -->
 					</ol>
 				</div>
 			</div>
@@ -20,9 +20,9 @@
 	<section class="content">
 
 		<!-- Default box -->
-		<div class="card">
-			<div class="card-header">
-				<h3 class="card-title"><?= $judul ?></h3>
+		<div class="card shadow mb-3">
+			<div class="card-header" style="font-family:Cambria;" >
+				<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?></b></h3>
 
 				<div class="card-tools">
 					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
@@ -31,7 +31,7 @@
 			</div>
 			<div class="card-body">
 				<?php if (!in_array($this->session->userdata('level'), ['Marketing','PPIC','Owner'])): ?>
-					<button type="button" class="tambah_data btn  btn-outline-primary pull-right"><i class="fa fa-plus" ></i> <b>Tambah Data</b></button>
+					<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info "><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<?php endif ?>
 				<br><br>
 
@@ -373,9 +373,9 @@
 				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
 			},
 			"aLengthMenu": [
-                    [5, 10, 15, 20, -1],
-                    [5, 10, 15, 20, "Semua"] // change per page values here
-                ],		
+				[5, 10, 15, 20, -1],
+				[5, 10, 15, 20, "Semua"] // change per page values here
+			],		
 
 			responsive: true,
 			"pageLength": 5,

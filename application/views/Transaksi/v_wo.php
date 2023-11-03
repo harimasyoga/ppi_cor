@@ -6,12 +6,12 @@
     <section class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1>Data Transaksi </h1>
+          <div class="col-sm-6" style="font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;" >
+            <!-- <h1><b>Data Transaksi </b></h1> -->
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item active" ><a href="#"><?= $judul ?></a></li>
+              <!-- <li class="breadcrumb-item active" ><a href="#"><?= $judul ?></a></li> -->
             </ol>
           </div>
         </div>
@@ -22,9 +22,9 @@
     <section class="content">
 
       <!-- Default box -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><?= $judul ?></h3>
+      <div class="card shadow mb-3">
+        <div class="card-header" style="font-family:Cambria" >
+          <h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?></b></h3>
 
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
@@ -33,7 +33,7 @@
         </div>
         <div class="card-body">
 
-          <button type="button" class="tambah_data btn  btn-outline-primary pull-right" >Tambah Data</button>
+          <button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
           <br><br>
 
          
@@ -43,6 +43,7 @@
             <tr>
               <th style="text-align: center; width:5%">No</th>
               <th style="text-align: center; width:15%">No WO</th>
+              <th style="text-align: center; width:15%">Type</th>
               <th style="text-align: center; width:10%">Tgl WO</th>
               <!-- <th style="text-align: center; width:15%">No SO</th> -->
               <th style="text-align: center; width:10%">Tgl SO</th>
@@ -107,7 +108,7 @@
               </td>
               <td></td>
               <td>Out</td>
-              <td><input type="text" class="form-control" name="line" id="line" ></td>
+              <td><input type="text" class="angka form-control" name="line" id="line" ></td>
             </tr>
             <tr>
               <td>Tgl WO</td>
@@ -498,8 +499,13 @@
         "type": "POST",
         // data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
       },
+      "aLengthMenu": [
+          [5, 10, 15, 20, -1],
+          [5, 10, 15, 20, "Semua"] // change per page values here
+      ],		
+      
       responsive: true,
-      "pageLength": 25,
+      "pageLength": 5,
       "language": {
         "emptyTable": "Tidak ada data.."
       }
@@ -654,13 +660,11 @@
     $("#baik_sliter").val('');
     $("#ket_sliter").val('');
     
-    $("#tgl_gdg").val(''); 
     $("#hasil_gdg").val('');
     $("#rusak_gdg").val('');
     $("#baik_gdg").val('');
     $("#ket_gdg").val('');
 
-    $("#tgl_exp").val('');
     $("#hasil_exp").val('');
     $("#rusak_exp").val('');
     $("#baik_exp").val('');
@@ -1010,12 +1014,24 @@
             $('#kupingan').val(parseFloat(val.kupingan));
           }else{
 
-            $('#tabel_sheet').show();
-            $('#tabel_box').hide();
-            $('#p1_sheet').val(data.ukuran_sheet_p);
-            $('#flap1_sheet').val((data.l_lebar/2));
-            $('#creasing2_sheet').val(data.l_tinggi);
-            $('#flap2_sheet').val((data.l_lebar/2));
+            if(data.creasing2 == 0 || data.creasing2 == null)
+            {
+              $('#tabel_sheet').show();
+              $('#tabel_box').hide();
+              $('#p1_sheet').val(data.ukuran_sheet_p);
+              $('#flap1_sheet').val(0);
+              $('#creasing2_sheet').val(0);
+              $('#flap2_sheet').val(0);
+            }else{
+              $('#tabel_sheet').show();
+              $('#tabel_box').hide();
+              $('#p1_sheet').val(data.ukuran_sheet_p);
+              $('#flap1_sheet').val((data.creasing));
+              $('#creasing2_sheet').val(data.creasing2);
+              $('#flap2_sheet').val((data.creasing3));
+
+
+            }
           }
           close_loading();
         },
