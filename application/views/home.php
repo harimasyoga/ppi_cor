@@ -24,8 +24,25 @@
 
           </div>
           <!-- /.col (LEFT) -->
-          <div class="col-md-6">
+          <div class="col-md-12">
          
+            <!-- Content Row -->
+            <div class="row">
+
+              <div class="card-body">
+                  
+                  <div align="center" style="font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;" class="">
+                      <h1><strong>SISTEM INFORMASI PRODUKSI </strong> <br><br>
+                  <img src="<?= base_url()?>assets/gambar/ppi.png" style="width: 40%;" /> 
+                  </div>
+                  
+              </div>
+
+                  <!-- Approach -->
+                  
+
+            </div>
+                  
           </div>
           <!-- /.col (RIGHT) -->
         </div>

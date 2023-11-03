@@ -25,7 +25,7 @@ class Master extends CI_Controller
 	{
 
 		$data = array(
-			'judul' => "Produk",
+			'judul' => "Master Produk",
 			'pelanggan' => $this->m_master->get_data("m_pelanggan")->result()
 		);
 
@@ -37,7 +37,7 @@ class Master extends CI_Controller
 	function Pelanggan()
 	{
 		$data = array(
-			'judul' => "Pelanggan"
+			'judul' => "Master Pelanggan"
 		);
 
 		$this->load->view('header');
@@ -47,8 +47,11 @@ class Master extends CI_Controller
 
 	function Sales()
 	{
+		$data = array(
+			'judul' => "Master Sales"
+		);
 		$this->load->view('header');
-		$this->load->view('Master/v_sales');
+		$this->load->view('Master/v_sales', $data);
 		$this->load->view('footer');
 	}
 
@@ -95,7 +98,7 @@ class Master extends CI_Controller
 	function User()
 	{
 		$data = array(
-			'judul' => "User"
+			'judul' => "Master User"
 		);
 
 		$this->load->view('header');

@@ -3,11 +3,11 @@
 		<div class="container-fluid">
 			<div class="row mb-2">
 				<div class="col-sm-6">
-					<h1><b>Data Master</b></h1>
+					<!-- <h1><b>Data Master</b></h1> -->
 				</div>
 				<div class="col-sm-6">
 					<ol class="breadcrumb float-sm-right">
-						<li class="breadcrumb-item active"><a href="#">Sales</a></li>
+						<!-- <li class="breadcrumb-item active"><a href="#">Sales</a></li> -->
 					</ol>
 				</div>
 			</div>
@@ -16,15 +16,15 @@
 
 	<section class="content">
 		<div class="card">
-			<div class="card-header">
-				<h3 class="card-title">Sales</h3>
+			<div class="card-header" style="font-family:Cambria;">
+				<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?></b></h3>
 				<div class="card-tools">
 					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
 						<i class="fas fa-minus"></i></button>
 				</div>
 			</div>
 			<div class="card-body">
-				<button type="button" class="tambah_data btn btn-outline-primary pull-right"><i class="fa fa-plus"></i> <b>Tambah Data</b></button>
+				<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<br><br>
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead>
