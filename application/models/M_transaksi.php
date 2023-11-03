@@ -689,7 +689,7 @@ class M_transaksi extends CI_Model
 				$result = array(
 					'data' => false,
 					'msg' => 'RM '.round($rm).' . RM KURANG!',
-					// 'p' => $produk->row()->ukuran_sheet_p, 'l' => $produk->row()->ukuran_sheet_l, 'bb' => $produk->row()->berat_bersih, 'RumusOut' => $RumusOut, 'out' => $out, 'rm' => $rm, 'ton' => $ton,
+					'p' => $produk->row()->ukuran_sheet_p, 'l' => $produk->row()->ukuran_sheet_l, 'bb' => $produk->row()->berat_bersih, 'RumusOut' => $RumusOut, 'out' => $out, 'rm' => $rm, 'ton' => $ton,
 				);
 			}else{
 				$this->db->set("eta_so", $_POST["editTglSo"]);
@@ -704,6 +704,7 @@ class M_transaksi extends CI_Model
 				$result = array(
 					'data' => $insert,
 					'msg' => 'BERHASIL EDIT DATA!',
+					'p' => $produk->row()->ukuran_sheet_p, 'l' => $produk->row()->ukuran_sheet_l, 'bb' => $produk->row()->berat_bersih, 'RumusOut' => $RumusOut, 'out' => $out, 'rm' => $rm, 'ton' => $ton,
 				);
 			}
 		}

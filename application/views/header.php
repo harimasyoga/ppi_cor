@@ -236,6 +236,38 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 							</ul>
 						</li>
 						<?php endif ?>
+
+						<?php if (in_array($this->session->userdata('level'), ['Admin','PPIC','Owner'])): ?>
+							<li class="nav-item has-treeview">
+								<a href="#" class="nav-link">
+									<i class="nav-icon fas fa-calendar-alt"></i>
+									<p>
+										<b>Plan</b>
+										<i class="fas fa-angle-left right"></i>
+									</p>
+								</a>
+								<ul class="nav nav-treeview">
+									<li class="nav-item">
+										<a href="<?= base_url('Plan/Corrugator') ?>" class="nav-link">
+										&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
+											<p>Corrugator</p>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="<?= base_url('Plan/Flexo') ?>" class="nav-link">
+										&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
+											<p>Flexo</p>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="<?= base_url('Plan/Finishing') ?>" class="nav-link">
+										&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
+											<p>Finishing</p>
+										</a>
+									</li>
+								</ul>
+							</li>
+						<?php endif ?>
 						<!-- <li class="nav-item has-treeview">
             <a href="<?= base_url('Laporan') ?>" class="nav-link">
               <i class="nav-icon fas fa-table"></i>
