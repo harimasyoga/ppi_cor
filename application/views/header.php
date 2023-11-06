@@ -132,7 +132,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								</p>
 							</a>
 						</li>
-						<?php if (in_array($this->session->userdata('level'), ['Admin','Marketing'])): ?>
+						<?php if (in_array($this->session->userdata('level'), ['Admin','Marketing','PPIC'])): ?>
 						<li class="nav-item has-treeview">
 							<a href="#" class="nav-link">
 								<i class="nav-icon fas fa-home"></i>
@@ -164,7 +164,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 									</li>
 								<?php endif ?>
 
-								<?php if ($this->session->userdata('level') == 'Admin') : ?>
+								<?php if ($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') : ?>
 									<li class="nav-item">
 										<a href="<?= base_url('Master/User') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
@@ -248,7 +248,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 						</li>
 						<?php endif ?>
 
-						<?php if (in_array($this->session->userdata('level'), ['Admin','PPIC','Owner'])): ?>
+						<?php if (in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator','Flexo','Finishing'])): ?>
 							<li class="nav-item has-treeview">
 								<a href="#" class="nav-link">
 									<i class="nav-icon fas fa-calendar-alt"></i>
@@ -258,24 +258,30 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 									</p>
 								</a>
 								<ul class="nav nav-treeview">
-									<li class="nav-item">
-										<a href="<?= base_url('Plan/Corrugator') ?>" class="nav-link">
-										&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>Corrugator</p>
-										</a>
-									</li>
-									<li class="nav-item">
-										<a href="<?= base_url('Plan/Flexo') ?>" class="nav-link">
-										&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>Flexo</p>
-										</a>
-									</li>
-									<li class="nav-item">
-										<a href="<?= base_url('Plan/Finishing') ?>" class="nav-link">
-										&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>Finishing</p>
-										</a>
-									</li>
+									<?php if (in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator'])) { ?>
+										<li class="nav-item">
+											<a href="<?= base_url('Plan/Corrugator') ?>" class="nav-link">
+												&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
+												<p>Corrugator</p>
+											</a>
+										</li>
+										<?php } ?>
+									<?php if (in_array($this->session->userdata('level'), ['Admin','PPIC','Flexo'])) { ?>
+										<li class="nav-item">
+											<a href="<?= base_url('Plan/Flexo') ?>" class="nav-link">
+												&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
+												<p>Flexo</p>
+											</a>
+										</li>
+									<?php } ?>
+									<?php if (in_array($this->session->userdata('level'), ['Admin','PPIC','Finishing'])) { ?>
+										<li class="nav-item">
+											<a href="<?= base_url('Plan/Finishing') ?>" class="nav-link">
+											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
+												<p>Finishing</p>
+											</a>
+										</li>
+									<?php } ?>
 								</ul>
 							</li>
 						<?php endif ?>

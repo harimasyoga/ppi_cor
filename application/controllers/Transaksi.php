@@ -327,7 +327,7 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_so_detail") {
-			$query = $this->m_master->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,s.* FROM trs_po_detail d
+			$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,s.* FROM trs_po_detail d
 			INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so=s.no_so AND d.id_produk=s.id_produk
 			INNER JOIN m_produk p ON d.id_produk=p.id_produk
 			WHERE d.no_so IS NOT NULL AND d.tgl_so IS NOT NULL AND d.status_so IS NOT NULL
@@ -1749,7 +1749,7 @@ class Transaksi extends CI_Controller
 		$item = $_POST["item"];
 		$data = $this->db->query("SELECT d.kode_po FROM trs_po_detail d
 		INNER JOIN m_produk p ON d.id_produk=p.id_produk
-		WHERE d.id_produk='$item'")->row();
+		WHERE d.id='$item'")->row();
 		echo json_encode(array(
 			'data' => $data,
 		));

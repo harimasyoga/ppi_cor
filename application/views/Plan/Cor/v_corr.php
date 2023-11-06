@@ -25,13 +25,20 @@
 			</div>
 
 			<div class="card-body">
-				<a href="<?php echo base_url('Plan/Corrugator/Add')?>" class="btn btn-outline-primary"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
-				<br><br>
+
+				<?php if(in_array($this->session->userdata('level'), ['Admin','PPIC'])) { ?>
+					<a href="<?php echo base_url('Plan/Corrugator/Add')?>" class="btn btn-outline-primary"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
+					<br><br>
+				<?php } ?>
+				
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead>
 						<tr>
-							<th style="width:5%">NO.</th>
-							<th style="width:5%">AKSI</th>
+							<th style="width:5%">#</th>
+							<th style="width:25%">TANGGAL</th>
+							<th style="width:25%">SHIFT</th>
+							<th style="width:25%">MESIN COR</th>
+							<th style="width:20%">AKSI</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
@@ -65,14 +72,11 @@
 	status ="insert";
 
 	$(document).ready(function () {
-		// load_data()
+		load_data()
 		// $('.select2').select2();
 	});
 
-	// function reloadTable() {
-	// 	table = $('#datatable').DataTable();
-	// 	tabel.ajax.reload(null, false);
-	// }
+	
 
 	$(".tambah_data").click(function(event) {
 		// kosong();
@@ -81,27 +85,41 @@
 		// $("#judul").html('<h3>Form Tambah Data</h3>')
 	})
 
-	// function load_data() {
-	// 	let table = $('#datatable').DataTable();
-	// 	table.destroy();
-	// 	tabel = $('#datatable').DataTable({
-	// 		"processing": true,
-	// 		"pageLength": true,
-	// 		"paging": true,
-	// 		"ajax": {
-	// 			"url": '<?php echo base_url(); ?>Transaksi/load_data/trs_so_detail',
-	// 			"type": "POST",
-	// 		},
-	// 		responsive: true,
-	// 		"pageLength": 10,
-	// 		"language": {
-	// 			"emptyTable": "Tidak ada data.."
-	// 		}
-	// 	})
-	// }
+	function reloadTable() {
+		table = $('#datatable').DataTable();
+		tabel.ajax.reload(null, false);
+	}
+
+	function load_data() {
+		let table = $('#datatable').DataTable();
+		table.destroy();
+		tabel = $('#datatable').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url": '<?php echo base_url('Plan/LoaDataCor')?>',
+				"type": "POST",
+			},
+			"aLengthMenu": [
+				[5, 10, 15, 20, -1],
+				[5, 10, 15, 20, "Semua"]
+			],	
+			responsive: true,
+			"pageLength": 10,
+			"language": {
+				"emptyTable": "Tidak ada data.."
+			}
+		})
+	}
 
 	function kosong(){
 		// 
+	}
+
+	function editListPlan(tgl, shift, mesin)
+	{
+		window.location.href = '<?php echo base_url('Plan/Corrugator')?>'
 	}
 
 </script>
