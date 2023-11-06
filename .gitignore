@@ -30,4 +30,5 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 /tests/tests/
 /tests/results/
 db_penjualan.sql
-application/config/database
+application/config/database.php
+.vscode
