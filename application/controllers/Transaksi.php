@@ -1021,7 +1021,7 @@ class Transaksi extends CI_Controller
 						 <td width="30%" >: <b>' . $data->nm_pelanggan . '</b></td>
 						 <td width="10%" > </td>
 						 <td width="15%" >Tgl Wo</td>
-						 <td width="30%" >: <b>' . $this->m_fungsi->tanggal_format_indonesia($data->tgl_wo) . '</b></td>
+						 <td width="30%" >: <b>' . $this->m_fungsi->tanggal_format_indonesia((($data->tgl_wo) == '0000-00-00' ? '' : $data->tgl_wo)) . '</b></td>
 					 </tr>
 					 <tr>
 						 <td>Item</td>
@@ -1042,14 +1042,15 @@ class Transaksi extends CI_Controller
 						 <td >: <b>' . $data->ukuran_sheet . '</b></td>
 						 <td></td>
 						 <td>Tgl Kirim</td>
-						 <td style="color:red" >: <b>' . $this->m_fungsi->tanggal_format_indonesia($data->tgl_wo) . '</b></td>
+						 <td style="color:red" >: <b>' . $this->m_fungsi->tanggal_format_indonesia((($data->tgl_wo) == '0000-00-00' ? '' : $data->tgl_wo)) . '</b></td>
 					 </tr>
 					 <tr>
 						 <td>Lebar Kertas</td>
 						 <td >: <b>' . $data->no_artikel . '</b></td>
 						 <td></td>
 						 <td>ETA</td>
-						 <td style="color:red" >: <b>' . $this->m_fungsi->tanggal_format_indonesia($data->eta_so) . '</b></td>
+						 <td style="color:red" >: <b>' . $this->m_fungsi->tanggal_format_indonesia((($data->eta_so) == '0000-00-00' ? '' : $data->eta_so)) . '
+						 </b></td>
 					 </tr>
 					 <tr>
 						 <td>Kualitas</td>
@@ -1293,7 +1294,7 @@ class Transaksi extends CI_Controller
 
 		// $this->m_fungsi->_mpdf($html);
 		
-		$this->m_fungsi->template_kop('WORK ORDER',$html,'P','1');
+		$this->m_fungsi->template_kop('WORK ORDER',$html,'P','0');
 		// $this->m_fungsi->mPDFP($html);
 	}
 
