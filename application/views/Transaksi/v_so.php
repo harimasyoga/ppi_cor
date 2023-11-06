@@ -311,7 +311,7 @@
 		$("#kode_mc").html((item == "") ? '-' : kode_mc)
 		$("#qty_po").html((item == "") ? '-' : qty)
 		// $("#no_so").val("").prop("disabled", true)
-		soNoSo(item)
+		soNoSo(idpodetail)
 	})
 
 	function soNoSo(item){

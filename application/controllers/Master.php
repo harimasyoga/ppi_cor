@@ -217,7 +217,12 @@ class Master extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "user") {
-			$query = $this->m_master->query("SELECT * FROM tb_user order by id")->result();
+			if($this->session->userdata('level') == 'PPIC'){
+				$where = "WHERE u.level='Corrugator' OR u.level='Flexo' OR u.level='Finishing'";
+			}else{
+				$where = "";
+			}
+			$query = $this->m_master->query("SELECT * FROM tb_user u $where ORDER BY u.id")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
@@ -231,13 +236,15 @@ class Master extends CI_Controller
 					$aksi = '<button type="button" onclick="tampil_edit(' . "'" . $r->username . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-xs">
 						Edit
 					</button>';
-				} else {
+				}else if($r->level == 'PPIC'){
 					$aksi = '<button type="button" onclick="tampil_edit(' . "'" . $r->username . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-xs">
 						Edit
 					</button>
 					<button type="button" onclick="deleteData(' . "'" . $r->username . "'" . ')" class="btn btn-danger btn-xs">
 						Hapus
 					</button>';
+				}else{
+					$aksi = '-';
 				}
 
 				$row[] = $aksi;
