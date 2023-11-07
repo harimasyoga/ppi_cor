@@ -233,6 +233,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/soPlhNoPO')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(json){
 				data = JSON.parse(json)
 				// console.log(data)
@@ -240,10 +250,11 @@
 					htmlPo += `<option value="">PILIH</option>`
 				data.po.forEach(loadPo);
 				function loadPo(r, index) {
-					htmlPo += `<option value="${r.no_po}" data-sales="${r.nm_sales}" data-cust="${r.nm_pelanggan}" data-idpelanggan="${r.id_pelanggan}" data-kdpo="${r.kode_po}" data-kdunik="${r.kode_unik}">${r.no_po} . KODE : ${r.kode_po}</option>`;
+					htmlPo += `<option value="${r.no_po}" data-sales="${r.nm_sales}" data-cust="${r.nm_pelanggan}" data-idpelanggan="${r.id_pelanggan}" data-kdpo="${r.kode_po}" data-kdunik="${r.kode_unik}" eta-po="${r.eta}">${r.no_po} . KODE : ${r.kode_po}</option>`;
 				}
 				$("#no_po").prop("disabled", false).html(htmlPo)
 				$("#h_kode_po").val("")
+				swal.close()
 			}
 		})
 	}
@@ -274,6 +285,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/soPlhItems')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				no_po
 			}),
@@ -289,6 +310,8 @@
 					htmlDetail += `<option value="${r.id_produk}" data-idpodetail="${r.id}" data-nm_produk="${r.nm_produk}" data-ukuran="${r.ukuran}" data-ukuran_sheet="${r.ukuran_sheet}" data-flute="${r.flute}" data-kualitas="${r.kualitas}" data-kode_mc="${r.kode_mc}" data-qty="${r.qty}" rm="${r.rm}" ton="${r.ton}">${r.nm_produk} | ${r.kode_mc} | ${r.ukuran} | ${r.ukuran_sheet} | ${r.flute} | ${r.kualitas} | ${r.qty}</option>`;
 				}
 				$("#items").prop("disabled", tf).html(htmlDetail)
+
+				swal.close()
 			}
 		})
 	}
@@ -323,6 +346,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/soNoSo')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				item
 			}),
@@ -336,6 +369,8 @@
 				}
 				$("#no_so").val(no_so).prop("disabled", true)
 				$("#btn-show-simpan").prop("disabled", false)
+
+				swal.close()
 			}
 		})
 	}
@@ -351,15 +386,27 @@
 		let rm = $('#items option:selected').attr('rm')
 		let ton = $('#items option:selected').attr('ton')
 		let idpelanggan = $('#no_po option:selected').attr('data-idpelanggan')
+		let eta_po = $('#no_po option:selected').attr('eta-po')
 
 		$("#btn-show-simpan").prop("disabled", true)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/addItems')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
-				idpodetail, idpelanggan, nm_produk, no_po, kode_po, item, no_so, jml_so, rm, ton
+				idpodetail, idpelanggan, nm_produk, no_po, kode_po, item, no_so, jml_so, rm, ton, eta_po
 			}),
 			success: function(res){
+				swal.close()
 				data = JSON.parse(res);
 				// console.log(data)
 				if(data.data){
@@ -404,6 +451,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/simpanSO')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				tgl_so
 			}),
@@ -418,6 +475,7 @@
 					swal("ADA YANG SALAH!", "", "error")
 					$("#btn-simpan").prop("disabled", false);
 				}
+				// swal.close()
 			}
 		})
 	}
@@ -435,12 +493,24 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/detailSO')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id, no_po, kode_po, aksi
 			}),
 			success: function(res){
 				$("#judul-detail").html(judul)
 				$("#modal-detail-so").html(res)
+
+				swal.close()
 			}
 		})
 	}
@@ -486,6 +556,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/btnAddBagiSO')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				i, fBagiEtaSo, fBagiQtySo, fBagiKetSo, hQtyPo, hRmPo, hTonPo
 			}),
@@ -503,13 +583,14 @@
 				$("#btnAddBagiSO").prop('disabled', false)
 				$("#hapusCartItemSO").prop('disabled', false)
 				$("#simpanCartItemSO").prop('disabled', false)
+
+				swal.close()
 			}
 		})
 	}
 
 	function editBagiSO(i){
 		// alert('edit so')
-		show_loading()
 		let id = $("#h_id").val()
 		let no_po = $("#h_no_po").val()
 		let kode_po = $("#h_kodepo").val()
@@ -522,11 +603,20 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editBagiSO')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				i, editTglSo, editQtySo, editKetSo, editQtypoSo
 			}),
 			success: function(res){
-				close_loading()
 				data = JSON.parse(res)
 				console.log(data)
 				if(data.data){
@@ -534,6 +624,7 @@
 					tampilEditSO(id, no_po, kode_po, 'edit')
 				}else{
 					toastr.error(`<b>${data.msg}</b>`);
+					swal.close()
 				}
 				$("#editBagiSO"+i).prop('disabled', false)
 			}
@@ -542,7 +633,6 @@
 
 	function simpanCartItemSO(){
 		// alert('simpanSO')
-		show_loading()
 		let id = $("#h_id").val()
 		let no_po = $("#h_no_po").val()
 		let kode_po = $("#h_kodepo").val()
@@ -553,9 +643,18 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/simpanCartItemSO')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			// data: ({}),
 			success: function(res){
-				close_loading()
 				data = JSON.parse(res)
 				// console.log(data)
 				if(data){
@@ -563,6 +662,7 @@
 					tampilEditSO(id, no_po, kode_po, 'edit')
 				}else{
 					toastr.error('Ada kesalahan!');
+					swal.close()
 				}
 				$("#btnAddBagiSO").prop('disabled', false)
 				$("#hapusCartItemSO").prop('disabled', false)
@@ -579,15 +679,23 @@
 
 		let cek = confirm("Apakah Anda Yakin?");
 		if(cek){
-			show_loading()
 			$.ajax({
 				url: '<?php echo base_url('Transaksi/batalDataSO')?>',
 				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
 				data: ({
 					i
 				}),
 				success: function(res){
-					close_loading()
 					data = JSON.parse(res)
 					// console.log(data)
 					if(data.data){
@@ -602,7 +710,6 @@
 	}
 
 	function hapusListSO(id){
-		show_loading()
 		// alert('hapus')
 		$("#hapusListSO").prop('disabled', true)
 		$.ajax({
@@ -614,7 +721,6 @@
 			success: function(res){
 				data = JSON.parse(res)
 				// console.log(data)
-				close_loading()
 				if(data.data){
 					swal(data.msg, "", "success")
 					$("#modalFormDetail").modal("hide")

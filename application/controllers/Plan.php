@@ -156,14 +156,15 @@ class Plan extends CI_Controller
 						}
 					}
 					$this->cart->insert($data);
-					echo json_encode(array('data' => true, 'isi' => $data));
+					echo json_encode(array('data' => true, 'opsi' => $opsi, 'isi' => $data));
 				}else{
 					$this->cart->insert($data);
-					echo json_encode(array('data' => true, 'isi' => $data));
+					echo json_encode(array('data' => true, 'opsi' => $opsi, 'isi' => $data));
 				}
 			}
 		}else{
-			echo json_encode(array('data' => true, 'isi' => 'edit'));
+			$edit = $this->m_plan->addRencanaPlan();
+			echo json_encode(array('data' => true, 'opsi' => $opsi, 'isi' => $edit));
 		}
 	}
 
@@ -204,7 +205,7 @@ class Plan extends CI_Controller
 		if($this->cart->total_items() != 0){
 			$html .= '</tbody>
 					</table>
-					<button class="btn btn-sm btn-primary" style="margin-left:20px" onclick="simpanCartItem()"><i class="fas fa-save"></i> SIMPAN</button>
+					<button class="btn btn-sm btn-primary" style="margin-left:20px" onclick="simpanCartItem('."'".$r['rowid']."'".')"><i class="fas fa-save"></i> SIMPAN</button>
 				</div>
 			</div>';
 		}
@@ -247,19 +248,18 @@ class Plan extends CI_Controller
 		$tgl_plan = $_POST["tgl_plan"];
 		$shift = $_POST["shift"];
 		$mesin = $_POST["mesin"];
-		// $getData = $this->db->query("SELECT pl.*,i.*,l.*,s.eta_so,s.qty_so,s.rm AS rmSO,s.ton AS tonSO,s.ket_so AS ketSO,m.nm_sales,w.tgl_wo,w.flap1,w.creasing2,w.flap2 FROM plan_cor pl
-		// INNER JOIN m_produk i ON pl.id_produk=i.id_produk
-		// INNER JOIN m_pelanggan l ON pl.id_pelanggan=l.id_pelanggan
-		// INNER JOIN m_sales m ON l.id_sales=m.id_sales
-		// INNER JOIN trs_wo w ON pl.id_wo=w.id
-		// INNER JOIN trs_so_detail s ON pl.id_so_detail=s.id
-		// WHERE pl.tgl_plan='$tgl_plan' AND pl.shift_plan='$shift' AND pl.machine_plan='$mesin'");
 		$getData = $this->db->query("SELECT * FROM plan_cor pl
 		WHERE pl.tgl_plan='$tgl_plan' AND pl.shift_plan='$shift' AND pl.machine_plan='$mesin'");
 		echo json_encode(array(
 			'data' => true,
 			'planCor' => $getData->result(),
 		));
+	}
+
+	function produksiRencanaPlan()
+	{
+		$result = $this->m_plan->produksiRencanaPlan();
+		echo json_encode($result);
 	}
 
 	//
