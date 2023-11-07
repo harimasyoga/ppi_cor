@@ -32,7 +32,33 @@ class Transaksi extends CI_Controller
 		$this->load->view('footer');
 	}
     
-    function load_produk()
+    function load_so()
+    {
+
+        $query = $this->db->query("SELECT * 
+		FROM trs_so_detail a
+		JOIN m_produk b ON a.id_produk=b.id_produk
+		JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+		WHERE status='Open' ")->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
+	
+	function load_produk()
     {
         
 		$pl = $this->input->post('idp');
@@ -268,13 +294,9 @@ class Transaksi extends CI_Controller
 				';
 
 				// $aksi = '-';
-                $aksi = '
-                        <a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+                $aksi = '';
 
-                        <a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a>
-                    ';
-
-				if (!in_array($this->session->userdata('level'), ['Marketing','PPIC','Owner']))
+				if (!in_array($this->session->userdata('level'), ['Admin','Marketing','PPIC','Owner']))
                 {
 
 					if ($r->status == 'Open' && $r->status_app1 == 'N') {
@@ -286,6 +308,11 @@ class Transaksi extends CI_Controller
 	                            <button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
                                     <i class="fa fa-trash-alt"></i>
 	                            </button>  
+
+								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+
+								<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a>
+
                                 ';
 					}
 				}else{
@@ -310,11 +337,30 @@ class Transaksi extends CI_Controller
 	                            </button>  ';
 					}
 
-                    if ($this->session->userdata('level') == 'Admin' && ($r->status_app1 == 'N' || $r->status_app2 == 'N' || $r->status_app3 == 'N') ) {
-						$aksi .=  '
+                    if ($this->session->userdata('level') == 'Admin' ) {
+
+						if($r->status_app1 == 'N' || $r->status_app2 == 'N' || $r->status_app3 == 'N'){
+							$aksi .=  '
+								<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
+									<i class="fa fa-edit"></i>
+								</button>
+
+								<button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
+									<i class="fa fa-trash-alt"></i>
+								</button>  
 	                            <button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
                                     <i class="fa fa-check"></i>
-	                            </button>';
+	                            </button>
+								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+
+								<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> ';
+						}else{
+							$aksi .=  '
+								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+
+								<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> ';
+
+						}
 					}
 
 					
@@ -509,12 +555,23 @@ class Transaksi extends CI_Controller
                 FROM trs_so_detail a
                 JOIN m_produk b ON a.id_produk=b.id_produk
                 JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
-                WHERE concat(no_so,'.',urut_so,'.',rpt) = '".$id."'
-                "
+                WHERE id = '$id' "
 			)->row();
 		} else if ($jenis == "trs_wo") {
-			$header =  $this->m_master->get_data_one($jenis, $field, $id)->row();
+			// $header =  $this->m_master->get_data_one($jenis, $field, $id)->row();
+			$header =  $this->db->query("SELECT a.* ,CONCAT(b.no_so,'.',urut_so,'.',rpt) as no_so_1 from $jenis a LEFT JOIN trs_so_detail b ON a.no_so = b.id WHERE a.id='$id' ")->row();
 			$detail = $this->m_master->get_data_one("trs_wo_detail", "no_wo", $header->no_wo)->row();
+
+			// $data =  $this->m_master->query(
+			// 	"SELECT a.id as id_wo,a.*,b.*,c.*,d.*,e.* FROM trs_wo a 
+			// 	JOIN trs_wo_detail b ON a.no_wo=b.no_wo 
+			// 	JOIN m_produk c ON a.id_produk=c.id_produk 
+			// 	JOIN m_pelanggan d ON a.id_pelanggan=d.id_pelanggan 				
+			// 	JOIN trs_so_detail e ON a.no_so=concat(e.no_so,'.',e.urut_so,'.',e.rpt)
+			// 	WHERE a.id= '".$id."'
+			// 	order by a.id
+            //     "
+			// )->row();
 
 			$data = ["header" => $header, "detail" => $detail];
 		} else if ($jenis == "SJ") {
