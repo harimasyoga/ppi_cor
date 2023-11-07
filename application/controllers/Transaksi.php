@@ -1793,7 +1793,7 @@ class Transaksi extends CI_Controller
 	function soPlhItems()
 	{
 		$no_po = $_POST["no_po"];
-		$poDetail = $this->db->query("SELECT p.nm_produk,p.kode_mc,p.ukuran,p.ukuran_sheet,p.flute,p.kualitas,d.* FROM trs_po_detail d
+		$poDetail = $this->db->query("SELECT p.nm_produk,p.kode_mc,p.ukuran,p.ukuran_sheet,p.flute,p.kualitas,o.eta,d.* FROM trs_po_detail d
 		INNER JOIN trs_po o ON d.no_po=o.no_po AND d.kode_po=o.kode_po
 		INNER JOIN m_produk p ON d.id_produk=p.id_produk
 		WHERE d.status='Approve' AND d.no_po='$no_po' AND no_so IS NULL AND tgl_so IS NULL")->result();
@@ -1839,6 +1839,7 @@ class Transaksi extends CI_Controller
 					'jml_so' => $_POST['jml_so'],
 					'rm' => $_POST['rm'],
 					'ton' => $_POST['ton'],
+					'eta_po' => $_POST['eta_po'],
 				)
 			);
 			if($this->cart->total_items() != 0){

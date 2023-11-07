@@ -17,6 +17,7 @@
 	<section class="content" style="padding-bottom:30px">
 		<div class="container-fluid">
 			<div class="row">
+				<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') { ?>
 				<div class="col-md-12">
 					<div class="card card-info card-outline">
 						<div class="card-header">
@@ -55,6 +56,7 @@
 						</div>
 					</div>
 				</div>
+				<?php } ?>
 
 				<div class="col-md-7">
 					<div id="list-plan"></div>
@@ -226,7 +228,6 @@
 				</div>
 
 				<div class="col-md-5">
-					<!-- <div style="position:sticky;top:10px"> -->
 					<div class="card card-info card-outline">
 						<div class="card-header">
 							<h3 class="card-title" style="font-weight:bold;font-style:italic">PLAN</h3>
@@ -251,12 +252,18 @@
 						</div>
 
 						<div id="group_ganti_kualitas">
-							<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
-								<input type="hidden" id="status_edit" value="">
-								<input type="hidden" id="input_material_plan" value="">
-								<input type="hidden" id="input_kualitas_plan" value="">
-								<input type="hidden" id="input_kualitas_plan_isi" value="">
-								<input type="hidden" id="h_ikpi" value="">
+							<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') {
+								$gKualitas = 'style="padding:20px 20px 5px;font-weight:bold"';
+								$dis = '';
+							}else{
+								$gKualitas = 'style="display:none"';
+								$dis = 'disabled';
+							} ?>
+							<input type="hidden" id="input_material_plan" value="">
+							<input type="hidden" id="input_kualitas_plan" value="">
+							<input type="hidden" id="input_kualitas_plan_isi" value="">
+							<input type="hidden" id="h_ikpi" value="">
+							<div class="card-body row" <?= $gKualitas ?>>
 								<div class="col-md-2">GANTI</div>
 								<div class="col-md-10">
 									<select id="g_kualitas" class="form-control select2" onchange="ayoBerhitung()">
@@ -330,25 +337,25 @@
 						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 							<div class="col-md-2" style="padding:0">PANJANG</div>
 							<div class="col-md-10">
-								<input type="number" id="ii_panjang" class="form-control" autocomplete="off" placeholder="PANJANG SHEET" onchange="ayoBerhitung()">
+								<input type="number" id="ii_panjang" class="form-control" autocomplete="off" <?=$dis?> placeholder="PANJANG SHEET" onchange="ayoBerhitung()">
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">LEBAR</div>
 							<div class="col-md-10">
-								<input type="number" id="ii_lebar" class="form-control" autocomplete="off" placeholder="LEBAR SHEET" onchange="ayoBerhitung()">
+								<input type="number" id="ii_lebar" class="form-control" autocomplete="off" <?=$dis?> placeholder="LEBAR SHEET" onchange="ayoBerhitung()">
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2" style="padding-right:0">L. ROLL</div>
 							<div class="col-md-10">
-								<input type="number" id="i_lebar_roll" class="form-control" autocomplete="off" placeholder="LEBAR ROLL" onchange="ayoBerhitung()">
+								<input type="number" id="i_lebar_roll" class="form-control" autocomplete="off" <?=$dis?> placeholder="LEBAR ROLL" onchange="ayoBerhitung()">
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">OUT</div>
 							<div class="col-md-10">
-								<input type="number" id="out_plan" class="form-control" autocomplete="off" placeholder="OUT" onchange="ayoBerhitung()">
+								<input type="number" id="out_plan" class="form-control" autocomplete="off" <?=$dis?> placeholder="OUT" onchange="ayoBerhitung()">
 							</div>
 						</div>
 						<br/>
@@ -387,13 +394,13 @@
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2" style="padding-right:0">KIRIM</div>
 							<div class="col-md-10">
-								<input type="date" id="kirim" class="form-control">
+								<input type="date" id="kirim" class="form-control" <?=$dis?>>
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">NEXT</div>
 							<div class="col-md-10">
-								<select id="next_flexo" class="form-control select2">
+								<select id="next_flexo" class="form-control select2" <?=$dis?>>
 									<option value="">PILIH</option>
 									<option value="FLEXO1">FLEXO 1</option>
 									<option value="FLEXO2">FLEXO 2</option>
@@ -404,12 +411,74 @@
 						</div>
 
 						<br/>
-						<!-- <div class="card-body row" style="padding:0 20px 20px;font-weight:bold"> -->
+						<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') { ?>
 							<div id="btn-aksi-plan"></div>
-						<!-- </div> -->
+						<?php } ?>
 					</div>
-				<!-- </div> -->
+
+					<!-- <div style="position:sticky;top:10px"> -->
+						<div id="card-produksi" style="display:none">
+							<div class="card card-info card-outline" style="padding-bottom:20px">
+								<div class="card-header">
+									<h3 class="card-title" style="font-weight:bold;font-style:italic">HASIL PRODUKSI</h3>
+								</div>
+								<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+									<div class="col-md-2">GOOD</div>
+									<div class="col-md-10">
+										<input type="number" id="good_cor" class="form-control" onchange="hitungProduksi()">
+									</div>
+								</div>
+								<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+									<div class="col-md-2">REJECT</div>
+									<div class="col-md-10">
+										<input type="number" id="bad_cor" class="form-control" onchange="hitungProduksi()">
+									</div>
+								</div>
+								<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+									<div class="col-md-2">TOTAL</div>
+									<div class="col-md-10">
+										<input type="number" id="total_cor" class="form-control" onchange="hitungProduksi()" disabled>
+									</div>
+								</div>
+								<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+									<div class="col-md-2">KET</div>
+									<div class="col-md-10">
+										<textarea id="ket_cor" class="form-control" style="resize:none" rows="2"></textarea>
+									</div>
+								</div>
+
+								<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
+									<div class="col-md-2">START</div>
+									<div class="col-md-10">
+										<input type="time" id="start_cor" class="form-control">
+									</div>
+								</div>
+								<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+									<div class="col-md-2">END</div>
+									<div class="col-md-10">
+										<input type="time" id="end_cor" class="form-control">
+									</div>
+								</div>
+
+								<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'Corrugator') { ?>
+									<div id="btn-aksi-produksi"></div>
+								<?php } ?>
+							</div>
+						</div>
+					<!-- </div> -->
 				</div>
+
+				<input type="hidden" id="ehid_plan" value="">
+				<input type="hidden" id="ehid_so_detail" value="">
+				<input type="hidden" id="ehid_wo" value="">
+				<input type="hidden" id="ehid_produk" value="">
+				<input type="hidden" id="ehid_pelanggan" value="">
+				<input type="hidden" id="ehno_wo" value="">
+				<input type="hidden" id="ehno_so" value="">
+				<input type="hidden" id="ehurut_so" value="">
+				<input type="hidden" id="ehrpt" value="">
+				<input type="hidden" id="ehpcs_plan" value="">
+
 			</div>
 		</div>
 	</section>
@@ -432,15 +501,17 @@
 </div>
 
 <script type="text/javascript">
+	const auth = '<?= $this->session->userdata('level')?>';
+	const urlTgl_plan = '<?= $tgl_plan ?>';
+	const urlShift = '<?= $shift ?>';
+	const urlMesin = '<?= $mesin ?>';
+	
 	$(document).ready(function ()
 	{
-		const tgl_plan = '<?= $tgl_plan ?>';
-		const shift = '<?= $shift ?>';
-		const mesin = '<?= $mesin ?>';
-		$("#tgl").val(tgl_plan).prop("disabled", true)
-		$("#shift").html(`<option value="${shift}">${shift}</option>`).prop("disabled", true)
-		$("#mesin").html(`<option value="${mesin}">${mesin}</option>`).prop("disabled", true)
-		loadData(tgl_plan, shift, mesin)
+		$("#tgl").val(urlTgl_plan).prop("disabled", true)
+		$("#shift").html(`<option value="${urlShift}">${urlShift}</option>`).prop("disabled", true)
+		$("#mesin").html(`<option value="${urlMesin}">${urlMesin}</option>`).prop("disabled", true)
+		loadData(urlTgl_plan, urlShift, urlMesin)
 
 		$("#list-rencana-plan").load("<?php echo base_url('Plan/destroyPlan') ?>")
 		$("#no_wo").prop("disabled", true).html(`<option value="">PILIH</option>`)
@@ -449,6 +520,8 @@
 		$('.select2').select2({
 			dropdownAutoWidth: true
 		})
+
+		// console.log(auth)
 	})
 
 	function kosong()
@@ -464,6 +537,16 @@
 			data: ({
 				tgl_plan, shift, mesin
 			}),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(res){
 				data = JSON.parse(res)
 				// console.log(data)
@@ -485,13 +568,21 @@
 							</thead>
 							<tbody>`
 				for (let i = 0; i < plan.length; i++) {
-					htmlList += `<tr>
-						<td>${i+1}</td>
-						<td><a href="javascript:void(0)" onclick="plhNoWo(${plan[i].id_wo})">${plan[i].no_wo}<a></td>
-						<td>
-							<button class="btn btn-sm btn-danger" onclick="e(${i})"><i class="fas fa-times"></i> HAPUS</button>
-						</td>
-					</tr>`
+					if(auth == 'Admin'){
+						htmlList += `<tr>
+							<td>${i+1}</td>
+							<td><a href="javascript:void(0)" onclick="plhNoWo(${plan[i].id_plan})">${plan[i].no_wo}<a></td>
+							<td>
+								<button class="btn btn-sm btn-danger" onclick="e(${i})"><i class="fas fa-times"></i> HAPUS</button>
+							</td>
+						</tr>`
+					}else{
+						htmlList += `<tr>
+							<td>${i+1}</td>
+							<td><a href="javascript:void(0)" onclick="plhNoWo(${plan[i].id_plan})">${plan[i].no_wo}<a></td>
+							<td>-</td>
+						</tr>`
+					}
 				}
 				htmlList += `</tbody>
 						</table>
@@ -499,6 +590,7 @@
 				</div>`
 
 				$("#list-plan").html(htmlList)
+				swal.close()
 			}
 		})
 	}
@@ -512,21 +604,22 @@
 		if(tgl_plan == '' || machine_plan == '' || shift_plan == ''){
 			toastr.error('<b>PILIH PLAN!</b>');
 			return
-		}
+		};
 
-		let id_so_detail = $('#no_wo option:selected').attr('id-so')
-		let id_wo = $('#no_wo option:selected').attr('id-wo')
-		let id_produk = $('#no_wo option:selected').attr('id-produk')
-		let id_pelanggan = $('#no_wo option:selected').attr('id-pelanggan')
-		let no_wo = $('#no_wo option:selected').attr('no-wo')
+		let id_plan = $("#ehid_plan").val();
+		let id_so_detail = (opsi == 'add') ? $('#no_wo option:selected').attr('id-so') : $("#ehid_so_detail").val() ;
+		let id_wo = (opsi == 'add') ? $('#no_wo option:selected').attr('id-wo') : $("#ehid_wo").val() ;
+		let id_produk = (opsi == 'add') ? $('#no_wo option:selected').attr('id-produk') : $("#ehid_produk").val() ;
+		let id_pelanggan = (opsi == 'add') ? $('#no_wo option:selected').attr('id-pelanggan') : $("#ehid_pelanggan").val() ;
+		let no_wo = (opsi == 'add') ? $('#no_wo option:selected').attr('no-wo') : $("#ehno_wo").val() ;
 		if(id_so_detail == undefined || id_wo == undefined || id_produk == undefined || id_pelanggan == undefined || no_wo == undefined){
 			toastr.error('<b>PILIH NO. WO!</b>');
 			return
-		}
+		};
 		
-		let no_so = $('#no_wo option:selected').attr('no-so')
-		let urut_so = $('#no_wo option:selected').attr('urut-so')
-		let rpt = $('#no_wo option:selected').attr('rpt');
+		let no_so = (opsi == 'add') ? $('#no_wo option:selected').attr('no-so') : $("#ehno_so").val();
+		let urut_so = (opsi == 'add') ? $('#no_wo option:selected').attr('urut-so') : $("#ehurut_so").val();
+		let rpt = (opsi == 'add') ? $('#no_wo option:selected').attr('rpt') : $("#ehrpt").val();
 		(urut_so == undefined) ? urut_so = '' : urut_so = urut_so;
 		(rpt == undefined) ? rpt = '' : rpt = rpt;
 		(urut_so.length == 1 ) ? urut_so = '.0'+urut_so : urut_so = urut_so;
@@ -554,7 +647,7 @@
 			return
 		}
 
-		let pcs_plan = $('#no_wo option:selected').attr('qty-so');
+		let pcs_plan = (opsi == 'add') ? $('#no_wo option:selected').attr('qty-so') : $("#ehpcs_plan").val();
 		(pcs_plan == undefined) ? pcs_plan = '' : pcs_plan = pcs_plan.split('.').join('');
 		let kualitas_plan = $("#input_kualitas_plan").val();
 		let kualitas_isi_plan = $("#input_kualitas_plan_isi").val()
@@ -575,20 +668,88 @@
 			url: '<?php echo base_url('Plan/addRencanaPlan')?>',
 			type: "POST",
 			data: ({
-				id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan, opsi
+				id_plan, id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan, opsi
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
-				if(data.data){
-					toastr.success(`<b>BERHASIL</b>`)
-					$("#list-rencana-plan").load("<?php echo base_url('Plan/listRencanaPlan')?>")
-					$("#no_wo").val("")
-					plhNoWo('')
+				console.log(data)
+				if(opsi == 'add'){
+					if(data.data){
+						toastr.success(`<b>BERHASIL</b>`)
+						$("#list-rencana-plan").load("<?php echo base_url('Plan/listRencanaPlan')?>")
+						$("#no_wo").val("")
+						plhNoWo('')
+					}else{
+						swal(data.isi, "", "error")
+						return
+					}
 				}else{
-					swal(data.isi, "", "error")
-					return
+					toastr.success(`<b>BERHASIL</b>`)
+					plhNoWo(id_plan)
+					$("#list-rencana-plan").load("<?php echo base_url('Plan/listRencanaPlan')?>")
 				}
+			}
+		})
+	}
+
+	function hitungProduksi()
+	{
+		let good_cor_p = $("#good_cor").val();
+		(good_cor_p < 0 || good_cor_p == 0 || good_cor_p == '') ? good_cor_p = 0 : good_cor_p = good_cor_p;
+		let bad_cor_p = $("#bad_cor").val();
+		(bad_cor_p < 0 || bad_cor_p == 0 || bad_cor_p == '') ? bad_cor_p = 0 : bad_cor_p = bad_cor_p;
+		hitungLagiProduksi()
+	}
+
+	function hitungLagiProduksi()
+	{
+		let good_cor_p = $("#good_cor").val();
+		(good_cor_p < 0 || good_cor_p == 0 || good_cor_p == '') ? good_cor_p = 0 : good_cor_p = good_cor_p;
+		$("#good_cor").val(good_cor_p);
+		let bad_cor_p = $("#bad_cor").val();
+		(bad_cor_p < 0 || bad_cor_p == 0 || bad_cor_p == '') ? bad_cor_p = 0 : bad_cor_p = bad_cor_p;
+		$("#bad_cor").val(bad_cor_p);
+
+		let hitung = parseInt(good_cor_p) - parseInt(bad_cor_p);
+		(hitung < 0 || hitung == 0 || hitung == '') ? hitung = 0 : hitung = hitung ;
+		$("#total_cor").val(hitung);
+	}
+
+	function produksiRencanaPlan(id_plan)
+	{
+		let good_cor_p = $("#good_cor").val()
+		let bad_cor_p = $("#bad_cor").val()
+		let total_cor_p = $("#total_cor").val()
+		let ket_plan = $("#ket_cor").val()
+		let start_cor = $("#start_cor").val()
+		let end_cor = $("#end_cor").val()
+		if(good_cor_p < 0 || good_cor_p == 0 || good_cor_p == '' || total_cor_p < 0 || total_cor_p == 0 || total_cor_p == '' || start_cor == '' || end_cor == ''){
+			swal("DATA TIDAK BOLEH KOSONG!", "", "error")
+			return
+		}
+
+		$.ajax({
+			url: '<?php echo base_url('Plan/produksiRencanaPlan')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_plan, good_cor_p, bad_cor_p, total_cor_p, ket_plan, start_cor, end_cor
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				swal("BERHASAIL", "", "success")
+				// plhNoWo(id_plan)
+				// loadData(urlTgl_plan, urlShift, urlMesin)
 			}
 		})
 	}
@@ -609,6 +770,7 @@
 
 	function simpanCartItem()
 	{
+		// console.log(opsi)
 		$.ajax({
 			url: '<?php echo base_url('Plan/simpanCartItem')?>',
 			type: "POST",
@@ -616,7 +778,9 @@
 				// data = JSON.parse(res)
 				// console.log(data)
 				swal("BERHASIL!", "", "success")
-				window.location.href = '<?php echo base_url('Plan/Corrugator')?>'
+				$("#list-rencana-plan").load("<?php echo base_url('Plan/destroyPlan') ?>")
+				plhNoWo('')
+				loadData(urlTgl_plan, urlShift, urlMesin)
 			}
 		})
 	}
@@ -707,6 +871,16 @@
 			url: '<?php echo base_url('Plan/loadPlanWo')?>',
 			type: "POST",
 			data: ({ opsi }),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(res){
 				data = JSON.parse(res)
 				// console.log(data)
@@ -724,7 +898,7 @@
 					tgl_po = data.wo.tgl_po
 					no_po = data.wo.no_po
 					kode_po = data.wo.kode_po
-					qty_po = data.wo.qty_po
+					qty_po = data.wo.qtyPoWo
 					customer = data.wo.nm_pelanggan
 					nm_sales = data.wo.nm_sales
 					item = data.wo.nm_produk
@@ -747,6 +921,7 @@
 					berat_box = data.wo.berat_bersih
 					luas_box = data.wo.luas_bersih
 					qty_so = data.wo.qty_so
+					pcs_plan = data.wo.pcs_plan
 					rm_so = data.wo.rm
 					ton_so = data.wo.ton
 					ket_so = data.wo.ket_so
@@ -760,6 +935,18 @@
 					rm_plan = data.wo.rm_plan
 					tonase_plan = data.wo.tonase_plan
 					tgl_kirim_plan = data.wo.tgl_kirim_plan
+					next_plan = data.wo.next_plan
+
+					$("#ehid_plan").val(data.wo.id_plan)
+					$("#ehid_so_detail").val(id_so)
+					$("#ehid_wo").val(id_wo)
+					$("#ehid_produk").val(id_produk)
+					$("#ehid_pelanggan").val(id_pelanggan)
+					$("#ehno_wo").val(no_wo)
+					$("#ehno_so").val(no_so)
+					$("#ehurut_so").val(urut_so)
+					$("#ehrpt").val(rpt)
+					$("#ehpcs_plan").val(pcs_plan)
 
 					$("#no_wo").prop("disabled", true).html(`<option value="">PILIH</option>`)
 					loadPlanWo('')
@@ -767,10 +954,26 @@
 					$("#info-substance").val(kualitas_plan)
 					$("#btn-aksi-plan").html(`<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 						<div class="col-md-6">
-							<button type="button" class="btn btn-warning btn-block" onclick="addRencanaPlan('edit')"><i class="fa fa-plus"></i> <b>EDIT PLAN</b></button>
+							<button type="button" class="btn btn-warning btn-block" onclick="addRencanaPlan(${data.wo.id_plan})"><i class="fa fa-plus"></i> <b>EDIT PLAN</b></button>
 						</div>
 						<div class="col-md-6">
 							<button type="button" class="btn btn-primary btn-block"><i class="fas fa-check"></i> <b>SELESAI PLAN</b></button>
+						</div>
+					</div>`)
+
+					$("#kirim").val(tgl_kirim_plan)
+					$("#next_flexo").html(`<option value="${next_plan}">${next_plan}</option><option value="">PILIH</option><option value="FLEXO1">FLEXO 1</option><option value="FLEXO2">FLEXO 2</option><option value="FLEXO3">FLEXO 3</option><option value="FLEXO4">FLEXO 4</option>`)
+
+					$("#card-produksi").show();
+					$("#good_cor").val(data.wo.good_cor_p)
+					$("#bad_cor").val(data.wo.bad_cor_p)
+					$("#total_cor").val(data.wo.total_cor_p)
+					$("#ket_cor").val(data.wo.ket_plan)
+					$("#start_cor").val(data.wo.start_time_p)
+					$("#end_cor").val(data.wo.end_time_p)
+					$("#btn-aksi-produksi").html(`<div class="card-body row" style="padding:20px 20px 0;font-weight:bold">
+						<div class="col-md-12">
+							<button type="button" class="btn btn-success btn-block" onclick="produksiRencanaPlan(${data.wo.id_plan})"><i class="fa fa-save"></i> <b>SIMPAN</b></button>
 						</div>
 					</div>`)
 				}else{
@@ -821,14 +1024,25 @@
 					c_off_p = 0 
 					rm_plan = 0 
 					tonase_plan = 0 
-					tgl_kirim_plan = ''
+					tgl_kirim_plan = '';
+					next_plan = '';
 
-					$("#info-substance").val(kualitas)
+					$("#ehid_plan").val("");$("#ehid_so_detail").val("");$("#ehid_wo").val("");$("#ehid_produk").val("");$("#ehid_pelanggan").val("");$("#ehno_wo").val("");
+					$("#ehno_so").val("");$("#ehurut_so").val("");$("#ehrpt").val("");$("#ehpcs_plan").val("")
+
+					$("#info-substance").val(kualitas);
 					$("#btn-aksi-plan").html(`<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 						<div class="col-md-12">
 							<button type="button" class="btn btn-success btn-block" onclick="addRencanaPlan('add')"><i class="fa fa-plus"></i> <b>ADD PLAN</b></button>
 						</div>
 					</div>`)
+
+					$("#kirim").val(eta_so)
+					$("#next_flexo").html(`<option value="">PILIH</option><option value="FLEXO1">FLEXO 1</option><option value="FLEXO2">FLEXO 2</option><option value="FLEXO3">FLEXO 3</option><option value="FLEXO4">FLEXO 4</option>`);
+
+					$("#card-produksi").hide();
+					$("#good_cor").val("");$("#bad_cor").val("");$("#total_cor").val("");$("#ket_cor").val("");$("#start_cor").val("");$("#end_cor").val("");
+					$("#btn-aksi-produksi").html(``);
 				}
 
 				$("#tgl_wo").val(tgl_wo)
@@ -873,6 +1087,8 @@
 					sambungan = 'STICHING'
 				}else if(sambungan == 'D'){
 					sambungan = 'DIE CUT'
+				}else if(sambungan == '-'){
+					sambungan = '-'
 				}else{
 					sambungan = ''
 				}
@@ -912,10 +1128,8 @@
 				$("#cl_i").val("").prop('disabled', true)
 				$("#group_plh_kualitas").hide()
 
-				$("#kirim").val(tgl_kirim_plan)
-				$("#next_flexo").html(`<option value="">PILIH</option><option value="FLEXO1">FLEXO 1</option><option value="FLEXO2">FLEXO 2</option><option value="FLEXO3">FLEXO 3</option><option value="FLEXO4">FLEXO 4</option>`)
-
 				ayoBerhitung()
+				swal.close()
 			}
 		})
 	}

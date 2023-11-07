@@ -100,7 +100,7 @@
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">QTY PO</div>
 							<div class="col-md-10">
-								<input type="number" id="qty_po" class="form-control" autocomplete="off" placeholder="QTY PO" disabled>
+								<input type="text" id="qty_po" class="form-control" autocomplete="off" placeholder="QTY PO" disabled>
 							</div>
 						</div>
 					</div>
@@ -415,7 +415,6 @@
 					</div>
 				<!-- </div> -->
 				</div>
-
 			</div>
 		</div>
 	</section>
@@ -524,7 +523,7 @@
 			url: '<?php echo base_url('Plan/addRencanaPlan')?>',
 			type: "POST",
 			data: ({
-				id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan
+				id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan, opsi: 'add'
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -583,15 +582,27 @@
 		})
 	}
 
-	function loadPlanWo()
+	function loadPlanWo(opsi = '')
 	{
 		$("#no_wo").prop("disabled", true).html(`<option value="">PILIH</option>`)
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadPlanWo')?>',
 			type: "POST",
+			data: ({ opsi }),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ opsi: '' }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
+				console.log(data)
 				let htmlWO = ''
 					htmlWO += `<option value="">PILIH</option>`
 				data.wo.forEach(loadWo);
@@ -642,6 +653,8 @@
 					</option>`
 				}
 				$("#no_wo").prop("disabled", false).html(htmlWO)
+
+				swal.close()
 			}
 		})
 	}
@@ -657,7 +670,7 @@
 			$("#tgl").prop("disabled", true)
 			$("#shift").prop("disabled", true)
 			$("#mesin").prop("disabled", true)
-			loadPlanWo()
+			loadPlanWo('')
 		}
 	}
 
@@ -665,7 +678,7 @@
 	{
 		let plhWo = $("#no_wo").val()
 		if(plhWo == ''){
-			loadPlanWo()
+			loadPlanWo('')
 		}
 
 		let id_wo = $('#no_wo option:selected').attr('id-wo')
@@ -751,6 +764,8 @@
 			sambungan = 'STICHING'
 		}else if(sambungan == 'D'){
 			sambungan = 'DIE CUT'
+		}else if(sambungan == '-'){
+			sambungan = '-'
 		}else{
 			sambungan = ''
 		}
@@ -779,7 +794,11 @@
 		$("#i_lebar_roll").val("")
 		$("#out_plan").val("")
 
-		$("#kirim").val("")
+		// let newhari = new Date(eta_so)
+		// let hari = newhari.getDay()
+		// console.log(newhari)
+		// console.log(hari)
+		$("#kirim").val(eta_so)
 		$("#next_flexo").html(`<option value="">PILIH</option><option value="FLEXO1">FLEXO 1</option><option value="FLEXO2">FLEXO 2</option><option value="FLEXO3">FLEXO 3</option><option value="FLEXO4">FLEXO 4</option>`)
 
 		ayoBerhitung()

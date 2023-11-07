@@ -14,13 +14,13 @@ class M_plan extends CI_Model
 	{
 		$opsi = $_POST["opsi"];
 		if($opsi != ''){
-			$query = $this->db->query("SELECT * FROM plan_cor pl
+			$query = $this->db->query("SELECT *,w.qty AS qtyPoWo FROM plan_cor pl
 			INNER JOIN m_produk i ON pl.id_produk=i.id_produk
 			INNER JOIN m_pelanggan l ON pl.id_pelanggan=l.id_pelanggan
 			INNER JOIN m_sales m ON l.id_sales=m.id_sales
 			INNER JOIN trs_wo w ON pl.id_wo=w.id
 			INNER JOIN trs_so_detail s ON pl.id_so_detail=s.id
-			WHERE pl.id_wo='$opsi'");
+			WHERE pl.id_plan='$opsi'");
 		}else{
 			$query = $this->db->query("SELECT w.*,i.*,s.*,o.tgl_po,o.total_qty,p.nm_pelanggan,m.nm_sales,s.id AS idSoDetail,w.id AS idWo,w.creasing2 AS creasing2wo FROM trs_wo w
 			INNER JOIN m_pelanggan p ON w.id_pelanggan=p.id_pelanggan
@@ -29,7 +29,7 @@ class M_plan extends CI_Model
 			INNER JOIN trs_po o ON w.no_po=o.no_po AND w.kode_po=o.kode_po
 			INNER JOIN trs_so_detail s ON w.no_po=s.no_po AND w.kode_po=s.kode_po AND w.id_pelanggan=s.id_pelanggan AND w.id_produk=s.id_produk
 			WHERE w.status='Open'
-			AND w.no_so=CONCAT(s.no_so,'.',s.urut_so,'.',s.rpt)
+			AND w.no_so=s.id
 			GROUP BY w.id,w.id_pelanggan,w.id_produk,p.id_pelanggan,i.id_produk,s.id
 			ORDER BY p.nm_pelanggan");
 		}
@@ -76,4 +76,54 @@ class M_plan extends CI_Model
 
 		return $result;
 	}
+
+	function addRencanaPlan()
+	{
+		if($_POST["opsi"] != 'add'){
+			$data = array(
+				'tgl_plan' => $_POST["tgl_plan"],
+				'tgl_kirim_plan' => $_POST["tgl_kirim_plan"],
+				'shift_plan' => $_POST["shift_plan"],
+				'machine_plan' => $_POST["machine_plan"],
+				'no_wo' => $_POST["no_wo"],
+				'no_so' => $_POST["no_so"],
+				'panjang_plan' => $_POST["panjang_plan"],
+				'lebar_plan' => $_POST["lebar_plan"],
+				'out_plan' => $_POST["out_plan"],
+				'lebar_roll_p' => $_POST["lebar_roll_p"],
+				'material_plan' => $_POST["material_plan"],
+				'kualitas_plan' => $_POST["kualitas_plan"],
+				'kualitas_isi_plan' => $_POST["kualitas_isi_plan"],
+				'trim_plan' => $_POST["trim_plan"],
+				'c_off_p' => $_POST["c_off_p"],
+				'rm_plan' => $_POST["rm_plan"],
+				'tonase_plan' => $_POST["tonase_plan"],
+				'next_plan' => $_POST["next_plan"],
+				'edit_time' => $this->session->userdata('username'),
+				'edit_user' => date('Y-m-d H:i:s'),
+			);
+
+			$this->db->where('id_plan', $_POST['opsi']);
+			$this->db->where('id_so_detail', $_POST['id_so_detail']);
+			$this->db->where('id_wo', $_POST['id_wo']);
+			$this->db->where('id_produk', $_POST['id_produk']);
+			$this->db->where('id_pelanggan', $_POST['id_pelanggan']);
+			$query = $this->db->update('plan_cor', $data);
+		}
+
+		return $query;
+	}
+
+	function produksiRencanaPlan()
+	{
+		$this->db->set('good_cor_p', $_POST["good_cor_p"]);
+		$this->db->set('bad_cor_p', $_POST["bad_cor_p"]);
+		$this->db->set('total_cor_p', $_POST["total_cor_p"]);
+		$this->db->set('ket_plan', $_POST["ket_plan"]);
+		$this->db->set('start_time_p', $_POST["start_cor"]);
+		$this->db->set('end_time_p', $_POST["end_cor"]);
+		$this->db->where('id_plan', $_POST["id_plan"]);
+		return $this->db->update('plan_cor');
+	}
+
 }

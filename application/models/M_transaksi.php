@@ -629,7 +629,7 @@ class M_transaksi extends CI_Model
 			$data = array(
 				'id_pelanggan' => $id_pelanggan,
 				'id_produk' => $id_produk,
-				'eta_so' => $_POST["tgl_so"],
+				'eta_so' => $r['options']['eta_po'],
 				'no_po' => $no_po,
 				'kode_po' => $kode_po,
 				'no_so' => $no_so,

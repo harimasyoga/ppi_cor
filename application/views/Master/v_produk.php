@@ -400,6 +400,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Master/Insert') ?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id, kode_mc, nm_produk, h_id_pelanggan, no_customer, ukuran, ukuran_sheet, sambungan, material, wall, l_panjang, l_lebar, l_tinggi, creasing, creasing2, creasing3, flute, berat_bersih, luas_bersih, kualitas, kualitas_isi, warna, no_design, design, tipe_box, jenis_produk, kategori, COA:cCOA, jml_ikat, jml_palet, jml_paku, no_pisau, no_karet, toleransi_kirim, spesial_req, ukuran_sheet_p, ukuran_sheet_l, jenis: 'm_produk', status: status
 			}),
@@ -411,6 +421,7 @@
 					kosong();
 					$("#modalForm").modal("hide");
 					reloadTable();
+					swal.close()
 				}else{
 					swal("ITEM SUDAH ADA!", "", "error")
 					$("#btn-simpan").prop("disabled", false);
@@ -555,6 +566,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Master/getEditProduk'); ?>',
 			type: 'POST',
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id
 			})
@@ -631,6 +652,8 @@
 			$("#h_luas_bersih").val(data.produk.luas_bersih)
 
 			$("#btn-simpan").prop("disabled", false)
+
+			swal.close()
 		})
 	}
 
@@ -641,6 +664,16 @@
 		if (cek) {
 			$.ajax({
 				url: '<?php echo base_url(); ?>Master/hapus',
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
 				data: ({
 					id: id,
 					jenis: 'm_produk',
@@ -650,6 +683,7 @@
 				success: function(data) {
 					toastr.success('Data Berhasil Di Hapus');
 					reloadTable();
+					swal.close()
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					toastr.error('Terjadi Kesalahan');
@@ -934,23 +968,17 @@
 		let nilaiLuasBersih = parseFloat(h_panjang * h_lebar).toFixed(3);
 
 		// KONDISI UPDATE
-		let cekKualitas = ''
-		let cekMaterial = ''
+		let cekKualitas = txtKualitas
+		let cekMaterial = txtMaterial
 		let cekBB = ''
 		let cekLB = ''
 		if(status == 'update' && tipee == 'K_BOX' && kode_unik == h_kode_unik && plh_flute == h_flute && sambungan == h_sambungan && r_panjang == hi_panjang && r_lebar == hi_lebar && r_tinggi == hi_tinggi){
-			cekKualitas = h_kualitas
-			cekMaterial = h_material
 			cekBB = h_berat_bersih
 			cekLB = h_luas_bersih
 		}else if(status == 'update' && tipee == 'K_SHEET' && kode_unik == h_kode_unik && plh_flute == h_flute && r_panjang == hi_panjang && r_lebar == hi_lebar && r_tinggi == hi_tinggi){
-			cekKualitas = h_kualitas
-			cekMaterial = h_material
 			cekBB = h_berat_bersih
 			cekLB = h_luas_bersih
 		}else{
-			cekKualitas = txtKualitas
-			cekMaterial = txtMaterial
 			if(isNaN(getNilaiFlute) || isNaN(h_panjang) || isNaN(h_lebar) || isNaN(nilaiBeratBersih) || nilaiBeratBersih == 0 || isNaN(nilaiLuasBersih) || nilaiLuasBersih == 0){
 				cekBB = ""
 				cekLB = ""
