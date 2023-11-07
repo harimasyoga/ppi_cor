@@ -82,49 +82,53 @@
         
         <div class="form-group row">
           <table width="100%" border="0">
+            <tr id="ket">
+              <td style="" ></td>
+              <td style="color:red;" colspan="4" ><b><i>* [ Type ] - [ No.SO ] - [ Item ] - [ Customer ] </i></b></td>
+            </tr>
             <tr>
-            <td width="15%">NO SO</td>
-              <td>
-                <select class="form-control select2" name="no_so" id="no_so" style="width: 100%;" onchange="setDetailSO();">
-                  <option value="">Pilih</option>
+              <td style="padding:5px 0" >NO SO</td>
+              <td style="padding:5px 0" colspan="4" >
+                <select class="form-control select2" name="no_so" id="no_so" style="width: 100%;" >
+                  <!-- <option value="">Pilih</option>
                   <?php foreach ($getSO as $r): ?>
                     <option value="<?= $r->no_so ?>.<?= $r->urut_so ?>.<?= $r->rpt ?>" detail="<?= $r->no_so ?>">[ <?= $r->no_so ?>.<?= $r->urut_so ?>.<?= $r->rpt ?> ] - [ <?= $r->nm_produk ?> ]</option>
-                  <?php endforeach ?>
+                  <?php endforeach ?> -->
                 </select>
                 
               </td>
-              <td width="15%"></td>
-              <td width="15%">Pelanggan</td>
-              <td width="30%">
-                <input type="text" class="form-control" name="pelanggan"  id="pelanggan" readonly=""  >
-              </td>
+              
             </tr>
             <tr>
-              <td >No WO</td>
-              <td>
+              <td style="padding:5px 0" width="15%">No WO</td>
+              <td style="padding:5px 0">
                 <input type="hidden" class="form-control" value="trs_wo" name="jenis" id="jenis" >
                 <input type="hidden" class="form-control" value="" name="status" id="status" >
                 <input type="text" class="form-control" name="no_wo" id="no_wo" readonly>
               </td>
-              <td></td>
-              <td>Out</td>
-              <td><input type="text" class="angka form-control" name="line" id="line" ></td>
+              <td style="padding:5px 0" width="15%"></td>   
+              <td style="padding:5px 0" width="15%">Pelanggan</td>
+              <td style="padding:5px 0" width="30%">
+                <input type="text" class="form-control" name="pelanggan"  id="pelanggan" readonly=""  >
+              </td>   
+              <!-- <td>Out</td>
+              <td><input type="text" class="angka form-control" name="line" id="line" ></td> -->
             </tr>
             <tr>
-              <td>Tgl WO</td>
-              <td><input type="date" class="form-control" name="tgl_wo"  id="tgl_wo" value="<?= date('Y-m-d') ?>" readonly></td>
-              <td></td>
-              <td>Lebar Kertas</td>
-              <td><input type="text" class="angka form-control" name="no_artikel" id="no_artikel" ></td>
+              <td style="padding:5px 0">Tgl WO</td>
+              <td style="padding:5px 0"><input type="date" class="form-control" name="tgl_wo"  id="tgl_wo" value="<?= date('Y-m-d') ?>" readonly></td>
+              <td style="padding:5px 0"></td>
+              <td style="padding:5px 0">NO PO</td>
+              <td style="padding:5px 0"><input type="text" name="nopo" id="nopo" class="form-control" readonly></td>
+              <!-- <td>Lebar Kertas</td>
+              <td><input type="text" class="angka form-control" name="no_artikel" id="no_artikel" ></td> -->
             </tr>
-            <tr>
-              <td>NO PO</td>
-              <td><input type="text" name="nopo" id="nopo" class="form-control" readonly></td>
-              <td></td>
+            <!-- <tr>
+              <td colspan="2"></td>
               <td>Batch No</td>
               <td><input type="text" class="form-control" name="batchno" id="batchno" ></td>
               
-            </tr>
+            </tr> -->
 
             
           </table>
@@ -234,7 +238,7 @@
               <td width="15%" style="border-top: 1px solid #000;<?= $bottom ?>"> </td>
               <td width="15%" style="border-top: 1px solid #000;<?= $bottom ?>border-right: 1px solid #000"> </td>
               <td width="20%">
-                <input <?= $angka_s ?> type="text" class="angka input-border-none" name="flap1_sheet" id="flap1_sheet" value="127">
+                <input <?= $angka_s ?> type="text" class="angka input-border-none" name="flap1_sheet" id="flap1_sheet" value="0">
               </td>
             </tr>
             <tr>
@@ -247,7 +251,7 @@
               <td style="<?= $bottom ?>"> </td>
               <td style="<?= $bottom ?>border-right: 1px solid #000" > </td>
               <td>
-                <input <?= $angka_s ?> type="text" class="angka input-border-none" name="creasing2_sheet" id="creasing2_sheet" value="275">
+                <input <?= $angka_s ?> type="text" class="angka input-border-none" name="creasing2_sheet" id="creasing2_sheet" value="0">
               </td>
             </tr>
             <tr>
@@ -258,7 +262,7 @@
               <td style="<?= $bottom ?>" > </td>
               <td style="<?= $bottom ?> border-right: 1px solid #000" > </td>
               <td>
-                <input <?= $angka_s ?> type="text" class="angka input-border-none" name="flap2_sheet" id="flap2_sheet" value="127">
+                <input <?= $angka_s ?> type="text" class="angka input-border-none" name="flap2_sheet" id="flap2_sheet" value="0">
               </td>
             </tr>
             <tr>
@@ -267,7 +271,7 @@
               <td align="center" > 
               </td>
               <td align="center" colspan="4"> 
-                <input <?= $angka_b ?> class="angka input-border-none" type="text" name="p1_sheet" id="p1_sheet" value="222">
+                <input <?= $angka_b ?> class="angka input-border-none" type="text" name="p1_sheet" id="p1_sheet" value="0">
               </td>
               <td align="center"> </td>
             </tr>
@@ -275,16 +279,16 @@
           </table>
 
 
-          <table border="0" width="100%">
+          <!-- <table border="0" width="100%">
             <tr>
               <td>
                 <br>&nbsp;</br>
                 <br>&nbsp;</br>
               </td>
             </tr>
-          </table>
+          </table> -->
 
-          <table class="table" id="table-produk" width="100%" border="1" cellspacing="0" style="font-size:12px;">  
+          <!-- <table class="table" id="table-produk" width="100%" border="1" cellspacing="0" style="font-size:12px;">  
             <tr>
               <td align="center" width="10%" rowspan="2" class="posisi-tengah color-tabel"><b>No</b></td>
               <td align="center" width="20%" rowspan="2" class="posisi-tengah color-tabel"><b>PROSES PRODUKSI</b></td>
@@ -430,7 +434,7 @@
                 <td>
                   <input type="text" id="ket_exp" name="ket_exp" class="form-control" ></td>
             </tr>
-        </table>
+        </table> -->
         </div>
         <div class="form-group row">
           <label class="col-sm-2 col-form-label"></label>
@@ -520,11 +524,12 @@
 
   function simpan(){
     no_so         = $('#no_so').val();
-    line          = $("#line").val();
-    no_artikel    = $("#no_artikel").val();
-    batchno       = $("#batchno").val();
+    // line          = $("#line").val();
+    // no_artikel    = $("#no_artikel").val();
+    // batchno       = $("#batchno").val();
 
-    if (no_so == '' || no_so == null || line == '' || no_artikel == '' || batchno == '' ) {
+    // if (no_so == '' || no_so == null || line == '' || no_artikel == '' || batchno == '' ) {
+    if (no_so == '' || no_so == null) {
       // toastr.info('Harap Lengkapi Form');
       // return;
       swal({
@@ -555,7 +560,8 @@
               kosong();
               $("#modalForm").modal("hide");
 
-              setTimeout(function(){ location.reload(); }, 1000);
+              reloadTable();
+              // setTimeout(function(){ location.reload(); }, 1000);
             }else{
               // toastr.error('Gagal Simpan'); 
               swal({
@@ -585,16 +591,16 @@
 
   function kosong(c =''){
 
-    $("#tgl_wo").val("<?= date('Y-m-d') ?>");
-    $("#tgl_crg").val("<?= date('Y-m-d') ?>");
-    $("#tgl_flx").val("<?= date('Y-m-d') ?>");
-    $("#tgl_glu").val("<?= date('Y-m-d') ?>");
-    $("#tgl_stc").val("<?= date('Y-m-d') ?>");
-    $("#tgl_dic").val("<?= date('Y-m-d') ?>");
-    $("#tgl_asembly").val("<?= date('Y-m-d') ?>");
-    $("#tgl_sliter").val("<?= date('Y-m-d') ?>");
-    $("#tgl_gdg").val("<?= date('Y-m-d') ?>");
-    $("#tgl_exp").val("<?= date('Y-m-d') ?>");
+    // $("#tgl_wo").val("<?= date('Y-m-d') ?>");
+    // $("#tgl_crg").val("<?= date('Y-m-d') ?>");
+    // $("#tgl_flx").val("<?= date('Y-m-d') ?>");
+    // $("#tgl_glu").val("<?= date('Y-m-d') ?>");
+    // $("#tgl_stc").val("<?= date('Y-m-d') ?>");
+    // $("#tgl_dic").val("<?= date('Y-m-d') ?>");
+    // $("#tgl_asembly").val("<?= date('Y-m-d') ?>");
+    // $("#tgl_sliter").val("<?= date('Y-m-d') ?>");
+    // $("#tgl_gdg").val("<?= date('Y-m-d') ?>");
+    // $("#tgl_exp").val("<?= date('Y-m-d') ?>");
     $('#no_so').prop('disabled',false);
 
     if (c != 's') {
@@ -602,8 +608,8 @@
     
     }
 
-    $('#no_so').val('').trigger('change');
-
+    // $('#no_so').val('').trigger('change');
+    $('#ket').show();
     $("#btn-print").hide();
 
     status    = 'insert';
@@ -619,62 +625,72 @@
     $("#qty0").val('');
     $("#txt_detail_produk0").html('');
 
-    $("#line").val('');
-    $("#no_artikel").val('');
-    $("#batchno").val('');
+    // $("#line").val('');
+    // $("#no_artikel").val('');
+    // $("#batchno").val('');
 
     $(".btn-tambah-produk").show();
 
-    $("#hasil_crg").val('');
-    $("#rusak_crg").val('');
-    $("#baik_crg").val('');
-    $("#ket_crg").val('');
+    // $("#hasil_crg").val('');
+    // $("#rusak_crg").val('');
+    // $("#baik_crg").val('');
+    // $("#ket_crg").val('');
 
-    $("#hasil_flx").val('');
-    $("#rusak_flx").val('');
-    $("#baik_flx").val('');
-    $("#ket_flx").val('');
+    // $("#hasil_flx").val('');
+    // $("#rusak_flx").val('');
+    // $("#baik_flx").val('');
+    // $("#ket_flx").val('');
 
-    $("#hasil_glu").val('');
-    $("#rusak_glu").val('');
-    $("#baik_glu").val('');
-    $("#ket_glu").val('');
+    // $("#hasil_glu").val('');
+    // $("#rusak_glu").val('');
+    // $("#baik_glu").val('');
+    // $("#ket_glu").val('');
 
-    $("#hasil_stc").val('');
-    $("#rusak_stc").val('');
-    $("#baik_stc").val('');
-    $("#ket_stc").val('');
+    // $("#hasil_stc").val('');
+    // $("#rusak_stc").val('');
+    // $("#baik_stc").val('');
+    // $("#ket_stc").val('');
 
-    $("#hasil_dic").val('');
-    $("#rusak_dic").val('');
-    $("#baik_dic").val('');
-    $("#ket_dic").val('');
+    // $("#hasil_dic").val('');
+    // $("#rusak_dic").val('');
+    // $("#baik_dic").val('');
+    // $("#ket_dic").val('');
 
-    $("#hasil_asembly").val('');
-    $("#rusak_asembly").val('');
-    $("#baik_asembly").val('');
-    $("#ket_asembly").val('');
+    // $("#hasil_asembly").val('');
+    // $("#rusak_asembly").val('');
+    // $("#baik_asembly").val('');
+    // $("#ket_asembly").val('');
 
-    $("#hasil_sliter").val('');
-    $("#rusak_sliter").val('');
-    $("#baik_sliter").val('');
-    $("#ket_sliter").val('');
+    // $("#hasil_sliter").val('');
+    // $("#rusak_sliter").val('');
+    // $("#baik_sliter").val('');
+    // $("#ket_sliter").val('');
     
-    $("#hasil_gdg").val('');
-    $("#rusak_gdg").val('');
-    $("#baik_gdg").val('');
-    $("#ket_gdg").val('');
+    // $("#hasil_gdg").val('');
+    // $("#rusak_gdg").val('');
+    // $("#baik_gdg").val('');
+    // $("#ket_gdg").val('');
 
-    $("#hasil_exp").val('');
-    $("#rusak_exp").val('');
-    $("#baik_exp").val('');
-    $("#ket_exp").val('');
+    // $("#hasil_exp").val('');
+    // $("#rusak_exp").val('');
+    // $("#baik_exp").val('');
+    // $("#ket_exp").val('');
+    cari_so();
   }
 
 
   function tampil_edit(id,act){
     kosong('s'); 
-    show_loading();
+    // show_loading();
+    swal({
+			title: 'loading ...',
+			allowEscapeKey    : false,
+			allowOutsideClick : false,
+			onOpen: () => {
+				swal.showLoading();
+			} 
+		})
+    $('#ket').hide();
     $(".btn-tambah-produk").hide();
     
     $("#btn-print").show();
@@ -698,6 +714,16 @@
           type: 'POST',
           data: {id: id,jenis : "trs_wo",field:'id'},
           dataType: "JSON",
+          beforeSend: function() {
+            swal({
+              title: 'loading ...',
+              allowEscapeKey    : false,
+              allowOutsideClick : false,
+              onOpen: () => {
+                swal.showLoading();
+              }
+            })
+          },
           success : function(data){
             if (data.sambungan == 'G'){
               $join = 'Glue';
@@ -710,15 +736,15 @@
             $("#no_wo").val(data.header.no_wo);
             $("#pelanggan").val(data.header.id_pelanggan+' || '+data.header.nm_pelanggan);
             $("#tgl_wo").val(data.header.tgl_wo);
-            $("#line").val(data.header.line);
-            $("#no_so").val(data.header.no_so);
-            $("#no_artikel").val(data.header.no_artikel);
-            $("#batchno").val(data.header.batchno);
+            // $("#no_so").val(data.header.no_so_1);
+            // $("#line").val(data.header.line);
+            // $("#no_artikel").val(data.header.no_artikel);
+            // $("#batchno").val(data.header.batchno);
             $("#id_produk").val(data.header.id_produk);
             $("#qty0").val(data.header.qty);
 
             $('#no_so').prop('disabled',true);
-            $('#no_so').append('<option value="'+data.header.no_so+'" detail="'+data.header.no_so+'">'+data.header.no_so+'</option>');
+            $('#no_so').append('<option value="'+data.header.no_so+'" detail="'+data.header.no_so+'">'+data.header.no_so_1+'</option>');
 
             $('#no_so').val(data.header.no_so).trigger('change');
 
@@ -753,59 +779,59 @@
             <tr>
             </table>`);
 
-            $("#tgl_crg").val(data.detail.tgl_crg);
-            $("#hasil_crg").val(data.detail.hasil_crg);
-            $("#rusak_crg").val(data.detail.rusak_crg);
-            $("#baik_crg").val(data.detail.baik_crg);
-            $("#ket_crg").val(data.detail.ket_crg);
+            // $("#tgl_crg").val(data.detail.tgl_crg);
+            // $("#hasil_crg").val(data.detail.hasil_crg);
+            // $("#rusak_crg").val(data.detail.rusak_crg);
+            // $("#baik_crg").val(data.detail.baik_crg);
+            // $("#ket_crg").val(data.detail.ket_crg);
 
-            $("#tgl_flx").val(data.detail.tgl_flx);
-            $("#hasil_flx").val(data.detail.hasil_flx);
-            $("#rusak_flx").val(data.detail.rusak_flx);
-            $("#baik_flx").val(data.detail.baik_flx);
-            $("#ket_flx").val(data.detail.ket_flx);
+            // $("#tgl_flx").val(data.detail.tgl_flx);
+            // $("#hasil_flx").val(data.detail.hasil_flx);
+            // $("#rusak_flx").val(data.detail.rusak_flx);
+            // $("#baik_flx").val(data.detail.baik_flx);
+            // $("#ket_flx").val(data.detail.ket_flx);
 
-            $("#tgl_glu").val(data.detail.tgl_glu);
-            $("#hasil_glu").val(data.detail.hasil_glu);
-            $("#rusak_glu").val(data.detail.rusak_glu);
-            $("#baik_glu").val(data.detail.baik_glu);
-            $("#ket_glu").val(data.detail.ket_glu);
+            // $("#tgl_glu").val(data.detail.tgl_glu);
+            // $("#hasil_glu").val(data.detail.hasil_glu);
+            // $("#rusak_glu").val(data.detail.rusak_glu);
+            // $("#baik_glu").val(data.detail.baik_glu);
+            // $("#ket_glu").val(data.detail.ket_glu);
 
-            $("#tgl_stc").val(data.detail.tgl_stc);
-            $("#hasil_stc").val(data.detail.hasil_stc);
-            $("#rusak_stc").val(data.detail.rusak_stc);
-            $("#baik_stc").val(data.detail.baik_stc);
-            $("#ket_stc").val(data.detail.ket_stc);
+            // $("#tgl_stc").val(data.detail.tgl_stc);
+            // $("#hasil_stc").val(data.detail.hasil_stc);
+            // $("#rusak_stc").val(data.detail.rusak_stc);
+            // $("#baik_stc").val(data.detail.baik_stc);
+            // $("#ket_stc").val(data.detail.ket_stc);
 
-            $("#tgl_dic").val(data.detail.tgl_dic);
-            $("#hasil_dic").val(data.detail.hasil_dic);
-            $("#rusak_dic").val(data.detail.rusak_dic);
-            $("#baik_dic").val(data.detail.baik_dic);
-            $("#ket_dic").val(data.detail.ket_dic);
+            // $("#tgl_dic").val(data.detail.tgl_dic);
+            // $("#hasil_dic").val(data.detail.hasil_dic);
+            // $("#rusak_dic").val(data.detail.rusak_dic);
+            // $("#baik_dic").val(data.detail.baik_dic);
+            // $("#ket_dic").val(data.detail.ket_dic);
 
-            $("#tgl_asembly").val(data.detail.tgl_asembly);
-            $("#hasil_asembly").val(data.detail.hasil_asembly);
-            $("#rusak_asembly").val(data.detail.rusak_asembly);
-            $("#baik_asembly").val(data.detail.baik_asembly);
-            $("#ket_asembly").val(data.detail.ket_asembly);
+            // $("#tgl_asembly").val(data.detail.tgl_asembly);
+            // $("#hasil_asembly").val(data.detail.hasil_asembly);
+            // $("#rusak_asembly").val(data.detail.rusak_asembly);
+            // $("#baik_asembly").val(data.detail.baik_asembly);
+            // $("#ket_asembly").val(data.detail.ket_asembly);
             
-            $("#tgl_sliter").val(data.detail.tgl_sliter);
-            $("#hasil_sliter").val(data.detail.hasil_sliter);
-            $("#rusak_sliter").val(data.detail.rusak_sliter);
-            $("#baik_sliter").val(data.detail.baik_sliter);
-            $("#ket_sliter").val(data.detail.ket_sliter);
+            // $("#tgl_sliter").val(data.detail.tgl_sliter);
+            // $("#hasil_sliter").val(data.detail.hasil_sliter);
+            // $("#rusak_sliter").val(data.detail.rusak_sliter);
+            // $("#baik_sliter").val(data.detail.baik_sliter);
+            // $("#ket_sliter").val(data.detail.ket_sliter);
             
-            $("#tgl_gdg").val(data.detail.tgl_gdg);
-            $("#hasil_gdg").val(data.detail.hasil_gdg);
-            $("#rusak_gdg").val(data.detail.rusak_gdg);
-            $("#baik_gdg").val(data.detail.baik_gdg);
-            $("#ket_gdg").val(data.detail.ket_gdg);
+            // $("#tgl_gdg").val(data.detail.tgl_gdg);
+            // $("#hasil_gdg").val(data.detail.hasil_gdg);
+            // $("#rusak_gdg").val(data.detail.rusak_gdg);
+            // $("#baik_gdg").val(data.detail.baik_gdg);
+            // $("#ket_gdg").val(data.detail.ket_gdg);
 
-            $("#tgl_exp").val(data.detail.tgl_exp);
-            $("#hasil_exp").val(data.detail.hasil_exp);
-            $("#rusak_exp").val(data.detail.rusak_exp);
-            $("#baik_exp").val(data.detail.baik_exp);
-            $("#ket_exp").val(data.detail.ket_exp);
+            // $("#tgl_exp").val(data.detail.tgl_exp);
+            // $("#hasil_exp").val(data.detail.hasil_exp);
+            // $("#rusak_exp").val(data.detail.rusak_exp);
+            // $("#baik_exp").val(data.detail.baik_exp);
+            // $("#ket_exp").val(data.detail.ket_exp);
 
             if(data.header.kategori=='K_BOX')
             {
@@ -828,11 +854,13 @@
               $('#creasing2_sheet').val(data.header.creasing2);
               $('#flap2_sheet').val((data.header.flap2));
             }
+            swal.close();
               
           },
           error: function (jqXHR, textStatus, errorThrown)
           {
               // toastr.error('Terjadi Kesalahan'); 
+              swal.close();
               swal({
                 title               : "Cek Kembali",
                 html                : "Terjadi Kesalahan",
@@ -905,6 +933,56 @@
    
   }
 
+  function cari_so() 
+	{
+		// clearRow();
+		if (status == 'insert' ){
+
+				option = "";
+				$.ajax({
+					type: 'POST',
+					url: "<?= base_url(); ?>Transaksi/load_so",
+					dataType: 'json',
+          beforeSend: function() {
+            swal({
+              title: 'loading ...',
+              allowEscapeKey    : false,
+              allowOutsideClick : false,
+              onOpen: () => {
+                swal.showLoading();
+              }
+            })
+          },
+					success:function(data){			
+						if(data.message == "Success"){						
+							option = "<option>-- Pilih --</option>";
+							$.each(data.data, function(index, val) {
+                if(val.kategori=='K_BOX'){
+                  var kategori = 'BOX';
+                }else{
+                  var kategori = 'SHEET';
+
+                }
+                option += "<option value='"+val.id+"'>[ "+kategori+" ] - [ "+val.no_so+"."+val.urut_so+"."+val.rpt+" ]-[ "+val.nm_produk+" ]-[ "+val.nm_pelanggan+" ]</option>";
+							});
+		
+							$('#no_so').html(option);
+						}else{	
+							option += "<option value=''></option>";
+							$('#no_so').html(option);			
+						}
+            swal.close();
+					}
+				});
+        
+		}
+		
+	}
+  
+  $('#no_so').on('change', function() {
+		setDetailSO();
+	})
+
   function setDetailSO() 
   {
     
@@ -922,12 +1000,22 @@
     }
     
     // $("#loading").show();
-    show_loading();
+    // show_loading();
     $.ajax({
         url: '<?php echo base_url('Transaksi/get_edit'); ?>',
         type: 'POST',
         data: {id: id,jenis : "trs_so_detail",field:'no_so'},
         dataType: "JSON",
+        beforeSend: function() {
+					swal({
+						title: 'loading ...',
+						allowEscapeKey    : false,
+						allowOutsideClick : false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					})
+				},
         success: function(data)
         {  
           $("#pelanggan").val(data.id_pelanggan+' || '+data.nm_pelanggan);
@@ -976,7 +1064,8 @@
               </table>`);
 
           if(status=='update'){
-            close_loading();
+            // close_loading();
+            swal.close();
 
           }else{
 
@@ -1033,7 +1122,8 @@
 
             }
           }
-          close_loading();
+          // close_loading();
+          swal.close();
         },
         error: function (jqXHR, textStatus, errorThrown)
         {
@@ -1044,7 +1134,8 @@
               type                : "error",
               confirmButtonText   : "OK"
             });
-            close_loading();
+            // close_loading();
+            swal.close();
             return;
         }
         

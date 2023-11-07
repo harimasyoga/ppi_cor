@@ -217,7 +217,7 @@ class M_transaksi extends CI_Model
             JOIN m_produk b ON a.id_produk=b.id_produk
             JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
 			JOIN trs_po_detail d ON d.no_po=a.no_po and d.kode_po=a.kode_po and d.no_so=a.no_so and d.id_produk=a.id_produk
-            WHERE a.status='Open' and concat(a.no_so,'.',a.urut_so,'.',a.rpt) = '$params->no_so' ")->row();
+            WHERE a.status='Open' and a.id = '$params->no_so' ")->row();
 
 			if($detail_so->kategori=='K_BOX')
 			{
@@ -245,12 +245,12 @@ class M_transaksi extends CI_Model
 
 			$data = array(
 				'no_wo'         => $params->no_wo,
-				'line'          => $params->line,
-				'no_artikel'    => $params->no_artikel,
-				'batchno'       => $params->batchno,
+				// 'line'          => $params->line,
+				// 'no_artikel'    => $params->no_artikel,
+				// 'batchno'       => $params->batchno,
 				'tgl_wo'        => $params->tgl_wo,
 
-				'p1_sheet'		=> $p1,
+				'p1_sheet'		=> $params->p1_sheet,
 				'p1'  			=> $p1,
 				'l1'  			=> $l1,
 				'p2'  			=> $p2,
@@ -276,59 +276,59 @@ class M_transaksi extends CI_Model
 			'no_wo'            => $params->no_wo,
 			'tgl_wo'           => $params->tgl_wo,
 
-			'tgl_crg'          => $params->tgl_crg,
-			'hasil_crg'        => $params->hasil_crg,
-			'rusak_crg'        => $params->rusak_crg,
-			'baik_crg'         => $params->baik_crg,
-			'ket_crg'          => $params->ket_crg,
+			// 'tgl_crg'          => $params->tgl_crg,
+			// 'hasil_crg'        => $params->hasil_crg,
+			// 'rusak_crg'        => $params->rusak_crg,
+			// 'baik_crg'         => $params->baik_crg,
+			// 'ket_crg'          => $params->ket_crg,
 
-			'tgl_flx'          => $params->tgl_flx,
-			'hasil_flx'        => $params->hasil_flx,
-			'rusak_flx'        => $params->rusak_flx,
-			'baik_flx'         => $params->baik_flx,
-			'ket_flx'          => $params->ket_flx,
+			// 'tgl_flx'          => $params->tgl_flx,
+			// 'hasil_flx'        => $params->hasil_flx,
+			// 'rusak_flx'        => $params->rusak_flx,
+			// 'baik_flx'         => $params->baik_flx,
+			// 'ket_flx'          => $params->ket_flx,
 
-			'tgl_glu'          => $params->tgl_glu,
-			'hasil_glu'        => $params->hasil_glu,
-			'rusak_glu'        => $params->rusak_glu,
-			'baik_glu'         => $params->baik_glu,
-			'ket_glu'          => $params->ket_glu,
+			// 'tgl_glu'          => $params->tgl_glu,
+			// 'hasil_glu'        => $params->hasil_glu,
+			// 'rusak_glu'        => $params->rusak_glu,
+			// 'baik_glu'         => $params->baik_glu,
+			// 'ket_glu'          => $params->ket_glu,
 
-			'tgl_stc'          => $params->tgl_stc,
-			'hasil_stc'        => $params->hasil_stc,
-			'rusak_stc'        => $params->rusak_stc,
-			'baik_stc'         => $params->baik_stc,
-			'ket_stc'          => $params->ket_stc,
+			// 'tgl_stc'          => $params->tgl_stc,
+			// 'hasil_stc'        => $params->hasil_stc,
+			// 'rusak_stc'        => $params->rusak_stc,
+			// 'baik_stc'         => $params->baik_stc,
+			// 'ket_stc'          => $params->ket_stc,
 
-			'tgl_dic'          => $params->tgl_dic,
-			'hasil_dic'        => $params->hasil_dic,
-			'rusak_dic'        => $params->rusak_dic,
-			'baik_dic'         => $params->baik_dic,
-			'ket_dic'          => $params->ket_dic,
+			// 'tgl_dic'          => $params->tgl_dic,
+			// 'hasil_dic'        => $params->hasil_dic,
+			// 'rusak_dic'        => $params->rusak_dic,
+			// 'baik_dic'         => $params->baik_dic,
+			// 'ket_dic'          => $params->ket_dic,
 
-			'tgl_asembly'      => $params->tgl_asembly,
-			'hasil_asembly'    => $params->hasil_asembly,
-			'rusak_asembly'    => $params->rusak_asembly,
-			'baik_asembly'     => $params->baik_asembly,
-			'ket_asembly'      => $params->ket_asembly,
+			// 'tgl_asembly'      => $params->tgl_asembly,
+			// 'hasil_asembly'    => $params->hasil_asembly,
+			// 'rusak_asembly'    => $params->rusak_asembly,
+			// 'baik_asembly'     => $params->baik_asembly,
+			// 'ket_asembly'      => $params->ket_asembly,
 			
-			'tgl_sliter'       => $params->tgl_sliter,
-			'hasil_sliter'     => $params->hasil_sliter,
-			'rusak_sliter'     => $params->rusak_sliter,
-			'baik_sliter'      => $params->baik_sliter,
-			'ket_sliter'       => $params->ket_sliter,
+			// 'tgl_sliter'       => $params->tgl_sliter,
+			// 'hasil_sliter'     => $params->hasil_sliter,
+			// 'rusak_sliter'     => $params->rusak_sliter,
+			// 'baik_sliter'      => $params->baik_sliter,
+			// 'ket_sliter'       => $params->ket_sliter,
 
-			'tgl_gdg'          => $params->tgl_gdg,
-			'hasil_gdg'        => $params->hasil_gdg,
-			'rusak_gdg'        => $params->rusak_gdg,
-			'baik_gdg'         => $params->baik_gdg,
-			'ket_gdg'          => $params->ket_gdg,
+			// 'tgl_gdg'          => $params->tgl_gdg,
+			// 'hasil_gdg'        => $params->hasil_gdg,
+			// 'rusak_gdg'        => $params->rusak_gdg,
+			// 'baik_gdg'         => $params->baik_gdg,
+			// 'ket_gdg'          => $params->ket_gdg,
 
-			'tgl_exp'          => $params->tgl_exp,
-			'hasil_exp'        => $params->hasil_exp,
-			'rusak_exp'        => $params->rusak_exp,
-			'baik_exp'         => $params->baik_exp,
-			'ket_exp'          => $params->ket_exp,
+			// 'tgl_exp'          => $params->tgl_exp,
+			// 'hasil_exp'        => $params->hasil_exp,
+			// 'rusak_exp'        => $params->rusak_exp,
+			// 'baik_exp'         => $params->baik_exp,
+			// 'ket_exp'          => $params->ket_exp,
 		);
 
 
@@ -340,11 +340,11 @@ class M_transaksi extends CI_Model
 			$this->db->set("add_user", $this->username);
 			$result = $this->db->insert("trs_wo_detail", $data_detail);
 
-			$this->db->query("UPDATE trs_so_detail SET status ='Close' WHERE concat ( no_so,'.',urut_so,'.',rpt ) = '" . $params->no_so . "'"); 
+			$this->db->query("UPDATE trs_so_detail SET status ='Close' WHERE id = '" . $params->no_so . "'"); 
 		} else {
 
 			
-			$p1_sheet   = '-';
+			$p1_sheet   = $params->p1_sheet;
 			$p1         = $params->p1;
 			$l1         = $params->l1;
 			$p2         = $params->p2;
@@ -355,9 +355,9 @@ class M_transaksi extends CI_Model
 
 			$data_update = array(
 				'no_wo'       	=> $params->no_wo,
-				'line'       	=> $params->line,
-				'no_artikel'    => $params->no_artikel,
-				'batchno'       => $params->batchno,
+				// 'line'       	=> $params->line,
+				// 'no_artikel'    => $params->no_artikel,
+				// 'batchno'       => $params->batchno,
 
 				'p1_sheet'		=> $p1_sheet,
 				'p1'  			=> $p1,
@@ -484,7 +484,7 @@ class M_transaksi extends CI_Model
 			$data = $this->db->query("SELECT * FROM trs_wo WHERE id ='" . $id . "' ")->row();
 
 			$this->db->set("Status", 'Open');
-			$this->db->where("concat(no_so,'.',urut_so,'.',rpt)", $data->no_so);
+			$this->db->where("id", $data->no_so);
 			$query = $this->db->update("trs_so_detail");
 
 			// $this->db->set("Status", 'Batal');

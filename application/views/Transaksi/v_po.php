@@ -394,7 +394,15 @@
 
 	function simpan() 
 	{
-		show_loading();
+		// show_loading();
+		swal({
+			title: 'loading ...',
+			allowEscapeKey    : false,
+			allowOutsideClick : false,
+			onOpen: () => {
+				swal.showLoading();
+			} 
+		})
 		id_pelanggan    = $("#id_id_pelanggan").val();
 		kode_po         = $("#kode_po").val();
 		eta             = $("#eta").val();
@@ -402,13 +410,15 @@
 
 		if (id_pelanggan == '' || kode_po == '' || eta == '' || eta == 'undefined' || sales=='' ) {
 			// toastr.info('Harap Lengkapi Form');
+			
+			swal.close();
 			swal({
 				title               : "Cek Kembali",
 				html                : "Harap Lengkapi Form Dahulu",
 				type                : "info",
 				confirmButtonText   : "OK"
 			});
-			close_loading();
+			// close_loading();
 			return;
 		}
 
@@ -422,13 +432,15 @@
 			if (produk == '' || qty == '' || qty == '0') {
 				// toastr.info('Harap Lengkapi Form');
 				// return;
+				
+				swal.close();
 				swal({
 					title               : "Cek Kembali",
 					html                : "Harap Lengkapi Form Dahulu",
 					type                : "info",
 					confirmButtonText   : "OK"
 				});
-				close_loading();
+				// close_loading();
 				return;
 			}
 
@@ -439,13 +451,15 @@
 		if (findDuplicates(arr_produk).length > 0) {
 			// toastr.info('Tidak boleh ada produk yang sama');
 			// return;
+			
+			swal.close();
 			swal({
 				title               : "Cek Kembali",
 				html                : "Tidak boleh ada produk yang sama",
 				type                : "info",
 				confirmButtonText   : "OK"
 			});
-			close_loading();
+			// close_loading();
 			return;
 		}
 
@@ -459,37 +473,41 @@
 			success: function(data) {
 				if (data) {
 					// toastr.success('Berhasil Disimpan');
+					swal.close();
 					swal({
 						title               : "Data",
 						html                : "Berhasil Disimpan",
 						type                : "success",
 						confirmButtonText   : "OK"
 					});
-					close_loading();
+					// close_loading();
 					kosong();
 					$("#modalForm").modal("hide");
 				} else {
 					// toastr.error('Gagal Simpan');
+					swal.close();
 					swal({
 						title               : "Cek Kembali",
 						html                : "Gagal Simpan",
 						type                : "error",
 						confirmButtonText   : "OK"
 					});
-					close_loading();
+					// close_loading();
 					return;
 				}
 				reloadTable();
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
 				// toastr.error('Terjadi Kesalahan');
+				
+				swal.close();
 				swal({
 					title               : "Cek Kembali",
 					html                : "Terjadi Kesalahan",
 					type                : "error",
 					confirmButtonText   : "OK"
 				});
-				close_loading();
+				// close_loading();
 				return;
 			}
 		});
@@ -824,13 +842,23 @@
 		// arr_detail = arr_detail.split("|");
 		// // console.log(arr_detail);
 		if(kd!=''){
-			show_loading();
+			// show_loading();
 			html_produk="";
 			$.ajax({
 				type        : 'POST',
 				url         : "<?= base_url(); ?>Transaksi/load_produk_1",
 				data        : { idp: '', kd: kd },
 				dataType    : 'json',
+				beforeSend: function() {
+					swal({
+						title: 'loading ...',
+						allowEscapeKey    : false,
+						allowOutsideClick : false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					})
+				},
 				success:function(val){			
 							
 						(val.kategori =='K_BOX')? uk = val.ukuran : uk = val.ukuran_sheet;
@@ -878,7 +906,8 @@
 						}
 	
 						$('#txt_detail_produk'+id).html(html_produk);	
-						close_loading();
+						// close_loading();
+						swal.close();
 					
 				}
 			});
