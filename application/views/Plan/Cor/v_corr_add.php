@@ -228,7 +228,7 @@
 				</div>
 
 				<div class="col-md-5">
-					<div style="position:sticky;top:10px">
+					<!-- <div style="position:sticky;top:10px"> -->
 					<div class="card card-info card-outline">
 						<div class="card-header">
 							<h3 class="card-title" style="font-weight:bold;font-style:italic">PLAN</h3>
@@ -413,44 +413,7 @@
 							</div>
 						</div>
 					</div>
-
-					<!-- <div class="card card-info card-outline">
-						<div class="card-header">
-							<h3 class="card-title" style="font-weight:bold;font-style:italic">PRODUKSI</h3>
-						</div>
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-							<div class="col-md-2" style="padding:0">GOOD</div>
-							<div class="col-md-10">
-								<input type="number" id="good" class="form-control" autocomplete="off" placeholder="GOOD">
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2" style="padding:0">REJECT</div>
-							<div class="col-md-10">
-								<input type="number" id="reject" class="form-control" autocomplete="off" placeholder="REJECT">
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2" style="padding:0">TOTAL</div>
-							<div class="col-md-10">
-								<input type="text" id="total_cor" class="form-control" autocomplete="off" placeholder="TOTAL" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2" style="padding:0">KET</div>
-							<div class="col-md-10">
-								<textarea class="form-control" id="ket_pro" rows="4" style="resize:none"></textarea>
-							</div>
-						</div>
-
-						<br/>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-							<div class="col-md-12">
-								<button type="button" class="btn btn-primary btn-block"><i class="fa fa-save"></i> <b>SIMPAN</b></button>
-							</div>
-						</div>
-					</div> -->
-				</div>
+				<!-- </div> -->
 				</div>
 
 			</div>

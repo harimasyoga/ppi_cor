@@ -232,17 +232,19 @@ class Master extends CI_Controller
 				$row[] = base64_decode($r->password);
 				$row[] = $r->level;
 
-				if ($r->level == 'Admin') {
-					$aksi = '<button type="button" onclick="tampil_edit(' . "'" . $r->username . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-xs">
-						Edit
-					</button>';
-				}else if($r->level == 'PPIC'){
-					$aksi = '<button type="button" onclick="tampil_edit(' . "'" . $r->username . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-xs">
-						Edit
-					</button>
-					<button type="button" onclick="deleteData(' . "'" . $r->username . "'" . ')" class="btn btn-danger btn-xs">
-						Hapus
-					</button>';
+				if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC'){
+					if ($r->level == 'Admin') {
+						$aksi = '<button type="button" onclick="tampil_edit(' . "'" . $r->username . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-xs">
+							Edit
+						</button>';
+					}else{
+						$aksi = '<button type="button" onclick="tampil_edit(' . "'" . $r->username . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-xs">
+							Edit
+						</button>
+						<button type="button" onclick="deleteData(' . "'" . $r->username . "'" . ')" class="btn btn-danger btn-xs">
+							Hapus
+						</button>';
+					}
 				}else{
 					$aksi = '-';
 				}

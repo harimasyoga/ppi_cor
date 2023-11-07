@@ -12,16 +12,29 @@ class M_plan extends CI_Model
 
 	function loadPlanWo()
 	{
-		return $this->db->query("SELECT w.*,i.*,s.*,o.tgl_po,o.total_qty,p.nm_pelanggan,m.nm_sales,s.id AS idSoDetail,w.id AS idWo,w.creasing2 AS creasing2wo FROM trs_wo w
-		INNER JOIN m_pelanggan p ON w.id_pelanggan=p.id_pelanggan
-		INNER JOIN m_sales m ON p.id_sales=m.id_sales
-		INNER JOIN m_produk i ON w.id_produk=i.id_produk
-		INNER JOIN trs_po o ON w.no_po=o.no_po AND w.kode_po=o.kode_po
-		INNER JOIN trs_so_detail s ON w.no_po=s.no_po AND w.kode_po=s.kode_po AND w.id_pelanggan=s.id_pelanggan AND w.id_produk=s.id_produk
-		WHERE w.status='Open'
-		AND w.no_so=CONCAT(s.no_so,'.',s.urut_so,'.',s.rpt)
-		GROUP BY w.id,w.id_pelanggan,w.id_produk,p.id_pelanggan,i.id_produk,s.id
-		ORDER BY p.nm_pelanggan")->result();
+		$opsi = $_POST["opsi"];
+		if($opsi != ''){
+			$query = $this->db->query("SELECT * FROM plan_cor pl
+			INNER JOIN m_produk i ON pl.id_produk=i.id_produk
+			INNER JOIN m_pelanggan l ON pl.id_pelanggan=l.id_pelanggan
+			INNER JOIN m_sales m ON l.id_sales=m.id_sales
+			INNER JOIN trs_wo w ON pl.id_wo=w.id
+			INNER JOIN trs_so_detail s ON pl.id_so_detail=s.id
+			WHERE pl.id_wo='$opsi'");
+		}else{
+			$query = $this->db->query("SELECT w.*,i.*,s.*,o.tgl_po,o.total_qty,p.nm_pelanggan,m.nm_sales,s.id AS idSoDetail,w.id AS idWo,w.creasing2 AS creasing2wo FROM trs_wo w
+			INNER JOIN m_pelanggan p ON w.id_pelanggan=p.id_pelanggan
+			INNER JOIN m_sales m ON p.id_sales=m.id_sales
+			INNER JOIN m_produk i ON w.id_produk=i.id_produk
+			INNER JOIN trs_po o ON w.no_po=o.no_po AND w.kode_po=o.kode_po
+			INNER JOIN trs_so_detail s ON w.no_po=s.no_po AND w.kode_po=s.kode_po AND w.id_pelanggan=s.id_pelanggan AND w.id_produk=s.id_produk
+			WHERE w.status='Open'
+			AND w.no_so=CONCAT(s.no_so,'.',s.urut_so,'.',s.rpt)
+			GROUP BY w.id,w.id_pelanggan,w.id_produk,p.id_pelanggan,i.id_produk,s.id
+			ORDER BY p.nm_pelanggan");
+		}
+
+		return $query;
 	}
 
 	function simpanCartItem()

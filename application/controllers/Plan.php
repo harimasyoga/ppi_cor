@@ -66,8 +66,17 @@ class Plan extends CI_Controller
 	function loadPlanWo()
 	{
 		$getWo = $this->m_plan->loadPlanWo();
+		if($_POST['opsi'] != ''){
+			$result = $getWo->row();
+			$data = true;
+		}else{
+			$result = $getWo->result();
+			$data = false;
+		}
 		echo json_encode(array(
-			'wo' => $getWo
+			'data' => $data,
+			'opsi' => $_POST['opsi'],
+			'wo' => $result
 		));
 	}
 
@@ -87,64 +96,69 @@ class Plan extends CI_Controller
 
 	function addRencanaPlan()
 	{
-		$data = array(
-			'id' => $_POST['id_wo'],
-			'name' => $_POST['id_wo'],
-			'price' => 0,
-			'qty' => 1,
-			'options' => array(
-				'id_so_detail' => $_POST["id_so_detail"],
-				'id_wo' => $_POST["id_wo"],
-				'id_produk' => $_POST["id_produk"],
-				'id_pelanggan' => $_POST["id_pelanggan"],
-				'no_wo' => $_POST["no_wo"],
-				'no_so' => $_POST["no_so"],
-				'pcs_plan' => $_POST["pcs_plan"],
-				'tgl_plan' => $_POST["tgl_plan"],
-				'machine_plan' => $_POST["machine_plan"],
-				'shift_plan' => $_POST["shift_plan"],
-				'tgl_kirim_plan' => $_POST["tgl_kirim_plan"],
-				'next_plan' => $_POST["next_plan"],
-				'lebar_roll_p' => $_POST["lebar_roll_p"],
-				'panjang_plan' => $_POST["panjang_plan"],
-				'lebar_plan' => $_POST["lebar_plan"],
-				'out_plan' => $_POST["out_plan"],
-				'trim_plan' => $_POST["trim_plan"],
-				'c_off_p' => $_POST["c_off_p"],
-				'rm_plan' => $_POST["rm_plan"],
-				'tonase_plan' => $_POST["tonase_plan"],
-				'material_plan' => $_POST["material_plan"],
-				'kualitas_plan' => $_POST["kualitas_plan"],
-				'kualitas_isi_plan' => $_POST["kualitas_isi_plan"],
-			)
-		);
+		$opsi = $_POST["opsi"];
+		if($opsi == 'add'){
+			$data = array(
+				'id' => $_POST['id_wo'],
+				'name' => $_POST['id_wo'],
+				'price' => 0,
+				'qty' => 1,
+				'options' => array(
+					'id_so_detail' => $_POST["id_so_detail"],
+					'id_wo' => $_POST["id_wo"],
+					'id_produk' => $_POST["id_produk"],
+					'id_pelanggan' => $_POST["id_pelanggan"],
+					'no_wo' => $_POST["no_wo"],
+					'no_so' => $_POST["no_so"],
+					'pcs_plan' => $_POST["pcs_plan"],
+					'tgl_plan' => $_POST["tgl_plan"],
+					'machine_plan' => $_POST["machine_plan"],
+					'shift_plan' => $_POST["shift_plan"],
+					'tgl_kirim_plan' => $_POST["tgl_kirim_plan"],
+					'next_plan' => $_POST["next_plan"],
+					'lebar_roll_p' => $_POST["lebar_roll_p"],
+					'panjang_plan' => $_POST["panjang_plan"],
+					'lebar_plan' => $_POST["lebar_plan"],
+					'out_plan' => $_POST["out_plan"],
+					'trim_plan' => $_POST["trim_plan"],
+					'c_off_p' => $_POST["c_off_p"],
+					'rm_plan' => $_POST["rm_plan"],
+					'tonase_plan' => $_POST["tonase_plan"],
+					'material_plan' => $_POST["material_plan"],
+					'kualitas_plan' => $_POST["kualitas_plan"],
+					'kualitas_isi_plan' => $_POST["kualitas_isi_plan"],
+				)
+			);
 
-		$tgl_plan = $_POST["tgl_plan"];
-		$id_so_detail = $_POST["id_so_detail"];
-		$id_wo = $_POST["id_wo"];
-		$id_produk = $_POST["id_produk"];
-		$id_pelanggan = $_POST["id_pelanggan"];
-		$machine_plan = $_POST["machine_plan"];
-		$shift_plan = $_POST["shift_plan"];
-		$cekHariPlan = $this->db->query("SELECT*FROM plan_cor
-		WHERE id_so_detail='$id_so_detail' AND id_wo='$id_wo' AND id_produk='$id_produk' AND id_pelanggan='$id_pelanggan' AND tgl_plan='$tgl_plan' AND shift_plan='$shift_plan' AND machine_plan='$machine_plan'")->num_rows();
-		if($cekHariPlan > 0){
-			echo json_encode(array('data' => false, 'isi' => 'PLAN SUDAH ADA DI TGL / SHIFT / MESIN YANG SAMA!'));
-			return;
-		}else{
-			if($this->cart->total_items() != 0){
-				foreach($this->cart->contents() as $r){
-					if($r['id'] == $_POST["id_wo"]){
-						echo json_encode(array('data' => false, 'isi' => 'WO SUDAH MASUK LIST PLAN!'));
-						return;
-					}
-				}
-				$this->cart->insert($data);
-				echo json_encode(array('data' => true, 'isi' => $data));
+			$tgl_plan = $_POST["tgl_plan"];
+			$id_so_detail = $_POST["id_so_detail"];
+			$id_wo = $_POST["id_wo"];
+			$id_produk = $_POST["id_produk"];
+			$id_pelanggan = $_POST["id_pelanggan"];
+			$machine_plan = $_POST["machine_plan"];
+			$shift_plan = $_POST["shift_plan"];
+			$cekHariPlan = $this->db->query("SELECT*FROM plan_cor
+			WHERE id_so_detail='$id_so_detail' AND id_wo='$id_wo' AND id_produk='$id_produk' AND id_pelanggan='$id_pelanggan' AND tgl_plan='$tgl_plan' AND shift_plan='$shift_plan' AND machine_plan='$machine_plan'")->num_rows();
+			if($cekHariPlan > 0){
+				echo json_encode(array('data' => false, 'isi' => 'PLAN SUDAH ADA DI TGL / SHIFT / MESIN YANG SAMA!'));
+				return;
 			}else{
-				$this->cart->insert($data);
-				echo json_encode(array('data' => true, 'isi' => $data));
+				if($this->cart->total_items() != 0){
+					foreach($this->cart->contents() as $r){
+						if($r['id'] == $_POST["id_wo"]){
+							echo json_encode(array('data' => false, 'isi' => 'WO SUDAH MASUK LIST PLAN!'));
+							return;
+						}
+					}
+					$this->cart->insert($data);
+					echo json_encode(array('data' => true, 'isi' => $data));
+				}else{
+					$this->cart->insert($data);
+					echo json_encode(array('data' => true, 'isi' => $data));
+				}
 			}
+		}else{
+			echo json_encode(array('data' => true, 'isi' => 'edit'));
 		}
 	}
 
@@ -221,6 +235,26 @@ class Plan extends CI_Controller
 		}
 
 		echo $html;
+	}
+
+	function loadDataPlan()
+	{
+		$tgl_plan = $_POST["tgl_plan"];
+		$shift = $_POST["shift"];
+		$mesin = $_POST["mesin"];
+		// $getData = $this->db->query("SELECT pl.*,i.*,l.*,s.eta_so,s.qty_so,s.rm AS rmSO,s.ton AS tonSO,s.ket_so AS ketSO,m.nm_sales,w.tgl_wo,w.flap1,w.creasing2,w.flap2 FROM plan_cor pl
+		// INNER JOIN m_produk i ON pl.id_produk=i.id_produk
+		// INNER JOIN m_pelanggan l ON pl.id_pelanggan=l.id_pelanggan
+		// INNER JOIN m_sales m ON l.id_sales=m.id_sales
+		// INNER JOIN trs_wo w ON pl.id_wo=w.id
+		// INNER JOIN trs_so_detail s ON pl.id_so_detail=s.id
+		// WHERE pl.tgl_plan='$tgl_plan' AND pl.shift_plan='$shift' AND pl.machine_plan='$mesin'");
+		$getData = $this->db->query("SELECT * FROM plan_cor pl
+		WHERE pl.tgl_plan='$tgl_plan' AND pl.shift_plan='$shift' AND pl.machine_plan='$mesin'");
+		echo json_encode(array(
+			'data' => true,
+			'planCor' => $getData->result(),
+		));
 	}
 
 	//
