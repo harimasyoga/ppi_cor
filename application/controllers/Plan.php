@@ -51,7 +51,12 @@ class Plan extends CI_Controller
 			$row[] = $r->machine_plan;
 
 			$link = base_url('Plan/Corrugator/List/'.$r->tgl_plan.'/'.$r->shift_plan.'/'.$r->machine_plan);
-			$row[] = '<a href="'.$link.'"><button type="button" class="btn btn-dark btn-sm"><i class="fas fa-print"></i></button></a>';
+			
+			$row[] = '<a href="'.$link.'"><button type="button" class="btn btn-dark btn-sm"><i class="fas fa-print"></i></button></a>
+
+			<a href="'.$link.'"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></a>
+			
+			';
 			// $row[] = '<button type="button" onclick="editListPlan('."'".$r->tgl_plan."'".','."'".$r->shift_plan."'".','."'".$r->machine_plan."'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
 
 			$data[] = $row;

@@ -1205,7 +1205,7 @@ class Transaksi extends CI_Controller
                             <tr>
                                 <td align="center" width="5%" >1</td>
                                 <td align="" width="20%" >CORUUGATOR</td>
-                                <td align="" width="20%" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_crg) == '0000-00-00' ? '' : $data_detail->tgl_crg)) . '</td>
+                                <td align="" width="20%" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_crg) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_crg)) . '</td>
                                 <td align="center" width="1%" >' . $data_detail->hasil_crg . '</td>
                                 <td align="center" width="15%" >' . $data_detail->rusak_crg . '</td>
                                 <td align="center" width="15%" >' . $data_detail->baik_crg . '</td>
@@ -1214,7 +1214,7 @@ class Transaksi extends CI_Controller
                             <tr>
                                 <td align="center">2</td>
                                 <td align="" >FLEXO</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_flx) == '0000-00-00' ? '' : $data_detail->tgl_flx)) . '</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_flx) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_flx)) . '</td>
                                 <td align="center" >' . $data_detail->hasil_flx . '</td>
                                 <td align="center" >' . $data_detail->rusak_flx . '</td>
                                 <td align="center" >' . $data_detail->baik_flx . '</td>
@@ -1231,7 +1231,7 @@ class Transaksi extends CI_Controller
                             </tr>
                             <tr>
                                 <td align="right" >Glue</td>
-                                <td align="" style="border-top:hidden;border-right:hidden">' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_glu) == '0000-00-00' ? '' : $data_detail->tgl_glu)) . '</td>
+                                <td align="" style="border-top:hidden;border-right:hidden">' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_glu) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_glu)) . '</td>
                                 <td align="center" style="border-top:hidden;border-right:hidden;border-right:hidden">' . $data_detail->hasil_glu . '</td>
                                 <td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->rusak_glu . '</td>
                                 <td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->baik_glu . '</td>
@@ -1239,7 +1239,7 @@ class Transaksi extends CI_Controller
                             </tr>
                             <tr>
                                 <td align="right" >Stitching</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_stc) == '0000-00-00' ? '' : $data_detail->tgl_stc)) . '</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_stc) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_stc)) . '</td>
                                 <td align="center" >' . $data_detail->hasil_stc . '</td>
                                 <td align="center" >' . $data_detail->rusak_stc . '</td>
                                 <td align="center" >' . $data_detail->baik_stc . '</td>
@@ -1247,7 +1247,7 @@ class Transaksi extends CI_Controller
                             </tr>
                             <tr>
                                 <td align="right" >Die Cut</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_dic) == '0000-00-00' ? '' : $data_detail->tgl_dic)) . '</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_dic) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_dic)) . '</td>
                                 <td align="center" >' . $data_detail->hasil_dic . '</td>
                                 <td align="center" >' . $data_detail->rusak_dic . '</td>
                                 <td align="center" >' . $data_detail->baik_dic . '</td>
@@ -1255,7 +1255,7 @@ class Transaksi extends CI_Controller
                             </tr>
                             <tr>
                                 <td align="right" >Asembly Partisi</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_dic) == '0000-00-00' ? '' : $data_detail->tgl_dic)) . '</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_dic) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_dic)) . '</td>
                                 <td align="center" >' . $data_detail->hasil_dic . '</td>
                                 <td align="center" >' . $data_detail->rusak_dic . '</td>
                                 <td align="center" >' . $data_detail->baik_dic . '</td>
@@ -1263,7 +1263,7 @@ class Transaksi extends CI_Controller
                             </tr>
                             <tr>
                                 <td align="right" >Slitter Manual</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_dic) == '0000-00-00' ? '' : $data_detail->tgl_dic)) . '</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_dic) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_dic)) . '</td>
                                 <td align="center" >' . $data_detail->hasil_dic . '</td>
                                 <td align="center" >' . $data_detail->rusak_dic . '</td>
                                 <td align="center" >' . $data_detail->baik_dic . '</td>
@@ -1272,7 +1272,7 @@ class Transaksi extends CI_Controller
                             <tr>
                                 <td align="center" >4</td>
                                 <td align="" >GUDANG</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_gdg) == '0000-00-00' ? '' : $data_detail->tgl_gdg)) . '</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_gdg) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_gdg)) . '</td>
                                 <td align="center" >' . $data_detail->hasil_gdg . '</td>
                                 <td align="center" >' . $data_detail->rusak_gdg . '</td>
                                 <td align="center" >' . $data_detail->baik_gdg . '</td>
@@ -1281,7 +1281,7 @@ class Transaksi extends CI_Controller
                             <tr>
                                 <td align="center" >5</td>
                                 <td align="" >EXPEDISI / PENGIRIMAN</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_exp) == '0000-00-00' ? '' : $data_detail->tgl_exp)) . '</td>
+                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_exp) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_exp)) . '</td>
                                 <td align="center" >' . $data_detail->hasil_exp . '</td>
                                 <td align="center" >' . $data_detail->rusak_exp . '</td>
                                 <td align="center" >' . $data_detail->baik_exp . '</td>
@@ -1294,7 +1294,7 @@ class Transaksi extends CI_Controller
 
 		// $this->m_fungsi->_mpdf($html);
 		
-		$this->m_fungsi->template_kop('WORK ORDER',$html,'P','0');
+		$this->m_fungsi->template_kop('WORK ORDER',$html,'P','1');
 		// $this->m_fungsi->mPDFP($html);
 	}
 
