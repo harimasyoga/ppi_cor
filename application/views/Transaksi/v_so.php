@@ -245,7 +245,6 @@
 			},
 			success: function(json){
 				data = JSON.parse(json)
-				// console.log(data)
 				let htmlPo = ''
 					htmlPo += `<option value="">PILIH</option>`
 				data.po.forEach(loadPo);
@@ -300,7 +299,6 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				// console.log(data)
 				let tf = '';
 				(data.po_detail.length == 0) ? tf = true : tf = false
 				let htmlDetail = ''
@@ -361,7 +359,6 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				// console.log(data)
 				if(data.data == null){
 					no_so = ''
 				}else{
@@ -406,16 +403,25 @@
 				idpodetail, idpelanggan, nm_produk, no_po, kode_po, item, no_so, jml_so, rm, ton, eta_po
 			}),
 			success: function(res){
-				swal.close()
 				data = JSON.parse(res);
-				// console.log(data)
 				if(data.data){
-					toastr.success("BERHASIL")
-					$('#table-nopo').load("<?php echo base_url('Transaksi/showCartItem')?>")
+					showCartItem()
 				}else{
 					swal(data.isi, "", "error")
 				}
 				$("#btn-show-simpan").prop("disabled", false)
+			}
+		})
+	}
+
+	function showCartItem()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/showCartItem')?>',
+			type: "POST",
+			success: function(res){
+				$('#table-nopo').html(res);
+				swal.close()
 			}
 		})
 	}
@@ -425,14 +431,24 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/hapusCartItem')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				rowid
 			}),
 			success: function(res){
 				if(opsi == 'ListAddBagiSO'){
-					$('#list-bagi-so-'+i).load("<?php echo base_url('Transaksi/ListAddBagiSO')?>")
+					ListAddBagiSO(i)
 				}else{
-					$('#table-nopo').load("<?php echo base_url('Transaksi/showCartItem')?>")
+					showCartItem()
 				}
 			}
 		})
@@ -442,7 +458,7 @@
 		let vvvv = $("#table-nopo-value").val()
 		let tgl_so = $("#tgl_so").val()
 		
-		if(vvvv === undefined){
+		if(vvvv === undefined){	
 			toastr.error('DATA KOSONG!');
 			return
 		}
@@ -466,7 +482,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data) {
 					swal("BERHASIL DISIMPAN!", "", "success")
 					$("#modalForm").modal("hide");
@@ -516,8 +531,6 @@
 	}
 
 	function addBagiSO(i){
-		// console.log(i)
-		// $("#addBagiSO").prop('disabled', true)
 		let hQtyPo = $("#hide-qtypo-so"+i).val()
 		let hRmPo = $("#hide-rmpo-so"+i).val()
 		let hTonPo = $("#hide-tonpo-so"+i).val()
@@ -571,19 +584,39 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					$("#form-bagi-eta-so").val("")
 					$("#form-bagi-qty-so").val("")
 					$("#form-bagi-ket-so").val("")
-					$("#list-bagi-so-"+i).load("<?php echo base_url('Transaksi/ListAddBagiSO')?>")
+					ListAddBagiSO(i)
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
 				}
 				$("#btnAddBagiSO").prop('disabled', false)
 				$("#hapusCartItemSO").prop('disabled', false)
 				$("#simpanCartItemSO").prop('disabled', false)
+			}
+		})
+	}
 
+	function ListAddBagiSO(i)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/ListAddBagiSO')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				$("#list-bagi-so-"+i).html(res)
 				swal.close()
 			}
 		})
@@ -618,9 +651,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
-					swal("EDIT BERHASIL!", "", "success")
 					tampilEditSO(id, no_po, kode_po, 'edit')
 				}else{
 					toastr.error(`<b>${data.msg}</b>`);
@@ -656,9 +687,7 @@
 			// data: ({}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data){
-					swal("BERHASIL BAGI DATA SO!", "", "success")
 					tampilEditSO(id, no_po, kode_po, 'edit')
 				}else{
 					toastr.error('Ada kesalahan!');
@@ -676,9 +705,14 @@
 		let id = $("#h_id").val()
 		let no_po = $("#h_no_po").val()
 		let kode_po = $("#h_kodepo").val()
-
-		let cek = confirm("Apakah Anda Yakin?");
-		if(cek){
+		swal({
+			title: "Apakah Kamu Yakin?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#C00",
+			confirmButtonText: "Delete"
+		}).then(function(result) {
 			$.ajax({
 				url: '<?php echo base_url('Transaksi/batalDataSO')?>',
 				type: "POST",
@@ -697,39 +731,52 @@
 				}),
 				success: function(res){
 					data = JSON.parse(res)
-					// console.log(data)
 					if(data.data){
-						swal(data.msg, "", "success")
 						tampilEditSO(id, no_po, kode_po, 'edit')
 					}
 				}
 			})
-		}else{
-			toastr.info('BATAL SO TIDAK JADI!')
-		}
+		});
 	}
 
 	function hapusListSO(id){
-		// alert('hapus')
-		$("#hapusListSO").prop('disabled', true)
-		$.ajax({
-			url: '<?php echo base_url('Transaksi/hapusListSO')?>',
-			type: "POST",
-			data: ({
-				id
-			}),
-			success: function(res){
-				data = JSON.parse(res)
-				// console.log(data)
-				if(data.data){
-					swal(data.msg, "", "success")
-					$("#modalFormDetail").modal("hide")
-					reloadTable()
-				}else{
-					toastr.error(`<b>${data.msg}</b>`)
+		swal({
+			title: "Apakah Kamu Yakin?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#C00",
+			confirmButtonText: "Delete"
+		}).then(function(result) {
+			$.ajax({
+				url: '<?php echo base_url('Transaksi/hapusListSO')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({
+					id
+				}),
+				success: function(res){
+					data = JSON.parse(res)
+					if(data.data){
+						swal(data.msg, "", "success")
+						$("#modalFormDetail").modal("hide")
+						reloadTable()
+					}else{
+						toastr.error(`<b>${data.msg}</b>`)
+						swal.close()
+					}
 				}
-			}
-		})
+			})
+		});
 	}
 
 </script>

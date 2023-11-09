@@ -35,10 +35,11 @@
 					<thead>
 						<tr>
 							<th style="width:5%">#</th>
-							<th style="width:25%">TANGGAL</th>
-							<th style="width:25%">SHIFT</th>
-							<th style="width:25%">MESIN COR</th>
-							<th style="width:20%">AKSI</th>
+							<th style="width:20%">TANGGAL</th>
+							<th style="width:10%">SHIFT</th>
+							<th style="width:10%">MESIN</th>
+							<th style="width:40%">NO. PLAN</th>
+							<th style="width:15%">AKSI</th>
 						</tr>
 					</thead>
 					<tbody></tbody>

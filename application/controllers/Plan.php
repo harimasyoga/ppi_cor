@@ -40,15 +40,16 @@ class Plan extends CI_Controller
 	function LoaDataCor()
 	{
 		$data = array();
-		$query = $this->db->query("SELECT*FROM plan_cor GROUP BY tgl_plan")->result();
+		$query = $this->db->query("SELECT*FROM plan_cor GROUP BY tgl_plan,shift_plan,machine_plan")->result();
 		$i = 0;
 		foreach ($query as $r) {
 			$i++;
 			$row = array();
-			$row[] = $i;
-			$row[] = $r->tgl_plan;
+			$row[] = '<div style="text-align:center">'.$i.'</div>';
+			$row[] = strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_plan));
 			$row[] = $r->shift_plan;
 			$row[] = $r->machine_plan;
+			$row[] = $r->no_plan;
 
 			$link = base_url('Plan/Corrugator/List/'.$r->tgl_plan.'/'.$r->shift_plan.'/'.$r->machine_plan);
 			
@@ -225,14 +226,110 @@ class Plan extends CI_Controller
 		foreach($this->cart->contents() as $r){
 			if($r['rowid'] == $_POST["rowid"]){
 				$html .= '<div class="row">
-					<div class="col-md-12">
-						<div class="card card-info card-outline">
-							<div class="card-header">
-								<h3 class="card-title" style="font-weight:bold;font-style:italic">WO</h3>
+					<div class="col-md-6">
+						<div class="card card-secondary card-outline" style="padding-bottom:20px">
+							<div class="card-header" style="margin-bottom:15px">
+								<h3 class="card-title" style="font-weight:bold;font-style:italic">RINCIAN</h3>
 							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-1">NO. WO</div>
-								<div class="col-md-11">'.$r['options']['no_wo'].'</div>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2">TANGGAL</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.$this->m_fungsi->tanggal_format_indonesia($r['options']['tgl_plan']).'" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2">SHIFT</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.$r['options']['shift_plan'].'" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2">MESIN</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.$r['options']['machine_plan'].'" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2">NO. WO</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.$r['options']['no_wo'].'" disabled>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<div class="card card-info card-outline" style="padding-bottom:20px">
+							<div class="card-header" style="margin-bottom:15px">
+								<h3 class="card-title" style="font-weight:bold;font-style:italic">PLAN</h3>
+							</div>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2" style="padding:0">PANJANG</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.number_format($r['options']['panjang_plan']).'" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2">LEBAR</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.number_format($r['options']['lebar_plan']).'" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2" style="padding-right:0">L. ROLL</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.number_format($r['options']['lebar_roll_p']).'" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2">OUT</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.number_format($r['options']['out_plan']).'" disabled>
+								</div>
+							</div>
+							<br/>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2">QTY</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.number_format($r['options']['pcs_plan']).'" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2">TRIM</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.number_format($r['options']['trim_plan']).'" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2" style="padding-right:0">C.OFF</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.number_format($r['options']['c_off_p']).'" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2">RM</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.number_format($r['options']['rm_plan']).'" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2">TON</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.number_format($r['options']['tonase_plan']).'" disabled>
+								</div>
+							</div>
+							<br/>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2" style="padding-right:0">KIRIM</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.$this->m_fungsi->tanggal_format_indonesia($r['options']['tgl_kirim_plan']).'" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+								<div class="col-md-2">NEXT</div>
+								<div class="col-md-10">
+									<input type="text" class="form-control" value="'.$r['options']['next_plan'].'" disabled>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -245,20 +342,34 @@ class Plan extends CI_Controller
 
 	function loadDataPlan()
 	{
-		$tgl_plan = $_POST["tgl_plan"];
-		$shift = $_POST["shift"];
-		$mesin = $_POST["mesin"];
-		$getData = $this->db->query("SELECT * FROM plan_cor pl
-		WHERE pl.tgl_plan='$tgl_plan' AND pl.shift_plan='$shift' AND pl.machine_plan='$mesin'");
+		$getData = $this->m_plan->loadDataPlan();
 		echo json_encode(array(
 			'data' => true,
-			'planCor' => $getData->result(),
+			'planCor' => $getData,
 		));
 	}
 
 	function produksiRencanaPlan()
 	{
 		$result = $this->m_plan->produksiRencanaPlan();
+		echo json_encode($result);
+	}
+
+	function hapusPlan()
+	{
+		$result = $this->m_plan->hapusPlan();
+		echo json_encode($result);
+	}
+
+	function selesaiPlan()
+	{
+		$result = $this->m_plan->selesaiPlan();
+		echo json_encode($result);
+	}
+
+	function selesaiPlanWO()
+	{
+		$result = $this->m_plan->selesaiPlanWO();
 		echo json_encode($result);
 	}
 

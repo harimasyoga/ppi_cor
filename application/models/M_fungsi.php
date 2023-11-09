@@ -239,6 +239,15 @@ class M_fungsi extends CI_Model {
         return  $tanggal[2].' '.$bulan.' '.$tahun;
     }
 
+	function urut_transaksi($kode)
+	{
+		$this->db->query("UPDATE m_urut set no_urut=no_urut+1 where kode='$kode' ");
+		
+		$query = $this->db->query("SELECT * from m_urut where kode='$kode' ")->row();
+		$nomor_urut = str_pad($query->no_urut, 4, "0", STR_PAD_LEFT);
+		return $nomor_urut;
+	}
+
     function  periode_indonesia($tgl)
 	{
             

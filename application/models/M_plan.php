@@ -14,7 +14,7 @@ class M_plan extends CI_Model
 	{
 		$opsi = $_POST["opsi"];
 		if($opsi != ''){
-			$query = $this->db->query("SELECT *,w.qty AS qtyPoWo FROM plan_cor pl
+			$query = $this->db->query("SELECT *,w.qty AS qtyPoWo,w.status AS statusWo FROM plan_cor pl
 			INNER JOIN m_produk i ON pl.id_produk=i.id_produk
 			INNER JOIN m_pelanggan l ON pl.id_pelanggan=l.id_pelanggan
 			INNER JOIN m_sales m ON l.id_sales=m.id_sales
@@ -37,10 +37,32 @@ class M_plan extends CI_Model
 		return $query;
 	}
 
+	function loadDataPlan()
+	{
+		$tgl_plan = $_POST["tgl_plan"];
+		$shift = $_POST["shift"];
+		$mesin = $_POST["mesin"];
+		
+		return $this->db->query("SELECT wo.status AS statusWo,pl.* FROM plan_cor pl
+		INNER JOIN trs_wo wo ON pl.id_wo=wo.id
+		WHERE pl.tgl_plan='$tgl_plan' AND pl.shift_plan='$shift' AND pl.machine_plan='$mesin'")->result();
+	}
+
 	function simpanCartItem()
 	{
+		$plan_no    = $this->m_fungsi->urut_transaksi('PLAN');
+		$bln        = $this->m_master->get_romawi(date('m'));
+		$tahun      = date('Y');
+		
 		foreach($this->cart->contents() as $r){
+			if($_POST['no_plan'] == ''){
+				$noplan = 'PLAN/'.$tahun.'/'.$bln.'/'.$plan_no;
+			}else{
+				$noplan = $_POST['no_plan'];
+			}
+
 			$data = array(
+				'no_plan' => $noplan,
 				'id_so_detail' => $r["options"]["id_so_detail"],
 				'id_wo' => $r["options"]["id_wo"],
 				'id_produk' => $r["options"]["id_produk"],
@@ -124,6 +146,26 @@ class M_plan extends CI_Model
 		$this->db->set('end_time_p', $_POST["end_cor"]);
 		$this->db->where('id_plan', $_POST["id_plan"]);
 		return $this->db->update('plan_cor');
+	}
+
+	function hapusPlan()
+	{
+		$this->db->where('id_plan', $_POST["id_plan"]);
+		return $this->db->delete('plan_cor');
+	}
+
+	function selesaiPlan()
+	{
+		$this->db->set('status_plan', 'Close');
+		$this->db->where('id_plan', $_POST["id_plan"]);
+		return $this->db->update('plan_cor');
+	}
+
+	function selesaiPlanWO()
+	{
+		$this->db->set('status', 'Close');
+		$this->db->where('id', $_POST["id_wo"]);
+		return $this->db->update('trs_wo');
 	}
 
 }
