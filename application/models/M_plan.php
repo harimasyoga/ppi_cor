@@ -14,7 +14,7 @@ class M_plan extends CI_Model
 	{
 		$opsi = $_POST["opsi"];
 		if($opsi != ''){
-			$query = $this->db->query("SELECT *,w.qty AS qtyPoWo,w.status AS statusWo FROM plan_cor pl
+			$query = $this->db->query("SELECT *,w.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems FROM plan_cor pl
 			INNER JOIN m_produk i ON pl.id_produk=i.id_produk
 			INNER JOIN m_pelanggan l ON pl.id_pelanggan=l.id_pelanggan
 			INNER JOIN m_sales m ON l.id_sales=m.id_sales
@@ -22,7 +22,7 @@ class M_plan extends CI_Model
 			INNER JOIN trs_so_detail s ON pl.id_so_detail=s.id
 			WHERE pl.id_plan='$opsi'");
 		}else{
-			$query = $this->db->query("SELECT w.*,i.*,s.*,o.tgl_po,o.total_qty,p.nm_pelanggan,m.nm_sales,s.id AS idSoDetail,w.id AS idWo,w.creasing2 AS creasing2wo FROM trs_wo w
+			$query = $this->db->query("SELECT w.*,i.*,s.*,o.tgl_po,o.total_qty,p.nm_pelanggan,m.nm_sales,s.id AS idSoDetail,w.id AS idWo,w.creasing2 AS creasing2wo,i.kategori AS kategoriItems FROM trs_wo w
 			INNER JOIN m_pelanggan p ON w.id_pelanggan=p.id_pelanggan
 			INNER JOIN m_sales m ON p.id_sales=m.id_sales
 			INNER JOIN m_produk i ON w.id_produk=i.id_produk
@@ -145,7 +145,23 @@ class M_plan extends CI_Model
 		$this->db->set('start_time_p', $_POST["start_cor"]);
 		$this->db->set('end_time_p', $_POST["end_cor"]);
 		$this->db->where('id_plan', $_POST["id_plan"]);
-		return $this->db->update('plan_cor');
+
+		if($_POST["total_cor_p"] != 0){
+			$id_plan = $_POST["id_plan"];
+			$cekPlan = $this->db->query("SELECT*FROM plan_cor WHERE id_plan='$id_plan'")->row();
+			if($cekPlan->status_plan == 'Close'){
+				$result = array(
+					'data' => false,
+					'msg' => 'PLAN SUDAH SELESAI!',
+				);
+			}else{
+				$result = $this->db->update('plan_cor');
+			}
+		}else{
+			$result = $this->db->update('plan_cor');
+		}
+
+		return $result;
 	}
 
 	function hapusPlan()

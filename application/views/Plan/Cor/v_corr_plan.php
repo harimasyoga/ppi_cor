@@ -24,6 +24,11 @@
 							<h3 class="card-title" style="font-weight:bold;font-style:italic">WO</h3>
 						</div>
 						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+							<div class="col-md-12" style="padding:0">
+								<a href="<?php echo base_url('Plan/Corrugator')?>" class="btn btn-sm btn-info"><i class="fa fa-arrow-left"></i> <b>Kembali</b></a>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-1"></div>
 							<div class="col-md-11" style="font-size:small;font-style:italic;color:#f00">
 								* NO. WO | ETA SO | ITEM | CUSTOMER
@@ -402,10 +407,6 @@
 							<div class="col-md-10">
 								<select id="next_flexo" class="form-control select2" <?=$dis?>>
 									<option value="">PILIH</option>
-									<option value="FLEXO1">FLEXO 1</option>
-									<option value="FLEXO2">FLEXO 2</option>
-									<option value="FLEXO3">FLEXO 3</option>
-									<option value="FLEXO4">FLEXO 4</option>
 								</select>
 							</div>
 						</div>
@@ -560,10 +561,12 @@
 							</thead>
 							<tbody>`
 				let aksiHapus = ``;
+				let aksiCor = ``;
 				for (let i = 0; i < plan.length; i++) {
-					if(auth == 'Admin'){
+					if(auth == 'Admin' || auth == 'Corrugator'){
 						if(plan[i].status_plan == 'Open' && plan[i].total_cor_p == 0){
-							aksiHapus = `<button class="btn btn-sm btn-danger" onclick="hapusPlan(${plan[i].id_plan})"><i class="fas fa-times"></i> HAPUS</button>`
+							(auth == 'Corrugator') ? aksiCor = 'disabled' : aksiCor = `onclick="hapusPlan(${plan[i].id_plan})"`;
+							aksiHapus = `<button class="btn btn-sm btn-danger" ${aksiCor}><i class="fas fa-times"></i> HAPUS</button>`;
 						}else if(plan[i].status_plan == 'Open' && plan[i].total_cor_p != 0){
 							aksiHapus = `<button class="btn btn-sm btn-success"><i class="fas fa-check"></i> PRODUKSI</button>`
 						}else if(plan[i].status_plan == 'Close' && plan[i].statusWo == 'Open'){
@@ -766,6 +769,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				plhNoWo(id_plan)
+				loadData(urlTgl_plan, urlShift, urlMesin)
 			}
 		})
 	}
@@ -824,8 +828,12 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				plhNoWo(id_plan)
-				loadData(urlTgl_plan, urlShift, urlMesin)
+				if(data){
+					plhNoWo(id_plan)
+					loadData(urlTgl_plan, urlShift, urlMesin)
+				}else{
+					swal(data.msg, "", "error");
+				}
 			}
 		})
 	}
@@ -998,6 +1006,7 @@
 						kualitas="${r.kualitas}"
 						kualitas-isi="${r.kualitas_isi}"
 						flute="${r.flute}"
+						kategori="${r.kategoriItems}"
 						tipe-box="${r.tipe_box}"
 						sambungan="${r.sambungan}"
 						berat-box="${r.berat_bersih}"
@@ -1022,7 +1031,7 @@
 
 	function plhNoWo(opsi = '')
 	{
-		let id_wo = ''; let id_so = ''; let id_pelanggan = ''; let id_produk = ''; let tgl_wo = ''; let no_wo = ''; let no_so = ''; let urut_so = ''; let rpt = ''; let eta_so = ''; let tgl_po = ''; let no_po = ''; let kode_po = ''; let qty_po = ''; let customer = ''; let nm_sales = ''; let item = ''; let kode_mc = ''; let uk_box = ''; let uk_sheet = ''; let panjang_s = ''; let lebar_s = ''; let creasing_1 = ''; let creasing_2 = ''; let creasing_3 = ''; let material = ''; let kualitas = ''; let kualitas_isi = ''; let flute = ''; let tipe_box = ''; let sambungan = ''; let berat_box = ''; let luas_box = ''; let qty_so = ''; let rm_so = ''; let ton_so = ''; let ket_so = ''; let creasing_wo1 = ''; let creasing_wo2 = ''; let creasing_wo3 = ''; let panjang_plan = ''; let lebar_plan = ''; let out_plan = ''; let lebar_roll_p = ''; trim_plan = ''; c_off_p = ''; rm_plan = ''; tonase_plan = ''; 
+		let id_wo = ''; let id_so = ''; let id_pelanggan = ''; let id_produk = ''; let tgl_wo = ''; let no_wo = ''; let no_so = ''; let urut_so = ''; let rpt = ''; let eta_so = ''; let tgl_po = ''; let no_po = ''; let kode_po = ''; let qty_po = ''; let customer = ''; let nm_sales = ''; let item = ''; let kode_mc = ''; let uk_box = ''; let uk_sheet = ''; let panjang_s = ''; let lebar_s = ''; let creasing_1 = ''; let creasing_2 = ''; let creasing_3 = ''; let material = ''; let kualitas = ''; let kualitas_isi = ''; let flute = ''; let tipe_box = ''; let sambungan = ''; let berat_box = ''; let luas_box = ''; let qty_so = ''; let rm_so = ''; let ton_so = ''; let ket_so = ''; let creasing_wo1 = ''; let creasing_wo2 = ''; let creasing_wo3 = ''; let panjang_plan = ''; let lebar_plan = ''; let out_plan = ''; let lebar_roll_p = ''; let trim_plan = ''; let c_off_p = ''; let rm_plan = ''; let tonase_plan = ''; let kategori = '';
 
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadPlanWo')?>',
@@ -1072,6 +1081,7 @@
 					kualitas_isi = data.wo.kualitas_isi
 					kualitas_isi_plan = data.wo.kualitas_isi_plan
 					flute = data.wo.flute
+					kategori = data.wo.kategoriItems
 					tipe_box = data.wo.tipe_box
 					sambungan = data.wo.sambungan
 					berat_box = data.wo.berat_bersih
@@ -1156,7 +1166,6 @@
 					</div>`);
 
 					$("#kirim").val(tgl_kirim_plan)
-					$("#next_flexo").html(`<option value="${next_plan}">${next_plan}</option><option value="">PILIH</option><option value="FLEXO1">FLEXO 1</option><option value="FLEXO2">FLEXO 2</option><option value="FLEXO3">FLEXO 3</option><option value="FLEXO4">FLEXO 4</option>`)
 
 					$("#card-produksi").show();
 					$("#good_cor").val(data.wo.good_cor_p)
@@ -1198,6 +1207,7 @@
 					kualitas_isi = $('#no_wo option:selected').attr('kualitas-isi')
 					kualitas_isi_plan = $('#no_wo option:selected').attr('kualitas-isi')
 					flute = $('#no_wo option:selected').attr('flute')
+					kategori = $('#no_wo option:selected').attr('kategori')
 					tipe_box = $('#no_wo option:selected').attr('tipe-box')
 					sambungan = $('#no_wo option:selected').attr('sambungan')
 					berat_box = $('#no_wo option:selected').attr('berat-box')
@@ -1229,7 +1239,6 @@
 					</div>`)
 
 					$("#kirim").val(eta_so)
-					$("#next_flexo").html(`<option value="">PILIH</option><option value="FLEXO1">FLEXO 1</option><option value="FLEXO2">FLEXO 2</option><option value="FLEXO3">FLEXO 3</option><option value="FLEXO4">FLEXO 4</option>`);
 
 					$("#card-produksi").hide();
 					$("#good_cor").val("");$("#bad_cor").val("");$("#total_cor").val("");$("#ket_cor").val("");$("#start_cor").val("");$("#end_cor").val("");
@@ -1318,9 +1327,16 @@
 				$("#cmf_i").val("").prop('disabled', true)
 				$("#cl").html(`<option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>`).prop('disabled', true)
 				$("#cl_i").val("").prop('disabled', true)
-				$("#group_plh_kualitas").hide()
+				$("#group_plh_kualitas").hide();
 
-				ayoBerhitung()
+				(next_plan == '') ? next_plan = `` : next_plan = `<option value="${next_plan}">${next_plan}</option>` ;
+				if(kategori == 'K_BOX'){
+					$("#next_flexo").html(`${next_plan}<option value="">PILIH</option><option value="FLEXO1">FLEXO 1</option><option value="FLEXO2">FLEXO 2</option><option value="FLEXO3">FLEXO 3</option><option value="FLEXO4">FLEXO 4</option>`)
+				}else{
+					$("#next_flexo").html(`${next_plan}<option value="">PILIH</option><option value="GUDANG">GUDANG</option>`)
+				}
+
+				ayoBerhitung();
 				swal.close()
 			}
 		})

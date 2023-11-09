@@ -23,6 +23,11 @@
 							<h3 class="card-title" style="font-weight:bold;font-style:italic">WO</h3>
 						</div>
 						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+							<div class="col-md-12" style="padding:0">
+								<a href="<?php echo base_url('Plan/Corrugator')?>" class="btn btn-sm btn-info"><i class="fa fa-arrow-left"></i> <b>Kembali</b></a>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-1"></div>
 							<div class="col-md-11" style="font-size:small;font-style:italic;color:#f00">
 								* NO. WO | ETA SO | ITEM | CUSTOMER
@@ -392,10 +397,6 @@
 							<div class="col-md-10">
 								<select id="next_flexo" class="form-control select2">
 									<option value="">PILIH</option>
-									<option value="FLEXO1">FLEXO 1</option>
-									<option value="FLEXO2">FLEXO 2</option>
-									<option value="FLEXO3">FLEXO 3</option>
-									<option value="FLEXO4">FLEXO 4</option>
 								</select>
 							</div>
 						</div>
@@ -528,7 +529,7 @@
 				if(data.data){
 					listRencanaPlan()
 					$("#no_wo").val("")
-					// plhNoWo()
+					plhNoWo()
 				}else{
 					swal(data.isi, "", "error")
 					return
@@ -676,6 +677,7 @@
 						kualitas="${r.kualitas}"
 						kualitas-isi="${r.kualitas_isi}"
 						flute="${r.flute}"
+						kategori="${r.kategoriItems}"
 						tipe-box="${r.tipe_box}"
 						sambungan="${r.sambungan}"
 						berat-box="${r.berat_bersih}"
@@ -749,6 +751,7 @@
 		let kualitas = $('#no_wo option:selected').attr('kualitas')
 		let kualitas_isi = $('#no_wo option:selected').attr('kualitas-isi')
 		let flute = $('#no_wo option:selected').attr('flute')
+		let kategori = $('#no_wo option:selected').attr('kategori')
 		let tipe_box = $('#no_wo option:selected').attr('tipe-box')
 		let sambungan = $('#no_wo option:selected').attr('sambungan')
 		let berat_box = $('#no_wo option:selected').attr('berat-box')
@@ -834,7 +837,11 @@
 		$("#out_plan").val("")
 
 		$("#kirim").val(eta_so)
-		$("#next_flexo").html(`<option value="">PILIH</option><option value="FLEXO1">FLEXO 1</option><option value="FLEXO2">FLEXO 2</option><option value="FLEXO3">FLEXO 3</option><option value="FLEXO4">FLEXO 4</option>`)
+		if(kategori == 'K_BOX'){
+			$("#next_flexo").html(`<option value="">PILIH</option><option value="FLEXO1">FLEXO 1</option><option value="FLEXO2">FLEXO 2</option><option value="FLEXO3">FLEXO 3</option><option value="FLEXO4">FLEXO 4</option>`)
+		}else{
+			$("#next_flexo").html(`<option value="">PILIH</option><option value="GUDANG">GUDANG</option>`)
+		}
 
 		ayoBerhitung()
 	}

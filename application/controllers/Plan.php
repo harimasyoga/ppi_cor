@@ -53,9 +53,11 @@ class Plan extends CI_Controller
 
 			$link = base_url('Plan/Corrugator/List/'.$r->tgl_plan.'/'.$r->shift_plan.'/'.$r->machine_plan);
 			
-			$row[] = '<a href="'.$link.'"><button type="button" class="btn btn-dark btn-sm"><i class="fas fa-print"></i></button></a>
+			$row[] = '<a href="'.$link.'"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>
 
 			<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Plan/Cetak_plan2?no_plan=" . $r->no_plan . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+
+			<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Plan/laporanPlan?no_plan=".$r->no_plan."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
 			
 			';
 			// $row[] = '<button type="button" onclick="editListPlan('."'".$r->tgl_plan."'".','."'".$r->shift_plan."'".','."'".$r->machine_plan."'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
@@ -371,6 +373,13 @@ class Plan extends CI_Controller
 	{
 		$result = $this->m_plan->selesaiPlanWO();
 		echo json_encode($result);
+	}
+
+	function laporanPlan()
+	{
+		$html = '';
+		$judul = 'PLAN';
+		$this->m_fungsi->newMpdf($judul, 'kop', '', $html, 3, 3, 3, 3, 'L', 'A4');
 	}
 
 	//
