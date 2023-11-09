@@ -54,7 +54,7 @@ class Plan extends CI_Controller
 			
 			$row[] = '<a href="'.$link.'"><button type="button" class="btn btn-dark btn-sm"><i class="fas fa-print"></i></button></a>
 
-			<a href="'.$link.'"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-print"></i></button></a>
+			<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Plan/Cetak_plan2?no_plan=" . $r->no_plan . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 			
 			';
 			// $row[] = '<button type="button" onclick="editListPlan('."'".$r->tgl_plan."'".','."'".$r->shift_plan."'".','."'".$r->machine_plan."'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
@@ -278,6 +278,41 @@ class Plan extends CI_Controller
 		$this->load->view('header');
 		$this->load->view('Plan/Finishing/v_finishing');
 		$this->load->view('footer');
+	}
+
+	function Cetak_plan2()
+	{
+		$no_plan             = $_GET['no_plan'];
+		
+		$header    = $this->db->query("SELECT * from plan_cor where no_plan= '$no_plan' order by id_plan LIMIT 1");
+
+		if ($header->num_rows() > 0) {
+
+			$head = $header->row();
+			
+			$html = '<table width="100%" border="0" cellspacing="0" cellpadding="0" style="font-size:14px;font-family: ;">
+                            
+					<tr style="font-weight: bold;">
+						<td colspan="15" align="center">
+						<b> ( ' . $head->no_plan . ' )</b>
+						</td>
+					</tr>
+			</table><br>';
+			
+			$data    = $this->db->query("SELECT * from plan_cor where no_plan= '$no_plan' order by id_plan")->result();
+
+			foreach ($data as $r) {
+				
+			}
+
+		} else {
+			$html .= '<h1> Data Kosong </h1>';
+		}
+
+		// $this->m_fungsi->_mpdf($html);
+		
+		$this->m_fungsi->template_kop('PLAN CORR',$html,'L','1');
+		// $this->m_fungsi->mPDFP($html);
 	}
 
 }

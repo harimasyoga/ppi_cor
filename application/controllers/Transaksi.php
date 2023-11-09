@@ -305,7 +305,7 @@ class Transaksi extends CI_Controller
                                     <i class="fa fa-edit"></i>
 	                            </button>
 
-	                            <button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
+	                            <button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ',' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
                                     <i class="fa fa-trash-alt"></i>
 	                            </button>  
 
@@ -345,7 +345,7 @@ class Transaksi extends CI_Controller
 									<i class="fa fa-edit"></i>
 								</button>
 
-								<button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
+								<button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ',' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
 									<i class="fa fa-trash-alt"></i>
 								</button>  
 	                            <button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
@@ -435,7 +435,7 @@ class Transaksi extends CI_Controller
 
 							<a target="_blank" class="btn btn-sm btn-warning" href="' . base_url("Transaksi/Cetak_WO?no_wo=" . $r->no_wo . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
-                            <button type="button" onclick="deleteData(' . "'" . $r->id_wo . "'" . ')" class="btn btn-danger btn-sm">
+                            <button type="button" onclick="deleteData(' . "'" . $r->id_wo . "'" . ',' . "'" . $r->no_wo . "'" . ')" class="btn btn-danger btn-sm">
                                 <i class="fa fa-trash-alt"></i>
                             </button>  
                             ';
