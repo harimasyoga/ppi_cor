@@ -547,17 +547,27 @@
           type: "POST",
           data: $('#myForm').serialize(),
           dataType: "JSON",
+          beforeSend: function() {
+            swal({
+              title: 'loading ...',
+              allowEscapeKey    : false,
+              allowOutsideClick : false,
+              onOpen: () => {
+                swal.showLoading();
+              }
+            })
+          },
           success: function(data)
           {           
             if (data) {
               // toastr.success('Berhasil Disimpan'); 
+              // kosong();
               swal({
                 title               : "Data",
                 html                : "Berhasil Disimpan",
                 type                : "success",
                 confirmButtonText   : "OK"
               });
-              kosong();
               $("#modalForm").modal("hide");
 
               reloadTable();
@@ -623,6 +633,17 @@
     $("#nopo").val('');
     $("#id_produk").val('');
     $("#qty0").val('');
+    $("#p1").val(0);
+    $("#l1").val(0);
+    $("#p2").val(0);
+    $("#l2").val(0);
+    $("#flap1").val(0);
+    $("#creasing2").val(0);
+    $("#flap2").val(0);
+    $("#p1_sheet").val(0);
+    $("#flap1_sheet").val(0);
+    $("#creasing2_sheet").val(0);
+    $("#flap2_sheet").val(0);
     $("#txt_detail_produk0").html('');
 
     // $("#line").val('');
@@ -680,16 +701,8 @@
 
 
   function tampil_edit(id,act){
-    kosong('s'); 
+    // kosong('s'); 
     // show_loading();
-    swal({
-			title: 'loading ...',
-			allowEscapeKey    : false,
-			allowOutsideClick : false,
-			onOpen: () => {
-				swal.showLoading();
-			} 
-		})
     $('#ket').hide();
     $(".btn-tambah-produk").hide();
     
@@ -898,37 +911,52 @@
   }
 
 
-  function deleteData(id){
-    let cek = confirm("Apakah Anda Yakin?");
+  function deleteData(id,no){
+    // let cek = confirm("Apakah Anda Yakin?");
 
-    if (cek) {
-      $.ajax({
-        url   : '<?php echo base_url(); ?>Transaksi/batal',
-        data  : ({id:id,jenis:'trs_wo',field:'id'}),
-        type  : "POST",
-        success : function(data){
-          // toastr.success('Data Berhasil Di Batalkan'); 
-          swal({
-						title               : "Data",
-						html                : "Data Berhasil Di Batalkan",
-						type                : "success",
-						confirmButtonText   : "OK"
-					});
-          reloadTable();
-        },
-        error: function (jqXHR, textStatus, errorThrown)
-        {
-          //  toastr.error('Terjadi Kesalahan'); 
+    swal({
+        title: "WO",
+        html: "<p> Apakah Anda yakin ingin menghapus file ini ?</p><br>"
+        +"<strong>" +no+ " </strong> ",
+        type                : "question",
+        showCancelButton    : true,
+        confirmButtonText   : '<b>Hapus</b>',
+        cancelButtonText    : '<b>Batal</b>',
+        confirmButtonClass  : 'btn btn-success',
+        cancelButtonClass   : 'btn btn-danger',
+        cancelButtonColor   : '#d33'
+        
+    }).then(() => {
+      
+      // if (cek) {
+        $.ajax({
+          url   : '<?php echo base_url(); ?>Transaksi/batal',
+          data  : ({id:id,jenis:'trs_wo',field:'id'}),
+          type  : "POST",
+          success : function(data){
+            // toastr.success('Data Berhasil Di Batalkan'); 
             swal({
-              title               : "Cek Kembali",
-              html                : "Terjadi Kesalahan",
-              type                : "error",
+              title               : "Data",
+              html                : "Data Berhasil Di Batalkan",
+              type                : "success",
               confirmButtonText   : "OK"
             });
-            return;
-        }
-      });
-    }
+            reloadTable();
+          },
+          error: function (jqXHR, textStatus, errorThrown)
+          {
+            //  toastr.error('Terjadi Kesalahan'); 
+              swal({
+                title               : "Cek Kembali",
+                html                : "Terjadi Kesalahan",
+                type                : "error",
+                confirmButtonText   : "OK"
+              });
+              return;
+          }
+        });
+      // }
+    });
     
    
   }

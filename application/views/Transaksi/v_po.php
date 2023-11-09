@@ -711,11 +711,23 @@
 
 	}
 
-	function deleteData(id) 
+	function deleteData(id,no) 
 	{
-		let cek = confirm("Apakah Anda Yakin?");
+		// let cek = confirm("Apakah Anda Yakin?");
+		swal({
+			title: "PO",
+			html: "<p> Apakah Anda yakin ingin menghapus file ini ?</p><br>"
+			+"<strong>" +no+ " </strong> ",
+			type               : "question",
+			showCancelButton   : true,
+			confirmButtonText  : '<b>Hapus</b>',
+			cancelButtonText   : '<b>Batal</b>',
+			confirmButtonClass : 'btn btn-success',
+			cancelButtonClass  : 'btn btn-danger',
+			cancelButtonColor  : '#d33'
+		}).then(() => {
 
-		if (cek) {
+		// if (cek) {
 			$.ajax({
 				url: '<?= base_url(); ?>Transaksi/hapus',
 				data: ({
@@ -745,7 +757,9 @@
 					return;
 				}
 			});
-		}
+		// }
+
+		});
 
 
 	}
