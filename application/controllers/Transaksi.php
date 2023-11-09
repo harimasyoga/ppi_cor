@@ -1044,9 +1044,9 @@ class Transaksi extends CI_Controller
 				JOIN trs_wo_detail b ON a.no_wo=b.no_wo 
 				JOIN m_produk c ON a.id_produk=c.id_produk 
 				JOIN m_pelanggan d ON a.id_pelanggan=d.id_pelanggan 				
-				JOIN trs_so_detail e ON a.no_so=concat(e.no_so,'.',e.urut_so,'.',e.rpt)
+				JOIN trs_so_detail e ON a.no_so=e.id
 				WHERE a.no_wo='$id'
-				order by a.id");
+				order by a.id	");
 		$data = $query->row();
 
 		if ($data->sambungan == 'G'){
@@ -1056,6 +1056,9 @@ class Transaksi extends CI_Controller
 		  }else {
 			$join = 'Die Cut';
 		  }
+		
+		$tgl_wo        = ($data->tgl_wo == null || $data->tgl_wo == '0000-00-00' ? '0000-00-00' : $data->tgl_wo);
+		$eta_so        = ($data->eta_so == null || $data->eta_so == '0000-00-00' ? '0000-00-00' : $data->eta_so);
 		
 		$data_detail = $this->m_master->get_data_one("trs_wo_detail", "no_wo", $id)->row();
 
@@ -1083,7 +1086,7 @@ class Transaksi extends CI_Controller
 						 <td width="30%" >: <b>' . $data->nm_pelanggan . '</b></td>
 						 <td width="10%" > </td>
 						 <td width="15%" >Tgl Wo</td>
-						 <td width="30%" >: <b>' . $this->m_fungsi->tanggal_format_indonesia((($data->tgl_wo) == '0000-00-00' ? '' : $data->tgl_wo)) . '</b></td>
+						 <td width="30%" >: <b>' . $this->m_fungsi->tanggal_format_indonesia($tgl_wo) . '</b></td>
 					 </tr>
 					 <tr>
 						 <td>Item</td>
@@ -1104,15 +1107,17 @@ class Transaksi extends CI_Controller
 						 <td >: <b>' . $data->ukuran_sheet . '</b></td>
 						 <td></td>
 						 <td>Tgl Kirim</td>
-						 <td style="color:red" >: <b>' . $this->m_fungsi->tanggal_format_indonesia((($data->tgl_wo) == '0000-00-00' ? '' : $data->tgl_wo)) . '</b></td>
+						 <td style="color:red" >: <b>' . $this->m_fungsi->tanggal_format_indonesia($tgl_wo) . '</b></td>
+
 					 </tr>
 					 <tr>
 						 <td>Lebar Kertas</td>
 						 <td >: <b>' . $data->no_artikel . '</b></td>
 						 <td></td>
 						 <td>ETA</td>
-						 <td style="color:red" >: <b>' . $this->m_fungsi->tanggal_format_indonesia((($data->eta_so) == '0000-00-00' ? '' : $data->eta_so)) . '
+						 <td style="color:red" >: <b>' . $this->m_fungsi->tanggal_format_indonesia($eta_so) . '
 						 </b></td>
+
 					 </tr>
 					 <tr>
 						 <td>Kualitas</td>
@@ -1249,6 +1254,16 @@ class Transaksi extends CI_Controller
 
 			}
 
+			
+			$query_detail = $this->db->query("SELECT*FROM plan_cor where no_wo ='$id' ")->result();
+
+			foreach($query_detail as $rinci){
+
+			$tgl_plan    = ($rinci->tgl_plan == null || $rinci->tgl_plan == '0000-00-00' ? '0000-00-00' : $rinci->tgl_plan);
+
+			$tgl_ok      = $this->m_fungsi->tanggal_format_indonesia($rinci->tgl_plan);
+
+			
 			$html .= '<br>
                         <table width="100%" border="1" cellspacing="0" cellpadding="3" style="font-size:12px;font-family: ;">  
                             <tr>
@@ -1267,16 +1282,16 @@ class Transaksi extends CI_Controller
                             <tr>
                                 <td align="center" width="5%" >1</td>
                                 <td align="" width="20%" >CORUUGATOR</td>
-                                <td align="" width="20%" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_crg) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_crg)) . '</td>
-                                <td align="center" width="1%" >' . $data_detail->hasil_crg . '</td>
-                                <td align="center" width="15%" >' . $data_detail->rusak_crg . '</td>
-                                <td align="center" width="15%" >' . $data_detail->baik_crg . '</td>
+                                <td align="center" width="20%" >' . $tgl_ok . '</td>
+                                <td align="center" width="1%" >' . $rinci->total_cor_p . '</td>
+                                <td align="center" width="15%" >' . $rinci->bad_cor_p . '</td>
+                                <td align="center" width="15%" >' . $rinci->good_cor_p . '</td>
                                 <td align="" width="15%" >' . $data_detail->ket_crg . '</td>
                             </tr>
                             <tr>
                                 <td align="center">2</td>
                                 <td align="" >FLEXO</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_flx) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_flx)) . '</td>
+                                <td align="center" >' . $tgl_ok . '</td>
                                 <td align="center" >' . $data_detail->hasil_flx . '</td>
                                 <td align="center" >' . $data_detail->rusak_flx . '</td>
                                 <td align="center" >' . $data_detail->baik_flx . '</td>
@@ -1293,7 +1308,8 @@ class Transaksi extends CI_Controller
                             </tr>
                             <tr>
                                 <td align="right" >Glue</td>
-                                <td align="" style="border-top:hidden;border-right:hidden">' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_glu) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_glu)) . '</td>
+                                <td align="center" style="border-top:hidden;border-right:hidden">' . $tgl_ok . '</td>
+
                                 <td align="center" style="border-top:hidden;border-right:hidden;border-right:hidden">' . $data_detail->hasil_glu . '</td>
                                 <td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->rusak_glu . '</td>
                                 <td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->baik_glu . '</td>
@@ -1301,7 +1317,7 @@ class Transaksi extends CI_Controller
                             </tr>
                             <tr>
                                 <td align="right" >Stitching</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_stc) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_stc)) . '</td>
+                                <td align="center" >' . $tgl_ok . '</td>
                                 <td align="center" >' . $data_detail->hasil_stc . '</td>
                                 <td align="center" >' . $data_detail->rusak_stc . '</td>
                                 <td align="center" >' . $data_detail->baik_stc . '</td>
@@ -1309,7 +1325,7 @@ class Transaksi extends CI_Controller
                             </tr>
                             <tr>
                                 <td align="right" >Die Cut</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_dic) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_dic)) . '</td>
+                                <td align="center" >' . $tgl_ok . '</td>
                                 <td align="center" >' . $data_detail->hasil_dic . '</td>
                                 <td align="center" >' . $data_detail->rusak_dic . '</td>
                                 <td align="center" >' . $data_detail->baik_dic . '</td>
@@ -1317,7 +1333,7 @@ class Transaksi extends CI_Controller
                             </tr>
                             <tr>
                                 <td align="right" >Asembly Partisi</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_dic) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_dic)) . '</td>
+                                <td align="center" >' . $tgl_ok . '</td>
                                 <td align="center" >' . $data_detail->hasil_dic . '</td>
                                 <td align="center" >' . $data_detail->rusak_dic . '</td>
                                 <td align="center" >' . $data_detail->baik_dic . '</td>
@@ -1325,7 +1341,8 @@ class Transaksi extends CI_Controller
                             </tr>
                             <tr>
                                 <td align="right" >Slitter Manual</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_dic) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_dic)) . '</td>
+                                <td align="center" >' . $tgl_ok . '</td>
+
                                 <td align="center" >' . $data_detail->hasil_dic . '</td>
                                 <td align="center" >' . $data_detail->rusak_dic . '</td>
                                 <td align="center" >' . $data_detail->baik_dic . '</td>
@@ -1334,7 +1351,7 @@ class Transaksi extends CI_Controller
                             <tr>
                                 <td align="center" >4</td>
                                 <td align="" >GUDANG</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_gdg) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_gdg)) . '</td>
+                                <td align="center" >' . $tgl_ok . '</td>
                                 <td align="center" >' . $data_detail->hasil_gdg . '</td>
                                 <td align="center" >' . $data_detail->rusak_gdg . '</td>
                                 <td align="center" >' . $data_detail->baik_gdg . '</td>
@@ -1343,13 +1360,15 @@ class Transaksi extends CI_Controller
                             <tr>
                                 <td align="center" >5</td>
                                 <td align="" >EXPEDISI / PENGIRIMAN</td>
-                                <td align="" >' . $this->m_fungsi->tanggal_format_indonesia((($data_detail->tgl_exp) == '0000-00-00' ? '0000-00-00' : $data_detail->tgl_exp)) . '</td>
+                                <td align="center" >' . $tgl_ok . '</td>
                                 <td align="center" >' . $data_detail->hasil_exp . '</td>
                                 <td align="center" >' . $data_detail->rusak_exp . '</td>
                                 <td align="center" >' . $data_detail->baik_exp . '</td>
                                 <td align="" >' . $data_detail->ket_exp . '</td>
                             </tr>
                         </table>';
+						
+			}
 		} else {
 			$html .= '<h1> Data Kosong </h1>';
 		}
