@@ -65,6 +65,85 @@
 
 					<div class="card card-secondary card-outline" style="padding-bottom:20px">
 						<div class="card-header">
+							<h3 class="card-title" style="font-weight:bold;font-style:italic">ITEM</h3>
+						</div>
+						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+							<div class="col-md-2">KODE MC</div>
+							<div class="col-md-10">
+								<input type="text" id="kode_mc" class="form-control" autocomplete="off" placeholder="KODE MC" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+							<div class="col-md-2">ITEM</div>
+							<div class="col-md-10">
+								<input type="text" id="item" class="form-control" autocomplete="off" placeholder="NAMA ITEM" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">UK. BOX</div>
+							<div class="col-md-10">
+								<input type="text" id="uk_box" class="form-control" autocomplete="off" placeholder="UKURAN BOX" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">UK. SHEET</div>
+							<div class="col-md-10">
+								<input type="text" id="uk_sheet" class="form-control" autocomplete="off" placeholder="UKURAN SHEET" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
+							<div class="col-md-2">CREASING</div>
+							<div class="col-md-3" style="margin-bottom:3px">
+								<input type="number" id="creasing_1" class="form-control" autocomplete="off" placeholder="0" disabled>
+							</div>
+							<div class="col-md-3" style="margin-bottom:3px">
+								<input type="number" id="creasing_2" class="form-control" autocomplete="off" placeholder="0" disabled>
+							</div>
+							<div class="col-md-3" style="margin-bottom:3px">
+								<input type="number" id="creasing_3" class="form-control" autocomplete="off" placeholder="0" disabled>
+							</div>
+							<div class="col-md-1" style="padding:0"></div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">KUALITAS</div>
+							<div class="col-md-10">
+								<input type="text" id="kualitas" class="form-control" autocomplete="off" placeholder="KUALITAS" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+							<div class="col-md-2">FLUTE</div>
+							<div class="col-md-10">
+								<input type="text" id="flute" class="form-control" autocomplete="off" placeholder="FLUTE" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">TIPE BOX</div>
+							<div class="col-md-10">
+								<input type="text" id="tipe_box" class="form-control" autocomplete="off" placeholder="TIPE BOX" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+							<div class="col-md-2" style="padding-right:0">SAMBUNGAN</div>
+							<div class="col-md-10">
+								<input type="text" id="sambungan" class="form-control" autocomplete="off" placeholder="SAMBUNGAN" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2" style="padding-right:0">BB</div>
+							<div class="col-md-10">
+								<input type="text" id="bb_box" class="form-control" autocomplete="off" placeholder="BERAT BOX" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2" style="padding-right:0">LB</div>
+							<div class="col-md-10">
+								<input type="text" id="lb_box" class="form-control" autocomplete="off" placeholder="LUAS BOX" disabled>
+							</div>
+						</div>
+					</div>
+
+					<div class="card card-secondary card-outline" style="padding-bottom:20px">
+						<div class="card-header">
 							<h3 class="card-title" style="font-weight:bold;font-style:italic">PO</h3>
 						</div>
 						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
@@ -143,85 +222,6 @@
 							<div class="col-md-2">KET</div>
 							<div class="col-md-10">
 								<textarea class="form-control" id="ket_so" rows="2" style="resize:none" placeholder="KETERANGAN SO" disabled></textarea>
-							</div>
-						</div>
-					</div>
-
-					<div class="card card-secondary card-outline" style="padding-bottom:20px">
-						<div class="card-header">
-							<h3 class="card-title" style="font-weight:bold;font-style:italic">ITEM</h3>
-						</div>
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-							<div class="col-md-2">KODE MC</div>
-							<div class="col-md-10">
-								<input type="text" id="kode_mc" class="form-control" autocomplete="off" placeholder="KODE MC" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-							<div class="col-md-2">ITEM</div>
-							<div class="col-md-10">
-								<input type="text" id="item" class="form-control" autocomplete="off" placeholder="NAMA ITEM" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">UK. BOX</div>
-							<div class="col-md-10">
-								<input type="text" id="uk_box" class="form-control" autocomplete="off" placeholder="UKURAN BOX" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">UK. SHEET</div>
-							<div class="col-md-10">
-								<input type="text" id="uk_sheet" class="form-control" autocomplete="off" placeholder="UKURAN SHEET" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
-							<div class="col-md-2">CREASING</div>
-							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_1" class="form-control" autocomplete="off" placeholder="0" disabled>
-							</div>
-							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_2" class="form-control" autocomplete="off" placeholder="0" disabled>
-							</div>
-							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_3" class="form-control" autocomplete="off" placeholder="0" disabled>
-							</div>
-							<div class="col-md-1" style="padding:0"></div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">KUALITAS</div>
-							<div class="col-md-10">
-								<input type="text" id="kualitas" class="form-control" autocomplete="off" placeholder="KUALITAS" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-							<div class="col-md-2">FLUTE</div>
-							<div class="col-md-10">
-								<input type="text" id="flute" class="form-control" autocomplete="off" placeholder="FLUTE" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">TIPE BOX</div>
-							<div class="col-md-10">
-								<input type="text" id="tipe_box" class="form-control" autocomplete="off" placeholder="TIPE BOX" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-							<div class="col-md-2" style="padding-right:0">SAMBUNGAN</div>
-							<div class="col-md-10">
-								<input type="text" id="sambungan" class="form-control" autocomplete="off" placeholder="SAMBUNGAN" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2" style="padding-right:0">BB</div>
-							<div class="col-md-10">
-								<input type="text" id="bb_box" class="form-control" autocomplete="off" placeholder="BERAT BOX" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2" style="padding-right:0">LB</div>
-							<div class="col-md-10">
-								<input type="text" id="lb_box" class="form-control" autocomplete="off" placeholder="LUAS BOX" disabled>
 							</div>
 						</div>
 					</div>
@@ -416,58 +416,57 @@
 						<?php } ?>
 					</div>
 
-					<!-- <div style="position:sticky;top:10px"> -->
-						<div id="card-produksi" style="display:none">
-							<div class="card card-info card-outline" style="padding-bottom:20px">
-								<div class="card-header">
-									<h3 class="card-title" style="font-weight:bold;font-style:italic">HASIL PRODUKSI</h3>
-								</div>
-								<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-									<div class="col-md-2">GOOD</div>
-									<div class="col-md-10">
-										<input type="number" id="good_cor" class="form-control" onchange="hitungProduksi()">
-									</div>
-								</div>
-								<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-									<div class="col-md-2">REJECT</div>
-									<div class="col-md-10">
-										<input type="number" id="bad_cor" class="form-control" onchange="hitungProduksi()">
-									</div>
-								</div>
-								<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-									<div class="col-md-2">TOTAL</div>
-									<div class="col-md-10">
-										<input type="number" id="total_cor" class="form-control" onchange="hitungProduksi()" disabled>
-									</div>
-								</div>
-								<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-									<div class="col-md-2">KET</div>
-									<div class="col-md-10">
-										<textarea id="ket_cor" class="form-control" style="resize:none" rows="2"></textarea>
-									</div>
-								</div>
-
-								<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
-									<div class="col-md-2">START</div>
-									<div class="col-md-10">
-										<input type="time" id="start_cor" class="form-control">
-									</div>
-								</div>
-								<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-									<div class="col-md-2">END</div>
-									<div class="col-md-10">
-										<input type="time" id="end_cor" class="form-control">
-									</div>
-								</div>
-
-								<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'Corrugator') { ?>
-									<div id="btn-aksi-produksi"></div>
-								<?php } ?>
+					<div id="card-produksi" style="display:none">
+						<div class="card card-info card-outline" style="padding-bottom:20px">
+							<div class="card-header">
+								<h3 class="card-title" style="font-weight:bold;font-style:italic">HASIL PRODUKSI</h3>
 							</div>
+							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+								<div class="col-md-2">GOOD</div>
+								<div class="col-md-10">
+									<input type="number" id="good_cor" class="form-control" onchange="hitungProduksi()">
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+								<div class="col-md-2">REJECT</div>
+								<div class="col-md-10">
+									<input type="number" id="bad_cor" class="form-control" onchange="hitungProduksi()">
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+								<div class="col-md-2">TOTAL</div>
+								<div class="col-md-10">
+									<input type="number" id="total_cor" class="form-control" onchange="hitungProduksi()" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+								<div class="col-md-2">KET</div>
+								<div class="col-md-10">
+									<textarea id="ket_cor" class="form-control" style="resize:none" rows="2"></textarea>
+								</div>
+							</div>
+
+							<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
+								<div class="col-md-2">START</div>
+								<div class="col-md-10">
+									<input type="time" id="start_cor" class="form-control">
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+								<div class="col-md-2">END</div>
+								<div class="col-md-10">
+									<input type="time" id="end_cor" class="form-control">
+								</div>
+							</div>
+
+							<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'Corrugator') { ?>
+								<div id="btn-aksi-produksi"></div>
+							<?php } ?>
 						</div>
-					<!-- </div> -->
+					</div>
 				</div>
 
+				<input type="hidden" id="ehno_plan" value="">
 				<input type="hidden" id="ehid_plan" value="">
 				<input type="hidden" id="ehid_so_detail" value="">
 				<input type="hidden" id="ehid_wo" value="">
@@ -494,7 +493,7 @@
 				</button>
 			</div>
 			<div class="modal-body" style="overflow:auto;white-space:nowrap">
-				
+				<div id="show-list-plh-item"></div>
 			</div>
 		</div>
 	</div>
@@ -515,19 +514,11 @@
 
 		$("#list-rencana-plan").load("<?php echo base_url('Plan/destroyPlan') ?>")
 		$("#no_wo").prop("disabled", true).html(`<option value="">PILIH</option>`)
-		loadPlanWo('')
 
 		$('.select2').select2({
 			dropdownAutoWidth: true
 		})
-
-		// console.log(auth)
 	})
-
-	function kosong()
-	{
-		// 
-	}
 
 	function loadData(tgl_plan, shift, mesin)
 	{
@@ -548,8 +539,9 @@
 				});
 			},
 			success: function(res){
+				loadPlanWo('')
 				data = JSON.parse(res)
-				// console.log(data)
+				$("#ehno_plan").val(data.planCor[0].no_plan);
 
 				let plan = data.planCor
 				let htmlList = ``
@@ -567,14 +559,24 @@
 								</tr>
 							</thead>
 							<tbody>`
+				let aksiHapus = ``;
 				for (let i = 0; i < plan.length; i++) {
 					if(auth == 'Admin'){
+						if(plan[i].status_plan == 'Open' && plan[i].total_cor_p == 0){
+							aksiHapus = `<button class="btn btn-sm btn-danger" onclick="hapusPlan(${plan[i].id_plan})"><i class="fas fa-times"></i> HAPUS</button>`
+						}else if(plan[i].status_plan == 'Open' && plan[i].total_cor_p != 0){
+							aksiHapus = `<button class="btn btn-sm btn-success"><i class="fas fa-check"></i> PRODUKSI</button>`
+						}else if(plan[i].status_plan == 'Close' && plan[i].statusWo == 'Open'){
+							aksiHapus = `<button class="btn btn-sm btn-primary"><i class="fas fa-check"></i> PLAN</button>`
+						}else if(plan[i].status_plan == 'Close' && plan[i].statusWo == 'Close'){
+							aksiHapus = `<button class="btn btn-sm btn-dark"><i class="fas fa-check"></i> WO</button>`
+						}else{
+							aksiHapus = `-`
+						}
 						htmlList += `<tr>
 							<td>${i+1}</td>
 							<td><a href="javascript:void(0)" onclick="plhNoWo(${plan[i].id_plan})">${plan[i].no_wo}<a></td>
-							<td>
-								<button class="btn btn-sm btn-danger" onclick="e(${i})"><i class="fas fa-times"></i> HAPUS</button>
-							</td>
+							<td>${aksiHapus}</td>
 						</tr>`
 					}else{
 						htmlList += `<tr>
@@ -595,9 +597,41 @@
 		})
 	}
 
+	function hapusPlan(id_plan)
+	{
+		swal({
+			title: "Apakah Kamu Yakin?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#C00",
+			confirmButtonText: "Delete"
+		}).then(function(result) {
+			$.ajax({
+				url: '<?php echo base_url('Plan/hapusPlan')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({
+					id_plan
+				}),
+				success: function(res){
+					loadData(urlTgl_plan, urlShift, urlMesin)
+				}
+			})
+		});
+	}
+
 	function addRencanaPlan(opsi = '')
 	{
-		// console.log(opsi)
 		let tgl_plan = $("#tgl").val()
 		let machine_plan = $("#mesin").val()
 		let shift_plan = $("#shift").val()
@@ -667,12 +701,21 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/addRencanaPlan')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id_plan, id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan, opsi
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(opsi == 'add'){
 					if(data.data){
 						toastr.success(`<b>BERHASIL</b>`)
@@ -692,34 +735,69 @@
 		})
 	}
 
+	function selesaiPlan(id_plan)
+	{
+		let good_cor_p = $("#good_cor").val()
+		let bad_cor_p = $("#bad_cor").val()
+		let total_cor_p = $("#total_cor").val()
+		let ket_plan = $("#ket_cor").val()
+		let start_cor = $("#start_cor").val()
+		let end_cor = $("#end_cor").val()
+		if(good_cor_p < 0 || good_cor_p == 0 || good_cor_p == '' || total_cor_p < 0 || total_cor_p == 0 || total_cor_p == '' || start_cor == '' || end_cor == ''){
+			swal("DATA PRODUKSI KOSONG!", "", "error")
+			return
+		}
+		$.ajax({
+			url: '<?php echo base_url('Plan/selesaiPlan')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_plan
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				plhNoWo(id_plan)
+			}
+		})
+	}
+
 	function hitungProduksi()
 	{
-		let good_cor_p = $("#good_cor").val();
-		(good_cor_p < 0 || good_cor_p == 0 || good_cor_p == '') ? good_cor_p = 0 : good_cor_p = good_cor_p;
-		let bad_cor_p = $("#bad_cor").val();
-		(bad_cor_p < 0 || bad_cor_p == 0 || bad_cor_p == '') ? bad_cor_p = 0 : bad_cor_p = bad_cor_p;
+		let rp = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'})
+		let good = $("#good_cor").val().split('.').join('');
+		(good < 0 || good == 0 || good == '') ? good = 0 : good = good;
+		$("#good_cor").val(rp.format(good));
+		let bad = $("#bad_cor").val().split('.').join('');
+		(bad < 0 || bad == 0 || bad == '') ? bad = 0 : bad = bad;
+		$("#bad_cor").val(rp.format(bad));
+		let hitung = parseInt(good) + parseInt(bad);
+		$("#total_cor").val(rp.format(hitung));
 		hitungLagiProduksi()
 	}
 
 	function hitungLagiProduksi()
 	{
-		let good_cor_p = $("#good_cor").val();
+		let good_cor_p = $("#good_cor").val().split('.').join('');
 		(good_cor_p < 0 || good_cor_p == 0 || good_cor_p == '') ? good_cor_p = 0 : good_cor_p = good_cor_p;
-		$("#good_cor").val(good_cor_p);
-		let bad_cor_p = $("#bad_cor").val();
+		let bad_cor_p = $("#bad_cor").val().split('.').join('');
 		(bad_cor_p < 0 || bad_cor_p == 0 || bad_cor_p == '') ? bad_cor_p = 0 : bad_cor_p = bad_cor_p;
-		$("#bad_cor").val(bad_cor_p);
-
-		let hitung = parseInt(good_cor_p) - parseInt(bad_cor_p);
-		(hitung < 0 || hitung == 0 || hitung == '') ? hitung = 0 : hitung = hitung ;
-		$("#total_cor").val(hitung);
+		let total = $("#total_cor").val();
 	}
 
 	function produksiRencanaPlan(id_plan)
 	{
-		let good_cor_p = $("#good_cor").val()
-		let bad_cor_p = $("#bad_cor").val()
-		let total_cor_p = $("#total_cor").val()
+		let good_cor_p = $("#good_cor").val().split('.').join('')
+		let bad_cor_p = $("#bad_cor").val().split('.').join('')
+		let total_cor_p = $("#total_cor").val().split('.').join('')
 		let ket_plan = $("#ket_cor").val()
 		let start_cor = $("#start_cor").val()
 		let end_cor = $("#end_cor").val()
@@ -746,10 +824,8 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
-				swal("BERHASAIL", "", "success")
-				// plhNoWo(id_plan)
-				// loadData(urlTgl_plan, urlShift, urlMesin)
+				plhNoWo(id_plan)
+				loadData(urlTgl_plan, urlShift, urlMesin)
 			}
 		})
 	}
@@ -759,25 +835,84 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/hapusCartItem')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				rowid
 			}),
 			success: function(res){
-				$("#list-rencana-plan").load("<?php echo base_url('Plan/listRencanaPlan')?>")
+				listRencanaPlan()
+			}
+		})
+	}
+
+	function listRencanaPlan()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/listRencanaPlan')?>',
+			type: "POST",
+			success: function(res){
+				plhNoWo('')
+				$("#list-rencana-plan").html(res);
+				// swal.close()
+			}
+		})
+	}
+
+	function selesaiPlanWO(id_plan, id_wo)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/selesaiPlanWO')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_wo
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				plhNoWo(id_plan)
+				loadData(urlTgl_plan, urlShift, urlMesin)
 			}
 		})
 	}
 
 	function simpanCartItem()
 	{
-		// console.log(opsi)
+		let no_plan = $("#ehno_plan").val();
 		$.ajax({
 			url: '<?php echo base_url('Plan/simpanCartItem')?>',
 			type: "POST",
+			data: ({
+				no_plan
+			}),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(res){
-				// data = JSON.parse(res)
-				// console.log(data)
-				swal("BERHASIL!", "", "success")
 				$("#list-rencana-plan").load("<?php echo base_url('Plan/destroyPlan') ?>")
 				plhNoWo('')
 				loadData(urlTgl_plan, urlShift, urlMesin)
@@ -787,14 +922,25 @@
 
 	function showCartitem(rowid)
 	{
-		$("#show-list-plh-item").html(``)
+		$("#show-list-plh-item").html(`. . .`)
 		$("#modalForm").modal("show")
 		$.ajax({
 			url: '<?php echo base_url('Plan/showCartitem')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ rowid }),
 			success: function(res){
 				$("#show-list-plh-item").html(res)
+				swal.close()
 			}
 		})
 	}
@@ -805,10 +951,19 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadPlanWo')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ opsi }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				let htmlWO = ''
 					htmlWO += `<option value="">PILIH</option>`
 				data.wo.forEach(loadWo);
@@ -858,7 +1013,9 @@
 						${r.no_wo} | ${r.eta_so} | ${r.nm_produk} | ${r.nm_pelanggan}
 					</option>`
 				}
+
 				$("#no_wo").prop("disabled", false).html(htmlWO)
+				swal.close()
 			}
 		})
 	}
@@ -883,7 +1040,6 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					id_wo = data.wo.id_wo
 					id_so = data.wo.id_so_detail
@@ -952,14 +1108,52 @@
 					loadPlanWo('')
 
 					$("#info-substance").val(kualitas_plan)
+
+					let btnAddRencanaPlan = ''; let btnDiss = ''; let btnDissProd = ''; btnTxtProd = ''; let produksiRencanaPlan = '';
+					let selesaiPlan = '';let btnAksiWo = '';
+					if(data.wo.status_plan == 'Open'){
+						(data.wo.total_cor_p != 0) ? btnAddRencanaPlan = '' : btnAddRencanaPlan = `onclick="addRencanaPlan(${data.wo.id_plan})"`;
+						(data.wo.total_cor_p != 0) ? btnDiss = 'disabled' : btnDiss = '';
+						(data.wo.total_cor_p != 0) ? selesaiPlan = `onclick="selesaiPlan(${data.wo.id_plan})"` : selesaiPlan = 'disabled';
+						btnAksiWo = '';
+						
+						produksiRencanaPlan = `onclick="produksiRencanaPlan(${data.wo.id_plan})"`;
+						btnDissProd = '';
+						(data.wo.total_cor_p != 0) ? btnTxtProd = 'UPDATE' : btnTxtProd = 'SIMPAN';
+					}else{
+						btnAddRencanaPlan = ``;
+						btnDiss = 'disabled';
+						selesaiPlan = 'disabled';
+
+						(data.wo.statusWo == 'Close') ?
+						btnAksiWo = `<div class="col-md-12">
+							<button type="button" class="btn btn-danger btn-block" disabled><i class="fas fa-check"></i> <b>SELESAI WO</b></button>
+						</div>` :
+						btnAksiWo = `<div class="col-md-12">
+							<button type="button" class="btn btn-danger btn-block" onclick="selesaiPlanWO(${data.wo.id_plan}, ${data.wo.id_wo})"><i class="fas fa-check"></i> <b>SELESAI WO</b></button>
+						</div>`;
+
+						produksiRencanaPlan = '';
+						btnDissProd = 'disabled';
+						btnTxtProd = 'SIMPAN';
+					}
 					$("#btn-aksi-plan").html(`<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 						<div class="col-md-6">
-							<button type="button" class="btn btn-warning btn-block" onclick="addRencanaPlan(${data.wo.id_plan})"><i class="fa fa-plus"></i> <b>EDIT PLAN</b></button>
+							<button type="button" class="btn btn-warning btn-block" style="margin-bottom:5px" ${btnAddRencanaPlan} ${btnDiss}><i class="fa fa-plus"></i> <b>EDIT PLAN</b></button>
 						</div>
 						<div class="col-md-6">
-							<button type="button" class="btn btn-primary btn-block"><i class="fas fa-check"></i> <b>SELESAI PLAN</b></button>
+							<button type="button" class="btn btn-primary btn-block" style="margin-bottom:5px" ${selesaiPlan}><i class="fas fa-check"></i> <b>SELESAI PLAN</b></button>
 						</div>
-					</div>`)
+						${btnAksiWo}
+					</div>`);
+
+					(data.wo.status_plan == 'Close') ? 
+					$("#btn-aksi-produksi").html(``) :
+					$("#btn-aksi-produksi").html(`<div class="card-body row" style="padding:20px 20px 0;font-weight:bold">
+						<div class="col-md-12">
+							<button type="button" class="btn btn-success btn-block" ${produksiRencanaPlan} ${btnDissProd}><i class="fa fa-save"></i> <b>${btnTxtProd}</b></button>
+						</div>
+					</div>`);
 
 					$("#kirim").val(tgl_kirim_plan)
 					$("#next_flexo").html(`<option value="${next_plan}">${next_plan}</option><option value="">PILIH</option><option value="FLEXO1">FLEXO 1</option><option value="FLEXO2">FLEXO 2</option><option value="FLEXO3">FLEXO 3</option><option value="FLEXO4">FLEXO 4</option>`)
@@ -971,11 +1165,8 @@
 					$("#ket_cor").val(data.wo.ket_plan)
 					$("#start_cor").val(data.wo.start_time_p)
 					$("#end_cor").val(data.wo.end_time_p)
-					$("#btn-aksi-produksi").html(`<div class="card-body row" style="padding:20px 20px 0;font-weight:bold">
-						<div class="col-md-12">
-							<button type="button" class="btn btn-success btn-block" onclick="produksiRencanaPlan(${data.wo.id_plan})"><i class="fa fa-save"></i> <b>SIMPAN</b></button>
-						</div>
-					</div>`)
+
+					hitungProduksi()
 				}else{
 					id_wo = $('#no_wo option:selected').attr('id-wo')
 					id_so = $('#no_wo option:selected').attr('id-so')
@@ -1045,6 +1236,8 @@
 					$("#btn-aksi-produksi").html(``);
 				}
 
+				let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
+
 				$("#tgl_wo").val(tgl_wo)
 				$("#creasing_wo_1").val(creasing_wo1)
 				$("#creasing_wo_2").val(creasing_wo2)
@@ -1055,8 +1248,7 @@
 				$("#tgl_po").val(tgl_po)
 				$("#no_po").val(no_po)
 				$("#kode_po").val(kode_po);
-				(isNaN(qty_po)) ? qty_po = '' : qty_po = qty_po;
-				$("#qty_po").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(qty_po)));
+				(qty_po == undefined) ? $("#qty_po").val(qty_po) : $("#qty_po").val(rupiah.format(Math.round(qty_po)));
 				
 				$("#eta_so").val(eta_so);
 				(urut_so == undefined) ? urut_so = '' : urut_so = urut_so;
@@ -1066,12 +1258,12 @@
 				(no_so == undefined) ? no_so = '' : no_so = no_so+urut_so+rpt;
 				$("#no_so").val(no_so);
 
-				$("#qty_so").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(qty_so)));
-				$("#rm_so").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(rm_so)))
-				$("#ton_so").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(ton_so)))
-				$("#ket_so").val((ket_so == "") ? '-' : ket_so)
+				(qty_so == undefined) ? $("#qty_so").val(qty_so) :  $("#qty_so").val(rupiah.format(Math.round(qty_so)));
+				(rm_so == undefined) ? $("#rm_so").val(rm_so) :  $("#rm_so").val(rupiah.format(Math.round(rm_so)));
+				(ton_so == undefined) ? $("#ton_so").val(ton_so) :  $("#ton_so").val(rupiah.format(Math.round(ton_so)));
+				$("#ket_so").val((ket_so == "") ? '-' : ket_so);
 
-				$("#kode_mc").val(kode_mc)
+				$("#kode_mc").val(kode_mc);
 				$("#item").val(item)
 				$("#uk_box").val(uk_box)
 				$("#uk_sheet").val(uk_sheet)
@@ -1098,13 +1290,13 @@
 
 				$("#input_material_plan").val(material)
 				$("#input_kualitas_plan").val(kualitas)
-				$("#input_kualitas_plan_isi").val(kualitas_isi)
+				$("#input_kualitas_plan_isi").val(kualitas_isi);
 
-				$("#ii_panjang").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(panjang_s)))
-				$("#ii_lebar").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(lebar_s)))
+				(panjang_s == undefined) ? $("#ii_panjang").val(panjang_s) : $("#ii_panjang").val(rupiah.format(Math.round(panjang_s)));
+				(lebar_s == undefined) ? $("#ii_lebar").val(lebar_s) : $("#ii_lebar").val(rupiah.format(Math.round(lebar_s)));
+				(qty_so == undefined) ? $("#qty_plan").val(qty_so) : $("#qty_plan").val(rupiah.format(Math.round(qty_so)));
 
-				$("#qty_plan").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(qty_so)))
-				$("#i_lebar_roll").val(lebar_roll_p)
+				$("#i_lebar_roll").val(lebar_roll_p);
 				$("#out_plan").val(out_plan)
 
 				$("#trim").val(trim_plan)
@@ -1147,12 +1339,13 @@
 		let cmf_i = $("#cmf_i").val()
 		let cl = $("#cl").val()
 		let cl_i = $("#cl_i").val()
+		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
 
 		let flute = $("#flute").val()
 		let panjang_s = $("#ii_panjang").val().split('.').join('');
-		(panjang_s == 0 || panjang_s < 0) ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(panjang_s)).attr('style', 'border-color:#ced4da');
+		(panjang_s == 0 || panjang_s < 0) ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(rupiah.format(panjang_s)).attr('style', 'border-color:#ced4da');
 		let lebar_s = $("#ii_lebar").val().split('.').join('');
-		(lebar_s == 0 || lebar_s < 0) ? $("#ii_lebar").val(0).attr('style', 'border-color:#d00') : $("#ii_lebar").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(lebar_s)).attr('style', 'border-color:#ced4da');
+		(lebar_s == 0 || lebar_s < 0) ? $("#ii_lebar").val(0).attr('style', 'border-color:#d00') : $("#ii_lebar").val(rupiah.format(lebar_s)).attr('style', 'border-color:#ced4da');
 		let qty_so = $("#qty_so").val().split('.').join('');
 		
 		let ton = 0
@@ -1276,9 +1469,9 @@
 		$("#input_material_plan").val(material)
 
 		let i_lebar_roll = $("#i_lebar_roll").val().split('.').join('');
-		(i_lebar_roll == '' || i_lebar_roll == 0 || i_lebar_roll < 0) ? $("#i_lebar_roll").val(0).attr('style', 'border-color:#d00') : $("#i_lebar_roll").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(i_lebar_roll)).attr('style', 'border-color:#ced4da');
+		(i_lebar_roll == '' || i_lebar_roll == 0 || i_lebar_roll < 0) ? $("#i_lebar_roll").val(0).attr('style', 'border-color:#d00') : $("#i_lebar_roll").val(rupiah.format(i_lebar_roll)).attr('style', 'border-color:#ced4da');
 		let out_plan = $("#out_plan").val().split('.').join('');
-		(out_plan == '' || out_plan == 0 || out_plan < 0) ? $("#out_plan").val(0).attr('style', 'border-color:#d00') : $("#out_plan").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(out_plan)).attr('style', 'border-color:#ced4da');
+		(out_plan == '' || out_plan == 0 || out_plan < 0) ? $("#out_plan").val(0).attr('style', 'border-color:#d00') : $("#out_plan").val(rupiah.format(out_plan)).attr('style', 'border-color:#ced4da');
 
 		let trim = $("#trim").val();
 		let c_off = $("#c_off").val();
@@ -1289,9 +1482,9 @@
 		(c_off == '' || c_off == 0) ? rm = 0 : rm = Math.round((c_off * panjang_s) / 1000);
 
 		(trim < 0 || trim == 0) ? $("#trim").val(0).attr('style', 'border-color:#d00') : $("#trim").val(trim).attr('style', 'border-color:#ced4da');
-		(c_off < 0 || isNaN(c_off) || c_off == 0) ? $("#c_off").val(0).attr('style', 'border-color:#d00') : $("#c_off").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(c_off)).attr('style', 'border-color:#ced4da');
-		(rm < 0 || isNaN(rm) || rm == 0) ? $("#rm").val(0).attr('style', 'border-color:#d00') : $("#rm").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(rm)).attr('style', 'border-color:#ced4da');
-		(ton < 0 || ton == 0) ? $("#ton").val(0).attr('style', 'border-color:#d00') : $("#ton").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(ton))).attr('style', 'border-color:#ced4da');
+		(c_off < 0 || isNaN(c_off) || c_off == 0) ? $("#c_off").val(0).attr('style', 'border-color:#d00') : $("#c_off").val(rupiah.format(c_off)).attr('style', 'border-color:#ced4da');
+		(rm < 0 || isNaN(rm) || rm == 0) ? $("#rm").val(0).attr('style', 'border-color:#d00') : $("#rm").val(rupiah.format(rm)).attr('style', 'border-color:#ced4da');
+		(ton < 0 || ton == 0) ? $("#ton").val(0).attr('style', 'border-color:#d00') : $("#ton").val(rupiah.format(Math.round(ton))).attr('style', 'border-color:#ced4da');
 	}
 
 

@@ -56,12 +56,86 @@
 					</div>
 				</div>
 
-				<!-- <div class="col-md-12">
-					<div id="list-rencana-plan"></div>
-				</div> -->
-
 				<div class="col-md-7">
 					<div id="list-rencana-plan"></div>
+					<div class="card card-secondary card-outline" style="padding-bottom:20px">
+						<div class="card-header">
+							<h3 class="card-title" style="font-weight:bold;font-style:italic">ITEM</h3>
+						</div>
+						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+							<div class="col-md-2">KODE MC</div>
+							<div class="col-md-10">
+								<input type="text" id="kode_mc" class="form-control" autocomplete="off" placeholder="KODE MC" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+							<div class="col-md-2">ITEM</div>
+							<div class="col-md-10">
+								<input type="text" id="item" class="form-control" autocomplete="off" placeholder="NAMA ITEM" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">UK. BOX</div>
+							<div class="col-md-10">
+								<input type="text" id="uk_box" class="form-control" autocomplete="off" placeholder="UKURAN BOX" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">UK. SHEET</div>
+							<div class="col-md-10">
+								<input type="text" id="uk_sheet" class="form-control" autocomplete="off" placeholder="UKURAN SHEET" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
+							<div class="col-md-2">CREASING</div>
+							<div class="col-md-3" style="margin-bottom:3px">
+								<input type="number" id="creasing_1" class="form-control" autocomplete="off" placeholder="0" disabled>
+							</div>
+							<div class="col-md-3" style="margin-bottom:3px">
+								<input type="number" id="creasing_2" class="form-control" autocomplete="off" placeholder="0" disabled>
+							</div>
+							<div class="col-md-3" style="margin-bottom:3px">
+								<input type="number" id="creasing_3" class="form-control" autocomplete="off" placeholder="0" disabled>
+							</div>
+							<div class="col-md-1" style="padding:0"></div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">KUALITAS</div>
+							<div class="col-md-10">
+								<input type="text" id="kualitas" class="form-control" autocomplete="off" placeholder="KUALITAS" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+							<div class="col-md-2">FLUTE</div>
+							<div class="col-md-10">
+								<input type="text" id="flute" class="form-control" autocomplete="off" placeholder="FLUTE" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">TIPE BOX</div>
+							<div class="col-md-10">
+								<input type="text" id="tipe_box" class="form-control" autocomplete="off" placeholder="TIPE BOX" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+							<div class="col-md-2" style="padding-right:0">SAMBUNGAN</div>
+							<div class="col-md-10">
+								<input type="text" id="sambungan" class="form-control" autocomplete="off" placeholder="SAMBUNGAN" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2" style="padding-right:0">BB</div>
+							<div class="col-md-10">
+								<input type="text" id="bb_box" class="form-control" autocomplete="off" placeholder="BERAT BOX" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2" style="padding-right:0">LB</div>
+							<div class="col-md-10">
+								<input type="text" id="lb_box" class="form-control" autocomplete="off" placeholder="LUAS BOX" disabled>
+							</div>
+						</div>
+					</div>
 
 					<div class="card card-secondary card-outline" style="padding-bottom:20px">
 						<div class="card-header">
@@ -146,89 +220,9 @@
 							</div>
 						</div>
 					</div>
-
-					<div class="card card-secondary card-outline" style="padding-bottom:20px">
-						<div class="card-header">
-							<h3 class="card-title" style="font-weight:bold;font-style:italic">ITEM</h3>
-						</div>
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-							<div class="col-md-2">KODE MC</div>
-							<div class="col-md-10">
-								<input type="text" id="kode_mc" class="form-control" autocomplete="off" placeholder="KODE MC" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-							<div class="col-md-2">ITEM</div>
-							<div class="col-md-10">
-								<input type="text" id="item" class="form-control" autocomplete="off" placeholder="NAMA ITEM" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">UK. BOX</div>
-							<div class="col-md-10">
-								<input type="text" id="uk_box" class="form-control" autocomplete="off" placeholder="UKURAN BOX" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">UK. SHEET</div>
-							<div class="col-md-10">
-								<input type="text" id="uk_sheet" class="form-control" autocomplete="off" placeholder="UKURAN SHEET" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
-							<div class="col-md-2">CREASING</div>
-							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_1" class="form-control" autocomplete="off" placeholder="0" disabled>
-							</div>
-							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_2" class="form-control" autocomplete="off" placeholder="0" disabled>
-							</div>
-							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_3" class="form-control" autocomplete="off" placeholder="0" disabled>
-							</div>
-							<div class="col-md-1" style="padding:0"></div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">KUALITAS</div>
-							<div class="col-md-10">
-								<input type="text" id="kualitas" class="form-control" autocomplete="off" placeholder="KUALITAS" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-							<div class="col-md-2">FLUTE</div>
-							<div class="col-md-10">
-								<input type="text" id="flute" class="form-control" autocomplete="off" placeholder="FLUTE" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">TIPE BOX</div>
-							<div class="col-md-10">
-								<input type="text" id="tipe_box" class="form-control" autocomplete="off" placeholder="TIPE BOX" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-							<div class="col-md-2" style="padding-right:0">SAMBUNGAN</div>
-							<div class="col-md-10">
-								<input type="text" id="sambungan" class="form-control" autocomplete="off" placeholder="SAMBUNGAN" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2" style="padding-right:0">BB</div>
-							<div class="col-md-10">
-								<input type="text" id="bb_box" class="form-control" autocomplete="off" placeholder="BERAT BOX" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2" style="padding-right:0">LB</div>
-							<div class="col-md-10">
-								<input type="text" id="lb_box" class="form-control" autocomplete="off" placeholder="LUAS BOX" disabled>
-							</div>
-						</div>
-					</div>
 				</div>
 
 				<div class="col-md-5">
-					<!-- <div style="position:sticky;top:10px"> -->
 					<div class="card card-info card-outline">
 						<div class="card-header">
 							<h3 class="card-title" style="font-weight:bold;font-style:italic">PLAN</h3>
@@ -413,7 +407,6 @@
 							</div>
 						</div>
 					</div>
-				<!-- </div> -->
 				</div>
 			</div>
 		</div>
@@ -446,11 +439,6 @@
 			dropdownAutoWidth: true
 		})
 	})
-
-	function kosong()
-	{
-		// 
-	}
 
 	function addRencanaPlan()
 	{
@@ -522,17 +510,25 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/addRencanaPlan')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan, opsi: 'add'
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
-					toastr.success(`<b>BERHASIL</b>`)
-					$("#list-rencana-plan").load("<?php echo base_url('Plan/listRencanaPlan')?>")
+					listRencanaPlan()
 					$("#no_wo").val("")
-					plhNoWo()
+					// plhNoWo()
 				}else{
 					swal(data.isi, "", "error")
 					return
@@ -545,11 +541,34 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/hapusCartItem')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				rowid
 			}),
 			success: function(res){
-				$("#list-rencana-plan").load("<?php echo base_url('Plan/listRencanaPlan')?>")
+				listRencanaPlan()
+			}
+		})
+	}
+
+	function listRencanaPlan()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/listRencanaPlan')?>',
+			type: "POST",
+			success: function(res){
+				plhNoWo()
+				$("#list-rencana-plan").html(res);
+				// swal.close()
 			}
 		})
 	}
@@ -559,10 +578,20 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/simpanCartItem')?>',
 			type: "POST",
+			data: ({
+				no_plan: ''
+			}),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(res){
-				// data = JSON.parse(res)
-				// console.log(data)
-				swal("BERHASIL!", "", "success")
 				window.location.href = '<?php echo base_url('Plan/Corrugator')?>'
 			}
 		})
@@ -570,14 +599,25 @@
 
 	function showCartitem(rowid)
 	{
-		$("#show-list-plh-item").html(``)
+		$("#show-list-plh-item").html(`. . .`)
 		$("#modalForm").modal("show")
 		$.ajax({
 			url: '<?php echo base_url('Plan/showCartitem')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ rowid }),
 			success: function(res){
 				$("#show-list-plh-item").html(res)
+				swal.close()
 			}
 		})
 	}
@@ -602,7 +642,6 @@
 			data: ({ opsi: '' }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				let htmlWO = ''
 					htmlWO += `<option value="">PILIH</option>`
 				data.wo.forEach(loadWo);
@@ -722,6 +761,8 @@
 		let creasing_wo2 = $('#no_wo option:selected').attr('creasing-wo2')
 		let creasing_wo3 = $('#no_wo option:selected').attr('creasing-wo3')
 
+		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
+
 		$("#tgl_wo").val(tgl_wo)
 		$("#creasing_wo_1").val(creasing_wo1)
 		$("#creasing_wo_2").val(creasing_wo2)
@@ -732,8 +773,7 @@
 		$("#tgl_po").val(tgl_po)
 		$("#no_po").val(no_po)
 		$("#kode_po").val(kode_po);
-		(isNaN(qty_po)) ? qty_po = '' : qty_po = qty_po;
-		$("#qty_po").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(qty_po)));
+		(qty_po == undefined) ? $("#qty_po").val(qty_po) : $("#qty_po").val(rupiah.format(Math.round(qty_po)));
 		
 		$("#eta_so").val(eta_so);
 		(urut_so == undefined) ? urut_so = '' : urut_so = urut_so;
@@ -743,12 +783,12 @@
 		(no_so == undefined) ? no_so = '' : no_so = no_so+urut_so+rpt;
 		$("#no_so").val(no_so);
 
-		$("#qty_so").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(qty_so)));
-		$("#rm_so").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(rm_so)))
-		$("#ton_so").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(ton_so)))
-		$("#ket_so").val((ket_so == "") ? '-' : ket_so)
+		(qty_so == undefined) ? $("#qty_so").val(qty_so) :  $("#qty_so").val(rupiah.format(Math.round(qty_so)));
+		(rm_so == undefined) ? $("#rm_so").val(rm_so) :  $("#rm_so").val(rupiah.format(Math.round(rm_so)));
+		(ton_so == undefined) ? $("#ton_so").val(ton_so) :  $("#ton_so").val(rupiah.format(Math.round(ton_so)));
+		$("#ket_so").val((ket_so == "") ? '-' : ket_so);
 
-		$("#kode_mc").val(kode_mc)
+		$("#kode_mc").val(kode_mc);
 		$("#item").val(item)
 		$("#uk_box").val(uk_box)
 		$("#uk_sheet").val(uk_sheet)
@@ -771,14 +811,13 @@
 		}
 		$("#sambungan").val(sambungan)
 		$("#bb_box").val(berat_box)
-		$("#lb_box").val(luas_box)
+		$("#lb_box").val(luas_box);
 
-		$("#ii_panjang").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(panjang_s)))
-		$("#ii_lebar").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(lebar_s)))
+		(panjang_s == undefined) ? $("#ii_panjang").val(panjang_s) : $("#ii_panjang").val(rupiah.format(Math.round(panjang_s)));
+		(lebar_s == undefined) ? $("#ii_lebar").val(lebar_s) : $("#ii_lebar").val(rupiah.format(Math.round(lebar_s)));
+		(qty_so == undefined) ? $("#qty_plan").val(qty_so) : $("#qty_plan").val(rupiah.format(Math.round(qty_so)));
 
-		$("#qty_plan").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(qty_so)))
-
-		$("#g_kualitas").html(`<option value="PO">KUALITAS SESUAI PO</option><option value="GANTI">GANTI KUALITAS</option>`)
+		$("#g_kualitas").html(`<option value="PO">KUALITAS SESUAI PO</option><option value="GANTI">GANTI KUALITAS</option>`);
 		$("#tl_al").html(`<option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>`).prop('disabled', true)
 		$("#tl_al_i").val("").prop('disabled', true)
 		$("#bmf").html(`<option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>`).prop('disabled', true)
@@ -794,10 +833,6 @@
 		$("#i_lebar_roll").val("")
 		$("#out_plan").val("")
 
-		// let newhari = new Date(eta_so)
-		// let hari = newhari.getDay()
-		// console.log(newhari)
-		// console.log(hari)
 		$("#kirim").val(eta_so)
 		$("#next_flexo").html(`<option value="">PILIH</option><option value="FLEXO1">FLEXO 1</option><option value="FLEXO2">FLEXO 2</option><option value="FLEXO3">FLEXO 3</option><option value="FLEXO4">FLEXO 4</option>`)
 
@@ -817,12 +852,13 @@
 		let cmf_i = $("#cmf_i").val()
 		let cl = $("#cl").val()
 		let cl_i = $("#cl_i").val()
+		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
 
 		let flute = $('#no_wo option:selected').attr('flute')
 		let panjang_s = $("#ii_panjang").val().split('.').join('');
-		(panjang_s == 0 || panjang_s < 0) ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(panjang_s)).attr('style', 'border-color:#ced4da');
+		(panjang_s == 0 || panjang_s < 0) ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(rupiah.format(panjang_s)).attr('style', 'border-color:#ced4da');
 		let lebar_s = $("#ii_lebar").val().split('.').join('');
-		(lebar_s == 0 || lebar_s < 0) ? $("#ii_lebar").val(0).attr('style', 'border-color:#d00') : $("#ii_lebar").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(lebar_s)).attr('style', 'border-color:#ced4da');
+		(lebar_s == 0 || lebar_s < 0) ? $("#ii_lebar").val(0).attr('style', 'border-color:#d00') : $("#ii_lebar").val(rupiah.format(lebar_s)).attr('style', 'border-color:#ced4da');
 		let qty_so = $('#no_wo option:selected').attr('qty-so');
 		
 		let ton = 0
@@ -946,9 +982,9 @@
 		$("#input_material_plan").val(material)
 
 		let i_lebar_roll = $("#i_lebar_roll").val().split('.').join('');
-		(i_lebar_roll == '' || i_lebar_roll == 0 || i_lebar_roll < 0) ? $("#i_lebar_roll").val(0).attr('style', 'border-color:#d00') : $("#i_lebar_roll").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(i_lebar_roll)).attr('style', 'border-color:#ced4da');
+		(i_lebar_roll == '' || i_lebar_roll == 0 || i_lebar_roll < 0) ? $("#i_lebar_roll").val(0).attr('style', 'border-color:#d00') : $("#i_lebar_roll").val(rupiah.format(i_lebar_roll)).attr('style', 'border-color:#ced4da');
 		let out_plan = $("#out_plan").val().split('.').join('');
-		(out_plan == '' || out_plan == 0 || out_plan < 0) ? $("#out_plan").val(0).attr('style', 'border-color:#d00') : $("#out_plan").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(out_plan)).attr('style', 'border-color:#ced4da');
+		(out_plan == '' || out_plan == 0 || out_plan < 0) ? $("#out_plan").val(0).attr('style', 'border-color:#d00') : $("#out_plan").val(rupiah.format(out_plan)).attr('style', 'border-color:#ced4da');
 		
 		let trim = 0;
 		let c_off = 0;
@@ -958,9 +994,9 @@
 		(c_off == '' || c_off == 0) ? rm = 0 : rm = Math.round((c_off * panjang_s) / 1000);
 
 		(trim < 0 || trim == 0) ? $("#trim").val(0).attr('style', 'border-color:#d00') : $("#trim").val(trim).attr('style', 'border-color:#ced4da');
-		(c_off < 0 || isNaN(c_off) || c_off == 0) ? $("#c_off").val(0).attr('style', 'border-color:#d00') : $("#c_off").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(c_off)).attr('style', 'border-color:#ced4da');
-		(rm < 0 || isNaN(rm) || rm == 0) ? $("#rm").val(0).attr('style', 'border-color:#d00') : $("#rm").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(rm)).attr('style', 'border-color:#ced4da');
-		(ton < 0 || ton == 0) ? $("#ton").val(0).attr('style', 'border-color:#d00') : $("#ton").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(Math.round(ton))).attr('style', 'border-color:#ced4da');
+		(c_off < 0 || isNaN(c_off) || c_off == 0) ? $("#c_off").val(0).attr('style', 'border-color:#d00') : $("#c_off").val(rupiah.format(c_off)).attr('style', 'border-color:#ced4da');
+		(rm < 0 || isNaN(rm) || rm == 0) ? $("#rm").val(0).attr('style', 'border-color:#d00') : $("#rm").val(rupiah.format(rm)).attr('style', 'border-color:#ced4da');
+		(ton < 0 || ton == 0) ? $("#ton").val(0).attr('style', 'border-color:#d00') : $("#ton").val(rupiah.format(Math.round(ton))).attr('style', 'border-color:#ced4da');
 	}
 
 </script>
