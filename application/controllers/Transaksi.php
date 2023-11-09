@@ -31,6 +31,13 @@ class Transaksi extends CI_Controller
 		$this->load->view('Transaksi/v_po', $data);
 		$this->load->view('footer');
 	}
+
+	function etaPO()
+	{
+		$this->load->view('header');
+		$this->load->view('Transaksi/v_eta_po');
+		$this->load->view('footer');
+	}
     
     function load_so()
     {
@@ -482,8 +489,6 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		}
-
-
 
 		$output = array(
 			"data" => $data,
@@ -2455,6 +2460,79 @@ class Transaksi extends CI_Controller
 		</table>';
 
 		$judul = 'SO - '.$data->no_so.'.'.$urutSo.'.'.$rpt;
-		$this->m_fungsi->newMpdf($judul, $html, 10, 10, 10, 10, 'P', 'A4');
+		$this->m_fungsi->newMpdf($judul, '', 'footer', $html, 10, 10, 10, 10, 'P', 'A4');
+	}
+
+	function pilihanEtaPO()
+	{
+		$html ='';
+
+		$getData = $this->db->query("SELECT eta_so,COUNT(eta_so) AS jml FROM trs_so_detail
+		GROUP BY eta_so");
+
+		$html .='<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
+		$html .='<table class="table table-bordered table-striped">
+		<thead>
+			<tr>
+				<th style="text-align:center">NO.</th>
+				<th>TANGGAL</th>
+				<th style="text-align:center">JUMLAH</th>
+			</tr>
+		</thead>';
+		$i = 0;
+		foreach($getData->result() as $r){
+			$i++;
+			$html .= '</tr>
+				<td style="text-align:center">'.$i.'</td>
+				<td><a href="javascript:void(0)" onclick="tampilDataEtaPO('."'".$r->eta_so."'".',)">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->eta_so)).'<a></td>
+				<td style="text-align:center">'.$r->jml.'</td>
+			</tr>';
+		}
+		$html .='</table>
+		</div>';
+
+		echo $html;
+	}
+
+	function tampilDataEtaPO()
+	{
+		$html = '';
+		$tgl = $_POST["tgl"];
+
+		$html .='<div class="card card-info card-outline">
+		<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
+		
+		$getData = $this->db->query("SELECT * FROM trs_so_detail so
+		INNER JOIN m_pelanggan p ON so.id_pelanggan=p.id_pelanggan
+		WHERE so.eta_so='$tgl'");
+		if($getData->num_rows() == 0){
+			$html .= 'DATA KOSONG!';
+		}else{
+			$html .='<div class="col-md-12" style="margin-bottom:10px">
+				DATA ETA TANGGAL : '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl)).'
+			</div>';
+			$html .='<table class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th style="text-align:center">NO.</th>
+					<th style="text-align:center">CUSTOMER</th>
+					<th style="text-align:center">NO. PO</th>
+				</tr>
+			</thead>';
+			$i = 0;
+			foreach($getData->result() as $r){
+				$i++;
+				$html .='<tr>
+					<td style="text-align:center">'.$i.'</td>
+					<td>'.$r->nm_pelanggan.'</td>
+					<td>'.$r->kode_po.'</td>
+				</tr>';
+			}
+
+		}
+
+		$html .='</div></div>';
+
+		echo $html;
 	}
 }

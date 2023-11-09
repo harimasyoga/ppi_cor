@@ -664,9 +664,27 @@ class M_fungsi extends CI_Model {
         return $hasil;        
     }
 
-	function newMpdf($judul,$html,$top,$right,$bottom,$left,$orientasi,$kertas){
-	// function newMpdf($html,$top,$right,$bottom,$left,$orientasi,$kertas){
+	function newMpdf($judul,$kop,$cetak,$html,$top,$right,$bottom,$left,$orientasi,$kertas){
 		$this->load->library('mpdf');
+
+		$this->mpdf->setTitle($judul);
+
+		if($kop != ''){
+			$this->mpdf->SetHTMLHeader('<table style="font-size:11px;width:100%;text-align:center;border-collapse:collapse;color:#000;margin:0;padding:0">
+				<tr>
+					<td style="font-weight:bold;border:1px solid #000;padding:5px;width:5%">NO</td>
+					<td style="font-weight:bold;border:1px solid #000;padding:5px;width:8%">TANGGAL</td>
+					<td style="font-weight:bold;border:1px solid #000;padding:5px;width:10%">NO SJ</td>
+					<td style="font-weight:bold;border:1px solid #000;padding:5px;width:18.5%">CUSTOMER</td>
+					<td style="font-weight:bold;border:1px solid #000;padding:5px;width:14.5%">UKURAN</td>
+					<td style="font-weight:bold;border:1px solid #000;padding:5px;width:6%">PCS</td>
+					<td style="font-weight:bold;border:1px solid #000;padding:5px;width:10%">TONASE</td>
+					<td style="font-weight:bold;border:1px solid #000;padding:5px;width:10%">HARGA</td>
+					<td style="font-weight:bold;border:1px solid #000;padding:5px;width:10%">SALES</td>
+					<td style="font-weight:bold;border:1px solid #000;padding:5px;width:8%">NO PLAT</td>
+				</tr>
+			</table>');
+		}
 
 		if($kertas == 'F4'){
 			$orr = array(210, 330);
@@ -681,8 +699,10 @@ class M_fungsi extends CI_Model {
 			'margin-left' => $left,
 			'sheet-size' => $orr,
 		));
-		$this->mpdf->setTitle($judul);
-		$this->mpdf->SetFooter('Tercetak {DATE j-m-Y H:i:s}');
+
+		if($cetak != ''){
+			$this->mpdf->SetFooter('Tercetak {DATE j-m-Y H:i:s}');
+		}
 		$this->mpdf->writeHTML($html);         
         $this->mpdf->Output();
 	}
