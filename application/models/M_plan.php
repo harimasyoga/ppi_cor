@@ -14,7 +14,7 @@ class M_plan extends CI_Model
 	{
 		$opsi = $_POST["opsi"];
 		if($opsi != ''){
-			$query = $this->db->query("SELECT *,w.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems FROM plan_cor pl
+			$query = $this->db->query("SELECT *,w.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems,w.creasing2 AS creasing2wo FROM plan_cor pl
 			INNER JOIN m_produk i ON pl.id_produk=i.id_produk
 			INNER JOIN m_pelanggan l ON pl.id_pelanggan=l.id_pelanggan
 			INNER JOIN m_sales m ON l.id_sales=m.id_sales
@@ -55,12 +55,21 @@ class M_plan extends CI_Model
 		$tahun      = date('Y');
 		
 		foreach($this->cart->contents() as $r){
+			// UPDATE SCORE WO
+			$this->db->set("flap1", $r["options"]["creasing_wo1"]);
+			$this->db->set("creasing2", $r["options"]["creasing_wo2"]);
+			$this->db->set("flap2", $r["options"]["creasing_wo3"]);
+			$this->db->set("edit_time", date("Y:m:d H:i:s"));
+			$this->db->set("edit_user", $this->session->userdata('username'));
+			$this->db->where("id", $r["options"]["id_wo"]);
+			$updateScoreWO = $this->db->update("trs_wo");
+
+			// INSERT PLAN COR
 			if($_POST['no_plan'] == ''){
 				$noplan = 'PLAN/'.$tahun.'/'.$bln.'/'.$plan_no;
 			}else{
 				$noplan = $_POST['no_plan'];
 			}
-
 			$data = array(
 				'no_plan' => $noplan,
 				'id_so_detail' => $r["options"]["id_so_detail"],
@@ -93,15 +102,27 @@ class M_plan extends CI_Model
 				'ket_plan' => '',
 				'add_user' => $this->session->userdata('username'),
 			);
-			$result = $this->db->insert('plan_cor', $data);
+			$insertPlanCor = $this->db->insert('plan_cor', $data);
 		}
 
-		return $result;
+		return array(
+			'updateScoreWO' => $updateScoreWO,
+			'insertPlanCor' => $insertPlanCor,
+		);
 	}
 
 	function addRencanaPlan()
 	{
 		if($_POST["opsi"] != 'add'){
+			// UPDATE SCORE WO
+			$this->db->set("flap1", $_POST["creasing_wo1"]);
+			$this->db->set("creasing2", $_POST["creasing_wo2"]);
+			$this->db->set("flap2", $_POST["creasing_wo3"]);
+			$this->db->set("edit_time", date("Y:m:d H:i:s"));
+			$this->db->set("edit_user", $this->session->userdata('username'));
+			$this->db->where("id", $_POST["id_wo"]);
+			$updateScoreWO = $this->db->update("trs_wo");
+
 			$data = array(
 				'tgl_plan' => $_POST["tgl_plan"],
 				'tgl_kirim_plan' => $_POST["tgl_kirim_plan"],
@@ -130,10 +151,13 @@ class M_plan extends CI_Model
 			$this->db->where('id_wo', $_POST['id_wo']);
 			$this->db->where('id_produk', $_POST['id_produk']);
 			$this->db->where('id_pelanggan', $_POST['id_pelanggan']);
-			$query = $this->db->update('plan_cor', $data);
+			$updatePlanCor = $this->db->update('plan_cor', $data);
 		}
 
-		return $query;
+		return array(
+			'updateScoreWO' => $updateScoreWO,
+			'updatePlanCor' => $updatePlanCor,
+		);
 	}
 
 	function produksiRencanaPlan()

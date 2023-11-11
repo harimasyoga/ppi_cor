@@ -40,24 +40,11 @@
 								<select id="no_wo" class="form-control select2" onchange="plhNoWo('')"></select>
 							</div>
 						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 							<div class="col-md-1">TGL. WO</div>
 							<div class="col-md-11">
 								<input type="date" id="tgl_wo" class="form-control" autocomplete="off" placeholder="TGL. WO" disabled>
 							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 17px;font-weight:bold">
-							<div class="col-md-1">SCORE</div>
-							<div class="col-md-2" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_1" class="form-control" autocomplete="off" placeholder="0" disabled>
-							</div>
-							<div class="col-md-2" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_2" class="form-control" autocomplete="off" placeholder="0" disabled>
-							</div>
-							<div class="col-md-2" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_3" class="form-control" autocomplete="off" placeholder="0" disabled>
-							</div>
-							<div class="col-md-5" style="padding:0"></div>
 						</div>
 					</div>
 				</div>
@@ -157,10 +144,16 @@
 								<input type="text" id="customer" class="form-control" autocomplete="off" placeholder="CUSTOMER" disabled>
 							</div>
 						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2" style="padding-right: 0;">SALES</div>
 							<div class="col-md-10">
 								<input type="text" id="sales" class="form-control" autocomplete="off" placeholder="SALES" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+							<div class="col-md-2" style="padding-right: 0;">ALAMAT</div>
+							<div class="col-md-10">
+								<textarea id="alamat" class="form-control" rows="2" style="resize:none" placeholder="ALAMAT" disabled></textarea>
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
@@ -345,13 +338,26 @@
 								<input type="number" id="ii_panjang" class="form-control" autocomplete="off" <?=$dis?> placeholder="PANJANG SHEET" onchange="ayoBerhitung()">
 							</div>
 						</div>
+						<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
+							<div class="col-md-2">SCORE</div>
+							<div class="col-md-3" style="margin-bottom:3px">
+								<input type="number" id="creasing_wo_1" class="form-control" autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+							</div>
+							<div class="col-md-3" style="margin-bottom:3px">
+								<input type="number" id="creasing_wo_2" class="form-control" autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+							</div>
+							<div class="col-md-3" style="margin-bottom:3px">
+								<input type="number" id="creasing_wo_3" class="form-control" autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+							</div>
+							<div class="col-md-1 p-0"></div>
+						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">LEBAR</div>
 							<div class="col-md-10">
 								<input type="number" id="ii_lebar" class="form-control" autocomplete="off" <?=$dis?> placeholder="LEBAR SHEET" onchange="ayoBerhitung()">
 							</div>
 						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+						<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
 							<div class="col-md-2" style="padding-right:0">L. ROLL</div>
 							<div class="col-md-10">
 								<input type="number" id="i_lebar_roll" class="form-control" autocomplete="off" <?=$dis?> placeholder="LEBAR ROLL" onchange="ayoBerhitung()">
@@ -467,6 +473,7 @@
 					</div>
 				</div>
 
+				<input type="hidden" id="ehkategori" value="">
 				<input type="hidden" id="ehno_plan" value="">
 				<input type="hidden" id="ehid_plan" value="">
 				<input type="hidden" id="ehid_so_detail" value="">
@@ -542,60 +549,62 @@
 			success: function(res){
 				loadPlanWo('')
 				data = JSON.parse(res)
-				$("#ehno_plan").val(data.planCor[0].no_plan);
-
-				let plan = data.planCor
-				let htmlList = ``
-				htmlList += `<div class="card card-danger card-outline">
-					<div class="card-header">
-						<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST PLAN</h3>
-					</div>
-					<div class="col-md-12" style="padding:0">
-						<table class="table table-striped">
-							<thead>
-								<tr>
-									<th style="width=5%">#</th>
-									<th style="width=90%">NO. WO</th>
-									<th style="width=5%">AKSI</th>
-								</tr>
-							</thead>
-							<tbody>`
-				let aksiHapus = ``;
-				let aksiCor = ``;
-				for (let i = 0; i < plan.length; i++) {
-					if(auth == 'Admin' || auth == 'Corrugator'){
-						if(plan[i].status_plan == 'Open' && plan[i].total_cor_p == 0){
-							(auth == 'Corrugator') ? aksiCor = 'disabled' : aksiCor = `onclick="hapusPlan(${plan[i].id_plan})"`;
-							aksiHapus = `<button class="btn btn-sm btn-danger" ${aksiCor}><i class="fas fa-times"></i> HAPUS</button>`;
-						}else if(plan[i].status_plan == 'Open' && plan[i].total_cor_p != 0){
-							aksiHapus = `<button class="btn btn-sm btn-success"><i class="fas fa-check"></i> PRODUKSI</button>`
-						}else if(plan[i].status_plan == 'Close' && plan[i].statusWo == 'Open'){
-							aksiHapus = `<button class="btn btn-sm btn-primary"><i class="fas fa-check"></i> PLAN</button>`
-						}else if(plan[i].status_plan == 'Close' && plan[i].statusWo == 'Close'){
-							aksiHapus = `<button class="btn btn-sm btn-dark"><i class="fas fa-check"></i> WO</button>`
+				if(data.planCor.length == 0){
+					window.location.href = '<?php echo base_url('Plan/Corrugator')?>'
+				}else{
+					$("#ehno_plan").val(data.planCor[0].no_plan);
+					let plan = data.planCor
+					let htmlList = ``
+					htmlList += `<div class="card card-danger card-outline">
+						<div class="card-header">
+							<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST PLAN</h3>
+						</div>
+						<div class="col-md-12" style="padding:0">
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th style="width=5%">#</th>
+										<th style="width=90%">NO. WO</th>
+										<th style="width=5%">AKSI</th>
+									</tr>
+								</thead>
+								<tbody>`
+					let aksiHapus = ``;
+					let aksiCor = ``;
+					for (let i = 0; i < plan.length; i++) {
+						if(auth == 'Admin' || auth == 'Corrugator'){
+							if(plan[i].status_plan == 'Open' && plan[i].total_cor_p == 0){
+								(auth == 'Corrugator') ? aksiCor = 'disabled' : aksiCor = `onclick="hapusPlan(${plan[i].id_plan})"`;
+								aksiHapus = `<button class="btn btn-sm btn-danger" ${aksiCor}><i class="fas fa-times"></i> HAPUS</button>`;
+							}else if(plan[i].status_plan == 'Open' && plan[i].total_cor_p != 0){
+								aksiHapus = `<button class="btn btn-sm btn-success"><i class="fas fa-check"></i> PRODUKSI</button>`
+							}else if(plan[i].status_plan == 'Close' && plan[i].statusWo == 'Open'){
+								aksiHapus = `<button class="btn btn-sm btn-primary"><i class="fas fa-check"></i> PLAN</button>`
+							}else if(plan[i].status_plan == 'Close' && plan[i].statusWo == 'Close'){
+								aksiHapus = `<button class="btn btn-sm btn-dark"><i class="fas fa-check"></i> WO</button>`
+							}else{
+								aksiHapus = `-`
+							}
+							htmlList += `<tr>
+								<td>${i+1}</td>
+								<td><a href="javascript:void(0)" onclick="plhNoWo(${plan[i].id_plan})">${plan[i].no_wo}<a></td>
+								<td>${aksiHapus}</td>
+							</tr>`
 						}else{
-							aksiHapus = `-`
+							htmlList += `<tr>
+								<td>${i+1}</td>
+								<td><a href="javascript:void(0)" onclick="plhNoWo(${plan[i].id_plan})">${plan[i].no_wo}<a></td>
+								<td>-</td>
+							</tr>`
 						}
-						htmlList += `<tr>
-							<td>${i+1}</td>
-							<td><a href="javascript:void(0)" onclick="plhNoWo(${plan[i].id_plan})">${plan[i].no_wo}<a></td>
-							<td>${aksiHapus}</td>
-						</tr>`
-					}else{
-						htmlList += `<tr>
-							<td>${i+1}</td>
-							<td><a href="javascript:void(0)" onclick="plhNoWo(${plan[i].id_plan})">${plan[i].no_wo}<a></td>
-							<td>-</td>
-						</tr>`
 					}
+					htmlList += `</tbody>
+							</table>
+						</div>
+					</div>`
+					$("#list-plan").html(htmlList)
+					swal.close()
 				}
-				htmlList += `</tbody>
-						</table>
-					</div>
-				</div>`
-
-				$("#list-plan").html(htmlList)
-				swal.close()
 			}
 		})
 	}
@@ -669,6 +678,39 @@
 		
 		let panjang_plan = $("#ii_panjang").val().split('.').join('');
 		let lebar_plan = $("#ii_lebar").val().split('.').join('')
+
+		let creasing_wo1 = $("#creasing_wo_1").val()
+		let creasing_wo2 = $("#creasing_wo_2").val()
+		let creasing_wo3 = $("#creasing_wo_3").val()
+		console.log(creasing_wo1)
+		console.log(creasing_wo2)
+		console.log(creasing_wo3)
+
+		let hitungScore = parseInt(creasing_wo1) + parseInt(creasing_wo2) + parseInt(creasing_wo3);
+		let kategori = $("#ehkategori").val()
+		console.log(kategori)
+
+		if(kategori == 'K_BOX'){
+			if(creasing_wo1 == 0 || creasing_wo2 == 0 || creasing_wo3 == 0 || creasing_wo1 == '' || creasing_wo2 == '' || creasing_wo3 == ''){
+				toastr.error('<b>SCORE BOX TIDAK BOLEH KOSONG!</b>');
+				return
+			}
+		}
+		if(kategori == 'K_BOX'){
+			if(hitungScore != lebar_plan){
+				toastr.error('<b>SCORE BEDA DENGAN LEBAR SHEET!</b>');
+				return
+			}
+		}
+		if(kategori == 'K_SHEET'){
+			if(creasing_wo1 != 0 || creasing_wo2 != 0 || creasing_wo3 != 0){
+				if(hitungScore != lebar_plan){
+					toastr.error('<b>SCORE BEDA DENGAN LEBAR SHEET!</b>');
+					return
+				}
+			}
+		}
+
 		let lebar_roll_p = $("#i_lebar_roll").val().split('.').join('')
 		let out_plan = $("#out_plan").val()
 		let trim_plan = $("#trim").val().split('.').join('')
@@ -715,7 +757,7 @@
 				});
 			},
 			data: ({
-				id_plan, id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan, opsi
+				id_plan, id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan,creasing_wo1, creasing_wo2, creasing_wo3, opsi
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -1091,9 +1133,9 @@
 					rm_so = data.wo.rm
 					ton_so = data.wo.ton
 					ket_so = data.wo.ket_so
-					creasing_wo1 = ''
-					creasing_wo2 = ''
-					creasing_wo3 = ''
+					creasing_wo1 = data.wo.flap1
+					creasing_wo2 = data.wo.creasing2wo
+					creasing_wo3 = data.wo.flap2
 					out_plan = data.wo.out_plan
 					lebar_roll_p = data.wo.lebar_roll_p
 					trim_plan = data.wo.trim_plan
@@ -1248,10 +1290,6 @@
 				let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
 
 				$("#tgl_wo").val(tgl_wo)
-				$("#creasing_wo_1").val(creasing_wo1)
-				$("#creasing_wo_2").val(creasing_wo2)
-				$("#creasing_wo_3").val(creasing_wo3)
-				
 				$("#customer").val(customer)
 				$("#sales").val(nm_sales)
 				$("#tgl_po").val(tgl_po)
@@ -1296,6 +1334,11 @@
 				$("#sambungan").val(sambungan)
 				$("#bb_box").val(berat_box)
 				$("#lb_box").val(luas_box)
+
+				$("#ehkategori").val(kategori)
+				$("#creasing_wo_1").val(creasing_wo1)
+				$("#creasing_wo_2").val(creasing_wo2)
+				$("#creasing_wo_3").val(creasing_wo3);
 
 				$("#input_material_plan").val(material)
 				$("#input_kualitas_plan").val(kualitas)
@@ -1358,11 +1401,59 @@
 		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
 
 		let flute = $("#flute").val()
+		let qty_so = $("#qty_so").val().split('.').join('');
 		let panjang_s = $("#ii_panjang").val().split('.').join('');
 		(panjang_s == 0 || panjang_s < 0) ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(rupiah.format(panjang_s)).attr('style', 'border-color:#ced4da');
+		
+		let kategori = $("#ehkategori").val()
+		let creasing_wo1 = $("#creasing_wo_1").val()
+		let creasing_wo2 = $("#creasing_wo_2").val()
+		let creasing_wo3 = $("#creasing_wo_3").val();
+		let hitungScore = parseInt(creasing_wo1) + parseInt(creasing_wo2) + parseInt(creasing_wo3);
+		(creasing_wo1 == 0 || creasing_wo1 < 0 || creasing_wo1 == '') ? $("#creasing_wo_1").val(0) : $("#creasing_wo_1").val();
+		(creasing_wo2 == 0 || creasing_wo2 < 0 || creasing_wo2 == '') ? $("#creasing_wo_2").val(0) : $("#creasing_wo_2").val();
+		(creasing_wo3 == 0 || creasing_wo3 < 0 || creasing_wo3 == '') ? $("#creasing_wo_3").val(0) : $("#creasing_wo_3").val();
+
 		let lebar_s = $("#ii_lebar").val().split('.').join('');
 		(lebar_s == 0 || lebar_s < 0) ? $("#ii_lebar").val(0).attr('style', 'border-color:#d00') : $("#ii_lebar").val(rupiah.format(lebar_s)).attr('style', 'border-color:#ced4da');
-		let qty_so = $("#qty_so").val().split('.').join('');
+
+		if(kategori == 'K_BOX'){
+			if(hitungScore == lebar_s){
+				$("#creasing_wo_1").attr('style', 'border-color:#ced4da')
+				$("#creasing_wo_2").attr('style', 'border-color:#ced4da')
+				$("#creasing_wo_3").attr('style', 'border-color:#ced4da')
+				$("#ii_lebar").attr('style', 'border-color:#ced4da')
+			}else{
+				$("#creasing_wo_1").attr('style', 'border-color:#d00')
+				$("#creasing_wo_2").attr('style', 'border-color:#d00')
+				$("#creasing_wo_3").attr('style', 'border-color:#d00')
+				$("#ii_lebar").attr('style', 'border-color:#d00')
+			}
+		}else if(kategori == 'K_SHEET'){
+			if(creasing_wo1 != 0 || creasing_wo2 != 0 || creasing_wo3 != 0){
+				if(hitungScore == lebar_s){
+					$("#creasing_wo_1").attr('style', 'border-color:#ced4da')
+					$("#creasing_wo_2").attr('style', 'border-color:#ced4da')
+					$("#creasing_wo_3").attr('style', 'border-color:#ced4da')
+					$("#ii_lebar").attr('style', 'border-color:#ced4da')
+				}else{
+					$("#creasing_wo_1").attr('style', 'border-color:#d00')
+					$("#creasing_wo_2").attr('style', 'border-color:#d00')
+					$("#creasing_wo_3").attr('style', 'border-color:#d00')
+					$("#ii_lebar").attr('style', 'border-color:#d00')
+				}
+			}else{
+				$("#creasing_wo_1").attr('style', 'border-color:#ced4da')
+				$("#creasing_wo_2").attr('style', 'border-color:#ced4da')
+				$("#creasing_wo_3").attr('style', 'border-color:#ced4da')
+				$("#ii_lebar").attr('style', 'border-color:#ced4da')
+			}
+		}else{
+			$("#creasing_wo_1").attr('style', 'border-color:#d00')
+			$("#creasing_wo_2").attr('style', 'border-color:#d00')
+			$("#creasing_wo_3").attr('style', 'border-color:#d00')
+			$("#ii_lebar").attr('style', 'border-color:#d00')
+		}
 		
 		let ton = 0
 		let material = ''

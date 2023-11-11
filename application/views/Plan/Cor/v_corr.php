@@ -38,7 +38,8 @@
 							<th style="width:20%">TANGGAL</th>
 							<th style="width:10%">SHIFT</th>
 							<th style="width:10%">MESIN</th>
-							<th style="width:40%">NO. PLAN</th>
+							<th style="width:30%">NO. PLAN</th>
+							<th style="width:10%">JUMLAH</th>
 							<th style="width:15%">AKSI</th>
 						</tr>
 					</thead>

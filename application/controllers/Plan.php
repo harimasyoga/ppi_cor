@@ -40,16 +40,17 @@ class Plan extends CI_Controller
 	function LoaDataCor()
 	{
 		$data = array();
-		$query = $this->db->query("SELECT*FROM plan_cor GROUP BY tgl_plan,shift_plan,machine_plan")->result();
+		$query = $this->db->query("SELECT COUNT(p.id_plan) AS jml,p.* FROM plan_cor p GROUP BY tgl_plan,shift_plan,machine_plan")->result();
 		$i = 0;
 		foreach ($query as $r) {
 			$i++;
 			$row = array();
 			$row[] = '<div style="text-align:center">'.$i.'</div>';
 			$row[] = strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_plan));
-			$row[] = $r->shift_plan;
-			$row[] = $r->machine_plan;
+			$row[] = '<div style="text-align:center">'.$r->shift_plan.'</div>';
+			$row[] = '<div style="text-align:center">'.$r->machine_plan.'</div>';
 			$row[] = $r->no_plan;
+			$row[] = '<div style="text-align:center">'.$r->jml.'</div>';
 
 			$link = base_url('Plan/Corrugator/List/'.$r->tgl_plan.'/'.$r->shift_plan.'/'.$r->machine_plan);
 			
@@ -135,6 +136,9 @@ class Plan extends CI_Controller
 					'material_plan' => $_POST["material_plan"],
 					'kualitas_plan' => $_POST["kualitas_plan"],
 					'kualitas_isi_plan' => $_POST["kualitas_isi_plan"],
+					'creasing_wo1' => $_POST["creasing_wo1"],
+					'creasing_wo2' => $_POST["creasing_wo2"],
+					'creasing_wo3' => $_POST["creasing_wo3"],
 				)
 			);
 
@@ -378,8 +382,203 @@ class Plan extends CI_Controller
 	function laporanPlan()
 	{
 		$html = '';
-		$judul = 'PLAN';
-		$this->m_fungsi->newMpdf($judul, 'kop', '', $html, 3, 3, 3, 3, 'L', 'A4');
+		$no_plan = $_GET['no_plan'];
+
+		$html .= '<table style="margin:0;padding:0;font-size:10px;text-align:center;border-collapse:collapse;color:#000;width:100%">
+			<thead>
+				<tr>
+					<th style="width:5%;border:1px solid #000;border-width:1px 0 0 1px" rowspan="2">
+						<img src="'.base_url('assets/gambar/ppi.png').'" alt="PPI" width="70" height="60">
+					</th>
+					<th style="width:45%;border:1px solid #000;border-width:1px 0 0;font-weight:bold;text-align:left;font-size:16px;padding-left:10px">PT. PRIMA PAPER INDONESIA</th>
+					<th style="width:35%;border:1px solid #000;border-width:1px 1px 0 0;font-weight:bold;text-align:right;font-size:14px;padding-right:10px">CORRUGATORs PLAN</th>
+					<th style="width:15%;border:1px solid #000;border-width:1px 1px 0;text-align:left;font-weight:bold" rowspan="2">
+						<table style="margin:0;padding:0;font-size:10px;font-weight:normal;text-align:left;border-collapse:collapse">
+							<tr>
+								<td>No</td>
+								<td style="padding:0 5px">:</td>
+								<td>FR-PPIC-01</td>
+							</tr>
+							<tr>
+								<td>Tgl Terbit</td>
+								<td style="padding:0 5px">:</td>
+								<td>27 Sep 2022</td>
+							</tr>
+							<tr>
+								<td>Rev</td>
+								<td style="padding:0 5px">:</td>
+								<td>00</td>
+							</tr>
+							<tr>
+								<td>Hal</td>
+								<td style="padding:0 5px">:</td>
+								<td>1</td>
+							</tr>
+						</table>
+					</th>
+				</tr>
+				<tr>
+					<th style="vertical-align:top;font-style:italic;font-weight:normal;text-align:left;padding-left:10px">Dusun Timang Kulon, Desa Wonokerto, Wonogiri</th>
+					<th></th>
+				</tr>
+			</thead>
+		</table>';
+
+		$query = $this->db->query("SELECT l.*,m.*,p.*,m.kategori AS kategoriItem,w.kode_po AS no_po,w.flap1,w.creasing2 AS creasing2wo,w.flap2 FROM plan_cor l
+		INNER JOIN m_produk m ON l.id_produk=m.id_produk
+		INNER JOIN m_pelanggan p ON l.id_pelanggan=p.id_pelanggan
+		INNER JOIN trs_wo w ON l.id_wo=w.id
+		WHERE no_plan='$no_plan'");
+
+		$html .= '<table style="margin:0;padding:0;font-size:10px;text-align:center;border-collapse:collapse;color:#000;width:100%">';
+		$html .= '<thead>
+			<tr>
+				<th style="width:2%;border:0;padding:0"></th>
+				<th style="width:18%;border:0;padding:0"></th>
+				<th style="width:4%;border:0;padding:0"></th>
+				<th style="width:9%;border:0;padding:0"></th>
+				<th style="width:2%;border:0;padding:0"></th>
+				<th style="width:4%;border:0;padding:0"></th>
+				<th style="width:8%;border:0;padding:0"></th>
+				<th style="width:4%;border:0;padding:0"></th>
+				<th style="width:4%;border:0;padding:0"></th>
+				<th style="width:2%;border:0;padding:0"></th>
+				<th style="width:2%;border:0;padding:0"></th>
+				<th style="width:4%;border:0;padding:0"></th>
+				<th style="width:4%;border:0;padding:0"></th>
+				<th style="width:4%;border:0;padding:0"></th>
+				<th style="width:4%;border:0;padding:0"></th>
+				<th style="width:4%;border:0;padding:0"></th>
+				<th style="width:4%;border:0;padding:0"></th>
+				<th style="width:3%;border:0;padding:0"></th>
+				<th style="width:14%;border:0;padding:0"></th>
+			</tr>
+			<tr text-rotate="-90">
+				<th text-rotate="0" style="font-weight:bold;border:1px solid #000" rowspan="4">ID</th>
+				<th text-rotate="0" style="font-weight:bold;border:1px solid #000;border-width:1px 1px 0;text-align:left">NO. SO/WO</th>
+				<th text-rotate="0" style="font-weight:bold;border:1px solid #000" rowspan="4">TGL KIRIM</th>
+				<th text-rotate="0" style="font-weight:bold;border:1px solid #000" rowspan="4">KUALITAS SHEET</th>
+				<th style="font-weight:bold;border:1px solid #000" rowspan="4">FLUTE</th>
+				<th text-rotate="0" style="font-weight:bold;border:1px solid #000" rowspan="4">LEBAR ROLL</th>
+				<th text-rotate="0" style="font-weight:bold;border:1px solid #000" rowspan="4">SCORING LINE</th>
+				<th text-rotate="0" style="font-weight:bold;border:1px solid #000" rowspan="2" colspan="2">SHEET SIZE</th>
+				<th style="font-weight:bold;border:1px solid #000" rowspan="4">OUT</th>
+				<th style="font-weight:bold;border:1px solid #000" rowspan="4">TRIM</th>
+				<th text-rotate="0" style="font-weight:bold;border:1px solid #000" rowspan="2" colspan="5">RENCANA PRODUKSI</th>
+				<th text-rotate="0" style="font-weight:bold;border:1px solid #000" rowspan="2">WAKTU</th>
+				<th style="font-weight:bold;border:1px solid #000" rowspan="4">NEXT</th>
+				<th text-rotate="0" style="font-weight:bold;border:1px solid #000" rowspan="4">KET</th>
+			</tr>
+			<tr>
+				<th style="font-weight:bold;border:1px solid #000;border-width:0 1px;text-align:left">CUSTOMER</th>
+			</tr>
+			<tr>
+				<th style="font-weight:bold;border:1px solid #000;border-width:0 1px;text-align:left">NO. PO</th>
+				<th style="font-weight:bold;border:1px solid #000;border-width:0 1px">P</th>
+				<th style="font-weight:bold;border:1px solid #000;border-width:0 1px">L</th>
+				<th style="font-weight:bold;border:1px solid #000" rowspan="2">COUNT PCS</th>
+				<th style="font-weight:bold;border:1px solid #000" rowspan="2">NUM OF CUT</th>
+				<th style="font-weight:bold;border:1px solid #000" rowspan="2">RM</th>
+				<th style="font-weight:bold;border:1px solid #000" rowspan="2">TON</th>
+				<th style="font-weight:bold;border:1px solid #000" rowspan="2">BAD SHEET</th>
+				<th style="font-weight:bold;border:1px solid #000;border-width:0 1px">START</th>
+			</tr>
+			<tr>
+				<th style="font-weight:bold;border:1px solid #000;border-width:0 1px 1px;text-align:left">ITEM</th>
+				<th style="font-weight:bold;border:1px solid #000;border-width:0 1px 1px">mm</th>
+				<th style="font-weight:bold;border:1px solid #000;border-width:0 1px 1px">mm</th>
+				<th style="font-weight:bold;border:1px solid #000;border-width:0 1px 1px">END</th>
+			</tr>
+			<tr>
+				<th style="padding:2px 0;font-weight:bold;text-align:left" colspan="2">PERIODE : '.strtoupper($this->m_fungsi->tanggal_format_indonesia($query->row()->tgl_plan)).'</th>
+				<th style="padding:2px 0;font-weight:bold;text-align:left" colspan="2">MACHINE : '.$query->row()->machine_plan.'</th>
+				<th style="padding:2px 0;font-weight:bold;text-align:left" colspan="3">SHIFT : '.$query->row()->shift_plan.'</th>
+			</tr>
+		</thead>';
+
+		$i = 0;
+		foreach($query->result() as $r){
+			$i++;
+
+			$expKualitas = explode("/", $r->kualitas);
+			if($r->flute == 'BCF'){
+				if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
+					$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+				}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
+					$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+				}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
+					$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+				}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
+					$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+				}else{
+					$kualitas = $r->kualitas;
+				}
+			}else{
+				$kualitas = $r->kualitas;
+			}
+
+			if($r->kategoriItem == 'K_BOX'){
+				$score = $r->flap1.' - '.$r->creasing2wo.' - '.$r->flap2;
+			}else if($r->kategoriItem == 'K_SHEET'){
+				if($r->flap1 != 0 && $r->creasing2wo != 0 && $r->flap2 != 0){
+					$score = $r->flap1.' - '.$r->creasing2wo.' - '.$r->flap2;
+				}else{
+					$score = '-';
+				}
+			}else{
+				$score = '-';
+			}
+
+			if($r->next_plan == 'GUDANG'){
+				$nextPlan = 'G. B. <br>JADI';
+			}else{
+				$nextPlan = $r->next_plan;
+			}
+			
+			$html .= '<tbody>
+				<tr>
+					<td style="border:1px solid #000" rowspan="4">'.$i.'</td>
+					<td style="border:1px solid #000;text-align:left">'.$r->no_so.'</td>
+					<td style="border:1px solid #000" rowspan="4">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
+					<td style="border:1px solid #000" rowspan="4">'.$kualitas.'</td>
+					<td style="border:1px solid #000" rowspan="4">'.$r->flute.'</td>
+					<td style="border:1px solid #000;font-weight:bold" rowspan="4">'.$r->lebar_roll_p.'</td>
+					<td style="border:1px solid #000" rowspan="4">'.$score.'</td>
+					<td style="border:1px solid #000;font-weight:bold;color:#f00" rowspan="4">'.$r->panjang_plan.'</td>
+					<td style="border:1px solid #000;font-weight:bold;color:#f00" rowspan="4">'.$r->lebar_plan.'</td>
+					<td style="border:1px solid #000" rowspan="4">'.number_format($r->out_plan).'</td>
+					<td style="border:1px solid #000" rowspan="4">'.number_format($r->trim_plan).'</td>
+					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2">'.number_format($r->pcs_plan).'</td>
+					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2">'.number_format($r->c_off_p).'</td>
+					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2">'.number_format($r->rm_plan).'</td>
+					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2">'.number_format($r->tonase_plan).'</td>
+					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2"></td>
+					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2"></td>
+					<td style="border:1px solid #000" rowspan="4">'.$nextPlan.'</td>
+					<td style="border:1px solid #000" rowspan="4">'.$r->ket_plan.'</td>
+				</tr>
+				<tr>
+					<td style="border:1px solid #000;border-width:0 1px;text-align:left">'.$r->nm_pelanggan.'</td>
+				</tr>
+				<tr>
+					<td style="border:1px solid #000;border-width:0 1px;text-align:left">'.$r->no_po.'</td>
+					<td style="border:1px solid #000;border-width:0 1px 1px" rowspan="2"></td>
+					<td style="border:1px solid #000;border-width:0 1px 1px" rowspan="2"></td>
+					<td style="border:1px solid #000;border-width:0 1px 1px" rowspan="2"></td>
+					<td style="border:1px solid #000;border-width:0 1px 1px" rowspan="2"></td>
+					<td style="border:1px solid #000;border-width:0 1px 1px" rowspan="2"></td>
+					<td style="border:1px solid #000;border-width:0 1px 1px" rowspan="2"></td>
+				</tr>
+				<tr>
+					<td style="border:1px solid #000;border-width:0 1px 1px;text-align:left">'.$r->nm_produk.'</td>
+				</tr>
+			</tbody>';
+		}
+		
+		$html .= '</table>';
+		
+		$judul = $query->row()->tgl_plan.'-'.$no_plan;
+		$this->m_fungsi->newMpdf($judul, '', $html, 1, 3, 1, 3, 'L', 'A4');
 	}
 
 	//
