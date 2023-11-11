@@ -453,8 +453,9 @@ class M_fungsi extends CI_Model {
 			case 1;
 				// $this->M_cetak->mpdf('L', 'A4', $judul, $chari, '.PDF', 10, 10, 10, 2);
 			//   $this->mpdf( $judul,$chari,'','', $position);
-				$this->_mpdf_hari($position, 'A4', $judul, $chari, '.PDF', 10, 10, 10, 2);
+				$this->_mpdf_hari($position, 'A4', $judul, $chari, '.PDF', 5, 5, 5, 10);
 			
+
 
 				break;
 			case 2;
@@ -467,12 +468,16 @@ class M_fungsi extends CI_Model {
 
 	}
 
-	function _mpdf_hari($form='',$uk='' , $judul='',$isi='',$jdlsave='',$lMargin='',$rMargin='',$font=10,$orientasi='',$hal='',$tab='',$tMargin='')
+	function _mpdf_hari($orientasi='', $uk='', $judul='', $isi='', $jdlsave='', $lMargin='',$rMargin='', $tMargin='', $bMargin='', $font=10, $hal='',$tab='')
     {
         ini_set("memory_limit", "-1");
         ini_set("MAX_EXECUTION_TIME","-1");
 		ini_set("pcre.backtrack_limit", "5000000");
 		set_time_limit(0);
+		
+		$this->load->library('Mpdf');
+
+		// $this->mpdf = new \Mpdf\Mpdf( array(190,236),$size,'',$lMargin,$rMargin,$tMargin);
 		
         $jam = date("H:i:s");
 		if ($hal==''){
@@ -481,29 +486,27 @@ class M_fungsi extends CI_Model {
 		if($hal!==''){
 			$hal1=$hal;
 		}
+
 		if ($font==''){
 			$size=12;
 		}else{
 			$size=$font;
 		} 
 
-		if ($tMargin=='' ){
-			$tMargin=10;
-		}
-		
-		if($lMargin==''){
-			$lMargin=15;
-		}
+		$tMargin = ( $tMargin =='' ? 5 : $tMargin );
+		$bMargin = ( $bMargin =='' ? 5 : $bMargin );
+		$lMargin = ( $lMargin =='' ? 5 : $lMargin );
+		$rMargin = ( $rMargin =='' ? 5 : $rMargin );
 
-		if($rMargin==''){
-			$rMargin=15;
-		}
+		$this->mpdf->AddPageByArray(array(
+			'orientation' => $orientasi,
+			'margin-top' => $tMargin,
+			'margin-right' => $rMargin,
+			'margin-bottom' => $bMargin,
+			'margin-left' => $lMargin,
+		));
 
-		$this->load->library('Mpdf');
-
-		// $this->mpdf = new \Mpdf\Mpdf( array(190,236),$size,'',$lMargin,$rMargin,$tMargin);
-
-		$this->mpdf->AddPage($form,$uk);
+		// $this->mpdf->AddPage($orientasi,$uk);
 
 		$this->mpdf->SetFooter('Tercetak {DATE j-m-Y H:i:s} |Halaman {PAGENO} / {nb}| ');
 

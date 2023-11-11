@@ -1255,120 +1255,230 @@ class Transaksi extends CI_Controller
 			}
 
 			
-			$query_detail = $this->db->query("SELECT*FROM plan_cor where no_wo ='$id' ")->result();
+			$query_detail = $this->db->query("SELECT*FROM plan_cor where no_wo ='$id' ");
 
-			foreach($query_detail as $rinci){
+			if( $query_detail->num_rows()>0 )
+			{				
+				foreach($query_detail->result() as $rinci)
+				{
+	
+					$tgl_plan    = ($rinci->tgl_plan == null || $rinci->tgl_plan == '0000-00-00' ? '0000-00-00' : $rinci->tgl_plan);
+	
+					$tgl_ok      = $this->m_fungsi->tanggal_format_indonesia($rinci->tgl_plan);
+	
+					
+					$html .= '<br>
+						<table width="100%" border="1" cellspacing="0" cellpadding="3" style="font-size:12px;font-family: ;">  
+							<tr>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >No</td>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >PROSES PRODUKSI</td>
+								<td align="center" width="%" colspan="2" style="background-color: #cccccc" >HASIL PRODUKSI</td>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >RUSAK</td>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >HASIL BAIK</td>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >KETERANGAN</td>
+							</tr>
+							<tr>
+								<td align="center" width="%" style="background-color: #cccccc">TGL</td>
+								<td align="center" width="%" style="background-color: #cccccc">HASIL JADI</td>
+							</tr>
+	
+							<tr>
+								<td align="center" width="5%" >1</td>
+								<td align="" width="20%" >CORUUGATOR</td>
+								<td align="center" width="20%" >' . $tgl_ok . '</td>
+								<td align="center" width="1%" >' . $rinci->total_cor_p . '</td>
+								<td align="center" width="15%" >' . $rinci->bad_cor_p . '</td>
+								<td align="center" width="15%" >' . $rinci->good_cor_p . '</td>
+								<td align="" width="15%" >' . $rinci->ket_plan . '</td>
+							</tr>
+							<tr>
+								<td align="center">2</td>
+								<td align="" >FLEXO</td>
+								<td align="center" >' . $tgl_ok . '</td>
+								<td align="center" >' . $data_detail->hasil_flx . '</td>
+								<td align="center" >' . $data_detail->rusak_flx . '</td>
+								<td align="center" >' . $data_detail->baik_flx . '</td>
+								<td align="" >' . $data_detail->ket_flx . '</td>
+							</tr>
+							<tr>
+								<td align="center" rowspan="6" valign="middle">3</td>
+								<td align="" >FINISHING</td>
+								<td align="" style="border-bottom:hidden;border-right:hidden"></td>
+								<td align="" style="border-bottom:hidden;border-right:hidden"></td>
+								<td align="" style="border-bottom:hidden;border-right:hidden"></td>
+								<td align="" style="border-bottom:hidden;border-right:hidden"></td>
+								<td align="" style="border-bottom:hidden;"></td>
+							</tr>
+							<tr>
+								<td align="right" >Glue</td>
+								<td align="center" style="border-top:hidden;border-right:hidden">' . $tgl_ok . '</td>
+	
+								<td align="center" style="border-top:hidden;border-right:hidden;border-right:hidden">' . $data_detail->hasil_glu . '</td>
+								<td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->rusak_glu . '</td>
+								<td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->baik_glu . '</td>
+								<td align="" style="border-top:hidden;">' . $data_detail->ket_glu . '</td>
+							</tr>
+							<tr>
+								<td align="right" >Stitching</td>
+								<td align="center" >' . $tgl_ok . '</td>
+								<td align="center" >' . $data_detail->hasil_stc . '</td>
+								<td align="center" >' . $data_detail->rusak_stc . '</td>
+								<td align="center" >' . $data_detail->baik_stc . '</td>
+								<td align="" >' . $data_detail->ket_stc . '</td>
+							</tr>
+							<tr>
+								<td align="right" >Die Cut</td>
+								<td align="center" >' . $tgl_ok . '</td>
+								<td align="center" >' . $data_detail->hasil_dic . '</td>
+								<td align="center" >' . $data_detail->rusak_dic . '</td>
+								<td align="center" >' . $data_detail->baik_dic . '</td>
+								<td align="" >' . $data_detail->ket_dic . '</td>
+							</tr>
+							<tr>
+								<td align="right" >Asembly Partisi</td>
+								<td align="center" >' . $tgl_ok . '</td>
+								<td align="center" >' . $data_detail->hasil_dic . '</td>
+								<td align="center" >' . $data_detail->rusak_dic . '</td>
+								<td align="center" >' . $data_detail->baik_dic . '</td>
+								<td align="" >' . $data_detail->ket_dic . '</td>
+							</tr>
+							<tr>
+								<td align="right" >Slitter Manual</td>
+								<td align="center" >' . $tgl_ok . '</td>
+	
+								<td align="center" >' . $data_detail->hasil_dic . '</td>
+								<td align="center" >' . $data_detail->rusak_dic . '</td>
+								<td align="center" >' . $data_detail->baik_dic . '</td>
+								<td align="" >' . $data_detail->ket_dic . '</td>
+							</tr>
+							<tr>
+								<td align="center" >4</td>
+								<td align="" >GUDANG</td>
+								<td align="center" >' . $tgl_ok . '</td>
+								<td align="center" >' . $data_detail->hasil_gdg . '</td>
+								<td align="center" >' . $data_detail->rusak_gdg . '</td>
+								<td align="center" >' . $data_detail->baik_gdg . '</td>
+								<td align="" >' . $data_detail->ket_gdg . '</td>
+							</tr>
+							<tr>
+								<td align="center" >5</td>
+								<td align="" >EXPEDISI / PENGIRIMAN</td>
+								<td align="center" >' . $tgl_ok . '</td>
+								<td align="center" >' . $data_detail->hasil_exp . '</td>
+								<td align="center" >' . $data_detail->rusak_exp . '</td>
+								<td align="center" >' . $data_detail->baik_exp . '</td>
+								<td align="" >' . $data_detail->ket_exp . '</td>
+							</tr>
+						</table>';
+								
+				}
+			}else{
+				$html .= '<br>
+						<table width="100%" border="1" cellspacing="0" cellpadding="3" style="font-size:12px;font-family: ;">  
+							<tr>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >No</td>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >PROSES PRODUKSI</td>
+								<td align="center" width="%" colspan="2" style="background-color: #cccccc" >HASIL PRODUKSI</td>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >RUSAK</td>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >HASIL BAIK</td>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >KETERANGAN</td>
+							</tr>
+							<tr>
+								<td align="center" width="%" style="background-color: #cccccc">TGL</td>
+								<td align="center" width="%" style="background-color: #cccccc">HASIL JADI</td>
+							</tr>
+	
+							<tr>
+								<td align="center" width="5%" >1</td>
+								<td align="" width="20%" >CORUUGATOR</td>
+								<td align="center" width="20%" >0</td>
+								<td align="center" width="1%" >0</td>
+								<td align="center" width="15%" >0</td>
+								<td align="center" width="15%" >0</td>
+								<td align="" width="15%" >0</td>
+							</tr>
+							<tr>
+								<td align="center">2</td>
+								<td align="" >FLEXO</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="" >0</td>
+							</tr>
+							<tr>
+								<td align="center" rowspan="6" valign="middle">3</td>
+								<td align="" >FINISHING</td>
+								<td align="" style="border-bottom:hidden;border-right:hidden"></td>
+								<td align="" style="border-bottom:hidden;border-right:hidden"></td>
+								<td align="" style="border-bottom:hidden;border-right:hidden"></td>
+								<td align="" style="border-bottom:hidden;border-right:hidden"></td>
+								<td align="" style="border-bottom:hidden;"></td>
+							</tr>
+							<tr>
+								<td align="right" >Glue</td>
+								<td align="center" style="border-top:0;border-right:0">0</td>
+								<td align="center" style="border-top:0;border-right:0;">0</td>
+								<td align="center" style="border-top:0;border-right:0;">0</td>
+								<td align="center" style="border-top:0;border-right:0;">0</td>
+								<td align="" style="border-top:0;">0</td>
+							</tr>
+							<tr>
+								<td align="right" >Stitching</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="" >0</td>
+							</tr>
+							<tr>
+								<td align="right" >Die Cut</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="" >0</td>
+							</tr>
+							<tr>
+								<td align="right" >Asembly Partisi</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="" >0</td>
+							</tr>
+							<tr>
+								<td align="right" >Slitter Manual</td>
+								<td align="center" >0</td>
+	
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="" >0</td>
+							</tr>
+							<tr>
+								<td align="center" >4</td>
+								<td align="" >GUDANG</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="" >0</td>
+							</tr>
+							<tr>
+								<td align="center" >5</td>
+								<td align="" >EXPEDISI / PENGIRIMAN</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="center" >0</td>
+								<td align="" >0</td>
+							</tr>
+						</table>';				
 
-			$tgl_plan    = ($rinci->tgl_plan == null || $rinci->tgl_plan == '0000-00-00' ? '0000-00-00' : $rinci->tgl_plan);
-
-			$tgl_ok      = $this->m_fungsi->tanggal_format_indonesia($rinci->tgl_plan);
-
-			
-			$html .= '<br>
-                        <table width="100%" border="1" cellspacing="0" cellpadding="3" style="font-size:12px;font-family: ;">  
-                            <tr>
-                                <td align="center" width="%" rowspan="2" style="background-color: #cccccc" >No</td>
-                                <td align="center" width="%" rowspan="2" style="background-color: #cccccc" >PROSES PRODUKSI</td>
-                                <td align="center" width="%" colspan="2" style="background-color: #cccccc" >HASIL PRODUKSI</td>
-                                <td align="center" width="%" rowspan="2" style="background-color: #cccccc" >RUSAK</td>
-                                <td align="center" width="%" rowspan="2" style="background-color: #cccccc" >HASIL BAIK</td>
-                                <td align="center" width="%" rowspan="2" style="background-color: #cccccc" >KETERANGAN</td>
-                            </tr>
-                            <tr>
-                                <td align="center" width="%" style="background-color: #cccccc">TGL</td>
-                                <td align="center" width="%" style="background-color: #cccccc">HASIL JADI</td>
-                            </tr>
-
-                            <tr>
-                                <td align="center" width="5%" >1</td>
-                                <td align="" width="20%" >CORUUGATOR</td>
-                                <td align="center" width="20%" >' . $tgl_ok . '</td>
-                                <td align="center" width="1%" >' . $rinci->total_cor_p . '</td>
-                                <td align="center" width="15%" >' . $rinci->bad_cor_p . '</td>
-                                <td align="center" width="15%" >' . $rinci->good_cor_p . '</td>
-                                <td align="" width="15%" >' . $data_detail->ket_crg . '</td>
-                            </tr>
-                            <tr>
-                                <td align="center">2</td>
-                                <td align="" >FLEXO</td>
-                                <td align="center" >' . $tgl_ok . '</td>
-                                <td align="center" >' . $data_detail->hasil_flx . '</td>
-                                <td align="center" >' . $data_detail->rusak_flx . '</td>
-                                <td align="center" >' . $data_detail->baik_flx . '</td>
-                                <td align="" >' . $data_detail->ket_flx . '</td>
-                            </tr>
-                            <tr>
-                                <td align="center" rowspan="6" valign="middle">3</td>
-                                <td align="" >FINISHING</td>
-                                <td align="" style="border-bottom:hidden;border-right:hidden"></td>
-                                <td align="" style="border-bottom:hidden;border-right:hidden"></td>
-                                <td align="" style="border-bottom:hidden;border-right:hidden"></td>
-                                <td align="" style="border-bottom:hidden;border-right:hidden"></td>
-                                <td align="" style="border-bottom:hidden;"></td>
-                            </tr>
-                            <tr>
-                                <td align="right" >Glue</td>
-                                <td align="center" style="border-top:hidden;border-right:hidden">' . $tgl_ok . '</td>
-
-                                <td align="center" style="border-top:hidden;border-right:hidden;border-right:hidden">' . $data_detail->hasil_glu . '</td>
-                                <td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->rusak_glu . '</td>
-                                <td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->baik_glu . '</td>
-                                <td align="" style="border-top:hidden;">' . $data_detail->ket_glu . '</td>
-                            </tr>
-                            <tr>
-                                <td align="right" >Stitching</td>
-                                <td align="center" >' . $tgl_ok . '</td>
-                                <td align="center" >' . $data_detail->hasil_stc . '</td>
-                                <td align="center" >' . $data_detail->rusak_stc . '</td>
-                                <td align="center" >' . $data_detail->baik_stc . '</td>
-                                <td align="" >' . $data_detail->ket_stc . '</td>
-                            </tr>
-                            <tr>
-                                <td align="right" >Die Cut</td>
-                                <td align="center" >' . $tgl_ok . '</td>
-                                <td align="center" >' . $data_detail->hasil_dic . '</td>
-                                <td align="center" >' . $data_detail->rusak_dic . '</td>
-                                <td align="center" >' . $data_detail->baik_dic . '</td>
-                                <td align="" >' . $data_detail->ket_dic . '</td>
-                            </tr>
-                            <tr>
-                                <td align="right" >Asembly Partisi</td>
-                                <td align="center" >' . $tgl_ok . '</td>
-                                <td align="center" >' . $data_detail->hasil_dic . '</td>
-                                <td align="center" >' . $data_detail->rusak_dic . '</td>
-                                <td align="center" >' . $data_detail->baik_dic . '</td>
-                                <td align="" >' . $data_detail->ket_dic . '</td>
-                            </tr>
-                            <tr>
-                                <td align="right" >Slitter Manual</td>
-                                <td align="center" >' . $tgl_ok . '</td>
-
-                                <td align="center" >' . $data_detail->hasil_dic . '</td>
-                                <td align="center" >' . $data_detail->rusak_dic . '</td>
-                                <td align="center" >' . $data_detail->baik_dic . '</td>
-                                <td align="" >' . $data_detail->ket_dic . '</td>
-                            </tr>
-                            <tr>
-                                <td align="center" >4</td>
-                                <td align="" >GUDANG</td>
-                                <td align="center" >' . $tgl_ok . '</td>
-                                <td align="center" >' . $data_detail->hasil_gdg . '</td>
-                                <td align="center" >' . $data_detail->rusak_gdg . '</td>
-                                <td align="center" >' . $data_detail->baik_gdg . '</td>
-                                <td align="" >' . $data_detail->ket_gdg . '</td>
-                            </tr>
-                            <tr>
-                                <td align="center" >5</td>
-                                <td align="" >EXPEDISI / PENGIRIMAN</td>
-                                <td align="center" >' . $tgl_ok . '</td>
-                                <td align="center" >' . $data_detail->hasil_exp . '</td>
-                                <td align="center" >' . $data_detail->rusak_exp . '</td>
-                                <td align="center" >' . $data_detail->baik_exp . '</td>
-                                <td align="" >' . $data_detail->ket_exp . '</td>
-                            </tr>
-                        </table>';
-						
 			}
+
+	
 		} else {
 			$html .= '<h1> Data Kosong </h1>';
 		}

@@ -932,7 +932,17 @@
         $.ajax({
           url   : '<?php echo base_url(); ?>Transaksi/batal',
           data  : ({id:id,jenis:'trs_wo',field:'id'}),
-          type  : "POST",
+          type  : "POST", 
+          beforeSend: function() {
+            swal({
+              title: 'loading ...',
+              allowEscapeKey    : false,
+              allowOutsideClick : false,
+              onOpen: () => {
+                swal.showLoading();
+              }
+            })
+          },
           success : function(data){
             // toastr.success('Data Berhasil Di Batalkan'); 
             swal({
