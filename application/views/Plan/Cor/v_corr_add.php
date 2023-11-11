@@ -39,24 +39,11 @@
 								<select id="no_wo" class="form-control select2" onchange="plhNoWo()"></select>
 							</div>
 						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 							<div class="col-md-1">TGL. WO</div>
 							<div class="col-md-11">
 								<input type="date" id="tgl_wo" class="form-control" autocomplete="off" placeholder="TGL. WO" disabled>
 							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 17px;font-weight:bold">
-							<div class="col-md-1">SCORE</div>
-							<div class="col-md-2" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_1" class="form-control" autocomplete="off" placeholder="0" disabled>
-							</div>
-							<div class="col-md-2" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_2" class="form-control" autocomplete="off" placeholder="0" disabled>
-							</div>
-							<div class="col-md-2" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_3" class="form-control" autocomplete="off" placeholder="0" disabled>
-							</div>
-							<div class="col-md-5" style="padding:0"></div>
 						</div>
 					</div>
 				</div>
@@ -152,10 +139,16 @@
 								<input type="text" id="customer" class="form-control" autocomplete="off" placeholder="CUSTOMER" disabled>
 							</div>
 						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2" style="padding-right: 0;">SALES</div>
 							<div class="col-md-10">
 								<input type="text" id="sales" class="form-control" autocomplete="off" placeholder="SALES" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+							<div class="col-md-2" style="padding-right: 0;">ALAMAT</div>
+							<div class="col-md-10">
+								<textarea id="alamat" class="form-control" rows="2" style="resize:none" placeholder="ALAMAT" disabled></textarea>
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
@@ -335,13 +328,26 @@
 								<input type="number" id="ii_panjang" class="form-control" autocomplete="off" placeholder="PANJANG SHEET" onchange="ayoBerhitung()">
 							</div>
 						</div>
+						<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
+							<div class="col-md-2">SCORE</div>
+							<div class="col-md-3" style="margin-bottom:3px">
+								<input type="number" id="creasing_wo_1" class="form-control" autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+							</div>
+							<div class="col-md-3" style="margin-bottom:3px">
+								<input type="number" id="creasing_wo_2" class="form-control" autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+							</div>
+							<div class="col-md-3" style="margin-bottom:3px">
+								<input type="number" id="creasing_wo_3" class="form-control" autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+							</div>
+							<div class="col-md-1 p-0"></div>
+						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">LEBAR</div>
 							<div class="col-md-10">
 								<input type="number" id="ii_lebar" class="form-control" autocomplete="off" placeholder="LEBAR SHEET" onchange="ayoBerhitung()">
 							</div>
 						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+						<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
 							<div class="col-md-2" style="padding-right:0">L. ROLL</div>
 							<div class="col-md-10">
 								<input type="number" id="i_lebar_roll" class="form-control" autocomplete="off" placeholder="LEBAR ROLL" onchange="ayoBerhitung()">
@@ -476,6 +482,33 @@
 		
 		let panjang_plan = $("#ii_panjang").val().split('.').join('');
 		let lebar_plan = $("#ii_lebar").val().split('.').join('')
+		let creasing_wo1 = $("#creasing_wo_1").val()
+		let creasing_wo2 = $("#creasing_wo_2").val()
+		let creasing_wo3 = $("#creasing_wo_3").val()
+		let hitungScore = parseInt(creasing_wo1) + parseInt(creasing_wo2) + parseInt(creasing_wo3);
+		let kategori = $('#no_wo option:selected').attr('kategori')
+
+		if(kategori == 'K_BOX'){
+			if(creasing_wo1 == 0 || creasing_wo2 == 0 || creasing_wo3 == 0 || creasing_wo1 == '' || creasing_wo2 == '' || creasing_wo3 == ''){
+				toastr.error('<b>SCORE BOX TIDAK BOLEH KOSONG!</b>');
+				return
+			}
+		}
+		if(kategori == 'K_BOX'){
+			if(hitungScore != lebar_plan){
+				toastr.error('<b>SCORE BEDA DENGAN LEBAR SHEET!</b>');
+				return
+			}
+		}
+		if(kategori == 'K_SHEET'){
+			if(creasing_wo1 != 0 || creasing_wo2 != 0 || creasing_wo3 != 0){
+				if(hitungScore != lebar_plan){
+					toastr.error('<b>SCORE BEDA DENGAN LEBAR SHEET!</b>');
+					return
+				}
+			}
+		}
+
 		let lebar_roll_p = $("#i_lebar_roll").val().split('.').join('')
 		let out_plan = $("#out_plan").val()
 		let trim_plan = $("#trim").val().split('.').join('')
@@ -522,10 +555,11 @@
 				});
 			},
 			data: ({
-				id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan, opsi: 'add'
+				id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan, creasing_wo1, creasing_wo2, creasing_wo3, opsi: 'add'
 			}),
 			success: function(res){
 				data = JSON.parse(res)
+				console.log(data)
 				if(data.data){
 					listRencanaPlan()
 					$("#no_wo").val("")
@@ -767,12 +801,9 @@
 		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
 
 		$("#tgl_wo").val(tgl_wo)
-		$("#creasing_wo_1").val(creasing_wo1)
-		$("#creasing_wo_2").val(creasing_wo2)
-		$("#creasing_wo_3").val(creasing_wo3)
-		
 		$("#customer").val(customer)
 		$("#sales").val(nm_sales)
+		$("#alamat").val(alamat)
 		$("#tgl_po").val(tgl_po)
 		$("#no_po").val(no_po)
 		$("#kode_po").val(kode_po);
@@ -814,10 +845,14 @@
 		}
 		$("#sambungan").val(sambungan)
 		$("#bb_box").val(berat_box)
-		$("#lb_box").val(luas_box);
+		$("#lb_box").val(luas_box)
+
+		$("#creasing_wo_1").val(creasing_wo1)
+		$("#creasing_wo_2").val(creasing_wo2)
+		$("#creasing_wo_3").val(creasing_wo3);
+		(lebar_s == undefined) ? $("#ii_lebar").val(lebar_s) : $("#ii_lebar").val(rupiah.format(Math.round(lebar_s)));
 
 		(panjang_s == undefined) ? $("#ii_panjang").val(panjang_s) : $("#ii_panjang").val(rupiah.format(Math.round(panjang_s)));
-		(lebar_s == undefined) ? $("#ii_lebar").val(lebar_s) : $("#ii_lebar").val(rupiah.format(Math.round(lebar_s)));
 		(qty_so == undefined) ? $("#qty_plan").val(qty_so) : $("#qty_plan").val(rupiah.format(Math.round(qty_so)));
 
 		$("#g_kualitas").html(`<option value="PO">KUALITAS SESUAI PO</option><option value="GANTI">GANTI KUALITAS</option>`);
@@ -862,13 +897,61 @@
 		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
 
 		let flute = $('#no_wo option:selected').attr('flute')
-		let panjang_s = $("#ii_panjang").val().split('.').join('');
-		(panjang_s == 0 || panjang_s < 0) ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(rupiah.format(panjang_s)).attr('style', 'border-color:#ced4da');
-		let lebar_s = $("#ii_lebar").val().split('.').join('');
-		(lebar_s == 0 || lebar_s < 0) ? $("#ii_lebar").val(0).attr('style', 'border-color:#d00') : $("#ii_lebar").val(rupiah.format(lebar_s)).attr('style', 'border-color:#ced4da');
 		let qty_so = $('#no_wo option:selected').attr('qty-so');
+		let panjang_s = $("#ii_panjang").val().split('.').join('');
+		(panjang_s == 0 || panjang_s < 0 || panjang_s == '') ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(rupiah.format(panjang_s)).attr('style', 'border-color:#ced4da');
 		
-		let ton = 0
+		let kategori = $('#no_wo option:selected').attr('kategori')
+		let creasing_wo1 = $("#creasing_wo_1").val()
+		let creasing_wo2 = $("#creasing_wo_2").val()
+		let creasing_wo3 = $("#creasing_wo_3").val();
+		let hitungScore = parseInt(creasing_wo1) + parseInt(creasing_wo2) + parseInt(creasing_wo3);
+		(creasing_wo1 == 0 || creasing_wo1 < 0 || creasing_wo1 == '') ? $("#creasing_wo_1").val(0) : $("#creasing_wo_1").val();
+		(creasing_wo2 == 0 || creasing_wo2 < 0 || creasing_wo2 == '') ? $("#creasing_wo_2").val(0) : $("#creasing_wo_2").val();
+		(creasing_wo3 == 0 || creasing_wo3 < 0 || creasing_wo3 == '') ? $("#creasing_wo_3").val(0) : $("#creasing_wo_3").val();
+		
+		let lebar_s = $("#ii_lebar").val().split('.').join('');
+		(lebar_s == 0 || lebar_s < 0 || lebar_s == '') ? $("#ii_lebar").val(0).attr('style', 'border-color:#d00') : $("#ii_lebar").val(rupiah.format(lebar_s)).attr('style', 'border-color:#ced4da');
+
+		if(kategori == 'K_BOX'){
+			if(hitungScore == lebar_s){
+				$("#creasing_wo_1").attr('style', 'border-color:#ced4da')
+				$("#creasing_wo_2").attr('style', 'border-color:#ced4da')
+				$("#creasing_wo_3").attr('style', 'border-color:#ced4da')
+				$("#ii_lebar").attr('style', 'border-color:#ced4da')
+			}else{
+				$("#creasing_wo_1").attr('style', 'border-color:#d00')
+				$("#creasing_wo_2").attr('style', 'border-color:#d00')
+				$("#creasing_wo_3").attr('style', 'border-color:#d00')
+				$("#ii_lebar").attr('style', 'border-color:#d00')
+			}
+		}else if(kategori == 'K_SHEET'){
+			if(creasing_wo1 != 0 || creasing_wo2 != 0 || creasing_wo3 != 0){
+				if(hitungScore == lebar_s){
+					$("#creasing_wo_1").attr('style', 'border-color:#ced4da')
+					$("#creasing_wo_2").attr('style', 'border-color:#ced4da')
+					$("#creasing_wo_3").attr('style', 'border-color:#ced4da')
+					$("#ii_lebar").attr('style', 'border-color:#ced4da')
+				}else{
+					$("#creasing_wo_1").attr('style', 'border-color:#d00')
+					$("#creasing_wo_2").attr('style', 'border-color:#d00')
+					$("#creasing_wo_3").attr('style', 'border-color:#d00')
+					$("#ii_lebar").attr('style', 'border-color:#d00')
+				}
+			}else{
+				$("#creasing_wo_1").attr('style', 'border-color:#ced4da')
+				$("#creasing_wo_2").attr('style', 'border-color:#ced4da')
+				$("#creasing_wo_3").attr('style', 'border-color:#ced4da')
+				$("#ii_lebar").attr('style', 'border-color:#ced4da')
+			}
+		}else{
+			$("#creasing_wo_1").attr('style', 'border-color:#d00')
+			$("#creasing_wo_2").attr('style', 'border-color:#d00')
+			$("#creasing_wo_3").attr('style', 'border-color:#d00')
+			$("#ii_lebar").attr('style', 'border-color:#d00')
+		}
+		
+		let ton = 0;
 		let material = ''
 		let kualitas = ''
 		let kualitas_isi = ''

@@ -2303,7 +2303,6 @@ class Transaksi extends CI_Controller
 
 		$expKualitas = explode("/", $data->kualitas);
 		if($data->flute == 'BCF'){
-			$kualitas = $expKualitas[0].' - '.$expKualitas[1].' - '.$expKualitas[2].' - '.$expKualitas[3].' - '.$expKualitas[4];
 			if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
 				$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
 			}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
@@ -2479,7 +2478,7 @@ class Transaksi extends CI_Controller
 		</table>';
 
 		$judul = 'SO - '.$data->no_so.'.'.$urutSo.'.'.$rpt;
-		$this->m_fungsi->newMpdf($judul, '', 'footer', $html, 10, 10, 10, 10, 'P', 'A4');
+		$this->m_fungsi->newMpdf($judul, 'footer', $html, 10, 10, 10, 10, 'P', 'A4');
 	}
 
 	function pilihanEtaPO()
