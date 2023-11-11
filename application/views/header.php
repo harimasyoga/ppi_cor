@@ -44,6 +44,19 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 	<!-- jQuery -->
 	<script src="<?= base_url('assets/') ?>plugins/jquery/jquery.min.js"></script>
 
+	<style>
+		.select2.narrow {
+			width: 200px;
+		}
+		.wrap.select2-selection--single {
+			height: 100%;
+		}
+		.select2-container .wrap.select2-selection--single .select2-selection__rendered {
+			word-wrap: break-word;
+			text-overflow: inherit;
+			white-space: normal;
+		}
+	</style>
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -132,7 +145,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								</p>
 							</a>
 						</li>
-						<?php if (in_array($this->session->userdata('level'), ['Admin','Marketing','PPIC'])): ?>
+						<?php if (in_array($this->session->userdata('level'), ['User','Admin','Marketing','PPIC'])): ?>
 						<li class="nav-item has-treeview">
 							<a href="#" class="nav-link">
 								<i class="nav-icon fas fa-home"></i>
@@ -142,8 +155,8 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								</p>
 							</a>
 							<ul class="nav nav-treeview">
+								<?php if (in_array($this->session->userdata('level'), ['User','Admin','Marketing'])): ?>
 
-								<?php if ($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'Marketing') : ?>
 									<li class="nav-item">
 										<a href="<?= base_url('Master/Sales') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
@@ -345,3 +358,4 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 			</div>
 		</div>
 		</div>
+

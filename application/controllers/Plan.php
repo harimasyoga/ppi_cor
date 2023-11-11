@@ -418,12 +418,131 @@ class Plan extends CI_Controller
 						</td>
 					</tr>
 			</table><br>';
-			
-			$data    = $this->db->query("SELECT * from plan_cor where no_plan= '$no_plan' order by id_plan")->result();
 
+			$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
+				<thead>
+				<tr style="background-color: #cccccc">
+					<th width="2%" align="center">No</th>
+					<th width="5%" align="center">Item</th>
+					<th width="5%" align="center">No PO</th>
+					<th width="5%" align="center">Customer</th>
+					<th width="8%" align="center" colspan="2" >TL/AL</th>
+					<th width="7%" align="center" colspan="2" >B MF	</th>
+					<th width="7%" align="center" colspan="2" >B.L </th>
+					<th width="7%" align="center" colspan="2" >C.MF	</th>
+					<th width="7%" align="center" colspan="2" >C.L </th>
+					<th width="5%" align="center">pjg</th>
+					<th width="3%" align="center">lbr</th>
+					<th width="5%" align="center" colspan="3" >Score</th>
+					<th width="3%" align="center">Out</th>
+					<th width="3%" align="center">Fl </th>
+					<th width="5%" align="center">Lbr Roll</th>
+					<th width="3%" align="center">Trim</th>
+					<th width="5%" align="center">Qty</th>
+					<th width="5%" align="center">C.off</th>
+					<th width="5%" align="center">RM</th>
+					<th width="5%" align="center">KG</th>
+					<th width="5%" align="center">TGL KIRIM</th>
+				</tr>
+				</thead>
+				';
+			$no = 1;
+			$data    = $this->db->query("SELECT*FROM plan_cor a 
+			JOIN m_produk b ON a.id_produk=b.id_produk
+			JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+			JOIN trs_so_detail d ON a.id_so_detail=d.id
+			JOIN trs_wo e ON a.id_wo=e.id
+			where no_plan = '$no_plan' ")->result();
+ 
 			foreach ($data as $r) {
-				
+
+				$substance = explode("/", $r->material_plan);
+				$gramature = explode("/", $r->kualitas_isi_plan);
+
+				if( $r->flute =='BCF'){
+
+					$s1 = $substance[0];
+					$s2 = $substance[1];
+					$s3 = $substance[2];
+					$s4 = $substance[3];
+					$s5 = $substance[4];
+
+					$grm1 = $gramature[0];
+					$grm2 = $gramature[1];
+					$grm3 = $gramature[2];
+					$grm4 = $gramature[3];
+					$grm5 = $gramature[4];
+
+				}else if( $r->flute =='BF'){
+					
+					$s1 = $substance[0];
+					$s2 = $substance[1];
+					$s3 = $substance[2];
+					$s4 = 0;
+					$s5 = 0;
+					
+					$grm1 = $gramature[0];
+					$grm2 = $gramature[1];
+					$grm3 = $gramature[2];
+					$grm4 = 0;
+					$grm5 = 0;
+
+				}else if( $r->flute =='CF'){
+					
+					$s1 = $substance[0];
+					$s2 = 0;
+					$s3 = 0;
+					$s4 = $substance[1];
+					$s5 = $substance[2];
+					
+					$grm1 = $gramature[0];
+					$grm2 = 0;
+					$grm3 = 0;
+					$grm4 = $gramature[1];
+					$grm5 = $gramature[2];
+
+				}
+				$bold= 'font-weight:bold';
+				$html .= '
+					<tbody>
+                        <tr>
+                            <td align="center">'.$no.'</td>
+                            <td align="center">'. $r->nm_produk .'</td>
+                            <td align="center">'. $r->no_po .'</td>
+                            <td align="center">'. $r->nm_pelanggan .'</td>
+                            <td width="3%" align="center" style="color:red"><b>'. $s1.'</b></td>
+                            <td width="3%" align="center">'. $grm1.'</td>
+                            <td width="3%" align="center" style="color:red"><b>'. $s2.'</b></td>
+                            <td width="3%" align="center">'. $grm2.'</td>
+                            <td width="3%" align="center" style="color:red"><b>'. $s3.'</b></td>
+                            <td width="3%" align="center">'. $grm3.'</td>
+                            <td width="3%" align="center" style="color:red"><b>'. $s4.'</b></td>
+                            <td width="3%" align="center">'. $grm4.'</td>
+                            <td width="3%" align="center" style="color:red"><b>'. $s5.'</b></td>
+                            <td width="3%" align="center">'. $grm5.'</td>
+                            <td align="center" style="color:red;'.$bold.'">'. $r->panjang_plan .'</td>
+                            <td align="center" style="color:red;'.$bold.'">'. $r->lebar_plan .'</td>
+
+                            <td width="3%" align="center">'. $r->flap1 .'</td>
+                            <td width="3%" align="center">'. $r->flap1 .'</td>
+                            <td width="3%" align="center">'. $r->flap1 .'</td>
+
+                            <td align="center">'. $r->out_plan .'</td>
+                            <td align="center">'. $r->flute .' </td>
+                            <td align="center">'. $r->lebar_roll_p .'</td>
+                            <td align="center">'. $r->trim_plan .'</td>
+                            <td align="center" style="color:red;'.$bold.'">'. $r->pcs_plan .'</td>
+                            <td align="center">'. $r->c_off_p .'</td>
+                            <td align="center">'. $r->rm_plan .'</td>
+                            <td align="center">'. $r->tonase_plan .'</td>
+                            <td align="center" style="color:red;'.$bold.'">'. $this->m_fungsi->tanggal_ind($r->tgl_kirim_plan) .'</td>
+                        </tr>
+					</tbody>
+					';
+
+						$no++;
 			}
+			$html .='</table>';
 
 		} else {
 			$html .= '<h1> Data Kosong </h1>';

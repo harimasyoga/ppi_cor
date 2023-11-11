@@ -38,17 +38,17 @@
 				<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 					<thead>
 						<tr>
-							<th style="text-align: center; width:5%">No</th>
-							<th style="text-align: center; width:10%">No PO</th>
-							<th style="text-align: center; width:10%">Tgl PO</th>
+							<th style="text-align: center; width:3%">No</th>
+							<th style="text-align: center; width:15%">No PO</th>
+							<th style="text-align: center; width:17%">Tgl PO</th>
 							<th style="text-align: center; width:5%">Status</th>
 							<th style="text-align: center; width:10%">Kode PO</th>
 							<!-- <th style="text-align: center">Total Qty</th> -->
-							<th style="text-align: center; width:15%">Nama Pelanggan</th>
-							<th style="text-align: center; width:10%">Marketing</th>
-							<th style="text-align: center; width:10%">PPIC</th>
-							<th style="text-align: center; width:10%">Owner</th>
-							<th style="text-align: center; width:15%;">Aksi</th>
+							<th style="text-align: center; width:15%">Customer</th>
+							<th style="text-align: center; width:5%">Mkt</th>
+							<th style="text-align: center; width:5%">PPIC</th>
+							<th style="text-align: center; width:5%">Owner</th>
+							<th style="text-align: center; width:20%;">Aksi</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -85,7 +85,7 @@
 								<td width="15%"></td>
 								<td width="15%">Nama Pelanggan</td>
 								<td width="30%">
-									<select class="form-control select2" name="id_pelanggan" id="id_pelanggan" style="width: 100%;" onchange="setProduk(this.value,0)">
+									<select class="form-control select2" name="id_pelanggan" id="id_pelanggan" style="width: 100%;" onchange="setProduk('new',this.value,0)">
 										<!-- <option value="">Pilih</option> -->
 										<?php foreach ($pelanggan as $r) : ?>
 											<option value="<?= $r->id_pelanggan ?>" detail="
@@ -172,7 +172,7 @@
 
 									<?php if ($this->session->userdata('level') != "PPIC"): ?>
 										
-										<th width="10%">Price Exlude</th>
+										<th width="10%">Price Exclude</th>
 										<th width="10%">Price Include</th>
 
 									<?php endif ?>
@@ -198,7 +198,7 @@
 										</div>
 									</td>
 									<td>
-										<select class="form-control select2" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(this.value,0)">
+										<select class="form-control select2 narrow wrap wrap" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(this.value,0)">
 										</select>
 									</td>
 									<td>
@@ -301,6 +301,7 @@
 		load_data();
 		// getMax();
 		$('.select2').select2({
+			containerCssClass: "wrap",
 			placeholder: '--- Pilih ---',
 			dropdownAutoWidth: true
 		});
@@ -321,9 +322,11 @@
 		$('#modalForm').modal('hide');
 	}
 
-	function setProduk(pelanggan,id) 
+	function setProduk(cek,pelanggan,id) 
 	{
-		// clearRow();
+		if(cek=='new'){
+			clearRow();
+		}
 		if (status == 'insert' ){
 
 			$("#id_produk"+id).val("").prop("disabled", false);
@@ -334,6 +337,16 @@
 					url: "<?= base_url(); ?>Transaksi/load_produk",
 					data: { idp: pelanggan, kd: '' },
 					dataType: 'json',
+					beforeSend: function() {
+						swal({
+						title: 'loading ...',
+						allowEscapeKey    : false,
+						allowOutsideClick : false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+						})
+					},
 					success:function(data){			
 						if(data.message == "Success"){						
 							option = "<option>-- Pilih --</option>";
@@ -342,10 +355,12 @@
 							});
 		
 							$('#id_produk'+id).html(option);
+							swal.close();
 						}else{	
 							option += "<option value=''></option>";
 							$('#id_produk'+id).html(option);						
 							$("#txt_detail_produk"+id).html("");	
+							swal.close();
 						}
 					}
 				});
@@ -736,8 +751,18 @@
 					field: 'no_po'
 				}),
 				type: "POST",
+				beforeSend: function() {
+					swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+					})
+				},
 				success: function(data) {
-					toastr.success('Data Berhasil Di Hapus');
+					// toastr.success('Data Berhasil Di Hapus');
 					swal({
 						title               : "Data",
 						html                : "Data Berhasil Di Hapus",
@@ -773,40 +798,54 @@
 
 	function prosesData(tipe) 
 	{
-		let cek = confirm("Apakah Anda Yakin?");
+		// let cek = confirm("Apakah Anda Yakin?");
 
-		if (cek) {
-			$.ajax({
-				url: '<?= base_url(); ?>Transaksi/prosesData',
-				data: ({
-					id: no_po,
-					status: tipe,
-					jenis: 'verifPO'
-				}),
-				type: "POST",
-				success: function(data) {
-					// toastr.success('Data Berhasil Diproses');
-					swal({
-						title               : "Data",
-						html                : "Data Berhasil Diproses",
-						type                : "success",
-						confirmButtonText   : "OK"
-					});
-					reloadTable();
-					$("#modalForm").modal("hide");
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					// toastr.error('Terjadi Kesalahan');
-					swal({
-						title               : "Cek Kembali",
-						html                : "Terjadi Kesalahan",
-						type                : "error",
-						confirmButtonText   : "OK"
-					});
-					return;
-				}
-			});
-		}
+		swal({
+            //title: 'PENDAFTARAN',
+            text                : "Alasan di Reject : ",
+            type                : 'info',
+            input               : 'text',
+            showCancelButton    : true,			
+			confirmButtonClass : 'btn btn-danger',
+			cancelButtonClass  : 'btn btn-secondary',
+			confirmButtonColor  : '#d33',
+			cancelButtonColor  : '#d33',
+            confirmButtonText   : '<b> Reject </b>',
+            cancelButtonText    : '<b> Batal </b>'
+        }).then(function(alasan) {
+
+				$.ajax({
+					url: '<?= base_url(); ?>Transaksi/prosesData',
+					data: ({
+						id: no_po,
+						status: tipe,
+						jenis: 'verifPO'
+					}),
+					type: "POST",
+					success: function(data) {
+						// toastr.success('Data Berhasil Diproses');
+						swal({
+							title               : "Data",
+							html                : "Data Berhasil Diproses",
+							type                : "success",
+							confirmButtonText   : "OK"
+						});
+						reloadTable();
+						$("#modalForm").modal("hide");
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						// toastr.error('Terjadi Kesalahan');
+						swal({
+							title               : "Cek Kembali",
+							html                : "Terjadi Kesalahan",
+							type                : "error",
+							confirmButtonText   : "OK"
+						});
+						return;
+					}
+				});
+		
+		});
 
 
 	}
@@ -949,7 +988,7 @@
 		var user_lev    = "<?= $this->session->userdata('level') ?>";
 
 		var idp         = $('#id_pelanggan').val();
-		setProduk(idp,rowNum+1);
+		setProduk('addrow',idp,rowNum+1);
 			
 		if (s != '0' && s != '' && ss != '' && ppn != '' && price_inc != '' && price_exc != '' && price_inc != '0' && price_exc != '0') {
 			$('#removeRow').show();
@@ -1137,6 +1176,16 @@
 			url         : "<?= base_url(); ?>Transaksi/load_produk_1",
 			data        : { idp: '', kd: produk },
 			dataType    : 'json',
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
 			success:function(val){			
 				
 						hrg_kg   = Math.trunc(exc / val.berat_bersih);
@@ -1171,6 +1220,7 @@
 										p11 = selisih / rumus * 100;
 
 										$('#p11'+id2).val('- '+ p11.toFixed(1)+' %');
+										swal.close();
 
 
 									}
@@ -1198,6 +1248,7 @@
 										p11         = selisih / rumus * 100;
 
 										$('#p11'+id2).val('- '+ p11.toFixed(1)+' %');
+										swal.close();
 
 									}
 								});
@@ -1205,6 +1256,7 @@
 						} else {
 							p11 = exc/ val.berat_bersih;
 							$('#p11'+id2).val( '- 0 %');
+							swal.close();
 
 						}
 					
@@ -1239,6 +1291,16 @@
 				url         : "<?= base_url(); ?>Transaksi/load_produk_1",
 				data        : { idp: '', kd: produk },
 				dataType    : 'json',
+				beforeSend: function() {
+					swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+					})
+				},
 				success:function(val){		
 					
 					out = Math.trunc(1800/val.ukuran_sheet_l);
@@ -1267,7 +1329,8 @@
 					}	
 
 					$('#rm'+id2).val(rm);	
-					$('#ton'+id2).val(ton);	
+					$('#ton'+id2).val(ton);
+					swal.close();	
 						
 				}
 			});
