@@ -368,7 +368,7 @@ class M_fungsi extends CI_Model {
 				return $rek;
     }
     
-	function template_kop($judul, $body, $position, $cekpdf)
+	function template_kop($judul, $jdl_save, $body, $position, $cekpdf)
 	{
 		$param    = $judul;
 		$unit     = $this->session->userdata('unit');
@@ -384,16 +384,16 @@ class M_fungsi extends CI_Model {
 		$npwp     = '-';
 		$chari    = '';
 		$chari .= "
-			 <table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:12px; color:#000;\" width=\"100%\"  border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\">
+			 <table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:12px; color:#000;\" width=\"100%\"  border=\"\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\">
 			 <thead>
 				  <tr>
 					   <td rowspan=\"5\" align=\"center\">
-							<img src=\"" . base_url() . "assets/gambar/ppi.png\"  width=\"110\" height=\"100\" />
+							<img src=\"" . base_url() . "assets/gambar/ppi.png\"  width=\"80\" height=\"70\" />
 					   </td>
 					   <td colspan=\"20\">
 							<b>
 								 <tr>
-									  <td align=\"center\" style=\"font-size:30;border-bottom: none;\"><b>$nm_toko</b></td>
+									  <td align=\"center\" style=\"font-size:28;border-bottom: none;\"><b>$nm_toko</b></td>
 								 </tr>
 								 <tr>
 									  <td align=\"center\" style=\"font-size:10px;\">$alamat</td>
@@ -409,7 +409,7 @@ class M_fungsi extends CI_Model {
 				  </tr>
 			 </table>";
 		$chari .= "
-			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:8px\" width=\"100%\" align=\"center\" border=\"0\">
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:6px\" width=\"100%\" align=\"center\" border=\"0\">
 				  <tr>
 					   <td> &nbsp; </td>
 				  </tr> 
@@ -422,13 +422,13 @@ class M_fungsi extends CI_Model {
 				  </tr> 
 			 </table>";
 		$chari .= "
-			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:2px\" width=\"100%\" align=\"center\" border=\"1\">     
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:4px\" width=\"100%\" align=\"center\" border=\"1\">     
 				  <tr>
-					   <td colspan=\"20\" style=\"border-top: none;border-right: none;border-left: none;\"></td>
+					   <td colspan=\"20\" style=\"border-top: none;border-right: none;border-left: none;border-bottom: 2px solid black;font-size:5px\"></td>
 				  </tr> 
 			 </table>";
 		$chari .= "
-			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:12px\" width=\"100%\" align=\"center\" border=\"0\">     
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:8px\" width=\"100%\" align=\"center\" border=\"0\">     
 				  <tr>
 					   <td>&nbsp;</td>
 				  </tr> 
@@ -453,7 +453,7 @@ class M_fungsi extends CI_Model {
 			case 1;
 				// $this->M_cetak->mpdf('L', 'A4', $judul, $chari, '.PDF', 10, 10, 10, 2);
 			//   $this->mpdf( $judul,$chari,'','', $position);
-				$this->_mpdf_hari($position, 'A4', $judul, $chari, '.PDF', 5, 5, 5, 10);
+				$this->_mpdf_hari($position, 'A4', $judul, $chari, $jdl_save.'.pdf', 5, 5, 5, 10);
 			
 
 

@@ -235,31 +235,63 @@ class Transaksi extends CI_Controller
                 {
                     $btn1   = 'btn-warning';
                     $i1     = '<i class="fas fa-lock"></i>';
+					$alasan1 = '';
+                }else  if($r->status_app1=='H')
+                {
+                    $btn1   = 'btn-danger';
+                    $i1     = '<i class="far fa-hand-paper"></i>';
+					$alasan1 = $r->ket_acc1;
                 }else  if($r->status_app1=='R')
                 {
                     $btn1   = 'btn-danger';
                     $i1     = '<i class="fas fa-times"></i>';
+					$alasan1 = $r->ket_acc1;
                 }else{
                     $btn1   = 'btn-success';
                     $i1     = '<i class="fas fa-check-circle"></i>';
+					$alasan1 = '';
                 }
                 
                 if($r->status_app2=='N')
                 {
                     $btn2   = 'btn-warning';
                     $i2     = '<i class="fas fa-lock"></i>';
+					$alasan2 = '';
+                }else  if($r->status_app2=='H')
+                {
+                    $btn2   = 'btn-danger';
+                    $i2     = '<i class="far fa-hand-paper"></i>';
+					$alasan2 = $r->ket_acc2;
+                }else  if($r->status_app2=='R')
+                {
+                    $btn2   = 'btn-danger';
+                    $i2     = '<i class="fas fa-times"></i>';
+					$alasan2 = $r->ket_acc2;
                 }else{
                     $btn2   = 'btn-success';
                     $i2     = '<i class="fas fa-check-circle"></i>';
+					$alasan2 = '';
                 }
                 
                 if($r->status_app3=='N')
                 {
                     $btn3   = 'btn-warning';
                     $i3     = '<i class="fas fa-lock"></i>';
+					$alasan3 = '';
+                }else  if($r->status_app3=='H')
+                {
+                    $btn3   = 'btn-danger';
+                    $i3     = '<i class="far fa-hand-paper"></i>';
+					$alasan3 = $r->ket_acc3;
+                }else  if($r->status_app3=='R')
+                {
+                    $btn3   = 'btn-danger';
+                    $i3     = '<i class="fas fa-times"></i>';
+					$alasan3 = $r->ket_acc3;
                 }else{
                     $btn3   = 'btn-success';
                     $i3     = '<i class="fas fa-check-circle"></i>';
+					$alasan3 = '';
                 }
                 
                 if($r->status == 'Open')
@@ -277,11 +309,11 @@ class Transaksi extends CI_Controller
 
 				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).'</div>';
 
-                $time1 = ( ($r->time_app1 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app1,0,10)) ) . ' - ' .substr($r->time_app1,10,9) ;
+                $time1 = ( ($r->time_app1 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app1,0,10))  . ' - ' .substr($r->time_app1,10,9)) ;
 
-                $time2 = ( ($r->time_app2 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app2,0,10)) ) . ' - ' .substr($r->time_app2,10,9);
+                $time2 = ( ($r->time_app2 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app2,0,10))  . ' - ' .substr($r->time_app2,10,9));
 
-                $time3 = ( ($r->time_app3 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app3,0,10)) ) . ' - ' .substr($r->time_app3,10,9);
+                $time3 = ( ($r->time_app3 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app3,0,10))  . ' - ' .substr($r->time_app3,10,9));
 
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status.'</button></div>';
 
@@ -290,14 +322,17 @@ class Transaksi extends CI_Controller
 				$row[] = '<div class="text-center">'.$r->nm_pelanggan.'</div>';
                 
 				$row[] = '<div class="text-center">
-					<button onclick="data_sementara(`Marketing`,' . "'" . $time1 . "'" . ',' . "'" . $r->no_po . "'" . ')" type="button" title="'.$time1.'" style="text-align: center;" class="btn btn-sm '.$btn1.' ">'.$i1.'</button></div>
+					<button onclick="data_sementara(`Marketing`,' . "'" . $r->status_app1 . "'" . ',' . "'" . $time1 . "'" . ',' . "'" . $alasan1 . "'" . ',' . "'" . $r->no_po . "'" . ')" type="button" title="'.$time1.'" style="text-align: center;" class="btn btn-sm '.$btn1.' ">'.$i1.'</button><br>
+					'.$alasan1.'</div>
 				';
 				
                 $row[] = '<div class="text-center">
-					<button onclick="data_sementara(`PPIC`,' . "'" . $time2 . "'" . ',' . "'" . $r->no_po . "'" . ')"  type="button" title="'.$time2.'"  style="text-align: center;" class="btn btn-sm '.$btn2.' ">'.$i2.'</button></div>
+					<button onclick="data_sementara(`PPIC`,' . "'" . $r->status_app2 . "'" . ',' . "'" . $time2 . "'" . ',' . "'" . $alasan2 . "'" . ',' . "'" . $r->no_po . "'" . ')"  type="button" title="'.$time2.'"  style="text-align: center;" class="btn btn-sm '.$btn2.' ">'.$i2.'</button><br>
+					'.$alasan2.'</div>
 				';
                 $row[] = '<div class="text-center">
-					<button onclick="data_sementara(`Owner`,' . "'" . $time3 . "'" . ',' . "'" . $r->no_po . "'" . ')"  type="button" title="'.$time3.'"  style="text-align: center;" class="btn btn-sm '.$btn3.' ">'.$i3.'</button></div>
+					<button onclick="data_sementara(`Owner`,' . "'" . $r->status_app3 . "'" . ',' . "'" . $time3 . "'" . ',' . "'" . $alasan3 . "'" . ',' . "'" . $r->no_po . "'" . ')"  type="button" title="'.$time3.'"  style="text-align: center;" class="btn btn-sm '.$btn3.' ">'.$i3.'</button><br>
+					'.$alasan3.'</div>
 				';
 
 				// $aksi = '-';
@@ -322,31 +357,43 @@ class Transaksi extends CI_Controller
 
                                 ';
 					}
+					
 				}else{
-					if ($this->session->userdata('level') == 'Marketing' && $r->status_app1 == 'N' ) {
-						$aksi .=  ' 
-	                            <button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
-                                    <i class="fa fa-check"></i>
-	                            </button>  ';
+					if ($this->session->userdata('level') == 'Marketing' ) {
+
+						if($r->status_app1 == 'N' || $r->status_app1 == 'H')
+						{
+							$aksi .=  ' 
+									<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
+										<i class="fa fa-check"></i>
+									</button>  ';
+						}
 					}
 
-					if ($this->session->userdata('level') == 'PPIC' && $r->status_app1 == 'Y' && $r->status_app2 == 'N' ) {
-						$aksi .=  ' 
-	                            <button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
-									<i class="fa fa-check"></i>
-	                            </button> ';
+					if ($this->session->userdata('level') == 'PPIC' && $r->status_app1 == 'Y' ) {
+
+						if($r->status_app2 == 'N' || $r->status_app2 == 'H'){
+
+							$aksi .=  ' 
+									<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
+										<i class="fa fa-check"></i>
+									</button> ';
+						}
 					}
 
-					if ($this->session->userdata('level') == 'Owner' && $r->status_app1 == 'Y' && $r->status_app2 == 'Y'  && $r->status_app3 == 'N' ) {
-						$aksi .=  ' 
-	                            <button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
-									<i class="fa fa-check"></i>
-	                            </button>  ';
+					if ($this->session->userdata('level') == 'Owner' && $r->status_app1 == 'Y' && $r->status_app2 == 'Y' ) {
+						if($r->status_app3 == 'N' || $r->status_app3 == 'H'){
+
+							$aksi .=  ' 
+									<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
+										<i class="fa fa-check"></i>
+									</button>  ';
+						}
 					}
 
                     if ($this->session->userdata('level') == 'Admin' ) {
 
-						if($r->status_app1 == 'N' || $r->status_app2 == 'N' || $r->status_app3 == 'N'){
+						if($r->status_app1 == 'N' || $r->status_app2 == 'N' || $r->status_app3 == 'N' || $r->status_app1 == 'H' || $r->status_app2 == 'H' || $r->status_app3 == 'H'){
 							$aksi .=  '
 								<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
 									<i class="fa fa-edit"></i>
@@ -712,10 +759,14 @@ class Transaksi extends CI_Controller
                             <th width="10%" align="center">Uk. Sheet</th>
                             <th width="10%" align="center">Creasing </th>
                             <th width="10%" align="center">Kualitas</th>
-                            <th width="10%" align="center">Qty</th>
-                            <th width="10%" align="center">Harga <br> (Rp)</th>
-                            <th width="10%" align="center">Total <br> (Rp)</th>
-                        </tr>';
+                            <th width="10%" align="center">Qty</th>';
+			if($this->session->userdata("level")!="PPIC"){
+
+							$html .='
+							<th width="10%" align="center">Harga <br> (Rp)</th>
+							<th width="10%" align="center">Total <br> (Rp)</th>';
+			}
+					$html .='</tr>';
 			$no = 1;
 			$tot_qty = $tot_value = $tot_total = 0;
 			foreach ($query->result() as $r) {
@@ -731,10 +782,13 @@ class Transaksi extends CI_Controller
                                 <td align="center">' . $r->ukuran_sheet . '</td>
                                 <td align="center">' . $r->creasing . ' : ' . $r->creasing2 . ' : ' . $r->creasing3 . '</td>
                                 <td align="left">' . $r->kualitas . '</td>
-                                <td align="right">' . number_format($r->qty, 0, ",", ".") . '</td>
-                                <td align="right">' . number_format($r->price_inc, 0, ",", ".") . '</td>
-                                <td align="right">' . number_format($total, 0, ",", ".") . '</td>
-                            </tr>';
+                                <td align="right">' . number_format($r->qty, 0, ",", ".") . '</td>';
+				if($this->session->userdata("level")!="PPIC"){
+						$html .= '
+								<td align="right">' . number_format($r->price_inc, 0, ",", ".") . '</td>
+                                <td align="right">' . number_format($total, 0, ",", ".") . '</td>';
+				}
+						$html .= '</tr>';
 
 				$no++;
 				$tot_qty += $r->qty;
@@ -744,10 +798,13 @@ class Transaksi extends CI_Controller
 			$html .='
                         <tr style="background-color: #cccccc">
                             <td align="center" colspan="7"><b>Total</b></td>
-                            <td align="right" ><b>' . number_format($tot_qty, 0, ",", ".") . '</b></td>
-                            <td align="right" ><b>' . number_format($tot_price_inc, 0, ",", ".") . '</b></td>
-                            <td align="right" ><b>' . number_format($tot_total, 0, ",", ".") . '</b></td>
-                        </tr>';
+                            <td align="right" ><b>' . number_format($tot_qty, 0, ",", ".") . '</b></td>';
+			if($this->session->userdata("level")!="PPIC"){
+					$html .= '
+							<td align="right" ><b>' . number_format($tot_price_inc, 0, ",", ".") . '</b></td>
+                            <td align="right" ><b>' . number_format($tot_total, 0, ",", ".") . '</b></td>';
+			}
+					$html .= '</tr>';
 			$html .= '
                  </table>';
 		} else {
@@ -755,7 +812,7 @@ class Transaksi extends CI_Controller
 		}
 
 		// $this->m_fungsi->_mpdf($html);
-		$this->m_fungsi->template_kop('PURCHASE ORDER',$html,'P','1');
+		$this->m_fungsi->template_kop('PURCHASE ORDER',$id,$html,'P','1');
 		// $this->m_fungsi->mPDFP($html);
 	}
 
@@ -853,7 +910,7 @@ class Transaksi extends CI_Controller
 		}
 
 		// $this->m_fungsi->_mpdf($html);
-		$this->m_fungsi->template_kop('PURCHASE ORDER',$html,'L','0');
+		$this->m_fungsi->template_kop('PURCHASE ORDER', $id ,$html,'L','0');
 		// $this->m_fungsi->mPDFP($html);
 	}
 
@@ -1485,7 +1542,7 @@ class Transaksi extends CI_Controller
 
 		// $this->m_fungsi->_mpdf($html);
 		
-		$this->m_fungsi->template_kop('WORK ORDER',$html,'P','1');
+		$this->m_fungsi->template_kop('WORK ORDER',$id ,$html,'P','1');
 		// $this->m_fungsi->mPDFP($html);
 	}
 

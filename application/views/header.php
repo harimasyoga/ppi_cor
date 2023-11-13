@@ -145,7 +145,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								</p>
 							</a>
 						</li>
-						<?php if (in_array($this->session->userdata('level'), ['User','Admin','Marketing','PPIC'])): ?>
+						<?php if (in_array($this->session->userdata('level'), ['User','Admin','PPIC'])): ?>
 						<li class="nav-item has-treeview">
 							<a href="#" class="nav-link">
 								<i class="nav-icon fas fa-home"></i>
@@ -234,12 +234,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 											<p>Surat Jalan</p>
 										</a>
 									</li>
-									<li class="nav-item">
-										<a href="<?= base_url('Transaksi/SuratJalan') ?>" class="nav-link">
-											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>Planning Corr</p>
-										</a>
-									</li>
+									
 
 							</ul>
 						</li>

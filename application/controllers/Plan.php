@@ -721,7 +721,7 @@ class Plan extends CI_Controller
                             
 					<tr style="font-weight: bold;">
 						<td colspan="15" align="center">
-						<b> ( ' . $head->no_plan . ' )</b>
+						<b> ( ' . $this->m_fungsi->tanggal_format_indonesia($head->tgl_plan) . ' - ' . $head->no_plan . ' )</b>
 						</td>
 					</tr>
 			</table><br>';
@@ -827,21 +827,21 @@ class Plan extends CI_Controller
                             <td width="3%" align="center">'. $grm4.'</td>
                             <td width="3%" align="center" style="color:red"><b>'. $s5.'</b></td>
                             <td width="3%" align="center">'. $grm5.'</td>
-                            <td align="center" style="color:red;'.$bold.'">'. $r->panjang_plan .'</td>
-                            <td align="center" style="color:red;'.$bold.'">'. $r->lebar_plan .'</td>
+                            <td align="center" style="color:red;'.$bold.'">'. number_format($r->panjang_plan, 0, ",", ".") .'</td>
+                            <td align="center" style="color:red;'.$bold.'">'. number_format($r->lebar_plan, 0, ",", ".") .'</td>
 
-                            <td width="3%" align="center">'. $r->flap1 .'</td>
-                            <td width="3%" align="center">'. $r->flap1 .'</td>
-                            <td width="3%" align="center">'. $r->flap1 .'</td>
+                            <td width="3%" align="center">'. number_format($r->flap1, 0, ",", ".") .'</td>
+                            <td width="3%" align="center">'. number_format($r->flap1, 0, ",", ".") .'</td>
+                            <td width="3%" align="center">'. number_format($r->flap1, 0, ",", ".") .'</td>
 
                             <td align="center">'. $r->out_plan .'</td>
                             <td align="center">'. $r->flute .' </td>
-                            <td align="center">'. $r->lebar_roll_p .'</td>
-                            <td align="center">'. $r->trim_plan .'</td>
-                            <td align="center" style="color:red;'.$bold.'">'. $r->pcs_plan .'</td>
-                            <td align="center">'. $r->c_off_p .'</td>
-                            <td align="center">'. $r->rm_plan .'</td>
-                            <td align="center">'. $r->tonase_plan .'</td>
+                            <td align="center">'. number_format($r->lebar_roll_p, 0, ",", ".") .'</td>
+                            <td align="center">'. number_format($r->trim_plan, 0, ",", ".") .'</td>
+                            <td align="center" style="color:red;'.$bold.'">'. number_format($r->pcs_plan, 0, ",", ".") .'</td>
+                            <td align="center">'. number_format($r->c_off_p, 0, ",", ".") .'</td>
+                            <td align="center">'. number_format($r->rm_plan, 0, ",", ".") .'</td>
+                            <td align="center">'. number_format($r->tonase_plan, 0, ",", ".") .'</td>
                             <td align="center" style="color:red;'.$bold.'">'. $this->m_fungsi->tanggal_ind($r->tgl_kirim_plan) .'</td>
                         </tr>
 					</tbody>
@@ -857,7 +857,7 @@ class Plan extends CI_Controller
 
 		// $this->m_fungsi->_mpdf($html);
 		
-		$this->m_fungsi->template_kop('PLAN CORR',$html,'L','1');
+		$this->m_fungsi->template_kop('CORRUGATOR PLAN','P-'.$this->m_fungsi->tanggal_ind($r->tgl_plan).'-'.$no_plan,$html,'L','1');
 		// $this->m_fungsi->mPDFP($html);
 	}
 
