@@ -225,7 +225,12 @@ class Transaksi extends CI_Controller
 		$data         = array();
 
 		if ($jenis == "po") {
-			$query = $this->m_master->query("SELECT * FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan order by id desc")->result();
+
+			if($this->session->userdata('level')=='Marketing'){
+				$cek_data = 'WHERE id_sales in ("2","3")';
+			}
+			
+			$query = $this->m_master->query("SELECT * FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by id desc")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row    = array();
