@@ -3,11 +3,11 @@
 		<div class="container-fluid">
 			<div class="row mb-2">
 			<div class="col-sm-6">
-				<h1><b>Data Plan</b></h1>
+				<!-- <h1><b>Data Plan</b></h1> -->
 			</div>
 			<div class="col-sm-6">
 				<ol class="breadcrumb float-sm-right">
-				<li class="breadcrumb-item active" ><a href="#">Corrugator</a></li>
+				<!-- <li class="breadcrumb-item active" ><a href="#">Corrugator</a></li> -->
 				</ol>
 			</div>
 			</div>
@@ -42,10 +42,12 @@
 						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 							<div class="col-md-1">TGL. WO</div>
 							<div class="col-md-11">
-								<input type="date" id="tgl_wo" class="form-control" autocomplete="off" placeholder="TGL. WO" disabled>
+								<input type="text" id="tgl_wo" class="form-control" autocomplete="off" placeholder="TGL. WO" disabled>
 							</div>
 						</div>
 					</div>
+
+					<div id="riwayat-plan"></div>
 				</div>
 
 				<div class="col-md-7">
@@ -154,7 +156,7 @@
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">TGL. PO</div>
 							<div class="col-md-10">
-								<input type="date" id="tgl_po" class="form-control" autocomplete="off" placeholder="TANGGAL PO" disabled>
+								<input type="text" id="tgl_po" class="form-control" autocomplete="off" placeholder="TANGGAL PO" disabled>
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
@@ -184,7 +186,7 @@
 						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 							<div class="col-md-2">ETA. SO</div>
 							<div class="col-md-10">
-								<input type="date" id="eta_so" class="form-control" autocomplete="off" placeholder="ETA. SO" disabled>
+								<input type="text" id="eta_so" class="form-control" autocomplete="off" placeholder="ETA. SO" disabled>
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
@@ -392,10 +394,13 @@
 						</div>
 
 						<br/>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+						<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
 							<div class="col-md-2" style="padding-right:0">KIRIM</div>
-							<div class="col-md-10">
+							<div class="col-md-5" style="margin-bottom:3px">
 								<input type="date" id="kirim" class="form-control">
+							</div>
+							<div class="col-md-5" style="margin-bottom:3px">
+								<input type="date" id="eta_so_plan" class="form-control" disabled>
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
@@ -438,6 +443,8 @@
 
 <script type="text/javascript">
 	status ="insert";
+	let optionsDay = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
 	$(document).ready(function ()
 	{
 		$("#list-rencana-plan").load("<?php echo base_url('Plan/destroyPlan') ?>")
@@ -698,6 +705,9 @@
 						qty-po="${r.total_qty}"
 						customer="${r.nm_pelanggan}"
 						nm-sales="${r.nm_sales}"
+						alamat="${r.alamat}"
+						provinsi="${r.prov}"
+						kabupaten="${r.kab}"
 						item="${r.nm_produk}"
 						kode-mc="${r.kode_mc}"
 						uk-box="${r.ukuran}"
@@ -772,6 +782,9 @@
 		let qty_po = $('#no_wo option:selected').attr('qty-po')
 		let customer = $('#no_wo option:selected').attr('customer')
 		let nm_sales = $('#no_wo option:selected').attr('nm-sales')
+		let alamat = $('#no_wo option:selected').attr('alamat')
+		let provinsi = $('#no_wo option:selected').attr('provinsi')
+		let kabupaten = $('#no_wo option:selected').attr('kabupaten')
 		let item = $('#no_wo option:selected').attr('item')
 		let kode_mc = $('#no_wo option:selected').attr('kode-mc')
 		let uk_box = $('#no_wo option:selected').attr('uk-box')
@@ -796,20 +809,28 @@
 		let ket_so = $('#no_wo option:selected').attr('ket-so')
 		let creasing_wo1 = $('#no_wo option:selected').attr('creasing-wo1')
 		let creasing_wo2 = $('#no_wo option:selected').attr('creasing-wo2')
-		let creasing_wo3 = $('#no_wo option:selected').attr('creasing-wo3')
+		let creasing_wo3 = $('#no_wo option:selected').attr('creasing-wo3');
+
+		(id_wo == undefined || id_so == undefined || id_pelanggan == undefined || id_produk == undefined) ? riwayatPlan(0, 0, 0, 0) : riwayatPlan(id_wo, id_so, id_pelanggan, id_produk);
 
 		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
 
-		$("#tgl_wo").val(tgl_wo)
+		(tgl_wo == undefined) ? tgl_wo = '' : tgl_wo = new Date(tgl_wo).toLocaleDateString("id-ID", optionsDay).toUpperCase();
+		$("#tgl_wo").val(tgl_wo);
 		$("#customer").val(customer)
 		$("#sales").val(nm_sales)
-		$("#alamat").val(alamat)
+		$("#alamat").val(alamat);
+
+		(tgl_po == undefined) ? tgl_po = '' : tgl_po = new Date(tgl_po).toLocaleDateString("id-ID", optionsDay).toUpperCase();
 		$("#tgl_po").val(tgl_po)
 		$("#no_po").val(no_po)
 		$("#kode_po").val(kode_po);
 		(qty_po == undefined) ? $("#qty_po").val(qty_po) : $("#qty_po").val(rupiah.format(Math.round(qty_po)));
 		
-		$("#eta_so").val(eta_so);
+		(eta_so == undefined) ? txtEtaSo = '' : txtEtaSo = new Date(eta_so).toLocaleDateString("id-ID", optionsDay).toUpperCase();
+		$("#eta_so").val(txtEtaSo);
+		$("#eta_so_plan").val(eta_so);
+
 		(urut_so == undefined) ? urut_so = '' : urut_so = urut_so;
 		(rpt == undefined) ? rpt = '' : rpt = rpt;
 		(urut_so.length == 1 ) ? urut_so = '.0'+urut_so : urut_so = urut_so;
@@ -871,6 +892,10 @@
 		$("#i_lebar_roll").val("")
 		$("#out_plan").val("")
 
+		let inputHari = 0;
+		(provinsi == 11 || kabupaten == 12 || kabupaten == 16) ? inputHari = 2 : inputHari = 1;
+		(eta_so == undefined) ? eta_so = '' : eta_so = new Date(new Date(eta_so).getTime() - (inputHari * 24 * 3600 * 1000)).toISOString().slice(0, 10);
+
 		$("#kirim").val(eta_so)
 		if(kategori == 'K_BOX'){
 			$("#next_flexo").html(`<option value="">PILIH</option><option value="FLEXO1">FLEXO 1</option><option value="FLEXO2">FLEXO 2</option><option value="FLEXO3">FLEXO 3</option><option value="FLEXO4">FLEXO 4</option>`)
@@ -879,6 +904,32 @@
 		}
 
 		ayoBerhitung()
+	}
+
+	function riwayatPlan(id_wo, id_so, id_pelanggan, id_produk)
+	{
+		$("#riwayat-plan").html(``)
+		$.ajax({
+			url: '<?php echo base_url('Plan/riwayatPlan')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_wo, id_so, id_pelanggan, id_produk
+			}),
+			success: function(res){
+				$("#riwayat-plan").html(res)
+				swal.close()
+			}
+		})
 	}
 
 	function ayoBerhitung()

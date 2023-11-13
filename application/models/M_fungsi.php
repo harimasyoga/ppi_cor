@@ -673,7 +673,7 @@ class M_fungsi extends CI_Model {
         return  $tanggal[2].'/'.$tanggal[1].'/'.substr($tanggal[0], 2, 2);
     }
 
-	function newMpdf($judul,$cetak,$html,$top,$right,$bottom,$left,$orientasi,$kertas){
+	function newMpdf($judul,$cetak,$html,$top,$right,$bottom,$left,$orientasi,$kertas,$ctk = 'mpdf.pdf'){
 		$this->load->library('mpdf');
 
 		$this->mpdf->setTitle($judul);
@@ -696,7 +696,7 @@ class M_fungsi extends CI_Model {
 			$this->mpdf->SetFooter('Tercetak {DATE j-m-Y H:i:s}');
 		}
 		$this->mpdf->writeHTML($html);         
-        $this->mpdf->Output();
+        $this->mpdf->Output($ctk, 'I');
 	}
 
 }

@@ -2588,7 +2588,7 @@ class Transaksi extends CI_Controller
 		</table>';
 
 		$judul = 'SO - '.$data->no_so.'.'.$urutSo.'.'.$rpt;
-		$this->m_fungsi->newMpdf($judul, 'footer', $html, 10, 10, 10, 10, 'P', 'A4');
+		$this->m_fungsi->newMpdf($judul, 'footer', $html, 10, 10, 10, 10, 'P', 'A4', $judul.'.pdf');
 	}
 
 	function pilihanEtaPO()

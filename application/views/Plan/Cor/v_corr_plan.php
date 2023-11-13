@@ -3,11 +3,11 @@
 		<div class="container-fluid">
 			<div class="row mb-2">
 			<div class="col-sm-6">
-				<h1><b>Data Plan</b></h1>
+				<!-- <h1><b>Data Plan</b></h1> -->
 			</div>
 			<div class="col-sm-6">
 				<ol class="breadcrumb float-sm-right">
-				<li class="breadcrumb-item active" ><a href="#">Corrugator</a></li>
+				<!-- <li class="breadcrumb-item active" ><a href="#">Corrugator</a></li> -->
 				</ol>
 			</div>
 			</div>
@@ -17,8 +17,8 @@
 	<section class="content" style="padding-bottom:30px">
 		<div class="container-fluid">
 			<div class="row">
-				<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') { ?>
 				<div class="col-md-12">
+				<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') { ?>
 					<div class="card card-info card-outline">
 						<div class="card-header">
 							<h3 class="card-title" style="font-weight:bold;font-style:italic">WO</h3>
@@ -43,12 +43,14 @@
 						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 							<div class="col-md-1">TGL. WO</div>
 							<div class="col-md-11">
-								<input type="date" id="tgl_wo" class="form-control" autocomplete="off" placeholder="TGL. WO" disabled>
+								<input type="text" id="tgl_wo" class="form-control" autocomplete="off" placeholder="TGL. WO" disabled>
 							</div>
 						</div>
 					</div>
-				</div>
 				<?php } ?>
+
+				<div id="riwayat-plan"></div>
+				</div>
 
 				<div class="col-md-7">
 					<div id="list-plan"></div>
@@ -159,7 +161,7 @@
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">TGL. PO</div>
 							<div class="col-md-10">
-								<input type="date" id="tgl_po" class="form-control" autocomplete="off" placeholder="TANGGAL PO" disabled>
+								<input type="text" id="tgl_po" class="form-control" autocomplete="off" placeholder="TANGGAL PO" disabled>
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
@@ -189,7 +191,7 @@
 						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 							<div class="col-md-2">ETA. SO</div>
 							<div class="col-md-10">
-								<input type="date" id="eta_so" class="form-control" autocomplete="off" placeholder="ETA. SO" disabled>
+								<input type="text" id="eta_so" class="form-control" autocomplete="off" placeholder="ETA. SO" disabled>
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
@@ -341,13 +343,13 @@
 						<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
 							<div class="col-md-2">SCORE</div>
 							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_1" class="form-control" autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+								<input type="number" id="creasing_wo_1" class="form-control" <?=$dis?> autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
 							</div>
 							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_2" class="form-control" autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+								<input type="number" id="creasing_wo_2" class="form-control" <?=$dis?> autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
 							</div>
 							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_3" class="form-control" autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+								<input type="number" id="creasing_wo_3" class="form-control" <?=$dis?> autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
 							</div>
 							<div class="col-md-1 p-0"></div>
 						</div>
@@ -402,10 +404,13 @@
 						</div>
 
 						<br/>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+						<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
 							<div class="col-md-2" style="padding-right:0">KIRIM</div>
-							<div class="col-md-10">
+							<div class="col-md-5" style="margin-bottom:3px">
 								<input type="date" id="kirim" class="form-control" <?=$dis?>>
+							</div>
+							<div class="col-md-5" style="margin-bottom:3px">
+								<input type="date" id="eta_so_plan" class="form-control" disabled>
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
@@ -512,7 +517,8 @@
 	const urlTgl_plan = '<?= $tgl_plan ?>';
 	const urlShift = '<?= $shift ?>';
 	const urlMesin = '<?= $mesin ?>';
-	
+	let optionsDay = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
 	$(document).ready(function ()
 	{
 		$("#tgl").val(urlTgl_plan).prop("disabled", true)
@@ -682,13 +688,9 @@
 		let creasing_wo1 = $("#creasing_wo_1").val()
 		let creasing_wo2 = $("#creasing_wo_2").val()
 		let creasing_wo3 = $("#creasing_wo_3").val()
-		console.log(creasing_wo1)
-		console.log(creasing_wo2)
-		console.log(creasing_wo3)
 
 		let hitungScore = parseInt(creasing_wo1) + parseInt(creasing_wo2) + parseInt(creasing_wo3);
 		let kategori = $("#ehkategori").val()
-		console.log(kategori)
 
 		if(kategori == 'K_BOX'){
 			if(creasing_wo1 == 0 || creasing_wo2 == 0 || creasing_wo3 == 0 || creasing_wo1 == '' || creasing_wo2 == '' || creasing_wo3 == ''){
@@ -1035,6 +1037,9 @@
 						qty-po="${r.total_qty}"
 						customer="${r.nm_pelanggan}"
 						nm-sales="${r.nm_sales}"
+						alamat="${r.alamat}"
+						provinsi="${r.prov}"
+						kabupaten="${r.kab}"
 						item="${r.nm_produk}"
 						kode-mc="${r.kode_mc}"
 						uk-box="${r.ukuran}"
@@ -1096,7 +1101,7 @@
 					id_so = data.wo.id_so_detail
 					id_pelanggan = data.wo.id_pelanggan
 					id_produk = data.wo.id_produk
-					tgl_wo = ''
+					tgl_wo = data.wo.tgl_wo
 					no_wo = data.wo.no_wo
 					no_so = data.wo.no_so
 					urut_so = data.wo.urut_so
@@ -1108,6 +1113,9 @@
 					qty_po = data.wo.qtyPoWo
 					customer = data.wo.nm_pelanggan
 					nm_sales = data.wo.nm_sales
+					alamat = data.wo.alamat
+					provinsi = data.wo.prov
+					kabupaten = data.wo.kab
 					item = data.wo.nm_produk
 					kode_mc = data.wo.kode_mc
 					uk_box = data.wo.ukuran
@@ -1235,6 +1243,9 @@
 					qty_po = $('#no_wo option:selected').attr('qty-po')
 					customer = $('#no_wo option:selected').attr('customer')
 					nm_sales = $('#no_wo option:selected').attr('nm-sales')
+					alamat = $('#no_wo option:selected').attr('alamat')
+					provinsi = $('#no_wo option:selected').attr('provinsi')
+					kabupaten = $('#no_wo option:selected').attr('kabupaten')
 					item = $('#no_wo option:selected').attr('item')
 					kode_mc = $('#no_wo option:selected').attr('kode-mc')
 					uk_box = $('#no_wo option:selected').attr('uk-box')
@@ -1280,6 +1291,9 @@
 						</div>
 					</div>`)
 
+					let inputHari = 0;
+					(provinsi == 11 || kabupaten == 12 || kabupaten == 16) ? inputHari = 2 : inputHari = 1;
+					(eta_so == undefined) ? eta_so = '' : eta_so = new Date(new Date(eta_so).getTime() - (inputHari * 24 * 3600 * 1000)).toISOString().slice(0, 10);
 					$("#kirim").val(eta_so)
 
 					$("#card-produksi").hide();
@@ -1287,17 +1301,26 @@
 					$("#btn-aksi-produksi").html(``);
 				}
 
+				(id_wo == undefined || id_so == undefined || id_pelanggan == undefined || id_produk == undefined) ? riwayatPlan(0, 0, 0, 0) : riwayatPlan(id_wo, id_so, id_pelanggan, id_produk);
+
 				let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
 
+				(tgl_wo == undefined || tgl_wo == '') ? tgl_wo = '' : tgl_wo = new Date(tgl_wo).toLocaleDateString("id-ID", optionsDay).toUpperCase();
 				$("#tgl_wo").val(tgl_wo)
 				$("#customer").val(customer)
 				$("#sales").val(nm_sales)
+				$("#alamat").val(alamat);
+
+				(tgl_po == undefined) ? tgl_po = '' : tgl_po = new Date(tgl_po).toLocaleDateString("id-ID", optionsDay).toUpperCase();
 				$("#tgl_po").val(tgl_po)
 				$("#no_po").val(no_po)
 				$("#kode_po").val(kode_po);
 				(qty_po == undefined) ? $("#qty_po").val(qty_po) : $("#qty_po").val(rupiah.format(Math.round(qty_po)));
 				
-				$("#eta_so").val(eta_so);
+				(eta_so == undefined) ? txtEtaSo = '' : txtEtaSo = new Date(eta_so).toLocaleDateString("id-ID", optionsDay).toUpperCase();
+				$("#eta_so").val(txtEtaSo);
+				$("#eta_so_plan").val(eta_so);
+
 				(urut_so == undefined) ? urut_so = '' : urut_so = urut_so;
 				(rpt == undefined) ? rpt = '' : rpt = rpt;
 				(urut_so.length == 1 ) ? urut_so = '.0'+urut_so : urut_so = urut_so;
@@ -1380,6 +1403,32 @@
 				}
 
 				ayoBerhitung();
+				swal.close()
+			}
+		})
+	}
+
+	function riwayatPlan(id_wo, id_so, id_pelanggan, id_produk)
+	{
+		$("#riwayat-plan").html(``)
+		$.ajax({
+			url: '<?php echo base_url('Plan/riwayatPlan')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_wo, id_so, id_pelanggan, id_produk
+			}),
+			success: function(res){
+				$("#riwayat-plan").html(res)
 				swal.close()
 			}
 		})

@@ -15,10 +15,13 @@ class Plan extends CI_Controller
 	function Corrugator()
 	{
 		$this->load->view('header');
+
 		$jenis = $this->uri->segment(3);
 		if($jenis == 'Add'){
 			if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
 				$this->load->view('Plan/Cor/v_corr_add');
+			}else{
+				$this->load->view('Plan/Cor/v_corr');
 			}
 		}else if($jenis == 'List'){
 			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator'])){
@@ -28,11 +31,12 @@ class Plan extends CI_Controller
 					"mesin" => $this->uri->segment(6),
 				);
 				$this->load->view('Plan/Cor/v_corr_plan', $data);
+			}else{
+				$this->load->view('Plan/Cor/v_corr');
 			}
 		}else{
 			$this->load->view('Plan/Cor/v_corr');
 		}
-
 
 		$this->load->view('footer');
 	}
@@ -53,15 +57,14 @@ class Plan extends CI_Controller
 			$row[] = '<div style="text-align:center">'.$r->jml.'</div>';
 
 			$link = base_url('Plan/Corrugator/List/'.$r->tgl_plan.'/'.$r->shift_plan.'/'.$r->machine_plan);
-			
-			$row[] = '<a href="'.$link.'"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>
-
-			<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Plan/Cetak_plan2?no_plan=" . $r->no_plan . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
-
-			<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Plan/laporanPlan?no_plan=".$r->no_plan."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
-			
-			';
-			// $row[] = '<button type="button" onclick="editListPlan('."'".$r->tgl_plan."'".','."'".$r->shift_plan."'".','."'".$r->machine_plan."'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+				$btnPrint = '
+				<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Plan/Cetak_plan2?no_plan=" . $r->no_plan . "") . '" title="Cetak" ><i class="fas fa-print"></i></a>
+				<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Plan/laporanPlan?no_plan=".$r->no_plan."").'" title="Cetak SO" ><i class="fas fa-print"></i></a>';
+			}else{
+				$btnPrint = '';
+			}
+			$row[] = '<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>'.$btnPrint;
 
 			$data[] = $row;
 		}
@@ -229,119 +232,146 @@ class Plan extends CI_Controller
 	function showCartitem()
 	{
 		$html = '';
-		foreach($this->cart->contents() as $r){
-			if($r['rowid'] == $_POST["rowid"]){
-				$html .= '<div class="row">
-					<div class="col-md-6">
-						<div class="card card-secondary card-outline" style="padding-bottom:20px">
-							<div class="card-header" style="margin-bottom:15px">
-								<h3 class="card-title" style="font-weight:bold;font-style:italic">RINCIAN</h3>
-							</div>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2">TANGGAL</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.$this->m_fungsi->tanggal_format_indonesia($r['options']['tgl_plan']).'" disabled>
-								</div>
-							</div>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2">SHIFT</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.$r['options']['shift_plan'].'" disabled>
-								</div>
-							</div>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2">MESIN</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.$r['options']['machine_plan'].'" disabled>
-								</div>
-							</div>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2">NO. WO</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.$r['options']['no_wo'].'" disabled>
-								</div>
-							</div>
-						</div>
-					</div>
+		$id_plan = $_POST["rowid"];
+		$plan = $this->db->query("SELECT*FROM plan_cor WHERE id_plan='$id_plan'")->row();
+		if($this->cart->total_items() != 0){
+			foreach($this->cart->contents() as $r){
+				if($r['rowid'] == $_POST["rowid"]){
+					$tgl_plan = $this->m_fungsi->tanggal_format_indonesia($r['options']['tgl_plan']); $shift_plan = $r['options']['shift_plan']; $machine_plan = $r['options']['machine_plan']; $no_wo = $r['options']['no_wo']; $panjang_plan = number_format($r['options']['panjang_plan']); $lebar_plan = number_format($r['options']['lebar_plan']); $lebar_roll_p = number_format($r['options']['lebar_roll_p']); $out_plan = number_format($r['options']['out_plan']); $pcs_plan = number_format($r['options']['pcs_plan']); $trim_plan = number_format($r['options']['trim_plan']); $c_off_p = number_format($r['options']['c_off_p']); $rm_plan = number_format($r['options']['rm_plan']); $tonase_plan = number_format($r['options']['tonase_plan']); $tgl_kirim_plan = $this->m_fungsi->tanggal_format_indonesia($r['options']['tgl_kirim_plan']); $next_plan = $r['options']['next_plan'];
+					$good_cor_p = ''; $bad_cor_p = ''; $total_cor_p = ''; $ket_plan = ''; $start_time_p = ''; $end_time_p = '';
+				}else{
+					$tgl_plan = $this->m_fungsi->tanggal_format_indonesia($plan->tgl_plan); $shift_plan = $plan->shift_plan; $machine_plan = $plan->machine_plan; $no_wo = $plan->no_wo; $panjang_plan = number_format($plan->panjang_plan); $lebar_plan = number_format($plan->lebar_plan); $lebar_roll_p = number_format($plan->lebar_roll_p); $out_plan = number_format($plan->out_plan); $pcs_plan = number_format($plan->pcs_plan); $trim_plan = number_format($plan->trim_plan); $c_off_p = number_format($plan->c_off_p); $rm_plan = number_format($plan->rm_plan); $tonase_plan = number_format($plan->tonase_plan); $tgl_kirim_plan = $this->m_fungsi->tanggal_format_indonesia($plan->tgl_kirim_plan); $next_plan = $plan->next_plan;
+					$good_cor_p = number_format($plan->good_cor_p); $bad_cor_p = number_format($plan->bad_cor_p); $total_cor_p = number_format($plan->total_cor_p); $ket_plan = $plan->ket_plan; $start_time_p = date("h:i", strtotime($plan->start_time_p)); $end_time_p = date("h:i", strtotime($plan->end_time_p));
+				}
+			}
+		}else{
+			$tgl_plan = $this->m_fungsi->tanggal_format_indonesia($plan->tgl_plan); $shift_plan = $plan->shift_plan; $machine_plan = $plan->machine_plan; $no_wo = $plan->no_wo; $panjang_plan = number_format($plan->panjang_plan); $lebar_plan = number_format($plan->lebar_plan); $lebar_roll_p = number_format($plan->lebar_roll_p); $out_plan = number_format($plan->out_plan); $pcs_plan = number_format($plan->pcs_plan); $trim_plan = number_format($plan->trim_plan); $c_off_p = number_format($plan->c_off_p); $rm_plan = number_format($plan->rm_plan); $tonase_plan = number_format($plan->tonase_plan); $tgl_kirim_plan = $this->m_fungsi->tanggal_format_indonesia($plan->tgl_kirim_plan); $next_plan = $plan->next_plan;
+			$good_cor_p = number_format($plan->good_cor_p); $bad_cor_p = number_format($plan->bad_cor_p); $total_cor_p = number_format($plan->total_cor_p); $ket_plan = $plan->ket_plan; $start_time_p = date("h:i", strtotime($plan->start_time_p)); $end_time_p = date("h:i", strtotime($plan->end_time_p));
+		}
 
-					<div class="col-md-6">
-						<div class="card card-info card-outline" style="padding-bottom:20px">
-							<div class="card-header" style="margin-bottom:15px">
-								<h3 class="card-title" style="font-weight:bold;font-style:italic">PLAN</h3>
-							</div>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2" style="padding:0">PANJANG</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.number_format($r['options']['panjang_plan']).'" disabled>
-								</div>
-							</div>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2">LEBAR</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.number_format($r['options']['lebar_plan']).'" disabled>
-								</div>
-							</div>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2" style="padding-right:0">L. ROLL</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.number_format($r['options']['lebar_roll_p']).'" disabled>
-								</div>
-							</div>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2">OUT</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.number_format($r['options']['out_plan']).'" disabled>
-								</div>
-							</div>
-							<br/>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2">QTY</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.number_format($r['options']['pcs_plan']).'" disabled>
-								</div>
-							</div>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2">TRIM</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.number_format($r['options']['trim_plan']).'" disabled>
-								</div>
-							</div>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2" style="padding-right:0">C.OFF</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.number_format($r['options']['c_off_p']).'" disabled>
-								</div>
-							</div>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2">RM</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.number_format($r['options']['rm_plan']).'" disabled>
-								</div>
-							</div>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2">TON</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.number_format($r['options']['tonase_plan']).'" disabled>
-								</div>
-							</div>
-							<br/>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2" style="padding-right:0">KIRIM</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.$this->m_fungsi->tanggal_format_indonesia($r['options']['tgl_kirim_plan']).'" disabled>
-								</div>
-							</div>
-							<div class="card-body row" style="padding:2px 20px;font-weight:bold">
-								<div class="col-md-2">NEXT</div>
-								<div class="col-md-10">
-									<input type="text" class="form-control" value="'.$r['options']['next_plan'].'" disabled>
-								</div>
-							</div>
-						</div>
+		$html .= '<div class="row">
+			<div class="col-md-6">
+
+				<div class="card card-secondary card-outline" style="padding-bottom:20px">
+					<div class="card-header" style="margin-bottom:15px">
+						<h3 class="card-title" style="font-weight:bold;font-style:italic">RINCIAN</h3>
+					</div>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2">TANGGAL</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$tgl_plan.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2">SHIFT</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$shift_plan.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2">MESIN</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$machine_plan.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2">NO. WO</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$no_wo.'" disabled></div>
 					</div>
 				</div>';
-			}
-		}
+
+				$hasilProd ='<div class="card card-success card-outline" style="padding-bottom:20px">
+					<div class="card-header">
+						<h3 class="card-title" style="font-weight:bold;font-style:italic">HASIL PRODUKSI</h3>
+					</div>
+					<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+						<div class="col-md-2">GOOD</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$good_cor_p.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+						<div class="col-md-2">REJECT</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$bad_cor_p.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+						<div class="col-md-2">TOTAL</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$total_cor_p.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+						<div class="col-md-2">KET</div>
+						<div class="col-md-10"><textarea class="form-control" style="resize:none" rows="2" disabled>'.$ket_plan.'</textarea></div>
+					</div>
+
+					<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
+						<div class="col-md-2">START</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$start_time_p.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+						<div class="col-md-2">END</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$end_time_p.'" disabled></div>
+					</div>
+				</div>';
+
+				if($this->cart->total_items() != 0){
+					foreach($this->cart->contents() as $r){
+						if($r['rowid'] == $_POST["rowid"]){
+							$html .='';
+						}else{
+							$html .= $hasilProd;
+						}
+					}
+				}else{
+					$html .= $hasilProd;
+				}
+
+			$html .='</div>
+			<div class="col-md-6">
+				<div class="card card-info card-outline" style="padding-bottom:20px">
+					<div class="card-header" style="margin-bottom:15px">
+						<h3 class="card-title" style="font-weight:bold;font-style:italic">PLAN</h3>
+					</div>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2" style="padding:0">PANJANG</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$panjang_plan.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2">LEBAR</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$lebar_plan.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2" style="padding-right:0">L. ROLL</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$lebar_roll_p.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2">OUT</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$out_plan.'" disabled></div>
+					</div>
+					<br/>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2">QTY</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$pcs_plan.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2">TRIM</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$trim_plan.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2" style="padding-right:0">C.OFF</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$c_off_p.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2">RM</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$rm_plan.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2">TON</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$tonase_plan.'" disabled></div>
+					</div>
+					<br/>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2" style="padding-right:0">KIRIM</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$tgl_kirim_plan.'" disabled></div>
+					</div>
+					<div class="card-body row" style="padding:2px 20px;font-weight:bold">
+						<div class="col-md-2">NEXT</div>
+						<div class="col-md-10"><input type="text" class="form-control" value="'.$next_plan.'" disabled></div>
+					</div>
+				</div>
+			</div>
+		</div>';
 
 		echo $html;
 	}
@@ -578,7 +608,85 @@ class Plan extends CI_Controller
 		$html .= '</table>';
 		
 		$judul = $query->row()->tgl_plan.'-'.$no_plan;
-		$this->m_fungsi->newMpdf($judul, '', $html, 1, 3, 1, 3, 'L', 'A4');
+		$this->m_fungsi->newMpdf($judul, '', $html, 1, 3, 1, 3, 'L', 'A4', $judul.'.pdf');
+	}
+
+	function riwayatPlan()
+	{
+		$html = '';
+		$result = $this->m_plan->riwayatPlan();
+		
+		if($result->num_rows() == 0){
+			$html .='';
+		}else{
+			$html .='<div class="card card-warning card-outline">
+				<div class="card-header">
+					<h3 class="card-title" style="font-weight:bold;font-style:italic">RIWAYAT PLAN</h3>
+				</div>
+				<div style="overflow:auto;white-space:nowrap">
+					<table class="table table-bordered table-striped" style="border:0;text-align:center">
+					<thead>
+						<tr>
+							<th style="width:5%">#</th>
+							<th style="width:25%;text-align:left">TGL PLAN</th>
+							<th style="width:10%">SHIFT</th>
+							<th style="width:10%">MESIN</th>
+							<th style="width:10%">GOOD</th>
+							<th style="width:10%">BAD</th>
+							<th style="width:10%">TOTAL</th>
+							<th style="width:10%">START</th>
+							<th style="width:10%">END</th>
+						</tr>
+					</thead>';
+			$i = 0;
+			$good_cor_p = 0;
+			$bad_cor_p = 0;
+			$total_cor_p = 0;
+			foreach($result->result() as $r){
+				$i++;
+				$html .= '<tr>
+					<td>'.$i.'</td>
+					<td style="text-align:left">
+						<a href="javascript:void(0)" onclick="showCartitem('."'".$r->id_plan."'".')">
+							'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_plan)).'	
+						<a>
+					</td>
+					<td>'.$r->shift_plan.'</td>
+					<td>'.$r->machine_plan.'</td>
+					<td style="text-align:right">'.number_format($r->good_cor_p).'</td>
+					<td style="text-align:right">'.number_format($r->bad_cor_p).'</td>
+					<td style="text-align:right">'.number_format($r->total_cor_p).'</td>
+					<td>'.date("h:i", strtotime($r->start_time_p)).'</td>
+					<td>'.date("h:i", strtotime($r->end_time_p)).'</td>
+				</tr>';
+				$good_cor_p += $r->good_cor_p;
+				$bad_cor_p += $r->bad_cor_p;
+				$total_cor_p += $r->total_cor_p;
+			}
+
+			if($result->num_rows() > 1){
+				$html .='<tr>
+					<td style="border:0;background:#fff;font-weight:bold;text-align:right" colspan="4">TOTAL PRODUKSI</td>
+					<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($good_cor_p).'</td>
+					<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($bad_cor_p).'</td>
+					<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($total_cor_p).'</td>
+				</tr>';
+			}
+			$jmlGood = $good_cor_p - $result->row()->qty_so;
+			$jmlTot = $total_cor_p - $result->row()->qty_so;
+			$html .='<tr>
+				<td style="border:0;background:#fff;font-weight:bold;text-align:right" colspan="4">QTY SO - ( '.number_format($result->row()->qty_so).' )</td>
+				<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($jmlGood).'</td>
+				<td style="border:0;background:#fff;font-weight:bold;text-align:right">-</td>
+				<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($jmlTot).'</td>
+			</tr>';
+
+			$html .='</table>
+				</div>
+			</div>';
+		}
+
+		echo $html;
 	}
 
 	//

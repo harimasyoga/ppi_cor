@@ -80,6 +80,10 @@
 							<td style="width:10%;border:0;padding:0"></td>
 						</tr>
 						<tr>
+							<td></td>
+							<td style="font-size:12px;font-weight:bold;font-style:italic;color:#f00">* NAMA | KODE</td>
+						</tr>
+						<tr>
 							<td style="padding:5px 0;font-weight:bold">CUSTOMER</td>
 							<td style="padding:5px 0" colspan="9">
 								<input type="hidden" id="h_kode_unik">
