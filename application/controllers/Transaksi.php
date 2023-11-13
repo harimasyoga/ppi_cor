@@ -896,9 +896,6 @@ class Transaksi extends CI_Controller
                 <th>ETA : '. $this->m_fungsi->tanggal_format_indonesia($data->eta) .' </th>
             </tr>
             <tr align="left">
-                <th>ETA 14 Hari Setelah Acc  PO</th>
-            </tr>
-            <tr align="left">
                 <th>Cust Bisa Menyesuaikan Kita</th>
             </tr>
             ';
