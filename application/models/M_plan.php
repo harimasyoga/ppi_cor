@@ -14,7 +14,7 @@ class M_plan extends CI_Model
 	{
 		$opsi = $_POST["opsi"];
 		if($opsi != ''){
-			$query = $this->db->query("SELECT *,w.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems,w.creasing2 AS creasing2wo FROM plan_cor pl
+			$query = $this->db->query("SELECT *,w.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems,w.creasing2 AS creasing2wo,w.tgl_wo FROM plan_cor pl
 			INNER JOIN m_produk i ON pl.id_produk=i.id_produk
 			INNER JOIN m_pelanggan l ON pl.id_pelanggan=l.id_pelanggan
 			INNER JOIN m_sales m ON l.id_sales=m.id_sales
@@ -22,7 +22,7 @@ class M_plan extends CI_Model
 			INNER JOIN trs_so_detail s ON pl.id_so_detail=s.id
 			WHERE pl.id_plan='$opsi'");
 		}else{
-			$query = $this->db->query("SELECT w.*,i.*,s.*,o.tgl_po,o.total_qty,p.nm_pelanggan,m.nm_sales,s.id AS idSoDetail,w.id AS idWo,w.creasing2 AS creasing2wo,i.kategori AS kategoriItems FROM trs_wo w
+			$query = $this->db->query("SELECT w.*,i.*,s.*,o.tgl_po,o.total_qty,p.nm_pelanggan,p.alamat,p.prov,p.kab,m.nm_sales,s.id AS idSoDetail,w.id AS idWo,w.creasing2 AS creasing2wo,i.kategori AS kategoriItems FROM trs_wo w
 			INNER JOIN m_pelanggan p ON w.id_pelanggan=p.id_pelanggan
 			INNER JOIN m_sales m ON p.id_sales=m.id_sales
 			INNER JOIN m_produk i ON w.id_produk=i.id_produk
@@ -142,8 +142,8 @@ class M_plan extends CI_Model
 				'rm_plan' => $_POST["rm_plan"],
 				'tonase_plan' => $_POST["tonase_plan"],
 				'next_plan' => $_POST["next_plan"],
-				'edit_time' => $this->session->userdata('username'),
-				'edit_user' => date('Y-m-d H:i:s'),
+				'edit_time' => date('Y-m-d H:i:s'),
+				'edit_user' => $this->session->userdata('username'),
 			);
 
 			$this->db->where('id_plan', $_POST['opsi']);
@@ -206,6 +206,19 @@ class M_plan extends CI_Model
 		$this->db->set('status', 'Close');
 		$this->db->where('id', $_POST["id_wo"]);
 		return $this->db->update('trs_wo');
+	}
+
+	function riwayatPlan()
+	{
+		$id_wo = $_POST["id_wo"];
+		$id_so = $_POST["id_so"];
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$id_produk = $_POST["id_produk"];
+
+		return $this->db->query("SELECT p.*,so.qty_so FROM plan_cor p
+		INNER JOIN trs_so_detail so ON p.id_so_detail=so.id
+		WHERE p.status_plan='Close'
+		AND p.id_so_detail='$id_so' AND p.id_wo='$id_wo' AND p.id_produk='$id_produk' AND p.id_pelanggan='$id_pelanggan'");
 	}
 
 }

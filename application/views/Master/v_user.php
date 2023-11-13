@@ -68,27 +68,27 @@
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">Username</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" id="username" placeholder="Masukan..">
-							<input type="hidden" class="form-control" id="username_lama" placeholder="Masukan..">
+							<input type="text" class="form-control" id="username" placeholder="USERNAME">
+							<input type="hidden" class="form-control" id="username_lama">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">Nama user</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" id="nm_user" placeholder="Masukan..">
+							<input type="text" class="form-control" id="nm_user" placeholder="NAMA USER">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">Password</label>
 						<div class="col-sm-10">
-							<input type="password" class="form-control" id="password" placeholder="Masukan..">
+							<input type="password" class="form-control" id="password" placeholder="PASSWORD">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">Level</label>
 						<div class="col-sm-10">
 							<select class="form-control select2" id="level">
-								<option value="">Pilih</option>
+								<option value="">PILIH</option>
 								<?php if($this->session->userdata('level') != 'PPIC') { ?>
 									<option value="Owner">Owner</option>
 									<option value="Penjualan">Penjualan</option>
@@ -169,6 +169,16 @@
 		$.ajax({
 			url: '<?php echo base_url(); ?>/master/insert/' + status,
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				username,
 				password,
@@ -183,10 +193,11 @@
 					toastr.success('Berhasil Disimpan');
 					kosong();
 					$("#modalForm").modal("hide");
+					reloadTable();
 				} else {
 					toastr.error('Username Sudah Ada');
 				}
-				reloadTable();
+				swal.close()
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
 				toastr.error('Terjadi Kesalahan atau username sudah tersedia');
@@ -200,13 +211,13 @@
 		$("#username_lama").val('');
 		$("#nm_user").val('');
 		<?php if($this->session->userdata('level') == 'PPIC') { ?>
-			$("#level").html(`<option value="">Pilih</option>
+			$("#level").html(`<option value="">PILIH</option>
 				<option value="PPIC">PPIC</option>
 				<option value="Corrugator">Corrugator</option>
 				<option value="Flexo">Flexo</option>
 				<option value="Finishing">Finishing</option>`);
 		<?php }else{ ?>
-			$("#level").html(`<option value="">Pilih</option>
+			$("#level").html(`<option value="">PILIH</option>
 				<option value="Owner">Owner</option>
 				<option value="Penjualan">Penjualan</option>
 				<option value="Marketing">Marketing</option>
@@ -241,6 +252,16 @@
 		$.ajax({
 				url: '<?php echo base_url('Master/get_edit'); ?>',
 				type: 'POST',
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
 				data: {
 					id: id,
 					jenis: "tb_user",
@@ -255,12 +276,14 @@
 				$("#password").val(atob(data.password));
 				<?php if($this->session->userdata('level') == 'PPIC') { ?>
 					$("#level").html(`<option value="${data.level}">${data.level}</option>
+						<option value="">PILIH</option>
 						<option value="PPIC">PPIC</option>
 						<option value="Corrugator">Corrugator</option>
 						<option value="Flexo">Flexo</option>
 						<option value="Finishing">Finishing</option>`);
 				<?php }else{ ?>
 					$("#level").html(`<option value="${data.level}">${data.level}</option>
+						<option value="">PILIH</option>
 						<option value="Owner">Owner</option>
 						<option value="Penjualan">Penjualan</option>
 						<option value="Marketing">Marketing</option>
@@ -270,17 +293,32 @@
 						<option value="Flexo">Flexo</option>
 						<option value="Finishing">Finishing</option>`);
 				<?php } ?>
+				swal.close()
 			})
-
 	}
 
 
 	function deleteData(id) {
-		let cek = confirm("Apakah Anda Yakin?");
-
-		if (cek) {
+		swal({
+			title: "Apakah Kamu Yakin?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#C00",
+			confirmButtonText: "Delete"
+		}).then(function(result) {
 			$.ajax({
 				url: '<?php echo base_url(); ?>Master/hapus',
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
 				data: ({
 					id: id,
 					jenis: 'tb_user',
@@ -290,13 +328,13 @@
 				success: function(data) {
 					toastr.success('Data Berhasil Di Hapus');
 					reloadTable();
+					swal.close()
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					toastr.error('Terjadi Kesalahan');
+					swal.close()
 				}
 			});
-		}
-
-
+		})
 	}
 </script>

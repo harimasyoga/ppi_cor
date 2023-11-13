@@ -395,6 +395,16 @@
 		$.ajax({
 			url: '<?php echo base_url(); ?>/Master/Insert/'+status,
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				idx, id_pelanggan, id_sales, nm_pelanggan, kode_lama, kode_pelanggan, attn, alamat, alamat_kirim, provinsi, kota_kab, kecamatan, kelurahan, kode_pos, fax, top1, no_telp, jenis: 'm_pelanggan', status: status
 			}),
@@ -413,6 +423,7 @@
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
 				toastr.error('Terjadi Kesalahan');
+				swal.close()
 			}
 		});
 	}
@@ -452,6 +463,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Master/getEditPelanggan'); ?>',
 			type: 'POST',
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id,
 			}),
@@ -494,15 +515,33 @@
 			$("#kota_kab").prop("disabled", true).html(`<option value="${(data.wilayah.kab === null) ? 0 : data.wilayah.kab}" data-nama="${(data.wilayah.kab_name === null) ? "PILIH" : data.wilayah.kab_name}">${(data.wilayah.kab_name === null) ? "PILIH" : data.wilayah.kab_name}</option>`)
 			$("#kecamatan").prop("disabled", true).html(`<option value="${(data.wilayah.kec === null) ? 0 : data.wilayah.kec}" data-nama="${(data.wilayah.kec_name === null) ? "PILIH" : data.wilayah.kec_name}">${(data.wilayah.kec_name === null) ? "PILIH" : data.wilayah.kec_name}</option>`)
 			$("#kelurahan").prop("disabled", true).html(`<option value="${(data.wilayah.kel === null) ? 0 : data.wilayah.kel}" data-nama="${(data.wilayah.kel_name === null) ? "PILIH" : data.wilayah.kel_name}">${(data.wilayah.kel_name === null) ? "PILIH" : data.wilayah.kel_name}</option>`)			
+
+			swal.close()
 		})
 	}
 
 
 	function deleteData(id) {
-		let cek = confirm("Apakah Anda Yakin?");
-		if (cek) {
+		swal({
+			title: "Apakah Kamu Yakin?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#C00",
+			confirmButtonText: "Delete"
+		}).then(function(result) {
 			$.ajax({
 				url: '<?php echo base_url(); ?>Master/hapus',
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
 				data: ({
 					id: id,
 					jenis: 'm_pelanggan',
@@ -510,13 +549,15 @@
 				}),
 				type: "POST",
 				success: function(data) {
+					swal.close()
 					toastr.success('Data Berhasil Di Hapus');
 					reloadTable();
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
+					swal.close()
 					toastr.error('Terjadi Kesalahan');
 				}
 			});
-		}
+		})
 	}
 </script>

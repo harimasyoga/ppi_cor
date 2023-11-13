@@ -140,8 +140,7 @@ class Master extends CI_Controller
 			LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
 			LEFT JOIN m_kel kel ON pel.kel=kel.kel_id
 			LEFT JOIN m_sales les ON pel.id_sales=les.id_sales
-			-- WHERE pel.id_pelanggan='47'
-			ORDER BY pel.nm_pelanggan ")->result();
+			ORDER BY pel.nm_pelanggan")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
@@ -149,7 +148,7 @@ class Master extends CI_Controller
 				$row[] = $r->nm_pelanggan;
 				$row[] = $r->alamat_kirim;
 				$row[] = ($r->nm_sales == 0) ? '-' : $r->nm_sales;
-				$row[] = ($r->top == 0 || $r->top == "" || $r->top == null) ? '-' : $r->top;
+				$row[] = ($r->top == 0) ? '-' : $r->top;
 
 				$idPelanggan = $r->id_pelanggan;
 				$cekProduk = $this->db->query("SELECT * FROM m_produk WHERE no_customer='$idPelanggan'")->num_rows();
