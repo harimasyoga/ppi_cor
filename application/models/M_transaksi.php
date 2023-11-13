@@ -510,7 +510,8 @@ class M_transaksi extends CI_Model
 
 	function verifPO(){
 		$id       = $this->input->post('id');
-		$status   = $this->input->post('status');
+		$status   = $this->input->post('status');		
+		$alasan   = $this->input->post('alasan');
 
 		$app      = "";
 
@@ -525,14 +526,43 @@ class M_transaksi extends CI_Model
 				$this->db->set("status_app1", $status);
 				$this->db->set("user_app1", $this->username);
 				$this->db->set("time_app1", $this->waktu);
+				$this->db->set("ket_acc1", $alasan);
 				
 				$this->db->set("status_app2", $status);
 				$this->db->set("user_app2", $this->username);
 				$this->db->set("time_app2", $this->waktu);
+				$this->db->set("ket_acc2", $alasan);
 				
 				$this->db->set("status_app3", $status);
 				$this->db->set("user_app3", $this->username);
 				$this->db->set("time_app3", $this->waktu);
+				$this->db->set("ket_acc3", $alasan);
+
+				$this->db->where("no_po",$id);
+				$valid = $this->db->update("trs_po");
+
+				// detail
+				$this->db->set("status", 'Approve');
+				$this->db->where("no_po",$id);
+				$valid = $this->db->update("trs_po_detail");
+			}if ($status == 'N') {
+				// header
+				
+				$this->db->set("status", 'Hold');
+				$this->db->set("status_app1", $status);
+				$this->db->set("user_app1", $this->username);
+				$this->db->set("time_app1", $this->waktu);
+				$this->db->set("ket_acc1", $alasan);
+				
+				$this->db->set("status_app2", $status);
+				$this->db->set("user_app2", $this->username);
+				$this->db->set("time_app2", $this->waktu);
+				$this->db->set("ket_acc2", $alasan);
+				
+				$this->db->set("status_app3", $status);
+				$this->db->set("user_app3", $this->username);
+				$this->db->set("time_app3", $this->waktu);
+				$this->db->set("ket_acc3", $alasan);
 
 				$this->db->where("no_po",$id);
 				$valid = $this->db->update("trs_po");
@@ -547,14 +577,17 @@ class M_transaksi extends CI_Model
 				$this->db->set("status_app1", $status);
 				$this->db->set("user_app1", $this->username);
 				$this->db->set("time_app1", $this->waktu);
+				$this->db->set("ket_acc1", $alasan);
 				
 				$this->db->set("status_app2", $status);
 				$this->db->set("user_app2", $this->username);
 				$this->db->set("time_app2", $this->waktu);
+				$this->db->set("ket_acc2", $alasan);
 				
 				$this->db->set("status_app3", $status);
 				$this->db->set("user_app3", $this->username);
 				$this->db->set("time_app3", $this->waktu);
+				$this->db->set("ket_acc3", $alasan);
 
 				$this->db->where("no_po",$id);
 				$valid = $this->db->update("trs_po");
@@ -585,6 +618,7 @@ class M_transaksi extends CI_Model
 			$this->db->set("status_app".$app, $status);
 			$this->db->set("user_app".$app, $this->username);
 			$this->db->set("time_app".$app, $this->waktu);
+			$this->db->set("ket_acc".$app, $alasan);
 	
 			$this->db->where("no_po",$id);
 			$valid = $this->db->update("trs_po");

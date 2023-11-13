@@ -248,13 +248,15 @@
 			</div>
 					<div class="modal-footer">
 
-						<button type="button" class="btn btn-outline-success btn-verif" style="display: none;" onclick="prosesData('Y')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" class="btn btn-success btn-verif" id="btn-verif_acc" style="display: none;" onclick="prosesData_acc('Y')"><i class="fas fa-check"></i> <b>Verifikasi</b></button>
+						
+						<button type="button" class="btn btn-warning btn-verif" id="btn-verif_hold" style="display: none;" onclick="prosesData_hold('H')"><i class="far fa-hand-paper"></i> <b>HOLD</b></button>
 
-						<button type="button" class="btn btn-outline-danger btn-verif" style="display: none;" onclick="prosesData('R')"><i class="fas fa-times"></i> Reject</button>
+						<button type="button" class="btn btn-danger btn-verif" id="btn-verif_r" style="display: none;" onclick="prosesData_r('R')"><i class="fas fa-times"></i> <b>Reject</b></button>
 
-						<button type="button" class="btn btn-outline-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan</b></button>
+						<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan</b></button>
 
-						<button type="button" class="btn btn-outline-danger" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> Print</button>
+						<button type="button" class="btn btn-danger" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> <b>Print</b></button>
 
 						<button type="button" class="btn btn-outline-danger" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-times-circle"></i> <b> Batal</b></button>
 					</div>
@@ -274,7 +276,7 @@
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" style="color:green" id="judul2"></h4>
+				<h4 class="modal-title" id="judul2"></h4>
 			</div>
 			<div class="modal-body">
 				<table border="0">
@@ -284,10 +286,17 @@
 						<td width="55%"  id="nopo_ket"></td>
 					</tr>
 					<tr>
+						<td width="35%" ><h3>Status</h3></td>
+						<td width="10%" ><h3> : </h3></td>
+						<td width="55%"  id="status_acc"></td>
+					</tr>
+					<tr>
 						<td><h3>Tanggal Verifikasi</h3></td>
 						<td><h3> : </h3></td>
 						<td id="tgl_ket"></td>
 					</tr>
+					<tr id='alasan' ></tr>
+					
 				</table>
 			</div>
 		</div>
@@ -556,6 +565,9 @@
 		$("#status").val(status);
 
 		$("#btn-simpan").show();
+		$("#btn-verif_acc").hide();
+		$("#btn-verif_hold").hide();
+		$("#btn-verif_r").hide();
 
 		$(".btn-tambah-produk").show();
 		$('#removeRow').show();
@@ -572,17 +584,17 @@
 				$(".btn-verif").show()
 			}
 
-			if ('<?= $this->session->userdata('level') ?>' == 'Marketing' && data[0].status_app1 == 'N' ) 
+			if ('<?= $this->session->userdata('level') ?>' == 'Marketing' && ( data[0].status_app1 == 'N' || data[0].status_app1 == 'H'  ) ) 
 			{
 				$(".btn-verif").show()
 			}
 
-			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data[0].status_app1 == 'Y' && data[0].status_app2 == 'N' ) 
+			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data[0].status_app1 == 'Y' && ( data[0].status_app2 == 'N' || data[0].status_app2 == 'H' ) ) 
 			{
 				$(".btn-verif").show()
 			}
 
-			if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data[0].status_app1 == 'Y' && data[0].status_app2 == 'Y'  && data[0].status_app3 == 'N' ) 
+			if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data[0].status_app1 == 'Y' && data[0].status_app2 == 'Y'  && ( data[0].status_app3 == 'N' || data[0].status_app3 == 'H' ) ) 
 			{
 				$(".btn-verif").show()
 			}
@@ -789,36 +801,72 @@
 
 	}
 
-	function data_sementara(data,tgl,nopo){
+	function data_sementara(data,status,tgl,alasan,nopo){
 		$("#modalket").modal("show");
 		$("#judul2").html('<b>'+data+'</b>');
 		$("#nopo_ket").html('<h3><b>'+nopo+'</b></h3>');
 		$("#tgl_ket").html('<h3><b>'+tgl+'</b></h3>');
+		
+		if(status=='Y'){
+			$("#judul2").attr({ 'style': "color:green;" });
+			$("#status_acc").html('<h3><i class="fas fa-check"></i><b> ACC - '+data+'</b></h3>');
+			$("#status_acc").attr({ 'style': "color:green;" });
+			$('#alasan').html('');	
+		}else if(status=='R'){
+			$("#judul2").attr({ 'style': "color:red;" });
+			$("#status_acc").html('<h3><i class="fas-times-circle"></i><b> REJECT - '+data+'</b></h3>');
+			$("#status_acc").attr({ 'style': "color:red;" });
+
+			html_produk=`<td width="35%" ><h3>Alasan</h3></td>
+				<td width="10%" ><h3> : </h3></td>
+				<td width="55%" ><h3> ${alasan} </h3></td>`;
+
+			$('#alasan').html(html_produk);	
+			
+		}else if(status=='H'){
+			$("#judul2").attr({ 'style': "color:red;" });
+			$("#status_acc").html('<h3><i class="far fa-hand-paper"></i><b> HOLD - '+data+'</b></h3>');
+			$("#status_acc").attr({ 'style': "color:red;" });
+
+			html_produk=`<td width="35%" ><h3>Alasan</h3></td>
+				<td width="10%" ><h3> : </h3></td>
+				<td width="55%" ><h3> ${alasan} </h3></td>`;
+
+			$('#alasan').html(html_produk);	
+			 
+		}else{
+			$("#judul2").attr({ 'style': "color:yellow; text-shadow: 0 0 5px #000;" });
+			$("#status_acc").html('<h3><i class="fas fa-lock"></i><b> BELUM ACC - '+data+'</b></h3>');
+			$("#status_acc").attr({ 'style': "color:yellow; text-shadow: 0 0 5px #000;" });
+			$('#alasan').html('');	
+		}
+
+		
 	}
 
-	function prosesData(tipe) 
+	function prosesData_acc(tipe) 
 	{
 		// let cek = confirm("Apakah Anda Yakin?");
 
 		swal({
-            //title: 'PENDAFTARAN',
-            text                : "Alasan di Reject : ",
-            type                : 'info',
-            input               : 'text',
-            showCancelButton    : true,			
-			confirmButtonClass : 'btn btn-danger',
-			cancelButtonClass  : 'btn btn-secondary',
-			confirmButtonColor  : '#d33',
-			cancelButtonColor  : '#d33',
-            confirmButtonText   : '<b> Reject </b>',
-            cancelButtonText    : '<b> Batal </b>'
-        }).then(function(alasan) {
+			title: "Verifikasi PO",
+			html: "<p> Apakah Anda yakin untuk verifikasi file ini ?</p><br>",
+			type                : "question",
+			showCancelButton    : true,
+			confirmButtonText   : '<b><i class="fas fa-check"></i> Verifikasi</b>',
+			cancelButtonText    : '<b><i class="fas fa-undo"></i> Batal</b>',
+			confirmButtonClass  : 'btn btn-success',
+			cancelButtonClass   : 'btn btn-danger',
+			confirmButtonColor  : '#28a745',			
+			cancelButtonColor   : '#d33'			
+		}).then(() => {
 
 				$.ajax({
 					url: '<?= base_url(); ?>Transaksi/prosesData',
 					data: ({
 						id: no_po,
 						status: tipe,
+						alasan: 'OK',
 						jenis: 'verifPO'
 					}),
 					type: "POST",
@@ -844,6 +892,141 @@
 						return;
 					}
 				});
+		
+		});
+
+
+	}
+
+	function prosesData_hold(tipe) 
+	{
+		// let cek = confirm("Apakah Anda Yakin?");
+
+		swal({
+            //title: 'PENDAFTARAN',
+            text                : "Alasan di Hold : ",
+            type                : 'info',
+            input               : 'text',
+            showCancelButton    : true,			
+			confirmButtonClass : 'btn btn-warning',
+			cancelButtonClass  : 'btn btn-secondary',
+			confirmButtonColor  : '#ffc107',
+			cancelButtonColor  : '#d33',
+            confirmButtonText   : '<b><i class="far fa-hand-paper"></i> Hold </b>',
+            cancelButtonText    : '<b><i class="fa fa-undo" ></i> Batal </b>'
+        }).then(function(alasan) {
+
+			if(alasan==''){
+				swal({
+					title               : "Alasan",
+					html                : "Wajib Di Isi !",
+					type                : "error",
+					confirmButtonText   : "OK"
+				});
+				prosesData_hold(tipe);
+				// return;
+			}else{
+				
+				$.ajax({
+					url: '<?= base_url(); ?>Transaksi/prosesData',
+					data: ({
+						id: no_po,
+						status: tipe,
+						alasan: alasan,
+						jenis: 'verifPO'
+					}),
+					type: "POST",
+					success: function(data) {
+						// toastr.success('Data Berhasil Diproses');
+						swal({
+							title               : "Data",
+							html                : "Data Berhasil Diproses",
+							type                : "success",
+							confirmButtonText   : "OK"
+						});
+						reloadTable();
+						$("#modalForm").modal("hide");
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						// toastr.error('Terjadi Kesalahan');
+						swal({
+							title               : "Cek Kembali",
+							html                : "Terjadi Kesalahan",
+							type                : "error",
+							confirmButtonText   : "OK"
+						});
+						return;
+					}
+				});
+				
+			}
+		
+		});
+
+
+	}
+	
+	function prosesData_r(tipe) 
+	{
+		// let cek = confirm("Apakah Anda Yakin?");
+
+		swal({
+            //title: 'PENDAFTARAN',
+            text                : "Alasan di Reject : ",
+            type                : 'info',
+            input               : 'text',
+            showCancelButton    : true,			
+			confirmButtonClass : 'btn btn-danger',
+			cancelButtonClass  : 'btn btn-secondary',
+			confirmButtonColor  : '#d33',
+			cancelButtonColor  : '#d33',
+            confirmButtonText   : '<b><i class="fas fa-times-circle"></i> Reject </b>',
+            cancelButtonText    : '<b><i class="fas fa-undo"></i> Batal </b>'
+        }).then(function(alasan) {
+
+			if(alasan==''){
+				swal({
+					title               : "Alasan",
+					html                : "Wajib Di Isi !",
+					type                : "error",
+					confirmButtonText   : "OK"
+				});
+				prosesData_r(tipe);
+				// return;
+			}else{
+
+				$.ajax({
+					url: '<?= base_url(); ?>Transaksi/prosesData',
+					data: ({
+						id: no_po,
+						status: tipe,
+						alasan: alasan,
+						jenis: 'verifPO'
+					}),
+					type: "POST",
+					success: function(data) {
+						// toastr.success('Data Berhasil Diproses');
+						swal({
+							title               : "Data",
+							html                : "Data Berhasil Diproses",
+							type                : "success",
+							confirmButtonText   : "OK"
+						});
+						reloadTable();
+						$("#modalForm").modal("hide");
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						// toastr.error('Terjadi Kesalahan');
+						swal({
+							title               : "Cek Kembali",
+							html                : "Terjadi Kesalahan",
+							type                : "error",
+							confirmButtonText   : "OK"
+						});
+						return;
+					}
+				});
+			}
 		
 		});
 
@@ -916,38 +1099,60 @@
 							
 						(val.kategori =='K_BOX')? uk = val.ukuran : uk = val.ukuran_sheet;
 
+						if (val.sambungan == 'G'){
+							$join = 'Glue';
+						} else if (val.sambungan == 'S'){
+							$join = 'Stitching';
+						}else {
+							$join = 'Die Cut';
+						}
 						html_produk = `
 						<table class='table' border='0' style='font-size:12px'>
 						<tr> 
-							<tr> 
-								<td style=list-style:none;><b>Nama Item : </b>${ val.nm_produk }</td>
-								<td style=list-style:none;><b>Ukuran : </b>${ uk }</td>
-								<td style=list-style:none;><b>Kualitas : </b>${ val.kualitas }</td>
+							<tr style=list-style:none;> 
+								<td><b>Nama Item : </b>${ val.nm_produk }</td>
+								<td><b>Ukuran Box : </b>${ uk }</td>
+								<td><b>Kualitas : </b>${ val.kualitas }</td>
 							</tr>
-							<tr> 
-								<td style=list-style:none;><b>Flute : </b>${ val.flute }</td> 
-								<td style=list-style:none;><b>Creasing : </b>${ val.creasing }-${ val.creasing2 }-${ val.creasing3 }</td> 
-								<td style=list-style:none;><b>Toleransi : </b>${ val.toleransi_kirim }</td> 
+							<tr style=list-style:none;>
+								<td><b>Kode MC </b>: ${val.kode_mc}</td>
+								<td><b>Ukuran Sheet </b>: ${val.ukuran_sheet}</td>
+								<td><b>Flute </b>: ${val.flute}</td>
+									
+							</tr>
+							<tr style=list-style:none;> 
+								<td><b>Jenis Item </b>: ${val.jenis_produk}</td>
+								<td><b>Creasing : </b>${ val.creasing }-${ val.creasing2 }-${ val.creasing3 }</td> 
+								<td><b>Toleransi : </b>${ val.toleransi_kirim }</td> 
 							</tr> 
-							<tr> 
-								<td style=list-style:none;><b>RM : <input type="text" class="input-border-none" name="rm[${id}]" id="rm${id}" readonly >
+							<tr style=list-style:none;> 
+								<td><b>RM : <input type="text" class="input-border-none" name="rm[${id}]" id="rm${id}" readonly >
 								</b>
 								</td> 
 
-								<td style=list-style:none;><b>BB : <input type="text" class="input-border-none" name="bb[${id}]" id="bb${id}" value="${val.berat_bersih}" readonly ></b>
+								<td><b>BB : <input type="text" class="input-border-none" name="bb[${id}]" id="bb${id}" value="${val.berat_bersih}" readonly ></b>
 								</td> 
 
-								<td style=list-style:none;><b>Ton : <input type="text" class="input-border-none" name="ton[${id}]" id="ton${id}" readonly >
+								<td><b>Ton : <input type="text" class="input-border-none" name="ton[${id}]" id="ton${id}" readonly >
 								</b></td>  
 							</tr> 
-							<tr> 
-								<td colspan="3" style=list-style:none;>
+							<tr style=list-style:none;>
+								<td><b>Tipe Box </b>: ${val.tipe_box}</td>
+								<td><b>Joint </b>: ${$join}</td>
+								<td><b>Toleransi </b>: ${val.toleransi_kirim} %</td>
+							</tr>`;
+							<?php if ($this->session->userdata('level') != "PPIC"){ ?>
+							html_produk += `
+							<tr style=list-style:none;> 
+								<td colspan="3">
 									<b>Harga / Kg : 
 									</b>
 									<input type="text" class="input-border-none" name="hrg_kg[${id}]" id="hrg_kg${id}" readonly >
 								</td> 
-							</tr> 
-						<tr> </table>`;
+							</tr> `;
+							<?php } ?>
+
+							html_produk += `</table>`;
 
 						if(status=='update'){
 							
@@ -1188,8 +1393,8 @@
 			},
 			success:function(val){			
 				
-						hrg_kg   = Math.trunc(exc / val.berat_bersih);
-						$('#hrg_kg'+id2).val(hrg_kg);	
+						hrg_kg   = Math.trunc(exc / val.berat_bersih); 
+						$('#hrg_kg'+id2).val(format_angka(hrg_kg));	
 
 						if(val.kategori=='K_SHEET')
 						{
