@@ -148,7 +148,7 @@ class Master extends CI_Controller
 				$row[] = $r->nm_pelanggan;
 				$row[] = $r->alamat_kirim;
 				$row[] = ($r->nm_sales == 0) ? '-' : $r->nm_sales;
-				$row[] = ($r->top == 0) ? '-' : $r->top;
+				$row[] = ($r->top == "") ? '-' : $r->top;
 
 				$idPelanggan = $r->id_pelanggan;
 				$cekProduk = $this->db->query("SELECT * FROM m_produk WHERE no_customer='$idPelanggan'")->num_rows();
