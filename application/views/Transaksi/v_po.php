@@ -40,13 +40,13 @@
 						<tr>
 							<th style="text-align: center; width:3%">No</th>
 							<th style="text-align: center; width:15%">No PO</th>
-							<th style="text-align: center; width:17%">Tgl PO</th>
+							<th style="text-align: center; width:20%">Tgl PO</th>
 							<th style="text-align: center; width:5%">Status</th>
 							<th style="text-align: center; width:10%">Kode PO</th>
 							<!-- <th style="text-align: center">Total Qty</th> -->
-							<th style="text-align: center; width:15%">Customer</th>
+							<th style="text-align: center; width:10%">Customer</th>
 							<th style="text-align: center; width:5%">Mkt</th>
-							<th style="text-align: center; width:5%">PPIC</th>
+							<th style="text-align: center; width:7%">PPIC</th>
 							<th style="text-align: center; width:5%">Owner</th>
 							<th style="text-align: center; width:20%;">Aksi</th>
 						</tr>
@@ -177,7 +177,7 @@
 
 									<?php endif ?>
 
-									<?php if ($this->session->userdata('level') == "Admin" || $this->session->userdata('level') == "Owner")  {
+									<?php if ($this->session->userdata('level') == "Admin" || $this->session->userdata('level') == "Owner" || $this->session->userdata('level') == "User")  {
 										?>
 										
 											<th width="10%" id="header_p11" >P11</th>
@@ -202,7 +202,9 @@
 										</select>
 									</td>
 									<td>
-										<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0'  onchange="Hitung_rm(this.value,this.id)">
+										<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="qty_dec_(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)">
+
+										<input class="form-control input-border-none" type="text" name="qty_dec[0]" id="qty_dec0"  style="color:red" readonly>
 									</td>
 									<td>
 										<select class="form-control select2" name="ppn[0]" id="ppn0" >
@@ -222,7 +224,7 @@
 									<td>
 										<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
 
-										<input class="form-control input-border-none" type="text" name="price_inc_rp[0]" id="price_inc_rp0" style="color:red">
+										<input class="form-control input-border-none" type="text" name="price_inc_rp[0]" id="price_inc_rp0" style="color:red" readonly>
 									</td>
 									<?php endif ?>
 
@@ -397,12 +399,12 @@
 				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
 			},
 			"aLengthMenu": [
-				[5, 10, 15, 20, -1],
-				[5, 10, 15, 20, "Semua"] // change per page values here
+				[10, 15, 20, 25, -1],
+				[10, 15, 20, 25, "Semua"] // change per page values here
 			],		
 
 			responsive: true,
-			"pageLength": 5,
+			"pageLength": 10,
 			"language": {
 				"emptyTable": "Tidak ada data.."
 			}
@@ -643,6 +645,7 @@
 
 				$("#no_po").val(data[0].no_po);
 				$("#tgl_po").val(data[0].tgl_po);
+				
 				$('#id_pelanggan').val(data[0].id_pelanggan).trigger('change');
 
 				kodepo    = (data[0].kode_po == '' ) ? '-' : data[0].kode_po ;
@@ -653,7 +656,7 @@
 				
 				$("#header_del").hide();
 
-				if (cek == 'Admin' || cek == 'Owner')
+				if (cek == 'Admin' || cek == 'Owner' || cek == 'User')
 				{
 					$("#header_p11").show();
 				}else{
@@ -665,11 +668,15 @@
 					$("#detail-hapus-"+index).hide();
 					$("#btn-hapus-"+index).hide();
 
-					if (cek == 'Admin' || cek == 'Owner')
+					if (cek == 'Admin' || cek == 'Owner' || cek == 'User')
 					{
 						$("#p11_det"+index).show();
+						$("#id_pelanggan").prop("disabled", false);
+						$("#kode_po").prop("disabled", false);
 					}else{
 						$("#p11_det"+index).hide();
+						$("#id_pelanggan").prop("disabled", true);
+						$("#kode_po").prop("disabled", true);
 					}
 					
 					
@@ -679,6 +686,8 @@
 					
 					$('#id_produk'+index).append(opt_produk).trigger('change');
 					$("#qty"+index).val(value.qty);
+					$("#qty_dec"+index).val(format_angka(value.qty));
+
 					$('#ppn'+index).append(opt_ppn).trigger('change');
 					// $("#ppn"+index).val(value.ppn);
 					$("#price_inc"+index).val(value.price_inc);
@@ -691,12 +700,14 @@
 
 					if (act == 'detail') {
 						$("#qty"+index).prop("disabled", true);
+						$("#qty_dec"+index).prop("disabled", true);
 						$("#id_produk"+index).prop("disabled", true);
 						$("#ppn"+index).prop("disabled", true);
 						$("#price_inc"+index).prop("disabled", true);
 						$("#price_exc"+index).prop("disabled", true);
 					} else {
 						$("#qty"+index).prop("disabled", false);
+						$("#qty_dec"+index).prop("disabled", false);
 						$("#id_produk"+index).prop("disabled", false);
 						$("#ppn"+index).prop("disabled", false);
 						$("#price_inc"+index).prop("disabled", false);
@@ -878,7 +889,8 @@
 							type                : "success",
 							confirmButtonText   : "OK"
 						});
-						reloadTable();
+						// reloadTable();
+						setTimeout(function(){ location.reload(); }, 1000);
 						$("#modalForm").modal("hide");
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
@@ -1103,8 +1115,10 @@
 							$join = 'Glue';
 						} else if (val.sambungan == 'S'){
 							$join = 'Stitching';
-						}else {
+						}else if (val.sambungan == 'D'){
 							$join = 'Die Cut';
+						}else {
+							$join = '-';
 						}
 						html_produk = `
 						<table class='table' border='0' style='font-size:12px'>
@@ -1244,7 +1258,9 @@
 						</select>
 					</td>
 					<td>
-						 <input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onchange="Hitung_rm(this.value,this.id)">
+						 <input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onkeyup="qty_dec_(this.value,this.id)"  onchange="Hitung_rm(this.value,this.id)">
+						 
+						<input class="form-control input-border-none" type="text" name="qty_dec[${ rowNum }]" id="qty_dec${ rowNum }" style="color:red" readonly>
 
 					</td>
 
@@ -1320,6 +1336,7 @@
 		$('#bucket').val(rowNum);
 		$('#id_produk0').val('').trigger('change');
 		$('#qty0').val('0');
+		$('#qty_dec0').val('0');
 		$('#p110').val('0');
 		$('#price_inc0').val('0');
 		$('#price_exc0').val('0');
@@ -1356,6 +1373,15 @@
 			$('#price_exc_rp'+id2).val(format_angka(exc));
 			$('#price_inc_rp'+id2).val(format_angka(val));
 		}
+	}
+	
+	function qty_dec_(val,id) 
+	{
+		var cek = id.substr(0,7);
+		var id2 = id.substr(7,1);
+		
+		$('#qty_dec'+id2).val(format_angka(val));
+		
 	}
 
 

@@ -226,17 +226,18 @@ class Transaksi extends CI_Controller
 
 		if ($jenis == "po") {
 
-			if($this->session->userdata('level')=='Marketing'){
+			if($this->session->userdata('username')=='ppismg'){
 				$cek_data = 'WHERE id_sales in ("2","3")';
 			}else{
 				$cek_data = '';
 			}
 
-			$query = $this->m_master->query("SELECT * FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by id desc")->result();
+			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by id desc")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row    = array();
-                $time   = substr($r->add_time, 0,10);
+                $time   = substr($r->tgl_po, 0,10);
+                $time_po   = substr($r->time_input, 10,10);
 
                 if($r->status_app1=='N')
                 {
@@ -314,7 +315,7 @@ class Transaksi extends CI_Controller
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')">' . $r->no_po . "<a></div>";
 
-				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).'</div>';
+				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.')</div>';
 
                 $time1 = ( ($r->time_app1 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app1,0,10))  . ' - ' .substr($r->time_app1,10,9)) ;
 
@@ -350,19 +351,24 @@ class Transaksi extends CI_Controller
 
 					if ($r->status == 'Open' && $r->status_app1 == 'N') {
 						$aksi .= ' 
-	                            <button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
-                                    <i class="fa fa-edit"></i>
-	                            </button>
+							<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
+								<i class="fa fa-edit"></i>
+							</button>
 
-	                            <button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ',' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
-                                    <i class="fa fa-trash-alt"></i>
-	                            </button>  
+							<button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ',' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
+								<i class="fa fa-trash-alt"></i>
+							</button>  
 
-								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
-								<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a>
+							<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> ';
+					}else{
 
-                                ';
+						$aksi .= ' 
+							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+
+							<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> ';
+
 					}
 					
 				}else{
@@ -888,11 +894,14 @@ class Transaksi extends CI_Controller
                 <th>Total Tonase PO : '. $toton .' Kg</th>
             </tr>';
             
-            $html .= '
-            </th>
-            <tr align="left">
-                <th>Harga P11 : '. $data->p11 .' %</th>
-            </tr>';
+			$no       = 1;
+			foreach ($query->result() as $r) { 
+				$html .= '</th>
+						<tr align="left">
+							<th>Harga P11 ['.$no.'] : '. $data->p11 .'</th>
+						</tr>';
+				$no++;
+			}
             
             $html .= '
             </th>

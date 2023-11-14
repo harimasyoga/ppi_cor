@@ -545,7 +545,7 @@ class M_transaksi extends CI_Model
 				$this->db->set("status", 'Approve');
 				$this->db->where("no_po",$id);
 				$valid = $this->db->update("trs_po_detail");
-			}if ($status == 'N') {
+			}else if ($status == 'N') {
 				// header
 				
 				$this->db->set("status", 'Hold');
