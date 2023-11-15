@@ -79,3 +79,24 @@
         border-color: #fff transparent #fff #fff;
         z-index         : 2;
 } */
+
+.h-tmpl-list-plan:hover {
+	background: rgba(222 , 222, 222, 0.5);
+}
+
+.inp-kosong {
+	background: none;
+	text-align: center;
+	border: 0;
+	padding: 0;
+	height: 100%;
+	width:50px;
+}
+
+.inp-kosong2 {
+	background: none;
+	text-align: center;
+	border: 0;
+	padding: 0;
+	height: 100%;
+}

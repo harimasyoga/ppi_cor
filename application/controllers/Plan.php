@@ -689,6 +689,178 @@ class Plan extends CI_Controller
 		echo $html;
 	}
 
+	function loadInputList()
+	{
+		$urlTgl_plan = $_POST["urlTgl_plan"];
+		$urlShift = $_POST["urlShift"];
+		$urlMesin = $_POST["urlMesin"];
+		$html = '';
+
+		$html .= '<div style="overflow:auto;white-space:nowrap">
+			<table class="table table-bordered" style="border:0;text-align:center">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>ITEM</th>
+						<th>NO.PO</th>
+						<th>CUSTOMER</th>
+						<th colspan="2">TL/AL</th>
+						<th colspan="2">B MF</th>
+						<th colspan="2">B . L</th>
+						<th colspan="2">C.MF</th>
+						<th colspan="2">C . L</th>
+						<th style="padding:12px 22px">PJG</th>
+						<th style="padding:12px 22px">LBR</th>
+						<th colspan="3">SCORE</th>
+						<th>OUT</th>
+						<th>FT</th>
+						<th>L. ROLL</th>
+						<th>TRIM</th>
+						<th>ORDER</th>
+						<th>C.OFF</th>
+						<th style="padding:12px 22px">RM</th>
+						<th style="padding:12px 22px">KG</th>
+						<th>TGL KIRIM</th>
+						<th>AKSI</th>
+					</tr>
+				</thead>';
+
+		$data = $this->db->query("SELECT p.*,i.nm_produk,w.kode_po,l.nm_pelanggan,i.kategori,i.flute,w.flap1,w.creasing2,w.flap2 FROM plan_cor p
+		INNER JOIN m_produk i ON p.id_produk=i.id_produk
+		INNER JOIN trs_wo w ON p.id_wo=w.id
+		INNER JOIN trs_so_detail s ON p.id_so_detail=s.id
+		INNER JOIN m_pelanggan l ON p.id_pelanggan=l.id_pelanggan
+		WHERE p.tgl_plan='$urlTgl_plan' AND p.shift_plan='$urlShift' AND p.machine_plan='$urlMesin'");
+		$i = 0;
+		foreach($data->result() as $r){
+			$i++;
+
+			$id = $r->id_plan;
+			$exMatPlan = explode("/", $r->material_plan);
+			$exKistPlan = explode("/", $r->kualitas_isi_plan);
+			if($r->flute == "BF"){
+				$dis2 = ''; $dis3 = 'disabled'; $dis4 = 'disabled';
+				$vMatPlan1 = $exMatPlan[0];
+				$vkisPlan1 = $exKistPlan[0];
+				$vMatPlan2 = $exMatPlan[1];
+				$vkisPlan2 = $exKistPlan[1];
+				$vMatPlan3 = '';
+				$vkisPlan3 = '';
+				$vMatPlan4 = '';
+				$vkisPlan4 = '';
+				$vMatPlan5 = $exMatPlan[2];
+				$vkisPlan5 = $exKistPlan[2];
+			}else if($r->flute == "CF"){
+				$dis2 = 'disabled'; $dis3 = 'disabled'; $dis4 = '';
+				$vMatPlan1 = $exMatPlan[0];
+				$vkisPlan1 = $exKistPlan[0];
+				$vMatPlan2 = '';
+				$vkisPlan2 = '';
+				$vMatPlan3 = '';
+				$vkisPlan3 = '';
+				$vMatPlan4 = $exMatPlan[1];
+				$vkisPlan4 = $exKistPlan[1];
+				$vMatPlan5 = $exMatPlan[2];
+				$vkisPlan5 = $exKistPlan[2];
+			}else{
+				$dis2 = ''; $dis3 = ''; $dis4 = '';
+				$vMatPlan1 = $exMatPlan[0];
+				$vkisPlan1 = $exKistPlan[0];
+				$vMatPlan2 = $exMatPlan[1];
+				$vkisPlan2 = $exKistPlan[1];
+				$vMatPlan3 = $exMatPlan[2];
+				$vkisPlan3 = $exKistPlan[2];
+				$vMatPlan4 = $exMatPlan[3];
+				$vkisPlan4 = $exKistPlan[3];
+				$vMatPlan5 = $exMatPlan[4];
+				$vkisPlan5 = $exKistPlan[4];
+			}
+
+			$htmlSub ='<td style="padding:6px">
+				<select class="form-control inp-kosong" id="lp-sm1-'.$id.'">
+					<option value="'.$vMatPlan1.'">'.$vMatPlan1.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
+				</select></td>
+			<td style="padding:6px"><input type="number" id="lp-si1-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan1.'" onkeyup="onChangeEditPlan('."'".$id."'".')"></td>
+			<td style="padding:6px">
+				<select class="form-control inp-kosong" id="lp-sm2-'.$id.'" '.$dis2.'>
+					<option value="'.$vMatPlan2.'">'.$vMatPlan2.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
+				</select></td>
+			<td style="padding:6px"><input type="number" id="lp-si2-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan2.'" '.$dis2.' onkeyup="onChangeEditPlan('."'".$id."'".')"></td>
+			<td style="padding:6px">
+				<select class="form-control inp-kosong" id="lp-sm3-'.$id.'" '.$dis3.'>
+					<option value="'.$vMatPlan3.'">'.$vMatPlan3.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
+				</select></td>
+			<td style="padding:6px"><input type="number" id="lp-si3-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan3.'" '.$dis3.' onkeyup="onChangeEditPlan('."'".$id."'".')"></td>
+			<td style="padding:6px">
+				<select class="form-control inp-kosong" id="lp-sm4-'.$id.'" '.$dis4.'>
+					<option value="'.$vMatPlan4.'">'.$vMatPlan4.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
+				</select></td>
+			<td style="padding:6px"><input type="number" id="lp-si4-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan4.'" '.$dis4.' onkeyup="onChangeEditPlan('."'".$id."'".')"></td>
+			<td style="padding:6px">
+				<select class="form-control inp-kosong" id="lp-sm5-'.$id.'">
+					<option value="'.$vMatPlan5.'">'.$vMatPlan5.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
+				</select></td>
+			<td style="padding:6px"><input type="number" id="lp-si5-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan5.'" onkeyup="onChangeEditPlan('."'".$id."'".')"></td>';
+
+			$html .= '<tr class="h-tmpl-list-plan">
+				<td style="padding:6px">'.$i.'</td>
+				<td style="padding:6px;text-align:left">'.$r->nm_produk.'</td>
+				<td style="padding:6px;text-align:left">'.$r->kode_po.'</td>
+				<td style="padding:6px;text-align:left">'.$r->nm_pelanggan.'</td>
+				'.$htmlSub.'
+				<td style="padding:6px">
+					<input type="number" class="form-control inp-kosong2" id="lp-pjgs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->panjang_plan.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
+				</td>
+				<td style="padding:6px">
+					<input type="number" class="form-control inp-kosong2" id="lp-lbrs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->lebar_plan.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
+				</td>
+				<td style="padding:6px" id="lptd-scr1-'.$id.'">
+					<input type="number" class="form-control inp-kosong" id="lp-scr1-'.$id.'" value="'.$r->flap1.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
+				</td>
+				<td style="padding:6px" id="lptd-scr2-'.$id.'">
+					<input type="number" class="form-control inp-kosong" id="lp-scr2-'.$id.'" value="'.$r->creasing2.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
+				</td>
+				<td style="padding:6px" id="lptd-scr3-'.$id.'">
+					<input type="number" class="form-control inp-kosong" id="lp-scr3-'.$id.'" value="'.$r->flap2.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
+				</td>
+				<td style="padding:6px">
+					<input type="number" class="form-control inp-kosong2" id="lp-out-'.$id.'" value="'.$r->out_plan.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
+				</td>
+				<td style="padding:6px">'.$r->flute.'</td>
+				<td style="padding:6px">
+					<input type="number" class="form-control inp-kosong2" id="lp-lbri-'.$id.'" style="font-weight:bold;color:#000" value="'.$r->lebar_roll_p.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
+				</td>
+				<td style="padding:6px;text-align:right">
+					<input type="number" class="form-control inp-kosong2" id="lp-trimp-'.$id.'" value="'.$r->trim_plan.'" disabled>
+				</td>
+				<td style="padding:6px;text-align:right">
+					<input type="hidden" class="form-control inp-kosong2" id="lp-pcs-plan-'.$id.'" value="'.$r->pcs_plan.'">
+					'.number_format($r->pcs_plan).'
+				</td>
+				<td style="padding:6px;text-align:right">
+					<input type="number" class="form-control inp-kosong2" id="lp-coffp-'.$id.'" value="'.$r->c_off_p.'" disabled>
+				</td>
+				<td style="padding:6px;text-align:right">
+					<input type="number" class="form-control inp-kosong2" id="lp-rmp-'.$id.'" value="'.$r->rm_plan.'" disabled>
+				</td>
+				<td style="padding:6px;text-align:right">
+					<input type="number" class="form-control inp-kosong2" id="lp-tonp-'.$id.'" value="'.$r->tonase_plan.'" disabled>
+				</td>
+				<td style="padding:6px">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
+				<td style="padding:6px">
+					<input type="hidden" id="hlp-flute-'.$id.'" value="'.$r->flute.'">
+					<input type="hidden" id="hlp-kategori-'.$id.'" value="'.$r->kategori.'">
+					<input type="hidden" id="hlp-kua-isi-p-'.$id.'" value="'.$r->kualitas_isi_plan.'">
+					<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".')">EDIT<a>
+				</td>
+			</tr>';
+		}
+
+		$html .= '</table>
+		</div>';
+		echo $html;
+	}
+
 	//
 
 	function Flexo()

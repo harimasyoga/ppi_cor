@@ -14,43 +14,66 @@
 		</div>
 	</section>
 
+	<style>
+		/* Chrome, Safari, Edge, Opera */
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		/* Firefox */
+		input[type=number] {
+			-moz-appearance: textfield;
+		}
+	</style>
+
 	<section class="content" style="padding-bottom:30px">
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col-md-12">
 				<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') { ?>
-					<div class="card card-info card-outline">
-						<div class="card-header">
-							<h3 class="card-title" style="font-weight:bold;font-style:italic">WO</h3>
-						</div>
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-							<div class="col-md-12" style="padding:0">
-								<a href="<?php echo base_url('Plan/Corrugator')?>" class="btn btn-sm btn-info"><i class="fa fa-arrow-left"></i> <b>Kembali</b></a>
+					<div class="col-md-12">
+						<div class="card card-info card-outline">
+							<div class="card-header">
+								<h3 class="card-title" style="font-weight:bold;font-style:italic">WO</h3>
+							</div>
+							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+								<div class="col-md-12" style="padding:0">
+									<a href="<?php echo base_url('Plan/Corrugator')?>" class="btn btn-sm btn-info"><i class="fa fa-arrow-left"></i> <b>Kembali</b></a>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+								<div class="col-md-1"></div>
+								<div class="col-md-11" style="font-size:small;font-style:italic;color:#f00">
+									* NO. WO | ETA SO | ITEM | CUSTOMER
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+								<div class="col-md-1">NO. WO</div>
+								<div class="col-md-11">
+									<select id="no_wo" class="form-control select2" onchange="plhNoWo('')"></select>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+								<div class="col-md-1">TGL. WO</div>
+								<div class="col-md-11">
+									<input type="text" id="tgl_wo" class="form-control" autocomplete="off" placeholder="TGL. WO" disabled>
+								</div>
 							</div>
 						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-1"></div>
-							<div class="col-md-11" style="font-size:small;font-style:italic;color:#f00">
-								* NO. WO | ETA SO | ITEM | CUSTOMER
+						
+						<div id="riwayat-plan"></div>
+					</div>
+
+					<div class="col-md-12">
+						<div class="card card-primary card-outline" style="padding-bottom:20px">
+							<div class="card-header">
+								<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST INPUT</h3>
 							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-1">NO. WO</div>
-							<div class="col-md-11">
-								<select id="no_wo" class="form-control select2" onchange="plhNoWo('')"></select>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-							<div class="col-md-1">TGL. WO</div>
-							<div class="col-md-11">
-								<input type="text" id="tgl_wo" class="form-control" autocomplete="off" placeholder="TGL. WO" disabled>
-							</div>
+							<div id="tampil-list-input"></div>
 						</div>
 					</div>
 				<?php } ?>
-
-				<div id="riwayat-plan"></div>
-				</div>
 
 				<div class="col-md-7">
 					<div id="list-plan"></div>
@@ -429,7 +452,7 @@
 					</div>
 
 					<div id="card-produksi" style="display:none">
-						<div class="card card-info card-outline" style="padding-bottom:20px">
+						<div class="card card-success card-outline" style="padding-bottom:20px">
 							<div class="card-header">
 								<h3 class="card-title" style="font-weight:bold;font-style:italic">HASIL PRODUKSI</h3>
 							</div>
@@ -611,8 +634,176 @@
 					$("#list-plan").html(htmlList)
 					swal.close()
 				}
+				loadInputList()
 			}
 		})
+	}
+
+	function loadInputList()
+	{
+		// $('.select2').select2()
+		$.ajax({
+			url: '<?php echo base_url('Plan/loadInputList')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				urlTgl_plan, urlShift, urlMesin
+			}),
+			success: function(res){
+				$("#tampil-list-input").html(res)
+				$('.select2').select2()
+				swal.close()
+			}
+		})
+	}
+
+	function onChangeEditPlan(id_plan)
+	{
+		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
+
+		let lpSm1 = $("#lp-sm1-"+id_plan).val()
+		let lpSi1 = $("#lp-si1-"+id_plan).val()
+		let lpSm2 = $("#lp-sm2-"+id_plan).val()
+		let lpSi2 = $("#lp-si2-"+id_plan).val()
+		let lpSm3 = $("#lp-sm3-"+id_plan).val()
+		let lpSi3 = $("#lp-si3-"+id_plan).val()
+		let lpSm4 = $("#lp-sm4-"+id_plan).val()
+		let lpSi4 = $("#lp-si4-"+id_plan).val()
+		let lpSm5 = $("#lp-sm5-"+id_plan).val()
+		let lpSi5 = $("#lp-si5-"+id_plan).val()
+		
+		let kategori = $("#hlp-kategori-"+id_plan).val()
+		let pjg_sheet = $("#lp-pjgs-"+id_plan).val().split('.').join('');
+		(pjg_sheet == 0 || pjg_sheet < 0) ? $("#lp-pjgs-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-pjgs-"+id_plan).val(rupiah.format(pjg_sheet)).attr('style', 'color:#ff0066;font-weight:bold');
+
+		let lbr_sheet = $("#lp-lbrs-"+id_plan).val().split('.').join('')
+		let score1 = $("#lp-scr1-"+id_plan).val()
+		let score2 = $("#lp-scr2-"+id_plan).val()
+		let score3 = $("#lp-scr3-"+id_plan).val()
+		let hitungScore = parseInt(score1) + parseInt(score2) + parseInt(score3);
+		(score1 == 0 || score1 < 0 || score1 == '') ? $("#lp-scr1-"+id_plan).val(0) : $("#lp-scr1-"+id_plan).val();
+		(score2 == 0 || score2 < 0 || score2 == '') ? $("#lp-scr2-"+id_plan).val(0) : $("#lp-scr2-"+id_plan).val();
+		(score3 == 0 || score3 < 0 || score3 == '') ? $("#lp-scr3-"+id_plan).val(0) : $("#lp-scr3-"+id_plan).val();
+		if(kategori == 'K_BOX'){
+			if(hitungScore == lbr_sheet){
+				$("#lp-scr1-"+id_plan).attr('style', 'color:#495057;font-weight:normal')
+				$("#lp-scr2-"+id_plan).attr('style', 'color:#495057;font-weight:normal')
+				$("#lp-scr3-"+id_plan).attr('style', 'color:#495057;font-weight:normal');
+				(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+id_plan).val(rupiah.format(lbr_sheet)).attr('style', 'color:#ff0066;font-weight:bold');
+			}else{
+				$("#lp-scr1-"+id_plan).attr('style', 'color:#f00;font-weight:bold')
+				$("#lp-scr2-"+id_plan).attr('style', 'color:#f00;font-weight:bold')
+				$("#lp-scr3-"+id_plan).attr('style', 'color:#f00;font-weight:bold');
+				(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+id_plan).val(rupiah.format(lbr_sheet)).attr('style', 'color:#f00;font-weight:normal');
+			}
+		}else if(kategori == 'K_SHEET'){
+			if(score1 != 0 || score2 != 0 || score3 != 0){
+				if(hitungScore == lbr_sheet){
+					$("#lp-scr1-"+id_plan).attr('style', 'color:#495057;font-weight:normal')
+					$("#lp-scr2-"+id_plan).attr('style', 'color:#495057;font-weight:normal')
+					$("#lp-scr3-"+id_plan).attr('style', 'color:#495057;font-weight:normal');
+					(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+id_plan).val(rupiah.format(lbr_sheet)).attr('style', 'color:#ff0066;font-weight:bold');
+				}else{
+					$("#lp-scr1-"+id_plan).attr('style', 'color:#f00;font-weight:bold')
+					$("#lp-scr2-"+id_plan).attr('style', 'color:#f00;font-weight:bold')
+					$("#lp-scr3-"+id_plan).attr('style', 'color:#f00;font-weight:bold');
+					(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+id_plan).val(rupiah.format(lbr_sheet)).attr('style', 'color:#f00;font-weight:normal');
+				}
+			}else{
+				$("#lp-scr1-"+id_plan).attr('style', 'color:#495057;font-weight:normal')
+				$("#lp-scr2-"+id_plan).attr('style', 'color:#495057;font-weight:normal')
+				$("#lp-scr3-"+id_plan).attr('style', 'color:#495057;font-weight:normal');
+				(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+id_plan).val(rupiah.format(lbr_sheet)).attr('style', 'color:#ff0066;font-weight:bold');
+			}
+		}
+
+		let qty_so = $("#lp-pcs-plan-"+id_plan).val()
+		
+		let out_plan = $("#lp-out-"+id_plan).val();
+		(out_plan == 0 || out_plan < 0) ? $("#lp-out-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-out-"+id_plan).val(out_plan).attr('style', 'color:#000;font-weight:normal');
+
+		let lbr_i = $("#lp-lbri-"+id_plan).val().split('.').join('');
+		(lbr_i == 0 || lbr_i < 0) ? $("#lp-lbri-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbri-"+id_plan).val(rupiah.format(lbr_i)).attr('style', 'color:#000;font-weight:bold');
+
+
+		let flute = $("#hlp-flute-"+id_plan).val();
+		let kualitas_isi = $("#hlp-kua-isi-p-"+id_plan).val();
+		// console.log(kualitas_isi)
+		let spltKualitas = kualitas_isi.split("/");
+		let ton = 0;
+		if(flute == 'BF'){
+			if(lpSi1 == "" || lpSi1 == 0 || lpSi2 == "" || lpSi2 == 0 || lpSi5 == "" || lpSi5 == 0){
+				ton = 0
+			}else{
+				ton = parseFloat((parseInt(lpSi1) + (parseFloat(lpSi2)*1.36) + parseInt(lpSi5)) / 1000 * pjg_sheet / 1000 * lbr_sheet / 1000 * qty_so)
+			}
+		}else if(flute == 'CF'){
+			if(lpSi1 == "" || lpSi1 == 0 || lpSi4 == "" || lpSi4 == 0 || lpSi5 == "" || lpSi5 == 0){
+				ton = 0
+			}else{
+				ton = parseFloat((parseInt(lpSi1) + (parseFloat(lpSi4)*1.46) + parseInt(lpSi5)) / 1000 * pjg_sheet / 1000 * lbr_sheet / 1000 * qty_so)
+			}
+		}else if(flute == 'BCF'){
+			if(lpSi1 == "" || lpSi1 == 0 || lpSi2 == "" || lpSi2 == 0 || lpSi3 == "" || lpSi3 == 0 || lpSi4 == "" || lpSi4 == 0 || lpSi5 == "" || lpSi5 == 0){
+				ton = 0
+			}else{
+				ton = parseFloat((parseInt(lpSi1) + (parseFloat(lpSi2)*1.36) + parseInt(lpSi3) + (parseFloat(lpSi4)*1.46) + parseInt(lpSi5)) / 1000 * pjg_sheet / 1000 * lbr_sheet / 1000 * qty_so)
+			}
+		}else{
+			ton = 0
+		}
+
+		let trim = 0;
+		let c_off = 0;
+		let rm = 0;
+		(lbr_i == '' || out_plan == '' || lbr_i == 0 || out_plan == 0) ? trim = 0 : trim = Math.round(lbr_i - (lbr_sheet * out_plan));
+		(out_plan == '' || out_plan == 0) ? c_off = 0 : c_off = Math.round(qty_so / out_plan);
+		(c_off == '' || c_off == 0) ? rm = 0 : rm = Math.round((c_off * pjg_sheet) / 1000);
+		// console.log("trim : ", trim)
+		// console.log("c_off : ", c_off)
+		// console.log("rm : ", rm)
+		console.log("ton : ", ton);
+
+		(trim < 0 || trim == 0) ? $("#lp-trimp-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-trimp-"+id_plan).val(trim).attr('style', 'color:#000;font-weight:normal');
+		(c_off < 0 || isNaN(c_off) || c_off == 0) ? $("#lp-coffp-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-coffp-"+id_plan).val(rupiah.format(c_off)).attr('style', 'color:#000;font-weight:normal');
+		(rm < 0 || isNaN(rm) || rm == 0) ? $("#lp-rmp-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-rmp-"+id_plan).val(rupiah.format(rm)).attr('style', 'color:#000;font-weight:normal');
+		(ton < 0 || ton == 0) ? $("#lp-tonp-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-tonp-"+id_plan).val(rupiah.format(Math.round(ton))).attr('style', 'color:#000;font-weight:normal');
+
+
+
+	}
+
+	function editListPlan(id_plan)
+	{
+		let lpSm1 = $("#lp-sm1-"+id_plan).val()
+		let lpSi1 = $("#lp-si1-"+id_plan).val()
+		let lpSm2 = $("#lp-sm2-"+id_plan).val()
+		let lpSi2 = $("#lp-si2-"+id_plan).val()
+		let lpSm3 = $("#lp-sm3-"+id_plan).val()
+		let lpSi3 = $("#lp-si3-"+id_plan).val()
+		let lpSm4 = $("#lp-sm4-"+id_plan).val()
+		let lpSi4 = $("#lp-si4-"+id_plan).val()
+		let lpSm5 = $("#lp-sm5-"+id_plan).val()
+		let lpSi5 = $("#lp-si5-"+id_plan).val()
+		console.log("lpSm1: ", lpSm1)
+		console.log("lpSi1: ", lpSi1)
+		console.log("lpSm2: ", lpSm2)
+		console.log("lpSi2: ", lpSi2)
+		console.log("lpSm3: ", lpSm3)
+		console.log("lpSi3: ", lpSi3)
+		console.log("lpSm4: ", lpSm4)
+		console.log("lpSi4: ", lpSi4)
+		console.log("lpSm5: ", lpSm5)
+		console.log("lpSi5: ", lpSi5)
 	}
 
 	function hapusPlan(id_plan)
