@@ -107,17 +107,17 @@
 						<tr>
 							<td style="padding:5px 0;font-weight:bold">KATEGORI</td>
 							<td style="padding:5px 0" colspan="3">
-								<select class="form-control" id="kategori">
-									<option value="">PILIH</option>
+								<select class="form-control select2" id="kategori">
+									<!-- <option value="">PILIH</option>
 									<option value="K_BOX">PRODUK BOX</option>
-									<option value="K_SHEET">PRODUK SHEET</option>
+									<option value="K_SHEET">PRODUK SHEET</option> -->
 								</select>
 							</td>
 							<td></td>
 							<td style="padding:5px 0;font-weight:bold">TIPE BOX</td>
 							<td style="padding:5px 0" colspan="2">
 								<input type="hidden" id="h_tipe_box">
-								<select id="tipe_box" class="form-control">
+								<select id="tipe_box" class="form-control select2">
 									<option value="">PILIH</option>
 								</select>
 							</td>
@@ -126,11 +126,11 @@
 							<td style="padding:5px 0;font-weight:bold">FLUTE</td>
 							<td style="padding:5px 0" colspan="3">
 								<input type="hidden" id="h_flute">
-								<select class="form-control" id="flute" onchange="cflute()">
-									<option value="">PILIH</option>
+								<select class="form-control select2" id="flute" onchange="cflute()">
+									<!-- <option value="">PILIH</option>
 									<option value="BCF">BCF</option>
 									<option value="CF">CF</option>
-									<option value="BF">BF</option>
+									<option value="BF">BF</option> -->
 								</select>
 								<input type="hidden" id="wall">
 							</td>
@@ -138,7 +138,7 @@
 							<td style="padding:5px 0;font-weight:bold">SAMBUNGAN</td>
 							<td style="padding:5px 0" colspan="2">
 								<input type="hidden" id="h_sambungan">
-								<select id="sambungan" class="form-control" onchange="cflute()"></select>
+								<select id="sambungan" class="form-control select2" onchange="cflute()"></select>
 							</td>
 						</tr>
 						<tr>
@@ -176,44 +176,44 @@
 						</tr>
 						<tr>
 							<td style="padding:5px">
-								<select class="form-control" id="M_K" onchange="cflute()">
+								<select class="form-control select2" id="M_K" onchange="cflute()">
 									<option value="">TIPE</option>
 									<option value="M">M</option>
 									<option value="K">K</option>
 								</select>
-							<td style="padding:5px"><input style="text-align:center" type="text" class="form-control" id="F_K" maxlength="3" onkeypress="return hanyaAngka(event)" placeholder="K" onchange="cflute()" autocomplete="off"></td>
+							<td style="padding:5px"><input style="text-align:center" type="text" class="form-control" id="F_K" maxlength="3" onkeypress="return hanyaAngka(event)" placeholder="TL/AL" onchange="cflute()" autocomplete="off"></td>
 							</td>
 							<td style="padding:5px">
-								<select class="form-control" id="M_B" onchange="cflute()">
+								<select class="form-control select2" id="M_B" onchange="cflute()">
 									<option value="">TIPE</option>
 									<option value="M">M</option>
 									<option value="K">K</option>
 								</select>
-							<td style="padding:5px"><input style="text-align:center" type="text" class="form-control" id="F_B" maxlength="3" onkeypress="return hanyaAngka(event)" placeholder="B" onchange="cflute()" autocomplete="off"></td>
+							<td style="padding:5px"><input style="text-align:center" type="text" class="form-control" id="F_B" maxlength="3" onkeypress="return hanyaAngka(event)" placeholder="B.MF" onchange="cflute()" autocomplete="off"></td>
 							</td>
 							<td style="padding:5px">
-								<select class="form-control" id="M_CL" onchange="cflute()">
+								<select class="form-control select2" id="M_CL" onchange="cflute()">
 									<option value="">TIPE</option>
 									<option value="M">M</option>
 									<option value="K">K</option>
 								</select>
-							<td style="padding:5px"><input style="text-align:center" type="text" class="form-control" id="F_CL" maxlength="3" onkeypress="return hanyaAngka(event)" placeholder="CL" onchange="cflute()" autocomplete="off"></td>
+							<td style="padding:5px"><input style="text-align:center" type="text" class="form-control" id="F_CL" maxlength="3" onkeypress="return hanyaAngka(event)" placeholder="BC" onchange="cflute()" autocomplete="off"></td>
 							</td>
 							<td style="padding:5px">
-								<select class="form-control" id="M_C" onchange="cflute()">
+								<select class="form-control select2" id="M_C" onchange="cflute()">
 									<option value="">TIPE</option>
 									<option value="M">M</option>
 									<option value="K">K</option>
 								</select>
-							<td style="padding:5px"><input style="text-align:center" type="text" class="form-control" id="F_C" maxlength="3" onkeypress="return hanyaAngka(event)" placeholder="C" onchange="cflute()" autocomplete="off"></td>
+							<td style="padding:5px"><input style="text-align:center" type="text" class="form-control" id="F_C" maxlength="3" onkeypress="return hanyaAngka(event)" placeholder="C.MF" onchange="cflute()" autocomplete="off"></td>
 							</td>
 							<td style="padding:5px">
-								<select class="form-control" id="M_BL" onchange="cflute()">
+								<select class="form-control select2" id="M_BL" onchange="cflute()">
 									<option value="">TIPE</option>
 									<option value="M">M</option>
 									<option value="K">K</option>
 								</select>
-							<td style="padding:5px"><input style="text-align:center" type="text" class="form-control" id="F_BL" maxlength="3" onkeypress="return hanyaAngka(event)" placeholder="BL" onchange="cflute()" autocomplete="off"></td>
+							<td style="padding:5px"><input style="text-align:center" type="text" class="form-control" id="F_BL" maxlength="3" onkeypress="return hanyaAngka(event)" placeholder="B/C.L" onchange="cflute()" autocomplete="off"></td>
 							</td>
 						</tr>
 						<tr>
@@ -505,7 +505,7 @@
 		$("#creasing").val("").prop("disabled", false);
 		$("#creasing2").val("").prop("disabled", false);
 		$("#creasing3").val("").prop("disabled", false);
-		$("#flute").val("").prop("disabled", true);
+		$("#flute").html(`</option><option value="">PILIH</option><option value="BCF">BCF</option><option value="CF">CF</option><option value="BF">BF</option>`).prop("disabled", true);
 		$("#berat_bersih").val("");
 		$("#luas_bersih").val("");
 		$("#kualitas").val("");
@@ -514,7 +514,7 @@
 		$("#design").val("-");
 		$("#tipe_box").html(`<option value="">PILIH</option>`).prop("disabled", true);
 		$("#jenis_produk").val("-");
-		$("#kategori").val("").prop("disabled", false);
+		$("#kategori").html(`<option value="">PILIH</option><option value="K_BOX">PRODUK BOX</option><option value="K_SHEET">PRODUK SHEET</option>`).prop("disabled", false);
 		$("#COA").val("-");
 		$("#jml_ikat").val("-");
 		$("#jml_palet").val("-");
@@ -620,7 +620,9 @@
 			$("#creasing").val(data.produk.creasing).prop("disabled", (data.poDetail.length == 0) ? false : true);
 			$("#creasing2").val(data.produk.creasing2).prop("disabled", (data.poDetail.length == 0) ? false : true);
 			$("#creasing3").val(data.produk.creasing3).prop("disabled", (data.poDetail.length == 0) ? false : true);
-			$("#flute").val(data.produk.flute).prop("disabled", (data.poDetail.length == 0) ? false : true);
+
+			$("#flute").html(`<option value="${data.produk.flute}">${data.produk.flute}</option><option value="">PILIH</option><option value="BCF">BCF</option><option value="CF">CF</option><option value="BF">BF</option>`).prop("disabled", (data.poDetail.length == 0) ? false : true);
+
 			$("#berat_bersih").val(data.produk.berat_bersih);
 			$("#luas_bersih").val(data.produk.luas_bersih);
 			$("#kualitas").val(data.produk.kualitas);
@@ -629,10 +631,19 @@
 			$("#design").val(data.produk.design);
 
 			$("#tipe_box").html((data.produk.kategori == 'K_BOX') ? `<option value="${data.produk.tipe_box}">${data.produk.tipe_box}</option>` : `<option value="-">-</option>`).prop("disabled", (data.poDetail.length == 0 && data.produk.kategori == 'K_BOX') ? false : true);
-			$("#sambungan").html((data.produk.kategori == 'K_BOX') ? `<option value="${data.produk.sambungan}">${data.produk.sambungan}</option><option value="">PILIH</option><option value="G">GLUE</option><option value="S">STICHING</option><option value="D">DIE CUT</option>` : `<option value="-">-</option>`).prop("disabled", (data.poDetail.length == 0 && data.produk.kategori == 'K_BOX') ? false : true);
+			$("#sambungan").html((data.produk.kategori == 'K_BOX') ? `<option value="${data.produk.sambungan}">${data.produk.sambungan}</option><option value="">PILIH</option><option value="G">GLUE</option><option value="S">STICHING</option><option value="GS">GLUE STICHING</option><option value="DS">DOUBLE STICHING</option><option value="D">DIE CUT</option>` : `<option value="-">-</option>`).prop("disabled", (data.poDetail.length == 0 && data.produk.kategori == 'K_BOX') ? false : true);
 
 			$("#jenis_produk").val(data.produk.jenis_produk);
-			$("#kategori").val(data.produk.kategori).prop("disabled", (data.poDetail.length == 0) ? false : true);
+
+			let nmKategori = ''
+			if(data.produk.kategori == 'K_BOX'){
+				nmKategori = 'BOX'
+			}else{
+				nmKategori = ' SHEET'
+			}
+			$("#kategori").html(`<option value="${data.produk.kategori}">${nmKategori}</option><option value="">PILIH</option><option value="K_BOX">PRODUK BOX</option><option value="K_SHEET">PRODUK SHEET</option>`).prop("disabled", (data.poDetail.length == 0) ? false : true);
+
+
 			$("#COA").val(data.produk.COA);
 			$("#jml_ikat").val(data.produk.jml_ikat);
 			$("#jml_palet").val(data.produk.jml_palet);
@@ -734,7 +745,7 @@
 		} else if(plh_tipe == "K_BOX"){
 			zFlute("disable");
 			$("#flute").val("").prop("disabled", false);
-			$("#sambungan").html(`<option value="">PILIH</option><option value="G">GLUE</option><option value="S">STICHING</option><option value="D">DIE CUT</option>`).prop("disabled", false);
+			$("#sambungan").html(`<option value="">PILIH</option><option value="G">GLUE</option><option value="S">STICHING</option><option value="GS">GLUE STICHING</option><option value="DS">DOUBLE STICHING</option><option value="D">DIE CUT</option>`).prop("disabled", false);
 			$("#tipe_box").html(`<option value="A1">A1</option>`).prop("disabled", false);
 			$("#l_panjang").val("").prop("disabled", false);
 			$("#l_lebar").val("").prop("disabled", false);

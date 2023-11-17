@@ -213,6 +213,8 @@ class M_master extends CI_Model{
 		// CEK PRODUK JIKA ADA UKURAN FLUTE SUBSTANCE YANG SAMA
 		$h_id_pelanggan = $this->input->post('h_id_pelanggan');
 		$noCust = $this->input->post('no_customer');
+		$nm_produk = $this->input->post('nm_produk');
+		$flute = $this->input->post('flute');
 		$l_panjang = $this->input->post('l_panjang');
 		$l_lebar = $this->input->post('l_lebar');
 		$l_tinggi = $this->input->post('l_tinggi');
@@ -221,7 +223,7 @@ class M_master extends CI_Model{
 		$kualitas = $this->input->post('kualitas');
 		$tipe_box = $this->input->post('tipe_box');
 		$sambungan = $this->input->post('sambungan');
-		$cekProduk = $this->db->query("SELECT*FROM m_produk WHERE no_customer='$noCust' AND l_panjang='$l_panjang' AND l_lebar='$l_lebar' AND l_tinggi='$l_tinggi' AND ukuran_sheet_p='$ukSheetP' AND ukuran_sheet_l='$ukSheetL' AND tipe_box='$tipe_box' AND sambungan='$sambungan' AND kualitas='$kualitas'");
+		$cekProduk = $this->db->query("SELECT*FROM m_produk WHERE no_customer='$noCust' AND nm_produk='$nm_produk' AND l_panjang='$l_panjang' AND l_lebar='$l_lebar' AND l_tinggi='$l_tinggi' AND ukuran_sheet_p='$ukSheetP' AND ukuran_sheet_l='$ukSheetL' AND tipe_box='$tipe_box' AND sambungan='$sambungan' AND flute='$flute' AND kualitas='$kualitas'");
 		
 		if ($status == 'insert') {
 			if($cekProduk->num_rows() > 0){
@@ -261,8 +263,6 @@ class M_master extends CI_Model{
 		}else{
 			$opsiWhere = "AND p.l_panjang='$mcPanjang' AND p.l_lebar='$mcLebar'";
 		}
-		// AND p.l_panjang='$mcPanjang' AND p.l_lebar='$mcLebar' AND p.l_tinggi='$mcTinggi'
-		// AND p.kualitas='$mcKualitas'
 		$cekProduk = $this->db->query("SELECT p.* FROM m_produk p
 		INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan
 		WHERE c.kode_unik='$mcKodeUnik' AND p.flute='$mcFlute' $opsiWhere");

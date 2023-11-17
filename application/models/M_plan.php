@@ -165,7 +165,7 @@ class M_plan extends CI_Model
 		$this->db->set('good_cor_p', $_POST["good_cor_p"]);
 		$this->db->set('bad_cor_p', $_POST["bad_cor_p"]);
 		$this->db->set('total_cor_p', $_POST["total_cor_p"]);
-		$this->db->set('ket_plan', $_POST["ket_plan"]);
+		$this->db->set('ket_plan', strtoupper($_POST["ket_plan"]));
 		$this->db->set('start_time_p', $_POST["start_cor"]);
 		$this->db->set('end_time_p', $_POST["end_cor"]);
 		$this->db->where('id_plan', $_POST["id_plan"]);
@@ -215,10 +215,114 @@ class M_plan extends CI_Model
 		$id_pelanggan = $_POST["id_pelanggan"];
 		$id_produk = $_POST["id_produk"];
 
-		return $this->db->query("SELECT p.*,so.qty_so FROM plan_cor p
+		// return $this->db->query("SELECT p.*,so.qty_so FROM plan_cor p
+		// INNER JOIN trs_so_detail so ON p.id_so_detail=so.id
+		// WHERE p.status_plan='Close'
+		// AND p.id_so_detail='$id_so' AND p.id_wo='$id_wo' AND p.id_produk='$id_produk' AND p.id_pelanggan='$id_pelanggan'");
+		return $this->db->query("SELECT COUNT(dt.id_plan_cor) AS jmlDt,SUM(dt.durasi_mnt_dt) AS jmlDtDurasi,p.*,so.qty_so FROM plan_cor p
 		INNER JOIN trs_so_detail so ON p.id_so_detail=so.id
+		LEFT JOIN plan_cor_dt dt ON p.id_plan=dt.id_plan_cor
 		WHERE p.status_plan='Close'
-		AND p.id_so_detail='$id_so' AND p.id_wo='$id_wo' AND p.id_produk='$id_produk' AND p.id_pelanggan='$id_pelanggan'");
+		AND p.id_so_detail='$id_so' AND p.id_wo='$id_wo' AND p.id_produk='$id_produk' AND p.id_pelanggan='$id_pelanggan'
+		GROUP BY p.tgl_plan,p.id_plan");
 	}
 
+	function onChangeNourutPlan()
+	{
+		$no_urut = $_POST["no_urut"];
+		$id_plan = $_POST["i"];
+
+		$this->db->set('no_urut_plan', $no_urut);
+		$this->db->where('id_plan', $id_plan);
+		return $this->db->update("plan_cor");
+	}
+
+	function editListPlan()
+	{
+		$this->db->set("material_plan", $_POST["material"]);
+		$this->db->set("kualitas_plan", $_POST["kualitas"]);
+		$this->db->set("kualitas_isi_plan", $_POST["kualitas_isi"]);
+		$this->db->set("panjang_plan", $_POST["panjang_plan"]);
+		$this->db->set("lebar_plan", $_POST["lebar_plan"]);
+		// $this->db->set("", $_POST["kategori"]);
+		$this->db->set("lebar_roll_p", $_POST["lebar_roll_p"]);
+		$this->db->set("out_plan", $_POST["out_plan"]);
+		$this->db->set("trim_plan", $_POST["trim_plan"]);
+		$this->db->set("c_off_p", $_POST["c_off_p"]);
+		$this->db->set("rm_plan", $_POST["rm_plan"]);
+		$this->db->set("tonase_plan", $_POST["tonase_plan"]);
+		$this->db->where("id_plan", $_POST["id_plan"]);
+		$plan = $this->db->update("plan_cor");
+
+		$this->db->set("flap1", $_POST["creasing_wo1"]);
+		$this->db->set("creasing2", $_POST["creasing_wo2"]);
+		$this->db->set("flap2", $_POST["creasing_wo3"]);
+		$this->db->where("id", $_POST["id_wo"]);
+		$wo = $this->db->update("trs_wo");
+
+		return array(
+			'plan' => $plan,
+			'wo' => $wo,
+		);
+	}
+
+	function simpanDowntime()
+	{
+		$id_plan = $_POST["id_plan"];
+		$id_dt = $_POST["id_dt"];
+		$durasi = $_POST["durasi"];
+		$ket = $_POST["ket"];
+
+		if($id_plan == "" || $id_dt == "" || $durasi == "" || $durasi == 0){
+			$result = false;
+			$msg = 'HARAP LENGKAPI DATA DOWNTIME!';
+		}else{
+			$cek = $this->db->query("SELECT*FROM plan_cor_dt WHERE id_plan_cor='$id_plan' AND id_m_downtime='$id_dt'");
+			if($cek->num_rows() > 0){
+				$result = false;
+				$msg = 'DATA DOWNTIME SUDAH ADA!';
+			}else{
+				$this->db->set('id_plan_cor', $id_plan);
+				$this->db->set('id_m_downtime', $id_dt);
+				$this->db->set('durasi_mnt_dt', $durasi);
+				$this->db->set('ket_plan_dt', strtoupper($ket));
+				$this->db->set('add_time', date("Y:m:d H:i:s"));
+				$this->db->set('add_user', $this->session->userdata('username'));
+				$result = $this->db->insert('plan_cor_dt');
+				$msg = 'BERHASIL!';
+			}
+		}
+		return array(
+			'result' => $result,
+			'msg' => $msg,
+		);
+	}
+
+	function hapusDowntimePlan()
+	{
+		$this->db->where('id_plan_dt', $_POST["id_dt"]);
+		return $this->db->delete('plan_cor_dt');
+	}
+
+	function changeEditDt()
+	{
+		$durasi = $_POST["durasi"];
+		if($durasi == 0 || $durasi == ""){
+			$result = false;
+			$msg = 'DURASI TIDAK BOLEH KOSONG!';
+		}else{
+			$this->db->set('durasi_mnt_dt', $durasi);
+			$this->db->set('ket_plan_dt', strtoupper($_POST["ket"]));
+			$this->db->set('edit_time', date("Y-m-d H:i:s"));
+			$this->db->set('edit_user', $this->session->userdata('username'));
+			$this->db->where('id_plan_dt', $_POST["id_plan"]);
+			$result = $this->db->update('plan_cor_dt');
+			$msg = "BERHASIL EDIT!";
+		}
+
+		return array(
+			'data' => $result,
+			'msg' => $msg,
+		);
+	}
 }
