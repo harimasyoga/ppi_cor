@@ -116,6 +116,30 @@ class Transaksi extends CI_Controller
 
         echo json_encode($query);
     }
+    
+	function cek_plan_sementara()
+    {
+        
+		$no_po        = $this->input->post('no_po');
+		$id_produk    = $this->input->post('id_produk');
+
+        $query = $this->db->query("SELECT * FROM plan_cor_sementara WHERE no_po = '$no_po 'and id_produk = '$id_produk' ")->num_rows();
+
+        echo json_encode($query);
+    }
+	
+	function plan_sementara()
+    {
+        
+		$no_po        = $this->input->post('no_po');
+		$id_produk    = $this->input->post('id_produk');
+
+        $query = $this->db->query("SELECT * FROM plan_cor_sementara a 
+		JOIN m_produk b ON a.id_produk=b.id_produk 
+		WHERE a.no_po = '$no_po 'and a.id_produk = '$id_produk' ")->row();
+
+        echo json_encode($query);
+    }
 
     function set_ukuran()
     {
@@ -846,7 +870,7 @@ class Transaksi extends CI_Controller
 
 		if ($query->num_rows() > 0) {
 
-            $data = $query->row();
+            $data   = $query->row();
 
 			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:14px;">
                         <tr style="font-weight: bold;">
@@ -856,12 +880,25 @@ class Transaksi extends CI_Controller
                         </tr>
                  </table><br>';
 
-			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:22px;">
-                        <tr align="left" style="background-color: #cccccc">
-                            <th>PO '. $data->nm_pelanggan .' </th>
-                        </tr>
-                        <tr align="left">
-                            <th>RM </th>';
+				$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:22px;">
+				<tr align="left" style="background-color: #cccccc">
+					<th>PO '.substr($data->kategori,2,10).' '. $data->nm_pelanggan .' </th>
+				</tr>
+				<tr align="left">
+					<th>ITEM </th>';
+				 
+				$no = 1;
+				foreach ($query->result() as $r) { 
+					$html .= '
+								<tr>
+									<td>' . $no . '. ' . $r->nm_produk . '</td>
+								</tr>';
+					$no++;
+				}
+	 
+				$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:22px;">
+					<tr align="left">
+						<th>RM </th>';
                         
 			$no = 1;
 			foreach ($query->result() as $r) { 
@@ -874,15 +911,32 @@ class Transaksi extends CI_Controller
 
             $html .= '
             <tr align="left">
-                <th>Berat Bersih : Tonase</th>
+                <th>Harga / kg</th>
             </tr>';
 
             $no       = 1;
             $toton    = 0;
             foreach ($query->result() as $r) { 
+				$harga_kg   = round($r->price_exc / $r->berat_bersih);
 				$html .= '
                             <tr>
-                                <td>' . $no . '. ' . $r->bb . ' : ' . $r->ton . ' Kg</td>
+                                <td>' . $no . '. ' . number_format($harga_kg, 0, ",", ".") . '</td>
+                            </tr>';
+                $toton += $r->ton;
+				$no++;
+			}
+			
+			$html .= '
+            <tr align="left">
+                <th>Berat Bersih : Tonase</th>
+            </tr>';
+			
+            $no       = 1;
+            $toton    = 0;
+            foreach ($query->result() as $r) { 
+				$html .= '
+                            <tr>
+                                <td>' . $no . '. ' . str_replace(".",",",$r->bb) . ' : ' . number_format($r->ton, 0, ",", ".") . ' Kg</td>
                             </tr>';
                 $toton += $r->ton;
 				$no++;
@@ -891,7 +945,7 @@ class Transaksi extends CI_Controller
             $html .= '
             </th>
             <tr align="left">
-                <th>Total Tonase PO : '. $toton .' Kg</th>
+                <th>Total Tonase PO : '. number_format($toton, 0, ",", ".") .' Kg</th>
             </tr>';
             
 			$no       = 1;
