@@ -232,9 +232,25 @@ class M_plan extends CI_Model
 		$no_urut = $_POST["no_urut"];
 		$id_plan = $_POST["i"];
 
-		$this->db->set('no_urut_plan', $no_urut);
-		$this->db->where('id_plan', $id_plan);
-		return $this->db->update("plan_cor");
+		$noPoPlan = $this->db->query("SELECT no_plan FROM plan_cor WHERE id_plan='$id_plan'")->row();
+
+		$cekNoUrutPlan = $this->db->query("SELECT*FROM plan_cor WHERE no_urut_plan='$no_urut' AND no_plan='$noPoPlan->no_plan'");
+		if($cekNoUrutPlan->num_rows() == 0){
+			$this->db->set('no_urut_plan', $no_urut);
+			$this->db->where('id_plan', $id_plan);
+			$data = $this->db->update("plan_cor");
+			$msg = 'BERHASIL EDIT NO URUT!';
+		}else{
+			$data = false;
+			$msg = 'NO URUT SUDAH ADA!';
+		}
+
+		return array(
+			'data' => $data,
+			'msg' => $msg,
+			'no_plan' => $noPoPlan,
+			'urut_plan' => $cekNoUrutPlan->row(),
+		);
 	}
 
 	function editListPlan()
@@ -273,7 +289,7 @@ class M_plan extends CI_Model
 		$durasi = $_POST["durasi"];
 		$ket = $_POST["ket"];
 
-		if($id_plan == "" || $id_dt == "" || $durasi == "" || $durasi == 0){
+		if($id_plan == "" || $id_dt == "" || $durasi == "" || $durasi == 0 || $durasi < 0){
 			$result = false;
 			$msg = 'HARAP LENGKAPI DATA DOWNTIME!';
 		}else{
