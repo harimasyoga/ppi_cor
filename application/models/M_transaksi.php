@@ -33,7 +33,6 @@ class M_transaksi extends CI_Model
 			// $produk = $this->m_master->get_data_one("m_produk", "kode_mc", $params->id_produk[$key])->row();
 
 			$data = array(
-				'no_po'           => $nopo,
 				'tgl_po'          => $params->tgl_po,
 				'kode_po'         => $params->kode_po,
 				'eta'             => $params->eta,
@@ -54,6 +53,7 @@ class M_transaksi extends CI_Model
 			);
 
 			if ($status == 'insert') {
+				$this->db->set("no_po", $nopo);
 				$this->db->set("add_user", $this->username);
 				$result = $this->db->insert("trs_po_detail", $data);
 			} else {
@@ -75,7 +75,6 @@ class M_transaksi extends CI_Model
 		}
 
 		$data = array(
-			'no_po'          => $nopo,
 			'tgl_po'         => $params->tgl_po,
 			'kode_po'        => $params->kode_po,
 			'eta'            => $params->eta,
@@ -93,6 +92,8 @@ class M_transaksi extends CI_Model
 		);
 
 		if ($status == 'insert') {
+			
+			$this->db->set("no_po", $nopo);
 			$this->db->set("add_user", $this->username);
 			$result = $this->db->insert($table, $data);
 		} else {
@@ -601,8 +602,14 @@ class M_transaksi extends CI_Model
 
 			if ($this->session->userdata('level') == "Marketing") {
 				$app = "1";
+				if ($status == 'Y') {
+					$this->db->set("status", 'Open');
+				}
 			}else if ($this->session->userdata('level') == "PPIC") {
 				$app = "2";
+				if ($status == 'Y') {
+					$this->db->set("status", 'Open');
+				}
 			}else if ($this->session->userdata('level') == "Owner") {
 				$app = "3";
 				if ($status == 'Y') {
@@ -627,6 +634,20 @@ class M_transaksi extends CI_Model
 				$app = "3";
 				if ($status == 'Y') {
 					$this->db->set("status", 'Approve');
+					$this->db->where("no_po",$id);
+					$valid = $this->db->update("trs_po_detail");
+				}
+			}else if ($this->session->userdata('level') == "PPIC") {
+				$app = "2";
+				if ($status == 'Y') {
+					$this->db->set("status", 'Open');
+					$this->db->where("no_po",$id);
+					$valid = $this->db->update("trs_po_detail");
+				}
+			}else if ($this->session->userdata('level') == "Marketing") {
+				$app = "2";
+				if ($status == 'Y') {
+					$this->db->set("status", 'Open');
 					$this->db->where("no_po",$id);
 					$valid = $this->db->update("trs_po_detail");
 				}
