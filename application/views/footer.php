@@ -69,6 +69,16 @@
       
   });
 
+  function ubah_angka(cek,id){
+    if(cek==''){
+      $("#"+id).val('')
+    }else{
+      cek1 = cek.split('.').join('')
+      hasil= format_angka(parseInt(cek1))
+      $("#"+id).val(hasil)
+    }
+  }
+  
   function format_angka(num) 
   {
 
