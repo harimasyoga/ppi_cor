@@ -73,181 +73,184 @@
 			</div>
 			<div class="modal-body">
 				<form role="form" method="post" id="myForm">
-					<div class="form-group row">
-						<table width="95%" border="0">
-							<tr>
-								<td width="15%">No PO</td>
-								<td>
-									<input type="hidden" class="form-control" value="trs_po" name="jenis" id="jenis">
-									<input type="hidden" class="form-control" value="" name="status" id="status">
-									<input type="text" class="form-control" name="no_po" id="no_po" value="AUTO" readonly>
-								</td>
-								<td width="15%"></td>
-								<td width="15%">Nama Pelanggan</td>
-								<td width="30%">
-									<select class="form-control select2" name="id_pelanggan" id="id_pelanggan" style="width: 100%;" onchange="setProduk('new',this.value,0)">
-										<!-- <option value="">Pilih</option> -->
-										<?php foreach ($pelanggan as $r) : ?>
-											<option value="<?= $r->id_pelanggan ?>" detail="
-											<?=$r->kab_name."|".$r->no_telp . "|" . $r->fax . "|" . $r->top . "|" . $r->nm_sales ?>">
-												<?= $r->id_pelanggan . "|" . $r->nm_pelanggan ?>
-											</option>
-										<?php endforeach ?>
-									</select>
-								</td>
-							</tr>
-							<tr>
-								<td width="15%">Tgl PO</td>
-								<td><input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>" readonly></td>
-								<td width="15%"></td>
-								<td width="15%">
-									Kota
-								</td>
-								<td>
-									<!-- <font id=""></font> -->
-									<input type="text" class="form-control" name="txt_kota" id="txt_kota" value="" readonly>
-								</td>
-							</tr>
-							<tr>
-								<td width="15%">Kode PO</td>
-								<td>
-									<input type="text" class="form-control" name="kode_po" id="kode_po" onchange="cek_kode_po(this.value)" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " >
-								</td>
-								<td width="15%"></td>
-								<td width="15%">
-									No Telepon 
-								</td>
-								<td>
-									<input type="text" class="form-control" name="txt_no_telp" id="txt_no_telp" value="" readonly>
-								</td>
-								
-							</tr>
-							<tr>
-								<td width="15%">ETA</td>
-								<td>
-									<input type="date" class="form-control" name="eta" id="eta" value="" >
-								</td>
-								<td width="15%"></td>
-								<td width="15%">
-									FAX
-								</td>
-								<td>
-									<input type="text" class="form-control" name="txt_fax" id="txt_fax" value="" readonly>
-								</td>
-							</tr>
-							<tr>
-							<td width="15%">Marketing</td>
-								<td>
-									<!-- <select class="form-control select2" name="id_sales" id="id_sales" style="width: 100%;" >
-										<option value="">Pilih</option>
-										<?php foreach ($sales as $r) : ?>
-											<option value="<?= $r->id_sales ?>">
-												<?= $r->nm_sales ?>
-											</option>
-										<?php endforeach ?>
-									</select> -->
-									<!-- <font id="txt_marketing"></font> -->
-									<input type="text" class="form-control" name="txt_marketing" id="txt_marketing" value="" readonly>
-								</td>
-								<td width="15%"></td>
-								<td width="15%">
-									TOP
-								</td>
-								<td>
-									<input type="text" class="form-control" name="txt_top" id="txt_top" value="" readonly>
-								</td>
-							</tr>
-						</table>
-					</div>
-					<hr>
+					<div style="overflow-x:auto;">
 
-					<div class="form-group row">
-						<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table-produk" style="width: 100%" align="center">
-							<thead class="color-tabel">
+						<div class="form-group row">
+							<table width="95%" border="0">
 								<tr>
-									<th width="10%" id="header_del">Delete</th>
-									<th width="10%">Item</th>
-									<th width="10%">Qty</th>
-									<th width="10%">PPN</th>
-
-									<?php if ($this->session->userdata('level') != "PPIC"): ?>
-										
-										<th width="10%">Price Exclude</th>
-										<th width="10%">Price Include</th>
-
-									<?php endif ?>
-
-									<?php if ($this->session->userdata('level') == "Admin" || $this->session->userdata('level') == "Owner" || $this->session->userdata('level') == "User")  {
-										?>
-										
-											<th width="10%" id="header_p11" >P11</th>
-										
-									<?php } else { ?>
-
-											<th type="hidden" width="10%" id="header_p11" >P11</th>
-
-									<?php } ?>
-									<th width="20%">Detail Item</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr id="itemRow0">
-									<td id="detail-hapus-0">
-										<div class="text-center">
-											<a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
-										</div>
-									</td>
+									<td width="15%">No PO</td>
 									<td>
-										<select class="form-control select2 narrow wrap wrap" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(this.value,0)">
+										<input type="hidden" class="form-control" value="trs_po" name="jenis" id="jenis">
+										<input type="hidden" class="form-control" value="" name="status" id="status">
+										<input type="text" class="form-control" name="no_po" id="no_po" value="AUTO" readonly>
+									</td>
+									<td width="15%"></td>
+									<td width="15%">Nama Pelanggan</td>
+									<td width="30%">
+										<select class="form-control select2" name="id_pelanggan" id="id_pelanggan" style="width: 100%;" onchange="setProduk('new',this.value,0)">
+											<!-- <option value="">Pilih</option> -->
+											<?php foreach ($pelanggan as $r) : ?>
+												<option value="<?= $r->id_pelanggan ?>" detail="
+												<?=$r->kab_name."|".$r->no_telp . "|" . $r->fax . "|" . $r->top . "|" . $r->nm_sales ?>">
+													<?= $r->id_pelanggan . "|" . $r->nm_pelanggan ?>
+												</option>
+											<?php endforeach ?>
 										</select>
 									</td>
-									<td>
-										<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="qty_dec_(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)">
-
-										<input class="form-control input-border-none" type="text" name="qty_dec[0]" id="qty_dec0"  style="color:red" readonly>
+								</tr>
+								<tr>
+									<td width="15%">Tgl PO</td>
+									<td><input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>" readonly></td>
+									<td width="15%"></td>
+									<td width="15%">
+										Kota
 									</td>
 									<td>
-										<select class="form-control select2" name="ppn[0]" id="ppn0" >
-											<option value="">-- Pilih --</option>
-											<!-- <option value="KB">KB</option> -->
-											<option value="PP">PP</option>
-											<option value="NP">NP</option>
-										</select>
-									</td>
-									<?php if ($this->session->userdata('level') != "PPIC"): ?>
-									
-									<td>
-										<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
-
-										<input class="form-control input-border-none" type="text" name="price_exc_rp[0]" id="price_exc_rp0" style="color:red" readonly>
-									</td>
-									<td>
-										<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
-
-										<input class="form-control input-border-none" type="text" name="price_inc_rp[0]" id="price_inc_rp0" style="color:red" readonly>
-									</td>
-									<?php endif ?>
-
-										<td id="p11_det0">
-											<input type="text" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
-										
-										</td>
-
-									
-									<td id="txt_detail_produk0">
+										<!-- <font id=""></font> -->
+										<input type="text" class="form-control" name="txt_kota" id="txt_kota" value="" readonly>
 									</td>
 								</tr>
-							</tbody>
-						</table>
-					</div>
-					<div class="form-group row" style="justify-content: left; ">
-						<!-- <label class="col-sm-2 col-form-label"></label> -->
-						<div class="col-sm-4">
-							<button type="button" onclick="addRow()" class="btn-tambah-produk btn  btn-success"><b><i class="fa fa-plus" ></i> Tambah Produk</b></button>
-							<input type="hidden" name="bucket" id="bucket" value="0">
+								<tr>
+									<td width="15%">Kode PO</td>
+									<td>
+										<input type="text" class="form-control" name="kode_po" id="kode_po" onchange="cek_kode_po(this.value)" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " >
+									</td>
+									<td width="15%"></td>
+									<td width="15%">
+										No Telepon 
+									</td>
+									<td>
+										<input type="text" class="form-control" name="txt_no_telp" id="txt_no_telp" value="" readonly>
+									</td>
+									
+								</tr>
+								<tr>
+									<td width="15%">ETA</td>
+									<td>
+										<input type="date" class="form-control" name="eta" id="eta" value="" >
+									</td>
+									<td width="15%"></td>
+									<td width="15%">
+										FAX
+									</td>
+									<td>
+										<input type="text" class="form-control" name="txt_fax" id="txt_fax" value="" readonly>
+									</td>
+								</tr>
+								<tr>
+								<td width="15%">Marketing</td>
+									<td>
+										<!-- <select class="form-control select2" name="id_sales" id="id_sales" style="width: 100%;" >
+											<option value="">Pilih</option>
+											<?php foreach ($sales as $r) : ?>
+												<option value="<?= $r->id_sales ?>">
+													<?= $r->nm_sales ?>
+												</option>
+											<?php endforeach ?>
+										</select> -->
+										<!-- <font id="txt_marketing"></font> -->
+										<input type="text" class="form-control" name="txt_marketing" id="txt_marketing" value="" readonly>
+									</td>
+									<td width="15%"></td>
+									<td width="15%">
+										TOP
+									</td>
+									<td>
+										<input type="text" class="form-control" name="txt_top" id="txt_top" value="" readonly>
+									</td>
+								</tr>
+							</table>
 						</div>
+						<hr>
+
+						<div class="form-group row" >
+							<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table-produk" style="width: 100%" align="center">
+								<thead class="color-tabel">
+									<tr>
+										<th width="10%" id="header_del">Delete</th>
+										<th width="10%">Item</th>
+										<th width="10%">Qty</th>
+										<th width="10%">PPN</th>
+
+										<?php if ($this->session->userdata('level') != "PPIC"): ?>
+											
+											<th width="10%">Price Exclude</th>
+											<th width="10%">Price Include</th>
+
+										<?php endif ?>
+
+										<?php if ($this->session->userdata('level') == "Admin" || $this->session->userdata('level') == "Owner" || $this->session->userdata('level') == "User")  {
+											?>
+											
+												<th width="10%" id="header_p11" >P11</th>
+											
+										<?php } else { ?>
+
+												<th type="hidden" width="10%" id="header_p11" >P11</th>
+
+										<?php } ?>
+										<th width="20%">Detail Item</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr id="itemRow0">
+										<td id="detail-hapus-0">
+											<div class="text-center">
+												<a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
+											</div>
+										</td>
+										<td>
+											<select class="form-control select2 narrow wrap wrap" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(this.value,0)">
+											</select>
+										</td>
+										<td>
+											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="qty_dec_(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)">
+
+											<input class="form-control input-border-none" type="text" name="qty_dec[0]" id="qty_dec0"  style="color:red" readonly>
+										</td>
+										<td>
+											<select class="form-control select2" name="ppn[0]" id="ppn0" >
+												<option value="">-- Pilih --</option>
+												<!-- <option value="KB">KB</option> -->
+												<option value="PP">PP</option>
+												<option value="NP">NP</option>
+											</select>
+										</td>
+										<?php if ($this->session->userdata('level') != "PPIC"): ?>
+										
+										<td>
+											<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+
+											<input class="form-control input-border-none" type="text" name="price_exc_rp[0]" id="price_exc_rp0" style="color:red" readonly>
+										</td>
+										<td>
+											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+
+											<input class="form-control input-border-none" type="text" name="price_inc_rp[0]" id="price_inc_rp0" style="color:red" readonly>
+										</td>
+										<?php endif ?>
+
+											<td id="p11_det0">
+												<input type="text" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
+											
+											</td>
+
+										
+										<td id="txt_detail_produk0">
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="form-group row" style="justify-content: left; ">
+							<!-- <label class="col-sm-2 col-form-label"></label> -->
+							<div class="col-sm-4">
+								<button type="button" onclick="addRow()" class="btn-tambah-produk btn  btn-success"><b><i class="fa fa-plus" ></i> Tambah Produk</b></button>
+								<input type="hidden" name="bucket" id="bucket" value="0">
+							</div>
+						</div>
+					
 					</div>
-			</div>
 					<div class="modal-footer">
 
 						<button type="button" class="btn btn-success btn-verif" id="btn-verif_acc" style="display: none;" onclick="prosesData_acc('Y')"><i class="fas fa-check"></i> <b>Verifikasi</b></button>
@@ -262,7 +265,8 @@
 
 						<button type="button" class="btn btn-outline-danger" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-times-circle"></i> <b> Batal</b></button>
 					</div>
-			</form>
+				</form>			
+			</div>
 			<input type="hidden" name="bucket" id="bucket" value="0">
 		</div>
 		<!-- /.modal-content -->
@@ -581,22 +585,22 @@
 		
 		$(".btn-verif").hide()
 
-		if (data[0].status == 'Open') {
+		if (data[0].status == 'Open' || data[0].status == 'Reject') {
 			if ('<?= $this->session->userdata('level') ?>' == 'Admin'){
 				$(".btn-verif").show()
 			}
 
-			if ('<?= $this->session->userdata('level') ?>' == 'Marketing' && ( data[0].status_app1 == 'N' || data[0].status_app1 == 'H'  ) ) 
+			if ('<?= $this->session->userdata('level') ?>' == 'Marketing' && ( data[0].status_app1 == 'N' || data[0].status_app1 == 'H' || data[0].status_app1 == 'R'  ) ) 
 			{
 				$(".btn-verif").show()
 			}
 
-			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data[0].status_app1 == 'Y' && ( data[0].status_app2 == 'N' || data[0].status_app2 == 'H' ) ) 
+			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data[0].status_app1 == 'Y' && ( data[0].status_app2 == 'N' || data[0].status_app2 == 'H' || data[0].status_app2 == 'R' ) ) 
 			{
 				$(".btn-verif").show()
 			}
 
-			if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data[0].status_app1 == 'Y' && data[0].status_app2 == 'Y'  && ( data[0].status_app3 == 'N' || data[0].status_app3 == 'H' ) ) 
+			if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data[0].status_app1 == 'Y' && data[0].status_app2 == 'Y'  && ( data[0].status_app3 == 'N' || data[0].status_app3 == 'H' || data[0].status_app3 == 'R' ) ) 
 			{
 				$(".btn-verif").show()
 			}
@@ -1077,6 +1081,7 @@
 
 	function setDetailProduk(kd,id) 
 	{
+		
 		// if ($("#id_produk" + e).val() == "") {
 		// 	return;
 		// }
@@ -1120,6 +1125,8 @@
 						}else {
 							$join = '-';
 						}
+						var qty_po = $("#qty"+id).val()
+						
 						html_produk = `
 						<table class='table' border='0' style='font-size:12px'>
 						<tr> 
@@ -1158,10 +1165,14 @@
 							<?php if ($this->session->userdata('level') != "PPIC"){ ?>
 							html_produk += `
 							<tr style=list-style:none;> 
-								<td colspan="3">
+								<td>
 									<b>Harga / Kg : 
 									</b>
 									<input type="text" class="input-border-none" name="hrg_kg[${id}]" id="hrg_kg${id}" readonly >
+								</td> 
+								<td colspan="2">
+									<b>QTY PO : 
+									</b> ${format_angka(qty_po)}
 								</td> 
 							</tr> `;
 							<?php } ?>

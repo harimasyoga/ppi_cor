@@ -398,7 +398,7 @@ class Transaksi extends CI_Controller
 				}else{
 					if ($this->session->userdata('level') == 'Marketing' ) {
 
-						if($r->status_app1 == 'N' || $r->status_app1 == 'H')
+						if($r->status_app1 == 'N' || $r->status_app1 == 'H' || $r->status_app1 == 'R')
 						{
 							$aksi .=  ' 
 									<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
@@ -409,7 +409,7 @@ class Transaksi extends CI_Controller
 
 					if ($this->session->userdata('level') == 'PPIC' && $r->status_app1 == 'Y' ) {
 
-						if($r->status_app2 == 'N' || $r->status_app2 == 'H'){
+						if($r->status_app2 == 'N' || $r->status_app2 == 'H' || $r->status_app2 == 'R'){
 
 							$aksi .=  ' 
 									<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
@@ -419,7 +419,7 @@ class Transaksi extends CI_Controller
 					}
 
 					if ($this->session->userdata('level') == 'Owner' && $r->status_app1 == 'Y' && $r->status_app2 == 'Y' ) {
-						if($r->status_app3 == 'N' || $r->status_app3 == 'H'){
+						if($r->status_app3 == 'N' || $r->status_app3 == 'H' || $r->status_app3 == 'R'){
 
 							$aksi .=  ' 
 									<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
@@ -430,7 +430,7 @@ class Transaksi extends CI_Controller
 
                     if ($this->session->userdata('level') == 'Admin' ) {
 
-						if($r->status_app1 == 'N' || $r->status_app2 == 'N' || $r->status_app3 == 'N' || $r->status_app1 == 'H' || $r->status_app2 == 'H' || $r->status_app3 == 'H'){
+						if($r->status_app1 == 'N' || $r->status_app2 == 'N' || $r->status_app3 == 'N' || $r->status_app1 == 'H' || $r->status_app2 == 'H' || $r->status_app3 == 'H' || $r->status_app1 == 'R' || $r->status_app2 == 'R' || $r->status_app3 == 'R'){
 							$aksi .=  '
 								<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
 									<i class="fa fa-edit"></i>
@@ -904,7 +904,7 @@ class Transaksi extends CI_Controller
 			foreach ($query->result() as $r) { 
 				$html .= '
                             <tr>
-                                <td>' . $no . '. ' . $r->rm . '</td>
+                                <td>' . $no . '. ' . number_format($r->rm, 0, ",", ".") . '</td>
                             </tr>';
 				$no++;
 			}
@@ -948,14 +948,20 @@ class Transaksi extends CI_Controller
                 <th>Total Tonase PO : '. number_format($toton, 0, ",", ".") .' Kg</th>
             </tr>';
             
-			$no       = 1;
-			foreach ($query->result() as $r) { 
-				$html .= '</th>
-						<tr align="left">
-							<th>Harga P11 ['.$no.'] : '. $data->p11 .'</th>
-						</tr>';
-				$no++;
+			if($data->kategori=='K_SHEET')
+			{
+
+				$no       = 1;
+				foreach ($query->result() as $r) { 
+					$html .= '</th>
+							<tr align="left">
+								<th>Harga P11 ['.$no.'] : '. $data->p11 .'</th>
+							</tr>';
+					$no++;
+				}
+				
 			}
+			
             
             $html .= '
             </th>
