@@ -25,6 +25,16 @@
 
 	<section class="content" style="padding-bottom:30px">
 		<div class="container-fluid">
+
+			<!-- <div class="row">
+				<div class="col-md-12">
+					<div class="card card-primary card-tabs">
+						<div id="plh-tanggal-plan-header"></div>
+						<div id="plh-tanggal-plan-body"></div>
+					</div>
+				</div>
+			</div> -->
+
 			<div class="row">
 				<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') { ?>
 					<div class="col-md-12">
@@ -57,18 +67,22 @@
 							</div>
 						</div>
 					</div>
-
-					<div class="col-md-12">
-						<div class="card card-primary card-outline" style="padding-bottom:20px">
-							<div class="card-header">
-								<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST INPUT</h3>
-							</div>
-							<div id="tampil-list-input"></div>
-						</div>
-
-						<div id="riwayat-plan"></div>
-					</div>
 				<?php } ?>
+
+				<div class="col-md-12">
+
+				</div>
+
+				<div class="col-md-12">
+					<div class="card card-primary card-outline" style="padding-bottom:20px">
+						<div class="card-header">
+							<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST INPUT</h3>
+						</div>
+						<div id="tampil-list-input"></div>
+					</div>
+
+					<div id="riwayat-plan"></div>
+				</div>
 
 				<div class="col-md-7">
 					<div id="card-produksi" style="display:none">
@@ -567,6 +581,57 @@
 		})
 	})
 
+	function loadPilihTanggal()
+	{
+		$("#plh-tanggal-plan-header").html('')
+		$("#plh-tanggal-plan-body").html('')
+		$.ajax({
+			url: '<?php echo base_url('Plan/loadPilihTanggal')?>',
+			type: "POST",
+			data: ({
+				urlTgl_plan, urlShift, urlMesin
+			}),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				$("#plh-tanggal-plan-header").html(res)
+				swal.close()
+			}
+		})
+	}
+
+	function clickPlhTgl(tgl_plan)
+	{
+		$("#plh-tanggal-plan-body").html('')
+		$.ajax({
+			url: '<?php echo base_url('Plan/clickPlhTgl')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ tgl_plan }),
+			success: function(res){
+				$("#plh-tanggal-plan-body").html(res)
+				swal.close()
+			}
+		})
+	}
+
 	function loadData(tgl_plan, shift, mesin)
 	{
 		$.ajax({
@@ -619,7 +684,8 @@
 			success: function(res){
 				$("#tampil-list-input").html(res)
 				$('.select2').select2()
-				swal.close()
+				// swal.close()
+				plhDowntime()
 			}
 		})
 	}
@@ -649,7 +715,11 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				loadData(urlTgl_plan, urlShift, urlMesin)
+				if(data.data){
+					loadData(urlTgl_plan, urlShift, urlMesin)
+				}else{
+					swal(data.msg, "", "error")
+				}
 			}
 		})
 	}
@@ -1335,6 +1405,9 @@
 
 	function plhNoWo(opsi = '')
 	{
+		$("#dt-pilih").html('')
+		$("#dt-select").html('')
+		$("#dt-load-data").html('')
 		let id_wo = ''; let id_so = ''; let id_pelanggan = ''; let id_produk = ''; let tgl_wo = ''; let no_wo = ''; let no_so = ''; let urut_so = ''; let rpt = ''; let eta_so = ''; let tgl_po = ''; let no_po = ''; let kode_po = ''; let qty_po = ''; let customer = ''; let nm_sales = ''; let item = ''; let kode_mc = ''; let uk_box = ''; let uk_sheet = ''; let panjang_s = ''; let lebar_s = ''; let creasing_1 = ''; let creasing_2 = ''; let creasing_3 = ''; let material = ''; let kualitas = ''; let kualitas_isi = ''; let flute = ''; let tipe_box = ''; let sambungan = ''; let berat_box = ''; let luas_box = ''; let qty_so = ''; let rm_so = ''; let ton_so = ''; let ket_so = ''; let creasing_wo1 = ''; let creasing_wo2 = ''; let creasing_wo3 = ''; let panjang_plan = ''; let lebar_plan = ''; let out_plan = ''; let lebar_roll_p = ''; let trim_plan = ''; let c_off_p = ''; let rm_plan = ''; let tonase_plan = ''; let kategori = '';
 
 		$.ajax({
@@ -1483,8 +1556,6 @@
 					$("#end_cor").val(data.wo.end_time_p)
 
 					$("#downtime_cor").val("")
-					plhDowntime()
-					// downtime()
 					hitungProduksi()
 				}else{
 					id_wo = $('#no_wo option:selected').attr('id-wo')
@@ -2010,6 +2081,7 @@
 			success: function(res){
 				$("#dt-load-data").html(res)
 				swal.close()
+				// loadPilihTanggal()
 			}
 		})
 	}

@@ -137,7 +137,6 @@ class M_master extends CI_Model{
 				'isi' => $inputData,
 			);
 		}
-        return $result;
     }
 
     function tb_user($table,$status){

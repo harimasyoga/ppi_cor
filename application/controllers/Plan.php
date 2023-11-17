@@ -1155,6 +1155,71 @@ class Plan extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function loadPilihTanggal()
+	{
+		$urlTglPlan = $_POST["urlTgl_plan"];
+		$urlShift = $_POST["urlShift"];
+		$urlMesin = $_POST["urlMesin"];
+		
+		$tglPlan = $this->db->query("SELECT tgl_plan,p.shift_plan,p.machine_plan,#COUNT(p.tgl_plan) AS jml_plan,
+		(SELECT COUNT(lp.tgl_plan) FROM plan_cor lp
+		WHERE p.tgl_plan=lp.tgl_plan AND p.shift_plan=lp.shift_plan AND p.machine_plan=lp.machine_plan GROUP BY lp.tgl_plan) AS jml_plan,
+		(SELECT COUNT(lp.tgl_plan) FROM plan_cor lp
+		WHERE p.tgl_plan=lp.tgl_plan AND p.shift_plan=lp.shift_plan AND p.machine_plan=lp.machine_plan AND lp.total_cor_p!='0' AND lp.status_plan='Open' GROUP BY lp.tgl_plan) AS prod_plan,
+		(SELECT COUNT(lp.tgl_plan) FROM plan_cor lp
+		WHERE p.tgl_plan=lp.tgl_plan AND p.shift_plan=lp.shift_plan AND p.machine_plan=lp.machine_plan AND lp.total_cor_p!='0' AND lp.status_plan='Close' GROUP BY lp.tgl_plan) AS selesai_plan,
+		(SELECT COUNT(lp.tgl_plan) FROM plan_cor lp
+		INNER JOIN trs_wo w ON lp.id_wo=w.id
+		WHERE p.tgl_plan=lp.tgl_plan AND p.shift_plan=lp.shift_plan AND p.machine_plan=lp.machine_plan AND lp.total_cor_p!='0' AND lp.status_plan='Close' AND w.status='Close' GROUP BY lp.tgl_plan) AS wo_plan
+		FROM plan_cor p
+		INNER JOIN trs_wo ww ON p.id_wo=ww.id
+		WHERE ww.status='Open'
+		GROUP BY p.tgl_plan,p.shift_plan,p.machine_plan");
+
+		$html ='';
+		$html .='<div class="card-header p-0 pt-1 pl-1 bg-gradient-secondary">
+			<ul class="nav nav-tabs" style="border-bottom:0" role="tablist">';
+				foreach($tglPlan->result() as $r){
+					if($r->jml_plan == $r->wo_plan){
+						$html .='';
+					}else if($urlTglPlan == $r->tgl_plan && $urlShift == $r->shift_plan && $urlMesin == $r->machine_plan){
+						$html .='';
+					}else{
+						$strTgl = str_replace('-', '', $r->tgl_plan);
+						if($r->machine_plan == 'CORR1'){
+							$mch = 'C1';
+						}else{
+							$mch = 'C2';
+						}
+
+						($r->prod_plan == null) ? $prodPlan = '' : $prodPlan = '<span class="bg-success" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->prod_plan.'</span>';
+						($r->selesai_plan == null) ? $selesaiPlan = '' : $selesaiPlan = '<span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->selesai_plan.'</span>';
+						($r->wo_plan == null) ? $woPlan = '' : $woPlan = '<span class="bg-dark" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->wo_plan.'</span>';
+
+						$html .='<li class="nav-item">
+							<a class="nav-link" style="padding:8px" id="plh-tgl-plan-'.$strTgl.'" data-toggle="pill" onclick="clickPlhTgl('."'".$strTgl."'".')" role="tab" aria-controls="aria-cc-'.$strTgl.'" aria-selected="false">
+								S'.$r->shift_plan.''.$mch.'-'.$this->m_fungsi->tglPlan($r->tgl_plan).'
+								<span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->jml_plan.'</span>'.$prodPlan.''.$selesaiPlan.''.$woPlan.'
+							</a>
+						</li>';
+					}
+				}
+			$html .='</ul>
+		</div>';
+
+		echo $html;
+	}
+
+	function clickPlhTgl()
+	{
+		$tgl_plan = $_POST["tgl_plan"];
+		$html = '';
+		$html .= '<div class="card-body">
+			'.$tgl_plan.'
+		</div>';
+		echo $html;
+	}
+
 	//
 
 	function Flexo()
