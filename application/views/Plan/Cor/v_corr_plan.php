@@ -21,11 +21,6 @@
 			-webkit-appearance: none;
 			margin: 0;
 		}
-
-		/* Firefox */
-		input[type=number] {
-			-moz-appearance: textfield;
-		}
 	</style>
 
 	<section class="content" style="padding-bottom:30px">
@@ -61,8 +56,6 @@
 								</div>
 							</div>
 						</div>
-						
-						<div id="riwayat-plan"></div>
 					</div>
 
 					<div class="col-md-12">
@@ -72,12 +65,72 @@
 							</div>
 							<div id="tampil-list-input"></div>
 						</div>
+
+						<div id="riwayat-plan"></div>
 					</div>
 				<?php } ?>
 
 				<div class="col-md-7">
-					<div id="list-plan"></div>
+					<div id="card-produksi" style="display:none">
+						<div class="card card-danger card-outline" style="padding-bottom:20px">
+							<div class="card-header">
+								<h3 class="card-title" style="font-weight:bold;font-style:italic">DOWNTIME</h3>
+							</div>
+							<div id="dt-pilih"></div>
+							<div id="dt-select"></div>
+							<div style="overflow:auto;white-space:nowrap">
+								<div id="dt-load-data"></div>
+							</div>
+						</div>
 
+						<div class="card card-success card-outline" style="padding-bottom:20px">
+							<div class="card-header">
+								<h3 class="card-title" style="font-weight:bold;font-style:italic">HASIL PRODUKSI</h3>
+							</div>
+							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+								<div class="col-md-2">GOOD</div>
+								<div class="col-md-10">
+									<input type="number" id="good_cor" class="form-control" onkeyup="hitungProduksi()">
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+								<div class="col-md-2">REJECT</div>
+								<div class="col-md-10">
+									<input type="number" id="bad_cor" class="form-control" onkeyup="hitungProduksi()">
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+								<div class="col-md-2">TOTAL</div>
+								<div class="col-md-10">
+									<input type="number" id="total_cor" class="form-control" onkeyup="hitungProduksi()" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+								<div class="col-md-2">KET</div>
+								<div class="col-md-10">
+									<textarea id="ket_cor" class="form-control" style="resize:none" rows="2"></textarea>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
+								<div class="col-md-2">START</div>
+								<div class="col-md-10">
+									<input type="time" id="start_cor" class="form-control">
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+								<div class="col-md-2">END</div>
+								<div class="col-md-10">
+									<input type="time" id="end_cor" class="form-control">
+								</div>
+							</div>
+
+							<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'Corrugator') { ?>
+								<div id="btn-aksi-produksi"></div>
+							<?php } ?>
+						</div>
+					</div>
+
+					<div id="list-plan"></div>
 					<div id="list-rencana-plan"></div>
 
 					<div class="card card-secondary card-outline" style="padding-bottom:20px">
@@ -158,96 +211,6 @@
 							</div>
 						</div>
 					</div>
-
-					<div class="card card-secondary card-outline" style="padding-bottom:20px">
-						<div class="card-header">
-							<h3 class="card-title" style="font-weight:bold;font-style:italic">PO</h3>
-						</div>
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-							<div class="col-md-2" style="padding-right: 0;">CUSTOMER</div>
-							<div class="col-md-10">
-								<input type="text" id="customer" class="form-control" autocomplete="off" placeholder="CUSTOMER" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2" style="padding-right: 0;">SALES</div>
-							<div class="col-md-10">
-								<input type="text" id="sales" class="form-control" autocomplete="off" placeholder="SALES" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-							<div class="col-md-2" style="padding-right: 0;">ALAMAT</div>
-							<div class="col-md-10">
-								<textarea id="alamat" class="form-control" rows="2" style="resize:none" placeholder="ALAMAT" disabled></textarea>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">TGL. PO</div>
-							<div class="col-md-10">
-								<input type="text" id="tgl_po" class="form-control" autocomplete="off" placeholder="TANGGAL PO" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">NO. PO</div>
-							<div class="col-md-10">
-								<input type="text" id="no_po" class="form-control" autocomplete="off" placeholder="NO. PO" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">KODE PO</div>
-							<div class="col-md-10">
-								<input type="text" id="kode_po" class="form-control" autocomplete="off" placeholder="KODE PO" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">QTY PO</div>
-							<div class="col-md-10">
-								<input type="number" id="qty_po" class="form-control" autocomplete="off" placeholder="QTY PO" disabled>
-							</div>
-						</div>
-					</div>
-
-					<div class="card card-secondary card-outline" style="padding-bottom:20px">
-						<div class="card-header">
-							<h3 class="card-title" style="font-weight:bold;font-style:italic">SO</h3>
-						</div>
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-							<div class="col-md-2">ETA. SO</div>
-							<div class="col-md-10">
-								<input type="text" id="eta_so" class="form-control" autocomplete="off" placeholder="ETA. SO" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">NO. SO</div>
-							<div class="col-md-10">
-								<input type="text" id="no_so" class="form-control" autocomplete="off" placeholder="NO. SO" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-							<div class="col-md-2">QTY SO</div>
-							<div class="col-md-10">
-								<input type="number" id="qty_so" class="form-control" autocomplete="off" placeholder="QTY SO" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">RM</div>
-							<div class="col-md-10">
-								<input type="number" id="rm_so" class="form-control" autocomplete="off" placeholder="RM SO" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">TONASE</div>
-							<div class="col-md-10">
-								<input type="number" id="ton_so" class="form-control" autocomplete="off" placeholder="TONASE SO" disabled>
-							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-							<div class="col-md-2">KET</div>
-							<div class="col-md-10">
-								<textarea class="form-control" id="ket_so" rows="2" style="resize:none" placeholder="KETERANGAN SO" disabled></textarea>
-							</div>
-						</div>
-					</div>
 				</div>
 
 				<div class="col-md-5">
@@ -304,7 +267,7 @@
 											<option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 										</select>
 									</div>
-									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="tl_al_i" class="form-control angka" autocomplete="off" maxlength="3" onchange="ayoBerhitung()"></div>
+									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="tl_al_i" class="form-control angka" autocomplete="off" onkeyup="ayoBerhitung()"></div>
 								</div>
 								<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
 									<div class="col-md-2">B.MF</div>
@@ -313,16 +276,16 @@
 											<option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 										</select>
 									</div>
-									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="bmf_i" class="form-control angka" autocomplete="off" maxlength="3" onchange="ayoBerhitung()"></div>
+									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="bmf_i" class="form-control angka" autocomplete="off" onkeyup="ayoBerhitung()"></div>
 								</div>
 								<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
-									<div class="col-md-2">B.L</div>
+									<div class="col-md-2">BC</div>
 									<div class="col-md-5" style="margin-bottom:3px">
 										<select id="bl" class="form-control select2" onchange="ayoBerhitung()">
 											<option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 										</select>
 									</div>
-									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="bl_i" class="form-control angka" autocomplete="off" maxlength="3" onchange="ayoBerhitung()"></div>
+									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="bl_i" class="form-control angka" autocomplete="off" onkeyup="ayoBerhitung()"></div>
 								</div>
 								<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
 									<div class="col-md-2">C.MF</div>
@@ -331,16 +294,16 @@
 											<option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 										</select>
 									</div>
-									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="cmf_i" class="form-control angka" autocomplete="off" maxlength="3" onchange="ayoBerhitung()"></div>
+									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="cmf_i" class="form-control angka" autocomplete="off" onkeyup="ayoBerhitung()"></div>
 								</div>
 								<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
-									<div class="col-md-2">C.L</div>
+									<div class="col-md-2">B/C.L</div>
 									<div class="col-md-5" style="margin-bottom:3px">
 										<select id="cl" class="form-control select2" onchange="ayoBerhitung()">
 											<option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 										</select>
 									</div>
-									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="cl_i" class="form-control angka" autocomplete="off" maxlength="3" onchange="ayoBerhitung()"></div>
+									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="cl_i" class="form-control angka" autocomplete="off" onkeyup="ayoBerhitung()"></div>
 								</div>
 								<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 									<div class="col-md-2" style="padding:0"></div>
@@ -360,38 +323,38 @@
 						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 							<div class="col-md-2" style="padding:0">PANJANG</div>
 							<div class="col-md-10">
-								<input type="number" id="ii_panjang" class="form-control" autocomplete="off" <?=$dis?> placeholder="PANJANG SHEET" onchange="ayoBerhitung()">
+								<input type="number" id="ii_panjang" class="form-control" autocomplete="off" <?=$dis?> placeholder="PANJANG SHEET" onkeyup="ayoBerhitung()">
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
 							<div class="col-md-2">SCORE</div>
 							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_1" class="form-control" <?=$dis?> autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+								<input type="number" id="creasing_wo_1" class="form-control" <?=$dis?> autocomplete="off" placeholder="0" onkeyup="ayoBerhitung()">
 							</div>
 							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_2" class="form-control" <?=$dis?> autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+								<input type="number" id="creasing_wo_2" class="form-control" <?=$dis?> autocomplete="off" placeholder="0" onkeyup="ayoBerhitung()">
 							</div>
 							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_3" class="form-control" <?=$dis?> autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+								<input type="number" id="creasing_wo_3" class="form-control" <?=$dis?> autocomplete="off" placeholder="0" onkeyup="ayoBerhitung()">
 							</div>
 							<div class="col-md-1 p-0"></div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">LEBAR</div>
 							<div class="col-md-10">
-								<input type="number" id="ii_lebar" class="form-control" autocomplete="off" <?=$dis?> placeholder="LEBAR SHEET" onchange="ayoBerhitung()">
+								<input type="number" id="ii_lebar" class="form-control" autocomplete="off" <?=$dis?> placeholder="LEBAR SHEET" onkeyup="ayoBerhitung()">
 							</div>
 						</div>
 						<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
 							<div class="col-md-2" style="padding-right:0">L. ROLL</div>
 							<div class="col-md-10">
-								<input type="number" id="i_lebar_roll" class="form-control" autocomplete="off" <?=$dis?> placeholder="LEBAR ROLL" onchange="ayoBerhitung()">
+								<input type="number" id="i_lebar_roll" class="form-control" autocomplete="off" <?=$dis?> placeholder="LEBAR ROLL" onkeyup="ayoBerhitung()">
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">OUT</div>
 							<div class="col-md-10">
-								<input type="number" id="out_plan" class="form-control" autocomplete="off" <?=$dis?> placeholder="OUT" onchange="ayoBerhitung()">
+								<input type="number" id="out_plan" class="form-control" autocomplete="off" <?=$dis?> placeholder="OUT" onkeyup="ayoBerhitung()">
 							</div>
 						</div>
 						<br/>
@@ -450,55 +413,6 @@
 							<div id="btn-aksi-plan"></div>
 						<?php } ?>
 					</div>
-
-					<div id="card-produksi" style="display:none">
-						<div class="card card-success card-outline" style="padding-bottom:20px">
-							<div class="card-header">
-								<h3 class="card-title" style="font-weight:bold;font-style:italic">HASIL PRODUKSI</h3>
-							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">GOOD</div>
-								<div class="col-md-10">
-									<input type="number" id="good_cor" class="form-control" onchange="hitungProduksi()">
-								</div>
-							</div>
-							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-								<div class="col-md-2">REJECT</div>
-								<div class="col-md-10">
-									<input type="number" id="bad_cor" class="form-control" onchange="hitungProduksi()">
-								</div>
-							</div>
-							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-								<div class="col-md-2">TOTAL</div>
-								<div class="col-md-10">
-									<input type="number" id="total_cor" class="form-control" onchange="hitungProduksi()" disabled>
-								</div>
-							</div>
-							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-								<div class="col-md-2">KET</div>
-								<div class="col-md-10">
-									<textarea id="ket_cor" class="form-control" style="resize:none" rows="2"></textarea>
-								</div>
-							</div>
-
-							<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
-								<div class="col-md-2">START</div>
-								<div class="col-md-10">
-									<input type="time" id="start_cor" class="form-control">
-								</div>
-							</div>
-							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-								<div class="col-md-2">END</div>
-								<div class="col-md-10">
-									<input type="time" id="end_cor" class="form-control">
-								</div>
-							</div>
-
-							<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'Corrugator') { ?>
-								<div id="btn-aksi-produksi"></div>
-							<?php } ?>
-						</div>
-					</div>
 				</div>
 
 				<input type="hidden" id="ehkategori" value="">
@@ -513,6 +427,102 @@
 				<input type="hidden" id="ehurut_so" value="">
 				<input type="hidden" id="ehrpt" value="">
 				<input type="hidden" id="ehpcs_plan" value="">
+			</div>
+
+			<div class="row">
+				<div class="col-md-7">
+					<div class="card card-secondary card-outline" style="padding-bottom:20px">
+						<div class="card-header">
+							<h3 class="card-title" style="font-weight:bold;font-style:italic">PO</h3>
+						</div>
+						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+							<div class="col-md-2" style="padding-right: 0;">CUSTOMER</div>
+							<div class="col-md-10">
+								<input type="text" id="customer" class="form-control" autocomplete="off" placeholder="CUSTOMER" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2" style="padding-right: 0;">SALES</div>
+							<div class="col-md-10">
+								<input type="text" id="sales" class="form-control" autocomplete="off" placeholder="SALES" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+							<div class="col-md-2" style="padding-right: 0;">ALAMAT</div>
+							<div class="col-md-10">
+								<textarea id="alamat" class="form-control" rows="2" style="resize:none" placeholder="ALAMAT" disabled></textarea>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">TGL. PO</div>
+							<div class="col-md-10">
+								<input type="text" id="tgl_po" class="form-control" autocomplete="off" placeholder="TANGGAL PO" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">NO. PO</div>
+							<div class="col-md-10">
+								<input type="text" id="no_po" class="form-control" autocomplete="off" placeholder="NO. PO" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">KODE PO</div>
+							<div class="col-md-10">
+								<input type="text" id="kode_po" class="form-control" autocomplete="off" placeholder="KODE PO" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">QTY PO</div>
+							<div class="col-md-10">
+								<input type="number" id="qty_po" class="form-control" autocomplete="off" placeholder="QTY PO" disabled>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-5">
+					<div class="card card-secondary card-outline" style="padding-bottom:20px">
+						<div class="card-header">
+							<h3 class="card-title" style="font-weight:bold;font-style:italic">SO</h3>
+						</div>
+						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+							<div class="col-md-2" style="padding-right:0">ETA. SO</div>
+							<div class="col-md-10">
+								<input type="text" id="eta_so" class="form-control" autocomplete="off" placeholder="ETA. SO" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">NO. SO</div>
+							<div class="col-md-10">
+								<input type="text" id="no_so" class="form-control" autocomplete="off" placeholder="NO. SO" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+							<div class="col-md-2">QTY SO</div>
+							<div class="col-md-10">
+								<input type="number" id="qty_so" class="form-control" autocomplete="off" placeholder="QTY SO" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">RM</div>
+							<div class="col-md-10">
+								<input type="number" id="rm_so" class="form-control" autocomplete="off" placeholder="RM SO" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2" style="padding-right:0">TONASE</div>
+							<div class="col-md-10">
+								<input type="number" id="ton_so" class="form-control" autocomplete="off" placeholder="TONASE SO" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+							<div class="col-md-2">KET</div>
+							<div class="col-md-10">
+								<textarea class="form-control" id="ket_so" rows="2" style="resize:none" placeholder="KETERANGAN SO" disabled></textarea>
+							</div>
+						</div>
+					</div>
+				</div>
 
 			</div>
 		</div>
@@ -576,72 +586,20 @@
 				});
 			},
 			success: function(res){
-				loadPlanWo('')
 				data = JSON.parse(res)
 				if(data.planCor.length == 0){
 					window.location.href = '<?php echo base_url('Plan/Corrugator')?>'
 				}else{
-					$("#ehno_plan").val(data.planCor[0].no_plan);
-					let plan = data.planCor
-					let htmlList = ``
-					htmlList += `<div class="card card-danger card-outline">
-						<div class="card-header">
-							<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST PLAN</h3>
-						</div>
-						<div class="col-md-12" style="padding:0">
-							<table class="table table-striped">
-								<thead>
-									<tr>
-										<th style="width=5%">#</th>
-										<th style="width=90%">NO. WO</th>
-										<th style="width=5%">AKSI</th>
-									</tr>
-								</thead>
-								<tbody>`
-					let aksiHapus = ``;
-					let aksiCor = ``;
-					for (let i = 0; i < plan.length; i++) {
-						if(auth == 'Admin' || auth == 'Corrugator'){
-							if(plan[i].status_plan == 'Open' && plan[i].total_cor_p == 0){
-								(auth == 'Corrugator') ? aksiCor = 'disabled' : aksiCor = `onclick="hapusPlan(${plan[i].id_plan})"`;
-								aksiHapus = `<button class="btn btn-sm btn-danger" ${aksiCor}><i class="fas fa-times"></i> HAPUS</button>`;
-							}else if(plan[i].status_plan == 'Open' && plan[i].total_cor_p != 0){
-								aksiHapus = `<button class="btn btn-sm btn-success"><i class="fas fa-check"></i> PRODUKSI</button>`
-							}else if(plan[i].status_plan == 'Close' && plan[i].statusWo == 'Open'){
-								aksiHapus = `<button class="btn btn-sm btn-primary"><i class="fas fa-check"></i> PLAN</button>`
-							}else if(plan[i].status_plan == 'Close' && plan[i].statusWo == 'Close'){
-								aksiHapus = `<button class="btn btn-sm btn-dark"><i class="fas fa-check"></i> WO</button>`
-							}else{
-								aksiHapus = `-`
-							}
-							htmlList += `<tr>
-								<td>${i+1}</td>
-								<td><a href="javascript:void(0)" onclick="plhNoWo(${plan[i].id_plan})">${plan[i].no_wo}<a></td>
-								<td>${aksiHapus}</td>
-							</tr>`
-						}else{
-							htmlList += `<tr>
-								<td>${i+1}</td>
-								<td><a href="javascript:void(0)" onclick="plhNoWo(${plan[i].id_plan})">${plan[i].no_wo}<a></td>
-								<td>-</td>
-							</tr>`
-						}
-					}
-					htmlList += `</tbody>
-							</table>
-						</div>
-					</div>`
-					$("#list-plan").html(htmlList)
-					swal.close()
+					loadPlanWo('')
+					plhNoWo('')
 				}
-				loadInputList()
 			}
 		})
 	}
 
 	function loadInputList()
 	{
-		// $('.select2').select2()
+		let hidplan = $("#ehid_plan").val();
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadInputList')?>',
 			type: "POST",
@@ -656,7 +614,7 @@
 				});
 			},
 			data: ({
-				urlTgl_plan, urlShift, urlMesin
+				urlTgl_plan, urlShift, urlMesin, hidplan
 			}),
 			success: function(res){
 				$("#tampil-list-input").html(res)
@@ -666,78 +624,106 @@
 		})
 	}
 
-	function onChangeEditPlan(id_plan)
+	function onChangeNourutPlan(i)
+	{
+		$("#ehid_plan").val("")
+		let no_urut = $("#lp-nourut-"+i).val();
+		(no_urut < 0 || no_urut == "") ? no_urut = 0 : no_urut = no_urut;
+		$("#lp-nourut-"+i).val(no_urut)
+		
+		$.ajax({
+			url: '<?php echo base_url('Plan/onChangeNourutPlan')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				no_urut, i
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				loadData(urlTgl_plan, urlShift, urlMesin)
+			}
+		})
+	}
+
+	function onChangeEditPlan(i)
 	{
 		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
 
-		let lpSm1 = $("#lp-sm1-"+id_plan).val()
-		let lpSi1 = $("#lp-si1-"+id_plan).val()
-		let lpSm2 = $("#lp-sm2-"+id_plan).val()
-		let lpSi2 = $("#lp-si2-"+id_plan).val()
-		let lpSm3 = $("#lp-sm3-"+id_plan).val()
-		let lpSi3 = $("#lp-si3-"+id_plan).val()
-		let lpSm4 = $("#lp-sm4-"+id_plan).val()
-		let lpSi4 = $("#lp-si4-"+id_plan).val()
-		let lpSm5 = $("#lp-sm5-"+id_plan).val()
-		let lpSi5 = $("#lp-si5-"+id_plan).val()
+		let lpSm1 = $("#lp-sm1-"+i).val()
+		let lpSi1 = $("#lp-si1-"+i).val()
+		let lpSm2 = $("#lp-sm2-"+i).val()
+		let lpSi2 = $("#lp-si2-"+i).val()
+		let lpSm3 = $("#lp-sm3-"+i).val()
+		let lpSi3 = $("#lp-si3-"+i).val()
+		let lpSm4 = $("#lp-sm4-"+i).val()
+		let lpSi4 = $("#lp-si4-"+i).val()
+		let lpSm5 = $("#lp-sm5-"+i).val()
+		let lpSi5 = $("#lp-si5-"+i).val()
 		
-		let kategori = $("#hlp-kategori-"+id_plan).val()
-		let pjg_sheet = $("#lp-pjgs-"+id_plan).val().split('.').join('');
-		(pjg_sheet == 0 || pjg_sheet < 0) ? $("#lp-pjgs-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-pjgs-"+id_plan).val(rupiah.format(pjg_sheet)).attr('style', 'color:#ff0066;font-weight:bold');
+		let kategori = $("#hlp-kategori-"+i).val()
+		let pjg_sheet = $("#lp-pjgs-"+i).val().split('.').join('');
+		(pjg_sheet == 0 || pjg_sheet < 0) ? $("#lp-pjgs-"+i).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-pjgs-"+i).val(rupiah.format(pjg_sheet)).attr('style', 'color:#ff0066;font-weight:bold');
 
-		let lbr_sheet = $("#lp-lbrs-"+id_plan).val().split('.').join('')
-		let score1 = $("#lp-scr1-"+id_plan).val()
-		let score2 = $("#lp-scr2-"+id_plan).val()
-		let score3 = $("#lp-scr3-"+id_plan).val()
+		let lbr_sheet = $("#lp-lbrs-"+i).val().split('.').join('')
+		let score1 = $("#lp-scr1-"+i).val()
+		let score2 = $("#lp-scr2-"+i).val()
+		let score3 = $("#lp-scr3-"+i).val()
 		let hitungScore = parseInt(score1) + parseInt(score2) + parseInt(score3);
-		(score1 == 0 || score1 < 0 || score1 == '') ? $("#lp-scr1-"+id_plan).val(0) : $("#lp-scr1-"+id_plan).val();
-		(score2 == 0 || score2 < 0 || score2 == '') ? $("#lp-scr2-"+id_plan).val(0) : $("#lp-scr2-"+id_plan).val();
-		(score3 == 0 || score3 < 0 || score3 == '') ? $("#lp-scr3-"+id_plan).val(0) : $("#lp-scr3-"+id_plan).val();
+		(score1 == 0 || score1 < 0 || score1 == '') ? $("#lp-scr1-"+i).val(0) : $("#lp-scr1-"+i).val();
+		(score2 == 0 || score2 < 0 || score2 == '') ? $("#lp-scr2-"+i).val(0) : $("#lp-scr2-"+i).val();
+		(score3 == 0 || score3 < 0 || score3 == '') ? $("#lp-scr3-"+i).val(0) : $("#lp-scr3-"+i).val();
 		if(kategori == 'K_BOX'){
 			if(hitungScore == lbr_sheet){
-				$("#lp-scr1-"+id_plan).attr('style', 'color:#495057;font-weight:normal')
-				$("#lp-scr2-"+id_plan).attr('style', 'color:#495057;font-weight:normal')
-				$("#lp-scr3-"+id_plan).attr('style', 'color:#495057;font-weight:normal');
-				(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+id_plan).val(rupiah.format(lbr_sheet)).attr('style', 'color:#ff0066;font-weight:bold');
+				$("#lp-scr1-"+i).attr('style', 'color:#495057;font-weight:normal')
+				$("#lp-scr2-"+i).attr('style', 'color:#495057;font-weight:normal')
+				$("#lp-scr3-"+i).attr('style', 'color:#495057;font-weight:normal');
+				(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+i).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+i).val(rupiah.format(lbr_sheet)).attr('style', 'color:#ff0066;font-weight:bold');
 			}else{
-				$("#lp-scr1-"+id_plan).attr('style', 'color:#f00;font-weight:bold')
-				$("#lp-scr2-"+id_plan).attr('style', 'color:#f00;font-weight:bold')
-				$("#lp-scr3-"+id_plan).attr('style', 'color:#f00;font-weight:bold');
-				(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+id_plan).val(rupiah.format(lbr_sheet)).attr('style', 'color:#f00;font-weight:normal');
+				$("#lp-scr1-"+i).attr('style', 'color:#f00;font-weight:bold')
+				$("#lp-scr2-"+i).attr('style', 'color:#f00;font-weight:bold')
+				$("#lp-scr3-"+i).attr('style', 'color:#f00;font-weight:bold');
+				(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+i).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+i).val(rupiah.format(lbr_sheet)).attr('style', 'color:#f00;font-weight:normal');
 			}
 		}else if(kategori == 'K_SHEET'){
 			if(score1 != 0 || score2 != 0 || score3 != 0){
 				if(hitungScore == lbr_sheet){
-					$("#lp-scr1-"+id_plan).attr('style', 'color:#495057;font-weight:normal')
-					$("#lp-scr2-"+id_plan).attr('style', 'color:#495057;font-weight:normal')
-					$("#lp-scr3-"+id_plan).attr('style', 'color:#495057;font-weight:normal');
-					(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+id_plan).val(rupiah.format(lbr_sheet)).attr('style', 'color:#ff0066;font-weight:bold');
+					$("#lp-scr1-"+i).attr('style', 'color:#495057;font-weight:normal')
+					$("#lp-scr2-"+i).attr('style', 'color:#495057;font-weight:normal')
+					$("#lp-scr3-"+i).attr('style', 'color:#495057;font-weight:normal');
+					(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+i).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+i).val(rupiah.format(lbr_sheet)).attr('style', 'color:#ff0066;font-weight:bold');
 				}else{
-					$("#lp-scr1-"+id_plan).attr('style', 'color:#f00;font-weight:bold')
-					$("#lp-scr2-"+id_plan).attr('style', 'color:#f00;font-weight:bold')
-					$("#lp-scr3-"+id_plan).attr('style', 'color:#f00;font-weight:bold');
-					(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+id_plan).val(rupiah.format(lbr_sheet)).attr('style', 'color:#f00;font-weight:normal');
+					$("#lp-scr1-"+i).attr('style', 'color:#f00;font-weight:bold')
+					$("#lp-scr2-"+i).attr('style', 'color:#f00;font-weight:bold')
+					$("#lp-scr3-"+i).attr('style', 'color:#f00;font-weight:bold');
+					(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+i).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+i).val(rupiah.format(lbr_sheet)).attr('style', 'color:#f00;font-weight:normal');
 				}
 			}else{
-				$("#lp-scr1-"+id_plan).attr('style', 'color:#495057;font-weight:normal')
-				$("#lp-scr2-"+id_plan).attr('style', 'color:#495057;font-weight:normal')
-				$("#lp-scr3-"+id_plan).attr('style', 'color:#495057;font-weight:normal');
-				(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+id_plan).val(rupiah.format(lbr_sheet)).attr('style', 'color:#ff0066;font-weight:bold');
+				$("#lp-scr1-"+i).attr('style', 'color:#495057;font-weight:normal')
+				$("#lp-scr2-"+i).attr('style', 'color:#495057;font-weight:normal')
+				$("#lp-scr3-"+i).attr('style', 'color:#495057;font-weight:normal');
+				(lbr_sheet == 0 || lbr_sheet < 0) ? $("#lp-lbrs-"+i).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbrs-"+i).val(rupiah.format(lbr_sheet)).attr('style', 'color:#ff0066;font-weight:bold');
 			}
 		}
 
-		let qty_so = $("#lp-pcs-plan-"+id_plan).val()
+		let qty_so = $("#lp-pcs-plan-"+i).val()
 		
-		let out_plan = $("#lp-out-"+id_plan).val();
-		(out_plan == 0 || out_plan < 0) ? $("#lp-out-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-out-"+id_plan).val(out_plan).attr('style', 'color:#000;font-weight:normal');
+		let out_plan = $("#lp-out-"+i).val();
+		(out_plan == 0 || out_plan < 0) ? $("#lp-out-"+i).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-out-"+i).val(out_plan).attr('style', 'color:#000;font-weight:normal');
 
-		let lbr_i = $("#lp-lbri-"+id_plan).val().split('.').join('');
-		(lbr_i == 0 || lbr_i < 0) ? $("#lp-lbri-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbri-"+id_plan).val(rupiah.format(lbr_i)).attr('style', 'color:#000;font-weight:bold');
+		let lbr_i = $("#lp-lbri-"+i).val().split('.').join('');
+		(lbr_i == 0 || lbr_i < 0) ? $("#lp-lbri-"+i).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-lbri-"+i).val(rupiah.format(lbr_i)).attr('style', 'color:#000;font-weight:bold');
 
-
-		let flute = $("#hlp-flute-"+id_plan).val();
-		let kualitas_isi = $("#hlp-kua-isi-p-"+id_plan).val();
-		// console.log(kualitas_isi)
+		let flute = $("#hlp-flute-"+i).val();
+		let kualitas_isi = $("#hlp-kua-isi-p-"+i).val();
 		let spltKualitas = kualitas_isi.split("/");
 		let ton = 0;
 		if(flute == 'BF'){
@@ -768,42 +754,125 @@
 		(lbr_i == '' || out_plan == '' || lbr_i == 0 || out_plan == 0) ? trim = 0 : trim = Math.round(lbr_i - (lbr_sheet * out_plan));
 		(out_plan == '' || out_plan == 0) ? c_off = 0 : c_off = Math.round(qty_so / out_plan);
 		(c_off == '' || c_off == 0) ? rm = 0 : rm = Math.round((c_off * pjg_sheet) / 1000);
-		// console.log("trim : ", trim)
-		// console.log("c_off : ", c_off)
-		// console.log("rm : ", rm)
-		console.log("ton : ", ton);
 
-		(trim < 0 || trim == 0) ? $("#lp-trimp-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-trimp-"+id_plan).val(trim).attr('style', 'color:#000;font-weight:normal');
-		(c_off < 0 || isNaN(c_off) || c_off == 0) ? $("#lp-coffp-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-coffp-"+id_plan).val(rupiah.format(c_off)).attr('style', 'color:#000;font-weight:normal');
-		(rm < 0 || isNaN(rm) || rm == 0) ? $("#lp-rmp-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-rmp-"+id_plan).val(rupiah.format(rm)).attr('style', 'color:#000;font-weight:normal');
-		(ton < 0 || ton == 0) ? $("#lp-tonp-"+id_plan).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-tonp-"+id_plan).val(rupiah.format(Math.round(ton))).attr('style', 'color:#000;font-weight:normal');
-
-
-
+		(trim < 0 || trim == 0) ? $("#lp-trimp-"+i).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-trimp-"+i).val(trim).attr('style', 'color:#000;font-weight:normal');
+		(c_off < 0 || isNaN(c_off) || c_off == 0) ? $("#lp-coffp-"+i).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-coffp-"+i).val(rupiah.format(c_off)).attr('style', 'color:#000;font-weight:normal');
+		(rm < 0 || isNaN(rm) || rm == 0) ? $("#lp-rmp-"+i).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-rmp-"+i).val(rupiah.format(rm)).attr('style', 'color:#000;font-weight:normal');
+		(ton < 0 || ton == 0) ? $("#lp-tonp-"+i).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-tonp-"+i).val(rupiah.format(Math.round(ton))).attr('style', 'color:#000;font-weight:normal');
 	}
 
-	function editListPlan(id_plan)
+	function editListPlan(i, id_wo)
 	{
-		let lpSm1 = $("#lp-sm1-"+id_plan).val()
-		let lpSi1 = $("#lp-si1-"+id_plan).val()
-		let lpSm2 = $("#lp-sm2-"+id_plan).val()
-		let lpSi2 = $("#lp-si2-"+id_plan).val()
-		let lpSm3 = $("#lp-sm3-"+id_plan).val()
-		let lpSi3 = $("#lp-si3-"+id_plan).val()
-		let lpSm4 = $("#lp-sm4-"+id_plan).val()
-		let lpSi4 = $("#lp-si4-"+id_plan).val()
-		let lpSm5 = $("#lp-sm5-"+id_plan).val()
-		let lpSi5 = $("#lp-si5-"+id_plan).val()
-		console.log("lpSm1: ", lpSm1)
-		console.log("lpSi1: ", lpSi1)
-		console.log("lpSm2: ", lpSm2)
-		console.log("lpSi2: ", lpSi2)
-		console.log("lpSm3: ", lpSm3)
-		console.log("lpSi3: ", lpSi3)
-		console.log("lpSm4: ", lpSm4)
-		console.log("lpSi4: ", lpSi4)
-		console.log("lpSm5: ", lpSm5)
-		console.log("lpSi5: ", lpSi5)
+		let flute =  $("#hlp-flute-"+i).val()
+		let lpSm1 = $("#lp-sm1-"+i).val()
+		let lpSi1 = $("#lp-si1-"+i).val()
+		let lpSm2 = $("#lp-sm2-"+i).val()
+		let lpSi2 = $("#lp-si2-"+i).val()
+		let lpSm3 = $("#lp-sm3-"+i).val()
+		let lpSi3 = $("#lp-si3-"+i).val()
+		let lpSm4 = $("#lp-sm4-"+i).val()
+		let lpSi4 = $("#lp-si4-"+i).val()
+		let lpSm5 = $("#lp-sm5-"+i).val()
+		let lpSi5 = $("#lp-si5-"+i).val();
+		let material = ''; let kualitas = ''; let kualitas_isi = '';
+		if(flute == 'BF'){
+			if(lpSm1 == "" || lpSi1 == "" || lpSi1 == 0 || lpSm2 == "" || lpSi2 == "" || lpSi2 == 0 || lpSm5 == "" || lpSi5 == "" || lpSi5 == 0){
+				toastr.error('<b>CEK KEMBALI KUALITAS!</b>')
+				material = ''; kualitas = ''; kualitas_isi = '';
+				return
+			}else{
+				material = `${lpSm1}/${lpSm2}/${lpSm5}`
+				kualitas = `${lpSm1}${lpSi1}/${lpSm2}${lpSi2}/${lpSm5}${lpSi5}`
+				kualitas_isi = `${lpSi1}/${lpSi2}/${lpSi5}`
+			}
+		}
+		if(flute == 'CF'){
+			if(lpSm1 == "" || lpSi1 == "" || lpSi1 == 0 || lpSm4 == "" ||  lpSi4 == "" || lpSi4 == 0 || lpSm5 == "" || lpSi5 == "" || lpSi5 == 0){
+				toastr.error('<b>CEK KEMBALI KUALITAS!</b>')
+				material = ''; kualitas = ''; kualitas_isi = '';
+				return
+			}else{
+				material = `${lpSm1}/${lpSm4}/${lpSm5}`
+				kualitas = `${lpSm1}${lpSi1}/${lpSm4}${lpSi4}/${lpSm5}${lpSi5}`
+				kualitas_isi = `${lpSi1}/${lpSi4}/${lpSi5}`
+			}
+		}
+		if(flute == 'BCF'){
+			if(lpSm1 == "" || lpSi1 == "" || lpSi1 == 0 || lpSm2 == "" || lpSi2 == "" || lpSi2 == 0 || lpSm3 == "" || lpSi3 == "" || lpSi3 == 0 || lpSm4 == "" || lpSi4 == "" || lpSi4 == 0 || lpSm5 == "" || lpSi5 == "" || lpSi5 == 0){
+				toastr.error('<b>CEK KEMBALI KUALITAS!</b>')
+				material = ''; kualitas = ''; kualitas_isi = '';
+				return
+			}else{
+				material = `${lpSm1}/${lpSm2}/${lpSm3}/${lpSm4}/${lpSm5}`
+				kualitas = `${lpSm1}${lpSi1}/${lpSm2}${lpSi2}/${lpSm3}${lpSi3}/${lpSm4}${lpSi4}/${lpSm5}${lpSi5}`
+				kualitas_isi = `${lpSi1}/${lpSi2}/${lpSi3}/${lpSi4}/${lpSi5}`
+			}
+		}
+
+		let panjang_plan = $("#lp-pjgs-"+i).val().split('.').join('')
+		let lebar_plan = $("#lp-lbrs-"+i).val().split('.').join('')
+		let kategori =  $("#hlp-kategori-"+i).val()
+		let creasing_wo1 =  $("#lp-scr1-"+i).val()
+		let creasing_wo2 =  $("#lp-scr2-"+i).val()
+		let creasing_wo3 =  $("#lp-scr3-"+i).val()
+		let hitungScore = parseInt(creasing_wo1) + parseInt(creasing_wo2) + parseInt(creasing_wo3);
+		if(kategori == 'K_BOX'){
+			if(creasing_wo1 == 0 || creasing_wo2 == 0 || creasing_wo3 == 0 || creasing_wo1 == '' || creasing_wo2 == '' || creasing_wo3 == ''){
+				toastr.error('<b>SCORE BOX TIDAK BOLEH KOSONG!</b>');
+				return
+			}
+		}
+		if(kategori == 'K_BOX'){
+			if(hitungScore != lebar_plan){
+				toastr.error('<b>SCORE BEDA DENGAN LEBAR SHEET!</b>');
+				return
+			}
+		}
+		if(kategori == 'K_SHEET'){
+			if(creasing_wo1 != 0 || creasing_wo2 != 0 || creasing_wo3 != 0){
+				if(hitungScore != lebar_plan){
+					toastr.error('<b>SCORE BEDA DENGAN LEBAR SHEET!</b>');
+					return
+				}
+			}
+		}
+
+		let lebar_roll_p = $("#lp-lbri-"+i).val().split('.').join('')
+		let out_plan = $("#lp-out-"+i).val()
+		let trim_plan = $("#lp-trimp-"+i).val().split('.').join('')
+		let c_off_p = $("#lp-coffp-"+i).val().split('.').join('')
+		let rm_plan = $("#lp-rmp-"+i).val().split('.').join('')
+		let tonase_plan = $("#lp-tonp-"+i).val().split('.').join('')
+		if(panjang_plan == '' || panjang_plan == 0 || lebar_plan == '' || lebar_plan == 0 || lebar_roll_p == '' || lebar_roll_p == 0 || out_plan == '' || out_plan == 0 || trim_plan == '' || trim_plan == 0 || c_off_p == '' || c_off_p == 0 || rm_plan == '' || rm_plan == 0 || tonase_plan == '' || tonase_plan == 0){
+			toastr.error('<b>HITUNG DATA KOSONG!</b>');
+			return
+		}
+		if(panjang_plan < 0 || lebar_plan < 0 || lebar_roll_p < 0 || out_plan < 0 || trim_plan < 0 || c_off_p < 0 || rm_plan < 0 || tonase_plan < 0){
+			toastr.error('<b>HITUNG KURANG!</b>');
+			return
+		}
+
+		$.ajax({
+			url: '<?php echo base_url('Plan/editListPlan')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_plan: i, id_wo, material, kualitas, kualitas_isi, panjang_plan, lebar_plan, kategori, creasing_wo1, creasing_wo2, creasing_wo3, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan
+			}),
+			success: function(res){
+				toastr.success('<b>BERHASIL EDIT!</b>');
+				loadData(urlTgl_plan, urlShift, urlMesin)
+			}
+		})
 	}
 
 	function hapusPlan(id_plan)
@@ -954,20 +1023,19 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				if(opsi == 'add'){
+				if(opsi == 'add'){	
 					if(data.data){
-						toastr.success(`<b>BERHASIL</b>`)
-						$("#list-rencana-plan").load("<?php echo base_url('Plan/listRencanaPlan')?>")
+						toastr.success(`<b>BERHASIL TAMBAH!</b>`)
 						$("#no_wo").val("")
-						plhNoWo('')
+						listRencanaPlan()
 					}else{
 						swal(data.isi, "", "error")
 						return
 					}
 				}else{
-					toastr.success(`<b>BERHASIL</b>`)
-					plhNoWo(id_plan)
-					$("#list-rencana-plan").load("<?php echo base_url('Plan/listRencanaPlan')?>")
+					toastr.success(`<b>BERHASIL EDIT!</b>`)
+					// plhNoWo(id_plan)
+					listRencanaPlan()
 				}
 			}
 		})
@@ -1003,8 +1071,8 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
+				loadPlanWo('')
 				plhNoWo(id_plan)
-				loadData(urlTgl_plan, urlShift, urlMesin)
 			}
 		})
 	}
@@ -1020,16 +1088,6 @@
 		$("#bad_cor").val(rp.format(bad));
 		let hitung = parseInt(good) + parseInt(bad);
 		$("#total_cor").val(rp.format(hitung));
-		hitungLagiProduksi()
-	}
-
-	function hitungLagiProduksi()
-	{
-		let good_cor_p = $("#good_cor").val().split('.').join('');
-		(good_cor_p < 0 || good_cor_p == 0 || good_cor_p == '') ? good_cor_p = 0 : good_cor_p = good_cor_p;
-		let bad_cor_p = $("#bad_cor").val().split('.').join('');
-		(bad_cor_p < 0 || bad_cor_p == 0 || bad_cor_p == '') ? bad_cor_p = 0 : bad_cor_p = bad_cor_p;
-		let total = $("#total_cor").val();
 	}
 
 	function produksiRencanaPlan(id_plan)
@@ -1064,8 +1122,8 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data){
+					loadPlanWo('')
 					plhNoWo(id_plan)
-					loadData(urlTgl_plan, urlShift, urlMesin)
 				}else{
 					swal(data.msg, "", "error");
 				}
@@ -1101,11 +1159,20 @@
 	{
 		$.ajax({
 			url: '<?php echo base_url('Plan/listRencanaPlan')?>',
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			type: "POST",
 			success: function(res){
 				plhNoWo('')
 				$("#list-rencana-plan").html(res);
-				// swal.close()
 			}
 		})
 	}
@@ -1130,7 +1197,8 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				plhNoWo(id_plan)
+				// loadPlanWo('')
+				// plhNoWo(id_plan)
 				loadData(urlTgl_plan, urlShift, urlMesin)
 			}
 		})
@@ -1157,13 +1225,12 @@
 			},
 			success: function(res){
 				$("#list-rencana-plan").load("<?php echo base_url('Plan/destroyPlan') ?>")
-				plhNoWo('')
 				loadData(urlTgl_plan, urlShift, urlMesin)
 			}
 		})
 	}
 
-	function showCartitem(rowid)
+	function showCartitem(rowid, opsi)
 	{
 		$("#show-list-plh-item").html(`. . .`)
 		$("#modalForm").modal("show")
@@ -1180,7 +1247,7 @@
 					}
 				});
 			},
-			data: ({ rowid }),
+			data: ({ rowid, opsi }),
 			success: function(res){
 				$("#show-list-plh-item").html(res)
 				swal.close()
@@ -1262,7 +1329,6 @@
 				}
 
 				$("#no_wo").prop("disabled", false).html(htmlWO)
-				swal.close()
 			}
 		})
 	}
@@ -1416,6 +1482,9 @@
 					$("#start_cor").val(data.wo.start_time_p)
 					$("#end_cor").val(data.wo.end_time_p)
 
+					$("#downtime_cor").val("")
+					plhDowntime()
+					// downtime()
 					hitungProduksi()
 				}else{
 					id_wo = $('#no_wo option:selected').attr('id-wo')
@@ -1483,9 +1552,10 @@
 					</div>`)
 
 					let inputHari = 0;
+					let kirimEtaSO = '';
 					(provinsi == 11 || kabupaten == 12 || kabupaten == 16) ? inputHari = 2 : inputHari = 1;
-					(eta_so == undefined) ? eta_so = '' : eta_so = new Date(new Date(eta_so).getTime() - (inputHari * 24 * 3600 * 1000)).toISOString().slice(0, 10);
-					$("#kirim").val(eta_so)
+					(eta_so == undefined) ? kirimEtaSO = '' : kirimEtaSO = new Date(new Date(eta_so).getTime() - (inputHari * 24 * 3600 * 1000)).toISOString().slice(0, 10);
+					$("#kirim").val(kirimEtaSO)
 
 					$("#card-produksi").hide();
 					$("#good_cor").val("");$("#bad_cor").val("");$("#total_cor").val("");$("#ket_cor").val("");$("#start_cor").val("");$("#end_cor").val("");
@@ -1593,8 +1663,8 @@
 					$("#next_flexo").html(`${next_plan}<option value="">PILIH</option><option value="GUDANG">GUDANG</option>`)
 				}
 
-				ayoBerhitung();
-				swal.close()
+				loadInputList()
+				ayoBerhitung()
 			}
 		})
 	}
@@ -1620,7 +1690,7 @@
 			}),
 			success: function(res){
 				$("#riwayat-plan").html(res)
-				swal.close()
+				// swal.close()
 			}
 		})
 	}
@@ -1832,6 +1902,215 @@
 		(c_off < 0 || isNaN(c_off) || c_off == 0) ? $("#c_off").val(0).attr('style', 'border-color:#d00') : $("#c_off").val(rupiah.format(c_off)).attr('style', 'border-color:#ced4da');
 		(rm < 0 || isNaN(rm) || rm == 0) ? $("#rm").val(0).attr('style', 'border-color:#d00') : $("#rm").val(rupiah.format(rm)).attr('style', 'border-color:#ced4da');
 		(ton < 0 || ton == 0) ? $("#ton").val(0).attr('style', 'border-color:#d00') : $("#ton").val(rupiah.format(Math.round(ton))).attr('style', 'border-color:#ced4da');
+	}
+
+	function plhDowntime()
+	{
+		$("#dt-pilih").html('')
+		$("#dt-select").html('')
+		$("#dt-load-data").html('')
+		let id_plan = $("#ehid_plan").val()
+		$.ajax({
+			url: '<?php echo base_url('Plan/plhDowntime')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_plan
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				let html = ''
+				html += `<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
+					<div class="col-md-2">DOWNTIME</div>
+					<div class="col-md-10">`;
+						if(data.data == 0){
+							html += `<select id="downtime_cor" class="form-control select2" onchange="downtime()">
+								<option value="">PILIH</option>
+								<option value="OP">OPERASIONAL</option>
+								<option value="MT">TEKNIK</option>
+								<option value="M">MATERIAL</option>
+								<option value="N">MANAGEMENT</option>
+							</select>`;
+						}else{
+							html += `<select class="form-control select2" disabled>
+								<option value="">PILIH</option>
+							</select>`;
+						}
+					html += `</div>
+				</div>`;
+
+				$("#dt-pilih").html(html)
+				downtime()
+				$('.select2').select2()
+			}
+		})
+	}
+
+	function downtime()
+	{
+		$("#dt-select").html('')
+		$("#dt-load-data").html('')
+		let downtime = $("#downtime_cor").val();
+		(downtime == undefined) ? downtime = "" : downtime = downtime;
+		let id_plan = $("#ehid_plan").val()
+
+		$.ajax({
+			url: '<?php echo base_url('Plan/downtime')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				downtime, id_plan
+			}),
+			success: function(res){
+				$("#dt-select").html(res)
+				$('.select2').select2()
+				loadDataDowntime()
+			}
+		})
+	}
+
+	function loadDataDowntime()
+	{
+		$("#dt-load-data").html('')
+		let id_plan = $("#ehid_plan").val()
+		$.ajax({
+			url: '<?php echo base_url('Plan/loadDataDowntime')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_plan
+			}),
+			success: function(res){
+				$("#dt-load-data").html(res)
+				swal.close()
+			}
+		})
+	}
+
+	function onKeyDTDurasi(opsi)
+	{
+		let durasi = $("#dt-durasi").val().split('.').join('');
+		(durasi < 0 || durasi == "" || durasi == 0) ? $("#dt-durasi").val(0) : $("#dt-durasi").val(durasi);
+	}
+
+	function simpanDowntime()
+	{
+		let id_plan = $("#ehid_plan").val()
+		let id_dt = $("#dt-plh-downtime").val()
+		let durasi = $("#dt-durasi").val()
+		let ket = $("#dt-keterangan").val()
+		
+		$.ajax({
+			url: '<?php echo base_url('Plan/simpanDowntime')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_plan, id_dt, durasi, ket
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.result){
+					downtime()
+				}else{
+					swal(data.msg, "", "error")
+				}
+			}
+		})
+	}
+
+	function hapusDowntimePlan(id_dt)
+	{
+		let id_plan = $("#ehid_plan").val()
+		$.ajax({
+			url: '<?php echo base_url('Plan/hapusDowntimePlan')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_dt
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				downtime()
+			}
+		})
+	}
+
+	function changeEditDt(i)
+	{
+		let ket = $("#dt-ket-plan-"+i).val()
+		let durasi = $("#dt-durasi-plan-"+i).val()
+		$.ajax({
+			url: '<?php echo base_url('Plan/changeEditDt')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_plan: i, ket, durasi
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log("onchange edit dt", data)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					downtime()
+				}else{
+					swal(data.msg, "", "error")
+				}
+			}
+		})
 	}
 
 

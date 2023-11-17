@@ -81,7 +81,23 @@
 } */
 
 .h-tmpl-list-plan:hover {
-	background: rgba(222 , 222, 222, 0.5);
+	background: #e5e5e5;
+}
+
+.h-tlpf-td {
+	background: #fff;
+}
+.h-tmpl-list-plan:hover .h-tlpf-td {
+	background: #e5e5e5;
+}
+
+.h-tlp-td {
+	font-weight: bold;
+	background: #ffd700;
+}
+
+.h-tmpl-list-plan:hover .h-tlp-td {
+	background: #eec600;
 }
 
 .inp-kosong {

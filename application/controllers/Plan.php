@@ -205,7 +205,7 @@ class Plan extends CI_Controller
 			$i++;
 			$html .='<tr>
 				<td>'.$i.'</td>
-				<td><a href="javascript:void(0)" onclick="showCartitem('."'".$r['rowid']."'".')">'.$r['options']['no_wo'].'<a></td>
+				<td><a href="javascript:void(0)" onclick="showCartitem('."'".$r['id']."'".','."'input'".')">'.$r['options']['no_wo'].'<a></td>
 				<td>
 					<button class="btn btn-sm btn-danger" onclick="hapusCartItem('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
 				</td>
@@ -215,7 +215,7 @@ class Plan extends CI_Controller
 		if($this->cart->total_items() != 0){
 			$html .= '</tbody>
 					</table>
-					<button class="btn btn-sm btn-primary" style="margin-left:20px" onclick="simpanCartItem('."'".$r['rowid']."'".')"><i class="fas fa-save"></i> SIMPAN</button>
+					<button class="btn btn-sm btn-primary" style="margin-left:20px" onclick="simpanCartItem()"><i class="fas fa-save"></i> SIMPAN</button>
 				</div>
 			</div>';
 		}
@@ -233,18 +233,21 @@ class Plan extends CI_Controller
 	{
 		$html = '';
 		$id_plan = $_POST["rowid"];
-		$plan = $this->db->query("SELECT*FROM plan_cor WHERE id_plan='$id_plan'")->row();
-		if($this->cart->total_items() != 0){
-			foreach($this->cart->contents() as $r){
-				if($r['rowid'] == $_POST["rowid"]){
-					$tgl_plan = $this->m_fungsi->tanggal_format_indonesia($r['options']['tgl_plan']); $shift_plan = $r['options']['shift_plan']; $machine_plan = $r['options']['machine_plan']; $no_wo = $r['options']['no_wo']; $panjang_plan = number_format($r['options']['panjang_plan']); $lebar_plan = number_format($r['options']['lebar_plan']); $lebar_roll_p = number_format($r['options']['lebar_roll_p']); $out_plan = number_format($r['options']['out_plan']); $pcs_plan = number_format($r['options']['pcs_plan']); $trim_plan = number_format($r['options']['trim_plan']); $c_off_p = number_format($r['options']['c_off_p']); $rm_plan = number_format($r['options']['rm_plan']); $tonase_plan = number_format($r['options']['tonase_plan']); $tgl_kirim_plan = $this->m_fungsi->tanggal_format_indonesia($r['options']['tgl_kirim_plan']); $next_plan = $r['options']['next_plan'];
-					$good_cor_p = ''; $bad_cor_p = ''; $total_cor_p = ''; $ket_plan = ''; $start_time_p = ''; $end_time_p = '';
-				}else{
-					$tgl_plan = $this->m_fungsi->tanggal_format_indonesia($plan->tgl_plan); $shift_plan = $plan->shift_plan; $machine_plan = $plan->machine_plan; $no_wo = $plan->no_wo; $panjang_plan = number_format($plan->panjang_plan); $lebar_plan = number_format($plan->lebar_plan); $lebar_roll_p = number_format($plan->lebar_roll_p); $out_plan = number_format($plan->out_plan); $pcs_plan = number_format($plan->pcs_plan); $trim_plan = number_format($plan->trim_plan); $c_off_p = number_format($plan->c_off_p); $rm_plan = number_format($plan->rm_plan); $tonase_plan = number_format($plan->tonase_plan); $tgl_kirim_plan = $this->m_fungsi->tanggal_format_indonesia($plan->tgl_kirim_plan); $next_plan = $plan->next_plan;
-					$good_cor_p = number_format($plan->good_cor_p); $bad_cor_p = number_format($plan->bad_cor_p); $total_cor_p = number_format($plan->total_cor_p); $ket_plan = $plan->ket_plan; $start_time_p = date("h:i", strtotime($plan->start_time_p)); $end_time_p = date("h:i", strtotime($plan->end_time_p));
+		$opsi = $_POST["opsi"];
+		if($opsi == 'input'){
+			if($this->cart->total_items() != 0){
+				foreach($this->cart->contents() as $r){
+					if($r['id'] == $_POST["rowid"]){
+						$tgl_plan = $this->m_fungsi->tanggal_format_indonesia($r['options']['tgl_plan']); $shift_plan = $r['options']['shift_plan']; $machine_plan = $r['options']['machine_plan']; $no_wo = $r['options']['no_wo']; $panjang_plan = number_format($r['options']['panjang_plan']); $lebar_plan = number_format($r['options']['lebar_plan']); $lebar_roll_p = number_format($r['options']['lebar_roll_p']); $out_plan = number_format($r['options']['out_plan']); $pcs_plan = number_format($r['options']['pcs_plan']); $trim_plan = number_format($r['options']['trim_plan']); $c_off_p = number_format($r['options']['c_off_p']); $rm_plan = number_format($r['options']['rm_plan']); $tonase_plan = number_format($r['options']['tonase_plan']); $tgl_kirim_plan = $this->m_fungsi->tanggal_format_indonesia($r['options']['tgl_kirim_plan']); $next_plan = $r['options']['next_plan'];
+						$good_cor_p = ''; $bad_cor_p = ''; $total_cor_p = ''; $ket_plan = ''; $start_time_p = ''; $end_time_p = ''; $downtime = 0;
+					}
 				}
 			}
 		}else{
+			$plan = $this->db->query("SELECT*FROM plan_cor WHERE id_plan='$id_plan'")->row();
+			$downtime = $this->db->query("SELECT*FROM plan_cor_dt dt
+			INNER JOIN m_downtime md ON dt.id_m_downtime=md.id_downtime
+			WHERE dt.id_plan_cor='$id_plan'");
 			$tgl_plan = $this->m_fungsi->tanggal_format_indonesia($plan->tgl_plan); $shift_plan = $plan->shift_plan; $machine_plan = $plan->machine_plan; $no_wo = $plan->no_wo; $panjang_plan = number_format($plan->panjang_plan); $lebar_plan = number_format($plan->lebar_plan); $lebar_roll_p = number_format($plan->lebar_roll_p); $out_plan = number_format($plan->out_plan); $pcs_plan = number_format($plan->pcs_plan); $trim_plan = number_format($plan->trim_plan); $c_off_p = number_format($plan->c_off_p); $rm_plan = number_format($plan->rm_plan); $tonase_plan = number_format($plan->tonase_plan); $tgl_kirim_plan = $this->m_fungsi->tanggal_format_indonesia($plan->tgl_kirim_plan); $next_plan = $plan->next_plan;
 			$good_cor_p = number_format($plan->good_cor_p); $bad_cor_p = number_format($plan->bad_cor_p); $total_cor_p = number_format($plan->total_cor_p); $ket_plan = $plan->ket_plan; $start_time_p = date("h:i", strtotime($plan->start_time_p)); $end_time_p = date("h:i", strtotime($plan->end_time_p));
 		}
@@ -294,7 +297,6 @@ class Plan extends CI_Controller
 						<div class="col-md-2">KET</div>
 						<div class="col-md-10"><textarea class="form-control" style="resize:none" rows="2" disabled>'.$ket_plan.'</textarea></div>
 					</div>
-
 					<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
 						<div class="col-md-2">START</div>
 						<div class="col-md-10"><input type="text" class="form-control" value="'.$start_time_p.'" disabled></div>
@@ -305,15 +307,66 @@ class Plan extends CI_Controller
 					</div>
 				</div>';
 
-				if($this->cart->total_items() != 0){
-					foreach($this->cart->contents() as $r){
-						if($r['rowid'] == $_POST["rowid"]){
-							$html .='';
-						}else{
-							$html .= $hasilProd;
+				if($opsi == 'input'){
+					if($this->cart->total_items() != 0){
+						foreach($this->cart->contents() as $r){
+							if($r['id'] == $_POST["rowid"]){
+								$html .='';
+							}
 						}
 					}
 				}else{
+					if($downtime->num_rows() == 0){
+						$html .='';
+					}else{
+						$html .= '<div class="card card-danger card-outline" style="padding-bottom:20px">
+							<div class="card-header">
+								<h3 class="card-title" style="font-weight:bold;font-style:italic">DOWNTIME</h3>
+							</div>
+							<div style="overflow:auto;white-space:nowrap">
+								<table class="table table-bordered" style="margin:0;border:0">
+									<thead>
+										<tr>
+											<th style="text-align:center">#</th>
+											<th>KODE</th>
+											<th>-</th>
+											<th style="padding:12px 54px 12px 12px">KETERANGAN</th>
+											<th style="text-align:center">(M)</th>
+										</tr>
+									</thead>';
+									$data = $this->db->query("SELECT*FROM plan_cor_dt p
+									INNER JOIN m_downtime d ON p.id_m_downtime=d.id_downtime
+									WHERE p.id_plan_cor='$id_plan'");
+
+									if($data->num_rows() == 0){
+										$html .= '<tr>
+											<td style="padding:6px;text-align:center" colspan="5">DOWNTIME KOSONG</td>
+										</tr>';
+									}else{
+										$i = 0;
+										$sumMntDt = 0;
+										foreach($data->result() as $r){
+											$i++;
+											$html .= '<tr class="h-tmpl-list-plan">
+												<td style="padding:6px;text-align:center">'.$i.'</td>
+												<td style="padding:6px;text-align:center">'.$r->kode_d.'</td>
+												<td style="padding:6px">'.$r->keterangan.'</td>
+												<td style="padding:6px">'.$r->ket_plan_dt.'</td>
+												<td style="padding:6px;text-align:center">'.$r->durasi_mnt_dt.'</td>
+											</tr>';
+											$sumMntDt += $r->durasi_mnt_dt;
+										}
+										if($data->num_rows() != 1){
+											$html .='<tr>
+												<td style="border:0;padding:6px;background:#fff;font-weight:bold;text-align:right" colspan="4">TOTAL DOWNTIME(M)</td>
+												<td style="border:0;padding:6px;background:#fff;font-weight:bold;text-align:center">'.number_format($sumMntDt).'</td>
+											</tr>';
+										}
+									}
+								$html .= '</table>
+							</div>
+						</div>';
+					}
 					$html .= $hasilProd;
 				}
 
@@ -564,6 +617,19 @@ class Plan extends CI_Controller
 			}else{
 				$nextPlan = $r->next_plan;
 			}
+
+			$id_plan = $r->id_plan;
+			$cekDowntime = $this->db->query("SELECT*FROM plan_cor_dt dt
+			INNER JOIN m_downtime md ON dt.id_m_downtime=md.id_downtime
+			WHERE dt.id_plan_cor='$id_plan'");
+			$txtKet = '';
+			if($cekDowntime->num_rows() == 0){
+				$txtKet .= '';
+			}else{
+				foreach($cekDowntime->result() as $dt){
+					$txtKet .= $dt->kode_d.' - '.$dt->durasi_mnt_dt.'"'.'<br>';
+				}
+			}
 			
 			$html .= '<tbody>
 				<tr>
@@ -585,7 +651,7 @@ class Plan extends CI_Controller
 					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2"></td>
 					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2"></td>
 					<td style="border:1px solid #000" rowspan="4">'.$nextPlan.'</td>
-					<td style="border:1px solid #000" rowspan="4">'.$r->ket_plan.'</td>
+					<td style="border:1px solid #000;text-align:left;vertical-align:top" rowspan="4">'.$txtKet.'</td>
 				</tr>
 				<tr>
 					<td style="border:1px solid #000;border-width:0 1px;text-align:left">'.$r->nm_pelanggan.'</td>
@@ -609,6 +675,7 @@ class Plan extends CI_Controller
 		
 		$judul = $query->row()->tgl_plan.'-'.$no_plan;
 		$this->m_fungsi->newMpdf($judul, '', $html, 1, 3, 1, 3, 'L', 'A4', $judul.'.pdf');
+		// echo $html;
 	}
 
 	function riwayatPlan()
@@ -625,63 +692,69 @@ class Plan extends CI_Controller
 				</div>
 				<div style="overflow:auto;white-space:nowrap">
 					<table class="table table-bordered table-striped" style="border:0;text-align:center">
-					<thead>
-						<tr>
-							<th style="width:5%">#</th>
-							<th style="width:25%;text-align:left">TGL PLAN</th>
-							<th style="width:10%">SHIFT</th>
-							<th style="width:10%">MESIN</th>
-							<th style="width:10%">GOOD</th>
-							<th style="width:10%">BAD</th>
-							<th style="width:10%">TOTAL</th>
-							<th style="width:10%">START</th>
-							<th style="width:10%">END</th>
-						</tr>
-					</thead>';
-			$i = 0;
-			$good_cor_p = 0;
-			$bad_cor_p = 0;
-			$total_cor_p = 0;
-			foreach($result->result() as $r){
-				$i++;
-				$html .= '<tr>
-					<td>'.$i.'</td>
-					<td style="text-align:left">
-						<a href="javascript:void(0)" onclick="showCartitem('."'".$r->id_plan."'".')">
-							'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_plan)).'	
-						<a>
-					</td>
-					<td>'.$r->shift_plan.'</td>
-					<td>'.$r->machine_plan.'</td>
-					<td style="text-align:right">'.number_format($r->good_cor_p).'</td>
-					<td style="text-align:right">'.number_format($r->bad_cor_p).'</td>
-					<td style="text-align:right">'.number_format($r->total_cor_p).'</td>
-					<td>'.date("h:i", strtotime($r->start_time_p)).'</td>
-					<td>'.date("h:i", strtotime($r->end_time_p)).'</td>
-				</tr>';
-				$good_cor_p += $r->good_cor_p;
-				$bad_cor_p += $r->bad_cor_p;
-				$total_cor_p += $r->total_cor_p;
-			}
+						<thead>
+							<tr>
+								<th>#</th>
+								<th style="text-align:left">TGL PLAN</th>
+								<th>SHIFT</th>
+								<th>MESIN</th>
+								<th>GOOD</th>
+								<th>BAD</th>
+								<th>TOTAL</th>
+								<th>DOWNTIME(m)</th>
+								<th>START</th>
+								<th>END</th>
+							</tr>
+						</thead>';
+						$i = 0;
+						$good_cor_p = 0;
+						$bad_cor_p = 0;
+						$total_cor_p = 0;
+						foreach($result->result() as $r){
+							$i++;
 
-			if($result->num_rows() > 1){
-				$html .='<tr>
-					<td style="border:0;background:#fff;font-weight:bold;text-align:right" colspan="4">TOTAL PRODUKSI</td>
-					<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($good_cor_p).'</td>
-					<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($bad_cor_p).'</td>
-					<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($total_cor_p).'</td>
-				</tr>';
-			}
-			$jmlGood = $good_cor_p - $result->row()->qty_so;
-			$jmlTot = $total_cor_p - $result->row()->qty_so;
-			$html .='<tr>
-				<td style="border:0;background:#fff;font-weight:bold;text-align:right" colspan="4">QTY SO - ( '.number_format($result->row()->qty_so).' )</td>
-				<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($jmlGood).'</td>
-				<td style="border:0;background:#fff;font-weight:bold;text-align:right">-</td>
-				<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($jmlTot).'</td>
-			</tr>';
-
-			$html .='</table>
+							if($r->jmlDt == 0){
+								$txtDowtime = '-';
+							}else{
+								$txtDowtime = $r->jmlDt.' ( '.number_format($r->jmlDtDurasi).' )';
+							}
+							$html .= '<tr>
+								<td>'.$i.'</td>
+								<td style="text-align:left">
+									<a href="javascript:void(0)" onclick="showCartitem('."'".$r->id_plan."'".','."'riwayat'".')">
+										'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_plan)).'	
+									<a>
+								</td>
+								<td>'.$r->shift_plan.'</td>
+								<td>'.$r->machine_plan.'</td>
+								<td style="text-align:right">'.number_format($r->good_cor_p).'</td>
+								<td style="text-align:right">'.number_format($r->bad_cor_p).'</td>
+								<td style="text-align:right">'.number_format($r->total_cor_p).'</td>
+								<td style="text-align:right">'.$txtDowtime.'</td>
+								<td>'.date("h:i", strtotime($r->start_time_p)).'</td>
+								<td>'.date("h:i", strtotime($r->end_time_p)).'</td>
+							</tr>';
+							$good_cor_p += $r->good_cor_p;
+							$bad_cor_p += $r->bad_cor_p;
+							$total_cor_p += $r->total_cor_p;
+						}
+						if($result->num_rows() > 1){
+							$html .='<tr>
+								<td style="border:0;background:#fff;font-weight:bold;text-align:right" colspan="4">TOTAL PRODUKSI</td>
+								<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($good_cor_p).'</td>
+								<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($bad_cor_p).'</td>
+								<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($total_cor_p).'</td>
+							</tr>';
+						}
+						$jmlGood = $good_cor_p - $result->row()->qty_so;
+						$jmlTot = $total_cor_p - $result->row()->qty_so;
+						$html .='<tr>
+							<td style="border:0;background:#fff;font-weight:bold;text-align:right" colspan="4">QTY SO - ( '.number_format($result->row()->qty_so).' )</td>
+							<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($jmlGood).'</td>
+							<td style="border:0;background:#fff;font-weight:bold;text-align:right">-</td>
+							<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($jmlTot).'</td>
+						</tr>';
+					$html .='</table>
 				</div>
 			</div>';
 		}
@@ -694,21 +767,23 @@ class Plan extends CI_Controller
 		$urlTgl_plan = $_POST["urlTgl_plan"];
 		$urlShift = $_POST["urlShift"];
 		$urlMesin = $_POST["urlMesin"];
+		$id_plan = $_POST["hidplan"];
 		$html = '';
 
 		$html .= '<div style="overflow:auto;white-space:nowrap">
 			<table class="table table-bordered" style="border:0;text-align:center">
 				<thead>
 					<tr>
-						<th>#</th>
-						<th>ITEM</th>
+						<th style="position:sticky;left:0;background:#fff">#</th>
+						<th>STATUS</th>
+						<th style="position:sticky;left:33px;background:#fff">ITEM</th>
 						<th>NO.PO</th>
 						<th>CUSTOMER</th>
 						<th colspan="2">TL/AL</th>
 						<th colspan="2">B MF</th>
-						<th colspan="2">B . L</th>
+						<th colspan="2">BC</th>
 						<th colspan="2">C.MF</th>
-						<th colspan="2">C . L</th>
+						<th colspan="2">B/C.L</th>
 						<th style="padding:12px 22px">PJG</th>
 						<th style="padding:12px 22px">LBR</th>
 						<th colspan="3">SCORE</th>
@@ -725,15 +800,16 @@ class Plan extends CI_Controller
 					</tr>
 				</thead>';
 
-		$data = $this->db->query("SELECT p.*,i.nm_produk,w.kode_po,l.nm_pelanggan,i.kategori,i.flute,w.flap1,w.creasing2,w.flap2 FROM plan_cor p
+		$data = $this->db->query("SELECT p.*,i.nm_produk,w.kode_po,l.nm_pelanggan,i.kategori,i.flute,w.flap1,w.creasing2,w.flap2,w.status AS statusWo FROM plan_cor p
 		INNER JOIN m_produk i ON p.id_produk=i.id_produk
 		INNER JOIN trs_wo w ON p.id_wo=w.id
 		INNER JOIN trs_so_detail s ON p.id_so_detail=s.id
 		INNER JOIN m_pelanggan l ON p.id_pelanggan=l.id_pelanggan
-		WHERE p.tgl_plan='$urlTgl_plan' AND p.shift_plan='$urlShift' AND p.machine_plan='$urlMesin'");
-		$i = 0;
+		WHERE p.tgl_plan='$urlTgl_plan' AND p.shift_plan='$urlShift' AND p.machine_plan='$urlMesin'
+		ORDER BY p.no_urut_plan,p.id_plan");
+		// $i = 0;
 		foreach($data->result() as $r){
-			$i++;
+			// $i++;
 
 			$id = $r->id_plan;
 			$exMatPlan = explode("/", $r->material_plan);
@@ -776,82 +852,124 @@ class Plan extends CI_Controller
 				$vkisPlan5 = $exKistPlan[4];
 			}
 
-			$htmlSub ='<td style="padding:6px">
+			if($id_plan == $r->id_plan){
+				$bgTd = 'class="h-tlp-td"';
+			}else{
+				$bgTd = 'class="h-tlpf-td"';
+			}
+
+			$htmlSub ='<td '.$bgTd.' style="padding:6px">
 				<select class="form-control inp-kosong" id="lp-sm1-'.$id.'">
 					<option value="'.$vMatPlan1.'">'.$vMatPlan1.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 				</select></td>
-			<td style="padding:6px"><input type="number" id="lp-si1-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan1.'" onkeyup="onChangeEditPlan('."'".$id."'".')"></td>
-			<td style="padding:6px">
+			<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si1-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan1.'" onkeyup="onChangeEditPlan('."'".$id."'".')"></td>
+			<td '.$bgTd.' style="padding:6px">
 				<select class="form-control inp-kosong" id="lp-sm2-'.$id.'" '.$dis2.'>
 					<option value="'.$vMatPlan2.'">'.$vMatPlan2.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 				</select></td>
-			<td style="padding:6px"><input type="number" id="lp-si2-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan2.'" '.$dis2.' onkeyup="onChangeEditPlan('."'".$id."'".')"></td>
-			<td style="padding:6px">
+			<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si2-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan2.'" '.$dis2.' onkeyup="onChangeEditPlan('."'".$id."'".')"></td>
+			<td '.$bgTd.' style="padding:6px">
 				<select class="form-control inp-kosong" id="lp-sm3-'.$id.'" '.$dis3.'>
 					<option value="'.$vMatPlan3.'">'.$vMatPlan3.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 				</select></td>
-			<td style="padding:6px"><input type="number" id="lp-si3-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan3.'" '.$dis3.' onkeyup="onChangeEditPlan('."'".$id."'".')"></td>
-			<td style="padding:6px">
+			<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si3-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan3.'" '.$dis3.' onkeyup="onChangeEditPlan('."'".$id."'".')"></td>
+			<td '.$bgTd.' style="padding:6px">
 				<select class="form-control inp-kosong" id="lp-sm4-'.$id.'" '.$dis4.'>
 					<option value="'.$vMatPlan4.'">'.$vMatPlan4.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 				</select></td>
-			<td style="padding:6px"><input type="number" id="lp-si4-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan4.'" '.$dis4.' onkeyup="onChangeEditPlan('."'".$id."'".')"></td>
-			<td style="padding:6px">
+			<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si4-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan4.'" '.$dis4.' onkeyup="onChangeEditPlan('."'".$id."'".')"></td>
+			<td '.$bgTd.' style="padding:6px">
 				<select class="form-control inp-kosong" id="lp-sm5-'.$id.'">
 					<option value="'.$vMatPlan5.'">'.$vMatPlan5.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 				</select></td>
-			<td style="padding:6px"><input type="number" id="lp-si5-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan5.'" onkeyup="onChangeEditPlan('."'".$id."'".')"></td>';
+			<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si5-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan5.'" onkeyup="onChangeEditPlan('."'".$id."'".')"></td>';
+
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator'])){
+				if($r->status_plan == 'Open' && $r->total_cor_p == 0){
+					if($this->session->userdata('level') == 'Corrugator'){
+						$btnAksi = '<span class="bg-danger" style="padding:2px 4px;border-radius:4px">HAPUS</span>';
+						$btnAksiEdit = '-';
+						$aksiNoUrut = 'disabled';
+					}else{
+						$btnAksi = '<a href="javascript:void(0)" onclick="hapusPlan('."".$r->id_plan."".')" href="" class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">Hapus</a>';
+						$btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".')">EDIT<a>';
+						$aksiNoUrut = 'onchange="onChangeNourutPlan('."'".$id."'".')"';
+					}
+				}else if($r->status_plan == 'Open' && $r->total_cor_p != 0){
+					$btnAksi = '<span class="bg-success" style="padding:2px 4px;border-radius:4px;display:block">PRODUKSI</span>';
+					$btnAksiEdit = '-';
+					$aksiNoUrut = 'disabled';
+				}else if($r->status_plan == 'Close' && $r->statusWo == 'Open'){
+					$btnAksi = '<span class="bg-primary" style="padding:2px;border-radius:4px;display:block">PLAN</span>';
+					$btnAksiEdit = '-';
+					$aksiNoUrut = 'disabled';
+				}else if($r->status_plan == 'Close' && $r->statusWo == 'Close'){
+					$btnAksi = '<span class="bg-dark" style="padding:2px 4px;border-radius:4px;display:block">WO</span>';
+					$btnAksiEdit = '-';
+					$aksiNoUrut = 'disabled';
+				}else{
+					$btnAksi = `-`;
+					$aksiNoUrut = 'disabled';
+				}
+			}else{
+				$btnAksi = '-';
+				$aksiNoUrut = 'disabled';
+			}
 
 			$html .= '<tr class="h-tmpl-list-plan">
-				<td style="padding:6px">'.$i.'</td>
-				<td style="padding:6px;text-align:left">'.$r->nm_produk.'</td>
-				<td style="padding:6px;text-align:left">'.$r->kode_po.'</td>
-				<td style="padding:6px;text-align:left">'.$r->nm_pelanggan.'</td>
+				<td '.$bgTd.' style="position:sticky;left:0;padding:6px 3px">
+					<input type="number" class="form-control inp-kosong2" id="lp-nourut-'.$id.'" value="'.$r->no_urut_plan.'" '.$aksiNoUrut.'>
+				</td>
+				<td '.$bgTd.' style="padding:4px 3px 3px;font-weight:normal">'.$btnAksi.'</td>
+				<td '.$bgTd.' style="position:sticky;left:33px;padding:6px;text-align:left"><a href="javascript:void(0)" onclick="plhNoWo('."".$r->id_plan."".')" title="'."".$r->no_wo."".'">'.$r->nm_produk.'</a>
+				</td>
+				<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->kode_po.'</td>
+				<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_pelanggan.'</td>
 				'.$htmlSub.'
-				<td style="padding:6px">
+				<td '.$bgTd.' style="padding:6px">
 					<input type="number" class="form-control inp-kosong2" id="lp-pjgs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->panjang_plan.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
 				</td>
-				<td style="padding:6px">
+				<td '.$bgTd.' style="padding:6px">
 					<input type="number" class="form-control inp-kosong2" id="lp-lbrs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->lebar_plan.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
 				</td>
-				<td style="padding:6px" id="lptd-scr1-'.$id.'">
+				<td '.$bgTd.' style="padding:6px" id="lptd-scr1-'.$id.'">
 					<input type="number" class="form-control inp-kosong" id="lp-scr1-'.$id.'" value="'.$r->flap1.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
 				</td>
-				<td style="padding:6px" id="lptd-scr2-'.$id.'">
+				<td '.$bgTd.' style="padding:6px" id="lptd-scr2-'.$id.'">
 					<input type="number" class="form-control inp-kosong" id="lp-scr2-'.$id.'" value="'.$r->creasing2.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
 				</td>
-				<td style="padding:6px" id="lptd-scr3-'.$id.'">
+				<td '.$bgTd.' style="padding:6px" id="lptd-scr3-'.$id.'">
 					<input type="number" class="form-control inp-kosong" id="lp-scr3-'.$id.'" value="'.$r->flap2.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
 				</td>
-				<td style="padding:6px">
+				<td '.$bgTd.' style="padding:6px">
 					<input type="number" class="form-control inp-kosong2" id="lp-out-'.$id.'" value="'.$r->out_plan.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
 				</td>
-				<td style="padding:6px">'.$r->flute.'</td>
-				<td style="padding:6px">
+				<td '.$bgTd.' style="padding:6px">'.$r->flute.'</td>
+				<td '.$bgTd.' style="padding:6px">
 					<input type="number" class="form-control inp-kosong2" id="lp-lbri-'.$id.'" style="font-weight:bold;color:#000" value="'.$r->lebar_roll_p.'" onkeyup="onChangeEditPlan('."'".$id."'".')">
 				</td>
-				<td style="padding:6px;text-align:right">
+				<td '.$bgTd.' style="padding:6px;text-align:right">
 					<input type="number" class="form-control inp-kosong2" id="lp-trimp-'.$id.'" value="'.$r->trim_plan.'" disabled>
 				</td>
-				<td style="padding:6px;text-align:right">
+				<td '.$bgTd.' style="padding:6px;text-align:right">
 					<input type="hidden" class="form-control inp-kosong2" id="lp-pcs-plan-'.$id.'" value="'.$r->pcs_plan.'">
 					'.number_format($r->pcs_plan).'
 				</td>
-				<td style="padding:6px;text-align:right">
+				<td '.$bgTd.' style="padding:6px;text-align:right">
 					<input type="number" class="form-control inp-kosong2" id="lp-coffp-'.$id.'" value="'.$r->c_off_p.'" disabled>
 				</td>
-				<td style="padding:6px;text-align:right">
+				<td '.$bgTd.' style="padding:6px;text-align:right">
 					<input type="number" class="form-control inp-kosong2" id="lp-rmp-'.$id.'" value="'.$r->rm_plan.'" disabled>
 				</td>
-				<td style="padding:6px;text-align:right">
+				<td '.$bgTd.' style="padding:6px;text-align:right">
 					<input type="number" class="form-control inp-kosong2" id="lp-tonp-'.$id.'" value="'.$r->tonase_plan.'" disabled>
 				</td>
-				<td style="padding:6px">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
-				<td style="padding:6px">
+				<td '.$bgTd.' style="padding:6px">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
+				<td '.$bgTd.' style="padding:6px">
 					<input type="hidden" id="hlp-flute-'.$id.'" value="'.$r->flute.'">
 					<input type="hidden" id="hlp-kategori-'.$id.'" value="'.$r->kategori.'">
 					<input type="hidden" id="hlp-kua-isi-p-'.$id.'" value="'.$r->kualitas_isi_plan.'">
-					<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".')">EDIT<a>
+					'.$btnAksiEdit.'
 				</td>
 			</tr>';
 		}
@@ -859,6 +977,182 @@ class Plan extends CI_Controller
 		$html .= '</table>
 		</div>';
 		echo $html;
+	}
+
+	function onChangeNourutPlan()
+	{
+		$result = $this->m_plan->onChangeNourutPlan();
+		echo json_encode($result);
+	}
+
+	function editListPlan()
+	{
+		$result = $this->m_plan->editListPlan();
+		echo json_encode($result);
+	}
+
+	function plhDowntime()
+	{
+		$id_plan = $_POST["id_plan"];
+		$cek = $this->db->query("SELECT*FROM plan_cor WHERE id_plan='$id_plan' AND status_plan='Close'");
+
+		echo json_encode(array(
+			'data' => $cek->num_rows()
+		));
+	}
+
+	function downtime()
+	{
+		$html = '';
+		$downtime = $_POST["downtime"];
+		$id_plan = $_POST["id_plan"];
+		if($downtime == 'OP'){
+			$where = "WHERE kode_h='C.01' AND kode_d LIKE 'OP%' ORDER BY kode_d";
+		}else if($downtime == 'MT'){
+			$where = "WHERE kode_h='C.02' AND kode_d LIKE 'MT%'";
+		}else if($downtime == 'M'){
+			$where = "WHERE kode_h='C.03' AND kode_d LIKE 'M%'";
+		}else if($downtime == 'N'){
+			$where = "WHERE kode_h='C.04' AND kode_d LIKE 'N%'";
+		}
+
+		if($downtime == ""){
+			$html .= '';
+		}else{
+			$cekPlan = $this->db->query("SELECT*FROM plan_cor WHERE id_plan='$id_plan' AND status_plan='Close'");
+			if($cekPlan->num_rows() == 1){
+				$html .='<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+					<div class="col-md-2"></div>
+					<div class="col-md-10" style="color:#f00;font-style:italic">PLAN SUDAH DICLOSE!</div>
+				</div>';
+			}else{
+				$html .='<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+					<div class="col-md-2"></div>
+					<div class="col-md-10" style="color:#f00;font-style:italic;font-size:12px">* KODE | KETERANGAN</div>
+				</div>
+				<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+					<div class="col-md-2"></div>
+					<div class="col-md-10">
+						<select class="form-control select2" id="dt-plh-downtime">
+							<option value="">PILIH</option>';
+							$data = $this->db->query("SELECT*FROM m_downtime $where");
+							foreach($data->result() as $r){
+								$html .='<option value="'.$r->id_downtime.'">'.$r->kode_d.' | '.$r->keterangan.'</option>';
+							}
+						$html .= '</select>
+					</div>
+				</div>
+				<div class="card-body row" style="padding:0 20px 5px;font-weight:bold ">
+					<div class="col-md-2 p-0">DURASI</div>
+					<div class="col-md-2">
+						<input type="number" id="dt-durasi" class="form-control" onkeyup="onKeyDTDurasi()">
+					</div>
+					<div class="col-md-8" style="font-style:italic;font-size:12px">MENIT</div>
+				</div>
+				<div class="card-body row" style="padding:0 20px 5px;font-weight:bold ">
+					<div class="col-md-2 p-0">KETERANGAN</div>
+					<div class="col-md-10">
+						<textarea class="form-control" id="dt-keterangan" style="resize:none" rows="2"></textarea>
+					</div>
+				</div>
+				<div class="card-body row" style="padding:0 20px 5px;font-weight:bold ">
+					<div class="col-md-2"></div>
+					<div class="col-md-10">
+						<button class="btn btn-sm btn-success" style="font-weight:bold" onclick="simpanDowntime()"><i class="fas fa-plus"></i> ADD</button>
+					</div>
+				</div>';
+			}
+		}
+
+		echo $html;
+	}
+
+	function simpanDowntime()
+	{
+		$result = $this->m_plan->simpanDowntime();
+		echo json_encode($result);
+	}
+
+	function loadDataDowntime()
+	{
+		$id_plan = $_POST["id_plan"];
+		$html = '';
+
+		$html .= '<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+			<div class="col-md-12" style="padding:0">
+				<table class="table table-bordered" style="margin:20px 0 0;border:0">
+					<thead>
+						<tr>
+							<th style="text-align:center">#</th>
+							<th>KODE</th>
+							<th>-</th>
+							<th style="padding:12px 54px 12px 12px">KETERANGAN</th>
+							<th style="text-align:center">(M)</th>
+						</tr>
+					</thead>';
+					$data = $this->db->query("SELECT*FROM plan_cor_dt p
+					INNER JOIN m_downtime d ON p.id_m_downtime=d.id_downtime
+					WHERE p.id_plan_cor='$id_plan'");
+
+					if($data->num_rows() == 0){
+						$html .= '<tr>
+							<td style="padding:6px;text-align:center" colspan="5">DOWNTIME KOSONG</td>
+						</tr>';
+					}else{
+						$i = 0;
+						$sumMntDt = 0;
+						foreach($data->result() as $r){
+							$i++;
+							$id = $r->id_plan_dt;
+
+							$cekPlan = $this->db->query("SELECT*FROM plan_cor WHERE id_plan='$id_plan' AND status_plan='Close'");
+							if($cekPlan->num_rows() == 1){
+								$onClickDt = 'style="color:#666;cursor:default" disabled';
+								$onChangeDt = 'disabled';
+							}else{
+								$onClickDt = 'style="color:#f00" onclick="hapusDowntimePlan('."'".$id."'".')"';
+								$onChangeDt = 'onchange="changeEditDt('."'".$id."'".')"';
+							}
+							$html .= '<tr class="h-tmpl-list-plan">
+								<td style="padding:6px;text-align:center;vertical-align:middle">'.$i.'</td>
+								<td style="padding:6px;text-align:center;vertical-align:middle">'.$r->kode_d.'</td>
+								<td style="padding:6px;vertical-align:middle">'.$r->keterangan.'&nbsp
+									<a href="javascript:void(0)" '.$onClickDt.'><i class="fas fa-times-circle"></i><a>
+								</td>
+								<td style="padding:3px">
+									<textarea type="text" id="dt-ket-plan-'.$id.'" class="form-control inp-kosong2" style="text-align:left;resize:none;font-size:13px" '.$onChangeDt.'>'.$r->ket_plan_dt.'</textarea>
+								</td>
+								<td style="padding:6px;text-align:center;vertical-align:middle">
+									<input type="number" id="dt-durasi-plan-'.$id.'" class="form-control inp-kosong" value="'.$r->durasi_mnt_dt.'" '.$onChangeDt.'>
+								</td>
+							</tr>';
+							$sumMntDt += $r->durasi_mnt_dt;
+						}
+
+						if($data->num_rows() != 1){
+							$html .='<tr>
+								<td style="border:0;padding:6px;background:#fff;font-weight:bold;text-align:right" colspan="4">TOTAL DOWNTIME(M)</td>
+								<td style="border:0;padding:6px;background:#fff;font-weight:bold;text-align:center">'.number_format($sumMntDt).'</td>
+							</tr>';
+						}
+					}
+				$html .= '</table>
+			</div>
+		</div>';
+
+		echo $html;
+	}
+
+	function hapusDowntimePlan()
+	{
+		$result = $this->m_plan->hapusDowntimePlan();
+		echo json_encode($result);
+	}
+
+	function changeEditDt()
+	{
+		$result = $this->m_plan->changeEditDt();
+		echo json_encode($result);
 	}
 
 	//

@@ -21,11 +21,6 @@
 			-webkit-appearance: none;
 			margin: 0;
 		}
-
-		/* Firefox */
-		input[type=number] {
-			-moz-appearance: textfield;
-		}
 	</style>
 
 	<section class="content" style="padding-bottom:30px">
@@ -291,7 +286,7 @@
 											<option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 										</select>
 									</div>
-									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="tl_al_i" class="form-control angka" autocomplete="off" maxlength="3" onchange="ayoBerhitung()"></div>
+									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="tl_al_i" class="form-control angka" autocomplete="off" onkeyup="ayoBerhitung()"></div>
 								</div>
 								<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
 									<div class="col-md-2">B.MF</div>
@@ -300,16 +295,16 @@
 											<option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 										</select>
 									</div>
-									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="bmf_i" class="form-control angka" autocomplete="off" maxlength="3" onchange="ayoBerhitung()"></div>
+									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="bmf_i" class="form-control angka" autocomplete="off" onkeyup="ayoBerhitung()"></div>
 								</div>
 								<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
-									<div class="col-md-2">B.L</div>
+									<div class="col-md-2">BC</div>
 									<div class="col-md-5" style="margin-bottom:3px">
 										<select id="bl" class="form-control select2" onchange="ayoBerhitung()">
 											<option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 										</select>
 									</div>
-									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="bl_i" class="form-control angka" autocomplete="off" maxlength="3" onchange="ayoBerhitung()"></div>
+									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="bl_i" class="form-control angka" autocomplete="off" onkeyup="ayoBerhitung()"></div>
 								</div>
 								<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
 									<div class="col-md-2">C.MF</div>
@@ -318,16 +313,16 @@
 											<option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 										</select>
 									</div>
-									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="cmf_i" class="form-control angka" autocomplete="off" maxlength="3" onchange="ayoBerhitung()"></div>
+									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="cmf_i" class="form-control angka" autocomplete="off" onkeyup="ayoBerhitung()"></div>
 								</div>
 								<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
-									<div class="col-md-2">C.L</div>
+									<div class="col-md-2">B/C.L</div>
 									<div class="col-md-5" style="margin-bottom:3px">
 										<select id="cl" class="form-control select2" onchange="ayoBerhitung()">
 											<option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
 										</select>
 									</div>
-									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="cl_i" class="form-control angka" autocomplete="off" maxlength="3" onchange="ayoBerhitung()"></div>
+									<div class="col-md-5" style="margin-bottom:3px"><input type="number" id="cl_i" class="form-control angka" autocomplete="off" onkeyup="ayoBerhitung()"></div>
 								</div>
 								<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 									<div class="col-md-2" style="padding:0"></div>
@@ -341,38 +336,38 @@
 						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 							<div class="col-md-2" style="padding:0">PANJANG</div>
 							<div class="col-md-10">
-								<input type="number" id="ii_panjang" class="form-control" autocomplete="off" placeholder="PANJANG SHEET" onchange="ayoBerhitung()">
+								<input type="number" id="ii_panjang" class="form-control" autocomplete="off" placeholder="PANJANG SHEET" onkeyup="ayoBerhitung()">
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 2px;font-weight:bold">
 							<div class="col-md-2">SCORE</div>
 							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_1" class="form-control" autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+								<input type="number" id="creasing_wo_1" class="form-control" autocomplete="off" placeholder="0" onkeyup="ayoBerhitung()">
 							</div>
 							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_2" class="form-control" autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+								<input type="number" id="creasing_wo_2" class="form-control" autocomplete="off" placeholder="0" onkeyup="ayoBerhitung()">
 							</div>
 							<div class="col-md-3" style="margin-bottom:3px">
-								<input type="number" id="creasing_wo_3" class="form-control" autocomplete="off" placeholder="0" onchange="ayoBerhitung()">
+								<input type="number" id="creasing_wo_3" class="form-control" autocomplete="off" placeholder="0" onkeyup="ayoBerhitung()">
 							</div>
 							<div class="col-md-1 p-0"></div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">LEBAR</div>
 							<div class="col-md-10">
-								<input type="number" id="ii_lebar" class="form-control" autocomplete="off" placeholder="LEBAR SHEET" onchange="ayoBerhitung()">
+								<input type="number" id="ii_lebar" class="form-control" autocomplete="off" placeholder="LEBAR SHEET" onkeyup="ayoBerhitung()">
 							</div>
 						</div>
 						<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
 							<div class="col-md-2" style="padding-right:0">L. ROLL</div>
 							<div class="col-md-10">
-								<input type="number" id="i_lebar_roll" class="form-control" autocomplete="off" placeholder="LEBAR ROLL" onchange="ayoBerhitung()">
+								<input type="number" id="i_lebar_roll" class="form-control" autocomplete="off" placeholder="LEBAR ROLL" onkeyup="ayoBerhitung()">
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">OUT</div>
 							<div class="col-md-10">
-								<input type="number" id="out_plan" class="form-control" autocomplete="off" placeholder="OUT" onchange="ayoBerhitung()">
+								<input type="number" id="out_plan" class="form-control" autocomplete="off" placeholder="OUT" onkeyup="ayoBerhitung()">
 							</div>
 						</div>
 						<br/>
@@ -653,7 +648,7 @@
 		})
 	}
 
-	function showCartitem(rowid)
+	function showCartitem(rowid, opsi)
 	{
 		$("#show-list-plh-item").html(`. . .`)
 		$("#modalForm").modal("show")
@@ -670,7 +665,7 @@
 					}
 				});
 			},
-			data: ({ rowid }),
+			data: ({ rowid, opsi }),
 			success: function(res){
 				$("#show-list-plh-item").html(res)
 				swal.close()
