@@ -33,8 +33,20 @@ class M_plan extends CI_Model
 			GROUP BY w.id,w.id_pelanggan,w.id_produk,p.id_pelanggan,i.id_produk,s.id
 			ORDER BY p.nm_pelanggan");
 		}
-
 		return $query;
+	}
+
+	function addDtProd()
+	{
+		$opsi = $_POST["opsi"];
+		if($opsi != ''){
+			$getNoPlan = $this->db->query("SELECT*FROM plan_cor WHERE id_plan='$opsi'")->row();
+			return $this->db->query("SELECT*FROM plan_cor
+			WHERE no_plan='$getNoPlan->no_plan' AND total_cor_p='0' AND no_urut_plan!='0'
+			ORDER BY no_urut_plan ASC LIMIT 1")->row();
+		}else{
+			return false;
+		}
 	}
 
 	function loadDataPlan()
@@ -50,10 +62,12 @@ class M_plan extends CI_Model
 
 	function simpanCartItem()
 	{
-		$plan_no    = $this->m_fungsi->urut_transaksi('PLAN');
-		$bln        = $this->m_master->get_romawi(date('m'));
-		$tahun      = date('Y');
-		
+		if($_POST['no_plan'] == ''){
+			$plan_no = $this->m_fungsi->urut_transaksi('PLAN');
+			$bln = $this->m_master->get_romawi(date('m'));
+			$tahun = date('Y');
+		}
+
 		foreach($this->cart->contents() as $r){
 			// UPDATE SCORE WO
 			$this->db->set("flap1", $r["options"]["creasing_wo1"]);
@@ -336,6 +350,59 @@ class M_plan extends CI_Model
 			$msg = "BERHASIL EDIT!";
 		}
 
+		return array(
+			'data' => $result,
+			'msg' => $msg,
+		);
+	}
+
+	function btnGantiTglPlan()
+	{
+		$tgl = $_POST["tgl"];
+		$shift = $_POST["shift"];
+		$mesin = $_POST["mesin"];
+		$id_plan = $_POST["id_plan"];
+
+		if($tgl == "" || $shift == "" || $mesin == ""){
+			$result = false;
+			$msg = 'CEK KEMBALI!';
+		}else{
+			$cekIDPlan = $this->db->query("SELECT id_so_detail,id_wo,id_produk,id_pelanggan FROM plan_cor WHERE id_plan='$id_plan'")->row();
+			$cekIDProduk = $this->db->query("SELECT*FROM plan_cor
+			WHERE id_so_detail='$cekIDPlan->id_so_detail' AND id_wo='$cekIDPlan->id_wo' AND id_produk='$cekIDPlan->id_produk' AND id_pelanggan='$cekIDPlan->id_pelanggan' 
+			AND tgl_plan='$tgl' AND shift_plan='$shift' AND machine_plan='$mesin'");
+			if($cekIDProduk->num_rows() > 0){
+				$result = false;
+				$msg = 'WO SUDAH ADA DI TANGGAL TERSEBUT!';
+			}else{
+				$cekIDPlanProduksi = $this->db->query("SELECT * FROM plan_cor WHERE id_plan='$id_plan' AND total_cor_p!='0'");
+				if($cekIDPlanProduksi->num_rows() > 0){
+					$result = false;
+					$msg = 'PLAN SUDAH TERPRODUKSI!';
+				}else{
+					$cekPlan = $this->db->query("SELECT*FROM plan_cor
+					WHERE tgl_plan='$tgl' AND shift_plan='$shift' AND machine_plan='$mesin' LIMIT 1");
+					if($cekPlan->num_rows() > 0){
+						$noplan = $cekPlan->row()->no_plan;
+					}else{
+						$plan_no = $this->m_fungsi->urut_transaksi('PLAN');
+						$bln = $this->m_master->get_romawi(date('m'));
+						$tahun = date('Y');
+						$noplan = 'PLAN/'.$tahun.'/'.$bln.'/'.$plan_no;
+					}
+					$this->db->set('tgl_plan', $tgl);
+					$this->db->set('shift_plan', $shift);
+					$this->db->set('machine_plan', $mesin);
+					$this->db->set('no_urut_plan', 0);
+					$this->db->set('no_plan', $noplan);
+					$this->db->set('edit_time', date("Y-m-d H:i:s"));
+					$this->db->set('edit_user', $this->session->userdata('username'));
+					$this->db->where('id_plan', $id_plan);
+					$result = $this->db->update('plan_cor');
+					$msg = 'BERHASIL EDIT!';
+				}
+			}
+		}
 		return array(
 			'data' => $result,
 			'msg' => $msg,
