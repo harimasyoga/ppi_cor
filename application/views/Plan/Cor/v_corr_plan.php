@@ -23,17 +23,13 @@
 		}
 	</style>
 
+	<?php
+		$queryNoPlan = $this->db->query("SELECT no_plan FROM plan_cor WHERE tgl_plan='$tgl_plan' AND shift_plan='$shift' AND machine_plan='$mesin' GROUP BY no_plan")->row();
+		$urlNoPlan = $queryNoPlan->no_plan;
+	?>
+
 	<section class="content" style="padding-bottom:30px">
 		<div class="container-fluid">
-
-			<!-- <div class="row">
-				<div class="col-md-12">
-					<div class="card card-primary card-tabs">
-						<div id="plh-tanggal-plan-header"></div>
-						<div id="plh-tanggal-plan-body"></div>
-					</div>
-				</div>
-			</div> -->
 
 			<div class="row">
 				<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') { ?>
@@ -69,18 +65,15 @@
 					</div>
 				<?php } ?>
 
-				<div class="col-md-12">
-
+				<div class="col-md-12 plh-tanggal-plan-col12" style="display:none">
+					<div class="card card-primary card-tabs">
+						<div id="plh-tanggal-plan-header"></div>
+						<div id="plh-tanggal-plan-body"></div>
+					</div>
 				</div>
 
 				<div class="col-md-12">
-					<div class="card card-primary card-outline" style="padding-bottom:20px">
-						<div class="card-header">
-							<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST INPUT</h3>
-						</div>
-						<div id="tampil-list-input"></div>
-					</div>
-
+					<div id="tampil-list-input"></div>
 					<div id="riwayat-plan"></div>
 				</div>
 
@@ -157,7 +150,7 @@
 								<input type="text" id="kode_mc" class="form-control" autocomplete="off" placeholder="KODE MC" disabled>
 							</div>
 						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">ITEM</div>
 							<div class="col-md-10">
 								<input type="text" id="item" class="form-control" autocomplete="off" placeholder="NAMA ITEM" disabled>
@@ -165,13 +158,11 @@
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">UK. BOX</div>
-							<div class="col-md-10">
+							<div class="col-md-4">
 								<input type="text" id="uk_box" class="form-control" autocomplete="off" placeholder="UKURAN BOX" disabled>
 							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">UK. SHEET</div>
-							<div class="col-md-10">
+							<div class="col-md-4">
 								<input type="text" id="uk_sheet" class="form-control" autocomplete="off" placeholder="UKURAN SHEET" disabled>
 							</div>
 						</div>
@@ -194,7 +185,7 @@
 								<input type="text" id="kualitas" class="form-control" autocomplete="off" placeholder="KUALITAS" disabled>
 							</div>
 						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">FLUTE</div>
 							<div class="col-md-10">
 								<input type="text" id="flute" class="form-control" autocomplete="off" placeholder="FLUTE" disabled>
@@ -202,25 +193,21 @@
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2">TIPE BOX</div>
-							<div class="col-md-10">
+							<div class="col-md-4">
 								<input type="text" id="tipe_box" class="form-control" autocomplete="off" placeholder="TIPE BOX" disabled>
 							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 							<div class="col-md-2" style="padding-right:0">SAMBUNGAN</div>
-							<div class="col-md-10">
+							<div class="col-md-4">
 								<input type="text" id="sambungan" class="form-control" autocomplete="off" placeholder="SAMBUNGAN" disabled>
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2" style="padding-right:0">BB</div>
-							<div class="col-md-10">
+							<div class="col-md-4">
 								<input type="text" id="bb_box" class="form-control" autocomplete="off" placeholder="BERAT BOX" disabled>
 							</div>
-						</div>
-						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-2" style="padding-right:0">LB</div>
-							<div class="col-md-10">
+							<div class="col-md-4">
 								<input type="text" id="lb_box" class="form-control" autocomplete="off" placeholder="LUAS BOX" disabled>
 							</div>
 						</div>
@@ -250,6 +237,7 @@
 								<select id="mesin" class="form-control select2"></select>
 							</div>
 						</div>
+						<div id="btn-ganti-tgl"></div>
 
 						<div id="group_ganti_kualitas">
 							<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') {
@@ -564,10 +552,13 @@
 	const urlTgl_plan = '<?= $tgl_plan ?>';
 	const urlShift = '<?= $shift ?>';
 	const urlMesin = '<?= $mesin ?>';
+	const urlNoPlan = '<?= $urlNoPlan ?>';
+	let inputDtProd = '';
 	let optionsDay = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
 	$(document).ready(function ()
 	{
+		$("#ehno_plan").val(urlNoPlan)
 		$("#tgl").val(urlTgl_plan).prop("disabled", true)
 		$("#shift").html(`<option value="${urlShift}">${urlShift}</option>`).prop("disabled", true)
 		$("#mesin").html(`<option value="${urlMesin}">${urlMesin}</option>`).prop("disabled", true)
@@ -580,6 +571,85 @@
 			dropdownAutoWidth: true
 		})
 	})
+
+	function kosong()
+	{
+		loadPlanWo('')
+		$("#tgl_wo").val("")
+		$("#card-produksi").hide()
+
+		$("#kode_mc").val("")
+		$("#item").val("")
+		$("#uk_box").val("")
+		$("#uk_sheet").val("")
+		$("#creasing_1").val("")
+		$("#creasing_2").val("")
+		$("#creasing_3").val("")
+		$("#kualitas").val("")
+		$("#flute").val("")
+		$("#tipe_box").val("")
+		$("#sambungan").val("")
+		$("#bb_box").val("")
+		$("#lb_box").val("")
+
+		$("#tgl").val(urlTgl_plan).prop("disabled", true)
+		$("#shift").html(`<option value="${urlShift}">${urlShift}</option>`).prop("disabled", true)
+		$("#mesin").html(`<option value="${urlMesin}">${urlMesin}</option>`).prop("disabled", true)
+		
+		$("#btn-ganti-tgl").html('')
+		
+		$("#g_kualitas").val('PO')
+		$("#group_plh_kualitas").hide()
+		$("#info-substance").val("")
+
+		$("#ii_panjang").val("")
+		$("#creasing_wo_1").val("")
+		$("#creasing_wo_2").val("")
+		$("#creasing_wo_3").val("")
+		$("#ii_lebar").val("")
+		$("#i_lebar_roll").val("")
+		$("#out_plan").val("")
+		$("#qty_plan").val("")
+		$("#trim").val("")
+		$("#c_off").val("")
+		$("#rm").val("")
+		$("#ton").val("")
+		$("#kirim").val("")
+		$("#eta_so_plan").val("")
+		$("#next_flexo").html('<option value="">PILIH</option>')
+		$("#btn-aksi-plan").html(`<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+			<div class="col-md-12">
+				<button type="button" class="btn btn-success btn-block" onclick="addRencanaPlan('add')"><i class="fa fa-plus"></i> <b>ADD PLAN</b></button>
+			</div>
+		</div>`)
+
+		$("#ehkategori").val("")
+		$("#ehno_plan").val(urlNoPlan)
+		$("#ehid_plan").val("")
+		$("#ehid_so_detail").val("")
+		$("#ehid_wo").val("")
+		$("#ehid_produk").val("")
+		$("#ehid_pelanggan").val("")
+		$("#ehno_wo").val("")
+		$("#ehno_so").val("")
+		$("#ehurut_so").val("")
+		$("#ehrpt").val("")
+		$("#ehpcs_plan").val("")
+
+		$("#customer").val("")
+		$("#sales").val("")
+		$("#alamat").val("")
+		$("#tgl_po").val("")
+		$("#no_po").val("")
+		$("#kode_po").val("")
+		$("#qty_po").val("")
+		$("#eta_so").val("")
+		$("#no_so").val("")
+		$("#qty_so").val("")
+		$("#rm_so").val("")
+		$("#ton_so").val("")
+		$("#ket_so").val("")
+	}
 
 	function loadPilihTanggal()
 	{
@@ -602,35 +672,22 @@
 				});
 			},
 			success: function(res){
-				$("#plh-tanggal-plan-header").html(res)
+				if(res == 1){
+					$(".plh-tanggal-plan-col12").hide()
+				}else{
+					$(".plh-tanggal-plan-col12").show()
+					$("#plh-tanggal-plan-header").html(res)
+				}
 				swal.close()
 			}
 		})
 	}
 
-	function clickPlhTgl(tgl_plan)
-	{
-		$("#plh-tanggal-plan-body").html('')
-		$.ajax({
-			url: '<?php echo base_url('Plan/clickPlhTgl')?>',
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
-			data: ({ tgl_plan }),
-			success: function(res){
-				$("#plh-tanggal-plan-body").html(res)
-				swal.close()
-			}
-		})
-	}
+	// function onClickGantiTgl(id_plan)
+	// {
+	// 	$("#show-list-plh-item").html(``)
+	// 	$("#modalForm").modal("show")
+	// }
 
 	function loadData(tgl_plan, shift, mesin)
 	{
@@ -662,9 +719,28 @@
 		})
 	}
 
-	function loadInputList()
+	function loadInputList(tp, sp, mp, i)
 	{
-		let hidplan = $("#ehid_plan").val();
+		$(".all-hal").html('')
+		let tgl_plan = ''
+		let shift = ''
+		let machine = ''
+		let hidplan = ''
+		let opsi = ''
+		if(tp == '' && sp == '' && mp == ''){
+			tgl_plan = urlTgl_plan
+			shift = urlShift
+			machine = urlMesin
+			hidplan = $("#ehid_plan").val();
+			opsi = ''
+		}else{
+			tgl_plan = tp
+			shift = sp
+			machine = mp
+			hidplan = ''
+			opsi = 'pilihan'
+		}
+		
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadInputList')?>',
 			type: "POST",
@@ -679,13 +755,50 @@
 				});
 			},
 			data: ({
-				urlTgl_plan, urlShift, urlMesin, hidplan
+				tgl_plan, shift, machine, hidplan, opsi, urlNoPlan
 			}),
 			success: function(res){
-				$("#tampil-list-input").html(res)
-				$('.select2').select2()
-				// swal.close()
-				plhDowntime()
+				if(tp == '' && sp == '' && mp == ''){
+					$("#tampil-list-input").html(res)
+					$('.select2').select2();
+					(inputDtProd == 'inputDowntimeProduksi') ? plhDowntime() : loadPilihTanggal() ;
+				}else{
+					$(".ke-halaman-"+i).html(`<a href="<?php echo base_url('Plan/Corrugator/List')?>/${tgl_plan}/${shift}/${machine}" class="btn btn-xs btn-info" style="padding:0 4px;margin-right:5px"><i class="fa fa-arrow-right"></i></a>`)
+					$("#plh-tanggal-plan-body").html(res)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function btnGantiTglPlan(id_plan)
+	{
+		let tgl = $("#tgl").val()
+		let shift = $("#shift").val()
+		let mesin = $("#mesin").val()
+		$.ajax({
+			url: '<?php echo base_url('Plan/btnGantiTglPlan')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				tgl, shift, mesin, id_plan
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					loadData(urlTgl_plan, urlShift, urlMesin)
+				}else{
+					swal(data.msg, "", "error")
+				}
 			}
 		})
 	}
@@ -716,7 +829,9 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
-					loadData(urlTgl_plan, urlShift, urlMesin)
+					// loadData(urlTgl_plan, urlShift, urlMesin)
+					kosong()
+					loadInputList('','','','')
 				}else{
 					swal(data.msg, "", "error")
 				}
@@ -1267,8 +1382,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// loadPlanWo('')
-				// plhNoWo(id_plan)
 				loadData(urlTgl_plan, urlShift, urlMesin)
 			}
 		})
@@ -1481,7 +1594,43 @@
 					rm_plan = data.wo.rm_plan
 					tonase_plan = data.wo.tonase_plan
 					tgl_kirim_plan = data.wo.tgl_kirim_plan
-					next_plan = data.wo.next_plan
+					next_plan = data.wo.next_plan;
+
+					if(data.wo.total_cor_p != 0){
+						inputDtProd = 'inputDowntimeProduksi'
+						$("#card-produksi").show()
+					}else if(data.urutDtProd == null){
+						inputDtProd = ''
+						$("#card-produksi").hide()
+						$("#btn-aksi-produksi").html(``)
+					}else if(data.wo.id_plan == data.urutDtProd.id_plan){
+						inputDtProd = 'inputDowntimeProduksi'
+						$("#card-produksi").show()
+					}else{
+						inputDtProd = ''
+						$("#card-produksi").hide()
+						$("#btn-aksi-produksi").html(``)
+					}
+
+					let tms = '';
+					(data.wo.status_plan == 'Open' && data.wo.total_cor_p == 0) ? tms = false : tms = true;
+					$("#tgl").val(urlTgl_plan).prop("disabled", tms)
+					let optShift = ''
+					let optMesin = '';
+					(urlShift == 1) ? optShift = `<option value="1">1</option><option value="2">2</option>` : optShift = `<option value="2">2</option><option value="1">1</option>`;
+					(urlMesin == 'CORR1') ? optMesin = `<option value="CORR1">CORR 1</option><option value="CORR2">CORR 2</option>` : optMesin = `<option value="CORR2">CORR 2</option><option value="CORR1">CORR 1</option>`;
+					$("#shift").html(optShift).prop("disabled", tms)
+					$("#mesin").html(optMesin).prop("disabled", tms)
+
+					let htmlBtnGantiTgl = '';
+					(data.wo.status_plan == 'Open' && data.wo.total_cor_p == 0) ?
+						htmlBtnGantiTgl = `<div class="card-body row" style="padding:0 20px 5px">
+							<div class="col-md-2"></div>
+							<div class="col-md-10">
+								<button class="btn btn-sm btn-warning" style="font-weight:bold" onclick="btnGantiTglPlan(${data.wo.id_plan})">GANTI</button>
+							</div>
+						</div>` : htmlBtnGantiTgl = '';
+					$("#btn-ganti-tgl").html(htmlBtnGantiTgl)
 
 					$("#ehid_plan").val(data.wo.id_plan)
 					$("#ehid_so_detail").val(id_so)
@@ -1547,7 +1696,6 @@
 
 					$("#kirim").val(tgl_kirim_plan)
 
-					$("#card-produksi").show();
 					$("#good_cor").val(data.wo.good_cor_p)
 					$("#bad_cor").val(data.wo.bad_cor_p)
 					$("#total_cor").val(data.wo.total_cor_p)
@@ -1609,8 +1757,14 @@
 					c_off_p = 0 
 					rm_plan = 0 
 					tonase_plan = 0 
-					tgl_kirim_plan = '';
-					next_plan = '';
+					tgl_kirim_plan = ''
+					next_plan = ''
+					inputDtProd = ''
+
+					$("#tgl").val(urlTgl_plan).prop("disabled", true)
+					$("#shift").val(urlShift).prop("disabled", true)
+					$("#mesin").val(urlMesin).prop("disabled", true)
+					$("#btn-ganti-tgl").html(``)
 
 					$("#ehid_plan").val("");$("#ehid_so_detail").val("");$("#ehid_wo").val("");$("#ehid_produk").val("");$("#ehid_pelanggan").val("");$("#ehno_wo").val("");
 					$("#ehno_so").val("");$("#ehurut_so").val("");$("#ehrpt").val("");$("#ehpcs_plan").val("")
@@ -1734,7 +1888,7 @@
 					$("#next_flexo").html(`${next_plan}<option value="">PILIH</option><option value="GUDANG">GUDANG</option>`)
 				}
 
-				loadInputList()
+				loadInputList('','','','')
 				ayoBerhitung()
 			}
 		})
@@ -2080,8 +2234,7 @@
 			}),
 			success: function(res){
 				$("#dt-load-data").html(res)
-				swal.close()
-				// loadPilihTanggal()
+				loadPilihTanggal()
 			}
 		})
 	}
@@ -2174,7 +2327,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log("onchange edit dt", data)
 				if(data.data){
 					toastr.success(`<b>${data.msg}</b>`)
 					downtime()
