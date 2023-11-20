@@ -575,11 +575,9 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					listRencanaPlan()
 					$("#no_wo").val("")
-					plhNoWo()
 				}else{
 					swal(data.isi, "", "error")
 					return
@@ -616,6 +614,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/listRencanaPlan')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(res){
 				plhNoWo()
 				$("#list-rencana-plan").html(res);

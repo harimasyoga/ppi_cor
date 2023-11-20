@@ -659,8 +659,8 @@ class Plan extends CI_Controller
 					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2">'.number_format($r->c_off_p).'</td>
 					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2">'.number_format($r->rm_plan).'</td>
 					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2">'.number_format($r->tonase_plan).'</td>
-					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2"></td>
-					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2"></td>
+					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2">'.number_format($r->bad_cor_p).'</td>
+					<td style="border:1px solid #000;border-bottom:1px dotted #000" rowspan="2">'.date("h:i", strtotime($r->start_time_p)).'</td>
 					<td style="border:1px solid #000" rowspan="4">'.$nextPlan.'</td>
 					<td style="border:1px solid #000;text-align:left;vertical-align:top" rowspan="4">'.$txtKet.'</td>
 				</tr>
@@ -674,7 +674,7 @@ class Plan extends CI_Controller
 					<td style="border:1px solid #000;border-width:0 1px 1px" rowspan="2"></td>
 					<td style="border:1px solid #000;border-width:0 1px 1px" rowspan="2"></td>
 					<td style="border:1px solid #000;border-width:0 1px 1px" rowspan="2"></td>
-					<td style="border:1px solid #000;border-width:0 1px 1px" rowspan="2"></td>
+					<td style="border:1px solid #000;border-width:0 1px 1px" rowspan="2">'.date("h:i", strtotime($r->end_time_p)).'</td>
 				</tr>
 				<tr>
 					<td style="border:1px solid #000;border-width:0 1px 1px;text-align:left">'.$r->nm_produk.'</td>

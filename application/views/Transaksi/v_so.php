@@ -33,8 +33,8 @@
 							<th style="width:10%">TGL. SO</th>
 							<th style="width:20%">KODE MC</th>
 							<th style="width:20%">ITEM</th>
-							<th style="width:15%">NO. PO</th>
-							<th style="width:25%">NO. SO</th>
+							<th style="width:20%">CUSTOMER</th>
+							<th style="width:20%">NO. SO</th>
 							<th style="width:5%">AKSI</th>
 						</tr>
 					</thead>
@@ -70,6 +70,10 @@
 						<td style="padding:5px 0">
 							<input type="date" name="tgl_so" id="tgl_so" class="form-control" value="<?= date('Y-m-d')?>">
 						</td>
+					</tr>
+					<tr>
+						<td style="padding:5px 0 0"></td>
+						<td style="padding:5px 0 0;font-weight:bold;font-style:italic;color:#f00;font-size:12px">NO. PO | CUSTOMER</td>
 					</tr>
 					<tr>
 						<td style="padding:5px 0;font-weight:bold">NO. PO</td>
@@ -249,7 +253,7 @@
 					htmlPo += `<option value="">PILIH</option>`
 				data.po.forEach(loadPo);
 				function loadPo(r, index) {
-					htmlPo += `<option value="${r.no_po}" data-sales="${r.nm_sales}" data-cust="${r.nm_pelanggan}" data-idpelanggan="${r.id_pelanggan}" data-kdpo="${r.kode_po}" data-kdunik="${r.kode_unik}" eta-po="${r.eta}">${r.no_po} . KODE : ${r.kode_po}</option>`;
+					htmlPo += `<option value="${r.no_po}" data-sales="${r.nm_sales}" data-cust="${r.nm_pelanggan}" data-idpelanggan="${r.id_pelanggan}" data-kdpo="${r.kode_po}" data-kdunik="${r.kode_unik}" eta-po="${r.eta}">${r.kode_po} | ${r.nm_pelanggan}</option>`;
 				}
 				$("#no_po").prop("disabled", false).html(htmlPo)
 				$("#h_kode_po").val("")
@@ -264,7 +268,6 @@
 		let sales = $('#no_po option:selected').attr('data-sales');
 		let cust = $('#no_po option:selected').attr('data-cust');
 		let kdpo = $('#no_po option:selected').attr('data-kdpo');
-		// alert(no_po+" - "+sales+" - "+cust)
 		$("#uk_box").html("-")
 		$("#uk_sheet").html("-")
 		$("#flute").html("-")
@@ -280,7 +283,6 @@
 
 	function soPlhItems(no_po){
 		$("#no_so").val("").prop("disabled", true)
-		// alert(no_po)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/soPlhItems')?>',
 			type: "POST",
@@ -336,7 +338,6 @@
 	})
 
 	function soNoSo(item){
-		// alert(item)
 		let kdunik = $('#no_po option:selected').attr('data-kdunik')
 
 		$("#btn-show-simpan").prop("disabled", true)
@@ -427,7 +428,6 @@
 	}
 
 	function hapusCartItem(rowid, i, opsi){
-		// alert(rowid)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/hapusCartItem')?>',
 			type: "POST",
@@ -534,17 +534,35 @@
 		let hQtyPo = $("#hide-qtypo-so"+i).val()
 		let hRmPo = $("#hide-rmpo-so"+i).val()
 		let hTonPo = $("#hide-tonpo-so"+i).val()
+		let ukl = $("#hide-ukl-so"+i).val()
+		let ukp = $("#hide-ukp-so"+i).val()
+		let bb = $("#hide-bb-so"+i).val()
 		let htmlBagiSo = ''
 		htmlBagiSo += `<table style="font-weight:bold;margin-top:10px">
 			<tr>
 				<td style="border:0">ETA SO</td>
 				<td style="border:0">:</td>
-				<td style="border:0"><input type="date" class="form-control" id="form-bagi-eta-so" value=""></td>
+				<td style="border:0"><input type="date" class="form-control" id="form-bagi-eta-so"></td>
 			</tr>
 			<tr>
 				<td style="border:0">QTY SO</td>
 				<td style="border:0">:</td>
-				<td style="border:0"><input type="number" class="form-control" id="form-bagi-qty-so" autocomplete="off" placeholder="QTY"></td>
+				<td style="border:0"><input type="number" class="form-control" id="form-bagi-qty-so" autocomplete="off" placeholder="QTY" onkeyup="keyUpQtySO('')"></td>
+			</tr>
+			<tr>
+				<td style="border:0">ABAIKAN RM</td>
+				<td style="border:0">:</td>
+				<td style="border:0">
+					<input type="hidden" id="ukl" value="${ukl}">
+					<input type="hidden" id="ukp" value="${ukp}">
+					<input type="hidden" id="bb" value="${bb}">
+					<input type="checkbox" id="form-cbx-rm-so" style="height:25px;width:25px" onclick="keyUpQtySO('')" value="0">
+				</td>
+			</tr>
+			<tr>
+				<td style="border:0"></td>
+				<td style="border:0"></td>
+				<td style="border:0">RM : <span class="form-txt-rm" style="font-weight:normal">0</span> . TON : <span class="form-txt-ton" style="font-weight:normal">0</span></td>
 			</tr>
 			<tr>
 				<td style="border:0">KETERANGAN</td>
@@ -559,10 +577,46 @@
 		$("#add-bagi-so-"+i).html(htmlBagiSo)
 	}
 
+	function keyUpQtySO(i)
+	{
+		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
+		let ukl = (i == '') ? $("#ukl").val() : $("#ht-ukl-"+i).val();
+		let ukp = (i == '') ? $("#ukp").val() : $("#ht-ukp-"+i).val();
+		let bb = (i == '') ? $("#bb").val() : $("#ht-bb-"+i).val();
+		// let bbqtySo = 
+
+		let qtySO = (i == '') ? $("#form-bagi-qty-so").val() : $("#edit-qty-so"+i).val()
+		let rumusOut = 1800 / ukl
+		let out = '';
+		(Math.floor(rumusOut) >= 5) ? out = 5 : out = Math.floor(rumusOut);
+		let rm = (ukp * qtySO / out) / 1000;
+		let ton = qtySO * bb;
+		
+		let plhCB = '';
+		(i == '') ? plhCB = $("#form-cbx-rm-so") : plhCB = $("#cbso-"+i) ;
+		(plhCB.prop("checked")) ? plhCB.val(1) : plhCB.val(0);
+		let cbso = plhCB.val();
+
+		let htmlTmplRm = (i == '') ? $(".form-txt-rm") : $(".span-rm-h-"+i);
+		let htmlTmplTon = (i == '') ? $(".form-txt-ton") : $(".span-ton-h-"+i);
+		if(cbso == 0){
+			if(Math.round(rm) == 0 || Math.round(rm) < 500){
+				htmlTmplRm.html(rupiah.format(Math.round(rm))).attr('style', "color:#f00;font-style:italic;font-weight:normal")
+			}else{
+				htmlTmplRm.html(rupiah.format(Math.round(rm))).attr('style', "color:#212529;font-weight:normal")
+			}
+		}else{
+			htmlTmplRm.html(rupiah.format(Math.round(rm))).attr('style', "color:#212529;font-weight:normal")
+		}
+		htmlTmplTon.html(rupiah.format(Math.round(ton))).attr('style', "font-weight:normal")
+	}
+
 	function btnAddBagiSO(i, hQtyPo, hRmPo, hTonPo){
 		let fBagiEtaSo = $("#form-bagi-eta-so").val()
 		let fBagiQtySo = $("#form-bagi-qty-so").val()
 		let fBagiKetSo = $("#form-bagi-ket-so").val()
+		let fBagiCrmSo = $("#form-cbx-rm-so").val()
+
 		$("#btnAddBagiSO").prop('disabled', true)
 		$("#hapusCartItemSO").prop('disabled', true)
 		$("#simpanCartItemSO").prop('disabled', true)
@@ -580,7 +634,7 @@
 				});
 			},
 			data: ({
-				i, fBagiEtaSo, fBagiQtySo, fBagiKetSo, hQtyPo, hRmPo, hTonPo
+				i, fBagiEtaSo, fBagiQtySo, fBagiKetSo, hQtyPo, hRmPo, hTonPo, fBagiCrmSo
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -588,6 +642,9 @@
 					$("#form-bagi-eta-so").val("")
 					$("#form-bagi-qty-so").val("")
 					$("#form-bagi-ket-so").val("")
+					$(".form-txt-rm").html(0)
+					$(".form-txt-ton").html(0)
+					$("#form-cbx-rm-so").val(0).prop("checked", false)
 					ListAddBagiSO(i)
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
@@ -623,7 +680,6 @@
 	}
 
 	function editBagiSO(i){
-		// alert('edit so')
 		let id = $("#h_id").val()
 		let no_po = $("#h_no_po").val()
 		let kode_po = $("#h_kodepo").val()
@@ -632,6 +688,8 @@
 		let editQtySo = $("#edit-qty-so"+i).val()
 		let editKetSo = $("#edit-ket-so"+i).val()
 		let editQtypoSo = $("#edit-qtypo-so"+i).val()
+		let editCekRM = $("#cbso-"+i).val()
+
 		$("#editBagiSO"+i).prop('disabled', true)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editBagiSO')?>',
@@ -647,7 +705,7 @@
 				});
 			},
 			data: ({
-				i, editTglSo, editQtySo, editKetSo, editQtypoSo
+				i, editTglSo, editQtySo, editKetSo, editQtypoSo, editCekRM
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -663,7 +721,6 @@
 	}
 
 	function simpanCartItemSO(){
-		// alert('simpanSO')
 		let id = $("#h_id").val()
 		let no_po = $("#h_no_po").val()
 		let kode_po = $("#h_kodepo").val()
@@ -701,7 +758,6 @@
 	}
 
 	function batalDataSO(i){
-		// alert('batal: '+i)
 		let id = $("#h_id").val()
 		let no_po = $("#h_no_po").val()
 		let kode_po = $("#h_kodepo").val()
