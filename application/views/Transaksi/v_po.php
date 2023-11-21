@@ -1502,13 +1502,13 @@
 							<input type="text" id="cl_i${ rowNum }" name="cl_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="C.L">
 						</td>
 						<td width="10%" id="subs_hitung${ rowNum }" name="subs_hitung[${ rowNum }]">
-							<input type="text" id="ii_lebar${ rowNum }" name="ii_lebar[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="LEBAR SHEET" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
+							Lebar Sheet : <input type="text" id="ii_lebar${ rowNum }" name="ii_lebar[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="LEBAR SHEET" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
 
-							<input type="text" id="qty_plan${ rowNum }" name="qty_plan[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="QTY PLAN" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
+							Qty Plan : <input type="text" id="qty_plan${ rowNum }" name="qty_plan[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="QTY PLAN" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
 
-							<input type="text" id="i_lebar_roll${ rowNum }" name="i_lebar_roll[${ rowNum }]" class="form-control angka" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" placeholder="LEBAR ROLL" onchange="ayoBerhitung(${ rowNum })">
+							Lebar Roll : <input type="text" id="i_lebar_roll${ rowNum }" name="i_lebar_roll[${ rowNum }]" class="form-control angka" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" placeholder="LEBAR ROLL" onchange="ayoBerhitung(${ rowNum })">
 							
-							<input type="text" id="out_plan${ rowNum }" name="out_plan[${ rowNum }]" class="form-control angka" autocomplete="off"  onkeyup="ubah_angka(this.value,this.id)" placeholder="OUT" onchange="ayoBerhitung(${ rowNum })">
+							Out : <input type="text" id="out_plan${ rowNum }" name="out_plan[${ rowNum }]" class="form-control angka" autocomplete="off"  onkeyup="ubah_angka(this.value,this.id)" placeholder="OUT" onchange="ayoBerhitung(${ rowNum })">
 						</td>
 						
 						<td width="20%" id="subs_hasil_hitung${ rowNum }" name="subs_hasil_hitung[${ rowNum }]">
