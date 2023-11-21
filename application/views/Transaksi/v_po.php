@@ -1439,6 +1439,7 @@
 
 						</td>
 					`
+					hitung = ``;
 					p11_tambahan = `
 						<td id="p11_det${rowNum}">
 							<input type="text" name="p11[${rowNum}]" id="p11${rowNum}"  class="angka form-control" readonly value="0">
@@ -1446,61 +1447,11 @@
 						</td>
 					`;
 					coll=``;
-				}
-				
-
-				// if (user_lev == 'Owner' || user_lev == 'Admin') 
-				// {
-					
-				// }else{
+				}else{
 					p11_tambahan = ``;
-				// }
 					coll=`colspan="5"`;
-				
-
-				$('#table-produk').append(
-					`<tr id="itemRow${ rowNum }">
-						<td id="detail-hapus-${ rowNum }">
-							<div class="text-center">
-							<a class="btn btn-danger"  id="btn-hapus-${ rowNum }" onclick="removeRow(${ rowNum })"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
-							</div>
-						</td>
-						<td>
-							<select class="form-control select2" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }" style="width: 100%;" onchange="setDetailProduk(this.value,${ rowNum })">
-							</select>
-						</td>
-						<td>
-							<input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onkeyup="ubah_angka(this.value,this.id)"  onchange="Hitung_rm(this.value,this.id)">
-
-							<br>
-							<input class="form-control" type="checkbox" name="cek_rm[${ rowNum }]" id="cek_rm${ rowNum }" onclick="cekrm(this.id)" value="0">
-
-						</td>
-
-						<td>
-							<select class="form-control select2" name="ppn[${ rowNum }]" id="ppn${ rowNum }">
-								<option value="PP">PP</option>
-								<option value="NP">NP</option>
-							</select>
-						</td>
-						${ td_harga }
-						${ p11_tambahan }
-						<td ${ coll } id="txt_detail_produk${ rowNum }"> 
-						</td>
-					</tr>
-					<tr style="width: 100%" id="item_tambahan${ rowNum }">
-						<td width="20%">
-							<div class="text-center">
-								ETA
-							</div>
-						</td>
-						<td width="20%">
-							<input class="form-control" type="date" name="eta_item[${ rowNum }]" id="eta_item${ rowNum }">
-						</td>
-						<td width="10%">
-							<textarea class="form-control" name="eta_ket[${ rowNum }]" id="eta_ket${ rowNum }" placeholder="KET. ETA" rows="3" style="resize:none"></textarea>
-						</td>
-						<td width="10%" id="subs${ rowNum }" name="subs[${ rowNum }]">
+					hitung = `
+					<td width="10%" id="subs${ rowNum }" name="subs[${ rowNum }]">
 							<select id="tl_al${ rowNum }" name="tl_al[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
 								<option value="">-</option>
 								<option value="M">M</option>
@@ -1567,6 +1518,62 @@
 							ton : <input type="number" id="ton_plan${ rowNum }" name="ton_plan[${ rowNum }]" class="form-control" autocomplete="off" placeholder="TONASE PLAN" disabled>
 						
 						</td>
+					`;
+				}
+				
+
+				// if (user_lev == 'Owner' || user_lev == 'Admin') 
+				// {
+					
+				// }else{
+					// p11_tambahan = ``;
+				// }
+					// coll=`colspan="5"`;
+				
+
+				$('#table-produk').append(
+					`<tr id="itemRow${ rowNum }">
+						<td id="detail-hapus-${ rowNum }">
+							<div class="text-center">
+							<a class="btn btn-danger"  id="btn-hapus-${ rowNum }" onclick="removeRow(${ rowNum })"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
+							</div>
+						</td>
+						<td>
+							<select class="form-control select2" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }" style="width: 100%;" onchange="setDetailProduk(this.value,${ rowNum })">
+							</select>
+						</td>
+						<td>
+							<input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onkeyup="ubah_angka(this.value,this.id)"  onchange="Hitung_rm(this.value,this.id)">
+
+							<br>
+							<input class="form-control" type="checkbox" name="cek_rm[${ rowNum }]" id="cek_rm${ rowNum }" onclick="cekrm(this.id)" value="0">
+
+						</td>
+
+						<td>
+							<select class="form-control select2" name="ppn[${ rowNum }]" id="ppn${ rowNum }">
+								<option value="PP">PP</option>
+								<option value="NP">NP</option>
+							</select>
+						</td>
+						${ td_harga }
+						${ p11_tambahan }
+						<td ${ coll } id="txt_detail_produk${ rowNum }"> 
+						</td>
+					</tr>
+					<tr style="width: 100%" id="item_tambahan${ rowNum }">
+						<td width="20%">
+							<div class="text-center">
+								ETA
+							</div>
+						</td>
+						<td width="20%">
+							<input class="form-control" type="date" name="eta_item[${ rowNum }]" id="eta_item${ rowNum }">
+						</td>
+						<td width="10%">
+							<textarea class="form-control" name="eta_ket[${ rowNum }]" id="eta_ket${ rowNum }" placeholder="KET. ETA" rows="3" style="resize:none"></textarea>
+						</td>
+						${ hitung }
 
 					</tr>				
 					`);
