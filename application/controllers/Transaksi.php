@@ -472,9 +472,10 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_so_detail") {
-			$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,s.* FROM trs_po_detail d
+			$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,s.* FROM trs_po_detail d
 			INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so=s.no_so AND d.id_produk=s.id_produk
 			INNER JOIN m_produk p ON d.id_produk=p.id_produk
+			INNER JOIN m_pelanggan l ON d.id_pelanggan=l.id_pelanggan
 			WHERE d.no_so IS NOT NULL AND d.tgl_so IS NOT NULL AND d.status_so IS NOT NULL
 			GROUP BY d.id DESC")->result();
 			$i = 1;
@@ -484,7 +485,7 @@ class Transaksi extends CI_Controller
 				$row[] = $r->tgl_so;
 				$row[] = $r->kode_mc;
 				$row[] = $r->nm_produk;
-				$row[] = $r->no_po;
+				$row[] = $r->nm_pelanggan;
 
 				$urut_so = str_pad($r->urut_so, 2, "0", STR_PAD_LEFT);
 				$row[] = $r->no_so.'.'.$urut_so.'('.$r->c_rpt.')';
@@ -2065,7 +2066,7 @@ class Transaksi extends CI_Controller
 	function soPlhItems()
 	{
 		$no_po = $_POST["no_po"];
-		$poDetail = $this->db->query("SELECT p.nm_produk,p.kode_mc,p.ukuran,p.ukuran_sheet,p.flute,p.kualitas,o.eta,d.* FROM trs_po_detail d
+		$poDetail = $this->db->query("SELECT p.nm_produk,p.kode_mc,p.ukuran,p.ukuran_sheet,p.flute,p.kualitas,d.eta,d.* FROM trs_po_detail d
 		INNER JOIN trs_po o ON d.no_po=o.no_po AND d.kode_po=o.kode_po
 		INNER JOIN m_produk p ON d.id_produk=p.id_produk
 		WHERE d.status='Approve' AND d.no_po='$no_po' AND no_so IS NULL AND tgl_so IS NULL")->result();
@@ -2204,7 +2205,7 @@ class Transaksi extends CI_Controller
 				</tr>
 			</thead>';
 
-		$getSO = $this->db->query("SELECT p.kode_mc,p.nm_produk,d.* FROM trs_po_detail d
+		$getSO = $this->db->query("SELECT p.kode_mc,p.nm_produk,p.ukuran_sheet_l,p.ukuran_sheet_p,p.berat_bersih,d.* FROM trs_po_detail d
 		INNER JOIN m_produk p ON d.id_produk=p.id_produk
 		WHERE no_po='$no_po' AND kode_po='$kode_po'");
 
@@ -2231,7 +2232,7 @@ class Transaksi extends CI_Controller
 				<td style="'.$bold.'" class="text-center">'.$btnBagi.'</td>
 			</tr>';
 
-			$dataSO = $this->db->query("SELECT p.nm_produk,s.* FROM trs_so_detail s
+			$dataSO = $this->db->query("SELECT p.nm_produk,p.ukuran_sheet_l,p.ukuran_sheet_p,p.berat_bersih,s.* FROM trs_so_detail s
 			INNER JOIN m_produk p ON s.id_produk=p.id_produk
 			WHERE s.id_produk='$r->id_produk' AND s.no_po='$r->no_po' AND s.kode_po='$r->kode_po' AND s.no_so='$r->no_so'");
 			
@@ -2246,9 +2247,10 @@ class Transaksi extends CI_Controller
 									<th style="width:21%;'.$bHead.''.$bold.'">NO. SO</th>
 									<th style="width:15%;'.$bHead.''.$bold.'">QTY SO</th>
 									<th style="width:20%;'.$bHead.''.$bold.'">KETERANGAN</th>
+									<th style="width:5%;'.$bHead.''.$bold.'" class="text-center">-</th>
 									<th style="width:7%;'.$bHead.''.$bold.'">RM</th>
 									<th style="width:7%;'.$bHead.''.$bold.'">TON</th>
-									<th style="width:15%;'.$bHead.''.$bold.'" class="text-center">AKSI</th>
+									<th style="width:10%;'.$bHead.''.$bold.'" class="text-center">AKSI</th>
 								</tr>
 							</thead>';
 
@@ -2303,6 +2305,8 @@ class Transaksi extends CI_Controller
 							($r->id == $id) ? $rTxt = 2 : $rTxt = 1;
 						}
 					}
+
+					($so->cek_rm_so == 0) ? $check = '' : $check = 'checked';
 					
 					$urut_so = str_pad($so->urut_so, 2, "0", STR_PAD_LEFT);
 					$rpt = str_pad($so->rpt, 2, "0", STR_PAD_LEFT);
@@ -2310,11 +2314,17 @@ class Transaksi extends CI_Controller
 						<td style="'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
 						<td style="'.$bTd.''.$bold.'"><input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$diss.'></td>
 						<td style="'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
-						<td style="'.$bTd.''.$bold.'"><input type="number" id="edit-qty-so'.$so->id.'" class="form-control" value="'.$so->qty_so.'" '.$diss.'></td>
+						<td style="'.$bTd.''.$bold.'"><input type="number" id="edit-qty-so'.$so->id.'" class="form-control" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.$so->qty_so.'" '.$diss.'></td>
 						<td style="'.$bTd.''.$bold.'"><textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt.'" style="resize:none" '.$diss.'>'.$so->ket_so.'</textarea></td>
-						<td style="'.$bTd.''.$bold.'">'.number_format($so->rm).'</td>
-						<td style="'.$bTd.''.$bold.'">'.number_format($so->ton).'</td>
+						<td style="'.$bTd.''.$bold.'">
+							<input type="checkbox" id="cbso-'.$so->id.'" style="height:25px;width:100%" onclick="keyUpQtySO('."'".$so->id."'".')" value="'.$so->cek_rm_so.'" '.$check.' '.$diss.'>
+						</td>
+						<td style="'.$bTd.''.$bold.'">'.number_format($so->rm).'<br><span class="span-rm-h-'.$so->id.'"></span></td>
+						<td style="'.$bTd.''.$bold.'">'.number_format($so->ton).'<br><span class="span-ton-h-'.$so->id.'"></span></td>
 						<td style="'.$bTd.''.$bold.'" class="text-center">
+							<input type="hidden" id="ht-ukl-'.$so->id.'" value="'.$so->ukuran_sheet_l.'">
+							<input type="hidden" id="ht-ukp-'.$so->id.'" value="'.$so->ukuran_sheet_p.'">
+							<input type="hidden" id="ht-bb-'.$so->id.'" value="'.$so->berat_bersih.'">
 							<input type="hidden" id="edit-qtypo-so'.$so->id.'" value="'.$r->qty.'">
 							'.$btnAksi.' '.$btnHapus.'
 						</td>
@@ -2337,6 +2347,9 @@ class Transaksi extends CI_Controller
 
 				$html .= '</table>
 						<div>
+							<input type="hidden" id="hide-ukl-so'.$r->id.'" value="'.$r->ukuran_sheet_l.'">
+							<input type="hidden" id="hide-ukp-so'.$r->id.'" value="'.$r->ukuran_sheet_p.'">
+							<input type="hidden" id="hide-bb-so'.$r->id.'" value="'.$r->berat_bersih.'">
 							<input type="hidden" id="hide-qtypo-so'.$r->id.'" value="'.$sumQty.'">
 							<input type="hidden" id="hide-rmpo-so'.$r->id.'" value="'.$sumRm.'">
 							<input type="hidden" id="hide-tonpo-so'.$r->id.'" value="'.$sumTon.'">
@@ -2370,65 +2383,75 @@ class Transaksi extends CI_Controller
 			$rm = ($produk->row()->ukuran_sheet_p * $_POST["fBagiQtySo"] / $out) / 1000;
 			$ton = $_POST["fBagiQtySo"] * $produk->row()->berat_bersih;
 
-			if($rm < 500){
-				echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm).' . RM KURANG!'));
-			}else{
-				$getData = $this->db->query("SELECT COUNT(so.rpt) AS jml_rpt,so.* FROM trs_po_detail ps
-				INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
-				WHERE ps.id='$id'
-				GROUP BY so.no_po,so.kode_po,so.no_so,so.id_produk");
+			$getData = $this->db->query("SELECT COUNT(so.rpt) AS jml_rpt,so.* FROM trs_po_detail ps
+			INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
+			WHERE ps.id='$id'
+			GROUP BY so.no_po,so.kode_po,so.no_so,so.id_produk");
 
-				if($this->cart->total_items() != 0){
-					foreach($this->cart->contents() as $r){
-						if($r['id'] == $_POST["i"]){
-							$rpt = $r['options']['rpt'] + 1;
-						}
-						if($r['options']['qty_po'] == $_POST["hQtyPo"]){
-							$hQtyPo = 0;
-						}
-						if($r['options']['hRmPo'] == $_POST["hRmPo"]){
-							$hRmPo = 0;
-						}
-						if($r['options']['hTonPo'] == $_POST["hTonPo"]){
-							$hTonPo = 0;
-						}
+			if($this->cart->total_items() != 0){
+				foreach($this->cart->contents() as $r){
+					if($r['id'] == $_POST["i"]){
+						$rpt = $r['options']['rpt'] + 1;
 					}
-					$i = $this->cart->total_items()+1;
-				}else{
-					$rpt = $getData->row()->jml_rpt + 1;
-					$hQtyPo = $_POST["hQtyPo"];
-					$hRmPo = $_POST["hRmPo"];
-					$hTonPo = $_POST["hTonPo"];
-					$i = 1;
+					if($r['options']['qty_po'] == $_POST["hQtyPo"]){
+						$hQtyPo = 0;
+					}
+					if($r['options']['hRmPo'] == $_POST["hRmPo"]){
+						$hRmPo = 0;
+					}
+					if($r['options']['hTonPo'] == $_POST["hTonPo"]){
+						$hTonPo = 0;
+					}
 				}
+				$i = $this->cart->total_items()+1;
+			}else{
+				$rpt = $getData->row()->jml_rpt + 1;
+				$hQtyPo = $_POST["hQtyPo"];
+				$hRmPo = $_POST["hRmPo"];
+				$hTonPo = $_POST["hTonPo"];
+				$i = 1;
+			}
 
-				$data = array(
-					'id' => $_POST['i'],
-					'name' => $_POST['i'],
-					'price' => 0,
-					'qty' => 1,
-					'options' => array(
-						'id_pelanggan' => $getData->row()->id_pelanggan,
-						'id_produk' => $getData->row()->id_produk,
-						'no_po' => $getData->row()->no_po,
-						'kode_po' => $getData->row()->kode_po,
-						'no_so' => $getData->row()->no_so,
-						'urut_so' => $getData->row()->urut_so,
-						'rpt' => $rpt,
-						'eta_so' => $_POST['fBagiEtaSo'],
-						'qty_so' => $_POST['fBagiQtySo'],
-						'ket_so' => $_POST['fBagiKetSo'],
-						'rm' => round($rm),
-						'ton' => round($ton),
-						'total_items' => $i,
-						'qty_po' => $hQtyPo,
-						'hRmPo' => $hRmPo,
-						'hTonPo' => $hTonPo,
-					)
-				);
+			$data = array(
+				'id' => $_POST['i'],
+				'name' => $_POST['i'],
+				'price' => 0,
+				'qty' => 1,
+				'options' => array(
+					'id_pelanggan' => $getData->row()->id_pelanggan,
+					'id_produk' => $getData->row()->id_produk,
+					'no_po' => $getData->row()->no_po,
+					'kode_po' => $getData->row()->kode_po,
+					'no_so' => $getData->row()->no_so,
+					'urut_so' => $getData->row()->urut_so,
+					'rpt' => $rpt,
+					'eta_so' => $_POST['fBagiEtaSo'],
+					'qty_so' => $_POST['fBagiQtySo'],
+					'ket_so' => $_POST['fBagiKetSo'],
+					'cek_rm_so' => $_POST['fBagiCrmSo'],
+					'rm' => round($rm),
+					'ton' => round($ton),
+					'total_items' => $i,
+					'qty_po' => $hQtyPo,
+					'hRmPo' => $hRmPo,
+					'hTonPo' => $hTonPo,
+				)
+			);
 
-				$this->cart->insert($data);
-				echo json_encode(array('data' => true, 'msg' => $data));
+			if($_POST["fBagiCrmSo"] == 0){
+				if($rm < 500){
+					echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm).' . RM KURANG!'));
+				}else{
+					$this->cart->insert($data);
+					echo json_encode(array('data' => true, 'msg' => $data));
+				}
+			}else{
+				if(round($rm) == 0 || round($ton) == 0 || round($rm) < 0 || round($ton) < 0 || $rm == "" || $ton == "" ){
+					echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm). ' . RM / TONASE TIDAK BOLEH KOSONG!'));
+				}else{
+					$this->cart->insert($data);
+					echo json_encode(array('data' => true, 'msg' => $data));
+				}
 			}
 		}
 	}

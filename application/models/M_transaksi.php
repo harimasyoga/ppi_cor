@@ -827,28 +827,43 @@ class M_transaksi extends CI_Model
 			(floor($RumusOut) >= 5) ? $out = 5 : $out = (floor($RumusOut));
 			$rm = ($produk->row()->ukuran_sheet_p * $_POST["editQtySo"] / $out) / 1000;
 			$ton = $_POST["editQtySo"] * $produk->row()->berat_bersih;
-			if($rm < 500){
-				$result = array(
-					'data' => false,
-					'msg' => 'RM '.round($rm).' . RM KURANG!',
-					'p' => $produk->row()->ukuran_sheet_p, 'l' => $produk->row()->ukuran_sheet_l, 'bb' => $produk->row()->berat_bersih, 'RumusOut' => $RumusOut, 'out' => $out, 'rm' => $rm, 'ton' => $ton,
-				);
+
+			$data = array(
+				"eta_so" => $_POST["editTglSo"],
+				"qty_so" => $_POST["editQtySo"],
+				"ket_so" => $_POST["editKetSo"],
+				"cek_rm_so" => ($rm < 500) ? $_POST["editCekRM"] : 0,
+				"rm" => round($rm),
+				"ton" => round($ton),
+				"edit_time" => date('Y-m-d H:i:s'),
+				"edit_user" => $this->username,
+			);
+
+			if($_POST["editCekRM"] == 0){
+				if($rm < 500){
+					$insert = false;
+					$msg = 'RM '.round($rm).' . RM KURANG!';
+				}else{
+					$this->db->where("id", $id);
+					$insert = $this->db->update('trs_so_detail', $data);
+					$msg = 'BERHASIL EDIT DATA!';
+				}
 			}else{
-				$this->db->set("eta_so", $_POST["editTglSo"]);
-				$this->db->set("qty_so", $_POST["editQtySo"]);
-				$this->db->set("ket_so", $_POST["editKetSo"]);
-				$this->db->set("rm", round($rm));
-				$this->db->set("ton", round($ton));
-				$this->db->set("edit_time", date('Y-m-d H:i:s'));
-				$this->db->set("edit_user", $this->username);
-				$this->db->where("id", $id);
-				$insert = $this->db->update('trs_so_detail');
-				$result = array(
-					'data' => $insert,
-					'msg' => 'BERHASIL EDIT DATA!',
-					'p' => $produk->row()->ukuran_sheet_p, 'l' => $produk->row()->ukuran_sheet_l, 'bb' => $produk->row()->berat_bersih, 'RumusOut' => $RumusOut, 'out' => $out, 'rm' => $rm, 'ton' => $ton,
-				);
+				if(round($rm) == 0 || round($ton) == 0 || round($rm) < 0 || round($ton) < 0 || $rm == "" || $ton == "" ){
+					$insert = false;
+					$msg = 'RM '.round($rm).' . RM / TONASE TIDAK BOLEH KOSONG!';
+				}else{
+					$this->db->where("id", $id);
+					$insert = $this->db->update('trs_so_detail', $data);
+					$msg = 'BERHASIL EDIT DATA!';
+				}
 			}
+
+			$result = array(
+				'data' => $insert,
+				'msg' => $msg,
+				'p' => $produk->row()->ukuran_sheet_p, 'l' => $produk->row()->ukuran_sheet_l, 'bb' => $produk->row()->berat_bersih, 'RumusOut' => $RumusOut, 'out' => $out, 'rm' => $rm, 'ton' => $ton,
+			);
 		}
 
 		return $result;
@@ -869,6 +884,7 @@ class M_transaksi extends CI_Model
 				'qty_so' => $r['options']['qty_so'],
 				'status' => 'Open',
 				'ket_so' => $r['options']['ket_so'],
+				'cek_rm_so' => ($r['options']['rm'] < 500) ? $r['options']['cek_rm_so'] : 0,
 				'rm' => $r['options']['rm'],
 				'ton' => $r['options']['ton'],
 				'add_time' => date('Y-m-d H:i:s'),
