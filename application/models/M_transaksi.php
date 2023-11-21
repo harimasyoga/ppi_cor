@@ -35,9 +35,9 @@ class M_transaksi extends CI_Model
 			$data = array(
 				'tgl_po'          => $params->tgl_po,
 				'kode_po'         => $params->kode_po,
-				'eta'             => $params->eta_item,
-				'eta_ket'         => $params->eta_ket,
-				'cek_rm'          => $params->cek_rm,
+				'eta'             => $params->eta_item[$key],
+				'eta_ket'         => $params->eta_ket[$key],
+				'cek_rm'          => $params->cek_rm[$key],
 				'qty'             => str_replace('.', '', $params->qty[$key]),
 				'p11'             => $params->p11[$key],
 				
