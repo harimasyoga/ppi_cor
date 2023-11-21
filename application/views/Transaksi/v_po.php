@@ -172,24 +172,20 @@
 										<th width="10%">Qty</th>
 										<th width="10%">PPN</th>
 
-										<?php if ($this->session->userdata('level') != "PPIC"): ?>
-											
-											<th width="10%">Price Exclude</th>
-											<th width="10%">Price Include</th>
-
-										<?php endif ?>
-
-										<?php if ($this->session->userdata('level') == "Admin" || $this->session->userdata('level') == "Owner" || $this->session->userdata('level') == "User")  {
+										<?php if ($this->session->userdata('level') != "PPIC")  {
 											?>
-											
+												<th width="10%">Price Exclude</th>
+												<th width="10%">Price Include</th>
 												<th width="10%" id="header_p11" >P11</th>
+												<th width="20%">Detail Item</th>
 											
 										<?php } else { ?>
 
 												<th type="hidden" width="10%" id="header_p11" >P11</th>
+												
+												<th width="50%" colspan="5">Detail Item</th>
 
 										<?php } ?>
-										<th width="20%">Detail Item</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -204,9 +200,9 @@
 											</select>
 										</td>
 										<td>
-											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="qty_dec_(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)">
-
-											<input class="form-control input-border-none" type="text" name="qty_dec[0]" id="qty_dec0"  style="color:red" readonly>
+											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="ubah_angka(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)">											
+											<br>
+											<input class="form-control" type="checkbox" name="cek_rm[0]" id="cek_rm0" onclick="cekrm(this.id)" value="0">
 										</td>
 										<td>
 											<select class="form-control select2" name="ppn[0]" id="ppn0" >
@@ -216,28 +212,113 @@
 												<option value="NP">NP</option>
 											</select>
 										</td>
-										<?php if ($this->session->userdata('level') != "PPIC"): ?>
+										<?php if ($this->session->userdata('level') != "PPIC"){ ?>
 										
 										<td>
-											<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+											<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
 
-											<input class="form-control input-border-none" type="text" name="price_exc_rp[0]" id="price_exc_rp0" style="color:red" readonly>
 										</td>
 										<td>
-											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
 
-											<input class="form-control input-border-none" type="text" name="price_inc_rp[0]" id="price_inc_rp0" style="color:red" readonly>
 										</td>
-										<?php endif ?>
-
-											<td id="p11_det0">
-												<input type="text" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
-											
-											</td>
-
+										<td id="p11_det0">
+											<input type="text" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
 										
+										</td>
 										<td id="txt_detail_produk0">
 										</td>
+										<?php }else{ ?>
+
+										<td colspan="5" id="txt_detail_produk0">
+										</td>
+										<?php } ?>
+
+											
+
+										
+										
+									</tr>
+									<tr id="item_tambahan0">
+										<td>
+											<div class="text-center">
+												ETA
+											</div>
+										</td>
+										<td>
+											<input class="form-control" type="date" name="eta_item[0]" id="eta_item0">
+										</td>
+										<td>
+											<textarea class="form-control" name="eta_ket[0]" id="eta_ket0" placeholder="KET. ETA" rows="3" style="resize:none"></textarea>
+										</td>
+										<td width="10%" id="subs0" name="subs[0]">
+											<select id="tl_al0" name="tl_al[0]" class="form-control select2" onchange="ayoBerhitung(0)">
+												<option value="">-</option>
+												<option value="M">M</option>
+												<option value="K">K</option>
+												<option value="MC">MC</option>
+												<option value="MN">MN</option>
+											</select>
+
+											<select id="bmf0" name="bmf[0]" class="form-control select2" onchange="ayoBerhitung(0)">
+												<option value="">-</option>
+												<option value="M">M</option>
+												<option value="K">K</option>
+												<option value="MC">MC</option>
+												<option value="MN">MN</option>
+											</select>
+											<select id="bl0" name="bl[0]" class="form-control select2" onchange="ayoBerhitung(0)">
+												<option value="">-</option>
+												<option value="M">M</option>
+												<option value="K">K</option>
+												<option value="MC">MC</option>
+												<option value="MN">MN</option>
+											</select>
+											<select id="cmf0" name="cmf[0]" class="form-control select2" onchange="ayoBerhitung(0)">
+												<option value="">-</option>
+												<option value="M">M</option>
+												<option value="K">K</option>
+												<option value="MC">MC</option>
+												<option value="MN">MN</option>
+											</select>
+											<select id="cl0" name="cl[0]" class="form-control select2" onchange="ayoBerhitung(0)">
+												<option value="">-</option>
+												<option value="M">M</option>
+												<option value="K">K</option>
+												<option value="MC">MC</option>
+												<option value="MN">MN</option>
+											</select>
+
+										</td>
+										<td width="10%" id="subs_i0" name="subs_i[0]">
+											<input type="text" id="tl_al_i0" name="tl_al_i[0]"  class="form-control angka" autocomplete="off" placeholder="TL/AL">
+
+											<input type="text" id="bmf_i0" name="bmf_i[0]" class="form-control angka" autocomplete="off" placeholder="B.MF">
+
+											<input type="text" id="bl_i0" name="bl_i[0]" class="form-control angka" autocomplete="off" placeholder="B.L">
+
+											<input type="text" id="cmf_i0" name="cmf_i[0]" class="form-control angka" autocomplete="off" placeholder="C.MF">
+											
+											<input type="text" id="cl_i0" name="cl_i[0]" class="form-control angka" autocomplete="off" placeholder="C.L">
+										</td>
+										<td width="10%" id="subs_hitung0" name="subs_hitung[0]">
+											Lebar Sheet : <input type="text" id="ii_lebar0" name="ii_lebar[0]" class="form-control angka" autocomplete="off" placeholder="LEBAR SHEET" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(0)">
+
+											Qty Plan : <input type="text" id="qty_plan0" name="qty_plan[0]" class="form-control angka" autocomplete="off" placeholder="QTY PLAN" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(0)">
+
+											Lebar Roll : <input type="text" id="i_lebar_roll0" name="i_lebar_roll[0]" class="form-control angka" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" placeholder="LEBAR ROLL" onchange="ayoBerhitung(0)">
+											
+											Out : <input type="text" id="out_plan0" name="out_plan[0]" class="form-control angka" autocomplete="off"  onkeyup="ubah_angka(this.value,this.id)" placeholder="OUT" onchange="ayoBerhitung(0)">
+										</td>
+										
+										<td width="20%" id="subs_hasil_hitung0" name="subs_hasil_hitung[0]">
+											trim : <input type="number" id="trim0" name="trim[0]" class="form-control" autocomplete="off" placeholder="TRIM" disabled>
+											coff : <input type="number" id="c_off0" name="c_off[0]" class="form-control" autocomplete="off" placeholder="NUM OF CUT" disabled>
+											rm : <input type="number" id="rm_plan0" name="rm_plan[0]" class="form-control" autocomplete="off" placeholder="RM PLAN" disabled>
+											ton : <input type="number" id="ton_plan0" name="ton_plan[0]" class="form-control" autocomplete="off" placeholder="TONASE PLAN" disabled>
+										
+										</td>
+
 									</tr>
 								</tbody>
 							</table>
@@ -258,7 +339,9 @@
 						<button type="button" class="btn btn-warning btn-verif" id="btn-verif_hold" style="display: none;" onclick="prosesData_hold('H')"><i class="far fa-hand-paper"></i> <b>HOLD</b></button>
 
 						<button type="button" class="btn btn-danger btn-verif" id="btn-verif_r" style="display: none;" onclick="prosesData_r('R')"><i class="fas fa-times"></i> <b>Reject</b></button>
-
+<!-- 
+						<button type="button" class="btn btn-primary" id="btn-simpan-plan" onclick="simpan_plan()"><i class="fas fa-save"></i><b> Simpan Plan</b></button> -->
+						
 						<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan</b></button>
 
 						<button type="button" class="btn btn-danger" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> <b>Print</b></button>
@@ -422,6 +505,88 @@
 		tabel.ajax.reload(null, false);
 	}
 
+	function simpan_plan() 
+	{
+		// var lebar_plan          = str_replace('.', '', $params->ii_lebar[$key])
+		// var qty_plan            = str_replace('.', '', $params->qty_plan[$key])
+		// var lebar_roll_p        = str_replace('.', '', $params->i_lebar_roll[$key])
+		// var out_plan            = str_replace('.', '', $params->out_plan[$key])
+		// var trim_plan           = str_replace('.', '', $params->trim[$key])
+		// var c_off_p             = $params->c_off[$key]
+		// var rm_plan             = $params->rm_plan[$key]
+		// var tonase_plan         = $params->ton_plan[$key]
+		// var material_plan       = $material_plan
+		// var kualitas_isi_plan   = $kualitas_isi_plan
+		// var kualitas_plan       = $kualitas_plan
+		
+		swal({
+			title: "PO",
+			html: "<p> <b> Simpan Plan Sementara ini ? </b></p>",
+			type               : "question",
+			showCancelButton   : true,
+			confirmButtonText  : '<b>Ya</b>',
+			cancelButtonText   : '<b>Batal</b>',
+			confirmButtonClass : 'btn btn-success',
+			cancelButtonClass  : 'btn btn-danger',
+			cancelButtonColor  : '#d33'
+		}).then(() => {
+			swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				} 
+			})
+
+			$.ajax({
+				url        : '<?= base_url(); ?>Transaksi/update_plan',
+				type       : "POST",
+				data       : $('#myForm').serialize(),
+				dataType   : "JSON",
+				success: function(data) {
+					if (data) {
+						
+						swal.close();
+						swal({
+							title               : "Data",
+							html                : "Berhasil Disimpan",
+							type                : "success",
+							confirmButtonText   : "OK"
+						});
+						
+						kosong();
+						$("#modalForm").modal("hide");
+					} else {
+						
+						swal.close();
+						swal({
+							title               : "Cek Kembali",
+							html                : "Gagal Simpan",
+							type                : "error",
+							confirmButtonText   : "OK"
+						});
+						return;
+					}
+					reloadTable();
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					
+					
+					swal.close();
+					swal({
+						title               : "Cek Kembali",
+						html                : "Terjadi Kesalahan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
+				}
+			});
+		});
+
+	}
+	
 	function simpan() 
 	{
 		// show_loading();
@@ -433,7 +598,7 @@
 				swal.showLoading();
 			} 
 		})
-		id_pelanggan    = $("#id_id_pelanggan").val();
+		id_pelanggan    = $("#id_pelanggan").val();
 		kode_po         = $("#kode_po").val();
 		eta             = $("#eta").val();
 		sales           = $("#id_sales").val();
@@ -458,8 +623,9 @@
 			produk   = $("#id_produk" + i).val();
 			qty      = $("#qty" + i).val();
 			p11      = $("#p11" + i).val();
+			eta_item = $("#eta_item" + i).val();
 
-			if (produk == '' || qty == '' || qty == '0') {
+			if (produk == '' || qty == '' || qty == '0' || eta_item == '') {
 				// toastr.info('Harap Lengkapi Form');
 				// return;
 				
@@ -571,6 +737,7 @@
 		$("#status").val(status);
 
 		$("#btn-simpan").show();
+		// $("#btn-simpan-plan").show();
 		$("#btn-verif_acc").hide();
 		$("#btn-verif_hold").hide();
 		$("#btn-verif_r").hide();
@@ -584,6 +751,7 @@
 	{
 		
 		$(".btn-verif").hide()
+		// $("#btn-simpan-plan").hide()
 
 		if (data[0].status == 'Open' || data[0].status == 'Reject') {
 			if ('<?= $this->session->userdata('level') ?>' == 'Admin'){
@@ -598,6 +766,7 @@
 			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data[0].status_app1 == 'Y' && ( data[0].status_app2 == 'N' || data[0].status_app2 == 'H' || data[0].status_app2 == 'R' ) ) 
 			{
 				$(".btn-verif").show()
+				// $("#btn-simpan-plan").show()
 			}
 
 			if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data[0].status_app1 == 'Y' && data[0].status_app2 == 'Y'  && ( data[0].status_app3 == 'N' || data[0].status_app3 == 'H' || data[0].status_app3 == 'R' ) ) 
@@ -618,6 +787,7 @@
 		var cek = '<?= $this->session->userdata('level') ?>';
 		$(".btn-tambah-produk").hide();
 		$("#btn-print").show();
+		
 		$("#status").val("update");
 		status    = 'update';
 
@@ -628,7 +798,7 @@
 		} else {
 			$("#judul").html('<h3> Form Edit Data</h3>');
 			$("#btn-simpan").show();
-		}
+		} 
 
 		status = "update";
 
@@ -660,7 +830,7 @@
 				
 				$("#header_del").hide();
 
-				if (cek == 'Admin' || cek == 'Owner' || cek == 'User')
+				if (cek !='PPIC')
 				{
 					$("#header_p11").show();
 				}else{
@@ -671,17 +841,33 @@
 					$("#detail-hapus-0").hide();
 					$("#detail-hapus-"+index).hide();
 					$("#btn-hapus-"+index).hide();
-
-					if (cek == 'Admin' || cek == 'Owner' || cek == 'User')
+					$("#eta_item"+index).val(eta); 
+					
+					if (cek !='PPIC')
 					{
 						$("#p11_det"+index).show();
 						$("#id_pelanggan").prop("disabled", false);
 						$("#kode_po").prop("disabled", false);
+						$("#eta_item"+index).prop("disabled", false); 
+
+						$('#subs'+index).hide();
+						$('#subs_i'+index).hide();
+						$('#subs_hitung'+index).hide();
+						$('#subs_hasil_hitung'+index).hide();
+						
 					}else{
 						$("#p11_det"+index).hide();
 						$("#id_pelanggan").prop("disabled", true);
 						$("#kode_po").prop("disabled", true);
+						$("#eta_item"+index).prop("disabled", true); 
+
+						$('#subs'+index).show();
+						$('#subs_i'+index).show();
+						$('#subs_hitung'+index).show();
+						$('#subs_hasil_hitung'+index).show();
+						
 					}
+					
 					
 					
 					var opt_produk = $("<option selected></option>").val(value.id_produk).text(value.nm_produk);
@@ -689,33 +875,44 @@
 					var opt_ppn = $("<option selected></option>").val(value.ppn).text(value.ppn);
 					
 					$('#id_produk'+index).append(opt_produk).trigger('change');
-					$("#qty"+index).val(value.qty);
-					$("#qty_dec"+index).val(format_angka(value.qty));
+					$("#qty"+index).val(format_angka(value.qty));
+
+					if(value.cek_rm==1)
+					{
+						$('#cek_rm'+index).prop('checked', true);
+					}else{
+						$('#cek_rm'+index).prop('checked', false);
+
+					}
 
 					$('#ppn'+index).append(opt_ppn).trigger('change');
 					// $("#ppn"+index).val(value.ppn);
-					$("#price_inc"+index).val(value.price_inc);
-					$("#price_exc"+index).val(value.price_exc);
-					
-					$('#price_exc_rp'+index).val(format_angka(value.price_exc));
-					$('#price_inc_rp'+index).val(format_angka(value.price_inc));
+					$('#price_inc'+index).val(format_angka(value.price_inc));
+					$('#price_exc'+index).val(format_angka(value.price_exc));
+					$("#eta_ket"+index).val(value.eta_ket); 
 					
 					$("#p11"+index).val(value.p11);
 
 					if (act == 'detail') {
+						$("#id_pelanggan").prop("disabled", true);
 						$("#qty"+index).prop("disabled", true);
-						$("#qty_dec"+index).prop("disabled", true);
+						// $("#qty_dec"+index).prop("disabled", true);
+						$('#cek_rm'+index).prop("disabled", true);
 						$("#id_produk"+index).prop("disabled", true);
 						$("#ppn"+index).prop("disabled", true);
 						$("#price_inc"+index).prop("disabled", true);
 						$("#price_exc"+index).prop("disabled", true);
+						$("#eta_ket"+index).prop("disabled", true);
 					} else {
+						$("#id_pelanggan").prop("disabled", false);
 						$("#qty"+index).prop("disabled", false);
-						$("#qty_dec"+index).prop("disabled", false);
+						// $("#qty_dec"+index).prop("disabled", false);
+						$('#cek_rm'+index).prop("disabled", false);
 						$("#id_produk"+index).prop("disabled", false);
 						$("#ppn"+index).prop("disabled", false);
 						$("#price_inc"+index).prop("disabled", false);
 						$("#price_exc"+index).prop("disabled", false);
+						$("#eta_ket"+index).prop("disabled", false);
 					}
 					
 					if (index != (data.length) - 1) {
@@ -1137,8 +1334,8 @@
 							</tr>
 							<tr style=list-style:none;>
 								<td><b>Kode MC </b>: ${val.kode_mc}</td>
-								<td><b>Ukuran Sheet </b>: ${val.ukuran_sheet}</td>
-								<td><b>Flute </b>: ${val.flute}</td>
+								<td><b>Ukuran Sheet </b>: <input type="hidden" class="input-border-none" name="p_sheet[${id}]" id="p_sheet${id}" value="${val.ukuran_sheet_p}" > ${val.ukuran_sheet}</td>
+								<td><b>Flute </b>: <input type="hidden" class="input-border-none" name="fl[${id}]" id="fl${id}" value="${val.flute}" > ${val.flute}</td>
 									
 							</tr>
 							<tr style=list-style:none;> 
@@ -1172,12 +1369,14 @@
 								</td> 
 								<td colspan="2">
 									<b>QTY PO : 
-									</b> ${format_angka(qty_po)}
+									</b> ${qty_po}
 								</td> 
 							</tr> `;
 							<?php } ?>
 
 							html_produk += `</table>`;
+
+						on_load(kd,id);
 
 						if(status=='update'){
 							
@@ -1231,61 +1430,146 @@
 				if ('<?= $this->session->userdata('level') ?>' != 'PPIC') {
 					td_harga = `
 						<td>
-							<input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
+							<input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
 
-							<input class="form-control input-border-none" type="text" name="price_exc_rp[${rowNum}]" id="price_exc_rp${rowNum}" style="color:red" readonly>
 						 
 						</td>
 						<td>
-							<input type="text" name="price_inc[${rowNum}]" id="price_inc${rowNum}"  class="angka form-control" onkeyup="Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
+							<input type="text" name="price_inc[${rowNum}]" id="price_inc${rowNum}"  class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
 
-							<input class="form-control input-border-none" type="text" name="price_inc_rp[${rowNum}]" id="price_inc_rp${rowNum}" style="color:red">
 						</td>
 					`
-				}
-
-				// if (user_lev == 'Owner' || user_lev == 'Admin') 
-				// {
 					p11_tambahan = `
 						<td id="p11_det${rowNum}">
 							<input type="text" name="p11[${rowNum}]" id="p11${rowNum}"  class="angka form-control" readonly value="0">
 						 
 						</td>
 					`;
+					coll=``;
+				}
+				
+
+				// if (user_lev == 'Owner' || user_lev == 'Admin') 
+				// {
+					
 				// }else{
-				// 	p11_tambahan = ``;
+					p11_tambahan = ``;
 				// }
+					coll=`colspan="5"`;
 				
 
 				$('#table-produk').append(
 					`<tr id="itemRow${ rowNum }">
-					<td id="detail-hapus-${ rowNum }">
-						<div class="text-center">
-						<a class="btn btn-danger"  id="btn-hapus-${ rowNum }" onclick="removeRow(${ rowNum })"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
-						</div>
-					</td>
-					<td>
-						<select class="form-control select2" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }" style="width: 100%;" onchange="setDetailProduk(this.value,${ rowNum })">
-						</select>
-					</td>
-					<td>
-						 <input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onkeyup="qty_dec_(this.value,this.id)"  onchange="Hitung_rm(this.value,this.id)">
-						 
-						<input class="form-control input-border-none" type="text" name="qty_dec[${ rowNum }]" id="qty_dec${ rowNum }" style="color:red" readonly>
+						<td id="detail-hapus-${ rowNum }">
+							<div class="text-center">
+							<a class="btn btn-danger"  id="btn-hapus-${ rowNum }" onclick="removeRow(${ rowNum })"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
+							</div>
+						</td>
+						<td>
+							<select class="form-control select2" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }" style="width: 100%;" onchange="setDetailProduk(this.value,${ rowNum })">
+							</select>
+						</td>
+						<td>
+							<input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onkeyup="ubah_angka(this.value,this.id)"  onchange="Hitung_rm(this.value,this.id)">
 
-					</td>
+							<br>
+							<input class="form-control" type="checkbox" name="cek_rm[${ rowNum }]" id="cek_rm${ rowNum }" onclick="cekrm(this.id)" value="0">
 
-					<td>
-						<select class="form-control select2" name="ppn[${ rowNum }]" id="ppn${ rowNum }">
-							<option value="PP">PP</option>
-							<option value="NP">NP</option>
-						</select>
-					</td>
-					${ td_harga }
-					${ p11_tambahan }
-					<td id="txt_detail_produk${ rowNum }"> 
-					</td>
-					</tr>)`);
+						</td>
+
+						<td>
+							<select class="form-control select2" name="ppn[${ rowNum }]" id="ppn${ rowNum }">
+								<option value="PP">PP</option>
+								<option value="NP">NP</option>
+							</select>
+						</td>
+						${ td_harga }
+						${ p11_tambahan }
+						<td ${ coll } id="txt_detail_produk${ rowNum }"> 
+						</td>
+					</tr>
+					<tr style="width: 100%" id="item_tambahan${ rowNum }">
+						<td width="20%">
+							<div class="text-center">
+								ETA
+							</div>
+						</td>
+						<td width="20%">
+							<input class="form-control" type="date" name="eta_item[${ rowNum }]" id="eta_item${ rowNum }">
+						</td>
+						<td width="10%">
+							<textarea class="form-control" name="eta_ket[${ rowNum }]" id="eta_ket${ rowNum }" placeholder="KET. ETA" rows="3" style="resize:none"></textarea>
+						</td>
+						<td width="10%" id="subs${ rowNum }" name="subs[${ rowNum }]">
+							<select id="tl_al${ rowNum }" name="tl_al[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
+								<option value="">-</option>
+								<option value="M">M</option>
+								<option value="K">K</option>
+								<option value="MC">MC</option>
+								<option value="MN">MN</option>
+							</select>
+
+							<select id="bmf${ rowNum }" name="bmf[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
+								<option value="">-</option>
+								<option value="M">M</option>
+								<option value="K">K</option>
+								<option value="MC">MC</option>
+								<option value="MN">MN</option>
+							</select>
+							<select id="bl${ rowNum }" name="bl[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
+								<option value="">-</option>
+								<option value="M">M</option>
+								<option value="K">K</option>
+								<option value="MC">MC</option>
+								<option value="MN">MN</option>
+							</select>
+							<select id="cmf${ rowNum }" name="cmf[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
+								<option value="">-</option>
+								<option value="M">M</option>
+								<option value="K">K</option>
+								<option value="MC">MC</option>
+								<option value="MN">MN</option>
+							</select>
+							<select id="cl${ rowNum }" name="cl[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
+								<option value="">-</option>
+								<option value="M">M</option>
+								<option value="K">K</option>
+								<option value="MC">MC</option>
+								<option value="MN">MN</option>
+							</select>
+
+						</td>
+						<td width="10%" id="subs_i${ rowNum }" name="subs_i[${ rowNum }]">
+							<input type="text" id="tl_al_i${ rowNum }" name="tl_al_i[${ rowNum }]"  class="form-control angka" autocomplete="off" placeholder="TL/AL">
+
+							<input type="text" id="bmf_i${ rowNum }" name="bmf_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="B.MF">
+
+							<input type="text" id="bl_i${ rowNum }" name="bl_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="B.L">
+
+							<input type="text" id="cmf_i${ rowNum }" name="cmf_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="C.MF">
+							
+							<input type="text" id="cl_i${ rowNum }" name="cl_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="C.L">
+						</td>
+						<td width="10%" id="subs_hitung${ rowNum }" name="subs_hitung[${ rowNum }]">
+							<input type="text" id="ii_lebar${ rowNum }" name="ii_lebar[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="LEBAR SHEET" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
+
+							<input type="text" id="qty_plan${ rowNum }" name="qty_plan[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="QTY PLAN" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
+
+							<input type="text" id="i_lebar_roll${ rowNum }" name="i_lebar_roll[${ rowNum }]" class="form-control angka" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" placeholder="LEBAR ROLL" onchange="ayoBerhitung(${ rowNum })">
+							
+							<input type="text" id="out_plan${ rowNum }" name="out_plan[${ rowNum }]" class="form-control angka" autocomplete="off"  onkeyup="ubah_angka(this.value,this.id)" placeholder="OUT" onchange="ayoBerhitung(${ rowNum })">
+						</td>
+						
+						<td width="20%" id="subs_hasil_hitung${ rowNum }" name="subs_hasil_hitung[${ rowNum }]">
+							trim : <input type="number" id="trim${ rowNum }" name="trim[${ rowNum }]" class="form-control" autocomplete="off" placeholder="TRIM" disabled>
+							coff : <input type="number" id="c_off${ rowNum }" name="c_off[${ rowNum }]" class="form-control" autocomplete="off" placeholder="NUM OF CUT" disabled>
+							rm : <input type="number" id="rm_plan${ rowNum }" name="rm_plan[${ rowNum }]" class="form-control" autocomplete="off" placeholder="RM PLAN" disabled>
+							ton : <input type="number" id="ton_plan${ rowNum }" name="ton_plan[${ rowNum }]" class="form-control" autocomplete="off" placeholder="TONASE PLAN" disabled>
+						
+						</td>
+
+					</tr>				
+					`);
 				$('.select2').select2({
 					placeholder: '--- Pilih ---',
 					dropdownAutoWidth: true
@@ -1319,6 +1603,7 @@
 	{
 		if (rowNum > 0) {
 			jQuery('#itemRow' + e).remove();
+			jQuery('#item_tambahan' + e).remove();
 			rowNum--;
 		} else {
 			// toastr.error('Baris pertama tidak bisa dihapus');
@@ -1340,19 +1625,17 @@
 		var bucket = $('#bucket').val();
 		for (var e = bucket; e > 0; e--) {
 			jQuery('#itemRow' + e).remove();
+			jQuery('#item_tambahan' + e).remove();
 			rowNum--;
 		}
 
 		$('#removeRow').hide();
 		$('#bucket').val(rowNum);
 		$('#id_produk0').val('').trigger('change');
-		$('#qty0').val('0');
-		$('#qty_dec0').val('0');
+		$('#qty0').val('');
 		$('#p110').val('0');
-		$('#price_inc0').val('0');
-		$('#price_exc0').val('0');
-		$('#price_exc_rp0').val('0');
-		$('#price_inc_rp0').val('0');
+		$('#price_inc0').val('');
+		$('#price_exc0').val('');
 		$('#txt_detail_produk0').html('');
 		$("#btn-hapus-0").show();
 		$("#detail-hapus-0").show();
@@ -1363,52 +1646,97 @@
 		$("#price_inc0").prop("disabled", false);
 		$("#price_exc0").prop("disabled", false);		
 		$("#ppn0").prop("disabled", false);
+		$('#cek_rm0').prop("disabled", false);
+		$('#cek_rm0').prop('checked', false);
+		$("#eta_ket0").prop("disabled", false);
+
+		$("#cek_rm0").val(0);		
+		$("#eta_ket0").val(0);		
+		$("#tl_al0").val('');		
+		$("#bmf0").val('');		
+		$("#bl0").val('');		
+		$("#cmf0").val('');		
+		$("#cl0").val('');		
+		$("#tl_al_i0").val(0);		
+		$("#bmf_i0").val(0);		
+		$("#bl_i0").val(0);		
+		$("#cmf_i0").val(0);		
+		$("#cl_i0").val(0);		
+		$("#ii_lebar0").val(0);		
+		$("#qty_plan0").val(0);		
+		$("#i_lebar_roll0").val(0);		
+		$("#out_plan0").val(0);		
+		$("#trim0").val(0);		
+		$("#c_off0").val(0);		
+		$("#rm_plan0").val(0);		
+		$("#ton_plan0").val(0);	
+	
+		$("#tl_al0").prop("disabled", true);		
+		$("#bmf0").prop("disabled", true);		
+		$("#bl0").prop("disabled", true);		
+		$("#cmf0").prop("disabled", true);		
+		$("#cl0").prop("disabled", true);		
+		$("#tl_al_i0").prop("disabled", true);		
+		$("#bmf_i0").prop("disabled", true);		
+		$("#bl_i0").prop("disabled", true);		
+		$("#cmf_i0").prop("disabled", true);		
+		$("#cl_i0").prop("disabled", true);		
+		$("#ii_lebar0").prop("disabled", true);		
+		$("#qty_plan0").prop("disabled", true);		
+		$("#i_lebar_roll0").prop("disabled", true);		
+		$("#out_plan0").prop("disabled", true);		
+		$("#trim0").prop("disabled", true);		
+		$("#c_off0").prop("disabled", true);		
+		$("#rm_plan0").prop("disabled", true);		
+		$("#ton_plan0").prop("disabled", true);		
+		
+		<?php if ($this->session->userdata('level') != "PPIC"){ ?>
+			$('#subs0').hide();
+			$('#subs_i0').hide();
+			$('#subs_hitung0').hide();
+			$('#subs_hasil_hitung0').hide();
+		<?php } ?>
 	}
 
 	function Hitung_price(val,id) 
 	{
 		var cek = id.substr(0,9);
 		var id2 = id.substr(9,1);
+		var isi = val.split('.').join('');
 		
 		if(cek=='price_exc')
 		{
-			inc = Math.trunc(val *1.11);
-			$('#price_inc'+id2).val(inc);
+			inc = Math.trunc(isi *1.11);
+			$('#price_inc'+id2).val(format_angka(inc));
 
-			$('#price_exc_rp'+id2).val(format_angka(val));
-			$('#price_inc_rp'+id2).val(format_angka(inc));
+			// $('#price_exc_rp'+id2).val(format_angka(val));
+			// $('#price_inc_rp'+id2).val(format_angka(inc));
 		}else {
-			exc = Math.trunc(val /1.11);
-			$('#price_exc'+id2).val(exc);
+			exc = Math.trunc(isi /1.11);
+			$('#price_exc'+id2).val(format_angka(exc));
 
-			$('#price_exc_rp'+id2).val(format_angka(exc));
-			$('#price_inc_rp'+id2).val(format_angka(val));
+			// $('#price_exc_rp'+id2).val(format_angka(exc));
+			// $('#price_inc_rp'+id2).val(format_angka(val));
 		}
 	}
 	
-	function qty_dec_(val,id) 
-	{
-		var cek = id.substr(0,7);
-		var id2 = id.substr(7,1);
-		
-		$('#qty_dec'+id2).val(format_angka(val));
-		
-	}
-
 
 	function hitung_p11(val,id)
-	{		
+	{
+		<?php if ($this->session->userdata('level') != "PPIC"){ ?>
 		
-		var cek = id.substr(0,9);
-		var id2 = id.substr(9,1);
+		var cek   = id.substr(0,9);
+		var id2   = id.substr(9,1);
+		var value = (val=='') ? 0 : val;
+		var value = value.split('.').join('');
 
 		if(cek=='price_exc')
 		{
-			var inc = $('#price_inc'+id2).val();
-			var exc = val;
+			var inc = $('#price_inc'+id2).val().split('.').join('');
+			var exc = value;
 		}else {
-			var inc = val;
-			var exc = $('#price_exc'+id2).val();
+			var inc = value;
+			var exc = $('#price_exc'+id2).val().split('.').join('');
 		}
 
 		var produk   = $('#id_produk'+id2).val();
@@ -1429,7 +1757,6 @@
 				})
 			},
 			success:function(val){			
-				
 						hrg_kg   = Math.trunc(exc / val.berat_bersih); 
 						$('#hrg_kg'+id2).val(format_angka(hrg_kg));	
 
@@ -1460,8 +1787,12 @@
 										var selisih = rumus - inc;
 
 										p11 = selisih / rumus * 100;
-
-										$('#p11'+id2).val('- '+ p11.toFixed(1)+' %');
+										if(status=='insert')
+										{
+											$('#p11'+id2).val('- '+ p11.toFixed(1)+' %');
+										}else{
+											$('#p11'+id2).val(''+ p11.toFixed(1)+' %');											
+										}
 										swal.close();
 
 
@@ -1504,14 +1835,18 @@
 					
 			}
 		});
+		<?php } else {?>
+		<?php } ?>
 	}
 
 	function Hitung_rm(qty,id) 
 	{
 		var cek       = id.substr(0,3);
 		var id2       = id.substr(3,1);
+		var cek_rm    = $('#cek_rm'+id2).val();
 		
-		var produk   = $('#id_produk'+id2).val();
+		var produk    = $('#id_produk'+id2).val();
+		var qty       = qty.split('.').join('');
 		
 		if(produk=='' || produk=='undefined' || produk=='-- Pilih --'){
 			// toastr.error('Pilih Produk Dahulu');
@@ -1554,7 +1889,11 @@
 					ton      = Math.ceil(qty * val.berat_bersih);
 					
 
-					if(rm < 500 && status !=='update'){			
+					if(cek_rm==1)
+					{
+
+					}else{
+						if(rm < 500 && status !=='update'){			
 						// toastr.error(
 						// 	'RM tidak boleh di Bawah 500, <br> Hubungi Marketing'
 						// );
@@ -1570,8 +1909,11 @@
 						return;
 					}	
 
-					$('#rm'+id2).val(rm);	
-					$('#ton'+id2).val(ton);
+					}
+					
+
+					$('#rm'+id2).val(format_angka(rm));	
+					$('#ton'+id2).val(format_angka(ton));
 					swal.close();	
 						
 				}
@@ -1611,6 +1953,362 @@
 		no_po = $("#no_po").val();
 		var url = "<?= base_url('Transaksi/Cetak_PO'); ?>";
 		window.open(url + '?no_po=' + no_po, '_blank');
+	}
+
+	function on_load(kd,id)
+	{
+		var no_po   = $("#no_po").val();
+		var qty     = $('#qty'+id).val();
+		
+		$("#ii_lebar0").prop("disabled", false);		
+		$("#qty_plan0").prop("disabled", false);		
+		$("#i_lebar_roll0").prop("disabled", false);		
+		$("#out_plan0").prop("disabled", false);		
+		
+		$.ajax({
+			type        : 'POST',
+			url         : "<?= base_url(); ?>Transaksi/cek_plan_sementara",
+			data        : { no_po : no_po, id_produk : kd },
+			dataType    : 'json',
+			success:function(val_cek){
+				if(val_cek==0)
+				{
+					$.ajax({
+						type        : 'POST',
+						url         : "<?= base_url(); ?>Transaksi/load_produk_1",
+						data        : { idp: '', kd: kd },
+						dataType    : 'json',
+						success:function(val2)
+						{
+							
+							var substance = val2.material.split("/");				
+							var gramature = val2.kualitas_isi.split("/");
+
+							if(val2.flute=='BF')
+							{
+								var s1 = substance[0];
+								var s2 = substance[1];
+								var s3 = substance[2];
+								var s4 = '';
+								var s5 = '';
+								
+								var grm1 = gramature[0];
+								var grm2 = gramature[1];
+								var grm3 = gramature[2];
+								var grm4 = '';
+								var grm5 = '';
+
+								$("#tl_al"+id).prop('disabled', false)
+								$("#bmf"+id).prop('disabled', false)
+								$("#bl"+id).prop('disabled', false)
+								$("#cmf"+id).prop('disabled', true)
+								$("#cl"+id).prop('disabled', true)
+
+								$("#tl_al_i"+id).prop('disabled', false)
+								$("#bmf_i"+id).prop('disabled', false)
+								$("#bl_i"+id).prop('disabled', false)
+								$("#cmf_i"+id).prop('disabled', true)
+								$("#cl_i"+id).prop('disabled', true)
+
+							}else if(val2.flute=='CF') 
+							{
+								
+								var s1 = substance[0];
+								var s2 = '';
+								var s3 = '';
+								var s4 = substance[1];
+								var s5 = substance[2];
+								
+								var grm1 = gramature[0];
+								var grm2 = '';
+								var grm3 = '';
+								var grm4 = gramature[1];
+								var grm5 = gramature[2];
+								
+								$("#tl_al"+id).prop('disabled', false)
+								$("#bmf"+id).prop('disabled', true)
+								$("#bl"+id).prop('disabled', true)
+								$("#cmf"+id).prop('disabled', false)
+								$("#cl"+id).prop('disabled', false)
+
+								$("#tl_al_i"+id).prop('disabled', false)
+								$("#bmf_i"+id).prop('disabled', true)
+								$("#bl_i"+id).prop('disabled', true)
+								$("#cmf_i"+id).prop('disabled', false)
+								$("#cl_i"+id).prop('disabled', false)
+
+							}else if(val2.flute=='BCF') {
+													
+								var s1 = substance[0];
+								var s2 = substance[1];
+								var s3 = substance[2];
+								var s4 = substance[3];
+								var s5 = substance[4];
+
+								var grm1 = gramature[0];
+								var grm2 = gramature[1];
+								var grm3 = gramature[2];
+								var grm4 = gramature[3];
+								var grm5 = gramature[4];
+
+								$("#tl_al"+id).prop('disabled', false)
+								$("#bmf"+id).prop('disabled', false)
+								$("#bl"+id).prop('disabled', false)
+								$("#cmf"+id).prop('disabled', false)
+								$("#cl"+id).prop('disabled', false)
+
+								$("#tl_al_i"+id).prop('disabled', false)
+								$("#bmf_i"+id).prop('disabled', false)
+								$("#bl_i"+id).prop('disabled', false)
+								$("#cmf_i"+id).prop('disabled', false)
+								$("#cl_i"+id).prop('disabled', false)
+
+							}
+
+							$("#tl_al"+id).val(s1).trigger('change');
+							$("#bmf"+id).val(s2).trigger('change');
+							$("#bl"+id).val(s3).trigger('change');
+							$("#cmf"+id).val(s4).trigger('change');
+							$("#cl"+id).val(s5).trigger('change');
+							
+							$("#tl_al_i"+id).val(grm1);
+							$("#bmf_i"+id).val(grm2);
+							$("#bl_i"+id).val(grm3);
+							$("#cmf_i"+id).val(grm4);
+							$("#cl_i"+id).val(grm5);
+
+							out = Math.trunc(1800/val2.ukuran_sheet_l);
+							if(out >= 5){
+								out = 5;
+							}
+
+							rm_plan    = Math.ceil(val2.ukuran_sheet_p * qty / out / 1000);
+							ton_plan   = Math.ceil(qty * val2.berat_bersih);
+							c_off_plan = Math.ceil(qty/out)
+
+							
+							$("#ii_lebar"+id).val(format_angka(val2.ukuran_sheet_l));
+							$("#qty_plan"+id).val(format_angka(qty));
+							$("#i_lebar_roll"+id).val(0);
+							$("#trim"+id).val(0);
+							$("#c_off"+id).val(format_angka(c_off_plan));
+							$("#out_plan"+id).val(out);
+							$("#rm_plan"+id).val(format_angka(rm_plan));
+							$("#ton_plan"+id).val(format_angka(ton_plan));
+
+						}
+
+					});
+				}else{
+							
+					$.ajax({
+					type        : 'POST',
+					url         : "<?= base_url(); ?>Transaksi/plan_sementara",
+					data        : { no_po : no_po, id_produk : kd },
+					dataType    : 'json',
+					success:function(val_plan){
+						
+							var substance = val_plan.material_plan.split("/");				
+							var gramature = val_plan.kualitas_isi_plan.split("/");
+
+							if(val_plan.flute=='BF')
+							{
+								var s1 = substance[0];
+								var s2 = substance[1];
+								var s3 = substance[2];
+								var s4 = '';
+								var s5 = '';
+								
+								var grm1 = gramature[0];
+								var grm2 = gramature[1];
+								var grm3 = gramature[2];
+								var grm4 = '';
+								var grm5 = '';
+
+								$("#tl_al"+id).prop('disabled', false)
+								$("#bmf"+id).prop('disabled', false)
+								$("#bl"+id).prop('disabled', false)
+								$("#cmf"+id).prop('disabled', true)
+								$("#cl"+id).prop('disabled', true)
+
+								$("#tl_al_i"+id).prop('disabled', false)
+								$("#bmf_i"+id).prop('disabled', false)
+								$("#bl_i"+id).prop('disabled', false)
+								$("#cmf_i"+id).prop('disabled', true)
+								$("#cl_i"+id).prop('disabled', true)
+
+							}else if(val_plan.flute=='CF') 
+							{
+								
+								var s1 = substance[0];
+								var s2 = '';
+								var s3 = '';
+								var s4 = substance[1];
+								var s5 = substance[2];
+								
+								var grm1 = gramature[0];
+								var grm2 = '';
+								var grm3 = '';
+								var grm4 = gramature[1];
+								var grm5 = gramature[2];
+								
+								$("#tl_al"+id).prop('disabled', false)
+								$("#bmf"+id).prop('disabled', true)
+								$("#bl"+id).prop('disabled', true)
+								$("#cmf"+id).prop('disabled', false)
+								$("#cl"+id).prop('disabled', false)
+
+								$("#tl_al_i"+id).prop('disabled', false)
+								$("#bmf_i"+id).prop('disabled', true)
+								$("#bl_i"+id).prop('disabled', true)
+								$("#cmf_i"+id).prop('disabled', false)
+								$("#cl_i"+id).prop('disabled', false)
+
+							}else if(val_plan.flute=='BCF') {
+													
+								var s1 = substance[0];
+								var s2 = substance[1];
+								var s3 = substance[2];
+								var s4 = substance[3];
+								var s5 = substance[4];
+
+								var grm1 = gramature[0];
+								var grm2 = gramature[1];
+								var grm3 = gramature[2];
+								var grm4 = gramature[3];
+								var grm5 = gramature[4];
+
+								$("#tl_al"+id).prop('disabled', false)
+								$("#bmf"+id).prop('disabled', false)
+								$("#bl"+id).prop('disabled', false)
+								$("#cmf"+id).prop('disabled', false)
+								$("#cl"+id).prop('disabled', false)
+
+								$("#tl_al_i"+id).prop('disabled', false)
+								$("#bmf_i"+id).prop('disabled', false)
+								$("#bl_i"+id).prop('disabled', false)
+								$("#cmf_i"+id).prop('disabled', false)
+								$("#cl_i"+id).prop('disabled', false)
+
+							}
+
+							
+							$("#tl_al"+id).val(s1).trigger('change');
+							$("#bmf"+id).val(s2).trigger('change');
+							$("#bl"+id).val(s3).trigger('change');
+							$("#cmf"+id).val(s4).trigger('change');
+							$("#cl"+id).val(s5).trigger('change');
+							
+							$("#tl_al_i"+id).val(grm1);
+							$("#bmf_i"+id).val(grm2);
+							$("#bl_i"+id).val(grm3);
+							$("#cmf_i"+id).val(grm4);
+							$("#cl_i"+id).val(grm5);
+
+							$("#ii_lebar"+id).val(format_angka(val_plan.lebar_plan));
+							$("#qty_plan"+id).val(format_angka(val_plan.qty_plan));
+							$("#i_lebar_roll"+id).val(format_angka(val_plan.lebar_roll_p));
+							$("#out_plan"+id).val(val_plan.out_plan);
+							$("#trim"+id).val(format_angka(trim_plan));
+							$("#c_off"+id).val(format_angka(c_off_p));
+							$("#rm_plan"+id).val(format_angka(rm_plan));
+							$("#ton_plan"+id).val(format_angka(tonase_plan));
+					}
+					});
+
+										
+				}
+			}
+		});
+		
+		
+	}
+
+	function ayoBerhitung(id)
+	{
+		if(status=='insert'){
+
+		}else{
+
+			// ambil
+			var flute           = $("#fl"+id).val().split('.').join('')
+			var p_sheet         = $("#p_sheet"+id).val().split('.').join('')
+
+			var tl_al           = $("#tl_al"+id).val().split('.').join('')
+			var bmf             = $("#bmf"+id).val().split('.').join('')
+			var bl              = $("#bl"+id).val().split('.').join('')
+			var cmf             = $("#cmf"+id).val().split('.').join('')
+			var cl              = $("#cl"+id).val().split('.').join('')
+			
+			var tl_al_i         = $("#tl_al_i"+id).val().split('.').join('')
+			var bmf_i           = $("#bmf_i"+id).val().split('.').join('')
+			var bl_i            = $("#bl_i"+id).val().split('.').join('')
+			var cmf_i           = $("#cmf_i"+id).val().split('.').join('')
+			var cl_i            = $("#cl_i"+id).val().split('.').join('')
+
+			var ii_lebar        = $("#ii_lebar"+id).val().split('.').join('')
+			var qty_plan        = $("#qty_plan"+id).val().split('.').join('')
+			var i_lebar_roll    = $("#i_lebar_roll"+id).val().split('.').join('')
+			var out_plan        = $("#out_plan"+id).val().split('.').join('')
+			var trim            = $("#trim"+id).val().split('.').join('')
+			var c_off           = $("#c_off"+id).val().split('.').join('')
+			var rm_plan         = $("#rm_plan"+id).val().split('.').join('')
+			var ton_plan        = $("#ton_plan"+id).val().split('.').join('')
+
+			// hitung
+
+			
+			
+			if(flute == 'BF'){
+
+				bb =  parseFloat((parseInt(tl_al_i) + (parseFloat(bmf_i)*1.36) + parseInt(bl_i)) / 1000 * p_sheet / 1000 * ii_lebar / 1000) ;
+
+			}else if(flute == 'CF'){
+
+				bb = parseFloat(parseInt(tl_al_i) + (parseFloat(cmf_i)*1.46) + parseInt(cl_i)) / 1000 * p_sheet / 1000 * ii_lebar / 1000 ;
+
+			}else if(flute == 'BCF'){
+
+
+				bb = parseFloat(parseInt(tl_al_i) + (parseFloat(bmf_i)*1.36) + parseInt(bl_i) + (parseFloat(cmf_i)*1.46) + parseInt(cl_i)) / 1000 * p_sheet / 1000 * ii_lebar / 1000 ;
+
+			}else{
+				bb = 0
+			}
+
+			trim_plan   = Math.round(i_lebar_roll - (ii_lebar * out_plan))
+			c_off_p     = Math.round(qty_plan / out_plan)
+			rm_plan     = Math.round(c_off_p * p_sheet / 1000)
+			tonase_plan = Math.ceil(qty_plan * bb)
+
+			// isi
+			$("#trim"+id).val(format_angka(trim_plan));
+			$("#c_off"+id).val(format_angka(c_off_p));
+			$("#rm_plan"+id).val(format_angka(rm_plan));
+			$("#ton_plan"+id).val(format_angka(tonase_plan));
+
+		}
+
+
+		
+	}
+
+	function cekrm(id)
+	{
+		var cekk    = id.substr(0,6);
+		var id2     = id.substr(6,2);
+		
+		var cek     = $('#cek_rm'+id2).val();
+
+		if (cek == 0) {
+			$('#cek_rm'+id2).val(1);
+			$("#qty"+id2).val(0);
+			$('#rm'+id2).val(0);
+		} else {
+			$('#cek_rm'+id2).val(0);
+			$("#qty"+id2).val(0);
+			$('#rm'+id2).val(0);
+		}
 	}
 	
 </script>

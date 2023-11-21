@@ -35,8 +35,10 @@ class M_transaksi extends CI_Model
 			$data = array(
 				'tgl_po'          => $params->tgl_po,
 				'kode_po'         => $params->kode_po,
-				'eta'             => $params->eta,
-				'qty'             => $params->qty[$key],
+				'eta'             => $params->eta_item,
+				'eta_ket'         => $params->eta_ket,
+				'cek_rm'          => $params->cek_rm,
+				'qty'             => str_replace('.', '', $params->qty[$key]),
 				'p11'             => $params->p11[$key],
 				
 				'rm'              => $params->rm[$key],
@@ -48,8 +50,8 @@ class M_transaksi extends CI_Model
 					
 				'id_pelanggan'    => $pelanggan->id_pelanggan,
 				'ppn'             => $params->ppn[$key],
-				'price_inc'       => $params->price_inc[$key],
-				'price_exc'       => $params->price_exc[$key]
+				'price_inc'       => str_replace('.', '', $params->price_inc[$key]),
+				'price_exc'       => str_replace('.', '', $params->price_exc[$key])
 			);
 
 			if ($status == 'insert') {
@@ -71,7 +73,7 @@ class M_transaksi extends CI_Model
 				);
 			}
 
-			$total_qty += $params->qty[$key];
+			$total_qty +=  str_replace('.', '', $params->qty[$key]);
 		}
 
 		$data = array(
@@ -105,7 +107,7 @@ class M_transaksi extends CI_Model
 
 		return $result;
 	}
-
+	
 	function trs_so_detail($table, $status)
 	{
 		$params = (object)$this->input->post();
@@ -201,6 +203,91 @@ class M_transaksi extends CI_Model
                                 WHERE no_po = '" . $r->no_po . "'");
 		}
 
+
+		return $result;
+	}
+
+	function update_plan($table, $status)
+	{
+		$params       = $this->input->post('jenis');
+
+		foreach ($params->id_produk as $key => $value) 
+		{
+			
+			$tl_al   = $params->tl_al[$key];
+			$bmf     = $params->bmf[$key];
+			$bl      = $params->bl[$key];
+			$cmf     = $params->cmf[$key];
+			$cl      = $params->cl[$key];
+
+			
+			$tl_al_i = str_replace('.', '', $params->tl_al_i[$key]);
+			$bmf_i   = str_replace('.', '', $params->bmf_i[$key]);
+			$bl_i    = str_replace('.', '', $params->bl_i[$key]);
+			$cmf_i   = str_replace('.', '', $params->cmf_i[$key]);
+			$cl_i    = str_replace('.', '', $params->cl_i[$key]);
+
+			if($params->flute[$key] == "BCF"){
+				$material_plan        = $tl_al+'/'+$bmf+'/'+$bl+'/'+$cmf+'/'+$cl;
+				$kualitas_isi_plan    = $tl_al_i+'/'+$bmf_i+'/'+$bl_i+'/'+$cmf_i+'/'+$cl_i;
+				$kualitas_plan        = $tl_al+$tl_al_i+'/'+$bmf+$bmf_i+'/'+$bl+$bl_i+'/'+$cmf+$cmf_i+'/'+$cl+$cl_i;
+
+			} else if($params->flute[$key] == "CF") {
+				$material_plan        = $tl_al+'/'+$cmf+'/'+$cl;
+				$kualitas_isi_plan    = $tl_al_i+'/'+$cmf_i+'/'+$cl_i;
+				$kualitas_plan        = $tl_al+$tl_al_i+'/'+$cmf+$cmf_i+'/'+$cl+$cl_i;
+
+			} else if($params->flute[$key] == "BF") {
+				$material_plan        = $tl_al+'/'+$bmf+'/'+$bl;
+				$kualitas_isi_plan    = $tl_al_i+'/'+$bmf_i+'/'+$bl_i;
+				$kualitas_plan        = $tl_al+$tl_al_i+'/'+$bmf+$bmf_i+'/'+$bl+$bl_i;
+
+			} else {
+				$material_plan        = 0;
+				$kualitas_isi_plan    = 0;
+				$kualitas_plan        = 0;
+			}
+
+			$data = array(
+				'lebar_plan'          => str_replace('.', '', $params->ii_lebar[$key]),
+				'qty_plan'            => str_replace('.', '', $params->qty_plan[$key]),
+				'lebar_roll_p'        => str_replace('.', '', $params->i_lebar_roll[$key]),
+				'out_plan'            => str_replace('.', '', $params->out_plan[$key]),
+				'trim_plan'           => str_replace('.', '', $params->trim[$key]),
+				'c_off_p'             => $params->c_off[$key],
+				'rm_plan'             => $params->rm_plan[$key],
+				'tonase_plan'         => $params->ton_plan[$key],
+				'material_plan'       => $material_plan,
+				'kualitas_isi_plan'   => $kualitas_isi_plan,
+				'kualitas_plan'       => $kualitas_plan,
+				'status_plan'         => 'Open'
+
+
+			);
+
+			$cek = $this->db->query("SELECT*FROM plan_cor_sementara WHERE no_po='$params->no_po' and id_produk='$params->id_produk[$key]'")->num_rows();
+
+			if ($cek>0) {
+				$this->db->set("edit_user", $this->username);
+				$this->db->set("edit_time", date('Y-m-d H:i:s'));
+				$result = $this->db->update(
+					"plan_cor_sementara",
+					$data,
+					array(
+						'no_po' => $params->no_po,
+						'id_produk' => $params->id_produk[$key]
+					)
+				);
+
+			} else {
+				$this->db->set("no_po", $params->no_po);
+				$this->db->set("id_produk", $params->id_produk[$key]);
+				$this->db->set("add_user", $this->username);
+				$this->db->set("add_time", date('Y-m-d H:i:s'));
+				$result = $this->db->insert("plan_cor_sementara", $data);
+			}
+
+		}
 
 		return $result;
 	}
@@ -792,7 +879,8 @@ class M_transaksi extends CI_Model
 		return $result;
 	}
 
-	function batalDataSO(){
+	function batalDataSO()
+	{
 		$this->db->where('id', $_POST["i"]);
 		$result = $this->db->delete('trs_so_detail');
 		return array(
