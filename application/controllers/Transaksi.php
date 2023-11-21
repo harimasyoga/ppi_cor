@@ -243,6 +243,14 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function update_plan()
+	{
+		$jenis    = $this->input->post('jenis');
+		$status   = $this->input->post('status');
+		$result   = $this->m_transaksi->update_plan($jenis, $status);
+		echo json_encode($result);
+	}
+
 	function load_data()
 	{
 		$jenis        = $this->uri->segment(3);
