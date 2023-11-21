@@ -31,20 +31,26 @@ class M_transaksi extends CI_Model
 		$total_qty    = 0;
 		foreach ($params->id_produk as $key => $value) {
 			// $produk = $this->m_master->get_data_one("m_produk", "kode_mc", $params->id_produk[$key])->row();
+			// if($params->cek_rm[$key]== null)
+			// {
+			// 	$cek_rm = 0;
+			// }else{
+			// 	$cek_rm = $params->cek_rm[$key];
+			// }
 
 			$data = array(
 				'tgl_po'          => $params->tgl_po,
 				'kode_po'         => $params->kode_po,
 				'eta'             => $params->eta_item[$key],
 				'eta_ket'         => $params->eta_ket[$key],
-				'cek_rm'          => $params->cek_rm[$key],
+				'cek_rm'          => 0,
 				'qty'             => str_replace('.', '', $params->qty[$key]),
 				'p11'             => $params->p11[$key],
 				
-				'rm'              => $params->rm[$key],
+				'rm'              => str_replace('.', '', $params->rm[$key]),
 				'bb'              => $params->bb[$key],
-				'ton'             => $params->ton[$key],
-				'harga_kg'        => $params->hrg_kg[$key],
+				'ton'             => str_replace('.', '', $params->ton[$key]),
+				'harga_kg'        => str_replace('.', '', $params->hrg_kg[$key]),
 				
 				'id_produk'       => $params->id_produk[$key],
 					
