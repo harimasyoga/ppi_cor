@@ -129,9 +129,12 @@ class Plan extends CI_Controller
 					'id_so_detail' => $_POST["id_so_detail"],
 					'id_wo' => $_POST["id_wo"],
 					'id_produk' => $_POST["id_produk"],
+					'nm_produk' => $_POST["nm_produk"],
 					'id_pelanggan' => $_POST["id_pelanggan"],
+					'customer' => $_POST["customer"],
 					'no_wo' => $_POST["no_wo"],
 					'no_so' => $_POST["no_so"],
+					'kode_po' => $_POST["kode_po"],
 					'pcs_plan' => $_POST["pcs_plan"],
 					'tgl_plan' => $_POST["tgl_plan"],
 					'machine_plan' => $_POST["machine_plan"],
@@ -194,29 +197,63 @@ class Plan extends CI_Controller
 		if($this->cart->total_items() != 0){
 			$html .='<div class="card card-success card-outline">
 			<div class="card-header">
-				<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST PLAN</h3>
+				<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST PLAN BARU</h3>
 			</div>
-			<div class="card-body row" style="padding:0 0 20px">
-				<div class="col-md-12">
-					<input type="hidden" id="list-rencana-plan-isi" value="isi">
-					<table class="table table-striped">
-						<thead>
-							<tr>
-								<th style="width=5%">#</th>
-								<th style="width=90%">NO. WO</th>
-								<th style="width=5%">AKSI</th>
-							</tr>
-						</thead>
-						<tbody>';
+			<div style="overflow:auto;white-space:nowrap;padding-bottom:10px">
+				<table class="table table-bordered table-striped">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th style="padding:12px 6px">ITEM</th>
+							<th style="padding:12px 6px">NO. PO</th>
+							<th style="padding:12px 6px">CUSTOMER</th>
+							<th style="padding:12px 6px">SUBSTANCE</th>
+							<th style="padding:12px 6px">PJG</th>
+							<th style="padding:12px 6px">LBR</th>
+							<th style="padding:12px 6px">SCORE</th>
+							<th style="padding:12px 6px">OUT</th>
+							<th style="padding:12px 6px">L.ROLL</th>
+							<th style="padding:12px 6px">TRIM</th>
+							<th style="padding:12px 6px">ORDER</th>
+							<th style="padding:12px 6px">C.OFF</th>
+							<th style="padding:12px 6px">RM</th>
+							<th style="padding:12px 6px">KG</th>
+							<th style="padding:12px 6px">TGL KIRIM</th>
+							<th style="padding:12px 6px">NEXT</th>
+							<th>AKSI</th>
+						</tr>
+					</thead>
+					<tbody>';
 		}
 
 		$i = 0;
 		foreach($this->cart->contents() as $r){
 			$i++;
+
+			if($r['options']['creasing_wo1'] == 0 || $r['options']['creasing_wo2'] == 0 || $r['options']['creasing_wo3'] == 0){
+				$score = '-';
+			}else{
+				$score = $r['options']['creasing_wo1'].' - '.$r['options']['creasing_wo2'].' - '.$r['options']['creasing_wo3'];
+			}
 			$html .='<tr>
-				<td>'.$i.'</td>
-				<td><a href="javascript:void(0)" onclick="showCartitem('."'".$r['id']."'".','."'input'".')">'.$r['options']['no_wo'].'<a></td>
-				<td>
+				<td style="padding:6px;text-align:center">'.$i.'</td>
+				<td style="padding:6px"><a href="javascript:void(0)" onclick="showCartitem('."'".$r['id']."'".','."'input'".')">'.$r['options']['nm_produk'].'<a></td>
+				<td style="padding:6px">'.$r['options']['kode_po'].'</td>
+				<td style="padding:6px">'.$r['options']['customer'].'</td>
+				<td style="padding:6px">'.$r['options']['kualitas_plan'].'</td>
+				<td style="padding:6px;text-align:center">'.number_format($r['options']['panjang_plan']).'</td>
+				<td style="padding:6px;text-align:center">'.number_format($r['options']['lebar_plan']).'</td>
+				<td style="padding:6px">'.$score.'</td>
+				<td style="padding:6px;text-align:center">'.number_format($r['options']['out_plan']).'</td>
+				<td style="padding:6px;text-align:center">'.number_format($r['options']['lebar_roll_p']).'</td>
+				<td style="padding:6px;text-align:center">'.number_format($r['options']['trim_plan']).'</td>
+				<td style="padding:6px;text-align:center">'.number_format($r['options']['pcs_plan']).'</td>
+				<td style="padding:6px;text-align:center">'.number_format($r['options']['c_off_p']).'</td>
+				<td style="padding:6px;text-align:center">'.number_format($r['options']['rm_plan']).'</td>
+				<td style="padding:6px;text-align:center">'.number_format($r['options']['tonase_plan']).'</td>
+				<td style="padding:6px;text-align:center">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r['options']['tgl_kirim_plan'])).'</td>
+				<td style="padding:6px">'.$r['options']['next_plan'].'</td>
+				<td style="padding:0">
 					<button class="btn btn-sm btn-danger" onclick="hapusCartItem('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
 				</td>
 			</tr>';
@@ -225,8 +262,7 @@ class Plan extends CI_Controller
 		if($this->cart->total_items() != 0){
 			$html .= '</tbody>
 					</table>
-					<button class="btn btn-sm btn-primary" style="margin-left:20px" onclick="simpanCartItem()"><i class="fas fa-save"></i> SIMPAN</button>
-				</div>
+				<button class="btn btn-sm btn-primary" style="margin-left:20px" onclick="simpanCartItem()"><i class="fas fa-save"></i> SIMPAN</button>
 			</div>';
 		}
 
@@ -834,6 +870,7 @@ class Plan extends CI_Controller
 						<th style="padding:12px 22px">RM</th>
 						<th style="padding:12px 22px">KG</th>
 						<th>TGL KIRIM</th>
+						<th style="padding:12px 24px">NEXT</th>
 						<th>AKSI</th>
 					</tr>
 				</thead>';
@@ -931,35 +968,42 @@ class Plan extends CI_Controller
 			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator'])){
 				if($r->status_plan == 'Open' && $r->total_cor_p == 0){
 					if($opsi == 'pilihan' || $this->session->userdata('level') == 'Corrugator'){
-						$btnAksi = '<button class="btn btn-danger btn-block" style="padding:2px 4px;border-radius:4px;cursor:default" disabled>HAPUS</button>';
+						$btnAksiHapus = '<button class="btn btn-danger btn-block" style="padding:2px 4px;border-radius:4px;cursor:default" disabled>HAPUS</button>';
 						$btnAksiEdit = '-';
 						$aksiNoUrut = 'disabled';
+						$dis = 'disabled';
 					}else{
-						$btnAksi = '<a href="javascript:void(0)" onclick="hapusPlan('."".$r->id_plan."".')" href="" class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</a>';
-						$btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".')">EDIT<a>';
+						$btnAksiHapus = '<a href="javascript:void(0)" onclick="hapusPlan('."".$r->id_plan."".')" href="" class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</a>';
+						$btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'edit'".')">EDIT<a>';
 						$aksiNoUrut = 'onchange="onChangeNourutPlan('."'".$id."'".')"';
+						$dis = '';
 					}
 				}else if($r->status_plan == 'Open' && $r->total_cor_p != 0){
-					$btnAksi = '<span class="bg-success" style="padding:2px 4px;border-radius:4px;display:block">PRODUKSI</span>';
-					$btnAksiEdit = '-';
+					$btnAksiHapus = '<span class="bg-success" style="padding:2px 4px;border-radius:4px;display:block">PRODUKSI</span>';
+					(in_array($this->session->userdata('level'), ['Admin','PPIC'])) ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '';
 					$aksiNoUrut = 'disabled';
+					$dis = 'disabled';
 				}else if($r->status_plan == 'Close' && $r->statusWo == 'Open'){
-					$btnAksi = '<span class="bg-primary" style="padding:2px;border-radius:4px;display:block">PLAN</span>';
-					$btnAksiEdit = '-';
+					$btnAksiHapus = '<span class="bg-primary" style="padding:2px;border-radius:4px;display:block">PLAN</span>';
+					(in_array($this->session->userdata('level'), ['Admin','PPIC'])) ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '';
 					$aksiNoUrut = 'disabled';
+					$dis = 'disabled';
 				}else if($r->status_plan == 'Close' && $r->statusWo == 'Close'){
-					$btnAksi = '<span class="bg-dark" style="padding:2px 4px;border-radius:4px;display:block">WO</span>';
-					$btnAksiEdit = '-';
+					$btnAksiHapus = '<span class="bg-dark" style="padding:2px 4px;border-radius:4px;display:block">WO</span>';
+					(in_array($this->session->userdata('level'), ['Admin','PPIC'])) ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '';
 					$aksiNoUrut = 'disabled';
+					$dis = 'disabled';
 				}else{
-					$btnAksi = `-`;
+					$btnAksiHapus = `-`;
 					$btnAksiEdit = '-';
 					$aksiNoUrut = 'disabled';
+					$dis = 'disabled';
 				}
 			}else{
-				$btnAksi = '-';
+				$btnAksiHapus = '-';
 				$btnAksiEdit = '-';
 				$aksiNoUrut = 'disabled';
+				$dis = 'disabled';
 			}
 
 			if($opsi == 'pilihan'){
@@ -968,36 +1012,49 @@ class Plan extends CI_Controller
 				$btnLink = '<a href="javascript:void(0)" onclick="plhNoWo('."".$r->id_plan."".')" title="'."".$r->no_wo."".'">'.$r->nm_produk.'</a>';
 			}
 
+			if($r->kategori == 'K_BOX'){
+				$next = '<select class="form-control inp-kosong2" id="lp-next-'.$id.'">
+					<option value="'.$r->next_plan.'">'.$r->next_plan.'</option>
+					<option value="">-</option>
+					<option value="FLEXO1">FLEXO1</option>
+					<option value="FLEXO2">FLEXO2</option>
+					<option value="FLEXO3">FLEXO3</option>
+					<option value="FLEXO4">FLEXO4</option>
+				</select>';
+			}else{
+				$next = $r->next_plan;
+			}
+
 			$html .= '<tr class="h-tmpl-list-plan">
 				<td '.$bgTd.' style="position:sticky;left:0;padding:6px 3px">
 					<input type="number" class="form-control inp-kosong2" id="lp-nourut-'.$id.'" value="'.$r->no_urut_plan.'" '.$aksiNoUrut.' tabindex="1">
 				</td>
-				<td '.$bgTd.' style="padding:4px 3px 3px;font-weight:normal">'.$btnAksi.'</td>
+				<td '.$bgTd.' style="padding:4px 3px 3px;font-weight:normal">'.$btnAksiHapus.'</td>
 				<td '.$bgTd.' style="position:sticky;left:33px;padding:6px;text-align:left">'.$btnLink.'</td>
 				<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->kode_po.'</td>
 				<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_pelanggan.'</td>
 				'.$htmlSub.'
 				<td '.$bgTd.' style="padding:6px">
-					<input type="number" class="form-control inp-kosong2" id="lp-pjgs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->panjang_plan.'" '.$onKeyUpEdiPlan.'>
+					<input type="number" class="form-control inp-kosong2" id="lp-pjgs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->panjang_plan.'" '.$onKeyUpEdiPlan.' '.$dis.'>
 				</td>
 				<td '.$bgTd.' style="padding:6px">
-					<input type="number" class="form-control inp-kosong2" id="lp-lbrs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->lebar_plan.'" '.$onKeyUpEdiPlan.'>
+					<input type="number" class="form-control inp-kosong2" id="lp-lbrs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->lebar_plan.'" '.$onKeyUpEdiPlan.' '.$dis.'>
 				</td>
 				<td '.$bgTd.' style="padding:6px" id="lptd-scr1-'.$id.'">
-					<input type="number" class="form-control inp-kosong" id="lp-scr1-'.$id.'" value="'.$r->flap1.'" '.$onKeyUpEdiPlan.'>
+					<input type="number" class="form-control inp-kosong" id="lp-scr1-'.$id.'" value="'.$r->flap1.'" '.$onKeyUpEdiPlan.' '.$dis.'>
 				</td>
 				<td '.$bgTd.' style="padding:6px" id="lptd-scr2-'.$id.'">
-					<input type="number" class="form-control inp-kosong" id="lp-scr2-'.$id.'" value="'.$r->creasing2.'" '.$onKeyUpEdiPlan.'>
+					<input type="number" class="form-control inp-kosong" id="lp-scr2-'.$id.'" value="'.$r->creasing2.'" '.$onKeyUpEdiPlan.' '.$dis.'>
 				</td>
 				<td '.$bgTd.' style="padding:6px" id="lptd-scr3-'.$id.'">
-					<input type="number" class="form-control inp-kosong" id="lp-scr3-'.$id.'" value="'.$r->flap2.'" '.$onKeyUpEdiPlan.'>
+					<input type="number" class="form-control inp-kosong" id="lp-scr3-'.$id.'" value="'.$r->flap2.'" '.$onKeyUpEdiPlan.' '.$dis.'>
 				</td>
 				<td '.$bgTd.' style="padding:6px">
-					<input type="number" class="form-control inp-kosong2" id="lp-out-'.$id.'" value="'.$r->out_plan.'" '.$onKeyUpEdiPlan.'>
+					<input type="number" class="form-control inp-kosong2" id="lp-out-'.$id.'" value="'.$r->out_plan.'" '.$onKeyUpEdiPlan.' '.$dis.'>
 				</td>
 				<td '.$bgTd.' style="padding:6px">'.$r->flute.'</td>
 				<td '.$bgTd.' style="padding:6px">
-					<input type="number" class="form-control inp-kosong2" id="lp-lbri-'.$id.'" style="font-weight:bold;color:#000" value="'.$r->lebar_roll_p.'" '.$onKeyUpEdiPlan.'>
+					<input type="number" class="form-control inp-kosong2" id="lp-lbri-'.$id.'" style="font-weight:bold;color:#000" value="'.$r->lebar_roll_p.'" '.$onKeyUpEdiPlan.' '.$dis.'>
 				</td>
 				<td '.$bgTd.' style="padding:6px;text-align:right">
 					<input type="number" class="form-control inp-kosong2" id="lp-trimp-'.$id.'" value="'.$r->trim_plan.'" disabled>
@@ -1015,7 +1072,10 @@ class Plan extends CI_Controller
 				<td '.$bgTd.' style="padding:6px;text-align:right">
 					<input type="number" class="form-control inp-kosong2" id="lp-tonp-'.$id.'" value="'.$r->tonase_plan.'" disabled>
 				</td>
-				<td '.$bgTd.' style="padding:6px">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
+				<td '.$bgTd.' style="padding:6px">
+					<input type="date" class="form-control inp-kosong2" id="lp-tglkirim-'.$id.'" value="'.$r->tgl_kirim_plan.'">
+				</td>
+				<td '.$bgTd.' style="padding:6px">'.$next.'</td>
 				<td '.$bgTd.' style="padding:6px">
 					<input type="hidden" id="hlp-flute-'.$id.'" value="'.$r->flute.'">
 					<input type="hidden" id="hlp-kategori-'.$id.'" value="'.$r->kategori.'">
@@ -1288,8 +1348,38 @@ class Plan extends CI_Controller
 	function Flexo()
 	{
 		$this->load->view('header');
-		$this->load->view('Plan/Flexo/v_flexo');
+
+		$jenis = $this->uri->segment(3);
+		if($jenis == 'Add'){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+				$this->load->view('Plan/Flexo/v_flexo_add');
+			}else{
+				$this->load->view('Plan/Flexo/v_flexo');
+			}
+		}else if($jenis == 'List'){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Flexo'])){
+				$data = array(
+					"tgl_plan" => $this->uri->segment(4),
+					"shift" => $this->uri->segment(5),
+					"mesin" => $this->uri->segment(6),
+				);
+				$this->load->view('Plan/Flexo/v_flexo_plan', $data);
+			}else{
+				$this->load->view('Plan/Flexo/v_flexo');
+			}
+		}else{
+			$this->load->view('Plan/Flexo/v_flexo');
+		}
+
 		$this->load->view('footer');
+	}
+
+	function loadPlanCor()
+	{
+		$result = $this->m_plan->loadPlanCor();
+		echo json_encode(array(
+			'plan_cor' => $result
+		));
 	}
 
 	//
@@ -1300,6 +1390,8 @@ class Plan extends CI_Controller
 		$this->load->view('Plan/Finishing/v_finishing');
 		$this->load->view('footer');
 	}
+
+	//
 
 	function Cetak_plan2()
 	{

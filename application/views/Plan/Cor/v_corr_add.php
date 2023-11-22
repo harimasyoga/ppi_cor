@@ -39,7 +39,7 @@
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 							<div class="col-md-1"></div>
 							<div class="col-md-11" style="font-size:small;font-style:italic;color:#f00">
-								* NO. WO | ETA SO | ITEM | CUSTOMER
+								* [ TYPE ] NO. WO | ETA SO | ITEM | CUSTOMER
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
@@ -55,12 +55,14 @@
 							</div>
 						</div>
 					</div>
-
+				</div>
+				
+				<div class="col-md-12">
 					<div id="riwayat-plan"></div>
+					<div id="list-rencana-plan"></div>
 				</div>
 
 				<div class="col-md-7">
-					<div id="list-rencana-plan"></div>
 					<div class="card card-secondary card-outline" style="padding-bottom:20px">
 						<div class="card-header">
 							<h3 class="card-title" style="font-weight:bold;font-style:italic">ITEM</h3>
@@ -456,7 +458,8 @@
 
 	$(document).ready(function ()
 	{
-		$("#list-rencana-plan").load("<?php echo base_url('Plan/destroyPlan') ?>")
+		// $("#list-rencana-plan").load("<?php echo base_url('Plan/destroyPlan') ?>")
+		listRencanaPlan()
 		$("#no_wo").prop("disabled", true).html(`<option value="">PILIH</option>`)
 		$('.select2').select2({
 			dropdownAutoWidth: true
@@ -473,6 +476,8 @@
 			return
 		}
 
+		let customer = $("#customer").val()
+		let nm_produk = $("#item").val()
 		let id_so_detail = $('#no_wo option:selected').attr('id-so')
 		let id_wo = $('#no_wo option:selected').attr('id-wo')
 		let id_produk = $('#no_wo option:selected').attr('id-produk')
@@ -483,6 +488,7 @@
 			return
 		}
 		
+		let kode_po = $("#kode_po").val()
 		let no_so = $('#no_wo option:selected').attr('no-so')
 		let urut_so = $('#no_wo option:selected').attr('urut-so')
 		let rpt = $('#no_wo option:selected').attr('rpt');
@@ -571,7 +577,7 @@
 				});
 			},
 			data: ({
-				id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan, creasing_wo1, creasing_wo2, creasing_wo3, opsi: 'add'
+				id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan, creasing_wo1, creasing_wo2, creasing_wo3, customer, nm_produk, kode_po, opsi: 'add'
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -702,9 +708,11 @@
 			success: function(res){
 				data = JSON.parse(res)
 				let htmlWO = ''
+				let kategori = ''
 					htmlWO += `<option value="">PILIH</option>`
 				data.wo.forEach(loadWo);
 				function loadWo(r, index) {
+					(r.kategoriItems == 'K_BOX') ? kategori = '[ BOX ]' : kategori = '[ SHEET ]';
 					htmlWO += `<option value="${r.idWo}"
 						id-wo="${r.idWo}"
 						id-so="${r.idSoDetail}"
@@ -751,7 +759,7 @@
 						creasing-wo2="${r.creasing2wo}"
 						creasing-wo3="${r.flap2}"
 					>
-						${r.no_wo} | ${r.eta_so} | ${r.nm_produk} | ${r.nm_pelanggan}
+						${kategori} ${r.no_wo} | ${r.eta_so} | ${r.nm_produk} | ${r.nm_pelanggan}
 					</option>`
 				}
 				$("#no_wo").prop("disabled", false).html(htmlWO)
@@ -769,9 +777,9 @@
 		if(tgl == '' || shift == '' || mesin == ''){
 			$("#no_wo").prop("disabled", true).html(`<option value="">PILIH</option>`)
 		}else{
-			$("#tgl").prop("disabled", true)
-			$("#shift").prop("disabled", true)
-			$("#mesin").prop("disabled", true)
+			$("#tgl").html(`<option value="${tgl}">${tgl}</option>`).prop('disabled', true)
+			$("#shift").html(`<option value="${shift}">${shift}</option>`).prop('disabled', true)
+			$("#mesin").html(`<option value="${mesin}">${mesin}</option>`).prop('disabled', true)
 			loadPlanWo('')
 		}
 	}

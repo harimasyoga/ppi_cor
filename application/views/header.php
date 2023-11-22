@@ -189,7 +189,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 						</li>
 						<?php endif ?>
 
-						<?php if (in_array($this->session->userdata('level'), ['Admin','User'])) : ?>
+						<?php if (in_array($this->session->userdata('level'), ['Admin','User','PPIC'])) : ?>
 						<li class="nav-item has-treeview">
 							<a href="#" class="nav-link">
 								<i class="nav-icon fas fa-edit"></i>
@@ -200,7 +200,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 							</a>
 							<ul class="nav nav-treeview">
 
-								
+								<?php if (in_array($this->session->userdata('level'), ['Admin','User'])) : ?>
 									<li class="nav-item">
 										<a href="<?= base_url('Transaksi/PO') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
@@ -221,19 +221,23 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 											<p>SO</p>
 										</a>
 									</li>
+								<?php endif ?>
 
+								<?php if (in_array($this->session->userdata('level'), ['Admin','PPIC'])) : ?>
 									<li class="nav-item">
 										<a href="<?= base_url('Transaksi/WO') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>WO</p>
 										</a>
 									</li>
-									<li class="nav-item">
+								<?php endif ?>
+
+									<!-- <li class="nav-item">
 										<a href="<?= base_url('Transaksi/SuratJalan') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>Surat Jalan</p>
 										</a>
-									</li>
+									</li> -->
 									
 
 							</ul>

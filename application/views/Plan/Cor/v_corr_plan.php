@@ -46,7 +46,7 @@
 							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 								<div class="col-md-1"></div>
 								<div class="col-md-11" style="font-size:small;font-style:italic;color:#f00">
-									* NO. WO | ETA SO | ITEM | CUSTOMER
+									* [ TYPE ] NO. WO | ETA SO | ITEM | CUSTOMER
 								</div>
 							</div>
 							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
@@ -75,6 +75,7 @@
 				<div class="col-md-12">
 					<div id="tampil-list-input"></div>
 					<div id="riwayat-plan"></div>
+					<div id="list-rencana-plan"></div>
 				</div>
 
 				<div class="col-md-7">
@@ -138,7 +139,7 @@
 					</div>
 
 					<div id="list-plan"></div>
-					<div id="list-rencana-plan"></div>
+					<!-- <div id="list-rencana-plan"></div> -->
 
 					<div class="card card-secondary card-outline" style="padding-bottom:20px">
 						<div class="card-header">
@@ -683,12 +684,6 @@
 		})
 	}
 
-	// function onClickGantiTgl(id_plan)
-	// {
-	// 	$("#show-list-plh-item").html(``)
-	// 	$("#modalForm").modal("show")
-	// }
-
 	function loadData(tgl_plan, shift, mesin)
 	{
 		$.ajax({
@@ -946,7 +941,7 @@
 		(ton < 0 || ton == 0) ? $("#lp-tonp-"+i).val(0).attr('style', 'color:#f00;font-weight:bold') : $("#lp-tonp-"+i).val(rupiah.format(Math.round(ton))).attr('style', 'color:#000;font-weight:normal');
 	}
 
-	function editListPlan(i, id_wo)
+	function editListPlan(i, id_wo, opsi)
 	{
 		let flute =  $("#hlp-flute-"+i).val()
 		let lpSm1 = $("#lp-sm1-"+i).val()
@@ -1037,6 +1032,17 @@
 			return
 		}
 
+		let tglkirim = $("#lp-tglkirim-"+i).val()
+		let next = $("#lp-next-"+i).val()
+		if(tglkirim == ""){
+			toastr.error('<b>TANGGAL KIRIM KOSONG!</b>');
+			return
+		}
+		if(next == ""){
+			toastr.error('<b>NEXT KOSONG!</b>');
+			return
+		}
+
 		$.ajax({
 			url: '<?php echo base_url('Plan/editListPlan')?>',
 			type: "POST",
@@ -1051,7 +1057,7 @@
 				});
 			},
 			data: ({
-				id_plan: i, id_wo, material, kualitas, kualitas_isi, panjang_plan, lebar_plan, kategori, creasing_wo1, creasing_wo2, creasing_wo3, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan
+				id_plan: i, id_wo, material, kualitas, kualitas_isi, panjang_plan, lebar_plan, kategori, creasing_wo1, creasing_wo2, creasing_wo3, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, tglkirim, next, opsi
 			}),
 			success: function(res){
 				toastr.success('<b>BERHASIL EDIT!</b>');
@@ -1103,6 +1109,8 @@
 			return
 		};
 
+		let customer = $("#customer").val()
+		let nm_produk = $("#item").val();
 		let id_plan = $("#ehid_plan").val();
 		let id_so_detail = (opsi == 'add') ? $('#no_wo option:selected').attr('id-so') : $("#ehid_so_detail").val() ;
 		let id_wo = (opsi == 'add') ? $('#no_wo option:selected').attr('id-wo') : $("#ehid_wo").val() ;
@@ -1114,6 +1122,7 @@
 			return
 		};
 		
+		let kode_po = $("#kode_po").val();
 		let no_so = (opsi == 'add') ? $('#no_wo option:selected').attr('no-so') : $("#ehno_so").val();
 		let urut_so = (opsi == 'add') ? $('#no_wo option:selected').attr('urut-so') : $("#ehurut_so").val();
 		let rpt = (opsi == 'add') ? $('#no_wo option:selected').attr('rpt') : $("#ehrpt").val();
@@ -1204,7 +1213,7 @@
 				});
 			},
 			data: ({
-				id_plan, id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan,creasing_wo1, creasing_wo2, creasing_wo3, opsi
+				id_plan, id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan,creasing_wo1, creasing_wo2, creasing_wo3, customer, nm_produk, kode_po, opsi
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -1458,9 +1467,11 @@
 			success: function(res){
 				data = JSON.parse(res)
 				let htmlWO = ''
+				let kategori = ''
 					htmlWO += `<option value="">PILIH</option>`
 				data.wo.forEach(loadWo);
 				function loadWo(r, index) {
+					(r.kategoriItems == 'K_BOX') ? kategori = '[ BOX ]' : kategori = '[ SHEET ]';
 					htmlWO += `<option value="${r.idWo}"
 						id-wo="${r.idWo}"
 						id-so="${r.idSoDetail}"
@@ -1507,7 +1518,7 @@
 						creasing-wo2="${r.creasing2wo}"
 						creasing-wo3="${r.flap2}"
 					>
-						${r.no_wo} | ${r.eta_so} | ${r.nm_produk} | ${r.nm_pelanggan}
+						${kategori} ${r.no_wo} | ${r.eta_so} | ${r.nm_produk} | ${r.nm_pelanggan}
 					</option>`
 				}
 

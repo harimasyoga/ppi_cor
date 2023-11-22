@@ -3,11 +3,11 @@
 		<div class="container-fluid">
 			<div class="row mb-2">
 			<div class="col-sm-6">
-				<h1><b>Data Plan</b></h1>
+				<!-- <h1><b>Data Plan</b></h1> -->
 			</div>
 			<div class="col-sm-6">
 				<ol class="breadcrumb float-sm-right">
-				<li class="breadcrumb-item active" ><a href="#">Flexo</a></li>
+				<!-- <li class="breadcrumb-item active" ><a href="#">Flexo</a></li> -->
 				</ol>
 			</div>
 			</div>
@@ -24,8 +24,12 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<button type="button" class="tambah_data btn btn-outline-primary pull-right"><i class="fa fa-plus"></i> <b>Tambah Data</b></button>
-				<br><br>
+
+				<?php if(in_array($this->session->userdata('level'), ['Admin','PPIC'])) { ?>
+					<a href="<?php echo base_url('Plan/Flexo/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
+					<br><br>
+				<?php } ?>
+
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead>
 						<tr>
@@ -51,9 +55,6 @@
 			</div>
 
 			<div class="modal-body" style="overflow:auto;white-space:nowrap">
-				
-			</div>
-			<div class="modal-footer">
 				
 			</div>
 		</div>
