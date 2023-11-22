@@ -155,6 +155,13 @@ class Plan extends CI_Controller
 					'creasing_wo1' => $_POST["creasing_wo1"],
 					'creasing_wo2' => $_POST["creasing_wo2"],
 					'creasing_wo3' => $_POST["creasing_wo3"],
+					'kategori' => $_POST["kategori"],
+					'kupingan' => $_POST["kupingan"],
+					'p1' => $_POST["p1"],
+					'l1' => $_POST["l1"],
+					'p2' => $_POST["p2"],
+					'l2' => $_POST["l2"],
+					'panjangWO' => $_POST["panjangWO"],
 				)
 			);
 
@@ -1022,7 +1029,7 @@ class Plan extends CI_Controller
 					<option value="FLEXO4">FLEXO4</option>
 				</select>';
 			}else{
-				$next = $r->next_plan;
+				$next = $r->next_plan.'<input type="hidden" id="lp-next-'.$id.'" value="'.$r->next_plan.'">';
 			}
 
 			$html .= '<tr class="h-tmpl-list-plan">
@@ -1035,19 +1042,19 @@ class Plan extends CI_Controller
 				<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_pelanggan.'</td>
 				'.$htmlSub.'
 				<td '.$bgTd.' style="padding:6px">
-					<input type="number" class="form-control inp-kosong2" id="lp-pjgs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->panjang_plan.'" '.$onKeyUpEdiPlan.' '.$dis.'>
+					<input type="number" class="form-control inp-kosong2" id="lp-pjgs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->panjang_plan.'" '.$onKeyUpEdiPlan.' disabled>
 				</td>
 				<td '.$bgTd.' style="padding:6px">
-					<input type="number" class="form-control inp-kosong2" id="lp-lbrs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->lebar_plan.'" '.$onKeyUpEdiPlan.' '.$dis.'>
+					<input type="number" class="form-control inp-kosong2" id="lp-lbrs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->lebar_plan.'" '.$onKeyUpEdiPlan.' disabled>
 				</td>
 				<td '.$bgTd.' style="padding:6px" id="lptd-scr1-'.$id.'">
-					<input type="number" class="form-control inp-kosong" id="lp-scr1-'.$id.'" value="'.$r->flap1.'" '.$onKeyUpEdiPlan.' '.$dis.'>
+					<input type="number" class="form-control inp-kosong" id="lp-scr1-'.$id.'" value="'.$r->flap1.'" '.$onKeyUpEdiPlan.' disabled>
 				</td>
 				<td '.$bgTd.' style="padding:6px" id="lptd-scr2-'.$id.'">
-					<input type="number" class="form-control inp-kosong" id="lp-scr2-'.$id.'" value="'.$r->creasing2.'" '.$onKeyUpEdiPlan.' '.$dis.'>
+					<input type="number" class="form-control inp-kosong" id="lp-scr2-'.$id.'" value="'.$r->creasing2.'" '.$onKeyUpEdiPlan.' disabled>
 				</td>
 				<td '.$bgTd.' style="padding:6px" id="lptd-scr3-'.$id.'">
-					<input type="number" class="form-control inp-kosong" id="lp-scr3-'.$id.'" value="'.$r->flap2.'" '.$onKeyUpEdiPlan.' '.$dis.'>
+					<input type="number" class="form-control inp-kosong" id="lp-scr3-'.$id.'" value="'.$r->flap2.'" '.$onKeyUpEdiPlan.' disabled>
 				</td>
 				<td '.$bgTd.' style="padding:6px">
 					<input type="number" class="form-control inp-kosong2" id="lp-out-'.$id.'" value="'.$r->out_plan.'" '.$onKeyUpEdiPlan.' '.$dis.'>
