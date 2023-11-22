@@ -2824,4 +2824,25 @@ class Transaksi extends CI_Controller
 
 		echo $html;
 	}
+
+	function Hitung_harga()
+	{
+		
+		$this->load->view('header');
+		$cek 	= $this->session->userdata('username');
+
+		if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+
+			$data=[
+				'menu'				=> 'HITUNG HARGA',
+
+			];
+			$this->load->view('hitung_harga/v_hitung_harga', $data);
+		} else
+		{
+			header('location:'.base_url());
+		}
+		$this->load->view('footer');
+	}
+
 }
