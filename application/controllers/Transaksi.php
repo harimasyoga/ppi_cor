@@ -2835,7 +2835,7 @@ class Transaksi extends CI_Controller
 		if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
 
 			$data=[
-				'menu'				=> 'HITUNG HARGA',
+				'menu'				=> '<span style="color:red">SIMULASI HARGA *</span>',
 
 			];
 			$this->load->view('hitung_harga/v_hitung_harga', $data);

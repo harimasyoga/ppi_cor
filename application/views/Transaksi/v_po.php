@@ -1423,7 +1423,7 @@
 		if (s != '0' && s != '' && ss != '' && ppn != '' && price_inc != '' && price_exc != '' && price_inc != '0' && price_exc != '0') {
 			$('#removeRow').show();
 			rowNum++;
-			if (rowNum <= 4) {
+			// if (rowNum <= 4) {
 				var x = rowNum + 1;
 
 				td_harga = ''
@@ -1540,7 +1540,7 @@
 							</div>
 						</td>
 						<td>
-							<select class="form-control select2" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }" style="width: 100%;" onchange="setDetailProduk(this.value,${ rowNum })">
+							<select class="form-control select2" style="width: 150px;" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }" style="width: 100%;" onchange="setDetailProduk(this.value,${ rowNum })">
 							</select>
 						</td>
 						<td>
@@ -1584,16 +1584,16 @@
 				});
 				$('#bucket').val(rowNum);
 				$('#qty' + rowNum).focus();
-			} else {
-				// toastr.info('Maksimal 5 Produk');
-				swal({
-						title               : "Cek Kembali",
-						html                : "Maksimal 5 Produk",
-						type                : "info",
-						confirmButtonText   : "OK"
-					});
-				return;
-			}
+			// } else {
+			// 	// toastr.info('Maksimal 5 Produk');
+			// 	swal({
+			// 			title               : "Cek Kembali",
+			// 			html                : "Maksimal 5 Produk",
+			// 			type                : "info",
+			// 			confirmButtonText   : "OK"
+			// 		});
+			// 	return;
+			// }
 		} else {
 			// toastr.info('Isi form diatas terlebih dahulu');
 			// return;
