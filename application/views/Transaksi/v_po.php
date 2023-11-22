@@ -823,7 +823,6 @@
 				$('#id_pelanggan').val(data[0].id_pelanggan).trigger('change');
 
 				kodepo    = (data[0].kode_po == '' ) ? '-' : data[0].kode_po ;
-				eta       = (data[0].eta == '' ) ? '-' : data[0].eta ;
 				
 				$("#kode_po").val(kodepo);
 				$("#eta").val(eta); 
@@ -838,6 +837,8 @@
 				}
 
 				$.each(data, function(index, value) {
+					eta       = (value.eta == '' ) ? '-' : value.eta ;
+					
 					$("#detail-hapus-0").hide();
 					$("#detail-hapus-"+index).hide();
 					$("#btn-hapus-"+index).hide();

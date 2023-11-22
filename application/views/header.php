@@ -199,7 +199,13 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								</p>
 							</a>
 							<ul class="nav nav-treeview">
-
+                
+								<li class="nav-item">
+									<a href="<?= base_url('Transaksi/Hitung_harga') ?>" class="nav-link">
+										&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
+										<p><b>Simulasi Harga</b></p>
+									</a>
+								</li>
 								<?php if (in_array($this->session->userdata('level'), ['Admin','User'])) : ?>
 									<li class="nav-item">
 										<a href="<?= base_url('Transaksi/PO') ?>" class="nav-link">
@@ -208,13 +214,21 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 										</a>
 									</li>
 
-									<li class="nav-item">
-										<a href="<?= base_url('Transaksi/etaPO') ?>" class="nav-link">
-											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>ETA PO CUSTOMER</p>
-										</a>
-									</li>
+								<li class="nav-item">
+									<a href="<?= base_url('Transaksi/PO') ?>" class="nav-link">
+										&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
+										<p>PO</p>
+									</a>
+								</li>
 
+                
+								<li class="nav-item">
+									<a href="<?= base_url('Transaksi/etaPO') ?>" class="nav-link">
+										&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
+										<p>ETA PO CUSTOMER</p>
+									</a>
+								</li>
+                
 									<li class="nav-item">
 										<a href="<?= base_url('Transaksi/SO') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
@@ -239,7 +253,18 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 										</a>
 									</li> -->
 									
-
+								<li class="nav-item">
+									<a href="<?= base_url('Transaksi/WO') ?>" class="nav-link">
+										&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
+										<p>WO</p>
+									</a>
+								</li>
+								<li class="nav-item">
+									<a href="<?= base_url('Transaksi/SuratJalan') ?>" class="nav-link">
+										&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
+										<p>Surat Jalan</p>
+									</a>
+								</li>
 							</ul>
 						</li>
 						<?php endif ?>
