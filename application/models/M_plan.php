@@ -269,26 +269,35 @@ class M_plan extends CI_Model
 
 	function editListPlan()
 	{
-		$this->db->set("material_plan", $_POST["material"]);
-		$this->db->set("kualitas_plan", $_POST["kualitas"]);
-		$this->db->set("kualitas_isi_plan", $_POST["kualitas_isi"]);
-		$this->db->set("panjang_plan", $_POST["panjang_plan"]);
-		$this->db->set("lebar_plan", $_POST["lebar_plan"]);
-		// $this->db->set("", $_POST["kategori"]);
-		$this->db->set("lebar_roll_p", $_POST["lebar_roll_p"]);
-		$this->db->set("out_plan", $_POST["out_plan"]);
-		$this->db->set("trim_plan", $_POST["trim_plan"]);
-		$this->db->set("c_off_p", $_POST["c_off_p"]);
-		$this->db->set("rm_plan", $_POST["rm_plan"]);
-		$this->db->set("tonase_plan", $_POST["tonase_plan"]);
-		$this->db->where("id_plan", $_POST["id_plan"]);
-		$plan = $this->db->update("plan_cor");
+		if($_POST["opsi"] == 'edit'){
+			$this->db->set("material_plan", $_POST["material"]);
+			$this->db->set("kualitas_plan", $_POST["kualitas"]);
+			$this->db->set("kualitas_isi_plan", $_POST["kualitas_isi"]);
+			$this->db->set("panjang_plan", $_POST["panjang_plan"]);
+			$this->db->set("lebar_plan", $_POST["lebar_plan"]);
+			$this->db->set("lebar_roll_p", $_POST["lebar_roll_p"]);
+			$this->db->set("out_plan", $_POST["out_plan"]);
+			$this->db->set("trim_plan", $_POST["trim_plan"]);
+			$this->db->set("c_off_p", $_POST["c_off_p"]);
+			$this->db->set("rm_plan", $_POST["rm_plan"]);
+			$this->db->set("tonase_plan", $_POST["tonase_plan"]);
+			$this->db->set("tgl_kirim_plan", $_POST["tglkirim"]);
+			$this->db->set("next_plan", $_POST["next"]);
+			$this->db->where("id_plan", $_POST["id_plan"]);
+			$plan = $this->db->update("plan_cor");
 
-		$this->db->set("flap1", $_POST["creasing_wo1"]);
-		$this->db->set("creasing2", $_POST["creasing_wo2"]);
-		$this->db->set("flap2", $_POST["creasing_wo3"]);
-		$this->db->where("id", $_POST["id_wo"]);
-		$wo = $this->db->update("trs_wo");
+			$this->db->set("flap1", $_POST["creasing_wo1"]);
+			$this->db->set("creasing2", $_POST["creasing_wo2"]);
+			$this->db->set("flap2", $_POST["creasing_wo3"]);
+			$this->db->where("id", $_POST["id_wo"]);
+			$wo = $this->db->update("trs_wo");
+		}else{
+			$this->db->set("tgl_kirim_plan", $_POST["tglkirim"]);
+			$this->db->set("next_plan", $_POST["next"]);
+			$this->db->where("id_plan", $_POST["id_plan"]);
+			$plan = $this->db->update("plan_cor");
+			$wo = true;
+		}
 
 		return array(
 			'plan' => $plan,
@@ -407,5 +416,17 @@ class M_plan extends CI_Model
 			'data' => $result,
 			'msg' => $msg,
 		);
+	}
+
+	//
+
+	function loadPlanCor()
+	{
+		$mesin = $_POST["mesin"];
+		$query = $this->db->query("SELECT i.nm_produk,c.nm_pelanggan,p.* FROM plan_cor p
+		INNER JOIN m_produk i ON p.id_produk=i.id_produk
+		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+		WHERE p.status_plan='Close' AND next_plan='$mesin'")->result();
+		return $query;
 	}
 }

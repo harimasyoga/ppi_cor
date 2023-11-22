@@ -2339,6 +2339,7 @@ class Transaksi extends CI_Controller
 						<td style="background:#fff;padding:3px;font-weight:bold;text-align:center;border:0" colspan="3"></td>
 						<td style="background:#fff;padding:3px;font-weight:bold;text-align:center;border:0">'.number_format($sumQty).'</td>
 						<td style="background:#fff;padding:3px;font-weight:bold;text-align:center;border:0"></td>
+						<td style="background:#fff;padding:3px;font-weight:bold;text-align:center;border:0"></td>
 						<td style="background:#fff;padding:3px;font-weight:bold;text-align:center;border:0">'.number_format($sumRm).'</td>
 						<td style="background:#fff;padding:3px;font-weight:bold;text-align:center;border:0">'.number_format($sumTon).'</td>
 						<td style="background:#fff;padding:3px;font-weight:bold;text-align:center;border:0"></td>
