@@ -22,7 +22,8 @@ class M_plan extends CI_Model
 			INNER JOIN trs_so_detail s ON pl.id_so_detail=s.id
 			WHERE pl.id_plan='$opsi'");
 		}else{
-			$query = $this->db->query("SELECT w.*,i.*,s.*,o.tgl_po,o.total_qty,p.nm_pelanggan,p.alamat,p.prov,p.kab,m.nm_sales,s.id AS idSoDetail,w.id AS idWo,w.creasing2 AS creasing2wo,i.kategori AS kategoriItems FROM trs_wo w
+			$query = $this->db->query("SELECT (SELECT COUNT(a.no_plan) FROM plan_cor a
+			WHERE a.id_wo=w.id) AS jml_plan,w.*,i.*,s.*,o.tgl_po,o.total_qty,p.nm_pelanggan,p.alamat,p.prov,p.kab,m.nm_sales,s.id AS idSoDetail,w.id AS idWo,w.creasing2 AS creasing2wo,i.kategori AS kategoriItems FROM trs_wo w
 			INNER JOIN m_pelanggan p ON w.id_pelanggan=p.id_pelanggan
 			INNER JOIN m_sales m ON p.id_sales=m.id_sales
 			INNER JOIN m_produk i ON w.id_produk=i.id_produk
@@ -62,7 +63,11 @@ class M_plan extends CI_Model
 
 	function simpanCartItem()
 	{
-		if($_POST['no_plan'] == ''){
+		$tgl_plan = $_POST["tgl_plan"];
+		$machine_plan = $_POST["machine_plan"];
+		$shift_plan = $_POST["shift_plan"];
+		$cekPlan = $this->db->query("SELECT*FROM plan_cor WHERE tgl_plan='$tgl_plan' AND shift_plan='$shift_plan' AND machine_plan='$machine_plan' GROUP BY no_plan");
+		if($_POST['no_plan'] == '' && $cekPlan->num_rows() == 0){
 			$plan_no = $this->m_fungsi->urut_transaksi('PLAN');
 			$bln = $this->m_master->get_romawi(date('m'));
 			$tahun = date('Y');
@@ -70,6 +75,16 @@ class M_plan extends CI_Model
 
 		foreach($this->cart->contents() as $r){
 			// UPDATE SCORE WO
+			if(($r["options"]["kategori"] == 'K_SHEET')){
+				$this->db->set("p1_sheet", $r["options"]["panjang_plan"]);
+			}else{
+				$this->db->set("kupingan", $r["options"]["kupingan"]);
+				$this->db->set("p1", $r["options"]["p1"]);
+				$this->db->set("l1", $r["options"]["l1"]);
+				$this->db->set("p2", $r["options"]["p2"]);
+				$this->db->set("l2", $r["options"]["l2"]);
+			}
+
 			$this->db->set("flap1", $r["options"]["creasing_wo1"]);
 			$this->db->set("creasing2", $r["options"]["creasing_wo2"]);
 			$this->db->set("flap2", $r["options"]["creasing_wo3"]);
@@ -80,10 +95,15 @@ class M_plan extends CI_Model
 
 			// INSERT PLAN COR
 			if($_POST['no_plan'] == ''){
-				$noplan = 'PLAN/'.$tahun.'/'.$bln.'/'.$plan_no;
+				if($cekPlan->num_rows() == 0){
+					$noplan = 'PLAN/'.$tahun.'/'.$bln.'/'.$plan_no;
+				}else{
+					$noplan = $cekPlan->row()->no_plan;
+				}
 			}else{
 				$noplan = $_POST['no_plan'];
 			}
+
 			$data = array(
 				'no_plan' => $noplan,
 				'id_so_detail' => $r["options"]["id_so_detail"],
@@ -122,6 +142,7 @@ class M_plan extends CI_Model
 		return array(
 			'updateScoreWO' => $updateScoreWO,
 			'insertPlanCor' => $insertPlanCor,
+			'noplan' => $noplan
 		);
 	}
 

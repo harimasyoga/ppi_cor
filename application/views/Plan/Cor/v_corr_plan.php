@@ -55,11 +55,49 @@
 									<select id="no_wo" class="form-control select2" onchange="plhNoWo('')"></select>
 								</div>
 							</div>
-							<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 								<div class="col-md-1">TGL. WO</div>
 								<div class="col-md-11">
 									<input type="text" id="tgl_wo" class="form-control" autocomplete="off" placeholder="TGL. WO" disabled>
 								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+								<div class="col-md-1">PANJANG</div>
+								<div class="col-md-1">
+									<input type="text" id="txt-wo-kup" class="form-control" placeholder="KUP" disabled>
+								</div>
+								<div class="col-md-1">
+									<input type="text" id="txt-wo-p1" class="form-control" placeholder="P1" disabled>
+								</div>
+								<div class="col-md-1">
+									<input type="text" id="txt-wo-l1" class="form-control" placeholder="L1" disabled>
+								</div>
+								<div class="col-md-1">
+									<input type="text" id="txt-wo-p2" class="form-control" placeholder="P2" disabled>
+								</div>
+								<div class="col-md-1">
+									<input type="text" id="txt-wo-l2" class="form-control" placeholder="L2" disabled>
+								</div>
+								<div class="col-md-1">
+									<input type="text" id="txt-wo-pjgwo" class="form-control" style="font-weight:bold" placeholder="PJG" disabled>
+								</div>
+								<div class="col-md-5"></div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+								<div class="col-md-1">SCORE</div>
+								<div class="col-md-1">
+									<input type="text" id="txt-wo-s1" class="form-control" placeholder="S1" disabled>
+								</div>
+								<div class="col-md-1">
+									<input type="text" id="txt-wo-s2" class="form-control" placeholder="S2" disabled>
+								</div>
+								<div class="col-md-1">
+									<input type="text" id="txt-wo-s3" class="form-control" placeholder="S3" disabled>
+								</div>
+								<div class="col-md-1">
+									<input type="text" id="txt-wo-score" class="form-control" style="font-weight:bold" placeholder="SCORE" disabled>
+								</div>
+								<div class="col-md-7"></div>
 							</div>
 						</div>
 					</div>
@@ -324,6 +362,25 @@
 						</div>
 
 						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+							<div class="col-md-2" style="padding:0 2px 0 0">
+								<input type="number" id="kupingan" class="form-control" autocomplete="off" placeholder="KUP" onkeyup="ayoBerhitung()">
+							</div>
+							<div class="col-md-2" style="padding:0 2px 0 0">
+								<input type="number" id="p1" class="form-control" autocomplete="off" placeholder="P1" onkeyup="ayoBerhitung()">
+							</div>
+							<div class="col-md-2" style="padding:0 2px 0 0">
+								<input type="number" id="l1" class="form-control" autocomplete="off" placeholder="L1" onkeyup="ayoBerhitung()">
+							</div>
+							<div class="col-md-2" style="padding:0 2px 0 0">
+								<input type="number" id="p2" class="form-control" autocomplete="off" placeholder="P2" onkeyup="ayoBerhitung()">
+							</div>
+							<div class="col-md-2" style="padding:0 2px 0 0">
+								<input type="number" id="l2" class="form-control" autocomplete="off" placeholder="L2" onkeyup="ayoBerhitung()">
+							</div>
+							<div class="col-md-1" style="padding:6px 8px 0">+</div>
+							<div class="col-md-1" style="padding:6px 0 0"><span class="plus-lima">0</span></div>
+						</div>
+						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 							<div class="col-md-2" style="padding:0">PANJANG</div>
 							<div class="col-md-10">
 								<input type="number" id="ii_panjang" class="form-control" autocomplete="off" <?=$dis?> placeholder="PANJANG SHEET" onkeyup="ayoBerhitung()">
@@ -1173,6 +1230,14 @@
 		let c_off_p = $("#c_off").val().split('.').join('')
 		let rm_plan = $("#rm").val().split('.').join('')
 		let tonase_plan = $("#ton").val().split('.').join('')
+
+		let kupingan = $("#kupingan").val()
+		let p1 = $("#p1").val()
+		let l1 = $("#l1").val()
+		let p2 = $("#p2").val()
+		let l2 = $("#l2").val()
+		let panjangWO = parseInt(kupingan) + parseInt(p1) + parseInt(l1) + parseInt(p2) + parseInt(l2) + 5;
+
 		if(panjang_plan == '' || panjang_plan == 0 || lebar_plan == '' || lebar_plan == 0 || lebar_roll_p == '' || lebar_roll_p == 0 || out_plan == '' || out_plan == 0 || trim_plan == '' || trim_plan == 0 || c_off_p == '' || c_off_p == 0 || rm_plan == '' || rm_plan == 0 || tonase_plan == '' || tonase_plan == 0){
 			toastr.error('<b>HITUNG DATA KOSONG!</b>');
 			return
@@ -1180,6 +1245,12 @@
 		if(panjang_plan < 0 || lebar_plan < 0 || lebar_roll_p < 0 || out_plan < 0 || trim_plan < 0 || c_off_p < 0 || rm_plan < 0 || tonase_plan < 0){
 			toastr.error('<b>HITUNG KURANG!</b>');
 			return
+		}
+		if(kategori == 'K_BOX'){
+			if(panjang_plan != panjangWO){
+				toastr.error('<b>PANJANG WO BEDA DENGAN PANJANG SHEET!</b>');
+				return
+			}
 		}
 
 		let pcs_plan = (opsi == 'add') ? $('#no_wo option:selected').attr('qty-so') : $("#ehpcs_plan").val();
@@ -1213,7 +1284,7 @@
 				});
 			},
 			data: ({
-				id_plan, id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan,creasing_wo1, creasing_wo2, creasing_wo3, customer, nm_produk, kode_po, opsi
+				id_plan, id_so_detail, id_wo, id_produk, id_pelanggan, no_wo, no_so, pcs_plan, tgl_plan, machine_plan, shift_plan, tgl_kirim_plan, next_plan, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, kualitas_plan, kualitas_isi_plan, material_plan, panjang_plan, lebar_plan,creasing_wo1, creasing_wo2, creasing_wo3, customer, nm_produk, kode_po, kupingan, p1, l1, p2, l2, panjangWO, kategori, opsi
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -1228,7 +1299,6 @@
 					}
 				}else{
 					toastr.success(`<b>BERHASIL EDIT!</b>`)
-					// plhNoWo(id_plan)
 					listRencanaPlan()
 				}
 			}
@@ -1398,12 +1468,15 @@
 
 	function simpanCartItem()
 	{
+		let tgl_plan = $("#tgl").val()
+		let machine_plan = $("#mesin").val()
+		let shift_plan = $("#shift").val()
 		let no_plan = $("#ehno_plan").val();
 		$.ajax({
 			url: '<?php echo base_url('Plan/simpanCartItem')?>',
 			type: "POST",
 			data: ({
-				no_plan
+				no_plan, tgl_plan, machine_plan, shift_plan
 			}),
 			beforeSend: function() {
 				swal({
@@ -1497,6 +1570,13 @@
 						uk-box="${r.ukuran}"
 						uk-sheet="${r.ukuran_sheet}"
 						panjang-s="${r.ukuran_sheet_p}"
+						p1="${r.p1}"
+						l1="${r.l1}"
+						p2="${r.p2}"
+						l2="${r.l2}"
+						kupingan="${r.kupingan}"
+						panjangwo="${r.p1_sheet}"
+						jumlah-plan="${r.jml_plan}"
 						lebar-s="${r.ukuran_sheet_l}"
 						creasing-1="${r.creasing}"
 						creasing-2="${r.creasing2}"
@@ -1532,7 +1612,7 @@
 		$("#dt-pilih").html('')
 		$("#dt-select").html('')
 		$("#dt-load-data").html('')
-		let id_wo = ''; let id_so = ''; let id_pelanggan = ''; let id_produk = ''; let tgl_wo = ''; let no_wo = ''; let no_so = ''; let urut_so = ''; let rpt = ''; let eta_so = ''; let tgl_po = ''; let no_po = ''; let kode_po = ''; let qty_po = ''; let customer = ''; let nm_sales = ''; let item = ''; let kode_mc = ''; let uk_box = ''; let uk_sheet = ''; let panjang_s = ''; let lebar_s = ''; let creasing_1 = ''; let creasing_2 = ''; let creasing_3 = ''; let material = ''; let kualitas = ''; let kualitas_isi = ''; let flute = ''; let tipe_box = ''; let sambungan = ''; let berat_box = ''; let luas_box = ''; let qty_so = ''; let rm_so = ''; let ton_so = ''; let ket_so = ''; let creasing_wo1 = ''; let creasing_wo2 = ''; let creasing_wo3 = ''; let panjang_plan = ''; let lebar_plan = ''; let out_plan = ''; let lebar_roll_p = ''; let trim_plan = ''; let c_off_p = ''; let rm_plan = ''; let tonase_plan = ''; let kategori = '';
+		let id_wo = ''; let id_so = ''; let id_pelanggan = ''; let id_produk = ''; let tgl_wo = ''; let no_wo = ''; let no_so = ''; let urut_so = ''; let rpt = ''; let eta_so = ''; let tgl_po = ''; let no_po = ''; let kode_po = ''; let qty_po = ''; let customer = ''; let nm_sales = ''; let item = ''; let kode_mc = ''; let uk_box = ''; let uk_sheet = ''; let panjang_s = ''; let lebar_s = ''; let creasing_1 = ''; let creasing_2 = ''; let creasing_3 = ''; let material = ''; let kualitas = ''; let kualitas_isi = ''; let flute = ''; let tipe_box = ''; let sambungan = ''; let berat_box = ''; let luas_box = ''; let qty_so = ''; let rm_so = ''; let ton_so = ''; let ket_so = ''; let creasing_wo1 = ''; let creasing_wo2 = ''; let creasing_wo3 = ''; let panjang_plan = ''; let lebar_plan = ''; let out_plan = ''; let lebar_roll_p = ''; let trim_plan = ''; let c_off_p = ''; let rm_plan = ''; let tonase_plan = ''; let kategori = ''; let jumlahPlan = ''; let kupingan = ''; let p1 = ''; let l1 = ''; let p2 = ''; let l2 = '' 
 
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadPlanWo')?>',
@@ -1605,7 +1685,13 @@
 					rm_plan = data.wo.rm_plan
 					tonase_plan = data.wo.tonase_plan
 					tgl_kirim_plan = data.wo.tgl_kirim_plan
-					next_plan = data.wo.next_plan;
+					next_plan = data.wo.next_plan
+					kupingan = data.wo.kupingan;
+					p1 = data.wo.p1;
+					l1 = data.wo.l1;
+					p2 = data.wo.p2;
+					l2 = data.wo.l2;
+					jumlahPlan = 1;
 
 					if(data.wo.total_cor_p != 0){
 						inputDtProd = 'inputDowntimeProduksi'
@@ -1771,6 +1857,12 @@
 					tgl_kirim_plan = ''
 					next_plan = ''
 					inputDtProd = ''
+					kupingan = $('#no_wo option:selected').attr('kupingan')
+					p1 = $('#no_wo option:selected').attr('p1')
+					l1 = $('#no_wo option:selected').attr('l1')
+					p2 = $('#no_wo option:selected').attr('p2')
+					l2 = $('#no_wo option:selected').attr('l2')
+					jumlahPlan = $('#no_wo option:selected').attr('jumlah-plan')
 
 					$("#tgl").val(urlTgl_plan).prop("disabled", true)
 					$("#shift").val(urlShift).prop("disabled", true)
@@ -1856,17 +1948,66 @@
 				$("#lb_box").val(luas_box)
 
 				$("#ehkategori").val(kategori)
-				$("#creasing_wo_1").val(creasing_wo1)
-				$("#creasing_wo_2").val(creasing_wo2)
-				$("#creasing_wo_3").val(creasing_wo3);
+
+				$("#creasing_wo_1").val(creasing_wo1).prop('disabled', (jumlahPlan > 0) ? true : false);
+				$("#creasing_wo_2").val(creasing_wo2).prop('disabled', (jumlahPlan > 0) ? true : false);
+				$("#creasing_wo_3").val(creasing_wo3).prop('disabled', (jumlahPlan > 0) ? true : false);
+				let totcreasingwo = parseInt(creasing_wo1) + parseInt(creasing_wo2) + parseInt(creasing_wo3);
+				(isNaN(totcreasingwo)) ? totcreasingwo = '' : totcreasingwo = totcreasingwo;
+				(creasing_wo1 == 0 || creasing_wo2 == 0 || creasing_wo3 == 0) ? lebar_s = lebar_s : lebar_s = totcreasingwo;
+				(lebar_s == undefined) ? $("#ii_lebar").val(lebar_s).prop('disabled', (jumlahPlan > 0) ? true : false) : $("#ii_lebar").val(rupiah.format(Math.round(lebar_s))).prop('disabled', (jumlahPlan > 0) ? true : false);
+
+				$("#kupingan").val(kupingan)
+				$("#p1").val(p1)
+				$("#l1").val(l1)
+				$("#p2").val(p2)
+				$("#l2").val(l2)
+
+				$("#txt-wo-kup").val(kupingan)
+				$("#txt-wo-p1").val(p1)
+				$("#txt-wo-l1").val(l1)
+				$("#txt-wo-p2").val(p2)
+				$("#txt-wo-l2").val(l2)
+				
+				$("#txt-wo-s1").val(creasing_wo1)
+				$("#txt-wo-s2").val(creasing_wo2)
+				$("#txt-wo-s3").val(creasing_wo3)
+				$("#txt-wo-score").val(totcreasingwo);
+
+				let panjangwo = (opsi != '') ? data.wo.panjang_plan : $('#no_wo option:selected').attr('panjangwo');
+				if(kategori == 'K_BOX'){
+					panjang_s = parseInt(p1) + parseInt(l1) + parseInt(p2) + parseInt(l2) + parseInt(kupingan) + 5
+					$("#kupingan").val(kupingan).prop('disabled', (jumlahPlan > 0) ? true : false)
+					$("#p1").val(p1).prop('disabled', (jumlahPlan > 0) ? true : false)
+					$("#l1").val(l1).prop('disabled', (jumlahPlan > 0) ? true : false)
+					$("#p2").val(p2).prop('disabled', (jumlahPlan > 0) ? true : false)
+					$("#l2").val(l2).prop('disabled', (jumlahPlan > 0) ? true : false)
+					$(".plus-lima").html('5')
+				}else if(kategori == 'K_SHEET'){
+					panjang_s = panjangwo
+					$("#kupingan").val(0).prop('disabled', true)
+					$("#p1").val(0).prop('disabled', true)
+					$("#l1").val(0).prop('disabled', true)
+					$("#p2").val(0).prop('disabled', true)
+					$("#l2").val(0).prop('disabled', true)
+					$(".plus-lima").html('0')
+				}else{
+					panjang_s = undefined
+					$("#kupingan").val(0).prop('disabled', true)
+					$("#p1").val(0).prop('disabled', true)
+					$("#l1").val(0).prop('disabled', true)
+					$("#p2").val(0).prop('disabled', true)
+					$("#l2").val(0).prop('disabled', true)
+					$(".plus-lima").html('0')
+				}
+				$("#txt-wo-pjgwo").val(panjang_s);
+				
+				(panjang_s == undefined) ? $("#ii_panjang").val(panjang_s).prop('disabled', (jumlahPlan > 0) ? true : false) : $("#ii_panjang").val(rupiah.format(Math.round(panjang_s))).prop('disabled', (jumlahPlan > 0) ? true : false);
+				(qty_so == undefined) ? $("#qty_plan").val(qty_so) : $("#qty_plan").val(rupiah.format(Math.round(qty_so)));
 
 				$("#input_material_plan").val(material)
 				$("#input_kualitas_plan").val(kualitas)
 				$("#input_kualitas_plan_isi").val(kualitas_isi);
-
-				(panjang_s == undefined) ? $("#ii_panjang").val(panjang_s) : $("#ii_panjang").val(rupiah.format(Math.round(panjang_s)));
-				(lebar_s == undefined) ? $("#ii_lebar").val(lebar_s) : $("#ii_lebar").val(rupiah.format(Math.round(lebar_s)));
-				(qty_so == undefined) ? $("#qty_plan").val(qty_so) : $("#qty_plan").val(rupiah.format(Math.round(qty_so)));
 
 				$("#i_lebar_roll").val(lebar_roll_p);
 				$("#out_plan").val(out_plan)
@@ -1948,10 +2089,50 @@
 
 		let flute = $("#flute").val()
 		let qty_so = $("#qty_so").val().split('.').join('');
+
+		let kupingan = $("#kupingan").val()
+		let p1 = $("#p1").val()
+		let l1 = $("#l1").val()
+		let p2 = $("#p2").val()
+		let l2 = $("#l2").val()
+
 		let panjang_s = $("#ii_panjang").val().split('.').join('');
-		(panjang_s == 0 || panjang_s < 0) ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(rupiah.format(panjang_s)).attr('style', 'border-color:#ced4da');
-		
+		let panjangPlusWO = parseInt(p1) + parseInt(l1) + parseInt(p2) + parseInt(l2) + parseInt(kupingan) + 5;
 		let kategori = $("#ehkategori").val()
+		
+		if(kategori == 'K_BOX'){
+			if(panjang_s == panjangPlusWO){
+				(panjang_s == 0 || panjang_s < 0 || panjang_s == '') ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(rupiah.format(panjang_s)).attr('style', 'border-color:#ced4da');
+				$("#kupingan").attr('style', 'border-color:#ced4da')
+				$("#p1").attr('style', 'border-color:#ced4da')
+				$("#l1").attr('style', 'border-color:#ced4da')
+				$("#p2").attr('style', 'border-color:#ced4da')
+				$("#l2").attr('style', 'border-color:#ced4da')
+			}else{
+				(panjang_s == 0 || panjang_s < 0 || panjang_s == '') ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(rupiah.format(panjang_s)).attr('style', 'border-color:#d00');
+				$("#kupingan").attr('style', 'border-color:#d00')
+				$("#p1").attr('style', 'border-color:#d00')
+				$("#l1").attr('style', 'border-color:#d00')
+				$("#p2").attr('style', 'border-color:#d00')
+				$("#l2").attr('style', 'border-color:#d00')
+			}
+		}else if(kategori == 'K_SHEET'){
+			(panjang_s == 0 || panjang_s < 0 || panjang_s == '') ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(rupiah.format(panjang_s)).attr('style', 'border-color:#ced4da');
+			$("#kupingan").attr('style', 'border-color:#ced4da')
+			$("#p1").attr('style', 'border-color:#ced4da')
+			$("#l1").attr('style', 'border-color:#ced4da')
+			$("#p2").attr('style', 'border-color:#ced4da')
+			$("#l2").attr('style', 'border-color:#ced4da')
+		}else{
+			(panjang_s == 0 || panjang_s < 0 || panjang_s == '') ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(rupiah.format(panjang_s)).attr('style', 'border-color:#d00');
+			$("#kupingan").attr('style', 'border-color:#d00').prop('disabled', false)
+			$("#p1").attr('style', 'border-color:#d00').prop('disabled', false)
+			$("#l1").attr('style', 'border-color:#d00').prop('disabled', false)
+			$("#p2").attr('style', 'border-color:#d00').prop('disabled', false)
+			$("#l2").attr('style', 'border-color:#d00').prop('disabled', false)
+		}
+		// (panjang_s == 0 || panjang_s < 0) ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(rupiah.format(panjang_s)).attr('style', 'border-color:#ced4da');
+		
 		let creasing_wo1 = $("#creasing_wo_1").val()
 		let creasing_wo2 = $("#creasing_wo_2").val()
 		let creasing_wo3 = $("#creasing_wo_3").val();
