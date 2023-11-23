@@ -699,4 +699,35 @@ class M_fungsi extends CI_Model {
         $this->mpdf->Output($ctk, 'I');
 	}
 
+	function getHariIni($tgl){
+		$namaHari = date('l', strtotime($tgl));
+		switch($namaHari){
+			case 'Sunday':
+				$hari_ini = "Minggu";
+			break;
+			case 'Monday':			
+				$hari_ini = "Senin";
+			break;
+			case 'Tuesday':
+				$hari_ini = "Selasa";
+			break;
+			case 'Wednesday':
+				$hari_ini = "Rabu";
+			break;
+			case 'Thursday':
+				$hari_ini = "Kamis";
+			break;
+			case 'Friday':
+				$hari_ini = "Jumat";
+			break;
+			case 'Saturday':
+				$hari_ini = "Sabtu";
+			break;
+			default:
+				$hari_ini = "";		
+			break;
+		}
+		return $hari_ini;
+	}
+
 }
