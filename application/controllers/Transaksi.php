@@ -24,17 +24,20 @@ class Transaksi extends CI_Controller
             left join m_kab b on a.kab=b.kab_id 
             Left Join m_sales c on a.id_sales=c.id_sales
             order by id_pelanggan")->result(),
-			'level' => $this->session->userdata('level'). "aa"
+			'level' => $this->session->userdata('level'). "aa",
 		);
 
-		$this->load->view('header');
+		$this->load->view('header', $data);
 		$this->load->view('Transaksi/v_po', $data);
 		$this->load->view('footer');
 	}
 
 	function etaPO()
 	{
-		$this->load->view('header');
+		$data = [
+			'judul' => "ETA PO",
+		];
+		$this->load->view('header',$data);
 		$this->load->view('Transaksi/v_eta_po');
 		$this->load->view('footer');
 	}
@@ -167,7 +170,7 @@ class Transaksi extends CI_Controller
 			// 'getNoPO' => "PO-".date('Y')."-"."000000". $this->m_master->get_data_max("trs_po","no_po")
 		);
 
-		$this->load->view('header');
+		$this->load->view('header', $data);
 		$this->load->view('Transaksi/v_so', $data);
 		$this->load->view('footer');
 	}
@@ -184,7 +187,7 @@ class Transaksi extends CI_Controller
 		);
 
 
-		$this->load->view('header');
+		$this->load->view('header', $data);
 		$this->load->view('Transaksi/v_wo', $data);
 		$this->load->view('footer');
 	}
@@ -215,7 +218,7 @@ class Transaksi extends CI_Controller
 		);
 
 
-		$this->load->view('header');
+		$this->load->view('header', $data);
 		$this->load->view('Transaksi/v_surat_jalan', $data);
 		$this->load->view('footer');
 	}
@@ -1190,11 +1193,13 @@ class Transaksi extends CI_Controller
 
 		if ($data->sambungan == 'G'){
 			$join = 'Glue';
-		  } else if ($data->sambungan == 'S'){
+		} else if ($data->sambungan == 'S'){
 			$join = 'Stitching';
-		  }else {
+		} else if ($data->sambungan == 'D'){
 			$join = 'Die Cut';
-		  }
+		}else {
+			$join = '-';
+		}
 		
 		$tgl_wo        = ($data->tgl_wo == null || $data->tgl_wo == '0000-00-00' ? '0000-00-00' : $data->tgl_wo);
 		$eta_so        = ($data->eta_so == null || $data->eta_so == '0000-00-00' ? '0000-00-00' : $data->eta_so);
@@ -1209,6 +1214,15 @@ class Transaksi extends CI_Controller
 		$top        = "border-top: 1px solid black;";
 
 		if ($query->num_rows() > 0) {
+			
+			if($data->kategori=="K_BOX")
+			{
+				$ukuran_sheet_p    = $data->ukuran_sheet_p+5;
+				$trim = '5 mm';
+			}else{
+				$ukuran_sheet_p    = $data->ukuran_sheet_p;
+				$trim ='-';
+			}
 
 			$html .= '<table width="100%" border="0" cellspacing="0" cellpadding="0" style="font-size:14px;font-family: ;">
                             
@@ -1243,48 +1257,48 @@ class Transaksi extends CI_Controller
 					 </tr>
 					 <tr>
 						 <td>Ukuran Sheet</td>
-						 <td >: <b>' . $data->ukuran_sheet . '</b></td>
+						 <td >: <b>' . $ukuran_sheet_p . ' x ' . $data->ukuran_sheet_l . '</b></td>
 						 <td></td>
 						 <td>Tgl Kirim</td>
 						 <td style="color:red" >: <b>' . $this->m_fungsi->tanggal_format_indonesia($tgl_wo) . '</b></td>
 
 					 </tr>
 					 <tr>
-						 <td>Lebar Kertas</td>
-						 <td >: <b>' . $data->no_artikel . '</b></td>
-						 <td></td>
-						 <td>ETA</td>
-						 <td style="color:red" >: <b>' . $this->m_fungsi->tanggal_format_indonesia($eta_so) . '
-						 </b></td>
+						<td>Trim</td>
+						<td>: <b>'. $trim .'</b></td>
+						<td></td>
+						<td>ETA</td>
+						<td style="color:red" >: <b>' . $this->m_fungsi->tanggal_format_indonesia($eta_so) . '
+						</b></td>
 
 					 </tr>
 					 <tr>
-						 <td>Kualitas</td>
-						 <td >: <b>' . $data->kualitas . '</b></td>
-						 <td></td>
-						 <td>No Batch</td>
-						 <td>: <b>' . $data->batchno . '</b></td>
+						<td>Kualitas</td>
+						<td >: <b>' . $data->kualitas . '</b></td>	
+						<td></td>
+						<td>No Batch</td>
+						<td>: <b>' . $data->batchno . '</b></td>
 					 </tr>
 					 <tr>
-						 <td>Type Box</td>
-						 <td>: <b>' . $data->tipe_box . '</b></td>
-						 <td></td>
-						 <td>Berat Box</td>
-						 <td>: <b>' . $data->berat_bersih . ' Kg</b></td>
+						<td>Type Box</td>
+						<td>: <b>' . $data->tipe_box . '</b></td>					 
+						<td></td>
+						<td>Berat Box</td>
+						<td>: <b>' . $data->berat_bersih . ' Kg</b></td>
 					 </tr>
 					 <tr>
-						 <td>Warna</td>
-						 <td>: <b>' . $data->warna . '</b></td>
-						 <td></td>
-						 <td>Flute</td>
-						 <td>: <b>' . $data->flute . '</b></td>
+						<td>Warna</td>
+						<td>: <b>' . $data->warna . '</b></td>
+						<td></td>
+						<td>Flute</td>
+						<td>: <b>' . $data->flute . '</b></td>
 					 </tr>
 					 <tr>
-						 <td style="">Jumlah Order</td>
-						 <td style="">: <b>' . number_format($data->qty) . '</b> PCS</td>
-						 <td></td>
-						 <td>Joint</td>
-						 <td>: <b>' . $join . '</b></td>
+						<td style="">Jumlah Order</td>
+						<td style="">: <b>' . number_format($data->qty, 0, ",", ".") . '</b> PCS</td>
+						<td></td>
+						<td>Joint</td>
+						<td>: <b>' . $join . '</b></td>
 					 </tr><br>
 				 </table>';
 
@@ -1300,8 +1314,8 @@ class Transaksi extends CI_Controller
 					<td width="15%" style=" '. $box .'" > <br>&nbsp;</br> </td>
 					<td width="15%" style=" '. $box .'" > </td>
 					<td width="15%" style=" '. $box .'" > </td>
-					<td width="20%" style="border-left: 1px solid black;border-left: 1px solid black;" > &nbsp; ' . $data->flap1 . '
-					</td>
+					<td width="20%" style="border-left: 1px solid black;border-left: 1px solid black;" ><b> &nbsp; ' . number_format($data->flap1, 0, ",", ".") . '
+					</b></td>
 					</tr>
 					<tr>
 					<td style="" > 
@@ -1312,32 +1326,32 @@ class Transaksi extends CI_Controller
 					<td style="'. $box .'" > </td>
 					<td style="'. $box .'" > </td>
 					<td style="'. $box .'" > </td>
-					<td style="border-left: 1px solid black;" > &nbsp; ' . $data->creasing2 . '
-					</td>
+					<td style="border-left: 1px solid black;" ><b> &nbsp; ' . number_format($data->creasing2, 0, ",", ".") . '
+					</b></td>
 					</tr>
 					<tr>
 					<td> <br>&nbsp;</br></td>
-					<td style="border-right: 1px solid black;" align="right">' . $data->kupingan . '</td>
+					<td style="border-right: 1px solid black;" align="right"><b>' . $data->kupingan . '</b></td>
 					<td style =" '. $box .'" > </td>
 					<td style =" '. $box .'" > </td>
 					<td style =" '. $box .'" > </td>
 					<td style =" '. $box .'" > </td>
-					<td style=" border-left: 1px solid black;" > &nbsp; ' . $data->flap2 . '
-					</td>
+					<td style=" border-left: 1px solid black;" ><b> &nbsp; ' . number_format($data->flap2, 0, ",", ".") . '
+					</b></td>
 					</tr>
 					<tr>
 					<td align="center" > <br>&nbsp;</br>
 					</td>
 					<td align="center"> 
 					</td>
-					<td align="center" > ' . $data->p1 . '
-					</td>
-					<td align="center" > ' . $data->l1 . '
-					</td>
-					<td align="center" > ' . $data->p2 . '
-					</td>
-					<td align="center" > ' . $data->l2 . '
-					</td>
+					<td align="center" ><b> ' . number_format($data->p1, 0, ",", ".") . '
+					</b></td>
+					<td align="center" ><b> ' . number_format($data->l1, 0, ",", ".")  . '
+					</b></td>
+					<td align="center" ><b> ' . number_format($data->p2, 0, ",", ".") . '
+					</b></td>
+					<td align="center" ><b> ' . number_format($data->l2, 0, ",", ".") . '
+					</b></td>
 					<td align="center" > </td>
 					</tr>
 
@@ -1354,8 +1368,8 @@ class Transaksi extends CI_Controller
 					<td width="15%" style="'. $top .'"></td>
 					<td width="15%" style="'. $top .'"> </td>
 					<td width="15%" style="'. $top .'border-right: 1px solid #000"></td>
-					<td width="20%"> &nbsp; ' . $data->flap1 . '
-					</td>
+					<td width="20%"><b> &nbsp; ' . number_format($data->flap1, 0, ",", ".") . '
+					</b></td>
 					</tr>
 					<tr>
 					<td> 
@@ -1366,8 +1380,8 @@ class Transaksi extends CI_Controller
 					<td style="'. $top .'"> </td>
 					<td style="'. $top .'"> </td>
 					<td style="'. $top .'border-right: 1px solid #000" > </td>
-					<td> &nbsp; ' . $data->creasing2 . '
-					</td>
+					<td><b> &nbsp; ' . number_format($data->creasing2, 0, ",", ".") . '
+					</b></td>
 					</tr>
 					<tr>
 					<td> <br>&nbsp;</br></td>
@@ -1376,16 +1390,16 @@ class Transaksi extends CI_Controller
 					<td style="'. $top .''.$bottom.'" > </td>
 					<td style="'. $top .''.$bottom.'" > </td>
 					<td style="'. $top .''.$bottom.' border-right: 1px solid #000" > </td>
-					<td> &nbsp; ' . $data->flap2 . '
-					</td>
+					<td><b> &nbsp; ' . number_format($data->flap2, 0, ",", ".") . '
+					</b></td>
 					</tr>
 					<tr>
 					<td align="center" > <br>&nbsp;</br>
 					</td>
 					<td align="center" > 
 					</td>
-					<td align="center" colspan="4"> '.$data->p1_sheet .'
-					</td>
+					<td align="center" colspan="4"><b> '. number_format($data->p1_sheet, 0, ",", ".") .'
+					</b></td>
 					<td align="center"> </td>
 					</tr>
 
@@ -1409,26 +1423,26 @@ class Transaksi extends CI_Controller
 					$html .= '<br>
 						<table width="100%" border="1" cellspacing="0" cellpadding="3" style="font-size:12px;font-family: ;">  
 							<tr>
-								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >No</td>
-								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >PROSES PRODUKSI</td>
-								<td align="center" width="%" colspan="2" style="background-color: #cccccc" >HASIL PRODUKSI</td>
-								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >RUSAK</td>
-								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >HASIL BAIK</td>
-								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" >KETERANGAN</td>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" ><b>No</b></td>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" ><b>PROSES PRODUKSI</b></td>
+								<td align="center" width="%" colspan="2" style="background-color: #cccccc" ><b>HASIL PRODUKSI</b></td>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" ><b>RUSAK</b></td>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" ><b>HASIL BAIK</b></td>
+								<td align="center" width="%" rowspan="2" style="background-color: #cccccc" ><b>KETERANGAN</b></td>
 							</tr>
 							<tr>
-								<td align="center" width="%" style="background-color: #cccccc">TGL</td>
-								<td align="center" width="%" style="background-color: #cccccc">HASIL JADI</td>
+								<td align="center" width="%" style="background-color: #cccccc"><b>TGL</b></td>
+								<td align="center" width="%" style="background-color: #cccccc"><b>HASIL JADI</b></td>
 							</tr>
 	
 							<tr>
 								<td align="center" width="5%" >1</td>
 								<td align="" width="20%" >CORUUGATOR</td>
 								<td align="center" width="20%" >' . $tgl_ok . '</td>
-								<td align="center" width="1%" >' . $rinci->total_cor_p . '</td>
-								<td align="center" width="15%" >' . $rinci->bad_cor_p . '</td>
-								<td align="center" width="15%" >' . $rinci->good_cor_p . '</td>
-								<td align="" width="15%" >' . $rinci->ket_plan . '</td>
+								<td align="center" width="1%" >' . number_format($rinci->total_cor_p, 0, ",", ".")  . '</td>
+								<td align="center" width="15%" >' . number_format($rinci->bad_cor_p, 0, ",", ".")  . '</td>
+								<td align="center" width="15%" >' . number_format($rinci->good_cor_p, 0, ",", ".")  . '</td>
+								<td align="" width="15%" >' . number_format($rinci->ket_plan, 0, ",", ".")  . '</td>
 							</tr>
 							<tr>
 								<td align="center">2</td>
@@ -2826,24 +2840,27 @@ class Transaksi extends CI_Controller
 		echo $html;
 	}
 
-	function Hitung_harga()
+	public function Hitung_harga()
 	{
-		
-		$this->load->view('header');
 		$cek 	= $this->session->userdata('username');
 
-		if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
-
-			$data=[
-				'menu'				=> '<span style="color:red">SIMULASI HARGA *</span>',
-
-			];
-			$this->load->view('hitung_harga/v_hitung_harga', $data);
-		} else
+		if(in_array($this->session->userdata('level'), ['Admin','PPIC']))
 		{
+
+			$data = [
+				'menu'  => '<span style="color:red">SIMULASI HARGA *</span>',
+				'judul' => "Simulasi Harga",
+			];
+
+			$this->load->view('header', $data);
+			$this->load->view('hitung_harga/v_hitung_harga', $data);
+			$this->load->view('footer');
+
+		} else {
 			header('location:'.base_url());
 		}
-		$this->load->view('footer');
+
+		
 	}
 
 }
