@@ -14,7 +14,8 @@ class M_plan extends CI_Model
 	{
 		$opsi = $_POST["opsi"];
 		if($opsi != ''){
-			$query = $this->db->query("SELECT *,w.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems,w.creasing2 AS creasing2wo,w.tgl_wo FROM plan_cor pl
+			$query = $this->db->query("SELECT *,(SELECT COUNT(a.no_plan) FROM plan_cor a
+			WHERE a.id_wo=w.id) AS jml_plan,w.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems,w.creasing2 AS creasing2wo,w.tgl_wo FROM plan_cor pl
 			INNER JOIN m_produk i ON pl.id_produk=i.id_produk
 			INNER JOIN m_pelanggan l ON pl.id_pelanggan=l.id_pelanggan
 			INNER JOIN m_sales m ON l.id_sales=m.id_sales
@@ -149,6 +150,16 @@ class M_plan extends CI_Model
 	function addRencanaPlan()
 	{
 		if($_POST["opsi"] != 'add'){
+			if(($_POST["kategori"] == 'K_SHEET')){
+				$this->db->set("p1_sheet", $_POST["panjang_plan"]);
+			}else{
+				$this->db->set("kupingan", $_POST["kupingan"]);
+				$this->db->set("p1", $_POST["p1"]);
+				$this->db->set("l1", $_POST["l1"]);
+				$this->db->set("p2", $_POST["p2"]);
+				$this->db->set("l2", $_POST["l2"]);
+			}
+
 			// UPDATE SCORE WO
 			$this->db->set("flap1", $_POST["creasing_wo1"]);
 			$this->db->set("creasing2", $_POST["creasing_wo2"]);

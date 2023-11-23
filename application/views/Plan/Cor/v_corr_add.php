@@ -1142,6 +1142,13 @@
 			$("#l1").attr('style', 'border-color:#ced4da')
 			$("#p2").attr('style', 'border-color:#ced4da')
 			$("#l2").attr('style', 'border-color:#ced4da')
+		}else{
+			(panjang_s == 0 || panjang_s < 0 || panjang_s == '') ? $("#ii_panjang").val(0).attr('style', 'border-color:#d00') : $("#ii_panjang").val(rupiah.format(panjang_s)).attr('style', 'border-color:#d00');
+			$("#kupingan").attr('style', 'border-color:#d00').prop('disabled', false)
+			$("#p1").attr('style', 'border-color:#d00').prop('disabled', false)
+			$("#l1").attr('style', 'border-color:#d00').prop('disabled', false)
+			$("#p2").attr('style', 'border-color:#d00').prop('disabled', false)
+			$("#l2").attr('style', 'border-color:#d00').prop('disabled', false)
 		}
 		
 		let creasing_wo1 = $("#creasing_wo_1").val()

@@ -1691,7 +1691,7 @@
 					l1 = data.wo.l1;
 					p2 = data.wo.p2;
 					l2 = data.wo.l2;
-					jumlahPlan = 1;
+					jumlahPlan = data.wo.jml_plan;
 
 					if(data.wo.total_cor_p != 0){
 						inputDtProd = 'inputDowntimeProduksi'
@@ -1949,13 +1949,13 @@
 
 				$("#ehkategori").val(kategori)
 
-				$("#creasing_wo_1").val(creasing_wo1).prop('disabled', (jumlahPlan > 0) ? true : false);
-				$("#creasing_wo_2").val(creasing_wo2).prop('disabled', (jumlahPlan > 0) ? true : false);
-				$("#creasing_wo_3").val(creasing_wo3).prop('disabled', (jumlahPlan > 0) ? true : false);
+				$("#creasing_wo_1").val(creasing_wo1).prop('disabled', (jumlahPlan > 1) ? true : false);
+				$("#creasing_wo_2").val(creasing_wo2).prop('disabled', (jumlahPlan > 1) ? true : false);
+				$("#creasing_wo_3").val(creasing_wo3).prop('disabled', (jumlahPlan > 1) ? true : false);
 				let totcreasingwo = parseInt(creasing_wo1) + parseInt(creasing_wo2) + parseInt(creasing_wo3);
 				(isNaN(totcreasingwo)) ? totcreasingwo = '' : totcreasingwo = totcreasingwo;
 				(creasing_wo1 == 0 || creasing_wo2 == 0 || creasing_wo3 == 0) ? lebar_s = lebar_s : lebar_s = totcreasingwo;
-				(lebar_s == undefined) ? $("#ii_lebar").val(lebar_s).prop('disabled', (jumlahPlan > 0) ? true : false) : $("#ii_lebar").val(rupiah.format(Math.round(lebar_s))).prop('disabled', (jumlahPlan > 0) ? true : false);
+				(lebar_s == undefined) ? $("#ii_lebar").val(lebar_s).prop('disabled', (jumlahPlan > 1) ? true : false) : $("#ii_lebar").val(rupiah.format(Math.round(lebar_s))).prop('disabled', (jumlahPlan > 1) ? true : false);
 
 				$("#kupingan").val(kupingan)
 				$("#p1").val(p1)
@@ -1977,11 +1977,11 @@
 				let panjangwo = (opsi != '') ? data.wo.panjang_plan : $('#no_wo option:selected').attr('panjangwo');
 				if(kategori == 'K_BOX'){
 					panjang_s = parseInt(p1) + parseInt(l1) + parseInt(p2) + parseInt(l2) + parseInt(kupingan) + 5
-					$("#kupingan").val(kupingan).prop('disabled', (jumlahPlan > 0) ? true : false)
-					$("#p1").val(p1).prop('disabled', (jumlahPlan > 0) ? true : false)
-					$("#l1").val(l1).prop('disabled', (jumlahPlan > 0) ? true : false)
-					$("#p2").val(p2).prop('disabled', (jumlahPlan > 0) ? true : false)
-					$("#l2").val(l2).prop('disabled', (jumlahPlan > 0) ? true : false)
+					$("#kupingan").val(kupingan).prop('disabled', (jumlahPlan > 1) ? true : false)
+					$("#p1").val(p1).prop('disabled', (jumlahPlan > 1) ? true : false)
+					$("#l1").val(l1).prop('disabled', (jumlahPlan > 1) ? true : false)
+					$("#p2").val(p2).prop('disabled', (jumlahPlan > 1) ? true : false)
+					$("#l2").val(l2).prop('disabled', (jumlahPlan > 1) ? true : false)
 					$(".plus-lima").html('5')
 				}else if(kategori == 'K_SHEET'){
 					panjang_s = panjangwo
@@ -2002,7 +2002,7 @@
 				}
 				$("#txt-wo-pjgwo").val(panjang_s);
 				
-				(panjang_s == undefined) ? $("#ii_panjang").val(panjang_s).prop('disabled', (jumlahPlan > 0) ? true : false) : $("#ii_panjang").val(rupiah.format(Math.round(panjang_s))).prop('disabled', (jumlahPlan > 0) ? true : false);
+				(panjang_s == undefined) ? $("#ii_panjang").val(panjang_s).prop('disabled', (jumlahPlan > 1) ? true : false) : $("#ii_panjang").val(rupiah.format(Math.round(panjang_s))).prop('disabled', (jumlahPlan > 1) ? true : false);
 				(qty_so == undefined) ? $("#qty_plan").val(qty_so) : $("#qty_plan").val(rupiah.format(Math.round(qty_so)));
 
 				$("#input_material_plan").val(material)
