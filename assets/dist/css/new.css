@@ -116,3 +116,21 @@
 	padding: 0;
 	height: 100%;
 }
+
+.link-h-wo{
+	color:#fff;
+}
+
+.link-h-wo:hover{
+	color:#fff;
+	background-color: rgba(225, 225, 225, 0.3);
+}
+
+.link-i-wo{
+	color: #333;	
+}
+
+.link-i-wo:hover{
+	color:#333;
+	background-color: rgba(225, 225, 225, 0.6);
+}

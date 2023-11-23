@@ -27,6 +27,22 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-md-12">
+					<div class="card">
+						<div class="card-body p-0">
+							<div id="accordion-customer">
+								<div class="card m-0" style="border-radius:0">
+									<div class="card-header bg-gradient-secondary" style="padding:0;border-radius:0">
+										<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseCustomer" onclick="loadDataAllWO()">LIST SEMUA CUSTOMER</a>
+									</div>
+									<div id="collapseCustomer" class="collapse" data-parent="#accordion-customer">
+										<div id="tampil-all-wo-header"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-12">
 					<div class="card card-info card-outline">
 						<div class="card-header">
 							<h3 class="card-title" style="font-weight:bold;font-style:italic">WO</h3>
@@ -521,6 +537,69 @@
 			dropdownAutoWidth: true
 		})
 	})
+
+	function loadDataAllWO()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/loadDataAllWO')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				$("#tampil-all-wo-header").html(res)
+				swal.close()
+			}
+		})
+	}
+
+	function onClickHeaderWO(id_pelanggan)
+	{
+		$("#tampil-all-wo-isi-"+id_pelanggan).html('')
+		$.ajax({
+			url: '<?php echo base_url('Plan/onClickHeaderWO')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_pelanggan
+			}),
+			success: function(res){
+				$("#tampil-all-wo-isi-"+id_pelanggan).html(res)
+				swal.close()
+			}
+		})
+	}
+
+	function onClickPlhWo(id_wo)
+	{
+		$("#tampil-isi-wo-"+id_wo).html('')
+		$.ajax({
+			url: '<?php echo base_url('Plan/onClickPlhWo')?>',
+			type: "POST",
+			data: ({
+				id_wo
+			}),
+			success: function(res){
+				$("#tampil-isi-wo-"+id_wo).html(res)
+			}
+		})
+	}
 
 	function addRencanaPlan()
 	{

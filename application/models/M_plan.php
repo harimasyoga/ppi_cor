@@ -261,10 +261,6 @@ class M_plan extends CI_Model
 		$id_pelanggan = $_POST["id_pelanggan"];
 		$id_produk = $_POST["id_produk"];
 
-		// return $this->db->query("SELECT p.*,so.qty_so FROM plan_cor p
-		// INNER JOIN trs_so_detail so ON p.id_so_detail=so.id
-		// WHERE p.status_plan='Close'
-		// AND p.id_so_detail='$id_so' AND p.id_wo='$id_wo' AND p.id_produk='$id_produk' AND p.id_pelanggan='$id_pelanggan'");
 		return $this->db->query("SELECT COUNT(dt.id_plan_cor) AS jmlDt,SUM(dt.durasi_mnt_dt) AS jmlDtDurasi,p.*,so.qty_so FROM plan_cor p
 		INNER JOIN trs_so_detail so ON p.id_so_detail=so.id
 		LEFT JOIN plan_cor_dt dt ON p.id_plan=dt.id_plan_cor

@@ -45,6 +45,208 @@ class Plan extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function loadDataAllWO()
+	{
+		$html = '';
+
+		$allWo = $this->db->query("SELECT w.id_pelanggan,c.nm_pelanggan,COUNT(w.id_pelanggan) AS jmlWO FROM trs_wo w
+		INNER JOIN m_pelanggan c ON w.id_pelanggan=c.id_pelanggan
+		WHERE w.status='Open'
+		GROUP BY w.id_pelanggan
+		ORDER BY c.nm_pelanggan");
+		$html .='<div id="accordion">';
+			foreach($allWo->result() as $r){
+				$html .='<div class="card m-0" style="border-radius:0">
+					<div class="card-header bg-gradient-info" style="padding:0;border-radius:0">
+						<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseHeaderWO'.$r->id_pelanggan.'" onclick="onClickHeaderWO('."'".$r->id_pelanggan."'".')">'.$r->nm_pelanggan.' ( '.$r->jmlWO.' )</a>
+					</div>
+					<div id="collapseHeaderWO'.$r->id_pelanggan.'" class="collapse" data-parent="#accordion">
+						<div id="tampil-all-wo-isi-'.$r->id_pelanggan.'"></div>
+					</div>
+				</div>';
+			}
+		$html .='</div>';
+
+		echo $html;
+	}
+
+	function onClickHeaderWO()
+	{
+		$html = '';
+		$id_pelanggan = $_POST["id_pelanggan"];
+		
+		$getWO = $this->db->query("SELECT w.id AS id_wo,w.no_wo,w.kategori,i.nm_produk,w.qty,
+		(SELECT COUNT(p.id_plan) FROM plan_cor p WHERE p.id_wo=w.id GROUP BY p.id_wo) AS jml_plan,
+		(SELECT COUNT(p.id_plan) FROM plan_cor p WHERE p.id_wo=w.id AND p.total_cor_p!='0' GROUP BY p.id_wo) AS prod_plan,
+		(SELECT COUNT(p.id_plan) FROM plan_cor p WHERE p.id_wo=w.id AND p.total_cor_p!='0' AND p.status_plan='Close' GROUP BY p.id_wo) AS ok_plan,
+		(SELECT SUM(good_cor_p) FROM plan_cor p WHERE p.id_wo=w.id GROUP BY p.id_wo) AS good_cor,
+		(SELECT SUM(bad_cor_p) FROM plan_cor p WHERE p.id_wo=w.id GROUP BY p.id_wo) AS bad_cor,
+		(SELECT SUM(total_cor_p) FROM plan_cor p WHERE p.id_wo=w.id GROUP BY p.id_wo) AS total_cor
+		FROM trs_wo w
+		INNER JOIN m_produk i ON w.id_produk=i.id_produk
+		WHERE w.id_pelanggan='$id_pelanggan' AND w.status='Open'
+		ORDER BY w.kategori,w.no_wo,i.nm_produk");
+
+		$html .= '<div class="card-body" style="padding:6px">
+			<div id="accordion'.$id_pelanggan.'">
+			[ TIPE ] NO WO | ITEM <span class="bg-dark" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">QTY SO</span><span class="bg-light" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">JUMLAH PLAN</span><span class="bg-success" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">PRODUKSI</span><span class="bg-primary" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">SELESAI PLAN</span>';
+				foreach($getWO->result() as $r){
+					($r->kategori == 'K_BOX') ? $kat = 'BOX' : $kat = 'SHEET';
+					$qtySO = '<span class="bg-dark" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.number_format($r->qty).'</span>';
+					($r->jml_plan == null) ? $jml = '0' : $jml = $r->jml_plan;
+					$jmlPlan = '<span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$jml.'</span>';
+					($r->prod_plan == null) ? $prod = '' : $prod = '<span class="bg-success" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->prod_plan.'</span>';
+					($r->ok_plan == null) ? $ok = '' : $ok = '<span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->ok_plan.'</span>';
+					$html .='<div class="card m-0" style="border-radius:0">
+						<div class="card-header" style="padding:0;border-radius:0">
+							<a class="d-block w-100 link-i-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseIsiWO'.$r->id_wo.'" onclick="onClickPlhWo('."'".$r->id_wo."'".')">
+								[ '.$kat.' ] '.$r->no_wo.' | '.$r->nm_produk.' '.$qtySO.''.$jmlPlan.''.$prod.''.$ok.'
+							</a>
+						</div>
+						<div id="collapseIsiWO'.$r->id_wo.'" class="collapse" data-parent="#accordion'.$id_pelanggan.'">
+							<div id="tampil-isi-wo-'.$r->id_wo.'" style="overflow:auto;white-space:nowrap"></div>
+						</div>
+					</div>';
+				}
+			$html .= '</div>
+		</div>';
+
+		echo $html;
+	}
+
+	function onClickPlhWo()
+	{
+		$id_wo = $_POST["id_wo"];
+		$html = '';
+
+		$getData = $this->db->query("SELECT pl.*,i.flute,so.eta_so,so.qty_so,wo.kategori,wo.flap1,wo.creasing2,wo.flap2 FROM plan_cor pl
+		INNER JOIN trs_so_detail so ON pl.id_so_detail=so.id
+		INNER JOIN trs_wo wo ON pl.id_wo=wo.id
+		INNER JOIN m_produk i ON pl.id_produk=i.id_produk
+		WHERE pl.id_wo='$id_wo'");
+
+		if($getData->num_rows() == 0){
+			$html .='';
+		}else{
+			$html.='<table class="table table-bordered" style="border:0;text-align:center">
+				<thead>
+					<tr>
+						<th style="padding:6px">#</th>
+						<th style="padding:6px">KUALITAS</th>
+						<th style="padding:6px">PJG</th>
+						<th style="padding:6px">LEBAR</th>
+						<th style="padding:6px">SCORE</th>
+						<th style="padding:6px">OUT</th>
+						<th style="padding:6px">FT</th>
+						<th style="padding:6px">L.ROLL</th>
+						<th style="padding:6px">TRIM</th>
+						<th style="padding:6px">C.OFF</th>
+						<th style="padding:6px">RM</th>
+						<th style="padding:6px">KG</th>
+						<th style="padding:6px">GOOD</th>
+						<th style="padding:6px">BAD</th>
+						<th style="padding:6px">TOTAL</th>
+						<th style="padding:6px">DOWNTIME</th>
+						<th style="padding:6px">TGL KIRIM</th>
+						<th style="padding:6px">ETA SO</th>
+						<th style="padding:6px">NEXT</th>
+						<th style="padding:6px">TGL PLAN</th>
+						<th style="padding:6px">SHIFT</th>
+						<th style="padding:6px">MESIN</th>
+					</tr>
+				</thead>';
+
+				$i = 0;
+				$sumGood = 0;
+				$sumBad = 0;
+				$sunGoodBad = 0;
+				foreach($getData->result() as $r){
+					$i++;
+
+					if($r->kategori == 'K_BOX'){
+						$score = $r->flap1.'-'.$r->creasing2.'-'.$r->flap2;
+					}else{
+						if($r->flap1 != 0 && $r->creasing2 != 0 && $r->flap2 != 0){
+							$score = $r->flap1.'-'.$r->creasing2.'-'.$r->flap2;
+						}else{
+							$score = '-';
+						}
+					}
+
+					if($r->total_cor_p != 0 && $r->status_plan == 'Open'){
+						$borBot = ';border-bottom:1px solid #28a746';
+					}else if($r->total_cor_p != 0 && $r->status_plan == 'Close'){
+						$borBot = ';border-bottom:1px solid #007bff';
+					}else{
+						$borBot = '';
+					}
+
+					$id_plan = $r->id_plan;
+					$getDt = $this->db->query("SELECT COUNT(id_plan_cor) AS jml_dt,SUM(durasi_mnt_dt) AS durasi_dt FROM plan_cor_dt WHERE id_plan_cor='$id_plan'
+					GROUP BY id_plan_cor");
+					($getDt->num_rows() == 0) ? $jml_dt = '-' : $jml_dt = $getDt->row()->jml_dt;
+					($getDt->num_rows() == 0) ? $durasi_dt = '' : $durasi_dt = ' ( '.$getDt->row()->durasi_dt.'" ) ';
+
+					$html.='<tr class="h-tmpl-list-plan">
+						<td style="padding:3px'.$borBot.'">
+							<a href="'.base_url('Plan/Corrugator/List').'/'.$r->tgl_plan.'/'.$r->shift_plan.'/'.$r->machine_plan.'" class="btn btn-xs btn-info" style="padding:0 4px;margin-right:5px">
+								<i class="fa fa-arrow-right"></i>
+							</a>
+						</td>
+						<td style="padding:6px'.$borBot.'">'.$r->kualitas_plan.'</td>
+						<td style="padding:6px'.$borBot.'">'.number_format($r->panjang_plan).'</td>
+						<td style="padding:6px'.$borBot.'">'.number_format($r->lebar_plan).'</td>
+						<td style="padding:6px'.$borBot.'">'.$score.'</td>
+						<td style="padding:6px'.$borBot.'">'.$r->out_plan.'</td>
+						<td style="padding:6px'.$borBot.'">'.$r->flute.'</td>
+						<td style="padding:6px'.$borBot.'">'.number_format($r->lebar_roll_p).'</td>
+						<td style="padding:6px'.$borBot.'">'.number_format($r->trim_plan).'</td>
+						<td style="padding:6px'.$borBot.'">'.number_format($r->c_off_p).'</td>
+						<td style="padding:6px'.$borBot.'">'.number_format($r->rm_plan).'</td>
+						<td style="padding:6px'.$borBot.'">'.number_format($r->tonase_plan).'</td>
+						<td style="padding:6px'.$borBot.';text-align:right">'.number_format($r->good_cor_p).'</td>
+						<td style="padding:6px'.$borBot.';text-align:right">'.number_format($r->bad_cor_p).'</td>
+						<td style="padding:6px'.$borBot.';text-align:right">'.number_format($r->total_cor_p).'</td>
+						<td style="padding:6px'.$borBot.'">'.$jml_dt.''.$durasi_dt.'</td>
+						<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
+						<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->eta_so).'</td>
+						<td style="padding:6px'.$borBot.'">'.$r->next_plan.'</td>
+						<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->tgl_plan).'</td>
+						<td style="padding:6px'.$borBot.'">'.$r->shift_plan.'</td>
+						<td style="padding:6px'.$borBot.'">'.$r->machine_plan.'</td>
+					</tr>';
+
+					$sumGood += $r->good_cor_p;
+					$sumBad += $r->bad_cor_p;
+					$sunGoodBad += $r->total_cor_p;
+				}
+
+				$html.='<tr>
+					<td style="border:0;padding:6px;font-weight:bold;text-align:right" colspan="12"></td>
+					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.number_format($sumGood).'</td>
+					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.number_format($sumBad).'</td>
+					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.number_format($sunGoodBad).'</td>
+				</tr>';
+
+				$hasilSOGod = $sumGood - $getData->row()->qty_so;
+				$hasilSOBad = $sumBad - $getData->row()->qty_so;
+				$hasilSOTot = $sunGoodBad - $getData->row()->qty_so;
+				($hasilSOGod > 0) ? $hasilSOGod = '+'.number_format($hasilSOGod) : $hasilSOGod = number_format($hasilSOGod);
+				($hasilSOBad > 0) ? $hasilSOBad = '+'.number_format($hasilSOBad) : $hasilSOBad = number_format($hasilSOBad);
+				($hasilSOTot > 0) ? $hasilSOTot = '+'.number_format($hasilSOTot) : $hasilSOTot = number_format($hasilSOTot);
+				$html.='<tr>
+					<td style="border:0;padding:6px;font-weight:bold;text-align:right" colspan="12">QTY SO ( '.number_format($getData->row()->qty_so).' ) = </td>
+					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.$hasilSOGod.'</td>
+					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.$hasilSOBad.'</td>
+					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.$hasilSOTot.'</td>
+				</tr>';
+			}
+
+		$html.='</table>';
+
+		echo $html;
+	}
+
 	function LoaDataCor()
 	{
 		$data = array();
@@ -852,7 +1054,7 @@ class Plan extends CI_Controller
 			$html .= '<div class="card card-primary card-outline">
 			<div class="card-header">
 				<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST -</h3>&nbsp;
-				<i>['.$urlShift.'.'.$mch.']-'.$this->m_fungsi->tglPlan($urlTgl_plan).'<span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$tglPlan->jml_plan.'</span>'.$prodPlan.''.$selesaiPlan.''.$woPlan.'</i>
+				<i>['.$urlShift.'.'.$mch.']'.strtoupper($this->m_fungsi->getHariIni($urlTgl_plan)).'-'.$this->m_fungsi->tglPlan($urlTgl_plan).'<span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$tglPlan->jml_plan.'</span>'.$prodPlan.''.$selesaiPlan.''.$woPlan.'</i>
 			</div>';
 		}
 		$html .= '<div style="overflow:auto;white-space:nowrap">
@@ -1024,7 +1226,7 @@ class Plan extends CI_Controller
 			}
 
 			if($r->kategori == 'K_BOX'){
-				$next = '<select class="form-control inp-kosong2" id="lp-next-'.$id.'">
+				$next = '<select class="form-control inp-kosong2" id="lp-next-'.$id.'" '.$ePlhS.'>
 					<option value="'.$r->next_plan.'">'.$r->next_plan.'</option>
 					<option value="">-</option>
 					<option value="FLEXO1">FLEXO1</option>
@@ -1084,7 +1286,7 @@ class Plan extends CI_Controller
 					<input type="number" class="form-control inp-kosong2" id="lp-tonp-'.$id.'" value="'.$r->tonase_plan.'" disabled>
 				</td>
 				<td '.$bgTd.' style="padding:6px">
-					<input type="date" class="form-control inp-kosong2" id="lp-tglkirim-'.$id.'" value="'.$r->tgl_kirim_plan.'">
+					<input type="date" class="form-control inp-kosong2" id="lp-tglkirim-'.$id.'" value="'.$r->tgl_kirim_plan.'" '.$ePlhS.'>
 				</td>
 				<td '.$bgTd.' style="padding:6px">'.$next.'</td>
 				<td '.$bgTd.' style="padding:6px">
@@ -1306,14 +1508,14 @@ class Plan extends CI_Controller
 		GROUP BY p.tgl_plan,p.shift_plan,p.machine_plan");
 
 		$html ='';
+		$html .='<div class="card-body row" style="padding:5px">
+			<div class="col-md-12">
+				[SHIFT.MESIN]HARI-TANGGAL<span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">JUMLAH</span><span class="bg-success" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">PRODUKSI</span><span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">SELESAI PLAN</span><span class="bg-dark" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">CLOSE WO</span>
+			</div>
+		</div>';
 		if($tglPlan->num_rows() == 1){
-			echo true;
+			echo $html;
 		}else{
-			$html .='<div class="card-body row" style="padding:5px">
-				<div class="col-md-12">
-					[SHIFT.MESIN]-TANGGAL<span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">JUMLAH</span><span class="bg-success" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">PRODUKSI</span><span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">SELESAI PLAN</span><span class="bg-dark" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">CLOSE WO</span>
-				</div>
-			</div>';
 			$html .='<div class="card-header p-0 pt-1 pl-1 bg-gradient-secondary">
 				<ul class="nav nav-tabs" style="border-bottom:0" role="tablist">';
 					$i = 0;
@@ -1332,7 +1534,7 @@ class Plan extends CI_Controller
 
 							$html .='<li class="nav-item">
 								<a class="nav-link" style="padding:8px" id="plh-tgl-plan-'.$strTgl.'" data-toggle="pill" onclick="loadInputList('."'".$r->tgl_plan."'".','."'".$r->shift_plan."'".','."'".$r->machine_plan."'".','."'".$i."'".')" role="tab" aria-controls="aria-cc-'.$strTgl.'" aria-selected="false">
-									<span class="all-hal ke-halaman-'.$i.'"></span>['.$r->shift_plan.'.'.$mch.']-'.$this->m_fungsi->tglPlan($r->tgl_plan).'
+									<span class="all-hal ke-halaman-'.$i.'"></span>['.$r->shift_plan.'.'.$mch.']'.strtoupper($this->m_fungsi->getHariIni($r->tgl_plan)).'-'.$this->m_fungsi->tglPlan($r->tgl_plan).'
 									<span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->jml_plan.'</span>'.$prodPlan.''.$selesaiPlan.''.$woPlan.'
 								</a>
 							</li>';
