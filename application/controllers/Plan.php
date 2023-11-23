@@ -14,7 +14,11 @@ class Plan extends CI_Controller
 
 	function Corrugator()
 	{
-		$this->load->view('header');
+		$data_header = array(
+			'judul' => "Plan Corrugator",
+		);
+
+		$this->load->view('header',$data_header);
 
 		$jenis = $this->uri->segment(3);
 		if($jenis == 'Add'){
@@ -1354,7 +1358,11 @@ class Plan extends CI_Controller
 
 	function Flexo()
 	{
-		$this->load->view('header');
+		$data_header = array(
+			'judul' => "Plan Flexo",
+		);
+
+		$this->load->view('header', $data_header);
 
 		$jenis = $this->uri->segment(3);
 		if($jenis == 'Add'){
@@ -1393,7 +1401,10 @@ class Plan extends CI_Controller
 
 	function Finishing()
 	{
-		$this->load->view('header');
+		$data_header = array(
+			'judul' => "Plan Flexo",
+		);
+		$this->load->view('header',$data_header);
 		$this->load->view('Plan/Finishing/v_finishing');
 		$this->load->view('footer');
 	}

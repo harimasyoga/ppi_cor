@@ -32,124 +32,139 @@
 								<h3 class="card-title" style="font-weight:bold;font-style:italic"><?= $menu ?></h3>
 							</div>
 							<br>
-							<div class="card-body row" style="padding: 2px 2px;font-weight:bold">
-								<div class="col-md-3" style="margin-bottom:3px">
-								Type :
-									<select id="type" name="type" class="form-control select2" onchange="ayoBerhitung(), cek_type(this.value)">
-										<option value="b">Box</option>
-										<option value="s">Sheet</option>
-									</select>
-								</div>
-								
-								<div class="col-md-12">&nbsp;</div>
-								<br>
-								
-								<div class="col-md-3" style="margin-bottom:3px">
-								Flute :
-									<select id="flute" name="flute" class="form-control select2" onchange="ayoBerhitung(),cek_flute(this.value)">
-										<option value="BCF">BCF</option>
-										<option value="BF">BF</option>
-										<option value="CF">CF</option>
-									</select>
-								</div>
-								
-								<div class="col-md-12">&nbsp;</div>
-								
-								<div class="col-md-3" style="margin-bottom:3px">
-								Ukuran : <br>
-								</div>
-								<div class="col-md-12"></div>
+							<form id="hitung" >
+								<div class="card-body row" style="padding: 2px 2px;font-weight:bold">
+									<div class="col-md-3" style="margin-bottom:3px">
+									Type :
+										<select id="type" name="type" class="form-control select2" onchange="ayoBerhitung(), cek_type(this.value)">
+											<option value="b">Box</option>
+											<option value="s">Sheet</option>
+										</select>
+									</div>
+									
+									<div class="col-md-12">&nbsp;</div>
+									<br>
+									
+									<div class="col-md-3" style="margin-bottom:3px">
+									Flute :
+										<select id="flute" name="flute" class="form-control select2" onchange="ayoBerhitung(),cek_flute(this.value)">
+											<option value="BCF">BCF</option>
+											<option value="BF">BF</option>
+											<option value="CF">CF</option>
+										</select>
+									</div>
+									
+									<div class="col-md-12">&nbsp;</div>
+									
+									<div class="col-md-3" style="margin-bottom:3px">
+									Ukuran : <br>
+									</div>
+									<div class="col-md-12"></div>
 
-								<div class="col-md-3" style="margin-bottom:3px">
-									<input type="text" class="form-control angka" id="l_panjang" value="0" placeholder="P" maxlength="4" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()">
+									<div class="col-md-3" style="margin-bottom:3px">
+										<input type="text" class="form-control angka" id="l_panjang" placeholder="P" maxlength="4" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()">
+									</div>
+									<div class="col-md-3" style="margin-bottom:3px">
+										<input type="text" class="form-control angka" id="l_lebar" placeholder="L" maxlength="4" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()">									
+									</div>
+									<div class="col-md-3" style="margin-bottom:3px">
+										<input type="text" class="form-control angka" id="l_tinggi" placeholder="T" maxlength="4" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()">				
+									</div>
+									
+									<div class="col-md-12">&nbsp;</div>
+									
+									<div class="col-md-3" style="margin-bottom:3px">
+									Ukuran Sheet : <br>
+									</div>
+									<div class="col-md-12"></div>
+
+									<div class="col-md-3" style="margin-bottom:3px">
+										<input type="text" class="form-control angka" id="p_sheet" placeholder="P" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" readonly>
+										
+									</div>
+									<div class="col-md-3" style="margin-bottom:3px">
+										<input type="text" class="form-control angka" id="l_sheet" placeholder="L" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" readonly>									
+									</div>
+									
+									<div class="col-md-12">&nbsp;</div>
+									<br>
+									<div class="col-md-3" style="margin-bottom:3px">
+									Substance :
+										<select id="tl_al" name="tl_al" class="form-control select2" onchange="ayoBerhitung()">
+											<option value="">-</option>
+											<option value="M">M</option>
+											<option value="K">K</option>
+										</select>
+
+										<select id="bmf" name="bmf" class="form-control select2" onchange="ayoBerhitung()">
+											<option value="">-</option>
+											<option value="M">M</option>
+											<option value="K">K</option>
+										</select>
+										<select id="bl" name="bl" class="form-control select2" onchange="ayoBerhitung()">
+											<option value="">-</option>
+											<option value="M">M</option>
+											<option value="K">K</option>
+										</select>
+										<select id="cmf" name="cmf" class="form-control select2" onchange="ayoBerhitung()">
+											<option value="">-</option>
+											<option value="M">M</option>
+											<option value="K">K</option>
+										</select>
+										<select id="cl" name="cl" class="form-control select2" onchange="ayoBerhitung()">
+											<option value="">-</option>
+											<option value="M">M</option>
+											<option value="K">K</option>
+										</select>
+									</div>
+									<div class="col-md-3" style="margin-bottom:3px">
+									Gramature : 
+										<input type="text" id="tl_al_i" name="tl_al_i"  class="form-control angka" autocomplete="off" placeholder="TL/AL" onchange="ayoBerhitung()">
+
+										<input type="text" id="bmf_i" name="bmf_i" class="form-control angka" autocomplete="off" placeholder="B.MF" onchange="ayoBerhitung()">
+
+										<input type="text" id="bl_i" name="bl_i" class="form-control angka" autocomplete="off" placeholder="B.L" onchange="ayoBerhitung()">
+
+										<input type="text" id="cmf_i" name="cmf_i" class="form-control angka" autocomplete="off" placeholder="C.MF" onchange="ayoBerhitung()">
+
+										<input type="text" id="cl_i" name="cl_i" class="form-control angka" autocomplete="off" placeholder="C.L" onchange="ayoBerhitung()">
+									</div>
+
+									
+									<div class="col-md-12">&nbsp;</div>
+
+									<div class="col-md-3" style="margin-bottom:3px">
+									BB : <br>
+									</div>
+									<div class="col-md-12"></div>
+
+									<div class="col-md-3" style="margin-bottom:3px">
+										<input type="text" class="form-control angka" id="bb" placeholder="BB" autocomplete="off" readonly>
+										
+									</div>
+
+									<div class="col-md-12">&nbsp;</div>
+
+									<div class="col-md-3" style="margin-bottom:3px">
+									Harga / kg : 
+										<input type="text" class="form-control angka" id="hrg_kg" placeholder="Harga" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" >
+									</div>
+									<div class="col-md-3" style="margin-bottom:3px">
+									Include : 
+										<input type="text" class="form-control angka" id="include" placeholder="Include" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,'include')" autocomplete="off" >									
+									</div>
+									<div class="col-md-3" style="margin-bottom:3px">
+									Exclude : 
+										<input type="text" class="form-control angka" id="exclude" placeholder="Exclude" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,'exclude')" autocomplete="off" >			
+									</div>
+									<div class="col-md-12"></div>
+
+									<div class="col-md-12">&nbsp;</div>
+
+									<input class="btn btn-danger" type="reset" name="" id="" value="RESET">
 									
 								</div>
-								<div class="col-md-3" style="margin-bottom:3px">
-									<input type="text" class="form-control angka" id="l_lebar" value="0" placeholder="L" maxlength="4" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()">									
-								</div>
-								<div class="col-md-3" style="margin-bottom:3px">
-									<input type="text" class="form-control angka" id="l_tinggi" value="0" placeholder="T" maxlength="4" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()">				
-								</div>
-								
-								<div class="col-md-12">&nbsp;</div>
-								
-								<div class="col-md-3" style="margin-bottom:3px">
-								Ukuran Sheet : <br>
-								</div>
-								<div class="col-md-12"></div>
-
-								<div class="col-md-3" style="margin-bottom:3px">
-									<input type="text" class="form-control angka" id="p_sheet" placeholder="P" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" readonly>
-									
-								</div>
-								<div class="col-md-3" style="margin-bottom:3px">
-									<input type="text" class="form-control angka" id="l_sheet" placeholder="L" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" readonly>									
-								</div>
-								
-								<div class="col-md-12">&nbsp;</div>
-								<br>
-								<div class="col-md-3" style="margin-bottom:3px">
-								Substance :
-									<select id="tl_al" name="tl_al" class="form-control select2" onchange="ayoBerhitung()">
-										<option value="">-</option>
-										<option value="M">M</option>
-										<option value="K">K</option>
-									</select>
-
-									<select id="bmf" name="bmf" class="form-control select2" onchange="ayoBerhitung()">
-										<option value="">-</option>
-										<option value="M">M</option>
-										<option value="K">K</option>
-									</select>
-									<select id="bl" name="bl" class="form-control select2" onchange="ayoBerhitung()">
-										<option value="">-</option>
-										<option value="M">M</option>
-										<option value="K">K</option>
-									</select>
-									<select id="cmf" name="cmf" class="form-control select2" onchange="ayoBerhitung()">
-										<option value="">-</option>
-										<option value="M">M</option>
-										<option value="K">K</option>
-									</select>
-									<select id="cl" name="cl" class="form-control select2" onchange="ayoBerhitung()">
-										<option value="">-</option>
-										<option value="M">M</option>
-										<option value="K">K</option>
-									</select>
-								</div>
-								<div class="col-md-3" style="margin-bottom:3px">
-								Gramature : 
-									<input type="text" id="tl_al_i" name="tl_al_i"  class="form-control angka" autocomplete="off" placeholder="TL/AL" onchange="ayoBerhitung()">
-
-									<input type="text" id="bmf_i" name="bmf_i" class="form-control angka" autocomplete="off" placeholder="B.MF" onchange="ayoBerhitung()">
-
-									<input type="text" id="bl_i" name="bl_i" class="form-control angka" autocomplete="off" placeholder="B.L" onchange="ayoBerhitung()">
-
-									<input type="text" id="cmf_i" name="cmf_i" class="form-control angka" autocomplete="off" placeholder="C.MF" onchange="ayoBerhitung()">
-
-									<input type="text" id="cl_i" name="cl_i" class="form-control angka" autocomplete="off" placeholder="C.L" onchange="ayoBerhitung()">
-								</div>
-								
-								<div class="col-md-12">&nbsp;</div>
-
-								<div class="col-md-3" style="margin-bottom:3px">
-								Harga / kg : 
-									<input type="text" class="form-control angka" id="hrg_kg" placeholder="Harga" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()">
-								</div>
-								<div class="col-md-3" style="margin-bottom:3px">
-								Include : 
-									<input type="text" class="form-control angka" id="include" placeholder="Include" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()">									
-								</div>
-								<div class="col-md-3" style="margin-bottom:3px">
-								Excludde : 
-									<input type="text" class="form-control angka" id="exclude" placeholder="Exclude" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()">			
-								</div>
-								<div class="col-md-12"></div>
-
-								<div class="col-md-12">&nbsp;</div>
-								
-							</div>
-
+							</form>
 							<br/>
 						</div>
 					
@@ -216,6 +231,9 @@
 			$("#bl_i").prop("disabled",false)
 			$("#cmf_i").prop("disabled",true)
 			$("#cl_i").prop("disabled",true)
+			
+			$("#cmf_i").val(0)
+			$("#cl_i").val(0)
 
 		}else{
 
@@ -230,44 +248,43 @@
 			$("#bl_i").prop("disabled",true)
 			$("#cmf_i").prop("disabled",false)
 			$("#cl_i").prop("disabled",false)
-
+			
+			$("#bmf_i").val(0)
+			$("#bl_i").val(0)
 		}
 	}
 
 	function ayoBerhitung()
 	{
-		var type        = $("#type").val()
-		var flute       = $("#flute").val()
+		var type          = $("#type").val()
+		var flute         = $("#flute").val()
 		var l_panjang_1   = $("#l_panjang").val()
 		var l_lebar_1     = $("#l_lebar").val()
 		var l_tinggi_1    = $("#l_tinggi").val()
 
+		var l_panjang_2   = (l_panjang_1=='') ? "0" : l_panjang_1
+		var l_lebar_2     = (l_lebar_1=='') ? "0" : l_lebar_1
+		var l_tinggi_2    = (l_tinggi_1=='') ? "0" : l_tinggi_1
+
 		
-		var l_panjang_2   = (l_panjang_1=='') ? 0 : l_panjang_1
-		var l_lebar_2     = (l_lebar_1=='') ? 0 : l_lebar_1
-		var l_tinggi_2    = (l_tinggi_1=='') ? 0 : l_tinggi_1
-		
-		var l_panjang   = parseFloat(l_panjang_2.split('.').join(''))
-		var l_lebar     = parseFloat(l_lebar_2.split('.').join(''))
-		var l_tinggi    = parseFloat(l_tinggi_2.split('.').join(''))
-		var tl_al       = $("#tl_al").val()
-		var bmf         = $("#bmf").val()
-		var bl          = $("#bl").val()
-		var cmf         = $("#cmf").val()
-		var cl          = $("#cl").val()
-		var tl_al_i     = parseFloat( $("#tl_al_i").val() )
-		var bmf_i       = parseFloat( $("#bmf_i").val() )
-		var bl_i        = parseFloat( $("#bl_i").val() )
-		var cmf_i       = parseFloat( $("#cmf_i").val() )
-		var cl_i        = parseFloat( $("#cl_i").val() )
-		var hrg_kg      = parseFloat( $("#hrg_kg").val() )
-		var include     = parseFloat( $("#include").val() )
-		var exclude     = parseFloat( $("#exclude").val() )
+		var l_panjang     = parseFloat(l_panjang_2.split('.').join(''))
+		var l_lebar       = parseFloat(l_lebar_2.split('.').join(''))
+		var l_tinggi      = parseFloat(l_tinggi_2.split('.').join(''))
+		var tl_al         = $("#tl_al").val()
+		var bmf           = $("#bmf").val()
+		var bl            = $("#bl").val()
+		var cmf           = $("#cmf").val()
+		var cl            = $("#cl").val()
+		var tl_al_i       = parseFloat( $("#tl_al_i").val() )
+		var bmf_i         = parseFloat( $("#bmf_i").val() )
+		var bl_i          = parseFloat( $("#bl_i").val() )
+		var cmf_i         = parseFloat( $("#cmf_i").val() )
+		var cl_i          = parseFloat( $("#cl_i").val() )
 
 		// hitung sheet
-		var p_sheet   = '';
-		var ruk_l     = '';
-		var tfx       = '';
+		var p_sheet       = ''
+		var l_sheet       = ''
+		var bb            = 0
 
 		if(type == "b")
 		{
@@ -296,7 +313,7 @@
 				}
 			}
 		}else{
-			if(l_panjang == '' || l_panjang == 0 || l_sheet == '' || l_sheet == 0){
+			if(l_panjang == '' || l_panjang == 0 || l_lebar == '' || l_lebar == 0){
 				p_sheet = 0;
 				l_sheet = 0;
 			}else{
@@ -312,6 +329,8 @@
 		if(flute == 'BF'){
 			bb =  parseFloat((parseInt(tl_al_i) + (parseFloat(bmf_i)*1.36) + parseInt(bl_i)) / 1000 * p_sheet / 1000 * l_sheet / 1000) ;
 
+			bb = (isNaN(bb)) ? 0 : bb ;
+
 		}else if(flute == 'CF'){
 			bb = parseFloat(parseInt(tl_al_i) + (parseFloat(cmf_i)*1.46) + parseInt(cl_i)) / 1000 * p_sheet / 1000 * l_sheet / 1000 ;
 
@@ -319,35 +338,68 @@
 
 			bb = parseFloat(parseInt(tl_al_i) + (parseFloat(bmf_i)*1.36) + parseInt(bl_i) + (parseFloat(cmf_i)*1.46) + parseInt(cl_i)) / 1000 * p_sheet / 1000 * l_sheet / 1000 ;
 
+			bb = (isNaN(bb)) ? 0 : bb ;
+
 		}else{
 			bb = 0
 		}
 		// harga / kg
 
-		if (include=='')
+		if(type == "b")
 		{
-			hrg_kg   = 0;
+			var bb = bb.toFixed(4)
 		}else{
-			hrg_kg   = Math.trunc(exclude / bb); 
+			var bb = bb.toFixed(3)
 		}
-		$('#hrg_kg'+id2).val(format_angka(hrg_kg));
+		
+		$('#bb').val(String(bb).split('.').join(','))
 
 	}
 
-	function Hitung_price(val) 
+	function Hitung_price(val,cek) 
 	{
-		var isi = val.split('.').join('');
+		var isi   = val.split('.').join('')
+		var bb    = $('#bb').val()
+		var bb_ok = String(bb).split(',').join('.')
+
 		
 		if(cek=='exclude')
 		{
-			inc = Math.trunc(isi *1.11);
+			var exc    = String($("#exclude").val()).split('.').join('')
+			var inc    = Math.trunc(isi *1.11)
 			$('#include').val(format_angka(inc));
 			
 		}else {
-			exc = Math.trunc(isi /1.11);
-			$('#exclude'+id2).val(format_angka(exc));
+			var inc    = String($("#include").val()).split('.').join('')
+			var exc    = Math.trunc(isi /1.11)
+			$('#exclude').val(format_angka(exc));
 
 		}
+		hrg_kg   = Math.trunc(exc / parseFloat(bb_ok)); 
+		$('#hrg_kg').val(format_angka(hrg_kg));	
+
+	}
+
+	function kosong()
+	{
+		$("#l_panjang").val(0)
+		$("#l_lebar").val(0)
+		$("#l_tinggi").val(0)		
+		$("#tl_al").val('')
+		$("#bmf").val('')
+		$("#bl").val('')
+		$("#cmf").val('')
+		$("#cl").val('')
+		$("#tl_al_i").val(0)
+		$("#bmf_i").val(0)
+		$("#bl_i").val(0)
+		$("#cmf_i").val(0)
+		$("#cl_i").val(0)
+		$("#hrg_kg").val(0)
+		$("#bb").val(0)
+		$("#p_sheet").val('')
+		$("#l_sheet").val('')
+
 	}
 
 </script>

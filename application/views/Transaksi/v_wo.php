@@ -772,7 +772,7 @@
               <tr style=list-style:none;>
                 <td><b>Kode MC </b>: ${data.kode_mc}</td>
                 <td><b>Ukuran Sheet </b>: ${data.ukuran_sheet}</td>
-                <td><b>flute </b>: ${data.flute}</td>
+                <td><b>Flute </b>: ${data.flute}</td>
               </tr>
               <tr style=list-style:none;>
                   <td><b>RM </b>: ${data.rm}</td>

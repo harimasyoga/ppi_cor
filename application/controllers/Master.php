@@ -16,8 +16,10 @@ class Master extends CI_Controller
 
 	public function index()
 	{
-		$data = array();
-		$this->load->view('header');
+		$data = array(
+			'judul' => "Dashboard",
+		);
+		$this->load->view('header',$data );
 		$this->load->view('home');
 		$this->load->view('footer');
 	}
@@ -29,7 +31,7 @@ class Master extends CI_Controller
 			'pelanggan' => $this->m_master->get_data("m_pelanggan")->result()
 		);
 
-		$this->load->view('header');
+		$this->load->view('header', $data);
 		$this->load->view('Master/v_produk', $data);
 		$this->load->view('footer');
 	}
@@ -40,7 +42,7 @@ class Master extends CI_Controller
 			'judul' => "Master Pelanggan"
 		);
 
-		$this->load->view('header');
+		$this->load->view('header', $data);
 		$this->load->view('Master/v_pelanggan', $data);
 		$this->load->view('footer');
 	}
@@ -50,7 +52,7 @@ class Master extends CI_Controller
 		$data = array(
 			'judul' => "Master Sales"
 		);
-		$this->load->view('header');
+		$this->load->view('header', $data);
 		$this->load->view('Master/v_sales', $data);
 		$this->load->view('footer');
 	}
@@ -101,7 +103,7 @@ class Master extends CI_Controller
 			'judul' => "Master User"
 		);
 
-		$this->load->view('header');
+		$this->load->view('header', $data);
 		$this->load->view('Master/v_user', $data);
 		$this->load->view('footer');
 	}
