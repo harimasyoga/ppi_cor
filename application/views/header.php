@@ -154,7 +154,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								</p>
 							</a>
 						</li>
-						<?php if (in_array($this->session->userdata('level'), ['User','Admin','PPIC'])): ?>
+						<?php if (in_array($this->session->userdata('level'), ['User','Admin','PPIC','Keuangan'])): ?>
 						<li class="nav-item has-treeview">
 							<a href="#" class="nav-link">
 								<i class="nav-icon fas fa-home"></i>

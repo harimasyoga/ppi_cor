@@ -88,7 +88,7 @@
 									
 									<div class="col-md-12">&nbsp;</div>
 									<br>
-									<div class="col-md-3" style="margin-bottom:3px">
+									<!-- <div class="col-md-3" style="margin-bottom:3px">
 									Substance :
 										<select id="tl_al" name="tl_al" class="form-control select2" onchange="ayoBerhitung()">
 											<option value="">-</option>
@@ -116,7 +116,7 @@
 											<option value="M">M</option>
 											<option value="K">K</option>
 										</select>
-									</div>
+									</div> -->
 									<div class="col-md-3" style="margin-bottom:3px">
 									Gramature : 
 										<input type="text" id="tl_al_i" name="tl_al_i"  class="form-control angka" autocomplete="off" placeholder="TL/AL" onchange="ayoBerhitung()">
@@ -147,21 +147,21 @@
 
 									<div class="col-md-3" style="margin-bottom:3px">
 									Harga / kg : 
-										<input type="text" class="form-control angka" id="hrg_kg" placeholder="Harga" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" >
+										<input type="text" class="form-control angka" id="hrg_kg" placeholder="Harga" onkeyup="ubah_angka(this.value,this.id),hitung_inc_exc(this.value)" autocomplete="off" >
 									</div>
 									<div class="col-md-3" style="margin-bottom:3px">
 									Include : 
-										<input type="text" class="form-control angka" id="include" placeholder="Include" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,'include')" autocomplete="off" >									
+										<input type="text" class="form-control angka" id="include" placeholder="Include" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" autocomplete="off" >									
 									</div>
 									<div class="col-md-3" style="margin-bottom:3px">
 									Exclude : 
-										<input type="text" class="form-control angka" id="exclude" placeholder="Exclude" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,'exclude')" autocomplete="off" >			
+										<input type="text" class="form-control angka" id="exclude" placeholder="Exclude" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" autocomplete="off" >			
 									</div>
 									<div class="col-md-12"></div>
 
 									<div class="col-md-12">&nbsp;</div>
 
-									<input class="btn btn-danger" type="reset" name="" id="" value="RESET">
+									<input class="btn btn-danger" type="reset" name="" id="" value="RESET" onclick="kosong()">
 									
 								</div>
 							</form>
@@ -207,24 +207,31 @@
 	{
 		if(vall=='BCF')
 		{
-			$("#tl_al").prop("disabled",false)
-			$("#bmf").prop("disabled",false)
-			$("#bl").prop("disabled",false)
-			$("#cmf").prop("disabled",false)
-			$("#cl").prop("disabled",false)
+			// $("#tl_al").prop("disabled",false)
+			// $("#bmf").prop("disabled",false)
+			// $("#bl").prop("disabled",false)
+			// $("#cmf").prop("disabled",false)
+			// $("#cl").prop("disabled",false)
 
 			$("#tl_al_i").prop("disabled",false)
 			$("#bmf_i").prop("disabled",false)
 			$("#bl_i").prop("disabled",false)
 			$("#cmf_i").prop("disabled",false)
 			$("#cl_i").prop("disabled",false)
+
+			$("#tl_al_i").val('')
+			$("#bmf_i").val('')
+			$("#bl_i").val('')
+			$("#cmf_i").val('')
+			$("#cl_i").val('')
+
 		}else if(vall=='BF')
 		{
-			$("#tl_al").prop("disabled",false)
-			$("#bmf").prop("disabled",false)
-			$("#bl").prop("disabled",false)
-			$("#cmf").prop("disabled",true)
-			$("#cl").prop("disabled",true)
+			// $("#tl_al").prop("disabled",false)
+			// $("#bmf").prop("disabled",false)
+			// $("#bl").prop("disabled",false)
+			// $("#cmf").prop("disabled",true)
+			// $("#cl").prop("disabled",true)
 
 			$("#tl_al_i").prop("disabled",false)
 			$("#bmf_i").prop("disabled",false)
@@ -234,14 +241,17 @@
 			
 			$("#cmf_i").val(0)
 			$("#cl_i").val(0)
+			$("#tl_al_i").val('')
+			$("#bmf_i").val('')
+			$("#bl_i").val('')
 
 		}else{
 
-			$("#tl_al").prop("disabled",false)
-			$("#bmf").prop("disabled",true)
-			$("#bl").prop("disabled",true)
-			$("#cmf").prop("disabled",false)
-			$("#cl").prop("disabled",false)
+			// $("#tl_al").prop("disabled",false)
+			// $("#bmf").prop("disabled",true)
+			// $("#bl").prop("disabled",true)
+			// $("#cmf").prop("disabled",false)
+			// $("#cl").prop("disabled",false)
 
 			$("#tl_al_i").prop("disabled",false)
 			$("#bmf_i").prop("disabled",true)
@@ -251,6 +261,9 @@
 			
 			$("#bmf_i").val(0)
 			$("#bl_i").val(0)
+			$("#tl_al_i").val('')
+			$("#cmf_i").val('')
+			$("#cl_i").val('')
 		}
 	}
 
@@ -270,11 +283,11 @@
 		var l_panjang     = parseFloat(l_panjang_2.split('.').join(''))
 		var l_lebar       = parseFloat(l_lebar_2.split('.').join(''))
 		var l_tinggi      = parseFloat(l_tinggi_2.split('.').join(''))
-		var tl_al         = $("#tl_al").val()
-		var bmf           = $("#bmf").val()
-		var bl            = $("#bl").val()
-		var cmf           = $("#cmf").val()
-		var cl            = $("#cl").val()
+		// var tl_al         = $("#tl_al").val()
+		// var bmf           = $("#bmf").val()
+		// var bl            = $("#bl").val()
+		// var cmf           = $("#cmf").val()
+		// var cl            = $("#cl").val()
 		var tl_al_i       = parseFloat( $("#tl_al_i").val() )
 		var bmf_i         = parseFloat( $("#bmf_i").val() )
 		var bl_i          = parseFloat( $("#bl_i").val() )
@@ -324,7 +337,6 @@
 		document.getElementById('p_sheet').value = format_angka(p_sheet);
 		document.getElementById('l_sheet').value = format_angka(l_sheet);
 
-
 		// berat box
 		if(flute == 'BF'){
 			bb =  parseFloat((parseInt(tl_al_i) + (parseFloat(bmf_i)*1.36) + parseInt(bl_i)) / 1000 * p_sheet / 1000 * l_sheet / 1000) ;
@@ -333,6 +345,7 @@
 
 		}else if(flute == 'CF'){
 			bb = parseFloat(parseInt(tl_al_i) + (parseFloat(cmf_i)*1.46) + parseInt(cl_i)) / 1000 * p_sheet / 1000 * l_sheet / 1000 ;
+			
 
 		}else if(flute == 'BCF'){
 
@@ -362,22 +375,35 @@
 		var bb    = $('#bb').val()
 		var bb_ok = String(bb).split(',').join('.')
 
-		
 		if(cek=='exclude')
 		{
 			var exc    = String($("#exclude").val()).split('.').join('')
 			var inc    = Math.trunc(isi *1.11)
 			$('#include').val(format_angka(inc));
 			
-		}else {
+		} else {
 			var inc    = String($("#include").val()).split('.').join('')
 			var exc    = Math.trunc(isi /1.11)
 			$('#exclude').val(format_angka(exc));
-
+			
 		}
+		
 		hrg_kg   = Math.trunc(exc / parseFloat(bb_ok)); 
 		$('#hrg_kg').val(format_angka(hrg_kg));	
 
+		
+
+	}
+	
+	function hitung_inc_exc(vall)
+	{
+		var bb_ok   = String($("#bb").val()).split(',').join('.')
+		var hrg_kg  = String(vall).split('.').join('')
+		var exc     = parseFloat(hrg_kg)*parseFloat(bb_ok)
+		var inc     = parseFloat(exc) *1.11
+
+		$('#exclude').val(format_angka(exc));	
+		$('#include').val(format_angka(inc));	
 	}
 
 	function kosong()
@@ -385,20 +411,21 @@
 		$("#l_panjang").val(0)
 		$("#l_lebar").val(0)
 		$("#l_tinggi").val(0)		
-		$("#tl_al").val('')
-		$("#bmf").val('')
-		$("#bl").val('')
-		$("#cmf").val('')
-		$("#cl").val('')
-		$("#tl_al_i").val(0)
-		$("#bmf_i").val(0)
-		$("#bl_i").val(0)
-		$("#cmf_i").val(0)
-		$("#cl_i").val(0)
-		$("#hrg_kg").val(0)
+		// $("#tl_al").val('')
+		// $("#bmf").val('')
+		// $("#bl").val('')
+		// $("#cmf").val('')
+		// $("#cl").val('')
+		$("#tl_al_i").val('')
+		$("#bmf_i").val('')
+		$("#bl_i").val('')
+		$("#cmf_i").val('')
+		$("#cl_i").val('')
+		$("#hrg_kg").val('')
 		$("#bb").val(0)
 		$("#p_sheet").val('')
-		$("#l_sheet").val('')
+		$("#l_sheet").val('')		
+		$('#flute').val("BCF").trigger('change');
 
 	}
 

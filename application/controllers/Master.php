@@ -235,16 +235,12 @@ class Master extends CI_Controller
 
 				if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC'){
 					if ($r->level == 'Admin') {
-						$aksi = '<button type="button" onclick="tampil_edit(' . "'" . $r->username . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-xs">
-							Edit
-						</button>';
+						$aksi = '<a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->username . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i>
+						';
 					}else{
-						$aksi = '<button type="button" onclick="tampil_edit(' . "'" . $r->username . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-xs">
-							Edit
-						</button>
-						<button type="button" onclick="deleteData(' . "'" . $r->username . "'" . ')" class="btn btn-danger btn-xs">
-							Hapus
-						</button>';
+						$aksi = '<a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->username . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i>
+
+						<a href="javascript:void(0)" onclick="deleteData(' . "'" . $r->username . "'" . ')" class="btn btn-danger btn-sm" class="btn btn-danger btn-sm"><i class="fas fa-times"></i>';
 					}
 				}else{
 					$aksi = '-';
