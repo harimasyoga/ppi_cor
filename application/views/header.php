@@ -215,7 +215,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
                 
 								
 								<?php if (in_array($this->session->userdata('level'), ['Admin','User','Keuangan1'])) : ?>
-									<?php if (!in_array($this->session->userdata('level'), ['User','Admin','Marketing','Keuangan1'])) { ?>
+									<?php if (!in_array($this->session->userdata('level'), ['Keuangan1'])) { ?>
 									<li class="nav-item">
 										<a href="<?= base_url('Transaksi/Hitung_harga') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
