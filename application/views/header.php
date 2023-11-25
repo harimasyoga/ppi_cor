@@ -154,7 +154,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								</p>
 							</a>
 						</li>
-						<?php if (in_array($this->session->userdata('level'), ['User','Admin','PPIC','Keuangan'])): ?>
+						<?php if (in_array($this->session->userdata('level'), ['User','Admin','PPIC','Keuangan1'])): ?>
 						<li class="nav-item has-treeview">
 							<a href="#" class="nav-link">
 								<i class="nav-icon fas fa-home"></i>
@@ -164,26 +164,30 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								</p>
 							</a>
 							<ul class="nav nav-treeview">
-								<?php if (in_array($this->session->userdata('level'), ['User','Admin','Marketing'])): ?>
-
+								<?php if (in_array($this->session->userdata('level'), ['User','Admin','Marketing','Keuangan1'])): ?>
+									
 									<li class="nav-item">
 										<a href="<?= base_url('Master/Sales') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>Sales</p>
 										</a>
 									</li>
+
 									<li class="nav-item">
 										<a href="<?= base_url('Master/Pelanggan') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>Pelanggan</p>
 										</a>
 									</li>
+
+									<?php if (!in_array($this->session->userdata('level'), ['User','Admin','Marketing','Keuangan1'])) { ?>
 									<li class="nav-item">
 										<a href="<?= base_url('Master/Produk') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p>Produk</p>
 										</a>
 									</li>
+									<?php } ?>
 								<?php endif ?>
 
 								<?php if ($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') : ?>
@@ -198,7 +202,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 						</li>
 						<?php endif ?>
 
-						<?php if (in_array($this->session->userdata('level'), ['Admin','User','PPIC'])) : ?>
+						<?php if (in_array($this->session->userdata('level'), ['Admin','User','PPIC','Keuangan1'])) : ?>
 						<li class="nav-item has-treeview">
 							<a href="#" class="nav-link">
 								<i class="nav-icon fas fa-edit"></i>
@@ -210,13 +214,15 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 							<ul class="nav nav-treeview">
                 
 								
-								<?php if (in_array($this->session->userdata('level'), ['Admin','User'])) : ?>
+								<?php if (in_array($this->session->userdata('level'), ['Admin','User','Keuangan1'])) : ?>
+									<?php if (!in_array($this->session->userdata('level'), ['User','Admin','Marketing','Keuangan1'])) { ?>
 									<li class="nav-item">
 										<a href="<?= base_url('Transaksi/Hitung_harga') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
 											<p><b>Simulasi Harga</b></p>
 										</a>
 									</li>
+									<?php } ?>
 									<li class="nav-item">
 										<a href="<?= base_url('Transaksi/PO') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
@@ -224,6 +230,8 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 										</a>
 									</li>
 					
+									<?php if (!in_array($this->session->userdata('level'), ['User','Admin','Marketing','Keuangan1'])) { ?>
+
 									<li class="nav-item">
 										<a href="<?= base_url('Transaksi/etaPO') ?>" class="nav-link">
 											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
@@ -237,6 +245,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 											<p>SO</p>
 										</a>
 									</li>
+									<?php } ?>
 								<?php endif ?>
 
 								<?php if (in_array($this->session->userdata('level'), ['Admin','PPIC'])) : ?>
