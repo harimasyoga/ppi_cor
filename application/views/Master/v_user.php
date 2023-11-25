@@ -94,6 +94,7 @@
 									<option value="Penjualan">Penjualan</option>
 									<option value="Marketing">Marketing</option>
 									<option value="User">Operator</option>
+									<option value="Keuangan1">Keuangan</option>
 								<?php } ?>
 									<option value="PPIC">PPIC</option>
 									<option value="Corrugator">Corrugator</option>
@@ -156,10 +157,10 @@
 	}
 
 	function simpan() {
-		username = $("#username").val();
-		password = $("#password").val();
-		nm_user = $("#nm_user").val();
-		level = $("#level").val();
+		username    = $("#username").val();
+		password    = $("#password").val();
+		nm_user     = $("#nm_user").val();
+		level       = $("#level").val();
 
 		if (username == '' || password == '' || nm_user == '') {
 			toastr.info('Harap Lengkapi Form');
@@ -222,6 +223,7 @@
 				<option value="Penjualan">Penjualan</option>
 				<option value="Marketing">Marketing</option>
 				<option value="User">Operator</option>
+				<option value="Keuangan1">Keuangan</option>
 				<option value="PPIC">PPIC</option>
 				<option value="Corrugator">Corrugator</option>
 				<option value="Flexo">Flexo</option>
