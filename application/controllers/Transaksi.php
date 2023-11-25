@@ -385,16 +385,22 @@ class Transaksi extends CI_Controller
                 {
 
 					if ($r->status == 'Open' && $r->status_app1 == 'N') {
-						if (!in_array($this->session->userdata('level'), ['Keuangan1'])) { 
+						if (in_array($this->session->userdata('level'), ['Keuangan1'])) { 
 
 							$aksi .= ' 
-							<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
-								<i class="fa fa-edit"></i>
-							</button>';
+							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+
+							<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a>
+
+							';
 						} else {
 
 							$aksi .= ' 
 
+							<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
+								<i class="fa fa-edit"></i>
+							</button>
+							
 							<button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ',' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
 								<i class="fa fa-trash-alt"></i>
 							</button>  
