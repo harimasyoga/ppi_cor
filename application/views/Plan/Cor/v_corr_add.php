@@ -110,6 +110,23 @@
 						</div>
 					</div>
 				</div>
+
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-body p-0">
+							<div id="accordion-plan">
+								<div class="card m-0" style="border-radius:0">
+									<div class="card-header bg-gradient-secondary" style="padding:0;border-radius:0">
+										<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapsePlan" onclick="loadDataAllPlan()">LIST SEMUA PLAN</a>
+									</div>
+									<div id="collapsePlan" class="collapse" data-parent="#accordion-plan">
+										<div id="tampil-all-plan-header"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 				
 				<div class="col-md-12">
 					<div id="riwayat-plan"></div>
@@ -538,6 +555,50 @@
 		})
 	})
 
+	function loadDataAllPlan()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/loadDataAllPlan')?>',
+			type: "POST",
+			data: ({
+				urlTgl_plan: '', urlShift: '', urlMesin: ''
+			}),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				$("#tampil-all-plan-header").html(res)
+				swal.close()
+			}
+		})
+	}
+
+	function loadInputList(tp, sp, mp, i)
+	{
+		tgl_plan = tp
+		shift = sp
+		machine = mp
+		hidplan = 'add'
+		opsi = 'pilihan'
+		$.ajax({
+			url: '<?php echo base_url('Plan/loadInputList')?>',
+			type: "POST",
+			data: ({
+				tgl_plan, shift, machine, hidplan, opsi, urlNoPlan: ''
+			}),
+			success: function(res){
+				$("#tampil-all-plan-isi-"+i+sp+mp).html(res)
+			}
+		})
+	}
+
 	function loadDataAllWO()
 	{
 		$.ajax({
@@ -566,22 +627,11 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/onClickHeaderWO')?>',
 			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
 			data: ({
 				id_pelanggan
 			}),
 			success: function(res){
 				$("#tampil-all-wo-isi-"+id_pelanggan).html(res)
-				swal.close()
 			}
 		})
 	}
@@ -1078,7 +1128,8 @@
 		
 		$("#txt-wo-s1").val(creasing_wo1)
 		$("#txt-wo-s2").val(creasing_wo2)
-		$("#txt-wo-s3").val(creasing_wo3)
+		$("#txt-wo-s3").val(creasing_wo3);
+		(totcreasingwo == 0) ? totcreasingwo = lebar_s : totcreasingwo = totcreasingwo;
 		$("#txt-wo-score").val(totcreasingwo);
 		
 		// let panjang_s = $('#no_wo option:selected').attr('panjang-s')

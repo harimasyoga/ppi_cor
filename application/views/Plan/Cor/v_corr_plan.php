@@ -39,7 +39,7 @@
 								<div id="accordion-customer">
 									<div class="card m-0" style="border-radius:0">
 										<div class="card-header bg-gradient-secondary" style="padding:0;border-radius:0">
-											<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseCustomer" onclick="loadDataAllWO()">LIST SEMUA CUSTOMER</a>
+											<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseCustomer" onclick="loadDataAllWO()">LIST SEMUA WO CUSTOMER</a>
 										</div>
 										<div id="collapseCustomer" class="collapse" data-parent="#accordion-customer">
 											<div id="tampil-all-wo-header"></div>
@@ -120,12 +120,29 @@
 					</div>
 				<?php } ?>
 
-				<div class="col-md-12 plh-tanggal-plan-col12" style="display:none">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-body p-0">
+							<div id="accordion-plan">
+								<div class="card m-0" style="border-radius:0">
+									<div class="card-header bg-gradient-secondary" style="padding:0;border-radius:0">
+										<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapsePlan" onclick="loadDataAllPlan()">LIST SEMUA PLAN</a>
+									</div>
+									<div id="collapsePlan" class="collapse" data-parent="#accordion-plan">
+										<div id="tampil-all-plan-header"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- <div class="col-md-12 plh-tanggal-plan-col12" style="display:none">
 					<div class="card card-primary card-tabs">
 						<div id="plh-tanggal-plan-header"></div>
 						<div id="plh-tanggal-plan-body"></div>
 					</div>
-				</div>
+				</div> -->
 
 				<div class="col-md-12">
 					<div id="tampil-list-input"></div>
@@ -675,22 +692,11 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/onClickHeaderWO')?>',
 			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
 			data: ({
 				id_pelanggan
 			}),
 			success: function(res){
 				$("#tampil-all-wo-isi-"+id_pelanggan).html(res)
-				swal.close()
 			}
 		})
 	}
@@ -789,6 +795,31 @@
 		$("#ket_so").val("")
 	}
 
+	function loadDataAllPlan()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/loadDataAllPlan')?>',
+			type: "POST",
+			data: ({
+				urlTgl_plan, urlShift, urlMesin
+			}),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				$("#tampil-all-plan-header").html(res)
+				swal.close()
+			}
+		})
+	}
+
 	function loadPilihTanggal()
 	{
 		$("#plh-tanggal-plan-header").html('')
@@ -876,16 +907,6 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadInputList')?>',
 			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
 			data: ({
 				tgl_plan, shift, machine, hidplan, opsi, urlNoPlan
 			}),
@@ -895,9 +916,7 @@
 					$('.select2').select2();
 					(inputDtProd == 'inputDowntimeProduksi') ? plhDowntime() : loadPilihTanggal() ;
 				}else{
-					$(".ke-halaman-"+i).html(`<a href="<?php echo base_url('Plan/Corrugator/List')?>/${tgl_plan}/${shift}/${machine}" class="btn btn-xs btn-info" style="padding:0 4px;margin-right:5px"><i class="fa fa-arrow-right"></i></a>`)
-					$("#plh-tanggal-plan-body").html(res)
-					swal.close()
+					$("#tampil-all-plan-isi-"+i+sp+mp).html(res)
 				}
 			}
 		})
@@ -2051,7 +2070,8 @@
 				
 				$("#txt-wo-s1").val(creasing_wo1)
 				$("#txt-wo-s2").val(creasing_wo2)
-				$("#txt-wo-s3").val(creasing_wo3)
+				$("#txt-wo-s3").val(creasing_wo3);
+				(totcreasingwo == 0) ? totcreasingwo = lebar_s : totcreasingwo = totcreasingwo;
 				$("#txt-wo-score").val(totcreasingwo);
 
 				let panjangwo = (opsi != '') ? data.wo.panjang_plan : $('#no_wo option:selected').attr('panjangwo');

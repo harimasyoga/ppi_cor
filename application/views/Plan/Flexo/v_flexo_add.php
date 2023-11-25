@@ -17,7 +17,24 @@
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row">
-
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-body p-0">
+							<div id="accordion-customer">
+								<div class="card m-0" style="border-radius:0">
+									<div class="card-header bg-gradient-secondary" style="padding:0;border-radius:0">
+										<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseCustomer" onclick="loadDataAllPlanCor()">
+											LIST SEMUA PLAN COR
+										</a>
+									</div>
+									<div id="collapseCustomer" class="collapse" data-parent="#accordion-customer">
+										<div id="tampil-all-plan-header"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 				<div class="col-md-12">
 					<div class="card card-info card-outline">
 						<div class="card-header">
@@ -289,6 +306,42 @@
 			dropdownAutoWidth: true
 		})
 	})
+
+	function loadDataAllPlanCor()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/loadDataAllPlanCor')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				$("#tampil-all-plan-header").html(res)
+				swal.close()
+			}
+		})
+	}
+
+	function onClickHeaderPlanCor(next_flexo)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/onClickHeaderPlanCor')?>',
+			type: "POST",
+			data: ({
+				next_flexo
+			}),
+			success: function(res){
+				$("#tampil-all-flexo-isi-"+next_flexo).html(res)
+			}
+		})
+	}
 
 	function plhShiftMesin()
 	{
