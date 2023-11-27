@@ -168,6 +168,65 @@ class M_master extends CI_Model{
 
         return $result;
     }
+   
+	function m_modul_group($table,$status)
+	{
+		
+        $id         = $this->input->post('id_group');
+        $nm_group   = $this->input->post('nm_group');
+        $val_group  = $this->input->post('val_group');
+   
+        $data = array(
+			'nm_group'  	=> $nm_group,
+			'val_group'  	=> $val_group,
+		);
+
+        if ($status == 'insert') {
+				$cek = $this->db->query("SELECT * FROM m_modul_group WHERE nm_group = '$nm_group' and val_group='$val_group' ")->num_rows();
+
+				if ($cek > 0) {
+					return false;
+				}else{
+
+					$result= $this->db->insert($table,$data);
+				}
+
+        }else{
+            $result= $this->db->update($table,$data,array('id_group' => $id));
+        }
+        
+
+        return $result;
+    }
+
+    function edit_modul($table,$status)
+	{        
+        $id_group   = $this->input->post('id_group');
+        $query      = $this->db->query("SELECT*FROM m_modul")->result();
+
+		$delete = $this->db->query("DELETE from m_modul_groupd where id_group='$id_group' ");
+
+		foreach ( $query as $row ) {
+			$cek = $this->input->post('status'.$row->kode);
+			if($cek == 1)
+			{
+				$data = [
+					'id_group'      => $id_group,
+					'kode_modul'    => $row->kode,
+					'add'           => '1',
+					'edit'          => '1',
+					'del'           => '1',
+					'cetak'         => '1',
+				];
+
+				$result = $this->db->insert("m_modul_groupd", $data);
+
+			}
+		}
+        
+
+        return $result;
+    }
     
     function m_produk($table,$status){
         $data = array(

@@ -79,8 +79,9 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 					<a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
 				</li>
 				<li class="nav-item">
-					<li class="nav-link" style="padding-left:0px;" >
-						<b><?= $this->session->userdata('username') ?></b> , <a href="#"><?= $this->session->userdata('level') ?></a>
+					<li style="color:#000" class="nav-link" style="padding-left:0px;" >
+						<b><?= ucwords($this->session->userdata('nm_user')) ?></b>  
+						[ <span style="color:blue"><b><?= $this->session->userdata('level') ?></b></span> ]
 					</li>
 				</li>
 			</ul>
@@ -146,6 +147,7 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 					<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 						<!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
+						<div id="accordion-header">
 						<li class="nav-item has-treeview">
 							<a href="<?= base_url('Master') ?>" class="nav-link">
 								<i class="nav-icon fas fa-tachometer-alt"></i>
@@ -154,199 +156,54 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								</p>
 							</a>
 						</li>
-						<?php if (in_array($this->session->userdata('level'), ['User','Admin','PPIC','Keuangan1'])): ?>
-						<li class="nav-item has-treeview">
-							<a href="#" class="nav-link">
-								<i class="nav-icon fas fa-home"></i>
-								<p>
-									<b>Master</b>
-									<i class="fas fa-angle-left right"></i>
-								</p>
-							</a>
-							<ul class="nav nav-treeview">
-								<?php if (in_array($this->session->userdata('level'), ['User','Admin','Marketing','Keuangan1'])): ?>
-									
-									<li class="nav-item">
-										<a href="<?= base_url('Master/Sales') ?>" class="nav-link">
-											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>Sales</p>
-										</a>
-									</li>
+						</div>
 
-									<li class="nav-item">
-										<a href="<?= base_url('Master/Pelanggan') ?>" class="nav-link">
-											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>Pelanggan</p>
-										</a>
-									</li>
+						<div id="accordion-menu">
+						<?php
+						$userlevel = $this->session->userdata('level');
 
-									<?php if (!in_array($this->session->userdata('level'), ['Keuangan1'])) { ?>
-									<li class="nav-item">
-										<a href="<?= base_url('Master/Produk') ?>" class="nav-link">
-											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>Produk</p>
-										</a>
-									</li>
-									<?php } ?>
-								<?php endif ?>
-
-								<?php if ($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') : ?>
-									<li class="nav-item">
-										<a href="<?= base_url('Master/User') ?>" class="nav-link">
-											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>User</p>
-										</a>
-									</li>
-								<?php endif ?>
-							</ul>
-						</li>
-						<?php endif ?>
-
-						<?php if (in_array($this->session->userdata('level'), ['Admin','User','PPIC','Keuangan1'])) : ?>
-						<li class="nav-item has-treeview">
-							<a href="#" class="nav-link">
-								<i class="nav-icon fas fa-edit"></i>
-								<p>
-									<b>Transaksi</b>
-									<i class="fas fa-angle-left right"></i>
-								</p>
-							</a>
-							<ul class="nav nav-treeview">
-                
-								
-								<?php if (in_array($this->session->userdata('level'), ['Admin','User','Keuangan1'])) : ?>
-									<?php if (!in_array($this->session->userdata('level'), ['Keuangan1'])) { ?>
-									<li class="nav-item">
-										<a href="<?= base_url('Transaksi/Hitung_harga') ?>" class="nav-link">
-											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p><b>Simulasi Harga</b></p>
-										</a>
-									</li>
-									<?php } ?>
-									<li class="nav-item">
-										<a href="<?= base_url('Transaksi/PO') ?>" class="nav-link">
-											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>PO</p>
-										</a>
-									</li>
-					
-									<?php if (!in_array($this->session->userdata('level'), ['Keuangan1'])) { ?>
-
-									<li class="nav-item">
-										<a href="<?= base_url('Transaksi/etaPO') ?>" class="nav-link">
-											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>ETA PO CUSTOMER</p>
-										</a>
-									</li>
-                
-									<li class="nav-item">
-										<a href="<?= base_url('Transaksi/SO') ?>" class="nav-link">
-											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>SO</p>
-										</a>
-									</li>
-									<?php } ?>
-								<?php endif ?>
-
-								<?php if (in_array($this->session->userdata('level'), ['Admin','PPIC'])) : ?>
-									<li class="nav-item">
-										<a href="<?= base_url('Transaksi/WO') ?>" class="nav-link">
-											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>WO</p>
-										</a>
-									</li>
-								<?php endif ?>
-
-									<!-- <li class="nav-item">
-										<a href="<?= base_url('Transaksi/SuratJalan') ?>" class="nav-link">
-											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>Surat Jalan</p>
-										</a>
-									</li> -->
-									
-							</ul>
-						</li>
-						<?php endif ?>
-
-						<?php if (in_array($this->session->userdata('level'), ['Admin','Marketing','PPIC','Owner'])): ?>
-						<li class="nav-item has-treeview">
-							<a href="#" class="nav-link">
-								<i class="nav-icon fas fa-check-double"></i>
-								<p>
-									<b>Approval</b>
-									<i class="fas fa-angle-left right"></i>
-								</p>
-							</a>
-							<ul class="nav nav-treeview">
-
-								
-									<li class="nav-item">
-										<a href="<?= base_url('Transaksi/PO') ?>" class="nav-link">
-										&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-											<p>PO</p>
-										</a>
-									</li>
-
-							</ul>
-						</li>
-						<?php endif ?>
-
-						<?php if (in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator','Flexo','Finishing'])): ?>
+						$list_menu = $this->db->query("SELECT * from m_modul where lev=0 and aktif=1 and kode in 
+						(SELECT kode_modul from m_modul_groupd a 
+						left join m_modul_group b ON a.id_group=b.id_group 
+						where b.val_group='$userlevel'
+						group by kode_modul)
+						order by kode")->result();
+						
+						foreach($list_menu as $menu1) { 
+							$_menu1 = $menu1->kode;
+							$level = 10;?>
 							<li class="nav-item has-treeview">
-								<a href="#" class="nav-link">
-									<i class="nav-icon fas fa-calendar-alt"></i>
+
+								<a href="#collapse<?=$menu1->nama?>" data-toggle="collapse" class="nav-link">
+									<i class="nav-icon fas <?=$menu1->icon?>"></i>
 									<p>
-										<b>Plan</b>
+										<b><?= $menu1->nama ?></b>
 										<i class="fas fa-angle-left right"></i>
 									</p>
 								</a>
-								<ul class="nav nav-treeview">
-									<?php if (in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator'])) { ?>
-										<li class="nav-item">
-											<a href="<?= base_url('Plan/Corrugator') ?>" class="nav-link">
-												&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-												<p>Corrugator</p>
-											</a>
-										</li>
-										<?php } ?>
-									<?php if (in_array($this->session->userdata('level'), ['Admin','PPIC','Flexo'])) { ?>
-										<li class="nav-item">
-											<a href="<?= base_url('Plan/Flexo') ?>" class="nav-link">
-												&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-												<p>Flexo</p>
-											</a>
-										</li>
-									<?php } ?>
-									<?php if (in_array($this->session->userdata('level'), ['Admin','PPIC','Finishing'])) { ?>
-										<li class="nav-item">
-											<a href="<?= base_url('Plan/Finishing') ?>" class="nav-link">
-											&nbsp;&nbsp;&nbsp;<i class="fas fa-sign-out-alt nav-icon"></i>
-												<p>Finishing</p>
-											</a>
-										</li>
-									<?php } ?>
-								</ul>
+								
+								<div id="collapse<?=$menu1->nama?>" class="collapse" data-parent="#accordion-menu">
+								<?php
+								$list_sub_menu = $this->db->query("SELECT * from m_modul where main_menu='$_menu1' and aktif=1 and kode in 
+								(SELECT kode_modul from m_modul_groupd a 
+								left join m_modul_group b ON a.id_group=b.id_group 
+								where b.val_group='$userlevel'
+								group by kode_modul) order by kode")->result();
+
+								foreach($list_sub_menu as $menu2) {
+								$_menu2 = $menu2->kode;?>
+									<a style="color:#fff;" class="nav-link"  href="<?= base_url("$menu2->url"); ?>" > &nbsp;&nbsp;&nbsp;
+										<i class="fa <?=$menu2->icon?> nav-icon"></i>
+										<p><b><?= $menu2->nama ?></b></p>
+									</a>
+										
+								<?php }?>
+								
+								</div>
 							</li>
-						<?php endif ?>
-						<!-- <li class="nav-item has-treeview">
-            <a href="<?= base_url('Laporan') ?>" class="nav-link">
-              <i class="nav-icon fas fa-table"></i>
-              <p>
-                laporan
-              </p>
-            </a>
-            
-          </li> -->
-						<!--  <li class="nav-header">Pengaturan</li>
-          <li class="nav-item has-treeview">
-            <a href="<?= base_url('Master/Sistem') ?>" class="nav-link">
-              <i class="nav-icon far fa-circle text-info"></i>
-              <p>
-                Sistem
-              </p>
-            </a>
-            
-          </li> -->
+						<?php } ?>
+						
+						</div>
 
 					</ul>
 				</nav>

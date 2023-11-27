@@ -36,11 +36,9 @@
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead>
 						<tr>
-							<th style="width:15%">Username</th>
-							<th style="width:22%">Nama</th>
-							<th style="width:15%">Password</th>
-							<th style="width:10%">Level</th>
-							<th style="width:10%">Aksi</th>
+							<th style="text-align: center;width:10%">Id</th>
+							<th style="text-align: center;width:50%">Level</th>
+							<th style="text-align: center;width:40%">Aksi</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -66,41 +64,16 @@
 			<div class="modal-body">
 				<form role="form" method="post" id="myForm">
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">Username</label>
+						<label class="col-sm-2 col-form-label">Nama Level</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" id="username" placeholder="USERNAME">
-							<input autocomplete="off" type="hidden" class="form-control" id="username_lama">
+							<input type="text" class="form-control" id="nm_group" name="nm_group" placeholder="Nama">
+							<input autocomplete="off" type="hidden" class="form-control" id="id_group">
 						</div>
 					</div>
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">Nama user</label>
+						<label class="col-sm-2 col-form-label">Value</label>
 						<div class="col-sm-10">
-							<input autocomplete="off" type="text" class="form-control" id="nm_user" placeholder="NAMA USER">
-						</div>
-					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">Password</label>
-						<div class="col-sm-10">
-							<input autocomplete="off" type="password" class="form-control" id="password" placeholder="PASSWORD">
-						</div>
-					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">Level</label>
-						<div class="col-sm-10">
-							<select class="form-control select2" id="level">
-								<!-- <option value="">PILIH</option>
-								<?php if($this->session->userdata('level') != 'PPIC') { ?>
-									<option value="Owner">Owner</option>
-									<option value="Penjualan">Penjualan</option>
-									<option value="Marketing">Marketing</option>
-									<option value="User">Operator</option>
-									<option value="Keuangan1">Keuangan</option>
-								<?php } ?>
-									<option value="PPIC">PPIC</option>
-									<option value="Corrugator">Corrugator</option>
-									<option value="Flexo">Flexo</option>
-									<option value="Finishing">Finishing</option> -->
-							</select>
+							<input autocomplete="off" type="text" class="form-control" id="val_group" name="val_group" placeholder="Value">
 						</div>
 					</div>
 			</div>
@@ -141,11 +114,15 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url(); ?>Master/load_data/user',
+				"url": '<?php echo base_url(); ?>Master/load_data/user_level',
 				"type": "POST",
 			},
+			"aLengthMenu": [
+				[5, 15, 20, 25, -1],
+				[5, 15, 20, 25, "Semua"] // change per page values here
+			],		
 			responsive: true,
-			"pageLength": 25,
+			"pageLength": 5,
 			"language": {
 				"emptyTable": "Tidak ada data.."
 			}
@@ -158,12 +135,10 @@
 	}
 
 	function simpan() {
-		username    = $("#username").val();
-		password    = $("#password").val();
-		nm_user     = $("#nm_user").val();
-		level       = $("#level").val();
+		nm_group    = $("#nm_group").val();
+		val_group   = $("#val_group").val();
 
-		if (username == '' || password == '' || nm_user == '') {
+		if (nm_group == '' || val_group == '') {
 			toastr.info('Harap Lengkapi Form');
 			return;
 		}
@@ -182,59 +157,49 @@
 				});
 			},
 			data: ({
-				username,
-				password,
-				nm_user,
-				level,
-				jenis: 'tb_user',
+				nm_group,
+				val_group,
+				jenis: 'm_modul_group',
 				status: status
 			}),
 			dataType: "JSON",
 			success: function(data) {
 				if (data) {
-					toastr.success('Berhasil Disimpan');
+					swal({
+						title               : "Data",
+						html                : "Berhasil Disimpan",
+						type                : "success",
+						confirmButtonText   : "OK"
+					});
 					kosong();
 					$("#modalForm").modal("hide");
 					reloadTable();
 				} else {
-					toastr.error('Username Sudah Ada');
+					swal({
+						title               : "Cek Kembali",
+						html                : "Data Sudah Ada",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
 				}
-				swal.close()
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				toastr.error('Terjadi Kesalahan atau username sudah tersedia');
+				swal({
+					title               : "Cek Kembali",
+					html                : "Terjadi Kesalahan atau Data sudah ada",
+					type                : "error",
+					confirmButtonText   : "OK"
+				});
 			}
 		});
 
 	}
 
 	function kosong() {
-		$("#username").val('');
-		$("#username_lama").val('');
-		$("#nm_user").val('');
-		$("#password").val('');
+		$("#id_group").val('');
+		$("#val_group").val('');
 		status = 'insert';
 		$("#btn-simpan").show();
-		$("#username").prop("readonly", false);
-	}
-
-	function load_group()
-	{
-		option = "";
-		$.ajax({
-			type: 'POST',
-			url: "<?= base_url(); ?>Master/load_group",
-			dataType: 'json',
-			success:function(data){								
-				option = "<option>-- Pilih --</option>";
-				$.each(data, function(index, val) {
-				option += "<option value='"+val.val_group+"'>"+val.nm_group+"</option>";
-				});
-
-				$('#level').html(option);
-			}
-			
-		});
 	}
 
 
