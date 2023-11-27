@@ -184,10 +184,11 @@ class Plan extends CI_Controller
 		$id_wo = $_POST["id_wo"];
 		$html = '';
 
-		$getData = $this->db->query("SELECT pl.*,i.flute,so.eta_so,so.qty_so,wo.kategori,wo.flap1,wo.creasing2,wo.flap2 FROM plan_cor pl
+		$getData = $this->db->query("SELECT pl.*,i.flute,so.eta_so,so.qty_so,wo.kategori,wo.flap1,wo.creasing2,wo.flap2,f.tgl_flexo FROM plan_cor pl
 		INNER JOIN trs_so_detail so ON pl.id_so_detail=so.id
 		INNER JOIN trs_wo wo ON pl.id_wo=wo.id
 		INNER JOIN m_produk i ON pl.id_produk=i.id_produk
+		LEFT JOIN plan_flexo f ON pl.id_plan=f.id_plan_cor
 		WHERE pl.id_wo='$id_wo'");
 
 		if($getData->num_rows() == 0){
@@ -197,6 +198,8 @@ class Plan extends CI_Controller
 				<thead>
 					<tr>
 						<th style="padding:6px;position:sticky;left:0;background:#fff">#</th>
+						<th style="padding:6px">TGL PLAN</th>
+						<th style="padding:6px">ETA SO</th>
 						<th style="padding:6px">KUALITAS</th>
 						<th style="padding:6px">PJG</th>
 						<th style="padding:6px">LEBAR</th>
@@ -205,19 +208,19 @@ class Plan extends CI_Controller
 						<th style="padding:6px">FT</th>
 						<th style="padding:6px">L.ROLL</th>
 						<th style="padding:6px">TRIM</th>
+						<th style="padding:6px">GOOD</th>
+						<th style="padding:6px">TOTAL</th>
+						<th style="padding:6px">DT. COR</th>
 						<th style="padding:6px">C.OFF</th>
 						<th style="padding:6px">RM</th>
 						<th style="padding:6px">KG</th>
-						<th style="padding:6px">GOOD</th>
-						<th style="padding:6px">BAD</th>
-						<th style="padding:6px">TOTAL</th>
-						<th style="padding:6px">DOWNTIME</th>
 						<th style="padding:6px">TGL KIRIM</th>
-						<th style="padding:6px">ETA SO</th>
-						<th style="padding:6px">NEXT</th>
-						<th style="padding:6px">TGL PLAN</th>
-						<th style="padding:6px">SHIFT</th>
-						<th style="padding:6px">MESIN</th>
+						<th style="padding:6px">PLAN FLEXO</th>
+						<th style="padding:6px">FLEXO</th>
+						<th style="padding:6px">WASTE PCS</th>
+						<th style="padding:6px">WASTE KG</th>
+						<th style="padding:6px">WASTE TRIM</th>
+						<th style="padding:6px">WASTE %</th>
 					</tr>
 				</thead>';
 
@@ -246,6 +249,34 @@ class Plan extends CI_Controller
 						$borBot = '';
 					}
 
+					($r->total_cor_p > 0) ? $c_off = number_format($r->good_cor_p / $r->out_plan) : $c_off = '-';
+					($r->total_cor_p > 0) ? $rm = number_format((round($r->good_cor_p / $r->out_plan) * $r->panjang_plan) / 1000) : $rm = '-';
+					($r->total_cor_p > 0) ? $rmTrim = ((round($r->good_cor_p / $r->out_plan) * $r->panjang_plan) / 1000) : $rmTrim = 0;
+					$expKP = explode("/", $r->kualitas_isi_plan);
+					if($r->flute == "BF"){
+						$ton = ($expKP[0] + ($expKP[1]*1.36) + $expKP[2]) / 1000 * $r->panjang_plan / 1000 * $r->lebar_plan / 1000 * $r->good_cor_p;
+						$wasteKG = ($expKP[0] + ($expKP[1]*1.36) + $expKP[2]) / 1000 * $r->panjang_plan / 1000 * $r->lebar_plan / 1000 * $r->bad_cor_p;
+						$wasteTrim = $rmTrim;
+					}else if($r->flute == "CF"){
+						$ton = ($expKP[0] + ($expKP[1]*1.46) + $expKP[2]) / 1000 * $r->panjang_plan / 1000 * $r->lebar_plan / 1000 * $r->good_cor_p;
+						$wasteKG = ($expKP[0] + ($expKP[1]*1.46) + $expKP[2]) / 1000 * $r->panjang_plan / 1000 * $r->lebar_plan / 1000 * $r->bad_cor_p;
+						$wasteTrim = 0;
+					}else if($r->flute == "BCF"){
+						$ton = ($expKP[0] + ($expKP[1]*1.36) + $expKP[2] + ($expKP[3]*1.46) + $expKP[4]) / 1000 * $r->panjang_plan / 1000 * $r->lebar_plan / 1000 * $r->good_cor_p;
+						$wasteKG = ($expKP[0] + ($expKP[1]*1.36) + $expKP[2] + ($expKP[3]*1.46) + $expKP[4]) / 1000 * $r->panjang_plan / 1000 * $r->lebar_plan / 1000 * $r->bad_cor_p;
+						$wasteTrim = 0;
+					}else{
+						$ton = 0;
+						$wasteKG = 0;
+						$wasteTrim = 0;
+					}
+					($ton == 0) ? $ton = '-' : $ton = number_format($ton);
+					($wasteKG == 0) ? $wasteKG = '-' : $wasteKG = number_format($wasteKG);
+					($wasteTrim == 0) ? $wasteTrim = '-' : $wasteTrim = number_format($wasteTrim);
+
+					// =(H152+J152*1,36+L152+N152*1,46+P152)/1000*Q152/1000*R152/1000*AH152
+					// =((trim/1000*rm*(H152/1000+J152*1,36/1000+L152/1000+N152*1,46/1000+P152/1000))+wastekg)
+
 					$id_plan = $r->id_plan;
 					$getDt = $this->db->query("SELECT COUNT(id_plan_cor) AS jml_dt,SUM(durasi_mnt_dt) AS durasi_dt FROM plan_cor_dt WHERE id_plan_cor='$id_plan'
 					GROUP BY id_plan_cor");
@@ -258,6 +289,8 @@ class Plan extends CI_Controller
 								<i class="fa fa-arrow-right"></i>
 							</a>
 						</td>
+						<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->tgl_plan).'</td>
+						<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->eta_so).'</td>
 						<td style="padding:6px'.$borBot.'">'.$r->kualitas_plan.'</td>
 						<td style="padding:6px'.$borBot.'">'.number_format($r->panjang_plan).'</td>
 						<td style="padding:6px'.$borBot.'">'.number_format($r->lebar_plan).'</td>
@@ -266,19 +299,19 @@ class Plan extends CI_Controller
 						<td style="padding:6px'.$borBot.'">'.$r->flute.'</td>
 						<td style="padding:6px'.$borBot.'">'.number_format($r->lebar_roll_p).'</td>
 						<td style="padding:6px'.$borBot.'">'.number_format($r->trim_plan).'</td>
-						<td style="padding:6px'.$borBot.'">'.number_format($r->c_off_p).'</td>
-						<td style="padding:6px'.$borBot.'">'.number_format($r->rm_plan).'</td>
-						<td style="padding:6px'.$borBot.'">'.number_format($r->tonase_plan).'</td>
 						<td style="padding:6px'.$borBot.';text-align:right">'.number_format($r->good_cor_p).'</td>
-						<td style="padding:6px'.$borBot.';text-align:right">'.number_format($r->bad_cor_p).'</td>
 						<td style="padding:6px'.$borBot.';text-align:right">'.number_format($r->total_cor_p).'</td>
 						<td style="padding:6px'.$borBot.'">'.$jml_dt.''.$durasi_dt.'</td>
+						<td style="padding:6px'.$borBot.'">'.$c_off.'</td>
+						<td style="padding:6px'.$borBot.'">'.$rm.'</td>
+						<td style="padding:6px'.$borBot.'">'.$ton.'</td>
 						<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
-						<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->eta_so).'</td>
+						<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->tgl_flexo).'</td>
 						<td style="padding:6px'.$borBot.'">'.$r->next_plan.'</td>
-						<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->tgl_plan).'</td>
-						<td style="padding:6px'.$borBot.'">'.$r->shift_plan.'</td>
-						<td style="padding:6px'.$borBot.'">'.$r->machine_plan.'</td>
+						<td style="padding:6px'.$borBot.';text-align:right">'.number_format($r->bad_cor_p).'</td>
+						<td style="padding:6px'.$borBot.'">'.$wasteKG.'</td>
+						<td style="padding:6px'.$borBot.'">'.$wasteTrim.'</td>
+						<td style="padding:6px'.$borBot.'"></td>
 					</tr>';
 
 					$sumGood += $r->good_cor_p;
@@ -286,25 +319,25 @@ class Plan extends CI_Controller
 					$sunGoodBad += $r->total_cor_p;
 				}
 
-				$html.='<tr>
-					<td style="border:0;padding:6px;font-weight:bold;text-align:right" colspan="12"></td>
-					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.number_format($sumGood).'</td>
-					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.number_format($sumBad).'</td>
-					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.number_format($sunGoodBad).'</td>
-				</tr>';
+			// 	$html.='<tr>
+			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right" colspan="13"></td>
+			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.number_format($sumGood).'</td>
+			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.number_format($sumBad).'</td>
+			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.number_format($sunGoodBad).'</td>
+			// 	</tr>';
 
-				$hasilSOGod = $sumGood - $getData->row()->qty_so;
-				$hasilSOBad = $sumBad - $getData->row()->qty_so;
-				$hasilSOTot = $sunGoodBad - $getData->row()->qty_so;
-				($hasilSOGod > 0) ? $hasilSOGod = '+'.number_format($hasilSOGod) : $hasilSOGod = number_format($hasilSOGod);
-				($hasilSOBad > 0) ? $hasilSOBad = '+'.number_format($hasilSOBad) : $hasilSOBad = number_format($hasilSOBad);
-				($hasilSOTot > 0) ? $hasilSOTot = '+'.number_format($hasilSOTot) : $hasilSOTot = number_format($hasilSOTot);
-				$html.='<tr>
-					<td style="border:0;padding:6px;font-weight:bold;text-align:right" colspan="12">QTY SO ( '.number_format($getData->row()->qty_so).' ) = </td>
-					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.$hasilSOGod.'</td>
-					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.$hasilSOBad.'</td>
-					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.$hasilSOTot.'</td>
-				</tr>';
+			// 	$hasilSOGod = $sumGood - $getData->row()->qty_so;
+			// 	$hasilSOBad = $sumBad - $getData->row()->qty_so;
+			// 	$hasilSOTot = $sunGoodBad - $getData->row()->qty_so;
+			// 	($hasilSOGod > 0) ? $hasilSOGod = '+'.number_format($hasilSOGod) : $hasilSOGod = number_format($hasilSOGod);
+			// 	($hasilSOBad > 0) ? $hasilSOBad = '+'.number_format($hasilSOBad) : $hasilSOBad = number_format($hasilSOBad);
+			// 	($hasilSOTot > 0) ? $hasilSOTot = '+'.number_format($hasilSOTot) : $hasilSOTot = number_format($hasilSOTot);
+			// 	$html.='<tr>
+			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right" colspan="13">QTY SO ( '.number_format($getData->row()->qty_so).' ) = </td>
+			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.$hasilSOGod.'</td>
+			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right"></td>
+			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.$hasilSOTot.'</td>
+			// 	</tr>';
 			}
 
 		$html.='</table>';
@@ -530,10 +563,10 @@ class Plan extends CI_Controller
 				<td style="padding:6px;text-align:center">'.number_format($r['options']['c_off_p']).'</td>
 				<td style="padding:6px;text-align:center">'.number_format($r['options']['rm_plan']).'</td>
 				<td style="padding:6px;text-align:center">'.number_format($r['options']['tonase_plan']).'</td>
-				<td style="padding:6px;text-align:center">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r['options']['tgl_kirim_plan'])).'</td>
+				<td style="padding:6px;text-align:center">'.strtoupper($this->m_fungsi->tglPlan($r['options']['tgl_kirim_plan'])).'</td>
 				<td style="padding:6px">'.$r['options']['next_plan'].'</td>
 				<td style="padding:0">
-					<button class="btn btn-sm btn-danger" onclick="hapusCartItem('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
+					<button class="btn btn-xs btn-danger" onclick="hapusCartItem('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
 				</td>
 			</tr>';
 		}
@@ -1132,11 +1165,11 @@ class Plan extends CI_Controller
 				<i class="fa fa-arrow-right"></i>
 			</a>';
 			$left1 = 0;
-			$left2 = '38px';
+			$left2 = '40px';
 		}else{
 			$btnPindahHal = '#';
 			$left1 = 0;
-			$left2 = '20px';
+			$left2 = '30px';
 		}
 		$html .= '<div style="overflow:auto;white-space:nowrap">
 			<table class="table table-bordered" style="border:0;text-align:center">
@@ -1160,20 +1193,25 @@ class Plan extends CI_Controller
 						<th style="padding:6px">L. ROLL</th>
 						<th style="padding:6px">TRIM</th>
 						<th style="padding:6px">ORDER</th>
+						<th style="padding:6px">HASIL</th>
+						<th style="padding:6px">START</th>
+						<th style="padding:6px">END</th>
 						<th style="padding:6px">C.OFF</th>
 						<th style="padding:6px 22px">KG</th>
 						<th style="padding:6px 22px">RM</th>
 						<th style="padding:6px">TGL KIRIM</th>
+						<th style="padding:6px">PLAN FLEXO</th>
 						<th style="padding:6px 24px">NEXT</th>
 						<th style="padding:6px">AKSI</th>
 					</tr>
 				</thead>';
 
-		$data = $this->db->query("SELECT p.*,i.nm_produk,w.kode_po,l.nm_pelanggan,i.kategori,i.flute,w.flap1,w.creasing2,w.flap2,w.status AS statusWo FROM plan_cor p
+		$data = $this->db->query("SELECT p.*,i.nm_produk,w.kode_po,l.nm_pelanggan,i.kategori,i.flute,w.flap1,w.creasing2,w.flap2,w.status AS statusWo,f.tgl_flexo FROM plan_cor p
 		INNER JOIN m_produk i ON p.id_produk=i.id_produk
 		INNER JOIN trs_wo w ON p.id_wo=w.id
 		INNER JOIN trs_so_detail s ON p.id_so_detail=s.id
 		INNER JOIN m_pelanggan l ON p.id_pelanggan=l.id_pelanggan
+		LEFT JOIN plan_flexo f ON p.id_plan=f.id_plan_cor
 		WHERE p.tgl_plan='$urlTgl_plan' AND p.shift_plan='$urlShift' AND p.machine_plan='$urlMesin'
 		ORDER BY p.no_urut_plan,p.id_plan");
 
@@ -1269,7 +1307,7 @@ class Plan extends CI_Controller
 					}else{
 						$btnAksiHapus = '<a href="javascript:void(0)" onclick="hapusPlan('."".$r->id_plan."".')" href="" class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</a>';
 						$btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'edit'".')">EDIT<a>';
-						$aksiNoUrut = 'onchange="onChangeNourutPlan('."'".$id."'".')"';
+						$aksiNoUrut = 'onkeyup="onChangeNourutPlan('."'".$id."'".')"';
 						$dis = '';
 					}
 				}else if($r->status_plan == 'Open' && $r->total_cor_p != 0){
@@ -1319,6 +1357,10 @@ class Plan extends CI_Controller
 				$next = $r->next_plan.'<input type="hidden" id="lp-next-'.$id.'" value="'.$r->next_plan.'">';
 			}
 
+			($r->start_time_p == null) ? $start_time_p = '-' : $start_time_p = date("h:i", strtotime($r->start_time_p));
+			($r->end_time_p == null) ? $end_time_p = '-' : $end_time_p = date("h:i", strtotime($r->end_time_p));
+			($r->tgl_flexo == null) ? $tgl_flexo = '-' : $tgl_flexo = $this->m_fungsi->tglPlan($r->tgl_flexo);
+
 			$html .= '<tr class="h-tmpl-list-plan">
 				<td '.$bgTd.' style="position:sticky;left:'.$left1.';padding:6px 3px">
 					<input type="number" class="form-control inp-kosong2" id="lp-nourut-'.$id.'" value="'.$r->no_urut_plan.'" '.$aksiNoUrut.' tabindex="1">
@@ -1357,6 +1399,9 @@ class Plan extends CI_Controller
 					<input type="hidden" class="form-control inp-kosong2" id="lp-pcs-plan-'.$id.'" value="'.$r->pcs_plan.'">
 					'.number_format($r->pcs_plan).'
 				</td>
+				<td '.$bgTd.' style="padding:6px;text-align:right">'.number_format($r->good_cor_p).'</td>
+				<td '.$bgTd.' style="padding:6px;text-align:right">'.$start_time_p.'</td>
+				<td '.$bgTd.' style="padding:6px;text-align:right">'.$end_time_p.'</td>
 				<td '.$bgTd.' style="padding:6px;text-align:right">
 					<input type="number" class="form-control inp-kosong2" id="lp-coffp-'.$id.'" value="'.$r->c_off_p.'" disabled>
 				</td>
@@ -1367,8 +1412,9 @@ class Plan extends CI_Controller
 					<input type="number" class="form-control inp-kosong2" id="lp-tonp-'.$id.'" value="'.$r->tonase_plan.'" disabled>
 				</td>
 				<td '.$bgTd.' style="padding:2px">
-					<input type="date" class="form-control inp-kosong2" id="lp-tglkirim-'.$id.'" value="'.$r->tgl_kirim_plan.'" '.$ePlhS.'>
+					<input type="date" class="form-control inp-kosong2" style="font-weight:bold;color:#f00" id="lp-tglkirim-'.$id.'" value="'.$r->tgl_kirim_plan.'" disabled>
 				</td>
+				<td '.$bgTd.' style="padding:6px">'.$tgl_flexo.'</td>
 				<td '.$bgTd.' style="padding:6px">'.$next.'</td>
 				<td '.$bgTd.' style="padding:6px">
 					<input type="hidden" id="hlp-flute-'.$id.'" value="'.$r->flute.'">
@@ -1919,7 +1965,6 @@ class Plan extends CI_Controller
 	function ListInputFlexo()
 	{
 		$html = '';
-
 		if($this->cart->total_items() != 0){
 			$html .= '<div class="card card-success card-outline">
 				<div class="card-header">
@@ -1949,10 +1994,12 @@ class Plan extends CI_Controller
 								<th style="padding:12px 6px">AKSI</th>
 							</tr>
 						</thead>';}
-
 						$i = 0;
 						foreach($this->cart->contents() as $r){
 							$i++;
+							($r['options']['tgl_cor'] != "") ? $tglHasil = $this->m_fungsi->tglPlan($r['options']['tgl_cor']) : $tglHasil = '-';
+							($r['options']['qty_cor'] > 0) ? $hasil = number_format($r['options']['qty_cor'],0,',','.') : $hasil = 0;
+							($r['options']['qty_cor'] > 0) ? $ton = number_format($r['options']['bb_box'] * $r['options']['qty_cor'],0,',','.') : $ton = 0 ;
 							$html.='<tr>
 								<td style="padding:6px">'.$i.'</td>
 								<td style="padding:6px;text-align:left">'.$r['options']['kode_mc'].'</td>
@@ -1965,18 +2012,17 @@ class Plan extends CI_Controller
 								<td style="padding:6px">'.$r['options']['bb_box'].'</td>
 								<td style="padding:6px">'.$r['options']['flute'].'</td>
 								<td style="padding:6px">'.$r['options']['sambungan'].'</td>
-								<td style="padding:6px">'.$r['options']['order_so'].'</td>
-								<td style="padding:6px">'.$r['options']['kirim'].'</td>
-								<td style="padding:6px">'.$r['options']['tgl_cor'].'</td>
-								<td style="padding:6px">'.$r['options']['qty_cor'].'</td>
-								<td style="padding:6px"></td>
+								<td style="padding:6px">'.number_format($r['options']['order_so'],0,',','.').'</td>
+								<td style="padding:6px">'.$this->m_fungsi->tglPlan($r['options']['kirim']).'</td>
+								<td style="padding:6px">'.$tglHasil.'</td>
+								<td style="padding:6px">'.$hasil.'</td>
+								<td style="padding:6px">'.$ton.'</td>
 								<td style="padding:6px;text-align:left">'.$r['options']['next_flexo'].'</td>
 								<td style="padding:3px 6px">
 									<button class="btn btn-xs btn-danger" onclick="hapusCartFlexo('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
 								</td>
 							</tr>';
 						}
-
 						if($this->cart->total_items() != 0){
 						$html .='
 					</table>
@@ -1984,7 +2030,6 @@ class Plan extends CI_Controller
 				</div>
 			</div>';
 		}
-
 		echo $html;
 	}
 
@@ -2097,7 +2142,7 @@ class Plan extends CI_Controller
 						if($r->tgl_prod_p != "" && $r->good_cor_p != 0){
 							$tgl_prod_p = $this->m_fungsi->tglPlan($r->tgl_prod_p);
 							$good_cor_p = number_format($r->good_cor_p,0,",",".");
-							$ton = number_format($r->berat_bersih * $r->qty_so,0,",",".");
+							$ton = number_format($r->berat_bersih * $r->good_cor_p,0,",",".");
 						}else{
 							$tgl_prod_p = '-';
 							$good_cor_p = '-';

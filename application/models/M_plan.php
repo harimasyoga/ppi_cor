@@ -23,6 +23,8 @@ class M_plan extends CI_Model
 			INNER JOIN trs_so_detail s ON pl.id_so_detail=s.id
 			WHERE pl.id_plan='$opsi'");
 		}else{
+			$no_plan = $_POST["urlNoPlan"];
+			($no_plan != '') ? $whereNotExists = "AND NOT EXISTS (SELECT * FROM plan_cor pp WHERE pp.no_wo=w.no_wo AND pp.no_plan='$no_plan')" : $whereNotExists = '' ;
 			$query = $this->db->query("SELECT (SELECT COUNT(a.no_plan) FROM plan_cor a
 			WHERE a.id_wo=w.id) AS jml_plan,w.*,i.*,s.*,o.tgl_po,o.total_qty,p.nm_pelanggan,p.alamat,p.prov,p.kab,m.nm_sales,s.id AS idSoDetail,w.id AS idWo,w.creasing2 AS creasing2wo,i.kategori AS kategoriItems FROM trs_wo w
 			INNER JOIN m_pelanggan p ON w.id_pelanggan=p.id_pelanggan
@@ -30,7 +32,7 @@ class M_plan extends CI_Model
 			INNER JOIN m_produk i ON w.id_produk=i.id_produk
 			INNER JOIN trs_po o ON w.no_po=o.no_po AND w.kode_po=o.kode_po
 			INNER JOIN trs_so_detail s ON w.no_po=s.no_po AND w.kode_po=s.kode_po AND w.id_pelanggan=s.id_pelanggan AND w.id_produk=s.id_produk
-			WHERE w.status='Open'
+			WHERE w.status='Open' $whereNotExists
 			AND w.no_so=s.id
 			GROUP BY w.id,w.id_pelanggan,w.id_produk,p.id_pelanggan,i.id_produk,s.id
 			ORDER BY p.nm_pelanggan");
