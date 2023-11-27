@@ -2857,7 +2857,7 @@ class Transaksi extends CI_Controller
 	{
 		$cek 	= $this->session->userdata('username');
 
-		if(in_array($this->session->userdata('level'), ['Admin','PPIC']))
+		if(($this->session->userdata('level')))
 		{
 
 			$data = [
