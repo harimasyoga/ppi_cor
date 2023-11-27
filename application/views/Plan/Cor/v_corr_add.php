@@ -905,7 +905,7 @@
 					}
 				});
 			},
-			data: ({ opsi: '' }),
+			data: ({ opsi: '', urlNoPlan: '' }),
 			success: function(res){
 				data = JSON.parse(res)
 				let htmlWO = ''

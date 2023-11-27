@@ -1608,6 +1608,7 @@
 
 	function loadPlanWo(opsi = '')
 	{
+		console.log(urlNoPlan)
 		$("#no_wo").prop("disabled", true).html(`<option value="">PILIH</option>`)
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadPlanWo')?>',
@@ -1622,7 +1623,9 @@
 					}
 				});
 			},
-			data: ({ opsi }),
+			data: ({
+				opsi, urlNoPlan
+			}),
 			success: function(res){
 				data = JSON.parse(res)
 				let htmlWO = ''
@@ -1703,7 +1706,7 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadPlanWo')?>',
 			type: "POST",
-			data: ({ opsi }),
+			data: ({ opsi, urlNoPlan }),
 			beforeSend: function() {
 				swal({
 					title: 'Loading',
