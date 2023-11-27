@@ -859,7 +859,7 @@
 				});
 			},
 			success: function(res){
-				window.location.href = '<?php echo base_url('Plan/Corrugator')?>'
+				window.location.href = '<?php echo base_url('Plan/Corrugator/List')?>'+'/'+tgl_plan+'/'+shift_plan+'/'+machine_plan
 			}
 		})
 	}
