@@ -33,8 +33,12 @@
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead>
 						<tr>
-							<th style="width:5%">NO.</th>
-							<th style="width:5%">AKSI</th>
+							<th style="width:5%">#</th>
+							<th style="width:20%">TANGGAL</th>
+							<th style="width:20%">SHIFT</th>
+							<th style="width:20%">MESIN</th>
+							<th style="width:20%">JUMLAH</th>
+							<th style="width:15%">AKSI</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
@@ -62,5 +66,35 @@
 </div>
 
 <script type="text/javascript">
-	
+	$(document).ready(function () {
+		load_data()
+	});
+
+	function reloadTable() {
+		table = $('#datatable').DataTable();
+		tabel.ajax.reload(null, false);
+	}
+
+	function load_data() {
+		let table = $('#datatable').DataTable();
+		table.destroy();
+		tabel = $('#datatable').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url": '<?php echo base_url('Plan/LoaDataFlexo')?>',
+				"type": "POST",
+			},
+			"aLengthMenu": [
+				[5, 10, 15, 20, -1],
+				[5, 10, 15, 20, "Semua"]
+			],	
+			responsive: true,
+			"pageLength": 10,
+			"language": {
+				"emptyTable": "Tidak ada data.."
+			}
+		})
+	}
 </script>

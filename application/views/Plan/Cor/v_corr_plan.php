@@ -39,7 +39,7 @@
 								<div id="accordion-customer">
 									<div class="card m-0" style="border-radius:0">
 										<div class="card-header bg-gradient-secondary" style="padding:0;border-radius:0">
-											<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseCustomer" onclick="loadDataAllWO()">LIST SEMUA WO CUSTOMER</a>
+											<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseCustomer" onclick="loadDataAllWO('')">LIST SEMUA WO CUSTOMER</a>
 										</div>
 										<div id="collapseCustomer" class="collapse" data-parent="#accordion-customer">
 											<div id="tampil-all-wo-header"></div>
@@ -192,6 +192,12 @@
 								</div>
 							</div>
 							<div class="card-body row" style="padding:20px 20px 5px;font-weight:bold">
+								<div class="col-md-2">TGL PROD.</div>
+								<div class="col-md-10">
+									<input type="date" id="tgl_cor" class="form-control">
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 								<div class="col-md-2">START</div>
 								<div class="col-md-10">
 									<input type="time" id="start_cor" class="form-control">
@@ -664,7 +670,7 @@
 		})
 	})
 
-	function loadDataAllWO()
+	function loadDataAllWO(opsi = '')
 	{
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadDataAllWO')?>',
@@ -681,7 +687,9 @@
 			},
 			success: function(res){
 				$("#tampil-all-wo-header").html(res)
-				swal.close()
+				if(opsi != 'noLoading'){
+					swal.close()
+				}
 			}
 		})
 	}
@@ -820,38 +828,6 @@
 		})
 	}
 
-	function loadPilihTanggal()
-	{
-		$("#plh-tanggal-plan-header").html('')
-		$("#plh-tanggal-plan-body").html('')
-		$.ajax({
-			url: '<?php echo base_url('Plan/loadPilihTanggal')?>',
-			type: "POST",
-			data: ({
-				urlTgl_plan, urlShift, urlMesin
-			}),
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
-			success: function(res){
-				if(res == 1){
-					$(".plh-tanggal-plan-col12").hide()
-				}else{
-					$(".plh-tanggal-plan-col12").show()
-					$("#plh-tanggal-plan-header").html(res)
-				}
-				swal.close()
-			}
-		})
-	}
-
 	function loadData(tgl_plan, shift, mesin)
 	{
 		$.ajax({
@@ -875,6 +851,7 @@
 				if(data.planCor.length == 0){
 					window.location.href = '<?php echo base_url('Plan/Corrugator')?>'
 				}else{
+					loadDataAllWO('noLoading')
 					loadPlanWo('')
 					plhNoWo('')
 				}
@@ -914,7 +891,7 @@
 				if(tp == '' && sp == '' && mp == ''){
 					$("#tampil-list-input").html(res)
 					$('.select2').select2();
-					(inputDtProd == 'inputDowntimeProduksi') ? plhDowntime() : loadPilihTanggal() ;
+					(inputDtProd == 'inputDowntimeProduksi') ? plhDowntime() : loadDataAllPlan();
 				}else{
 					$("#tampil-all-plan-isi-"+i+sp+mp).html(res)
 				}
@@ -980,7 +957,6 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
-					// loadData(urlTgl_plan, urlShift, urlMesin)
 					kosong()
 					loadInputList('','','','')
 				}else{
@@ -1249,7 +1225,12 @@
 					id_plan
 				}),
 				success: function(res){
-					loadData(urlTgl_plan, urlShift, urlMesin)
+					data = JSON.parse(res)
+					if(data.data){
+						loadData(urlTgl_plan, urlShift, urlMesin)
+					}else{
+						swal(data.msg, "", "error")
+					}
 				}
 			})
 		});
@@ -1410,9 +1391,10 @@
 		let bad_cor_p = $("#bad_cor").val()
 		let total_cor_p = $("#total_cor").val()
 		let ket_plan = $("#ket_cor").val()
+		let tgl_cor = $("#tgl_cor").val()
 		let start_cor = $("#start_cor").val()
 		let end_cor = $("#end_cor").val()
-		if(good_cor_p < 0 || good_cor_p == 0 || good_cor_p == '' || total_cor_p < 0 || total_cor_p == 0 || total_cor_p == '' || start_cor == '' || end_cor == ''){
+		if(good_cor_p < 0 || good_cor_p == 0 || good_cor_p == '' || total_cor_p < 0 || total_cor_p == 0 || total_cor_p == '' || tgl_cor == '' || start_cor == '' || end_cor == ''){
 			swal("DATA PRODUKSI KOSONG!", "", "error")
 			return
 		}
@@ -1459,10 +1441,15 @@
 		let bad_cor_p = $("#bad_cor").val().split('.').join('')
 		let total_cor_p = $("#total_cor").val().split('.').join('')
 		let ket_plan = $("#ket_cor").val()
+		let tgl_cor = $("#tgl_cor").val()
 		let start_cor = $("#start_cor").val()
 		let end_cor = $("#end_cor").val()
-		if(good_cor_p < 0 || good_cor_p == 0 || good_cor_p == '' || total_cor_p < 0 || total_cor_p == 0 || total_cor_p == '' || start_cor == '' || end_cor == ''){
-			swal("DATA TIDAK BOLEH KOSONG!", "", "error")
+		if(good_cor_p < 0 || good_cor_p == 0 || good_cor_p == '' || total_cor_p < 0 || total_cor_p == 0 || total_cor_p == ''){
+			swal("DATA PRODUKSI TIDAK BOLEH KOSONG!", "", "error")
+			return
+		}
+		if(tgl_cor == '' || start_cor == '' || end_cor == ''){
+			swal("TANGGAL/START/END TIDAK BOLEH KOSONG!", "", "error")
 			return
 		}
 
@@ -1480,7 +1467,7 @@
 				});
 			},
 			data: ({
-				id_plan, good_cor_p, bad_cor_p, total_cor_p, ket_plan, start_cor, end_cor
+				id_plan, good_cor_p, bad_cor_p, total_cor_p, ket_plan, tgl_cor, start_cor, end_cor
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -1756,7 +1743,7 @@
 					panjang_s = data.wo.panjang_plan
 					lebar_s = data.wo.lebar_plan
 					creasing_1 = data.wo.creasing
-					creasing_2 = data.wo.creasing2
+					creasing_2 = data.wo.creasing2mproduk
 					creasing_3 = data.wo.creasing3
 					material = data.wo.material_plan
 					kualitas = data.wo.kualitas
@@ -1813,7 +1800,13 @@
 					$("#tgl").val(urlTgl_plan).prop("disabled", tms)
 					let optShift = ''
 					let optMesin = '';
-					(urlShift == 1) ? optShift = `<option value="1">1</option><option value="2">2</option>` : optShift = `<option value="2">2</option><option value="1">1</option>`;
+					if(urlShift == 1){
+						optShift = `<option value="1">1</option><option value="2">2</option><option value="3">3</option>`
+					}else if(urlShift == 2){
+						optShift = `<option value="2">2</option><option value="1">1</option><option value="3">3</option>`
+					}else{
+						optShift = `<option value="3">3</option><option value="2">2</option><option value="1">1</option>`
+					}
 					(urlMesin == 'CORR1') ? optMesin = `<option value="CORR1">CORR 1</option><option value="CORR2">CORR 2</option>` : optMesin = `<option value="CORR2">CORR 2</option><option value="CORR1">CORR 1</option>`;
 					$("#shift").html(optShift).prop("disabled", tms)
 					$("#mesin").html(optMesin).prop("disabled", tms)
@@ -1896,6 +1889,7 @@
 					$("#bad_cor").val(data.wo.bad_cor_p)
 					$("#total_cor").val(data.wo.total_cor_p)
 					$("#ket_cor").val(data.wo.ket_plan)
+					$("#tgl_cor").val(data.wo.tgl_prod_p)
 					$("#start_cor").val(data.wo.start_time_p)
 					$("#end_cor").val(data.wo.end_time_p)
 
@@ -1985,7 +1979,7 @@
 					$("#kirim").val(kirimEtaSO)
 
 					$("#card-produksi").hide();
-					$("#good_cor").val("");$("#bad_cor").val("");$("#total_cor").val("");$("#ket_cor").val("");$("#start_cor").val("");$("#end_cor").val("");
+					$("#good_cor").val("");$("#bad_cor").val("");$("#total_cor").val("");$("#ket_cor").val("");$("#tgl_cor").val();$("#start_cor").val("");$("#end_cor").val("");
 					$("#btn-aksi-produksi").html(``);
 				}
 
@@ -2441,7 +2435,7 @@
 				});
 			},
 			data: ({
-				id_plan
+				id_plan, id_flexo: ''
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -2494,7 +2488,7 @@
 				});
 			},
 			data: ({
-				downtime, id_plan
+				downtime, id_plan, id_flexo: ''
 			}),
 			success: function(res){
 				$("#dt-select").html(res)
@@ -2522,11 +2516,11 @@
 				});
 			},
 			data: ({
-				id_plan
+				id_plan, id_flexo: ''
 			}),
 			success: function(res){
 				$("#dt-load-data").html(res)
-				loadPilihTanggal()
+				loadDataAllPlan()
 			}
 		})
 	}
@@ -2558,7 +2552,7 @@
 				});
 			},
 			data: ({
-				id_plan, id_dt, durasi, ket
+				id_plan, id_flexo: '', id_dt, durasi, ket
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -2588,7 +2582,7 @@
 				});
 			},
 			data: ({
-				id_dt
+				id_dt, id_plan, id_flexo: ''
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -2615,7 +2609,7 @@
 				});
 			},
 			data: ({
-				id_plan: i, ket, durasi
+				id_plan: i, id_flexo: '', ket, durasi
 			}),
 			success: function(res){
 				data = JSON.parse(res)

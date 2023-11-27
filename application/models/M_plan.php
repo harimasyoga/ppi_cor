@@ -15,7 +15,7 @@ class M_plan extends CI_Model
 		$opsi = $_POST["opsi"];
 		if($opsi != ''){
 			$query = $this->db->query("SELECT *,(SELECT COUNT(a.no_plan) FROM plan_cor a
-			WHERE a.id_wo=w.id) AS jml_plan,w.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems,w.creasing2 AS creasing2wo,w.tgl_wo FROM plan_cor pl
+			WHERE a.id_wo=w.id) AS jml_plan,w.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems,w.creasing2 AS creasing2wo,w.tgl_wo,i.creasing2 AS creasing2mproduk FROM plan_cor pl
 			INNER JOIN m_produk i ON pl.id_produk=i.id_produk
 			INNER JOIN m_pelanggan l ON pl.id_pelanggan=l.id_pelanggan
 			INNER JOIN m_sales m ON l.id_sales=m.id_sales
@@ -212,6 +212,7 @@ class M_plan extends CI_Model
 		$this->db->set('bad_cor_p', $_POST["bad_cor_p"]);
 		$this->db->set('total_cor_p', $_POST["total_cor_p"]);
 		$this->db->set('ket_plan', strtoupper($_POST["ket_plan"]));
+		$this->db->set('tgl_prod_p', $_POST["tgl_cor"]);
 		$this->db->set('start_time_p', $_POST["start_cor"]);
 		$this->db->set('end_time_p', $_POST["end_cor"]);
 		$this->db->where('id_plan', $_POST["id_plan"]);
@@ -236,8 +237,21 @@ class M_plan extends CI_Model
 
 	function hapusPlan()
 	{
-		$this->db->where('id_plan', $_POST["id_plan"]);
-		return $this->db->delete('plan_cor');
+		$id_plan = $_POST["id_plan"];
+		$cekFlexo = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$id_plan'");
+		if($cekFlexo->num_rows() > 0){
+			$data = false;
+			$msg = 'PLAN COR SUDAH ADA DI PLAN FLEXO!';
+		}else{
+			$this->db->where('id_plan', $_POST["id_plan"]);
+			$data = $this->db->delete('plan_cor');
+			$msg = 'SLAY!';
+		}
+
+		return array(
+			'data' => $data,
+			'msg' => $msg,
+		);
 	}
 
 	function selesaiPlan()
@@ -336,26 +350,36 @@ class M_plan extends CI_Model
 	function simpanDowntime()
 	{
 		$id_plan = $_POST["id_plan"];
+		$id_flexo = $_POST["id_flexo"];
 		$id_dt = $_POST["id_dt"];
 		$durasi = $_POST["durasi"];
 		$ket = $_POST["ket"];
 
-		if($id_plan == "" || $id_dt == "" || $durasi == "" || $durasi == 0 || $durasi < 0){
+		if($id_dt == "" || $durasi == "" || $durasi == 0 || $durasi < 0){
 			$result = false;
 			$msg = 'HARAP LENGKAPI DATA DOWNTIME!';
 		}else{
-			$cek = $this->db->query("SELECT*FROM plan_cor_dt WHERE id_plan_cor='$id_plan' AND id_m_downtime='$id_dt'");
+			if($id_plan != ''){
+				$cek = $this->db->query("SELECT*FROM plan_cor_dt WHERE id_plan_cor='$id_plan' AND id_m_downtime='$id_dt'");
+			}else{
+				$cek = $this->db->query("SELECT*FROM plan_flexo_dt WHERE id_plan_flexo='$id_flexo' AND id_m_downtime='$id_dt'");
+			}
 			if($cek->num_rows() > 0){
 				$result = false;
 				$msg = 'DATA DOWNTIME SUDAH ADA!';
 			}else{
-				$this->db->set('id_plan_cor', $id_plan);
 				$this->db->set('id_m_downtime', $id_dt);
 				$this->db->set('durasi_mnt_dt', $durasi);
 				$this->db->set('ket_plan_dt', strtoupper($ket));
 				$this->db->set('add_time', date("Y:m:d H:i:s"));
 				$this->db->set('add_user', $this->session->userdata('username'));
-				$result = $this->db->insert('plan_cor_dt');
+				if($id_plan != ''){
+					$this->db->set('id_plan_cor', $id_plan);
+					$result = $this->db->insert('plan_cor_dt');
+				}else{
+					$this->db->set('id_plan_flexo', $id_flexo);
+					$result = $this->db->insert('plan_flexo_dt');
+				}
 				$msg = 'BERHASIL!';
 			}
 		}
@@ -368,7 +392,12 @@ class M_plan extends CI_Model
 	function hapusDowntimePlan()
 	{
 		$this->db->where('id_plan_dt', $_POST["id_dt"]);
-		return $this->db->delete('plan_cor_dt');
+		if($_POST["id_plan"] != ''){
+			$delete = $this->db->delete('plan_cor_dt');
+		}else{
+			$delete = $this->db->delete('plan_flexo_dt');
+		}
+		return $delete;
 	}
 
 	function changeEditDt()
@@ -382,8 +411,13 @@ class M_plan extends CI_Model
 			$this->db->set('ket_plan_dt', strtoupper($_POST["ket"]));
 			$this->db->set('edit_time', date("Y-m-d H:i:s"));
 			$this->db->set('edit_user', $this->session->userdata('username'));
-			$this->db->where('id_plan_dt', $_POST["id_plan"]);
-			$result = $this->db->update('plan_cor_dt');
+			if($_POST["id_plan"] != ''){
+				$this->db->where('id_plan_dt', $_POST["id_plan"]);
+				$result = $this->db->update('plan_cor_dt');
+			}else{
+				$this->db->where('id_plan_dt', $_POST["id_flexo"]);
+				$result = $this->db->update('plan_flexo_dt');
+			}
 			$msg = "BERHASIL EDIT!";
 		}
 
@@ -417,26 +451,33 @@ class M_plan extends CI_Model
 					$result = false;
 					$msg = 'PLAN SUDAH TERPRODUKSI!';
 				}else{
-					$cekPlan = $this->db->query("SELECT*FROM plan_cor
-					WHERE tgl_plan='$tgl' AND shift_plan='$shift' AND machine_plan='$mesin' LIMIT 1");
-					if($cekPlan->num_rows() > 0){
-						$noplan = $cekPlan->row()->no_plan;
+					$cekFlexo = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$id_plan' ORDER BY tgl_flexo ASC LIMIT 1")->row();
+					if($tgl >= $cekFlexo->tgl_flexo){
+						$result = false;
+						$msg = 'TGL PLAN COR LEBIH DARI TGL FLEXO!';
 					}else{
-						$plan_no = $this->m_fungsi->urut_transaksi('PLAN');
-						$bln = $this->m_master->get_romawi(date('m'));
-						$tahun = date('Y');
-						$noplan = 'PLAN/'.$tahun.'/'.$bln.'/'.$plan_no;
+						$cekPlan = $this->db->query("SELECT*FROM plan_cor
+						WHERE tgl_plan='$tgl' AND shift_plan='$shift' AND machine_plan='$mesin' LIMIT 1");
+						if($cekPlan->num_rows() > 0){
+							$noplan = $cekPlan->row()->no_plan;
+						}else{
+							$plan_no = $this->m_fungsi->urut_transaksi('PLAN');
+							$bln = $this->m_master->get_romawi(date('m'));
+							$tahun = date('Y');
+							$noplan = 'PLAN/'.$tahun.'/'.$bln.'/'.$plan_no;
+						}
+						$this->db->set('tgl_plan', $tgl);
+						$this->db->set('shift_plan', $shift);
+						$this->db->set('machine_plan', $mesin);
+						$this->db->set('no_urut_plan', 0);
+						$this->db->set('no_plan', $noplan);
+						$this->db->set('edit_time', date("Y-m-d H:i:s"));
+						$this->db->set('edit_user', $this->session->userdata('username'));
+						$this->db->where('id_plan', $id_plan);
+						$result = $this->db->update('plan_cor');
+						$result = true;
+						$msg = 'BERHASIL EDIT!';
 					}
-					$this->db->set('tgl_plan', $tgl);
-					$this->db->set('shift_plan', $shift);
-					$this->db->set('machine_plan', $mesin);
-					$this->db->set('no_urut_plan', 0);
-					$this->db->set('no_plan', $noplan);
-					$this->db->set('edit_time', date("Y-m-d H:i:s"));
-					$this->db->set('edit_user', $this->session->userdata('username'));
-					$this->db->where('id_plan', $id_plan);
-					$result = $this->db->update('plan_cor');
-					$msg = 'BERHASIL EDIT!';
 				}
 			}
 		}
@@ -451,10 +492,136 @@ class M_plan extends CI_Model
 	function loadPlanCor()
 	{
 		$mesin = $_POST["mesin"];
-		$query = $this->db->query("SELECT i.nm_produk,c.nm_pelanggan,p.* FROM plan_cor p
-		INNER JOIN m_produk i ON p.id_produk=i.id_produk
-		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
-		WHERE p.status_plan='Close' AND next_plan='$mesin'")->result();
+		$opsi = $_POST["opsi"];
+		if($opsi != ''){
+			$query = $this->db->query("SELECT f.*,i.*,pc.*,c.nm_pelanggan,s.qty_so,s.kode_po FROM plan_flexo f
+			INNER JOIN plan_cor pc ON f.id_plan_cor=pc.id_plan
+			INNER JOIN trs_so_detail s ON pc.id_so_detail=s.id
+			INNER JOIN m_produk i ON pc.id_produk=i.id_produk
+			INNER JOIN m_pelanggan c ON pc.id_pelanggan=c.id_pelanggan
+			WHERE id_flexo='$opsi'")->row();
+		}else{
+			$query = $this->db->query("SELECT p.*,i.*,c.nm_pelanggan,s.qty_so,s.kode_po FROM plan_cor p
+			INNER JOIN m_produk i ON p.id_produk=i.id_produk
+			INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+			INNER JOIN trs_so_detail s ON p.id_so_detail=s.id
+			WHERE p.status_flexo_plan='Open' AND next_plan='$mesin'")->result();
+		}
+
 		return $query;
+	}
+
+	function hapusPlanFlexo()
+	{
+		$this->db->where('id_flexo', $_POST["id_flexo"]);
+		return $this->db->delete('plan_flexo');
+	}
+
+	function simpanCartFlexo()
+	{
+		foreach($this->cart->contents() as $r){
+			$data = array(
+				'id_plan_cor' => $r["id"],
+				'tgl_flexo' => $r["options"]["tgl"],
+				'shift_flexo' => $r["options"]["shift"],
+				'mesin_flexo' => $r["options"]["mesin"],
+				'good_flexo_p' => 0,
+				'bad_flexo_p' => 0,
+				'bad_bahan_f_p' => 0,
+				'total_prod_flexo' => 0,
+				'next_flexo' => $r["options"]["next_flexo"],
+				'add_user' => $this->session->userdata('username'),
+			);
+
+			$insertPlanFlexo = $this->db->insert('plan_flexo', $data);
+		}
+
+		return array(
+			'insertPlanFlexo' => $insertPlanFlexo,
+		);
+	}
+
+	function loadDataPlanFlexo()
+	{
+		$tgl = $_POST["uTgl"];
+		$shift = $_POST["uShift"];
+		$mesin = $_POST["uMesin"];
+
+		return $this->db->query("SELECT * FROM plan_flexo
+		WHERE tgl_flexo='$tgl' AND shift_flexo='$shift' AND mesin_flexo='$mesin'")->result();
+	}
+
+	function produksiPlanFlexo()
+	{
+		$this->db->set('good_flexo_p', $_POST["good_flexo"]);
+		$this->db->set('bad_flexo_p', $_POST["bad_flexo"]);
+		$this->db->set('bad_bahan_f_p', $_POST["bad_b_flexo"]);
+		$this->db->set('total_prod_flexo', $_POST["total_flexo"]);
+		$this->db->set('ket_flexo_p', strtoupper($_POST["ket_flexo"]));
+		$this->db->set('tgl_prod_f', $_POST["tgl_flexo"]);
+		$this->db->set('start_time_f', $_POST["start_flexo"]);
+		$this->db->set('end_time_f', $_POST["end_flexo"]);
+		$this->db->set('edit_time', date("Y-m-d H:i:s"));
+		$this->db->set('edit_user', $this->session->userdata('username'));
+		$this->db->where('id_flexo', $_POST["id_flexo"]);
+
+		if($_POST["total_flexo"] != 0){
+			$id_flexo = $_POST["id_flexo"];
+			$cekPlan = $this->db->query("SELECT*FROM plan_flexo WHERE id_flexo='$id_flexo'")->row();
+			if($cekPlan->status_flexo == 'Close'){
+				$result = array(
+					'data' => false,
+					'msg' => 'PLAN FLEXO SUDAH SELESAI!',
+				);
+			}else{
+				$result = $this->db->update('plan_flexo');
+			}
+		}else{
+			$result = $this->db->update('plan_flexo');
+		}
+
+		return $result;
+	}
+
+	function btnGantiTglFlexo()
+	{
+		$tgl = $_POST["tgl"];
+		$shift = $_POST["shift"];
+		$mesin = $_POST["mesin"];
+		$id_flexo = $_POST["id_flexo"];
+
+		if($tgl == "" || $shift == "" || $mesin == ""){
+			$result = false;
+			$msg = 'CEK KEMBALI!';
+		}else{
+			$cekIDPlan = $this->db->query("SELECT id_plan_cor FROM plan_flexo WHERE id_flexo='$id_flexo'")->row();
+			$cekIDProduk = $this->db->query("SELECT*FROM plan_flexo
+			WHERE id_plan_cor='$cekIDPlan->id_plan_cor'
+			AND tgl_flexo='$tgl' AND shift_flexo='$shift' AND mesin_flexo='$mesin'");
+			if($cekIDProduk->num_rows() > 0){
+				$result = false;
+				$msg = 'PLAN COR SUDAH ADA DI TANGGAL TERSEBUT!';
+			}else{
+				$cekIDPlanProduksi = $this->db->query("SELECT * FROM plan_flexo WHERE id_flexo='$id_flexo' AND total_prod_flexo!='0'");
+				if($cekIDPlanProduksi->num_rows() > 0){
+					$result = false;
+					$msg = 'PLAN FLEXO SUDAH TERPRODUKSI!';
+				}else{
+					$this->db->set('tgl_flexo', $tgl);
+					$this->db->set('shift_flexo', $shift);
+					$this->db->set('mesin_flexo', $mesin);
+					$this->db->set('no_urut_flexo', 0);
+					$this->db->set('edit_time', date("Y-m-d H:i:s"));
+					$this->db->set('edit_user', $this->session->userdata('username'));
+					$this->db->where('id_flexo', $id_flexo);
+					$result = $this->db->update('plan_flexo');
+					$msg = 'BERHASIL EDIT!';
+				}
+			}
+		}
+		return array(
+			'data' => $result,
+			'msg' => $msg,
+		);
 	}
 }
