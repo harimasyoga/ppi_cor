@@ -30,7 +30,7 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<?php if (!in_array($this->session->userdata('level'), ['Marketing','PPIC','Owner'])): ?>
+				<?php if (!in_array($this->session->userdata('level'), ['Marketing','PPIC','Owner','Keuangan1'])): ?>
 					<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info "><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<?php endif ?>
 				<br><br>

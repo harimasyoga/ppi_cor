@@ -108,17 +108,63 @@ class Master extends CI_Controller
 		$this->load->view('footer');
 	}
 
-	function Sistem()
+	function User_level()
 	{
 		$data = array(
-			'data' => $this->m_master->get_data("m_setting")->row(),
+			'judul' => "Master User Level"
 		);
 
-		$this->load->view('header');
-		$this->load->view('Master/v_setting', $data);
+		$this->load->view('header', $data);
+		$this->load->view('Master/v_user_level', $data);
+		$this->load->view('footer');
+	}
+	
+	function User_level_add()
+	{
+		
+		$val_group    = $_GET['val_group'];
+		$nama         = $this->db->query("SELECT*FROM m_modul_group a WHERE id_group='$val_group' LIMIT 1 ")->row();
+		
+		$query = $this->db->query("SELECT *
+		FROM m_modul a order by kode")->result();
+
+		$data = array(
+			'judul'  => "Edit Modul",
+			'judul2' => "$nama->nm_group",
+			'id'     => $val_group,
+			'query'  => $query
+		);
+		
+
+		$this->load->view('header', $data);
+		$this->load->view('Master/v_user_level_add', $data);
 		$this->load->view('footer');
 	}
 
+	function load_group()
+	{
+		if($this->session->userdata('level') == 'PPIC')
+		{
+			$cek="WHERE id_group in ('7','8','9') ";
+		}else{
+			$cek="";
+		}
+		$data = $this->db->query("SELECT * FROM m_modul_group $cek
+		ORDER BY nm_group ")->result();
+		echo json_encode($data);
+	}
+
+	function Sistem()
+	{
+		$data = array(
+			'data' => $this->m_master->get_data("m_setting")->row(),			
+			'judul' => "Master Sistem",
+		);
+
+		$this->load->view('header',$data);
+		$this->load->view('Master/v_setting', $data);
+		$this->load->view('footer');
+	}
 
 	function Insert()
 	{
@@ -247,6 +293,30 @@ class Master extends CI_Controller
 				}
 
 				$row[] = $aksi;
+				$data[] = $row;
+				$i++;
+			}
+		} else if ($jenis == "user_level") {
+			
+			$query = $this->m_master->query("SELECT * FROM m_modul_group ORDER BY id_group")->result();
+			$i = 1;
+			foreach ($query as $r) {
+				$row = array();
+
+				$row[] = '<div class="text-center">'.$r->id_group.'</div>';
+				$row[] = $r->nm_group;
+
+				$row[] = '<div class="text-center">
+				<a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->val_group . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-sm">
+				<i class="fas fa-edit"></i>
+				</a>
+
+				<a class="btn btn-sm btn-primary" href="'. base_url("Master/User_level_add?val_group=" . $r->id_group . "") .'" title="EDIT MENU" ><b>
+				<i class="fas fa-search"></i> MENU</b></a>
+
+				</div>
+				';
+
 				$data[] = $row;
 				$i++;
 			}
