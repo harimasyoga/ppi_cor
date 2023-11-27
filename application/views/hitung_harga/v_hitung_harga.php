@@ -161,6 +161,22 @@
 
 									<div class="col-md-12">&nbsp;</div>
 
+									<div class="col-md-3" style="margin-bottom:3px">
+									QTY : 
+										<input type="text" class="form-control angka" id="qty" placeholder="Qty" onkeyup="ubah_angka(this.value,this.id),Hitung_rm(this.value)" autocomplete="off" >
+									</div>
+									<div class="col-md-3" style="margin-bottom:3px">
+									RM : 
+										<input type="text" class="form-control angka" id="rm" placeholder="rm" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" readonly>									
+									</div>
+									<div class="col-md-3" style="margin-bottom:3px">
+									Tonase : 
+										<input type="text" class="form-control angka" id="ton" placeholder="Tonase" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" readonly>			
+									</div>
+									<div class="col-md-12"></div>
+
+									<div class="col-md-12">&nbsp;</div>
+
 									<input class="btn btn-danger" type="reset" name="" id="" value="RESET" onclick="kosong()">
 									
 								</div>
@@ -404,6 +420,27 @@
 
 		$('#exclude').val(format_angka(exc));	
 		$('#include').val(format_angka(inc));	
+	}
+
+	function Hitung_rm(qty) 
+	{
+		var qty       = String($("#qty").val()).split('.').join('')
+		var p_sheet   = String($("#p_sheet").val()).split('.').join('')
+		var l_sheet   = String($("#l_sheet").val()).split('.').join('')
+		var bb        = String($("#bb").val()).split(',').join('.')
+			// hitung out
+					
+		out = Math.trunc(1800/l_sheet);
+		if(out >= 5){
+			out = 5;
+		}
+
+		rm       = Math.ceil(p_sheet * qty / out / 1000);
+		ton      = Math.ceil(qty * bb);
+
+		$('#rm').val(format_angka(rm));	
+		$('#ton').val(format_angka(ton));
+		
 	}
 
 	function kosong()

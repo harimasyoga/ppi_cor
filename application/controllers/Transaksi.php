@@ -41,6 +41,66 @@ class Transaksi extends CI_Controller
 		$this->load->view('Transaksi/v_eta_po');
 		$this->load->view('footer');
 	}
+
+	function rekap_sales()
+	{
+		$data = [
+			'judul' => "Rekap Sales",
+		];
+		$this->load->view('header',$data);
+		$this->load->view('Transaksi/v_rekap_sales');
+		$this->load->view('footer');
+	}
+
+	function hitung_rekap()
+	{
+		
+		$bulan = $this->input->post('bulan');
+
+		if($bulan)
+		{
+			$ket= "WHERE month(a.tgl_po)='$bulan'";
+		}else{
+			$ket='';
+		}
+
+		$html ='';
+
+		$query = $this->db->query("SELECT id_sales,nm_sales,sum(ton)ton ,sum(exclude)exc, (sum(exclude)/sum(ton))avg from(
+		
+		select a.no_po,b.id_sales ,c.nm_sales, (a.price_exc*a.qty)exclude, a.ton
+		from trs_po_detail a 
+		join m_pelanggan b ON a.id_pelanggan=b.id_pelanggan
+		join m_sales c ON b.id_sales=c.id_sales
+		$ket
+		)p group by id_sales,nm_sales")->result();
+
+		$html .='<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
+		$html .='<table class="table table-bordered table-striped">
+		<thead>
+			<tr>
+				<th style="text-align:center">NO</th>
+				<th style="text-align:center">Nama Sales</th>
+				<th style="text-align:center">Total PO</th>
+				<th style="text-align:center">Harga Rata2 / Kg</th>
+			</tr>
+		</thead>';
+		$i = 0;
+		foreach($query as $r){
+			$i++;
+			$html .= '</tr>
+				<td style="text-align:center">'.$i.'</td>
+				<td style="text-align:left">'.$r->nm_sales.'</td>
+				<td style="text-align:right">'.number_format($r->ton, 0, ",", ".").'</td>
+				<td style="text-align:right">'.number_format($r->avg, 0, ",", ".").'</td>
+			</tr>';
+		}
+		$html .='</table>
+		</div>';
+
+		echo $html;
+		
+	}
     
     function load_so()
     {
@@ -267,7 +327,7 @@ class Transaksi extends CI_Controller
 				$cek_data = '';
 			}
 
-			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by id desc")->result();
+			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by a.tgl_po desc, id desc")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row    = array();
