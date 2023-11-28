@@ -371,9 +371,9 @@
 </div>
 
 <script type="text/javascript">
-	let urlTglF = '<?= $tgl_flexo?>'
-	let urlShiftF = '<?= $shift?>'
-	let urlMesinF = '<?= $mesin?>'
+	const urlTglF = '<?= $tgl_flexo?>'
+	const urlShiftF = '<?= $shift?>'
+	const urlMesinF = '<?= $mesin?>'
 	let inputDtProd = ''
 
 	$(document).ready(function ()
@@ -401,11 +401,10 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.length == 0){
 					window.location.href = '<?php echo base_url('Plan/Flexo')?>'
 				}else{
-					loadPlanCor('')
+					loadPlanCor('not')
 					plhPlanCor('')
 				}
 			}
@@ -497,6 +496,9 @@
 
 	function loadPlanCor(opsi = '')
 	{
+		console.log(urlTglF)
+		console.log(urlShiftF)
+		console.log(urlMesinF)
 		let mesin = $("#mesin").val()
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadPlanCor')?>',
@@ -511,7 +513,7 @@
 					}
 				});
 			},
-			data: ({ mesin, opsi: '' }),
+			data: ({ mesin, opsi: '', urlTglF, urlShiftF, urlMesinF }),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
@@ -549,7 +551,9 @@
 					</option>`
 				}
 				$("#plan_cor").html(htmlPlanCor).prop('disabled', false)
-				swal.close()
+				if(opsi != 'not'){
+					swal.close()
+				}
 			}
 		})
 	}
@@ -571,10 +575,9 @@
 					}
 				});
 			},
-			data: ({ mesin: '', opsi }),
+			data: ({ mesin: '', opsi, urlTglF, urlShiftF, urlMesinF }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.opsi != ''){
 					opNoWo = data.plan_cor.no_wo
 					opNoPo = data.plan_cor.kode_po
@@ -954,7 +957,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data){
 					loadPlanCor('')
 					plhPlanCor(id_flexo)
@@ -978,7 +980,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					loadDataPlanFlexo(urlTglF, urlShiftF, urlMesinF)
 				}else{
