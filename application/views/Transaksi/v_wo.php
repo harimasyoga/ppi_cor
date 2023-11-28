@@ -446,11 +446,11 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i> Simpan</button>
+        <button type="button" class="btn btn-outline-primary btn-sm" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i> Simpan</button>
         
-        <button type="button" class="btn btn-outline-danger" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> Print</button>
+        <button type="button" class="btn btn-outline-danger btn-sm" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> Print</button>
 
-        <button type="button" class="btn btn-outline-danger" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-times-circle"></i> <b> Batal</b></button>
+        <button type="button" class="btn btn-outline-danger btn-sm" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-times-circle"></i> <b> Batal</b></button>
       </div>
       </form>
         <input type="hidden" name="bucket" id="bucket" value="0">
