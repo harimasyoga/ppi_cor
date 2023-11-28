@@ -1192,8 +1192,14 @@
 				id_plan: i, id_wo, material, kualitas, kualitas_isi, panjang_plan, lebar_plan, kategori, creasing_wo1, creasing_wo2, creasing_wo3, lebar_roll_p, out_plan, trim_plan, c_off_p, rm_plan, tonase_plan, tglkirim, next, opsi
 			}),
 			success: function(res){
-				toastr.success('<b>BERHASIL EDIT!</b>');
-				loadData(urlTgl_plan, urlShift, urlMesin)
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					loadData(urlTgl_plan, urlShift, urlMesin)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
 			}
 		})
 	}
@@ -1608,7 +1614,6 @@
 
 	function loadPlanWo(opsi = '')
 	{
-		console.log(urlNoPlan)
 		$("#no_wo").prop("disabled", true).html(`<option value="">PILIH</option>`)
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadPlanWo')?>',

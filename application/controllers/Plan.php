@@ -285,15 +285,15 @@ class Plan extends CI_Controller
 					GROUP BY id_plan_cor");
 					($getDt->num_rows() == 0) ? $jml_dt = '-' : $jml_dt = $getDt->row()->jml_dt;
 					($getDt->num_rows() == 0) ? $durasi_dt = '' : $durasi_dt = ' ( '.$getDt->row()->durasi_dt.'" ) ';
-					// ($r->tgl_flexo == null) ? $tgl_flexo = '-' : $tgl_flexo = $this->m_fungsi->tglPlan($r->tgl_flexo);
 
 					$getPF = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$r->id_plan'");
 					if($getPF->num_rows() == 0){
 						$tgl_flexo = '-';
+					}else if($getPF->num_rows() == 1){
+						$tgl_flexo = $this->m_fungsi->tglPlan($getPF->row()->tgl_flexo);
 					}else{
 						$tgl_flexo = '<a data-toggle="collapse" href="#collapsePlanFlexo-'.$r->id_plan.'">'.$getPF->num_rows().'</a>';
 					}
-					// ($getPF->num_rows() == 0) ? $tgl_flexo = $getPF->row()->tgl_flexo : $tgl_flexo = '<a data-toggle="collapse" href="#collapsePlanFlexo-'.$r->id_plan.'">'.$getPF->num_rows().'</a>'; 
 
 					$html.='<tr class="h-tmpl-list-plan">
 						<td style="padding:3px;position:sticky;left:0;background:#fff'.$borBot.'">
@@ -326,12 +326,13 @@ class Plan extends CI_Controller
 					</tr>';
 
 					$html .='<tr>
-						<td style="padding:0;border:0" colspan="17">
-						</td>
+						<td style="padding:0;border:0;text-align:right" colspan="17"></td>
 						<td style="padding:0;border:0">
-							<div id="collapsePlanFlexo-'.$r->id_plan.'" class="collapse" data-parent="#accordion-tf">
-								
-							</div>
+							<div id="collapsePlanFlexo-'.$r->id_plan.'" class="collapse" data-parent="#accordion-tf">';
+								foreach($getPF->result() as $jmlF){
+									$html .= $this->m_fungsi->tglPlan($jmlF->tgl_flexo).'<br>';
+								}
+							$html .='</div>
 						</td>
 					</tr>';
 
@@ -1224,12 +1225,11 @@ class Plan extends CI_Controller
 					</tr>
 				</thead>';
 
-		$data = $this->db->query("SELECT p.*,i.nm_produk,w.kode_po,l.nm_pelanggan,i.kategori,i.flute,w.flap1,w.creasing2,w.flap2,w.status AS statusWo,f.tgl_flexo FROM plan_cor p
+		$data = $this->db->query("SELECT p.*,i.nm_produk,w.kode_po,l.nm_pelanggan,i.kategori,i.flute,w.flap1,w.creasing2,w.flap2,w.status AS statusWo FROM plan_cor p
 		INNER JOIN m_produk i ON p.id_produk=i.id_produk
 		INNER JOIN trs_wo w ON p.id_wo=w.id
 		INNER JOIN trs_so_detail s ON p.id_so_detail=s.id
 		INNER JOIN m_pelanggan l ON p.id_pelanggan=l.id_pelanggan
-		LEFT JOIN plan_flexo f ON p.id_plan=f.id_plan_cor
 		WHERE p.tgl_plan='$urlTgl_plan' AND p.shift_plan='$urlShift' AND p.machine_plan='$urlMesin'
 		GROUP BY p.id_plan
 		ORDER BY p.no_urut_plan,p.id_plan");
@@ -1378,7 +1378,15 @@ class Plan extends CI_Controller
 
 			($r->start_time_p == null) ? $start_time_p = '-' : $start_time_p = date("h:i", strtotime($r->start_time_p));
 			($r->end_time_p == null) ? $end_time_p = '-' : $end_time_p = date("h:i", strtotime($r->end_time_p));
-			($r->tgl_flexo == null) ? $tgl_flexo = '-' : $tgl_flexo = $this->m_fungsi->tglPlan($r->tgl_flexo);
+
+			$getPF = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$r->id_plan'");
+			if($getPF->num_rows() == 0){
+				$tgl_flexo = '-';
+			}else if($getPF->num_rows() == 1){
+				$tgl_flexo = $this->m_fungsi->tglPlan($getPF->row()->tgl_flexo);
+			}else{
+				$tgl_flexo = $getPF->num_rows();
+			}
 
 			$html .= '<tr class="h-tmpl-list-plan">
 				<td '.$bgTd.' style="position:sticky;left:'.$left1.';padding:6px 3px">

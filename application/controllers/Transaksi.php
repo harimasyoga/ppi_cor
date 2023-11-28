@@ -2652,7 +2652,7 @@ class Transaksi extends CI_Controller
 
 	function laporanSO(){
 		$id = $_GET["id"];
-		$data = $this->db->query("SELECT c.nm_pelanggan,c.top,c.fax,c.no_telp,c.alamat,s.nm_sales,p.eta,p.tgl_po,o.tgl_so,p.time_app1,p.time_app2,p.time_app3,i.*,d.* FROM trs_so_detail d
+		$data = $this->db->query("SELECT c.nm_pelanggan,c.top,c.fax,c.no_telp,c.alamat,s.nm_sales,p.tgl_po,o.tgl_so,p.time_app1,p.time_app2,p.time_app3,i.*,d.* FROM trs_so_detail d
 		INNER JOIN trs_po p ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 		INNER JOIN trs_po_detail o ON o.no_po=d.no_po AND o.kode_po=d.kode_po AND o.no_so=d.no_so AND o.id_produk=d.id_produk
 		INNER JOIN m_produk i ON d.id_produk=i.id_produk
