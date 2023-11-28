@@ -102,6 +102,10 @@
 						</td>
 					</tr>
 					<tr>
+						<td style="padding:5px 0;font-weight:bold">ETA ITEM</td>
+						<td style="padding:5px 0" id="eta_item">-</td>
+					</tr>
+					<tr>
 						<td style="padding:5px 0;font-weight:bold">KODE. MC</td>
 						<td style="padding:5px 0" id="kode_mc">-</td>
 					</tr>
@@ -134,7 +138,7 @@
 					<tr>
 						<td></td>
 						<td style="padding:5px 0">
-							<button type="button" class="btn btn-success" id="btn-show-simpan" onclick="addItems()"><i class="fas fa-plus-square"></i> Tambah</button>
+							<button type="button" class="btn btn-success btn-sm" id="btn-show-simpan" onclick="addItems()"><i class="fas fa-plus-square"></i> Tambah</button>
 						</td>
 					</tr>
 					<tr>
@@ -224,6 +228,7 @@
 		$("#uk_sheet").html("-")
 		$("#flute").html("-")
 		$("#substance").html("-")
+		$("#eta_item").html("")
 		$("#kode_mc").html("-")
 		$("#qty_po").html("-")
 		$("#no_so").val("").prop("disabled", true)
@@ -272,6 +277,7 @@
 		$("#uk_sheet").html("-")
 		$("#flute").html("-")
 		$("#substance").html("-")
+		$("#eta_item").html("")
 		$("#kode_mc").html("-")
 		$("#qty_po").html("-")
 		$("#no_so").val("").prop("disabled", true)
@@ -307,7 +313,7 @@
 					htmlDetail += `<option value="">PILIH</option>`
 				data.po_detail.forEach(loadDetail);
 				function loadDetail(r, index) {
-					htmlDetail += `<option value="${r.id_produk}" data-idpodetail="${r.id}" data-nm_produk="${r.nm_produk}" data-ukuran="${r.ukuran}" data-ukuran_sheet="${r.ukuran_sheet}" data-flute="${r.flute}" data-kualitas="${r.kualitas}" data-kode_mc="${r.kode_mc}" data-qty="${r.qty}" rm="${r.rm}" ton="${r.ton}">${r.nm_produk} | ${r.kode_mc} | ${r.ukuran} | ${r.ukuran_sheet} | ${r.flute} | ${r.kualitas} | ${r.qty}</option>`;
+					htmlDetail += `<option value="${r.id_produk}" data-idpodetail="${r.id}" data-nm_produk="${r.nm_produk}" data-ukuran="${r.ukuran}" data-ukuran_sheet="${r.ukuran_sheet}" data-flute="${r.flute}" data-kualitas="${r.kualitas}" data-kode_mc="${r.kode_mc}" data-eta_item="${r.eta}" data-qty="${r.qty}" rm="${r.rm}" ton="${r.ton}">${r.nm_produk} | ${r.kode_mc} | ${r.ukuran} | ${r.ukuran_sheet} | ${r.flute} | ${r.kualitas} | ${r.qty}</option>`;
 				}
 				$("#items").prop("disabled", tf).html(htmlDetail)
 
@@ -317,20 +323,22 @@
 	}
 
 	$('#items').on('change', function() {
-		let item = $('#items option:selected').val()
-		let idpodetail = $('#items option:selected').attr('data-idpodetail')
-		let nm_produk = $('#items option:selected').attr('data-nm_produk')
-		let ukuran = $('#items option:selected').attr('data-ukuran')
-		let ukuran_sheet = $('#items option:selected').attr('data-ukuran_sheet')
-		let flute = $('#items option:selected').attr('data-flute')
-		let kualitas = $('#items option:selected').attr('data-kualitas')
-		let kode_mc = $('#items option:selected').attr('data-kode_mc')
-		let qty = $('#items option:selected').attr('data-qty')
+		let item          = $('#items option:selected').val()
+		let idpodetail    = $('#items option:selected').attr('data-idpodetail')
+		let nm_produk     = $('#items option:selected').attr('data-nm_produk')
+		let ukuran        = $('#items option:selected').attr('data-ukuran')
+		let ukuran_sheet  = $('#items option:selected').attr('data-ukuran_sheet')
+		let flute         = $('#items option:selected').attr('data-flute')
+		let kualitas      = $('#items option:selected').attr('data-kualitas')
+		let eta_item      = $('#items option:selected').attr('data-eta_item')
+		let kode_mc       = $('#items option:selected').attr('data-kode_mc')
+		let qty           = $('#items option:selected').attr('data-qty')
 		$("#idpodetail").val(idpodetail)
 		$("#uk_box").html((item == "") ? '-' : ukuran)
 		$("#uk_sheet").html((item == "") ? '-' : ukuran_sheet)
 		$("#flute").html((item == "") ? '-' : flute)
 		$("#substance").html((item == "") ? '-' : kualitas)
+		$("#eta_item").html((item == "") ? '' : eta_item)
 		$("#kode_mc").html((item == "") ? '-' : kode_mc)
 		$("#qty_po").html((item == "") ? '-' : qty)
 		// $("#no_so").val("").prop("disabled", true)
@@ -374,17 +382,17 @@
 	}
 
 	function addItems(){
-		let nm_produk = $('#items option:selected').attr('data-nm_produk')
-		let idpodetail = $("#idpodetail").val()
-		let no_po = $("#no_po").val()
-		let kode_po = $("#h_kode_po").val()
-		let item = $("#items").val()
-		let no_so = $("#no_so").val()
-		let jml_so = $('#items option:selected').attr('data-qty')
-		let rm = $('#items option:selected').attr('rm')
-		let ton = $('#items option:selected').attr('ton')
+		let nm_produk   = $('#items option:selected').attr('data-nm_produk')
+		let idpodetail  = $("#idpodetail").val()
+		let no_po       = $("#no_po").val()
+		let kode_po     = $("#h_kode_po").val()
+		let item        = $("#items").val()
+		let no_so       = $("#no_so").val()
+		let jml_so      = $('#items option:selected').attr('data-qty')
+		let rm          = $('#items option:selected').attr('rm')
+		let ton         = $('#items option:selected').attr('ton')
+		let eta_po      = $('#items option:selected').attr('data-eta_item')
 		let idpelanggan = $('#no_po option:selected').attr('data-idpelanggan')
-		let eta_po = $('#no_po option:selected').attr('eta-po')
 
 		$("#btn-show-simpan").prop("disabled", true)
 		$.ajax({

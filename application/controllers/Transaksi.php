@@ -98,9 +98,9 @@ class Transaksi extends CI_Controller
 				<td style="text-align:right">'.number_format($r->avg, 0, ",", ".").'</td>
 			</tr>';
 			$total += $r->ton; 
-			$total_rata += $r->avg;
+			$total_rata += $r->exc;
 		}
-		$total_all = $total_rata/$i;
+		$total_all = $total_rata/$total;
 		
 		$html .='<tr>
 				<th style="text-align:center" colspan="2" >Total</th>
@@ -879,28 +879,25 @@ class Transaksi extends CI_Controller
                 <td> : </td>
                 <td> '. $data->nm_pelanggan .'<td>
             </tr>
-            <tr>
-                <td align="left">ETA</td>
-                <td> : </td>
-                <td> '. $this->m_fungsi->tanggal_format_indonesia($data->eta) .'<td>
-            </tr>
             </table><br>';
 
 			$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
                         <tr style="background-color: #cccccc">
-                            <th width="3%" align="center">No</th>
+                            <th width="2%" align="center">No</th>
                             <th width="10%" align="center">Item</th>
                             <th width="12%" align="center">Flute : RM : BB</th>
                             <th width="10%" align="center">Uk. Box</th>
-                            <th width="10%" align="center">Uk. Sheet</th>
+                            <th width="8%" align="center">Uk. Sheet</th>
                             <th width="10%" align="center">Creasing </th>
-                            <th width="10%" align="center">Kualitas</th>
-                            <th width="10%" align="center">Qty</th>';
+                            <th width="10%" align="center">Kualitas</th>							
+							<th width="10%" align="center">ETA</th>
+                            <th width="8%" align="center">Qty</th>';
 			if($this->session->userdata("level")!="PPIC"){
 
 							$html .='
 							<th width="10%" align="center">Harga <br> (Rp)</th>
-							<th width="10%" align="center">Total <br> (Rp)</th>';
+							<th width="10%" align="center">Total <br> (Rp)</th>
+							';
 			}
 					$html .='</tr>';
 			$no = 1;
@@ -918,11 +915,13 @@ class Transaksi extends CI_Controller
                                 <td align="center">' . $r->ukuran_sheet . '</td>
                                 <td align="center">' . $r->creasing . ' : ' . $r->creasing2 . ' : ' . $r->creasing3 . '</td>
                                 <td align="left">' . $r->kualitas . '</td>
-                                <td align="right">' . number_format($r->qty, 0, ",", ".") . '</td>';
+                                <td align="center" style="color:red">' . $this->m_fungsi->tanggal_ind($r->eta) . '</td>
+                                <td align="right">' . number_format($r->qty, 0, ",", ".") . '</td>								';
 				if($this->session->userdata("level")!="PPIC"){
 						$html .= '
 								<td align="right">' . number_format($r->price_inc, 0, ",", ".") . '</td>
-                                <td align="right">' . number_format($total, 0, ",", ".") . '</td>';
+                                <td align="right">' . number_format($total, 0, ",", ".") . '</td>
+								';
 				}
 						$html .= '</tr>';
 
@@ -933,8 +932,9 @@ class Transaksi extends CI_Controller
 			}
 			$html .='
                         <tr style="background-color: #cccccc">
-                            <td align="center" colspan="7"><b>Total</b></td>
-                            <td align="right" ><b>' . number_format($tot_qty, 0, ",", ".") . '</b></td>';
+                            <td align="center" colspan="8"><b>Total</b></td>
+                            <td align="right" ><b>' . number_format($tot_qty, 0, ",", ".") . '</b></td>						
+							';
 			if($this->session->userdata("level")!="PPIC"){
 					$html .= '
 							<td align="right" ><b>' . number_format($tot_price_inc, 0, ",", ".") . '</b></td>
@@ -948,7 +948,7 @@ class Transaksi extends CI_Controller
 		}
 
 		// $this->m_fungsi->_mpdf($html);
-		$this->m_fungsi->template_kop('PURCHASE ORDER',$id,$html,'P','1');
+		$this->m_fungsi->template_kop('PURCHASE ORDER',$id,$html,'L','1');
 		// $this->m_fungsi->mPDFP($html);
 	}
 
@@ -2162,7 +2162,7 @@ class Transaksi extends CI_Controller
 
 	function soPlhNoPO()
 	{
-		$po = $this->db->query("SELECT c.kode_unik,c.nm_pelanggan,s.nm_sales,p.* FROM trs_po p
+		$po = $this->db->query("SELECT c.kode_unik,c.nm_pelanggan,s.nm_sales,p.*,d.eta FROM trs_po p
 		INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 		INNER JOIN m_sales s ON c.id_sales=s.id_sales
@@ -2269,7 +2269,7 @@ class Transaksi extends CI_Controller
 				<td>'.$r['options']['no_so'].'</td>
 				<td>'.number_format($r['options']['jml_so']).'</td>
 				<td>
-					<button class="btn btn-danger" onclick="hapusCartItem('."'".$r['rowid']."'".','."hapusCartItem".','."'showCartItem'".')"><i class="fas fa-times"></i> BATAL</button>
+					<button class="btn btn-danger btn-sm" onclick="hapusCartItem('."'".$r['rowid']."'".','."hapusCartItem".','."'showCartItem'".')"><i class="fas fa-times"></i> BATAL</button>
 				</td>
 			</tr>';
 		}
@@ -2652,7 +2652,7 @@ class Transaksi extends CI_Controller
 
 	function laporanSO(){
 		$id = $_GET["id"];
-		$data = $this->db->query("SELECT c.nm_pelanggan,c.top,c.fax,c.no_telp,c.alamat,s.nm_sales,p.tgl_po,o.tgl_so,p.time_app1,p.time_app2,p.time_app3,i.*,d.* FROM trs_so_detail d
+		$data = $this->db->query("SELECT c.nm_pelanggan,c.top,c.fax,c.no_telp,c.alamat,s.nm_sales,o.eta,p.tgl_po,o.tgl_so,p.time_app1,p.time_app2,p.time_app3,i.*,d.* FROM trs_so_detail d
 		INNER JOIN trs_po p ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 		INNER JOIN trs_po_detail o ON o.no_po=d.no_po AND o.kode_po=d.kode_po AND o.no_so=d.no_so AND o.id_produk=d.id_produk
 		INNER JOIN m_produk i ON d.id_produk=i.id_produk
