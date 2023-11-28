@@ -98,9 +98,17 @@
 										</select>
 									</td>
 								</tr>
+								
 								<tr>
 									<td width="15%">Tgl PO</td>
-									<td><input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>"></td>
+									<td>
+									<?php if (in_array($this->session->userdata('level'), ['Admin','User']))  { ?>
+										<input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>"> 
+									<?php } else { ?>
+										<input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>" readonly> 
+									<?php } ?>
+										
+									</td>
 									<td width="15%"></td>
 									<td width="15%">
 										Kota
@@ -125,21 +133,9 @@
 									
 								</tr>
 								<tr>
-									<td width="15%">ETA</td>
+									<td width="15%">Marketing</td>
 									<td>
-										<input type="date" class="form-control" name="eta" id="eta" value="" >
-									</td>
-									<td width="15%"></td>
-									<td width="15%">
-										FAX
-									</td>
-									<td>
-										<input type="text" class="form-control" name="txt_fax" id="txt_fax" value="" readonly>
-									</td>
-								</tr>
-								<tr>
-								<td width="15%">Marketing</td>
-									<td>
+										
 										<!-- <select class="form-control select2" name="id_sales" id="id_sales" style="width: 100%;" >
 											<option value="">Pilih</option>
 											<?php foreach ($sales as $r) : ?>
@@ -150,6 +146,20 @@
 										</select> -->
 										<!-- <font id="txt_marketing"></font> -->
 										<input type="text" class="form-control" name="txt_marketing" id="txt_marketing" value="" readonly>
+									</td>
+									<td width="15%"></td>
+									<td width="15%">
+										FAX
+									</td>
+									<td>
+										<input type="text" class="form-control" name="txt_fax" id="txt_fax" value="" readonly>
+									</td>
+								</tr>
+								<tr>
+								<td width="15%"></td>
+								<!-- <td width="15%">ETA</td> -->
+									<td>
+										<!-- <input type="date" class="form-control" name="eta" id="eta" value="" > -->
 									</td>
 									<td width="15%"></td>
 									<td width="15%">
@@ -600,10 +610,10 @@
 		})
 		id_pelanggan    = $("#id_pelanggan").val();
 		kode_po         = $("#kode_po").val();
-		eta             = $("#eta").val();
+		// eta             = $("#eta").val();
 		sales           = $("#id_sales").val();
 
-		if (id_pelanggan == '' || kode_po == '' || eta == '' || eta == 'undefined' || sales=='' ) {
+		if (id_pelanggan == '' || kode_po == '' || sales=='' ) {
 			// toastr.info('Harap Lengkapi Form');
 			
 			swal.close();
@@ -721,10 +731,11 @@
 		$("#btn-print").hide();
 
 		$("#id_pelanggan").select2("val", "");
-		$('#id_pelanggan').val("").trigger('change');
+		$('#id_pelanggan').val("").trigger('change');		
+		$("#id_pelanggan").prop("disabled", false);
 
 		$("#kode_po").val("");
-		$("#eta").val("");
+		// $("#eta").val("");
 
 		$("#txt_kota").val("");
 		$("#txt_no_telp").val("");
@@ -825,7 +836,7 @@
 				kodepo    = (data[0].kode_po == '' ) ? '-' : data[0].kode_po ;
 				
 				$("#kode_po").val(kodepo);
-				$("#eta").val(eta); 
+				// $("#eta").val(eta); 
 				
 				$("#header_del").hide();
 
