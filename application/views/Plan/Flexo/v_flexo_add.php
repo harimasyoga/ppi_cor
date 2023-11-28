@@ -426,7 +426,7 @@
 					}
 				});
 			},
-			data: ({ mesin, opsi }),
+			data: ({ mesin, opsi, urlTglF: '', urlShiftF: '', urlMesinF: '' }),
 			success: function(res){
 				data = JSON.parse(res)
 				let htmlPlanCor = ''

@@ -280,8 +280,9 @@ class M_plan extends CI_Model
 		return $this->db->query("SELECT COUNT(dt.id_plan_cor) AS jmlDt,SUM(dt.durasi_mnt_dt) AS jmlDtDurasi,p.*,so.qty_so FROM plan_cor p
 		INNER JOIN trs_so_detail so ON p.id_so_detail=so.id
 		LEFT JOIN plan_cor_dt dt ON p.id_plan=dt.id_plan_cor
-		WHERE p.status_plan='Close'
-		AND p.id_so_detail='$id_so' AND p.id_wo='$id_wo' AND p.id_produk='$id_produk' AND p.id_pelanggan='$id_pelanggan'
+		WHERE
+		-- p.status_plan='Close' AND
+		p.id_so_detail='$id_so' AND p.id_wo='$id_wo' AND p.id_produk='$id_produk' AND p.id_pelanggan='$id_pelanggan'
 		GROUP BY p.tgl_plan,p.id_plan");
 	}
 
@@ -503,11 +504,15 @@ class M_plan extends CI_Model
 			INNER JOIN m_pelanggan c ON pc.id_pelanggan=c.id_pelanggan
 			WHERE id_flexo='$opsi'")->row();
 		}else{
+			$tgl = $_POST["urlTglF"];
+			$shift = $_POST["urlShiftF"];
+			$uMesin = $_POST["urlMesinF"];
+			($tgl != '' || $shift != '' || $uMesin != '') ? $whereNotExists = "AND NOT EXISTS (SELECT*FROM plan_flexo f WHERE f.id_plan_cor=p.id_plan AND f.tgl_flexo='$tgl' AND f.shift_flexo='$shift' AND f.mesin_flexo='$uMesin')" : $whereNotExists = '' ;
 			$query = $this->db->query("SELECT p.*,i.*,c.nm_pelanggan,s.qty_so,s.kode_po FROM plan_cor p
 			INNER JOIN m_produk i ON p.id_produk=i.id_produk
 			INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 			INNER JOIN trs_so_detail s ON p.id_so_detail=s.id
-			WHERE p.status_flexo_plan='Open' AND next_plan='$mesin'")->result();
+			WHERE p.status_flexo_plan='Open' AND next_plan='$mesin' $whereNotExists")->result();
 		}
 
 		return $query;

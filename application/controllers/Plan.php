@@ -184,12 +184,13 @@ class Plan extends CI_Controller
 		$id_wo = $_POST["id_wo"];
 		$html = '';
 
-		$getData = $this->db->query("SELECT pl.*,i.flute,so.eta_so,so.qty_so,wo.kategori,wo.flap1,wo.creasing2,wo.flap2,f.tgl_flexo FROM plan_cor pl
+		$getData = $this->db->query("SELECT pl.*,i.flute,so.eta_so,so.qty_so,wo.kategori,wo.flap1,wo.creasing2,wo.flap2 FROM plan_cor pl
 		INNER JOIN trs_so_detail so ON pl.id_so_detail=so.id
 		INNER JOIN trs_wo wo ON pl.id_wo=wo.id
 		INNER JOIN m_produk i ON pl.id_produk=i.id_produk
-		LEFT JOIN plan_flexo f ON pl.id_plan=f.id_plan_cor
-		WHERE pl.id_wo='$id_wo'");
+		WHERE pl.id_wo='$id_wo'
+		GROUP BY pl.id_plan
+		ORDER BY pl.tgl_plan,pl.id_plan");
 
 		if($getData->num_rows() == 0){
 			$html .='';
@@ -227,6 +228,7 @@ class Plan extends CI_Controller
 				$sumGood = 0;
 				$sumBad = 0;
 				$sunGoodBad = 0;
+				$html .='<div id="accordion-tf">';
 				foreach($getData->result() as $r){
 					$i++;
 
@@ -283,7 +285,15 @@ class Plan extends CI_Controller
 					GROUP BY id_plan_cor");
 					($getDt->num_rows() == 0) ? $jml_dt = '-' : $jml_dt = $getDt->row()->jml_dt;
 					($getDt->num_rows() == 0) ? $durasi_dt = '' : $durasi_dt = ' ( '.$getDt->row()->durasi_dt.'" ) ';
-					($r->tgl_flexo == null) ? $tgl_flexo = '-' : $tgl_flexo = $this->m_fungsi->tglPlan($r->tgl_flexo);
+					// ($r->tgl_flexo == null) ? $tgl_flexo = '-' : $tgl_flexo = $this->m_fungsi->tglPlan($r->tgl_flexo);
+
+					$getPF = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$r->id_plan'");
+					if($getPF->num_rows() == 0){
+						$tgl_flexo = '-';
+					}else{
+						$tgl_flexo = '<a data-toggle="collapse" href="#collapsePlanFlexo-'.$r->id_plan.'">'.$getPF->num_rows().'</a>';
+					}
+					// ($getPF->num_rows() == 0) ? $tgl_flexo = $getPF->row()->tgl_flexo : $tgl_flexo = '<a data-toggle="collapse" href="#collapsePlanFlexo-'.$r->id_plan.'">'.$getPF->num_rows().'</a>'; 
 
 					$html.='<tr class="h-tmpl-list-plan">
 						<td style="padding:3px;position:sticky;left:0;background:#fff'.$borBot.'">
@@ -299,7 +309,7 @@ class Plan extends CI_Controller
 						<td style="padding:6px'.$borBot.'">'.$score.'</td>
 						<td style="padding:6px'.$borBot.'">'.$r->out_plan.'</td>
 						<td style="padding:6px'.$borBot.'">'.$r->flute.'</td>
-						<td style="padding:6px'.$borBot.'">'.number_format($r->lebar_roll_p,0,',','.').'</td>
+						<td style="padding:6px'.$borBot.';font-weight:bold">'.number_format($r->lebar_roll_p,0,',','.').'</td>
 						<td style="padding:6px'.$borBot.'">'.number_format($r->trim_plan,0,',','.').'</td>
 						<td style="padding:6px'.$borBot.';color:#f00;text-align:right">'.number_format($r->good_cor_p,0,',','.').'</td>
 						<td style="padding:6px'.$borBot.'">'.$jml_dt.''.$durasi_dt.'</td>
@@ -315,30 +325,33 @@ class Plan extends CI_Controller
 						<td style="padding:6px'.$borBot.'">'.$wastePersen.'</td>
 					</tr>';
 
+					$html .='<tr>
+						<td style="padding:0;border:0" colspan="17">
+						</td>
+						<td style="padding:0;border:0">
+							<div id="collapsePlanFlexo-'.$r->id_plan.'" class="collapse" data-parent="#accordion-tf">
+								
+							</div>
+						</td>
+					</tr>';
+
 					$sumGood += $r->good_cor_p;
 					$sumBad += $r->bad_cor_p;
 					$sunGoodBad += $r->total_cor_p;
 				}
+				$html .='</div>';
 
-			// 	$html.='<tr>
-			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right" colspan="13"></td>
-			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.number_format($sumGood).'</td>
-			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.number_format($sumBad).'</td>
-			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.number_format($sunGoodBad).'</td>
-			// 	</tr>';
+				$html.='<tr>
+					<td style="border:0;padding:6px;font-weight:bold;text-align:right" colspan="11"></td>
+					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.number_format($sumGood).'</td>
+				</tr>';
 
-			// 	$hasilSOGod = $sumGood - $getData->row()->qty_so;
-			// 	$hasilSOBad = $sumBad - $getData->row()->qty_so;
-			// 	$hasilSOTot = $sunGoodBad - $getData->row()->qty_so;
-			// 	($hasilSOGod > 0) ? $hasilSOGod = '+'.number_format($hasilSOGod) : $hasilSOGod = number_format($hasilSOGod);
-			// 	($hasilSOBad > 0) ? $hasilSOBad = '+'.number_format($hasilSOBad) : $hasilSOBad = number_format($hasilSOBad);
-			// 	($hasilSOTot > 0) ? $hasilSOTot = '+'.number_format($hasilSOTot) : $hasilSOTot = number_format($hasilSOTot);
-			// 	$html.='<tr>
-			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right" colspan="13">QTY SO ( '.number_format($getData->row()->qty_so).' ) = </td>
-			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.$hasilSOGod.'</td>
-			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right"></td>
-			// 		<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.$hasilSOTot.'</td>
-			// 	</tr>';
+				$hasilSOGod = $sumGood - $getData->row()->qty_so;
+				($hasilSOGod > 0) ? $hasilSOGod = '+'.number_format($hasilSOGod) : $hasilSOGod = number_format($hasilSOGod);
+				$html.='<tr>
+					<td style="border:0;padding:6px;font-weight:bold;text-align:right" colspan="11">QTY SO ( '.number_format($getData->row()->qty_so).' ) = </td>
+					<td style="border:0;padding:6px;font-weight:bold;text-align:right">'.$hasilSOGod.'</td>
+				</tr>';
 			}
 
 		$html.='</table>';
@@ -608,7 +621,7 @@ class Plan extends CI_Controller
 			INNER JOIN m_downtime md ON dt.id_m_downtime=md.id_downtime
 			WHERE dt.id_plan_cor='$id_plan'");
 			$tgl_plan = $this->m_fungsi->tanggal_format_indonesia($plan->tgl_plan); $shift_plan = $plan->shift_plan; $machine_plan = $plan->machine_plan; $no_wo = $plan->no_wo; $panjang_plan = number_format($plan->panjang_plan); $lebar_plan = number_format($plan->lebar_plan); $lebar_roll_p = number_format($plan->lebar_roll_p); $out_plan = number_format($plan->out_plan); $pcs_plan = number_format($plan->pcs_plan); $trim_plan = number_format($plan->trim_plan); $c_off_p = number_format($plan->c_off_p); $rm_plan = number_format($plan->rm_plan); $tonase_plan = number_format($plan->tonase_plan); $tgl_kirim_plan = $this->m_fungsi->tanggal_format_indonesia($plan->tgl_kirim_plan); $next_plan = $plan->next_plan;
-			$good_cor_p = number_format($plan->good_cor_p); $bad_cor_p = number_format($plan->bad_cor_p); $total_cor_p = number_format($plan->total_cor_p); $ket_plan = $plan->ket_plan; $start_time_p = date("h:i", strtotime($plan->start_time_p)); $end_time_p = date("h:i", strtotime($plan->end_time_p));
+			$good_cor_p = number_format($plan->good_cor_p); $bad_cor_p = number_format($plan->bad_cor_p); $total_cor_p = number_format($plan->total_cor_p); $ket_plan = $plan->ket_plan; $start_time_p = ($plan->start_time_p == null) ? '-' : date("h:i", strtotime($plan->start_time_p)); $end_time_p = ($plan->end_time_p == null) ? '-' : date("h:i", strtotime($plan->end_time_p));
 		}
 
 		$html .= '<div class="row">
@@ -1061,7 +1074,7 @@ class Plan extends CI_Controller
 								<th style="text-align:left">TGL PLAN</th>
 								<th>SHIFT</th>
 								<th>MESIN</th>
-								<th>GOOD</th>
+								<th>HASIL</th>
 								<th>BAD</th>
 								<th>TOTAL</th>
 								<th>DOWNTIME(m)</th>
@@ -1071,8 +1084,8 @@ class Plan extends CI_Controller
 						</thead>';
 						$i = 0;
 						$good_cor_p = 0;
-						$bad_cor_p = 0;
-						$total_cor_p = 0;
+						// $bad_cor_p = 0;
+						// $total_cor_p = 0;
 						foreach($result->result() as $r){
 							$i++;
 
@@ -1081,6 +1094,10 @@ class Plan extends CI_Controller
 							}else{
 								$txtDowtime = $r->jmlDt.' ( '.number_format($r->jmlDtDurasi).' )';
 							}
+
+							($r->start_time_p == null) ? $start_time_p = '-' : $start_time_p = date("h:i", strtotime($r->start_time_p));
+							($r->end_time_p == null) ? $end_time_p = '-' : $end_time_p = date("h:i", strtotime($r->end_time_p));
+
 							$html .= '<tr>
 								<td>'.$i.'</td>
 								<td style="text-align:left">
@@ -1094,28 +1111,28 @@ class Plan extends CI_Controller
 								<td style="text-align:right">'.number_format($r->bad_cor_p).'</td>
 								<td style="text-align:right">'.number_format($r->total_cor_p).'</td>
 								<td style="text-align:right">'.$txtDowtime.'</td>
-								<td>'.date("h:i", strtotime($r->start_time_p)).'</td>
-								<td>'.date("h:i", strtotime($r->end_time_p)).'</td>
+								<td>'.$start_time_p.'</td>
+								<td>'.$end_time_p.'</td>
 							</tr>';
 							$good_cor_p += $r->good_cor_p;
-							$bad_cor_p += $r->bad_cor_p;
-							$total_cor_p += $r->total_cor_p;
+							// $bad_cor_p += $r->bad_cor_p;
+							// $total_cor_p += $r->total_cor_p;
 						}
 						if($result->num_rows() > 1){
 							$html .='<tr>
 								<td style="border:0;background:#fff;font-weight:bold;text-align:right" colspan="4">TOTAL PRODUKSI</td>
 								<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($good_cor_p).'</td>
-								<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($bad_cor_p).'</td>
-								<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($total_cor_p).'</td>
+								<td style="border:0;background:#fff;font-weight:bold;text-align:right"></td>
+								<td style="border:0;background:#fff;font-weight:bold;text-align:right"></td>
 							</tr>';
 						}
 						$jmlGood = $good_cor_p - $result->row()->qty_so;
-						$jmlTot = $total_cor_p - $result->row()->qty_so;
+						// $jmlTot = $total_cor_p - $result->row()->qty_so;
 						$html .='<tr>
 							<td style="border:0;background:#fff;font-weight:bold;text-align:right" colspan="4">QTY SO - ( '.number_format($result->row()->qty_so).' )</td>
 							<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($jmlGood).'</td>
-							<td style="border:0;background:#fff;font-weight:bold;text-align:right">-</td>
-							<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($jmlTot).'</td>
+							<td style="border:0;background:#fff;font-weight:bold;text-align:right"></td>
+							<td style="border:0;background:#fff;font-weight:bold;text-align:right"></td>
 						</tr>';
 					$html .='</table>
 				</div>
@@ -1214,6 +1231,7 @@ class Plan extends CI_Controller
 		INNER JOIN m_pelanggan l ON p.id_pelanggan=l.id_pelanggan
 		LEFT JOIN plan_flexo f ON p.id_plan=f.id_plan_cor
 		WHERE p.tgl_plan='$urlTgl_plan' AND p.shift_plan='$urlShift' AND p.machine_plan='$urlMesin'
+		GROUP BY p.id_plan
 		ORDER BY p.no_urut_plan,p.id_plan");
 
 		foreach($data->result() as $r){
