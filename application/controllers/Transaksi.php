@@ -86,6 +86,8 @@ class Transaksi extends CI_Controller
 			</tr>
 		</thead>';
 		$i = 0;
+		$total =0;
+		$total_rata =0;
 		foreach($query as $r){
 			$i++;
 			$html .= '</tr>
@@ -94,7 +96,18 @@ class Transaksi extends CI_Controller
 				<td style="text-align:right">'.number_format($r->ton, 0, ",", ".").'</td>
 				<td style="text-align:right">'.number_format($r->avg, 0, ",", ".").'</td>
 			</tr>';
+			$total += $r->ton; 
+			$total_rata += $r->avg;
 		}
+		$total_all = $total_rata/$i;
+		
+		$html .='<tr>
+				<th style="text-align:center" colspan="2" >Total</th>
+				<th style="text-align:right">'.number_format($total, 0, ",", ".").'</th>
+				<th style="text-align:right">'.number_format($total_all, 0, ",", ".").'</th>
+			</tr>
+			';
+		
 		$html .='</table>
 		</div>';
 
@@ -957,6 +970,15 @@ class Transaksi extends CI_Controller
 
             $data   = $query->row();
 
+			if($this->session->userdata('level')=='Admin')
+			{
+				$kode_po ='<br> ( ' . $data->kode_po . ' )';
+			}else{
+				$kode_po ='';
+	
+			}
+	
+
 			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:14px;">
                         <tr style="font-weight: bold;">
                             <td colspan="15" align="center">
@@ -967,7 +989,7 @@ class Transaksi extends CI_Controller
 
 				$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:22px;">
 				<tr align="left" style="background-color: #cccccc">
-					<th>PO '.substr($data->kategori,2,10).' '. $data->nm_pelanggan .' </th>
+					<th>PO '.substr($data->kategori,2,10).' '. $data->nm_pelanggan .' '.$kode_po.'</th>
 				</tr>
 				<tr align="left">
 					<th>ITEM </th>';
