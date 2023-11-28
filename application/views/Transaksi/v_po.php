@@ -100,7 +100,7 @@
 								</tr>
 								<tr>
 									<td width="15%">Tgl PO</td>
-									<td><input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>" readonly></td>
+									<td><input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>"></td>
 									<td width="15%"></td>
 									<td width="15%">
 										Kota

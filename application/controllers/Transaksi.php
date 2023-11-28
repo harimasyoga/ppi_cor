@@ -59,7 +59,7 @@ class Transaksi extends CI_Controller
 
 		if($bulan)
 		{
-			$ket= "WHERE month(a.tgl_po)='$bulan'";
+			$ket= "and month(a.tgl_po)='$bulan'";
 		}else{
 			$ket='';
 		}
@@ -72,6 +72,7 @@ class Transaksi extends CI_Controller
 		from trs_po_detail a 
 		join m_pelanggan b ON a.id_pelanggan=b.id_pelanggan
 		join m_sales c ON b.id_sales=c.id_sales
+		WHERE a.status <> 'Reject' 
 		$ket
 		)p group by id_sales,nm_sales")->result();
 
