@@ -208,12 +208,11 @@ class Plan extends CI_Controller
 						<th style="padding:6px">FT</th>
 						<th style="padding:6px">L.ROLL</th>
 						<th style="padding:6px">TRIM</th>
-						<th style="padding:6px">GOOD</th>
-						<th style="padding:6px">TOTAL</th>
+						<th style="padding:6px">HASIL</th>
 						<th style="padding:6px">DT. COR</th>
 						<th style="padding:6px">C.OFF</th>
-						<th style="padding:6px">RM</th>
-						<th style="padding:6px">KG</th>
+						<th style="padding:6px 12px">RM</th>
+						<th style="padding:6px 12px">KG</th>
 						<th style="padding:6px">TGL KIRIM</th>
 						<th style="padding:6px">PLAN FLEXO</th>
 						<th style="padding:6px">FLEXO</th>
@@ -249,39 +248,42 @@ class Plan extends CI_Controller
 						$borBot = '';
 					}
 
-					($r->total_cor_p > 0) ? $c_off = number_format($r->good_cor_p / $r->out_plan) : $c_off = '-';
-					($r->total_cor_p > 0) ? $rm = number_format((round($r->good_cor_p / $r->out_plan) * $r->panjang_plan) / 1000) : $rm = '-';
+					($r->total_cor_p > 0) ? $c_off = number_format($r->good_cor_p / $r->out_plan,0,',','.') : $c_off = '-';
+					($r->total_cor_p > 0) ? $rm = number_format((round($r->good_cor_p / $r->out_plan) * $r->panjang_plan) / 1000, 0,',','.') : $rm = '-';
 					($r->total_cor_p > 0) ? $rmTrim = ((round($r->good_cor_p / $r->out_plan) * $r->panjang_plan) / 1000) : $rmTrim = 0;
 					$expKP = explode("/", $r->kualitas_isi_plan);
 					if($r->flute == "BF"){
 						$ton = ($expKP[0] + ($expKP[1]*1.36) + $expKP[2]) / 1000 * $r->panjang_plan / 1000 * $r->lebar_plan / 1000 * $r->good_cor_p;
 						$wasteKG = ($expKP[0] + ($expKP[1]*1.36) + $expKP[2]) / 1000 * $r->panjang_plan / 1000 * $r->lebar_plan / 1000 * $r->bad_cor_p;
-						$wasteTrim = $rmTrim;
+						$wasteTrim = $r->trim_plan / 1000 * $rmTrim * ($expKP[0]/1000 + ($expKP[1]*1.36)/1000 + $expKP[2]/1000) + $wasteKG;
+						$wastePersen = ($wasteKG == 0 || $wasteTrim == 0) ? 0 : (($wasteKG+$wasteTrim) / $ton) * 100;
 					}else if($r->flute == "CF"){
 						$ton = ($expKP[0] + ($expKP[1]*1.46) + $expKP[2]) / 1000 * $r->panjang_plan / 1000 * $r->lebar_plan / 1000 * $r->good_cor_p;
 						$wasteKG = ($expKP[0] + ($expKP[1]*1.46) + $expKP[2]) / 1000 * $r->panjang_plan / 1000 * $r->lebar_plan / 1000 * $r->bad_cor_p;
-						$wasteTrim = 0;
+						$wasteTrim = $r->trim_plan / 1000 * $rmTrim * ($expKP[0]/1000 + ($expKP[1]*1.46)/1000 + $expKP[2]/1000) + $wasteKG;
+						$wastePersen = ($wasteKG == 0 || $wasteTrim == 0) ? 0 : (($wasteKG+$wasteTrim) / $ton) * 100;
 					}else if($r->flute == "BCF"){
 						$ton = ($expKP[0] + ($expKP[1]*1.36) + $expKP[2] + ($expKP[3]*1.46) + $expKP[4]) / 1000 * $r->panjang_plan / 1000 * $r->lebar_plan / 1000 * $r->good_cor_p;
 						$wasteKG = ($expKP[0] + ($expKP[1]*1.36) + $expKP[2] + ($expKP[3]*1.46) + $expKP[4]) / 1000 * $r->panjang_plan / 1000 * $r->lebar_plan / 1000 * $r->bad_cor_p;
-						$wasteTrim = 0;
+						$wasteTrim = $r->trim_plan / 1000 * $rmTrim * ($expKP[0]/1000 + ($expKP[1]*1.36)/1000 + $expKP[2]/1000 + ($expKP[3]*1.46)/1000 + $expKP[4]/1000) + $wasteKG;
+						$wastePersen = ($wasteKG == 0 || $wasteTrim == 0) ? 0 : (($wasteKG+$wasteTrim) / $ton) * 100;
 					}else{
 						$ton = 0;
 						$wasteKG = 0;
 						$wasteTrim = 0;
+						$wastePersen = 0;
 					}
-					($ton == 0) ? $ton = '-' : $ton = number_format($ton);
-					($wasteKG == 0) ? $wasteKG = '-' : $wasteKG = number_format($wasteKG);
-					($wasteTrim == 0) ? $wasteTrim = '-' : $wasteTrim = number_format($wasteTrim);
-
-					// =(H152+J152*1,36+L152+N152*1,46+P152)/1000*Q152/1000*R152/1000*AH152
-					// =((trim/1000*rm*(H152/1000+J152*1,36/1000+L152/1000+N152*1,46/1000+P152/1000))+wastekg)
+					($ton == 0) ? $ton = '-' : $ton = number_format($ton,0,',','.');
+					($wasteKG == 0) ? $wasteKG = '-' : $wasteKG = number_format($wasteKG,0,',','.');
+					($wasteTrim == 0) ? $wasteTrim = '-' : $wasteTrim = number_format($wasteTrim,0,',','.');
+					($wastePersen == 0) ? $wastePersen = '-' : $wastePersen = number_format($wastePersen, 2).' %';
 
 					$id_plan = $r->id_plan;
 					$getDt = $this->db->query("SELECT COUNT(id_plan_cor) AS jml_dt,SUM(durasi_mnt_dt) AS durasi_dt FROM plan_cor_dt WHERE id_plan_cor='$id_plan'
 					GROUP BY id_plan_cor");
 					($getDt->num_rows() == 0) ? $jml_dt = '-' : $jml_dt = $getDt->row()->jml_dt;
 					($getDt->num_rows() == 0) ? $durasi_dt = '' : $durasi_dt = ' ( '.$getDt->row()->durasi_dt.'" ) ';
+					($r->tgl_flexo == null) ? $tgl_flexo = '-' : $tgl_flexo = $this->m_fungsi->tglPlan($r->tgl_flexo);
 
 					$html.='<tr class="h-tmpl-list-plan">
 						<td style="padding:3px;position:sticky;left:0;background:#fff'.$borBot.'">
@@ -292,26 +294,25 @@ class Plan extends CI_Controller
 						<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->tgl_plan).'</td>
 						<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->eta_so).'</td>
 						<td style="padding:6px'.$borBot.'">'.$r->kualitas_plan.'</td>
-						<td style="padding:6px'.$borBot.'">'.number_format($r->panjang_plan).'</td>
-						<td style="padding:6px'.$borBot.'">'.number_format($r->lebar_plan).'</td>
+						<td style="padding:6px'.$borBot.';font-weight:bold;color:#ff0066">'.number_format($r->panjang_plan,0,',','.').'</td>
+						<td style="padding:6px'.$borBot.';font-weight:bold;color:#ff0066">'.number_format($r->lebar_plan,0,',','.').'</td>
 						<td style="padding:6px'.$borBot.'">'.$score.'</td>
 						<td style="padding:6px'.$borBot.'">'.$r->out_plan.'</td>
 						<td style="padding:6px'.$borBot.'">'.$r->flute.'</td>
-						<td style="padding:6px'.$borBot.'">'.number_format($r->lebar_roll_p).'</td>
-						<td style="padding:6px'.$borBot.'">'.number_format($r->trim_plan).'</td>
-						<td style="padding:6px'.$borBot.';text-align:right">'.number_format($r->good_cor_p).'</td>
-						<td style="padding:6px'.$borBot.';text-align:right">'.number_format($r->total_cor_p).'</td>
+						<td style="padding:6px'.$borBot.'">'.number_format($r->lebar_roll_p,0,',','.').'</td>
+						<td style="padding:6px'.$borBot.'">'.number_format($r->trim_plan,0,',','.').'</td>
+						<td style="padding:6px'.$borBot.';color:#f00;text-align:right">'.number_format($r->good_cor_p,0,',','.').'</td>
 						<td style="padding:6px'.$borBot.'">'.$jml_dt.''.$durasi_dt.'</td>
 						<td style="padding:6px'.$borBot.'">'.$c_off.'</td>
 						<td style="padding:6px'.$borBot.'">'.$rm.'</td>
 						<td style="padding:6px'.$borBot.'">'.$ton.'</td>
-						<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
-						<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->tgl_flexo).'</td>
+						<td style="padding:6px'.$borBot.';color:#f00">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
+						<td style="padding:6px'.$borBot.'">'.$tgl_flexo.'</td>
 						<td style="padding:6px'.$borBot.'">'.$r->next_plan.'</td>
-						<td style="padding:6px'.$borBot.';text-align:right">'.number_format($r->bad_cor_p).'</td>
-						<td style="padding:6px'.$borBot.'">'.$wasteKG.'</td>
-						<td style="padding:6px'.$borBot.'">'.$wasteTrim.'</td>
-						<td style="padding:6px'.$borBot.'"></td>
+						<td style="padding:6px'.$borBot.';text-align:right">'.number_format($r->bad_cor_p,0,',','.').'</td>
+						<td style="padding:6px'.$borBot.';text-align:right">'.$wasteKG.'</td>
+						<td style="padding:6px'.$borBot.';background:#ff0;text-align:right">'.$wasteTrim.'</td>
+						<td style="padding:6px'.$borBot.'">'.$wastePersen.'</td>
 					</tr>';
 
 					$sumGood += $r->good_cor_p;
