@@ -314,39 +314,61 @@ class M_plan extends CI_Model
 
 	function editListPlan()
 	{
+		$next = $_POST["next"];
+		$id_plan = $_POST["id_plan"];
+		$cekFlexo = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$id_plan'");
 		if($_POST["opsi"] == 'edit'){
-			$this->db->set("material_plan", $_POST["material"]);
-			$this->db->set("kualitas_plan", $_POST["kualitas"]);
-			$this->db->set("kualitas_isi_plan", $_POST["kualitas_isi"]);
-			$this->db->set("panjang_plan", $_POST["panjang_plan"]);
-			$this->db->set("lebar_plan", $_POST["lebar_plan"]);
-			$this->db->set("lebar_roll_p", $_POST["lebar_roll_p"]);
-			$this->db->set("out_plan", $_POST["out_plan"]);
-			$this->db->set("trim_plan", $_POST["trim_plan"]);
-			$this->db->set("c_off_p", $_POST["c_off_p"]);
-			$this->db->set("rm_plan", $_POST["rm_plan"]);
-			$this->db->set("tonase_plan", $_POST["tonase_plan"]);
-			$this->db->set("tgl_kirim_plan", $_POST["tglkirim"]);
-			$this->db->set("next_plan", $_POST["next"]);
-			$this->db->where("id_plan", $_POST["id_plan"]);
-			$plan = $this->db->update("plan_cor");
+			if($cekFlexo->num_rows() > 1){
+				$data = false; $wo = false;
+				$msg = 'PLAN FLEXO LEBIH DARI SATU!';
+			}else if($cekFlexo->num_rows() == 1 && $cekFlexo->row()->mesin_flexo != $next){
+				$data = false; $wo = false;
+				$msg = 'PLAN FLEXO BEDA DENGAN NEXT PLAN COR! CEK KEMBALI!';
+			}else{
+				$this->db->set("material_plan", $_POST["material"]);
+				$this->db->set("kualitas_plan", $_POST["kualitas"]);
+				$this->db->set("kualitas_isi_plan", $_POST["kualitas_isi"]);
+				$this->db->set("panjang_plan", $_POST["panjang_plan"]);
+				$this->db->set("lebar_plan", $_POST["lebar_plan"]);
+				$this->db->set("lebar_roll_p", $_POST["lebar_roll_p"]);
+				$this->db->set("out_plan", $_POST["out_plan"]);
+				$this->db->set("trim_plan", $_POST["trim_plan"]);
+				$this->db->set("c_off_p", $_POST["c_off_p"]);
+				$this->db->set("rm_plan", $_POST["rm_plan"]);
+				$this->db->set("tonase_plan", $_POST["tonase_plan"]);
+				$this->db->set("tgl_kirim_plan", $_POST["tglkirim"]);
+				$this->db->set("next_plan", $_POST["next"]);
+				$this->db->where("id_plan", $_POST["id_plan"]);
+				$data = $this->db->update("plan_cor");
 
-			$this->db->set("flap1", $_POST["creasing_wo1"]);
-			$this->db->set("creasing2", $_POST["creasing_wo2"]);
-			$this->db->set("flap2", $_POST["creasing_wo3"]);
-			$this->db->where("id", $_POST["id_wo"]);
-			$wo = $this->db->update("trs_wo");
+				$this->db->set("flap1", $_POST["creasing_wo1"]);
+				$this->db->set("creasing2", $_POST["creasing_wo2"]);
+				$this->db->set("flap2", $_POST["creasing_wo3"]);
+				$this->db->where("id", $_POST["id_wo"]);
+				$wo = $this->db->update("trs_wo");
+				$msg = 'BERHASIL EDIT';
+			}
 		}else{
-			$this->db->set("tgl_kirim_plan", $_POST["tglkirim"]);
-			$this->db->set("next_plan", $_POST["next"]);
-			$this->db->where("id_plan", $_POST["id_plan"]);
-			$plan = $this->db->update("plan_cor");
-			$wo = true;
+			if($cekFlexo->num_rows() > 1){
+				$data = false; $wo = false;
+				$msg = 'PLAN FLEXO SEUDAH LEBIH DARI SATU!';
+			}else if($cekFlexo->num_rows() == 1 && $cekFlexo->row()->mesin_flexo != $next){
+				$data = false; $wo = false;
+				$msg = 'PLAN FLEXO BEDA DENGAN NEXT PLAN COR! CEK KEMBALI!';
+			}else{
+				$this->db->set("tgl_kirim_plan", $_POST["tglkirim"]);
+				$this->db->set("next_plan", $_POST["next"]);
+				$this->db->where("id_plan", $_POST["id_plan"]);
+				$data = $this->db->update("plan_cor");
+				$wo = true;
+				$msg = 'BERHASIL EDIT';
+			}
 		}
 
 		return array(
-			'plan' => $plan,
+			'data' => $data,
 			'wo' => $wo,
+			'msg' => $msg
 		);
 	}
 
