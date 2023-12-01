@@ -59,7 +59,7 @@ class Transaksi extends CI_Controller
 
 		if($bulan)
 		{
-			$ket= "and month(a.tgl_po)='$bulan'";
+			$ket= "and a.tgl_po like '%$bulan%'";
 		}else{
 			$ket='';
 		}
@@ -73,7 +73,7 @@ class Transaksi extends CI_Controller
 		join m_pelanggan b ON a.id_pelanggan=b.id_pelanggan
 		join m_sales c ON b.id_sales=c.id_sales
 		WHERE a.status <> 'Reject' 
-		$ket
+		$ket 
 		)p group by id_sales,nm_sales")->result();
 
 		$html .='<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
@@ -89,6 +89,8 @@ class Transaksi extends CI_Controller
 		$i = 0;
 		$total =0;
 		$total_rata =0;
+		if($query)
+		{
 		foreach($query as $r){
 			$i++;
 			$html .= '</tr>
@@ -111,6 +113,15 @@ class Transaksi extends CI_Controller
 		
 		$html .='</table>
 		</div>';
+		}else{
+			$html .='<tr>
+				<th style="text-align:center" colspan="4" >Data Kosong</th>
+			</tr>
+			';
+		
+		$html .='</table>
+		</div>';
+		}
 
 		echo $html;
 		
@@ -125,21 +136,21 @@ class Transaksi extends CI_Controller
 		JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
 		WHERE status='Open' ")->result();
 
-            if (!$query) {
-                $response = [
-                    'message'	=> 'not found',
-                    'data'		=> [],
-                    'status'	=> false,
-                ];
-            }else{
-                $response = [
-                    'message'	=> 'Success',
-                    'data'		=> $query,
-                    'status'	=> true,
-                ];
-            }
-            $json = json_encode($response);
-            print_r($json);
+		if (!$query) {
+			$response = [
+				'message'	=> 'not found',
+				'data'		=> [],
+				'status'	=> false,
+			];
+		}else{
+			$response = [
+				'message'	=> 'Success',
+				'data'		=> $query,
+				'status'	=> true,
+			];
+		}
+		$json = json_encode($response);
+		print_r($json);
     }
 	
 	function load_produk()
@@ -2942,14 +2953,20 @@ class Transaksi extends CI_Controller
 
 		if(($this->session->userdata('level')))
 		{
-
 			$data = [
 				'menu'  => '<span style="color:red">SIMULASI HARGA *</span>',
 				'judul' => "Simulasi Harga",
 			];
-
+			
 			$this->load->view('header', $data);
-			$this->load->view('hitung_harga/v_hitung_harga', $data);
+
+			if(($this->session->userdata('username'))=='bujenik')
+			{				
+				$this->load->view('hitung_harga/v_hitung_harga_jumbo', $data);
+			}else{				
+				$this->load->view('hitung_harga/v_hitung_harga', $data);
+			}
+			
 			$this->load->view('footer');
 
 		} else {
@@ -2957,6 +2974,36 @@ class Transaksi extends CI_Controller
 		}
 
 		
+	}
+
+	public function coba_api()
+	{
+		$curl = curl_init();
+
+		curl_setopt_array($curl, array(
+		CURLOPT_URL => "https://api.rajaongkir.com/starter/province?id=12",
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_ENCODING => "",
+		CURLOPT_MAXREDIRS => 10,
+		CURLOPT_TIMEOUT => 30,
+		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		CURLOPT_CUSTOMREQUEST => "GET",
+		CURLOPT_HTTPHEADER => array(
+			"key: c479d0aa6880c0337184539462eeec6f"
+		),
+		));
+
+		$response   = curl_exec($curl);
+		$err        = curl_error($curl);
+
+		curl_close($curl);
+
+		if ($err) {
+			echo "cURL Error #:" . $err;
+		} else {
+			// echo $response;
+			echo json_encode($response);
+		}
 	}
 
 }

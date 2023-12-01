@@ -21,19 +21,20 @@
 			-webkit-appearance: none;
 			margin: ;
 		}
+		
 	</style>
-
+	<?php $bigsize ="font-size:30px;" ?>
 	<section class="content" style="padding-bottom:3px">
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-md-12">
-						<div class="card card-info card-outline">
+						<div class="card card-secondary card-outline" style="padding-bottom:20px">
 							<div class="card-header">
-								<h3 class="card-title" style="font-weight:bold;font-style:italic"><?= $menu ?></h3>
+								<h3 class="card-title" style="font-weight:bold;font-style:italic;"><?= $menu ?></h3>
 							</div>
 							<br>
 							<form id="hitung" >
-								<div class="card-body row" style="font-weight:bold">
+								<div class="card-body row" style="font-weight:bold; <?=$bigsize?>">
 									<div class="col-md-3" style="margin-bottom:3px">
 									Type :
 										<select id="type" name="type" class="form-control select2" onchange="ayoBerhitung(), cek_type(this.value)">
@@ -47,7 +48,7 @@
 									
 									<div class="col-md-3" style="margin-bottom:3px">
 									Flute :
-										<select id="flute" name="flute" class="form-control select2" onchange="ayoBerhitung(),cek_flute(this.value)">
+										<select id="flute" name="flute" class="form-control select2" onchange="ayoBerhitung(),cek_flute(this.value)" style="<?=$bigsize?>">
 											<option value="BCF">BCF</option>
 											<option value="BF">BF</option>
 											<option value="CF">CF</option>
@@ -61,73 +62,44 @@
 									</div>
 									<div class="col-md-12"></div>
 
-									<div class="col-md-3" style="margin-bottom:3px">
-										<input type="text" class="form-control angka" id="l_panjang" placeholder="P" maxlength="4" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()">
+									<div class="col-md-3" style="margin-bottom:3px;">
+										<input type="text" class="form-control angka" id="l_panjang" placeholder="P" maxlength="4" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()" style="<?=$bigsize?>">
 									</div>
-									<div class="col-md-3" style="margin-bottom:3px">
-										<input type="text" class="form-control angka" id="l_lebar" placeholder="L" maxlength="4" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()">									
+									<div class="col-md-3" style="margin-bottom:3px;">
+										<input type="text" class="form-control angka" id="l_lebar" placeholder="L" maxlength="4" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()" style="<?=$bigsize?>">									
 									</div>
-									<div class="col-md-3" style="margin-bottom:3px">
-										<input type="text" class="form-control angka" id="l_tinggi" placeholder="T" maxlength="4" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()">				
+									<div class="col-md-3" style="margin-bottom:3px;<?=$bigsize?>">
+										<input type="text" class="form-control angka" id="l_tinggi" placeholder="T" maxlength="4" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" onchange="ayoBerhitung()" style="<?=$bigsize?>">				
 									</div>
 									
 									<div class="col-md-12">&nbsp;</div>
 									
-									<div class="col-md-3" style="margin-bottom:3px">
+									<div class="col-md-3" style="margin-bottom:3px;">
 									Ukuran Sheet : <br>
 									</div>
 									<div class="col-md-12"></div>
 
-									<div class="col-md-3" style="margin-bottom:3px">
-										<input type="text" class="form-control angka" id="p_sheet" placeholder="P" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" readonly>
+									<div class="col-md-3" style="margin-bottom:3px;">
+										<input type="text" class="form-control angka" id="p_sheet" placeholder="P" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" style="<?=$bigsize?>" readonly>
 										
 									</div>
-									<div class="col-md-3" style="margin-bottom:3px">
-										<input type="text" class="form-control angka" id="l_sheet" placeholder="L" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" readonly>									
+									<div class="col-md-3" style="margin-bottom:3px;<?=$bigsize?>">
+										<input type="text" class="form-control angka" id="l_sheet" placeholder="L" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" style="<?=$bigsize?>" readonly>									
 									</div>
 									
 									<div class="col-md-12">&nbsp;</div>
 									<br>
-									<!-- <div class="col-md-3" style="margin-bottom:3px">
-									Substance :
-										<select id="tl_al" name="tl_al" class="form-control select2" onchange="ayoBerhitung()">
-											<option value="">-</option>
-											<option value="M">M</option>
-											<option value="K">K</option>
-										</select>
-
-										<select id="bmf" name="bmf" class="form-control select2" onchange="ayoBerhitung()">
-											<option value="">-</option>
-											<option value="M">M</option>
-											<option value="K">K</option>
-										</select>
-										<select id="bl" name="bl" class="form-control select2" onchange="ayoBerhitung()">
-											<option value="">-</option>
-											<option value="M">M</option>
-											<option value="K">K</option>
-										</select>
-										<select id="cmf" name="cmf" class="form-control select2" onchange="ayoBerhitung()">
-											<option value="">-</option>
-											<option value="M">M</option>
-											<option value="K">K</option>
-										</select>
-										<select id="cl" name="cl" class="form-control select2" onchange="ayoBerhitung()">
-											<option value="">-</option>
-											<option value="M">M</option>
-											<option value="K">K</option>
-										</select>
-									</div> -->
-									<div class="col-md-3" style="margin-bottom:3px">
+									<div class="col-md-3" style="margin-bottom:3px;">
 									Gramature : 
-										<input type="text" id="tl_al_i" name="tl_al_i"  class="form-control angka" autocomplete="off" placeholder="TL/AL" onchange="ayoBerhitung()">
+										<input type="text" id="tl_al_i" name="tl_al_i"  class="form-control angka" autocomplete="off" placeholder="TL/AL" onchange="ayoBerhitung()" style="<?=$bigsize?>">
 
-										<input type="text" id="bmf_i" name="bmf_i" class="form-control angka" autocomplete="off" placeholder="B.MF" onchange="ayoBerhitung()">
+										<input type="text" id="bmf_i" name="bmf_i" class="form-control angka" autocomplete="off" placeholder="B.MF" onchange="ayoBerhitung()" style="<?=$bigsize?>">
 
-										<input type="text" id="bl_i" name="bl_i" class="form-control angka" autocomplete="off" placeholder="B.L" onchange="ayoBerhitung()">
+										<input type="text" id="bl_i" name="bl_i" class="form-control angka" autocomplete="off" placeholder="B.L" onchange="ayoBerhitung()" style="<?=$bigsize?>">
 
-										<input type="text" id="cmf_i" name="cmf_i" class="form-control angka" autocomplete="off" placeholder="C.MF" onchange="ayoBerhitung()">
+										<input type="text" id="cmf_i" name="cmf_i" class="form-control angka" autocomplete="off" placeholder="C.MF" onchange="ayoBerhitung()" style="<?=$bigsize?>">
 
-										<input type="text" id="cl_i" name="cl_i" class="form-control angka" autocomplete="off" placeholder="C.L" onchange="ayoBerhitung()">
+										<input type="text" id="cl_i" name="cl_i" class="form-control angka" autocomplete="off" placeholder="C.L" onchange="ayoBerhitung()" style="<?=$bigsize?>">
 									</div>
 
 									
@@ -139,7 +111,7 @@
 									<div class="col-md-12"></div>
 
 									<div class="col-md-3" style="margin-bottom:3px">
-										<input type="text" class="form-control angka" id="bb" placeholder="BB" autocomplete="off" readonly>
+										<input type="text" class="form-control angka" id="bb" placeholder="BB" autocomplete="off" style="<?=$bigsize?>" readonly>
 										
 									</div>
 
@@ -147,15 +119,15 @@
 
 									<div class="col-md-3" style="margin-bottom:3px">
 									Harga / kg : 
-										<input type="text" class="form-control angka" id="hrg_kg" placeholder="Harga" onkeyup="ubah_angka(this.value,this.id),hitung_inc_exc(this.value)" autocomplete="off" >
+										<input type="text" class="form-control angka" id="hrg_kg" placeholder="Harga" onkeyup="ubah_angka(this.value,this.id),hitung_inc_exc(this.value)" autocomplete="off" style="<?=$bigsize?>" >
 									</div>
 									<div class="col-md-3" style="margin-bottom:3px">
 									Include : 
-										<input type="text" class="form-control angka" id="include" placeholder="Include" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" autocomplete="off" >									
+										<input type="text" class="form-control angka" id="include" placeholder="Include" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" autocomplete="off" style="<?=$bigsize?>" >									
 									</div>
 									<div class="col-md-3" style="margin-bottom:3px">
 									Exclude : 
-										<input type="text" class="form-control angka" id="exclude" placeholder="Exclude" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" autocomplete="off" >			
+										<input type="text" class="form-control angka" id="exclude" placeholder="Exclude" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" autocomplete="off" style="<?=$bigsize?>" >			
 									</div>
 									<div class="col-md-12"></div>
 
@@ -163,15 +135,15 @@
 
 									<div class="col-md-3" style="margin-bottom:3px">
 									QTY : 
-										<input type="text" class="form-control angka" id="qty" placeholder="Qty" onkeyup="ubah_angka(this.value,this.id),Hitung_rm(this.value)" autocomplete="off" >
+										<input type="text" class="form-control angka" id="qty" placeholder="Qty" onkeyup="ubah_angka(this.value,this.id),Hitung_rm(this.value)" autocomplete="off" style="<?=$bigsize?>">
 									</div>
 									<div class="col-md-3" style="margin-bottom:3px">
 									RM : 
-										<input type="text" class="form-control angka" id="rm" placeholder="rm" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" readonly>									
+										<input type="text" class="form-control angka" id="rm" placeholder="rm" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" style="<?=$bigsize?>"readonly>									
 									</div>
 									<div class="col-md-3" style="margin-bottom:3px">
 									Tonase : 
-										<input type="text" class="form-control angka" id="ton" placeholder="Tonase" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" readonly>			
+										<input type="text" class="form-control angka" id="ton" placeholder="Tonase" onkeyup="ubah_angka(this.value,this.id)" autocomplete="off" style="<?=$bigsize?>"readonly>			
 									</div>
 									<div class="col-md-12"></div>
 
