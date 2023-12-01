@@ -168,6 +168,12 @@
 								<h3 class="card-title" style="font-weight:bold;font-style:italic">HASIL PRODUKSI</h3>
 							</div>
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+								<div class="col-md-2">ORDER</div>
+								<div class="col-md-10">
+									<input type="number" id="order_cor" style="font-weight:bold" class="form-control" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 								<div class="col-md-2">GOOD</div>
 								<div class="col-md-10">
 									<input type="number" id="good_cor" class="form-control" onkeyup="hitungProduksi()">
@@ -958,6 +964,7 @@
 				data = JSON.parse(res)
 				if(data.data){
 					kosong()
+					riwayatPlan(0, 0, 0, 0)
 					loadInputList('','','','')
 				}else{
 					swal(data.msg, "", "error")
@@ -1384,8 +1391,13 @@
 						return
 					}
 				}else{
-					toastr.success(`<b>BERHASIL EDIT!</b>`)
-					listRencanaPlan()
+					if(data.updatePlanCor){
+						toastr.success(`<b>${data.msg}</b>`)
+						listRencanaPlan()
+					}else{
+						toastr.error(`<b>${data.msg}</b>`)
+						swal.close()
+					}
 				}
 			}
 		})
@@ -1893,6 +1905,7 @@
 
 					$("#kirim").val(tgl_kirim_plan)
 
+					$("#order_cor").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(data.wo.qty_so))
 					$("#good_cor").val(data.wo.good_cor_p)
 					$("#bad_cor").val(data.wo.bad_cor_p)
 					$("#total_cor").val(data.wo.total_cor_p)
@@ -1987,7 +2000,7 @@
 					$("#kirim").val(kirimEtaSO)
 
 					$("#card-produksi").hide();
-					$("#good_cor").val("");$("#bad_cor").val("");$("#total_cor").val("");$("#ket_cor").val("");$("#tgl_cor").val();$("#start_cor").val("");$("#end_cor").val("");
+					$("#order_cor").val("");$("#good_cor").val("");$("#bad_cor").val("");$("#total_cor").val("");$("#ket_cor").val("");$("#tgl_cor").val();$("#start_cor").val("");$("#end_cor").val("");
 					$("#btn-aksi-produksi").html(``);
 				}
 

@@ -151,60 +151,66 @@ class M_plan extends CI_Model
 
 	function addRencanaPlan()
 	{
+		$next = $_POST["next_plan"];
+		$id_plan = $_POST['opsi'];
 		if($_POST["opsi"] != 'add'){
-			if(($_POST["kategori"] == 'K_SHEET')){
-				$this->db->set("p1_sheet", $_POST["panjang_plan"]);
+			$cekFlexo = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$id_plan'");
+			if($cekFlexo->num_rows() > 1){
+				$updateScoreWO = false; $updatePlanCor = false;
+				$msg = 'PLAN FLEXO LEBIH DARI SATU!';
 			}else{
-				$this->db->set("kupingan", $_POST["kupingan"]);
-				$this->db->set("p1", $_POST["p1"]);
-				$this->db->set("l1", $_POST["l1"]);
-				$this->db->set("p2", $_POST["p2"]);
-				$this->db->set("l2", $_POST["l2"]);
+				if(($_POST["kategori"] == 'K_SHEET')){
+					$this->db->set("p1_sheet", $_POST["panjang_plan"]);
+				}else{
+					$this->db->set("kupingan", $_POST["kupingan"]);
+					$this->db->set("p1", $_POST["p1"]);
+					$this->db->set("l1", $_POST["l1"]);
+					$this->db->set("p2", $_POST["p2"]);
+					$this->db->set("l2", $_POST["l2"]);
+				}
+				// UPDATE SCORE WO
+				$this->db->set("flap1", $_POST["creasing_wo1"]);
+				$this->db->set("creasing2", $_POST["creasing_wo2"]);
+				$this->db->set("flap2", $_POST["creasing_wo3"]);
+				$this->db->set("edit_time", date("Y:m:d H:i:s"));
+				$this->db->set("edit_user", $this->session->userdata('username'));
+				$this->db->where("id", $_POST["id_wo"]);
+				$updateScoreWO = $this->db->update("trs_wo");
+				$data = array(
+					'tgl_plan' => $_POST["tgl_plan"],
+					'tgl_kirim_plan' => $_POST["tgl_kirim_plan"],
+					'shift_plan' => $_POST["shift_plan"],
+					'machine_plan' => $_POST["machine_plan"],
+					'no_wo' => $_POST["no_wo"],
+					'no_so' => $_POST["no_so"],
+					'panjang_plan' => $_POST["panjang_plan"],
+					'lebar_plan' => $_POST["lebar_plan"],
+					'out_plan' => $_POST["out_plan"],
+					'lebar_roll_p' => $_POST["lebar_roll_p"],
+					'material_plan' => $_POST["material_plan"],
+					'kualitas_plan' => $_POST["kualitas_plan"],
+					'kualitas_isi_plan' => $_POST["kualitas_isi_plan"],
+					'trim_plan' => $_POST["trim_plan"],
+					'c_off_p' => $_POST["c_off_p"],
+					'rm_plan' => $_POST["rm_plan"],
+					'tonase_plan' => $_POST["tonase_plan"],
+					'next_plan' => $_POST["next_plan"],
+					'edit_time' => date('Y-m-d H:i:s'),
+					'edit_user' => $this->session->userdata('username'),
+				);
+				$this->db->where('id_plan', $_POST['opsi']);
+				$this->db->where('id_so_detail', $_POST['id_so_detail']);
+				$this->db->where('id_wo', $_POST['id_wo']);
+				$this->db->where('id_produk', $_POST['id_produk']);
+				$this->db->where('id_pelanggan', $_POST['id_pelanggan']);
+				$updatePlanCor = $this->db->update('plan_cor', $data);
+				$msg = 'BERHASIL EDIT!';
 			}
-
-			// UPDATE SCORE WO
-			$this->db->set("flap1", $_POST["creasing_wo1"]);
-			$this->db->set("creasing2", $_POST["creasing_wo2"]);
-			$this->db->set("flap2", $_POST["creasing_wo3"]);
-			$this->db->set("edit_time", date("Y:m:d H:i:s"));
-			$this->db->set("edit_user", $this->session->userdata('username'));
-			$this->db->where("id", $_POST["id_wo"]);
-			$updateScoreWO = $this->db->update("trs_wo");
-
-			$data = array(
-				'tgl_plan' => $_POST["tgl_plan"],
-				'tgl_kirim_plan' => $_POST["tgl_kirim_plan"],
-				'shift_plan' => $_POST["shift_plan"],
-				'machine_plan' => $_POST["machine_plan"],
-				'no_wo' => $_POST["no_wo"],
-				'no_so' => $_POST["no_so"],
-				'panjang_plan' => $_POST["panjang_plan"],
-				'lebar_plan' => $_POST["lebar_plan"],
-				'out_plan' => $_POST["out_plan"],
-				'lebar_roll_p' => $_POST["lebar_roll_p"],
-				'material_plan' => $_POST["material_plan"],
-				'kualitas_plan' => $_POST["kualitas_plan"],
-				'kualitas_isi_plan' => $_POST["kualitas_isi_plan"],
-				'trim_plan' => $_POST["trim_plan"],
-				'c_off_p' => $_POST["c_off_p"],
-				'rm_plan' => $_POST["rm_plan"],
-				'tonase_plan' => $_POST["tonase_plan"],
-				'next_plan' => $_POST["next_plan"],
-				'edit_time' => date('Y-m-d H:i:s'),
-				'edit_user' => $this->session->userdata('username'),
-			);
-
-			$this->db->where('id_plan', $_POST['opsi']);
-			$this->db->where('id_so_detail', $_POST['id_so_detail']);
-			$this->db->where('id_wo', $_POST['id_wo']);
-			$this->db->where('id_produk', $_POST['id_produk']);
-			$this->db->where('id_pelanggan', $_POST['id_pelanggan']);
-			$updatePlanCor = $this->db->update('plan_cor', $data);
 		}
-
 		return array(
 			'updateScoreWO' => $updateScoreWO,
 			'updatePlanCor' => $updatePlanCor,
+			'msg' => $msg,
 		);
 	}
 
@@ -280,9 +286,7 @@ class M_plan extends CI_Model
 		return $this->db->query("SELECT COUNT(dt.id_plan_cor) AS jmlDt,SUM(dt.durasi_mnt_dt) AS jmlDtDurasi,p.*,so.qty_so FROM plan_cor p
 		INNER JOIN trs_so_detail so ON p.id_so_detail=so.id
 		LEFT JOIN plan_cor_dt dt ON p.id_plan=dt.id_plan_cor
-		WHERE
-		-- p.status_plan='Close' AND
-		p.id_so_detail='$id_so' AND p.id_wo='$id_wo' AND p.id_produk='$id_produk' AND p.id_pelanggan='$id_pelanggan'
+		WHERE p.id_so_detail='$id_so' AND p.id_wo='$id_wo' AND p.id_produk='$id_produk' AND p.id_pelanggan='$id_pelanggan'
 		GROUP BY p.tgl_plan,p.id_plan");
 	}
 
@@ -321,9 +325,6 @@ class M_plan extends CI_Model
 			if($cekFlexo->num_rows() > 1){
 				$data = false; $wo = false;
 				$msg = 'PLAN FLEXO LEBIH DARI SATU!';
-			}else if($cekFlexo->num_rows() == 1 && $cekFlexo->row()->mesin_flexo != $next){
-				$data = false; $wo = false;
-				$msg = 'PLAN FLEXO BEDA DENGAN NEXT PLAN COR! CEK KEMBALI!';
 			}else{
 				$this->db->set("material_plan", $_POST["material"]);
 				$this->db->set("kualitas_plan", $_POST["kualitas"]);
@@ -352,9 +353,6 @@ class M_plan extends CI_Model
 			if($cekFlexo->num_rows() > 1){
 				$data = false; $wo = false;
 				$msg = 'PLAN FLEXO SEUDAH LEBIH DARI SATU!';
-			}else if($cekFlexo->num_rows() == 1 && $cekFlexo->row()->mesin_flexo != $next){
-				$data = false; $wo = false;
-				$msg = 'PLAN FLEXO BEDA DENGAN NEXT PLAN COR! CEK KEMBALI!';
 			}else{
 				$this->db->set("tgl_kirim_plan", $_POST["tglkirim"]);
 				$this->db->set("next_plan", $_POST["next"]);
@@ -597,16 +595,29 @@ class M_plan extends CI_Model
 		if($_POST["total_flexo"] != 0){
 			$id_flexo = $_POST["id_flexo"];
 			$cekPlan = $this->db->query("SELECT*FROM plan_flexo WHERE id_flexo='$id_flexo'")->row();
-			if($cekPlan->status_flexo == 'Close'){
+			if($_POST["good_flexo"] > $_POST["good_cor"]){
+				$result = array(
+					'data' => false,
+					'msg' => 'PROD. FLEXO LEBIH BESAR DARI PROD. COR!',
+				);
+			}else if($cekPlan->status_flexo == 'Close'){
 				$result = array(
 					'data' => false,
 					'msg' => 'PLAN FLEXO SUDAH SELESAI!',
 				);
 			}else{
-				$result = $this->db->update('plan_flexo');
+				$data = $this->db->update('plan_flexo');
+				$result = array(
+					'data' => $data,
+					'msg' => 'OK!',
+				);
 			}
 		}else{
-			$result = $this->db->update('plan_flexo');
+			// $result = $this->db->update('plan_flexo');
+			$result = array(
+				'data' => false,
+				'msg' => 'HASIL PROD. FLEXO KOSONG!',
+			);
 		}
 
 		return $result;
@@ -636,21 +647,85 @@ class M_plan extends CI_Model
 					$result = false;
 					$msg = 'PLAN FLEXO SUDAH TERPRODUKSI!';
 				}else{
-					$this->db->set('tgl_flexo', $tgl);
-					$this->db->set('shift_flexo', $shift);
-					$this->db->set('mesin_flexo', $mesin);
-					$this->db->set('no_urut_flexo', 0);
-					$this->db->set('edit_time', date("Y-m-d H:i:s"));
-					$this->db->set('edit_user', $this->session->userdata('username'));
-					$this->db->where('id_flexo', $id_flexo);
-					$result = $this->db->update('plan_flexo');
-					$msg = 'BERHASIL EDIT!';
+					$cekPlanCor = $this->db->query("SELECT*FROM plan_cor WHERE id_plan='$cekIDPlan->id_plan_cor'")->row();
+					if($tgl < $cekPlanCor->tgl_plan){
+						$result = false;
+						$msg = 'TGL PLAN FLEXO TIDAK BOLEH KURANG DARI TANGGAL PLAN COR!';
+					}else{
+						$this->db->set('tgl_flexo', $tgl);
+						$this->db->set('shift_flexo', $shift);
+						$this->db->set('mesin_flexo', $mesin);
+						$this->db->set('no_urut_flexo', 0);
+						$this->db->set('edit_time', date("Y-m-d H:i:s"));
+						$this->db->set('edit_user', $this->session->userdata('username'));
+						$this->db->where('id_flexo', $id_flexo);
+						$result = $this->db->update('plan_flexo');
+						$result = true;
+						$msg = 'BERHASIL EDIT!';
+					}
 				}
 			}
 		}
 		return array(
 			'data' => $result,
 			'msg' => $msg,
+		);
+	}
+
+	function onChangeNourutFlexo()
+	{
+		$no_urut = $_POST["no_urut"];
+		$id_plan = $_POST["i"];
+
+		$noFlexo = $this->db->query("SELECT tgl_flexo,shift_flexo,mesin_flexo FROM plan_flexo WHERE id_flexo='$id_plan'")->row();
+
+		$cekNoUrutFlexo = $this->db->query("SELECT*FROM plan_flexo WHERE no_urut_flexo='$no_urut' AND tgl_flexo='$noFlexo->tgl_flexo' AND shift_flexo='$noFlexo->shift_flexo' AND mesin_flexo='$noFlexo->mesin_flexo'");
+		if($cekNoUrutFlexo->num_rows() == 0){
+			$this->db->set('no_urut_flexo', $no_urut);
+			$this->db->where('id_flexo', $id_plan);
+			$data = $this->db->update("plan_flexo");
+			$msg = 'BERHASIL EDIT NO URUT!';
+		}else{
+			$data = false;
+			$msg = 'NO URUT SUDAH ADA!';
+		}
+
+		return array(
+			'data' => $data,
+			'msg' => $msg,
+			'no_plan' => $noFlexo,
+			'urut_plan' => $cekNoUrutFlexo->row(),
+		);
+	}
+
+	function riwayatFlexo()
+	{
+		$id_plan = $_POST["id_plan"];
+
+		return $this->db->query("SELECT COUNT(dt.id_plan_flexo) AS jmlDt,SUM(dt.durasi_mnt_dt) AS jmlDtDurasi,c.pcs_plan,f.* FROM plan_flexo f
+		INNER JOIN plan_cor c ON f.id_plan_cor=c.id_plan
+		LEFT JOIN plan_flexo_dt dt ON f.id_flexo=dt.id_plan_flexo
+		WHERE f.id_plan_cor='$id_plan'
+		GROUP BY f.tgl_flexo,f.id_plan_cor");
+	}
+
+	function addRencanaFlexo(){
+		$id_flexo = $_POST["opsi"];
+		if($id_flexo != 'add'){
+			$cekFlexo = $this->db->query("SELECT*FROM plan_flexo WHERE id_flexo='$id_flexo' AND status_flexo='Close'");
+			if($cekFlexo->num_rows() == 0){
+				$this->db->set('status_flexo', 'Close');
+				$this->db->where('id_flexo', $id_flexo);
+				$data = $this->db->update('plan_flexo');
+				$isi = 'PLAN FLEXO SELESAI!';
+			}else{
+				$data = false;
+				$isi = 'PLAN FLEXO SUDAH SELESAI!';
+			}
+		}
+		return array(
+			'data' => $data,
+			'isi' => $isi,
 		);
 	}
 }
