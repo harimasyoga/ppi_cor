@@ -179,7 +179,7 @@
 
 									<input class="btn btn-danger" type="reset" name="" id="" value="RESET" onclick="kosong()">
 									
-									<input class="btn btn-success" type="button" name="" id="" value="COBA API" onclick="Coba_api()">
+									<!-- <input class="btn btn-success" type="button" name="" id="" value="COBA API" onclick="Coba_api()"> -->
 									
 								</div>
 							</form>
