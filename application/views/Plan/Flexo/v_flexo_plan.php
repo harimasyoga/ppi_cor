@@ -109,6 +109,7 @@
 
 				<div class="col-md-12">
 					<div id="list-plan-flexo"></div>
+					<div id="riwayat-flexo"></div>
 				</div>
 				
 				<div class="col-md-12">
@@ -133,6 +134,12 @@
 								<h3 class="card-title" style="font-weight:bold;font-style:italic">HASIL PRODUKSI FLEXO</h3>
 							</div>
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+								<div class="col-md-2">GOOD COR.</div>
+								<div class="col-md-10">
+									<input type="number" id="good_cor" style="font-weight:bold" class="form-control" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 								<div class="col-md-2">GOOD</div>
 								<div class="col-md-10">
 									<input type="number" id="good_flexo" class="form-control" onkeyup="hitungProduksiFlexo()">
@@ -309,7 +316,7 @@
 							</div>
 							<div class="col-md-2">KIRIM</div>
 							<div class="col-md-4">
-								<input type="date" id="kirim" class="form-control pr-0" placeholder="KIRIM" disabled>
+								<input type="text" id="kirim" class="form-control pr-0" placeholder="KIRIM" disabled>
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
@@ -318,7 +325,7 @@
 						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 							<div class="col-md-2">TGL</div>
 							<div class="col-md-4">
-								<input type="date" id="tgl_cor" class="form-control pr-0" placeholder="TANGGAL" disabled>
+								<input type="text" id="tgl_cor" class="form-control pr-0" placeholder="TANGGAL" disabled>
 							</div>
 							<div class="col-md-2">QTY</div>
 							<div class="col-md-4">
@@ -335,11 +342,6 @@
 							</div>
 						</div>
 						<div id="btn-add-plan-flexo"></div>
-						<!-- <div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-							<div class="col-md-12">
-								<button type="button" class="btn btn-success btn-block" onclick="addRencanaFlexo()"><i class="fa fa-plus"></i> <b>ADD FLEXO</b></button>
-							</div>
-						</div> -->
 					</div>
 				</div>
 
@@ -466,39 +468,36 @@
 		})
 	}
 
-	function onClickHeaderPlanCor(next_flexo)
+	function onClickHeaderPlanCor(id_pelanggan)
 	{
 		$.ajax({
 			url: '<?php echo base_url('Plan/onClickHeaderPlanCor')?>',
 			type: "POST",
 			data: ({
-				next_flexo
+				id_pelanggan
 			}),
 			success: function(res){
-				$("#tampil-all-flexo-isi-"+next_flexo).html(res)
+				$("#tampil-all-flexo-isi-"+id_pelanggan).html(res)
 			}
 		})
 	}
 
-	function onclickHeaderIsiPlanCor(id_plan)
+	function onclickHeaderIsiPlanCor(id_plan, id_pelanggan)
 	{
 		$.ajax({
 			url: '<?php echo base_url('Plan/onclickHeaderIsiPlanCor')?>',
 			type: "POST",
 			data: ({
-				id_plan
+				id_plan, id_pelanggan
 			}),
 			success: function(res){
-				$("#tampil-all-pplan-isi-"+id_plan).html(res)
+				$("#tampil-all-pplan-isi-"+id_plan+"-"+id_pelanggan).html(res)
 			}
 		})
 	}
 
 	function loadPlanCor(opsi = '')
 	{
-		console.log(urlTglF)
-		console.log(urlShiftF)
-		console.log(urlMesinF)
 		let mesin = $("#mesin").val()
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadPlanCor')?>',
@@ -516,7 +515,6 @@
 			data: ({ mesin, opsi: '', urlTglF, urlShiftF, urlMesinF }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				let htmlPlanCor = ''
 				let kategori = ''
 					htmlPlanCor += `<option value="">PILIH</option>`
@@ -578,6 +576,7 @@
 			data: ({ mesin: '', opsi, urlTglF, urlShiftF, urlMesinF }),
 			success: function(res){
 				data = JSON.parse(res)
+				console.log(data)
 				if(data.opsi != ''){
 					opNoWo = data.plan_cor.no_wo
 					opNoPo = data.plan_cor.kode_po
@@ -604,7 +603,30 @@
 
 					$("#ehid_flexo").val(data.plan_cor.id_flexo)
 
-					// urlTglF urlShiftF urlMesinF
+					if(data.plan_cor.total_prod_flexo != 0){
+						inputDtProd = 'inputDowntimeProduksi'
+						$("#card-produksi").show()
+					}else if(data.urutDtProd == null){
+						inputDtProd = ''
+						$("#card-produksi").hide()
+						$("#btn-aksi-produksi").html(``)
+					}else if(data.plan_cor.id_flexo == data.urutDtProd.id_flexo){
+						if(data.plan_cor.total_cor_p != 0 && data.plan_cor.status_plan == 'Close'){
+							inputDtProd = 'inputDowntimeProduksi'
+							$("#card-produksi").show()
+						}else{
+							inputDtProd = ''
+							$("#card-produksi").hide()
+							$("#btn-aksi-produksi").html(``)
+						}
+					}else{
+						inputDtProd = ''
+						$("#card-produksi").hide()
+						$("#btn-aksi-produksi").html(``)
+					}
+
+					riwayatFlexo(data.getNoFlexo.id_plan_cor)
+
 					let tms = '';
 					(data.plan_cor.total_prod_flexo == 0 && data.plan_cor.status_flexo == 'Open') ? tms = false : tms = true;
 					$("#tgl").val(urlTglF).prop("disabled", tms)
@@ -623,8 +645,8 @@
 						</div>` : htmlBtnGantiTgl = '';
 					$("#btn-ganti-tgl").html(htmlBtnGantiTgl)
 
-					$("#card-produksi").show()
 					$("#downtime_cor").val("")
+					$("#good_cor").val(new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'}).format(data.plan_cor.good_cor_p))
 					$("#good_flexo").val(data.plan_cor.good_flexo_p)
 					$("#bad_flexo").val(data.plan_cor.bad_flexo_p)
 					$("#bad_b_flexo").val(data.plan_cor.bad_bahan_f_p)
@@ -641,7 +663,7 @@
 						onclickSelesaiFlexo = 'disabled'
 					}else if(data.plan_cor.total_prod_flexo != 0 && data.plan_cor.status_flexo == 'Open'){
 						txtPlanFlexo = 'UPDATE'
-						onclickSelesaiFlexo = 'onclick="addRencanaFlexo()"'
+						onclickSelesaiFlexo = `onclick="addRencanaFlexo(${data.plan_cor.id_flexo})"`
 					}else{
 						txtPlanFlexo = 'UPDATE'
 						onclickSelesaiFlexo = 'disabled'
@@ -654,15 +676,13 @@
 						</div>`)
 						$("#btn-add-plan-flexo").html(`<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 							<div class="col-md-12">
-								<button type="button" class="btn btn-primary btn-block" ${onclickSelesaiFlexo}><i class="fa fa-plus"></i> <b>SELESAI FLEXO</b></button>
+								<button type="button" class="btn btn-primary btn-block" ${onclickSelesaiFlexo}><i class="fa fa-check"></i> <b>SELESAI FLEXO</b></button>
 							</div>
 						</div>`)
 					}else{
 						$("#btn-aksi-produksi").html(``)
 						$("#btn-add-plan-flexo").html(``)
 					}
-
-					inputDtProd = 'inputDowntimeProduksi'
 				}else{
 					opNoWo = $('#plan_cor option:selected').attr('op-no-wo')
 					opNoPo = $('#plan_cor option:selected').attr('op-no-po')
@@ -687,8 +707,11 @@
 					opTglCor = $('#plan_cor option:selected').attr('op-tgl-cor');
 					opQtyCor = $('#plan_cor option:selected').attr('op-qty-cor');
 
+					$("#ehid_flexo").val("")
+
 					$("#btn-ganti-tgl").html("")
 					$("#card-produksi").hide()
+					$("#good_cor").val("")
 					$("#good_flexo").val("")
 					$("#bad_flexo").val("")
 					$("#bad_b_flexo").val("")
@@ -701,11 +724,12 @@
 					$("#btn-aksi-produksi").html('')
 					$("#btn-add-plan-flexo").html(`<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 						<div class="col-md-12">
-							<button type="button" class="btn btn-success btn-block" onclick="addRencanaFlexo()"><i class="fa fa-plus"></i> <b>ADD FLEXO</b></button>
+							<button type="button" class="btn btn-success btn-block" onclick="addRencanaFlexo('add')"><i class="fa fa-plus"></i> <b>ADD FLEXO</b></button>
 						</div>
 					</div>`)
-
+					
 					inputDtProd = ''
+					riwayatFlexo(0)
 				}
 			
 				let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
@@ -741,13 +765,13 @@
 				
 				let optSambungan = ''
 				if(opSambungan == 'G'){
-					optSambungan = `<option value="GLUE">GLUE</option>`
+					optSambungan = `<option value="GLUE">GLUE</option><option value="GUDANG">GUDANG</option>`
 				}else if(opSambungan == 'S'){
-					optSambungan = `<option value="STICHING">STICHING</option>`
+					optSambungan = `<option value="STICHING">STICHING</option><option value="GUDANG">GUDANG</option>`
 				}else if(opSambungan == 'GS'){
-					optSambungan = `<option value="GLUESTICHING">GLUE STICHING</option>`
+					optSambungan = `<option value="GLUESTICHING">GLUE STICHING</option><option value="GUDANG">GUDANG</option>`
 				}else if(opSambungan == 'DS'){
-					optSambungan = `<option value="DOUBLESTICHING">DOUBLE STICHING</option>`
+					optSambungan = `<option value="DOUBLESTICHING">DOUBLE STICHING</option><option value="GUDANG">GUDANG</option>`
 				}else{
 					optSambungan = `<option value="">PILIH</option>`
 				}
@@ -758,7 +782,7 @@
 		})
 	}
 
-	function addRencanaFlexo()
+	function addRencanaFlexo(opsi)
 	{
 		let tgl = $("#tgl").val()
 		let shift = $("#shift").val()
@@ -788,29 +812,28 @@
 		let qty_cor = $("#qty_cor").val().split('.').join('')
 		let next_flexo = $("#next_flexo").val()
 
-		if(plan_cor == ""){
-			toastr.error('<b>PILIH PLAN COR DAHULU!</b>');
-			return
-		}
-		if(next_flexo == ""){
-			toastr.error('<b>PILIH NEXT FLEXO DAHULU!</b>');
-			return
-		}
-
 		$.ajax({
 			url: '<?php echo base_url('Plan/addRencanaFlexo')?>',
 			type: "POST",
 			data: ({
-				tgl, shift, mesin, plan_cor ,no_wo ,no_po ,customer ,kode_mc ,item ,uk_box ,uk_sheet ,creasing_1 ,creasing_2 ,creasing_3 ,kualitas ,flute ,tipe_box ,sambungan ,bb_box ,lb_box ,panjang_plan ,lebar_plan ,order_so ,kirim ,tgl_cor ,qty_cor, next_flexo
+				opsi, tgl, shift, mesin, plan_cor ,no_wo ,no_po ,customer ,kode_mc ,item ,uk_box ,uk_sheet ,creasing_1 ,creasing_2 ,creasing_3 ,kualitas ,flute ,tipe_box ,sambungan ,bb_box ,lb_box ,panjang_plan ,lebar_plan ,order_so ,kirim ,tgl_cor ,qty_cor, next_flexo
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				if(data.data){
-					ListInputFlexo()
-					kosong()
-					loadPlanCor('')
+				if(opsi == 'add'){
+					if(data.data){
+						ListInputFlexo()
+						kosong()
+						loadPlanCor('')
+					}else{
+						swal(data.isi, "", "error")
+					}
 				}else{
-					swal(data.isi, "", "error")
+					if(data.data){
+						loadDataPlanFlexo(urlTglF, urlShiftF, urlMesinF)
+					}else{
+						swal(data.isi, "", "error")
+					}
 				}
 			}
 		})
@@ -931,6 +954,7 @@
 
 	function produksiPlanFlexo(id_flexo)
 	{
+		let good_cor = $("#good_cor").val().split('.').join('')
 		let good_flexo = $("#good_flexo").val().split('.').join('')
 		let bad_flexo = $("#bad_flexo").val().split('.').join('')
 		let bad_b_flexo = $("#bad_b_flexo").val().split('.').join('')
@@ -940,7 +964,7 @@
 		let start_flexo = $("#start_flexo").val()
 		let end_flexo = $("#end_flexo").val()
 
-		if(good_flexo < 0 || good_flexo == 0 || good_flexo == '' || bad_flexo < 0 || bad_flexo == 0 || bad_flexo == '' || bad_b_flexo < 0 || bad_b_flexo == 0 || bad_b_flexo == ''){
+		if(good_flexo < 0 || good_flexo == 0 || good_flexo == '' || total_flexo < 0 || total_flexo == 0 || total_flexo == ''){
 			swal("DATA PRODUKSI TIDAK BOLEH KOSONG!", "", "error")
 			return
 		}
@@ -953,11 +977,11 @@
 			url: '<?php echo base_url('Plan/produksiPlanFlexo')?>',
 			type: "POST",
 			data: ({
-				id_flexo, good_flexo, bad_flexo, bad_b_flexo, total_flexo, ket_flexo, tgl_flexo, start_flexo, end_flexo
+				id_flexo, good_cor, good_flexo, bad_flexo, bad_b_flexo, total_flexo, ket_flexo, tgl_flexo, start_flexo, end_flexo
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				if(data){
+				if(data.data){
 					loadPlanCor('')
 					plhPlanCor(id_flexo)
 				}else{
@@ -980,11 +1004,74 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
+				console.log(data)
 				if(data.data){
 					loadDataPlanFlexo(urlTglF, urlShiftF, urlMesinF)
 				}else{
 					swal(data.msg, "", "error")
 				}
+			}
+		})
+	}
+
+	function onChangeNourutFlexo(i)
+	{
+		$("#ehid_flexo").val("")
+		let no_urut = $("#lp-nourut-"+i).val();
+		(no_urut < 0 || no_urut == "") ? no_urut = 0 : no_urut = no_urut;
+		$("#lp-nourut-"+i).val(no_urut)
+		
+		$.ajax({
+			url: '<?php echo base_url('Plan/onChangeNourutFlexo')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				no_urut, i
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					kosong()
+					riwayatFlexo(0)
+					loadListPlanFlexo('','','','')
+				}else{
+					swal(data.msg, "", "error")
+				}
+			}
+		})
+	}
+
+	function riwayatFlexo(id_plan)
+	{
+		$("#riwayat-flexo").html(``)
+		$.ajax({
+			url: '<?php echo base_url('Plan/riwayatFlexo')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_plan
+			}),
+			success: function(res){
+				$("#riwayat-flexo").html(res)
+				// swal.close()
 			}
 		})
 	}
@@ -1012,7 +1099,6 @@
 								<option value="">PILIH</option>
 								<option value="OP">OPERASIONAL</option>
 								<option value="MT">TEKNIK</option>
-								<option value="M">MATERIAL</option>
 								<option value="N">MANAGEMENT</option>
 							</select>`;
 						}else{

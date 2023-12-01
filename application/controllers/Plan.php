@@ -62,7 +62,8 @@ class Plan extends CI_Controller
 		(SELECT COUNT(lp.tgl_plan) FROM plan_cor lp
 		WHERE p.tgl_plan=lp.tgl_plan AND p.shift_plan=lp.shift_plan AND p.machine_plan=lp.machine_plan AND lp.total_cor_p!='0' AND lp.status_plan='Open' GROUP BY lp.tgl_plan) AS prod_plan,
 		(SELECT COUNT(lp.tgl_plan) FROM plan_cor lp
-		WHERE p.tgl_plan=lp.tgl_plan AND p.shift_plan=lp.shift_plan AND p.machine_plan=lp.machine_plan AND lp.total_cor_p!='0' AND lp.status_plan='Close' GROUP BY lp.tgl_plan) AS selesai_plan,
+		INNER JOIN trs_wo w ON lp.id_wo=w.id
+		WHERE p.tgl_plan=lp.tgl_plan AND p.shift_plan=lp.shift_plan AND p.machine_plan=lp.machine_plan AND lp.total_cor_p!='0' AND lp.status_plan='Close' AND w.status='Open' GROUP BY lp.tgl_plan) AS selesai_plan,
 		(SELECT COUNT(lp.tgl_plan) FROM plan_cor lp
 		INNER JOIN trs_wo w ON lp.id_wo=w.id
 		WHERE p.tgl_plan=lp.tgl_plan AND p.shift_plan=lp.shift_plan AND p.machine_plan=lp.machine_plan AND lp.total_cor_p!='0' AND lp.status_plan='Close' AND w.status='Close' GROUP BY lp.tgl_plan) AS wo_plan
@@ -142,7 +143,7 @@ class Plan extends CI_Controller
 		
 		$getWO = $this->db->query("SELECT w.id AS id_wo,w.no_wo,w.kategori,i.nm_produk,w.qty,
 		(SELECT COUNT(p.id_plan) FROM plan_cor p WHERE p.id_wo=w.id GROUP BY p.id_wo) AS jml_plan,
-		(SELECT COUNT(p.id_plan) FROM plan_cor p WHERE p.id_wo=w.id AND p.total_cor_p!='0' GROUP BY p.id_wo) AS prod_plan,
+		(SELECT COUNT(p.id_plan) FROM plan_cor p WHERE p.id_wo=w.id AND p.total_cor_p!='0' AND p.status_plan='Open' GROUP BY p.id_wo) AS prod_plan,
 		(SELECT COUNT(p.id_plan) FROM plan_cor p WHERE p.id_wo=w.id AND p.total_cor_p!='0' AND p.status_plan='Close' GROUP BY p.id_wo) AS ok_plan,
 		(SELECT SUM(good_cor_p) FROM plan_cor p WHERE p.id_wo=w.id GROUP BY p.id_wo) AS good_cor,
 		(SELECT SUM(bad_cor_p) FROM plan_cor p WHERE p.id_wo=w.id GROUP BY p.id_wo) AS bad_cor,
@@ -157,7 +158,7 @@ class Plan extends CI_Controller
 			[ TIPE ] NO WO | ITEM <span class="bg-dark" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">QTY SO</span><span class="bg-light" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">JUMLAH PLAN</span><span class="bg-success" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">PRODUKSI</span><span class="bg-primary" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">SELESAI</span>';
 				foreach($getWO->result() as $r){
 					($r->kategori == 'K_BOX') ? $kat = 'BOX' : $kat = 'SHEET';
-					$qtySO = '<span class="bg-dark" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.number_format($r->qty).'</span>';
+					$qtySO = '<span class="bg-dark" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.number_format($r->qty,0,',','.').'</span>';
 					($r->jml_plan == null) ? $jml = '0' : $jml = $r->jml_plan;
 					$jmlPlan = '<span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$jml.'</span>';
 					($r->prod_plan == null) ? $prod = '' : $prod = '<span class="bg-success" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->prod_plan.'</span>';
@@ -289,10 +290,13 @@ class Plan extends CI_Controller
 					$getPF = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$r->id_plan'");
 					if($getPF->num_rows() == 0){
 						$tgl_flexo = '-';
+						$mesinFlexo = '-';
 					}else if($getPF->num_rows() == 1){
 						$tgl_flexo = $this->m_fungsi->tglPlan($getPF->row()->tgl_flexo);
+						$mesinFlexo = $getPF->row()->mesin_flexo;
 					}else{
 						$tgl_flexo = '<a data-toggle="collapse" href="#collapsePlanFlexo-'.$r->id_plan.'">'.$getPF->num_rows().'</a>';
+						$mesinFlexo = '<a data-toggle="collapse" href="#collapsePlanFlexo-'.$r->id_plan.'">'.$getPF->num_rows().'</a>';
 					}
 
 					$html.='<tr class="h-tmpl-list-plan">
@@ -318,7 +322,7 @@ class Plan extends CI_Controller
 						<td style="padding:6px'.$borBot.'">'.$ton.'</td>
 						<td style="padding:6px'.$borBot.';color:#f00">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
 						<td style="padding:6px'.$borBot.'">'.$tgl_flexo.'</td>
-						<td style="padding:6px'.$borBot.'">'.$r->next_plan.'</td>
+						<td style="padding:6px'.$borBot.'">'.$mesinFlexo.'</td>
 						<td style="padding:6px'.$borBot.';text-align:right">'.number_format($r->bad_cor_p,0,',','.').'</td>
 						<td style="padding:6px'.$borBot.';text-align:right">'.$wasteKG.'</td>
 						<td style="padding:6px'.$borBot.';background:#ff0;text-align:right">'.$wasteTrim.'</td>
@@ -327,10 +331,10 @@ class Plan extends CI_Controller
 
 					$html .='<tr>
 						<td style="padding:0;border:0;text-align:right" colspan="17"></td>
-						<td style="padding:0;border:0">
+						<td style="padding:0;border:0" colspan="2">
 							<div id="collapsePlanFlexo-'.$r->id_plan.'" class="collapse" data-parent="#accordion-tf">';
 								foreach($getPF->result() as $jmlF){
-									$html .= $this->m_fungsi->tglPlan($jmlF->tgl_flexo).'<br>';
+									$html .= $this->m_fungsi->tglPlan($jmlF->tgl_flexo).' - '.$jmlF->mesin_flexo.'<br>';
 								}
 							$html .='</div>
 						</td>
@@ -380,7 +384,7 @@ class Plan extends CI_Controller
 				$btnPrint = '
 				<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>
 				<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Plan/Cetak_plan2?no_plan=" . $r->no_plan . "") . '" title="Cetak" ><i class="fas fa-print"></i></a>
-				<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Plan/laporanPlan?no_plan=".$r->no_plan."").'" title="Cetak SO" ><i class="fas fa-print"></i></a>';
+				<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Plan/laporanISOCor?no_plan=".$r->no_plan."").'" title="Cetak SO" ><i class="fas fa-print"></i></a>';
 			}else{
 				$btnPrint = '';
 			}
@@ -513,8 +517,8 @@ class Plan extends CI_Controller
 				}
 			}
 		}else{
-			$edit = $this->m_plan->addRencanaPlan();
-			echo json_encode(array('data' => true, 'opsi' => $opsi, 'isi' => $edit));
+			$result = $this->m_plan->addRencanaPlan();
+			echo json_encode($result);
 		}
 	}
 
@@ -622,7 +626,7 @@ class Plan extends CI_Controller
 			INNER JOIN m_downtime md ON dt.id_m_downtime=md.id_downtime
 			WHERE dt.id_plan_cor='$id_plan'");
 			$tgl_plan = $this->m_fungsi->tanggal_format_indonesia($plan->tgl_plan); $shift_plan = $plan->shift_plan; $machine_plan = $plan->machine_plan; $no_wo = $plan->no_wo; $panjang_plan = number_format($plan->panjang_plan); $lebar_plan = number_format($plan->lebar_plan); $lebar_roll_p = number_format($plan->lebar_roll_p); $out_plan = number_format($plan->out_plan); $pcs_plan = number_format($plan->pcs_plan); $trim_plan = number_format($plan->trim_plan); $c_off_p = number_format($plan->c_off_p); $rm_plan = number_format($plan->rm_plan); $tonase_plan = number_format($plan->tonase_plan); $tgl_kirim_plan = $this->m_fungsi->tanggal_format_indonesia($plan->tgl_kirim_plan); $next_plan = $plan->next_plan;
-			$good_cor_p = number_format($plan->good_cor_p); $bad_cor_p = number_format($plan->bad_cor_p); $total_cor_p = number_format($plan->total_cor_p); $ket_plan = $plan->ket_plan; $start_time_p = ($plan->start_time_p == null) ? '-' : date("h:i", strtotime($plan->start_time_p)); $end_time_p = ($plan->end_time_p == null) ? '-' : date("h:i", strtotime($plan->end_time_p));
+			$good_cor_p = number_format($plan->good_cor_p); $bad_cor_p = number_format($plan->bad_cor_p); $total_cor_p = number_format($plan->total_cor_p); $ket_plan = $plan->ket_plan; $start_time_p = ($plan->start_time_p == null) ? '-' : substr($plan->start_time_p,0,5); $end_time_p = ($plan->end_time_p == null) ? '-' : substr($plan->end_time_p,0,5);
 		}
 
 		$html .= '<div class="row">
@@ -835,7 +839,7 @@ class Plan extends CI_Controller
 		echo json_encode($result);
 	}
 
-	function laporanPlan()
+	function laporanISOCor()
 	{
 		$html = '';
 		$no_plan = $_GET['no_plan'];
@@ -951,7 +955,8 @@ class Plan extends CI_Controller
 				<th style="padding:2px 0;font-weight:bold;text-align:left" colspan="2">MACHINE : '.$query->row()->machine_plan.'</th>
 				<th style="padding:2px 0;font-weight:bold;text-align:left" colspan="3">SHIFT : '.$query->row()->shift_plan.'</th>
 			</tr>
-		</thead>';
+		</thead>
+		<tbody>';
 
 		$i = 0;
 		foreach($query->result() as $r){
@@ -998,23 +1003,24 @@ class Plan extends CI_Controller
 			WHERE dt.id_plan_cor='$id_plan'");
 			$txtKet = '';
 			if($cekDowntime->num_rows() == 0){
-				$txtKet .= '';
+				$txtKet .= $r->ket_plan;
 			}else{
+				$txtKet .= $r->ket_plan.'<br>';
 				foreach($cekDowntime->result() as $dt){
-					$txtKet .= $dt->kode_d.' - '.$dt->durasi_mnt_dt.'"'.'<br>';
+					$txtKet .= '('.$dt->kode_d.'-'.$dt->durasi_mnt_dt.'") ';
 				}
 			}
 
-			($r->start_time_p == null) ? $start_time_p = '-' : $start_time_p = date("h:i", strtotime($r->start_time_p));
-			($r->end_time_p == null) ? $end_time_p = '-	' : $end_time_p = date("h:i", strtotime($r->end_time_p));
-			
-			$html .= '<tbody>
+			($r->start_time_p == null) ? $start_time_p = '-' : $start_time_p = substr($r->start_time_p,0,5);
+			($r->end_time_p == null) ? $end_time_p = '-	' : $end_time_p = substr($r->end_time_p,0,5);
+			($r->flute == 'BCF') ? $flute = 'BC' : $flute = $r->flute;
+			$html .= '
 				<tr>
 					<td style="border:1px solid #000" rowspan="4">'.$i.'</td>
-					<td style="border:1px solid #000;text-align:left">'.$r->no_so.'</td>
+					<td style="border:1px solid #000;text-align:left">'.$r->kode_mc.'</td>
 					<td style="border:1px solid #000" rowspan="4">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
 					<td style="border:1px solid #000" rowspan="4">'.$kualitas.'</td>
-					<td style="border:1px solid #000" rowspan="4">'.$r->flute.'</td>
+					<td style="border:1px solid #000" rowspan="4">'.$flute.'</td>
 					<td style="border:1px solid #000;font-weight:bold" rowspan="4">'.$r->lebar_roll_p.'</td>
 					<td style="border:1px solid #000" rowspan="4">'.$score.'</td>
 					<td style="border:1px solid #000;font-weight:bold;color:#f00" rowspan="4">'.$r->panjang_plan.'</td>
@@ -1044,13 +1050,72 @@ class Plan extends CI_Controller
 				</tr>
 				<tr>
 					<td style="border:1px solid #000;border-width:0 1px 1px;text-align:left">'.$r->nm_produk.'</td>
-				</tr>
-			</tbody>';
+				</tr>';
 		}
 		
+		$html .= '</tbody></table>';
+
+		$html .= '<table style="margin:0;padding:0;font-size:10px;text-align:center;border-collapse:collapse;color:#000;width:100%">
+			<tr>
+				<td style="border:0;width:40%"></td>
+				<td style="border:0;width:12%"></td>
+				<td style="border:0;width:12%"></td>
+				<td style="border:0;width:12%"></td>
+				<td style="border:0;width:12%"></td>
+				<td style="border:0;width:12%"></td>
+			</tr>
+			<tr>
+				<td style="font-weight:bold;text-align:left">DISTRIBUSI : PPIC - PRODUKSI - BAGIAN TINTA - PREPARATION</td>
+			</tr>
+			<tr>
+				<td style="font-weight:bold;text-align:left" rowspan="3">TOTAL PCS :</td>
+				<td style="border:1px solid #000;font-weight:bold" colspan="5">OTORISASI</td>
+			</tr>
+			<tr>
+				<td style="border:1px solid #000;border-width:1px 0 1px 1px;font-weight:bold" colspan="3">PPIC</td>
+				<td style="border:1px solid #000;border-width:1px 1px 1px 0;font-weight:bold" colspan="2">PRODUKSI</td>
+			</tr>
+			<tr>
+				<td style="border:1px solid #000">Mengetahui</td>
+				<td style="border:1px solid #000">Dibuat Oleh</td>
+				<td style="border:1px solid #000">Mengetahui</td>
+				<td style="border:1px solid #000">Diperiksa</td>
+				<td style="border:1px solid #000">Dibuat Oleh</td>
+			</tr>
+			<tr>
+				<td style="font-weight:bold;text-align:left" rowspan="3">TOTAL TONASE :</td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+			</tr>
+			<tr>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+			</tr>
+			<tr>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td style="border:1px solid #000">KABAG</td>
+				<td style="border:1px solid #000">Adm. PPC</td>
+				<td style="border:1px solid #000">KABAG</td>
+				<td style="border:1px solid #000">KASI</td>
+				<td style="border:1px solid #000">Operator</td>
+			</tr>';
 		$html .= '</table>';
 		
-		$judul = $query->row()->tgl_plan.'-'.$no_plan;
+		$jdlTgl = str_replace('/','', $this->m_fungsi->tglPlan($query->row()->tgl_plan));
+		$judul = 'PLANCOR-'.$jdlTgl.'.'.$query->row()->shift_plan.'.'.$query->row()->machine_plan.'.ISO';
 		$this->m_fungsi->newMpdf($judul, '', $html, 1, 3, 1, 3, 'L', 'A4', $judul.'.pdf');
 		// echo $html;
 	}
@@ -1096,8 +1161,8 @@ class Plan extends CI_Controller
 								$txtDowtime = $r->jmlDt.' ( '.number_format($r->jmlDtDurasi).' )';
 							}
 
-							($r->start_time_p == null) ? $start_time_p = '-' : $start_time_p = date("h:i", strtotime($r->start_time_p));
-							($r->end_time_p == null) ? $end_time_p = '-' : $end_time_p = date("h:i", strtotime($r->end_time_p));
+							($r->start_time_p == null) ? $start_time_p = '-' : $start_time_p = substr($r->start_time_p,0,5);
+							($r->end_time_p == null) ? $end_time_p = '-' : $end_time_p = substr($r->end_time_p,0,5);
 
 							$html .= '<tr>
 								<td>'.$i.'</td>
@@ -1335,7 +1400,7 @@ class Plan extends CI_Controller
 					$aksiNoUrut = 'disabled';
 					$dis = 'disabled';
 				}else if($r->status_plan == 'Close' && $r->statusWo == 'Open'){
-					$btnAksiHapus = '<span class="bg-primary" style="padding:2px;border-radius:4px;display:block">PLAN</span>';
+					$btnAksiHapus = '<span class="bg-primary" style="padding:2px;border-radius:4px;display:block">SELESAI</span>';
 					(in_array($this->session->userdata('level'), ['Admin','PPIC']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '-';
 					$aksiNoUrut = 'disabled';
 					$dis = 'disabled';
@@ -1364,7 +1429,8 @@ class Plan extends CI_Controller
 			}
 
 			if($r->kategori == 'K_BOX'){
-				$next = '<select class="form-control inp-kosong2" id="lp-next-'.$id.'">
+				($r->status_plan == 'Open' && $r->total_cor_p != 0) ? $disNext = '' : $disNext = 'disabled'; 
+				$next = '<select class="form-control inp-kosong2" id="lp-next-'.$id.'" '.$disNext.'>
 					<option value="'.$r->next_plan.'">'.$r->next_plan.'</option>
 					<option value="">-</option>
 					<option value="FLEXO1">FLEXO1</option>
@@ -1376,8 +1442,8 @@ class Plan extends CI_Controller
 				$next = $r->next_plan.'<input type="hidden" id="lp-next-'.$id.'" value="'.$r->next_plan.'">';
 			}
 
-			($r->start_time_p == null) ? $start_time_p = '-' : $start_time_p = date("h:i", strtotime($r->start_time_p));
-			($r->end_time_p == null) ? $end_time_p = '-' : $end_time_p = date("h:i", strtotime($r->end_time_p));
+			($r->start_time_p == null) ? $start_time_p = '-' : $start_time_p = 	substr($r->start_time_p, 0, 5);
+			($r->end_time_p == null) ? $end_time_p = '-' : $end_time_p = substr($r->end_time_p, 0, 5);
 
 			$getPF = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$r->id_plan'");
 			if($getPF->num_rows() == 0){
@@ -1497,14 +1563,24 @@ class Plan extends CI_Controller
 		$downtime = $_POST["downtime"];
 		$id_plan = $_POST["id_plan"];
 		$id_flexo = $_POST["id_flexo"];
-		if($downtime == 'OP'){
-			$where = "WHERE kode_h='C.01' AND kode_d LIKE 'OP%' ORDER BY kode_d";
-		}else if($downtime == 'MT'){
-			$where = "WHERE kode_h='C.02' AND kode_d LIKE 'MT%'";
-		}else if($downtime == 'M'){
-			$where = "WHERE kode_h='C.03' AND kode_d LIKE 'M%'";
-		}else if($downtime == 'N'){
-			$where = "WHERE kode_h='C.04' AND kode_d LIKE 'N%'";
+		if($id_plan != ''){
+			if($downtime == 'OP'){
+				$where = "WHERE kode_h='C.01' AND kode_d LIKE 'OP%'";
+			}else if($downtime == 'MT'){
+				$where = "WHERE kode_h='C.02' AND kode_d LIKE 'MT%'";
+			}else if($downtime == 'M'){
+				$where = "WHERE kode_h='C.03' AND kode_d LIKE 'M%'";
+			}else if($downtime == 'N'){
+				$where = "WHERE kode_h='C.04' AND kode_d LIKE 'N%'";
+			}
+		}else{
+			if($downtime == 'OP'){
+				$where = "WHERE kode_h='F.01' AND kode_d LIKE 'OP%'";
+			}else if($downtime == 'MT'){
+				$where = "WHERE kode_h='F.02' AND kode_d LIKE 'MT%'";
+			}else if($downtime == 'N'){
+				$where = "WHERE kode_h='F.04' AND kode_d LIKE 'N%'";
+			}
 		}
 
 		if($downtime == ""){
@@ -1530,7 +1606,7 @@ class Plan extends CI_Controller
 					<div class="col-md-10">
 						<select class="form-control select2" id="dt-plh-downtime">
 							<option value="">PILIH</option>';
-							$data = $this->db->query("SELECT*FROM m_downtime $where");
+							$data = $this->db->query("SELECT*FROM m_downtime $where ORDER BY kode_d");
 							foreach($data->result() as $r){
 								$html .='<option value="'.$r->id_downtime.'">'.$r->kode_d.' | '.$r->keterangan.'</option>';
 							}
@@ -1725,13 +1801,13 @@ class Plan extends CI_Controller
 			$row[] = '<div style="text-align:center">'.$r->jml.'</div>';
 
 			$link = base_url('Plan/Flexo/List/'.$r->tgl_flexo.'/'.$r->shift_flexo.'/'.$r->mesin_flexo);
-			// base_url("Plan/Cetak_plan2?no_plan=".$r->no_plan."")
-			// base_url("Plan/laporanPlan?no_plan=".$r->no_plan."")
+			$printLapFlexo = base_url('Plan/laporanPlanFlexo?tgl='.$r->tgl_flexo.'&shift='.$r->shift_flexo.'&mesin='.$r->mesin_flexo.'');
+			$printLap = base_url('Plan/laporanISOFlexo?tgl='.$r->tgl_flexo.'&shift='.$r->shift_flexo.'&mesin='.$r->mesin_flexo.'');
 			if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
 				$btnPrint = '
 				<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>
-				<a target="_blank" class="btn btn-sm btn-success" href="#" title="Cetak"><i class="fas fa-print"></i></a>
-				<a target="_blank" class="btn btn-sm btn-primary" href="#" title="Cetak SO"><i class="fas fa-print"></i></a>';
+				<a href="'.$printLapFlexo.'" target="_blank" class="btn btn-sm btn-success" title="CETAK PLAN"><i class="fas fa-print"></i></a>
+				<a href="'.$printLap.'" target="_blank" class="btn btn-sm btn-primary" title="CETAK FLEXO"><i class="fas fa-print"></i></a>';
 			}else{
 				$btnPrint = '';
 			}
@@ -1750,9 +1826,19 @@ class Plan extends CI_Controller
 	{
 		$opsi = $_POST['opsi'];
 		$result = $this->m_plan->loadPlanCor();
+		if($opsi != ''){
+			$getNoFlexo = $this->db->query("SELECT*FROM plan_flexo WHERE id_flexo='$opsi'")->row();
+			$urutDtProd = $this->db->query("SELECT id_flexo,no_urut_flexo FROM plan_flexo WHERE tgl_flexo='$getNoFlexo->tgl_flexo' AND shift_flexo='$getNoFlexo->shift_flexo' AND mesin_flexo='$getNoFlexo->mesin_flexo'
+			AND total_prod_flexo='0' AND no_urut_flexo!='0' ORDER BY no_urut_flexo ASC LIMIT 1")->row();
+		}else{
+			$getNoFlexo = false;
+			$urutDtProd = false;
+		}
 		echo json_encode(array(
 			'plan_cor' => $result,
-			'opsi' => $opsi
+			'opsi' => $opsi,
+			'getNoFlexo' => $getNoFlexo,
+			'urutDtProd' => $urutDtProd,
 		));
 	}
 
@@ -1771,23 +1857,24 @@ class Plan extends CI_Controller
 	function loadDataAllPlanCor()
 	{
 		$html = '';
-
-		$allPlanCor = $this->db->query("SELECT next_plan,COUNT(id_plan) AS jml_plan FROM plan_cor
-		WHERE next_plan!='GUDANG' AND status_flexo_plan='Open'
-		GROUP BY next_plan");
+		$allPlanCor = $this->db->query("SELECT COUNT(p.id_plan) AS jml_plan,c.nm_pelanggan,p.* FROM plan_cor p
+		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+		WHERE p.next_plan!='GUDANG' AND p.status_flexo_plan='Open'
+		GROUP BY p.id_pelanggan
+		ORDER BY c.nm_pelanggan");
 		$html .='<div id="accordion">
 			<div style="padding:6px;font-weight:bold">
-				FLEXO <span class="bg-light" style="vertical-align:top;padding:2px 4px;font-size:12px">JUMLAH PLAN COR</span>
+				CUSTOMER <span class="bg-light" style="vertical-align:top;padding:2px 4px;font-size:12px">JUMLAH PLAN COR</span>
 			</div>';
 			foreach($allPlanCor->result() as $r){
 				$html .='<div class="card m-0" style="border-radius:0">
 					<div class="card-header bg-gradient-info" style="padding:0;border-radius:0">
-						<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseHeaderPlanCor'.$r->next_plan.'" onclick="onClickHeaderPlanCor('."'".$r->next_plan."'".')">
-							'.$r->next_plan.' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->jml_plan.'</span>
+						<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseHeaderPlanCor'.$r->id_pelanggan.'" onclick="onClickHeaderPlanCor('."'".$r->id_pelanggan."'".')">
+							'.$r->nm_pelanggan.' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->jml_plan.'</span>
 						</a>
 					</div>
-					<div id="collapseHeaderPlanCor'.$r->next_plan.'" class="collapse" data-parent="#accordion">
-						<div id="tampil-all-flexo-isi-'.$r->next_plan.'"></div>
+					<div id="collapseHeaderPlanCor'.$r->id_pelanggan.'" class="collapse" data-parent="#accordion">
+						<div id="tampil-all-flexo-isi-'.$r->id_pelanggan.'"></div>
 					</div>
 				</div>';
 			}
@@ -1805,7 +1892,7 @@ class Plan extends CI_Controller
 
 		$allPlanFlexo = $this->db->query("SELECT f.tgl_flexo,f.shift_flexo,f.mesin_flexo,COUNT(f.id_flexo) AS jml_plan_flexo,
 		(SELECT COUNT(o.id_flexo) FROM plan_flexo o WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS jml_plan_flexo,
-		(SELECT COUNT(o.id_flexo) FROM plan_flexo o WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo AND o.total_prod_flexo!='0' GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS jml_prod,
+		(SELECT COUNT(o.id_flexo) FROM plan_flexo o WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo AND o.total_prod_flexo!='0' AND o.status_flexo='Open' GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS jml_prod,
 		(SELECT COUNT(o.id_flexo) FROM plan_flexo o WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo AND o.total_prod_flexo!='0' AND o.status_flexo='Close' GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS done_prod
 		FROM plan_flexo f
 		WHERE f.status_flexo='Open'
@@ -1844,28 +1931,32 @@ class Plan extends CI_Controller
 
 	function onClickHeaderPlanCor()
 	{
-		$next_flexo = $_POST["next_flexo"];
+		$id_pelanggan = $_POST["id_pelanggan"];
 		$html = '';
 
-		$data = $this->db->query("SELECT (SELECT COUNT(f.id_plan_cor) FROM plan_flexo f WHERE f.id_plan_cor=p.id_plan GROUP BY f.id_plan_cor) AS jml_flexo
-		,i.nm_produk,l.nm_pelanggan,p.* FROM plan_cor p
+		$data = $this->db->query("SELECT (SELECT COUNT(f.id_plan_cor) FROM plan_flexo f WHERE f.id_plan_cor=p.id_plan GROUP BY f.id_plan_cor) AS jml_flexo,
+		(SELECT COUNT(f.id_plan_cor) FROM plan_flexo f WHERE f.id_plan_cor=p.id_plan AND f.total_prod_flexo!='0' AND f.status_flexo='Open' GROUP BY f.id_plan_cor) AS prod,
+		(SELECT COUNT(f.id_plan_cor) FROM plan_flexo f WHERE f.id_plan_cor=p.id_plan AND f.total_prod_flexo!='0' AND f.status_flexo='Close' GROUP BY f.id_plan_cor) AS done,
+		i.nm_produk,l.nm_pelanggan,p.* FROM plan_cor p
 		INNER JOIN m_produk i ON p.id_produk=i.id_produk
 		INNER JOIN m_pelanggan l ON p.id_pelanggan=l.id_pelanggan
-		WHERE p.next_plan='$next_flexo' AND p.status_flexo_plan='Open'
+		WHERE p.id_pelanggan='$id_pelanggan' AND p.status_flexo_plan='Open'
 		ORDER BY p.tgl_plan,p.shift_plan,p.machine_plan");
 		$html .='<div class="card-body" style="padding:6px">
 			<div id="accordion-isi-plan">
-			CUSTOMER | NO. WO |ITEM <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">JUMLAH PLAN FLEXO</span>';
+			TGL PLAN | NO. WO | ITEM <span class="bg-dark" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">HASIL COR</span><span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">JML PLAN FLEXO</span><span class="bg-success" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">PRODUKSI</span><span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">SELESAI</span>';
 				foreach($data->result() as $r){
 					($r->jml_flexo == null) ? $jml_flexo = 0 : $jml_flexo = $r->jml_flexo;
+					($r->prod == null) ? $prod = '' : $prod = '<span class="bg-success" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->prod.'</span>';
+					($r->done == null) ? $done = '' : $done = '<span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->done.'</span>';
 					$html .='<div class="card m-0" style="border-radius:0">
 						<div class="card-header" style="padding:0;border-radius:0">
-							<a class="d-block w-100 link-i-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseHeaderIsiPlanCor'.$r->id_plan.'" onclick="onclickHeaderIsiPlanCor('."'".$r->id_plan."'".')">
-							'.$r->nm_pelanggan.' | '.$r->no_wo.' | '.$r->nm_produk.' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$jml_flexo.'</span>
+							<a class="d-block w-100 link-i-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseHeaderIsiPlanCor'.$r->id_plan.'-'.$r->id_pelanggan.'" onclick="onclickHeaderIsiPlanCor('."'".$r->id_plan."'".','."'".$r->id_pelanggan."'".')">
+							'.strtoupper($this->m_fungsi->getHariIni($r->tgl_plan)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_plan)).' | '.$r->no_wo.' | '.$r->nm_produk.' <span class="bg-dark" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.number_format($r->good_cor_p,0,',','.').'</span><span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$jml_flexo.'</span>'.$prod.''.$done.'
 							</a>
 						</div>
-						<div id="collapseHeaderIsiPlanCor'.$r->id_plan.'" class="collapse" data-parent="#accordion-isi-plan">
-							<div id="tampil-all-pplan-isi-'.$r->id_plan.'">'.$r->id_plan.'</div>
+						<div id="collapseHeaderIsiPlanCor'.$r->id_plan.'-'.$r->id_pelanggan.'" class="collapse" data-parent="#accordion-isi-plan">
+							<div id="tampil-all-pplan-isi-'.$r->id_plan.'-'.$r->id_pelanggan.'"></div>
 						</div>
 					</div>';
 				}
@@ -1878,37 +1969,105 @@ class Plan extends CI_Controller
 	function onclickHeaderIsiPlanCor()
 	{
 		$id_plan = $_POST["id_plan"];
+		$id_pelanggan = $_POST["id_pelanggan"];
 		$html = '';
 
-		$html .= '<div style="overflow:auto;white-space:nowrap;padding-bottom:5px">
-			<table class="table table-bordered" style="text-align:center">
-				<thead>
-					<tr>
-						<th style="padding:6px">#</th>
-						<th style="padding:6px">KODE.MC</th>
-						<th style="padding:6px">KUALITAS</th>
-						<th style="padding:6px">PANJANG</th>
-						<th style="padding:6px">LEBAR</th>
-						<th style="padding:6px">BB</th>
-						<th style="padding:6px">FT</th>
-						<th style="padding:6px">JOINT</th>
-						<th style="padding:6px">ORDER</th>
-						<th style="padding:6px">TGL KIRIM</th>
-						<th style="padding:6px">KL.CR TGL</th>
-						<th style="padding:6px">KL.CR QTY</th>
-						<th style="padding:6px">GOOD</th>
-						<th style="padding:6px">REJECT FLEXO</th>
-						<th style="padding:6px">REJECT BAHAN</th>
-						<th style="padding:6px">TOTAL</th>
-						<th style="padding:6px">DOWNTIME</th>
-						<th style="padding:6px">KETERANGAN</th>
-						<th style="padding:6px">NEXT FLEXO</th>
-					</tr>
-				</thead>';
+		$data = $this->db->query("SELECT i.*,f.*,c.* FROM plan_flexo f
+		INNER JOIN plan_cor c ON f.id_plan_cor=c.id_plan
+		INNER JOIN m_produk i ON c.id_produk=i.id_produk
+		WHERE c.id_pelanggan='$id_pelanggan' AND c.id_plan='$id_plan'
+		ORDER BY tgl_flexo,shift_flexo,mesin_flexo");
 
-				$html .='
-			</table>
-		</div>';
+		if($data->num_rows() == 0){
+			$html .='';
+		}else{
+			$html .= '<div style="overflow:auto;white-space:nowrap;padding-bottom:5px">
+				<table class="table table-bordered" style="text-align:center">
+					<thead>
+						<tr>
+							<th style="padding:6px;position:sticky;left:0;background:#fff">#</th>
+							<th style="padding:6px">TGL FLEXO</th>
+							<th style="padding:6px">KODE.MC</th>
+							<th style="padding:6px">KUALITAS</th>
+							<th style="padding:6px">PANJANG</th>
+							<th style="padding:6px">LEBAR</th>
+							<th style="padding:6px">BB</th>
+							<th style="padding:6px">FT</th>
+							<th style="padding:6px">JOINT</th>
+							<th style="padding:6px">ORDER</th>
+							<th style="padding:6px">TGL KIRIM</th>
+							<th style="padding:6px">KL.CR TGL</th>
+							<th style="padding:6px">KL.CR QTY</th>
+							<th style="padding:6px">MESIN</th>
+							<th style="padding:6px">HASIL</th>
+							<th style="padding:6px">R. FLEXO</th>
+							<th style="padding:6px">R. BAHAN</th>
+							<th style="padding:6px">DOWNTIME</th>
+							<th style="padding:6px">KETERANGAN</th>
+							<th style="padding:6px">NEXT FINISHING</th>
+						</tr>
+					</thead>';
+					foreach($data->result() as $r){
+						if($r->sambungan == 'G'){
+							$sambungan = 'GLUE';
+						}else if($r->sambungan == 'S'){
+							$sambungan = 'STICHING';
+						}else if($r->sambungan == 'GS'){
+							$sambungan = 'GLUE STICHING';
+						}else if($r->sambungan == 'DS'){
+							$sambungan = 'DOUBLE STICHING';
+						}else{
+							$sambungan = '-';
+						}
+						($r->tgl_prod_p == null) ? $tgl_prod_p = '-' : $tgl_prod_p = $this->m_fungsi->tglPlan($r->tgl_prod_p);
+						($r->good_cor_p == 0) ? $good_cor_p = '-' : $good_cor_p = number_format($r->good_cor_p,0,',','.');
+
+						$getDt = $this->db->query("SELECT COUNT(id_plan_flexo) AS jml_dt,SUM(durasi_mnt_dt) AS durasi_dt FROM plan_flexo_dt WHERE id_plan_flexo='$r->id_flexo'
+						GROUP BY id_plan_flexo");
+						($getDt->num_rows() == 0) ? $jml_dt = '-' : $jml_dt = $getDt->row()->jml_dt;
+						($getDt->num_rows() == 0) ? $durasi_dt = '' : $durasi_dt = ' ( '.$getDt->row()->durasi_dt.'" ) ';
+
+						if($r->total_prod_flexo != 0 && $r->status_flexo == 'Open'){
+							$borBot = ';border-bottom:1px solid #28a746';
+						}else if($r->total_prod_flexo != 0 && $r->status_flexo == 'Close'){
+							$borBot = ';border-bottom:1px solid #007bff';
+						}else{
+							$borBot = '';
+						}
+						
+						$html .='<tr class="h-tmpl-list-plan">
+							<td style="padding:6px'.$borBot.';position:sticky;left:0;background:#fff">
+								<a href="'.base_url('Plan/Flexo/List/').$r->tgl_flexo.'/'.$r->shift_flexo.'/'.$r->mesin_flexo.'" class="btn btn-xs bg-gradient-dark" style="padding:0 4px">
+								<i class="fa fa-arrow-right"></i>
+							</a>
+							</td>
+							<td style="padding:6px'.$borBot.'">'.$this->m_fungsi->tglPlan($r->tgl_flexo).'</td>
+							<td style="padding:6px'.$borBot.'">'.$r->kode_mc.'</td>
+							<td style="padding:6px'.$borBot.'">'.$r->kualitas.'</td>
+							<td style="padding:6px'.$borBot.';font-weight:bold;color:#ff0066">'.$r->panjang_plan.'</td>
+							<td style="padding:6px'.$borBot.';font-weight:bold;color:#ff0066">'.$r->lebar_plan.'</td>
+							<td style="padding:6px'.$borBot.'">'.$r->berat_bersih.'</td>
+							<td style="padding:6px'.$borBot.'">'.$r->flute.'</td>
+							<td style="padding:6px'.$borBot.'">'.$sambungan.'</td>
+							<td style="padding:6px'.$borBot.'">'.number_format($r->pcs_plan,0,',','.').'</td>
+							<td style="padding:6px'.$borBot.';color:#f00">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
+							<td style="padding:6px'.$borBot.'">'.$tgl_prod_p.'</td>
+							<td style="padding:6px'.$borBot.'">'.$good_cor_p.'</td>
+							<td style="padding:6px'.$borBot.'">'.$r->mesin_flexo.'</td>
+							<td style="padding:6px'.$borBot.'">'.number_format($r->good_flexo_p,0,',','.').'</td>
+							<td style="padding:6px'.$borBot.'">'.number_format($r->bad_flexo_p,0,',','.').'</td>
+							<td style="padding:6px'.$borBot.'">'.number_format($r->bad_bahan_f_p,0,',','.').'</td>
+							<td style="padding:6px'.$borBot.'">'.$jml_dt.''.$durasi_dt.'</td>
+							<td style="padding:6px'.$borBot.'">'.$r->ket_flexo_p.'</td>
+							<td style="padding:6px'.$borBot.'">'.$r->next_flexo.'</td>
+						</tr>';
+					}
+
+					$html .='
+				</table>
+			</div>';
+		}
+
 
 		echo $html;
 	}
@@ -1968,23 +2127,33 @@ class Plan extends CI_Controller
 		$tgl = $_POST["tgl"];
 		$mesin = $_POST["mesin"];
 		$shift = $_POST["shift"];
+		$cekPlanCor = $this->db->query("SELECT*FROM plan_cor WHERE id_plan='$id_plan_cor'")->row();
 		$cekHariPlan = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$id_plan_cor' AND tgl_flexo='$tgl' AND shift_flexo='$shift' AND mesin_flexo='$mesin'")->num_rows();
-		if($cekHariPlan > 0){
-			echo json_encode(array('data' => false, 'isi' => 'PLAN FLEXO SUDAH ADA DI TGL / SHIFT / MESIN YANG SAMA!', 'cekHariPlan' => $cekHariPlan));
-			return;
+		if($tgl < $cekPlanCor->tgl_plan){
+			echo json_encode(array('data' => false, 'isi' => 'TGL PLAN FLEXO TIDAK BOLEH KURANG DARI TANGGAL PLAN COR!', 'cekPlanCor' => $cekPlanCor)); return;
+		}else if($cekHariPlan > 0){
+			echo json_encode(array('data' => false, 'isi' => 'PLAN FLEXO SUDAH ADA DI TGL / SHIFT / MESIN YANG SAMA!', 'cekHariPlan' => $cekHariPlan)); return;
 		}else{
-			if($this->cart->total_items() != 0){
-				foreach($this->cart->contents() as $r){
-					if($r['id'] == $_POST["plan_cor"]){
-						echo json_encode(array('data' => false, 'isi' => 'PLAN COR SUDAH MASUK LIST PLAN FLEXO!'));
-						return;
+			if($_POST["opsi"] == 'add'){
+				if($id_plan_cor == ""){
+					echo json_encode(array('data' => false, 'isi' => '<b>PILIH PLAN COR DAHULU!</b>')); return;
+				}else if($_POST["next_flexo"] == ""){
+					echo json_encode(array('data' => false, 'isi' => '<b>PILIH NEXT FLEXO DAHULU!</b>!')); return;
+				}else if($this->cart->total_items() != 0){
+					foreach($this->cart->contents() as $r){
+						if($r['id'] == $_POST["plan_cor"]){
+							echo json_encode(array('data' => false, 'isi' => 'PLAN COR SUDAH MASUK LIST PLAN FLEXO!')); return;
+						}
 					}
+					$this->cart->insert($data);
+					echo json_encode(array('data' => true, 'isi' => $data));
+				}else{
+					$this->cart->insert($data);
+					echo json_encode(array('data' => true, 'isi' => $data));
 				}
-				$this->cart->insert($data);
-				echo json_encode(array('data' => true, 'isi' => $data));
 			}else{
-				$this->cart->insert($data);
-				echo json_encode(array('data' => true, 'isi' => $data));
+				$result = $this->m_plan->addRencanaFlexo();
+				echo json_encode($result);
 			}
 		}
 	}
@@ -2078,6 +2247,12 @@ class Plan extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function onChangeNourutFlexo()
+	{
+		$result = $this->m_plan->onChangeNourutFlexo();
+		echo json_encode($result);
+	}
+
 	function loadListPlanFlexo()
 	{
 		$urlTglF = $_POST["tglF"];
@@ -2111,18 +2286,20 @@ class Plan extends CI_Controller
 			$keHal = '<a href="'.base_url('Plan/Flexo/List').'/'.$urlTglF.'/'.$urlShiftF.'/'.$urlMesinF.'" class="btn btn-xs bg-gradient-dark" style="padding:0 4px">
 				<i class="fa fa-arrow-right"></i>
 			</a>';
+			$left = ';left:40px';
 		}else{
 			$keHal = '#';
+			$left = ';left:32px';
 		}
 		
 		$html .= '<div style="overflow:auto;white-space:nowrap;padding-bottom:5px">
 				<table class="table table-bordered" style="text-align:center">
 					<thead>
 						<tr>
-							<th style="padding:6px">'.$keHal.'</th>
+							<th style="padding:6px 12px;background:#fff;position:sticky;left:0">'.$keHal.'</th>
 							<th style="padding:6px">STATUS</th>
 							<th style="padding:6px">KODE.MC</th>
-							<th style="padding:6px">NO.WO</th>
+							<th style="padding:6px;background:#fff;position:sticky'.$left.'">NO.WO</th>
 							<th style="padding:6px">CUSTOMER</th>
 							<th style="padding:6px">ITEM</th>
 							<th style="padding:6px">KUALITAS</th>
@@ -2132,11 +2309,14 @@ class Plan extends CI_Controller
 							<th style="padding:6px">FT</th>
 							<th style="padding:6px">JOINT</th>
 							<th style="padding:6px">ORDER</th>
+							<th style="padding:6px">HASIL</th>
+							<th style="padding:6px">START</th>
+							<th style="padding:6px 12px">END</th>
 							<th style="padding:6px">TGL KIRIM</th>
 							<th style="padding:6px">KL.CR TGL</th>
 							<th style="padding:6px">KL.CR QTY</th>
 							<th style="padding:6px">TONASE</th>
-							<th style="padding:6px">NEXT FLEXO</th>
+							<th style="padding:6px">NEXT FINISHING</th>
 						</tr>
 					</thead>';
 
@@ -2190,11 +2370,29 @@ class Plan extends CI_Controller
 
 						($id_flexo == 'pilihan') ? $plhPlanCor = $r->no_wo : $plhPlanCor = '<a href="javascript:void(0)" onclick="plhPlanCor('."".$r->id_flexo."".')" title="'."".$r->no_wo."".'">'.$r->no_wo.'</a>';
 
+						if($id_flexo == 'pilihan'){
+							$ubahNoUrut = 'disabled';
+						}else{
+							($r->total_prod_flexo != 0) ? $ubahNoUrut = 'disabled' : $ubahNoUrut = 'onkeyup="onChangeNourutFlexo('."'".$r->id_flexo."'".')"';
+						}
+
+						if($r->total_prod_flexo > 0){
+							$hasilF = number_format($r->good_flexo_p,0,',','.');
+							$startF = substr($r->start_time_f,0,5);
+							$endF = substr($r->end_time_f,0,5);
+						}else{
+							$hasilF = '-';
+							$startF = '-';
+							$endF = '-';
+						}
+
 						$html .='<tr class="h-tmpl-list-plan">
-							<td '.$bgTd.' style="padding:6px">'.$r->no_urut_flexo.'</td>
+							<td '.$bgTd.' style="padding:6px;position:sticky;left:0">
+								<input type="number" class="form-control inp-kosong2" id="lp-nourut-'.$r->id_flexo.'" value="'.$r->no_urut_flexo.'" '.$ubahNoUrut.'>
+							</td>
 							<td '.$bgTd.' style="padding:3px">'.$statusF.'</td>
 							<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->kode_mc.'</td>
-							<td '.$bgTd.' style="padding:6px;text-align:left">'.$plhPlanCor.'</td>
+							<td '.$bgTd.' style="padding:6px;text-align:left;position:sticky'.$left.'">'.$plhPlanCor.'</td>
 							<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_pelanggan.'</td>
 							<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_produk.'</td>
 							<td '.$bgTd.' style="padding:6px">'.$r->kualitas_plan.'</td>
@@ -2204,6 +2402,9 @@ class Plan extends CI_Controller
 							<td '.$bgTd.' style="padding:6px">'.$r->flute.'</td>
 							<td '.$bgTd.' style="padding:6px">'.$sambungan.'</td>
 							<td '.$bgTd.' style="padding:6px;font-weight:bold">'.number_format($r->qty_so,0,",",".").'</td>
+							<td '.$bgTd.' style="padding:6px">'.$hasilF.'</td>
+							<td '.$bgTd.' style="padding:6px">'.$startF.'</td>
+							<td '.$bgTd.' style="padding:6px">'.$endF.'</td>
 							<td '.$bgTd.' style="padding:6px;color:#f00;font-weight:bold">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
 							<td '.$bgTd.' style="padding:6px">'.$tgl_prod_p.'</td>
 							<td '.$bgTd.' style="padding:6px">'.$good_cor_p.'</td>
@@ -2218,6 +2419,491 @@ class Plan extends CI_Controller
 		</div>';
 
 		echo $html;
+	}
+
+	function riwayatFlexo()
+	{
+		$html = '';
+		$result = $this->m_plan->riwayatFlexo();
+		
+		if($result->num_rows() == 0){
+			$html .='';
+		}else{
+			$html .='<div class="card card-warning card-outline">
+				<div class="card-header">
+					<h3 class="card-title" style="font-weight:bold;font-style:italic">RIWAYAT FLEXO</h3>
+				</div>
+				<div style="overflow:auto;white-space:nowrap">
+					<table class="table table-bordered table-striped" style="border:0;text-align:center">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th style="text-align:left">TGL FLEXO</th>
+								<th>SHIFT</th>
+								<th>MESIN</th>
+								<th>HASIL</th>
+								<th>REJECT FLEXO</th>
+								<th>REJECT BAHAN</th>
+								<th>TOTAL</th>
+								<th>DOWNTIME(m)</th>
+								<th>START</th>
+								<th>END</th>
+							</tr>
+						</thead>';
+						$i = 0;
+						foreach($result->result() as $r){
+							$i++;
+
+							if($r->jmlDt == 0){
+								$txtDowtime = '-';
+							}else{
+								$txtDowtime = $r->jmlDt.' ( '.number_format($r->jmlDtDurasi).' )';
+							}
+
+							($r->start_time_f == null) ? $start_time_f = '-' : $start_time_f = substr($r->start_time_f,0,5);
+							($r->end_time_f == null) ? $end_time_f = '-' : $end_time_f = substr($r->end_time_f,0,5);
+
+							$html .= '<tr>
+								<td>'.$i.'</td>
+								<td style="text-align:left">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_flexo)).'</td>
+								<td>'.$r->shift_flexo.'</td>
+								<td>'.$r->mesin_flexo.'</td>
+								<td style="text-align:right">'.number_format($r->good_flexo_p).'</td>
+								<td style="text-align:right">'.number_format($r->bad_flexo_p).'</td>
+								<td style="text-align:right">'.number_format($r->bad_bahan_f_p).'</td>
+								<td style="text-align:right">'.number_format($r->total_prod_flexo).'</td>
+								<td style="text-align:right">'.$txtDowtime.'</td>
+								<td>'.$start_time_f.'</td>
+								<td>'.$end_time_f.'</td>
+							</tr>';
+						}
+						// if($result->num_rows() > 1){
+						// 	$html .='<tr>
+						// 		<td style="border:0;background:#fff;font-weight:bold;text-align:right" colspan="4">TOTAL PRODUKSI</td>
+						// 		<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($good_cor_p).'</td>
+						// 		<td style="border:0;background:#fff;font-weight:bold;text-align:right"></td>
+						// 		<td style="border:0;background:#fff;font-weight:bold;text-align:right"></td>
+						// 	</tr>';
+						// }
+						// $jmlGood = $good_cor_p - $result->row()->qty_so;
+						// $html .='<tr>
+						// 	<td style="border:0;background:#fff;font-weight:bold;text-align:right" colspan="4">QTY SO - ( '.number_format($result->row()->qty_so).' )</td>
+						// 	<td style="border:0;background:#fff;font-weight:bold;text-align:right">'.number_format($jmlGood).'</td>
+						// 	<td style="border:0;background:#fff;font-weight:bold;text-align:right"></td>
+						// 	<td style="border:0;background:#fff;font-weight:bold;text-align:right"></td>
+						// </tr>';
+					$html .='</table>
+				</div>
+			</div>';
+		}
+
+		echo $html;
+	}
+
+	function laporanISOFlexo()
+	{
+		$html = '';
+		$tgl_flexo = $_GET["tgl"];
+		$shift_flexo = $_GET["shift"];
+		$mesin_flexo = $_GET["mesin"];
+		
+		$html .= '<table style="margin:0;padding:0;font-size:10px;text-align:center;border-collapse:collapse;color:#000;width:100%">
+			<thead>
+				<tr>
+					<th style="width:5%;border:1px solid #000;border-width:1px 0 0 1px" rowspan="2">
+						<img src="'.base_url('assets/gambar/ppi.png').'" alt="PPI" width="70" height="60">
+					</th>
+					<th style="width:45%;border:1px solid #000;border-width:1px 0 0;font-weight:bold;text-align:left;font-size:16px;padding-left:10px">PT. PRIMA PAPER INDONESIA</th>
+					<th style="width:35%;border:1px solid #000;border-width:1px 1px 0 0;font-weight:bold;text-align:right;font-size:14px;padding-right:10px">FLEXOs PLAN</th>
+					<th style="width:15%;border:1px solid #000;border-width:1px 1px 0;text-align:left;font-weight:bold" rowspan="2">
+						<table style="margin:0;padding:0;font-size:10px;font-weight:normal;text-align:left;border-collapse:collapse">
+							<tr>
+								<td>No</td>
+								<td style="padding:0 5px">:</td>
+								<td>FR-PPIC-01</td>
+							</tr>
+							<tr>
+								<td>Tgl Terbit</td>
+								<td style="padding:0 5px">:</td>
+								<td>27 Sep 2022</td>
+							</tr>
+							<tr>
+								<td>Rev</td>
+								<td style="padding:0 5px">:</td>
+								<td>00</td>
+							</tr>
+							<tr>
+								<td>Hal</td>
+								<td style="padding:0 5px">:</td>
+								<td>1</td>
+							</tr>
+						</table>
+					</th>
+				</tr>
+				<tr>
+					<th style="vertical-align:top;font-style:italic;font-weight:normal;text-align:left;padding-left:10px">Dusun Timang Kulon, Desa Wonokerto, Wonogiri</th>
+					<th></th>
+				</tr>
+			</thead>
+		</table>';
+
+		$data = $this->db->query("SELECT f.*,i.*,p.tgl_kirim_plan,p.pcs_plan,p.tgl_prod_p,p.good_cor_p,s.kode_po,c.nm_pelanggan FROM plan_flexo f
+		INNER JOIN plan_cor p ON f.id_plan_cor=p.id_plan
+		INNER JOIN trs_so_detail s ON p.id_so_detail=s.id
+		INNER JOIN m_produk i ON p.id_produk=i.id_produk
+		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+		WHERE f.tgl_flexo='$tgl_flexo' AND f.shift_flexo='$shift_flexo' AND f.mesin_flexo='$mesin_flexo'
+		ORDER BY f.no_urut_flexo,f.id_flexo");
+
+		$html .= '<table style="margin:0;padding:0;font-size:10px;text-align:center;border-collapse:collapse;color:#000;width:100%">
+			<thead>
+				<tr>
+					<th style="border:0;width:2%"></th>
+					<th style="border:0;width:18%"></th>
+					<th style="border:0;width:5%"></th>
+					<th style="border:0;width:8%"></th>
+					<th style="border:0;width:2%"></th>
+					<th style="border:0;width:4%"></th>
+					<th style="border:0;width:5%"></th>
+					<th style="border:0;width:5%"></th>
+					<th style="border:0;width:5%"></th>
+					<th style="border:0;width:5%"></th>
+					<th style="border:0;width:5%"></th>
+					<th style="border:0;width:5%"></th>
+					<th style="border:0;width:5%"></th>
+					<th style="border:0;width:5%"></th>
+					<th style="border:0;width:17%"></th>
+					<th style="border:0;width:4%"></th>
+				</tr>
+				<tr text-rotate="-90">
+					<th text-rotate="0" style="border:1px solid #000" rowspan="4">ID</th>
+					<th text-rotate="0" style="border-top:1px solid #000;text-align:left">NO.SO/WO</th>
+					<th text-rotate="0" style="border:1px solid #000" rowspan="4">TGL KIRIM</th>
+					<th text-rotate="0" style="border:1px solid #000" rowspan="4">KUALITAS BOX</th>
+					<th style="border:1px solid #000" rowspan="4">FLUTE</th>
+					<th text-rotate="0" style="border:1px solid #000" rowspan="4">BERAT<br>BOX<br>(KG)</th>
+					<th text-rotate="0" style="border:1px solid #000" rowspan="2">WAKTU</th>
+					<th text-rotate="0" style="border:1px solid #000" rowspan="4">ORDER<br>(PCS)</th>
+					<th text-rotate="0" style="border:1px solid #000" rowspan="4">HASIL<br>(PCS)</th>
+					<th text-rotate="0" style="border:1px solid #000" rowspan="4">TONASE<br>(KG)</th>
+					<th text-rotate="0" style="border:1px solid #000" rowspan="2" colspan="2">REJECT</th>
+					<th text-rotate="0" style="border:1px solid #000" rowspan="2" colspan="2">DOWNTIME</th>
+					<th text-rotate="0" style="border:1px solid #000" rowspan="4">KET</th>
+					<th style="border:1px solid #000" rowspan="4">NEXT</th>
+				</tr>
+				<tr>
+					<th style="border:0;text-align:left">CUSTOMER</th>
+				</tr>
+				<tr>
+					<th style="border:0;text-align:left">NO. PO</th>
+					<th style="border:1px solid #000">START</th>
+					<th style="border:1px solid #000" rowspan="2">FLEXO</th>
+					<th style="border:1px solid #000" rowspan="2">BAHAN</th>
+					<th style="border:1px solid #000" rowspan="2">SETTING</th>
+					<th style="border:1px solid #000" rowspan="2">LAIN2</th>
+				</tr>
+				<tr>
+					<th style="border-bottom:1px solid #000;text-align:left">ITEM</th>
+					<th style="border:1px solid #000">END</th>
+				</tr>
+				<tr>
+					<th style="padding:2px 0;font-weight:bold;text-align:left" colspan="2">PERIODE : '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl_flexo)).'</th>
+					<th style="padding:2px 0;font-weight:bold;text-align:left" colspan="2">MACHINE : '.$mesin_flexo.'</th>
+					<th style="padding:2px 0;font-weight:bold;text-align:left" colspan="3">SHIFT : '.$shift_flexo.'</th>
+				</tr>
+			</thead>
+			<tbody>';
+				$i = 0;
+				foreach($data->result() as $r){
+					$i++;
+					$expKualitas = explode("/", $r->kualitas);
+					if($r->flute == 'BCF'){
+						if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
+							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+						}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
+							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+						}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
+							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+						}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
+							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+						}else{
+							$kualitas = $r->kualitas;
+						}
+					}else{
+						$kualitas = $r->kualitas;
+					}
+
+					($r->flute == 'BCF') ? $flute = 'BC' : $flute = $r->flute;
+
+					if($r->tgl_prod_p != "" && $r->good_cor_p != 0){
+						$good_cor_p = number_format($r->good_cor_p,0,",",".");
+						$ton = number_format($r->berat_bersih * $r->good_cor_p,0,",",".");
+						$bad_flexo_p = $r->bad_flexo_p;
+						$bad_bahan_f_p = $r->bad_bahan_f_p;
+					}else{
+						$good_cor_p = '';
+						$ton = '';
+						$bad_flexo_p = '';
+						$bad_bahan_f_p = '';
+					}
+
+					$cekDowntime = $this->db->query("SELECT*FROM plan_flexo_dt dt
+					INNER JOIN m_downtime md ON dt.id_m_downtime=md.id_downtime
+					WHERE dt.id_plan_flexo='$r->id_flexo'");
+					$txtKet = '';
+					if($cekDowntime->num_rows() == 0){
+						$txtKet .= $r->ket_flexo_p;
+					}else{
+						$txtKet .= $r->ket_flexo_p.'<br/>';
+						foreach($cekDowntime->result() as $dt){
+							$txtKet .= '('.$dt->kode_d.'-'.$dt->durasi_mnt_dt.'") ';
+						}
+					}
+
+					$html .='<tr>
+						<td style="border:1px solid #000" rowspan="4">'.$i.'</td>
+						<td style="border:1px solid #000;border-width:1px 0;text-align:left">'.$r->kode_mc.'</td>
+						<td style="border:1px solid #000" rowspan="4">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
+						<td style="border:1px solid #000" rowspan="4">'.$kualitas.'</td>
+						<td style="border:1px solid #000" rowspan="4">'.$flute.'</td>
+						<td style="border:1px solid #000" rowspan="4">'.$r->berat_bersih.'</td>
+						<td style="border:1px solid #000" rowspan="2"></td>
+						<td style="border:1px solid #000" rowspan="4">'.number_format($r->pcs_plan).'</td>
+						<td style="border:1px solid #000" rowspan="4">'.$good_cor_p.'</td>
+						<td style="border:1px solid #000" rowspan="4">'.$ton.'</td>
+						<td style="border:1px solid #000" rowspan="4">'.$bad_flexo_p.'</td>
+						<td style="border:1px solid #000" rowspan="4">'.$bad_bahan_f_p.'</td>
+						<td style="border:1px solid #000" rowspan="4"></td>
+						<td style="border:1px solid #000" rowspan="4"></td>
+						<td style="border:1px solid #000;text-align:left;vertical-align:top" rowspan="4">'.$txtKet.'</td>
+						<td style="border:1px solid #000" rowspan="4">'.$r->next_flexo.'</td>
+					</tr>
+					<tr>
+						<td style="border:0;text-align:left">'.$r->nm_pelanggan.'</td>
+					</tr>
+					<tr>
+						<td style="border:0;text-align:left">'.$r->kode_po.'</td>
+						<td style="border:1px solid #000" rowspan="2"></td>
+					</tr>
+					<tr>
+						<td style="border-bottom:1px solid #000;text-align:left">'.$r->nm_produk.'</td>
+					</tr>';
+				}
+				$html .='
+			</tbody>
+		</table>';
+
+		$html .= '<table style="margin:0;padding:0;font-size:10px;text-align:center;border-collapse:collapse;color:#000;width:100%">
+			<tr>
+				<td style="border:0;width:40%"></td>
+				<td style="border:0;width:12%"></td>
+				<td style="border:0;width:12%"></td>
+				<td style="border:0;width:12%"></td>
+				<td style="border:0;width:12%"></td>
+				<td style="border:0;width:12%"></td>
+			</tr>
+			<tr>
+				<td style="font-weight:bold;text-align:left">DISTRIBUSI : PPIC - PRODUKSI - BAGIAN TINTA - PREPARATION</td>
+			</tr>
+			<tr>
+				<td style="font-weight:bold;text-align:left" rowspan="3">TOTAL PCS :</td>
+				<td style="border:1px solid #000;font-weight:bold" colspan="5">OTORISASI</td>
+			</tr>
+			<tr>
+				<td style="border:1px solid #000;border-width:1px 0 1px 1px;font-weight:bold" colspan="3">PPIC</td>
+				<td style="border:1px solid #000;border-width:1px 1px 1px 0;font-weight:bold" colspan="2">PRODUKSI</td>
+			</tr>
+			<tr>
+				<td style="border:1px solid #000">Mengetahui</td>
+				<td style="border:1px solid #000">Dibuat Oleh</td>
+				<td style="border:1px solid #000">Mengetahui</td>
+				<td style="border:1px solid #000">Diperiksa</td>
+				<td style="border:1px solid #000">Dibuat Oleh</td>
+			</tr>
+			<tr>
+				<td style="font-weight:bold;text-align:left" rowspan="3">TOTAL TONASE :</td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+			</tr>
+			<tr>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+			</tr>
+			<tr>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+				<td style="border:1px solid #000;border-width:0 1px;padding:7px"></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td style="border:1px solid #000">KABAG</td>
+				<td style="border:1px solid #000">Adm. PPC</td>
+				<td style="border:1px solid #000">KABAG</td>
+				<td style="border:1px solid #000">KASI</td>
+				<td style="border:1px solid #000">Operator</td>
+			</tr>
+			';
+		$html .= '</table>';
+		
+		$judulTglFlexo = str_replace('/', '', $this->m_fungsi->tglPlan($tgl_flexo));
+		$judul = 'PLANFLEXO-'.$judulTglFlexo.'.'.$shift_flexo.'.'.$mesin_flexo.'.ISO';
+		$this->m_fungsi->newMpdf($judul, '', $html, 1, 3, 1, 3, 'L', 'A4', $judul.'.pdf');
+		// echo $html;
+	}
+
+	function laporanPlanFlexo()
+	{
+		$html = '';
+		$tgl_flexo = $_GET["tgl"];
+		$shift_flexo = $_GET["shift"];
+		$mesin_flexo = $_GET["mesin"];
+		$html .= '<table style="margin:0;padding:0;font-size:10px;text-align:center;border-collapse:collapse;color:#000;width:100%">
+			<thead>
+				<tr>
+					<th style="border:0;width:3%"></th>
+					<th style="border:0;width:6%"></th>
+					<th style="border:0;width:7%"></th>
+					<th style="border:0;width:7%"></th>
+					<th style="border:0;width:13%"></th>
+					<th style="border:0;width:7%"></th>
+					<th style="border:0;width:4%"></th>
+					<th style="border:0;width:4%"></th>
+					<th style="border:0;width:4%"></th>
+					<th style="border:0;width:2%"></th>
+					<th style="border:0;width:6%"></th>
+					<th style="border:0;width:5%"></th>
+					<th style="border:0;width:6%"></th>
+					<th style="border:0;width:5%"></th>
+					<th style="border:0;width:5%"></th>
+					<th style="border:0;width:5%"></th>
+					<th style="border:0;width:11%"></th>
+				</tr>
+				<tr>
+					<th style="font-size:16px;padding-bottom:10px" colspan="17">PLAN '.$mesin_flexo.'</th>
+				</tr>
+				<tr>
+					<th style="border:1px solid #000" rowspan="2">NO</th>
+					<th style="border:1px solid #000" rowspan="2">KODE MC</th>
+					<th style="border:1px solid #000" rowspan="2">NO.PO</th>
+					<th style="border:1px solid #000" rowspan="2">CUSTOMER</th>
+					<th style="border:1px solid #000" rowspan="2">ITEM</th>
+					<th style="border:1px solid #000" rowspan="2">KUALITAS</th>
+					<th style="border:1px solid #000;color:#f00" rowspan="2">PJG</th>
+					<th style="border:1px solid #000;color:#f00" rowspan="2">LBR</th>
+					<th style="border:1px solid #000" rowspan="2">BB</th>
+					<th style="border:1px solid #000" rowspan="2">FT</th>
+					<th style="border:1px solid #000" rowspan="2">JOINT</th>
+					<th style="border:1px solid #000" rowspan="2">ORDER</th>
+					<th style="border:1px solid #000;color:#f00" rowspan="2">TGL KIRIM</th>
+					<th style="border:1px solid #000" colspan="2">KELUAR COR</th>
+					<th style="border:1px solid #000" rowspan="2">TONASE</th>
+					<th style="border:1px solid #000" rowspan="2">KETERANGAN</th>
+				</tr>
+				<tr>
+					<th style="border:1px solid #000">TGL</th>
+					<th style="border:1px solid #000">QTY</th>
+				</tr>
+				<tr>
+					<th style="border:1px solid #000;border-width:1px 0 1px 1px;padding:7px 0;font-size:14px" colspan="10">PLAN '.strtoupper($this->m_fungsi->getHariIni($tgl_flexo)).' '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl_flexo)).'</th>
+					<th style="border:1px solid #000;border-width:1px 1px 1px 0;padding:7px 0" colspan="7"></th>
+				</tr>
+			</thead>
+			<tbody>';
+
+				$data = $this->db->query("SELECT f.*,i.*,p.tgl_kirim_plan,p.kualitas_plan,p.panjang_plan,p.lebar_plan,p.pcs_plan,p.tgl_prod_p,p.good_cor_p,s.kode_po,c.nm_pelanggan FROM plan_flexo f
+				INNER JOIN plan_cor p ON f.id_plan_cor=p.id_plan
+				INNER JOIN trs_so_detail s ON p.id_so_detail=s.id
+				INNER JOIN m_produk i ON p.id_produk=i.id_produk
+				INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+				WHERE f.tgl_flexo='$tgl_flexo' AND f.shift_flexo='$shift_flexo' AND f.mesin_flexo='$mesin_flexo'
+				ORDER BY f.no_urut_flexo,f.id_flexo");
+				$i = 0;
+				$sumOrder = 0;
+				foreach($data->result() as $r){
+					$i++;
+					$expKualitas = explode("/", $r->kualitas_plan);
+					if($r->flute == 'BCF'){
+						if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
+							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+						}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
+							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+						}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
+							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+						}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
+							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+						}else{
+							$kualitas = $r->kualitas;
+						}
+					}else{
+						$kualitas = $r->kualitas;
+					}
+
+					if($r->sambungan == 'G'){
+						$sambungan = 'GLUE';
+					}else if($r->sambungan == 'S'){
+						$sambungan = 'STICHING';
+					}else if($r->sambungan == 'GS'){
+						$sambungan = 'GLUE STICHING';
+					}else if($r->sambungan == 'DS'){
+						$sambungan = 'DOUBLE STICHING';
+					}else{
+						$sambungan = '-';
+					}
+
+					if($r->tgl_prod_p != "" && $r->good_cor_p != 0){
+						$tgl_prod_p = $this->m_fungsi->tglPlan($r->tgl_prod_p);
+						$good_cor_p = number_format($r->good_cor_p,0,",",".");
+						$ton = number_format($r->berat_bersih * $r->good_cor_p,0,",",".");
+					}else{
+						$tgl_prod_p = '-';
+						$good_cor_p = '-';
+						$ton = '-';
+					}
+
+					$html .='<tr>
+						<td style="border:1px solid #000">'.$i.'</td>
+						<td style="border:1px solid #000;text-align:left">'.$r->kode_mc.'</td>
+						<td style="border:1px solid #000;text-align:left">'.$r->kode_po.'</td>
+						<td style="border:1px solid #000;text-align:left">'.$r->nm_pelanggan.'</td>
+						<td style="border:1px solid #000;text-align:left">'.$r->nm_produk.'</td>
+						<td style="border:1px solid #000">'.$kualitas.'</td>
+						<td style="border:1px solid #000;font-weight:bold;color:#f00">'.number_format($r->panjang_plan,0,',','.').'</td>
+						<td style="border:1px solid #000;font-weight:bold;color:#f00">'.number_format($r->lebar_plan,0,',','.').'</td>
+						<td style="border:1px solid #000">'.$r->berat_bersih.'</td>
+						<td style="border:1px solid #000">'.$r->flute.'</td>
+						<td style="border:1px solid #000">'.$sambungan.'</td>
+						<td style="border:1px solid #000;font-weight:bold">'.number_format($r->pcs_plan,0,',','.').'</td>
+						<td style="border:1px solid #000;font-weight:bold;color:#f00">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
+						<td style="border:1px solid #000">'.$tgl_prod_p.'</td>
+						<td style="border:1px solid #000">'.$good_cor_p.'</td>
+						<td style="border:1px solid #000">'.$ton.'</td>
+						<td style="border:1px solid #000"></td>
+					</tr>';
+
+					$sumOrder += $r->pcs_plan;
+				}
+
+				$html .='<tr>
+					<td style="background:#ddd;border:1px solid #000" colspan="11"></td>
+					<td style="background:#ddd;border:1px solid #000;padding:6px 0;color:#f00;font-size:11px;font-weight:bold">'.number_format($sumOrder,0,',','.').'</td>
+					<td style="background:#ddd;border:1px solid #000" colspan="5"></td>
+				</tr>';
+
+				$html .= '
+			</tbody>
+		</table>';
+
+		$judulTglFlexo = str_replace('/', '', $this->m_fungsi->tglPlan($tgl_flexo));
+		$judul = 'PLANFLEXO-'.$judulTglFlexo.'.'.$shift_flexo.'.'.$mesin_flexo;
+		$this->m_fungsi->newMpdf($judul, '', $html, 1, 3, 1, 3, 'L', 'A4', $judul.'.pdf');
 	}
 
 	//

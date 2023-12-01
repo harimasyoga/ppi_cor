@@ -14,6 +14,15 @@
 		</div>
 	</section>
 
+	<style>
+		/* Chrome, Safari, Edge, Opera */
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+	</style>
+
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row">
@@ -234,7 +243,7 @@
 							</div>
 							<div class="col-md-2">KIRIM</div>
 							<div class="col-md-4">
-								<input type="date" id="kirim" class="form-control pr-0" placeholder="KIRIM" disabled>
+								<input type="text" id="kirim" class="form-control pr-0" placeholder="KIRIM" disabled>
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
@@ -243,7 +252,7 @@
 						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 							<div class="col-md-2">TGL</div>
 							<div class="col-md-4">
-								<input type="date" id="tgl_cor" class="form-control pr-0" placeholder="TANGGAL" disabled>
+								<input type="text" id="tgl_cor" class="form-control pr-0" placeholder="TANGGAL" disabled>
 							</div>
 							<div class="col-md-2">QTY</div>
 							<div class="col-md-4">
@@ -381,16 +390,30 @@
 		})
 	}
 
-	function onClickHeaderPlanCor(next_flexo)
+	function onClickHeaderPlanCor(id_pelanggan)
 	{
 		$.ajax({
 			url: '<?php echo base_url('Plan/onClickHeaderPlanCor')?>',
 			type: "POST",
 			data: ({
-				next_flexo
+				id_pelanggan
 			}),
 			success: function(res){
-				$("#tampil-all-flexo-isi-"+next_flexo).html(res)
+				$("#tampil-all-flexo-isi-"+id_pelanggan).html(res)
+			}
+		})
+	}
+
+	function onclickHeaderIsiPlanCor(id_plan, id_pelanggan)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/onclickHeaderIsiPlanCor')?>',
+			type: "POST",
+			data: ({
+				id_plan, id_pelanggan
+			}),
+			success: function(res){
+				$("#tampil-all-pplan-isi-"+id_plan+"-"+id_pelanggan).html(res)
 			}
 		})
 	}
@@ -584,7 +607,7 @@
 			url: '<?php echo base_url('Plan/addRencanaFlexo')?>',
 			type: "POST",
 			data: ({
-				tgl, shift, mesin, plan_cor ,no_wo ,no_po ,customer ,kode_mc ,item ,uk_box ,uk_sheet ,creasing_1 ,creasing_2 ,creasing_3 ,kualitas ,flute ,tipe_box ,sambungan ,bb_box ,lb_box ,panjang_plan ,lebar_plan ,order_so ,kirim ,tgl_cor ,qty_cor, next_flexo
+				tgl, shift, mesin, plan_cor ,no_wo ,no_po ,customer ,kode_mc ,item ,uk_box ,uk_sheet ,creasing_1 ,creasing_2 ,creasing_3 ,kualitas ,flute ,tipe_box ,sambungan ,bb_box ,lb_box ,panjang_plan ,lebar_plan ,order_so ,kirim ,tgl_cor ,qty_cor, next_flexo, opsi: 'add'
 			}),
 			success: function(res){
 				data = JSON.parse(res)
