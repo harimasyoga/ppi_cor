@@ -537,7 +537,8 @@ class Transaksi extends CI_Controller
 						}
 					}
 
-                    if ($this->session->userdata('level') == 'Admin' ) {
+                    if ($this->session->userdata('level') == 'Admin' ) 
+					{
 
 						if($r->status_app1 == 'N' || $r->status_app2 == 'N' || $r->status_app3 == 'N' || $r->status_app1 == 'H' || $r->status_app2 == 'H' || $r->status_app3 == 'H' || $r->status_app1 == 'R' || $r->status_app2 == 'R' || $r->status_app3 == 'R'){
 							$aksi .=  '
@@ -559,6 +560,20 @@ class Transaksi extends CI_Controller
 								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
 								<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> ';
+
+						}
+
+						if($this->m_fungsi->tanggal_ind($time)<'13-11-2023')
+						{
+							// 1 itu aktif 0 itu non aktif / po lama
+							if($r->aktif=='1')
+							{
+								$aksi .=  '
+								<a target="_blank" class="btn btn-sm btn-warning" href="' . base_url("Transaksi/Verifikasi_all?id_po=" . $r->id . "") . '" title="NON AKTIF" ><i class="fas fa-power-off"></i> </a>';
+							}else{
+								$aksi .=  '
+								<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Verifikasi_all?id_po=" . $r->id . "") . '" title="AKTIF KAN" ><i class="fas fa-power-off"></i> </a>';
+							}
 
 						}
 					}
@@ -723,6 +738,16 @@ class Transaksi extends CI_Controller
 	function prosesData()
 	{
 		$jenis   = $_POST['jenis'];
+
+		$result = $this->m_transaksi->$jenis();
+
+
+		echo json_encode($result);
+	}
+
+	function Verifikasi_all()
+	{
+		$id  = $_GET['no_po'];
 
 		$result = $this->m_transaksi->$jenis();
 

@@ -33,36 +33,29 @@
 				<div class="card-body">
 					<div class="col-md-12">
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">No Invoice</div>
+								<div class="col-md-2">Type</div>
 								<div class="col-md-10">
-									<input type="text" id="no_inv" name="no_inv" class="form-control" autocomplete="off" placeholder="No Invoice" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); ">
+									<select name="type_po" id="type_po" class="form-control select2" style="width: 100%" onchange="noinv()">
+										<option value="">-- PILIH --</option>
+										<option value="roll">Roll</option>
+										<option value="sheet">Sheet</option>
+										<option value="box">Box</option>
+									</select>
 								</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold">
 								<div class="col-md-2">Tanggal Invoice</div>
 								<div class="col-md-4">
-									<input type="date" id="tgl_inv" name="tgl_inv" class="form-control" autocomplete="off" placeholder="Tanggal Invoice" >
+									<input type="date" id="tgl_inv" name="tgl_inv" class="form-control" autocomplete="off" placeholder="Tanggal Invoice" onchange="noinv()">
 								</div>
 								<div class="col-md-6"> </div>
 							</div>
 							<div class="card-body row" style="font-weight:bold">
-								<div class="col-md-2">Tanggal Jatuh Tempo</div>
+								<div class="col-md-2">Tanggal SJ</div>
 								<div class="col-md-4">
-									<input type="date" id="tgl_tempo" name="tgl_tempo" class="form-control" autocomplete="off" placeholder="Jatuh Tempo" >
+									<input type="date" id="tgl_sj" name="tgl_sj" class="form-control" autocomplete="off" placeholder="Tanggal Surat Jalan" onchange="load_sj()" >
 								</div>
 								<div class="col-md-6"> </div>
-							</div>
-							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-								<div class="col-md-2">Pajak</div>
-								<div class="col-md-10">
-									
-									<select id="pajak" name="pajak" class="form-control select2">
-										<option value="">-- PILIH --</option>
-										<option value="1">PPN 11%</option>
-										<option value="2">PPN 11% + PPH22</option>
-										<option value="3">NON PPN</option>
-									</select>
-								</div>
 							</div>
 							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
 								<div class="col-md-2">Surat Jalan</div>
@@ -70,6 +63,41 @@
 									<select class="form-control select2" id="no_surat" style="width: 100%" autocomplete="off" onchange="load_cs()">
 									</select>
 								</div>
+							</div>
+							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
+								<div class="col-md-2">Pajak</div>
+								<div class="col-md-10">
+									
+									<select id="pajak" name="pajak" class="form-control select2" style="width: 100%" onchange="noinv()">
+										<option value="">-- PILIH --</option>
+										<option value="ppn">PPN 11%</option>
+										<option value="ppn_pph">PPN 11% + PPH22</option>
+										<option value="nonppn">NON PPN</option>
+									</select>
+								</div>
+							</div>
+							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+								<div class="col-md-2">No Invoice</div>
+								<div class="col-md-1">
+									<input style="height: calc(2.25rem + 2px);font-size: 1rem;" type="text" id="no_inv_kd" name="no_inv_kd" class="input-border-none" autocomplete="off"  readonly>
+								</div>
+								<div class="col-md-3">
+									<input type="text" id="no_inv" name="no_inv" class="form-control" autocomplete="off" placeholder="Otomatis" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " readonly>
+								</div>
+								<div class="col-md-3">
+									<input type="text" id="no_inv_tgl" name="no_inv_tgl" class="form-control input-border-none" autocomplete="off" readonly>
+								</div>
+								<div class="col-md-3">
+									&nbsp;
+								</div>
+							</div>
+							
+							<div class="card-body row" style="font-weight:bold">
+								<div class="col-md-2">Tanggal Jatuh Tempo</div>
+								<div class="col-md-4">
+									<input type="date" id="tgl_tempo" name="tgl_tempo" class="form-control" autocomplete="off" placeholder="Jatuh Tempo" >
+								</div>
+								<div class="col-md-6"> </div>
 							</div>
 
 							<hr>
@@ -96,32 +124,29 @@
 									<textarea class="form-control" name="alamat_perusahaan" id="alamat_perusahaan" cols="30" rows="5" placeholder="Alamat Perusahaan" ></textarea>
 								</div>
 							</div>
+							<hr>
 							<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 								<div class="col-md-2" style="padding-right:0">List Item</div>
 								<div class="col-md-10">&nbsp;
 								</div>
 							</div>
 							<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">		
-								<div class="col-md-12"	>	
+								<div class="col-md-12"	style="width: 100%">	
 									<table id="datatable_input" class="table table-hover table- table-bordered table-condensed table-scrollable">
-										<thead class="">
-											<th style="text-align: center" >No</th>
-											<th style="text-align: center" >NO PO</th>
-											<th style="text-align: center" >GSM</th>
-											<th style="text-align: center" >ITEM</th>
-											<th style="text-align: center" >HARGA</th>
-											<th style="text-align: center" >QTY</th>
-											<th style="text-align: center" >BERAT</th>
-											<th style="text-align: center" >SESET</th>
-											<th style="text-align: center" >HASIL</th>
-											<th style="text-align: center" >AKSI</th>
-										</thead>
-
-										<tbody>
-										</tbody>
+										
 									</table>
 								</div>
 							</div>
+							<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+								<div class="col-md-12">
+									
+									<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan</b></button>
+
+									<button type="button" class="btn btn-danger" id="btn-print" onclick="Cetak()" ><i class="fas fa-print"></i> <b>Print</b></button>
+								</div>
+							</div>
+							<br>
+							<br>
 							
 						
 					</div>
@@ -138,7 +163,6 @@
 	rowNum = 0;
 	$(document).ready(function() {
 		load_data();
-		load_sj();
 		// getMax();
 		$('.select2').select2({
 			containerCssClass: "wrap",
@@ -249,7 +273,6 @@
 	
 	function simpan() 
 	{
-		// show_loading();
 		swal({
 			title: 'loading ...',
 			allowEscapeKey    : false,
@@ -258,14 +281,14 @@
 				swal.showLoading();
 			} 
 		})
-		id_pelanggan    = $("#id_pelanggan").val();
-		kode_po         = $("#kode_po").val();
-		// eta             = $("#eta").val();
-		sales           = $("#id_sales").val();
 
-		if (id_pelanggan == '' || kode_po == '' || sales=='' ) {
-			// toastr.info('Harap Lengkapi Form');
-			
+		var tgl_inv   = $("#tgl_inv").val();
+		var tgl_sj    = $("#tgl_sj").val();
+		var no_surat  = $("#no_surat").val();
+		var pajak     = $("#pajak").val();
+		var tgl_tempo = $("#tgl_tempo").val();
+
+		if (tgl_inv == '' || tgl_sj == '' || no_surat=='' || pajak=='' || tgl_tempo=='' ) {			
 			swal.close();
 			swal({
 				title               : "Cek Kembali",
@@ -273,53 +296,8 @@
 				type                : "info",
 				confirmButtonText   : "OK"
 			});
-			// close_loading();
 			return;
 		}
-
-		arr_produk = [];
-		for (var i = 0; i <= rowNum; i++) {
-
-			produk   = $("#id_produk" + i).val();
-			qty      = $("#qty" + i).val();
-			p11      = $("#p11" + i).val();
-			eta_item = $("#eta_item" + i).val();
-
-			if (produk == '' || qty == '' || qty == '0' || eta_item == '') {
-				// toastr.info('Harap Lengkapi Form');
-				// return;
-				
-				swal.close();
-				swal({
-					title               : "Cek Kembali",
-					html                : "Harap Lengkapi Form Dahulu",
-					type                : "info",
-					confirmButtonText   : "OK"
-				});
-				// close_loading();
-				return;
-			}
-
-			arr_produk.push(produk);
-		}
-		let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) != index)
-
-		if (findDuplicates(arr_produk).length > 0) {
-			// toastr.info('Tidak boleh ada produk yang sama');
-			// return;
-			
-			swal.close();
-			swal({
-				title               : "Cek Kembali",
-				html                : "Tidak boleh ada produk yang sama",
-				type                : "info",
-				confirmButtonText   : "OK"
-			});
-			// close_loading();
-			return;
-		}
-
-		// console.log($('#myForm').serialize());
 
 		$.ajax({
 			url        : '<?= base_url(); ?>Logistik/insert',
@@ -618,11 +596,13 @@
 	}
 
 	function load_sj() {
+		var tgl_sj = $("#tgl_sj").val()
 		option = "";
 		$.ajax({
-			type: 'POST',
-			url: "<?= base_url(); ?>Logistik/load_sj",
-			dataType: 'json',
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Logistik/load_sj",
+			dataType   : 'json',
+			data       : {tgl_sj},
 			beforeSend: function() {
 				swal({
 				title: 'loading ...',
@@ -635,9 +615,9 @@
 			},
 			success:function(data){			
 				if(data.message == "Success"){						
-					option = "<option>-- Pilih --</option>";
+					option = "<option>--- Pilih ---</option>";
 					$.each(data.data, function(index, val) {
-					option += `<option value="${val.id}" data-nm="${val.nama}" data-nm_perusahaan="${val.nm_perusahaan}" data-alamat_perusahaan="${val.alamat_perusahaan}">[ "${val.tgll}" ] - [ "${val.nm_perusahaan}" ] - [ "${val.no_surat}" ]</option>`;
+					option += `<option value="${val.id}" data-nm="${val.nama}" data-nm_perusahaan="${val.nm_perusahaan}" data-id_perusahaan="${val.id_perusahaan}" data-alamat_perusahaan="${val.alamat_perusahaan}">[ "${val.tgll}" ] - [ "${val.nm_perusahaan}" ]</option>`;
 					});
 
 					$('#no_surat').html(option);
@@ -666,12 +646,14 @@
 
 	function show_list_po()
 	{
-		var id = $("#no_surat").val()
+		// var id = $("#no_surat").val()
+		var id_perusahaan   = $('#no_surat option:selected').attr('data-id_perusahaan');
+		var tgl_sj          = $("#tgl_sj").val()
 
 		$.ajax({
 			url: '<?php echo base_url('Logistik/list_item'); ?>',
 			type: 'POST',
-			data: {id: id,jenis : "trs_so_detail",field:'no_so'},
+			data: {id_perusahaan, tgl_sj},
 			dataType: "JSON",
 			beforeSend: function() {
 						swal({
@@ -685,294 +667,92 @@
 					},
 			success: function(data)
 			{  
-			$("#pelanggan").val(data.id_pelanggan+' || '+data.nm_pelanggan);
-			$("#id_produk").val(data.id_produk+' || '+data.nm_produk);
-			$("#qty0").val(data.qty_so);
-			$("#nopo").val(data.no_po);
-			$("#no_wo").val('WO-'+data.no_so+'.'+data.urut_so+'.'+data.rpt);
-
-			if (data.sambungan == 'G'){
-				$join = 'Glue';
-			} else if (data.sambungan == 'S'){
-				$join = 'Stitching';
-			}else {
-				$join = 'Die Cut';
-			}
-
-			$("#txt_detail_produk0").html(`<table id="datatable" class="table table-bordered table-striped table-scrollable" border="0" width="100%" style="font-size:14px">
-				<tr>
-					<tr style=list-style:none;>
-					<td><b>Nama Item </b>: ${data.nm_produk}</td>
-					<td><b>Ukuran Box </b>: ${data.ukuran}</td>
-					<td><b>Kualitas </b>: ${data.kualitas}</td>
-					</tr>
-					<tr style=list-style:none;>
-					<td><b>Kode MC </b>: ${data.kode_mc}</td>
-					<td><b>Ukuran Sheet </b>: ${data.ukuran_sheet}</td>
-					<td><b>flute </b>: ${data.flute}</td>
+				if(data.message == "Success"){					
+					
+					var list = `
+					<table id="datatable_input" class="table table-hover table- table-bordered table-condensed table-scrollable">
+					<thead class="color-tabel">
+							<th style="text-align: center" >No</th>
+							<th style="text-align: center" >NO SJ</th>
+							<th style="text-align: center" >NO PO</th>
+							<th style="text-align: center" >GSM</th>
+							<th style="text-align: center" >ITEM</th>
+							<th style="text-align: center" >HARGA</th>
+							<th style="text-align: center" >QTY</th>
+							<th style="text-align: center" >BERAT</th>
+							<th style="text-align: center" >SESET</th>
+							<th style="text-align: center" >HASIL</th>
+							<th style="text-align: center" >AKSI</th>
+						</thead>`;
+					var no = 1;
+					$.each(data.data, function(index, val) {
+						list += `
+						<tbody>
+							<td id="no_urut${no}" style="text-align: center" >${no}</td>
+							<td id="no_surat${no}" style="text-align: center" >${val.no_surat}</td>
+							<td id="no_po${no}" style="text-align: center" >${val.no_po}</td>
+							<td id="g_label${no}" style="text-align: center" >${val.g_label}</td>
+							<td id="width${no}" style="text-align: center" >${val.width}</td>
+							<td style="text-align: center" >
+								<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)"></td>
+							<td id="qty${no}" style="text-align: center" >${val.qty}</td>
+							<td id="weight${no}" style="text-align: center" >${format_angka(val.weight)}</td>
+							<td style="text-align: center" >
+								<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)"> </td></td>
+							<td id="hasil${no}"  style="text-align: center" >${format_angka(val.weight)}</td>
+							<td style="text-align: center" ><input type="checkbox" name="aksi[${no}]" id="aksi${no}" class="form-control" ></td>
+						</tbody>`;
+						no ++;
+					})
+					list += `</table>`;
+					$("#datatable_input").html(list);
+					swal.close();
+				}else{	
 						
-					</tr>
-					<tr style=list-style:none;>
-					<td><b>RM </b>: ${data.rm}</td>
-					<td><b>BB </b>: ${data.berat_bersih}</td>
-					<td><b>TON </b>: ${data.ton}</td>
-					</tr>
-					<tr style=list-style:none;>
-						<td><b>Jenis Item </b>: ${data.jenis_produk}</td>
-						<td><b>Creasing </b>: ${ data.creasing }-${ data.creasing2 }-${ data.creasing3 }</td>
-						<td><b>Warna </b>: ${data.warna}</td>
-					</tr>
-					<tr style=list-style:none;>
-					<td><b>Tipe Box </b>: ${data.tipe_box}</td>
-					<td><b>Joint </b>: ${$join}</td>
-					<td><b>Toleransi </b>: ${data.toleransi_kirim} %</td>
-					</tr>
-				<tr>
-				</table>`);
-
-			if(status=='update'){
-				// close_loading();
-				swal.close();
-
-			}else{
-
-				set_ukuran(data);
-			}
-
+					swal.close();
+				}
+				
 			}
 		})
 
 	}
 
-	var rowNum = 0;
-
-	function addRow() 
+	function noinv()
 	{
+		var type    = $('#type_po').val()
+		var tgl_inv = $('#tgl_inv').val()
+		var pajak   = $('#pajak').val()
 
-		var b = $('#bucket').val();
+		const myArray   = tgl_inv.split("-");
+		let year        = myArray[0];
+		let month       = myArray[1];
+		let day         = myArray[2];
 
-		if (b == -1) {
-			b = 0;
-			rowNum = 0;
+		if(type=='roll')
+		{
+			if(pajak=='nonppn')
+			{
+				$('#no_inv_kd').val('B/');
+			}else{
+				$('#no_inv_kd').val('A/');
+			}
+		}else{
+
+			if(pajak=='nonppn')
+			{
+				$('#no_inv_kd').val('BB/');
+			}else{
+				$('#no_inv_kd').val('AA/');
+			}
+
 		}
-		var s           = $('#qty' + b).val();
-		var ppn         = $('#ppn' + b).val();
-		var price_inc   = $('#price_inc' + b).val();
-		var price_exc   = $('#price_exc' + b).val();
-		var p11         = $('#p11' + b).val();
-		var ss          = $('#id_produk' + b).val();
-		var user_lev    = "<?= $this->session->userdata('level') ?>";
-
-		var idp         = $('#id_pelanggan').val();
-		setProduk('addrow',idp,rowNum+1);
-			
-		if (s != '0' && s != '' && ss != '' && ppn != '' && price_inc != '' && price_exc != '' && price_inc != '0' && price_exc != '0') {
-			$('#removeRow').show();
-			rowNum++;
-			// if (rowNum <= 4) {
-				var x = rowNum + 1;
-
-				td_harga = ''
-
-				if ('<?= $this->session->userdata('level') ?>' != 'PPIC') {
-					td_harga = `
-						<td>
-							<input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
-
-						 
-						</td>
-						<td>
-							<input type="text" name="price_inc[${rowNum}]" id="price_inc${rowNum}"  class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
-
-						</td>
-					`
-					hitung = ``;
-					p11_tambahan = `
-						<td id="p11_det${rowNum}">
-							<input type="text" name="p11[${rowNum}]" id="p11${rowNum}"  class="angka form-control" readonly value="0">
-						 
-						</td>
-					`;
-					coll=``;
-				}else{
-					p11_tambahan = ``;
-					coll=`colspan="5"`;
-					hitung = `
-					<td width="10%" id="subs${ rowNum }" name="subs[${ rowNum }]">
-							<select id="tl_al${ rowNum }" name="tl_al[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
-								<option value="">-</option>
-								<option value="M">M</option>
-								<option value="K">K</option>
-								<option value="MC">MC</option>
-								<option value="MN">MN</option>
-							</select>
-
-							<select id="bmf${ rowNum }" name="bmf[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
-								<option value="">-</option>
-								<option value="M">M</option>
-								<option value="K">K</option>
-								<option value="MC">MC</option>
-								<option value="MN">MN</option>
-							</select>
-							<select id="bl${ rowNum }" name="bl[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
-								<option value="">-</option>
-								<option value="M">M</option>
-								<option value="K">K</option>
-								<option value="MC">MC</option>
-								<option value="MN">MN</option>
-							</select>
-							<select id="cmf${ rowNum }" name="cmf[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
-								<option value="">-</option>
-								<option value="M">M</option>
-								<option value="K">K</option>
-								<option value="MC">MC</option>
-								<option value="MN">MN</option>
-							</select>
-							<select id="cl${ rowNum }" name="cl[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
-								<option value="">-</option>
-								<option value="M">M</option>
-								<option value="K">K</option>
-								<option value="MC">MC</option>
-								<option value="MN">MN</option>
-							</select>
-
-						</td>
-						<td width="10%" id="subs_i${ rowNum }" name="subs_i[${ rowNum }]">
-							<input type="text" id="tl_al_i${ rowNum }" name="tl_al_i[${ rowNum }]"  class="form-control angka" autocomplete="off" placeholder="TL/AL">
-
-							<input type="text" id="bmf_i${ rowNum }" name="bmf_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="B.MF">
-
-							<input type="text" id="bl_i${ rowNum }" name="bl_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="B.L">
-
-							<input type="text" id="cmf_i${ rowNum }" name="cmf_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="C.MF">
-							
-							<input type="text" id="cl_i${ rowNum }" name="cl_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="C.L">
-						</td>
-						<td width="10%" id="subs_hitung${ rowNum }" name="subs_hitung[${ rowNum }]">
-							Lebar Sheet : <input type="text" id="ii_lebar${ rowNum }" name="ii_lebar[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="LEBAR SHEET" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
-
-							Qty Plan : <input type="text" id="qty_plan${ rowNum }" name="qty_plan[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="QTY PLAN" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
-
-							Lebar Roll : <input type="text" id="i_lebar_roll${ rowNum }" name="i_lebar_roll[${ rowNum }]" class="form-control angka" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" placeholder="LEBAR ROLL" onchange="ayoBerhitung(${ rowNum })">
-							
-							Out : <input type="text" id="out_plan${ rowNum }" name="out_plan[${ rowNum }]" class="form-control angka" autocomplete="off"  onkeyup="ubah_angka(this.value,this.id)" placeholder="OUT" onchange="ayoBerhitung(${ rowNum })">
-						</td>
-						
-						<td width="20%" id="subs_hasil_hitung${ rowNum }" name="subs_hasil_hitung[${ rowNum }]">
-							trim : <input type="number" id="trim${ rowNum }" name="trim[${ rowNum }]" class="form-control" autocomplete="off" placeholder="TRIM" >
-							coff : <input type="number" id="c_off${ rowNum }" name="c_off[${ rowNum }]" class="form-control" autocomplete="off" placeholder="NUM OF CUT" >
-							rm : <input type="number" id="rm_plan${ rowNum }" name="rm_plan[${ rowNum }]" class="form-control" autocomplete="off" placeholder="RM PLAN" >
-							ton : <input type="number" id="ton_plan${ rowNum }" name="ton_plan[${ rowNum }]" class="form-control" autocomplete="off" placeholder="TONASE PLAN" >
-						
-						</td>
-					`;
-				}
-				
-
-				// if (user_lev == 'Owner' || user_lev == 'Admin') 
-				// {
-					
-				// }else{
-					// p11_tambahan = ``;
-				// }
-					// coll=`colspan="5"`;
-				
-
-				$('#table-produk').append(
-					`<tr id="itemRow${ rowNum }">
-						<td id="detail-hapus-${ rowNum }">
-							<div class="text-center">
-							<a class="btn btn-danger"  id="btn-hapus-${ rowNum }" onclick="removeRow(${ rowNum })"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
-							</div>
-						</td>
-						<td>
-							<select class="form-control select2" style="width: 150px;" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }" style="width: 100%;" onchange="setDetailProduk(this.value,${ rowNum })">
-							</select>
-						</td>
-						<td>
-							<input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onkeyup="ubah_angka(this.value,this.id)"  onchange="Hitung_rm(this.value,this.id)">
-
-							<br>
-							<input class="form-control" type="checkbox" name="cek_rm[${ rowNum }]" id="cek_rm${ rowNum }" onclick="cekrm(this.id)" value="0">
-
-						</td>
-
-						<td>
-							<select class="form-control select2" name="ppn[${ rowNum }]" id="ppn${ rowNum }">
-								<option value="PP">PP</option>
-								<option value="NP">NP</option>
-							</select>
-						</td>
-						${ td_harga }
-						${ p11_tambahan }
-						<td ${ coll } id="txt_detail_produk${ rowNum }"> 
-						</td>
-					</tr>
-					<tr style="width: 100%" id="item_tambahan${ rowNum }">
-						<td width="20%">
-							<div class="text-center">
-								ETA
-							</div>
-						</td>
-						<td width="20%">
-							<input class="form-control" type="date" name="eta_item[${ rowNum }]" id="eta_item${ rowNum }">
-						</td>
-						<td width="10%">
-							<textarea class="form-control" name="eta_ket[${ rowNum }]" id="eta_ket${ rowNum }" placeholder="KET. ETA" rows="3" style="resize:none"></textarea>
-						</td>
-						${ hitung }
-
-					</tr>				
-					`);
-				$('.select2').select2({
-					placeholder: '--- Pilih ---',
-					dropdownAutoWidth: true
-				});
-				$('#bucket').val(rowNum);
-				$('#qty' + rowNum).focus();
-			// } else {
-			// 	// toastr.info('Maksimal 5 Produk');
-			// 	swal({
-			// 			title               : "Cek Kembali",
-			// 			html                : "Maksimal 5 Produk",
-			// 			type                : "info",
-			// 			confirmButtonText   : "OK"
-			// 		});
-			// 	return;
-			// }
-		} else {
-			// toastr.info('Isi form diatas terlebih dahulu');
-			// return;
-			swal({
-					title               : "Cek Kembali",
-					html                : "Isi form diatas terlebih dahulu",
-					type                : "info",
-					confirmButtonText   : "OK"
-				});
-			return;
+		
+		if(tgl_inv)
+		{
+			$('#no_inv_tgl').val('/'+month+'/'+year);
 		}
 	}
 
-	function removeRow(e) 
-	{
-		if (rowNum > 0) {
-			jQuery('#itemRow' + e).remove();
-			jQuery('#item_tambahan' + e).remove();
-			rowNum--;
-		} else {
-			// toastr.error('Baris pertama tidak bisa dihapus');
-			// return;
-
-			swal({
-					title               : "Cek Kembali",
-					html                : "Baris pertama tidak bisa dihapus",
-					type                : "error",
-					confirmButtonText   : "OK"
-				});
-			return;
-		}
-		$('#bucket').val(rowNum);
-	}
 
 	function clearRow() 
 	{

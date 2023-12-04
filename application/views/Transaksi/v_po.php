@@ -1977,7 +1977,7 @@
 	function on_load(kd,id)
 	{
 		var no_po   = $("#no_po").val();
-		var qty     = $('#qty'+id).val();
+		var qty     = $('#qty'+id).val().split('.').join('');
 		
 		$("#ii_lebar0").prop("disabled", false);		
 		$("#qty_plan0").prop("disabled", false);		
