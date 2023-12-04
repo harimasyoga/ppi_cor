@@ -728,4 +728,12 @@ class M_plan extends CI_Model
 			'isi' => $isi,
 		);
 	}
+
+	function clickDonePlanCorFlexo()
+	{
+		// $id_plan_cor = $_POST["id_plan_cor"];
+		$this->db->set('status_flexo_plan', 'Close');
+		$this->db->where('id_plan', $_POST["id_plan_cor"]);
+		return $this->db->update('plan_cor');
+	}
 }

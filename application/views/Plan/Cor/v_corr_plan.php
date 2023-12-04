@@ -126,9 +126,9 @@
 							<div id="accordion-plan">
 								<div class="card m-0" style="border-radius:0">
 									<div class="card-header bg-gradient-secondary" style="padding:0;border-radius:0">
-										<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapsePlan" onclick="loadDataAllPlan()">LIST SEMUA PLAN</a>
+										<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapsePlanc" onclick="loadDataAllPlan()">LIST SEMUA PLAN</a>
 									</div>
-									<div id="collapsePlan" class="collapse" data-parent="#accordion-plan">
+									<div id="collapsePlanc" class="collapse" data-parent="#accordion-plan">
 										<div id="tampil-all-plan-header"></div>
 									</div>
 								</div>
@@ -652,7 +652,7 @@
 </div>
 
 <script type="text/javascript">
-	const auth = '<?= $this->session->userdata('level')?>';
+	const urlAuth = '<?= $this->session->userdata('level')?>';
 	const urlTgl_plan = '<?= $tgl_plan ?>';
 	const urlShift = '<?= $shift ?>';
 	const urlMesin = '<?= $mesin ?>';
@@ -1832,7 +1832,7 @@
 					$("#mesin").html(optMesin).prop("disabled", tms)
 
 					let htmlBtnGantiTgl = '';
-					(data.wo.status_plan == 'Open' && data.wo.total_cor_p == 0) ?
+					(data.wo.status_plan == 'Open' && data.wo.total_cor_p == 0 && (urlAuth == 'Admin' || urlAuth == 'PPIC')) ?
 						htmlBtnGantiTgl = `<div class="card-body row" style="padding:0 20px 5px">
 							<div class="col-md-2"></div>
 							<div class="col-md-10">
