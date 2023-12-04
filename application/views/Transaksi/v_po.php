@@ -1331,6 +1331,10 @@
 							$join = 'Stitching';
 						}else if (val.sambungan == 'D'){
 							$join = 'Die Cut';
+						}else if (val.sambungan == 'DS'){
+							$join = 'Double Stiching';
+						}else if (val.sambungan == 'GS'){
+							$join = 'Glue Stiching';
 						}else {
 							$join = '-';
 						}

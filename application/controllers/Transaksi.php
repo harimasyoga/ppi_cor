@@ -1329,6 +1329,10 @@ class Transaksi extends CI_Controller
 			$join = 'Stitching';
 		} else if ($data->sambungan == 'D'){
 			$join = 'Die Cut';
+		} else if ($data->sambungan == 'DS'){
+			$join = 'Double Stitching';
+		} else if ($data->sambungan == 'GS'){
+			$join = 'Glue Stitching';
 		}else {
 			$join = '-';
 		}
@@ -1586,7 +1590,7 @@ class Transaksi extends CI_Controller
 								<td align="" >' . $data_detail->ket_flx . '</td>
 							</tr>
 							<tr>
-								<td align="center" rowspan="6" valign="middle">3</td>
+								<td align="center" rowspan="8" valign="middle">3</td>
 								<td align="" >FINISHING</td>
 								<td align="" style="border-bottom:hidden;border-right:hidden"></td>
 								<td align="" style="border-bottom:hidden;border-right:hidden"></td>
@@ -1618,6 +1622,24 @@ class Transaksi extends CI_Controller
 								<td align="center" >' . $data_detail->rusak_dic . '</td>
 								<td align="center" >' . $data_detail->baik_dic . '</td>
 								<td align="" >' . $data_detail->ket_dic . '</td>
+							</tr>
+							<tr>
+								<td align="right" >Glue Stitching</td>
+								<td align="center" style="border-top:hidden;border-right:hidden">' . $tgl_ok . '</td>
+	
+								<td align="center" style="border-top:hidden;border-right:hidden;border-right:hidden">' . $data_detail->hasil_glu . '</td>
+								<td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->rusak_glu . '</td>
+								<td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->baik_glu . '</td>
+								<td align="" style="border-top:hidden;">' . $data_detail->ket_glu . '</td>
+							</tr>
+							<tr>
+								<td align="right" >Double Stitching</td>
+								<td align="center" style="border-top:hidden;border-right:hidden">' . $tgl_ok . '</td>
+	
+								<td align="center" style="border-top:hidden;border-right:hidden;border-right:hidden">' . $data_detail->hasil_glu . '</td>
+								<td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->rusak_glu . '</td>
+								<td align="center" style="border-top:hidden;border-right:hidden">' . $data_detail->baik_glu . '</td>
+								<td align="" style="border-top:hidden;">' . $data_detail->ket_glu . '</td>
 							</tr>
 							<tr>
 								<td align="right" >Asembly Partisi</td>
@@ -1692,7 +1714,7 @@ class Transaksi extends CI_Controller
 								<td align="" >0</td>
 							</tr>
 							<tr>
-								<td align="center" rowspan="6" valign="middle">3</td>
+								<td align="center" rowspan="8" valign="middle">3</td>
 								<td align="" >FINISHING</td>
 								<td align="" style="border-bottom:hidden;border-right:hidden"></td>
 								<td align="" style="border-bottom:hidden;border-right:hidden"></td>
@@ -1723,6 +1745,22 @@ class Transaksi extends CI_Controller
 								<td align="center" >0</td>
 								<td align="center" >0</td>
 								<td align="" >0</td>
+							</tr>
+							<tr>
+								<td align="right" >Glue Stitching</td>
+								<td align="center" style="border-top:0;border-right:0">0</td>
+								<td align="center" style="border-top:0;border-right:0;">0</td>
+								<td align="center" style="border-top:0;border-right:0;">0</td>
+								<td align="center" style="border-top:0;border-right:0;">0</td>
+								<td align="" style="border-top:0;">0</td>
+							</tr>
+							<tr>
+								<td align="right" >Double Stitching</td>
+								<td align="center" style="border-top:0;border-right:0">0</td>
+								<td align="center" style="border-top:0;border-right:0;">0</td>
+								<td align="center" style="border-top:0;border-right:0;">0</td>
+								<td align="center" style="border-top:0;border-right:0;">0</td>
+								<td align="" style="border-top:0;">0</td>
 							</tr>
 							<tr>
 								<td align="right" >Asembly Partisi</td>
