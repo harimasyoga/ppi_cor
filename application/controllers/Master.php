@@ -200,8 +200,19 @@ class Master extends CI_Controller
 
 				$idPelanggan = $r->id_pelanggan;
 				$cekProduk = $this->db->query("SELECT * FROM m_produk WHERE no_customer='$idPelanggan'")->num_rows();
-				$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_pelanggan."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
-				$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_pelanggan."'".')"><i class="fas fa-times"></i></button>';
+
+				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				{
+					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_pelanggan."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
+					$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_pelanggan."'".')"><i class="fas fa-times"></i></button>';
+
+				}else{
+
+					$btnEdit = '';
+					$btnHapus = '';
+				}
+				
+
 				$row[] = ($cekProduk == 0) ? $btnEdit.' '.$btnHapus : $btnEdit ;
 				$data[] = $row;
 				$i++;

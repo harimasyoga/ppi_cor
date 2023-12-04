@@ -147,16 +147,50 @@ class Logistik extends CI_Controller
 		echo json_encode($output);
 	}
 
-	function load_sj($searchTerm=""){
+	function load_sj($searchTerm="")
+	{
 		// ASLI
 		
 		$db2 = $this->load->database('database_simroll', TRUE);
+		$tgl = $this->input->post('tgl_sj');
 
 		$query = $db2->query("SELECT DATE_FORMAT(a.tgl, '%d-%m-%Y')tgll,a.* FROM pl a
 			INNER JOIN m_timbangan b ON a.id = b.id_pl
-			WHERE a.status = 'Open' AND a.no_pl_inv != '0'
-			GROUP BY a.tgl,a.no_pl_inv
+			WHERE a.status = 'Open' AND a.no_pl_inv = '0' and a.tgl = '$tgl' and id_perusahaan not in ('210','217') 
+			GROUP BY a.tgl,a.nm_perusahaan
 			ORDER BY a.tgl,a.nm_perusahaan,a.no_pl_inv")->result();
+
+		if (!$query) {
+			$response = [
+				'message'	=> 'not found',
+				'data'		=> [],
+				'status'	=> false,
+			];
+		}else{
+			$response = [
+				'message'	=> 'Success',
+				'data'		=> $query,
+				'status'	=> true,
+			];
+		}
+		$json = json_encode($response);
+		print_r($json);
+    }
+
+	function list_item()
+	{
+		// ASLI
+		$tgl_sj           = $this->input->post('tgl_sj');
+		$id_perusahaan    = $this->input->post('id_perusahaan');
+		
+		$db2 = $this->load->database('database_simroll', TRUE);
+
+		$query = $db2->query("SELECT b.nm_perusahaan,a.id_pl,b.id,a.nm_ker,a.g_label,a.width,COUNT(a.roll) AS qty,SUM(weight) AS weight,b.no_po,b.no_surat,b.no_pkb 
+		FROM m_timbangan a 
+		INNER JOIN pl b ON a.id_pl = b.id 
+		WHERE b.tgl='$tgl_sj' AND b.id_perusahaan='$id_perusahaan'
+		GROUP BY b.no_po,a.nm_ker,a.g_label,a.width 
+		ORDER BY a.g_label,b.no_surat,b.no_po,a.nm_ker DESC,a.g_label,a.width ")->result();
 
 		if (!$query) {
 			$response = [

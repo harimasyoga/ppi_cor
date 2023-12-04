@@ -10,7 +10,7 @@
     border          : none;
     border-width    : 0;
     box-shadow      : none;
-    background      : none;
+    background      : transparent !important;
 
 }
 
