@@ -26,6 +26,7 @@
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row">
+				<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') { ?>
 				<div class="col-md-12">
 					<div class="card">
 						<div class="card-body p-0">
@@ -87,6 +88,7 @@
 						</div>
 					</div>
 				</div>
+				<?php } ?>
 
 				<div class="col-md-12">
 					<div class="card">
@@ -373,6 +375,7 @@
 </div>
 
 <script type="text/javascript">
+	const urlAuth = '<?= $this->session->userdata('level')?>'
 	const urlTglF = '<?= $tgl_flexo?>'
 	const urlShiftF = '<?= $shift?>'
 	const urlMesinF = '<?= $mesin?>'
@@ -576,7 +579,6 @@
 			data: ({ mesin: '', opsi, urlTglF, urlShiftF, urlMesinF }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.opsi != ''){
 					opNoWo = data.plan_cor.no_wo
 					opNoPo = data.plan_cor.kode_po
@@ -636,7 +638,7 @@
 					$("#mesin").html(optMesin).prop("disabled", tms)
 
 					let htmlBtnGantiTgl = '';
-					(data.plan_cor.total_prod_flexo == 0 && data.plan_cor.status_flexo == 'Open') ?
+					(data.plan_cor.total_prod_flexo == 0 && data.plan_cor.status_flexo == 'Open' && (urlAuth == 'Admin' || urlAuth == 'PPIC')) ?
 						htmlBtnGantiTgl = `<div class="card-body row" style="padding:0 20px 5px">
 							<div class="col-md-2"></div>
 							<div class="col-md-10">
@@ -668,17 +670,37 @@
 						txtPlanFlexo = 'UPDATE'
 						onclickSelesaiFlexo = 'disabled'
 					}
-					if(data.plan_cor.status_flexo == 'Open'){
-						$("#btn-aksi-produksi").html(`<div class="card-body row" style="padding:20px 20px 0;font-weight:bold">
-							<div class="col-md-12">
-								<button type="button" class="btn btn-success btn-block" onclick="produksiPlanFlexo(${data.plan_cor.id_flexo})"><i class="fa fa-save"></i> <b>${txtPlanFlexo}</b></button>
-							</div>
-						</div>`)
-						$("#btn-add-plan-flexo").html(`<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-							<div class="col-md-12">
-								<button type="button" class="btn btn-primary btn-block" ${onclickSelesaiFlexo}><i class="fa fa-check"></i> <b>SELESAI FLEXO</b></button>
-							</div>
-						</div>`)
+
+					let onClickDonePlanCor = ''
+					if(data.plan_cor.total_prod_flexo != 0 && data.plan_cor.status_flexo == 'Close' && data.plan_cor.status_flexo_plan == 'Open'){
+						onClickDonePlanCor = `onclick="clickDonePlanCorFlexo(${data.plan_cor.id_plan_cor})"`
+					}else{
+						onClickDonePlanCor = 'disabled'
+					}
+
+					if(urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'Flexo'){
+						if((data.plan_cor.total_prod_flexo == 0 || data.plan_cor.total_prod_flexo != 0) && data.plan_cor.status_flexo == 'Open'){
+							$("#btn-aksi-produksi").html(`<div class="card-body row" style="padding:20px 20px 0;font-weight:bold">
+								<div class="col-md-12">
+									<button type="button" class="btn btn-success btn-block" onclick="produksiPlanFlexo(${data.plan_cor.id_flexo})"><i class="fa fa-save"></i> <b>${txtPlanFlexo}</b></button>
+								</div>
+							</div>`)
+						}else{
+							$("#btn-aksi-produksi").html('')
+						}
+
+						if(urlAuth == 'Admin' || urlAuth == 'PPIC'){
+							$("#btn-add-plan-flexo").html(`<div class="card-body row" style="padding:0 20px 17px;font-weight:bold">
+								<div class="col-md-6">
+									<button type="button" class="btn btn-primary btn-block" style="margin-bottom:3px" ${onclickSelesaiFlexo}><i class="fa fa-check"></i> <b>SELESAI FLEXO</b></button>
+								</div>
+								<div class="col-md-6">
+									<button type="button" class="btn btn-dark btn-block" style="margin-bottom:3px" ${onClickDonePlanCor}><i class="fa fa-check"></i> <b>SELESAI PLAN COR</b></button>
+								</div>
+							</div>`)
+						}else{
+							$("#btn-add-plan-flexo").html(``)
+						}
 					}else{
 						$("#btn-aksi-produksi").html(``)
 						$("#btn-add-plan-flexo").html(``)
@@ -721,12 +743,17 @@
 					$("#start_flexo").val("")
 					$("#end_flexo").val("")
 
-					$("#btn-aksi-produksi").html('')
-					$("#btn-add-plan-flexo").html(`<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-						<div class="col-md-12">
-							<button type="button" class="btn btn-success btn-block" onclick="addRencanaFlexo('add')"><i class="fa fa-plus"></i> <b>ADD FLEXO</b></button>
-						</div>
-					</div>`)
+					if(urlAuth == 'Admin' || urlAuth == 'PPIC'){
+						$("#btn-aksi-produksi").html('')
+						$("#btn-add-plan-flexo").html(`<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+							<div class="col-md-12">
+								<button type="button" class="btn btn-success btn-block" onclick="addRencanaFlexo('add')"><i class="fa fa-plus"></i> <b>ADD FLEXO</b></button>
+							</div>
+						</div>`)
+					}else{
+						$("#btn-aksi-produksi").html('')
+						$("#btn-add-plan-flexo").html('')
+					}
 					
 					inputDtProd = ''
 					riwayatFlexo(0)
@@ -830,10 +857,37 @@
 					}
 				}else{
 					if(data.data){
-						loadDataPlanFlexo(urlTglF, urlShiftF, urlMesinF)
+						plhPlanCor(opsi)
 					}else{
 						swal(data.isi, "", "error")
 					}
+				}
+			}
+		})
+	}
+
+	function clickDonePlanCorFlexo(id_plan_cor)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/clickDonePlanCorFlexo')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_plan_cor }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data){
+					loadDataPlanFlexo(urlTglF, urlShiftF, urlMesinF)
+				}else{
+					toastr.error("Ada Kesalahan");
 				}
 			}
 		})
@@ -922,6 +976,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadListPlanFlexo')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				tglF, shiftF, mesinF, opsi, hidplan
 			}),
@@ -976,6 +1040,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/produksiPlanFlexo')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id_flexo, good_cor, good_flexo, bad_flexo, bad_b_flexo, total_flexo, ket_flexo, tgl_flexo, start_flexo, end_flexo
 			}),
@@ -999,6 +1073,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/btnGantiTglFlexo')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				tgl, shift, mesin, id_flexo
 			}),
@@ -1016,6 +1100,7 @@
 
 	function onChangeNourutFlexo(i)
 	{
+		$("#card-produksi").hide("")
 		$("#ehid_flexo").val("")
 		let no_urut = $("#lp-nourut-"+i).val();
 		(no_urut < 0 || no_urut == "") ? no_urut = 0 : no_urut = no_urut;
@@ -1171,6 +1256,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/simpanDowntime')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id_plan: '', id_flexo, id_dt, durasi, ket
 			}),
@@ -1191,6 +1286,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/hapusDowntimePlan')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id_dt, id_plan: '', id_flexo
 			}),
@@ -1208,6 +1313,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/changeEditDt')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id_plan: '', id_flexo: i, ket, durasi
 			}),
