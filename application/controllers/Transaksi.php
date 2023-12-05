@@ -563,16 +563,23 @@ class Transaksi extends CI_Controller
 
 						}
 
-						if($this->m_fungsi->tanggal_ind($time)<'13-11-2023')
+						if($time<date('2023-11-13'))
 						{
+							
 							// 1 itu aktif 0 itu non aktif / po lama
 							if($r->aktif=='1')
 							{
 								$aksi .=  '
-								<a target="_blank" class="btn btn-sm btn-warning" href="' . base_url("Transaksi/Verifikasi_all?id_po=" . $r->id . "") . '" title="NON AKTIF" ><i class="fas fa-power-off"></i> </a>';
+								<button type="button" title="NON AKTIF"  onclick="nonaktif(0,' . "'" . $r->id . "'" . ',' . "'" . $r->no_po . "'" . ',' . "'" . $this->m_fungsi->tanggal_ind($time) . "'" . ')" class="btn btn-sm btn-warning">
+									<i class="fas fa-power-off"></i>
+								</button> 
+								';
 							}else{
 								$aksi .=  '
-								<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Verifikasi_all?id_po=" . $r->id . "") . '" title="AKTIF KAN" ><i class="fas fa-power-off"></i> </a>';
+								<button type="button" title="AKTIF"  onclick="nonaktif(1,'. "'" . $r->id . "'" . ',' . "'" . $r->no_po . "'" . ',' . "'" . $this->m_fungsi->tanggal_ind($time) . "'" . ')" class="btn btn-sm btn-primary">
+									<i class="fas fa-power-off"></i>
+								</button> 
+								';
 							}
 
 						}
@@ -749,7 +756,9 @@ class Transaksi extends CI_Controller
 	{
 		$id  = $_GET['no_po'];
 
-		$result = $this->m_transaksi->$jenis();
+		if ($this->session->userdata('level') == "Admin") {
+			
+		}
 
 
 		echo json_encode($result);
