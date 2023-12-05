@@ -1024,6 +1024,75 @@
 
 
 	}
+	
+	function nonaktif(ket,id,no,time) 
+	{
+		if(ket==0)
+		{
+			var kett ='NON AKTIFKAN';
+		}else{
+			var kett ='AKTIFKAN';
+		}
+		swal({
+			title: "PO",
+			html: "<p> Apakah Anda yakin ingin "+kett+" PO ini ?</p><br>"
+			+"<strong>" +no+ " </strong> <br>"
+			+"<strong>" +time+ " </strong> ",
+			type               : "question",
+			showCancelButton   : true,
+			confirmButtonText  : '<b>'+kett+'</b>',
+			cancelButtonText   : '<b>Batal</b>',
+			confirmButtonClass : 'btn btn-success',
+			cancelButtonClass  : 'btn btn-danger',
+			cancelButtonColor  : '#d33'
+		}).then(() => {
+
+		// if (cek) {
+			$.ajax({
+				url: '<?= base_url(); ?>Transaksi/Verifikasi_all',
+				data: ({
+					id: id,
+					jenis: 'trs_po',
+					field: 'no_po'
+				}),
+				type: "POST",
+				beforeSend: function() {
+					swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+					})
+				},
+				success: function(data) {
+					// toastr.success('Data Berhasil Di Hapus');
+					swal({
+						title               : "Data",
+						html                : "Data Berhasil Di Hapus",
+						type                : "success",
+						confirmButtonText   : "OK"
+					});
+					reloadTable();
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					// toastr.error('Terjadi Kesalahan');
+					swal({
+						title               : "Cek Kembali",
+						html                : "Terjadi Kesalahan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
+				}
+			});
+		// }
+
+		});
+
+
+	}
 
 	function data_sementara(data,status,tgl,alasan,nopo){
 		$("#modalket").modal("show");
