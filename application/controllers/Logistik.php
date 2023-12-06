@@ -67,23 +67,14 @@ class Logistik extends CI_Controller
             print_r($json);
     }
 
-	function load_produk_1()
+	function load_no_inv()
     {
         
-		$pl = $this->input->post('idp');
-		$kd = $this->input->post('kd');
-
-        if($pl !='' && $kd ==''){
-            $cek ="where no_customer = '$pl' ";
-        }else if($pl =='' && $kd !=''){
-            $cek ="where id_produk = '$kd' ";
-        }else {
-            $cek ="";
-        }
-
-        $query = $this->db->query("SELECT * FROM m_produk $cek order by id_produk ")->row();
-
-        echo json_encode($query);
+		$type   = $this->input->post('type');
+		($type=='roll')? $type_ok=$type : $type_ok='SHEET_BOX';
+		
+		$type   = $this->m_fungsi->tampil_no_urut($type_ok);
+        echo json_encode($type);
     }
 
 	function load_data()
@@ -209,14 +200,31 @@ class Logistik extends CI_Controller
 		print_r($json);
     }
 
-	function Insert()
+	function Insert_inv()
 	{
 
-		$jenis    = $this->input->post('jenis');
-		$status   = $this->input->post('status');
+		if($this->session->userdata('username'))
+		{
+			$c_type_po   = $this->input->post('type_po');
+			$asc         = $this->m_logistik->save_invoice();
+	
+			if($asc){
+	
+				($c_type_po=='roll')? $type_ok=$c_type_po : $type_ok='SHEET_BOX';
+				
+				$no_urut   = $this->m_fungsi->tampil_no_urut($type_ok);
+				$this->db->query("UPDATE m_urut set no_urut=$no_urut+1 where kode='$type_ok' ");
+	
+				echo json_encode(array("status" =>"1","nomor" => $asc));
+	
+			}else{
+				echo json_encode(array("status" => "2","nomor" => $asc));
+	
+			}
+		}
 
-		$result   = $this->m_logistik->$jenis($jenis, $status);
-		echo json_encode($result);
+		
+		
 	}
 	
 	function get_edit()

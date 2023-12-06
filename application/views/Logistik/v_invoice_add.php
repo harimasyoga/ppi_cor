@@ -35,7 +35,9 @@
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 								<div class="col-md-2">Type</div>
 								<div class="col-md-10">
-									<select name="type_po" id="type_po" class="form-control select2" style="width: 100%" onchange="noinv()">
+									<input type="hidden" name="jenis" id="jenis" value="invoice">
+									<input type="hidden" class="form-control" value="Add" name="status" id="status">
+									<select name="type_po" id="type_po" class="form-control select2" style="width: 100%" onchange="noinv(),no_inv2()">
 										<option value="">-- PILIH --</option>
 										<option value="roll">Roll</option>
 										<option value="sheet">Sheet</option>
@@ -58,7 +60,7 @@
 								<div class="col-md-6"> </div>
 							</div>
 							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-								<div class="col-md-2">Surat Jalan</div>
+								<div class="col-md-2">Customer</div>
 								<div class="col-md-10">
 									<select class="form-control select2" id="no_surat" style="width: 100%" autocomplete="off" onchange="load_cs()">
 									</select>
@@ -81,13 +83,13 @@
 								<div class="col-md-1">
 									<input style="height: calc(2.25rem + 2px);font-size: 1rem;" type="text" id="no_inv_kd" name="no_inv_kd" class="input-border-none" autocomplete="off"  readonly>
 								</div>
-								<div class="col-md-3">
-									<input type="text" id="no_inv" name="no_inv" class="form-control" autocomplete="off" placeholder="Otomatis" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " readonly>
+								<div class="col-md-1">
+									<input style="height: calc(2.25rem + 2px);font-size: 1rem;"  type="text" id="no_inv" name="no_inv" class="input-border-none" autocomplete="off" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " readonly>
 								</div>
 								<div class="col-md-3">
-									<input type="text" id="no_inv_tgl" name="no_inv_tgl" class="form-control input-border-none" autocomplete="off" readonly>
+									<input style="height: calc(2.25rem + 2px);font-size: 1rem;"  type="text" id="no_inv_tgl" name="no_inv_tgl" class="input-border-none" autocomplete="off" readonly>
 								</div>
-								<div class="col-md-3">
+								<div class="col-md-5">
 									&nbsp;
 								</div>
 							</div>
@@ -101,14 +103,16 @@
 							</div>
 
 							<hr>
-							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">
-								<div class="col-md-12">Dikirim Ke</div>
+							<div class="card-body row" style="padding:0 20px;font-weight:bold">
+								<div class="col-md-12" style="font-family:Cambria;color:#4e73df;font-size:25px"><b>DIKIRIM KE</b></div>
 							</div>
 							<hr>
 
 							<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 								<div class="col-md-2">Kepada</div>
 								<div class="col-md-10">
+									<input type="hidden" id="id_perusahaan" name="id_perusahaan" >
+
 									<input type="text" id="kpd" name="kpd" class="form-control" autocomplete="off" placeholder="Kepada" >
 								</div>
 							</div>
@@ -142,7 +146,7 @@
 									
 									<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan</b></button>
 
-									<button type="button" class="btn btn-danger" id="btn-print" onclick="Cetak()" ><i class="fas fa-print"></i> <b>Print</b></button>
+									<!-- <button type="button" class="btn btn-danger" id="btn-print" onclick="Cetak()" ><i class="fas fa-print"></i> <b>Print</b></button> -->
 								</div>
 							</div>
 							<br>
@@ -300,12 +304,12 @@
 		}
 
 		$.ajax({
-			url        : '<?= base_url(); ?>Logistik/insert',
+			url        : '<?= base_url(); ?>Logistik/Insert_inv',
 			type       : "POST",
 			data       : $('#myForm').serialize(),
 			dataType   : "JSON",
 			success: function(data) {
-				if (data) {
+				if(data.status=='1'){
 					// toastr.success('Berhasil Disimpan');
 					swal.close();
 					swal({
@@ -634,8 +638,10 @@
 	function load_cs()
 	{
 		var kpd                 = $('#no_surat option:selected').attr('data-nm');
+		var id_perusahaan       = $('#no_surat option:selected').attr('data-id_perusahaan');
 		var nm_perusahaan       = $('#no_surat option:selected').attr('data-nm_perusahaan');
 		var alamat_perusahaan   = $('#no_surat option:selected').attr('data-alamat_perusahaan');
+		$("#id_perusahaan").val(id_perusahaan)
 		$("#kpd").val(kpd)
 		$("#nm_perusahaan").val(nm_perusahaan)
 		$("#alamat_perusahaan").val(alamat_perusahaan)
@@ -670,7 +676,7 @@
 				if(data.message == "Success"){					
 					
 					var list = `
-					<table id="datatable_input" class="table table-hover table- table-bordered table-condensed table-scrollable">
+					<table id="datatable_input" class="table ">
 					<thead class="color-tabel">
 							<th style="text-align: center" >No</th>
 							<th style="text-align: center" >NO SJ</th>
@@ -688,19 +694,49 @@
 					$.each(data.data, function(index, val) {
 						list += `
 						<tbody>
-							<td id="no_urut${no}" style="text-align: center" >${no}</td>
-							<td id="no_surat${no}" style="text-align: center" >${val.no_surat}</td>
-							<td id="no_po${no}" style="text-align: center" >${val.no_po}</td>
-							<td id="g_label${no}" style="text-align: center" >${val.g_label}</td>
-							<td id="width${no}" style="text-align: center" >${val.width}</td>
+							<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
+								<input type="hidden" name="nm_ker[${no}]" id="nm_ker${no}" value="${val.nm_ker}">
+								</td>
+
+							<td style="text-align: center" >${val.no_surat}
+								<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
+							</td>
+
+							<td style="text-align: center" >${val.no_po}
+								<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${val.no_po}">
+							</td>
+
+							<td style="text-align: center" >${val.g_label}
+								<input type="hidden" id="g_label${no}" name="g_label[${no}]" value="${val.g_label}">
+							</td>
+
+							<td style="text-align: center" >${val.width}
+								<input type="hidden" id="width${no}" name="width[${no}]" value="${val.width}">
+							</td>
+
 							<td style="text-align: center" >
-								<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)"></td>
-							<td id="qty${no}" style="text-align: center" >${val.qty}</td>
-							<td id="weight${no}" style="text-align: center" >${format_angka(val.weight)}</td>
+								<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)">
+							</td>
+
+							<td style="text-align: center" >${val.qty}
+								<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
+							</td>
+
+							<td style="text-align: center" >${format_angka(val.weight)}
+								<input type="hidden" id="weight${no}" name="weight[${no}]"  value="${val.weight}">
+							</td>
+
 							<td style="text-align: center" >
-								<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)"> </td></td>
-							<td id="hasil${no}"  style="text-align: center" >${format_angka(val.weight)}</td>
-							<td style="text-align: center" ><input type="checkbox" name="aksi[${no}]" id="aksi${no}" class="form-control" ></td>
+								<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})"> </td>
+							</td>
+
+							<td style="text-align: center" >
+								<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.weight)}" readonly>
+							</td>
+
+							<td style="text-align: center" >
+								<input type="checkbox" name="aksi[${no}]" id="aksi${no}" class="form-control" value="0" onchange="cek(this.value,this.id)">
+							</td>
 						</tbody>`;
 						no ++;
 					})
@@ -750,6 +786,33 @@
 		if(tgl_inv)
 		{
 			$('#no_inv_tgl').val('/'+month+'/'+year);
+		}
+		
+	}
+	
+	function no_inv2()
+	{
+		var type    = $('#type_po').val()
+
+		$.ajax({
+				type        : 'POST',
+				url         : "<?= base_url(); ?>Logistik/load_no_inv",
+				data        : { type },
+				dataType    : 'json',
+				success:function(val){			
+						
+						var qty_po = $("#no_inv").val(val)
+					
+				}
+			});
+	}
+
+	function cek(vall,id)
+	{
+		if (vall == 0) {
+			$('#'+id).val(1);
+		} else {
+			$('#'+id).val(0);
 		}
 	}
 
@@ -852,6 +915,15 @@
 			// $('#price_exc_rp'+id2).val(format_angka(exc));
 			// $('#price_inc_rp'+id2).val(format_angka(val));
 		}
+	}
+
+	function hitung_hasil(val,id)
+	{
+		var berat   = $('#weight'+id).val()
+		var seset   = val.split('.').join('')
+		var hasil   = berat - seset
+		$('#hasil'+id).val(format_angka(hasil));
+
 	}
 	
 	function Cetak() 
