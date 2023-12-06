@@ -3100,14 +3100,39 @@ class Plan extends CI_Controller
 	function Finishing()
 	{
 		$data_header = array(
-			'judul' => "Plan Flexo",
+			'judul' => "Plan Finishing",
 		);
-		$this->load->view('header',$data_header);
-		$this->load->view('Plan/Finishing/v_finishing');
+
+		$this->load->view('header', $data_header);
+
+		$jenis = $this->uri->segment(3);
+		if($jenis == 'Add'){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+				$this->load->view('Plan/Finishing/v_finishing_add');
+			}else{
+				$this->load->view('home');
+			}
+		}else if($jenis == 'List'){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Finishing'])){
+				$data = array(
+					"tgl_Finishing" => $this->uri->segment(4),
+					"shift" => $this->uri->segment(5),
+					"mesin" => $this->uri->segment(6),
+				);
+				$this->load->view('Plan/Finishing/v_finishing_plan', $data);
+			}else{
+				$this->load->view('home');
+			}
+		}else{
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Finishing'])){
+				$this->load->view('Plan/Finishing/v_finishing');
+			}else{
+				$this->load->view('home');
+			}
+		}
+
 		$this->load->view('footer');
 	}
-
-	//
 
 	function Cetak_plan2()
 	{
