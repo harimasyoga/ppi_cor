@@ -247,6 +247,13 @@ class M_fungsi extends CI_Model {
 		$nomor_urut = str_pad($query->no_urut, 4, "0", STR_PAD_LEFT);
 		return $nomor_urut;
 	}
+	
+	function tampil_no_urut($kode)
+	{
+		$query = $this->db->query("SELECT * from m_urut where kode='$kode' ")->row();
+		$nomor_urut = str_pad($query->no_urut, 4, "0", STR_PAD_LEFT);
+		return $nomor_urut;
+	}
 
     function  periode_indonesia($tgl)
 	{

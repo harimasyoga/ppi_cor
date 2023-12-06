@@ -221,9 +221,18 @@ class Master extends CI_Controller
 			$query = $this->m_master->query("SELECT c.nm_pelanggan,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan ORDER BY nm_produk")->result();
 			$i = 1;
 			foreach ($query as $r) {
+				
+				if( $r->kategori =='K_SHEET' )
+				{
+					$kategori='SHEET';
+				}else{
+					$kategori='BOX';
+				}
+
 				$row = array();
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_produk."'".','."'detail'".')">'.$i."<a></div>";
 				$row[] = $r->nm_pelanggan;
+				$row[] = $kategori;
 				$row[] = $r->nm_produk;
 				$row[] = $r->kode_mc;
 				$row[] = $r->flute;
@@ -247,10 +256,20 @@ class Master extends CI_Controller
 				}
 				$row[] = $kualitas;
 
-				$idProduk = $r->id_produk;
-				$cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE id_produk='$idProduk'")->num_rows();
-				$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_produk."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
-				$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_produk."'".')"><i class="fas fa-times"></i></button>';
+				$idProduk = $r->id_produk; 
+				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				{
+					$cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE id_produk='$idProduk'")->num_rows();
+
+					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_produk."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
+
+					$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_produk."'".')"><i class="fas fa-times"></i></button>';
+				}else{
+					$cekPO       = '';
+					$btnEdit     = '';
+					$btnHapus    = '';
+				}
+
 				($cekPO == 0) ? $btnAksi = $btnEdit.' '.$btnHapus : $btnAksi = $btnEdit;
 				$row[] = '<div class="text-center">'.$btnAksi.'</div>';
 				$data[] = $row;

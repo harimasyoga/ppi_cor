@@ -29,19 +29,23 @@
 				</div>
 			</div>
 			<div class="card-body">
+				<?php if (in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
 				<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
-				<!-- <button type="button" class="btn-cetak btn  btn-outline-success pull-right" onclick="cetak(1)">Export Excel</button> -->
 				<br><br>
+				<?php } ?>
+				<!-- <button type="button" class="btn-cetak btn  btn-outline-success pull-right" onclick="cetak(1)">Export Excel</button> -->
+				
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead>
 						<tr>
-							<th style="width:5%">NO.</th>
-							<th style="width:20%">CUSTOMER</th>
-							<th style="width:25%">ITEM</th>
-							<th style="width:25%">KODE MC</th>
-							<th style="width:5%">FLUTE</th>
-							<th style="width:10%">KUALITAS</th>
-							<th style="width:10%">AKSI</th>
+							<th style="text-align: center;width:5%">NO.</th>
+							<th style="text-align: center;width:20%">CUSTOMER</th>
+							<th style="text-align: center;width:25%">TYPE</th>
+							<th style="text-align: center;width:25%">ITEM</th>
+							<th style="text-align: center;width:25%">KODE MC</th>
+							<th style="text-align: center;width:5%">FLUTE</th>
+							<th style="text-align: center;width:10%">KUALITAS</th>
+							<th style="text-align: center;width:10%">AKSI</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -234,12 +238,12 @@
 							</td>
 						</tr>
 						<tr>
-							<td style="padding:5px 0;font-weight:bold">BERAT BERSIH</td>
+							<td style="padding:5px 0;font-weight:bold">BERAT BOX</td>
 							<td style="padding:5px 0">
 								<input type="hidden" id="h_berat_bersih">
 								<input type="text" class="form-control" id="berat_bersih" placeholder="-" disabled>
 							</td>
-							<td style="padding:5px 0 5px 5px;font-weight:bold">LUAS BERSIH</td>
+							<td style="padding:5px 0 5px 5px;font-weight:bold">LUAS BOX</td>
 							<td style="padding:5px 0">
 								<input type="hidden" id="h_luas_bersih">
 								<input type="text" class="form-control" id="luas_bersih" placeholder="-" disabled>
