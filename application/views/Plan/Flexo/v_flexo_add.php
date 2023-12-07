@@ -551,11 +551,13 @@
 		if(opSambungan == 'G'){
 			optSambungan = `<option value="GLUE">GLUE</option>`
 		}else if(opSambungan == 'S'){
-			optSambungan = `<option value="STICHING">STICHING</option>`
+			optSambungan = `<option value="STITCHING">STITCHING</option>`
 		}else if(opSambungan == 'GS'){
-			optSambungan = `<option value="GLUESTICHING">GLUE STICHING</option>`
+			optSambungan = `<option value="GLUESTITCHING">GLUE STITCHING</option>`
 		}else if(opSambungan == 'DS'){
-			optSambungan = `<option value="DOUBLESTICHING">DOUBLE STICHING</option>`
+			optSambungan = `<option value="DOUBLESTITCHING">DOUBLE STITCHING</option>`
+		}else if(opSambungan == 'D'){
+			optSambungan = `<option value="DIECUT">DIECUT</option>`
 		}else{
 			optSambungan = `<option value="">PILIH</option>`
 		}
@@ -651,6 +653,7 @@
 		let tgl = $("#tgl").val()
 		let shift = $("#shift").val()
 		let mesin = $("#mesin").val()
+		$("#simpan-cart-fx").prop("disabled", true)
 		$.ajax({
 			url: '<?php echo base_url('Plan/simpanCartFlexo')?>',
 			type: "POST",

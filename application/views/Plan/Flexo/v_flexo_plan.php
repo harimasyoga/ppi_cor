@@ -136,7 +136,7 @@
 								<h3 class="card-title" style="font-weight:bold;font-style:italic">HASIL PRODUKSI FLEXO</h3>
 							</div>
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">GOOD COR.</div>
+								<div class="col-md-2">HASIL COR.</div>
 								<div class="col-md-10">
 									<input type="number" id="good_cor" style="font-weight:bold" class="form-control" disabled>
 								</div>
@@ -794,11 +794,13 @@
 				if(opSambungan == 'G'){
 					optSambungan = `<option value="GLUE">GLUE</option><option value="GUDANG">GUDANG</option>`
 				}else if(opSambungan == 'S'){
-					optSambungan = `<option value="STICHING">STICHING</option><option value="GUDANG">GUDANG</option>`
+					optSambungan = `<option value="STITCHING">STITCHING</option>`
 				}else if(opSambungan == 'GS'){
-					optSambungan = `<option value="GLUESTICHING">GLUE STICHING</option><option value="GUDANG">GUDANG</option>`
+					optSambungan = `<option value="GLUESTITCHING">GLUE STITCHING</option>`
 				}else if(opSambungan == 'DS'){
-					optSambungan = `<option value="DOUBLESTICHING">DOUBLE STICHING</option><option value="GUDANG">GUDANG</option>`
+					optSambungan = `<option value="DOUBLESTITCHING">DOUBLE STITCHING</option>`
+				}else if(opSambungan == 'D'){
+					optSambungan = `<option value="DIECUT">DIECUT</option>`
 				}else{
 					optSambungan = `<option value="">PILIH</option>`
 				}
@@ -884,10 +886,10 @@
 			data: ({ id_plan_cor }),
 			success: function(res){
 				data = JSON.parse(res)
-				if(data){
+				if(data.data){
 					loadDataPlanFlexo(urlTglF, urlShiftF, urlMesinF)
 				}else{
-					toastr.error("Ada Kesalahan");
+					swal(data.msg, "", "error")
 				}
 			}
 		})
@@ -944,6 +946,7 @@
 		let tgl = $("#tgl").val()
 		let shift = $("#shift").val()
 		let mesin = $("#mesin").val()
+		$("#simpan-cart-fx").prop("disabled", true)
 		$.ajax({
 			url: '<?php echo base_url('Plan/simpanCartFlexo')?>',
 			type: "POST",
@@ -995,6 +998,23 @@
 					$("#list-plan-flexo").html(res)
 				}else{
 					$("#tampil-all-fflexo-isi-"+tf.split('-').join('')+sf+mf).html(res);
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function editPlanFlexo(id_flexo)
+	{
+		let editNextFlexo = $("#edit-nextflexo-"+id_flexo).val()
+		$.ajax({
+			url: '<?php echo base_url('Plan/editPlanFlexo')?>',
+			type: "POST",
+			data: ({ id_flexo, editNextFlexo }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					loadDataPlanFlexo(urlTglF, urlShiftF, urlMesinF)
 				}
 			}
 		})
@@ -1056,7 +1076,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
-					loadPlanCor('')
+					loadPlanCor('not')
 					plhPlanCor(id_flexo)
 				}else{
 					swal(data.msg, "", "error");

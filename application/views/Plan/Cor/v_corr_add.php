@@ -842,6 +842,7 @@
 		let tgl_plan = $("#tgl").val()
 		let machine_plan = $("#mesin").val()
 		let shift_plan = $("#shift").val()
+		$("#simpan-cart-cor").prop("disabled", true)
 		$.ajax({
 			url: '<?php echo base_url('Plan/simpanCartItem')?>',
 			type: "POST",

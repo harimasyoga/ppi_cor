@@ -271,9 +271,29 @@ class M_plan extends CI_Model
 
 	function selesaiPlanWO()
 	{
-		$this->db->set('status', 'Close');
-		$this->db->where('id', $_POST["id_wo"]);
-		return $this->db->update('trs_wo');
+		$id_wo = $_POST["id_wo"];
+		$cekWo = $this->db->query("SELECT*FROM plan_cor WHERE id_wo='$id_wo'");
+		$i = 0;
+		foreach($cekWo->result() as $r){
+			if($r->status_plan == 'Open'){
+				$i++;
+				$data = false;
+				$msg = 'PLAN COR LEBIH DARI SATU MASIH OPEN! CEK KEMBALI!'; 
+			}
+		}
+
+		if($i == 0){
+			$this->db->set('status', 'Close');
+			$this->db->where('id', $_POST["id_wo"]);
+			$data = $this->db->update('trs_wo');
+			$msg = 'OK!';
+		}
+
+		return [
+			'i' => $i,
+			'data' => $data,
+			'msg' => $msg,
+		];
 	}
 
 	function riwayatPlan()
@@ -538,6 +558,15 @@ class M_plan extends CI_Model
 		return $query;
 	}
 
+	function editPlanFlexo()
+	{
+		$this->db->set('next_flexo', $_POST["editNextFlexo"]);
+		$this->db->set('edit_time', date("Y-m-d H:i:s"));
+		$this->db->set('edit_user', $this->session->userdata('username'));
+		$this->db->where('id_flexo', $_POST["id_flexo"]);
+		return $this->db->update('plan_flexo');
+	}
+
 	function hapusPlanFlexo()
 	{
 		$this->db->where('id_flexo', $_POST["id_flexo"]);
@@ -731,9 +760,83 @@ class M_plan extends CI_Model
 
 	function clickDonePlanCorFlexo()
 	{
-		// $id_plan_cor = $_POST["id_plan_cor"];
-		$this->db->set('status_flexo_plan', 'Close');
-		$this->db->where('id_plan', $_POST["id_plan_cor"]);
-		return $this->db->update('plan_cor');
+		$id_plan_cor = $_POST["id_plan_cor"];
+		$cekPlanCor = $this->db->query("SELECT w.status AS status_wo,p.* FROM plan_cor p INNER JOIN trs_wo w ON p.id_wo=w.id WHERE p.id_plan='$id_plan_cor'")->row();
+		if($cekPlanCor->status_wo == 'Open'){
+			$i = 1;
+			$data = false;
+			$msg = 'WO BELUM CLOSE!';
+		}else{
+			$cekPlanFlexo = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$id_plan_cor'");
+			$i = 0;
+			foreach($cekPlanFlexo->result() as $r){
+				if($r->status_flexo == 'Open'){
+					$i++;
+					$data = false;
+					$msg = 'PLAN FLEXO LEBIH DARI SATU MASIH OPEN! CEK KEMBALI!';
+				}
+			}
+			if($i == 0){
+				$this->db->set('status_flexo_plan', 'Close');
+				$this->db->where('id_plan', $_POST["id_plan_cor"]);
+				$data = $this->db->update('plan_cor');
+				$msg = 'OK!';
+			}
+		}
+
+		return [
+			'i' => $i,
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	//
+
+	function loadPlanFlexo()
+	{
+		$joint = $_POST["joint"];
+		$opsi = $_POST["opsi"];
+		// if($opsi != ''){
+		// 	$query = $this->db->query("")->row();
+		// }else{
+		// 	$tgl = $_POST["urlTglF"];
+		// 	$shift = $_POST["urlShiftF"];
+		// 	$uMesin = $_POST["urlMesinF"];
+		// 	($tgl != '' || $shift != '' || $uMesin != '') ? $whereNotExists = "AND NOT EXISTS (SELECT*FROM plan_flexo f WHERE f.id_plan_cor=p.id_plan AND f.tgl_flexo='$tgl' AND f.shift_flexo='$shift' AND f.mesin_flexo='$uMesin')" : $whereNotExists = '' ;
+		// 	$query = $this->db->query("SELECT*FROM plan_flexo
+		// 	WHERE status_stt_f='Open' AND next_flexo LIKE '%$joint%'")->result();
+		// }
+		$query = $this->db->query("SELECT f.*,c.*,i.*,p.nm_pelanggan,s.qty_so,s.kode_po FROM plan_flexo f
+		INNER JOIN plan_cor c ON f.id_plan_cor=c.id_plan
+		INNER JOIN m_produk i ON c.id_produk=i.id_produk
+		INNER JOIN m_pelanggan p ON c.id_pelanggan=p.id_pelanggan
+		INNER JOIN trs_so_detail s ON c.id_so_detail=s.id
+		WHERE f.status_stt_f='Open' AND f.next_flexo LIKE '%$joint%'")->result();
+
+		return $query;
+	}
+
+	function simpanCartFinishing()
+	{
+		foreach($this->cart->contents() as $r){
+			$data = array(
+				'id_plan_cor' => $r["options"]["id_plan_cor"],
+				'id_plan_flexo' => $r["id"],
+				'tgl_fs' => $r["options"]["tgl"],
+				'shift_fs' => $r["options"]["shift"],
+				'joint_fs' => $r["options"]["joint"],
+				'good_fs_p' => 0,
+				'bad_fs_p' => 0,
+				'bad_bahan_fs_p' => 0,
+				'total_prod_fs' => 0,
+				'add_user' => $this->session->userdata('username'),
+			);
+			$insertPlanFinishing = $this->db->insert('plan_finishing', $data);
+		}
+
+		return array(
+			'insertPlanFinishing' => $insertPlanFinishing,
+		);
 	}
 }
