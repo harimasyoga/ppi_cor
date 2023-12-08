@@ -758,7 +758,7 @@
 				if(data.message == "Success"){						
 					option = "<option>--- Pilih ---</option>";
 					$.each(data.data, function(index, val) {
-					option += `<option value="${val.id_perusahaan}" data-nm="${val.nama}" data-nm_perusahaan="${val.nm_perusahaan}" data-id_perusahaan="${val.id_perusahaan}" data-alamat_perusahaan="${val.alamat_perusahaan}">[ "${val.tgll}" ] - [ "${val.nm_perusahaan}" ]</option>`;
+					option += `<option value="${val.id_perusahaan}" data-nm="${val.nama}" data-nm_perusahaan="${val.nm_perusahaan}" data-id_perusahaan="${val.id_perusahaan}" data-alamat_perusahaan="${val.alamat_perusahaan}">[ "${val.tgll}" ] - [ "${val.nama}" ] - [ "${val.nm_perusahaan}" ]</option>`;
 					});
 
 					$('#id_pl').html(option);
@@ -831,13 +831,16 @@
 							<th style="text-align: center; padding-right: 30px" >HASIL</th>
 							<th style="text-align: center" >AKSI</th>
 						</thead>`;
-					var no = 1;
+					var no             = 1;
+					var berat_total    = 0;
 					$.each(data.data, function(index, val) {
 						list += `
 						<tbody>
 							<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
 								<input type="hidden" name="nm_ker[${no}]" id="nm_ker${no}" value="${val.nm_ker}">
-								</td>
+
+								<input type="hidden" name="id_pl_roll[${no}]" id="id_pl_roll${no}" value="${val.id_pl}">
+							</td>
 
 							<td style="text-align: center" >${val.no_surat}
 								<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
@@ -887,8 +890,15 @@
 								<input type="checkbox" name="aksi[${no}]" id="aksi${no}" class="form-control" value="0" onchange="cek(this.value,this.id)">
 							</td>
 						</tbody>`;
+						berat_total += parseInt(val.weight);
 						no ++;
 					})
+					list += `<td style="text-align: center" colspan="8">TOTAL
+							</td>
+							<td style="text-align: center" >${format_angka(berat_total)}
+							</td>
+							<td style="text-align: center" colspan="3">&nbsp;
+							</td>`;
 					list += `</table>`;
 					$("#datatable_input").html(list);
 					swal.close();

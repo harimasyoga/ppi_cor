@@ -134,7 +134,8 @@ class Logistik extends CI_Controller
 				$row[] = $r->nm_perusahaan;
 				$aksi = "";
 
-				if ($this->session->userdata('level') == "Admin") {
+				if (in_array($this->session->userdata('level'), ['Admin','Keuangan1']))
+				{
 					if ($r->status == "Open") {
 						$aksi = '
 							<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&no_inv=" .$r->no_invoice ."") . '" title="EDIT DATA" >
@@ -214,7 +215,7 @@ class Logistik extends CI_Controller
 		
 		$db2 = $this->load->database('database_simroll', TRUE);
 
-		$query = $db2->query("SELECT b.nm_perusahaan,a.id_pl,b.id,a.nm_ker,a.g_label,a.width,COUNT(a.roll) AS qty,SUM(weight) AS weight,b.no_po,b.no_surat
+		$query = $db2->query("SELECT b.nm_perusahaan,a.id_pl,b.id,a.nm_ker,a.g_label,a.width,COUNT(a.roll) AS qty,SUM(weight)-SUM(seset) AS weight,b.no_po,b.no_surat
 		FROM m_timbangan a 
 		INNER JOIN pl b ON a.id_pl = b.id 
 		WHERE b.no_pl_inv = '0' AND b.tgl='$tgl_sj' AND b.id_perusahaan='$id_perusahaan'

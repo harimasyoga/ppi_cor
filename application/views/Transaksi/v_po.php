@@ -34,26 +34,27 @@
 					<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info "><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<?php endif ?>
 				<br><br>
-
-				<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
-					<thead>
-						<tr>
-							<th style="text-align: center; width:3%">No</th>
-							<th style="text-align: center; width:15%">No PO</th>
-							<th style="text-align: center; width:20%">Tgl PO</th>
-							<th style="text-align: center; width:5%">Status</th>
-							<th style="text-align: center; width:10%">Kode PO</th>
-							<!-- <th style="text-align: center">Total Qty</th> -->
-							<th style="text-align: center; width:10%">Customer</th>
-							<th style="text-align: center; width:5%">Mkt</th>
-							<th style="text-align: center; width:7%">PPIC</th>
-							<th style="text-align: center; width:5%">Owner</th>
-							<th style="text-align: center; width:20%;">Aksi</th>
-						</tr>
-					</thead>
-					<tbody>
-					</tbody>
-				</table>
+				<div class="col-md-12" style="overflow:auto;white-space:nowrap;" width="100%">	
+					<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
+						<thead>
+							<tr>
+								<th style="text-align: center; width:3%">No</th>
+								<th style="text-align: center; width:15%">No PO</th>
+								<th style="text-align: center; width:20%">Tgl PO</th>
+								<th style="text-align: center; width:5%">Status</th>
+								<th style="text-align: center; width:10%">Kode PO</th>
+								<!-- <th style="text-align: center">Total Qty</th> -->
+								<th style="text-align: center; width:10%">Customer</th>
+								<th style="text-align: center; width:5%">Mkt</th>
+								<th style="text-align: center; width:7%">PPIC</th>
+								<th style="text-align: center; width:5%">Owner</th>
+								<th style="text-align: center; width:20%;">Aksi</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 		<!-- /.card -->
