@@ -14,14 +14,25 @@ class M_logistik extends CI_Model
 
 	function save_invoice()
 	{
-		$c_no_inv_kd    = $this->input->post('no_inv_kd');
-		// $c_no_inv              = $this->input->post('no_inv');
+		$cek_inv        = $this->input->post('cek_inv');
 		$c_no_inv_tgl   = $this->input->post('no_inv_tgl');
 
 		$type           = $this->input->post('type_po');
+		$pajak          = $this->input->post('pajak');
+
 		($type=='roll')? $type_ok=$type : $type_ok='SHEET_BOX';
-		$c_no_inv       = $this->m_fungsi->tampil_no_urut($type_ok);
-		$m_no_inv       = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
+		
+		($pajak=='nonppn')? $pajak_ok='non' : $pajak_ok='ppn';
+		$c_no_inv_kd   = $this->input->post('no_inv_kd');
+
+		if($cek_inv=='revisi')
+		{
+			$c_no_inv    = $this->input->post('no_inv');
+			$m_no_inv    = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
+		}else{
+			$c_no_inv    = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok);
+			$m_no_inv    = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
+		}
 
 		$data_header = array(
 			'no_invoice'         => $m_no_inv,
@@ -53,28 +64,43 @@ class M_logistik extends CI_Model
 		$no = 1;
 		foreach ( $query as $row ) {
 
-			$cek = $this->input->post('aksi'.$no);
+			$cek = $this->input->post('aksi['.$no.']');
 			if($cek == 1)
 			{
+				$harga_ok   = $this->input->post('hrg['.$no.']');
+				$hasil_ok   = $this->input->post('hasil['.$no.']');
+				$id_pl_roll = $this->input->post('id_pl_roll['.$no.']');
 				$data = [					
 					'no_invoice'   => $m_no_inv,
-					'no_surat'     => $this->input->post('no_surat'.$no),
-					'nm_ker'       => $this->input->post('nm_ker'.$no),
-					'g_label'      => $this->input->post('g_label'.$no),
-					'width'        => $this->input->post('width'.$no),
-					'qty'          => $this->input->post('qty'.$no),
-					'weight'       => $this->input->post('weight'.$no),
-					'seset'        => $this->input->post('seset'.$no),
-					'no_po'        => $this->input->post('no_po'.$no),
-
+					'no_surat'     => $this->input->post('no_surat['.$no.']'),
+					'nm_ker'       => $this->input->post('nm_ker['.$no.']'),
+					'g_label'      => $this->input->post('g_label['.$no.']'),
+					'width'        => $this->input->post('width['.$no.']'),
+					'qty'          => $this->input->post('qty['.$no.']'),
+					'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
+					'id_pl'        => $id_pl_roll,
+					'harga'        => str_replace('.','',$harga_ok),
+					'weight'       => $this->input->post('weight['.$no.']'),
+					'seset'        => $this->input->post('seset['.$no.']'),
+					'hasil'        => str_replace('.','',$hasil_ok),
+					'no_po'        => $this->input->post('no_po['.$no.']'),
 				];
 
-				$result_rinci = $this->db->insert("invoice_detail", $data);
+				$update_no_pl   = $db2->query("UPDATE pl set no_pl_inv = 1 where id ='$id_pl_roll'");
+
+				$result_rinci   = $this->db->insert("invoice_detail", $data);
 
 			}
 			$no++;
 		}
-		return $result_rinci;
+
+		if($result_rinci){
+			$query = $this->db->query("SELECT*FROM invoice_header where no_invoice ='$m_no_inv' ")->row();
+			return $query->id;
+		}else{
+			return 0;
+
+		}
 			
 	}
 
