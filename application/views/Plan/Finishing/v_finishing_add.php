@@ -348,10 +348,9 @@
 					}
 				});
 			},
-			data: ({ opsi: '', joint }),
+			data: ({ opsi, joint, urlTglFs: '', urlShiftFs: '', urlJointFs: '' }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				let htmlPlanFlexo = ''
 				let kategori = ''
 					htmlPlanFlexo += `<option value="">PILIH</option>`
@@ -502,7 +501,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					ListInputFinishing()
 					kosong()
@@ -549,7 +547,6 @@
 			type: "POST",
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				window.location.href = '<?php echo base_url('Plan/Finishing/List')?>'+'/'+tgl+'/'+shift+'/'+joint
 			}
 		})

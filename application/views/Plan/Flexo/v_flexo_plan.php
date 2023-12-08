@@ -119,7 +119,7 @@
 				</div>
 
 				<div class="col-md-7">
-					<div id="card-produksi">
+					<div id="card-produksi" style="display:none">
 						<div class="card card-danger card-outline" style="padding-bottom:20px">
 							<div class="card-header">
 								<h3 class="card-title" style="font-weight:bold;font-style:italic">DOWNTIME</h3>
@@ -922,7 +922,12 @@
 					id_flexo
 				}),
 				success: function(res){
-					loadDataPlanFlexo(urlTglF, urlShiftF, urlMesinF)
+					data = JSON.parse(res)
+					if(data.data){
+						loadDataPlanFlexo(urlTglF, urlShiftF, urlMesinF)
+					}else{
+						swal(data.msg, "", "error")
+					}
 				}
 			})
 		});
@@ -1108,7 +1113,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					loadDataPlanFlexo(urlTglF, urlShiftF, urlMesinF)
 				}else{
@@ -1120,7 +1124,7 @@
 
 	function onChangeNourutFlexo(i)
 	{
-		$("#card-produksi").hide("")
+		$("#card-produksi").hide()
 		$("#ehid_flexo").val("")
 		let no_urut = $("#lp-nourut-"+i).val();
 		(no_urut < 0 || no_urut == "") ? no_urut = 0 : no_urut = no_urut;
