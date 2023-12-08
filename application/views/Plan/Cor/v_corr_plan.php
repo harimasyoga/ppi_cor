@@ -1565,7 +1565,11 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				loadData(urlTgl_plan, urlShift, urlMesin)
+				if(data.data){
+					loadData(urlTgl_plan, urlShift, urlMesin)
+				}else{
+					swal(data.msg, "", "error")
+				}
 			}
 		})
 	}
@@ -1575,7 +1579,8 @@
 		let tgl_plan = $("#tgl").val()
 		let machine_plan = $("#mesin").val()
 		let shift_plan = $("#shift").val()
-		let no_plan = $("#ehno_plan").val();
+		let no_plan = $("#ehno_plan").val()
+		$("#simpan-cart-cor").prop("disabled", true)
 		$.ajax({
 			url: '<?php echo base_url('Plan/simpanCartItem')?>',
 			type: "POST",
@@ -1875,10 +1880,10 @@
 
 						(data.wo.statusWo == 'Close') ?
 						btnAksiWo = `<div class="col-md-12">
-							<button type="button" class="btn btn-danger btn-block" disabled><i class="fas fa-check"></i> <b>SELESAI WO</b></button>
+							<button type="button" class="btn btn-dark btn-block" disabled><i class="fas fa-check"></i> <b>SELESAI WO</b></button>
 						</div>` :
 						btnAksiWo = `<div class="col-md-12">
-							<button type="button" class="btn btn-danger btn-block" onclick="selesaiPlanWO(${data.wo.id_plan}, ${data.wo.id_wo})"><i class="fas fa-check"></i> <b>SELESAI WO</b></button>
+							<button type="button" class="btn btn-dark btn-block" onclick="selesaiPlanWO(${data.wo.id_plan}, ${data.wo.id_wo})"><i class="fas fa-check"></i> <b>SELESAI WO</b></button>
 						</div>`;
 
 						produksiRencanaPlan = '';

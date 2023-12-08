@@ -595,7 +595,7 @@ class Plan extends CI_Controller
 		if($this->cart->total_items() != 0){
 			$html .= '</tbody>
 					</table>
-				<button class="btn btn-sm btn-primary" style="margin-left:20px" onclick="simpanCartItem()"><i class="fas fa-save"></i> SIMPAN</button>
+				<button class="btn btn-sm btn-primary" id="simpan-cart-cor" style="margin-left:20px" onclick="simpanCartItem()"><i class="fas fa-save"></i> SIMPAN</button>
 			</div>';
 		}
 
@@ -1432,6 +1432,7 @@ class Plan extends CI_Controller
 						<th style="padding:6px 12px;position:sticky;left:'.$left1.';background:#fff">'.$btnPindahHal.'</th>
 						<th style="padding:6px">STATUS</th>
 						<th style="padding:6px;position:sticky;left:'.$left2.';background:#fff">ITEM</th>
+						<th style="padding:6px">KODE MC</th>
 						<th style="padding:6px">NO.WO</th>
 						<th style="padding:6px">CUSTOMER</th>
 						<th style="padding:6px" colspan="2">TL/AL</th>
@@ -1460,14 +1461,14 @@ class Plan extends CI_Controller
 					</tr>
 				</thead>';
 
-		$data = $this->db->query("SELECT p.*,i.nm_produk,w.kode_po,l.nm_pelanggan,i.kategori,i.flute,w.flap1,w.creasing2,w.flap2,w.status AS statusWo FROM plan_cor p
+		$data = $this->db->query("SELECT p.*,i.nm_produk,i.kode_mc,w.kode_po,l.nm_pelanggan,i.kategori,i.flute,w.flap1,w.creasing2,w.flap2,w.status AS statusWo FROM plan_cor p
 		INNER JOIN m_produk i ON p.id_produk=i.id_produk
 		INNER JOIN trs_wo w ON p.id_wo=w.id
 		INNER JOIN trs_so_detail s ON p.id_so_detail=s.id
 		INNER JOIN m_pelanggan l ON p.id_pelanggan=l.id_pelanggan
 		WHERE p.tgl_plan='$urlTgl_plan' AND p.shift_plan='$urlShift' AND p.machine_plan='$urlMesin'
 		GROUP BY p.id_plan
-		ORDER BY p.no_urut_plan,p.id_plan");
+		ORDER BY p.no_urut_plan,l.nm_pelanggan,p.id_plan");
 
 		foreach($data->result() as $r){
 			$id = $r->id_plan;
@@ -1630,6 +1631,7 @@ class Plan extends CI_Controller
 				</td>
 				<td '.$bgTd.' style="padding:4px 3px 3px;font-weight:normal">'.$btnAksiHapus.'</td>
 				<td '.$bgTd.' style="position:sticky;left:'.$left2.';padding:6px;text-align:left">'.$btnLink.'</td>
+				<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->kode_mc.'</td>
 				<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->no_wo.'</td>
 				<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_pelanggan.'</td>
 				'.$htmlSub.'
@@ -2065,13 +2067,14 @@ class Plan extends CI_Controller
 		$allPlanFlexo = $this->db->query("SELECT f.tgl_flexo,f.shift_flexo,f.mesin_flexo,COUNT(f.id_flexo) AS jml_plan_flexo,
 		(SELECT COUNT(o.id_flexo) FROM plan_flexo o WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS jml_plan_flexo,
 		(SELECT COUNT(o.id_flexo) FROM plan_flexo o WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo AND o.total_prod_flexo!='0' AND o.status_flexo='Open' GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS jml_prod,
-		(SELECT COUNT(o.id_flexo) FROM plan_flexo o WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo AND o.total_prod_flexo!='0' AND o.status_flexo='Close' GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS done_prod
+		(SELECT COUNT(o.id_flexo) FROM plan_flexo o WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo AND o.total_prod_flexo!='0' AND o.status_flexo='Close' GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS done_prod,
+		(SELECT COUNT(o.id_flexo) FROM plan_flexo o INNER JOIN plan_cor c ON o.id_plan_cor=c.id_plan WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo AND o.total_prod_flexo!='0' AND o.status_flexo='Close' AND c.status_flexo_plan='Close' GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS close_plan_cor
 		FROM plan_flexo f
 		WHERE f.status_flexo='Open'
 		GROUP BY f.tgl_flexo,f.shift_flexo,f.mesin_flexo");
 		$html .='<div id="accordion-h-plan-flexo">
 			<div style="padding:6px;font-weight:bold">
-				[SHIFT.MESIN] HARI, TANGGAL <span class="bg-light" style="vertical-align:top;padding:2px 4px;font-size:12px">JML PLAN FLEXO</span><span class="bg-success" style="vertical-align:top;padding:2px 4px;font-size:12px">PRODUKSI</span><span class="bg-primary" style="vertical-align:top;padding:2px 4px;font-size:12px">SELESAI</span>
+				[SHIFT.MESIN] HARI, TANGGAL <span class="bg-light" style="vertical-align:top;padding:2px 4px;font-size:12px">JML PLAN FLEXO</span><span class="bg-success" style="vertical-align:top;padding:2px 4px;font-size:12px">PRODUKSI</span><span class="bg-primary" style="vertical-align:top;padding:2px 4px;font-size:12px">SELESAI</span><span class="bg-dark" style="vertical-align:top;padding:2px 4px;font-size:12px">CLOSE PLAN COR</span>
 			</div>';
 			foreach($allPlanFlexo->result() as $r){
 				if($urlTglF == $r->tgl_flexo && $urlShiftF == $r->shift_flexo && $urlMesinF == $r->mesin_flexo){
@@ -2083,11 +2086,12 @@ class Plan extends CI_Controller
 					$jml_plan = '<span class="bg-light" style="vertical-align:top;padding:2px 4px;font-size:12px">'.$r->jml_plan_flexo.'</span>';
 					($r->jml_prod == null) ? $jml_prod = '' : $jml_prod = '<span class="bg-success" style="vertical-align:top;padding:2px 4px;font-size:12px">'.$r->jml_prod.'</span>';
 					($r->done_prod == null) ? $done_prod = '' : $done_prod = '<span class="bg-primary" style="vertical-align:top;padding:2px 4px;font-size:12px">'.$r->done_prod.'</span>';
+					($r->close_plan_cor == null) ? $close_plan_cor = '' : $close_plan_cor = '<span class="bg-dark" style="vertical-align:top;padding:2px 4px;font-size:12px">'.$r->close_plan_cor.'</span>';
 
 					$html .='<div class="card m-0" style="border-radius:0">
 						<div class="card-header bg-gradient-info" style="padding:0;border-radius:0">
 							<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseHeaderPlanFlexo'.$sTgl.''.$r->shift_flexo.''.$r->mesin_flexo.'" onclick="loadListPlanFlexo('."'".$r->tgl_flexo."'".','."'".$r->shift_flexo."'".','."'".$r->mesin_flexo."'".','."'pilihan'".')">
-								['.$r->shift_flexo.'.'.$mesin.'] '.strtoupper($this->m_fungsi->getHariIni($r->tgl_flexo)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_flexo)).' '.$jml_plan.''.$jml_prod.''.$done_prod.'
+								['.$r->shift_flexo.'.'.$mesin.'] '.strtoupper($this->m_fungsi->getHariIni($r->tgl_flexo)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_flexo)).' '.$jml_plan.''.$jml_prod.''.$done_prod.''.$close_plan_cor.'
 							</a>
 						</div>
 						<div id="collapseHeaderPlanFlexo'.$sTgl.''.$r->shift_flexo.''.$r->mesin_flexo.'" class="collapse" data-parent="#accordion-h-plan-flexo">
@@ -2394,7 +2398,7 @@ class Plan extends CI_Controller
 						if($this->cart->total_items() != 0){
 						$html .='
 					</table>
-					<button class="btn btn-sm btn-primary" style="margin-left:20px" onclick="simpanCartFlexo()"><i class="fas fa-save"></i> SIMPAN</button>
+					<button class="btn btn-sm btn-primary" id="simpan-cart-fx" style="margin-left:20px" onclick="simpanCartFlexo()"><i class="fas fa-save"></i> SIMPAN</button>
 				</div>
 			</div>';
 		}
@@ -2443,7 +2447,8 @@ class Plan extends CI_Controller
 			$ff = $this->db->query("SELECT f.tgl_flexo,f.shift_flexo,f.mesin_flexo,COUNT(f.id_flexo) AS jml_plan_flexo,
 			(SELECT COUNT(o.id_flexo) FROM plan_flexo o WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS jml_plan_flexo,
 			(SELECT COUNT(o.id_flexo) FROM plan_flexo o WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo AND o.total_prod_flexo!='0' AND o.status_flexo='Open' GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS jml_prod,
-			(SELECT COUNT(o.id_flexo) FROM plan_flexo o WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo AND o.total_prod_flexo!='0' AND o.status_flexo='Close' GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS done_prod
+			(SELECT COUNT(o.id_flexo) FROM plan_flexo o WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo AND o.total_prod_flexo!='0' AND o.status_flexo='Close' GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS done_prod,
+			(SELECT COUNT(o.id_flexo) FROM plan_flexo o INNER JOIN plan_cor c ON o.id_plan_cor=c.id_plan WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo AND o.total_prod_flexo!='0' AND o.status_flexo='Close' AND c.status_flexo_plan='Close' GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS close_plan_cor
 			FROM plan_flexo f
 			WHERE f.tgl_flexo='$urlTglF' AND f.shift_flexo='$urlShiftF' AND f.mesin_flexo='$urlMesinF'
 			GROUP BY f.tgl_flexo,f.shift_flexo,f.mesin_flexo")->row();
@@ -2451,12 +2456,13 @@ class Plan extends CI_Controller
 			$jml_plan = '<span class="bg-light" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">'.$ff->jml_plan_flexo.'</span>';
 			($ff->jml_prod == null) ? $jml_prod = '' : $jml_prod = '<span class="bg-success" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">'.$ff->jml_prod.'</span>';
 			($ff->done_prod == null) ? $done_prod = '' : $done_prod = '<span class="bg-primary" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">'.$ff->done_prod.'</span>';
+			($ff->close_plan_cor == null) ? $close_plan_cor = '' : $close_plan_cor = '<span class="bg-dark" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">'.$ff->close_plan_cor.'</span>';
 			$mesin = str_replace('FLEXO', '', $ff->mesin_flexo);
 
 			$html .= '<div class="card card-primary card-outline">
 			<div class="card-header">
 				<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST PLAN FLEXO - </h3>
-				&nbsp;<i>['.$ff->shift_flexo.'.'.$mesin.'] '.strtoupper($this->m_fungsi->getHariIni($ff->tgl_flexo)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($ff->tgl_flexo)).' '.$jml_plan.''.$jml_prod.''.$done_prod.'</i>
+				&nbsp;<i>['.$ff->shift_flexo.'.'.$mesin.'] '.strtoupper($this->m_fungsi->getHariIni($ff->tgl_flexo)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($ff->tgl_flexo)).' '.$jml_plan.''.$jml_prod.''.$done_prod.''.$close_plan_cor.'</i>
 			</div>';
 		}
 
@@ -2495,6 +2501,7 @@ class Plan extends CI_Controller
 							<th style="padding:6px">KL.CR QTY</th>
 							<th style="padding:6px">TONASE</th>
 							<th style="padding:6px">NEXT FINISHING</th>
+							<th style="padding:6px">AKSI</th>
 						</tr>
 					</thead>';
 
@@ -2504,7 +2511,7 @@ class Plan extends CI_Controller
 					INNER JOIN m_produk i ON pc.id_produk=i.id_produk
 					INNER JOIN m_pelanggan c ON pc.id_pelanggan=c.id_pelanggan
 					WHERE f.tgl_flexo='$urlTglF' AND f.shift_flexo='$urlShiftF' AND f.mesin_flexo='$urlMesinF'
-					ORDER BY f.no_urut_flexo");
+					ORDER BY f.no_urut_flexo,c.nm_pelanggan,f.id_flexo");
 					foreach($data->result() as $r){
 						if($_POST["hidplan"] == $r->id_flexo){
 							$bgTd = 'class="h-tlp-td"';
@@ -2574,6 +2581,34 @@ class Plan extends CI_Controller
 							$endF = '-';
 						}
 
+						if($id_flexo == 'pilihan'){
+							$btnEdit = '-';
+							$optNextFlexo = $r->next_flexo;
+						}else{
+							if($r->status_flexo == 'Open'){
+								if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+									$btnEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editPlanFlexo('."".$r->id_flexo."".')" title="EDIT">EDIT</a>';
+									$disOptNF = '';
+								}else{
+									$btnEdit = '-';
+									$disOptNF = 'disabled';
+								}
+							}else{
+								$btnEdit = '-';
+								$disOptNF = 'disabled';
+							}
+							
+							$optNextFlexo = '<select class="form-control inp-kosong2" id="edit-nextflexo-'.$r->id_flexo.'" '.$disOptNF.'>';
+							if($r->next_flexo == 'GLUE'){
+								$optNextFlexo .= '<option value="'.$r->next_flexo.'">'.$r->next_flexo.'</option><option value="GUDANG">GUDANG</option>';
+							}else if($r->next_flexo == 'GUDANG'){
+								$optNextFlexo .= '<option value="'.$r->next_flexo.'">'.$r->next_flexo.'</option><option value="GLUE">GLUE</option>';
+							}else{
+								$optNextFlexo .= '<option value="'.$r->next_flexo.'">'.$r->next_flexo.'</option>';
+							}
+							$optNextFlexo .= '</select>';
+						}
+
 						$html .='<tr class="h-tmpl-list-plan">
 							<td '.$bgTd.' style="padding:6px;position:sticky;left:0">
 								<input type="number" class="form-control inp-kosong2" id="lp-nourut-'.$r->id_flexo.'" value="'.$r->no_urut_flexo.'" '.$ubahNoUrut.'>
@@ -2597,7 +2632,8 @@ class Plan extends CI_Controller
 							<td '.$bgTd.' style="padding:6px">'.$tgl_prod_p.'</td>
 							<td '.$bgTd.' style="padding:6px">'.$good_cor_p.'</td>
 							<td '.$bgTd.' style="padding:6px">'.$ton.'</td>
-							<td '.$bgTd.' style="padding:6px">'.$r->next_flexo.'</td>
+							<td '.$bgTd.' style="padding:6px">'.$optNextFlexo.'</td>
+							<td '.$bgTd.' style="padding:6px">'.$btnEdit.'</td>
 						</tr>';
 					}
 
@@ -2607,6 +2643,12 @@ class Plan extends CI_Controller
 		</div>';
 
 		echo $html;
+	}
+
+	function editPlanFlexo()
+	{
+		$result = $this->m_plan->editPlanFlexo();
+		echo json_encode(['data' => $result]);
 	}
 
 	function riwayatFlexo()
@@ -3115,9 +3157,9 @@ class Plan extends CI_Controller
 		}else if($jenis == 'List'){
 			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Finishing'])){
 				$data = array(
-					"tgl_Finishing" => $this->uri->segment(4),
+					"tgl" => $this->uri->segment(4),
 					"shift" => $this->uri->segment(5),
-					"mesin" => $this->uri->segment(6),
+					"joint" => $this->uri->segment(6),
 				);
 				$this->load->view('Plan/Finishing/v_finishing_plan', $data);
 			}else{
@@ -3133,6 +3175,190 @@ class Plan extends CI_Controller
 
 		$this->load->view('footer');
 	}
+
+	function loadPlanFlexo()
+	{
+		$opsi = $_POST['opsi'];
+		$result = $this->m_plan->loadPlanFlexo();
+		// if($opsi != ''){
+		// 	$getNoFlexo = $this->db->query("SELECT*FROM plan_flexo WHERE id_flexo='$opsi'")->row();
+		// 	$urutDtProd = $this->db->query("SELECT id_flexo,no_urut_flexo FROM plan_flexo WHERE tgl_flexo='$getNoFlexo->tgl_flexo' AND shift_flexo='$getNoFlexo->shift_flexo' AND mesin_flexo='$getNoFlexo->mesin_flexo'
+		// 	AND total_prod_flexo='0' AND no_urut_flexo!='0' ORDER BY no_urut_flexo ASC LIMIT 1")->row();
+		// }else{
+		// 	$getNoFlexo = false;
+		// 	$urutDtProd = false;
+		// }
+		echo json_encode(array(
+			'plan_flexo' => $result,
+			'opsi' => $opsi,
+		));
+	}
+
+	function destroyPlanFinishing()
+	{
+		$this->cart->destroy();
+	}
+
+	function hapusCartFinishing()
+	{
+		$data = array(
+			'rowid' => $_POST['rowid'],
+			'qty' => 0,
+		);
+		$this->cart->update($data);
+	}
+
+	function addRencanaFinishing()
+	{
+		$data = array(
+			'id' => $_POST["plan_flexo"],
+			'name' => $_POST["plan_flexo"],
+			'price' => 0,
+			'qty' => 1,
+			'options' => array(
+				'id_plan_cor' => $_POST["opIdPlanCor"],
+				'tgl' => $_POST["tgl"],
+				'shift' => $_POST["shift"],
+				'joint' => $_POST["joint"],
+				'no_wo' => $_POST["no_wo"],
+				'no_po' => $_POST["no_po"],
+				'customer' => $_POST["customer"],
+				'kode_mc' => $_POST["kode_mc"],
+				'item' => $_POST["item"],
+				'uk_box' => $_POST["uk_box"],
+				'uk_sheet' => $_POST["uk_sheet"],
+				'creasing_1' => $_POST["creasing_1"],
+				'creasing_2' => $_POST["creasing_2"],
+				'creasing_3' => $_POST["creasing_3"],
+				'kualitas' => $_POST["kualitas"],
+				'flute' => $_POST["flute"],
+				'tipe_box' => $_POST["tipe_box"],
+				'sambungan' => $_POST["sambungan"],
+				'bb_box' => $_POST["bb_box"],
+				'lb_box' => $_POST["lb_box"],
+				'panjang_plan' => $_POST["panjang_plan"],
+				'lebar_plan' => $_POST["lebar_plan"],
+				'order_so' => $_POST["order_so"],
+				'kirim' => $_POST["kirim"],
+				'tgl_cor' => $_POST["tgl_cor"],
+				'qty_cor' => $_POST["qty_cor"],
+				'tgl_flexo' => $_POST["tgl_flexo"],
+				'qty_flexo' => $_POST["qty_flexo"],
+			)
+		);
+
+		// if($_POST["opsi"] == 'add'){
+		// $id_plan_flexo = $_POST["plan_flexo"];
+		// 	$tgl = $_POST["tgl"];
+		// 	$mesin = $_POST["mesin"];
+		// 	$shift = $_POST["shift"];
+		// 	$cekPlanCor = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan='$id_plan_flexo'")->row();
+		// 	$cekHariPlan = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_flexo='$id_plan_flexo' AND tgl_flexo='$tgl' AND shift_flexo='$shift' AND mesin_flexo='$mesin'")->num_rows();
+		// 	if($tgl < $cekPlanCor->tgl_plan){
+		// 		echo json_encode(array('data' => false, 'isi' => 'TGL PLAN FLEXO TIDAK BOLEH KURANG DARI TANGGAL PLAN COR!', 'cekPlanCor' => $cekPlanCor)); return;
+		// 	}else if($cekHariPlan > 0){
+		// 		echo json_encode(array('data' => false, 'isi' => 'PLAN FLEXO SUDAH ADA DI TGL / SHIFT / MESIN YANG SAMA!', 'cekHariPlan' => $cekHariPlan)); return;
+		// 	}else{
+				if($_POST["plan_flexo"] == ""){
+					echo json_encode(array('data' => false, 'isi' => '<b>PILIH PLAN FLEXO DAHULU!</b>')); return;
+				}else if($this->cart->total_items() != 0){
+					foreach($this->cart->contents() as $r){
+						if($r['id'] == $_POST["plan_flexo"]){
+							echo json_encode(array('data' => false, 'isi' => 'PLAN FLEXO SUDAH MASUK LIST PLAN FINISHING!')); return;
+						}
+					}
+					$this->cart->insert($data);
+					echo json_encode(array('data' => true, 'isi' => $data));
+				}else{
+					$this->cart->insert($data);
+					echo json_encode(array('data' => true, 'isi' => $data));
+				}
+		// 	}
+		// }else{
+		// 	$result = $this->m_plan->addRencanaFlexo();
+		// 	echo json_encode($result);
+		// }
+	}
+
+	function ListInputFinishing()
+	{
+		$html = '';
+		if($this->cart->total_items() != 0){
+			$html .= '<div class="card card-success card-outline">
+				<div class="card-header">
+					<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST PLAN FINISHING BARU</h3>
+				</div>
+				<div style="overflow:auto;white-space:nowrap;padding-bottom:15px">
+					<table class="table table-bordered table-striped" style="text-align:center">
+						<thead>
+							<tr>
+								<th style="padding:12px 6px">#</th>
+								<th style="padding:12px 6px">KODE.MC</th>
+								<th style="padding:12px 6px">NO.WO</th>
+								<th style="padding:12px 6px">CUSTOMER</th>
+								<th style="padding:12px 6px">ITEM</th>
+								<th style="padding:12px 6px">KUALITAS</th>
+								<th style="padding:12px 6px">PANJANG</th>
+								<th style="padding:12px 6px">LEBAR</th>
+								<th style="padding:12px 6px">BB</th>
+								<th style="padding:12px 6px">FT</th>
+								<th style="padding:12px 6px">JOINT</th>
+								<th style="padding:12px 6px">ORDER</th>
+								<th style="padding:12px 6px">TGL KIRIM</th>
+								<th style="padding:12px 6px">KL.CR TGL</th>
+								<th style="padding:12px 6px">KL.CR QTY</th>
+								<th style="padding:12px 6px">KL.FX TGL</th>
+								<th style="padding:12px 6px">KL.FX QTY</th>
+								<th style="padding:12px 6px">AKSI</th>
+							</tr>
+						</thead>';}
+						$i = 0;
+						foreach($this->cart->contents() as $r){
+							$i++;
+							($r['options']['tgl_cor'] != "") ? $tglHasil = $this->m_fungsi->tglPlan($r['options']['tgl_cor']) : $tglHasil = '-';
+							($r['options']['qty_cor'] > 0) ? $hasil = number_format($r['options']['qty_cor'],0,',','.') : $hasil = 0;
+							($r['options']['tgl_flexo'] != "") ? $tglHasilFs = $this->m_fungsi->tglPlan($r['options']['tgl_flexo']) : $tglHasilFs = '-';
+							($r['options']['qty_flexo'] > 0) ? $hasilFs = number_format($r['options']['qty_flexo'],0,',','.') : $hasilFs = 0;
+							$html.='<tr>
+								<td style="padding:6px">'.$i.'</td>
+								<td style="padding:6px;text-align:left">'.$r['options']['kode_mc'].'</td>
+								<td style="padding:6px;text-align:left">'.$r['options']['no_wo'].'</td>
+								<td style="padding:6px;text-align:left">'.$r['options']['customer'].'</td>
+								<td style="padding:6px;text-align:left">'.$r['options']['item'].'</td>
+								<td style="padding:6px">'.$r['options']['kualitas'].'</td>
+								<td style="padding:6px">'.$r['options']['panjang_plan'].'</td>
+								<td style="padding:6px">'.$r['options']['lebar_plan'].'</td>
+								<td style="padding:6px">'.$r['options']['bb_box'].'</td>
+								<td style="padding:6px">'.$r['options']['flute'].'</td>
+								<td style="padding:6px">'.$r['options']['sambungan'].'</td>
+								<td style="padding:6px">'.number_format($r['options']['order_so'],0,',','.').'</td>
+								<td style="padding:6px">'.$this->m_fungsi->tglPlan($r['options']['kirim']).'</td>
+								<td style="padding:6px">'.$tglHasil.'</td>
+								<td style="padding:6px">'.$hasil.'</td>
+								<td style="padding:6px">'.$tglHasilFs.'</td>
+								<td style="padding:6px">'.$hasilFs.'</td>
+								<td style="padding:3px 6px">
+									<button class="btn btn-xs btn-danger" onclick="hapusCartFinishing('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
+								</td>
+							</tr>';
+						}
+						if($this->cart->total_items() != 0){
+						$html .='
+					</table>
+					<button class="btn btn-sm btn-primary" id="simpan-cart-fs" style="margin-left:20px" onclick="simpanCartFinishing()"><i class="fas fa-save"></i> SIMPAN</button>
+				</div>
+			</div>';
+		}
+		echo $html;
+	}
+
+	function simpanCartFinishing()
+	{
+		$result = $this->m_plan->simpanCartFinishing();
+		echo json_encode($result);
+	}
+
+	//
 
 	function Cetak_plan2()
 	{
