@@ -27,10 +27,25 @@ class Logistik extends CI_Controller
 	public function Invoice_add()
 	{
 		$data = array(
-			'judul' => "Invoice",
+			'judul' => "Invoice Baru",
 		);
 		$this->load->view('header', $data);
 		$this->load->view('Logistik/v_invoice_add');
+		$this->load->view('footer');
+	}
+	
+	public function Invoice_edit()
+	{
+		$id       = $_GET['id'];
+		$no_inv   = $_GET['no_inv'];
+
+		$data = array(
+			'judul' 	 => "Edit Invoice",
+			'id'    	 => $id,
+			'no_inv'     => $no_inv,
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_invoice_edit');
 		$this->load->view('footer');
 	}
 
@@ -71,50 +86,74 @@ class Logistik extends CI_Controller
     {
         
 		$type   = $this->input->post('type');
+		$pajak  = $this->input->post('pajak');
+
 		($type=='roll')? $type_ok=$type : $type_ok='SHEET_BOX';
 		
-		$type   = $this->m_fungsi->tampil_no_urut($type_ok);
+		($pajak=='nonppn')? $pajak_ok='non' : $pajak_ok='ppn';
+		
+		$type   = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok);
         echo json_encode($type);
     }
 
+	function load_data_1()
+	{
+		$id       = $this->input->post('id');
+		$no_inv   = $this->input->post('no_inv');
+
+		$queryh   = "SELECT*FROM invoice_header where id='$id' and no_invoice='$no_inv'";
+		$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no_inv' ";
+
+		$header   = $this->db->query($queryh)->row();
+		$detail    = $this->db->query($queryd)->result();
+
+		$data = ["header" => $header, "detail" => $detail];
+
+        echo json_encode($data);
+	}
+
 	function load_data()
 	{
-		$db2 = $this->load->database('database_simroll', TRUE);
+		// $db2 = $this->load->database('database_simroll', TRUE);
 		$jenis        = $this->uri->segment(3);
 		$data         = array();
 
 		if ($jenis == "Invoice") {
-			$query = $db2->query("SELECT * FROM invoice_header ORDER BY tgl,no_invoice")->result();
+			$query = $this->db->query("SELECT * FROM invoice_header ORDER BY tgl_invoice,no_invoice")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$id = "'$r->id'";
-				$nm = "'$r->no_invoice'";
-				$opsi = "'opsi'";
+				$no_inv = "'$r->no_invoice'";
 				$print = base_url("laporan/print_invoice_v2?no_invoice=") . $r->no_invoice;
 
 				$row = array();
-				$row[] = $i;
-				$row[] = $r->tgl;
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_invoice).'</div>';
 				$row[] = $r->no_invoice;
 				$row[] = $r->kepada;
 				$row[] = $r->nm_perusahaan;
 				$aksi = "";
 
 				if ($this->session->userdata('level') == "Admin") {
-					if ($r->status == "Closed") {
-						$aksi = '<a type="button" onclick="editDataInv(' . $id . ',' . $nm . ')" class="btn bg-orange btn-circle waves-effect waves-circle waves-float">
-								<i class="material-icons">edit</i>
-							</a>
-							<button type="button" onclick="deleteData(' . $id . ',' . $nm . ',' . $opsi . ')" class="btn btn-danger btn-circle waves-effect waves-circle waves-float" title="Reject">
-								<i class="material-icons">delete</i>
+					if ($r->status == "Open") {
+						$aksi = '
+							<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&no_inv=" .$r->no_invoice ."") . '" title="EDIT DATA" >
+								<b><i class="fa fa-edit"></i> </b>
+							</a> 
+
+							<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-danger btn-sm">
+								<i class="fa fa-trash-alt"></i>
+							</button> 
+
+							<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . $id . ',' . $no_inv . ')" class="btn btn-info btn-sm">
+								<i class="fa fa-check"></i>
 							</button>
-							<a type="button" onclick="confirmData(' . $id . ',' . $nm . ')" class="btn bg-green btn-circle waves-effect waves-circle waves-float">
-								<i class="material-icons">check</i>
-							</a>';
+
+							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+							
+							';
 					} else if ($r->status == "Verified") {
-						$aksi = '<a type="button" onclick="editDataInv(' . $id . ',' . $nm . ')" class="btn bg-orange btn-circle waves-effect waves-circle waves-float">
-								<i class="material-icons">edit</i>
-							</a>
+						$aksi = '
 							<a type="button" href="' . $print . '" target="blank" class="btn btn-default btn-circle waves-effect waves-circle waves-float" title="Print Invoice">
 								<i class="material-icons">print</i>
 							</a>';
@@ -122,7 +161,7 @@ class Logistik extends CI_Controller
 				} else {
 					$aksi = '';
 				}
-				$row[] = $aksi;
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
 				$data[] = $row;
 
 				$i++;
@@ -141,7 +180,6 @@ class Logistik extends CI_Controller
 	function load_sj($searchTerm="")
 	{
 		// ASLI
-		
 		$db2 = $this->load->database('database_simroll', TRUE);
 		$tgl = $this->input->post('tgl_sj');
 
@@ -176,10 +214,10 @@ class Logistik extends CI_Controller
 		
 		$db2 = $this->load->database('database_simroll', TRUE);
 
-		$query = $db2->query("SELECT b.nm_perusahaan,a.id_pl,b.id,a.nm_ker,a.g_label,a.width,COUNT(a.roll) AS qty,SUM(weight) AS weight,b.no_po,b.no_surat,b.no_pkb 
+		$query = $db2->query("SELECT b.nm_perusahaan,a.id_pl,b.id,a.nm_ker,a.g_label,a.width,COUNT(a.roll) AS qty,SUM(weight) AS weight,b.no_po,b.no_surat
 		FROM m_timbangan a 
 		INNER JOIN pl b ON a.id_pl = b.id 
-		WHERE b.tgl='$tgl_sj' AND b.id_perusahaan='$id_perusahaan'
+		WHERE b.no_pl_inv = '0' AND b.tgl='$tgl_sj' AND b.id_perusahaan='$id_perusahaan'
 		GROUP BY b.no_po,a.nm_ker,a.g_label,a.width 
 		ORDER BY a.g_label,b.no_surat,b.no_po,a.nm_ker DESC,a.g_label,a.width ")->result();
 
@@ -205,22 +243,43 @@ class Logistik extends CI_Controller
 
 		if($this->session->userdata('username'))
 		{
-			$c_type_po   = $this->input->post('type_po');
-			$asc         = $this->m_logistik->save_invoice();
-	
-			if($asc){
-	
-				($c_type_po=='roll')? $type_ok=$c_type_po : $type_ok='SHEET_BOX';
-				
-				$no_urut   = $this->m_fungsi->tampil_no_urut($type_ok);
-				$this->db->query("UPDATE m_urut set no_urut=$no_urut+1 where kode='$type_ok' ");
-	
-				echo json_encode(array("status" =>"1","nomor" => $asc));
-	
+
+			$c_no_inv_kd   = $this->input->post('no_inv_kd');
+			$c_no_inv      = $this->input->post('no_inv');
+			$c_no_inv_tgl  = $this->input->post('no_inv_tgl');
+
+			$no_inv_ok     = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
+			$query_cek_no  = $this->db->query("SELECT*FROM invoice_header where no_invoice='$no_inv_ok' ")->num_rows();
+
+			if($query_cek_no>0)
+			{
+				echo json_encode(array("status" => "3","id" => $asc));
 			}else{
-				echo json_encode(array("status" => "2","nomor" => $asc));
-	
+				
+				$c_type_po   = $this->input->post('type_po');
+				$c_pajak     = $this->input->post('pajak');
+				$asc         = $this->m_logistik->save_invoice();
+		
+				if($asc){
+		
+					($c_type_po=='roll')? $type_ok=$c_type_po : $type_ok='SHEET_BOX';
+			
+					($c_pajak=='nonppn')? $pajak_ok='non' : $pajak_ok='ppn';
+			
+					$no_urut    = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok);
+					$kode_ok    = $type_ok.'_'.$pajak_ok;
+
+					$this->db->query("UPDATE m_urut set no_urut=$no_urut+1 where kode='$kode_ok' ");
+		
+					echo json_encode(array("status" =>"1","id" => $asc));
+		
+				}else{
+					echo json_encode(array("status" => "2","id" => $asc));
+		
+				}
+
 			}
+
 		}
 
 		
@@ -288,13 +347,32 @@ class Logistik extends CI_Controller
 	
 	function hapus()
 	{
-		$jenis   = $_POST['jenis'];
-		$field   = $_POST['field'];
-		$id = $_POST['id'];
+		$jenis    = $_POST['jenis'];
+		$field    = $_POST['field'];
+		$id       = $_POST['id'];
 
-		if ($jenis == "trs_po") {
-			$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");
-			$result = $this->m_master->query("DELETE FROM trs_po_detail WHERE  $field = '$id'");
+		if ($jenis == "invoice") {
+			$no_inv          = $_POST['no_inv'];
+			
+			// ubah no pl
+			$query_cek = $this->db->query("SELECT*FROM invoice_detail where no_invoice ='$no_inv'")->result();
+
+			foreach( $query_cek as $row)
+			{
+				$db2            = $this->load->database('database_simroll', TRUE);
+				$update_no_pl   = $db2->query("UPDATE pl set no_pl_inv = 0 where id ='$row->id_pl'");
+			}
+
+			if($update_no_pl)
+			{
+
+				$result          = $this->m_master->query("DELETE FROM invoice_header WHERE  $field = '$id'");
+
+				$result          = $this->m_master->query("DELETE FROM invoice_detail WHERE  no_invoice = '$no_inv'");
+			}
+			
+			
+			
 		} else {
 
 			$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");
@@ -303,121 +381,306 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
-	function Cetak_PO()
+	function Cetak_Invoice()
 	{
-		$id  = $_GET['no_po'];
+        $no_invoice = $_GET['no_invoice'];
+        $ctk = 0;
+        $html = '';
 
-		// $query = $this->m_master->get_data_one("trs_po_detail", "no_po", $id);
-        $query_header = $this->db->query("SELECT * FROM trs_po a 
-        JOIN m_pelanggan b ON a.id_pelanggan=b.id_pelanggan 
-        WHERE a.no_po = '$id' ");
-        
-        $data = $query_header->row();
-        
-        $query = $this->db->query("SELECT * FROM trs_po a 
-        JOIN trs_po_detail b ON a.no_po = b.no_po
-        JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
-        LEFT JOIN m_kab d ON c.kab=d.kab_id
-        LEFT JOIN m_produk e ON b.id_produk=e.id_produk
-        WHERE a.no_po = '$id' ");
+		//////////////////////////////////////// K O P ////////////////////////////////////////
 
-		$html = '';
+        $data_detail = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
+		$ppnpph = $data_detail->pajak;
 
+		$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif">';
 
-		if ($query->num_rows() > 0) {
-
-			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:14px;font-family: ;">
-                        <tr style="font-weight: bold;">
-                            <td colspan="15" align="center">
-                            <b>( No. ' . $id . ' )</b>
-                            </td>
-                        </tr>
-                 </table><br>';
-
-            $html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
-
-            <tr>
-                <td width="10 %"  align="left">Tgl PO</td>
-                <td width="5%" > : </td>
-                <td width="85 %" > '. $this->m_fungsi->tanggal_format_indonesia($data->tgl_po) .'<td>
+        if($ppnpph == 'nonppn'){
+            $html .= '<tr>
+                <th style="border:0;height:92px"></th>
             </tr>
             <tr>
-                <td align="left">Customer</td>
-                <td> : </td>
-                <td> '. $data->nm_pelanggan .'<td>
+                <td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">INVOICE</td>
+            </tr>';
+            $html .= '</table>';
+        }else{
+            $html .= '<tr>
+                <th style="border:0;width:15%;height:0"></th>
+                <th style="border:0;width:55%;height:0"></th>
+                <th style="border:0;width:25%;height:0"></th>
             </tr>
-            </table><br>';
 
-			$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
-                        <tr style="background-color: #cccccc">
-                            <th width="2%" align="center">No</th>
-                            <th width="10%" align="center">Item</th>
-                            <th width="12%" align="center">Flute : RM : BB</th>
-                            <th width="10%" align="center">Uk. Box</th>
-                            <th width="8%" align="center">Uk. Sheet</th>
-                            <th width="10%" align="center">Creasing </th>
-                            <th width="10%" align="center">Kualitas</th>							
-							<th width="10%" align="center">ETA</th>
-                            <th width="8%" align="center">Qty</th>';
-			if($this->session->userdata("level")!="PPIC"){
+            <tr>
+				<td rowspan="3" align="center">
+					<img src="' . base_url() . 'assets/gambar/ppi.png"  width="80" height="70" />
+				</td>
+		   
+                <td style="font-size:20px;" align="left">PT. PRIMA PAPER INDONESIA</td>
 
-							$html .='
-							<th width="10%" align="center">Harga <br> (Rp)</th>
-							<th width="10%" align="center">Total <br> (Rp)</th>
-							';
-			}
-					$html .='</tr>';
-			$no = 1;
-			$tot_qty = $tot_value = $tot_total = 0;
-			foreach ($query->result() as $r) {
+            </tr>
+            <tr>
+                <td style="font-size:11px" align="left">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td style="font-size:11px;" align="left">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
+                <td style=""></td>
+            </tr>
+			<tr><td>&nbsp;<br></td></tr>';
+            $html .= '</table>';
 
-                $total = $r->price_inc*$r->qty;
-				$html .= '
+            $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif">
+            <tr>
+                <th style="height:0"></th>
+            </tr>
+            <tr>
+                <td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">INVOICE</td>
+            </tr>';
+            $html .= '</table>';
+        }       
 
-                            <tr >
-                                <td align="center">' . $no . '</td>
-                                <td align="center">' . $r->nm_produk . '</td>
-                                <td align="center">' . $r->flute . ' : ' . $r->rm . ' : ' . $r->bb . '</td>
-                                <td align="center">' . $r->l_panjang . ' x ' . $r->l_lebar . ' x ' . $r->l_tinggi . '</td>
-                                <td align="center">' . $r->ukuran_sheet . '</td>
-                                <td align="center">' . $r->creasing . ' : ' . $r->creasing2 . ' : ' . $r->creasing3 . '</td>
-                                <td align="left">' . $r->kualitas . '</td>
-                                <td align="center" style="color:red">' . $this->m_fungsi->tanggal_ind($r->eta) . '</td>
-                                <td align="right">' . number_format($r->qty, 0, ",", ".") . '</td>								';
-				if($this->session->userdata("level")!="PPIC"){
-						$html .= '
-								<td align="right">' . number_format($r->price_inc, 0, ",", ".") . '</td>
-                                <td align="right">' . number_format($total, 0, ",", ".") . '</td>
-								';
+		//////////////////////////////////////// D E T A I L //////////////////////////////////////
+
+        $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
+        <tr>
+            <th style="border:0;padding:2px 0;height:0;width:14%"></th>
+            <th style="border:0;padding:2px 0;height:0;width:1%"></th>
+            <th style="border:0;padding:2px 0;height:0;width:40%"></th>
+            <th style="border:0;padding:2px 0;height:0;width:12%"></th>
+            <th style="border:0;padding:2px 0;height:0;width:1%"></th>
+            <th style="border:0;padding:2px 0;height:0;width:32%"></th>
+        </tr>';
+
+        $html .= '
+        <tr>
+            <td colspan="3"></td>
+            <td style="padding:3px 0 20px;font-weight:bold">NOMOR</td>
+            <td style="padding:3px 0 20px;font-weight:bold">:</td>
+            <td style="padding:3px 0 20px;font-weight:bold">'.$data_detail->no_invoice.'</td>
+        </tr>
+        <tr>
+            <td style="padding:3px 0">Nama Perusahaan</td>
+            <td style="padding:3px 0">:</td>
+            <td style="padding:0 3px 0 0;line-height:1.8">'.$data_detail->nm_perusahaan.'</td>
+            <td style="padding:3px 0;font-weight:bold">Jatuh Tempo</td>
+            <td style="padding:3px 0">:</td>
+            <td style="padding:3px 0;font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($data_detail->tgl_jatuh_tempo).'</td>
+        </tr>';
+
+		$html .= '<tr>
+			<td style="padding:3px 0">Alamat</td>
+			<td style="padding:3px 0">:</td>
+			<td style="padding:0 3px 0 0;line-height:1.8">'.$data_detail->alamat_perusahaan.'</td>
+			<td style="padding:3px 0">No. PO</td>
+			<td style="padding:3px 0">:</td>
+			<td style="padding:0;line-height:1.8">';
+
+			// KONDISI JIKA LEBIH DARI 1 PO
+			$result_po = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY no_po ORDER BY no_po");
+			if($result_po->num_rows() == '1'){
+				$html .= $result_po->row()->no_po;;
+			}else{
+				foreach($result_po->result() as $r){
+					$html .= $r->no_po.'<br/>';
 				}
-						$html .= '</tr>';
+			}
+		$html .= '</td>
+		</tr>';
 
-				$no++;
-				$tot_qty += $r->qty;
-				$tot_price_inc += $r->price_inc;
-				$tot_total += $total;
+        $html .= '<tr>
+            <td style="padding:3px 0">Kepada</td>
+            <td style="padding:3px 0">:</td>
+            <td style="padding:0 3px 0 0;line-height:1.8">'.$data_detail->kepada.'</td>
+            <td style="padding:3px 0">No. Surat Jalan</td>
+            <td style="padding:3px 0">:</td>
+            <td style="padding:0;line-height:1.8">';
+
+			// KONDISI JIKA LEBIH DARI 1 SURAT JALAN
+			$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY no_surat ORDER BY no_surat");
+			if($result_sj->num_rows() == '1'){
+				$html .= $result_sj->row()->no_surat;;
+			}else{
+				foreach($result_sj->result() as $r){
+					$html .= $r->no_surat.'<br/>';
+				}
 			}
-			$html .='
-                        <tr style="background-color: #cccccc">
-                            <td align="center" colspan="8"><b>Total</b></td>
-                            <td align="right" ><b>' . number_format($tot_qty, 0, ",", ".") . '</b></td>						
-							';
-			if($this->session->userdata("level")!="PPIC"){
-					$html .= '
-							<td align="right" ><b>' . number_format($tot_price_inc, 0, ",", ".") . '</b></td>
-                            <td align="right" ><b>' . number_format($tot_total, 0, ",", ".") . '</b></td>';
+		$html .= '</td>
+		</tr>';
+
+        $html .= '</table>';
+
+		/////////////////////////////////////////////// I S I ///////////////////////////////////////////////
+
+        $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
+        <tr>
+            <th style="border:0;height:15px;width:30%"></th>
+            <th style="border:0;height:15px;width:10%"></th>
+            <th style="border:0;height:15px;width:15%"></th>
+            <th style="border:0;height:15px;width:5%"></th>
+            <th style="border:0;height:15px;width:10%"></th>
+            <th style="border:0;height:15px;width:5%"></th>
+            <th style="border:0;height:15px;width:25%"></th>
+        </tr>';
+
+        $html .= '<tr>
+            <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">NAMA BARANG</td>
+            <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">SATUAN</td>
+            <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">JUMLAH</td>
+            <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold" colspan="2">HARGA</td>
+            <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold" colspan="2">TOTAL</td>
+        </tr>';
+		$html .= '<tr>
+			<td style="border:0;padding:20px 0 0" colspan="7"></td>
+		</tr>';
+
+        $sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
+		
+		// TAMPILKAN DULU LABEL
+		$totalHarga = 0;
+		foreach($sqlLabel->result() as $label){
+
+			if($label->nm_ker == 'MH'){
+                $jnsKertas = 'KERTAS MEDIUM';
+            }else if($label->nm_ker == 'WP'){
+                $jnsKertas = 'KERTAS COKLAT';
+            }else if($label->nm_ker == 'BK'){
+                $jnsKertas = 'KERTAS B-KRAFT';
+            }else if($label->nm_ker == 'MEDIUM LINER'){
+                $jnsKertas = 'KERTAS MEDIUM LINER';
+            }else if($label->nm_ker == 'MH COLOR'){
+                $jnsKertas = 'KERTAS MEDIUM COLOR';
+            }else if($label->nm_ker == 'MN'){
+                $jnsKertas = 'KERTAS MEDIUM NON SPEK';
+            }else{
+                $jnsKertas = '';
+            }
+			$html .= '<tr>
+				<td style="border:0;padding:5px 0" colspan="7">'.$jnsKertas.' ROLL '.$label->g_label.' GSM</td>
+			</tr>';
+
+			// TAMPILKAN ITEMNYA
+			$weightNmLbPo = 0;
+			$sqlWidth = $this->db->query("SELECT*FROM invoice_detail
+			WHERE no_invoice='$label->no_invoice' AND nm_ker='$label->nm_ker' AND g_label='$label->g_label' AND no_po='$label->no_po'
+			ORDER BY width ASC");
+			foreach($sqlWidth->result() as $items){
+                // BERAT SESETAN
+				$qty        = $items->qty - $items->retur_qty;
+				$fixBerat   = $items->weight - $items->seset;
+				$html .= '<tr>
+					<td style="border:0;padding:5px 0">LB '.round($items->width,2).' = '.$qty.' ROLL</td>
+					<td style="border:0;padding:5px 0;text-align:center">KG</td>
+					<td style="border:0;padding:5px 0;text-align:right">'.number_format($fixBerat).'</td>
+					<td style="border:0;padding:5px 0" colspan="4"></td>
+				</tr>';
+
+				// TOTAL BERAT PER GSM - LABEL - PO
+				$weightNmLbPo += $fixBerat;
 			}
-					$html .= '</tr>';
-			$html .= '
-                 </table>';
-		} else {
-			$html .= '<h1> Data Kosong </h1>';
+
+			// CARI HARGANYA
+			$sqlHargaPo = $this->db->query("SELECT*FROM invoice_detail
+			WHERE no_invoice='$label->no_invoice' AND nm_ker='$label->nm_ker' AND g_label='$label->g_label' AND no_po='$label->no_po'")->row();
+			// PERKALIAN ANTARA TOTAL BERAT DAN HARGA PO
+			$weightXPo = round($weightNmLbPo * $sqlHargaPo->harga);
+			$html .= '<tr>
+				<td style="border:0;padding:5px 0" colspan="2"></td>
+				<td style="border-top:1px solid #000;padding:5px 0;text-align:right">'.number_format($weightNmLbPo).'</td>
+				<td style="border-top:1px solid #000;padding:5px 0 0 15px">Rp</td>
+				<td style="border-top:1px solid #000;padding:5px 0;text-align:right">'.number_format($sqlHargaPo->harga).'</td>
+				<td style="border:0;padding:5px 0 0 15px">Rp</td>
+				<td style="border:0;padding:5px 0;text-align:right">'.number_format($weightXPo).'</td>
+			</tr>';
+
+			$totalHarga += $weightXPo;
+		}
+        
+		
+		//////////////////////////////////////////////// T O T A L ////////////////////////////////////////////////
+		$html .= '<tr>
+			<td style="border:0;padding:20px 0 0" colspan="7"></td>
+		</tr>';
+
+        // RUMUS
+		if($ppnpph == 'ppn'){ // PPN 10 %
+			$terbilang = round($totalHarga + (0.1 * $totalHarga));
+			$rowspan = 3;
+		}else if($ppnpph == 'ppn_pph'){ // PPH22
+			$terbilang = round($totalHarga + (0.1 * $totalHarga) + (0.01 * $totalHarga));
+			$rowspan = 4;
+		}else{ // NON
+			$terbilang = $totalHarga;
+			$rowspan = 2;
 		}
 
-		// $this->m_fungsi->_mpdf($html);
-		$this->m_fungsi->template_kop('PURCHASE ORDER',$id,$html,'L','1');
-		// $this->m_fungsi->mPDFP($html);
-	}
+		$html .= '<tr>
+			<td style="border-width:2px 0;border:1px solid;font-weight:bold;padding:5px 0;line-height:1.8;text-transform:uppercase" colspan="3" rowspan="'.$rowspan.'">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($terbilang).'</i></b></td>
+
+			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Sub Total</td>
+
+			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+
+			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($totalHarga).'</td>
+		</tr>';
+
+		// PPN - PPH22
+		$ppn10 = 0.1 * $totalHarga;
+        $pph22 = 0.01 * $totalHarga;
+		$txtppn10 = '<tr>
+				<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Ppn 11%</td>
+				<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($ppn10).'</td>
+			</tr>';
+
+		if($ppnpph == 'ppn'){ // PPN 10 %
+			$html .= $txtppn10;
+		}else if($ppnpph == 'ppn_pph'){ // PPH22
+			// pph22
+			$html .= $txtppn10.'<tr>
+				<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Pph 22</td>
+				<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($pph22).'</td>
+			</tr>';
+		}else{
+			$html .= '';
+		}
+
+		$html .= '<tr>
+			<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Total</td>
+			<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+			<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($terbilang).'</td>
+		</tr>';
+
+		//////////////////////////////////////////////// T T D ////////////////////////////////////////////////
+		
+		$html .= '<tr>
+			<td style="border:0;padding:20px 0 0" colspan="7"></td>
+		</tr>';
+
+		$html .= '<tr>
+			<td style="border:0;padding:5px" colspan="3"></td>
+			<td style="border:0;padding:5px;text-align:center" colspan="4">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia(date('Y-m-d')).'</td>
+		</tr>
+		<tr>
+			<td style="border:0;padding:0 0 15px;line-height:1.8" colspan="3">Pembayaran Full Amount ditransfer ke :<br/>BNI 5758699690 (CABANG SOLO)<br/>A.n PT. PRIMA PAPER INDONESIA</td>
+			<td style="border:0;padding:0" colspan="4"></td>
+		</tr>
+		<tr>
+			<td style="border:0;padding:0;line-height:1.8" colspan="3">* Harap bukti transfer di email ke</td>
+			<td style="border-bottom:1px solid #000;padding:0" colspan="4"></td>
+		</tr>
+		<tr>
+			<td style="border:0;padding:0;line-height:1.8" colspan="3">primapaperin@gmail.com / bethppi@yahoo.co.id</td>
+			<td style="border:0;padding:0;line-height:1.8;text-align:center" colspan="4">Finance</td>
+		</tr>
+		';
+
+        $html .= '</table>';
+
+        // $this->m_fungsi->newPDF($html,'P',77,0);
+		$this->m_fungsi->_mpdf_hari('P', 'A4', 'INVOICE', $html, 'INVOICE.pdf', 5, 5, 5, 10);
+		// echo $html;
+
+    }
 
 	public function coba_api()
 	{

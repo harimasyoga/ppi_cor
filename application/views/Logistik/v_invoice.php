@@ -30,19 +30,17 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<a href="<?php echo base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
+				<a href="<?= base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
 					<br><br>
-
-				<br><br>
 
 				<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 					<thead>
 						<tr>
-							<th style="text-align: center; width:3%">No</th>
-							<th style="text-align: center; width:20%">Tanggal</th>
-							<th style="text-align: center; width:5%">No Invoice</th>
-							<th style="text-align: center; width:10%">Kepada</th>
-							<th style="text-align: center; width:10%">Nama Perusahaan</th>
+							<th style="text-align: center; width:5%">No</th>
+							<th style="text-align: center; width:10%">Tanggal</th>
+							<th style="text-align: center; width:20%">No Invoice</th>
+							<th style="text-align: center; width:20%">Kepada</th>
+							<th style="text-align: center; width:25%">Nama Perusahaan</th>
 							<th style="text-align: center; width:20%;">Aksi</th>
 						</tr>
 					</thead>
@@ -511,7 +509,7 @@
 	{
 		// let cek = confirm("Apakah Anda Yakin?");
 		swal({
-			title: "PO",
+			title: "INVOICE",
 			html: "<p> Apakah Anda yakin ingin menghapus file ini ?</p><br>"
 			+"<strong>" +no+ " </strong> ",
 			type               : "question",
@@ -525,13 +523,14 @@
 
 		// if (cek) {
 			$.ajax({
-				url: '<?= base_url(); ?>Logistik/hapus',
+				url   : '<?= base_url(); ?>Logistik/hapus',
+				type  : "POST",
 				data: ({
-					id: id,
-					jenis: 'trs_po',
-					field: 'no_po'
+					id       : id,
+					no_inv   : no,
+					field    : 'id',
+					jenis    : 'invoice'
 				}),
-				type: "POST",
 				beforeSend: function() {
 					swal({
 					title: 'loading ...',
@@ -1011,9 +1010,9 @@
 	
 	function Cetak() 
 	{
-		no_po = $("#no_po").val();
-		var url = "<?= base_url('Logistik/Cetak_PO'); ?>";
-		window.open(url + '?no_po=' + no_po, '_blank');
+		no_invoice = $("#no_invoice").val();
+		var url = "<?= base_url('Logistik/Cetak_Invoice'); ?>";
+		window.open(url + '?no_invoice=' + no_invoice, '_blank');
 	}
 
 </script>
