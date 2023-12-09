@@ -34,7 +34,6 @@
 					<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info "><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<?php endif ?>
 				<br><br>
-				<div class="col-md-12" style="overflow:auto;white-space:nowrap;" width="100%">	
 					<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 						<thead>
 							<tr>
@@ -54,7 +53,6 @@
 						<tbody>
 						</tbody>
 					</table>
-				</div>
 			</div>
 		</div>
 		<!-- /.card -->
@@ -66,28 +64,31 @@
 <div class="modal fade" id="modalForm">
 	<div class="modal-dialog modal-full">
 		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title" id="judul"></h4>
+			<div class="card-header" style="font-family:Cambria;" >
+				<h4 class="card-title" style="color:#4e73df;" id="judul"></h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
+
 			<div class="modal-body">
 				<form role="form" method="post" id="myForm">
-					<div style="overflow-x:auto;">
+					<!-- <div style="overflow-x:auto;"> -->
 
-						<div class="form-group row">
-							<table width="95%" border="0">
-								<tr>
-									<td width="15%">No PO</td>
-									<td>
+						<div class="card-body">
+							<div class="col-md-12">
+								<div class="card-body row" style="padding : 5px;font-weight:bold">
+									<div class="col-md-2">No PO</div>
+									<div class="col-md-3">
 										<input type="hidden" class="form-control" value="trs_po" name="jenis" id="jenis">
 										<input type="hidden" class="form-control" value="" name="status" id="status">
 										<input type="text" class="form-control" name="no_po" id="no_po" value="AUTO" readonly>
-									</td>
-									<td width="15%"></td>
-									<td width="15%">Nama Pelanggan</td>
-									<td width="30%">
+									</div>
+
+									<div class="col-md-2"></div>
+
+									<div class="col-md-2">Nama Pelanggan</div>
+									<div class="col-md-3">
 										<select class="form-control select2" name="id_pelanggan" id="id_pelanggan" style="width: 100%;" onchange="setProduk('new',this.value,0)">
 											<!-- <option value="">Pilih</option> -->
 											<?php foreach ($pelanggan as $r) : ?>
@@ -97,104 +98,88 @@
 												</option>
 											<?php endforeach ?>
 										</select>
-									</td>
-								</tr>
-								
-								<tr>
-									<td width="15%">Tgl PO</td>
-									<td>
-									<?php if (in_array($this->session->userdata('level'), ['Admin','User']))  { ?>
-										<input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>"> 
-									<?php } else { ?>
-										<input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>" readonly> 
-									<?php } ?>
-										
-									</td>
-									<td width="15%"></td>
-									<td width="15%">
-										Kota
-									</td>
-									<td>
-										<!-- <font id=""></font> -->
+									</div>
+								</div>
+								<div class="card-body row" style="padding : 5px;font-weight:bold">
+									<div class="col-md-2">Tgl PO</div>
+									<div class="col-md-3">
+										<?php if (in_array($this->session->userdata('level'), ['Admin','User']))  { ?>
+											<input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>"> 
+										<?php } else { ?>
+											<input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>" readonly> 
+										<?php } ?>
+									</div>
+
+									<div class="col-md-2"></div>
+
+									<div class="col-md-2">Kota</div>
+									<div class="col-md-3">
 										<input type="text" class="form-control" name="txt_kota" id="txt_kota" value="" readonly>
-									</td>
-								</tr>
-								<tr>
-									<td width="15%">Kode PO</td>
-									<td>
+									</div>
+								</div>
+								<div class="card-body row" style="padding : 5px;font-weight:bold">
+									<div class="col-md-2">Kode PO</div>
+									<div class="col-md-3">
 										<input type="text" class="form-control" name="kode_po" id="kode_po" onchange="cek_kode_po(this.value)" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " >
-									</td>
-									<td width="15%"></td>
-									<td width="15%">
-										No Telepon 
-									</td>
-									<td>
+									</div>
+
+									<div class="col-md-2"></div>
+
+									<div class="col-md-2">No Telepon</div>
+									<div class="col-md-3">
 										<input type="text" class="form-control" name="txt_no_telp" id="txt_no_telp" value="" readonly>
-									</td>
-									
-								</tr>
-								<tr>
-									<td width="15%">Marketing</td>
-									<td>
-										
-										<!-- <select class="form-control select2" name="id_sales" id="id_sales" style="width: 100%;" >
-											<option value="">Pilih</option>
-											<?php foreach ($sales as $r) : ?>
-												<option value="<?= $r->id_sales ?>">
-													<?= $r->nm_sales ?>
-												</option>
-											<?php endforeach ?>
-										</select> -->
-										<!-- <font id="txt_marketing"></font> -->
+									</div>
+								</div>
+								<div class="card-body row" style="padding : 5px;font-weight:bold">
+									<div class="col-md-2">Marketing</div>
+									<div class="col-md-3">
 										<input type="text" class="form-control" name="txt_marketing" id="txt_marketing" value="" readonly>
-									</td>
-									<td width="15%"></td>
-									<td width="15%">
-										FAX
-									</td>
-									<td>
+									</div>
+
+									<div class="col-md-2"></div>
+
+									<div class="col-md-2">FAX</div>
+									<div class="col-md-3">
 										<input type="text" class="form-control" name="txt_fax" id="txt_fax" value="" readonly>
-									</td>
-								</tr>
-								<tr>
-								<td width="15%"></td>
-								<!-- <td width="15%">ETA</td> -->
-									<td>
-										<!-- <input type="date" class="form-control" name="eta" id="eta" value="" > -->
-									</td>
-									<td width="15%"></td>
-									<td width="15%">
-										TOP
-									</td>
-									<td>
+									</div>
+								</div>
+								<div class="card-body row" style="padding : 5px;font-weight:bold">
+									<div class="col-md-2"></div>
+									<div class="col-md-3"></div>
+
+									<div class="col-md-2"></div>
+
+									<div class="col-md-2">TOP</div>
+									<div class="col-md-3">
 										<input type="text" class="form-control" name="txt_top" id="txt_top" value="" readonly>
-									</td>
-								</tr>
-							</table>
+									</div>
+								</div>
+							</div>
 						</div>
+							
 						<hr>
 
-						<div class="form-group row" >
-							<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table-produk" style="width: 100%" align="center">
+						<div style="overflow:auto;white-space:nowrap;" >
+							<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table-produk" width="100%">
 								<thead class="color-tabel">
 									<tr>
-										<th width="10%" id="header_del">Delete</th>
-										<th width="10%">Item</th>
-										<th width="10%">Qty</th>
-										<th width="10%">PPN</th>
+										<th id="header_del">Delete</th>
+										<th style="padding : 12px 20px" >Item</th>
+										<th style="padding : 12px 40px" >Qty</th>
+										<th style="padding : 12px 20px" >PPN</th>
 
 										<?php if ($this->session->userdata('level') != "PPIC")  {
 											?>
-												<th width="10%">Price Exclude</th>
-												<th width="10%">Price Include</th>
-												<th width="10%" id="header_p11" >P11</th>
-												<th width="20%">Detail Item</th>
+												<th style="padding : 12px 15px" >Price Exclude</th>
+												<th style="padding : 12px 15px" >Price Include</th>
+												<th style="padding : 12px 30px" id="header_p11" >P11</th>
+												<th>Detail Item</th>
 											
 										<?php } else { ?>
 
-												<th type="hidden" width="10%" id="header_p11" >P11</th>
+												<th type="hidden"  id="header_p11" >P11</th>
 												
-												<th width="50%" colspan="5">Detail Item</th>
+												<th colspan="5">Detail Item</th>
 
 										<?php } ?>
 									</tr>
@@ -210,7 +195,7 @@
 											<select class="form-control select2 narrow wrap wrap" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(this.value,0)">
 											</select>
 										</td>
-										<td>
+										<td >
 											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="ubah_angka(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)">											
 											<br>
 											<input class="form-control" type="checkbox" name="cek_rm[0]" id="cek_rm0" onclick="cekrm(this.id)" value="0">
@@ -225,11 +210,11 @@
 										</td>
 										<?php if ($this->session->userdata('level') != "PPIC"){ ?>
 										
-										<td>
+										<td style="padding : 12px 20px" >
 											<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
 
 										</td>
-										<td>
+										<td style="padding : 12px 20px">
 											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
 
 										</td>
@@ -334,7 +319,8 @@
 								</tbody>
 							</table>
 						</div>
-						<div class="form-group row" style="justify-content: left; ">
+
+						<div style="justify-content: left; ">
 							<!-- <label class="col-sm-2 col-form-label"></label> -->
 							<div class="col-sm-4">
 								<button type="button" onclick="addRow()" class="btn-tambah-produk btn  btn-success"><b><i class="fa fa-plus" ></i> Tambah Produk</b></button>
@@ -342,7 +328,7 @@
 							</div>
 						</div>
 					
-					</div>
+					<!-- </div> -->
 					<div class="modal-footer">
 
 						<button type="button" class="btn btn-success btn-verif" id="btn-verif_acc" style="display: none;" onclick="prosesData_acc('Y')"><i class="fas fa-check"></i> <b>Verifikasi</b></button>
@@ -350,8 +336,7 @@
 						<button type="button" class="btn btn-warning btn-verif" id="btn-verif_hold" style="display: none;" onclick="prosesData_hold('H')"><i class="far fa-hand-paper"></i> <b>HOLD</b></button>
 
 						<button type="button" class="btn btn-danger btn-verif" id="btn-verif_r" style="display: none;" onclick="prosesData_r('R')"><i class="fas fa-times"></i> <b>Reject</b></button>
-<!-- 
-						<button type="button" class="btn btn-primary" id="btn-simpan-plan" onclick="simpan_plan()"><i class="fas fa-save"></i><b> Simpan Plan</b></button> -->
+						<!--<button type="button" class="btn btn-primary" id="btn-simpan-plan" onclick="simpan_plan()"><i class="fas fa-save"></i><b> Simpan Plan</b></button> -->
 						
 						<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan</b></button>
 
@@ -1625,7 +1610,7 @@
 							</div>
 						</td>
 						<td>
-							<select class="form-control select2" style="width: 150px;" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }" style="width: 100%;" onchange="setDetailProduk(this.value,${ rowNum })">
+							<select class="form-control select2" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }"  onchange="setDetailProduk(this.value,${ rowNum })">
 							</select>
 						</td>
 						<td>
@@ -1647,16 +1632,16 @@
 						<td ${ coll } id="txt_detail_produk${ rowNum }"> 
 						</td>
 					</tr>
-					<tr style="width: 100%" id="item_tambahan${ rowNum }">
-						<td width="20%">
+					<tr id="item_tambahan${ rowNum }">
+						<td>
 							<div class="text-center">
 								ETA
 							</div>
 						</td>
-						<td width="20%">
+						<td>
 							<input class="form-control" type="date" name="eta_item[${ rowNum }]" id="eta_item${ rowNum }">
 						</td>
-						<td width="10%">
+						<td>
 							<textarea class="form-control" name="eta_ket[${ rowNum }]" id="eta_ket${ rowNum }" placeholder="KET. ETA" rows="3" style="resize:none"></textarea>
 						</td>
 						${ hitung }
