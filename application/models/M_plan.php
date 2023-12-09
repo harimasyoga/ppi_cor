@@ -518,7 +518,6 @@ class M_plan extends CI_Model
 						$this->db->set('edit_user', $this->session->userdata('username'));
 						$this->db->where('id_plan', $id_plan);
 						$result = $this->db->update('plan_cor');
-						$result = true;
 						$msg = 'BERHASIL EDIT!';
 					}
 				}
@@ -533,7 +532,7 @@ class M_plan extends CI_Model
 	//
 
 	function loadPlanCor()
-	{
+	{ //
 		$mesin = $_POST["mesin"];
 		$opsi = $_POST["opsi"];
 		if($opsi != ''){
@@ -569,8 +568,21 @@ class M_plan extends CI_Model
 
 	function hapusPlanFlexo()
 	{
-		$this->db->where('id_flexo', $_POST["id_flexo"]);
-		return $this->db->delete('plan_flexo');
+		$id_flexo = $_POST["id_flexo"];
+		$cekFinishing = $this->db->query("SELECT*FROM plan_finishing WHERE id_plan_flexo='$id_flexo'");
+		if($cekFinishing->num_rows() > 0){
+			$data = false;
+			$msg = 'PLAN FLEXO SUDAH ADA DI PLAN FINISHING!';
+		}else{
+			$this->db->where('id_flexo', $_POST["id_flexo"]);
+			$data = $this->db->delete('plan_flexo');
+			$msg = 'hapus';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
 	}
 
 	function simpanCartFlexo()
@@ -642,7 +654,6 @@ class M_plan extends CI_Model
 				);
 			}
 		}else{
-			// $result = $this->db->update('plan_flexo');
 			$result = array(
 				'data' => false,
 				'msg' => 'HASIL PROD. FLEXO KOSONG!',
@@ -669,7 +680,7 @@ class M_plan extends CI_Model
 			AND tgl_flexo='$tgl' AND shift_flexo='$shift' AND mesin_flexo='$mesin'");
 			if($cekIDProduk->num_rows() > 0){
 				$result = false;
-				$msg = 'PLAN COR SUDAH ADA DI TANGGAL TERSEBUT!';
+				$msg = 'PLAN FLEXO SUDAH ADA DI TANGGAL TERSEBUT!';
 			}else{
 				$cekIDPlanProduksi = $this->db->query("SELECT * FROM plan_flexo WHERE id_flexo='$id_flexo' AND total_prod_flexo!='0'");
 				if($cekIDPlanProduksi->num_rows() > 0){
@@ -677,9 +688,13 @@ class M_plan extends CI_Model
 					$msg = 'PLAN FLEXO SUDAH TERPRODUKSI!';
 				}else{
 					$cekPlanCor = $this->db->query("SELECT*FROM plan_cor WHERE id_plan='$cekIDPlan->id_plan_cor'")->row();
+					$cekPlanFinishing = $this->db->query("SELECT*FROM plan_finishing WHERE id_plan_cor='$cekIDPlan->id_plan_cor' AND id_plan_flexo='$id_flexo'")->row();
 					if($tgl < $cekPlanCor->tgl_plan){
 						$result = false;
 						$msg = 'TGL PLAN FLEXO TIDAK BOLEH KURANG DARI TANGGAL PLAN COR!';
+					}else if($tgl > $cekPlanFinishing->tgl_fs){
+						$result = false;
+						$msg = 'TGL PLAN FLEXO TIDAK BOLEH LEBIH DARI TANGGAL PLAN FINISHING!';
 					}else{
 						$this->db->set('tgl_flexo', $tgl);
 						$this->db->set('shift_flexo', $shift);
@@ -689,7 +704,6 @@ class M_plan extends CI_Model
 						$this->db->set('edit_user', $this->session->userdata('username'));
 						$this->db->where('id_flexo', $id_flexo);
 						$result = $this->db->update('plan_flexo');
-						$result = true;
 						$msg = 'BERHASIL EDIT!';
 					}
 				}
@@ -793,28 +807,82 @@ class M_plan extends CI_Model
 
 	//
 
+	function loadDataPlanFinishing()
+	{
+		$tgl = $_POST["uTgl"];
+		$shift = $_POST["uShift"];
+		$joint = $_POST["uJoint"];
+
+		return $this->db->query("SELECT * FROM plan_finishing
+		WHERE tgl_fs='$tgl' AND shift_fs='$shift' AND joint_fs='$joint'")->result();
+	}
+
 	function loadPlanFlexo()
 	{
 		$joint = $_POST["joint"];
 		$opsi = $_POST["opsi"];
-		// if($opsi != ''){
-		// 	$query = $this->db->query("")->row();
-		// }else{
-		// 	$tgl = $_POST["urlTglF"];
-		// 	$shift = $_POST["urlShiftF"];
-		// 	$uMesin = $_POST["urlMesinF"];
-		// 	($tgl != '' || $shift != '' || $uMesin != '') ? $whereNotExists = "AND NOT EXISTS (SELECT*FROM plan_flexo f WHERE f.id_plan_cor=p.id_plan AND f.tgl_flexo='$tgl' AND f.shift_flexo='$shift' AND f.mesin_flexo='$uMesin')" : $whereNotExists = '' ;
-		// 	$query = $this->db->query("SELECT*FROM plan_flexo
-		// 	WHERE status_stt_f='Open' AND next_flexo LIKE '%$joint%'")->result();
-		// }
-		$query = $this->db->query("SELECT f.*,c.*,i.*,p.nm_pelanggan,s.qty_so,s.kode_po FROM plan_flexo f
-		INNER JOIN plan_cor c ON f.id_plan_cor=c.id_plan
-		INNER JOIN m_produk i ON c.id_produk=i.id_produk
-		INNER JOIN m_pelanggan p ON c.id_pelanggan=p.id_pelanggan
-		INNER JOIN trs_so_detail s ON c.id_so_detail=s.id
-		WHERE f.status_stt_f='Open' AND f.next_flexo LIKE '%$joint%'")->result();
+		if($opsi != ''){
+			$query = $this->db->query("SELECT fs.*,i.*,pc.*,f.*,so.qty_so,so.kode_po,c.nm_pelanggan FROM plan_finishing fs
+			INNER JOIN plan_flexo f ON fs.id_plan_flexo=f.id_flexo
+			INNER JOIN plan_cor pc ON fs.id_plan_cor=pc.id_plan
+			INNER JOIN trs_so_detail so ON pc.id_so_detail=so.id
+			INNER JOIN m_produk i ON pc.id_produk=i.id_produk
+			INNER JOIN m_pelanggan c ON pc.id_pelanggan=c.id_pelanggan
+			WHERE fs.id_fs='$opsi'")->row();
+		}else{
+			$tgl = $_POST["urlTglFs"];
+			$shift = $_POST["urlShiftFs"];
+			$uJoint = $_POST["urlJointFs"];
+			($joint == 'STITCHING') ? $wNextFlexo = "AND f.next_flexo LIKE '%$joint%'": $wNextFlexo = "AND f.next_flexo='$joint'";
+			($tgl != '' || $shift != '' || $joint != '') ? $whereNotExists = "AND NOT EXISTS (SELECT*FROM plan_finishing fs WHERE fs.id_plan_cor=c.id_plan AND fs.id_plan_flexo=f.id_flexo AND fs.tgl_fs='$tgl' AND fs.shift_fs='$shift' AND fs.joint_fs='$uJoint')" : $whereNotExists = '' ;
+			$query = $this->db->query("SELECT f.*,c.*,i.*,p.nm_pelanggan,s.qty_so,s.kode_po FROM plan_flexo f
+			INNER JOIN plan_cor c ON f.id_plan_cor=c.id_plan
+			INNER JOIN m_produk i ON c.id_produk=i.id_produk
+			INNER JOIN m_pelanggan p ON c.id_pelanggan=p.id_pelanggan
+			INNER JOIN trs_so_detail s ON c.id_so_detail=s.id
+			WHERE f.status_stt_f='Open' $wNextFlexo $whereNotExists")->result();
+		}
 
 		return $query;
+	}
+
+	function addRencanaFinishing(){
+		// $id_flexo = $_POST["opsi"];
+		// if($id_flexo != 'add'){
+		// 	$cekFlexo = $this->db->query("SELECT*FROM plan_flexo WHERE id_flexo='$id_flexo' AND status_flexo='Close'");
+		// 	if($cekFlexo->num_rows() == 0){
+		// 		$this->db->set('status_flexo', 'Close');
+		// 		$this->db->where('id_flexo', $id_flexo);
+		// 		$data = $this->db->update('plan_flexo');
+		// 		$isi = 'PLAN FLEXO SELESAI!';
+		// 	}else{
+		// 		$data = false;
+		// 		$isi = 'PLAN FLEXO SUDAH SELESAI!';
+		// 	}
+		// }
+		return array(
+			'data' => false,
+			'isi' => false,
+		);
+	}
+
+	function hapusPlanFinishing()
+	{
+		// $id_flexo = $_POST["id_flexo"];
+		// $cekFinishing = $this->db->query("SELECT*FROM plan_finishing WHERE id_plan_flexo='$id_flexo'");
+		// if($cekFinishing->num_rows() > 0){
+		// 	$data = false;
+		// 	$msg = 'PLAN FLEXO SUDAH ADA DI PLAN FINISHING!';
+		// }else{
+			$this->db->where('id_fs', $_POST["id_fs"]);
+			$data = $this->db->delete('plan_finishing');
+			$msg = 'hapus';
+		// }
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
 	}
 
 	function simpanCartFinishing()
@@ -837,6 +905,97 @@ class M_plan extends CI_Model
 
 		return array(
 			'insertPlanFinishing' => $insertPlanFinishing,
+		);
+	}
+
+	function produksiPlanFinishing()
+	{
+		$this->db->set('good_fs_p', $_POST["good_fs"]);
+		$this->db->set('bad_fs_p', $_POST["bad_fs"]);
+		$this->db->set('bad_bahan_fs_p', $_POST["bad_b_fs"]);
+		$this->db->set('total_prod_fs', $_POST["total_fs"]);
+		$this->db->set('ket_fs_p', strtoupper($_POST["ket_fs"]));
+		$this->db->set('tgl_pord_fs', $_POST["tgl_fs"]);
+		$this->db->set('start_time_fs', $_POST["start_fs"]);
+		$this->db->set('end_time_fs', $_POST["end_fs"]);
+		$this->db->set('edit_time', date("Y-m-d H:i:s"));
+		$this->db->set('edit_user', $this->session->userdata('username'));
+		$this->db->where('id_fs', $_POST["id_fs"]);
+
+		if($_POST["total_fs"] != 0){
+			$id_fs = $_POST["id_fs"];
+			$cekPlan = $this->db->query("SELECT*FROM plan_finishing WHERE id_fs='$id_fs'")->row();
+			if($_POST["good_fs"] > $_POST["good_flexo"]){
+				$result = array(
+					'data' => false,
+					'msg' => 'PROD. FINISHING LEBIH BESAR DARI PROD. FLEXO!',
+				);
+			}else if($cekPlan->status_fs == 'Close'){
+				$result = array(
+					'data' => false,
+					'msg' => 'PLAN FINISHING SUDAH SELESAI!',
+				);
+			}else{
+				$data = $this->db->update('plan_finishing');
+				$result = array(
+					'data' => $data,
+					'msg' => 'OK!',
+				);
+			}
+		}else{
+			$result = array(
+				'data' => false,
+				'msg' => 'HASIL PROD. FINISHING KOSONG!',
+			);
+		}
+		return $result;
+	}
+
+	function btnGantiTglFinishing()
+	{
+		$tgl = $_POST["tgl"];
+		$shift = $_POST["shift"];
+		$joint = $_POST["joint"];
+		$id_fs = $_POST["id_fs"];
+
+		if($tgl == "" || $shift == "" || $joint == ""){
+			$result = false;
+			$msg = 'CEK KEMBALI!';
+		}else{
+			$cekIDPlan = $this->db->query("SELECT id_plan_cor,id_plan_flexo FROM plan_finishing WHERE id_fs='$id_fs'")->row();
+			// ($joint == 'STITCHING') ? $whereJoint = "AND joint_fs LIKE '%$joint%'": $whereJoint = "AND joint_fs='$joint'";
+			$cekIDProduk = $this->db->query("SELECT*FROM plan_finishing
+			WHERE id_plan_cor='$cekIDPlan->id_plan_cor' AND id_plan_flexo='$cekIDPlan->id_plan_flexo' AND tgl_fs='$tgl' AND shift_fs='$shift'");
+			if($cekIDProduk->num_rows() > 0){
+				$result = false;
+				$msg = 'PLAN FINISHING SUDAH ADA DI TANGGAL TERSEBUT!';
+			}else{
+				$cekIDPlanProduksi = $this->db->query("SELECT * FROM plan_finishing WHERE id_fs='$id_fs' AND total_prod_fs!='0'");
+				if($cekIDPlanProduksi->num_rows() > 0){
+					$result = false;
+					$msg = 'PLAN FINISHING SUDAH TERPRODUKSI!';
+				}else{
+					$cekPlanCor = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$cekIDPlan->id_plan_cor' AND id_flexo='$cekIDPlan->id_plan_flexo'")->row();
+					if($tgl < $cekPlanCor->tgl_flexo){
+						$result = false;
+						$msg = 'TGL PLAN FINISHING TIDAK BOLEH KURANG DARI TANGGAL PLAN FLEXO!';
+					}else{
+						$this->db->set('tgl_fs', $tgl);
+						$this->db->set('shift_fs', $shift);
+						// $this->db->set('joint_fs', $joint);
+						$this->db->set('no_urut_fs', 0);
+						$this->db->set('edit_time', date("Y-m-d H:i:s"));
+						$this->db->set('edit_user', $this->session->userdata('username'));
+						$this->db->where('id_fs', $id_fs);
+						$result = $this->db->update('plan_finishing');
+						$msg = 'BERHASIL EDIT!';
+					}
+				}
+			}
+		}
+		return array(
+			'data' => $result,
+			'msg' => $msg,
 		);
 	}
 }
