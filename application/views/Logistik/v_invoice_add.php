@@ -160,20 +160,19 @@
 										
 									</table>
 								</div>
-							</div>
-							<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-								<div class="col-md-12">
-									<a href="<?= base_url('Logistik/Invoice')?>" class="btn btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a>
-									
-									<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan</b></button>
-								</div>
-							</div>
-							<br>
-							<br>
-							
+							</div>						
 						
 					</div>
 				</div>
+				<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+					<div class="col-md-12">
+						<a href="<?= base_url('Logistik/Invoice')?>" class="btn btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a>
+						
+						<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan</b></button>
+					</div>
+				</div>
+				<br>
+				<br>
 			</form>	
 		</div>
 		<!-- /.card -->
@@ -726,7 +725,14 @@
 						</thead>`;
 					var no             = 1;
 					var berat_total    = 0;
+					var no_po          = '';
 					$.each(data.data, function(index, val) {
+						if(val.no_po_sj == null || val.no_po_sj == '')
+						{
+							no_po = val.no_po
+						}else{
+							no_po = val.no_po_sj
+						}
 						list += `
 						<tbody>
 							<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
@@ -739,8 +745,8 @@
 								<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
 							</td>
 
-							<td style="text-align: center" >${val.no_po}
-								<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${val.no_po}">
+							<td style="text-align: center" >${no_po}
+								<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${no_po}">
 							</td>
 
 							<td style="text-align: center" >${val.g_label}
