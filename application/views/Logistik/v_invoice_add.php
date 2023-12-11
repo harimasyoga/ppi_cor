@@ -842,7 +842,7 @@
 		if(pajak == 'ppn' || pajak == 'ppn_pph' )
 		{
 			$('#ppn_pilihan').show("1000");
-			$("#inc_exc").val('Include').trigger('change');
+			$("#inc_exc").val('Exclude').trigger('change');
 
 		}else{
 			$('#ppn_pilihan').hide("1000");
