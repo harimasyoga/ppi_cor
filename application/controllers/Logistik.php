@@ -225,6 +225,7 @@ class Logistik extends CI_Controller
 		$id_perusahaan    = $this->input->post('id_perusahaan');
 		$type_po          = $this->input->post('type_po');
 		$tgl              = $this->input->post('tgl_sj');
+		$db2              = $this->load->database('database_simroll', TRUE);
 		
 		if ($type_po == 'roll')
 		{
@@ -245,10 +246,6 @@ class Logistik extends CI_Controller
 			ORDER BY a.g_label,b.no_surat,b.no_po,a.nm_ker DESC,a.g_label,a.width ")->result();
 		}
 		
-		$db2 = $this->load->database('database_simroll', TRUE);
-
-		
-
 		if (!$query) {
 			$response = [
 				'message'	=> 'not found',
