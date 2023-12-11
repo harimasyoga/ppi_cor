@@ -33,6 +33,15 @@
 				<div class="card-body">
 					<div class="col-md-12">
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+								<div class="col-md-2">Status Invoice</div>
+								<div class="col-md-10">
+									<select id="cek_inv" name="cek_inv" class="form-control select2" style="width: 100%">
+										<option value="baru">BARU</option>
+										<option value="revisi">REVISI</option>
+									</select>
+								</div>
+							</div>
+							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 							
 								<div class="col-md-2">Type</div>
 								<div class="col-md-10">
@@ -62,6 +71,16 @@
 										<option value="ppn">PPN 11%</option>
 										<option value="ppn_pph">PPN 11% + PPH22</option>
 										<option value="nonppn">NON PPN</option>
+									</select>
+								</div>
+							</div>
+							<div class="card-body row" style="padding-bottom:5px;font-weight:bold;display:none" id="ppn_pilihan" >
+								<div class="col-md-2">Incl / Excl</div>
+								<div class="col-md-10">
+									
+									<select id="inc_exc" name="inc_exc" class="form-control select2" style="width: 100%" >
+										<option value="Include">Include</option>
+										<option value="Exclude">Exclude</option>
 									</select>
 								</div>
 							</div>
@@ -137,6 +156,15 @@
 								<div class="col-md-2" style="padding-right:0">Alamat Perusahaan</div>
 								<div class="col-md-10">
 									<textarea class="form-control" name="alamat_perusahaan" id="alamat_perusahaan" cols="30" rows="5" placeholder="Alamat Perusahaan" ></textarea>
+								</div>
+							</div>
+							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+								<div class="col-md-2">Pilihan Bank</div>
+								<div class="col-md-10">
+									<select class="form-control select2" id="bank" name="bank" style="width: 100%" autocomplete="off">
+										<option value="BCA">BCA</option>
+										<option value="BNI">BNI</option>
+									</select>
 								</div>
 							</div>
 							<hr>
@@ -273,17 +301,27 @@
 				if(data){
 					// header
 					$("#type_po").val(data.header.type).trigger('change');
+					$("#cek_inv").val(data.header.cek_inv).trigger('change');
 					$("#tgl_inv").val(data.header.tgl_invoice);
 					$("#tgl_sj").val(data.header.tgl_sj);
 					$("#id_pl_sementara").val(data.header.id_perusahaan);
 					load_sj() 
 					
 					$("#pajak").val(data.header.pajak).trigger('change');
+					$("#bank").val(data.header.bank).trigger('change');
 					$("#tgl_tempo").val(data.header.tgl_jatuh_tempo);
 					$("#id_perusahaan").val(data.header.id_perusahaan);
 					$("#kpd").val(data.header.kepada);
 					$("#nm_perusahaan").val(data.header.nm_perusahaan);
 					$("#alamat_perusahaan").val(data.header.alamat_perusahaan);
+
+					if(data.header.pajak == 'ppn' || data.header.pajak == 'ppn_pph' )
+					{
+						$('#ppn_pilihan').show("1000");
+						$("#inc_exc").val(data.header.inc_exc).trigger('change');
+					}else{
+						$('#ppn_pilihan').hide("1000");
+					}
 					
 					const myArray    = data.header.no_invoice.split("/");
 					var no_inv_kd    = myArray[0]+'/';
@@ -297,8 +335,10 @@
 					
 					$("#type_po").prop("disabled", true);
 					$("#pajak").prop("disabled", true);
+					$("#inc_exc").prop("disabled", true);
 					$("#id_pl").prop("disabled", true);
 					$("#tgl_sj").prop("disabled", true);
+					$("#cek_inv").prop("disabled", true);
 
 					// detail
 
