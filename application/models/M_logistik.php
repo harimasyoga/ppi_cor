@@ -37,14 +37,17 @@ class M_logistik extends CI_Model
 		$data_header = array(
 			'no_invoice'         => $m_no_inv,
 			'type'               => $this->input->post('type_po'),
+			'cek_inv'    		 => $cek_inv,
 			'tgl_invoice'        => $this->input->post('tgl_inv'),
 			'tgl_sj'             => $this->input->post('tgl_sj'),
 			'pajak'              => $this->input->post('pajak'),
+			'inc_exc'            => $this->input->post('inc_exc'),
 			'tgl_jatuh_tempo'    => $this->input->post('tgl_tempo'),
 			'id_perusahaan'      => $this->input->post('id_perusahaan'),
 			'kepada'             => $this->input->post('kpd'),
 			'nm_perusahaan'      => $this->input->post('nm_perusahaan'),
 			'alamat_perusahaan'  => $this->input->post('alamat_perusahaan'),
+			'bank'  			 => $this->input->post('bank'),
 			'status'             => 'Open',
 		);
 	

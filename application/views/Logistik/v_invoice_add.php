@@ -66,6 +66,17 @@
 									</select>
 								</div>
 							</div>
+							<div class="card-body row" style="padding-bottom:5px;font-weight:bold;display:none" id="ppn_pilihan" >
+								<div class="col-md-2">Incl / Excl</div>
+								<div class="col-md-10">
+									
+									<select id="inc_exc" name="inc_exc" class="form-control select2" style="width: 100%" >
+										<option value="Include">Include</option>
+										<option value="Exclude">Exclude</option>
+										<option value="nonppn_inc">Non PPN</option>
+									</select>
+								</div>
+							</div>
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 								<div class="col-md-2">Tanggal Invoice</div>
 								<div class="col-md-4">
@@ -140,9 +151,9 @@
 								</div>
 							</div>
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2" style="padding-right:0">Pilihan Bank</div>
+								<div class="col-md-2">Pilihan Bank</div>
 								<div class="col-md-10">
-									<select class="form-control select2" name="bank" id="bank">
+									<select class="form-control select2" id="bank" name="bank" style="width: 100%" autocomplete="off">
 										<option value="BCA">BCA</option>
 										<option value="BNI">BNI</option>
 									</select>
@@ -338,8 +349,8 @@
 					swal({
 						title               : "Data",
 						html                : "Berhasil Disimpan",
-						type                : "success",
-						confirmButtonText   : "OK"
+						type                : "success"
+						// confirmButtonText   : "OK"
 					});
 					location.href = "<?= base_url()?>Logistik/Invoice_edit?id="+data.id+"&no_inv="+no_inv_ok+"";
 
@@ -633,7 +644,8 @@
 	}
 
 	function load_sj() {
-		var tgl_sj = $("#tgl_sj").val()
+		var tgl_sj    = $("#tgl_sj").val()
+		var type_po   = $("#type_po").val()
 		option = "";
 		$.ajax({
 			type       : 'POST',
@@ -812,6 +824,16 @@
 		var type    = $('#type_po').val()
 		var tgl_inv = $('#tgl_inv').val()
 		var pajak   = $('#pajak').val()
+		
+		if(pajak == 'ppn' || pajak == 'ppn_pph' )
+		{
+			$('#ppn_pilihan').show("1000");
+			$("#inc_exc").val('Include').trigger('change');
+
+		}else{
+			$('#ppn_pilihan').hide("1000");
+			$("#inc_exc").val('nonppn_inc').trigger('change');
+		}
 
 		const myArray   = tgl_inv.split("-");
 		let year        = myArray[0];

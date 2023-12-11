@@ -186,9 +186,9 @@ class Logistik extends CI_Controller
 
 		$query = $db2->query("SELECT DATE_FORMAT(a.tgl, '%d-%m-%Y')tgll,a.* FROM pl a
 			INNER JOIN m_timbangan b ON a.id = b.id_pl
-			WHERE a.status = 'Open' AND a.no_pl_inv = '0' and a.tgl = '$tgl' and id_perusahaan not in ('210','217') 
-			GROUP BY a.tgl,a.nm_perusahaan
-			ORDER BY a.tgl,a.nm_perusahaan,a.no_pl_inv")->result();
+			WHERE a.no_pl_inv = '0' and a.tgl = '$tgl' and id_perusahaan not in ('210','217') 
+			GROUP BY a.tgl,a.id_perusahaan
+			ORDER BY a.tgl,a.id_perusahaan,a.no_pl_inv")->result();
 
 		if (!$query) {
 			$response = [
@@ -248,13 +248,14 @@ class Logistik extends CI_Controller
 			$c_no_inv_kd   = $this->input->post('no_inv_kd');
 			$c_no_inv      = $this->input->post('no_inv');
 			$c_no_inv_tgl  = $this->input->post('no_inv_tgl');
+			$cek_inv       = $this->input->post('cek_inv');
 
 			$no_inv_ok     = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
 			$query_cek_no  = $this->db->query("SELECT*FROM invoice_header where no_invoice='$no_inv_ok' ")->num_rows();
 
 			if($query_cek_no>0)
 			{
-				echo json_encode(array("status" => "3","id" => $asc));
+				echo json_encode(array("status" => "3","id" => '0'));
 			}else{
 				
 				$c_type_po   = $this->input->post('type_po');
@@ -270,7 +271,16 @@ class Logistik extends CI_Controller
 					$no_urut    = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok);
 					$kode_ok    = $type_ok.'_'.$pajak_ok;
 
-					$this->db->query("UPDATE m_urut set no_urut=$no_urut+1 where kode='$kode_ok' ");
+					if($cek_inv =='baru')
+					{
+						$this->db->query("UPDATE m_urut set no_urut=$no_urut+1 where kode='$kode_ok' ");
+					}else{
+						
+						if($c_no_inv == $no_urut)
+						{
+							$this->db->query("UPDATE m_urut set no_urut=$no_urut+1 where kode='$kode_ok' ");
+						}
+					}
 		
 					echo json_encode(array("status" =>"1","id" => $asc));
 		
@@ -603,10 +613,30 @@ class Logistik extends CI_Controller
 
         // RUMUS
 		if($ppnpph == 'ppn'){ // PPN 10 %
-			$terbilang = round($totalHarga + (0.1 * $totalHarga));
+			if($data_detail->inc_exc=='Include')
+			{
+				$terbilang = round($totalHarga);
+			}else if($data_detail->inc_exc=='Exclude')
+			{
+				$terbilang = round($totalHarga + (0.11 * $totalHarga));
+			}else{
+				$terbilang = '';
+			}
+
+
 			$rowspan = 3;
 		}else if($ppnpph == 'ppn_pph'){ // PPH22
-			$terbilang = round($totalHarga + (0.1 * $totalHarga) + (0.01 * $totalHarga));
+
+			if($data_detail->inc_exc=='Include')
+			{
+				$terbilang = round($totalHarga + (0.011 * $totalHarga));
+			}else if($data_detail->inc_exc=='Exclude')
+			{
+				$terbilang = round($totalHarga + (0.11 * $totalHarga) + (0.011 * $totalHarga));
+			}else{
+				$terbilang = '';
+			}
+			
 			$rowspan = 4;
 		}else{ // NON
 			$terbilang = $totalHarga;
@@ -624,12 +654,35 @@ class Logistik extends CI_Controller
 		</tr>';
 
 		// PPN - PPH22
-		$ppn10 = 0.1 * $totalHarga;
-        $pph22 = 0.01 * $totalHarga;
+		$ppn10 = 0.11 * $totalHarga;
+        $pph22 = 0.011 * $totalHarga;
+		if($data_detail->pajak=='ppn')
+		{
+			if($data_detail->inc_exc=='Include')
+			{
+				$nominal = 'KB';
+			}else if($data_detail->inc_exc=='Exclude')
+			{				
+				$nominal = number_format($ppn10);
+			}else{
+				$nominal = '';
+			}
+
+		}else{
+			if($data_detail->inc_exc=='Include')
+			{
+				$nominal = 'KB';
+			}else if($data_detail->inc_exc=='Exclude')
+			{
+				$nominal = number_format($ppn10);
+			}else{
+				$nominal = '';
+			}
+		}
 		$txtppn10 = '<tr>
 				<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Ppn 11%</td>
 				<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
-				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($ppn10).'</td>
+				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.$nominal.'</td>
 			</tr>';
 
 		if($ppnpph == 'ppn'){ // PPN 10 %
@@ -657,12 +710,28 @@ class Logistik extends CI_Controller
 			<td style="border:0;padding:20px 0 0" colspan="7"></td>
 		</tr>';
 
+		if($data_detail->bank=='BNI')
+		{
+			if($data_detail->pajak=='nonppn')
+			{
+				$norek='5758699099';
+			}else{
+				$norek='5758699690';
+			}
+		}else{
+			if($data_detail->pajak=='nonppn')
+			{
+				$norek='078 795 5758';
+			}else{
+				$norek='078 027 5758';
+			}
+		}
 		$html .= '<tr>
 			<td style="border:0;padding:5px" colspan="3"></td>
 			<td style="border:0;padding:5px;text-align:center" colspan="4">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia(date('Y-m-d')).'</td>
 		</tr>
 		<tr>
-			<td style="border:0;padding:0 0 15px;line-height:1.8" colspan="3">Pembayaran Full Amount ditransfer ke :<br/>BNI 5758699690 (CABANG SOLO)<br/>A.n PT. PRIMA PAPER INDONESIA</td>
+			<td style="border:0;padding:0 0 15px;line-height:1.8" colspan="3">Pembayaran Full Amount ditransfer ke :<br/>'.$data_detail->bank.' '.$norek.' (CABANG SOLO)<br/>A.n PT. PRIMA PAPER INDONESIA</td>
 			<td style="border:0;padding:0" colspan="4"></td>
 		</tr>
 		<tr>

@@ -166,7 +166,7 @@
 										<th id="header_del">Delete</th>
 										<th style="padding : 12px 20px" >Item</th>
 										<th style="padding : 12px 40px" >Qty</th>
-										<th style="padding : 12px 20px" >PPN</th>
+										<th style="padding : 12px 40px" >PPN</th>
 
 										<?php if ($this->session->userdata('level') != "PPIC")  {
 											?>

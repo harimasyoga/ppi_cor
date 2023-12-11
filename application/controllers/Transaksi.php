@@ -629,23 +629,34 @@ class Transaksi extends CI_Controller
             order by a.id desc")->result();
 			$i = 1;
 			foreach ($query as $r) {
+
 				if($r->kategori=='K_BOX'){
 					$type ='BOX';
 				}else{
 					$type ='SHEET';
 				}
 
+				if($r->status == 'Open')
+                {
+                    $btn_status   = 'btn-info';
+                }else if($r->status == 'Approve')
+                {
+                    $btn_status   = 'btn-success';
+                }else{
+                    $btn_status   = 'btn-danger';
+                }
+
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id_wo . "'" . ',' . "'detail'" . ')">' . $r->no_wo . "<a>";
                 
-				$row[] = $type;
+				$row[] = '<div class="text-center">'.$type.'</div';
 				$row[] = $this->m_fungsi->tanggal_ind($r->tgl_wo);
 				// $row[] = $r->no_so;
 				$row[] = $this->m_fungsi->tanggal_ind($r->tgl_so);
-				$row[] = $r->status;
+				$row[] = '<div class="text-center btn btn-sm '.$btn_status.'">'.$r->status.'</div';
 				$row[] = $r->kode_mc;
-				$row[] = '<div class="text-center">'.$r->qty.'</div';
+				$row[] = '<div class="text-center">'.number_format($r->qty, 0, ",", ".").'</div';
 				// $row[] = $r->id_pelanggan;
 				$row[] = $r->nm_pelanggan;
 

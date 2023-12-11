@@ -43,12 +43,12 @@
             <tr>
               <th style="text-align: center; width:5%">No</th>
               <th style="text-align: center; width:15%">No WO</th>
-              <th style="text-align: center; width:15%">Type</th>
+              <th style="text-align: center; width:10%">Type</th>
               <th style="text-align: center; width:10%">Tgl WO</th>
               <!-- <th style="text-align: center; width:15%">No SO</th> -->
               <th style="text-align: center; width:10%">Tgl SO</th>
               <th style="text-align: center; width:5%">Status</th>
-              <th style="text-align: center; width:10%">Kode MC</th>
+              <th style="text-align: center; width:15%">Kode MC</th>
               <th style="text-align: center; width:5%">Qty</th>
               <!-- <th style="text-align: center; width:%">ID Pelanggan</th> -->
               <th style="text-align: center; width:15%">Pelanggan</th>
@@ -80,61 +80,52 @@
       <div class="modal-body">
         <form role="form" method="post" id="myForm">
         
-        <div class="form-group row">
-          <table width="100%" border="0">
-            <tr id="ket">
-              <td style="" ></td>
-              <td style="color:red;" colspan="4" ><b><i>* [ Type ] - [ No.SO ] - [ Item ] - [ Customer ] </i></b></td>
-            </tr>
-            <tr>
-              <td style="padding:5px 0" >NO SO</td>
-              <td style="padding:5px 0" colspan="4" >
-                <select class="form-control select2" name="no_so" id="no_so" style="width: 100%;" >
-                  <!-- <option value="">Pilih</option>
-                  <?php foreach ($getSO as $r): ?>
-                    <option value="<?= $r->no_so ?>.<?= $r->urut_so ?>.<?= $r->rpt ?>" detail="<?= $r->no_so ?>">[ <?= $r->no_so ?>.<?= $r->urut_so ?>.<?= $r->rpt ?> ] - [ <?= $r->nm_produk ?> ]</option>
-                  <?php endforeach ?> -->
-                </select>
-                
-              </td>
-              
-            </tr>
-            <tr>
-              <td style="padding:5px 0" width="15%">No WO</td>
-              <td style="padding:5px 0">
+        
+        <div class="card-body">
+          <div class="col-md-12">
+            <div class="card-body row" style="padding : 5px;font-weight:bold">
+                <div class="col-md-2">&nbsp;</div>
+                <div style="color:red;" class="col-md-10">* [ Type ] - [ No.SO ] - [ Item ] - [ Customer ] 
+                </div>
+            </div>
+            <div class="card-body row" style="padding : 5px;font-weight:bold">
+              <div class="col-md-2">No SO</div>
+              <div class="col-md-10">
+                <select class="form-control select2" name="no_so" id="no_so" style="width: 100%;" ></select>
+              </div>
+            </div>
+            <div class="card-body row" style="padding : 5px;font-weight:bold">
+              <div class="col-md-2">No WO</div>
+              <div class="col-md-3">
                 <input type="hidden" class="form-control" value="trs_wo" name="jenis" id="jenis" >
                 <input type="hidden" class="form-control" value="" name="status" id="status" >
                 <input type="text" class="form-control" name="no_wo" id="no_wo" readonly>
-              </td>
-              <td style="padding:5px 0" width="15%"></td>   
-              <td style="padding:5px 0" width="15%">Pelanggan</td>
-              <td style="padding:5px 0" width="30%">
-                <input type="text" class="form-control" name="pelanggan"  id="pelanggan" readonly=""  >
-              </td>   
-              <!-- <td>Out</td>
-              <td><input type="text" class="angka form-control" name="line" id="line" ></td> -->
-            </tr>
-            <tr>
-              <td style="padding:5px 0">Tgl WO</td>
-              <td style="padding:5px 0"><input type="date" class="form-control" name="tgl_wo"  id="tgl_wo" value="<?= date('Y-m-d') ?>" readonly></td>
-              <td style="padding:5px 0"></td>
-              <td style="padding:5px 0">NO PO</td>
-              <td style="padding:5px 0"><input type="text" name="nopo" id="nopo" class="form-control" readonly></td>
-              <!-- <td>Lebar Kertas</td>
-              <td><input type="text" class="angka form-control" name="no_artikel" id="no_artikel" ></td> -->
-            </tr>
-            <!-- <tr>
-              <td colspan="2"></td>
-              <td>Batch No</td>
-              <td><input type="text" class="form-control" name="batchno" id="batchno" ></td>
-              
-            </tr> -->
+              </div>
 
-            
-          </table>
+              <div class="col-md-2"></div>
+
+              <div class="col-md-2">Pelanggan</div>
+              <div class="col-md-3">
+                <input type="text" class="form-control" name="pelanggan"  id="pelanggan" readonly=""  >
+              </div>
+            </div>
+            <div class="card-body row" style="padding : 5px;font-weight:bold">
+              <div class="col-md-2">Tgl WO</div>
+              <div class="col-md-3">            
+                <input type="date" class="form-control" name="tgl_wo"  id="tgl_wo" value="<?= date('Y-m-d') ?>" readonly>
+              </div>
+
+              <div class="col-md-2"></div>
+
+              <div class="col-md-2">NO PO</div>
+              <div class="col-md-3">
+                <input type="text" name="nopo" id="nopo" class="form-control" readonly>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="form-group row">
+        <div style="overflow:auto;white-space:nowrap;">
           <table class="table" id="table-produk" style="width: 100%;display: ;" align="center" >
             <thead>
                 <tr class="color-tabel">
@@ -1058,7 +1049,7 @@
         {  
           $("#pelanggan").val(data.id_pelanggan+' || '+data.nm_pelanggan);
           $("#id_produk").val(data.id_produk+' || '+data.nm_produk);
-          $("#qty0").val(data.qty_so);
+          $("#qty0").val(format_angka(data.qty_so));
           $("#nopo").val(data.no_po);
           $("#no_wo").val('WO-'+data.no_so+'.'+data.urut_so+'.'+data.rpt);
 
