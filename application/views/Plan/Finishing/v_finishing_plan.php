@@ -412,6 +412,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadDataPlanFinishing')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				uTgl, uShift, uJoint
 			}),
@@ -420,7 +430,7 @@
 				if(data.length == 0){
 					window.location.href = '<?php echo base_url('Plan/Finishing')?>'
 				}else{
-					loadPlanFlexo('')
+					loadPlanFlexo('not')
 					plhPlanFlexo('')
 				}
 			}
@@ -433,20 +443,9 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadPlanFlexo')?>',
 			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
 			data: ({ opsi: '', joint, urlTglFs, urlShiftFs, urlJointFs }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				let htmlPlanFlexo = ''
 				let kategori = ''
 					htmlPlanFlexo += `<option value="">PILIH</option>`
@@ -484,7 +483,9 @@
 					</option>`
 				}
 				$("#plan_flexo").html(htmlPlanFlexo).prop('disabled', false)
-				swal.close()
+				if(opsi !='not'){
+					swal.close()
+				}
 			}
 		})
 	}
@@ -548,6 +549,28 @@
 
 					$("#ehid_finishing").val(data.plan_flexo.id_fs)
 
+					if(data.plan_flexo.total_prod_fs != 0){
+						// inputDtProd = 'inputDowntimeProduksi'
+						$("#card-produksi").show()
+					}else if(data.urutDtProd == null){
+						// inputDtProd = ''
+						$("#card-produksi").hide()
+						$("#btn-aksi-produksi").html(``)
+					}else if(data.plan_flexo.id_fs == data.urutDtProd.id_fs){
+						if(data.plan_flexo.total_prod_flexo != 0 && data.plan_flexo.status_flexo == 'Close'){
+							// inputDtProd = 'inputDowntimeProduksi'
+							$("#card-produksi").show()
+						}else{
+							// inputDtProd = ''
+							$("#card-produksi").hide()
+							$("#btn-aksi-produksi").html(``)
+						}
+					}else{
+						// inputDtProd = ''
+						$("#card-produksi").hide()
+						$("#btn-aksi-produksi").html(``)
+					}
+
 					$("#good_cor").val(rupiah.format(data.plan_flexo.good_cor_p))
 					$("#good_flexo").val(rupiah.format(data.plan_flexo.good_flexo_p))
 					$("#good_fs").val(data.plan_flexo.good_fs_p)
@@ -559,16 +582,59 @@
 					$("#start_fs").val(data.plan_flexo.start_time_fs)
 					$("#end_fs").val(data.plan_flexo.end_time_fs)
 					
-					$("#card-produksi").show()
 					$("#btn-aksi-produksi").html(`<div class="card-body row" style="padding:20px 20px 0;font-weight:bold">
 						<div class="col-md-12">
 							<button type="button" class="btn btn-success btn-block" onclick="produksiPlanFinishing(${data.plan_flexo.id_fs})"><i class="fa fa-save"></i> <b>SIMPAN</b></button>
 						</div>
 					</div>`)
 
-					$("#btn-add-plan-finishing").html('')
+					let txtPlanFs = ''
+					let onclickSelesaiFs = ''
+					if(data.plan_flexo.total_prod_fs == 0 && data.plan_flexo.status_fs == 'Open'){
+						txtPlanFs = 'SIMPAN'
+						onclickSelesaiFs = 'disabled'
+					}else if(data.plan_flexo.total_prod_fs != 0 && data.plan_flexo.status_fs == 'Open'){
+						txtPlanFs = 'UPDATE'
+						onclickSelesaiFs = `onclick="addRencanaFinishing(${data.plan_flexo.id_flexo})"`
+					}else{
+						txtPlanFs = 'UPDATE'
+						onclickSelesaiFs = 'disabled'
+					}
 
+					let onClickDonePlanCor = ''
+					if(data.plan_flexo.total_prod_fs != 0 && data.plan_flexo.status_fs == 'Close' && data.plan_flexo.status_stt_f == 'Open'){
+						onClickDonePlanCor = `onclick="clickDonePlanCorFlexo(${data.plan_flexo.id_plan_flexo})"`
+					}else{
+						onClickDonePlanCor = 'disabled'
+					}
 
+					if(urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'Flexo'){
+						if((data.plan_flexo.total_prod_fs == 0 || data.plan_flexo.total_prod_fs != 0) && data.plan_flexo.status_fs == 'Open'){
+							$("#btn-aksi-produksi").html(`<div class="card-body row" style="padding:20px 20px 0;font-weight:bold">
+								<div class="col-md-12">
+									<button type="button" class="btn btn-success btn-block" onclick="produksiPlanFinishing(${data.plan_flexo.id_fs})"><i class="fa fa-save"></i> <b>${txtPlanFs}</b></button>
+								</div>
+							</div>`)
+						}else{
+							$("#btn-aksi-produksi").html('')
+						}
+
+						if(urlAuth == 'Admin' || urlAuth == 'PPIC'){
+							$("#btn-add-plan-finishing").html(`<div class="card-body row" style="padding:0 20px 17px;font-weight:bold">
+								<div class="col-md-6">
+									<button type="button" class="btn btn-primary btn-block" style="margin-bottom:3px" ${onclickSelesaiFs}><i class="fa fa-check"></i> <b>SELESAI FLEXO</b></button>
+								</div>
+								<div class="col-md-6">
+									<button type="button" class="btn btn-dark btn-block" style="margin-bottom:3px" ${onClickDonePlanCor}><i class="fa fa-check"></i> <b>SELESAI PLAN COR</b></button>
+								</div>
+							</div>`)
+						}else{
+							$("#btn-add-plan-finishing").html(``)
+						}
+					}else{
+						$("#btn-aksi-produksi").html(``)
+						$("#btn-add-plan-finishing").html(``)
+					}
 				}else{
 					opIdPlanCor = $('#plan_flexo option:selected').attr('op-id-plan-cor')
 					opNoWo = $('#plan_flexo option:selected').attr('op-no-wo')
@@ -862,6 +928,43 @@
 				console.log(data)
 				if(data.data){
 					loadDataPlanFinishing(urlTglFs, urlShiftFs, urlJointFs)
+				}else{
+					swal(data.msg, "", "error")
+				}
+			}
+		})
+	}
+
+	function onChangeNourutFinishing(i)
+	{
+		$("#card-produksi").hide()
+		$("#ehid_finishing").val("")
+		let no_urut = $("#lp-nourut-fs-"+i).val();
+		(no_urut < 0 || no_urut == "") ? no_urut = 0 : no_urut = no_urut;
+		$("#lp-nourut-fs-"+i).val(no_urut)
+		
+		$.ajax({
+			url: '<?php echo base_url('Plan/onChangeNourutFinishing')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				no_urut, i
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					kosong()
+					// riwayatFlexo(0)
+					loadListPlanFinishing('','','','')
 				}else{
 					swal(data.msg, "", "error")
 				}

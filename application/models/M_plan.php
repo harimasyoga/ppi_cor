@@ -861,8 +861,8 @@ class M_plan extends CI_Model
 		// 	}
 		// }
 		return array(
-			'data' => false,
-			'isi' => false,
+			'data' => 'ok',
+			'isi' => 'ok',
 		);
 	}
 
@@ -996,6 +996,32 @@ class M_plan extends CI_Model
 		return array(
 			'data' => $result,
 			'msg' => $msg,
+		);
+	}
+
+	function onChangeNourutFinishing()
+	{
+		$no_urut = $_POST["no_urut"];
+		$id_finishing = $_POST["i"];
+
+		$noFinishing = $this->db->query("SELECT tgl_fs,shift_fs FROM plan_finishing WHERE id_fs='$id_finishing'")->row();
+
+		$cekNoUrutFlexo = $this->db->query("SELECT*FROM plan_finishing WHERE no_urut_fs='$no_urut' AND tgl_fs='$noFinishing->tgl_fs' AND shift_fs='$noFinishing->shift_fs'");
+		if($cekNoUrutFlexo->num_rows() == 0){
+			$this->db->set('no_urut_fs', $no_urut);
+			$this->db->where('id_fs', $id_finishing);
+			$data = $this->db->update("plan_finishing");
+			$msg = 'BERHASIL EDIT NO URUT!';
+		}else{
+			$data = false;
+			$msg = 'NO URUT SUDAH ADA!';
+		}
+
+		return array(
+			'data' => $data,
+			'msg' => $msg,
+			'no_plan' => $noFinishing,
+			'urut_plan' => $cekNoUrutFlexo->row(),
 		);
 	}
 }

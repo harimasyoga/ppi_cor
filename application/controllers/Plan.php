@@ -3218,16 +3218,18 @@ class Plan extends CI_Controller
 	{
 		$opsi = $_POST['opsi'];
 		$result = $this->m_plan->loadPlanFlexo();
-		// if($opsi != ''){
-		// 	$getNoFlexo = $this->db->query("SELECT*FROM plan_flexo WHERE id_flexo='$opsi'")->row();
-		// 	$urutDtProd = $this->db->query("SELECT id_flexo,no_urut_flexo FROM plan_flexo WHERE tgl_flexo='$getNoFlexo->tgl_flexo' AND shift_flexo='$getNoFlexo->shift_flexo' AND mesin_flexo='$getNoFlexo->mesin_flexo'
-		// 	AND total_prod_flexo='0' AND no_urut_flexo!='0' ORDER BY no_urut_flexo ASC LIMIT 1")->row();
-		// }else{
-		// 	$getNoFlexo = false;
-		// 	$urutDtProd = false;
-		// }
+		if($opsi != ''){
+			$getNoFinishing = $this->db->query("SELECT*FROM plan_finishing WHERE id_fs='$opsi'")->row();
+			$urutDtProd = $this->db->query("SELECT id_fs,no_urut_fs FROM plan_finishing WHERE tgl_fs='$getNoFinishing->tgl_fs' AND shift_fs='$getNoFinishing->shift_fs'
+			AND total_prod_fs='0' AND no_urut_fs!='0' ORDER BY no_urut_fs ASC LIMIT 1")->row();
+		}else{
+			$getNoFinishing = false;
+			$urutDtProd = false;
+		}
 		echo json_encode(array(
 			'plan_flexo' => $result,
+			'urutDtProd' => $urutDtProd,
+			'getNoFinishing' => $getNoFinishing,
 			'opsi' => $opsi,
 		));
 	}
@@ -3267,6 +3269,12 @@ class Plan extends CI_Controller
 	function btnGantiTglFinishing()
 	{
 		$result = $this->m_plan->btnGantiTglFinishing();
+		echo json_encode($result);
+	}
+
+	function onChangeNourutFinishing()
+	{
+		$result = $this->m_plan->onChangeNourutFinishing();
 		echo json_encode($result);
 	}
 
@@ -3552,19 +3560,19 @@ class Plan extends CI_Controller
 
 						($id_finishing == 'pilihan') ? $plhPlanFlexo = $r->no_wo : $plhPlanFlexo = '<a href="javascript:void(0)" onclick="plhPlanFlexo('."".$r->id_fs."".')" title="'."".$r->no_wo."".'">'.$r->no_wo.'</a>';
 
-						// if($id_finishing == 'pilihan'){
-						// 	$ubahNoUrut = 'disabled';
-						// }else{
-						// 	if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
-						// 		($r->total_prod_flexo != 0) ? $ubahNoUrut = 'disabled' : $ubahNoUrut = 'onkeyup="onChangeNourutFlexo('."'".$r->id_fs."'".')"';
-						// 	}else{
-						// 		$ubahNoUrut = 'disabled';
-						// 	}
-						// }
+						if($id_finishing == 'pilihan'){
+							$ubahNoUrut = 'disabled';
+						}else{
+							if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+								($r->total_prod_fs != 0) ? $ubahNoUrut = 'disabled' : $ubahNoUrut = 'onkeyup="onChangeNourutFinishing('."'".$r->id_fs."'".')"';
+							}else{
+								$ubahNoUrut = 'disabled';
+							}
+						}
 
 						$html .='<tr class="h-tmpl-list-plan">
 							<td '.$bgTd.' style="padding:6px;position:sticky;left:0">
-								<input type="number" class="form-control inp-kosong2" id="lp-nourut-'.$r->id_fs.'" value="'.$r->no_urut_fs.'">
+								<input type="number" class="form-control inp-kosong2" id="lp-nourut-fs-'.$r->id_fs.'" value="'.$r->no_urut_fs.'" '.$ubahNoUrut.'>
 							</td>
 							<td '.$bgTd.' style="padding:3px">'.$statusF.'</td>
 							<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->kode_mc.'</td>
