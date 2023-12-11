@@ -181,11 +181,22 @@ class Logistik extends CI_Controller
 	function load_sj($searchTerm="")
 	{
 		// ASLI
-		$db2 = $this->load->database('database_simroll', TRUE);
-		$tgl = $this->input->post('tgl_sj');
+		$db2        = $this->load->database('database_simroll', TRUE);
+		$type_po    = $this->input->post('type_po');
+		$tgl        = $this->input->post('tgl_sj');
+		
+		if ($type_po == 'roll')
+		{
+			$tbl1    = 'pl';
+			$tbl2    = 'm_timbangan';
+		}else{
+			$tbl1    = 'pl_box';
+			$tbl2    = 'm_box';
+		}
 
-		$query = $db2->query("SELECT DATE_FORMAT(a.tgl, '%d-%m-%Y')tgll,a.* FROM pl a
-			INNER JOIN m_timbangan b ON a.id = b.id_pl
+		$query = $db2->query("SELECT DATE_FORMAT(a.tgl, '%d-%m-%Y')tgll,a.*,c.id as id_perusahaan,c.nm_perusahaan as nm_perusahaan, c.pimpinan as pimpinan, c.alamat as alamat_perusahaan, c.no_telp as no_telp FROM $tbl1 a
+			INNER JOIN $tbl2 b ON a.id = b.id_pl
+			LEFT JOIN m_perusahaan c ON a.id_perusahaan=c.id
 			WHERE a.no_pl_inv = '0' and a.tgl = '$tgl' and id_perusahaan not in ('210','217') 
 			GROUP BY a.tgl,a.id_perusahaan
 			ORDER BY a.tgl,a.id_perusahaan,a.no_pl_inv")->result();
@@ -212,15 +223,31 @@ class Logistik extends CI_Controller
 		// ASLI
 		$tgl_sj           = $this->input->post('tgl_sj');
 		$id_perusahaan    = $this->input->post('id_perusahaan');
+		$type_po          = $this->input->post('type_po');
+		$tgl              = $this->input->post('tgl_sj');
+		
+		if ($type_po == 'roll')
+		{
+			$query = $db2->query("SELECT c.nm_perusahaan,a.id_pl,b.id,a.nm_ker,a.g_label,a.width,COUNT(a.roll) AS qty,SUM(weight)-SUM(seset) AS weight,b.no_po,b.no_po_sj,b.no_surat
+			FROM m_timbangan a 
+			INNER JOIN pl b ON a.id_pl = b.id 
+			LEFT JOIN m_perusahaan c ON b.id_perusahaan=c.id
+			WHERE b.no_pl_inv = '0' AND b.tgl='$tgl_sj' AND b.id_perusahaan='$id_perusahaan'
+			GROUP BY b.no_po,a.nm_ker,a.g_label,a.width 
+			ORDER BY a.g_label,b.no_surat,b.no_po,a.nm_ker DESC,a.g_label,a.width ")->result();
+		}else{
+			$query = $db2->query("SELECT c.nm_perusahaan,a.id_pl,b.id,a.nm_ker,a.g_label,a.width,COUNT(a.roll) AS qty,SUM(weight)-SUM(seset) AS weight,b.no_po,b.no_po_sj,b.no_surat
+			FROM m_box a 
+			INNER JOIN pl_box b ON a.id_pl = b.id 
+			LEFT JOIN m_perusahaan c ON b.id_perusahaan=c.id
+			WHERE b.no_pl_inv = '0' AND b.tgl='$tgl_sj' AND b.id_perusahaan='$id_perusahaan'
+			GROUP BY b.no_po,a.nm_ker,a.g_label,a.width 
+			ORDER BY a.g_label,b.no_surat,b.no_po,a.nm_ker DESC,a.g_label,a.width ")->result();
+		}
 		
 		$db2 = $this->load->database('database_simroll', TRUE);
 
-		$query = $db2->query("SELECT b.nm_perusahaan,a.id_pl,b.id,a.nm_ker,a.g_label,a.width,COUNT(a.roll) AS qty,SUM(weight)-SUM(seset) AS weight,b.no_po,b.no_po_sj,b.no_surat
-		FROM m_timbangan a 
-		INNER JOIN pl b ON a.id_pl = b.id 
-		WHERE b.no_pl_inv = '0' AND b.tgl='$tgl_sj' AND b.id_perusahaan='$id_perusahaan'
-		GROUP BY b.no_po,a.nm_ker,a.g_label,a.width 
-		ORDER BY a.g_label,b.no_surat,b.no_po,a.nm_ker DESC,a.g_label,a.width ")->result();
+		
 
 		if (!$query) {
 			$response = [
@@ -728,7 +755,7 @@ class Logistik extends CI_Controller
 		}
 		$html .= '<tr>
 			<td style="border:0;padding:5px" colspan="3"></td>
-			<td style="border:0;padding:5px;text-align:center" colspan="4">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia(date('Y-m-d')).'</td>
+			<td style="border:0;padding:5px;text-align:center" colspan="4">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($data_detail->tgl_invoice).'</td> 
 		</tr>
 		<tr>
 			<td style="border:0;padding:0 0 15px;line-height:1.8" colspan="3">Pembayaran Full Amount ditransfer ke :<br/>'.$data_detail->bank.' '.$norek.' (CABANG SOLO)<br/>A.n PT. PRIMA PAPER INDONESIA</td>

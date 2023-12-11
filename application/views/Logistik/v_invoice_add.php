@@ -646,12 +646,25 @@
 	function load_sj() {
 		var tgl_sj    = $("#tgl_sj").val()
 		var type_po   = $("#type_po").val()
+
+		if(type_po == '' || type_po == null)
+		{
+			swal.close();
+			swal({
+				title               : "Cek Kembali",
+				html                : "Harap Pilih <b> Type  </b> Dahulu",
+				type                : "info",
+				confirmButtonText   : "OK"
+			});
+			return;
+		}
+
 		option = "";
 		$.ajax({
 			type       : 'POST',
 			url        : "<?= base_url(); ?>Logistik/load_sj",
 			dataType   : 'json',
-			data       : {tgl_sj},
+			data       : {tgl_sj,type_po},
 			beforeSend: function() {
 				swal({
 				title: 'loading ...',
@@ -666,7 +679,7 @@
 				if(data.message == "Success"){						
 					option = "<option>--- Pilih ---</option>";
 					$.each(data.data, function(index, val) {
-					option += `<option value="${val.id}" data-nm="${val.nama}" data-nm_perusahaan="${val.nm_perusahaan}" data-id_perusahaan="${val.id_perusahaan}" data-alamat_perusahaan="${val.alamat_perusahaan}">[ "${val.tgll}" ] - [ "${val.nama}" ] - [ "${val.nm_perusahaan}" ]</option>`;
+					option += `<option value="${val.id}" data-nm="${val.pimpinan}" data-nm_perusahaan="${val.nm_perusahaan}" data-id_perusahaan="${val.id_perusahaan}" data-alamat_perusahaan="${val.alamat_perusahaan}">[ "${val.tgll}" ] - [ "${val.pimpinan}" ] - [ "${val.nm_perusahaan}" ]</option>`;
 					});
 
 					$('#id_pl').html(option);
@@ -699,11 +712,12 @@
 	{
 		var id_perusahaan   = $('#id_pl option:selected').attr('data-id_perusahaan');
 		var tgl_sj          = $("#tgl_sj").val()
+		var type_po         = $("#type_po").val()
 
 		$.ajax({
 			url: '<?= base_url('Logistik/list_item'); ?>',
 			type: 'POST',
-			data: {id_perusahaan, tgl_sj},
+			data: {id_perusahaan, tgl_sj, type_po},
 			dataType: "JSON",
 			beforeSend: function() {
 						swal({
@@ -770,7 +784,7 @@
 							</td>
 
 							<td style="text-align: center" >
-								<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)">
+								<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)">
 							</td>
 
 							<td style="text-align: center" >${val.qty}
@@ -778,7 +792,7 @@
 							</td>
 
 							<td style="text-align: center" >
-								<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)">
+								<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)">
 							</td>
 
 							<td style="text-align: center" >${format_angka(val.weight)}
@@ -786,7 +800,7 @@
 							</td>
 
 							<td style="text-align: center" >
-								<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})">
+								<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})">
 							</td>
 
 							<td style="text-align: center" >
