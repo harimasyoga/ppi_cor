@@ -26,14 +26,14 @@
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row">
-				<!-- <div class="col-md-12">
+				<div class="col-md-12">
 					<div class="card">
 						<div class="card-body p-0">
 							<div id="accordion-customer">
 								<div class="card m-0" style="border-radius:0">
 									<div class="card-header bg-gradient-secondary" style="padding:0;border-radius:0">
 										<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseCustomer" onclick="fsDataAllCustFlexo()">
-											LIST SEMUA PLAN COR
+											LIST SEMUA PLAN FLEXO
 										</a>
 									</div>
 									<div id="collapseCustomer" class="collapse" data-parent="#accordion-customer">
@@ -43,7 +43,7 @@
 							</div>
 						</div>
 					</div>
-				</div> -->
+				</div>
 				<div class="col-md-12">
 					<div class="card card-info card-outline">
 						<div class="card-header">
@@ -88,27 +88,28 @@
 					</div>
 				</div>
 
-				<!-- <div class="col-md-12">
+				<div class="col-md-12">
 					<div class="card">
 						<div class="card-body p-0">
-							<div id="accordion-flexo">
+							<div id="accordion-finishing">
 								<div class="card m-0" style="border-radius:0">
 									<div class="card-header bg-gradient-secondary" style="padding:0;border-radius:0">
-										<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseflexo" onclick="loadDataAllPlanFlexo()">
-											LIST SEMUA PLAN FLEXO
+										<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapsefinishing" onclick="loadDataAllPlanFinishing()">
+											LIST SEMUA PLAN FINISHING
 										</a>
 									</div>
-									<div id="collapseflexo" class="collapse" data-parent="#accordion-flexo">
-										<div id="tampil-all-plan-flexo-header"></div>
+									<div id="collapsefinishing" class="collapse" data-parent="#accordion-finishing">
+										<div id="tampil-all-plan-finishing-header"></div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div> -->
+				</div>
 				
 				<div class="col-md-12">
 					<div id="list-input-finishing"></div>
+					<div id="riwayat-fs"></div>
 				</div>
 
 				<div class="col-md-7">
@@ -293,7 +294,9 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body" style="overflow:auto;white-space:nowrap"></div>
+			<div class="modal-body" style="overflow:auto;white-space:nowrap">
+				<div id="modal-body-isi"></div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -308,6 +311,81 @@
 			dropdownAutoWidth: true
 		})
 	})
+
+	function fsDataAllCustFlexo()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/fsDataAllCustFlexo')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				$("#tampil-all-cust-header").html(res)
+				swal.close()
+			}
+		})
+	}
+
+	function onClickHeaderPlanFlexo(id_pelanggan)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/onClickHeaderPlanFlexo')?>',
+			type: "POST",
+			data: ({
+				id_pelanggan
+			}),
+			success: function(res){
+				$("#tampil-all-flexo-isi-"+id_pelanggan).html(res)
+			}
+		})
+	}
+
+	function onclickHeaderIsiPlanFlexo(id_plan, id_flexo, id_pelanggan)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/onclickHeaderIsiPlanFlexo')?>',
+			type: "POST",
+			data: ({
+				id_plan, id_flexo, id_pelanggan
+			}),
+			success: function(res){
+				$("#tampil-all-ppfflan-isi-"+id_plan+"-"+id_flexo+"-"+id_pelanggan).html(res)
+			}
+		})
+	}
+
+	function loadDataAllPlanFinishing()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Plan/loadDataAllPlanFinishing')?>',
+			type: "POST",
+			data: ({
+				urlTglFs: '', urlShiftFs: '', urlJointFs: ''
+			}),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				$("#tampil-all-plan-finishing-header").html(res)
+				swal.close()
+			}
+		})
+	}
 
 	function kosong()
 	{
@@ -357,7 +435,7 @@
 				data.plan_flexo.forEach(laodPlanFlexo);
 				function laodPlanFlexo(r, index) {
 					(r.kategori == 'K_BOX') ? kategori = '[ BOX ]' : kategori = '[ SHEET ]';
-					htmlPlanFlexo += `<option value="${r.id_plan}"
+					htmlPlanFlexo += `<option value="${r.id_flexo}"
 						op-id-plan-cor="${r.id_plan}"
 						op-no-wo="${r.no_wo}"
 						op-no-po="${r.kode_po}"
@@ -454,6 +532,9 @@
 		$("#qty_cor").val(opQtyCor)
 		$("#tgl_flexo").val(opTglFlexo)
 		$("#qty_flexo").val(opQtyFlexo)
+
+		let idx_flexo = $("#plan_flexo").val()
+		riwayatFinishing(opIdPlanCor, idx_flexo)
 	}
 
 	function addRencanaFinishing()
@@ -548,6 +629,82 @@
 			success: function(res){
 				data = JSON.parse(res)
 				window.location.href = '<?php echo base_url('Plan/Finishing/List')?>'+'/'+tgl+'/'+shift+'/'+joint
+			}
+		})
+	}
+
+	function loadListPlanFinishing(tf, sf, mf, opsi = '')
+	{
+		let tglF = tf
+		let shiftF = sf
+		let jointF = mf
+		let hidplan = ''
+		
+		$.ajax({
+			url: '<?php echo base_url('Plan/loadListPlanFinishing')?>',
+			type: "POST",
+			data: ({
+				tglF, shiftF, jointF, opsi, hidplan
+			}),
+			success: function(res){
+				if(tf == '' && sf == '' && mf == '' && opsi == ''){
+				// 	(inputDtProd == 'inputDowntimeProduksi') ? plhDowntime() : loadDataAllPlanFinishing();
+					$("#list-plan-finishing").html(res)
+				}else{
+					$("#tampil-all-ffss-isi-"+tf.split('-').join('')+sf+mf).html(res);
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function riwayatFinishing(id_plan = '', id_flexo = '')
+	{
+		$("#riwayat-fs").html(``)
+		$.ajax({
+			url: '<?php echo base_url('Plan/riwayatFinishing')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_plan, id_flexo
+			}),
+			success: function(res){
+				$("#riwayat-fs").html(res)
+				swal.close()
+			}
+		})
+	}
+
+	function showRiwayat(id_plan = '', id_flexo = '', id_fs = '', opsi)
+	{
+		$("#modal-body-isi").html(`. . .`)
+		$("#modalForm").modal("show")
+		$.ajax({
+			url: '<?php echo base_url('Plan/showRiwayat')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_plan, id_flexo, id_fs, opsi }),
+			success: function(res){
+				$("#modal-body-isi").html(res)
+				swal.close()
 			}
 		})
 	}

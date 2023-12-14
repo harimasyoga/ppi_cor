@@ -1434,8 +1434,12 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				loadPlanWo('')
-				plhNoWo(id_plan)
+				if(data.insertGudang == true && data.statusPlan == true){
+					loadPlanWo('')
+					plhNoWo(id_plan)
+				}else{
+					swal("Ada Kesalahan!", "", "error")
+				}
 			}
 		})
 	}
