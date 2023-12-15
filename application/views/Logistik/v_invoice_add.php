@@ -87,15 +87,17 @@
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 								<div class="col-md-2">Tanggal SJ</div>
 								<div class="col-md-4">
-									<input type="date" id="tgl_sj" name="tgl_sj" class="form-control" autocomplete="off" placeholder="Tanggal Surat Jalan" onchange="load_sj()" >
+									<input type="date" id="tgl_sj" name="tgl_sj" class="form-control" autocomplete="off" placeholder="Tanggal Surat Jalan" >
 									<input type="hidden" name="id_pl_sementara" id="id_pl_sementara" value="">
 								</div>
-								<div class="col-md-6"> </div>
+								<div class="col-md-6"> 
+									<button type="button" class="btn btn-primary" id="btn-simpan" onclick="load_sj()"><i class="fas fa-search"></i><b></b></button>
+								</div>
 							</div>
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 								<div class="col-md-2">Customer</div>
 								<div class="col-md-10">
-									<select class="form-control select2" id="id_pl" name="id_pl" style="width: 100%" autocomplete="off" onchange="load_cs()">
+									<select class="form-control select2" id="id_pl" name="id_pl" style="width: 100%" autocomplete="off" onchange="load_cs()" disabled>
 									</select>
 								</div>
 							</div>
@@ -197,6 +199,7 @@
 	$(document).ready(function() {
 		load_data();
 		// getMax();
+		$("#id_pl").prop('disabled', true);
 		$('.select2').select2({
 			containerCssClass: "wrap",
 			placeholder: '--- Pilih ---',
@@ -646,6 +649,8 @@
 	function load_sj() {
 		var tgl_sj    = $("#tgl_sj").val()
 		var type_po   = $("#type_po").val()
+		var stat      = 'add'
+		$("#id_pl").prop('disabled', false);
 
 		if(type_po == '' || type_po == null)
 		{
@@ -664,7 +669,7 @@
 			type       : 'POST',
 			url        : "<?= base_url(); ?>Logistik/load_sj",
 			dataType   : 'json',
-			data       : {tgl_sj,type_po},
+			data       : {tgl_sj,type_po,stat},
 			beforeSend: function() {
 				swal({
 				title: 'loading ...',
@@ -679,7 +684,7 @@
 				if(data.message == "Success"){						
 					option = "<option>--- Pilih ---</option>";
 					$.each(data.data, function(index, val) {
-					option += `<option value="${val.id}" data-nm="${val.pimpinan}" data-nm_perusahaan="${val.nm_perusahaan}" data-id_perusahaan="${val.id_perusahaan}" data-alamat_perusahaan="${val.alamat_perusahaan}">[ "${val.tgll}" ] - [ "${val.pimpinan}" ] - [ "${val.nm_perusahaan}" ]</option>`;
+					option += `<option value="${val.id_perusahaan}" data-nm="${val.pimpinan}" data-nm_perusahaan="${val.nm_perusahaan}" data-id_perusahaan="${val.id_perusahaan}" data-alamat_perusahaan="${val.alamat_perusahaan}">[ "${val.tgll}" ] - [ "${val.pimpinan}" ] - [ "${val.nm_perusahaan}" ]</option>`;
 					});
 
 					$('#id_pl').html(option);
@@ -721,7 +726,7 @@
 			dataType: "JSON",
 			beforeSend: function() {
 						swal({
-							title: 'Ambil Data SJ...',
+							title: 'Ambil Data Surat Jalan...',
 							allowEscapeKey    : false,
 							allowOutsideClick : false,
 							onOpen: () => {
@@ -731,96 +736,183 @@
 					},
 			success: function(data)
 			{  
-				if(data.message == "Success"){					
+				if(data.message == "Success"){
+					if(type_po=='roll')
+					{
+						var list = `
+							<table id="datatable_input" class="table">
+								<thead class="color-tabel">
+									<th style="text-align: center" >No</th>
+									<th style="text-align: center" >NO SJ</th>
+									<th style="text-align: center" >NO PO</th>
+									<th style="text-align: center" >GSM</th>
+									<th style="text-align: center" >ITEM</th>
+									<th style="text-align: center; padding-right: 35px" >HARGA</th>
+									<th style="text-align: center" >QTY</th>
+									<th style="text-align: center; padding-right: 10px">R. QTY</th>
+									<th style="text-align: center" >BERAT</th>
+									<th style="text-align: center; padding-right: 25px" >SESET</th>
+									<th style="text-align: center; padding-right: 30px" >HASIL</th>
+									<th style="text-align: center" >AKSI</th>
+								</thead>`;
+							var no             = 1;
+							var berat_total    = 0;
+							var no_po          = '';
+							$.each(data.data, function(index, val) {
+								if(val.no_po_sj == null || val.no_po_sj == '')
+								{
+									no_po = val.no_po
+								}else{
+									no_po = val.no_po_sj
+								}
+								list += `
+								<tbody>
+									<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
+										<input type="hidden" name="nm_ker[${no}]" id="nm_ker${no}" value="${val.nm_ker}">
+										
+										<input type="hidden" name="id_pl_roll[${no}]" id="id_pl_roll${no}" value="${val.id_pl}">
+									</td>
+
+									<td style="text-align: center" >${val.no_surat}
+										<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
+									</td>
+
+									<td style="text-align: center" >${no_po}
+										<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${no_po}">
+									</td>
+
+									<td style="text-align: center" >${val.g_label}
+										<input type="hidden" id="g_label${no}" name="g_label[${no}]" value="${val.g_label}">
+									</td>
+
+									<td style="text-align: center" >${val.width}
+										<input type="hidden" id="width${no}" name="width[${no}]" value="${val.width}">
+									</td>
+
+									<td style="text-align: center" >
+										<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)">
+									</td>
+
+									<td style="text-align: center" >${val.qty}
+										<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
+									</td>
+
+									<td style="text-align: center" >
+										<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)">
+									</td>
+
+									<td style="text-align: center" >${format_angka(val.weight)}
+										<input type="hidden" id="weight${no}" name="weight[${no}]"  value="${val.weight}">
+									</td>
+
+									<td style="text-align: center" >
+										<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})">
+									</td>
+
+									<td style="text-align: center" >
+										<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.weight)}" readonly>
+									</td>
+
+									<td style="text-align: center" >
+										<input type="checkbox" name="aksi[${no}]" id="aksi${no}" class="form-control" value="0" onchange="cek(this.value,this.id)">
+									</td>
+								</tbody>`;
+								berat_total += parseInt(val.weight);
+								no ++;
+							})
+							list += `<td style="text-align: center" colspan="8">TOTAL
+									</td>
+									<td style="text-align: center" >${format_angka(berat_total)}
+									</td>
+									<td style="text-align: center" colspan="3">&nbsp;
+									</td>`;
+							list += `</table>`;
+
+					}else{
+						var list = `
+							<table id="datatable_input" class="table">
+								<thead class="color-tabel">
+									<th style="text-align: center" >No</th>
+									<th style="text-align: center" >NO SJ</th>
+									<th style="text-align: center" >NO PO</th>
+									<th style="text-align: center" >ITEM</th>
+									<th style="text-align: center" >Ukuran</th>
+									<th style="text-align: center" >Kualitas</th>
+									<th style="text-align: center; padding-right: 35px" >HARGA</th>
+									<th style="text-align: center" >QTY</th>
+									<th style="text-align: center; padding-right: 35px">R. QTY</th>
+									<th style="text-align: center; padding-right: 35px" >HASIL</th>
+									<th style="text-align: center" >AKSI</th>
+								</thead>`;
+							var no             = 1;
+							var berat_total    = 0;
+							var no_po          = '';
+							$.each(data.data, function(index, val) {
+								if(val.no_po_sj == null || val.no_po_sj == '')
+								{
+									no_po = val.no_po
+								}else{
+									no_po = val.no_po_sj
+								}
+								list += `
+								<tbody>
+									<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
+										
+										<input type="hidden" name="id_pl_roll[${no}]" id="id_pl_roll${no}" value="${val.id_pl}">
+									</td>
+
+									<td style="text-align: center" >${val.no_surat}
+										<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
+									</td>
+
+									<td style="text-align: center" >${no_po}
+										<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${no_po}">
+									</td>
+
+									<td style="text-align: center" >${val.item}
+										<input type="hidden" id="item${no}" name="item[${no}]" value="${val.item}">
+									</td>
+
+									<td style="text-align: center" >${val.ukuran2}
+										<input type="hidden" id="ukuran${no}" name="ukuran[${no}]" value="${val.ukuran2}">
+									</td>
+
+									<td style="text-align: center" >${val.kualitas}
+										<input type="hidden" id="kualitas${no}" name="kualitas[${no}]" value="${val.kualitas}">
+									</td>
+									
+									<td style="text-align: center" >
+										<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)">
+									</td>
+
+									<td style="text-align: center" >${format_angka(val.qty)}
+										<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
+									</td>
+
+									<td style="text-align: center" >
+										<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})">
+									</td>
+
+									<td style="text-align: center" >
+										<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.qty)}" readonly>
+									</td>
+
+									<td style="text-align: center" >
+										<input type="checkbox" name="aksi[${no}]" id="aksi${no}" class="form-control" value="0" onchange="cek(this.value,this.id)">
+									</td>
+								</tbody>`;
+								berat_total += parseInt(val.qty);
+								no ++;
+							})
+							list += `<td style="text-align: center" colspan="7">TOTAL
+									</td>
+									<td style="text-align: center" >${format_angka(berat_total)}
+									</td>
+									<td style="text-align: center" colspan="3">&nbsp;
+									</td>`;
+							list += `</table>`;
+					}				
 					
-					var list = `
-					<table id="datatable_input" class="table">
-						<thead class="color-tabel">
-							<th style="text-align: center" >No</th>
-							<th style="text-align: center" >NO SJ</th>
-							<th style="text-align: center" >NO PO</th>
-							<th style="text-align: center" >GSM</th>
-							<th style="text-align: center" >ITEM</th>
-							<th style="text-align: center; padding-right: 35px" >HARGA</th>
-							<th style="text-align: center" >QTY</th>
-							<th style="text-align: center; padding-right: 10px">R. QTY</th>
-							<th style="text-align: center" >BERAT</th>
-							<th style="text-align: center; padding-right: 25px" >SESET</th>
-							<th style="text-align: center; padding-right: 30px" >HASIL</th>
-							<th style="text-align: center" >AKSI</th>
-						</thead>`;
-					var no             = 1;
-					var berat_total    = 0;
-					var no_po          = '';
-					$.each(data.data, function(index, val) {
-						if(val.no_po_sj == null || val.no_po_sj == '')
-						{
-							no_po = val.no_po
-						}else{
-							no_po = val.no_po_sj
-						}
-						list += `
-						<tbody>
-							<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
-								<input type="hidden" name="nm_ker[${no}]" id="nm_ker${no}" value="${val.nm_ker}">
-								
-								<input type="hidden" name="id_pl_roll[${no}]" id="id_pl_roll${no}" value="${val.id_pl}">
-							</td>
-
-							<td style="text-align: center" >${val.no_surat}
-								<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
-							</td>
-
-							<td style="text-align: center" >${no_po}
-								<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${no_po}">
-							</td>
-
-							<td style="text-align: center" >${val.g_label}
-								<input type="hidden" id="g_label${no}" name="g_label[${no}]" value="${val.g_label}">
-							</td>
-
-							<td style="text-align: center" >${val.width}
-								<input type="hidden" id="width${no}" name="width[${no}]" value="${val.width}">
-							</td>
-
-							<td style="text-align: center" >
-								<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)">
-							</td>
-
-							<td style="text-align: center" >${val.qty}
-								<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
-							</td>
-
-							<td style="text-align: center" >
-								<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)">
-							</td>
-
-							<td style="text-align: center" >${format_angka(val.weight)}
-								<input type="hidden" id="weight${no}" name="weight[${no}]"  value="${val.weight}">
-							</td>
-
-							<td style="text-align: center" >
-								<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})">
-							</td>
-
-							<td style="text-align: center" >
-								<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.weight)}" readonly>
-							</td>
-
-							<td style="text-align: center" >
-								<input type="checkbox" name="aksi[${no}]" id="aksi${no}" class="form-control" value="0" onchange="cek(this.value,this.id)">
-							</td>
-						</tbody>`;
-						berat_total += parseInt(val.weight);
-						no ++;
-					})
-					list += `<td style="text-align: center" colspan="8">TOTAL
-							</td>
-							<td style="text-align: center" >${format_angka(berat_total)}
-							</td>
-							<td style="text-align: center" colspan="3">&nbsp;
-							</td>`;
-					list += `</table>`;
 					$("#datatable_input").html(list);
 					swal.close();
 				}else{	
@@ -838,12 +930,12 @@
 		var type    = $('#type_po').val()
 		var tgl_inv = $('#tgl_inv').val()
 		var pajak   = $('#pajak').val()
+		$("#id_pl").prop('disabled', true);
 		
 		if(pajak == 'ppn' || pajak == 'ppn_pph' )
 		{
 			$('#ppn_pilihan').show("1000");
 			$("#inc_exc").val('Exclude').trigger('change');
-
 		}else{
 			$('#ppn_pilihan').hide("1000");
 			$("#inc_exc").val('nonppn_inc').trigger('change');
@@ -1030,9 +1122,18 @@
 
 	function hitung_hasil(val,id)
 	{
-		var berat   = $('#weight'+id).val()
-		var seset   = val.split('.').join('')
-		var hasil   = berat - seset
+		var type    = $('#type_po').val()
+		if(type=='roll')
+		{
+			var berat    = $('#weight'+id).val()
+			var seset    = val.split('.').join('')
+			var hasil    = berat - seset
+		}else{
+			var qty    = $('#qty'+id).val()
+			var retur  = val.split('.').join('')
+			var hasil  = qty - retur
+		}
+
 		$('#hasil'+id).val(format_angka(hasil));
 
 	}

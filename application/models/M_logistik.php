@@ -57,44 +57,99 @@ class M_logistik extends CI_Model
 		$tgl_sj           = $this->input->post('tgl_sj');
 		$id_perusahaan    = $this->input->post('id_perusahaan');
 
-		$query = $db2->query("SELECT b.nm_perusahaan,a.id_pl,b.id,a.nm_ker,a.g_label,a.width,COUNT(a.roll) AS qty,SUM(weight) AS weight,b.no_po,b.no_surat,b.no_pkb 
-		FROM m_timbangan a 
-		INNER JOIN pl b ON a.id_pl = b.id 
-		WHERE b.tgl='$tgl_sj' AND b.id_perusahaan='$id_perusahaan'
-		GROUP BY b.no_po,a.nm_ker,a.g_label,a.width 
-		ORDER BY a.g_label,b.no_surat,b.no_po,a.nm_ker DESC,a.g_label,a.width")->result();
+		if ($type == 'roll')
+		{
+			$query = $db2->query("SELECT c.nm_perusahaan,a.id_pl,b.id,a.nm_ker,a.g_label,a.width,COUNT(a.roll) AS qty,SUM(weight)-SUM(seset) AS weight,b.no_po,b.no_po_sj,b.no_surat
+			FROM m_timbangan a 
+			INNER JOIN pl b ON a.id_pl = b.id 
+			LEFT JOIN m_perusahaan c ON b.id_perusahaan=c.id
+			WHERE b.no_pl_inv = '0' AND b.tgl='$tgl_sj' AND b.id_perusahaan='$id_perusahaan'
+			GROUP BY b.no_po,a.nm_ker,a.g_label,a.width 
+			ORDER BY a.g_label,b.no_surat,b.no_po,a.nm_ker DESC,a.g_label,a.width ")->result();
 
-		$no = 1;
-		foreach ( $query as $row ) {
-
-			$cek = $this->input->post('aksi['.$no.']');
-			if($cek == 1)
+			$no = 1;
+			foreach ( $query as $row ) 
 			{
-				$harga_ok   = $this->input->post('hrg['.$no.']');
-				$hasil_ok   = $this->input->post('hasil['.$no.']');
-				$id_pl_roll = $this->input->post('id_pl_roll['.$no.']');
-				$data = [					
-					'no_invoice'   => $m_no_inv,
-					'no_surat'     => $this->input->post('no_surat['.$no.']'),
-					'nm_ker'       => $this->input->post('nm_ker['.$no.']'),
-					'g_label'      => $this->input->post('g_label['.$no.']'),
-					'width'        => $this->input->post('width['.$no.']'),
-					'qty'          => $this->input->post('qty['.$no.']'),
-					'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
-					'id_pl'        => $id_pl_roll,
-					'harga'        => str_replace('.','',$harga_ok),
-					'weight'       => $this->input->post('weight['.$no.']'),
-					'seset'        => $this->input->post('seset['.$no.']'),
-					'hasil'        => str_replace('.','',$hasil_ok),
-					'no_po'        => $this->input->post('no_po['.$no.']'),
-				];
 
-				$update_no_pl   = $db2->query("UPDATE pl set no_pl_inv = 1 where id ='$id_pl_roll'");
+				$cek = $this->input->post('aksi['.$no.']');
+				if($cek == 1)
+				{
+					$harga_ok   = $this->input->post('hrg['.$no.']');
+					$hasil_ok   = $this->input->post('hasil['.$no.']');
+					$id_pl_roll = $this->input->post('id_pl_roll['.$no.']');
+					$data = [					
+						'no_invoice'   => $m_no_inv,
+						'type'         => $type,
+						'no_surat'     => $this->input->post('no_surat['.$no.']'),
+						'nm_ker'       => $this->input->post('nm_ker['.$no.']'),
+						'g_label'      => $this->input->post('g_label['.$no.']'),
+						'width'        => $this->input->post('width['.$no.']'),
+						'qty'          => $this->input->post('qty['.$no.']'),
+						'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
+						'id_pl'        => $id_pl_roll,
+						'harga'        => str_replace('.','',$harga_ok),
+						'weight'       => $this->input->post('weight['.$no.']'),
+						'seset'        => $this->input->post('seset['.$no.']'),
+						'hasil'        => str_replace('.','',$hasil_ok),
+						'no_po'        => $this->input->post('no_po['.$no.']'),
+					];
 
-				$result_rinci   = $this->db->insert("invoice_detail", $data);
+					$update_no_pl   = $db2->query("UPDATE pl set no_pl_inv = 1 where id ='$id_pl_roll'");
 
+					$result_rinci   = $this->db->insert("invoice_detail", $data);
+
+				}
+				$no++;
 			}
-			$no++;
+		}else{
+			if ($type == 'box')
+			{				
+				$where_po    = 'and d.po ="box"';
+			}else{
+				$where_po    = 'and d.po is null';
+			}
+			
+			$query = $db2->query("SELECT b.id as id_pl, a.qty, a.qty_ket, b.tgl, b.id_perusahaan, c.nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.item, d.kualitas, d.ukuran2,d.ukuran, 
+			d.flute, d.po
+			FROM m_box a 
+			JOIN pl_box b ON a.id_pl = b.id 
+			LEFT JOIN m_perusahaan c ON b.id_perusahaan=c.id
+			JOIN po_box_master d ON b.no_po=d.no_po and a.ukuran=d.ukuran
+			WHERE b.no_pl_inv = '0' AND b.tgl = '$tgl_sj' AND b.id_perusahaan='$id_perusahaan' $where_po
+			ORDER BY b.tgl desc ")->result();
+			
+			$no = 1;
+			foreach ( $query as $row ) 
+			{			
+
+				$cek = $this->input->post('aksi['.$no.']');
+				if($cek == 1)
+				{
+					$harga_ok   = $this->input->post('hrg['.$no.']');
+					$hasil_ok   = $this->input->post('hasil['.$no.']');
+					$id_pl_roll = $this->input->post('id_pl_roll['.$no.']');
+					$data = [					
+						'no_invoice'   => $m_no_inv,
+						'type'         => $type,
+						'no_surat'     => $this->input->post('no_surat['.$no.']'),
+						'nm_ker'       => $this->input->post('item['.$no.']'),
+						'g_label'      => $this->input->post('ukuran['.$no.']'),
+						'kualitas'      => $this->input->post('kualitas['.$no.']'),
+						'qty'          => $this->input->post('qty['.$no.']'),
+						'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
+						'id_pl'        => $id_pl_roll,
+						'harga'        => str_replace('.','',$harga_ok),
+						'hasil'        => str_replace('.','',$hasil_ok),
+						'no_po'        => $this->input->post('no_po['.$no.']'),
+					];
+
+					$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 1 where id ='$id_pl_roll'");
+
+					$result_rinci   = $this->db->insert("invoice_detail", $data);
+
+				}
+				$no++;
+			}
 		}
 
 		if($result_rinci){
