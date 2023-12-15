@@ -1115,27 +1115,42 @@ class Transaksi extends CI_Controller
 			if($data->kategori=='K_SHEET')
 			{
 
+				$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:22px;">
+				<tr align="left">
+					<th>Harga P11</th>';
+
 				$no       = 1;
 				foreach ($query->result() as $r) { 
 					$html .= '</th>
 							<tr align="left">
-								<th>Harga P11 ['.$no.'] : '. $data->p11 .'</th>
+								<td>'.$no.'. ( '. $data->p11 .' )</td>
 							</tr>';
 					$no++;
 				}
 				
 			}
 			
-            
-            $html .= '
-            </th>
-            <tr align="left">
-                <th>Roll Produksi Sudah Ada</th>
-            </tr>
-            <tr align="left">
-                <th>ETA : '. $this->m_fungsi->tanggal_format_indonesia($data->eta) .' </th>
-            </tr>
-            <tr align="left">
+
+			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:22px;">
+				<tr align="left">
+					<th>ETA Item</th>';
+				 
+				$no = 1;
+				foreach ($query->result() as $r) { 
+					$html .= '
+								<tr>
+									<td>' . $no . '. ' . $this->m_fungsi->tanggal_format_indonesia($r->eta) . '</td>
+								</tr>';
+					$no++;
+				}
+
+			$html .= '
+			</th>
+			<tr align="left">
+				<th>Roll Produksi Sudah Ada</th>
+			</tr>';
+
+            $html .= '<tr align="left">
                 <th>Cust Bisa Menyesuaikan Kita</th>
             </tr>
             ';
