@@ -7,7 +7,7 @@
 			</div>
 			<div class="col-sm-6">
 				<ol class="breadcrumb float-sm-right">
-				<!-- <li class="breadcrumb-item active" ><a href="#">Finishing</a></li> -->
+				<!-- <li class="breadcrumb-item active" ><a href="#">Corrugator</a></li> -->
 				</ol>
 			</div>
 			</div>
@@ -17,25 +17,29 @@
 	<section class="content">
 		<div class="card card-list-so">
 			<div class="card-header">
-				<h3 class="card-title">Finishing</h3>
+				<h3 class="card-title">Gudang</h3>
 				<div class="card-tools">
 					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
 					<i class="fas fa-minus"></i></button>
 				</div>
 			</div>
+
 			<div class="card-body">
-				<?php if(in_array($this->session->userdata('level'), ['Admin', 'PPIC'])) { ?>
-					<a href="<?php echo base_url('Plan/Finishing/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
+
+				<?php if(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])) { ?>
+					<a href="<?php echo base_url('Logistik/Gudang/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
 					<br><br>
 				<?php } ?>
+				
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead>
 						<tr>
 							<th style="width:5%">#</th>
 							<th style="width:20%">TANGGAL</th>
-							<th style="width:20%">SHIFT</th>
-							<th style="width:20%">JOINT</th>
-							<th style="width:20%">JUMLAH</th>
+							<th style="width:10%">SHIFT</th>
+							<th style="width:10%">MESIN</th>
+							<th style="width:30%">NO. PLAN</th>
+							<th style="width:10%">JUMLAH</th>
 							<th style="width:15%">AKSI</th>
 						</tr>
 					</thead>
@@ -61,35 +65,42 @@
 </div>
 
 <script type="text/javascript">
+	status ="insert";
+
 	$(document).ready(function () {
-		load_data()
+		// load_data()
 	});
 
-	function reloadTable() {
-		table = $('#datatable').DataTable();
-		tabel.ajax.reload(null, false);
-	}
+	// $(".tambah_data").click(function(event) {
+	// 	status = "insert";
+	// })
 
-	function load_data() {
-		let table = $('#datatable').DataTable();
-		table.destroy();
-		tabel = $('#datatable').DataTable({
-			"processing": true,
-			"pageLength": true,
-			"paging": true,
-			"ajax": {
-				"url": '<?php echo base_url('Plan/LoaDataFinishing')?>',
-				"type": "POST",
-			},
-			"aLengthMenu": [
-				[5, 10, 15, 20, -1],
-				[5, 10, 15, 20, "Semua"]
-			],	
-			responsive: true,
-			"pageLength": 10,
-			"language": {
-				"emptyTable": "Tidak ada data.."
-			}
-		})
-	}
+	// function reloadTable() {
+	// 	table = $('#datatable').DataTable();
+	// 	tabel.ajax.reload(null, false);
+	// }
+
+	// function load_data() {
+	// 	let table = $('#datatable').DataTable();
+	// 	table.destroy();
+	// 	tabel = $('#datatable').DataTable({
+	// 		"processing": true,
+	// 		"pageLength": true,
+	// 		"paging": true,
+	// 		"ajax": {
+	// 			"url": '<?php echo base_url('Plan/LoaDataCor')?>',
+	// 			"type": "POST",
+	// 		},
+	// 		"aLengthMenu": [
+	// 			[5, 10, 15, 20, -1],
+	// 			[5, 10, 15, 20, "Semua"]
+	// 		],	
+	// 		responsive: true,
+	// 		"pageLength": 10,
+	// 		"language": {
+	// 			"emptyTable": "Tidak ada data.."
+	// 		}
+	// 	})
+	// }
+
 </script>

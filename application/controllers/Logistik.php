@@ -806,4 +806,33 @@ class Logistik extends CI_Controller
 		}
 	}
 
+	//
+
+	function Gudang()
+	{
+		$data_header = array(
+			'judul' => "Gudang",
+		);
+
+		$this->load->view('header', $data_header);
+
+		$jenis = $this->uri->segment(3);
+		if($jenis == 'Add'){
+			if(in_array($this->session->userdata('level'), ['Admin','Gudang'])){
+				$this->load->view('Logistik/v_gudang_add');
+			}else{
+				$this->load->view('home');
+			}
+		}else{
+			if(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])){
+				$this->load->view('Logistik/v_gudang');
+			}else{
+				$this->load->view('home');
+			}
+		}
+
+
+		$this->load->view('footer');
+	}
+
 }

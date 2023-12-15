@@ -109,6 +109,7 @@
 				
 				<div class="col-md-12">
 					<div id="list-input-flexo"></div>
+					<div id="riwayat-flexo"></div>
 				</div>
 
 				<div class="col-md-7">
@@ -289,12 +290,8 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-
 			<div class="modal-body" style="overflow:auto;white-space:nowrap">
-				
-			</div>
-			<div class="modal-footer">
-				
+				<div id="modal-body-isi"></div>
 			</div>
 		</div>
 	</div>
@@ -549,7 +546,7 @@
 		// G S GS DS D
 		let optSambungan = ''
 		if(opSambungan == 'G'){
-			optSambungan = `<option value="GLUE">GLUE</option>`
+			optSambungan = `<option value="GLUE">GLUE</option><option value="GUDANG">GUDANG</option>`
 		}else if(opSambungan == 'S'){
 			optSambungan = `<option value="STITCHING">STITCHING</option>`
 		}else if(opSambungan == 'GS'){
@@ -564,6 +561,60 @@
 
 		$("#next_flexo").html(optSambungan)
 
+		let idx_id_plan_cor = $('#plan_cor').val()
+		console.log(idx_id_plan_cor)
+		riwayatFlexo(idx_id_plan_cor)
+	}
+
+	function riwayatFlexo(id_plan)
+	{
+		$("#riwayat-flexo").html(``)
+		$.ajax({
+			url: '<?php echo base_url('Plan/riwayatFlexo')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_plan
+			}),
+			success: function(res){
+				$("#riwayat-flexo").html(res)
+				swal.close()
+			}
+		})
+	}
+
+	function showRiwayat(id_plan = '', id_flexo = '', id_fs = '', opsi)
+	{
+		$("#modal-body-isi").html(`. . .`)
+		$("#modalForm").modal("show")
+		$.ajax({
+			url: '<?php echo base_url('Plan/showRiwayat')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_plan, id_flexo, id_fs, opsi }),
+			success: function(res){
+				$("#modal-body-isi").html(res)
+				swal.close()
+			}
+		})
 	}
 
 	function addRencanaFlexo()

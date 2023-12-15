@@ -363,12 +363,8 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-
 			<div class="modal-body" style="overflow:auto;white-space:nowrap">
-				
-			</div>
-			<div class="modal-footer">
-				
+				<div id="modal-body-isi"></div>
 			</div>
 		</div>
 	</div>
@@ -398,6 +394,9 @@
 
 	function loadDataPlanFlexo(uTgl, uShift, uMesin)
 	{
+		$("#tgl").val(urlTglF).prop('disabled', true)
+		$("#shift").html(`<option value="${urlShiftF}">${urlShiftF}</option>`).prop('disabled', true)
+		$("#mesin").html(`<option value="${urlMesinF}">${urlMesinF}</option>`).prop('disabled', true)
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadDataPlanFlexo')?>',
 			type: "POST",
@@ -421,6 +420,12 @@
 		$("input[type=text]").val("")
 		$("#kirim").val("")
 		$("#tgl_cor").val("")
+
+		$("#tgl").val(urlTglF).prop('disabled', true)
+		$("#shift").html(`<option value="${urlShiftF}">${urlShiftF}</option>`).prop('disabled', true)
+		$("#mesin").html(`<option value="${urlMesinF}">${urlMesinF}</option>`).prop('disabled', true)
+		$("#btn-ganti-tgl").html("")
+
 		$("#next_flexo").html('<option value="">PILIH</option>')
 	}
 
@@ -561,7 +566,10 @@
 
 	function plhPlanCor(opsi = '')
 	{
-		let opNoWo = ''; let opNoPo = ''; let opCustomer = ''; let opKodeMc = ''; let opItem = ''; let opUkBox = ''; let opUkSheet = ''; let opCreasing1 = ''; let opCreasing2 = ''; let opCreasing3 = ''; let opKualitas = ''; let opFlute = ''; let opTipeBox = ''; let opSambungan = ''; let opBbBox = ''; let opLbBox = ''; let opPanjangPlan = ''; let opLebarPlan = ''; let opOrderSo = ''; let opKirim = ''; let opTglCor = ''; let opQtyCor = '';
+		$("#tgl").val(urlTglF).prop('disabled', true)
+		$("#shift").html(`<option value="${urlShiftF}">${urlShiftF}</option>`).prop('disabled', true)
+		$("#mesin").html(`<option value="${urlMesinF}">${urlMesinF}</option>`).prop('disabled', true)
+		let opNoWo = ''; let opNoPo = ''; let opCustomer = ''; let opKodeMc = ''; let opItem = ''; let opUkBox = ''; let opUkSheet = ''; let opCreasing1 = ''; let opCreasing2 = ''; let opCreasing3 = ''; let opKualitas = ''; let opFlute = ''; let opTipeBox = ''; let opSambungan = ''; let opBbBox = ''; let opLbBox = ''; let opPanjangPlan = ''; let opLebarPlan = ''; let opOrderSo = ''; let opKirim = ''; let opTglCor = ''; let opQtyCor = ''; let next_flexo = ''; let optSambungan = '';
 
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadPlanCor')?>',
@@ -602,6 +610,7 @@
 					opKirim = data.plan_cor.tgl_kirim_plan
 					opTglCor = data.plan_cor.tgl_prod_p
 					opQtyCor = data.plan_cor.good_cor_p
+					next_flexo = data.plan_cor.next_flexo
 
 					$("#ehid_flexo").val(data.plan_cor.id_flexo)
 
@@ -627,6 +636,7 @@
 						$("#btn-aksi-produksi").html(``)
 					}
 
+					loadPlanCor('not')
 					riwayatFlexo(data.getNoFlexo.id_plan_cor)
 
 					let tms = '';
@@ -705,6 +715,23 @@
 						$("#btn-aksi-produksi").html(``)
 						$("#btn-add-plan-flexo").html(``)
 					}
+
+					if(next_flexo == 'GLUE'){
+						optSambungan = `<option value="GLUE">GLUE</option>`
+					}else if(next_flexo == 'STITCHING'){
+						optSambungan = `<option value="STITCHING">STITCHING</option>`
+					}else if(next_flexo == 'GGLUESTITCHING'){
+						optSambungan = `<option value="GLUESTITCHING">GLUE STITCHING</option>`
+					}else if(next_flexo == 'DDOUBLESTITCHING'){
+						optSambungan = `<option value="DOUBLESTITCHING">DOUBLE STITCHING</option>`
+					}else if(next_flexo == 'DIECUT'){
+						optSambungan = `<option value="DIECUT">DIECUT</option>`
+					}else if(next_flexo == 'GUDANG'){
+						optSambungan = `<option value="GUDANG">GUDANG</option>`
+					}else{
+						optSambungan = `<option value="">PILIH</option>`
+					}
+					$("#next_flexo").html(optSambungan).prop('disabled', true)
 				}else{
 					opNoWo = $('#plan_cor option:selected').attr('op-no-wo')
 					opNoPo = $('#plan_cor option:selected').attr('op-no-po')
@@ -726,8 +753,9 @@
 					opLebarPlan = $('#plan_cor option:selected').attr('op-lebar-plan')
 					opOrderSo = $('#plan_cor option:selected').attr('op-order-so')
 					opKirim = $('#plan_cor option:selected').attr('op-kirim')
-					opTglCor = $('#plan_cor option:selected').attr('op-tgl-cor');
-					opQtyCor = $('#plan_cor option:selected').attr('op-qty-cor');
+					opTglCor = $('#plan_cor option:selected').attr('op-tgl-cor')
+					opQtyCor = $('#plan_cor option:selected').attr('op-qty-cor')
+					next_flexo = ''
 
 					$("#ehid_flexo").val("")
 
@@ -754,6 +782,21 @@
 						$("#btn-aksi-produksi").html('')
 						$("#btn-add-plan-flexo").html('')
 					}
+
+					if(opSambungan == 'G'){
+						optSambungan = `<option value="GLUE">GLUE</option><option value="GUDANG">GUDANG</option>`
+					}else if(opSambungan == 'S'){
+						optSambungan = `<option value="STITCHING">STITCHING</option>`
+					}else if(opSambungan == 'GS'){
+						optSambungan = `<option value="GLUESTITCHING">GLUE STITCHING</option>`
+					}else if(opSambungan == 'DS'){
+						optSambungan = `<option value="DOUBLESTITCHING">DOUBLE STITCHING</option>`
+					}else if(opSambungan == 'D'){
+						optSambungan = `<option value="DIECUT">DIECUT</option>`
+					}else{
+						optSambungan = `<option value="">PILIH</option>`
+					}
+					$("#next_flexo").html(optSambungan).prop('disabled', false)
 					
 					inputDtProd = ''
 					riwayatFlexo(0)
@@ -789,22 +832,6 @@
 				$("#kirim").val(opKirim)
 				$("#tgl_cor").val(opTglCor)
 				$("#qty_cor").val(opQtyCor)
-				
-				let optSambungan = ''
-				if(opSambungan == 'G'){
-					optSambungan = `<option value="GLUE">GLUE</option><option value="GUDANG">GUDANG</option>`
-				}else if(opSambungan == 'S'){
-					optSambungan = `<option value="STITCHING">STITCHING</option>`
-				}else if(opSambungan == 'GS'){
-					optSambungan = `<option value="GLUESTITCHING">GLUE STITCHING</option>`
-				}else if(opSambungan == 'DS'){
-					optSambungan = `<option value="DOUBLESTITCHING">DOUBLE STITCHING</option>`
-				}else if(opSambungan == 'D'){
-					optSambungan = `<option value="DIECUT">DIECUT</option>`
-				}else{
-					optSambungan = `<option value="">PILIH</option>`
-				}
-				$("#next_flexo").html(optSambungan)
 
 				loadListPlanFlexo('','','','')
 			}
@@ -841,6 +868,11 @@
 		let qty_cor = $("#qty_cor").val().split('.').join('')
 		let next_flexo = $("#next_flexo").val()
 
+		if(plan_cor == "" && opsi == 'add'){
+			toastr.error('<b>PILIH PLAN COR DAHULU!</b>');
+			return
+		}
+
 		$.ajax({
 			url: '<?php echo base_url('Plan/addRencanaFlexo')?>',
 			type: "POST",
@@ -858,7 +890,7 @@
 						swal(data.isi, "", "error")
 					}
 				}else{
-					if(data.data){
+					if(data.data == true && data.insertGudang == true){
 						plhPlanCor(opsi)
 					}else{
 						swal(data.isi, "", "error")
@@ -984,16 +1016,6 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/loadListPlanFlexo')?>',
 			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
 			data: ({
 				tglF, shiftF, mesinF, opsi, hidplan
 			}),
@@ -1020,6 +1042,8 @@
 				data = JSON.parse(res)
 				if(data.data){
 					loadDataPlanFlexo(urlTglF, urlShiftF, urlMesinF)
+				}else{
+					swal(data.msg, "", "error")
 				}
 			}
 		})
@@ -1181,6 +1205,31 @@
 			success: function(res){
 				$("#riwayat-flexo").html(res)
 				// swal.close()
+			}
+		})
+	}
+
+	function showRiwayat(id_plan = '', id_flexo = '', id_fs = '', opsi)
+	{
+		$("#modal-body-isi").html(`. . .`)
+		$("#modalForm").modal("show")
+		$.ajax({
+			url: '<?php echo base_url('Plan/showRiwayat')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_plan, id_flexo, id_fs, opsi }),
+			success: function(res){
+				$("#modal-body-isi").html(res)
+				swal.close()
 			}
 		})
 	}
