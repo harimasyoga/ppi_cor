@@ -184,20 +184,40 @@ class Logistik extends CI_Controller
 		$db2        = $this->load->database('database_simroll', TRUE);
 		$type_po    = $this->input->post('type_po');
 		$tgl        = $this->input->post('tgl_sj');
+		$stat       = $this->input->post('stat');
 		
 		if ($type_po == 'roll')
 		{
-			$tbl1    = 'pl';
-			$tbl2    = 'm_timbangan';
+			$tbl1        = 'pl';
+			$tbl2        = 'm_timbangan';
+			$where_po    = '';
+			$join_po     = '';
 		}else{
+			if ($type_po == 'box')
+			{				
+				$where_po    = 'and d.po ="box"';
+			}else{
+				$where_po    = 'and d.po is null';
+			}
+			
 			$tbl1    = 'pl_box';
 			$tbl2    = 'm_box';
+			$join_po = 'JOIN po_box_master d ON a.no_po=d.no_po and b.ukuran=d.ukuran';
+		}
+
+		if($stat == 'add')
+		{
+			$where_status = 'and a.no_pl_inv = "0" ';
+		}else{
+			$where_status = '';
+
 		}
 
 		$query = $db2->query("SELECT DATE_FORMAT(a.tgl, '%d-%m-%Y')tgll,a.*,c.id as id_perusahaan,c.nm_perusahaan as nm_perusahaan, c.pimpinan as pimpinan, c.alamat as alamat_perusahaan, c.no_telp as no_telp FROM $tbl1 a
-			INNER JOIN $tbl2 b ON a.id = b.id_pl
+			JOIN $tbl2 b ON a.id = b.id_pl
 			LEFT JOIN m_perusahaan c ON a.id_perusahaan=c.id
-			WHERE a.no_pl_inv = '0' and a.tgl = '$tgl' and id_perusahaan not in ('210','217') 
+			$join_po
+			WHERE a.tgl = '$tgl' and a.id_perusahaan not in ('210','217') $where_status $where_po 
 			GROUP BY a.tgl,a.id_perusahaan
 			ORDER BY a.tgl,a.id_perusahaan,a.no_pl_inv")->result();
 
@@ -237,13 +257,20 @@ class Logistik extends CI_Controller
 			GROUP BY b.no_po,a.nm_ker,a.g_label,a.width 
 			ORDER BY a.g_label,b.no_surat,b.no_po,a.nm_ker DESC,a.g_label,a.width ")->result();
 		}else{
-			$query = $db2->query("SELECT c.nm_perusahaan,a.id_pl,b.id,a.nm_ker,a.g_label,a.width,COUNT(a.roll) AS qty,SUM(weight)-SUM(seset) AS weight,b.no_po,b.no_po_sj,b.no_surat
+			if ($type_po == 'box')
+			{				
+				$where_po    = 'and d.po ="box"';
+			}else{
+				$where_po    = 'and d.po is null';
+			}
+			$query = $db2->query("SELECT b.id as id_pl, a.qty, a.qty_ket, b.tgl, b.id_perusahaan, c.nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.item, d.kualitas, d.ukuran2,d.ukuran, 
+			d.flute, d.po
 			FROM m_box a 
-			INNER JOIN pl_box b ON a.id_pl = b.id 
+			JOIN pl_box b ON a.id_pl = b.id 
 			LEFT JOIN m_perusahaan c ON b.id_perusahaan=c.id
-			WHERE b.no_pl_inv = '0' AND b.tgl='$tgl_sj' AND b.id_perusahaan='$id_perusahaan'
-			GROUP BY b.no_po,a.nm_ker,a.g_label,a.width 
-			ORDER BY a.g_label,b.no_surat,b.no_po,a.nm_ker DESC,a.g_label,a.width ")->result();
+			JOIN po_box_master d ON b.no_po=d.no_po and a.ukuran=d.ukuran
+			WHERE b.no_pl_inv = '0' AND b.tgl = '$tgl_sj' AND b.id_perusahaan='$id_perusahaan' $where_po
+			ORDER BY b.tgl desc ")->result();
 		}
 		
 		if (!$query) {
@@ -550,10 +577,10 @@ class Logistik extends CI_Controller
             <th style="border:0;height:15px;width:30%"></th>
             <th style="border:0;height:15px;width:10%"></th>
             <th style="border:0;height:15px;width:15%"></th>
-            <th style="border:0;height:15px;width:5%"></th>
+            <th style="border:0;height:15px;width:7%"></th>
             <th style="border:0;height:15px;width:10%"></th>
-            <th style="border:0;height:15px;width:5%"></th>
-            <th style="border:0;height:15px;width:25%"></th>
+            <th style="border:0;height:15px;width:8%"></th>
+            <th style="border:0;height:15px;width:20%"></th>
         </tr>';
 
         $html .= '<tr>
@@ -566,71 +593,99 @@ class Logistik extends CI_Controller
 		$html .= '<tr>
 			<td style="border:0;padding:20px 0 0" colspan="7"></td>
 		</tr>';
-
-        $sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
 		
-		// TAMPILKAN DULU LABEL
-		$totalHarga = 0;
-		foreach($sqlLabel->result() as $label){
+		if($data_detail->type== 'roll')
+		{
+			$sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
+			// TAMPILKAN DULU LABEL
+			$totalHarga = 0;
+			foreach($sqlLabel->result() as $label){
 
-			if($label->nm_ker == 'MH'){
-                $jnsKertas = 'KERTAS MEDIUM';
-            }else if($label->nm_ker == 'WP'){
-                $jnsKertas = 'KERTAS COKLAT';
-            }else if($label->nm_ker == 'BK'){
-                $jnsKertas = 'KERTAS B-KRAFT';
-            }else if($label->nm_ker == 'MEDIUM LINER'){
-                $jnsKertas = 'KERTAS MEDIUM LINER';
-            }else if($label->nm_ker == 'MH COLOR'){
-                $jnsKertas = 'KERTAS MEDIUM COLOR';
-            }else if($label->nm_ker == 'MN'){
-                $jnsKertas = 'KERTAS MEDIUM NON SPEK';
-            }else{
-                $jnsKertas = '';
-            }
-			$html .= '<tr>
-				<td style="border:0;padding:5px 0" colspan="7">'.$jnsKertas.' ROLL '.$label->g_label.' GSM</td>
-			</tr>';
-
-			// TAMPILKAN ITEMNYA
-			$weightNmLbPo = 0;
-			$sqlWidth = $this->db->query("SELECT*FROM invoice_detail
-			WHERE no_invoice='$label->no_invoice' AND nm_ker='$label->nm_ker' AND g_label='$label->g_label' AND no_po='$label->no_po'
-			ORDER BY width ASC");
-			foreach($sqlWidth->result() as $items){
-                // BERAT SESETAN
-				$qty        = $items->qty - $items->retur_qty;
-				$fixBerat   = $items->weight - $items->seset;
+				if($label->nm_ker == 'MH'){
+					$jnsKertas = 'KERTAS MEDIUM';
+				}else if($label->nm_ker == 'WP'){
+					$jnsKertas = 'KERTAS COKLAT';
+				}else if($label->nm_ker == 'BK'){
+					$jnsKertas = 'KERTAS B-KRAFT';
+				}else if($label->nm_ker == 'MEDIUM LINER'){
+					$jnsKertas = 'KERTAS MEDIUM LINER';
+				}else if($label->nm_ker == 'MH COLOR'){
+					$jnsKertas = 'KERTAS MEDIUM COLOR';
+				}else if($label->nm_ker == 'MN'){
+					$jnsKertas = 'KERTAS MEDIUM NON SPEK';
+				}else{
+					$jnsKertas = '';
+				}
 				$html .= '<tr>
-					<td style="border:0;padding:5px 0">LB '.round($items->width,2).' = '.$qty.' ROLL</td>
-					<td style="border:0;padding:5px 0;text-align:center">KG</td>
-					<td style="border:0;padding:5px 0;text-align:right">'.number_format($fixBerat).'</td>
-					<td style="border:0;padding:5px 0" colspan="4"></td>
+					<td style="border:0;padding:5px 0" colspan="7">'.$jnsKertas.' ROLL '.$label->g_label.' GSM</td>
 				</tr>';
 
-				// TOTAL BERAT PER GSM - LABEL - PO
-				$weightNmLbPo += $fixBerat;
+				// TAMPILKAN ITEMNYA
+				$weightNmLbPo = 0;
+				$sqlWidth = $this->db->query("SELECT*FROM invoice_detail
+				WHERE no_invoice='$label->no_invoice' AND nm_ker='$label->nm_ker' AND g_label='$label->g_label' AND no_po='$label->no_po'
+				ORDER BY width ASC");
+				foreach($sqlWidth->result() as $items){
+					// BERAT SESETAN
+					$qty        = $items->qty - $items->retur_qty;
+					$fixBerat   = $items->weight - $items->seset;
+					$html .= '<tr>
+						<td style="border:0;padding:5px 0">LB '.round($items->width,2).' = '.$qty.' ROLL</td>
+						<td style="border:0;padding:5px 0;text-align:center">KG</td>
+						<td style="border:0;padding:5px 0;text-align:right">'.number_format($fixBerat, 0, ",", ".").'</td>
+						<td style="border:0;padding:5px 0" colspan="4"></td>
+					</tr>';
+
+					// TOTAL BERAT PER GSM - LABEL - PO
+					$weightNmLbPo += $fixBerat;
+				}
+
+				// CARI HARGANYA
+				$sqlHargaPo = $this->db->query("SELECT*FROM invoice_detail
+				WHERE no_invoice='$label->no_invoice' AND nm_ker='$label->nm_ker' AND g_label='$label->g_label' AND no_po='$label->no_po'")->row();
+				// PERKALIAN ANTARA TOTAL BERAT DAN HARGA PO
+				$weightXPo = round($weightNmLbPo * $sqlHargaPo->harga);
+				$html .= '<tr>
+					<td style="border:0;padding:5px 0" colspan="2"></td>
+					<td style="border-top:1px solid #000;padding:5px 0;text-align:right">'.number_format($weightNmLbPo, 0, ",", ".").'</td>
+					<td style="border-top:1px solid #000;padding:5px 0 0 15px;text-align:right">Rp</td>
+					<td style="border-top:1px solid #000;padding:5px 0;text-align:right">'.number_format($sqlHargaPo->harga, 0, ",", ".").'</td>
+					<td style="border:0;padding:5px 0 0 15px;text-align:right">Rp</td>
+					<td style="border:0;padding:5px 0;text-align:right">'.number_format($weightXPo, 0, ",", ".").'</td>
+				</tr>';
+
+				$totalHarga += $weightXPo;
 			}
 
-			// CARI HARGANYA
-			$sqlHargaPo = $this->db->query("SELECT*FROM invoice_detail
-			WHERE no_invoice='$label->no_invoice' AND nm_ker='$label->nm_ker' AND g_label='$label->g_label' AND no_po='$label->no_po'")->row();
-			// PERKALIAN ANTARA TOTAL BERAT DAN HARGA PO
-			$weightXPo = round($weightNmLbPo * $sqlHargaPo->harga);
-			$html .= '<tr>
-				<td style="border:0;padding:5px 0" colspan="2"></td>
-				<td style="border-top:1px solid #000;padding:5px 0;text-align:right">'.number_format($weightNmLbPo).'</td>
-				<td style="border-top:1px solid #000;padding:5px 0 0 15px">Rp</td>
-				<td style="border-top:1px solid #000;padding:5px 0;text-align:right">'.number_format($sqlHargaPo->harga).'</td>
-				<td style="border:0;padding:5px 0 0 15px">Rp</td>
-				<td style="border:0;padding:5px 0;text-align:right">'.number_format($weightXPo).'</td>
-			</tr>';
+		}else{
 
-			$totalHarga += $weightXPo;
+			$sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
+			// TAMPILKAN DULU LABEL
+			$totalHarga = 0;
+			foreach($sqlLabel->result() as $label){
+
+				$ukuran         = str_replace("X","x",$label->g_label);
+				$total_harga    = round($label->qty * $label->harga);
+
+				$html .= '<tr>
+					<td style="padding:5px 0">'.$label->nm_ker.' &nbsp;'.$ukuran.' &nbsp;'. $label->kualitas.'</td>
+					<td style="padding:5px 0;text-align:center"> PCS</td>
+					<td style="solid #000;padding:5px 0;text-align:right">'. number_format($label->qty, 0, ",", ".").'</td>
+					<td style="solid #000;padding:5px 0 0 15px;text-align:right">Rp</td>
+					<td style="solid #000;padding:5px 0;text-align:right">'. number_format($label->harga, 0, ",", ".").'</td>
+					<td style="padding:5px 0 0 15px;text-align:right">Rp</td>
+					<td style="padding:5px 0;text-align:right">'.number_format($label->qty, 0, ",", ".") .'</td>
+				</tr>';
+
+
+				$totalHarga += $total_harga;
+			}
+			
+
 		}
-        
 		
-		//////////////////////////////////////////////// T O T A L ////////////////////////////////////////////////
+		
+		// T O T A L //
 		$html .= '<tr>
 			<td style="border:0;padding:20px 0 0" colspan="7"></td>
 		</tr>';
@@ -674,7 +729,7 @@ class Logistik extends CI_Controller
 
 			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
 
-			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($totalHarga).'</td>
+			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($totalHarga, 0, ",", ".").'</td>
 		</tr>';
 
 		// PPN - PPH22
@@ -687,7 +742,7 @@ class Logistik extends CI_Controller
 				$nominal = 'KB';
 			}else if($data_detail->inc_exc=='Exclude')
 			{				
-				$nominal = number_format($ppn10);
+				$nominal = number_format($ppn10, 0, ",", ".");
 			}else{
 				$nominal = '';
 			}
@@ -698,7 +753,7 @@ class Logistik extends CI_Controller
 				$nominal = 'KB';
 			}else if($data_detail->inc_exc=='Exclude')
 			{
-				$nominal = number_format($ppn10);
+				$nominal = number_format($ppn10, 0, ",", ".") ;
 			}else{
 				$nominal = '';
 			}
@@ -716,7 +771,7 @@ class Logistik extends CI_Controller
 			$html .= $txtppn10.'<tr>
 				<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Pph 22</td>
 				<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
-				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($pph22).'</td>
+				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($pph22, 0, ",", ".").'</td>
 			</tr>';
 		}else{
 			$html .= '';
@@ -725,7 +780,7 @@ class Logistik extends CI_Controller
 		$html .= '<tr>
 			<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Total</td>
 			<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
-			<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($terbilang).'</td>
+			<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($terbilang, 0, ",", ".").'</td>
 		</tr>';
 
 		//////////////////////////////////////////////// T T D ////////////////////////////////////////////////
