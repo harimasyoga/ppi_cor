@@ -188,10 +188,11 @@ class Logistik extends CI_Controller
 		
 		if ($type_po == 'roll')
 		{
-			$tbl1        = 'pl';
-			$tbl2        = 'm_timbangan';
-			$where_po    = '';
-			$join_po     = '';
+			$tbl1          = 'pl';
+			$tbl2          = 'm_timbangan';
+			$perusahaan    = 'm_perusahaan';
+			$where_po      = '';
+			$join_po       = '';
 		}else{
 			if ($type_po == 'box')
 			{				
@@ -200,9 +201,11 @@ class Logistik extends CI_Controller
 				$where_po    = 'and d.po is null';
 			}
 			
-			$tbl1    = 'pl_box';
-			$tbl2    = 'm_box';
-			$join_po = 'JOIN po_box_master d ON a.no_po=d.no_po and b.ukuran=d.ukuran';
+			$tbl1          = 'pl_box';
+			$tbl2          = 'm_box';
+			$perusahaan    = 'm_perusahaan2';
+
+			$join_po       = 'JOIN po_box_master d ON a.no_po=d.no_po and b.ukuran=d.ukuran';
 		}
 
 		if($stat == 'add')
@@ -213,9 +216,9 @@ class Logistik extends CI_Controller
 
 		}
 
-		$query = $db2->query("SELECT DATE_FORMAT(a.tgl, '%d-%m-%Y')tgll,a.*,c.id as id_perusahaan,c.nm_perusahaan as nm_perusahaan, c.pimpinan as pimpinan, c.alamat as alamat_perusahaan, c.no_telp as no_telp FROM $tbl1 a
+		$query = $db2->query("SELECT DATE_FORMAT(a.tgl, '%d-%m-%Y')tgll,a.*,c.id as id_perusahaan, c.nm_perusahaan as nm_perusahaan , c.pimpinan as pimpinan, c.alamat as alamat_perusahaan, c.no_telp as no_telp FROM $tbl1 a
 			JOIN $tbl2 b ON a.id = b.id_pl
-			LEFT JOIN m_perusahaan c ON a.id_perusahaan=c.id
+			LEFT JOIN $perusahaan c ON a.id_perusahaan=c.id
 			$join_po
 			WHERE a.tgl = '$tgl' and a.id_perusahaan not in ('210','217') $where_status $where_po 
 			GROUP BY a.tgl,a.id_perusahaan
@@ -267,7 +270,7 @@ class Logistik extends CI_Controller
 			d.flute, d.po
 			FROM m_box a 
 			JOIN pl_box b ON a.id_pl = b.id 
-			LEFT JOIN m_perusahaan c ON b.id_perusahaan=c.id
+			LEFT JOIN m_perusahaan2 c ON b.id_perusahaan=c.id
 			JOIN po_box_master d ON b.no_po=d.no_po and a.ukuran=d.ukuran
 			WHERE b.no_pl_inv = '0' AND b.tgl = '$tgl_sj' AND b.id_perusahaan='$id_perusahaan' $where_po
 			ORDER BY b.tgl desc ")->result();
