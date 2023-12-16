@@ -72,7 +72,7 @@
 			</div>
 
 			<div class="modal-body">
-				<form role="form" method="post" id="myForm">
+				<form role="form" method="post" id="myForm" enctype="multipart/form-data">
 					<!-- <div style="overflow-x:auto;"> -->
 
 						<div class="card-body">
@@ -144,9 +144,17 @@
 									</div>
 								</div>
 								<div class="card-body row" style="padding : 5px;font-weight:bold">
-									<div class="col-md-2"></div>
-									<div class="col-md-3"></div>
-
+									<div class="col-md-2">Upload PO</div>
+									<div class="col-md-3">
+										<div class="col-9">
+											<input type="file" data-max-size="2048" name="filefoto" id="filefoto" accept=".jpg,.jpeg,.png">
+										</div>
+										<div id="div_preview_foto" style="display: none;">
+											
+											<img id="preview_img" src="#" alt="Preview Foto" width="100" class="shadow-sm img-thumbnail"/>
+											<span class="help-block"></span>
+										</div>
+									</div>
 									<div class="col-md-2"></div>
 
 									<div class="col-md-2">TOP</div>
@@ -401,6 +409,24 @@
 		});
 	});
 
+	$("#filefoto").change(function() {
+        readURL(this);
+    });
+
+	function readURL(input) {
+		if (input.files && input.files[0]) {
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			$('#div_preview_foto').css("display","block");
+			$('#preview_img').attr('src', e.target.result);
+		}
+		reader.readAsDataURL(input.files[0]);
+		} else {
+			$('#div_preview_foto').css("display","none");
+			$('#preview_img').attr('src', '');
+		}
+	}
+
 	status = "insert";
 	$(".tambah_data").click(function(event) 
 	{
@@ -585,6 +611,9 @@
 	
 	function simpan() 
 	{
+		var file_data   = $('#filefoto').prop('files')[0];
+		var form_data   = new FormData();
+		form_data.append('filefoto', file_data);
 		// show_loading();
 		swal({
 			title: 'loading ...',
@@ -657,11 +686,19 @@
 
 		// console.log($('#myForm').serialize());
 
+		var form    = $('#myForm')[0];
+		var data    = new FormData(form);
+		
 		$.ajax({
-			url        : '<?= base_url(); ?>Transaksi/insert',
-			type       : "POST",
-			data       : $('#myForm').serialize(),
-			dataType   : "JSON",
+			url            : '<?= base_url(); ?>Transaksi/insert',
+			type           : "POST",
+			enctype        : 'multipart/form-data',
+			data           : data,
+			dataType       : "JSON",
+			contentType    : false,
+			cache          : false,
+			timeout        : 600000,
+			processData    : false,
 			success: function(data) {
 				if (data) {
 					// toastr.success('Berhasil Disimpan');
@@ -728,6 +765,7 @@
 		$("#txt_fax").val("");
 		$("#txt_top").val("");
 		$("#txt_marketing").val("");
+		$('#div_preview_foto').css("display","none");
 
 		clearRow();
 		status = 'insert';
@@ -750,23 +788,23 @@
 		$(".btn-verif").hide()
 		// $("#btn-simpan-plan").hide()
 
-		if (data[0].status == 'Open' || data[0].status == 'Reject') {
+		if (data.header.status == 'Open' || data.header.status == 'Reject') {
 			if ('<?= $this->session->userdata('level') ?>' == 'Admin'){
 				$(".btn-verif").show()
 			}
 
-			if ('<?= $this->session->userdata('level') ?>' == 'Marketing' && ( data[0].status_app1 == 'N' || data[0].status_app1 == 'H' || data[0].status_app1 == 'R'  ) ) 
+			if ('<?= $this->session->userdata('level') ?>' == 'Marketing' && ( data.header.status_app1 == 'N' || data.header.status_app1 == 'H' || data.header.status_app1 == 'R'  ) ) 
 			{
 				$(".btn-verif").show()
 			}
 
-			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data[0].status_app1 == 'Y' && ( data[0].status_app2 == 'N' || data[0].status_app2 == 'H' || data[0].status_app2 == 'R' ) ) 
+			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data.header.status_app1 == 'Y' && ( data.header.status_app2 == 'N' || data.header.status_app2 == 'H' || data.header.status_app2 == 'R' ) ) 
 			{
 				$(".btn-verif").show()
 				// $("#btn-simpan-plan").show()
 			}
 
-			if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data[0].status_app1 == 'Y' && data[0].status_app2 == 'Y'  && ( data[0].status_app3 == 'N' || data[0].status_app3 == 'H' || data[0].status_app3 == 'R' ) ) 
+			if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data.header.status_app1 == 'Y' && data.header.status_app2 == 'Y'  && ( data.header.status_app3 == 'N' || data.header.status_app3 == 'H' || data.header.status_app3 == 'R' ) ) 
 			{
 				$(".btn-verif").show()
 			}
@@ -812,16 +850,19 @@
 			.done(function(data) {
 				
 				btn_verif(data)
-				no_po = data[0].no_po
+				no_po = data.header.no_po
 
-				$("#no_po").val(data[0].no_po);
-				$("#tgl_po").val(data[0].tgl_po);
+				$("#no_po").val(data.header.no_po);
+				$("#tgl_po").val(data.header.tgl_po);
 				
-				$('#id_pelanggan').val(data[0].id_pelanggan).trigger('change');
+				$('#id_pelanggan').val(data.header.id_pelanggan).trigger('change');
 
-				kodepo    = (data[0].kode_po == '' ) ? '-' : data[0].kode_po ;
+				kodepo    = (data.header.kode_po == '' ) ? '-' : data.header.kode_po ;
 				
 				$("#kode_po").val(kodepo);
+				
+				$('#div_preview_foto').css("display","block");
+				$('#preview_img').attr('src',data.url_foto);
 				// $("#eta").val(eta); 
 				
 				$("#header_del").hide();
@@ -833,7 +874,7 @@
 					$("#header_p11").hide();
 				}
 
-				$.each(data, function(index, value) {
+				$.each(data.detail, function(index, value) {
 					eta       = (value.eta == '' ) ? '-' : value.eta ;
 					
 					$("#detail-hapus-0").hide();
@@ -913,7 +954,7 @@
 						$("#eta_ket"+index).prop("disabled", false);
 					}
 					
-					if (index != (data.length) - 1) {
+					if (index != (data.detail.length) - 1) {
 						addRow();
 					}
 					// console.log(index, data.length);

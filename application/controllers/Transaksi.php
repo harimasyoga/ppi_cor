@@ -477,6 +477,8 @@ class Transaksi extends CI_Controller
 
 							<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a>
 
+							<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Cetak_img_po?no_po=" . $r->no_po . "") . '" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
+
 							';
 						} else {
 
@@ -492,7 +494,10 @@ class Transaksi extends CI_Controller
 
 							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
-							<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> ';
+							<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
+							
+							<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Cetak_img_po?no_po=" . $r->no_po . "") . '" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
+							';
 						}
 						
 					}else{
@@ -500,7 +505,9 @@ class Transaksi extends CI_Controller
 						$aksi .= ' 
 							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
-							<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> ';
+							<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
+							
+							<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Cetak_img_po?no_po=" . $r->no_po . "") . '" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>';
 
 					}
 					
@@ -554,12 +561,18 @@ class Transaksi extends CI_Controller
 	                            </button>
 								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
-								<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> ';
+								<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
+								
+								<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Cetak_img_po?no_po=" . $r->no_po . "") . '" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
+								';
 						}else{
 							$aksi .=  '
 								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
-								<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> ';
+								<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
+								
+								<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Cetak_img_po?no_po=" . $r->no_po . "") . '" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
+								';
 
 						}
 
@@ -785,13 +798,22 @@ class Transaksi extends CI_Controller
 		if ($jenis == "trs_po") {
 			$header =  $this->m_master->get_data_one($jenis, $field, $id)->row();
 			// $data = $this->m_master->get_data_one("trs_po_detail", "no_po", $header->no_po)->result();
-			$data = $this->db->query("SELECT * FROM trs_po a 
+
+			if($header->img_po==null || $header->img_po=='') {
+				$url_foto = base_url('assets/gambar_po/foto.jpg');
+			}else{
+				$url_foto = base_url('assets/gambar_po/') . $header->img_po;
+			}
+
+			$detail = $this->db->query("SELECT * FROM trs_po a 
                     JOIN trs_po_detail b ON a.no_po = b.no_po
                     JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
                     LEFT JOIN m_kab d ON c.kab=d.kab_id
                     LEFT JOIN m_produk e ON b.id_produk=e.id_produk
 					WHERE a.no_po = '".$header->no_po."'
 				")->result();
+
+			$data = ["header" => $header, "detail" => $detail, "url_foto" => $url_foto];
 
 		} else if ($jenis == "trs_so_detail") {
 			$data =  $this->m_master->query(
@@ -1163,6 +1185,45 @@ class Transaksi extends CI_Controller
 
 		// $this->m_fungsi->_mpdf($html);
 		$this->m_fungsi->template_kop('PURCHASE ORDER', $id ,$html,'L','0');
+		// $this->m_fungsi->mPDFP($html);
+	}
+   
+	function Cetak_img_po()
+	{
+		$id  = $_GET['no_po'];
+
+		// $query = $this->m_master->get_data_one("trs_po_detail", "no_po", $id);
+        $query = $this->db->query("SELECT * FROM trs_po a 
+        JOIN trs_po_detail b ON a.no_po = b.no_po
+        JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+        LEFT JOIN m_kab d ON c.kab=d.kab_id
+        LEFT JOIN m_produk e ON b.id_produk=e.id_produk
+        WHERE a.no_po = '$id' ");
+
+		$html = '';
+
+
+		if ($query->num_rows() > 0) {
+
+            $data   = $query->row();
+
+			$html .= "<table width=\"100%\" border=\"0\" cellspacing=\"0\" style=\"font-size:14px;\">
+                        <tr style=\"font-weight: bold;\">
+							<td align=\"center\">
+								<img src=\"" . base_url() . "assets/gambar_po/$data->img_po\"  />
+						</td>
+                        </tr>
+                 </table><br>";
+
+
+                        
+			$html .= '</table>';
+		} else {
+			$html .= '<h1> Data Kosong </h1>';
+		}
+
+		// $this->m_fungsi->_mpdf($html);
+		$this->m_fungsi->template_kop($id, $id ,$html,'P','1');
 		// $this->m_fungsi->mPDFP($html);
 	}
 
