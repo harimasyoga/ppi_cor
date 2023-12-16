@@ -20,6 +20,36 @@ class M_transaksi extends CI_Model
 
 	function trs_po($table, $status)
 	{
+
+		/* LOGO */
+		//$nmfile = "file_".time(); //nama file saya beri nama langsung dan diikuti fungsi time
+		$config['upload_path']   = './assets/gambar_po/'; //path folder
+		$config['allowed_types'] = 'gif|jpg|png|jpeg|bmp'; //type yang dapat diakses bisa anda sesuaikan
+		$config['max_size']      = '2048'; //maksimum besar file 2M
+		$config['max_width']     = '1288'; //lebar maksimum 1288 px
+		$config['max_height']    = '768'; //tinggi maksimu 768 px
+		//$config['file_name'] = $nmfile; //nama yang terupload nantinya
+
+		$this->load->library('upload',$config);
+		$this->upload->initialize($config);
+
+		if($_FILES['filefoto']['name'])
+		{
+			if ($this->upload->do_upload('filefoto'))
+			{
+				$gbrBukti = $this->upload->data();
+				$filefoto = $gbrBukti['file_name'];
+				// $filefoto    = $_FILES['filefoto']['name'];
+				
+			}else{
+				$filefoto = 'foto.jpg';
+			}
+		} else {
+			$error = array('error' => $this->upload->display_errors());
+			var_dump($error);exit;
+		}
+		/*END LOGO */
+		
 		$params       = (object)$this->input->post();
 		$pono         = $this->m_master->get_data_max($table, 'no_po');
 		$bln          = $this->m_master->get_romawi(date('m'));
@@ -96,7 +126,8 @@ class M_transaksi extends CI_Model
 			// 'no_telp'        => $pelanggan->no_telp,
 			// 'fax'            => $pelanggan->fax,
 			// 'top'            => $pelanggan->top,
-			'total_qty'      => $total_qty
+			'total_qty'      => $total_qty,
+			'img_po'         => $filefoto
 		);
 
 		if ($status == 'insert') {

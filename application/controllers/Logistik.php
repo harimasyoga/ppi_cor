@@ -350,6 +350,56 @@ class Logistik extends CI_Controller
 		
 		
 	}
+
+	function update_inv()
+	{
+
+		if($this->session->userdata('username'))
+		{
+			$c_no_inv_kd   = $this->input->post('no_inv_kd');
+			$c_no_inv      = $this->input->post('no_inv');
+			$c_no_inv_tgl  = $this->input->post('no_inv_tgl');
+			$cek_inv       = $this->input->post('cek_inv2');
+			$no_inv_old    = $this->input->post('no_inv_old');
+			$c_type_po     = $this->input->post('type_po2');
+			$c_pajak       = $this->input->post('pajak2');
+
+			($c_type_po=='roll')? $type_ok=$c_type_po : $type_ok='SHEET_BOX';
+			
+			($c_pajak=='nonppn')? $pajak_ok='non' : $pajak_ok='ppn';
+	
+			$no_urut         = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok);
+
+			$no_inv_ok       = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
+
+			$query_cek_no    = $this->db->query("SELECT*FROM invoice_header where no_invoice='$no_inv_ok' and no_invoice <> '$no_inv_old' ")->num_rows();
+
+			if($query_cek_no>0)
+			{
+				echo json_encode(array("status" => "3","id" => '0'));
+			}else if($c_no_inv>$no_urut)
+			{
+				echo json_encode(array("status" => "4","id" => $no_urut));
+			}else{
+				
+				$asc = $this->m_logistik->update_invoice();
+		
+				if($asc){
+		
+					echo json_encode(array("status" =>"1","id" => $asc));
+		
+				}else{
+					echo json_encode(array("status" => "2","id" => $asc));
+		
+				}
+
+			}
+
+		}
+
+		
+		
+	}
 	
 	function get_edit()
 	{
@@ -425,7 +475,13 @@ class Logistik extends CI_Controller
 			foreach( $query_cek as $row)
 			{
 				$db2            = $this->load->database('database_simroll', TRUE);
-				$update_no_pl   = $db2->query("UPDATE pl set no_pl_inv = 0 where id ='$row->id_pl'");
+
+				if($row->type=='roll'){
+					$update_no_pl   = $db2->query("UPDATE pl set no_pl_inv = 0 where id ='$row->id_pl'");					
+				}else{
+					$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 0 where id ='$row->id_pl'");					
+
+				}
 			}
 
 			if($update_no_pl)
@@ -668,16 +724,16 @@ class Logistik extends CI_Controller
 			foreach($sqlLabel->result() as $label){
 
 				$ukuran         = str_replace("X","x",$label->g_label);
-				$total_harga    = round($label->qty * $label->harga);
+				$total_harga    = round(($label->qty - $label->retur_qty) * $label->harga);
 
 				$html .= '<tr>
 					<td style="padding:5px 0">'.$label->nm_ker.' &nbsp;'.$ukuran.' &nbsp;'. $label->kualitas.'</td>
 					<td style="padding:5px 0;text-align:center"> PCS</td>
-					<td style="solid #000;padding:5px 0;text-align:right">'. number_format($label->qty, 0, ",", ".").'</td>
+					<td style="solid #000;padding:5px 0;text-align:right">'. number_format(($label->qty-$label->retur_qty), 0, ",", ".").'</td>
 					<td style="solid #000;padding:5px 0 0 15px;text-align:right">Rp</td>
 					<td style="solid #000;padding:5px 0;text-align:right">'. number_format($label->harga, 0, ",", ".").'</td>
 					<td style="padding:5px 0 0 15px;text-align:right">Rp</td>
-					<td style="padding:5px 0;text-align:right">'.number_format($label->qty, 0, ",", ".") .'</td>
+					<td style="padding:5px 0;text-align:right">'.number_format($total_harga, 0, ",", ".") .'</td>
 				</tr>';
 
 
