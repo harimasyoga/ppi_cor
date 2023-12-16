@@ -211,16 +211,12 @@
 	$(".tambah_data").click(function(event) 
 	{
 		kosong();
-		$("#modalForm").modal("show");
+		
 		$("#judul").html('<h3> Form Tambah Data</h3>');
 		status = "insert";
 		$("#status").val("insert");
 		$("#id_produk0").val("").prop("", true).html(`<option value="">-- Pilih --</option>`);
 	});
-
-	function close_modal(){
-		$('#modalForm').modal('hide');
-	}
 
 	function setProduk(cek,pelanggan,id) 
 	{
@@ -358,7 +354,7 @@
 					location.href = "<?= base_url()?>Logistik/Invoice_edit?id="+data.id+"&no_inv="+no_inv_ok+"";
 
 					kosong();
-					$("#modalForm").modal("hide");
+					
 				} else if(data.status=='3'){
 					swal.close();
 					swal({
@@ -392,7 +388,7 @@
 					type                : "error",
 					confirmButtonText   : "OK"
 				});
-				// close_loading();
+				
 				return;
 			}
 		});
@@ -450,7 +446,7 @@
 		$("#status").val("update");
 		status    = 'update';
 
-		$("#modalForm").modal("show");
+		
 		if (act == 'detail') {
 			$("#judul").html('<h3> Detail Data</h3>');
 			$("#btn-simpan").hide();

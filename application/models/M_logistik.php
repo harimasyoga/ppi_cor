@@ -162,4 +162,126 @@ class M_logistik extends CI_Model
 			
 	}
 
+	function update_invoice()
+	{
+		$id_inv         = $this->input->post('id_inv');
+		$cek_inv        = $this->input->post('cek_inv2');
+		$c_no_inv_kd    = $this->input->post('no_inv_kd');
+		$c_no_inv       = $this->input->post('no_inv');
+		$c_no_inv_tgl   = $this->input->post('no_inv_tgl');
+
+		$type           = $this->input->post('type_po2');
+		$pajak          = $this->input->post('pajak2');
+		$no_inv_old     = $this->input->post('no_inv_old');
+
+		$m_no_inv       = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
+
+		$data_header = array(
+			'no_invoice'         => $m_no_inv,
+			'type'               => $type,
+			'cek_inv'    		 => $cek_inv,
+			'tgl_invoice'        => $this->input->post('tgl_inv'),
+			'tgl_sj'             => $this->input->post('tgl_sj'),
+			'pajak'              => $this->input->post('pajak2'),
+			'inc_exc'            => $this->input->post('inc_exc'),
+			'tgl_jatuh_tempo'    => $this->input->post('tgl_tempo'),
+			'id_perusahaan'      => $this->input->post('id_perusahaan'),
+			'kepada'             => $this->input->post('kpd'),
+			'nm_perusahaan'      => $this->input->post('nm_perusahaan'),
+			'alamat_perusahaan'  => $this->input->post('alamat_perusahaan'),
+			'bank'  			 => $this->input->post('bank'),
+			'status'             => 'Open',
+		);
+
+		$result_header = $this->db->update("invoice_header", $data_header,
+			array(
+				'id' => $id_inv
+			)
+		);
+
+		$tgl_sj           = $this->input->post('tgl_sj');
+		$id_perusahaan    = $this->input->post('id_perusahaan');
+
+		$query = $this->db->query("SELECT *FROM invoice_detail where no_invoice='$no_inv_old' ")->result();
+
+		if ($type == 'roll')
+		{
+			$no = 1;
+			foreach ( $query as $row ) 
+			{
+
+					$harga_ok        = $this->input->post('hrg['.$no.']');
+					$hasil_ok        = $this->input->post('hasil['.$no.']');
+					$id_pl_roll      = $this->input->post('id_pl_roll['.$no.']');
+					$id_inv_detail   = $this->input->post('id_inv_detail['.$no.']');
+					$data = [					
+						'no_invoice'   => $m_no_inv,
+						'type'         => $type,
+						'no_surat'     => $this->input->post('no_surat['.$no.']'),
+						'nm_ker'       => $this->input->post('nm_ker['.$no.']'),
+						'g_label'      => $this->input->post('g_label['.$no.']'),
+						'width'        => $this->input->post('width['.$no.']'),
+						'qty'          => $this->input->post('qty['.$no.']'),
+						'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
+						'id_pl'        => $id_pl_roll,
+						'harga'        => str_replace('.','',$harga_ok),
+						'weight'       => $this->input->post('weight['.$no.']'),
+						'seset'        => $this->input->post('seset['.$no.']'),
+						'hasil'        => str_replace('.','',$hasil_ok),
+						'no_po'        => $this->input->post('no_po['.$no.']'),
+					];
+
+					$result_rinci = $this->db->update("invoice_detail", $data,
+						array(
+							'id' => $id_inv_detail
+						)
+					);
+
+				$no++;
+			}
+		}else{
+			
+			$no = 1;
+			foreach ( $query as $row ) 
+			{			
+
+					$harga_ok        = $this->input->post('hrg['.$no.']');
+					$hasil_ok        = $this->input->post('hasil['.$no.']');
+					$id_pl_roll      = $this->input->post('id_pl_roll['.$no.']');
+					$id_inv_detail   = $this->input->post('id_inv_detail['.$no.']');
+					$data = [					
+						'no_invoice'   => $m_no_inv,
+						'type'         => $type,
+						'no_surat'     => $this->input->post('no_surat['.$no.']'),
+						'nm_ker'       => $this->input->post('item['.$no.']'),
+						'g_label'      => $this->input->post('ukuran['.$no.']'),
+						'kualitas'      => $this->input->post('kualitas['.$no.']'),
+						'qty'          => $this->input->post('qty['.$no.']'),
+						'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
+						'id_pl'        => $id_pl_roll,
+						'harga'        => str_replace('.','',$harga_ok),
+						'hasil'        => str_replace('.','',$hasil_ok),
+						'no_po'        => $this->input->post('no_po['.$no.']'),
+					];
+
+					$result_rinci = $this->db->update("invoice_detail", $data,
+						array(
+							'id' => $id_inv_detail
+						)
+					);
+
+				$no++;
+			}
+		}
+
+		if($result_rinci){
+			$query = $this->db->query("SELECT*FROM invoice_header where no_invoice ='$m_no_inv' ")->row();
+			return $query->id;
+		}else{
+			return 0;
+
+		}
+			
+	}
+
 }
