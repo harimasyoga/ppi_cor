@@ -73,7 +73,7 @@
 					</tr>
 					<tr>
 						<td style="padding:5px 0 0"></td>
-						<td style="padding:5px 0 0;font-weight:bold;font-style:italic;color:#f00;font-size:12px">NO. PO | CUSTOMER</td>
+						<td style="padding:5px 0 0;font-weight:bold;font-style:italic;color:#f00;font-size:12px">CUSTOMER | NO. PO</td>
 					</tr>
 					<tr>
 						<td style="padding:5px 0;font-weight:bold">NO. PO</td>
@@ -93,6 +93,10 @@
 						<td style="padding:5px 0">
 							<input type="text" name="customer" id="customer" class="form-control" disabled>
 						</td>
+					</tr>
+					<tr>
+						<td style="padding:5px 0 0"></td>
+						<td style="padding:5px 0 0;font-weight:bold;font-style:italic;color:#f00;font-size:12px">NAMA ITEM | KODE MC | UK. BOX | UK. SHEET | FLUTE | KUALITAS | QTY PO</td>
 					</tr>
 					<tr>
 						<td style="padding:5px 0;font-weight:bold">ITEM</td>
@@ -258,7 +262,7 @@
 					htmlPo += `<option value="">PILIH</option>`
 				data.po.forEach(loadPo);
 				function loadPo(r, index) {
-					htmlPo += `<option value="${r.no_po}" data-sales="${r.nm_sales}" data-cust="${r.nm_pelanggan}" data-idpelanggan="${r.id_pelanggan}" data-kdpo="${r.kode_po}" data-kdunik="${r.kode_unik}" eta-po="${r.eta}">${r.kode_po} | ${r.nm_pelanggan}</option>`;
+					htmlPo += `<option value="${r.no_po}" data-sales="${r.nm_sales}" data-cust="${r.nm_pelanggan}" data-idpelanggan="${r.id_pelanggan}" data-kdpo="${r.kode_po}" data-kdunik="${r.kode_unik}" eta-po="${r.eta}">${r.nm_pelanggan} | ${r.kode_po}</option>`;
 				}
 				$("#no_po").prop("disabled", false).html(htmlPo)
 				$("#h_kode_po").val("")

@@ -265,7 +265,9 @@ class M_plan extends CI_Model
 	function selesaiPlan()
 	{
 		$id_plan = $_POST["id_plan"];
-		$data = $this->db->query("SELECT pl.* FROM plan_cor pl WHERE pl.id_plan='$id_plan'")->row();
+		$data = $this->db->query("SELECT pl.*,i.kategori FROM plan_cor pl
+		INNER JOIN m_produk i ON pl.id_produk=i.id_produk
+		WHERE pl.id_plan='$id_plan'")->row();
 
 		if($data->kategori == 'K_SHEET'){
 			$dataGudang = [

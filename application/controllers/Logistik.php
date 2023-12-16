@@ -949,4 +949,67 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function loadGudang()
+	{
+		$result = $this->m_logistik->loadGudang();
+		echo json_encode($result);
+	}
+
+	function plhListPlan()
+	{
+		$html = '';
+		$opsi = $_POST["opsi"];
+		$id_pelanggan = $_POST["id_pelanggan"];
+		if($opsi == 'cor'){
+			$where = "WHERE g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo IS NULL AND g.gd_id_plan_finishing IS NULL";
+		}else if($opsi == 'flexo'){
+			$where = "WHERE g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo!='0' AND g.gd_id_plan_finishing IS NULL";
+		}else if($opsi == 'finishing'){
+			$where = "WHERE g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo!='0' AND g.gd_id_plan_finishing!='0'";
+		}else{
+			$where = "";
+		}
+
+		$data = $this->db->query("SELECT p.nm_pelanggan,g.* FROM m_gudang g
+		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
+		$where
+		GROUP BY p.nm_pelanggan");
+
+		$html .= '<table class="table table-bordered" style="margin:0;border:0">
+			<thead>';
+				foreach($data->result() as $r){
+					if($id_pelanggan == $r->gd_id_pelanggan){
+						$bgTd = 'class="h-tlp-td"';
+					}else{
+						$bgTd = 'class="h-tlpf-td"';
+					}
+
+					$html .= '<tr>
+						<td '.$bgTd.' style="padding:6px;border-width:0 0 1px">
+							<a href="javascript:void(0)" onclick="plhListPlan('."'".$opsi."'".','."'".$r->gd_id_pelanggan."'".')">'.$r->nm_pelanggan.'</a>
+						</td>
+					</tr>';
+				}
+			$html .= '</thead>
+		</table>';
+
+		echo $html;
+	}
+
+	function loadListProduksiPlan()
+	{
+		$html = '';
+		$opsi = $_POST["opsi"];
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$id_produk = $_POST["id_produk"];
+
+		$html .='<div class="card card-secondary card-outline" style="padding-bottom:20px">
+			<div class="card-header">
+				<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST HASIL PRODUKSI PLAN '.$opsi.' - '.$id_pelanggan.' - '.$id_produk.'</h3>
+			</div>
+		</div>';
+
+		echo $html;
+	}
+
 }
