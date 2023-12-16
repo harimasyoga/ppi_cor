@@ -162,4 +162,31 @@ class M_logistik extends CI_Model
 			
 	}
 
+	function loadGudang()
+	{
+		$opsi = $_POST["opsi"];
+		if($opsi == 'cor'){
+			$where = "WHERE g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo IS NULL AND g.gd_id_plan_finishing IS NULL";
+		}else if($opsi == 'flexo'){
+			$where = "WHERE g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo!='0' AND g.gd_id_plan_finishing IS NULL";
+		}else if($opsi == 'finishing'){
+			$where = "WHERE g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo!='0' AND g.gd_id_plan_finishing!='0'";
+		}else{
+			$where = "";
+		}
+
+		$data = $this->db->query("SELECT COUNT(g.id_gudang) AS jml,p.nm_pelanggan,i.nm_produk,g.* FROM m_gudang g
+		INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
+		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
+		$where
+		GROUP BY p.nm_pelanggan,g.gd_id_produk");
+
+		return [
+			'data' => $data->result(),
+			'opsi' => $opsi,
+			'id_pelanggan' => $_POST["id_pelanggan"],
+			'id_produk' => $_POST["id_produk"],
+		];
+	}
+
 }

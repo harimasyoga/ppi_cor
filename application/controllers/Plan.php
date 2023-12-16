@@ -3534,7 +3534,7 @@ class Plan extends CI_Controller
 		$allPlanCor = $this->db->query("SELECT COUNT(p.id_flexo) AS jml_plan,c.id_pelanggan,c.nm_pelanggan,p.* FROM plan_flexo p
 		INNER JOIN plan_cor r ON p.id_plan_cor=r.id_plan
 		INNER JOIN m_pelanggan c ON r.id_pelanggan=c.id_pelanggan
-		WHERE p.status_stt_f='Open'
+		WHERE p.status_stt_f='Open' AND p.next_flexo!='GUDANG'
 		GROUP BY c.id_pelanggan
 		ORDER BY c.nm_pelanggan");
 		$html .='<div id="accordion-h-cust">
@@ -3570,7 +3570,7 @@ class Plan extends CI_Controller
 		INNER JOIN plan_cor p ON f.id_plan_cor=p.id_plan
 		INNER JOIN m_produk i ON p.id_produk=i.id_produk
 		INNER JOIN m_pelanggan l ON p.id_pelanggan=l.id_pelanggan
-		WHERE l.id_pelanggan='$id_pelanggan' AND f.status_stt_f='Open'
+		WHERE l.id_pelanggan='$id_pelanggan' AND f.status_stt_f='Open' AND f.next_flexo!='GUDANG'
 		ORDER BY f.tgl_flexo,f.shift_flexo,f.mesin_flexo");
 		$html .='<div class="card-body" style="padding:6px">
 			<div id="accordion-isi-planff">
