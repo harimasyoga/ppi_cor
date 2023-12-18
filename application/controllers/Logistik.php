@@ -220,7 +220,9 @@ class Logistik extends CI_Controller
 			JOIN $tbl2 b ON a.id = b.id_pl
 			LEFT JOIN $perusahaan c ON a.id_perusahaan=c.id
 			$join_po
-			WHERE a.tgl = '$tgl' and a.id_perusahaan not in ('210','217') $where_status $where_po 
+			WHERE a.tgl = '$tgl' 
+			-- and a.id_perusahaan not in ('210','217') 
+			$where_status $where_po 
 			GROUP BY a.tgl,a.id_perusahaan
 			ORDER BY a.tgl,a.id_perusahaan,a.no_pl_inv")->result();
 
