@@ -563,7 +563,7 @@ class M_fungsi extends CI_Model {
 
 		// $this->mpdf->AddPage($orientasi,$uk);
 
-		$this->mpdf->SetFooter('Tercetak {DATE j-m-Y H:i:s} |Halaman {PAGENO} / {nb}| ');
+		$this->mpdf->SetFooter('Tercetak PPI - {DATE j-m-Y ( H:i:s )} |Halaman {PAGENO} / {nb}| ');
 
 		$this->mpdf->setTitle($judul);
 
