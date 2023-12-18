@@ -29,6 +29,7 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 *.sublime-project
 /tests/tests/
 /tests/results/
+/assets/gambar_po/
 db_penjualan.sql
 application/config/database.php
 .vscode

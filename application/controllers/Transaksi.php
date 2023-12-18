@@ -1223,7 +1223,8 @@ class Transaksi extends CI_Controller
 		}
 
 		// $this->m_fungsi->_mpdf($html);
-		$this->m_fungsi->template_kop($id, $id ,$html,'P','1');
+		// $this->m_fungsi->template_kop($id, $id ,$html,'P','1');
+		$this->m_fungsi->_mpdf_hari('P', 'A4', $data->kode_po, $html, $data->kode_po.'.pdf', 5, 5, 5, 10);
 		// $this->m_fungsi->mPDFP($html);
 	}
 
