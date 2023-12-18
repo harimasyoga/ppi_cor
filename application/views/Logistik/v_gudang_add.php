@@ -26,11 +26,11 @@
 	<section class="content" style="padding-bottom:30px">
 		<div class="container-fluid">
 			<div class="row">
-				
+
 				<div class="col-md-4">
 					<div class="card card-info card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title">COR</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">COR</h3>
 						</div>
 						<div id="card-body-cor" style="overflow:auto;white-space:nowrap">
 							<div style="padding:20px;text-align:center;font-size:8px;background:#bbb">
@@ -39,11 +39,10 @@
 						</div>
 					</div>
 				</div>
-
 				<div class="col-md-4">
 					<div class="card card-info card-outline">
-						<div class="card-header">
-							<h3 class="card-title">FLEXO</h3>
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">FLEXO</h3>
 						</div>
 						<div id="card-body-flexo" style="overflow:auto;white-space:nowrap">
 							<div style="padding:20px;text-align:center;font-size:8px;background:#bbb">
@@ -52,11 +51,10 @@
 						</div>
 					</div>
 				</div>
-
 				<div class="col-md-4">
 					<div class="card card-info card-outline">
-						<div class="card-header">
-							<h3 class="card-title">FINISHING</h3>
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">FINISHING</h3>
 						</div>
 						<div id="card-body-finishing" style="overflow:auto;white-space:nowrap">
 							<div style="padding:20px;text-align:center;font-size:8px;background:#bbb">
@@ -66,12 +64,165 @@
 					</div>
 				</div>
 
-			</div>
+				<div class="col-md-12">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">PRODUKSI</h3>
+						</div>
+						<div class="card-body row" style="padding:6px 7px">
+							<div class="col-md-4">
+								<div id="list-timeline">
+								<!-- <div class="timeline">
+									<div class="time-label">
+										<span class="bg-red">10 Feb. 2014</span>
+									</div>
+									<div>
+										<i class="fas fa-envelope bg-blue"></i>
+										<div class="timeline-item">
+											<span class="time"><i class="fas fa-clock"></i> 12:05</span>
+											<h3 class="timeline-header"><a href="#">Support Team</a> sent you an email</h3>
+											<div class="timeline-body">
+												Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles,
+												weebly ning heekya handango imeem plugg dopplr jibjab, movity
+												jajah plickers sifteo edmodo ifttt zimbra. Babblely odeo kaboodle
+												quora plaxo ideeli hulu weebly balihoo...
+											</div>
+											<div class="timeline-footer">
+												<a class="btn btn-primary btn-sm">Read more</a>
+												<a class="btn btn-danger btn-sm">Delete</a>
+											</div>
+										</div>
+									</div>
+									<div>
+										<i class="fas fa-user bg-green"></i>
+										<div class="timeline-item">
+											<span class="time"><i class="fas fa-clock"></i> 5 mins ago</span>
+											<h3 class="timeline-header no-border"><a href="#">Sarah Young</a> accepted your friend request</h3>
+										</div>
+									</div>
+									<div>
+										<i class="fas fa-comments bg-yellow"></i>
+										<div class="timeline-item">
+											<span class="time"><i class="fas fa-clock"></i> 27 mins ago</span>
+											<h3 class="timeline-header"><a href="#">Jay White</a> commented on your post</h3>
+											<div class="timeline-body">
+												Take me to your leader!
+												Switzerland is small and neutral!
+												We are more like Germany, ambitious and misunderstood!
+											</div>
+											<div class="timeline-footer">
+												<a class="btn btn-warning btn-sm">View comment</a>
+											</div>
+										</div>
+									</div>
+									<div class="time-label">
+										<span class="bg-red">10 Feb. 2014</span>
+									</div>
+									<div>
+										<i class="fas fa-envelope bg-blue"></i>
+										<div class="timeline-item">
+											<span class="time"><i class="fas fa-clock"></i> 12:05</span>
+											<h3 class="timeline-header"><a href="#">Support Team</a> sent you an email</h3>
+											<div class="timeline-body">
+												Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles,
+												weebly ning heekya handango imeem plugg dopplr jibjab, movity
+												jajah plickers sifteo edmodo ifttt zimbra. Babblely odeo kaboodle
+												quora plaxo ideeli hulu weebly balihoo...
+											</div>
+											<div class="timeline-footer">
+												<a class="btn btn-primary btn-sm">Read more</a>
+												<a class="btn btn-danger btn-sm">Delete</a>
+											</div>
+										</div>
+									</div>
+									<div>
+										<i class="fas fa-user bg-green"></i>
+										<div class="timeline-item">
+											<span class="time"><i class="fas fa-clock"></i> 5 mins ago</span>
+											<h3 class="timeline-header no-border"><a href="#">Sarah Young</a> accepted your friend request</h3>
+										</div>
+									</div>
+									<div>
+										<i class="fas fa-comments bg-yellow"></i>
+										<div class="timeline-item">
+											<span class="time"><i class="fas fa-clock"></i> 27 mins ago</span>
+											<h3 class="timeline-header"><a href="#">Jay White</a> commented on your post</h3>
+											<div class="timeline-body">
+												Take me to your leader!
+												Switzerland is small and neutral!
+												We are more like Germany, ambitious and misunderstood!
+											</div>
+											<div class="timeline-footer">
+												<a class="btn btn-warning btn-sm">View comment</a>
+											</div>
+										</div>
+									</div>
+									<div>
+										<i class="fas fa-clock bg-gray"></i>
+									</div>
+								</div> -->
+									TIMELINE
+								</div>
+							</div>
+							<div class="col-md-8">LIST</div>
+						</div>
+					</div>
+				</div>
 
-			<div class="row">
 				<div class="col-md-12">
 					<div id="list-produksi"></div>
 				</div>
+
+				<!-- <div class="col-md-12">
+					<div class="timeline">
+						<div class="time-label">
+							<span class="bg-red">10 Feb. 2014</span>
+						</div>
+						<div>
+							<i class="fas fa-envelope bg-blue"></i>
+							<div class="timeline-item">
+								<span class="time"><i class="fas fa-clock"></i> 12:05</span>
+								<h3 class="timeline-header"><a href="#">Support Team</a> sent you an email</h3>
+								<div class="timeline-body">
+									Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles,
+									weebly ning heekya handango imeem plugg dopplr jibjab, movity
+									jajah plickers sifteo edmodo ifttt zimbra. Babblely odeo kaboodle
+									quora plaxo ideeli hulu weebly balihoo...
+								</div>
+								<div class="timeline-footer">
+									<a class="btn btn-primary btn-sm">Read more</a>
+									<a class="btn btn-danger btn-sm">Delete</a>
+								</div>
+							</div>
+						</div>
+						<div>
+							<i class="fas fa-user bg-green"></i>
+							<div class="timeline-item">
+								<span class="time"><i class="fas fa-clock"></i> 5 mins ago</span>
+								<h3 class="timeline-header no-border"><a href="#">Sarah Young</a> accepted your friend request</h3>
+							</div>
+						</div>
+						<div>
+							<i class="fas fa-comments bg-yellow"></i>
+							<div class="timeline-item">
+								<span class="time"><i class="fas fa-clock"></i> 27 mins ago</span>
+								<h3 class="timeline-header"><a href="#">Jay White</a> commented on your post</h3>
+								<div class="timeline-body">
+									Take me to your leader!
+									Switzerland is small and neutral!
+									We are more like Germany, ambitious and misunderstood!
+								</div>
+								<div class="timeline-footer">
+									<a class="btn btn-warning btn-sm">View comment</a>
+								</div>
+							</div>
+						</div>
+						<div>
+							<i class="fas fa-clock bg-gray"></i>
+						</div>
+					</div>
+				</div> -->
+
 			</div>
 		</div>
 	</section>
@@ -148,7 +299,8 @@
 				}
 
 				if(data.opsi != '' && data.id_pelanggan != '' && data.id_pelanggan != ''){
-					loadListProduksiPlan(data.opsi, data.id_pelanggan, data.id_produk)
+					// loadListProduksiPlan(data.opsi, data.id_pelanggan, data.id_produk)
+					timeline(data.opsi, data.id_pelanggan, data.id_produk)
 				}
 			}
 		})
@@ -162,19 +314,27 @@
 			data: ({
 				opsi, id_pelanggan, id_produk
 			}),
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
 			success: function(res){
 				$("#list-produksi").html(res)
-				swal.close()
+				timeline(opsi, id_pelanggan, id_produk)
+				// swal.close()
+			}
+		})
+	}
+
+	function timeline(opsi, id_pelanggan, id_produk)
+	{
+		$("#list-timeline").html(`<div style="padding:6px;text-align:center;font-size:6px">
+			<i class="fas fa-3x fa-sync-alt fa-spin"></i>
+		</div>`)
+		$.ajax({
+			url: '<?php echo base_url('Logistik/timeline')?>',
+			type: "POST",
+			data: ({
+				opsi, id_pelanggan, id_produk
+			}),
+			success: function(res){
+				$("#list-timeline").html(res)
 			}
 		})
 	}
