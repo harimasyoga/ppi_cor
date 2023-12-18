@@ -187,8 +187,8 @@ class M_logistik extends CI_Model
 			'id_pelanggan' => $_POST["id_pelanggan"],
 			'id_produk' => $_POST["id_produk"],
 		];
-  }
-  
+	}
+
 	function update_invoice()
 	{
 		$id_inv         = $this->input->post('id_inv');
