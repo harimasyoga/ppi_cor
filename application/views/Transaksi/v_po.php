@@ -397,6 +397,12 @@
 </div>
 <!-- end modal keterangan -->
 
+<!-- Image Zoom HTML -->
+<div id="mymodal-img" class="modal-img">
+  <img class="modal-img-content" id="img01">
+</div>
+<!-- End Image Zoom HTML -->
+
 <script type="text/javascript">
 	rowNum = 0;
 	$(document).ready(function() {
@@ -412,6 +418,28 @@
 	$("#filefoto").change(function() {
         readURL(this);
     });
+
+	var modal = document.getElementById('mymodal-img');
+
+	// Get the image and insert it inside the modal - use its "alt" text as a caption
+	var img            = document.getElementById('preview_img');
+	var modalImg       = document.getElementById("img01");
+	img.onclick = function(){
+		modal.style.display   = "block";
+		modalImg.src          = this.src;
+		modalImg.alt          = this.alt;
+	}
+
+
+	// When the user clicks on <span> (x), close the modal
+	modal.onclick = function() {
+		img01.className       += " out";
+		setTimeout(function() {
+			modal.style.display   = "none";
+			img01.className       = "modal-img-content";
+		}, 400);
+		
+	}    
 
 	function readURL(input) {
 		if (input.files && input.files[0]) {
@@ -830,9 +858,11 @@
 		if (act == 'detail') {
 			$("#judul").html('<h3> Detail Data</h3>');
 			$("#btn-simpan").hide();
+			$('#filefoto').css("display","none");
 		} else {
 			$("#judul").html('<h3> Form Edit Data</h3>');
 			$("#btn-simpan").show();
+			$('#filefoto').css("display","block");
 		} 
 
 		status = "update";
