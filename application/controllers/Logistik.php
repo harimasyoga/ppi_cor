@@ -957,6 +957,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function simpanGudang()
+	{
+		$result = $this->m_logistik->simpanGudang();
+		echo json_encode($result);
+	}
+
 	function plhListPlan()
 	{
 		$html = '';
@@ -1004,11 +1010,91 @@ class Logistik extends CI_Controller
 		$opsi = $_POST["opsi"];
 		$id_pelanggan = $_POST["id_pelanggan"];
 		$id_produk = $_POST["id_produk"];
+		$data = $this->m_logistik->loadListProduksiPlan();
 
-		$html .='<div class="card card-secondary card-outline" style="padding-bottom:20px">
-			<div class="card-header">
-				<h3 class="card-title" style="font-weight:bold;font-style:italic">LIST HASIL PRODUKSI PLAN '.$opsi.' - '.$id_pelanggan.' - '.$id_produk.'</h3>
-			</div>
+		if($data->num_rows() == 0){
+			$html .='LIST';
+		}else{
+			$html .= '<div id="accordion">
+				<div class="card m-0" style="border-radius:0">';
+					$i = 0;
+					foreach($data->result() as $r){
+						$i++;
+						$html .= '<div class="card-header" style="padding:0;border-radius:0">
+							<a class="d-block w-100" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapse'.$i.'" onclick="clickHasilProduksiPlan('."'".$opsi."'".','."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".','."'".$r->kode_po."'".','."'".$i."'".')">
+								'.$r->kode_po.' <span id="i_span'.$i.'" class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:4px">'.$r->jml_gd.'</span>
+							</a>
+						</div>
+						<div id="collapse'.$i.'" class="collapse" data-parent="#accordion">
+							<div id="isi-list-gudang-'.$i.'" style="padding:3px"></div>
+						</div>';
+					}
+				$html .= '</div>
+			</div>';
+		}
+
+		echo $html;
+	}
+
+	function clickHasilProduksiPlan()
+	{
+		$html = '';
+		$opsi = $_POST["opsi"];
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$id_produk = $_POST["id_produk"];
+		$no_po = $_POST["no_po"];
+		$i = $_POST["i"];
+		$data = $this->m_logistik->clickHasilProduksiPlan();
+
+		$html .='<div style="overflow:auto;white-space:nowrap">
+			<table class="table table-bordered" style="margin:0;border:0;text-align:center">
+				<thead>
+					<tr>
+						<th style="background:#dee2e6;border-bottom:1px solid #bec2c6;padding:6px">PLAN</th>
+						<th style="background:#dee2e6;border-bottom:1px solid #bec2c6;padding:6px">HASIL COR</th>
+						<th style="background:#dee2e6;border-bottom:1px solid #bec2c6;padding:6px 25px">GOOD</th>
+						<th style="background:#dee2e6;border-bottom:1px solid #bec2c6;padding:6px 18px">REJECT</th>
+						<th style="background:#dee2e6;border-bottom:1px solid #bec2c6;padding:6px">AKSI</th>
+					</tr>
+				</thead>';
+				foreach($data->result() as $r){
+					// gd_good_qty  gd_reject_qty  gd_cek_spv
+					
+					if($opsi == 'cor'){
+						$shift = $r->shift_plan;
+						$mesin = str_replace('CORR', '', $r->machine_plan);
+						$tgl = $r->tgl_plan;
+					}else if($opsi == 'flexo'){
+						$shift = $r->shift_flexo;
+						$mesin = str_replace('FLEXO', '', $r->mesin_flexo);
+						$tgl = $r->tgl_flexo;
+					}else{
+						$shift = $r->shift_fs;
+						$mesin = substr($r->joint_fs,0,1);
+						$tgl = $r->tgl_fs;
+					}
+
+					if($r->gd_cek_spv == 'Open'){
+						$btnAksi = '<button type="button" id="simpan_gudang'.$r->id_gudang.'" class="btn btn-sm btn-success btn-block" style="font-weight:bold" onclick="simpanGudang('."'".$r->id_gudang."'".','."'".$opsi."'".','."'".$id_pelanggan."'".','."'".$id_produk."'".','."'".$no_po."'".','."'".$i."'".')">SIMPAN</button>';
+						$disabledInput = '';
+					}else{
+						$btnAksi = '<button type="button" class="btn btn-sm btn-secondary btn-block" style="font-weight:bold;cursor:default" disabled)">SIMPAN</button>';
+						$disabledInput = 'disabled';
+					}
+
+					$html .= '<tr>
+						<td style="padding:6px;text-align:left">['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($tgl),0,3).', '.$this->m_fungsi->tglIndSkt($tgl).'</td>
+						<td style="padding:6px">'.number_format($r->gd_hasil_plan,0,",",".").'</td>
+						<td style="padding:6px">
+							<input type="number" class="form-control" id="good-'.$r->id_gudang.'" autocomplete="off" value="'.$r->gd_good_qty.'" onkeyup="hitungGudang('."'".$r->id_gudang."'".')" '.$disabledInput.'>
+						</td>
+						<td style="padding:6px">
+							<input type="number" class="form-control" id="reject-'.$r->id_gudang.'" autocomplete="off" value="'.$r->gd_reject_qty.'" onkeyup="hitungGudang('."'".$r->id_gudang."'".')" '.$disabledInput.'>
+						</td>
+						<td style="padding:6px">'.$btnAksi.'</td>
+					</tr>';
+				}
+			$html .= '</table>
 		</div>';
 
 		echo $html;
@@ -1017,85 +1103,161 @@ class Logistik extends CI_Controller
 	function timeline()
 	{
 		$html = '';
+		$opsi = $_POST["opsi"];
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$id_produk = $_POST["id_produk"];
+		$no_po = $_POST["no_po"];
 
-		$html .='
-		<div class="timeline">
-			<div class="time-label">
-				<span class="bg-red">1. Sen, 10 Feb. 2014</span>
-			</div>
-			<div>
-				<i class="fas fa-envelope bg-blue"></i>
-				<div class="timeline-item">
-					<h3 class="timeline-header"><a href="#">SHIFT</a> : 1</h3>
+		if($opsi == 'cor'){
+			$tgl = $this->db->query("SELECT*FROM m_gudang g
+			INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			WHERE g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk' AND w.kode_po='$no_po'
+			AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NULL AND g.gd_id_plan_finishing IS NULL
+			GROUP BY c.tgl_plan");
+		}else if($opsi == 'flexo'){
+			$tgl = $this->db->query("SELECT*FROM m_gudang g
+			INNER JOIN plan_flexo fx ON g.gd_id_plan_cor=fx.id_plan_cor AND g.gd_id_plan_flexo=fx.id_flexo
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			WHERE g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk' AND w.kode_po='$no_po'
+			AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NOT NULL AND g.gd_id_plan_finishing IS NULL
+			GROUP BY fx.tgl_flexo");
+		}else if($opsi == 'finishing'){
+			$tgl = $this->db->query("SELECT*FROM m_gudang g
+			INNER JOIN plan_finishing fs ON g.gd_id_plan_cor=fs.id_plan_cor AND g.gd_id_plan_flexo=fs.id_plan_flexo AND g.gd_id_plan_finishing=fs.id_fs
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			WHERE g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk' AND w.kode_po='$no_po'
+			AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NOT NULL AND g.gd_id_plan_finishing IS NOT NULL
+			GROUP BY fs.tgl_fs");
+		}else{
+			$tgl = '';
+		}
+
+		if($tgl == ''){
+			$html .='kosong';
+		}else{
+			$html .='<div class="timeline">';
+				$i = 0;
+				foreach($tgl->result() as $r){
+					$i++;
+
+					if($opsi == 'cor'){
+						$tglList = $r->tgl_plan;
+						$list = $this->db->query("SELECT*FROM m_gudang g
+						INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
+						INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+						INNER JOIN m_produk p ON g.gd_id_produk=p.id_produk
+						WHERE g.gd_id_pelanggan='$r->gd_id_pelanggan' AND g.gd_id_produk='$r->gd_id_produk' AND w.kode_po='$r->kode_po' AND c.tgl_plan='$r->tgl_plan'
+						AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NULL AND g.gd_id_plan_finishing IS NULL
+						ORDER BY c.tgl_plan");
+					}else if($opsi == 'flexo'){
+						$tglList = $r->tgl_flexo;
+						$list = $this->db->query("SELECT*FROM m_gudang g
+						INNER JOIN plan_flexo fx ON g.gd_id_plan_cor=fx.id_plan_cor AND g.gd_id_plan_flexo=fx.id_flexo
+						INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+						INNER JOIN m_produk p ON g.gd_id_produk=p.id_produk
+						WHERE g.gd_id_pelanggan='$r->gd_id_pelanggan' AND g.gd_id_produk='$r->gd_id_produk' AND w.kode_po='$r->kode_po' AND fx.tgl_flexo='$r->tgl_flexo'
+						AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NOT NULL AND g.gd_id_plan_finishing IS NULL
+						ORDER BY fx.tgl_flexo");
+					}else if($opsi == 'finishing'){
+						$tglList = $r->tgl_fs;
+						$list = $this->db->query("SELECT*FROM m_gudang g
+						INNER JOIN plan_finishing fs ON g.gd_id_plan_cor=fs.id_plan_cor AND g.gd_id_plan_flexo=fs.id_plan_flexo AND g.gd_id_plan_finishing=fs.id_fs
+						INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+						INNER JOIN m_produk p ON g.gd_id_produk=p.id_produk
+						WHERE g.gd_id_pelanggan='$r->gd_id_pelanggan' AND g.gd_id_produk='$r->gd_id_produk' AND w.kode_po='$r->kode_po' AND fs.tgl_fs='$r->tgl_fs'
+						AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NOT NULL AND g.gd_id_plan_finishing IS NOT NULL
+						ORDER BY fs.tgl_fs");
+					}else{
+						$tglList = '';
+						$list = '';
+					}
+
+					$html .='<div class="time-label" style="margin-right:0">
+						<span class="bg-gradient-red">'.$i.'. '.substr($this->m_fungsi->getHariIni($tglList),0,3).', '.$this->m_fungsi->tglIndSkt($tglList).'</span>
+					</div>';
+
+					$l = 0;
+					foreach($list->result() as $r2){
+						$l++;
+
+						if($opsi == 'cor'){
+							$shift = $r2->shift_plan;
+							$txtMesin = 'MESIN';
+							$mesin = str_replace('CORR', '', $r2->machine_plan);
+						}else if($opsi == 'flexo'){
+							$shift = $r2->shift_flexo;
+							$txtMesin = 'MESIN';
+							$mesin = str_replace('FLEXO', '', $r2->mesin_flexo);
+						}else{
+							$shift = $r2->shift_fs;
+							$txtMesin = 'JOINT';
+							$mesin = $r->joint_fs;
+						}
+
+						($r2->gd_cek_spv == 'Close') ? $bgBlue = 'bg-blue' : $bgBlue = 'bg-secondary';
+						$html .='<div style="margin-right:5px">
+							<i class="fas '.$bgBlue.'">'.$l.'</i>
+							<div class="timeline-item mr-0">
+								<h3 class="timeline-header p-0">
+									<table style="width:100%">
+										<tr>
+											<th colspan="3" style="background:#dee2e6;padding:10px;border-bottom:1px solid #bec2c6">DETAIL</th>
+										</tr>
+										<tr>
+											<th style="padding:5px">NO.WO</th>
+											<th>:</th>
+											<th style="padding:5px">'.$r2->no_wo.'</th>
+										</tr>
+										<tr>
+											<th style="padding:5px">KD.MC</th>
+											<th>:</th>
+											<th style="padding:5px">'.$r2->kode_mc.'</th>
+										</tr>
+										<tr>
+											<th colspan="3" style="background:#dee2e6;padding:10px;border:1px solid #bec2c6;border-width:1px 0">PRODUKSI</th>
+										</tr>
+										<tr>
+											<th style="padding:5px">SHIFT</th>
+											<th>:</th>
+											<th style="padding:5px">'.$shift.'</th>
+										</tr>
+										<tr>
+											<th style="padding:5px">'.$txtMesin.'</th>
+											<th>:</th>
+											<th style="padding:5px">'.$mesin.'</th>
+										</tr>
+										<tr>
+											<th style="padding:5px">HASIL</th>
+											<th>:</th>
+											<th style="padding:5px">'.number_format($r2->gd_hasil_plan,0,",",".").'</th>
+										</tr>';
+										if($r2->gd_cek_spv == 'Close'){
+											$html .='<tr>
+												<th colspan="3" style="background:#dee2e6;padding:10px;border:1px solid #bec2c6;border-width:1px 0">GUDANG</th>
+											</tr>
+											<tr>
+												<th style="padding:5px">GOOD</th>
+												<th>:</th>
+												<th style="padding:5px">'.number_format($r2->gd_good_qty,0,",",".").'</th>
+											</tr>
+											<tr>
+												<th style="padding:5px">REJECT</th>
+												<th>:</th>
+												<th style="padding:5px">'.number_format($r2->gd_reject_qty,0,",",".").'</th>
+											</tr>';
+										}
+									$html .='</table>
+								</h3>
+							</div>
+						</div>';
+					}
+				}
+				$html .='<div>
+					<i class="fas fa-clock bg-gray"></i>
 				</div>
-			</div>
-			<div>
-				<i class="fas fa-envelope bg-blue"></i>
-				<div class="timeline-item">
-					<h3 class="timeline-header"><a href="#">MESIN</a> : CORR1</h3>
-				</div>
-			</div>
-			<div>
-				<i class="fas fa-comments bg-yellow"></i>
-				<div class="timeline-item">
-					<h3 class="timeline-header"><a href="#">DETAIL :</a></h3>
-					<div class="timeline-body">
-						Take me to your leader!
-						Switzerland is small and neutral!
-						We are more like Germany, ambitious and misunderstood!
-					</div>
-					<div class="timeline-footer">
-						<a class="btn btn-warning btn-sm">View comment</a>
-					</div>
-				</div>
-			</div>
-			<div class="time-label">
-				<span class="bg-red">10 Feb. 2014</span>
-			</div>
-			<div>
-				<i class="fas fa-envelope bg-blue"></i>
-				<div class="timeline-item">
-					<span class="time"><i class="fas fa-clock"></i> 12:05</span>
-					<h3 class="timeline-header"><a href="#">Support Team</a> sent you an email</h3>
-					<div class="timeline-body">
-						Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles,
-						weebly ning heekya handango imeem plugg dopplr jibjab, movity
-						jajah plickers sifteo edmodo ifttt zimbra. Babblely odeo kaboodle
-						quora plaxo ideeli hulu weebly balihoo...
-					</div>
-					<div class="timeline-footer">
-						<a class="btn btn-primary btn-sm">Read more</a>
-						<a class="btn btn-danger btn-sm">Delete</a>
-					</div>
-				</div>
-			</div>
-			<div>
-				<i class="fas fa-user bg-green"></i>
-				<div class="timeline-item">
-					<span class="time"><i class="fas fa-clock"></i> 5 mins ago</span>
-					<h3 class="timeline-header no-border"><a href="#">Sarah Young</a> accepted your friend request</h3>
-				</div>
-			</div>
-			<div>
-				<i class="fas fa-comments bg-yellow"></i>
-				<div class="timeline-item">
-					<span class="time"><i class="fas fa-clock"></i> 27 mins ago</span>
-					<h3 class="timeline-header"><a href="#">Jay White</a> commented on your post</h3>
-					<div class="timeline-body">
-						Take me to your leader!
-						Switzerland is small and neutral!
-						We are more like Germany, ambitious and misunderstood!
-					</div>
-					<div class="timeline-footer">
-						<a class="btn btn-warning btn-sm">View comment</a>
-					</div>
-				</div>
-			</div>
-			<div>
-				<i class="fas fa-clock bg-gray"></i>
-			</div>
-		</div>
-		';
+			</div>';
+		}
 
 		echo $html;
 	}

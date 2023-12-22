@@ -166,11 +166,11 @@ class M_logistik extends CI_Model
 	{
 		$opsi = $_POST["opsi"];
 		if($opsi == 'cor'){
-			$where = "WHERE g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo IS NULL AND g.gd_id_plan_finishing IS NULL";
+			$where = "AND g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo IS NULL AND g.gd_id_plan_finishing IS NULL";
 		}else if($opsi == 'flexo'){
-			$where = "WHERE g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo!='0' AND g.gd_id_plan_finishing IS NULL";
+			$where = "AND g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo!='0' AND g.gd_id_plan_finishing IS NULL";
 		}else if($opsi == 'finishing'){
-			$where = "WHERE g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo!='0' AND g.gd_id_plan_finishing!='0'";
+			$where = "AND g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo!='0' AND g.gd_id_plan_finishing!='0'";
 		}else{
 			$where = "";
 		}
@@ -178,7 +178,7 @@ class M_logistik extends CI_Model
 		$data = $this->db->query("SELECT COUNT(g.id_gudang) AS jml,p.nm_pelanggan,i.nm_produk,g.* FROM m_gudang g
 		INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
 		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
-		$where
+		WHERE g.gd_cek_spv='Open' $where
 		GROUP BY p.nm_pelanggan,g.gd_id_produk");
 
 		return [
@@ -186,6 +186,127 @@ class M_logistik extends CI_Model
 			'opsi' => $opsi,
 			'id_pelanggan' => $_POST["id_pelanggan"],
 			'id_produk' => $_POST["id_produk"],
+		];
+	}
+
+	function loadListProduksiPlan()
+	{
+		$opsi = $_POST["opsi"];
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$id_produk = $_POST["id_produk"];
+
+		if($opsi == 'cor'){
+			$data = $this->db->query("SELECT w.kode_po,COUNT(g.id_gudang) AS jml_gd,g.* FROM m_gudang g
+			INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			WHERE g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk'
+			AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NULL AND g.gd_id_plan_finishing IS NULL AND g.gd_cek_spv='Open' 
+			GROUP BY g.gd_id_pelanggan,g.gd_id_produk,w.kode_po");
+		}else if($opsi == 'flexo'){
+			$data = $this->db->query("SELECT w.kode_po,COUNT(g.id_gudang) AS jml_gd,g.* FROM m_gudang g
+			INNER JOIN plan_flexo fx ON g.gd_id_plan_cor=fx.id_plan_cor AND g.gd_id_plan_flexo=fx.id_flexo
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			WHERE g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk'
+			AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NOT NULL AND g.gd_id_plan_finishing IS NULL AND g.gd_cek_spv='Open' 
+			GROUP BY g.gd_id_pelanggan,g.gd_id_produk,w.kode_po");
+		}else{
+			$data = $this->db->query("SELECT w.kode_po,COUNT(g.id_gudang) AS jml_gd,g.* FROM m_gudang g
+			INNER JOIN plan_finishing fs ON g.gd_id_plan_cor=fs.id_plan_cor AND g.gd_id_plan_flexo=fs.id_plan_flexo AND g.gd_id_plan_finishing=fs.id_fs
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			WHERE g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk'
+			AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NOT NULL AND g.gd_id_plan_finishing IS NOT NULL AND g.gd_cek_spv='Open' 
+			GROUP BY g.gd_id_pelanggan,g.gd_id_produk,w.kode_po");
+		}
+
+		return $data;
+	}
+
+	function clickHasilProduksiPlan()
+	{
+		$opsi = $_POST["opsi"];
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$id_produk = $_POST["id_produk"];
+		$no_po = $_POST["no_po"];
+
+		if($opsi == 'cor'){
+			$data = $this->db->query("SELECT g.*,c.* FROM m_gudang g
+			INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			WHERE g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk' AND w.kode_po='$no_po'
+			AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NULL AND g.gd_id_plan_finishing IS NULL
+			ORDER BY c.tgl_plan");
+		}else if($opsi == 'flexo'){
+			$data = $this->db->query("SELECT g.*,fx.* FROM m_gudang g
+			INNER JOIN plan_flexo fx ON g.gd_id_plan_cor=fx.id_plan_cor AND g.gd_id_plan_flexo=fx.id_flexo
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			WHERE g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk' AND w.kode_po='$no_po'
+			AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NOT NULL AND g.gd_id_plan_finishing IS NULL
+			ORDER BY fx.tgl_flexo");
+		}else{
+			$data = $this->db->query("SELECT g.*,fs.* FROM m_gudang g
+			INNER JOIN plan_finishing fs ON g.gd_id_plan_cor=fs.id_plan_cor AND g.gd_id_plan_flexo=fs.id_plan_flexo AND g.gd_id_plan_finishing=fs.id_fs
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			WHERE g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk' AND w.kode_po='$no_po'
+			AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NOT NULL AND g.gd_id_plan_finishing IS NOT NULL
+			ORDER BY fs.tgl_fs");
+		}
+
+		return $data;
+	}
+
+	function simpanGudang()
+	{
+		$id_gudang = $_POST["id_gudang"];
+		$good = $_POST["good"];
+		$reject = $_POST["reject"];
+		$opsi = $_POST["opsi"];
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$id_produk = $_POST["id_produk"];
+		$no_po = $_POST["no_po"];
+		$i = $_POST["i"];
+
+		// UPDATE GUDANG
+		if($good < 0 || $good == 0 || $good == ""){
+			$data = false;
+			$msg = "HASIL TIDAK BOLEH KOSONG!";
+		}else if($reject < 0 || $reject == ""){
+			$data = false;
+			$msg = "REJECT HARUS DIISI!";
+		}else{
+			$this->db->set("gd_good_qty", $good);
+			$this->db->set("gd_reject_qty", $reject);
+			$this->db->set("gd_cek_spv", 'Close');
+			$this->db->where("id_gudang", $id_gudang);
+			$data = $this->db->update("m_gudang");
+			$msg = "OK!";
+		}
+
+		if($opsi == 'cor'){
+			$where = "AND g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo IS NULL AND g.gd_id_plan_finishing IS NULL";
+		}else if($opsi == 'flexo'){
+			$where = "AND g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo!='0' AND g.gd_id_plan_finishing IS NULL";
+		}else if($opsi == 'finishing'){
+			$where = "AND g.gd_id_plan_cor!='0' AND g.gd_id_plan_flexo!='0' AND g.gd_id_plan_finishing!='0'";
+		}else{
+			$where = "";
+		}
+		// UPDATE HEADER SPAN
+		$h_span = $this->db->query("SELECT COUNT(g.id_gudang) AS h_jml FROM m_gudang g
+		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
+		WHERE g.gd_cek_spv='Open' AND g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk' $where
+		GROUP BY p.nm_pelanggan,g.gd_id_produk")->row();
+		// UPDATE ISI SPAN
+		$i_span = $this->db->query("SELECT COUNT(g.id_gudang) AS i_jml FROM m_gudang g
+		INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+		WHERE g.gd_cek_spv='Open' AND g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk' AND w.kode_po='$no_po' $where
+		GROUP BY g.gd_id_pelanggan,g.gd_id_produk,w.kode_po")->row();
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+			'h_span' => $h_span,
+			'i_span' => $i_span,
+			'i' => $i,
 		];
 	}
 
