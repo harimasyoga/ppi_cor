@@ -34,13 +34,12 @@
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead>
 						<tr>
-							<th style="width:5%">#</th>
-							<th style="width:20%">TANGGAL</th>
-							<th style="width:10%">SHIFT</th>
-							<th style="width:10%">MESIN</th>
-							<th style="width:30%">NO. PLAN</th>
-							<th style="width:10%">JUMLAH</th>
-							<th style="width:15%">AKSI</th>
+							<th>#</th>
+							<th>TIPE</th>
+							<th>CUSTOMER</th>
+							<th>ITEM</th>
+							<th>JUMLAH</th>
+							<th>AKSI</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
@@ -75,32 +74,32 @@
 	// 	status = "insert";
 	// })
 
-	// function reloadTable() {
-	// 	table = $('#datatable').DataTable();
-	// 	tabel.ajax.reload(null, false);
-	// }
+	function reloadTable() {
+		table = $('#datatable').DataTable();
+		tabel.ajax.reload(null, false);
+	}
 
-	// function load_data() {
-	// 	let table = $('#datatable').DataTable();
-	// 	table.destroy();
-	// 	tabel = $('#datatable').DataTable({
-	// 		"processing": true,
-	// 		"pageLength": true,
-	// 		"paging": true,
-	// 		"ajax": {
-	// 			"url": '<?php echo base_url('Plan/LoaDataCor')?>',
-	// 			"type": "POST",
-	// 		},
-	// 		"aLengthMenu": [
-	// 			[5, 10, 15, 20, -1],
-	// 			[5, 10, 15, 20, "Semua"]
-	// 		],	
-	// 		responsive: true,
-	// 		"pageLength": 10,
-	// 		"language": {
-	// 			"emptyTable": "Tidak ada data.."
-	// 		}
-	// 	})
-	// }
+	function load_data() {
+		let table = $('#datatable').DataTable();
+		table.destroy();
+		tabel = $('#datatable').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url": '<?php echo base_url('Logistik/LoaDataGudang')?>',
+				"type": "POST",
+			},
+			"aLengthMenu": [
+				[5, 10, 15, 20, -1],
+				[5, 10, 15, 20, "Semua"]
+			],	
+			responsive: true,
+			"pageLength": 10,
+			"language": {
+				"emptyTable": "Tidak ada data.."
+			}
+		})
+	}
 
 </script>

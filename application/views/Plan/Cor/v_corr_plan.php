@@ -1554,26 +1554,27 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/selesaiPlanWO')?>',
 			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
+			// beforeSend: function() {
+			// 	swal({
+			// 		title: 'Loading',
+			// 		allowEscapeKey: false,
+			// 		allowOutsideClick: false,
+			// 		onOpen: () => {
+			// 			swal.showLoading();
+			// 		}
+			// 	});
+			// },
 			data: ({
 				id_wo
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				if(data.data){
-					loadData(urlTgl_plan, urlShift, urlMesin)
-				}else{
-					swal(data.msg, "", "error")
-				}
+				console.log(data)
+				// if(data.data){
+				// 	loadData(urlTgl_plan, urlShift, urlMesin)
+				// }else{
+				// 	swal(data.msg, "", "error")
+				// }
 			}
 		})
 	}

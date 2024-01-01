@@ -951,6 +951,45 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function LoaDataGudang()
+	{
+		$data = array();
+		$query = $this->db->query("SELECT SUM(gd_good_qty),g.* FROM m_gudang g
+		WHERE g.gd_cek_spv='Close' AND g.gd_status='Open'
+		GROUP BY g.gd_id_pelanggan,g.gd_id_produk")->result();
+		$i = 0;
+		foreach ($query as $r) {
+			$i++;
+			$row = array();
+			$row[] = '<div style="text-align:center">'.$i.'</div>';
+			$row[] = strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_plan));
+			$row[] = '<div style="text-align:center">'.$r->shift_plan.'</div>';
+			$row[] = '<div style="text-align:center">'.$r->machine_plan.'</div>';
+			$row[] = $r->no_plan;
+			$row[] = '<div style="text-align:center">'.$r->jml.'</div>';
+
+			$link = base_url('Plan/Corrugator/List/'.$r->tgl_plan.'/'.$r->shift_plan.'/'.$r->machine_plan);
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+				$btnPrint = '
+				<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>
+				<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Plan/laporanPlanCor?no_plan=".$r->no_plan."").'" title="Cetak Plan" ><i class="fas fa-print"></i></a>
+				<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Plan/laporanISOCor?no_plan=".$r->no_plan."").'" title="Cetak SO" ><i class="fas fa-print"></i></a>';
+			}else if($this->session->userdata('level') == 'Corrugator'){
+				$btnPrint = '<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>';
+			}else{
+				$btnPrint = '';
+			}
+			$row[] = $btnPrint;
+
+			$data[] = $row;
+		}
+
+		$output = array(
+			"data" => $data,
+		);
+		echo json_encode($output);
+	}
+
 	function loadGudang()
 	{
 		$result = $this->m_logistik->loadGudang();
@@ -1153,6 +1192,7 @@ class Logistik extends CI_Controller
 					}else if($opsi == 'flexo'){
 						$tglList = $r->tgl_flexo;
 						$list = $this->db->query("SELECT*FROM m_gudang g
+						INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
 						INNER JOIN plan_flexo fx ON g.gd_id_plan_cor=fx.id_plan_cor AND g.gd_id_plan_flexo=fx.id_flexo
 						INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
 						INNER JOIN m_produk p ON g.gd_id_produk=p.id_produk
@@ -1162,6 +1202,7 @@ class Logistik extends CI_Controller
 					}else if($opsi == 'finishing'){
 						$tglList = $r->tgl_fs;
 						$list = $this->db->query("SELECT*FROM m_gudang g
+						INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
 						INNER JOIN plan_finishing fs ON g.gd_id_plan_cor=fs.id_plan_cor AND g.gd_id_plan_flexo=fs.id_plan_flexo AND g.gd_id_plan_finishing=fs.id_fs
 						INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
 						INNER JOIN m_produk p ON g.gd_id_produk=p.id_produk
@@ -1193,6 +1234,23 @@ class Logistik extends CI_Controller
 							$shift = $r2->shift_fs;
 							$txtMesin = 'JOINT';
 							$mesin = $r->joint_fs;
+						}
+
+						$expKualitas = explode("/", $r2->kualitas_plan);
+						if($r2->flute == 'BCF'){
+							if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
+								$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+							}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
+								$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+							}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
+								$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+							}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
+								$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+							}else{
+								$kualitas = $r2->kualitas;
+							}
+						}else{
+							$kualitas = $r2->kualitas;
 						}
 
 						($r2->gd_cek_spv == 'Close') ? $bgBlue = 'bg-blue' : $bgBlue = 'bg-secondary';
@@ -1228,9 +1286,24 @@ class Logistik extends CI_Controller
 											<th style="padding:5px">'.$mesin.'</th>
 										</tr>
 										<tr>
+											<th style="padding:5px">KUALITAS</th>
+											<th>:</th>
+											<th style="padding:5px">'.$kualitas.'</th>
+										</tr>
+										<tr>
+											<th style="padding:5px">BB</th>
+											<th>:</th>
+											<th style="padding:5px">'.$r2->bb_plan_p.'</th>
+										</tr>
+										<tr>
 											<th style="padding:5px">HASIL</th>
 											<th>:</th>
 											<th style="padding:5px">'.number_format($r2->gd_hasil_plan,0,",",".").'</th>
+										</tr>
+										<tr>
+											<th style="padding:5px">TONASE</th>
+											<th>:</th>
+											<th style="padding:5px">'.($r2->gd_hasil_plan * $r2->bb_plan_p).'</th>
 										</tr>';
 										if($r2->gd_cek_spv == 'Close'){
 											$html .='<tr>
@@ -1245,6 +1318,11 @@ class Logistik extends CI_Controller
 												<th style="padding:5px">REJECT</th>
 												<th>:</th>
 												<th style="padding:5px">'.number_format($r2->gd_reject_qty,0,",",".").'</th>
+											</tr>
+											<tr>
+												<th style="padding:5px">TONASE</th>
+												<th>:</th>
+												<th style="padding:5px">'.($r2->gd_good_qty * $r2->bb_plan_p).'</th>
 											</tr>';
 										}
 									$html .='</table>
