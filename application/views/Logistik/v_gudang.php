@@ -35,8 +35,8 @@
 					<thead>
 						<tr>
 							<th>#</th>
-							<th>TIPE</th>
 							<th>CUSTOMER</th>
+							<th>TIPE</th>
 							<th>ITEM</th>
 							<th>JUMLAH</th>
 							<th>AKSI</th>
@@ -53,7 +53,7 @@
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" id="judul"></h4>
+				<h4 class="modal-title" id="judul">DETAIL</h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -67,12 +67,15 @@
 	status ="insert";
 
 	$(document).ready(function () {
-		// load_data()
+		load_data()
 	});
 
 	// $(".tambah_data").click(function(event) {
 	// 	status = "insert";
 	// })
+
+	// $("#modalForm").modal("show");
+	// $("#modalForm").modal("hide");
 
 	function reloadTable() {
 		table = $('#datatable').DataTable();
@@ -98,6 +101,21 @@
 			"pageLength": 10,
 			"language": {
 				"emptyTable": "Tidak ada data.."
+			}
+		})
+	}
+
+	function rincianDataGudang(gd_id_pelanggan, gd_id_produk) {
+		$("#modalForm").modal("show");
+
+		$.ajax({
+			url: '<?php echo base_url('Logistik/rincianDataGudang')?>',
+			type: "POST",
+			data: ({
+				gd_id_pelanggan, gd_id_produk
+			}),
+			success: function(res){
+				$(".modal-body").html(res)
 			}
 		})
 	}

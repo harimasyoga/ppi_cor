@@ -954,32 +954,38 @@ class Logistik extends CI_Controller
 	function LoaDataGudang()
 	{
 		$data = array();
-		$query = $this->db->query("SELECT SUM(gd_good_qty),g.* FROM m_gudang g
+		$query = $this->db->query("SELECT i.kategori,p.nm_pelanggan,i.nm_produk,SUM(gd_good_qty) AS qty,g.* FROM m_gudang g
+		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
+		INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
 		WHERE g.gd_cek_spv='Close' AND g.gd_status='Open'
-		GROUP BY g.gd_id_pelanggan,g.gd_id_produk")->result();
+		GROUP BY g.gd_id_pelanggan,g.gd_id_produk
+		ORDER BY p.nm_pelanggan,i.nm_produk")->result();
 		$i = 0;
 		foreach ($query as $r) {
 			$i++;
 			$row = array();
-			$row[] = '<div style="text-align:center">'.$i.'</div>';
-			$row[] = strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_plan));
-			$row[] = '<div style="text-align:center">'.$r->shift_plan.'</div>';
-			$row[] = '<div style="text-align:center">'.$r->machine_plan.'</div>';
-			$row[] = $r->no_plan;
-			$row[] = '<div style="text-align:center">'.$r->jml.'</div>';
 
-			$link = base_url('Plan/Corrugator/List/'.$r->tgl_plan.'/'.$r->shift_plan.'/'.$r->machine_plan);
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
-				$btnPrint = '
-				<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>
-				<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Plan/laporanPlanCor?no_plan=".$r->no_plan."").'" title="Cetak Plan" ><i class="fas fa-print"></i></a>
-				<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Plan/laporanISOCor?no_plan=".$r->no_plan."").'" title="Cetak SO" ><i class="fas fa-print"></i></a>';
-			}else if($this->session->userdata('level') == 'Corrugator'){
-				$btnPrint = '<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>';
-			}else{
-				$btnPrint = '';
-			}
-			$row[] = $btnPrint;
+			// gd_id_pelanggan  gd_id_produk
+			($r->kategori == 'K_BOX') ? $kategori = 'BOX' : $kategori = 'SHEET';
+			$row[] = '<div style="text-align:center">'.$i.'</div>';
+			$row[] = '<a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".')">'.$r->nm_pelanggan.'</a>';
+			$row[] = '<a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".')">'.$kategori.'</a>';
+			$row[] = '<a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".')">'.$r->nm_produk.'</a>';
+			$row[] = '<div style="text-align:right"><a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".')">'.number_format($r->qty).'</a></div>';
+			$row[] = '<div style="text-align:center">-</div>';
+
+			// $link = base_url('Plan/Corrugator/List/'.$r->tgl_plan.'/'.$r->shift_plan.'/'.$r->machine_plan);
+			// if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+			// 	$btnPrint = '
+			// 	<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>
+			// 	<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Plan/laporanPlanCor?no_plan=".$r->no_plan."").'" title="Cetak Plan" ><i class="fas fa-print"></i></a>
+			// 	<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Plan/laporanISOCor?no_plan=".$r->no_plan."").'" title="Cetak SO" ><i class="fas fa-print"></i></a>';
+			// }else if($this->session->userdata('level') == 'Corrugator'){
+			// 	$btnPrint = '<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>';
+			// }else{
+			// 	$btnPrint = '';
+			// }
+			// $row[] = $btnPrint;
 
 			$data[] = $row;
 		}
@@ -988,6 +994,81 @@ class Logistik extends CI_Controller
 			"data" => $data,
 		);
 		echo json_encode($output);
+	}
+
+	function rincianDataGudang()
+	{
+		$gd_id_pelanggan = $_POST["gd_id_pelanggan"];
+		$gd_id_produk = $_POST["gd_id_produk"];
+		$html = '';
+
+		$html .= '<table class="table table-bordered" style="margin:0;border:0">
+			<thead>
+				<th style="padding:6px;text-align:center;border-bottom:0">PLAN</th>
+				<th style="padding:6px;text-align:center;border-bottom:0">QTY GUDANG</th>
+				<th style="padding:6px;text-align:center;border-bottom:0">BB</th>
+				<th style="padding:6px;text-align:center;border-bottom:0">TONASE</th>
+			</thead>';
+
+			$getKodePO = $this->db->query("SELECT w.kode_po,g.* FROM m_gudang g
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close' AND gd_status='Open'
+			GROUP BY w.kode_po");
+			$sumAllQty = 0;
+			$sumAllTon = 0;
+			foreach($getKodePO->result() as $r){
+				$html .='<tr>
+					<td style="background:#e9e9e9;padding:6px;font-weight:bold;border:1px solid #a9a9a9" colspan="4">'.$r->kode_po.'</td>
+				</tr>';
+
+				$getIsi = $this->db->query("SELECT w.kode_po,g.*,c.* FROM m_gudang g
+				INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
+				INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+				WHERE w.kode_po='$r->kode_po' AND g.gd_cek_spv='Close' AND gd_status='Open'");
+				$sumIsiQty = 0;
+				$sumIsiTon = 0;
+				foreach($getIsi->result() as $isi){
+					$shift = $isi->shift_plan;
+					$mesin = str_replace('CORR', '', $isi->machine_plan);
+					($isi->gd_id_plan_flexo == null) ? $fx = '' : $fx = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">FX</span>';
+					($isi->gd_id_plan_finishing == null) ? $fs = '' : $fs = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">FS</span>';
+					$bb = round($isi->gd_good_qty * $isi->gd_berat_box);
+					$html .='<tr>
+						<td style="padding:6px">['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($isi->tgl_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_plan).' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">CR</span>'.$fx.''.$fs.'</td>
+						<td style="padding:6px;text-align:right">'.number_format($isi->gd_good_qty,0,",",".").'</td>
+						<td style="padding:6px;text-align:right">'.$isi->gd_berat_box.'</td>
+						<td style="padding:6px;text-align:right">'.number_format($bb,0,",",".").'</td>
+					</tr>';
+
+					$sumIsiQty += $isi->gd_good_qty;
+					$sumIsiTon += $bb;
+				}
+
+				if($getIsi->num_rows() != 1){
+					$html .='<tr>
+						<td style="padding:6px;text-align:center;font-weight:bold">TOTAL</td>
+						<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumIsiQty,0,",",".").'</td>
+						<td style="padding:6px;text-align:right;font-weight:bold">-</td>
+						<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumIsiTon,0,",",".").'</td>
+					</tr>';
+				}
+
+				$sumAllQty += $sumIsiQty;
+				$sumAllTon += $sumIsiTon;
+			}
+
+			if($getKodePO->num_rows() != 1){
+				$html.='<tr>
+					<td style="background:#e9e9e9;padding:6px;text-align:center;font-weight:bold;border:1px solid #a9a9a9">TOTAL KESELURUHAN</td>
+					<td style="background:#e9e9e9;padding:6px;text-align:right;font-weight:bold;border:1px solid #a9a9a9">'.number_format($sumAllQty,0,",",".").'</td>
+					<td style="background:#e9e9e9;padding:6px;text-align:right;font-weight:bold;border:1px solid #a9a9a9">-</td>
+					<td style="background:#e9e9e9;padding:6px;text-align:right;font-weight:bold;border:1px solid #a9a9a9">'.number_format($sumAllTon,0,",",".").'</td>
+				</tr>';
+			}
+
+		$html .= '</table>';
+
+		echo $html;
 	}
 
 	function loadGudang()

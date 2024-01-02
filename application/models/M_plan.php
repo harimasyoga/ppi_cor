@@ -15,12 +15,14 @@ class M_plan extends CI_Model
 		$opsi = $_POST["opsi"];
 		if($opsi != ''){
 			$query = $this->db->query("SELECT *,(SELECT COUNT(a.no_plan) FROM plan_cor a
-			WHERE a.id_wo=w.id) AS jml_plan,w.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems,w.creasing2 AS creasing2wo,w.tgl_wo,i.creasing2 AS creasing2mproduk FROM plan_cor pl
+			-- WHERE a.id_wo=w.id) AS jml_plan,w.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems,w.creasing2 AS creasing2wo,w.tgl_wo,i.creasing2 AS creasing2mproduk FROM plan_cor pl
+			WHERE a.id_wo=w.id) AS jml_plan,po.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems,w.creasing2 AS creasing2wo,w.tgl_wo,i.creasing2 AS creasing2mproduk FROM plan_cor pl
 			INNER JOIN m_produk i ON pl.id_produk=i.id_produk
 			INNER JOIN m_pelanggan l ON pl.id_pelanggan=l.id_pelanggan
 			INNER JOIN m_sales m ON l.id_sales=m.id_sales
 			INNER JOIN trs_wo w ON pl.id_wo=w.id
 			INNER JOIN trs_so_detail s ON pl.id_so_detail=s.id
+			INNER JOIN trs_po_detail po ON s.kode_po=po.kode_po
 			WHERE pl.id_plan='$opsi'");
 		}else{
 			$no_plan = $_POST["urlNoPlan"];
