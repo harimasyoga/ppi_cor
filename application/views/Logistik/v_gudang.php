@@ -34,13 +34,12 @@
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead>
 						<tr>
-							<th style="width:5%">#</th>
-							<th style="width:20%">TANGGAL</th>
-							<th style="width:10%">SHIFT</th>
-							<th style="width:10%">MESIN</th>
-							<th style="width:30%">NO. PLAN</th>
-							<th style="width:10%">JUMLAH</th>
-							<th style="width:15%">AKSI</th>
+							<th>#</th>
+							<th>CUSTOMER</th>
+							<th>TIPE</th>
+							<th>ITEM</th>
+							<th>JUMLAH</th>
+							<th>AKSI</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
@@ -54,7 +53,7 @@
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" id="judul"></h4>
+				<h4 class="modal-title" id="judul">DETAIL</h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -68,39 +67,57 @@
 	status ="insert";
 
 	$(document).ready(function () {
-		// load_data()
+		load_data()
 	});
 
 	// $(".tambah_data").click(function(event) {
 	// 	status = "insert";
 	// })
 
-	// function reloadTable() {
-	// 	table = $('#datatable').DataTable();
-	// 	tabel.ajax.reload(null, false);
-	// }
+	// $("#modalForm").modal("show");
+	// $("#modalForm").modal("hide");
 
-	// function load_data() {
-	// 	let table = $('#datatable').DataTable();
-	// 	table.destroy();
-	// 	tabel = $('#datatable').DataTable({
-	// 		"processing": true,
-	// 		"pageLength": true,
-	// 		"paging": true,
-	// 		"ajax": {
-	// 			"url": '<?php echo base_url('Plan/LoaDataCor')?>',
-	// 			"type": "POST",
-	// 		},
-	// 		"aLengthMenu": [
-	// 			[5, 10, 15, 20, -1],
-	// 			[5, 10, 15, 20, "Semua"]
-	// 		],	
-	// 		responsive: true,
-	// 		"pageLength": 10,
-	// 		"language": {
-	// 			"emptyTable": "Tidak ada data.."
-	// 		}
-	// 	})
-	// }
+	function reloadTable() {
+		table = $('#datatable').DataTable();
+		tabel.ajax.reload(null, false);
+	}
+
+	function load_data() {
+		let table = $('#datatable').DataTable();
+		table.destroy();
+		tabel = $('#datatable').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url": '<?php echo base_url('Logistik/LoaDataGudang')?>',
+				"type": "POST",
+			},
+			"aLengthMenu": [
+				[5, 10, 15, 20, -1],
+				[5, 10, 15, 20, "Semua"]
+			],	
+			responsive: true,
+			"pageLength": 10,
+			"language": {
+				"emptyTable": "Tidak ada data.."
+			}
+		})
+	}
+
+	function rincianDataGudang(gd_id_pelanggan, gd_id_produk) {
+		$("#modalForm").modal("show");
+
+		$.ajax({
+			url: '<?php echo base_url('Logistik/rincianDataGudang')?>',
+			type: "POST",
+			data: ({
+				gd_id_pelanggan, gd_id_produk
+			}),
+			success: function(res){
+				$(".modal-body").html(res)
+			}
+		})
+	}
 
 </script>

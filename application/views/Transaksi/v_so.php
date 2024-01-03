@@ -723,6 +723,7 @@
 				data = JSON.parse(res)
 				if(data.data){
 					tampilEditSO(id, no_po, kode_po, 'edit')
+					reloadTable()
 				}else{
 					toastr.error(`<b>${data.msg}</b>`);
 					swal.close()
@@ -758,6 +759,7 @@
 				data = JSON.parse(res)
 				if(data){
 					tampilEditSO(id, no_po, kode_po, 'edit')
+					reloadTable()
 				}else{
 					toastr.error('Ada kesalahan!');
 					swal.close()
@@ -801,6 +803,7 @@
 					data = JSON.parse(res)
 					if(data.data){
 						tampilEditSO(id, no_po, kode_po, 'edit')
+						reloadTable()
 					}
 				}
 			})

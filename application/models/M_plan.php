@@ -15,12 +15,14 @@ class M_plan extends CI_Model
 		$opsi = $_POST["opsi"];
 		if($opsi != ''){
 			$query = $this->db->query("SELECT *,(SELECT COUNT(a.no_plan) FROM plan_cor a
-			WHERE a.id_wo=w.id) AS jml_plan,w.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems,w.creasing2 AS creasing2wo,w.tgl_wo,i.creasing2 AS creasing2mproduk FROM plan_cor pl
+			-- WHERE a.id_wo=w.id) AS jml_plan,w.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems,w.creasing2 AS creasing2wo,w.tgl_wo,i.creasing2 AS creasing2mproduk FROM plan_cor pl
+			WHERE a.id_wo=w.id) AS jml_plan,po.qty AS qtyPoWo,w.status AS statusWo,i.kategori AS kategoriItems,w.creasing2 AS creasing2wo,w.tgl_wo,i.creasing2 AS creasing2mproduk FROM plan_cor pl
 			INNER JOIN m_produk i ON pl.id_produk=i.id_produk
 			INNER JOIN m_pelanggan l ON pl.id_pelanggan=l.id_pelanggan
 			INNER JOIN m_sales m ON l.id_sales=m.id_sales
 			INNER JOIN trs_wo w ON pl.id_wo=w.id
 			INNER JOIN trs_so_detail s ON pl.id_so_detail=s.id
+			INNER JOIN trs_po_detail po ON s.kode_po=po.kode_po
 			WHERE pl.id_plan='$opsi'");
 		}else{
 			$no_plan = $_POST["urlNoPlan"];
@@ -107,6 +109,44 @@ class M_plan extends CI_Model
 				$noplan = $_POST['no_plan'];
 			}
 
+			$id_produk = $r["options"]["id_produk"];
+			$item = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$id_produk'")->row();
+			$kualitas = explode("/", $r["options"]["kualitas_isi_plan"]);
+			$BF = $kualitas[1] * 1.36;
+			$CF = $kualitas[1] * 1.46;
+			if($item->flute == "BCF"){
+				$getNilaiFlute = ($kualitas[0] + ($kualitas[1] * 1.36) + $kualitas[2] + ($kualitas[3] * 1.46) + $kualitas[4]) / 1000;
+			} else if($item->flute == "CF") {
+				$getNilaiFlute = ($kualitas[0] + $CF + $kualitas[2]) / 1000;
+			} else if($item->flute == "BF") {
+				$getNilaiFlute = ($kualitas[0] + $BF + $kualitas[2]) / 1000;
+			} else {
+				$getNilaiFlute = 0;
+			}
+			if($item->kategori == "K_BOX"){
+				if($item->flute == "BCF"){
+					$ruk_p = 2 * ($item->l_panjang + $item->l_lebar) + 61;
+					$ruk_l = $item->l_lebar + $item->l_tinggi + 23;
+				} else if($item->flute == "CF") {
+					$ruk_p = 2 * ($item->l_panjang + $item->l_lebar) + 43;
+					$ruk_l = $item->l_lebar + $item->l_tinggi + 13;
+				} else if($item->flute == "BF") {
+					$ruk_p = 2 * ($item->l_panjang + $item->l_lebar) + 39;
+					$ruk_l = $item->l_lebar + $item->l_tinggi + 9;
+				} else {
+					$ruk_p = 0;
+					$ruk_l = 0;
+				}
+				$opsiRound = 4;
+			}else{
+				$ruk_p = $item->l_panjang;
+				$ruk_l = $item->l_lebar;
+				$opsiRound = 3;
+			}
+			$h_panjang = $ruk_p / 1000;
+			$h_lebar = $ruk_l / 1000;
+			$nilaiBeratBersih = round($getNilaiFlute * $h_panjang * $h_lebar, $opsiRound);
+
 			$data = array(
 				'no_plan' => $noplan,
 				'id_so_detail' => $r["options"]["id_so_detail"],
@@ -132,6 +172,7 @@ class M_plan extends CI_Model
 				'material_plan' => $r["options"]["material_plan"],
 				'kualitas_plan' => $r["options"]["kualitas_plan"],
 				'kualitas_isi_plan' => $r["options"]["kualitas_isi_plan"],
+				'bb_plan_p' => $nilaiBeratBersih,
 				'status_plan' => 'Open',
 				'good_cor_p' => 0,
 				'bad_cor_p' => 0,
@@ -176,6 +217,45 @@ class M_plan extends CI_Model
 				$this->db->set("edit_user", $this->session->userdata('username'));
 				$this->db->where("id", $_POST["id_wo"]);
 				$updateScoreWO = $this->db->update("trs_wo");
+
+				$id_produk = $_POST['id_produk'];
+				$item = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$id_produk'")->row();
+				$kualitas = explode("/", $_POST["kualitas_isi_plan"]);
+				$BF = $kualitas[1] * 1.36;
+				$CF = $kualitas[1] * 1.46;
+				if($item->flute == "BCF"){
+					$getNilaiFlute = ($kualitas[0] + ($kualitas[1] * 1.36) + $kualitas[2] + ($kualitas[3] * 1.46) + $kualitas[4]) / 1000;
+				} else if($item->flute == "CF") {
+					$getNilaiFlute = ($kualitas[0] + $CF + $kualitas[2]) / 1000;
+				} else if($item->flute == "BF") {
+					$getNilaiFlute = ($kualitas[0] + $BF + $kualitas[2]) / 1000;
+				} else {
+					$getNilaiFlute = 0;
+				}
+				if($item->kategori == "K_BOX"){
+					if($item->flute == "BCF"){
+						$ruk_p = 2 * ($item->l_panjang + $item->l_lebar) + 61;
+						$ruk_l = $item->l_lebar + $item->l_tinggi + 23;
+					} else if($item->flute == "CF") {
+						$ruk_p = 2 * ($item->l_panjang + $item->l_lebar) + 43;
+						$ruk_l = $item->l_lebar + $item->l_tinggi + 13;
+					} else if($item->flute == "BF") {
+						$ruk_p = 2 * ($item->l_panjang + $item->l_lebar) + 39;
+						$ruk_l = $item->l_lebar + $item->l_tinggi + 9;
+					} else {
+						$ruk_p = 0;
+						$ruk_l = 0;
+					}
+					$opsiRound = 4;
+				}else{
+					$ruk_p = $item->l_panjang;
+					$ruk_l = $item->l_lebar;
+					$opsiRound = 3;
+				}
+				$h_panjang = $ruk_p / 1000;
+				$h_lebar = $ruk_l / 1000;
+				$nilaiBeratBersih = round($getNilaiFlute * $h_panjang * $h_lebar, $opsiRound);
+
 				$data = array(
 					'tgl_plan' => $_POST["tgl_plan"],
 					'tgl_kirim_plan' => $_POST["tgl_kirim_plan"],
@@ -194,6 +274,7 @@ class M_plan extends CI_Model
 					'c_off_p' => $_POST["c_off_p"],
 					'rm_plan' => $_POST["rm_plan"],
 					'tonase_plan' => $_POST["tonase_plan"],
+					'bb_plan_p' => $nilaiBeratBersih,
 					'next_plan' => $_POST["next_plan"],
 					'edit_time' => date('Y-m-d H:i:s'),
 					'edit_user' => $this->session->userdata('username'),
@@ -278,6 +359,7 @@ class M_plan extends CI_Model
 				'gd_id_plan_flexo' => null,
 				'gd_id_plan_finishing' => null,
 				'gd_hasil_plan' => $data->good_cor_p,
+				'gd_berat_box' => $data->bb_plan_p,
 				'gd_good_qty' => 0,
 				'gd_reject_qty' => 0,
 				'gd_cek_spv' => 'Open',
@@ -328,6 +410,7 @@ class M_plan extends CI_Model
 			'i' => $i,
 			'data' => $data,
 			'msg' => $msg,
+			'id_wo' => $id_wo,
 		];
 	}
 
@@ -381,6 +464,43 @@ class M_plan extends CI_Model
 				$data = false; $wo = false;
 				$msg = 'PLAN FLEXO LEBIH DARI SATU!';
 			}else{
+				$item = $this->db->query("SELECT*FROM plan_cor p INNER JOIN m_produk i ON p.id_produk=i.id_produk WHERE p.id_plan='$id_plan'")->row();
+				$kualitas = explode("/", $_POST["kualitas_isi"]);
+				$BF = $kualitas[1] * 1.36;
+				$CF = $kualitas[1] * 1.46;
+				if($item->flute == "BCF"){
+					$getNilaiFlute = ($kualitas[0] + ($kualitas[1] * 1.36) + $kualitas[2] + ($kualitas[3] * 1.46) + $kualitas[4]) / 1000;
+				} else if($item->flute == "CF") {
+					$getNilaiFlute = ($kualitas[0] + $CF + $kualitas[2]) / 1000;
+				} else if($item->flute == "BF") {
+					$getNilaiFlute = ($kualitas[0] + $BF + $kualitas[2]) / 1000;
+				} else {
+					$getNilaiFlute = 0;
+				}
+				if($item->kategori == "K_BOX"){
+					if($item->flute == "BCF"){
+						$ruk_p = 2 * ($item->l_panjang + $item->l_lebar) + 61;
+						$ruk_l = $item->l_lebar + $item->l_tinggi + 23;
+					} else if($item->flute == "CF") {
+						$ruk_p = 2 * ($item->l_panjang + $item->l_lebar) + 43;
+						$ruk_l = $item->l_lebar + $item->l_tinggi + 13;
+					} else if($item->flute == "BF") {
+						$ruk_p = 2 * ($item->l_panjang + $item->l_lebar) + 39;
+						$ruk_l = $item->l_lebar + $item->l_tinggi + 9;
+					} else {
+						$ruk_p = 0;
+						$ruk_l = 0;
+					}
+					$opsiRound = 4;
+				}else{
+					$ruk_p = $item->l_panjang;
+					$ruk_l = $item->l_lebar;
+					$opsiRound = 3;
+				}
+				$h_panjang = $ruk_p / 1000;
+				$h_lebar = $ruk_l / 1000;
+				$nilaiBeratBersih = round($getNilaiFlute * $h_panjang * $h_lebar, $opsiRound);
+
 				$this->db->set("material_plan", $_POST["material"]);
 				$this->db->set("kualitas_plan", $_POST["kualitas"]);
 				$this->db->set("kualitas_isi_plan", $_POST["kualitas_isi"]);
@@ -392,6 +512,7 @@ class M_plan extends CI_Model
 				$this->db->set("c_off_p", $_POST["c_off_p"]);
 				$this->db->set("rm_plan", $_POST["rm_plan"]);
 				$this->db->set("tonase_plan", $_POST["tonase_plan"]);
+				$this->db->set("bb_plan_p", $nilaiBeratBersih);
 				$this->db->set("tgl_kirim_plan", $_POST["tglkirim"]);
 				$this->db->set("next_plan", $_POST["next"]);
 				$this->db->where("id_plan", $_POST["id_plan"]);
@@ -407,7 +528,7 @@ class M_plan extends CI_Model
 		}else{
 			if($cekFlexo->num_rows() > 1){
 				$data = false; $wo = false;
-				$msg = 'PLAN FLEXO SEUDAH LEBIH DARI SATU!';
+				$msg = 'PLAN FLEXO SUDAH LEBIH DARI SATU!';
 			}else{
 				$this->db->set("tgl_kirim_plan", $_POST["tglkirim"]);
 				$this->db->set("next_plan", $_POST["next"]);
@@ -818,6 +939,7 @@ class M_plan extends CI_Model
 						'gd_id_plan_flexo' => $dataFlexo->id_flexo,
 						'gd_id_plan_finishing' => null,
 						'gd_hasil_plan' => $dataFlexo->good_flexo_p,
+						'gd_berat_box' => $dataFlexo->bb_plan_p,
 						'gd_good_qty' => 0,
 						'gd_reject_qty' => 0,
 						'gd_cek_spv' => 'Open',
@@ -943,6 +1065,7 @@ class M_plan extends CI_Model
 					'gd_id_plan_flexo' => $dataFinishing->id_flexo,
 					'gd_id_plan_finishing' => $dataFinishing->id_fs,
 					'gd_hasil_plan' => $dataFinishing->good_fs_p,
+					'gd_berat_box' => $dataFinishing->bb_plan_p,
 					'gd_good_qty' => 0,
 					'gd_reject_qty' => 0,
 					'gd_cek_spv' => 'Open',
