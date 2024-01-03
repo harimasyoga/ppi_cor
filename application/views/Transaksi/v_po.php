@@ -42,6 +42,7 @@
 								<th style="text-align: center; width:20%">Tgl PO</th>
 								<th style="text-align: center; width:5%">Status</th>
 								<th style="text-align: center; width:10%">Kode PO</th>
+								<th style="display:none;">Kode PO</th>
 								<!-- <th style="text-align: center">Total Qty</th> -->
 								<th style="text-align: center; width:10%">Customer</th>
 								<th style="text-align: center; width:5%">Mkt</th>
@@ -143,18 +144,26 @@
 										<input type="text" class="form-control" name="txt_fax" id="txt_fax" value="" readonly>
 									</div>
 								</div>
+								
 								<div class="card-body row" style="padding : 5px;font-weight:bold">
-									<div class="col-md-2">Upload PO</div>
-									<div class="col-md-3">
-										<div class="col-9">
-											<input type="file" data-max-size="2048" name="filefoto" id="filefoto" accept=".jpg,.jpeg,.png">
+									<?php if ($this->session->userdata('level') != "PPIC")  {
+												?>
+										<div class="col-md-2">Upload PO</div>
+										<div class="col-md-3">
+											<div class="col-9">
+												<input type="file" data-max-size="2048" name="filefoto" id="filefoto" accept=".jpg,.jpeg,.png">
+											</div>
+											<div id="div_preview_foto" style="display: none;">											
+												<img id="preview_img" src="#" alt="Preview Foto" width="100" class="shadow-sm img-thumbnail"/>
+												<span class="help-block"></span>
+											</div>										
 										</div>
-										<div id="div_preview_foto" style="display: none;">
-											
-											<img id="preview_img" src="#" alt="Preview Foto" width="100" class="shadow-sm img-thumbnail"/>
-											<span class="help-block"></span>
-										</div>
-									</div>
+										
+									<?php } else { ?>
+										<div class="col-md-5"></div>
+									
+									<?php } ?>
+
 									<div class="col-md-2"></div>
 
 									<div class="col-md-2">TOP</div>
