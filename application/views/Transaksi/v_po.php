@@ -42,7 +42,7 @@
 								<th style="text-align: center; width:20%">Tgl PO</th>
 								<th style="text-align: center; width:5%">Status</th>
 								<th style="text-align: center; width:10%">Kode PO</th>
-								<th style="display:none;">Kode PO</th>
+								<!-- <th style="display:none;">Kode PO</th> -->
 								<!-- <th style="text-align: center">Total Qty</th> -->
 								<th style="text-align: center; width:10%">Customer</th>
 								<th style="text-align: center; width:5%">Mkt</th>
@@ -161,6 +161,15 @@
 										
 									<?php } else { ?>
 										<div class="col-md-5"></div>
+										<div style="display: none;">
+											<div class="col-9">
+												<input type="file" data-max-size="2048" name="filefoto" id="filefoto" accept=".jpg,.jpeg,.png">
+											</div>
+											<div id="div_preview_foto" style="display: none;">											
+												<img id="preview_img" src="#" alt="Preview Foto" width="100" class="shadow-sm img-thumbnail"/>
+												<span class="help-block"></span>
+											</div>										
+										</div>
 									
 									<?php } ?>
 
