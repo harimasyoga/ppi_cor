@@ -355,9 +355,9 @@ class Transaksi extends CI_Controller
 			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by a.tgl_po desc, id desc")->result();
 			$i = 1;
 			foreach ($query as $r) {
-				$row    = array();
-                $time   = substr($r->tgl_po, 0,10);
-                $time_po   = substr($r->time_input, 10,10);
+				$row        = array();
+				$time       = substr($r->tgl_po, 0,10);
+				$time_po    = substr($r->time_input, 10,10);
 
                 if($r->status_app1=='N')
                 {
@@ -446,6 +446,7 @@ class Transaksi extends CI_Controller
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status.'</button></div>';
 
 				$row[] = '<div class="text-center">'.$r->kode_po.'</div>';
+				$row[] = '<div style="display:none">'.$r->kode_po.'</div>';
 				// $row[] = $r->total_qty;
 				$row[] = '<div class="text-center">'.$r->nm_pelanggan.'</div>';
                 

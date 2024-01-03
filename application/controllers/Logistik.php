@@ -48,6 +48,41 @@ class Logistik extends CI_Controller
 		$this->load->view('Logistik/v_invoice_edit');
 		$this->load->view('footer');
 	}
+	
+	public function Surat_Jalan()
+	{
+		$data = array(
+			'judul' => "Surat Jalan",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_surat_jln');
+		$this->load->view('footer');
+	}
+	
+	public function Surat_Jalan_add()
+	{
+		$data = array(
+			'judul' => "Surat Jalan Baru",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_surat_jln_add');
+		$this->load->view('footer');
+	}
+	
+	public function Surat_Jalan_edit()
+	{
+		$id       = $_GET['id'];
+		$no_inv   = $_GET['no_inv'];
+
+		$data = array(
+			'judul' 	 => "Edit Surat Jalan",
+			'id'    	 => $id,
+			'no_inv'     => $no_inv,
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_surat_jln_edit');
+		$this->load->view('footer');
+	}
 
 	function load_produk()
     {
