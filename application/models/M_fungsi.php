@@ -571,6 +571,55 @@ class M_fungsi extends CI_Model {
 
 		$this->mpdf->output($jdlsave,'I');
     }
+	
+	// function _mpdf_hari2($orientasi='', $uk='', $judul='', $isi='', $jdlsave='', $lMargin='',$rMargin='', $tMargin='', $bMargin='', $font=10, $hal='',$tab='')
+    // {
+    //     ini_set("memory_limit", "-1");
+    //     ini_set("MAX_EXECUTION_TIME","-1");
+	// 	ini_set("pcre.backtrack_limit", "5000000");
+	// 	set_time_limit(0);
+		
+	// 	$this->load->library('Mpdf');
+
+	// 	// $this->mpdf = new \Mpdf\Mpdf( array(190,236),$size,'',$lMargin,$rMargin,$tMargin);
+		
+    //     $jam = date("H:i:s");
+	// 	if ($hal==''){
+	// 		$hal1=1;
+	// 	} 
+	// 	if($hal!==''){
+	// 		$hal1=$hal;
+	// 	}
+
+	// 	if ($font==''){
+	// 		$size=12;
+	// 	}else{
+	// 		$size=$font;
+	// 	} 
+
+	// 	$tMargin = ( $tMargin =='' ? 5 : $tMargin );
+	// 	$bMargin = ( $bMargin =='' ? 5 : $bMargin );
+	// 	$lMargin = ( $lMargin =='' ? 5 : $lMargin );
+	// 	$rMargin = ( $rMargin =='' ? 5 : $rMargin );
+
+	// 	$this->mpdf->AddPageByArray(array(
+	// 		'orientation' => $orientasi,
+	// 		'margin-top' => $tMargin,
+	// 		'margin-right' => $rMargin,
+	// 		'margin-bottom' => $bMargin,
+	// 		'margin-left' => $lMargin,
+	// 	));
+
+	// 	// $this->mpdf->AddPage($orientasi,$uk);
+
+	// 	$this->mpdf->SetFooter('Thank You for Your Business |Halaman {PAGENO} / {nb}| ');
+
+	// 	$this->mpdf->setTitle($judul);
+
+	// 	$this->mpdf->writeHTML($isi);
+
+	// 	$this->mpdf->output($jdlsave,'I');
+    // }
 
 	
 	function mPDFP($html)

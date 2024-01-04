@@ -49,6 +49,41 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	public function Surat_Jalan()
+	{
+		$data = array(
+			'judul' => "Surat Jalan",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_surat_jln');
+		$this->load->view('footer');
+	}
+	
+	public function Surat_Jalan_add()
+	{
+		$data = array(
+			'judul' => "Surat Jalan Baru",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_surat_jln_add');
+		$this->load->view('footer');
+	}
+	
+	public function Surat_Jalan_edit()
+	{
+		$id       = $_GET['id'];
+		$no_inv   = $_GET['no_inv'];
+
+		$data = array(
+			'judul' 	 => "Edit Surat Jalan",
+			'id'    	 => $id,
+			'no_inv'     => $no_inv,
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_surat_jln_edit');
+		$this->load->view('footer');
+	}
+
 	function load_produk()
     {
         
@@ -891,6 +926,223 @@ class Logistik extends CI_Controller
 		// echo $html;
 
     }
+	
+	// function Cetak_Invoice2()
+	// {
+    //     $no_invoice = $_GET['no_invoice'];
+    //     $ctk = 0;
+    //     $html = '';
+
+	// 	//////////////////////////////////////// K O P ////////////////////////////////////////
+
+    //     $data_detail = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
+	// 	$ppnpph = $data_detail->pajak;
+
+	// 	$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif" border="0">';
+
+    //     if($ppnpph == 'nonppn'){
+    //         $html .= '<tr>
+    //             <th style="border:0;height:92px"></th>
+    //         </tr>
+    //         <tr>
+    //             <td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">INVOICE</td>
+    //         </tr>';
+    //         $html .= '</table>';
+    //     }else{
+    //         $html .= '<tr>
+    //             <th style="border:0;width:55%;height:0"></th>
+    //             <th style="border:0;width:15%;height:0"></th>
+    //             <th style="border:0;width:25%;height:0"></th>
+    //         </tr>
+
+    //         <tr>
+		   
+    //             <td style="font-size:20px;" align="left">IPUNG IRAWAN</td>
+
+    //         </tr>
+    //         <tr>
+    //             <td style="font-size:11px" align="left">SURAKARTA</td>
+    //             <td></td>
+    //         </tr>
+    //         <tr>
+    //             <td style="font-size:11px;" align="left"></td>
+    //             <td style=""></td>
+    //         </tr>
+	// 		<tr><td>&nbsp;<br></td></tr>';
+    //         $html .= '</table>';
+
+    //         $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif">
+    //         <tr>
+    //             <th style="height:0"></th>
+    //         </tr>
+    //         <tr>
+    //             <td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">INVOICE</td>
+    //         </tr>';
+    //         $html .= '</table>';
+    //     }       
+
+	// 	//////////////////////////////////////// D E T A I L //////////////////////////////////////
+
+    //     $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
+    //     <tr>
+    //         <th style="border:0;padding:2px 0;height:0;width:14%"></th>
+    //         <th style="border:0;padding:2px 0;height:0;width:1%"></th>
+    //         <th style="border:0;padding:2px 0;height:0;width:40%"></th>
+    //         <th style="border:0;padding:2px 0;height:0;width:12%"></th>
+    //         <th style="border:0;padding:2px 0;height:0;width:1%"></th>
+    //         <th style="border:0;padding:2px 0;height:0;width:32%"></th>
+    //     </tr>';
+
+    //     $html .= '
+    //     <tr>
+    //         <td style="padding:3px 0">Nama Perusahaan</td>
+    //         <td style="padding:3px 0">:</td>
+    //         <td style="padding:0 3px 0 0;line-height:1.8">PT. Lintas Data Prima</td>
+    //         <td style="padding:3px 0;">Tgl Invoice</td>
+    //         <td style="padding:3px 0">:</td>
+    //         <td style="padding:3px 0;;color:#f00">03 Januari 2024</td>
+    //     </tr>';
+
+	// 	$html .= '<tr>
+	// 		<td style="padding:3px 0">Alamat</td>
+	// 		<td style="padding:3px 0">:</td>
+	// 		<td style="padding:0 3px 0 0;line-height:1.8">Jl. Mangesti Raya Jl. Springville Residence No.1, Dusun II, Waru, Kec. Baki, Kabupaten Sukoharjo, Jawa Tengah 57556</td>
+	// 		<td style="padding:3px 0">No. Invoice</td>
+	// 		<td style="padding:3px 0">:</td>
+	// 		<td style="padding:0;line-height:1.8">035/IPKN/I/24';
+
+	// 	$html .= '</td>
+	// 	</tr>';
+
+
+	// 		// KONDISI JIKA LEBIH DARI 1 SURAT JALAN
+	// 		$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY no_surat ORDER BY no_surat");
+	// 		if($result_sj->num_rows() == '1'){
+	// 			$html .= $result_sj->row()->no_surat;;
+	// 		}else{
+	// 			foreach($result_sj->result() as $r){
+	// 				$html .= $r->no_surat.'<br/>';
+	// 			}
+	// 		}
+	// 	$html .= '</td>
+	// 	</tr>';
+
+    //     $html .= '</table>';
+
+	// 	/////////////////////////////////////////////// I S I ///////////////////////////////////////////////
+
+    //     $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
+    //     <tr>
+    //         <th style="border:0;height:15px;width:30%"></th>
+    //         <th style="border:0;height:15px;width:10%"></th>
+    //         <th style="border:0;height:15px;width:15%"></th>
+    //         <th style="border:0;height:15px;width:7%"></th>
+    //         <th style="border:0;height:15px;width:10%"></th>
+    //         <th style="border:0;height:15px;width:8%"></th>
+    //         <th style="border:0;height:15px;width:20%"></th>
+    //     </tr>';
+
+    //     $html .= '<tr>
+    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">NAMA BARANG</td>
+    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">JUMLAH</td>			
+    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">SATUAN</td>
+    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold" colspan="2">HARGA</td>
+    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold" colspan="2">TOTAL</td>
+    //     </tr>';
+	// 	$html .= '<tr>
+	// 		<td style="border:0;padding:20px 0 0" colspan="7"></td>
+	// 	</tr>';
+		
+	// 		$sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
+	// 		// TAMPILKAN DULU LABEL
+	// 		$totalHarga = 0;
+	// 		foreach($sqlLabel->result() as $label){
+
+	// 			$ukuran         = str_replace("X","x",$label->g_label);
+	// 			$total_harga    = round(($label->qty - $label->retur_qty) * $label->harga);
+
+	// 			$html .= '<tr>
+	// 				<td style="padding:5px 0">Kabel FO 48 core1</td>
+	// 				<td style="solid #000;padding:5px 0;text-align:right">500</td>
+	// 				<td style="padding:5px 0;text-align:center"> Meter</td>
+	// 				<td style="solid #000;padding:5px 0 0 15px;text-align:right">Rp</td>
+	// 				<td style="solid #000;padding:5px 0;text-align:right">'. number_format(8000, 0, ",", ".").'</td>
+	// 				<td style="padding:5px 0 0 15px;text-align:right">Rp</td>
+	// 				<td style="padding:5px 0;text-align:right">'.number_format(4000000, 0, ",", ".") .'</td>
+	// 			</tr>';
+
+
+	// 			$totalHarga = 4000000;
+	// 		}
+			
+
+		
+		
+		
+	// 	// T O T A L //
+	// 	$html .= '<tr>
+	// 		<td style="border:0;padding:20px 0 0" colspan="7"></td>
+	// 	</tr>';
+
+    //     // RUMUS
+	// 	// PPN 10 %
+	// 			$terbilang = round($totalHarga);
+	// 			// $terbilang = round($totalHarga + (0.11 * $totalHarga));
+
+
+	// 		$rowspan = 3;
+		
+
+	// 	$html .= '<tr>
+	// 		<td style="border-width:2px 0;border:1px solid;font-weight:bold;padding:5px 0;line-height:1.8;text-transform:uppercase" colspan="3" rowspan="'.$rowspan.'">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($terbilang).'</i></b></td>
+
+	// 		<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Sub Total</td>
+
+	// 		<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+
+	// 		<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($totalHarga, 0, ",", ".").'</td>
+	// 	</tr>';
+
+	// 	// PPN - PPH22
+	// 			$nominal = 0;
+	// 	$txtppn10 = '<tr>
+	// 			<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Ppn 11%</td>
+	// 			<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+	// 			<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.$nominal.'</td>
+	// 		</tr>';
+
+	// 	if($ppnpph == 'ppn'){ // PPN 10 %
+	// 		$html .= $txtppn10;
+	// 	}else if($ppnpph == 'ppn_pph'){ // PPH22
+	// 		// pph22
+	// 		$html .= $txtppn10.'<tr>
+	// 			<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Pph 22</td>
+	// 			<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+	// 			<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($pph22, 0, ",", ".").'</td>
+	// 		</tr>';
+	// 	}else{
+	// 		$html .= '';
+	// 	}
+
+	// 	$html .= '<tr>
+	// 		<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Total</td>
+	// 		<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+	// 		<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($terbilang, 0, ",", ".").'</td>
+	// 	</tr>';
+
+	// 	//////////////////////////////////////////////// T T D ////////////////////////////////////////////////
+		
+	// 	$html .= '<tr>
+	// 		<td style="border:0;padding:20px 0 0" colspan="7"></td>
+	// 	</tr>';
+
+    //     $html .= '</table>';
+
+    //     // $this->m_fungsi->newPDF($html,'P',77,0);
+	// 	$this->m_fungsi->_mpdf_hari2('P', 'A4', 'INVOICE', $html, 'INVOICE.pdf', 5, 5, 5, 10);
+	// 	// echo $html;
+
+    // }
 
 	public function coba_api()
 	{

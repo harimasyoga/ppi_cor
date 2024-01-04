@@ -1482,7 +1482,13 @@
 						}else {
 							$join = '-';
 						}
-						var qty_po = $("#qty"+id).val()
+						var qty_po        = $("#qty"+id).val()
+						var tgl_po        = $("#tgl_po").val()
+
+						inputHari         = 45;
+						var hariKedepan   = new Date(new Date(tgl_po).getTime() + (inputHari * 24 * 60 * 60 * 1000));
+
+						var tgl_kirim = tanggal_format_indonesia(hariKedepan.toISOString().slice(0, 10));
 						
 						html_produk = `
 						<table class='table' border='0' style='font-size:12px'>
@@ -1527,9 +1533,13 @@
 									</b>
 									<input type="text" class="input-border-none" name="hrg_kg[${id}]" id="hrg_kg${id}" readonly >
 								</td> 
-								<td colspan="2">
+								<td>
 									<b>QTY PO : 
 									</b> ${qty_po}
+								</td> 
+								<td>
+									<b>Max Kirim PO: 
+									</b> ${tgl_kirim}
 								</td> 
 							</tr> `;
 							<?php } ?>
