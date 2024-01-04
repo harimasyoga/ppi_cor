@@ -49,15 +49,15 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
-	public function Surat_Jalan()
-	{
-		$data = array(
-			'judul' => "Surat Jalan",
-		);
-		$this->load->view('header', $data);
-		$this->load->view('Logistik/v_surat_jln');
-		$this->load->view('footer');
-	}
+	// public function Surat_Jalan()
+	// {
+	// 	$data = array(
+	// 		'judul' => "Surat Jalan",
+	// 	);
+	// 	$this->load->view('header', $data);
+	// 	$this->load->view('Logistik/v_surat_jln');
+	// 	$this->load->view('footer');
+	// }
 	
 	public function Surat_Jalan_add()
 	{
@@ -1671,6 +1671,159 @@ class Logistik extends CI_Controller
 		}
 
 		echo $html;
+	}
+
+	//
+
+	function Surat_Jalan()
+	{
+		$data = array(
+			'judul' => "Surat Jalan",
+		);
+		$this->load->view('header', $data);
+
+		$jenis = $this->uri->segment(3);
+		if($jenis == 'Add'){
+			if(in_array($this->session->userdata('level'), ['Admin','Gudang'])){
+				$this->load->view('Logistik/v_sj_add');
+			}else{
+				$this->load->view('home');
+			}
+		}else{
+			if(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])){
+				$this->load->view('Logistik/v_sj');
+			}else{
+				$this->load->view('home');
+			}
+		}
+
+		$this->load->view('footer');
+	}
+
+	//
+
+	function printTimbangan(){
+		$html = '';
+		
+		$html .= '<!DOCTYPE html>
+		<html lang="en">
+		<head>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Document</title>
+		</head>
+		<body style="font-family: Verdana, Geneva, Tahoma, sans-serif">
+		
+			<table style="text-align:center;border-collapse:collapse;width:100%;border-bottom:2px solid #000">
+				<tr>
+					<td style="font-weight:bold">PT. PRIMA PAPER INDONESIA</td>
+				</tr>
+				<tr>
+					<td style="font-size:10px">Timang Kulon, Wonokerto</td>
+				</tr>
+				<tr>
+					<td style="font-size:10px;padding-bottom:15px">WONOGIRI</td>
+				</tr>
+			</table>
+			<table style="margin-bottom:16px;font-size:12px;border-collapse:collapse">
+				<tr>
+					<td style="padding:2px 0">Suplier</td>
+					<td style="padding:0 4px 0 20px">:</td>
+					<td style="padding:2px 0">GUDANG BAHAN BAKU</td>
+				</tr>
+				<tr>
+					<td style="padding:2px 0">Alamat</td>
+					<td style="padding:0 4px 0 20px">:</td>
+					<td style="padding:2px 0">wonogiri</td>
+				</tr>
+				<tr>
+					<td style="padding:2px 0">No. Polisi</td>
+					<td style="padding:0 4px 0 20px">:</td>
+					<td style="padding:2px 0">AA 8334 ZB</td>
+				</tr>
+				<tr>
+					<td style="padding:2px 0">Masuk</td>
+					<td style="padding:0 4px 0 20px">:</td>
+					<td style="padding:2px 0">03-01-2024 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 17:47:38</td>
+				</tr>
+				<tr>
+					<td style="padding:2px 0">Keluar</td>
+					<td style="padding:0 4px 0 20px">:</td>
+					<td style="padding:2px 0">03-01-2024 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 19:13:07</td>
+				</tr>
+				<tr>
+					<td style="padding:2px 0">Barang</td>
+					<td style="padding:0 4px 0 20px">:</td>
+					<td style="padding:2px 0">OCC LOKAL</td>
+				</tr>
+			</table>
+			<table style="text-align:center;border-collapse:collapse;width:100%" border="1">
+				<tr>
+					<td style="border:0;width:2%;"></td>
+					<td style="border:0;width:30%;font-size:13px">BERAT KOTOR</td>
+					<td style="border:0;width:3%;"></td>
+					<td style="border:0;width:30%;font-size:13px">BERAT TRUK</td>
+					<td style="border:0;width:3%;"></td>
+					<td style="border:0;width:30%;font-size:13px">BERAT BERSIH</td>
+					<td style="border:0;width:2%;"></td>
+				</tr>
+				<tr>
+					<td style="border:0"></td>
+					<td style="padding:4px 0;font-weight:bold;font-size:17px">8,560</td>
+					<td style="border:0"></td>
+					<td style="padding:4px 0;font-weight:bold;font-size:17px">3,290</td>
+					<td style="border:0"></td>
+					<td style="padding:4px 0;font-weight:bold;font-size:17px">5,255</td>
+					<td style="border:0"></td>
+				</tr>
+				<tr>
+					<td style="border:0"></td>
+					<td style="border:0;text-align:left;font-size:14px">POTONGAN :</td>
+					<td style="border:0"></td>
+					<td style="border:0;font-size:14px">15 KG</td>
+					<td style="border:0"></td>
+					<td style="border:0"></td>
+					<td style="border:0"></td>
+				</tr>
+				<tr>
+					<td style="border:0;padding:8px 0 23px;font-size:11px;text-align:left" colspan="7">Catatan : MONIKA</td>
+				</tr>
+			</table>
+			<table style="width:100%;margin-bottom:5px;text-align:center;border-collapse:collapse;font-size:11px" border="1">
+				<tr>
+					<td style="border-bottom:0;padding-top:3px;width:32%">PENIMBANG</td>
+					<td style="border:0;width:2%"></td>
+					<td style="border-bottom:0;padding-top:3px;width:32%">SATPAM</td>
+					<td style="border:0;width:2%"></td>
+					<td style="border-bottom:0;padding-top:3px;width:32%">SOPIR</td>
+				</tr>
+				<tr>
+					<td style="border-top:0;border-bottom:0;padding:43px 0"></td>
+					<td style="border:0"></td>
+					<td style="border-top:0;border-bottom:0;padding:43px 0"></td>
+					<td style="border:0"></td>
+					<td style="border-top:0;border-bottom:0;padding:43px 0"></td>
+				</tr>
+				<tr>
+					<td style="border-top:0;padding-bottom:3px;">Feri S</td>
+					<td style="border:0"></td>
+					<td style="border-top:0;padding-bottom:3px;">(. . . . . . . . . .)</td>
+					<td style="border:0"></td>
+					<td style="border-top:0"></td>
+				</tr>
+			</table>
+			<table style="width:100%;border-top:2px solid #000">
+				<tr>
+					<td style="text-align:right;font-size:12px">SUPLAI</td>
+				</tr>
+			</table>
+
+		</body>
+		</html>';
+
+		// echo $html;
+		$judul = 'TIMBANGAN';
+		$this->m_fungsi->newMpdf($judul, '', $html, 6, 3, 3, 3, 'P', 'TT', $judul.'.pdf');
 	}
 
 }
