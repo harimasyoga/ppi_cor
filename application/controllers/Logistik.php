@@ -1264,7 +1264,7 @@ class Logistik extends CI_Controller
 
 			$getKodePO = $this->db->query("SELECT w.kode_po,g.* FROM m_gudang g
 			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close' AND gd_status='Open'
+			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close' AND g.gd_status='Open'
 			GROUP BY w.kode_po");
 			$sumAllQty = 0;
 			$sumAllTon = 0;
@@ -1276,7 +1276,7 @@ class Logistik extends CI_Controller
 				$getIsi = $this->db->query("SELECT w.kode_po,g.*,c.* FROM m_gudang g
 				INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
 				INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-				WHERE w.kode_po='$r->kode_po' AND g.gd_cek_spv='Close' AND gd_status='Open'");
+				WHERE w.kode_po='$r->kode_po' AND g.gd_cek_spv='Close' AND g.gd_status='Open'");
 				$sumIsiQty = 0;
 				$sumIsiTon = 0;
 				foreach($getIsi->result() as $isi){
@@ -1698,6 +1698,54 @@ class Logistik extends CI_Controller
 		}
 
 		$this->load->view('footer');
+	}
+
+	function loadSJGudang()
+	{
+		$html = '';
+		$getCustomer = $this->db->query("SELECT p.nm_pelanggan,g.* FROM m_gudang g
+		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
+		WHERE g.gd_cek_spv='Close' AND g.gd_status='Open'
+		GROUP BY g.gd_id_pelanggan
+		ORDER BY p.nm_pelanggan");
+		if($getCustomer->num_rows() == 0){
+			$html .='GUDANG KOSONG!';
+		}else{
+			$html .='<div id="gudangCustomer">';
+				foreach($getCustomer->result() as $cust){
+					$html .='<a class="gd-link-customer" style="font-weight:bold" data-toggle="collapse" href="#customer-'.$cust->gd_id_pelanggan.'" onclick="loadSJItems('."'".$cust->gd_id_pelanggan."'".')">
+						'.$cust->nm_pelanggan.'
+					</a>
+					<div id="customer-'.$cust->gd_id_pelanggan.'" class="collapse" data-parent="#gudangCustomer">
+						<div id="tampilItems-'.$cust->gd_id_pelanggan.'"></div>
+					</div>';
+				}
+			$html .='</div>';
+		}
+		echo $html;
+	}
+
+	function loadSJItems()
+	{
+		$gd_id_pelanggan = $_POST["gd_id_pelanggan"];
+		$html = '';
+		$html .='<div id="gudangItems">';
+			$getItems = $this->db->query("SELECT i.kategori,i.nm_produk,g.* FROM m_gudang g
+			INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
+			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_cek_spv='Close' AND g.gd_status='Open'
+			GROUP BY g.gd_id_produk
+			ORDER BY i.kategori,i.nm_produk");
+			foreach($getItems->result() as $items){
+				($items->kategori == "K_BOX") ? $kategori = 'BOX' : $kategori = 'SHEET';
+				$html .='<a class="gd-link-items" style="font-weight:bold" data-toggle="collapse" href="#items-'.$items->gd_id_pelanggan.'-'.$items->gd_id_produk.'">
+					['.$kategori.'] '.$items->nm_produk.'
+				</a>
+				<div id="items-'.$items->gd_id_pelanggan.'-'.$items->gd_id_produk.'" class="collapse" data-parent="#gudangItems">
+					<div>PO :</div>
+				</div>';
+			}
+		$html .='</div>';
+		echo $html;
 	}
 
 	//

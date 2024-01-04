@@ -2,14 +2,14 @@
 	<section class="content-header">
 		<div class="container-fluid">
 			<div class="row mb-2">
-			<div class="col-sm-6">
-				<!-- <h1><b>Data Plan</b></h1> -->
-			</div>
-			<div class="col-sm-6">
-				<ol class="breadcrumb float-sm-right">
-				<!-- <li class="breadcrumb-item active" ><a href="#">Corrugator</a></li> -->
-				</ol>
-			</div>
+				<div class="col-sm-6">
+					<!-- <h1><b>Data Plan</b></h1> -->
+				</div>
+				<div class="col-sm-6">
+					<ol class="breadcrumb float-sm-right">
+						<!-- <li class="breadcrumb-item active" ><a href="#">Corrugator</a></li> -->
+					</ol>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -25,7 +25,24 @@
 
 	<section class="content" style="padding-bottom:30px">
 		<div class="container-fluid">
-			SURAT JALAN
+			<div class="row">
+				<div class="col-md-6">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">GUDANG</h3>
+						</div>
+						<div class="card-body card-body-gudang" style="padding:6px"></div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card card-info">
+						<div class="card-header" style="padding:12px;font-weight:bold">RENCANA KIRIM</div>
+						<div class="card-body card-body-rk">
+							RENCANA KIRIM
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</section>
 </div>
@@ -45,12 +62,42 @@
 </div>
 
 <script type="text/javascript">
-
-	$(document).ready(function ()
-	{
+	$(document).ready(function() {
+		loadSJGudang()
 		$('.select2').select2({
 			dropdownAutoWidth: true
 		})
 	})
 
+	function loadSJGudang() {
+		$.ajax({
+			url: '<?php echo base_url('Logistik/loadSJGudang') ?>',
+			type: "POST",
+			// beforeSend: function() {
+			// 	swal({
+			// 		title: 'Loading',
+			// 		allowEscapeKey: false,
+			// 		allowOutsideClick: false,
+			// 		onOpen: () => {
+			// 			swal.showLoading();
+			// 		}
+			// 	});
+			// },
+			success: function(res) {
+				$(".card-body-gudang").html(res)
+				// swal.close()
+			}
+		})
+	}
+
+	function loadSJItems(gd_id_pelanggan) {
+		$.ajax({
+			url: '<?php echo base_url('Logistik/loadSJItems') ?>',
+			type: "POST",
+			data: ({ gd_id_pelanggan }),
+			success: function(res) {
+				$("#tampilItems-"+gd_id_pelanggan).html(res)
+			}
+		})
+	}
 </script>

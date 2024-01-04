@@ -224,3 +224,22 @@
         width: 100%;
     }
 }
+
+.gd-link-customer {
+	padding: 6px 0;
+	display: block;
+	background: #fff linear-gradient(180deg, #fff, #f1f2f3) repeat-x !important;
+}
+.gd-link-customer:hover {
+	background: #f1f2f3 linear-gradient(180deg, #f1f2f3, #fff) repeat-x !important;
+}
+
+.gd-link-items {
+	padding: 6px 0;
+	display: block;
+	color: #333;
+}
+
+.gd-link-items:hover {
+	color: #333;
+}
