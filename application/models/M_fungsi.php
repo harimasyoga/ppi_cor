@@ -784,9 +784,12 @@ class M_fungsi extends CI_Model {
 
 		if($kertas == 'F4'){
 			$orr = array(210, 330);
-		}else{ // A4
+		}else if($kertas == 'A4'){ // A4
 			$orr = array(210, 297);
+		}else{ //TT
+			$orr = array(95, 138);
 		}
+
 		$this->mpdf->AddPageByArray(array(
 			'orientation' => $orientasi,
 			'margin-top' => $top,
