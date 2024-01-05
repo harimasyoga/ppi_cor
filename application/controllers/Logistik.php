@@ -1220,11 +1220,11 @@ class Logistik extends CI_Controller
 			// gd_id_pelanggan  gd_id_produk
 			($r->kategori == 'K_BOX') ? $kategori = 'BOX' : $kategori = 'SHEET';
 			$row[] = '<div style="text-align:center">'.$i.'</div>';
-			$row[] = '<a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".')">'.$r->nm_pelanggan.'</a>';
-			$row[] = '<a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".')">'.$kategori.'</a>';
-			$row[] = '<a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".')">'.$r->nm_produk.'</a>';
-			$row[] = '<div style="text-align:right"><a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".')">'.number_format($r->qty).'</a></div>';
-			$row[] = '<div style="text-align:center">-</div>';
+			$row[] = '<a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".','."'".$r->nm_pelanggan."'".','."'".$r->nm_produk."'".')">'.$r->nm_pelanggan.'</a>';
+			$row[] = '<a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".','."'".$r->nm_pelanggan."'".','."'".$r->nm_produk."'".')">'.$kategori.'</a>';
+			$row[] = '<a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".','."'".$r->nm_pelanggan."'".','."'".$r->nm_produk."'".')">'.$r->nm_produk.'</a>';
+			$row[] = '<div style="text-align:right"><a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".','."'".$r->nm_pelanggan."'".','."'".$r->nm_produk."'".')">'.number_format($r->qty).'</a></div>';
+			// $row[] = '<div style="text-align:center">-</div>';
 
 			// $link = base_url('Plan/Corrugator/List/'.$r->tgl_plan.'/'.$r->shift_plan.'/'.$r->machine_plan);
 			// if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
@@ -1280,13 +1280,26 @@ class Logistik extends CI_Controller
 				$sumIsiQty = 0;
 				$sumIsiTon = 0;
 				foreach($getIsi->result() as $isi){
+					if($isi->gd_id_plan_cor != null && $isi->gd_id_plan_flexo == null && $isi->gd_id_plan_finishing == null){
+						$rcr = ';border-radius:4px';
+						$rfx = '';
+						$rfs = '';
+					}else if($isi->gd_id_plan_cor != null && $isi->gd_id_plan_flexo != null && $isi->gd_id_plan_finishing == null){
+						$rcr = ';border-radius:4px 0 0 4px';
+						$rfx = ';border-radius:0 4px 4px 0';
+						$rfs = '';
+					}else{
+						$rcr = ';border-radius:4px 0 0 4px';
+						$rfx = '';
+						$rfs = ';border-radius:0 4px 4px 0';
+					}
 					$shift = $isi->shift_plan;
 					$mesin = str_replace('CORR', '', $isi->machine_plan);
-					($isi->gd_id_plan_flexo == null) ? $fx = '' : $fx = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">FX</span>';
-					($isi->gd_id_plan_finishing == null) ? $fs = '' : $fs = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">FS</span>';
+					($isi->gd_id_plan_flexo == null) ? $fx = '' : $fx = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfx.'">FX</span>';
+					($isi->gd_id_plan_finishing == null) ? $fs = '' : $fs = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfs.'">FS</span>';
 					$bb = round($isi->gd_good_qty * $isi->gd_berat_box);
 					$html .='<tr>
-						<td style="padding:6px">['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($isi->tgl_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_plan).' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">CR</span>'.$fx.''.$fs.'</td>
+						<td style="padding:6px">['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($isi->tgl_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_plan).' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rcr.'">CR</span>'.$fx.''.$fs.'</td>
 						<td style="padding:6px;text-align:right">'.number_format($isi->gd_good_qty,0,",",".").'</td>
 						<td style="padding:6px;text-align:right">'.$isi->gd_berat_box.'</td>
 						<td style="padding:6px;text-align:right">'.number_format($bb,0,",",".").'</td>
@@ -1717,7 +1730,7 @@ class Logistik extends CI_Controller
 						'.$cust->nm_pelanggan.'
 					</a>
 					<div id="customer-'.$cust->gd_id_pelanggan.'" class="collapse" data-parent="#gudangCustomer">
-						<div id="tampilItems-'.$cust->gd_id_pelanggan.'"></div>
+						<div id="tampilItems-'.$cust->gd_id_pelanggan.'" class="iitemss"></div>
 					</div>';
 				}
 			$html .='</div>';
@@ -1737,15 +1750,121 @@ class Logistik extends CI_Controller
 			ORDER BY i.kategori,i.nm_produk");
 			foreach($getItems->result() as $items){
 				($items->kategori == "K_BOX") ? $kategori = 'BOX' : $kategori = 'SHEET';
-				$html .='<a class="gd-link-items" style="font-weight:bold" data-toggle="collapse" href="#items-'.$items->gd_id_pelanggan.'-'.$items->gd_id_produk.'">
+				$html .='<a class="gd-link-items" style="font-weight:bold" data-toggle="collapse" href="#items-'.$items->gd_id_pelanggan.'-'.$items->gd_id_produk.'" onclick="loadSJPO('."'".$items->gd_id_pelanggan."'".','."'".$items->gd_id_produk."'".')">
 					['.$kategori.'] '.$items->nm_produk.'
 				</a>
 				<div id="items-'.$items->gd_id_pelanggan.'-'.$items->gd_id_produk.'" class="collapse" data-parent="#gudangItems">
-					<div>PO :</div>
+					<div id="tampilPO-'.$items->gd_id_pelanggan.'-'.$items->gd_id_produk.'"></div>
 				</div>';
 			}
 		$html .='</div>';
 		echo $html;
+	}
+
+	function loadSJPO()
+	{
+		$gd_id_pelanggan = $_POST["gd_id_pelanggan"];
+		$gd_id_produk = $_POST["gd_id_produk"];
+		$html = '';
+		$html .='<div id="gudangPOs">';
+			$getPOs = $this->db->query("SELECT w.kode_po,g.* FROM m_gudang g
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close' AND g.gd_status='Open'
+			GROUP BY w.kode_po");
+			$i = 0;
+			foreach($getPOs->result() as $po){
+				$i++;
+				$html .='<a class="gd-link-pos" style="font-weight:bold" data-toggle="collapse" href="#po'.$i.'-'.$po->gd_id_pelanggan.'-'.$po->gd_id_produk.'" onclick="loadSJIsiGudang('."'".$i."'".','."'".$po->gd_id_pelanggan."'".','."'".$po->gd_id_produk."'".','."'".$po->kode_po."'".')">
+					> '.$po->kode_po.'
+				</a>
+				<div id="po'.$i.'-'.$po->gd_id_pelanggan.'-'.$po->gd_id_produk.'" class="collapse" data-parent="#gudangPOs">
+					<div id="tampilGudang-'.$i.'-'.$po->gd_id_pelanggan.'-'.$po->gd_id_produk.'" style="overflow:auto;white-space:nowrap"></div>
+				</div>';
+			}
+		$html .='</div>';
+		echo $html;
+	}
+
+	function loadSJIsiGudang()
+	{
+		$gd_id_pelanggan = $_POST["gd_id_pelanggan"];
+		$gd_id_produk = $_POST["gd_id_produk"];
+		$kode_po = $_POST["kode_po"];
+		$html = '';
+
+		$getIsi = $this->db->query("SELECT p.nm_pelanggan,w.kode_po,g.*,c.* FROM m_gudang g
+		INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
+		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
+		INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+		WHERE w.kode_po='$kode_po' AND g.gd_cek_spv='Close' AND g.gd_status='Open'");
+		$html .= '<table style="border:1px solid #dee2e6">
+			<tr style="background:#dee2e6">
+				<th style="padding:6px;border:1px solid #bbb">PLAN</th>
+				<th style="padding:6px;text-align:center;border:1px solid #bbb">QTY</th>
+				<th style="padding:6px;text-align:center;border:1px solid #bbb">BB</th>
+				<th style="padding:6px 20px;text-align:center;border:1px solid #bbb">MUAT</th>
+				<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
+				<th style="padding:6px;text-align:center;border:1px solid #bbb">AKSI</th>
+			</tr>';
+			foreach($getIsi->result() as $isi){
+				if($isi->gd_id_plan_cor != null && $isi->gd_id_plan_flexo == null && $isi->gd_id_plan_finishing == null){
+					$rcr = ';border-radius:4px';
+					$rfx = '';
+					$rfs = '';
+				}else if($isi->gd_id_plan_cor != null && $isi->gd_id_plan_flexo != null && $isi->gd_id_plan_finishing == null){
+					$rcr = ';border-radius:4px 0 0 4px';
+					$rfx = ';border-radius:0 4px 4px 0';
+					$rfs = '';
+				}else{
+					$rcr = ';border-radius:4px 0 0 4px';
+					$rfx = '';
+					$rfs = ';border-radius:0 4px 4px 0';
+				}
+				$shift = $isi->shift_plan;
+				$mesin = str_replace('CORR', '', $isi->machine_plan);
+				($isi->gd_id_plan_flexo == null) ? $fx = '' : $fx = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfx.'">FX</span>';
+				($isi->gd_id_plan_finishing == null) ? $fs = '' : $fs = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfs.'">FS</span>';
+
+				$btnAksi = '<button type="button" id="simpan_muat'.$isi->id_gudang.'" class="btn btn-sm btn-success btn-block" style="font-weight:bold" onclick="addCartRKSJ('."'".$isi->id_gudang."'".')">SIMPAN</button>';
+				$qty = $isi->gd_good_qty;
+
+				$html .='<tr>
+					<td style="border:1px solid #dee2e6;padding:6px">['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($isi->tgl_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_plan).' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rcr.'">CR</span>'.$fx.''.$fs.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($isi->gd_good_qty,0,",",".").'</td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$isi->gd_berat_box.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px">
+						<input type="number" class="form-control" style="border:1px solid #dee2e6;width:70px;text-align:right;padding:6px" id="inp-muat-'.$isi->id_gudang.'" onkeyup="hitungSJTonase('."'".$isi->id_gudang."'".','."'".$isi->gd_berat_box."'".')">
+					</td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
+						<span class="hitung-tonase-'.$isi->id_gudang.'">0</span>
+						<input type="hidden" id="hidden-hitung-tonase-'.$isi->id_gudang.'" value="">
+						<input type="hidden" id="hidden-id-pelanggan-'.$isi->id_gudang.'" value="'.$gd_id_pelanggan.'">
+						<input type="hidden" id="hidden-id-produk-'.$isi->id_gudang.'" value="'.$gd_id_produk.'">
+						<input type="hidden" id="hidden-nm-pelanggan-'.$isi->id_gudang.'" value="'.$isi->nm_pelanggan.'">
+						<input type="hidden" id="hidden-kode-po-'.$isi->id_gudang.'" value="'.$kode_po.'">
+						<input type="hidden" id="hidden-bb-'.$isi->id_gudang.'" value="'.$isi->gd_berat_box.'">
+						<input type="hidden" id="hidden-qty-'.$isi->id_gudang.'" value="'.$qty.'">
+					</td>
+					<td style="border:1px solid #dee2e6;padding:3px">'.$btnAksi.'</td>
+				</tr>';
+			}
+		$html .='</table>';
+
+		echo $html;
+	}
+
+	function addRencanaPlan()
+	{
+		$data = array(
+			'id' => $_POST['id_gudang'],
+			'name' => $_POST['id_gudang'],
+			'price' => 0,
+			'qty' => 1,
+			'options' => array(
+				// '' => $_POST[""],
+			)
+		);
+		echo json_encode(array('data' => true, $data));
 	}
 
 	//

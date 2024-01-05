@@ -58,6 +58,7 @@
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 								<div class="col-md-12" style="padding:0">
 									<a href="<?php echo base_url('Plan/Corrugator')?>" class="btn btn-sm btn-info"><i class="fa fa-arrow-left"></i> <b>Kembali</b></a>
+									<a href="<?php echo base_url('Plan/Corrugator/Add')?>" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> <b>Add</b></a>
 								</div>
 							</div>
 							<div class="card-body row" style="padding:0 20px 5px;font-weight:bold">

@@ -34,12 +34,12 @@
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead>
 						<tr>
-							<th>#</th>
-							<th>CUSTOMER</th>
-							<th>TIPE</th>
-							<th>ITEM</th>
-							<th>JUMLAH</th>
-							<th>AKSI</th>
+							<th style="width:5%">#</th>
+							<th style="width:35%">CUSTOMER</th>
+							<th style="width:10%">TIPE</th>
+							<th style="width:40%">ITEM</th>
+							<th style="width:10%">JUMLAH</th>
+							<!-- <th>AKSI</th> -->
 						</tr>
 					</thead>
 					<tbody></tbody>
@@ -53,7 +53,7 @@
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" id="judul">DETAIL</h4>
+				<h4 class="modal-title" id="judulForm">DETAIL</h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -105,17 +105,29 @@
 		})
 	}
 
-	function rincianDataGudang(gd_id_pelanggan, gd_id_produk) {
+	function rincianDataGudang(gd_id_pelanggan, gd_id_produk, nm_pelanggan, nm_produk) {
 		$("#modalForm").modal("show");
 
 		$.ajax({
 			url: '<?php echo base_url('Logistik/rincianDataGudang')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				gd_id_pelanggan, gd_id_produk
 			}),
 			success: function(res){
+				$("#judulForm").html(nm_pelanggan+' - '+nm_produk)
 				$(".modal-body").html(res)
+				swal.close()
 			}
 		})
 	}
