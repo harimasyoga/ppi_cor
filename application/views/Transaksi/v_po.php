@@ -147,7 +147,15 @@
 								<div class="card-body row" style="padding : 5px;font-weight:bold">
 									<div class="col-md-2">HUB</div>
 									<div class="col-md-3">
-										<input type="text" class="form-control" name="txt_top" id="txt_top" value="" readonly>
+										<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" >
+											<!-- <option value="">Pilih</option> -->
+											<?php foreach ($hub as $r) : ?>
+												<option value="<?= $r->id_hub ?>" detail="
+												<?=$r->id_hub."|".$r->nm_hub ?>">
+													<?= $r->id_hub . " | " . $r->nm_hub ?>
+												</option>
+											<?php endforeach ?>
+										</select>
 									</div>
 									
 									<div class="col-md-2"></div>
@@ -185,6 +193,7 @@
 										</div>
 									
 									<?php } ?>
+									<div class="col-md-7"></div>
 								</div>
 							</div>
 						</div>
@@ -805,6 +814,9 @@
 		}
 		$("#btn-print").hide();
 
+		$("#id_hub").select2("val", 1);
+		$('#id_hub').val(1).trigger('change');		
+
 		$("#id_pelanggan").select2("val", "");
 		$('#id_pelanggan').val("").trigger('change');		
 		$("#id_pelanggan").prop("disabled", false);
@@ -909,6 +921,7 @@
 				$("#no_po").val(data.header.no_po);
 				$("#tgl_po").val(data.header.tgl_po);
 				
+				$('#id_hub').val(data.header.id_hub).trigger('change');
 				$('#id_pelanggan').val(data.header.id_pelanggan).trigger('change');
 
 				kodepo    = (data.header.kode_po == '' ) ? '-' : data.header.kode_po ;
