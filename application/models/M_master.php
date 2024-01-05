@@ -90,7 +90,8 @@ class M_master extends CI_Model{
     }
 	
     
-    function m_pelanggan($table,$status){
+    function m_pelanggan($table,$status)
+	{
 		$kode_lama = $_POST["kode_lama"];
 		$kode_pelanggan = $_POST["kode_pelanggan"];
 		$cekKode = $this->db->query("SELECT*FROM m_pelanggan WHERE kode_unik='$kode_pelanggan'")->num_rows();
@@ -129,6 +130,51 @@ class M_master extends CI_Model{
 				$this->db->set("edit_user", $this->username);
 				$this->db->set("edit_time", date('Y-m-d H:i:s'));
 				$this->db->where("id_pelanggan", $_POST["id_pelanggan"]);
+				$inputData = $this->db->update($table, $data);
+			}
+			
+			return array(
+				'data' => true,
+				'isi' => $inputData,
+			);
+		}
+    }
+
+    function m_hub($table,$status)
+	{
+		$nm_hub       = $_POST["nm_hub"];
+		$nm_old       = $_POST["nm_old"];
+		$cekKode      = $this->db->query("SELECT*FROM m_hub WHERE nm_hub='$nm_hub'");
+
+		if( $status=='insert' && $cekKode->num_rows() > 0 )
+		{
+			return array(
+				'data' => false,
+				'isi' => 'NAMA HUB SUDAH TERPAKAI!',
+			);
+		}else if( $status=='update' && $cekKode->num_rows() > 0 && $cekKode->row()->nm_hub != $nm_old )
+		{
+			return array(
+				'data' => false,
+				'isi' => 'NAMA HUB SUDAH TERPAKAI!',
+			);
+		}else{
+			$data = array(
+				'pimpinan'  => $_POST["pimpinan"],
+				'nm_hub'    => $_POST["nm_hub"],
+				'alamat'    => $_POST["alamat"],
+				'no_telp'   => $_POST["no_telp"],
+				'kode_pos'  => $_POST["kode_pos"],
+				'fax'       => $_POST["fax"],
+			);
+
+			if ($status == 'insert') {
+				$this->db->set("add_user", $this->username);
+				$inputData = $this->db->insert($table, $data);
+			}else{
+				$this->db->set("edit_user", $this->username);
+				$this->db->set("edit_time", date('Y-m-d H:i:s'));
+				$this->db->where("id_hub", $_POST["kode_lama"]);
 				$inputData = $this->db->update($table, $data);
 			}
 			

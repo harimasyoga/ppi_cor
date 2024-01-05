@@ -46,6 +46,17 @@ class Master extends CI_Controller
 		$this->load->view('Master/v_pelanggan', $data);
 		$this->load->view('footer');
 	}
+	
+	function Hub()
+	{
+		$data = array(
+			'judul' => "Master Hub"
+		);
+
+		$this->load->view('header', $data);
+		$this->load->view('Master/v_hub', $data);
+		$this->load->view('footer');
+	}
 
 	function Sales()
 	{
@@ -181,7 +192,39 @@ class Master extends CI_Controller
 
 		$data = array();
 
-		if ($jenis == "pelanggan") {
+		if ($jenis == "hub") {
+			$query = $this->m_master->query("SELECT * FROM m_hub 
+			ORDER BY id_hub")->result();
+			$i = 1;
+			foreach ($query as $r) {
+				$row          = array();
+				$row[]        = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_hub."'".','."'detail'".')">'.$i."<a></div>";
+				$row[]        = $r->pimpinan;
+				$row[]        = $r->nm_hub;
+				$row[]        = $r->alamat;
+				$row[]        = ($r->no_telp == 0) ? '-' : $r->no_telp;
+
+				$id_hub       = $r->id_hub;
+				$cekpo    = $this->db->query("SELECT * FROM trs_po WHERE id_hub='$id_hub'")->num_rows();
+
+				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				{
+					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_hub."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
+
+					$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_hub."'".')"><i class="fas fa-times"></i></button>';
+
+				}else{
+
+					$btnEdit = '';
+					$btnHapus = '';
+				}
+				
+
+				$row[] = ($cekpo == 0) ? $btnEdit.' '.$btnHapus : $btnEdit ;
+				$data[] = $row;
+				$i++;
+			}
+		} else if ($jenis == "pelanggan") {
 			$query = $this->m_master->query("SELECT prov.prov_name,kab.kab_name,kec.kec_name,kel.kel_name,les.nm_sales,pel.* FROM m_pelanggan pel
 			LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
 			LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
@@ -217,7 +260,7 @@ class Master extends CI_Controller
 				$data[] = $row;
 				$i++;
 			}
-		} else if ($jenis == "produk") {
+		}else if ($jenis == "produk") {
 			$query = $this->m_master->query("SELECT c.nm_pelanggan,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan ORDER BY nm_produk")->result();
 			$i = 1;
 			foreach ($query as $r) {
@@ -433,6 +476,18 @@ class Master extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function edit_hub()
+	{
+		$id = $_POST["id"];
+		$data =  $this->db->query("SELECT * FROM m_hub WHERE id_hub='$id'")->row();
+
+		$cekPO = $this->db->query("SELECT * FROM trs_po WHERE id_hub='$id'")->num_rows();
+		echo json_encode(array(
+			'hub' => $data,
+			'cek_po' => $cekPO,
+		));
+	}
+	
 	function getEditPelanggan()
 	{
 		$id = $_POST["id"];
