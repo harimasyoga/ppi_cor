@@ -144,8 +144,21 @@
 										<input type="text" class="form-control" name="txt_fax" id="txt_fax" value="" readonly>
 									</div>
 								</div>
-								
 								<div class="card-body row" style="padding : 5px;font-weight:bold">
+									<div class="col-md-2">HUB</div>
+									<div class="col-md-3">
+										<input type="text" class="form-control" name="txt_top" id="txt_top" value="" readonly>
+									</div>
+									
+									<div class="col-md-2"></div>
+
+									<div class="col-md-2">TOP</div>
+									<div class="col-md-3">
+										<input type="text" class="form-control" name="txt_top" id="txt_top" value="" readonly>
+									</div>
+								</div>
+								<div>
+									<div class="card-body row" style="padding : 5px;font-weight:bold">
 									<?php if ($this->session->userdata('level') != "PPIC")  {
 												?>
 										<div class="col-md-2">Upload PO</div>
@@ -172,13 +185,6 @@
 										</div>
 									
 									<?php } ?>
-
-									<div class="col-md-2"></div>
-
-									<div class="col-md-2">TOP</div>
-									<div class="col-md-3">
-										<input type="text" class="form-control" name="txt_top" id="txt_top" value="" readonly>
-									</div>
 								</div>
 							</div>
 						</div>
@@ -1889,7 +1895,7 @@
 			// $('#price_exc_rp'+id2).val(format_angka(val));
 			// $('#price_inc_rp'+id2).val(format_angka(inc));
 		}else {
-			exc = Math.trunc(isi /1.11);
+			exc = Math.round(isi /1.11);
 			$('#price_exc'+id2).val(format_angka(exc));
 
 			// $('#price_exc_rp'+id2).val(format_angka(exc));
