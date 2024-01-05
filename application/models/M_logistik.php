@@ -310,6 +310,30 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	//
+
+	function simpanCartRKSJ()
+	{
+		foreach($this->cart->contents() as $r){
+			$data = array(
+				'id_pelanggan' => $r['options']['id_pelanggan'],
+				'id_produk' => $r['options']['id_produk'],
+				'id_gudang' => $r['options']['id_gudang'],
+				'qty_muat' => $r['options']['qty_muat'],
+				'rk_tonase' => $r['options']['rk_tonase'],
+				'rk_kode_po' => $r['options']['rk_kode_po'],
+				'rk_bb' => $r['options']['rk_bb'],
+			);
+			$insertRencanaKirim = $this->db->insert('m_rencana_kirim', $data);
+		}
+
+		return [
+			'insertRencanaKirim' => $insertRencanaKirim,
+		];
+	}
+
+	//
+
 	function update_invoice()
 	{
 		$id_inv         = $this->input->post('id_inv');

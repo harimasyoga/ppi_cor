@@ -39,24 +39,22 @@
 					</div>
 				</div>
 				<div class="col-md-12">
-					<div class="card card-info">
-						<div class="card-header" style="padding:12px;font-weight:bold">RENCANA KIRIM</div>
-						<div class="card-body card-body-rk" style="padding:0">
-							<table class="table table-bordered">
-								<tr>
-									<th style="padding:6px">CUSTOMER</th>
-									<th style="padding:6px">NO. PO</th>
-									<th style="padding:6px">PLAN</th>
-									<th style="padding:6px">MUAT</th>
-									<th style="padding:6px">BB</th>
-									<th style="padding:6px">TONASE</th>
-									<th style="padding:6px">AKSI</th>
-								</tr>
-								<tr>
-									<td style="padding:6px;font-weight:bold" colspan="7">BELUM ADA RENCANA KIRIM!</td>
-								</tr>
-							</table>
+					<div class="card card-info card-outline">
+						<input type="hidden" id="hidden-card-body-rk">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">RENCANA KIRIM</h3>
 						</div>
+						<div class="card-body" style="padding:0">
+							<div class="card-body-rk" style="overflow:auto;white-space:nowrap"></div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-12">
+					<div class="card card-success card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">PENGIRIMAN</h3>
+						</div>
+						<div class="card-body card-body-pengiriman" style="padding:6px"></div>
 					</div>
 				</div>
 			</div>
@@ -80,6 +78,7 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
+		$("#hidden-card-body-rk").load("<?php echo base_url('Logistik/destroyGudang') ?>")
 		loadSJGudang()
 		$('.select2').select2({
 			dropdownAutoWidth: true
@@ -92,6 +91,7 @@
 			type: "POST",
 			success: function(res) {
 				$(".card-body-gudang").html(res)
+				listRencanaKirim()
 			}
 		})
 	}
@@ -148,18 +148,80 @@
 		let idPelanggan = $("#hidden-id-pelanggan-"+id_gudang).val()
 		let idProduk = $("#hidden-id-produk-"+id_gudang).val()
 		let nmPelanggan = $("#hidden-nm-pelanggan-"+id_gudang).val()
+		let nmProduk = $("#hidden-nm-produk-"+id_gudang).val()
 		let kodePo = $("#hidden-kode-po-"+id_gudang).val()
 		let bb = $("#hidden-bb-"+id_gudang).val()
 		let qty = $("#hidden-qty-"+id_gudang).val()
 
-		console.log("id_gudang : ", id_gudang)
-		console.log("muat : ", muat)
-		console.log("tonase : ", tonase)
-		console.log("idPelanggan : ", idPelanggan)
-		console.log("idProduk : ", idProduk)
-		console.log("nmPelanggan : ", nmPelanggan)
-		console.log("kodePo : ", kodePo)
-		console.log("bb : ", bb)
-		console.log("qty : ", qty)
+		$.ajax({
+			url: '<?php echo base_url('Logistik/addCartRKSJ')?>',
+			type: "POST",
+			data: ({
+				id_gudang, muat, tonase, idPelanggan, idProduk, nmPelanggan, nmProduk, kodePo, bb, qty
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success('<b>BERHASIL!</b>');
+					listRencanaKirim()
+				}else{
+					swal(data.isi, "", "error")
+					$("#inp-muat-"+id_gudang).val(0)
+					$(".hitung-tonase-"+id_gudang).html('0')
+					$("#hidden-hitung-tonase-"+id_gudang).val(0)
+					return
+				}
+			}
+		})
+	}
+
+	function listRencanaKirim() {
+		$.ajax({
+			url: '<?php echo base_url('Logistik/listRencanaKirim')?>',
+			type: "POST",
+			success: function(res){
+				$(".card-body-rk").html(res)
+			}
+		})
+	}
+
+	function hapusCartRKSJ(rowid){
+		$.ajax({
+			url: '<?php echo base_url('Logistik/hapusCartRKSJ')?>',
+			type: "POST",
+			data: ({
+				rowid
+			}),
+			success: function(res){
+				listRencanaKirim()
+			}
+		})
+	}
+
+	function simpanCartRKSJ() {
+		$("#simpan_rk").prop('disabled', true)
+		$.ajax({
+			url: '<?php echo base_url('Logistik/simpanCartRKSJ')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$(".card-body-rk").html('')
+				$("#hidden-card-body-rk").load("<?php echo base_url('Logistik/destroyGudang') ?>")
+				loadSJGudang()
+				listRencanaKirim()
+				swal.close()
+			}
+		})
 	}
 </script>
