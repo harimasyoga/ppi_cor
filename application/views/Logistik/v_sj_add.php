@@ -130,12 +130,19 @@
 		})
 	}
 
-	function hitungSJTonase(id_gudang, gd_berat_box) {
+	function hitungSJTonase(id_gudang) {
 		let rp = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'})
+		let qty = $("#hidden-qty-"+id_gudang).val()
 		let muat = $("#inp-muat-"+id_gudang).val().split('.').join('');
 		(muat < 0 || muat == 0 || muat == '' || muat == undefined || muat.length >= 7) ? muat = 0 : muat = muat;
+		(parseInt(muat) > parseInt(qty)) ? muat = 0 : muat = muat;
 		$("#inp-muat-"+id_gudang).val(rp.format(muat));
 
+		let sisa = parseInt(qty) - parseInt(muat);
+		(sisa < 0 || sisa == 0 || sisa == '') ? sisa = 0 : sisa = sisa;
+		$(".hitung-sisa-"+id_gudang).html('<br>'+rp.format(Math.round(sisa)))
+
+		let gd_berat_box = $("#hidden-bb-"+id_gudang).val()
 		let hitung = parseInt(muat) * parseFloat(gd_berat_box);
 		(hitung < 0 || hitung == 0 || hitung == '') ? hitung = 0 : hitung = hitung;
 		$(".hitung-tonase-"+id_gudang).html(rp.format(Math.round(hitung)))
@@ -221,6 +228,109 @@
 				loadSJGudang()
 				listRencanaKirim()
 				swal.close()
+			}
+		})
+	}
+
+	function hitungListRK(id_rk) {
+		let rp = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'})
+
+		let sisa = $("#rk-hidden-sisa-"+id_rk).val()
+		let qty_muat_lama = $("#rk-hidden-muat-lama-"+id_rk).val()
+		let qty_muat = $("#rk-qty-muat-"+id_rk).val().split('.').join('');
+		(qty_muat < 0 || qty_muat == 0 || qty_muat == '' || qty_muat == undefined || qty_muat.length >= 7) ? qty_muat = 0 : qty_muat = qty_muat;
+		(parseInt(qty_muat) > (parseInt(sisa) + parseInt(qty_muat_lama))) ? qty_muat = 0 : qty_muat = qty_muat;
+		$("#rk-qty-muat-"+id_rk).val(rp.format(qty_muat))
+
+		let sisa_baru = (parseInt(sisa) + parseInt(qty_muat_lama)) - parseInt(qty_muat);
+		(sisa_baru < 0 || sisa_baru == 0 || sisa_baru == '' || sisa_baru == undefined || sisa_baru.length >= 7) ? sisa_baru = 0 : sisa_baru = sisa_baru;
+		$(".rk-span-sisa-"+id_rk).html(rp.format(sisa_baru))
+		
+		let bb = $("#rk-hidden-bb-"+id_rk).val()
+		let tonase = parseInt(qty_muat) * parseFloat(bb);
+		(tonase < 0 || tonase == 0 || tonase == '') ? tonase = 0 : tonase = tonase;
+		$(".rk-span-ton-"+id_rk).html(rp.format(Math.round(tonase)))
+		$("#rk-hidden-h-ton-"+id_rk).val(Math.round(tonase))
+	}
+
+	function editListUrutRK(id_rk) {
+		let urut = $("#rk-urut-"+id_rk).val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/editListUrutRK')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_rk, urut }),
+			success: function(res){
+				data = JSON.parse(res)
+				loadSJGudang()
+				swal.close()
+			}
+		})
+	}
+
+	function editListRencanaKirim(id_rk) {
+		let muat = $("#rk-qty-muat-"+id_rk).val().split('.').join('')
+		let tonase= $("#rk-hidden-h-ton-"+id_rk).val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/editListRencanaKirim')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_rk, muat, tonase }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.data){
+					loadSJGudang()
+					swal.close()
+				}else{
+					swal(data.msg, '', 'error')
+				}
+			}
+		})
+	}
+
+	function hapusListRencanaKirim(id_rk) {
+		$.ajax({
+			url: '<?php echo base_url('Logistik/hapusListRencanaKirim')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_rk }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.data){
+					loadSJGudang()
+					swal.close()
+				}else{
+					swal('terjadi kesalahan!', '', 'error')
+				}
 			}
 		})
 	}

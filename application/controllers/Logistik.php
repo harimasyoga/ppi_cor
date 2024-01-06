@@ -1835,10 +1835,12 @@ class Logistik extends CI_Controller
 				$html .='<tr>
 					<td style="border:1px solid #dee2e6;padding:6px">'.$isi->id_gudang.'</td>
 					<td style="border:1px solid #dee2e6;padding:6px">['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($isi->tgl_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_plan).' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rcr.'">CR</span>'.$fx.''.$fs.'</td>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">'.number_format($qty,0,",",".").'</td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
+						'.number_format($qty,0,",",".").'<span class="hitung-sisa-'.$isi->id_gudang.'" style="font-style:italic;font-size:12px;font-weight:normal"></span>
+					</td>
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$isi->gd_berat_box.'</td>
 					<td style="border:1px solid #dee2e6;padding:6px">
-						<input type="number" class="form-control" style="border:1px solid #dee2e6;width:70px;text-align:right;padding:6px" id="inp-muat-'.$isi->id_gudang.'" onkeyup="hitungSJTonase('."'".$isi->id_gudang."'".','."'".$isi->gd_berat_box."'".')">
+						<input type="number" class="form-control" style="height:100%;width:70px;text-align:right;padding:4px 6px" id="inp-muat-'.$isi->id_gudang.'" onkeyup="hitungSJTonase('."'".$isi->id_gudang."'".')">
 					</td>
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
 						<span class="hitung-tonase-'.$isi->id_gudang.'">0</span>
@@ -1933,9 +1935,9 @@ class Logistik extends CI_Controller
 				<th style="padding:6px;border:1px solid #bbb;width:6%;text-align:center">MUAT</th>
 				<th style="padding:6px;border:1px solid #bbb;width:6%;text-align:center">BB</th>
 				<th style="padding:6px;border:1px solid #bbb;width:6%;text-align:center">TONASE</th>
-				<th style="padding:6px;border:1px solid #bbb;width:5%;text-align:center">AKSI</th>
+				<th style="padding:6px;border:1px solid #bbb;width:5%;text-align:center" colspan="2">AKSI</th>
 			</tr>';
-		
+
 		$cekRK = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_status='Open' GROUP BY rk_urut");
 
 		if($this->cart->total_items() == 0){
@@ -1957,7 +1959,7 @@ class Logistik extends CI_Controller
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($r['options']['qty_muat'],0,",",".").'</td>
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$r['options']['rk_bb'].'</td>
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">'.number_format($r['options']['rk_tonase'],0,",",".").'</td>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:center" colspan="2">
 						<button type="button" class="btn btn-sm btn-danger btn-block" onclick="hapusCartRKSJ('."'".$r['rowid']."'".')">batal</button>
 					</td>
 				</tr>';
@@ -1968,31 +1970,70 @@ class Logistik extends CI_Controller
 				$html .='<tr style="background:#dee2e6">
 					<td style="padding:6px;font-weight:bold;text-align:right;border:1px solid #bbb" colspan="7">TOTAL</td>
 					<td style="padding:6px;font-weight:bold;text-align:right;border:1px solid #bbb">'.number_format($sumTon,0,",",".").'</td>
-					<td style="border:1px solid #bbb"></td>
+					<td style="border:1px solid #bbb" colspan="2"></td>
 				</tr>';
 			}
+		}
+
+		if($this->cart->total_items() != 0){
+			$html .= '<tr>
+				<td style="padding:6px" colspan="10">
+					<button type="button" id="simpan_rk" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanCartRKSJ()"><i class="fas fa-save"></i> SIMPAN</button>
+				</td>
+			</tr>';
 		}
 		
 		if($cekRK->num_rows() != 0){
 			foreach($cekRK->result() as $rk){
 				$html .='<tr>
-					<td style="background:#333;color:#fff;padding:6px" colspan="9">'.$rk->rk_urut.'</td>
+					<td style="background:#333;color:#fff;padding:6px" colspan="10">'.$rk->rk_urut.'</td>
 				</tr>';
 
-				$getIsi = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_urut='$rk->rk_urut'");
+				$getIsi = $this->db->query("SELECT p.nm_pelanggan,i.nm_produk,r.* FROM m_rencana_kirim r
+				INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
+				INNER JOIN m_produk i ON r.id_produk=i.id_produk
+				WHERE r.rk_urut='$rk->rk_urut' ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
+				$sumTonn = 0;
 				foreach($getIsi->result() as $isi){
+					$gudang = $this->db->query("SELECT*FROM m_gudang WHERE id_gudang='$isi->id_gudang'")->row();
+					$muat = $this->db->query("SELECT SUM(qty_muat) AS qty_muat FROM m_rencana_kirim WHERE id_gudang='$isi->id_gudang' GROUP BY id_gudang")->row();
+					$siissa = $gudang->gd_good_qty - $muat->qty_muat;
 					$html .='<tr>
-						<td style="border:1px solid #dee2e6;padding:6px;text-align:center"></td>
-						<td style="border:1px solid #dee2e6;padding:6px"></td>
-						<td style="border:1px solid #dee2e6;padding:6px"></td>
-						<td style="border:1px solid #dee2e6;padding:6px"></td>
-						<td style="border:1px solid #dee2e6;padding:6px;text-align:right"></td>
-						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($isi->qty_muat,0,",",".").'</td>
-						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$isi->rk_bb.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">'.number_format($isi->rk_tonase,0,",",".").'</td>
-						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
-							-
+						<td style="border:1px solid #dee2e6;padding:6px">
+							<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" id="rk-urut-'.$isi->id_rk.'" value="'.$isi->rk_urut.'" onkeyup="editListUrutRK('."'".$isi->id_rk."'".')">
 						</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$isi->nm_pelanggan.' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$isi->id_gudang.'</span></td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$isi->rk_kode_po.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$isi->nm_produk.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
+							<span class="rk-span-sisa-'.$isi->id_rk.'">'.number_format($siissa).'</span>
+						</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">
+							<input type="hidden" id="rk-hidden-bb-'.$isi->id_rk.'" value="'.$isi->rk_bb.'">
+							<input type="hidden" id="rk-hidden-sisa-'.$isi->id_rk.'" value="'.$siissa.'">
+							<input type="hidden" id="rk-hidden-muat-lama-'.$isi->id_rk.'" value="'.$isi->qty_muat.'">
+							<input type="number" class="form-control" style="height:100%;width:70px;text-align:right;padding:4px 6px;font-weight:bold" id="rk-qty-muat-'.$isi->id_rk.'" value="'.$isi->qty_muat.'" onkeyup="hitungListRK('."'".$isi->id_rk."'".')">
+						</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$isi->rk_bb.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
+							<input type="hidden" id="rk-hidden-h-ton-'.$isi->id_rk.'" value="'.$isi->rk_tonase.'">
+							<span class="rk-span-ton-'.$isi->id_rk.'">'.number_format($isi->rk_tonase).'</span>
+						</td>
+						<td style="border:1px solid #dee2e6;padding:3px;text-align:center">
+							<button type="button" id="btn-edit-rk" class="btn btn-sm btn-warning" style="font-weight:bold" onclick="editListRencanaKirim('."'".$isi->id_rk."'".')">EDIT</button>
+						</td>
+						<td style="border:1px solid #dee2e6;padding:3px;text-align:center">
+							<button type="button" id="btn-hapus-rk" class="btn btn-sm btn-danger" style="font-weight:bold" onclick="hapusListRencanaKirim('."'".$isi->id_rk."'".')">HAPUS</button>
+						</td>
+					</tr>';
+					$sumTonn += $isi->rk_tonase;
+				}
+
+				if($getIsi->num_rows() > 1){
+					$html .='<tr style="background:#dee2e6">
+						<td style="border:1px solid #bbb;padding:6px;font-weight:bold;text-align:right" colspan="7">TOTAL</td>
+						<td style="border:1px solid #bbb;padding:6px;font-weight:bold;text-align:right">'.number_format($sumTonn,0,",",".").'</td>
+						<td style="border:1px solid #bbb;padding:6px" colspan="2"></td>
 					</tr>';
 				}
 			}
@@ -2000,18 +2041,30 @@ class Logistik extends CI_Controller
 
 		$html .='</table>';
 
-		if($this->cart->total_items() != 0){
-			$html .= '<div style="margin:6px">
-				<button type="button" id="simpan_rk" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanCartRKSJ()"><i class="fas fa-save"></i> SIMPAN</button>
-			</div>';
-		}
-
 		echo $html;
 	}
 
 	function simpanCartRKSJ()
 	{
 		$result = $this->m_logistik->simpanCartRKSJ();
+		echo json_encode($result);
+	}
+
+	function editListUrutRK()
+	{
+		$result = $this->m_logistik->editListUrutRK();
+		echo json_encode($result);
+	}
+
+	function editListRencanaKirim()
+	{
+		$result = $this->m_logistik->editListRencanaKirim();
+		echo json_encode($result);
+	}
+
+	function hapusListRencanaKirim()
+	{
+		$result = $this->m_logistik->hapusListRencanaKirim();
 		echo json_encode($result);
 	}
 

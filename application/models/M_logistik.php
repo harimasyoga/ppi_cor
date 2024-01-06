@@ -332,6 +332,46 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function editListUrutRK()
+	{
+		$this->db->set('rk_urut', $_POST["urut"]);
+		$this->db->where('id_rk', $_POST["id_rk"]);
+		$data = $this->db->update('m_rencana_kirim');
+
+		return [
+			'data' => $data,
+		];
+	}
+
+	function editListRencanaKirim()
+	{
+		if($_POST["muat"] == 0){
+			$data = false;
+			$msg = 'MUAT TIDAK BOLEH KOSONG!';
+		}else{
+			$this->db->set('qty_muat', $_POST["muat"]);
+			$this->db->set('rk_tonase', $_POST["tonase"]);
+			$this->db->where('id_rk', $_POST["id_rk"]);
+			$data = $this->db->update('m_rencana_kirim');
+			$msg = 'BERHASIL';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function hapusListRencanaKirim()
+	{
+		$this->db->where('id_rk', $_POST["id_rk"]);
+		$data = $this->db->delete('m_rencana_kirim');
+
+		return [
+			'data' => $data,
+		];
+	}
+
 	//
 
 	function update_invoice()
