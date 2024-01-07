@@ -225,17 +225,30 @@
     }
 }
 
-.gd-link-customer {
+.gd-link-customer, .gd-link-pilihan {
 	padding: 6px 0;
 	display: block;
 	background: #fff linear-gradient(180deg, #fff, #f1f2f3) repeat-x !important;
 }
-.gd-link-customer:hover {
+
+.terpilih {
+	padding-left:6px;
+	border-left:6px solid #888;
+	border-radius: 4px 0 0 4px;
+}
+
+.gd-link-pilihan:hover, .gd-link-customer:hover {
 	background: #f1f2f3 linear-gradient(180deg, #f1f2f3, #fff) repeat-x !important;
 }
 
-.gd-link-items, .gd-link-pos {
+.gd-link-customer {
 	padding: 6px 0;
+	display: block;
+	color: #333;
+}
+
+.gd-link-customer, .gd-link-items, .gd-link-pos {
+	padding: 6px;
 	display: block;
 	color: #333;
 }

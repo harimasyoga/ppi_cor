@@ -316,6 +316,7 @@ class M_logistik extends CI_Model
 	{
 		foreach($this->cart->contents() as $r){
 			$data = array(
+				'rk_tgl' => date('Y-m-d'),
 				'id_pelanggan' => $r['options']['id_pelanggan'],
 				'id_produk' => $r['options']['id_produk'],
 				'id_gudang' => $r['options']['id_gudang'],
@@ -334,12 +335,23 @@ class M_logistik extends CI_Model
 
 	function editListUrutRK()
 	{
-		$this->db->set('rk_urut', $_POST["urut"]);
-		$this->db->where('id_rk', $_POST["id_rk"]);
-		$data = $this->db->update('m_rencana_kirim');
+		$tgl = date('Y-m-d');
+		$urut = $_POST["urut"];
+
+		$cekKirim = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND no_pl_urut='$urut'");
+		if($cekKirim->num_rows() == 0){
+			$this->db->set('rk_urut', $_POST["urut"]);
+			$this->db->where('id_rk', $_POST["id_rk"]);
+			$data = $this->db->update('m_rencana_kirim');
+			$msg = 'BERHASIL!';
+		}else{
+			$data = false;
+			$msg = 'NO URUT SUDAH TERPAKAI!';
+		}
 
 		return [
 			'data' => $data,
+			'msg' => $msg,
 		];
 	}
 
@@ -369,6 +381,132 @@ class M_logistik extends CI_Model
 
 		return [
 			'data' => $data,
+		];
+	}
+
+	function selesaiMuat()
+	{
+		$urut = $_POST["urut"];
+		$cekMuat = $this->db->query("SELECT i.kategori,p.ppn,r.* FROM m_rencana_kirim r
+		INNER JOIN m_produk i ON r.id_produk=i.id_produk
+		INNER JOIN trs_po_detail p ON r.id_produk=p.id_produk AND r.id_pelanggan=p.id_pelanggan AND r.rk_kode_po=p.kode_po
+		WHERE r.rk_urut='$urut' AND r.rk_status='Open'");
+
+		// INSERT PL BOX
+		foreach($cekMuat->result() as $r){
+			($r->kategori == "K_BOX") ? $kategori = 'BOX' : $kategori = 'SHEET' ;
+			$blnRomami = $this->m_fungsi->blnRomami(date('Y-m-d'));
+			if($r->ppn == "PP"){
+				$pajak = 'ppn';
+				$sjSo = 'A';
+				$pkb = '';
+			}else{
+				$pajak = 'non';
+				$sjSo = 'B';
+				$pkb = '.';
+			}
+
+			$data = [
+				'id_perusahaan' => $r->id_pelanggan,
+				'tgl' => date('Y-m-d'),
+				'no_surat' => '000/'.$kategori.'/'.$blnRomami.'/'.substr(date('Y'),2,2).'/'.$sjSo,
+				'no_so' => '000/SO-'.$kategori.'/'.$blnRomami.'/'.substr(date('Y'),2,2).'/'.$sjSo,
+				'no_pkb' => '000/'.substr(date('Y'),2,2).'/'.$kategori.$pkb,
+				'no_kendaraan' => '',
+				'no_po' => $r->rk_kode_po,
+				'pajak' => $pajak,
+				'no_pl_urut' => $urut,
+			];
+
+			// CEK JIKA CUSTOMER DENGAN PO YANG SAMA ABAIKAN
+			$cekPL = $this->db->query("SELECT*FROM pl_box WHERE id_perusahaan='$r->id_pelanggan' AND no_po='$r->rk_kode_po'");
+			if($cekPL->num_rows() == 0){
+				$insertPl = $this->db->insert('pl_box', $data);
+			}else{
+				$insertPl = true;
+			}
+		}
+
+		// MASUKKAN LIST RENCANA KIRIM KE PACKING LIST, CUSTOMER DAN PO YANG SAMA
+		$tgl = date('Y-m-d');
+		$getPL = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND no_pl_urut='$urut'");
+		foreach($getPL->result() as $l){
+			$this->db->set('id_pl_box', $l->id);
+			$this->db->set('rk_status', 'Close');
+			$this->db->where('rk_tgl', $l->tgl);
+			$this->db->where('rk_urut', $l->no_pl_urut);
+			$this->db->where('rk_kode_po', $l->no_po);
+			$updateIDplBox = $this->db->update('m_rencana_kirim');
+		}
+
+		return [
+			'insertPl' => $insertPl,
+			'updateIDplBox' => $updateIDplBox,
+		];
+	}
+
+	function btnBatalPengiriman()
+	{
+		$tgl = $_POST["tgl"];
+		$urut = $_POST["urut"];
+
+		// HAPUS PACKING LIST
+		$this->db->where('tgl', $tgl);
+		$this->db->where('no_pl_urut', $urut);
+		$deletePL = $this->db->delete('pl_box');
+
+		// UPDATE RENCANA KIRIM
+		$this->db->set('id_pl_box', null);
+		$this->db->set('rk_status', 'Open');
+		$this->db->where('rk_tgl', $tgl);
+		$this->db->where('rk_urut', $urut);
+		$updateRK = $this->db->update('m_rencana_kirim');
+
+		return [
+			'deletePL' => $deletePL,
+			'updateRK' => $updateRK,
+		];
+	}
+
+	function addPengirimanNoPlat()
+	{
+		$tgl = $_POST["tgl"];
+		$urut = $_POST["urut"];
+		$plat = $_POST["plat"];
+
+		$this->db->set('no_kendaraan', $plat);
+		$this->db->where('tgl', $tgl);
+		$this->db->where('no_pl_urut', $urut);
+		$addPlat = $this->db->update('pl_box');
+
+		return [
+			'addPlat' => $addPlat,
+		];
+	}
+
+	function editPengirimanNoSJ()
+	{
+		$id_pl = $_POST["id_pl"];
+		$no_surat = $_POST["no_surat"];
+
+		$pl = $this->db->query("SELECT*FROM pl_box WHERE id='$id_pl'")->row();
+		$sj = explode('/', $pl->no_surat);
+		$so = explode('/', $pl->no_so);
+		$pkb = explode('/', $pl->no_pkb);
+
+		$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3].'/'.$sj[4];
+		$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3].'/'.$so[4];
+		$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2];
+
+		$this->db->set('no_surat', $noSJ);
+		$this->db->set('no_so', $noSO);
+		$this->db->set('no_pkb', $noPKB);
+		$this->db->where('no_po', $pl->no_po);
+		$this->db->where('no_surat', $pl->no_surat);
+		$updateNO = $this->db->update('pl_box');
+
+		return [
+			'updateNO' => $updateNO
 		];
 	}
 

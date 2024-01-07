@@ -42,10 +42,10 @@
 					<div class="card card-info card-outline">
 						<input type="hidden" id="hidden-card-body-rk">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">RENCANA KIRIM</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">RENCANA KIRIM</h3> &nbsp;&nbsp;<span style="font-style:italic">- <?php echo strtoupper($this->m_fungsi->getHariIni(date('Y-m-d'))) ?>, <?php echo strtoupper($this->m_fungsi->tanggal_format_indonesia(date('Y-m-d'))) ?></span>
 						</div>
 						<div class="card-body" style="padding:0">
-							<div class="card-body-rk" style="overflow:auto;white-space:nowrap"></div>
+							<div class="card-body-rk" style="padding:6px;overflow:auto;white-space:nowrap"></div>
 						</div>
 					</div>
 				</div>
@@ -54,7 +54,10 @@
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">PENGIRIMAN</h3>
 						</div>
-						<div class="card-body card-body-pengiriman" style="padding:6px"></div>
+						<div class="card-body" style="padding:6px">
+							<input type="date" id="tgl_kirim" class="form-control" style="width:200px;margin-bottom:6px" value="<?php echo date('Y-m-d')?>" onchange="listPengiriman()">
+							<div class="card-body-pengiriman" style="overflow:auto;white-space:nowrap"></div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -79,19 +82,43 @@
 <script type="text/javascript">
 	$(document).ready(function() {
 		$("#hidden-card-body-rk").load("<?php echo base_url('Logistik/destroyGudang') ?>")
-		loadSJGudang()
+		loadPilihanSJ()
 		$('.select2').select2({
 			dropdownAutoWidth: true
 		})
 	})
 
-	function loadSJGudang() {
+	function loadPilihanSJ() {
 		$.ajax({
-			url: '<?php echo base_url('Logistik/loadSJGudang') ?>',
+			url: '<?php echo base_url('Logistik/loadPilihanSJ') ?>',
 			type: "POST",
 			success: function(res) {
 				$(".card-body-gudang").html(res)
 				listRencanaKirim()
+			}
+		})
+	}
+
+	function pilihanSJ(opsi) {
+		$(".gd-link-pilihan").removeClass('terpilih')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/pilihanSJ') ?>',
+			type: "POST",
+			data: ({ opsi }),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res) {
+				$(".plh-"+opsi).addClass('terpilih')
+				$("#tampilPilihan-"+opsi).html(res)
+				swal.close()
 			}
 		})
 	}
@@ -140,7 +167,7 @@
 
 		let sisa = parseInt(qty) - parseInt(muat);
 		(sisa < 0 || sisa == 0 || sisa == '') ? sisa = 0 : sisa = sisa;
-		$(".hitung-sisa-"+id_gudang).html('<br>'+rp.format(Math.round(sisa)))
+		$(".hitung-sisa-"+id_gudang).html(rp.format(Math.round(sisa)))
 
 		let gd_berat_box = $("#hidden-bb-"+id_gudang).val()
 		let hitung = parseInt(muat) * parseFloat(gd_berat_box);
@@ -186,8 +213,19 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/listRencanaKirim')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(res){
 				$(".card-body-rk").html(res)
+				listPengiriman()
 			}
 		})
 	}
@@ -222,11 +260,9 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".card-body-rk").html('')
 				$("#hidden-card-body-rk").load("<?php echo base_url('Logistik/destroyGudang') ?>")
-				loadSJGudang()
-				listRencanaKirim()
+				loadPilihanSJ()
 				swal.close()
 			}
 		})
@@ -271,8 +307,12 @@
 			data: ({ id_rk, urut }),
 			success: function(res){
 				data = JSON.parse(res)
-				loadSJGudang()
-				swal.close()
+				if(data.data){
+					loadPilihanSJ()
+					swal.close()
+				}else{
+					swal(data.msg, '', 'error')
+				}
 			}
 		})
 	}
@@ -296,9 +336,8 @@
 			data: ({ id_rk, muat, tonase }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
-					loadSJGudang()
+					loadPilihanSJ()
 					swal.close()
 				}else{
 					swal(data.msg, '', 'error')
@@ -324,13 +363,136 @@
 			data: ({ id_rk }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
-					loadSJGudang()
+					loadPilihanSJ()
 					swal.close()
 				}else{
 					swal('terjadi kesalahan!', '', 'error')
 				}
+			}
+		})
+	}
+
+	function selesaiMuat(urut) {
+		$.ajax({
+			url: '<?php echo base_url('Logistik/selesaiMuat')?>',
+			type: "POST",
+			data: ({ urut }),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				data = JSON.parse(res)
+				listRencanaKirim()
+				// listPengiriman()
+			}
+		})
+	}
+
+	function listPengiriman() {
+		let tgl_kirim = $("#tgl_kirim").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/listPengiriman')?>',
+			type: "POST",
+			data: ({ tgl_kirim }),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				$(".card-body-pengiriman").html(res)
+				swal.close()
+			}
+		})
+	}
+
+	function btnBatalPengiriman(tgl, urut) {
+		$.ajax({
+			url: '<?php echo base_url('Logistik/btnBatalPengiriman')?>',
+			type: "POST",
+			data: ({ tgl, urut }),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				data = JSON.parse(res)
+				listRencanaKirim()
+			}
+		})
+	}
+
+	function addPengirimanNoPlat(tgl, urut){
+		let plat = $("#pp-noplat-"+urut).val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/addPengirimanNoPlat')?>',
+			type: "POST",
+			data: ({ tgl, urut, plat }),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				data = JSON.parse(res)
+				listRencanaKirim()
+			}
+		})
+	}
+
+	function editPengirimanNoSJ(id_pl) {
+		let no_surat = $("#pp-nosj-"+id_pl).val()
+		if(no_surat.length == 0){
+			swal('NO. SJ TIDAK BOLEH KOSONG!', '', 'error')
+			return
+		}else if(no_surat.length < 3){
+			swal('NO. SJ MINIMAL TIGA DIGIT!', '', 'error')
+			return
+		}else if(no_surat.length > 4){
+			swal('NO. SJ MAKSIMAL EMPAT DIGIT!', '', 'error')
+			return
+		}
+		$.ajax({
+			url: '<?php echo base_url('Logistik/editPengirimanNoSJ')?>',
+			type: "POST",
+			data: ({ id_pl, no_surat }),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				data = JSON.parse(res)
+				listRencanaKirim()
 			}
 		})
 	}
