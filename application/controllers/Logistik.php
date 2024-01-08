@@ -181,6 +181,17 @@ class Logistik extends CI_Controller
 						$nominal    = 0;
 					}
 
+				}else if($r->pajak=='ppn_pph') {
+					if($r->inc_exc=='Include')
+					{
+						$nominal    = 0;
+					}else if($r->inc_exc=='Exclude')
+					{				
+						$nominal    = $ppn11 + $pph22;
+					}else{
+						$nominal    = 0;
+					}
+
 				}else{
 					if($r->inc_exc=='Include')
 					{
