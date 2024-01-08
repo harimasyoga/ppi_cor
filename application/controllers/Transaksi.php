@@ -349,6 +349,14 @@ class Transaksi extends CI_Controller
 
 			if($this->session->userdata('username')=='ppismg'){
 				$cek_data = 'WHERE id_sales in ("2","3")';
+			}else if($this->session->userdata('username')=='hub_solo'){
+				$cek_data = 'WHERE status_app3 in ("Y") and id_hub in ("1")';
+			}else if($this->session->userdata('username')=='hub_jkt'){
+				$cek_data = 'WHERE status_app3 in ("Y") and id_hub in ("2")';
+			}else if($this->session->userdata('username')=='hub_smg'){
+				$cek_data = 'WHERE status_app3 in ("Y") and id_hub in ("3")';
+			}else if($this->session->userdata('username')=='hub_sby'){
+				$cek_data = 'WHERE status_app3 in ("Y") and id_hub in ("4")';
 			}else{
 				$cek_data = '';
 			}
@@ -484,24 +492,25 @@ class Transaksi extends CI_Controller
 						} else {
 
 							$aksi .= ' 
+								<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
+									<i class="fa fa-edit"></i>
+								</button>
+								
+								<button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ',' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
+									<i class="fa fa-trash-alt"></i>
+								</button>  
 
-							<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
-								<i class="fa fa-edit"></i>
-							</button>
-							
-							<button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ',' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
-								<i class="fa fa-trash-alt"></i>
-							</button>  
+								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
-							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
-
-							<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
-							
-							<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Cetak_img_po?no_po=" . $r->no_po . "") . '" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
+								<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
+								
+								<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Cetak_img_po?no_po=" . $r->no_po . "") . '" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
 							';
 						}
 						
-					}else{
+					}else if (in_array($this->session->userdata('level'), ['Hub'])) {
+						$aksi .= '';
+					}else {
 
 						$aksi .= ' 
 							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>

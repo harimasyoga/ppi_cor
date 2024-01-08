@@ -154,9 +154,19 @@ class Logistik extends CI_Controller
 		$data         = array();
 
 		if ($jenis == "Invoice") {
-			$query = $this->db->query("SELECT * FROM invoice_header ORDER BY tgl_invoice,no_invoice")->result();
+			$query = $this->db->query("SELECT * FROM invoice_header ORDER BY tgl_invoice desc,no_invoice")->result();
+
 			$i = 1;
 			foreach ($query as $r) {
+
+				$queryd = $this->db->query("SELECT  CASE WHEN type='roll' THEN
+					SUM(harga*weight)
+				ELSE
+					SUM(harga*qty)
+				END AS jumlah
+				FROM invoice_detail 
+				WHERE no_invoice='$r->no_invoice' ")->row();
+
 				$id = "'$r->id'";
 				$no_inv = "'$r->no_invoice'";
 				$print = base_url("laporan/print_invoice_v2?no_invoice=") . $r->no_invoice;
@@ -167,6 +177,8 @@ class Logistik extends CI_Controller
 				$row[] = $r->no_invoice;
 				$row[] = $r->kepada;
 				$row[] = $r->nm_perusahaan;
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo).'</div>';
+				$row[] = '<div class="text-right">Rp '.number_format($queryd->jumlah, 0, ",", ".").'</div>';
 				$aksi = "";
 
 				if (in_array($this->session->userdata('level'), ['Admin','Keuangan1']))

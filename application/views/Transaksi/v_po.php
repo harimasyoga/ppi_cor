@@ -167,33 +167,34 @@
 								</div>
 								<div>
 									<div class="card-body row" style="padding : 5px;font-weight:bold">
-									<?php if ($this->session->userdata('level') != "PPIC")  {
-												?>
-										<div class="col-md-2">Upload PO</div>
-										<div class="col-md-3">
-											<div class="col-9">
-												<input type="file" data-max-size="2048" name="filefoto" id="filefoto" accept=".jpg,.jpeg,.png">
+										<?php if ($this->session->userdata('level') != "PPIC")  {
+													?>
+											<div class="col-md-2">Upload PO</div>
+											<div class="col-md-3">
+												<div class="col-9">
+													<input type="file" data-max-size="2048" name="filefoto" id="filefoto" accept=".jpg,.jpeg,.png">
+												</div>
+												<div id="div_preview_foto" style="display: none;">											
+													<img id="preview_img" src="#" alt="Preview Foto" width="100" class="shadow-sm img-thumbnail"/>
+													<span class="help-block"></span>
+												</div>										
 											</div>
-											<div id="div_preview_foto" style="display: none;">											
-												<img id="preview_img" src="#" alt="Preview Foto" width="100" class="shadow-sm img-thumbnail"/>
-												<span class="help-block"></span>
-											</div>										
-										</div>
+											
+										<?php } else { ?>
+											<div class="col-md-5"></div>
+											<div style="display: none;">
+												<div class="col-9">
+													<input type="file" data-max-size="2048" name="filefoto" id="filefoto" accept=".jpg,.jpeg,.png">
+												</div>
+												<div id="div_preview_foto" style="display: none;">											
+													<img id="preview_img" src="#" alt="Preview Foto" width="100" class="shadow-sm img-thumbnail"/>
+													<span class="help-block"></span>
+												</div>										
+											</div>
 										
-									<?php } else { ?>
-										<div class="col-md-5"></div>
-										<div style="display: none;">
-											<div class="col-9">
-												<input type="file" data-max-size="2048" name="filefoto" id="filefoto" accept=".jpg,.jpeg,.png">
-											</div>
-											<div id="div_preview_foto" style="display: none;">											
-												<img id="preview_img" src="#" alt="Preview Foto" width="100" class="shadow-sm img-thumbnail"/>
-												<span class="help-block"></span>
-											</div>										
-										</div>
-									
-									<?php } ?>
-									<div class="col-md-7"></div>
+										<?php } ?>
+										<div class="col-md-7"></div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -492,6 +493,7 @@
 	$(".tambah_data").click(function(event) 
 	{
 		kosong();
+		$('#filefoto').css("display","block");
 		$("#modalForm").modal("show");
 		$("#judul").html('<h3> Form Tambah Data</h3>');
 		status = "insert";
