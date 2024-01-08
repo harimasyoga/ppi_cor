@@ -237,6 +237,7 @@ class Master extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_pelanggan."'".','."'detail'".')">'.$i."<a></div>";
 				$row[] = $r->nm_pelanggan;
+				$row[] = $r->prov_name;
 				$row[] = $r->alamat_kirim;
 				$row[] = ($r->nm_sales == 0) ? '-' : $r->nm_sales;
 				$row[] = ($r->top == "") ? '-' : $r->top;

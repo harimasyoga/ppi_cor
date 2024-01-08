@@ -38,6 +38,7 @@
 						<tr>
 							<th style="width:5%">NO.</th>
 							<th style="width:24%">NAMA</th>
+							<th style="width:34%">PROVINSI</th>
 							<th style="width:34%">ALAMAT</th>
 							<th style="width:22%">SALES</th>
 							<th style="width:5%">TOP</th>
