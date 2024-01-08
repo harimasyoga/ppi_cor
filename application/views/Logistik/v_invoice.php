@@ -38,8 +38,9 @@
 						<tr>
 							<th style="text-align: center; width:5%">No</th>
 							<th style="text-align: center; width:10%">Tanggal</th>
-							<th style="text-align: center; width:15%">No Invoice</th>
-							<th style="text-align: center; width:15%">Kepada</th>
+							<th style="text-align: center; width:10%">No Invoice</th>
+							<th style="text-align: center; width:10%">No SJ</th>
+							<th style="text-align: center; width:10%">Kepada</th>
 							<th style="text-align: center; width:15%">Nama Perusahaan</th>
 							<th style="text-align: center; width:15%">Jatuh Tempo</th>
 							<th style="text-align: center; width:15%">Total</th>

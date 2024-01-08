@@ -156,7 +156,7 @@ class Logistik extends CI_Controller
 		if ($jenis == "Invoice") {
 			$query = $this->db->query("SELECT * FROM invoice_header ORDER BY tgl_invoice desc,no_invoice")->result();
 
-			$i = 1;
+			$i               = 1;
 			foreach ($query as $r) {
 
 				$queryd = $this->db->query("SELECT  CASE WHEN type='roll' THEN
@@ -166,6 +166,17 @@ class Logistik extends CI_Controller
 				END AS jumlah
 				FROM invoice_detail 
 				WHERE no_invoice='$r->no_invoice' ")->row();
+
+				$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$r->no_invoice' GROUP BY no_surat ORDER BY no_surat");
+				if($result_sj->num_rows() == '1'){
+					$no_sj = $result_sj->row()->no_surat;
+				}else{					
+					$no_sj_result    = '';
+					foreach($result_sj->result() as $row){
+						$no_sj_result .= $row->no_surat.'<br>';
+					}
+					$no_sj = $no_sj_result;
+				}
 
 				$ppn11        = 0.11 * $queryd->jumlah;
 				$pph22        = 0.011 * $queryd->jumlah;
@@ -177,6 +188,17 @@ class Logistik extends CI_Controller
 					}else if($r->inc_exc=='Exclude')
 					{				
 						$nominal    = $ppn11;
+					}else{
+						$nominal    = 0;
+					}
+
+				}else if($r->pajak=='ppn_pph') {
+					if($r->inc_exc=='Include')
+					{
+						$nominal    = 0;
+					}else if($r->inc_exc=='Exclude')
+					{				
+						$nominal    = $ppn11 + $pph22;
 					}else{
 						$nominal    = 0;
 					}
@@ -203,6 +225,7 @@ class Logistik extends CI_Controller
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_invoice).'</div>';
 				$row[] = $r->no_invoice;
+				$row[] = $no_sj;
 				$row[] = $r->kepada;
 				$row[] = $r->nm_perusahaan;
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo).'</div>';
