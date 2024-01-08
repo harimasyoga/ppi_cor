@@ -351,7 +351,8 @@
 						type                : "success"
 						// confirmButtonText   : "OK"
 					});
-					location.href = "<?= base_url()?>Logistik/Invoice_edit?id="+data.id+"&no_inv="+no_inv_ok+"";
+					// location.href = "<?= base_url()?>Logistik/Invoice_edit?id="+data.id+"&no_inv="+no_inv_ok+"";
+					location.href = "<?= base_url()?>Logistik/Invoice";
 
 					kosong();
 					
