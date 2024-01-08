@@ -162,14 +162,42 @@ class Logistik extends CI_Controller
 				$queryd = $this->db->query("SELECT  CASE WHEN type='roll' THEN
 					SUM(harga*weight)
 				ELSE
-					SUM(harga*qty)
+					SUM(harga*hasil)
 				END AS jumlah
 				FROM invoice_detail 
 				WHERE no_invoice='$r->no_invoice' ")->row();
 
-				$id = "'$r->id'";
-				$no_inv = "'$r->no_invoice'";
-				$print = base_url("laporan/print_invoice_v2?no_invoice=") . $r->no_invoice;
+				$ppn11        = 0.11 * $queryd->jumlah;
+				$pph22        = 0.011 * $queryd->jumlah;
+				if($r->pajak=='ppn')
+				{
+					if($r->inc_exc=='Include')
+					{
+						$nominal    = 0;
+					}else if($r->inc_exc=='Exclude')
+					{				
+						$nominal    = $ppn11;
+					}else{
+						$nominal    = 0;
+					}
+
+				}else{
+					if($r->inc_exc=='Include')
+					{
+						$nominal    = 0;
+					}else if($r->inc_exc=='Exclude')
+					{
+						$nominal    = $ppn11;
+					}else{
+						$nominal    = 0;
+					}
+				}
+
+				$total    = $queryd->jumlah + $nominal;
+
+				$id       = "'$r->id'";
+				$no_inv   = "'$r->no_invoice'";
+				$print    = base_url("laporan/print_invoice_v2?no_invoice=") . $r->no_invoice;
 
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
@@ -178,7 +206,7 @@ class Logistik extends CI_Controller
 				$row[] = $r->kepada;
 				$row[] = $r->nm_perusahaan;
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo).'</div>';
-				$row[] = '<div class="text-right">Rp '.number_format($queryd->jumlah, 0, ",", ".").'</div>';
+				$row[] = '<div class="text-right">'.number_format($total, 0, ",", ".").'</div>';
 				$aksi = "";
 
 				if (in_array($this->session->userdata('level'), ['Admin','Keuangan1']))
@@ -841,7 +869,7 @@ class Logistik extends CI_Controller
 		</tr>';
 
 		// PPN - PPH22
-		$ppn10 = 0.11 * $totalHarga;
+		$ppn11 = 0.11 * $totalHarga;
         $pph22 = 0.011 * $totalHarga;
 		if($data_detail->pajak=='ppn')
 		{
@@ -850,7 +878,7 @@ class Logistik extends CI_Controller
 				$nominal = 'KB';
 			}else if($data_detail->inc_exc=='Exclude')
 			{				
-				$nominal = number_format($ppn10, 0, ",", ".");
+				$nominal = number_format($ppn11, 0, ",", ".");
 			}else{
 				$nominal = '';
 			}
@@ -861,22 +889,22 @@ class Logistik extends CI_Controller
 				$nominal = 'KB';
 			}else if($data_detail->inc_exc=='Exclude')
 			{
-				$nominal = number_format($ppn10, 0, ",", ".") ;
+				$nominal = number_format($ppn11, 0, ",", ".") ;
 			}else{
 				$nominal = '';
 			}
 		}
-		$txtppn10 = '<tr>
+		$txtppn11 = '<tr>
 				<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Ppn 11%</td>
 				<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
 				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.$nominal.'</td>
 			</tr>';
 
 		if($ppnpph == 'ppn'){ // PPN 10 %
-			$html .= $txtppn10;
+			$html .= $txtppn11;
 		}else if($ppnpph == 'ppn_pph'){ // PPH22
 			// pph22
-			$html .= $txtppn10.'<tr>
+			$html .= $txtppn11.'<tr>
 				<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Pph 22</td>
 				<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
 				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($pph22, 0, ",", ".").'</td>
@@ -1117,17 +1145,17 @@ class Logistik extends CI_Controller
 
 	// 	// PPN - PPH22
 	// 			$nominal = 0;
-	// 	$txtppn10 = '<tr>
+	// 	$txtppn11 = '<tr>
 	// 			<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Ppn 11%</td>
 	// 			<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
 	// 			<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.$nominal.'</td>
 	// 		</tr>';
 
 	// 	if($ppnpph == 'ppn'){ // PPN 10 %
-	// 		$html .= $txtppn10;
+	// 		$html .= $txtppn11;
 	// 	}else if($ppnpph == 'ppn_pph'){ // PPH22
 	// 		// pph22
-	// 		$html .= $txtppn10.'<tr>
+	// 		$html .= $txtppn11.'<tr>
 	// 			<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Pph 22</td>
 	// 			<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
 	// 			<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($pph22, 0, ",", ".").'</td>
