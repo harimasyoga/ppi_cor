@@ -364,9 +364,25 @@ class Transaksi extends CI_Controller
 			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by a.tgl_po desc, id desc")->result();
 			$i = 1;
 			foreach ($query as $r) {
-				$row    = array();
-                $time   = substr($r->tgl_po, 0,10);
-                $time_po   = substr($r->time_input, 10,10);
+				$row        = array();
+				$time       = substr($r->tgl_po, 0,10);
+				$time_po    = substr($r->time_input, 10,6);
+
+				$result_po  = $this->db->query("SELECT nm_produk from trs_po_detail a join m_produk b ON a.id_produk=b.id_produk where no_po='$r->no_po'
+				GROUP BY a.id_produk ORDER BY a.id_produk");
+
+				if($result_po->num_rows() == '1'){
+					$nm_item = $result_po->row()->nm_produk;
+				}else{
+					$no                = 1;
+					$nm_item_result    = '';
+					foreach($result_po->result() as $row_po){
+						$nm_item_result .= '<b>'.$no.'.</b> '.$row_po->nm_produk.'<br>';
+						$no ++;
+					}
+					$nm_item = $nm_item_result;
+
+				}
 
                 if($r->status_app1=='N')
                 {
@@ -444,7 +460,12 @@ class Transaksi extends CI_Controller
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')">' . $r->no_po . "<a></div>";
 
-				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.')</div>';
+				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</div>';
+				
+				if (in_array($this->session->userdata('level'), ['PPIC']))
+                {
+					$row[] = '<div class="text-center">'.$nm_item.'</div>';
+				}
 
                 $time1 = ( ($r->time_app1 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app1,0,10))  . ' - ' .substr($r->time_app1,10,9)) ;
 
