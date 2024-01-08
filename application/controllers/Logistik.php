@@ -2160,7 +2160,7 @@ class Logistik extends CI_Controller
 					<td style="background:#333;color:#fff;padding:6px" colspan="10">'.$btnPengiriman.''.$txtUrut.'</td>
 				</tr>';
 
-				$getIsi = $this->db->query("SELECT p.nm_pelanggan,I.kategori,i.nm_produk,r.* FROM m_rencana_kirim r
+				$getIsi = $this->db->query("SELECT p.nm_pelanggan,i.kategori,i.nm_produk,r.* FROM m_rencana_kirim r
 				INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
 				INNER JOIN m_produk i ON r.id_produk=i.id_produk
 				WHERE r.rk_urut='$rk->rk_urut' ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
@@ -2287,7 +2287,9 @@ class Logistik extends CI_Controller
 						$no++;
 						$noSJ = explode('/', $sjpo->no_surat);
 						($noSJ[4] == 'A') ? $pajak = '<span style="background:#f8f9fa;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">PPN</span>' : $pajak = '<span style="background:#f8f9fa;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">NON</span>' ;
-						($this->session->userdata('level') == 'Admin' && $noSJ[0] != 000) ? $btnPrint = '<button type="button" id="" class="btn btn-xs btn-success" style="font-weight:bold" onclick="">PRINT</button>' : $btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
+						($this->session->userdata('level') == 'Admin' && $noSJ[0] != 000) ?
+							$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$sjpo->no_pkb."&top=100&ctk=0").'" title="'.$sjpo->no_surat.'" >PRINT</a>' :
+							$btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
 
 						$html .='<tr style="background:#dee2e6">
 							<td style="padding:4px 6px;border:1px solid #bbb;font-weight:bold;display:flex">
@@ -2368,6 +2370,307 @@ class Logistik extends CI_Controller
 		$result = $this->m_logistik->editPengirimanNoSJ();
 		echo json_encode($result);
 	}
+
+	function printSuratJalan(){
+        $jenis = $_GET['jenis'];
+        $top = $_GET['top'];
+        $ctk = $_GET['ctk'];
+        $html = '';
+
+        $data_pl = $this->db->query("SELECT h.id_hub,h.pimpinan,h.alamat AS alamat_hub,b.nm_pelanggan,b.attn,b.alamat_kirim,b.no_telp,a.* FROM pl_box a
+		INNER JOIN m_pelanggan b ON a.id_perusahaan=b.id_pelanggan
+		INNER JOIN trs_po p ON a.no_po=p.kode_po
+		LEFT JOIN m_hub h ON p.id_hub=h.id_hub
+		WHERE a.no_pkb='$jenis'
+		GROUP BY a.no_pkb")->row();
+
+        // AMBIL DATA
+        // $data_detail = $this->db->query("SELECT a.*,b.no_po,b.id_perusahaan FROM m_box a
+        // INNER JOIN pl_box b ON a.id_pl=b.id
+        // WHERE b.no_pkb='$jenis'
+        // ORDER BY b.no_po,a.flute DESC,a.ukuran ASC");
+
+        // KOP PPI
+		if($data_pl->id_hub != null){
+			$pt = $data_pl->pimpinan;
+			$rowspan = 2;
+			$alamat = '<tr>
+				<td style="font-size:14px;height:71px">'.$data_pl->alamat_hub.'</td>
+			</tr>';
+		}else{
+			$pt = 'PT. PRIMA PAPER INDONESIA';
+			$rowspan = 4;
+			$alamat = '<tr>
+				<td style="font-size:14px">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
+			</tr>
+			<tr>
+				<td style="font-size:14px;padding:0">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
+			</tr>
+			<tr>
+				<td style="font-size:12px !important;padding:0 0 18px">http://primapaperindonesia.com</td>
+			</tr>';
+		}
+
+		// PPN
+        $kop = '<table style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:Arial !important">
+            <tr>
+                <th style="width:25% !important;height:'.$top.'px"></th>
+                <th style="width:75% !important;height:'.$top.'px"></th>
+            </tr>
+            <tr>
+                <td style="background:url('.base_url().'assets/gambar/logo_ppi_sj.png)center no-repeat" rowspan="'.$rowspan.'"></td>
+                <td style="font-size:32px">'.$pt.'</td>
+            </tr>
+			'.$alamat.'
+        </table>
+        <table cellspacing="0" style="font-size:18px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:Arial !important">
+            <tr>
+                <th style="width:15% !important;height:8px"></th>
+            </tr>
+            <tr>
+                <td style="border-top:2px solid #000;padding:10px 0 5px;text-decoration:underline">SURAT JALAN</td>
+            </tr>
+        </table>';
+		// NON PPN
+        $gak_kop = '<table cellspacing="0" style="font-size:18px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:Arial !important">
+            <tr>
+                <th style="width:15% !important;height:150px"></th>
+            </tr>
+            <tr>
+                <td style="border-top:2px solid #000;padding:10px 0 5px;text-decoration:underline">SURAT JALAN</td>
+            </tr>
+        </table>';
+
+        if($data_pl->pajak == 'non'){
+            $html .= $gak_kop;
+        }else{
+            $html .= $kop;
+        }
+        
+		// // DETAIL
+        // $html .= '<table cellspacing="0" style="font-size:11px !important;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:Arial !important">
+        //     <tr>
+        //         <th style="width:15% !important;height:8px"></th>
+        //         <th style="width:1% !important;height:8px"></th>
+        //         <th style="width:28% !important;height:8px"></th>
+        //         <th style="width:15% !important;height:8px"></th>
+        //         <th style="width:1% !important;height:8px"></th>
+        //         <th style="width:40% !important;height:8px"></th>
+        //     </tr>';
+		// 	if($data_pl->tgl == "0000-00-00" || $data_pl->tgl == "0001-00-00" || $data_pl->tgl == ""){
+		// 		$kett_tgll = "";
+		// 	}else{
+		// 		$kett_tgll = $this->m_fungsi->tanggal_format_indonesia($data_pl->tgl);
+		// 	}
+		// 	$html .= '<tr>
+		// 		<td style="padding:5px 0">TANGGAL</td>
+		// 		<td style="text-align:center;padding:5px 0">:</td>
+		// 		<td style="padding:5px 0">'.$kett_tgll.'</td>
+		// 		<td style="padding:5px 0">KEPADA</td>
+		// 		<td style="text-align:center;padding:5px 0">:</td>
+		// 		<td style="padding:5px 0">'.$data_pl->nm_perusahaan.'</td>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="padding:5px 0">NO. SURAT JALAN</td>
+		// 		<td style="text-align:center;padding:5px 0">:</td>
+		// 		<td style="padding:5px 0">'.$data_pl->no_surat.'</td>
+		// 		<td style="padding:5px 0">ATTN</td>
+		// 		<td style="text-align:center;padding:5px 0">:</td>
+		// 		<td style="padding:5px 0">'.$data_pl->nama.'</td>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="padding:5px 0">NO. SO</td>
+		// 		<td style="text-align:center;padding:5px 0">:</td>
+		// 		<td style="padding:5px 0">'.$data_pl->no_so.'</td>
+		// 		<td style="padding:5px 0">ALAMAT</td>
+		// 		<td style="text-align:center;padding:5px 0">:</td>
+		// 		<td style="padding:5px 0">'.$data_pl->alamat.'</td>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="padding:5px 0">NO. PKB</td>
+		// 		<td style="text-align:center;padding:5px 0">:</td>
+		// 		<td style="padding:5px 0">'.$data_pl->no_pkb.'</td>
+		// 		<td style="padding:5px 0">NO. TELP / HP</td>
+		// 		<td style="text-align:center;padding:5px 0">:</td>
+		// 		<td style="padding:5px 0">'.$data_pl->no_telp.'</td>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="padding:5px 0">NO. KENDARAAN</td>
+		// 		<td style="text-align:center;padding:5px 0">:</td>
+		// 		<td style="padding:5px 0">'.$data_pl->no_kendaraan.'</td>
+		// 		<td style="padding:5px 0"></td>
+		// 		<td style="text-align:center;padding:5px 0"></td>
+		// 		<td style="padding:5px 0"></td>
+		// 	</tr>';
+        // $html .= '</table>';
+
+		// // ISI
+        // $html .= '<table cellspacing="0" style="font-size:11px !important;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">
+		// 	<tr>
+		// 		<th style="width:5% !important;height:15px"></th>
+		// 		<th style="width:25% !important;height:15px"></th>
+		// 		<th style="width:30% !important;height:15px"></th>
+		// 		<th style="width:8% !important;height:15px"></th>
+		// 		<th style="width:13% !important;height:15px"></th>
+		// 		<th style="width:19% !important;height:15px"></th>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="border:1px solid #000;padding:5px 0">NO</td>
+		// 		<td style="border:1px solid #000;padding:5px 0">NO. PO</td>
+		// 		<td style="border:1px solid #000;padding:5px 0">ITEM DESCRIPTION</td>
+		// 		<td style="border:1px solid #000;padding:5px 0">FLUTE</td>
+		// 		<td style="border:1px solid #000;padding:5px 0">QTY</td>
+		// 		<td style="border:1px solid #000;padding:5px 0">KETERANGAN</td>
+		// 	</tr>';
+
+		// 	// TAMBAH KOTAK KOSONG
+		// 	$colKosong = '<tr>
+		// 		<td style="border:1px solid #000;padding:23px 0 0"></td>
+		// 		<td style="border:1px solid #000;padding:23px 0 0"></td>
+		// 		<td style="border:1px solid #000;padding:23px 0 0"></td>
+		// 		<td style="border:1px solid #000;padding:23px 0 0"></td>
+		// 		<td style="border:1px solid #000;padding:23px 0 0"></td>
+		// 		<td style="border:1px solid #000;padding:23px 0 0"></td>
+		// 	</tr>';
+
+		// 	$no = 1;
+		// 	$tot_qty = 0;
+		// 	foreach ($data_detail->result() as $data ) {
+		// 		// 80 > ANUGRAH JAYA PACKINDO
+		// 		if($data->id_perusahaan == '80'){
+		// 			$plusColms = $colKosong;
+		// 		}else{
+		// 			$plusColms = '';
+		// 		}
+		// 		$html .= '<tr>
+		// 			<td style="border:1px solid #000;padding:5px 0">'.$no.'</td>
+		// 			<td style="border:1px solid #000;padding:5px 0">'.$data->no_po.'</td>
+		// 			<td style="border:1px solid #000;padding:5px">'.$data->ukuran.'</td>
+		// 			<td style="border:1px solid #000;padding:5px 0">'.$data->flute.'</td>
+		// 			<td style="border:1px solid #000;padding:5px 0">'.number_format($data->qty).' '.$data->qty_ket.'</td>
+		// 			<td style="border:1px solid #000;padding:5px 0"></td>
+		// 		</tr>'.$plusColms;
+		// 		$no++;
+		// 		$tot_qty+=$data->qty;
+		// 	}
+
+		// 	// TAMBAH KOTAK KOSONG
+		// 	if($data_pl->id_perusahaan == '80'){
+		// 		if($count == 1) {
+		// 			$xx = 4;
+		// 		}else if($count == 2){
+		// 			$xx = 3;
+		// 		}else if($count == 3){
+		// 			$xx = 1;
+		// 		}else if($count == 4){
+		// 			$xx = 0;
+		// 		}else if($count == 5){  
+		// 			$xx = 0;
+		// 		}
+		// 	}else{
+		// 		if($count == 1) {
+		// 			$xx = 5;
+		// 		}else if($count == 2){
+		// 			$xx = 4;
+		// 		}else if($count == 3){
+		// 			$xx = 3;
+		// 		}else if($count == 4){
+		// 			$xx = 2;
+		// 		}else if($count == 5){  
+		// 			$xx = 1;
+		// 		}
+		// 	}
+			
+		// 	if($count <= 5) {
+		// 		for($i = 0; $i < $xx; $i++){
+		// 			$html .= $colKosong;
+		// 		}
+		// 	}
+			
+		// 	// TOTAL
+		// 	$html .= '<tr>
+		// 		<td style="border:1px solid #000;padding:5px 0" colspan="4">TOTAL</td>
+		// 		<td style="border:1px solid #000;padding:5px 0">'.number_format($tot_qty).' '.$data->qty_ket.'</td>
+		// 		<td style="border:1px solid #000;padding:5px 0"></td>
+		// 	</tr>';
+
+        // $html .= '</table>';
+
+        // // TTD
+        // $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">
+		// 	<tr>
+		// 		<th style="width:14% !important;height:35px"></th>
+		// 		<th style="width:14% !important;height:35px"></th>
+		// 		<th style="width:14% !important;height:35px"></th>
+		// 		<th style="width:15% !important;height:35px"></th>
+		// 		<th style="width:15% !important;height:35px"></th>
+		// 		<th style="width:14% !important;height:35px"></th>
+		// 		<th style="width:14% !important;height:35px"></th>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="border:1px solid #000;padding:5px 0">DIBUAT</td>
+		// 		<td style="border:1px solid #000;padding:5px 0" colspan="2">DIKELUARKAN OLEH</td>
+		// 		<td style="border:1px solid #000;padding:5px 0">DI KETAHUI</td>
+		// 		<td style="border:1px solid #000;padding:5px 0">DI SETUJUI</td>
+		// 		<td style="border:1px solid #000;padding:5px 0">SOPIR</td>
+		// 		<td style="border:1px solid #000;padding:5px 0">DITERIMA</td>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="border:1px solid #000;height:80px"></td>
+		// 		<td style="border:1px solid #000;height:80px"></td>
+		// 		<td style="border:1px solid #000;height:80px"></td>
+		// 		<td style="border:1px solid #000;height:80px"></td>
+		// 		<td style="border:1px solid #000;height:80px"></td>
+		// 		<td style="border:1px solid #000;height:80px"></td>
+		// 		<td style="border:1px solid #000;height:80px"></td>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="border:1px solid #000;padding:5px 0">ARGA <br>ADMIN</td>
+		// 		<td style="border:1px solid #000;padding:5px 0">DION<br>PPIC</td>
+		// 		<td style="border:1px solid #000;padding:5px 0">BP. SUMARTO<br>SPV GUDANG</td>
+		// 		<td style="border:1px solid #000;padding:5px 0"></td>
+		// 		<td style="border:1px solid #000;padding:5px 0">BP. WEINARTO <br>GM</td>
+		// 		<td style="border:1px solid #000"></td>
+		// 		<td style="border:1px solid #000"></td>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="height:30px" colspan="7"></td>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="font-weight:normal;text-align:left;padding:3px 0" colspan="4">NOTE :</td>
+		// 		<td style="border:1px solid #000;padding:5px 0;font-weight:bold;font-size:12" colspan="3">PERHATIAN</td>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="font-weight:normal;text-align:left;padding:3px 0 3px 40px">WHITE</td>
+		// 		<td style="font-weight:normal;text-align:left;padding:3px 0" colspan="3" >: PEMBELI / CUSTOMER</td>
+		// 		<td style="border:1px solid #000;font-size:13px;line-height:2;font-weight:bold" colspan="3" rowspan="5">KLAIM BARANG KURANG / RUSAK<br/>TIDAK DI TERIMA SETELAH TRUK / SOPIR<br/>KELUAR LOKASI BONGKAR</td>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="font-weight:normal;text-align:left;padding:3px 0 3px 40px">PINK</td>
+		// 		<td style="font-weight:normal;text-align:left;padding:3px 0">: FINANCE</td>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="font-weight:normal;text-align:left;padding:3px 0 3px 40px">YELLOW</td>
+		// 		<td style="font-weight:normal;text-align:left;padding:3px 0">: ACC</td>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="font-weight:normal;text-align:left;padding:3px 0 3px 40px">GREEN</td>
+		// 		<td style="font-weight:normal;text-align:left;padding:3px 0">: ADMIN</td>
+		// 	</tr>
+		// 	<tr>
+		// 		<td style="font-weight:normal;text-align:left;padding:3px 0 3px 40px">BLUE</td>
+		// 		<td style="font-weight:normal;text-align:left;padding:3px 0">: EXPEDISI</td>
+		// 	</tr>';
+        // $html .= '</table>';
+
+        // CETAK
+		$judul = 'SURAT JALAN';
+        if($ctk == '0') {
+			$this->m_fungsi->newMpdf($judul, '', $html, 1, 10, 1, 10, 'P', 'A4', '');
+        }else{
+            echo $html;
+        }
+    }
 
 	//
 

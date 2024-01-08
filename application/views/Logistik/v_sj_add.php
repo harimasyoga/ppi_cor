@@ -309,7 +309,6 @@
 				data = JSON.parse(res)
 				if(data.data){
 					loadPilihanSJ()
-					swal.close()
 				}else{
 					swal(data.msg, '', 'error')
 				}
