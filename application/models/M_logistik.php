@@ -419,7 +419,7 @@ class M_logistik extends CI_Model
 			];
 
 			// CEK JIKA CUSTOMER DENGAN PO YANG SAMA ABAIKAN
-			$cekPL = $this->db->query("SELECT*FROM pl_box WHERE id_perusahaan='$r->id_pelanggan' AND no_po='$r->rk_kode_po'");
+			$cekPL = $this->db->query("SELECT*FROM pl_box WHERE id_perusahaan='$r->id_pelanggan' AND no_po='$r->rk_kode_po' AND no_pl_urut='$urut'");
 			if($cekPL->num_rows() == 0){
 				$insertPl = $this->db->insert('pl_box', $data);
 			}else{
@@ -503,6 +503,7 @@ class M_logistik extends CI_Model
 		$this->db->set('no_pkb', $noPKB);
 		$this->db->where('no_po', $pl->no_po);
 		$this->db->where('no_surat', $pl->no_surat);
+		$this->db->where('no_pl_urut', $pl->no_pl_urut);
 		$updateNO = $this->db->update('pl_box');
 
 		return [
