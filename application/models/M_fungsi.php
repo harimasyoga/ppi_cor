@@ -837,4 +837,82 @@ class M_fungsi extends CI_Model {
 		return $hari_ini;
 	}
 
+	function blnRomami($tgl) {
+		$tanggal = explode('-', $tgl); 
+        $bulan = $tanggal[1];
+
+		switch ($bulan) {
+			case '01':
+				$blnRomami = "I";
+				break;
+			case '02':
+				$blnRomami = "II";
+				break;
+			case '03':
+				$blnRomami = "III";
+				break;
+			case '04':
+				$blnRomami = "IV";
+				break;
+			case '05':
+				$blnRomami = "V";
+				break;
+			case '06':
+				$blnRomami = "VI";
+				break;
+			case '07':
+				$blnRomami = "VII";
+				break;
+			case '08':
+				$blnRomami = "VIII";
+				break;
+			case '09':
+				$blnRomami = "IX";
+				break;
+			case '10':
+				$blnRomami = "X";
+				break;
+			case '11':
+				$blnRomami = "XI";
+				break;
+			case '12':
+				$blnRomami = "XII";
+				break;
+			default:
+			$blnRomami = "";
+		}
+
+		return $blnRomami;
+	}
+
+	function angkaRomawi($angka)
+	{
+		$angka = intval($angka);
+		$result = '';
+		
+		$array = array(
+			'M' => 1000,
+			'CM' => 900,
+			'D' => 500,
+			'CD' => 400,
+			'C' => 100,
+			'XC' => 90,
+			'L' => 50,
+			'XL' => 40,
+			'X' => 10,
+			'IX' => 9,
+			'V' => 5,
+			'IV' => 4,
+			'I' => 1
+		);
+		
+		foreach($array as $roman => $value){
+			$matches = intval($angka/$value);
+			$result .= str_repeat($roman,$matches);
+			$angka = $angka % $value;
+		}
+		
+		return $result;
+	}
+
 }
