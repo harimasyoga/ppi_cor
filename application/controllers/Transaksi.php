@@ -20,7 +20,9 @@ class Transaksi extends CI_Controller
 			'judul' => "Purchase Order",
 			'produk' => $this->db->query("SELECT * FROM m_produk order by id_produk")->result(),
 			'sales' => $this->db->query("SELECT * FROM m_sales order by id_sales")->result(),
-			'hub' => $this->db->query("SELECT * FROM m_hub order by id_hub")->result(),
+			'hub' => $this->db->query("SELECT a.*,4800000000-(select sum(c.qty*price_inc)jum from trs_po b JOIN trs_po_detail c ON b.no_po=c.no_po where b.id_hub=a.id_hub
+			group by b.id_hub )sisa_hub FROM m_hub a
+			order by id_hub")->result(),
 			'pelanggan' => $this->db->query("SELECT * FROM m_pelanggan a 
             left join m_kab b on a.kab=b.kab_id 
             Left Join m_sales c on a.id_sales=c.id_sales
