@@ -20,7 +20,14 @@ class Master extends CI_Controller
 			'judul' => "Dashboard",
 		);
 		$this->load->view('header',$data );
-		$this->load->view('home');
+
+		if (in_array($this->session->userdata('level'), ['Admin' ,'Owner' ,'Keuangan' ,'User','Hub']))
+		{			
+			$this->load->view('dashboard');
+		}else{
+			$this->load->view('home');
+		}
+
 		$this->load->view('footer');
 	}
 	function Produk()
@@ -487,6 +494,87 @@ class Master extends CI_Controller
 			'hub' => $data,
 			'cek_po' => $cekPO,
 		));
+	}
+
+	function rekap_hub()
+	{
+		$html   = '';
+
+		$th_hub = $this->input->post('th_hub');
+		if($th_hub){
+			$tahun  = $th_hub;
+		}else{
+			$tahun  = date('Y');
+		}
+
+		$level   = $this->session->userdata('level');
+		$nm_user = $this->session->userdata('nm_user');
+
+		if($level =='Hub')
+		{
+			$cek     = $this->db->query("SELECT*FROM m_hub where nm_hub='$nm_user' ")->row();
+			$cek_data = "WHERE a.id_hub in ('$cek->id_hub')";
+		}else{
+
+			$cek_data = '';
+		}
+		
+		$query  = $this->db->query("SELECT a.*,IFNULL((select sum(c.qty*price_inc)jum from trs_po b JOIN trs_po_detail c ON b.no_po=c.no_po where b.id_hub=a.id_hub and YEAR(b.tgl_po) in ('$tahun')
+		group by b.id_hub ,YEAR(b.tgl_po)),0) total_hub FROM m_hub a $cek_data
+		order by id_hub")->result();
+
+		$html .='<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
+		$html .='<table class="table table-bordered table-striped">
+		<thead class="color-tabel">
+			<tr>
+				<th style="text-align:center">NO</th>
+				<th style="text-align:center">Nama HUB</th>
+				<th style="text-align:center">OMSET</th>
+				<th style="text-align:center">SISA PLAFON</th>
+				<th style="text-align:center">TAHUN</th>
+			</tr>
+		</thead>';
+		$i            = 0;
+		$total        = 0;
+		$total_rata   = 0;
+		$sisa_hub     = 0;
+		if($query)
+		{
+			foreach($query as $r){
+				$i++;
+				$html .= '</tr>
+					<td style="text-align:center">'.$i.'</td>
+					<td style="text-align:left">'.$r->nm_hub.'</td>
+					<td style="text-align:right">'.number_format($r->total_hub, 0, ",", ".").'</td>
+					<td style="text-align:right">'.number_format(4800000000-$r->total_hub, 0, ",", ".").'</td>
+					<td style="text-align:right">'.$tahun.'</td>
+				</tr>';
+				$total    += $r->total_hub;
+				$sisa_hub += 4800000000-$r->total_hub;
+			}
+			
+			$html .='<tr>
+					<th style="text-align:center" colspan="2" >Total</th>
+					<th style="text-align:right">'.number_format($total, 0, ",", ".").'</th>
+					<th style="text-align:right">'.number_format($sisa_hub, 0, ",", ".").'</th>
+					<th style="text-align:right"></th>
+				</tr>
+				';
+			
+			$html .='</table>
+			</div>';
+		}else{
+			$html .='<tr>
+				<th style="text-align:center" colspan="4" >Data Kosong</th>
+			</tr>
+			';
+		
+		$html .='</table>
+		</div>';
+		}
+
+		echo $html;
+		
 	}
 	
 	function getEditPelanggan()

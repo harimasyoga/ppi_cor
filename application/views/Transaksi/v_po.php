@@ -124,9 +124,9 @@
 									<div class="col-md-2">Tgl PO</div>
 									<div class="col-md-3">
 										<?php if (in_array($this->session->userdata('level'), ['Admin','User']))  { ?>
-											<input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>"> 
+											<input type="date" class="form-control" name="tgl_po" id="tgl_po" onchange="pilih_hub(0)" value="<?= date('Y-m-d') ?>"> 
 										<?php } else { ?>
-											<input type="date" class="form-control" name="tgl_po" id="tgl_po" value="<?= date('Y-m-d') ?>" readonly> 
+											<input type="date" class="form-control" name="tgl_po" id="tgl_po" onchange="pilih_hub(0)" value="<?= date('Y-m-d') ?>" readonly> 
 										<?php } ?>
 									</div>
 
@@ -164,7 +164,7 @@
 									</div>
 								</div>
 								<div class="card-body row" style="padding : 5px;font-weight:bold">
-									<div class="col-md-2">HUB</div>
+									<div class="col-md-2">ATTN</div>
 									<div class="col-md-3">
 										<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" >
 											<!-- <option value="">Pilih</option> -->
@@ -571,10 +571,54 @@
 		
 	}
 
+	function pilih_hub(id_hub)
+	{
+		var tgl_po = $('#tgl_po').val();
+		$.ajax({
+			type: 'POST',
+			url: "<?= base_url(); ?>Transaksi/load_hub",
+			data: { tgl_po },
+			dataType: 'json',
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success"){							
+					option = "<option>-- Pilih --</option>";
+					$.each(data.data, function(index, val) {
+
+					option += "<option value='"+val.id_hub+"'>"+val.id_hub+ " | " +val.nm_hub+ " | " + format_angka(val.sisa_hub) + "</option>";
+					
+					});
+
+					
+					if(id_hub==0)
+					{
+						$('#id_hub').html(option);
+
+					}else{		
+						$('#id_hub').html(option);
+						$('#id_hub').val(id_hub).trigger('change');
+					}
+					swal.close();
+				}else{	
+					option += "<option value=''></option>";
+					$('#id_hub').html(option);		
+					swal.close();
+				}
+			}
+		});
+	}
+
 	function load_data() 
 	{
-
-
 		var table = $('#datatable').DataTable();
 
 		table.destroy();
@@ -709,8 +753,9 @@
 		kode_po         = $("#kode_po").val();
 		// eta             = $("#eta").val();
 		sales           = $("#id_sales").val();
+		id_hub          = $("#id_hub").val();
 
-		if (id_pelanggan == '' || kode_po == '' || sales=='' ) {
+		if (id_pelanggan == '' || kode_po == '' || sales=='' || id_hub=='') {
 			// toastr.info('Harap Lengkapi Form');
 			
 			swal.close();
@@ -941,8 +986,8 @@
 
 				$("#no_po").val(data.header.no_po);
 				$("#tgl_po").val(data.header.tgl_po);
+				pilih_hub(data.header.id_hub);
 				
-				$('#id_hub').val(data.header.id_hub).trigger('change');
 				$('#id_pelanggan').val(data.header.id_pelanggan).trigger('change');
 
 				kodepo    = (data.header.kode_po == '' ) ? '-' : data.header.kode_po ;
@@ -1522,8 +1567,9 @@
 						}else {
 							$join = '-';
 						}
-						var qty_po        = $("#qty"+id).val()
-						var tgl_po        = $("#tgl_po").val()
+						var qty_po              = $("#qty"+id).val()
+						var monitoring_kirim    = Math.round((qty_po.split('.').join('')/45))*7
+						var tgl_po              = $("#tgl_po").val()
 
 						inputHari         = 45;
 						var hariKedepan   = new Date(new Date(tgl_po).getTime() + (inputHari * 24 * 60 * 60 * 1000));
@@ -1564,6 +1610,9 @@
 								<td><b>Tipe Box </b>: ${val.tipe_box}</td>
 								<td><b>Joint </b>: ${$join}</td>
 								<td><b>Toleransi </b>: ${val.toleransi_kirim} %</td>
+							</tr>
+							<tr style=list-style:none;>
+								<td colspan="3"><b>Monitoring Pengiriman </b>: ${monitoring_kirim}</td></td>
 							</tr>`;
 							<?php if ($this->session->userdata('level') != "PPIC"){ ?>
 							html_produk += `
