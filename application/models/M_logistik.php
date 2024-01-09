@@ -310,6 +310,35 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function closeGudang()
+	{
+		// GET DATA
+		$kode_po = $_POST["kode_po"];
+		$getPO = $this->db->query("SELECT*FROM m_gudang g
+		INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+		WHERE w.kode_po='$kode_po'");
+		foreach($getPO->result() as $po){
+			$this->db->set('gd_status', 'Close');
+			$this->db->where('id_gudang', $po->id_gudang);
+			$updateGudang = $this->db->update('m_gudang');
+		}
+
+		// GET DATA
+		$id_gudang = $_POST["id_gudang"];
+		$getData = $this->db->query("SELECT p.nm_pelanggan,i.nm_produk,g.* FROM m_gudang g
+		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
+		INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
+		WHERE g.id_gudang='$id_gudang'")->row();
+
+		return [
+			'data' => $updateGudang,
+			'gd_id_pelanggan' => $getData->gd_id_pelanggan,
+			'gd_id_produk' => $getData->gd_id_produk,
+			'nm_pelanggan' => $getData->nm_pelanggan,
+			'nm_produk' => $getData->nm_produk,
+		];
+	}
+
 	//
 
 	function simpanCartRKSJ()

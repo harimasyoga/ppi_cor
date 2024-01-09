@@ -132,4 +132,31 @@
 		})
 	}
 
+	function closeGudang(kode_po, id_gudang) {
+		$.ajax({
+			url: '<?php echo base_url('Logistik/closeGudang')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				kode_po, id_gudang
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					rincianDataGudang(data.gd_id_pelanggan, data.gd_id_produk, data.nm_pelanggan, data.nm_produk)
+					reloadTable()
+				}
+			}
+		})
+	}
+
 </script>
