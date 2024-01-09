@@ -1285,9 +1285,18 @@ class Logistik extends CI_Controller
 			$row[] = '<a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".','."'".$r->nm_pelanggan."'".','."'".$r->nm_produk."'".')">'.$kategori.'</a>';
 			$row[] = '<a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".','."'".$r->nm_pelanggan."'".','."'".$r->nm_produk."'".')">'.$r->nm_produk.'</a>';
 
-			$queryKiriman = $this->db->query("SELECT SUM(qty_muat) AS qty_muat FROM m_rencana_kirim WHERE id_pelanggan='$r->gd_id_pelanggan' AND id_produk='$r->gd_id_produk' AND rk_status='Close' AND id_pl_box IS NOT NULL GROUP BY id_pelanggan,id_produk");
-			($queryKiriman->num_rows() == 0) ? $kiriman = $r->qty : $kiriman = $r->qty - $queryKiriman->row()->qty_muat;
-			$row[] = '<div style="text-align:right"><a href="javascript:void(0)" style="color:#212529" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".','."'".$r->nm_pelanggan."'".','."'".$r->nm_produk."'".')">'.number_format($kiriman,0,",",".").'</a></div>';
+			// KIRIMAN
+			$queryKiriman = $this->db->query("SELECT 
+			(SELECT SUM(r.qty_muat) FROM m_rencana_kirim r
+			WHERE g.id_gudang=r.id_gudang AND g.gd_id_pelanggan=r.id_pelanggan AND g.gd_id_produk=r.id_produk AND rk_status='Close' AND id_pl_box IS NOT NULL
+			GROUP BY id_pelanggan,id_produk) AS qty_muat,
+			g.* FROM m_gudang g
+			WHERE g.gd_cek_spv='Close' AND g.gd_status='Open' AND gd_id_pelanggan='$r->gd_id_pelanggan' AND g.gd_id_produk='$r->gd_id_produk'");
+			$kiriman = 0;
+			foreach($queryKiriman->result() as $kir){
+				$kiriman += ($kir->qty_muat == null) ? 0 : $kir->qty_muat;
+			}
+			$row[] = '<div style="text-align:right"><a href="javascript:void(0)" style="color:#212529;font-weight:bold" onclick="rincianDataGudang('."'".$r->gd_id_pelanggan."'".','."'".$r->gd_id_produk."'".','."'".$r->nm_pelanggan."'".','."'".$r->nm_produk."'".')">'.number_format($r->qty - $kiriman,0,",",".").'</a></div>';
 			$data[] = $row;
 		}
 
@@ -1313,19 +1322,26 @@ class Logistik extends CI_Controller
 
 			$getKodePO = $this->db->query("SELECT w.kode_po,g.* FROM m_gudang g
 			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close' AND g.gd_status='Open'
+			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close'
+			-- AND g.gd_status='Open'
 			GROUP BY w.kode_po");
 			$sumAllQty = 0;
 			$sumAllTon = 0;
 			foreach($getKodePO->result() as $r){
+				($r->gd_status == 'Open') ? $close = 'onclick="closeGudang('."'".$r->kode_po."'".','."'".$r->id_gudang."'".')"' : $close = 'disabled' ;
 				$html .='<tr>
-					<td style="background:#dee2e6;padding:6px;font-weight:bold;border:1px solid #bbb" colspan="4">'.$r->kode_po.'</td>
+					<td style="background:#dee2e6;padding:6px;font-weight:bold;border:1px solid #bbb" colspan="3">'.$r->kode_po.'</td>
+					<td style="background:#dee2e6;padding:6px;font-weight:bold;border:1px solid #bbb;text-align:center">
+						<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" '.$close.'>close</button>
+					</td>
 				</tr>';
 
 				$getIsi = $this->db->query("SELECT w.kode_po,g.*,c.* FROM m_gudang g
 				INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
 				INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-				WHERE w.kode_po='$r->kode_po' AND g.gd_id_produk='$r->gd_id_produk' AND g.gd_cek_spv='Close' AND g.gd_status='Open'");
+				WHERE w.kode_po='$r->kode_po' AND g.gd_id_produk='$r->gd_id_produk' AND g.gd_cek_spv='Close'
+				-- AND g.gd_status='Open'
+				");
 				$sumIsiQty = 0;
 				$sumIsiTon = 0;
 				foreach($getIsi->result() as $isi){
@@ -1360,7 +1376,7 @@ class Logistik extends CI_Controller
 					AND r.rk_status='Close' AND r.id_pl_box IS NOT NULL");
 					if($getKiriman->num_rows() == 0){
 						$html .='';
-						$qtyAkhir = $isi->gd_good_qty;
+						$qtyAkhir = ($isi->gd_status == 'Open') ? $isi->gd_good_qty : 0;
 					}else{
 						$qty_kirim = 0;
 						foreach($getKiriman->result() as $kir){
@@ -1372,10 +1388,10 @@ class Logistik extends CI_Controller
 							$qty_kirim += $kir->qty_muat;
 						}
 
-						$qtyAkhir = $isi->gd_good_qty - $qty_kirim;
+						$qtyAkhir = ($isi->gd_status == 'Open') ? $isi->gd_good_qty - $qty_kirim : 0;
 						$html .='<tr>
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">SISA</td>
-							<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">'.number_format($qtyAkhir,0,",",".").'</td>
+							<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">'.number_format($isi->gd_good_qty - $qty_kirim,0,",",".").'</td>
 							<td style="border:1px solid #dee2e6;padding:6px" colspan="2"></td>
 						</tr>';
 					}
@@ -1384,25 +1400,25 @@ class Logistik extends CI_Controller
 					$sumIsiTon += $bb;
 				}
 
-				// if($getIsi->num_rows() != 1){
-				// 	$html .='<tr>
-				// 		<td style="border:1px solid #dee2e6;padding:6px;text-align:center;font-weight:bold">TOTAL</td>
-				// 		<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">'.number_format($sumIsiQty,0,",",".").'</td>
-				// 		<td style="border:1px solid #dee2e6;padding:6px" colspan="2"></td>
-				// 	</tr>';
-				// }
+				if($getIsi->num_rows() != 1){
+					$html .='<tr>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">TOTAL</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">'.number_format($sumIsiQty,0,",",".").'</td>
+						<td style="border:1px solid #dee2e6;padding:6px" colspan="2"></td>
+					</tr>';
+				}
 
 				$sumAllQty += $sumIsiQty;
 				$sumAllTon += $sumIsiTon;
 			}
 
-			if($getKodePO->num_rows() != 1 || $getIsi->num_rows() == 1){
+			// if($getKodePO->num_rows() != 1 || $getIsi->num_rows() == 1){
 				$html.='<tr style="background:#dee2e6">
-					<td style="padding:6px;text-align:center;font-weight:bold;border:1px solid #a9a9a9">TOTAL KESELURUHAN</td>
+					<td style="padding:6px;text-align:right;font-weight:bold;border:1px solid #a9a9a9">TOTAL KESELURUHAN</td>
 					<td style="padding:6px;text-align:right;font-weight:bold;border:1px solid #a9a9a9">'.number_format($sumAllQty,0,",",".").'</td>
 					<td style="padding:6px;border:1px solid #a9a9a9" colspan="2"></td>
 				</tr>';
-			}
+			// }
 
 		$html .= '</table>';
 
@@ -1412,6 +1428,12 @@ class Logistik extends CI_Controller
 	function loadGudang()
 	{
 		$result = $this->m_logistik->loadGudang();
+		echo json_encode($result);
+	}
+
+	function closeGudang()
+	{
+		$result = $this->m_logistik->closeGudang();
 		echo json_encode($result);
 	}
 

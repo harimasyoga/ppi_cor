@@ -1447,8 +1447,8 @@ class Plan extends CI_Controller
 						<th style="padding:6px">START</th>
 						<th style="padding:6px">END</th>
 						<th style="padding:6px">C.OFF</th>
-						<th style="padding:6px 22px">KG</th>
 						<th style="padding:6px 22px">RM</th>
+						<th style="padding:6px 22px">KG</th>
 						<th style="padding:6px">TGL KIRIM</th>
 						<th style="padding:6px">PLAN FLEXO</th>
 						<th style="padding:6px 24px">NEXT</th>
