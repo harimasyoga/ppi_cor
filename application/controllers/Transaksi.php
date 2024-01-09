@@ -23,7 +23,7 @@ class Transaksi extends CI_Controller
 			'sales' => $this->db->query("SELECT * FROM m_sales order by id_sales")->result(),
 			'hub' => $this->db->query("SELECT a.*,4800000000-IFNULL((select sum(c.qty*price_inc)jum from trs_po b JOIN trs_po_detail c ON b.no_po=c.no_po where b.id_hub=a.id_hub and YEAR(b.tgl_po) in ('$tahun')
 			group by b.id_hub ,YEAR(b.tgl_po)),0) TOTAL_HUB FROM m_hub a
-			order by id_hub x")->result(),
+			order by id_hub")->result(),
 			'pelanggan' => $this->db->query("SELECT * FROM m_pelanggan a 
             left join m_kab b on a.kab=b.kab_id 
             Left Join m_sales c on a.id_sales=c.id_sales
