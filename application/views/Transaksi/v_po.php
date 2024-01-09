@@ -171,7 +171,7 @@
 											<?php foreach ($hub as $r) : ?>
 												<option value="<?= $r->id_hub ?>" detail="
 												<?=$r->id_hub."|".$r->nm_hub ?>">
-													<?= $r->id_hub . " | " . $r->nm_hub ?>
+													<?= $r->id_hub . " | " . $r->nm_hub . " | <b>" . number_format($r->sisa_hub, 0, ",", ".") ."</b>" ?>
 												</option>
 											<?php endforeach ?>
 										</select>

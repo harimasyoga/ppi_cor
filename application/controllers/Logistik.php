@@ -137,7 +137,7 @@ class Logistik extends CI_Controller
 		$no_inv   = $this->input->post('no_inv');
 
 		$queryh   = "SELECT*FROM invoice_header where id='$id' and no_invoice='$no_inv'";
-		$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no_inv' ";
+		$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no_inv' ORDER BY no_surat ";
 
 		$header   = $this->db->query($queryh)->row();
 		$detail    = $this->db->query($queryd)->result();
