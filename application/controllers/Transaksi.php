@@ -208,6 +208,33 @@ class Transaksi extends CI_Controller
 
         echo json_encode($query);
     }
+
+	function load_hub()
+    {
+		$tgl_po   = $this->input->post('tgl_po');
+		$tanggal  = explode('-',$tgl_po);
+		$tahun    = $tanggal[0];
+
+        $query = $this->db->query("SELECT a.*,4800000000-IFNULL((select sum(c.qty*price_inc)jum from trs_po b JOIN trs_po_detail c ON b.no_po=c.no_po where b.id_hub=a.id_hub and YEAR(b.tgl_po) in ('$tahun')
+		group by b.id_hub ,YEAR(b.tgl_po)),0) sisa_hub FROM m_hub a
+		order by id_hub")->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
     
 	function cek_plan_sementara()
     {
@@ -350,19 +377,21 @@ class Transaksi extends CI_Controller
 
 		if ($jenis == "po") {
 
-			if($this->session->userdata('username')=='ppismg'){
-				$cek_data = 'WHERE id_sales in ("2","3")';
-			}else if($this->session->userdata('username')=='hub_solo'){
-				$cek_data = 'WHERE status_app3 in ("Y") and id_hub in ("1")';
-			}else if($this->session->userdata('username')=='hub_jkt'){
-				$cek_data = 'WHERE status_app3 in ("Y") and id_hub in ("2")';
-			}else if($this->session->userdata('username')=='hub_smg'){
-				$cek_data = 'WHERE status_app3 in ("Y") and id_hub in ("3")';
-			}else if($this->session->userdata('username')=='hub_sby'){
-				$cek_data = 'WHERE status_app3 in ("Y") and id_hub in ("4")';
+			$level   = $this->session->userdata('level');
+			$nm_user = $this->session->userdata('nm_user');
+
+			if($level =='Hub')
+			{
+				$cek     = $this->db->query("SELECT*FROM m_hub where nm_hub='$nm_user' ")->row();
+				$cek_data = "WHERE status_app3 in ('Y') and id_hub in ('$cek->id_hub')";
 			}else{
-				$cek_data = '';
-			}
+
+				if($this->session->userdata('username')=='ppismg'){
+					$cek_data = 'WHERE id_sales in ("2","3")';
+				}else{
+					$cek_data = '';
+				}
+			}			
 
 			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by a.tgl_po desc, id desc")->result();
 			$i = 1;
