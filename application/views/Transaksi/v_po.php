@@ -1612,7 +1612,8 @@
 								<td><b>Toleransi </b>: ${val.toleransi_kirim} %</td>
 							</tr>
 							<tr style=list-style:none;>
-								<td colspan="3"><b>Monitoring Pengiriman </b>: ${monitoring_kirim}</td></td>
+								<td colspan="3"><b>Monitoring Pengiriman </b>: ${monitoring_kirim} Pcs / Minggu
+								</td>
 							</tr>`;
 							<?php if ($this->session->userdata('level') != "PPIC"){ ?>
 							html_produk += `
