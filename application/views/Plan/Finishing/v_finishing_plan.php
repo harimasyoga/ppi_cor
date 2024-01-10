@@ -26,7 +26,7 @@
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row">
-				<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') { ?>
+				<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'User') { ?>
 					<div class="col-md-12">
 					<div class="card">
 						<div class="card-body p-0">
@@ -639,7 +639,7 @@
 					$("#joint").html(opJoint).prop("disabled", tms)
 
 					let htmlBtnGantiTgl = '';
-					(data.plan_flexo.total_prod_fs == 0 && data.plan_flexo.status_fs == 'Open' && (urlAuth == 'Admin' || urlAuth == 'PPIC')) ?
+					(data.plan_flexo.total_prod_fs == 0 && data.plan_flexo.status_fs == 'Open' && (urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'User')) ?
 						htmlBtnGantiTgl = `<div class="card-body row" style="padding:0 20px 5px">
 							<div class="col-md-2"></div>
 							<div class="col-md-10">
@@ -711,7 +711,7 @@
 						onClickDonePlanFlexo = 'disabled'
 					}
 
-					if(urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'Flexo'){
+					if(urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'Flexo' || urlAuth == 'User'){
 						if((data.plan_flexo.total_prod_fs == 0 || data.plan_flexo.total_prod_fs != 0) && data.plan_flexo.status_fs == 'Open'){
 							$("#btn-aksi-produksi").html(`<div class="card-body row" style="padding:20px 20px 0;font-weight:bold">
 								<div class="col-md-12">
@@ -722,7 +722,7 @@
 							$("#btn-aksi-produksi").html('')
 						}
 
-						if(urlAuth == 'Admin' || urlAuth == 'PPIC'){
+						if(urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'User'){
 							$("#btn-add-plan-finishing").html(`<div class="card-body row" style="padding:0 20px 17px;font-weight:bold">
 								<div class="col-md-6">
 									<button type="button" class="btn btn-primary btn-block" style="margin-bottom:3px" ${onclickSelesaiFs}><i class="fa fa-check"></i> <b>SELESAI FINISHING</b></button>
@@ -784,7 +784,7 @@
 
 					$("#card-produksi").hide()
 
-					if(urlAuth == 'Admin' || urlAuth == 'PPIC'){
+					if(urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'User'){
 						$("#btn-aksi-produksi").html('')
 						$("#btn-add-plan-finishing").html(`<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 							<div class="col-md-12">
