@@ -49,6 +49,16 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	public function Timbangan()
+	{
+		$data = array(
+			'judul' => "Timbangan",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_timbangan');
+		$this->load->view('footer');
+	}
+
 	// public function Surat_Jalan()
 	// {
 	// 	$data = array(
@@ -257,6 +267,46 @@ class Logistik extends CI_Controller
 								<i class="material-icons">print</i>
 							</a>';
 					}
+				} else {
+					$aksi = '';
+				}
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+
+				$i++;
+			}
+		}else if ($jenis == "Timbangan") {
+			$query = $this->db->query("SELECT * FROM m_jembatan_timbang ORDER BY date_masuk")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+
+				$print    = base_url("Logistik/printTimbangan?id=") . $r->id_timbangan;
+				$id       = "'$r->id_timbangan'";
+
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<div class="text-center">'.$r->permintaan.'</div>';
+				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->date_masuk).'</div>';
+				$row[] = $r->suplier;
+				$row[] = '<div class="text-right">'.number_format($r->berat_bersih).'</div>';
+				$aksi = "";
+
+				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				{
+						$aksi = '
+							<a class="btn btn-sm btn-warning" onclick="tampil_edit('."'".$r->id_timbangan."'".','."'detail'".')" title="EDIT DATA" >
+								<b><i class="fa fa-edit"></i> </b>
+							</a> 
+
+							<button type="button" title="DELETE"  onclick="deleteData(' . $id . ')" class="btn btn-danger btn-sm">
+								<i class="fa fa-trash-alt"></i>
+							</button> 
+
+							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/printTimbangan?id=" . $r->id_timbangan . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+							
+							';
+					
 				} else {
 					$aksi = '';
 				}
