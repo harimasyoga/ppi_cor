@@ -197,7 +197,7 @@
 								</div>
 							</div>
 
-							<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'Finishing') { ?>
+							<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'Finishing' || $this->session->userdata('level') == 'User') { ?>
 								<div id="btn-aksi-produksi"></div>
 							<?php } ?>
 						</div>
