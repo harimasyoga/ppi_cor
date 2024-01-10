@@ -2385,7 +2385,7 @@ class Logistik extends CI_Controller
 							$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$sjpo->no_pkb."&top=100&ctk=0").'" title="'.$sjpo->no_surat.'" >PRINT</a>' :
 							$btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
 
-						($this->session->userdata('level') == 'Admin') ? $eNoSj = 'onchange="editPengirimanNoSJ('."'".$sjpo->id."'".')"' : $eNoSj = 'disabled';
+						($this->session->userdata('level') == 'Admin' && $sjpo->cetak_sj == 'not') ? $eNoSj = 'onchange="editPengirimanNoSJ('."'".$sjpo->id."'".')"' : $eNoSj = 'disabled';
 						$html .='<tr style="background:#dee2e6">
 							<td style="padding:4px 6px;border:1px solid #bbb;font-weight:bold;display:flex">
 								'.$this->m_fungsi->angkaRomawi($no).' - NO. SURAT JALAN : &nbsp;<input type="number" class="form-control" id="pp-nosj-'.$sjpo->id.'" style="height:100%;width:50px;text-align:center;padding:2px 4px" value="'.$noSJ[0].'" '.$eNoSj.'>/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'/'.$noSJ[4].'&nbsp;'.$pajak.'
@@ -2472,6 +2472,9 @@ class Logistik extends CI_Controller
         $ctk = $_GET['ctk'];
         $html = '';
 
+		// UPDATE CETAK
+		$this->db->query("UPDATE pl_box SET cetak_sj='acc' WHERE no_pkb='$jenis'");
+
         $data_pl = $this->db->query("SELECT h.id_hub,h.pimpinan,h.alamat AS alamat_hub,b.nm_pelanggan,b.attn,b.alamat_kirim,b.no_telp,a.* FROM pl_box a
 		INNER JOIN m_pelanggan b ON a.id_perusahaan=b.id_pelanggan
 		INNER JOIN trs_po p ON a.no_po=p.kode_po
@@ -2479,9 +2482,9 @@ class Logistik extends CI_Controller
 		WHERE a.no_pkb='$jenis'
 		GROUP BY a.no_pkb")->row();
 
-        // KOP PPI
-		if($data_pl->id_hub != null){
-			$pt = $data_pl->pimpinan;
+        // KOP
+		if($data_pl->id_hub != null && $data_pl->kop_sj == null){
+			$pt = $data_pl->nm_hub	;
 			$rowspan = 2;
 			$alamat = '<tr>
 				<td style="font-size:14px;height:71px">'.$data_pl->alamat_hub.'</td>
