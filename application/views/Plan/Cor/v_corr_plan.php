@@ -32,7 +32,7 @@
 		<div class="container-fluid">
 
 			<div class="row">
-				<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') { ?>
+				<?php if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])) { ?>
 					<div class="col-md-12">
 						<div class="card">
 							<div class="card-body p-0">
@@ -217,7 +217,7 @@
 								</div>
 							</div>
 
-							<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'Corrugator') { ?>
+							<?php if(in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator','User'])) { ?>
 								<div id="btn-aksi-produksi"></div>
 							<?php } ?>
 						</div>
@@ -326,7 +326,7 @@
 						<div id="btn-ganti-tgl"></div>
 
 						<div id="group_ganti_kualitas">
-							<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') {
+							<?php if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])) {
 								$gKualitas = 'style="padding:20px 20px 5px;font-weight:bold"';
 								$dis = '';
 							}else{
@@ -516,7 +516,7 @@
 						</div>
 
 						<br/>
-						<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') { ?>
+						<?php if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])) { ?>
 							<div id="btn-aksi-plan"></div>
 						<?php } ?>
 					</div>
@@ -1842,7 +1842,7 @@
 					$("#mesin").html(optMesin).prop("disabled", tms)
 
 					let htmlBtnGantiTgl = '';
-					(data.wo.status_plan == 'Open' && data.wo.total_cor_p == 0 && (urlAuth == 'Admin' || urlAuth == 'PPIC')) ?
+					(data.wo.status_plan == 'Open' && data.wo.total_cor_p == 0 && (urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'User')) ?
 						htmlBtnGantiTgl = `<div class="card-body row" style="padding:0 20px 5px">
 							<div class="col-md-2"></div>
 							<div class="col-md-10">
