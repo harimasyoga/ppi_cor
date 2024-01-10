@@ -67,20 +67,18 @@
 			<div class="modal-body">
 				<form role="form" method="post" id="myForm">
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">PIMPINAN</label>
+						<label class="col-sm-2 col-form-label">PERMINTAAN</label>
 						<div class="col-sm-10">
 							<input type="hidden" class="form-control" id="kode_lama">
 							<input type="text" class="form-control" id="pimpinan" placeholder="ATAS NAMA" autocomplete="off" maxlength="50" oninput="this.value = this.value.toUpperCase()">
 						</div>
 					</div>
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">NAMA HUB</label>
+						<label class="col-sm-2 col-form-label">SUPPLIER</label>
 						<div class="col-sm-10">
-							<input type="hidden" class="form-control" id="nm_old">
-							<input type="text" class="form-control" id="nm_hub" placeholder="NAMA PELANGGAN" autocomplete="off" maxlength="50" oninput="this.value = this.value.toUpperCase()">
+							<textarea class="form-control" id="alamat" placeholder="ALAMAT KANTOR" oninput="this.value = this.value.toUpperCase()"></textarea>
 						</div>
 					</div>
-					
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">ALAMAT</label>
 						<div class="col-sm-10">
@@ -88,21 +86,85 @@
 						</div>
 					</div>
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">KODE POS</label>
+						<label class="col-sm-2 col-form-label">NO POLISI</label>
+						<div class="col-sm-10">
+							<textarea class="form-control" id="alamat" placeholder="ALAMAT KANTOR" oninput="this.value = this.value.toUpperCase()"></textarea>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">MASUK</label>
+						<div class="col-sm-10">
+							<input type="hidden" class="form-control" id="nm_old">
+							<input type="text" class="form-control" id="nm_hub" placeholder="NAMA PELANGGAN" autocomplete="off" maxlength="50" oninput="this.value = this.value.toUpperCase()">
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">KELUAR</label>
+						<div class="col-sm-10">
+							<input type="hidden" class="form-control" id="nm_old">
+							<input type="text" class="form-control" id="nm_hub" placeholder="NAMA PELANGGAN" autocomplete="off" maxlength="50" oninput="this.value = this.value.toUpperCase()">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">BARANG</label>
+						<div class="col-sm-10">
+							<textarea class="form-control" id="alamat" placeholder="ALAMAT KANTOR" oninput="this.value = this.value.toUpperCase()"></textarea>
+						</div>
+					</div>
+					
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">BERAT KOTOR</label>
 						<div class="col-sm-10">
 							<input type="text" class="angka form-control" id="kode_pos" placeholder="-" autocomplete="off" maxlength="10">
 						</div>
 					</div>
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">NO TELP</label>
+						<label class="col-sm-2 col-form-label">BERAT TRUK</label>
 						<div class="col-sm-10">
 							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
 						</div>
 					</div>
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">FAX</label>
+						<label class="col-sm-2 col-form-label">POTONGAN</label>
 						<div class="col-sm-10">
 							<input type="text" class="form-control" id="fax" placeholder="-" autocomplete="off" maxlength="25">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">BERAT BERSIH</label>
+						<div class="col-sm-10">
+							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">CATATAN</label>
+						<div class="col-sm-10">
+							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">PENIMBANG</label>
+						<div class="col-sm-10">
+							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">SATPAM</label>
+						<div class="col-sm-10">
+							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">SOPIR</label>
+						<div class="col-sm-10">
+							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">KETERANGAN</label>
+						<div class="col-sm-10">
+							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
 						</div>
 					</div>
 			</div>
@@ -244,7 +306,7 @@
 		$("#jenis").val('Update');
 		// $("#id_sales").html(`<option value="">PILIH</option>`).prop('disabled', true)
 		$.ajax({
-			url    : '<?php echo base_url('Master/edit_hub'); ?>',
+			url    : '<?php echo base_url('Logistik/edit_timbangan'); ?>',
 			type   : 'POST',
 			beforeSend: function() {
 				swal({

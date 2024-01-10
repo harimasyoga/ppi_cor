@@ -157,6 +157,16 @@ class Logistik extends CI_Controller
         echo json_encode($data);
 	}
 
+	function edit_timbangan()
+	{
+		$id       = $_POST["id"];
+		$data     = $this->db->query("SELECT * FROM m_jembatan_timbang WHERE id_timbangan='$id'")->row();
+
+		echo json_encode(array(
+			'hub' => $data,
+		));
+	}
+
 	function load_data()
 	{
 		// $db2 = $this->load->database('database_simroll', TRUE);
