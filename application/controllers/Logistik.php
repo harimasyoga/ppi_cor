@@ -2475,7 +2475,7 @@ class Logistik extends CI_Controller
 		// UPDATE CETAK
 		$this->db->query("UPDATE pl_box SET cetak_sj='acc' WHERE no_pkb='$jenis'");
 
-        $data_pl = $this->db->query("SELECT h.id_hub,h.pimpinan,h.alamat AS alamat_hub,b.nm_pelanggan,b.attn,b.alamat_kirim,b.no_telp,a.* FROM pl_box a
+        $data_pl = $this->db->query("SELECT h.id_hub,h.nm_hub,h.alamat AS alamat_hub,b.nm_pelanggan,b.attn,b.alamat_kirim,b.no_telp,a.* FROM pl_box a
 		INNER JOIN m_pelanggan b ON a.id_perusahaan=b.id_pelanggan
 		INNER JOIN trs_po p ON a.no_po=p.kode_po
 		LEFT JOIN m_hub h ON p.id_hub=h.id_hub
