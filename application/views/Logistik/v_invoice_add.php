@@ -943,24 +943,49 @@
 		let month       = myArray[1];
 		let day         = myArray[2];
 
-		if(type=='roll')
-		{
-			if(pajak=='nonppn')
-			{
-				$('#no_inv_kd').val('B/');
-			}else{
-				$('#no_inv_kd').val('A/');
-			}
-		}else{
+		if(year=='2023'){
 
-			if(pajak=='nonppn')
+			if(type=='roll')
 			{
-				$('#no_inv_kd').val('BB/');
+				if(pajak=='nonppn')
+				{
+					$('#no_inv_kd').val('B/');
+				}else{
+					$('#no_inv_kd').val('A/');
+				}
 			}else{
-				$('#no_inv_kd').val('AA/');
+
+				if(pajak=='nonppn')
+				{
+					$('#no_inv_kd').val('BB/');
+				}else{
+					$('#no_inv_kd').val('AA/');
+				}
+
+			}
+			
+		}else{
+			if(type=='roll')
+			{
+				if(pajak=='nonppn')
+				{
+					$('#no_inv_kd').val('FD/');
+				}else{
+					$('#no_inv_kd').val('FC/');
+				}
+			}else{
+
+				if(pajak=='nonppn')
+				{
+					$('#no_inv_kd').val('FB/');
+				}else{
+					$('#no_inv_kd').val('FA/');
+				}
+
 			}
 
 		}
+		
 		
 		if(tgl_inv)
 		{

@@ -15,6 +15,141 @@ class Laporan extends CI_Controller
 		$this->load->model('m_fungsi');
 	}
 
+	function Rekap_omset()
+	{
+
+		$data = array(
+			'judul' => "REKAP OMSET"
+		);
+
+		$this->load->view('header', $data);
+		$this->load->view('Laporan/v_rekap_omset', $data);
+		$this->load->view('footer');
+	}
+
+	function load_rekap_omset()
+	{
+		$html   = '';
+
+		$th_hub = $this->input->post('th_hub');
+		if($th_hub){
+			$tahun  = $th_hub;
+		}else{
+			$tahun  = date('Y');
+		}
+		
+		$query  = $this->db->query("SELECT b.id_hub,e.nm_hub,b.id_pelanggan,d.nm_pelanggan,sum(c.qty*price_inc)total_hub, YEAR(b.tgl_po)th
+		from trs_po b 
+		JOIN trs_po_detail c ON b.no_po=c.no_po 
+		JOIN m_pelanggan d ON d.id_pelanggan=b.id_pelanggan
+		JOIN m_hub e ON e.id_hub=b.id_hub
+		where YEAR(b.tgl_po) in ('$tahun') 
+		group by b.id_pelanggan,d.nm_pelanggan,b.id_hub,e.nm_hub,YEAR(b.tgl_po)
+		ORDER BY id_hub,id_pelanggan
+		")->result();
+
+		$html .='<div style="padding-bottom:20px;font-weight:bold">';
+		$html .='<table class="table table-bordered table-striped">
+		<thead class="color-tabel">
+			<tr>
+				<th style="text-align:center">NO</th>
+				<th style="text-align:center">Nama HUB</th>
+				<th style="text-align:center">Nama Customer</th>
+				<th style="text-align:center">OMSET</th>
+				<th style="text-align:center">SISA PLAFON</th>
+				<th style="text-align:center">TAHUN</th>
+			</tr>
+		</thead>';
+		$i            = 0;
+		$total        = 0;
+		$total_rata   = 0;
+		$sisa_hub     = 0;
+		if($query)
+		{
+			foreach($query as $r){
+				$i++;
+				$html .= '</tr>
+					<td style="text-align:center">'.$i.'</td>
+					<td style="text-align:left">'.$r->nm_hub.'</td>
+					<td style="text-align:left">'.$r->nm_pelanggan.'</td>
+					<td style="text-align:right">'.number_format($r->total_hub, 0, ",", ".").'</td>
+					<td style="text-align:right">'.number_format(4800000000-$r->total_hub, 0, ",", ".").'</td>
+					<td style="text-align:right">'.$tahun.'</td>
+				</tr>';
+				$total    += $r->total_hub;
+				$sisa_hub += 4800000000-$r->total_hub;
+			}
+			
+			$html .='<tr>
+					<th style="text-align:center" colspan="3" >Total</th>
+					<th style="text-align:right">'.number_format($total, 0, ",", ".").'</th>
+					<th style="text-align:right">'.number_format($sisa_hub, 0, ",", ".").'</th>
+					<th style="text-align:right"></th>
+				</tr>
+				';
+			
+			$html .='</table>
+			</div>';
+		}else{
+			$html .='<tr>
+				<th style="text-align:center" colspan="4" >Data Kosong</th>
+			</tr>
+			';
+		
+		$html .='</table>
+		</div>';
+		}
+
+		echo $html;
+		
+	}
+
+	function load_data()
+	{
+		$jenis = $this->uri->segment(3);
+		$data = array();
+
+		if ($jenis == "rekap_omset") {
+			
+			$th_hub = $this->input->post('th_hub');
+			if($th_hub){
+				$tahun  = $th_hub;
+			}else{
+				$tahun  = date('Y');
+			}
+			
+			$query = $this->m_master->query("SELECT b.id_hub,e.nm_hub,b.id_pelanggan,d.nm_pelanggan,sum(c.qty*price_inc)total_hub, YEAR(b.tgl_po)th
+			from trs_po b 
+			JOIN trs_po_detail c ON b.no_po=c.no_po 
+			JOIN m_pelanggan d ON d.id_pelanggan=b.id_pelanggan
+			JOIN m_hub e ON e.id_hub=b.id_hub
+			where YEAR(b.tgl_po) in ('$tahun') 
+			group by b.id_pelanggan,d.nm_pelanggan,b.id_hub,e.nm_hub,YEAR(b.tgl_po)
+			ORDER BY id_hub,id_pelanggan")->result();
+			$i = 1;
+			foreach ($query as $r) {
+				$row          = array();
+				$row[]        = '<div class="text-center">'.$i.'</div>';
+				$row[]        = $r->nm_hub;
+				$row[]        = $r->nm_pelanggan; 
+				$row[]        = '<div class="text-right"><b>'. number_format($r->total_hub, 0, ",", "."). '</b></div>';
+				$row[]        = '<div class="text-right"><b>'. number_format(4800000000-$r->total_hub, 0, ",", "."). '</b></div>';
+				$row[]        = '<div class="text-center">'.$tahun.'</div>';
+
+				$id_hub       = $r->id_hub;
+				$cekpo    = $this->db->query("SELECT * FROM trs_po WHERE id_hub='$id_hub'")->num_rows();
+
+				$data[] = $row;
+				$i++;
+			}
+		}
+
+		$output = array(
+			"data" => $data,
+		);
+		//output to json format
+		echo json_encode($output);
+	}
 
 	function Laporan_Stok()
 	{
