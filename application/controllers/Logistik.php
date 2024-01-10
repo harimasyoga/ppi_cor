@@ -2757,12 +2757,12 @@ class Logistik extends CI_Controller
 				<tr>
 					<td style="padding:2px 0">Masuk</td>
 					<td style="padding:0 4px 0 20px">:</td>
-					<td style="padding:2px 0">'.substr($data->date_masuk,0,10).' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '.substr($data->date_masuk,11).'</td>
+					<td style="padding:2px 0">'.$this->m_fungsi->tanggal_ind(substr($data->date_masuk,0,10)).' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '.substr($data->date_masuk,11).'</td>
 				</tr>
 				<tr>
 					<td style="padding:2px 0">Keluar</td>
 					<td style="padding:0 4px 0 20px">:</td>
-					<td style="padding:2px 0">'.substr($data->date_keluar,0,10).' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '.substr($data->date_keluar,11).'</td>
+					<td style="padding:2px 0">'.$this->m_fungsi->tanggal_ind(substr($data->date_keluar,0,10)).' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '.substr($data->date_keluar,11).'</td>
 				</tr>
 				<tr>
 					<td style="padding:2px 0">Barang</td>
@@ -2793,7 +2793,7 @@ class Logistik extends CI_Controller
 					<td style="border:0"></td>
 					<td style="border:0;text-align:left;font-size:14px">POTONGAN :</td>
 					<td style="border:0"></td>
-					<td style="border:0;font-size:14px">'.$data->potongan.' KG</td>
+					<td style="border:0;font-size:14px">'.number_format($data->potongan).' KG</td>
 					<td style="border:0"></td>
 					<td style="border:0"></td>
 					<td style="border:0"></td>
