@@ -30,6 +30,7 @@ class Master extends CI_Controller
 
 		$this->load->view('footer');
 	}
+
 	function Produk()
 	{
 
@@ -523,7 +524,7 @@ class Master extends CI_Controller
 		group by b.id_hub ,YEAR(b.tgl_po)),0) total_hub FROM m_hub a $cek_data
 		order by id_hub")->result();
 
-		$html .='<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
+		$html .='<div style="font-weight:bold">';
 		$html .='<table class="table table-bordered table-striped">
 		<thead class="color-tabel">
 			<tr>

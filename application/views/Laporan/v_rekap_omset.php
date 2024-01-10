@@ -31,7 +31,7 @@
               <div class="col-md-12">
                 <div class="card card-info card-outline">
                   <div class="card-header">
-                    <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP HUB</h3>
+                    <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP OMSET PO PER CUSTOMER </h3>
                   </div>
                   <div class="card-body">
                     <div class="row">
@@ -39,7 +39,7 @@
                       </div>
 
                       <div class="col-md-2">
-                        <select class="form-control select2" id="th_hub" name="th_hub" onchange="load_data_hub()">
+                        <select class="form-control select2" id="th_hub" name="th_hub" onchange="load_data_hub2()">
                           <?php 
                           $thang        = date("Y");
                           $thang_maks   = $thang + 3 ;
@@ -59,12 +59,26 @@
                         </select>
                       </div>
                     </div>
-                    
-                    
                   </div>
-                    <div style="padding:0 10px 20px;">
-                      <div style="overflow:auto;white-space:nowrap" id="datatable_hub"></div>
-                    </div>
+                  <!-- <div style="padding:0 10px 20px;">
+                    <div style="overflow:auto;white-space:nowrap" id="datatable_rekap_omset"></div>
+                  </div> -->
+                  <div style="padding:0 10px 20px;">
+                    <table id="datatable_rekap_omset" class="table table-bordered table-striped" width="100%">
+                      <thead class="color-tabel">
+                        <tr>
+                          <th style="text-align:center">NO</th>
+                          <th style="text-align:center">Nama HUB</th>
+                          <th style="text-align:center">Nama Customer</th>
+                          <th style="text-align:center">OMSET</th>
+                          <th style="text-align:center">SISA PLAFON</th>
+                          <th style="text-align:center">TAHUN</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -79,7 +93,7 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $(".select2").select2()
-      load_data_hub()
+      load_data_hub2()
     });
 
     function load_data_hub()
@@ -87,7 +101,7 @@
       var th_hub = $('#th_hub').val();
 
       $.ajax({
-        url   : '<?php echo base_url('Master/rekap_hub')?>',
+        url   : '<?php echo base_url('Laporan/load_rekap_omset')?>',
         type  : "POST",
         data  : {th_hub},
         beforeSend: function() {
@@ -101,10 +115,37 @@
           });
         },
         success: function(res){
-          $("#datatable_hub").html(res)
+          $("#datatable_rekap_omset").html(res)
           swal.close()
         }
       })
+    }
+
+    function load_data_hub2() 
+    {
+      var th_hub    = $('#th_hub').val();
+      var table     = $('#datatable_rekap_omset').DataTable();
+      table.destroy();
+      tabel = $('#datatable_rekap_omset').DataTable({
+        "processing"    : true,
+        "pageLength"    : true,
+        "paging"        : true,
+
+        "ajax": {
+          "url"   : '<?php echo base_url(); ?>Laporan/load_data/rekap_omset',
+          "type"  : "POST",
+          "data"  : { th_hub },
+        },
+        "aLengthMenu": [
+          [10, 15, 20, 25, -1],
+          [10, 15, 20, 25, "Semua"] // change per page values here
+        ],		
+        responsive: true,
+        "pageLength": 10,
+        "language": {
+          "emptyTable": "Tidak ada data.."
+        }
+      });
     }
   </script>
 
