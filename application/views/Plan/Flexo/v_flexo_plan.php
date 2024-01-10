@@ -26,7 +26,7 @@
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row">
-				<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC') { ?>
+				<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'User') { ?>
 				<div class="col-md-12">
 					<div class="card">
 						<div class="card-body p-0">
@@ -649,7 +649,7 @@
 					$("#mesin").html(optMesin).prop("disabled", tms)
 
 					let htmlBtnGantiTgl = '';
-					(data.plan_cor.total_prod_flexo == 0 && data.plan_cor.status_flexo == 'Open' && (urlAuth == 'Admin' || urlAuth == 'PPIC')) ?
+					(data.plan_cor.total_prod_flexo == 0 && data.plan_cor.status_flexo == 'Open' && (urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'User')) ?
 						htmlBtnGantiTgl = `<div class="card-body row" style="padding:0 20px 5px">
 							<div class="col-md-2"></div>
 							<div class="col-md-10">
@@ -689,7 +689,7 @@
 						onClickDonePlanCor = 'disabled'
 					}
 
-					if(urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'Flexo'){
+					if(urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'Flexo' || urlAuth == 'User'){
 						if((data.plan_cor.total_prod_flexo == 0 || data.plan_cor.total_prod_flexo != 0) && data.plan_cor.status_flexo == 'Open'){
 							$("#btn-aksi-produksi").html(`<div class="card-body row" style="padding:20px 20px 0;font-weight:bold">
 								<div class="col-md-12">
@@ -700,7 +700,7 @@
 							$("#btn-aksi-produksi").html('')
 						}
 
-						if(urlAuth == 'Admin' || urlAuth == 'PPIC'){
+						if(urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'User'){
 							$("#btn-add-plan-flexo").html(`<div class="card-body row" style="padding:0 20px 17px;font-weight:bold">
 								<div class="col-md-6">
 									<button type="button" class="btn btn-primary btn-block" style="margin-bottom:3px" ${onclickSelesaiFlexo}><i class="fa fa-check"></i> <b>SELESAI FLEXO</b></button>
@@ -772,7 +772,7 @@
 					$("#start_flexo").val("")
 					$("#end_flexo").val("")
 
-					if(urlAuth == 'Admin' || urlAuth == 'PPIC'){
+					if(urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'User'){
 						$("#btn-aksi-produksi").html('')
 						$("#btn-add-plan-flexo").html(`<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 							<div class="col-md-12">
