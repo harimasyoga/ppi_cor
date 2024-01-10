@@ -38,7 +38,7 @@
 						<tr>
 							<th style="text-align: center; width:5%">NO.</th>
 							<th style="text-align: center; width:20%">PERMINTAAN</th>
-							<th style="text-align: center; width:20%">TGL</th>
+							<th style="text-align: center; width:20%">TGL MASUK</th>
 							<th style="text-align: center; width:35%">SUPPLIER</th>
 							<th style="text-align: center; width:10%">BERAT BERSIH</th>
 							<th style="text-align: center; width:10%">AKSI</th>
