@@ -387,7 +387,7 @@ class Plan extends CI_Controller
 			$row[] = '<div style="text-align:center">'.$r->jml.'</div>';
 
 			$link = base_url('Plan/Corrugator/List/'.$r->tgl_plan.'/'.$r->shift_plan.'/'.$r->machine_plan);
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])){
 				$btnPrint = '
 				<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>
 				<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Plan/laporanPlanCor?no_plan=".$r->no_plan."").'" title="Cetak Plan" ><i class="fas fa-print"></i></a>
@@ -1547,11 +1547,11 @@ class Plan extends CI_Controller
 				</select></td>
 			<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si5-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan5.'" '.$onKeyUpEdiPlan.'></td>';
 
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator'])){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator','User'])){
 				if($r->status_plan == 'Open' && $r->total_cor_p == 0){
 					if($opsi == 'pilihan' || $this->session->userdata('level') == 'Corrugator'){
 						$btnAksiHapus = '<span class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</span>';
-						(in_array($this->session->userdata('level'), ['Admin','PPIC']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'edit'".')">EDIT<a>' : $btnAksiEdit = '-';
+						(in_array($this->session->userdata('level'), ['Admin','PPIC','User']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'edit'".')">EDIT<a>' : $btnAksiEdit = '-';
 						$aksiNoUrut = 'disabled';
 						$dis = 'disabled';
 					}else{
@@ -1562,17 +1562,17 @@ class Plan extends CI_Controller
 					}
 				}else if($r->status_plan == 'Open' && $r->total_cor_p != 0){
 					$btnAksiHapus = '<span class="bg-success" style="padding:2px 4px;border-radius:4px;display:block">PRODUKSI</span>';
-					(in_array($this->session->userdata('level'), ['Admin','PPIC']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '-';
+					(in_array($this->session->userdata('level'), ['Admin','PPIC','User']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '-';
 					$aksiNoUrut = 'disabled';
 					$dis = 'disabled';
 				}else if($r->status_plan == 'Close' && $r->statusWo == 'Open'){
 					$btnAksiHapus = '<span class="bg-primary" style="padding:2px;border-radius:4px;display:block">SELESAI</span>';
-					(in_array($this->session->userdata('level'), ['Admin','PPIC']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '-';
+					(in_array($this->session->userdata('level'), ['Admin','PPIC','User']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '-';
 					$aksiNoUrut = 'disabled';
 					$dis = 'disabled';
 				}else if($r->status_plan == 'Close' && $r->statusWo == 'Close'){
 					$btnAksiHapus = '<span class="bg-dark" style="padding:2px 4px;border-radius:4px;display:block">WO</span>';
-					(in_array($this->session->userdata('level'), ['Admin','PPIC']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '-';
+					(in_array($this->session->userdata('level'), ['Admin','PPIC','User']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '-';
 					$aksiNoUrut = 'disabled';
 					$dis = 'disabled';
 				}else{
@@ -1926,13 +1926,13 @@ class Plan extends CI_Controller
 
 		$jenis = $this->uri->segment(3);
 		if($jenis == 'Add'){
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])){
 				$this->load->view('Plan/Flexo/v_flexo_add');
 			}else{
 				$this->load->view('home');
 			}
 		}else if($jenis == 'List'){
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Flexo'])){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Flexo','User'])){
 				$data = array(
 					"tgl_flexo" => $this->uri->segment(4),
 					"shift" => $this->uri->segment(5),
@@ -1943,7 +1943,7 @@ class Plan extends CI_Controller
 				$this->load->view('home');
 			}
 		}else{
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Flexo'])){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Flexo','User'])){
 				$this->load->view('Plan/Flexo/v_flexo');
 			}else{
 				$this->load->view('home');
@@ -1970,7 +1970,7 @@ class Plan extends CI_Controller
 			$link = base_url('Plan/Flexo/List/'.$r->tgl_flexo.'/'.$r->shift_flexo.'/'.$r->mesin_flexo);
 			$printLapFlexo = base_url('Plan/laporanPlanFlexo?tgl='.$r->tgl_flexo.'&shift='.$r->shift_flexo.'&mesin='.$r->mesin_flexo.'');
 			$printLap = base_url('Plan/laporanISOFlexo?tgl='.$r->tgl_flexo.'&shift='.$r->shift_flexo.'&mesin='.$r->mesin_flexo.'');
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])){
 				$btnPrint = '
 				<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>
 				<a href="'.$printLapFlexo.'" target="_blank" class="btn btn-sm btn-success" title="CETAK PLAN"><i class="fas fa-print"></i></a>
@@ -2557,7 +2557,7 @@ class Plan extends CI_Controller
 							if($id_flexo == 'pilihan'){
 								$statusF = '<span class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</span>';
 							}else{
-								if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+								if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])){
 									$statusF = '<a href="javascript:void(0)" onclick="hapusPlanFlexo('."".$r->id_flexo."".')" href="" class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</a>';
 								}else{
 									$statusF = '<span class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</span>';
@@ -2576,7 +2576,7 @@ class Plan extends CI_Controller
 						if($id_flexo == 'pilihan'){
 							$ubahNoUrut = 'disabled';
 						}else{
-							if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+							if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])){
 								($r->total_prod_flexo != 0) ? $ubahNoUrut = 'disabled' : $ubahNoUrut = 'onkeyup="onChangeNourutFlexo('."'".$r->id_flexo."'".')"';
 							}else{
 								$ubahNoUrut = 'disabled';
@@ -2598,7 +2598,7 @@ class Plan extends CI_Controller
 							$optNextFlexo = $r->next_flexo;
 						}else{
 							if($r->status_flexo == 'Open'){
-								if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+								if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])){
 									$btnEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editPlanFlexo('."".$r->id_flexo."".')" title="EDIT">EDIT</a>';
 									$disOptNF = '';
 								}else{
@@ -3442,13 +3442,13 @@ class Plan extends CI_Controller
 
 		$jenis = $this->uri->segment(3);
 		if($jenis == 'Add'){
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])){
 				$this->load->view('Plan/Finishing/v_finishing_add');
 			}else{
 				$this->load->view('home');
 			}
 		}else if($jenis == 'List'){
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Finishing'])){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Finishing','User'])){
 				$data = array(
 					"tgl" => $this->uri->segment(4),
 					"shift" => $this->uri->segment(5),
@@ -3459,7 +3459,7 @@ class Plan extends CI_Controller
 				$this->load->view('home');
 			}
 		}else{
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Finishing'])){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Finishing','User'])){
 				$this->load->view('Plan/Finishing/v_finishing');
 			}else{
 				$this->load->view('home');
@@ -3488,7 +3488,7 @@ class Plan extends CI_Controller
 			// $printLap = base_url('Plan/laporanISOFlexo?tgl='.$r->tgl_flexo.'&shift='.$r->shift_flexo.'&mesin='.$r->mesin_flexo.'');
 			// <a href="#" target="_blank" class="btn btn-sm btn-success" title="CETAK PLAN"><i class="fas fa-print"></i></a>
 			// <a href="#" target="_blank" class="btn btn-sm btn-primary" title="CETAK FLEXO"><i class="fas fa-print"></i></a>
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])){
 				$btnPrint = '
 				<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>
 				<a href="'.$printLapFinishing.'" target="_blank" class="btn btn-sm btn-success" title="CETAK PLAN"><i class="fas fa-print"></i></a>';
@@ -4139,7 +4139,7 @@ class Plan extends CI_Controller
 							if($id_finishing == 'pilihan'){
 								$statusF = '<span class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</span>';
 							}else{
-								if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+								if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])){
 									$statusF = '<a href="javascript:void(0)" onclick="hapusPlanFinishing('."".$r->id_fs."".')" href="" class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</a>';
 								}else{
 									$statusF = '<span class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</span>';
@@ -4158,7 +4158,7 @@ class Plan extends CI_Controller
 						if($id_finishing == 'pilihan'){
 							$ubahNoUrut = 'disabled';
 						}else{
-							if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+							if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])){
 								($r->total_prod_fs != 0) ? $ubahNoUrut = 'disabled' : $ubahNoUrut = 'onkeyup="onChangeNourutFinishing('."'".$r->id_fs."'".')"';
 							}else{
 								$ubahNoUrut = 'disabled';
