@@ -2827,7 +2827,7 @@ class Logistik extends CI_Controller
 			</table>
 			<table style="width:100%;border-top:2px solid #000">
 				<tr>
-					<td style="text-align:right;font-size:12px">'.$data->keteranngan.'</td>
+					<td style="text-align:right;font-size:12px">'.$data->keterangan.'</td>
 				</tr>
 			</table>
 
