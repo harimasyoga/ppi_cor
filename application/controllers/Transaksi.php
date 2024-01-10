@@ -698,7 +698,7 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_wo") {
-			$query = $this->m_master->query("SELECT a.id as id_wo,a.*,b.*,c.*,d.* FROM trs_wo a 
+			$query = $this->m_master->query("SELECT a.id as id_wo,a.status AS statusWO,a.*,b.*,c.*,d.* FROM trs_wo a 
             JOIN trs_wo_detail b ON a.no_wo=b.no_wo 
             JOIN m_produk c ON a.id_produk=c.id_produk 
             JOIN m_pelanggan d ON a.id_pelanggan=d.id_pelanggan 
@@ -712,11 +712,9 @@ class Transaksi extends CI_Controller
 					$type ='SHEET';
 				}
 
-				if($r->status == 'Open')
-                {
+				if($r->statusWO == 'Open') {
                     $btn_status   = 'btn-info';
-                }else if($r->status == 'Approve')
-                {
+                }else if($r->statusWO == 'Approve') {
                     $btn_status   = 'btn-success';
                 }else{
                     $btn_status   = 'btn-danger';
@@ -730,13 +728,13 @@ class Transaksi extends CI_Controller
 				$row[] = $this->m_fungsi->tanggal_ind($r->tgl_wo);
 				// $row[] = $r->no_so;
 				$row[] = $this->m_fungsi->tanggal_ind($r->tgl_so);
-				$row[] = '<div class="text-center btn btn-sm '.$btn_status.'">'.$r->status.'</div';
+				$row[] = '<div class="text-center btn btn-sm '.$btn_status.'">'.$r->statusWO.'</div';
 				$row[] = $r->kode_mc;
 				$row[] = '<div class="text-center">'.number_format($r->qty, 0, ",", ".").'</div';
 				// $row[] = $r->id_pelanggan;
 				$row[] = $r->nm_pelanggan;
 
-				if ($r->status == 'Open') {
+				if ($r->statusWO == 'Open') {
 
                     $aksi = ' 
 							<button type="button" onclick="tampil_edit(' . "'" . $r->id_wo . "'" . ',' . "'edit'" . ')" class="btn btn-info btn-sm">
