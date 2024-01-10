@@ -22,13 +22,13 @@ class Plan extends CI_Controller
 
 		$jenis = $this->uri->segment(3);
 		if($jenis == 'Add'){
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC'])){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])){
 				$this->load->view('Plan/Cor/v_corr_add');
 			}else{
 				$this->load->view('home');
 			}
 		}else if($jenis == 'List'){
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator'])){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator','User'])){
 				$data = array(
 					"tgl_plan" => $this->uri->segment(4),
 					"shift" => $this->uri->segment(5),
@@ -39,7 +39,7 @@ class Plan extends CI_Controller
 				$this->load->view('home');
 			}
 		}else{
-			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator'])){
+			if(in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator','User'])){
 				$this->load->view('Plan/Cor/v_corr');
 			}else{
 				$this->load->view('home');
