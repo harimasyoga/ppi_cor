@@ -2712,13 +2712,18 @@ class Logistik extends CI_Controller
 
 	function printTimbangan(){
 		$html = '';
-		
+		$id = $_GET["id"];
+		// https://simcorrppi.com/Logistik/printTimbangan?id=1
+
+		$data = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE id_timbangan='$id'")->row();
+
 		$html .= '<!DOCTYPE html>
 		<html lang="en">
 		<head>
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>Document</title>
+			<link rel="icon" type="image/png" href="'.base_url('assets/gambar/ppi.png').'">
+			<title>TIMBANGAN - '.$data->id_timbangan.'</title>
 		</head>
 		<body style="font-family: Verdana, Geneva, Tahoma, sans-serif">
 		
@@ -2737,32 +2742,32 @@ class Logistik extends CI_Controller
 				<tr>
 					<td style="padding:2px 0">Suplier</td>
 					<td style="padding:0 4px 0 20px">:</td>
-					<td style="padding:2px 0">GUDANG BAHAN BAKU</td>
+					<td style="padding:2px 0">'.$data->suplier.'</td>
 				</tr>
 				<tr>
 					<td style="padding:2px 0">Alamat</td>
 					<td style="padding:0 4px 0 20px">:</td>
-					<td style="padding:2px 0">wonogiri</td>
+					<td style="padding:2px 0">'.$data->alamat.'</td>
 				</tr>
 				<tr>
 					<td style="padding:2px 0">No. Polisi</td>
 					<td style="padding:0 4px 0 20px">:</td>
-					<td style="padding:2px 0">AA 8334 ZB</td>
+					<td style="padding:2px 0">'.$data->no_polisi.'</td>
 				</tr>
 				<tr>
 					<td style="padding:2px 0">Masuk</td>
 					<td style="padding:0 4px 0 20px">:</td>
-					<td style="padding:2px 0">03-01-2024 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 17:47:38</td>
+					<td style="padding:2px 0">'.substr($data->date_masuk,0,10).' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '.substr($data->date_masuk,11).'</td>
 				</tr>
 				<tr>
 					<td style="padding:2px 0">Keluar</td>
 					<td style="padding:0 4px 0 20px">:</td>
-					<td style="padding:2px 0">03-01-2024 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 19:13:07</td>
+					<td style="padding:2px 0">'.substr($data->date_keluar,0,10).' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '.substr($data->date_keluar,11).'</td>
 				</tr>
 				<tr>
 					<td style="padding:2px 0">Barang</td>
 					<td style="padding:0 4px 0 20px">:</td>
-					<td style="padding:2px 0">OCC LOKAL</td>
+					<td style="padding:2px 0">'.$data->nm_barang.'</td>
 				</tr>
 			</table>
 			<table style="text-align:center;border-collapse:collapse;width:100%" border="1">
@@ -2777,24 +2782,24 @@ class Logistik extends CI_Controller
 				</tr>
 				<tr>
 					<td style="border:0"></td>
-					<td style="padding:4px 0;font-weight:bold;font-size:17px">8,560</td>
+					<td style="padding:4px 0;font-weight:bold;font-size:17px">'.number_format($data->berat_kotor).'</td>
 					<td style="border:0"></td>
-					<td style="padding:4px 0;font-weight:bold;font-size:17px">3,290</td>
+					<td style="padding:4px 0;font-weight:bold;font-size:17px">'.number_format($data->berat_truk).'</td>
 					<td style="border:0"></td>
-					<td style="padding:4px 0;font-weight:bold;font-size:17px">5,255</td>
+					<td style="padding:4px 0;font-weight:bold;font-size:17px">'.number_format($data->berat_bersih).'</td>
 					<td style="border:0"></td>
 				</tr>
 				<tr>
 					<td style="border:0"></td>
 					<td style="border:0;text-align:left;font-size:14px">POTONGAN :</td>
 					<td style="border:0"></td>
-					<td style="border:0;font-size:14px">15 KG</td>
+					<td style="border:0;font-size:14px">'.$data->potongan.' KG</td>
 					<td style="border:0"></td>
 					<td style="border:0"></td>
 					<td style="border:0"></td>
 				</tr>
 				<tr>
-					<td style="border:0;padding:8px 0 23px;font-size:11px;text-align:left" colspan="7">Catatan : MONIKA</td>
+					<td style="border:0;padding:8px 0 23px;font-size:11px;text-align:left" colspan="7">Catatan : '.$data->catatan.'</td>
 				</tr>
 			</table>
 			<table style="width:100%;margin-bottom:5px;text-align:center;border-collapse:collapse;font-size:11px" border="1">
@@ -2813,16 +2818,16 @@ class Logistik extends CI_Controller
 					<td style="border-top:0;border-bottom:0;padding:43px 0"></td>
 				</tr>
 				<tr>
-					<td style="border-top:0;padding-bottom:3px;">Feri S</td>
+					<td style="border-top:0;padding-bottom:3px;">'.$data->nm_penimbang.'</td>
 					<td style="border:0"></td>
 					<td style="border-top:0;padding-bottom:3px;">(. . . . . . . . . .)</td>
 					<td style="border:0"></td>
-					<td style="border-top:0"></td>
+					<td style="border-top:0">'.$data->nm_sopir.'</td>
 				</tr>
 			</table>
 			<table style="width:100%;border-top:2px solid #000">
 				<tr>
-					<td style="text-align:right;font-size:12px">SUPLAI</td>
+					<td style="text-align:right;font-size:12px">'.$data->keteranngan.'</td>
 				</tr>
 			</table>
 
