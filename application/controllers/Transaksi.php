@@ -512,6 +512,10 @@ class Transaksi extends CI_Controller
 				$row[] = '<div class="text-center">'.$r->nm_pelanggan.'</div>';
                 
 				$row[] = '<div class="text-center">
+					<button type="button" title="OKE" style="text-align: center;" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button><br><b>
+					'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</b></div>
+				';
+				$row[] = '<div class="text-center">
 					<button onclick="data_sementara(`Marketing`,' . "'" . $r->status_app1 . "'" . ',' . "'" . $time1 . "'" . ',' . "'" . $alasan1 . "'" . ',' . "'" . $r->no_po . "'" . ')" type="button" title="'.$time1.'" style="text-align: center;" class="btn btn-sm '.$btn1.' ">'.$i1.'</button><br>
 					'.$alasan1.'</div>
 				';

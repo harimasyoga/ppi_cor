@@ -663,4 +663,66 @@ class M_logistik extends CI_Model
 		}
 	}
 
+	function verif_inv()
+	{
+		$id       = $this->input->post('id');
+		$app      = "";
+
+		// KHUSUS ADMIN //
+		if ($this->session->userdata('level') == "Admin") 
+		{
+
+			$this->db->set("acc_admin", 'Y');
+			$this->db->set("acc_owner", 'Y');
+			$this->db->where("no_invoice",$id);
+			$valid = $this->db->update("invoice_header");
+
+		} else if ($this->session->userdata('level') == "Keuangan1" && $this->session->userdata('username') == "karina") 
+		{
+			$this->db->set("acc_admin", 'Y');
+			$this->db->where("no_invoice",$id);
+			$valid = $this->db->update("invoice_header");
+
+		} else {
+	
+			$this->db->set("acc_owner", 'Y');
+			$this->db->where("no_invoice",$id);
+			$valid = $this->db->update("invoice_header");
+
+		}
+
+		return $valid;
+	}
+
+	function batal_inv()
+	{
+		$id       = $this->input->post('id');
+		$app      = "";
+
+		// KHUSUS ADMIN //
+		if ($this->session->userdata('level') == "Admin") 
+		{
+
+			$this->db->set("acc_admin", 'N');
+			$this->db->set("acc_owner", 'N');
+			$this->db->where("no_invoice",$id);
+			$valid = $this->db->update("invoice_header");
+
+		} else if ($this->session->userdata('level') == "Keuangan1" && $this->session->userdata('username') == "karina") 
+		{
+			$this->db->set("acc_admin", 'N');
+			$this->db->where("no_invoice",$id);
+			$valid = $this->db->update("invoice_header");
+
+		} else {
+	
+			$this->db->set("acc_owner", 'N');
+			$this->db->where("no_invoice",$id);
+			$valid = $this->db->update("invoice_header");
+
+		}
+
+		return $valid;
+	}
+
 }

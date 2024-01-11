@@ -193,11 +193,31 @@
 							</div>
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 								<div class="col-md-12">
+								<?php if ($acc>0) { ?>
+
+
+									<a href="<?= base_url('Logistik/Invoice')?>" class="btn btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a>
+									
+									<?php if ($statuss=='N') { ?>
+
+										<button type="button" class="btn btn-success" id="btn-simpan" onclick="proses_acc('<?= $no_inv ?>')"> <i class="fas fa-check"></i><b>&nbsp;VERIFIKASI</b></button>
+
+									<?php } else {?>
+										
+										<button type="button" class="btn btn-danger" id="btn-simpan" onclick="batal_acc('<?= $no_inv ?>')"> <i class="fas fa-times-circle"></i><b>&nbsp;BATALKAN</b></button>
+
+									<?php } ?>
+
+								<?php } else {?>
+										
 									<a href="<?= base_url('Logistik/Invoice')?>" class="btn btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a>
 									
 									<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Update</b></button>
 									
 									<button type="button" class="btn btn-danger" id="btn-print" onclick="Cetak()" ><i class="fas fa-print"></i> <b>Print</b></button>
+
+								<?php } ?>
+									
 								</div>
 							</div>
 							<br>
@@ -910,7 +930,8 @@
 
 	}
 
-	function load_sj() {
+	function load_sj() 
+	{
 		var tgl_sj            = $("#tgl_sj").val()
 		var type_po           = $("#type_po").val()
 		var id_pl_sementara   = $("#id_pl_sementara").val()
@@ -1154,6 +1175,110 @@
 		no_invoice = $("#no_invoice").val();
 		var url = "<?= base_url('Logistik/Cetak_Invoice'); ?>";
 		window.open(url + '?no_invoice=' + no_invoice, '_blank');
+	}
+
+	function proses_acc(no_inv) 
+	{
+		swal({
+			title: "Verifikasi Invoice",
+			html: "<p> Apakah Anda yakin untuk verifikasi file ini ?</p><br>",
+			type                : "question",
+			showCancelButton    : true,
+			confirmButtonText   : '<b><i class="fas fa-check"></i> Verifikasi</b>',
+			cancelButtonText    : '<b><i class="fas fa-undo"></i> Batal</b>',
+			confirmButtonClass  : 'btn btn-success',
+			cancelButtonClass   : 'btn btn-danger',
+			confirmButtonColor  : '#28a745',			
+			cancelButtonColor   : '#d33'			
+		}).then(() => {
+
+				$.ajax({
+					url: '<?= base_url(); ?>Logistik/prosesData',
+					data: ({
+						id    : no_inv,
+						jenis : 'verif_inv'
+					}),
+					type: "POST",
+					success: function(data) {
+						// toastr.success('Data Berhasil Diproses');
+						swal({
+							title               : "Data",
+							html                : "Data Berhasil Diproses",
+							type                : "success",
+							confirmButtonText   : "OK"
+						});
+						
+						setTimeout(function(){ location.reload(); }, 1000);
+						location.href = "<?= base_url()?>Logistik/Invoice";
+						
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						// toastr.error('Terjadi Kesalahan');
+						swal({
+							title               : "Cek Kembali",
+							html                : "Terjadi Kesalahan",
+							type                : "error",
+							confirmButtonText   : "OK"
+						});
+						return;
+					}
+				});
+		
+		});
+
+
+	}
+
+	function batal_acc(no_inv) 
+	{
+		swal({
+			title: "Batal Verifikasi Invoice",
+			html: "<p> Apakah Anda yakin ?</p><br>",
+			type                : "question",
+			showCancelButton    : true, 
+			confirmButtonText   : '<b><i class="fas fa-lock"></i> LOCK INVOICE</b>',
+			cancelButtonText    : '<b><i class="fas fa-undo"></i> Batal</b>',
+			confirmButtonClass  : 'btn btn-danger',
+			cancelButtonClass   : 'btn btn-danger',
+			confirmButtonColor  : '#28a745',			
+			cancelButtonColor   : '#d33'			
+		}).then(() => {
+
+				$.ajax({
+					url: '<?= base_url(); ?>Logistik/prosesData',
+					data: ({
+						id    : no_inv,
+						jenis : 'batal_inv'
+					}),
+					type: "POST",
+					success: function(data) {
+						// toastr.success('Data Berhasil Diproses');
+						swal({
+							title               : "Data",
+							html                : "Data Berhasil Di Batalkan",
+							type                : "success",
+							confirmButtonText   : "OK"
+						});
+						
+						setTimeout(function(){ location.reload(); }, 1000);
+						location.href = "<?= base_url()?>Logistik/Invoice";
+						
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						// toastr.error('Terjadi Kesalahan');
+						swal({
+							title               : "Cek Kembali",
+							html                : "Terjadi Kesalahan",
+							type                : "error",
+							confirmButtonText   : "OK"
+						});
+						return;
+					}
+				});
+		
+		});
+
+
 	}
 
 </script>

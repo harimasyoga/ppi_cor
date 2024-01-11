@@ -38,11 +38,15 @@ class Logistik extends CI_Controller
 	{
 		$id       = $_GET['id'];
 		$no_inv   = $_GET['no_inv'];
+		$acc      = $_GET['acc'];
+		$statuss  = $_GET['statuss'];
 
 		$data = array(
 			'judul' 	 => "Edit Invoice",
 			'id'    	 => $id,
 			'no_inv'     => $no_inv,
+			'acc'        => $acc,
+			'statuss'    => $statuss,
 		);
 		$this->load->view('header', $data);
 		$this->load->view('Logistik/v_invoice_edit');
@@ -235,6 +239,24 @@ class Logistik extends CI_Controller
 					}
 				}
 
+				if($r->acc_admin=='N')
+                {
+                    $btn1   = 'btn-warning';
+                    $i1     = '<i class="fas fa-lock"></i>';
+                } else {
+                    $btn1   = 'btn-success';
+                    $i1     = '<i class="fas fa-check-circle"></i>';
+                }
+
+				if($r->acc_owner=='N')
+                {
+                    $btn2   = 'btn-warning';
+                    $i2     = '<i class="fas fa-lock"></i>';
+                } else {
+                    $btn2   = 'btn-success';
+                    $i2     = '<i class="fas fa-check-circle"></i>';
+                }
+
 				$total    = $queryd->jumlah + $nominal;
 
 				$id       = "'$r->id'";
@@ -249,14 +271,42 @@ class Logistik extends CI_Controller
 				$row[] = $r->kepada;
 				$row[] = $r->nm_perusahaan;
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo).'</div>';
-				$row[] = '<div class="text-right">'.number_format($total, 0, ",", ".").'</div>';
+				
+				if (in_array($this->session->userdata('username'), ['karina']))
+				{
+					if($r->acc_owner=='N'){
+
+						$urll1 = "href=Invoice_edit?id=$r->id&statuss=$r->acc_admin&no_inv=$r->no_invoice&acc=1 ";
+
+					}else{
+						$urll1 = '';
+					}
+					
+					$urll2 = '';
+
+				} else if (in_array($this->session->userdata('username'), ['bumagda']))
+				{
+					$urll1 = '';
+					$urll2 = "href=Invoice_edit?id=$r->id&statuss=$r->acc_owner&no_inv=$r->no_invoice&acc=1";
+				} else {
+					$urll1 = '';
+					$urll2 = '';
+				}
+
+				$row[] = '<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn1.' " ' . $urll1 . ' title="VERIFIKASI DATA" > <b>'.$i1.' </b> </a><div>';
+					
+				$row[] ='<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn2.' " ' . $urll2 . ' title="VERIFIKASI DATA" >
+				<b>'.$i2.' </b> </a><div>';
+
+				$row[] = '<div class="text-right"><b>'.number_format($total, 0, ",", ".").'</b></div>';
+
 				$aksi = "";
 
 				if (in_array($this->session->userdata('level'), ['Admin','Keuangan1']))
 				{
-					if ($r->status == "Open") {
+					if ($r->acc_owner == "N") {
 						$aksi = '
-							<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&no_inv=" .$r->no_invoice ."") . '" title="EDIT DATA" >
+							<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&statuss=Y&no_inv=" .$r->no_invoice ."&acc=0") . '" title="EDIT DATA" >
 								<b><i class="fa fa-edit"></i> </b>
 							</a> 
 
@@ -264,18 +314,13 @@ class Logistik extends CI_Controller
 								<i class="fa fa-trash-alt"></i>
 							</button> 
 
-							<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . $id . ',' . $no_inv . ')" class="btn btn-info btn-sm">
-								<i class="fa fa-check"></i>
-							</button>
-
 							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
 							
 							';
-					} else if ($r->status == "Verified") {
+					} else {
 						$aksi = '
-							<a type="button" href="' . $print . '" target="blank" class="btn btn-default btn-circle waves-effect waves-circle waves-float" title="Print Invoice">
-								<i class="material-icons">print</i>
-							</a>';
+						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+						';
 					}
 				} else {
 					$aksi = '';
@@ -336,6 +381,14 @@ class Logistik extends CI_Controller
 		echo json_encode($output);
 	}
 
+	function prosesData()
+	{
+		$jenis    = $_POST['jenis'];
+		$result   = $this->m_logistik->$jenis();
+
+		echo json_encode($result);
+	}
+	
 	function load_sj($searchTerm="")
 	{
 		// ASLI

@@ -41,8 +41,10 @@
 							<th style="text-align: center; width:10%">No Invoice</th>
 							<th style="text-align: center; width:10%">No SJ</th>
 							<th style="text-align: center; width:10%">Kepada</th>
-							<th style="text-align: center; width:15%">Nama Perusahaan</th>
-							<th style="text-align: center; width:15%">Jatuh Tempo</th>
+							<th style="text-align: center; width:10%">Perusahaan</th>
+							<th style="text-align: center; width:10%">Jatuh Tempo</th>
+							<th style="text-align: center; width:5%">Admin</th>
+							<th style="text-align: center; width:5%">Owner</th>
 							<th style="text-align: center; width:15%">Total</th>
 							<th style="text-align: center; width:10%;">Aksi</th>
 						</tr>
