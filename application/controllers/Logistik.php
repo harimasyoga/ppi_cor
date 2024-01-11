@@ -2248,7 +2248,8 @@ class Logistik extends CI_Controller
 				<th style="padding:6px;border:1px solid #bbb;text-align:center" colspan="2">AKSI</th>
 			</tr>';
 
-		$cekRK = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_status='Open' GROUP BY rk_urut");
+		$date = date('Y-m-d');
+		$cekRK = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_status='Open' AND rk_tgl='$date' GROUP BY rk_urut");
 
 		if($this->cart->total_items() == 0){
 			if($cekRK->num_rows() == 0){
