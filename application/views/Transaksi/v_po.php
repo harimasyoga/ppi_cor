@@ -41,20 +41,21 @@
 								<?php if ($this->session->userdata('level') != "PPIC")  {?>
 
 									<th style="text-align: center; width:3%">No</th>
-									<th style="text-align: center; width:15%">No PO</th>
+									<th style="text-align: center; width:10%">No PO</th>
 									<th style="text-align: center; width:20%">Tgl PO</th>
 									<th style="text-align: center; width:5%">Status</th>
 									<th style="text-align: center; width:10%">Kode PO</th>
 									<!-- <th style="display:none;">Kode PO</th> -->
 									<!-- <th style="text-align: center">Total Qty</th> -->
 									<th style="text-align: center; width:10%">Customer</th>
+									<th style="text-align: center; width:5%">Admin</th>
 									<th style="text-align: center; width:5%">Mkt</th>
 									<th style="text-align: center; width:7%">PPIC</th>
 									<th style="text-align: center; width:5%">Owner</th>
 									<th style="text-align: center; width:20%;">Aksi</th>
 								<?php } else { ?>
 									<th style="text-align: center; width:3%">No</th>
-									<th style="text-align: center; width:15%">No PO</th>
+									<th style="text-align: center; width:10%">No PO</th>
 									<th style="text-align: center; width:15%">Tgl PO</th>
 									<th style="text-align: center; width:15%">Item</th>
 									<th style="text-align: center; width:5%">Status</th>
@@ -62,6 +63,7 @@
 									<!-- <th style="display:none;">Kode PO</th> -->
 									<!-- <th style="text-align: center">Total Qty</th> -->
 									<th style="text-align: center; width:10%">Customer</th>
+									<th style="text-align: center; width:5%">Admin</th>
 									<th style="text-align: center; width:5%">Mkt</th>
 									<th style="text-align: center; width:7%">PPIC</th>
 									<th style="text-align: center; width:5%">Owner</th>
