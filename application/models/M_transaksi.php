@@ -146,7 +146,7 @@ class M_transaksi extends CI_Model
 		} else {
 
 			$this->db->set("edit_user", $this->username);
-			$this->db->set("edit_time", date('Y-m-d H:i:s'));
+			$this->db->set("edit_time", date("Y:m:d H:i:s"));
 			$result = $this->db->update($table, $data, array('no_po' => $params->no_po));
 		}
 
