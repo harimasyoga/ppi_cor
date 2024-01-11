@@ -597,47 +597,52 @@ class M_transaksi extends CI_Model
 	function batal($id, $jenis, $field)
 	{
 
-		$this->db->set("Status", 'Batal');
-		$this->db->set("edit_user", $this->username);
-		$this->db->set("edit_time", date('Y-m-d H:i:s'));
-		$this->db->where($field, $id);
-		$query = $this->db->update($jenis);
+		// $this->db->set("Status", 'Batal');
+		// $this->db->set("edit_user", $this->username);
+		// $this->db->set("edit_time", date('Y-m-d H:i:s'));
+		// $this->db->where($field, $id);
+		// $query = $this->db->update($jenis);
 
-		if ($jenis == "trs_so_detail") {
-			$data = $this->db->query("SELECT * FROM trs_so_detail WHERE id ='" . $id . "' ")->row();
+		// if ($jenis == "trs_so_detail") {
+		// 	$data = $this->db->query("SELECT * FROM trs_so_detail WHERE id ='" . $id . "' ")->row();
 
-			$this->db->set("Status", 'Open');
-			$this->db->where("no_po", $data->no_po);
-			$this->db->where("kode_mc", $data->kode_mc);
-			$query = $this->db->update("trs_po_detail");
+		// 	$this->db->set("Status", 'Open');
+		// 	$this->db->where("no_po", $data->no_po);
+		// 	$this->db->where("kode_mc", $data->kode_mc);
+		// 	$query = $this->db->update("trs_po_detail");
 
-			$this->db->set("Status", 'Open');
-			$this->db->where("no_po", $data->no_po);
-			$query = $this->db->update("trs_po");
-		} else if ($jenis == "trs_wo") {
-			$data = $this->db->query("SELECT * FROM trs_wo WHERE id ='" . $id . "' ")->row();
+		// 	$this->db->set("Status", 'Open');
+		// 	$this->db->where("no_po", $data->no_po);
+		// 	$query = $this->db->update("trs_po");
+		// } else if ($jenis == "trs_wo") {
+			$cekPlan = $this->db->query("SELECT*FROM plan_cor WHERE id_wo='$id'");
+			if($cekPlan->num_rows() == 0){
+				$data = $this->db->query("SELECT * FROM trs_wo WHERE id ='" . $id . "' ")->row();
 
-			$this->db->set("Status", 'Open');
-			$this->db->where("id", $data->no_so);
-			$query = $this->db->update("trs_so_detail");
+				$this->db->set("Status", 'Open');
+				$this->db->where("id", $data->no_so);
+				$query = $this->db->update("trs_so_detail");
+	
+				$this->db->where("no_wo", $data->no_wo);
+				$query = $this->db->delete("trs_wo_detail");
+	
+				$this->db->where("no_wo", $data->no_wo);
+				$query = $this->db->delete("trs_wo");
+			}else{
+				$query = false;
+			}
+		// }
+		// else if ($jenis == "trs_surat_jalan") {
+		// 	$data = $this->db->query("SELECT * FROM trs_surat_jalan WHERE id ='" . $id . "' ")->row();
 
-			// $this->db->set("Status", 'Batal');
-			$this->db->where("no_wo", $data->no_wo);
-			$query = $this->db->delete("trs_wo_detail");
+		// 	$this->db->set("Status", 'Open');
+		// 	$this->db->where("no_wo", $data->no_wo);
+		// 	$query = $this->db->update("trs_wo");
 
-			$this->db->where("no_wo", $data->no_wo);
-			$query = $this->db->delete("trs_wo");
-		} else if ($jenis == "trs_surat_jalan") {
-			$data = $this->db->query("SELECT * FROM trs_surat_jalan WHERE id ='" . $id . "' ")->row();
-
-			$this->db->set("Status", 'Open');
-			$this->db->where("no_wo", $data->no_wo);
-			$query = $this->db->update("trs_wo");
-
-			$this->db->set("Status", 'Open');
-			$this->db->where("no_wo", $data->no_wo);
-			$query = $this->db->update("trs_wo_detail");
-		}
+		// 	$this->db->set("Status", 'Open');
+		// 	$this->db->where("no_wo", $data->no_wo);
+		// 	$query = $this->db->update("trs_wo_detail");
+		// }
 
 		return $query;
 	}

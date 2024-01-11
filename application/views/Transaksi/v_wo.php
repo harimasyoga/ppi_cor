@@ -934,15 +934,25 @@
               }
             })
           },
-          success : function(data){
-            // toastr.success('Data Berhasil Di Batalkan'); 
-            swal({
-              title               : "Data",
-              html                : "Data Berhasil Di Batalkan",
-              type                : "success",
-              confirmButtonText   : "OK"
-            });
-            reloadTable();
+          success : function(res){
+			data = JSON.parse(res)
+			if(data){
+				swal({
+				title               : "Data",
+				html                : "Data Berhasil Di Batalkan",
+				type                : "success",
+				confirmButtonText   : "OK"
+				});
+				reloadTable();
+			}else{
+				swal({
+					title               : "CEK KEMBALI!",
+					html                : "WO SUDAH MASUK PLAN!",
+					type                : "error",
+					confirmButtonText   : "OK"
+				});
+				reloadTable();
+			}
           },
           error: function (jqXHR, textStatus, errorThrown)
           {
