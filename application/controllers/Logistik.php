@@ -1383,8 +1383,7 @@ class Logistik extends CI_Controller
 			$getKodePO = $this->db->query("SELECT w.kode_po,g.* FROM m_gudang g
 			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
 			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close'
-			-- AND g.gd_status='Open'
-			GROUP BY w.kode_po");
+			GROUP BY w.kode_po,g.gd_status");
 			$sumAllQty = 0;
 			$sumAllTon = 0;
 			foreach($getKodePO->result() as $r){
@@ -1399,9 +1398,7 @@ class Logistik extends CI_Controller
 				$getIsi = $this->db->query("SELECT w.kode_po,g.*,c.* FROM m_gudang g
 				INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
 				INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-				WHERE w.kode_po='$r->kode_po' AND g.gd_id_produk='$r->gd_id_produk' AND g.gd_cek_spv='Close'
-				-- AND g.gd_status='Open'
-				");
+				WHERE w.kode_po='$r->kode_po' AND g.gd_id_produk='$r->gd_id_produk' AND g.gd_cek_spv='Close'");
 				$sumIsiQty = 0;
 				$sumIsiTon = 0;
 				foreach($getIsi->result() as $isi){
@@ -2163,6 +2160,9 @@ class Logistik extends CI_Controller
 			return;
 		}else if($_POST["muat"] > $_POST["qty"]){
 			echo json_encode(array('data' => false, 'isi' => 'MUAT LEBIH BESAR DARI STOK GUDANG!'));
+			return;
+		}else if($_POST["tonase"] == 0){
+			echo json_encode(array('data' => false, 'isi' => 'MUAT TIDAK BOLEH KOSONG!'));
 			return;
 		}else if($this->cart->total_items() != 0){
 			foreach($this->cart->contents() as $r){

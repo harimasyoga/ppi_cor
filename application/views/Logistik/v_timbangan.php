@@ -67,134 +67,121 @@
 			<div class="modal-body">
 				<form role="form" method="post" id="myForm">
 					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">INPUT</label>
+						<div class="col-sm-10">
+							<select id="plh_input" class="form-control select2" onchange="plhInput()"></select>
+						</div>
+					</div>
+					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">PERMINTAAN</label>
 						<div class="col-sm-10">
-							<input type="hidden" class="form-control" id="kode_lama">
-							<input type="text" class="form-control" id="pimpinan" placeholder="ATAS NAMA" autocomplete="off" maxlength="50" oninput="this.value = this.value.toUpperCase()">
+							<input type="text" class="form-control" id="pimpinan" placeholder="-" autocomplete="off" maxlength="25" oninput="this.value = this.value.toUpperCase()">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">SUPPLIER</label>
 						<div class="col-sm-10">
-							<textarea class="form-control" id="alamat" placeholder="ALAMAT KANTOR" oninput="this.value = this.value.toUpperCase()"></textarea>
+							<input type="text" class="form-control" id="supplier" placeholder="-" autocomplete="off" maxlength="25" oninput="this.value = this.value.toUpperCase()">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">ALAMAT</label>
 						<div class="col-sm-10">
-							<textarea class="form-control" id="alamat" placeholder="ALAMAT KANTOR" oninput="this.value = this.value.toUpperCase()"></textarea>
+							<textarea class="form-control" id="alamat" placeholder="-" oninput="this.value = this.value.toUpperCase()"></textarea>
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">NO POLISI</label>
 						<div class="col-sm-10">
-							<textarea class="form-control" id="alamat" placeholder="ALAMAT KANTOR" oninput="this.value = this.value.toUpperCase()"></textarea>
+							<input type="text" class="form-control" id="nopol" placeholder="-" autocomplete="off" maxlength="25" oninput="this.value = this.value.toUpperCase()">
 						</div>
 					</div>
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">MASUK</label>
+						<label class="col-sm-2 col-form-label">TGL MASUK</label>
 						<div class="col-sm-10">
-							<input type="hidden" class="form-control" id="nm_old">
-							<input type="text" class="form-control" id="nm_hub" placeholder="NAMA PELANGGAN" autocomplete="off" maxlength="50" oninput="this.value = this.value.toUpperCase()">
+							<input type="datetime-local" class="form-control" id="tgl_masuk">
 						</div>
 					</div>
-
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">KELUAR</label>
+						<label class="col-sm-2 col-form-label">TGL KELUAR</label>
 						<div class="col-sm-10">
-							<input type="hidden" class="form-control" id="nm_old">
-							<input type="text" class="form-control" id="nm_hub" placeholder="NAMA PELANGGAN" autocomplete="off" maxlength="50" oninput="this.value = this.value.toUpperCase()">
+							<input type="datetime-local" class="form-control" id="tgl_keluar">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">BARANG</label>
 						<div class="col-sm-10">
-							<textarea class="form-control" id="alamat" placeholder="ALAMAT KANTOR" oninput="this.value = this.value.toUpperCase()"></textarea>
-						</div>
-					</div>
-					
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">BERAT KOTOR</label>
-						<div class="col-sm-10">
-							<input type="text" class="angka form-control" id="kode_pos" placeholder="-" autocomplete="off" maxlength="10">
+							<input type="text" class="angka form-control" id="nm_barang" placeholder="-" autocomplete="off" maxlength="25">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">BERAT TRUK</label>
 						<div class="col-sm-10">
-							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
+							<input type="text" class="angka form-control" id="bb_truk" placeholder="-" autocomplete="off" maxlength="11">
 						</div>
 					</div>
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">POTONGAN</label>
+						<label class="col-sm-2 col-form-label">BERAT KOTOR</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" id="fax" placeholder="-" autocomplete="off" maxlength="25">
+							<input type="text" class="angka form-control" id="bb_kotor" placeholder="-" autocomplete="off" maxlength="11">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">BERAT BERSIH</label>
 						<div class="col-sm-10">
-							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
+							<input type="text" class="angka form-control" id="bb_bersih" placeholder="-" autocomplete="off" maxlength="11">
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">POTONGAN</label>
+						<div class="col-sm-10">
+							<input type="text" class="angka form-control" id="potongan" placeholder="KG" autocomplete="off" maxlength="11">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">CATATAN</label>
 						<div class="col-sm-10">
-							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
+							<input type="text" class="form-control" id="catatan" placeholder="-" autocomplete="off" maxlength="25" oninput="this.value = this.value.toUpperCase()">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">PENIMBANG</label>
 						<div class="col-sm-10">
-							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
-						</div>
-					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">SATPAM</label>
-						<div class="col-sm-10">
-							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
+							<select id="nm_penimbang" class="form-control select2"></select>
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">SOPIR</label>
 						<div class="col-sm-10">
-							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
+							<input type="text" class="form-control" id="nm_supir" placeholder="-" autocomplete="off" maxlength="25" oninput="this.value = this.value.toUpperCase()">
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">KETERANGAN</label>
 						<div class="col-sm-10">
-							<input type="text" class="angka form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
+							<input type="text" class="form-control" id="keterangan" placeholder="-" autocomplete="off" maxlength="25" oninput="this.value = this.value.toUpperCase()">
 						</div>
 					</div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i> Simpan</button>
-				
 				<button type="button" class="btn btn-danger" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-times-circle"></i> <b> Batal</b></button>
-				
 			</div>
 			</form>
 		</div>
-		<!-- /.modal-content -->
 	</div>
-	<!-- /.modal-dialog -->
 </div>
-<!-- /.modal -->
 
 <script type="text/javascript">
-	rowNum = 0;
 	$(document).ready(function() {
 		$(".select2").select2()
 		load_data()
 	});
 
-	status = "insert";
 	$(".tambah_data").click(function(event) {
 		kosong()
 		$("#modalForm").modal("show")
 		$("#judul").html('<h3> Form Tambah Data</h3>')
-		status = "insert"
 	});
 
 	function close_modal(){
@@ -226,70 +213,70 @@
 	}
 
 	function simpan() {
-		$("#btn-simpan").prop("disabled", true);
-		
-		kode_lama   = $("#kode_lama").val();
-		nm_old      = $("#nm_old").val();
-		pimpinan    = $("#pimpinan").val();
-		nm_hub      = $("#nm_hub").val();
-		alamat      = $("#alamat").val();
-		no_telp     = $("#no_telp").val();
-		kode_pos    = $("#kode_pos").val();
-		fax         = $("#fax").val();
-
-		if ( pimpinan == "" || nm_hub == "" || alamat == "" ) {
-			swal("HARAP LENGKAPI FORM!", "", "info")
-			$("#btn-simpan").prop("disabled", false);
-			return;
-		}
-
-		$.ajax({
-			url: '<?php echo base_url(); ?>/Master/Insert/'+status,
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
-			data: ({
-				kode_lama, nm_old, pimpinan ,nm_hub ,alamat ,no_telp ,kode_pos ,fax , jenis: 'm_hub', status: status
-			}),
-			success: function(res) {
-				data = JSON.parse(res)
-				// console.log(data)
-				if(data.data){
-					swal("BERHASIL DISIMPAN!", "", "success")
-					kosong();
-					$("#modalForm").modal("hide");
-					reloadTable();
-				}else{
-					swal(data.isi, "", "error")
-					$("#btn-simpan").prop("disabled", false);
-				}
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				toastr.error('Terjadi Kesalahan');
-				swal.close()
-			}
-		});
+		let pimpinan = $("#pimpinan").val()
+		let supplier = $("#supplier").val()
+		let alamat = $("#alamat").val()
+		let nopol = $("#nopol").val()
+		let tgl_masuk = $("#tgl_masuk").val()
+		let tgl_keluar = $("#tgl_keluar").val()
+		let nm_barang = $("#nm_barang").val()
+		let bb_kotor = $("#bb_kotor").val()
+		let bb_truk = $("#bb_truk").val()
+		let bb_bersih = $("#bb_bersih").val()
+		let potongan = $("#potongan").val()
+		let catatan = $("#catatan").val()
+		let nm_penimbang = $("#nm_penimbang").val()
+		let nm_supir = $("#nm_supir").val()
+		let keterangan = $("#keterangan").val()
+		console.log("pimpinan : ", pimpinan)
+		console.log("supplier : ", supplier)
+		console.log("alamat : ", alamat)
+		console.log("nopol : ", nopol)
+		console.log("tgl_masuk : ", tgl_masuk)
+		console.log("tgl_keluar : ", tgl_keluar)
+		console.log("nm_barang : ", nm_barang)
+		console.log("bb_kotor : ", bb_kotor)
+		console.log("bb_truk : ", bb_truk)
+		console.log("bb_bersih : ", bb_bersih)
+		console.log("potongan : ", potongan)
+		console.log("catatan : ", catatan)
+		console.log("nm_penimbang : ", nm_penimbang)
+		console.log("nm_supir : ", nm_supir)
+		console.log("keterangan : ", keterangan)
 	}
 
 	function kosong() {
-		$("#kode_lama").val("");
-		$("#nm_old").val("");
-		$("#pimpinan").val("");
-		$("#nm_hub").val("");
-		$("#alamat").val("");
-		$("#kode_pos").val("");
-		$("#no_telp").val("");
-		$("#fax").val("");
-		status = 'insert';
+		$("#plh_input").html(`<option value="">PILIH</option><option value="MANUAL">MANUAL</option><option value="CORR">CORR</option>`)
+		$("#pimpinan").val("")
+		$("#supplier").val("")
+		$("#alamat").val("")
+		$("#nopol").val("")
+		$("#tgl_masuk").val("")
+		$("#tgl_keluar").val("")
+		$("#nm_barang").val("")
+		$("#bb_kotor").val("")
+		$("#bb_truk").val("")
+		$("#bb_bersih").val("")
+		$("#potongan").val("")
+		$("#catatan").val("")
+		$("#nm_penimbang").html(`<option value="">PILIH</option><option value="1">Feri S</option><option value="2">DWI J</option>`)
+		$("#nm_supir").val("")
+		$("#keterangan").val("")
+		// $('input[type=text]').prop('disabled', true);
 		$("#btn-simpan").show().prop("disabled", false);
+	}
+
+	function plhInput() {
+		let plh_input = $("#plh_input").val()
+		if(plh_input == 'CORR'){
+			loadSJTimbangan()
+		}else{
+			kosong()
+		}
+	}
+
+	function loadSJTimbangan() {
+		console.log('test')
 	}
 
 	function tampil_edit(id, act) {
@@ -303,79 +290,9 @@
 			$("#btn-simpan").show();
 		}
 
-		$("#jenis").val('Update');
-		// $("#id_sales").html(`<option value="">PILIH</option>`).prop('disabled', true)
-		$.ajax({
-			url    : '<?php echo base_url('Logistik/edit_timbangan'); ?>',
-			type   : 'POST',
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
-			data: ({
-				id,
-			}),
-		})
-		.done(function(json) {
-			data = JSON.parse(json)
-
-			$("#kode_lama").val(data.hub.id_hub);
-			$("#pimpinan").val(data.hub.pimpinan);
-			$("#nm_hub").val(data.hub.nm_hub);
-			$("#nm_old").val(data.hub.nm_hub);
-			$("#alamat").val(data.hub.alamat);
-			$("#kode_pos").val(data.hub.kode_pos);
-			$("#no_telp").val(data.hub.no_telp);
-			$("#fax").val(data.hub.fax);
-
-			swal.close()
-		})
 	}
 
-
 	function deleteData(id) {
-		swal({
-			title: "Apakah Kamu Yakin?",
-			text: "",
-			type: "warning",
-			showCancelButton: true,
-			confirmButtonColor: "#C00",
-			confirmButtonText: "Delete"
-		}).then(function(result) {
-			$.ajax({
-				url: '<?php echo base_url(); ?>Logistik/hapus',
-				beforeSend: function() {
-					swal({
-						title: 'Loading',
-						allowEscapeKey: false,
-						allowOutsideClick: false,
-						onOpen: () => {
-							swal.showLoading();
-						}
-					});
-				},
-				data: ({
-					id: id,
-					jenis: 'm_jembatan_timbang',
-					field: 'id_timbangan'
-				}),
-				type: "POST",
-				success: function(data) {
-					swal.close()
-					toastr.success('Data Berhasil Di Hapus');
-					reloadTable();
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					swal.close()
-					toastr.error('Terjadi Kesalahan');
-				}
-			});
-		})
+
 	}
 </script>
