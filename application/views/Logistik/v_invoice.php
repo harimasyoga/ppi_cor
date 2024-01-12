@@ -62,6 +62,40 @@
 </div>
 <!-- /.content-wrapper -->
 
+
+<!-- modal keterangan -->
+<div class="modal fade" id="modal_acc">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="judul2"></h4>
+			</div>
+			<div class="modal-body">
+				<table border="0">
+					<tr>
+						<td width="35%" ><h3>No PO</h3></td>
+						<td width="10%" ><h3> : </h3></td>
+						<td width="55%"  id="nopo_ket"></td>
+					</tr>
+					<tr>
+						<td width="35%" ><h3>Status</h3></td>
+						<td width="10%" ><h3> : </h3></td>
+						<td width="55%"  id="status_acc"></td>
+					</tr>
+					<tr>
+						<td><h3>Tanggal Verifikasi</h3></td>
+						<td><h3> : </h3></td>
+						<td id="tgl_ket"></td>
+					</tr>
+					<tr id='alasan' ></tr>
+					
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- end modal keterangan -->
+
 <script type="text/javascript">
 	rowNum = 0;
 	$(document).ready(function() {
@@ -1021,5 +1055,82 @@
 		var url = "<?= base_url('Logistik/Cetak_Invoice'); ?>";
 		window.open(url + '?no_invoice=' + no_invoice, '_blank');
 	}
+
+	function acc_inv(user,acc,no_inv) 
+	{
+		if (acc=='N')
+		{
+			var html = 'VERIFIKASI'
+			var icon = '<i class="fas fa-check"></i>'
+		}else{
+			var html = 'BATAL VERIFIKASI'
+			var icon = '<i class="fas fa-lock"></i>'
+
+		}
+		swal({
+			title: html,
+			html: "<p> Apakah Anda yakin ?</p><br>",
+			type                : "question",
+			showCancelButton    : true,
+			confirmButtonText   : '<b>'+icon+' '+html+'</b>',
+			cancelButtonText    : '<b><i class="fas fa-undo"></i> Batal</b>',
+			confirmButtonClass  : 'btn btn-success',
+			cancelButtonClass   : 'btn btn-danger',
+			confirmButtonColor  : '#28a745',			
+			cancelButtonColor   : '#d33'			
+		}).then(() => {
+
+				$.ajax({
+					url: '<?= base_url(); ?>Logistik/prosesData',
+					data: ({
+						no_inv    : no_inv,
+						user      : user,
+						acc       : acc,
+						jenis     : 'verif_inv'
+					}),
+					type: "POST",
+					beforeSend: function() {
+						swal({
+							title: 'loading ...',
+							allowEscapeKey    : false,
+							allowOutsideClick : false,
+							onOpen: () => {
+								swal.showLoading();
+							}
+						})
+					},
+					success: function(data) {
+						// toastr.success('Data Berhasil Diproses');
+						swal({
+							title               : "Data",
+							html                : "Data Berhasil Diproses",
+							type                : "success",
+							confirmButtonText   : "OK"
+						});
+						
+						// setTimeout(function(){ location.reload(); }, 1000);
+						// location.href = "<?= base_url()?>Logistik/Invoice";
+						// location.href = "<?= base_url()?>Logistik/Invoice_edit?id="+id+"&statuss=Y&no_inv="+no_inv+"&acc=1";
+						reloadTable()
+						
+						
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						// toastr.error('Terjadi Kesalahan');
+						swal({
+							title               : "Cek Kembali",
+							html                : "Terjadi Kesalahan",
+							type                : "error",
+							confirmButtonText   : "OK"
+						});
+						return;
+					}
+				});
+		
+		});
+
+
+	}
+
 
 </script>

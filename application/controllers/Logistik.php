@@ -38,15 +38,11 @@ class Logistik extends CI_Controller
 	{
 		$id       = $_GET['id'];
 		$no_inv   = $_GET['no_inv'];
-		$acc      = $_GET['acc'];
-		$statuss  = $_GET['statuss'];
 
 		$data = array(
 			'judul' 	 => "Edit Invoice",
 			'id'    	 => $id,
 			'no_inv'     => $no_inv,
-			'acc'        => $acc,
-			'statuss'    => $statuss,
 		);
 		$this->load->view('header', $data);
 		$this->load->view('Logistik/v_invoice_edit');
@@ -274,28 +270,24 @@ class Logistik extends CI_Controller
 				
 				if (in_array($this->session->userdata('username'), ['karina']))
 				{
-					if($r->acc_owner=='N'){
-
-						$urll1 = "href=Invoice_edit?id=$r->id&statuss=$r->acc_admin&no_inv=$r->no_invoice&acc=1 ";
-
-					}else{
-						$urll1 = '';
-					}
-					
+					$urll1 = "onclick=acc_inv(`admin`,'$r->acc_admin','$r->no_invoice')";
 					$urll2 = '';
 
 				} else if (in_array($this->session->userdata('username'), ['bumagda']))
 				{
 					$urll1 = '';
-					$urll2 = "href=Invoice_edit?id=$r->id&statuss=$r->acc_owner&no_inv=$r->no_invoice&acc=1";
+					$urll2 = "onclick=acc_inv(`owner`,'$r->acc_owner','$r->no_invoice')";
 				} else {
 					$urll1 = '';
 					$urll2 = '';
 				}
 
-				$row[] = '<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn1.' " ' . $urll1 . ' title="VERIFIKASI DATA" > <b>'.$i1.' </b> </a><div>';
+
+				$row[] = '<div class="text-center">
+				<button '.$urll1.' type="button" title="VERIFIKASI DATA" style="text-align: center;" class="btn btn-sm '.$btn1.' ">'.$i1.'</button>
+				<div>';
 					
-				$row[] ='<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn2.' " ' . $urll2 . ' title="VERIFIKASI DATA" >
+				$row[] ='<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn2.' " '.$urll2.' title="VERIFIKASI DATA" >
 				<b>'.$i2.' </b> </a><div>';
 
 				$row[] = '<div class="text-right"><b>'.number_format($total, 0, ",", ".").'</b></div>';
@@ -306,7 +298,7 @@ class Logistik extends CI_Controller
 				{
 					if ($r->acc_owner == "N") {
 						$aksi = '
-							<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&statuss=Y&no_inv=" .$r->no_invoice ."&acc=0") . '" title="EDIT DATA" >
+							<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&no_inv=" .$r->no_invoice ."") . '" title="EDIT DATA" >
 								<b><i class="fa fa-edit"></i> </b>
 							</a> 
 

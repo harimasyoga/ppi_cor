@@ -1326,16 +1326,16 @@
 					}),
 					type: "POST",
 					success: function(data) {
-						// toastr.success('Data Berhasil Diproses');
-						swal({
-							title               : "Data",
-							html                : "Data Berhasil Diproses",
-							type                : "success",
-							confirmButtonText   : "OK"
-						});
-						// reloadTable();
-						setTimeout(function(){ location.reload(); }, 1000);
+						toastr.success('Data Berhasil Diproses');
+						// swal({
+						// 	title               : "Data",
+						// 	html                : "Data Berhasil Diproses",
+						// 	type                : "success",
+						// 	confirmButtonText   : "OK"
+						// });
 						$("#modalForm").modal("hide");
+						reloadTable();
+						// setTimeout(function(){ location.reload(); }, 1000);
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
 						// toastr.error('Terjadi Kesalahan');
@@ -1393,13 +1393,13 @@
 					}),
 					type: "POST",
 					success: function(data) {
-						// toastr.success('Data Berhasil Diproses');
-						swal({
-							title               : "Data",
-							html                : "Data Berhasil Diproses",
-							type                : "success",
-							confirmButtonText   : "OK"
-						});
+						toastr.success('<b>Data Berhasil Diproses</b>');
+						// swal({
+						// 	title               : "Data",
+						// 	html                : "Data Berhasil Diproses",
+						// 	type                : "success",
+						// 	confirmButtonText   : "OK"
+						// });
 						reloadTable();
 						$("#modalForm").modal("hide");
 					},
@@ -1461,13 +1461,13 @@
 					}),
 					type: "POST",
 					success: function(data) {
-						// toastr.success('Data Berhasil Diproses');
-						swal({
-							title               : "Data",
-							html                : "Data Berhasil Diproses",
-							type                : "success",
-							confirmButtonText   : "OK"
-						});
+						toastr.success('Data Berhasil Diproses');
+						// swal({
+						// 	title               : "Data",
+						// 	html                : "Data Berhasil Diproses",
+						// 	type                : "success",
+						// 	confirmButtonText   : "OK"
+						// });
 						reloadTable();
 						$("#modalForm").modal("hide");
 					},
@@ -1994,10 +1994,11 @@
 	{
 		<?php if ($this->session->userdata('level') != "PPIC"){ ?>
 		
-		var cek   = id.substr(0,9);
-		var id2   = id.substr(9,1);
-		var value = (val=='') ? 0 : val;
-		var value = value.split('.').join('');
+		var kode_po   = $('#kode_po').val()
+		var cek       = id.substr(0,9);
+		var id2       = id.substr(9,1);
+		var value     = (val=='') ? 0 : val;
+		var value     = value.split('.').join('');
 
 		if(cek=='price_exc')
 		{
@@ -2089,8 +2090,15 @@
 
 										p11         = selisih / rumus * 100;
 
-										$('#p11'+id2).val('- '+ p11.toFixed(1)+' %');
-										swal.close();
+										// khusus untuk PO PT. DAN LIRIS kode PE-F2-24-01-026
+										if(kode_po=='PE-F2-24-01-026')
+										{
+											$('#p11'+id2).val(''+ p11.toFixed(1)+' %');
+											swal.close();
+										}else{
+											$('#p11'+id2).val('- '+ p11.toFixed(1)+' %');
+											swal.close();
+										}
 
 									}
 								});

@@ -665,29 +665,54 @@ class M_logistik extends CI_Model
 
 	function verif_inv()
 	{
-		$id       = $this->input->post('id');
+		$no_inv   = $this->input->post('no_inv');
+		$user     = $this->input->post('user');
+		$acc      = $this->input->post('acc');
 		$app      = "";
 
 		// KHUSUS ADMIN //
 		if ($this->session->userdata('level') == "Admin") 
 		{
 
-			$this->db->set("acc_admin", 'Y');
-			$this->db->set("acc_owner", 'Y');
-			$this->db->where("no_invoice",$id);
+			if($acc=='N')
+			{
+				$this->db->set("acc_admin", 'Y');
+				$this->db->set("acc_owner", 'Y');
+			}else{
+				$this->db->set("acc_admin", 'N');
+				$this->db->set("acc_owner", 'N');
+			}
+			
+			$this->db->where("no_invoice",$no_inv);
 			$valid = $this->db->update("invoice_header");
 
 		} else if ($this->session->userdata('level') == "Keuangan1" && $this->session->userdata('username') == "karina") 
 		{
-			$this->db->set("acc_admin", 'Y');
-			$this->db->where("no_invoice",$id);
+			if($acc=='N')
+			{
+				$this->db->set("acc_admin", 'Y');
+			}else{
+				$this->db->set("acc_admin", 'N');
+			}
+			
+			$this->db->where("no_invoice",$no_inv);
+			$valid = $this->db->update("invoice_header");
+
+		} else if ($this->session->userdata('level') == "Keuangan1" && $this->session->userdata('username') == "bumagda") 
+		{
+			if($acc=='N')
+			{
+				$this->db->set("acc_owner", 'Y');
+			}else{
+				$this->db->set("acc_owner", 'N');
+			}
+			
+			$this->db->where("no_invoice",$no_inv);
 			$valid = $this->db->update("invoice_header");
 
 		} else {
-	
-			$this->db->set("acc_owner", 'Y');
-			$this->db->where("no_invoice",$id);
-			$valid = $this->db->update("invoice_header");
+			
+			$valid = false;
 
 		}
 
