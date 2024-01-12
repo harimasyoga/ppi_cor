@@ -2054,12 +2054,12 @@
 
 										var rumus = totsub * (val.ukuran_sheet_p/1000) * (val.ukuran_sheet_l/1000);
 
-										var selisih = rumus - inc;
+										var selisih = inc - rumus;
 
 										p11 = selisih / rumus * 100;
 										if(status=='insert')
 										{
-											$('#p11'+id2).val('- '+ p11.toFixed(1)+' %');
+											$('#p11'+id2).val( p11.toFixed(1)+' %');
 										}else{
 											$('#p11'+id2).val(''+ p11.toFixed(1)+' %');											
 										}
@@ -2086,19 +2086,12 @@
 
 										var rumus   = totsub * (val.ukuran_sheet_p/1000) * (val.ukuran_sheet_l/1000);
 
-										var selisih = rumus - inc;
+										var selisih = inc - rumus;
 
 										p11         = selisih / rumus * 100;
 
-										// khusus untuk PO PT. DAN LIRIS kode PE-F2-24-01-026
-										if(kode_po=='PE-F2-24-01-026')
-										{
-											$('#p11'+id2).val(''+ p11.toFixed(1)+' %');
-											swal.close();
-										}else{
-											$('#p11'+id2).val('- '+ p11.toFixed(1)+' %');
-											swal.close();
-										}
+										$('#p11'+id2).val(p11.toFixed(1)+' %');
+										swal.close();
 
 									}
 								});
