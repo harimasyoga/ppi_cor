@@ -2662,10 +2662,11 @@ class Logistik extends CI_Controller
 			</tr>';
 
 			// AMBIL DATA
-			$data_detail = $this->db->query("SELECT*FROM m_rencana_kirim r
+			$data_detail = $this->db->query("SELECT r.*,p.*,i.*,SUM(r.qty_muat) AS muat FROM m_rencana_kirim r
 			INNER JOIN pl_box p ON r.id_pl_box=p.id
 			INNER JOIN m_produk i ON r.id_produk=i.id_produk
-			WHERE p.no_pkb='$jenis'");
+			WHERE p.no_pkb='$jenis'
+			GROUP BY r.id_pelanggan,r.id_produk,r.rk_kode_po");
 			$no = 0;
 			$sumQty = 0;
 			foreach ($data_detail->result() as $data ) {
@@ -2699,10 +2700,10 @@ class Logistik extends CI_Controller
 					<td style="border:1px solid #000;padding:5px 0">'.$data->rk_kode_po.'</td>
 					<td style="border:1px solid #000;padding:5px 2px">'.$ukuran.'</td>
 					<td style="border:1px solid #000;padding:5px 0">'.$flute.'</td>
-					<td style="border:1px solid #000;padding:5px 0">'.number_format($data->qty_muat).' '.$qty_ket.'</td>
+					<td style="border:1px solid #000;padding:5px 0">'.number_format($data->muat).' '.$qty_ket.'</td>
 					<td style="border:1px solid #000;padding:5px 0"></td>
 				</tr>';
-				$sumQty += $data->qty_muat;
+				$sumQty += $data->muat;
 			}
 
 			// TAMBAH KOTAK KOSONG
