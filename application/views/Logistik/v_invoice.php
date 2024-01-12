@@ -30,9 +30,11 @@
 				</div>
 			</div>
 			<div class="card-body">
+				<?php if (!in_array($this->session->userdata('username'), ['bumagda'])) { ?>
 				<a href="<?= base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
-					<br><br>
-
+					<br>
+				<?php } ?>
+				<br>
 				<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 					<thead>
 						<tr>

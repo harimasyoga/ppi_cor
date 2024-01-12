@@ -1179,6 +1179,10 @@
 
 	function proses_acc(no_inv) 
 	{
+		var id       = '<?= $id?>';
+		var no_inv   = '<?= $no_inv?>';
+		var acc      = '<?= $acc?>';
+		var statuss  = '<?= $statuss?>';
 		swal({
 			title: "Verifikasi Invoice",
 			html: "<p> Apakah Anda yakin untuk verifikasi file ini ?</p><br>",
@@ -1199,6 +1203,16 @@
 						jenis : 'verif_inv'
 					}),
 					type: "POST",
+					beforeSend: function() {
+						swal({
+						title: 'loading ...',
+						allowEscapeKey    : false,
+						allowOutsideClick : false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+						})
+					},
 					success: function(data) {
 						// toastr.success('Data Berhasil Diproses');
 						swal({
@@ -1208,8 +1222,10 @@
 							confirmButtonText   : "OK"
 						});
 						
-						setTimeout(function(){ location.reload(); }, 1000);
-						location.href = "<?= base_url()?>Logistik/Invoice";
+						// setTimeout(function(){ location.reload(); }, 1000);
+						// location.href = "<?= base_url()?>Logistik/Invoice";
+						location.href = "<?= base_url()?>Logistik/Invoice_edit?id="+id+"&statuss=Y&no_inv="+no_inv+"&acc=1";
+						
 						
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
@@ -1231,6 +1247,10 @@
 
 	function batal_acc(no_inv) 
 	{
+		var id       = '<?= $id?>';
+		var no_inv   = '<?= $no_inv?>';
+		var acc      = '<?= $acc?>';
+		var statuss  = '<?= $statuss?>';
 		swal({
 			title: "Batal Verifikasi Invoice",
 			html: "<p> Apakah Anda yakin ?</p><br>",
@@ -1251,6 +1271,16 @@
 						jenis : 'batal_inv'
 					}),
 					type: "POST",
+					beforeSend: function() {
+						swal({
+						title: 'loading ...',
+						allowEscapeKey    : false,
+						allowOutsideClick : false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+						})
+					},
 					success: function(data) {
 						// toastr.success('Data Berhasil Diproses');
 						swal({
@@ -1260,8 +1290,9 @@
 							confirmButtonText   : "OK"
 						});
 						
-						setTimeout(function(){ location.reload(); }, 1000);
-						location.href = "<?= base_url()?>Logistik/Invoice";
+						// setTimeout(function(){ location.reload(); }, 1000);
+						// location.href = "<?= base_url()?>Logistik/Invoice";
+						location.href = "<?= base_url()?>Logistik/Invoice_edit?id="+id+"&statuss=N&no_inv="+no_inv+"&acc=1";
 						
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
