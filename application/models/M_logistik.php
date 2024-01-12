@@ -421,6 +421,7 @@ class M_logistik extends CI_Model
 		INNER JOIN trs_po_detail p ON r.id_produk=p.id_produk AND r.id_pelanggan=p.id_pelanggan AND r.rk_kode_po=p.kode_po
 		WHERE r.rk_urut='$urut' AND r.rk_status='Open'");
 
+		$tgl = date('Y-m-d');
 		// INSERT PL BOX
 		foreach($cekMuat->result() as $r){
 			($r->kategori == "K_BOX") ? $kategori = 'BOX' : $kategori = 'SHEET' ;
@@ -437,7 +438,7 @@ class M_logistik extends CI_Model
 
 			$data = [
 				'id_perusahaan' => $r->id_pelanggan,
-				'tgl' => date('Y-m-d'),
+				'tgl' => $tgl,
 				'no_surat' => '000/'.$kategori.'/'.$blnRomami.'/'.substr(date('Y'),2,2).'/'.$sjSo,
 				'no_so' => '000/SO-'.$kategori.'/'.$blnRomami.'/'.substr(date('Y'),2,2).'/'.$sjSo,
 				'no_pkb' => '000/'.substr(date('Y'),2,2).'/'.$kategori.$pkb,
@@ -448,7 +449,7 @@ class M_logistik extends CI_Model
 			];
 
 			// CEK JIKA CUSTOMER DENGAN PO YANG SAMA ABAIKAN
-			$cekPL = $this->db->query("SELECT*FROM pl_box WHERE id_perusahaan='$r->id_pelanggan' AND no_po='$r->rk_kode_po' AND no_pl_urut='$urut'");
+			$cekPL = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND id_perusahaan='$r->id_pelanggan' AND no_po='$r->rk_kode_po' AND no_pl_urut='$urut'");
 			if($cekPL->num_rows() == 0){
 				$insertPl = $this->db->insert('pl_box', $data);
 			}else{
@@ -457,7 +458,6 @@ class M_logistik extends CI_Model
 		}
 
 		// MASUKKAN LIST RENCANA KIRIM KE PACKING LIST, CUSTOMER DAN PO YANG SAMA
-		$tgl = date('Y-m-d');
 		$getPL = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND no_pl_urut='$urut'");
 		foreach($getPL->result() as $l){
 			$this->db->set('id_pl_box', $l->id);
