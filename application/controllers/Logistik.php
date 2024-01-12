@@ -2248,8 +2248,7 @@ class Logistik extends CI_Controller
 				<th style="padding:6px;border:1px solid #bbb;text-align:center" colspan="2">AKSI</th>
 			</tr>';
 
-		$date = date('Y-m-d');
-		$cekRK = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_status='Open' AND rk_tgl='$date' GROUP BY rk_urut");
+		$cekRK = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_status='Open' GROUP BY rk_urut");
 
 		if($this->cart->total_items() == 0){
 			if($cekRK->num_rows() == 0){
@@ -2307,10 +2306,11 @@ class Logistik extends CI_Controller
 					<td style="background:#333;color:#fff;padding:6px" colspan="10">'.$btnPengiriman.''.$txtUrut.'</td>
 				</tr>';
 
+				$date = date('Y-m-d');
 				$getIsi = $this->db->query("SELECT p.nm_pelanggan,i.kategori,i.nm_produk,r.* FROM m_rencana_kirim r
 				INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
 				INNER JOIN m_produk i ON r.id_produk=i.id_produk
-				WHERE r.rk_urut='$rk->rk_urut' ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
+				WHERE r.rk_urut='$rk->rk_urut' AND r.rk_tgl='$date' ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
 				$sumTonn = 0;
 				foreach($getIsi->result() as $isi){
 					$gudang = $this->db->query("SELECT*FROM m_gudang WHERE id_gudang='$isi->id_gudang'")->row();
