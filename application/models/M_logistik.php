@@ -48,7 +48,7 @@ class M_logistik extends CI_Model
 			'nm_perusahaan'      => $this->input->post('nm_perusahaan'),
 			'alamat_perusahaan'  => $this->input->post('alamat_perusahaan'),
 			'bank'  			 => $this->input->post('bank'),
-			'status'             => 'Open',
+			'acc_admin'          => 'Y',
 		);
 	
 		$result_header = $this->db->insert('invoice_header', $data_header);

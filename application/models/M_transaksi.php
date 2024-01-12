@@ -142,7 +142,7 @@ class M_transaksi extends CI_Model
 			
 			$this->db->set("no_po", $nopo);
 			$this->db->set("add_user", $this->username);
-			$this->db->set("edit_time", date("Y:m:d H:i:s"));
+			$this->db->set("add_time", date("Y:m:d H:i:s"));
 			$result = $this->db->insert($table, $data);
 		} else {
 
