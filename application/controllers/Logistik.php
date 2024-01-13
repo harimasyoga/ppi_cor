@@ -1930,10 +1930,12 @@ class Logistik extends CI_Controller
 		$html = '';
 
 		if($opsi == "tgl_kirim"){
-			$getCustomer = $this->db->query("SELECT p.nm_pelanggan,w.kode_po,i.kategori,i.nm_produk,g.*,c.* FROM m_gudang g
+			$getCustomer = $this->db->query("SELECT p.nm_pelanggan,w.kode_po,i.kategori,i.nm_produk,g.*,c.*,fx.*,fs.* FROM m_gudang g
 			INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
 			INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
 			INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
+			LEFT JOIN plan_flexo fx ON g.gd_id_plan_flexo=fx.id_flexo
+			LEFT JOIN plan_finishing fs ON g.gd_id_plan_finishing=fs.id_fs
 			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
 			WHERE g.gd_cek_spv='Close' AND g.gd_status='Open'
 			ORDER BY c.tgl_kirim_plan,p.nm_pelanggan,w.kode_po,i.nm_produk");
@@ -1968,17 +1970,22 @@ class Logistik extends CI_Controller
 							$rcr = ';border-radius:4px';
 							$rfx = '';
 							$rfs = '';
+							$shift = $isi->shift_plan;
+							$mesin = str_replace('CORR', '', $isi->machine_plan);
 						}else if($isi->gd_id_plan_cor != null && $isi->gd_id_plan_flexo != null && $isi->gd_id_plan_finishing == null){
 							$rcr = ';border-radius:4px 0 0 4px';
 							$rfx = ';border-radius:0 4px 4px 0';
 							$rfs = '';
+							$shift = $isi->shift_flexo;
+							$mesin = str_replace('FLEXO', '', $isi->mesin_flexo);
 						}else{
 							$rcr = ';border-radius:4px 0 0 4px';
 							$rfx = '';
 							$rfs = ';border-radius:0 4px 4px 0';
+							$shift = $isi->shift_fs;
+							$mesin = substr($isi->joint_fs,0,1);
 						}
-						$shift = $isi->shift_plan;
-						$mesin = str_replace('CORR', '', $isi->machine_plan);
+						
 						($isi->gd_id_plan_flexo == null) ? $fx = '' : $fx = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfx.'">FX</span>';
 						($isi->gd_id_plan_finishing == null) ? $fs = '' : $fs = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfs.'">FS</span>';
 						($isi->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
@@ -2089,8 +2096,10 @@ class Logistik extends CI_Controller
 		$kode_po = $_POST["kode_po"];
 		$html = '';
 
-		$getIsi = $this->db->query("SELECT p.nm_pelanggan,i.nm_produk,w.kode_po,g.*,c.* FROM m_gudang g
+		$getIsi = $this->db->query("SELECT p.nm_pelanggan,i.nm_produk,w.kode_po,g.*,c.*,fx.*,fs.* FROM m_gudang g
 		INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
+		LEFT JOIN plan_flexo fx ON g.gd_id_plan_flexo=fx.id_flexo
+		LEFT JOIN plan_finishing fs ON g.gd_id_plan_finishing=fs.id_fs
 		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
 		INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
 		INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
@@ -2111,17 +2120,22 @@ class Logistik extends CI_Controller
 					$rcr = ';border-radius:4px';
 					$rfx = '';
 					$rfs = '';
+					$shift = $isi->shift_plan;
+					$mesin = str_replace('CORR', '', $isi->machine_plan);
 				}else if($isi->gd_id_plan_cor != null && $isi->gd_id_plan_flexo != null && $isi->gd_id_plan_finishing == null){
 					$rcr = ';border-radius:4px 0 0 4px';
 					$rfx = ';border-radius:0 4px 4px 0';
 					$rfs = '';
+					$shift = $isi->shift_flexo;
+					$mesin = str_replace('FLEXO', '', $isi->mesin_flexo);
 				}else{
 					$rcr = ';border-radius:4px 0 0 4px';
 					$rfx = '';
 					$rfs = ';border-radius:0 4px 4px 0';
+					$shift = $isi->shift_fs;
+					$mesin = substr($isi->joint_fs,0,1);
 				}
-				$shift = $isi->shift_plan;
-				$mesin = str_replace('CORR', '', $isi->machine_plan);
+				
 				($isi->gd_id_plan_flexo == null) ? $fx = '' : $fx = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfx.'">FX</span>';
 				($isi->gd_id_plan_finishing == null) ? $fs = '' : $fs = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfs.'">FS</span>';
 
