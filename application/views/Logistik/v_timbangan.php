@@ -30,17 +30,20 @@
 			</div>
 			<div class="card-body">
 
+			<?php if($this->session->userdata('level') == 'Admin') { ?>
 				<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<br><br>
+			<?php } ?>
 
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead>
 						<tr>
 							<th style="text-align: center; width:5%">NO.</th>
-							<th style="text-align: center; width:20%">PERMINTAAN</th>
-							<th style="text-align: center; width:20%">TGL MASUK</th>
-							<th style="text-align: center; width:35%">SUPPLIER</th>
-							<th style="text-align: center; width:10%">BERAT BERSIH</th>
+							<th style="text-align: center; width:15%">PERMINTAAN</th>
+							<th style="text-align: center; width:15%">TGL MASUK</th>
+							<th style="text-align: center; width:20%">SUPPLIER</th>
+							<th style="text-align: center; width:20%">JENIS</th>
+							<th style="text-align: center; width:15%">BERAT BERSIH</th>
 							<th style="text-align: center; width:10%">AKSI</th>
 						</tr>
 					</thead>
