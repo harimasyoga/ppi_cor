@@ -328,7 +328,7 @@ class Logistik extends CI_Controller
 			$i               = 1;
 			foreach ($query as $r) {
 
-				$print    = base_url("Logistik/printTimbangan?id=") . $r->id_timbangan;
+				$print    = base_url('Logistik/printTimbangan?id='.$r->id_timbangan.'&top=10');
 				$id       = "'$r->id_timbangan'";
 
 				$row = array();
@@ -347,9 +347,9 @@ class Logistik extends CI_Controller
 					<button type="button" title="DELETE"  onclick="deleteData(' . $id . ')" class="btn btn-danger btn-sm">
 						<i class="fa fa-trash-alt"></i>
 					</button> 
-					<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/printTimbangan?id=" . $r->id_timbangan . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
+					<a target="_blank" class="btn btn-sm btn-danger" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
 				} else {
-					$aksi = '<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Logistik/printTimbangan?id=" . $r->id_timbangan . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
+					$aksi = '<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
 				}
 
 				$row[] = '<div class="text-center">'.$aksi.'</div>';
@@ -2831,6 +2831,7 @@ class Logistik extends CI_Controller
 
 	function printTimbangan(){
 		$html = '';
+		$top = $_GET["top"];
 		$id = $_GET["id"];
 
 		$data = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE id_timbangan='$id'")->row();
@@ -2956,7 +2957,7 @@ class Logistik extends CI_Controller
 
 		// echo $html;
 		$judul = 'TIMBANGAN';
-		$this->m_fungsi->newMpdf($judul, '', $html, 6, 3, 3, 3, 'P', 'TT', $judul.'.pdf');
+		$this->m_fungsi->newMpdf($judul, '', $html, $top, 3, 3, 3, 'P', 'TT', $judul.'.pdf');
 	}
 
 }
