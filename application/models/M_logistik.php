@@ -542,6 +542,58 @@ class M_logistik extends CI_Model
 
 	//
 
+	function simpanTimbangan()
+	{
+		if($_POST["plh_input"] == "" || $_POST["permintaan"] == "" || $_POST["supplier"] == "" || $_POST["alamat"] == "" || $_POST["nopol"] == "" || $_POST["tgl_masuk"] == "" || $_POST["tgl_keluar"] == "" || $_POST["nm_barang"] == "" || $_POST["bb_kotor"] == "" || $_POST["bb_truk"] == "" || $_POST["bb_bersih"] == "" || $_POST["potongan"] == "" || $_POST["catatan"] == "" || $_POST["nm_penimbang"] == "" || $_POST["nm_supir"] == "" || $_POST["keterangan"] == ""){
+			$result = false;
+			$msg = 'HARAP LENGKAPI FORM!';
+		}else{
+			$data = [
+				'input_t' => $_POST["plh_input"],
+				'permintaan' => $_POST["permintaan"],
+				'suplier' => $_POST["supplier"],
+				'alamat' => $_POST["alamat"],
+				'no_polisi' => $_POST["nopol"],
+				'date_masuk' => $_POST["tgl_masuk"],
+				'date_keluar' => $_POST["tgl_keluar"],
+				'nm_barang' => $_POST["nm_barang"],
+				'berat_kotor' => $_POST["bb_kotor"],
+				'berat_truk' => $_POST["bb_truk"],
+				'berat_bersih' => $_POST["bb_bersih"],
+				'potongan' => $_POST["potongan"],
+				'catatan' => $_POST["catatan"],
+				'nm_penimbang' => $_POST["nm_penimbang"],
+				'nm_sopir' => $_POST["nm_supir"],
+				'keterangan' => $_POST["keterangan"],
+				'urut_t' => $_POST["urut"],
+				'tgl_t' => $_POST["tgl"],
+			];
+			if($_POST["opsiInput"] == 'insert'){
+				$result = $this->db->insert('m_jembatan_timbang', $data);
+				$msg = 'BERHASIL TAMBAH DATA!';
+			}else{
+				$this->db->where('id_timbangan', $_POST["id_timbangan"]);
+				$result = $this->db->update('m_jembatan_timbang', $data);
+				$msg = 'BERHASIL EDIT DATA!';
+			}
+		}
+		return [
+			'data' => $result,
+			'msg' => $msg,
+		];
+	}
+
+	function deleteTimbangan()
+	{
+		$this->db->where('id_timbangan', $_POST["id_timbangan"]);
+		$data = $this->db->delete('m_jembatan_timbang');
+		return [
+			'data' => $data,
+		];
+	}
+
+	//
+
 	function update_invoice()
 	{
 		$id_inv         = $this->input->post('id_inv');
