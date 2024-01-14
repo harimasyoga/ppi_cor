@@ -323,38 +323,32 @@ class Logistik extends CI_Controller
 				$i++;
 			}
 		}else if ($jenis == "Timbangan") {
-			$query = $this->db->query("SELECT * FROM m_jembatan_timbang ORDER BY permintaan,id_timbangan")->result();
-
-			$i               = 1;
+			$query = $this->db->query("SELECT * FROM m_jembatan_timbang ORDER BY id_timbangan DESC")->result();
+			$i = 1;
 			foreach ($query as $r) {
-
-				$print    = base_url('Logistik/printTimbangan?id='.$r->id_timbangan.'&top=10');
-				$id       = "'$r->id_timbangan'";
-
+				$print = base_url('Logistik/printTimbangan?id='.$r->id_timbangan.'&top=10');
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = '<div class="text-center">'.$r->permintaan.'</div>';
-				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind(substr($r->date_masuk,0,10)).'<br>( '.substr($r->date_masuk,11).' )</div>';
+				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind(substr($r->date_masuk,0,10)).'</div>';
 				$row[] = $r->suplier;
 				$row[] = $r->nm_barang;
-				$row[] = '<div class="text-right">'.number_format($r->berat_bersih).'</div>';
+				$row[] = $r->catatan;
+				$row[] = '<div class="text-right"><a href="javascript:void(0)" onclick="editTimbangan('."'".$r->id_timbangan."'".','."'detail'".')">'.number_format($r->berat_bersih).'</a></div>';
 				$aksi = "";
-
 				if ($this->session->userdata('level') == 'Admin') {
-					$aksi = '<a class="btn btn-sm btn-warning" onclick="tampil_edit('."'".$r->id_timbangan."'".','."'detail'".')" title="EDIT DATA" >
+					$aksi = '<a class="btn btn-sm btn-warning" onclick="editTimbangan('."'".$r->id_timbangan."'".','."'edit'".')" title="EDIT DATA" >
 						<b><i class="fa fa-edit"></i> </b>
 					</a> 
-					<button type="button" title="DELETE"  onclick="deleteData(' . $id . ')" class="btn btn-danger btn-sm">
+					<button type="button" title="DELETE" onclick="deleteTimbangan('."'".$r->id_timbangan."'".')" class="btn btn-danger btn-sm">
 						<i class="fa fa-trash-alt"></i>
 					</button> 
-					<a target="_blank" class="btn btn-sm btn-danger" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
+					<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
 				} else {
 					$aksi = '<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
 				}
-
 				$row[] = '<div class="text-center">'.$aksi.'</div>';
 				$data[] = $row;
-
 				$i++;
 			}
 		}else{
@@ -2829,6 +2823,74 @@ class Logistik extends CI_Controller
 
 	//
 
+	function loadSJTimbangan()
+	{
+		$getKiriman = $this->db->query("SELECT r.*,p.no_kendaraan FROM m_rencana_kirim r
+		INNER JOIN pl_box p ON r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id AND r.rk_tgl=p.tgl
+		WHERE p.tgl NOT IN (SELECT tgl_t FROM m_jembatan_timbang) OR p.no_pl_urut NOT IN (SELECT urut_t FROM m_jembatan_timbang) OR p.no_kendaraan NOT IN (SELECT no_polisi FROM m_jembatan_timbang)
+		GROUP BY p.tgl,p.no_pl_urut");
+		$html = '';
+		$html .= '<div class="form-group row" style="margin-bottom:0">
+				<label class="col-sm-2"></label>
+				<div class="col-sm-10">
+					<div style="font-size:12px;font-weight:bold;color:#f00;font-style:italic">* [ TGL - NOPOL - CUSTOMER]</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-2 col-form-label">PILIH KIRIMAN</label>
+				<div class="col-sm-10">
+					<select id="slc_plh_kiriman" class="form-control select2" onchange="selectPilihKiriman()">
+						<option value="">PILIH</option>';
+						$i = 0;
+						foreach($getKiriman->result() as $r){
+							$i++;
+							$getCatatan = $this->db->query("SELECT p.*,c.nm_pelanggan FROM pl_box p
+							INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
+							WHERE p.tgl='$r->rk_tgl' AND p.no_pl_urut='$r->rk_urut' AND p.no_kendaraan='$r->no_kendaraan'
+							GROUP BY p.id_perusahaan");
+							$catatan = '';
+							if($getCatatan->num_rows() == 0){
+								$catatan .= '';
+							}else{
+								foreach($getCatatan->result() as $c){
+									$catatan .= $c->nm_pelanggan.' ';
+								}
+							}
+							$html .= '<option value="'.$i.'"
+								no_kendaraan="'.$r->no_kendaraan.'"
+								urut="'.$r->rk_urut.'"
+								tgl="'.$r->rk_tgl.'"
+								catatan="'.$catatan.'"
+							>'.$r->rk_tgl.' - '.$r->no_kendaraan.' - '.$catatan.'</option>';
+						}
+					$html .= '</select>
+				</div>
+			</div>
+		';
+		echo $html;
+	}
+
+	function simpanTimbangan()
+	{
+		$result = $this->m_logistik->simpanTimbangan();
+		echo json_encode($result);
+	}
+
+	function deleteTimbangan()
+	{
+		$result = $this->m_logistik->deleteTimbangan();
+		echo json_encode($result);
+	}
+
+	function editTimbangan()
+	{
+		$id_timbangan = $_POST["id_timbangan"];
+		$query = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE id_timbangan='$id_timbangan'")->row();
+		echo json_encode([
+			'data' => $query,
+		]);
+	}
+
 	function printTimbangan(){
 		$html = '';
 		$top = $_GET["top"];
@@ -2956,7 +3018,7 @@ class Logistik extends CI_Controller
 		// $html .= '<div style="page-break-after:always"></div>';
 
 		// echo $html;
-		$judul = 'TIMBANGAN';
+		$judul = 'JEMBATAN TIMBANG - '.$id;
 		$this->m_fungsi->newMpdf($judul, '', $html, $top, 3, 3, 3, 'P', 'TT', $judul.'.pdf');
 	}
 
