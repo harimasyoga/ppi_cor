@@ -522,7 +522,8 @@ class Transaksi extends CI_Controller
 				
                 $row[] = '<div class="text-center">
 					<button onclick="data_sementara(`PPIC`,' . "'" . $r->status_app2 . "'" . ',' . "'" . $time2 . "'" . ',' . "'" . $alasan2 . "'" . ',' . "'" . $r->no_po . "'" . ')"  type="button" title="'.$time2.'"  style="text-align: center;" class="btn btn-sm '.$btn2.' ">'.$i2.'</button><br>
-					'.$alasan2.'</div>
+					'.$alasan2.' 
+					<span style="font-size:1px;color:transparent">'.$r->status_app2.'</span></div>
 				';
                 $row[] = '<div class="text-center">
 					<button onclick="data_sementara(`Owner`,' . "'" . $r->status_app3 . "'" . ',' . "'" . $time3 . "'" . ',' . "'" . $alasan3 . "'" . ',' . "'" . $r->no_po . "'" . ')"  type="button" title="'.$time3.'"  style="text-align: center;" class="btn btn-sm '.$btn3.' ">'.$i3.'</button><br>
