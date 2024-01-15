@@ -805,12 +805,13 @@ class M_plan extends CI_Model
 		if($_POST["total_flexo"] != 0){
 			$id_flexo = $_POST["id_flexo"];
 			$cekPlan = $this->db->query("SELECT*FROM plan_flexo WHERE id_flexo='$id_flexo'")->row();
-			if($_POST["good_flexo"] > $_POST["good_cor"]){
-				$result = array(
-					'data' => false,
-					'msg' => 'PROD. FLEXO LEBIH BESAR DARI PROD. COR!',
-				);
-			}else if($cekPlan->status_flexo == 'Close'){
+			// if($_POST["good_flexo"] > $_POST["good_cor"]){
+			// 	$result = array(
+			// 		'data' => false,
+			// 		'msg' => 'PROD. FLEXO LEBIH BESAR DARI PROD. COR!',
+			// 	);
+			// }else
+			if($cekPlan->status_flexo == 'Close'){
 				$result = array(
 					'data' => false,
 					'msg' => 'PLAN FLEXO SUDAH SELESAI!',
@@ -1151,12 +1152,13 @@ class M_plan extends CI_Model
 		if($_POST["total_fs"] != 0){
 			$id_fs = $_POST["id_fs"];
 			$cekPlan = $this->db->query("SELECT*FROM plan_finishing WHERE id_fs='$id_fs'")->row();
-			if($_POST["good_fs"] > $_POST["good_flexo"]){
-				$result = array(
-					'data' => false,
-					'msg' => 'PROD. FINISHING LEBIH BESAR DARI PROD. FLEXO!',
-				);
-			}else if($cekPlan->status_fs == 'Close'){
+			// if($_POST["good_fs"] > $_POST["good_flexo"]){
+			// 	$result = array(
+			// 		'data' => false,
+			// 		'msg' => 'PROD. FINISHING LEBIH BESAR DARI PROD. FLEXO!',
+			// 	);
+			// }else
+			if($cekPlan->status_fs == 'Close'){
 				$result = array(
 					'data' => false,
 					'msg' => 'PLAN FINISHING SUDAH SELESAI!',
