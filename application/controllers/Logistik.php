@@ -285,10 +285,10 @@ class Logistik extends CI_Controller
 
 				$row[] = '<div class="text-center">
 				<button '.$urll1.' type="button" title="VERIFIKASI DATA" style="text-align: center;" class="btn btn-sm '.$btn1.' ">'.$i1.'</button>
-				<div>';
+				<span style="font-size:1px;color:transparent">'.$r->acc_admin.'</span><div>';
 					
 				$row[] ='<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn2.' " '.$urll2.' title="VERIFIKASI DATA" >
-				<b>'.$i2.' </b> </a><div>';
+				<b>'.$i2.' </b> </a><span style="font-size:1px;color:transparent">'.$r->acc_owner.'</span><div>';
 
 				$row[] = '<div class="text-right"><b>'.number_format($total, 0, ",", ".").'</b></div>';
 
