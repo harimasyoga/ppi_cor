@@ -858,13 +858,15 @@ class M_plan extends CI_Model
 					$msg = 'PLAN FLEXO SUDAH TERPRODUKSI!';
 				}else{
 					$cekPlanCor = $this->db->query("SELECT*FROM plan_cor WHERE id_plan='$cekIDPlan->id_plan_cor'")->row();
-					$cekPlanFinishing = $this->db->query("SELECT*FROM plan_finishing WHERE id_plan_cor='$cekIDPlan->id_plan_cor' AND id_plan_flexo='$id_flexo'")->row();
+					$cekPlanFinishing = $this->db->query("SELECT*FROM plan_finishing WHERE id_plan_cor='$cekIDPlan->id_plan_cor' AND id_plan_flexo='$id_flexo'");
 					if($tgl < $cekPlanCor->tgl_plan){
 						$result = false;
 						$msg = 'TGL PLAN FLEXO TIDAK BOLEH KURANG DARI TANGGAL PLAN COR!';
-					}else if($tgl > $cekPlanFinishing->tgl_fs){
-						$result = false;
-						$msg = 'TGL PLAN FLEXO TIDAK BOLEH LEBIH DARI TANGGAL PLAN FINISHING!';
+					}else if($cekPlanFinishing->num_rows() != 0){
+						if($tgl > $cekPlanFinishing->row()->tgl_fs){
+							$result = false;
+							$msg = 'TGL PLAN FLEXO TIDAK BOLEH LEBIH DARI TANGGAL PLAN FINISHING!';
+						}
 					}else{
 						$this->db->set('tgl_flexo', $tgl);
 						$this->db->set('shift_flexo', $shift);
