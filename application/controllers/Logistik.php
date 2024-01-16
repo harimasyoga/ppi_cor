@@ -1432,7 +1432,7 @@ class Logistik extends CI_Controller
 				$getIsi = $this->db->query("SELECT w.kode_po,g.*,c.* FROM m_gudang g
 				INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
 				INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-				WHERE w.kode_po='$r->kode_po' AND g.gd_id_produk='$r->gd_id_produk' AND g.gd_cek_spv='Close'");
+				WHERE w.kode_po='$r->kode_po' AND g.gd_id_produk='$r->gd_id_produk' AND g.gd_cek_spv='Close' AND g.gd_status='$r->gd_status'");
 				$sumIsiQty = 0;
 				$sumIsiTon = 0;
 				foreach($getIsi->result() as $isi){
@@ -2827,7 +2827,9 @@ class Logistik extends CI_Controller
 	{
 		$getKiriman = $this->db->query("SELECT r.*,p.no_kendaraan FROM m_rencana_kirim r
 		INNER JOIN pl_box p ON r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id AND r.rk_tgl=p.tgl
-		WHERE p.tgl NOT IN (SELECT tgl_t FROM m_jembatan_timbang) OR p.no_pl_urut NOT IN (SELECT urut_t FROM m_jembatan_timbang) OR p.no_kendaraan NOT IN (SELECT no_polisi FROM m_jembatan_timbang)
+		WHERE p.tgl NOT IN (SELECT tgl_t FROM m_jembatan_timbang j WHERE j.tgl_t=p.tgl)
+		OR p.no_pl_urut NOT IN (SELECT urut_t FROM m_jembatan_timbang j WHERE j.urut_t=p.no_pl_urut)
+		OR p.no_kendaraan NOT IN (SELECT no_polisi FROM m_jembatan_timbang j WHERE j.no_polisi=p.no_kendaraan)
 		GROUP BY p.tgl,p.no_pl_urut");
 		$html = '';
 		$html .= '<div class="form-group row" style="margin-bottom:0">
