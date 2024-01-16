@@ -130,14 +130,15 @@ class Logistik extends CI_Controller
 	function load_no_inv()
     {
         
-		$type   = $this->input->post('type');
-		$pajak  = $this->input->post('pajak');
+		$type         = $this->input->post('type');
+		$pajak        = $this->input->post('pajak');
+		$th_invoice   = $this->input->post('th_invoice');
 
 		($type=='roll')? $type_ok=$type : $type_ok='SHEET_BOX';
 		
 		($pajak=='nonppn')? $pajak_ok='non' : $pajak_ok='ppn';
 		
-		$type   = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok);
+		$type   = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok.'_'.$th_invoice);
         echo json_encode($type);
     }
 
@@ -199,7 +200,7 @@ class Logistik extends CI_Controller
 				}
 
 				$ppn11        = 0.11 * $queryd->jumlah;
-				$pph22        = 0.011 * $queryd->jumlah;
+				$pph22        = 0.001 * $queryd->jumlah;
 				if($r->pajak=='ppn')
 				{
 					if($r->inc_exc=='Include')
@@ -311,6 +312,14 @@ class Logistik extends CI_Controller
 							';
 					} else {
 						$aksi = '
+						<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&no_inv=" .$r->no_invoice ."") . '" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-danger btn-sm">
+							<i class="fa fa-trash-alt"></i>
+						</button> 
+						
 						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
 						';
 					}
@@ -506,8 +515,12 @@ class Logistik extends CI_Controller
 				echo json_encode(array("status" => "3","id" => '0'));
 			}else{
 				
-				$c_type_po   = $this->input->post('type_po');
-				$c_pajak     = $this->input->post('pajak');
+				$c_type_po    = $this->input->post('type_po');
+				$c_pajak      = $this->input->post('pajak');
+				$tgl_inv      = $this->input->post('tgl_inv');
+				$tanggal      = explode('-',$tgl_inv);
+				$tahun        = $tanggal[0];
+
 				$asc         = $this->m_logistik->save_invoice();
 		
 				if($asc){
@@ -516,8 +529,8 @@ class Logistik extends CI_Controller
 			
 					($c_pajak=='nonppn')? $pajak_ok='non' : $pajak_ok='ppn';
 			
-					$no_urut    = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok);
-					$kode_ok    = $type_ok.'_'.$pajak_ok;
+					$no_urut    = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok.'_'.$tahun);
+					$kode_ok    = $type_ok.'_'.$pajak_ok.'_'.$tahun;
 
 					if($cek_inv =='baru')
 					{
@@ -557,12 +570,15 @@ class Logistik extends CI_Controller
 			$no_inv_old    = $this->input->post('no_inv_old');
 			$c_type_po     = $this->input->post('type_po2');
 			$c_pajak       = $this->input->post('pajak2');
+			$tgl_inv       = $this->input->post('tgl_inv');
+			$tanggal       = explode('-',$tgl_inv);
+			$tahun         = $tanggal[0];
 
 			($c_type_po=='roll')? $type_ok=$c_type_po : $type_ok='SHEET_BOX';
 			
 			($c_pajak=='nonppn')? $pajak_ok='non' : $pajak_ok='ppn';
 	
-			$no_urut         = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok);
+			$no_urut         = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok.'_'.$tahun);
 
 			$no_inv_ok       = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
 
@@ -961,10 +977,10 @@ class Logistik extends CI_Controller
 
 			if($data_detail->inc_exc=='Include')
 			{
-				$terbilang = round($totalHarga + (0.011 * $totalHarga));
+				$terbilang = round($totalHarga + (0.001 * $totalHarga));
 			}else if($data_detail->inc_exc=='Exclude')
 			{
-				$terbilang = round($totalHarga + (0.11 * $totalHarga) + (0.011 * $totalHarga));
+				$terbilang = round($totalHarga + (0.11 * $totalHarga) + (0.001 * $totalHarga));
 			}else{
 				$terbilang = '';
 			}
@@ -987,7 +1003,7 @@ class Logistik extends CI_Controller
 
 		// PPN - PPH22
 		$ppn11 = 0.11 * $totalHarga;
-        $pph22 = 0.011 * $totalHarga;
+        $pph22 = 0.001 * $totalHarga;
 		if($data_detail->pajak=='ppn')
 		{
 			if($data_detail->inc_exc=='Include')

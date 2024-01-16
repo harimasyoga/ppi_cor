@@ -80,7 +80,7 @@
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 								<div class="col-md-2">Tanggal Invoice</div>
 								<div class="col-md-4">
-									<input type="date" id="tgl_inv" name="tgl_inv" class="form-control" autocomplete="off" placeholder="Tanggal Invoice" onchange="noinv()">
+									<input type="date" id="tgl_inv" name="tgl_inv" class="form-control" autocomplete="off" placeholder="Tanggal Invoice" onchange="noinv(),no_inv2()">
 								</div>
 								<div class="col-md-6"> </div>
 							</div>
@@ -999,11 +999,22 @@
 		var type    = $('#type_po').val()
 		var pajak   = $('#pajak').val()
 		var cek_inv = $('#cek_inv').val()
+		var tgl_inv = $('#tgl_inv').val()
 
+		if(tgl_inv=='' || tgl_inv == null)
+		{
+			th_invoice = <?= date('Y') ?>
+		}else{
+
+			const myArray    = tgl_inv.split("-")
+			var year         = myArray[0]
+			th_invoice      = year
+
+		}
 		$.ajax({
 				type        : 'POST',
 				url         : "<?= base_url(); ?>Logistik/load_no_inv",
-				data        : { type,pajak },
+				data        : { type,pajak,th_invoice },
 				dataType    : 'json',
 				success:function(val){			
 						

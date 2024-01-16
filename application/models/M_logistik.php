@@ -19,6 +19,9 @@ class M_logistik extends CI_Model
 
 		$type           = $this->input->post('type_po');
 		$pajak          = $this->input->post('pajak');
+		$tgl_inv        = $this->input->post('tgl_inv');
+		$tanggal        = explode('-',$tgl_inv);
+		$tahun          = $tanggal[0];
 
 		($type=='roll')? $type_ok=$type : $type_ok='SHEET_BOX';
 		
@@ -30,7 +33,7 @@ class M_logistik extends CI_Model
 			$c_no_inv    = $this->input->post('no_inv');
 			$m_no_inv    = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
 		}else{
-			$c_no_inv    = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok);
+			$c_no_inv    = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok.'_'.$tahun);
 			$m_no_inv    = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
 		}
 
@@ -622,7 +625,7 @@ class M_logistik extends CI_Model
 			'nm_perusahaan'      => $this->input->post('nm_perusahaan'),
 			'alamat_perusahaan'  => $this->input->post('alamat_perusahaan'),
 			'bank'  			 => $this->input->post('bank'),
-			'status'             => 'Open',
+			// 'status'             => 'Open',
 		);
 
 		$result_header = $this->db->update("invoice_header", $data_header,
