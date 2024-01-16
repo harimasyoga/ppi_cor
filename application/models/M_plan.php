@@ -839,7 +839,6 @@ class M_plan extends CI_Model
 		$shift = $_POST["shift"];
 		$mesin = $_POST["mesin"];
 		$id_flexo = $_POST["id_flexo"];
-
 		if($tgl == "" || $shift == "" || $mesin == ""){
 			$result = false;
 			$msg = 'CEK KEMBALI!';
@@ -862,11 +861,6 @@ class M_plan extends CI_Model
 					if($tgl < $cekPlanCor->tgl_plan){
 						$result = false;
 						$msg = 'TGL PLAN FLEXO TIDAK BOLEH KURANG DARI TANGGAL PLAN COR!';
-					}else if($cekPlanFinishing->num_rows() != 0){
-						if($tgl > $cekPlanFinishing->row()->tgl_fs){
-							$result = false;
-							$msg = 'TGL PLAN FLEXO TIDAK BOLEH LEBIH DARI TANGGAL PLAN FINISHING!';
-						}
 					}else{
 						$this->db->set('tgl_flexo', $tgl);
 						$this->db->set('shift_flexo', $shift);
@@ -874,9 +868,20 @@ class M_plan extends CI_Model
 						$this->db->set('no_urut_flexo', 0);
 						$this->db->set('edit_time', date("Y-m-d H:i:s"));
 						$this->db->set('edit_user', $this->session->userdata('username'));
-						$this->db->where('id_flexo', $id_flexo);
-						$result = $this->db->update('plan_flexo');
-						$msg = 'BERHASIL EDIT!';
+						if($cekPlanFinishing->num_rows() != 0){
+							if($tgl > $cekPlanFinishing->row()->tgl_fs){
+								$result = false;
+								$msg = 'TGL PLAN FLEXO TIDAK BOLEH LEBIH DARI TANGGAL PLAN FINISHING!';
+							}else{
+								$this->db->where('id_flexo', $id_flexo);
+								$result = $this->db->update('plan_flexo');
+								$msg = 'BERHASIL EDIT!';
+							}
+						}else{
+							$this->db->where('id_flexo', $id_flexo);
+							$result = $this->db->update('plan_flexo');
+							$msg = 'BERHASIL EDIT!';
+						}
 					}
 				}
 			}

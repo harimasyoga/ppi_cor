@@ -27,6 +27,16 @@ class Laporan extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function Laporan_Pengiriman()
+	{
+		$data = array(
+			'judul' => "Laporan_Pengiriman"
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Laporan/v_lap_pengiriman', $data);
+		$this->load->view('footer');
+	}
+
 	function load_rekap_omset()
 	{
 		$html   = '';
