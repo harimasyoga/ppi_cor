@@ -491,7 +491,13 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				listRencanaKirim()
+				if(data.data){
+					toastr.success('<b>BERHASIL!</b>');
+					listRencanaKirim()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`);
+					listRencanaKirim()
+				}
 			}
 		})
 	}
