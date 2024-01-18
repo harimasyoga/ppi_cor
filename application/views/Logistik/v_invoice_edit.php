@@ -646,7 +646,7 @@
 					
 					return;
 				}
-				reloadTable();
+				// reloadTable();
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
 				// toastr.error('Terjadi Kesalahan');
