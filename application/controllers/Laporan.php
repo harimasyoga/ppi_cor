@@ -37,6 +37,91 @@ class Laporan extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function plhTglLapPengiriman()
+	{
+		$html ='';
+		$tgl = $_POST["tgl"];
+		// RIT
+		$getRit = $this->db->query("SELECT no_pl_urut,tgl,no_kendaraan FROM pl_box WHERE tgl='$tgl'
+		GROUP BY no_pl_urut,tgl,no_kendaraan");
+		if($getRit->num_rows() == 0){
+			$html .= 'TIDAK ADA PENGIRIMAN';
+			$tampilTgl = '';
+		}else{
+			$LastRit = $this->db->query("SELECT no_pl_urut FROM pl_box WHERE tgl='$tgl' ORDER BY no_pl_urut DESC LIMIT 1")->row();
+			$i = 0;
+			$allQty = 0;
+			foreach($getRit->result() as $rit){
+				$i++;
+				$kategori = $this->db->query("SELECT i.kategori FROM pl_box p
+				INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
+				INNER JOIN m_produk i ON r.id_produk=i.id_produk
+				WHERE p.tgl='$rit->tgl' AND p.no_kendaraan='$rit->no_kendaraan' AND p.no_pl_urut='$rit->no_pl_urut'
+				GROUP BY i.kategori");
+				if($kategori->num_rows() == 1){
+					($kategori->row()->kategori == 'K_BOX') ? $title =  ' BOX ' : $title = ' SHEET ';
+					($kategori->row()->kategori == 'K_BOX') ? $sket = 'PCS' : $sket = 'LEMBAR';
+					$keterangan = $sket;
+				}else{
+					$title = ' ';
+					($kategori->row()->kategori == 'K_BOX') ? $sket = 'PCS' : $sket = 'LEMBAR';
+					$keterangan = 'PCS';
+				}
+				// GROUP PELANGGAN
+				$getPelanggan = $this->db->query("SELECT*FROM pl_box p
+				INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
+				INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
+				INNER JOIN m_produk i ON r.id_produk=i.id_produk
+				WHERE p.tgl='$rit->tgl' AND p.no_kendaraan='$rit->no_kendaraan' AND p.no_pl_urut='$rit->no_pl_urut'
+				GROUP BY p.id_perusahaan,p.no_pl_urut,i.kategori
+				ORDER BY p.pajak,p.no_surat");
+				($getPelanggan->num_rows() == 1) ? $brSatu = 'KE '.$getPelanggan->row()->nm_pelanggan.' - ( '.$rit->no_kendaraan.' )' : $brSatu = 'KE - ( '.$rit->no_kendaraan.' )<br>';
+				$html .= 'RIT '.$i.', PENGIRIMAN'.$title.$brSatu;
+				$p = 0;
+				$sumQty = 0;
+				foreach($getPelanggan->result() as $pel){
+					$p++;
+					if(($getPelanggan->num_rows() == 1)){
+						$html .= '';
+					}else{
+						if($kategori->num_rows() == 1){
+							$ketIisi = '';
+						}else{
+							($pel->kategori == 'K_BOX') ? $ketIisi = ' (BOX)' : $ketIisi = ' (SHEET)';
+						}
+						$html .= $p.'. '.$pel->nm_pelanggan.$ketIisi;
+					}
+					$html .= '<br>';
+					// KIRIMAN
+					$getKirim = $this->db->query("SELECT p.no_po,i.kategori,i.nm_produk,SUM(r.qty_muat) AS qty_muat FROM pl_box p
+					INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
+					INNER JOIN m_produk i ON r.id_produk=i.id_produk
+					WHERE p.tgl='$pel->tgl' AND p.no_kendaraan='$pel->no_kendaraan' AND p.no_pl_urut='$pel->no_pl_urut' AND p.id_perusahaan='$pel->id_perusahaan' AND i.kategori='$pel->kategori'
+					GROUP BY p.no_po,i.nm_produk");
+					foreach($getKirim->result() as $r){
+						($r->kategori == 'K_BOX') ? $ket = 'PCS' : $ket = 'LEMBAR';
+						$html .= '- '.$r->no_po.' - '.$r->nm_produk.'. TOTAL '.number_format($r->qty_muat).' '.$ket;
+						$html .= '<br>';
+						$sumQty += $r->qty_muat;
+					}
+				}
+				$timbangan = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE tgl_t='$rit->tgl' AND urut_t='$rit->no_pl_urut' AND no_polisi='$rit->no_kendaraan'");
+				($timbangan->num_rows() == 0) ? $timbang = 0 : $timbang = $timbangan->row()->berat_bersih;
+				$html .='TOTAL '.number_format($sumQty).' '.$keterangan.' / '.number_format($timbang). ' KG';
+				$html .= '<br>';
+				($LastRit->no_pl_urut == $rit->no_pl_urut) ? $html .= '' : $html .= '<br>';
+				$allQty += $timbang;
+			}
+			// TOTAL KESELURUHAN
+			$html .='<br><b>TOTAL '.number_format($allQty).' KG</b>';
+			$tampilTgl = ' - '.strtoupper(substr($this->m_fungsi->getHariIni($tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt2($tgl));
+		}
+		echo json_encode([
+			'html' => $html,
+			'tgl' => $tampilTgl,
+		]);
+	}
+
 	function load_rekap_omset()
 	{
 		$html   = '';

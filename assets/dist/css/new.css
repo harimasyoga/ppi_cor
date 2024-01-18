@@ -247,13 +247,32 @@
 	color: #333;
 }
 
-.gd-link-customer, .gd-link-items, .gd-link-pos {
+.gd-link-customer {
 	padding: 6px;
 	display: block;
 	color: #333;
 }
 
-.gd-link-items:hover, .gd-link-pos:hover {
+.gd-link-items {
+	padding: 6px;
+	display: block;
+	background: #36454F;
+	color: #fff;
+}
+
+.gd-link-items:hover {
+	background: #3B4A55;
+	color: #eee;
+}
+
+.gd-link-pos {
+	padding: 6px;
+	display: block;
+	background: #E5E4E2;
 	color: #333;
-	background: #f1f2f3;
+}
+
+.gd-link-pos:hover {
+	background: #E6E5E3;
+	color: #222;
 }

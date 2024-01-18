@@ -521,25 +521,33 @@ class M_logistik extends CI_Model
 		$id_pl = $_POST["id_pl"];
 		$no_surat = $_POST["no_surat"];
 
-		$pl = $this->db->query("SELECT*FROM pl_box WHERE id='$id_pl'")->row();
-		$sj = explode('/', $pl->no_surat);
-		$so = explode('/', $pl->no_so);
-		$pkb = explode('/', $pl->no_pkb);
-
-		$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3].'/'.$sj[4];
-		$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3].'/'.$so[4];
-		$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2];
-
-		$this->db->set('no_surat', $noSJ);
-		$this->db->set('no_so', $noSO);
-		$this->db->set('no_pkb', $noPKB);
-		$this->db->where('no_po', $pl->no_po);
-		$this->db->where('no_surat', $pl->no_surat);
-		$this->db->where('no_pl_urut', $pl->no_pl_urut);
-		$updateNO = $this->db->update('pl_box');
+		$cekPrint = $this->db->query("SELECT*FROM pl_box WHERE id='$id_pl' AND cetak_sj='acc'");
+		if($cekPrint->num_rows() == 0){
+			$pl = $this->db->query("SELECT*FROM pl_box WHERE id='$id_pl'")->row();
+			$sj = explode('/', $pl->no_surat);
+			$so = explode('/', $pl->no_so);
+			$pkb = explode('/', $pl->no_pkb);
+	
+			$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3].'/'.$sj[4];
+			$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3].'/'.$so[4];
+			$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2];
+	
+			$this->db->set('no_surat', $noSJ);
+			$this->db->set('no_so', $noSO);
+			$this->db->set('no_pkb', $noPKB);
+			$this->db->where('no_po', $pl->no_po);
+			$this->db->where('no_surat', $pl->no_surat);
+			$this->db->where('no_pl_urut', $pl->no_pl_urut);
+			$updateNO = $this->db->update('pl_box');
+			$msg = 'BERHASIL!';
+		}else{
+			$updateNO = false;
+			$msg = 'SUDAH CETAK SURAT JALAN!';
+		}
 
 		return [
-			'updateNO' => $updateNO
+			'data' => $updateNO,
+			'msg' => $msg,
 		];
 	}
 

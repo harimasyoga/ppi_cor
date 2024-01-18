@@ -1958,7 +1958,7 @@ class Logistik extends CI_Controller
 			if($opsi == "tgl_kirim"){
 				$html .= '<table style="margin-top:6px;border:1px solid #dee2e6">
 					<tr style="background:#dee2e6">
-						<th style="padding:6px;border:1px solid #bbb;text-align:center">ID</th>
+						<th style="padding:6px;border:1px solid #bbb;text-align:center">NO</th>
 						<th style="padding:6px;border:1px solid #bbb">TGL KIRIM</th>
 						<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
 						<th style="padding:6px;border:1px solid #bbb">NO. PO</th>
@@ -1970,7 +1970,9 @@ class Logistik extends CI_Controller
 						<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
 						<th style="padding:6px;text-align:center;border:1px solid #bbb">AKSI</th>
 					</tr>';
+					$i = 0;
 					foreach($getCustomer->result() as $isi){
+						$i++;
 						if($isi->gd_id_plan_cor != null && $isi->gd_id_plan_flexo == null && $isi->gd_id_plan_finishing == null){
 							$rcr = ';border-radius:4px';
 							$rfx = '';
@@ -2001,7 +2003,7 @@ class Logistik extends CI_Controller
 						($rk->num_rows() == 0) ? $qty = $isi->gd_good_qty : $qty = $isi->gd_good_qty - $rk->row()->muat;
 		
 						$html .='<tr>
-							<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$isi->id_gudang.'</td>
+							<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px">'.substr($this->m_fungsi->getHariIni($isi->tgl_kirim_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_kirim_plan).'</td>
 							<td style="border:1px solid #dee2e6;padding:6px">'.$isi->nm_pelanggan.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px">'.$isi->kode_po.'</td>
@@ -2111,7 +2113,7 @@ class Logistik extends CI_Controller
 		WHERE w.kode_po='$kode_po' AND g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close' AND g.gd_status='Open'");
 		$html .= '<table style="margin-bottom:6px;border:1px solid #dee2e6">
 			<tr style="background:#dee2e6">
-				<th style="padding:6px;border:1px solid #bbb;text-align:center">ID</th>
+				<th style="padding:6px;border:1px solid #bbb;text-align:center">NO</th>
 				<th style="padding:6px;border:1px solid #bbb">TGL KIRIM</th>
 				<th style="padding:6px;border:1px solid #bbb">PLAN</th>
 				<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">QTY</th>
@@ -2120,7 +2122,9 @@ class Logistik extends CI_Controller
 				<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
 				<th style="padding:6px;text-align:center;border:1px solid #bbb">AKSI</th>
 			</tr>';
+			$i = 0;
 			foreach($getIsi->result() as $isi){
+				$i++;
 				if($isi->gd_id_plan_cor != null && $isi->gd_id_plan_flexo == null && $isi->gd_id_plan_finishing == null){
 					$rcr = ';border-radius:4px';
 					$rfx = '';
@@ -2150,7 +2154,7 @@ class Logistik extends CI_Controller
 				($rk->num_rows() == 0) ? $qty = $isi->gd_good_qty : $qty = $isi->gd_good_qty - $rk->row()->muat;
 
 				$html .='<tr>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$isi->id_gudang.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
 					<td style="border:1px solid #dee2e6;padding:6px">'.substr($this->m_fungsi->getHariIni($isi->tgl_kirim_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_kirim_plan).'</td>
 					<td style="border:1px solid #dee2e6;padding:6px">['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($isi->tgl_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_plan).' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rcr.'">CR</span>'.$fx.''.$fs.'</td>
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
@@ -2249,7 +2253,7 @@ class Logistik extends CI_Controller
 		$html .='<table>
 			<tr style="background:#dee2e6">
 				<th style="padding:6px;border:1px solid #bbb;text-align:center">#</th>
-				<th style="padding:6px;border:1px solid #bbb">CUSTOMER <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">ID</span></th>
+				<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
 				<th style="padding:6px;border:1px solid #bbb">NO. PO</th>
 				<th style="padding:6px;border:1px solid #bbb">ITEM</th>
 				<th style="padding:6px;border:1px solid #bbb;text-align:center">SISA</th>
@@ -2409,14 +2413,14 @@ class Logistik extends CI_Controller
 		$html = '';
 		$tgl = $_POST["tgl_kirim"];
 		$tglNow = date('Y-m-d');
-
 		$getUrut = $this->db->query("SELECT tgl,no_pl_urut,no_kendaraan FROM pl_box WHERE tgl='$tgl' GROUP BY no_pl_urut");
 		if($getUrut->num_rows() == 0){
 			$html .='<b>TIDAK ADA DATA PENGIRIMAN!</b>';
 		}else{
+			// <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">ID</span>
 			$html .='<table>
 				<tr style="background:#dee2e6">
-					<th style="padding:6px;border:1px solid #bbb">CUSTOMER <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">ID</span></th>
+					<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
 					<th style="padding:6px;border:1px solid #bbb">ITEM</th>
 					<th style="padding:6px;border:1px solid #bbb">UKURAN</th>
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">FLUTE</th>
@@ -2425,7 +2429,6 @@ class Logistik extends CI_Controller
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">BB</th>
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">TONASE</th>
 				</tr>';
-
 				foreach($getUrut->result() as $urut){
 					($tglNow == $urut->tgl && $this->session->userdata('level') == 'Admin') ? $btnBtl = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="btnBatalPengiriman('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')">BATAL</button> - ' : $btnBtl = '' ;
 					($tglNow == $urut->tgl && $this->session->userdata('level') == 'Admin') ? $editPL = 'onchange="addPengirimanNoPlat('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"' : $editPL = 'disabled';
@@ -2436,7 +2439,6 @@ class Logistik extends CI_Controller
 							<input type="text" class="form-control" id="pp-noplat-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="-" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$urut->no_kendaraan.'" '.$editPL.'>
 						</td>
 					</tr>';
-
 					$getSJnPO = $this->db->query("SELECT*FROM pl_box WHERE tgl='$urut->tgl' AND no_pl_urut='$urut->no_pl_urut'
 					GROUP BY id_perusahaan,no_surat,no_po,no_pl_urut
 					ORDER BY no_surat");
@@ -2449,7 +2451,6 @@ class Logistik extends CI_Controller
 						($this->session->userdata('level') == 'Admin' && $noSJ[0] != 000) ?
 							$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$sjpo->no_pkb."&top=100&ctk=0").'" title="'.$sjpo->no_surat.'" >PRINT</a>' :
 							$btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
-
 						($this->session->userdata('level') == 'Admin' && $sjpo->cetak_sj == 'not') ? $eNoSj = 'onchange="editPengirimanNoSJ('."'".$sjpo->id."'".')"' : $eNoSj = 'disabled';
 						$html .='<tr style="background:#dee2e6">
 							<td style="padding:4px 6px;border:1px solid #bbb;font-weight:bold;display:flex">
@@ -2458,7 +2459,6 @@ class Logistik extends CI_Controller
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">NO. PO : '.$sjpo->no_po.'</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="6">'.$btnPrint.'</td>
 						</tr>';
-
 						$getItems = $this->db->query("SELECT r.*,i.*,p.nm_pelanggan FROM m_rencana_kirim r
 						INNER JOIN m_produk i ON r.id_produk=i.id_produk
 						INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
@@ -2484,9 +2484,9 @@ class Logistik extends CI_Controller
 								$kualitas = $item->kualitas;
 							}
 							$tonase = $item->rk_bb * $item->qty_muat;
-
+							// <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$item->id_gudang.'</span>
 							$html .='<tr>
-								<td style="padding:6px;border:1px solid #dee2e6">'.$item->nm_pelanggan.' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$item->id_gudang.'</span></td>
+								<td style="padding:6px;border:1px solid #dee2e6">'.$item->nm_pelanggan.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">'.$item->nm_produk.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">'.$ukuran.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$item->flute.'</td>
@@ -2506,10 +2506,8 @@ class Logistik extends CI_Controller
 						</tr>';
 					}
 				}
-
 			$html .='</table>';
 		}
-
 		echo $html;
 	}
 
@@ -2843,9 +2841,9 @@ class Logistik extends CI_Controller
 	{
 		$getKiriman = $this->db->query("SELECT r.*,p.no_kendaraan FROM m_rencana_kirim r
 		INNER JOIN pl_box p ON r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id AND r.rk_tgl=p.tgl
-		WHERE p.tgl NOT IN (SELECT tgl_t FROM m_jembatan_timbang j WHERE j.tgl_t=p.tgl)
-		OR p.no_pl_urut NOT IN (SELECT urut_t FROM m_jembatan_timbang j WHERE j.urut_t=p.no_pl_urut)
-		OR p.no_kendaraan NOT IN (SELECT no_polisi FROM m_jembatan_timbang j WHERE j.no_polisi=p.no_kendaraan)
+		WHERE p.tgl NOT IN (SELECT tgl_t FROM m_jembatan_timbang j WHERE j.tgl_t=p.tgl AND j.urut_t=p.no_pl_urut AND j.no_polisi=p.no_kendaraan)
+		AND p.no_pl_urut NOT IN (SELECT urut_t FROM m_jembatan_timbang j WHERE j.tgl_t=p.tgl AND j.urut_t=p.no_pl_urut AND j.no_polisi=p.no_kendaraan)
+		AND p.no_kendaraan NOT IN (SELECT no_polisi FROM m_jembatan_timbang j WHERE j.tgl_t=p.tgl AND j.urut_t=p.no_pl_urut AND j.no_polisi=p.no_kendaraan)
 		GROUP BY p.tgl,p.no_pl_urut");
 		$html = '';
 		$html .= '<div class="form-group row" style="margin-bottom:0">

@@ -280,6 +280,13 @@ class M_fungsi extends CI_Model {
         $tahun  =  $tanggal[0];
         return  $tanggal[2].'-'.$bulan.'-'.$tahun;
     }
+
+	function tglIndSkt2($tgl){
+        $tanggal = explode('-',$tgl); 
+        $bulan  = $this->getBlnSkt($tanggal[1]);
+        $tahun  =  $tanggal[0];
+        return  $tanggal[2].' '.$bulan.' '.$tahun;
+    }
     
     function  tanggal_ind($tgl)
 	{        
