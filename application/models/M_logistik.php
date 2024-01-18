@@ -655,6 +655,7 @@ class M_logistik extends CI_Model
 
 					$harga_ok        = $this->input->post('hrg['.$no.']');
 					$hasil_ok        = $this->input->post('hasil['.$no.']');
+					$seset_ok        = $this->input->post('seset['.$no.']');
 					$id_pl_roll      = $this->input->post('id_pl_roll['.$no.']');
 					$id_inv_detail   = $this->input->post('id_inv_detail['.$no.']');
 					$data = [					
@@ -669,7 +670,7 @@ class M_logistik extends CI_Model
 						'id_pl'        => $id_pl_roll,
 						'harga'        => str_replace('.','',$harga_ok),
 						'weight'       => $this->input->post('weight['.$no.']'),
-						'seset'        => $this->input->post('seset['.$no.']'),
+						'seset'        => str_replace('.','',$seset_ok),
 						'hasil'        => str_replace('.','',$hasil_ok),
 						'no_po'        => $this->input->post('no_po['.$no.']'),
 					];
@@ -690,8 +691,10 @@ class M_logistik extends CI_Model
 
 					$harga_ok        = $this->input->post('hrg['.$no.']');
 					$hasil_ok        = $this->input->post('hasil['.$no.']');
+					$retur_qty_ok    = $this->input->post('retur_qty['.$no.']');
 					$id_pl_roll      = $this->input->post('id_pl_roll['.$no.']');
 					$id_inv_detail   = $this->input->post('id_inv_detail['.$no.']');
+
 					$data = [					
 						'no_invoice'   => $m_no_inv,
 						'type'         => $type,
@@ -700,7 +703,7 @@ class M_logistik extends CI_Model
 						'g_label'      => $this->input->post('ukuran['.$no.']'),
 						'kualitas'      => $this->input->post('kualitas['.$no.']'),
 						'qty'          => $this->input->post('qty['.$no.']'),
-						'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
+						'retur_qty'    => str_replace('.','',$retur_qty_ok),
 						'id_pl'        => $id_pl_roll,
 						'harga'        => str_replace('.','',$harga_ok),
 						'hasil'        => str_replace('.','',$hasil_ok),
