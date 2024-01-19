@@ -654,154 +654,122 @@ class M_transaksi extends CI_Model
 
 		$app      = "";
 
-		// KHUSUS ADMIN //
-
+		// KHUSUS ADMIN
 		if ($this->session->userdata('level') == "Admin") {
-			$app = "3";
 			if ($status == 'Y') {
-				// header
-				
-				$this->db->set("status", 'Approve');
-				$this->db->set("status_app1", $status);
-				$this->db->set("user_app1", $this->username);
-				$this->db->set("time_app1", $this->waktu);
-				$this->db->set("ket_acc1", $alasan);
-				
-				$this->db->set("status_app2", $status);
-				$this->db->set("user_app2", $this->username);
-				$this->db->set("time_app2", $this->waktu);
-				$this->db->set("ket_acc2", $alasan);
-				
-				$this->db->set("status_app3", $status);
-				$this->db->set("user_app3", $this->username);
-				$this->db->set("time_app3", $this->waktu);
-				$this->db->set("ket_acc3", $alasan);
-
-				$this->db->where("no_po",$id);
-				$valid = $this->db->update("trs_po");
-
-				// detail
-				$this->db->set("status", 'Approve');
-				$this->db->where("no_po",$id);
-				$valid = $this->db->update("trs_po_detail");
-			}else if ($status == 'N') {
-				// header
-				
-				$this->db->set("status", 'Hold');
-				$this->db->set("status_app1", $status);
-				$this->db->set("user_app1", $this->username);
-				$this->db->set("time_app1", $this->waktu);
-				$this->db->set("ket_acc1", $alasan);
-				
-				$this->db->set("status_app2", $status);
-				$this->db->set("user_app2", $this->username);
-				$this->db->set("time_app2", $this->waktu);
-				$this->db->set("ket_acc2", $alasan);
-				
-				$this->db->set("status_app3", $status);
-				$this->db->set("user_app3", $this->username);
-				$this->db->set("time_app3", $this->waktu);
-				$this->db->set("ket_acc3", $alasan);
-
-				$this->db->where("no_po",$id);
-				$valid = $this->db->update("trs_po");
-
-				// detail
-				$this->db->set("status", 'Approve');
-				$this->db->where("no_po",$id);
-				$valid = $this->db->update("trs_po_detail");
+				$sts = 'Approve';
+			}else if ($status == 'H') {
+				$sts = 'Open';
 			}else{
-
-				$this->db->set("status", 'Reject');
-				$this->db->set("status_app1", $status);
-				$this->db->set("user_app1", $this->username);
-				$this->db->set("time_app1", $this->waktu);
-				$this->db->set("ket_acc1", $alasan);
-				
-				$this->db->set("status_app2", $status);
-				$this->db->set("user_app2", $this->username);
-				$this->db->set("time_app2", $this->waktu);
-				$this->db->set("ket_acc2", $alasan);
-				
-				$this->db->set("status_app3", $status);
-				$this->db->set("user_app3", $this->username);
-				$this->db->set("time_app3", $this->waktu);
-				$this->db->set("ket_acc3", $alasan);
-
-				$this->db->where("no_po",$id);
-				$valid = $this->db->update("trs_po");
-
-				// detail
-				$this->db->set("status", 'Reject');
-				$this->db->where("no_po",$id);
-				$valid = $this->db->update("trs_po_detail");
+				$sts = 'Reject';
 			}
-		}else {
 
-			if ($this->session->userdata('level') == "Marketing") {
-				$app = "1";
-				if ($status == 'Y') {
-					$this->db->set("status", 'Open');
-				}
-			}else if ($this->session->userdata('level') == "PPIC") {
-				$app = "2";
-				if ($status == 'Y') {
-					$this->db->set("status", 'Open');
-				}
-			}else if ($this->session->userdata('level') == "Owner") {
-				$app = "3";
-				if ($status == 'Y') {
-					$this->db->set("status", 'Approve');
-				}
-			}
-	
-			if ($status == 'R') {
-				$this->db->set("status", 'Reject');
-			}
-	
-	
-			$this->db->set("status_app".$app, $status);
-			$this->db->set("user_app".$app, $this->username);
-			$this->db->set("time_app".$app, $this->waktu);
-			$this->db->set("ket_acc".$app, $alasan);
-	
+			// TRS PO
+			$this->db->set("status", $sts);
+			$this->db->set("status_app1", $status);
+			$this->db->set("user_app1", $this->username);
+			$this->db->set("time_app1", $this->waktu);
+			$this->db->set("ket_acc1", $alasan);
+			$this->db->set("status_app2", $status);
+			$this->db->set("user_app2", $this->username);
+			$this->db->set("time_app2", $this->waktu);
+			$this->db->set("ket_acc2", $alasan);
+			$this->db->set("status_app3", $status);
+			$this->db->set("user_app3", $this->username);
+			$this->db->set("time_app3", $this->waktu);
+			$this->db->set("ket_acc3", $alasan);
 			$this->db->where("no_po",$id);
-			$valid = $this->db->update("trs_po");
-	
-			if ($this->session->userdata('level') == "Owner") {
-				$app = "3";
-				if ($status == 'Y') {
-					$this->db->set("status", 'Approve');
-					$this->db->where("no_po",$id);
-					$valid = $this->db->update("trs_po_detail");
-				}
-			}else if ($this->session->userdata('level') == "PPIC") {
-				$app = "2";
-				if ($status == 'Y') {
-					$this->db->set("status", 'Open');
-					$this->db->where("no_po",$id);
-					$valid = $this->db->update("trs_po_detail");
-				}
-			}else if ($this->session->userdata('level') == "Marketing") {
-				$app = "2";
-				if ($status == 'Y') {
-					$this->db->set("status", 'Open');
-					$this->db->where("no_po",$id);
-					$valid = $this->db->update("trs_po_detail");
-				}
-			}
-	
-			if ($status == 'R') {
-				$this->db->set("status", 'Reject');
-				$this->db->where("no_po",$id);
-				$valid = $this->db->update("trs_po_detail");
-			}
+			$update_trs_po = $this->db->update("trs_po");
 
+			// TRS PO DETAIL
+			$this->db->set("status", $sts);
+			$this->db->where("no_po", $id);
+			$update_trs_po_detail = $this->db->update("trs_po_detail");
+			
+			$msg = 'Data Berhasil Diproses';
+
+		}else {
+			$cekPO = $this->db->query("SELECT*FROM trs_po WHERE no_po='$id'")->row();
+			$expired = strtotime($cekPO->add_time) + (48*60*60);
+			$actualDate = time();
+			if($this->session->userdata('level') != "Owner" && $actualDate > $expired || $actualDate == $expired){
+				$update_trs_po = false;
+				$update_trs_po_detail = false;
+				if($status == 'Y'){
+					$stts = 'VERIFIKASI';
+				}else if($status == 'H'){
+					$stts = 'HOLD';
+				}else{
+					$stts = 'REJECT';
+				}
+				$msg = 'TIDAK BISA '.$stts.' SUDAH EXPIRED';
+			}else{
+				// UPDATE TRS PO
+				if ($this->session->userdata('level') == "Marketing") {
+					$app = "1";
+					if($status == 'R'){
+						$this->db->set("status", 'Reject');
+					}else{
+						$this->db->set("status", 'Open');
+					}
+				}else if ($this->session->userdata('level') == "PPIC") {
+					$app = "2";
+					if($status == 'R'){
+						$this->db->set("status", 'Reject');
+					}else{
+						$this->db->set("status", 'Open');
+					}
+				}else if ($this->session->userdata('level') == "Owner") {
+					$app = "3";
+					if($status == 'R'){
+						$this->db->set("status", 'Reject');
+					}else if($status == 'H'){
+						$this->db->set("status", 'Open');
+					}else{
+						$this->db->set("status", 'Approve');
+					}
+				}
+
+				$this->db->set("status_app".$app, $status);
+				$this->db->set("user_app".$app, $this->username);
+				$this->db->set("time_app".$app, $this->waktu);
+				$this->db->set("ket_acc".$app, $alasan);
+				$this->db->where("no_po",$id);
+				$update_trs_po = $this->db->update("trs_po");
+		
+				// UPDATE TRS PO DETAIL
+				if($status == 'Y'){
+					if ($this->session->userdata('level') == "Owner") {
+						$this->db->set("status", 'Approve');
+						$this->db->where("no_po",$id);
+						$update_trs_po_detail = $this->db->update("trs_po_detail");
+					}else if ($this->session->userdata('level') == "PPIC") {
+						$this->db->set("status", 'Open');
+						$this->db->where("no_po",$id);
+						$update_trs_po_detail = $this->db->update("trs_po_detail");
+					}else if ($this->session->userdata('level') == "Marketing") {
+						$this->db->set("status", 'Open');
+						$this->db->where("no_po",$id);
+						$update_trs_po_detail = $this->db->update("trs_po_detail");
+					}
+				}else if($status == 'H'){
+					$this->db->set("status", 'Open');
+					$this->db->where("no_po", $id);
+					$update_trs_po_detail = $this->db->update("trs_po_detail");
+				}else if($status == 'R'){
+					$this->db->set("status", 'Reject');
+					$this->db->where("no_po", $id);
+					$update_trs_po_detail = $this->db->update("trs_po_detail");
+				}
+				$msg = 'Data Berhasil Diproses';
+			}
 		}
 
-		
-
-		return $valid;
+		return [
+			'update_trs_po' => $update_trs_po,
+			'update_trs_po_detail' => $update_trs_po_detail,
+			'msg' => $msg,
+		];
 	}
 
 	function simpanSO()

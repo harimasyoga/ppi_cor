@@ -1256,7 +1256,7 @@
 
 	}
 
-	function data_sementara(data,status,tgl,alasan,nopo){
+	function data_sementara(data,status,tgl,alasan,nopo,expired){
 		$("#modalket").modal("show");
 		$("#judul2").html('<b>'+data+'</b>');
 		$("#nopo_ket").html('<h3><b>'+nopo+'</b></h3>');
@@ -1288,12 +1288,19 @@
 				<td width="55%" ><h3> ${alasan} </h3></td>`;
 
 			$('#alasan').html(html_produk);	
-			 
 		}else{
-			$("#judul2").attr({ 'style': "color:yellow; text-shadow: 0 0 5px #000;" });
-			$("#status_acc").html('<h3><i class="fas fa-lock"></i><b> BELUM ACC - '+data+'</b></h3>');
-			$("#status_acc").attr({ 'style': "color:yellow; text-shadow: 0 0 5px #000;" });
-			$('#alasan').html('');	
+			if(expired == 'expired'){
+				$("#judul2").attr({'style': "color:red"});
+				$("#status_acc").html('<h3><i class="fas fa-ban"></i><b> EXPIRED - '+data+'</b></h3>');
+				$("#status_acc").attr({'style': "color:red"});
+				$("#tgl_ket").html('-');
+				$('#alasan').html('');
+			}else{
+				$("#judul2").attr({ 'style': "color:yellow; text-shadow: 0 0 5px #000;" });
+				$("#status_acc").html('<h3><i class="fas fa-lock"></i><b> BELUM ACC - '+data+'</b></h3>');
+				$("#status_acc").attr({ 'style': "color:yellow; text-shadow: 0 0 5px #000;" });
+				$('#alasan').html('');	
+			}
 		}
 
 		
@@ -1301,8 +1308,6 @@
 
 	function prosesData_acc(tipe) 
 	{
-		// let cek = confirm("Apakah Anda Yakin?");
-
 		swal({
 			title: "Verifikasi PO",
 			html: "<p> Apakah Anda yakin untuk verifikasi file ini ?</p><br>",
@@ -1315,51 +1320,47 @@
 			confirmButtonColor  : '#28a745',			
 			cancelButtonColor   : '#d33'			
 		}).then(() => {
-
-				$.ajax({
-					url: '<?= base_url(); ?>Transaksi/prosesData',
-					data: ({
-						id: no_po,
-						status: tipe,
-						alasan: 'OK',
-						jenis: 'verifPO'
-					}),
-					type: "POST",
-					success: function(data) {
-						toastr.success('Data Berhasil Diproses');
-						// swal({
-						// 	title               : "Data",
-						// 	html                : "Data Berhasil Diproses",
-						// 	type                : "success",
-						// 	confirmButtonText   : "OK"
-						// });
+			$.ajax({
+				url: '<?= base_url(); ?>Transaksi/prosesData',
+				data: ({
+					id: no_po,
+					status: tipe,
+					alasan: 'OK',
+					jenis: 'verifPO'
+				}),
+				type: "POST",
+				success: function(res) {
+					data = JSON.parse(res)
+					if(data.update_trs_po){
+						toastr.success(`${data.msg}`);
 						$("#modalForm").modal("hide");
 						reloadTable();
-						// setTimeout(function(){ location.reload(); }, 1000);
-					},
-					error: function(jqXHR, textStatus, errorThrown) {
-						// toastr.error('Terjadi Kesalahan');
+					}else{
 						swal({
-							title               : "Cek Kembali",
-							html                : "Terjadi Kesalahan",
+							title               : "EXPIRED",
+							html                : `${data.msg}`,
 							type                : "error",
 							confirmButtonText   : "OK"
 						});
 						return;
 					}
-				});
-		
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					swal({
+						title               : "Cek Kembali",
+						html                : "Terjadi Kesalahan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
+				}
+			});
 		});
-
-
 	}
 
 	function prosesData_hold(tipe) 
 	{
-		// let cek = confirm("Apakah Anda Yakin?");
-
 		swal({
-            //title: 'PENDAFTARAN',
             text                : "Alasan di Hold : ",
             type                : 'info',
             input               : 'text',
@@ -1371,7 +1372,6 @@
             confirmButtonText   : '<b><i class="far fa-hand-paper"></i> Hold </b>',
             cancelButtonText    : '<b><i class="fa fa-undo" ></i> Batal </b>'
         }).then(function(alasan) {
-
 			if(alasan==''){
 				swal({
 					title               : "Alasan",
@@ -1382,7 +1382,6 @@
 				prosesData_hold(tipe);
 				// return;
 			}else{
-				
 				$.ajax({
 					url: '<?= base_url(); ?>Transaksi/prosesData',
 					data: ({
@@ -1392,19 +1391,23 @@
 						jenis: 'verifPO'
 					}),
 					type: "POST",
-					success: function(data) {
-						toastr.success('<b>Data Berhasil Diproses</b>');
-						// swal({
-						// 	title               : "Data",
-						// 	html                : "Data Berhasil Diproses",
-						// 	type                : "success",
-						// 	confirmButtonText   : "OK"
-						// });
-						reloadTable();
-						$("#modalForm").modal("hide");
+					success: function(res) {
+						data = JSON.parse(res)
+						if(data.update_trs_po){
+							toastr.success(`${data.msg}`);
+							$("#modalForm").modal("hide");
+							reloadTable();
+						}else{
+							swal({
+								title               : "EXPIRED",
+								html                : `${data.msg}`,
+								type                : "error",
+								confirmButtonText   : "OK"
+							});
+							return;
+						}
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
-						// toastr.error('Terjadi Kesalahan');
 						swal({
 							title               : "Cek Kembali",
 							html                : "Terjadi Kesalahan",
@@ -1414,20 +1417,13 @@
 						return;
 					}
 				});
-				
 			}
-		
 		});
-
-
 	}
 	
 	function prosesData_r(tipe) 
 	{
-		// let cek = confirm("Apakah Anda Yakin?");
-
 		swal({
-            //title: 'PENDAFTARAN',
             text                : "Alasan di Reject : ",
             type                : 'info',
             input               : 'text',
@@ -1439,7 +1435,6 @@
             confirmButtonText   : '<b><i class="fas fa-times-circle"></i> Reject </b>',
             cancelButtonText    : '<b><i class="fas fa-undo"></i> Batal </b>'
         }).then(function(alasan) {
-
 			if(alasan==''){
 				swal({
 					title               : "Alasan",
@@ -1450,7 +1445,6 @@
 				prosesData_r(tipe);
 				// return;
 			}else{
-
 				$.ajax({
 					url: '<?= base_url(); ?>Transaksi/prosesData',
 					data: ({
@@ -1460,16 +1454,21 @@
 						jenis: 'verifPO'
 					}),
 					type: "POST",
-					success: function(data) {
-						toastr.success('Data Berhasil Diproses');
-						// swal({
-						// 	title               : "Data",
-						// 	html                : "Data Berhasil Diproses",
-						// 	type                : "success",
-						// 	confirmButtonText   : "OK"
-						// });
-						reloadTable();
-						$("#modalForm").modal("hide");
+					success: function(res) {
+						data = JSON.parse(res)
+						if(data.update_trs_po){
+							toastr.success(`${data.msg}`);
+							$("#modalForm").modal("hide");
+							reloadTable();
+						}else{
+							swal({
+								title               : "EXPIRED",
+								html                : `${data.msg}`,
+								type                : "error",
+								confirmButtonText   : "OK"
+							});
+							return;
+						}
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
 						// toastr.error('Terjadi Kesalahan');
@@ -1483,10 +1482,7 @@
 					}
 				});
 			}
-		
 		});
-
-
 	}
 
 	$("#id_pelanggan").change(function() 
