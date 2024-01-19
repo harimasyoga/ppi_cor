@@ -416,6 +416,24 @@ class Transaksi extends CI_Controller
 
 				}
 
+				// timer
+
+				$dateFormat           = "d F Y -- g:i a";
+				$expired              = strtotime($time_po) + (2*60*60) ;
+				$actualDate           = time();
+				$secondsDiff          = $expired - $actualDate;
+				$days                 = floor($secondsDiff/60/60/24);
+				$hours                = floor(($secondsDiff-($days*60*60*24))/60/60);
+				$minutes              = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))/60);
+				$seconds              = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))-($minutes*60));
+				$actualDateDisplay    = date($dateFormat,$actualDate);
+				$expiredDisplay       = date($dateFormat,$expired);
+
+				// Output the result in an element with id="demo"
+				$waktu                = $days.''.$hours.''. $minutes.''.$seconds;
+
+				// timer
+
                 if($r->status_app1=='N')
                 {
                     $btn1   = 'btn-warning';
