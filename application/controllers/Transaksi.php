@@ -417,56 +417,71 @@ class Transaksi extends CI_Controller
 				}
 
 				// timer
-
-				$dateFormat           = "d F Y -- g:i a";
-				$expired              = strtotime($time_po) + (2*60*60) ;
+				// $dateFormat           = "Y-m-d H:i:s";
+				$expired              = strtotime($r->time_input) + (48*60*60) ;
 				$actualDate           = time();
 				$secondsDiff          = $expired - $actualDate;
 				$days                 = floor($secondsDiff/60/60/24);
 				$hours                = floor(($secondsDiff-($days*60*60*24))/60/60);
 				$minutes              = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))/60);
-				$seconds              = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))-($minutes*60));
-				$actualDateDisplay    = date($dateFormat,$actualDate);
-				$expiredDisplay       = date($dateFormat,$expired);
+				// $seconds              = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))-($minutes*60));
+				// $actualDateDisplay    = date($dateFormat, $actualDate);
+				// $expiredDisplay       = date($dateFormat, $expired);
 
-				// Output the result in an element with id="demo"
-				$waktu                = $days.''.$hours.''. $minutes.''.$seconds;
+				($days == 0) ? $tDays = '' : $tDays = '<b>'.$days.' Day</b><br>';
+				($hours == 0) ? $tHours = '' : $tHours = '<b>'.$hours.' Hrs</b><br>';
+				($minutes == 0) ? $tMinutes = '' : $tMinutes = '<b>'.$minutes.' Mnt</b><br>';
+				$waktu = $tDays.$tHours.$tMinutes;
 
-				// timer
-
-                if($r->status_app1=='N')
-                {
-                    $btn1   = 'btn-warning';
-                    $i1     = '<i class="fas fa-lock"></i>';
-					$alasan1 = '';
-                }else  if($r->status_app1=='H')
-                {
-                    $btn1   = 'btn-danger';
-                    $i1     = '<i class="far fa-hand-paper"></i>';
+				$ketAlasan1 = '';
+				$exp1 = '';
+				if($r->status_app1=='N'){
+					if($actualDate > $expired || $actualDate == $expired){
+						$btn1   = 'btn-danger';
+						$i1     = '<i class="fas fa-ban" style="color:#000"></i>';
+						$alasan1 = '';
+						$ketAlasan1 .= '<div style="color:#f00;font-weight:bold">EXPIRED</div>';
+						$exp1 .= 'expired';
+					}else{
+						$btn1   = 'btn-warning';
+						$i1     = '<i class="fas fa-lock"></i>';
+						$alasan1 = '';
+						$ketAlasan1 .= '<div style="color:#f00">'.$waktu.'</div>';
+					}
+				}else  if($r->status_app1=='H'){
+					$btn1   = 'btn-danger';
+					$i1     = '<i class="far fa-hand-paper"></i>';
 					$alasan1 = $r->ket_acc1;
-                }else  if($r->status_app1=='R')
-                {
-                    $btn1   = 'btn-danger';
-                    $i1     = '<i class="fas fa-times"></i>';
+				}else  if($r->status_app1=='R'){
+					$btn1   = 'btn-danger';
+					$i1     = '<i class="fas fa-times"></i>';
 					$alasan1 = $r->ket_acc1;
-                }else{
-                    $btn1   = 'btn-success';
-                    $i1     = '<i class="fas fa-check-circle"></i>';
+				}else{
+					$btn1   = 'btn-success';
+					$i1     = '<i class="fas fa-check-circle"></i>';
 					$alasan1 = '';
-                }
+				}
                 
-                if($r->status_app2=='N')
-                {
-                    $btn2   = 'btn-warning';
-                    $i2     = '<i class="fas fa-lock"></i>';
-					$alasan2 = '';
-                }else  if($r->status_app2=='H')
-                {
+				$ketAlasan2 = '';
+				$exp2 = '';
+                if($r->status_app2=='N'){
+					if($actualDate > $expired || $actualDate == $expired){
+						$btn2   = 'btn-danger';
+						$i2    = '<i class="fas fa-ban" style="color:#000"></i>';
+						$alasan2 = '';
+						$ketAlasan2 .= '<div style="color:#f00;font-weight:bold">EXPIRED</div>';
+						$exp2 .= 'expired';
+					}else{
+						$btn2   = 'btn-warning';
+						$i2     = '<i class="fas fa-lock"></i>';
+						$alasan2 = '';
+						$ketAlasan2 .= '<div style="color:#f00;font-weight:bold">'.$waktu.'</div>';
+					}
+                }else if($r->status_app2=='H'){
                     $btn2   = 'btn-danger';
                     $i2     = '<i class="far fa-hand-paper"></i>';
 					$alasan2 = $r->ket_acc2;
-                }else  if($r->status_app2=='R')
-                {
+                }else if($r->status_app2=='R'){
                     $btn2   = 'btn-danger';
                     $i2     = '<i class="fas fa-times"></i>';
 					$alasan2 = $r->ket_acc2;
@@ -534,17 +549,17 @@ class Transaksi extends CI_Controller
 					'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</b></div>
 				';
 				$row[] = '<div class="text-center">
-					<button onclick="data_sementara(`Marketing`,' . "'" . $r->status_app1 . "'" . ',' . "'" . $time1 . "'" . ',' . "'" . $alasan1 . "'" . ',' . "'" . $r->no_po . "'" . ')" type="button" title="'.$time1.'" style="text-align: center;" class="btn btn-sm '.$btn1.' ">'.$i1.'</button><br>
-					'.$alasan1.'</div>
+					<button onclick="data_sementara(`Marketing`,' . "'" . $r->status_app1 . "'" . ',' . "'" . $time1 . "'" . ',' . "'" . $alasan1 . "'" . ',' . "'" . $r->no_po . "'" . ','."'".$exp1."'".')" type="button" title="'.$time1.'" style="text-align: center;" class="btn btn-sm '.$btn1.' ">'.$i1.'</button><br>
+					'.$alasan1.''.$ketAlasan1.'</div>
 				';
 				
                 $row[] = '<div class="text-center">
-					<button onclick="data_sementara(`PPIC`,' . "'" . $r->status_app2 . "'" . ',' . "'" . $time2 . "'" . ',' . "'" . $alasan2 . "'" . ',' . "'" . $r->no_po . "'" . ')"  type="button" title="'.$time2.'"  style="text-align: center;" class="btn btn-sm '.$btn2.' ">'.$i2.'</button><br>
-					'.$alasan2.' 
+					<button onclick="data_sementara(`PPIC`,' . "'" . $r->status_app2 . "'" . ',' . "'" . $time2 . "'" . ',' . "'" . $alasan2 . "'" . ',' . "'" . $r->no_po . "'" . ','."'".$exp2."'".')"  type="button" title="'.$time2.'"  style="text-align: center;" class="btn btn-sm '.$btn2.' ">'.$i2.'</button><br>
+					'.$alasan2.''.$ketAlasan2.'
 					<span style="font-size:1px;color:transparent">'.$r->status_app2.'</span></div>
 				';
                 $row[] = '<div class="text-center">
-					<button onclick="data_sementara(`Owner`,' . "'" . $r->status_app3 . "'" . ',' . "'" . $time3 . "'" . ',' . "'" . $alasan3 . "'" . ',' . "'" . $r->no_po . "'" . ')"  type="button" title="'.$time3.'"  style="text-align: center;" class="btn btn-sm '.$btn3.' ">'.$i3.'</button><br>
+					<button onclick="data_sementara(`Owner`,' . "'" . $r->status_app3 . "'" . ',' . "'" . $time3 . "'" . ',' . "'" . $alasan3 . "'" . ',' . "'" . $r->no_po . "'" . ',0)"  type="button" title="'.$time3.'"  style="text-align: center;" class="btn btn-sm '.$btn3.' ">'.$i3.'</button><br>
 					'.$alasan3.'</div>
 				';
 
