@@ -2421,7 +2421,7 @@ class Transaksi extends CI_Controller
 		INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 		INNER JOIN m_sales s ON c.id_sales=s.id_sales
-		WHERE status_app1='Y' AND status_app2='Y' AND status_app3='Y' AND d.no_so IS NULL AND d.tgl_so IS NULL AND d.status_so IS NULL
+		WHERE p.status_app1='Y' AND p.status_app2='Y' AND p.status_app3='Y' AND p.status='Approve' AND d.no_so IS NULL AND d.tgl_so IS NULL AND d.status_so IS NULL
 		GROUP BY p.no_po,p.kode_po ORDER BY c.nm_pelanggan,p.no_po")->result();
 		echo json_encode(array(
 			'po' => $po,
