@@ -424,14 +424,15 @@ class Transaksi extends CI_Controller
 				$days                 = floor($secondsDiff/60/60/24);
 				$hours                = floor(($secondsDiff-($days*60*60*24))/60/60);
 				$minutes              = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))/60);
-				// $seconds              = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))-($minutes*60));
+				$seconds              = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))-($minutes*60));
 				// $actualDateDisplay    = date($dateFormat, $actualDate);
-				// $expiredDisplay       = date($dateFormat, $expired);
+				$expiredDisplay       = date("F d, Y H:i:s", $expired);
 
-				($days == 0) ? $tDays = '' : $tDays = '<b>'.$days.' Day</b><br>';
-				($hours == 0) ? $tHours = '' : $tHours = '<b>'.$hours.' Hrs</b><br>';
-				($minutes == 0) ? $tMinutes = '' : $tMinutes = '<b>'.$minutes.' Mnt</b><br>';
-				$waktu = $tDays.$tHours.$tMinutes;
+				($days == 0) ? $tDays = '' : $tDays = $days.' Day<br>';
+				($hours == 0) ? $tHours = '' : $tHours = $hours.' Hrs<br>';
+				($minutes == 0) ? $tMinutes = '' : $tMinutes = $minutes.' Mnt<br>';
+				($seconds == 0) ? $tseconds = '' : $tseconds = $seconds.' Sec';
+				($days == 0 && $hours == 0 && $minutes == 0) ? $waktu = $tseconds : $waktu = $tDays.$tHours.$tMinutes;
 
 				$ketAlasan1 = '';
 				$exp1 = '';
@@ -444,18 +445,20 @@ class Transaksi extends CI_Controller
 						$exp1 .= 'expired';
 					}else{
 						$btn1   = 'btn-warning';
-						$i1     = '<i class="fas fa-lock"></i>';
+						$i1     = '<i id="iBtn1-'.$r->id.'" class="fas fa-lock"></i>';
 						$alasan1 = '';
-						$ketAlasan1 .= '<div style="color:#f00">'.$waktu.'</div>';
+						$ketAlasan1 .= '<div id="countdown1-'.$r->id.'" style="color:#f00;font-weight:bold" onclick="countDownPO('."'".$r->id."'".')">'.$waktu.'</div>';
 					}
 				}else  if($r->status_app1=='H'){
 					$btn1   = 'btn-danger';
 					$i1     = '<i class="far fa-hand-paper"></i>';
 					$alasan1 = $r->ket_acc1;
+					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan1 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan1 .= '<br><div id="countdown1-'.$r->id.'" style="color:#f00;font-weight:bold" onclick="countDownPO('."'".$r->id."'".')">'.$waktu.'</div>';
 				}else  if($r->status_app1=='R'){
 					$btn1   = 'btn-danger';
 					$i1     = '<i class="fas fa-times"></i>';
 					$alasan1 = $r->ket_acc1;
+					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan1 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan1 .= '<br><div id="countdown1-'.$r->id.'" style="color:#f00;font-weight:bold" onclick="countDownPO('."'".$r->id."'".')">'.$waktu.'</div>';
 				}else{
 					$btn1   = 'btn-success';
 					$i1     = '<i class="fas fa-check-circle"></i>';
@@ -473,18 +476,20 @@ class Transaksi extends CI_Controller
 						$exp2 .= 'expired';
 					}else{
 						$btn2   = 'btn-warning';
-						$i2     = '<i class="fas fa-lock"></i>';
+						$i2     = '<i id="iBtn2-'.$r->id.'" class="fas fa-lock"></i>';
 						$alasan2 = '';
-						$ketAlasan2 .= '<div style="color:#f00;font-weight:bold">'.$waktu.'</div>';
+						$ketAlasan2 .= '<div id="countdown2-'.$r->id.'" style="color:#f00;font-weight:bold" onclick="countDownPO('."'".$r->id."'".')">'.$waktu.'</div>';
 					}
                 }else if($r->status_app2=='H'){
                     $btn2   = 'btn-danger';
                     $i2     = '<i class="far fa-hand-paper"></i>';
 					$alasan2 = $r->ket_acc2;
+					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan2 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan2 .= '<br><div id="countdown2-'.$r->id.'" style="color:#f00;font-weight:bold" onclick="countDownPO('."'".$r->id."'".')">'.$waktu.'</div>';
                 }else if($r->status_app2=='R'){
                     $btn2   = 'btn-danger';
                     $i2     = '<i class="fas fa-times"></i>';
 					$alasan2 = $r->ket_acc2;
+					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan2 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan2 .= '<br><div id="countdown2-'.$r->id.'" style="color:#f00;font-weight:bold" onclick="countDownPO('."'".$r->id."'".')">'.$waktu.'</div>';
                 }else{
                     $btn2   = 'btn-success';
                     $i2     = '<i class="fas fa-check-circle"></i>';
@@ -545,18 +550,20 @@ class Transaksi extends CI_Controller
 				$row[] = '<div class="text-center">'.$r->nm_pelanggan.'</div>';
                 
 				$row[] = '<div class="text-center">
+					<input type="hidden" id="statusMarketing-'.$r->id.'" value="'.$r->status_app1.'">
+					<input type="hidden" id="statusPPIC-'.$r->id.'" value="'.$r->status_app2.'">
+					<input type="hidden" id="tanggalExpired-'.$r->id.'" value="'.$expiredDisplay.'">
 					<button type="button" title="OKE" style="text-align: center;" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button><br><b>
 					'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</b></div>
 				';
 				$row[] = '<div class="text-center">
-					<button onclick="data_sementara(`Marketing`,' . "'" . $r->status_app1 . "'" . ',' . "'" . $time1 . "'" . ',' . "'" . $alasan1 . "'" . ',' . "'" . $r->no_po . "'" . ','."'".$exp1."'".')" type="button" title="'.$time1.'" style="text-align: center;" class="btn btn-sm '.$btn1.' ">'.$i1.'</button><br>
+					<button onclick="data_sementara(`Marketing`,' . "'" . $r->status_app1 . "'" . ',' . "'" . $time1 . "'" . ',' . "'" . $alasan1 . "'" . ',' . "'" . $r->no_po . "'" . ','."'".$exp1."'".')" type="button" title="'.$time1.'" style="text-align: center;" class="btn btn-sm '.$btn1.'" id="btnBase1-'.$r->id.'">'.$i1.'</button><br>
 					'.$alasan1.''.$ketAlasan1.'</div>
 				';
 				
                 $row[] = '<div class="text-center">
-					<button onclick="data_sementara(`PPIC`,' . "'" . $r->status_app2 . "'" . ',' . "'" . $time2 . "'" . ',' . "'" . $alasan2 . "'" . ',' . "'" . $r->no_po . "'" . ','."'".$exp2."'".')"  type="button" title="'.$time2.'"  style="text-align: center;" class="btn btn-sm '.$btn2.' ">'.$i2.'</button><br>
-					'.$alasan2.''.$ketAlasan2.'
-					<span style="font-size:1px;color:transparent">'.$r->status_app2.'</span></div>
+					<button onclick="data_sementara(`PPIC`,' . "'" . $r->status_app2 . "'" . ',' . "'" . $time2 . "'" . ',' . "'" . $alasan2 . "'" . ',' . "'" . $r->no_po . "'" . ','."'".$exp2."'".')" type="button" title="'.$time2.'"  style="text-align: center;" class="btn btn-sm '.$btn2.'" id="btnBase2-'.$r->id.'">'.$i2.'</button><br>
+					'.$alasan2.''.$ketAlasan2.'</div>
 				';
                 $row[] = '<div class="text-center">
 					<button onclick="data_sementara(`Owner`,' . "'" . $r->status_app3 . "'" . ',' . "'" . $time3 . "'" . ',' . "'" . $alasan3 . "'" . ',' . "'" . $r->no_po . "'" . ',0)"  type="button" title="'.$time3.'"  style="text-align: center;" class="btn btn-sm '.$btn3.' ">'.$i3.'</button><br>
