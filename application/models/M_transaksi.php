@@ -144,11 +144,15 @@ class M_transaksi extends CI_Model
 			$this->db->set("add_user", $this->username);
 			$this->db->set("add_time", date("Y:m:d H:i:s"));
 			$result = $this->db->insert($table, $data);
+			// history
+			history_tr('PO', 'TAMBAH_DATA', 'ADD', $nopo, '-');
 		} else {
 
 			$this->db->set("edit_user", $this->username);
 			$this->db->set("edit_time", date("Y:m:d H:i:s"));
 			$result = $this->db->update($table, $data, array('no_po' => $params->no_po));
+			// history
+			history_tr('PO', 'EDIT_DATA', 'EDIT', $params->no_po, '-');
 		}
 
 		return $result;
@@ -652,6 +656,14 @@ class M_transaksi extends CI_Model
 		$status   = $this->input->post('status');		
 		$alasan   = $this->input->post('alasan');
 
+		if($status == 'Y'){
+			$stts = 'VERIFIKASI';
+		}else if($status == 'H'){
+			$stts = 'HOLD';
+		}else{
+			$stts = 'REJECT';
+		}
+
 		$app      = "";
 
 		// KHUSUS ADMIN
@@ -685,6 +697,9 @@ class M_transaksi extends CI_Model
 			$this->db->set("status", $sts);
 			$this->db->where("no_po", $id);
 			$update_trs_po_detail = $this->db->update("trs_po_detail");
+
+			// history
+			history_tr('PO', 'VERIFIKASI_PO_ADMIN', $stts, $id, '-');
 			
 			$msg = 'Data Berhasil Diproses';
 
@@ -693,16 +708,9 @@ class M_transaksi extends CI_Model
 			$expired = strtotime($cekPO->add_time) + (48*60*60);
 			$actualDate = time();
 			if($this->session->userdata('level') != "Owner" && $actualDate > $expired || $actualDate == $expired){
-				$update_trs_po = false;
-				$update_trs_po_detail = false;
-				if($status == 'Y'){
-					$stts = 'VERIFIKASI';
-				}else if($status == 'H'){
-					$stts = 'HOLD';
-				}else{
-					$stts = 'REJECT';
-				}
-				$msg = 'TIDAK BISA '.$stts.' SUDAH EXPIRED';
+				$update_trs_po          = false;
+				$update_trs_po_detail   = false;
+				$msg                    = 'TIDAK BISA '.$stts.' SUDAH EXPIRED';
 			}else{
 				// UPDATE TRS PO
 				if ($this->session->userdata('level') == "Marketing") {
@@ -736,6 +744,9 @@ class M_transaksi extends CI_Model
 				$this->db->set("ket_acc".$app, $alasan);
 				$this->db->where("no_po",$id);
 				$update_trs_po = $this->db->update("trs_po");
+
+				// history
+				history_tr('PO', 'VERIFIKASI_PO', $stts, $id, $alasan);
 		
 				// UPDATE TRS PO DETAIL
 				if($status == 'Y'){
