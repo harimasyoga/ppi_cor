@@ -460,8 +460,7 @@ class Logistik extends CI_Controller
 			INNER JOIN pl b ON a.id_pl = b.id 
 			LEFT JOIN m_perusahaan c ON b.id_perusahaan=c.id
 			WHERE b.no_pl_inv = '0' AND b.tgl='$tgl_sj' AND b.id_perusahaan='$id_perusahaan'
-			GROUP BY b.no_po,a.nm_ker,a.g_label,a.width 
-			ORDER BY a.g_label,b.no_surat,b.no_po,a.nm_ker DESC,a.g_label,a.width ")->result();
+			GROUP BY b.no_pkb,b.no_po,a.nm_ker,a.g_label,a.width")->result();
 		}else{
 			if ($type_po == 'box')
 			{				
