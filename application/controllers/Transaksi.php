@@ -56,6 +56,16 @@ class Transaksi extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function HPP()
+	{
+		$data = [
+			'judul' => "HPP",
+		];
+		$this->load->view('header',$data);
+		$this->load->view('Transaksi/v_hpp');
+		$this->load->view('footer');
+	}
+
 	function hitung_rekap()
 	{
 		
