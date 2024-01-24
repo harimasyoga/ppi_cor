@@ -66,6 +66,78 @@ class Transaksi extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function simpanHPP()
+	{
+		$result = $this->m_transaksi->simpanHPP();
+		echo json_encode($result);
+	}
+
+	function hapusHPP()
+	{
+		$result = $this->m_transaksi->hapusHPP();
+		echo json_encode($result);
+	}
+
+	function editHPP()
+	{
+		$id_hpp = $_POST["id_hpp"];
+		$opsi = $_POST["opsi"];
+		$hpp = $this->db->query("SELECT*FROM m_hpp WHERE id_hpp='$id_hpp'")->row();
+		$data = [
+			'id_hpp' => $hpp->id_hpp,
+			'tgl1_hpp' => $hpp->tgl1_hpp,
+			'tgl2_hpp' => $hpp->tgl2_hpp,
+			'jenis_hpp' => $hpp->jenis_hpp,
+			'batu_bara' => number_format($hpp->batu_bara,0,",","."),
+			'bahan_baku' => number_format($hpp->bahan_baku,0,",","."),
+			'listrik' => number_format($hpp->listrik,0,",","."),
+			'chemical' => number_format($hpp->chemical,0,",","."),
+			'tenaga_kerja' => number_format($hpp->tenaga_kerja,0,",","."),
+			'depresiasi' => number_format($hpp->depresiasi,0,",","."),
+			'bahan_pembantu' => number_format($hpp->bahan_pembantu,0,",","."),
+			'solar' => number_format($hpp->solar,0,",","."),
+			'ekspedisi' => number_format($hpp->ekspedisi,0,",","."),
+			'lain_lain' => number_format($hpp->lain_lain,0,",","."),
+			'hasil_hpp' => number_format($hpp->hasil_hpp,0,",","."),
+			'tonase_order' => number_format($hpp->tonase_order,0,",","."),
+			'hasil_x_tonanse' => number_format($hpp->hasil_x_tonanse,0,",","."),
+			'presentase' => $hpp->presentase,
+			'fix_hpp' => number_format($hpp->fix_hpp,0,",","."),
+		];
+		echo json_encode($data);
+	}
+
+	function loadDataHPP()
+	{
+		$data = [];
+		$query = $this->db->query("SELECT*FROM m_hpp ORDER BY id_hpp DESC")->result();
+		$i = 0;
+		foreach ($query as $r) {
+			$i++;
+			$row = [];
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$i.'<a></div>';
+			if($r->tgl1_hpp == $r->tgl2_hpp){
+				$tgl = strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl1_hpp));
+			}else{
+				$tgl = strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl1_hpp)).' - '.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl2_hpp));
+			}
+			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$tgl.'</a></div>';
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->jenis_hpp.'</a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_hpp,0,",",".").'</a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->tonase_order,0,",",".").'</a></div>';
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->presentase.'</a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->fix_hpp,0,",",".").'</a></div>';
+			$edit = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+			$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+			$row[] = '<div class="text-center">'.$edit.' '.$hapus.'</div>';
+			$data[] = $row;
+		}
+		$output = [
+			"data" => $data,
+		];
+		echo json_encode($output);
+	}
+
 	function hitung_rekap()
 	{
 		
