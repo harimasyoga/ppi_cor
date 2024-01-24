@@ -586,9 +586,9 @@ class Logistik extends CI_Controller
 			if($query_cek_no>0)
 			{
 				echo json_encode(array("status" => "3","id" => '0'));
-			}else if($c_no_inv>$no_urut)
-			{
-				echo json_encode(array("status" => "4","id" => $no_urut));
+			// }else if($c_no_inv>$no_urut)
+			// {
+			// 	echo json_encode(array("status" => "4","id" => $no_urut));
 			}else{
 				
 				$asc = $this->m_logistik->update_invoice();
