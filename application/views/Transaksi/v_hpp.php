@@ -333,35 +333,48 @@
 
 		// HPP
 		let hitung_hpp = 0
-		if(lain_lain == '' || lain_lain == 0 || h_lain_lain == '' || h_lain_lain == 0){
-			if(h_batu_bara == '' || h_bahan_baku == '' || h_listrik == '' || h_chemical == '' || h_tenaga_kerja == '' || h_depresiasi == '' || h_bahan_pembantu == '' || h_solar == '' || h_ekspedisi == ''){
-				hitung_hpp = 0;
-			}else{
-				hitung_hpp = Math.round((parseInt(h_batu_bara) + parseInt(h_bahan_baku) + parseInt(h_listrik) + parseInt(h_chemical) + parseInt(h_tenaga_kerja) + parseInt(h_depresiasi) + parseInt(h_bahan_pembantu) + parseInt(h_solar) + parseInt(h_ekspedisi))) / 9;
-			}
+		
+		// if(lain_lain == '' || lain_lain == 0 || h_lain_lain == '' || h_lain_lain == 0){
+		// 	if(h_batu_bara == '' || h_bahan_baku == '' || h_listrik == '' || h_chemical == '' || h_tenaga_kerja == '' || h_depresiasi == '' || h_bahan_pembantu == '' || h_solar == '' || h_ekspedisi == ''){
+		// 		hitung_hpp = 0;
+		// 	}else{
+		// 		hitung_hpp = Math.round((parseInt(h_batu_bara) + parseInt(h_bahan_baku) + parseInt(h_listrik) + parseInt(h_chemical) + parseInt(h_tenaga_kerja) + parseInt(h_depresiasi) + parseInt(h_bahan_pembantu) + parseInt(h_solar) + parseInt(h_ekspedisi))) / 9;
+		// 	}
+		// }else{
+		// 	if(h_batu_bara == '' || h_bahan_baku == '' || h_listrik == '' || h_chemical == '' || h_tenaga_kerja == '' || h_depresiasi == '' || h_bahan_pembantu == '' || h_solar == '' || h_ekspedisi == ''){
+		// 		hitung_hpp = 0;
+		// 	}else{
+		// 		hitung_hpp = Math.round((parseInt(h_batu_bara) + parseInt(h_bahan_baku) + parseInt(h_listrik) + parseInt(h_chemical) + parseInt(h_tenaga_kerja) + parseInt(h_depresiasi) + parseInt(h_bahan_pembantu) + parseInt(h_solar) + parseInt(h_ekspedisi) + parseInt(h_lain_lain))) / 10;
+		// 	}
+		// }
+		// $("#hasil_hpp").val(formatRupiah(hitung_hpp.toFixed()))
+
+		if(h_batu_bara == '' || h_bahan_baku == '' || h_listrik == '' || h_chemical == '' || h_tenaga_kerja == '' || h_depresiasi == '' || h_bahan_pembantu == '' || h_solar == '' || h_ekspedisi == ''){
+			hitung_hpp = 0;
 		}else{
-			if(h_batu_bara == '' || h_bahan_baku == '' || h_listrik == '' || h_chemical == '' || h_tenaga_kerja == '' || h_depresiasi == '' || h_bahan_pembantu == '' || h_solar == '' || h_ekspedisi == ''){
-				hitung_hpp = 0;
-			}else{
-				hitung_hpp = Math.round((parseInt(h_batu_bara) + parseInt(h_bahan_baku) + parseInt(h_listrik) + parseInt(h_chemical) + parseInt(h_tenaga_kerja) + parseInt(h_depresiasi) + parseInt(h_bahan_pembantu) + parseInt(h_solar) + parseInt(h_ekspedisi) + parseInt(h_lain_lain))) / 10;
-			}
+			(lain_lain == '' || lain_lain == 0 || h_lain_lain == '' || h_lain_lain == 0) ? h_lain_lain = 0 : h_lain_lain = h_lain_lain;
+			hitung_hpp = (parseInt(h_batu_bara) + parseInt(h_bahan_baku) + parseInt(h_listrik) + parseInt(h_chemical) + parseInt(h_tenaga_kerja) + parseInt(h_depresiasi) + parseInt(h_bahan_pembantu) + parseInt(h_solar) + parseInt(h_ekspedisi) + parseInt(h_lain_lain));
 		}
-		$("#hasil_hpp").val(formatRupiah(hitung_hpp.toFixed()))
+		(isNaN(hitung_hpp) || hitung_hpp == '' || hitung_hpp == 0) ? hitung_hpp = hitung_hpp : hitung_hpp = hitung_hpp;
+		$("#hasil_hpp").val(formatRupiah(hitung_hpp.toString()))
 		
 		// HPP * TONASE ORDER
 		let tonase_order =  $("#tonase_order").val()
 		$("#tonase_order").val(formatRupiah(tonase_order)).removeClass('is-invalid').addClass((tonase_order == '') ? 'is-invalid' : '')
 		let h_tonase_order = tonase_order.split('.').join('')
+
 		let hasil_x_tonanse = 0;
-		(hitung_hpp.toFixed() == 0 || h_tonase_order == '') ? hasil_x_tonanse = 0 : hasil_x_tonanse = parseInt(hitung_hpp.toFixed()) * parseInt(h_tonase_order);
-		$("#hasil_x_tonanse").val(formatRupiah(hasil_x_tonanse.toString()))
+		// (hitung_hpp.toFixed() == 0 || h_tonase_order == '') ? hasil_x_tonanse = 0 : hasil_x_tonanse = parseInt(hitung_hpp.toFixed()) * parseInt(h_tonase_order);
+		// $("#hasil_x_tonanse").val(formatRupiah(hasil_x_tonanse.toString()))
+		(hitung_hpp == 0 || h_tonase_order == '') ? hasil_x_tonanse = 0 : hasil_x_tonanse = Math.round(parseInt(hitung_hpp) / parseInt(h_tonase_order).toFixed()).toFixed();
+		$("#hasil_x_tonanse").val(formatRupiah(hasil_x_tonanse.toString())).removeClass('is-invalid').addClass((hasil_x_tonanse == '') ? 'is-invalid' : '')
 
 		// (HPP * TONASE ORDER) + PRESENTASE %
 		let presentase = $("#presentase").val()
 		$("#presentase").val(formatRupiah(presentase)).removeClass('is-invalid').addClass((presentase == '') ? 'is-invalid' : '')
 		let h_presentase = presentase.split('.').join('')
 		let fix_hpp = parseInt(hasil_x_tonanse) + (parseInt(hasil_x_tonanse) * (parseInt(h_presentase) / 100))
-		$("#fix_hpp").val(isNaN(fix_hpp) ? 0 : formatRupiah(fix_hpp.toString()));
+		$("#fix_hpp").val(isNaN(fix_hpp) ? 0 : formatRupiah(fix_hpp.toString())).removeClass('is-invalid').addClass((isNaN(fix_hpp) || fix_hpp == '' || fix_hpp == 0) ? 'is-invalid' : '');
 	}
 
 	function simpanHPP()
@@ -404,8 +417,8 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
-				console.log(data.data2.tgl1_hpp)
+				// console.log(data)
+				// console.log(data.data2.tgl1_hpp)
 				if(data.insertHPP){
 					statusInput = 'insert'
 					toastr.success(`<b>${data.msg}</b>`)
@@ -513,7 +526,7 @@
 			data: ({ id_hpp }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				if(data.data){
 					statusInput = 'insert'
 					toastr.success(`<b>${data.msg}</b>`)
