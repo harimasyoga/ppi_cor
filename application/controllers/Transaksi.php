@@ -102,6 +102,7 @@ class Transaksi extends CI_Controller
 			'tonase_order' => number_format($hpp->tonase_order,0,",","."),
 			'hasil_x_tonanse' => number_format($hpp->hasil_x_tonanse,0,",","."),
 			'presentase' => $hpp->presentase,
+			'hxt_x_persen' => number_format($hpp->hxt_x_persen,0,",","."),
 			'fix_hpp' => number_format($hpp->fix_hpp,0,",","."),
 		];
 		echo json_encode($data);

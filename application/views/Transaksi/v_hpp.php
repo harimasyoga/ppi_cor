@@ -44,7 +44,12 @@
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">JENIS</div>
 							<div class="col-md-9">
-								<select id="jenis_hpp" class="form-control select2"></select>
+								<select id="jenis_hpp" class="form-control select2">
+									<option value="">PILIH</option>
+									<option value="BK">BK</option>
+									<option value="MH">MH</option>
+									<option value="WP">WP</option>
+								</select>
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
@@ -140,10 +145,16 @@
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">PRESENTASE</div>
 							<div class="col-md-9">
-								<input type="text" id="presentase" class="form-control" autocomplete="off" placeholder="PRESENTASE" onkeyup="hitungHPP()">
+								<input type="number" id="presentase" class="form-control" autocomplete="off" placeholder="PRESENTASE" onkeyup="hitungHPP()">
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3"></div>
+							<div class="col-md-9">
+								<input type="text" id="hxt_x_persen" class="form-control" style="color:#000;font-weight:bold" autocomplete="off" placeholder="HxT X PRESENTASE" onkeyup="hitungHPP()">
+							</div>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:12px 12px 6px">
 							<div class="col-md-3">HASIL AKHIR</div>
 							<div class="col-md-9">
 								<input type="text" id="fix_hpp" class="form-control" style="color:#000;font-weight:bold" autocomplete="off" placeholder="HASIL AKHIR" disabled onkeyup="hitungHPP()">
@@ -177,14 +188,14 @@
 							<table id="datatable" class="table table-bordered table-striped" style="width:100%">
 								<thead>
 									<tr>
-										<th style="width:8%">#</th>
-										<th style="width:12%">PERIODE</th>
-										<th style="width:10%">JENIS</th>
-										<th style="width:16%">HPP</th>
-										<th style="width:16%">TONASE ORDER</th>
-										<th style="width:8%">%</th>
-										<th style="width:20%">HASIL AKHIR</th>
-										<th style="width:10%">AKSI</th>
+										<th style="text-align:center;width:8%">#</th>
+										<th style="text-align:center;width:12%">PERIODE</th>
+										<th style="text-align:center;width:10%">JENIS</th>
+										<th style="text-align:center;width:16%">HPP</th>
+										<th style="text-align:center;width:16%">TONASE ORDER</th>
+										<th style="text-align:center;width:8%">%</th>
+										<th style="text-align:center;width:20%">HASIL AKHIR</th>
+										<th style="text-align:center;width:10%">AKSI</th>
 									</tr>
 								</thead>
 								<tbody></tbody>
@@ -257,6 +268,7 @@
 		$("#tonase_order").val("").prop('disabled', true).removeClass('is-invalid')
 		$("#hasil_x_tonanse").val("").prop('disabled', true).removeClass('is-invalid')
 		$("#presentase").val("").prop('disabled', true).removeClass('is-invalid')
+		$("#hxt_x_persen").val("").prop('disabled', true).removeClass('is-invalid')
 		$("#fix_hpp").val("").prop('disabled', true).removeClass('is-invalid')
 		$("#btn-simpan").html(`<button type="button" class="btn btn-sm btn-primary" onclick="simpanHPP()"><i class="fa fa-save"></i> <b>SIMPAN</b></button>`)
 		swal.close()
@@ -333,7 +345,6 @@
 
 		// HPP
 		let hitung_hpp = 0
-		
 		// if(lain_lain == '' || lain_lain == 0 || h_lain_lain == '' || h_lain_lain == 0){
 		// 	if(h_batu_bara == '' || h_bahan_baku == '' || h_listrik == '' || h_chemical == '' || h_tenaga_kerja == '' || h_depresiasi == '' || h_bahan_pembantu == '' || h_solar == '' || h_ekspedisi == ''){
 		// 		hitung_hpp = 0;
@@ -348,7 +359,6 @@
 		// 	}
 		// }
 		// $("#hasil_hpp").val(formatRupiah(hitung_hpp.toFixed()))
-
 		if(h_batu_bara == '' || h_bahan_baku == '' || h_listrik == '' || h_chemical == '' || h_tenaga_kerja == '' || h_depresiasi == '' || h_bahan_pembantu == '' || h_solar == '' || h_ekspedisi == ''){
 			hitung_hpp = 0;
 		}else{
@@ -364,16 +374,16 @@
 		let h_tonase_order = tonase_order.split('.').join('')
 
 		let hasil_x_tonanse = 0;
-		// (hitung_hpp.toFixed() == 0 || h_tonase_order == '') ? hasil_x_tonanse = 0 : hasil_x_tonanse = parseInt(hitung_hpp.toFixed()) * parseInt(h_tonase_order);
-		// $("#hasil_x_tonanse").val(formatRupiah(hasil_x_tonanse.toString()))
 		(hitung_hpp == 0 || h_tonase_order == '') ? hasil_x_tonanse = 0 : hasil_x_tonanse = Math.round(parseInt(hitung_hpp) / parseInt(h_tonase_order).toFixed()).toFixed();
 		$("#hasil_x_tonanse").val(formatRupiah(hasil_x_tonanse.toString())).removeClass('is-invalid').addClass((hasil_x_tonanse == '') ? 'is-invalid' : '')
 
 		// (HPP * TONASE ORDER) + PRESENTASE %
 		let presentase = $("#presentase").val()
-		$("#presentase").val(formatRupiah(presentase)).removeClass('is-invalid').addClass((presentase == '') ? 'is-invalid' : '')
-		let h_presentase = presentase.split('.').join('')
-		let fix_hpp = parseInt(hasil_x_tonanse) + (parseInt(hasil_x_tonanse) * (parseInt(h_presentase) / 100))
+		$("#presentase").val(presentase).removeClass('is-invalid').addClass((presentase == '') ? 'is-invalid' : '')
+		let h_presentase = presentase
+		let fix_hpp = parseInt(hasil_x_tonanse) + Math.round((parseInt(hasil_x_tonanse) * (parseInt(h_presentase) / 100)))
+		let hxt_x_persen = Math.round((parseInt(hasil_x_tonanse) * (parseInt(h_presentase) / 100)))
+		$("#hxt_x_persen").val((isNaN(hxt_x_persen) || hxt_x_persen == 0) ? 0 : formatRupiah(hxt_x_persen.toString())).removeClass('is-invalid')
 		$("#fix_hpp").val(isNaN(fix_hpp) ? 0 : formatRupiah(fix_hpp.toString())).removeClass('is-invalid').addClass((isNaN(fix_hpp) || fix_hpp == '' || fix_hpp == 0) ? 'is-invalid' : '');
 	}
 
@@ -397,6 +407,7 @@
 		let tonase_order = $("#tonase_order").val().split('.').join('')
 		let hasil_x_tonanse = $("#hasil_x_tonanse").val().split('.').join('')
 		let presentase = $("#presentase").val().split('.').join('')
+		let hxt_x_persen = $("#hxt_x_persen").val().split('.').join('')
 		let fix_hpp = $("#fix_hpp").val().split('.').join('')
 
 		$.ajax({
@@ -413,12 +424,10 @@
 				});
 			},
 			data: ({
-				id_hpp, tgl1_hpp, tgl2_hpp, jenis_hpp, batu_bara, bahan_baku, listrik, chemical, tenaga_kerja, depresiasi, bahan_pembantu, solar, ekspedisi, lain_lain, hasil_hpp, tonase_order, hasil_x_tonanse, presentase, fix_hpp, statusInput
+				id_hpp, tgl1_hpp, tgl2_hpp, jenis_hpp, batu_bara, bahan_baku, listrik, chemical, tenaga_kerja, depresiasi, bahan_pembantu, solar, ekspedisi, lain_lain, hasil_hpp, tonase_order, hasil_x_tonanse, presentase, hxt_x_persen, fix_hpp, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
-				// console.log(data.data2.tgl1_hpp)
 				if(data.insertHPP){
 					statusInput = 'insert'
 					toastr.success(`<b>${data.msg}</b>`)
@@ -428,11 +437,7 @@
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
 
-					if(data.data2.jenis_hpp == ''){
-						$("#jenis_hpp").html(`<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option><option value="WP">WP</option>`)
-					}else{
-						$("#jenis_hpp").html(`<option value="${data.data2.jenis_hpp}">${data.data2.jenis_hpp}</option><option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option><option value="WP">WP</option>`)
-					}
+					$('#jenis_hpp').val(data.data2.jenis_hpp).trigger('change');
 					$("#tgl1_hpp").val(data.data2.tgl1_hpp).removeClass('is-invalid').addClass((data.data2.tgl1_hpp == '') ? 'is-invalid' : '')
 					$("#tgl2_hpp").val(data.data2.tgl2_hpp).removeClass('is-invalid').addClass((data.data2.tgl2_hpp == '') ? 'is-invalid' : '')
 					$("#batu_bara").val(data.data2.batu_bara).removeClass('is-invalid').addClass((data.data2.batu_bara == '') ? 'is-invalid' : '')
@@ -449,6 +454,7 @@
 					$("#tonase_order").val(data.data2.tonase_order).removeClass('is-invalid').addClass((data.data2.tonase_order == '') ? 'is-invalid' : '')
 					$("#hasil_x_tonanse").val(data.data2.hasil_x_tonanse).prop('disabled', true).prop('disabled', true).removeClass('is-invalid').addClass((data.data2.hasil_x_tonanse == '') ? 'is-invalid' : '')
 					$("#presentase").val(data.data2.presentase).removeClass('is-invalid').addClass((data.data2.presentase == '') ? 'is-invalid' : '')
+					$("#hxt_x_persen").val(data.data2.hxt_x_persen).removeClass('is-invalid').addClass((data.data2.hxt_x_persen == '') ? 'is-invalid' : '')
 					$("#fix_hpp").val(data.data2.fix_hpp).prop('disabled', true).removeClass('is-invalid').addClass((data.data2.fix_hpp == '') ? 'is-invalid' : '')
 					swal.close()
 					return
@@ -477,7 +483,7 @@
 				data = JSON.parse(res)
 				let prop = true;
 				(opsi == 'edit') ? prop = false : prop = true;
-				$("#jenis_hpp").html(`<option value="${data.jenis_hpp}">${data.jenis_hpp}</option><option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option><option value="WP">WP</option>`).prop('disabled', prop)
+				$('#jenis_hpp').val(data.jenis_hpp).prop('disabled', prop).trigger('change');
 				$("#tgl1_hpp").val(data.tgl1_hpp).prop('disabled', prop).removeClass('is-invalid')
 				$("#tgl2_hpp").val(data.tgl2_hpp).prop('disabled', prop).removeClass('is-invalid')
 				$("#batu_bara").val(data.batu_bara).prop('disabled', prop).removeClass('is-invalid')
@@ -494,6 +500,7 @@
 				$("#tonase_order").val(data.tonase_order).prop('disabled', prop).removeClass('is-invalid')
 				$("#hasil_x_tonanse").val(data.hasil_x_tonanse).prop('disabled', true).removeClass('is-invalid')
 				$("#presentase").val(data.presentase).prop('disabled', prop).removeClass('is-invalid')
+				$("#hxt_x_persen").val(data.hxt_x_persen).prop('disabled', true).removeClass('is-invalid')
 				$("#fix_hpp").val(data.fix_hpp).prop('disabled', true).removeClass('is-invalid')
 				if(opsi == 'edit'){
 					$("#id_hpp").val(data.id_hpp)
@@ -526,7 +533,6 @@
 			data: ({ id_hpp }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					statusInput = 'insert'
 					toastr.success(`<b>${data.msg}</b>`)

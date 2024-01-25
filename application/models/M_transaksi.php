@@ -993,6 +993,7 @@ class M_transaksi extends CI_Model
 			'tonase_order' => $_POST["tonase_order"],
 			'hasil_x_tonanse' => $_POST["hasil_x_tonanse"],
 			'presentase' => $_POST["presentase"],
+			'hxt_x_persen' => $_POST["hxt_x_persen"],
 			'fix_hpp' => $_POST["fix_hpp"],
 		];
 
@@ -1014,6 +1015,7 @@ class M_transaksi extends CI_Model
 			'tonase_order' => ($_POST["tonase_order"] == '') ? '' : number_format($_POST["tonase_order"],0,',','.'),
 			'hasil_x_tonanse' => ($_POST["hasil_x_tonanse"] == '') ? '' : number_format($_POST["hasil_x_tonanse"],0,',','.'),
 			'presentase' => $_POST["presentase"],
+			'hxt_x_persen' => ($_POST["hxt_x_persen"] == '') ? '' : number_format($_POST["hxt_x_persen"],0,',','.'),
 			'fix_hpp' => ($_POST["fix_hpp"] == '') ? '' : number_format($_POST["fix_hpp"],0,',','.'),
 		];
 
@@ -1036,7 +1038,8 @@ class M_transaksi extends CI_Model
 			$_POST["hasil_hpp"] == '' || $_POST["hasil_hpp"] == 0 ||
 			$_POST["tonase_order"] == '' || $_POST["tonase_order"] == 0 ||
 			$_POST["hasil_x_tonanse"] == '' || $_POST["hasil_x_tonanse"] == 0 ||
-			$_POST["presentase"] == '' || $_POST["presentase"] == 0 ||
+			$_POST["presentase"] == '' ||
+			$_POST["hxt_x_persen"] == '' ||
 			$_POST["fix_hpp"] == '' || $_POST["fix_hpp"] == 0
 		){
 			$insertHPP = false;
