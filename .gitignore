@@ -33,3 +33,4 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 db_penjualan.sql
 application/config/database.php
 .vscode
+index.php
