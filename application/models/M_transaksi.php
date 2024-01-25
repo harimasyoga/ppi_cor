@@ -972,4 +972,105 @@ class M_transaksi extends CI_Model
 			);
 		}
 	}
+
+	function simpanHPP()
+	{
+		$data = [
+			'tgl1_hpp' => $_POST["tgl1_hpp"],
+			'tgl2_hpp' => $_POST["tgl2_hpp"],
+			'jenis_hpp' => $_POST["jenis_hpp"],
+			'batu_bara' => $_POST["batu_bara"],
+			'bahan_baku' => $_POST["bahan_baku"],
+			'listrik' => $_POST["listrik"],
+			'chemical' => $_POST["chemical"],
+			'tenaga_kerja' => $_POST["tenaga_kerja"],
+			'depresiasi' => $_POST["depresiasi"],
+			'bahan_pembantu' => $_POST["bahan_pembantu"],
+			'solar' => $_POST["solar"],
+			'ekspedisi' => $_POST["ekspedisi"],
+			'lain_lain' => $_POST["lain_lain"],
+			'hasil_hpp' => $_POST["hasil_hpp"],
+			'tonase_order' => $_POST["tonase_order"],
+			'hasil_x_tonanse' => $_POST["hasil_x_tonanse"],
+			'presentase' => $_POST["presentase"],
+			'fix_hpp' => $_POST["fix_hpp"],
+		];
+
+		$data2 = [
+			'tgl1_hpp' => $_POST["tgl1_hpp"],
+			'tgl2_hpp' => $_POST["tgl2_hpp"],
+			'jenis_hpp' => $_POST["jenis_hpp"],
+			'batu_bara' => ($_POST["batu_bara"] == '') ? '' : number_format($_POST["batu_bara"],0,',','.'),
+			'bahan_baku' => ($_POST["bahan_baku"] == '') ? '' : number_format($_POST["bahan_baku"],0,',','.'),
+			'listrik' => ($_POST["listrik"] == '') ? '' : number_format($_POST["listrik"],0,',','.'),
+			'chemical' => ($_POST["chemical"] == '') ? '' : number_format($_POST["chemical"],0,',','.'),
+			'tenaga_kerja' => ($_POST["tenaga_kerja"] == '') ? '' : number_format($_POST["tenaga_kerja"],0,',','.'),
+			'depresiasi' => ($_POST["depresiasi"] == '') ? '' : number_format($_POST["depresiasi"],0,',','.'),
+			'bahan_pembantu' => ($_POST["bahan_pembantu"] == '') ? '' : number_format($_POST["bahan_pembantu"],0,',','.'),
+			'solar' => ($_POST["solar"] == '') ? '' : number_format($_POST["solar"],0,',','.'),
+			'ekspedisi' => ($_POST["ekspedisi"] == '') ? '' : number_format($_POST["ekspedisi"],0,',','.'),
+			'lain_lain' => ($_POST["lain_lain"] == '') ? '' : number_format($_POST["lain_lain"],0,',','.'),
+			'hasil_hpp' => ($_POST["hasil_hpp"] == '') ? '' : number_format($_POST["hasil_hpp"],0,',','.'),
+			'tonase_order' => ($_POST["tonase_order"] == '') ? '' : number_format($_POST["tonase_order"],0,',','.'),
+			'hasil_x_tonanse' => ($_POST["hasil_x_tonanse"] == '') ? '' : number_format($_POST["hasil_x_tonanse"],0,',','.'),
+			'presentase' => $_POST["presentase"],
+			'fix_hpp' => ($_POST["fix_hpp"] == '') ? '' : number_format($_POST["fix_hpp"],0,',','.'),
+		];
+
+		if($_POST["jenis_hpp"] == ''){
+			$insertHPP = false;
+			$data2 = $data2;
+			$msg = 'PILIH JENIS HPP!';
+		}else if(
+			$_POST["tgl1_hpp"] == '' || $_POST["tgl1_hpp"] == 0 ||
+			$_POST["tgl2_hpp"] == '' || $_POST["tgl2_hpp"] == 0 ||
+			$_POST["batu_bara"] == '' || $_POST["batu_bara"] == 0 ||
+			$_POST["bahan_baku"] == '' || $_POST["bahan_baku"] == 0 ||
+			$_POST["listrik"] == '' || $_POST["listrik"] == 0 ||
+			$_POST["chemical"] == '' || $_POST["chemical"] == 0 ||
+			$_POST["tenaga_kerja"] == '' || $_POST["tenaga_kerja"] == 0 ||
+			$_POST["depresiasi"] == '' || $_POST["depresiasi"] == 0 ||
+			$_POST["bahan_pembantu"] == '' || $_POST["bahan_pembantu"] == 0 ||
+			$_POST["solar"] == '' || $_POST["solar"] == 0 ||
+			$_POST["ekspedisi"] == '' || $_POST["ekspedisi"] == 0 ||
+			$_POST["hasil_hpp"] == '' || $_POST["hasil_hpp"] == 0 ||
+			$_POST["tonase_order"] == '' || $_POST["tonase_order"] == 0 ||
+			$_POST["hasil_x_tonanse"] == '' || $_POST["hasil_x_tonanse"] == 0 ||
+			$_POST["presentase"] == '' || $_POST["presentase"] == 0 ||
+			$_POST["fix_hpp"] == '' || $_POST["fix_hpp"] == 0
+		){
+			$insertHPP = false;
+			$data2 = $data2;
+			$msg = 'HARAP LENGKAPI FORM!';
+		}else{
+			if($_POST["statusInput"] == 'insert'){
+				$this->db->set('add_time', date('Y-m-d H:i:s'));
+				$this->db->set('add_user', $this->username);
+				$insertHPP = $this->db->insert('m_hpp', $data);
+			}else{
+				$this->db->set('edit_time', date('Y-m-d H:i:s'));
+				$this->db->set('edit_user', $this->username);
+				$this->db->where('id_hpp', $_POST["id_hpp"]);
+				$insertHPP = $this->db->update('m_hpp', $data);
+			}
+			$insertHPP = true;
+			$data2 = true;
+			$msg = 'BERHASIL!';
+		}
+
+		return [
+			'insertHPP' => $insertHPP,
+			'data2' => $data2,
+			'msg' => $msg,
+		];
+	}
+
+	function hapusHPP()
+	{
+		$this->db->where('id_hpp', $_POST["id_hpp"]);
+		$data = $this->db->delete('m_hpp');
+		return [
+			'data' => $data
+		];
+	}
 }
