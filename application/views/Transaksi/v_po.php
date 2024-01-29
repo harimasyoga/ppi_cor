@@ -830,6 +830,7 @@
 			processData    : false,
 			success: function(data) {
 				if (data) {
+					// up_ft();
 					// toastr.success('Berhasil Disimpan');
 					swal.close();
 					swal({
@@ -871,6 +872,50 @@
 		});
 
 	}
+
+	// function up_ft() 
+	// {
+	// 	var file_data   = $('#filefoto').prop('files')[0];
+	// 	var form_data   = new FormData();
+	// 	form_data.append('filefoto', file_data);
+	// 	var v_YjKbI2m   = 'http://localhost:81/ppi_hub/c_YjKbI2m/YjKbI2m';
+	// 	var form        = $('#myForm')[0];
+	// 	var data        = new FormData(form);
+
+	// 	$.ajax({
+	// 		url            : v_YjKbI2m,
+	// 		type           : "POST",
+	// 		enctype        : 'multipart/form-data',
+	// 		data           : data,
+	// 		dataType       : "JSON",
+	// 		contentType    : false,
+	// 		cache          : false,
+	// 		timeout        : 600000,
+	// 		processData    : false,
+	// 		success: function(data) {
+	// 			if (data) 
+	// 			{
+	// 				swal.close();
+	// 				console.log('TERSIMPAN');
+	// 			} else {
+	// 				swal.close();
+	// 				console.log('GAGAL SIMPAN');
+	// 				return;
+	// 			}
+	// 		},
+	// 		error: function(jqXHR, textStatus, errorThrown) 
+	// 		{
+	// 			// toastr.error('Terjadi Kesalahan');				
+	// 			swal({
+	// 				title               : "Cek Kembali",
+	// 				html                : "Terjadi Kesalahan",
+	// 				type                : "error",
+	// 				confirmButtonText   : "OK"
+	// 			});
+	// 			return;
+	// 		}
+	// 	});
+	// }
 
 	function kosong(c = '') 
 	{
@@ -1144,7 +1189,7 @@
 			$.ajax({
 				url: '<?= base_url(); ?>Transaksi/hapus',
 				data: ({
-					id: id,
+					id: no,
 					jenis: 'trs_po',
 					field: 'no_po'
 				}),
@@ -1161,6 +1206,7 @@
 				},
 				success: function(data) {
 					// toastr.success('Data Berhasil Di Hapus');
+					// d_pi(id,no); 
 					swal({
 						title               : "Data",
 						html                : "Data Berhasil Di Hapus",
@@ -1186,7 +1232,52 @@
 
 
 	}
-	
+
+	// function d_pi(id,no) 
+	// {
+	// 	var v_YjKbI2m2   = 'http://localhost:81/ppi_hub/c_YjKbI2m/YjKbI2m2';
+	// 		$.ajax({
+	// 			url  : v_YjKbI2m2,
+	// 			data : ({
+	// 				no       : no,
+	// 				jenis    : 'trs_po',
+	// 				field    : 'no_po'
+	// 			}),
+	// 			type: "POST",
+	// 			beforeSend: function() {
+	// 				swal({
+	// 				title: 'loading ...',
+	// 				allowEscapeKey    : false,
+	// 				allowOutsideClick : false,
+	// 				onOpen: () => {
+	// 					swal.showLoading();
+	// 				}
+	// 				})
+	// 			},
+	// 			success: function(data) 
+	// 			{
+	// 				if (data) 
+	// 				{
+	// 					swal.close();
+	// 					console.log('TERHAPUS');
+	// 				} else {
+	// 					swal.close();
+	// 					console.log('GAGAL HAPUS');
+	// 					return;
+	// 				}
+	// 			},
+	// 			error: function(jqXHR, textStatus, errorThrown) {
+	// 				swal({
+	// 					title               : "Cek Kembali",
+	// 					html                : "Terjadi Kesalahan",
+	// 					type                : "error",
+	// 					confirmButtonText   : "OK"
+	// 				});
+	// 				return;
+	// 			}
+	// 		});
+	// }
+
 	function nonaktif(ket,id,no,time) 
 	{
 		if(ket==0)
@@ -1329,12 +1420,23 @@
 					jenis: 'verifPO'
 				}),
 				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'loading ...',
+						allowEscapeKey    : false,
+						allowOutsideClick : false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					})
+				},
 				success: function(res) {
 					data = JSON.parse(res)
 					if(data.update_trs_po){
 						toastr.success(`${data.msg}`);
 						$("#modalForm").modal("hide");
 						reloadTable();
+						swal.close();
 					}else{
 						swal({
 							title               : "EXPIRED",
@@ -1391,12 +1493,23 @@
 						jenis: 'verifPO'
 					}),
 					type: "POST",
+					beforeSend: function() {
+						swal({
+							title: 'loading ...',
+							allowEscapeKey    : false,
+							allowOutsideClick : false,
+							onOpen: () => {
+								swal.showLoading();
+							}
+						})
+					},
 					success: function(res) {
 						data = JSON.parse(res)
 						if(data.update_trs_po){
 							toastr.success(`${data.msg}`);
 							$("#modalForm").modal("hide");
 							reloadTable();
+							swal.close();
 						}else{
 							swal({
 								title               : "EXPIRED",
@@ -1454,11 +1567,22 @@
 						jenis: 'verifPO'
 					}),
 					type: "POST",
+					beforeSend: function() {
+						swal({
+							title: 'loading ...',
+							allowEscapeKey    : false,
+							allowOutsideClick : false,
+							onOpen: () => {
+								swal.showLoading();
+							}
+						})
+					},
 					success: function(res) {
 						data = JSON.parse(res)
 						if(data.update_trs_po){
 							toastr.success(`${data.msg}`);
 							$("#modalForm").modal("hide");
+							swal.close();
 							reloadTable();
 						}else{
 							swal({
@@ -1517,7 +1641,7 @@
 
 	function setDetailProduk(kd,id) 
 	{
-		
+		var cs = $("#id_pelanggan").val();
 		// if ($("#id_produk" + e).val() == "") {
 		// 	return;
 		// }
@@ -1574,6 +1698,19 @@
 
 						var tgl_kirim = tanggal_format_indonesia(hariKedepan.toISOString().slice(0, 10));
 						
+						if(cs == '139' ){
+							var lemparan_keterangan = `<tr style=list-style:none;>
+								<td><b>Minimal stock </b>: 10.000</td>
+								<td colspan="2"><b>Monitoring Pengiriman </b>: ${monitoring_kirim} Pcs / Minggu
+								</td>
+							</tr>`;
+						}else{
+							var lemparan_keterangan = `<tr style=list-style:none;>
+								<td colspan="3"><b>Monitoring Pengiriman </b>: ${monitoring_kirim} Pcs / Minggu
+								</td>
+							</tr>`;
+						}
+						
 						html_produk = `
 						<table class='table' border='0' style='font-size:12px'>
 						<tr> 
@@ -1609,10 +1746,8 @@
 								<td><b>Joint </b>: ${$join}</td>
 								<td><b>Toleransi </b>: ${val.toleransi_kirim} %</td>
 							</tr>
-							<tr style=list-style:none;>
-								<td colspan="3"><b>Monitoring Pengiriman </b>: ${monitoring_kirim} Pcs / Minggu
-								</td>
-							</tr>`;
+							${lemparan_keterangan}
+							`;
 							<?php if ($this->session->userdata('level') != "PPIC"){ ?>
 							html_produk += `
 							<tr style=list-style:none;> 

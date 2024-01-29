@@ -20,7 +20,14 @@ class M_transaksi extends CI_Model
 
 	function trs_po($table, $status)
 	{
-		$params       = (object)$this->input->post();
+		$params   = (object)$this->input->post();
+		$id_hub   = $this->input->post('id_hub');
+
+		$koneksi_hub    = $this->db->query("SELECT*from m_hub a
+		join akses_db_hub b ON b.nm_hub=a.nm_hub where a.id_hub='$id_hub' ")->row();
+
+		$db_ppi_hub = '$'.$koneksi_hub->nm_db_hub;
+		$db_ppi_hub = $this->load->database($koneksi_hub->nm_db_hub, TRUE);
 
 		/* LOGO */
 		//$nmfile = "file_".time(); //nama file saya beri nama langsung dan diikuti fungsi time
@@ -34,28 +41,61 @@ class M_transaksi extends CI_Model
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
 
-		if($_FILES['filefoto']['name'])
+		if ($status == 'insert') 
 		{
-			if ($this->upload->do_upload('filefoto'))
+			if($_FILES['filefoto']['name'])
 			{
-				$gbrBukti = $this->upload->data();
-				$filefoto = $gbrBukti['file_name'];
-				// $filefoto    = $_FILES['filefoto']['name'];
-				
-			}else{
-				$filefoto = 'foto.jpg';
-			}
-		} else {
+				if ($this->upload->do_upload('filefoto'))
+				{
+					$gbrBukti = $this->upload->data();
+					$filefoto = $gbrBukti['file_name'];
+					// $filefoto    = $_FILES['filefoto']['name'];
+					
+				}else{
+					$filefoto = 'foto.jpg';
+				}
+			} else {
 
-			if($params->tgl_po<'2023-11-01')
-			{
-				$filefoto = 'foto.jpg';
-			}else{
-				$error = array('error' => $this->upload->display_errors());
-				var_dump($error);
-				exit;
+				if($params->tgl_po<'2023-11-01')
+				{
+					$filefoto = 'foto.jpg';
+				}else{
+					$error = array('error' => $this->upload->display_errors());
+					var_dump($error);
+					exit;
+				}
 			}
+
+		}else{
+			if($_FILES['filefoto']['name'])
+			{
+				if ($this->upload->do_upload('filefoto'))
+				{
+					$gbrBukti = $this->upload->data();
+					$filefoto = $gbrBukti['file_name'];
+					// $filefoto    = $_FILES['filefoto']['name'];
+					
+				}else{
+					$filefoto = 'foto.jpg';
+				}
+			} else {
+
+				if($params->tgl_po<'2023-11-01')
+				{
+					$filefoto = 'foto.jpg';
+				}else{
+					// $error = array('error' => $this->upload->display_errors());
+					// var_dump($error);
+					// exit;
+
+					$load_data = $this->db->query("SELECT*FROM $table where kode_po = '$params->kode_po' and no_po='$params->no_po' ")->row();
+
+					$filefoto = $load_data->img_po;
+				}
+			}
+			
 		}
+		
 		/*END LOGO */
 		
 		$pono         = $this->m_master->get_data_max($table, 'no_po');
@@ -67,6 +107,7 @@ class M_transaksi extends CI_Model
 
 		$total_qty    = 0;
 		foreach ($params->id_produk as $key => $value) {
+			$id_produk_ = $params->id_produk[$key];
 			// $produk = $this->m_master->get_data_one("m_produk", "kode_mc", $params->id_produk[$key])->row();
 			// if($params->cek_rm[$key]== null)
 			// {
@@ -98,11 +139,27 @@ class M_transaksi extends CI_Model
 			);
 
 			if ($status == 'insert') {
+				// insert PPI
 				$this->db->set("no_po", $nopo);
 				$this->db->set("add_user", $this->username);
 				$result = $this->db->insert("trs_po_detail", $data);
-			} else {
 
+				// insert HUB
+				if($result)
+				{					
+					$cek_data_ppi = $this->db->query("SELECT*FROM trs_po_detail where kode_po = '$params->kode_po' and id_produk='$id_produk_'")->row();
+
+					$db_ppi_hub->set("id", $cek_data_ppi->id);
+					$db_ppi_hub->set("no_po", $nopo);
+					$db_ppi_hub->set("add_user", $this->username);
+					$result_hub_trspo = $db_ppi_hub->insert("trs_po_detail",$data);
+				}else{
+					$result_hub_trspo = false;
+				}
+
+				
+			} else {
+				// update PPI
 				$this->db->set("edit_user", $this->username);
 				$this->db->set("edit_time", date('Y-m-d H:i:s'));
 				$result = $this->db->update(
@@ -114,6 +171,23 @@ class M_transaksi extends CI_Model
 						'id_produk' => $params->id_produk[$key]
 					)
 				);
+
+				// UPDATE HUB
+				if($result)
+				{					
+					$db_ppi_hub->set("edit_user", $this->username);
+					$db_ppi_hub->set("edit_time", date('Y-m-d H:i:s'));
+					$result_hub_trspo = $db_ppi_hub->update(
+						"trs_po_detail",
+						$data,
+						array(
+							'no_po' => $params->no_po,
+							// 'kode_mc' => $produk->kode_mc
+							'id_produk' => $params->id_produk[$key]
+						));
+				}else{
+					$result_hub_trspo = false;
+				}
 			}
 
 			$total_qty +=  str_replace('.', '', $params->qty[$key]);
@@ -140,10 +214,27 @@ class M_transaksi extends CI_Model
 
 		if ($status == 'insert') {
 			
+			// insert PPI
 			$this->db->set("no_po", $nopo);
 			$this->db->set("add_user", $this->username);
 			$this->db->set("add_time", date("Y:m:d H:i:s"));
 			$result = $this->db->insert($table, $data);
+
+			// insert HUB
+			if($result)
+			{					
+				$cek_data_ppi = $this->db->query("SELECT*FROM $table where kode_po = '$params->kode_po' and no_po='$nopo' ")->row();
+
+				$db_ppi_hub->set("id", $cek_data_ppi->id);
+				$db_ppi_hub->set("no_po", $nopo);
+				$db_ppi_hub->set("add_user", $this->username);
+				$db_ppi_hub->set("add_time", date("Y:m:d H:i:s"));
+				$result_hub_trspo = $db_ppi_hub->insert($table, $data);
+			}else{
+				$result_hub_trspo = false;
+			}
+
+
 			// history
 			history_tr('PO', 'TAMBAH_DATA', 'ADD', $nopo, '-');
 		} else {
@@ -151,6 +242,18 @@ class M_transaksi extends CI_Model
 			$this->db->set("edit_user", $this->username);
 			$this->db->set("edit_time", date("Y:m:d H:i:s"));
 			$result = $this->db->update($table, $data, array('no_po' => $params->no_po));
+
+			// update HUB
+			if($result)
+			{					
+				// update ke hub					
+				$db_ppi_hub->set("edit_user", $this->username);
+				$db_ppi_hub->set("edit_time", date("Y:m:d H:i:s"));
+				$result_hub_trspo = $db_ppi_hub->update($table, $data, array('no_po' => $params->no_po));
+			}else{
+				$result_hub_trspo = false;
+			}
+			
 			// history
 			history_tr('PO', 'EDIT_DATA', 'EDIT', $params->no_po, '-');
 		}
@@ -651,52 +754,85 @@ class M_transaksi extends CI_Model
 		return $query;
 	}
 
-	function verifPO(){
-		$id       = $this->input->post('id');
-		$status   = $this->input->post('status');		
-		$alasan   = $this->input->post('alasan');
+	function verifPO()
+	{
+		$id             = $this->input->post('id');
+		$status         = $this->input->post('status');
+		$alasan         = $this->input->post('alasan');
 
-		if($status == 'Y'){
-			$stts = 'VERIFIKASI';
+		$koneksi_hub    = $this->db->query("SELECT *from trs_po a 
+		Join m_hub b ON a.id_hub=b.id_hub 
+		Join akses_db_hub c ON b.nm_hub=c.nm_hub
+		WHERE no_po='$id'")->row();
+
+		$db_ppi_hub = '$'.$koneksi_hub->nm_db_hub;
+		$db_ppi_hub = $this->load->database($koneksi_hub->nm_db_hub, TRUE);
+
+		if($status == 'Y')
+		{
+			$stts    = 'VERIFIKASI';
+			if (in_array($this->session->userdata('level'), ['Owner','Admin']) )
+			{
+				$sts     = 'Approve';
+			}else{
+				$sts     = 'Open';
+			}
 		}else if($status == 'H'){
-			$stts = 'HOLD';
+			$stts    = 'HOLD';
+			$sts     = 'Open';
 		}else{
-			$stts = 'REJECT';
-		}
+			$stts    = 'REJECT';
+			$sts     = 'Reject';
+		}		
 
 		$app      = "";
 
 		// KHUSUS ADMIN
-		if ($this->session->userdata('level') == "Admin") {
-			if ($status == 'Y') {
-				$sts = 'Approve';
-			}else if ($status == 'H') {
-				$sts = 'Open';
-			}else{
-				$sts = 'Reject';
-			}
+		if ($this->session->userdata('level') == "Admin") 
+		{
 
 			// TRS PO
-			$this->db->set("status", $sts);
-			$this->db->set("status_app1", $status);
-			$this->db->set("user_app1", $this->username);
-			$this->db->set("time_app1", $this->waktu);
-			$this->db->set("ket_acc1", $alasan);
-			$this->db->set("status_app2", $status);
-			$this->db->set("user_app2", $this->username);
-			$this->db->set("time_app2", $this->waktu);
-			$this->db->set("ket_acc2", $alasan);
-			$this->db->set("status_app3", $status);
-			$this->db->set("user_app3", $this->username);
-			$this->db->set("time_app3", $this->waktu);
-			$this->db->set("ket_acc3", $alasan);
+			$data = array(
+				'status'        => $sts,
+				'status_app1'   => $status,
+				'user_app1'     => $this->username,
+				'time_app1'     => $this->waktu,
+				'ket_acc1'      => $alasan,
+				'status_app2'   => $status,
+				'user_app2'     => $this->username,
+				'time_app2'     => $this->waktu,
+				'ket_acc2'      => $alasan,
+				'status_app3'   => $status,
+				'user_app3'     => $this->username,
+				'time_app3'     => $this->waktu,
+				'ket_acc3'      => $alasan,
+			);
+
 			$this->db->where("no_po",$id);
-			$update_trs_po = $this->db->update("trs_po");
+			$update_trs_po = $this->db->update("trs_po", $data);
+			// UPDATE HUB
+			if($update_trs_po)
+			{
+				$db_ppi_hub->where("no_po",$id);
+				$verif_data = $db_ppi_hub->update("trs_po", $data);
+			}else{
+				$verif_data = false;
+			}
 
 			// TRS PO DETAIL
 			$this->db->set("status", $sts);
 			$this->db->where("no_po", $id);
 			$update_trs_po_detail = $this->db->update("trs_po_detail");
+
+			// UPDATE HUB
+			if($update_trs_po_detail)
+			{
+				$db_ppi_hub->set("status", $sts);
+				$db_ppi_hub->where("no_po",$id);
+				$verif_data_detail = $db_ppi_hub->update("trs_po_detail");
+			}else{
+				$verif_data_detail = false;
+			}
 
 			// history
 			history_tr('PO', 'VERIFIKASI_PO_ADMIN', $stts, $id, '-');
@@ -704,74 +840,63 @@ class M_transaksi extends CI_Model
 			$msg = 'Data Berhasil Diproses';
 
 		}else {
-			$cekPO = $this->db->query("SELECT*FROM trs_po WHERE no_po='$id'")->row();
-			$expired = strtotime($cekPO->add_time) + (48*60*60);
-			$actualDate = time();
-			if($this->session->userdata('level') != "Owner" && $actualDate > $expired || $actualDate == $expired){
+			$cekPO         = $this->db->query("SELECT*FROM trs_po WHERE no_po='$id'")->row();
+			$expired       = strtotime($cekPO->add_time) + (48*60*60);
+			$actualDate    = time();
+
+			if($this->session->userdata('level') != "Owner" && $actualDate > $expired || $actualDate == $expired)
+			{
 				$update_trs_po          = false;
 				$update_trs_po_detail   = false;
 				$msg                    = 'TIDAK BISA '.$stts.' SUDAH EXPIRED';
 			}else{
 				// UPDATE TRS PO
+
 				if ($this->session->userdata('level') == "Marketing") {
-					$app = "1";
-					if($status == 'R'){
-						$this->db->set("status", 'Reject');
-					}else{
-						$this->db->set("status", 'Open');
-					}
+					$app = "1";		
 				}else if ($this->session->userdata('level') == "PPIC") {
 					$app = "2";
-					if($status == 'R'){
-						$this->db->set("status", 'Reject');
-					}else{
-						$this->db->set("status", 'Open');
-					}
 				}else if ($this->session->userdata('level') == "Owner") {
 					$app = "3";
-					if($status == 'R'){
-						$this->db->set("status", 'Reject');
-					}else if($status == 'H'){
-						$this->db->set("status", 'Open');
-					}else{
-						$this->db->set("status", 'Approve');
-					}
 				}
 
-				$this->db->set("status_app".$app, $status);
-				$this->db->set("user_app".$app, $this->username);
-				$this->db->set("time_app".$app, $this->waktu);
-				$this->db->set("ket_acc".$app, $alasan);
+				$data_verif_po = array(
+					'status'             => $sts,
+					'status_app'.$app    => $status,
+					'user_app'.$app      => $this->username,
+					'time_app'.$app      => $this->waktu,
+					'ket_acc'.$app       => $alasan,
+				);
+
 				$this->db->where("no_po",$id);
-				$update_trs_po = $this->db->update("trs_po");
+				$update_trs_po = $this->db->update("trs_po",$data_verif_po);
+
+				// UPDATE HUB
+				if($update_trs_po)
+				{					
+					$db_ppi_hub->where("no_po",$id);
+					$verif_data_po = $db_ppi_hub->update("trs_po",$data_verif_po);
+				}else{
+					$verif_data_po = false;
+				}
 
 				// history
 				history_tr('PO', 'VERIFIKASI_PO', $stts, $id, $alasan);
-		
+
 				// UPDATE TRS PO DETAIL
-				if($status == 'Y'){
-					if ($this->session->userdata('level') == "Owner") {
-						$this->db->set("status", 'Approve');
-						$this->db->where("no_po",$id);
-						$update_trs_po_detail = $this->db->update("trs_po_detail");
-					}else if ($this->session->userdata('level') == "PPIC") {
-						$this->db->set("status", 'Open');
-						$this->db->where("no_po",$id);
-						$update_trs_po_detail = $this->db->update("trs_po_detail");
-					}else if ($this->session->userdata('level') == "Marketing") {
-						$this->db->set("status", 'Open');
-						$this->db->where("no_po",$id);
-						$update_trs_po_detail = $this->db->update("trs_po_detail");
-					}
-				}else if($status == 'H'){
-					$this->db->set("status", 'Open');
-					$this->db->where("no_po", $id);
-					$update_trs_po_detail = $this->db->update("trs_po_detail");
-				}else if($status == 'R'){
-					$this->db->set("status", 'Reject');
-					$this->db->where("no_po", $id);
-					$update_trs_po_detail = $this->db->update("trs_po_detail");
+				$this->db->set("status", $sts);
+				$this->db->where("no_po",$id);
+				$update_trs_po_detail = $this->db->update("trs_po_detail");
+				// UPDATE HUB
+				if($update_trs_po_detail)
+				{							
+					$db_ppi_hub->set("status", $sts);
+					$db_ppi_hub->where("no_po",$id);
+					$verif_data_detail = $db_ppi_hub->update("trs_po_detail");
+				}else{
+					$verif_data_detail = false;
 				}
+
 				$msg = 'Data Berhasil Diproses';
 			}
 		}

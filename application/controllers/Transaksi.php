@@ -677,7 +677,7 @@ class Transaksi extends CI_Controller
 									<i class="fa fa-edit"></i>
 								</button>
 								
-								<button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ',' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
+								<button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->id . "'" . ',' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
 									<i class="fa fa-trash-alt"></i>
 								</button>  
 
@@ -928,13 +928,23 @@ class Transaksi extends CI_Controller
 
 	function hapus()
 	{
-		$jenis   = $_POST['jenis'];
-		$field   = $_POST['field'];
-		$id = $_POST['id'];
+		$jenis    = $_POST['jenis'];
+		$field    = $_POST['field'];
+		$id       = $_POST['id'];
 
 		if ($jenis == "trs_po") {
+
+			$load_po    = $this->db->query("SELECT *from trs_po a 
+			Join m_hub b ON a.id_hub=b.id_hub 
+			Join akses_db_hub c ON b.nm_hub=c.nm_hub
+			WHERE $field ='$id'")->row();
+			
 			$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");
 			$result = $this->m_master->query("DELETE FROM trs_po_detail WHERE  $field = '$id'");
+
+			// Hapus File Foto
+			unlink("assets/gambar_po/".$load_po->img_po);
+
 		} else {
 
 			$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");
