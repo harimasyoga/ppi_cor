@@ -125,6 +125,7 @@ class M_master extends CI_Model{
 
 			if ($status == 'insert') {
 				$this->db->set("add_user", $this->username);
+				$this->db->set("add_time", date('Y-m-d H:i:s'));
 				$inputData = $this->db->insert($table, $data);
 			}else{
 				$this->db->set("edit_user", $this->username);
@@ -139,6 +140,41 @@ class M_master extends CI_Model{
 			);
 		}
     }
+
+	function m_pelanggan_lm($table, $status)
+	{
+		// idx
+		if($_POST["id_sales"] == "" || $_POST["nm_pelanggan"] == "" || $_POST["attn"] == "" || $_POST["alamat"] == "" || $_POST["alamat_kirim"] == ""){
+			$inputData = false;
+		}else{
+			$data = array(
+				'id_sales' => $_POST["id_sales"],
+				'nm_pelanggan_lm' => $_POST["nm_pelanggan"],
+				'attn' => $_POST["attn"],
+				'alamat' => $_POST["alamat"],
+				'alamat_kirim' => $_POST["alamat_kirim"],
+				'kode_pos' => '-',
+				'fax' => '-',
+				'top' => '-',
+				'no_telp' => '-',
+			);
+
+			if ($status == 'insert') {
+				$this->db->set("add_user", $this->username);
+				$this->db->set("add_time", date('Y-m-d H:i:s'));
+				$inputData = $this->db->insert($table, $data);
+			}else{
+				$this->db->set("edit_user", $this->username);
+				$this->db->set("edit_time", date('Y-m-d H:i:s'));
+				$this->db->where("id_pelanggan_lm", $_POST["idx"]);
+				$inputData = $this->db->update($table, $data);
+			}
+		}
+		
+		return array(
+			'data' => $inputData,
+		);
+	}
 
     function m_hub($table,$status)
 	{
