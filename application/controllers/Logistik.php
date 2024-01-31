@@ -683,7 +683,7 @@ class Logistik extends CI_Controller
 
 			foreach( $query_cek as $row)
 			{
-				$db2            = $this->load->database('database_simroll', TRUE);
+				$db2 = $this->load->database('database_simroll', TRUE);
 
 				if($row->type=='roll'){
 					$update_no_pl   = $db2->query("UPDATE pl set no_pl_inv = 0 where id ='$row->id_pl'");					

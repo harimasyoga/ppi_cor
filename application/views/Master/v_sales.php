@@ -136,7 +136,8 @@
 		})
 	}
 
-	function load_data() {
+	function load_data() 
+	{
 		var table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
