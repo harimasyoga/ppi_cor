@@ -18,10 +18,11 @@ class Master extends CI_Controller
 	{
 		$data = array(
 			'judul' => "Dashboard",
+			'level' => $this->session->userdata('level'),
 		);
 		$this->load->view('header',$data );
 
-		if (in_array($this->session->userdata('level'), ['Admin' ,'Owner' ,'Keuangan' ,'User','Hub']))
+		if (in_array($this->session->userdata('level'), ['Admin' ,'Owner' ,'Keuangan1' ,'User','Hub']))
 		{			
 			$this->load->view('dashboard');
 		}else{
@@ -522,7 +523,7 @@ class Master extends CI_Controller
 		
 		$query  = $this->db->query("SELECT a.*,IFNULL((select sum(c.qty*price_inc)jum from trs_po b JOIN trs_po_detail c ON b.no_po=c.no_po where b.id_hub=a.id_hub and YEAR(b.tgl_po) in ('$tahun')
 		group by b.id_hub ,YEAR(b.tgl_po)),0) total_hub FROM m_hub a $cek_data
-		order by id_hub")->result();
+		order by id_hub ")->result();
 
 		$html .='<div style="font-weight:bold">';
 		$html .='<table class="table table-bordered table-striped">
@@ -576,6 +577,42 @@ class Master extends CI_Controller
 
 		echo $html;
 		
+	}
+
+	function rekap_jt()
+	{
+		$jenis = $this->uri->segment(3);
+
+		$data = array();
+		$query = $this->m_master->query("SELECT*FROM invoice_header a 
+		join invoice_detail b ON a.no_invoice=b.no_invoice
+		ORDER BY tgl_jatuh_tempo desc,a.no_invoice")->result();
+		$i = 1;
+
+		foreach ($query as $r) {
+			$row = array();
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id."'".','."'detail'".')">'.$i."<a></div>";
+			$row[] = $r->nm_perusahaan;
+			$row[] = $r->no_invoice;
+			$row[] = $r->no_surat;
+			$row[] = $r->no_po;
+			$row[] = $this->m_fungsi->tanggal_ind($r->tgl_jatuh_tempo);
+
+			// $idSales = $r->id;
+			// $cekPO = $this->db->query("SELECT COUNT(c.id_sales) AS jmlSales FROM trs_po p INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+			// WHERE c.id_sales='$idSales' GROUP BY c.id_sales")->num_rows();
+			$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
+			// $row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit;
+			$row[] = $btnEdit;
+			$data[] = $row;
+			$i++;
+		}
+
+		$output = array(
+			"data" => $data,
+		);
+		//output to json format
+		echo json_encode($output);
 	}
 	
 	function getEditPelanggan()
