@@ -153,17 +153,17 @@ class Transaksi extends CI_Controller
 		$this->load->view('footer');
 	}
 
-	function customerLaminasi()
-	{
-		$html ='';
-		$query = $this->db->query("SELECT*FROM m_pelanggan_lm ORDER BY nm_pelanggan_lm");
-		$html .='<option value="">PILIH</option>';
-		foreach($query->result() as $r){
-			$html .='<option value="'.$r->id_pelanggan_lm.'" nm_pelanggan="'.$r->nm_pelanggan_lm.'">'.$r->nm_pelanggan_lm.'</option>';
-		}
+	// function customerLaminasi()
+	// {
+	// 	$html ='';
+	// 	$query = $this->db->query("SELECT*FROM m_pelanggan_lm ORDER BY nm_pelanggan_lm");
+	// 	$html .='<option value="">PILIH</option>';
+	// 	foreach($query->result() as $r){
+	// 		$html .='<option value="'.$r->id_pelanggan_lm.'" nm_pelanggan="'.$r->nm_pelanggan_lm.'">'.$r->nm_pelanggan_lm.'</option>';
+	// 	}
 
-		echo $html;
-	}
+	// 	echo $html;
+	// }
 
 	function destroyLaminasi()
 	{
@@ -247,7 +247,7 @@ class Transaksi extends CI_Controller
 				<td style="padding:6px">'.$this->m_fungsi->tglIndSkt($r['options']['date_order']).'</td>
 				<td style="padding:6px">'.number_format($r['options']['harga'],0,",",".").'</td>
 				<td style="padding:6px;text-align:center">
-					<button class="btn btn-danger btn-sm" onclick="hapusCartLaminasi('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
+					<button class="btn btn-danger btn-xs" onclick="hapusCartLaminasi('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
 				</td>
 			</tr>';
 		}
@@ -277,12 +277,21 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function editListLaminasi()
+	{
+		$result = $this->m_transaksi->editListLaminasi();
+		echo json_encode($result);
+	}
+
 	function editPOLaminasi()
 	{
 		$id = $_POST["id"];
+		$id_dtl = $_POST["id_dtl"];
 		$opsi = $_POST["opsi"];
 
 		$po_lm = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'")->row();
+		$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail WHERE no_po_lm='$po_lm->no_po_lm'");
+		($id != 0 && $id_dtl != 0 ) ? $e_po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail WHERE id='$id_dtl'")->row() : $e_po_dtl = '';
 
 		$html ='';
 		$html .='<table class="table table-bordered table-striped">
@@ -298,29 +307,45 @@ class Transaksi extends CI_Controller
 					<th style="padding:6px;width:10%;text-align:center">AKSI</th>
 				</tr>
 			</thead>';
-			$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail WHERE no_po_lm='$po_lm->no_po_lm'");
 			$i = 0;
 			foreach($po_dtl->result() as $r){
 				$i++;
+				$edit = '<button class="btn btn-warning btn-xs" onclick="editPOLaminasi('."'".$po_lm->id."'".','."'".$r->id."'".','."'edit'".')"><i class="fas fa-edit"></i> EDIT</button>';
+				$hapus = '<button class="btn btn-danger btn-xs" onclick="hapusPOLaminasi('."'".$po_lm->id."'".','."'".$r->id."'".')"><i class="fas fa-times"></i> HAPUS</button>';
+				if($id_dtl == $r->id){
+					$btnAksi = '-';
+				}else if($po_dtl->num_rows() == 1){
+					($opsi == 'edit') ? $btnAksi = $edit : $btnAksi = '-';
+				}else{
+					($opsi == 'edit') ? $btnAksi = $edit.' '.$hapus : $btnAksi = '-';
+				}
+
+				($id_dtl == $r->id) ? $bold = ';font-weight:bold;background:#ffd700' : $bold = '';
 				$html .='<tr>
-					<td style="padding:6px;text-align:center">'.$i.'</td>
-					<td style="padding:6px">'.$r->nm_item_lm.'</td>
-					<td style="padding:6px">'.$r->size_lm.'</td>
-					<td style="padding:6px">'.number_format($r->sheet_lm,0,",",".").'</td>
-					<td style="padding:6px">'.number_format($r->qty_lm,0,",",".").'</td>
-					<td style="padding:6px">'.$this->m_fungsi->tglIndSkt($r->tgl_order_lm).'</td>
-					<td style="padding:6px">'.number_format($r->harga_lm,0,",",".").'</td>
-					<td style="padding:6px;text-align:center">
-						<button class="btn btn-danger btn-sm" onclick=""><i class="fas fa-times"></i> HAPUS</button>
-					</td>
+					<td style="padding:6px;text-align:center'.$bold.'">'.$i.'</td>
+					<td style="padding:6px'.$bold.'">'.$r->nm_item_lm.'</td>
+					<td style="padding:6px'.$bold.'">'.$r->size_lm.'</td>
+					<td style="padding:6px'.$bold.'">'.number_format($r->sheet_lm,0,",",".").'</td>
+					<td style="padding:6px'.$bold.'">'.number_format($r->qty_lm,0,",",".").'</td>
+					<td style="padding:6px'.$bold.'">'.$this->m_fungsi->tglIndSkt($r->tgl_order_lm).'</td>
+					<td style="padding:6px'.$bold.'">'.number_format($r->harga_lm,0,",",".").'</td>
+					<td style="padding:6px;text-align:center'.$bold.'">'.$btnAksi.'</td>
 				</tr>';
 			}
 		$html .= '</table>';
 
 		echo json_encode([
 			'po_lm' => $po_lm,
-			'po_dtl' => $html,
+			'po_dtl' => $e_po_dtl,
+			'html_dtl' => $html,
 		]);
+	}
+
+	function editListPOLaminasi()
+	{
+		$id = $_POST["id"];
+		$data = $this->db->query("SELECT*FROM trs_po_lm_detail WHERE id='$id'")->row();
+		echo json_encode($data);
 	}
 
 	function hitung_rekap()
@@ -1107,20 +1132,29 @@ class Transaksi extends CI_Controller
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
-				$row[] = $i;
-				$row[] = '<a href="javascript:void(0)" onclick="editPOLaminasi('."'".$r->id."'".','."'detail'".')">'.$r->no_po_lm.'<a>';
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<a href="javascript:void(0)" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')">'.$r->no_po_lm.'<a>';
 				$row[] = $r->tgl_lm;
-				$row[] = $r->status_lm;
+
+				if($r->status_lm == 'Open'){
+                    $btn_s = 'btn-info';
+                }else if($r->status_lm == 'Approve'){
+                    $btn_s = 'btn-success';
+                }else{
+                    $btn_s = 'btn-danger';
+                }
+				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status_lm.'</button></div>';
+
 				$row[] = $r->nm_pelanggan_lm;
 				$row[] = '';
 				$row[] = '';
 				$row[] = '';
 
-				$btnEdit = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm">
+				$btnEdit = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'edit'".')" title="EDIT" class="btn btn-info btn-sm">
 					<i class="fa fa-edit"></i>
-				</button>';
+				</button>'; 
 				
-				$row[] = $btnEdit;
+				$row[] = '<div class="text-center">'.$btnEdit.'</div>';
 				$data[] = $row;
 				$i++;
 			}

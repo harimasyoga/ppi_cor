@@ -32,8 +32,8 @@
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT PO LAMINASI</h3>
 						</div>
-						<div style="margin:12px 6px">
-							<button type="button" class="btn btn-sm btn-info" onclick="kembaliListPOLaminasi()"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button>
+						<div style="margin:12px 6px;display:flex">
+							<button type="button" class="btn btn-sm btn-info" onclick="kembaliListPOLaminasi()"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">TGL. INPUT PO</div>
@@ -45,7 +45,15 @@
 							<div class="col-md-3">CUSTOMER</div>
 							<div class="col-md-9">
 								<select id="customer" class="form-control select2">
-									<option value="">PILIH</option>
+									<?php
+										$query = $this->db->query("SELECT*FROM m_pelanggan_lm ORDER BY nm_pelanggan_lm");
+										$html ='';
+										$html .='<option value="">PILIH</option>';
+										foreach($query->result() as $r){
+											$html .='<option value="'.$r->id_pelanggan_lm.'" nm_pelanggan="'.$r->nm_pelanggan_lm.'">'.$r->nm_pelanggan_lm.'</option>';
+										}
+									?>
+									<?= $html ?>
 								</select>
 							</div>
 						</div>
@@ -102,8 +110,10 @@
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
 							<div class="col-md-3"></div>
 							<div class="col-md-9">
+								<input type="hidden" id="id_po_header" value="">
+								<input type="hidden" id="id_po_detail" value="">
 								<input type="hidden" id="id_cart" value="0">
-								<button type="button" class="btn btn-sm btn-success" onclick="addItemLaminasi()"><i class="fa fa-plus"></i> <b>ADD</b></button>
+								<div id="btn-add"></div>
 							</div>
 						</div>
 					</div>
@@ -117,6 +127,7 @@
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT ITEM</h3>
 						</div>
 						<div class="card-body" style="padding:6px">
+							<div id="list-input-sementara" style="overflow:auto;white-space:nowrap"></div>
 							<div id="list-sementara" style="overflow:auto;white-space:nowrap">
 								LIST KOSONG
 							</div>
@@ -170,10 +181,9 @@
 
 	$(document).ready(function ()
 	{
-		// kosong()
+		kosong()
 		load_data()
 		$('.select2').select2();
-		$("#list-sementara").load("<?php echo base_url('Transaksi/destroyLaminasi') ?>")
 	});
 
 	function reloadTable() {
@@ -206,13 +216,28 @@
 
 	function kosong()
 	{
+		statusInput = 'insert'
+		$("#btn-header").html('')
+		$("#tgl").prop('disabled', false)
+		$("#customer").val("").prop('disabled', false).trigger('change')
+		$("#no_po").val("").prop('disabled', false)
+		$("#item").val("").prop('disabled', false)
+		$("#size").val("").prop('disabled', false)
+		$("#sheet").val("").prop('disabled', false)
+		$("#qty").val("").prop('disabled', false)
+		$("#date_order").val("").prop('disabled', false)
+		$("#harga").val("").prop('disabled', false)
+		$("#id_po_header").val("")
+		$("#id_po_detail").val("")
+		$("#list-input-sementara").html('')
 		$("#list-sementara").load("<?php echo base_url('Transaksi/destroyLaminasi') ?>")
+		$("#btn-add").html('<button type="button" class="btn btn-sm btn-success" onclick="addItemLaminasi()"><i class="fa fa-plus"></i> <b>ADD</b></button>')
 		swal.close()
 	}
 
 	function addPOLaminasi()
 	{
-		customerLaminasi()
+		kosong()
 		$(".row-input").attr('style', '');
 		$(".row-sementara").attr('style', '');
 		$(".row-list").attr('style', 'display:none');
@@ -220,31 +245,12 @@
 
 	function kembaliListPOLaminasi()
 	{
+		kosong()
+		reloadTable()
 		$(".row-input").attr('style', 'display:none');
 		$(".row-sementara").attr('style', 'display:none');
 		$(".row-list").attr('style', '');
-	}
-
-	function customerLaminasi()
-	{
-		$.ajax({
-			url: '<?php echo base_url('Transaksi/customerLaminasi')?>',
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
-			success: function(res){
-				$("#customer").html(res)
-				swal.close()
-			}
-		})
+		$("#id_cart").val(0)
 	}
 
 	function hitungHarga()
@@ -350,6 +356,7 @@
 		let tgl = $("#tgl").val()
 		let customer = $("#customer").val()
 		let no_po = $("#no_po").val()
+		let id_po_header = $("#id_po_header").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/simpanCartLaminasi')?>',
 			type: "POST",
@@ -369,46 +376,160 @@
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
-				kosong()
-				$(".row-input").attr('style', 'display:none');
-				$(".row-sementara").attr('style', 'display:none');
-				$(".row-list").attr('style', '');
-				toastr.success(`<b>BERHASIL SIMPAN!</b>`)
+				if(statusInput == 'insert'){
+					kosong()
+					reloadTable()
+					$(".row-input").attr('style', 'display:none');
+					$(".row-sementara").attr('style', 'display:none');
+					$(".row-list").attr('style', '');
+					toastr.success(`<b>BERHASIL SIMPAN!</b>`)
+				}else{
+					editPOLaminasi(id_po_header, 0, 'edit')
+				}
 			}
 		})
 	}
 
-	function editPOLaminasi(id, opsi)
+	function editPOLaminasi(id, id_dtl, opsi)
 	{
-		customerLaminasi()
 		$(".row-input").attr('style', '');
 		$(".row-sementara").attr('style', '');
 		$(".row-list").attr('style', 'display:none');
-		$("#tgl").prop('disabled', false)
-		$('#customer').val("").prop('disabled', false).trigger('change');
-		$("#no_po").prop('disabled', false)
-		$("#item").val("")
-		$("#size").val("")
-		$("#sheet").val("")
-		$("#qty").val("")
-		$("#date_order").val("")
-		$("#harga").val("")
-		$("#list-sementara").html("");
+		$("#tgl").prop('disabled', true)
+		$('#customer').prop('disabled', true)
+		$("#no_po").prop('disabled', true)
+		$("#item").val("").prop('disabled', (opsi == 'edit') ? false : true)
+		$("#size").val("").prop('disabled', (opsi == 'edit') ? false : true)
+		$("#sheet").val("").prop('disabled', (opsi == 'edit') ? false : true)
+		$("#qty").val("").prop('disabled', (opsi == 'edit') ? false : true)
+		$("#date_order").val("").prop('disabled', (opsi == 'edit') ? false : true)
+		$("#harga").val("").prop('disabled', (opsi == 'edit') ? false : true)
+		$("#id_po_header").val("")
+		$("#id_po_detail").val("")
+		$("#list-sementara").html('')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editPOLaminasi')?>',
 			type: "POST",
-			data: ({ id, opsi }),
+			data: ({ id, id_dtl, opsi }),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
 				statusInput = 'update'
 
+				$("#btn-header").html((opsi == 'edit') ? `<button type="button" class="btn btn-sm btn-info" onclick="editPOLaminasi(${id}, 0 ,'edit')"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>` : '')
+
 				$("#tgl").val(data.po_lm.tgl_lm)
 				$('#customer').val(data.po_lm.id_pelanggan).trigger('change')
 				$("#no_po").val(data.po_lm.no_po_lm)
-				$("#list-sementara").html(data.po_dtl)
+				$("#list-input-sementara").html(data.html_dtl)
+				$("#id_po_header").val(data.po_lm.id)
+
+				if(id != 0 && id_dtl != 0){
+					$("#id_po_detail").val(data.po_dtl.id)
+					$("#item").val(data.po_dtl.nm_item_lm)
+					$("#size").val(data.po_dtl.size_lm)
+					$("#sheet").val(format_angka(data.po_dtl.sheet_lm))
+					$("#qty").val(format_angka(data.po_dtl.qty_lm))
+					$("#date_order").val(data.po_dtl.tgl_order_lm)
+					$("#harga").val(format_angka(data.po_dtl.harga_lm))
+				}
+
+				if(id != 0 && id_dtl != 0){
+					$("#btn-add").html((opsi == 'edit') ? '<button type="button" class="btn btn-sm btn-warning" onclick="editListLaminasi()"><i class="fa fa-edit"></i> <b>EDIT</b></button>' : '')
+				}else{
+					$("#btn-add").html('<button type="button" class="btn btn-sm btn-success" onclick="addItemLaminasi()"><i class="fa fa-plus"></i> <b>ADD</b></button>')
+				}
+
 				swal.close()
 			}
 		})
+	}
+
+	function editListLaminasi()
+	{
+		let tgl = $("#tgl").val()
+		let customer = $("#customer").val()
+		let no_po = $("#no_po").val()
+		let id_po_header = $("#id_po_header").val()
+		let id_po_detail = $("#id_po_detail").val()
+		let item = $("#item").val()
+		let size = $("#size").val()
+		let sheet = $("#sheet").val().split('.').join('')
+		let qty = $("#qty").val().split('.').join('')
+		let date_order = $("#date_order").val()
+		let harga = $("#harga").val().split('.').join('')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/editListLaminasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				tgl, customer, no_po, id_po_header, id_po_detail, item, size, sheet, qty, date_order, harga, statusInput
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.updatePOdtl){
+					editPOLaminasi(id_po_header, 0, 'edit')
+				}
+			}
+		})
+	}
+
+	function hapusPOLaminasi(id_po_header, id_dtl) 
+	{
+		swal({
+			title : "PO Laminasi",
+			html : "<p>Hapus List?</p>",
+			type : "question",
+			showCancelButton : true,
+			confirmButtonText : '<b>Hapus</b>',
+			cancelButtonText : '<b>Batal</b>',
+			confirmButtonClass : 'btn btn-success',
+			cancelButtonClass : 'btn btn-danger',
+			cancelButtonColor : '#d33'
+		}).then(() => {
+			$.ajax({
+				url: '<?= base_url(); ?>Transaksi/hapus',
+				data: ({
+					id : id_dtl,
+					jenis : 'trs_po_lm_detail',
+					field : 'id'
+				}),
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'loading ...',
+						allowEscapeKey    : false,
+						allowOutsideClick : false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					})
+				},
+				success: function(data) {
+					toastr.success(`<b>BERHASIL HAPUS!</b>`)
+					editPOLaminasi(id_po_header, 0, 'edit')
+				},
+			});
+		});
 	}
 </script>
