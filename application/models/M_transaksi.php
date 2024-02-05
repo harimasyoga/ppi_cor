@@ -1202,4 +1202,47 @@ class M_transaksi extends CI_Model
 			'data' => $data
 		];
 	}
+
+	function simpanCartLaminasi()
+	{
+		$data_po = [
+			'tgl_lm' => $_POST["tgl"],
+			'id_pelanggan' => $_POST["customer"],
+			'no_po_lm' => $_POST["no_po"],
+			// 'status_lm' => '',
+			// 'status_lm1' => '',
+			// 'user_lm1' => '',
+			// 'time_lm1' => '',
+			// 'ket_lm1' => '',
+			// 'status_lm2' => '',
+			// 'user_lm2' => '',
+			// 'time_lm2' => '',
+			// 'ket_lm2' => '',
+			'add_time' => date('Y-m-d H:i:s'),
+			'add_user' => $this->username,
+		];
+		$insertPO = $this->db->insert("trs_po_lm", $data_po);
+
+		if($insertPO){
+			foreach($this->cart->contents() as $r){
+				$data = array(
+					'no_po_lm' => $r['options']['no_po'],
+					'nm_item_lm' => $r['options']['item'],
+					'size_lm' => $r['options']['size'],
+					'sheet_lm' => $r['options']['sheet'],
+					'qty_lm' => $r['options']['qty'],
+					'tgl_order_lm' => $r['options']['date_order'],
+					'harga_lm' => $r['options']['harga'],
+					'add_time' => date('Y-m-d H:i:s'),
+					'add_user' => $this->username,
+				);
+				$insertPOdtl = $this->db->insert('trs_po_lm_detail', $data);
+			}
+		}
+
+		return [
+			'insertPO' => $insertPO,
+			'insertPOdtl' => $insertPOdtl,
+		];
+	}
 }
