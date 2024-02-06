@@ -129,7 +129,7 @@
 					</div>
 
 					<div class="card-verifikasi" style="display:none">
-						<div class="card card-success card-outline">
+						<div class="card card-success card-outline" style="padding-bottom:12px">
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
 							</div>
@@ -146,12 +146,13 @@
 								</div>
 							</div>
 							<div id="input-marketing"></div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-3">OWNER</div>
 								<div class="col-md-9">
 									<div id="verif-owner"></div>
 								</div>
 							</div>
+							<div id="input-owner"></div>
 						</div>
 					</div>
 				</div>
@@ -273,6 +274,7 @@
 		$("#list-sementara").load("<?php echo base_url('Transaksi/destroyLaminasi') ?>")
 		$("#btn-add").html('<button type="button" class="btn btn-sm btn-success" onclick="addItemLaminasi()"><i class="fa fa-plus"></i> <b>ADD</b></button>')
 		$("#input-marketing").html('')
+		$("#input-owner").html('')
 		swal.close()
 	}
 
@@ -503,46 +505,145 @@
 				}
 
 				console.log(urlAuth);
-				if(opsi == 'verif'){
-					$(".card-verifikasi").attr('style', '')
-					$(".card-tambah-item").attr('style', 'display:none')
+				$(".card-verifikasi").attr('style', '');
 
-					$("#verif-admin").html(`<button type="button" title="OKE" style="text-align:center" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.add_time_po_lm}`)
+				(opsi == 'verif' || opsi == 'detail') ? $(".card-tambah-item").attr('style', 'display:none') : $(".card-tambah-item").attr('style', '');
 
-					if((urlAuth == 'Admin' || urlAuth == 'Marketing Laminasi') && (data.po_lm.status_lm1 == 'N' || data.po_lm.status_lm1 == 'H' || data.po_lm.status_lm1 == 'R')){
-						$("#verif-marketing").html(`
-							<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifLaminasi('verifikasi','marketing')"><i class="fas fa-check"></i> Verifikasi</button>
-							<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifLaminasi('hold','marketing')"><i class="far fa-hand-paper"></i> Hold</button>
-							<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifLaminasi('reject','marketing')"><i class="fas fa-times"></i> Reject</button>
-						`)
-					}else{
-						if(data.po_lm.status_lm1 == 'N'){
-							$("#verif-marketing").html(`<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success"><i class="fas fa-lock"></i></button>`)
+				$("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.add_time_po_lm}`)
+
+				// VERIFIFIKASI MARKETING
+				if((urlAuth == 'Admin' || urlAuth == 'Marketing Laminasi') && data.po_lm.status_lm2 == 'N' && (data.po_lm.status_lm1 == 'N' || data.po_lm.status_lm1 == 'H' || data.po_lm.status_lm1 == 'R')){
+					// BUTTON MARKETING
+					$("#verif-marketing").html(`
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifLaminasi('verifikasi','marketing')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifLaminasi('hold','marketing')"><i class="far fa-hand-paper"></i> Hold</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifLaminasi('reject','marketing')"><i class="fas fa-times"></i> Reject</button>
+					`)
+					// KETERANGAN MARKETING
+					if(data.po_lm.status_lm1 != 'N'){
+						if(data.po_lm.status_lm1 == 'H'){
+							callout = 'callout-warning'
+							colorbtn = 'btn-warning'
+							txtsave = 'HOLD!'
 						}else{
-							$("#verif-marketing").html(`marketing`)
+							callout = 'callout-danger'
+							colorbtn = 'btn-danger'
+							txtsave = 'REJECT!'
 						}
-					}
-					
-					if((urlAuth == 'Admin' || urlAuth == 'Owner') && data.po_lm.status_lm1 == 'Y' && (data.po_lm.status_lm2 == 'N' || data.po_lm.status_lm2 == 'H' || data.po_lm.status_lm2 == 'R')){
-						$("#verif-owner").html(`
-							<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success"><i class="fas fa-check"></i> Verifikasi</button>
-							<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning"><i class="far fa-hand-paper"></i> Hold</button>
-							<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger"><i class="fas fa-times"></i> Reject</button>
+						$("#input-marketing").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:0;margin:0">
+										<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.po_lm.ket_lm1}</textarea>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifLaminasi('${data.po_lm.status_lm1}', 'marketing')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+								</div>
+							</div>
 						`)
-					}else{
-						if(data.po_lm.status_lm2 == 'N'){
-							$("#verif-owner").html(`<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
-						}else{
-							$("#verif-owner").html(`ownwe`)
-						}
 					}
-
-				}else if(opsi == 'detail'){
-					$(".card-verifikasi").attr('style', 'display:none')
-					$(".card-tambah-item").attr('style', 'display:none')
 				}else{
-					$(".card-verifikasi").attr('style', 'display:none')
-					$(".card-tambah-item").attr('style', '')
+					// BUTTON MARKETING
+					if(data.po_lm.status_lm1 == 'N'){
+						$("#verif-marketing").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+					}else if(data.po_lm.status_lm1 == 'H'){
+						$("#verif-marketing").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.time_lm1}`)
+					}else if(data.po_lm.status_lm1 == 'R'){
+						$("#verif-marketing").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times"></i></button> ${data.time_lm1}`)
+					}else{
+						$("#verif-marketing").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.time_lm1}`)
+					}
+
+					// KETERANGAN MARKETING
+					if(data.po_lm.status_lm1 != 'N'){
+						if(data.po_lm.status_lm1 == 'H'){
+							callout = 'callout-warning'
+						}else if(data.po_lm.status_lm1 == 'R'){
+							callout = 'callout-danger'
+						}else{
+							callout = 'callout-success'
+						}
+						$("#input-marketing").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:6px;margin:0">${data.po_lm.ket_lm1}</div>
+								</div>
+							</div>
+						`)
+					}
+				}
+				
+				// VERIFIFIKASI OWNER
+				if((urlAuth == 'Admin' || urlAuth == 'Owner') && data.po_lm.status_lm1 == 'Y' && (data.po_lm.status_lm2 == 'N' || data.po_lm.status_lm2 == 'H' || data.po_lm.status_lm2 == 'R')){
+					// BUTTON OWNER
+					$("#verif-owner").html(`
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifLaminasi('verifikasi','owner')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifLaminasi('hold','owner')"><i class="far fa-hand-paper"></i> Hold</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifLaminasi('reject','owner')"><i class="fas fa-times"></i> Reject</button>
+					`)
+					// KETERANGAN OWNER
+					if(data.po_lm.status_lm2 != 'N'){
+						if(data.po_lm.status_lm2 == 'H'){
+							callout = 'callout-warning'
+							colorbtn = 'btn-warning'
+							txtsave = 'HOLD!'
+						}else{
+							callout = 'callout-danger'
+							colorbtn = 'btn-danger'
+							txtsave = 'REJECT!'
+						}
+						$("#input-owner").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:0;margin:0">
+										<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.po_lm.ket_lm2}</textarea>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifLaminasi('${data.po_lm.status_lm2}', 'owner')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+								</div>
+							</div>
+						`)
+					}
+				}else{
+					// BUTTON OWNER
+					if(data.po_lm.status_lm2 == 'N'){
+						$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+					}else if(data.po_lm.status_lm2 == 'H'){
+						$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.time_lm2}`)
+					}else if(data.po_lm.status_lm2 == 'R'){
+						$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times"></i></button> ${data.time_lm2}`)
+					}else{
+						$("#verif-owner").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.time_lm2}`)
+					}
+					// KETERANGAN OWNER
+					if(data.po_lm.status_lm2 != 'N'){
+						if(data.po_lm.status_lm2 == 'H'){
+							callout = 'callout-warning'
+						}else if(data.po_lm.status_lm2 == 'R'){
+							callout = 'callout-danger'
+						}else{
+							callout = 'callout-success'
+						}
+						$("#input-owner").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:6px;margin:0">${data.po_lm.ket_lm2}</div>
+								</div>
+							</div>
+						`)
+					}
 				}
 
 				swal.close()
@@ -552,62 +653,42 @@
 
 	function verifLaminasi(aksi, status_verif)
 	{
-		console.log(aksi)
-		console.log(status_verif)
 		if(aksi == 'verifikasi'){
-			$("#input-marketing").html(`
-				<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-					<div class="col-md-3"></div>
-					<div class="col-md-9">
-						<div class="callout callout-success" style="padding:0;margin:0">
-							<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">OK</textarea>
-						</div>
-					</div>
-				</div>
-				<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-					<div class="col-md-3"></div>
-					<div class="col-md-9">
-						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs btn-success" onclick="btnVerifLaminasi('Y', '${status_verif}')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">VERIFIKASI!</span></button>
-					</div>
-				</div>
-			`)
+			vrf = 'Y'
+			callout = 'callout-success'
+			isitxt = 'OK'
+			colorbtn = 'btn-success'
+			txtsave = 'VERIFIKASI!'
 		}else if(aksi == 'hold'){
-			$("#input-marketing").html(`
-				<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-					<div class="col-md-3"></div>
-					<div class="col-md-9">
-						<div class="callout callout-warning" style="padding:0;margin:0">
-							<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()"></textarea>
-						</div>
-					</div>
-				</div>
-				<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-					<div class="col-md-3"></div>
-					<div class="col-md-9">
-						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs btn-warning" onclick="btnVerifLaminasi('H', '${status_verif}')"><i class="fas fa-save"></i> HOLD!</button>
-					</div>
-				</div>
-			`)
+			vrf = 'H'
+			callout = 'callout-warning'
+			isitxt = ''
+			colorbtn = 'btn-warning'
+			txtsave = 'HOLD!'
 		}else if(aksi == 'reject'){
-			$("#input-marketing").html(`
-				<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-					<div class="col-md-3"></div>
-					<div class="col-md-9">
-						<div class="callout callout-danger" style="padding:0;margin:0">
-							<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()"></textarea>
-						</div>
-					</div>
-				</div>
-				<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-					<div class="col-md-3"></div>
-					<div class="col-md-9">
-						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs btn-danger" onclick="btnVerifLaminasi('R', '${status_verif}')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">REJECT!</span></button>
-					</div>
-				</div>
-			`)
-		}else{
-			$("#input-marketing").html('')
+			vrf = 'R'
+			callout = 'callout-danger'
+			isitxt = ''
+			colorbtn = 'btn-danger'
+			txtsave = 'REJECT!'
 		}
+		(status_verif == 'marketing') ? input_verif = 'input-marketing' : input_verif ='input-owner';
+		$("#"+input_verif).html(`
+			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				<div class="col-md-3"></div>
+				<div class="col-md-9">
+					<div class="callout ${callout}" style="padding:0;margin:0">
+						<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${isitxt}</textarea>
+					</div>
+				</div>
+			</div>
+			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				<div class="col-md-3"></div>
+				<div class="col-md-9">
+					<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifLaminasi('${vrf}', '${status_verif}')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+				</div>
+			</div>
+		`)
 	}
 
 	function btnVerifLaminasi(aksi, status_verif)
@@ -633,7 +714,12 @@
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
-				swal.close()
+				if(data){
+					kembaliListPOLaminasi()
+				}else{
+					toastr.error(`<b>KETERANGAN TIDAK BOLEH KOSONG!</b>`)
+					swal.close()
+				}
 			}
 		})
 	}

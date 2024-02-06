@@ -145,7 +145,7 @@ class Transaksi extends CI_Controller
 			'judul' => "PO Laminasi",
 		];
 		$this->load->view('header',$data);
-		if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Marketing Laminasi'])){
+		if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Marketing Laminasi', 'Owner'])){
 			$this->load->view('Transaksi/v_po_laminasi');
 		}else{
 			$this->load->view('home');
@@ -342,7 +342,9 @@ class Transaksi extends CI_Controller
 
 		echo json_encode([
 			'po_lm' => $po_lm,
-			'add_time_po_lm' => substr($this->m_fungsi->getHariIni($po_lm->add_time),0,3).', '.$this->m_fungsi->tglIndSkt(substr($po_lm->add_time, 0,10)).' ( '.substr($po_lm->add_time, 10,6).' ) ',
+			'add_time_po_lm' => substr($this->m_fungsi->getHariIni(($po_lm->edit_time == null) ? $po_lm->add_time : $po_lm->edit_time),0,3).', '.$this->m_fungsi->tglIndSkt(substr(($po_lm->edit_time == null) ? $po_lm->add_time : $po_lm->edit_time, 0,10)).' ( '.substr(($po_lm->edit_time == null) ? $po_lm->add_time : $po_lm->edit_time, 10,6).' )',
+			'time_lm1' => ($po_lm->time_lm1 == null) ? '' :substr($this->m_fungsi->getHariIni($po_lm->time_lm1),0,3).', '.$this->m_fungsi->tglIndSkt(substr($po_lm->time_lm1, 0,10)).' ( '.substr($po_lm->time_lm1, 10,6).' )',
+			'time_lm2' => ($po_lm->time_lm2 == null) ? '' :substr($this->m_fungsi->getHariIni($po_lm->time_lm2),0,3).', '.$this->m_fungsi->tglIndSkt(substr($po_lm->time_lm2, 0,10)).' ( '.substr($po_lm->time_lm2, 10,6).' )',
 			'po_dtl' => $e_po_dtl,
 			'html_dtl' => $html,
 		]);
@@ -1134,7 +1136,6 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_po_laminasi") {
-
 			if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Owner'])){
 				$where = '';
 			}else{
@@ -1149,14 +1150,12 @@ class Transaksi extends CI_Controller
 			}
 			$query = $this->db->query("SELECT po.*,pl.nm_pelanggan_lm FROM trs_po_lm po
 			INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm $where ORDER BY id DESC")->result();
-
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = '<a href="javascript:void(0)" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')">'.$r->no_po_lm.'<a>';
+				$row[] = $r->no_po_lm;
 				$row[] = $r->tgl_lm;
-
 				if($r->status_lm == 'Open'){
                     $btn_s = 'btn-info';
                 }else if($r->status_lm == 'Approve'){
@@ -1164,36 +1163,80 @@ class Transaksi extends CI_Controller
                 }else{
                     $btn_s = 'btn-danger';
                 }
-				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status_lm.'</button></div>';
+				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.'" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')">'.$r->status_lm.'</button></div>';
 				$row[] = $r->nm_pelanggan_lm;
+				$row[] = '<div class="text-center">
+					<div class="dropup">
+						<button class="dropbtn btn btn-sm btn-success"><i class="fas fa-check-circle" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')"></i></button>
+						<div class="dropup-content">
+							<div class="time-admin">'.$this->m_fungsi->tglIndSkt(substr($r->add_time,0,10)).' - '.substr($r->add_time,10,9).'</div>
+						</div>
+					</div>
+				</div>';
 
-				$timeAdmin = $this->m_fungsi->tanggal_format_indonesia(substr($r->add_time,0,10)).' - '.substr($r->add_time,10,9);
-				$row[] = '<div class="text-center"><button type="button" title="'.$timeAdmin.'" style="text-align:center" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button></div>';
-
+				// MARKETING
 				if($r->status_lm1 == 'N'){
 					$bt1 = 'btn-warning';
 					$fa1 = 'class="fas fa-lock"';
+					$time1 = 'BELUM ACC!';
 				}else if($r->status_lm1 == 'H'){
 					$bt1 = 'btn-warning';
-					$fa1 = 'class="fas fa-hand-paper"';
+					$fa1 = 'class="far fa-hand-paper"';
+					$time1 = 'HOLD!';
 				}else if($r->status_lm1 == 'R'){
 					$bt1 = 'btn-danger';
 					$fa1 = 'class="fas fa-times"';
+					$time1 = 'REJECT!';
 				}else{
 					$bt1 = 'btn-success';
 					$fa1 = 'class="fas fa-check-circle"';
+					$time1 = $this->m_fungsi->tglIndSkt(substr($r->time_lm1,0,10)).' - '.substr($r->time_lm1,10,9);
 				}
-				$time1 = (($r->time_lm1 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_lm1,0,10)).' - '.substr($r->time_lm1,10,9));
-				$time2 = (($r->time_lm2 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_lm2,0,10)).' - '.substr($r->time_lm2,10,9));
-				$row[] = '<div class="text-center"><button type="button" title="'.$time1.'" style="text-align:center" class="btn btn-sm '.$bt1.'"><i '.$fa1.'></i></button></div>';
-				$row[] = '<div class="text-center"><button type="button" title="'.$time2.'" style="text-align:center" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button></div>';
+				$row[] = '<div class="text-center">
+					<div class="dropup">
+						<button class="dropbtn btn btn-sm '.$bt1.'" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')"><i '.$fa1.'></i></button>
+						<div class="dropup-content">
+							<div class="time-admin">'.$time1.'</div>
+						</div>
+					</div>
+				</div>';
 
-				$btnEdit = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button>'; 
-				$btnHapus = '<button type="button" onclick="hapusPOLaminasi(0,'."'".$r->id."'".','."'trs_po_lm'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>'; 
+				// OWNER
+				if($r->status_lm2 == 'N'){
+					$bt2 = 'btn-warning';
+					$fa2 = 'class="fas fa-lock"';
+					$time2 = 'BELUM ACC!';
+				}else if($r->status_lm2 == 'H'){
+					$bt2 = 'btn-warning';
+					$fa2 = 'class="far fa-hand-paper"';
+					$time2 = 'HOLD!';
+				}else if($r->status_lm2 == 'R'){
+					$bt2 = 'btn-danger';
+					$fa2 = 'class="fas fa-times"';
+					$time2 = 'REJECT!';
+				}else{
+					$bt2 = 'btn-success';
+					$fa2 = 'class="fas fa-check-circle"';
+					$time2 = $this->m_fungsi->tglIndSkt(substr($r->time_lm2,0,10)).' - '.substr($r->time_lm2,10,9);
+				}
+				$row[] = '<div class="text-center">
+					<div class="dropup">
+						<button class="dropbtn btn btn-sm '.$bt2.'" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')"><i '.$fa2.'></i></button>
+						<div class="dropup-content">
+							<div class="time-admin">'.$time2.'</div>
+						</div>
+					</div>
+				</div>';
+
+				($r->status_lm1 == 'Y' && $r->status_lm2 == 'Y') ? $xEditVerif = 'verif' : $xEditVerif = 'edit';
+				$btnEdit = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'".$xEditVerif."'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button>'; 
+				$btnHapus = ($r->status_lm1 == 'Y' && $r->status_lm2 == 'Y') ? '' : '<button type="button" onclick="hapusPOLaminasi(0,'."'".$r->id."'".','."'trs_po_lm'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>';
 				$btnVerif = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'verif'".')" title="VERIF" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>'; 
 				
-				if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+				if($this->session->userdata('level') == 'Admin'){
 					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
+				}else if($this->session->userdata('level') == 'Laminasi'){
+					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
 				}else{
 					$row[] = '<div class="text-center">'.$btnVerif.'</div>';
 				}

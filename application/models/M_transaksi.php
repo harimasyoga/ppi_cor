@@ -1243,46 +1243,55 @@ class M_transaksi extends CI_Model
 
 	function btnVerifLaminasi()
 	{
-		// status_lm1  user_lm1  time_lm1  ket_lm1  status_lm2  user_lm2  time_lm2  ket_lm2
-		// $id_po_lm = $_POST["id_po_lm"];
-		// $ket_laminasi = $_POST["ket_laminasi"];
-		// $aksi = $_POST["aksi"];
-
-		if($_POST["aksi"] == 'H'){
-			$status = 'Open';
-		}else if($_POST["aksi"] == 'R'){
-			$status = 'Reject';
-		}else if($_POST["aksi"] == 'Y' && $_POST["status_verif"] == 'marketing'){
-			$status = 'Open';
+		if($_POST["ket_laminasi"] == '' && ($_POST["aksi"] == 'H' || $_POST["aksi"] == 'R')){
+			$result = false;
 		}else{
-			$status = 'Approve';
-		}
-		($_POST["status_verif"] == 'marketing') ? $i = 1 : $i = 2 ;
+			if($_POST["aksi"] == 'H'){
+				$status = 'Open';
+			}else if($_POST["aksi"] == 'R'){
+				$status = 'Reject';
+			}else if($_POST["aksi"] == 'Y' && $_POST["status_verif"] == 'marketing'){
+				$status = 'Open';
+			}else{
+				$status = 'Approve';
+			}
+			($_POST["status_verif"] == 'marketing') ? $i = 1 : $i = 2 ;
 
-		$this->db->set('status_lm', $status);
-		$this->db->set('status_lm'.$i, $_POST["aksi"]);
-		$this->db->set('user_lm'.$i, $this->username);
-		$this->db->set('time_lm'.$i, ($_POST["aksi"] == 'Y') ? date('Y-m-d H:i:s') : null);
-		$this->db->set('ket_lm'.$i, $_POST["ket_laminasi"]);
-		$this->db->where('id', $_POST["id_po_lm"]);
-		return $this->db->update('trs_po_lm');
+			$this->db->set('status_lm', $status);
+			$this->db->set('status_lm'.$i, $_POST["aksi"]);
+			$this->db->set('user_lm'.$i, $this->username);
+			$this->db->set('time_lm'.$i, date('Y-m-d H:i:s'));
+			$this->db->set('ket_lm'.$i, $_POST["ket_laminasi"]);
+			$this->db->where('id', $_POST["id_po_lm"]);
+			$result = $this->db->update('trs_po_lm');
+		}
+
+		return $result;
 	}
 
 	function editListLaminasi()
 	{
-		$editData = array(
-			'no_po_lm' => $_POST['no_po'],
-			'nm_item_lm' => $_POST['item'],
-			'size_lm' => $_POST['size'],
-			'sheet_lm' => $_POST['sheet'],
-			'qty_lm' => $_POST['qty'],
-			'tgl_order_lm' => $_POST['date_order'],
-			'harga_lm' => $_POST['harga'],
-			'edit_time' => date('Y-m-d H:i:s'),
-			'edit_user' => $this->username,
-		);
-		$this->db->where('id', $_POST["id_po_detail"]);
-		$updatePOdtl = $this->db->update('trs_po_lm_detail', $editData);
+		$this->db->set('edit_time', date('Y-m-d H:i:s'));
+		$this->db->set('edit_user', $this->username);
+		$this->db->where('id', $_POST["id_po_header"]);
+		$updatePO = $this->db->update('trs_po_lm');
+		
+		if($updatePO){
+			$editData = array(
+				'no_po_lm' => $_POST['no_po'],
+				'nm_item_lm' => $_POST['item'],
+				'size_lm' => $_POST['size'],
+				'sheet_lm' => $_POST['sheet'],
+				'qty_lm' => $_POST['qty'],
+				'tgl_order_lm' => $_POST['date_order'],
+				'harga_lm' => $_POST['harga'],
+				'edit_time' => date('Y-m-d H:i:s'),
+				'edit_user' => $this->username,
+			);
+			$this->db->where('id', $_POST["id_po_detail"]);
+			$updatePOdtl = $this->db->update('trs_po_lm_detail', $editData);
+		}
+
 		return [
 			'updatePOdtl' => $updatePOdtl,
 		];
