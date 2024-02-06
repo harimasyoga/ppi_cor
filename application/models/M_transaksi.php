@@ -1202,4 +1202,62 @@ class M_transaksi extends CI_Model
 			'data' => $data
 		];
 	}
+
+	function simpanCartLaminasi()
+	{
+		if($_POST["statusInput"] == 'insert'){
+			$data_po = [
+				'tgl_lm' => $_POST["tgl"],
+				'id_pelanggan' => $_POST["customer"],
+				'id_sales' => $_POST["id_sales"],
+				'no_po_lm' => $_POST["no_po"],
+				'add_time' => date('Y-m-d H:i:s'),
+				'add_user' => $this->username,
+			];
+			$insertPO = $this->db->insert("trs_po_lm", $data_po);
+		}else{
+			$insertPO = true;
+		}
+
+		if($insertPO){
+			foreach($this->cart->contents() as $r){
+				$data = array(
+					'no_po_lm' => $r['options']['no_po'],
+					'nm_item_lm' => $r['options']['item'],
+					'size_lm' => $r['options']['size'],
+					'sheet_lm' => $r['options']['sheet'],
+					'qty_lm' => $r['options']['qty'],
+					'tgl_order_lm' => $r['options']['date_order'],
+					'harga_lm' => $r['options']['harga'],
+					'add_time' => date('Y-m-d H:i:s'),
+					'add_user' => $this->username,
+				);
+				$insertPOdtl = $this->db->insert('trs_po_lm_detail', $data);
+			}
+		}
+		return [
+			'insertPO' => $insertPO,
+			'insertPOdtl' => $insertPOdtl,
+		];
+	}
+
+	function editListLaminasi()
+	{
+		$editData = array(
+			'no_po_lm' => $_POST['no_po'],
+			'nm_item_lm' => $_POST['item'],
+			'size_lm' => $_POST['size'],
+			'sheet_lm' => $_POST['sheet'],
+			'qty_lm' => $_POST['qty'],
+			'tgl_order_lm' => $_POST['date_order'],
+			'harga_lm' => $_POST['harga'],
+			'edit_time' => date('Y-m-d H:i:s'),
+			'edit_user' => $this->username,
+		);
+		$this->db->where('id', $_POST["id_po_detail"]);
+		$updatePOdtl = $this->db->update('trs_po_lm_detail', $editData);
+		return [
+			'updatePOdtl' => $updatePOdtl,
+		];
+	}
 }

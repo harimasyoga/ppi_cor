@@ -139,6 +139,216 @@ class Transaksi extends CI_Controller
 		echo json_encode($output);
 	}
 
+	function PO_Laminasi()
+	{
+		$data = [
+			'judul' => "PO Laminasi",
+		];
+		$this->load->view('header',$data);
+		if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Marketing Laminasi'])){
+			$this->load->view('Transaksi/v_po_laminasi');
+		}else{
+			$this->load->view('home');
+		}
+		$this->load->view('footer');
+	}
+
+	// function customerLaminasi()
+	// {
+	// 	$html ='';
+	// 	$query = $this->db->query("SELECT*FROM m_pelanggan_lm ORDER BY nm_pelanggan_lm");
+	// 	$html .='<option value="">PILIH</option>';
+	// 	foreach($query->result() as $r){
+	// 		$html .='<option value="'.$r->id_pelanggan_lm.'" nm_pelanggan="'.$r->nm_pelanggan_lm.'">'.$r->nm_pelanggan_lm.'</option>';
+	// 	}
+
+	// 	echo $html;
+	// }
+
+	function destroyLaminasi()
+	{
+		$this->cart->destroy();
+		echo "LIST KOSONG!";
+	}
+
+	function addItemLaminasi()
+	{
+		if(
+			$_POST["tgl"] == "" ||
+			$_POST["customer"] == "" ||
+			$_POST["id_sales"] == "" ||
+			$_POST["no_po"] == "" ||
+			$_POST["item"] == "" ||
+			$_POST["size"] == "" ||
+			$_POST["sheet"] == "" || $_POST["sheet"] == 0 || $_POST["sheet"] == "0" ||
+			$_POST["qty"] == "" || $_POST["qty"] == 0 || $_POST["qty"] == "0" ||
+			$_POST["date_order"] == "" ||
+			$_POST["harga"] == "" || $_POST["harga"] == 0 || $_POST["harga"] == "0"
+		){
+			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
+		}else{
+			$data = array(
+				'id' => $_POST["id_cart"],
+				'name' => 'name'.$_POST["id_cart"],
+				'price' => 0,
+				'qty' => 1,
+				'options' => array(
+					'tgl' => $_POST["tgl"],
+					'customer' => $_POST["customer"],
+					'id_sales' => $_POST["id_sales"],
+					'no_po' => $_POST["no_po"],
+					'item' => $_POST["item"],
+					'size' => $_POST["size"],
+					'sheet' => $_POST["sheet"],
+					'qty' => $_POST["qty"],
+					'date_order' => $_POST["date_order"],
+					'harga' => $_POST["harga"],
+					'id_cart' => $_POST["id_cart"],
+				)
+			);
+			$this->cart->insert($data);
+			echo json_encode(array('data' => true, 'isi' => $data));
+		}
+	}
+
+	function cartPOLaminasi()
+	{
+		$html = '';
+
+		if($this->cart->total_items() == 0){
+			$html .= 'LIST KOSONG!';
+		}
+
+		if($this->cart->total_items() != 0){
+			$html .='<table class="table table-bordered table-striped">';
+			$html .='<thead>
+				<tr>
+					<th style="padding:6px;width:6%;text-align:center">NO.</th>
+					<th style="padding:6px;width:24%">ITEM</th>
+					<th style="padding:6px;width:14%">SIZE</th>
+					<th style="padding:6px;width:10%">SHEET</th>
+					<th style="padding:6px;width:10%">QTY ( BAL )</th>
+					<th style="padding:6px;width:12%">DATE ORDER</th>
+					<th style="padding:6px;width:10%;text-align:center">HARGA</th>
+					<th style="padding:6px;width:10%;text-align:center">AKSI</th>
+				</tr>
+			</thead>';
+		}
+
+		$i = 0;
+		foreach($this->cart->contents() as $r){
+			$i++;
+			$html .='<tr>
+				<td style="padding:6px;text-align:center">'.$i.'</td>
+				<td style="padding:6px">'.$r['options']['item'].'</td>
+				<td style="padding:6px">'.$r['options']['size'].'</td>
+				<td style="padding:6px">'.number_format($r['options']['sheet'],0,",",".").'</td>
+				<td style="padding:6px">'.number_format($r['options']['qty'],0,",",".").'</td>
+				<td style="padding:6px">'.$this->m_fungsi->tglIndSkt($r['options']['date_order']).'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r['options']['harga'],0,",",".").'</td>
+				<td style="padding:6px;text-align:center">
+					<button class="btn btn-danger btn-xs" onclick="hapusCartLaminasi('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
+				</td>
+			</tr>';
+		}
+
+		if($this->cart->total_items() != 0){
+			$html .= '</table>';
+			$html .= '<div>
+				<button class="btn btn-primary btn-sm" onclick="simpanCartLaminasi()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
+			</div>';
+		}
+
+		echo $html;
+	}
+
+	function hapusCartLaminasi()
+	{
+		$data = array(
+			'rowid' => $_POST['rowid'],
+			'qty' => 0,
+		);
+		$this->cart->update($data);
+	}
+
+	function simpanCartLaminasi()
+	{
+		$result = $this->m_transaksi->simpanCartLaminasi();
+		echo json_encode($result);
+	}
+
+	function editListLaminasi()
+	{
+		$result = $this->m_transaksi->editListLaminasi();
+		echo json_encode($result);
+	}
+
+	function editPOLaminasi()
+	{
+		$id = $_POST["id"];
+		$id_dtl = $_POST["id_dtl"];
+		$opsi = $_POST["opsi"];
+
+		$po_lm = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'")->row();
+		$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail WHERE no_po_lm='$po_lm->no_po_lm'");
+		($id != 0 && $id_dtl != 0 ) ? $e_po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail WHERE id='$id_dtl'")->row() : $e_po_dtl = '';
+
+		$html ='';
+		$html .='<table class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th style="padding:6px;width:6%;text-align:center">NO.</th>
+					<th style="padding:6px;width:24%">ITEM</th>
+					<th style="padding:6px;width:14%">SIZE</th>
+					<th style="padding:6px;width:10%">SHEET</th>
+					<th style="padding:6px;width:10%">QTY ( BAL )</th>
+					<th style="padding:6px;width:12%">DATE ORDER</th>
+					<th style="padding:6px;width:10%;text-align:center">HARGA</th>
+					<th style="padding:6px;width:10%;text-align:center">AKSI</th>
+				</tr>
+			</thead>';
+			$i = 0;
+			foreach($po_dtl->result() as $r){
+				$i++;
+				$edit = '<button class="btn btn-warning btn-xs" onclick="editPOLaminasi('."'".$po_lm->id."'".','."'".$r->id."'".','."'edit'".')"><i class="fas fa-edit"></i> EDIT</button>';
+				$hapus = '<button class="btn btn-danger btn-xs" onclick="hapusPOLaminasi('."'".$po_lm->id."'".','."'".$r->id."'".','."'trs_po_lm_detail'".')"><i class="fas fa-times"></i> HAPUS</button>';
+				if($id_dtl == $r->id){
+					$btnAksi = '-';
+				}else if($po_dtl->num_rows() == 1){
+					($opsi == 'edit') ? $btnAksi = $edit : $btnAksi = '-';
+				}else{
+					($opsi == 'edit') ? $btnAksi = $edit.' '.$hapus : $btnAksi = '-';
+				}
+
+				($id_dtl == $r->id) ? $bold = ';font-weight:bold;background:#ffd700' : $bold = '';
+				$html .='<tr>
+					<td style="padding:6px;text-align:center'.$bold.'">'.$i.'</td>
+					<td style="padding:6px'.$bold.'">'.$r->nm_item_lm.'</td>
+					<td style="padding:6px'.$bold.'">'.$r->size_lm.'</td>
+					<td style="padding:6px'.$bold.'">'.number_format($r->sheet_lm,0,",",".").'</td>
+					<td style="padding:6px'.$bold.'">'.number_format($r->qty_lm,0,",",".").'</td>
+					<td style="padding:6px'.$bold.'">'.$this->m_fungsi->tglIndSkt($r->tgl_order_lm).'</td>
+					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_lm,0,",",".").'</td>
+					<td style="padding:6px;text-align:center'.$bold.'">'.$btnAksi.'</td>
+				</tr>';
+			}
+		$html .= '</table>';
+
+		echo json_encode([
+			'po_lm' => $po_lm,
+			'add_time_po_lm' => substr($this->m_fungsi->getHariIni($po_lm->add_time),0,3).', '.$this->m_fungsi->tglIndSkt(substr($po_lm->add_time, 0,10)).' ( '.substr($po_lm->add_time, 10,6).' ) ',
+			'po_dtl' => $e_po_dtl,
+			'html_dtl' => $html,
+		]);
+	}
+
+	function editListPOLaminasi()
+	{
+		$id = $_POST["id"];
+		$data = $this->db->query("SELECT*FROM trs_po_lm_detail WHERE id='$id'")->row();
+		echo json_encode($data);
+	}
+
 	function hitung_rekap()
 	{
 		
@@ -917,12 +1127,62 @@ class Transaksi extends CI_Controller
 
 				$i++;
 			}
+		} else if ($jenis == "trs_po_laminasi") {
+
+			if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Owner'])){
+				$where = '';
+			}else{
+				$tb_nm_user = $this->session->userdata('nm_user');
+				$getSales = $this->db->query("SELECT*FROM m_sales WHERE nm_sales='$tb_nm_user'");
+				if($getSales->num_rows() == 1){
+					$id_sales = $getSales->row()->id_sales;
+					$where = "WHERE po.id_sales='$id_sales'";
+				}else{
+					$where = "WHERE po.id_sales='XXX'";
+				}
+			}
+			$query = $this->db->query("SELECT po.*,pl.nm_pelanggan_lm FROM trs_po_lm po
+			INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm $where ORDER BY id DESC")->result();
+
+			$i = 1;
+			foreach ($query as $r) {
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<a href="javascript:void(0)" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')">'.$r->no_po_lm.'<a>';
+				$row[] = $r->tgl_lm;
+
+				if($r->status_lm == 'Open'){
+                    $btn_s = 'btn-info';
+                }else if($r->status_lm == 'Approve'){
+                    $btn_s = 'btn-success';
+                }else{
+                    $btn_s = 'btn-danger';
+                }
+				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status_lm.'</button></div>';
+				$row[] = $r->nm_pelanggan_lm;
+
+				$row[] = '<div class="text-center"><button type="button" title="OKE" style="text-align:center" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button></div>';
+				$row[] = '<div class="text-center"><button type="button" title="BELUM ACC" style="text-align:center" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button></div>';
+				$row[] = '<div class="text-center"><button type="button" title="BELUM ACC" style="text-align:center" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button></div>';
+
+				$btnEdit = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button>'; 
+				$btnHapus = '<button type="button" onclick="hapusPOLaminasi(0,'."'".$r->id."'".','."'trs_po_lm'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>'; 
+				$btnVerif = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'verif'".')" title="VERIF" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>'; 
+				
+				if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
+				}else{
+					$row[] = '<div class="text-center">'.$btnVerif.'</div>';
+				}
+				
+				$data[] = $row;
+				$i++;
+			}
 		}
 
 		$output = array(
 			"data" => $data,
 		);
-		//output to json format
 		echo json_encode($output);
 	}
 
@@ -948,6 +1208,12 @@ class Transaksi extends CI_Controller
 				unlink("assets/gambar_po/".$load_po->img_po);
 			}
 
+		} else if ($jenis == "trs_po_lm") {
+			$po = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'")->row();
+			$delDetail = $this->m_master->query("DELETE FROM trs_po_lm_detail WHERE no_po_lm = '$po->no_po_lm'");
+			if($delDetail){
+				$result = $this->m_master->query("DELETE FROM trs_po_lm WHERE id='$id'");
+			}
 		} else {
 
 			$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");

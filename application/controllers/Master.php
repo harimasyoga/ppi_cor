@@ -55,6 +55,17 @@ class Master extends CI_Controller
 		$this->load->view('Master/v_pelanggan', $data);
 		$this->load->view('footer');
 	}
+
+	function Pelanggan_Laminasi()
+	{
+		$data = array(
+			'judul' => "Master Pelanggan Laminasi"
+		);
+
+		$this->load->view('header', $data);
+		$this->load->view('Master/v_pelanggan_laminasi', $data);
+		$this->load->view('footer');
+	}
 	
 	function Hub()
 	{
@@ -270,7 +281,32 @@ class Master extends CI_Controller
 				$data[] = $row;
 				$i++;
 			}
-		}else if ($jenis == "produk") {
+		} else if ($jenis == "pelanggan_laminasi") {
+			$query = $this->m_master->query("SELECT s.nm_sales,lm.* FROM m_pelanggan_lm lm
+			LEFT JOIN m_sales s ON lm.id_sales=s.id_sales
+			ORDER BY lm.nm_pelanggan_lm")->result();
+			$i = 1;
+			foreach ($query as $r) {
+				$row = array();
+				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_pelanggan_lm."'".','."'detail'".')">'.$i."<a></div>";
+				$row[] = $r->nm_pelanggan_lm;
+				$row[] = $r->alamat_kirim;
+				$row[] = $r->nm_sales;
+
+				if (in_array($this->session->userdata('level'), ['Admin','User','Laminasi']))
+				{
+					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_pelanggan_lm."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
+					$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_pelanggan_lm."'".')"><i class="fas fa-times"></i></button>';
+				}else{
+					$btnEdit = '';
+					$btnHapus = '';
+				}
+
+				$row[] = $btnEdit.' '.$btnHapus;
+				$data[] = $row;
+				$i++;
+			}
+		} else if ($jenis == "produk") {
 			$query = $this->m_master->query("SELECT c.nm_pelanggan,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan ORDER BY nm_produk")->result();
 			$i = 1;
 			foreach ($query as $r) {
@@ -639,6 +675,15 @@ class Master extends CI_Controller
 			'sales' => $sales,
 			'wilayah' => $wilayah,
 			'cek_po' => $cekPO,
+		));
+	}
+
+	function getEditPelangganLM()
+	{
+		$id = $_POST["id"];
+		$data =  $this->db->query("SELECT*FROM m_pelanggan_lm WHERE id_pelanggan_lm='$id'")->row();
+		echo json_encode(array(
+			'pelanggan' => $data,
 		));
 	}
 }
