@@ -145,7 +145,7 @@ class Transaksi extends CI_Controller
 			'judul' => "PO Laminasi",
 		];
 		$this->load->view('header',$data);
-		if(in_array($this->session->userdata('level'), ['Admin','Laminasi'])){
+		if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Marketing Laminasi'])){
 			$this->load->view('Transaksi/v_po_laminasi');
 		}else{
 			$this->load->view('home');
@@ -176,7 +176,7 @@ class Transaksi extends CI_Controller
 		if(
 			$_POST["tgl"] == "" ||
 			$_POST["customer"] == "" ||
-			$_POST["nm_pelanggan"] == "" ||
+			$_POST["id_sales"] == "" ||
 			$_POST["no_po"] == "" ||
 			$_POST["item"] == "" ||
 			$_POST["size"] == "" ||
@@ -195,7 +195,7 @@ class Transaksi extends CI_Controller
 				'options' => array(
 					'tgl' => $_POST["tgl"],
 					'customer' => $_POST["customer"],
-					'nm_pelanggan' => $_POST["nm_pelanggan"],
+					'id_sales' => $_POST["id_sales"],
 					'no_po' => $_POST["no_po"],
 					'item' => $_POST["item"],
 					'size' => $_POST["size"],
@@ -229,7 +229,7 @@ class Transaksi extends CI_Controller
 					<th style="padding:6px;width:10%">SHEET</th>
 					<th style="padding:6px;width:10%">QTY ( BAL )</th>
 					<th style="padding:6px;width:12%">DATE ORDER</th>
-					<th style="padding:6px;width:10%">HARGA</th>
+					<th style="padding:6px;width:10%;text-align:center">HARGA</th>
 					<th style="padding:6px;width:10%;text-align:center">AKSI</th>
 				</tr>
 			</thead>';
@@ -245,7 +245,7 @@ class Transaksi extends CI_Controller
 				<td style="padding:6px">'.number_format($r['options']['sheet'],0,",",".").'</td>
 				<td style="padding:6px">'.number_format($r['options']['qty'],0,",",".").'</td>
 				<td style="padding:6px">'.$this->m_fungsi->tglIndSkt($r['options']['date_order']).'</td>
-				<td style="padding:6px">'.number_format($r['options']['harga'],0,",",".").'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r['options']['harga'],0,",",".").'</td>
 				<td style="padding:6px;text-align:center">
 					<button class="btn btn-danger btn-xs" onclick="hapusCartLaminasi('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
 				</td>
@@ -303,7 +303,7 @@ class Transaksi extends CI_Controller
 					<th style="padding:6px;width:10%">SHEET</th>
 					<th style="padding:6px;width:10%">QTY ( BAL )</th>
 					<th style="padding:6px;width:12%">DATE ORDER</th>
-					<th style="padding:6px;width:10%">HARGA</th>
+					<th style="padding:6px;width:10%;text-align:center">HARGA</th>
 					<th style="padding:6px;width:10%;text-align:center">AKSI</th>
 				</tr>
 			</thead>';
@@ -311,7 +311,7 @@ class Transaksi extends CI_Controller
 			foreach($po_dtl->result() as $r){
 				$i++;
 				$edit = '<button class="btn btn-warning btn-xs" onclick="editPOLaminasi('."'".$po_lm->id."'".','."'".$r->id."'".','."'edit'".')"><i class="fas fa-edit"></i> EDIT</button>';
-				$hapus = '<button class="btn btn-danger btn-xs" onclick="hapusPOLaminasi('."'".$po_lm->id."'".','."'".$r->id."'".')"><i class="fas fa-times"></i> HAPUS</button>';
+				$hapus = '<button class="btn btn-danger btn-xs" onclick="hapusPOLaminasi('."'".$po_lm->id."'".','."'".$r->id."'".','."'trs_po_lm_detail'".')"><i class="fas fa-times"></i> HAPUS</button>';
 				if($id_dtl == $r->id){
 					$btnAksi = '-';
 				}else if($po_dtl->num_rows() == 1){
@@ -328,7 +328,7 @@ class Transaksi extends CI_Controller
 					<td style="padding:6px'.$bold.'">'.number_format($r->sheet_lm,0,",",".").'</td>
 					<td style="padding:6px'.$bold.'">'.number_format($r->qty_lm,0,",",".").'</td>
 					<td style="padding:6px'.$bold.'">'.$this->m_fungsi->tglIndSkt($r->tgl_order_lm).'</td>
-					<td style="padding:6px'.$bold.'">'.number_format($r->harga_lm,0,",",".").'</td>
+					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_lm,0,",",".").'</td>
 					<td style="padding:6px;text-align:center'.$bold.'">'.$btnAksi.'</td>
 				</tr>';
 			}
@@ -336,6 +336,7 @@ class Transaksi extends CI_Controller
 
 		echo json_encode([
 			'po_lm' => $po_lm,
+			'add_time_po_lm' => substr($this->m_fungsi->getHariIni($po_lm->add_time),0,3).', '.$this->m_fungsi->tglIndSkt(substr($po_lm->add_time, 0,10)).' ( '.substr($po_lm->add_time, 10,6).' ) ',
 			'po_dtl' => $e_po_dtl,
 			'html_dtl' => $html,
 		]);
@@ -1127,8 +1128,22 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_po_laminasi") {
+
+			if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Owner'])){
+				$where = '';
+			}else{
+				$tb_nm_user = $this->session->userdata('nm_user');
+				$getSales = $this->db->query("SELECT*FROM m_sales WHERE nm_sales='$tb_nm_user'");
+				if($getSales->num_rows() == 1){
+					$id_sales = $getSales->row()->id_sales;
+					$where = "WHERE po.id_sales='$id_sales'";
+				}else{
+					$where = "WHERE po.id_sales='XXX'";
+				}
+			}
 			$query = $this->db->query("SELECT po.*,pl.nm_pelanggan_lm FROM trs_po_lm po
-			INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm ORDER BY id DESC")->result();
+			INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm $where ORDER BY id DESC")->result();
+
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
@@ -1144,17 +1159,22 @@ class Transaksi extends CI_Controller
                     $btn_s = 'btn-danger';
                 }
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status_lm.'</button></div>';
-
 				$row[] = $r->nm_pelanggan_lm;
-				$row[] = '';
-				$row[] = '';
-				$row[] = '';
 
-				$btnEdit = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'edit'".')" title="EDIT" class="btn btn-info btn-sm">
-					<i class="fa fa-edit"></i>
-				</button>'; 
+				$row[] = '<div class="text-center"><button type="button" title="OKE" style="text-align:center" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button></div>';
+				$row[] = '<div class="text-center"><button type="button" title="BELUM ACC" style="text-align:center" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button></div>';
+				$row[] = '<div class="text-center"><button type="button" title="BELUM ACC" style="text-align:center" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button></div>';
+
+				$btnEdit = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button>'; 
+				$btnHapus = '<button type="button" onclick="hapusPOLaminasi(0,'."'".$r->id."'".','."'trs_po_lm'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>'; 
+				$btnVerif = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'verif'".')" title="VERIF" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>'; 
 				
-				$row[] = '<div class="text-center">'.$btnEdit.'</div>';
+				if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
+				}else{
+					$row[] = '<div class="text-center">'.$btnVerif.'</div>';
+				}
+				
 				$data[] = $row;
 				$i++;
 			}
@@ -1188,6 +1208,12 @@ class Transaksi extends CI_Controller
 				unlink("assets/gambar_po/".$load_po->img_po);
 			}
 
+		} else if ($jenis == "trs_po_lm") {
+			$po = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'")->row();
+			$delDetail = $this->m_master->query("DELETE FROM trs_po_lm_detail WHERE no_po_lm = '$po->no_po_lm'");
+			if($delDetail){
+				$result = $this->m_master->query("DELETE FROM trs_po_lm WHERE id='$id'");
+			}
 		} else {
 
 			$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");

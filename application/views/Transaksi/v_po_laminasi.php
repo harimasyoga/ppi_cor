@@ -44,17 +44,25 @@
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">CUSTOMER</div>
 							<div class="col-md-9">
-								<select id="customer" class="form-control select2">
+								<select id="customer" class="form-control select2" onchange="plhCustomer()">
 									<?php
-										$query = $this->db->query("SELECT*FROM m_pelanggan_lm ORDER BY nm_pelanggan_lm");
+										$query = $this->db->query("SELECT lm.*,s.nm_sales FROM m_pelanggan_lm lm
+										INNER JOIN m_sales s ON lm.id_sales=s.id_sales
+										ORDER BY nm_pelanggan_lm");
 										$html ='';
 										$html .='<option value="">PILIH</option>';
 										foreach($query->result() as $r){
-											$html .='<option value="'.$r->id_pelanggan_lm.'" nm_pelanggan="'.$r->nm_pelanggan_lm.'">'.$r->nm_pelanggan_lm.'</option>';
+											$html .='<option value="'.$r->id_pelanggan_lm.'" id_sales="'.$r->id_sales.'" nm_sales="'.$r->nm_sales.'">'.$r->nm_pelanggan_lm.'</option>';
 										}
 									?>
 									<?= $html ?>
 								</select>
+							</div>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3">MARKETING</div>
+							<div class="col-md-9">
+								<input type="text" id="marketing" class="form-control" autocomplete="off" placeholder="MARKETING" disabled>
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
@@ -67,53 +75,81 @@
 				</div>
 
 				<div class="col-md-6">
-					<div class="card card-primary card-outline" style="position:sticky;top:12px">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">TAMBAH ITEM</h3>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
-							<div class="col-md-3">ITEM</div>
-							<div class="col-md-9">
-								<input type="text" id="item" class="form-control" autocomplete="off" placeholder="ITEM" oninput="this.value=this.value.toUpperCase()">
+					<div class="card-tambah-item" style="display:none">
+						<div class="card card-primary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">TAMBAH ITEM</h3>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
+								<div class="col-md-3">ITEM</div>
+								<div class="col-md-9">
+									<input type="text" id="item" class="form-control" autocomplete="off" placeholder="ITEM" oninput="this.value=this.value.toUpperCase()">
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">SIZE</div>
+								<div class="col-md-9">
+									<input type="text" id="size" class="form-control" autocomplete="off" placeholder="SIZE" oninput="this.value=this.value.toUpperCase()">
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">SHEET</div>
+								<div class="col-md-9">
+									<input type="text" id="sheet" class="form-control" autocomplete="off" placeholder="SHEET" onkeyup="hitungHarga()">
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">QTY ( BAL )</div>
+								<div class="col-md-9">
+									<input type="text" id="qty" class="form-control" autocomplete="off" placeholder="QTY ( BAL )" onkeyup="hitungHarga()">
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">DATE ORDER</div>
+								<div class="col-md-9">
+									<input type="date" id="date_order" class="form-control">
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">HARGA</div>
+								<div class="col-md-9">
+									<input type="text" id="harga" class="form-control" autocomplete="off" placeholder="HARGA" onkeyup="hitungHarga()">
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<input type="hidden" id="id_po_header" value="">
+									<input type="hidden" id="id_po_detail" value="">
+									<input type="hidden" id="id_cart" value="0">
+									<div id="btn-add"></div>
+								</div>
 							</div>
 						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">SIZE</div>
-							<div class="col-md-9">
-								<input type="text" id="size" class="form-control" autocomplete="off" placeholder="SIZE" oninput="this.value=this.value.toUpperCase()">
+					</div>
+
+					<div class="card-verifikasi" style="display:none">
+						<div class="card card-success card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
 							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">SHEET</div>
-							<div class="col-md-9">
-								<input type="text" id="sheet" class="form-control" autocomplete="off" placeholder="SHEET" onkeyup="hitungHarga()">
+							<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
+								<div class="col-md-3">ADMIN</div>
+								<div class="col-md-9">
+									<div id="verif-admin"></div>
+								</div>
 							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">QTY ( BAL )</div>
-							<div class="col-md-9">
-								<input type="text" id="qty" class="form-control" autocomplete="off" placeholder="QTY ( BAL )" onkeyup="hitungHarga()">
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">MARKETING</div>
+								<div class="col-md-9">
+									<div id="verif-marketing"></div>
+								</div>
 							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">DATE ORDER</div>
-							<div class="col-md-9">
-								<input type="date" id="date_order" class="form-control">
-							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">HARGA</div>
-							<div class="col-md-9">
-								<input type="text" id="harga" class="form-control" autocomplete="off" placeholder="HARGA" onkeyup="hitungHarga()">
-							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
-							<div class="col-md-3"></div>
-							<div class="col-md-9">
-								<input type="hidden" id="id_po_header" value="">
-								<input type="hidden" id="id_po_detail" value="">
-								<input type="hidden" id="id_cart" value="0">
-								<div id="btn-add"></div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
+								<div class="col-md-3">OWNER</div>
+								<div class="col-md-9">
+									<div id="verif-owner"></div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -140,29 +176,31 @@
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST HPP</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">PO LAMINASI</h3>
 							<div class="card-tools">
 								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
 								<i class="fas fa-minus"></i></button>
 							</div>
 						</div>
 						<div class="card-body" style="padding:12px 6px">
-							<div style="margin-bottom:12px">
-								<button type="button" class="btn btn-sm btn-info" onclick="addPOLaminasi()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
-							</div>
+							<?php if(in_array($this->session->userdata('level'), ['Admin','Laminasi'])){ ?>
+								<div style="margin-bottom:12px">
+									<button type="button" class="btn btn-sm btn-info" onclick="addPOLaminasi()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+								</div>
+							<?php } ?>
 							<div style="overflow:auto;white-space:nowrap">
-								<table id="datatable" class="table table-bordered table-striped" style="width:100%">
+								<table id="datatable" class="table table-bordered table-striped">
 									<thead>
 										<tr>
-											<th style="text-align:center;width:10%">#</th>
-											<th style="text-align:center;width:14%">NO. PO</th>
-											<th style="text-align:center;width:11%">TGL</th>
-											<th style="text-align:center;width:11%">STATUS</th>
-											<th style="text-align:center;width:11%">CUSTOMER</th>
-											<th style="text-align:center;width:11%">ADMIN</th>
-											<th style="text-align:center;width:11%">MKT</th>
-											<th style="text-align:center;width:11%">OWNER</th>
-											<th style="text-align:center;width:10%">AKSI</th>
+											<th style="padding:12px;text-align:center">#</th>
+											<th style="padding:12px;text-align:center">NO. PO</th>
+											<th style="padding:12px;text-align:center">TGL</th>
+											<th style="padding:12px;text-align:center">STATUS</th>
+											<th style="padding:12px;text-align:center">CUSTOMER</th>
+											<th style="padding:12px;text-align:center">ADMIN</th>
+											<th style="padding:12px;text-align:center">MKT</th>
+											<th style="padding:12px;text-align:center">OWNER</th>
+											<th style="padding:12px;text-align:center">AKSI</th>
 										</tr>
 									</thead>
 									<tbody></tbody>
@@ -178,6 +216,7 @@
 
 <script type="text/javascript">
 	let statusInput = 'insert';
+	const urlAuth = '<?= $this->session->userdata('level')?>';
 
 	$(document).ready(function ()
 	{
@@ -203,8 +242,8 @@
 				"type": "POST",
 			},
 			"aLengthMenu": [
-				[5, 10, 15, 20, -1],
-				[5, 10, 15, 20, "Semua"]
+				[5, 10, 50, 100, -1],
+				[5, 10, 50, 100, "Semua"]
 			],	
 			responsive: false,
 			"pageLength": 10,
@@ -235,21 +274,31 @@
 		swal.close()
 	}
 
+	function plhCustomer()
+	{
+		let nm_sales = $("#customer option:selected").attr('nm_sales')
+		$("#marketing").val(nm_sales)
+	}
+
 	function addPOLaminasi()
 	{
 		kosong()
-		$(".row-input").attr('style', '');
-		$(".row-sementara").attr('style', '');
-		$(".row-list").attr('style', 'display:none');
+		$(".row-input").attr('style', '')
+		$(".row-sementara").attr('style', '')
+		$(".card-tambah-item").attr('style', '')
+		$(".row-list").attr('style', 'display:none')
+		$(".card-verifikasi").attr('style', 'display:none')
 	}
 
 	function kembaliListPOLaminasi()
 	{
 		kosong()
 		reloadTable()
-		$(".row-input").attr('style', 'display:none');
-		$(".row-sementara").attr('style', 'display:none');
-		$(".row-list").attr('style', '');
+		$(".row-input").attr('style', 'display:none')
+		$(".row-sementara").attr('style', 'display:none')
+		$(".card-tambah-item").attr('style', 'display:none')
+		$(".row-list").attr('style', '')
+		$(".card-verifikasi").attr('style', 'display:none')
 		$("#id_cart").val(0)
 	}
 
@@ -267,7 +316,7 @@
 	{
 		let tgl = $("#tgl").val()
 		let customer = $("#customer").val()
-		let nm_pelanggan = $("#customer option:selected").attr('nm_pelanggan')
+		let id_sales = $("#customer option:selected").attr('id_sales')
 		let no_po = $("#no_po").val()
 		let item = $("#item").val()
 		let size = $("#size").val()
@@ -291,11 +340,11 @@
 				});
 			},
 			data: ({
-				tgl, customer, nm_pelanggan, no_po, item, size, sheet, qty, date_order, harga, id_cart
+				tgl, customer, id_sales, no_po, item, size, sheet, qty, date_order, harga, id_cart
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				if(data.data){
 					toastr.success(`<b>BERHASIL ADD!</b>`)
 					$("#tgl").prop('disabled', true)
@@ -355,6 +404,7 @@
 	{
 		let tgl = $("#tgl").val()
 		let customer = $("#customer").val()
+		let id_sales = $("#customer option:selected").attr('id_sales')
 		let no_po = $("#no_po").val()
 		let id_po_header = $("#id_po_header").val()
 		$.ajax({
@@ -371,11 +421,11 @@
 				});
 			},
 			data: ({
-				tgl, customer, no_po, statusInput
+				tgl, customer, id_sales, no_po, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				if(statusInput == 'insert'){
 					kosong()
 					reloadTable()
@@ -423,7 +473,7 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				statusInput = 'update'
 
 				$("#btn-header").html((opsi == 'edit') ? `<button type="button" class="btn btn-sm btn-info" onclick="editPOLaminasi(${id}, 0 ,'edit')"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>` : '')
@@ -447,7 +497,52 @@
 				if(id != 0 && id_dtl != 0){
 					$("#btn-add").html((opsi == 'edit') ? '<button type="button" class="btn btn-sm btn-warning" onclick="editListLaminasi()"><i class="fa fa-edit"></i> <b>EDIT</b></button>' : '')
 				}else{
-					$("#btn-add").html('<button type="button" class="btn btn-sm btn-success" onclick="addItemLaminasi()"><i class="fa fa-plus"></i> <b>ADD</b></button>')
+					$("#btn-add").html((opsi == 'edit') ? '<button type="button" class="btn btn-sm btn-success" onclick="addItemLaminasi()"><i class="fa fa-plus"></i> <b>ADD</b></button>' : '')
+				}
+
+				console.log(urlAuth);
+				if(opsi == 'verif'){
+					$(".card-verifikasi").attr('style', '')
+					$(".card-tambah-item").attr('style', 'display:none')
+
+					$("#verif-admin").html(`<button type="button" title="OKE" style="text-align:center" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.add_time_po_lm}`)
+
+					// status_lm1  user_lm1  time_lm1  ket_lm1  status_lm2  user_lm2  time_lm2  ket_lm2
+					if((urlAuth == 'Admin' || urlAuth == 'Marketing Laminasi') && (data.po_lm.status_lm1 == 'N' || data.po_lm.status_lm1 == 'H' || data.po_lm.status_lm1 == 'R')){
+						$("#verif-marketing").html(`
+							<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success "><i class="fas fa-check"></i> Verifikasi</button>
+							<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning "><i class="far fa-hand-paper"></i> Hold</button>
+							<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger "><i class="fas fa-times"></i> Reject</button>
+						`)
+					}else{
+						if(data.po_lm.status_lm1 == 'N'){
+							$("#verif-marketing").html(`<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success"><i class="fas fa-lock"></i></button>`)
+						}else{
+							$("#verif-marketing").html(`marketing`)
+						}
+					}
+					
+					if((urlAuth == 'Admin' || urlAuth == 'Owner') && (data.po_lm.status_lm2 == 'N' || data.po_lm.status_lm2 == 'H' || data.po_lm.status_lm2 == 'R')){
+						$("#verif-owner").html(`
+							<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success "><i class="fas fa-check"></i> Verifikasi</button>
+							<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning "><i class="far fa-hand-paper"></i> Hold</button>
+							<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger "><i class="fas fa-times"></i> Reject</button>
+						`)
+					}else{
+						if(data.po_lm.status_lm2 == 'N'){
+							$("#verif-owner").html(`<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+						}else{
+							$("#verif-owner").html(`ownwe`)
+						}
+					}
+
+
+				}else if(opsi == 'detail'){
+					$(".card-verifikasi").attr('style', 'display:none')
+					$(".card-tambah-item").attr('style', 'display:none')
+				}else{
+					$(".card-verifikasi").attr('style', 'display:none')
+					$(".card-tambah-item").attr('style', '')
 				}
 
 				swal.close()
@@ -486,7 +581,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				if(data.updatePOdtl){
 					editPOLaminasi(id_po_header, 0, 'edit')
 				}
@@ -494,7 +589,7 @@
 		})
 	}
 
-	function hapusPOLaminasi(id_po_header, id_dtl) 
+	function hapusPOLaminasi(id_po_header, id, table)
 	{
 		swal({
 			title : "PO Laminasi",
@@ -510,8 +605,8 @@
 			$.ajax({
 				url: '<?= base_url(); ?>Transaksi/hapus',
 				data: ({
-					id : id_dtl,
-					jenis : 'trs_po_lm_detail',
+					id : id,
+					jenis : table,
 					field : 'id'
 				}),
 				type: "POST",
@@ -527,7 +622,12 @@
 				},
 				success: function(data) {
 					toastr.success(`<b>BERHASIL HAPUS!</b>`)
-					editPOLaminasi(id_po_header, 0, 'edit')
+					if(id_po_header == 0){
+						reloadTable()
+						swal.close()
+					}else{
+						editPOLaminasi(id_po_header, 0, 'edit')
+					}
 				},
 			});
 		});
