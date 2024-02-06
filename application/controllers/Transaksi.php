@@ -283,6 +283,12 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function btnVerifLaminasi()
+	{
+		$result = $this->m_transaksi->btnVerifLaminasi();
+		echo json_encode($result);
+	}
+
 	function editPOLaminasi()
 	{
 		$id = $_POST["id"];
@@ -1161,9 +1167,26 @@ class Transaksi extends CI_Controller
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status_lm.'</button></div>';
 				$row[] = $r->nm_pelanggan_lm;
 
-				$row[] = '<div class="text-center"><button type="button" title="OKE" style="text-align:center" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button></div>';
-				$row[] = '<div class="text-center"><button type="button" title="BELUM ACC" style="text-align:center" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button></div>';
-				$row[] = '<div class="text-center"><button type="button" title="BELUM ACC" style="text-align:center" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button></div>';
+				$timeAdmin = $this->m_fungsi->tanggal_format_indonesia(substr($r->add_time,0,10)).' - '.substr($r->add_time,10,9);
+				$row[] = '<div class="text-center"><button type="button" title="'.$timeAdmin.'" style="text-align:center" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button></div>';
+
+				if($r->status_lm1 == 'N'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-lock"';
+				}else if($r->status_lm1 == 'H'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-hand-paper"';
+				}else if($r->status_lm1 == 'R'){
+					$bt1 = 'btn-danger';
+					$fa1 = 'class="fas fa-times"';
+				}else{
+					$bt1 = 'btn-success';
+					$fa1 = 'class="fas fa-check-circle"';
+				}
+				$time1 = (($r->time_lm1 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_lm1,0,10)).' - '.substr($r->time_lm1,10,9));
+				$time2 = (($r->time_lm2 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_lm2,0,10)).' - '.substr($r->time_lm2,10,9));
+				$row[] = '<div class="text-center"><button type="button" title="'.$time1.'" style="text-align:center" class="btn btn-sm '.$bt1.'"><i '.$fa1.'></i></button></div>';
+				$row[] = '<div class="text-center"><button type="button" title="'.$time2.'" style="text-align:center" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button></div>';
 
 				$btnEdit = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button>'; 
 				$btnHapus = '<button type="button" onclick="hapusPOLaminasi(0,'."'".$r->id."'".','."'trs_po_lm'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>'; 
