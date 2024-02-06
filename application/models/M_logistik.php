@@ -553,6 +553,50 @@ class M_logistik extends CI_Model
 
 	//
 
+	function simpanTimbangan_2()
+	{
+		$no_timbangan   = $this->m_fungsi->urut_transaksi('TIMBANGAN').'/TIMBANGAN';
+		$rowloop        = $this->input->post('plh_input');
+		for($loop = 0; $loop <= $rowloop+1; $loop++)
+		{
+			$data_detail = array(
+				'no_timbangan'   => $no_timbangan,
+				'id_item'   => $this->input->post('item_po['.$loop.']'),
+				'berat_bahan'   => str_replace('.','',$this->input->post('qty['.$loop.']')),
+			);
+			$result_detail = $this->db->insert('m_jembatan_timbang_d', $data_detail);
+		}
+			
+		$data_header = array(
+			'input_t'     	 => $this->input->post('plh_input'),
+			'no_timbangan'   => $no_timbangan,
+			'id_pelanggan'   => $this->input->post('cust'),
+			'keterangan'     => $this->input->post('jns'),
+			'nm_penimbang'   => $this->input->post('penimbang'),
+			'permintaan'     => $this->input->post('permintaan'),
+			'suplier'        => $this->input->post('supplier'),
+			'date_masuk'     => $this->input->post('masuk'),
+			'alamat'         => $this->input->post('alamat'),
+			'date_keluar'    => $this->input->post('keluar'),
+			'no_polisi'      => $this->input->post('nopol'),
+			'berat_kotor'    => str_replace('.','',$this->input->post('b_kotor')),
+			'nm_barang'      => $this->input->post('barang'),
+			'berat_truk'     => str_replace('.','',$this->input->post('berat_truk')),
+			'nm_sopir'       => $this->input->post('sopir'),
+			'berat_bersih'   => str_replace('.','',$this->input->post('berat_bersih')),
+			'catatan'        => $this->input->post('cttn'),
+			'potongan'       => str_replace('.','',$this->input->post('pot')),
+			'urut_t'         => $this->input->post('urut_t'),
+			'tgl_t'          => $this->input->post('tgl_t'),
+			'pilih_po'       => $this->input->post('pilih_po'),
+		);
+	
+		$result_header = $this->db->insert('m_jembatan_timbang', $data_header);	
+			
+
+		return $result_header;
+	}
+
 	function simpanTimbangan()
 	{
 		if($_POST["plh_input"] == "" || $_POST["permintaan"] == "" || $_POST["supplier"] == "" || $_POST["alamat"] == "" || $_POST["nopol"] == "" || $_POST["tgl_masuk"] == "" || $_POST["tgl_keluar"] == "" || $_POST["nm_barang"] == "" || $_POST["bb_kotor"] == "" || $_POST["bb_truk"] == "" || $_POST["bb_bersih"] == "" || $_POST["potongan"] == "" || $_POST["catatan"] == "" || $_POST["nm_penimbang"] == "" || $_POST["nm_supir"] == "" || $_POST["keterangan"] == ""){

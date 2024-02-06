@@ -31,7 +31,8 @@
 			<div class="card-body">
 
 			<?php if($this->session->userdata('level') == 'Admin') { ?>
-				<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
+				<!-- <button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button> -->
+				<a href="<?php echo base_url('Logistik/Timbangan/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
 				<br><br>
 			<?php } ?>
 
@@ -259,7 +260,8 @@
 		}
 	}
 
-	function loadSJTimbangan(plh_input) {
+	function loadSJTimbangan(plh_input) 
+	{
 		kosong()
 		$("#plh_input").val(plh_input)
 		$.ajax({
@@ -298,7 +300,8 @@
 		$("#catatan").val(catatan)
 	}
 
-	function simpanTimbangan() {
+	function simpanTimbangan() 
+	{
 		let urut = $('#slc_plh_kiriman option:selected').attr('urut')
 		let tgl = $('#slc_plh_kiriman option:selected').attr('tgl');
 		(urut == undefined) ? urut = '' : urut = urut;

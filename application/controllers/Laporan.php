@@ -522,4 +522,14 @@ class Laporan extends CI_Controller
 			$this->load->view('view_excel', $data);
 		}
 	}
+
+	public function cetak_anu()
+	{
+		$data = array(
+			'judul' => "Invoice",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('anu');
+		$this->load->view('footer');
+	}
 }

@@ -54,8 +54,32 @@ class Logistik extends CI_Controller
 		$data = array(
 			'judul' => "Timbangan",
 		);
+
+		$jenis = $this->uri->segment(3);
+		if($jenis == 'Add'){
+			$this->load->view('header', $data);
+			$this->load->view('Logistik/v_timbangan_add');
+			$this->load->view('footer');
+		}else{
+			
+			$this->load->view('header', $data);
+			$this->load->view('Logistik/v_timbangan');
+			$this->load->view('footer');
+		}
+	}
+
+	public function v_timbangan_edit()
+	{
+		$id_timb    = $_GET['id_timb'];
+		$no_timb    = $_GET['no_timb'];
+
+		$data = array(
+			'judul' 	 => "Edit Timbangan",
+			'id_timb'    => $id_timb,
+			'no_timb'    => $no_timb,
+		);
 		$this->load->view('header', $data);
-		$this->load->view('Logistik/v_timbangan');
+		$this->load->view('Logistik/v_timbangan_edit');
 		$this->load->view('footer');
 	}
 
@@ -152,6 +176,22 @@ class Logistik extends CI_Controller
 
 		$header   = $this->db->query($queryh)->row();
 		$detail    = $this->db->query($queryd)->result();
+
+		$data = ["header" => $header, "detail" => $detail];
+
+        echo json_encode($data);
+	}
+	
+	function load_timbangan_1()
+	{
+		$id_timb    = $this->input->post('id_timb');
+		$no_timb    = $this->input->post('no_timb');
+
+		$queryh     = "SELECT*FROM m_jembatan_timbang where id_timbangan='$id_timb' and no_timbangan='$no_timb' ";
+		$queryd     = "SELECT*FROM m_jembatan_timbang_d where no_timbangan='$no_timb' ORDER BY id_timbangan_d ";
+
+		$header     = $this->db->query($queryh)->row();
+		$detail     = $this->db->query($queryd)->result();
 
 		$data = ["header" => $header, "detail" => $detail];
 
@@ -343,10 +383,14 @@ class Logistik extends CI_Controller
 				$row[] = $r->suplier;
 				$row[] = $r->nm_barang;
 				$row[] = $r->catatan;
-				$row[] = '<div class="text-right"><a href="javascript:void(0)" onclick="editTimbangan('."'".$r->id_timbangan."'".','."'detail'".')">'.number_format($r->berat_bersih).'</a></div>';
+				$row[] = '<div class="text-right"><a>'.number_format($r->berat_bersih, 0, ",", ".").'</a></div>';
+				// $row[] = '<div class="text-right"><a href="javascript:void(0)" onclick="editTimbangan('."'".$r->id_timbangan."'".','."'detail'".')">'.number_format($r->berat_bersih).'</a></div>';
 				$aksi = "";
-				if ($this->session->userdata('level') == 'Admin') {
-					$aksi = '<a class="btn btn-sm btn-warning" onclick="editTimbangan('."'".$r->id_timbangan."'".','."'edit'".')" title="EDIT DATA" >
+
+				if ($this->session->userdata('level') == 'Admin') 
+				{
+					$aksi = '
+					<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/v_timbangan_edit?id_timb=" .$r->id_timbangan ."&no_timb=" .$r->no_timbangan ."") . '" title="EDIT DATA" >
 						<b><i class="fa fa-edit"></i> </b>
 					</a> 
 					<button type="button" title="DELETE" onclick="deleteTimbangan('."'".$r->id_timbangan."'".')" class="btn btn-danger btn-sm">
@@ -2885,9 +2929,43 @@ class Logistik extends CI_Controller
 		echo $html;
 	}
 
+	function load_sj_kirim()
+    {
+
+        $query = $this->db->query("SELECT r.*,p.no_kendaraan,c.nm_pelanggan FROM m_rencana_kirim r
+		INNER JOIN pl_box p ON r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id AND r.rk_tgl=p.tgl
+		LEFT JOIN m_pelanggan c ON c.id_pelanggan=r.id_pelanggan
+		WHERE p.tgl NOT IN (SELECT tgl_t FROM m_jembatan_timbang j WHERE j.tgl_t=p.tgl AND j.urut_t=p.no_pl_urut AND j.no_polisi=p.no_kendaraan)
+		AND p.no_pl_urut NOT IN (SELECT urut_t FROM m_jembatan_timbang j WHERE j.tgl_t=p.tgl AND j.urut_t=p.no_pl_urut AND j.no_polisi=p.no_kendaraan)
+		AND p.no_kendaraan NOT IN (SELECT no_polisi FROM m_jembatan_timbang j WHERE j.tgl_t=p.tgl AND j.urut_t=p.no_pl_urut AND j.no_polisi=p.no_kendaraan)
+		GROUP BY p.tgl,p.no_pl_urut")->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
+
 	function simpanTimbangan()
 	{
 		$result = $this->m_logistik->simpanTimbangan();
+		echo json_encode($result);
+	}
+	
+	function simpanTimbangan2()
+	{
+		$result = $this->m_logistik->simpanTimbangan_2();
 		echo json_encode($result);
 	}
 
@@ -2905,6 +2983,57 @@ class Logistik extends CI_Controller
 			'data' => $query,
 		]);
 	}
+
+	function load_cs()
+    {
+
+        $query = $this->db->query("SELECT a.id_pelanggan,b.nm_pelanggan from trs_po a 
+		join m_pelanggan b on a.id_pelanggan=b.id_pelanggan
+		group by a.id_pelanggan")->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
+
+	function load_po()
+    {
+        
+		$pl = $this->input->post('idp');
+
+        $query = $this->db->query("SELECT b.*,a.id_pelanggan,c.nm_produk from trs_po a 
+		join trs_po_detail b on a.no_po=b.no_po
+		join m_produk c on b.id_produk=c.id_produk
+		where a.id_pelanggan='$pl'")->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
 
 	function printTimbangan(){
 		$html = '';
