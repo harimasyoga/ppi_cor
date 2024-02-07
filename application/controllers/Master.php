@@ -342,7 +342,7 @@ class Master extends CI_Controller
 				$row[] = '<div class="text-right">'.number_format($r->isi_lm,0,',','.').'</div>';
 
 				($r->jenis_qty_lm == 'pack') ? $qty = number_format($r->pack_lm,0,',','.') : $qty = number_format($r->ikat_lm,0,',','.').' <span style="font-size:12px;vertical-align:top;font-style:italic">( ikat )</span>';
-				$row[] = '<div class="text-center">'.$qty.'</div>';
+				$row[] = '<div class="text-right">'.$qty.'</div>';
 
 				if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
 					$btnEdit = '<button type="button" class="btn btn-sm btn-warning" onclick="editDataLaminasi('."'".$r->id_produk_lm."'".')"><i class="fas fa-pen"></i></button>';

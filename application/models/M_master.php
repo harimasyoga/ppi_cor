@@ -452,11 +452,10 @@ class M_master extends CI_Model{
 					$insert = false;
 					$isi = 'DATA SUDAH ADA!';
 				}else{
-					// edit_time  edit_user
 					$this->db->set('edit_time', date('Y-m-d H:i:s'));
 					$this->db->set('edit_user', $this->username);
 					$this->db->where('id_produk_lm', $h_id);
-					$insert = $this->db->update('m_produk_lm');
+					$insert = $this->db->update('m_produk_lm', $data);
 					$isi = true;
 				}
 			}
@@ -464,7 +463,7 @@ class M_master extends CI_Model{
 
 		return [
 			'insert' => $insert,
-			'data' => $isi,
+			'msg' => $isi,
 		];
 	}
 

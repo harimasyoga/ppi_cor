@@ -169,9 +169,11 @@
 		$(".btn-ikat").removeClass('focus active')
 		$("#radio-pack").prop("checked")
 		$("#radio-ikat").prop("checked", false)
-		$("#plh-qty").val("")
+		$("#plh-qty").val("pack")
 		$(".input-group-text").html("PACK")
 		$("#qty_lm").val("")
+		reloadTable()
+		swal.close()
 	}
 
 	function btnData(opsi)
@@ -220,13 +222,22 @@
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
-				swal.close()
+				if(data.insert){
+					$(".row-input").attr('style', 'display:none')
+					$(".row-list").attr('style', '')
+					kosong()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
 			}
 		})
 	}
 
 	function editDataLaminasi(id)
 	{
+		$(".row-input").attr('style', '')
+		$(".row-list").attr('style', 'display:none')
 		$.ajax({
 			url: '<?php echo base_url('Master/editDataLaminasi')?>',
 			type: "POST",
@@ -302,7 +313,8 @@
 				},
 				success: function(data) {
 					console.log(data)
-					swal.close()
+					// swal.close()
+					kosong()
 				},
 			});
 		});

@@ -1211,6 +1211,7 @@ class M_transaksi extends CI_Model
 				'id_pelanggan' => $_POST["customer"],
 				'id_sales' => $_POST["id_sales"],
 				'no_po_lm' => $_POST["no_po"],
+				'note_po_lm' => $_POST["note_po_lm"],
 				'add_time' => date('Y-m-d H:i:s'),
 				'add_user' => $this->username,
 			];
@@ -1222,13 +1223,13 @@ class M_transaksi extends CI_Model
 		if($insertPO){
 			foreach($this->cart->contents() as $r){
 				$data = array(
-					'no_po_lm' => $r['options']['no_po'],
-					'nm_item_lm' => $r['options']['item'],
-					'size_lm' => $r['options']['size'],
-					'sheet_lm' => $r['options']['sheet'],
-					'qty_lm' => $r['options']['qty'],
 					'tgl_order_lm' => $r['options']['date_order'],
-					'harga_lm' => $r['options']['harga'],
+					'id_m_produk_lm' => $r['options']['item'],
+					'no_po_lm' => $r['options']['no_po'],
+					'qty_bal' => $r['options']['qty_bal'],
+					'harga_lembar_lm' => $r['options']['harga_lembar'],
+					'harga_pack_lm' => $r['options']['harga_pack'],
+					'harga_total_lm' => $r['options']['harga_total'],
 					'add_time' => date('Y-m-d H:i:s'),
 					'add_user' => $this->username,
 				);
@@ -1278,13 +1279,12 @@ class M_transaksi extends CI_Model
 		
 		if($updatePO){
 			$editData = array(
-				'no_po_lm' => $_POST['no_po'],
-				'nm_item_lm' => $_POST['item'],
-				'size_lm' => $_POST['size'],
-				'sheet_lm' => $_POST['sheet'],
-				'qty_lm' => $_POST['qty'],
-				'tgl_order_lm' => $_POST['date_order'],
-				'harga_lm' => $_POST['harga'],
+				'tgl_order_lm' => $_POST["date_order"],
+				// 'id_m_produk_lm' => $_POST[""],
+				'qty_bal' => $_POST["qty_bal"],
+				'harga_lembar_lm' => $_POST["harga_lembar"],
+				'harga_pack_lm' => $_POST["harga_pack"],
+				'harga_total_lm' => $_POST["harga_total"],
 				'edit_time' => date('Y-m-d H:i:s'),
 				'edit_user' => $this->username,
 			);
