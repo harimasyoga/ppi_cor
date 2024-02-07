@@ -1179,22 +1179,26 @@ class Transaksi extends CI_Controller
 					$bt1 = 'btn-warning';
 					$fa1 = 'class="fas fa-lock"';
 					$time1 = 'BELUM ACC!';
+					$p1 = '';
 				}else if($r->status_lm1 == 'H'){
 					$bt1 = 'btn-warning';
-					$fa1 = 'class="far fa-hand-paper"';
+					$fa1 = 'class="fas fa-hand-paper"';
 					$time1 = 'HOLD!';
+					$p1 = '';
 				}else if($r->status_lm1 == 'R'){
 					$bt1 = 'btn-danger';
-					$fa1 = 'class="fas fa-times"';
+					$fa1 = 'class="fas fa-times" style="color:#000"';
 					$time1 = 'REJECT!';
+					$p1 = 'style="padding:4px 10px"';
 				}else{
 					$bt1 = 'btn-success';
 					$fa1 = 'class="fas fa-check-circle"';
 					$time1 = $this->m_fungsi->tglIndSkt(substr($r->time_lm1,0,10)).' - '.substr($r->time_lm1,10,9);
+					$p1 = '';
 				}
 				$row[] = '<div class="text-center">
 					<div class="dropup">
-						<button class="dropbtn btn btn-sm '.$bt1.'" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')"><i '.$fa1.'></i></button>
+						<button class="dropbtn btn btn-sm '.$bt1.'" '.$p1.' onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')"><i '.$fa1.'></i></button>
 						<div class="dropup-content">
 							<div class="time-admin">'.$time1.'</div>
 						</div>
@@ -1206,22 +1210,26 @@ class Transaksi extends CI_Controller
 					$bt2 = 'btn-warning';
 					$fa2 = 'class="fas fa-lock"';
 					$time2 = 'BELUM ACC!';
+					$p2 = '';
 				}else if($r->status_lm2 == 'H'){
 					$bt2 = 'btn-warning';
-					$fa2 = 'class="far fa-hand-paper"';
+					$fa2 = 'class="fas fa-hand-paper"';
 					$time2 = 'HOLD!';
+					$p2 = '';
 				}else if($r->status_lm2 == 'R'){
 					$bt2 = 'btn-danger';
-					$fa2 = 'class="fas fa-times"';
+					$fa2 = 'class="fas fa-times" style="color:#000"';
 					$time2 = 'REJECT!';
+					$p2 = 'style="padding:4px 10px"';
 				}else{
 					$bt2 = 'btn-success';
 					$fa2 = 'class="fas fa-check-circle"';
 					$time2 = $this->m_fungsi->tglIndSkt(substr($r->time_lm2,0,10)).' - '.substr($r->time_lm2,10,9);
+					$p2 = '';
 				}
 				$row[] = '<div class="text-center">
 					<div class="dropup">
-						<button class="dropbtn btn btn-sm '.$bt2.'" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')"><i '.$fa2.'></i></button>
+						<button class="dropbtn btn btn-sm '.$bt2.'" '.$p2.' onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')"><i '.$fa2.'></i></button>
 						<div class="dropup-content">
 							<div class="time-admin">'.$time2.'</div>
 						</div>

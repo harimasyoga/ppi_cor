@@ -412,6 +412,68 @@ class M_master extends CI_Model{
 		);
 	}
 
+	function simpanDataLaminasi()
+	{
+		$h_id = $_POST["h_id"];
+		$nama_lm = $_POST["nama_lm"];
+		$ukuran_lm = $_POST["ukuran_lm"];
+		$isi_lm = $_POST["isi_lm"];
+		$plh_qty = $_POST["plh_qty"];
+		$qty_lm = $_POST["qty_lm"];
+		
+		if($_POST["nama_lm"] == '' || $_POST["ukuran_lm"] == '' || $_POST["isi_lm"] == '' || $_POST["qty_lm"] == '' || $_POST["qty_lm"] == 0){
+			$insert = false;
+			$isi = 'DATA TIDAK BOLEH KOSONG!';
+		}else{		
+			($plh_qty == 'pack') ? $where = "AND pack_lm='$qty_lm'" : $where = "AND ikat_lm='$qty_lm'";
+			$cekData = $this->db->query("SELECT*FROM m_produk_lm WHERE nm_produk_lm='$nama_lm' AND ukuran_lm='$ukuran_lm' AND isi_lm='$isi_lm' AND jenis_qty_lm='$plh_qty' $where");
+			
+			$data = [
+				'nm_produk_lm' => $_POST["nama_lm"],
+				'ukuran_lm' => $_POST["ukuran_lm"],
+				'isi_lm' => $_POST["isi_lm"],
+				'jenis_qty_lm' => $_POST["plh_qty"],
+				'ikat_lm' => ($_POST["plh_qty"] == 'ikat') ? $_POST["qty_lm"] : null,
+				'pack_lm' => ($_POST["plh_qty"] == 'pack') ? $_POST["qty_lm"] : null,
+			];
+
+			if($_POST["aksiInput"] == 'insert'){
+				if($cekData->num_rows() > 0){
+					$insert = false;
+					$isi = 'DATA SUDAH ADA!';
+				}else{
+					$this->db->set('add_time', date('Y-m-d H:i:s'));
+					$this->db->set('add_user', $this->username);
+					$insert = $this->db->insert('m_produk_lm', $data);
+					$isi = true;
+				}
+			}else{
+				if($cekData->num_rows() > 0 && $h_id != $cekData->row()->id_produk_lm){
+					$insert = false;
+					$isi = 'DATA SUDAH ADA!';
+				}else{
+					// edit_time  edit_user
+					$this->db->set('edit_time', date('Y-m-d H:i:s'));
+					$this->db->set('edit_user', $this->username);
+					$this->db->where('id_produk_lm', $h_id);
+					$insert = $this->db->update('m_produk_lm');
+					$isi = true;
+				}
+			}
+		}
+
+		return [
+			'insert' => $insert,
+			'data' => $isi,
+		];
+	}
+
+	function editDataLaminasi()
+	{
+		$id = $_POST["id"];
+		return $this->db->query("SELECT*FROM m_produk_lm WHERE id_produk_lm='$id'")->row();
+	}
+
     function m_setting($table,$status){
         
        

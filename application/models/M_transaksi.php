@@ -1261,7 +1261,7 @@ class M_transaksi extends CI_Model
 			$this->db->set('status_lm'.$i, $_POST["aksi"]);
 			$this->db->set('user_lm'.$i, $this->username);
 			$this->db->set('time_lm'.$i, date('Y-m-d H:i:s'));
-			$this->db->set('ket_lm'.$i, $_POST["ket_laminasi"]);
+			$this->db->set('ket_lm'.$i, ($_POST["aksi"] == 'Y' && $_POST["ket_laminasi"] == '') ? 'OK' : $_POST["ket_laminasi"]);
 			$this->db->where('id', $_POST["id_po_lm"]);
 			$result = $this->db->update('trs_po_lm');
 		}

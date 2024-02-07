@@ -2,13 +2,9 @@
 	<section class="content-header">
 		<div class="container-fluid">
 			<div class="row mb-2">
+			<div class="col-sm-6"></div>
 			<div class="col-sm-6">
-				<!-- <h1><b>Data Plan</b></h1> -->
-			</div>
-			<div class="col-sm-6">
-				<ol class="breadcrumb float-sm-right">
-				<!-- <li class="breadcrumb-item active" ><a href="#">Corrugator</a></li> -->
-				</ol>
+				<ol class="breadcrumb float-sm-right"></ol>
 			</div>
 			</div>
 		</div>
@@ -26,7 +22,6 @@
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row row-input" style="display: none;">
-			<!-- <div class="row row-input"> -->
 				<div class="col-md-6">
 					<div class="card card-success card-outline">
 						<div class="card-header" style="padding:12px">
@@ -129,7 +124,7 @@
 					</div>
 
 					<div class="card-verifikasi" style="display:none">
-						<div class="card card-success card-outline" style="padding-bottom:12px">
+						<div class="card card-info card-outline" style="padding-bottom:12px">
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
 							</div>
@@ -160,7 +155,7 @@
 			
 			<div class="row row-sementara" style="display: none;">
 				<div class="col-md-12">
-					<div class="card card-info card-outline" style="position:sticky;top:12px">
+					<div class="card card-secondary card-outline" style="position:sticky;top:12px">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT ITEM</h3>
 						</div>
@@ -554,7 +549,7 @@
 					}else if(data.po_lm.status_lm1 == 'H'){
 						$("#verif-marketing").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.time_lm1}`)
 					}else if(data.po_lm.status_lm1 == 'R'){
-						$("#verif-marketing").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times"></i></button> ${data.time_lm1}`)
+						$("#verif-marketing").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.time_lm1}`)
 					}else{
 						$("#verif-marketing").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.time_lm1}`)
 					}
@@ -622,7 +617,7 @@
 					}else if(data.po_lm.status_lm2 == 'H'){
 						$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.time_lm2}`)
 					}else if(data.po_lm.status_lm2 == 'R'){
-						$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times"></i></button> ${data.time_lm2}`)
+						$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.time_lm2}`)
 					}else{
 						$("#verif-owner").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.time_lm2}`)
 					}
@@ -656,19 +651,16 @@
 		if(aksi == 'verifikasi'){
 			vrf = 'Y'
 			callout = 'callout-success'
-			isitxt = 'OK'
 			colorbtn = 'btn-success'
 			txtsave = 'VERIFIKASI!'
 		}else if(aksi == 'hold'){
 			vrf = 'H'
 			callout = 'callout-warning'
-			isitxt = ''
 			colorbtn = 'btn-warning'
 			txtsave = 'HOLD!'
 		}else if(aksi == 'reject'){
 			vrf = 'R'
 			callout = 'callout-danger'
-			isitxt = ''
 			colorbtn = 'btn-danger'
 			txtsave = 'REJECT!'
 		}
@@ -678,7 +670,7 @@
 				<div class="col-md-3"></div>
 				<div class="col-md-9">
 					<div class="callout ${callout}" style="padding:0;margin:0">
-						<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${isitxt}</textarea>
+						<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()"></textarea>
 					</div>
 				</div>
 			</div>
