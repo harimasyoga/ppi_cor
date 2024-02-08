@@ -23,7 +23,7 @@
 		<div class="container-fluid">
 			<div class="row row-input" style="display: none;">
 				<div class="col-md-6">
-					<div class="card card-success card-outline">
+					<div class="card card-success card-outline" style="position:sticky;top:12px">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT PO LAMINASI</h3>
 						</div>
@@ -77,21 +77,15 @@
 					<div class="card-tambah-item" style="display:none">
 						<div class="card card-primary card-outline">
 							<div class="card-header" style="padding:12px">
-								<h3 class="card-title" style="font-weight:bold;font-size:18px">TAMBAH ITEM</h3>
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">PILIH ITEM</h3>
 							</div>
-							<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
-								<div class="col-md-3">DATE ORDER</div>
-								<div class="col-md-9">
-									<input type="date" id="date_order" class="form-control">
-								</div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px">
+							<div class="card-body row" style="font-weight:bold;padding:18px 12px 0">
 								<div class="col-md-3"></div>
 								<div class="col-md-9" style="color:#f00;font-size:12px;font-style:italic">* PRODUK | UKURAN | ISI | QTY</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-3">ITEM</div>
-								<div class="col-md-8">
+								<div class="col-md-9">
 									<select id="item" class="form-control select2" onchange="plhItem()">
 										<?php
 											$query = $this->db->query("SELECT*FROM m_produk_lm ORDER BY nm_produk_lm");
@@ -113,9 +107,9 @@
 										?>
 									</select>
 								</div>
-								<div class="col-md-1">
+								<!-- <div class="col-md-1">
 									<button type="button" class="btn btn-sm btn-secondary" style="margin-top:4px"><i class="fas fa-sync-alt"></i></button>
-								</div>
+								</div> -->
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-3">SIZE</div>
@@ -124,42 +118,73 @@
 								</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">SHEET</div>
-								<div class="col-md-9">
-									<input type="text" id="sheet" class="form-control" autocomplete="off" placeholder="ISI" disabled>
-								</div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">QTY</div>
+								<div class="col-md-3">@<span class="txt-item-pack-ikat">PACK</span></div>
 								<div class="col-md-9">
 									<div class="input-group">
-										<input type="text" id="qty" class="form-control" autocomplete="off" placeholder="QTY">
-										<div class="input-group-append"><span class="input-group-text" style="background:#a9acaf;color:#222;font-weight:bold">-</span></div>
+										<input type="text" id="sheet" class="form-control" autocomplete="off" placeholder="ISI" disabled>
+										<div class="input-group-append"><span class="input-group-text igt-sheet" style="background:#a9acaf;color:#222;font-weight:bold">SHEET</span></div>
 									</div>
 								</div>
 							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
+								<div class="col-md-3">@BAL</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<input type="text" id="qty" class="form-control" autocomplete="off" placeholder="BAL">
+										<div class="input-group-append"><span class="input-group-text igt-qty" style="background:#a9acaf;color:#222;font-weight:bold">-</span></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="card-order" style="display:none">
+						<div class="card card-primary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">ORDER</h3>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
+								<div class="col-md-3">SHEET</div>
+								<div class="col-md-9">
+									<input type="text" id="order_sheet" class="form-control" placeholder="ORDER SHEET" disabled onkeyup="hitungHarga()">
+								</div>
+							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"><span class="txt-order-pack-ikat">PACK</span></div>
+								<div class="col-md-9">
+									<input type="text" id="order_pori" class="form-control" placeholder="-" disabled onkeyup="hitungHarga()">
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
 								<div class="col-md-3">QTY ( BAL )</div>
 								<div class="col-md-9">
 									<input type="text" id="qty_bal" class="form-control" autocomplete="off" placeholder="QTY ( BAL )" onkeyup="hitungHarga()">
 								</div>
 							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+						</div>
+					</div>
+
+					<div class="card-harga" style="display:none">
+						<div class="card card-primary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">HARGA</h3>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
 								<div class="col-md-3">HARGA LEMBAR</div>
 								<div class="col-md-9">
-									<input type="text" id="harga_lembar" class="form-control" autocomplete="off" placeholder="HARGA LEMBAR" onkeyup="hitungHarga()">
+									<input type="text" id="harga_lembar" class="form-control" autocomplete="off" placeholder="HARGA LEMBAR" onkeyup="hitungHargaP('lembar')">
 								</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">HARGA PACK</div>
+								<div class="col-md-3">HARGA <span class="txt-harga-pack-ikat">PACK</span></div>
 								<div class="col-md-9">
-									<input type="text" id="harga_pack" class="form-control" autocomplete="off" placeholder="HARGA PACK" onkeyup="hitungHarga()">
+									<input type="text" id="harga_pori" class="form-control" autocomplete="off" placeholder="HARGA PACK" onkeyup="hitungHargaP('pori')">
 								</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-3">HARGA TOTAL</div>
 								<div class="col-md-9">
-									<input type="text" id="harga_total" class="form-control" style="font-weight:bold" autocomplete="off" placeholder="HARGA TOTAL" disabled onkeyup="hitungHarga()">
+									<input type="text" id="harga_total" class="form-control" style="font-weight:bold;color:#000" autocomplete="off" placeholder="HARGA TOTAL" disabled>
 								</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
@@ -248,6 +273,7 @@
 											<th style="padding:12px;text-align:center">ADMIN</th>
 											<th style="padding:12px;text-align:center">MKT</th>
 											<th style="padding:12px;text-align:center">OWNER</th>
+											<th style="padding:12px;text-align:center">LAPORAN</th>
 											<th style="padding:12px;text-align:center">AKSI</th>
 										</tr>
 									</thead>
@@ -309,14 +335,15 @@
 		$("#customer").val("").prop('disabled', false).trigger('change')
 		$("#no_po").val("").prop('disabled', false)
 		$("#note_po_lm").val("").prop('disabled', false)
-		$("#date_order").val("").prop('disabled', false)
-		$("#item").val("").prop('disabled', false)
+		$("#item").val("").prop('disabled', false).trigger('change')
 		$("#size").val("").prop('disabled', true)
 		$("#sheet").val("").prop('disabled', true)
 		$("#qty").val("").prop('disabled', true)
+		$("#order_sheet").val("").prop('disabled', true)
+		$("#order_pori").val("").prop('disabled', true)
 		$("#qty_bal").val("").prop('disabled', true)
 		$("#harga_lembar").val("").prop('disabled', true)
-		$("#harga_pack").val("").prop('disabled', true)
+		$("#harga_pori").val("").prop('disabled', true)
 		$("#harga_total").val("").prop('disabled', true)
 		$("#id_po_header").val("")
 		$("#id_po_detail").val("")
@@ -344,20 +371,31 @@
 		let ikat_lm = $("#item option:selected").attr('ikat_lm')
 		let qty = ''
 		if(jenis_qty_lm == undefined){
-			$(".input-group-text").html("-")
+			$(".txt-item-pack-ikat").html("PACK")
+			$(".txt-order-pack-ikat").html("PACK")
+			$(".txt-harga-pack-ikat").html("PACK")
+			$(".igt-qty").html("-")
 			qty = ''
 		}else{
 			if(jenis_qty_lm == 'pack'){
-				$(".input-group-text").html("PACK")
+				$(".txt-item-pack-ikat").html("PACK")
+				$(".txt-order-pack-ikat").html("PACK")
+				$(".txt-harga-pack-ikat").html("PACK")
+				$(".igt-qty").html("PACK")
 				qty = pack_lm
 			}else{
-				$(".input-group-text").html("IKAT")
+				$(".txt-item-pack-ikat").html("IKAT")
+				$(".txt-order-pack-ikat").html("IKAT")
+				$(".txt-harga-pack-ikat").html("IKAT")
+				$(".igt-qty").html("IKAT")
 				qty = ikat_lm
 			}
 		}
+		$("#order_sheet").val("").prop('disabled', true)
+		$("#order_pori").val("").prop('disabled', true)
 		$("#qty_bal").val("").prop('disabled', (jenis_qty_lm == undefined) ? true : false)
-		$("#harga_lembar").val("").prop('disabled', (jenis_qty_lm == undefined) ? true : false)
-		$("#harga_pack").val("").prop('disabled', (jenis_qty_lm == undefined) ? true : false)
+		$("#harga_lembar").val("").prop('disabled', true)
+		$("#harga_pori").val("").prop('disabled', true)
 		$("#harga_total").val("").prop('disabled', true)
 		$("#size").val(ukuran_lm)
 		$("#sheet").val(isi_lm)
@@ -370,6 +408,8 @@
 		$(".row-input").attr('style', '')
 		$(".row-sementara").attr('style', '')
 		$(".card-tambah-item").attr('style', '')
+		$(".card-order").attr('style', '')
+		$(".card-harga").attr('style', '')
 		$(".row-list").attr('style', 'display:none')
 		$(".card-verifikasi").attr('style', 'display:none')
 	}
@@ -381,20 +421,64 @@
 		$(".row-input").attr('style', 'display:none')
 		$(".row-sementara").attr('style', 'display:none')
 		$(".card-tambah-item").attr('style', 'display:none')
+		$(".card-order").attr('style', 'display:none')
+		$(".card-harga").attr('style', 'display:none')
 		$(".row-list").attr('style', '')
 		$(".card-verifikasi").attr('style', 'display:none')
 		$("#id_cart").val(0)
 	}
 
 	function hitungHarga()
-	{	
+	{
+		let at_sheet = $("#sheet").val()
+		let at_bal = $("#qty").val()
+		
 		let qty_bal = $("#qty_bal").val().split('.').join('')
 		$("#qty_bal").val(format_angka(qty_bal))
-		let harga_lembar = $("#harga_lembar").val().split('.').join('')
-		$("#harga_lembar").val(format_angka(harga_lembar))
-		let harga_pack = $("#harga_pack").val().split('.').join('')
-		$("#harga_pack").val(format_angka(harga_pack))
-		let harga_total = $("#harga_total").val().split('.').join('')
+
+		let orderSheet = parseInt(at_sheet) * (parseInt(at_bal) * parseInt(qty_bal))
+		$("#order_sheet").val(format_angka(orderSheet))
+
+		let orderPackOrIkat = parseInt(at_bal) * parseInt(qty_bal)
+		$("#order_pori").val(format_angka(orderPackOrIkat))
+		
+		let cek = parseInt(qty_bal)
+		$("#harga_lembar").val("").prop('disabled', (isNaN(cek) || cek == 0) ? true : false)
+		$("#harga_pori").val("").prop('disabled', (isNaN(cek) || cek == 0) ? true : false)
+		$("#harga_total").val("")
+	}
+
+	function hitungHargaP(opsi)
+	{
+		let at_sheet = $("#sheet").val()
+		let order_sheet = $("#order_sheet").val().split('.').join('')
+		let order_pori = $("#order_pori").val().split('.').join('')
+
+		let harga_total = 0
+		if(opsi == 'lembar'){
+			let harga_lembar = $("#harga_lembar").val().split('.').join('')
+			$("#harga_lembar").val(format_angka(harga_lembar))
+
+			let hitungPori = parseInt(at_sheet) * parseInt(harga_lembar);
+			(isNaN(hitungPori)) ? hitungPori = 0 : hitungPori = hitungPori
+			console.log("hitungPori : ", hitungPori)
+			$("#harga_pori").val(format_angka(hitungPori))
+
+			harga_total = parseInt(order_sheet) * parseInt(harga_lembar)
+		}
+
+		if(opsi == 'pori'){
+			let harga_pori = $("#harga_pori").val().split('.').join('')
+			$("#harga_pori").val(format_angka(harga_pori))
+
+			let hargaSheet = parseInt(harga_pori) / parseInt(at_sheet);
+			$("#harga_lembar").val(hargaSheet)
+			console.log("hargaSheet : ", hargaSheet)
+
+			harga_total = parseInt(order_pori) * parseInt(harga_pori)
+		}
+		console.log(harga_total)
+
 		$("#harga_total").val(format_angka(harga_total))
 	}
 
@@ -407,7 +491,6 @@
 		(id_sales == undefined) ? id_sales = '' : id_sales = id_sales
 		let no_po = $("#no_po").val()
 		let note_po_lm = $("#note_po_lm").val()
-		let date_order = $("#date_order").val()
 		let item = $("#item").val()
 		let nm_produk_lm = $("#item option:selected").attr('nm_produk_lm');
 		(nm_produk_lm == undefined) ? nm_produk_lm = '' : nm_produk_lm = nm_produk_lm
@@ -418,9 +501,11 @@
 		let jenis_qty_lm = $("#item option:selected").attr('jenis_qty_lm');
 		(jenis_qty_lm == undefined) ? jenis_qty_lm = '' : jenis_qty_lm = jenis_qty_lm
 		let qty = $("#qty").val().split('.').join('')
+		let order_sheet = $("#order_sheet").val().split('.').join('')
+		let order_pori = $("#order_pori").val().split('.').join('')
 		let qty_bal = $("#qty_bal").val().split('.').join('')
 		let harga_lembar = $("#harga_lembar").val().split('.').join('')
-		let harga_pack = $("#harga_pack").val().split('.').join('')
+		let harga_pori = $("#harga_pori").val().split('.').join('')
 		let harga_total = $("#harga_total").val().split('.').join('')
 		let id_cart = parseInt($("#id_cart").val()) + 1
 		$("#id_cart").val(id_cart)
@@ -438,7 +523,7 @@
 				});
 			},
 			data: ({
-				id_po_header, tgl, customer, id_sales, no_po, note_po_lm, date_order, item, nm_produk_lm, ukuran_lm, isi_lm, jenis_qty_lm, qty, qty_bal, harga_lembar, harga_pack, harga_total, id_cart
+				id_po_header, tgl, customer, id_sales, no_po, note_po_lm, item, nm_produk_lm, ukuran_lm, isi_lm, jenis_qty_lm, qty, order_sheet, order_pori, qty_bal, harga_lembar, harga_pori, harga_total, id_cart
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -449,14 +534,15 @@
 					$("#customer").prop('disabled', true)
 					$("#no_po").prop('disabled', true)
 					$("#note_po_lm").prop('disabled', true)
-					$("#date_order").val("")
 					$("#item").val("").trigger('change')
 					$("#size").val("")
 					$("#sheet").val("")
 					$("#qty").val("")
+					$("#order_sheet").val("")
+					$("#order_pori").val("")
 					$("#qty_bal").val("")
 					$("#harga_lembar").val("")
-					$("#harga_pack").val("")
+					$("#harga_pori").val("")
 					$("#harga_total").val("")
 					cartPOLaminasi()
 				}else{
@@ -552,14 +638,15 @@
 		$('#customer').prop('disabled', true)
 		$("#no_po").prop('disabled', true)
 		$("#note_po_lm").prop('disabled', true)
-		$("#date_order").val("").prop('disabled', (opsi == 'edit') ? false : true)
 		$("#item").val("").prop('disabled', false).trigger('change')
 		$("#size").val("").prop('disabled', true)
 		$("#sheet").val("").prop('disabled', true)
 		$("#qty").val("").prop('disabled', true)
-		$("#qty_bal").val("").prop('disabled', (opsi == 'edit') ? false : true)
-		$("#harga_lembar").val("").prop('disabled', (opsi == 'edit') ? false : true)
-		$("#harga_pack").val("").prop('disabled', (opsi == 'edit') ? false : true)
+		$("#order_sheet").val("").prop('disabled', true)
+		$("#order_pori").val("").prop('disabled', true)
+		$("#qty_bal").val("").prop('disabled', true)
+		$("#harga_lembar").val("").prop('disabled', true)
+		$("#harga_pori").val("").prop('disabled', true)
 		$("#harga_total").val("").prop('disabled', true)
 		$("#id_po_header").val("")
 		$("#id_po_detail").val("")
@@ -591,15 +678,28 @@
 				$("#id_po_header").val(data.po_lm.id)
 				if(id != 0 && id_dtl != 0){
 					$("#id_po_detail").val(data.po_dtl.id)
-					$("#date_order").val(data.po_dtl.tgl_order_lm)
 					$("#item").val(data.po_dtl.id_m_produk_lm).prop('disabled', true).trigger('change')
 					$("#size").val(data.po_dtl.ukuran_lm)
-					$("#sheet").val(format_angka(data.po_dtl.isi_lm));
-					$("#qty").val(format_angka(((data.po_dtl.jenis_qty_lm == 'pack') ? data.po_dtl.pack_lm : data.po_dtl.ikat_lm)));
-					$("#qty_bal").val(format_angka(data.po_dtl.qty_bal));
-					(data.po_dtl.jenis_qty_lm == 'pack') ? $(".input-group-text").html("PACK") : $(".input-group-text").html("IKAT")
-					$("#harga_lembar").val(format_angka(data.po_dtl.harga_lembar_lm))
-					$("#harga_pack").val(format_angka(data.po_dtl.harga_pack_lm))
+					$("#sheet").val(format_angka(data.po_dtl.isi_lm))
+					$("#qty").val(format_angka(((data.po_dtl.jenis_qty_lm == 'pack') ? data.po_dtl.pack_lm : data.po_dtl.ikat_lm)))
+					$("#order_sheet").val(format_angka(data.po_dtl.order_sheet_lm))
+					$("#order_pori").val(format_angka(data.po_dtl.order_pori_lm))
+					$("#qty_bal").val(format_angka(data.po_dtl.qty_bal)).prop('disabled', false)
+
+					if(data.po_dtl.jenis_qty_lm == 'pack'){
+						$(".txt-item-pack-ikat").html("PACK")
+						$(".txt-order-pack-ikat").html("PACK")
+						$(".txt-harga-pack-ikat").html("PACK")
+						$(".igt-qty").html("PACK")
+					}else{
+						$(".txt-item-pack-ikat").html("IKAT")
+						$(".txt-order-pack-ikat").html("IKAT")
+						$(".txt-harga-pack-ikat").html("IKAT")
+						$(".igt-qty").html("IKAT")
+					}
+
+					$("#harga_lembar").val(format_angka(data.po_dtl.harga_lembar_lm)).prop('disabled', false)
+					$("#harga_pori").val(format_angka(data.po_dtl.harga_pori_lm)).prop('disabled', false)
 					$("#harga_total").val(format_angka(data.po_dtl.harga_total_lm))
 				}
 				if(id != 0 && id_dtl != 0){
@@ -608,7 +708,17 @@
 					$("#btn-add").html((opsi == 'edit') ? '<button type="button" class="btn btn-sm btn-success" onclick="addItemLaminasi()"><i class="fa fa-plus"></i> <b>ADD</b></button>' : '')
 				}
 				$(".card-verifikasi").attr('style', '');
-				(opsi == 'verif' || opsi == 'detail') ? $(".card-tambah-item").attr('style', 'display:none') : $(".card-tambah-item").attr('style', '');
+
+				if(opsi == 'verif' || opsi == 'detail'){
+					$(".card-tambah-item").attr('style', 'display:none');
+					$(".card-order").attr('style', 'display:none');
+					$(".card-harga").attr('style', 'display:none');
+				}else{
+					$(".card-tambah-item").attr('style', '');
+					$(".card-order").attr('style', '');
+					$(".card-harga").attr('style', '');
+				}
+
 				$("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.add_time_po_lm}`)
 				// VERIFIFIKASI MARKETING
 				if((urlAuth == 'Admin' || urlAuth == 'Marketing Laminasi') && data.po_lm.status_lm2 == 'N' && (data.po_lm.status_lm1 == 'N' || data.po_lm.status_lm1 == 'H' || data.po_lm.status_lm1 == 'R')){
@@ -825,11 +935,12 @@
 		let note_po_lm = $("#note_po_lm").val()
 		let id_po_header = $("#id_po_header").val()
 		let id_po_detail = $("#id_po_detail").val()
-		let date_order = $("#date_order").val()
 		let qty = $("#qty").val().split('.').join('')
+		let order_sheet = $("#order_sheet").val().split('.').join('')
+		let order_pori = $("#order_pori").val().split('.').join('')
 		let qty_bal = $("#qty_bal").val().split('.').join('')
 		let harga_lembar = $("#harga_lembar").val().split('.').join('')
-		let harga_pack = $("#harga_pack").val().split('.').join('')
+		let harga_pori = $("#harga_pori").val().split('.').join('')
 		let harga_total = $("#harga_total").val().split('.').join('')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editListLaminasi')?>',
@@ -845,7 +956,7 @@
 				});
 			},
 			data: ({
-				tgl, customer, no_po, note_po_lm, id_po_header, id_po_detail, qty, qty_bal, date_order, harga_lembar, harga_pack, harga_total
+				tgl, customer, no_po, note_po_lm, id_po_header, id_po_detail, qty, order_sheet, order_pori, qty_bal, harga_lembar, harga_pori, harga_total
 			}),
 			success: function(res){
 				data = JSON.parse(res)

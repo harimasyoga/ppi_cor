@@ -1223,12 +1223,14 @@ class M_transaksi extends CI_Model
 		if($insertPO){
 			foreach($this->cart->contents() as $r){
 				$data = array(
-					'tgl_order_lm' => $r['options']['date_order'],
 					'id_m_produk_lm' => $r['options']['item'],
 					'no_po_lm' => $r['options']['no_po'],
+					'order_sheet_lm' => $r['options']['order_sheet'],
+					'jenis_order_lm' => $r['options']['jenis_qty_lm'],
+					'order_pori_lm' => $r['options']['order_pori'],
 					'qty_bal' => $r['options']['qty_bal'],
 					'harga_lembar_lm' => $r['options']['harga_lembar'],
-					'harga_pack_lm' => $r['options']['harga_pack'],
+					'harga_pori_lm' => $r['options']['harga_pori'],
 					'harga_total_lm' => $r['options']['harga_total'],
 					'add_time' => date('Y-m-d H:i:s'),
 					'add_user' => $this->username,
@@ -1279,11 +1281,12 @@ class M_transaksi extends CI_Model
 		
 		if($updatePO){
 			$editData = array(
-				'tgl_order_lm' => $_POST["date_order"],
 				// 'id_m_produk_lm' => $_POST[""],
+				'order_sheet_lm' => $_POST["order_sheet"],
+				'order_pori_lm' => $_POST["order_pori"],
 				'qty_bal' => $_POST["qty_bal"],
 				'harga_lembar_lm' => $_POST["harga_lembar"],
-				'harga_pack_lm' => $_POST["harga_pack"],
+				'harga_pori_lm' => $_POST["harga_pori"],
 				'harga_total_lm' => $_POST["harga_total"],
 				'edit_time' => date('Y-m-d H:i:s'),
 				'edit_user' => $this->username,
