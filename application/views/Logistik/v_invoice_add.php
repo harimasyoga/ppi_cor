@@ -744,7 +744,8 @@
 									<th style="text-align: center" >NO PO</th>
 									<th style="text-align: center" >GSM</th>
 									<th style="text-align: center" >ITEM</th>
-									<th style="text-align: center; padding-right: 35px" >HARGA</th>
+									<th style="text-align: center; padding-right: 35px" >EXCLUDE</th>
+									<th style="text-align: center; padding-right: 35px" >INCLUDE</th>
 									<th style="text-align: center" >QTY</th>
 									<th style="text-align: center; padding-right: 10px">R. QTY</th>
 									<th style="text-align: center" >BERAT</th>
@@ -787,7 +788,10 @@
 									</td>
 
 									<td style="text-align: center" >
-										<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)">
+										<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" >
+									</td>
+									<td style="text-align: center" >
+										<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" >
 									</td>
 
 									<td style="text-align: center" >${val.qty}
@@ -835,7 +839,8 @@
 									<th style="text-align: center" >ITEM</th>
 									<th style="text-align: center" >Ukuran</th>
 									<th style="text-align: center" >Kualitas</th>
-									<th style="text-align: center; padding-right: 35px" >HARGA</th>
+									<th style="text-align: center; padding-right: 35px" >EXCLUDE</th>
+									<th style="text-align: center; padding-right: 35px" >INCLUDE</th>
 									<th style="text-align: center" >QTY</th>
 									<th style="text-align: center; padding-right: 35px">R. QTY</th>
 									<th style="text-align: center; padding-right: 35px" >HASIL</th>
@@ -879,7 +884,11 @@
 									</td>
 									
 									<td style="text-align: center" >
-										<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)">
+										<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" >
+									</td>
+
+									<td style="text-align: center" >
+										<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" >
 									</td>
 
 									<td style="text-align: center" >${format_angka(val.qty)}
@@ -1133,23 +1142,19 @@
 
 	function Hitung_price(val,id) 
 	{
-		var cek = id.substr(0,9);
-		var id2 = id.substr(9,1);
+		var cek = id.substr(0,3);
+		var id2 = id.substr(3,1);
 		var isi = val.split('.').join('');
 		
-		if(cek=='price_exc')
+		if(cek=='hrg')
 		{
-			inc = Math.trunc(isi *1.11);
-			$('#price_inc'+id2).val(format_angka(inc));
+			inc = Math.ceil(isi *1.11);
+			$('#inc'+id2).val(format_angka(inc));
 
-			// $('#price_exc_rp'+id2).val(format_angka(val));
-			// $('#price_inc_rp'+id2).val(format_angka(inc));
 		}else {
-			exc = Math.trunc(isi /1.11);
-			$('#price_exc'+id2).val(format_angka(exc));
+			exc = Math.ceil(isi /1.11);
+			$('#hrg'+id2).val(format_angka(exc));
 
-			// $('#price_exc_rp'+id2).val(format_angka(exc));
-			// $('#price_inc_rp'+id2).val(format_angka(val));
 		}
 	}
 

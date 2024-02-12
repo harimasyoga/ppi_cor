@@ -367,7 +367,8 @@
 							<th style="text-align: center" >NO PO</th>
 							<th style="text-align: center" >GSM</th>
 							<th style="text-align: center" >ITEM</th>
-							<th style="text-align: center; padding-right: 30px" >HARGA</th>
+							<th style="text-align: center; padding-right: 30px" >Exclude</th>
+							<th style="text-align: center; padding-right: 30px" >Include</th>
 							<th style="text-align: center" >QTY</th>
 							<th style="text-align: center; padding-right: 10px">R. QTY</th>
 							<th style="text-align: center" >BERAT</th>
@@ -402,7 +403,11 @@
 								</td>
 
 								<td style="text-align: center" >
-									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.harga)}">
+									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}">
+								</td>
+								
+								<td style="text-align: center" >
+									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.include)}">
 								</td>
 
 								<td style="text-align: center" >${val.qty}
@@ -442,7 +447,8 @@
 								<th style="text-align: center" >ITEM</th>
 								<th style="text-align: center" >Ukuran</th>
 								<th style="text-align: center" >Kualitas</th>
-								<th style="text-align: center; padding-right: 35px" >HARGA</th>
+								<th style="text-align: center; padding-right: 35px" >Exclude</th>
+								<th style="text-align: center; padding-right: 35px" >Include</th>
 								<th style="text-align: center" >QTY</th>
 								<th style="text-align: center; padding-right: 35px">R. QTY</th>
 								<th style="text-align: center; padding-right: 35px" >HASIL</th>
@@ -487,7 +493,11 @@
 								</td>
 
 								<td style="text-align: center" >
-									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.harga)}">
+									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}">
+								</td>
+
+								<td style="text-align: center" >
+									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.include)}">
 								</td>
 
 								<td style="text-align: center" >${format_angka(val.qty)}
