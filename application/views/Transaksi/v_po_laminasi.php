@@ -461,7 +461,7 @@
 
 			let hitungPori = parseInt(at_sheet) * parseInt(harga_lembar);
 			(isNaN(hitungPori)) ? hitungPori = 0 : hitungPori = hitungPori
-			console.log("hitungPori : ", hitungPori)
+			// console.log("hitungPori : ", hitungPori)
 			$("#harga_pori").val(format_angka(hitungPori))
 
 			harga_total = parseInt(order_sheet) * parseInt(harga_lembar)
@@ -473,11 +473,11 @@
 
 			let hargaSheet = parseInt(harga_pori) / parseInt(at_sheet);
 			$("#harga_lembar").val(hargaSheet)
-			console.log("hargaSheet : ", hargaSheet)
+			// console.log("hargaSheet : ", hargaSheet)
 
 			harga_total = parseInt(order_pori) * parseInt(harga_pori)
 		}
-		console.log(harga_total)
+		// console.log(harga_total)
 
 		$("#harga_total").val(format_angka(harga_total))
 	}

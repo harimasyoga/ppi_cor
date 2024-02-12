@@ -344,15 +344,21 @@ class Master extends CI_Controller
 				($r->jenis_qty_lm == 'pack') ? $qty = number_format($r->pack_lm,0,',','.') : $qty = number_format($r->ikat_lm,0,',','.').' <span style="font-size:12px;vertical-align:top;font-style:italic">( ikat )</span>';
 				$row[] = '<div class="text-right">'.$qty.'</div>';
 
-				if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
-					$btnEdit = '<button type="button" class="btn btn-sm btn-warning" onclick="editDataLaminasi('."'".$r->id_produk_lm."'".')"><i class="fas fa-pen"></i></button>';
+				$btnEdit = '<button type="button" class="btn btn-sm btn-warning" onclick="editDataLaminasi('."'".$r->id_produk_lm."'".')"><i class="fas fa-pen"></i></button>';
+				$cekProduk = $this->db->query("SELECT*FROM trs_po_lm_detail WHERE id_m_produk_lm='$r->id_produk_lm' GROUP BY id_m_produk_lm");
+				if($cekProduk->num_rows() == 0){
 					$btnHapus = '<button type="button" class="btn btn-sm btn-danger" style="padding:4px 10px" onclick="hapusDataLaminasi('."'".$r->id_produk_lm."'".')"><i class="fas fa-times"></i></button>';
 				}else{
-					$btnEdit = '';
 					$btnHapus = '';
 				}
 
-				$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
+				if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+					$btnAksi = $btnEdit.' '.$btnHapus;
+				}else{
+					$btnAksi = '';
+				}
+
+				$row[] = '<div class="text-center">'.$btnAksi.'</div>';
 				$data[] = $row;
 			}
 		} else if ($jenis == "produk") {

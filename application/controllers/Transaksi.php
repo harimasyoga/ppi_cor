@@ -1304,7 +1304,6 @@ class Transaksi extends CI_Controller
 					</div>
 				</div>';
 
-				// $lapAcc = '<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Plan/laporanPlanCor?no_plan=".$r->no_plan."").'" title="Cetak Plan" ><i class="fas fa-print"></i></a>'; 
 				$lapAcc = '<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/Lap_POLaminasi?id=".$r->id."").'" title="Cetak Plan" ><i class="fas fa-print"></i></a>'; 
 				$row[] = '<div class="text-center">'.$lapAcc.'</div>';
 
@@ -1335,51 +1334,51 @@ class Transaksi extends CI_Controller
 	function Lap_POLaminasi()
 	{
 		$id = $_GET["id"];
-		$po_lm = $this->db->query("SELECT p.nm_pelanggan_lm,po.* FROM trs_po_lm po
+		$po_lm = $this->db->query("SELECT p.nm_pelanggan_lm,p.alamat,po.* FROM trs_po_lm po
 		INNER JOIN m_pelanggan_lm p ON p.id_pelanggan_lm=po.id_pelanggan
 		WHERE po.id='$id'")->row();
 		$po_dtl = $this->db->query("SELECT * FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.no_po_lm='$po_lm->no_po_lm'");
 		$html = '';
 		$html .= '<table style="margin:0;padding:0;font-size:12px;text-align:center;border-collapse:collapse;color:#000;width:100%">';
 			$html .='<thead>
-				<tr><th style="font-weight:normal;padding-bottom:30px;text-align:right" colspan="10">'.$this->m_fungsi->tanggal_format_indonesia($po_lm->tgl_lm).'</th></tr>
-				<tr><th style="font-weight:normal;padding-bottom:5px;text-decoration:underline" colspan="10">PURCHASE ORDER</th></tr>
-				<tr><th style="font-weight:normal;padding-bottom:30px;text-decoration:underline" colspan="10">NO : '.$po_lm->no_po_lm.'</th></tr>
-				<tr><th style="font-weight:normal;padding-bottom:5px;text-align:left" colspan="10">Kepada yth.</th></tr>
-				<tr><th style="font-weight:normal;padding-bottom:5px;text-align:left" colspan="10">PT PRIMA PAPER INDONESIA</th></tr>
-				<tr><th style="font-weight:normal;padding-bottom:30px;text-align:left" colspan="10">Di - Wonogiri</th></tr>
-				<tr><th style="font-weight:normal;padding-bottom:5px;text-align:left" colspan="10">Dengan hormat,</th></tr>
-				<tr><th style="font-weight:normal;padding-bottom:5px;text-align:left" colspan="10">Kami tempatkan order sbb ;</th></tr>
-				<tr><th style="font-weight:normal;padding-bottom:5px;text-align:left" colspan="10">Kertas Laminasi</th></tr>
-				<tr><th style="font-weight:normal;padding-bottom:5px;text-align:left" colspan="10">(Rincian terlampir)</th></tr>
+				<tr><th style="font-weight:normal;padding-bottom:33px;text-align:right" colspan="10">'.ucwords(strtolower($po_lm->alamat)).', '.$this->m_fungsi->tanggal_format_indonesia($po_lm->tgl_lm).'</th></tr>
+				<tr><th style="font-weight:normal;padding-bottom:8px;text-decoration:underline" colspan="10">PURCHASE ORDER</th></tr>
+				<tr><th style="font-weight:normal;padding-bottom:33px;text-decoration:underline" colspan="10">NO : '.$po_lm->no_po_lm.'</th></tr>
+				<tr><th style="font-weight:normal;padding-bottom:8px;text-align:left" colspan="10">Kepada yth.</th></tr>
+				<tr><th style="font-weight:normal;padding-bottom:8px;text-align:left" colspan="10">PT PRIMA PAPER INDONESIA</th></tr>
+				<tr><th style="font-weight:normal;padding-bottom:33px;text-align:left" colspan="10">Di - Wonogiri</th></tr>
+				<tr><th style="font-weight:normal;padding-bottom:8px;text-align:left" colspan="10">Dengan hormat,</th></tr>
+				<tr><th style="font-weight:normal;padding-bottom:8px;text-align:left" colspan="10">Kami tempatkan order sbb ;</th></tr>
+				<tr><th style="font-weight:normal;padding-bottom:8px;text-align:left" colspan="10">Kertas Laminasi</th></tr>
+				<tr><th style="font-weight:normal;padding-bottom:8px;text-align:left" colspan="10">(Rincian terlampir)</th></tr>
 				<tr style="background:#8ea9db">
-					<th style="padding:7px;border:1px solid #000">ITEM</th>
-					<th style="padding:7px;border:1px solid #000">SIZE</th>
-					<th style="padding:7px;border:1px solid #000">SHEET</th>
-					<th style="padding:7px;border:1px solid #000">QTY ( BAL )</th>
+					<th style="padding:7px 5px;border:1px solid #000">ITEM</th>
+					<th style="padding:7px 5px;border:1px solid #000">SIZE</th>
+					<th style="padding:7px 5px;border:1px solid #000">SHEET</th>
+					<th style="padding:7px 5px;border:1px solid #000">QTY ( BAL )</th>
 					<th style="padding:7px 0;border:1px solid #000" colspan="2">HARGA LEMBAR</th>
-					<th style="padding:7px;border:1px solid #000" colspan="2">HARGA</th>
-					<th style="padding:7px;border:1px solid #000" colspan="2">HARGA TOTAL</th>
+					<th style="padding:7px 5px;border:1px solid #000" colspan="2">HARGA</th>
+					<th style="padding:7px 5px;border:1px solid #000" colspan="2">HARGA TOTAL</th>
 				</tr>
 			</thead>';
 			$html .='<tbody>';
 				foreach($po_dtl->result() as $r){
 					$html .='<tr>
-						<td style="width:22%;padding:5px;border:1px solid #000">'.$r->nm_produk_lm.'</td>
-						<td style="width:10%;padding:5px;border:1px solid #000">'.$r->ukuran_lm.'</td>
-						<td style="width:8%;padding:5px;border:1px solid #000">'.number_format($r->isi_lm,0,',','.').'</td>
-						<td style="width:13%;padding:5px;border:1px solid #000">'.number_format($r->qty_bal,0,',','.').'</td>
-						<td style="width:5%;padding:5px;border:1px solid #000;border-right:0;text-align:left">Rp.</td>
-						<td style="width:10%;padding:5px;border:1px solid #000;border-left:0;text-align:right">'.number_format($r->harga_lembar_lm,0,',','.').'</td>
-						<td style="width:5%;padding:5px;border:1px solid #000;border-right:0;text-align:left">Rp.</td>
-						<td style="width:10%;padding:5px;border:1px solid #000;border-left:0;text-align:right">'.number_format($r->harga_pori_lm,0,',','.').'</td>
-						<td style="width:5%;padding:5px;border:1px solid #000;border-right:0;text-align:left">Rp.</td>
-						<td style="width:12%;padding:5px;border:1px solid #000;border-left:0;text-align:right">'.number_format($r->harga_total_lm,0,',','.').'</td>
+						<td style="width:22%;padding:7px 5px;border:1px solid #000">'.$r->nm_produk_lm.'</td>
+						<td style="width:10%;padding:7px 5px;border:1px solid #000">'.$r->ukuran_lm.'</td>
+						<td style="width:8%;padding:7px 5px;border:1px solid #000">'.number_format($r->isi_lm,0,',','.').'</td>
+						<td style="width:13%;padding:7px 5px;border:1px solid #000">'.number_format($r->qty_bal,0,',','.').'</td>
+						<td style="width:5%;padding:7px 5px;border:1px solid #000;border-right:0;text-align:left">Rp.</td>
+						<td style="width:10%;padding:7px 5px;border:1px solid #000;border-left:0;text-align:right">'.number_format($r->harga_lembar_lm,0,',','.').'</td>
+						<td style="width:5%;padding:7px 5px;border:1px solid #000;border-right:0;text-align:left">Rp.</td>
+						<td style="width:10%;padding:7px 5px;border:1px solid #000;border-left:0;text-align:right">'.number_format($r->harga_pori_lm,0,',','.').'</td>
+						<td style="width:5%;padding:7px 5px;border:1px solid #000;border-right:0;text-align:left">Rp.</td>
+						<td style="width:12%;padding:7px 5px;border:1px solid #000;border-left:0;text-align:right">'.number_format($r->harga_total_lm,0,',','.').'</td>
 					</tr>';
 				}
 				if($po_lm->note_po_lm != ''){
 					$html .='<tr>
-						<td style="text-align:left;padding-top:2px" colspan="10">NOTE : '.$po_lm->note_po_lm.'</td>
+						<td style="text-align:left;padding-top:3px" colspan="10">NOTE : '.$po_lm->note_po_lm.'</td>
 					</tr>';
 				}
 			$html .='</tbody>';
@@ -1406,7 +1405,7 @@ class Transaksi extends CI_Controller
 				<td style="border:2px solid #2f75b5;padding:30px"></td>
 				<td style="border:2px solid #2f75b5;padding:30px" colspan="2"></td>
 				<td></td>
-				<td style="padding:3px;text-align:left;color:#000;font-weight:normal;vertical-align:top">'.$po_lm->nm_pelanggan_lm.'</td>
+				<td style="padding:15px 3px 3px;text-align:left;color:#000;font-weight:normal;vertical-align:top">'.$po_lm->nm_pelanggan_lm.'</td>
 			</tr>
 			<tr>
 				<td style="border:2px solid #2f75b5">MANAGER</td>
@@ -1414,8 +1413,8 @@ class Transaksi extends CI_Controller
 			</tr>';
 		$html .= '</table>';
 		
-		$judul = 'LAPORAN PO LAMINASI';
-		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
+		$judul = 'PO: '.$po_lm->no_po_lm.' - '.$po_lm->nm_pelanggan_lm;
+		$this->m_fungsi->newMpdf($judul, 'cetak', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 	}
 
 	function hapus()
