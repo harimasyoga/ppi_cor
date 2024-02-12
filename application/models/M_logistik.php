@@ -77,9 +77,10 @@ class M_logistik extends CI_Model
 				$cek = $this->input->post('aksi['.$no.']');
 				if($cek == 1)
 				{
-					$harga_ok   = $this->input->post('hrg['.$no.']');
-					$hasil_ok   = $this->input->post('hasil['.$no.']');
-					$id_pl_roll = $this->input->post('id_pl_roll['.$no.']');
+					$harga_ok    = $this->input->post('hrg['.$no.']');
+					$harga_inc   = $this->input->post('inc['.$no.']');
+					$hasil_ok    = $this->input->post('hasil['.$no.']');
+					$id_pl_roll  = $this->input->post('id_pl_roll['.$no.']');
 					$data = [					
 						'no_invoice'   => $m_no_inv,
 						'type'         => $type,
@@ -91,6 +92,7 @@ class M_logistik extends CI_Model
 						'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
 						'id_pl'        => $id_pl_roll,
 						'harga'        => str_replace('.','',$harga_ok),
+						'include'      => str_replace('.','',$harga_inc),
 						'weight'       => $this->input->post('weight['.$no.']'),
 						'seset'        => $this->input->post('seset['.$no.']'),
 						'hasil'        => str_replace('.','',$hasil_ok),
@@ -128,9 +130,10 @@ class M_logistik extends CI_Model
 				$cek = $this->input->post('aksi['.$no.']');
 				if($cek == 1)
 				{
-					$harga_ok   = $this->input->post('hrg['.$no.']');
-					$hasil_ok   = $this->input->post('hasil['.$no.']');
-					$id_pl_roll = $this->input->post('id_pl_roll['.$no.']');
+					$harga_ok    = $this->input->post('hrg['.$no.']');
+					$harga_inc   = $this->input->post('inc['.$no.']');
+					$hasil_ok    = $this->input->post('hasil['.$no.']');
+					$id_pl_roll  = $this->input->post('id_pl_roll['.$no.']');
 					$data = [					
 						'no_invoice'   => $m_no_inv,
 						'type'         => $type,
@@ -142,6 +145,7 @@ class M_logistik extends CI_Model
 						'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
 						'id_pl'        => $id_pl_roll,
 						'harga'        => str_replace('.','',$harga_ok),
+						'include'      => str_replace('.','',$harga_inc),
 						'hasil'        => str_replace('.','',$hasil_ok),
 						'no_po'        => $this->input->post('no_po['.$no.']'),
 					];

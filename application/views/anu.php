@@ -23,7 +23,7 @@
             <!-- herr mulai -->
 
             <div class="container-fluid invoice-container">        
-                <!-- <div class="row invoice-header">
+                <div class="row invoice-header">
                     <div class="invoice-col">
 
                         <p><img src="https://herza.id/wp-content/uploads/2023/05/Logo-500px.png" title="PT Herza Digital Indonesia" /></p>
@@ -77,63 +77,61 @@
                             Monday, January 29th, 2024<br><br>
                         </span>
                     </div>
-                </div> -->
+                </div>
 
                 <br />
 
 
 
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title"><strong>Invoice Items</strong></h3>
+                <div class="card card-default">
+                    <div class="card-header">
+                        <h3 class="card-title"><strong>Invoice Items</strong></h3>
                     </div>
-                    <div class="panel-body">
+                    <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-condensed">
-                                <thead>
-                                    <tr>
+                                <tbody>
+                                    <tr style="border:none">
                                         <td><strong>Deskripsi</strong></td>
                                         <td width="20%" class="text-center"><strong>Jumlah</strong></td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                                                        <tr>
-                                            <td>eCommerce - arthakarunia.com (29/01/2024 - 28/01/2025) *</td>
-                                            <td class="text-center">Rp. 550,000</td>
-                                        </tr>
-                                                                        <tr>
-                                            <td>Produk Tambahan (arthakarunia.com) - SSL Certificates - Comodo EssentialSSL (29/01/2024 - 28/01/2025)</td>
-                                            <td class="text-center">Rp. 273,000</td>
-                                        </tr>
-                                                                        <tr>
-                                            <td>Produk Tambahan (arthakarunia.com) - SSL Certificates - RapidSSL (29/01/2024 - 28/01/2025) *</td>
-                                            <td class="text-center">Rp. 220,000</td>
-                                        </tr>
-                                                                        <tr>
-                                            <td>Produk Tambahan (arthakarunia.com) - SiteLock - Lite (29/01/2024 - 28/02/2024) *</td>
-                                            <td class="text-center">Rp. 0</td>
-                                        </tr>
-                                                                        <tr>
-                                            <td>Domain Registration - arthakarunia.com - 1 Tahun/s (29/01/2024 - 28/01/2025)<br />
-                + DNS Management<br />
-                + ID Protection *</td>
+                                    <tr>
+                                        <td>eCommerce Business Hosting Server SG - sumbersinarberkat.com (05/02/2024 - 04/02/2025) *</td>
+                                        <td class="text-center">Rp. 1.550,000</td>
+                                    </tr>
+                                                                    <tr>
+                                        <td>Produk Tambahan (sumbersinarberkat.com) - SSL Certificates - Geotrust True BusinessID (05/02/2024 - 04/02/2025)</td>
+                                        <td class="text-center">Rp. 1.273,000</td>
+                                    </tr>
+                                                                    <tr>
+                                        <td>Produk Tambahan (sumbersinarberkat.com) - SSL Certificates - SSL Secure Site (05/02/2024 - 04/02/2025) *</td>
+                                        <td class="text-center">Rp. 620,000</td>
+                                    </tr>
+                                                                    <tr>
+                                        <td>Produk Tambahan (sumbersinarberkat.com) - SiteLock - Lite Fix (05/02/2024 - 04/02/2025) *</td>
+                                        <td class="text-center">Rp. 550,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Domain Registration - sumbersinarberkat.com - 1 Tahun/s (05/02/2024 - 04/02/2025)<br />
+                                        + DNS Management<br />
+                                        + ID Protection *</td>
                                             <td class="text-center">Rp. 80,000</td>
                                         </tr>
-                                                                    <tr>
+                                    <tr>
                                         <td class="total-row text-right"><strong>Sub Total</strong></td>
-                                        <td class="total-row text-center">Rp. 1,123,000</td>
+                                        <td class="total-row text-center">Rp. 4,073,000</td>
                                     </tr>
-                                                                        <tr>
-                                            <td class="total-row text-right"><strong>11.00% PPN</strong></td>
-                                            <td class="total-row text-center">Rp. 93,500</td>
-                                        </tr>
-                                                                                                    <tr>
+                                    <tr>
+                                        <td class="total-row text-right"><strong>11.00% PPN</strong></td>
+                                        <td class="total-row text-center">Rp. 448,030</td>
+                                    </tr>
+                                                                                                                                  <tr>
                                         <td class="total-row text-right"><strong>Kredit</strong></td>
                                         <td class="total-row text-center">Rp. 0</td>
                                     </tr>
                                     <tr>
                                         <td class="total-row text-right"><strong>Total</strong></td>
-                                        <td class="total-row text-center">Rp. 1,216,500</td>
+                                        <td class="total-row text-center">Rp. 4,521,030</td>
                                     </tr>
                                 </tbody>
                             </table>
