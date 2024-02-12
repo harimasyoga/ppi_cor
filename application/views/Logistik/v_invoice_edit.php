@@ -519,7 +519,7 @@
 							berat_total += parseInt(val.qty);
 							no ++;
 						})
-						list += `<td style="text-align: center" colspan="7">TOTAL
+						list += `<td style="text-align: center" colspan="8">TOTAL
 								</td>
 								<td style="text-align: center" >${format_angka(berat_total)}
 								</td>
