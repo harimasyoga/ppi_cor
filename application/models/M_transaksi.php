@@ -1211,6 +1211,7 @@ class M_transaksi extends CI_Model
 				'id_pelanggan' => $_POST["customer"],
 				'id_sales' => $_POST["id_sales"],
 				'no_po_lm' => $_POST["no_po"],
+				'note_po_lm' => $_POST["note_po_lm"],
 				'add_time' => date('Y-m-d H:i:s'),
 				'add_user' => $this->username,
 			];
@@ -1222,13 +1223,15 @@ class M_transaksi extends CI_Model
 		if($insertPO){
 			foreach($this->cart->contents() as $r){
 				$data = array(
+					'id_m_produk_lm' => $r['options']['item'],
 					'no_po_lm' => $r['options']['no_po'],
-					'nm_item_lm' => $r['options']['item'],
-					'size_lm' => $r['options']['size'],
-					'sheet_lm' => $r['options']['sheet'],
-					'qty_lm' => $r['options']['qty'],
-					'tgl_order_lm' => $r['options']['date_order'],
-					'harga_lm' => $r['options']['harga'],
+					'order_sheet_lm' => $r['options']['order_sheet'],
+					'jenis_order_lm' => $r['options']['jenis_qty_lm'],
+					'order_pori_lm' => $r['options']['order_pori'],
+					'qty_bal' => $r['options']['qty_bal'],
+					'harga_lembar_lm' => $r['options']['harga_lembar'],
+					'harga_pori_lm' => $r['options']['harga_pori'],
+					'harga_total_lm' => $r['options']['harga_total'],
 					'add_time' => date('Y-m-d H:i:s'),
 					'add_user' => $this->username,
 				);
@@ -1241,21 +1244,57 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function btnVerifLaminasi()
+	{
+		if($_POST["ket_laminasi"] == '' && ($_POST["aksi"] == 'H' || $_POST["aksi"] == 'R')){
+			$result = false;
+		}else{
+			if($_POST["aksi"] == 'H'){
+				$status = 'Open';
+			}else if($_POST["aksi"] == 'R'){
+				$status = 'Reject';
+			}else if($_POST["aksi"] == 'Y' && $_POST["status_verif"] == 'marketing'){
+				$status = 'Open';
+			}else{
+				$status = 'Approve';
+			}
+			($_POST["status_verif"] == 'marketing') ? $i = 1 : $i = 2 ;
+
+			$this->db->set('status_lm', $status);
+			$this->db->set('status_lm'.$i, $_POST["aksi"]);
+			$this->db->set('user_lm'.$i, $this->username);
+			$this->db->set('time_lm'.$i, date('Y-m-d H:i:s'));
+			$this->db->set('ket_lm'.$i, ($_POST["aksi"] == 'Y' && $_POST["ket_laminasi"] == '') ? 'OK' : $_POST["ket_laminasi"]);
+			$this->db->where('id', $_POST["id_po_lm"]);
+			$result = $this->db->update('trs_po_lm');
+		}
+
+		return $result;
+	}
+
 	function editListLaminasi()
 	{
-		$editData = array(
-			'no_po_lm' => $_POST['no_po'],
-			'nm_item_lm' => $_POST['item'],
-			'size_lm' => $_POST['size'],
-			'sheet_lm' => $_POST['sheet'],
-			'qty_lm' => $_POST['qty'],
-			'tgl_order_lm' => $_POST['date_order'],
-			'harga_lm' => $_POST['harga'],
-			'edit_time' => date('Y-m-d H:i:s'),
-			'edit_user' => $this->username,
-		);
-		$this->db->where('id', $_POST["id_po_detail"]);
-		$updatePOdtl = $this->db->update('trs_po_lm_detail', $editData);
+		$this->db->set('edit_time', date('Y-m-d H:i:s'));
+		$this->db->set('edit_user', $this->username);
+		$this->db->where('id', $_POST["id_po_header"]);
+		$updatePO = $this->db->update('trs_po_lm');
+		
+		if($updatePO){
+			$editData = array(
+				// 'id_m_produk_lm' => $_POST[""],
+				'order_sheet_lm' => $_POST["order_sheet"],
+				'order_pori_lm' => $_POST["order_pori"],
+				'qty_bal' => $_POST["qty_bal"],
+				'harga_lembar_lm' => $_POST["harga_lembar"],
+				'harga_pori_lm' => $_POST["harga_pori"],
+				'harga_total_lm' => $_POST["harga_total"],
+				'edit_time' => date('Y-m-d H:i:s'),
+				'edit_user' => $this->username,
+			);
+			$this->db->where('id', $_POST["id_po_detail"]);
+			$updatePOdtl = $this->db->update('trs_po_lm_detail', $editData);
+		}
+
 		return [
 			'updatePOdtl' => $updatePOdtl,
 		];

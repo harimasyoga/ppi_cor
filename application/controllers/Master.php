@@ -45,6 +45,30 @@ class Master extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function Produk_Laminasi()
+	{
+
+		$data = array(
+			'judul' => "Master Produk Laminasi",
+		);
+
+		$this->load->view('header', $data);
+		$this->load->view('Master/v_produk_laminasi', $data);
+		$this->load->view('footer');
+	}
+
+	function simpanDataLaminasi()
+	{
+		$result = $this->m_master->simpanDataLaminasi();
+		echo json_encode($result);
+	}
+
+	function editDataLaminasi()
+	{
+		$result = $this->m_master->editDataLaminasi();
+		echo json_encode($result);
+	}
+
 	function Pelanggan()
 	{
 		$data = array(
@@ -305,6 +329,31 @@ class Master extends CI_Controller
 				$row[] = $btnEdit.' '.$btnHapus;
 				$data[] = $row;
 				$i++;
+			}
+		} else if ($jenis == "produk_laminasi") {
+			$query = $this->m_master->query("SELECT*FROM m_produk_lm ORDER BY nm_produk_lm")->result();
+			$i = 0;
+			foreach ($query as $r) {
+				$i++;
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = $r->nm_produk_lm;
+				$row[] = '<div class="text-center">'.$r->ukuran_lm.'</div>';
+				$row[] = '<div class="text-right">'.number_format($r->isi_lm,0,',','.').'</div>';
+
+				($r->jenis_qty_lm == 'pack') ? $qty = number_format($r->pack_lm,0,',','.') : $qty = number_format($r->ikat_lm,0,',','.').' <span style="font-size:12px;vertical-align:top;font-style:italic">( ikat )</span>';
+				$row[] = '<div class="text-right">'.$qty.'</div>';
+
+				if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+					$btnEdit = '<button type="button" class="btn btn-sm btn-warning" onclick="editDataLaminasi('."'".$r->id_produk_lm."'".')"><i class="fas fa-pen"></i></button>';
+					$btnHapus = '<button type="button" class="btn btn-sm btn-danger" style="padding:4px 10px" onclick="hapusDataLaminasi('."'".$r->id_produk_lm."'".')"><i class="fas fa-times"></i></button>';
+				}else{
+					$btnEdit = '';
+					$btnHapus = '';
+				}
+
+				$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
+				$data[] = $row;
 			}
 		} else if ($jenis == "produk") {
 			$query = $this->m_master->query("SELECT c.nm_pelanggan,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan ORDER BY nm_produk")->result();

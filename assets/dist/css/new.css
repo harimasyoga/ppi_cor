@@ -276,3 +276,30 @@
 	background: #E6E5E3;
 	color: #222;
 }
+
+.dropup {
+	position: relative;
+	display: inline-block;
+}
+
+.dropup-content {
+	display: none;
+	position: absolute;
+	bottom: 25px;
+	left: 25px;
+	z-index: 1;
+}
+
+.dropup-content .time-admin {
+	background-color: #333;
+	padding: 3px 6px;
+	color: #fff;
+	font-size: 14px;
+	text-decoration: none;
+	display: block;
+	border-radius: 4px;
+}
+
+.dropup:hover .dropup-content {
+	display: block;
+}
