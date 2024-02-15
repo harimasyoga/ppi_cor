@@ -118,6 +118,238 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function Surat_Jalan_Laminasi()
+	{
+		$data = [
+			'judul' => "Surat Jalan Laminasi",
+		];
+		$this->load->view('header',$data);
+		if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+			$this->load->view('Logistik/v_sj_laminasi');
+		}else{
+			$this->load->view('home');
+		}
+		$this->load->view('footer');
+	}
+
+	function addListPOLaminasi()
+	{
+		$id = $_POST["id"];
+
+		$po_lm = $this->db->query("SELECT po.*,pl.nm_pelanggan_lm FROM trs_po_lm po INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm WHERE id='$id'")->row();
+		$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.no_po_lm='$po_lm->no_po_lm'");
+
+		$html ='';
+		$html .='<table class="table table-bordered" style="margin:0">
+			<tr>
+				<th style="padding:6px" colspan="10">'.$po_lm->nm_pelanggan_lm.' - '.$po_lm->no_po_lm.'</th>
+			</tr>
+			<tr>
+				<th style="padding:6px;text-align:center">NO.</th>
+				<th style="padding:6px">ITEM</th>
+				<th style="padding:6px">SIZE</th>
+				<th style="padding:6px;text-align:center">@PACK</th>
+				<th style="padding:6px;text-align:center">@BAL</th>
+				<th style="padding:6px;text-align:center">ORDER SHEET</th>
+				<th style="padding:6px;text-align:center">ORDER</th>
+				<th style="padding:6px;text-align:center">QTY(BAL)</th>
+				<th style="padding:6px 12px;text-align:center;width:100px">MUAT</th>
+				<th style="padding:6px;text-align:center">AKSI</th>
+			</tr>';
+			$i = 0;
+			foreach($po_dtl->result() as $r){
+				$i++;
+
+				$kiriman = $this->db->query("SELECT*FROM m_rk_laminasi WHERE id_po_dtl='$r->id'");
+				if($kiriman->num_rows() == 0){
+					$rs = '';
+				}else{
+					$cnt = $kiriman->num_rows() + 2;
+					$rs = 'rowspan="'.$cnt.'"';
+				}
+
+				($r->jenis_qty_lm == 'pack') ? $ket = '( PACK )' : $ket = '( IKAT )';
+				($r->jenis_qty_lm == 'pack') ? $qty = $r->pack_lm : $qty = $r->ikat_lm;
+				$html .='<tr>
+					<td style="padding:6px;text-align:center">'.$i.'</td>
+					<td style="padding:6px">'.$r->nm_produk_lm.'</td>
+					<td style="padding:6px">'.$r->ukuran_lm.'</td>
+					<td style="padding:6px;text-align:right">'.number_format($r->isi_lm,0,",",".").' ( SHEET )</td>
+					<td style="padding:6px;text-align:right">'.number_format($qty,0,",",".").' '.$ket.'</td>
+					<td style="padding:6px;text-align:right">'.number_format($r->order_sheet_lm,0,",",".").'</td>
+					<td style="padding:6px;text-align:right">'.number_format($r->order_pori_lm,0,",",".").' '.$ket.'</td>
+					<td style="padding:6px;text-align:right">'.number_format($r->qty_bal,0,",",".").'</td>
+					<td style="padding:3px;vertical-align:bottom" '.$rs.'>
+						<input type="number" class="form-control" id="muat-'.$r->id.'" style="padding:3px;height:100%;text-align:right">
+						<input type="hidden" id="h_idpo-'.$r->id.'" value="'.$id.'">
+						<input type="hidden" id="h_id_pelanggan_lm-'.$r->id.'" value="'.$po_lm->id_pelanggan.'">
+						<input type="hidden" id="h_nm_pelanggan_lm-'.$r->id.'" value="'.$po_lm->nm_pelanggan_lm.'">
+						<input type="hidden" id="h_no_po_lm-'.$r->id.'" value="'.$po_lm->no_po_lm.'">
+					</td>
+					<td style="padding:3px;text-align:center;vertical-align:bottom" '.$rs.'>
+						<button class="btn btn-success btn-xs" onclick="addItemLaminasi('."'".$r->id."'".')"><i class="fas fa-plus"></i> ADD</button>
+					</td>
+				</tr>';
+				
+				// KIRIMAN
+				if($kiriman->num_rows() > 0){
+					$jmlMuat = 0;
+					foreach($kiriman->result() as $k){
+						$html .= '<tr>
+							<td style="padding:6px;border:0" colspan="7">-</td>
+							<td style="padding:6px;border:0;text-align:right">- '.$k->qty_muat.'</td>
+						</tr>';
+						$jmlMuat += $k->qty_muat;
+					}
+					$sisa = $r->qty_bal - $jmlMuat;
+					$html .='<tr>
+						<td style="padding:6px;border:0;font-weight:bold;text-align:right" colspan="7">SISA</td>
+						<td style="padding:6px;border:0;font-weight:bold;text-align:right">'.$sisa.'</td>
+					</tr>';
+				}else{
+					$html .= '';
+				}
+			}
+		$html .= '</table>';
+
+		echo json_encode([
+			'po_lm' => $po_lm,
+			'po_dtl' => $po_dtl->result(),
+			'html' => $html,
+		]);
+	}
+
+	function destroyLaminasi()
+	{
+		$this->cart->destroy();
+		echo '<span style="padding:6px;display:block">RENCANA KIRIM KOSONG!</span>';
+	}
+
+	function addItemLaminasi()
+	{
+		$id_dtl = $_POST["id_dtl"];
+		$muat = $_POST["muat"];
+
+		if($muat == '' || $muat == 0 || $muat < 0){
+			echo json_encode(array('data' => false, 'isi' => 'MUAT TIDAK BOLEH KOSONG'));
+		}else{
+			$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.id='$id_dtl'")->row();
+			($po_dtl->jenis_qty_lm == 'pack') ? $ket = '( PACK )' : $ket = '( IKAT )';
+			($po_dtl->jenis_qty_lm == 'pack') ? $qty = $po_dtl->pack_lm : $qty = $po_dtl->ikat_lm;
+
+			$data = array(
+				'id' => $_POST["id_dtl"],
+				'name' => 'name'.$_POST["id_dtl"],
+				'price' => 0,
+				'qty' => 1,
+				'options' => array(
+					'id_po' => $_POST["h_idpo"],
+					'id_pelanggan_lm' => $_POST["h_id_pelanggan_lm"],
+					'nm_pelanggan_lm' => $_POST["h_nm_pelanggan_lm"],
+					'no_po_lm' => $_POST["h_no_po_lm"],
+					'id_dtl' => $_POST["id_dtl"],
+					'muat' => $_POST["muat"],
+					'nm_produk_lm' => $po_dtl->nm_produk_lm,
+					'ukuran_lm' => $po_dtl->ukuran_lm,
+					'isi_lm' => $po_dtl->isi_lm,
+					'qty' => number_format($qty,0,',','.').' '.$ket,
+					'order_sheet_lm' => $po_dtl->order_sheet_lm,
+					'order_pori_lm' => number_format($po_dtl->order_pori_lm,0,',','.').' '.$ket,
+					'qty_bal' => $po_dtl->qty_bal,
+				)
+			);
+
+			if($muat > $po_dtl->qty_bal){
+				echo json_encode(array('data' => true, 'isi' => 'MUAT LEBIH BESAR DARI PADA QTY PO!'));
+			}else if($this->cart->total_items() != 0){
+				foreach($this->cart->contents() as $r){
+					if($r['options']['id_dtl'] == $_POST["id_dtl"]){
+						echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
+						return;
+					}
+				}
+				$this->cart->insert($data);
+				echo json_encode(array('data' => true, 'isi' => $data));
+			}else{
+				$this->cart->insert($data);
+				echo json_encode(array('data' => true, 'isi' => $data));
+			}
+		}
+	}
+
+	function loadItemLaminasi()
+	{
+		$html = '';
+		if($this->cart->total_items() == 0){
+			$html .= '<span style="padding:6px;display:block">RENCANA KIRIM KOSONG!</span>';
+		}
+
+		if($this->cart->total_items() != 0){
+			$html .='<table class="table table-bordered table-striped" style="margin:0">
+				<tr>
+					<th style="padding:6px;text-align:center">NO.</th>
+					<th style="padding:6px">CUSTOMER</th>
+					<th style="padding:6px">NO. PO</th>
+					<th style="padding:6px">ITEM</th>
+					<th style="padding:6px">SIZE</th>
+					<th style="padding:6px;text-align:center">@PACK</th>
+					<th style="padding:6px;text-align:center">@BAL</th>
+					<th style="padding:6px;text-align:center">ORDER SHEET</th>
+					<th style="padding:6px;text-align:center">ORDER</th>
+					<th style="padding:6px;text-align:center">QTY(BAL)</th>
+					<th style="padding:6px;text-align:center">MUAT</th>
+					<th style="padding:6px;text-align:center">-+</th>
+					<th style="padding:6px;text-align:center">AKSI</th>
+				</tr>';
+		}
+		
+		$i= 0;
+		foreach($this->cart->contents() as $r){
+			$i++;
+			$html .='<tr>
+				<td style="padding:6px;text-align:center">'.$i.'</td>
+				<td style="padding:6px">'.$r["options"]["nm_pelanggan_lm"].'</td>
+				<td style="padding:6px">'.$r["options"]["no_po_lm"].'</td>
+				<td style="padding:6px">'.$r["options"]["nm_produk_lm"].'</td>
+				<td style="padding:6px">'.$r["options"]["ukuran_lm"].'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r["options"]["isi_lm"],0,",",".").' ( SHEET )</td>
+				<td style="padding:6px;text-align:right">'.$r["options"]["qty"].'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r["options"]["order_sheet_lm"],0,",",".").'</td>
+				<td style="padding:6px;text-align:right">'.$r["options"]["order_pori_lm"].'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r["options"]["qty_bal"],0,",",".").'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r["options"]["muat"],0,",",".").'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r["options"]["qty_bal"] - $r["options"]["muat"],0,",",".").'</td>
+				<td style="padding:3px;text-align:center">
+					<button class="btn btn-danger btn-xs" onclick="hapusItemLaminasi('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
+				</td>
+			</tr>';
+		}
+
+		if($this->cart->total_items() != 0){
+			$html .= '</table>';
+			$html .= '<div style="position:sticky;left:0;padding:6px">
+				<button class="btn btn-primary btn-xs" onclick="simpanCartLaminasi()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
+			</div>';
+		}
+
+		echo $html;
+	}
+
+	function hapusItemLaminasi()
+	{
+		$data = array(
+			'rowid' => $_POST['rowid'],
+			'qty' => 0,
+		);
+		$this->cart->update($data);
+	}
+
+	function simpanCartLaminasi()
+	{
+		$result = $this->m_logistik->simpanCartLaminasi();
+		echo json_encode($result);
+	}
+
 	function load_produk()
     {
         

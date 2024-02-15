@@ -557,6 +557,51 @@ class M_logistik extends CI_Model
 
 	//
 
+	function simpanCartLaminasi()
+	{
+		// $data = array(
+		// 	'id' => $_POST["id_dtl"],
+		// 	'name' => 'name'.$_POST["id_dtl"],
+		// 	'price' => 0,
+		// 	'qty' => 1,
+		// 	'options' => array(
+		// 		'id_po' => $_POST["h_idpo"],
+		// 		'id_pelanggan_lm' => $_POST["h_id_pelanggan_lm"],
+		// 		'nm_pelanggan_lm' => $_POST["h_nm_pelanggan_lm"],
+		// 		'no_po_lm' => $_POST["h_no_po_lm"],
+		// 		'id_dtl' => $_POST["id_dtl"],
+		// 		'muat' => $_POST["muat"],
+		// 		'nm_produk_lm' => $po_dtl->nm_produk_lm,
+		// 		'ukuran_lm' => $po_dtl->ukuran_lm,
+		// 		'isi_lm' => $po_dtl->isi_lm,
+		// 		'qty' => number_format($qty,0,',','.').' '.$ket,
+		// 		'order_sheet_lm' => $po_dtl->order_sheet_lm,
+		// 		'order_pori_lm' => number_format($po_dtl->order_pori_lm,0,',','.').' '.$ket,
+		// 		'qty_bal' => $po_dtl->qty_bal,
+		// 	)
+		// );
+		foreach($this->cart->contents() as $r){
+			// id  rk_tgl  id_pelanggan_lm  id_po_lm  id_po_dtl  rk_no_po  qty_muat  rk_status  rk_urut  id_pl_lm  
+			$data = array(
+				'rk_tgl' => date('Y-m-d'),
+				'id_pelanggan_lm' => $r["options"]["id_pelanggan_lm"],
+				'id_po_lm' => $r["options"]["id_po"],
+				'id_po_dtl' => $r["options"]["id_dtl"],
+				'rk_no_po' => $r["options"]["no_po_lm"],
+				'qty_muat' => $r["options"]["muat"],
+				'rk_status' => 'Open',
+				'rk_urut' => 0,
+			);
+			$insertRK = $this->db->insert('m_rk_laminasi', $data);
+		}
+
+		return [
+			'insertRK' => $insertRK,
+		];
+	}
+
+	//
+
 	function simpanTimbangan_2()
 	{
 		$no_timbangan   = $this->m_fungsi->urut_transaksi('TIMBANGAN').'/TIMBANGAN';

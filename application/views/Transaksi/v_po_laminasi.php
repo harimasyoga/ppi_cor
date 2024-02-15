@@ -314,6 +314,9 @@
 			"ajax": {
 				"url": '<?php echo base_url('Transaksi/load_data/trs_po_laminasi')?>',
 				"type": "POST",
+				"data": ({
+					po: 'list',
+				}),
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],
