@@ -50,16 +50,27 @@
 				</div>
 			</div>
 
-			<div class="row">
+			<div class="row row-list-po" style="display: none;">
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST PO</h3>
 						</div>
-						<div class="card-body" style="padding:0">
-							<div class="list-po-sj-laminasi" style="overflow:auto;white-space:nowrap">
-								<span style="padding:6px;display:block">LIST PO KOSONG!</span>
-							</div>
+						<div class="card-body" style="padding:6px">
+							<div class="list-po-sj-laminasi" style="overflow:auto;white-space:nowrap">LIST PO KOSONG!</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row row-input-rk" style="display: none;">
+				<div class="col-md-12">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT RENCANA KIRIM</h3>
+						</div>
+						<div class="card-body" style="padding:6px">
+							<div class="list-rencana-sj-laminasi" style="overflow:auto;white-space:nowrap"></div>
 						</div>
 					</div>
 				</div>
@@ -69,12 +80,10 @@
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">RENCANA KIRIM</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST RENCANA KIRIM</h3>
 						</div>
-						<div class="card-body" style="padding:0">
-							<div class="list-rencana-sj-laminasi" style="overflow:auto;white-space:nowrap">
-								<span style="padding:6px;display:block">RENCANA KIRIM KOSONG!</span>
-							</div>
+						<div class="card-body" style="padding:6px">
+							<div class="list-rencana-kirim" style="overflow:auto;white-space:nowrap">LIST RENCANA KIRIM KOSONG!</div>
 						</div>
 					</div>
 				</div>
@@ -103,6 +112,7 @@
 		// kosong()
 		$(".list-rencana-sj-laminasi").load("<?php echo base_url('Logistik/destroyLaminasi') ?>")
 		load_data()
+		listRencanKirim()
 		$('.select2').select2();
 	});
 
@@ -139,15 +149,16 @@
 
 	function kosong()
 	{
-		statusInput = 'insert'
-
+		// statusInput = 'insert'
+		$(".list-rencana-sj-laminasi").load("<?php echo base_url('Logistik/destroyLaminasi') ?>")
+		$(".row-list-po").hide()
+		listRencanKirim()
 		swal.close()
 	}
 
 	function addListPOLaminasi(id)
 	{
-		console.log(id)
-		$(".list-po-sj-laminasi").html('<span style="padding:6px;display:block">MEMUAT . . .</span>')
+		$(".list-po-sj-laminasi").html('MEMUAT . . .')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/addListPOLaminasi')?>',
 			type: "POST",
@@ -164,6 +175,7 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
+				$(".row-list-po").show()
 				$(".list-po-sj-laminasi").html(data.html)
 				swal.close()
 			}
@@ -180,24 +192,53 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/addItemLaminasi')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id_dtl, muat, h_idpo, h_id_pelanggan_lm, h_nm_pelanggan_lm, h_no_po_lm
 			}),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
-				loadItemLaminasi()
+				if(data.total_items == 0){
+					$(".row-input-rk").hide()
+					swal.close()
+				}else{
+					$(".row-input-rk").show()
+					loadItemLaminasi()
+				}
 			}
 		})
 	}
 
 	function loadItemLaminasi()
 	{
+		$(".row-input-rk").show()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadItemLaminasi')?>',
 			type: "POST",
 			success: function(res){
 				$(".list-rencana-sj-laminasi").html(res)
+				swal.close()
+			}
+		})
+	}
+
+	function listRencanKirim()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Logistik/listRencanKirim')?>',
+			type: "POST",
+			success: function(res){
+				$(".list-rencana-kirim").html(res)
 			}
 		})
 	}
@@ -207,9 +248,26 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/hapusItemLaminasi')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ rowid }),
 			success: function(res){
-				loadItemLaminasi()
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.total_items == 0){
+					$(".row-input-rk").hide()
+					swal.close()
+				}else{
+					loadItemLaminasi()
+				}
 			}
 		})
 	}
@@ -219,9 +277,20 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/simpanCartLaminasi')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
+				kosong()
 			}
 		})
 	}
