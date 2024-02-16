@@ -195,17 +195,29 @@ class Logistik extends CI_Controller
 					$jmlMuat = 0;
 					$jmlMuat = 0;
 					foreach($kiriman->result() as $k){
+						$pl = $this->db->query("SELECT*FROM pl_laminasi pl
+						INNER JOIN m_rk_laminasi i ON pl.tgl=i.rk_tgl AND pl.id_perusahaan=i.id_pelanggan_lm AND pl.no_pl_urut=i.rk_urut
+						WHERE i.rk_tgl='$k->rk_tgl' AND i.id_pelanggan_lm='$k->id_pelanggan_lm' AND i.id_po_lm='$k->id_po_lm' AND i.id_po_dtl='$k->id_po_dtl' AND i.rk_no_po='$k->rk_no_po' AND i.rk_urut!='0'");
+						if($pl->num_rows() == 0){
+							$t_tgl = '';
+							$t_btn = 'btn-info';
+							$t_text = 'RENCANA KIRIM';
+							$t_hapus = '<button type="button" class="btn btn-danger btn-block btn-xs" onclick="hapusListItemLaminasi('."'".$k->id."'".','."'LIST'".')">Hapus</button>';
+						}else{
+							$t_tgl = substr($this->m_fungsi->getHariIni($k->rk_tgl),0,3).', '.$this->m_fungsi->tglIndSkt($k->rk_tgl);
+							$t_btn = 'btn-success';
+							$t_text = 'SURAT JALAN';
+							$t_hapus = '';
+						}
 						$html .= '<tr>
-							<td style="padding:6px;border:0;text-align:right" colspan="5">'.substr($this->m_fungsi->getHariIni($k->rk_tgl),0,3).', '.$this->m_fungsi->tglIndSkt($k->rk_tgl).'</td>
+							<td style="padding:6px;border:0;text-align:right" colspan="5">'.$t_tgl.'</td>
 							<td style="padding:6px;border:0;text-align:right">- '.number_format(($r->isi_lm * $qty) * $k->qty_muat,0,',','.').'</td>
 							<td style="padding:6px;border:0;text-align:right">- '.number_format($qty * $k->qty_muat,0,',','.').'</td>
 							<td style="padding:6px;border:0;text-align:right">- '.$k->qty_muat.'</td>
 							<td style="padding:6px;border:0">
-								<button type="button" class="btn btn-info btn-block btn-xs">RENCANA KIRIM</button>
+								<button type="button" class="btn '.$t_btn.' btn-block btn-xs">'.$t_text.'</button>
 							</td>
-							<td style="padding:6px;border:0">
-								<button type="button" class="btn btn-danger btn-block btn-xs" onclick="hapusListItemLaminasi('."'".$k->id."'".','."'LIST'".')">Hapus</button>
-							</td>
+							<td style="padding:6px;border:0">'.$t_hapus.'</td>
 						</tr>';
 						$orderLembar += ($r->isi_lm * $qty) * $k->qty_muat;
 						$orderBal += $qty * $k->qty_muat;
@@ -390,6 +402,7 @@ class Logistik extends CI_Controller
 		$tahun = substr(date('Y'),2,2);
 		$group = $this->db->query("SELECT rk.*,p.nm_pelanggan_lm FROM m_rk_laminasi rk
 		INNER JOIN m_pelanggan_lm p ON rk.id_pelanggan_lm=p.id_pelanggan_lm
+		WHERE rk.rk_urut='0'
 		GROUP BY rk.id_pelanggan_lm,rk.id_po_lm");
 		if($group->num_rows() == 0){
 			$html .='LIST RENCANA KIRIM KOSONG!';
@@ -415,7 +428,10 @@ class Logistik extends CI_Controller
 						<th style="background:#e8e9ec;padding:6px" colspan="3">PO : '.$g->rk_no_po.'</th>
 						<th style="background:#e8e9ec;padding:6px" colspan="4"></th>
 					</tr>';
-					$sj = str_pad(0+$j, 6, "0", STR_PAD_LEFT);
+
+					$noSJ = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat LIKE '%$tahun%' ORDER BY no_surat DESC LIMIT 1");
+					($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_surat,0,6);
+					$sj = str_pad($no+$j, 6, "0", STR_PAD_LEFT);
 					$html .='<tr>
 						<td style="padding:6px;border:0" colspan="2">TANGGAL <span style="float:right">:</span></td>
 						<td style="padding:6px;border:0" colspan="2">
@@ -445,7 +461,7 @@ class Logistik extends CI_Controller
 					INNER JOIN m_pelanggan_lm p ON rk.id_pelanggan_lm=p.id_pelanggan_lm
 					INNER JOIN trs_po_lm_detail dtl ON rk.id_po_dtl=dtl.id
 					INNER JOIN m_produk_lm lm ON dtl.id_m_produk_lm=lm.id_produk_lm
-					WHERE rk.rk_status='Open' AND rk.id_pelanggan_lm='$g->id_pelanggan_lm' AND rk.id_po_lm='$g->id_po_lm'
+					WHERE rk.rk_status='Open' AND rk.id_pelanggan_lm='$g->id_pelanggan_lm' AND rk.id_po_lm='$g->id_po_lm' AND rk.rk_urut='0'
 					ORDER BY p.nm_pelanggan_lm,dtl.no_po_lm,lm.id_produk_lm");
 					$i = 0;
 					foreach($data->result() as $r){
@@ -469,11 +485,13 @@ class Logistik extends CI_Controller
 						</tr>';
 					}
 
-					$html .='<tr>
-						<td style="padding:6px" colspan="9">
-							<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="kirimSJLaminasi('."'".$g->id_pelanggan_lm."'".','."'".$g->id_po_lm."'".')"><i class="fas fa-share"></i> KIRIM</button>
-						</td>
-					</tr>';
+					if($j == 1){
+						$html .='<tr>
+							<td style="padding:6px" colspan="9">
+								<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="kirimSJLaminasi('."'".$g->id_pelanggan_lm."'".','."'".$g->id_po_lm."'".')"><i class="fas fa-share"></i> KIRIM</button>
+							</td>
+						</tr>';
+					}
 				}
 			$html .= '</table>';
 		}
@@ -799,6 +817,24 @@ class Logistik extends CI_Controller
 					$aksi = '<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
 				}
 				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+				$i++;
+			}
+		}else if ($jenis == "load_data_sj") {
+			$plh_thn = $_POST["plh_thn"];
+			$tahun = substr($plh_thn,2,2);
+			$plh_customer = $_POST["plh_customer"];
+			if($plh_customer == ''){
+				$where = "WHERE no_surat LIKE '%$tahun%'";
+			}else{
+				$where = "WHERE id_perusahaan='$plh_customer' AND no_surat LIKE '%$tahun%'";
+			}
+			$query = $this->db->query("SELECT*FROM pl_laminasi $where GROUP BY no_surat DESC")->result();
+			$i = 1;
+			foreach ($query as $r) {
+				$row = array();
+				$row[] = '<div class="text-center">'.$r->no_surat.'</div>';
+				$row[] = '<div class="text-center">aksi</div>';
 				$data[] = $row;
 				$i++;
 			}

@@ -23,7 +23,67 @@
 		<div class="container-fluid">
 
 			<div class="row">
-				<div class="col-md-12">
+				<div class="col-md-5">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">SURAT JALAN</h3>
+							<div class="card-tools">
+								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+								<i class="fas fa-minus"></i></button>
+							</div>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
+							<div class="col-md-3">TAHUN</div>
+							<div class="col-md-9">
+								<select class="form-control select2" id="plh-thn" onchange="load_data_sj()">
+									<?php 
+									$thang = date("Y");
+									$thang_maks = $thang + 2;
+									$thang_min = $thang - 2;
+									for ($th = $thang_min; $th <= $thang_maks; $th++)
+									{ ?>
+										<?php if ($th==$thang) { ?>
+											<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+										<?php }else{ ?>
+											<option value="<?= $th ?>"> <?= $th ?> </option>
+										<?php }
+									} ?>
+								</select>
+							</div>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
+							<div class="col-md-3">CUSTOMER</div>
+							<div class="col-md-9">
+								<select class="form-control select2" id="plh-customer" onchange="load_data_sj()">
+									<?php
+										$query = $this->db->query("SELECT lm.*,s.nm_sales FROM m_pelanggan_lm lm INNER JOIN m_sales s ON lm.id_sales=s.id_sales ORDER BY nm_pelanggan_lm");
+										$html ='';
+										$html .='<option value="">SEMUA</option>';
+										foreach($query->result() as $r){
+											$html .='<option value="'.$r->id_pelanggan_lm.'" id_sales="'.$r->id_sales.'" nm_sales="'.$r->nm_sales.'">'.$r->nm_pelanggan_lm.'</option>';
+										}
+										echo $html
+									?>
+								</select>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 6px 6px">
+							<div class="col-md-12" style="overflow:auto;white-space:nowrap">
+								<table id="datatable1" class="table table-bordered table-striped">
+									<thead>
+										<tr>
+											<th style="width:95%;padding:12px;text-align:center">NO. SJ</th>
+											<th style="width:5%;padding:12px;text-align:center">AKSI</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-7">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">PO LAMINASI</h3>
@@ -116,6 +176,7 @@
 		// kosong()
 		$(".list-rencana-sj-laminasi").load("<?php echo base_url('Logistik/destroyLaminasi') ?>")
 		load_data()
+		load_data_sj()
 		listRencanKirim()
 		$('.select2').select2();
 	});
@@ -145,6 +206,40 @@
 			],	
 			responsive: false,
 			"pageLength": 10,
+			"language": {
+				"emptyTable": "TIDAK ADA DATA.."
+			}
+		})
+	}
+
+	function reloadTableSJ() {
+		table = $('#datatable1').DataTable();
+		tabel.ajax.reload(null, false);
+	}
+
+	function load_data_sj() {
+		let plh_thn = $("#plh-thn").val()
+		let plh_customer = $("#plh-customer").val()
+
+		let table = $('#datatable1').DataTable();
+		table.destroy();
+		tabel = $('#datatable1').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url": '<?php echo base_url('Logistik/load_data/load_data_sj')?>',
+				"type": "POST",
+				"data": ({
+					plh_thn, plh_customer
+				}),
+			},
+			"aLengthMenu": [
+				[5, 10, 50, 100, -1],
+				[5, 10, 50, 100, "Semua"]
+			],	
+			responsive: false,
+			"pageLength": 5,
 			"language": {
 				"emptyTable": "TIDAK ADA DATA.."
 			}
@@ -367,12 +462,24 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/kirimSJLaminasi')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id_pelanggan_lm, id_po_lm, tgl, no_sj, no_kendaraan
 			}),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
+				// swal.close()
+				kosong()
 			}
 		})
 	}

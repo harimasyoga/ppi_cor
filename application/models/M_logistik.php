@@ -561,7 +561,7 @@ class M_logistik extends CI_Model
 	{
 		foreach($this->cart->contents() as $r){
 			$data = array(
-				'rk_tgl' => date('Y-m-d'),
+				// 'rk_tgl' => date('Y-m-d'),
 				'id_pelanggan_lm' => $r["options"]["id_pelanggan_lm"],
 				'id_po_lm' => $r["options"]["id_po"],
 				'id_po_dtl' => $r["options"]["id_dtl"],
@@ -587,12 +587,39 @@ class M_logistik extends CI_Model
 		$no_kendaraan = $_POST["no_kendaraan"];
 
 		// UPDATE RK URUT
-		$cekUrut = $this->db->query("SELECT*FROM m_rk_laminasi WHERE rk_tgl='$tgl' GROUP BY rk_urut DESC LIMIT 1")->row();
-		// $this->db->set('rk_urut', );
-		// $this->db->where('id_pelanggan_lm', );
-		// $this->db->where('id_po_lm', );
+		$cekUrut = $this->db->query("SELECT*FROM m_rk_laminasi WHERE rk_tgl='$tgl' GROUP BY rk_urut DESC LIMIT 1");
+		($cekUrut->num_rows() == 0) ? $rk_urut = 1 : $rk_urut = $cekUrut->row()->rk_urut + 1;
+		$this->db->set('rk_tgl', $tgl);
+		$this->db->set('rk_urut', $rk_urut);
+		$this->db->where('id_pelanggan_lm', $id_pelanggan_lm);
+		$this->db->where('id_po_lm', $id_po_lm);
+		$this->db->where('rk_urut', 0);
+		$urut = $this->db->update('m_rk_laminasi');
+		// INSERT PACKING LIST
+		if($urut){
+			$no_po = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id_po_lm'")->row();
+			$tahun = substr(date('Y'),2,2);
+			$pl = array(
+				'id_perusahaan' => $id_pelanggan_lm,
+				'tgl' => $tgl,
+				'no_surat' => $no_sj.'/'.$tahun.'/LM',
+				'no_kendaraan' => $no_kendaraan,
+				'no_po' => $no_po->no_po_lm,
+				'sj' => 'Open',
+				'sj_blk' => NULL,
+				'pajak' => NULL,
+				'no_pl_inv' => 0,
+				'no_pl_urut' => $rk_urut,
+				'cetak_sj' => 'not',
+			);
+			$insertPL = $this->db->insert('pl_laminasi', $pl);
+			// UPDATE ID PL DI
+		}
+
 		return [
-			'cekUrut' => $cekUrut->rk_urut,
+			'1cekUrut' => $rk_urut,
+			'2urut' => $urut,
+			'3insertPL' => $insertPL,
 		];
 	}
 
