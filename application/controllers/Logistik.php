@@ -159,17 +159,21 @@ class Logistik extends CI_Controller
 			$i = 0;
 			foreach($po_dtl->result() as $r){
 				$i++;
-
 				$kiriman = $this->db->query("SELECT*FROM m_rk_laminasi WHERE id_po_dtl='$r->id'");
-				if($kiriman->num_rows() == 0){
-					$border = '';
-					$rs = '';
-				}else{
-					$border = ';border:0';
-					$cnt = $kiriman->num_rows() + 2;
-					$rs = 'rowspan="'.$cnt.'"';
-				}
 
+				($kiriman->num_rows() == 0) ? $border = '' : $border = ';border:0;border-bottom:1px solid #343a40';
+				$inputan = '<td style="padding:6px'.$border.'">
+					<input type="number" class="form-control" id="muat-'.$r->id.'" style="padding:3px;height:100%;text-align:right">
+					<input type="hidden" id="h_idpo-'.$r->id.'" value="'.$id.'">
+					<input type="hidden" id="h_id_pelanggan_lm-'.$r->id.'" value="'.$po_lm->id_pelanggan.'">
+					<input type="hidden" id="h_nm_pelanggan_lm-'.$r->id.'" value="'.$po_lm->nm_pelanggan_lm.'">
+					<input type="hidden" id="h_no_po_lm-'.$r->id.'" value="'.$po_lm->no_po_lm.'">
+				</td>
+				<td style="padding:6px;text-align:center'.$border.'">
+					<button class="btn btn-success btn-block btn-xs" onclick="addItemLaminasi('."'".$r->id."'".')"><i class="fas fa-plus"></i> ADD</button>
+				</td>';
+
+				($kiriman->num_rows() == 0) ? $btnAksi = $inputan : $btnAksi = '<td colspan="2"></td>';
 				($r->jenis_qty_lm == 'pack') ? $ket = '( PACK )' : $ket = '( IKAT )';
 				($r->jenis_qty_lm == 'pack') ? $qty = $r->pack_lm : $qty = $r->ikat_lm;
 				$html .='<tr>
@@ -181,16 +185,7 @@ class Logistik extends CI_Controller
 					<td style="padding:6px;text-align:right">'.number_format($r->order_sheet_lm,0,",",".").'</td>
 					<td style="padding:6px;text-align:right">'.number_format($r->order_pori_lm,0,",",".").' '.$ket.'</td>
 					<td style="padding:6px;text-align:right">'.number_format($r->qty_bal,0,",",".").'</td>
-					<td style="padding:3px;vertical-align:bottom'.$border.'" '.$rs.'>
-						<input type="number" class="form-control" id="muat-'.$r->id.'" style="padding:3px;height:100%;text-align:right">
-						<input type="hidden" id="h_idpo-'.$r->id.'" value="'.$id.'">
-						<input type="hidden" id="h_id_pelanggan_lm-'.$r->id.'" value="'.$po_lm->id_pelanggan.'">
-						<input type="hidden" id="h_nm_pelanggan_lm-'.$r->id.'" value="'.$po_lm->nm_pelanggan_lm.'">
-						<input type="hidden" id="h_no_po_lm-'.$r->id.'" value="'.$po_lm->no_po_lm.'">
-					</td>
-					<td style="padding:3px;text-align:center;vertical-align:bottom'.$border.'" '.$rs.'>
-						<button class="btn btn-success btn-xs" onclick="addItemLaminasi('."'".$r->id."'".')"><i class="fas fa-plus"></i> ADD</button>
-					</td>
+					'.$btnAksi.'
 				</tr>';
 				
 				// KIRIMAN
@@ -201,10 +196,16 @@ class Logistik extends CI_Controller
 					$jmlMuat = 0;
 					foreach($kiriman->result() as $k){
 						$html .= '<tr>
-							<td style="padding:6px;border:0" colspan="5"></td>
+							<td style="padding:6px;border:0;text-align:right" colspan="5">'.substr($this->m_fungsi->getHariIni($k->rk_tgl),0,3).', '.$this->m_fungsi->tglIndSkt($k->rk_tgl).'</td>
 							<td style="padding:6px;border:0;text-align:right">- '.number_format(($r->isi_lm * $qty) * $k->qty_muat,0,',','.').'</td>
 							<td style="padding:6px;border:0;text-align:right">- '.number_format($qty * $k->qty_muat,0,',','.').'</td>
 							<td style="padding:6px;border:0;text-align:right">- '.$k->qty_muat.'</td>
+							<td style="padding:6px;border:0">
+								<button type="button" class="btn btn-info btn-block btn-xs">RENCANA KIRIM</button>
+							</td>
+							<td style="padding:6px;border:0">
+								<button type="button" class="btn btn-danger btn-block btn-xs" onclick="hapusListItemLaminasi('."'".$k->id."'".','."'LIST'".')">Hapus</button>
+							</td>
 						</tr>';
 						$orderLembar += ($r->isi_lm * $qty) * $k->qty_muat;
 						$orderBal += $qty * $k->qty_muat;
@@ -216,6 +217,7 @@ class Logistik extends CI_Controller
 						<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40">'.number_format($r->order_sheet_lm - $orderLembar,0,',','.').'</td>
 						<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40">'.number_format($r->order_pori_lm - $orderBal,0,',','.').'</td>
 						<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40">'.number_format($sisa,0,',','.').'</td>
+						'.$inputan.'
 					</tr>';
 				}else{
 					$html .= '';
@@ -384,17 +386,17 @@ class Logistik extends CI_Controller
 	function listRencanKirim()
 	{
 		$html ='';
-
-		$urut = $this->db->query("SELECT rk_urut FROM m_rk_laminasi WHERE rk_status='Open' GROUP BY rk_urut");
-
-		if($urut->num_rows() == 0){
+		$tgl = date('Y-m-d');
+		$tahun = substr(date('Y'),2,2);
+		$group = $this->db->query("SELECT rk.*,p.nm_pelanggan_lm FROM m_rk_laminasi rk
+		INNER JOIN m_pelanggan_lm p ON rk.id_pelanggan_lm=p.id_pelanggan_lm
+		GROUP BY rk.id_pelanggan_lm,rk.id_po_lm");
+		if($group->num_rows() == 0){
 			$html .='LIST RENCANA KIRIM KOSONG!';
 		}else{
-			$html .='<table class="table table-bordered table-striped" style="margin:0">
-				<tr style="border-bottom:3px solid #6c757d">
+			$html .='<table class="table table-bordered" style="margin:0">
+				<tr style="background:#f8f9fc">
 					<th style="padding:6px;text-align:center">#</th>
-					<th style="padding:6px">CUSTOMER</th>
-					<th style="padding:6px">NO. PO</th>
 					<th style="padding:6px">ITEM</th>
 					<th style="padding:6px">SIZE</th>
 					<th style="padding:6px;text-align:center">@PACK</th>
@@ -405,25 +407,55 @@ class Logistik extends CI_Controller
 					<th style="padding:6px;text-align:center">AKSI</th>
 				</tr>';
 
-				foreach($urut->result() as $u){
-					$html .='<tr>
-						<td style="background:#6c757d;color:#fff;font-weight:bold;padding:6px" colspan="11">'.$u->rk_urut.'</td>
+				$j = 0;
+				foreach($group->result() as $g){
+					$j++;
+					$html .='<tr style="border-top:3px solid #6c757d">
+						<th style="background:#e8e9ec;padding:6px" colspan="2">'.$g->nm_pelanggan_lm.'</th>
+						<th style="background:#e8e9ec;padding:6px" colspan="3">PO : '.$g->rk_no_po.'</th>
+						<th style="background:#e8e9ec;padding:6px" colspan="4"></th>
 					</tr>';
-					$data = $this->db->query("SELECT * FROM m_rk_laminasi rk
+					$sj = str_pad(0+$j, 6, "0", STR_PAD_LEFT);
+					$html .='<tr>
+						<td style="padding:6px;border:0" colspan="2">TANGGAL <span style="float:right">:</span></td>
+						<td style="padding:6px;border:0" colspan="2">
+							<input type="date" class="form-control" id="p_tgl-'.$g->id_pelanggan_lm.'-'.$g->id_po_lm.'" value="'.$tgl.'">
+						</td>
+						<td style="padding:6px;border:0" colspan="5"></td>
+					</tr>
+					<tr>
+						<td style="padding:0 6px;border:0" colspan="2">NO. SURAT JALAN <span style="float:right">:</span></td>
+						<td style="padding:0 6px;border:0" colspan="2">
+							<input type="number" class="form-control" style="padding:6px;height:100%;text-align:right" id="p_no_sj-'.$g->id_pelanggan_lm.'-'.$g->id_po_lm.'" value="'.$sj.'" onkeyup="noSJLaminasi('."'".$g->id_pelanggan_lm."'".','."'".$g->id_po_lm."'".')">
+						</td>
+						<td style="padding:0 6px;border:0" colspan="5">/'.$tahun.'/LM</td>
+					</tr>
+					<tr>
+						<td style="padding:6px;border:0" colspan="2">NO. KENDARAAN <span style="float:right">:</span></td>
+						<td style="padding:6px;border:0" colspan="2">
+							<input type="text" class="form-control" style="padding:6px;height:100%" id="p_no_kendaraan-'.$g->id_pelanggan_lm.'-'.$g->id_po_lm.'" oninput="this.value=this.value.toUpperCase()">
+						</td>
+						<td style="padding:6px;border:0" colspan="5"></td>
+					</tr>
+					<tr>
+						<td style="padding:0 6px 6px;border:0;font-weight:bold" colspan="2">LIST :</td>
+					</tr>';
+
+					$data = $this->db->query("SELECT rk.*,p.*,dtl.*,lm.*,rk.id AS id_rk FROM m_rk_laminasi rk
 					INNER JOIN m_pelanggan_lm p ON rk.id_pelanggan_lm=p.id_pelanggan_lm
 					INNER JOIN trs_po_lm_detail dtl ON rk.id_po_dtl=dtl.id
 					INNER JOIN m_produk_lm lm ON dtl.id_m_produk_lm=lm.id_produk_lm
-					WHERE rk_status='Open' AND rk_urut='$u->rk_urut'");
-
+					WHERE rk.rk_status='Open' AND rk.id_pelanggan_lm='$g->id_pelanggan_lm' AND rk.id_po_lm='$g->id_po_lm'
+					ORDER BY p.nm_pelanggan_lm,dtl.no_po_lm,lm.id_produk_lm");
+					$i = 0;
 					foreach($data->result() as $r){
+						$i++;
 						($r->jenis_qty_lm == 'pack') ? $ket = '( PACK )' : $ket = '( IKAT )';
 						($r->jenis_qty_lm == 'pack') ? $qty = $r->pack_lm : $qty = $r->ikat_lm;
 						$orderLembar = ($r->isi_lm * $qty) * $r->qty_muat;
 						$orderBal = $qty * $r->qty_muat;
 						$html .='<tr>
-							<td style="padding:6px;text-align:center">'.$r->rk_urut.'</td>
-							<td style="padding:6px">'.$r->nm_pelanggan_lm.'</td>
-							<td style="padding:6px">'.$r->no_po_lm.'</td>
+							<td style="padding:6px;text-align:center">'.$i.'</td>
 							<td style="padding:6px">'.$r->nm_produk_lm.'</td>
 							<td style="padding:6px">'.$r->ukuran_lm.'</td>
 							<td style="padding:6px;text-align:right">'.number_format($r->isi_lm,0,",",".").' ( SHEET )</td>
@@ -431,16 +463,31 @@ class Logistik extends CI_Controller
 							<td style="padding:6px;text-align:right">'.number_format($orderLembar,0,",",".").'</td>
 							<td style="padding:6px;text-align:right">'.number_format($orderBal,0,",",".").' '.$ket.'</td>
 							<td style="padding:6px;text-align:right">'.number_format($r->qty_muat,0,",",".").'</td>
-							<td style="padding:3px;text-align:center"></td>
+							<td style="padding:3px;text-align:center">
+								<button type="button" class="btn btn-xs btn-danger" onclick="hapusListItemLaminasi('."'".$r->id_rk."'".','."'RK'".')">Hapus</button>
+							</td>
 						</tr>';
 					}
-				}
 
+					$html .='<tr>
+						<td style="padding:6px" colspan="9">
+							<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="kirimSJLaminasi('."'".$g->id_pelanggan_lm."'".','."'".$g->id_po_lm."'".')"><i class="fas fa-share"></i> KIRIM</button>
+						</td>
+					</tr>';
+				}
 			$html .= '</table>';
 		}
-
-
 		echo $html;
+	}
+
+	function hapusListItemLaminasi()
+	{
+		$this->db->where('id', $_POST["id_rk"]);
+		$data = $this->db->delete('m_rk_laminasi');
+
+		echo json_encode([
+			'data' => $data,
+		]);
 	}
 
 	function hapusItemLaminasi()
@@ -460,6 +507,12 @@ class Logistik extends CI_Controller
 	function simpanCartLaminasi()
 	{
 		$result = $this->m_logistik->simpanCartLaminasi();
+		echo json_encode($result);
+	}
+
+	function kirimSJLaminasi()
+	{
+		$result = $this->m_logistik->kirimSJLaminasi();
 		echo json_encode($result);
 	}
 

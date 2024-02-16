@@ -83,6 +83,7 @@
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST RENCANA KIRIM</h3>
 						</div>
 						<div class="card-body" style="padding:6px">
+							<input type="hidden" id="h_header_po_lm" value="">
 							<div class="list-rencana-kirim" style="overflow:auto;white-space:nowrap">LIST RENCANA KIRIM KOSONG!</div>
 						</div>
 					</div>
@@ -94,6 +95,9 @@
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">PENGIRIMAN</h3>
+						</div>
+						<div class="card-body" style="padding:6px">
+							<div class="list-pengiriman" style="overflow:auto;white-space:nowrap"></div>
 						</div>
 					</div>
 				</div>
@@ -150,15 +154,16 @@
 	function kosong()
 	{
 		// statusInput = 'insert'
+		$("#h_header_po_lm").val("")
 		$(".list-rencana-sj-laminasi").load("<?php echo base_url('Logistik/destroyLaminasi') ?>")
+		$(".row-input-rk").hide()
 		$(".row-list-po").hide()
 		listRencanKirim()
-		swal.close()
 	}
 
 	function addListPOLaminasi(id)
 	{
-		$(".list-po-sj-laminasi").html('MEMUAT . . .')
+		$("#h_header_po_lm").val(id)
 		$.ajax({
 			url: '<?php echo base_url('Logistik/addListPOLaminasi')?>',
 			type: "POST",
@@ -177,10 +182,13 @@
 				data = JSON.parse(res)
 				$(".row-list-po").show()
 				$(".list-po-sj-laminasi").html(data.html)
-				swal.close()
+				// swal.close()
+				listRencanKirim()
 			}
 		})
 	}
+
+	// LIST PO
 
 	function addItemLaminasi(id_dtl)
 	{
@@ -232,17 +240,6 @@
 		})
 	}
 
-	function listRencanKirim()
-	{
-		$.ajax({
-			url: '<?php echo base_url('Logistik/listRencanKirim')?>',
-			type: "POST",
-			success: function(res){
-				$(".list-rencana-kirim").html(res)
-			}
-		})
-	}
-
 	function hapusItemLaminasi(rowid)
 	{
 		$.ajax({
@@ -274,6 +271,7 @@
 
 	function simpanCartLaminasi()
 	{
+		let id = $("#h_header_po_lm").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/simpanCartLaminasi')?>',
 			type: "POST",
@@ -290,7 +288,91 @@
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
-				kosong()
+				// kosong()
+				$(".list-rencana-sj-laminasi").load("<?php echo base_url('Logistik/destroyLaminasi') ?>")
+				$(".row-input-rk").hide()
+				addListPOLaminasi(id)
+			}
+		})
+	}
+
+	// RENCANA KIRIM
+
+	function listRencanKirim()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Logistik/listRencanKirim')?>',
+			type: "POST",
+			success: function(res){
+				$(".list-rencana-kirim").html(res)
+				swal.close()
+			}
+		})
+	}
+
+	function hapusListItemLaminasi(id_rk, opsi)
+	{
+		let id = $("#h_header_po_lm").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/hapusListItemLaminasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_rk }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(opsi == 'RK'){
+					kosong()
+				}else{
+					addListPOLaminasi(id)
+				}
+			}
+		})
+	}
+
+	function noSJLaminasi(id_pelanggan_lm, id_po_lm)
+	{
+		let no_sj = $("#p_no_sj-"+id_pelanggan_lm+"-"+id_po_lm).val()
+		if(no_sj == "" || no_sj < 0){
+			no_sj = "000000"
+		}else if(no_sj.length == 1){
+			no_sj = "00000"+no_sj.substring(no_sj.length - 1)
+		}else if(no_sj.length == 2){
+			no_sj = "0000"+no_sj.substring(no_sj.length - 2)
+		}else if(no_sj.length == 3){
+			no_sj = "000"+no_sj.substring(no_sj.length - 3)
+		}else if(no_sj.length == 4){
+			no_sj = "00"+no_sj.substring(no_sj.length - 4)
+		}else if(no_sj.length == 5){
+			no_sj = "0"+no_sj.substring(no_sj.length - 5)
+		}else{
+			no_sj = no_sj.substring(no_sj.length - 6)
+		}
+		$("#p_no_sj-"+id_pelanggan_lm+"-"+id_po_lm).val(no_sj)
+	}
+
+	function kirimSJLaminasi(id_pelanggan_lm, id_po_lm)
+	{
+		let tgl = $("#p_tgl-"+id_pelanggan_lm+"-"+id_po_lm).val()
+		let no_sj = $("#p_no_sj-"+id_pelanggan_lm+"-"+id_po_lm).val()
+		let no_kendaraan = $("#p_no_kendaraan-"+id_pelanggan_lm+"-"+id_po_lm).val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/kirimSJLaminasi')?>',
+			type: "POST",
+			data: ({
+				id_pelanggan_lm, id_po_lm, tgl, no_sj, no_kendaraan
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
 			}
 		})
 	}
