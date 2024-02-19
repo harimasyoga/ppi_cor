@@ -85,6 +85,7 @@ class Transaksi extends CI_Controller
 		$hpp = $this->db->query("SELECT*FROM m_hpp WHERE id_hpp='$id_hpp'")->row();
 		$data = [
 			'id_hpp' => $hpp->id_hpp,
+			'pilih_hpp' => $hpp->pilih_hpp,
 			'tgl1_hpp' => $hpp->tgl1_hpp,
 			'tgl2_hpp' => $hpp->tgl2_hpp,
 			'jenis_hpp' => $hpp->jenis_hpp,
@@ -123,7 +124,7 @@ class Transaksi extends CI_Controller
 				$tgl = strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl1_hpp)).' - '.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl2_hpp));
 			}
 			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$tgl.'</a></div>';
-			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->jenis_hpp.'</a></div>';
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->pilih_hpp.'</a></div>';
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_hpp,0,",",".").'</a></div>';
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->tonase_order,0,",",".").'</a></div>';
 			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->presentase.'</a></div>';
