@@ -23,7 +23,7 @@
 		<div class="container-fluid">
 
 			<div class="row">
-				<div class="col-md-5">
+				<div class="col-md-7">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">SURAT JALAN</h3>
@@ -68,22 +68,28 @@
 							</div>
 						</div>
 						<div class="card-body row" style="padding:0 6px 6px">
-							<div class="col-md-12" style="overflow:auto;white-space:nowrap">
-								<table id="datatable1" class="table table-bordered table-striped">
-									<thead>
-										<tr>
-											<th style="width:95%;padding:12px;text-align:center">NO. SJ</th>
-											<th style="width:5%;padding:12px;text-align:center">AKSI</th>
-										</tr>
-									</thead>
-									<tbody></tbody>
-								</table>
+							<div class="col-md-12">
+								<div style="overflow:auto;white-space:nowrap">
+									<table id="datatable1" class="table table-bordered table-striped">
+										<thead>
+											<tr>
+												<th style="padding:12px;text-align:center">HARI, TGL</th>
+												<th style="padding:12px;text-align:center">PLAT</th>
+												<th style="padding:12px;text-align:center">CUSTOMER</th>
+												<th style="padding:12px;text-align:center">NO. PO</th>
+												<th style="padding:12px;text-align:center">NO. SJ</th>
+												<th style="padding:12px;text-align:center">AKSI</th>
+											</tr>
+										</thead>
+										<tbody></tbody>
+									</table>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 
-				<div class="col-md-7">
+				<div class="col-md-5">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">PO LAMINASI</h3>
@@ -145,19 +151,6 @@
 						<div class="card-body" style="padding:6px">
 							<input type="hidden" id="h_header_po_lm" value="">
 							<div class="list-rencana-kirim" style="overflow:auto;white-space:nowrap">LIST RENCANA KIRIM KOSONG!</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="row">
-				<div class="col-md-12">
-					<div class="card card-secondary card-outline">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">PENGIRIMAN</h3>
-						</div>
-						<div class="card-body" style="padding:6px">
-							<div class="list-pengiriman" style="overflow:auto;white-space:nowrap"></div>
 						</div>
 					</div>
 				</div>
@@ -242,7 +235,10 @@
 			"pageLength": 5,
 			"language": {
 				"emptyTable": "TIDAK ADA DATA.."
-			}
+			},
+			"order": [
+				[4, "desc"]
+			]
 		})
 	}
 
@@ -254,6 +250,7 @@
 		$(".row-input-rk").hide()
 		$(".row-list-po").hide()
 		listRencanKirim()
+		reloadTableSJ()
 	}
 
 	function addListPOLaminasi(id)
@@ -312,9 +309,13 @@
 				data = JSON.parse(res)
 				console.log(data)
 				if(data.total_items == 0){
+					toastr.error(`<b>${data.isi}</b>`)
 					$(".row-input-rk").hide()
 					swal.close()
 				}else{
+					if(data.data == false){
+						toastr.error(`<b>${data.isi}</b>`)
+					}
 					$(".row-input-rk").show()
 					loadItemLaminasi()
 				}
@@ -405,6 +406,31 @@
 		})
 	}
 
+	function addKeterangan(id_rk)
+	{
+		let keterangan = $("#keterangan-"+id_rk).val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/addKeterangan')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_rk, keterangan }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				listRencanKirim()
+			}
+		})
+	}
+
 	function hapusListItemLaminasi(id_rk, opsi)
 	{
 		let id = $("#h_header_po_lm").val()
@@ -478,8 +504,12 @@
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
-				// swal.close()
-				kosong()
+				if(data.data){
+					kosong()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					listRencanKirim()
+				}
 			}
 		})
 	}

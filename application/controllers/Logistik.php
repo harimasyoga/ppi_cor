@@ -200,12 +200,13 @@ class Logistik extends CI_Controller
 						WHERE i.rk_tgl='$k->rk_tgl' AND i.id_pelanggan_lm='$k->id_pelanggan_lm' AND i.id_po_lm='$k->id_po_lm' AND i.id_po_dtl='$k->id_po_dtl' AND i.rk_no_po='$k->rk_no_po' AND i.rk_urut!='0'");
 						if($pl->num_rows() == 0){
 							$t_tgl = '';
-							$t_btn = 'btn-info';
+							$t_btn = ';border-left:3px solid #17a2b8';
 							$t_text = 'RENCANA KIRIM';
 							$t_hapus = '<button type="button" class="btn btn-danger btn-block btn-xs" onclick="hapusListItemLaminasi('."'".$k->id."'".','."'LIST'".')">Hapus</button>';
 						}else{
-							$t_tgl = substr($this->m_fungsi->getHariIni($k->rk_tgl),0,3).', '.$this->m_fungsi->tglIndSkt($k->rk_tgl);
-							$t_btn = 'btn-success';
+							$pl2 = $this->db->query("SELECT*FROM pl_laminasi WHERE id='$k->id_pl_lm'")->row();
+							$t_tgl = substr($this->m_fungsi->getHariIni($k->rk_tgl),0,3).', '.$this->m_fungsi->tglIndSkt($k->rk_tgl).' - SJ : '.$pl2->no_surat.' - PLAT : '.$pl2->no_kendaraan;
+							$t_btn = ';border-left:3px solid #28a745';
 							$t_text = 'SURAT JALAN';
 							$t_hapus = '';
 						}
@@ -215,7 +216,7 @@ class Logistik extends CI_Controller
 							<td style="padding:6px;border:0;text-align:right">- '.number_format($qty * $k->qty_muat,0,',','.').'</td>
 							<td style="padding:6px;border:0;text-align:right">- '.$k->qty_muat.'</td>
 							<td style="padding:6px;border:0">
-								<button type="button" class="btn '.$t_btn.' btn-block btn-xs">'.$t_text.'</button>
+								<button type="button" class="btn btn-xs" style="cursor:default'.$t_btn.'">'.$t_text.'</button>
 							</td>
 							<td style="padding:6px;border:0">'.$t_hapus.'</td>
 						</tr>';
@@ -274,6 +275,7 @@ class Logistik extends CI_Controller
 					'no_po_lm' => $_POST["h_no_po_lm"],
 					'id_dtl' => $_POST["id_dtl"],
 					'muat' => $_POST["muat"],
+					'id_m_produk_lm' => $po_dtl->id_m_produk_lm,
 					'nm_produk_lm' => $po_dtl->nm_produk_lm,
 					'ukuran_lm' => $po_dtl->ukuran_lm,
 					'isi_lm' => $po_dtl->isi_lm,
@@ -408,16 +410,16 @@ class Logistik extends CI_Controller
 			$html .='LIST RENCANA KIRIM KOSONG!';
 		}else{
 			$html .='<table class="table table-bordered" style="margin:0">
-				<tr style="background:#f8f9fc">
-					<th style="padding:6px;text-align:center">#</th>
-					<th style="padding:6px">ITEM</th>
-					<th style="padding:6px">SIZE</th>
-					<th style="padding:6px;text-align:center">@PACK</th>
-					<th style="padding:6px;text-align:center">@BAL</th>
-					<th style="padding:6px;text-align:center">ORDER SHEET</th>
-					<th style="padding:6px;text-align:center">ORDER</th>
-					<th style="padding:6px;text-align:center">MUAT</th>
-					<th style="padding:6px;text-align:center">AKSI</th>
+				<tr>
+					<th style="border:0;padding:0"></th>
+					<th style="border:0;padding:0"></th>
+					<th style="border:0;padding:0"></th>
+					<th style="border:0;padding:0"></th>
+					<th style="border:0;padding:0"></th>
+					<th style="border:0;padding:0"></th>
+					<th style="border:0;padding:0"></th>
+					<th style="border:0;padding:0"></th>
+					<th style="border:0;padding:0"></th>
 				</tr>';
 
 				$j = 0;
@@ -455,12 +457,23 @@ class Logistik extends CI_Controller
 					</tr>
 					<tr>
 						<td style="padding:0 6px 6px;border:0;font-weight:bold" colspan="2">LIST :</td>
+					</tr>
+					<tr style="background:#f8f9fc">
+						<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">#</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d">ITEM</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d">SIZE</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">@PACK</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">@BAL</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">ORDER SHEET</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">ORDER</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">MUAT</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">AKSI</th>
 					</tr>';
 
 					$data = $this->db->query("SELECT rk.*,p.*,dtl.*,lm.*,rk.id AS id_rk FROM m_rk_laminasi rk
 					INNER JOIN m_pelanggan_lm p ON rk.id_pelanggan_lm=p.id_pelanggan_lm
 					INNER JOIN trs_po_lm_detail dtl ON rk.id_po_dtl=dtl.id
-					INNER JOIN m_produk_lm lm ON dtl.id_m_produk_lm=lm.id_produk_lm
+					INNER JOIN m_produk_lm lm ON rk.id_m_produk_lm=lm.id_produk_lm
 					WHERE rk.rk_status='Open' AND rk.id_pelanggan_lm='$g->id_pelanggan_lm' AND rk.id_po_lm='$g->id_po_lm' AND rk.rk_urut='0'
 					ORDER BY p.nm_pelanggan_lm,dtl.no_po_lm,lm.id_produk_lm");
 					$i = 0;
@@ -482,6 +495,17 @@ class Logistik extends CI_Controller
 							<td style="padding:3px;text-align:center">
 								<button type="button" class="btn btn-xs btn-danger" onclick="hapusListItemLaminasi('."'".$r->id_rk."'".','."'RK'".')">Hapus</button>
 							</td>
+						</tr>
+						<tr>
+							<td colspan="5"></td>
+							<td style="padding:3px;text-align:right" colspan="3">
+								<textarea class="form-control" style="padding:3px;resize:none" rows="1" id="keterangan-'.$r->id_rk.'" placeholder="KETERANGAN" oninput="this.value=this.value.toUpperCase()">'.$r->rk_ket.'</textarea>
+							</td>
+							<td style="padding:3px;vertical-align:middle;text-align:center">
+								<button type="button" class="btn btn-xs btn-warning" onclick="addKeterangan('."'".$r->id_rk."'".')">
+									<i class="fas fa-edit"></i>
+								</button>
+							</td>
 						</tr>';
 					}
 
@@ -496,6 +520,17 @@ class Logistik extends CI_Controller
 			$html .= '</table>';
 		}
 		echo $html;
+	}
+
+	function addKeterangan()
+	{
+		$this->db->set('rk_ket', ($_POST["keterangan"] == '') ? null : $_POST["keterangan"]);
+		$this->db->where('id', $_POST["id_rk"]);
+		$data = $this->db->update('m_rk_laminasi');
+
+		echo json_encode([
+			'data' => $data,
+		]);
 	}
 
 	function hapusListItemLaminasi()
@@ -532,6 +567,134 @@ class Logistik extends CI_Controller
 	{
 		$result = $this->m_logistik->kirimSJLaminasi();
 		echo json_encode($result);
+	}
+
+	function SJ_Laminasi()
+	{
+		$no_surat = $_GET["no"];
+		$html = '';
+
+		$pl = $this->db->query("SELECT*FROM pl_laminasi l
+		INNER JOIN m_pelanggan_lm p ON l.id_perusahaan=p.id_pelanggan_lm
+		WHERE l.no_surat='$no_surat'")->row();
+
+		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;border-collapse:collapse;color:#000;width:100%">
+			<tr>
+				<td style="width:55%"></td>
+				<td style="width:16%"></td>
+				<td style="width:2%"></td>
+				<td style="width:27%"></td>
+			</tr>
+			<tr>
+				<td style="padding:3px 0;font-weight:bold;font-size:20px;text-align:center" rowspan="6">SURAT JALAN</td>
+				<td style="padding:3px 0;font-weight:bold">NO. SURAT JALAN</td>
+				<td style="padding:3px 0">:</td>
+				<td style="padding:3px 0 10px;font-weight:bold;font-size:16px;border-bottom:1px dotted #000">'.$pl->no_surat.'</td>
+			</tr>
+			<tr>
+				<td style="padding:3px 0;font-weight:bold">TANGGAL</td>
+				<td style="padding:3px 0">:</td>
+				<td style="padding:3px 0;border-bottom:1px dotted #000">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($pl->tgl)).'</td>
+			</tr>
+			<tr>
+				<td style="padding:3px 0;font-weight:bold">KEPADA</td>
+				<td style="padding:3px 0">:</td>
+				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$pl->nm_pelanggan_lm.'</td>
+			</tr>
+			<tr>
+				<td style="padding:3px 0"></td>
+				<td style="padding:3px 0">:</td>
+				<td style="padding:3px 0;border-bottom:1px dotted #000"></td>
+			</tr>
+			<tr>
+				<td style="padding:3px 0"></td>
+				<td style="padding:3px 0">:</td>
+				<td style="padding:3px 0;border-bottom:1px dotted #000"></td>
+			</tr>
+			<tr>
+				<td style="padding:3px 0;font-weight:bold">NO. KENDARAAN</td>
+				<td style="padding:3px 0">:</td>
+				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$pl->no_kendaraan.'</td>
+			</tr>';
+		$html .='</table>';
+
+		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;border-collapse:collapse;color:#000;width:100%">
+			<tr>
+				<th style="width:5%;padding:3px;border:1px solid #000">NO</th>
+				<th style="width:47%;padding:3px;border:1px solid #000">NAMA BARANG</th>
+				<th style="width:8%;padding:3px;border:1px solid #000">QTY</th>
+				<th style="width:40%;padding:3px;border:1px solid #000">KETERANGAN</th>
+			</tr>';
+
+			$isi = $this->db->query("SELECT*FROM m_rk_laminasi rk
+			INNER JOIN m_produk_lm i ON rk.id_m_produk_lm=i.id_produk_lm
+			WHERE id_pl_lm='$pl->id'");
+			$count = $isi->num_rows();
+
+			$i = 0;
+			foreach($isi->result() as $r){
+				$i++;
+				$html .='<tr>
+					<td style="padding:3px;border:1px solid #000;text-align:center">'.$i.'</td>
+					<td style="padding:3px;border:1px solid #000">'.$r->nm_produk_lm.'</td>
+					<td style="padding:3px;border:1px solid #000;text-align:center">'.$r->qty_muat.'</td>
+					<td style="padding:3px;border:1px solid #000">'.$r->rk_ket.'</td>
+				</tr>';
+			}
+
+			if($count == 1) {
+				$xx = 5;
+			}else if($count == 2){
+				$xx = 4;
+			}else if($count == 3){
+				$xx = 3;
+			}else if($count == 4){
+				$xx = 2;
+			}else if($count == 5){  
+				$xx = 1;
+			}
+
+			if($count <= 5) {
+				for($i = 0; $i < $xx; $i++){
+					$html .='<tr>
+						<td style="padding:10px;border:1px solid #000"></td>
+						<td style="padding:10px;border:1px solid #000"></td>
+						<td style="padding:10px;border:1px solid #000"></td>
+						<td style="padding:10px;border:1px solid #000"></td>
+					</tr>';
+				}
+			}
+
+		$html .='</table>';
+
+		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;text-align:center;border-collapse:collapse;color:#000;width:100%">
+			<tr>
+				<td style="width:35%"></td>
+				<td style="width:16%"></td>
+				<td style="width:16%"></td>
+				<td style="width:1%"></td>
+				<td style="width:16%"></td>
+				<td style="width:16%"></td>
+			</tr>
+			<tr>
+				<td style="padding:10px 0;font-weight:bold">PENERIMA,</td>
+				<td style="border:1px solid #000;padding:10px 0;font-weight:bold" colspan="2">MENGETAHUI</td>
+				<td></td>
+				<td style="border:1px solid #000;padding:10px 0;font-weight:bold">ADMIN</td>
+				<td style="border:1px solid #000;padding:10px 0;font-weight:bold">SATPAM</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td style="border:1px solid #000;padding:50px;font-weight:bold"></td>
+				<td style="border:1px solid #000;padding:50px;font-weight:bold"></td>
+				<td></td>
+				<td style="border:1px solid #000;padding:50px;font-weight:bold"></td>
+				<td style="border:1px solid #000;padding:50px;font-weight:bold"></td>
+			</tr>';
+		$html .='</table>';
+
+		$judul = 'SURAT JALAN LAMINASI';
+		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 	}
 
 	function load_produk()
@@ -825,16 +988,26 @@ class Logistik extends CI_Controller
 			$tahun = substr($plh_thn,2,2);
 			$plh_customer = $_POST["plh_customer"];
 			if($plh_customer == ''){
-				$where = "WHERE no_surat LIKE '%$tahun%'";
+				$where = "WHERE pl.no_surat LIKE '%$tahun%'";
 			}else{
-				$where = "WHERE id_perusahaan='$plh_customer' AND no_surat LIKE '%$tahun%'";
+				$where = "WHERE pl.id_perusahaan='$plh_customer' AND pl.no_surat LIKE '%$tahun%'";
 			}
-			$query = $this->db->query("SELECT*FROM pl_laminasi $where GROUP BY no_surat DESC")->result();
+			$query = $this->db->query("SELECT*FROM pl_laminasi pl
+			INNER JOIN m_pelanggan_lm p ON pl.id_perusahaan=p.id_pelanggan_lm
+			$where GROUP BY pl.no_surat DESC")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
-				$row[] = '<div class="text-center">'.$r->no_surat.'</div>';
-				$row[] = '<div class="text-center">aksi</div>';
+				$row[] = substr($this->m_fungsi->getHariIni($r->tgl),0,3).', '.$this->m_fungsi->tglIndSkt($r->tgl);
+				$row[] = $r->no_kendaraan;
+				$row[] = $r->nm_pelanggan_lm;
+				$row[] = $r->no_po;
+				$row[] = $r->no_surat;
+				$row[] = '<div class="text-center">
+					<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Logistik/SJ_Laminasi?no=".$r->no_surat."").'">
+						<i class="fas fa-print"></i>
+					</a>
+				</div>';
 				$data[] = $row;
 				$i++;
 			}

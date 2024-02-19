@@ -560,17 +560,38 @@ class M_logistik extends CI_Model
 	function simpanCartLaminasi()
 	{
 		foreach($this->cart->contents() as $r){
-			$data = array(
-				// 'rk_tgl' => date('Y-m-d'),
-				'id_pelanggan_lm' => $r["options"]["id_pelanggan_lm"],
-				'id_po_lm' => $r["options"]["id_po"],
-				'id_po_dtl' => $r["options"]["id_dtl"],
-				'rk_no_po' => $r["options"]["no_po_lm"],
-				'qty_muat' => $r["options"]["muat"],
-				'rk_status' => 'Open',
-				'rk_urut' => 0,
-			);
-			$insertRK = $this->db->insert('m_rk_laminasi', $data);
+			$id_m_produk_lm = $r["options"]["id_m_produk_lm"];
+			$id_pelanggan_lm = $r["options"]["id_pelanggan_lm"];
+			$id_po_lm = $r["options"]["id_po"];
+			$id_po_dtl = $r["options"]["id_dtl"];
+
+			$cek = $this->db->query("SELECT SUM(qty_muat) AS jml_muat FROM m_rk_laminasi
+			WHERE id_m_produk_lm='$id_m_produk_lm' AND id_pelanggan_lm='$id_pelanggan_lm' AND id_po_lm='$id_po_lm' AND id_po_dtl='$id_po_dtl'
+			AND rk_status='Open' AND rk_urut='0'
+			GROUP BY id_m_produk_lm, id_pelanggan_lm, id_po_lm, id_po_dtl, rk_status, rk_urut");
+
+			if($cek->num_rows() == 0){
+				$data = array(
+					'id_m_produk_lm' => $r["options"]["id_m_produk_lm"],
+					'id_pelanggan_lm' => $r["options"]["id_pelanggan_lm"],
+					'id_po_lm' => $r["options"]["id_po"],
+					'id_po_dtl' => $r["options"]["id_dtl"],
+					'rk_no_po' => $r["options"]["no_po_lm"],
+					'qty_muat' => $r["options"]["muat"],
+					'rk_status' => 'Open',
+					'rk_urut' => 0,
+				);
+				$insertRK = $this->db->insert('m_rk_laminasi', $data);
+			}else{
+				$this->db->set('qty_muat', $r["options"]["muat"] + $cek->row()->jml_muat);
+				$this->db->where('id_m_produk_lm', $id_m_produk_lm);
+				$this->db->where('id_pelanggan_lm', $id_pelanggan_lm);
+				$this->db->where('id_po_lm', $id_po_lm);
+				$this->db->where('id_po_dtl', $id_po_dtl);
+				$this->db->where('rk_status', 'Open');
+				$this->db->where('rk_urut', 0);
+				$insertRK = $this->db->update('m_rk_laminasi');
+			}
 		}
 
 		return [
@@ -586,40 +607,69 @@ class M_logistik extends CI_Model
 		$no_sj = $_POST["no_sj"];
 		$no_kendaraan = $_POST["no_kendaraan"];
 
-		// UPDATE RK URUT
-		$cekUrut = $this->db->query("SELECT*FROM m_rk_laminasi WHERE rk_tgl='$tgl' GROUP BY rk_urut DESC LIMIT 1");
-		($cekUrut->num_rows() == 0) ? $rk_urut = 1 : $rk_urut = $cekUrut->row()->rk_urut + 1;
-		$this->db->set('rk_tgl', $tgl);
-		$this->db->set('rk_urut', $rk_urut);
-		$this->db->where('id_pelanggan_lm', $id_pelanggan_lm);
-		$this->db->where('id_po_lm', $id_po_lm);
-		$this->db->where('rk_urut', 0);
-		$urut = $this->db->update('m_rk_laminasi');
-		// INSERT PACKING LIST
-		if($urut){
-			$no_po = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id_po_lm'")->row();
-			$tahun = substr(date('Y'),2,2);
-			$pl = array(
-				'id_perusahaan' => $id_pelanggan_lm,
-				'tgl' => $tgl,
-				'no_surat' => $no_sj.'/'.$tahun.'/LM',
-				'no_kendaraan' => $no_kendaraan,
-				'no_po' => $no_po->no_po_lm,
-				'sj' => 'Open',
-				'sj_blk' => NULL,
-				'pajak' => NULL,
-				'no_pl_inv' => 0,
-				'no_pl_urut' => $rk_urut,
-				'cetak_sj' => 'not',
-			);
-			$insertPL = $this->db->insert('pl_laminasi', $pl);
-			// UPDATE ID PL DI
+		$tahun = substr(date('Y'),2,2);
+		$no_surat = $no_sj.'/'.$tahun.'/LM';
+		$no_po = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id_po_lm'")->row();
+
+		$cekNoSJ = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat='$no_surat'");
+
+		if($no_sj == 000000 || $no_sj == '000000' || $no_sj == '' || $no_sj < 0 || strlen("'.$no_sj.'") < 6){
+			$data = false; $urut = false; $insertPL = false; $updateIDPL = false;
+			$msg = 'NOMER SURAT JALAN TIDAK BOLEH KOSONG!';
+		}else if($no_kendaraan == ''){
+			$data = false; $urut = false; $insertPL = false; $updateIDPL = false;
+			$msg = 'NOMER KENDARAAN TIDAK BOLEH KOSONG!';
+		}else if($cekNoSJ->num_rows() > 0){
+			$data = false; $urut = false; $insertPL = false; $updateIDPL = false;
+			$msg = 'NOMER SURAT JALAN SUDAH TERPAKAI!';
+		}else{
+			// UPDATE RK URUT
+			$cekUrut = $this->db->query("SELECT*FROM m_rk_laminasi WHERE rk_tgl='$tgl' GROUP BY rk_urut DESC LIMIT 1");
+			($cekUrut->num_rows() == 0) ? $rk_urut = 1 : $rk_urut = $cekUrut->row()->rk_urut + 1;
+			$this->db->set('rk_tgl', $tgl);
+			$this->db->set('rk_status', 'Close');
+			$this->db->set('rk_urut', $rk_urut);
+			$this->db->where('id_pelanggan_lm', $id_pelanggan_lm);
+			$this->db->where('id_po_lm', $id_po_lm);
+			$this->db->where('rk_urut', 0);
+			$urut = $this->db->update('m_rk_laminasi');
+			// INSERT PACKING LIST
+			if($urut){
+				$pl = array(
+					'id_perusahaan' => $id_pelanggan_lm,
+					'tgl' => $tgl,
+					'no_surat' => $no_surat,
+					'no_kendaraan' => $no_kendaraan,
+					'no_po' => $no_po->no_po_lm,
+					'sj' => 'Open',
+					'sj_blk' => NULL,
+					'pajak' => NULL,
+					'no_pl_inv' => 0,
+					'no_pl_urut' => $rk_urut,
+					'cetak_sj' => 'not',
+				);
+				$insertPL = $this->db->insert('pl_laminasi', $pl);
+				// UPDATE ID PL DI RENCANA KIRIM
+				if($insertPL){
+					$cekPL = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat='$no_surat'")->row();
+					$this->db->set('id_pl_lm', $cekPL->id);
+					$this->db->where('id_pelanggan_lm', $id_pelanggan_lm);
+					$this->db->where('id_po_lm', $id_po_lm);
+					$this->db->where('rk_status', 'Close');
+					$this->db->where('rk_urut', $rk_urut);
+					$updateIDPL = $this->db->update('m_rk_laminasi');
+				}
+			}
+			$data = true;
+			$msg = 'OK';
 		}
 
 		return [
-			'1cekUrut' => $rk_urut,
 			'2urut' => $urut,
 			'3insertPL' => $insertPL,
+			'5updateIDPL' => $updateIDPL,
+			'msg' => $msg,
+			'data' => $data,
 		];
 	}
 
