@@ -830,7 +830,7 @@
 			processData    : false,
 			success: function(data) {
 				if (data) {
-					up_ft();
+					// up_ft();
 					// toastr.success('Berhasil Disimpan');
 					swal.close();
 					swal({
@@ -1207,7 +1207,7 @@
 				},
 				success: function(data) {
 					// toastr.success('Data Berhasil Di Hapus');
-					d_pi(id,no); 
+					// d_pi(id,no); 
 					swal({
 						title               : "Data",
 						html                : "Data Berhasil Di Hapus",
