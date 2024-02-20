@@ -1443,6 +1443,16 @@ class Transaksi extends CI_Controller
 			$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");
 			$result = $this->m_master->query("DELETE FROM trs_po_detail WHERE  $field = '$id'");
 
+			$koneksi_hub    = $this->db->query("SELECT*from m_hub a
+			join akses_db_hub b ON b.nm_hub=a.nm_hub where a.id_hub='$load_po->id_hub' ")->row();
+
+			$db_ppi_hub = '$'.$koneksi_hub->nm_db_hub;
+			$db_ppi_hub = $this->load->database($koneksi_hub->nm_db_hub, TRUE);
+
+			// hapus hub
+			$result_hub = $db_ppi_hub->query("DELETE FROM $jenis WHERE  $field = '$id'");
+			$result_hub = $db_ppi_hub->query("DELETE FROM trs_po_detail WHERE  $field = '$id'");
+
 			if($load_po->img_po != 'foto.jpg')
 			{
 				// Hapus File Foto
