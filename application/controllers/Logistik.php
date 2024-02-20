@@ -1076,6 +1076,7 @@ class Logistik extends CI_Controller
 					</a>
 				</div>';
 				$data[] = $row;
+			}
 		}else if ($jenis == "byr_inv") {
 			$query = $this->db->query("SELECT *,a.id_bayar_inv as id_ok FROM trs_bayar_inv a join invoice_header b on a.no_inv=b.no_invoice ORDER BY id_bayar_inv ")->result();
 
