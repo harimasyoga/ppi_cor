@@ -96,23 +96,23 @@
                                         <td width="20%" class="text-center"><strong>Jumlah</strong></td>
                                     </tr>
                                     <tr>
-                                        <td>eCommerce Business Hosting Server SG - sumbersinarberkat.com (05/02/2024 - 04/02/2025) *</td>
+                                        <td>eCommerce Business Hosting Server SG - globalmuliabakti.com (16/02/2024 - 15/02/2025) *</td>
                                         <td class="text-center">Rp. 1.550,000</td>
                                     </tr>
                                                                     <tr>
-                                        <td>Produk Tambahan (sumbersinarberkat.com) - SSL Certificates - Geotrust True BusinessID (05/02/2024 - 04/02/2025)</td>
+                                        <td>Produk Tambahan (globalmuliabakti.com) - SSL Certificates - Geotrust True BusinessID (16/02/2024 - 15/02/2025)</td>
                                         <td class="text-center">Rp. 1.273,000</td>
                                     </tr>
                                                                     <tr>
-                                        <td>Produk Tambahan (sumbersinarberkat.com) - SSL Certificates - SSL Secure Site (05/02/2024 - 04/02/2025) *</td>
+                                        <td>Produk Tambahan (globalmuliabakti.com) - SSL Certificates - SSL Secure Site (16/02/2024 - 15/02/2025) *</td>
                                         <td class="text-center">Rp. 620,000</td>
                                     </tr>
                                                                     <tr>
-                                        <td>Produk Tambahan (sumbersinarberkat.com) - SiteLock - Lite Fix (05/02/2024 - 04/02/2025) *</td>
+                                        <td>Produk Tambahan (globalmuliabakti.com) - SiteLock - Lite Fix (16/02/2024 - 15/02/2025) *</td>
                                         <td class="text-center">Rp. 550,000</td>
                                     </tr>
                                     <tr>
-                                        <td>Domain Registration - sumbersinarberkat.com - 1 Tahun/s (05/02/2024 - 04/02/2025)<br />
+                                        <td>Domain Registration - globalmuliabakti.com - 1 Tahun/s (16/02/2024 - 15/02/2025)<br />
                                         + DNS Management<br />
                                         + ID Protection *</td>
                                             <td class="text-center">Rp. 80,000</td>
