@@ -1415,6 +1415,11 @@ class Transaksi extends CI_Controller
 				}
 			$html .='</tbody>';
 		$html .= '</table>';
+
+		// TTD
+		($po_lm->status_lm1 == 'Y') ? $lm1 = ';background:url('.base_url('assets/gambar/cc-po-lam.png').') center no-repeat' : $lm1 = '';
+		($po_lm->status_lm2 == 'Y') ? $lm2 = ';background:url('.base_url('assets/gambar/cc-po-lam.png').') center no-repeat' : $lm2 = '';
+
 		$html .= '<table style="margin:40px 0 0;padding:0;font-size:12px;text-align:center;border-collapse:collapse;color:#2f75b5;font-weight:bold;width:100%">';
 			$html .='<tr>
 				<td style="width:16%"></td>
@@ -1425,7 +1430,7 @@ class Transaksi extends CI_Controller
 			</tr>
 			<tr>
 				<td style="padding:3px 3px 35px;vertical-align:top;text-align:left;border:2px solid #2f75b5" colspan="2">RECEIVED :</td>
-				<td style="padding-bottom:30px;border:2px solid #2f75b5"></td>
+				<td style="padding-bottom:30px;border:2px solid #2f75b5;background:url('.base_url('assets/gambar/cc-po-lam.png').')center no-repeat"></td>
 				<td></td>
 				<td style="padding:3px;text-align:left;color:#000;font-weight:normal;vertical-align:top">Hormat Kami</td>
 			</tr>
@@ -1434,8 +1439,8 @@ class Transaksi extends CI_Controller
 				<td style="border:2px solid #2f75b5" colspan="2">APPROVED BY</td>
 			</tr>
 			<tr>
-				<td style="border:2px solid #2f75b5;padding:30px"></td>
-				<td style="border:2px solid #2f75b5;padding:30px" colspan="2"></td>
+				<td style="border:2px solid #2f75b5;padding:30px'.$lm1.'"></td>
+				<td style="border:2px solid #2f75b5;padding:30px'.$lm2.'" colspan="2"></td>
 				<td></td>
 				<td style="padding:15px 3px 3px;text-align:left;color:#000;font-weight:normal;vertical-align:top">'.$po_lm->nm_pelanggan_lm.'</td>
 			</tr>

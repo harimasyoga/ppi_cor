@@ -509,10 +509,22 @@ class Logistik extends CI_Controller
 					$i = 0;
 					foreach($data->result() as $r){
 						$i++;
-						($r->jenis_qty_lm == 'pack') ? $ket = '( PACK )' : $ket = '( IKAT )';
-						($r->jenis_qty_lm == 'pack') ? $qty = $r->pack_lm : $qty = $r->ikat_lm;
+						if($r->jenis_qty_lm == 'pack'){
+							$ket = '( PACK )';
+							$ket2 = 'PACK';
+							$qty = $r->pack_lm;
+						}else if($r->jenis_qty_lm == 'ikat'){
+							$ket = '( IKAT )';
+							$ket2 = 'IKAT';
+							$qty = $r->ikat_lm;
+						}else{
+							$ket = '( KG )';
+							$ket2 = 'KG';
+							$qty = $r->kg_lm;
+						}
 						$orderLembar = ($r->isi_lm * $qty) * $r->qty_muat;
 						$orderBal = $qty * $r->qty_muat;
+						$pc = $r->isi_lm.' LBR. '.$qty.' '.$ket2;
 						$html .='<tr>
 							<td style="padding:6px;text-align:center">'.$i.'</td>
 							<td style="padding:6px">'.$r->nm_produk_lm.'</td>
@@ -527,11 +539,15 @@ class Logistik extends CI_Controller
 							</td>
 						</tr>
 						<tr>
-							<td colspan="5"></td>
-							<td style="padding:3px;text-align:right" colspan="3">
-								<textarea class="form-control" style="padding:3px;resize:none" rows="1" id="keterangan-'.$r->id_rk.'" placeholder="KETERANGAN" oninput="this.value=this.value.toUpperCase()">'.$r->rk_ket.'</textarea>
+							<td colspan="5" style="border-bottom:1px solid #ccc;padding:3px;text-align:right;vertical-align:middle">
+								<button type="button" class="btn" onclick="iKeterangan('."'".$r->id_rk."'".','."'".$pc."'".')">
+									<i class="fas fa-info-circle"></i>
+								</button>
 							</td>
-							<td style="padding:3px;vertical-align:middle;text-align:center">
+							<td style="border-bottom:1px solid #ccc;padding:3px;text-align:right" colspan="3">
+								<textarea class="form-control" style="padding:6px;resize:none" rows="1" id="keterangan-'.$r->id_rk.'" placeholder="'.$pc.'" oninput="this.value=this.value.toUpperCase()">'.$r->rk_ket.'</textarea>
+							</td>
+							<td style="border-bottom:1px solid #ccc;padding:3px;vertical-align:middle;text-align:center">
 								<button type="button" class="btn btn-xs btn-warning" onclick="addKeterangan('."'".$r->id_rk."'".')">
 									<i class="fas fa-edit"></i>
 								</button>
@@ -608,7 +624,7 @@ class Logistik extends CI_Controller
 		INNER JOIN m_pelanggan_lm p ON l.id_perusahaan=p.id_pelanggan_lm
 		WHERE l.no_surat='$no_surat'")->row();
 
-		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;border-collapse:collapse;color:#000;width:100%">
+		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;vertical-align:top;border-collapse:collapse;color:#000;width:100%">
 			<tr>
 				<td style="width:55%"></td>
 				<td style="width:16%"></td>
@@ -616,10 +632,15 @@ class Logistik extends CI_Controller
 				<td style="width:27%"></td>
 			</tr>
 			<tr>
-				<td style="padding:3px 0;font-weight:bold;font-size:20px;text-align:center" rowspan="6">SURAT JALAN</td>
-				<td style="padding:3px 0;font-weight:bold">NO. SURAT JALAN</td>
-				<td style="padding:3px 0">:</td>
+				<td style="padding:3px 0;font-weight:bold;font-size:20px;text-align:center;vertical-align:middle" rowspan="8">SURAT JALAN</td>
+				<td style="padding:5px 0 3px;font-weight:bold">NO. SURAT JALAN</td>
+				<td style="padding:5px 0 3px">:</td>
 				<td style="padding:3px 0 10px;font-weight:bold;font-size:16px;border-bottom:1px dotted #000">'.$pl->no_surat.'</td>
+			</tr>
+			<tr>
+				<td style="padding:3px 0;font-weight:bold">NO. PO</td>
+				<td style="padding:3px 0">:</td>
+				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$pl->no_po.'</td>
 			</tr>
 			<tr>
 				<td style="padding:3px 0;font-weight:bold">TANGGAL</td>
@@ -632,14 +653,19 @@ class Logistik extends CI_Controller
 				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$pl->nm_pelanggan_lm.'</td>
 			</tr>
 			<tr>
-				<td style="padding:3px 0"></td>
+				<td style="padding:3px 0;font-weight:bold">ATTN</td>
 				<td style="padding:3px 0">:</td>
-				<td style="padding:3px 0;border-bottom:1px dotted #000"></td>
+				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$pl->attn.'</td>
 			</tr>
 			<tr>
-				<td style="padding:3px 0"></td>
+				<td style="padding:3px 0;font-weight:bold">ALAMAT</td>
 				<td style="padding:3px 0">:</td>
-				<td style="padding:3px 0;border-bottom:1px dotted #000"></td>
+				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$pl->alamat_kirim.'</td>
+			</tr>
+			<tr>
+				<td style="padding:3px 0;font-weight:bold">NO. TELP</td>
+				<td style="padding:3px 0">:</td>
+				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$pl->no_telp.'</td>
 			</tr>
 			<tr>
 				<td style="padding:3px 0;font-weight:bold">NO. KENDARAAN</td>
@@ -667,7 +693,7 @@ class Logistik extends CI_Controller
 				$html .='<tr>
 					<td style="padding:3px;border:1px solid #000;text-align:center">'.$i.'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->nm_produk_lm.'</td>
-					<td style="padding:3px;border:1px solid #000;text-align:center">'.$r->qty_muat.'</td>
+					<td style="padding:3px;border:1px solid #000;text-align:center">'.number_format($r->qty_muat,0).'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->rk_ket.'</td>
 				</tr>';
 			}
@@ -723,7 +749,7 @@ class Logistik extends CI_Controller
 			</tr>';
 		$html .='</table>';
 
-		$judul = 'SURAT JALAN LAMINASI';
+		$judul = 'SJ LAMINASI - '.$no_surat;
 		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 	}
 

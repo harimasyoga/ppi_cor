@@ -232,7 +232,7 @@
 				[5, 10, 50, 100, "Semua"]
 			],	
 			responsive: false,
-			"pageLength": 5,
+			"pageLength": 10,
 			"language": {
 				"emptyTable": "TIDAK ADA DATA.."
 			},
@@ -404,6 +404,11 @@
 				swal.close()
 			}
 		})
+	}
+
+	function iKeterangan(id_rk, pc)
+	{
+		$("#keterangan-"+id_rk).val(pc)
 	}
 
 	function addKeterangan(id_rk)
