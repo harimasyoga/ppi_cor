@@ -470,7 +470,12 @@ class M_master extends CI_Model{
 	function editDataLaminasi()
 	{
 		$id = $_POST["id"];
-		return $this->db->query("SELECT*FROM m_produk_lm WHERE id_produk_lm='$id'")->row();
+		$produk = $this->db->query("SELECT*FROM m_produk_lm WHERE id_produk_lm='$id'")->row();
+		$cek = $this->db->query("SELECT*FROM trs_po_lm_detail WHERE id_m_produk_lm='$id' GROUP BY id_m_produk_lm")->num_rows();
+		return [
+			'produk' => $produk,
+			'cek' => $cek,
+		];
 	}
 
     function m_setting($table,$status){

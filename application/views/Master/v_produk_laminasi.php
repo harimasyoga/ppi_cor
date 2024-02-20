@@ -50,20 +50,7 @@
 							<input type="number" id="isi_lm" class="form-control" autocomplete="off" placeholder="ISI">
 						</div>
 					</div>
-					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-						<div class="col-md-1">QTY</div>
-						<div class="col-md-11">
-							<div class="btn-group btn-group-toggle" data-toggle="buttons">
-								<label class="btn btn-xs btn-secondary btn-pack active">
-									<input type="radio" name="radio" id="radio-pack" autocomplete="off" checked onclick="plhQty('pack')"> PACK
-								</label>
-								<label class="btn btn-xs btn-secondary btn-ikat">
-									<input type="radio" name="radio" id="radio-ikat" autocomplete="off" onclick="plhQty('ikat')"> IKAT
-								</label>
-							</div>
-							<input type="hidden" id="plh-qty" value="pack">
-						</div>
-					</div>
+					<div class="row-qty"></div>
 					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 						<div class="col-md-1"></div>
 						<div class="col-md-2">
@@ -82,6 +69,7 @@
 							<button type="button" class="btn btn-sm btn-primary" onclick="simpanDataLaminasi()"><i class="fa fa-save"></i> <b>SIMPAN</b></button>
 						</div>
 					</div>
+					<input type="hidden" id="plh-qty" value="pack">
 					<input type="hidden" id="h_id" value="">
 				</div>
 			</div>
@@ -172,6 +160,19 @@
 		$("#plh-qty").val("pack")
 		$(".input-group-text").html("PACK")
 		$("#qty_lm").val("")
+		$(".row-qty").html(`<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+			<div class="col-md-1">QTY</div>
+			<div class="col-md-11">
+				<div class="btn-group btn-group-toggle" data-toggle="buttons">
+					<label class="btn btn-xs btn-secondary btn-pack active">
+						<input type="radio" name="radio" id="radio-pack" autocomplete="off" checked onclick="plhQty('pack')"> PACK
+					</label>
+					<label class="btn btn-xs btn-secondary btn-ikat">
+						<input type="radio" name="radio" id="radio-ikat" autocomplete="off" onclick="plhQty('ikat')"> IKAT
+					</label>
+				</div>
+			</div>
+		</div>`)
 		reloadTable()
 		swal.close()
 	}
@@ -221,7 +222,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				if(data.insert){
 					$(".row-input").attr('style', 'display:none')
 					$(".row-list").attr('style', '')
@@ -256,15 +257,32 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				aksiInput = "update"
-				$("#h_id").val(data.id_produk_lm)
-				$("#nama_lm").val(data.nm_produk_lm)
-				$("#ukuran_lm").val(data.ukuran_lm)
-				$("#isi_lm").val(data.isi_lm)
-				$("#plh-qty").val(data.jenis_qty_lm);
-				(data.jenis_qty_lm == 'pack') ? $("#qty_lm").val(data.pack_lm) : $("#qty_lm").val(data.ikat_lm);
-				if(data.jenis_qty_lm == 'pack'){
+				$("#h_id").val(data.produk.id_produk_lm)
+				$("#nama_lm").val(data.produk.nm_produk_lm)
+				$("#ukuran_lm").val(data.produk.ukuran_lm)
+				$("#isi_lm").val(data.produk.isi_lm).prop('disabled', (data.cek == 1) ? true : false)
+				$("#plh-qty").val(data.produk.jenis_qty_lm);
+				$("#qty_lm").val((data.produk.jenis_qty_lm == 'pack') ? data.produk.pack_lm : data.produk.ikat_lm).prop('disabled', (data.cek == 1) ? true : false);				
+				if(data.cek == 1){
+					$(".row-qty").html("").attr('style', 'padding:0')
+				}else{
+					$(".row-qty").html(`<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+						<div class="col-md-1">QTY</div>
+						<div class="col-md-11">
+							<div class="btn-group btn-group-toggle" data-toggle="buttons">
+								<label class="btn btn-xs btn-secondary btn-pack active">
+									<input type="radio" name="radio" id="radio-pack" autocomplete="off" checked onclick="plhQty('pack')"> PACK
+								</label>
+								<label class="btn btn-xs btn-secondary btn-ikat">
+									<input type="radio" name="radio" id="radio-ikat" autocomplete="off" onclick="plhQty('ikat')"> IKAT
+								</label>
+							</div>
+						</div>
+					</div>`)
+				}
+				if(data.produk.jenis_qty_lm == 'pack'){
 					$(".btn-pack").addClass('focus active')
 					$(".btn-ikat").removeClass('focus active')
 					$("#radio-pack").prop("checked")
@@ -275,6 +293,7 @@
 					$("#radio-pack").prop("checked", false)
 					$("#radio-ikat").prop("checked")
 				}
+				$(".input-group-text").html(data.produk.jenis_qty_lm.toUpperCase())
 				swal.close()
 			}
 		})
@@ -312,7 +331,7 @@
 					})
 				},
 				success: function(data) {
-					console.log(data)
+					// console.log(data)
 					// swal.close()
 					kosong()
 				},

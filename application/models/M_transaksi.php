@@ -1102,28 +1102,30 @@ class M_transaksi extends CI_Model
 	function simpanHPP()
 	{
 		$data = [
+			'pilih_hpp' => $_POST["pilih_hpp"],
 			'tgl1_hpp' => $_POST["tgl1_hpp"],
 			'tgl2_hpp' => $_POST["tgl2_hpp"],
-			'jenis_hpp' => $_POST["jenis_hpp"],
-			'batu_bara' => $_POST["batu_bara"],
-			'bahan_baku' => $_POST["bahan_baku"],
-			'listrik' => $_POST["listrik"],
-			'chemical' => $_POST["chemical"],
-			'tenaga_kerja' => $_POST["tenaga_kerja"],
-			'depresiasi' => $_POST["depresiasi"],
-			'bahan_pembantu' => $_POST["bahan_pembantu"],
-			'solar' => $_POST["solar"],
-			'ekspedisi' => $_POST["ekspedisi"],
-			'lain_lain' => $_POST["lain_lain"],
-			'hasil_hpp' => $_POST["hasil_hpp"],
-			'tonase_order' => $_POST["tonase_order"],
-			'hasil_x_tonanse' => $_POST["hasil_x_tonanse"],
-			'presentase' => $_POST["presentase"],
-			'hxt_x_persen' => $_POST["hxt_x_persen"],
-			'fix_hpp' => $_POST["fix_hpp"],
+			'jenis_hpp' => ($_POST["jenis_hpp"] == '') ? null : $_POST["jenis_hpp"],
+			'batu_bara' => ($_POST["batu_bara"] == '') ? null : $_POST["batu_bara"],
+			'bahan_baku' => ($_POST["bahan_baku"] == '') ? null : $_POST["bahan_baku"],
+			'listrik' => ($_POST["listrik"] == '') ? null : $_POST["listrik"],
+			'chemical' => ($_POST["chemical"] == '') ? null : $_POST["chemical"],
+			'tenaga_kerja' => ($_POST["tenaga_kerja"] == '') ? null : $_POST["tenaga_kerja"],
+			'depresiasi' => ($_POST["depresiasi"] == '') ? null : $_POST["depresiasi"],
+			'bahan_pembantu' => ($_POST["bahan_pembantu"] == '') ? null : $_POST["bahan_pembantu"],
+			'solar' => ($_POST["solar"] == '') ? null : $_POST["solar"],
+			'ekspedisi' => ($_POST["ekspedisi"] == '') ? null : $_POST["ekspedisi"],
+			'lain_lain' => ($_POST["lain_lain"] == '') ? null : $_POST["lain_lain"],
+			'hasil_hpp' => ($_POST["hasil_hpp"] == '') ? null : $_POST["hasil_hpp"],
+			'tonase_order' => ($_POST["tonase_order"] == '') ? null : $_POST["tonase_order"],
+			'hasil_x_tonanse' => ($_POST["hasil_x_tonanse"] == '') ? null : $_POST["hasil_x_tonanse"],
+			'presentase' => ($_POST["presentase"] == '') ? null : $_POST["presentase"],
+			'hxt_x_persen' => ($_POST["hxt_x_persen"] == '') ? null : $_POST["hxt_x_persen"],
+			'fix_hpp' => ($_POST["fix_hpp"] == '') ? null : $_POST["fix_hpp"],
 		];
 
 		$data2 = [
+			'pilih_hpp' => $_POST["pilih_hpp"],
 			'tgl1_hpp' => $_POST["tgl1_hpp"],
 			'tgl2_hpp' => $_POST["tgl2_hpp"],
 			'jenis_hpp' => $_POST["jenis_hpp"],
@@ -1145,28 +1147,58 @@ class M_transaksi extends CI_Model
 			'fix_hpp' => ($_POST["fix_hpp"] == '') ? '' : number_format($_POST["fix_hpp"],0,',','.'),
 		];
 
-		if($_POST["jenis_hpp"] == ''){
+		if($_POST["pilih_hpp"] == ''){
+			$insertHPP = false;
+			$data2 = $data2;
+			$msg = 'PILIH HPP!';
+		}else if($_POST["jenis_hpp"] == '' && ($_POST["pilih_hpp"] == 'PM' || $_POST["pilih_hpp"] == 'CORR')){
 			$insertHPP = false;
 			$data2 = $data2;
 			$msg = 'PILIH JENIS HPP!';
-		}else if(
-			$_POST["tgl1_hpp"] == '' || $_POST["tgl1_hpp"] == 0 ||
-			$_POST["tgl2_hpp"] == '' || $_POST["tgl2_hpp"] == 0 ||
-			$_POST["batu_bara"] == '' || $_POST["batu_bara"] == 0 ||
-			$_POST["bahan_baku"] == '' || $_POST["bahan_baku"] == 0 ||
-			$_POST["listrik"] == '' || $_POST["listrik"] == 0 ||
-			$_POST["chemical"] == '' || $_POST["chemical"] == 0 ||
-			$_POST["tenaga_kerja"] == '' || $_POST["tenaga_kerja"] == 0 ||
-			$_POST["depresiasi"] == '' || $_POST["depresiasi"] == 0 ||
-			$_POST["bahan_pembantu"] == '' || $_POST["bahan_pembantu"] == 0 ||
-			$_POST["solar"] == '' || $_POST["solar"] == 0 ||
-			$_POST["ekspedisi"] == '' || $_POST["ekspedisi"] == 0 ||
-			$_POST["hasil_hpp"] == '' || $_POST["hasil_hpp"] == 0 ||
-			$_POST["tonase_order"] == '' || $_POST["tonase_order"] == 0 ||
-			$_POST["hasil_x_tonanse"] == '' || $_POST["hasil_x_tonanse"] == 0 ||
-			$_POST["presentase"] == '' ||
-			$_POST["hxt_x_persen"] == '' ||
-			$_POST["fix_hpp"] == '' || $_POST["fix_hpp"] == 0
+		}else if((
+				$_POST["tgl1_hpp"] == '' ||
+				$_POST["tgl2_hpp"] == '' ||
+				$_POST["batu_bara"] == '' || $_POST["batu_bara"] == 0 ||
+				$_POST["bahan_baku"] == '' || $_POST["bahan_baku"] == 0 ||
+				$_POST["listrik"] == '' || $_POST["listrik"] == 0 ||
+				$_POST["chemical"] == '' || $_POST["chemical"] == 0 ||
+				$_POST["tenaga_kerja"] == '' || $_POST["tenaga_kerja"] == 0 ||
+				$_POST["depresiasi"] == '' || $_POST["depresiasi"] == 0 ||
+				$_POST["bahan_pembantu"] == '' || $_POST["bahan_pembantu"] == 0 ||
+				$_POST["solar"] == '' || $_POST["solar"] == 0 ||
+				$_POST["ekspedisi"] == '' || $_POST["ekspedisi"] == 0 ||
+				$_POST["hasil_hpp"] == '' || $_POST["hasil_hpp"] == 0 ||
+				$_POST["tonase_order"] == '' || $_POST["tonase_order"] == 0 ||
+				$_POST["hasil_x_tonanse"] == '' || $_POST["hasil_x_tonanse"] == 0 ||
+				$_POST["presentase"] == '' ||
+				$_POST["hxt_x_persen"] == '' ||
+				$_POST["fix_hpp"] == '' || $_POST["fix_hpp"] == 0
+			)
+			&& $_POST["pilih_hpp"] == 'PM'
+		){
+			$insertHPP = false;
+			$data2 = $data2;
+			$msg = 'HARAP LENGKAPI FORM!';
+		}else if((
+				$_POST["tgl1_hpp"] == '' ||
+				$_POST["tgl2_hpp"] == '' ||
+				$_POST["listrik"] == '' || $_POST["listrik"] == 0 ||
+				$_POST["tenaga_kerja"] == '' || $_POST["tenaga_kerja"] == 0 ||
+				$_POST["bahan_pembantu"] == '' || $_POST["bahan_pembantu"] == 0
+			)
+			&& $_POST["pilih_hpp"] == 'LAMINASI'
+		){
+			$insertHPP = false;
+			$data2 = $data2;
+			$msg = 'HARAP LENGKAPI FORM!';
+		}else if((
+				$_POST["tgl1_hpp"] == '' ||
+				$_POST["tgl2_hpp"] == '' ||
+				$_POST["tenaga_kerja"] == '' || $_POST["tenaga_kerja"] == 0 ||
+				$_POST["bahan_pembantu"] == '' || $_POST["bahan_pembantu"] == 0 ||
+				$_POST["ekspedisi"] == '' || $_POST["ekspedisi"] == 0
+			)
+			&& $_POST["pilih_hpp"] == 'CORR'
 		){
 			$insertHPP = false;
 			$data2 = $data2;
