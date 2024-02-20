@@ -85,7 +85,7 @@
 						</div>
 					</div>
 					<div class="card-body">
-						<?php if (in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
+						<?php if (in_array($this->session->userdata('level'), ['Admin','Laminasi'])) { ?>
 							<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right" onclick="btnData('add')"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 							<br><br>
 						<?php } ?>
@@ -157,6 +157,7 @@
 		$(".btn-ikat").removeClass('focus active')
 		$("#radio-pack").prop("checked")
 		$("#radio-ikat").prop("checked", false)
+		$("#radio-kg").prop("checked", false)
 		$("#plh-qty").val("pack")
 		$(".input-group-text").html("PACK")
 		$("#qty_lm").val("")
@@ -169,6 +170,9 @@
 					</label>
 					<label class="btn btn-xs btn-secondary btn-ikat">
 						<input type="radio" name="radio" id="radio-ikat" autocomplete="off" onclick="plhQty('ikat')"> IKAT
+					</label>
+					<label class="btn btn-xs btn-secondary btn-kg">
+						<input type="radio" name="radio" id="radio-kg" autocomplete="off" onclick="plhQty('kg')"> KG
 					</label>
 				</div>
 			</div>
@@ -264,7 +268,15 @@
 				$("#ukuran_lm").val(data.produk.ukuran_lm)
 				$("#isi_lm").val(data.produk.isi_lm).prop('disabled', (data.cek == 1) ? true : false)
 				$("#plh-qty").val(data.produk.jenis_qty_lm);
-				$("#qty_lm").val((data.produk.jenis_qty_lm == 'pack') ? data.produk.pack_lm : data.produk.ikat_lm).prop('disabled', (data.cek == 1) ? true : false);				
+				let qty = 0
+				if(data.produk.jenis_qty_lm == 'pack'){
+					qty = data.produk.pack_lm
+				}else if(data.produk.jenis_qty_lm == 'ikat'){
+					qty = data.produk.ikat_lm
+				}else{
+					qty = data.produk.kg_lm
+				}
+				$("#qty_lm").val(qty).prop('disabled', (data.cek == 1) ? true : false);				
 				if(data.cek == 1){
 					$(".row-qty").html("").attr('style', 'padding:0')
 				}else{
@@ -278,20 +290,34 @@
 								<label class="btn btn-xs btn-secondary btn-ikat">
 									<input type="radio" name="radio" id="radio-ikat" autocomplete="off" onclick="plhQty('ikat')"> IKAT
 								</label>
+								<label class="btn btn-xs btn-secondary btn-kg">
+									<input type="radio" name="radio" id="radio-kg" autocomplete="off" onclick="plhQty('kg')"> KG
+								</label>
 							</div>
 						</div>
 					</div>`)
 				}
 				if(data.produk.jenis_qty_lm == 'pack'){
 					$(".btn-pack").addClass('focus active')
+					$(".btn-kg").removeClass('focus active')
 					$(".btn-ikat").removeClass('focus active')
-					$("#radio-pack").prop("checked")
 					$("#radio-ikat").prop("checked", false)
-				}else{
+					$("#radio-kg").prop("checked", false)
+					$("#radio-pack").prop("checked")
+				}else if(data.produk.jenis_qty_lm == 'ikat'){
 					$(".btn-pack").removeClass('focus active')
+					$(".btn-kg").removeClass('focus active')
 					$(".btn-ikat").addClass('focus active')
 					$("#radio-pack").prop("checked", false)
+					$("#radio-kg").prop("checked", false)
 					$("#radio-ikat").prop("checked")
+				}else{
+					$(".btn-pack").removeClass('focus active')
+					$(".btn-ikat").removeClass('focus active')
+					$(".btn-kg").addClass('focus active')
+					$("#radio-pack").prop("checked", false)
+					$("#radio-ikat").prop("checked", false)
+					$("#radio-kg").prop("checked")
 				}
 				$(".input-group-text").html(data.produk.jenis_qty_lm.toUpperCase())
 				swal.close()

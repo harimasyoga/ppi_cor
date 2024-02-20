@@ -92,7 +92,13 @@
 											$html ='';
 											$html .='<option value="">PILIH</option>';
 											foreach($query->result() as $r){
-												($r->jenis_qty_lm == 'pack') ? $qty = $r->pack_lm : $qty = $r->ikat_lm.' ( IKAT )';
+												if($r->jenis_qty_lm == 'pack'){
+													$qty = $r->pack_lm;
+												}else if($r->jenis_qty_lm == 'ikat'){
+													$qty = $r->ikat_lm.' ( IKAT )';
+												}else{
+													$qty = $r->kg_lm.' ( KG )';
+												}
 												$html .='<option
 													value="'.$r->id_produk_lm.'"
 													nm_produk_lm="'.$r->nm_produk_lm.'"
@@ -101,15 +107,13 @@
 													jenis_qty_lm="'.$r->jenis_qty_lm.'"
 													pack_lm="'.$r->pack_lm.'"
 													ikat_lm="'.$r->ikat_lm.'"
+													kg_lm="'.$r->kg_lm.'"
 												>'.$r->nm_produk_lm.' | '.$r->ukuran_lm.' | '.$r->isi_lm.' | '.$qty.'</option>';
 											}
 											echo $html
 										?>
 									</select>
 								</div>
-								<!-- <div class="col-md-1">
-									<button type="button" class="btn btn-sm btn-secondary" style="margin-top:4px"><i class="fas fa-sync-alt"></i></button>
-								</div> -->
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-3">SIZE</div>
@@ -372,6 +376,7 @@
 		let jenis_qty_lm = $("#item option:selected").attr('jenis_qty_lm')
 		let pack_lm = $("#item option:selected").attr('pack_lm')
 		let ikat_lm = $("#item option:selected").attr('ikat_lm')
+		let kg_lm = $("#item option:selected").attr('kg_lm')
 		let qty = ''
 		if(jenis_qty_lm == undefined){
 			$(".txt-item-pack-ikat").html("PACK")
@@ -386,12 +391,18 @@
 				$(".txt-harga-pack-ikat").html("PACK")
 				$(".igt-qty").html("PACK")
 				qty = pack_lm
-			}else{
+			}else if(jenis_qty_lm == 'ikat'){
 				$(".txt-item-pack-ikat").html("IKAT")
 				$(".txt-order-pack-ikat").html("IKAT")
 				$(".txt-harga-pack-ikat").html("IKAT")
 				$(".igt-qty").html("IKAT")
 				qty = ikat_lm
+			}else{
+				$(".txt-item-pack-ikat").html("KG")
+				$(".txt-order-pack-ikat").html("KG")
+				$(".txt-harga-pack-ikat").html("KG")
+				$(".igt-qty").html("KG")
+				qty = kg_lm
 			}
 		}
 		$("#order_sheet").val("").prop('disabled', true)
@@ -446,7 +457,12 @@
 		$("#order_pori").val(format_angka(orderPackOrIkat))
 		
 		let cek = parseInt(qty_bal)
-		$("#harga_lembar").val("").prop('disabled', (isNaN(cek) || cek == 0) ? true : false)
+		let jenis_qty_lm = $("#item option:selected").attr('jenis_qty_lm');
+		if(jenis_qty_lm == 'kg'){
+			$("#harga_lembar").val(0).prop('disabled', true)
+		}else{
+			$("#harga_lembar").val("").prop('disabled', (isNaN(cek) || cek == 0) ? true : false)
+		}
 		$("#harga_pori").val("").prop('disabled', (isNaN(cek) || cek == 0) ? true : false)
 		$("#harga_total").val("")
 	}
@@ -464,7 +480,6 @@
 
 			let hitungPori = parseInt(at_sheet) * parseInt(harga_lembar);
 			(isNaN(hitungPori)) ? hitungPori = 0 : hitungPori = hitungPori
-			// console.log("hitungPori : ", hitungPori)
 			$("#harga_pori").val(format_angka(hitungPori))
 
 			harga_total = parseInt(order_sheet) * parseInt(harga_lembar)
@@ -476,11 +491,14 @@
 
 			let hargaSheet = parseInt(harga_pori) / parseInt(at_sheet);
 			$("#harga_lembar").val(hargaSheet)
-			// console.log("hargaSheet : ", hargaSheet)
 
 			harga_total = parseInt(order_pori) * parseInt(harga_pori)
 		}
-		// console.log(harga_total)
+
+		let jenis_qty_lm = $("#item option:selected").attr('jenis_qty_lm');
+		if(jenis_qty_lm == 'kg'){
+			$("#harga_lembar").val(0).prop('disabled', true)
+		}
 
 		$("#harga_total").val(format_angka(harga_total))
 	}
@@ -684,7 +702,15 @@
 					$("#item").val(data.po_dtl.id_m_produk_lm).prop('disabled', true).trigger('change')
 					$("#size").val(data.po_dtl.ukuran_lm)
 					$("#sheet").val(format_angka(data.po_dtl.isi_lm))
-					$("#qty").val(format_angka(((data.po_dtl.jenis_qty_lm == 'pack') ? data.po_dtl.pack_lm : data.po_dtl.ikat_lm)))
+					let qty = 0
+					if(data.po_dtl.jenis_qty_lm == 'pack'){
+						qty = data.po_dtl.pack_lm
+					}else if(data.po_dtl.jenis_qty_lm == 'ikat'){
+						qty = data.po_dtl.ikat_lm
+					}else{
+						qty = data.po_dtl.kg_lm
+					}
+					$("#qty").val(format_angka(qty))
 					$("#order_sheet").val(format_angka(data.po_dtl.order_sheet_lm))
 					$("#order_pori").val(format_angka(data.po_dtl.order_pori_lm))
 					$("#qty_bal").val(format_angka(data.po_dtl.qty_bal)).prop('disabled', false)
@@ -694,11 +720,16 @@
 						$(".txt-order-pack-ikat").html("PACK")
 						$(".txt-harga-pack-ikat").html("PACK")
 						$(".igt-qty").html("PACK")
-					}else{
+					}else if(data.po_dtl.jenis_qty_lm == 'ikat'){
 						$(".txt-item-pack-ikat").html("IKAT")
 						$(".txt-order-pack-ikat").html("IKAT")
 						$(".txt-harga-pack-ikat").html("IKAT")
 						$(".igt-qty").html("IKAT")
+					}else{
+						$(".txt-item-pack-ikat").html("KG")
+						$(".txt-order-pack-ikat").html("KG")
+						$(".txt-harga-pack-ikat").html("KG")
+						$(".igt-qty").html("KG")
 					}
 
 					$("#harga_lembar").val(format_angka(data.po_dtl.harga_lembar_lm)).prop('disabled', false)

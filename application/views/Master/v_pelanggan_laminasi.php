@@ -30,9 +30,10 @@
 					<thead>
 						<tr>
 							<th style="width:5%">NO.</th>
-							<th style="width:35%">NAMA PELANGGAN</th>
-							<th style="width:30%">ALAMAT</th>
-							<th style="width:20%">SALES</th>
+							<th style="width:20%">NAMA PELANGGAN</th>
+							<th style="width:25%">ALAMAT</th>
+							<th style="width:25%">NO. TELP</th>
+							<th style="width:15%">SALES</th>
 							<th style="width:10%">AKSI</th>
 						</tr>
 					</thead>
@@ -74,15 +75,21 @@
 					</div>
 				</div>
 				<div class="form-group row">
-					<label class="col-sm-2 col-form-label">ALAMAT</label>
+					<label class="col-sm-2 col-form-label">KOTA</label>
 					<div class="col-sm-10">
-						<textarea class="form-control" id="alamat" placeholder="ALAMAT KANTOR" oninput="this.value = this.value.toUpperCase()"></textarea>
+						<textarea class="form-control" id="alamat" placeholder="KOTA" oninput="this.value = this.value.toUpperCase()"></textarea>
 					</div>
 				</div>
 				<div class="form-group row">
 					<label class="col-sm-2 col-form-label">ALAMAT KIRIM</label>
 					<div class="col-sm-10">
 						<textarea class="form-control" id="alamat_kirim" placeholder="ALAMAT KIRIM" oninput="this.value = this.value.toUpperCase()"></textarea>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">NO. TELP</label>
+					<div class="col-sm-10">
+						<textarea class="form-control" id="no_telp" placeholder="NO. TELP" oninput="this.value = this.value.toUpperCase()"></textarea>
 					</div>
 				</div>
 			</div>
@@ -139,9 +146,10 @@
 		$("#idx").val("")
 		$("#id_sales").val("").trigger('change')
 		$("#nm_pelanggan").val("")
-		$("#attn").val("-")
+		$("#attn").val("")
 		$("#alamat").val("")
 		$("#alamat_kirim").val("")
+		$("#no_telp").val("")
 		$("#btn-simpan").prop("disabled", false);
 	}
 
@@ -176,6 +184,7 @@
 		let attn = $("#attn").val()
 		let alamat = $("#alamat").val()
 		let alamat_kirim = $("#alamat_kirim").val()
+		let no_telp = $("#no_telp").val()
 
 		$("#btn-simpan").prop("disabled", true);
 		$.ajax({
@@ -192,7 +201,7 @@
 				});
 			},
 			data: ({
-				idx, id_sales, nm_pelanggan, attn, alamat, alamat_kirim, jenis: 'm_pelanggan_lm', status: status
+				idx, id_sales, nm_pelanggan, attn, alamat, alamat_kirim, no_telp, jenis: 'm_pelanggan_lm', status: status
 			}),
 			success: function(res) {
 				data = JSON.parse(res)
@@ -245,6 +254,7 @@
 				$("#attn").val(data.pelanggan.attn)
 				$("#alamat").val(data.pelanggan.alamat)
 				$("#alamat_kirim").val(data.pelanggan.alamat_kirim)
+				$("#no_telp").val(data.pelanggan.no_telp)
 
 				swal.close()
 			}

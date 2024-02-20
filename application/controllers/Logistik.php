@@ -188,8 +188,16 @@ class Logistik extends CI_Controller
 				</td>';
 
 				($kiriman->num_rows() == 0) ? $btnAksi = $inputan : $btnAksi = '<td colspan="2"></td>';
-				($r->jenis_qty_lm == 'pack') ? $ket = '( PACK )' : $ket = '( IKAT )';
-				($r->jenis_qty_lm == 'pack') ? $qty = $r->pack_lm : $qty = $r->ikat_lm;
+				if($r->jenis_qty_lm == 'pack'){
+					$ket = '( PACK )';
+					$qty = $r->pack_lm;
+				}else if($r->jenis_qty_lm == 'ikat'){
+					$ket = '( IKAT )';
+					$qty = $r->ikat_lm;
+				}else{
+					$ket = '( KG )';
+					$qty = $r->kg_lm;
+				}
 				$html .='<tr>
 					<td style="padding:6px;text-align:center">'.$i.'</td>
 					<td style="padding:6px">'.$r->nm_produk_lm.'</td>
@@ -274,8 +282,16 @@ class Logistik extends CI_Controller
 			echo json_encode(array('data' => false, 'isi' => 'MUAT TIDAK BOLEH KOSONG', 'total_items' => $this->cart->total_items()));
 		}else{
 			$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.id='$id_dtl'")->row();
-			($po_dtl->jenis_qty_lm == 'pack') ? $ket = '( PACK )' : $ket = '( IKAT )';
-			($po_dtl->jenis_qty_lm == 'pack') ? $qty = $po_dtl->pack_lm : $qty = $po_dtl->ikat_lm;
+			if($po_dtl->jenis_qty_lm == 'pack'){
+				$ket = '( PACK )';
+				$qty = $po_dtl->pack_lm;
+			}else if($po_dtl->jenis_qty_lm == 'ikat'){
+				$ket = '( IKAT )';
+				$qty = $po_dtl->ikat_lm;
+			}else{
+				$ket = '( KG )';
+				$qty = $po_dtl->kg_lm;
+			}
 
 			$data = array(
 				'id' => $_POST["id_dtl"],
