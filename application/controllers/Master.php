@@ -45,6 +45,48 @@ class Master extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function Rek_akun()
+	{
+		$data = [
+			'judul' => "KODE REKENING AKUN",
+		];
+		$this->load->view('header',$data);
+		if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
+			$this->load->view('Master/v_rek_akun');
+		}else{
+			$this->load->view('home');
+		}
+		$this->load->view('footer');
+	}
+	
+	function Rek_kelompok()
+	{
+		$data = [
+			'judul' => "KODE REKENING KELOMPOK",
+		];
+		$this->load->view('header',$data);
+		if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
+			$this->load->view('Master/v_rek_akun');
+		}else{
+			$this->load->view('home');
+		}
+		$this->load->view('footer');
+	}
+	
+	function Rek_jenis()
+	{
+		$data = [
+			'judul' => "KODE REKENING JENIS",
+		];
+		$this->load->view('header',$data);
+		if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
+			$this->load->view('Master/v_rek_akun');
+		}else{
+			$this->load->view('home');
+		}
+		$this->load->view('footer');
+	}
+
 	function Produk_Laminasi()
 	{
 
@@ -488,6 +530,67 @@ class Master extends CI_Controller
 				$data[] = $row;
 				$i++;
 			}
+		} else if ($jenis == "load_kd_akun") {
+			$query = $this->db->query("SELECT *,a.id_bayar_inv as id_ok FROM trs_bayar_inv a join invoice_header b on a.no_inv=b.no_invoice ORDER BY id_bayar_inv ")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+
+				$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$r->no_inv' GROUP BY no_surat ORDER BY no_surat");
+				if($result_sj->num_rows() == '1'){
+					$no_sj = $result_sj->row()->no_surat;
+				}else{					
+					$no_sj_result    = '';
+					foreach($result_sj->result() as $row){
+						$no_sj_result .= '<b>-</b>'.$row->no_surat.'<br>';
+					}
+					$no_sj = $no_sj_result;
+				}				
+				
+				$result_item = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$r->no_inv' GROUP BY no_invoice ORDER BY no_invoice");
+				if($result_item->num_rows() == '1'){
+					$item = $result_item->row()->nm_ker;
+				}else{					
+					$item_result    = '';
+					foreach($result_item->result() as $row){
+						$item_result .= '<b>- </b>'.$row->nm_ker.'<br>';
+					}
+					$item = $item_result;
+				}				
+
+
+				$id       = "'$r->id_ok'";
+				$no_inv   = "'$r->no_invoice'";
+				$print    = base_url("laporan/print_invoice_v2?no_invoice=") . $r->no_invoice;
+
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = $r->no_inv;
+				$row[] = $r->nm_perusahaan;
+
+				$aksi = "";
+
+				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				{
+					$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv . ')" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-danger btn-sm">
+							<i class="fa fa-trash-alt"></i>
+						</button> 
+						';
+			
+				} else {
+					$aksi = '';
+				}
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+
+				$i++;
+			}
+		}else{
 		}
 
 

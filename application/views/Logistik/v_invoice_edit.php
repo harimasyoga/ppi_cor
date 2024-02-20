@@ -294,7 +294,7 @@
 		$.ajax({
 			url        : '<?= base_url(); ?>Logistik/load_data_1',
 			type       : "POST",
-			data       : { id: id, no_inv: no_invoice },
+			data       : { id: id, no_inv: no_invoice, jenis:'invoice' },
 			dataType   : "JSON",
 			beforeSend: function() {
 				swal({
@@ -407,7 +407,7 @@
 								</td>
 								
 								<td style="text-align: center" >
-									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.include)}">
+									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}">
 								</td>
 
 								<td style="text-align: center" >${val.qty}
@@ -448,10 +448,10 @@
 								<th style="text-align: center" >Ukuran</th>
 								<th style="text-align: center" >Kualitas</th>
 								<th style="text-align: center; padding-right: 35px" >Exclude</th>
-								<th style="text-align: center; padding-right: 35px" >Include</th>
+								<th style="text-align: center; padding-right: 40px" >Include</th>
 								<th style="text-align: center" >QTY</th>
 								<th style="text-align: center; padding-right: 35px">R. QTY</th>
-								<th style="text-align: center; padding-right: 35px" >HASIL</th>
+								<th style="text-align: center; padding-right: 40px" >HASIL</th>
 								<th style="text-align: center" >AKSI</th>
 							</thead>`;
 						var no             = 1;
@@ -497,7 +497,7 @@
 								</td>
 
 								<td style="text-align: center" >
-									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.include)}">
+									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}">
 								</td>
 
 								<td style="text-align: center" >${format_angka(val.qty)}
@@ -1124,23 +1124,19 @@
 
 	function Hitung_price(val,id) 
 	{
-		var cek = id.substr(0,9);
-		var id2 = id.substr(9,1);
+		var cek = id.substr(0,3);
+		var id2 = id.substr(3,1);
 		var isi = val.split('.').join('');
 		
-		if(cek=='price_exc')
+		if(cek=='hrg')
 		{
-			inc = Math.trunc(isi *1.11);
-			$('#price_inc'+id2).val(format_angka(inc));
+			inc = (isi *1.11).toFixed(2);
+			$('#inc'+id2).val(format_angka_koma(inc));
 
-			// $('#price_exc_rp'+id2).val(format_angka(val));
-			// $('#price_inc_rp'+id2).val(format_angka(inc));
 		}else {
-			exc = Math.trunc(isi /1.11);
-			$('#price_exc'+id2).val(format_angka(exc));
+			exc = Math.ceil(isi /1.11);
+			$('#hrg'+id2).val(format_angka(exc));
 
-			// $('#price_exc_rp'+id2).val(format_angka(exc));
-			// $('#price_inc_rp'+id2).val(format_angka(val));
 		}
 	}
 

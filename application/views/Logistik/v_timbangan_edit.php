@@ -286,11 +286,11 @@
 		$('.select2').select2({
 			dropdownAutoWidth: true
 		})
-		customer()
+		customer('add','')
 		load_data()
 	})
 
-	function customer() 
+	function customer(cek,id_p) 
 	{
 		option = "";
 		$.ajax({
@@ -310,10 +310,22 @@
 			},
 			success:function(data){			
 				if(data.message == "Success"){					
-					option = `<option value="">-- Pilih --</option>`;	
+					option = `<option value="">-- Pilih --</option>`;
 
 					$.each(data.data, function(index, val) {
-					option += "<option value='"+val.id_pelanggan+"'>"+val.nm_pelanggan+"</option>";
+
+						if(cek=='edit')
+						{
+							if(val.id_pelanggan==id_p)
+							{
+								var selected = 'selected'
+							}else{
+								var selected = ''
+							}
+						}else{
+							var selected = ''
+						}
+						option += "<option value='"+val.id_pelanggan+"' "+selected+">"+val.nm_pelanggan+"</option>";
 					});
 
 					$('#cust').html(option);
@@ -359,6 +371,7 @@
 					$("#pilih_po").val(data.header.pilih_po).trigger('change');
 					// $("#pilih_kiriman").val(data.header.pilih_kiriman).trigger('change');
 					// $("#cust").val(data.header.id_pelanggan).trigger('change');
+					customer('edit',data.header.id_pelanggan)
 
 					$("#permintaan").val(data.header.permintaan);					
 					$("#supplier").val(data.header.suplier);					
@@ -721,7 +734,7 @@
 			$("#berat_bersih").prop("readonly", true)		
 			$("#qty0").prop("readonly", false)		
 			$('#add_button').show("1000")
-			// customer();
+			// customer('add');
 
 		}else{
 			$("#berat_bersih").prop("readonly", false)			
@@ -731,7 +744,7 @@
 			clearRow();
 			option = `<option value="">-- Pilih --</option>`;	
 			$('#item_po0').html(option);
-			// customer();
+			// customer('add');
 		}
 		
 	}
@@ -756,7 +769,7 @@
 		$("#pot").val('')
 		$("#plh_input").val('')
 		$("#nm_penimbang").html(`<option value="">PILIH</option><option value="Feri S">Feri S</option><option value="DWI J">DWI J</option>`).prop("readonly", false)
-		customer();
+		customer('add','');
 		clearRow();
 	}
 

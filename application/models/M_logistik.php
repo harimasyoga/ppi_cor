@@ -79,6 +79,8 @@ class M_logistik extends CI_Model
 				{
 					$harga_ok    = $this->input->post('hrg['.$no.']');
 					$harga_inc   = $this->input->post('inc['.$no.']');
+					$harga_inc1  = str_replace('.','',$harga_inc);
+
 					$hasil_ok    = $this->input->post('hasil['.$no.']');
 					$id_pl_roll  = $this->input->post('id_pl_roll['.$no.']');
 					$data = [					
@@ -92,7 +94,7 @@ class M_logistik extends CI_Model
 						'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
 						'id_pl'        => $id_pl_roll,
 						'harga'        => str_replace('.','',$harga_ok),
-						'include'      => str_replace('.','',$harga_inc),
+						'include'      => str_replace(',','.',$harga_inc1),
 						'weight'       => $this->input->post('weight['.$no.']'),
 						'seset'        => $this->input->post('seset['.$no.']'),
 						'hasil'        => str_replace('.','',$hasil_ok),
@@ -132,6 +134,8 @@ class M_logistik extends CI_Model
 				{
 					$harga_ok    = $this->input->post('hrg['.$no.']');
 					$harga_inc   = $this->input->post('inc['.$no.']');
+					$harga_inc1  = str_replace('.','',$harga_inc);
+
 					$hasil_ok    = $this->input->post('hasil['.$no.']');
 					$id_pl_roll  = $this->input->post('id_pl_roll['.$no.']');
 					$data = [					
@@ -145,7 +149,7 @@ class M_logistik extends CI_Model
 						'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
 						'id_pl'        => $id_pl_roll,
 						'harga'        => str_replace('.','',$harga_ok),
-						'include'      => str_replace('.','',$harga_inc),
+						'include'      => str_replace(',','.',$harga_inc1),
 						'hasil'        => str_replace('.','',$hasil_ok),
 						'no_po'        => $this->input->post('no_po['.$no.']'),
 					];
@@ -166,6 +170,60 @@ class M_logistik extends CI_Model
 			return 0;
 
 		}
+			
+	}
+	
+	function save_byr_invoice()
+	{
+		$status_input = $this->input->post('sts_input');
+		if($status_input == 'add')
+		{
+
+			$data_header = array(
+				'id_invoice_h'   => $this->input->post('id_invoice_h'),
+				'id_perusahaan'  => $this->input->post('id_perusahaan'),
+				'tgl_sj'         => $this->input->post('tgl_inv'),
+				'no_inv'         => $this->input->post('no_inv'),
+				'tgl_inv'        => $this->input->post('tgl_inv'),
+				'alasan_retur'   => $this->input->post('alasan'),
+				'total_inv'      => str_replace('.','',$this->input->post('total_inv')),
+				'tgl_jt'         => $this->input->post('tgl_jt'),
+				'tgl_bayar'      => $this->input->post('tgl_byr'),
+				'jumlah_bayar'   => str_replace('.','',$this->input->post('jml_byr')),
+				'status_jt'      => $this->input->post('status_jt'),
+				'status_lunas'   => $this->input->post('sts_lunas'),
+				'sales'          => $this->input->post('sales'),
+				'TOP'            => $this->input->post('top'),
+			);
+		
+			$result_header = $this->db->insert('trs_bayar_inv', $data_header);
+			
+		}else{
+
+			$data_header = array(
+				'id_invoice_h'   => $this->input->post('id_invoice_h'),
+				'id_perusahaan'  => $this->input->post('id_perusahaan'),
+				'tgl_sj'         => $this->input->post('tgl_inv'),
+				'no_inv'         => $this->input->post('no_inv'),
+				'tgl_inv'        => $this->input->post('tgl_inv'),
+				'alasan_retur'   => $this->input->post('alasan'),
+				'total_inv'      => str_replace('.','',$this->input->post('total_inv')),
+				'tgl_jt'         => $this->input->post('tgl_jt'),
+				'tgl_bayar'      => $this->input->post('tgl_byr'),
+				'jumlah_bayar'   => str_replace('.','',$this->input->post('jml_byr')),
+				'status_jt'      => $this->input->post('status_jt'),
+				'status_lunas'   => $this->input->post('sts_lunas'),
+				'sales'          => $this->input->post('sales'),
+				'TOP'            => $this->input->post('top'),
+			);
+		
+			$this->db->where('id_bayar_inv', $this->input->post('id_byr_inv'));
+			$result_header = $this->db->update('trs_bayar_inv', $data_header);
+			
+		}
+		return $result_header;
+		
+
 			
 	}
 
@@ -703,6 +761,9 @@ class M_logistik extends CI_Model
 
 					$harga_ok        = $this->input->post('hrg['.$no.']');
 					$hasil_ok        = $this->input->post('hasil['.$no.']');
+					$harga_inc       = $this->input->post('inc['.$no.']');
+					$harga_inc1      = str_replace('.','',$harga_inc);
+
 					$seset_ok        = $this->input->post('seset['.$no.']');
 					$id_pl_roll      = $this->input->post('id_pl_roll['.$no.']');
 					$id_inv_detail   = $this->input->post('id_inv_detail['.$no.']');
@@ -717,6 +778,7 @@ class M_logistik extends CI_Model
 						'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
 						'id_pl'        => $id_pl_roll,
 						'harga'        => str_replace('.','',$harga_ok),
+						'include'      => str_replace(',','.',$harga_inc1),
 						'weight'       => $this->input->post('weight['.$no.']'),
 						'seset'        => str_replace('.','',$seset_ok),
 						'hasil'        => str_replace('.','',$hasil_ok),
@@ -739,6 +801,10 @@ class M_logistik extends CI_Model
 
 					$harga_ok        = $this->input->post('hrg['.$no.']');
 					$hasil_ok        = $this->input->post('hasil['.$no.']');
+					
+					$harga_inc       = $this->input->post('inc['.$no.']');
+					$harga_inc1      = str_replace('.','',$harga_inc);
+
 					$retur_qty_ok    = $this->input->post('retur_qty['.$no.']');
 					$id_pl_roll      = $this->input->post('id_pl_roll['.$no.']');
 					$id_inv_detail   = $this->input->post('id_inv_detail['.$no.']');
@@ -754,6 +820,7 @@ class M_logistik extends CI_Model
 						'retur_qty'    => str_replace('.','',$retur_qty_ok),
 						'id_pl'        => $id_pl_roll,
 						'harga'        => str_replace('.','',$harga_ok),
+						'include'      => str_replace(',','.',$harga_inc1),
 						'hasil'        => str_replace('.','',$hasil_ok),
 						'no_po'        => $this->input->post('no_po['.$no.']'),
 					];

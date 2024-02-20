@@ -292,7 +292,7 @@
 		$.ajax({
 			url        : '<?= base_url(); ?>Logistik/load_data_1',
 			type       : "POST",
-			data       : { id: id, no_inv: no_invoice },
+			data       : { id: id, no_inv: no_invoice, jenis:'surat_jln' },
 			dataType   : "JSON",
 			beforeSend: function() {
 				swal({

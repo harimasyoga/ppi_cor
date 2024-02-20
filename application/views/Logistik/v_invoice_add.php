@@ -1148,8 +1148,8 @@
 		
 		if(cek=='hrg')
 		{
-			inc = Math.ceil(isi *1.11);
-			$('#inc'+id2).val(format_angka(inc));
+			inc = (isi *1.11).toFixed(2);
+			$('#inc'+id2).val(format_angka_koma(inc));
 
 		}else {
 			exc = Math.ceil(isi /1.11);
