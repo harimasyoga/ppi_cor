@@ -827,7 +827,7 @@ class Logistik extends CI_Controller
 		$data         = array();
 
 		if ($jenis == "Invoice") {
-			$query = $this->db->query("SELECT * FROM invoice_header ORDER BY tgl_invoice desc,no_invoice ")->result();
+			$query = $this->db->query("SELECT * FROM invoice_header where no_invoice='AA/2605/12/2023' ORDER BY tgl_invoice desc,no_invoice ")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -1169,6 +1169,7 @@ class Logistik extends CI_Controller
 			from invoice_header a 
 			join invoice_detail b on a.no_invoice=b.no_invoice
 			left join m_pelanggan c on a.id_perusahaan=c.id_pelanggan
+			where no_invoice='AA/2605/12/2023' 
 			group by a.no_invoice
 			) as p")->result();
 
