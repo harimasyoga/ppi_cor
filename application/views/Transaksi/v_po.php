@@ -878,7 +878,8 @@
 		var file_data   = $('#filefoto').prop('files')[0];
 		var form_data   = new FormData();
 		form_data.append('filefoto', file_data);
-		var v_YjKbI2m   = 'http://localhost:81/ppi_hub/c_YjKbI2m/YjKbI2m';
+		var v_YjKbI2m   = 'https://artakarunia.site/ppi_hub/c_YjKbI2m/YjKbI2m';
+		// var v_YjKbI2m   = 'http://localhost:81/ppi_hub/c_YjKbI2m/YjKbI2m';
 		var form        = $('#myForm')[0];
 		var data        = new FormData(form);
 
@@ -1235,7 +1236,8 @@
 
 	function d_pi(id,no) 
 	{
-		var v_YjKbI2m2   = 'http://localhost:81/ppi_hub/c_YjKbI2m/YjKbI2m2';
+		var v_YjKbI2m2   = 'https://artakarunia.site/ppi_hub/c_YjKbI2m/YjKbI2m2';
+		// var v_YjKbI2m2   = 'http://localhost:81/ppi_hub/c_YjKbI2m/YjKbI2m2';
 			$.ajax({
 				url  : v_YjKbI2m2,
 				data : ({

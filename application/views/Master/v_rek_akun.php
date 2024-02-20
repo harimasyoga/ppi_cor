@@ -61,183 +61,25 @@
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">Input Pembayaran</h3>
 						</div>
-
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							<div class="col-md-2">PILIH INVOICE</div>
-							<div class="col-md-1">
-								<button class="btn btn-success btn-sm" style="width:100%;margin:auto" data-toggle="modal" data-target=".list_inv" type="button" onclick="load_invoice()">
-									<i class="fa fa-search"></i>
-								</button>
-								<input type="hidden" name="sts_input" id="sts_input">
-								<input type="hidden" name="id_byr_inv" id="id_byr_inv">
-							</div>
-							<div class="col-md-8"></div>
-
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							<div class="col-md-2">Nama Perusahaan</div>
-							<div class="col-md-3">
-								<input type="hidden" name="idpl" id="idpl">
-								<input type="hidden" name="id_invoice_h" id="id_invoice_h">
-								<input type="hidden" name="id_perusahaan" id="id_perusahaan">
-								<input type="text" name="nm_perusahaan" id="nm_perusahaan" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" readonly>
-							</div>
-							<div class="col-md-1"></div>
-
-							<div class="col-md-2">No Inv</div>
-							<div class="col-md-3">
-								<input type="text" name="no_inv" id="no_inv" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" readonly>
-							</div>
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							<div class="col-md-2">Tgl Sj</div>
-							<div class="col-md-3">
-								<input type="date" name="tgl_sj" id="tgl_sj" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" readonly>
-							</div>
-							<div class="col-md-1"></div>
-
-							<div class="col-md-2">Tgl Inv</div>
-							<div class="col-md-3">
-								<input type="date" name="tgl_inv" id="tgl_inv" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" readonly>
-							</div>
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							<div class="col-md-2">Tgl J Tempo</div>
-							<div class="col-md-3">
-								<input type="date" name="tgl_jt" id="tgl_jt" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" readonly>
-							</div>
-
-							<div class="col-md-1"></div>
-							<div class="col-md-2">Status Lunas</div>
-							<div class="col-md-3">
-								<select name="sts_lunas" id="sts_lunas" class="form-control select2" >
-									<option value="OPEN">OPEN</option>
-									<option value="LUNAS">LUNAS</option>
-								</select>
-							</div>
-						</div>
-											
-						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-							<div class="col-md-2">Tgl Bayar</div>
-							<div class="col-md-3">
-								<input type="hidden" name="tgl_hari_ini" id="tgl_hari_ini" class="form-control" value="<?= date('Y-m-d') ?>" >
-								<input type="date" name="tgl_byr" id="tgl_byr" class="form-control" value="<?= date('Y-m-d') ?>" >
-							</div>
-
-							<div class="col-md-1"></div>
-
-							<div class="col-md-2">Status J Tempo</div>
-							<div class="col-md-3">
-								<select name="status_jt" id="status_jt" class="form-control select2" readonly>
-									<option value="jt">JATUH TEMPO</option>
-									<option value="blm">BELUM</option>
-								</select>
-							</div>
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							
-							<div class="col-md-2">Tipe</div>
-							<div class="col-md-3">								
-								<select id="pajak" name="pajak" class="form-control select2" style="width: 100%" disabled>
-									<option value="">-- PILIH --</option>
-									<option value="ppn">PPN 11%</option>
-									<option value="ppn_pph">PPN 11% + PPH22</option>
-									<option value="nonppn">NON PPN</option>
-								</select>
-							</div>
-							<div class="col-md-1"></div>
-							<div class="col-md-2">Include / Exclude</div>
-							<div class="col-md-3">
-								<select id="inc_exc" name="inc_exc" class="form-control select2" style="width: 100%" disabled>
-										<option value="Include">Include</option>
-										<option value="Exclude">Exclude</option>
-										<option value="nonppn_inc">Non PPN</option>
-									</select>
-							</div>
-							
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							
-							<div class="col-md-2">Total Inv</div>
-							<div class="col-md-3">
 								
-								<div class="input-group mb-3">
-									<div class="input-group-append">
-										<span class="input-group-text">Rp</span>
-									</div>
-									<input style="text-align: right;font-weight: bold;"  type="text" name="total_inv" id="total_inv" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" readonly>
-								</div>
-							</div>
-							
-							
-							<div class="col-md-1"></div>
+						<div class="card-body row" style="padding-left:none;font-weight:bold">				
+							<div class="col-md-2">Nama Akun</div>
+							<div class="col-md-3">
+								<input type="text" name="top" id="top" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id)" >
+							</div>							
+							<div class="col-md-7"></div>							
+						</div>
 
-							
-							<div class="col-md-2">Alasan Retur</div>
-							<div class="col-md-3">
-								<input type="text" name="alasan" id="alasan" class="form-control" value="-">
-							</div>
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-							<div class="col-md-2">Kurang bayar</div>
-							<div class="col-md-3">
-								<div class="input-group mb-3">
-									<div class="input-group-append">
-										<span class="input-group-text">Rp</span>
-									</div>
-									<input style="text-align: right;font-weight: bold;"  type="text" name="krg_byr" id="krg_byr" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id)" readonly> 
-								</div>
-							</div>						
-							
-							<div class="col-md-1"></div>
-							<div class="col-md-2">Sales</div>
-							<div class="col-md-3">
-								<input type="text" name="sales" id="sales" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" >
-							</div>
-							
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							<div class="col-md-2">Jumlah Bayar</div>
-							<div class="col-md-3">
-								<div class="input-group mb-3">
-									<div class="input-group-append">
-										<span class="input-group-text">Rp</span>
-									</div>
-									<input style="text-align: right;font-weight: bold;"   type="text" name="jml_byr" id="jml_byr" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id)" > 
-								</div>
-								
-							</div>	
-							
-							<div class="col-md-1"></div>
-							<div class="col-md-2">TOP</div>
+						<div class="card-body row" style="padding : 5px;font-weight:bold">
+							<div class="col-md-2">Nama Akun</div>
 							<div class="col-md-3">
 								<input type="text" name="top" id="top" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id)" >
 							</div>
-							
+
+							<div class="col-md-7"></div>
+
 						</div>
 						<br>
-						<hr>
-
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2" style="padding-right:0">List Item</div>
-								<div class="col-md-10">&nbsp;
-								</div>
-							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">		
-							<div class="col-md-12"	style="overflow:auto;white-space:nowrap;" width="100%">	
-									<table id="data_list" class="table table-hover table- table-bordered table-condensed table-scrollable">
-										
-									</table>
-								</div>
-							</div>
 						
 						<div class="card-body row"style="font-weight:bold">
 							<div class="col-md-2">
@@ -262,49 +104,6 @@
 	</div>
 </div>
 
-<!-- Modal Regist -->
-<div class="modal fade list_inv" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-full" style="width:100%;margin:auto">
-
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5><b>Pilih Invoice</b></h5>
-            </div>
-            <div class="modal-body">
-				<div style="overflow:auto;white-space:nowrap">
-
-                <table class="table table-bordered table-striped" id="tbl_inv" style="margin:auto !important">
-                    <thead>
-                        <tr class="color-tabel">
-                            <th class="text-center title-white">NO </th>
-                            <th class="text-center title-white">CUSTOMER</th>
-                            <th class="text-center title-white">NO PO</th>
-                            <th class="text-center title-white">NO INVOICE</th>
-                            <th class="text-center title-white">NO SJ</th>
-                            <th class="text-center title-white">ITEM</th>
-                            <th class="text-center title-white">TGL inv</th>
-                            <th class="text-center title-white">TANGGAL SJ</th>
-                            <th class="text-center title-white">TIPE</th>
-                            <th class="text-center title-white">EXCLUDE</th>
-                            <th class="text-center title-white">INCLUDE</th>
-                            <th class="text-center title-white">HISTORY BAYAR</th>
-                            <th class="text-center title-white">KURANG BAYAR</th>
-                            <th class="text-center title-white">AKSI</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-				</div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-
-    </div>
-</div>
-<!-- Modal Regist -->
 
 <script type="text/javascript">
 	let statusInput = 'insert';
@@ -677,7 +476,6 @@
 					} 
 					$("#total_inv").val(format_angka(total_inv));
 					$("#krg_byr").val(format_angka(total_inv - data.header.jum_bayar));
-					$("#data_list").html(list);
 					swal.close();
 
 				} else {
@@ -1004,7 +802,6 @@
 					} 
 					$("#total_inv").val(format_angka(total_inv));
 					$("#krg_byr").val(format_angka(total_inv - data.header.jum_bayar));
-					$("#data_list").html(list);
 					swal.close();
 
 				} else {
@@ -1054,9 +851,7 @@
 		$("#top").val("")
 
 		$("#status_jt").val("jt").trigger('change')
-		$("#sts_lunas").val("OPEN").trigger('change')
-
-		$("#data_list").html('')		
+		$("#sts_lunas").val("OPEN").trigger('change')	
 
 		swal.close()
 	}

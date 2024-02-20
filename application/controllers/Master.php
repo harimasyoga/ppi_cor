@@ -570,8 +570,7 @@ class Master extends CI_Controller
 				$print    = base_url("laporan/print_invoice_v2?no_invoice=") . $r->no_invoice;
 
 				$row = array();
-				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = $r->no_inv;
+				$row[] = '<div class="text-center">'.$r->no_inv.'</div>';
 				$row[] = $r->nm_perusahaan;
 
 				$aksi = "";
