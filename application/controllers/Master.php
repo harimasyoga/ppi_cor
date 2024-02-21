@@ -66,7 +66,7 @@ class Master extends CI_Controller
 		];
 		$this->load->view('header',$data);
 		if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
-			$this->load->view('Master/v_rek_akun');
+			$this->load->view('Master/v_rek_kelompok');
 		}else{
 			$this->load->view('home');
 		}
@@ -80,7 +80,7 @@ class Master extends CI_Controller
 		];
 		$this->load->view('header',$data);
 		if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
-			$this->load->view('Master/v_rek_akun');
+			$this->load->view('Master/v_rek_jenis');
 		}else{
 			$this->load->view('home');
 		}
@@ -537,52 +537,68 @@ class Master extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "load_kd_akun") {
-			$query = $this->db->query("SELECT *,a.id_bayar_inv as id_ok FROM trs_bayar_inv a join invoice_header b on a.no_inv=b.no_invoice ORDER BY id_bayar_inv ")->result();
+			$query = $this->db->query("SELECT * FROM m_kode_akun ORDER BY id_akun ")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
 
-				$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$r->no_inv' GROUP BY no_surat ORDER BY no_surat");
-				if($result_sj->num_rows() == '1'){
-					$no_sj = $result_sj->row()->no_surat;
-				}else{					
-					$no_sj_result    = '';
-					foreach($result_sj->result() as $row){
-						$no_sj_result .= '<b>-</b>'.$row->no_surat.'<br>';
-					}
-					$no_sj = $no_sj_result;
-				}				
+				$id         = "'$r->id_akun'";
+				$kd_akun    = "'$r->kd_akun'";
+				$nm_akun    = "'$r->nm_akun'";
 				
-				$result_item = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$r->no_inv' GROUP BY no_invoice ORDER BY no_invoice");
-				if($result_item->num_rows() == '1'){
-					$item = $result_item->row()->nm_ker;
-				}else{					
-					$item_result    = '';
-					foreach($result_item->result() as $row){
-						$item_result .= '<b>- </b>'.$row->nm_ker.'<br>';
-					}
-					$item = $item_result;
-				}				
-
-
-				$id       = "'$r->id_ok'";
-				$no_inv   = "'$r->no_invoice'";
-				$print    = base_url("laporan/print_invoice_v2?no_invoice=") . $r->no_invoice;
-
 				$row = array();
-				$row[] = '<div class="text-center">'.$r->no_inv.'</div>';
-				$row[] = $r->nm_perusahaan;
+				$row[] = '<div class="text-center">'.$r->kd_akun.'</div>';
+				$row[] = $r->nm_akun;
 
 				$aksi = "";
 
 				if (in_array($this->session->userdata('level'), ['Admin','User']))
 				{
 					$aksi = '
-						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv . ')" title="EDIT DATA" >
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_akun . ')" title="EDIT DATA" >
 							<b><i class="fa fa-edit"></i> </b>
 						</a> 
 
-						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-danger btn-sm">
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $nm_akun . ')" class="btn btn-danger btn-sm">
+							<i class="fa fa-trash-alt"></i>
+						</button> 
+						';
+			
+				} else {
+					$aksi = '';
+				}
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+
+				$i++;
+			}
+		} else if ($jenis == "load_kd_kelompok") {
+			$query = $this->db->query("SELECT a.*,b.* FROM m_kode_kelompok a 
+			join m_kode_akun b ON a.id_akun=b.id_akun 
+			ORDER BY a.id_akun,a.id_kelompok ")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+
+				$id         = "'$r->id_akun'";
+				$kd_akun    = "'$r->kd_kelompok'";
+				$nm_akun    = "'$r->nm_kelompok'";
+				
+				$row = array();
+				$row[] = '<div class="text-center">'.$r->nm_akun.'</div>';
+				$row[] = '<div class="text-center">'.$r->id_akun.'.'.$r->kd_kelompok.'</div>';
+				$row[] = $r->nm_kelompok;
+
+				$aksi = "";
+
+				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				{
+					$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_akun . ')" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $nm_akun . ')" class="btn btn-danger btn-sm">
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';
@@ -607,11 +623,58 @@ class Master extends CI_Controller
 		echo json_encode($output);
 	}
 
+	function Insert_kode_akun()
+	{
+
+		if($this->session->userdata('username'))
+		{
+			$asc         = $this->m_master->save_akun();
+	
+			if($asc){
+	
+				echo json_encode(array("status" =>"1","id" => $asc));
+	
+			}else{
+				echo json_encode(array("status" => "2","id" => $asc));
+	
+			}
+
+		}
+		
+	}
+
+	function load_data_1()
+	{
+		$id       = $this->input->post('id');
+		$tbl      = $this->input->post('tbl');
+		$jenis    = $this->input->post('jenis');
+		$field    = $this->input->post('field');
+
+		if($jenis=='kode_akun')
+		{
+			$queryd   = "SELECT*FROM $tbl where $field='$id' ";
+			$queryh   = "SELECT*FROM $tbl where $field='$id' ";
+
+		}else{
+
+			$queryd   = "SELECT*FROM $tbl where $field='$id' ";
+			$queryh   = "SELECT*FROM $tbl where $field='$id' ";
+		}
+		
+
+		$header   = $this->db->query($queryh)->row();
+		$detail    = $this->db->query($queryd)->result();
+
+		$data = ["header" => $header, "detail" => $detail];
+
+        echo json_encode($data);
+	}
+
 	function hapus()
 	{
-		$jenis   = $_POST['jenis'];
-		$field   = $_POST['field'];
-		$id = $_POST['id'];
+		$jenis    = $_POST['jenis'];
+		$field    = $_POST['field'];
+		$id       = $_POST['id'];
 
 		$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");
 

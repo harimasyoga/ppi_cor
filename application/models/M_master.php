@@ -478,6 +478,36 @@ class M_master extends CI_Model{
 		];
 	}
 
+	function save_akun()
+	{
+		$status_input = $this->input->post('sts_input');
+		if($status_input == 'add')
+		{
+
+			$data_header = array(
+				'kd_akun'   => $this->input->post('kode_akun'),
+				'nm_akun'  => $this->input->post('nm_akun'),
+			);
+		
+			$result_header = $this->db->insert('m_kode_akun', $data_header);
+			
+		}else{
+
+			$data_header = array(
+				'kd_akun'   => $this->input->post('kode_akun'),
+				'nm_akun'  => $this->input->post('nm_akun'),
+			);
+		
+			$this->db->where('id_akun', $this->input->post('id_akun'));
+			$result_header = $this->db->update('m_kode_akun', $data_header);
+			
+		}
+		return $result_header;
+		
+
+			
+	}
+
     function m_setting($table,$status){
         
        

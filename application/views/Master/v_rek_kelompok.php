@@ -40,8 +40,9 @@
 						<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 							<thead class="color-tabel">
 								<tr>
-									<th class="text-center title-white">KODE</th>
 									<th class="text-center title-white">NAMA AKUN</th>
+									<th class="text-center title-white">KODE KELOMPOK</th>
+									<th class="text-center title-white">NAMA KELOMPOK</th>
 									<th class="text-center title-white">AKSI</th>
 								</tr>
 							</thead>
@@ -68,10 +69,21 @@
 							
 						</div>
 
-						<div class="card-body row" style="padding : 5px;font-weight:bold">
-							<div class="col-md-1"></div>
-								
-							<div class="col-md-2">KODE AKUN</div>
+							<div class="card-body row" style="padding : 5px;font-weight:bold">
+								<div class="col-md-1"></div>
+									
+								<div class="col-md-2">KODE AKUN</div>
+								<div class="col-md-3">
+									<select class="form-control select2" name="kd_akun" id="kd_akun">
+									</select>
+								</div>
+
+								<div class="col-md-6"></div>
+							</div>
+							<div class="card-body row" style="padding : 5px;font-weight:bold">
+								<div class="col-md-1"></div>
+									
+								<div class="col-md-2">KODE KELOMPOK</div>
 								<div class="col-md-3">
 									<input type="hidden" class="angka form-control" name="sts_input" id="sts_input" >
 									<input type="hidden" class="angka form-control" name="id_akun" id="id_akun" >
@@ -124,6 +136,7 @@
 	{
 		kosong()
 		load_data()
+		load_akun()
 		$('.select2').select2();
 	});
 
@@ -131,6 +144,44 @@
 	{
 		table = $('#datatable').DataTable();
 		tabel.ajax.reload(null, false);
+	}
+
+	function load_akun() 
+	{
+		option = "";
+		$.ajax({
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Logistik/load_sj",
+			dataType   : 'json',
+			data       : {tgl_sj,type_po,stat},
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success")
+				{				
+
+					option = "<option>--- Pilih ---</option>";
+					$.each(data.data, function(index, val) {
+					option += `<option value="${val.id_perusahaan}" data-nm="${val.pimpinan}" data-nm_perusahaan="${val.nm_perusahaan}" data-id_perusahaan="${val.id_perusahaan}" data-alamat_perusahaan="${val.alamat_perusahaan}">[ "${val.tgll}" ] - [ "${val.pimpinan}" ] - [ "${val.nm_perusahaan}" ]</option>`;
+					});
+
+					$('#kd_akun').html(option);
+					swal.close();
+				}else{	
+					option += "<option value=''>Data Kosong</option>";
+					$('#kd_akun').html(option);		
+					swal.close();
+				}
+			}
+		});
 	}
 
 	function load_data() 
@@ -142,7 +193,7 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url('Master/load_data/load_kd_akun')?>',
+				"url": '<?php echo base_url('Master/load_data/load_kd_kelompok')?>',
 				"type": "POST",
 			},
 			"aLengthMenu": [
