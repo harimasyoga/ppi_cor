@@ -41,6 +41,7 @@
 										<option value="TERIMA">TERIMA</option>
 										<option value="KIRIM">KIRIM</option>
 										<option value="SUPLAI">SUPLAI</option>
+										<option value="STOK">STOK PPI</option>
 									</select>
 								</div>
 								<div class="col-md-1"></div>
