@@ -151,8 +151,8 @@
 		aksiInput = "insert"
 		$("#h_id").val("")
 		$("#nama_lm").val("")
-		$("#ukuran_lm").val("")
-		$("#isi_lm").val("")
+		$("#ukuran_lm").val("").prop('disabled', false)
+		$("#isi_lm").val("").prop('disabled', false)
 		$(".btn-pack").addClass('active')
 		$(".btn-ikat").removeClass('focus active')
 		$("#radio-pack").prop("checked")
@@ -160,7 +160,7 @@
 		$("#radio-kg").prop("checked", false)
 		$("#plh-qty").val("pack")
 		$(".input-group-text").html("PACK")
-		$("#qty_lm").val("")
+		$("#qty_lm").val("").prop('disabled', false)
 		$(".row-qty").html(`<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 			<div class="col-md-1">QTY</div>
 			<div class="col-md-11">
@@ -195,6 +195,9 @@
 
 	function plhQty(aksi)
 	{
+		(aksi == 'kg') ? $("#ukuran_lm").val("").prop('disabled', true) : $("#ukuran_lm").prop('disabled', false);
+		(aksi == 'kg') ? $("#isi_lm").val("").prop('disabled', true) : $("#isi_lm").prop('disabled', false);
+
 		$("#plh-qty").val(aksi)
 		$("#qty_lm").val("")
 		$(".input-group-text").html(aksi.toUpperCase())
