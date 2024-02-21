@@ -294,20 +294,25 @@ class Transaksi extends CI_Controller
 			$i++;
 			if($r['options']['jenis_qty_lm'] == 'pack'){
 				$ket = '( PACK )';
+				$qty = number_format($r['options']['qty'],0,",",".");
 			}else if($r['options']['jenis_qty_lm'] == 'ikat'){
 				$ket = '( IKAT )';
+				$qty = number_format($r['options']['qty'],0,",",".");
 			}else{
 				$ket = '( KG )';
+				$qty = $r['options']['qty'];
 			}
+			($r['options']['jenis_qty_lm'] == 'kg') ? $order_pori = $r['options']['order_pori'] : $order_pori = number_format($r['options']['order_pori'],0,",",".");
+			($r['options']['jenis_qty_lm'] == 'kg') ? $qty_bal = $r['options']['qty_bal'] : $qty_bal = number_format($r['options']['qty_bal'],0,",",".");
 			$html .='<tr>
 				<td style="padding:6px;text-align:center">'.$i.'</td>
 				<td style="padding:6px">'.$r['options']['nm_produk_lm'].'</td>
 				<td style="padding:6px">'.$r['options']['ukuran_lm'].'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r['options']['isi_lm'],0,",",".").' ( SHEET )</td>
-				<td style="padding:6px;text-align:right">'.number_format($r['options']['qty'],0,",",".").' '.$ket.'</td>
+				<td style="padding:6px;text-align:right">'.$qty.' '.$ket.'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r['options']['order_sheet'],0,",",".").'</td>
-				<td style="padding:6px;text-align:right">'.number_format($r['options']['order_pori'],0,",",".").' '.$ket.'</td>
-				<td style="padding:6px;text-align:right">'.number_format($r['options']['qty_bal'],0,",",".").'</td>
+				<td style="padding:6px;text-align:right">'.$order_pori.' '.$ket.'</td>
+				<td style="padding:6px;text-align:right">'.$qty_bal.'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r['options']['harga_lembar'],0,",",".").'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r['options']['harga_pori'],0,",",".").' '.$ket.'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r['options']['harga_total'],0,",",".").'</td>
@@ -398,21 +403,25 @@ class Transaksi extends CI_Controller
 				($id_dtl == $r->id) ? $bold = ';font-weight:bold;background:#ffd700' : $bold = '';
 				if($r->jenis_qty_lm == 'pack'){
 					$ket = '( PACK )';
+					$qty = number_format($r->pack_lm,0,',','.');
 				}else if($r->jenis_qty_lm == 'ikat'){
 					$ket = '( IKAT )';
+					$qty = number_format($r->ikat_lm,0,',','.');
 				}else{
 					$ket = '( KG )';
+					$qty = $r->kg_lm;
 				}
-				($r->jenis_qty_lm == 'pack') ? $qty = $r->pack_lm : $qty = $r->ikat_lm;
+				($r->jenis_qty_lm == 'kg') ? $order_pori_lm = $r->order_pori_lm : $order_pori_lm = number_format($r->order_pori_lm,0,",",".");
+				($r->jenis_qty_lm == 'kg') ? $qty_bal = $r->qty_bal : $qty_bal = number_format($r->qty_bal,0,",",".");
 				$html .='<tr>
 					<td style="padding:6px;text-align:center'.$bold.'">'.$i.'</td>
 					<td style="padding:6px'.$bold.'">'.$r->nm_produk_lm.'</td>
 					<td style="padding:6px'.$bold.'">'.$r->ukuran_lm.'</td>
 					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->isi_lm,0,",",".").' ( SHEET )</td>
-					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($qty,0,",",".").' '.$ket.'</td>
+					<td style="padding:6px;text-align:right'.$bold.'">'.$qty.' '.$ket.'</td>
 					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->order_sheet_lm,0,",",".").'</td>
-					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->order_pori_lm,0,",",".").' '.$ket.'</td>
-					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->qty_bal,0,",",".").'</td>
+					<td style="padding:6px;text-align:right'.$bold.'">'.$order_pori_lm.' '.$ket.'</td>
+					<td style="padding:6px;text-align:right'.$bold.'">'.$qty_bal.'</td>
 					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_lembar_lm,0,",",".").'</td>
 					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_pori_lm,0,",",".").'  '.$ket.'</td>
 					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_total_lm,0,",",".").'</td>
@@ -1417,8 +1426,8 @@ class Transaksi extends CI_Controller
 		$html .= '</table>';
 
 		// TTD
-		($po_lm->status_lm1 == 'Y') ? $lm1 = ';background:url('.base_url('assets/gambar/cc-po-lam.png').') center no-repeat' : $lm1 = '';
-		($po_lm->status_lm2 == 'Y') ? $lm2 = ';background:url('.base_url('assets/gambar/cc-po-lam.png').') center no-repeat' : $lm2 = '';
+		($po_lm->status_lm1 == 'Y') ? $lm1 = ';background:url('.base_url('assets/gambar/ttd_manager.png').') center no-repeat' : $lm1 = '';
+		($po_lm->status_lm2 == 'Y') ? $lm2 = ';background:url('.base_url('assets/gambar/ttd_head_manager.png').') center no-repeat' : $lm2 = '';
 
 		$html .= '<table style="margin:40px 0 0;padding:0;font-size:12px;text-align:center;border-collapse:collapse;color:#2f75b5;font-weight:bold;width:100%">';
 			$html .='<tr>

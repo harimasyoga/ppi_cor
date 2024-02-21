@@ -198,15 +198,17 @@ class Logistik extends CI_Controller
 					$ket = '( KG )';
 					$qty = $r->kg_lm;
 				}
+				($r->jenis_qty_lm == 'kg') ? $order_pori_lm = $r->order_pori_lm : $order_pori_lm = number_format($r->order_pori_lm,0,",",".");
+				($r->jenis_qty_lm == 'kg') ? $qty_bal = $r->qty_bal : $qty_bal = number_format($r->qty_bal,0,",",".");
 				$html .='<tr>
 					<td style="padding:6px;text-align:center">'.$i.'</td>
 					<td style="padding:6px">'.$r->nm_produk_lm.'</td>
 					<td style="padding:6px">'.$r->ukuran_lm.'</td>
 					<td style="padding:6px;text-align:right">'.number_format($r->isi_lm,0,",",".").' ( SHEET )</td>
-					<td style="padding:6px;text-align:right">'.number_format($qty,0,",",".").' '.$ket.'</td>
+					<td style="padding:6px;text-align:right">'.$qty.' '.$ket.'</td>
 					<td style="padding:6px;text-align:right">'.number_format($r->order_sheet_lm,0,",",".").'</td>
-					<td style="padding:6px;text-align:right">'.number_format($r->order_pori_lm,0,",",".").' '.$ket.'</td>
-					<td style="padding:6px;text-align:right">'.number_format($r->qty_bal,0,",",".").'</td>
+					<td style="padding:6px;text-align:right">'.$order_pori_lm.' '.$ket.'</td>
+					<td style="padding:6px;text-align:right">'.$qty_bal.'</td>
 					'.$btnAksi.'
 				</tr>';
 				
@@ -232,26 +234,37 @@ class Logistik extends CI_Controller
 							$t_text = 'SURAT JALAN';
 							$t_hapus = '';
 						}
+
+						$item = $this->db->query("SELECT*FROM m_produk_lm WHERE id_produk_lm='$k->id_m_produk_lm'")->row();
+						($item->jenis_qty_lm == 'kg') ? $sheet = '-' : $sheet = '- '.number_format(($r->isi_lm * $qty) * $k->qty_muat,0,',','.');
+						($item->jenis_qty_lm == 'kg') ? $order = '- '.round($qty * $k->qty_muat,2) : $order = '- '.number_format($qty * $k->qty_muat,0,',','.');
+						($item->jenis_qty_lm == 'kg') ? $muat = '- '.$k->qty_muat : $muat = '- '.number_format($k->qty_muat,0,',','.');
 						$html .= '<tr>
 							<td style="padding:6px;border:0;text-align:right" colspan="5">'.$t_tgl.'</td>
-							<td style="padding:6px;border:0;text-align:right">- '.number_format(($r->isi_lm * $qty) * $k->qty_muat,0,',','.').'</td>
-							<td style="padding:6px;border:0;text-align:right">- '.number_format($qty * $k->qty_muat,0,',','.').'</td>
-							<td style="padding:6px;border:0;text-align:right">- '.$k->qty_muat.'</td>
+							<td style="padding:6px;border:0;text-align:right">'.$sheet.'</td>
+							<td style="padding:6px;border:0;text-align:right">'.$order.'</td>
+							<td style="padding:6px;border:0;text-align:right">'.$muat.'</td>
 							<td style="padding:6px;border:0">
 								<button type="button" class="btn btn-xs" style="cursor:default'.$t_btn.'">'.$t_text.'</button>
 							</td>
 							<td style="padding:6px;border:0">'.$t_hapus.'</td>
 						</tr>';
-						$orderLembar += ($r->isi_lm * $qty) * $k->qty_muat;
-						$orderBal += $qty * $k->qty_muat;
+						($item->jenis_qty_lm == 'kg') ? $ol = 0 : $ol = ($r->isi_lm * $qty) * $k->qty_muat;
+						($item->jenis_qty_lm == 'kg') ? $ob = round($qty * $k->qty_muat,2) : $ob = $qty * $k->qty_muat;
+						$orderLembar += $ol;
+						$orderBal += $ob;
 						$jmlMuat += $k->qty_muat;
 					}
+
+					($r->jenis_qty_lm == 'kg') ? $tol = '-' : $tol = $r->order_sheet_lm - $orderLembar;
+					($r->jenis_qty_lm == 'kg') ? $tob = round($r->order_pori_lm - $orderBal,2) : $tob = $r->order_pori_lm - $orderBal;
+
 					$sisa = $r->qty_bal - $jmlMuat;
 					$html .='<tr style="background:#f8f9fc">
 						<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40" colspan="5">-</td>
-						<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40">'.number_format($r->order_sheet_lm - $orderLembar,0,',','.').'</td>
-						<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40">'.number_format($r->order_pori_lm - $orderBal,0,',','.').'</td>
-						<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40">'.number_format($sisa,0,',','.').'</td>
+						<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40">'.$tol.'</td>
+						<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40">'.$tob.'</td>
+						<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40">'.$sisa.'</td>
 						'.$inputan.'
 					</tr>';
 				}else{
@@ -283,16 +296,14 @@ class Logistik extends CI_Controller
 		}else{
 			$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.id='$id_dtl'")->row();
 			if($po_dtl->jenis_qty_lm == 'pack'){
-				$ket = '( PACK )';
 				$qty = $po_dtl->pack_lm;
 			}else if($po_dtl->jenis_qty_lm == 'ikat'){
-				$ket = '( IKAT )';
 				$qty = $po_dtl->ikat_lm;
 			}else{
-				$ket = '( KG )';
 				$qty = $po_dtl->kg_lm;
 			}
-
+			($po_dtl->jenis_qty_lm == 'kg') ? $order_sheet_lm = 0 : $order_sheet_lm = ($po_dtl->isi_lm * $qty) * $muat;
+			($po_dtl->jenis_qty_lm == 'kg') ? $order_pori_lm = round($qty * $muat,2) : $order_pori_lm = $qty * $muat;
 			$data = array(
 				'id' => $_POST["id_dtl"],
 				'name' => 'name'.$_POST["id_dtl"],
@@ -309,9 +320,10 @@ class Logistik extends CI_Controller
 					'nm_produk_lm' => $po_dtl->nm_produk_lm,
 					'ukuran_lm' => $po_dtl->ukuran_lm,
 					'isi_lm' => $po_dtl->isi_lm,
-					'qty' => number_format($qty,0,',','.').' '.$ket,
-					'order_sheet_lm' => ($po_dtl->isi_lm * $qty) * $muat,
-					'order_pori_lm' => number_format($qty * $muat,0,',','.').' '.$ket,
+					'jenis' => $po_dtl->jenis_qty_lm,
+					'qty' => $qty,
+					'order_sheet_lm' => $order_sheet_lm,
+					'order_pori_lm' => $order_pori_lm,
 					'qty_bal' => $po_dtl->qty_bal,
 				)
 			);
@@ -364,8 +376,6 @@ class Logistik extends CI_Controller
 			$html .='<table class="table table-bordered table-striped" style="margin:0">
 				<tr style="border-bottom:3px solid #6c757d">
 					<th style="padding:6px;text-align:center">NO.</th>
-					<th style="padding:6px">CUSTOMER</th>
-					<th style="padding:6px">NO. PO</th>
 					<th style="padding:6px">ITEM</th>
 					<th style="padding:6px">SIZE</th>
 					<th style="padding:6px;text-align:center">@PACK</th>
@@ -383,8 +393,8 @@ class Logistik extends CI_Controller
 		foreach($this->cart->contents() as $r){
 			$i++;
 
-			$id = $r["id"];
 			// KIRIMAN
+			$id = $r["id"];
 			$kiriman = $this->db->query("SELECT*FROM m_rk_laminasi WHERE id_po_dtl='$id'");
 			if($kiriman->num_rows() > 0){
 				$jmlMuat = 0;
@@ -398,19 +408,25 @@ class Logistik extends CI_Controller
 				$sisa = $r["options"]["qty_bal"] - $r["options"]["muat"];
 			}
 
+			if($r["options"]["jenis"] == 'pack'){
+				$ket = '( PACK )';
+			}else if($r["options"]["jenis"] == 'ikat'){
+				$ket = '( IKAT )';
+			}else{
+				$ket = '( KG )';
+			}
+
 			$html .='<tr>
 				<td style="padding:6px;text-align:center">'.$i.'</td>
-				<td style="padding:6px">'.$r["options"]["nm_pelanggan_lm"].'</td>
-				<td style="padding:6px">'.$r["options"]["no_po_lm"].'</td>
 				<td style="padding:6px">'.$r["options"]["nm_produk_lm"].'</td>
 				<td style="padding:6px">'.$r["options"]["ukuran_lm"].'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r["options"]["isi_lm"],0,",",".").' ( SHEET )</td>
-				<td style="padding:6px;text-align:right">'.$r["options"]["qty"].'</td>
+				<td style="padding:6px;text-align:right">'.$r["options"]["qty"].' '.$ket.'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r["options"]["order_sheet_lm"],0,",",".").'</td>
-				<td style="padding:6px;text-align:right">'.$r["options"]["order_pori_lm"].'</td>
-				<td style="padding:6px;text-align:right">'.number_format($qty_bal,0,",",".").'</td>
-				<td style="padding:6px;text-align:right">'.number_format($r["options"]["muat"],0,",",".").'</td>
-				<td style="padding:6px;text-align:right">'.number_format($sisa,0,",",".").'</td>
+				<td style="padding:6px;text-align:right">'.$r["options"]["order_pori_lm"].' '.$ket.'</td>
+				<td style="padding:6px;text-align:right">'.$qty_bal.'</td>
+				<td style="padding:6px;text-align:right">'.$r["options"]["muat"].'</td>
+				<td style="padding:6px;text-align:right">'.$sisa.'</td>
 				<td style="padding:3px;text-align:center">
 					<button class="btn btn-danger btn-xs" onclick="hapusItemLaminasi('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
 				</td>
@@ -511,29 +527,28 @@ class Logistik extends CI_Controller
 						$i++;
 						if($r->jenis_qty_lm == 'pack'){
 							$ket = '( PACK )';
-							$ket2 = 'PACK';
 							$qty = $r->pack_lm;
 						}else if($r->jenis_qty_lm == 'ikat'){
 							$ket = '( IKAT )';
-							$ket2 = 'IKAT';
 							$qty = $r->ikat_lm;
 						}else{
 							$ket = '( KG )';
-							$ket2 = 'KG';
 							$qty = $r->kg_lm;
 						}
-						$orderLembar = ($r->isi_lm * $qty) * $r->qty_muat;
-						$orderBal = $qty * $r->qty_muat;
-						$pc = $r->isi_lm.' LBR. '.$qty.' '.$ket2;
+						($r->jenis_qty_lm == 'kg') ? $orderLembar = '-' : $orderLembar = number_format(($r->isi_lm * $qty) * $r->qty_muat,0,',','.');
+						($r->jenis_qty_lm == 'kg') ? $orderBal = round($qty * $r->qty_muat,2) : $orderBal = number_format($qty * $r->qty_muat,0,',','.');
+						($r->jenis_qty_lm == 'kg') ? $muat = $r->qty_muat : $muat = number_format($r->qty_muat,0,',','.');
+						($r->jenis_qty_lm == 'kg') ? $uk = '' : $uk = $r->ukuran_lm.'. '.$r->isi_lm.'( LBR ). ';
+						$pc = $uk.$qty.$ket;
 						$html .='<tr>
 							<td style="padding:6px;text-align:center">'.$i.'</td>
 							<td style="padding:6px">'.$r->nm_produk_lm.'</td>
 							<td style="padding:6px">'.$r->ukuran_lm.'</td>
 							<td style="padding:6px;text-align:right">'.number_format($r->isi_lm,0,",",".").' ( SHEET )</td>
 							<td style="padding:6px;text-align:right">'.number_format($qty,0,",",".").' '.$ket.'</td>
-							<td style="padding:6px;text-align:right">'.number_format($orderLembar,0,",",".").'</td>
-							<td style="padding:6px;text-align:right">'.number_format($orderBal,0,",",".").' '.$ket.'</td>
-							<td style="padding:6px;text-align:right">'.number_format($r->qty_muat,0,",",".").'</td>
+							<td style="padding:6px;text-align:right">'.$orderLembar.'</td>
+							<td style="padding:6px;text-align:right">'.$orderBal.' '.$ket.'</td>
+							<td style="padding:6px;text-align:right">'.$muat.'</td>
 							<td style="padding:3px;text-align:center">
 								<button type="button" class="btn btn-xs btn-danger" onclick="hapusListItemLaminasi('."'".$r->id_rk."'".','."'RK'".')">Hapus</button>
 							</td>
@@ -545,7 +560,7 @@ class Logistik extends CI_Controller
 								</button>
 							</td>
 							<td style="border-bottom:1px solid #ccc;padding:3px;text-align:right" colspan="3">
-								<textarea class="form-control" style="padding:6px;resize:none" rows="1" id="keterangan-'.$r->id_rk.'" placeholder="'.$pc.'" oninput="this.value=this.value.toUpperCase()">'.$r->rk_ket.'</textarea>
+								<textarea class="form-control" style="padding:6px;color:#000;resize:none" rows="1" id="keterangan-'.$r->id_rk.'" placeholder="'.$pc.'" oninput="this.value=this.value.toUpperCase()">'.$r->rk_ket.'</textarea>
 							</td>
 							<td style="border-bottom:1px solid #ccc;padding:3px;vertical-align:middle;text-align:center">
 								<button type="button" class="btn btn-xs btn-warning" onclick="addKeterangan('."'".$r->id_rk."'".')">
@@ -690,10 +705,11 @@ class Logistik extends CI_Controller
 			$i = 0;
 			foreach($isi->result() as $r){
 				$i++;
+				($r->jenis_qty_lm == 'kg') ? $muat = round($r->qty_muat,2) : $muat = number_format($r->qty_muat,0);
 				$html .='<tr>
 					<td style="padding:3px;border:1px solid #000;text-align:center">'.$i.'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->nm_produk_lm.'</td>
-					<td style="padding:3px;border:1px solid #000;text-align:center">'.number_format($r->qty_muat,0).'</td>
+					<td style="padding:3px;border:1px solid #000;text-align:center">'.$muat.'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->rk_ket.'</td>
 				</tr>';
 			}
