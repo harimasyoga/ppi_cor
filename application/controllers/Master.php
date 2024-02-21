@@ -357,18 +357,20 @@ class Master extends CI_Controller
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_pelanggan_lm."'".','."'detail'".')">'.$i."<a></div>";
 				$row[] = $r->nm_pelanggan_lm;
 				$row[] = $r->alamat_kirim;
+				$row[] = $r->no_telp;
 				$row[] = $r->nm_sales;
 
+				$cekPO = $this->db->query("SELECT*FROM trs_po_lm WHERE id_pelanggan='$r->id_pelanggan_lm' GROUP BY id_pelanggan")->num_rows();
 				if (in_array($this->session->userdata('level'), ['Admin','User','Laminasi']))
 				{
 					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_pelanggan_lm."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
-					$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_pelanggan_lm."'".')"><i class="fas fa-times"></i></button>';
+					($cekPO == 1) ? $btnHapus = '' : $btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_pelanggan_lm."'".')"><i class="fas fa-times"></i></button>';
 				}else{
 					$btnEdit = '';
 					$btnHapus = '';
 				}
 
-				$row[] = $btnEdit.' '.$btnHapus;
+				$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
 				$data[] = $row;
 				$i++;
 			}
@@ -383,7 +385,13 @@ class Master extends CI_Controller
 				$row[] = '<div class="text-center">'.$r->ukuran_lm.'</div>';
 				$row[] = '<div class="text-right">'.number_format($r->isi_lm,0,',','.').'</div>';
 
-				($r->jenis_qty_lm == 'pack') ? $qty = number_format($r->pack_lm,0,',','.') : $qty = number_format($r->ikat_lm,0,',','.').' <span style="font-size:12px;vertical-align:top;font-style:italic">( ikat )</span>';
+				if($r->jenis_qty_lm == 'pack'){
+					$qty = number_format($r->pack_lm,0,',','.');
+				}else if($r->jenis_qty_lm == 'ikat'){
+					$qty = number_format($r->pack_lm,0,',','.').' <span style="font-size:12px;vertical-align:top;font-style:italic">( ikat )</span>';
+				}else{
+					$qty = number_format($r->kg_lm,0,',','.').' <span style="font-size:12px;vertical-align:top;font-style:italic">( kg )</span>';
+				}
 				$row[] = '<div class="text-right">'.$qty.'</div>';
 
 				$btnEdit = '<button type="button" class="btn btn-sm btn-warning" onclick="editDataLaminasi('."'".$r->id_produk_lm."'".')"><i class="fas fa-pen"></i></button>';
@@ -902,8 +910,10 @@ class Master extends CI_Controller
 	{
 		$id = $_POST["id"];
 		$data =  $this->db->query("SELECT*FROM m_pelanggan_lm WHERE id_pelanggan_lm='$id'")->row();
+		$cekPO = $this->db->query("SELECT*FROM trs_po_lm WHERE id_pelanggan='$id' GROUP BY id_pelanggan")->num_rows();
 		echo json_encode(array(
 			'pelanggan' => $data,
+			'cekPO' => $cekPO,
 		));
 	}
 }

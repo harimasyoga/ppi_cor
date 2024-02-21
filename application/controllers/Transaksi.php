@@ -292,7 +292,13 @@ class Transaksi extends CI_Controller
 		$i = 0;
 		foreach($this->cart->contents() as $r){
 			$i++;
-			($r['options']['jenis_qty_lm'] == 'pack') ? $ket = '( PACK )' : $ket = '( IKAT )';
+			if($r['options']['jenis_qty_lm'] == 'pack'){
+				$ket = '( PACK )';
+			}else if($r['options']['jenis_qty_lm'] == 'ikat'){
+				$ket = '( IKAT )';
+			}else{
+				$ket = '( KG )';
+			}
 			$html .='<tr>
 				<td style="padding:6px;text-align:center">'.$i.'</td>
 				<td style="padding:6px">'.$r['options']['nm_produk_lm'].'</td>
@@ -390,7 +396,13 @@ class Transaksi extends CI_Controller
 				}
 
 				($id_dtl == $r->id) ? $bold = ';font-weight:bold;background:#ffd700' : $bold = '';
-				($r->jenis_qty_lm == 'pack') ? $ket = '( PACK )' : $ket = '( IKAT )';
+				if($r->jenis_qty_lm == 'pack'){
+					$ket = '( PACK )';
+				}else if($r->jenis_qty_lm == 'ikat'){
+					$ket = '( IKAT )';
+				}else{
+					$ket = '( KG )';
+				}
 				($r->jenis_qty_lm == 'pack') ? $qty = $r->pack_lm : $qty = $r->ikat_lm;
 				$html .='<tr>
 					<td style="padding:6px;text-align:center'.$bold.'">'.$i.'</td>
@@ -1347,7 +1359,6 @@ class Transaksi extends CI_Controller
 		$po_lm = $this->db->query("SELECT p.nm_pelanggan_lm,p.alamat,po.* FROM trs_po_lm po
 		INNER JOIN m_pelanggan_lm p ON p.id_pelanggan_lm=po.id_pelanggan
 		WHERE po.id='$id'")->row();
-		$po_dtl = $this->db->query("SELECT * FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.no_po_lm='$po_lm->no_po_lm'");
 		$html = '';
 		$html .= '<table style="margin:0;padding:0;font-size:12px;text-align:center;border-collapse:collapse;color:#000;width:100%">';
 			$html .='<thead>
@@ -1372,12 +1383,23 @@ class Transaksi extends CI_Controller
 				</tr>
 			</thead>';
 			$html .='<tbody>';
+				$po_dtl = $this->db->query("SELECT * FROM trs_po_lm_detail d
+				INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm
+				WHERE d.no_po_lm='$po_lm->no_po_lm'
+				ORDER BY p.nm_produk_lm,p.isi_lm,p.ukuran_lm");
 				foreach($po_dtl->result() as $r){
+					if($r->jenis_qty_lm == 'kg'){
+						$isi = '-';
+						$kg = ' ( KG )';
+					}else{
+						$isi = number_format($r->isi_lm,0,',','.');
+						($r->jenis_qty_lm == 'pack') ? $kg = '' : $kg = ' ( IKAT )';
+					}
 					$html .='<tr>
 						<td style="width:22%;padding:7px 5px;border:1px solid #000">'.$r->nm_produk_lm.'</td>
 						<td style="width:10%;padding:7px 5px;border:1px solid #000">'.$r->ukuran_lm.'</td>
-						<td style="width:8%;padding:7px 5px;border:1px solid #000">'.number_format($r->isi_lm,0,',','.').'</td>
-						<td style="width:13%;padding:7px 5px;border:1px solid #000">'.number_format($r->qty_bal,0,',','.').'</td>
+						<td style="width:8%;padding:7px 5px;border:1px solid #000">'.$isi.'</td>
+						<td style="width:13%;padding:7px 5px;border:1px solid #000">'.number_format($r->qty_bal,0,',','.').''.$kg.'</td>
 						<td style="width:5%;padding:7px 5px;border:1px solid #000;border-right:0;text-align:left">Rp.</td>
 						<td style="width:10%;padding:7px 5px;border:1px solid #000;border-left:0;text-align:right">'.number_format($r->harga_lembar_lm,0,',','.').'</td>
 						<td style="width:5%;padding:7px 5px;border:1px solid #000;border-right:0;text-align:left">Rp.</td>
@@ -1393,6 +1415,11 @@ class Transaksi extends CI_Controller
 				}
 			$html .='</tbody>';
 		$html .= '</table>';
+
+		// TTD
+		($po_lm->status_lm1 == 'Y') ? $lm1 = ';background:url('.base_url('assets/gambar/cc-po-lam.png').') center no-repeat' : $lm1 = '';
+		($po_lm->status_lm2 == 'Y') ? $lm2 = ';background:url('.base_url('assets/gambar/cc-po-lam.png').') center no-repeat' : $lm2 = '';
+
 		$html .= '<table style="margin:40px 0 0;padding:0;font-size:12px;text-align:center;border-collapse:collapse;color:#2f75b5;font-weight:bold;width:100%">';
 			$html .='<tr>
 				<td style="width:16%"></td>
@@ -1403,7 +1430,7 @@ class Transaksi extends CI_Controller
 			</tr>
 			<tr>
 				<td style="padding:3px 3px 35px;vertical-align:top;text-align:left;border:2px solid #2f75b5" colspan="2">RECEIVED :</td>
-				<td style="padding-bottom:30px;border:2px solid #2f75b5"></td>
+				<td style="padding-bottom:30px;border:2px solid #2f75b5;background:url('.base_url('assets/gambar/cc-po-lam.png').')center no-repeat"></td>
 				<td></td>
 				<td style="padding:3px;text-align:left;color:#000;font-weight:normal;vertical-align:top">Hormat Kami</td>
 			</tr>
@@ -1412,14 +1439,14 @@ class Transaksi extends CI_Controller
 				<td style="border:2px solid #2f75b5" colspan="2">APPROVED BY</td>
 			</tr>
 			<tr>
-				<td style="border:2px solid #2f75b5;padding:30px"></td>
-				<td style="border:2px solid #2f75b5;padding:30px" colspan="2"></td>
+				<td style="border:2px solid #2f75b5;padding:30px'.$lm1.'"></td>
+				<td style="border:2px solid #2f75b5;padding:30px'.$lm2.'" colspan="2"></td>
 				<td></td>
 				<td style="padding:15px 3px 3px;text-align:left;color:#000;font-weight:normal;vertical-align:top">'.$po_lm->nm_pelanggan_lm.'</td>
 			</tr>
 			<tr>
 				<td style="border:2px solid #2f75b5">MANAGER</td>
-				<td style="border:2px solid #2f75b5" colspan="2">DIRECTOR</td>
+				<td style="border:2px solid #2f75b5" colspan="2">HEAD MANAGER</td>
 			</tr>';
 		$html .= '</table>';
 		

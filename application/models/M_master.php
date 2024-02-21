@@ -144,19 +144,19 @@ class M_master extends CI_Model{
 	function m_pelanggan_lm($table, $status)
 	{
 		// idx
-		if($_POST["id_sales"] == "" || $_POST["nm_pelanggan"] == "" || $_POST["attn"] == "" || $_POST["alamat"] == "" || $_POST["alamat_kirim"] == ""){
+		if($_POST["id_sales"] == "" || $_POST["nm_pelanggan"] == ""){
 			$inputData = false;
 		}else{
 			$data = array(
 				'id_sales' => $_POST["id_sales"],
 				'nm_pelanggan_lm' => $_POST["nm_pelanggan"],
-				'attn' => $_POST["attn"],
-				'alamat' => $_POST["alamat"],
-				'alamat_kirim' => $_POST["alamat_kirim"],
+				'attn' => ($_POST["attn"] == '') ? '-' : $_POST["attn"],
+				'alamat' => ($_POST["alamat"] == '') ? '-' : $_POST["alamat"],
+				'alamat_kirim' => ($_POST["alamat_kirim"] == '') ? '-' : $_POST["alamat_kirim"],
 				'kode_pos' => '-',
 				'fax' => '-',
 				'top' => '-',
-				'no_telp' => '-',
+				'no_telp' => ($_POST["no_telp"] == '') ? '-' : $_POST["no_telp"],
 			);
 
 			if ($status == 'insert') {
@@ -421,20 +421,30 @@ class M_master extends CI_Model{
 		$plh_qty = $_POST["plh_qty"];
 		$qty_lm = $_POST["qty_lm"];
 		
-		if($_POST["nama_lm"] == '' || $_POST["ukuran_lm"] == '' || $_POST["isi_lm"] == '' || $_POST["qty_lm"] == '' || $_POST["qty_lm"] == 0){
+		if(($nama_lm == '' || $ukuran_lm == '' || $isi_lm == '' || $qty_lm == '' || $qty_lm == 0 || $qty_lm < 0) && ($plh_qty == 'pack' || $plh_qty == 'ikat')){
+			$insert = false;
+			$isi = 'DATA TIDAK BOLEH KOSONG!';
+		}else if(($nama_lm == '' || $qty_lm == '' || $qty_lm == 0 || $qty_lm < 0) && $plh_qty == 'kg'){
 			$insert = false;
 			$isi = 'DATA TIDAK BOLEH KOSONG!';
 		}else{		
-			($plh_qty == 'pack') ? $where = "AND pack_lm='$qty_lm'" : $where = "AND ikat_lm='$qty_lm'";
+			if($plh_qty == 'pack'){
+				$where = "AND pack_lm='$qty_lm'";
+			}else if($plh_qty == 'ikat'){
+				$where = "AND ikat_lm='$qty_lm'";
+			}else{
+				$where = "AND kg_lm='$qty_lm'";
+			}
 			$cekData = $this->db->query("SELECT*FROM m_produk_lm WHERE nm_produk_lm='$nama_lm' AND ukuran_lm='$ukuran_lm' AND isi_lm='$isi_lm' AND jenis_qty_lm='$plh_qty' $where");
 			
 			$data = [
-				'nm_produk_lm' => $_POST["nama_lm"],
-				'ukuran_lm' => $_POST["ukuran_lm"],
-				'isi_lm' => $_POST["isi_lm"],
+				'nm_produk_lm' => $nama_lm,
+				'ukuran_lm' => ($ukuran_lm == '') ? '-' : $ukuran_lm,
+				'isi_lm' => ($isi_lm == '') ? 0 : $isi_lm,
 				'jenis_qty_lm' => $_POST["plh_qty"],
-				'ikat_lm' => ($_POST["plh_qty"] == 'ikat') ? $_POST["qty_lm"] : null,
-				'pack_lm' => ($_POST["plh_qty"] == 'pack') ? $_POST["qty_lm"] : null,
+				'ikat_lm' => ($plh_qty == 'ikat') ? $qty_lm : null,
+				'pack_lm' => ($plh_qty == 'pack') ? $qty_lm : null,
+				'kg_lm' => ($plh_qty == 'kg') ? $qty_lm : null,
 			];
 
 			if($_POST["aksiInput"] == 'insert'){
