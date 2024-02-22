@@ -809,13 +809,16 @@ class Transaksi extends CI_Controller
 
 				if($r->status_karet=='REPEAT')
 				{
-					$status_karet = '<b>REPEAT</b>';
+					$status_karet    = '<b>REPEAT</b>';
+					$btn_sk          = 'btn-info';
 					
 				}else if($r->status_karet=='REVISI'){
-					$status_karet = '<b>REVISI DESAIN</b>';
+					$status_karet    = '<b>REVISI DESAIN</b>';
+					$btn_sk          = 'btn-success';
 
 				}else{
-					$status_karet = '<b>NEW ORDER</b>';
+					$status_karet    = '<b>NEW ORDER</b>';
+					$btn_sk          = 'btn-danger';
 
 				}
 
@@ -947,7 +950,7 @@ class Transaksi extends CI_Controller
                 $time3 = ( ($r->time_app3 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app3,0,10))  . ' - ' .substr($r->time_app3,10,9));
 
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status.'</button></div>';
-				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm btn-warning ">'.$status_karet.'</button></div>';
+				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_sk.' ">'.$status_karet.'</button></div>';
 
 				$row[] = '<div class="text-center">'.$r->kode_po.'</div>';
 				// $row[] = $r->total_qty;
