@@ -307,7 +307,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				if(data.total_items == 0){
 					toastr.error(`<b>${data.isi}</b>`)
 					$(".row-input-rk").hide()
@@ -354,7 +354,7 @@
 			data: ({ rowid }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				if(data.total_items == 0){
 					$(".row-input-rk").hide()
 					swal.close()
@@ -383,7 +383,7 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				// kosong()
 				$(".list-rencana-sj-laminasi").load("<?php echo base_url('Logistik/destroyLaminasi') ?>")
 				$(".row-input-rk").hide()
@@ -430,7 +430,7 @@
 			data: ({ id_rk, keterangan }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				listRencanKirim()
 			}
 		})
@@ -508,7 +508,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				if(data.data){
 					kosong()
 				}else{
