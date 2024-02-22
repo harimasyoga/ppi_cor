@@ -1307,25 +1307,29 @@ class M_transaksi extends CI_Model
 
 	function editListLaminasi()
 	{
-		$this->db->set('edit_time', date('Y-m-d H:i:s'));
-		$this->db->set('edit_user', $this->username);
-		$this->db->where('id', $_POST["id_po_header"]);
-		$updatePO = $this->db->update('trs_po_lm');
-		
-		if($updatePO){
-			$editData = array(
-				// 'id_m_produk_lm' => $_POST[""],
-				'order_sheet_lm' => $_POST["order_sheet"],
-				'order_pori_lm' => $_POST["order_pori"],
-				'qty_bal' => $_POST["qty_bal"],
-				'harga_lembar_lm' => $_POST["harga_lembar"],
-				'harga_pori_lm' => $_POST["harga_pori"],
-				'harga_total_lm' => $_POST["harga_total"],
-				'edit_time' => date('Y-m-d H:i:s'),
-				'edit_user' => $this->username,
-			);
-			$this->db->where('id', $_POST["id_po_detail"]);
-			$updatePOdtl = $this->db->update('trs_po_lm_detail', $editData);
+		if($_POST["harga_pori"] == 0 || $_POST["harga_total"] == 0 || $_POST["harga_pori"] == '' || $_POST["harga_total"] == ''){
+			$updatePOdtl = false;
+		}else{
+			$this->db->set('edit_time', date('Y-m-d H:i:s'));
+			$this->db->set('edit_user', $this->username);
+			$this->db->where('id', $_POST["id_po_header"]);
+			$updatePO = $this->db->update('trs_po_lm');
+			
+			if($updatePO){
+				$editData = array(
+					// 'id_m_produk_lm' => $_POST[""],
+					'order_sheet_lm' => $_POST["order_sheet"],
+					'order_pori_lm' => $_POST["order_pori"],
+					'qty_bal' => $_POST["qty_bal"],
+					'harga_lembar_lm' => $_POST["harga_lembar"],
+					'harga_pori_lm' => $_POST["harga_pori"],
+					'harga_total_lm' => $_POST["harga_total"],
+					'edit_time' => date('Y-m-d H:i:s'),
+					'edit_user' => $this->username,
+				);
+				$this->db->where('id', $_POST["id_po_detail"]);
+				$updatePOdtl = $this->db->update('trs_po_lm_detail', $editData);
+			}
 		}
 
 		return [

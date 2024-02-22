@@ -35,7 +35,8 @@
 							<div class="col-md-9">
 								<select id="pilih_hpp" class="form-control select2" onchange="pilihHPP()">
 									<option value="">PILIH</option>
-									<option value="PM">PM</option>
+									<option value="PM1">PM1</option>
+									<option value="PM2">PM2</option>
 									<option value="LAMINASI">LAMINASI</option>
 									<option value="CORR">CORR</option>
 								</select>
@@ -44,12 +45,8 @@
 						<div class="tampil_corr"></div>
 						<div class="card-body row cbr-periode">
 							<div class="col-md-3">PERIODE</div>
-							<div class="col-md-4">
+							<div class="col-md-9">
 								<input type="date" id="tgl1_hpp" class="form-control">
-							</div>
-							<div class="col-md-1" style="padding:6px 0;text-align:center">s/d</div>
-							<div class="col-md-4">
-								<input type="date" id="tgl2_hpp" class="form-control">
 							</div>
 						</div>
 						<div class="card-body row cbr-jenis">
@@ -63,16 +60,10 @@
 								</select>
 							</div>
 						</div>
-						<div class="card-body row cbr-batu-bara">
-							<div class="col-md-3">BATU BARA</div>
+						<div class="card-body row cbr-tenaga-kerja">
+							<div class="col-md-3">TENAGA KERJA</div>
 							<div class="col-md-9">
-								<input type="text" id="batu_bara" class="form-control" autocomplete="off" placeholder="BATU BARA" onkeyup="hitungHPP()">
-							</div>
-						</div>
-						<div class="card-body row cbr-batu-bara">
-							<div class="col-md-3">BAHAN BAKU</div>
-							<div class="col-md-9">
-								<input type="text" id="bahan_baku" class="form-control" autocomplete="off" placeholder="BAHAN BAKU" onkeyup="hitungHPP()">
+								<input type="text" id="tenaga_kerja" class="form-control" autocomplete="off" placeholder="TENAGA KERJA" onkeyup="hitungHPP()">
 							</div>
 						</div>
 						<div class="card-body row cbr-listrik">
@@ -81,16 +72,61 @@
 								<input type="text" id="listrik" class="form-control" autocomplete="off" placeholder="LISTRIK" onkeyup="hitungHPP()">
 							</div>
 						</div>
-						<div class="card-body row cbr-chemical">
-							<div class="col-md-3">CHEMICAL</div>
-							<div class="col-md-9">
-								<input type="text" id="chemical" class="form-control" autocomplete="off" placeholder="CHEMICAL" onkeyup="hitungHPP()">
+						<div class="card-body row cbr-bahan-baku">
+							<div class="col-md-3">BAHAN BAKU</div>
+							<div class="col-md-4">
+								<div class="input-group" style="margin-bottom:3px">
+									<input type="text" id="bahan_baku" class="form-control" autocomplete="off" placeholder="BAHAN BAKU" onkeyup="hitungHPP()">
+									<div class="input-group-append">
+										<span class="input-group-text" style="padding:6px">Kg</span>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-5">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" style="padding:6px">Rp</span>
+									</div>
+									<input type="text" class="form-control" placeholder="BAHAN BAKU">
+								</div>
 							</div>
 						</div>
-						<div class="card-body row cbr-tenaga-kerja">
-							<div class="col-md-3">TENAGA KERJA</div>
-							<div class="col-md-9">
-								<input type="text" id="tenaga_kerja" class="form-control" autocomplete="off" placeholder="TENAGA KERJA" onkeyup="hitungHPP()">
+						<div class="card-body row cbr-batu-bara">
+							<div class="col-md-3">BATU BARA</div>
+							<div class="col-md-4">
+								<div class="input-group">
+									<input type="text" id="batu_bara" class="form-control" autocomplete="off" placeholder="BATU BARA" onkeyup="hitungHPP()">
+									<div class="input-group-prepend">
+										<span class="input-group-text" style="padding:6px">Kg</span>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-5">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" style="padding:6px">Rp</span>
+									</div>
+									<input type="text" class="form-control" placeholder="BATU BARA">
+								</div>
+							</div>
+						</div>
+						<div class="card-body row cbr-chemical">
+							<div class="col-md-3">CHEMICAL</div>
+							<div class="col-md-4">
+								<div class="input-group">
+									<input type="text" id="chemical" class="form-control" autocomplete="off" placeholder="CHEMICAL" onkeyup="hitungHPP()">
+									<div class="input-group-prepend">
+										<span class="input-group-text" style="padding:6px">Kg</span>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-5">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" style="padding:6px">Rp</span>
+									</div>
+									<input type="text" class="form-control" placeholder="CHEMICAL">
+								</div>
 							</div>
 						</div>
 						<div class="card-body row cbr-depresiasi">
@@ -293,8 +329,8 @@
 	{
 		$(".cbr-periode").attr('style', (opsi == 'show') ? 'font-weight:bold;padding:0 12px 6px' : 'display:none')
 		$(".cbr-jenis").attr('style', (opsi == 'show') ? 'font-weight:bold;padding:0 12px 6px' : 'display:none')
-		$(".cbr-batu-bara").attr('style', (opsi == 'show') ? 'font-weight:bold;padding:0 12px 6px' : 'display:none')
-		$(".cbr-bahan-baku").attr('style', (opsi == 'show') ? 'font-weight:bold;padding:0 12px 6px' : 'display:none')
+		$(".cbr-batu-bara").attr('style', (opsi == 'show') ? 'font-weight:bold;padding:0 12px 3px' : 'display:none')
+		$(".cbr-bahan-baku").attr('style', (opsi == 'show') ? 'font-weight:bold;padding:0 12px 3px' : 'display:none')
 		$(".cbr-listrik").attr('style', (opsi == 'show') ? 'font-weight:bold;padding:0 12px 6px' : 'display:none')
 		$(".cbr-chemical").attr('style', (opsi == 'show') ? 'font-weight:bold;padding:0 12px 6px' : 'display:none')
 		$(".cbr-tenaga-kerja").attr('style', (opsi == 'show') ? 'font-weight:bold;padding:0 12px 6px' : 'display:none')
@@ -339,7 +375,7 @@
 				<button type="button" class="btn btn-sm btn-primary" onclick="simpanHPP()"><i class="fa fa-save"></i> <b>SIMPAN</b></button>
 			</div>
 		</div>`
-		if(pilih_hpp == "PM"){
+		if(pilih_hpp == "PM2"){
 			hideAll('show')
 			$(".col-hitung-hpp").show()
 		}else if(pilih_hpp == "LAMINASI"){

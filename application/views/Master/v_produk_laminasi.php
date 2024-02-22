@@ -268,8 +268,8 @@
 				aksiInput = "update"
 				$("#h_id").val(data.produk.id_produk_lm)
 				$("#nama_lm").val(data.produk.nm_produk_lm)
-				$("#ukuran_lm").val(data.produk.ukuran_lm)
-				$("#isi_lm").val(data.produk.isi_lm).prop('disabled', (data.cek == 1) ? true : false)
+				$("#ukuran_lm").val(data.produk.ukuran_lm).prop('disabled', (data.produk.jenis_qty_lm == 'kg') ? true : false)
+				$("#isi_lm").val(data.produk.isi_lm).prop('disabled', (data.cek == 1 || data.produk.jenis_qty_lm == 'kg') ? true : false)
 				$("#plh-qty").val(data.produk.jenis_qty_lm);
 				let qty = 0
 				if(data.produk.jenis_qty_lm == 'pack'){

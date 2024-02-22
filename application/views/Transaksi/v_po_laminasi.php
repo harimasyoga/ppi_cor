@@ -162,7 +162,7 @@
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
 								<div class="col-md-3">QTY ( BAL )</div>
 								<div class="col-md-9">
-									<input type="text" id="qty_bal" class="form-control" autocomplete="off" placeholder="QTY ( BAL )" onkeyup="hitungHarga()">
+									<input type="number" id="qty_bal" class="form-control" autocomplete="off" placeholder="QTY ( BAL )" onkeyup="hitungHarga()">
 								</div>
 							</div>
 						</div>
@@ -444,21 +444,29 @@
 
 	function hitungHarga()
 	{
+		let jenis = $("#item option:selected").attr('jenis_qty_lm')
 		let at_sheet = $("#sheet").val()
 		let at_bal = $("#qty").val()
 		
-		let qty_bal = $("#qty_bal").val().split('.').join('')
-		$("#qty_bal").val(format_angka(qty_bal))
+		let qty_bal = 0
+		let orderSheet = 0
+		let orderPackOrIkat = 0
+		if(jenis == 'kg'){
+			qty_bal = $("#qty_bal").val()
+			orderSheet = 0
+			orderPackOrIkat = parseFloat(at_bal) * parseFloat(qty_bal);
+			(isNaN(orderPackOrIkat)) ? orderPackOrIkat = 0 : orderPackOrIkat = orderPackOrIkat
+		}else{
+			qty_bal = $("#qty_bal").val().split('.').join('')
+			orderSheet = parseInt(at_sheet) * (parseInt(at_bal) * parseInt(qty_bal))
+			orderPackOrIkat = parseInt(at_bal) * parseInt(qty_bal)
+			$("#qty_bal").val(qty_bal)
+		}
+		$("#order_sheet").val(format_angka(orderSheet));
+		$("#order_pori").val((jenis == 'kg') ? orderPackOrIkat : format_angka(orderPackOrIkat));
 
-		let orderSheet = parseInt(at_sheet) * (parseInt(at_bal) * parseInt(qty_bal))
-		$("#order_sheet").val(format_angka(orderSheet))
-
-		let orderPackOrIkat = parseInt(at_bal) * parseInt(qty_bal)
-		$("#order_pori").val(format_angka(orderPackOrIkat))
-		
-		let cek = parseInt(qty_bal)
-		let jenis_qty_lm = $("#item option:selected").attr('jenis_qty_lm');
-		if(jenis_qty_lm == 'kg'){
+		let cek = (jenis == 'kg') ? parseFloat(qty_bal) : parseInt(qty_bal);
+		if(jenis == 'kg'){
 			$("#harga_lembar").val(0).prop('disabled', true)
 		}else{
 			$("#harga_lembar").val("").prop('disabled', (isNaN(cek) || cek == 0) ? true : false)
@@ -469,9 +477,10 @@
 
 	function hitungHargaP(opsi)
 	{
+		let jenis = $("#item option:selected").attr('jenis_qty_lm')
 		let at_sheet = $("#sheet").val()
 		let order_sheet = $("#order_sheet").val().split('.').join('')
-		let order_pori = $("#order_pori").val().split('.').join('')
+		let order_pori = (jenis == 'kg') ? $("#order_pori").val() : $("#order_pori").val().split('.').join('')
 
 		let harga_total = 0
 		if(opsi == 'lembar'){
@@ -490,13 +499,13 @@
 			$("#harga_pori").val(format_angka(harga_pori))
 
 			let hargaSheet = parseInt(harga_pori) / parseInt(at_sheet);
+			(isNaN(hargaSheet)) ? hargaSheet = 0 : hargaSheet = hargaSheet;
 			$("#harga_lembar").val(hargaSheet)
 
-			harga_total = parseInt(order_pori) * parseInt(harga_pori)
+			harga_total = Math.round(((jenis == 'kg') ? parseFloat(order_pori) : parseInt(order_pori)) * parseInt(harga_pori))
 		}
 
-		let jenis_qty_lm = $("#item option:selected").attr('jenis_qty_lm');
-		if(jenis_qty_lm == 'kg'){
+		if(jenis == 'kg'){
 			$("#harga_lembar").val(0).prop('disabled', true)
 		}
 
@@ -521,10 +530,10 @@
 		(isi_lm == undefined) ? isi_lm = '' : isi_lm = isi_lm
 		let jenis_qty_lm = $("#item option:selected").attr('jenis_qty_lm');
 		(jenis_qty_lm == undefined) ? jenis_qty_lm = '' : jenis_qty_lm = jenis_qty_lm
-		let qty = $("#qty").val().split('.').join('')
+		let qty = (jenis_qty_lm == 'kg') ? $("#qty").val() : $("#qty").val().split('.').join('')
 		let order_sheet = $("#order_sheet").val().split('.').join('')
-		let order_pori = $("#order_pori").val().split('.').join('')
-		let qty_bal = $("#qty_bal").val().split('.').join('')
+		let order_pori = (jenis_qty_lm == 'kg') ? $("#order_pori").val() : $("#order_pori").val().split('.').join('')
+		let qty_bal = $("#qty_bal").val()
 		let harga_lembar = $("#harga_lembar").val().split('.').join('')
 		let harga_pori = $("#harga_pori").val().split('.').join('')
 		let harga_total = $("#harga_total").val().split('.').join('')
@@ -710,10 +719,10 @@
 					}else{
 						qty = data.po_dtl.kg_lm
 					}
-					$("#qty").val(format_angka(qty))
+					$("#qty").val((data.po_dtl.jenis_qty_lm == 'kg') ? qty : format_angka(qty))
 					$("#order_sheet").val(format_angka(data.po_dtl.order_sheet_lm))
-					$("#order_pori").val(format_angka(data.po_dtl.order_pori_lm))
-					$("#qty_bal").val(format_angka(data.po_dtl.qty_bal)).prop('disabled', false)
+					$("#order_pori").val((data.po_dtl.jenis_qty_lm == 'kg') ? data.po_dtl.order_pori_lm : format_angka(data.po_dtl.order_pori_lm))
+					$("#qty_bal").val(data.po_dtl.qty_bal).prop('disabled', false)
 
 					if(data.po_dtl.jenis_qty_lm == 'pack'){
 						$(".txt-item-pack-ikat").html("PACK")
@@ -732,7 +741,7 @@
 						$(".igt-qty").html("KG")
 					}
 
-					$("#harga_lembar").val(format_angka(data.po_dtl.harga_lembar_lm)).prop('disabled', false)
+					$("#harga_lembar").val(format_angka(data.po_dtl.harga_lembar_lm)).prop('disabled', (data.po_dtl.jenis_qty_lm == 'kg') ? true : false)
 					$("#harga_pori").val(format_angka(data.po_dtl.harga_pori_lm)).prop('disabled', false)
 					$("#harga_total").val(format_angka(data.po_dtl.harga_total_lm))
 				}
@@ -963,16 +972,17 @@
 
 	function editListLaminasi()
 	{
+		let jenis = $("#item option:selected").attr('jenis_qty_lm');
 		let tgl = $("#tgl").val()
 		let customer = $("#customer").val()
 		let no_po = $("#no_po").val()
 		let note_po_lm = $("#note_po_lm").val()
 		let id_po_header = $("#id_po_header").val()
 		let id_po_detail = $("#id_po_detail").val()
-		let qty = $("#qty").val().split('.').join('')
+		let qty = (jenis == 'kg') ? $("#qty").val() : $("#qty").val().split('.').join('')
 		let order_sheet = $("#order_sheet").val().split('.').join('')
-		let order_pori = $("#order_pori").val().split('.').join('')
-		let qty_bal = $("#qty_bal").val().split('.').join('')
+		let order_pori = (jenis == 'kg') ? $("#order_pori").val() :$("#order_pori").val().split('.').join('')
+		let qty_bal = $("#qty_bal").val()
 		let harga_lembar = $("#harga_lembar").val().split('.').join('')
 		let harga_pori = $("#harga_pori").val().split('.').join('')
 		let harga_total = $("#harga_total").val().split('.').join('')
@@ -994,9 +1004,11 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.updatePOdtl){
 					editPOLaminasi(id_po_header, 0, 'edit')
+				}else{
+					toastr.error(`<b>HARGA TIDAK BOLEH KOSONG!</b>`)
+					swal.close()
 				}
 			}
 		})

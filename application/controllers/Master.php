@@ -388,9 +388,9 @@ class Master extends CI_Controller
 				if($r->jenis_qty_lm == 'pack'){
 					$qty = number_format($r->pack_lm,0,',','.');
 				}else if($r->jenis_qty_lm == 'ikat'){
-					$qty = number_format($r->pack_lm,0,',','.').' <span style="font-size:12px;vertical-align:top;font-style:italic">( ikat )</span>';
+					$qty = number_format($r->ikat_lm,0,',','.').' <span style="font-size:12px;vertical-align:top;font-style:italic">( ikat )</span>';
 				}else{
-					$qty = number_format($r->kg_lm,0,',','.').' <span style="font-size:12px;vertical-align:top;font-style:italic">( kg )</span>';
+					$qty = round($r->kg_lm,2).' <span style="font-size:12px;vertical-align:top;font-style:italic">( kg )</span>';
 				}
 				$row[] = '<div class="text-right">'.$qty.'</div>';
 
