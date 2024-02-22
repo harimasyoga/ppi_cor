@@ -810,7 +810,7 @@ class Transaksi extends CI_Controller
 				if($r->status_karet=='REPEAT')
 				{
 					$status_karet    = '<b>REPEAT</b>';
-					$btn_sk          = 'btn-info';
+					$btn_sk          = 'btn-warning';
 					
 				}else if($r->status_karet=='REVISI'){
 					$status_karet    = '<b>REVISI DESAIN</b>';
@@ -818,7 +818,7 @@ class Transaksi extends CI_Controller
 
 				}else{
 					$status_karet    = '<b>NEW ORDER</b>';
-					$btn_sk          = 'btn-danger';
+					$btn_sk          = 'btn-info';
 
 				}
 
