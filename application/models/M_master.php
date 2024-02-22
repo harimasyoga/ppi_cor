@@ -517,6 +517,38 @@ class M_master extends CI_Model{
 
 			
 	}
+	
+	function save_kelompok()
+	{
+		$status_input   = $this->input->post('sts_input');
+		$kd_kel         = str_pad($this->input->post('kd_kelompok'), 2, "0", STR_PAD_LEFT);
+		if($status_input == 'add')
+		{
+			$data_header = array(
+				'kd_akun'  	   => $this->input->post('kd_akun'),
+				'kd_kelompok'  => $kd_kel,
+				'nm_kelompok'  => $this->input->post('nm_kelompok'),
+			);
+		
+			$result_header = $this->db->insert('m_kode_kelompok', $data_header);
+			
+		}else{
+
+			$data_header = array(
+				'kd_akun'      => $this->input->post('kd_akun'),
+				'kd_kelompok'  => $kd_kel,
+				'nm_kelompok'  => $this->input->post('nm_kelompok'),
+			);
+		
+			$this->db->where('id_kelompok', $this->input->post('id_kelompok'));
+			$result_header = $this->db->update('m_kode_kelompok', $data_header);
+			
+		}
+		return $result_header;
+		
+
+			
+	}
 
     function m_setting($table,$status){
         
