@@ -36,7 +36,7 @@
 				<br><br>
 				<div style="overflow:auto;">
 					<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
-						<thead>
+						<thead class="color-tabel">
 							<tr>
 								
 								<?php if ($this->session->userdata('level') != "PPIC")  {?>
