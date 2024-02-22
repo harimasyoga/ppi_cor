@@ -225,6 +225,7 @@
 											<select class="form-control" name="status_karet" id="status_karet">
 												<option value="REPEAT">REPEAT</option>
 												<option value="NEW_ORDER">NEW ORDER</option>
+												<option value="REVISI">REVISI DESAIN</option>
 											</select>
 										</div>
 									</div>

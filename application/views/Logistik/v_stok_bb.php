@@ -132,11 +132,11 @@
 									<tr>
 										<th id="header_del">Delete</th>
 										<th style="padding : 12px 20px" >Item</th>
-										<th style="padding : 12px 40px" >Qty</th>
-										<th style="padding : 12px 40px" >PPN</th>
-										<th style="padding : 12px 15px" >Price Exclude</th>
-										<th style="padding : 12px 15px" >Price Include</th>
-										<th style="padding : 12px 30px" id="header_p11" >P11</th>
+										<th style="padding : 12px 40px" >Customer</th>
+										<th style="padding : 12px 40px" >PO</th>
+										<th style="padding : 12px 15px" >Kebutuhan</th>
+										<th style="padding : 12px 15px" >History</th>
+										<th style="padding : 12px 15px" >Kedatangan</th>
 											
 									</tr>
 								</thead>
@@ -144,7 +144,9 @@
 									<tr id="itemRow0">
 										<td id="detail-hapus-0">
 											<div class="text-center">
-												<a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
+												<a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)">
+													<i class="far fa-trash-alt" style="color:#fff"></i> 
+												</a>
 											</div>
 										</td>
 										<td>
@@ -152,37 +154,24 @@
 											</select>
 										</td>
 										<td>
-											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="ubah_angka(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)">											
-											<br>
-											<input class="form-control" type="checkbox" name="cek_rm[0]" id="cek_rm0" onclick="cekrm(this.id)" value="0">
-										</td>
-										<td>
-											<select class="form-control select2" name="ppn[0]" id="ppn0" >
-												<option value="">-- Pilih --</option>
-												<!-- <option value="KB">KB</option> -->
-												<option value="PP">PP</option>
-												<option value="NP">NP</option>
-											</select>
+											<input type="text" name="qty[0]" id="qty0" class="angka form-control" placeholder="Customer" readonly>				
 										</td>
 										<td style="padding : 12px 20px" >
-											<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+											<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" placeholder="PO">
 
 										</td>
 										<td style="padding : 12px 20px">
-											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" value='0' placeholder="Kebutuhan">
 
-										</td>
-										<td id="p11_det0">
-											<input type="text" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
-										
-										</td>
-										<td id="txt_detail_produk0">
-										</td>
+										</td>										
+										<td style="padding : 12px 20px">
+											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>aaa
 
-											
+										</td>		
+										<td style="padding : 12px 20px">
+											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>aaa
 
-										
-										
+										</td>		
 									</tr>
 								</tbody>
 							</table>
