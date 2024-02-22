@@ -246,16 +246,12 @@
 							</div>
 						
 						<div class="card-body row"style="font-weight:bold">
-							<div class="col-md-2">
+							<div class="col-md-4">
 								<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
 									<i class="fa fa-undo" ></i> Kembali</b>
 								</button>
+								<span id="btn-simpan"></span>
 							</div>
-							<div class="col-md-2">
-								<div id="btn-simpan"></div>
-								
-							</div>	
-							
 							<div class="col-md-6"></div>
 							
 						</div>
@@ -1076,7 +1072,7 @@
 		var sales           = $("#sales").val();
 		var top             = $("#top").val();
 
-		if (nm_perusahaan='' || alasan== '' || tgl_byr == '' || jml_byr=='' || sales=='' || top=='' ) 
+		if (nm_perusahaan=='' || alasan== '' || tgl_byr == '' || jml_byr=='' || sales=='' || top=='' ) 
 		{			
 			swal.close();
 			swal({

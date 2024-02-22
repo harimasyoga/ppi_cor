@@ -84,7 +84,7 @@
 								<div class="col-md-1"></div>
 								<div class="col-md-2">NAMA AKUN</div>
 								<div class="col-md-3">
-									<input type="text" class="form-control" name="nm_akun" id="nm_akun" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " >
+									<input type="text" class="form-control" name="nm_akun" id="nm_akun" oninput="this.value = this.value.toUpperCase()" >
 								</div>
 
 								<div class="col-md-6"></div>
@@ -93,16 +93,12 @@
 						<br>
 						
 						<div class="card-body row"style="font-weight:bold">
-							<div class="col-md-2">
+							<div class="col-md-4">
 								<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
 									<i class="fa fa-undo" ></i> Kembali</b>
 								</button>
+								<span id="btn-simpan"></span>
 							</div>
-							<div class="col-md-2">
-								<div id="btn-simpan"></div>
-								
-							</div>	
-							
 							<div class="col-md-6"></div>
 							
 						</div>
@@ -234,7 +230,7 @@
 		var kode_akun   = $("#kode_akun").val();
 		var nm_akun     = $("#nm_akun").val();
 
-		if (kode_akun='' || nm_akun== '' ) 
+		if (kode_akun=='' || nm_akun== '' ) 
 		{			
 			swal.close();
 			swal({
@@ -260,8 +256,7 @@
 						html                : "Berhasil Disimpan",
 						type                : "success",
 						confirmButtonText   : "OK"
-					});
-					// location.href = "<?= base_url()?>Master/Invoice_edit?id="+data.id+"&no_inv="+no_inv_ok+"";					
+					});	
 					kosong();
 					location.href = "<?= base_url()?>Master/Rek_akun";
 					

@@ -41,9 +41,11 @@
 							<thead class="color-tabel">
 								<tr>
 									<th class="text-center title-white">NO</th>
-									<th class="text-center title-white">NAMA AKUN</th>
-									<th class="text-center title-white">KODE KELOMPOK</th>
-									<th class="text-center title-white">NAMA KELOMPOK</th>
+									<th class="text-center title-white">TANGGAL</th>
+									<th class="text-center title-white">JENIS</th>
+									<th class="text-center title-white">TONASE</th>
+									<th class="text-center title-white">CUSTOMER</th>
+									<th class="text-center title-white">ITEM</th>
 									<th class="text-center title-white">AKSI</th>
 								</tr>
 							</thead>
@@ -55,81 +57,161 @@
 		</div>
 	</section>
 
-	<div class="container-fluid row-input" style="display: none;">
-		<form role="form" method="post" id="myForm">
-			<div class="row">
-				<div class="col-md-12">
-					<div class="card card-info card-outline">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">Input Pembayaran</h3>
-						</div>
-											
-						<div class="card-body row" style="padding-bottom:none;font-weight:bold">						
-							<div class="col-md-8"></div>
-							<div class="col-md-7"></div>
-							
-						</div>
+	<section class="content">
 
-							<div class="card-body row" style="padding : 5px;font-weight:bold">
-								<div class="col-md-1"></div>
-									
-								<div class="col-md-2">KODE AKUN</div>
-								<div class="col-md-4">
-									<select class="form-control select2" name="kd_akun" id="kd_akun" onchange="tempel_akun()">
-									</select>
-								</div>
+		<!-- Default box -->
+		<div class="card shadow row-input" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;" >
+				<h3 class="card-title" style="color:#4e73df;"><b>INPUT STOK</b></h3>
 
-								<div class="col-md-5"></div>
-							</div>
-							<div class="card-body row" style="padding : 5px;font-weight:bold">
-								<div class="col-md-1"></div>
-									
-								<div class="col-md-2">KODE KELOMPOK</div>
-								<div class="col-md-4">
-									<div class="input-group mb-3">
-										<div class="input-group-append">
-											<span class="input-group-text" id="idakun"></span>
-										</div>
-										<input type="hidden" class="angka form-control" name="sts_input" id="sts_input" >
-										<input type="hidden" class="angka form-control" name="id_kelompok" id="id_kelompok" >
-										
-										<input type="text" class="angka form-control" name="kd_kelompok" id="kd_kelompok" maxlength="2">
-										<input type="hidden" class="angka form-control" name="kd_kelompok_old" id="kd_kelompok_old" maxlength="2">
-
-									</div>
-								</div>
-
-								<div class="col-md-5"></div>
-							</div>
-							<div class="card-body row" style="padding : 5px;font-weight:bold">
-								<div class="col-md-1"></div>
-								<div class="col-md-2">NAMA KELOMPOK</div>
-								<div class="col-md-4">
-									<input type="text" class="form-control" name="nm_kelompok" id="nm_kelompok" oninput="this.value = this.value.toUpperCase()" >
-								</div>
-
-								<div class="col-md-5"></div>
-
-							</div>
-						<br>
-						
-						<div class="card-body row"style="font-weight:bold">
-							<div class="col-md-4">
-								<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
-									<i class="fa fa-undo" ></i> Kembali</b>
-								</button>
-								<span id="btn-simpan"></span>
-							</div>
-							<div class="col-md-6"></div>
-							
-						</div>
-
-						<br>
-					</div>
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
 				</div>
 			</div>
-		</form>	
-	</div>
+			<form role="form" method="post" id="myForm">
+				<div class="col-md-12">
+								
+						<br>
+						
+					<div class="card-body row" style="padding : 5px;font-weight:bold">
+						<div class="col-md-1"></div>
+							
+						<div class="col-md-2">KODE STOK</div>
+						<div class="col-md-4">
+							<input type="hidden" class="angka form-control" name="sts_input" id="sts_input" >
+							<input type="hidden" class="angka form-control" name="id_kelompok" id="id_kelompok" >
+							
+							<input type="hidden" class="angka form-control" name="kd_kelompok_old" id="kd_kelompok_old" maxlength="2">
+
+							<input type="text" class="angka form-control" name="kd_kelompok" id="kd_kelompok" value="AUTO" readonly>
+						</div>
+
+						<div class="col-md-5"></div>
+					</div>
+
+					<div class="card-body row" style="padding : 5px;font-weight:bold">
+						<div class="col-md-1"></div>
+							
+						<div class="col-md-2">JENIS</div>
+						<div class="col-md-4">
+							<select class="form-control select2" name="kd_akun" id="kd_akun" onchange="tempel_akun()">
+								<option value="stok">STOK PPI</option>
+								<option value="po">BAHAN BAKU PO</option>
+							</select>
+						</div>
+
+						<div class="col-md-5"></div>
+					</div>
+					
+					<div class="card-body row" style="padding : 5px;font-weight:bold">
+						<div class="col-md-1"></div>
+							
+						<div class="col-md-2">TANGGAL</div>
+						<div class="col-md-4">
+							<input type="date" class="form-control" name="nm_kelompok" id="nm_kelompok" oninput="this.value = this.value.toUpperCase()" >
+						</div>
+
+						<div class="col-md-5"></div>
+					</div>
+					
+					<br>
+					<hr>
+
+					<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+						<div class="col-md-2" style="padding-right:0">List Item</div>
+						<div class="col-md-10">&nbsp;
+						</div>
+					</div>
+
+					<!-- detail -->
+
+					<div style="overflow:auto;white-space:nowrap;" >
+							<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table-produk" width="100%">
+								<thead class="color-tabel">
+									<tr>
+										<th id="header_del">Delete</th>
+										<th style="padding : 12px 20px" >Item</th>
+										<th style="padding : 12px 40px" >Qty</th>
+										<th style="padding : 12px 40px" >PPN</th>
+										<th style="padding : 12px 15px" >Price Exclude</th>
+										<th style="padding : 12px 15px" >Price Include</th>
+										<th style="padding : 12px 30px" id="header_p11" >P11</th>
+											
+									</tr>
+								</thead>
+								<tbody>
+									<tr id="itemRow0">
+										<td id="detail-hapus-0">
+											<div class="text-center">
+												<a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
+											</div>
+										</td>
+										<td>
+											<select class="form-control select2 narrow wrap wrap" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(this.value,0)">
+											</select>
+										</td>
+										<td>
+											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="ubah_angka(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)">											
+											<br>
+											<input class="form-control" type="checkbox" name="cek_rm[0]" id="cek_rm0" onclick="cekrm(this.id)" value="0">
+										</td>
+										<td>
+											<select class="form-control select2" name="ppn[0]" id="ppn0" >
+												<option value="">-- Pilih --</option>
+												<!-- <option value="KB">KB</option> -->
+												<option value="PP">PP</option>
+												<option value="NP">NP</option>
+											</select>
+										</td>
+										<td style="padding : 12px 20px" >
+											<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+
+										</td>
+										<td style="padding : 12px 20px">
+											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+
+										</td>
+										<td id="p11_det0">
+											<input type="text" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
+										
+										</td>
+										<td id="txt_detail_produk0">
+										</td>
+
+											
+
+										
+										
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
+					<!-- end detail -->
+
+				
+					<div class="card-body row"style="font-weight:bold">
+						<div class="col-md-4">
+							<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+								<i class="fa fa-undo" ></i> Kembali</b>
+							</button>
+
+							<span id="btn-simpan"></span>
+
+						</div>
+						
+						<div class="col-md-6"></div>
+						
+					</div>
+
+					<br>
+					
+				</div>
+			</form>	
+		</div>
+		<!-- /.card -->
+	</section>
 </div>
 
 
@@ -141,7 +223,6 @@
 	{
 		kosong()
 		load_data()
-		load_akun()
 		$('.select2').select2();
 	});
 
@@ -150,52 +231,6 @@
 		table = $('#datatable').DataTable();
 		tabel.ajax.reload(null, false);
 	}
-
-	function load_akun() 
-	{
-		option = "";
-		$.ajax({
-			type       : 'POST',
-			url        : "<?= base_url(); ?>Master/load_akun",
-			dataType   : 'json',
-			// data       : {tgl_sj,type_po,stat},
-			beforeSend: function() {
-				swal({
-				title: 'loading ...',
-				allowEscapeKey    : false,
-				allowOutsideClick : false,
-				onOpen: () => {
-					swal.showLoading();
-				}
-				})
-			},
-			success:function(data){			
-				if(data.message == "Success")
-				{				
-					option = "<option>--- Pilih ---</option>";
-					$.each(data.data, function(index, val) 
-					{
-						option += `<option value="${val.kd_akun}" data-kd="${val.kd_akun}" >${val.kd_akun} | ${val.nm_akun}</option>`;
-					});
-
-					$('#kd_akun').html(option);
-					swal.close();
-				}else{	
-					option += "<option value=''>Data Kosong</option>";
-					$('#kd_akun').html(option);		
-					swal.close();
-				}
-			}
-		});
-	}
-
-	function tempel_akun()
-	{
-		var kd_akun   = $('#kd_akun option:selected').attr('data-kd');
-		$("#idakun").html(kd_akun+'.')
-
-	}
-
 
 	function load_data() 
 	{
@@ -206,7 +241,7 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url('Master/load_data/load_kd_kelompok')?>',
+				"url": '<?php echo base_url('Logistik/load_data/stok_bb')?>',
 				"type": "POST",
 			},
 			"aLengthMenu": [
@@ -220,7 +255,6 @@
 			}
 		})
 	}
-	
 	
 	function edit_data(id,no_inv)
 	{

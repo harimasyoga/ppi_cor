@@ -44,6 +44,7 @@
 									<th style="text-align: center; width:10%">No PO</th>
 									<th style="text-align: center; width:20%">Tgl PO</th>
 									<th style="text-align: center; width:5%">Status</th>
+									<th style="text-align: center; width:5%">Status Karet</th>
 									<th style="text-align: center; width:10%">Kode PO</th>
 									<!-- <th style="display:none;">Kode PO</th> -->
 									<!-- <th style="text-align: center">Total Qty</th> -->
@@ -214,7 +215,15 @@
 											</div>
 										
 										<?php } ?>
-										<div class="col-md-7"></div>
+										<div class="col-md-2"></div>
+
+										<div class="col-md-2">STATUS KARET</div>
+										<div class="col-md-3">
+											<select class="form-control" name="status_karet" id="status_karet">
+												<option value="REPEAT">REPEAT</option>
+												<option value="NEW_ORDER">NEW ORDER</option>
+											</select>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -1036,6 +1045,7 @@
 				$("#tgl_po").val(data.header.tgl_po);
 				pilih_hub(data.header.id_hub);
 				
+				$('#status_karet').val(data.header.status_karet).trigger('change');
 				$('#id_pelanggan').val(data.header.id_pelanggan).trigger('change');
 
 				kodepo    = (data.header.kode_po == '' ) ? '-' : data.header.kode_po ;

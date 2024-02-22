@@ -582,18 +582,19 @@ class Master extends CI_Controller
 			}
 		} else if ($jenis == "load_kd_kelompok") {
 			$query = $this->db->query("SELECT a.*,b.* FROM m_kode_kelompok a 
-			join m_kode_akun b ON a.id_akun=b.id_akun 
-			ORDER BY a.id_akun,a.id_kelompok ")->result();
+			join m_kode_akun b ON a.kd_akun=b.kd_akun 
+			ORDER BY a.kd_akun ,a.id_kelompok ")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
 
-				$id         = "'$r->id_akun'";
-				$kd_akun    = "'$r->kd_kelompok'";
-				$nm_akun    = "'$r->nm_kelompok'";
+				$id             = "'$r->id_kelompok'";
+				$kd_kelompok    = "'$r->kd_kelompok'";
+				$nm_kelompok    = "'$r->nm_kelompok'";
 				
 				$row = array();
-				$row[] = '<div class="text-center">'.$r->nm_akun.'</div>';
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<div class="">'.$r->nm_kelompok.'</div>';
 				$row[] = '<div class="text-center">'.$r->id_akun.'.'.$r->kd_kelompok.'</div>';
 				$row[] = $r->nm_kelompok;
 
@@ -602,11 +603,11 @@ class Master extends CI_Controller
 				if (in_array($this->session->userdata('level'), ['Admin','User']))
 				{
 					$aksi = '
-						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_akun . ')" title="EDIT DATA" >
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_kelompok . ')" title="EDIT DATA" >
 							<b><i class="fa fa-edit"></i> </b>
 						</a> 
 
-						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $nm_akun . ')" class="btn btn-danger btn-sm">
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $nm_kelompok . ')" class="btn btn-danger btn-sm">
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';
@@ -631,24 +632,76 @@ class Master extends CI_Controller
 		echo json_encode($output);
 	}
 
+	function load_akun($searchTerm="")
+	{
+		// ASLI
+
+		$query = $this->db->query("SELECT * FROM m_kode_akun ORDER BY id_akun")->result();
+
+		if (!$query) {
+			$response = [
+				'message'	=> 'not found',
+				'data'		=> [],
+				'status'	=> false,
+			];
+		}else{
+			$response = [
+				'message'	=> 'Success',
+				'data'		=> $query,
+				'status'	=> true,
+			];
+		}
+		$json = json_encode($response);
+		print_r($json);
+    }
+
 	function Insert_kode_akun()
 	{
-
 		if($this->session->userdata('username'))
 		{
-			$asc         = $this->m_master->save_akun();
-	
-			if($asc){
-	
-				echo json_encode(array("status" =>"1","id" => $asc));
-	
+			$asc         = $this->m_master->save_akun();	
+			if($asc){	
+				echo json_encode(array("status" =>"1","id" => $asc));	
 			}else{
-				echo json_encode(array("status" => "2","id" => $asc));
-	
+				echo json_encode(array("status" => "2","id" => $asc));	
 			}
+		}		
+	}
+	
+	function Insert_kode_kelompok()
+	{
+		if($this->session->userdata('username'))
+		{
+			$status_input    = $this->input->post('sts_input');
+			$id_kelompok     = $this->input->post('id_kelompok');
+			$kd_kelompok_old = $this->input->post('kd_kelompok_old');
+			$kd_akun         = $this->input->post('kd_akun');
+			$kd_kel          = str_pad($this->input->post('kd_kelompok'), 2, "0", STR_PAD_LEFT);
 
-		}
-		
+			$cek = $this->db->query("SELECT*FROM m_kode_kelompok where kd_akun ='$kd_akun' and kd_kelompok='$kd_kel' ");
+
+			if($cek->num_rows()>0 && $status_input=='add')
+			{
+				echo json_encode(array("status" =>"3","id" => $cek));	
+			}else{
+
+				if($status_input=='edit' && $cek->num_rows()>0 && $kd_kelompok_old != $kd_kel)
+				{
+					echo json_encode(array("status" =>"3","id" => $cek));	
+				}else{
+					$asc         = $this->m_master->save_kelompok();	
+					if($asc){	
+						echo json_encode(array("status" =>"1","id" => $asc));	
+					}else{
+						echo json_encode(array("status" => "2","id" => $asc));	
+					}
+
+				}
+				
+
+			}
+			
+		}		
 	}
 
 	function load_data_1()

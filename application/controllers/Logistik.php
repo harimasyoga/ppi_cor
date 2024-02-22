@@ -73,9 +73,26 @@ class Logistik extends CI_Controller
 		$data = [
 			'judul' => "PEMBAYARAN INVOICE",
 		];
+
 		$this->load->view('header',$data);
-		if(in_array($this->session->userdata('level'), ['Admin', 'Keuangan1'])){
+		if($this->session->userdata('level'))
+		{
 			$this->load->view('Logistik/v_bayar_inv');
+		}else{
+			$this->load->view('home');
+		}
+		$this->load->view('footer');
+	}
+
+	function stok_bb()
+	{
+		$data = [
+			'judul' => "STOK BAHAN BAKU",
+		];
+		$this->load->view('header',$data);
+		if($this->session->userdata('level'))
+		{
+			$this->load->view('Logistik/v_stok_bb');
 		}else{
 			$this->load->view('home');
 		}
@@ -1174,6 +1191,48 @@ class Logistik extends CI_Controller
 						</a> 
 
 						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-danger btn-sm">
+							<i class="fa fa-trash-alt"></i>
+						</button> 
+						';
+			
+				} else {
+					$aksi = '';
+				}
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+
+				$i++;
+			}
+		}else if ($jenis == "stok_bb") {
+			$query = $this->db->query("SELECT a.*,b.* FROM m_kode_kelompok a 
+			join m_kode_akun b ON a.kd_akun=b.kd_akun 
+			ORDER BY a.kd_akun ,a.id_kelompok ")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+
+				$id             = "'$r->id_kelompok'";
+				$kd_kelompok    = "'$r->kd_kelompok'";
+				$nm_kelompok    = "'$r->nm_kelompok'";
+				
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<div class="">'.$r->nm_kelompok.'</div>';
+				$row[] = '<div class="">'.$r->nm_kelompok.'</div>';
+				$row[] = '<div class="">'.$r->nm_kelompok.'</div>';
+				$row[] = '<div class="text-center">'.$r->id_akun.'.'.$r->kd_kelompok.'</div>';
+				$row[] = $r->nm_kelompok;
+
+				$aksi = "";
+
+				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				{
+					$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_kelompok . ')" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $nm_kelompok . ')" class="btn btn-danger btn-sm">
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';

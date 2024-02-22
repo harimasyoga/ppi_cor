@@ -197,6 +197,7 @@ class M_transaksi extends CI_Model
 		$data = array(
 			'tgl_po'         => $params->tgl_po,
 			'kode_po'        => $params->kode_po,
+			'status_karet'   => $params->status_karet,
 			// 'eta'            => $params->eta,
 			// 'id_sales'       => $params->txt_marketing,
 			'id_pelanggan'   => $pelanggan->id_pelanggan,			
