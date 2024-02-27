@@ -146,7 +146,7 @@ class Transaksi extends CI_Controller
 			'judul' => "PO Laminasi",
 		];
 		$this->load->view('header',$data);
-		if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Marketing Laminasi', 'Owner'])){
+		if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Laminasi', 'Marketing Laminasi', 'Owner'])){
 			$this->load->view('Transaksi/v_po_laminasi');
 		}else{
 			$this->load->view('home');
@@ -980,7 +980,7 @@ class Transaksi extends CI_Controller
 				// $aksi = '-';
                 $aksi = '';
 
-				if (!in_array($this->session->userdata('level'), ['Admin','Marketing','PPIC','Owner']))
+				if (!in_array($this->session->userdata('level'), ['Admin','konsul_keu','Marketing','PPIC','Owner']))
                 {
 
 					if ($r->status == 'Open' && $r->status_app1 == 'N') {
@@ -1242,7 +1242,7 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_po_laminasi") {
-			if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Owner'])){
+			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Laminasi', 'Owner'])){
 				$where = '';
 			}else{
 				$tb_nm_user = $this->session->userdata('nm_user');

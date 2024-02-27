@@ -1,5 +1,4 @@
 <?php
-
     function cek_subs_bcf($kualitas)
     {	
         $CI =& get_instance();	  
@@ -33,6 +32,4 @@
         $result= $CI->db->insert('m_history_transaksi',$data);
         return $result;
     } 
-
 ?>
-

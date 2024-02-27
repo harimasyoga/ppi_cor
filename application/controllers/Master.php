@@ -51,7 +51,7 @@ class Master extends CI_Controller
 			'judul' => "KODE REKENING AKUN",
 		];
 		$this->load->view('header',$data);
-		if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
+		if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'User'])){
 			$this->load->view('Master/v_rek_akun');
 		}else{
 			$this->load->view('home');
@@ -65,7 +65,7 @@ class Master extends CI_Controller
 			'judul' => "KODE REKENING KELOMPOK",
 		];
 		$this->load->view('header',$data);
-		if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
+		if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'User'])){
 			$this->load->view('Master/v_rek_kelompok');
 		}else{
 			$this->load->view('home');
@@ -79,7 +79,7 @@ class Master extends CI_Controller
 			'judul' => "KODE REKENING JENIS",
 		];
 		$this->load->view('header',$data);
-		if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
+		if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'User'])){
 			$this->load->view('Master/v_rek_jenis');
 		}else{
 			$this->load->view('home');
@@ -293,7 +293,7 @@ class Master extends CI_Controller
 				$id_hub       = $r->id_hub;
 				$cekpo    = $this->db->query("SELECT * FROM trs_po WHERE id_hub='$id_hub'")->num_rows();
 
-				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))
 				{
 					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_hub."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
 
@@ -331,7 +331,7 @@ class Master extends CI_Controller
 				$idPelanggan = $r->id_pelanggan;
 				$cekProduk = $this->db->query("SELECT * FROM m_produk WHERE no_customer='$idPelanggan'")->num_rows();
 
-				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))
 				{
 					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_pelanggan."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
 					$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_pelanggan."'".')"><i class="fas fa-times"></i></button>';
@@ -361,7 +361,7 @@ class Master extends CI_Controller
 				$row[] = $r->nm_sales;
 
 				$cekPO = $this->db->query("SELECT*FROM trs_po_lm WHERE id_pelanggan='$r->id_pelanggan_lm' GROUP BY id_pelanggan")->num_rows();
-				if (in_array($this->session->userdata('level'), ['Admin','User','Laminasi']))
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User','Laminasi']))
 				{
 					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_pelanggan_lm."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
 					($cekPO == 1) ? $btnHapus = '' : $btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_pelanggan_lm."'".')"><i class="fas fa-times"></i></button>';
@@ -402,7 +402,7 @@ class Master extends CI_Controller
 					$btnHapus = '';
 				}
 
-				if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+				if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Laminasi'])){
 					$btnAksi = $btnEdit.' '.$btnHapus;
 				}else{
 					$btnAksi = '';
@@ -451,7 +451,7 @@ class Master extends CI_Controller
 				$row[] = $kualitas;
 
 				$idProduk = $r->id_produk; 
-				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))
 				{
 					$cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE id_produk='$idProduk'")->num_rows();
 
@@ -560,7 +560,7 @@ class Master extends CI_Controller
 
 				$aksi = "";
 
-				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))
 				{
 					$aksi = '
 						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_akun . ')" title="EDIT DATA" >
@@ -600,7 +600,7 @@ class Master extends CI_Controller
 
 				$aksi = "";
 
-				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))
 				{
 					$aksi = '
 						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_kelompok . ')" title="EDIT DATA" >

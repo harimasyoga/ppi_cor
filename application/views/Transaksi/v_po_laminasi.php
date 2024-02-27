@@ -260,7 +260,7 @@
 							</div>
 						</div>
 						<div class="card-body" style="padding:12px 6px">
-							<?php if(in_array($this->session->userdata('level'), ['Admin','Laminasi'])){ ?>
+							<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi'])){ ?>
 								<div style="margin-bottom:12px">
 									<button type="button" class="btn btn-sm btn-info" onclick="addPOLaminasi()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								</div>

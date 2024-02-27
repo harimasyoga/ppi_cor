@@ -31,7 +31,7 @@
 						</div>
 				</div>
 				<div class="card-body" >
-					<?php if(in_array($this->session->userdata('level'), ['Admin','Laminasi'])){ ?>
+					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi'])){ ?>
 						<div style="margin-bottom:12px">
 							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 						</div>
@@ -131,8 +131,7 @@
 								<thead class="color-tabel">
 									<tr>
 										<th id="header_del">Delete</th>
-										<th style="padding : 12px 20px" >Item</th>
-										<th style="padding : 12px 40px" >Customer</th>
+										<th style="padding : 12px 200px" >Item / Cust</th>
 										<th style="padding : 12px 40px" >PO</th>
 										<th style="padding : 12px 15px" >Kebutuhan</th>
 										<th style="padding : 12px 15px" >History</th>
@@ -150,11 +149,10 @@
 											</div>
 										</td>
 										<td>
-											<select class="form-control select2 narrow wrap wrap" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(this.value,0)">
+											<select class="form-control select2" name="id_produk[0]" id="id_produk0" onchange="setDetailProduk(this.value,0)">
 											</select>
-										</td>
-										<td>
-											<input type="text" name="qty[0]" id="qty0" class="angka form-control" placeholder="Customer" readonly>				
+											
+											<input type="hidden" name="qty[0]" id="qty0" class="angka form-control" placeholder="Customer" readonly>	
 										</td>
 										<td style="padding : 12px 20px" >
 											<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" placeholder="PO">
@@ -212,8 +210,47 @@
 	{
 		kosong()
 		load_data()
+		load_item(0)
 		$('.select2').select2();
 	});
+
+	function load_item(id) 
+	{
+		option = "";
+		$.ajax({
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Logistik/load_item_po",
+			dataType   : 'json',
+			// data       : {tgl_sj,type_po,stat},
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success")
+				{				
+					option = "<option>--- Pilih ---</option>";
+					$.each(data.data, function(index, val) 
+					{
+						option += `<option value="${val.id_ok}" data-po="${val.kd_akun}" >[ ${val.nm_produk} ] - [ ${val.nm_pelanggan} ] </option>`;
+					});
+
+					$('#id_produk'+id).html(option);
+					swal.close();
+				}else{	
+					option += "<option value=''>Data Kosong</option>";
+					$('#id_produk'+id).html(option);		
+					swal.close();
+				}
+			}
+		});
+	}
 
 	function reloadTable() 
 	{
@@ -254,7 +291,7 @@
 		$("#btn-simpan").html(`<button type="button" onclick="simpan()" class="btn-tambah-produk btn  btn-primary"><b><i class="fa fa-save" ></i> Update</b> </button>`)
 
 		$.ajax({
-			url        : '<?= base_url(); ?>Master/load_data_1',
+			url        : '<?= base_url(); ?>Logistik/load_data_1',
 			type       : "POST",
 			data       : { id, tbl:'m_kode_kelompok', jenis :'kode_akun',field :'id_kelompok' },
 			dataType   : "JSON",
@@ -337,7 +374,7 @@
 		}
 
 		$.ajax({
-			url        : '<?= base_url(); ?>Master/Insert_kode_kelompok',
+			url        : '<?= base_url(); ?>Logistik/Insert_kode_kelompok',
 			type       : "POST",
 			data       : $('#myForm').serialize(),
 			dataType   : "JSON",
@@ -356,7 +393,7 @@
 					// toastr.success('Berhasil Disimpan');
 					// swal.close();								
 					kosong();
-					location.href = "<?= base_url()?>Master/Rek_kelompok";
+					location.href = "<?= base_url()?>Logistik/Rek_kelompok";
 					swal({
 						title               : "Data",
 						html                : "Berhasil Disimpan",
@@ -440,7 +477,7 @@
 
 		// if (cek) {
 			$.ajax({
-				url: '<?= base_url(); ?>Master/hapus',
+				url: '<?= base_url(); ?>Logistik/hapus',
 				data: ({
 					id: id,
 					jenis: 'm_kode_kelompok',

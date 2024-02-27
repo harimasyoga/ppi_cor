@@ -26,7 +26,7 @@
 
 			<div class="card-body">
 
-				<?php if(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])) { ?>
+				<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Gudang'])) { ?>
 					<a href="<?php echo base_url('Logistik/Gudang/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
 					<br><br>
 				<?php } ?>

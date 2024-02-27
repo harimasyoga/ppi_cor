@@ -129,7 +129,7 @@
 								<div class="card-body row" style="padding : 5px;font-weight:bold">
 									<div class="col-md-2">Tgl PO</div>
 									<div class="col-md-3">
-										<?php if (in_array($this->session->userdata('level'), ['Admin','User']))  { ?>
+										<?php if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))  { ?>
 											<input type="date" class="form-control" name="tgl_po" id="tgl_po" onchange="pilih_hub(0)" value="<?= date('Y-m-d') ?>"> 
 										<?php } else { ?>
 											<input type="date" class="form-control" name="tgl_po" id="tgl_po" onchange="pilih_hub(0)" value="<?= date('Y-m-d') ?>" readonly> 
