@@ -28,7 +28,7 @@
                   </div>
               </div> -->
 
-                  <?php if(in_array($level, ['Admin','User','Owner','Hub'])){ ?>
+                  <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub'])){ ?>
                     <!-- REKAP HUB -->
                     <div class="col-md-12">
                       <div class="card card-info card-outline">
@@ -84,7 +84,7 @@
     <!-- /.content -->
 
     
-    <?php if(in_array($level, ['Admin','User','Owner','Keuangan1'])){ ?>
+    <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Keuangan1'])){ ?>
     <!-- REKAP JATUH TEMPO -->
     <!-- content2 -->
 
@@ -95,7 +95,7 @@
           <div class="col-md-12">
             <div class="row">
 
-                  <?php if(in_array($level, ['Admin','User','Owner','Hub'])){ ?>
+                  <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub'])){ ?>
                     <div class="col-md-12">
                       <div class="card card-info card-outline">
                         <div class="card-header">

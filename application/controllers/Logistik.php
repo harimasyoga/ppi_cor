@@ -99,6 +99,33 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function load_item_po($searchTerm="")
+	{
+		// ASLI
+
+		$query = $this->db->query("SELECT b.id as id_ok,a.id_hub,a.status, a.no_po,a.kode_po,a.total_qty,status_app3,b.*,c.*,d.* from trs_po a 
+		JOIN trs_po_detail b ON a.kode_po=b.kode_po
+		JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+		JOIN m_produk d ON d.id_produk=b.id_produk
+		where a.tgl_po > '2024-01-01'")->result();
+
+		if (!$query) {
+			$response = [
+				'message'	=> 'not found',
+				'data'		=> [],
+				'status'	=> false,
+			];
+		}else{
+			$response = [
+				'message'	=> 'Success',
+				'data'		=> $query,
+				'status'	=> true,
+			];
+		}
+		$json = json_encode($response);
+		print_r($json);
+    }
+
 	public function v_timbangan_edit()
 	{
 		$id_timb    = $_GET['id_timb'];
@@ -155,7 +182,7 @@ class Logistik extends CI_Controller
 			'judul' => "Surat Jalan Laminasi",
 		];
 		$this->load->view('header',$data);
-		if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+		if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Laminasi'])){
 			$this->load->view('Logistik/v_sj_laminasi');
 		}else{
 			$this->load->view('home');
@@ -1025,7 +1052,7 @@ class Logistik extends CI_Controller
 				$cek_pembayaran = $this->db->query("SELECT*FROM trs_bayar_inv WHERE no_inv='$r->no_invoice' ")->num_rows();
 				$aksi = "";
 
-				if (in_array($this->session->userdata('level'), ['Admin','Keuangan1']))
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','Keuangan1']))
 				{
 					if ($r->acc_owner == "N") {
 
@@ -1199,7 +1226,7 @@ class Logistik extends CI_Controller
 
 				$aksi = "";
 
-				if (in_array($this->session->userdata('level'), ['Admin','Keuangan1']))
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','Keuangan1']))
 				{
 					$aksi = '
 						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv . ')" title="EDIT DATA" >
@@ -1241,7 +1268,7 @@ class Logistik extends CI_Controller
 
 				$aksi = "";
 
-				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))
 				{
 					$aksi = '
 						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_kelompok . ')" title="EDIT DATA" >
@@ -2430,13 +2457,13 @@ class Logistik extends CI_Controller
 
 		$jenis = $this->uri->segment(3);
 		if($jenis == 'Add'){
-			if(in_array($this->session->userdata('level'), ['Admin','Gudang'])){
+			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Gudang'])){
 				$this->load->view('Logistik/v_gudang_add');
 			}else{
 				$this->load->view('home');
 			}
 		}else{
-			if(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])){
+			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Gudang'])){
 				$this->load->view('Logistik/v_gudang');
 			}else{
 				$this->load->view('home');
@@ -2970,13 +2997,13 @@ class Logistik extends CI_Controller
 
 		$jenis = $this->uri->segment(3);
 		if($jenis == 'Add'){
-			if(in_array($this->session->userdata('level'), ['Admin','Gudang'])){
+			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Gudang'])){
 				$this->load->view('Logistik/v_sj_add');
 			}else{
 				$this->load->view('home');
 			}
 		}else{
-			if(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])){
+			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Gudang'])){
 				// $this->load->view('Logistik/v_sj');
 				$this->load->view('Logistik/v_sj_add');
 			}else{

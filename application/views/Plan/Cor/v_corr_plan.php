@@ -32,7 +32,7 @@
 		<div class="container-fluid">
 
 			<div class="row">
-				<?php if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])) { ?>
+				<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User'])) { ?>
 					<div class="col-md-12">
 						<div class="card">
 							<div class="card-body p-0">
@@ -217,7 +217,7 @@
 								</div>
 							</div>
 
-							<?php if(in_array($this->session->userdata('level'), ['Admin','PPIC','Corrugator','User'])) { ?>
+							<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','Corrugator','User'])) { ?>
 								<div id="btn-aksi-produksi"></div>
 							<?php } ?>
 						</div>
@@ -326,7 +326,7 @@
 						<div id="btn-ganti-tgl"></div>
 
 						<div id="group_ganti_kualitas">
-							<?php if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])) {
+							<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User'])) {
 								$gKualitas = 'style="padding:20px 20px 5px;font-weight:bold"';
 								$dis = '';
 							}else{
@@ -516,7 +516,7 @@
 						</div>
 
 						<br/>
-						<?php if(in_array($this->session->userdata('level'), ['Admin','PPIC','User'])) { ?>
+						<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User'])) { ?>
 							<div id="btn-aksi-plan"></div>
 						<?php } ?>
 					</div>
