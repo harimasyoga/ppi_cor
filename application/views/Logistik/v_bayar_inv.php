@@ -31,7 +31,7 @@
 						</div>
 				</div>
 				<div class="card-body" >
-					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi','Keuangan1'])){ ?>
+					<?php if(in_array($this->session->userdata('level'), ['Admin','Laminasi','Keuangan1'])){ ?>
 						<div style="margin-bottom:12px">
 							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 						</div>
@@ -453,6 +453,13 @@
 
 						var no            = 1;
 						var berat_total   = 0;
+						var exclude       = 0;
+						var include       = 0;
+						var qty           = 0;
+						var r_qty         = 0;
+						var qty_fix       = 0;
+						var total_inv     = 0;
+						var pph22         = 0;
 						$.each(data.detail, function(index, val) {
 
 							if(data.header.pajak=='ppn')
@@ -469,7 +476,8 @@
 							}else if(data.header.pajak=='ppn_pph')
 							{
 								// include
-								var total_invo = val.include*val.weight 
+								var pph22      = val.harga*val.weight * 0.001 ;
+								var total_invo = ( val.include*val.weight ) + pph22
 							}else{
 								// exclude
 								var total_invo = val.harga*val.weight 
@@ -532,7 +540,8 @@
 								</td>
 
 							</tbody>`;
-							berat_total += parseInt(val.qty);
+							berat_total    += parseInt(val.qty);
+							total_inv      += parseInt(total_invo);
 							no ++;
 						})
 						list += `<td style="text-align: center" colspan="7">TOTAL
@@ -780,6 +789,13 @@
 
 						var no            = 1;
 						var berat_total   = 0;
+						var exclude       = 0;
+						var include       = 0;
+						var qty           = 0;
+						var r_qty         = 0;
+						var qty_fix       = 0;
+						var total_inv     = 0;
+						var pph22         = 0;
 						$.each(data.detail, function(index, val) {
 
 							if(data.header.pajak=='ppn')
@@ -796,7 +812,8 @@
 							}else if(data.header.pajak=='ppn_pph')
 							{
 								// include
-								var total_invo = val.include*val.weight 
+								var pph22      = val.harga*val.weight * 0.001 ;
+								var total_invo = ( val.include*val.weight ) + pph22
 							}else{
 								// exclude
 								var total_invo = val.harga*val.weight 
@@ -860,6 +877,7 @@
 
 							</tbody>`;
 							berat_total += parseInt(val.qty);
+							total_inv  += parseInt(total_invo);
 							no ++;
 						})
 						list += `<td style="text-align: center" colspan="7">TOTAL

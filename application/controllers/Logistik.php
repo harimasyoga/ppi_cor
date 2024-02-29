@@ -1315,7 +1315,7 @@ class Logistik extends CI_Controller
 			from invoice_header a 
 			join invoice_detail b on a.no_invoice=b.no_invoice
 			left join m_pelanggan c on a.id_perusahaan=c.id_pelanggan
-			-- where no_invoice='AA/2605/12/2023' 
+			where a.no_invoice in ('AA/2605/12/2023','A/0009/01/2023','A/1436/12/2023') 
 			group by a.no_invoice
 			) as p")->result();
 
@@ -1347,6 +1347,7 @@ class Logistik extends CI_Controller
 					$item_result     = '';
 					$total_excl      = 0;
 					$total_incl      = 0;
+					$pph22           = 0;
 
 					foreach($result_detail->result() as $row)
 					{
@@ -1356,8 +1357,9 @@ class Logistik extends CI_Controller
 
 						if($row->type=='roll')
 						{
-							$total_excl += $row->harga*$row->weight ;
-							$total_incl += $row->include*$row->weight ;
+							$pph22         += $row->harga*$row->weight * 0.001 ;
+							$total_excl    += $row->harga*$row->weight ;
+							$total_incl    += $row->include*$row->weight ;
 
 						}else{
 							$total_excl += $row->harga*$row->hasil ;
@@ -1370,7 +1372,7 @@ class Logistik extends CI_Controller
 					$item            = $item_result;
 					$no_sj           = $no_sj_result;
 					$total_exclude   = $total_excl;
-					$total_include   = $total_incl;
+					$total_include   = $total_incl+ $pph22;
 
 				}	
 
