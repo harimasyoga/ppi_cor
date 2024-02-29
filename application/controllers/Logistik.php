@@ -1315,7 +1315,7 @@ class Logistik extends CI_Controller
 			from invoice_header a 
 			join invoice_detail b on a.no_invoice=b.no_invoice
 			left join m_pelanggan c on a.id_perusahaan=c.id_pelanggan
-			where a.no_invoice in ('AA/2605/12/2023','A/0009/01/2023','A/1436/12/2023') 
+			-- where a.no_invoice in ('AA/2605/12/2023','A/0009/01/2023','A/1436/12/2023') 
 			group by a.no_invoice
 			) as p")->result();
 
