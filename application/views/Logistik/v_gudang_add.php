@@ -26,6 +26,13 @@
 	<section class="content" style="padding-bottom:30px">
 		<div class="container-fluid">
 			<div class="row">
+				<div class="col-md-12">
+					<a href="<?= base_url('Logistik/Gudang')?>" class="btn btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a>
+				</div>
+			</div>
+
+			<br>
+			<div class="row">
 
 				<div class="col-md-4">
 					<div class="card card-info card-outline">
@@ -91,6 +98,12 @@
 				</div>
 
 			</div>
+
+			<div class="row">
+				<div class="col-md-12">
+					<a href="<?= base_url('Logistik/Gudang')?>" class="btn btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a>
+				</div>
+			</div>
 		</div>
 	</section>
 </div>
@@ -135,7 +148,7 @@
 				let htmlGG = ''
 				let bgTd = ''
 				htmlGG += `<table class="table table-bordered" style="margin:0;border:0">
-					<thead>`
+					<thead class="color-tabel">`
 						if(data.data.length == 0){
 							htmlGG += `<tr><td style="padding:6px;border-width:0 0 1px;font-weight:bold">PRODUKSI KOSONG!</td></tr>`
 						}else{

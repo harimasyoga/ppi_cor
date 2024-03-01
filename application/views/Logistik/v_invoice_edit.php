@@ -294,7 +294,7 @@
 		$.ajax({
 			url        : '<?= base_url(); ?>Logistik/load_data_1',
 			type       : "POST",
-			data       : { id: id, no_inv: no_invoice, jenis:'invoice' },
+			data       : { id: id, no: no_invoice, jenis:'invoice' },
 			dataType   : "JSON",
 			beforeSend: function() {
 				swal({

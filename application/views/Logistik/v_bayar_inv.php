@@ -384,7 +384,7 @@
 		$.ajax({
 			url        : '<?= base_url(); ?>Logistik/load_data_1',
 			type       : "POST",
-			data       : { id, no_inv, jenis:'byr_invoice' },
+			data       : { id, no:no_inv, jenis:'byr_invoice' },
 			dataType   : "JSON",
 			beforeSend: function() {
 				swal({
@@ -725,7 +725,7 @@
 		$.ajax({
 			url        : '<?= base_url(); ?>Logistik/load_data_1',
 			type       : "POST",
-			data       : { id, no_inv, jenis:'spill' },
+			data       : { id, no:no_inv, jenis:'spill' },
 			dataType   : "JSON",
 			beforeSend: function() {
 				swal({
