@@ -95,7 +95,7 @@
 							
 						<div class="col-md-2">JENIS</div>
 						<div class="col-md-4">
-							<select class="form-control select2" name="kd_akun" id="kd_akun" onchange="tempel_akun()">
+							<select class="form-control select2" name="kd_akun" id="kd_akun">
 								<option value="stok">STOK PPI</option>
 								<option value="po">BAHAN BAKU PO</option>
 							</select>
@@ -131,12 +131,15 @@
 								<thead class="color-tabel">
 									<tr>
 										<th id="header_del">Delete</th>
-										<th style="padding : 12px 200px" >Item / Cust</th>
-										<th style="padding : 12px 40px" >PO</th>
+										<th style="padding : 12px 20px" >LIST </th>
+										<th style="padding : 12px 20px" >Customer </th>
+										<th style="padding : 12px 40px" >KODE PO</th>
+										<th style="padding : 12px 40px" >ITEM</th>
+										<th style="padding : 12px 15px" >QTY</th>
+										<th style="padding : 12px 15px" >TON</th>
 										<th style="padding : 12px 15px" >Kebutuhan</th>
 										<th style="padding : 12px 15px" >History</th>
 										<th style="padding : 12px 15px" >Kedatangan</th>
-											
 									</tr>
 								</thead>
 								<tbody>
@@ -149,26 +152,47 @@
 											</div>
 										</td>
 										<td>
-											<select class="form-control select2" name="id_produk[0]" id="id_produk0" onchange="setDetailProduk(this.value,0)">
-											</select>
-											
-											<input type="hidden" name="qty[0]" id="qty0" class="angka form-control" placeholder="Customer" readonly>	
+											<div class="text-center">
+												<button type="button" title="PILIH"  onclick="load_item(this.id)" class="btn btn-success btn-sm" data-toggle="modal"  data-target=".list_item" name="list[0]" id="list0">
+													<i class="fas fa-check-circle"></i>
+												</button> 
+												
+											</div>
 										</td>
 										<td style="padding : 12px 20px" >
-											<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" placeholder="PO">
+											<input type="text" name="id_pelanggan[0]" id="id_pelanggan0" class="angka form-control" placeholder="CUST" readonly>
+
+											<input type="text" name="nm_pelanggan[0]" id="nm_pelanggan0" class="angka form-control" placeholder="CUST" readonly>
 
 										</td>
 										<td style="padding : 12px 20px">
-											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" value='0' placeholder="Kebutuhan">
+											<input type="text" name="kode_po[0]" id="kode_po0" class="angka form-control" placeholder="kode_po" readonly>
 
 										</td>										
 										<td style="padding : 12px 20px">
-											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>aaa
+											<input type="hidden" name="id_po_detail[0]" id="id_po_detail0" class="angka form-control" readonly>
+											
+											<input type="hidden" name="id_produk[0]" id="id_produk0" class="angka form-control" readonly>
 
+											<input type="text" name="item[0]" id="item0" class="angka form-control" placeholder="ITEM" readonly>
+										</td>		
+
+										<td style="padding : 12px 20px">
+											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' readonly>
+										</td>		
+
+										<td style="padding : 12px 20px">
+											<input type="text" name="ton[0]" id="ton0" class="angka form-control" value='0' readonly>
+										</td>		
+
+										<td style="padding : 12px 20px">
+											<input type="text" name="kebutuhan[0]" id="kebutuhan0" class="angka form-control"  value='0' readonly>
 										</td>		
 										<td style="padding : 12px 20px">
-											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>aaa
-
+											<input type="text" name="history[0]" id="history0" class="angka form-control" value='0' readonly>
+										</td>		
+										<td style="padding : 12px 20px">
+											<input type="text" name="datang[0]" id="datang0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id)" value='0'>
 										</td>		
 									</tr>
 								</tbody>
@@ -201,6 +225,48 @@
 	</section>
 </div>
 
+<!-- Modal item -->
+<div class="modal fade list_item" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-full" style="width:100%;margin:auto">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5><b>Pilih Invoice</b></h5>
+            </div>
+            <div class="modal-body">
+				<div style="overflow:auto;white-space:nowrap">
+
+                <table class="table table-bordered table-striped" id="tbl_po" style="margin:auto !important">
+                    <thead>
+                        <tr class="color-tabel">
+                            <th class="text-center title-white">NO </th>
+                            <th class="text-center title-white">CUSTOMER</th>
+                            <!-- <th class="text-center title-white">NO PO</th> -->
+                            <th class="text-center title-white">TIPE</th>
+                            <th class="text-center title-white">KODE PO</th>
+                            <th class="text-center title-white">TGL PO</th>
+                            <th class="text-center title-white">ITEM</th>
+                            <th class="text-center title-white">UKURAN BOX</th>
+                            <th class="text-center title-white">UKURAN SHEET</th>
+                            <th class="text-center title-white">QTY PO</th>
+                            <th class="text-center title-white">BAHAN BAKU</th>
+                            <th class="text-center title-white">TONASE</th>
+                            <th class="text-center title-white">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+				</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- Modal item -->
 
 <script type="text/javascript">
 	let statusInput = 'insert';
@@ -210,21 +276,48 @@
 	{
 		kosong()
 		load_data()
-		load_item(0)
 		$('.select2').select2();
 	});
 
-	function load_item(id) 
+	function load_item(id)
 	{
-		option = "";
+		var id1   = id.substr(0,4);
+		var id2   = id.substr(4,1);
+		
+		var table = $('#tbl_po').DataTable();
+		table.destroy();
+		tabel = $('#tbl_po').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url"   : '<?php echo base_url('Logistik/load_item_po')?>',
+				"type"  : "POST",
+				"data"  : { id:id2, jenis:'load_po_stok' },
+			},
+			"aLengthMenu": [
+				[5, 10, 50, 100, -1],
+				[5, 10, 50, 100, "Semua"]
+			],	
+			responsive: false,
+			"pageLength": 10,
+			"language": {
+				"emptyTable": "TIDAK ADA DATA.."
+			}
+		})
+	}
+
+	function spilldata(id,kd_po,id_name)
+	{		
+		alert(id)
 		$.ajax({
-			type       : 'POST',
-			url        : "<?= base_url(); ?>Logistik/load_item_po",
-			dataType   : 'json',
-			// data       : {tgl_sj,type_po,stat},
+			url        : '<?= base_url(); ?>Logistik/load_data_1',
+			type       : "POST",
+			dataType   : "JSON",
+			data       : { id, no:kd_po, jenis:'spill_po' },
 			beforeSend: function() {
 				swal({
-				title: 'loading ...',
+				title: 'loading data...',
 				allowEscapeKey    : false,
 				allowOutsideClick : false,
 				onOpen: () => {
@@ -232,25 +325,51 @@
 				}
 				})
 			},
-			success:function(data){			
-				if(data.message == "Success")
-				{				
-					option = "<option>--- Pilih ---</option>";
-					$.each(data.data, function(index, val) 
-					{
-						option += `<option value="${val.id_ok}" data-po="${val.kd_akun}" >[ ${val.nm_produk} ] - [ ${val.nm_pelanggan} ] </option>`;
-					});
+			success: function(data) {
+				// console.log(data)
+				if(data){
+					// $("#inc_exc").val(data.header.inc_exc).trigger('change');					
+					$('#id_pelanggan'+id_name).val(data.header.id_pelanggan);
+					$('#nm_pelanggan'+id_name).val(data.header.nm_pelanggan);
+					$('#kode_po'+id_name).val(data.header.kode_po);
+					$('#id_po_detail'+id_name).val(data.header.id_detail);
+					$('#id_produk'+id_name).val(data.header.id_produk);
+					$('#item'+id_name).val(data.header.nm_produk);
+					$('#qty'+id_name).val(format_angka(data.header.qty));
+					$('#ton'+id_name).val(format_angka(data.header.ton));
+					$('#kebutuhan'+id_name).val(format_angka(data.header.bhn_bk));
+					$('#history'+id_name).val(format_angka(data.header.bhn_bk));
+					$('#datang'+id_name).val(format_angka(data.header.bhn_bk));
+					swal.close();
 
-					$('#id_produk'+id).html(option);
+				} else {
+
 					swal.close();
-				}else{	
-					option += "<option value=''>Data Kosong</option>";
-					$('#id_produk'+id).html(option);		
-					swal.close();
+					swal({
+						title               : "Cek Kembali",
+						html                : "Gagal Simpan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
 				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				// toastr.error('Terjadi Kesalahan');
+				
+				swal.close();
+				swal({
+					title               : "Cek Kembali",
+					html                : "Terjadi Kesalahan",
+					type                : "error",
+					confirmButtonText   : "OK"
+				});
+				
+				return;
 			}
 		});
 	}
+
 
 	function reloadTable() 
 	{
@@ -282,7 +401,7 @@
 		})
 	}
 	
-	function edit_data(id,no_inv)
+	function edit_data(id,kd_po)
 	{
 		$(".row-input").attr('style', '');
 		$(".row-list").attr('style', 'display:none');

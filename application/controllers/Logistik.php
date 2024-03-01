@@ -99,32 +99,57 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
-	function load_item_po($searchTerm="")
+	function load_item_po()
 	{
-		// ASLI
+		$id_name    = $this->input->post('id');
+		$jenis      = $this->input->post('jenis');
+		$data       = array();
 
-		$query = $this->db->query("SELECT b.id as id_ok,a.id_hub,a.status, a.no_po,a.kode_po,a.total_qty,status_app3,b.*,c.*,d.* from trs_po a 
-		JOIN trs_po_detail b ON a.kode_po=b.kode_po
-		JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
-		JOIN m_produk d ON d.id_produk=b.id_produk
-		where a.tgl_po > '2024-01-01'")->result();
+		if ($jenis == "load_po_stok") 
+		{
+			$query = $this->db->query("SELECT b.id as id_detail, d.id_produk as id_produk , c.id_pelanggan as id_pelanggan, c.nm_pelanggan as nm_pelanggan, a.*,b.*,c.*,d.* from trs_po a 
+						JOIN trs_po_detail b ON a.kode_po=b.kode_po
+						JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+						JOIN m_produk d ON d.id_produk=b.id_produk
+						where a.tgl_po > '2024-01-01' ")->result();
 
-		if (!$query) {
-			$response = [
-				'message'	=> 'not found',
-				'data'		=> [],
-				'status'	=> false,
-			];
+			$i               = 1;
+			foreach ($query as $r) {
+
+				$id       = "'$r->id_detail'";
+				$kd_po    = "'$r->kode_po'";
+				$row      = array();
+				$row[]    = '<div class="text-center">'.$i.'</div>';
+				$row[]    = '<div >'.$r->nm_pelanggan.'</div>';
+				$row[]    = '<div >'.$r->kategori.'</div>';
+				$row[]    = $r->kode_po;
+				$row[]    = $r->tgl_po;
+				$row[]    = $r->nm_produk;
+				$row[]    = '<div class="text-center">'.$r->ukuran.'</div>';
+				$row[]    = '<div class="text-center">'.$r->ukuran_sheet.'</div>';
+				$row[]    = '<div class="text-center">'.number_format($r->qty, 0, ",", ".").'</div>';
+				$row[]    = '<div class="text-center">'.number_format($r->bhn_bk, 0, ",", ".").'</div>';
+				$row[]    = '<div class="text-center">'.number_format($r->ton, 0, ",", ".").'</div>';
+				
+				$aksi = '
+				<button type="button" title="PILIH"  onclick="spilldata(' . $id . ',' . $kd_po . ',' . $id_name . ')" class="btn btn-success btn-sm">
+					<i class="fas fa-check-circle"></i>
+				</button> ';
+
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+				$i++;
+			}
 		}else{
-			$response = [
-				'message'	=> 'Success',
-				'data'		=> $query,
-				'status'	=> true,
-			];
+
 		}
-		$json = json_encode($response);
-		print_r($json);
-    }
+
+		$output = array(
+			"data" => $data,
+		);
+		//output to json format
+		echo json_encode($output);
+	}
 
 	public function v_timbangan_edit()
 	{
@@ -864,27 +889,40 @@ class Logistik extends CI_Controller
 	function load_data_1()
 	{
 		$id       = $this->input->post('id');
-		$no_inv   = $this->input->post('no_inv');
-		$jenis   = $this->input->post('jenis');
+		$no       = $this->input->post('no');
+		$jenis    = $this->input->post('jenis');
 
 		if($jenis=='byr_invoice')
 		{
 			$queryh   = "SELECT *,IFNULL((select sum(jumlah_bayar) from trs_bayar_inv t
 			where t.no_inv=a.no_inv
-			group by no_inv),0) jum_bayar, a.id_bayar_inv as id_ok FROM trs_bayar_inv a join invoice_header b on a.no_inv=b.no_invoice where b.no_invoice='$no_inv' and a.id_bayar_inv='$id' ORDER BY id_bayar_inv";
+			group by no_inv),0) jum_bayar, a.id_bayar_inv as id_ok FROM trs_bayar_inv a join invoice_header b on a.no_inv=b.no_invoice where b.no_invoice='$no' and a.id_bayar_inv='$id' ORDER BY id_bayar_inv";
 			
-			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no_inv' ORDER BY TRIM(no_surat) ";
+			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
 		}else if($jenis=='spill')
 		{
 			$queryh   = "SELECT *,IFNULL((select sum(jumlah_bayar) from trs_bayar_inv t
 			where t.no_inv=a.no_invoice
-			group by no_inv),0) jum_bayar FROM invoice_header a where a.id='$id' and a.no_invoice='$no_inv'";
+			group by no_inv),0) jum_bayar FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
 			
-			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no_inv' ORDER BY TRIM(no_surat) ";
+			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
+		}else if($jenis=='spill_po')
+		{
+			$queryh   = "SELECT b.id as id_detail, d.id_produk as id_produk , c.id_pelanggan as id_pelanggan, c.nm_pelanggan as nm_pelanggan, a.*,b.*,c.*,d.* from trs_po a 
+			JOIN trs_po_detail b ON a.kode_po=b.kode_po
+			JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+			JOIN m_produk d ON d.id_produk=b.id_produk
+			where a.tgl_po > '2024-01-01' and b.id='$id' x";
+			
+			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
+		}else if($jenis=='invoice')
+		{
+			$queryh   = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
+			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
 		}else{
 
-			$queryh   = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no_inv'";
-			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no_inv' ORDER BY TRIM(no_surat) ";
+			$queryh   = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
+			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
 		}
 		
 
@@ -1315,7 +1353,7 @@ class Logistik extends CI_Controller
 			from invoice_header a 
 			join invoice_detail b on a.no_invoice=b.no_invoice
 			left join m_pelanggan c on a.id_perusahaan=c.id_pelanggan
-			-- where a.no_invoice in ('AA/2605/12/2023','A/0009/01/2023','A/1436/12/2023') 
+			--where a.no_invoice in ('AA/2605/12/2023','A/0009/01/2023','A/1436/12/2023') 
 			group by a.no_invoice
 			) as p")->result();
 
@@ -2459,13 +2497,13 @@ class Logistik extends CI_Controller
 
 		$jenis = $this->uri->segment(3);
 		if($jenis == 'Add'){
-			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Gudang'])){
+			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Gudang','User'])){
 				$this->load->view('Logistik/v_gudang_add');
 			}else{
 				$this->load->view('home');
 			}
 		}else{
-			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Gudang'])){
+			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Gudang','User'])){
 				$this->load->view('Logistik/v_gudang');
 			}else{
 				$this->load->view('home');
