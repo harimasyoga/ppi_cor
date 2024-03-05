@@ -501,12 +501,24 @@ class M_logistik extends CI_Model
 				$pkb = '.';
 			}
 
+			$id_hub = $this->db->query("SELECT h.aka,p.* FROM trs_po p INNER JOIN m_hub h ON p.id_hub=h.id_hub WHERE p.kode_po='$r->rk_kode_po'")->row();
+			if($id_hub->id_hub == 1 || $id_hub->id_hub == 4 || $id_hub->id_hub == 6 || $id_hub->id_hub == 10){
+				$no_surat = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
+				$no_so = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
+				$no_pkb = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
+			}else{
+				$no_surat = '000/'.$kategori.'/'.$blnRomami.'/'.substr(date('Y'),2,2).'/'.$sjSo;
+				$no_so = '000/SO-'.$kategori.'/'.$blnRomami.'/'.substr(date('Y'),2,2).'/'.$sjSo;
+				$no_pkb = '000/'.substr(date('Y'),2,2).'/'.$kategori.$pkb;
+			}
+
 			$data = [
 				'id_perusahaan' => $r->id_pelanggan,
+				'id_hub' => $id_hub->id_hub,
 				'tgl' => $tgl,
-				'no_surat' => '000/'.$kategori.'/'.$blnRomami.'/'.substr(date('Y'),2,2).'/'.$sjSo,
-				'no_so' => '000/SO-'.$kategori.'/'.$blnRomami.'/'.substr(date('Y'),2,2).'/'.$sjSo,
-				'no_pkb' => '000/'.substr(date('Y'),2,2).'/'.$kategori.$pkb,
+				'no_surat' => $no_surat,
+				'no_so' => $no_so,
+				'no_pkb' => $no_pkb,
 				'no_kendaraan' => '',
 				'no_po' => $r->rk_kode_po,
 				'pajak' => $pajak,
@@ -579,7 +591,7 @@ class M_logistik extends CI_Model
 	}
 
 	function editPengirimanNoSJ()
-	{
+	{ //
 		$id_pl = $_POST["id_pl"];
 		$no_surat = $_POST["no_surat"];
 
@@ -590,9 +602,15 @@ class M_logistik extends CI_Model
 			$so = explode('/', $pl->no_so);
 			$pkb = explode('/', $pl->no_pkb);
 	
-			$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3].'/'.$sj[4];
-			$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3].'/'.$so[4];
-			$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2];
+			if($pl->id_hub == 1 || $pl->id_hub == 4 || $pl->id_hub == 6 || $pl->id_hub == 10){
+				$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3];
+				$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3];
+				$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2].'/'.$pkb[3];
+			}else{
+				$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3].'/'.$sj[4];
+				$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3].'/'.$so[4];
+				$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2];
+			}
 	
 			$this->db->set('no_surat', $noSJ);
 			$this->db->set('no_so', $noSO);
