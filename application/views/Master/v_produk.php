@@ -36,7 +36,7 @@
 				<!-- <button type="button" class="btn-cetak btn  btn-outline-success pull-right" onclick="cetak(1)">Export Excel</button> -->
 				
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
-					<thead>
+					<thead class="color-tabel">
 						<tr>
 							<th style="text-align: center;width:5%">NO.</th>
 							<th style="text-align: center;width:20%">CUSTOMER</th>

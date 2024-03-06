@@ -79,12 +79,11 @@
 							
 						<div class="col-md-2">KODE STOK</div>
 						<div class="col-md-4">
-							<input type="hidden" class="angka form-control" name="sts_input" id="sts_input" >
-							<input type="hidden" class="angka form-control" name="id_kelompok" id="id_kelompok" >
-							
-							<input type="hidden" class="angka form-control" name="kd_kelompok_old" id="kd_kelompok_old" maxlength="2">
+							<input type="hidden" name="sts_input" id="sts_input">
+							<input type="hidden" name="id_stok_h" id="id_stok_h">
+							<input type="hidden" name="kd_stok_old" id="kd_stok_old">
 
-							<input type="text" class="angka form-control" name="kd_kelompok" id="kd_kelompok" value="AUTO" readonly>
+							<input type="text" class="angka form-control" name="kd_stok" id="kd_stok" value="AUTO" readonly>
 						</div>
 
 						<div class="col-md-5"></div>
@@ -95,9 +94,9 @@
 							
 						<div class="col-md-2">JENIS</div>
 						<div class="col-md-4">
-							<select class="form-control select2" name="kd_akun" id="kd_akun">
-								<option value="stok">STOK PPI</option>
+							<select class="form-control select2" name="jns" id="jns">
 								<option value="po">BAHAN BAKU PO</option>
+								<option value="stok">STOK PPI</option>
 							</select>
 						</div>
 
@@ -109,7 +108,19 @@
 							
 						<div class="col-md-2">TANGGAL</div>
 						<div class="col-md-4">
-							<input type="date" class="form-control" name="nm_kelompok" id="nm_kelompok" oninput="this.value = this.value.toUpperCase()" >
+							<input type="date" class="form-control" name="tgl_stok" id="tgl_stok" value ="<?= date('Y-m-d') ?>" >
+						</div> 
+
+						<div class="col-md-5"></div>
+					</div>
+					
+					<div class="card-body row" style="padding : 5px;font-weight:bold">
+						<div class="col-md-1"></div>
+							
+						<div class="col-md-2">HUB</div>
+						<div class="col-md-4">
+							<select class="form-control select2" name="hub" id="hub" onchange="clearRow()">
+							</select>
 						</div>
 
 						<div class="col-md-5"></div>
@@ -127,77 +138,91 @@
 					<!-- detail -->
 
 					<div style="overflow:auto;white-space:nowrap;" >
-							<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table-produk" width="100%">
-								<thead class="color-tabel">
-									<tr>
-										<th id="header_del">Delete</th>
-										<th style="padding : 12px 20px" >LIST </th>
-										<th style="padding : 12px 20px" >Customer </th>
-										<th style="padding : 12px 40px" >KODE PO</th>
-										<th style="padding : 12px 40px" >ITEM</th>
-										<th style="padding : 12px 15px" >QTY</th>
-										<th style="padding : 12px 15px" >TON</th>
-										<th style="padding : 12px 15px" >Kebutuhan</th>
-										<th style="padding : 12px 15px" >History</th>
-										<th style="padding : 12px 15px" >Kedatangan</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr id="itemRow0">
-										<td id="detail-hapus-0">
-											<div class="text-center">
-												<a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)">
-													<i class="far fa-trash-alt" style="color:#fff"></i> 
-												</a>
-											</div>
-										</td>
-										<td>
-											<div class="text-center">
-												<button type="button" title="PILIH"  onclick="load_item(this.id)" class="btn btn-success btn-sm" data-toggle="modal"  data-target=".list_item" name="list[0]" id="list0">
-													<i class="fas fa-check-circle"></i>
-												</button> 
-												
-											</div>
-										</td>
-										<td style="padding : 12px 20px" >
-											<input type="text" name="id_pelanggan[0]" id="id_pelanggan0" class="angka form-control" placeholder="CUST" readonly>
-
-											<input type="text" name="nm_pelanggan[0]" id="nm_pelanggan0" class="angka form-control" placeholder="CUST" readonly>
-
-										</td>
-										<td style="padding : 12px 20px">
-											<input type="text" name="kode_po[0]" id="kode_po0" class="angka form-control" placeholder="kode_po" readonly>
-
-										</td>										
-										<td style="padding : 12px 20px">
-											<input type="hidden" name="id_po_detail[0]" id="id_po_detail0" class="angka form-control" readonly>
+						<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table_list_item" width="100%">
+							<thead class="color-tabel">
+								<tr>
+									<th id="header_del">Delete</th>
+									<th style="padding : 12px 20px" >LIST </th>
+									<th style="padding : 12px 150px" >Customer </th>
+									<th style="padding : 12px 100px" >KODE PO</th>
+									<th style="padding : 12px 100px" >ITEM</th>
+									<th style="padding : 12px 50px" >QTY</th>
+									<th style="padding : 12px 50px" >TON</th>
+									<th style="padding : 12px 25px" >Kebutuhan</th>
+									<th style="padding : 12px 30px" >History</th>
+									<th style="padding : 12px 25px" >Kedatangan</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="itemRow0">
+									<td id="detail-hapus-0">
+										<div class="text-center">
+											<a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)">
+												<i class="far fa-trash-alt" style="color:#fff"></i> 
+											</a>
+										</div>
+									</td>
+									<td>
+										<div class="text-center">
+											<button type="button" title="PILIH"  onclick="load_item(this.id)" class="btn btn-success btn-sm" data-toggle="modal"  name="list[0]" id="list0">
+												<i class="fas fa-check-circle"></i>
+											</button> 
 											
-											<input type="hidden" name="id_produk[0]" id="id_produk0" class="angka form-control" readonly>
+										</div>
+									</td>
+									<td style="padding : 12px 20px" >
+										<input type="hidden" name="id_pelanggan[0]" id="id_pelanggan0" class="angka form-control" placeholder="CUST" readonly>
 
-											<input type="text" name="item[0]" id="item0" class="angka form-control" placeholder="ITEM" readonly>
-										</td>		
+										<input type="text" name="nm_pelanggan[0]" id="nm_pelanggan0" class="angka form-control" placeholder="CUST" readonly>
+										
 
-										<td style="padding : 12px 20px">
+									</td>
+									<td style="padding : 12px 20px">
+										<input type="text" name="kode_po[0]" id="kode_po0" class="angka form-control" placeholder="kode_po" readonly>
+
+									</td>										
+									<td style="padding : 12px 20px">
+										<input type="hidden" name="id_po_detail[0]" id="id_po_detail0" class="angka form-control" readonly>
+										
+										<input type="hidden" name="id_produk[0]" id="id_produk0" class="angka form-control" readonly>
+
+										<textarea rows="2" cols="25" name="text" name="item[0]" id="item0" wrap="soft" disabled> </textarea>
+
+										<!-- <input type="text" name="item[0]" id="item0" class="form-control narrow wrap wrap" placeholder="ITEM" readonly> -->
+									</td>		
+
+									<td style="padding : 12px 20px">
+										<div class="text-right">
 											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' readonly>
-										</td>		
+										</div>
+									</td>		
 
-										<td style="padding : 12px 20px">
+									<td style="padding : 12px 20px">
+										<div class="text-right">
 											<input type="text" name="ton[0]" id="ton0" class="angka form-control" value='0' readonly>
-										</td>		
+										</div>
+									</td>		
 
-										<td style="padding : 12px 20px">
+									<td style="padding : 12px 20px">
+										<div class="text-right">
 											<input type="text" name="kebutuhan[0]" id="kebutuhan0" class="angka form-control"  value='0' readonly>
-										</td>		
-										<td style="padding : 12px 20px">
-											<input type="text" name="history[0]" id="history0" class="angka form-control" value='0' readonly>
-										</td>		
-										<td style="padding : 12px 20px">
-											<input type="text" name="datang[0]" id="datang0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id)" value='0'>
-										</td>		
-									</tr>
-								</tbody>
-							</table>
+										</div>
+									</td>		
+									<td style="padding : 12px 20px">
+										<input type="text" name="history[0]" id="history0" class="angka form-control" value='0' readonly>
+									</td>		
+									<td style="padding : 12px 20px">
+										<input type="text" name="datang[0]" id="datang0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id)" value='0'>
+									</td>		
+								</tr>
+							</tbody>
+						</table>
+						<div id="add_button" >
+							<button type="button" onclick="addRow()" class="btn-tambah-produk btn  btn-success"><b><i class="fa fa-plus" ></i></b></button>
+							<input type="hidden" name="bucket" id="bucket" value="0">
 						</div>
+						<br>
+					</div>
 
 					<!-- end detail -->
 
@@ -231,7 +256,7 @@
 
         <div class="modal-content">
             <div class="modal-header">
-                <h5><b>Pilih Invoice</b></h5>
+                <h5><b>Pilih PO</b></h5>
             </div>
             <div class="modal-body">
 				<div style="overflow:auto;white-space:nowrap">
@@ -269,22 +294,219 @@
 <!-- Modal item -->
 
 <script type="text/javascript">
-	let statusInput = 'insert';
+
 	const urlAuth = '<?= $this->session->userdata('level')?>';
 
 	$(document).ready(function ()
 	{
 		kosong()
 		load_data()
+		load_hub()
 		$('.select2').select2();
 	});
+
+	function load_hub() 
+	{
+		option = "";
+		$.ajax({
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Logistik/load_hub",
+			// data       : { idp: pelanggan, kd: '' },
+			dataType   : 'json',
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success"){					
+					option = `<option value="">-- Pilih --</option>`;	
+
+					$.each(data.data, function(index, val) {
+					option += "<option value='"+val.id_hub+"'>"+val.nm_hub+"</option>";
+					});
+
+					$('#hub').html(option);
+					swal.close();
+				}else{	
+					option += "<option value=''></option>";
+					$('#hub').html(option);					
+					swal.close();
+				}
+			}
+		});
+		
+	}
+	
+	var rowNum = 0;
+
+	function addRow() 
+	{
+		var b = $('#bucket').val();
+
+		if (b == -1) {
+			b = 0;
+			rowNum = 0;
+		}
+
+		var datang          = $('#datang' + b).val();
+		var id_po_detail    = $('#id_po_detail' + b).val();
+		var id_produk       = $('#id_produk' + b).val();
+		var idp             = $('#id_pelanggan' + b).val();
+			
+		if (datang != '0' && datang != '' && id_po_detail != '' && id_produk != '' && idp != '') 
+		{
+			rowNum++;
+			
+				var x = rowNum + 1;
+				$('#table_list_item').append(
+					`<tr id="itemRow${ rowNum }">
+						<td id="detail-hapus-${ rowNum }">
+							<div class="text-center">
+								<a class="btn btn-danger" id="btn-hapus-${ rowNum }" onclick="removeRow(${ rowNum })">
+									<i class="far fa-trash-alt" style="color:#fff"></i> 
+								</a>
+							</div>
+						</td>
+						<td>
+							<div class="text-center">
+								<button type="button" title="PILIH"  onclick="load_item(this.id)" class="btn btn-success btn-sm" data-toggle="modal"  name="list[${ rowNum }]" id="list${ rowNum }">
+									<i class="fas fa-check-circle"></i>
+								</button> 
+							</div>
+						</td>
+						<td style="padding : 12px 20px" >
+							<input type="hidden" name="id_pelanggan[${ rowNum }]" id="id_pelanggan${ rowNum }" class="angka form-control" placeholder="CUST" readonly>
+
+							<input type="text" name="nm_pelanggan[${ rowNum }]" id="nm_pelanggan${ rowNum }" class="angka form-control" placeholder="CUST" readonly>
+						</td>
+						<td style="padding : 12px 20px">
+							<input type="text" name="kode_po[${ rowNum }]" id="kode_po${ rowNum }" class="angka form-control" placeholder="kode_po" readonly>
+						</td>	
+
+						<td style="padding : 12px 20px">
+							<input type="hidden" name="id_po_detail[${ rowNum }]" id="id_po_detail${ rowNum }" class="angka form-control" readonly>
+							
+							<input type="hidden" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }" class="angka form-control" readonly>
+
+							<textarea rows="2" cols="25" name="text" name="item[${ rowNum }]" id="item${ rowNum }" wrap="soft" disabled> </textarea>
+
+							<!-- <input type="text" name="item[${ rowNum }]" id="item${ rowNum }" class="form-control narrow wrap wrap" placeholder="ITEM" readonly> -->
+						</td>		
+
+						<td style="padding : 12px 20px">
+							<div class="text-right">
+								<input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }" class="angka form-control" value='0' readonly>
+							</div>
+						</td>		
+
+						<td style="padding : 12px 20px">
+							<div class="text-right">
+								<input type="text" name="ton[${ rowNum }]" id="ton${ rowNum }" class="angka form-control" value='0' readonly>
+							</div>
+						</td>		
+
+						<td style="padding : 12px 20px">
+							<div class="text-right">
+								<input type="text" name="kebutuhan[${ rowNum }]" id="kebutuhan${ rowNum }" class="angka form-control"  value='0' readonly>
+							</div>
+						</td>		
+						<td style="padding : 12px 20px">
+							<input type="text" name="history[${ rowNum }]" id="history${ rowNum }" class="angka form-control" value='0' readonly>
+						</td>		
+						<td style="padding : 12px 20px">
+							<input type="text" name="datang[${ rowNum }]" id="datang${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id)" value='0'>
+						</td>		
+					</tr>
+					`);
+				$('.select2').select2({
+					placeholder: '--- Pilih ---',
+					dropdownAutoWidth: true
+				});
+				$('#bucket').val(rowNum);
+				$('#list' + rowNum).focus();
+		}else{
+			swal({
+				title               : "Cek Kembali",
+				html                : "Isi form diatas terlebih dahulu",
+				type                : "info",
+				confirmButtonText   : "OK"
+			});
+			return;
+		}
+	}
+
+	function removeRow(e) 
+	{
+		if (rowNum > 0) {
+			jQuery('#itemRow' + e).remove();
+			rowNum--;
+		} else {
+			// toastr.error('Baris pertama tidak bisa dihapus');
+			// return;
+
+			swal({
+					title               : "Cek Kembali",
+					html                : "Baris pertama tidak bisa dihapus",
+					type                : "error",
+					confirmButtonText   : "OK"
+				});
+			return;
+		}
+		$('#bucket').val(rowNum);
+	}
+
+	function clearRow() 
+	{
+		var bucket = $('#bucket').val();
+		for (var e = bucket; e > 0; e--) {
+			jQuery('#itemRow' + e).remove();
+			rowNum--;
+		}
+		
+		$('#bucket').val(rowNum);
+
+		$("#id_pelanggan0").val("")
+		$("#nm_pelanggan0").val("")
+		$("#kode_po0").val("")
+		$("#id_po_detail0").val("")
+		$("#id_produk0").val("")
+		$("#item0").val("")
+		$("#qty0").val("")
+		$("#ton0").val("")
+		$("#kebutuhan0").val("")
+		$("#history0").val("")
+		$("#datang0").val("")
+
+	}
 
 	function load_item(id)
 	{
 		var id1   = id.substr(0,4);
 		var id2   = id.substr(4,1);
+		var hub   = $('#hub').val()
 		
-		var table = $('#tbl_po').DataTable();
+
+		if (hub == '' || hub == null) 
+		{			
+			swal.close();
+			swal({
+				title               : "Cek Kembali",
+				html                : "Pilih Hub Dahulu",
+				type                : "info",
+				confirmButtonText   : "OK"
+			});
+			return;
+		}else{			
+			$('.list_item').modal('show');
+		}
+		
+		var table   = $('#tbl_po').DataTable();
 		table.destroy();
 		tabel = $('#tbl_po').DataTable({
 			"processing": true,
@@ -293,7 +515,7 @@
 			"ajax": {
 				"url"   : '<?php echo base_url('Logistik/load_item_po')?>',
 				"type"  : "POST",
-				"data"  : { id:id2, jenis:'load_po_stok' },
+				"data"  : { id:id2, jenis:'load_po_stok', hub },
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],
@@ -309,7 +531,6 @@
 
 	function spilldata(id,kd_po,id_name)
 	{		
-		alert(id)
 		$.ajax({
 			url        : '<?= base_url(); ?>Logistik/load_data_1',
 			type       : "POST",
@@ -341,6 +562,8 @@
 					$('#history'+id_name).val(format_angka(data.header.bhn_bk));
 					$('#datang'+id_name).val(format_angka(data.header.bhn_bk));
 					swal.close();
+					$('.list_item').modal('hide');
+
 
 				} else {
 
@@ -466,21 +689,28 @@
 
 	function kosong()
 	{
-		statusInput = 'insert'
-		$("#sts_input").val("")
-		$("#id_akun").val("")
-		$("#kode_akun").val("")
-		$("#nm_akun").val("")
+		$("#id_pelanggan0").val("")
+		$("#nm_pelanggan0").val("")
+		$("#kode_po0").val("")
+		$("#id_po_detail0").val("")
+		$("#id_produk0").val("")
+		$("#item0").val("")
+		$("#qty0").val("")
+		$("#ton0").val("")
+		$("#kebutuhan0").val("")
+		$("#history0").val("")
+		$("#datang0").val("")
+		
 		swal.close()
 	}
 
 	function simpan() 
 	{
-		var kd_akun       = $("#kd_akun").val();
-		var kd_kelompok   = $("#kd_kelompok").val();
-		var nm_kelompok   = $("#nm_kelompok").val();
-
-		if ( kd_akun=='' || kd_kelompok=='' || nm_kelompok== '' ) 
+		var jns       = $("#jns").val();
+		var tgl_stok  = $("#tgl_stok").val();
+		var hub       = $("#hub").val();
+		
+		if ( jns== '' || tgl_stok=='' || hub== '' ) 
 		{			
 			swal.close();
 			swal({
@@ -493,7 +723,7 @@
 		}
 
 		$.ajax({
-			url        : '<?= base_url(); ?>Logistik/Insert_kode_kelompok',
+			url        : '<?= base_url(); ?>Logistik/Insert_stok_bb',
 			type       : "POST",
 			data       : $('#myForm').serialize(),
 			dataType   : "JSON",

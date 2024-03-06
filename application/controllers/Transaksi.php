@@ -467,7 +467,8 @@ class Transaksi extends CI_Controller
 		from trs_po_detail a 
 		join m_pelanggan b ON a.id_pelanggan=b.id_pelanggan
 		join m_sales c ON b.id_sales=c.id_sales
-		WHERE a.status <> 'Reject' 
+		join trs_po d ON a.kode_po=d.kode_po
+		WHERE a.status <> 'Reject' and d.status_app3 not in ('H')
 		$ket 
 		)p group by id_sales,nm_sales")->result();
 

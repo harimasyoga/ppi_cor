@@ -27,7 +27,7 @@
 				<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<br><br>
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
-					<thead>
+					<thead class="color-tabel">
 						<tr>
 							<th style="width:5%">NO.</th>
 							<th style="width:10%">TGL. SO</th>
