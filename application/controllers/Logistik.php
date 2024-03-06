@@ -872,11 +872,19 @@ class Logistik extends CI_Controller
 
 		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;border-collapse:collapse;color:#000;width:100%">
 			<tr>
-				<th style="width:5%;padding:3px;border:1px solid #000">NO</th>
-				<th style="width:20%;padding:3px;border:1px solid #000">NO. PO</th>
-				<th style="width:27%;padding:3px;border:1px solid #000">NAMA BARANG</th>
-				<th style="width:8%;padding:3px;border:1px solid #000">QTY</th>
-				<th style="width:40%;padding:3px;border:1px solid #000">KETERANGAN</th>
+				<th style="width:5%"></th>
+				<th style="width:21%"></th>
+				<th style="width:28%"></th>
+				<th style="width:5%"></th>
+				<th style="width:6%"></th>
+				<th style="width:35%"></th>
+			</tr>
+			<tr>
+				<th style="padding:3px;border:1px solid #000">NO</th>
+				<th style="padding:3px;border:1px solid #000">NO. PO</th>
+				<th style="padding:3px;border:1px solid #000">NAMA BARANG</th>
+				<th style="padding:3px;border:1px solid #000" colspan="2">QTY</th>
+				<th style="padding:3px;border:1px solid #000">KETERANGAN</th>
 			</tr>';
 
 			// $isi = $this->db->query("SELECT*FROM m_rk_laminasi rk
@@ -891,6 +899,7 @@ class Logistik extends CI_Controller
 			$count = $isi->num_rows();
 
 			$i = 0;
+			$sumQty = 0;
 			foreach($isi->result() as $r){
 				$i++;
 				($r->jenis_qty_lm == 'kg') ? $muat = round($r->qty_muat,2) : $muat = number_format($r->qty_muat,0);
@@ -898,9 +907,11 @@ class Logistik extends CI_Controller
 					<td style="padding:3px;border:1px solid #000;text-align:center">'.$i.'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->rk_no_po.'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->nm_produk_lm.'</td>
-					<td style="padding:3px;border:1px solid #000;text-align:center">'.$muat.'</td>
+					<td style="padding:3px 10px 3px 3px;border:1px solid #000;border-width:1px 0 1px 1px;text-align:right">'.$muat.'</td>
+					<td style="padding:3px 3px 3px 0;border:1px solid #000;border-width:1px 1px 1px 0">'.strtoupper($r->jenis_qty_lm).'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->rk_ket.'</td>
 				</tr>';
+				$sumQty += $r->qty_muat;
 			}
 
 			if($count == 1) {
@@ -921,10 +932,28 @@ class Logistik extends CI_Controller
 						<td style="padding:10px;border:1px solid #000"></td>
 						<td style="padding:10px;border:1px solid #000"></td>
 						<td style="padding:10px;border:1px solid #000"></td>
-						<td style="padding:10px;border:1px solid #000"></td>
+						<td style="padding:10px;border:1px solid #000" colspan="2"></td>
 						<td style="padding:10px;border:1px solid #000"></td>
 					</tr>';
 				}
+			}
+
+			// TOTAL
+			$qty = $this->db->query("SELECT i.jenis_qty_lm FROM m_rk_laminasi rk
+			INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po
+			AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
+			INNER JOIN m_produk_lm i ON rk.id_m_produk_lm=i.id_produk_lm
+			WHERE l.no_surat='$no_surat'
+			GROUP BY i.jenis_qty_lm");
+
+			if($qty->num_rows() == 1){
+				($qty->row()->jenis_qty_lm == 'kg') ? $total = round($sumQty,2) : $total = number_format($sumQty,0);
+				$html .='<tr>
+					<td style="padding:3px;border:1px solid #000;font-weight:bold;text-align:center" colspan="3">TOTAL</td>
+					<td style="padding:3px 10px 3px 3px;border:1px solid #000;border-width:1px 0 1px 1px;text-align:right;font-weight:bold">'.$total.'</td>
+					<td style="padding:3px 3px 3px 0;border:1px solid #000;border-width:1px 1px 1px 0;font-weight:bold">'.strtoupper($qty->row()->jenis_qty_lm).'</td>
+					<td style="padding:3px;border:1px solid #000"></td>
+				</tr>';
 			}
 
 		$html .='</table>';
@@ -943,7 +972,7 @@ class Logistik extends CI_Controller
 				<td style="border:1px solid #000;padding:10px 0;font-weight:bold" colspan="2">MENGETAHUI</td>
 				<td></td>
 				<td style="border:1px solid #000;padding:10px 0;font-weight:bold">ADMIN</td>
-				<td style="border:1px solid #000;padding:10px 0;font-weight:bold">SATPAM</td>
+				<td style="border:1px solid #000;padding:10px 0;font-weight:bold">SOPIR</td>
 			</tr>
 			<tr>
 				<td></td>
