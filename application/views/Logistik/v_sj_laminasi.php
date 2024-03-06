@@ -466,7 +466,7 @@
 
 	function noSJLaminasi(id_pelanggan_lm, id_po_lm)
 	{
-		let no_sj = $("#p_no_sj-"+id_pelanggan_lm+"-"+id_po_lm).val()
+		let no_sj = $("#p_no_sj-"+id_pelanggan_lm).val()
 		if(no_sj == "" || no_sj < 0){
 			no_sj = "000000"
 		}else if(no_sj.length == 1){
@@ -482,14 +482,14 @@
 		}else{
 			no_sj = no_sj.substring(no_sj.length - 6)
 		}
-		$("#p_no_sj-"+id_pelanggan_lm+"-"+id_po_lm).val(no_sj)
+		$("#p_no_sj-"+id_pelanggan_lm).val(no_sj)
 	}
 
-	function kirimSJLaminasi(id_pelanggan_lm, id_po_lm)
+	function kirimSJLaminasi(id_pelanggan_lm)
 	{
-		let tgl = $("#p_tgl-"+id_pelanggan_lm+"-"+id_po_lm).val()
-		let no_sj = $("#p_no_sj-"+id_pelanggan_lm+"-"+id_po_lm).val()
-		let no_kendaraan = $("#p_no_kendaraan-"+id_pelanggan_lm+"-"+id_po_lm).val()
+		let tgl = $("#p_tgl-"+id_pelanggan_lm).val()
+		let no_sj = $("#p_no_sj-"+id_pelanggan_lm).val()
+		let no_kendaraan = $("#p_no_kendaraan-"+id_pelanggan_lm).val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/kirimSJLaminasi')?>',
 			type: "POST",
@@ -504,7 +504,7 @@
 				});
 			},
 			data: ({
-				id_pelanggan_lm, id_po_lm, tgl, no_sj, no_kendaraan
+				id_pelanggan_lm, tgl, no_sj, no_kendaraan
 			}),
 			success: function(res){
 				data = JSON.parse(res)

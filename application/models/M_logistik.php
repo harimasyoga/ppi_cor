@@ -678,45 +678,52 @@ class M_logistik extends CI_Model
 	function kirimSJLaminasi()
 	{
 		$id_pelanggan_lm = $_POST["id_pelanggan_lm"];
-		$id_po_lm = $_POST["id_po_lm"];
+		// $id_po_lm = $_POST["id_po_lm"];
 		$tgl = $_POST["tgl"];
 		$no_sj = $_POST["no_sj"];
 		$no_kendaraan = $_POST["no_kendaraan"];
 
 		$tahun = substr(date('Y'),2,2);
 		$no_surat = $no_sj.'/'.$tahun.'/LM';
-		$no_po = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id_po_lm'")->row();
+		// $no_po = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id_po_lm'")->row();
 
 		$cekNoSJ = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat='$no_surat'");
 
 		if($no_sj == 000000 || $no_sj == '000000' || $no_sj == '' || $no_sj < 0 || strlen("'.$no_sj.'") < 6){
-			$data = false; $urut = false; $insertPL = false; $updateIDPL = false;
+			$data = false; $insertPL = false; $updateIDPL = false;
 			$msg = 'NOMER SURAT JALAN TIDAK BOLEH KOSONG!';
 		}else if($no_kendaraan == ''){
-			$data = false; $urut = false; $insertPL = false; $updateIDPL = false;
+			$data = false; $insertPL = false; $updateIDPL = false;
 			$msg = 'NOMER KENDARAAN TIDAK BOLEH KOSONG!';
 		}else if($cekNoSJ->num_rows() > 0){
-			$data = false; $urut = false; $insertPL = false; $updateIDPL = false;
+			$data = false; $insertPL = false; $updateIDPL = false;
 			$msg = 'NOMER SURAT JALAN SUDAH TERPAKAI!';
 		}else{
 			// UPDATE RK URUT
 			$cekUrut = $this->db->query("SELECT*FROM m_rk_laminasi WHERE rk_tgl='$tgl' GROUP BY rk_urut DESC LIMIT 1");
 			($cekUrut->num_rows() == 0) ? $rk_urut = 1 : $rk_urut = $cekUrut->row()->rk_urut + 1;
-			$this->db->set('rk_tgl', $tgl);
-			$this->db->set('rk_status', 'Close');
-			$this->db->set('rk_urut', $rk_urut);
-			$this->db->where('id_pelanggan_lm', $id_pelanggan_lm);
-			$this->db->where('id_po_lm', $id_po_lm);
-			$this->db->where('rk_urut', 0);
-			$urut = $this->db->update('m_rk_laminasi');
+
+			$no_po = $this->db->query("SELECT*FROM m_rk_laminasi WHERE id_pelanggan_lm='$id_pelanggan_lm' AND rk_urut='0' GROUP BY rk_no_po");
+
+			// foreach($no_po->result() as $r){
+			// 	$this->db->set('rk_tgl', $tgl);
+			// 	$this->db->set('rk_status', 'Close');
+			// 	$this->db->set('rk_urut', $rk_urut);
+			// 	$this->db->where('id_pelanggan_lm', $r->id_pelanggan_lm);
+			// 	$this->db->where('id_po_lm', $id_po_lm);
+			// 	$this->db->where('rk_urut', 0);
+			// 	$urut = $this->db->update('m_rk_laminasi');
+			// }
+
 			// INSERT PACKING LIST
-			if($urut){
+			// if($urut){
+			foreach($no_po->result() as $r){
 				$pl = array(
-					'id_perusahaan' => $id_pelanggan_lm,
+					'id_perusahaan' => $r->id_pelanggan_lm,
 					'tgl' => $tgl,
 					'no_surat' => $no_surat,
 					'no_kendaraan' => $no_kendaraan,
-					'no_po' => $no_po->no_po_lm,
+					'no_po' => $r->rk_no_po,
 					'sj' => 'Open',
 					'sj_blk' => NULL,
 					'pajak' => NULL,
@@ -725,23 +732,31 @@ class M_logistik extends CI_Model
 					'cetak_sj' => 'not',
 				);
 				$insertPL = $this->db->insert('pl_laminasi', $pl);
-				// UPDATE ID PL DI RENCANA KIRIM
-				if($insertPL){
-					$cekPL = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat='$no_surat'")->row();
-					$this->db->set('id_pl_lm', $cekPL->id);
-					$this->db->where('id_pelanggan_lm', $id_pelanggan_lm);
-					$this->db->where('id_po_lm', $id_po_lm);
-					$this->db->where('rk_status', 'Close');
-					$this->db->where('rk_urut', $rk_urut);
+			}
+
+			// UPDATE ID PL DI RENCANA KIRIM
+			if($insertPL){
+				$cekPL = $this->db->query("SELECT*FROM pl_laminasi WHERE id_perusahaan='$id_pelanggan_lm' AND tgl='$tgl' AND no_pl_urut='$rk_urut'");
+				foreach($cekPL->result() as $c){
+					$this->db->set('id_pl_lm', $c->id);
+					$this->db->set('rk_tgl', $tgl);
+					$this->db->set('rk_status', 'Close');
+					$this->db->set('rk_urut', $rk_urut);
+					$this->db->where('id_pelanggan_lm', $c->id_perusahaan);
+					$this->db->where('rk_tgl', null);
+					$this->db->where('rk_no_po', $c->no_po);
+					$this->db->where('rk_urut', 0);
 					$updateIDPL = $this->db->update('m_rk_laminasi');
 				}
 			}
+
+			// }
 			$data = true;
 			$msg = 'OK';
 		}
 
 		return [
-			'2urut' => $urut,
+			// '2urut' => $urut,
 			'3insertPL' => $insertPL,
 			'5updateIDPL' => $updateIDPL,
 			'msg' => $msg,

@@ -520,7 +520,7 @@ class Logistik extends CI_Controller
 		$group = $this->db->query("SELECT rk.*,p.nm_pelanggan_lm FROM m_rk_laminasi rk
 		INNER JOIN m_pelanggan_lm p ON rk.id_pelanggan_lm=p.id_pelanggan_lm
 		WHERE rk.rk_urut='0'
-		GROUP BY rk.id_pelanggan_lm,rk.id_po_lm");
+		GROUP BY rk.id_pelanggan_lm");
 		if($group->num_rows() == 0){
 			$html .='LIST RENCANA KIRIM KOSONG!';
 		}else{
@@ -541,9 +541,7 @@ class Logistik extends CI_Controller
 				foreach($group->result() as $g){
 					$j++;
 					$html .='<tr style="border-top:3px solid #6c757d">
-						<th style="background:#e8e9ec;padding:6px" colspan="2">'.$g->nm_pelanggan_lm.'</th>
-						<th style="background:#e8e9ec;padding:6px" colspan="3">PO : '.$g->rk_no_po.'</th>
-						<th style="background:#e8e9ec;padding:6px" colspan="4"></th>
+						<th style="background:#e8e9ec;padding:6px" colspan="9">'.$g->nm_pelanggan_lm.'</th>
 					</tr>';
 
 					$noSJ = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat LIKE '%$tahun%' ORDER BY no_surat DESC LIMIT 1");
@@ -552,21 +550,21 @@ class Logistik extends CI_Controller
 					$html .='<tr>
 						<td style="padding:6px;border:0" colspan="2">TANGGAL <span style="float:right">:</span></td>
 						<td style="padding:6px;border:0" colspan="2">
-							<input type="date" class="form-control" id="p_tgl-'.$g->id_pelanggan_lm.'-'.$g->id_po_lm.'" value="'.$tgl.'">
+							<input type="date" class="form-control" id="p_tgl-'.$g->id_pelanggan_lm.'" value="'.$tgl.'">
 						</td>
 						<td style="padding:6px;border:0" colspan="5"></td>
 					</tr>
 					<tr>
 						<td style="padding:0 6px;border:0" colspan="2">NO. SURAT JALAN <span style="float:right">:</span></td>
 						<td style="padding:0 6px;border:0" colspan="2">
-							<input type="number" class="form-control" style="padding:6px;height:100%;text-align:right" id="p_no_sj-'.$g->id_pelanggan_lm.'-'.$g->id_po_lm.'" value="'.$sj.'" onkeyup="noSJLaminasi('."'".$g->id_pelanggan_lm."'".','."'".$g->id_po_lm."'".')">
+							<input type="number" class="form-control" style="padding:6px;height:100%;text-align:right" id="p_no_sj-'.$g->id_pelanggan_lm.'" value="'.$sj.'" onkeyup="noSJLaminasi('."'".$g->id_pelanggan_lm."'".')">
 						</td>
 						<td style="padding:0 6px;border:0" colspan="5">/'.$tahun.'/LM</td>
 					</tr>
 					<tr>
 						<td style="padding:6px;border:0" colspan="2">NO. KENDARAAN <span style="float:right">:</span></td>
 						<td style="padding:6px;border:0" colspan="2">
-							<input type="text" class="form-control" style="padding:6px;height:100%" id="p_no_kendaraan-'.$g->id_pelanggan_lm.'-'.$g->id_po_lm.'" oninput="this.value=this.value.toUpperCase()">
+							<input type="text" class="form-control" style="padding:6px;height:100%" id="p_no_kendaraan-'.$g->id_pelanggan_lm.'" oninput="this.value=this.value.toUpperCase()">
 						</td>
 						<td style="padding:6px;border:0" colspan="5"></td>
 					</tr>
@@ -575,6 +573,7 @@ class Logistik extends CI_Controller
 					</tr>
 					<tr style="background:#f8f9fc">
 						<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">#</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d">NO. PO</th>
 						<th style="padding:6px;border-bottom:1px solid #6c757d">ITEM</th>
 						<th style="padding:6px;border-bottom:1px solid #6c757d">SIZE</th>
 						<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">@PACK</th>
@@ -589,7 +588,7 @@ class Logistik extends CI_Controller
 					INNER JOIN m_pelanggan_lm p ON rk.id_pelanggan_lm=p.id_pelanggan_lm
 					INNER JOIN trs_po_lm_detail dtl ON rk.id_po_dtl=dtl.id
 					INNER JOIN m_produk_lm lm ON rk.id_m_produk_lm=lm.id_produk_lm
-					WHERE rk.rk_status='Open' AND rk.id_pelanggan_lm='$g->id_pelanggan_lm' AND rk.id_po_lm='$g->id_po_lm' AND rk.rk_urut='0'
+					WHERE rk.rk_status='Open' AND rk.id_pelanggan_lm='$g->id_pelanggan_lm' AND rk.rk_urut='0'
 					ORDER BY p.nm_pelanggan_lm,dtl.no_po_lm,lm.id_produk_lm");
 					$i = 0;
 					foreach($data->result() as $r){
@@ -611,6 +610,7 @@ class Logistik extends CI_Controller
 						$pc = $uk.$qty.$ket;
 						$html .='<tr>
 							<td style="padding:6px;text-align:center">'.$i.'</td>
+							<td style="padding:6px">'.$r->rk_no_po.'</td>
 							<td style="padding:6px">'.$r->nm_produk_lm.'</td>
 							<td style="padding:6px">'.$r->ukuran_lm.'</td>
 							<td style="padding:6px;text-align:right">'.number_format($r->isi_lm,0,",",".").' ( SHEET )</td>
@@ -641,8 +641,8 @@ class Logistik extends CI_Controller
 
 					if($j == 1){
 						$html .='<tr>
-							<td style="padding:6px" colspan="9">
-								<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="kirimSJLaminasi('."'".$g->id_pelanggan_lm."'".','."'".$g->id_po_lm."'".')"><i class="fas fa-share"></i> KIRIM</button>
+							<td style="padding:6px" colspan="10">
+								<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="kirimSJLaminasi('."'".$g->id_pelanggan_lm."'".')"><i class="fas fa-share"></i> KIRIM</button>
 							</td>
 						</tr>';
 					}
@@ -706,7 +706,7 @@ class Logistik extends CI_Controller
 
 		$pl = $this->db->query("SELECT*FROM pl_laminasi l
 		INNER JOIN m_pelanggan_lm p ON l.id_perusahaan=p.id_pelanggan_lm
-		WHERE l.no_surat='$no_surat'")->row();
+		WHERE l.no_surat='$no_surat' GROUP BY l.no_surat")->row();
 
 		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;vertical-align:top;border-collapse:collapse;color:#000;width:100%">
 			<tr>
@@ -716,15 +716,10 @@ class Logistik extends CI_Controller
 				<td style="width:27%"></td>
 			</tr>
 			<tr>
-				<td style="padding:3px 0;font-weight:bold;font-size:20px;text-align:center;vertical-align:middle" rowspan="8">SURAT JALAN</td>
+				<td style="padding:3px 0;font-weight:bold;font-size:20px;text-align:center;vertical-align:middle" rowspan="7">SURAT JALAN</td>
 				<td style="padding:5px 0 3px;font-weight:bold">NO. SURAT JALAN</td>
 				<td style="padding:5px 0 3px">:</td>
 				<td style="padding:3px 0 10px;font-weight:bold;font-size:16px;border-bottom:1px dotted #000">'.$pl->no_surat.'</td>
-			</tr>
-			<tr>
-				<td style="padding:3px 0;font-weight:bold">NO. PO</td>
-				<td style="padding:3px 0">:</td>
-				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$pl->no_po.'</td>
 			</tr>
 			<tr>
 				<td style="padding:3px 0;font-weight:bold">TANGGAL</td>
@@ -761,14 +756,21 @@ class Logistik extends CI_Controller
 		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;border-collapse:collapse;color:#000;width:100%">
 			<tr>
 				<th style="width:5%;padding:3px;border:1px solid #000">NO</th>
-				<th style="width:47%;padding:3px;border:1px solid #000">NAMA BARANG</th>
+				<th style="width:20%;padding:3px;border:1px solid #000">NO. PO</th>
+				<th style="width:27%;padding:3px;border:1px solid #000">NAMA BARANG</th>
 				<th style="width:8%;padding:3px;border:1px solid #000">QTY</th>
 				<th style="width:40%;padding:3px;border:1px solid #000">KETERANGAN</th>
 			</tr>';
 
-			$isi = $this->db->query("SELECT*FROM m_rk_laminasi rk
+			// $isi = $this->db->query("SELECT*FROM m_rk_laminasi rk
+			// INNER JOIN m_produk_lm i ON rk.id_m_produk_lm=i.id_produk_lm
+			// WHERE id_pl_lm='$pl->id'");
+			$isi = $this->db->query("SELECT rk.*,i.* FROM m_rk_laminasi rk
+			INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po
+			AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
 			INNER JOIN m_produk_lm i ON rk.id_m_produk_lm=i.id_produk_lm
-			WHERE id_pl_lm='$pl->id'");
+			WHERE l.no_surat='$no_surat'
+			ORDER BY rk.rk_no_po,i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm");
 			$count = $isi->num_rows();
 
 			$i = 0;
@@ -777,6 +779,7 @@ class Logistik extends CI_Controller
 				($r->jenis_qty_lm == 'kg') ? $muat = round($r->qty_muat,2) : $muat = number_format($r->qty_muat,0);
 				$html .='<tr>
 					<td style="padding:3px;border:1px solid #000;text-align:center">'.$i.'</td>
+					<td style="padding:3px;border:1px solid #000">'.$r->rk_no_po.'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->nm_produk_lm.'</td>
 					<td style="padding:3px;border:1px solid #000;text-align:center">'.$muat.'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->rk_ket.'</td>
@@ -798,6 +801,7 @@ class Logistik extends CI_Controller
 			if($count <= 5) {
 				for($i = 0; $i < $xx; $i++){
 					$html .='<tr>
+						<td style="padding:10px;border:1px solid #000"></td>
 						<td style="padding:10px;border:1px solid #000"></td>
 						<td style="padding:10px;border:1px solid #000"></td>
 						<td style="padding:10px;border:1px solid #000"></td>
