@@ -39,7 +39,7 @@
          
 
           <table id="datatable" class="table table-bordered table-striped" width="100%">
-            <thead>
+            <thead class="color-tabel">
             <tr>
               <th style="text-align: center; width:5%">No</th>
               <th style="text-align: center; width:15%">No WO</th>

@@ -49,25 +49,6 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
-	public function Timbangan()
-	{
-		$data = array(
-			'judul' => "Timbangan",
-		);
-
-		$jenis = $this->uri->segment(3);
-		if($jenis == 'Add'){
-			$this->load->view('header', $data);
-			$this->load->view('Logistik/v_timbangan_add');
-			$this->load->view('footer');
-		}else{
-			
-			$this->load->view('header', $data);
-			$this->load->view('Logistik/v_timbangan');
-			$this->load->view('footer');
-		}
-	}
-
 	function bayar_inv()
 	{
 		$data = [
@@ -103,15 +84,17 @@ class Logistik extends CI_Controller
 	{
 		$id_name    = $this->input->post('id');
 		$jenis      = $this->input->post('jenis');
+		$hub        = $this->input->post('hub');
 		$data       = array();
 
 		if ($jenis == "load_po_stok") 
 		{
-			$query = $this->db->query("SELECT b.id as id_detail, d.id_produk as id_produk , c.id_pelanggan as id_pelanggan, c.nm_pelanggan as nm_pelanggan, a.*,b.*,c.*,d.* from trs_po a 
-						JOIN trs_po_detail b ON a.kode_po=b.kode_po
-						JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
-						JOIN m_produk d ON d.id_produk=b.id_produk
-						where a.tgl_po > '2024-01-01' ")->result();
+			$query = $this->db->query("SELECT b.id as id_detail,DATE_ADD(a.tgl_po, INTERVAL 2 DAY) as tgl_po2, d.id_produk as id_produk , c.id_pelanggan as id_pelanggan, c.nm_pelanggan as nm_pelanggan, a.*,b.*,c.*,d.* from trs_po a 
+			JOIN trs_po_detail b ON a.kode_po=b.kode_po
+			JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+			JOIN m_produk d ON d.id_produk=b.id_produk
+			where a.tgl_po > '2024-01-01' and a.id_hub='$hub' and DATE_ADD(a.tgl_po, INTERVAL 2 DAY) <=
+			LEFT(NOW() ,10)")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -151,6 +134,140 @@ class Logistik extends CI_Controller
 		echo json_encode($output);
 	}
 
+	function Insert_stok_bb()
+	{
+
+		// if($this->session->userdata('username'))
+		// {
+
+		// 	// $c_no_inv_kd   = $this->input->post('no_inv_kd');
+		// 	// $c_no_inv      = $this->input->post('no_inv');
+		// 	// $c_no_inv_tgl  = $this->input->post('no_inv_tgl');
+		// 	// $cek_inv       = $this->input->post('cek_inv');
+
+		// 	// $no_inv_ok     = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
+		// 	// $query_cek_no  = $this->db->query("SELECT*FROM invoice_header where no_invoice='$no_inv_ok' ")->num_rows();
+
+		// 	// if($query_cek_no>0)
+		// 	// {
+		// 	// 	echo json_encode(array("status" => "3","id" => '0'));
+		// 	// }else{
+				
+		// 		$c_type_po    = $this->input->post('type_po');
+		// 		$c_pajak      = $this->input->post('pajak');
+		// 		$tgl_inv      = $this->input->post('tgl_inv');
+		// 		$tanggal      = explode('-',$tgl_inv);
+		// 		$tahun        = $tanggal[0];
+
+		// 		$asc         = $this->m_logistik->save_stok_bb();
+		
+		// 		if($asc){
+		
+		// 			($c_type_po=='roll')? $type_ok=$c_type_po : $type_ok='SHEET_BOX';
+			
+		// 			($c_pajak=='nonppn')? $pajak_ok='non' : $pajak_ok='ppn';
+			
+		// 			$no_urut    = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok.'_'.$tahun);
+		// 			$kode_ok    = $type_ok.'_'.$pajak_ok.'_'.$tahun;
+
+		// 			if($cek_inv =='baru')
+		// 			{
+		// 				$this->db->query("UPDATE m_urut set no_urut=$no_urut+1 where kode='$kode_ok' ");
+		// 			}else{
+						
+		// 				if($c_no_inv == $no_urut)
+		// 				{
+		// 					$this->db->query("UPDATE m_urut set no_urut=$no_urut+1 where kode='$kode_ok' ");
+		// 				}
+		// 			}
+		
+		// 			echo json_encode(array("status" =>"1","id" => $asc));
+		
+		// 		}else{
+		// 			echo json_encode(array("status" => "2","id" => $asc));
+		
+		// 		}
+
+		// 	}
+
+		// }
+
+		
+		
+	}
+
+	function update_stok_bb()
+	{
+
+		if($this->session->userdata('username'))
+		{
+			$c_no_inv_kd   = $this->input->post('no_inv_kd');
+			$c_no_inv      = $this->input->post('no_inv');
+			$c_no_inv_tgl  = $this->input->post('no_inv_tgl');
+			$cek_inv       = $this->input->post('cek_inv2');
+			$no_inv_old    = $this->input->post('no_inv_old');
+			$c_type_po     = $this->input->post('type_po2');
+			$c_pajak       = $this->input->post('pajak2');
+			$tgl_inv       = $this->input->post('tgl_inv');
+			$tanggal       = explode('-',$tgl_inv);
+			$tahun         = $tanggal[0];
+
+			($c_type_po=='roll')? $type_ok=$c_type_po : $type_ok='SHEET_BOX';
+			
+			($c_pajak=='nonppn')? $pajak_ok='non' : $pajak_ok='ppn';
+	
+			$no_urut         = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok.'_'.$tahun);
+
+			$no_inv_ok       = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
+
+			$query_cek_no    = $this->db->query("SELECT*FROM invoice_header where no_invoice='$no_inv_ok' and no_invoice <> '$no_inv_old' ")->num_rows();
+
+			if($query_cek_no>0)
+			{
+				echo json_encode(array("status" => "3","id" => '0'));
+			// }else if($c_no_inv>$no_urut)
+			// {
+			// 	echo json_encode(array("status" => "4","id" => $no_urut));
+			}else{
+				
+				$asc = $this->m_logistik->update_invoice();
+		
+				if($asc){
+		
+					echo json_encode(array("status" =>"1","id" => $asc));
+		
+				}else{
+					echo json_encode(array("status" => "2","id" => $asc));
+		
+				}
+
+			}
+
+		}
+
+		
+		
+	}
+
+	public function Timbangan()
+	{
+		$data = array(
+			'judul' => "Timbangan",
+		);
+
+		$jenis = $this->uri->segment(3);
+		if($jenis == 'Add'){
+			$this->load->view('header', $data);
+			$this->load->view('Logistik/v_timbangan_add');
+			$this->load->view('footer');
+		}else{
+			
+			$this->load->view('header', $data);
+			$this->load->view('Logistik/v_timbangan');
+			$this->load->view('footer');
+		}
+	}
+	
 	public function v_timbangan_edit()
 	{
 		$id_timb    = $_GET['id_timb'];
@@ -912,7 +1029,7 @@ class Logistik extends CI_Controller
 			JOIN trs_po_detail b ON a.kode_po=b.kode_po
 			JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
 			JOIN m_produk d ON d.id_produk=b.id_produk
-			where a.tgl_po > '2024-01-01' and b.id='$id' x";
+			where a.tgl_po > '2024-01-01' and b.id='$id'";
 			
 			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
 		}else if($jenis=='invoice')
@@ -1353,7 +1470,7 @@ class Logistik extends CI_Controller
 			from invoice_header a 
 			join invoice_detail b on a.no_invoice=b.no_invoice
 			left join m_pelanggan c on a.id_perusahaan=c.id_pelanggan
-			--where a.no_invoice in ('AA/2605/12/2023','A/0009/01/2023','A/1436/12/2023') 
+			-- where a.no_invoice in ('AA/2605/12/2023','A/0009/01/2023','A/1436/12/2023') 
 			group by a.no_invoice
 			) as p")->result();
 
@@ -4085,6 +4202,27 @@ class Logistik extends CI_Controller
         $query = $this->db->query("SELECT a.id_pelanggan,b.nm_pelanggan from trs_po a 
 		join m_pelanggan b on a.id_pelanggan=b.id_pelanggan
 		group by a.id_pelanggan")->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
+	
+	function load_hub()
+    {
+        $query = $this->db->query("SELECT*FROM m_hub order by id_hub")->result();
 
             if (!$query) {
                 $response = [

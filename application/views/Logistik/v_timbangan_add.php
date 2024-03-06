@@ -41,7 +41,7 @@
 										<option value="TERIMA">TERIMA</option>
 										<option value="KIRIM">KIRIM</option>
 										<option value="SUPLAI">SUPLAI</option>
-										<option value="STOK">STOK PPI</option>
+										<!-- <option value="STOK">STOK PPI</option> -->
 									</select>
 								</div>
 								<div class="col-md-1"></div>
@@ -95,10 +95,11 @@
 								</div>
 								<div class="col-md-1"></div>
 
-								<div class="col-md-2">SUPPLIER</div>
+								<div class="col-md-2">ISI MUATAN</div>
 								<div class="col-md-3">
-									<input type="text" name="supplier" id="supplier" class="form-control" value="PT. PRIMA PAPER INDONESIA" oninput="this.value = this.value.toUpperCase() ">
+									<input type="text" name="isi_muatan" id="isi_muatan" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" placeholder="BAHAN BAKU">
 								</div>
+								
 							</div>
 
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">			
@@ -108,12 +109,10 @@
 								</div>	
 								<div class="col-md-1"></div>
 
-								<div class="col-md-2">ALAMAT</div>
+								<div class="col-md-2">SUPPLIER</div>
 								<div class="col-md-3">
-									<input type="text" name="alamat" id="alamat" class="form-control" value="Timang Kulon, Wonokerto, Wonogiri" oninput="this.value = this.value.toUpperCase() ">
+									<input type="text" name="supplier" id="supplier" class="form-control" value="PT. PRIMA PAPER INDONESIA" oninput="this.value = this.value.toUpperCase() ">
 								</div>
-
-								
 							</div>
 
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">		
@@ -123,11 +122,10 @@
 								</div>
 								<div class="col-md-1"></div>
 
-								<div class="col-md-2">NO POLISI</div>
+								<div class="col-md-2">ALAMAT</div>
 								<div class="col-md-3">
-									<input type="text" name="nopol" id="nopol" class="form-control" oninput="this.value = this.value.toUpperCase() ">
-								</div>	
-								
+									<input type="text" name="alamat" id="alamat" class="form-control" value="Timang Kulon, Wonokerto, Wonogiri" oninput="this.value = this.value.toUpperCase() ">
+								</div>
 							</div>
 
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">	
@@ -143,10 +141,10 @@
 									
 								<div class="col-md-1"></div>
 
-								<div class="col-md-2">BARANG</div>
+								<div class="col-md-2">NO POLISI</div>
 								<div class="col-md-3">
-									<input type="text" name="barang" id="barang" class="form-control" value="KARTON BOX" oninput="this.value = this.value.toUpperCase() ">
-								</div>
+									<input type="text" name="nopol" id="nopol" class="form-control" oninput="this.value = this.value.toUpperCase() ">
+								</div>	
 							</div>
 
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
@@ -161,19 +159,18 @@
 									</div>								
 								</div>
 								<div class="col-md-1"></div>
-								<div class="col-md-2">SOPIR</div>
-								<div class="col-md-3">
-									<input type="text" name="sopir" id="sopir" class="form-control" oninput="this.value = this.value.toUpperCase() ">
-								</div>
-
 								
+								<div class="col-md-2">BARANG</div>
+								<div class="col-md-3">
+									<input type="text" name="barang" id="barang" class="form-control" value="KARTON BOX" oninput="this.value = this.value.toUpperCase() ">
+								</div>
 							</div>
 
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">	
 								<div class="col-md-2">BERAT BERSIH</div>
 								<div class="col-md-3">
 									<div class="input-group mb-3">
-										<input type="text" name="berat_bersih" id="berat_bersih" class="form-control angka" onkeyup="ubah_angka(this.value,this.id)" readonly>
+										<input type="text" name="berat_bersih" id="berat_bersih" class="form-control angka" onkeyup="ubah_angka(this.value,this.id)">
 										<div class="input-group-append">
 											<span class="input-group-text">Kg</span>
 										</div>
@@ -183,20 +180,19 @@
 								
 								<div class="col-md-1"></div>
 
-								<div class="col-md-2">CATATAN</div>
+								<div class="col-md-2">SOPIR</div>
 								<div class="col-md-3">
-									<input type="text" name="cttn" id="cttn" class="form-control" oninput="this.value = this.value.toUpperCase() ">
+									<input type="text" name="sopir" id="sopir" class="form-control" oninput="this.value = this.value.toUpperCase() ">
 								</div>
 							</div>
 
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">			
-								<div class="col-md-2">CUSTOMER</div>
+								<!-- <div class="col-md-2">CUSTOMER</div>
 								<div class="col-md-3">
 									<select class="form-control select2 narrow wrap wrap" name="cust" id="cust" style="width: 100%;" onchange="set_po('new',this.value,0)">
 									</select>
-								</div>			
+								</div>			 -->
 								
-								<div class="col-md-1"></div>
 								<div class="col-md-2">POTONGAN</div>
 								<div class="col-md-3">
 									<div class="input-group mb-3">
@@ -206,12 +202,18 @@
 										</div>
 									</div>
 								</div>
+								<div class="col-md-1"></div>
+								
+								<div class="col-md-2">CATATAN</div>
+								<div class="col-md-3">
+									<input type="text" name="cttn" id="cttn" class="form-control" oninput="this.value = this.value.toUpperCase() ">
+								</div>
 								
 							</div>
 
 							<br>
 							<hr>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">			
+							<!-- <div class="card-body row" style="padding-bottom:5px;font-weight:bold">			
 								<div class="col-md-5">List PO</div>
 								
 								<div class="col-md-6"></div>					
@@ -252,7 +254,7 @@
 									<input type="hidden" name="bucket" id="bucket" value="0">
 								</div>
 						
-							</div>
+							</div> -->
 							
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">			
 								<div class="col-md-5">
@@ -283,46 +285,46 @@
 		$('.select2').select2({
 			dropdownAutoWidth: true
 		})
-		customer();
+		// customer();
 	})
 
-	function customer() 
-	{
-		option = "";
-		$.ajax({
-			type       : 'POST',
-			url        : "<?= base_url(); ?>Logistik/load_cs",
-			// data       : { idp: pelanggan, kd: '' },
-			dataType   : 'json',
-			beforeSend: function() {
-				swal({
-				title: 'loading ...',
-				allowEscapeKey    : false,
-				allowOutsideClick : false,
-				onOpen: () => {
-					swal.showLoading();
-				}
-				})
-			},
-			success:function(data){			
-				if(data.message == "Success"){					
-					option = `<option value="">-- Pilih --</option>`;	
+	// function customer() 
+	// {
+	// 	option = "";
+	// 	$.ajax({
+	// 		type       : 'POST',
+	// 		url        : "<?= base_url(); ?>Logistik/load_cs",
+	// 		// data       : { idp: pelanggan, kd: '' },
+	// 		dataType   : 'json',
+	// 		beforeSend: function() {
+	// 			swal({
+	// 			title: 'loading ...',
+	// 			allowEscapeKey    : false,
+	// 			allowOutsideClick : false,
+	// 			onOpen: () => {
+	// 				swal.showLoading();
+	// 			}
+	// 			})
+	// 		},
+	// 		success:function(data){			
+	// 			if(data.message == "Success"){					
+	// 				option = `<option value="">-- Pilih --</option>`;	
 
-					$.each(data.data, function(index, val) {
-					option += "<option value='"+val.id_pelanggan+"'>"+val.nm_pelanggan+"</option>";
-					});
+	// 				$.each(data.data, function(index, val) {
+	// 				option += "<option value='"+val.id_pelanggan+"'>"+val.nm_pelanggan+"</option>";
+	// 				});
 
-					$('#cust').html(option);
-					swal.close();
-				}else{	
-					option += "<option value=''></option>";
-					$('#cust').html(option);					
-					swal.close();
-				}
-			}
-		});
+	// 				$('#cust').html(option);
+	// 				swal.close();
+	// 			}else{	
+	// 				option += "<option value=''></option>";
+	// 				$('#cust').html(option);					
+	// 				swal.close();
+	// 			}
+	// 		}
+	// 	});
 		
-	}
+	// }
 
 	function set_po(cek,pelanggan,id) 
 	{
@@ -518,7 +520,7 @@
 			$("#berat_bersih").prop("readonly", true)		
 			$("#qty0").prop("readonly", false)		
 			$('#add_button').show("1000")
-			customer();
+			// customer();
 
 		}else{
 			$("#berat_bersih").prop("readonly", false)			
@@ -528,7 +530,7 @@
 			clearRow();
 			option = `<option value="">-- Pilih --</option>`;	
 			$('#item_po0').html(option);
-			customer();
+			// customer();
 		}
 		
 	}
@@ -553,7 +555,7 @@
 		$("#pot").val('')
 		$("#plh_input").val('')
 		$("#nm_penimbang").html(`<option value="">PILIH</option><option value="Feri S">Feri S</option><option value="DWI J">DWI J</option>`).prop("readonly", false)
-		customer();
+		// customer();
 	}
 
 	function simpanTimbangan() 
@@ -572,11 +574,11 @@
 		var sopir           = $("#sopir").val()
 		var berat_bersih    = $("#berat_bersih").val()
 		var cttn            = $("#cttn").val()
-		var cust            = $("#cust").val()
+		// var cust            = $("#cust").val()
 		var pot             = $("#pot").val()
 		var plh_input       = $("#plh_input").val()
 
-		if (jns == '' || penimbang == '' || permintaan == '' || supplier == '' || masuk == '' || alamat == '' || keluar == '' || nopol == '' || b_kotor == '' || barang == '' || berat_truk == '' || sopir == '' || berat_bersih == '' || cttn == '' || cust == '' || pot == '' ) 
+		if (jns == '' || penimbang == '' || permintaan == '' || supplier == '' || masuk == '' || alamat == '' || keluar == '' || nopol == '' || b_kotor == '' || barang == '' || berat_truk == '' || sopir == '' || berat_bersih == '' || cttn == '' || pot == '' ) 
 		{
 			// toastr.info('Harap Lengkapi Form');
 			

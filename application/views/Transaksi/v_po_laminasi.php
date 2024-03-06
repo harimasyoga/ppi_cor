@@ -267,7 +267,7 @@
 							<?php } ?>
 							<div style="overflow:auto;white-space:nowrap">
 								<table id="datatable" class="table table-bordered table-striped">
-									<thead>
+									<thead class="color-tabel">
 										<tr>
 											<th style="padding:12px;text-align:center">#</th>
 											<th style="padding:12px;text-align:center">NO. PO</th>

@@ -736,16 +736,16 @@ class M_logistik extends CI_Model
 	function simpanTimbangan_2()
 	{
 		$no_timbangan   = $this->m_fungsi->urut_transaksi('TIMBANGAN').'/TIMBANGAN';
-		$rowloop        = $this->input->post('plh_input');
-		for($loop = 0; $loop <= $rowloop+1; $loop++)
-		{
-			$data_detail = array(
-				'no_timbangan'   => $no_timbangan,
-				'id_item'   => $this->input->post('item_po['.$loop.']'),
-				'berat_bahan'   => str_replace('.','',$this->input->post('qty['.$loop.']')),
-			);
-			$result_detail = $this->db->insert('m_jembatan_timbang_d', $data_detail);
-		}
+		// $rowloop        = $this->input->post('plh_input');
+		// for($loop = 0; $loop <= $rowloop+1; $loop++)
+		// {
+		// 	$data_detail = array(
+		// 		'no_timbangan'   => $no_timbangan,
+		// 		'id_item'   => $this->input->post('item_po['.$loop.']'),
+		// 		'berat_bahan'   => str_replace('.','',$this->input->post('qty['.$loop.']')),
+		// 	);
+		// 	$result_detail = $this->db->insert('m_jembatan_timbang_d', $data_detail);
+		// }
 			
 		$data_header = array(
 			'input_t'     	 => $this->input->post('plh_input'),
@@ -1048,5 +1048,50 @@ class M_logistik extends CI_Model
 
 		return $valid;
 	}
+
+	function save_stok_bb()
+	{
+		$sts_input  = $this->input->post('sts_input');
+
+		if($sts_input=='edit')
+		{
+			$kd_stokbb    = $this->input->post('kd_stok_old');
+		}else{
+			$kd_stokbb    = $this->m_fungsi->tampil_no_urut('STOK_BB');
+		}
+
+		$rowloop        = $this->input->post('bucket');
+		for($loop = 0; $loop <= $rowloop+1; $loop++)
+		{
+			$data_detail = array(				
+				'kd_stok'         => $kd_stokbb,
+				'id_pelanggan'    => $this->input->post('id_pelanggan['.$loop.']'),
+				'kode_po'         => $this->input->post('kode_po['.$loop.']'),
+				'id_produk'       => $this->input->post('id_produk['.$loop.']'),
+				'id_po_detail'    => $this->input->post('id_po_detail['.$loop.']'),
+				'qty_po'          => str_replace('.','',$this->input->post('qty['.$loop.']')),
+				'ton_po'          => str_replace('.','',$this->input->post('ton['.$loop.']')),
+				'bhn_bk_po'       => str_replace('.','',$this->input->post('kebutuhan['.$loop.']')),
+				'datang_bhn_bk'   => str_replace('.','',$this->input->post('datang['.$loop.']')),
+			);
+			$result_detail = $this->db->insert('trs_d_stok_bb', $data_detail);
+		}
+
+		if($result_detail)
+		{
+			$data_header = array(
+				'kd_stok'    => $kd_stokbb,
+				'jenis'      => $this->input->post('jns'),
+				'tgl_stok'   => $this->input->post('tgl_stok'),
+				'hub'        => $this->input->post('hub'),
+			);
+		
+			$result_header = $this->db->insert('trs_h_stok_bb', $data_header);
+		}
+		
+		return $result_header;
+			
+	}
+	
 
 }

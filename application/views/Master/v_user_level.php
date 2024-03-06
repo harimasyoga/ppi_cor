@@ -34,7 +34,7 @@
 				
 				<br><br>
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
-					<thead>
+					<thead class="color-tabel">
 						<tr>
 							<th style="text-align: center;width:10%">Id</th>
 							<th style="text-align: center;width:50%">Level</th>
