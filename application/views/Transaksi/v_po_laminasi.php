@@ -176,7 +176,7 @@
 							<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
 								<div class="col-md-3">HARGA LEMBAR</div>
 								<div class="col-md-9">
-									<input type="text" id="harga_lembar" class="form-control" autocomplete="off" placeholder="HARGA LEMBAR" onkeyup="hitungHargaP('lembar')">
+									<input type="number" id="harga_lembar" class="form-control" autocomplete="off" placeholder="HARGA LEMBAR" onkeyup="hitungHargaP('lembar')">
 								</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
@@ -484,8 +484,8 @@
 
 		let harga_total = 0
 		if(opsi == 'lembar'){
-			let harga_lembar = $("#harga_lembar").val().split('.').join('')
-			$("#harga_lembar").val(format_angka(harga_lembar))
+			let harga_lembar = $("#harga_lembar").val()
+			$("#harga_lembar").val(harga_lembar)
 
 			let hitungPori = parseInt(at_sheet) * parseInt(harga_lembar);
 			(isNaN(hitungPori)) ? hitungPori = 0 : hitungPori = hitungPori
@@ -499,7 +499,7 @@
 			$("#harga_pori").val(format_angka(harga_pori))
 
 			let hargaSheet = parseInt(harga_pori) / parseInt(at_sheet);
-			(isNaN(hargaSheet)) ? hargaSheet = 0 : hargaSheet = hargaSheet;
+			(isNaN(hargaSheet)) ? hargaSheet = 0 : hargaSheet = parseFloat(hargaSheet).toFixed(2);
 			$("#harga_lembar").val(hargaSheet)
 
 			harga_total = Math.round(((jenis == 'kg') ? parseFloat(order_pori) : parseInt(order_pori)) * parseInt(harga_pori))
@@ -534,7 +534,7 @@
 		let order_sheet = $("#order_sheet").val().split('.').join('')
 		let order_pori = (jenis_qty_lm == 'kg') ? $("#order_pori").val() : $("#order_pori").val().split('.').join('')
 		let qty_bal = $("#qty_bal").val()
-		let harga_lembar = $("#harga_lembar").val().split('.').join('')
+		let harga_lembar = $("#harga_lembar").val()
 		let harga_pori = $("#harga_pori").val().split('.').join('')
 		let harga_total = $("#harga_total").val().split('.').join('')
 		let id_cart = parseInt($("#id_cart").val()) + 1
@@ -983,7 +983,7 @@
 		let order_sheet = $("#order_sheet").val().split('.').join('')
 		let order_pori = (jenis == 'kg') ? $("#order_pori").val() :$("#order_pori").val().split('.').join('')
 		let qty_bal = $("#qty_bal").val()
-		let harga_lembar = $("#harga_lembar").val().split('.').join('')
+		let harga_lembar = $("#harga_lembar").val()
 		let harga_pori = $("#harga_pori").val().split('.').join('')
 		let harga_total = $("#harga_total").val().split('.').join('')
 		$.ajax({

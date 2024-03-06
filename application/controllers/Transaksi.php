@@ -313,7 +313,7 @@ class Transaksi extends CI_Controller
 				<td style="padding:6px;text-align:right">'.number_format($r['options']['order_sheet'],0,",",".").'</td>
 				<td style="padding:6px;text-align:right">'.$order_pori.' '.$ket.'</td>
 				<td style="padding:6px;text-align:right">'.$qty_bal.'</td>
-				<td style="padding:6px;text-align:right">'.number_format($r['options']['harga_lembar'],0,",",".").'</td>
+				<td style="padding:6px;text-align:right">'.round($r['options']['harga_lembar'],2).'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r['options']['harga_pori'],0,",",".").' '.$ket.'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r['options']['harga_total'],0,",",".").'</td>
 				<td style="padding:6px;text-align:center">
@@ -422,7 +422,7 @@ class Transaksi extends CI_Controller
 					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->order_sheet_lm,0,",",".").'</td>
 					<td style="padding:6px;text-align:right'.$bold.'">'.$order_pori_lm.' '.$ket.'</td>
 					<td style="padding:6px;text-align:right'.$bold.'">'.$qty_bal.'</td>
-					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_lembar_lm,0,",",".").'</td>
+					<td style="padding:6px;text-align:right'.$bold.'">'.round($r->harga_lembar_lm,2).'</td>
 					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_pori_lm,0,",",".").'  '.$ket.'</td>
 					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_total_lm,0,",",".").'</td>
 					<td style="padding:6px;text-align:center'.$bold.'">'.$btnAksi.'</td>
@@ -1427,7 +1427,7 @@ class Transaksi extends CI_Controller
 						<td style="width:8%;padding:7px 5px;border:1px solid #000">'.$isi.'</td>
 						<td style="width:13%;padding:7px 5px;border:1px solid #000">'.number_format($r->qty_bal,0,',','.').''.$kg.'</td>
 						<td style="width:5%;padding:7px 5px;border:1px solid #000;border-right:0;text-align:left">Rp.</td>
-						<td style="width:10%;padding:7px 5px;border:1px solid #000;border-left:0;text-align:right">'.number_format($r->harga_lembar_lm,0,',','.').'</td>
+						<td style="width:10%;padding:7px 5px;border:1px solid #000;border-left:0;text-align:right">'.round($r->harga_lembar_lm,2).'</td>
 						<td style="width:5%;padding:7px 5px;border:1px solid #000;border-right:0;text-align:left">Rp.</td>
 						<td style="width:10%;padding:7px 5px;border:1px solid #000;border-left:0;text-align:right">'.number_format($r->harga_pori_lm,0,',','.').'</td>
 						<td style="width:5%;padding:7px 5px;border:1px solid #000;border-right:0;text-align:left">Rp.</td>
