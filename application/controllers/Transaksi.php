@@ -86,13 +86,16 @@ class Transaksi extends CI_Controller
 		$data = [
 			'id_hpp' => $hpp->id_hpp,
 			'pilih_hpp' => $hpp->pilih_hpp,
-			'tgl1_hpp' => $hpp->tgl1_hpp,
-			'tgl2_hpp' => $hpp->tgl2_hpp,
+			'tgl1_hpp' => $hpp->tgl_hpp,
+			// 'tgl2_hpp' => $hpp->tgl2_hpp,
 			'jenis_hpp' => $hpp->jenis_hpp,
 			'batu_bara' => number_format($hpp->batu_bara,0,",","."),
+			'batu_bara_rp' => number_format($hpp->batu_bara_rp,0,",","."),
 			'bahan_baku' => number_format($hpp->bahan_baku,0,",","."),
+			'bahan_baku_rp' => number_format($hpp->bahan_baku_rp,0,",","."),
 			'listrik' => number_format($hpp->listrik,0,",","."),
 			'chemical' => number_format($hpp->chemical,0,",","."),
+			'chemical_rp' => number_format($hpp->chemical_rp,0,",","."),
 			'tenaga_kerja' => number_format($hpp->tenaga_kerja,0,",","."),
 			'depresiasi' => number_format($hpp->depresiasi,0,",","."),
 			'bahan_pembantu' => number_format($hpp->bahan_pembantu,0,",","."),
@@ -118,12 +121,7 @@ class Transaksi extends CI_Controller
 			$i++;
 			$row = [];
 			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$i.'<a></div>';
-			if($r->tgl1_hpp == $r->tgl2_hpp){
-				$tgl = strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl1_hpp));
-			}else{
-				$tgl = strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl1_hpp)).' - '.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl2_hpp));
-			}
-			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$tgl.'</a></div>';
+			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp)).'</a></div>';
 			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->pilih_hpp.'</a></div>';
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_hpp,0,",",".").'</a></div>';
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->tonase_order,0,",",".").'</a></div>';

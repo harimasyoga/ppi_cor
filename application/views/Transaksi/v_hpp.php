@@ -35,7 +35,7 @@
 							<div class="col-md-9">
 								<select id="pilih_hpp" class="form-control select2" onchange="pilihHPP()">
 									<option value="">PILIH</option>
-									<option value="PM1">PM1</option>
+									<!-- <option value="PM1">PM1</option> -->
 									<option value="PM2">PM2</option>
 									<option value="LAMINASI">LAMINASI</option>
 									<option value="CORR">CORR</option>
@@ -44,7 +44,7 @@
 						</div>
 						<div class="tampil_corr"></div>
 						<div class="card-body row cbr-periode">
-							<div class="col-md-3">PERIODE</div>
+							<div class="col-md-3">TANGGAL</div>
 							<div class="col-md-9">
 								<input type="date" id="tgl1_hpp" class="form-control">
 							</div>
@@ -87,7 +87,7 @@
 									<div class="input-group-prepend">
 										<span class="input-group-text" style="padding:6px">Rp</span>
 									</div>
-									<input type="text" class="form-control" placeholder="BAHAN BAKU">
+									<input type="text" id="bahan_baku_rp" class="form-control" placeholder="BAHAN BAKU" onkeyup="hitungHPP()">
 								</div>
 							</div>
 						</div>
@@ -106,7 +106,7 @@
 									<div class="input-group-prepend">
 										<span class="input-group-text" style="padding:6px">Rp</span>
 									</div>
-									<input type="text" class="form-control" placeholder="BATU BARA">
+									<input type="text" id="batu_bara_rp" class="form-control" placeholder="BATU BARA" onkeyup="hitungHPP()">
 								</div>
 							</div>
 						</div>
@@ -125,7 +125,7 @@
 									<div class="input-group-prepend">
 										<span class="input-group-text" style="padding:6px">Rp</span>
 									</div>
-									<input type="text" class="form-control" placeholder="CHEMICAL">
+									<input type="text" id="chemical_rp" class="form-control" placeholder="CHEMICAL" onkeyup="hitungHPP()">
 								</div>
 							</div>
 						</div>
@@ -238,13 +238,13 @@
 							<table id="datatable" class="table table-bordered table-striped" style="width:100%">
 								<thead>
 									<tr>
-										<th style="text-align:center;width:8%">#</th>
-										<th style="text-align:center;width:12%">PERIODE</th>
+										<th style="text-align:center;width:6%">#</th>
+										<th style="text-align:center;width:14%">PERIODE</th>
 										<th style="text-align:center;width:10%">HPP</th>
-										<th style="text-align:center;width:16%">HASIL</th>
-										<th style="text-align:center;width:16%">TONASE ORDER</th>
-										<th style="text-align:center;width:8%">%</th>
-										<th style="text-align:center;width:20%">HASIL AKHIR</th>
+										<th style="text-align:center;width:18%">HASIL</th>
+										<th style="text-align:center;width:18%">TONASE ORDER</th>
+										<th style="text-align:center;width:6%">%</th>
+										<th style="text-align:center;width:18%">HASIL AKHIR</th>
 										<th style="text-align:center;width:10%">AKSI</th>
 									</tr>
 								</thead>
@@ -303,11 +303,14 @@
 		$("#id_hpp").val("")
 		$("#jenis_hpp").html(`<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option><option value="WP">WP</option>`).prop('disabled', false)
 		$("#tgl1_hpp").val("").prop('disabled', false).removeClass('is-invalid')
-		$("#tgl2_hpp").val("").prop('disabled', false).removeClass('is-invalid')
+		// $("#tgl2_hpp").val("").prop('disabled', false).removeClass('is-invalid')
 		$("#batu_bara").val("").prop('disabled', false).removeClass('is-invalid')
+		$("#batu_bara_rp").val("").prop('disabled', false).removeClass('is-invalid')
 		$("#bahan_baku").val("").prop('disabled', false).removeClass('is-invalid')
+		$("#bahan_baku_rp").val("").prop('disabled', false).removeClass('is-invalid')
 		$("#listrik").val("").prop('disabled', false).removeClass('is-invalid')
 		$("#chemical").val("").prop('disabled', false).removeClass('is-invalid')
+		$("#chemical_rp").val("").prop('disabled', false).removeClass('is-invalid')
 		$("#tenaga_kerja").val("").prop('disabled', false).removeClass('is-invalid')
 		$("#depresiasi").val("").prop('disabled', false).removeClass('is-invalid')
 		$("#bahan_pembantu").val("").prop('disabled', false).removeClass('is-invalid')
@@ -367,6 +370,7 @@
 	{
 		let pilih_hpp = $("#pilih_hpp").val()
 		$(".col-hitung-hpp").hide()
+		$(".tampil_corr").html('')
 		hideAll('none')
 		kosong()
 		let simpanLC = `<div class="card-body row" style="font-weight:bold;padding:6px 12px 0">
@@ -379,6 +383,7 @@
 			hideAll('show')
 			$(".col-hitung-hpp").show()
 		}else if(pilih_hpp == "LAMINASI"){
+			$(".col-hitung-hpp").show()
 			$(".cbr-periode").attr('style', 'font-weight:bold;padding:0 12px 6px')
 			$(".cbr-listrik").attr('style', 'font-weight:bold;padding:0 12px 6px')
 			$(".cbr-tenaga-kerja").attr('style', 'font-weight:bold;padding:0 12px 6px')
@@ -387,6 +392,19 @@
 			$(".cbr-opsional").attr('style', 'font-weight:bold;padding:0 12px 6px')
 			$(".simpan-lam-cor").html(simpanLC)
 		}else if(pilih_hpp == "CORR"){
+			$(".col-hitung-hpp").show()
+			$(".tampil_corr").html(`
+			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				<div class="col-md-3">PILIH</div>
+				<div class="col-md-9">
+					<select id="jenis_cor" class="form-control select2">
+						<option value="">PILIH</option>
+						<option value="BOX">BOX</option>
+						<option value="SHEET">SHEET</option>
+					</select>
+				</div>
+			</div>`)
+			$('.select2').select2();
 			$(".cbr-periode").attr('style', 'font-weight:bold;padding:0 12px 6px')
 			$(".cbr-jenis").attr('style', 'font-weight:bold;padding:0 12px 6px')
 			$(".cbr-tenaga-kerja").attr('style', 'font-weight:bold;padding:0 12px 6px')
@@ -417,20 +435,26 @@
 	function hitungHPP()
 	{
 		let batu_bara = $("#batu_bara").val()
+		let batu_bara_rp = $("#batu_bara_rp").val()
 		let bahan_baku = $("#bahan_baku").val()
+		let bahan_baku_rp = $("#bahan_baku_rp").val()
 		let listrik = $("#listrik").val()
 		let chemical = $("#chemical").val()
+		let chemical_rp = $("#chemical_rp").val()
 		let tenaga_kerja = $("#tenaga_kerja").val()
 		let depresiasi = $("#depresiasi").val()
 		let bahan_pembantu = $("#bahan_pembantu").val()
 		let solar = $("#solar").val()
 		let ekspedisi = $("#ekspedisi").val()
 		let lain_lain = $("#lain_lain").val()
+		$("#tenaga_kerja").val(formatRupiah(tenaga_kerja))
 		$("#batu_bara").val(formatRupiah(batu_bara))
+		$("#batu_bara_rp").val(formatRupiah(batu_bara_rp))
 		$("#bahan_baku").val(formatRupiah(bahan_baku))
+		$("#bahan_baku_rp").val(formatRupiah(bahan_baku_rp))
 		$("#listrik").val(formatRupiah(listrik))
 		$("#chemical").val(formatRupiah(chemical))
-		$("#tenaga_kerja").val(formatRupiah(tenaga_kerja))
+		$("#chemical_rp").val(formatRupiah(chemical_rp))
 		$("#depresiasi").val(formatRupiah(depresiasi))
 		$("#bahan_pembantu").val(formatRupiah(bahan_pembantu))
 		$("#solar").val(formatRupiah(solar))
@@ -490,12 +514,15 @@
 		let id_hpp = $("#id_hpp").val()
 		let pilih_hpp = $("#pilih_hpp").val()
 		let tgl1_hpp = $("#tgl1_hpp").val()
-		let tgl2_hpp = $("#tgl2_hpp").val()
+		// let tgl2_hpp = $("#tgl2_hpp").val()
 		let jenis_hpp = $("#jenis_hpp").val()
 		let batu_bara = $("#batu_bara").val().split('.').join('')
+		let batu_bara_rp = $("#batu_bara_rp").val().split('.').join('')
 		let bahan_baku = $("#bahan_baku").val().split('.').join('')
+		let bahan_baku_rp = $("#bahan_baku_rp").val().split('.').join('')
 		let listrik = $("#listrik").val().split('.').join('')
 		let chemical = $("#chemical").val().split('.').join('')
+		let chemical_rp = $("#chemical_rp").val().split('.').join('')
 		let tenaga_kerja = $("#tenaga_kerja").val().split('.').join('')
 		let depresiasi = $("#depresiasi").val().split('.').join('')
 		let bahan_pembantu = $("#bahan_pembantu").val().split('.').join('')
@@ -523,7 +550,7 @@
 				});
 			},
 			data: ({
-				id_hpp, pilih_hpp, tgl1_hpp, tgl2_hpp, jenis_hpp, batu_bara, bahan_baku, listrik, chemical, tenaga_kerja, depresiasi, bahan_pembantu, solar, ekspedisi, lain_lain, hasil_hpp, tonase_order, hasil_x_tonanse, presentase, hxt_x_persen, fix_hpp, statusInput
+				id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, batu_bara, batu_bara_rp, bahan_baku, bahan_baku_rp, listrik, chemical, chemical_rp, tenaga_kerja, depresiasi, bahan_pembantu, solar, ekspedisi, lain_lain, hasil_hpp, tonase_order, hasil_x_tonanse, presentase, hxt_x_persen, fix_hpp, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -537,11 +564,14 @@
 					$('#pilih_hpp').val(data.data2.pilih_hpp).trigger('change');
 					$('#jenis_hpp').val(data.data2.jenis_hpp).trigger('change');
 					$("#tgl1_hpp").val(data.data2.tgl1_hpp).removeClass('is-invalid').addClass((data.data2.tgl1_hpp == '') ? 'is-invalid' : '')
-					$("#tgl2_hpp").val(data.data2.tgl2_hpp).removeClass('is-invalid').addClass((data.data2.tgl2_hpp == '') ? 'is-invalid' : '')
+					// $("#tgl2_hpp").val(data.data2.tgl2_hpp).removeClass('is-invalid').addClass((data.data2.tgl2_hpp == '') ? 'is-invalid' : '')
 					$("#batu_bara").val(data.data2.batu_bara).removeClass('is-invalid').addClass((data.data2.batu_bara == '') ? 'is-invalid' : '')
+					$("#batu_bara_rp").val(data.data2.batu_bara_rp).removeClass('is-invalid').addClass((data.data2.batu_bara_rp == '') ? 'is-invalid' : '')
 					$("#bahan_baku").val(data.data2.bahan_baku).removeClass('is-invalid').addClass((data.data2.bahan_baku == '') ? 'is-invalid' : '')
+					$("#bahan_baku_rp").val(data.data2.bahan_baku_rp).removeClass('is-invalid').addClass((data.data2.bahan_baku_rp == '') ? 'is-invalid' : '')
 					$("#listrik").val(data.data2.listrik).removeClass('is-invalid').addClass((data.data2.listrik == '') ? 'is-invalid' : '')
 					$("#chemical").val(data.data2.chemical).removeClass('is-invalid').addClass((data.data2.chemical == '') ? 'is-invalid' : '')
+					$("#chemical_rp").val(data.data2.chemical_rp).removeClass('is-invalid').addClass((data.data2.chemical_rp == '') ? 'is-invalid' : '')
 					$("#tenaga_kerja").val(data.data2.tenaga_kerja).removeClass('is-invalid').addClass((data.data2.tenaga_kerja == '') ? 'is-invalid' : '')
 					$("#depresiasi").val(data.data2.depresiasi).removeClass('is-invalid').addClass((data.data2.depresiasi == '') ? 'is-invalid' : '')
 					$("#bahan_pembantu").val(data.data2.bahan_pembantu).removeClass('is-invalid').addClass((data.data2.bahan_pembantu == '') ? 'is-invalid' : '')
@@ -590,11 +620,14 @@
 				(opsi == 'edit') ? prop = false : prop = true;
 				$('#jenis_hpp').val(data.jenis_hpp).prop('disabled', prop).trigger('change');
 				$("#tgl1_hpp").val(data.tgl1_hpp).prop('disabled', prop).removeClass('is-invalid')
-				$("#tgl2_hpp").val(data.tgl2_hpp).prop('disabled', prop).removeClass('is-invalid')
+				// $("#tgl2_hpp").val(data.tgl2_hpp).prop('disabled', prop).removeClass('is-invalid')
 				$("#batu_bara").val(data.batu_bara).prop('disabled', prop).removeClass('is-invalid')
+				$("#batu_bara_rp").val(data.batu_bara_rp).prop('disabled', prop).removeClass('is-invalid')
 				$("#bahan_baku").val(data.bahan_baku).prop('disabled', prop).removeClass('is-invalid')
+				$("#bahan_baku_rp").val(data.bahan_baku_rp).prop('disabled', prop).removeClass('is-invalid')
 				$("#listrik").val(data.listrik).prop('disabled', prop).removeClass('is-invalid')
 				$("#chemical").val(data.chemical).prop('disabled', prop).removeClass('is-invalid')
+				$("#chemical_rp").val(data.chemical_rp).prop('disabled', prop).removeClass('is-invalid')
 				$("#tenaga_kerja").val(data.tenaga_kerja).prop('disabled', prop).removeClass('is-invalid')
 				$("#depresiasi").val(data.depresiasi).prop('disabled', prop).removeClass('is-invalid')
 				$("#bahan_pembantu").val(data.bahan_pembantu).prop('disabled', prop).removeClass('is-invalid')

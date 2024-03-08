@@ -1104,13 +1104,16 @@ class M_transaksi extends CI_Model
 	{
 		$data = [
 			'pilih_hpp' => $_POST["pilih_hpp"],
-			'tgl1_hpp' => $_POST["tgl1_hpp"],
-			'tgl2_hpp' => $_POST["tgl2_hpp"],
+			'tgl_hpp' => $_POST["tgl1_hpp"],
+			// 'tgl2_hpp' => $_POST["tgl2_hpp"],
 			'jenis_hpp' => ($_POST["jenis_hpp"] == '') ? null : $_POST["jenis_hpp"],
 			'batu_bara' => ($_POST["batu_bara"] == '') ? null : $_POST["batu_bara"],
+			'batu_bara_rp' => ($_POST["batu_bara_rp"] == '') ? null : $_POST["batu_bara_rp"],
 			'bahan_baku' => ($_POST["bahan_baku"] == '') ? null : $_POST["bahan_baku"],
+			'bahan_baku_rp' => ($_POST["bahan_baku_rp"] == '') ? null : $_POST["bahan_baku_rp"],
 			'listrik' => ($_POST["listrik"] == '') ? null : $_POST["listrik"],
 			'chemical' => ($_POST["chemical"] == '') ? null : $_POST["chemical"],
+			'chemical_rp' => ($_POST["chemical_rp"] == '') ? null : $_POST["chemical_rp"],
 			'tenaga_kerja' => ($_POST["tenaga_kerja"] == '') ? null : $_POST["tenaga_kerja"],
 			'depresiasi' => ($_POST["depresiasi"] == '') ? null : $_POST["depresiasi"],
 			'bahan_pembantu' => ($_POST["bahan_pembantu"] == '') ? null : $_POST["bahan_pembantu"],
@@ -1128,12 +1131,15 @@ class M_transaksi extends CI_Model
 		$data2 = [
 			'pilih_hpp' => $_POST["pilih_hpp"],
 			'tgl1_hpp' => $_POST["tgl1_hpp"],
-			'tgl2_hpp' => $_POST["tgl2_hpp"],
+			// 'tgl2_hpp' => $_POST["tgl2_hpp"],
 			'jenis_hpp' => $_POST["jenis_hpp"],
 			'batu_bara' => ($_POST["batu_bara"] == '') ? '' : number_format($_POST["batu_bara"],0,',','.'),
+			'batu_bara_rp' => ($_POST["batu_bara_rp"] == '') ? '' : number_format($_POST["batu_bara_rp"],0,',','.'),
 			'bahan_baku' => ($_POST["bahan_baku"] == '') ? '' : number_format($_POST["bahan_baku"],0,',','.'),
+			'bahan_baku_rp' => ($_POST["bahan_baku_rp"] == '') ? '' : number_format($_POST["bahan_baku_rp"],0,',','.'),
 			'listrik' => ($_POST["listrik"] == '') ? '' : number_format($_POST["listrik"],0,',','.'),
 			'chemical' => ($_POST["chemical"] == '') ? '' : number_format($_POST["chemical"],0,',','.'),
+			'chemical_rp' => ($_POST["chemical_rp"] == '') ? '' : number_format($_POST["chemical_rp"],0,',','.'),
 			'tenaga_kerja' => ($_POST["tenaga_kerja"] == '') ? '' : number_format($_POST["tenaga_kerja"],0,',','.'),
 			'depresiasi' => ($_POST["depresiasi"] == '') ? '' : number_format($_POST["depresiasi"],0,',','.'),
 			'bahan_pembantu' => ($_POST["bahan_pembantu"] == '') ? '' : number_format($_POST["bahan_pembantu"],0,',','.'),
@@ -1158,11 +1164,14 @@ class M_transaksi extends CI_Model
 			$msg = 'PILIH JENIS HPP!';
 		}else if((
 				$_POST["tgl1_hpp"] == '' ||
-				$_POST["tgl2_hpp"] == '' ||
+				// $_POST["tgl2_hpp"] == '' ||
 				$_POST["batu_bara"] == '' || $_POST["batu_bara"] == 0 ||
+				$_POST["batu_bara_rp"] == '' || $_POST["batu_bara_rp"] == 0 ||
 				$_POST["bahan_baku"] == '' || $_POST["bahan_baku"] == 0 ||
+				$_POST["bahan_baku_rp"] == '' || $_POST["bahan_baku_rp"] == 0 ||
 				$_POST["listrik"] == '' || $_POST["listrik"] == 0 ||
 				$_POST["chemical"] == '' || $_POST["chemical"] == 0 ||
+				$_POST["chemical_rp"] == '' || $_POST["chemical_rp"] == 0 ||
 				$_POST["tenaga_kerja"] == '' || $_POST["tenaga_kerja"] == 0 ||
 				$_POST["depresiasi"] == '' || $_POST["depresiasi"] == 0 ||
 				$_POST["bahan_pembantu"] == '' || $_POST["bahan_pembantu"] == 0 ||
@@ -1182,7 +1191,7 @@ class M_transaksi extends CI_Model
 			$msg = 'HARAP LENGKAPI FORM!';
 		}else if((
 				$_POST["tgl1_hpp"] == '' ||
-				$_POST["tgl2_hpp"] == '' ||
+				// $_POST["tgl2_hpp"] == '' ||
 				$_POST["listrik"] == '' || $_POST["listrik"] == 0 ||
 				$_POST["tenaga_kerja"] == '' || $_POST["tenaga_kerja"] == 0 ||
 				$_POST["bahan_pembantu"] == '' || $_POST["bahan_pembantu"] == 0
@@ -1194,7 +1203,7 @@ class M_transaksi extends CI_Model
 			$msg = 'HARAP LENGKAPI FORM!';
 		}else if((
 				$_POST["tgl1_hpp"] == '' ||
-				$_POST["tgl2_hpp"] == '' ||
+				// $_POST["tgl2_hpp"] == '' ||
 				$_POST["tenaga_kerja"] == '' || $_POST["tenaga_kerja"] == 0 ||
 				$_POST["bahan_pembantu"] == '' || $_POST["bahan_pembantu"] == 0 ||
 				$_POST["ekspedisi"] == '' || $_POST["ekspedisi"] == 0
