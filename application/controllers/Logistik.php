@@ -80,7 +80,7 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
-	function load_item_po()
+	function load_data_bb()
 	{
 		$id_name    = $this->input->post('id');
 		$jenis      = $this->input->post('jenis');
@@ -137,62 +137,14 @@ class Logistik extends CI_Controller
 	function Insert_stok_bb()
 	{
 
-		// if($this->session->userdata('username'))
-		// {
+		if($this->session->userdata('username'))
+		{
+ 
+			$result = $this->m_logistik->save_stok_bb();
+			echo json_encode($result);
 
-		// 	// $c_no_inv_kd   = $this->input->post('no_inv_kd');
-		// 	// $c_no_inv      = $this->input->post('no_inv');
-		// 	// $c_no_inv_tgl  = $this->input->post('no_inv_tgl');
-		// 	// $cek_inv       = $this->input->post('cek_inv');
+		}
 
-		// 	// $no_inv_ok     = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
-		// 	// $query_cek_no  = $this->db->query("SELECT*FROM invoice_header where no_invoice='$no_inv_ok' ")->num_rows();
-
-		// 	// if($query_cek_no>0)
-		// 	// {
-		// 	// 	echo json_encode(array("status" => "3","id" => '0'));
-		// 	// }else{
-				
-		// 		$c_type_po    = $this->input->post('type_po');
-		// 		$c_pajak      = $this->input->post('pajak');
-		// 		$tgl_inv      = $this->input->post('tgl_inv');
-		// 		$tanggal      = explode('-',$tgl_inv);
-		// 		$tahun        = $tanggal[0];
-
-		// 		$asc         = $this->m_logistik->save_stok_bb();
-		
-		// 		if($asc){
-		
-		// 			($c_type_po=='roll')? $type_ok=$c_type_po : $type_ok='SHEET_BOX';
-			
-		// 			($c_pajak=='nonppn')? $pajak_ok='non' : $pajak_ok='ppn';
-			
-		// 			$no_urut    = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok.'_'.$tahun);
-		// 			$kode_ok    = $type_ok.'_'.$pajak_ok.'_'.$tahun;
-
-		// 			if($cek_inv =='baru')
-		// 			{
-		// 				$this->db->query("UPDATE m_urut set no_urut=$no_urut+1 where kode='$kode_ok' ");
-		// 			}else{
-						
-		// 				if($c_no_inv == $no_urut)
-		// 				{
-		// 					$this->db->query("UPDATE m_urut set no_urut=$no_urut+1 where kode='$kode_ok' ");
-		// 				}
-		// 			}
-		
-		// 			echo json_encode(array("status" =>"1","id" => $asc));
-		
-		// 		}else{
-		// 			echo json_encode(array("status" => "2","id" => $asc));
-		
-		// 		}
-
-		// 	}
-
-		// }
-
-		
 		
 	}
 
@@ -1284,17 +1236,22 @@ class Logistik extends CI_Controller
 			$query = $this->db->query("SELECT * FROM m_jembatan_timbang ORDER BY id_timbangan DESC")->result();
 			$i = 1;
 			foreach ($query as $r) {
-				$print = base_url('Logistik/printTimbangan?id='.$r->id_timbangan.'&top=10');
-				$row = array();
-				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = '<div class="text-center">'.$r->permintaan.'</div>';
-				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind(substr($r->date_masuk,0,10)).'</div>';
-				$row[] = $r->suplier;
-				$row[] = $r->nm_barang;
-				$row[] = $r->catatan;
-				$row[] = '<div class="text-right"><a>'.number_format($r->berat_bersih, 0, ",", ".").'</a></div>';
+				
+				$id         = "'$r->id_timbangan'";
+				$no_timb    = "'$r->no_timbangan'";
+				
+				$print      = base_url('Logistik/printTimbangan?id='.$r->id_timbangan.'&top=10');
+				$row        = array();
+				$row[]      = '<div class="text-center">'.$i.'</div>';
+				$row[]      = '<div class="text-center">'.$r->no_timbangan.'</div>';
+				$row[]      = '<div class="text-center">'.$r->permintaan.'</div>';
+				$row[]      = '<div class="text-center">'.$this->m_fungsi->tanggal_ind(substr($r->date_masuk,0,10)).'</div>';
+				$row[]      = $r->suplier;
+				$row[]      = $r->nm_barang;
+				$row[]      = $r->catatan;
+				$row[]      = '<div class="text-right"><a>'.number_format($r->berat_bersih, 0, ",", ".").'</a></div>';
 				// $row[] = '<div class="text-right"><a href="javascript:void(0)" onclick="editTimbangan('."'".$r->id_timbangan."'".','."'detail'".')">'.number_format($r->berat_bersih).'</a></div>';
-				$aksi = "";
+				$aksi       = "";
 
 				if ($this->session->userdata('level') == 'Admin') 
 				{
@@ -1302,8 +1259,9 @@ class Logistik extends CI_Controller
 					<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/v_timbangan_edit?id_timb=" .$r->id_timbangan ."&no_timb=" .$r->no_timbangan ."") . '" title="EDIT DATA" >
 						<b><i class="fa fa-edit"></i> </b>
 					</a> 
-					<button type="button" title="DELETE" onclick="deleteTimbangan('."'".$r->id_timbangan."'".')" class="btn btn-danger btn-sm">
+					<button type="button" title="DELETE" onclick="deleteTimbangan(' . $id . ',' . $no_timb . ')" class="btn btn-danger btn-sm">
 						<i class="fa fa-trash-alt"></i>
+
 					</button> 
 					<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
 				} else {
@@ -1445,6 +1403,37 @@ class Logistik extends CI_Controller
 				$row[] = '<div class="text-center">'.$aksi.'</div>';
 				$data[] = $row;
 
+				$i++;
+			}
+		}else if ($jenis == "load_timbangan") 
+		{
+			$query = $this->db->query("SELECT * FROM m_jembatan_timbang ORDER BY id_timbangan")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+
+				$id             = "'$r->id_timbangan'";
+				$no_timbangan   = "'$r->no_timbangan'";
+				$berat_bersih   = "'$r->berat_bersih'";
+
+				$row            = array();
+				$row[]          = '<div class="text-center">'.$i.'</div>';
+				$row[]          = '<div >'.$r->no_timbangan.'</div>';
+				$row[]          = $r->date_masuk;
+				// $row[]          = $r->date_keluar;
+				$row[]          = '<div >'.$r->no_polisi.'</div>';
+				$row[]          = $r->nm_barang;
+				$row[]          = '<div class="text-center">'.number_format($r->berat_bersih, 0, ",", ".").'</div>';
+				$row[]          = $r->catatan;
+				$row[]          = $r->nm_sopir;
+				
+				$aksi = '
+				<button type="button" title="PILIH"  onclick="add_timb(' . $id . ',' . $no_timbangan . ',' . $berat_bersih . ')" class="btn btn-success btn-sm">
+					<i class="fas fa-check-circle"></i>
+				</button> ';
+
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
 				$i++;
 			}
 		}else{

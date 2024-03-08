@@ -768,7 +768,8 @@ class M_logistik extends CI_Model
 
 	function simpanTimbangan_2()
 	{
-		$no_timbangan   = $this->m_fungsi->urut_transaksi('TIMBANGAN').'/TIMBANGAN';
+		$thn = date('Y');
+		$no_timbangan   = $this->m_fungsi->urut_transaksi('TIMBANGAN').'/TIMB'.'/'.$thn;
 		// $rowloop        = $this->input->post('plh_input');
 		// for($loop = 0; $loop <= $rowloop+1; $loop++)
 		// {
@@ -779,34 +780,67 @@ class M_logistik extends CI_Model
 		// 	);
 		// 	$result_detail = $this->db->insert('m_jembatan_timbang_d', $data_detail);
 		// }
-			
-		$data_header = array(
-			'input_t'     	 => $this->input->post('plh_input'),
-			'no_timbangan'   => $no_timbangan,
-			'id_pelanggan'   => $this->input->post('cust'),
-			'keterangan'     => $this->input->post('jns'),
-			'nm_penimbang'   => $this->input->post('penimbang'),
-			'permintaan'     => $this->input->post('permintaan'),
-			'suplier'        => $this->input->post('supplier'),
-			'date_masuk'     => $this->input->post('masuk'),
-			'alamat'         => $this->input->post('alamat'),
-			'date_keluar'    => $this->input->post('keluar'),
-			'no_polisi'      => $this->input->post('nopol'),
-			'berat_kotor'    => str_replace('.','',$this->input->post('b_kotor')),
-			'nm_barang'      => $this->input->post('barang'),
-			'berat_truk'     => str_replace('.','',$this->input->post('berat_truk')),
-			'nm_sopir'       => $this->input->post('sopir'),
-			'berat_bersih'   => str_replace('.','',$this->input->post('berat_bersih')),
-			'catatan'        => $this->input->post('cttn'),
-			'potongan'       => str_replace('.','',$this->input->post('pot')),
-			'urut_t'         => $this->input->post('urut_t'),
-			'tgl_t'          => $this->input->post('tgl_t'),
-			'pilih_po'       => $this->input->post('pilih_po'),
-		);
-	
-		$result_header = $this->db->insert('m_jembatan_timbang', $data_header);	
-			
 
+		$status_input = $this->input->post('sts_input');
+		if($status_input == 'add')
+		{
+			$data_header = array(
+				'input_t'     	 => $this->input->post('plh_input'),
+				'no_timbangan'   => $no_timbangan,
+				'id_pelanggan'   => $this->input->post('cust'),
+				'keterangan'     => $this->input->post('jns'),
+				'nm_penimbang'   => $this->input->post('penimbang'),
+				'permintaan'     => $this->input->post('permintaan'),
+				'suplier'        => $this->input->post('supplier'),
+				'date_masuk'     => $this->input->post('masuk'),
+				'alamat'         => $this->input->post('alamat'),
+				'date_keluar'    => $this->input->post('keluar'),
+				'no_polisi'      => $this->input->post('nopol'),
+				'berat_kotor'    => str_replace('.','',$this->input->post('b_kotor')),
+				'nm_barang'      => $this->input->post('barang'),
+				'berat_truk'     => str_replace('.','',$this->input->post('berat_truk')),
+				'nm_sopir'       => $this->input->post('sopir'),
+				'berat_bersih'   => str_replace('.','',$this->input->post('berat_bersih')),
+				'catatan'        => $this->input->post('cttn'),
+				'potongan'       => str_replace('.','',$this->input->post('pot')),
+				'urut_t'         => $this->input->post('urut_t'),
+				'tgl_t'          => $this->input->post('tgl_t'),
+				'pilih_po'       => $this->input->post('pilih_po'),
+			);
+		
+			$result_header = $this->db->insert('m_jembatan_timbang', $data_header);	
+				
+		}else{
+
+			$data_header = array(
+				'input_t'     	 => $this->input->post('plh_input'),
+				'no_timbangan'   => $this->input->post('no_timbangan'),
+				'id_pelanggan'   => $this->input->post('cust'),
+				'keterangan'     => $this->input->post('jns'),
+				'nm_penimbang'   => $this->input->post('penimbang'),
+				'permintaan'     => $this->input->post('permintaan'),
+				'suplier'        => $this->input->post('supplier'),
+				'date_masuk'     => $this->input->post('masuk'),
+				'alamat'         => $this->input->post('alamat'),
+				'date_keluar'    => $this->input->post('keluar'),
+				'no_polisi'      => $this->input->post('nopol'),
+				'berat_kotor'    => str_replace('.','',$this->input->post('b_kotor')),
+				'nm_barang'      => $this->input->post('barang'),
+				'berat_truk'     => str_replace('.','',$this->input->post('berat_truk')),
+				'nm_sopir'       => $this->input->post('sopir'),
+				'berat_bersih'   => str_replace('.','',$this->input->post('berat_bersih')),
+				'catatan'        => $this->input->post('cttn'),
+				'potongan'       => str_replace('.','',$this->input->post('pot')),
+				'urut_t'         => $this->input->post('urut_t'),
+				'tgl_t'          => $this->input->post('tgl_t'),
+				'pilih_po'       => $this->input->post('pilih_po'),
+			);
+		
+			
+			$this->db->where('id_timbangan', $this->input->post('id_timbangan'));
+			$result_header = $this->db->update('m_jembatan_timbang', $data_header);		
+			
+		}
 		return $result_header;
 	}
 
@@ -1113,10 +1147,13 @@ class M_logistik extends CI_Model
 		if($result_detail)
 		{
 			$data_header = array(
-				'kd_stok'    => $kd_stokbb,
-				'jenis'      => $this->input->post('jns'),
-				'tgl_stok'   => $this->input->post('tgl_stok'),
-				'hub'        => $this->input->post('hub'),
+				'kd_stok'         => $kd_stokbb,
+				'tgl_stok'        => $this->input->post('tgl_stok'),
+				'hub'             => $this->input->post('hub'),
+				'id_timbangan'    => $this->input->post('id_timbangan'),
+				'no_timbangan'    => $this->input->post('no_timbangan'),
+				'jum_timbangan'   => $this->input->post('jum_timbangan'),
+
 			);
 		
 			$result_header = $this->db->insert('trs_h_stok_bb', $data_header);
