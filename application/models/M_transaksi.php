@@ -143,6 +143,7 @@ class M_transaksi extends CI_Model
 				// insert PPI
 				$this->db->set("no_po", $nopo);
 				$this->db->set("add_user", $this->username);
+				$this->db->set("add_time", date("Y:m:d H:i:s"));
 				$result = $this->db->insert("trs_po_detail", $data);
 
 				// insert HUB
@@ -153,6 +154,7 @@ class M_transaksi extends CI_Model
 					$db_ppi_hub->set("id", $cek_data_ppi->id);
 					$db_ppi_hub->set("no_po", $nopo);
 					$db_ppi_hub->set("add_user", $this->username);
+					$db_ppi_hub->set("add_time", date("Y:m:d H:i:s"));
 					$result_hub_trspo = $db_ppi_hub->insert("trs_po_detail",$data);
 				}else{
 					$result_hub_trspo = false;

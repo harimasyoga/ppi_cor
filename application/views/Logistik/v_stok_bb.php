@@ -62,7 +62,7 @@
 		<!-- Default box -->
 		<div class="card shadow row-input" style="display: none;">
 			<div class="card-header" style="font-family:Cambria;" >
-				<h3 class="card-title" style="color:#4e73df;"><b>INPUT STOK</b></h3>
+				<h3 class="card-title" style="color:#4e73df;"><b>INPUT BAHAN BAKU</b></h3>
 
 				<div class="card-tools">
 					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
@@ -72,58 +72,78 @@
 			<form role="form" method="post" id="myForm">
 				<div class="col-md-12">
 								
-						<br>
+					<br>
 						
-					<div class="card-body row" style="padding : 5px;font-weight:bold">
-						<div class="col-md-1"></div>
-							
-						<div class="col-md-2">KODE STOK</div>
-						<div class="col-md-4">
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+						<div class="col-md-2">NO STOK</div>
+						<div class="col-md-3">
 							<input type="hidden" name="sts_input" id="sts_input">
 							<input type="hidden" name="id_stok_h" id="id_stok_h">
 							<input type="hidden" name="kd_stok_old" id="kd_stok_old">
 
 							<input type="text" class="angka form-control" name="kd_stok" id="kd_stok" value="AUTO" readonly>
 						</div>
-
-						<div class="col-md-5"></div>
-					</div>
-
-					<div class="card-body row" style="padding : 5px;font-weight:bold">
 						<div class="col-md-1"></div>
-							
-						<div class="col-md-2">JENIS</div>
-						<div class="col-md-4">
-							<select class="form-control select2" name="jns" id="jns">
-								<option value="po">BAHAN BAKU PO</option>
-								<option value="stok">STOK PPI</option>
-							</select>
-						</div>
 
-						<div class="col-md-5"></div>
-					</div>
-					
-					<div class="card-body row" style="padding : 5px;font-weight:bold">
-						<div class="col-md-1"></div>
-							
 						<div class="col-md-2">TANGGAL</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<input type="date" class="form-control" name="tgl_stok" id="tgl_stok" value ="<?= date('Y-m-d') ?>" >
-						</div> 
+						</div>
 
-						<div class="col-md-5"></div>
 					</div>
 					
-					<div class="card-body row" style="padding : 5px;font-weight:bold">
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+						<div class="col-md-2">NO TIMBANGAN</div>
+						<div class="col-md-3">
+
+							<div class="input-group">
+								<input type="text" name="no_timb" id="no_timb" class="form-control angka" onkeyup="ubah_angka(this.value,this.id)" readonly>
+
+								<input type="hidden" name="id_timb" id="id_timb">
+								<div class="input-group-append">
+									<span class="input-group-text">
+										<a onclick="search_timbangan(0)">
+											<i class="fas fa-search" style="color:red"></i> 
+										</a>
+									</span>
+								</div>
+							</div>
+						</div>
 						<div class="col-md-1"></div>
-							
+
+						<div class="col-md-2">TOTAL TIMBANGAN</div>
+						<div class="col-md-3">
+							<input type="text" class="form-control" name="jum_timb" id="jum_timb" value ="0" readonly>
+						</div>
+
+					</div>
+					
+											
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
+													
 						<div class="col-md-2">HUB</div>
-						<div class="col-md-4">
-							<select class="form-control select2" name="hub" id="hub" onchange="clearRow()">
+						<div class="col-md-3">
+							<select class="form-control select2" name="hub" id="hub" onchange="clear_data()">
 							</select>
 						</div>
 
-						<div class="col-md-5"></div>
+						<div class="col-md-1"></div>
+
+						<div class="col-md-2">TOTAL ITEM</div>
+						<div class="col-md-3">
+							<input type="text" class="form-control" name="jum_bb_item" id="jum_bb_item" value ="0" readonly>
+						</div>
+					</div>
+					
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
+													
+						
+						<div class="col-md-6"></div>
+
+						<div class="col-md-2">SISA KUOTA</div>
+						<div class="col-md-3">
+							<input type="text" class="form-control" name="sisa_kuota" id="sisa_kuota" value ="0" readonly>
+						</div>
 					</div>
 					
 					<br>
@@ -143,12 +163,8 @@
 								<tr>
 									<th id="header_del">Delete</th>
 									<th style="padding : 12px 20px" >LIST </th>
-									<th style="padding : 12px 150px" >Customer </th>
-									<th style="padding : 12px 100px" >KODE PO</th>
-									<th style="padding : 12px 100px" >ITEM</th>
-									<th style="padding : 12px 50px" >QTY</th>
-									<th style="padding : 12px 50px" >TON</th>
-									<th style="padding : 12px 25px" >Kebutuhan</th>
+									<th style="padding : 12px 150px">PO</th>
+									<th style="padding : 12px 100px" >PO</th>
 									<th style="padding : 12px 30px" >History</th>
 									<th style="padding : 12px 25px" >Kedatangan</th>
 								</tr>
@@ -165,57 +181,99 @@
 									<td>
 										<div class="text-center">
 											<button type="button" title="PILIH"  onclick="load_item(this.id)" class="btn btn-success btn-sm" data-toggle="modal"  name="list[0]" id="list0">
-												<i class="fas fa-check-circle"></i>
+												<i class="fas fa-search"></i>
 											</button> 
 											
 										</div>
 									</td>
 									<td style="padding : 12px 20px" >
-										<input type="hidden" name="id_pelanggan[0]" id="id_pelanggan0" class="angka form-control" placeholder="CUST" readonly>
+										<input type="hidden" name="id_pelanggan[0]" id="id_pelanggan0">
 
-										<input type="text" name="nm_pelanggan[0]" id="nm_pelanggan0" class="angka form-control" placeholder="CUST" readonly>
+										<input type="hidden" name="id_po_detail[0]" id="id_po_detail0" >
+										
+										<input type="hidden" name="id_produk[0]" id="id_produk0" >
+
 										
 
-									</td>
-									<td style="padding : 12px 20px">
-										<input type="text" name="kode_po[0]" id="kode_po0" class="angka form-control" placeholder="kode_po" readonly>
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>CUST</b>
+												</span>
+											</div>
+											<input type="text" name="nm_pelanggan[0]" id="nm_pelanggan0" class="angka form-control" readonly>
+										</div>
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>KODE</b>
+												</span>
+											</div>
+											
+											<input type="text" name="kode_po[0]" id="kode_po0" class="angka form-control" readonly>
+										</div>
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>ITEM</b>
+												</span>
+											</div>											
+											
+											<textarea rows="2" cols="27" name="text" name="item[0]" id="item0" wrap="soft" disabled> </textarea>
+										</div>
 
-									</td>										
+									</td>		
 									<td style="padding : 12px 20px">
-										<input type="hidden" name="id_po_detail[0]" id="id_po_detail0" class="angka form-control" readonly>
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>&nbsp;&nbsp;&nbsp;QTY&nbsp;&nbsp;&nbsp;</b>
+												</span>
+											</div>											
+											
+											<div class="text-right">
+												<input type="text" size="6" name="qty[0]" id="qty0" class="angka form-control" value='0' readonly>
+
+											</div>
+										</div>
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>&nbsp;&nbsp;&nbsp;TON&nbsp;&nbsp;&nbsp;</b>
+												</span>
+											</div>											
+											
+											<div class="text-right">
+												<input type="text" size="6" name="ton[0]" id="ton0" class="angka form-control" value='0' readonly>
+											</div>
+										</div>
+
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>BAHAN</b>
+												</span>
+											</div>											
+											
+											<div class="text-right">
+												<input type="text" size="6" name="kebutuhan[0]" id="kebutuhan0" class="angka form-control"  value='0' readonly>
+											</div>
+										</div>
 										
-										<input type="hidden" name="id_produk[0]" id="id_produk0" class="angka form-control" readonly>
-
-										<textarea rows="2" cols="25" name="text" name="item[0]" id="item0" wrap="soft" disabled> </textarea>
-
-										<!-- <input type="text" name="item[0]" id="item0" class="form-control narrow wrap wrap" placeholder="ITEM" readonly> -->
 									</td>		
 
 									<td style="padding : 12px 20px">
-										<div class="text-right">
-											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' readonly>
-										</div>
-									</td>		
-
-									<td style="padding : 12px 20px">
-										<div class="text-right">
-											<input type="text" name="ton[0]" id="ton0" class="angka form-control" value='0' readonly>
-										</div>
-									</td>		
-
-									<td style="padding : 12px 20px">
-										<div class="text-right">
-											<input type="text" name="kebutuhan[0]" id="kebutuhan0" class="angka form-control"  value='0' readonly>
-										</div>
+										<input type="text" size="5" name="history[0]" id="history0" class="angka form-control" value='0' readonly>
 									</td>		
 									<td style="padding : 12px 20px">
-										<input type="text" name="history[0]" id="history0" class="angka form-control" value='0' readonly>
-									</td>		
-									<td style="padding : 12px 20px">
-										<input type="text" name="datang[0]" id="datang0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id)" value='0'>
+										<input type="text" size="5" name="datang[0]" id="datang0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
 									</td>		
 								</tr>
 							</tbody>
+							<tfoot>
+								<tr>
+									<td colspan="5" class="text-center">
+										<label for="total">TOTAL</label>
+									</td>	
+									<td >
+										<input type="text" size="5" name="total_bb" id="total_bb" class="angka form-control" value='0' readonly>
+									</td>	
+								</tr>
+							</tfoot>
 						</table>
 						<div id="add_button" >
 							<button type="button" onclick="addRow()" class="btn-tambah-produk btn  btn-success"><b><i class="fa fa-plus" ></i></b></button>
@@ -293,6 +351,46 @@
 </div>
 <!-- Modal item -->
 
+<!-- Modal search timbangan -->
+<div class="modal fade list_timbangan" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-full" style="width:100%;margin:auto">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5><b>PILIH TIMBANGAN</b></h5>
+            </div>
+            <div class="modal-body">
+				<div style="overflow:auto;white-space:nowrap">
+
+                <table class="table table-bordered table-striped" id="tbl_timbangan" style="margin:auto !important">
+                    <thead>
+                        <tr class="color-tabel">
+                            <th class="text-center title-white">NO </th>
+                            <th class="text-center title-white">NO TIMBANGAN</th>
+                            <th class="text-center title-white">TGL MASUK</th>
+                            <!-- <th class="text-center title-white">TGL KELUAR</th> -->
+                            <th class="text-center title-white">NO POLISI</th>
+                            <th class="text-center title-white">NAMA BARANG</th>
+                            <th class="text-center title-white">BERAT BERSIH</th>
+                            <th class="text-center title-white">CATATAN</th>
+                            <th class="text-center title-white">NAMA SOPIR</th>
+                            <th class="text-center title-white">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+				</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- Modal search timbangan -->
+
 <script type="text/javascript">
 
 	const urlAuth = '<?= $this->session->userdata('level')?>';
@@ -342,7 +440,7 @@
 		});
 		
 	}
-	
+
 	var rowNum = 0;
 
 	function addRow() 
@@ -376,51 +474,85 @@
 						<td>
 							<div class="text-center">
 								<button type="button" title="PILIH"  onclick="load_item(this.id)" class="btn btn-success btn-sm" data-toggle="modal"  name="list[${ rowNum }]" id="list${ rowNum }">
-									<i class="fas fa-check-circle"></i>
+									<i class="fas fa-search"></i>
 								</button> 
 							</div>
 						</td>
 						<td style="padding : 12px 20px" >
-							<input type="hidden" name="id_pelanggan[${ rowNum }]" id="id_pelanggan${ rowNum }" class="angka form-control" placeholder="CUST" readonly>
+							<input type="hidden" name="id_pelanggan[${ rowNum }]" id="id_pelanggan${ rowNum }">
 
-							<input type="text" name="nm_pelanggan[${ rowNum }]" id="nm_pelanggan${ rowNum }" class="angka form-control" placeholder="CUST" readonly>
-						</td>
-						<td style="padding : 12px 20px">
-							<input type="text" name="kode_po[${ rowNum }]" id="kode_po${ rowNum }" class="angka form-control" placeholder="kode_po" readonly>
+							<input type="hidden" name="id_po_detail[${ rowNum }]" id="id_po_detail${ rowNum }" >
+							
+							<input type="hidden" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }" >
+
+							
+
+							<div class="input-group mb-1">
+								<div class="input-group-append">
+									<span class="input-group-text"><b>CUST</b>
+									</span>
+								</div>
+								<input type="text" name="nm_pelanggan[${ rowNum }]" id="nm_pelanggan${ rowNum }" class="angka form-control" readonly>
+							</div>
+							<div class="input-group mb-1">
+								<div class="input-group-append">
+									<span class="input-group-text"><b>KODE</b>
+									</span>
+								</div>
+								
+								<input type="text" name="kode_po[${ rowNum }]" id="kode_po${ rowNum }" class="angka form-control" readonly>
+							</div>
+							<div class="input-group mb-1">
+								<div class="input-group-append">
+									<span class="input-group-text"><b>ITEM</b>
+									</span>
+								</div>											
+								
+								<textarea rows="2" cols="27" name="text" name="item[${ rowNum }]" id="item${ rowNum }" wrap="soft" disabled> </textarea>
+							</div>
+
 						</td>	
 
 						<td style="padding : 12px 20px">
-							<input type="hidden" name="id_po_detail[${ rowNum }]" id="id_po_detail${ rowNum }" class="angka form-control" readonly>
+							<div class="input-group mb-1">
+								<div class="input-group-append">
+									<span class="input-group-text"><b>&nbsp;&nbsp;&nbsp;QTY&nbsp;&nbsp;&nbsp;</b>
+									</span>
+								</div>											
+								
+								<div class="text-right">
+									<input type="text" size="6" name="qty[${ rowNum }]" id="qty${ rowNum }" class="angka form-control" value='0' readonly>
+
+								</div>
+							</div>
+							<div class="input-group mb-1">
+								<div class="input-group-append">
+									<span class="input-group-text"><b>&nbsp;&nbsp;&nbsp;TON&nbsp;&nbsp;&nbsp;</b>
+									</span>
+								</div>											
+								
+								<div class="text-right">
+									<input type="text" size="6" name="ton[${ rowNum }]" id="ton${ rowNum }" class="angka form-control" value='0' readonly>
+								</div>
+							</div>
+
+							<div class="input-group mb-1">
+								<div class="input-group-append">
+									<span class="input-group-text"><b>BAHAN</b>
+									</span>
+								</div>											
+								
+								<div class="text-right">
+									<input type="text" size="6" name="kebutuhan[${ rowNum }]" id="kebutuhan${ rowNum }" class="angka form-control"  value='0' readonly>
+								</div>
+							</div>
 							
-							<input type="hidden" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }" class="angka form-control" readonly>
-
-							<textarea rows="2" cols="25" name="text" name="item[${ rowNum }]" id="item${ rowNum }" wrap="soft" disabled> </textarea>
-
-							<!-- <input type="text" name="item[${ rowNum }]" id="item${ rowNum }" class="form-control narrow wrap wrap" placeholder="ITEM" readonly> -->
-						</td>		
-
-						<td style="padding : 12px 20px">
-							<div class="text-right">
-								<input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }" class="angka form-control" value='0' readonly>
-							</div>
-						</td>		
-
-						<td style="padding : 12px 20px">
-							<div class="text-right">
-								<input type="text" name="ton[${ rowNum }]" id="ton${ rowNum }" class="angka form-control" value='0' readonly>
-							</div>
-						</td>		
-
-						<td style="padding : 12px 20px">
-							<div class="text-right">
-								<input type="text" name="kebutuhan[${ rowNum }]" id="kebutuhan${ rowNum }" class="angka form-control"  value='0' readonly>
-							</div>
-						</td>		
+						</td>	
 						<td style="padding : 12px 20px">
 							<input type="text" name="history[${ rowNum }]" id="history${ rowNum }" class="angka form-control" value='0' readonly>
 						</td>		
 						<td style="padding : 12px 20px">
-							<input type="text" name="datang[${ rowNum }]" id="datang${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id)" value='0'>
+							<input type="text" name="datang[${ rowNum }]" id="datang${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
 						</td>		
 					</tr>
 					`);
@@ -461,6 +593,12 @@
 		$('#bucket').val(rowNum);
 	}
 
+	function clear_data()
+	{
+		$('#jum_bb_item').val(0)
+		clearRow()
+		hitung_total()
+	}
 	function clearRow() 
 	{
 		var bucket = $('#bucket').val();
@@ -485,6 +623,59 @@
 
 	}
 
+	function hitung_total()
+	{
+		var total_timb          = $("#jum_timb").val().split('.').join('')
+		var total_kedatangan    = 0
+		for(loop = 0; loop <= rowNum; loop++)
+		{
+			var kedatangan   = parseInt($("#datang"+loop).val().split('.').join(''))
+			total_kedatangan += kedatangan
+		}		
+		total_datang_ok = (total_kedatangan=='' || isNaN(total_kedatangan) || total_kedatangan == null) ? 0 : total_kedatangan
+		sisa = total_timb - total_datang_ok
+		
+		$("#total_bb").val(format_angka(total_kedatangan))
+		$("#jum_bb_item").val(format_angka(total_kedatangan))
+		$("#sisa_kuota").val(format_angka(sisa))
+		
+	}
+	function search_timbangan()
+	{
+		$('.list_timbangan').modal('show');
+		
+		var table   = $('#tbl_timbangan').DataTable();
+		table.destroy();
+		tabel = $('#tbl_timbangan').DataTable({
+			"processing"   : true,
+			"pageLength"   : true,
+			"paging"       : true,
+			"ajax": {
+				"url"   : '<?php echo base_url('Logistik/load_data/load_timbangan')?>',
+				"type"  : "POST",
+			},
+			"aLengthMenu": [
+				[5, 10, 50, 100, -1],
+				[5, 10, 50, 100, "Semua"]
+			],	
+			responsive: false,
+			"pageLength": 10,
+			"language": {
+				"emptyTable": "TIDAK ADA DATA.."
+			}
+		})
+	}
+
+	function add_timb(id_timb,no_timb,bb)
+	{		
+		$('.list_timbangan').modal('hide');
+		$('#id_timb').val(id_timb);
+		$('#no_timb').val(no_timb);
+		$('#jum_timb').val(format_angka(bb)); 
+		hitung_total();
+		swal.close();
+	}
+	
 	function load_item(id)
 	{
 		var id1   = id.substr(0,4);
@@ -513,7 +704,7 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url"   : '<?php echo base_url('Logistik/load_item_po')?>',
+				"url"   : '<?php echo base_url('Logistik/load_data_bb')?>',
 				"type"  : "POST",
 				"data"  : { id:id2, jenis:'load_po_stok', hub },
 			},
@@ -560,7 +751,8 @@
 					$('#ton'+id_name).val(format_angka(data.header.ton));
 					$('#kebutuhan'+id_name).val(format_angka(data.header.bhn_bk));
 					$('#history'+id_name).val(format_angka(data.header.bhn_bk));
-					$('#datang'+id_name).val(format_angka(data.header.bhn_bk));
+					$('#datang'+id_name).val(format_angka(0));
+					// $('#datang'+id_name).val(format_angka(data.header.bhn_bk));
 					swal.close();
 					$('.list_item').modal('hide');
 
@@ -592,7 +784,6 @@
 			}
 		});
 	}
-
 
 	function reloadTable() 
 	{
@@ -706,11 +897,10 @@
 
 	function simpan() 
 	{
-		var jns       = $("#jns").val();
 		var tgl_stok  = $("#tgl_stok").val();
 		var hub       = $("#hub").val();
 		
-		if ( jns== '' || tgl_stok=='' || hub== '' ) 
+		if ( tgl_stok=='' || hub== '' ) 
 		{			
 			swal.close();
 			swal({

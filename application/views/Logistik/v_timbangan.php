@@ -40,7 +40,8 @@
 					<thead class="color-tabel">
 						<tr>
 							<th style="text-align: center; width:5%">NO.</th>
-							<th style="text-align: center; width:10%">REQ.</th>
+							<th style="text-align: center; width:10%">NO TIMBANGAN</th>
+							<th style="text-align: center; width:10%">REQ</th>
 							<th style="text-align: center; width:15%">TGL MASUK</th>
 							<th style="text-align: center; width:20%">SUPPLIER</th>
 							<th style="text-align: center; width:10%">JENIS</th>
@@ -199,7 +200,8 @@
 		$('#modalForm').modal('hide');
 	}
 
-	function load_data() {
+	function load_data() 
+	{
 		var table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -406,10 +408,11 @@
 		})
 	}
 
-	function deleteTimbangan(id_timbangan) {
+	function deleteTimbangan(id_timbangan,no_timb) {
 		swal({
 			title : "TIMBANGAN",
-			html : "<p> Apakah Anda yakin ingin menghapus file ini ?</p>",
+			html: "<p> Apakah Anda yakin ingin menghapus file ini ?</p><br>"
+			+"<strong>" +no_timb+ " </strong> ",
 			type : "question",
 			showCancelButton : true,
 			confirmButtonText : '<b>Hapus</b>',
