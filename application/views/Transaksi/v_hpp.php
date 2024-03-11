@@ -22,7 +22,7 @@
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row row-input-hpp" style="display:none">
-				<div class="col-md-6">
+				<div class="col-md-8">
 					<div class="card card-success card-outline" style="padding-bottom:12px">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT HPP</h3>
@@ -33,12 +33,8 @@
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">HPP</div>
 							<div class="col-md-9">
-								<select id="pilih_hpp" class="form-control select2" onchange="pilihHPP()">
-									<option value="">PILIH</option>
-									<!-- <option value="PM1">PM1</option> -->
+								<select id="pilih_hpp" class="form-control select2" onchange="pilihHPP()" disabled>
 									<option value="PM2">PM2</option>
-									<option value="LAMINASI">LAMINASI</option>
-									<option value="CORR">CORR</option>
 								</select>
 							</div>
 						</div>
@@ -133,10 +129,11 @@
 									<div class="col-md-7"></div>
 									<div class="col-md-5">
 										<input type="hidden" id="id_cart_bahan" value="777">
-										<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('bb','pm')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>
+										<div class="tambah-bahan"></div>
 									</div>
 								</div>
 								<!-- LIST KETERANGAN LAIN LAIN -->
+								<div class="llll update-keterangan-bahan"></div>
 								<div class="llll list-keterangan-bahan"></div>
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 									<div class="col-md-3">PEMAKAIAN BAHAN</div>
@@ -208,10 +205,11 @@
 										<div class="col-md-3"></div>
 										<div class="col-md-9">
 											<input type="hidden" id="id_cart_upah" value="111">
-											<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('upah','pm')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>
+											<div class="tambah-upah"></div>
 										</div>
 									</div>
 									<!-- LIST KETERANGAN UPAH -->
+									<div class="llll update-keterangan-upah"></div>
 									<div class="llll list-keterangan-upah"></div>
 									<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 										<div class="col-md-3">UPAH</div>
@@ -257,7 +255,7 @@
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px">Rp</span>
 											</div>
-											<input type="text" id="batu_bara_rp" class="form-control" style="text-align:right" placeholder="0" onkeyup="hitungBatuBara()">
+											<input type="text" id="batu_bara_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBara()">
 										</div>
 									</div>
 								</div>
@@ -287,7 +285,7 @@
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px">Rp</span>
 											</div>
-											<input type="text" id="chemical_rp" class="form-control" style="text-align:right" placeholder="0" onkeyup="hitungBahanKimia()">
+											<input type="text" id="chemical_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimia()">
 										</div>
 									</div>
 								</div>
@@ -402,10 +400,11 @@
 										<div class="col-md-7"></div>
 										<div class="col-md-5">
 											<input type="hidden" id="id_cart_dll" value="333">
-											<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('lainlain','pm')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>
+											<div class="tambah-dll"></div>
 										</div>
 									</div>
 									<!-- LIST KETERANGAN LAIN LAIN -->
+									<div class="llll update-keterangan-dll"></div>
 									<div class="llll list-keterangan-dll"></div>
 									<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
 										<div class="col-md-3">LAIN LAIN</div>
@@ -436,9 +435,9 @@
 					</div>
 				</div>
 
-				<div class="col-md-6">
+				<div class="col-md-4">
 					<div class="col-hitung-hpp" style="display:none">
-						<div class="card card-primary card-outline" style="position:sticky;top:12px">
+						<div class="card card-primary card-outline">
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">HITUNG HPP</h3>
 							</div>
@@ -509,14 +508,12 @@
 							<table id="datatable" class="table table-bordered table-striped" style="width:100%">
 								<thead>
 									<tr>
-										<th style="text-align:center;width:6%">#</th>
-										<th style="text-align:center;width:14%">PERIODE</th>
-										<th style="text-align:center;width:10%">HPP</th>
-										<th style="text-align:center;width:18%">HASIL</th>
-										<th style="text-align:center;width:18%">TONASE ORDER</th>
-										<th style="text-align:center;width:6%">%</th>
-										<th style="text-align:center;width:18%">HASIL AKHIR</th>
-										<th style="text-align:center;width:10%">AKSI</th>
+										<th style="text-align:center">#</th>
+										<th style="text-align:center">TANGGAL</th>
+										<th style="text-align:center">HASIL</th>
+										<th style="text-align:center">TONASE ORDER</th>
+										<th style="text-align:center">HASIL</th>
+										<th style="text-align:center">AKSI</th>
 									</tr>
 								</thead>
 								<tbody></tbody>
@@ -572,6 +569,10 @@
 
 	function kosong()
 	{
+		$(".update-keterangan-bahan").html('')
+		$(".update-keterangan-upah").html('')
+		$(".update-keterangan-dll").html('')
+
 		$("#id_hpp").val("")
 		$("#tgl1_hpp").val("").prop('disabled', false)
 		$("#jenis_hpp").val("").prop('disabled', false)
@@ -580,50 +581,50 @@
 
 		// PEMAKAIAN BAHAN
 		$("#id_cart_bahan").val("777") // cart
-		$("#ket_bahan_txt").val("").trigger('change') // cart
-		$("#ket_bahan_kg").val("") // cart
-		$("#ket_bahan_rp").val("") // cart
-		$("#ket_bahan_x").val("") // cart
-		$("#bahan_baku_kg").val("").prop('disabled', true).removeClass('is-invalid')
-		$("#bahan_baku_rp").val("").prop('disabled', true).removeClass('is-invalid')
+		$("#ket_bahan_txt").val("").prop('disabled', false).trigger('change') // cart
+		$("#ket_bahan_kg").val("").prop('disabled', false) // cart
+		$("#ket_bahan_rp").val("").prop('disabled', false) // cart
+		$("#ket_bahan_x").val("").prop('disabled', true) // cart
+		$("#bahan_baku_kg").val("").prop('disabled', true)
+		$("#bahan_baku_rp").val("").prop('disabled', true)
 
 		// BIAYA PRODUKSI
-		$("#tenaga_kerja").val("").prop('disabled', false).removeClass('is-invalid')
+		$("#tenaga_kerja").val("").prop('disabled', false)
 
 		$("#id_cart_upah").val("111") // cart
-		$("#ket_upah_txt").val("").trigger('change') // cart
-		$("#ket_upah_rp").val("") // cart
-		$("#upah").val("").prop('disabled', true).removeClass('is-invalid')
+		$("#ket_upah_txt").val("").prop('disabled', false).trigger('change') // cart
+		$("#ket_upah_rp").val("").prop('disabled', false) // cart
+		$("#upah").val("").prop('disabled', true)
 
-		$("#thr").val("").prop('disabled', false).removeClass('is-invalid')
-		$("#listrik").val("").prop('disabled', false).removeClass('is-invalid')
-		$("#batu_bara_kg").val("").prop('disabled', false).removeClass('is-invalid')
-		$("#batu_bara_rp").val("").prop('disabled', false).removeClass('is-invalid')
-		$("#batu_bara_x").val("").prop('disabled', true).removeClass('is-invalid')
-		$("#chemical_kg").val("").prop('disabled', false).removeClass('is-invalid')
-		$("#chemical_rp").val("").prop('disabled', false).removeClass('is-invalid')
-		$("#chemical_x").val("").prop('disabled', true).removeClass('is-invalid')
-		$("#bahan_pembantu").val("").prop('disabled', false).removeClass('is-invalid')
-		$("#solar").val("").prop('disabled', false).removeClass('is-invalid')
-		$("#biaya_pemeliharaan").val("").prop('disabled', false).removeClass('is-invalid')
-		$("#ekspedisi").val("").prop('disabled', false).removeClass('is-invalid')
-		$("#depresiasi").val("").prop('disabled', false).removeClass('is-invalid')
+		$("#thr").val("").prop('disabled', false)
+		$("#listrik").val("").prop('disabled', false)
+		$("#batu_bara_kg").val("").prop('disabled', false)
+		$("#batu_bara_rp").val("").prop('disabled', false)
+		$("#batu_bara_x").val("").prop('disabled', true)
+		$("#chemical_kg").val("").prop('disabled', false)
+		$("#chemical_rp").val("").prop('disabled', false)
+		$("#chemical_x").val("").prop('disabled', true)
+		$("#bahan_pembantu").val("").prop('disabled', false)
+		$("#solar").val("").prop('disabled', false)
+		$("#biaya_pemeliharaan").val("").prop('disabled', false)
+		$("#ekspedisi").val("").prop('disabled', false)
+		$("#depresiasi").val("").prop('disabled', false)
 
 		$("#id_cart_dll").val("333") // cart
-		$("#ket_dll_txt").val("") // cart
-		$("#ket_dll_kg").val("") // cart
-		$("#ket_dll_rp").val("") // cart
-		$("#ket_dll_x").val("") // cart
-		$("#lain_lain_kg").val("").prop('disabled', true).removeClass('is-invalid')
-		$("#lain_lain_rp").val("").prop('disabled', true).removeClass('is-invalid')
+		$("#ket_dll_txt").val("").prop('disabled', false).trigger('change') // cart
+		$("#ket_dll_kg").val("").prop('disabled', false) // cart
+		$("#ket_dll_rp").val("").prop('disabled', false) // cart
+		$("#ket_dll_x").val("").prop('disabled', true) // cart
+		$("#lain_lain_kg").val("").prop('disabled', true)
+		$("#lain_lain_rp").val("").prop('disabled', true)
 
 		// PERHITUNGAN HPP
-		$("#hasil_hpp").val("").prop('disabled', true).removeClass('is-invalid')
-		$("#tonase_order").val("").prop('disabled', true).removeClass('is-invalid')
-		$("#hasil_x_tonanse").val("").prop('disabled', true).removeClass('is-invalid')
-		$("#presentase").val("").prop('disabled', true).removeClass('is-invalid')
-		$("#hxt_x_persen").val("").prop('disabled', true).removeClass('is-invalid')
-		$("#fix_hpp").val("").prop('disabled', true).removeClass('is-invalid')
+		$("#hasil_hpp").val("").prop('disabled', true)
+		$("#tonase_order").val("").prop('disabled', true)
+		$("#hasil_x_tonanse").val("").prop('disabled', true)
+		$("#presentase").val("").prop('disabled', true)
+		$("#hxt_x_persen").val("").prop('disabled', true)
+		$("#fix_hpp").val("").prop('disabled', true)
 		$("#btn-simpan").html(`<button type="button" class="btn btn-sm btn-primary" onclick="simpanHPP()"><i class="fa fa-save"></i> <b>SIMPAN</b></button>`)
 		swal.close()
 
@@ -639,13 +640,16 @@
 		$(".detail-pemakaian-bahan").attr('style', (opsi == 'show') ? '' : 'display:none')
 		$(".card-pemakaian-bahan").attr('style', (opsi == 'show') ? '' : 'display:none')
 		$(".card-biaya-produksi").attr('style', (opsi == 'show') ? '' : 'display:none')
-		$(".col-hitung-hpp").attr('style', (opsi == 'show') ? '' : 'display:none')
+		$(".col-hitung-hpp").attr('style', (opsi == 'show') ? 'position:sticky;top:12px' : 'display:none')
+
+		$(".tambah-bahan").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('bb','pm','')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
+		$(".tambah-upah").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('upah','pm','')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
+		$(".tambah-dll").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('lainlain','pm','')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
 	}
 
 	function kembaliHPP()
 	{
 		reloadTable()
-		$('#pilih_hpp').val("").trigger('change')
 		$("#jenis_hpp").val("").trigger('change').prop('disabled', false)
 		$("#tgl1_hpp").val("").prop('disabled', false).removeClass('is-invalid')
 		$(".row-input-hpp").hide()
@@ -673,18 +677,9 @@
 			kosong()
 		}
 
-		if((pilih_hpp == "PM2" || pilih_hpp == "LAMINASI") && tgl_hpp != '' && jenis_hpp != ''){
+		if(pilih_hpp == "PM2" && tgl_hpp != '' && jenis_hpp != ''){
 			hideAll('show')
 			$(".tampil_corr").hide()
-		}else if(pilih_hpp == "CORR" && tgl_hpp != '' && jenis_hpp != ''){
-			let jenis_cor = $("#jenis_cor").val()
-			$(".tampil_corr").show()
-			console.log(jenis_cor)
-			if(jenis_cor != ''){
-				hideAll('show')
-			}else{
-				hideAll('none')
-			}
 		}else{
 			hideAll('none')
 		}
@@ -723,7 +718,7 @@
 		$("#ket_dll_x").val(format_angka(x_h_ket_dll))
 	}
 
-	function keteranganHPP(opsi, jenis)
+	function keteranganHPP(opsi, jenis, id_hpp)
 	{
 		let ket_txt = ''
 		let ket_kg = 0
@@ -756,22 +751,24 @@
 			url: '<?php echo base_url('Transaksi/keteranganHPP')?>',
 			type: "POST",
 			data: ({
-				opsi, jenis, ket_txt, ket_kg, ket_rp, ket_x, id_cart
+				opsi, jenis, id_hpp, ket_txt, ket_kg, ket_rp, ket_x, id_cart
 			}),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
-				listKeteranganHPP(opsi)
+				listKeteranganHPP(opsi, jenis, id_hpp)
 			}
 		})
 	}
 
-	function listKeteranganHPP(opsi)
+	function listKeteranganHPP(opsi, jenis, id_hpp)
 	{
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/listKeteranganHPP')?>',
 			type: "POST",
-			data: ({ opsi }),
+			data: ({
+				opsi, jenis, id_hpp
+			}),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
@@ -802,14 +799,14 @@
 		})
 	}
 
-	function hapusKeteranganHPP(rowid, opsi)
+	function hapusKeteranganHPP(rowid, opsi, jenis, id_hpp)
 	{
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/hapusKeteranganHPP')?>',
 			type: "POST",
 			data: ({ rowid }),
 			success: function(res){
-				listKeteranganHPP(opsi)
+				listKeteranganHPP(opsi, jenis, id_hpp)
 			}
 		})
 	}
@@ -916,16 +913,15 @@
 
 	function simpanHPP()
 	{
+		let id_hpp = $("#id_hpp").val()
 		// PILIH HPP
-		let pilih_hpp = $("#pilih_hpp").val().split('.').join('')
+		let pilih_hpp = $("#pilih_hpp").val()
 		let tgl1_hpp = $("#tgl1_hpp").val().split('.').join('')
 		let jenis_hpp = $("#jenis_hpp").val().split('.').join('')
 		let jenis_cor = $("#jenis_cor").val().split('.').join('')
-
 		// PEMAKAIAN BAHAN
 		let bahan_baku_kg = $("#bahan_baku_kg").val().split('.').join('')
 		let bahan_baku_rp = $("#bahan_baku_rp").val().split('.').join('')
-
 		// BIAYA PRODUKSI
 		let tenaga_kerja = $("#tenaga_kerja").val().split('.').join('')
 		let upah = $("#upah").val().split('.').join('')
@@ -944,242 +940,123 @@
 		let depresiasi = $("#depresiasi").val().split('.').join('')
 		let lain_lain_kg = $("#lain_lain_kg").val().split('.').join('')
 		let lain_lain_rp = $("#lain_lain_rp").val().split('.').join('')
-
 		// HITUNG HPP
 		let hasil_hpp = $("#hasil_hpp").val().split('.').join('')
 		let tonase_order = $("#tonase_order").val().split('.').join('')
 		let hasil_x_tonanse = $("#hasil_x_tonanse").val().split('.').join('')
-	}
-
-	function hitungHPP()
-	{
-		let batu_bara = $("#batu_bara_kg").val()
-		let batu_bara_rp = $("#batu_bara_rp").val()
-		let bahan_baku = $("#bahan_baku").val()
-		let bahan_baku_rp = $("#bahan_baku_rp").val()
-		let listrik = $("#listrik").val()
-		let chemical = $("#chemical_kg").val()
-		let chemical_rp = $("#chemical_rp").val()
-		let tenaga_kerja = $("#tenaga_kerja").val()
-		let depresiasi = $("#depresiasi").val()
-		let bahan_pembantu = $("#bahan_pembantu").val()
-		let solar = $("#solar").val()
-		let ekspedisi = $("#ekspedisi").val()
-		let lain_lain = $("#lain_lain").val()
-		$("#tenaga_kerja").val(formatRupiah(tenaga_kerja))
-		$("#batu_bara_kg").val(formatRupiah(batu_bara))
-		$("#batu_bara_rp").val(formatRupiah(batu_bara_rp))
-		$("#bahan_baku").val(formatRupiah(bahan_baku))
-		$("#bahan_baku_rp").val(formatRupiah(bahan_baku_rp))
-		$("#listrik").val(formatRupiah(listrik))
-		$("#chemical_kg").val(formatRupiah(chemical))
-		$("#chemical_rp").val(formatRupiah(chemical_rp))
-		$("#depresiasi").val(formatRupiah(depresiasi))
-		$("#bahan_pembantu").val(formatRupiah(bahan_pembantu))
-		$("#solar").val(formatRupiah(solar))
-		$("#ekspedisi").val(formatRupiah(ekspedisi))
-		$("#lain_lain").val(formatRupiah(lain_lain))
-		let h_batu_bara = batu_bara.split('.').join('')
-		let h_bahan_baku = bahan_baku.split('.').join('')
-		let h_listrik = listrik.split('.').join('')
-		let h_chemical = chemical.split('.').join('')
-		let h_tenaga_kerja = tenaga_kerja.split('.').join('')
-		let h_depresiasi = depresiasi.split('.').join('')
-		let h_bahan_pembantu = bahan_pembantu.split('.').join('')
-		let h_solar = solar.split('.').join('')
-		let h_ekspedisi = ekspedisi.split('.').join('')
-		let h_lain_lain = lain_lain.split('.').join('')
-
-		if(h_batu_bara != '' && h_bahan_baku != '' && h_listrik != '' && h_chemical != '' && h_tenaga_kerja != '' && h_depresiasi != '' && h_bahan_pembantu != '' && h_solar != '' && h_ekspedisi != ''){
-			$("#tonase_order").prop('disabled', false)
-			$("#presentase").prop('disabled', false)
-		}else{
-			$("#tonase_order").val("").prop('disabled', true)
-			$("#presentase").val("").prop('disabled', true)
-		}
-
-		// HPP
-		let hitung_hpp = 0
-		if(h_batu_bara == '' || h_bahan_baku == '' || h_listrik == '' || h_chemical == '' || h_tenaga_kerja == '' || h_depresiasi == '' || h_bahan_pembantu == '' || h_solar == '' || h_ekspedisi == ''){
-			hitung_hpp = 0;
-		}else{
-			(lain_lain == '' || lain_lain == 0 || h_lain_lain == '' || h_lain_lain == 0) ? h_lain_lain = 0 : h_lain_lain = h_lain_lain;
-			hitung_hpp = (parseInt(h_batu_bara) + parseInt(h_bahan_baku) + parseInt(h_listrik) + parseInt(h_chemical) + parseInt(h_tenaga_kerja) + parseInt(h_depresiasi) + parseInt(h_bahan_pembantu) + parseInt(h_solar) + parseInt(h_ekspedisi) + parseInt(h_lain_lain));
-		}
-		(isNaN(hitung_hpp) || hitung_hpp == '' || hitung_hpp == 0) ? hitung_hpp = hitung_hpp : hitung_hpp = hitung_hpp;
-		$("#hasil_hpp").val(formatRupiah(hitung_hpp.toString()))
-		
-		// HPP * TONASE ORDER
-		let tonase_order =  $("#tonase_order").val()
-		$("#tonase_order").val(formatRupiah(tonase_order)).removeClass('is-invalid').addClass((tonase_order == '') ? 'is-invalid' : '')
-		let h_tonase_order = tonase_order.split('.').join('')
-
-		let hasil_x_tonanse = 0;
-		(hitung_hpp == 0 || h_tonase_order == '') ? hasil_x_tonanse = 0 : hasil_x_tonanse = Math.round(parseInt(hitung_hpp) / parseInt(h_tonase_order).toFixed()).toFixed();
-		$("#hasil_x_tonanse").val(formatRupiah(hasil_x_tonanse.toString())).removeClass('is-invalid').addClass((hasil_x_tonanse == '') ? 'is-invalid' : '')
-
-		// (HPP * TONASE ORDER) + PRESENTASE %
-		let presentase = $("#presentase").val()
-		$("#presentase").val(presentase).removeClass('is-invalid').addClass((presentase == '') ? 'is-invalid' : '')
-		let h_presentase = presentase
-		let fix_hpp = parseInt(hasil_x_tonanse) + Math.round((parseInt(hasil_x_tonanse) * (parseInt(h_presentase) / 100)))
-		let hxt_x_persen = Math.round((parseInt(hasil_x_tonanse) * (parseInt(h_presentase) / 100)))
-		$("#hxt_x_persen").val((isNaN(hxt_x_persen) || hxt_x_persen == 0) ? 0 : formatRupiah(hxt_x_persen.toString())).removeClass('is-invalid')
-		$("#fix_hpp").val(isNaN(fix_hpp) ? 0 : formatRupiah(fix_hpp.toString())).removeClass('is-invalid').addClass((isNaN(fix_hpp) || fix_hpp == '' || fix_hpp == 0) ? 'is-invalid' : '');
-	}
-
-	function simpanHPP2()
-	{
-		let id_hpp = $("#id_hpp").val()
-		let pilih_hpp = $("#pilih_hpp").val()
-		let tgl1_hpp = $("#tgl1_hpp").val()
-		// let tgl2_hpp = $("#tgl2_hpp").val()
-		let jenis_hpp = $("#jenis_hpp").val()
-		let batu_bara = $("#batu_bara_kg").val().split('.').join('')
-		let batu_bara_rp = $("#batu_bara_rp").val().split('.').join('')
-		let bahan_baku = $("#bahan_baku").val().split('.').join('')
-		let bahan_baku_rp = $("#bahan_baku_rp").val().split('.').join('')
-		let listrik = $("#listrik").val().split('.').join('')
-		let chemical = $("#chemical_kg").val().split('.').join('')
-		let chemical_rp = $("#chemical_rp").val().split('.').join('')
-		let tenaga_kerja = $("#tenaga_kerja").val().split('.').join('')
-		let depresiasi = $("#depresiasi").val().split('.').join('')
-		let bahan_pembantu = $("#bahan_pembantu").val().split('.').join('')
-		let solar = $("#solar").val().split('.').join('')
-		let ekspedisi = $("#ekspedisi").val().split('.').join('')
-		let lain_lain = $("#lain_lain").val().split('.').join('')
-		let hasil_hpp = $("#hasil_hpp").val().split('.').join('')
-		let tonase_order = $("#tonase_order").val().split('.').join('')
-		let hasil_x_tonanse = $("#hasil_x_tonanse").val().split('.').join('')
-		let presentase = $("#presentase").val().split('.').join('')
-		let hxt_x_persen = $("#hxt_x_persen").val().split('.').join('')
-		let fix_hpp = $("#fix_hpp").val().split('.').join('')
-
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/simpanHPP')?>',
 			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
 			data: ({
-				id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, batu_bara, batu_bara_rp, bahan_baku, bahan_baku_rp, listrik, chemical, chemical_rp, tenaga_kerja, depresiasi, bahan_pembantu, solar, ekspedisi, lain_lain, hasil_hpp, tonase_order, hasil_x_tonanse, presentase, hxt_x_persen, fix_hpp, statusInput
+				id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, jenis_cor, bahan_baku_kg, bahan_baku_rp, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonanse, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				if(data.insertHPP){
-					statusInput = 'insert'
-					toastr.success(`<b>${data.msg}</b>`)
-					kembaliHPP()
-				}else{
-					toastr.error(`<b>${data.msg}</b>`)
-
-					$('#pilih_hpp').val(data.data2.pilih_hpp).trigger('change');
-					$('#jenis_hpp').val(data.data2.jenis_hpp).trigger('change');
-					$("#tgl1_hpp").val(data.data2.tgl1_hpp).removeClass('is-invalid').addClass((data.data2.tgl1_hpp == '') ? 'is-invalid' : '')
-					// $("#tgl2_hpp").val(data.data2.tgl2_hpp).removeClass('is-invalid').addClass((data.data2.tgl2_hpp == '') ? 'is-invalid' : '')
-					$("#batu_bara_kg").val(data.data2.batu_bara).removeClass('is-invalid').addClass((data.data2.batu_bara == '') ? 'is-invalid' : '')
-					$("#batu_bara_rp").val(data.data2.batu_bara_rp).removeClass('is-invalid').addClass((data.data2.batu_bara_rp == '') ? 'is-invalid' : '')
-					$("#bahan_baku").val(data.data2.bahan_baku).removeClass('is-invalid').addClass((data.data2.bahan_baku == '') ? 'is-invalid' : '')
-					$("#bahan_baku_rp").val(data.data2.bahan_baku_rp).removeClass('is-invalid').addClass((data.data2.bahan_baku_rp == '') ? 'is-invalid' : '')
-					$("#listrik").val(data.data2.listrik).removeClass('is-invalid').addClass((data.data2.listrik == '') ? 'is-invalid' : '')
-					$("#chemical_kg").val(data.data2.chemical).removeClass('is-invalid').addClass((data.data2.chemical == '') ? 'is-invalid' : '')
-					$("#chemical_rp").val(data.data2.chemical_rp).removeClass('is-invalid').addClass((data.data2.chemical_rp == '') ? 'is-invalid' : '')
-					$("#tenaga_kerja").val(data.data2.tenaga_kerja).removeClass('is-invalid').addClass((data.data2.tenaga_kerja == '') ? 'is-invalid' : '')
-					$("#depresiasi").val(data.data2.depresiasi).removeClass('is-invalid').addClass((data.data2.depresiasi == '') ? 'is-invalid' : '')
-					$("#bahan_pembantu").val(data.data2.bahan_pembantu).removeClass('is-invalid').addClass((data.data2.bahan_pembantu == '') ? 'is-invalid' : '')
-					$("#solar").val(data.data2.solar).removeClass('is-invalid').addClass((data.data2.solar == '') ? 'is-invalid' : '')
-					$("#ekspedisi").val(data.data2.ekspedisi).removeClass('is-invalid').addClass((data.data2.ekspedisi == '') ? 'is-invalid' : '')
-					$("#lain_lain").val(data.data2.lain_lain)
-					$("#hasil_hpp").val(data.data2.hasil_hpp).prop('disabled', true).removeClass('is-invalid').addClass((data.data2.hasil_hpp == '') ? 'is-invalid' : '')
-					$("#tonase_order").val(data.data2.tonase_order).removeClass('is-invalid').addClass((data.data2.tonase_order == '') ? 'is-invalid' : '')
-					$("#hasil_x_tonanse").val(data.data2.hasil_x_tonanse).prop('disabled', true).prop('disabled', true).removeClass('is-invalid').addClass((data.data2.hasil_x_tonanse == '') ? 'is-invalid' : '')
-					$("#presentase").val(data.data2.presentase).removeClass('is-invalid').addClass((data.data2.presentase == '') ? 'is-invalid' : '')
-					$("#hxt_x_persen").val(data.data2.hxt_x_persen).removeClass('is-invalid').addClass((data.data2.hxt_x_persen == '') ? 'is-invalid' : '')
-					$("#fix_hpp").val(data.data2.fix_hpp).prop('disabled', true).removeClass('is-invalid').addClass((data.data2.fix_hpp == '') ? 'is-invalid' : '')
-					swal.close()
-					return
-				}
+				console.log(data)
 			}
 		})
 	}
 
+	// (HPP * TONASE ORDER) + PRESENTASE %
+	// let presentase = $("#presentase").val()
+	// $("#presentase").val(presentase).removeClass('is-invalid').addClass((presentase == '') ? 'is-invalid' : '')
+	// let h_presentase = presentase
+	// let fix_hpp = parseInt(hasil_x_tonanse) + Math.round((parseInt(hasil_x_tonanse) * (parseInt(h_presentase) / 100)))
+	// let hxt_x_persen = Math.round((parseInt(hasil_x_tonanse) * (parseInt(h_presentase) / 100)))
+	// $("#hxt_x_persen").val((isNaN(hxt_x_persen) || hxt_x_persen == 0) ? 0 : formatRupiah(hxt_x_persen.toString())).removeClass('is-invalid')
+	// $("#fix_hpp").val(isNaN(fix_hpp) ? 0 : formatRupiah(fix_hpp.toString())).removeClass('is-invalid').addClass((isNaN(fix_hpp) || fix_hpp == '' || fix_hpp == 0) ? 'is-invalid' : '');
+
 	function editHPP(id_hpp, opsi)
 	{
+		$(".update-keterangan-bahan").html('')
+		$(".update-keterangan-upah").html('')
+		$(".update-keterangan-dll").html('')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editHPP')?>',
 			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
 			data: ({ id_hpp, opsi }),
 			success: function(res){
 				data = JSON.parse(res)
-
-				$('#pilih_hpp').val(data.pilih_hpp).trigger('change');
-				$(".row-input-hpp").show()
+				console.log(data)
+				console.log(id_hpp)
 				$(".row-list-hpp").hide()
-				hideAll('none')
-				pilihHPP()
+				$(".row-input-hpp").show()
+				$(".tampil_corr").hide()
+				hideAll('show')
+
+				$("#id_hpp").val()
 
 				let prop = true;
 				(opsi == 'edit') ? prop = false : prop = true;
-				$('#jenis_hpp').val(data.jenis_hpp).prop('disabled', prop).trigger('change');
-				$("#tgl1_hpp").val(data.tgl1_hpp).prop('disabled', prop).removeClass('is-invalid')
-				// $("#tgl2_hpp").val(data.tgl2_hpp).prop('disabled', prop).removeClass('is-invalid')
-				$("#batu_bara_kg").val(data.batu_bara).prop('disabled', prop).removeClass('is-invalid')
-				$("#batu_bara_rp").val(data.batu_bara_rp).prop('disabled', prop).removeClass('is-invalid')
-				$("#bahan_baku").val(data.bahan_baku).prop('disabled', prop).removeClass('is-invalid')
-				$("#bahan_baku_rp").val(data.bahan_baku_rp).prop('disabled', prop).removeClass('is-invalid')
-				$("#listrik").val(data.listrik).prop('disabled', prop).removeClass('is-invalid')
-				$("#chemical").val(data.chemical).prop('disabled', prop).removeClass('is-invalid')
-				$("#chemical_rp").val(data.chemical_rp).prop('disabled', prop).removeClass('is-invalid')
-				$("#tenaga_kerja").val(data.tenaga_kerja).prop('disabled', prop).removeClass('is-invalid')
-				$("#depresiasi").val(data.depresiasi).prop('disabled', prop).removeClass('is-invalid')
-				$("#bahan_pembantu").val(data.bahan_pembantu).prop('disabled', prop).removeClass('is-invalid')
-				$("#solar").val(data.solar).prop('disabled', prop).removeClass('is-invalid')
-				$("#ekspedisi").val(data.ekspedisi).prop('disabled', prop).removeClass('is-invalid')
-				$("#lain_lain").val((data.lain_lain == 0) ? '' : data.lain_lain).prop('disabled', prop).removeClass('is-invalid')
-				$("#hasil_hpp").val(data.hasil_hpp).prop('disabled', true).removeClass('is-invalid')
-				$("#tonase_order").val(data.tonase_order).prop('disabled', prop).removeClass('is-invalid')
-				$("#hasil_x_tonanse").val(data.hasil_x_tonanse).prop('disabled', true).removeClass('is-invalid')
-				$("#presentase").val(data.presentase).prop('disabled', prop).removeClass('is-invalid')
-				$("#hxt_x_persen").val(data.hxt_x_persen).prop('disabled', true).removeClass('is-invalid')
-				$("#fix_hpp").val(data.fix_hpp).prop('disabled', true).removeClass('is-invalid')
+				$("#pilih_hpp").val(data.data.pilih_hpp).prop('disabled', true)
+				$("#tgl1_hpp").val(data.data.tgl_hpp).prop('disabled', true)
+				$("#jenis_hpp").val(data.data.jenis_hpp).prop('disabled', true).trigger("change")
 
-				let simpanLC = `<div class="card-body row" style="font-weight:bold;padding:6px 12px 0">
-					<div class="col-md-3"></div>
-					<div class="col-md-9">
-						<button type="button" class="btn btn-sm btn-warning" onclick="simpanHPP()"><i class="fa fa-edit"></i> <b>EDIT</b></button>
-					</div>
-				</div>`
+				$("#ket_bahan_txt").prop('disabled', prop)
+				$("#ket_bahan_kg").prop('disabled', prop)
+				$("#ket_bahan_rp").prop('disabled', prop)
+				$("#bahan_baku_kg").val(data.data.bahan_baku_kg)
+				$("#bahan_baku_rp").val(data.data.bahan_baku_rp)
+
+				$("#tenaga_kerja").val(data.data.tenaga_kerja).prop('disabled', prop)
+				$("#ket_upah_txt").prop('disabled', prop)
+				$("#ket_upah_rp").prop('disabled', prop)
+				$("#upah").val(data.data.upah)
+				$("#thr").val(data.data.thr).prop('disabled', prop)
+				$("#listrik").val(data.data.listrik).prop('disabled', prop)
+				$("#batu_bara_kg").val(data.data.batu_bara_kg).prop('disabled', prop)
+				$("#batu_bara_rp").val(data.data.batu_bara_rp).prop('disabled', prop)
+				$("#batu_bara_x").val(data.data.batu_bara_x)
+				$("#chemical_kg").val(data.data.chemical_kg).prop('disabled', prop)
+				$("#chemical_rp").val(data.data.chemical_rp).prop('disabled', prop)
+				$("#chemical_x").val(data.data.chemical_x)
+				$("#bahan_pembantu").val(data.data.bahan_pembantu).prop('disabled', prop)
+				$("#solar").val(data.data.solar).prop('disabled', prop)
+				$("#biaya_pemeliharaan").val(data.data.maintenance).prop('disabled', prop)
+				$("#ekspedisi").val(data.data.ekspedisi).prop('disabled', prop)
+				$("#depresiasi").val(data.data.depresiasi).prop('disabled', prop)
+
+				$("#ket_dll_txt").prop('disabled', prop)
+				$("#ket_dll_kg").prop('disabled', prop)
+				$("#ket_dll_rp").prop('disabled', prop)
+				$("#lain_lain_kg").val(data.data.lain_lain_kg)
+				$("#lain_lain_rp").val(data.data.lain_lain_rp)
+
+				$("#hasil_hpp").val(data.data.hasil_hpp)
+				$("#tonase_order").val(data.data.tonase_order).prop('disabled', prop)
+				$("#hasil_x_tonanse").val(data.data.hasil_x_tonanse)
+
+				$(".update-keterangan-bahan").html(data.htmlBB)
+				$(".update-keterangan-upah").html(data.htmlUpah)
+				$(".update-keterangan-dll").html(data.htmlLainLain)
+
 				if(opsi == 'edit'){
-					$("#id_hpp").val(data.id_hpp)
-					if(data.pilih_hpp == 'PM'){
-						$("#btn-simpan").html(`<button type="button" class="btn btn-sm btn-warning" onclick="simpanHPP()"><i class="fa fa-edit"></i> <b>EDIT</b></button>`)
-					}else{
-						$(".simpan-lam-cor").html(simpanLC)
-					}
+					$(".tambah-bahan").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('bb','pm','${id_hpp}')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
+					$(".tambah-upah").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('upah','pm','${id_hpp}')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
+					$(".tambah-dll").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('lainlain','pm','${id_hpp}')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
 				}else{
-					$("#id_hpp").val("")
-					$("#btn-simpan").html('')
+					$(".tambah-bahan").html('')
+					$(".tambah-upah").html('')
+					$(".tambah-dll").html('')
 				}
 
 				statusInput = 'update'
-				swal.close()
+			}
+		})
+	}
+
+	function hapusKetEditHPP(id_dtl, id_hpp, ooo, opsi)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/hapusKetEditHPP')?>',
+			type: "POST",
+			data: ({
+				id_dtl, id_hpp, ooo, opsi
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				editHPP(id_hpp, opsi)
 			}
 		})
 	}
