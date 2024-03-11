@@ -22,7 +22,7 @@
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row row-input-hpp" style="display:none">
-				<div class="col-md-8">
+				<div class="col-md-9">
 					<div class="card card-success card-outline" style="padding-bottom:12px">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT HPP</h3>
@@ -75,83 +75,76 @@
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">PEMAKAIAN BAHAN</h3>
 							</div>
 							<!-- PEMAKAIAN BAHAN -->
-							<div class="card card-info" style="margin:12px;padding-bottom:12px">
-								<div class="card-header" style="padding:12px;margin-bottom:18px">
-									<h3 class="card-title" style="font-weight:bold;font-size:16px">PM</h3>
+							<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
+								<div class="col-md-3">KETERANGAN</div>
+								<div class="col-md-9">
+									<select id="ket_bahan_txt" class="form-control select2">
+										<option value="">PILIH</option>
+										<option value="LOCAL OCC">LOCAL OCC</option>
+										<option value="MIX WASTE">MIX WASTE</option>
+										<option value="PLUMPUNG">PLUMPUNG</option>
+										<option value="LAMINATING">LAMINATING</option>
+										<option value="SLUDGE">SLUDGE</option>
+										<option value="BROKE LAMINASI">BROKE LAMINASI</option>
+										<option value="BROKE CORR">BROKE CORR</option>
+										<option value="BROKE PM">BROKE PM</option>
+									</select>
 								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3">KETERANGAN</div>
-									<div class="col-md-9">
-										<select id="ket_bahan_txt" class="form-control select2">
-											<option value="">PILIH</option>
-											<option value="LOCAL OCC">LOCAL OCC</option>
-											<option value="MIX WASTE">MIX WASTE</option>
-											<option value="PLUMPUNG">PLUMPUNG</option>
-											<option value="LAMINATING">LAMINATING</option>
-											<option value="SLUDGE">SLUDGE</option>
-											<option value="BROKE LAMINASI">BROKE LAMINASI</option>
-											<option value="BROKE CORR">BROKE CORR</option>
-											<option value="BROKE PM">BROKE PM</option>
-										</select>
-									</div>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
-									<div class="col-md-3"></div>
-									<div class="col-md-4">
-										<div class="input-group" style="margin-bottom:3px">
-											<input type="text" id="ket_bahan_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungKetBahan()">
-											<div class="input-group-append">
-												<span class="input-group-text" style="padding:6px">Kg</span>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-5">
-										<div class="input-group">
-											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px">Rp</span>
-											</div>
-											<input type="text" id="ket_bahan_rp" class="form-control" style="text-align:right" placeholder="0" onkeyup="hitungKetBahan()">
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+								<div class="col-md-3"></div>
+								<div class="col-md-3">
+									<div class="input-group" style="margin-bottom:3px">
+										<input type="text" id="ket_bahan_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungKetBahan()">
+										<div class="input-group-append">
+											<span class="input-group-text" style="padding:6px">Kg</span>
 										</div>
 									</div>
 								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-7"></div>
-									<div class="col-md-5">
-										<div class="input-group">
-											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
-											</div>
-											<input type="text" id="ket_bahan_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+								<div class="col-md-3">
+									<div class="input-group" style="margin-bottom:3px">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
+										</div>
+										<input type="text" id="ket_bahan_rp" class="form-control" style="text-align:right" placeholder="0" onkeyup="hitungKetBahan()">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="ket_bahan_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-9"></div>
+								<div class="col-md-3">
+									<input type="hidden" id="id_cart_bahan" value="777">
+									<div class="tambah-bahan"></div>
+								</div>
+							</div>
+							<!-- LIST KETERANGAN LAIN LAIN -->
+							<div class="llll update-keterangan-bahan"></div>
+							<div class="llll list-keterangan-bahan"></div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
+								<div class="col-md-3">PEMAKAIAN BAHAN</div>
+								<div class="col-md-3">
+									<div class="input-group" style="margin-bottom:3px">
+										<input type="text" id="bahan_baku_kg" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+										<div class="input-group-append">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Kg</span>
 										</div>
 									</div>
 								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-7"></div>
-									<div class="col-md-5">
-										<input type="hidden" id="id_cart_bahan" value="777">
-										<div class="tambah-bahan"></div>
-									</div>
-								</div>
-								<!-- LIST KETERANGAN LAIN LAIN -->
-								<div class="llll update-keterangan-bahan"></div>
-								<div class="llll list-keterangan-bahan"></div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3">PEMAKAIAN BAHAN</div>
-									<div class="col-md-4">
-										<div class="input-group" style="margin-bottom:3px">
-											<input type="text" id="bahan_baku_kg" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
-											<div class="input-group-append">
-												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Kg</span>
-											</div>
+								<div class="col-md-3"></div>
+								<div class="col-md-3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-									</div>
-									<div class="col-md-5">
-										<div class="input-group">
-											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
-											</div>
-											<input type="text" id="bahan_baku_rp" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
-										</div>
+										<input type="text" id="bahan_baku_rp" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
 									</div>
 								</div>
 							</div>
@@ -163,279 +156,271 @@
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">BIAYA PRODUKSI</h3>
 							</div>
-							<div class="card card-info" style="margin:12px">
+							<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
+								<div class="col-md-3">TENAGA KERJA</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
+										</div>
+										<input type="text" id="tenaga_kerja" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<!-- UPAH -->
+							<div class="card card-secondary" style="margin:6px 12px 12px;padding-bottom:12px">
 								<div class="card-header" style="padding:12px;margin-bottom:18px">
-									<h3 class="card-title" style="font-weight:bold;font-size:16px">PM</h3>
+									<h3 class="card-title" style="font-weight:bold;font-size:16px">UPAH</h3>
 								</div>
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3">TENAGA KERJA</div>
+									<div class="col-md-3">KETERANGAN</div>
+									<div class="col-md-9">
+										<select id="ket_upah_txt" class="form-control select2">
+											<option value="">PILIH</option>
+											<option value="HARIAN LEPAS">HARIAN LEPAS</option>
+											<option value="BORONGAN">BORONGAN</option>
+											<option value="INSENTIF">INSENTIF</option>
+											<option value="PHK">PHK</option>
+										</select>
+									</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3"></div>
+									<div class="col-md-9">
+										<input type="text" id="ket_upah_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0">
+									</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3"></div>
+									<div class="col-md-9">
+										<input type="hidden" id="id_cart_upah" value="111">
+										<div class="tambah-upah"></div>
+									</div>
+								</div>
+								<!-- LIST KETERANGAN UPAH -->
+								<div class="llll update-keterangan-upah"></div>
+								<div class="llll list-keterangan-upah"></div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">UPAH</div>
 									<div class="col-md-9">
 										<div class="input-group">
 											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px">Rp</span>
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 											</div>
-											<input type="text" id="tenaga_kerja" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
-										</div>
-									</div>
-								</div>
-								<!-- UPAH -->
-								<div class="card card-secondary" style="margin:6px 12px 12px;padding-bottom:12px">
-									<div class="card-header" style="padding:12px;margin-bottom:18px">
-										<h3 class="card-title" style="font-weight:bold;font-size:16px">UPAH</h3>
-									</div>
-									<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-										<div class="col-md-3">KETERANGAN</div>
-										<div class="col-md-9">
-											<select id="ket_upah_txt" class="form-control select2">
-												<option value="">PILIH</option>
-												<option value="HARIAN LEPAS">HARIAN LEPAS</option>
-												<option value="BORONGAN">BORONGAN</option>
-												<option value="INSENTIF">INSENTIF</option>
-												<option value="PHK">PHK</option>
-											</select>
-										</div>
-									</div>
-									<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-										<div class="col-md-3"></div>
-										<div class="col-md-9">
-											<input type="text" id="ket_upah_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0">
-										</div>
-									</div>
-									<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-										<div class="col-md-3"></div>
-										<div class="col-md-9">
-											<input type="hidden" id="id_cart_upah" value="111">
-											<div class="tambah-upah"></div>
-										</div>
-									</div>
-									<!-- LIST KETERANGAN UPAH -->
-									<div class="llll update-keterangan-upah"></div>
-									<div class="llll list-keterangan-upah"></div>
-									<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-										<div class="col-md-3">UPAH</div>
-										<div class="col-md-9">
 											<input type="text" id="upah" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" onkeyup="hitungBiayaProduksi()">
 										</div>
 									</div>
 								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3">THR</div>
-									<div class="col-md-9">
-										<div class="input-group">
-											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px">Rp</span>
-											</div>
-											<input type="text" id="thr" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">THR</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
+										</div>
+										<input type="text" id="thr" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">LISTRIK</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
+										</div>
+										<input type="text" id="listrik" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+								<div class="col-md-3">BATU BARA</div>
+								<div class="col-md-3">
+									<div class="input-group" style="margin-bottom:3px">
+										<input type="text" id="batu_bara_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBara()">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Kg</span>
 										</div>
 									</div>
 								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3">LISTRIK</div>
-									<div class="col-md-9">
-										<div class="input-group">
-											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px">Rp</span>
-											</div>
-											<input type="text" id="listrik" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+								<div class="col-md-3">
+									<div class="input-group" style="margin-bottom:3px">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
 										</div>
+										<input type="text" id="batu_bara_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBara()">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="batu_bara_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+								<div class="col-md-3">BAHAN KIMIA</div>
+								<div class="col-md-3">
+									<div class="input-group" style="margin-bottom:3px">
+										<input type="text" id="chemical_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimia()">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Kg</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="input-group" style="margin-bottom:3px">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
+										</div>
+										<input type="text" id="chemical_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimia()">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="chemical_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">B. PEMBANTU</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
+										</div>
+										<input type="text" id="bahan_pembantu" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">SOLAR</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
+										</div>
+										<input type="text" id="solar" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">MAINTENANCE</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
+										</div>
+										<input type="text" id="biaya_pemeliharaan" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">EKSPEDISI</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
+										</div>
+										<input type="text" id="ekspedisi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">DEPRESIASI</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
+										</div>
+										<input type="text" id="depresiasi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<!-- LAIN LAIN -->
+							<div class="card card-secondary" style="margin:6px 12px 18px;padding-bottom:12px">
+								<div class="card-header" style="padding:12px;margin-bottom:18px">
+									<h3 class="card-title" style="font-weight:bold;font-size:16px">LAIN LAIN</h3>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">KETERANGAN</div>
+									<div class="col-md-9">
+										<input type="text" id="ket_dll_txt" class="form-control" autocomplete="off" placeholder="KETERANGAN" oninput="this.value = this.value.toUpperCase()">
 									</div>
 								</div>
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
-									<div class="col-md-3">BATU BARA</div>
-									<div class="col-md-4">
+									<div class="col-md-3"></div>
+									<div class="col-md-3">
 										<div class="input-group" style="margin-bottom:3px">
-											<input type="text" id="batu_bara_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBara()">
+											<input type="text" id="ket_dll_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungKetLainLain()">
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px">Kg</span>
 											</div>
 										</div>
 									</div>
-									<div class="col-md-5">
-										<div class="input-group">
-											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px">Rp</span>
-											</div>
-											<input type="text" id="batu_bara_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBara()">
-										</div>
-									</div>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-7"></div>
-									<div class="col-md-5">
-										<div class="input-group">
-											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
-											</div>
-											<input type="text" id="batu_bara_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
-										</div>
-									</div>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
-									<div class="col-md-3">BAHAN KIMIA</div>
-									<div class="col-md-4">
+									<div class="col-md-3">
 										<div class="input-group" style="margin-bottom:3px">
-											<input type="text" id="chemical_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimia()">
-											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px">Kg</span>
-											</div>
-										</div>
-									</div>
-									<div class="col-md-5">
-										<div class="input-group">
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px">Rp</span>
 											</div>
-											<input type="text" id="chemical_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimia()">
+											<input type="text" id="ket_dll_rp" class="form-control" style="text-align:right" placeholder="0" onkeyup="hitungKetLainLain()">
 										</div>
 									</div>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-7"></div>
-									<div class="col-md-5">
+									<div class="col-md-3">
 										<div class="input-group">
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 											</div>
-											<input type="text" id="chemical_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+											<input type="text" id="ket_dll_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled onkeyup="hitungKetLainLain()">
 										</div>
 									</div>
 								</div>
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3">B. PEMBANTU</div>
-									<div class="col-md-9">
+									<div class="col-md-9"></div>
+									<div class="col-md-3">
+										<input type="hidden" id="id_cart_dll" value="333">
+										<div class="tambah-dll"></div>
+									</div>
+								</div>
+								<!-- LIST KETERANGAN LAIN LAIN -->
+								<div class="llll update-keterangan-dll"></div>
+								<div class="llll list-keterangan-dll"></div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+									<div class="col-md-3">LAIN LAIN</div>
+									<div class="col-md-3">
+										<div class="input-group" style="margin-bottom:3px">
+											<input type="text" id="lain_lain_kg" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Kg</span>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3"></div>
+									<div class="col-md-3">
 										<div class="input-group">
 											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px">Rp</span>
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 											</div>
-											<input type="text" id="bahan_pembantu" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+											<input type="text" id="lain_lain_rp" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
 										</div>
 									</div>
 								</div>
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3">SOLAR</div>
-									<div class="col-md-9">
-										<div class="input-group">
-											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px">Rp</span>
-											</div>
-											<input type="text" id="solar" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
-										</div>
-									</div>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3">MAINTENANCE</div>
-									<div class="col-md-9">
-										<div class="input-group">
-											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px">Rp</span>
-											</div>
-											<input type="text" id="biaya_pemeliharaan" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
-										</div>
-									</div>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3">EKSPEDISI</div>
-									<div class="col-md-9">
-										<div class="input-group">
-											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px">Rp</span>
-											</div>
-											<input type="text" id="ekspedisi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
-										</div>
-									</div>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3">DEPRESIASI</div>
-									<div class="col-md-9">
-										<div class="input-group">
-											<div class="input-group-prepend">
-												<span class="input-group-text" style="padding:6px">Rp</span>
-											</div>
-											<input type="text" id="depresiasi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
-										</div>
-									</div>
-								</div>
-								<!-- LAIN LAIN -->
-								<div class="card card-secondary" style="margin:6px 12px 12px;padding-bottom:12px">
-									<div class="card-header" style="padding:12px;margin-bottom:18px">
-										<h3 class="card-title" style="font-weight:bold;font-size:16px">LAIN LAIN</h3>
-									</div>
-									<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-										<div class="col-md-3">KETERANGAN</div>
-										<div class="col-md-9">
-											<input type="text" id="ket_dll_txt" class="form-control" autocomplete="off" placeholder="KETERANGAN" oninput="this.value = this.value.toUpperCase()">
-										</div>
-									</div>
-									<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
-										<div class="col-md-3"></div>
-										<div class="col-md-4">
-											<div class="input-group" style="margin-bottom:3px">
-												<input type="text" id="ket_dll_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungKetLainLain()">
-												<div class="input-group-prepend">
-													<span class="input-group-text" style="padding:6px">Kg</span>
-												</div>
-											</div>
-										</div>
-										<div class="col-md-5">
-											<div class="input-group">
-												<div class="input-group-prepend">
-													<span class="input-group-text" style="padding:6px">Rp</span>
-												</div>
-												<input type="text" id="ket_dll_rp" class="form-control" style="text-align:right" placeholder="0" onkeyup="hitungKetLainLain()">
-											</div>
-										</div>
-									</div>
-									<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-										<div class="col-md-7"></div>
-										<div class="col-md-5">
-											<div class="input-group">
-												<div class="input-group-prepend">
-													<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
-												</div>
-												<input type="text" id="ket_dll_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled onkeyup="hitungKetLainLain()">
-											</div>
-										</div>
-									</div>
-									<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-										<div class="col-md-7"></div>
-										<div class="col-md-5">
-											<input type="hidden" id="id_cart_dll" value="333">
-											<div class="tambah-dll"></div>
-										</div>
-									</div>
-									<!-- LIST KETERANGAN LAIN LAIN -->
-									<div class="llll update-keterangan-dll"></div>
-									<div class="llll list-keterangan-dll"></div>
-									<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
-										<div class="col-md-3">LAIN LAIN</div>
-										<div class="col-md-4">
-											<div class="input-group" style="margin-bottom:3px">
-												<input type="text" id="lain_lain_kg" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
-												<div class="input-group-prepend">
-													<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Kg</span>
-												</div>
-											</div>
-										</div>
-										<div class="col-md-5">
-											<div class="input-group">
-												<div class="input-group-prepend">
-													<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
-												</div>
-												<input type="text" id="lain_lain_rp" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
-											</div>
-										</div>
-									</div>
-									<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-										<div class="col-md-3"></div>
-										<div class="col-md-9" style="font-style:italic;font-size:12px">*opsional</div>
-									</div>
+									<div class="col-md-3"></div>
+									<div class="col-md-9" style="font-style:italic;font-size:12px">*opsional</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 
-				<div class="col-md-4">
+				<div class="col-md-3">
 					<div class="col-hitung-hpp" style="display:none">
 						<div class="card card-primary card-outline">
 							<div class="card-header" style="padding:12px">
@@ -487,6 +472,7 @@
 							</div>
 						</div>
 						<input type="hidden" id="id_hpp" value="">
+						<input type="hidden" id="load_edit" value="">
 					</div>
 				</div>
 			</div>
@@ -510,6 +496,7 @@
 									<tr>
 										<th style="text-align:center">#</th>
 										<th style="text-align:center">TANGGAL</th>
+										<th style="text-align:center">JENIS</th>
 										<th style="text-align:center">HASIL</th>
 										<th style="text-align:center">TONASE ORDER</th>
 										<th style="text-align:center">HASIL</th>
@@ -650,6 +637,7 @@
 	function kembaliHPP()
 	{
 		reloadTable()
+		$(".llll").load("<?php echo base_url('Transaksi/destroyHPP') ?>")
 		$("#jenis_hpp").val("").trigger('change').prop('disabled', false)
 		$("#tgl1_hpp").val("").prop('disabled', false).removeClass('is-invalid')
 		$(".row-input-hpp").hide()
@@ -750,13 +738,28 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/keteranganHPP')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				opsi, jenis, id_hpp, ket_txt, ket_kg, ket_rp, ket_x, id_cart
 			}),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
-				listKeteranganHPP(opsi, jenis, id_hpp)
+				if(data.valid){
+					listKeteranganHPP(opsi, jenis, id_hpp)
+				}else{
+					toastr.error(`<b>${data.data}</b>`)
+					swal.close()
+				}
 			}
 		})
 	}
@@ -794,6 +797,7 @@
 					$("#lain_lain_kg").val(data.sumLLkg)
 					$("#lain_lain_rp").val(data.sumLLrp)
 				}
+				swal.close()
 				hitungBiayaProduksi()
 			}
 		})
@@ -947,12 +951,29 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/simpanHPP')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, jenis_cor, bahan_baku_kg, bahan_baku_rp, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonanse, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
+				if(data.valid){
+					toastr.success(`<b>BERHASIL SIMPAN!</b>`)
+					kembaliHPP()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
+				swal.close()
 			}
 		})
 	}
@@ -974,6 +995,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editHPP')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ id_hpp, opsi }),
 			success: function(res){
 				data = JSON.parse(res)
@@ -984,7 +1015,7 @@
 				$(".tampil_corr").hide()
 				hideAll('show')
 
-				$("#id_hpp").val()
+				$("#id_hpp").val(data.data.id_hpp)
 
 				let prop = true;
 				(opsi == 'edit') ? prop = false : prop = true;
@@ -1034,13 +1065,16 @@
 					$(".tambah-bahan").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('bb','pm','${id_hpp}')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
 					$(".tambah-upah").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('upah','pm','${id_hpp}')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
 					$(".tambah-dll").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('lainlain','pm','${id_hpp}')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
+					$("#btn-simpan").html(`<button type="button" class="btn btn-sm btn-primary" onclick="simpanHPP()"><i class="fa fa-save"></i> <b>SIMPAN</b></button>`)
 				}else{
 					$(".tambah-bahan").html('')
 					$(".tambah-upah").html('')
 					$(".tambah-dll").html('')
+					$("#btn-simpan").html('')
 				}
 
 				statusInput = 'update'
+				swal.close()
 			}
 		})
 	}
@@ -1066,26 +1100,10 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/hapusHPP')?>',
 			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
 			data: ({ id_hpp }),
 			success: function(res){
 				data = JSON.parse(res)
-				if(data.data){
-					statusInput = 'insert'
-					toastr.success(`<b>${data.msg}</b>`)
-					kosong()
-					load_data()
-					swal.close()
-				}
+				console.log(data)
 			}
 		})
 	}

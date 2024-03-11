@@ -1104,8 +1104,6 @@ class M_transaksi extends CI_Model
 
 	function simpanHPP()
 	{
-		// id_hpp
-		// presentase hxt_x_persen fix_hpp
 		$statusInput = $_POST["statusInput"];
 		$data = [
 			'pilih_hpp' => $_POST["pilih_hpp"],
@@ -1137,26 +1135,58 @@ class M_transaksi extends CI_Model
 		];
 
 		if($_POST["pilih_hpp"] == 'PM2' && ($_POST["hasil_hpp"] == '' || $_POST["tonase_order"] == '' || $_POST["hasil_x_tonanse"] == '' || $_POST["hasil_hpp"] == 0 || $_POST["tonase_order"] == 0 || $_POST["hasil_x_tonanse"] == 0)){
-			$insertHPP = 'DATA HPP KOSONG!';
+			$insertHPP = false;
+			$msg = 'DATA HPP KOSONG!';
+			$cek = '';
 			$cart = '';
 		}else{
 			$pilih_hpp = $_POST["pilih_hpp"];
 			$tgl_hpp = $_POST["tgl1_hpp"];
 			$jenis_hpp = $_POST["jenis_hpp"];
 			$jenis_cor = $_POST["jenis_cor"];
-			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp' AND jenis_cor='$jenis_cor'");
+			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp' AND jenis_cor='$jenis_cor'")->num_rows();
 
-			if($statusInput == 'insert' && $cek->num_rows() == 0){
-				$this->db->set('add_time', date('Y-m-d H:i:s'));
-				$this->db->set('add_user', $this->username);
-				$insertHPP = $this->db->insert('m_hpp', $data);
-				
+			if($statusInput == 'insert'){
+				if($cek == 0){
+					$this->db->set('add_time', date('Y-m-d H:i:s'));
+					$this->db->set('add_user', $this->username);
+					$insertHPP = $this->db->insert('m_hpp', $data);
+					// CART
+					if($insertHPP){
+						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp' AND jenis_cor='$jenis_cor'")->row();
+						if($this->cart->total_items() != 0){
+							foreach($this->cart->contents() as $r){
+								$this->db->set('id_hpp', $get->id_hpp);
+								$this->db->set('opsi', $r['options']['opsi']);
+								$this->db->set('jenis', $r['options']['jenis']);
+								$this->db->set('ket_txt', $r['options']['ket_txt']);
+								$this->db->set('ket_kg', $r['options']['ket_kg']);
+								$this->db->set('ket_rp', $r['options']['ket_rp']);
+								$this->db->set('ket_x', $r['options']['ket_x']);
+								$cart = $this->db->insert('m_hpp_detail');
+							}
+						}else{
+							$cart = '';
+						}
+					}
+					$msg = 'OK!';
+				}else{
+					$insertHPP = false;
+					$msg = 'DATA SUDAH ADA!';
+					$cart = '';
+				}
+			}
+
+			if($statusInput == 'update'){
+				$this->db->set('edit_time', date('Y-m-d H:i:s'));
+				$this->db->set('edit_user', $this->username);
+				$this->db->where('id_hpp', $_POST["id_hpp"]);
+				$insertHPP = $this->db->update('m_hpp', $data);
 				// CART
 				if($insertHPP){
-					$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp' AND jenis_cor='$jenis_cor'")->row();
 					if($this->cart->total_items() != 0){
 						foreach($this->cart->contents() as $r){
-							$this->db->set('id_hpp', $get->id_hpp);
+							$this->db->set('id_hpp', $_POST["id_hpp"]);
 							$this->db->set('opsi', $r['options']['opsi']);
 							$this->db->set('jenis', $r['options']['jenis']);
 							$this->db->set('ket_txt', $r['options']['ket_txt']);
@@ -1169,17 +1199,16 @@ class M_transaksi extends CI_Model
 						$cart = '';
 					}
 				}
-			}else{
-				$insertHPP = 'DATA SUDAH ADA!';
-				$cart = '';
+				$msg = 'OK!';
 			}
 		}
 
 		return [
-			'1data' => $data,
-			// '2cek' => $cek->num_rows(),
-			'3insertHPP' => $insertHPP,
-			'4cart' => $cart,
+			'data' => $data,
+			'cek' => $cek,
+			'valid' => $insertHPP,
+			'msg' => $msg,
+			'cart' => $cart,
 		];
 	}
 
@@ -1247,9 +1276,15 @@ class M_transaksi extends CI_Model
 	function hapusHPP()
 	{
 		$this->db->where('id_hpp', $_POST["id_hpp"]);
-		$data = $this->db->delete('m_hpp');
+		$delete = $this->db->delete('m_hpp');
+		if($delete){
+			$this->db->where('id_hpp', $_POST["id_hpp"]);
+			$detail = $this->db->delete('m_hpp_detail');
+		}
+
 		return [
-			'data' => $data
+			'delete' => $delete,
+			'detail' => $detail,
 		];
 	}
 

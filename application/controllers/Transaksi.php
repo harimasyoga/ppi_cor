@@ -102,9 +102,7 @@ class Transaksi extends CI_Controller
 					$hapusUpah = '';
 				}
 				$htmlUpah .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-					<div class="col-md-3">
-						'.$hapusUpah.' '.$u->ket_txt.'
-					</div>
+					<div class="col-md-3">'.$hapusUpah.' '.$u->ket_txt.'</div>
 					<div class="col-md-9">
 						<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($u->ket_rp,0,',','.').'" disabled>
 					</div>
@@ -125,19 +123,10 @@ class Transaksi extends CI_Controller
 				}
 				if($b->ket_kg == 0){
 					$htmlBB .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+						<div class="col-md-3">'.$hapusBB.' '.$b->ket_txt.'</div>
+						<div class="col-md-6"></div>
 						<div class="col-md-3">
-							'.$hapusBB.' '.$b->ket_txt.'
-						</div>
-						<div class="col-md-4">
 							<div class="input-group" style="margin-bottom:3px">
-								<input type="text" class="form-control" style="text-align:right" value="0" disabled>
-								<div class="input-group-prepend">
-									<span class="input-group-text" style="padding:6px">Kg</span>
-								</div>
-							</div>
-						</div>
-						<div class="col-md-5">
-							<div class="input-group">
 								<div class="input-group-prepend">
 									<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 								</div>
@@ -148,10 +137,8 @@ class Transaksi extends CI_Controller
 				}
 				if($b->ket_kg != 0){
 					$htmlBB .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+						<div class="col-md-3">'.$hapusBB.' '.$b->ket_txt.'</div>
 						<div class="col-md-3">
-							'.$hapusBB.' '.$b->ket_txt.'
-						</div>
-						<div class="col-md-4">
 							<div class="input-group" style="margin-bottom:3px">
 								<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($b->ket_kg,0,',','.').'" disabled>
 								<div class="input-group-prepend">
@@ -159,18 +146,15 @@ class Transaksi extends CI_Controller
 								</div>
 							</div>
 						</div>
-						<div class="col-md-5">
-							<div class="input-group">
+						<div class="col-md-3">
+							<div class="input-group" style="margin-bottom:3px">
 								<div class="input-group-prepend">
 									<span class="input-group-text" style="padding:6px">Rp</span>
 								</div>
 								<input type="text" class="form-control" style="text-align:right" value="'.number_format($b->ket_rp,0,',','.').'" disabled>
 							</div>
 						</div>
-					</div>
-					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-						<div class="col-md-7"></div>
-						<div class="col-md-5">
+						<div class="col-md-3">
 							<div class="input-group">
 								<div class="input-group-prepend">
 									<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
@@ -196,19 +180,10 @@ class Transaksi extends CI_Controller
 				}
 				if($l->ket_kg == 0){
 					$htmlLainLain .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+						<div class="col-md-3">'.$hapusLL.' '.$l->ket_txt.'</div>
+						<div class="col-md-6"></div>
 						<div class="col-md-3">
-							'.$hapusLL.' '.$l->ket_txt.'
-						</div>
-						<div class="col-md-4">
 							<div class="input-group" style="margin-bottom:3px">
-								<input type="text" class="form-control" style="text-align:right" value="0" disabled>
-								<div class="input-group-prepend">
-									<span class="input-group-text" style="padding:6px">Kg</span>
-								</div>
-							</div>
-						</div>
-						<div class="col-md-5">
-							<div class="input-group">
 								<div class="input-group-prepend">
 									<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 								</div>
@@ -219,10 +194,8 @@ class Transaksi extends CI_Controller
 				}
 				if($l->ket_kg != 0){
 					$htmlLainLain .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+						<div class="col-md-3">'.$hapusLL.' '.$l->ket_txt.'</div>
 						<div class="col-md-3">
-							'.$hapusLL.' '.$l->ket_txt.'
-						</div>
-						<div class="col-md-4">
 							<div class="input-group" style="margin-bottom:3px">
 								<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($l->ket_kg,0,',','.').'" disabled>
 								<div class="input-group-prepend">
@@ -230,18 +203,15 @@ class Transaksi extends CI_Controller
 								</div>
 							</div>
 						</div>
-						<div class="col-md-5">
-							<div class="input-group">
+						<div class="col-md-3">
+							<div class="input-group" style="margin-bottom:3px">
 								<div class="input-group-prepend">
 									<span class="input-group-text" style="padding:6px">Rp</span>
 								</div>
 								<input type="text" class="form-control" style="text-align:right" value="'.number_format($l->ket_rp,0,',','.').'" disabled>
 							</div>
 						</div>
-					</div>
-					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-						<div class="col-md-7"></div>
-						<div class="col-md-5">
+						<div class="col-md-3">
 							<div class="input-group">
 								<div class="input-group-prepend">
 									<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
@@ -302,6 +272,7 @@ class Transaksi extends CI_Controller
 			$row = [];
 			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$i.'<a></div>';
 			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp)).'</a></div>';
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->jenis_hpp.'<a></div>';
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_hpp,0,",",".").'</a></div>';
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->tonase_order,0,",",".").'</a></div>';
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_x_tonanse,0,",",".").'</a></div>';
@@ -4185,16 +4156,9 @@ class Transaksi extends CI_Controller
 							<div class="col-md-3">
 								<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKeteranganHPP('."'".$r['rowid']."'".','."'".$r['options']['opsi']."'".','."'".$r['options']['jenis']."'".','."'".$r['options']['id_hpp']."'".')"><i class="fas fa-times"></i></button> '.$r['options']['ket_txt'].'
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-6"></div>
+							<div class="col-md-3">
 								<div class="input-group" style="margin-bottom:3px">
-									<input type="text" class="form-control" style="text-align:right" value="0" disabled>
-									<div class="input-group-prepend">
-										<span class="input-group-text" style="padding:6px">Kg</span>
-									</div>
-								</div>
-							</div>
-							<div class="col-md-5">
-								<div class="input-group">
 									<div class="input-group-prepend">
 										<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 									</div>
@@ -4208,7 +4172,7 @@ class Transaksi extends CI_Controller
 							<div class="col-md-3">
 								<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKeteranganHPP('."'".$r['rowid']."'".','."'".$r['options']['opsi']."'".','."'".$r['options']['jenis']."'".','."'".$r['options']['id_hpp']."'".')"><i class="fas fa-times"></i></button> '.$r['options']['ket_txt'].'
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<div class="input-group" style="margin-bottom:3px">
 									<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($r['options']['ket_kg'],0,',','.').'" disabled>
 									<div class="input-group-prepend">
@@ -4216,18 +4180,15 @@ class Transaksi extends CI_Controller
 									</div>
 								</div>
 							</div>
-							<div class="col-md-5">
-								<div class="input-group">
+							<div class="col-md-3">
+								<div class="input-group" style="margin-bottom:3px">
 									<div class="input-group-prepend">
 										<span class="input-group-text" style="padding:6px">Rp</span>
 									</div>
 									<input type="text" class="form-control" style="text-align:right" value="'.number_format($r['options']['ket_rp'],0,',','.').'" disabled>
 								</div>
 							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-7"></div>
-							<div class="col-md-5">
+							<div class="col-md-3">
 								<div class="input-group">
 									<div class="input-group-prepend">
 										<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
@@ -4249,15 +4210,8 @@ class Transaksi extends CI_Controller
 							<div class="col-md-3">
 								<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKeteranganHPP('."'".$r['rowid']."'".','."'".$r['options']['opsi']."'".','."'".$r['options']['jenis']."'".','."'".$r['options']['id_hpp']."'".')"><i class="fas fa-times"></i></button> '.$r['options']['ket_txt'].'
 							</div>
-							<div class="col-md-4">
-								<div class="input-group" style="margin-bottom:3px">
-									<input type="text" class="form-control" style="text-align:right" value="0" disabled>
-									<div class="input-group-prepend">
-										<span class="input-group-text" style="padding:6px">Kg</span>
-									</div>
-								</div>
-							</div>
-							<div class="col-md-5">
+							<div class="col-md-6"></div>
+							<div class="col-md-3">
 								<div class="input-group">
 									<div class="input-group-prepend">
 										<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
@@ -4272,7 +4226,7 @@ class Transaksi extends CI_Controller
 							<div class="col-md-3">
 								<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKeteranganHPP('."'".$r['rowid']."'".','."'".$r['options']['opsi']."'".','."'".$r['options']['jenis']."'".','."'".$r['options']['id_hpp']."'".')"><i class="fas fa-times"></i></button> '.$r['options']['ket_txt'].'
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<div class="input-group" style="margin-bottom:3px">
 									<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($r['options']['ket_kg'],0,',','.').'" disabled>
 									<div class="input-group-prepend">
@@ -4280,18 +4234,15 @@ class Transaksi extends CI_Controller
 									</div>
 								</div>
 							</div>
-							<div class="col-md-5">
-								<div class="input-group">
+							<div class="col-md-3">
+								<div class="input-group" style="margin-bottom:3px">
 									<div class="input-group-prepend">
 										<span class="input-group-text" style="padding:6px">Rp</span>
 									</div>
 									<input type="text" class="form-control" style="text-align:right" value="'.number_format($r['options']['ket_rp'],0,',','.').'" disabled>
 								</div>
 							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-7"></div>
-							<div class="col-md-5">
+							<div class="col-md-3">
 								<div class="input-group">
 									<div class="input-group-prepend">
 										<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
