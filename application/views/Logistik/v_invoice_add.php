@@ -156,6 +156,10 @@
 								<div class="col-md-2">Pilihan Bank</div>
 								<div class="col-md-10">
 									<select class="form-control select2" id="bank" name="bank" style="width: 100%" autocomplete="off">
+										<option value="BCA_AKB">BCA AKB</option>
+										<option value="BCA_SSB">BCA SSB</option>
+										<option value="BCA_KSM">BCA KSM</option>
+										<option value="BCA_GMB">BCA GMB</option>
 										<option value="BCA">BCA</option>
 										<option value="BNI">BNI</option>
 									</select>

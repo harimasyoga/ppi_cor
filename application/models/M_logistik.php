@@ -1123,7 +1123,45 @@ class M_logistik extends CI_Model
 
 		if($sts_input=='edit')
 		{
-			$no_stokbb    = $this->input->post('no_stok');
+			$no_stokbb   = $this->input->post('no_stok');
+			$rowloop     = $this->input->post('bucket');
+
+			$del_detail  = $this->db->query("DELETE FROM trs_d_stok_bb WHERE no_stok='$no_stokbb' ");
+			if($del_detail)
+			{
+				for($loop = 0; $loop <= $rowloop; $loop++)
+				{
+					$data_detail = array(				
+						'no_stok'       => $no_stokbb,
+						'id_hub'        => $this->input->post('id_hub['.$loop.']'),
+						'id_po_bhn'     => $this->input->post('id_po_bhn['.$loop.']'),
+						'no_po_bhn'     => $this->input->post('no_po['.$loop.']'),
+						'tonase_po'     => str_replace('.','',$this->input->post('ton['.$loop.']')),
+						'datang_bhn_bk' => str_replace('.','',$this->input->post('datang['.$loop.']')),
+					);
+					$result_detail = $this->db->insert('trs_d_stok_bb', $data_detail);
+				}
+
+			}			
+
+			if($result_detail)
+			{
+				$data_header = array(
+					'no_stok'         => $no_stokbb,
+					'tgl_stok'        => $this->input->post('tgl_stok'),
+					'id_timbangan'    => $this->input->post('id_timb'),
+					'no_timbangan'    => $this->input->post('no_timb'),
+					'total_timb'      => str_replace('.','',$this->input->post('jum_timb')),
+					'muatan_ppi'      => str_replace('.','',$this->input->post('muat_ppi')),
+					'tonase_ppi'      => str_replace('.','',$this->input->post('tonase_ppi')),
+					'total_item'      => str_replace('.','',$this->input->post('total_bb_item')),
+					'sisa_stok'      => str_replace('.','',$this->input->post('sisa_timb')),
+
+				);
+			
+				$this->db->where('id_stok', $this->input->post('id_stok_h'));
+				$result_header = $this->db->update('trs_h_stok_bb', $data_header);
+			}
 		}else{
 			$no_stokbb    = $this->m_fungsi->urut_transaksi('STOK_BB').'/'.'STOK/'.$thn;
 
