@@ -133,12 +133,9 @@ class Logistik extends CI_Controller
 
 		if($this->session->userdata('username'))
 		{
- 
 			$result = $this->m_logistik->save_stok_bb();
 			echo json_encode($result);
-
 		}
-
 		
 	}
 
@@ -1011,7 +1008,7 @@ class Logistik extends CI_Controller
 		{ 
 			$queryh   = "SELECT * FROM trs_h_stok_bb  where id_stok='$id' ";
 			$data_h   = $this->db->query($queryh)->row();
-			
+
 			$queryd   = "SELECT * FROM trs_d_stok_bb a JOIN m_hub b ON a.id_hub=b.id_hub where no_stok='$data_h->no_stok' ";
 
 		}else if($jenis=='invoice')
@@ -1066,7 +1063,7 @@ class Logistik extends CI_Controller
 
 		if ($jenis == "Invoice") {
 			$query = $this->db->query("SELECT * FROM invoice_header 
-			-- where no_invoice='AA/2605/12/2023' 
+			where no_invoice='FB/0051/01/2024' 
 			ORDER BY tgl_invoice desc,no_invoice ")->result();
 
 			$i               = 1;
@@ -1411,6 +1408,7 @@ class Logistik extends CI_Controller
 
 				$id             = "'$r->id_stok'";
 				$no_stok        = "'$r->no_stok'";
+				$no_stok2       = "$r->no_stok";
 				$total_bb       = $r->total_item + $r->tonase_ppi;
 
 				$row            = array();
@@ -1428,7 +1426,7 @@ class Logistik extends CI_Controller
 							<b><i class="fa fa-edit"></i> </b>
 						</a> 
 						
-						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO_BAHAN?no_stok=".$no_stok."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_stok_bb?no_stok=".$no_stok2."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
 						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_stok . ')" class="btn btn-danger btn-sm">
 							<i class="fa fa-trash-alt"></i>
@@ -1957,7 +1955,6 @@ class Logistik extends CI_Controller
 
 		if ($jenis == "invoice") {
 			$no_inv          = $_POST['no_inv'];
-			
 			// ubah no pl
 			$query_cek = $this->db->query("SELECT*FROM invoice_detail where no_invoice ='$no_inv'")->result();
 
@@ -1969,7 +1966,6 @@ class Logistik extends CI_Controller
 					$update_no_pl   = $db2->query("UPDATE pl set no_pl_inv = 0 where id ='$row->id_pl'");					
 				}else{
 					$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 0 where id ='$row->id_pl'");					
-
 				}
 			}
 
@@ -1982,10 +1978,8 @@ class Logistik extends CI_Controller
 			}
 			
 			
-			
 		} else if ($jenis == "byr_inv") {
-			$result          = $this->m_master->query("DELETE FROM trs_bayar_inv WHERE  $field = '$id'");			
-			
+			$result          = $this->m_master->query("DELETE FROM trs_bayar_inv WHERE  $field = '$id'");	
 			
 		} else {
 
@@ -1993,6 +1987,97 @@ class Logistik extends CI_Controller
 		}
 
 		echo json_encode($result);
+	}
+
+
+	function Cetak_stok_bb()
+	{
+		$no_stok  = $_GET['no_stok'];
+
+        $query_header = $this->db->query("SELECT * FROM trs_h_stok_bb
+        WHERE no_stok = '$no_stok' ");
+        
+        $data = $query_header->row();
+        
+        $query_detail = $this->db->query("SELECT * FROM trs_h_stok_bb a 
+		JOIN trs_d_stok_bb b ON a.no_stok=b.no_stok 
+		JOIN m_hub c ON b.id_hub=c.id_hub
+        WHERE a.no_stok = '$no_stok' ");
+
+		$html = '';
+
+
+		if ($query_header->num_rows() > 0) 
+		{
+
+			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:14px;font-family: ;">
+                        <tr style="font-weight: bold;">
+                            <td colspan="5" align="center">
+                            <b>( No. ' . $no_stok . ' )</b>
+                            </td>
+                        </tr>
+                 </table><br>';
+
+            $html .= '<table width="100%" border="1" cellspacing="0" style="font-size:12px;font-family: ;">
+
+            <tr>
+                <td width="20 %"  align="left">Tgl STOK</td>
+                <td width="5%" > : </td>
+                <td width="75 %" > '. $this->m_fungsi->tanggal_format_indonesia($data->tgl_stok) .'</td>
+            </tr>
+            <tr>
+                <td align="left">NO TIMBANGAN</td>
+                <td> : </td>
+                <td> '. $data->no_timbangan .'</td>
+            </tr>
+            </table><br>';
+
+			$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
+                        <tr style="background-color: #cccccc">
+							<th align="center">NO</th>
+							<th align="center">CUSTOMER</th>
+                            <th align="center">No PO</th>
+                            <th align="center">TONASE PO</th>
+                            <th align="center">KEDATANGAN</th>
+						</tr>';
+						
+			$no              = 1;
+			$total_datang    = 0;
+
+			// if()
+			$html .= '<tr>
+						<td align="center">' . $no . '</td>
+						<td align="">' . $r->nm_hub . '</td>
+						<td align="center">' . $r->no_po_bhn . '</td>
+						<td align="right">' . number_format($r->tonase_po, 0, ",", ".") . '</td>
+						<td align="right">' . number_format($r->datang_bhn_bk, 0, ",", ".") . '</td>
+					</tr>';
+			foreach ($query_detail->result() as $r) 
+			{
+				$html .= '<tr>
+						<td align="center">' . $no . '</td>
+						<td align="">' . $r->nm_hub . '</td>
+						<td align="center">' . $r->no_po_bhn . '</td>
+						<td align="right">' . number_format($r->tonase_po, 0, ",", ".") . '</td>
+						<td align="right">' . number_format($r->datang_bhn_bk, 0, ",", ".") . '</td>
+					</tr>';
+
+				$total_datang += $r->datang_bhn_bk;
+				$no++;
+			}
+			$html .='<tr style="background-color: #cccccc">
+						<td align="center" colspan="4"><b>Total</b></td>
+						<td align="right" ><b>' . number_format($total_datang, 0, ",", ".") . '</b></td>						
+						</tr>';
+			$html .= '
+                 </table>';
+		} else {
+			$html .= '<h1> Data Kosong </h1>';
+		}
+
+		// $this->m_fungsi->_mpdf($html);
+		$this->m_fungsi->template_kop('STOK BAHAN BAKU',$no_stok,$html,'P','1');
+		// $this->m_fungsi->mPDFP($html);
 	}
 
 	function Cetak_Invoice()
@@ -2345,16 +2430,76 @@ class Logistik extends CI_Controller
 		{
 			if($data_detail->pajak=='nonppn')
 			{
-				$norek='5758699099';
+				$norek    = '5758699099';
+				$nm_bank  = 'BNI';
+				$an       = 'PT. PRIMA PAPER INDONESIA';
 			}else{
-				$norek='5758699690';
+				$norek    = '5758699690';
+				$nm_bank  = 'BNI';
+				$an       = 'PT. PRIMA PAPER INDONESIA';
 			}
+		}else if($data_detail->bank=='BCA_AKB')
+		{
+			if($data_detail->pajak=='nonppn')
+			{
+				$norek    = '5050290672';
+				$nm_bank  = 'BCA';
+				$an       = 'CV Artha Karunia Berkah';
+			}else{
+				$norek    = '-';
+				$nm_bank  = '-';
+				$an       = '-';
+			}
+			
+		}else if($data_detail->bank=='BCA_SSB')
+		{
+			if($data_detail->pajak=='nonppn')
+			{
+				$norek    = '0153926538';
+				$nm_bank  = 'BCA';
+				$an       = 'Arga Deo Kristya Duta';
+			}else{
+				$norek    = '-';
+				$nm_bank  = '-';
+				$an       = '-';
+			}
+			
+		}else if($data_detail->bank=='BCA_KSM')
+		{
+			if($data_detail->pajak=='nonppn')
+			{
+				$norek    = '0153926538';
+				$nm_bank  = 'BCA';
+				$an       = 'Arga Deo Kristya Duta';
+			}else{
+				$norek    = '-';
+				$nm_bank  = '-';
+				$an       = '-';
+			}
+			
+		}else if($data_detail->bank=='BCA_GMB')
+		{
+			if($data_detail->pajak=='nonppn')
+			{
+				$norek    = '4824569888';
+				$nm_bank  = 'BCA';
+				$an       = 'CV Global Mulia Bakti';
+			}else{
+				$norek    = '-';
+				$nm_bank  = '-';
+				$an       = '-';
+			}
+			
 		}else{
 			if($data_detail->pajak=='nonppn')
 			{
-				$norek='078 795 5758';
+				$norek    = '078 795 5758';
+				$nm_bank  = 'BCA';
+				$an       = 'PT. PRIMA PAPER INDONESIA';
 			}else{
-				$norek='078 027 5758';
+				$norek    = '078 027 5758';
+				$nm_bank  = 'BCA';
+				$an       = 'PT. PRIMA PAPER INDONESIA';
 			}
 		}
 		$html .= '<tr>
@@ -2362,7 +2507,7 @@ class Logistik extends CI_Controller
 			<td style="border:0;padding:5px;text-align:center" colspan="4">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($data_detail->tgl_invoice).'</td> 
 		</tr>
 		<tr>
-			<td style="border:0;padding:0 0 15px;line-height:1.8" colspan="3">Pembayaran Full Amount ditransfer ke :<br/>'.$data_detail->bank.' '.$norek.' (CABANG SOLO)<br/>A.n PT. PRIMA PAPER INDONESIA</td>
+			<td style="border:0;padding:0 0 15px;line-height:1.8" colspan="3">Pembayaran Full Amount ditransfer ke :<br/>'.$nm_bank.' '.$norek.'<br/>A.n '.$an.'</td>
 			<td style="border:0;padding:0" colspan="4"></td>
 		</tr>
 		<tr>

@@ -831,8 +831,9 @@
 				if(data){
 					// header
 
-					$("#muat_ppi").val(data.header.muatan_ppi).trigger('change');
+					$("#id_stok_h").val(data.header.id_stok);
 					$("#no_stok").val(data.header.no_stok);
+					$("#muat_ppi").val(data.header.muatan_ppi).trigger('change');
 					$("#tgl_stok").val(data.header.tgl_stok);
 					$("#id_timb").val(data.header.id_timbangan);
 					$("#no_timb").val(data.header.no_timbangan);

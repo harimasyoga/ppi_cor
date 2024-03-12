@@ -1984,12 +1984,12 @@ class Transaksi extends CI_Controller
             <tr>
                 <td width="10 %"  align="left">Tgl PO</td>
                 <td width="5%" > : </td>
-                <td width="85 %" > '. $this->m_fungsi->tanggal_format_indonesia($data->tgl_po) .'<td>
+                <td width="85 %" > '. $this->m_fungsi->tanggal_format_indonesia($data->tgl_po) .'</td>
             </tr>
             <tr>
                 <td align="left">Customer</td>
                 <td> : </td>
-                <td> '. $data->nm_pelanggan .'<td>
+                <td> '. $data->nm_pelanggan .'</td>
             </tr>
             </table><br>';
 
@@ -2194,9 +2194,9 @@ class Transaksi extends CI_Controller
 				$no = 1;
 				foreach ($query->result() as $r) { 
 					$html .= '
-								<tr>
-									<td>' . $no . '. ' . $this->m_fungsi->tanggal_format_indonesia($r->eta) . '</td>
-								</tr>';
+						<tr>
+							<td>' . $no . '. ' . $this->m_fungsi->tanggal_format_indonesia($r->eta) . '</td>
+						</tr>';
 					$no++;
 				}
 
@@ -2245,7 +2245,7 @@ class Transaksi extends CI_Controller
                         <tr style=\"font-weight: bold;\">
 							<td align=\"center\">
 								<img src=\"" . base_url() . "assets/gambar_po/$data->img_po\"  />
-						</td>
+							</td>
                         </tr>
                  </table><br>";
 
