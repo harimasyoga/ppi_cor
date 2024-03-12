@@ -1247,6 +1247,48 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function save_po_bb()
+	{
+		$thn          = date('Y');
+		$sts_input    = $this->input->post('sts_input');
+		$aka          = $this->input->post('aka');
+
+		if($sts_input=='edit')
+		{
+			$no_po_bhn    = $this->input->post('no_po_old');
+			$data_header = array(			
+				'no_po_bhn'  => $no_po_bhn,
+				'tgl_bhn'    => $this->input->post('tgl_po'),
+				'hub'        => $this->input->post('hub'),
+				'hrg_bhn'    => str_replace('.','',$this->input->post('harga')),
+				'ton_bhn'    => str_replace('.','',$this->input->post('ton')),
+				'total'      => str_replace('.','',$this->input->post('total_po')),
+	
+			);
+	
+			$this->db->where('id_po_bhn', $this->input->post('id_po_bhn'));
+			$result_header = $this->db->update('trs_po_bhnbk', $data_header);
+
+		}else{
+			$no_po_bhn    = $this->m_fungsi->urut_transaksi('PO_BAHAN').'/'.$aka.'/'.$thn;
+
+			$data_header = array(			
+				'no_po_bhn'  => $no_po_bhn,
+				'tgl_bhn'    => $this->input->post('tgl_po'),
+				'hub'        => $this->input->post('hub'),
+				'hrg_bhn'    => str_replace('.','',$this->input->post('harga')),
+				'ton_bhn'    => str_replace('.','',$this->input->post('ton')),
+				'total'      => str_replace('.','',$this->input->post('total_po')),
+	
+			);
+			$result_header = $this->db->insert('trs_po_bhnbk', $data_header);
+
+		}
+
+		return $result_header;
+			
+	}
+
 	function simpanCartLaminasi()
 	{
 		if($_POST["statusInput"] == 'insert'){

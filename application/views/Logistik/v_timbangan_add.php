@@ -610,7 +610,7 @@
 						type                : "success"
 						// confirmButtonText   : "OK"
 					});
-					// location.href = "<?= base_url()?>Logistik/Timbangan";
+					location.href = "<?= base_url()?>Logistik/Timbangan";
 
 				} else {
 					swal({

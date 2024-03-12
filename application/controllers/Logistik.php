@@ -84,38 +84,32 @@ class Logistik extends CI_Controller
 	{
 		$id_name    = $this->input->post('id');
 		$jenis      = $this->input->post('jenis');
-		$hub        = $this->input->post('hub');
 		$data       = array();
 
-		if ($jenis == "load_po_stok") 
+		if ($jenis == "load_po_bahan") 
 		{
-			$query = $this->db->query("SELECT b.id as id_detail,DATE_ADD(a.tgl_po, INTERVAL 2 DAY) as tgl_po2, d.id_produk as id_produk , c.id_pelanggan as id_pelanggan, c.nm_pelanggan as nm_pelanggan, a.*,b.*,c.*,d.* from trs_po a 
-			JOIN trs_po_detail b ON a.kode_po=b.kode_po
-			JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
-			JOIN m_produk d ON d.id_produk=b.id_produk
-			where a.tgl_po > '2024-01-01' and a.id_hub='$hub' and DATE_ADD(a.tgl_po, INTERVAL 2 DAY) <=
-			LEFT(NOW() ,10)")->result();
+			$query = $this->db->query("SELECT * FROM trs_po_bhnbk a JOIN m_hub b ON a.hub=b.id_hub ORDER BY id_po_bhn")->result();
+			// $query = $this->db->query("SELECT b.id as id_detail,DATE_ADD(a.tgl_po, INTERVAL 2 DAY) as tgl_po2, d.id_produk as id_produk , c.id_pelanggan as id_pelanggan, c.nm_pelanggan as nm_pelanggan, a.*,b.*,c.*,d.* from trs_po a 
+			// JOIN trs_po_detail b ON a.kode_po=b.kode_po
+			// JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+			// JOIN m_produk d ON d.id_produk=b.id_produk
+			// where a.tgl_po > '2024-01-01' and a.id_hub='$hub' and DATE_ADD(a.tgl_po, INTERVAL 2 DAY) <=
+			// LEFT(NOW() ,10)")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
 
-				$id       = "'$r->id_detail'";
-				$kd_po    = "'$r->kode_po'";
+				$id       = "'$r->id_po_bhn'";
+				$no_po    = "'$r->no_po_bhn'";
 				$row      = array();
 				$row[]    = '<div class="text-center">'.$i.'</div>';
-				$row[]    = '<div >'.$r->nm_pelanggan.'</div>';
-				$row[]    = '<div >'.$r->kategori.'</div>';
-				$row[]    = $r->kode_po;
-				$row[]    = $r->tgl_po;
-				$row[]    = $r->nm_produk;
-				$row[]    = '<div class="text-center">'.$r->ukuran.'</div>';
-				$row[]    = '<div class="text-center">'.$r->ukuran_sheet.'</div>';
-				$row[]    = '<div class="text-center">'.number_format($r->qty, 0, ",", ".").'</div>';
-				$row[]    = '<div class="text-center">'.number_format($r->bhn_bk, 0, ",", ".").'</div>';
-				$row[]    = '<div class="text-center">'.number_format($r->ton, 0, ",", ".").'</div>';
+				$row[]    = '<div >'.$r->nm_hub.'</div>';
+				$row[]    = $r->no_po_bhn;
+				$row[]    = $this->m_fungsi->tanggal_ind($r->tgl_bhn);
+				$row[]    = '<div class="text-center">'.number_format($r->ton_bhn, 0, ",", ".").'</div>';
 				
 				$aksi = '
-				<button type="button" title="PILIH"  onclick="spilldata(' . $id . ',' . $kd_po . ',' . $id_name . ')" class="btn btn-success btn-sm">
+				<button type="button" title="PILIH"  onclick="spilldata(' . $id . ',' . $no_po . ',' . $id_name . ')" class="btn btn-success btn-sm">
 					<i class="fas fa-check-circle"></i>
 				</button> ';
 
@@ -1009,14 +1003,17 @@ class Logistik extends CI_Controller
 			
 			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
 		}else if($jenis=='spill_po')
-		{
-			$queryh   = "SELECT b.id as id_detail, d.id_produk as id_produk , c.id_pelanggan as id_pelanggan, c.nm_pelanggan as nm_pelanggan, a.*,b.*,c.*,d.* from trs_po a 
-			JOIN trs_po_detail b ON a.kode_po=b.kode_po
-			JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
-			JOIN m_produk d ON d.id_produk=b.id_produk
-			where a.tgl_po > '2024-01-01' and b.id='$id'";
+		{ 
+			$queryh   = "SELECT * FROM trs_po_bhnbk a JOIN m_hub b ON a.hub=b.id_hub where id_po_bhn='$id' ";
 			
-			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
+			$queryd   = "SELECT * FROM trs_po_bhnbk a JOIN m_hub b ON a.hub=b.id_hub where id_po_bhn='$id' ";
+		}else if($jenis=='edit_stok_bb')
+		{ 
+			$queryh   = "SELECT * FROM trs_h_stok_bb  where id_stok='$id' ";
+			$data_h   = $this->db->query($queryh)->row();
+			
+			$queryd   = "SELECT * FROM trs_d_stok_bb a JOIN m_hub b ON a.id_hub=b.id_hub where no_stok='$data_h->no_stok' ";
+
 		}else if($jenis=='invoice')
 		{
 			$queryh   = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
@@ -1029,9 +1026,8 @@ class Logistik extends CI_Controller
 		
 
 		$header   = $this->db->query($queryh)->row();
-		$detail    = $this->db->query($queryd)->result();
-
-		$data = ["header" => $header, "detail" => $detail];
+		$detail   = $this->db->query($queryd)->result();
+		$data     = ["header" => $header, "detail" => $detail];
 
         echo json_encode($data);
 	}
@@ -1392,48 +1388,58 @@ class Logistik extends CI_Controller
 
 				$i++;
 			}
-		}else if ($jenis == "stok_bb") {
-			$query = $this->db->query("SELECT a.*,b.* FROM m_kode_kelompok a 
-			join m_kode_akun b ON a.kd_akun=b.kd_akun 
-			ORDER BY a.kd_akun ,a.id_kelompok ")->result();
+		}else if ($jenis == "stok_bb") {			
+			$query = $this->db->query("SELECT*FROM trs_h_stok_bb ORDER BY id_stok")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
 
-				$id             = "'$r->id_kelompok'";
-				$kd_kelompok    = "'$r->kd_kelompok'";
-				$nm_kelompok    = "'$r->nm_kelompok'";
+				$rinci_stok  = $this->db->query("SELECT*FROM trs_d_stok_bb a JOIN m_hub b ON a.id_hub=b.id_hub WHERE a.no_stok='$r->no_stok' ORDER BY id_stok_d");
+
+				if($rinci_stok->num_rows() == '1'){
+					$nm_cust = $rinci_stok->row()->nm_hub;
+				}else{
+					$no                = 1;
+					$nm_cust_result    = '';
+					foreach($rinci_stok->result() as $row_po){
+						$nm_cust_result .= '<b>'.$no.'.</b> '.$row_po->nm_hub.'<br>';
+						$no ++;
+					}
+					$nm_cust = $nm_cust_result;
+
+				}
+
+				$id             = "'$r->id_stok'";
+				$no_stok        = "'$r->no_stok'";
+				$total_bb       = $r->total_item + $r->tonase_ppi;
+
+				$row            = array();
+				$row[]          = '<div class="text-center">'.$i.'</div>';
+				$row[]          = '<div >'.$r->no_stok.'</div>';
+				$row[]          = '<div class="text-center">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_stok).'</div>';
+				$row[]          = '<div class="text-center"><button type="button" class="btn btn-sm btn-info ">'.$r->status.'</button></div>';
+				$row[]          = '<div >'.$r->no_timbangan.'</div>';
+				$row[]          = '<div class="text-center">'.number_format($r->total_timb, 0, ",", ".").' Kg</div>' ;
+				$row[]          = '<div class="text-center">'.number_format($total_bb, 0, ",", ".").' Kg</div>' ;
+				$row[]          = '<div class="text-center">'.$nm_cust.'</div>';
 				
-				$row = array();
-				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = '<div class="">'.$r->nm_kelompok.'</div>';
-				$row[] = '<div class="">'.$r->nm_kelompok.'</div>';
-				$row[] = '<div class="">'.$r->nm_kelompok.'</div>';
-				$row[] = '<div class="text-center">'.$r->id_akun.'.'.$r->kd_kelompok.'</div>';
-				$row[] = $r->nm_kelompok;
-
-				$aksi = "";
-
-				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))
-				{
-					$aksi = '
-						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_kelompok . ')" title="EDIT DATA" >
+				$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_stok . ')" title="EDIT DATA" >
 							<b><i class="fa fa-edit"></i> </b>
 						</a> 
+						
+						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO_BAHAN?no_stok=".$no_stok."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
-						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $nm_kelompok . ')" class="btn btn-danger btn-sm">
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_stok . ')" class="btn btn-danger btn-sm">
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';
-			
-				} else {
-					$aksi = '';
-				}
+
 				$row[] = '<div class="text-center">'.$aksi.'</div>';
 				$data[] = $row;
-
 				$i++;
 			}
+		
 		}else if ($jenis == "load_timbangan") 
 		{
 			$query = $this->db->query("SELECT * FROM m_jembatan_timbang ORDER BY id_timbangan")->result();
