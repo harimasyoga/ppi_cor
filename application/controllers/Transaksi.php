@@ -78,38 +78,188 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function hapusKetEditHPP()
+	{
+		$result = $this->m_transaksi->hapusKetEditHPP();
+		echo json_encode($result);
+	}
+
 	function editHPP()
 	{
 		$id_hpp = $_POST["id_hpp"];
 		$opsi = $_POST["opsi"];
 		$hpp = $this->db->query("SELECT*FROM m_hpp WHERE id_hpp='$id_hpp'")->row();
+		
+		$htmlUpah = '';
+		$upah = $this->db->query("SELECT*FROM m_hpp_detail WHERE id_hpp='$id_hpp' AND opsi='upah' AND jenis='pm'");
+		if($upah->num_rows() == 0){
+			$htmlUpah .= '';
+		}else{
+			foreach($upah->result() as $u){
+				if($opsi == 'edit'){
+					$hapusUpah = '<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKetEditHPP('."'".$u->id."'".','."'".$id_hpp."'".','."'upah'".','."'edit'".')"><i class="fas fa-times"></i></button>';
+				}else{
+					$hapusUpah = '';
+				}
+				$htmlUpah .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+					<div class="col-md-3">'.$hapusUpah.' '.$u->ket_txt.'</div>
+					<div class="col-md-9">
+						<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($u->ket_rp,0,',','.').'" disabled>
+					</div>
+				</div>';
+			}
+		}
+
+		$htmlBB = '';
+		$bb = $this->db->query("SELECT*FROM m_hpp_detail WHERE id_hpp='$id_hpp' AND opsi='bb' AND jenis='pm'");
+		if($bb->num_rows() == 0){
+			$htmlBB .= '';
+		}else{
+			foreach($bb->result() as $b){
+				if($opsi == 'edit'){
+					$hapusBB = '<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKetEditHPP('."'".$b->id."'".','."'".$id_hpp."'".','."'bb'".','."'edit'".')"><i class="fas fa-times"></i></button>';
+				}else{
+					$hapusBB = '';
+				}
+				if($b->ket_kg == 0){
+					$htmlBB .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+						<div class="col-md-3">'.$hapusBB.' '.$b->ket_txt.'</div>
+						<div class="col-md-6"></div>
+						<div class="col-md-3">
+							<div class="input-group" style="margin-bottom:3px">
+								<div class="input-group-prepend">
+									<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+								</div>
+								<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($b->ket_rp,0,',','.').'" disabled>
+							</div>
+						</div>
+					</div>';
+				}
+				if($b->ket_kg != 0){
+					$htmlBB .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+						<div class="col-md-3">'.$hapusBB.' '.$b->ket_txt.'</div>
+						<div class="col-md-3">
+							<div class="input-group" style="margin-bottom:3px">
+								<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($b->ket_kg,0,',','.').'" disabled>
+								<div class="input-group-prepend">
+									<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Kg</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="input-group" style="margin-bottom:3px">
+								<div class="input-group-prepend">
+									<span class="input-group-text" style="padding:6px">Rp</span>
+								</div>
+								<input type="text" class="form-control" style="text-align:right" value="'.number_format($b->ket_rp,0,',','.').'" disabled>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+								</div>
+								<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($b->ket_x,0,',','.').'" disabled>
+							</div>
+						</div>
+					</div>';
+				}
+			}
+		}
+
+		$htmlLainLain = '';
+		$dll = $this->db->query("SELECT*FROM m_hpp_detail WHERE id_hpp='$id_hpp' AND opsi='lainlain' AND jenis='pm'");
+		if($dll->num_rows() == 0){
+			$htmlLainLain .= '';
+		}else{
+			foreach($dll->result() as $l){
+				if($opsi == 'edit'){
+					$hapusLL = '<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKetEditHPP('."'".$l->id."'".','."'".$id_hpp."'".','."'lainlain'".','."'edit'".')"><i class="fas fa-times"></i></button>';
+				}else{
+					$hapusLL = '';
+				}
+				if($l->ket_kg == 0){
+					$htmlLainLain .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+						<div class="col-md-3">'.$hapusLL.' '.$l->ket_txt.'</div>
+						<div class="col-md-6"></div>
+						<div class="col-md-3">
+							<div class="input-group" style="margin-bottom:3px">
+								<div class="input-group-prepend">
+									<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+								</div>
+								<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($l->ket_rp,0,',','.').'" disabled>
+							</div>
+						</div>
+					</div>';
+				}
+				if($l->ket_kg != 0){
+					$htmlLainLain .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+						<div class="col-md-3">'.$hapusLL.' '.$l->ket_txt.'</div>
+						<div class="col-md-3">
+							<div class="input-group" style="margin-bottom:3px">
+								<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($l->ket_kg,0,',','.').'" disabled>
+								<div class="input-group-prepend">
+									<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Kg</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="input-group" style="margin-bottom:3px">
+								<div class="input-group-prepend">
+									<span class="input-group-text" style="padding:6px">Rp</span>
+								</div>
+								<input type="text" class="form-control" style="text-align:right" value="'.number_format($l->ket_rp,0,',','.').'" disabled>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+								</div>
+								<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($l->ket_x,0,',','.').'" disabled>
+							</div>
+						</div>
+					</div>';
+				}
+			}
+		}
+
 		$data = [
 			'id_hpp' => $hpp->id_hpp,
 			'pilih_hpp' => $hpp->pilih_hpp,
-			'tgl1_hpp' => $hpp->tgl_hpp,
-			// 'tgl2_hpp' => $hpp->tgl2_hpp,
+			'tgl_hpp' => $hpp->tgl_hpp,
 			'jenis_hpp' => $hpp->jenis_hpp,
-			'batu_bara' => number_format($hpp->batu_bara,0,",","."),
-			'batu_bara_rp' => number_format($hpp->batu_bara_rp,0,",","."),
-			'bahan_baku' => number_format($hpp->bahan_baku,0,",","."),
-			'bahan_baku_rp' => number_format($hpp->bahan_baku_rp,0,",","."),
-			'listrik' => number_format($hpp->listrik,0,",","."),
-			'chemical' => number_format($hpp->chemical,0,",","."),
-			'chemical_rp' => number_format($hpp->chemical_rp,0,",","."),
-			'tenaga_kerja' => number_format($hpp->tenaga_kerja,0,",","."),
-			'depresiasi' => number_format($hpp->depresiasi,0,",","."),
-			'bahan_pembantu' => number_format($hpp->bahan_pembantu,0,",","."),
-			'solar' => number_format($hpp->solar,0,",","."),
-			'ekspedisi' => number_format($hpp->ekspedisi,0,",","."),
-			'lain_lain' => number_format($hpp->lain_lain,0,",","."),
-			'hasil_hpp' => number_format($hpp->hasil_hpp,0,",","."),
-			'tonase_order' => number_format($hpp->tonase_order,0,",","."),
-			'hasil_x_tonanse' => number_format($hpp->hasil_x_tonanse,0,",","."),
-			'presentase' => $hpp->presentase,
-			'hxt_x_persen' => number_format($hpp->hxt_x_persen,0,",","."),
-			'fix_hpp' => number_format($hpp->fix_hpp,0,",","."),
+			'jenis_cor' => $hpp->jenis_cor,
+			'bahan_baku_kg' => number_format($hpp->bahan_baku_kg,0,',','.'),
+			'bahan_baku_rp' => number_format($hpp->bahan_baku_rp,0,',','.'),
+			'tenaga_kerja' => number_format($hpp->tenaga_kerja,0,',','.'),
+			'upah' => number_format($hpp->upah,0,',','.'),
+			'thr' => number_format($hpp->thr,0,',','.'),
+			'listrik' => number_format($hpp->listrik,0,',','.'),
+			'batu_bara_kg' => number_format($hpp->batu_bara_kg,0,',','.'),
+			'batu_bara_rp' => number_format($hpp->batu_bara_rp,0,',','.'),
+			'batu_bara_x' => number_format($hpp->batu_bara_x,0,',','.'),
+			'chemical_kg' => number_format($hpp->chemical_kg,0,',','.'),
+			'chemical_rp' => number_format($hpp->chemical_rp,0,',','.'),
+			'chemical_x' => number_format($hpp->chemical_x,0,',','.'),
+			'bahan_pembantu' => number_format($hpp->bahan_pembantu,0,',','.'),
+			'solar' => number_format($hpp->solar,0,',','.'),
+			'maintenance' => number_format($hpp->maintenance,0,',','.'),
+			'ekspedisi' => number_format($hpp->ekspedisi,0,',','.'),
+			'depresiasi' => number_format($hpp->depresiasi,0,',','.'),
+			'lain_lain_kg' => number_format($hpp->lain_lain_kg,0,',','.'),
+			'lain_lain_rp' => number_format($hpp->lain_lain_rp,0,',','.'),
+			'hasil_hpp' => number_format($hpp->hasil_hpp,0,',','.'),
+			'tonase_order' => number_format($hpp->tonase_order,0,',','.'),
+			'hasil_x_tonanse' => number_format($hpp->hasil_x_tonanse,0,',','.'),
 		];
-		echo json_encode($data);
+
+		echo json_encode([
+			'data' => $data,
+			'htmlUpah' => $htmlUpah,
+			'htmlBB' => $htmlBB,
+			'htmlLainLain' => $htmlLainLain,
+		]);
 	}
 
 	function loadDataHPP()
@@ -122,11 +272,10 @@ class Transaksi extends CI_Controller
 			$row = [];
 			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$i.'<a></div>';
 			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp)).'</a></div>';
-			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->pilih_hpp.'</a></div>';
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->jenis_hpp.'<a></div>';
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_hpp,0,",",".").'</a></div>';
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->tonase_order,0,",",".").'</a></div>';
-			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->presentase.'</a></div>';
-			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->fix_hpp,0,",",".").'</a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_x_tonanse,0,",",".").'</a></div>';
 			$edit = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
 			$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
 			$row[] = '<div class="text-center">'.$edit.' '.$hapus.'</div>';
@@ -4171,6 +4320,242 @@ class Transaksi extends CI_Controller
 		$html .='</div></div>';
 
 		echo $html;
+	}
+
+	function destroyHPP()
+	{
+		$this->cart->destroy();
+	}
+
+	function keteranganHPP()
+	{
+		if(($_POST["ket_txt"] == "" || $_POST["ket_rp"] == "") && ($_POST["opsi"] == 'upah' || $_POST["opsi"] == 'bb' || $_POST["opsi"] == 'lainlain')){
+			echo json_encode(array('valid' => false, 'data' => 'KETERANGAN TIDAK BOLEH KOSONG!'));
+		}else{
+			$id_hpp = $_POST["id_hpp"];
+			$opsi = $_POST['opsi'];
+			$jenis = $_POST['jenis'];
+			$ket_txt = $_POST['ket_txt'];
+			$cek = $this->db->query("SELECT*FROM m_hpp_detail WHERE id_hpp='$id_hpp' AND opsi='$opsi' AND jenis='$jenis' AND ket_txt='$ket_txt'");
+
+			$data = array(
+				'id' => $_POST['id_cart'],
+				'name' => $_POST['id_cart'],
+				'price' => 0,
+				'qty' => 1,
+				'options' => array(
+					'id_hpp' => $_POST["id_hpp"],
+					'opsi' => $_POST['opsi'],
+					'jenis' => $_POST['jenis'],
+					'ket_txt' => $_POST['ket_txt'],
+					'ket_kg' => $_POST['ket_kg'],
+					'ket_rp' => $_POST['ket_rp'],
+					'ket_x' => $_POST['ket_x'],
+				)
+			);
+
+			if($cek->num_rows() > 0){
+				echo json_encode(array('valid' => false, 'data' => 'ITEM SUDAH ADA!')); return;
+			}else{
+				if($this->cart->total_items() != 0){
+					foreach($this->cart->contents() as $r){
+						if($_POST["opsi"] == 'upah' && $r['options']['ket_txt'] == $_POST["ket_txt"]){
+							echo json_encode(array('valid' => false, 'data' => 'ITEM SUDAH ADA!')); return;
+						}
+						if($_POST["opsi"] == 'bb' && $r['options']['ket_txt'] == $_POST["ket_txt"]){
+							echo json_encode(array('valid' => false, 'data' => 'ITEM SUDAH ADA!')); return;
+						}
+						if($_POST["opsi"] == 'lainlain' && $r['options']['ket_txt'] == $_POST["ket_txt"] && $r['options']['ket_kg'] == $_POST["ket_kg"] && $r['options']['ket_rp'] == $_POST["ket_rp"]){
+							echo json_encode(array('valid' => false, 'data' => 'ITEM SUDAH ADA!')); return;
+						}
+					}
+					$this->cart->insert($data);
+					echo json_encode(array('valid' => true, 'data' => $data));
+				}else{
+					$this->cart->insert($data);
+					echo json_encode(array('valid' => true, 'data' => $data));
+				}
+			}
+		}
+	}
+
+	function listKeteranganHPP()
+	{
+		$opsi = $_POST['opsi'];
+		$jenis = $_POST['jenis'];
+		$id_hpp = $_POST['id_hpp'];
+		$sum = $this->db->query("SELECT SUM(ket_kg) AS ket_kg,SUM(ket_rp) AS ket_rp,SUM(ket_x) AS ket_x FROM m_hpp_detail
+		WHERE id_hpp='$id_hpp' AND opsi='$opsi' AND jenis='$jenis'
+		GROUP BY id_hpp,opsi,jenis");
+
+		$htmlUpah = '';
+		$htmlBB = '';
+		$htmlLainLain = '';
+		if($sum->num_rows() > 0){
+			$sumUpah = $sum->row()->ket_rp;
+			$sumBBkg = $sum->row()->ket_kg;
+			$sumBBrp = $sum->row()->ket_x;
+			$sumLLkg = $sum->row()->ket_kg;
+			$sumLLrp = $sum->row()->ket_x;
+		}else{
+			$sumUpah = 0;
+			$sumBBkg = 0;
+			$sumBBrp = 0;
+			$sumLLkg = 0;
+			$sumLLrp = 0;
+		}
+
+		if($this->cart->total_items() == 0){
+			$htmlUpah .= '';
+			$htmlBB .= '';
+			$htmlLainLain .= '';
+		}
+
+		if($this->cart->total_items() != 0){
+			foreach($this->cart->contents() as $r){
+				if($r['options']['opsi'] == 'upah'){
+					$htmlUpah .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+						<div class="col-md-3">
+							<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKeteranganHPP('."'".$r['rowid']."'".','."'".$r['options']['opsi']."'".','."'".$r['options']['jenis']."'".','."'".$r['options']['id_hpp']."'".')"><i class="fas fa-times"></i></button> '.$r['options']['ket_txt'].'
+						</div>
+						<div class="col-md-9">
+							<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($r['options']['ket_rp'],0,',','.').'" disabled>
+						</div>
+					</div>';
+					$sumUpah += $r['options']['ket_rp'];
+				}
+			}
+
+			foreach($this->cart->contents() as $r){
+				if($r['options']['opsi'] == 'bb'){
+					if($r['options']['ket_kg'] == 0){
+						$htmlBB .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3">
+								<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKeteranganHPP('."'".$r['rowid']."'".','."'".$r['options']['opsi']."'".','."'".$r['options']['jenis']."'".','."'".$r['options']['id_hpp']."'".')"><i class="fas fa-times"></i></button> '.$r['options']['ket_txt'].'
+							</div>
+							<div class="col-md-6"></div>
+							<div class="col-md-3">
+								<div class="input-group" style="margin-bottom:3px">
+									<div class="input-group-prepend">
+										<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+									</div>
+									<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($r['options']['ket_rp'],0,',','.').'" disabled>
+								</div>
+							</div>
+						</div>';
+					}
+					if($r['options']['ket_kg'] != 0){
+						$htmlBB .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+							<div class="col-md-3">
+								<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKeteranganHPP('."'".$r['rowid']."'".','."'".$r['options']['opsi']."'".','."'".$r['options']['jenis']."'".','."'".$r['options']['id_hpp']."'".')"><i class="fas fa-times"></i></button> '.$r['options']['ket_txt'].'
+							</div>
+							<div class="col-md-3">
+								<div class="input-group" style="margin-bottom:3px">
+									<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($r['options']['ket_kg'],0,',','.').'" disabled>
+									<div class="input-group-prepend">
+										<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Kg</span>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="input-group" style="margin-bottom:3px">
+									<div class="input-group-prepend">
+										<span class="input-group-text" style="padding:6px">Rp</span>
+									</div>
+									<input type="text" class="form-control" style="text-align:right" value="'.number_format($r['options']['ket_rp'],0,',','.').'" disabled>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+									</div>
+									<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($r['options']['ket_x'],0,',','.').'" disabled>
+								</div>
+							</div>
+						</div>';
+					}
+					$sumBBkg += $r['options']['ket_kg'];
+					$sumBBrp += $r['options']['ket_x'];
+				}
+			}
+
+			foreach($this->cart->contents() as $r){
+				if($r['options']['opsi'] == 'lainlain'){
+					if($r['options']['ket_kg'] == 0){
+						$htmlLainLain .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3">
+								<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKeteranganHPP('."'".$r['rowid']."'".','."'".$r['options']['opsi']."'".','."'".$r['options']['jenis']."'".','."'".$r['options']['id_hpp']."'".')"><i class="fas fa-times"></i></button> '.$r['options']['ket_txt'].'
+							</div>
+							<div class="col-md-6"></div>
+							<div class="col-md-3">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+									</div>
+									<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($r['options']['ket_rp'],0,',','.').'" disabled>
+								</div>
+							</div>
+						</div>';
+					}
+					if($r['options']['ket_kg'] != 0){
+						$htmlLainLain .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+							<div class="col-md-3">
+								<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKeteranganHPP('."'".$r['rowid']."'".','."'".$r['options']['opsi']."'".','."'".$r['options']['jenis']."'".','."'".$r['options']['id_hpp']."'".')"><i class="fas fa-times"></i></button> '.$r['options']['ket_txt'].'
+							</div>
+							<div class="col-md-3">
+								<div class="input-group" style="margin-bottom:3px">
+									<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($r['options']['ket_kg'],0,',','.').'" disabled>
+									<div class="input-group-prepend">
+										<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Kg</span>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="input-group" style="margin-bottom:3px">
+									<div class="input-group-prepend">
+										<span class="input-group-text" style="padding:6px">Rp</span>
+									</div>
+									<input type="text" class="form-control" style="text-align:right" value="'.number_format($r['options']['ket_rp'],0,',','.').'" disabled>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+									</div>
+									<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($r['options']['ket_x'],0,',','.').'" disabled>
+								</div>
+							</div>
+						</div>';
+					}
+					$sumLLkg += $r['options']['ket_kg'];
+					$sumLLrp += $r['options']['ket_x'];
+				}
+			}
+		}
+
+		echo json_encode([
+			'opsi' => $opsi,
+			'htmlUpah' => $htmlUpah,
+			'htmlBB' => $htmlBB,
+			'htmlLainLain' => $htmlLainLain,
+			'sumUpah' => number_format($sumUpah,0,',','.'),
+			'sumBBkg' => number_format($sumBBkg,0,',','.'),
+			'sumBBrp' => number_format($sumBBrp,0,',','.'),
+			'sumLLkg' => number_format($sumLLkg,0,',','.'),
+			'sumLLrp' => number_format($sumLLrp,0,',','.'),
+			'sum' => $sum->row(),
+		]);
+	}
+
+	function hapusKeteranganHPP()
+	{
+		$data = array(
+			'rowid' => $_POST['rowid'],
+			'qty' => 0,
+		);
+		$this->cart->update($data);
 	}
 
 	public function Hitung_harga()
