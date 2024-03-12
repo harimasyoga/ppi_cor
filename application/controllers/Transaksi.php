@@ -138,6 +138,31 @@ class Transaksi extends CI_Controller
 		echo json_encode($output);
 	}
 
+	function PO_bhn_bk()
+	{
+		$data = [
+			'judul' => "PO BAHAN BAKU",
+		];
+		$this->load->view('header',$data);
+		if($this->session->userdata('level'))
+		{
+			$this->load->view('Transaksi/v_po_bhn_bk');
+		}else{
+			$this->load->view('home');
+		}
+		$this->load->view('footer');
+	}
+
+	function insert_po_bb()
+	{
+		if($this->session->userdata('username'))
+		{ 
+			$result = $this->m_transaksi->save_po_bb();
+			echo json_encode($result);
+		}
+		
+	}
+
 	function PO_Laminasi()
 	{
 		$data = [
@@ -1121,6 +1146,50 @@ class Transaksi extends CI_Controller
 
 				$i++;
 			}
+		} else if ($jenis == "po_bahan") {
+
+			$query = $this->db->query("SELECT*FROM trs_po_bhnbk a JOIN m_hub b ON a.hub=b.id_hub ORDER BY a.id_po_bhn")->result();
+
+			$i               = 1;
+			foreach ($query as $r) 
+			{
+				$id           = "'$r->id_po_bhn'";
+				$no_po_bhn    = "'$r->no_po_bhn'";
+				$no_po_bhn2   = "$r->no_po_bhn";
+				
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<div class="">'.$r->no_po_bhn.'</div>';
+				$row[] = '<div class="">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_bhn).'</div>';
+				$row[] = '<div class="">'.$r->nm_hub.'</div>';
+				$row[] = '<div class="text-center">'.number_format($r->ton_bhn, 0, ",", ".").' Kg</div>';
+				$row[] = '<div class="text-center">'.number_format($r->hrg_bhn, 0, ",", ".").'</div>';
+				$row[] = '<div class="text-center">'.number_format($r->total, 0, ",", ".").'</div>';
+
+				$aksi = "";
+
+				if (in_array($this->session->userdata('level'), ['Admin','User']))
+				{
+					$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_po_bhn . ')" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+						
+						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO_BAHAN?no_po_bhn=".$no_po_bhn2."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_po_bhn . ')" class="btn btn-danger btn-sm">
+							<i class="fa fa-trash-alt"></i>
+						</button> 
+						';
+			
+				} else {
+					$aksi = '';
+				}
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+
+				$i++;
+			}
 		} else if ($jenis == "trs_so_detail") {
 			$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,s.* FROM trs_po_detail d
 			INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so=s.no_so AND d.id_produk=s.id_produk
@@ -1377,6 +1446,33 @@ class Transaksi extends CI_Controller
 		);
 		echo json_encode($output);
 	}
+
+	function load_data_1()
+	{
+		$id       = $this->input->post('id');
+		$tbl      = $this->input->post('tbl');
+		$jenis    = $this->input->post('jenis');
+		$field    = $this->input->post('field');
+
+		if($jenis=='po_bahan_baku')
+		{
+			$queryh   = "SELECT * FROM $tbl a JOIN m_hub b ON a.hub=b.id_hub WHERE $field = '$id' ";
+			
+			$queryd   = "SELECT*FROM $tbl where $field = '$id' ";
+		}else{
+
+			$queryh   = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
+			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
+		}
+		
+
+		$header   = $this->db->query($queryh)->row();
+		$detail    = $this->db->query($queryd)->result();
+
+		$data = ["header" => $header, "detail" => $detail];
+
+        echo json_encode($data);
+	}	
 
 	function Lap_POLaminasi()
 	{
@@ -1818,7 +1914,7 @@ class Transaksi extends CI_Controller
 		$this->m_fungsi->template_kop('PURCHASE ORDER',$id,$html,'L','1');
 		// $this->m_fungsi->mPDFP($html);
 	}
-
+	
     function Cetak_wa_po()
 	{
 		$id  = $_GET['no_po'];
@@ -2016,6 +2112,187 @@ class Transaksi extends CI_Controller
 		$this->m_fungsi->_mpdf_hari('P', 'A4', $data->kode_po, $html, $data->kode_po.'.pdf', 5, 5, 5, 10);
 		// $this->m_fungsi->mPDFP($html);
 	}
+
+	function Cetak_PO_BAHAN()
+	{
+		$no_po_bhn    = $_GET['no_po_bhn'];
+		$judul        = 'PO BAHAN BAKU ';
+		$position     = 'P';
+		$cekpdf       = '1';
+
+
+		$param        = $judul;
+		$unit         = $this->session->userdata('unit');
+		$npwp         = '-';
+		$chari        = '';
+
+        $query_header = $this->db->query("SELECT * FROM trs_po_bhnbk a JOIN m_hub b ON a.hub   = b.id_hub WHERE a.no_po_bhn = '$no_po_bhn' ");
+        
+        $data = $query_header->row();
+
+		$chari .= "
+			 <table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:12px; color:#000;\" width=\"100%\"  border=\"\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\">
+			 <thead>
+				  <tr>
+					   <td rowspan=\"5\" align=\"center\">
+							<img src=\"" . base_url() . "assets/gambar/$data->aka.png\"  width=\"80\" height=\"70\" />
+							
+					   </td>
+					   <td colspan=\"20\">
+							<b>
+								 <tr>
+									  <td align=\"center\" style=\"font-size:18;border-bottom: none;\"><b>$data->nm_hub</b></td>
+								 </tr>
+								 <tr>
+									  <td align=\"center\" style=\"font-size:8px;text-transform: capitalize;\">$data->alamat</td>
+								 </tr>
+								 <tr>
+									  <td align=\"center\" style=\"font-size:8px;\">Kode Pos $data->kode_pos </td>
+								 </tr>
+								 <tr>
+									  <td align=\"center\" style=\"font-size:8px;\">Wa : $data->no_telp  |  Telp : $data->no_telp </td>
+								 </tr>
+							</b>
+					   </td>
+				  </tr>
+			 </table>";
+		$chari .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:6px\" width=\"100%\" align=\"center\" border=\"0\">
+				  <tr>
+					   <td> &nbsp; </td>
+				  </tr> 
+			 </table>";
+								 
+		$chari .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:2px\" width=\"100%\" align=\"center\" border=\"1\">     
+				  <tr>
+					   <td colspan=\"20\" style=\"border-top: none;border-right: none;border-left: none;\"></td>
+				  </tr> 
+			 </table>";
+		$chari .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:4px\" width=\"100%\" align=\"center\" border=\"1\">     
+				  <tr>
+					   <td colspan=\"20\" style=\"border-top: none;border-right: none;border-left: none;border-bottom: 2px solid black;font-size:5px\"></td>
+				  </tr> 
+			 </table>";
+		$chari .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:8px\" width=\"100%\" align=\"center\" border=\"0\">     
+				  <tr>
+					   <td>&nbsp;</td>
+				  </tr> 
+			 </table>";
+		$chari .= "
+			 <table style=\"border-collapse:collapse;font-family: Tahoma; font-size:11px\" width=\"100%\" align=\"center\" border=\"0\" cellspacing=\"1\" cellpadding=\"3\">
+				  <tr>
+					   <td colspan=\"20\" width=\"15%\" style=\"text-align:center; font-size:20px;\"><b>" . $param . "</b></td>
+				  </tr>
+			 </table>";
+
+		if ($query_header->num_rows() > 0) 
+		{
+			$chari .= '<table width="100%" border="0" cellspacing="0" style="font-size:14px;font-family: ;">
+                        <tr style="font-weight: bold;">
+                            <td colspan="15" align="center">
+                            <b>( No. '.$data->no_po_bhn.' )</b>
+                            </td>
+                        </tr>
+                 </table>
+				 <br>
+				 <br>
+				 ';
+
+            $chari .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
+
+				<tr>
+					<td align="left" width="30%" >Tgl PO</td>
+					<td align="center" width="5%" > : </td>
+					<td align="right" width="30%" > '. $this->m_fungsi->tanggal_format_indonesia($data->tgl_bhn) .'</td>
+					<td align="left" width="35%" ></td>
+					</tr>
+				<tr>
+					<td align="left" >Qty Po</td>
+					<td align="center" > : </td>
+					<td align="right" > '. number_format($data->qty_bhn, 0, ",", ".") .' Kg</td>
+					<td align="left" ></td>
+
+				</tr>
+				<tr>
+					<td align="left" >Harga / Kg</td>
+					<td align="center" > : </td>
+					<td align="right" >Rp. '. number_format($data->hrg_bhn, 0, ",", ".") .'</td>
+					<td align="left" ></td>
+
+				</tr>
+				<tr>
+					<td align="left" >Total</td>
+					<td align="center" > : </td>
+					<td align="right" >Rp. '. number_format($data->total, 0, ",", ".") .'</td>
+					<td align="left" ></td>
+
+				</tr>
+            </table>
+			<br>
+			<br>
+			<br>
+			
+			<table style="width:100%;margin-bottom:5px;text-align:center;border-collapse:collapse;font-size:11px" border="1">
+				<tr>
+					<td style="border-bottom:0;padding-top:3px;width:32%">ADMIN</td>
+					<td style="border:0;width:2%"></td>
+					<td style="border-bottom:0;padding-top:3px;width:32%">DIREKTUR</td>
+				</tr>
+				<tr>
+					<td style="border-top:0;border-bottom:0;padding:43px 0"></td>
+					<td style="border:0"></td>
+					<td style="border-top:0;border-bottom:0;padding:43px 0"></td>
+				</tr>
+				<tr>
+					<td style="border-top:0;padding-bottom:3px;">(. . . . . . . . . . . . . . . . .)</td>
+					<td style="border:0"></td>
+					<td style="border-top:0">(. . . . . . . . . . . . . . . . .)</td>
+				</tr>
+			</table>
+			
+			<table style="width:100%;border-top:2px solid #000">
+				<tr>
+					<td style="text-align:right;font-size:12px"></td>
+				</tr>
+			</table>
+			';
+		} else {
+			$chari .= '<h1> Data Kosong </h1>';
+		}
+
+		// $this->m_fungsi->_mpdf($html);
+		// $this->m_fungsi->template_kop('PURCHASE ORDER',$id,$html,'P','1');
+		// $this->m_fungsi->mPDFP($html);
+
+		// $data['prev']   = $chari;
+
+		switch ($cekpdf) {
+			case 0;
+				echo ("<title>$judul</title>");
+				echo ($chari);
+				break;
+
+			case 1;
+				// $this->M_fungsi->_mpdf_hari($position, 'A4', $judul, $chari, $no_po_bhn.'.pdf', 5, 5, 5, 10);
+
+				$this->m_fungsi->newMpdf($judul, '', $chari, 10, 3, 3, 3, 'P', 'TT', $no_po_bhn.'.pdf');
+				break;
+
+				
+				
+			case 2;
+				header("Cache-Control: no-cache, no-store, must-revalidate");
+				header("Content-Type: application/vnd-ms-excel");
+				header("Content-Disposition: attachment; filename= $judul.xls");
+				$this->load->view('app/master_cetak', $data);
+				break;
+		}
+
+	}
+
 
 	function Cetak_SO()
 	{

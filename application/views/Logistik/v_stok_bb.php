@@ -36,22 +36,24 @@
 							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 						</div>
 					<?php } ?>
-					<!-- <div style="overflow:auto;white-space:nowrap"> -->
+					<div style="overflow:auto;">
 						<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 							<thead class="color-tabel">
 								<tr>
-									<th class="text-center title-white">NO</th>
-									<th class="text-center title-white">TANGGAL</th>
-									<th class="text-center title-white">JENIS</th>
-									<th class="text-center title-white">TONASE</th>
-									<th class="text-center title-white">CUSTOMER</th>
-									<th class="text-center title-white">ITEM</th>
-									<th class="text-center title-white">AKSI</th>
+									<th class="text-center">NO</th>
+									<th class="text-center">NO STOK</th>
+									<th class="text-center">TANGGAL</th>
+									<th class="text-center">STATUS</th>
+									<th class="text-center">NO TIMB</th>
+									<th class="text-center">TIMBANGAN</th>
+									<th class="text-center">TONASE</th>
+									<th class="text-center" style="padding : 12px 50px">CUST</th>
+									<th class="text-center">AKSI</th>
 								</tr>
 							</thead>
 							<tbody></tbody>
 						</table>
-					<!-- </div> -->
+					</div>
 				</div>
 			</div>			
 		</div>
@@ -62,7 +64,7 @@
 		<!-- Default box -->
 		<div class="card shadow row-input" style="display: none;">
 			<div class="card-header" style="font-family:Cambria;" >
-				<h3 class="card-title" style="color:#4e73df;"><b>INPUT BAHAN BAKU</b></h3>
+				<h3 class="card-title" style="color:#4e73df;"><b>INPUT STOK BAHAN BAKU</b></h3>
 
 				<div class="card-tools">
 					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
@@ -79,15 +81,19 @@
 						<div class="col-md-3">
 							<input type="hidden" name="sts_input" id="sts_input">
 							<input type="hidden" name="id_stok_h" id="id_stok_h">
-							<input type="hidden" name="kd_stok_old" id="kd_stok_old">
 
-							<input type="text" class="angka form-control" name="kd_stok" id="kd_stok" value="AUTO" readonly>
+							<input type="text" class="angka form-control" name="no_stok" id="no_stok" value="AUTO" readonly>
 						</div>
 						<div class="col-md-1"></div>
-
-						<div class="col-md-2">TANGGAL</div>
+						<div class="col-md-2">TOTAL TIMBANGAN</div>
 						<div class="col-md-3">
-							<input type="date" class="form-control" name="tgl_stok" id="tgl_stok" value ="<?= date('Y-m-d') ?>" >
+							<div class="input-group">
+								<input type="text" class="form-control" name="jum_timb" id="jum_timb" value ="0" readonly>
+								<div class="input-group-append">
+									<span class="input-group-text"><b>Kg</b>
+									</span>
+								</div>	
+							</div>
 						</div>
 
 					</div>
@@ -96,10 +102,11 @@
 						<div class="col-md-2">NO TIMBANGAN</div>
 						<div class="col-md-3">
 
-							<div class="input-group">
+							<div class="input-group">								
+								<input type="hidden" name="id_timb" id="id_timb">
+
 								<input type="text" name="no_timb" id="no_timb" class="form-control angka" onkeyup="ubah_angka(this.value,this.id)" readonly>
 
-								<input type="hidden" name="id_timb" id="id_timb">
 								<div class="input-group-append">
 									<span class="input-group-text">
 										<a onclick="search_timbangan(0)">
@@ -111,51 +118,74 @@
 						</div>
 						<div class="col-md-1"></div>
 
-						<div class="col-md-2">TOTAL TIMBANGAN</div>
+						<div class="col-md-2">TOTAL ITEM</div>
 						<div class="col-md-3">
-							<input type="text" class="form-control" name="jum_timb" id="jum_timb" value ="0" readonly>
+							<div class="input-group mb-1">
+								<input type="text" class="form-control" name="total_bb_item" id="total_bb_item" value ="0" readonly>
+								<div class="input-group-append">
+									<span class="input-group-text"><b>Kg</b>
+									</span>
+								</div>		
+							</div>
 						</div>
+						
 
 					</div>
 					
 											
 					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
-													
-						<div class="col-md-2">HUB</div>
+								
+						<div class="col-md-2">MUATAN PPI ?</div>
 						<div class="col-md-3">
-							<select class="form-control select2" name="hub" id="hub" onchange="clear_data()">
+							<select name="muat_ppi" id="muat_ppi" class="form-control" onchange="cek_muat_ppi()">
+								<option value="TIDAK">TIDAK</option>
+								<option value="ADA">ADA</option>
 							</select>
 						</div>
-
 						<div class="col-md-1"></div>
-
-						<div class="col-md-2">TOTAL ITEM</div>
+						
+						<div class="col-md-2">TONASE PPI</div>
 						<div class="col-md-3">
-							<input type="text" class="form-control" name="jum_bb_item" id="jum_bb_item" value ="0" readonly>
+							<div class="input-group mb-1">
+								<input type="text" class="form-control" name="tonase_ppi" id="tonase_ppi" value ="0" onkeyup="ubah_angka(this.value,this.id),hitung_total()" readonly>
+								<div class="input-group-append">
+									<span class="input-group-text"><b>Kg</b>
+									</span>
+								</div>		
+							</div>
 						</div>
+						
 					</div>
 					
 					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
-													
-						
-						<div class="col-md-6"></div>
-
-						<div class="col-md-2">SISA KUOTA</div>
+						<div class="col-md-2">TANGGAL</div>
 						<div class="col-md-3">
-							<input type="text" class="form-control" name="sisa_kuota" id="sisa_kuota" value ="0" readonly>
+							<input type="date" class="form-control" name="tgl_stok" id="tgl_stok" value ="<?= date('Y-m-d') ?>" >
+						</div>					
+						
+						<div class="col-md-1"></div>
+						<div class="col-md-2">Sisa Timbangan</div>
+						<div class="col-md-3">
+							<div class="input-group mb-1">
+								<input type="text" class="form-control" name="sisa_timb" id="sisa_timb" value ="0" readonly>
+								<div class="input-group-append">
+									<span class="input-group-text"><b>Kg</b>
+									</span>
+								</div>		
+							</div>
 						</div>
 					</div>
 					
 					<br>
+					
+					<!-- detail PO-->
 					<hr>
-
 					<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-						<div class="col-md-2" style="padding-right:0">List Item</div>
+						<div class="col-md-2" style="padding-right:0">List Item PO</div>
 						<div class="col-md-10">&nbsp;
 						</div>
 					</div>
 
-					<!-- detail -->
 
 					<div style="overflow:auto;white-space:nowrap;" >
 						<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table_list_item" width="100%">
@@ -164,9 +194,9 @@
 									<th id="header_del">Delete</th>
 									<th style="padding : 12px 20px" >LIST </th>
 									<th style="padding : 12px 150px">PO</th>
-									<th style="padding : 12px 100px" >PO</th>
-									<th style="padding : 12px 30px" >History</th>
-									<th style="padding : 12px 25px" >Kedatangan</th>
+									<th style="padding : 12px 50px">Tonase PO</th>
+									<th style="padding : 12px 70px" >History</th>
+									<th style="padding : 12px 50px" >Kedatangan</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -187,80 +217,54 @@
 										</div>
 									</td>
 									<td style="padding : 12px 20px" >
-										<input type="hidden" name="id_pelanggan[0]" id="id_pelanggan0">
-
-										<input type="hidden" name="id_po_detail[0]" id="id_po_detail0" >
+										<input type="hidden" name="id_po_bhn[0]" id="id_po_bhn0" >
 										
-										<input type="hidden" name="id_produk[0]" id="id_produk0" >
-
-										
-
 										<div class="input-group mb-1">
 											<div class="input-group-append">
-												<span class="input-group-text"><b>CUST</b>
+												<span class="input-group-text"><b>&nbsp;CUST&nbsp;</b>
 												</span>
 											</div>
-											<input type="text" name="nm_pelanggan[0]" id="nm_pelanggan0" class="angka form-control" readonly>
+											<input type="hidden" name="id_hub[0]" id="id_hub0" class="angka form-control" readonly>
+											<input type="text" name="nm_hub[0]" id="nm_hub0" class="angka form-control" readonly>
 										</div>
 										<div class="input-group mb-1">
 											<div class="input-group-append">
-												<span class="input-group-text"><b>KODE</b>
+												<span class="input-group-text"><b>NO PO</b>
 												</span>
 											</div>
 											
-											<input type="text" name="kode_po[0]" id="kode_po0" class="angka form-control" readonly>
+											<input type="text" name="no_po[0]" id="no_po0" class="angka form-control" readonly>
 										</div>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>ITEM</b>
-												</span>
-											</div>											
-											
-											<textarea rows="2" cols="27" name="text" name="item[0]" id="item0" wrap="soft" disabled> </textarea>
-										</div>
+									</td>	
 
-									</td>		
 									<td style="padding : 12px 20px">
 										<div class="input-group mb-1">
+											<input type="text" size="5" name="ton[0]" id="ton0" class="angka form-control" value='0' readonly>
 											<div class="input-group-append">
-												<span class="input-group-text"><b>&nbsp;&nbsp;&nbsp;QTY&nbsp;&nbsp;&nbsp;</b>
+												<span class="input-group-text"><b>Kg</b>
 												</span>
-											</div>											
-											
-											<div class="text-right">
-												<input type="text" size="6" name="qty[0]" id="qty0" class="angka form-control" value='0' readonly>
-
-											</div>
+											</div>		
 										</div>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>&nbsp;&nbsp;&nbsp;TON&nbsp;&nbsp;&nbsp;</b>
-												</span>
-											</div>											
-											
-											<div class="text-right">
-												<input type="text" size="6" name="ton[0]" id="ton0" class="angka form-control" value='0' readonly>
-											</div>
-										</div>
-
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>BAHAN</b>
-												</span>
-											</div>											
-											
-											<div class="text-right">
-												<input type="text" size="6" name="kebutuhan[0]" id="kebutuhan0" class="angka form-control"  value='0' readonly>
-											</div>
-										</div>
-										
 									</td>		
 
 									<td style="padding : 12px 20px">
-										<input type="text" size="5" name="history[0]" id="history0" class="angka form-control" value='0' readonly>
+										<div class="input-group mb-1">
+											<input type="text" size="5" name="history[0]" id="history0" class="angka form-control" value='0' readonly>
+											<div class="input-group-append">
+												<span class="input-group-text"><b>Kg</b>
+												</span>
+											</div>		
+										</div>
 									</td>		
 									<td style="padding : 12px 20px">
-										<input type="text" size="5" name="datang[0]" id="datang0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
+										<div class="input-group mb-1">
+											<input type="text" size="5" name="datang[0]" id="datang0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
+											<div class="input-group-append">
+												<span class="input-group-text"><b>Kg</b>
+												</span>
+											</div>		
+										</div>
+										
 									</td>		
 								</tr>
 							</tbody>
@@ -269,8 +273,15 @@
 									<td colspan="5" class="text-center">
 										<label for="total">TOTAL</label>
 									</td>	
-									<td >
-										<input type="text" size="5" name="total_bb" id="total_bb" class="angka form-control" value='0' readonly>
+									<td>
+										<div class="input-group mb-1">
+											<input type="text" size="5" name="total_bb" id="total_bb" class="angka form-control" value='0' readonly>
+											<div class="input-group-append">
+												<span class="input-group-text"><b>Kg</b>
+												</span>
+											</div>		
+										</div>
+										
 									</td>	
 								</tr>
 							</tfoot>
@@ -282,7 +293,7 @@
 						<br>
 					</div>
 
-					<!-- end detail -->
+					<!-- end detail PO-->
 
 				
 					<div class="card-body row"style="font-weight:bold">
@@ -324,16 +335,9 @@
                         <tr class="color-tabel">
                             <th class="text-center title-white">NO </th>
                             <th class="text-center title-white">CUSTOMER</th>
-                            <!-- <th class="text-center title-white">NO PO</th> -->
-                            <th class="text-center title-white">TIPE</th>
-                            <th class="text-center title-white">KODE PO</th>
+                            <th class="text-center title-white">NO PO</th>
                             <th class="text-center title-white">TGL PO</th>
-                            <th class="text-center title-white">ITEM</th>
-                            <th class="text-center title-white">UKURAN BOX</th>
-                            <th class="text-center title-white">UKURAN SHEET</th>
-                            <th class="text-center title-white">QTY PO</th>
-                            <th class="text-center title-white">BAHAN BAKU</th>
-                            <th class="text-center title-white">TONASE</th>
+                            <th class="text-center title-white">TONASE ORDER</th>
                             <th class="text-center title-white">AKSI</th>
                         </tr>
                     </thead>
@@ -452,12 +456,12 @@
 			rowNum = 0;
 		}
 
-		var datang          = $('#datang' + b).val();
-		var id_po_detail    = $('#id_po_detail' + b).val();
-		var id_produk       = $('#id_produk' + b).val();
-		var idp             = $('#id_pelanggan' + b).val();
+		var datang    = $('#datang' + b).val();
+		var id_po_bhn = $('#id_po_bhn' + b).val();
+		var id_produk = $('#id_produk' + b).val();
+		var idp       = $('#id_pelanggan' + b).val();
 			
-		if (datang != '0' && datang != '' && id_po_detail != '' && id_produk != '' && idp != '') 
+		if (datang != '0' && datang != '' && id_po_bhn != '' && id_produk != '' && idp != '') 
 		{
 			rowNum++;
 			
@@ -476,83 +480,58 @@
 								<button type="button" title="PILIH"  onclick="load_item(this.id)" class="btn btn-success btn-sm" data-toggle="modal"  name="list[${ rowNum }]" id="list${ rowNum }">
 									<i class="fas fa-search"></i>
 								</button> 
+								
 							</div>
 						</td>
 						<td style="padding : 12px 20px" >
-							<input type="hidden" name="id_pelanggan[${ rowNum }]" id="id_pelanggan${ rowNum }">
-
-							<input type="hidden" name="id_po_detail[${ rowNum }]" id="id_po_detail${ rowNum }" >
+							<input type="hidden" name="id_po_bhn[${ rowNum }]" id="id_po_bhn${ rowNum }" >
 							
-							<input type="hidden" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }" >
-
-							
-
 							<div class="input-group mb-1">
 								<div class="input-group-append">
-									<span class="input-group-text"><b>CUST</b>
+									<span class="input-group-text"><b>&nbsp;CUST&nbsp;</b>
 									</span>
-								</div>
-								<input type="text" name="nm_pelanggan[${ rowNum }]" id="nm_pelanggan${ rowNum }" class="angka form-control" readonly>
+								</div>								
+								<input type="hidden" name="id_hub[${ rowNum }]" id="id_hub${ rowNum }" class="angka form-control" readonly>
+								
+								<input type="text" name="nm_hub[${ rowNum }]" id="nm_hub${ rowNum }" class="angka form-control" readonly>
 							</div>
 							<div class="input-group mb-1">
 								<div class="input-group-append">
-									<span class="input-group-text"><b>KODE</b>
+									<span class="input-group-text"><b>NO PO</b>
 									</span>
 								</div>
 								
-								<input type="text" name="kode_po[${ rowNum }]" id="kode_po${ rowNum }" class="angka form-control" readonly>
+								<input type="text" name="no_po[${ rowNum }]" id="no_po${ rowNum }" class="angka form-control" readonly>
 							</div>
-							<div class="input-group mb-1">
-								<div class="input-group-append">
-									<span class="input-group-text"><b>ITEM</b>
-									</span>
-								</div>											
-								
-								<textarea rows="2" cols="27" name="text" name="item[${ rowNum }]" id="item${ rowNum }" wrap="soft" disabled> </textarea>
-							</div>
-
 						</td>	
 
 						<td style="padding : 12px 20px">
 							<div class="input-group mb-1">
+								<input type="text" size="5" name="ton[${ rowNum }]" id="ton${ rowNum }" class="angka form-control" value='0' readonly>
 								<div class="input-group-append">
-									<span class="input-group-text"><b>&nbsp;&nbsp;&nbsp;QTY&nbsp;&nbsp;&nbsp;</b>
+									<span class="input-group-text"><b>Kg</b>
 									</span>
-								</div>											
-								
-								<div class="text-right">
-									<input type="text" size="6" name="qty[${ rowNum }]" id="qty${ rowNum }" class="angka form-control" value='0' readonly>
+								</div>		
+							</div>
+						</td>		
 
-								</div>
-							</div>
-							<div class="input-group mb-1">
-								<div class="input-group-append">
-									<span class="input-group-text"><b>&nbsp;&nbsp;&nbsp;TON&nbsp;&nbsp;&nbsp;</b>
-									</span>
-								</div>											
-								
-								<div class="text-right">
-									<input type="text" size="6" name="ton[${ rowNum }]" id="ton${ rowNum }" class="angka form-control" value='0' readonly>
-								</div>
-							</div>
-
-							<div class="input-group mb-1">
-								<div class="input-group-append">
-									<span class="input-group-text"><b>BAHAN</b>
-									</span>
-								</div>											
-								
-								<div class="text-right">
-									<input type="text" size="6" name="kebutuhan[${ rowNum }]" id="kebutuhan${ rowNum }" class="angka form-control"  value='0' readonly>
-								</div>
-							</div>
-							
-						</td>	
 						<td style="padding : 12px 20px">
-							<input type="text" name="history[${ rowNum }]" id="history${ rowNum }" class="angka form-control" value='0' readonly>
+							<div class="input-group mb-1">
+								<input type="text" size="5" name="history[${ rowNum }]" id="history${ rowNum }" class="angka form-control" value='0' readonly>
+								<div class="input-group-append">
+									<span class="input-group-text"><b>Kg</b>
+									</span>
+								</div>		
+							</div>
 						</td>		
 						<td style="padding : 12px 20px">
-							<input type="text" name="datang[${ rowNum }]" id="datang${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
+							<div class="input-group mb-1">
+								<input type="text" size="5" name="datang[${ rowNum }]" id="datang${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
+								<div class="input-group-append">
+									<span class="input-group-text"><b>Kg</b>
+									</span>
+								</div>		
+							</div>
 						</td>		
 					</tr>
 					`);
@@ -595,7 +574,7 @@
 
 	function clear_data()
 	{
-		$('#jum_bb_item').val(0)
+		$('#total_bb_item').val(0)
 		clearRow()
 		hitung_total()
 	}
@@ -610,9 +589,9 @@
 		$('#bucket').val(rowNum);
 
 		$("#id_pelanggan0").val("")
-		$("#nm_pelanggan0").val("")
+		$("#nm_hub0").val("")
 		$("#kode_po0").val("")
-		$("#id_po_detail0").val("")
+		$("#id_po_bhn0").val("")
 		$("#id_produk0").val("")
 		$("#item0").val("")
 		$("#qty0").val("")
@@ -625,6 +604,7 @@
 
 	function hitung_total()
 	{
+		var tonase_ppi          = $("#tonase_ppi").val().split('.').join('')
 		var total_timb          = $("#jum_timb").val().split('.').join('')
 		var total_kedatangan    = 0
 		for(loop = 0; loop <= rowNum; loop++)
@@ -633,12 +613,25 @@
 			total_kedatangan += kedatangan
 		}		
 		total_datang_ok = (total_kedatangan=='' || isNaN(total_kedatangan) || total_kedatangan == null) ? 0 : total_kedatangan
-		sisa = total_timb - total_datang_ok
+		sisa = total_timb - total_datang_ok - tonase_ppi
 		
 		$("#total_bb").val(format_angka(total_kedatangan))
-		$("#jum_bb_item").val(format_angka(total_kedatangan))
-		$("#sisa_kuota").val(format_angka(sisa))
+		$("#total_bb_item").val(format_angka(total_kedatangan))
+		$("#sisa_timb").val(format_angka(sisa))
 		
+	}
+
+	function cek_muat_ppi()
+	{
+		var cek = $('#muat_ppi').val()
+		if(cek=='ADA')
+		{	
+			$("#tonase_ppi").prop("readonly", false);
+		}else{
+			$("#tonase_ppi").prop("readonly", true);
+			$("#tonase_ppi").val(0);
+
+		}
 	}
 	function search_timbangan()
 	{
@@ -680,15 +673,15 @@
 	{
 		var id1   = id.substr(0,4);
 		var id2   = id.substr(4,1);
-		var hub   = $('#hub').val()
+		var no_timb   = $('#no_timb').val()
 		
 
-		if (hub == '' || hub == null) 
+		if (no_timb == '' || no_timb == null) 
 		{			
 			swal.close();
 			swal({
 				title               : "Cek Kembali",
-				html                : "Pilih Hub Dahulu",
+				html                : "Pilih No Timbangan Dahulu",
 				type                : "info",
 				confirmButtonText   : "OK"
 			});
@@ -706,7 +699,7 @@
 			"ajax": {
 				"url"   : '<?php echo base_url('Logistik/load_data_bb')?>',
 				"type"  : "POST",
-				"data"  : { id:id2, jenis:'load_po_stok', hub },
+				"data"  : { id:id2, jenis:'load_po_bahan' },
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],
@@ -720,13 +713,13 @@
 		})
 	}
 
-	function spilldata(id,kd_po,id_name)
+	function spilldata(id,no_po,id_name)
 	{		
 		$.ajax({
 			url        : '<?= base_url(); ?>Logistik/load_data_1',
 			type       : "POST",
 			dataType   : "JSON",
-			data       : { id, no:kd_po, jenis:'spill_po' },
+			data       : { id, no:no_po, jenis:'spill_po' },
 			beforeSend: function() {
 				swal({
 				title: 'loading data...',
@@ -739,20 +732,16 @@
 			},
 			success: function(data) {
 				// console.log(data)
-				if(data){
-					// $("#inc_exc").val(data.header.inc_exc).trigger('change');					
-					$('#id_pelanggan'+id_name).val(data.header.id_pelanggan);
-					$('#nm_pelanggan'+id_name).val(data.header.nm_pelanggan);
-					$('#kode_po'+id_name).val(data.header.kode_po);
-					$('#id_po_detail'+id_name).val(data.header.id_detail);
-					$('#id_produk'+id_name).val(data.header.id_produk);
-					$('#item'+id_name).val(data.header.nm_produk);
-					$('#qty'+id_name).val(format_angka(data.header.qty));
-					$('#ton'+id_name).val(format_angka(data.header.ton));
-					$('#kebutuhan'+id_name).val(format_angka(data.header.bhn_bk));
-					$('#history'+id_name).val(format_angka(data.header.bhn_bk));
+				if(data){			
+
+					$('#id_po_bhn'+id_name).val(data.header.id_po_bhn);
+					$('#id_hub'+id_name).val(data.header.id_hub);
+					$('#nm_hub'+id_name).val(data.header.nm_hub);
+					$('#no_po'+id_name).val(data.header.no_po_bhn);
+					$('#ton'+id_name).val(format_angka(data.header.ton_bhn));
+					$('#history'+id_name).val(format_angka(data.header.ton_bhn));
 					$('#datang'+id_name).val(format_angka(0));
-					// $('#datang'+id_name).val(format_angka(data.header.bhn_bk));
+
 					swal.close();
 					$('.list_item').modal('hide');
 
@@ -807,7 +796,7 @@
 				[5, 10, 50, 100, -1],
 				[5, 10, 50, 100, "Semua"]
 			],	
-			"responsive": true,
+			"responsive": false,
 			"pageLength": 10,
 			"language": {
 				"emptyTable": "TIDAK ADA DATA.."
@@ -815,7 +804,7 @@
 		})
 	}
 	
-	function edit_data(id,kd_po)
+	function edit_data(id,no_po)
 	{
 		$(".row-input").attr('style', '');
 		$(".row-list").attr('style', 'display:none');
@@ -826,7 +815,7 @@
 		$.ajax({
 			url        : '<?= base_url(); ?>Logistik/load_data_1',
 			type       : "POST",
-			data       : { id, tbl:'m_kode_kelompok', jenis :'kode_akun',field :'id_kelompok' },
+			data       : { id, tbl:'trs_h_stok_bb', jenis :'edit_stok_bb',field :'id_stok' },
 			dataType   : "JSON",
 			beforeSend: function() {
 				swal({
@@ -841,13 +830,110 @@
 			success: function(data) {
 				if(data){
 					// header
-					
-					$("#id_kelompok").val(data.header.id_kelompok);
-					$("#kd_akun").val(data.header.kd_akun).trigger('change');
-					$("#kd_kelompok").val(data.header.kd_kelompok);
-					$("#kd_kelompok_old").val(data.header.kd_kelompok);
-					$("#nm_kelompok").val(data.header.nm_kelompok);
 
+					$("#muat_ppi").val(data.header.muatan_ppi).trigger('change');
+					$("#no_stok").val(data.header.no_stok);
+					$("#tgl_stok").val(data.header.tgl_stok);
+					$("#id_timb").val(data.header.id_timbangan);
+					$("#no_timb").val(data.header.no_timbangan);
+					$("#jum_timb").val(format_angka(data.header.total_timb));
+					$("#tonase_ppi").val(format_angka(data.header.tonase_ppi));
+					$("#total_bb_item").val(format_angka(data.header.total_item));
+					$("#sisa_timb").val(format_angka(data.header.sisa_stok)); 
+					swal.close();
+
+					// detail
+
+					var list = `
+						<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table_list_item" width="100%">
+						<thead class="color-tabel">
+							<tr>
+								<th id="header_del">Delete</th>
+								<th style="padding : 12px 20px" >LIST </th>
+								<th style="padding : 12px 150px">PO</th>
+								<th style="padding : 12px 50px">Tonase PO</th>
+								<th style="padding : 12px 70px" >History</th>
+								<th style="padding : 12px 50px" >Kedatangan</th>
+							</tr>
+						</thead>`;
+						
+					var no   = 0;
+					$.each(data.detail, function(index, val) {
+						list += `
+							<tr id="itemRow${ no }">
+								<td id="detail-hapus-${ no }">
+									<div class="text-center">
+										<a class="btn btn-danger" id="btn-hapus-${ no }" onclick="removeRow(${ no })">
+											<i class="far fa-trash-alt" style="color:#fff"></i> 
+										</a>
+									</div>
+								</td>
+								<td>
+									<div class="text-center">
+										<button type="button" title="PILIH"  onclick="load_item(this.id)" class="btn btn-success btn-sm" data-toggle="modal"  name="list[${ no }]" id="list${ no }">
+											<i class="fas fa-search"></i>
+										</button> 
+										
+									</div>
+								</td>
+								<td style="padding : 12px 20px" >
+									<input type="hidden" name="id_po_bhn[${ no }]" id="id_po_bhn${ no }" value="${val.id_po_bhn}">
+									
+									<div class="input-group mb-1">
+										<div class="input-group-append">
+											<span class="input-group-text"><b>&nbsp;CUST&nbsp;</b>
+											</span>
+										</div>								
+										<input type="hidden" name="id_hub[${ no }]" id="id_hub${ no }" class="angka form-control" value="${val.id_hub}" readonly>
+										
+										<input type="text" name="nm_hub[${ no }]" id="nm_hub${ no }" class="angka form-control" value="${val.nm_hub}" readonly>
+									</div>
+									<div class="input-group mb-1">
+										<div class="input-group-append">
+											<span class="input-group-text"><b>NO PO</b>
+											</span>
+										</div>
+										
+										<input type="text" name="no_po[${ no }]" id="no_po${ no }" class="angka form-control" value="${val.no_po_bhn}"  readonly>
+									</div>
+								</td>	
+
+								<td style="padding : 12px 20px">
+									<div class="input-group mb-1">
+										<input type="text" size="5" name="ton[${ no }]" id="ton${ no }" class="angka form-control" value="${val.tonase_po}"  readonly>
+										<div class="input-group-append">
+											<span class="input-group-text"><b>Kg</b>
+											</span>
+										</div>		
+									</div>
+								</td>		
+
+								<td style="padding : 12px 20px">
+									<div class="input-group mb-1">
+										<input type="text" size="5" name="history[${ no }]" id="history${ no }" class="angka form-control" value="${val.tonase_po}"  readonly>
+										<div class="input-group-append">
+											<span class="input-group-text"><b>Kg</b>
+											</span>
+										</div>		
+									</div>
+								</td>		
+								<td style="padding : 12px 20px">
+									<div class="input-group mb-1">
+										<input type="text" size="5" name="datang[${ no }]" id="datang${ no }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value="${val.datang_bhn_bk}" >
+										<div class="input-group-append">
+											<span class="input-group-text"><b>Kg</b>
+											</span>
+										</div>		
+									</div>
+								</td>		
+							</tr>
+						`;
+
+						no ++;
+					})
+					rowNum = no-1 
+					$('#bucket').val(rowNum);					
+					$("#table_list_item").html(list);
 					swal.close();
 
 				} else {
@@ -881,9 +967,9 @@
 	function kosong()
 	{
 		$("#id_pelanggan0").val("")
-		$("#nm_pelanggan0").val("")
+		$("#nm_hub0").val("")
 		$("#kode_po0").val("")
-		$("#id_po_detail0").val("")
+		$("#id_po_bhn0").val("")
 		$("#id_produk0").val("")
 		$("#item0").val("")
 		$("#qty0").val("")
@@ -897,12 +983,34 @@
 
 	function simpan() 
 	{
-		var tgl_stok  = $("#tgl_stok").val();
-		var hub       = $("#hub").val();
+		var tgl_stok    = $("#tgl_stok").val();
+		var no_timb     = $("#no_timb").val();
+		var muat_ppi    = $("#muat_ppi").val();
+		var tonase_ppi  = $("#tonase_ppi").val().split('.').join('');
+		var sisa_timb  = $("#sisa_timb").val().split('.').join('');
 		
-		if ( tgl_stok=='' || hub== '' ) 
+		if( sisa_timb < 0 ){
+			swal({
+				title               : "Cek Kembali",
+				html                : "Inputan Stok Melebihi Timbangan !!",
+				type                : "info",
+				confirmButtonText   : "OK"
+			});
+			return;
+		}
+		
+		if(muat_ppi == 'ADA' && tonase_ppi <= 0){
+			swal({
+				title               : "Cek Kembali",
+				html                : "Isi Tonase PPI Dahulu",
+				type                : "info",
+				confirmButtonText   : "OK"
+			});
+			return;
+		}
+		
+		if ( tgl_stok=='' || no_timb== '' ) 
 		{			
-			swal.close();
 			swal({
 				title               : "Cek Kembali",
 				html                : "Harap Lengkapi Form Dahulu",
@@ -928,25 +1036,15 @@
 				})
 			},
 			success: function(data) {
-				if(data.status=='1'){
+				if(data == true){
 					// toastr.success('Berhasil Disimpan');
 					// swal.close();								
 					kosong();
-					location.href = "<?= base_url()?>Logistik/Rek_kelompok";
+					location.href = "<?= base_url()?>Logistik/stok_bb";
 					swal({
 						title               : "Data",
 						html                : "Berhasil Disimpan",
 						type                : "success",
-						confirmButtonText   : "OK"
-					});
-					
-				} else if(data.status=='3'){
-					// toastr.success('Berhasil Disimpan');
-					// swal.close();								
-					swal({
-						title               : "Gagal Simpan",
-						html                : "Kode Sudah Pernah Di Pakai !",
-						type                : "error",
 						confirmButtonText   : "OK"
 					});
 					
