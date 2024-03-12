@@ -2430,76 +2430,100 @@ class Logistik extends CI_Controller
 		{
 			if($data_detail->pajak=='nonppn')
 			{
-				$norek    = '5758699099';
-				$nm_bank  = 'BNI';
-				$an       = 'PT. PRIMA PAPER INDONESIA';
+				$norek        = '5758699099';
+				$nm_bank      = 'BNI';
+				$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+				$ket_email    = '* Harap bukti transfer di email ke';
+				$an           = 'PT. PRIMA PAPER INDONESIA';
 			}else{
-				$norek    = '5758699690';
-				$nm_bank  = 'BNI';
-				$an       = 'PT. PRIMA PAPER INDONESIA';
+				$norek        = '5758699690';
+				$nm_bank      = 'BNI';
+				$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+				$ket_email    = '* Harap bukti transfer di email ke';
+				$an           = 'PT. PRIMA PAPER INDONESIA';
 			}
 		}else if($data_detail->bank=='BCA_AKB')
 		{
 			if($data_detail->pajak=='nonppn')
 			{
-				$norek    = '5050290672';
-				$nm_bank  = 'BCA';
-				$an       = 'CV Artha Karunia Berkah';
+				$norek        = '5050290672';
+				$nm_bank      = 'BCA';
+				$email        = '';
+				$ket_email    = '';
+				$an           = 'CV Artha Karunia Berkah';
 			}else{
-				$norek    = '-';
-				$nm_bank  = '-';
-				$an       = '-';
+				$norek        = '-';
+				$nm_bank      = '-';
+				$email        = '-';
+				$ket_email    = '-';
+				$an           = '-';
 			}
 			
 		}else if($data_detail->bank=='BCA_SSB')
 		{
 			if($data_detail->pajak=='nonppn')
 			{
-				$norek    = '0153926538';
-				$nm_bank  = 'BCA';
-				$an       = 'Arga Deo Kristya Duta';
+				$norek        = '0153926538';
+				$nm_bank      = 'BCA';
+				$email        = '';
+				$ket_email    = '';
+				$an           = 'Arga Deo Kristya Duta';
 			}else{
-				$norek    = '-';
-				$nm_bank  = '-';
-				$an       = '-';
+				$norek        = '-';
+				$nm_bank      = '-';
+				$email        = '-';
+				$ket_email    = '-';
+				$an           = '-';
 			}
 			
 		}else if($data_detail->bank=='BCA_KSM')
 		{
 			if($data_detail->pajak=='nonppn')
 			{
-				$norek    = '0153926538';
-				$nm_bank  = 'BCA';
-				$an       = 'Arga Deo Kristya Duta';
+				$norek        = '0153926538';
+				$nm_bank      = 'BCA';
+				$email        = '';
+				$ket_email    = '';
+				$an           = 'Arga Deo Kristya Duta';
 			}else{
-				$norek    = '-';
-				$nm_bank  = '-';
-				$an       = '-';
+				$norek        = '-';
+				$nm_bank      = '-';
+				$email        = '-';
+				$ket_email    = '-';
+				$an           = '-';
 			}
 			
 		}else if($data_detail->bank=='BCA_GMB')
 		{
 			if($data_detail->pajak=='nonppn')
 			{
-				$norek    = '4824569888';
-				$nm_bank  = 'BCA';
-				$an       = 'CV Global Mulia Bakti';
+				$norek        = '4824569888';
+				$nm_bank      = 'BCA';
+				$email        = '';
+				$ket_email    = '';
+				$an           = 'CV Global Mulia Bakti';
 			}else{
-				$norek    = '-';
-				$nm_bank  = '-';
-				$an       = '-';
+				$norek        = '-';
+				$nm_bank      = '-';
+				$email        = '-';
+				$ket_email    = '-';
+				$an           = '-';
 			}
 			
 		}else{
 			if($data_detail->pajak=='nonppn')
 			{
-				$norek    = '078 795 5758';
-				$nm_bank  = 'BCA';
-				$an       = 'PT. PRIMA PAPER INDONESIA';
+				$norek        = '078 795 5758';
+				$nm_bank      = 'BCA';
+				$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+				$ket_email    = '* Harap bukti transfer di email ke';
+				$an           = 'PT. PRIMA PAPER INDONESIA';
 			}else{
-				$norek    = '078 027 5758';
-				$nm_bank  = 'BCA';
-				$an       = 'PT. PRIMA PAPER INDONESIA';
+				$norek        = '078 027 5758';
+				$nm_bank      = 'BCA';
+				$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+				$ket_email    = '* Harap bukti transfer di email ke';
+				$an           = 'PT. PRIMA PAPER INDONESIA';
 			}
 		}
 		$html .= '<tr>
@@ -2507,15 +2531,16 @@ class Logistik extends CI_Controller
 			<td style="border:0;padding:5px;text-align:center" colspan="4">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($data_detail->tgl_invoice).'</td> 
 		</tr>
 		<tr>
-			<td style="border:0;padding:0 0 15px;line-height:1.8" colspan="3">Pembayaran Full Amount ditransfer ke :<br/>'.$nm_bank.' '.$norek.'<br/>A.n '.$an.'</td>
+			
+			<td style="border:0;padding:0 0 15px;line-height:1.8" colspan="3">Pembayaran Full Amount ditransfer ke :<br/>'.$nm_bank.' '.$norek.' <br/>A.n '.$an.'</td>
 			<td style="border:0;padding:0" colspan="4"></td>
 		</tr>
 		<tr>
-			<td style="border:0;padding:0;line-height:1.8" colspan="3">* Harap bukti transfer di email ke</td>
+			<td style="border:0;padding:0;line-height:1.8" colspan="3">'.$ket_email.'</td>
 			<td style="border-bottom:1px solid #000;padding:0" colspan="4"></td>
 		</tr>
 		<tr>
-			<td style="border:0;padding:0;line-height:1.8" colspan="3">primapaperin@gmail.com / bethppi@yahoo.co.id</td>
+			<td style="border:0;padding:0;line-height:1.8" colspan="3">'.$email.'</td>
 			<td style="border:0;padding:0;line-height:1.8;text-align:center" colspan="4">Finance</td>
 		</tr>
 		';
