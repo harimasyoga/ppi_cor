@@ -1109,7 +1109,7 @@ class M_transaksi extends CI_Model
 			'pilih_hpp' => $_POST["pilih_hpp"],
 			'tgl_hpp' => $_POST["tgl1_hpp"],
 			'jenis_hpp' => $_POST["jenis_hpp"],
-			'jenis_cor' => $_POST["jenis_cor"],
+			'jenis_cor' => '',
 			'bahan_baku_kg' => ($_POST["bahan_baku_kg"] == "") ? 0 : $_POST["bahan_baku_kg"],
 			'bahan_baku_rp' => ($_POST["bahan_baku_rp"] == "") ? 0 : $_POST["bahan_baku_rp"],
 			'tenaga_kerja' => $_POST["tenaga_kerja"],
@@ -1132,6 +1132,9 @@ class M_transaksi extends CI_Model
 			'hasil_hpp' => $_POST["hasil_hpp"],
 			'tonase_order' => $_POST["tonase_order"],
 			'hasil_x_tonanse' => $_POST["hasil_x_tonanse"],
+			'presentase' => 10,
+			'hxt_x_persen' => $_POST["hxt_x_persen"],
+			'fix_hpp' => $_POST["fix_hpp"],
 		];
 
 		if($_POST["pilih_hpp"] == 'PM2' && ($_POST["hasil_hpp"] == '' || $_POST["tonase_order"] == '' || $_POST["hasil_x_tonanse"] == '' || $_POST["hasil_hpp"] == 0 || $_POST["tonase_order"] == 0 || $_POST["hasil_x_tonanse"] == 0)){
@@ -1143,7 +1146,7 @@ class M_transaksi extends CI_Model
 			$pilih_hpp = $_POST["pilih_hpp"];
 			$tgl_hpp = $_POST["tgl1_hpp"];
 			$jenis_hpp = $_POST["jenis_hpp"];
-			$jenis_cor = $_POST["jenis_cor"];
+			$jenis_cor = '';
 			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp' AND jenis_cor='$jenis_cor'")->num_rows();
 
 			if($statusInput == 'insert'){

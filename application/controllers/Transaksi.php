@@ -85,7 +85,7 @@ class Transaksi extends CI_Controller
 	}
 
 	function editHPP()
-	{
+	{ //
 		$id_hpp = $_POST["id_hpp"];
 		$opsi = $_POST["opsi"];
 		$hpp = $this->db->query("SELECT*FROM m_hpp WHERE id_hpp='$id_hpp'")->row();
@@ -270,13 +270,13 @@ class Transaksi extends CI_Controller
 		foreach ($query as $r) {
 			$i++;
 			$row = [];
-			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$i.'<a></div>';
-			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp)).'</a></div>';
-			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->jenis_hpp.'<a></div>';
-			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_hpp,0,",",".").'</a></div>';
-			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->tonase_order,0,",",".").'</a></div>';
-			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_x_tonanse,0,",",".").'</a></div>';
-			$edit = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.$i.'<a></div>';
+			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp)).'</a></div>';
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.$r->jenis_hpp.'<a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.number_format($r->hasil_hpp,0,",",".").'</a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.number_format($r->tonase_order,0,",",".").'</a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.number_format($r->hasil_x_tonanse,0,",",".").'</a></div>';
+			$edit = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'edit'".','."''".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
 			$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
 			$row[] = '<div class="text-center">'.$edit.' '.$hapus.'</div>';
 			$data[] = $row;
@@ -4320,6 +4320,104 @@ class Transaksi extends CI_Controller
 		$html .='</div></div>';
 
 		echo $html;
+	}
+
+	function tampilListHppPM()
+	{
+		// $pilih_hpp = $_POST["pilih_hpp"];
+		$tgl1_hpp = $_POST["tgl1_hpp"];
+		$jenis_hpp = $_POST["jenis_hpp"];
+		$opsi = $_POST["opsi"];
+		if($opsi == 'sheet'){
+			$pilih_hpp = 'PM2';
+		}else{
+			$pilih_hpp = '';
+		}
+		$data = $this->db->query("SELECT*FROM m_hpp WHERE cek_sheet='N' AND pilih_hpp='$pilih_hpp' AND jenis_hpp='$jenis_hpp'");
+
+		$html = '';
+		if($data->num_rows() > 0){
+			foreach($data->result() as $r){
+				$html .='<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+					<div class="col-md-12">
+						<button type="button" class="btn btn-info" style="color:#000;font-weight:bold" onclick="pilihListHPP('."'".$r->id_hpp."'".')">
+							'.strtoupper(substr($this->m_fungsi->getHariIni($r->tgl_hpp),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl_hpp)).', '.$r->jenis_hpp.'
+						</button>
+					</div>
+				</div>';
+			}
+		}else{
+			$html .='<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				<div class="col-md-12">DATA KOSONG!</div>
+			</div>';
+		}
+
+		echo json_encode([
+			// 'data' => $data->result(),
+			'html' => $html,
+		]);
+	}
+
+	function pilihListHPP()
+	{
+		$id_hpp = $_POST["id_hpp"];
+		$get = $this->db->query("SELECT*FROM m_hpp WHERE id_hpp='$id_hpp'")->row();
+		$local_occ = $this->db->query("SELECT*FROM m_hpp_detail WHERE id_hpp='$id_hpp' AND opsi='bb' AND jenis='pm' AND ket_txt='LOCAL OCC'");
+		$mix_waste = $this->db->query("SELECT*FROM m_hpp_detail WHERE id_hpp='$id_hpp' AND opsi='bb' AND jenis='pm' AND ket_txt='MIX WASTE'");
+		$plumpung = $this->db->query("SELECT*FROM m_hpp_detail WHERE id_hpp='$id_hpp' AND opsi='bb' AND jenis='pm' AND ket_txt='PLUMPUNG'");
+		$laminating = $this->db->query("SELECT*FROM m_hpp_detail WHERE id_hpp='$id_hpp' AND opsi='bb' AND jenis='pm' AND ket_txt='LAMINATING'");
+		$sludge = $this->db->query("SELECT*FROM m_hpp_detail WHERE id_hpp='$id_hpp' AND opsi='bb' AND jenis='pm' AND ket_txt='SLUDGE'");
+		$broke_laminasi = $this->db->query("SELECT*FROM m_hpp_detail WHERE id_hpp='$id_hpp' AND opsi='bb' AND jenis='pm' AND ket_txt='BROKE LAMINASI'");
+		$broke_corr = $this->db->query("SELECT*FROM m_hpp_detail WHERE id_hpp='$id_hpp' AND opsi='bb' AND jenis='pm' AND ket_txt='BROKE CORR'");
+		$broke_pm = $this->db->query("SELECT*FROM m_hpp_detail WHERE id_hpp='$id_hpp' AND opsi='bb' AND jenis='pm' AND ket_txt='BROKE PM'");
+
+		$pm = [
+			// "id_hpp" => "1",
+			// "pilih_hpp" => "PM2",
+			// "tgl_hpp" => "2024-03-12",
+			// "jenis_hpp" => "BK",
+			// "jenis_cor" => "",
+			// "bahan_baku_kg" => "7",
+			"bahan_baku_rp" => number_format($get->bahan_baku_rp,0,',','.'),
+			// "tenaga_kerja" => "1",
+			// "upah" => "4",
+			// "thr" => "1",
+			// "listrik" => "1",
+			// "batu_bara_kg" => "1",
+			// "batu_bara_rp" => number_format($get->batu_bara_rp,0,',','.'),
+			// "batu_bara_x" => number_format($get->batu_bara_x,0,',','.'),
+			// "chemical_kg" => "1",
+			// "chemical_rp" => "1",
+			// "chemical_x" => "1",
+			// "bahan_pembantu" => "1",
+			// "solar" => "1",
+			// "maintenance" => "1",
+			// "ekspedisi" => "1",
+			// "depresiasi" => "1",
+			// "lain_lain_kg" => "5",
+			// "lain_lain_rp" => "5",
+			// "hasil_hpp" => "26",
+			// "tonase_order" => "2",
+			// "hasil_x_tonanse" => "13",
+			// "presentase" => "10",
+			// "hxt_x_persen" => "1",
+			// "fix_hpp" => "14",
+			// "cek_laminasi" => "N",
+			// "cek_sheet" => "N",
+			// "cek_box" => "N",
+			'local_occ' => ($local_occ->num_rows() == 0) ? 0 : number_format($local_occ->row()->ket_x,0,',','.'),
+			'mix_waste' => ($mix_waste->num_rows() == 0) ? 0 : number_format($mix_waste->row()->ket_x,0,',','.'),
+			'plumpung' => ($plumpung->num_rows() == 0) ? 0 : number_format($plumpung->row()->ket_x,0,',','.'),
+			'laminating' => ($laminating->num_rows() == 0) ? 0 : number_format($laminating->row()->ket_x,0,',','.'),
+			'sludge' => ($sludge->num_rows() == 0) ? 0 : number_format($sludge->row()->ket_x,0,',','.'),
+			'broke_laminasi' => ($broke_laminasi->num_rows() == 0) ? 0 : number_format($broke_laminasi->row()->ket_x,0,',','.'),
+			'broke_corr' => ($broke_corr->num_rows() == 0) ? 0 : number_format($broke_corr->row()->ket_x,0,',','.'),
+			'broke_pm' => ($broke_pm->num_rows() == 0) ? 0 : number_format($broke_pm->row()->ket_x,0,',','.'),
+		];
+
+		echo json_encode([
+			'pm' => $pm,
+		]);
 	}
 
 	function destroyHPP()
