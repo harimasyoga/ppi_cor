@@ -1978,6 +1978,15 @@ class Logistik extends CI_Controller
 			}
 			
 			
+		} else if ($jenis == "trs_h_stok_bb") {	
+			
+			
+			$no_stok       = $_POST['no_stok'];
+
+			$result          = $this->m_master->query("DELETE FROM trs_h_stok_bb WHERE id_stok = '$id'");
+
+			$result          = $this->m_master->query("DELETE FROM trs_d_stok_bb WHERE  no_stok = '$no_stok'");			
+			
 		} else if ($jenis == "byr_inv") {
 			$result          = $this->m_master->query("DELETE FROM trs_bayar_inv WHERE  $field = '$id'");	
 			
@@ -2018,7 +2027,7 @@ class Logistik extends CI_Controller
                         </tr>
                  </table><br>';
 
-            $html .= '<table width="100%" border="1" cellspacing="0" style="font-size:12px;font-family: ;">
+            $html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
 
             <tr>
                 <td width="20 %"  align="left">Tgl STOK</td>
@@ -2044,14 +2053,20 @@ class Logistik extends CI_Controller
 			$no              = 1;
 			$total_datang    = 0;
 
-			// if()
-			$html .= '<tr>
-						<td align="center">' . $no . '</td>
-						<td align="">' . $r->nm_hub . '</td>
-						<td align="center">' . $r->no_po_bhn . '</td>
-						<td align="right">' . number_format($r->tonase_po, 0, ",", ".") . '</td>
-						<td align="right">' . number_format($r->datang_bhn_bk, 0, ",", ".") . '</td>
-					</tr>';
+			if($data->muatan_ppi=='ADA')
+			{
+				$html .= '<tr>
+					<td align="center">' . $no . '</td>
+					<td align=""> PRIMA PAPER INDONESIA </td>
+					<td align="center"> - </td>
+					<td align="right"> - </td>
+					<td align="right">' . number_format($data->tonase_ppi, 0, ",", ".") . '</td>
+				</tr>';
+
+				$no = $no+1;
+				$total_datang = $total_datang+$data->tonase_ppi;
+			}
+			
 			foreach ($query_detail->result() as $r) 
 			{
 				$html .= '<tr>
@@ -2078,6 +2093,248 @@ class Logistik extends CI_Controller
 		// $this->m_fungsi->_mpdf($html);
 		$this->m_fungsi->template_kop('STOK BAHAN BAKU',$no_stok,$html,'P','1');
 		// $this->m_fungsi->mPDFP($html);
+	}
+
+	function cetak_inv_bb()
+	{
+		$no_po        = $_GET['no_po'];
+		$id_stok_h    = $_GET['id_stok_h'];
+		$no_stok      = $_GET['no_stok'];
+
+        $query_header = $this->db->query("SELECT *,c.alamat as alamat_hub FROM trs_h_stok_bb a 
+		JOIN trs_d_stok_bb b ON a.no_stok=b.no_stok 
+		JOIN m_hub c ON b.id_hub=c.id_hub
+		JOIN m_jembatan_timbang d ON a.no_timbangan=d.no_timbangan
+		JOIN trs_po_bhnbk e ON b.no_po_bhn = e.no_po_bhn
+		where b.no_po_bhn='$no_po'");
+        
+        $data = $query_header->row();
+        
+        $querydetail = $this->db->query("SELECT * FROM trs_h_stok_bb a 
+		JOIN trs_d_stok_bb b ON a.no_stok=b.no_stok 
+		JOIN m_hub c ON b.id_hub=c.id_hub
+		JOIN m_jembatan_timbang d ON a.no_timbangan=d.no_timbangan
+		JOIN trs_po_bhnbk e ON b.no_po_bhn = e.no_po_bhn
+		where b.no_po_bhn='$no_po' ");
+
+		$html = '';
+
+		// header
+
+		$nm_toko  = 'UD PATRIOT';
+		$alamat   = 'Dukuh Masaran RT 34, Desa Masaran';
+		$alamat2  = 'Kecamatan Masaran, Kabupaten Sragen, Jawa Tengah';
+		$phone    = '0821-4800-4077';
+		$whatsapp = '0821-4800-4077';
+		$kodepos  = '-';
+		$npwp     = '-';
+		$html .= "
+			 <table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:12px; color:#000;\" width=\"100%\"  border=\"\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\">
+			 <thead>
+				  <tr>
+					   <td rowspan=\"5\" align=\"center\">
+							<img src=\"" . base_url() . "assets/gambar/patriot.png\"  width=\"150\" height=\"50\" />
+					   </td>
+					   <td colspan=\"20\">
+							<b>
+								 <tr>
+									  <td align=\"left\" style=\"font-size:28;border-bottom: none;\"><b>$nm_toko</b></td>
+								 </tr>
+								 <tr>
+									  <td align=\"left\" style=\"font-size:10px;\">$alamat</td>
+								 </tr>
+								 <tr>
+									  <td align=\"left\" style=\"font-size:10px;\">$alamat2  Kode Pos $kodepos </td>
+								 </tr>
+								 <tr>
+									  <td align=\"left\" style=\"font-size:10px;\">Wa : $whatsapp  |  Telp : $phone </td>
+								 </tr>
+							</b>
+					   </td>
+				  </tr>
+			 </table>";
+		$html .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:6px\" width=\"100%\" align=\"center\" border=\"0\">
+				  <tr>
+					   <td> &nbsp; </td>
+				  </tr> 
+			 </table>";
+
+		$html .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:2px\" width=\"100%\" align=\"center\" border=\"1\">     
+				  <tr>
+					   <td colspan=\"20\" style=\"border-top: none;border-right: none;border-left: none;\"></td>
+				  </tr> 
+			 </table>";
+		$html .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:4px\" width=\"100%\" align=\"center\" border=\"1\">     
+				  <tr>
+					   <td colspan=\"20\" style=\"border-top: none;border-right: none;border-left: none;border-bottom: 2px solid black;font-size:5px\"></td>
+				  </tr> 
+			 </table>";
+		$html .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:8px\" width=\"100%\" align=\"center\" border=\"0\">     
+				  <tr> <td>&nbsp;</td> </tr> 
+			 </table>";
+		// end header
+
+		$html .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:8px\" width=\"100%\" align=\"center\" border=\"0\">     
+				  <tr> <td>&nbsp;</td> </tr> 
+				  <tr> <td>&nbsp;</td> </tr> 
+			 </table>";
+
+		if ($query_header->num_rows() > 0) {
+
+            $html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: Trebuchet MS, Helvetica, sans-serif;;">
+
+            <tr>
+				<td width="40%" rowspan="3" align="center" style="font-size:35px;"><b>INVOICE</b></td>
+				<td width="20%" rowspan="4"></td>
+				<td width="40%">Kepada</td>
+			</tr>
+            <tr>
+				<td><b>'.$data->nm_hub.'</b></td>
+			</tr>
+            <tr>
+				<td>'.$data->no_telp.'</td>
+			</tr>
+            <tr>
+				<td align="center">No.'.$data->no_stok.'/'.$data->no_timbangan.'</td>
+				<td>'.$data->alamat_hub.'</td>
+			</tr>
+            </table><br><br>';
+
+			$html .= '<table width="100%" border="0" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: Trebuchet MS, Helvetica, sans-serif;;">
+                        <tr style="background-color: #f0b2b4">
+                            <th width="2%" align="center">NO</th>
+                            <th width="10%" align="center">ITEM</th>
+                            <th width="10%" align="center">JUMLAH</th>
+                            <th width="12%" align="center">SATUAN</th>
+                            <th width="8%" align="center">HARGA</th>
+                            <th width="10%" align="center">TOTAL </th>
+						</tr>';
+
+			$html .= '
+				<tr>
+					<td colspan="6" >&nbsp;</td>
+				</tr>';
+			$no = 1;
+			$tot_qty = $tot_value = $tot_total = 0;
+			foreach ($querydetail->result() as $r) {
+
+                $total = $r->hrg_bhn*$r->datang_bhn_bk;
+				$html .= '
+				<tr >
+					<td align="center">' . $no . '</td>
+					<td align="center">' . $r->nm_barang . '</td>
+					<td align="center">' . number_format($r->datang_bhn_bk, 0, ",", ".") . '</td>
+					<td align="center">Kg</td>
+					<td align="right">' . number_format($r->hrg_bhn, 0, ",", ".") . '</td>
+					<td align="right">' . number_format($total, 0, ",", ".") . '</td>
+					</tr>';
+
+				$no++;
+				$tot_total += $total;
+			}
+			$html .= '</table>';
+
+			
+			// $ppn11       = 0.11 * $tot_total;
+			$ppn11       = 0;
+			$total_all   = $ppn11 + $tot_total;
+
+			$html .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:8px\" width=\"100%\" align=\"center\" border=\"0\">     
+				  <tr> <td>&nbsp;</td> </tr> 
+				  <tr> <td>&nbsp;</td> </tr> 
+				  <tr> <td>&nbsp;</td> </tr> 
+				  <tr> <td>&nbsp;</td> </tr>  
+			 </table>";
+
+
+		$html .= '<hr>
+		<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: Trebuchet MS, Helvetica, sans-serif;">
+			<tr> 
+				<td colspan="4" style="border-width:2px 0;border-top:1px solid #000;">&nbsp;</td>
+			</tr>
+            <tr>
+				<td width="75%" ><b>TERBILANG :</b></td>
+				<td width="10%" ><b>Sub Total</b></td>
+				<td  width="15%" align="right" ><b>Rp.' . number_format($tot_total, 0, ",", ".") . '</b></td>
+			</tr>
+            <tr>
+				<td rowspan="2" style="font-size:15px;"><b>'.$this->m_fungsi->terbilang($total_all).'</b></td>
+				<td><b>PPN 11% </b></td>
+				<td align="right"><b>Rp.' . number_format($ppn11, 0, ",", ".") . '</b></td>
+			</tr>
+            <tr>
+				<td><b>TOTAL</b></td>
+				<td align="right"><b>Rp.' . number_format($total_all, 0, ",", ".") . '</b></td>
+			</tr>
+			<tr> 
+				<td colspan="4" style="border-width:2px 0;border-bottom:1px solid #000;">&nbsp;</td>
+			</tr>
+
+            </table><br><br>';
+
+	$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
+		<tr>
+			<td style="">Di Bayarkan Kepada :</td>
+			<td style="text-align:center">Sragen, '.$this->m_fungsi->tanggal_format_indonesia($data->tgl_stok).'</td> 
+		</tr>
+		<tr>
+			
+			<td style="">BCA 5050290672 </td>
+			<td style=""></td>
+		</tr>
+		<tr>
+			
+			<td style="">A.n UD.PATRIOT</td>
+			<td style=""></td>
+		</tr>
+		<tr>
+			
+			<td style="">&nbsp;</td>
+			<td style=""></td>
+		</tr>
+		<tr>
+			<td style="">* Harap bukti transfer di email ke</td>
+			<td style="border-bottom:1px solid #000;"></td>
+		</tr>
+		<tr>
+			<td style="">patriot@gmail.com</td>
+			<td style="text-align:center">Finance</td>
+		</tr>		
+		</table>
+		';
+
+
+		} else {
+			$html .= '<h1> Data Kosong </h1>';
+		}
+
+		$judul    = 'INVOICE';
+		$jdl_save = $no_po;
+		$position = 'P';
+		$cekpdf   = '1';
+
+		switch ($cekpdf) {
+			case 0;
+				echo ("<title>$judul</title>");
+				echo ($html);
+				break;
+
+			case 1;
+				$this->M_fungsi->_mpdf_hari($position, 'A4', $judul, $html, $jdl_save.'.pdf', 5, 5, 5, 10,'','','','PATRIOT');
+				break;
+			case 2;
+				header("Cache-Control: no-cache, no-store, must-revalidate");
+				header("Content-Type: application/vnd-ms-excel");
+				header("Content-Disposition: attachment; filename= $judul.xls");
+				$this->load->view('app/master_cetak', $data);
+				break;
+		}
 	}
 
 	function Cetak_Invoice()

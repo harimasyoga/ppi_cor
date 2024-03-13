@@ -1127,10 +1127,12 @@ class M_logistik extends CI_Model
 			$rowloop     = $this->input->post('bucket');
 
 			$del_detail  = $this->db->query("DELETE FROM trs_d_stok_bb WHERE no_stok='$no_stokbb' ");
+
 			if($del_detail)
 			{
 				for($loop = 0; $loop <= $rowloop; $loop++)
 				{
+					// pecah stok
 					$data_detail = array(				
 						'no_stok'       => $no_stokbb,
 						'id_hub'        => $this->input->post('id_hub['.$loop.']'),
@@ -1140,6 +1142,23 @@ class M_logistik extends CI_Model
 						'datang_bhn_bk' => str_replace('.','',$this->input->post('datang['.$loop.']')),
 					);
 					$result_detail = $this->db->insert('trs_d_stok_bb', $data_detail);
+
+
+					$id_hub_       = $this->input->post('id_hub['.$loop.']');
+					$del_detail    = $this->db->query("DELETE FROM trs_stok_bahanbaku WHERE no_transaksi='$no_stokbb' and id_hub='$id_hub_' ");
+
+					// input stok berjalan
+					$data_stok_berjalan = array(				
+						'no_transaksi'    => $no_stokbb,
+						'id_hub'          => $this->input->post('id_hub['.$loop.']'),
+						'tgl_input'       => $this->input->post('tgl_stok'),
+						'jam_input'       => date("H:i:s"),
+						'jenis'           => 'HUB',
+						'masuk'           => str_replace('.','',$this->input->post('datang['.$loop.']')),
+						'keluar'          => 0,
+						'ket'             => 'MASUK DENGAN PO',
+					);
+					$result_stok_berjalan = $this->db->insert('trs_stok_bahanbaku', $data_stok_berjalan);
 				}
 
 			}			
@@ -1177,6 +1196,19 @@ class M_logistik extends CI_Model
 					'datang_bhn_bk' => str_replace('.','',$this->input->post('datang['.$loop.']')),
 				);
 				$result_detail = $this->db->insert('trs_d_stok_bb', $data_detail);
+
+				// input stok berjalan
+				$data_stok_berjalan = array(				
+					'no_transaksi'    => $no_stokbb,
+					'id_hub'          => $this->input->post('id_hub['.$loop.']'),
+					'tgl_input'       => $this->input->post('tgl_stok'),
+					'jam_input'       => date("H:i:s"),
+					'jenis'           => 'HUB',
+					'masuk'           => str_replace('.','',$this->input->post('datang['.$loop.']')),
+					'keluar'          => 0,
+					'ket'             => 'MASUK DENGAN PO',
+				);
+				$result_stok_berjalan = $this->db->insert('trs_stok_bahanbaku', $data_stok_berjalan);
 			}
 
 			if($result_detail)

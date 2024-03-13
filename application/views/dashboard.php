@@ -14,6 +14,47 @@
       </div><!-- /.container-fluid -->
     </section>
 
+    <section class="content">
+      <!-- RINCIAN STOK -->
+      <div class="col-md-12 row-stok_rinci" style="display: none;">
+        <div class="card card-info card-outline">
+          <div class="card-header">
+            <h3 class="card-title" style="font-weight:bold;font-style:italic">RINCIAN STOK BAHAN BAKU</h3>
+
+            <div class="card-tools">
+
+              <button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+                <i class="fa fa-undo" ></i> Kembali</b>
+              </button>
+            </div>
+
+          </div>
+          
+            <div style="padding:0 10px 20px;">
+              <div style="overflow:auto;white-space:nowrap" >
+                <br>
+                
+                <table id="load_data_bhn_rinci" class="table table-bordered table-striped" width="100%">
+                  <thead class="color-tabel">
+                    <tr>
+                      <th style="width:5%">NO</th>
+                      <th style="width:25%">NO TRANSAKSI</th>
+                      <th style="width:25%">TANGGAL</th>
+                      <th style="width:20%">JAM</th>
+                      <th style="width:20%">QTY</th>
+                      <th style="width:20%">KET</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+        </div>
+      </div>
+      <!-- END RINCIAN STOK -->
+    </section>
+
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
@@ -29,11 +70,49 @@
               </div> -->
 
                   <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub'])){ ?>
-                    <!-- REKAP HUB -->
-                    <div class="col-md-12">
+                    
+                    <!-- REKAP STOK BAHAN BAKU -->
+                    
+                    <div class="col-md-12 row-stok_bhn">
                       <div class="card card-info card-outline">
                         <div class="card-header">
-                          <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP HUB</h3>
+                          <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP STOK BAHAN BAKU</h3>
+                        </div>
+                        <div class="card-body">
+                          <div class="row">
+                            <div class="col-md-10">
+                            </div>
+                          </div>
+                          
+                          
+                        </div>
+                          <div style="padding:0 10px 20px;">
+                            <div style="overflow:auto;white-space:nowrap" >
+                              <table id="load_data_bhn" class="table table-bordered table-striped" width="100%">
+                                <thead class="color-tabel">
+                                  <tr>
+                                    <th style="width:5%">NO</th>
+                                    <th style="width:25%">NAMA</th>
+                                    <th style="width:20%">MASUK</th>
+                                    <th style="width:20%">KELUAR</th>
+                                    <th style="width:20%">STOK AKHIR</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                      </div>
+                    </div>
+                    <!-- END REKAP STOK BAHAN BAKU -->
+
+
+                    <!-- REKAP OMSET HUB -->
+                    <div class="col-md-12 row-omset_hub">
+                      <div class="card card-info card-outline">
+                        <div class="card-header">
+                          <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP OMSET HUB</h3>
                         </div>
                         <div class="card-body">
                           <div class="row">
@@ -65,11 +144,13 @@
                           
                         </div>
                           <div style="padding:0 10px 20px;">
-                            <div style="overflow:auto;white-space:nowrap" id="datatable_hub"></div>
+                            <div style="overflow:auto;white-space:nowrap" id="datatable_omset_hub"></div>
                           </div>
                       </div>
                     </div>
-                    <!-- END REKAP HUB -->
+                    <!-- END REKAP OMSET HUB -->
+                    
+
                   <?php } ?>
 
                 <br>
@@ -96,7 +177,8 @@
             <div class="row">
 
                   <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub'])){ ?>
-                    <div class="col-md-12">
+                    
+                    <div class="col-md-12 row-jatuh_tempo">
                       <div class="card card-info card-outline">
                         <div class="card-header">
                           <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP JATUH TEMPO</h3>
@@ -144,6 +226,7 @@
 
     <!-- /.content2 -->
     <!-- END JATUH TEMPO -->
+
     <?php } ?>
   </div>
   <!-- /.content-wrapper -->
@@ -152,14 +235,22 @@
       $(".select2").select2()
       load_data_hub()
       load_data_jt()
+      load_data_bhn()
     });
+
+    function reloadTable() 
+    {
+      load_data_hub()
+      load_data_jt()
+      load_data_bhn()
+    }
 
     function load_data_hub()
     {
       var th_hub = $('#th_hub').val();
 
       $.ajax({
-        url   : '<?php echo base_url('Master/rekap_hub')?>',
+        url   : '<?php echo base_url('Master/rekap_omset_hub')?>',
         type  : "POST",
         data  : {th_hub},
         beforeSend: function() {
@@ -173,7 +264,7 @@
           });
         },
         success: function(res){
-          $("#datatable_hub").html(res)
+          $("#datatable_omset_hub").html(res)
           swal.close()
         }
       })
@@ -197,6 +288,69 @@
           "emptyTable": "Tidak ada data.."
         }
       });
+    }
+    
+    function load_data_bhn() 
+    {
+      var table = $('#load_data_bhn').DataTable();
+      table.destroy();
+      tabel = $('#load_data_bhn').DataTable({
+        "processing": true,
+        "pageLength": true,
+        "paging": true,
+        "ajax": {
+          "url": '<?php echo base_url(); ?>Master/rekap_bhn',
+          "type": "POST",
+        },
+        responsive: true,
+        "pageLength": 10,
+        "language": {
+          "emptyTable": "Tidak ada data.."
+        }
+      });
+    }
+    
+    function load_data_bhn_rinci(id_hub,ket) 
+    {
+      var table = $('#load_data_bhn_rinci').DataTable();
+      table.destroy();
+      tabel = $('#load_data_bhn_rinci').DataTable({
+        "processing": true,
+        "pageLength": true,
+        "paging": true,
+        "ajax": {
+          "url"       : '<?php echo base_url(); ?>Master/rekap_bhn_rinci',
+          "type"      : 'POST',
+          data        : { id_hub,ket },
+          dataType    : 'JSON',
+        },
+        
+        responsive: true,
+        "pageLength": 10,
+        "language": {
+          "emptyTable": "Tidak ada data.."
+        }
+      });
+    }
+
+    function tampil_data(id_hub,ket)
+    {
+      $(".row-stok_rinci").attr('style', '')
+
+      $(".row-stok_bhn").attr('style', 'display:none')
+      $(".row-omset_hub").attr('style', 'display:none')
+      $(".row-jatuh_tempo").attr('style', 'display:none')
+      load_data_bhn_rinci(id_hub,ket) 
+    }
+
+    function kembaliList()
+    {
+      reloadTable()
+      $(".row-stok_rinci").attr('style', 'display:none')
+      
+      $(".row-stok_bhn").attr('style', '')
+      $(".row-omset_hub").attr('style', '')
+      $(".row-jatuh_tempo").attr('style', '')
     }
   </script>
 

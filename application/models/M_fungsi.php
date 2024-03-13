@@ -530,7 +530,8 @@ class M_fungsi extends CI_Model {
 
 	}
 
-	function _mpdf_hari($orientasi='', $uk='', $judul='', $isi='', $jdlsave='', $lMargin='',$rMargin='', $tMargin='', $bMargin='', $font=10, $hal='',$tab='')
+	function _mpdf_hari($orientasi='', $uk='', $judul='', $isi='', $jdlsave='', $lMargin='',$rMargin='', $tMargin='', $bMargin='', $font=10, $hal='',$tab='' ,$tercetak='')
+
     {
         ini_set("memory_limit", "-1");
         ini_set("MAX_EXECUTION_TIME","-1");
@@ -555,10 +556,12 @@ class M_fungsi extends CI_Model {
 			$size=$font;
 		} 
 
-		$tMargin = ( $tMargin =='' ? 5 : $tMargin );
-		$bMargin = ( $bMargin =='' ? 5 : $bMargin );
-		$lMargin = ( $lMargin =='' ? 5 : $lMargin );
-		$rMargin = ( $rMargin =='' ? 5 : $rMargin );
+		$tercetak   = ( $tercetak =='' ? 'PPI' : $tercetak );
+
+		$tMargin    = ( $tMargin =='' ? 5 : $tMargin );
+		$bMargin    = ( $bMargin =='' ? 5 : $bMargin );
+		$lMargin    = ( $lMargin =='' ? 5 : $lMargin );
+		$rMargin    = ( $rMargin =='' ? 5 : $rMargin );
 
 		$this->mpdf->AddPageByArray(array(
 			'orientation' => $orientasi,
@@ -570,7 +573,7 @@ class M_fungsi extends CI_Model {
 
 		// $this->mpdf->AddPage($orientasi,$uk);
 
-		$this->mpdf->SetFooter('Tercetak PPI - {DATE j-m-Y ( H:i:s )} |Halaman {PAGENO} / {nb}| ');
+		$this->mpdf->SetFooter('Tercetak '.$tercetak.' - {DATE j-m-Y ( H:i:s )} |Halaman {PAGENO} / {nb}| ');
 
 		$this->mpdf->setTitle($judul);
 
