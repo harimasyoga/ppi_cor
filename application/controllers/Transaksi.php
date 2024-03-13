@@ -2384,23 +2384,29 @@ class Transaksi extends CI_Controller
 			<br>
 			<br>
 			
-			<table style="width:100%;margin-bottom:5px;text-align:center;border-collapse:collapse;font-size:11px" border="1">
+			<table style="width:100%;margin-bottom:5px;text-align:center;border-collapse:collapse;font-size:11px" border="0">
 				<tr>
+					<td style="border-bottom:0;padding-top:3px;width:32%"></td>
 					<td style="border-bottom:0;padding-top:3px;width:32%">ADMIN</td>
 					<td style="border:0;width:2%"></td>
 					<td style="border-bottom:0;padding-top:3px;width:32%">DIREKTUR</td>
 				</tr>
 				<tr>
-					<td style="border-top:0;border-bottom:0;padding:43px 0"></td>
+					<td style="border-top:0;border-bottom:0;padding:23px 0"></td>
+					<td style="border-top:0;border-bottom:0;padding:23px 0"></td>
 					<td style="border:0"></td>
-					<td style="border-top:0;border-bottom:0;padding:43px 0"></td>
+					<td style="border-top:0;border-bottom:0;padding:23px 0"></td>
 				</tr>
 				<tr>
-					<td style="border-top:0;padding-bottom:3px;">(. . . . . . . . . . . . . . . . .)</td>
+					<td style="border-top:0;padding-bottom:3px;"></td>
+					<td style="border-top:0;padding-bottom:3px;">(. . . . . . . . . . . . . . . )</td>
 					<td style="border:0"></td>
-					<td style="border-top:0">(. . . . . . . . . . . . . . . . .)</td>
+					<td style="border-top:0">(. . . . . . . . . . . . . . . )</td>
 				</tr>
 			</table>
+			
+			<br>
+			<br>
 			
 			<table style="width:100%;border-top:2px solid #000">
 				<tr>

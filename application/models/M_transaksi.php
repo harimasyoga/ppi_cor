@@ -19,7 +19,7 @@ class M_transaksi extends CI_Model
 	}
 
 	function trs_po($table, $status)
-	{//
+	{
 		$params   = (object)$this->input->post();
 		$id_hub   = $this->input->post('id_hub');
 

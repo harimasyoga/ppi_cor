@@ -214,6 +214,10 @@
 												<i class="fas fa-search"></i>
 											</button> 
 											
+											<button style="display: none;" type="button" title="PILIH"  onclick="cetak_inv_bb(this.id)" class="btn btn-danger btn-sm" name="print_inv[0]" id="print_inv0">
+												<i class="fas fa-print"></i>
+											</button> 
+											
 										</div>
 									</td>
 									<td style="padding : 12px 20px" >
@@ -479,8 +483,11 @@
 							<div class="text-center">
 								<button type="button" title="PILIH"  onclick="load_item(this.id)" class="btn btn-success btn-sm" data-toggle="modal"  name="list[${ rowNum }]" id="list${ rowNum }">
 									<i class="fas fa-search"></i>
-								</button> 
+								</button>
 								
+								<button type="button" title="PRINT"  onclick="cetak_inv_bb(this.id)" class="btn btn-danger btn-sm" name="print_inv[${ rowNum }]" id="print_inv${ rowNum }">
+									<i class="fas fa-print"></i>
+								</button> 
 							</div>
 						</td>
 						<td style="padding : 12px 20px" >
@@ -600,6 +607,30 @@
 		$("#history0").val("")
 		$("#datang0").val("")
 
+	}
+
+	function cetak_inv_bb(id) 
+	{		
+		var id2         = id.substr(9,1);
+		var id_stok_h   = $("#id_stok_h").val();
+		var no_stok     = $("#no_stok").val();
+
+		if(id_stok_h=='' || id_stok_h == null)
+		{
+			swal({
+				title               : "Cek Kembali",
+				html                : "SIMPAN INPUTAN TERLEBIH DAHULU",
+				type                : "info",
+				confirmButtonText   : "OK"
+			});
+			return;
+		}
+
+		var no_po       = $("#no_po"+id2).val();
+		var url         = "<?= base_url('Logistik/cetak_inv_bb'); ?>";
+
+		window.open(url + '?no_po='+no_po+'&no_stok='+no_stok+'&id_stok_h='+id_stok_h, '_blank');
+		  
 	}
 
 	function hitung_total()
@@ -874,6 +905,10 @@
 										<button type="button" title="PILIH"  onclick="load_item(this.id)" class="btn btn-success btn-sm" data-toggle="modal"  name="list[${ no }]" id="list${ no }">
 											<i class="fas fa-search"></i>
 										</button> 
+
+										<button type="button" title="PILIH"  onclick="cetak_inv_bb(this.id)" class="btn btn-danger btn-sm" name="print_inv[${ no }]" id="print_inv${ no }">
+											<i class="fas fa-print"></i>
+										</button> 
 										
 									</div>
 								</td>
@@ -1041,7 +1076,7 @@
 					// toastr.success('Berhasil Disimpan');
 					// swal.close();								
 					kosong();
-					location.href = "<?= base_url()?>Logistik/stok_bb";
+					// location.href = "<?= base_url()?>Logistik/stok_bb";
 					swal({
 						title               : "Data",
 						html                : "Berhasil Disimpan",
@@ -1097,13 +1132,13 @@
 		$(".row-list").attr('style', '')
 	}
 
-	function deleteData(id,nm_akun) 
+	function deleteData(id,no_stok) 
 	{
 		// let cek = confirm("Apakah Anda Yakin?");
 		swal({
 			title: "HAPUS PEMBAYARAN",
 			html: "<p> Apakah Anda yakin ingin menghapus file ini ?</p><br>"
-			+"<strong>" +nm_akun+ " </strong> ",
+			+"<strong>" +no_stok+ " </strong> ",
 			type               : "question",
 			showCancelButton   : true,
 			confirmButtonText  : '<b>Hapus</b>',
@@ -1117,9 +1152,10 @@
 			$.ajax({
 				url: '<?= base_url(); ?>Logistik/hapus',
 				data: ({
-					id: id,
-					jenis: 'm_kode_kelompok',
-					field: 'id_kelompok'
+					id         : id,
+					no_stok    : no_stok,
+					jenis      : 'trs_h_stok_bb',
+					field      : 'id_stok'
 				}),
 				type: "POST",
 				beforeSend: function() {

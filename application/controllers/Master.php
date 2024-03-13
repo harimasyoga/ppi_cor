@@ -815,7 +815,7 @@ class Master extends CI_Controller
 		));
 	}
 
-	function rekap_hub()
+	function rekap_omset_hub()
 	{
 		$html   = '';
 
@@ -921,6 +921,103 @@ class Master extends CI_Controller
 			$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
 			// $row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit;
 			$row[] = $btnEdit;
+			$data[] = $row;
+			$i++;
+		}
+
+		$output = array(
+			"data" => $data,
+		);
+		//output to json format
+		echo json_encode($output);
+	}
+
+	function rekap_bhn()
+	{
+		$jenis = $this->uri->segment(3);
+
+		$data = array();
+		$query = $this->m_master->query("SELECT*FROM (
+		SELECT 
+		(select sum(masuk)masuk from trs_stok_bahanbaku b where b.jenis='PPI' group by jenis)masuk,
+		(select sum(keluar)keluar from trs_stok_bahanbaku b where b.jenis='PPI' group by jenis)keluar,
+		(select sum(masuk-keluar)stok_akhir from trs_stok_bahanbaku b where b.jenis='PPI' group by jenis)stok_akhir,
+		'0' as id_hub, 'PPI' as pimpinan, 'PPI' as nm_hub, 'PPI' as aka, '-' as alamat, '-' as kode_pos, '-' as no_telp, '-' as fax, '-' as add_time, '-' as add_user, '-' as edit_time, '-' as edit_user FROM m_hub e limit 1) as ppi
+
+		UNION ALL
+
+		SELECT 
+		(select sum(masuk)masuk from trs_stok_bahanbaku b where a.id_hub=b.id_hub group by id_hub)masuk,
+		(select sum(keluar)keluar from trs_stok_bahanbaku c where a.id_hub=c.id_hub group by id_hub)keluar,
+		(select sum(masuk-keluar)stok_akhir from trs_stok_bahanbaku d where a.id_hub=d.id_hub group by id_hub)stok_akhir,
+		a.* FROM m_hub a
+		
+		")->result();
+
+		$i = 1;
+		foreach ($query as $r) {
+			$row = array();
+			$row[] = '<div class="text-center" style="font-weight:bold">'.$i.'</div>';
+			$row[] = '<div style="font-weight:bold">'.$r->nm_hub.'</div>';
+
+			$row[] = '<div class="text-right" style="font-weight:bold">
+			<a href="javascript:void(0)" onclick="tampil_data('."'".$r->id_hub."'".','."'masuk'".')">'.number_format($r->masuk,0,',','.').' ( Kg )</a>
+			</div>';
+
+			$row[] = '<div class="text-right" style="font-weight:bold">
+			<a href="javascript:void(0)" onclick="tampil_data('."'".$r->id_hub."'".','."'keluar'".')">'.number_format($r->keluar,0,',','.').' ( Kg )</a>
+			</div>';
+
+			$row[] = '<div class="text-right" style="font-weight:bold">
+			<a href="javascript:void(0)" onclick="tampil_data('."'".$r->id_hub."'".','."'stok_akhir'".')">'.number_format($r->stok_akhir,0,',','.').' ( Kg )</a>
+			</div>';
+
+			$data[] = $row;
+			$i++;
+		}
+
+		$output = array(
+			"data" => $data,
+		);
+		//output to json format
+		echo json_encode($output);
+	}
+	
+	function rekap_bhn_rinci()
+	{		
+		$id_hub   = $this->input->post('id_hub');
+		$ket      = $this->input->post('ket');
+		
+		if($id_hub=='0')
+		{
+			$where ="id_hub is null";
+		}else{
+			$where ="id_hub='$id_hub'";
+
+		}
+		$query    = $this->m_master->query("SELECT*from trs_stok_bahanbaku where $where")->result();
+
+		$data     = array();
+		$i        = 1;
+		foreach ($query as $r) {
+
+			if($ket=='masuk')
+			{
+				$value = $r->masuk;
+
+			}else if($ket=='keluar'){
+
+				$value = $r->keluar;
+			}else{
+				$value = $r->masuk - $r->keluar;
+			}
+			$row = array();
+			$row[] = '<div class="text-center" style="font-weight:bold">'.$i.'</div>';
+			$row[] = '<div class="text-center" style="font-weight:bold">'.$r->no_transaksi.'</div>';
+			$row[] = '<div class="text-center" style="font-weight:bold">'.$this->m_fungsi->tanggal_ind($r->tgl_input).'</div>';
+			$row[] = '<div class="text-center" style="font-weight:bold">'.$r->jam_input.'</div>';
+			$row[] = '<div class="text-center" style="font-weight:bold">'.number_format($value,0,',','.').'</div>';
+			$row[] = '<div style="font-weight:bold">'.$r->ket.'</div>';
 			$data[] = $row;
 			$i++;
 		}
