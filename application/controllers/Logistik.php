@@ -846,12 +846,13 @@ class Logistik extends CI_Controller
 			foreach($isi->result() as $r){
 				$i++;
 				($r->jenis_qty_lm == 'kg') ? $muat = round($r->qty_muat,2) : $muat = number_format($r->qty_muat,0);
+				($r->jenis_qty_lm == 'pack') ? $jenis_qty = 'BALL' : $jenis_qty = strtoupper($r->jenis_qty_lm);
 				$html .='<tr>
 					<td style="padding:3px;border:1px solid #000;text-align:center">'.$i.'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->rk_no_po.'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->nm_produk_lm.'</td>
 					<td style="padding:3px 10px 3px 3px;border:1px solid #000;border-width:1px 0 1px 1px;text-align:right">'.$muat.'</td>
-					<td style="padding:3px 3px 3px 0;border:1px solid #000;border-width:1px 1px 1px 0">'.strtoupper($r->jenis_qty_lm).'</td>
+					<td style="padding:3px 3px 3px 0;border:1px solid #000;border-width:1px 1px 1px 0">'.$jenis_qty.'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->rk_ket.'</td>
 				</tr>';
 				$sumQty += $r->qty_muat;

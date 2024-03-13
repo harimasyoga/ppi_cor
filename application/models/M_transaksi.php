@@ -1109,9 +1109,10 @@ class M_transaksi extends CI_Model
 			'pilih_hpp' => $_POST["pilih_hpp"],
 			'tgl_hpp' => $_POST["tgl1_hpp"],
 			'jenis_hpp' => $_POST["jenis_hpp"],
-			'jenis_cor' => $_POST["jenis_cor"],
+			'jenis_cor' => '',
 			'bahan_baku_kg' => ($_POST["bahan_baku_kg"] == "") ? 0 : $_POST["bahan_baku_kg"],
 			'bahan_baku_rp' => ($_POST["bahan_baku_rp"] == "") ? 0 : $_POST["bahan_baku_rp"],
+			'bahan_baku_x' => $_POST["bahan_baku_x"],
 			'tenaga_kerja' => $_POST["tenaga_kerja"],
 			'upah' => ($_POST["upah"] == "") ? 0 : $_POST["upah"],
 			'thr' => $_POST["thr"],
@@ -1132,18 +1133,27 @@ class M_transaksi extends CI_Model
 			'hasil_hpp' => $_POST["hasil_hpp"],
 			'tonase_order' => $_POST["tonase_order"],
 			'hasil_x_tonanse' => $_POST["hasil_x_tonanse"],
+			'presentase' => 10,
+			'hxt_x_persen' => $_POST["hxt_x_persen"],
+			'fix_hpp' => $_POST["fix_hpp"],
 		];
 
-		if($_POST["pilih_hpp"] == 'PM2' && ($_POST["hasil_hpp"] == '' || $_POST["tonase_order"] == '' || $_POST["hasil_x_tonanse"] == '' || $_POST["hasil_hpp"] == 0 || $_POST["tonase_order"] == 0 || $_POST["hasil_x_tonanse"] == 0)){
+		if(($_POST["pilih_hpp"] == 'PM2' || $_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX') && ($_POST["hasil_hpp"] == '' || $_POST["tonase_order"] == '' || $_POST["hasil_x_tonanse"] == '' || $_POST["hasil_hpp"] == 0 || $_POST["tonase_order"] == 0 || $_POST["hasil_x_tonanse"] == 0)){
+			$insertHPP = false;
+			$msg = 'DATA HPP KOSONG!';
+			$cek = '';
+			$cart = '';
+		}else if(($_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX') && ($_POST["bahan_baku_x"] == '' || $_POST["bahan_baku_x"] == 0)){
 			$insertHPP = false;
 			$msg = 'DATA HPP KOSONG!';
 			$cek = '';
 			$cart = '';
 		}else{
 			$pilih_hpp = $_POST["pilih_hpp"];
+			$pilih_id_hpp = $_POST["pilih_id_hpp"];
 			$tgl_hpp = $_POST["tgl1_hpp"];
 			$jenis_hpp = $_POST["jenis_hpp"];
-			$jenis_cor = $_POST["jenis_cor"];
+			$jenis_cor = '';
 			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp' AND jenis_cor='$jenis_cor'")->num_rows();
 
 			if($statusInput == 'insert'){
@@ -1153,6 +1163,19 @@ class M_transaksi extends CI_Model
 					$insertHPP = $this->db->insert('m_hpp', $data);
 					// CART
 					if($insertHPP){
+						// UPDATE CEK
+						if($pilih_hpp != 'PM2'){
+							$this->db->set('edit_time', date('Y-m-d H:i:s'));
+							$this->db->set('edit_user', $this->username);
+							if($pilih_hpp == 'SHEET'){
+								$this->db->set('cek_sheet', $pilih_id_hpp);
+							}else if($pilih_hpp == 'BOX'){
+								$this->db->set('cek_box', $pilih_id_hpp);
+							}
+							$this->db->where('id_hpp', $pilih_id_hpp);
+							$this->db->update('m_hpp');
+						}
+
 						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp' AND jenis_cor='$jenis_cor'")->row();
 						if($this->cart->total_items() != 0){
 							foreach($this->cart->contents() as $r){
@@ -1216,6 +1239,7 @@ class M_transaksi extends CI_Model
 	{
 		$id_dtl = $_POST["id_dtl"];
 		$id_hpp = $_POST["id_hpp"];
+		$jenis = $_POST["jenis"];
 		$ooo = $_POST["ooo"];
 		$opsi = $_POST["opsi"];
 
@@ -1227,7 +1251,7 @@ class M_transaksi extends CI_Model
 
 		if($delete_dtl){
 			$data = $this->db->query("SELECT SUM(ket_kg) AS ket_kg,SUM(ket_rp) AS ket_rp,SUM(ket_x) AS ket_x FROM m_hpp_detail
-			WHERE id_hpp='$id_hpp' AND opsi='$ooo' GROUP BY id_hpp,opsi,jenis");
+			WHERE id_hpp='$id_hpp' AND opsi='$ooo' AND jenis='$jenis' GROUP BY id_hpp,opsi,jenis");
 			if($data->num_rows() > 0){
 				$ket_kg = $data->row()->ket_kg;
 				$ket_rp = $data->row()->ket_rp;
@@ -1248,10 +1272,14 @@ class M_transaksi extends CI_Model
 				$this->db->where('id_hpp', $id_hpp);
 				$u_upah = $this->db->update('m_hpp'); $u_bb = ''; $u_dll = '';
 			}else if($ooo == 'bb'){
-				$this->db->set('bahan_baku_kg', $ket_kg);
-				$this->db->set('bahan_baku_rp', $ket_x);
-				$this->db->where('id_hpp', $id_hpp);
-				$u_bb = $this->db->update('m_hpp'); $u_upah = ''; $u_dll = '';
+				if($jenis = 'pm'){
+					$this->db->set('bahan_baku_kg', $ket_kg);
+					$this->db->set('bahan_baku_rp', $ket_x);
+					$this->db->where('id_hpp', $id_hpp);
+					$u_bb = $this->db->update('m_hpp'); $u_upah = ''; $u_dll = '';
+				}else{
+					$u_bb = 'bb sheet'; $u_upah = ''; $u_dll = '';
+				}
 			}else{ // lainlain
 				$this->db->set('lain_lain_kg', $ket_kg);
 				$this->db->set('lain_lain_rp', $ket_x);
@@ -1275,6 +1303,10 @@ class M_transaksi extends CI_Model
 
 	function hapusHPP()
 	{
+		// cek_sheet, cek_box
+		$pilih_hpp = $_POST["pilih_hpp"];
+		$cek_sheet = $_POST["cek_sheet"];
+		$cek_box = $_POST["cek_box"];
 		$this->db->where('id_hpp', $_POST["id_hpp"]);
 		$delete = $this->db->delete('m_hpp');
 		if($delete){
