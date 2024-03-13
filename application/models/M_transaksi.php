@@ -1131,10 +1131,12 @@ class M_transaksi extends CI_Model
 			'lain_lain_kg' => ($_POST["lain_lain_kg"] == "") ? 0 : $_POST["lain_lain_kg"],
 			'lain_lain_rp' => ($_POST["lain_lain_rp"] == "") ? 0 : $_POST["lain_lain_rp"],
 			'hasil_hpp' => $_POST["hasil_hpp"],
+			'hasil_hpp_tanpa_bb' => $_POST["hasil_hpp_tanpa_bb"],
 			'tonase_order' => $_POST["tonase_order"],
 			'hasil_x_tonase' => $_POST["hasil_x_tonase"],
-			'presentase' => 10,
+			'hasil_x_tonase_tanpa_bb' => $_POST["hasil_x_tonase_tanpa_bb"],
 			'hxt_x_persen' => $_POST["hxt_x_persen"],
+			'presentase' => $_POST["presentase"],
 			'fix_hpp' => $_POST["fix_hpp"],
 		];
 
@@ -1263,10 +1265,25 @@ class M_transaksi extends CI_Model
 			$hpp = $this->db->query("SELECT*FROM m_hpp WHERE id_hpp='$id_hpp'")->row();
 			$hasil_hpp = $hpp->hasil_hpp - $pengurangan;
 			$hasil_x_tonase = round(($hpp->hasil_hpp - $pengurangan) / $hpp->tonase_order);
+			
+			if($ooo == 'bb'){
+				$hxt_tanpa_bb = $hpp->hasil_hpp_tanpa_bb;
+				$hasil_x_tonase_tanpa_bb = $hpp->hasil_x_tonase_tanpa_bb;
+			}else{
+				$hxt_tanpa_bb = $hpp->hasil_hpp_tanpa_bb - $pengurangan;
+				$hasil_x_tonase_tanpa_bb = round(($hpp->hasil_hpp_tanpa_bb - $pengurangan) / $hpp->tonase_order);
+			}
+			$hxt_x_persen = round(($hxt_tanpa_bb * ($hpp->presentase / 100)));
+			$fix_hpp = $hxt_tanpa_bb + round(($hxt_tanpa_bb * ($hpp->presentase / 100)));
+
 			$this->db->set('edit_time', date('Y-m-d H:i:s'));
 			$this->db->set('edit_user', $this->username);
 			$this->db->set('hasil_hpp', $hasil_hpp);
 			$this->db->set('hasil_x_tonase', $hasil_x_tonase);
+			$this->db->set('hasil_hpp_tanpa_bb', $hxt_tanpa_bb);
+			$this->db->set('hasil_x_tonase_tanpa_bb', $hasil_x_tonase_tanpa_bb);
+			$this->db->set('hxt_x_persen', $hxt_x_persen);
+			$this->db->set('fix_hpp', $fix_hpp);
 			if($ooo == 'upah'){
 				$this->db->set('upah', $ket_rp);
 				$this->db->where('id_hpp', $id_hpp);

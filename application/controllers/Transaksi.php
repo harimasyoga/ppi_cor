@@ -260,6 +260,11 @@ class Transaksi extends CI_Controller
 			'hasil_hpp' => number_format($hpp->hasil_hpp,0,',','.'),
 			'tonase_order' => number_format($hpp->tonase_order,0,',','.'),
 			'hasil_x_tonase' => number_format($hpp->hasil_x_tonase,0,',','.'),
+			'presentase' => $hpp->presentase,
+			'hasil_hpp_tanpa_bb' => number_format($hpp->hasil_hpp_tanpa_bb,0,',','.'),
+			'hasil_x_tonase_tanpa_bb' => number_format($hpp->hasil_x_tonase_tanpa_bb,0,',','.'),
+			'hxt_x_persen' => number_format($hpp->hxt_x_persen,0,',','.'),
+			'fix_hpp' => number_format($hpp->fix_hpp,0,',','.'),
 		];
 
 		echo json_encode([
@@ -278,15 +283,15 @@ class Transaksi extends CI_Controller
 		foreach ($query as $r) {
 			$i++;
 			$row = [];
-			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.$i.'<a></div>';
-			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.strtoupper($this->m_fungsi->getHariIni($r->tgl_hpp)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp)).'</a></div>';
-			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.$r->pilih_hpp.'<a></div>';
-			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.$r->jenis_hpp.'<a></div>';
-			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.number_format($r->hasil_hpp,0,",",".").'</a></div>';
-			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.number_format($r->tonase_order,0,",",".").'</a></div>';
-			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.number_format($r->hasil_x_tonase,0,",",".").'</a></div>';
-			$edit = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'edit'".','."''".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
-			$view = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')" class="btn btn-info btn-sm" style="color:#000"><i class="fas fa-eye"></i></button>';
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$i.'<a></div>';
+			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.strtoupper($this->m_fungsi->getHariIni($r->tgl_hpp)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp)).'</a></div>';
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->pilih_hpp.'<a></div>';
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->jenis_hpp.'<a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_hpp,0,",",".").'</a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->tonase_order,0,",",".").'</a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_x_tonase,0,",",".").'</a></div>';
+			$edit = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+			$view = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')" class="btn btn-info btn-sm" style="color:#000"><i class="fas fa-eye"></i></button>';
 			$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".','."'".$r->pilih_hpp."'".','."'".$r->cek_sheet."'".','."'".$r->cek_box."'".')" class="btn btn-danger btn-sm" style="color:#000"><i class="fas fa-trash-alt"></i></button>';
 
 			// cek_laminasi  cek_sheet  cek_box
@@ -4532,7 +4537,12 @@ class Transaksi extends CI_Controller
 							<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKeteranganHPP('."'".$r['rowid']."'".','."'".$r['options']['opsi']."'".','."'".$r['options']['jenis']."'".','."'".$r['options']['id_hpp']."'".')"><i class="fas fa-times"></i></button> '.$r['options']['ket_txt'].'
 						</div>
 						<div class="col-md-9">
-							<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($r['options']['ket_rp'],0,',','.').'" disabled>
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text" style="padding:6px">Rp</span>
+								</div>
+								<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($r['options']['ket_rp'],0,',','.').'" disabled>
+							</div>
 						</div>
 					</div>';
 					$sumUpah += $r['options']['ket_rp'];
