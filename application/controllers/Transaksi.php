@@ -259,7 +259,7 @@ class Transaksi extends CI_Controller
 			'lain_lain_rp' => number_format($hpp->lain_lain_rp,0,',','.'),
 			'hasil_hpp' => number_format($hpp->hasil_hpp,0,',','.'),
 			'tonase_order' => number_format($hpp->tonase_order,0,',','.'),
-			'hasil_x_tonanse' => number_format($hpp->hasil_x_tonanse,0,',','.'),
+			'hasil_x_tonase' => number_format($hpp->hasil_x_tonase,0,',','.'),
 		];
 
 		echo json_encode([
@@ -284,7 +284,7 @@ class Transaksi extends CI_Controller
 			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.$r->jenis_hpp.'<a></div>';
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.number_format($r->hasil_hpp,0,",",".").'</a></div>';
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.number_format($r->tonase_order,0,",",".").'</a></div>';
-			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.number_format($r->hasil_x_tonanse,0,",",".").'</a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.number_format($r->hasil_x_tonase,0,",",".").'</a></div>';
 			$edit = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'edit'".','."''".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
 			$view = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')" class="btn btn-info btn-sm" style="color:#000"><i class="fas fa-eye"></i></button>';
 			$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".','."'".$r->pilih_hpp."'".','."'".$r->cek_sheet."'".','."'".$r->cek_box."'".')" class="btn btn-danger btn-sm" style="color:#000"><i class="fas fa-trash-alt"></i></button>';
@@ -4421,7 +4421,7 @@ class Transaksi extends CI_Controller
 			// "lain_lain_rp" => "5",
 			// "hasil_hpp" => number_format($get->hasil_hpp,0,',','.'),
 			// "tonase_order" => "2",
-			"hasil_x_tonanse" => number_format($get->hasil_x_tonanse,0,',','.'),
+			"hasil_x_tonase" => number_format($get->hasil_x_tonase,0,',','.'),
 			// "presentase" => "10",
 			// "hxt_x_persen" => "1",
 			// "fix_hpp" => number_format($get->fix_hpp,0,',','.'),

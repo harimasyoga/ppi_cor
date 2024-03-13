@@ -1111,12 +1111,12 @@
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">HITUNG HPP</h3>
 							</div>
-							<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
+							<div class="card-body row" style="font-weight:bold;padding:16px 12px 6px">
 								<div class="col-md-12">TOTAL</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-12">
-									<input type="text" id="hasil_hpp" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="HPP" disabled>
+									<input type="text" id="hasil_hpp" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="0" disabled>
 								</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
@@ -1148,29 +1148,9 @@
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-12">
-									<input type="text" id="hasil_x_tonanse" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="HPP / TONASE ORDER" disabled>
+									<input type="text" id="hasil_x_tonase" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="0" disabled>
 								</div>
 							</div>
-							<!-- <div class="hitung-presentase" style="display:none">
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3">PRESENTASE</div>
-									<div class="col-md-9">
-										<input type="number" id="presentase" class="form-control" autocomplete="off" placeholder="PRESENTASE" onkeyup="hitungHPP()">
-									</div>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3"></div>
-									<div class="col-md-9">
-										<input type="text" id="hxt_x_persen" class="form-control" style="color:#000;font-weight:bold" autocomplete="off" placeholder="HxT X PRESENTASE" onkeyup="hitungHPP()">
-									</div>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:12px 12px 6px">
-									<div class="col-md-3">HASIL AKHIR</div>
-									<div class="col-md-9">
-										<input type="text" id="fix_hpp" class="form-control" style="color:#000;font-weight:bold" autocomplete="off" placeholder="HASIL AKHIR" disabled onkeyup="hitungHPP()">
-									</div>
-								</div>
-							</div> -->
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
 								<div class="col-md-3"></div>
 								<div class="col-md-9" style="text-align:right">
@@ -1180,18 +1160,43 @@
 						</div>
 						<input type="hidden" id="id_hpp" value="">
 						<input type="hidden" id="pilih_id_hpp" value="">
-						<input type="hidden" id="hxt_x_persen" value="">
 						<input type="hidden" id="fix_hpp" value="">
 						<input type="hidden" id="load_edit" value="">
 					</div>
+
+					<div class="col-hitung-hpp-tanpa-bb" style="display:none">
+						<div class="card card-primary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">HPP TANPA BAHAN BAKU</h3>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:16px 12px 6px">
+								<div class="col-md-12">TOTAL</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-12">
+									<input type="text" id="hasil_hpp_tanpa_bb" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="0" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-12">HPP</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-12">
+									<input type="text" id="hasil_x_tonase_tanpa_bb" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="0" disabled>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-12">HPP + 10%</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 16px">
+								<div class="col-md-12">
+									<input type="text" id="fix_hpp" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="0" disabled>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
-
-			<!-- <div class="row row-list-box">
-				<div class="col-md-12">
-					
-				</div>
-			</div> -->
 
 			<div class="row row-list-hpp">
 				<div class="col-md-12">
@@ -1393,13 +1398,16 @@
 		$("#tonase_order").val("").prop('disabled', true)
 		$("#s_tonase_order").val("").prop('disabled', true)
 		$("#b_tonase_order").val("").prop('disabled', true)
-		$("#hasil_x_tonanse").val("").prop('disabled', true)
-		$("#presentase").val("").prop('disabled', true)
+		$("#hasil_x_tonase").val("").prop('disabled', true)
+
+		$("#hasil_hpp_tanpa_bb").val("").prop('disabled', true)
+		$("#hasil_x_tonase_tanpa_bb").val("").prop('disabled', true)
+		$("#fix_hpp").val("").prop('disabled', true)
+		// $("#presentase").val("").prop('disabled', true)
 
 		// HIDDEN
 		$("#id_hpp").val("")
 		$("#pilih_id_hpp").val("")
-		$("#hxt_x_persen").val("")
 		$("#fix_hpp").val("")
 
 		$("#btn-simpan").html(`<button type="button" class="btn btn-sm btn-primary" onclick="simpanHPP('')"><i class="fa fa-save"></i> <b>SIMPAN</b></button>`)
@@ -1458,7 +1466,8 @@
 	{
 		$(".card-pemakaian-bahan-"+cbx).attr('style', (opsi == 'show') ? '' : 'display:none')
 		$(".card-biaya-produksi-"+cbx).attr('style', (opsi == 'show') ? '' : 'display:none')
-		$(".col-hitung-hpp").attr('style', (opsi == 'show') ? 'position:sticky;top:12px' : 'display:none')
+		$(".col-hitung-hpp").attr('style', (opsi == 'show') ? '' : 'display:none')
+		$(".col-hitung-hpp-tanpa-bb").attr('style', (opsi == 'show') ? '' : 'display:none')
 
 		$(".tambah-bahan").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('bb','pm','')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
 		$(".tambah-upah").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('upah','pm','')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
@@ -1497,7 +1506,7 @@
 		}
 
 		$("#hasil_hpp").val("")
-		$("#hasil_x_tonanse").val("")
+		$("#hasil_x_tonase").val("")
 		$(".cbx").attr('style', 'display:none')
 		if(pilih_hpp == "PM2" && tgl_hpp != '' && jenis_hpp != ''){
 			hideAll('pm', 'show')
@@ -1591,13 +1600,13 @@
 				data = JSON.parse(res)
 				console.log(data)
 				if(opsi == 'sheet'){
-					$("#bk_rp").val(data.pm.hasil_x_tonanse)
-					$("#mh_rp").val(data.pm.hasil_x_tonanse)
+					$("#bk_rp").val(data.pm.hasil_x_tonase)
+					$("#mh_rp").val(data.pm.hasil_x_tonase)
 					HitungSheetBB(data.pm.jenis_hpp)
 				}
 				if(opsi == 'box'){
-					$("#bk_rp_box").val(data.pm.hasil_x_tonanse)
-					$("#mh_rp_box").val(data.pm.hasil_x_tonanse)
+					$("#bk_rp_box").val(data.pm.hasil_x_tonase)
+					$("#mh_rp_box").val(data.pm.hasil_x_tonase)
 					HitungBoxBB(data.pm.jenis_hpp)
 				}
 				$("#pilih_id_hpp").val(data.pm.id_hpp)
@@ -1732,13 +1741,13 @@
 		let tonase_order =  $("#s_tonase_order").val()
 		$("#s_tonase_order").val(formatRupiah(tonase_order))
 		let h_tonase_order = tonase_order.split('.').join('')
-		let hasil_x_tonanse = 0;
-		(hitung_hpp == 0 || h_tonase_order == '') ? hasil_x_tonanse = 0 : hasil_x_tonanse = Math.round(parseInt(hitung_hpp) / parseInt(h_tonase_order).toFixed()).toFixed();
-		$("#hasil_x_tonanse").val(formatRupiah(hasil_x_tonanse.toString()))
+		let hasil_x_tonase = 0;
+		(hitung_hpp == 0 || h_tonase_order == '') ? hasil_x_tonase = 0 : hasil_x_tonase = Math.round(parseInt(hitung_hpp) / parseInt(h_tonase_order).toFixed()).toFixed();
+		$("#hasil_x_tonase").val(formatRupiah(hasil_x_tonase.toString()))
 
 		// (HPP * TONASE ORDER) + PRESENTASE %
-		// let hxt_x_persen = Math.round((parseInt(hasil_x_tonanse) * (10 / 100)))
-		// let fix_hpp = parseInt(hasil_x_tonanse) + Math.round((parseInt(hasil_x_tonanse) * (10 / 100)))
+		// let hxt_x_persen = Math.round((parseInt(hasil_x_tonase) * (10 / 100)))
+		// let fix_hpp = parseInt(hasil_x_tonase) + Math.round((parseInt(hasil_x_tonase) * (10 / 100)))
 	}
 
 	// END SHEET
@@ -1869,13 +1878,13 @@
 		let tonase_order =  $("#b_tonase_order").val()
 		$("#b_tonase_order").val(formatRupiah(tonase_order))
 		let h_tonase_order = tonase_order.split('.').join('')
-		let hasil_x_tonanse = 0;
-		(hitung_hpp == 0 || h_tonase_order == '') ? hasil_x_tonanse = 0 : hasil_x_tonanse = Math.round(parseInt(hitung_hpp) / parseInt(h_tonase_order).toFixed()).toFixed();
-		$("#hasil_x_tonanse").val(formatRupiah(hasil_x_tonanse.toString()))
+		let hasil_x_tonase = 0;
+		(hitung_hpp == 0 || h_tonase_order == '') ? hasil_x_tonase = 0 : hasil_x_tonase = Math.round(parseInt(hitung_hpp) / parseInt(h_tonase_order).toFixed()).toFixed();
+		$("#hasil_x_tonase").val(formatRupiah(hasil_x_tonase.toString()))
 
 		// (HPP * TONASE ORDER) + PRESENTASE %
-		// let hxt_x_persen = Math.round((parseInt(hasil_x_tonanse) * (10 / 100)))
-		// let fix_hpp = parseInt(hasil_x_tonanse) + Math.round((parseInt(hasil_x_tonanse) * (10 / 100)))
+		// let hxt_x_persen = Math.round((parseInt(hasil_x_tonase) * (10 / 100)))
+		// let fix_hpp = parseInt(hasil_x_tonase) + Math.round((parseInt(hasil_x_tonase) * (10 / 100)))
 	}
 
 	// END BOX
@@ -2201,13 +2210,13 @@
 		let tonase_order =  $("#tonase_order").val()
 		$("#tonase_order").val(formatRupiah(tonase_order))
 		let h_tonase_order = tonase_order.split('.').join('')
-		let hasil_x_tonanse = 0;
-		(hitung_hpp == 0 || h_tonase_order == '') ? hasil_x_tonanse = 0 : hasil_x_tonanse = Math.round(parseInt(hitung_hpp) / parseInt(h_tonase_order).toFixed()).toFixed();
-		$("#hasil_x_tonanse").val(formatRupiah(hasil_x_tonanse.toString()))
+		let hasil_x_tonase = 0;
+		(hitung_hpp == 0 || h_tonase_order == '') ? hasil_x_tonase = 0 : hasil_x_tonase = Math.round(parseInt(hitung_hpp) / parseInt(h_tonase_order).toFixed()).toFixed();
+		$("#hasil_x_tonase").val(formatRupiah(hasil_x_tonase.toString()))
 
 		// (HPP * TONASE ORDER) + PRESENTASE %
-		// let hxt_x_persen = Math.round((parseInt(hasil_x_tonanse) * (10 / 100)))
-		// let fix_hpp = parseInt(hasil_x_tonanse) + Math.round((parseInt(hasil_x_tonanse) * (10 / 100)))
+		// let hxt_x_persen = Math.round((parseInt(hasil_x_tonase) * (10 / 100)))
+		// let fix_hpp = parseInt(hasil_x_tonase) + Math.round((parseInt(hasil_x_tonase) * (10 / 100)))
 	}
 
 	function simpanHPP(opsi)
@@ -2280,11 +2289,11 @@
 		// HITUNG HPP
 		let hasil_hpp = $("#hasil_hpp").val().split('.').join('')
 		let tonase_order = $("#"+o+"tonase_order").val().split('.').join('')
-		let hasil_x_tonanse = $("#hasil_x_tonanse").val().split('.').join('')
+		let hasil_x_tonase = $("#hasil_x_tonase").val().split('.').join('')
 
 		// (HPP * TONASE ORDER) + PRESENTASE %
-		let hxt_x_persen = Math.round((parseInt(hasil_x_tonanse) * (10 / 100)))
-		let fix_hpp = parseInt(hasil_x_tonanse) + Math.round((parseInt(hasil_x_tonanse) * (10 / 100)))
+		let hxt_x_persen = Math.round((parseInt(hasil_x_tonase) * (10 / 100)))
+		let fix_hpp = parseInt(hasil_x_tonase) + Math.round((parseInt(hasil_x_tonase) * (10 / 100)))
 		console.log("hxt_x_persen : ", hxt_x_persen)
 		console.log("fix_hpp : ", fix_hpp)
 		$.ajax({
@@ -2301,7 +2310,7 @@
 				});
 			},
 			data: ({
-				id_hpp, pilih_id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, jenis_cor, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonanse, hxt_x_persen, fix_hpp, statusInput
+				id_hpp, pilih_id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, jenis_cor, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonase, hxt_x_persen, fix_hpp, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -2417,7 +2426,7 @@
 
 				$("#hasil_hpp").val(data.data.hasil_hpp)
 				$("#"+o+"tonase_order").val(data.data.tonase_order).prop('disabled', prop)
-				$("#hasil_x_tonanse").val(data.data.hasil_x_tonanse)
+				$("#hasil_x_tonase").val(data.data.hasil_x_tonase)
 
 				if(data.data.pilih_hpp == 'PM2'){
 					$(".update-keterangan-bahan").html(data.htmlBB)

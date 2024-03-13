@@ -1132,13 +1132,13 @@ class M_transaksi extends CI_Model
 			'lain_lain_rp' => ($_POST["lain_lain_rp"] == "") ? 0 : $_POST["lain_lain_rp"],
 			'hasil_hpp' => $_POST["hasil_hpp"],
 			'tonase_order' => $_POST["tonase_order"],
-			'hasil_x_tonanse' => $_POST["hasil_x_tonanse"],
+			'hasil_x_tonase' => $_POST["hasil_x_tonase"],
 			'presentase' => 10,
 			'hxt_x_persen' => $_POST["hxt_x_persen"],
 			'fix_hpp' => $_POST["fix_hpp"],
 		];
 
-		if(($_POST["pilih_hpp"] == 'PM2' || $_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX') && ($_POST["hasil_hpp"] == '' || $_POST["tonase_order"] == '' || $_POST["hasil_x_tonanse"] == '' || $_POST["hasil_hpp"] == 0 || $_POST["tonase_order"] == 0 || $_POST["hasil_x_tonanse"] == 0)){
+		if(($_POST["pilih_hpp"] == 'PM2' || $_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX') && ($_POST["hasil_hpp"] == '' || $_POST["tonase_order"] == '' || $_POST["hasil_x_tonase"] == '' || $_POST["hasil_hpp"] == 0 || $_POST["tonase_order"] == 0 || $_POST["hasil_x_tonase"] == 0)){
 			$insertHPP = false;
 			$msg = 'DATA HPP KOSONG!';
 			$cek = '';
@@ -1262,11 +1262,11 @@ class M_transaksi extends CI_Model
 			
 			$hpp = $this->db->query("SELECT*FROM m_hpp WHERE id_hpp='$id_hpp'")->row();
 			$hasil_hpp = $hpp->hasil_hpp - $pengurangan;
-			$hasil_x_tonanse = round(($hpp->hasil_hpp - $pengurangan) / $hpp->tonase_order);
+			$hasil_x_tonase = round(($hpp->hasil_hpp - $pengurangan) / $hpp->tonase_order);
 			$this->db->set('edit_time', date('Y-m-d H:i:s'));
 			$this->db->set('edit_user', $this->username);
 			$this->db->set('hasil_hpp', $hasil_hpp);
-			$this->db->set('hasil_x_tonanse', $hasil_x_tonanse);
+			$this->db->set('hasil_x_tonase', $hasil_x_tonase);
 			if($ooo == 'upah'){
 				$this->db->set('upah', $ket_rp);
 				$this->db->where('id_hpp', $id_hpp);
@@ -1296,7 +1296,7 @@ class M_transaksi extends CI_Model
 			'5pengurangan' => $pengurangan,
 			'6hasil_hpp' => $hpp->hasil_hpp - $pengurangan,
 			'7tonase_order' => $hpp->tonase_order,
-			'8hasil_x_tonanse' => round(($hpp->hasil_hpp - $pengurangan) / $hpp->tonase_order),
+			'8hasil_x_tonase' => round(($hpp->hasil_hpp - $pengurangan) / $hpp->tonase_order),
 			'9hasil_hpp' => $hpp->hasil_hpp,
 		];
 	}
