@@ -1139,16 +1139,10 @@ class M_transaksi extends CI_Model
 			'fix_hpp' => $_POST["fix_hpp"],
 		];
 
-		if(($_POST["pilih_hpp"] == 'PM2' || $_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX') && ($_POST["hasil_hpp"] == '' || $_POST["tonase_order"] == '' || $_POST["hasil_x_tonase"] == '' || $_POST["hasil_hpp"] == 0 || $_POST["tonase_order"] == 0 || $_POST["hasil_x_tonase"] == 0)){
-			$insertHPP = false;
-			$msg = 'DATA HPP KOSONG!';
-			$cek = '';
-			$cart = '';
-		}else if(($_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX') && ($_POST["bahan_baku_x"] == '' || $_POST["bahan_baku_x"] == 0)){
-			$insertHPP = false;
-			$msg = 'DATA HPP KOSONG!';
-			$cek = '';
-			$cart = '';
+		if(($_POST["pilih_hpp"] == 'PM2' || $_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX' || $_POST["pilih_hpp"] == 'LAMINASI') && ($_POST["hasil_hpp"] == '' || $_POST["tonase_order"] == '' || $_POST["hasil_x_tonase"] == '' || $_POST["hasil_hpp"] == 0 || $_POST["tonase_order"] == 0 || $_POST["hasil_x_tonase"] == 0)){
+			$insertHPP = false; $msg = 'DATA HPP KOSONG!'; $cek = ''; $cart = '';
+		}else if(($_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX' || $_POST["pilih_hpp"] == 'LAMINASI') && ($_POST["bahan_baku_x"] == '' || $_POST["bahan_baku_x"] == 0)){
+			$insertHPP = false; $msg = 'DATA HPP KOSONG!'; $cek = ''; $cart = '';
 		}else{
 			$pilih_hpp = $_POST["pilih_hpp"];
 			$pilih_id_hpp = $_POST["pilih_id_hpp"];
@@ -1171,6 +1165,8 @@ class M_transaksi extends CI_Model
 								$this->db->set('cek_sheet', $pilih_id_hpp);
 							}else if($pilih_hpp == 'BOX'){
 								$this->db->set('cek_box', $pilih_id_hpp);
+							}else if($pilih_hpp == 'LAMINASI'){
+								$this->db->set('cek_laminasi', $pilih_id_hpp);
 							}
 							$this->db->where('id_hpp', $pilih_id_hpp);
 							$this->db->update('m_hpp');
@@ -1304,15 +1300,19 @@ class M_transaksi extends CI_Model
 		}
 
 		return [
-			'1delete_dtl' => $delete_dtl,
-			'2u_upah' => $u_upah,
-			'3u_bb' => $u_bb,
-			'4u_dll' => $u_dll,
-			'5pengurangan' => $pengurangan,
-			'6hasil_hpp' => $hpp->hasil_hpp - $pengurangan,
-			'7tonase_order' => $hpp->tonase_order,
-			'8hasil_x_tonase' => round(($hpp->hasil_hpp - $pengurangan) / $hpp->tonase_order),
-			'9hasil_hpp' => $hpp->hasil_hpp,
+			'01_delete_dtl' => $delete_dtl,
+			'02_u_upah' => $u_upah,
+			'03_u_bb' => $u_bb,
+			'04_u_dll' => $u_dll,
+			'05_pengurangan' => $pengurangan,
+			'06_hasil_hpp' => $hpp->hasil_hpp - $pengurangan,
+			'07_tonase_order' => $hpp->tonase_order,
+			'08_hasil_x_tonase' => round(($hpp->hasil_hpp - $pengurangan) / $hpp->tonase_order),
+			'09_hasil_hpp' => $hpp->hasil_hpp,
+			'10_hxt_tanpa_bb' => $hxt_tanpa_bb,
+			'11_hasil_x_tonase_tanpa_bb' => $hasil_x_tonase_tanpa_bb,
+			'12_hxt_x_persen' => $hxt_x_persen,
+			'13_fix_hpp' => $fix_hpp,
 		];
 	}
 

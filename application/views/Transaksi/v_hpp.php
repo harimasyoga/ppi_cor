@@ -416,7 +416,7 @@
 						<div class="cbx card-list-hpp-pm" style="display:none">
 							<div class="card card-info card-outline" style="padding-bottom:12px">
 								<div class="card-header" style="padding:12px;margin-bottom:18px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST HPP PM</h3>
+									<h3 class="card-title ct-hpp" style="font-weight:bold;font-size:18px"></h3>
 								</div>
 								<div class="tampil-list-hpp-pm"></div>
 							</div>
@@ -1095,13 +1095,307 @@
 
 					<!-- PEMAKAIAN BAHAN LAMINASI -->
 					<div class="cbx card-pemakaian-bahan-laminasi" style="display:none">
-						PEMAKAIAN BAHAN LAMINASI
+						<div class="card card-secondary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">PEMAKAIAN BAHAN</h3>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:18px 12px">
+								<div class="col-md-3">WP</div>
+								<div class="col-md-3">
+									<div class="input-group">
+										<input type="text" id="wp_kg" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBB('WP','laminasi')">
+										<div class="input-group-append">
+											<span class="input-group-text" style="padding:6px">Kg</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
+										</div>
+										<input type="text" id="wp_rp" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBB('WP','laminasi')">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="wp_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 					<!-- BIAYA PRODUKSI LAMINASI -->
 					<div class="cbx card-biaya-produksi-laminasi" style="display:none">
-						BIAYA PRODUKSI LAMINASI
+						<div class="card card-secondary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">BIAYA PRODUKSI</h3>
+							</div>
+							<!-- UPAH -->
+							<div class="card card-secondary" style="margin:12px;padding-bottom:12px">
+								<div class="card-header" style="padding:12px;margin-bottom:18px">
+									<h3 class="card-title" style="font-weight:bold;font-size:16px">UPAH</h3>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">KETERANGAN</div>
+									<div class="col-md-9">
+										<select id="l_ket_upah_txt" class="form-control select2">
+											<option value="">PILIH</option>
+											<option value="HARIAN LEPAS">HARIAN LEPAS</option>
+											<option value="BORONGAN">BORONGAN</option>
+											<option value="INSENTIF">INSENTIF</option>
+											<option value="PHK">PHK</option>
+										</select>
+									</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3"></div>
+									<div class="col-md-9">
+										<input type="text" id="l_ket_upah_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0">
+									</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3"></div>
+									<div class="col-md-9">
+										<input type="hidden" id="id_cart_upah_lam" value="111">
+										<div class="tambah-upah-lam"></div>
+									</div>
+								</div>
+								<!-- LIST KETERANGAN UPAH -->
+								<div class="llll update-keterangan-upah-lam"></div>
+								<div class="llll list-keterangan-upah-lam"></div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">UPAH</div>
+									<div class="col-md-9">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+											</div>
+											<input type="text" id="l_upah" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" onkeyup="hitungBiayaProduksi()" disabled>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">TENAGA KERJA</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="l_tenaga_kerja" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">THR</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="l_thr" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">LISTRIK</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="l_listrik" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+								<div class="col-md-3">BATU BARA</div>
+								<div class="col-md-3">
+									<div class="input-group" style="margin-bottom:3px">
+										<input type="text" id="l_batu_bara_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBara()">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Kg</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="input-group" style="margin-bottom:3px">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
+										</div>
+										<input type="text" id="l_batu_bara_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBara()">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="l_batu_bara_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+								<div class="col-md-3">BAHAN KIMIA</div>
+								<div class="col-md-3">
+									<div class="input-group" style="margin-bottom:3px">
+										<input type="text" id="l_chemical_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimia()">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Kg</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="input-group" style="margin-bottom:3px">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px">Rp</span>
+										</div>
+										<input type="text" id="l_chemical_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimia()">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="l_chemical_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">B. PEMBANTU</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="l_bahan_pembantu" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">SOLAR</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="l_solar" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">MAINTENANCE</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="l_biaya_pemeliharaan" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">EKSPEDISI</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="l_ekspedisi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">DEPRESIASI</div>
+								<div class="col-md-9">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="l_depresiasi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
+									</div>
+								</div>
+							</div>
+							<!-- LAIN LAIN -->
+							<div class="card card-secondary" style="margin:6px 12px 18px;padding-bottom:12px">
+								<div class="card-header" style="padding:12px;margin-bottom:18px">
+									<h3 class="card-title" style="font-weight:bold;font-size:16px">LAIN LAIN</h3>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">KETERANGAN</div>
+									<div class="col-md-9">
+										<input type="text" id="l_ket_dll_txt" class="form-control" autocomplete="off" placeholder="KETERANGAN" oninput="this.value = this.value.toUpperCase()">
+									</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+									<div class="col-md-3"></div>
+									<div class="col-md-3">
+										<div class="input-group" style="margin-bottom:3px">
+											<input type="text" id="l_ket_dll_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungKetLainLain()">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px">Kg</span>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="input-group" style="margin-bottom:3px">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px">Rp</span>
+											</div>
+											<input type="text" id="l_ket_dll_rp" class="form-control" style="text-align:right" placeholder="0" onkeyup="hitungKetLainLain()">
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+											</div>
+											<input type="text" id="l_ket_dll_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+										</div>
+									</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-9"></div>
+									<div class="col-md-3">
+										<input type="hidden" id="id_cart_dll_lam" value="333">
+										<div class="tambah-dll-lam"></div>
+									</div>
+								</div>
+								<!-- LIST KETERANGAN LAIN LAIN -->
+								<div class="llll update-keterangan-dll-lam"></div>
+								<div class="llll list-keterangan-dll-lam"></div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 3px">
+									<div class="col-md-3">LAIN LAIN</div>
+									<div class="col-md-3">
+										<div class="input-group" style="margin-bottom:3px">
+											<input type="text" id="l_lain_lain_kg" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Kg</span>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3"></div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+											</div>
+											<input type="text" id="l_lain_lain_rp" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+										</div>
+									</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3"></div>
+									<div class="col-md-9" style="font-style:italic;font-size:12px">*opsional</div>
+								</div>
+							</div>
+						</div>
 					</div>
-
 				</div>
 
 				<div class="col-md-3">
@@ -1155,6 +1449,18 @@
 									<div class="col-md-12">
 										<div class="input-group">
 											<input type="text" id="b_tonase_order" class="form-control" style="color:#000;font-weight:bold;text-align:right" autocomplete="off" placeholder="TONASE ORDER" onkeyup="hitungBiayaProduksi()">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">KG</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="tonase-order-lam" style="display:none">
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-12">
+										<div class="input-group">
+											<input type="text" id="l_tonase_order" class="form-control" style="color:#000;font-weight:bold;text-align:right" autocomplete="off" placeholder="TONASE ORDER" onkeyup="hitungBiayaProduksi()">
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">KG</span>
 											</div>
@@ -1352,6 +1658,8 @@
 		$(".update-keterangan-dll-sheet").html('')
 		$(".update-keterangan-upah-box").html('')
 		$(".update-keterangan-dll-box").html('')
+		$(".update-keterangan-upah-lam").html('')
+		$(".update-keterangan-dll-lam").html('')
 
 		$("#pilih_hpp").val("").prop('disabled', false)
 		$("#tgl1_hpp").val("").prop('disabled', true)
@@ -1382,6 +1690,11 @@
 		$("#mh_rp_box").val("")
 		$("#mh_x_box").val("")
 
+		// LAMINASI
+		$("#wp_kg").val("")
+		$("#wp_rp").val("")
+		$("#wp_x").val("")
+
 		// BIAYA PRODUKSI
 		$("#tenaga_kerja").val("").prop('disabled', false)
 		$("#s_tenaga_kerja").val("").prop('disabled', false)
@@ -1404,46 +1717,65 @@
 		$("#b_ket_upah_txt").val("").prop('disabled', false).trigger('change') // cart
 		$("#b_ket_upah_rp").val("").prop('disabled', false) // cart
 		$("#b_upah").val("").prop('disabled', true)
+		
+		// LAMINASI
+		$("#id_cart_upah_lam").val("111") // cart
+		$("#l_ket_upah_txt").val("").prop('disabled', false).trigger('change') // cart
+		$("#l_ket_upah_rp").val("").prop('disabled', false) // cart
+		$("#l_upah").val("").prop('disabled', true)
 
 		$("#thr").val("").prop('disabled', false)
 		$("#s_thr").val("").prop('disabled', false)
 		$("#b_thr").val("").prop('disabled', false)
+		$("#l_thr").val("").prop('disabled', false)
 		$("#listrik").val("").prop('disabled', false)
 		$("#s_listrik").val("").prop('disabled', false)
 		$("#b_listrik").val("").prop('disabled', false)
+		$("#l_listrik").val("").prop('disabled', false)
 		$("#batu_bara_kg").val("").prop('disabled', false)
 		$("#s_batu_bara_kg").val("").prop('disabled', false)
 		$("#b_batu_bara_kg").val("").prop('disabled', false)
+		$("#l_batu_bara_kg").val("").prop('disabled', false)
 		$("#batu_bara_rp").val("").prop('disabled', false)
 		$("#s_batu_bara_rp").val("").prop('disabled', false)
 		$("#b_batu_bara_rp").val("").prop('disabled', false)
+		$("#l_batu_bara_rp").val("").prop('disabled', false)
 		$("#batu_bara_x").val("").prop('disabled', true)
 		$("#s_batu_bara_x").val("").prop('disabled', true)
 		$("#b_batu_bara_x").val("").prop('disabled', true)
+		$("#l_batu_bara_x").val("").prop('disabled', true)
 		$("#chemical_kg").val("").prop('disabled', false)
 		$("#s_chemical_kg").val("").prop('disabled', false)
 		$("#b_chemical_kg").val("").prop('disabled', false)
+		$("#l_chemical_kg").val("").prop('disabled', false)
 		$("#chemical_rp").val("").prop('disabled', false)
 		$("#s_chemical_rp").val("").prop('disabled', false)
 		$("#b_chemical_rp").val("").prop('disabled', false)
+		$("#l_chemical_rp").val("").prop('disabled', false)
 		$("#chemical_x").val("").prop('disabled', true)
 		$("#s_chemical_x").val("").prop('disabled', true)
 		$("#b_chemical_x").val("").prop('disabled', true)
+		$("#l_chemical_x").val("").prop('disabled', true)
 		$("#bahan_pembantu").val("").prop('disabled', false)
 		$("#s_bahan_pembantu").val("").prop('disabled', false)
 		$("#b_bahan_pembantu").val("").prop('disabled', false)
+		$("#l_bahan_pembantu").val("").prop('disabled', false)
 		$("#solar").val("").prop('disabled', false)
 		$("#s_solar").val("").prop('disabled', false)
 		$("#b_solar").val("").prop('disabled', false)
+		$("#l_solar").val("").prop('disabled', false)
 		$("#biaya_pemeliharaan").val("").prop('disabled', false)
 		$("#s_biaya_pemeliharaan").val("").prop('disabled', false)
 		$("#b_biaya_pemeliharaan").val("").prop('disabled', false)
+		$("#l_biaya_pemeliharaan").val("").prop('disabled', false)
 		$("#ekspedisi").val("").prop('disabled', false)
 		$("#s_ekspedisi").val("").prop('disabled', false)
 		$("#b_ekspedisi").val("").prop('disabled', false)
+		$("#l_ekspedisi").val("").prop('disabled', false)
 		$("#depresiasi").val("").prop('disabled', false)
 		$("#s_depresiasi").val("").prop('disabled', false)
 		$("#b_depresiasi").val("").prop('disabled', false)
+		$("#l_depresiasi").val("").prop('disabled', false)
 
 		// PM
 		$("#id_cart_dll").val("333") // cart
@@ -1472,11 +1804,21 @@
 		$("#b_lain_lain_kg").val("").prop('disabled', true)
 		$("#b_lain_lain_rp").val("").prop('disabled', true)
 
+		// LAMINASI
+		$("#id_cart_dll_lam").val("333") // cart
+		$("#l_ket_dll_txt").val("").prop('disabled', false).trigger('change') // cart
+		$("#l_ket_dll_kg").val("").prop('disabled', false) // cart
+		$("#l_ket_dll_rp").val("").prop('disabled', false) // cart
+		$("#l_ket_dll_x").val("").prop('disabled', true) // cart
+		$("#l_lain_lain_kg").val("").prop('disabled', true)
+		$("#l_lain_lain_rp").val("").prop('disabled', true)
+
 		// PERHITUNGAN HPP
 		$("#hasil_hpp").val("").prop('disabled', true)
 		$("#tonase_order").val("").prop('disabled', true)
 		$("#s_tonase_order").val("").prop('disabled', true)
 		$("#b_tonase_order").val("").prop('disabled', true)
+		$("#l_tonase_order").val("").prop('disabled', true)
 		$("#hasil_x_tonase").val("").prop('disabled', true)
 
 		$("#presentase").val("10").prop('disabled', true)
@@ -1531,21 +1873,33 @@
 
 		$(".tambah-upah-box").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('upah','box','')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
 		$(".tambah-dll-box").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('lainlain','box','')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
+		
+		$(".tambah-upah-lam").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('upah','laminasi','')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
+		$(".tambah-dll-lam").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('lainlain','laminasi','')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
 
 		if(cbx == 'pm'){
 			$(".tonase-order-pm").show()
 			$(".tonase-order-sheet").hide()
 			$(".tonase-order-box").hide()
+			$(".tonase-order-lam").hide()
 		}
 		if(cbx == 'sheet'){
 			$(".tonase-order-pm").hide()
 			$(".tonase-order-sheet").show()
 			$(".tonase-order-box").hide()
+			$(".tonase-order-lam").hide()
 		}
 		if(cbx == 'box'){
 			$(".tonase-order-pm").hide()
 			$(".tonase-order-sheet").hide()
 			$(".tonase-order-box").show()
+			$(".tonase-order-lam").hide()
+		}
+		if(cbx == 'laminasi'){
+			$(".tonase-order-pm").hide()
+			$(".tonase-order-sheet").hide()
+			$(".tonase-order-box").hide()
+			$(".tonase-order-lam").show()
 		}
 	}
 
@@ -1594,6 +1948,7 @@
 			tampilListHpp('sheet')
 			hideAll('sheet', 'show')
 		}else if(pilih_hpp == "LAMINASI" && tgl_hpp != '' && jenis_hpp != ''){
+			tampilListHpp('laminasi')
 			hideAll('laminasi', 'show')
 		}else{
 			hideAll('', 'none')
@@ -1625,7 +1980,13 @@
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
+				if(opsi == 'box'){
+					$(".ct-hpp").html("LIST HPP CORR")
+				}else{
+					$(".ct-hpp").html("LIST HPP PM")
+				}
 				$(".tampil-list-hpp-pm").html(data.html)
+
 				if(opsi == 'sheet' && jenis_hpp == "MH"){
 					$(".pb-sheet-mh").show()
 					$(".pb-sheet-bk").hide()
@@ -1673,13 +2034,15 @@
 				if(opsi == 'sheet'){
 					$("#bk_rp").val(data.pm.hasil_x_tonase)
 					$("#mh_rp").val(data.pm.hasil_x_tonase)
-					HitungBB(data.pm.jenis_hpp, opsi)
 				}
 				if(opsi == 'box'){
 					$("#bk_rp_box").val(data.pm.hasil_x_tonase)
 					$("#mh_rp_box").val(data.pm.hasil_x_tonase)
-					HitungBB(data.pm.jenis_hpp, opsi)
 				}
+				if(opsi == 'laminasi'){
+					$("#wp_rp").val(data.pm.hasil_x_tonase)
+				}
+				HitungBB(data.pm.jenis_hpp, opsi)
 				$("#pilih_id_hpp").val(data.pm.id_hpp)
 				swal.close()
 			}
@@ -1713,6 +2076,13 @@
 			ket_x = 0
 			id_cart = parseInt($("#id_cart_upah_box").val()) + 1
 			$("#id_cart_upah_box").val(id_cart)
+		}else if(opsi == 'upah' && jenis == 'laminasi'){
+			ket_txt = $("#l_ket_upah_txt").val()
+			ket_kg = 0
+			ket_rp = $("#l_ket_upah_rp").val().split('.').join('')
+			ket_x = 0
+			id_cart = parseInt($("#id_cart_upah_lam").val()) + 1
+			$("#id_cart_upah_lam").val(id_cart)
 		}else if(opsi == 'bb'){
 			ket_txt = $("#ket_bahan_txt").val()
 			ket_kg = $("#ket_bahan_kg").val().split('.').join('')
@@ -1741,6 +2111,13 @@
 			ket_x = $("#b_ket_dll_x").val().split('.').join('')
 			id_cart = parseInt($("#id_cart_dll_box").val()) + 1
 			$("#id_cart_dll_box").val(id_cart)
+		}else if(opsi == 'lainlain' && jenis == 'laminasi'){
+			ket_txt = $("#l_ket_dll_txt").val()
+			ket_kg = $("#l_ket_dll_kg").val().split('.').join('')
+			ket_rp = $("#l_ket_dll_rp").val().split('.').join('')
+			ket_x = $("#l_ket_dll_x").val().split('.').join('')
+			id_cart = parseInt($("#id_cart_dll_lam").val()) + 1
+			$("#id_cart_dll_lam").val(id_cart)
 		}
 
 		$.ajax({
@@ -1798,6 +2175,11 @@
 					$("#b_ket_upah_rp").val("")
 					$(".list-keterangan-upah-box").html(data.htmlUpah)
 					$("#b_upah").val(data.sumUpah)
+				}else if(opsi == 'upah' && jenis == 'laminasi'){
+					$("#l_ket_upah_txt").html('<option value="">PILIH</option><option value="HARIAN LEPAS">HARIAN LEPAS</option><option value="BORONGAN">BORONGAN</option><option value="INSENTIF">INSENTIF</option><option value="PHK">PHK</option>')
+					$("#l_ket_upah_rp").val("")
+					$(".list-keterangan-upah-lam").html(data.htmlUpah)
+					$("#l_upah").val(data.sumUpah)
 				}else if(opsi == 'bb'){
 					$("#ket_bahan_txt").html('<option value="">PILIH</option><option value="LOCAL OCC">LOCAL OCC</option><option value="MIX WASTE">MIX WASTE</option><option value="PLUMPUNG">PLUMPUNG</option><option value="LAMINATING">LAMINATING</option><option value="SLUDGE">SLUDGE</option><option value="BROKE LAMINASI">BROKE LAMINASI</option><option value="BROKE CORR">BROKE CORR</option><option value="BROKE PM">BROKE PM</option>')
 					$("#ket_bahan_kg").val("")
@@ -1830,6 +2212,14 @@
 					$(".list-keterangan-dll-box").html(data.htmlLainLain)
 					$("#b_lain_lain_kg").val(data.sumLLkg)
 					$("#b_lain_lain_rp").val(data.sumLLrp)
+				}else if(opsi == 'lainlain' && jenis == 'laminasi'){
+					$("#l_ket_dll_txt").val("")
+					$("#l_ket_dll_kg").val("")
+					$("#l_ket_dll_rp").val("")
+					$("#l_ket_dll_x").val("")
+					$(".list-keterangan-dll-lam").html(data.htmlLainLain)
+					$("#l_lain_lain_kg").val(data.sumLLkg)
+					$("#l_lain_lain_rp").val(data.sumLLrp)
 				}
 
 				hitungBiayaProduksi()
@@ -1879,15 +2269,17 @@
 		let ket_upah_rp = $("#ket_upah_rp").val()
 		$("#ket_upah_rp").val(formatRupiah(ket_upah_rp))
 	});
-
 	$("#s_ket_upah_rp").on("keyup", function() {
 		let ket_upah_rp = $("#s_ket_upah_rp").val()
 		$("#s_ket_upah_rp").val(formatRupiah(ket_upah_rp))
 	});
-
 	$("#b_ket_upah_rp").on("keyup", function() {
 		let ket_upah_rp = $("#b_ket_upah_rp").val()
 		$("#b_ket_upah_rp").val(formatRupiah(ket_upah_rp))
+	});
+	$("#l_ket_upah_rp").on("keyup", function() {
+		let ket_upah_rp = $("#l_ket_upah_rp").val()
+		$("#l_ket_upah_rp").val(formatRupiah(ket_upah_rp))
 	});
 
 	// HITUNG PEMAKAIAN BAHAN PM
@@ -1936,6 +2328,17 @@
 			((h_mh_kg == '' || h_mh_kg == 0 || isNaN(h_mh_kg)) && h_mh_rp != 0) ? x_mh = h_mh_rp : x_mh = h_mh_kg * h_mh_rp;
 			$("#mh_x"+o).val(format_angka(x_mh))
 		}
+		if(jenis == 'WP'){
+			let wp_kg = $("#wp_kg").val()
+			let wp_rp = $("#wp_rp").val()
+			$("#wp_kg").val(formatRupiah(wp_kg))
+			$("#wp_rp").val(formatRupiah(wp_rp))
+			let h_wp_kg = (wp_kg == '' || isNaN(wp_kg)) ? 0 : parseInt(wp_kg.split('.').join(''));
+			let h_wp_rp = (wp_rp == '' || isNaN(wp_rp)) ? 0 : parseInt(wp_rp.split('.').join(''));
+			let x_wp = 0;
+			((h_wp_kg == '' || h_wp_kg == 0 || isNaN(h_wp_kg)) && h_wp_rp != 0) ? x_wp = h_wp_rp : x_wp = h_wp_kg * h_wp_rp;
+			$("#wp_x").val(format_angka(x_wp))
+		}
 		hitungBiayaProduksi()
 	}
 
@@ -1949,6 +2352,8 @@
 			o = 's_'
 		}else if(pilih_hpp == 'BOX'){
 			o = 'b_'
+		}else if(pilih_hpp == 'LAMINASI'){
+			o = 'l_'
 		}
 
 		let ket_dll_kg = $("#"+o+"ket_dll_kg").val()
@@ -1973,6 +2378,8 @@
 			o = 's_'
 		}else if(pilih_hpp == 'BOX'){
 			o = 'b_'
+		}else if(pilih_hpp == 'LAMINASI'){
+			o = 'l_'
 		}
 
 		let batu_bara_kg = $("#"+o+"batu_bara_kg").val()
@@ -1998,6 +2405,8 @@
 			o = 's_'
 		}else if(pilih_hpp == 'BOX'){
 			o = 'b_'
+		}else if(pilih_hpp == 'LAMINASI'){
+			o = 'l_'
 		}
 
 		let chemical_kg = $("#"+o+"chemical_kg").val()
@@ -2024,6 +2433,8 @@
 			o = 's_'
 		}else if(pilih_hpp == 'BOX'){
 			o = 'b_'
+		}else if(pilih_hpp == 'LAMINASI'){
+			o = 'l_'
 		}
 
 		let bahan_baku_rp = 0;
@@ -2033,9 +2444,10 @@
 			(jenis_hpp == 'MH') ? bahan_baku_rp =  $("#mh_x").val().split('.').join('') : bahan_baku_rp =  $("#bk_x").val().split('.').join(''); // sheet
 		}else if(pilih_hpp == 'BOX'){
 			(jenis_hpp == 'MH') ? bahan_baku_rp =  $("#mh_x_box").val().split('.').join('') : bahan_baku_rp =  $("#bk_x_box").val().split('.').join(''); // box
+		}else if(pilih_hpp == 'LAMINASI'){
+			bahan_baku_rp =  $("#wp_x").val().split('.').join('') // laminasi
 		}
 
-		// let bahan_baku_rp = $("#bahan_baku_rp").val().split('.').join('')
 		let tenaga_kerja = $("#"+o+"tenaga_kerja").val().split('.').join('')
 		let upah = $("#"+o+"upah").val().split('.').join('')
 		let thr = $("#"+o+"thr").val().split('.').join('')
@@ -2142,6 +2554,10 @@
 			bahan_baku_kg = $("#mh_kg_box").val().split('.').join('')
 			bahan_baku_rp = $("#mh_rp_box").val().split('.').join('')
 			bahan_baku_x = $("#mh_x_box").val().split('.').join('')
+		}else if(pilih_hpp == 'LAMINASI'){
+			bahan_baku_kg = $("#wp_kg").val().split('.').join('')
+			bahan_baku_rp = $("#wp_rp").val().split('.').join('')
+			bahan_baku_x = $("#wp_x").val().split('.').join('')
 		}
 
 		// BIAYA PRODUKSI
@@ -2152,6 +2568,8 @@
 			o = 's_'
 		}else if(pilih_hpp == 'BOX'){
 			o = 'b_'
+		}else if(pilih_hpp == 'LAMINASI'){
+			o = 'l_'
 		}
 
 		let tenaga_kerja = $("#"+o+"tenaga_kerja").val().split('.').join('')
@@ -2177,6 +2595,7 @@
 		let tonase_order = $("#"+o+"tonase_order").val().split('.').join('')
 		let hasil_x_tonase = $("#hasil_x_tonase").val().split('.').join('')
 
+		// HITUNG HPP TANPA BAHAN BAKU
 		let presentase = $("#presentase").val()
 		let hasil_hpp_tanpa_bb = $("#hasil_hpp_tanpa_bb").val().split('.').join('')
 		let hasil_x_tonase_tanpa_bb = $("#hasil_x_tonase_tanpa_bb").val().split('.').join('')
@@ -2223,6 +2642,8 @@
 		$(".update-keterangan-dll-sheet").html('')
 		$(".update-keterangan-upah-box").html('')
 		$(".update-keterangan-dll-box").html('')
+		$(".update-keterangan-upah-lam").html('')
+		$(".update-keterangan-dll-lam").html('')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editHPP')?>',
 			type: "POST",
@@ -2287,6 +2708,8 @@
 					o = 's_'
 				}else if(data.data.pilih_hpp == 'BOX'){
 					o = 'b_'
+				}else if(data.data.pilih_hpp == 'LAMINASI'){
+					o = 'l_'
 				}
 
 				$("#"+o+"ket_bahan_txt").prop('disabled', prop)
@@ -2311,6 +2734,10 @@
 					$("#mh_kg_box").val(data.data.bahan_baku_kg).prop('disabled', prop)
 					$("#mh_rp_box").val(data.data.bahan_baku_rp).prop('disabled', prop)
 					$("#mh_x_box").val(data.data.bahan_baku_x)
+				}else if(data.data.pilih_hpp == 'LAMINASI'){
+					$("#wp_kg").val(data.data.bahan_baku_kg).prop('disabled', prop)
+					$("#wp_rp").val(data.data.bahan_baku_rp).prop('disabled', prop)
+					$("#wp_x").val(data.data.bahan_baku_x)
 				}
 
 				$("#"+o+"tenaga_kerja").val(data.data.tenaga_kerja).prop('disabled', prop)
@@ -2360,6 +2787,10 @@
 					$(".update-keterangan-upah-box").html(data.htmlUpah)
 					$(".update-keterangan-dll-box").html(data.htmlLainLain)
 				}
+				if(data.data.pilih_hpp == 'LAMINASI'){
+					$(".update-keterangan-upah-lam").html(data.htmlUpah)
+					$(".update-keterangan-dll-lam").html(data.htmlLainLain)
+				}
 
 				if(opsi == 'edit' && data.data.pilih_hpp == 'PM2'){
 					$(".tambah-bahan").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('bb','pm','${id_hpp}')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
@@ -2383,6 +2814,13 @@
 				}else{
 					$(".tambah-upah-box").html('')
 					$(".tambah-dll-box").html('')
+				}
+				if(opsi == 'edit' && data.data.pilih_hpp == 'LAMINASI'){
+					$(".tambah-upah-lam").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('upah','laminasi','${id_hpp}')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
+					$(".tambah-dll-lam").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('lainlain','laminasi','${id_hpp}')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
+				}else{
+					$(".tambah-upah-lam").html('')
+					$(".tambah-dll-lam").html('')
 				}
 
 				if(opsi == 'edit'){

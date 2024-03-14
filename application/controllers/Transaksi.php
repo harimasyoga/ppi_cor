@@ -4357,8 +4357,6 @@ class Transaksi extends CI_Controller
 
 	function tampilListHpp()
 	{
-		// $pilih_hpp = $_POST["pilih_hpp"];
-		// $tgl1_hpp = $_POST["tgl1_hpp"];
 		$jenis_hpp = $_POST["jenis_hpp"];
 		$opsi = $_POST["opsi"];
 		if($opsi == 'sheet'){
@@ -4367,12 +4365,12 @@ class Transaksi extends CI_Controller
 		}else if($opsi == 'box'){
 			$pilih_hpp = 'SHEET';
 			$cek = "AND cek_box='N'";
-		}else{
-			$pilih_hpp = '';
-			$cek = "";
+		}else if($opsi == 'laminasi'){
+			$pilih_hpp = 'LAMINASI';
+			$cek = "AND cek_laminasi='N'";
 		}
-		$data = $this->db->query("SELECT*FROM m_hpp WHERE cek_sheet='N' AND pilih_hpp='$pilih_hpp' AND jenis_hpp='$jenis_hpp' $cek");
 
+		$data = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND jenis_hpp='$jenis_hpp' $cek");
 		$html = '';
 		if($data->num_rows() > 0){
 			foreach($data->result() as $r){
@@ -4391,7 +4389,6 @@ class Transaksi extends CI_Controller
 		}
 
 		echo json_encode([
-			// 'data' => $data->result(),
 			'html' => $html,
 		]);
 	}
@@ -4403,37 +4400,9 @@ class Transaksi extends CI_Controller
 
 		$pm = [
 			"id_hpp" => $get->id_hpp,
-			// "pilih_hpp" => "PM2",
-			// "tgl_hpp" => "2024-03-12",
 			"jenis_hpp" => $get->jenis_hpp,
-			// "bahan_baku_kg" => "7",
 			"bahan_baku_rp" => number_format($get->bahan_baku_rp,0,',','.'),
-			// "tenaga_kerja" => "1",
-			// "upah" => "4",
-			// "thr" => "1",
-			// "listrik" => "1",
-			// "batu_bara_kg" => "1",
-			// "batu_bara_rp" => number_format($get->batu_bara_rp,0,',','.'),
-			// "batu_bara_x" => number_format($get->batu_bara_x,0,',','.'),
-			// "chemical_kg" => "1",
-			// "chemical_rp" => "1",
-			// "chemical_x" => "1",
-			// "bahan_pembantu" => "1",
-			// "solar" => "1",
-			// "maintenance" => "1",
-			// "ekspedisi" => "1",
-			// "depresiasi" => "1",
-			// "lain_lain_kg" => "5",
-			// "lain_lain_rp" => "5",
-			// "hasil_hpp" => number_format($get->hasil_hpp,0,',','.'),
-			// "tonase_order" => "2",
 			"hasil_x_tonase" => number_format($get->hasil_x_tonase,0,',','.'),
-			// "presentase" => "10",
-			// "hxt_x_persen" => "1",
-			// "fix_hpp" => number_format($get->fix_hpp,0,',','.'),
-			// "cek_laminasi" => "N",
-			// "cek_sheet" => "N",
-			// "cek_box" => "N",
 		];
 
 		echo json_encode([
