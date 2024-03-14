@@ -1109,7 +1109,6 @@ class M_transaksi extends CI_Model
 			'pilih_hpp' => $_POST["pilih_hpp"],
 			'tgl_hpp' => $_POST["tgl1_hpp"],
 			'jenis_hpp' => $_POST["jenis_hpp"],
-			'jenis_cor' => '',
 			'bahan_baku_kg' => ($_POST["bahan_baku_kg"] == "") ? 0 : $_POST["bahan_baku_kg"],
 			'bahan_baku_rp' => ($_POST["bahan_baku_rp"] == "") ? 0 : $_POST["bahan_baku_rp"],
 			'bahan_baku_x' => $_POST["bahan_baku_x"],
@@ -1155,8 +1154,7 @@ class M_transaksi extends CI_Model
 			$pilih_id_hpp = $_POST["pilih_id_hpp"];
 			$tgl_hpp = $_POST["tgl1_hpp"];
 			$jenis_hpp = $_POST["jenis_hpp"];
-			$jenis_cor = '';
-			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp' AND jenis_cor='$jenis_cor'")->num_rows();
+			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp'")->num_rows();
 
 			if($statusInput == 'insert'){
 				if($cek == 0){
@@ -1178,7 +1176,7 @@ class M_transaksi extends CI_Model
 							$this->db->update('m_hpp');
 						}
 
-						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp' AND jenis_cor='$jenis_cor'")->row();
+						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp'")->row();
 						if($this->cart->total_items() != 0){
 							foreach($this->cart->contents() as $r){
 								$this->db->set('id_hpp', $get->id_hpp);
@@ -1321,9 +1319,6 @@ class M_transaksi extends CI_Model
 	function hapusHPP()
 	{
 		// cek_sheet, cek_box
-		$pilih_hpp = $_POST["pilih_hpp"];
-		$cek_sheet = $_POST["cek_sheet"];
-		$cek_box = $_POST["cek_box"];
 		$this->db->where('id_hpp', $_POST["id_hpp"]);
 		$delete = $this->db->delete('m_hpp');
 		if($delete){

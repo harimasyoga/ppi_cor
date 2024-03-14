@@ -52,12 +52,7 @@
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">JENIS</div>
 							<div class="col-md-9">
-								<select id="jenis_hpp" class="form-control select2" onchange="pilihHPP()">
-									<option value="">PILIH</option>
-									<option value="BK">BK</option>
-									<option value="MH">MH</option>
-									<option value="WP">WP</option>
-								</select>
+								<select id="jenis_hpp" class="form-control select2" onchange="pilihHPP()"></select>
 							</div>
 						</div>
 					</div>
@@ -439,7 +434,7 @@
 									<div class="col-md-3">BK</div>
 									<div class="col-md-3">
 										<div class="input-group">
-											<input type="text" id="bk_kg" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungSheetBB('BK')">
+											<input type="text" id="bk_kg" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBB('BK','sheet')">
 											<div class="input-group-append">
 												<span class="input-group-text" style="padding:6px">Kg</span>
 											</div>
@@ -450,7 +445,7 @@
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px">Rp</span>
 											</div>
-											<input type="text" id="bk_rp" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungSheetBB('BK')" disabled>
+											<input type="text" id="bk_rp" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBB('BK','sheet')">
 										</div>
 									</div>
 									<div class="col-md-3">
@@ -468,7 +463,7 @@
 									<div class="col-md-3">MH</div>
 									<div class="col-md-3">
 										<div class="input-group">
-											<input type="text" id="mh_kg" class="form-control" style="text-align:right" placeholder="0"  autocomplete="off" onkeyup="HitungSheetBB('MH')">
+											<input type="text" id="mh_kg" class="form-control" style="text-align:right" placeholder="0"  autocomplete="off" onkeyup="HitungBB('MH','sheet')">
 											<div class="input-group-append">
 												<span class="input-group-text" style="padding:6px">Kg</span>
 											</div>
@@ -479,7 +474,7 @@
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px">Rp</span>
 											</div>
-											<input type="text" id="mh_rp" class="form-control" style="text-align:right" placeholder="0"  autocomplete="off" onkeyup="HitungSheetBB('MH')" disabled>
+											<input type="text" id="mh_rp" class="form-control" style="text-align:right" placeholder="0"  autocomplete="off" onkeyup="HitungBB('MH','sheet')">
 										</div>
 									</div>
 									<div class="col-md-3">
@@ -540,7 +535,7 @@
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 											</div>
-											<input type="text" id="s_upah" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" onkeyup="hitungBiayaProduksiSheet()" disabled>
+											<input type="text" id="s_upah" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" onkeyup="hitungBiayaProduksi()" disabled>
 										</div>
 									</div>
 								</div>
@@ -552,7 +547,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="s_tenaga_kerja" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiSheet()">
+										<input type="text" id="s_tenaga_kerja" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -563,7 +558,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="s_thr" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiSheet()">
+										<input type="text" id="s_thr" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -574,7 +569,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="s_listrik" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiSheet()">
+										<input type="text" id="s_listrik" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -582,7 +577,7 @@
 								<div class="col-md-3">BATU BARA</div>
 								<div class="col-md-3">
 									<div class="input-group" style="margin-bottom:3px">
-										<input type="text" id="s_batu_bara_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBaraSheet()">
+										<input type="text" id="s_batu_bara_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBara()">
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px">Kg</span>
 										</div>
@@ -593,7 +588,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px">Rp</span>
 										</div>
-										<input type="text" id="s_batu_bara_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBaraSheet()">
+										<input type="text" id="s_batu_bara_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBara()">
 									</div>
 								</div>
 								<div class="col-md-3">
@@ -609,7 +604,7 @@
 								<div class="col-md-3">BAHAN KIMIA</div>
 								<div class="col-md-3">
 									<div class="input-group" style="margin-bottom:3px">
-										<input type="text" id="s_chemical_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimiaSheet()">
+										<input type="text" id="s_chemical_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimia()">
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px">Kg</span>
 										</div>
@@ -620,7 +615,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px">Rp</span>
 										</div>
-										<input type="text" id="s_chemical_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimiaSheet()">
+										<input type="text" id="s_chemical_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimia()">
 									</div>
 								</div>
 								<div class="col-md-3">
@@ -639,7 +634,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="s_bahan_pembantu" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiSheet()">
+										<input type="text" id="s_bahan_pembantu" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -650,7 +645,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="s_solar" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiSheet()">
+										<input type="text" id="s_solar" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -661,7 +656,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="s_biaya_pemeliharaan" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiSheet()">
+										<input type="text" id="s_biaya_pemeliharaan" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -672,7 +667,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="s_ekspedisi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiSheet()">
+										<input type="text" id="s_ekspedisi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -683,7 +678,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="s_depresiasi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiSheet()">
+										<input type="text" id="s_depresiasi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -702,7 +697,7 @@
 									<div class="col-md-3"></div>
 									<div class="col-md-3">
 										<div class="input-group" style="margin-bottom:3px">
-											<input type="text" id="s_ket_dll_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungKetLainLainSheet()">
+											<input type="text" id="s_ket_dll_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungKetLainLain()">
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px">Kg</span>
 											</div>
@@ -713,7 +708,7 @@
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px">Rp</span>
 											</div>
-											<input type="text" id="s_ket_dll_rp" class="form-control" style="text-align:right" placeholder="0" onkeyup="hitungKetLainLainSheet()">
+											<input type="text" id="s_ket_dll_rp" class="form-control" style="text-align:right" placeholder="0" onkeyup="hitungKetLainLain()">
 										</div>
 									</div>
 									<div class="col-md-3">
@@ -774,7 +769,7 @@
 									<div class="col-md-3">BK</div>
 									<div class="col-md-3">
 										<div class="input-group">
-											<input type="text" id="bk_kg_box" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBoxBB('BK')">
+											<input type="text" id="bk_kg_box" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBB('BK','box')">
 											<div class="input-group-append">
 												<span class="input-group-text" style="padding:6px">Kg</span>
 											</div>
@@ -785,7 +780,7 @@
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px">Rp</span>
 											</div>
-											<input type="text" id="bk_rp_box" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBoxBB('BK')" disabled>
+											<input type="text" id="bk_rp_box" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBB('BK','box')">
 										</div>
 									</div>
 									<div class="col-md-3">
@@ -803,7 +798,7 @@
 									<div class="col-md-3">MH</div>
 									<div class="col-md-3">
 										<div class="input-group">
-											<input type="text" id="mh_kg_box" class="form-control" style="text-align:right" placeholder="0"  autocomplete="off" onkeyup="HitungBoxBB('MH')">
+											<input type="text" id="mh_kg_box" class="form-control" style="text-align:right" placeholder="0"  autocomplete="off" onkeyup="HitungBB('MH','box')">
 											<div class="input-group-append">
 												<span class="input-group-text" style="padding:6px">Kg</span>
 											</div>
@@ -814,7 +809,7 @@
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px">Rp</span>
 											</div>
-											<input type="text" id="mh_rp_box" class="form-control" style="text-align:right" placeholder="0"  autocomplete="off" onkeyup="HitungBoxBB('MH')" disabled>
+											<input type="text" id="mh_rp_box" class="form-control" style="text-align:right" placeholder="0"  autocomplete="off" onkeyup="HitungBB('MH','box')">
 										</div>
 									</div>
 									<div class="col-md-3">
@@ -875,7 +870,7 @@
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 											</div>
-											<input type="text" id="b_upah" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" onkeyup="hitungBiayaProduksiBox()" disabled>
+											<input type="text" id="b_upah" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" onkeyup="hitungBiayaProduksi()" disabled>
 										</div>
 									</div>
 								</div>
@@ -887,7 +882,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="b_tenaga_kerja" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiBox()">
+										<input type="text" id="b_tenaga_kerja" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -898,7 +893,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="b_thr" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiBox()">
+										<input type="text" id="b_thr" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -909,7 +904,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="b_listrik" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiBox()">
+										<input type="text" id="b_listrik" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -917,7 +912,7 @@
 								<div class="col-md-3">BATU BARA</div>
 								<div class="col-md-3">
 									<div class="input-group" style="margin-bottom:3px">
-										<input type="text" id="b_batu_bara_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBaraBox()">
+										<input type="text" id="b_batu_bara_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBara()">
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px">Kg</span>
 										</div>
@@ -928,7 +923,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px">Rp</span>
 										</div>
-										<input type="text" id="b_batu_bara_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBaraBox()">
+										<input type="text" id="b_batu_bara_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBatuBara()">
 									</div>
 								</div>
 								<div class="col-md-3">
@@ -944,7 +939,7 @@
 								<div class="col-md-3">BAHAN KIMIA</div>
 								<div class="col-md-3">
 									<div class="input-group" style="margin-bottom:3px">
-										<input type="text" id="b_chemical_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimiaBox()">
+										<input type="text" id="b_chemical_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimia()">
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px">Kg</span>
 										</div>
@@ -955,7 +950,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px">Rp</span>
 										</div>
-										<input type="text" id="b_chemical_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimiaBox()">
+										<input type="text" id="b_chemical_rp" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBahanKimia()">
 									</div>
 								</div>
 								<div class="col-md-3">
@@ -974,7 +969,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="b_bahan_pembantu" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiBox()">
+										<input type="text" id="b_bahan_pembantu" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -985,7 +980,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="b_solar" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiBox()">
+										<input type="text" id="b_solar" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -996,7 +991,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="b_biaya_pemeliharaan" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiBox()">
+										<input type="text" id="b_biaya_pemeliharaan" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -1007,7 +1002,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="b_ekspedisi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiBox()">
+										<input type="text" id="b_ekspedisi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -1018,7 +1013,7 @@
 										<div class="input-group-prepend">
 											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
 										</div>
-										<input type="text" id="b_depresiasi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksiBox()">
+										<input type="text" id="b_depresiasi" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungBiayaProduksi()">
 									</div>
 								</div>
 							</div>
@@ -1037,7 +1032,7 @@
 									<div class="col-md-3"></div>
 									<div class="col-md-3">
 										<div class="input-group" style="margin-bottom:3px">
-											<input type="text" id="b_ket_dll_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungKetLainLainBox()">
+											<input type="text" id="b_ket_dll_kg" class="form-control" style="text-align:right" autocomplete="off" placeholder="0" onkeyup="hitungKetLainLain()">
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px">Kg</span>
 											</div>
@@ -1048,7 +1043,7 @@
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px">Rp</span>
 											</div>
-											<input type="text" id="b_ket_dll_rp" class="form-control" style="text-align:right" placeholder="0" onkeyup="hitungKetLainLainBox()">
+											<input type="text" id="b_ket_dll_rp" class="form-control" style="text-align:right" placeholder="0" onkeyup="hitungKetLainLain()">
 										</div>
 									</div>
 									<div class="col-md-3">
@@ -1147,7 +1142,7 @@
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 									<div class="col-md-12">
 										<div class="input-group">
-											<input type="text" id="s_tonase_order" class="form-control" style="color:#000;font-weight:bold;text-align:right" autocomplete="off" placeholder="TONASE ORDER" onkeyup="hitungBiayaProduksiSheet()">
+											<input type="text" id="s_tonase_order" class="form-control" style="color:#000;font-weight:bold;text-align:right" autocomplete="off" placeholder="TONASE ORDER" onkeyup="hitungBiayaProduksi()">
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">KG</span>
 											</div>
@@ -1159,7 +1154,7 @@
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 									<div class="col-md-12">
 										<div class="input-group">
-											<input type="text" id="b_tonase_order" class="form-control" style="color:#000;font-weight:bold;text-align:right" autocomplete="off" placeholder="TONASE ORDER" onkeyup="hitungBiayaProduksiBox()">
+											<input type="text" id="b_tonase_order" class="form-control" style="color:#000;font-weight:bold;text-align:right" autocomplete="off" placeholder="TONASE ORDER" onkeyup="hitungBiayaProduksi()">
 											<div class="input-group-prepend">
 												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">KG</span>
 											</div>
@@ -1359,9 +1354,8 @@
 		$(".update-keterangan-dll-box").html('')
 
 		$("#pilih_hpp").val("").prop('disabled', false)
-		$("#tgl1_hpp").val("").prop('disabled', false)
-		$("#jenis_hpp").val("").prop('disabled', false)
-		$("#jenis_cor").val("").prop('disabled', false)
+		$("#tgl1_hpp").val("").prop('disabled', true)
+		$("#jenis_hpp").html('<option value="">PILIH</option>').prop('disabled', true)
 
 		// PEMAKAIAN BAHAN
 		$("#id_cart_bahan").val("777") // cart
@@ -1371,6 +1365,22 @@
 		$("#ket_bahan_x").val("").prop('disabled', true) // cart
 		$("#bahan_baku_kg").val("").prop('disabled', true)
 		$("#bahan_baku_rp").val("").prop('disabled', true)
+
+		// SHEET
+		$("#bk_kg").val("")
+		$("#bk_rp").val("")
+		$("#bk_x").val("")
+		$("#mh_kg").val("")
+		$("#mh_rp").val("")
+		$("#mh_x").val("")
+
+		// BOX
+		$("#bk_kg_box").val("")
+		$("#bk_rp_box").val("")
+		$("#bk_x_box").val("")
+		$("#mh_kg_box").val("")
+		$("#mh_rp_box").val("")
+		$("#mh_x_box").val("")
 
 		// BIAYA PRODUKSI
 		$("#tenaga_kerja").val("").prop('disabled', false)
@@ -1480,31 +1490,6 @@
 
 		$("#btn-simpan").html(`<button type="button" class="btn btn-sm btn-primary" onclick="simpanHPP('')"><i class="fa fa-save"></i> <b>SIMPAN</b></button>`)
 		swal.close()
-
-		// $(".row-input-hpp").show()
-		// $(".card-pemakaian-bahan").show()
-		// $(".card-biaya-produksi").show()
-		// $(".col-hitung-hpp").show()
-	}
-
-	function kosongSheet()
-	{
-		$("#bk_kg").val("")
-		$("#bk_rp").val("")
-		$("#bk_x").val("")
-		$("#mh_kg").val("")
-		$("#mh_rp").val("")
-		$("#mh_x").val("")
-	}
-
-	function kosongBox()
-	{
-		$("#bk_kg_box").val("")
-		$("#bk_rp_box").val("")
-		$("#bk_x_box").val("")
-		$("#mh_kg_box").val("")
-		$("#mh_rp_box").val("")
-		$("#mh_x_box").val("")
 	}
 
 	function kembaliHPP()
@@ -1513,7 +1498,7 @@
 		$(".llll").load("<?php echo base_url('Transaksi/destroyHPP') ?>")
 		$("#pilih_hpp").val("").trigger('change').prop('disabled', false)
 		$("#tgl1_hpp").val("").prop('disabled', false)
-		$("#jenis_hpp").val("").trigger('change').prop('disabled', false)
+		$("#jenis_hpp").html('<option value="">PILIH</option>').prop('disabled', false)
 		$(".row-input-hpp").hide()
 		$(".row-list-hpp").show()
 		hideAll('', 'none')
@@ -1534,8 +1519,8 @@
 	{
 		$(".card-pemakaian-bahan-"+cbx).attr('style', (opsi == 'show') ? '' : 'display:none')
 		$(".card-biaya-produksi-"+cbx).attr('style', (opsi == 'show') ? '' : 'display:none')
-		$(".col-hitung-hpp").attr('style', (opsi == 'show') ? 'position:sticky;top:12px' : 'display:none')
-		$(".col-hitung-hpp-tanpa-bb").attr('style', (opsi == 'show') ? 'position:sticky;top:362px' : 'display:none')
+		$(".col-hitung-hpp").attr('style', (opsi == 'show') ? '' : 'display:none')
+		$(".col-hitung-hpp-tanpa-bb").attr('style', (opsi == 'show') ? '' : 'display:none')
 
 		$(".tambah-bahan").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('bb','pm','')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
 		$(".tambah-upah").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('upah','pm','')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
@@ -1569,12 +1554,36 @@
 		let pilih_hpp = $("#pilih_hpp").val()
 		let tgl_hpp = $("#tgl1_hpp").val()
 		let jenis_hpp = $("#jenis_hpp").val()
+
 		if(pilih_hpp == ''){
-			kosong()
+			$("#pilih_hpp").val("").prop('disabled', false)
+			$("#tgl1_hpp").val("").prop('disabled', true)
+			$("#jenis_hpp").html('<option value="">PILIH</option>').prop('disabled', true)
+		}
+		if(pilih_hpp != '' && tgl_hpp == '' && (jenis_hpp == '' || jenis_hpp != '')){
+			$("#pilih_hpp").prop('disabled', true)
+			$("#tgl1_hpp").val("").prop('disabled', false);
+			if(pilih_hpp == 'LAMINASI'){
+				$("#jenis_hpp").html('<option value="">PILIH</option><option value="WP">WP</option>').prop('disabled', true)
+			}else{
+				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option>').prop('disabled', true)
+			}
+		}
+		if(pilih_hpp != '' && tgl_hpp != '' && jenis_hpp == ''){
+			$("#pilih_hpp").prop('disabled', true)
+			$("#tgl1_hpp").prop('disabled', true)
+			if(pilih_hpp == 'LAMINASI'){
+				$("#jenis_hpp").html('<option value="">PILIH</option><option value="WP">WP</option>').prop('disabled', false)
+			}else{
+				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option>').prop('disabled', false)
+			}
+		}
+		if(pilih_hpp != '' && tgl_hpp != '' && jenis_hpp != ''){
+			$("#pilih_hpp").prop('disabled', true)
+			$("#tgl1_hpp").prop('disabled', true)
+			$("#jenis_hpp").prop('disabled', true)
 		}
 
-		$("#hasil_hpp").val("")
-		$("#hasil_x_tonase").val("")
 		$(".cbx").attr('style', 'display:none')
 		if(pilih_hpp == "PM2" && tgl_hpp != '' && jenis_hpp != ''){
 			hideAll('pm', 'show')
@@ -1597,12 +1606,6 @@
 		let tgl1_hpp = $("#tgl1_hpp").val()
 		let jenis_hpp = $("#jenis_hpp").val()
 		$(".card-list-hpp-pm").show()
-		if(opsi == 'sheet'){
-			kosongSheet()
-		}
-		if(opsi == 'box'){
-			kosongBox()
-		}
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/tampilListHpp')?>',
 			type: "POST",
@@ -1670,334 +1673,17 @@
 				if(opsi == 'sheet'){
 					$("#bk_rp").val(data.pm.hasil_x_tonase)
 					$("#mh_rp").val(data.pm.hasil_x_tonase)
-					HitungSheetBB(data.pm.jenis_hpp)
+					HitungBB(data.pm.jenis_hpp, opsi)
 				}
 				if(opsi == 'box'){
 					$("#bk_rp_box").val(data.pm.hasil_x_tonase)
 					$("#mh_rp_box").val(data.pm.hasil_x_tonase)
-					HitungBoxBB(data.pm.jenis_hpp)
+					HitungBB(data.pm.jenis_hpp, opsi)
 				}
 				$("#pilih_id_hpp").val(data.pm.id_hpp)
 				swal.close()
 			}
 		})
-	}
-
-	// SHEET
-
-	function HitungSheetBB(opsi)
-	{
-		if(opsi == 'BK'){
-			let bk_kg = $("#bk_kg").val()
-			let bk_rp = $("#bk_rp").val()
-			$("#bk_kg").val(formatRupiah(bk_kg))
-			$("#bk_rp").val(formatRupiah(bk_rp))
-			let h_bk_kg = (bk_kg == '' || isNaN(bk_kg)) ? 0 : parseInt(bk_kg.split('.').join(''));
-			let h_bk_rp = (bk_rp == '' || isNaN(bk_rp)) ? 0 : parseInt(bk_rp.split('.').join(''));
-			let x_bk = 0;
-			((h_bk_kg == '' || h_bk_kg == 0 || isNaN(h_bk_kg)) && h_bk_rp != 0) ? x_bk = h_bk_rp : x_bk = h_bk_kg * h_bk_rp;
-			$("#bk_x").val(format_angka(x_bk))
-		}
-		if(opsi == 'MH'){
-			let mh_kg = $("#mh_kg").val()
-			let mh_rp = $("#mh_rp").val()
-			$("#mh_kg").val(formatRupiah(mh_kg))
-			$("#mh_rp").val(formatRupiah(mh_rp))
-			let h_mh_kg = (mh_kg == '' || isNaN(mh_kg)) ? 0 : parseInt(mh_kg.split('.').join(''));
-			let h_mh_rp = (mh_rp == '' || isNaN(mh_rp)) ? 0 : parseInt(mh_rp.split('.').join(''));
-			let x_mh = 0;
-			((h_mh_kg == '' || h_mh_kg == 0 || isNaN(h_mh_kg)) && h_mh_rp != 0) ? x_mh = h_mh_rp : x_mh = h_mh_kg * h_mh_rp;
-			$("#mh_x").val(format_angka(x_mh))
-		}
-		hitungBiayaProduksiSheet()
-	}
-
-	function hitungBatuBaraSheet()
-	{
-		let batu_bara_kg = $("#s_batu_bara_kg").val()
-		let batu_bara_rp = $("#s_batu_bara_rp").val()
-		$("#s_batu_bara_kg").val(formatRupiah(batu_bara_kg))
-		$("#s_batu_bara_rp").val(formatRupiah(batu_bara_rp))
-		let h_batu_bara_kg = (batu_bara_kg == '' || isNaN(batu_bara_kg)) ? 0 : parseInt(batu_bara_kg.split('.').join(''));
-		let h_batu_bara_rp = (batu_bara_rp == '' || isNaN(batu_bara_rp)) ? 0 : parseInt(batu_bara_rp.split('.').join(''));
-		let x_batu_bara_rp = 0;
-		((h_batu_bara_kg == '' || h_batu_bara_kg == 0 || isNaN(h_batu_bara_kg)) && h_batu_bara_rp != 0) ? x_batu_bara_rp = h_batu_bara_rp : x_batu_bara_rp = h_batu_bara_kg * h_batu_bara_rp;
-		(isNaN(x_batu_bara_rp)) ? x_batu_bara_rp = 0 : x_batu_bara_rp = x_batu_bara_rp
-		$("#s_batu_bara_x").val(format_angka(x_batu_bara_rp))
-		hitungBiayaProduksiSheet()
-	}
-
-	function hitungBahanKimiaSheet()
-	{
-		let chemical_kg = $("#s_chemical_kg").val()
-		let chemical_rp = $("#s_chemical_rp").val()
-		$("#s_chemical_kg").val(formatRupiah(chemical_kg))
-		$("#s_chemical_rp").val(formatRupiah(chemical_rp))
-		let h_chemical_kg = (chemical_kg == '' || isNaN(chemical_kg)) ? 0 : parseInt(chemical_kg.split('.').join(''));
-		let h_chemical_rp = (chemical_rp == '' || isNaN(chemical_rp)) ? 0 : parseInt(chemical_rp.split('.').join(''));
-		let x_chemical_rp = 0;
-		((h_chemical_kg == '' || h_chemical_kg == 0 || isNaN(h_chemical_kg)) && h_chemical_rp != 0) ? x_chemical_rp = h_chemical_rp : x_chemical_rp = h_chemical_kg * h_chemical_rp;
-		(isNaN(x_chemical_rp)) ? x_chemical_rp = 0 : x_chemical_rp = x_chemical_rp
-		$("#s_chemical_x").val(format_angka(x_chemical_rp))
-		hitungBiayaProduksiSheet()
-	}
-
-	function hitungKetLainLainSheet()
-	{
-		let ket_dll_kg = $("#s_ket_dll_kg").val()
-		let ket_dll_rp = $("#s_ket_dll_rp").val()
-		$("#s_ket_dll_kg").val(formatRupiah(ket_dll_kg))
-		$("#s_ket_dll_rp").val(formatRupiah(ket_dll_rp))
-		let h_ket_dll_kg = (ket_dll_kg == '' || isNaN(ket_dll_kg)) ? 0 : parseInt(ket_dll_kg.split('.').join(''));
-		let h_ket_dll_rp = (ket_dll_rp == '' || isNaN(ket_dll_rp)) ? 0 : parseInt(ket_dll_rp.split('.').join(''));
-		let x_h_ket_dll = 0;
-		((h_ket_dll_kg == '' || h_ket_dll_kg == 0 || isNaN(h_ket_dll_kg)) && h_ket_dll_rp != 0) ? x_h_ket_dll = h_ket_dll_rp : x_h_ket_dll = h_ket_dll_kg * h_ket_dll_rp;
-		(isNaN(x_h_ket_dll)) ? x_h_ket_dll = 0 : x_h_ket_dll = x_h_ket_dll
-		$("#s_ket_dll_x").val(format_angka(x_h_ket_dll))
-	}
-
-	function hitungBiayaProduksiSheet()
-	{
-		let jenis_hpp = $("#jenis_hpp").val();
-		let bahan_baku_rp = 0;
-		(jenis_hpp == 'MH') ? bahan_baku_rp =  $("#mh_x").val().split('.').join('') : bahan_baku_rp =  $("#bk_x").val().split('.').join('');
-		let tenaga_kerja = $("#s_tenaga_kerja").val().split('.').join('')
-		let upah = $("#s_upah").val().split('.').join('')
-		let thr = $("#s_thr").val().split('.').join('')
-		let listrik = $("#s_listrik").val().split('.').join('')
-		let batu_bara_x = $("#s_batu_bara_x").val().split('.').join('')
-		let chemical_x = $("#s_chemical_x").val().split('.').join('')
-		let bahan_pembantu = $("#s_bahan_pembantu").val().split('.').join('')
-		let solar = $("#s_solar").val().split('.').join('')
-		let biaya_pemeliharaan = $("#s_biaya_pemeliharaan").val().split('.').join('')
-		let ekspedisi = $("#s_ekspedisi").val().split('.').join('')
-		let depresiasi = $("#s_depresiasi").val().split('.').join('')
-		let lain_lain_rp = $("#s_lain_lain_rp").val().split('.').join('')
-
-		$("#s_tenaga_kerja").val(formatRupiah(tenaga_kerja))
-		$("#s_upah").val(formatRupiah(upah))
-		$("#s_thr").val(formatRupiah(thr))
-		$("#s_listrik").val(formatRupiah(listrik))
-		$("#s_bahan_pembantu").val(formatRupiah(bahan_pembantu))
-		$("#s_solar").val(formatRupiah(solar))
-		$("#s_biaya_pemeliharaan").val(formatRupiah(biaya_pemeliharaan))
-		$("#s_ekspedisi").val(formatRupiah(ekspedisi))
-		$("#s_depresiasi").val(formatRupiah(depresiasi))
-		$("#s_lain_lain_rp").val(formatRupiah(lain_lain_rp))
-
-		let h_bahan_baku_rp = (bahan_baku_rp == '' || isNaN(bahan_baku_rp)) ? 0 : parseInt(bahan_baku_rp);
-		let h_tenaga_kerja = (tenaga_kerja == '' || isNaN(tenaga_kerja)) ? 0 : parseInt(tenaga_kerja.split('.').join(''));
-		let h_upah = (upah == '' || isNaN(upah)) ? 0 : parseInt(upah.split('.').join(''));
-		let h_thr = (thr == '' || isNaN(thr)) ? 0 : parseInt(thr.split('.').join(''));
-		let h_listrik = (listrik == '' || isNaN(listrik)) ? 0 : parseInt(listrik.split('.').join(''));
-		let h_batu_bara_x = (batu_bara_x == '' || isNaN(batu_bara_x)) ? 0 : parseInt(batu_bara_x);
-		let h_chemical_x = (chemical_x == '' || isNaN(chemical_x)) ? 0 : parseInt(chemical_x);
-		let h_bahan_pembantu = (bahan_pembantu == '' || isNaN(bahan_pembantu)) ? 0 : parseInt(bahan_pembantu.split('.').join(''));
-		let h_solar = (solar == '' || isNaN(solar)) ? 0 : parseInt(solar.split('.').join(''));
-		let h_biaya_pemeliharaan = (biaya_pemeliharaan == '' || isNaN(biaya_pemeliharaan)) ? 0 : parseInt(biaya_pemeliharaan.split('.').join(''));
-		let h_ekspedisi = (ekspedisi == '' || isNaN(ekspedisi)) ? 0 : parseInt(ekspedisi.split('.').join(''));
-		let h_depresiasi = (depresiasi == '' || isNaN(depresiasi)) ? 0 : parseInt(depresiasi.split('.').join(''));
-		let h_lain_lain_rp = (lain_lain_rp == '' || isNaN(lain_lain_rp)) ? 0 : parseInt(lain_lain_rp.split('.').join(''));
-
-		// HPP
-		let hitung_hpp = h_bahan_baku_rp + h_tenaga_kerja + h_upah + h_thr + h_listrik + h_batu_bara_x + h_chemical_x + h_bahan_pembantu + h_solar + h_biaya_pemeliharaan + h_ekspedisi + h_depresiasi + h_lain_lain_rp;
-		(isNaN(hitung_hpp) || hitung_hpp == '' || hitung_hpp == 0) ? hitung_hpp = hitung_hpp : hitung_hpp = hitung_hpp;
-		$("#hasil_hpp").val(formatRupiah(hitung_hpp.toString()));
-
-		// HPP * TONASE ORDER
-		(hitung_hpp != 0) ? $("#s_tonase_order").prop('disabled', false) : $("#s_tonase_order").prop('disabled', true);
-		let tonase_order =  $("#s_tonase_order").val()
-		$("#s_tonase_order").val(formatRupiah(tonase_order))
-		let h_tonase_order = tonase_order.split('.').join('')
-		let hasil_x_tonase = 0;
-		(hitung_hpp == 0 || h_tonase_order == '') ? hasil_x_tonase = 0 : hasil_x_tonase = Math.round(parseInt(hitung_hpp) / parseInt(h_tonase_order).toFixed()).toFixed();
-		$("#hasil_x_tonase").val(formatRupiah(hasil_x_tonase.toString()))
-
-		// (HPP * TONASE ORDER) + PRESENTASE %
-		// let hxt_x_persen = Math.round((parseInt(hasil_x_tonase) * (10 / 100)))
-		// let fix_hpp = parseInt(hasil_x_tonase) + Math.round((parseInt(hasil_x_tonase) * (10 / 100)))
-	}
-
-	// END SHEET
-
-	// BOX
-
-	function HitungBoxBB(opsi)
-	{
-		if(opsi == 'BK'){
-			let bk_kg = $("#bk_kg_box").val()
-			let bk_rp = $("#bk_rp_box").val()
-			$("#bk_kg_box").val(formatRupiah(bk_kg))
-			$("#bk_rp_box").val(formatRupiah(bk_rp))
-			let h_bk_kg = (bk_kg == '' || isNaN(bk_kg)) ? 0 : parseInt(bk_kg.split('.').join(''));
-			let h_bk_rp = (bk_rp == '' || isNaN(bk_rp)) ? 0 : parseInt(bk_rp.split('.').join(''));
-			let x_bk = 0;
-			((h_bk_kg == '' || h_bk_kg == 0 || isNaN(h_bk_kg)) && h_bk_rp != 0) ? x_bk = h_bk_rp : x_bk = h_bk_kg * h_bk_rp;
-			$("#bk_x_box").val(format_angka(x_bk))
-		}
-		if(opsi == 'MH'){
-			let mh_kg = $("#mh_kg_box").val()
-			let mh_rp = $("#mh_rp_box").val()
-			$("#mh_kg_box").val(formatRupiah(mh_kg))
-			$("#mh_rp_box").val(formatRupiah(mh_rp))
-			let h_mh_kg = (mh_kg == '' || isNaN(mh_kg)) ? 0 : parseInt(mh_kg.split('.').join(''));
-			let h_mh_rp = (mh_rp == '' || isNaN(mh_rp)) ? 0 : parseInt(mh_rp.split('.').join(''));
-			let x_mh = 0;
-			((h_mh_kg == '' || h_mh_kg == 0 || isNaN(h_mh_kg)) && h_mh_rp != 0) ? x_mh = h_mh_rp : x_mh = h_mh_kg * h_mh_rp;
-			$("#mh_x_box").val(format_angka(x_mh))
-		}
-		hitungBiayaProduksiBox()
-	}
-
-	function hitungBatuBaraBox()
-	{
-		let batu_bara_kg = $("#b_batu_bara_kg").val()
-		let batu_bara_rp = $("#b_batu_bara_rp").val()
-		$("#b_batu_bara_kg").val(formatRupiah(batu_bara_kg))
-		$("#b_batu_bara_rp").val(formatRupiah(batu_bara_rp))
-		let h_batu_bara_kg = (batu_bara_kg == '' || isNaN(batu_bara_kg)) ? 0 : parseInt(batu_bara_kg.split('.').join(''));
-		let h_batu_bara_rp = (batu_bara_rp == '' || isNaN(batu_bara_rp)) ? 0 : parseInt(batu_bara_rp.split('.').join(''));
-		let x_batu_bara_rp = 0;
-		((h_batu_bara_kg == '' || h_batu_bara_kg == 0 || isNaN(h_batu_bara_kg)) && h_batu_bara_rp != 0) ? x_batu_bara_rp = h_batu_bara_rp : x_batu_bara_rp = h_batu_bara_kg * h_batu_bara_rp;
-		(isNaN(x_batu_bara_rp)) ? x_batu_bara_rp = 0 : x_batu_bara_rp = x_batu_bara_rp
-		$("#b_batu_bara_x").val(format_angka(x_batu_bara_rp))
-		hitungBiayaProduksiBox()
-	}
-
-	function hitungBahanKimiaBox()
-	{
-		let chemical_kg = $("#b_chemical_kg").val()
-		let chemical_rp = $("#b_chemical_rp").val()
-		$("#b_chemical_kg").val(formatRupiah(chemical_kg))
-		$("#b_chemical_rp").val(formatRupiah(chemical_rp))
-		let h_chemical_kg = (chemical_kg == '' || isNaN(chemical_kg)) ? 0 : parseInt(chemical_kg.split('.').join(''));
-		let h_chemical_rp = (chemical_rp == '' || isNaN(chemical_rp)) ? 0 : parseInt(chemical_rp.split('.').join(''));
-		let x_chemical_rp = 0;
-		((h_chemical_kg == '' || h_chemical_kg == 0 || isNaN(h_chemical_kg)) && h_chemical_rp != 0) ? x_chemical_rp = h_chemical_rp : x_chemical_rp = h_chemical_kg * h_chemical_rp;
-		(isNaN(x_chemical_rp)) ? x_chemical_rp = 0 : x_chemical_rp = x_chemical_rp
-		$("#b_chemical_x").val(format_angka(x_chemical_rp))
-		hitungBiayaProduksiBox()
-	}
-
-	function hitungKetLainLainBox()
-	{
-		let ket_dll_kg = $("#b_ket_dll_kg").val()
-		let ket_dll_rp = $("#b_ket_dll_rp").val()
-		$("#b_ket_dll_kg").val(formatRupiah(ket_dll_kg))
-		$("#b_ket_dll_rp").val(formatRupiah(ket_dll_rp))
-		let h_ket_dll_kg = (ket_dll_kg == '' || isNaN(ket_dll_kg)) ? 0 : parseInt(ket_dll_kg.split('.').join(''));
-		let h_ket_dll_rp = (ket_dll_rp == '' || isNaN(ket_dll_rp)) ? 0 : parseInt(ket_dll_rp.split('.').join(''));
-		let x_h_ket_dll = 0;
-		((h_ket_dll_kg == '' || h_ket_dll_kg == 0 || isNaN(h_ket_dll_kg)) && h_ket_dll_rp != 0) ? x_h_ket_dll = h_ket_dll_rp : x_h_ket_dll = h_ket_dll_kg * h_ket_dll_rp;
-		(isNaN(x_h_ket_dll)) ? x_h_ket_dll = 0 : x_h_ket_dll = x_h_ket_dll
-		$("#b_ket_dll_x").val(format_angka(x_h_ket_dll))
-	}
-
-	function hitungBiayaProduksiBox()
-	{
-		let jenis_hpp = $("#jenis_hpp").val();
-		let bahan_baku_rp = 0;
-		(jenis_hpp == 'MH') ? bahan_baku_rp =  $("#mh_x_box").val().split('.').join('') : bahan_baku_rp =  $("#bk_x_box").val().split('.').join('');
-		let tenaga_kerja = $("#b_tenaga_kerja").val().split('.').join('')
-		let upah = $("#b_upah").val().split('.').join('')
-		let thr = $("#b_thr").val().split('.').join('')
-		let listrik = $("#b_listrik").val().split('.').join('')
-		let batu_bara_x = $("#b_batu_bara_x").val().split('.').join('')
-		let chemical_x = $("#b_chemical_x").val().split('.').join('')
-		let bahan_pembantu = $("#b_bahan_pembantu").val().split('.').join('')
-		let solar = $("#b_solar").val().split('.').join('')
-		let biaya_pemeliharaan = $("#b_biaya_pemeliharaan").val().split('.').join('')
-		let ekspedisi = $("#b_ekspedisi").val().split('.').join('')
-		let depresiasi = $("#b_depresiasi").val().split('.').join('')
-		let lain_lain_rp = $("#b_lain_lain_rp").val().split('.').join('')
-
-		$("#b_tenaga_kerja").val(formatRupiah(tenaga_kerja))
-		$("#b_upah").val(formatRupiah(upah))
-		$("#b_thr").val(formatRupiah(thr))
-		$("#b_listrik").val(formatRupiah(listrik))
-		$("#b_bahan_pembantu").val(formatRupiah(bahan_pembantu))
-		$("#b_solar").val(formatRupiah(solar))
-		$("#b_biaya_pemeliharaan").val(formatRupiah(biaya_pemeliharaan))
-		$("#b_ekspedisi").val(formatRupiah(ekspedisi))
-		$("#b_depresiasi").val(formatRupiah(depresiasi))
-		$("#b_lain_lain_rp").val(formatRupiah(lain_lain_rp))
-
-		let h_bahan_baku_rp = (bahan_baku_rp == '' || isNaN(bahan_baku_rp)) ? 0 : parseInt(bahan_baku_rp);
-		let h_tenaga_kerja = (tenaga_kerja == '' || isNaN(tenaga_kerja)) ? 0 : parseInt(tenaga_kerja.split('.').join(''));
-		let h_upah = (upah == '' || isNaN(upah)) ? 0 : parseInt(upah.split('.').join(''));
-		let h_thr = (thr == '' || isNaN(thr)) ? 0 : parseInt(thr.split('.').join(''));
-		let h_listrik = (listrik == '' || isNaN(listrik)) ? 0 : parseInt(listrik.split('.').join(''));
-		let h_batu_bara_x = (batu_bara_x == '' || isNaN(batu_bara_x)) ? 0 : parseInt(batu_bara_x);
-		let h_chemical_x = (chemical_x == '' || isNaN(chemical_x)) ? 0 : parseInt(chemical_x);
-		let h_bahan_pembantu = (bahan_pembantu == '' || isNaN(bahan_pembantu)) ? 0 : parseInt(bahan_pembantu.split('.').join(''));
-		let h_solar = (solar == '' || isNaN(solar)) ? 0 : parseInt(solar.split('.').join(''));
-		let h_biaya_pemeliharaan = (biaya_pemeliharaan == '' || isNaN(biaya_pemeliharaan)) ? 0 : parseInt(biaya_pemeliharaan.split('.').join(''));
-		let h_ekspedisi = (ekspedisi == '' || isNaN(ekspedisi)) ? 0 : parseInt(ekspedisi.split('.').join(''));
-		let h_depresiasi = (depresiasi == '' || isNaN(depresiasi)) ? 0 : parseInt(depresiasi.split('.').join(''));
-		let h_lain_lain_rp = (lain_lain_rp == '' || isNaN(lain_lain_rp)) ? 0 : parseInt(lain_lain_rp.split('.').join(''));
-
-		// HPP
-		let hitung_hpp = h_bahan_baku_rp + h_tenaga_kerja + h_upah + h_thr + h_listrik + h_batu_bara_x + h_chemical_x + h_bahan_pembantu + h_solar + h_biaya_pemeliharaan + h_ekspedisi + h_depresiasi + h_lain_lain_rp;
-		(isNaN(hitung_hpp) || hitung_hpp == '' || hitung_hpp == 0) ? hitung_hpp = hitung_hpp : hitung_hpp = hitung_hpp;
-		$("#hasil_hpp").val(formatRupiah(hitung_hpp.toString()));
-
-		// HPP * TONASE ORDER
-		(hitung_hpp != 0) ? $("#b_tonase_order").prop('disabled', false) : $("#b_tonase_order").prop('disabled', true);
-		let tonase_order =  $("#b_tonase_order").val()
-		$("#b_tonase_order").val(formatRupiah(tonase_order))
-		let h_tonase_order = tonase_order.split('.').join('')
-		let hasil_x_tonase = 0;
-		(hitung_hpp == 0 || h_tonase_order == '') ? hasil_x_tonase = 0 : hasil_x_tonase = Math.round(parseInt(hitung_hpp) / parseInt(h_tonase_order).toFixed()).toFixed();
-		$("#hasil_x_tonase").val(formatRupiah(hasil_x_tonase.toString()))
-
-		// (HPP * TONASE ORDER) + PRESENTASE %
-		// let hxt_x_persen = Math.round((parseInt(hasil_x_tonase) * (10 / 100)))
-		// let fix_hpp = parseInt(hasil_x_tonase) + Math.round((parseInt(hasil_x_tonase) * (10 / 100)))
-	}
-
-	// END BOX
-
-	$("#ket_upah_rp").on("keyup", function() {
-		let ket_upah_rp = $("#ket_upah_rp").val()
-		$("#ket_upah_rp").val(formatRupiah(ket_upah_rp))
-	});
-
-	$("#s_ket_upah_rp").on("keyup", function() {
-		let ket_upah_rp = $("#s_ket_upah_rp").val()
-		$("#s_ket_upah_rp").val(formatRupiah(ket_upah_rp))
-	});
-
-	$("#b_ket_upah_rp").on("keyup", function() {
-		let ket_upah_rp = $("#b_ket_upah_rp").val()
-		$("#b_ket_upah_rp").val(formatRupiah(ket_upah_rp))
-	});
-
-	function hitungKetBahan()
-	{
-		let ket_bahan_kg = $("#ket_bahan_kg").val()
-		let ket_bahan_rp = $("#ket_bahan_rp").val()
-		$("#ket_bahan_kg").val(formatRupiah(ket_bahan_kg))
-		$("#ket_bahan_rp").val(formatRupiah(ket_bahan_rp))
-		let h_ket_bahan_kg = (ket_bahan_kg == '' || isNaN(ket_bahan_kg)) ? 0 : parseInt(ket_bahan_kg.split('.').join(''));
-		let h_ket_bahan_rp = (ket_bahan_rp == '' || isNaN(ket_bahan_rp)) ? 0 : parseInt(ket_bahan_rp.split('.').join(''));
-		let x_h_ket_dll = 0;
-		((h_ket_bahan_kg == '' || h_ket_bahan_kg == 0 || isNaN(h_ket_bahan_kg)) && h_ket_bahan_rp != 0) ? x_h_ket_dll = h_ket_bahan_rp : x_h_ket_dll = h_ket_bahan_kg * h_ket_bahan_rp;
-		(isNaN(x_h_ket_dll)) ? x_h_ket_dll = 0 : x_h_ket_dll = x_h_ket_dll
-		$("#ket_bahan_x").val(format_angka(x_h_ket_dll))
-	}
-
-	function hitungKetLainLain()
-	{
-		let ket_dll_kg = $("#ket_dll_kg").val()
-		let ket_dll_rp = $("#ket_dll_rp").val()
-		$("#ket_dll_kg").val(formatRupiah(ket_dll_kg))
-		$("#ket_dll_rp").val(formatRupiah(ket_dll_rp))
-		let h_ket_dll_kg = (ket_dll_kg == '' || isNaN(ket_dll_kg)) ? 0 : parseInt(ket_dll_kg.split('.').join(''));
-		let h_ket_dll_rp = (ket_dll_rp == '' || isNaN(ket_dll_rp)) ? 0 : parseInt(ket_dll_rp.split('.').join(''));
-		let x_h_ket_dll = 0;
-		((h_ket_dll_kg == '' || h_ket_dll_kg == 0 || isNaN(h_ket_dll_kg)) && h_ket_dll_rp != 0) ? x_h_ket_dll = h_ket_dll_rp : x_h_ket_dll = h_ket_dll_kg * h_ket_dll_rp;
-		(isNaN(x_h_ket_dll)) ? x_h_ket_dll = 0 : x_h_ket_dll = x_h_ket_dll
-		$("#ket_dll_x").val(format_angka(x_h_ket_dll))
 	}
 
 	function keteranganHPP(opsi, jenis, id_hpp)
@@ -2146,16 +1832,8 @@
 					$("#b_lain_lain_rp").val(data.sumLLrp)
 				}
 
+				hitungBiayaProduksi()
 				swal.close()
-				if(jenis == 'pm'){
-					hitungBiayaProduksi()
-				}
-				if(jenis == 'sheet'){
-					hitungBiayaProduksiSheet()
-				}
-				if(jenis == 'box'){
-					hitungBiayaProduksiBox()
-				}
 			}
 		})
 	}
@@ -2197,62 +1875,190 @@
         return rupiah = split[1] != undefined ? rupiah+','+split[1] : rupiah;
     }
 
+	$("#ket_upah_rp").on("keyup", function() {
+		let ket_upah_rp = $("#ket_upah_rp").val()
+		$("#ket_upah_rp").val(formatRupiah(ket_upah_rp))
+	});
+
+	$("#s_ket_upah_rp").on("keyup", function() {
+		let ket_upah_rp = $("#s_ket_upah_rp").val()
+		$("#s_ket_upah_rp").val(formatRupiah(ket_upah_rp))
+	});
+
+	$("#b_ket_upah_rp").on("keyup", function() {
+		let ket_upah_rp = $("#b_ket_upah_rp").val()
+		$("#b_ket_upah_rp").val(formatRupiah(ket_upah_rp))
+	});
+
+	// HITUNG PEMAKAIAN BAHAN PM
+	function hitungKetBahan()
+	{
+		let ket_bahan_kg = $("#ket_bahan_kg").val()
+		let ket_bahan_rp = $("#ket_bahan_rp").val()
+		$("#ket_bahan_kg").val(formatRupiah(ket_bahan_kg))
+		$("#ket_bahan_rp").val(formatRupiah(ket_bahan_rp))
+		let h_ket_bahan_kg = (ket_bahan_kg == '' || isNaN(ket_bahan_kg)) ? 0 : parseInt(ket_bahan_kg.split('.').join(''));
+		let h_ket_bahan_rp = (ket_bahan_rp == '' || isNaN(ket_bahan_rp)) ? 0 : parseInt(ket_bahan_rp.split('.').join(''));
+		let x_h_ket_dll = 0;
+		((h_ket_bahan_kg == '' || h_ket_bahan_kg == 0 || isNaN(h_ket_bahan_kg)) && h_ket_bahan_rp != 0) ? x_h_ket_dll = h_ket_bahan_rp : x_h_ket_dll = h_ket_bahan_kg * h_ket_bahan_rp;
+		(isNaN(x_h_ket_dll)) ? x_h_ket_dll = 0 : x_h_ket_dll = x_h_ket_dll
+		$("#ket_bahan_x").val(format_angka(x_h_ket_dll))
+	}
+
+	// HITUNG PEMAKAIAN BAHAN SHEET, BOX, LAMINASI
+	function HitungBB(jenis, opsi)
+	{
+		let o = ''
+		if(opsi == 'sheet'){
+			o = ''
+		}else if(opsi == 'box'){
+			o = '_box'
+		}
+		if(jenis == 'BK'){
+			let bk_kg = $("#bk_kg"+o).val()
+			let bk_rp = $("#bk_rp"+o).val()
+			$("#bk_kg"+o).val(formatRupiah(bk_kg))
+			$("#bk_rp"+o).val(formatRupiah(bk_rp))
+			let h_bk_kg = (bk_kg == '' || isNaN(bk_kg)) ? 0 : parseInt(bk_kg.split('.').join(''));
+			let h_bk_rp = (bk_rp == '' || isNaN(bk_rp)) ? 0 : parseInt(bk_rp.split('.').join(''));
+			let x_bk = 0;
+			((h_bk_kg == '' || h_bk_kg == 0 || isNaN(h_bk_kg)) && h_bk_rp != 0) ? x_bk = h_bk_rp : x_bk = h_bk_kg * h_bk_rp;
+			$("#bk_x"+o).val(format_angka(x_bk))
+		}
+		if(jenis == 'MH'){
+			let mh_kg = $("#mh_kg"+o).val()
+			let mh_rp = $("#mh_rp"+o).val()
+			$("#mh_kg"+o).val(formatRupiah(mh_kg))
+			$("#mh_rp"+o).val(formatRupiah(mh_rp))
+			let h_mh_kg = (mh_kg == '' || isNaN(mh_kg)) ? 0 : parseInt(mh_kg.split('.').join(''));
+			let h_mh_rp = (mh_rp == '' || isNaN(mh_rp)) ? 0 : parseInt(mh_rp.split('.').join(''));
+			let x_mh = 0;
+			((h_mh_kg == '' || h_mh_kg == 0 || isNaN(h_mh_kg)) && h_mh_rp != 0) ? x_mh = h_mh_rp : x_mh = h_mh_kg * h_mh_rp;
+			$("#mh_x"+o).val(format_angka(x_mh))
+		}
+		hitungBiayaProduksi()
+	}
+
+	function hitungKetLainLain()
+	{
+		let pilih_hpp = $("#pilih_hpp").val()
+		let o = ''
+		if(pilih_hpp == 'PM2'){
+			o = ''
+		}else if(pilih_hpp == 'SHEET'){
+			o = 's_'
+		}else if(pilih_hpp == 'BOX'){
+			o = 'b_'
+		}
+
+		let ket_dll_kg = $("#"+o+"ket_dll_kg").val()
+		let ket_dll_rp = $("#"+o+"ket_dll_rp").val()
+		$("#"+o+"ket_dll_kg").val(formatRupiah(ket_dll_kg))
+		$("#"+o+"ket_dll_rp").val(formatRupiah(ket_dll_rp))
+		let h_ket_dll_kg = (ket_dll_kg == '' || isNaN(ket_dll_kg)) ? 0 : parseInt(ket_dll_kg.split('.').join(''));
+		let h_ket_dll_rp = (ket_dll_rp == '' || isNaN(ket_dll_rp)) ? 0 : parseInt(ket_dll_rp.split('.').join(''));
+		let x_h_ket_dll = 0;
+		((h_ket_dll_kg == '' || h_ket_dll_kg == 0 || isNaN(h_ket_dll_kg)) && h_ket_dll_rp != 0) ? x_h_ket_dll = h_ket_dll_rp : x_h_ket_dll = h_ket_dll_kg * h_ket_dll_rp;
+		(isNaN(x_h_ket_dll)) ? x_h_ket_dll = 0 : x_h_ket_dll = x_h_ket_dll
+		$("#"+o+"ket_dll_x").val(format_angka(x_h_ket_dll))
+	}
+
 	function hitungBatuBara()
 	{
-		let batu_bara_kg = $("#batu_bara_kg").val()
-		let batu_bara_rp = $("#batu_bara_rp").val()
-		$("#batu_bara_kg").val(formatRupiah(batu_bara_kg))
-		$("#batu_bara_rp").val(formatRupiah(batu_bara_rp))
+		let pilih_hpp = $("#pilih_hpp").val()
+		let o = ''
+		if(pilih_hpp == 'PM2'){
+			o = ''
+		}else if(pilih_hpp == 'SHEET'){
+			o = 's_'
+		}else if(pilih_hpp == 'BOX'){
+			o = 'b_'
+		}
+
+		let batu_bara_kg = $("#"+o+"batu_bara_kg").val()
+		let batu_bara_rp = $("#"+o+"batu_bara_rp").val()
+		$("#"+o+"batu_bara_kg").val(formatRupiah(batu_bara_kg))
+		$("#"+o+"batu_bara_rp").val(formatRupiah(batu_bara_rp))
 		let h_batu_bara_kg = (batu_bara_kg == '' || isNaN(batu_bara_kg)) ? 0 : parseInt(batu_bara_kg.split('.').join(''));
 		let h_batu_bara_rp = (batu_bara_rp == '' || isNaN(batu_bara_rp)) ? 0 : parseInt(batu_bara_rp.split('.').join(''));
 		let x_batu_bara_rp = 0;
 		((h_batu_bara_kg == '' || h_batu_bara_kg == 0 || isNaN(h_batu_bara_kg)) && h_batu_bara_rp != 0) ? x_batu_bara_rp = h_batu_bara_rp : x_batu_bara_rp = h_batu_bara_kg * h_batu_bara_rp;
 		(isNaN(x_batu_bara_rp)) ? x_batu_bara_rp = 0 : x_batu_bara_rp = x_batu_bara_rp
-		$("#batu_bara_x").val(format_angka(x_batu_bara_rp))
+		$("#"+o+"batu_bara_x").val(format_angka(x_batu_bara_rp))
 		hitungBiayaProduksi()
 	}
 
 	function hitungBahanKimia()
 	{
-		let chemical_kg = $("#chemical_kg").val()
-		let chemical_rp = $("#chemical_rp").val()
-		$("#chemical_kg").val(formatRupiah(chemical_kg))
-		$("#chemical_rp").val(formatRupiah(chemical_rp))
+		let pilih_hpp = $("#pilih_hpp").val()
+		let o = ''
+		if(pilih_hpp == 'PM2'){
+			o = ''
+		}else if(pilih_hpp == 'SHEET'){
+			o = 's_'
+		}else if(pilih_hpp == 'BOX'){
+			o = 'b_'
+		}
+
+		let chemical_kg = $("#"+o+"chemical_kg").val()
+		let chemical_rp = $("#"+o+"chemical_rp").val()
+		$("#"+o+"chemical_kg").val(formatRupiah(chemical_kg))
+		$("#"+o+"chemical_rp").val(formatRupiah(chemical_rp))
 		let h_chemical_kg = (chemical_kg == '' || isNaN(chemical_kg)) ? 0 : parseInt(chemical_kg.split('.').join(''));
 		let h_chemical_rp = (chemical_rp == '' || isNaN(chemical_rp)) ? 0 : parseInt(chemical_rp.split('.').join(''));
 		let x_chemical_rp = 0;
 		((h_chemical_kg == '' || h_chemical_kg == 0 || isNaN(h_chemical_kg)) && h_chemical_rp != 0) ? x_chemical_rp = h_chemical_rp : x_chemical_rp = h_chemical_kg * h_chemical_rp;
 		(isNaN(x_chemical_rp)) ? x_chemical_rp = 0 : x_chemical_rp = x_chemical_rp
-		$("#chemical_x").val(format_angka(x_chemical_rp))
+		$("#"+o+"chemical_x").val(format_angka(x_chemical_rp))
 		hitungBiayaProduksi()
 	}
 
 	function hitungBiayaProduksi()
 	{
-		let bahan_baku_rp = $("#bahan_baku_rp").val().split('.').join('')
-		let tenaga_kerja = $("#tenaga_kerja").val().split('.').join('')
-		let upah = $("#upah").val().split('.').join('')
-		let thr = $("#thr").val().split('.').join('')
-		let listrik = $("#listrik").val().split('.').join('')
-		let batu_bara_x = $("#batu_bara_x").val().split('.').join('')
-		let chemical_x = $("#chemical_x").val().split('.').join('')
-		let bahan_pembantu = $("#bahan_pembantu").val().split('.').join('')
-		let solar = $("#solar").val().split('.').join('')
-		let biaya_pemeliharaan = $("#biaya_pemeliharaan").val().split('.').join('')
-		let ekspedisi = $("#ekspedisi").val().split('.').join('')
-		let depresiasi = $("#depresiasi").val().split('.').join('')
-		let lain_lain_rp = $("#lain_lain_rp").val().split('.').join('')
+		let pilih_hpp = $("#pilih_hpp").val()
+		let jenis_hpp = $("#jenis_hpp").val();
+		let o = ''
+		if(pilih_hpp == 'PM2'){
+			o = ''
+		}else if(pilih_hpp == 'SHEET'){
+			o = 's_'
+		}else if(pilih_hpp == 'BOX'){
+			o = 'b_'
+		}
 
-		$("#tenaga_kerja").val(formatRupiah(tenaga_kerja))
-		$("#upah").val(formatRupiah(upah))
-		$("#thr").val(formatRupiah(thr))
-		$("#listrik").val(formatRupiah(listrik))
-		$("#bahan_pembantu").val(formatRupiah(bahan_pembantu))
-		$("#solar").val(formatRupiah(solar))
-		$("#biaya_pemeliharaan").val(formatRupiah(biaya_pemeliharaan))
-		$("#ekspedisi").val(formatRupiah(ekspedisi))
-		$("#depresiasi").val(formatRupiah(depresiasi))
-		$("#lain_lain_rp").val(formatRupiah(lain_lain_rp))
+		let bahan_baku_rp = 0;
+		if(pilih_hpp == 'PM2'){
+			bahan_baku_rp = $("#bahan_baku_rp").val().split('.').join('')
+		}else if(pilih_hpp == 'SHEET'){
+			(jenis_hpp == 'MH') ? bahan_baku_rp =  $("#mh_x").val().split('.').join('') : bahan_baku_rp =  $("#bk_x").val().split('.').join(''); // sheet
+		}else if(pilih_hpp == 'BOX'){
+			(jenis_hpp == 'MH') ? bahan_baku_rp =  $("#mh_x_box").val().split('.').join('') : bahan_baku_rp =  $("#bk_x_box").val().split('.').join(''); // box
+		}
+
+		// let bahan_baku_rp = $("#bahan_baku_rp").val().split('.').join('')
+		let tenaga_kerja = $("#"+o+"tenaga_kerja").val().split('.').join('')
+		let upah = $("#"+o+"upah").val().split('.').join('')
+		let thr = $("#"+o+"thr").val().split('.').join('')
+		let listrik = $("#"+o+"listrik").val().split('.').join('')
+		let batu_bara_x = $("#"+o+"batu_bara_x").val().split('.').join('')
+		let chemical_x = $("#"+o+"chemical_x").val().split('.').join('')
+		let bahan_pembantu = $("#"+o+"bahan_pembantu").val().split('.').join('')
+		let solar = $("#"+o+"solar").val().split('.').join('')
+		let biaya_pemeliharaan = $("#"+o+"biaya_pemeliharaan").val().split('.').join('')
+		let ekspedisi = $("#"+o+"ekspedisi").val().split('.').join('')
+		let depresiasi = $("#"+o+"depresiasi").val().split('.').join('')
+		let lain_lain_rp = $("#"+o+"lain_lain_rp").val().split('.').join('')
+
+		$("#"+o+"tenaga_kerja").val(formatRupiah(tenaga_kerja))
+		$("#"+o+"upah").val(formatRupiah(upah))
+		$("#"+o+"thr").val(formatRupiah(thr))
+		$("#"+o+"listrik").val(formatRupiah(listrik))
+		$("#"+o+"bahan_pembantu").val(formatRupiah(bahan_pembantu))
+		$("#"+o+"solar").val(formatRupiah(solar))
+		$("#"+o+"biaya_pemeliharaan").val(formatRupiah(biaya_pemeliharaan))
+		$("#"+o+"ekspedisi").val(formatRupiah(ekspedisi))
+		$("#"+o+"depresiasi").val(formatRupiah(depresiasi))
+		$("#"+o+"lain_lain_rp").val(formatRupiah(lain_lain_rp))
 
 		let h_bahan_baku_rp = (bahan_baku_rp == '' || isNaN(bahan_baku_rp)) ? 0 : parseInt(bahan_baku_rp);
 		let h_tenaga_kerja = (tenaga_kerja == '' || isNaN(tenaga_kerja)) ? 0 : parseInt(tenaga_kerja.split('.').join(''));
@@ -2279,9 +2085,9 @@
 		$("#hasil_hpp_tanpa_bb").val(formatRupiah(hitung_hpp_tanpa_bb.toString()));
 
 		// HPP * TONASE ORDER
-		(hitung_hpp != 0) ? $("#tonase_order").prop('disabled', false) : $("#tonase_order").prop('disabled', true);
-		let tonase_order =  $("#tonase_order").val()
-		$("#tonase_order").val(formatRupiah(tonase_order))
+		(hitung_hpp != 0) ? $("#"+o+"tonase_order").prop('disabled', false) : $("#"+o+"tonase_order").prop('disabled', true);
+		let tonase_order =  $("#"+o+"tonase_order").val()
+		$("#"+o+"tonase_order").val(formatRupiah(tonase_order))
 		let h_tonase_order = tonase_order.split('.').join('')
 		let hasil_x_tonase = 0;
 		(hitung_hpp == 0 || h_tonase_order == '') ? hasil_x_tonase = 0 : hasil_x_tonase = Math.round(parseInt(hitung_hpp) / parseInt(h_tonase_order).toFixed()).toFixed();
@@ -2311,7 +2117,6 @@
 		let pilih_hpp = $("#pilih_hpp").val()
 		let tgl1_hpp = $("#tgl1_hpp").val()
 		let jenis_hpp = $("#jenis_hpp").val()
-		let jenis_cor = $("#jenis_cor").val()
 
 		// PEMAKAIAN BAHAN
 		let bahan_baku_kg = 0
@@ -2391,7 +2196,7 @@
 				});
 			},
 			data: ({
-				id_hpp, pilih_id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, jenis_cor, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonase, hxt_x_persen, presentase, hasil_hpp_tanpa_bb, hasil_x_tonase_tanpa_bb, fix_hpp, statusInput
+				id_hpp, pilih_id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonase, hxt_x_persen, presentase, hasil_hpp_tanpa_bb, hasil_x_tonase_tanpa_bb, fix_hpp, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -2437,16 +2242,43 @@
 				console.log(data)
 				$(".row-list-hpp").hide()
 				$(".row-input-hpp").show()
-				hideAll('', 'show')
 
 				$("#id_hpp").val(data.data.id_hpp)
+				$("#pilih_id_hpp").val("")
 
 				let prop = true;
 				(opsi == 'edit') ? prop = false : prop = true;
 				$("#pilih_hpp").val(data.data.pilih_hpp).prop('disabled', true).trigger("change")
 				$("#tgl1_hpp").val(data.data.tgl_hpp).prop('disabled', true)
-				$("#jenis_hpp").val(data.data.jenis_hpp).prop('disabled', true).trigger("change")
+				$("#jenis_hpp").html(`<option value="${data.data.jenis_hpp}">${data.data.jenis_hpp}</option>`).prop('disabled', true)
 				$(".card-list-hpp-pm").hide()
+
+				if(data.data.pilih_hpp == "PM2"){
+					hideAll('pm', 'show')
+				}else if(data.data.pilih_hpp == "BOX"){
+					hideAll('box', 'show')
+				}else if(data.data.pilih_hpp == "SHEET"){
+					hideAll('sheet', 'show')
+				}else if(data.data.pilih_hpp == "LAMINASI"){
+					hideAll('laminasi', 'show')
+				}
+
+				if(data.data.pilih_hpp == "SHEET" && data.data.jenis_hpp == "MH"){
+					$(".pb-sheet-mh").show()
+					$(".pb-sheet-bk").hide()
+				}
+				if(data.data.pilih_hpp == "SHEET" && data.data.jenis_hpp == "BK"){
+					$(".pb-sheet-mh").hide()
+					$(".pb-sheet-bk").show()
+				}
+				if(data.data.pilih_hpp == "BOX" && data.data.jenis_hpp == "MH"){
+					$(".pb-box-mh").show()
+					$(".pb-box-bk").hide()
+				}
+				if(data.data.pilih_hpp == "BOX" && data.data.jenis_hpp == "BK"){
+					$(".pb-box-mh").hide()
+					$(".pb-box-bk").show()
+				}
 
 				let o = ''
 				if(data.data.pilih_hpp == 'PM2'){
@@ -2464,20 +2296,20 @@
 					$("#"+o+"bahan_baku_kg").val(data.data.bahan_baku_kg)
 					$("#"+o+"bahan_baku_rp").val(data.data.bahan_baku_rp)
 				}else if(data.data.pilih_hpp == 'SHEET' && data.data.jenis_hpp == 'BK'){
-					$("#bk_kg").val(data.data.bahan_baku_kg)
-					$("#bk_rp").val(data.data.bahan_baku_rp)
+					$("#bk_kg").val(data.data.bahan_baku_kg).prop('disabled', prop)
+					$("#bk_rp").val(data.data.bahan_baku_rp).prop('disabled', prop)
 					$("#bk_x").val(data.data.bahan_baku_x)
 				}else if(data.data.pilih_hpp == 'SHEET' && data.data.jenis_hpp == 'MH'){
-					$("#mh_kg").val(data.data.bahan_baku_kg)
-					$("#mh_rp").val(data.data.bahan_baku_rp)
+					$("#mh_kg").val(data.data.bahan_baku_kg).prop('disabled', prop)
+					$("#mh_rp").val(data.data.bahan_baku_rp).prop('disabled', prop)
 					$("#mh_x").val(data.data.bahan_baku_x)
 				}else if(data.data.pilih_hpp == 'BOX' && data.data.jenis_hpp == 'BK'){
-					$("#bk_kg_box").val(data.data.bahan_baku_kg)
-					$("#bk_rp_box").val(data.data.bahan_baku_rp)
+					$("#bk_kg_box").val(data.data.bahan_baku_kg).prop('disabled', prop)
+					$("#bk_rp_box").val(data.data.bahan_baku_rp).prop('disabled', prop)
 					$("#bk_x_box").val(data.data.bahan_baku_x)
 				}else if(data.data.pilih_hpp == 'BOX' && data.data.jenis_hpp == 'MH'){
-					$("#mh_kg_box").val(data.data.bahan_baku_kg)
-					$("#mh_rp_box").val(data.data.bahan_baku_rp)
+					$("#mh_kg_box").val(data.data.bahan_baku_kg).prop('disabled', prop)
+					$("#mh_rp_box").val(data.data.bahan_baku_rp).prop('disabled', prop)
 					$("#mh_x_box").val(data.data.bahan_baku_x)
 				}
 
@@ -2591,7 +2423,7 @@
 		})
 	}
 
-	function hapusHPP(id_hpp, pilih_hpp, cek_sheet, cek_box)
+	function hapusHPP(id_hpp, pilih_hpp)
 	{
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/hapusHPP')?>',

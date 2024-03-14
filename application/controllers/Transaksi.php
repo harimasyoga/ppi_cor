@@ -236,7 +236,6 @@ class Transaksi extends CI_Controller
 			'pilih_hpp' => $hpp->pilih_hpp,
 			'tgl_hpp' => $hpp->tgl_hpp,
 			'jenis_hpp' => $hpp->jenis_hpp,
-			'jenis_cor' => $hpp->jenis_cor,
 			'bahan_baku_kg' => number_format($hpp->bahan_baku_kg,0,',','.'),
 			'bahan_baku_rp' => number_format($hpp->bahan_baku_rp,0,',','.'),
 			'bahan_baku_x' => number_format($hpp->bahan_baku_x,0,',','.'),
@@ -265,6 +264,9 @@ class Transaksi extends CI_Controller
 			'hasil_x_tonase_tanpa_bb' => number_format($hpp->hasil_x_tonase_tanpa_bb,0,',','.'),
 			'hxt_x_persen' => number_format($hpp->hxt_x_persen,0,',','.'),
 			'fix_hpp' => number_format($hpp->fix_hpp,0,',','.'),
+			'cek_sheet' => $hpp->cek_sheet,
+			'cek_box' => $hpp->cek_box,
+			// 'cek_laminasi' => $hpp->cek_laminasi,
 		];
 
 		echo json_encode([
@@ -292,13 +294,13 @@ class Transaksi extends CI_Controller
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_x_tonase,0,",",".").'</a></div>';
 			$edit = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
 			$view = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')" class="btn btn-info btn-sm" style="color:#000"><i class="fas fa-eye"></i></button>';
-			$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".','."'".$r->pilih_hpp."'".','."'".$r->cek_sheet."'".','."'".$r->cek_box."'".')" class="btn btn-danger btn-sm" style="color:#000"><i class="fas fa-trash-alt"></i></button>';
+			$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".','."'".$r->pilih_hpp."'".')" class="btn btn-danger btn-sm" style="color:#000"><i class="fas fa-trash-alt"></i></button>';
 
 			// cek_laminasi  cek_sheet  cek_box
 			if($r->pilih_hpp == 'PM2' && $r->cek_sheet != 'N'){
-				$aksi = $view;
+				$aksi = $edit.' '.$view;
 			}else if($r->pilih_hpp == 'SHEET' && $r->cek_box != 'N'){
-				$aksi = $view;
+				$aksi = $edit.' '.$view;
 			}else{
 				$aksi = $edit.' '.$hapus;
 			}
@@ -4404,7 +4406,6 @@ class Transaksi extends CI_Controller
 			// "pilih_hpp" => "PM2",
 			// "tgl_hpp" => "2024-03-12",
 			"jenis_hpp" => $get->jenis_hpp,
-			// "jenis_cor" => "",
 			// "bahan_baku_kg" => "7",
 			"bahan_baku_rp" => number_format($get->bahan_baku_rp,0,',','.'),
 			// "tenaga_kerja" => "1",
