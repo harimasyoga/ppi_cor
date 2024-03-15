@@ -98,7 +98,7 @@
 
 					</div>
 					
-					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
 						<div class="col-md-2">NO TIMBANGAN</div>
 						<div class="col-md-3">
 
@@ -115,8 +115,26 @@
 									</span>
 								</div>
 							</div>
-						</div>
+						</div>	
 						<div class="col-md-1"></div>
+
+						<div class="col-md-2">HISTORY TIMB</div>
+						<div class="col-md-3">
+							<div class="input-group mb-1">
+								<input type="text" class="form-control" name="history_timb" id="history_timb" value ="0" readonly>
+								<div class="input-group-append">
+									<span class="input-group-text"><b>Kg</b>
+									</span>
+								</div>		
+							</div>
+						</div>
+						
+
+					</div>
+					
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+						
+						<div class="col-md-6"></div>
 
 						<div class="col-md-2">TOTAL ITEM</div>
 						<div class="col-md-3">
@@ -167,7 +185,7 @@
 						<div class="col-md-2">Sisa Timbangan</div>
 						<div class="col-md-3">
 							<div class="input-group mb-1">
-								<input type="text" class="form-control" name="sisa_timb" id="sisa_timb" value ="0" readonly>
+								<input type="text" style="color:red;font-weight:bold" class="form-control" name="sisa_timb" id="sisa_timb" value ="0" readonly>
 								<div class="input-group-append">
 									<span class="input-group-text"><b>Kg</b>
 									</span>
@@ -195,7 +213,7 @@
 									<th style="padding : 12px 20px" >LIST </th>
 									<th style="padding : 12px 150px">PO</th>
 									<th style="padding : 12px 50px">Tonase PO</th>
-									<th style="padding : 12px 70px" >History</th>
+									<th style="padding : 12px 70px" >History PO</th>
 									<th style="padding : 12px 50px" >Kedatangan</th>
 								</tr>
 							</thead>
@@ -342,6 +360,7 @@
                             <th class="text-center title-white">NO PO</th>
                             <th class="text-center title-white">TGL PO</th>
                             <th class="text-center title-white">TONASE ORDER</th>
+                            <th class="text-center title-white">HISTORY DATANG</th>
                             <th class="text-center title-white">AKSI</th>
                         </tr>
                     </thead>
@@ -380,6 +399,7 @@
                             <th class="text-center title-white">NO POLISI</th>
                             <th class="text-center title-white">NAMA BARANG</th>
                             <th class="text-center title-white">BERAT BERSIH</th>
+                            <th class="text-center title-white">HISTORY DATANG</th>
                             <th class="text-center title-white">CATATAN</th>
                             <th class="text-center title-white">NAMA SOPIR</th>
                             <th class="text-center title-white">AKSI</th>
@@ -485,7 +505,7 @@
 									<i class="fas fa-search"></i>
 								</button>
 								
-								<button type="button" title="PRINT"  onclick="cetak_inv_bb(this.id)" class="btn btn-danger btn-sm" name="print_inv[${ rowNum }]" id="print_inv${ rowNum }">
+								<button style="display: none;" type="button" title="PRINT"  onclick="cetak_inv_bb(this.id)" class="btn btn-danger btn-sm" name="print_inv[${ rowNum }]" id="print_inv${ rowNum }">
 									<i class="fas fa-print"></i>
 								</button> 
 							</div>
@@ -581,7 +601,6 @@
 
 	function clear_data()
 	{
-		$('#total_bb_item').val(0)
 		clearRow()
 		hitung_total()
 	}
@@ -606,6 +625,7 @@
 		$("#kebutuhan0").val("")
 		$("#history0").val("")
 		$("#datang0").val("")
+		$("#no_po0").val("") 
 
 	}
 
@@ -637,6 +657,7 @@
 	{
 		var tonase_ppi          = $("#tonase_ppi").val().split('.').join('')
 		var total_timb          = $("#jum_timb").val().split('.').join('')
+		var history_timb        = $("#history_timb").val().split('.').join('')
 		var total_kedatangan    = 0
 		for(loop = 0; loop <= rowNum; loop++)
 		{
@@ -644,7 +665,7 @@
 			total_kedatangan += kedatangan
 		}		
 		total_datang_ok = (total_kedatangan=='' || isNaN(total_kedatangan) || total_kedatangan == null) ? 0 : total_kedatangan
-		sisa = total_timb - total_datang_ok - tonase_ppi
+		sisa = total_timb - total_datang_ok - tonase_ppi - history_timb
 		
 		$("#total_bb").val(format_angka(total_kedatangan))
 		$("#total_bb_item").val(format_angka(total_kedatangan))
@@ -663,6 +684,7 @@
 			$("#tonase_ppi").val(0);
 
 		}
+		hitung_total()
 	}
 	function search_timbangan()
 	{
@@ -690,11 +712,12 @@
 		})
 	}
 
-	function add_timb(id_timb,no_timb,bb)
+	function add_timb(id_timb,no_timb,bb,history)
 	{		
 		$('.list_timbangan').modal('hide');
 		$('#id_timb').val(id_timb);
 		$('#no_timb').val(no_timb);
+		$('#history_timb').val(format_angka(history)); 
 		$('#jum_timb').val(format_angka(bb)); 
 		hitung_total();
 		swal.close();
@@ -767,10 +790,11 @@
 
 					$('#id_po_bhn'+id_name).val(data.header.id_po_bhn);
 					$('#id_hub'+id_name).val(data.header.id_hub);
+					$('#id_hub'+id_name).val(data.header.id_hub);
 					$('#nm_hub'+id_name).val(data.header.nm_hub);
 					$('#no_po'+id_name).val(data.header.no_po_bhn);
 					$('#ton'+id_name).val(format_angka(data.header.ton_bhn));
-					$('#history'+id_name).val(format_angka(data.header.ton_bhn));
+					$('#history'+id_name).val(format_angka(data.header.history_po));
 					$('#datang'+id_name).val(format_angka(0));
 
 					swal.close();
@@ -862,12 +886,15 @@
 				if(data){
 					// header
 
+					var history = data.header.history - data.header.total_item - data.header.tonase_ppi
+
 					$("#id_stok_h").val(data.header.id_stok);
 					$("#no_stok").val(data.header.no_stok);
 					$("#muat_ppi").val(data.header.muatan_ppi).trigger('change');
 					$("#tgl_stok").val(data.header.tgl_stok);
 					$("#id_timb").val(data.header.id_timbangan);
 					$("#no_timb").val(data.header.no_timbangan);
+					$("#history_timb").val(format_angka(history));
 					$("#jum_timb").val(format_angka(data.header.total_timb));
 					$("#tonase_ppi").val(format_angka(data.header.tonase_ppi));
 					$("#total_bb_item").val(format_angka(data.header.total_item));
@@ -884,13 +911,14 @@
 								<th style="padding : 12px 20px" >LIST </th>
 								<th style="padding : 12px 150px">PO</th>
 								<th style="padding : 12px 50px">Tonase PO</th>
-								<th style="padding : 12px 70px" >History</th>
+								<th style="padding : 12px 70px" >History PO</th>
 								<th style="padding : 12px 50px" >Kedatangan</th>
 							</tr>
 						</thead>`;
 						
 					var no   = 0;
 					$.each(data.detail, function(index, val) {
+						var history_detail = val.history - val.datang_bhn_bk
 						list += `
 							<tr id="itemRow${ no }">
 								<td id="detail-hapus-${ no }">
@@ -936,7 +964,7 @@
 
 								<td style="padding : 12px 20px">
 									<div class="input-group mb-1">
-										<input type="text" size="5" name="ton[${ no }]" id="ton${ no }" class="angka form-control" value="${val.tonase_po}"  readonly>
+										<input type="text" size="5" name="ton[${ no }]" id="ton${ no }" class="angka form-control" value="${format_angka(val.tonase_po)}"  readonly>
 										<div class="input-group-append">
 											<span class="input-group-text"><b>Kg</b>
 											</span>
@@ -946,7 +974,7 @@
 
 								<td style="padding : 12px 20px">
 									<div class="input-group mb-1">
-										<input type="text" size="5" name="history[${ no }]" id="history${ no }" class="angka form-control" value="${val.tonase_po}"  readonly>
+										<input type="text" size="5" name="history[${ no }]" id="history${ no }" class="angka form-control" value="${format_angka(history_detail)}"  readonly>
 										<div class="input-group-append">
 											<span class="input-group-text"><b>Kg</b>
 											</span>
@@ -955,7 +983,7 @@
 								</td>		
 								<td style="padding : 12px 20px">
 									<div class="input-group mb-1">
-										<input type="text" size="5" name="datang[${ no }]" id="datang${ no }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value="${val.datang_bhn_bk}" >
+										<input type="text" size="5" name="datang[${ no }]" id="datang${ no }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value="${format_angka(val.datang_bhn_bk)}" >
 										<div class="input-group-append">
 											<span class="input-group-text"><b>Kg</b>
 											</span>
@@ -969,7 +997,8 @@
 					})
 					rowNum = no-1 
 					$('#bucket').val(rowNum);					
-					$("#table_list_item").html(list);
+					$("#table_list_item").html(list);					
+					hitung_total()
 					swal.close();
 
 				} else {
@@ -1002,17 +1031,20 @@
 
 	function kosong()
 	{
-		$("#id_pelanggan0").val("")
-		$("#nm_hub0").val("")
-		$("#kode_po0").val("")
-		$("#id_po_bhn0").val("")
-		$("#id_produk0").val("")
-		$("#item0").val("")
-		$("#qty0").val("")
-		$("#ton0").val("")
-		$("#kebutuhan0").val("")
-		$("#history0").val("")
-		$("#datang0").val("")
+		$tgl = '<?= date('Y-m-d') ?>'
+		$("#id_stok_h").val("") 
+		$("#no_stok").val("AUTO") 
+		$("#jum_timb").val("") 
+		$("#id_timb").val("") 
+		$("#no_timb").val("") 
+		$("#history_timb").val("") 
+		$("#total_bb_item").val("") 		
+		$("#muat_ppi").val('TIDAK').trigger('change');
+		$("#tonase_ppi").val("") 
+		$("#tgl_stok").val($tgl) 
+		$("#sisa_timb").val("") 
+
+		clear_data()
 		
 		swal.close()
 	}
@@ -1023,7 +1055,7 @@
 		var no_timb     = $("#no_timb").val();
 		var muat_ppi    = $("#muat_ppi").val();
 		var tonase_ppi  = $("#tonase_ppi").val().split('.').join('');
-		var sisa_timb  = $("#sisa_timb").val().split('.').join('');
+		var sisa_timb   = $("#sisa_timb").val().split('.').join('');
 		
 		if( sisa_timb < 0 ){
 			swal({
@@ -1076,7 +1108,7 @@
 					// toastr.success('Berhasil Disimpan');
 					// swal.close();								
 					kosong();
-					// location.href = "<?= base_url()?>Logistik/stok_bb";
+					location.href = "<?= base_url()?>Logistik/stok_bb";
 					swal({
 						title               : "Data",
 						html                : "Berhasil Disimpan",
@@ -1132,8 +1164,9 @@
 		$(".row-list").attr('style', '')
 	}
 
-	function deleteData(id,no_stok) 
+	function deleteData(id,no_stok,id_hub) 
 	{
+		id_hub2 = id_hub.split('/').join(',')
 		// let cek = confirm("Apakah Anda Yakin?");
 		swal({
 			title: "HAPUS PEMBAYARAN",
@@ -1154,6 +1187,7 @@
 				data: ({
 					id         : id,
 					no_stok    : no_stok,
+					id_hub     : id_hub2,
 					jenis      : 'trs_h_stok_bb',
 					field      : 'id_stok'
 				}),
