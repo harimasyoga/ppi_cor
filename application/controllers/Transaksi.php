@@ -236,7 +236,6 @@ class Transaksi extends CI_Controller
 			'pilih_hpp' => $hpp->pilih_hpp,
 			'tgl_hpp' => $hpp->tgl_hpp,
 			'jenis_hpp' => $hpp->jenis_hpp,
-			'jenis_cor' => $hpp->jenis_cor,
 			'bahan_baku_kg' => number_format($hpp->bahan_baku_kg,0,',','.'),
 			'bahan_baku_rp' => number_format($hpp->bahan_baku_rp,0,',','.'),
 			'bahan_baku_x' => number_format($hpp->bahan_baku_x,0,',','.'),
@@ -259,7 +258,12 @@ class Transaksi extends CI_Controller
 			'lain_lain_rp' => number_format($hpp->lain_lain_rp,0,',','.'),
 			'hasil_hpp' => number_format($hpp->hasil_hpp,0,',','.'),
 			'tonase_order' => number_format($hpp->tonase_order,0,',','.'),
-			'hasil_x_tonanse' => number_format($hpp->hasil_x_tonanse,0,',','.'),
+			'hasil_x_tonase' => number_format($hpp->hasil_x_tonase,0,',','.'),
+			'presentase' => $hpp->presentase,
+			'hasil_hpp_tanpa_bb' => number_format($hpp->hasil_hpp_tanpa_bb,0,',','.'),
+			'hasil_x_tonase_tanpa_bb' => number_format($hpp->hasil_x_tonase_tanpa_bb,0,',','.'),
+			'hxt_x_persen' => number_format($hpp->hxt_x_persen,0,',','.'),
+			'fix_hpp' => number_format($hpp->fix_hpp,0,',','.'),
 		];
 
 		echo json_encode([
@@ -278,22 +282,23 @@ class Transaksi extends CI_Controller
 		foreach ($query as $r) {
 			$i++;
 			$row = [];
-			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.$i.'<a></div>';
-			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.strtoupper($this->m_fungsi->getHariIni($r->tgl_hpp)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp)).'</a></div>';
-			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.$r->pilih_hpp.'<a></div>';
-			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.$r->jenis_hpp.'<a></div>';
-			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.number_format($r->hasil_hpp,0,",",".").'</a></div>';
-			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.number_format($r->tonase_order,0,",",".").'</a></div>';
-			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')">'.number_format($r->hasil_x_tonanse,0,",",".").'</a></div>';
-			$edit = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'edit'".','."''".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
-			$view = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".','."''".')" class="btn btn-info btn-sm" style="color:#000"><i class="fas fa-eye"></i></button>';
-			$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".','."'".$r->pilih_hpp."'".','."'".$r->cek_sheet."'".','."'".$r->cek_box."'".')" class="btn btn-danger btn-sm" style="color:#000"><i class="fas fa-trash-alt"></i></button>';
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$i.'<a></div>';
+			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.strtoupper($this->m_fungsi->getHariIni($r->tgl_hpp)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp)).'</a></div>';
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->pilih_hpp.'<a></div>';
+			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->jenis_hpp.'<a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_hpp,0,",",".").'</a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->tonase_order,0,",",".").'</a></div>';
+			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_x_tonase,0,",",".").'</a></div>';
+			$edit = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+			$view = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')" class="btn btn-info btn-sm" style="color:#000"><i class="fas fa-eye"></i></button>';
+			$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".')" class="btn btn-danger btn-sm" style="color:#000"><i class="fas fa-trash-alt"></i></button>';
 
-			// cek_laminasi  cek_sheet  cek_box
-			if($r->pilih_hpp == 'PM2' && $r->cek_sheet != 'N'){
-				$aksi = $view;
+			if($r->pilih_hpp == 'PM2' && $r->jenis_hpp != 'WP' && $r->cek_sheet != 'N'){
+				$aksi = $edit.' '.$view;
+			}else if($r->pilih_hpp == 'PM2' && $r->jenis_hpp == 'WP' && $r->cek_laminasi != 'N'){
+				$aksi = $edit.' '.$view;
 			}else if($r->pilih_hpp == 'SHEET' && $r->cek_box != 'N'){
-				$aksi = $view;
+				$aksi = $edit.' '.$view;
 			}else{
 				$aksi = $edit.' '.$hapus;
 			}
@@ -345,18 +350,6 @@ class Transaksi extends CI_Controller
 		}
 		$this->load->view('footer');
 	}
-
-	// function customerLaminasi()
-	// {
-	// 	$html ='';
-	// 	$query = $this->db->query("SELECT*FROM m_pelanggan_lm ORDER BY nm_pelanggan_lm");
-	// 	$html .='<option value="">PILIH</option>';
-	// 	foreach($query->result() as $r){
-	// 		$html .='<option value="'.$r->id_pelanggan_lm.'" nm_pelanggan="'.$r->nm_pelanggan_lm.'">'.$r->nm_pelanggan_lm.'</option>';
-	// 	}
-
-	// 	echo $html;
-	// }
 
 	function destroyLaminasi()
 	{
@@ -4341,8 +4334,6 @@ class Transaksi extends CI_Controller
 
 	function tampilListHpp()
 	{
-		// $pilih_hpp = $_POST["pilih_hpp"];
-		// $tgl1_hpp = $_POST["tgl1_hpp"];
 		$jenis_hpp = $_POST["jenis_hpp"];
 		$opsi = $_POST["opsi"];
 		if($opsi == 'sheet'){
@@ -4351,21 +4342,23 @@ class Transaksi extends CI_Controller
 		}else if($opsi == 'box'){
 			$pilih_hpp = 'SHEET';
 			$cek = "AND cek_box='N'";
-		}else{
-			$pilih_hpp = '';
-			$cek = "";
+		}else if($opsi == 'laminasi'){
+			$pilih_hpp = 'PM2';
+			$cek = "AND cek_laminasi='N'";
 		}
-		$data = $this->db->query("SELECT*FROM m_hpp WHERE cek_sheet='N' AND pilih_hpp='$pilih_hpp' AND jenis_hpp='$jenis_hpp' $cek");
 
+		$data = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND jenis_hpp='$jenis_hpp' $cek");
 		$html = '';
 		if($data->num_rows() > 0){
 			foreach($data->result() as $r){
 				$html .='<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-					<div class="col-md-12">
-						<button type="button" class="btn btn-info" style="color:#000;font-weight:bold" onclick="pilihListHPP('."'".$r->id_hpp."'".','."'".$opsi."'".')">
+					<div class="col-md-3">
+						<button type="button" class="btn btn-block btn-sm bg-gradient-success" style="color:#000;font-weight:bold" onclick="pilihListHPP('."'".$r->id_hpp."'".','."'".$opsi."'".')">
+							<i class="fas fa-list" style="margin-right:6px"></i>
 							'.strtoupper(substr($this->m_fungsi->getHariIni($r->tgl_hpp),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl_hpp)).', '.$r->jenis_hpp.'
 						</button>
 					</div>
+					<div class="col-md-9"></div>
 				</div>';
 			}
 		}else{
@@ -4375,7 +4368,6 @@ class Transaksi extends CI_Controller
 		}
 
 		echo json_encode([
-			// 'data' => $data->result(),
 			'html' => $html,
 		]);
 	}
@@ -4387,38 +4379,9 @@ class Transaksi extends CI_Controller
 
 		$pm = [
 			"id_hpp" => $get->id_hpp,
-			// "pilih_hpp" => "PM2",
-			// "tgl_hpp" => "2024-03-12",
 			"jenis_hpp" => $get->jenis_hpp,
-			// "jenis_cor" => "",
-			// "bahan_baku_kg" => "7",
 			"bahan_baku_rp" => number_format($get->bahan_baku_rp,0,',','.'),
-			// "tenaga_kerja" => "1",
-			// "upah" => "4",
-			// "thr" => "1",
-			// "listrik" => "1",
-			// "batu_bara_kg" => "1",
-			// "batu_bara_rp" => number_format($get->batu_bara_rp,0,',','.'),
-			// "batu_bara_x" => number_format($get->batu_bara_x,0,',','.'),
-			// "chemical_kg" => "1",
-			// "chemical_rp" => "1",
-			// "chemical_x" => "1",
-			// "bahan_pembantu" => "1",
-			// "solar" => "1",
-			// "maintenance" => "1",
-			// "ekspedisi" => "1",
-			// "depresiasi" => "1",
-			// "lain_lain_kg" => "5",
-			// "lain_lain_rp" => "5",
-			// "hasil_hpp" => number_format($get->hasil_hpp,0,',','.'),
-			// "tonase_order" => "2",
-			"hasil_x_tonanse" => number_format($get->hasil_x_tonanse,0,',','.'),
-			// "presentase" => "10",
-			// "hxt_x_persen" => "1",
-			// "fix_hpp" => number_format($get->fix_hpp,0,',','.'),
-			// "cek_laminasi" => "N",
-			// "cek_sheet" => "N",
-			// "cek_box" => "N",
+			"hasil_x_tonase" => number_format($get->hasil_x_tonase,0,',','.'),
 		];
 
 		echo json_encode([
@@ -4523,7 +4486,12 @@ class Transaksi extends CI_Controller
 							<button class="btn btn-xs btn-danger" style="padding:1px 4px" onclick="hapusKeteranganHPP('."'".$r['rowid']."'".','."'".$r['options']['opsi']."'".','."'".$r['options']['jenis']."'".','."'".$r['options']['id_hpp']."'".')"><i class="fas fa-times"></i></button> '.$r['options']['ket_txt'].'
 						</div>
 						<div class="col-md-9">
-							<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($r['options']['ket_rp'],0,',','.').'" disabled>
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text" style="padding:6px">Rp</span>
+								</div>
+								<input type="text" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="'.number_format($r['options']['ket_rp'],0,',','.').'" disabled>
+							</div>
 						</div>
 					</div>';
 					$sumUpah += $r['options']['ket_rp'];

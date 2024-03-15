@@ -1109,7 +1109,6 @@ class M_transaksi extends CI_Model
 			'pilih_hpp' => $_POST["pilih_hpp"],
 			'tgl_hpp' => $_POST["tgl1_hpp"],
 			'jenis_hpp' => $_POST["jenis_hpp"],
-			'jenis_cor' => '',
 			'bahan_baku_kg' => ($_POST["bahan_baku_kg"] == "") ? 0 : $_POST["bahan_baku_kg"],
 			'bahan_baku_rp' => ($_POST["bahan_baku_rp"] == "") ? 0 : $_POST["bahan_baku_rp"],
 			'bahan_baku_x' => $_POST["bahan_baku_x"],
@@ -1131,30 +1130,25 @@ class M_transaksi extends CI_Model
 			'lain_lain_kg' => ($_POST["lain_lain_kg"] == "") ? 0 : $_POST["lain_lain_kg"],
 			'lain_lain_rp' => ($_POST["lain_lain_rp"] == "") ? 0 : $_POST["lain_lain_rp"],
 			'hasil_hpp' => $_POST["hasil_hpp"],
+			'hasil_hpp_tanpa_bb' => $_POST["hasil_hpp_tanpa_bb"],
 			'tonase_order' => $_POST["tonase_order"],
-			'hasil_x_tonanse' => $_POST["hasil_x_tonanse"],
-			'presentase' => 10,
+			'hasil_x_tonase' => $_POST["hasil_x_tonase"],
+			'hasil_x_tonase_tanpa_bb' => $_POST["hasil_x_tonase_tanpa_bb"],
 			'hxt_x_persen' => $_POST["hxt_x_persen"],
+			'presentase' => $_POST["presentase"],
 			'fix_hpp' => $_POST["fix_hpp"],
 		];
 
-		if(($_POST["pilih_hpp"] == 'PM2' || $_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX') && ($_POST["hasil_hpp"] == '' || $_POST["tonase_order"] == '' || $_POST["hasil_x_tonanse"] == '' || $_POST["hasil_hpp"] == 0 || $_POST["tonase_order"] == 0 || $_POST["hasil_x_tonanse"] == 0)){
-			$insertHPP = false;
-			$msg = 'DATA HPP KOSONG!';
-			$cek = '';
-			$cart = '';
-		}else if(($_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX') && ($_POST["bahan_baku_x"] == '' || $_POST["bahan_baku_x"] == 0)){
-			$insertHPP = false;
-			$msg = 'DATA HPP KOSONG!';
-			$cek = '';
-			$cart = '';
+		if(($_POST["pilih_hpp"] == 'PM2' || $_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX' || $_POST["pilih_hpp"] == 'LAMINASI') && ($_POST["hasil_hpp"] == '' || $_POST["tonase_order"] == '' || $_POST["hasil_x_tonase"] == '' || $_POST["hasil_hpp"] == 0 || $_POST["tonase_order"] == 0 || $_POST["hasil_x_tonase"] == 0)){
+			$insertHPP = false; $msg = 'DATA HPP KOSONG!'; $cek = ''; $cart = '';
+		}else if(($_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX' || $_POST["pilih_hpp"] == 'LAMINASI') && ($_POST["bahan_baku_x"] == '' || $_POST["bahan_baku_x"] == 0)){
+			$insertHPP = false; $msg = 'DATA HPP KOSONG!'; $cek = ''; $cart = '';
 		}else{
 			$pilih_hpp = $_POST["pilih_hpp"];
 			$pilih_id_hpp = $_POST["pilih_id_hpp"];
 			$tgl_hpp = $_POST["tgl1_hpp"];
 			$jenis_hpp = $_POST["jenis_hpp"];
-			$jenis_cor = '';
-			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp' AND jenis_cor='$jenis_cor'")->num_rows();
+			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp'")->num_rows();
 
 			if($statusInput == 'insert'){
 				if($cek == 0){
@@ -1164,19 +1158,21 @@ class M_transaksi extends CI_Model
 					// CART
 					if($insertHPP){
 						// UPDATE CEK
+						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp'")->row();
 						if($pilih_hpp != 'PM2'){
 							$this->db->set('edit_time', date('Y-m-d H:i:s'));
 							$this->db->set('edit_user', $this->username);
 							if($pilih_hpp == 'SHEET'){
-								$this->db->set('cek_sheet', $pilih_id_hpp);
+								$this->db->set('cek_sheet', $get->id_hpp);
 							}else if($pilih_hpp == 'BOX'){
-								$this->db->set('cek_box', $pilih_id_hpp);
+								$this->db->set('cek_box', $get->id_hpp);
+							}else if($pilih_hpp == 'LAMINASI'){
+								$this->db->set('cek_laminasi', $get->id_hpp);
 							}
 							$this->db->where('id_hpp', $pilih_id_hpp);
 							$this->db->update('m_hpp');
 						}
 
-						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp' AND jenis_cor='$jenis_cor'")->row();
 						if($this->cart->total_items() != 0){
 							foreach($this->cart->contents() as $r){
 								$this->db->set('id_hpp', $get->id_hpp);
@@ -1262,11 +1258,26 @@ class M_transaksi extends CI_Model
 			
 			$hpp = $this->db->query("SELECT*FROM m_hpp WHERE id_hpp='$id_hpp'")->row();
 			$hasil_hpp = $hpp->hasil_hpp - $pengurangan;
-			$hasil_x_tonanse = round(($hpp->hasil_hpp - $pengurangan) / $hpp->tonase_order);
+			$hasil_x_tonase = round(($hpp->hasil_hpp - $pengurangan) / $hpp->tonase_order);
+			
+			if($ooo == 'bb'){
+				$hxt_tanpa_bb = $hpp->hasil_hpp_tanpa_bb;
+				$hasil_x_tonase_tanpa_bb = $hpp->hasil_x_tonase_tanpa_bb;
+			}else{
+				$hxt_tanpa_bb = $hpp->hasil_hpp_tanpa_bb - $pengurangan;
+				$hasil_x_tonase_tanpa_bb = round(($hpp->hasil_hpp_tanpa_bb - $pengurangan) / $hpp->tonase_order);
+			}
+			$hxt_x_persen = round(($hxt_tanpa_bb * ($hpp->presentase / 100)));
+			$fix_hpp = $hxt_tanpa_bb + round(($hxt_tanpa_bb * ($hpp->presentase / 100)));
+
 			$this->db->set('edit_time', date('Y-m-d H:i:s'));
 			$this->db->set('edit_user', $this->username);
 			$this->db->set('hasil_hpp', $hasil_hpp);
-			$this->db->set('hasil_x_tonanse', $hasil_x_tonanse);
+			$this->db->set('hasil_x_tonase', $hasil_x_tonase);
+			$this->db->set('hasil_hpp_tanpa_bb', $hxt_tanpa_bb);
+			$this->db->set('hasil_x_tonase_tanpa_bb', $hasil_x_tonase_tanpa_bb);
+			$this->db->set('hxt_x_persen', $hxt_x_persen);
+			$this->db->set('fix_hpp', $fix_hpp);
 			if($ooo == 'upah'){
 				$this->db->set('upah', $ket_rp);
 				$this->db->where('id_hpp', $id_hpp);
@@ -1289,34 +1300,60 @@ class M_transaksi extends CI_Model
 		}
 
 		return [
-			'1delete_dtl' => $delete_dtl,
-			'2u_upah' => $u_upah,
-			'3u_bb' => $u_bb,
-			'4u_dll' => $u_dll,
-			'5pengurangan' => $pengurangan,
-			'6hasil_hpp' => $hpp->hasil_hpp - $pengurangan,
-			'7tonase_order' => $hpp->tonase_order,
-			'8hasil_x_tonanse' => round(($hpp->hasil_hpp - $pengurangan) / $hpp->tonase_order),
-			'9hasil_hpp' => $hpp->hasil_hpp,
+			'01_delete_dtl' => $delete_dtl,
+			'02_u_upah' => $u_upah,
+			'03_u_bb' => $u_bb,
+			'04_u_dll' => $u_dll,
+			'05_pengurangan' => $pengurangan,
+			'06_hasil_hpp' => $hpp->hasil_hpp - $pengurangan,
+			'07_tonase_order' => $hpp->tonase_order,
+			'08_hasil_x_tonase' => round(($hpp->hasil_hpp - $pengurangan) / $hpp->tonase_order),
+			'09_hasil_hpp' => $hpp->hasil_hpp,
+			'10_hxt_tanpa_bb' => $hxt_tanpa_bb,
+			'11_hasil_x_tonase_tanpa_bb' => $hasil_x_tonase_tanpa_bb,
+			'12_hxt_x_persen' => $hxt_x_persen,
+			'13_fix_hpp' => $fix_hpp,
 		];
 	}
 
 	function hapusHPP()
 	{
-		// cek_sheet, cek_box
-		$pilih_hpp = $_POST["pilih_hpp"];
-		$cek_sheet = $_POST["cek_sheet"];
-		$cek_box = $_POST["cek_box"];
+		$id_hpp = $_POST["id_hpp"];
+		$getPMcekLam = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='PM2' AND cek_laminasi='$id_hpp'");
+		$getPMcekSheet = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='PM2' AND cek_sheet='$id_hpp'");
+		$getSHEETcekBox = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='SHEET' AND cek_box='$id_hpp'");
+
+		// DELETE HPP
 		$this->db->where('id_hpp', $_POST["id_hpp"]);
 		$delete = $this->db->delete('m_hpp');
 		if($delete){
+			// DELETE HPP DETAIL
 			$this->db->where('id_hpp', $_POST["id_hpp"]);
 			$detail = $this->db->delete('m_hpp_detail');
+			if($detail){
+				// UPDATE CEK SHEET BOX LAMINASI
+				if($getPMcekLam->num_rows() == 1 && $getPMcekSheet->num_rows() == 0 && $getSHEETcekBox->num_rows() == 0){
+					$this->db->set('cek_laminasi', 'N');
+					$this->db->where('id_hpp', $getPMcekLam->row()->id_hpp);
+				}else if($getPMcekLam->num_rows() == 0 && $getPMcekSheet->num_rows() == 0 && $getSHEETcekBox->num_rows() == 1){
+					$this->db->set('cek_box', 'N');
+					$this->db->where('id_hpp', $getSHEETcekBox->row()->id_hpp);
+				}else if($getPMcekLam->num_rows() == 0 && $getPMcekSheet->num_rows() == 1 && $getSHEETcekBox->num_rows() == 0){
+					$this->db->set('cek_sheet', 'N');
+					$this->db->where('id_hpp', $getPMcekSheet->row()->id_hpp);
+				}
+				if($getPMcekLam->num_rows() == 0 && $getPMcekSheet->num_rows() == 0 && $getSHEETcekBox->num_rows() == 0){
+					$updateHPP = false;
+				}else{
+					$updateHPP = $this->db->update('m_hpp');
+				}
+			}
 		}
 
 		return [
 			'delete' => $delete,
 			'detail' => $detail,
+			'updateHPP' => $updateHPP,
 		];
 	}
 
