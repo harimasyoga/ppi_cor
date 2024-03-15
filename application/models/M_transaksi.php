@@ -1158,21 +1158,21 @@ class M_transaksi extends CI_Model
 					// CART
 					if($insertHPP){
 						// UPDATE CEK
+						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp'")->row();
 						if($pilih_hpp != 'PM2'){
 							$this->db->set('edit_time', date('Y-m-d H:i:s'));
 							$this->db->set('edit_user', $this->username);
 							if($pilih_hpp == 'SHEET'){
-								$this->db->set('cek_sheet', $pilih_id_hpp);
+								$this->db->set('cek_sheet', $get->id_hpp);
 							}else if($pilih_hpp == 'BOX'){
-								$this->db->set('cek_box', $pilih_id_hpp);
+								$this->db->set('cek_box', $get->id_hpp);
 							}else if($pilih_hpp == 'LAMINASI'){
-								$this->db->set('cek_laminasi', $pilih_id_hpp);
+								$this->db->set('cek_laminasi', $get->id_hpp);
 							}
 							$this->db->where('id_hpp', $pilih_id_hpp);
 							$this->db->update('m_hpp');
 						}
 
-						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp'")->row();
 						if($this->cart->total_items() != 0){
 							foreach($this->cart->contents() as $r){
 								$this->db->set('id_hpp', $get->id_hpp);
@@ -1318,17 +1318,42 @@ class M_transaksi extends CI_Model
 
 	function hapusHPP()
 	{
-		// cek_sheet, cek_box
+		$id_hpp = $_POST["id_hpp"];
+		$getPMcekLam = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='PM2' AND cek_laminasi='$id_hpp'");
+		$getPMcekSheet = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='PM2' AND cek_sheet='$id_hpp'");
+		$getSHEETcekBox = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='SHEET' AND cek_box='$id_hpp'");
+
+		// DELETE HPP
 		$this->db->where('id_hpp', $_POST["id_hpp"]);
 		$delete = $this->db->delete('m_hpp');
 		if($delete){
+			// DELETE HPP DETAIL
 			$this->db->where('id_hpp', $_POST["id_hpp"]);
 			$detail = $this->db->delete('m_hpp_detail');
+			if($detail){
+				// UPDATE CEK SHEET BOX LAMINASI
+				if($getPMcekLam->num_rows() == 1 && $getPMcekSheet->num_rows() == 0 && $getSHEETcekBox->num_rows() == 0){
+					$this->db->set('cek_laminasi', 'N');
+					$this->db->where('id_hpp', $getPMcekLam->row()->id_hpp);
+				}else if($getPMcekLam->num_rows() == 0 && $getPMcekSheet->num_rows() == 0 && $getSHEETcekBox->num_rows() == 1){
+					$this->db->set('cek_box', 'N');
+					$this->db->where('id_hpp', $getSHEETcekBox->row()->id_hpp);
+				}else if($getPMcekLam->num_rows() == 0 && $getPMcekSheet->num_rows() == 1 && $getSHEETcekBox->num_rows() == 0){
+					$this->db->set('cek_sheet', 'N');
+					$this->db->where('id_hpp', $getPMcekSheet->row()->id_hpp);
+				}
+				if($getPMcekLam->num_rows() == 0 && $getPMcekSheet->num_rows() == 0 && $getSHEETcekBox->num_rows() == 0){
+					$updateHPP = false;
+				}else{
+					$updateHPP = $this->db->update('m_hpp');
+				}
+			}
 		}
 
 		return [
 			'delete' => $delete,
 			'detail' => $detail,
+			'updateHPP' => $updateHPP,
 		];
 	}
 

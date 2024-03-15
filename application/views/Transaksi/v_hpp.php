@@ -1609,7 +1609,6 @@
 
 <script type="text/javascript">
 	let statusInput = 'insert';
-	const periode = '<?= date('Y-m-d')?>';
 
 	$(document).ready(function ()
 	{
@@ -1634,7 +1633,6 @@
 			"ajax": {
 				"url": '<?php echo base_url('Transaksi/LoadDataHPP')?>',
 				"type": "POST",
-				// "data"  : { th_hub },
 			},
 			"aLengthMenu": [
 				[5, 10, 15, 20, -1],
@@ -1919,8 +1917,10 @@
 			$("#tgl1_hpp").val("").prop('disabled', false);
 			if(pilih_hpp == 'LAMINASI'){
 				$("#jenis_hpp").html('<option value="">PILIH</option><option value="WP">WP</option>').prop('disabled', true)
+			}else if(pilih_hpp == 'SHEET' || pilih_hpp == 'BOX'){
+				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option>').prop('disabled', false)
 			}else{
-				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option>').prop('disabled', true)
+				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option><option value="WP">WP</option>').prop('disabled', false)
 			}
 		}
 		if(pilih_hpp != '' && tgl_hpp != '' && jenis_hpp == ''){
@@ -1928,8 +1928,10 @@
 			$("#tgl1_hpp").prop('disabled', true)
 			if(pilih_hpp == 'LAMINASI'){
 				$("#jenis_hpp").html('<option value="">PILIH</option><option value="WP">WP</option>').prop('disabled', false)
-			}else{
+			}else if(pilih_hpp == 'SHEET' || pilih_hpp == 'BOX'){
 				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option>').prop('disabled', false)
+			}else{
+				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option><option value="WP">WP</option>').prop('disabled', false)
 			}
 		}
 		if(pilih_hpp != '' && tgl_hpp != '' && jenis_hpp != ''){
@@ -1979,7 +1981,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(opsi == 'box'){
 					$(".ct-hpp").html("LIST HPP CORR")
 				}else{
@@ -2030,7 +2031,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(opsi == 'sheet'){
 					$("#bk_rp").val(data.pm.hasil_x_tonase)
 					$("#mh_rp").val(data.pm.hasil_x_tonase)
@@ -2138,7 +2138,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.valid){
 					listKeteranganHPP(opsi, jenis, id_hpp)
 				}else{
@@ -2159,7 +2158,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(opsi == 'upah' && jenis == 'pm'){
 					$("#ket_upah_txt").html('<option value="">PILIH</option><option value="HARIAN LEPAS">HARIAN LEPAS</option><option value="BORONGAN">BORONGAN</option><option value="INSENTIF">INSENTIF</option><option value="PHK">PHK</option>')
 					$("#ket_upah_rp").val("")
@@ -2522,6 +2520,7 @@
 
 	function simpanHPP(opsi)
 	{
+		// HIDDEN
 		let id_hpp = $("#id_hpp").val()
 		let pilih_id_hpp = $("#pilih_id_hpp").val()
 
@@ -2619,7 +2618,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(opsi == ''){
 					if(data.valid){
 						toastr.success(`<b>BERHASIL SIMPAN!</b>`)
@@ -2660,13 +2658,14 @@
 			data: ({ id_hpp, opsi }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".row-list-hpp").hide()
 				$(".row-input-hpp").show()
 
+				// HIDDEN
 				$("#id_hpp").val(data.data.id_hpp)
 				$("#pilih_id_hpp").val("")
 
+				// PILIH HPP
 				let prop = true;
 				(opsi == 'edit') ? prop = false : prop = true;
 				$("#pilih_hpp").val(data.data.pilih_hpp).prop('disabled', true).trigger("change")
@@ -2674,6 +2673,7 @@
 				$("#jenis_hpp").html(`<option value="${data.data.jenis_hpp}">${data.data.jenis_hpp}</option>`).prop('disabled', true)
 				$(".card-list-hpp-pm").hide()
 
+				// TAMPIL CART
 				if(data.data.pilih_hpp == "PM2"){
 					hideAll('pm', 'show')
 				}else if(data.data.pilih_hpp == "BOX"){
@@ -2684,6 +2684,7 @@
 					hideAll('laminasi', 'show')
 				}
 
+				// TAMPIL PEMAKAIAN BAHAN SHEET BOX
 				if(data.data.pilih_hpp == "SHEET" && data.data.jenis_hpp == "MH"){
 					$(".pb-sheet-mh").show()
 					$(".pb-sheet-bk").hide()
@@ -2712,6 +2713,7 @@
 					o = 'l_'
 				}
 
+				// PEMAKAIAN BAHAN
 				$("#"+o+"ket_bahan_txt").prop('disabled', prop)
 				$("#"+o+"ket_bahan_kg").prop('disabled', prop)
 				$("#"+o+"ket_bahan_rp").prop('disabled', prop)
@@ -2740,6 +2742,7 @@
 					$("#wp_x").val(data.data.bahan_baku_x)
 				}
 
+				// BIAYA PRODUKSI
 				$("#"+o+"tenaga_kerja").val(data.data.tenaga_kerja).prop('disabled', prop)
 				$("#"+o+"ket_upah_txt").prop('disabled', prop)
 				$("#"+o+"ket_upah_rp").prop('disabled', prop)
@@ -2764,16 +2767,19 @@
 				$("#"+o+"lain_lain_kg").val(data.data.lain_lain_kg)
 				$("#"+o+"lain_lain_rp").val(data.data.lain_lain_rp)
 
+				// HITUNG HPP
 				$("#hasil_hpp").val(data.data.hasil_hpp)
 				$("#"+o+"tonase_order").val(data.data.tonase_order).prop('disabled', prop)
 				$("#hasil_x_tonase").val(data.data.hasil_x_tonase)
 
+				// HITUNG HPP TANPA BAHAN BAKU
 				$("#presentase").val(data.data.presentase).prop('disabled', prop)
 				$("#hasil_hpp_tanpa_bb").val(data.data.hasil_hpp_tanpa_bb)
 				$("#hasil_x_tonase_tanpa_bb").val(data.data.hasil_x_tonase_tanpa_bb)
 				$("#hxt_x_persen").val(data.data.hxt_x_persen)
 				$("#fix_hpp").val(data.data.fix_hpp)
 
+				// TAMPIL CART EDIT
 				if(data.data.pilih_hpp == 'PM2'){
 					$(".update-keterangan-bahan").html(data.htmlBB)
 					$(".update-keterangan-upah").html(data.htmlUpah)
@@ -2792,6 +2798,7 @@
 					$(".update-keterangan-dll-lam").html(data.htmlLainLain)
 				}
 
+				// TOMBOL CART EDIT
 				if(opsi == 'edit' && data.data.pilih_hpp == 'PM2'){
 					$(".tambah-bahan").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('bb','pm','${id_hpp}')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
 					$(".tambah-upah").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('upah','pm','${id_hpp}')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
@@ -2823,6 +2830,7 @@
 					$(".tambah-dll-lam").html('')
 				}
 
+				// TOMBOL SIMPAN
 				if(opsi == 'edit'){
 					$("#btn-simpan").html(`<button type="button" class="btn btn-sm btn-primary" onclick="simpanHPP('')"><i class="fa fa-save"></i> <b>SIMPAN</b></button>`)
 				}else{
@@ -2855,13 +2863,12 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				editHPP(id_hpp, opsi)
 			}
 		})
 	}
 
-	function hapusHPP(id_hpp, pilih_hpp)
+	function hapusHPP(id_hpp)
 	{
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/hapusHPP')?>',
@@ -2876,10 +2883,9 @@
 					}
 				});
 			},
-			data: ({ id_hpp, pilih_hpp }),
+			data: ({ id_hpp }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				kembaliHPP()
 			}
 		})

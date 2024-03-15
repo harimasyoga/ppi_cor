@@ -892,10 +892,11 @@ class Logistik extends CI_Controller
 
 			if($qty->num_rows() == 1){
 				($qty->row()->jenis_qty_lm == 'kg') ? $total = round($sumQty,2) : $total = number_format($sumQty,0);
+				($qty->row()->jenis_qty_lm == 'pack') ? $t_jenis_qty = 'BALL' : $t_jenis_qty = strtoupper($qty->row()->jenis_qty_lm);
 				$html .='<tr>
 					<td style="padding:3px;border:1px solid #000;font-weight:bold;text-align:center" colspan="3">TOTAL</td>
 					<td style="padding:3px 10px 3px 3px;border:1px solid #000;border-width:1px 0 1px 1px;text-align:right;font-weight:bold">'.$total.'</td>
-					<td style="padding:3px 3px 3px 0;border:1px solid #000;border-width:1px 1px 1px 0;font-weight:bold">'.strtoupper($qty->row()->jenis_qty_lm).'</td>
+					<td style="padding:3px 3px 3px 0;border:1px solid #000;border-width:1px 1px 1px 0;font-weight:bold">'.strtoupper($t_jenis_qty).'</td>
 					<td style="padding:3px;border:1px solid #000"></td>
 				</tr>';
 			}

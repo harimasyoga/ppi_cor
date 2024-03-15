@@ -264,9 +264,6 @@ class Transaksi extends CI_Controller
 			'hasil_x_tonase_tanpa_bb' => number_format($hpp->hasil_x_tonase_tanpa_bb,0,',','.'),
 			'hxt_x_persen' => number_format($hpp->hxt_x_persen,0,',','.'),
 			'fix_hpp' => number_format($hpp->fix_hpp,0,',','.'),
-			'cek_sheet' => $hpp->cek_sheet,
-			'cek_box' => $hpp->cek_box,
-			// 'cek_laminasi' => $hpp->cek_laminasi,
 		];
 
 		echo json_encode([
@@ -294,10 +291,11 @@ class Transaksi extends CI_Controller
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_x_tonase,0,",",".").'</a></div>';
 			$edit = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
 			$view = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')" class="btn btn-info btn-sm" style="color:#000"><i class="fas fa-eye"></i></button>';
-			$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".','."'".$r->pilih_hpp."'".')" class="btn btn-danger btn-sm" style="color:#000"><i class="fas fa-trash-alt"></i></button>';
+			$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".')" class="btn btn-danger btn-sm" style="color:#000"><i class="fas fa-trash-alt"></i></button>';
 
-			// cek_laminasi  cek_sheet  cek_box
-			if($r->pilih_hpp == 'PM2' && $r->cek_sheet != 'N'){
+			if($r->pilih_hpp == 'PM2' && $r->jenis_hpp != 'WP' && $r->cek_sheet != 'N'){
+				$aksi = $edit.' '.$view;
+			}else if($r->pilih_hpp == 'PM2' && $r->jenis_hpp == 'WP' && $r->cek_laminasi != 'N'){
 				$aksi = $edit.' '.$view;
 			}else if($r->pilih_hpp == 'SHEET' && $r->cek_box != 'N'){
 				$aksi = $edit.' '.$view;
@@ -352,18 +350,6 @@ class Transaksi extends CI_Controller
 		}
 		$this->load->view('footer');
 	}
-
-	// function customerLaminasi()
-	// {
-	// 	$html ='';
-	// 	$query = $this->db->query("SELECT*FROM m_pelanggan_lm ORDER BY nm_pelanggan_lm");
-	// 	$html .='<option value="">PILIH</option>';
-	// 	foreach($query->result() as $r){
-	// 		$html .='<option value="'.$r->id_pelanggan_lm.'" nm_pelanggan="'.$r->nm_pelanggan_lm.'">'.$r->nm_pelanggan_lm.'</option>';
-	// 	}
-
-	// 	echo $html;
-	// }
 
 	function destroyLaminasi()
 	{
@@ -4366,7 +4352,7 @@ class Transaksi extends CI_Controller
 			$pilih_hpp = 'SHEET';
 			$cek = "AND cek_box='N'";
 		}else if($opsi == 'laminasi'){
-			$pilih_hpp = 'LAMINASI';
+			$pilih_hpp = 'PM2';
 			$cek = "AND cek_laminasi='N'";
 		}
 
@@ -4375,11 +4361,13 @@ class Transaksi extends CI_Controller
 		if($data->num_rows() > 0){
 			foreach($data->result() as $r){
 				$html .='<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-					<div class="col-md-12">
-						<button type="button" class="btn btn-info" style="color:#000;font-weight:bold" onclick="pilihListHPP('."'".$r->id_hpp."'".','."'".$opsi."'".')">
+					<div class="col-md-3">
+						<button type="button" class="btn btn-block btn-sm bg-gradient-success" style="color:#000;font-weight:bold" onclick="pilihListHPP('."'".$r->id_hpp."'".','."'".$opsi."'".')">
+							<i class="fas fa-list" style="margin-right:6px"></i>
 							'.strtoupper(substr($this->m_fungsi->getHariIni($r->tgl_hpp),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl_hpp)).', '.$r->jenis_hpp.'
 						</button>
 					</div>
+					<div class="col-md-9"></div>
 				</div>';
 			}
 		}else{
