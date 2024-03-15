@@ -1037,30 +1037,30 @@ class Transaksi extends CI_Controller
 				$exp1 = '';
 				if($r->status_app1=='N'){
 					if($actualDate > $expired || $actualDate == $expired){
-						$btn1   = 'btn-danger';
-						$i1     = '<i class="fas fa-ban" style="color:#000"></i>';
-						$alasan1 = '';
+						$btn1       = 'btn-danger';
+						$i1         = '<i class="fas fa-ban" style="color:#000"></i>';
+						$alasan1    = '';
 						$ketAlasan1 .= '<div style="color:#f00;font-weight:bold">EXPIRED</div>';
 						$exp1 .= 'expired';
 					}else{
-						$btn1   = 'btn-warning';
-						$i1     = '<i id="iBtn1-'.$r->id.'" class="fas fa-lock"></i>';
-						$alasan1 = '';
+						$btn1       = 'btn-warning';
+						$i1         = '<i id="iBtn1-'.$r->id.'" class="fas fa-lock"></i>';
+						$alasan1    = '';
 						$ketAlasan1 .= '<div id="countdown1-'.$r->id.'" style="color:#f00;font-weight:bold" onclick="countDownPO('."'".$r->id."'".')">'.$waktu.'</div>';
 					}
 				}else  if($r->status_app1=='H'){
-					$btn1   = 'btn-danger';
-					$i1     = '<i class="far fa-hand-paper"></i>';
+					$btn1    = 'btn-danger';
+					$i1      = '<i class="far fa-hand-paper"></i>';
 					$alasan1 = $r->ket_acc1;
 					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan1 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan1 .= '<br><div id="countdown1-'.$r->id.'" style="color:#f00;font-weight:bold" onclick="countDownPO('."'".$r->id."'".')">'.$waktu.'</div>';
 				}else  if($r->status_app1=='R'){
-					$btn1   = 'btn-danger';
-					$i1     = '<i class="fas fa-times"></i>';
+					$btn1    = 'btn-danger';
+					$i1      = '<i class="fas fa-times"></i>';
 					$alasan1 = $r->ket_acc1;
 					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan1 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan1 .= '<br><div id="countdown1-'.$r->id.'" style="color:#f00;font-weight:bold" onclick="countDownPO('."'".$r->id."'".')">'.$waktu.'</div>';
 				}else{
-					$btn1   = 'btn-success';
-					$i1     = '<i class="fas fa-check-circle"></i>';
+					$btn1    = 'btn-success';
+					$i1      = '<i class="fas fa-check-circle"></i>';
 					$alasan1 = '';
 				}
                 
@@ -1068,15 +1068,15 @@ class Transaksi extends CI_Controller
 				$exp2 = '';
                 if($r->status_app2=='N'){
 					if($actualDate > $expired || $actualDate == $expired){
-						$btn2   = 'btn-danger';
-						$i2    = '<i class="fas fa-ban" style="color:#000"></i>';
-						$alasan2 = '';
+						$btn2       = 'btn-danger';
+						$i2         = '<i class="fas fa-ban" style="color:#000"></i>';
+						$alasan2    = '';
 						$ketAlasan2 .= '<div style="color:#f00;font-weight:bold">EXPIRED</div>';
 						$exp2 .= 'expired';
 					}else{
-						$btn2   = 'btn-warning';
-						$i2     = '<i id="iBtn2-'.$r->id.'" class="fas fa-lock"></i>';
-						$alasan2 = '';
+						$btn2       = 'btn-warning';
+						$i2         = '<i id="iBtn2-'.$r->id.'" class="fas fa-lock"></i>';
+						$alasan2    = '';
 						$ketAlasan2 .= '<div id="countdown2-'.$r->id.'" style="color:#f00;font-weight:bold" onclick="countDownPO('."'".$r->id."'".')">'.$waktu.'</div>';
 					}
                 }else if($r->status_app2=='H'){
@@ -1131,10 +1131,7 @@ class Transaksi extends CI_Controller
 
 				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</div>';
 				
-				if (in_array($this->session->userdata('level'), ['PPIC']))
-                {
-					$row[] = '<div class="text-center">'.$nm_item.'</div>';
-				}
+				$row[] = '<div class="text-center">'.$nm_item.'</div>';
 
                 $time1 = ( ($r->time_app1 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app1,0,10))  . ' - ' .substr($r->time_app1,10,9)) ;
 
@@ -2303,10 +2300,7 @@ class Transaksi extends CI_Controller
 			 <table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:12px; color:#000;\" width=\"100%\"  border=\"\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\">
 			 <thead>
 				  <tr>
-					   <td rowspan=\"5\" align=\"center\">
-							<img src=\"" . base_url() . "assets/gambar/$data->aka.png\"  width=\"80\" height=\"70\" />
-							
-					   </td>
+					   
 					   <td colspan=\"20\">
 							<b>
 								 <tr>
@@ -2317,9 +2311,6 @@ class Transaksi extends CI_Controller
 								 </tr>
 								 <tr>
 									  <td align=\"center\" style=\"font-size:8px;\">Kode Pos $data->kode_pos </td>
-								 </tr>
-								 <tr>
-									  <td align=\"center\" style=\"font-size:8px;\">Wa : $data->no_telp  |  Telp : $data->no_telp </td>
 								 </tr>
 							</b>
 					   </td>
@@ -2381,7 +2372,7 @@ class Transaksi extends CI_Controller
 				<tr>
 					<td align="left" >Qty Po</td>
 					<td align="center" > : </td>
-					<td align="right" > '. number_format($data->qty_bhn, 0, ",", ".") .' Kg</td>
+					<td align="right" > '. number_format($data->ton_bhn, 0, ",", ".") .' Kg</td>
 					<td align="left" ></td>
 
 				</tr>

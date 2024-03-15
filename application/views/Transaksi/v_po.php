@@ -44,6 +44,7 @@
 									<th style="text-align: center;" >No</th>
 									<th style="text-align: center;" >No PO</th>
 									<th style="text-align: center;padding: 12px 40px;" >Tgl PO</th>
+									<th style="text-align: center;" >Item</th>
 									<th style="text-align: center;" >Status</th>
 									<th style="text-align: center;" >Status Karet</th>
 									<th style="text-align: center;" >Kode PO</th>

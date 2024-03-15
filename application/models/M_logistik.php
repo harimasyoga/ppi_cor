@@ -1163,6 +1163,8 @@ class M_logistik extends CI_Model
 
 			}			
 
+			$tonase_ppi = str_replace('.','',$this->input->post('tonase_ppi')) ;
+
 			if($result_detail)
 			{
 				$data_header = array(
@@ -1172,7 +1174,7 @@ class M_logistik extends CI_Model
 					'no_timbangan'    => $this->input->post('no_timb'),
 					'total_timb'      => str_replace('.','',$this->input->post('jum_timb')),
 					'muatan_ppi'      => str_replace('.','',$this->input->post('muat_ppi')),
-					'tonase_ppi'      => str_replace('.','',$this->input->post('tonase_ppi')),
+					'tonase_ppi'      => $tonase_ppi,
 					'total_item'      => str_replace('.','',$this->input->post('total_bb_item')),
 					'sisa_stok'      => str_replace('.','',$this->input->post('sisa_timb')),
 
@@ -1180,9 +1182,32 @@ class M_logistik extends CI_Model
 			
 				$this->db->where('id_stok', $this->input->post('id_stok_h'));
 				$result_header = $this->db->update('trs_h_stok_bb', $data_header);
+
+				
+					// input stok berjalan PPI
+				if($tonase_ppi>0)
+				{
+					$data_stok_berjalan = array(				
+						'no_transaksi'    => $no_stokbb,
+						'id_hub'          => null,
+						'tgl_input'       => $this->input->post('tgl_stok'),
+						'jam_input'       => date("H:i:s"),
+						'jenis'           => 'PPI',
+						'masuk'           => $tonase_ppi,
+						'keluar'          => 0,
+						'ket'             => 'MASUK DENGAN PO',
+					);
+					$result_stok_berjalan = $this->db->insert('trs_stok_bahanbaku', $data_stok_berjalan);
+
+					$this->db->where('no_transaksi', $no_stokbb);
+					$this->db->where('tgl_input', $this->input->post('tgl_stok'));
+					$result_stok_berjalan = $this->db->update('trs_stok_bahanbaku', $data_stok_berjalan);
+				
+				}
 			}
 		}else{
-			$no_stokbb    = $this->m_fungsi->urut_transaksi('STOK_BB').'/'.'STOK/'.$thn;
+			$no_stokbb   = $this->m_fungsi->urut_transaksi('STOK_BB').'/'.'STOK/'.$thn;
+			$tonase_ppi  = str_replace('.','',$this->input->post('tonase_ppi')) ;
 
 			$rowloop     = $this->input->post('bucket');
 			for($loop = 0; $loop <= $rowloop; $loop++)
@@ -1227,6 +1252,23 @@ class M_logistik extends CI_Model
 				);
 			
 				$result_header = $this->db->insert('trs_h_stok_bb', $data_header);
+			}
+
+			// input stok berjalan PPI
+			if($tonase_ppi>0)
+			{
+				$data_stok_berjalan = array(				
+					'no_transaksi'    => $no_stokbb,
+					'id_hub'          => null,
+					'tgl_input'       => $this->input->post('tgl_stok'),
+					'jam_input'       => date("H:i:s"),
+					'jenis'           => 'PPI',
+					'masuk'           => $tonase_ppi,
+					'keluar'          => 0,
+					'ket'             => 'MASUK DENGAN PO',
+				);
+				$result_stok_berjalan = $this->db->insert('trs_stok_bahanbaku', $data_stok_berjalan);
+			
 			}
 		}
 		

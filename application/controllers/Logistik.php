@@ -88,7 +88,14 @@ class Logistik extends CI_Controller
 
 		if ($jenis == "load_po_bahan") 
 		{
-			$query = $this->db->query("SELECT * FROM trs_po_bhnbk a JOIN m_hub b ON a.hub=b.id_hub ORDER BY id_po_bhn")->result();
+			$query = $this->db->query("SELECT *,
+			(
+			select sum(datang_bhn_bk)history_po from trs_h_stok_bb b 
+			JOIN trs_d_stok_bb c ON b.no_stok = c.no_stok
+			WHERE a.no_po_bhn=c.no_po_bhn and a.hub=c.id_hub group by c.no_po_bhn,c.id_hub
+			)history_po
+			FROM trs_po_bhnbk a 
+			JOIN m_hub b ON a.hub=b.id_hub ORDER BY id_po_bhn")->result();
 			// $query = $this->db->query("SELECT b.id as id_detail,DATE_ADD(a.tgl_po, INTERVAL 2 DAY) as tgl_po2, d.id_produk as id_produk , c.id_pelanggan as id_pelanggan, c.nm_pelanggan as nm_pelanggan, a.*,b.*,c.*,d.* from trs_po a 
 			// JOIN trs_po_detail b ON a.kode_po=b.kode_po
 			// JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
@@ -99,14 +106,15 @@ class Logistik extends CI_Controller
 			$i               = 1;
 			foreach ($query as $r) {
 
-				$id       = "'$r->id_po_bhn'";
-				$no_po    = "'$r->no_po_bhn'";
+				$id           = "'$r->id_po_bhn'";
+				$no_po        = "'$r->no_po_bhn'";
 				$row      = array();
 				$row[]    = '<div class="text-center">'.$i.'</div>';
 				$row[]    = '<div >'.$r->nm_hub.'</div>';
 				$row[]    = $r->no_po_bhn;
-				$row[]    = $this->m_fungsi->tanggal_ind($r->tgl_bhn);
+				$row[]    = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_bhn).'</div>';
 				$row[]    = '<div class="text-center">'.number_format($r->ton_bhn, 0, ",", ".").'</div>';
+				$row[]    = '<div class="text-center">'.number_format($r->history_po, 0, ",", ".").'</div>';
 				
 				$aksi = '
 				<button type="button" title="PILIH"  onclick="spilldata(' . $id . ',' . $no_po . ',' . $id_name . ')" class="btn btn-success btn-sm">
@@ -1002,15 +1010,41 @@ class Logistik extends CI_Controller
 			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
 		}else if($jenis=='spill_po')
 		{ 
-			$queryh   = "SELECT * FROM trs_po_bhnbk a JOIN m_hub b ON a.hub=b.id_hub where id_po_bhn='$id' ";
+			$queryh   = "SELECT *,
+			IFNULL((
+			select sum(datang_bhn_bk)history_po from trs_h_stok_bb b 
+			JOIN trs_d_stok_bb c ON b.no_stok = c.no_stok
+			WHERE a.no_po_bhn=c.no_po_bhn and a.hub=c.id_hub group by c.no_po_bhn,c.id_hub
+			),0) history_po
+			FROM trs_po_bhnbk a 
+			JOIN m_hub b ON a.hub=b.id_hub where id_po_bhn='$id'";
 			
-			$queryd   = "SELECT * FROM trs_po_bhnbk a JOIN m_hub b ON a.hub=b.id_hub where id_po_bhn='$id' ";
+			$queryd   = "SELECT *,
+			IFNULL((
+			select sum(datang_bhn_bk)history_po from trs_h_stok_bb b 
+			JOIN trs_d_stok_bb c ON b.no_stok = c.no_stok
+			WHERE a.no_po_bhn=c.no_po_bhn and a.hub=c.id_hub group by c.no_po_bhn,c.id_hub
+			),0)history_po
+			FROM trs_po_bhnbk a 
+			JOIN m_hub b ON a.hub=b.id_hub where id_po_bhn='$id' ";
 		}else if($jenis=='edit_stok_bb')
 		{ 
-			$queryh   = "SELECT * FROM trs_h_stok_bb  where id_stok='$id' ";
+			$queryh   = "SELECT *, IFNULL((
+				select sum(datang_bhn_bk)history from trs_h_stok_bb a 
+				JOIN trs_d_stok_bb b ON a.no_stok = b.no_stok
+				WHERE a.no_timbangan=c.no_timbangan group by a.no_timbangan)
+				+
+				(
+				select sum(tonase_ppi)history from trs_h_stok_bb a 
+				WHERE a.no_timbangan=c.no_timbangan group by a.no_timbangan
+				)
+				,0)history 
+			FROM trs_h_stok_bb c where id_stok='$id' ";
 			$data_h   = $this->db->query($queryh)->row();
 
-			$queryd   = "SELECT * FROM trs_d_stok_bb a JOIN m_hub b ON a.id_hub=b.id_hub where no_stok='$data_h->no_stok' ";
+			$queryd   = "SELECT *,
+			(select sum(datang_bhn_bk) from trs_d_stok_bb c WHERE c.no_po_bhn=a.no_po_bhn and c.id_hub=a.id_hub)history 
+			FROM trs_d_stok_bb a JOIN m_hub b ON a.id_hub=b.id_hub where no_stok='$data_h->no_stok' ";
 
 		}else if($jenis=='invoice')
 		{
@@ -1395,22 +1429,27 @@ class Logistik extends CI_Controller
 				$rinci_stok  = $this->db->query("SELECT*FROM trs_d_stok_bb a JOIN m_hub b ON a.id_hub=b.id_hub WHERE a.no_stok='$r->no_stok' ORDER BY id_stok_d");
 
 				if($rinci_stok->num_rows() == '1'){
-					$nm_cust = $rinci_stok->row()->nm_hub;
+					$nm_cust   = $rinci_stok->row()->nm_hub;
+					$id_hub    = $rinci_stok->row()->id_hub;
 				}else{
 					$no                = 1;
 					$nm_cust_result    = '';
+					$id_hub_result     = '';
 					foreach($rinci_stok->result() as $row_po){
 						$nm_cust_result .= '<b>'.$no.'.</b> '.$row_po->nm_hub.'<br>';
+						$id_hub_result .= $row_po->id_hub.'/';
 						$no ++;
 					}
-					$nm_cust = $nm_cust_result;
+					$nm_cust   = $nm_cust_result;
+					$id_hub    = $id_hub_result;
 
 				}
 
-				$id             = "'$r->id_stok'";
-				$no_stok        = "'$r->no_stok'";
-				$no_stok2       = "$r->no_stok";
-				$total_bb       = $r->total_item + $r->tonase_ppi;
+				$id         = "'$r->id_stok'";
+				$no_stok    = "'$r->no_stok'";
+				$no_stok2   = "$r->no_stok";
+				$id_hub2    = "'$id_hub'";
+				$total_bb   = $r->total_item + $r->tonase_ppi;
 
 				$row            = array();
 				$row[]          = '<div class="text-center">'.$i.'</div>';
@@ -1429,7 +1468,7 @@ class Logistik extends CI_Controller
 						
 						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_stok_bb?no_stok=".$no_stok2."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
-						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_stok . ')" class="btn btn-danger btn-sm">
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_stok . ',' . $id_hub2 . ')" class="btn btn-danger btn-sm">
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';
@@ -1440,8 +1479,20 @@ class Logistik extends CI_Controller
 			}
 		
 		}else if ($jenis == "load_timbangan") 
-		{
-			$query = $this->db->query("SELECT * FROM m_jembatan_timbang ORDER BY id_timbangan")->result();
+		{ 
+			$query = $this->db->query("SELECT * ,
+			IFNULL((
+			select sum(datang_bhn_bk)history from trs_h_stok_bb a 
+			JOIN trs_d_stok_bb b ON a.no_stok = b.no_stok
+			WHERE a.no_timbangan=c.no_timbangan group by a.no_timbangan)			
+			+
+			(
+			select sum(tonase_ppi)history from trs_h_stok_bb a 
+			WHERE a.no_timbangan=c.no_timbangan group by a.no_timbangan
+			)
+			,0)history
+			FROM m_jembatan_timbang c 
+			ORDER BY id_timbangan")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -1449,20 +1500,22 @@ class Logistik extends CI_Controller
 				$id             = "'$r->id_timbangan'";
 				$no_timbangan   = "'$r->no_timbangan'";
 				$berat_bersih   = "'$r->berat_bersih'";
+				$tgl_masuk      = substr(($r->date_masuk),0,10);
 
 				$row            = array();
 				$row[]          = '<div class="text-center">'.$i.'</div>';
 				$row[]          = '<div >'.$r->no_timbangan.'</div>';
-				$row[]          = $r->date_masuk;
+				$row[]          = '<div class="text-center">'.$this->m_fungsi->tanggal_format_indonesia($tgl_masuk).'</div>';
 				// $row[]          = $r->date_keluar;
 				$row[]          = '<div >'.$r->no_polisi.'</div>';
 				$row[]          = $r->nm_barang;
 				$row[]          = '<div class="text-center">'.number_format($r->berat_bersih, 0, ",", ".").'</div>';
+				$row[]          = '<div class="text-center">'.number_format($r->history, 0, ",", ".").'</div>';
 				$row[]          = $r->catatan;
 				$row[]          = $r->nm_sopir;
 				
 				$aksi = '
-				<button type="button" title="PILIH"  onclick="add_timb(' . $id . ',' . $no_timbangan . ',' . $berat_bersih . ')" class="btn btn-success btn-sm">
+				<button type="button" title="PILIH"  onclick="add_timb(' . $id . ',' . $no_timbangan . ',' . $berat_bersih . ',' . $r->history . ')" class="btn btn-success btn-sm">
 					<i class="fas fa-check-circle"></i>
 				</button> ';
 
@@ -1982,11 +2035,15 @@ class Logistik extends CI_Controller
 		} else if ($jenis == "trs_h_stok_bb") {	
 			
 			
-			$no_stok       = $_POST['no_stok'];
+			$no_stok   = $_POST['no_stok'];
+			$id_hub    = $_POST['id_hub'].'-';
+			$id_hub2   = str_replace(",-","",$id_hub);
 
 			$result          = $this->m_master->query("DELETE FROM trs_h_stok_bb WHERE id_stok = '$id'");
 
-			$result          = $this->m_master->query("DELETE FROM trs_d_stok_bb WHERE  no_stok = '$no_stok'");			
+			$result          = $this->m_master->query("DELETE FROM trs_d_stok_bb WHERE  no_stok = '$no_stok'");		
+
+			$result          = $this->m_master->query("DELETE FROM trs_stok_bahanbaku WHERE  no_transaksi = '$no_stok' and id_hub in ($id_hub2) ");			
 			
 		} else if ($jenis == "byr_inv") {
 			$result          = $this->m_master->query("DELETE FROM trs_bayar_inv WHERE  $field = '$id'");	
@@ -2260,18 +2317,18 @@ class Logistik extends CI_Controller
 				<td colspan="4" style="border-width:2px 0;border-top:1px solid #000;">&nbsp;</td>
 			</tr>
             <tr>
-				<td width="75%" ><b>TERBILANG :</b></td>
-				<td width="10%" ><b>Sub Total</b></td>
-				<td  width="15%" align="right" ><b>Rp.' . number_format($tot_total, 0, ",", ".") . '</b></td>
+				<td width="65%" ><b>TERBILANG :</b></td>
+				<td width="20%" ><b></b></td>
+				<td  width="15%" align="right" ></td>
 			</tr>
             <tr>
 				<td rowspan="2" style="font-size:15px;"><b>'.$this->m_fungsi->terbilang($total_all).'</b></td>
-				<td><b>PPN 11% </b></td>
-				<td align="right"><b>Rp.' . number_format($ppn11, 0, ",", ".") . '</b></td>
+				<td><b>TOTAL INCLUDE</b></td>
+				<td align="right"><b>Rp.' . number_format($total_all, 0, ",", ".") . '</b></td>
 			</tr>
             <tr>
-				<td><b>TOTAL</b></td>
-				<td align="right"><b>Rp.' . number_format($total_all, 0, ",", ".") . '</b></td>
+				<td><b></b></td>
+				<td align="right"><b></b></td>
 			</tr>
 			<tr> 
 				<td colspan="4" style="border-width:2px 0;border-bottom:1px solid #000;">&nbsp;</td>
