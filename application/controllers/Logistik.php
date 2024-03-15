@@ -1299,6 +1299,7 @@ class Logistik extends CI_Controller
 				$no_timb    = "'$r->no_timbangan'";
 				
 				$print      = base_url('Logistik/printTimbangan?id='.$r->id_timbangan.'&top=10');
+				$printLampiran = base_url('Logistik/lampiranTimbangan?id='.$r->id_timbangan);
 				$row        = array();
 				$row[]      = '<div class="text-center">'.$i.'</div>';
 				$row[]      = '<div class="text-center">'.$r->no_timbangan.'</div>';
@@ -1321,7 +1322,8 @@ class Logistik extends CI_Controller
 						<i class="fa fa-trash-alt"></i>
 
 					</button> 
-					<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
+					<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+					<a target="_blank" class="btn btn-sm btn-secondary" href="'.$printLampiran.'" title="LAMPIRAN"><i class="fas fa-paperclip" style="color:#fff"></i></a>';
 				} else {
 					$aksi = '<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
 				}
@@ -4960,6 +4962,63 @@ class Logistik extends CI_Controller
             $json = json_encode($response);
             print_r($json);
     }
+
+	function lampiranTimbangan()
+	{
+		$id_timbangan = $_GET["id"];
+		$html = '';
+
+		$j_timbangan = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE id_timbangan='$id_timbangan'");
+
+		$html .= '<table style="margin:0;padding:0;font-size:12px;border-collapse:collapse;color:#000;font-family:tahoma;width:100%">
+			<tr>
+				<th style="font-size:20px" rowspan="3">LAMPIRAN TIMBANGAN</th>
+				<th style="text-align:left">UD PATRIOT</th>
+			</tr>
+			<tr>
+				<th style="text-align:left">DUKUH MASARAN RT 34, DESA MASARAN</th>
+			</tr>
+			<tr>
+				<th style="text-align:left">KECAMATAN MASARAN, KABUPATEN SRAGEN, JAWA TENGAH</th>
+			</tr>
+			<tr>
+				<th style="padding:20px 0 40px;font-size:16px" colspan="2">NO TIMBANGAN : '.$j_timbangan->row()->no_timbangan.'</th>
+			</tr>
+		</table>';
+
+		$html .= '<table style="margin:0;padding:0;font-size:12px;border-collapse:collapse;color:#000;font-family:tahoma;width:100%">
+			<tr style="background:#f0b2b4">
+				<th style="padding:3px">NO</th>
+				<th style="padding:3px;text-align:left">CUSTOMER</th>
+				<th style="padding:3px;text-align:left">NO. STOK</th>
+				<th style="padding:3px;text-align:left">ITEM</th>
+				<th style="padding:3px">KEDATANGAN</th>
+			</tr>';
+
+			$data = $this->db->query("SELECT * FROM trs_h_stok_bb a
+			INNER JOIN trs_d_stok_bb b ON a.no_stok=b.no_stok 
+			INNER JOIN m_hub c ON b.id_hub=c.id_hub
+			INNER JOIN m_jembatan_timbang d ON a.no_timbangan=d.no_timbangan
+			INNER JOIN trs_po_bhnbk e ON b.no_po_bhn = e.no_po_bhn
+			WHERE a.id_timbangan='$id_timbangan'");
+			$i = 0;
+			foreach($data->result() as $r){
+				$i++;
+				$html .= '<tr>
+					<td style="padding:3px;text-align:center">'.$i.'</td>
+					<td style="padding:3px">'.$r->nm_hub.'</td>
+					<td style="padding:3px">'.$r->no_stok.'</td>
+					<td style="padding:3px">'.$r->nm_barang.'</td>
+					<td style="padding:3px;text-align:right">'.number_format($r->datang_bhn_bk,0,',','.').'</td>
+				</tr>';
+			}
+
+
+		$html .= '</table>';
+
+		$judul = 'LAMPIRAN';
+		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
+	}
 
 	function printTimbangan(){
 		$html = '';
