@@ -1370,6 +1370,7 @@ class Logistik extends CI_Controller
 				$no_timb    = "'$r->no_timbangan'";
 				
 				$print      = base_url('Logistik/printTimbangan?id='.$r->id_timbangan.'&top=10');
+				$printLampiran = base_url('Logistik/lampiranTimbangan?id='.$r->id_timbangan);
 				$row        = array();
 				$row[]      = '<div class="text-center">'.$i.'</div>';
 				$row[]      = '<div class="text-center">'.$r->no_timbangan.'</div>';
@@ -1392,7 +1393,8 @@ class Logistik extends CI_Controller
 						<i class="fa fa-trash-alt"></i>
 
 					</button> 
-					<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
+					<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+					<a target="_blank" class="btn btn-sm btn-secondary" href="'.$printLampiran.'" title="LAMPIRAN"><i class="fas fa-paperclip" style="color:#fff"></i></a>';
 				} else {
 					$aksi = '<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
 				}
@@ -3787,13 +3789,13 @@ class Logistik extends CI_Controller
 
 		$jenis = $this->uri->segment(3);
 		if($jenis == 'Add'){
-			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Gudang'])){
+			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Gudang','User'])){
 				$this->load->view('Logistik/v_sj_add');
 			}else{
 				$this->load->view('home');
 			}
 		}else{
-			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Gudang'])){
+			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Gudang','User'])){
 				// $this->load->view('Logistik/v_sj');
 				$this->load->view('Logistik/v_sj_add');
 			}else{
@@ -4203,7 +4205,7 @@ class Logistik extends CI_Controller
 					$btnPengiriman = '';
 				}else{
 					$txtUrut = 'RENCANA KIRIM '.$rk->rk_urut;
-					($this->session->userdata('level') == 'Admin') ? $btnPengiriman = '<button type="button" id="btn-fix-kirim" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="selesaiMuat('."'".$rk->rk_urut."'".')">SELESAI MUAT</button> - ' : $btnPengiriman = '';
+					($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'User') ? $btnPengiriman = '<button type="button" id="btn-fix-kirim" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="selesaiMuat('."'".$rk->rk_urut."'".')">SELESAI MUAT</button> - ' : $btnPengiriman = '';
 				}
 				$html .='<tr>
 					<td style="background:#333;color:#fff;padding:6px" colspan="10">'.$btnPengiriman.''.$txtUrut.'</td>
@@ -4296,6 +4298,37 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function listNomerSJ()
+	{
+		$tahun = $_POST["tahun"];
+		$pajak = $_POST["pajak"];
+
+		$query = $this->db->query("SELECT*FROM pl_box p
+		INNER JOIN m_rencana_kirim k ON p.no_pl_urut=k.rk_urut AND p.id=k.id_pl_box
+		INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
+		WHERE p.tgl LIKE '%$tahun%' AND pajak='$pajak'
+		GROUP BY p.no_surat DESC,p.no_kendaraan,p.id_perusahaan,p.no_po");
+
+		$data = array();
+		$i = 0;
+		foreach ($query->result() as $r) {
+			$i++;
+			$row = array();
+			$row[] = '<div class="text-center">'.$i.'</div>';
+			$row[] = substr($this->m_fungsi->getHariIni($r->tgl),0,3).', '.$this->m_fungsi->tglIndSkt($r->tgl);
+			$row[] = $r->no_surat;
+			$row[] = $r->no_po;
+			$row[] = $r->nm_pelanggan;
+			$row[] = $r->no_kendaraan;
+			$data[] = $row;
+		}
+
+		$output = array(
+			"data" => $data,
+		);
+		echo json_encode($output);
+	}
+
 	function listPengiriman()
 	{
 		$html = '';
@@ -4318,8 +4351,8 @@ class Logistik extends CI_Controller
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">TONASE</th>
 				</tr>';
 				foreach($getUrut->result() as $urut){
-					($tglNow == $urut->tgl && $this->session->userdata('level') == 'Admin') ? $btnBtl = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="btnBatalPengiriman('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')">BATAL</button> - ' : $btnBtl = '' ;
-					($tglNow == $urut->tgl && $this->session->userdata('level') == 'Admin') ? $editPL = 'onchange="addPengirimanNoPlat('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"' : $editPL = 'disabled';
+					($tglNow == $urut->tgl && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $btnBtl = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="btnBatalPengiriman('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')">BATAL</button> - ' : $btnBtl = '' ;
+					($tglNow == $urut->tgl && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $editPL = 'onchange="addPengirimanNoPlat('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"' : $editPL = 'disabled';
 					$html .='<tr>
 						<td style="background:#333;color:#fff;padding:6px;font-weight:bold">'.$btnBtl.''.$urut->no_pl_urut.'</td>
 						<td style="background:#333;color:#fff;padding:6px;text-align:right;font-weight:bold" colspan="5">NO. PLAT :</td>
@@ -4336,21 +4369,22 @@ class Logistik extends CI_Controller
 						$no++;
 						$noSJ = explode('/', $sjpo->no_surat);
 
-						if($sjpo->id_hub == 1 || $sjpo->id_hub == 4 || $sjpo->id_hub == 6 || $sjpo->id_hub == 10){
+						if($sjpo->id_hub != 7){
 							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'&nbsp;<span style="background:#007bff;color:#fff;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>';
 						}else{
 							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'/'.$noSJ[4].'&nbsp;<span style="background:#f8f9fa;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>';
 						}
 
 						// PRINT SURAT JALAN
-						if($this->session->userdata('level') == 'Admin' && $noSJ[0] != 000){
-							$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$sjpo->no_surat."&top=100&ctk=0").'" title="'.$sjpo->no_surat.'" >PRINT</a>';
+						($sjpo->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
+						if($noSJ[0] != 000 && in_array($this->session->userdata('level'), ['Admin', 'User'])){
+							$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$sjpo->no_surat."&top=".$jarak."&ctk=0").'" title="'.$sjpo->no_surat.'" >PRINT</a>';
 						}else{
 							$btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
 						}
 
 						// EDIT NOMER SURAT JALAN
-						($this->session->userdata('level') == 'Admin' && $sjpo->cetak_sj == 'not') ? $eNoSj = 'onchange="editPengirimanNoSJ('."'".$sjpo->id."'".')"' : $eNoSj = 'disabled';
+						($sjpo->cetak_sj == 'not' && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $eNoSj = 'onchange="editPengirimanNoSJ('."'".$sjpo->id."'".')"' : $eNoSj = 'disabled';
 
 						$html .='<tr style="background:#dee2e6">
 							<td style="padding:4px 6px;border:1px solid #bbb;font-weight:bold;display:flex">
@@ -4446,7 +4480,7 @@ class Logistik extends CI_Controller
 
         // KOP
 		// HUB
-		if($data_pl->id_hub == 1){
+		if($data_pl->id_hub != 7){
 			($data_pl->nm_pelanggan == "-" || $data_pl->nm_pelanggan == "") ? $nm_pelanggan = $data_pl->attn : $nm_pelanggan = $data_pl->nm_pelanggan;
 			$html .= '<table style="font-size:11px;color:#000;border-collapse:collapse;width:100%;vertical-align:top;font-family:Arial !important">
 				<tr>
@@ -4486,47 +4520,49 @@ class Logistik extends CI_Controller
 					<td style="padding:3px 0"></td>
 				</tr>
 			</table>';
-		}else if($data_pl->id_hub == 4){
-			($data_pl->nm_pelanggan == "-" || $data_pl->nm_pelanggan == "") ? $nm_pelanggan = $data_pl->attn : $nm_pelanggan = $data_pl->nm_pelanggan;
-			$html .= '<table style="font-size:11px;color:#000;border-collapse:collapse;width:100%;vertical-align:top;font-family:Arial !important">
-				<tr>
-					<td style="width:14%"></td>
-					<td style="width:1%"></td>
-					<td style="width:25%"></td>
-					<td style="width:60%"></td>
-				</tr>
-				<tr>
-				<td style="padding-bottom:5px;text-align:center;font-size:16px;vertical-align:middle;font-weight:bold" colspan="3">SURAT JALAN</td>
-					<td style="padding:0 5px 5px 0"><span style="font-size:12px;font-weight:bold">CV. '.$data_pl->nm_hub.'</span><br>'.$data_pl->alamat_hub.'</td>
-				</tr>
-				<tr>
-					<td style="padding:3px 5px">Nomer Surat Jalan</td>
-					<td style="padding:3px 0">:</td>
-					<td style="padding:3px 0">'.$data_pl->no_surat.'</td>
-					<td style="border:1px solid #000;padding:3px" rowspan="5">KEPADA : '.$nm_pelanggan.'<br>'.$data_pl->alamat_kirim.'</td>
-				</tr>
-				<tr>
-					<td style="padding:3px 5px">Tanggal</td>
-					<td style="padding:3px 0">:</td>
-					<td style="padding:3px 0">'.$this->m_fungsi->tanggal_format_indonesia($data_pl->tgl).'</td>
-				</tr>
-				<tr>
-					<td style="padding:3px 5px">No. PO</td>
-					<td style="padding:3px 0">:</td>
-					<td style="padding:3px 0">'.$data_pl->no_po.'</td>
-				</tr>
-				<tr>
-					<td style="padding:3px 5px">No. Polisi</td>
-					<td style="padding:3px 0">:</td>
-					<td style="padding:3px 0">'.$data_pl->no_kendaraan.'</td>
-				</tr>
-				<tr>
-					<td style="padding:3px 5px">Nama Pengemudi</td>
-					<td style="padding:3px 0">:</td>
-					<td style="padding:3px 0"></td>
-				</tr>
-			</table>';
-		}else{
+		}
+		// else if($data_pl->id_hub == 4){
+		// 	($data_pl->nm_pelanggan == "-" || $data_pl->nm_pelanggan == "") ? $nm_pelanggan = $data_pl->attn : $nm_pelanggan = $data_pl->nm_pelanggan;
+		// 	$html .= '<table style="font-size:11px;color:#000;border-collapse:collapse;width:100%;vertical-align:top;font-family:Arial !important">
+		// 		<tr>
+		// 			<td style="width:14%"></td>
+		// 			<td style="width:1%"></td>
+		// 			<td style="width:25%"></td>
+		// 			<td style="width:60%"></td>
+		// 		</tr>
+		// 		<tr>
+		// 		<td style="padding-bottom:5px;text-align:center;font-size:16px;vertical-align:middle;font-weight:bold" colspan="3">SURAT JALAN</td>
+		// 			<td style="padding:0 5px 5px 0"><span style="font-size:12px;font-weight:bold">CV. '.$data_pl->nm_hub.'</span><br>'.$data_pl->alamat_hub.'</td>
+		// 		</tr>
+		// 		<tr>
+		// 			<td style="padding:3px 5px">Nomer Surat Jalan</td>
+		// 			<td style="padding:3px 0">:</td>
+		// 			<td style="padding:3px 0">'.$data_pl->no_surat.'</td>
+		// 			<td style="border:1px solid #000;padding:3px" rowspan="5">KEPADA : '.$nm_pelanggan.'<br>'.$data_pl->alamat_kirim.'</td>
+		// 		</tr>
+		// 		<tr>
+		// 			<td style="padding:3px 5px">Tanggal</td>
+		// 			<td style="padding:3px 0">:</td>
+		// 			<td style="padding:3px 0">'.$this->m_fungsi->tanggal_format_indonesia($data_pl->tgl).'</td>
+		// 		</tr>
+		// 		<tr>
+		// 			<td style="padding:3px 5px">No. PO</td>
+		// 			<td style="padding:3px 0">:</td>
+		// 			<td style="padding:3px 0">'.$data_pl->no_po.'</td>
+		// 		</tr>
+		// 		<tr>
+		// 			<td style="padding:3px 5px">No. Polisi</td>
+		// 			<td style="padding:3px 0">:</td>
+		// 			<td style="padding:3px 0">'.$data_pl->no_kendaraan.'</td>
+		// 		</tr>
+		// 		<tr>
+		// 			<td style="padding:3px 5px">Nama Pengemudi</td>
+		// 			<td style="padding:3px 0">:</td>
+		// 			<td style="padding:3px 0"></td>
+		// 		</tr>
+		// 	</table>';
+		// }
+		else{
 			// PPN
 			$kop = '<table style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:Arial !important">
 				<tr>
@@ -4558,7 +4594,7 @@ class Logistik extends CI_Controller
 			// NON PPN
 			$gak_kop = '<table cellspacing="0" style="font-size:18px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:Arial !important">
 				<tr>
-					<th style="width:15% !important;height:150px"></th>
+					<th style="width:15% !important;height:'.$top.'px"></th>
 				</tr>
 				<tr>
 					<td style="border-top:2px solid #000;padding:10px 0 5px;text-decoration:underline">SURAT JALAN</td>
@@ -4633,7 +4669,7 @@ class Logistik extends CI_Controller
         $html .= '<table cellspacing="0" style="font-size:11px !important;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
 
 			// HUB
-			if($data_pl->id_hub == 1 || $data_pl->id_hub == 4){
+			if($data_pl->id_hub != 7){
 				$html .= '<tr>
 					<th style="width:5% !important;height:15px"></th>
 					<th style="width:39% !important;height:15px"></th>
@@ -4705,7 +4741,7 @@ class Logistik extends CI_Controller
 				($data->flute == "BCF") ? $flute = 'BC' : $flute = $data->flute;
 
 				// HUB
-				if($data_pl->id_hub == 1 || $data_pl->id_hub == 4){
+				if($data_pl->id_hub != 7){
 					$html .= '<tr>
 						<td style="border:1px solid #000;padding:5px 0">'.$no.'</td>
 						<td style="border:1px solid #000;padding:5px;text-align:left">'.$ukuran.'</td>
@@ -4757,7 +4793,7 @@ class Logistik extends CI_Controller
 			
 			// TOTAL
 			// HUB
-			if($data_pl->id_hub == 1 || $data_pl->id_hub == 4){
+			if($data_pl->id_hub != 7){
 				$html .= '<tr>
 					<td style="border:1px solid #000;padding:5px 0" colspan="3">TOTAL</td>
 					<td style="border:1px solid #000;padding:5px 0">'.number_format($sumQty).'</td>
@@ -4777,7 +4813,7 @@ class Logistik extends CI_Controller
         $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
 
 			// HUB
-			if($data_pl->id_hub == 1){
+			if($data_pl->id_hub != 7){
 				$html .= '<tr>
 					<th style="width:20% !important;height:15px"></th>
 					<th style="width:35% !important;height:15px"></th>
@@ -4799,29 +4835,31 @@ class Logistik extends CI_Controller
 					<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
 					<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
 				</tr>';
-			}else if($data_pl->id_hub == 4){
-				$html .= '<tr>
-					<th style="width:15% !important;height:15px"></th>
-					<th style="width:15% !important;height:15px"></th>
-					<th style="width:15% !important;height:15px"></th>
-					<th style="width:35% !important;height:15px"></th>
-					<th style="width:20% !important;height:15px"></th>
-				</tr>
-				<tr>
-					<td style="border:1px solid #000;padding:5px">SOPIR</td>
-					<td style="border:1px solid #000;padding:5px">MANAGER</td>
-					<td style="border:1px solid #000;padding:5px">BAG. PACKING</td>
-					<td></td>
-					<td style="padding:5px">TANDA TERIMA</td>
-				</tr>
-				<tr>
-					<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
-					<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
-					<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
-					<td></td>
-					<td style="padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
-				</tr>';
-			}else{
+			}
+			// else if($data_pl->id_hub == 4){
+			// 	$html .= '<tr>
+			// 		<th style="width:15% !important;height:15px"></th>
+			// 		<th style="width:15% !important;height:15px"></th>
+			// 		<th style="width:15% !important;height:15px"></th>
+			// 		<th style="width:35% !important;height:15px"></th>
+			// 		<th style="width:20% !important;height:15px"></th>
+			// 	</tr>
+			// 	<tr>
+			// 		<td style="border:1px solid #000;padding:5px">SOPIR</td>
+			// 		<td style="border:1px solid #000;padding:5px">MANAGER</td>
+			// 		<td style="border:1px solid #000;padding:5px">BAG. PACKING</td>
+			// 		<td></td>
+			// 		<td style="padding:5px">TANDA TERIMA</td>
+			// 	</tr>
+			// 	<tr>
+			// 		<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
+			// 		<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
+			// 		<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
+			// 		<td></td>
+			// 		<td style="padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
+			// 	</tr>';
+			// }
+			else{
 				$html .= '<tr>
 					<th style="width:14% !important;height:35px"></th>
 					<th style="width:14% !important;height:35px"></th>
@@ -4849,7 +4887,7 @@ class Logistik extends CI_Controller
 					<td style="border:1px solid #000;height:80px"></td>
 				</tr>
 				<tr>
-					<td style="border:1px solid #000;padding:5px 0">ARGA <br>ADMIN</td>
+					<td style="border:1px solid #000;padding:5px 0">ADMIN</td>
 					<td style="border:1px solid #000;padding:5px 0">DION<br>PPIC</td>
 					<td style="border:1px solid #000;padding:5px 0">BP. SUMARTO<br>SPV GUDANG</td>
 					<td style="border:1px solid #000;padding:5px 0"></td>
@@ -4890,12 +4928,12 @@ class Logistik extends CI_Controller
         $html .= '</table>';
 
         // CETAK
-		$judul = 'SURAT JALAN';
+		$judul = $data_pl->no_surat;
         if($ctk == '0') {
-			if($data_pl->id_hub == 1 || $data_pl->id_hub == 2){
-				$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', '');
+			if($data_pl->id_hub != 7){
+				$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 			}else{
-				$this->m_fungsi->newMpdf($judul, '', $html, 1, 10, 1, 10, 'P', 'A4', '');
+				$this->m_fungsi->newMpdf($judul, '', $html, 1, 10, 1, 10, 'P', 'A4', $judul.'.pdf');
 			}
         }else{
             echo $html;
@@ -5079,6 +5117,63 @@ class Logistik extends CI_Controller
             $json = json_encode($response);
             print_r($json);
     }
+
+	function lampiranTimbangan()
+	{
+		$id_timbangan = $_GET["id"];
+		$html = '';
+
+		$j_timbangan = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE id_timbangan='$id_timbangan'");
+
+		$html .= '<table style="margin:0;padding:0;font-size:12px;border-collapse:collapse;color:#000;font-family:tahoma;width:100%">
+			<tr>
+				<th style="font-size:20px" rowspan="3">LAMPIRAN TIMBANGAN</th>
+				<th style="text-align:left">UD PATRIOT</th>
+			</tr>
+			<tr>
+				<th style="text-align:left">DUKUH MASARAN RT 34, DESA MASARAN</th>
+			</tr>
+			<tr>
+				<th style="text-align:left">KECAMATAN MASARAN, KABUPATEN SRAGEN, JAWA TENGAH</th>
+			</tr>
+			<tr>
+				<th style="padding:20px 0 40px;font-size:16px" colspan="2">NO TIMBANGAN : '.$j_timbangan->row()->no_timbangan.'</th>
+			</tr>
+		</table>';
+
+		$html .= '<table style="margin:0;padding:0;font-size:12px;border-collapse:collapse;color:#000;font-family:tahoma;width:100%">
+			<tr style="background:#f0b2b4">
+				<th style="padding:3px">NO</th>
+				<th style="padding:3px;text-align:left">CUSTOMER</th>
+				<th style="padding:3px;text-align:left">NO. STOK</th>
+				<th style="padding:3px;text-align:left">ITEM</th>
+				<th style="padding:3px">KEDATANGAN</th>
+			</tr>';
+
+			$data = $this->db->query("SELECT * FROM trs_h_stok_bb a
+			INNER JOIN trs_d_stok_bb b ON a.no_stok=b.no_stok 
+			INNER JOIN m_hub c ON b.id_hub=c.id_hub
+			INNER JOIN m_jembatan_timbang d ON a.no_timbangan=d.no_timbangan
+			INNER JOIN trs_po_bhnbk e ON b.no_po_bhn = e.no_po_bhn
+			WHERE a.id_timbangan='$id_timbangan'");
+			$i = 0;
+			foreach($data->result() as $r){
+				$i++;
+				$html .= '<tr>
+					<td style="padding:3px;text-align:center">'.$i.'</td>
+					<td style="padding:3px">'.$r->nm_hub.'</td>
+					<td style="padding:3px">'.$r->no_stok.'</td>
+					<td style="padding:3px">'.$r->nm_barang.'</td>
+					<td style="padding:3px;text-align:right">'.number_format($r->datang_bhn_bk,0,',','.').'</td>
+				</tr>';
+			}
+
+
+		$html .= '</table>';
+
+		$judul = 'LAMPIRAN';
+		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
+	}
 
 	function printTimbangan(){
 		$html = '';

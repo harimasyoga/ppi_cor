@@ -29,30 +29,30 @@
 				</div>
 			</div>
 			<div class="card-body">
-
-			<?php if($this->session->userdata('level') == 'Admin') { ?>
-				<!-- <button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button> -->
-				<a href="<?php echo base_url('Logistik/Timbangan/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
-				<br><br>
-			<?php } ?>
-
-				<table id="datatable" class="table table-bordered table-striped" width="100%">
-					<thead class="color-tabel">
-						<tr>
-							<th style="text-align: center; width:5%">NO.</th>
-							<th style="text-align: center; width:10%">NO TIMBANGAN</th>
-							<th style="text-align: center; width:10%">REQ</th>
-							<th style="text-align: center; width:15%">TGL MASUK</th>
-							<th style="text-align: center; width:20%">SUPPLIER</th>
-							<th style="text-align: center; width:10%">JENIS</th>
-							<th style="text-align: center; width:20%">CATATAN</th>
-							<th style="text-align: center; width:10%">BERAT BERSIH</th>
-							<th style="text-align: center; width:10%">AKSI</th>
-						</tr>
-					</thead>
-					<tbody>
-					</tbody>
-				</table>
+				<?php if($this->session->userdata('level') == 'Admin') { ?>
+					<!-- <button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button> -->
+					<a href="<?php echo base_url('Logistik/Timbangan/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
+					<br><br>
+				<?php } ?>
+				<div style="overflow:auto;white-space:nowrap">
+					<table id="datatable" class="table table-bordered table-striped" width="100%">
+						<thead class="color-tabel">
+							<tr>
+								<th style="text-align: center; width:5%">NO.</th>
+								<th style="text-align: center; width:10%">NO TIMBANGAN</th>
+								<th style="text-align: center; width:10%">REQ</th>
+								<th style="text-align: center; width:15%">TGL MASUK</th>
+								<th style="text-align: center; width:20%">SUPPLIER</th>
+								<th style="text-align: center; width:10%">JENIS</th>
+								<th style="text-align: center; width:20%">CATATAN</th>
+								<th style="text-align: center; width:10%">BERAT BERSIH</th>
+								<th style="text-align: center; width:10%">AKSI</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 		<!-- /.card -->
@@ -196,8 +196,20 @@
 		$("#judul").html('<h3> Form Tambah Data</h3>')
 	});
 
+	function lampiranTimbangan(id_timbangan){
+		console.log(id_timbangan)
+		$.ajax({
+			url: '<?php echo base_url('Logistik/lampiranTimbangan')?>',
+			type: "POST",
+			data: ({ id_timbangan }),
+			success: function(res){
+				console.log(data)
+			}
+		})
+	}
+
 	function close_modal(){
-		$('#modalForm').modal('hide');
+		$('#modalLampiran').modal('hide');
 	}
 
 	function load_data() 
@@ -212,7 +224,7 @@
 				"url": '<?php echo base_url(); ?>Logistik/load_data/Timbangan',
 				"type": "POST",
 			},
-			responsive: true,
+			responsive: false,
 			"pageLength": 10,
 			"language": {
 				"emptyTable": "Tidak ada data.."

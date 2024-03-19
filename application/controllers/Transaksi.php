@@ -264,6 +264,7 @@ class Transaksi extends CI_Controller
 			'hasil_x_tonase_tanpa_bb' => number_format($hpp->hasil_x_tonase_tanpa_bb,0,',','.'),
 			'hxt_x_persen' => number_format($hpp->hxt_x_persen,0,',','.'),
 			'fix_hpp' => number_format($hpp->fix_hpp,0,',','.'),
+			'fix_hpp_aktual' => number_format($hpp->fix_hpp_aktual,0,',','.'),
 		];
 
 		echo json_encode([

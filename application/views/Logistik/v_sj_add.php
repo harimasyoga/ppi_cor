@@ -49,6 +49,9 @@
 						</div>
 					</div>
 				</div>
+			</div>
+
+			<div class="row">
 				<div class="col-md-12">
 					<div class="card card-success card-outline">
 						<div class="card-header" style="padding:12px">
@@ -61,6 +64,68 @@
 					</div>
 				</div>
 			</div>
+
+			<?php if(in_array($this->session->userdata('level'), ['Admin', 'User'])) { ?>
+				<div class="row">
+					<div class="col-md-12">
+						<div class="card card-secondary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">CEK NOMER SURAT JALAN</h3>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
+								<div class="col-md-2">TAHUN</div>
+								<div class="col-md-2">
+									<select class="form-control select2" id="tahun" onchange="listNomerSJ()">
+										<?php 
+										$thang = date("Y");
+										$thang_maks = $thang + 2;
+										$thang_min = $thang - 2;
+										for ($th = $thang_min; $th <= $thang_maks; $th++)
+										{ ?>
+											<?php if ($th==$thang) { ?>
+												<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+											<?php }else{ ?>
+												<option value="<?= $th ?>"> <?= $th ?> </option>
+											<?php }
+										} ?>
+									</select>
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+								<div class="col-md-2">PAJAK</div>
+								<div class="col-md-2">
+									<select class="form-control select2" id="pajak" onchange="listNomerSJ()">
+										<option selected value="ppn">PPN</option>
+										<option value="non">NON PPN</option>
+									</select>
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="padding:0 6px 6px">
+								<div class="col-md-12">
+									<div style="overflow:auto;white-space:nowrap">
+										<table id="datatable1" class="table table-bordered table-striped">
+											<thead>
+												<tr>
+													<th style="width:5%;padding:12px;text-align:center">NO.</th>
+													<th style="width:16%;padding:12px;text-align:center">HARI, TGL</th>
+													<th style="width:16%;padding:12px;text-align:center">NO. SJ</th>
+													<th style="width:16%;padding:12px;text-align:center">NO. PO</th>
+													<th style="width:31%;padding:12px;text-align:center">CUSTOMER</th>
+													<th style="width:16%;padding:12px;text-align:center">PLAT</th>
+												</tr>
+											</thead>
+											<tbody></tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
 		</div>
 	</section>
 </div>
@@ -390,9 +455,40 @@
 			success: function(res){
 				data = JSON.parse(res)
 				listRencanaKirim()
-				// listPengiriman()
 			}
 		})
+	}
+
+	function listNomerSJ(){
+		let tahun = $("#tahun").val()
+		let pajak = $("#pajak").val()
+		let table = $('#datatable1').DataTable();
+		table.destroy();
+		tabel = $('#datatable1').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url": '<?php echo base_url('Logistik/listNomerSJ')?>',
+				"type": "POST",
+				"data": ({
+					tahun, pajak
+				}),
+			},
+			"aLengthMenu": [
+				[5, 10, 50, 100, -1],
+				[5, 10, 50, 100, "Semua"]
+			],	
+			responsive: false,
+			"pageLength": 10,
+			"language": {
+				"emptyTable": "TIDAK ADA DATA.."
+			},
+			// "order": [
+			// 	[4, "desc"]
+			// ]
+		})
+		swal.close()
 	}
 
 	function listPengiriman() {
@@ -413,7 +509,7 @@
 			},
 			success: function(res){
 				$(".card-body-pengiriman").html(res)
-				swal.close()
+				listNomerSJ()
 			}
 		})
 	}

@@ -1142,6 +1142,7 @@ class M_transaksi extends CI_Model
 			'hxt_x_persen' => $_POST["hxt_x_persen"],
 			'presentase' => $_POST["presentase"],
 			'fix_hpp' => $_POST["fix_hpp"],
+			'fix_hpp_aktual' => $_POST["fix_hpp_aktual"],
 		];
 
 		if(($_POST["pilih_hpp"] == 'PM2' || $_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX' || $_POST["pilih_hpp"] == 'LAMINASI') && ($_POST["hasil_hpp"] == '' || $_POST["tonase_order"] == '' || $_POST["hasil_x_tonase"] == '' || $_POST["hasil_hpp"] == 0 || $_POST["tonase_order"] == 0 || $_POST["hasil_x_tonase"] == 0)){

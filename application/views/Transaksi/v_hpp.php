@@ -1481,6 +1481,19 @@
 									</div>
 								</div>
 							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-12">HPP AKTUAL + 10 %</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-12">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="fix_hpp_aktual" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="0" disabled>
+									</div>
+								</div>
+							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
 								<div class="col-md-3"></div>
 								<div class="col-md-9" style="text-align:right">
@@ -1818,6 +1831,7 @@
 		$("#b_tonase_order").val("").prop('disabled', true)
 		$("#l_tonase_order").val("").prop('disabled', true)
 		$("#hasil_x_tonase").val("").prop('disabled', true)
+		$("#fix_hpp_aktual").val("").prop('disabled', true)
 
 		$("#presentase").val("10").prop('disabled', true)
 		$("#hasil_hpp_tanpa_bb").val("").prop('disabled', true)
@@ -2502,6 +2516,8 @@
 		let hasil_x_tonase = 0;
 		(hitung_hpp == 0 || h_tonase_order == '') ? hasil_x_tonase = 0 : hasil_x_tonase = Math.round(parseInt(hitung_hpp) / parseInt(h_tonase_order).toFixed()).toFixed();
 		$("#hasil_x_tonase").val(formatRupiah(hasil_x_tonase.toString()))
+		let fix_hpp_aktual = parseInt(hasil_x_tonase) + Math.round((parseInt(hasil_x_tonase) * (10 / 100)))
+		$("#fix_hpp_aktual").val(formatRupiah(fix_hpp_aktual.toString()))
 
 		// HASIL X TONASE TANPA BAHAN BAKU
 		let hxt_tanpa_bb = 0;
@@ -2593,6 +2609,7 @@
 		let hasil_hpp = $("#hasil_hpp").val().split('.').join('')
 		let tonase_order = $("#"+o+"tonase_order").val().split('.').join('')
 		let hasil_x_tonase = $("#hasil_x_tonase").val().split('.').join('')
+		let fix_hpp_aktual = $("#fix_hpp_aktual").val().split('.').join('')
 
 		// HITUNG HPP TANPA BAHAN BAKU
 		let presentase = $("#presentase").val()
@@ -2614,7 +2631,7 @@
 				});
 			},
 			data: ({
-				id_hpp, pilih_id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonase, hxt_x_persen, presentase, hasil_hpp_tanpa_bb, hasil_x_tonase_tanpa_bb, fix_hpp, statusInput
+				id_hpp, pilih_id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonase, fix_hpp_aktual, hxt_x_persen, presentase, hasil_hpp_tanpa_bb, hasil_x_tonase_tanpa_bb, fix_hpp, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -2771,6 +2788,7 @@
 				$("#hasil_hpp").val(data.data.hasil_hpp)
 				$("#"+o+"tonase_order").val(data.data.tonase_order).prop('disabled', prop)
 				$("#hasil_x_tonase").val(data.data.hasil_x_tonase)
+				$("#fix_hpp_aktual").val(data.data.fix_hpp_aktual)
 
 				// HITUNG HPP TANPA BAHAN BAKU
 				$("#presentase").val(data.data.presentase).prop('disabled', prop)
