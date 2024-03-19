@@ -845,6 +845,7 @@ class M_transaksi extends CI_Model
 
 		}else {
 			$cekPO         = $this->db->query("SELECT*FROM trs_po WHERE no_po='$id'")->row();
+			$cekPO_detail  = $this->db->query("SELECT sum(bhn_bk)bahan FROM trs_po_detail WHERE no_po='$id'")->row();
 			$expired       = strtotime($cekPO->add_time) + (48*60*60);
 			$actualDate    = time();
 
@@ -862,6 +863,10 @@ class M_transaksi extends CI_Model
 					$app = "2";
 				}else if ($this->session->userdata('level') == "Owner") {
 					$app = "3";
+					if($status == 'Y')
+					{
+						stok_bahanbaku($cekPO->kode_po, $cekPO->id_hub, $cekPO->tgl_po, 'HUB', 0, $cekPO_detail->bahan, 'KELUAR DENGAN PO', 'KELUAR');
+					}
 				}
 
 				$data_verif_po = array(

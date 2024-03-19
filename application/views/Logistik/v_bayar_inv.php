@@ -19,46 +19,6 @@
 		}
 	</style>
 
-	<section class="content">
-		<div class="card shadow mb-3">
-			<div class="row-list">
-				<div class="card-header" style="font-family:Cambria;">		
-						<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?></b></h3>
-
-						<div class="card-tools">
-							<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
-								<i class="fas fa-minus"></i></button>
-						</div>
-				</div>
-				<div class="card-body" >
-					<?php if(in_array($this->session->userdata('level'), ['Admin','Laminasi','Keuangan1'])){ ?>
-						<div style="margin-bottom:12px">
-							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
-						</div>
-					<?php } ?>
-					<!-- <div style="overflow:auto;white-space:nowrap"> -->
-						<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
-							<thead class="color-tabel">
-								<tr>
-									<th class="text-center title-white">NO</th>
-									<th class="text-center title-white">CUSTOMER</th>
-									<th class="text-center title-white">TGL BAYAR</th>
-									<th class="text-center title-white">NO INVOICE</th>
-									<th class="text-center title-white">ITEM</th>
-									<th class="text-center title-white">NO SJ</th>
-									<th class="text-center title-white">TOTAL INVOICE</th>
-									<th class="text-center title-white">TOTAL BAYAR</th>
-									<th class="text-center title-white">AKSI</th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table>
-					<!-- </div> -->
-				</div>
-			</div>			
-		</div>
-	</section>
-
 	<div class="container-fluid row-input" style="display: none;">
 		<form role="form" method="post" id="myForm">
 			<div class="row">
@@ -262,6 +222,46 @@
 			</div>
 		</form>	
 	</div>
+
+	<section class="content">
+		<div class="card shadow mb-3">
+			<div class="row-list">
+				<div class="card-header" style="font-family:Cambria;">		
+						<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?></b></h3>
+
+						<div class="card-tools">
+							<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+								<i class="fas fa-minus"></i></button>
+						</div>
+				</div>
+				<div class="card-body" >
+					<?php if(in_array($this->session->userdata('level'), ['Admin','Laminasi','Keuangan1'])){ ?>
+						<div style="margin-bottom:12px">
+							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+						</div>
+					<?php } ?>
+					<!-- <div style="overflow:auto;white-space:nowrap"> -->
+						<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
+							<thead class="color-tabel">
+								<tr>
+									<th class="text-center title-white">NO</th>
+									<th class="text-center title-white">CUSTOMER</th>
+									<th class="text-center title-white">TGL BAYAR</th>
+									<th class="text-center title-white">NO INVOICE</th>
+									<th class="text-center title-white">ITEM</th>
+									<th class="text-center title-white">NO SJ</th>
+									<th class="text-center title-white">TOTAL INVOICE</th>
+									<th class="text-center title-white">TOTAL BAYAR</th>
+									<th class="text-center title-white">AKSI</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					<!-- </div> -->
+				</div>
+			</div>			
+		</div>
+	</section>
 </div>
 
 <!-- Modal Regist -->

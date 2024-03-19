@@ -200,6 +200,31 @@ class Logistik extends CI_Controller
 		
 	}
 
+	function stok_ppi()
+	{
+		$data = [
+			'judul' => "STOK BAHAN BAKU PPI",
+		];
+		$this->load->view('header',$data);
+		if($this->session->userdata('level'))
+		{
+			$this->load->view('Logistik/v_stok_ppi');
+		}else{
+			$this->load->view('home');
+		}
+		$this->load->view('footer');
+	}
+
+	function Insert_stok_ppi()
+	{
+		if($this->session->userdata('username'))
+		{
+			$result = $this->m_logistik->save_stok_ppi();
+			echo json_encode($result);
+		}
+		
+	}
+
 	public function Timbangan()
 	{
 		$data = array(
@@ -1047,6 +1072,52 @@ class Logistik extends CI_Controller
 			(select sum(datang_bhn_bk) from trs_d_stok_bb c WHERE c.no_po_bhn=a.no_po_bhn and c.id_hub=a.id_hub)history 
 			FROM trs_d_stok_bb a JOIN m_hub b ON a.id_hub=b.id_hub where no_stok='$data_h->no_stok' ";
 
+		}else if($jenis=='edit_stok_ppi')
+		{ 
+			$queryh   = "SELECT no_stok_ppi,tgl_stok,ket_header,jam_stok,sum(tonase_masuk)masuk, sum(tonase_keluar)keluar from trs_stok_ppi where no_stok_ppi='$id'
+				group by no_stok_ppi,tgl_stok,ket_header,jam_stok
+				order by no_stok_ppi,tgl_stok,ket_header,jam_stok";
+			$data_h   = $this->db->query($queryh)->row();
+
+			$queryd   = "SELECT * FROM trs_stok_ppi where no_stok_ppi='$id' ";
+
+		}else if($jenis=='load_sal_awal')
+		{ 
+			$sts_input   = $this->input->post('sts_input');
+			$jam_stok    = $this->input->post('jam_stok');
+			$tgl         = $this->input->post('tgll');
+			$tgl_now     = date('Y-m-d');
+			$jam_now     = date("H:i:s");
+			$cek_add     = $tgl.':'.$jam_now;
+			$cek_edit    = $tgl.':'.$jam_stok;
+			
+			$queryh   = "SELECT no_stok_ppi,tgl_stok,ket_header,jam_stok,sum(tonase_masuk)masuk, sum(tonase_keluar)keluar from trs_stok_ppi
+			group by no_stok_ppi,tgl_stok,ket_header,jam_stok
+			order by no_stok_ppi,tgl_stok,ket_header,jam_stok";
+			
+			if($sts_input=='edit')
+			{
+				$where = "where CONCAT(tgl_stok,':',jam_Stok) <= '$cek_edit'";
+			}else{
+				$where = "where CONCAT(tgl_stok,':',jam_Stok) <= '$cek_add'";
+			}
+			
+			$queryd    = "SELECT case 
+				when ket='local_occ' then 1
+				when ket='mix_waste' then 2
+				when ket='plumpung' then 3
+				when ket='laminating' then 4
+				when ket='sludge' then 5
+				when ket='broke_lam' then 6
+				when ket='broke_corr' then 7
+				when ket='broke_pm' then 8 else 0 
+				END as no_urut,
+				ket,sum(tonase_masuk)masuk, sum(tonase_keluar)keluar ,
+				(sum(tonase_masuk) - sum(tonase_keluar))as sal_awal 
+				from trs_stok_ppi $where
+				group by ket order by no_urut";
+			
+
 		}else if($jenis=='invoice')
 		{
 			$queryh   = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
@@ -1470,6 +1541,43 @@ class Logistik extends CI_Controller
 						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_stok_bb?no_stok=".$no_stok2."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
 						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_stok . ',' . $id_hub2 . ')" class="btn btn-danger btn-sm">
+							<i class="fa fa-trash-alt"></i>
+						</button> 
+						';
+
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+				$i++;
+			}
+		
+		}else if ($jenis == "stok_ppi") {			
+			$query = $this->db->query("SELECT no_stok_ppi,tgl_stok,ket_header,jam_stok,sum(tonase_masuk)masuk, sum(tonase_keluar)keluar from trs_stok_ppi
+			group by no_stok_ppi,tgl_stok,ket_header,jam_stok
+			order by no_stok_ppi,tgl_stok,ket_header,jam_stok")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+
+				$no_stok_ppi    = "'$r->no_stok_ppi'";
+				$no_stok_ppi2   = "$r->no_stok_ppi";
+
+				$row            = array();
+				$row[]          = '<div class="text-center">'.$i.'</div>';
+				$row[]          = '<div >'.$r->no_stok_ppi.'</div>';
+				$row[]          = '<div class="text-center">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_stok).'</div>';
+				$row[]          = '<div >'.$r->jam_stok.'</div>';
+				$row[]          = '<div class="text-center">'.$r->ket_header.'</div>';
+				$row[]          = '<div class="text-center">'.number_format($r->masuk, 0, ",", ".").' Kg</div>' ;
+				$row[]          = '<div class="text-center">'.number_format($r->keluar, 0, ",", ".").' Kg</div>' ;
+				
+				$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $no_stok_ppi . ')" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+						
+						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_stok_bb?no_stok_ppi=".$no_stok_ppi2."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+
+						<button type="button" title="DELETE"  onclick="deleteData(' . $no_stok_ppi . ')" class="btn btn-danger btn-sm">
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';
@@ -2037,14 +2145,25 @@ class Logistik extends CI_Controller
 			
 			
 			$no_stok   = $_POST['no_stok'];
-			$id_hub    = $_POST['id_hub'].'-';
-			$id_hub2   = str_replace(",-","",$id_hub);
+			$id_hub    = $_POST['id_hub']."'";
+			$id_hub2   = str_replace(",'","",$id_hub);
+			$id_hub3   = str_replace("'","",$id_hub2);
 
-			$result          = $this->m_master->query("DELETE FROM trs_h_stok_bb WHERE id_stok = '$id'");
+			$cek = $this->m_master->query("SELECT*FROM trs_h_stok_bb WHERE id_stok = '$id'");
 
-			$result          = $this->m_master->query("DELETE FROM trs_d_stok_bb WHERE  no_stok = '$no_stok'");		
+			// delete stok
+			if($cek->row()->tonase_ppi > 0)
+			{
+				$result = $this->m_master->query("DELETE FROM trs_stok_bahanbaku WHERE  no_transaksi = '$no_stok' and jenis in ('PPI') ");		
+			}			
+			$result = $this->m_master->query("DELETE FROM trs_stok_bahanbaku WHERE  no_transaksi = '$no_stok' and id_hub in ($id_hub3) ");	
 
-			$result          = $this->m_master->query("DELETE FROM trs_stok_bahanbaku WHERE  no_transaksi = '$no_stok' and id_hub in ($id_hub2) ");			
+
+			// delete tabel
+			$result = $this->m_master->query("DELETE FROM trs_h_stok_bb WHERE id_stok = '$id'");
+
+			$result = $this->m_master->query("DELETE FROM trs_d_stok_bb WHERE  no_stok = '$no_stok'");		
+	
 			
 		} else if ($jenis == "byr_inv") {
 			$result          = $this->m_master->query("DELETE FROM trs_bayar_inv WHERE  $field = '$id'");	
@@ -2324,7 +2443,7 @@ class Logistik extends CI_Controller
 			</tr>
             <tr>
 				<td rowspan="2" style="font-size:15px;"><b>'.$this->m_fungsi->terbilang($total_all).'</b></td>
-				<td><b>TOTAL INCLUDE</b></td>
+				<td><b>Sub Total Incl</b></td>
 				<td align="right"><b>Rp.' . number_format($total_all, 0, ",", ".") . '</b></td>
 			</tr>
             <tr>

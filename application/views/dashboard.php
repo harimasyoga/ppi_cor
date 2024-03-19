@@ -79,8 +79,15 @@
                           <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP STOK BAHAN BAKU</h3>
                         </div>
                         <div class="card-body">
-                          <div class="row">
+                        <div class="row">
                             <div class="col-md-10">
+                            </div>
+
+                            <div class="col-md-2">
+                              <select class="form-control select2" id="pil_keluar" name="pil_keluar" onchange="load_data_bhn()" style="font-weight:bold;" >
+                                  <option value="po"><b>PO</b></option>
+                                  <option value="inv"><b>INVOICE</b></option>
+                              </select>
                             </div>
                           </div>
                           
