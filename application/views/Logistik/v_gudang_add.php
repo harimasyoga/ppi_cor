@@ -134,7 +134,7 @@
 
 	function loadGudang(opsi, id_pelanggan, id_produk)
 	{
-		$(".bgtd").attr('style', 'padding:6px;border-width:0 0 1px;background:#fff')
+		$(".bgtd").attr('style', 'padding:6px;text-align:left;border-width:0 0 1px;background:#fff')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadGudang')?>',
 			type: "POST",
@@ -161,7 +161,7 @@
 								}
 
 								htmlGG += `<tr>
-									<td class="bgtd" style="padding:6px;border-width:0 0 1px${bgTd}">
+									<td class="bgtd" style="padding:6px;text-align:left;text-align:left;border-width:0 0 1px${bgTd}">
 										<a href="javascript:void(0)" style="color:#212529" onclick="loadGudang('${opsi}', ${r.gd_id_pelanggan}, ${r.gd_id_produk})">
 											${r.nm_pelanggan} - ${r.nm_produk}
 										</a>

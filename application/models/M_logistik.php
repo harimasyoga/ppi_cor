@@ -502,7 +502,7 @@ class M_logistik extends CI_Model
 			}
 
 			$id_hub = $this->db->query("SELECT h.aka,p.* FROM trs_po p INNER JOIN m_hub h ON p.id_hub=h.id_hub WHERE p.kode_po='$r->rk_kode_po'")->row();
-			if($id_hub->id_hub == 1 || $id_hub->id_hub == 4 || $id_hub->id_hub == 6 || $id_hub->id_hub == 10){
+			if($id_hub->id_hub != 7){
 				$no_surat = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
 				$no_so = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
 				$no_pkb = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
@@ -602,7 +602,7 @@ class M_logistik extends CI_Model
 			$so = explode('/', $pl->no_so);
 			$pkb = explode('/', $pl->no_pkb);
 	
-			if($pl->id_hub == 1 || $pl->id_hub == 4 || $pl->id_hub == 6 || $pl->id_hub == 10){
+			if($pl->id_hub != 7){
 				$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3];
 				$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3];
 				$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2].'/'.$pkb[3];
@@ -611,15 +611,21 @@ class M_logistik extends CI_Model
 				$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3].'/'.$so[4];
 				$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2];
 			}
-	
-			$this->db->set('no_surat', $noSJ);
-			$this->db->set('no_so', $noSO);
-			$this->db->set('no_pkb', $noPKB);
-			$this->db->where('no_po', $pl->no_po);
-			$this->db->where('no_surat', $pl->no_surat);
-			$this->db->where('no_pl_urut', $pl->no_pl_urut);
-			$updateNO = $this->db->update('pl_box');
-			$msg = 'BERHASIL!';
+
+			$cekSJ = $this->db->query("SELECT*FROM pl_box WHERE no_surat='$noSJ'");
+			if($cekSJ->num_rows() == 0){
+				$this->db->set('no_surat', $noSJ);
+				$this->db->set('no_so', $noSO);
+				$this->db->set('no_pkb', $noPKB);
+				$this->db->where('no_po', $pl->no_po);
+				$this->db->where('no_surat', $pl->no_surat);
+				$this->db->where('no_pl_urut', $pl->no_pl_urut);
+				$updateNO = $this->db->update('pl_box');
+				$msg = 'BERHASIL!';
+			}else{
+				$updateNO = false;
+				$msg = 'NOMER SJ SUDAH TERPAKAI!';
+			}
 		}else{
 			$updateNO = false;
 			$msg = 'SUDAH CETAK SURAT JALAN!';

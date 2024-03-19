@@ -122,6 +122,93 @@ class Laporan extends CI_Controller
 		]);
 	}
 
+	function plhOS()
+	{
+		$tahun = $_POST["tahun"];
+		$pelanggan = $_POST["pelanggan"];
+		$no_po = $_POST["no_po"];
+		$html = '';
+		$htmlPO = '';
+
+		($no_po == "") ? $w_nopo = '' : $w_nopo = "AND p.kode_po='$no_po'";
+		$data = $this->db->query("SELECT*FROM trs_po p
+		WHERE p.tgl_po LIKE '%$tahun%' AND p.status='Approve' AND p.id_pelanggan='$pelanggan' $w_nopo
+		GROUP BY kode_po ORDER BY tgl_po");
+
+		$htmlPO .='<option value="">PILIH</option>';
+		foreach($data->result() as $r){	
+			$htmlPO .='<option value="'.$r->kode_po.'">'.$r->kode_po.'</option>';
+		}
+
+		$html .='<table>
+			<tr>
+				<th style="padding:5px;text-align:center;border:1px solid #aaa">NO</th>
+				<th style="padding:5px;text-align:center;border:1px solid #aaa">ITEM</th>
+				<th style="padding:5px;text-align:center;border:1px solid #aaa">UKURAN</th>
+				<th style="padding:5px;text-align:center;border:1px solid #aaa">KUALITAS</th>
+				<th style="padding:5px;text-align:center;border:1px solid #aaa">FLUTE</th>
+				<th style="padding:5px;text-align:center;border:1px solid #aaa">QTY</th>
+				<th style="padding:5px 10px;text-align:center;border:1px solid #aaa">O S</th>
+			</tr>';
+			foreach($data->result() as $r){
+				$html .='<tr>
+					<td style="background:#adb5bd;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="7">'.$r->kode_po.'</td>
+				</tr>';
+
+				$detail = $this->db->query("SELECT*FROM trs_po_detail d
+				INNER JOIN m_produk i ON d.id_produk=i.id_produk
+				WHERE d.kode_po='$r->kode_po'");
+				$i = 0;
+				foreach($detail->result() as $d){
+					$i++;
+					($d->kategori == 'K_BOX') ? $ukuran = $d->ukuran : $ukuran = $d->ukuran_sheet;
+					$html .='<tr>
+						<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$i.'</td>
+						<td style="padding:5px;border:1px solid #aaa">'.$d->nm_produk.'</td>
+						<td style="padding:5px;border:1px solid #aaa">'.$ukuran.'</td>
+						<td style="padding:5px;border:1px solid #aaa">'.$d->kualitas.'</td>
+						<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$d->flute.'</td>
+						<td style="padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($d->qty,0,',','.').'</td>
+						<td style="padding:5px;border:1px solid #aaa"></td>
+					</tr>';
+
+					$kirim = $this->db->query("SELECT SUM(r.qty_muat) AS tot_muat,r.*,p.* FROM m_rencana_kirim r
+					INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
+					WHERE p.no_po='$d->kode_po' AND r.id_produk='$d->id_produk'
+					GROUP BY r.rk_tgl,r.id_pelanggan,r.id_produk,r.rk_kode_po,r.rk_urut");
+					$sumKirim = 0;
+					if($kirim->num_rows() > 0){
+						foreach($kirim->result() as $k){
+							$html .='<tr>
+								<td style="padding:5px;border-left:1px solid #aaa"></td>
+								<td style="padding:5px" colspan="4">- '.strtoupper($this->m_fungsi->getHariIni($k->tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->tgl)).' - '.$k->no_surat.' - '.$k->no_kendaraan.'</td>
+								<td style="padding:5px;text-align:right">'.number_format($k->tot_muat,0,',','.').'</td>
+								<td style="padding:5px;border-right:1px solid #aaa"></td>
+							</tr>';
+							$sumKirim += $k->tot_muat;
+						}
+					}
+
+					if($kirim->num_rows() > 0){
+						$sisa = $sumKirim - $d->qty;
+						($sisa <= 0) ? $bgtd = ';background:#74c69d' : $bgtd = ';background:#ff758f';
+						$html .='<tr style="border-bottom:1px solid #aaa">
+							<td style="padding:5px;font-weight:bold;text-align:right;border-left:1px solid #aaa" colspan="5">TOTAL</td>
+							<td style="padding:5px;font-weight:bold;text-align:right">'.number_format($sumKirim,0,',','.').'</td>
+							<td style="padding:5px;font-weight:bold;text-align:right;border-right:1px solid #aaa'.$bgtd.'">'.number_format($sisa,0,',','.').'</td>
+						</tr>';
+					}
+				}
+			}
+		$html .='</table>';
+
+		echo json_encode([
+			'html' => $html,
+			'no_po' => $no_po,
+			'htmlPO' => $htmlPO,
+		]);
+	}
+
 	function load_rekap_omset()
 	{
 		$html   = '';
