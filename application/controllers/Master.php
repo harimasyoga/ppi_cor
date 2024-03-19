@@ -990,12 +990,12 @@ class Master extends CI_Controller
 		
 		if($id_hub=='0')
 		{
-			$where ="id_hub is null";
+			$where ="where id_hub is null and status = '$ket' ";
 		}else{
-			$where ="id_hub='$id_hub'";
+			$where ="where id_hub='$id_hub' and status = '$ket' ";
 
 		}
-		$query    = $this->m_master->query("SELECT*from trs_stok_bahanbaku where $where")->result();
+		$query    = $this->m_master->query("SELECT*from trs_stok_bahanbaku $where")->result();
 
 		$data     = array();
 		$i        = 1;

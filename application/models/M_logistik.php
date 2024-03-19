@@ -156,6 +156,9 @@ class M_logistik extends CI_Model
 
 					$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 1 where id ='$id_pl_roll'");
 
+					// input stok berjalan HUB
+					// stok_bahanbaku($this->input->post('no_po['.$no.']'), $cekPO->id_hub, $this->input->post('tgl_inv'), 'HUB', 0, str_replace('.','',$hasil_ok), 'KELUAR DENGAN INV', 'KELUAR');
+
 					$result_rinci   = $this->db->insert("invoice_detail", $data);
 
 				}
@@ -1147,18 +1150,7 @@ class M_logistik extends CI_Model
 					$id_hub_       = $this->input->post('id_hub['.$loop.']');
 					$del_detail    = $this->db->query("DELETE FROM trs_stok_bahanbaku WHERE no_transaksi='$no_stokbb' and id_hub='$id_hub_' ");
 
-					// input stok berjalan
-					$data_stok_berjalan = array(				
-						'no_transaksi'    => $no_stokbb,
-						'id_hub'          => $this->input->post('id_hub['.$loop.']'),
-						'tgl_input'       => $this->input->post('tgl_stok'),
-						'jam_input'       => date("H:i:s"),
-						'jenis'           => 'HUB',
-						'masuk'           => str_replace('.','',$this->input->post('datang['.$loop.']')),
-						'keluar'          => 0,
-						'ket'             => 'MASUK DENGAN PO',
-					);
-					$result_stok_berjalan = $this->db->insert('trs_stok_bahanbaku', $data_stok_berjalan);
+					stok_bahanbaku($no_stokbb, $this->input->post('id_hub['.$loop.']'), $this->input->post('tgl_stok'), 'HUB', str_replace('.','',$this->input->post('datang['.$loop.']')), 0, 'MASUK DENGAN PO', 'MASUK');
 				}
 
 			}			
@@ -1196,10 +1188,12 @@ class M_logistik extends CI_Model
 						'masuk'           => $tonase_ppi,
 						'keluar'          => 0,
 						'ket'             => 'MASUK DENGAN PO',
+						'status'          => 'MASUK',
 					);
-					$result_stok_berjalan = $this->db->insert('trs_stok_bahanbaku', $data_stok_berjalan);
+					// $result_stok_berjalan = $this->db->insert('trs_stok_bahanbaku', $data_stok_berjalan);
 
 					$this->db->where('no_transaksi', $no_stokbb);
+					$this->db->where('jenis', 'PPI');
 					$this->db->where('tgl_input', $this->input->post('tgl_stok'));
 					$result_stok_berjalan = $this->db->update('trs_stok_bahanbaku', $data_stok_berjalan);
 				
@@ -1223,17 +1217,8 @@ class M_logistik extends CI_Model
 				$result_detail = $this->db->insert('trs_d_stok_bb', $data_detail);
 
 				// input stok berjalan
-				$data_stok_berjalan = array(				
-					'no_transaksi'    => $no_stokbb,
-					'id_hub'          => $this->input->post('id_hub['.$loop.']'),
-					'tgl_input'       => $this->input->post('tgl_stok'),
-					'jam_input'       => date("H:i:s"),
-					'jenis'           => 'HUB',
-					'masuk'           => str_replace('.','',$this->input->post('datang['.$loop.']')),
-					'keluar'          => 0,
-					'ket'             => 'MASUK DENGAN PO',
-				);
-				$result_stok_berjalan = $this->db->insert('trs_stok_bahanbaku', $data_stok_berjalan);
+
+				stok_bahanbaku($no_stokbb, $this->input->post('id_hub['.$loop.']'), $this->input->post('tgl_stok'), 'HUB', str_replace('.','',$this->input->post('datang['.$loop.']')), 0, 'MASUK DENGAN PO', 'MASUK');
 			}
 
 			if($result_detail)
@@ -1257,22 +1242,55 @@ class M_logistik extends CI_Model
 			// input stok berjalan PPI
 			if($tonase_ppi>0)
 			{
-				$data_stok_berjalan = array(				
-					'no_transaksi'    => $no_stokbb,
-					'id_hub'          => null,
-					'tgl_input'       => $this->input->post('tgl_stok'),
-					'jam_input'       => date("H:i:s"),
-					'jenis'           => 'PPI',
-					'masuk'           => $tonase_ppi,
-					'keluar'          => 0,
-					'ket'             => 'MASUK DENGAN PO',
-				);
-				$result_stok_berjalan = $this->db->insert('trs_stok_bahanbaku', $data_stok_berjalan);
+
+				stok_bahanbaku($no_stokbb, NULL, $this->input->post('tgl_stok'), 'PPI', $tonase_ppi, 0, 'MASUK DENGAN PO', 'MASUK');
 			
 			}
 		}
 		
 		return $result_header;
+			
+	}
+
+	function save_stok_ppi()
+	{
+		$sts_input    = $this->input->post('sts_input');
+		$thn          = date('Y');
+
+		if($sts_input=='edit')
+		{
+			$no_stok_ppi   = $this->input->post('no_stok_ppi');
+			$id_stok_ppi   = $this->input->post('id_stok_ppi');
+			$jam_stok      = $this->input->post('jam_stok');
+			// delete stok sebelumnya
+			$del_detail    = $this->db->query("DELETE FROM trs_stok_ppi WHERE no_stok_ppi='$no_stok_ppi' ");
+
+		}else{
+			$no_stok_ppi   = $this->m_fungsi->urut_transaksi('STOK_BB_PPI').'/'.'STOK_PPI/'.$thn;			
+			$jam_stok      = date('H:i:s');
+
+		}
+
+		for($loop = 1; $loop <= 8; $loop++)
+		{
+			$data_detail = array(				
+				'no_stok_ppi'   => $no_stok_ppi,
+				'tgl_stok'      => $this->input->post('tgl_stok'),
+				'ket_header'    => $this->input->post('ket_header'),
+				'jam_stok'      => $jam_stok,
+				'ket'           => $this->input->post('ket'.$loop),
+				'tonase_masuk'  => str_replace('.','',$this->input->post('masuk'.$loop)),
+				'tonase_keluar' => str_replace('.','',$this->input->post('keluar'.$loop)),
+				'status' 		=> 'Open',
+			);
+			$result_detail = $this->db->insert('trs_stok_ppi', $data_detail);
+
+			// input stok berjalan PPI
+
+			// stok_bahanbaku($no_stokbb, NULL, $this->input->post('tgl_stok'), 'PPI', $tonase_ppi, 0, 'MASUK DENGAN PO', 'MASUK');
+		}
+		
+		return $result_detail;
 			
 	}
 	
