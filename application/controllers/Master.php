@@ -594,7 +594,7 @@ class Master extends CI_Controller
 				
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = '<div class="">'.$r->nm_kelompok.'</div>';
+				$row[] = '<div class="">'.$r->nm_akun.'</div>';
 				$row[] = '<div class="text-center">'.$r->id_akun.'.'.$r->kd_kelompok.'</div>';
 				$row[] = $r->nm_kelompok;
 
