@@ -1053,6 +1053,7 @@ class M_logistik extends CI_Model
 			{
 				$this->db->set("acc_admin", 'Y');
 				$this->db->set("acc_owner", 'Y');
+				// stok_bahanbaku($cekPO->kode_po, $cekPO->id_hub, $cekPO->tgl_po, 'HUB', 0, $cekPO_detail->bahan, 'KELUAR DENGAN INV', 'KELUAR');
 			}else{
 				$this->db->set("acc_admin", 'N');
 				$this->db->set("acc_owner", 'N');
@@ -1078,6 +1079,17 @@ class M_logistik extends CI_Model
 			if($acc=='N')
 			{
 				$this->db->set("acc_owner", 'Y');
+				// $cek_detail = $this->db->query("SELECT*FROM invoice_header a
+				// join invoice_detail b on a.no_invoice=b.no_invoice
+				//  where b.no_invoice='$no_inv' ")->result();
+				// $no = 1;
+				// foreach ( $cek_detail as $row ) 
+				// {
+				// 	if($row->type=='box' || $row->type=='sheet' )
+				// 	{
+				// 		stok_bahanbaku($no_inv, $cekPO->id_hub, $row->tgl_invoice, 'HUB', 0, $cekPO_detail->bahan, 'KELUAR DENGAN INV', 'KELUAR');
+				// 	}
+				// }
 			}else{
 				$this->db->set("acc_owner", 'N');
 			}
