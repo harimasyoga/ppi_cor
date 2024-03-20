@@ -1524,6 +1524,21 @@
 									</div>
 								</div>
 							</div>
+							<div class="hpp_pm">
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-12">HPP PM</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-12">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+											</div>
+											<input type="text" id="hpp_pm" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="0" disabled>
+										</div>
+									</div>
+								</div>
+							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-12">HPP</div>
 							</div>
@@ -1833,6 +1848,8 @@
 		$("#hasil_x_tonase").val("").prop('disabled', true)
 		$("#fix_hpp_aktual").val("").prop('disabled', true)
 
+		$(".hpp_pm").hide()
+
 		$("#presentase").val("10").prop('disabled', true)
 		$("#hasil_hpp_tanpa_bb").val("").prop('disabled', true)
 		$("#hasil_x_tonase_tanpa_bb").val("").prop('disabled', true)
@@ -1894,24 +1911,28 @@
 			$(".tonase-order-sheet").hide()
 			$(".tonase-order-box").hide()
 			$(".tonase-order-lam").hide()
+			$(".hpp_pm").hide()
 		}
 		if(cbx == 'sheet'){
 			$(".tonase-order-pm").hide()
 			$(".tonase-order-sheet").show()
 			$(".tonase-order-box").hide()
 			$(".tonase-order-lam").hide()
+			$(".hpp_pm").show()
 		}
 		if(cbx == 'box'){
 			$(".tonase-order-pm").hide()
 			$(".tonase-order-sheet").hide()
 			$(".tonase-order-box").show()
 			$(".tonase-order-lam").hide()
+			$(".hpp_pm").hide()
 		}
 		if(cbx == 'laminasi'){
 			$(".tonase-order-pm").hide()
 			$(".tonase-order-sheet").hide()
 			$(".tonase-order-box").hide()
 			$(".tonase-order-lam").show()
+			$(".hpp_pm").show()
 		}
 	}
 
