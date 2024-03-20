@@ -4315,11 +4315,24 @@ class Logistik extends CI_Controller
 			$i++;
 			$row = array();
 			$row[] = '<div class="text-center">'.$i.'</div>';
-			$row[] = substr($this->m_fungsi->getHariIni($r->tgl),0,3).', '.$this->m_fungsi->tglIndSkt($r->tgl);
+			$row[] = strtoupper(substr($this->m_fungsi->getHariIni($r->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl));
 			$row[] = $r->no_surat;
 			$row[] = $r->no_po;
 			$row[] = $r->nm_pelanggan;
 			$row[] = $r->no_kendaraan;
+
+			($r->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
+			$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$r->no_surat."&top=".$jarak."&ctk=0").'" title="'.$r->no_surat.'" >PRINT</a>';
+			$btnJasa = '<a target="_blank" class="btn btn-xs btn-primary" style="font-weight:bold" href="'.base_url("Logistik/suratJalanJasa?jenis=".$r->no_surat."&top=5&ctk=0").'" title="SJ JASA" >JASA</a>';
+
+			$no_surat = explode("/", $r->no_surat);
+			if($no_surat[0] == 000){
+				$aksi = '-';
+			}else{
+				$aksi = $btnPrint.' '.$btnJasa;
+			}
+			
+			$row[] = '<div class="text-center">'.$aksi.'</div>';
 			$data[] = $row;
 		}
 
@@ -4350,7 +4363,7 @@ class Logistik extends CI_Controller
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">BB</th>
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">TONASE</th>
 				</tr>';
-				foreach($getUrut->result() as $urut){
+				foreach($getUrut->result() as $urut){ //
 					($tglNow == $urut->tgl && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $btnBtl = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="btnBatalPengiriman('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')">BATAL</button> - ' : $btnBtl = '' ;
 					($tglNow == $urut->tgl && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $editPL = 'onchange="addPengirimanNoPlat('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"' : $editPL = 'disabled';
 					$html .='<tr>
@@ -4379,8 +4392,10 @@ class Logistik extends CI_Controller
 						($sjpo->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
 						if($noSJ[0] != 000 && in_array($this->session->userdata('level'), ['Admin', 'User'])){
 							$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$sjpo->no_surat."&top=".$jarak."&ctk=0").'" title="'.$sjpo->no_surat.'" >PRINT</a>';
+							$btnJasa = '<a target="_blank" class="btn btn-xs btn-primary" style="font-weight:bold" href="'.base_url("Logistik/suratJalanJasa?jenis=".$sjpo->no_surat."&top=5&ctk=0").'" title="SJ JASA" >JASA</a>';
 						}else{
 							$btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
+							$btnJasa = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">JASA</span>';
 						}
 
 						// EDIT NOMER SURAT JALAN
@@ -4391,7 +4406,7 @@ class Logistik extends CI_Controller
 								'.$this->m_fungsi->angkaRomawi($no).' - NO. SURAT JALAN : &nbsp;<input type="number" class="form-control" id="pp-nosj-'.$sjpo->id.'" style="height:100%;width:50px;text-align:center;padding:2px 4px" value="'.$noSJ[0].'" '.$eNoSj.'>'.$ketSJ.'
 							</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">NO. PO : '.$sjpo->no_po.'</td>
-							<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="6">'.$btnPrint.'</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="6">'.$btnPrint.' '.$btnJasa.'</td>
 						</tr>';
 						$getItems = $this->db->query("SELECT r.*,i.*,p.nm_pelanggan FROM m_rencana_kirim r
 						INNER JOIN m_produk i ON r.id_produk=i.id_produk
@@ -4939,6 +4954,158 @@ class Logistik extends CI_Controller
             echo $html;
         }
     }
+
+	//
+
+	function suratJalanJasa()
+	{
+		$jenis = $_GET['jenis'];
+        $top = $_GET['top'];
+        $ctk = $_GET['ctk'];
+        $html = '';
+
+		$html .= '<table style="margin:0 0 1px;padding:0;border-bottom:1px solid #000;font-size:12px;border-collapse:collapse;color:#000;font-family:tahoma;width:100%">
+			<tr>
+				<th style="font-size:20px" rowspan="3">
+					<img src="'.base_url('assets/gambar/ppi.png').'" width="80" height="70">
+				</th>
+				<th style="padding:5px 0;text-align:left">PT. PRIMA PAPER INDONESIA</th>
+			</tr>
+			<tr>
+				<th style="padding:5px 0;text-align:left">DUSUN TIMANG KULON, DESA WONOKERTO, KEC. WONOGIRI, KAB. WONOGIRI</th>
+			</tr>
+			<tr>
+				<th style="padding:5px 0;text-align:left">WONOGIRI - JAWA TENGAH - INDONESIA. KODE POS 57615</th>
+			</tr>
+		</table>';
+
+		$header = $this->db->query("SELECT h.id_hub,h.nm_hub,h.alamat AS alamat_hub,b.nm_pelanggan,b.attn,b.alamat_kirim,a.* FROM pl_box a
+		INNER JOIN m_pelanggan b ON a.id_perusahaan=b.id_pelanggan
+		LEFT JOIN m_hub h ON a.id_hub=h.id_hub
+		WHERE a.no_surat='$jenis'
+		GROUP BY a.no_surat")->row();
+
+		// DETAIL
+		$html .= '<table style="margin:0 0 5px;padding:0;border-top:2px solid #000;font-size:12px;vertical-align:top;border-collapse:collapse;color:#000;font-family:tahoma;width:100%">
+			<tr>
+				<th style="width:15%"></th>
+				<th style="width:1%"></th>
+				<th style="width:28%"></th>
+				<th style="width:15%"></th>
+				<th style="width:1%"></th>
+				<th style="width:40%"></th>
+			</tr>
+			<tr>
+				<td style="padding:8px 0;text-align:center;font-weight:bold;font-size:18px;text-decoration:underline" colspan="6">SURAT JALAN JASA</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">TANGGAL</td>
+				<td style="text-align:center;padding:5px 0">:</td>
+				<td style="padding:5px 0">'.$header->tgl.'</td>
+				<td style="padding:5px 0">KEPADA</td>
+				<td style="text-align:center;padding:5px 0">:</td>
+				<td style="padding:5px 0">'.$header->nm_pelanggan.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0">NO. SURAT</td>
+				<td style="text-align:center;padding:5px 0">:</td>
+				<td style="padding:5px 0">'.$header->no_surat.'</td>
+				<td style="padding:5px 0">ATTN</td>
+				<td style="text-align:center;padding:5px 0">:</td>
+				<td style="padding:5px 0">'.$header->attn.'</td>
+			</tr>
+			<tr>
+				<td style="padding:5px 0"></td>
+				<td style="padding:5px 0"></td>
+				<td style="padding:5px 0"></td>
+				<td style="padding:5px 0">ALAMAT</td>
+				<td style="text-align:center;padding:5px 0">:</td>
+				<td style="padding:5px 0">'.$header->alamat_kirim.'</td>
+			</tr>
+		</table>';
+
+		$html .= '<table style="margin:0;padding:0;font-size:12px;border-collapse:collapse;text-align:center;vertical-align:top;color:#000;font-family:tahoma;width:100%">
+			<tr>
+				<th style="width:5%"></th>
+				<th style="width:25%"></th>
+				<th style="width:30%"></th>
+				<th style="width:8%"></th>
+				<th style="width:13%"></th>
+				<th style="width:19%"></th>
+			</tr>
+			<tr>
+				<td style="border:1px solid #000;padding:5px">NO</td>
+				<td style="border:1px solid #000;padding:5px;text-align:left">NO. PO</td>
+				<td style="border:1px solid #000;padding:5px;text-align:left">ITEM DESCRIPTION</td>
+				<td style="border:1px solid #000;padding:5px">FLUTE</td>
+				<td style="border:1px solid #000;padding:5px">QTY</td>
+				<td style="border:1px solid #000;padding:5px">KETERANGAN</td>
+			</tr>';
+
+			// AMBIL DATA
+			$detail = $this->db->query("SELECT r.*,p.*,i.*,SUM(r.qty_muat) AS muat FROM m_rencana_kirim r
+			INNER JOIN pl_box p ON r.id_pl_box=p.id
+			INNER JOIN m_produk i ON r.id_produk=i.id_produk
+			WHERE p.no_surat='$jenis'
+			GROUP BY r.id_pelanggan,r.id_produk,r.rk_kode_po");
+			$no = 0;
+			$sumQty = 0;
+			foreach ($detail->result() as $data ) {
+				$no++;
+				$expKualitas = explode("/", $data->kualitas);
+				if($data->flute == 'BCF'){
+					if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
+						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+					}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
+						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+					}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
+						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+					}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
+						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+					}else{
+						$kualitas = $data->kualitas;
+					}
+				}else{
+					$kualitas = $data->kualitas;
+				}
+				if($data->kategori == 'K_BOX'){
+					$ukuran = $data->nm_produk.'. '.strtolower(str_replace(' ', '', $data->ukuran)).'. '.$kualitas;
+					$qty_ket = 'PCS';
+				}else{
+					$ukuran = $data->ukuran_sheet.'. '.$kualitas;
+					$qty_ket = 'LEMBAR';
+				}
+				($data->flute == "BCF") ? $flute = 'BC' : $flute = $data->flute;
+
+				$html .= '<tr>
+					<td style="border:1px solid #000;padding:5px 0">'.$no.'</td>
+					<td style="border:1px solid #000;padding:5px;text-align:left">'.$data->rk_kode_po.'</td>
+					<td style="border:1px solid #000;padding:5px;text-align:left">'.$ukuran.'</td>
+					<td style="border:1px solid #000;padding:5px 0">'.$flute.'</td>
+					<td style="border:1px solid #000;padding:5px 0">'.number_format($data->muat).' '.$qty_ket.'</td>
+					<td style="border:1px solid #000;padding:5px 0"></td>
+				</tr>';
+
+				$sumQty += $data->muat;
+			}
+
+			if($detail->num_rows() > 1){
+				$html .= '<tr>
+					<td style="border:1px solid #000;padding:5px 0;font-weight:bold" colspan="4">TOTAL</td>
+					<td style="border:1px solid #000;padding:5px 0;font-weight:bold">'.number_format($sumQty).' '.$qty_ket.'</td>
+					<td style="border:1px solid #000;padding:5px 0"></td>
+				</tr>';
+			}
+
+		$html .='</table>';
+
+		$judul = 'SURAT JALAN JASA';
+		if($ctk == '0'){
+			$this->m_fungsi->newMpdf($judul, '', $html, $top, 5, 1, 5, 'P', 'A4', $judul.'.pdf');
+		}else{
+			echo $html;
+		}
+	}
 
 	//
 
