@@ -113,7 +113,8 @@
 													<th style="width:16%;padding:12px;text-align:center">NO. SJ</th>
 													<th style="width:16%;padding:12px;text-align:center">NO. PO</th>
 													<th style="width:31%;padding:12px;text-align:center">CUSTOMER</th>
-													<th style="width:16%;padding:12px;text-align:center">PLAT</th>
+													<th style="width:8%;padding:12px;text-align:center">PLAT</th>
+													<th style="width:8%;padding:12px;text-align:center">AKSI</th>
 												</tr>
 											</thead>
 											<tbody></tbody>
