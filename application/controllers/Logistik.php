@@ -4495,17 +4495,18 @@ class Logistik extends CI_Controller
 
         // KOP
 		// HUB
+		// CV. '.$data_pl->nm_hub.'</span><br>'.$data_pl->alamat_hub.'
 		if($data_pl->id_hub != 7){
 			($data_pl->nm_pelanggan == "-" || $data_pl->nm_pelanggan == "") ? $nm_pelanggan = $data_pl->attn : $nm_pelanggan = $data_pl->nm_pelanggan;
-			$html .= '<table style="font-size:11px;color:#000;border-collapse:collapse;width:100%;vertical-align:top;font-family:Arial !important">
+			$html .= '<table style="font-size:12px;color:#000;border-collapse:collapse;width:100%;vertical-align:top;font-family:tahoma">
 				<tr>
 					<td style="width:60%"></td>
-					<td style="width:14%"></td>
+					<td style="width:15%"></td>
 					<td style="width:1%"></td>
-					<td style="width:25%"></td>
+					<td style="width:24%"></td>
 				</tr>
 				<tr>
-					<td style="padding:0 5px 5px 0"><span style="font-size:12px;font-weight:bold">CV. '.$data_pl->nm_hub.'</span><br>'.$data_pl->alamat_hub.'</td>
+					<td style="padding:0 5px 5px 0"><span style="font-size:12px;font-weight:bold"></td>
 					<td style="padding-bottom:5px;text-align:center;font-size:16px;vertical-align:middle;font-weight:bold" colspan="3">SURAT JALAN</td>
 				</tr>
 				<tr>
@@ -4681,10 +4682,11 @@ class Logistik extends CI_Controller
 		}
 
 		// ISI
-        $html .= '<table cellspacing="0" style="font-size:11px !important;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
+        // $html .= '<table cellspacing="0" style="font-size:11px !important;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
 
 			// HUB
 			if($data_pl->id_hub != 7){
+				$html .= '<table cellspacing="0" style="font-size:12px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:tahoma">';
 				$html .= '<tr>
 					<th style="width:5% !important;height:15px"></th>
 					<th style="width:39% !important;height:15px"></th>
@@ -4702,6 +4704,7 @@ class Logistik extends CI_Controller
 					<td style="border:1px solid #000;padding:5px 0">KETERANGAN</td>
 				</tr>';
 			}else{
+				$html .= '<table cellspacing="0" style="font-size:11px !important;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
 				$html .= '<tr>
 					<th style="width:5% !important;height:15px"></th>
 					<th style="width:25% !important;height:15px"></th>
@@ -4825,10 +4828,11 @@ class Logistik extends CI_Controller
         $html .= '</table>';
 
         // TTD
-        $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
+        // $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
 
 			// HUB
 			if($data_pl->id_hub != 7){
+				$html .= '<table cellspacing="0" style="font-size:12px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:tahoma">';
 				$html .= '<tr>
 					<th style="width:20% !important;height:15px"></th>
 					<th style="width:35% !important;height:15px"></th>
@@ -4875,6 +4879,7 @@ class Logistik extends CI_Controller
 			// 	</tr>';
 			// }
 			else{
+				$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
 				$html .= '<tr>
 					<th style="width:14% !important;height:35px"></th>
 					<th style="width:14% !important;height:35px"></th>
