@@ -1524,7 +1524,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="hpp_pm">
+							<!-- <div class="hpp_pm" style="display:none">
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 									<div class="col-md-12">HPP PM</div>
 								</div>
@@ -1539,6 +1539,21 @@
 									</div>
 								</div>
 							</div>
+							<div class="hpp_sheet" style="display:none">
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-12">HPP SHEET</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-12">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+											</div>
+											<input type="text" id="hpp_sheet" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="0" disabled>
+										</div>
+									</div>
+								</div>
+							</div> -->
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-12">HPP</div>
 							</div>
@@ -1848,7 +1863,10 @@
 		$("#hasil_x_tonase").val("").prop('disabled', true)
 		$("#fix_hpp_aktual").val("").prop('disabled', true)
 
-		$(".hpp_pm").hide()
+		// $(".hpp_pm").hide()
+		$("#hpp_pm").val("")
+		// $(".hpp_sheet").hide()
+		// $("#hpp_sheet").val("")
 
 		$("#presentase").val("10").prop('disabled', true)
 		$("#hasil_hpp_tanpa_bb").val("").prop('disabled', true)
@@ -1911,28 +1929,24 @@
 			$(".tonase-order-sheet").hide()
 			$(".tonase-order-box").hide()
 			$(".tonase-order-lam").hide()
-			$(".hpp_pm").hide()
 		}
 		if(cbx == 'sheet'){
 			$(".tonase-order-pm").hide()
 			$(".tonase-order-sheet").show()
 			$(".tonase-order-box").hide()
 			$(".tonase-order-lam").hide()
-			$(".hpp_pm").show()
 		}
 		if(cbx == 'box'){
 			$(".tonase-order-pm").hide()
 			$(".tonase-order-sheet").hide()
 			$(".tonase-order-box").show()
 			$(".tonase-order-lam").hide()
-			$(".hpp_pm").hide()
 		}
 		if(cbx == 'laminasi'){
 			$(".tonase-order-pm").hide()
 			$(".tonase-order-sheet").hide()
 			$(".tonase-order-box").hide()
 			$(".tonase-order-lam").show()
-			$(".hpp_pm").show()
 		}
 	}
 
@@ -2048,6 +2062,7 @@
 	function pilihListHPP(id_hpp, opsi)
 	{
 		$("#pilih_id_hpp").val("")
+		$(".tampil-pilih-hpp").html("")
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/pilihListHPP')?>',
 			type: "POST",
@@ -2077,8 +2092,17 @@
 				if(opsi == 'laminasi'){
 					$("#wp_rp").val(data.pm.hasil_x_tonase)
 				}
-				HitungBB(data.pm.jenis_hpp, opsi)
 				$("#pilih_id_hpp").val(data.pm.id_hpp)
+				// $("#hpp_pm").val(data.pm.fix_hpp)
+				// $("#hasil_x_tonase_tanpa_bb").val(data.pm.fix_hpp)
+				$(".tampil-pilih-hpp").html(`<div class="input-group">
+					<div class="input-group-prepend">
+						<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">HPP</span>
+					</div>
+					<input type="text" id="hpp_pm" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="${data.pm.fix_hpp}" disabled>
+				</div>`)
+
+				HitungBB(data.pm.jenis_hpp, opsi)
 				swal.close()
 			}
 		})
@@ -2541,8 +2565,15 @@
 		$("#fix_hpp_aktual").val(formatRupiah(fix_hpp_aktual.toString()))
 
 		// HASIL X TONASE TANPA BAHAN BAKU
-		let hxt_tanpa_bb = 0;
-		(hitung_hpp == 0 || h_tonase_order == '') ? hxt_tanpa_bb = 0 : hxt_tanpa_bb = Math.round(parseInt(hitung_hpp_tanpa_bb) / parseInt(h_tonase_order).toFixed()).toFixed();
+		let hpp_pm = $("#hpp_pm").val();
+		let h_hpp_pm = (hpp_pm == '' || isNaN(hpp_pm)) ? 0 : parseInt(hpp_pm.split('.').join(''));
+		console.log(h_hpp_pm);
+		let hxt_tanpa_bb = 0
+		if(hitung_hpp == 0 || h_tonase_order == ''){
+			hxt_tanpa_bb = 0
+		}else{
+			hxt_tanpa_bb = Math.round( (parseInt(hitung_hpp_tanpa_bb) / parseInt(h_tonase_order).toFixed()) + h_hpp_pm ).toFixed()
+		}
 		$("#hasil_x_tonase_tanpa_bb").val(formatRupiah(hxt_tanpa_bb.toString()));
 		
 		// HPP TONASE ORDER PRESENTASE

@@ -1148,7 +1148,9 @@ class M_transaksi extends CI_Model
 		if(($_POST["pilih_hpp"] == 'PM2' || $_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX' || $_POST["pilih_hpp"] == 'LAMINASI') && ($_POST["hasil_hpp"] == '' || $_POST["tonase_order"] == '' || $_POST["hasil_x_tonase"] == '' || $_POST["hasil_hpp"] == 0 || $_POST["tonase_order"] == 0 || $_POST["hasil_x_tonase"] == 0)){
 			$insertHPP = false; $msg = 'DATA HPP KOSONG!'; $cek = ''; $cart = '';
 		}else if(($_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX' || $_POST["pilih_hpp"] == 'LAMINASI') && ($_POST["bahan_baku_x"] == '' || $_POST["bahan_baku_x"] == 0)){
-			$insertHPP = false; $msg = 'DATA HPP KOSONG!'; $cek = ''; $cart = '';
+			$insertHPP = false; $msg = 'DATA BAHAN BAKU KOSONG!'; $cek = ''; $cart = '';
+		}else if(($_POST["pilih_hpp"] == 'SHEET' || $_POST["pilih_hpp"] == 'BOX' || $_POST["pilih_hpp"] == 'LAMINASI') && $_POST["pilih_id_hpp"] == ''){
+			$insertHPP = false; $msg = 'PILIH HPP DAHULU!'; $cek = ''; $cart = '';
 		}else{
 			$pilih_hpp = $_POST["pilih_hpp"];
 			$pilih_id_hpp = $_POST["pilih_id_hpp"];
