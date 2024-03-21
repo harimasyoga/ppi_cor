@@ -69,6 +69,46 @@
                   </div>
               </div> -->
 
+                <?php if(in_array($level, ['Admin','User'])){ ?>
+                    
+                      <!-- CEK PRODUK -->
+                      
+                      <div class="col-md-12 row-stok_bhn">
+                        <div class="card card-info card-outline">
+                          <div class="card-header">
+                            <h3 class="card-title" style="font-weight:bold;font-style:italic">CEK PRODUK</h3>
+                          </div>
+                          <div class="card-body">
+                          <div class="row">
+                              <div class="col-md-10">
+                              </div>
+
+                            
+                          </div>
+                            <div style="padding:0 10px 20px;">
+                              <div style="overflow:auto;white-space:nowrap" >
+                                <table id="load_cek_produk" class="table table-bordered table-striped" width="100%">
+                                  <thead class="color-tabel">
+                                    <tr>
+                                      <th style="width:5%">NO</th>
+                                      <th style="width:25%">ID PELANGGAN</th>
+                                      <th style="width:20%">NM PELANGGAN</th>
+                                      <th style="width:20%">KODE PO</th>
+                                      <th style="width:20%">ID PRODUK</th>
+                                      <th style="width:20%">NM PRODUK</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                        </div>
+                      </div>
+                      <!-- END CEK PRODUK -->
+
+                  <?php } ?>
+
                   <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub'])){ ?>
                     
                     <!-- REKAP STOK BAHAN BAKU -->
@@ -243,6 +283,7 @@
       load_data_hub()
       load_data_jt()
       load_data_bhn()
+      load_cek_produk()
     });
 
     function reloadTable() 
@@ -250,6 +291,7 @@
       load_data_hub()
       load_data_jt()
       load_data_bhn()
+      load_cek_produk()
     }
 
     function load_data_hub()
@@ -358,6 +400,27 @@
       $(".row-stok_bhn").attr('style', '')
       $(".row-omset_hub").attr('style', '')
       $(".row-jatuh_tempo").attr('style', '')
+    }
+
+    
+    function load_cek_produk() 
+    {
+      var table = $('#load_cek_produk').DataTable();
+      table.destroy();
+      tabel = $('#load_cek_produk').DataTable({
+        "processing": true,
+        "pageLength": true,
+        "paging": true,
+        "ajax": {
+          "url": '<?php echo base_url(); ?>Master/cek_produk',
+          "type": "POST",
+        },
+        responsive: true,
+        "pageLength": 10,
+        "language": {
+          "emptyTable": "Tidak ada data.."
+        }
+      });
     }
   </script>
 

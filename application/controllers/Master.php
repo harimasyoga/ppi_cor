@@ -1028,6 +1028,41 @@ class Master extends CI_Controller
 		//output to json format
 		echo json_encode($output);
 	}
+
+	function cek_produk()
+	{
+		$jenis = $this->uri->segment(3);
+
+		$data = array();
+		$query = $this->m_master->query("SELECT a.id_pelanggan,c.nm_pelanggan,a.kode_po,b.id_produk,d.nm_produk FROM trs_po a 
+		join trs_po_detail b on a.kode_po=b.kode_po
+		join m_pelanggan c on a.id_pelanggan=a.id_pelanggan
+		join m_produk d on b.id_produk=d.id_produk
+		where a.kode_po in (select no from tbl_bantuan) and c.nm_pelanggan not like '%PT. DELTA%' and c.nm_pelanggan not like '%PT. DUNIA%'
+		group by a.id_pelanggan,c.nm_pelanggan,a.kode_po,b.id_produk,d.nm_produk
+		order by c.nm_pelanggan,a.kode_po,b.id_produk,d.nm_produk
+		")->result();
+
+		$i = 1;
+		foreach ($query as $r) {
+			$row = array();
+			$row[] = '<div class="text-center" style="font-weight:bold">'.$i.'</div>';
+			$row[] = $r->id_pelanggan;
+			$row[] = $r->nm_pelanggan;
+			$row[] = $r->kode_po;
+			$row[] = $r->id_produk;
+			$row[] = $r->nm_produk;
+
+			$data[] = $row;
+			$i++;
+		}
+
+		$output = array(
+			"data" => $data,
+		);
+		//output to json format
+		echo json_encode($output);
+	}
 	
 	function getEditPelanggan()
 	{
