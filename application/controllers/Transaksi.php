@@ -4359,7 +4359,10 @@ class Transaksi extends CI_Controller
 							'.strtoupper(substr($this->m_fungsi->getHariIni($r->tgl_hpp),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl_hpp)).', '.$r->jenis_hpp.'
 						</button>
 					</div>
-					<div class="col-md-9"></div>
+					<div class="col-md-6"></div>
+					<div class="col-md-3">
+						<div class="tampil-pilih-hpp"></div>
+					</div>
 				</div>';
 			}
 		}else{
@@ -4383,6 +4386,7 @@ class Transaksi extends CI_Controller
 			"jenis_hpp" => $get->jenis_hpp,
 			"bahan_baku_rp" => number_format($get->bahan_baku_rp,0,',','.'),
 			"hasil_x_tonase" => number_format($get->hasil_x_tonase,0,',','.'),
+			"fix_hpp" => number_format($get->fix_hpp,0,',','.'),
 		];
 
 		echo json_encode([

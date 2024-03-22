@@ -648,11 +648,18 @@ class Logistik extends CI_Controller
 						<td style="padding:6px;border:0" colspan="5"></td>
 					</tr>
 					<tr>
-						<td style="padding:0 6px;border:0" colspan="2">NO. SURAT JALAN <span style="float:right">:</span></td>
-						<td style="padding:0 6px;border:0" colspan="2">
+						<td style="padding:6px;border:0" colspan="2">NO. SURAT JALAN <span style="float:right">:</span></td>
+						<td style="padding:6px;border:0" colspan="2">
 							<input type="number" class="form-control" style="padding:6px;height:100%;text-align:right" id="p_no_sj-'.$g->id_pelanggan_lm.'" value="'.$sj.'" onkeyup="noSJLaminasi('."'".$g->id_pelanggan_lm."'".')">
 						</td>
-						<td style="padding:0 6px;border:0" colspan="5">/'.$tahun.'/LM</td>
+						<td style="padding:6px;border:0" colspan="5">/'.$tahun.'/LM</td>
+					</tr>
+					<tr>
+						<td style="padding:6px;border:0" colspan="2">ATTN <span style="float:right">:</span></td>
+						<td style="padding:6px;border:0" colspan="2">
+							<input type="text" class="form-control" style="padding:6px;height:100%" id="attn-'.$g->id_pelanggan_lm.'" value="'.$g->nm_pelanggan_lm.'" oninput="this.value=this.value.toUpperCase()">
+						</td>
+						<td style="padding:6px;border:0" colspan="5"></td>
 					</tr>
 					<tr>
 						<td style="padding:6px;border:0" colspan="2">NO. KENDARAAN <span style="float:right">:</span></td>
@@ -662,7 +669,7 @@ class Logistik extends CI_Controller
 						<td style="padding:6px;border:0" colspan="5"></td>
 					</tr>
 					<tr>
-						<td style="padding:0 6px 6px;border:0;font-weight:bold" colspan="2">LIST :</td>
+						<td style="padding:6px;border:0;font-weight:bold" colspan="2">LIST :</td>
 					</tr>
 					<tr style="background:#f8f9fc">
 						<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">#</th>
@@ -800,6 +807,11 @@ class Logistik extends CI_Controller
 		$pl = $this->db->query("SELECT*FROM pl_laminasi l
 		INNER JOIN m_pelanggan_lm p ON l.id_perusahaan=p.id_pelanggan_lm
 		WHERE l.no_surat='$no_surat' GROUP BY l.no_surat")->row();
+		if($pl->attn_pl == null){
+			$attn = $pl->nm_pelanggan_lm;
+		}else{
+			$attn = $pl->attn_pl;
+		}
 
 		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;vertical-align:top;border-collapse:collapse;color:#000;width:100%">
 			<tr>
@@ -809,7 +821,7 @@ class Logistik extends CI_Controller
 				<td style="width:27%"></td>
 			</tr>
 			<tr>
-				<td style="padding:3px 0;font-weight:bold;font-size:20px;text-align:center;vertical-align:middle" rowspan="7">SURAT JALAN</td>
+				<td style="padding:3px 0;font-weight:bold;font-size:20px;text-align:center;vertical-align:middle" rowspan="6">SURAT JALAN</td>
 				<td style="padding:5px 0 3px;font-weight:bold">NO. SURAT JALAN</td>
 				<td style="padding:5px 0 3px">:</td>
 				<td style="padding:3px 0 10px;font-weight:bold;font-size:16px;border-bottom:1px dotted #000">'.$pl->no_surat.'</td>
@@ -822,12 +834,7 @@ class Logistik extends CI_Controller
 			<tr>
 				<td style="padding:3px 0;font-weight:bold">KEPADA</td>
 				<td style="padding:3px 0">:</td>
-				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$pl->nm_pelanggan_lm.'</td>
-			</tr>
-			<tr>
-				<td style="padding:3px 0;font-weight:bold">ATTN</td>
-				<td style="padding:3px 0">:</td>
-				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$pl->attn.'</td>
+				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$attn.'</td>
 			</tr>
 			<tr>
 				<td style="padding:3px 0;font-weight:bold">ALAMAT</td>
