@@ -3447,6 +3447,64 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function pilihPilihan()
+	{
+		$pelanggan = $_POST["pilih_cust"];
+		$htmlPO = '';
+
+		$data = $this->db->query("SELECT*FROM trs_po p
+		WHERE p.status='Approve' AND p.id_pelanggan='$pelanggan'
+		GROUP BY kode_po ORDER BY tgl_po");
+
+		$htmlPO .='<option value="">PILIH</option>';
+		foreach($data->result() as $r){	
+			$htmlPO .='<option value="'.$r->kode_po.'">'.$r->kode_po.'</option>';
+		}
+
+		echo json_encode([
+			'htmlPO' => $htmlPO,
+		]);
+	}
+
+	function plhPO()
+	{
+		$id_pelanggan = $_POST["pilih_cust"];
+		$no_po = $_POST["pilih_no_po"];
+		$html = '';
+		
+		
+		$html .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+			<div class="col-md-12">';
+				$so = $this->db->query("SELECT*FROM trs_so_detail WHERE id_pelanggan='$id_pelanggan' AND kode_po='$no_po'");
+				if($so->num_rows() > 0){
+					$i = 0;
+					$html .= '<table>';
+					foreach($so->result() as $s){
+						$i++;
+						$html .= '<tr>
+							<td style="padding:5px;border:1px solid #000">'.$i.'. '.$s->no_so.'.'.$s->urut_so.'.'.$s->rpt.'</td>
+						</tr>';
+					}
+					$html .= '</table>';
+				}else{
+					$html .= 'DATA KOSONG!!';
+				}
+			$html .= '</div>
+		</div>';
+
+
+		echo json_encode([
+			'1_SO' => ($so->num_rows() == 0) ? '-' : $so->result(),
+			'2_WO' => '',
+			'3_PLAN_COR' => '',
+			'4_PLAN_FLEXO' => '',
+			'5_PLAN_FINISHING' => '',
+			'html' => $html,
+		]);
+	}
+
+	//
+
 	function plhListPlan()
 	{
 		$html = '';
