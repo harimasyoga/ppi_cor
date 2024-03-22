@@ -489,6 +489,7 @@
 	{
 		let tgl = $("#p_tgl-"+id_pelanggan_lm).val()
 		let no_sj = $("#p_no_sj-"+id_pelanggan_lm).val()
+		let attn = $("#attn-"+id_pelanggan_lm).val()
 		let no_kendaraan = $("#p_no_kendaraan-"+id_pelanggan_lm).val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/kirimSJLaminasi')?>',
@@ -504,7 +505,7 @@
 				});
 			},
 			data: ({
-				id_pelanggan_lm, tgl, no_sj, no_kendaraan
+				id_pelanggan_lm, tgl, no_sj, attn, no_kendaraan
 			}),
 			success: function(res){
 				data = JSON.parse(res)
