@@ -3450,6 +3450,36 @@ class Logistik extends CI_Controller
 	function pilihPilihan()
 	{
 		$pelanggan = $_POST["pilih_cust"];
+		$htmlItem = '';
+		$htmlPO = '';
+
+		$data = $this->db->query("SELECT*FROM m_produk WHERE no_customer='$pelanggan' ORDER BY nm_produk");
+
+		$htmlItem .='<option value="">PILIH</option>';
+		foreach($data->result() as $r){
+			($r->kategori == 'K_BOX') ? $ket = '[BOX]' : $ket = '[SHEET]';
+			($r->kategori == 'K_BOX') ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
+			$htmlItem .='<option value="'.$r->id_produk.'">'.$ket.' '.$r->nm_produk.' | '.$r->flute.' | '.$ukuran.' | '.$r->kualitas.'</option>';
+		}
+
+		$data_po = $this->db->query("SELECT*FROM trs_po p
+		WHERE p.status='Approve' AND p.id_pelanggan='$pelanggan'
+		GROUP BY kode_po ORDER BY tgl_po");
+		$htmlPO .='<option value="">PILIH</option>';
+		foreach($data_po->result() as $r){	
+			$htmlPO .='<option value="'.$r->kode_po.'">'.$r->kode_po.'</option>';
+		}
+
+		echo json_encode([
+			'htmlItem' => $htmlItem,
+			'htmlPO' => $htmlPO,
+		]);
+	}
+	
+	function plhItems()
+	{
+		$pelanggan = $_POST["pilih_cust"];
+		$plhItems = $_POST["plhItems"];
 		$htmlPO = '';
 
 		$data = $this->db->query("SELECT*FROM trs_po p
@@ -3466,40 +3496,74 @@ class Logistik extends CI_Controller
 		]);
 	}
 
-	function plhPO()
+	function tampilPilihan()
 	{
 		$id_pelanggan = $_POST["pilih_cust"];
+		$id_produk = $_POST["pilih_items"];
 		$no_po = $_POST["pilih_no_po"];
 		$html = '';
 		
+		$htmlPO = '';
+		if($id_produk != '' && $no_po  == ''){
+			$where = "AND d.id_produk='$id_produk'";
+		}else if($id_produk == '' && $no_po  != ''){
+			$where = "AND d.kode_po='$no_po'";
+		}else if($id_produk != '' && $no_po  != ''){
+			$where = "AND d.id_produk='$id_produk' AND d.kode_po='$no_po'";
+		}else{
+			$where = '';
+		}
+
+		$data_po = $this->db->query("SELECT p.* FROM trs_po p
+		INNER JOIN trs_po_detail d ON p.kode_po=d.kode_po AND p.id_pelanggan=d.id_pelanggan
+		WHERE p.status='Approve' AND p.id_pelanggan='$id_pelanggan' $where
+		GROUP BY p.kode_po ORDER BY p.tgl_po");
+		$htmlPO .='<option value="">PILIH</option>';
+		foreach($data_po->result() as $r){	
+			$htmlPO .='<option value="'.$r->kode_po.'">'.$r->kode_po.'</option>';
+		}
 		
-		$html .= '<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-			<div class="col-md-12">';
-				$so = $this->db->query("SELECT*FROM trs_so_detail WHERE id_pelanggan='$id_pelanggan' AND kode_po='$no_po'");
-				if($so->num_rows() > 0){
-					$i = 0;
-					$html .= '<table>';
-					foreach($so->result() as $s){
-						$i++;
-						$html .= '<tr>
-							<td style="padding:5px;border:1px solid #000">'.$i.'. '.$s->no_so.'.'.$s->urut_so.'.'.$s->rpt.'</td>
-						</tr>';
-					}
-					$html .= '</table>';
-				}else{
-					$html .= 'DATA KOSONG!!';
-				}
-			$html .= '</div>
-		</div>';
+		$so = $this->db->query("SELECT*FROM trs_so_detail d WHERE d.id_pelanggan='$id_pelanggan' $where");
+
+		$wo = $this->db->query("SELECT*FROM trs_wo d WHERE d.id_pelanggan='$id_pelanggan' $where");
+
+		//
+
+		if($id_produk != '' && $no_po  == ''){
+			$wPlan = "AND w.id_produk='$id_produk'";
+		}else if($id_produk == '' && $no_po  != ''){
+			$wPlan = "AND w.kode_po='$no_po'";
+		}else if($id_produk != '' && $no_po  != ''){
+			$wPlan = "AND w.id_produk='$id_produk' AND w.kode_po='$no_po'";
+		}else{
+			$wPlan = '';
+		}
+
+		$plan_cor = $this->db->query("SELECT*FROM plan_cor d
+		INNER JOIN trs_wo w ON d.id_wo=w.id
+		WHERE w.id_pelanggan='$id_pelanggan' $wPlan");
+
+		$plan_flexo = $this->db->query("SELECT*FROM plan_flexo d
+		INNER JOIN plan_cor c ON d.id_plan_cor=c.id_plan
+		INNER JOIN trs_wo w ON c.id_wo=w.id
+		WHERE w.id_pelanggan='$id_pelanggan' $wPlan");
+
+		$plan_finishing = $this->db->query("SELECT*FROM plan_finishing d
+		INNER JOIN plan_cor c ON d.id_plan_cor=c.id_plan
+		INNER JOIN trs_wo w ON c.id_wo=w.id
+		INNER JOIN plan_flexo f ON d.id_plan_flexo=f.id_flexo
+		WHERE w.id_pelanggan='$id_pelanggan' $wPlan");
 
 
 		echo json_encode([
-			'1_SO' => ($so->num_rows() == 0) ? '-' : $so->result(),
-			'2_WO' => '',
-			'3_PLAN_COR' => '',
-			'4_PLAN_FLEXO' => '',
-			'5_PLAN_FINISHING' => '',
-			'html' => $html,
+			'1_DATA_PO' => ($data_po->num_rows() == 0) ? '-' : $data_po->result(),
+			'2_SO' => ($so->num_rows() == 0) ? '-' : $so->result(),
+			'3_WO' => ($wo->num_rows() == 0) ? '-' : $wo->result(),
+			'4_PLAN_COR' => ($plan_cor->num_rows() == 0) ? '-' : $plan_cor->result(),
+			'5_PLAN_FLEXO' => ($plan_flexo->num_rows() == 0) ? '-' : $plan_flexo->result(),
+			'6_PLAN_FINISHING' => ($plan_finishing->num_rows() == 0) ? '-' : $plan_finishing->result(),
+			// 'html' => $html,
+			'htmlPO' => $htmlPO,
 		]);
 	}
 
