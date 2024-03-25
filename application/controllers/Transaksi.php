@@ -263,6 +263,9 @@ class Transaksi extends CI_Controller
 			'hasil_hpp_tanpa_bb' => number_format($hpp->hasil_hpp_tanpa_bb,0,',','.'),
 			'hasil_x_tonase_tanpa_bb' => number_format($hpp->hasil_x_tonase_tanpa_bb,0,',','.'),
 			'hxt_x_persen' => number_format($hpp->hxt_x_persen,0,',','.'),
+			'hpp_pm' => number_format($hpp->hpp_pm,0,',','.'),
+			'hpp_sheet' => number_format($hpp->hpp_sheet,0,',','.'),
+			'hpp_plus_plus' => number_format($hpp->hpp_plus_plus,0,',','.'),
 			'fix_hpp' => number_format($hpp->fix_hpp,0,',','.'),
 			'fix_hpp_aktual' => number_format($hpp->fix_hpp_aktual,0,',','.'),
 		];
@@ -4352,6 +4355,7 @@ class Transaksi extends CI_Controller
 		$html = '';
 		if($data->num_rows() > 0){
 			foreach($data->result() as $r){
+				// <div class="col-md-3"><div class="tampil-pilih-hpp"></div></div>
 				$html .='<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 					<div class="col-md-3">
 						<button type="button" class="btn btn-block btn-sm bg-gradient-success" style="color:#000;font-weight:bold" onclick="pilihListHPP('."'".$r->id_hpp."'".','."'".$opsi."'".')">
@@ -4359,10 +4363,7 @@ class Transaksi extends CI_Controller
 							'.strtoupper(substr($this->m_fungsi->getHariIni($r->tgl_hpp),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl_hpp)).', '.$r->jenis_hpp.'
 						</button>
 					</div>
-					<div class="col-md-6"></div>
-					<div class="col-md-3">
-						<div class="tampil-pilih-hpp"></div>
-					</div>
+					<div class="col-md-9"></div>
 				</div>';
 			}
 		}else{
@@ -4386,6 +4387,7 @@ class Transaksi extends CI_Controller
 			"jenis_hpp" => $get->jenis_hpp,
 			"bahan_baku_rp" => number_format($get->bahan_baku_rp,0,',','.'),
 			"hasil_x_tonase" => number_format($get->hasil_x_tonase,0,',','.'),
+			"hasil_x_tonase_tanpa_bb" => number_format($get->hasil_x_tonase_tanpa_bb,0,',','.'),
 			"fix_hpp" => number_format($get->fix_hpp,0,',','.'),
 		];
 

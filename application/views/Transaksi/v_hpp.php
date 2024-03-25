@@ -1524,7 +1524,20 @@
 									</div>
 								</div>
 							</div>
-							<!-- <div class="hpp_pm" style="display:none">
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-12">HPP</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-12">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+										</div>
+										<input type="text" id="hasil_x_tonase_tanpa_bb" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="0" disabled>
+									</div>
+								</div>
+							</div>
+							<div class="hpp_pm" style="display:none">
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 									<div class="col-md-12">HPP PM</div>
 								</div>
@@ -1553,17 +1566,34 @@
 										</div>
 									</div>
 								</div>
-							</div> -->
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-12">HPP</div>
 							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-12">
-									<div class="input-group">
-										<div class="input-group-prepend">
-											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+							<div class="hpp_plus_pm" style="display:none">
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-12">HPP + HPP PM</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-12">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+											</div>
+											<input type="text" id="hpp_plus_pm" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="0" disabled>
 										</div>
-										<input type="text" id="hasil_x_tonase_tanpa_bb" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="0" disabled>
+									</div>
+								</div>
+							</div>
+							<div class="hpp_plus_sheet" style="display:none">
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-12">HPP + HPP SHEET</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-12">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+											</div>
+											<input type="text" id="hpp_plus_sheet" class="form-control" style="color:#000;font-weight:bold;text-align:right" placeholder="0" disabled>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -1863,10 +1893,10 @@
 		$("#hasil_x_tonase").val("").prop('disabled', true)
 		$("#fix_hpp_aktual").val("").prop('disabled', true)
 
-		// $(".hpp_pm").hide()
 		$("#hpp_pm").val("")
-		// $(".hpp_sheet").hide()
-		// $("#hpp_sheet").val("")
+		$("#hpp_sheet").val("")
+		$("#hpp_plus_pm").val("")
+		$("#hpp_plus_sheet").val("")
 
 		$("#presentase").val("10").prop('disabled', true)
 		$("#hasil_hpp_tanpa_bb").val("").prop('disabled', true)
@@ -1929,24 +1959,44 @@
 			$(".tonase-order-sheet").hide()
 			$(".tonase-order-box").hide()
 			$(".tonase-order-lam").hide()
+
+			$(".hpp_pm").hide()
+			$(".hpp_sheet").hide()
+			$(".hpp_plus_pm").hide()
+			$(".hpp_plus_sheet").hide()
 		}
 		if(cbx == 'sheet'){
 			$(".tonase-order-pm").hide()
 			$(".tonase-order-sheet").show()
 			$(".tonase-order-box").hide()
 			$(".tonase-order-lam").hide()
+
+			$(".hpp_pm").show()
+			$(".hpp_sheet").hide()
+			$(".hpp_plus_pm").show()
+			$(".hpp_plus_sheet").hide()
 		}
 		if(cbx == 'box'){
 			$(".tonase-order-pm").hide()
 			$(".tonase-order-sheet").hide()
 			$(".tonase-order-box").show()
 			$(".tonase-order-lam").hide()
+
+			$(".hpp_pm").hide()
+			$(".hpp_sheet").show()
+			$(".hpp_plus_pm").hide()
+			$(".hpp_plus_sheet").show()
 		}
 		if(cbx == 'laminasi'){
 			$(".tonase-order-pm").hide()
 			$(".tonase-order-sheet").hide()
 			$(".tonase-order-box").hide()
 			$(".tonase-order-lam").show()
+
+			$(".hpp_pm").show()
+			$(".hpp_sheet").hide()
+			$(".hpp_plus_pm").show()
+			$(".hpp_plus_sheet").hide()
 		}
 	}
 
@@ -2084,23 +2134,18 @@
 				if(opsi == 'sheet'){
 					$("#bk_rp").val(data.pm.hasil_x_tonase)
 					$("#mh_rp").val(data.pm.hasil_x_tonase)
+					$("#hpp_pm").val(data.pm.hasil_x_tonase_tanpa_bb)
 				}
 				if(opsi == 'box'){
 					$("#bk_rp_box").val(data.pm.hasil_x_tonase)
 					$("#mh_rp_box").val(data.pm.hasil_x_tonase)
+					$("#hpp_pm").val(0)
 				}
 				if(opsi == 'laminasi'){
 					$("#wp_rp").val(data.pm.hasil_x_tonase)
+					$("#hpp_pm").val(data.pm.hasil_x_tonase_tanpa_bb)
 				}
 				$("#pilih_id_hpp").val(data.pm.id_hpp)
-				// $("#hpp_pm").val(data.pm.fix_hpp)
-				// $("#hasil_x_tonase_tanpa_bb").val(data.pm.fix_hpp)
-				$(".tampil-pilih-hpp").html(`<div class="input-group">
-					<div class="input-group-prepend">
-						<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">HPP</span>
-					</div>
-					<input type="text" id="hpp_pm" class="form-control" style="font-weight:bold;color:#000;text-align:right" value="${data.pm.fix_hpp}" disabled>
-				</div>`)
 
 				HitungBB(data.pm.jenis_hpp, opsi)
 				swal.close()
@@ -2565,23 +2610,35 @@
 		$("#fix_hpp_aktual").val(formatRupiah(fix_hpp_aktual.toString()))
 
 		// HASIL X TONASE TANPA BAHAN BAKU
-		let hpp_pm = $("#hpp_pm").val();
-		let h_hpp_pm = (hpp_pm == '' || isNaN(hpp_pm)) ? 0 : parseInt(hpp_pm.split('.').join(''));
-		console.log(h_hpp_pm);
-		let hxt_tanpa_bb = 0
-		if(hitung_hpp == 0 || h_tonase_order == ''){
-			hxt_tanpa_bb = 0
-		}else{
-			hxt_tanpa_bb = Math.round( (parseInt(hitung_hpp_tanpa_bb) / parseInt(h_tonase_order).toFixed()) + h_hpp_pm ).toFixed()
-		}
+		let hxt_tanpa_bb = 0;
+		(hitung_hpp == 0 || h_tonase_order == '') ? hxt_tanpa_bb = 0 : hxt_tanpa_bb = Math.round((parseInt(hitung_hpp_tanpa_bb) / parseInt(h_tonase_order).toFixed())).toFixed();
 		$("#hasil_x_tonase_tanpa_bb").val(formatRupiah(hxt_tanpa_bb.toString()));
+		console.log("hxt_tanpa_bb : ", hxt_tanpa_bb);
+		
+		// HPP PM / HPP SHEET
+		let hppHPP = (pilih_hpp == 'SHEET' || pilih_hpp == 'LAMINASI') ? $("#hpp_pm").val().split('.').join('') : $("#hpp_sheet").val().split('.').join('');
+		let h_hppHPP = (hppHPP == 0 || isNaN(hppHPP)) ? 0 : hppHPP;
+		console.log("h_hppHPP : ", h_hppHPP);
+		let hpp_plus_plus = (hxt_tanpa_bb == 0 || isNaN(hxt_tanpa_bb)) ? 0 : parseInt(hxt_tanpa_bb) + parseInt(h_hppHPP);
+		console.log("hpp_plus_plus : ", hpp_plus_plus);
+
+		let hpp_akhir = 0;
+		if(pilih_hpp == 'PM2'){
+			hpp_akhir = hxt_tanpa_bb
+		}else if(pilih_hpp == 'SHEET' || pilih_hpp == 'LAMINASI'){
+			hpp_akhir = hpp_plus_plus
+			$("#hpp_plus_pm").val(formatRupiah(hpp_plus_plus.toString()));
+		}else{ // BOX
+			hpp_akhir = hpp_plus_plus
+			$("#hpp_plus_sheet").val(formatRupiah(hpp_plus_plus.toString()));
+		}
 		
 		// HPP TONASE ORDER PRESENTASE
 		(hitung_hpp_tanpa_bb != 0) ? $("#presentase").prop('disabled', false) : $("#presentase").prop('disabled', true);
 		let presentase = $("#presentase").val()
 		let h_presentase = (presentase == '' || isNaN(presentase)) ? 0 : parseInt(presentase);
-		let hxt_x_persen = Math.round((parseInt(hxt_tanpa_bb) * (h_presentase / 100)))
-		let fix_hpp = parseInt(hxt_tanpa_bb) + Math.round((parseInt(hxt_tanpa_bb) * (h_presentase / 100)))
+		let hxt_x_persen = Math.round((parseInt(hpp_akhir) * (h_presentase / 100)))
+		let fix_hpp = parseInt(hpp_akhir) + Math.round((parseInt(hpp_akhir) * (h_presentase / 100)))
 		$("#hxt_x_persen").val(formatRupiah(hxt_x_persen.toString()))
 		$("#fix_hpp").val(formatRupiah(fix_hpp.toString()))
 	}
@@ -2664,6 +2721,22 @@
 		let fix_hpp_aktual = $("#fix_hpp_aktual").val().split('.').join('')
 
 		// HITUNG HPP TANPA BAHAN BAKU
+		let hpp_pm = 0
+		let hpp_sheet = 0
+		let hpp_plus_plus = 0
+		if(pilih_hpp == 'PM2'){
+			hpp_pm = 0
+			hpp_sheet = 0
+			hpp_plus_plus = 0
+		}else if(pilih_hpp == 'SHEET' || pilih_hpp == 'LAMINASI'){
+			hpp_pm = $("#hpp_pm").val().split('.').join('')
+			hpp_sheet = 0
+			hpp_plus_plus = $("#hpp_plus_pm").val().split('.').join('')
+		}else{ // BOX
+			hpp_pm = 0
+			hpp_sheet = $("#hpp_sheet").val().split('.').join('')
+			hpp_plus_plus = $("#hpp_plus_sheet").val().split('.').join('')
+		}
 		let presentase = $("#presentase").val()
 		let hasil_hpp_tanpa_bb = $("#hasil_hpp_tanpa_bb").val().split('.').join('')
 		let hasil_x_tonase_tanpa_bb = $("#hasil_x_tonase_tanpa_bb").val().split('.').join('')
@@ -2683,7 +2756,7 @@
 				});
 			},
 			data: ({
-				id_hpp, pilih_id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonase, fix_hpp_aktual, hxt_x_persen, presentase, hasil_hpp_tanpa_bb, hasil_x_tonase_tanpa_bb, fix_hpp, statusInput
+				id_hpp, pilih_id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonase, fix_hpp_aktual, hxt_x_persen, presentase, hasil_hpp_tanpa_bb, hpp_pm, hpp_sheet, hpp_plus_plus, hasil_x_tonase_tanpa_bb, fix_hpp, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -2843,6 +2916,18 @@
 				$("#fix_hpp_aktual").val(data.data.fix_hpp_aktual)
 
 				// HITUNG HPP TANPA BAHAN BAKU
+				if(data.data.pilih_hpp == 'PM2'){
+					$("#hpp_pm").val(0)
+					$("#hpp_plus_pm").val(0)
+					$("#hpp_sheet").val(0)
+					$("#hpp_plus_sheet").val(0)
+				}else if(data.data.pilih_hpp == 'SHEET' || data.data.pilih_hpp == 'LAMINASI'){
+					$("#hpp_pm").val(data.data.hpp_pm)
+					$("#hpp_plus_pm").val(data.data.hpp_plus_plus)
+				}else{ // BOX
+					$("#hpp_sheet").val(data.data.hpp_sheet)
+					$("#hpp_plus_sheet").val(data.data.hpp_plus_plus)
+				}
 				$("#presentase").val(data.data.presentase).prop('disabled', prop)
 				$("#hasil_hpp_tanpa_bb").val(data.data.hasil_hpp_tanpa_bb)
 				$("#hasil_x_tonase_tanpa_bb").val(data.data.hasil_x_tonase_tanpa_bb)

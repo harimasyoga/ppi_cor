@@ -3560,6 +3560,11 @@ class Logistik extends CI_Controller
 							$wo = $this->db->query("SELECT*FROM trs_wo WHERE no_wo='$no_wo'");
 							if($wo->num_rows() > 0){
 								foreach($wo->result() as $w){
+									$html .='<tr>
+										<td></td>
+										<td style="padding:5px;font-weight:bold;text-align:center">WO</td>
+										<td></td>
+									</tr>';
 									// PLAN COR
 									$plan_cor = $this->db->query("SELECT*FROM plan_cor d INNER JOIN trs_wo w ON d.id_wo=w.id WHERE d.id_wo='$w->id'");
 									if($plan_cor->num_rows() > 0){
