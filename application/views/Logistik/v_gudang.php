@@ -63,7 +63,9 @@
 							</select>
 						</div>
 					</div>
-					<div class="tampil-pilih"></div>
+					<div style="overflow:auto;white-space:nowrap">
+						<div class="tampil-pilih"></div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -239,6 +241,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/tampilPilihan')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				pilih_cust, pilih_items, pilih_no_po: ''
 			}),
@@ -247,6 +259,7 @@
 				console.log(data)
 				$("#pilih_no_po").html(data.htmlPO).prop('disabled', false)
 				$(".tampil-pilih").html(data.html)
+				swal.close()
 			}
 		})
 	}
@@ -260,6 +273,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/tampilPilihan')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				pilih_cust, pilih_items, pilih_no_po
 			}),
@@ -267,6 +290,7 @@
 				data = JSON.parse(res)
 				console.log(data)
 				$(".tampil-pilih").html(data.html)
+				swal.close()
 			}
 		})
 	}

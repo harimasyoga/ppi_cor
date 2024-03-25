@@ -3522,47 +3522,104 @@ class Logistik extends CI_Controller
 		foreach($data_po->result() as $r){	
 			$htmlPO .='<option value="'.$r->kode_po.'">'.$r->kode_po.'</option>';
 		}
-		
-		$so = $this->db->query("SELECT*FROM trs_so_detail d WHERE d.id_pelanggan='$id_pelanggan' $where");
 
-		$wo = $this->db->query("SELECT*FROM trs_wo d WHERE d.id_pelanggan='$id_pelanggan' $where");
-
-		//
-
-		if($id_produk != '' && $no_po  == ''){
-			$wPlan = "AND w.id_produk='$id_produk'";
-		}else if($id_produk == '' && $no_po  != ''){
-			$wPlan = "AND w.kode_po='$no_po'";
-		}else if($id_produk != '' && $no_po  != ''){
-			$wPlan = "AND w.id_produk='$id_produk' AND w.kode_po='$no_po'";
-		}else{
-			$wPlan = '';
-		}
-
-		$plan_cor = $this->db->query("SELECT*FROM plan_cor d
-		INNER JOIN trs_wo w ON d.id_wo=w.id
-		WHERE w.id_pelanggan='$id_pelanggan' $wPlan");
-
-		$plan_flexo = $this->db->query("SELECT*FROM plan_flexo d
-		INNER JOIN plan_cor c ON d.id_plan_cor=c.id_plan
-		INNER JOIN trs_wo w ON c.id_wo=w.id
-		WHERE w.id_pelanggan='$id_pelanggan' $wPlan");
-
-		$plan_finishing = $this->db->query("SELECT*FROM plan_finishing d
-		INNER JOIN plan_cor c ON d.id_plan_cor=c.id_plan
-		INNER JOIN trs_wo w ON c.id_wo=w.id
-		INNER JOIN plan_flexo f ON d.id_plan_flexo=f.id_flexo
-		WHERE w.id_pelanggan='$id_pelanggan' $wPlan");
-
+		$html .= '<table style="margin:12px">';
+			if($data_po->num_rows() > 0){
+				foreach($data_po->result() as $po){
+					$html .='<tr>
+						<td style="padding:5px;font-weight:bold;text-align:center;border-top:1px solid #888">PO.</td>
+						<td style="padding:5px;font-weight:bold;border-top:1px solid #888" colspan="2">'.$po->kode_po.'</td>
+					</tr>';
+					// DETAIL
+					if($id_produk != ''){
+						$wDtl = "AND d.id_produk='$id_produk'";
+					}else{
+						$wDtl = '';
+					}
+					$detail = $this->db->query("SELECT*FROM trs_po_detail d
+					INNER JOIN m_produk p ON d.id_produk=p.id_produk
+					WHERE d.id_pelanggan='$id_pelanggan' AND d.kode_po='$po->kode_po' $wDtl
+					GROUP BY d.id_pelanggan,d.id_produk,d.kode_po");
+					foreach($detail->result() as $dtl){
+						($dtl->kategori == 'K_BOX') ? $ukuran = $dtl->ukuran : $ukuran = $dtl->ukuran_sheet;
+						$html .='<tr>
+							<td></td>
+							<td style="padding:5px;text-align:right"><b>-</b></td>
+							<td style="padding:5px">'.$dtl->nm_produk.' | '.$dtl->flute.' | '.$ukuran.' | '.$dtl->kualitas.' <span style="margin-left:10px;font-weight:bold;float:right">'.number_format($dtl->qty,0,',','.').'</span></td>
+						</tr>';
+						// SO
+						$so = $this->db->query("SELECT*FROM trs_so_detail WHERE id_pelanggan='$dtl->id_pelanggan' AND id_produk='$dtl->id_produk' AND kode_po='$dtl->kode_po'");
+						foreach($so->result() as $s){
+							$html .='<tr>
+								<td></td>
+								<td style="padding:5px;font-weight:bold;text-align:center">SO.</td>
+								<td style="padding:5px;font-weight:bold">'.$s->urut_so.'.'.$s->rpt.' <span style="margin-left:10px;float:right">'.number_format($s->qty_so,0,',','.').'</span></td>
+							</tr>';
+							// WO
+							$no_wo = 'WO-'.$s->no_so.'.'.$s->urut_so.'.'.$s->rpt;
+							$wo = $this->db->query("SELECT*FROM trs_wo WHERE no_wo='$no_wo'");
+							if($wo->num_rows() > 0){
+								foreach($wo->result() as $w){
+									// PLAN COR
+									$plan_cor = $this->db->query("SELECT*FROM plan_cor d INNER JOIN trs_wo w ON d.id_wo=w.id WHERE d.id_wo='$w->id'");
+									if($plan_cor->num_rows() > 0){
+										foreach($plan_cor->result() as $c){
+											$html .='<tr>
+												<td></td>
+												<td></td>
+												<td style="padding:5px"><b>-</b> ['.$c->shift_plan.'.'.$c->machine_plan.'] '.strtoupper(substr($this->m_fungsi->getHariIni($c->tgl_plan),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($c->tgl_plan)).' <span style="margin-left:10px;float:right">'.number_format($c->good_cor_p,0,',','.').'</span></td>
+											</tr>';
+											// PLAN FLEXO
+											$plan_flexo = $this->db->query("SELECT*FROM plan_flexo d INNER JOIN plan_cor c ON d.id_plan_cor=c.id_plan WHERE d.id_plan_cor='$c->id_plan'");
+											if($plan_flexo->num_rows() > 0){
+												foreach($plan_flexo->result() as $f){
+													$html .='<tr>
+														<td></td>
+														<td></td>
+														<td style="padding:5px"><b>--</b> ['.$f->shift_flexo.'.'.$f->mesin_flexo.'] '.strtoupper(substr($this->m_fungsi->getHariIni($f->tgl_flexo),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($f->tgl_flexo)).' <span style="margin-left:10px;float:right">'.number_format($f->good_flexo_p,0,',','.').'</span></td>
+													</tr>';
+													// PLAN FINISHING
+													$plan_finishing = $this->db->query("SELECT*FROM plan_finishing d
+													INNER JOIN plan_cor c ON d.id_plan_cor=c.id_plan
+													INNER JOIN plan_flexo f ON d.id_plan_flexo=f.id_flexo
+													WHERE d.id_plan_cor='$f->id_plan_cor' AND d.id_plan_flexo='$f->id_flexo'");
+													if($plan_finishing->num_rows() > 0){
+														foreach($plan_finishing->result() as $x){
+															$html .='<tr>
+																<td></td>
+																<td></td>
+																<td style="padding:5px"><b>---</b> ['.$x->shift_fs.'.'.$x->joint_fs.'] '.strtoupper(substr($this->m_fungsi->getHariIni($x->tgl_fs),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($x->tgl_fs)).' <span style="margin-left:10px;float:right">'.number_format($x->good_fs_p,0,',','.').'</span></td>
+															</tr>';
+														}
+													}
+												}
+											}
+											// GUDANG
+											$gudang = $this->db->query("SELECT*FROM m_gudang WHERE gd_id_pelanggan='$c->id_pelanggan' AND  gd_id_produk='$c->id_produk' AND gd_id_trs_wo='$c->id_wo' AND gd_id_plan_cor='$c->id_plan'");
+											if($gudang->num_rows() > 0){
+												$g_qty = ($gudang->row()->gd_good_qty == 0) ? '-' : number_format($gudang->row()->gd_good_qty,0,',','.');
+												$html .='<tr>
+													<td></td>
+													<td></td>
+													<td style="padding:5px"><b>---- GUDANG <span style="margin-left:10px;float:right">'.$g_qty.'</span></b></td>
+												</tr>';
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}else{
+				$html .='<tr>
+					<td style="padding:5px 0;font-weight:bold">DATA KOSONG!</td>
+				</tr>';
+			}
+		$html .= '</table>';
 
 		echo json_encode([
-			'1_DATA_PO' => ($data_po->num_rows() == 0) ? '-' : $data_po->result(),
-			'2_SO' => ($so->num_rows() == 0) ? '-' : $so->result(),
-			'3_WO' => ($wo->num_rows() == 0) ? '-' : $wo->result(),
-			'4_PLAN_COR' => ($plan_cor->num_rows() == 0) ? '-' : $plan_cor->result(),
-			'5_PLAN_FLEXO' => ($plan_flexo->num_rows() == 0) ? '-' : $plan_flexo->result(),
-			'6_PLAN_FINISHING' => ($plan_finishing->num_rows() == 0) ? '-' : $plan_finishing->result(),
-			// 'html' => $html,
+			'html' => $html,
 			'htmlPO' => $htmlPO,
 		]);
 	}
