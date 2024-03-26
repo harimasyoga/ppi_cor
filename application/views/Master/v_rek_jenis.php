@@ -18,48 +18,13 @@
 			margin: 0;
 		}
 	</style>
-
-	<section class="content">
-		<div class="card shadow mb-3">
-			<div class="row-list">
-				<div class="card-header" style="font-family:Cambria;">		
-						<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?></b></h3>
-
-						<div class="card-tools">
-							<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
-								<i class="fas fa-minus"></i></button>
-						</div>
-				</div>
-				<div class="card-body" >
-					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi'])){ ?>
-						<div style="margin-bottom:12px">
-							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
-						</div>
-					<?php } ?>
-					<!-- <div style="overflow:auto;white-space:nowrap"> -->
-						<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
-							<thead class="color-tabel">
-								<tr>
-									<th class="text-center title-white">KODE</th>
-									<th class="text-center title-white">NAMA AKUN</th>
-									<th class="text-center title-white">AKSI</th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table>
-					<!-- </div> -->
-				</div>
-			</div>			
-		</div>
-	</section>
-
 	<div class="container-fluid row-input" style="display: none;">
 		<form role="form" method="post" id="myForm">
 			<div class="row">
 				<div class="col-md-12">
 					<div class="card card-info card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">Input Pembayaran</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">Input Rekening Jenis</h3>
 						</div>
 											
 						<div class="card-body row" style="padding-bottom:none;font-weight:bold">						
@@ -68,24 +33,85 @@
 							
 						</div>
 
-						<div class="card-body row" style="padding : 5px;font-weight:bold">
-							<div class="col-md-1"></div>
-								
-							<div class="col-md-2">KODE AKUN</div>
-								<div class="col-md-3">
+							<div class="card-body row" style="padding : 5px;font-weight:bold">
+								<div class="col-md-1"></div>
+
+								<div class="col-md-2">PILIH KELOMPOK</div>
+								<div class="col-md-1">
+									
 									<input type="hidden" class="angka form-control" name="sts_input" id="sts_input" >
-									<input type="hidden" class="angka form-control" name="id_akun" id="id_akun" >
-									<input type="text" class="angka form-control" name="kode_akun" id="kode_akun" >
+
+									<button class="btn btn-success btn-sm" style="width:100%;margin:auto" data-toggle="modal" data-target=".list_kelompok" type="button" onclick="load_kelompok()">
+									<i class="fa fa-search"></i>
+								</button>
+								</div>
+
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="padding : 5px;font-weight:bold">
+								<div class="col-md-1"></div>
+
+								<div class="col-md-2">KODE AKUN</div>
+								
+								<div class="col-md-3">
+									<div class="input-group mb-1">
+										<div class="input-group-append">
+											<span class="input-group-text" id="id_akun">&nbsp;&nbsp; .</span>
+										</div>
+										<input type="hidden" class="form-control" name="kd_akun" id="kd_akun" maxlength="4" readonly>
+										<input type="text" class="form-control" name="nm_akun" id="nm_akun" maxlength="4" readonly>
+
+									</div>
 								</div>
 
 								<div class="col-md-6"></div>
 							</div>
 							<div class="card-body row" style="padding : 5px;font-weight:bold">
 								<div class="col-md-1"></div>
-								<div class="col-md-2">NAMA AKUN</div>
+								<div class="col-md-2">KODE KELOMPOK</div>
 								<div class="col-md-3">
-									<input type="text" class="form-control" name="nm_akun" id="nm_akun" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " >
+									<div class="input-group mb-1">
+										<div class="input-group-append">
+											<span class="input-group-text" id="id_kelompok">&nbsp;&nbsp; .</span>
+										</div>
+										<input type="hidden" class="form-control" name="kd_kelompok" id="kd_kelompok" maxlength="4" readonly>
+										<input type="text" class="form-control" name="nm_kelompok" id="nm_kelompok" maxlength="4" readonly>
+
+									</div>
 								</div>
+									
+
+								<div class="col-md-6"></div>
+
+							</div>
+							
+							<div class="card-body row" style="padding : 5px;font-weight:bold">
+								<div class="col-md-1"></div>
+								<div class="col-md-2">KODE JENIS</div>
+								<div class="col-md-3">
+									<div class="input-group mb-1">
+										<div class="input-group-append">
+											<span class="input-group-text" id="id_jenis">&nbsp;&nbsp; .</span>
+										</div>
+										<input type="hidden" class="angka form-control" name="id_jenis_old" id="id_jenis_old" maxlength="2" >
+										<input type="text" class="angka form-control" name="kd_jenis" id="kd_jenis" maxlength="2" >
+
+									</div>
+								</div>
+									
+
+								<div class="col-md-6"></div>
+
+							</div>
+							<div class="card-body row" style="padding : 5px;font-weight:bold">
+								<div class="col-md-1"></div>
+								<div class="col-md-2">NAMA JENIS</div>
+								<div class="col-md-3">
+									<div class="input-group mb-1">
+										<input type="text" class="form-control" name="nm_jenis" id="nm_jenis" oninput="this.value = this.value.toUpperCase()">
+
+									</div>
+								</div>									
 
 								<div class="col-md-6"></div>
 
@@ -113,7 +139,81 @@
 			</div>
 		</form>	
 	</div>
+	<section class="content">
+		<div class="card shadow mb-3">
+			<div class="row-list">
+				<div class="card-header" style="font-family:Cambria;">		
+						<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?></b></h3>
+
+						<div class="card-tools">
+							<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+								<i class="fas fa-minus"></i></button>
+						</div>
+				</div>
+				<div class="card-body" >
+					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi'])){ ?>
+						<div style="margin-bottom:12px">
+							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+						</div>
+					<?php } ?>
+					<!-- <div style="overflow:auto;white-space:nowrap"> -->
+						<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
+							<thead class="color-tabel">
+								<tr>
+									<th class="text-center title-white">NO</th>
+									<th class="text-center title-white">NAMA AKUN</th>
+									<th class="text-center title-white">NAMA KELOMPOK</th>
+									<th class="text-center title-white">KODE JENIS</th>
+									<th class="text-center title-white">NAMA JENIS</th>
+									<th class="text-center title-white">JENIS</th>
+									<th class="text-center title-white">D/K</th>
+									<th class="text-center title-white">AKSI</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					<!-- </div> -->
+				</div>
+			</div>			
+		</div>
+	</section>
+
 </div>
+
+<!-- Modal kelompok -->
+<div class="modal fade list_kelompok" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-full" style="width:100%;margin:auto">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5><b>Pilih Kelompok</b></h5>
+            </div>
+            <div class="modal-body">
+				<div style="overflow:auto;white-space:nowrap">
+
+                <table class="table table-bordered table-striped" id="tbl_kelompok" style="margin:auto !important">
+                    <thead>
+                        <tr class="color-tabel">
+                            <th class="text-center title-white">NO </th>
+                            <th class="text-center title-white">NAMA AKUN</th>
+                            <th class="text-center title-white">KODE KELOMPOK</th>
+                            <th class="text-center title-white">NAMA KELOMPOK</th>
+                            <th class="text-center title-white">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+				</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- Modal kelompok -->
 
 
 <script type="text/javascript">
@@ -142,7 +242,7 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url('Master/load_data/load_kd_akun')?>',
+				"url": '<?php echo base_url('Master/load_data/load_kd_jenis')?>',
 				"type": "POST",
 			},
 			"aLengthMenu": [
@@ -157,8 +257,45 @@
 		})
 	}
 	
+	function load_kelompok()
+	{
+		let table = $('#tbl_kelompok').DataTable();
+		table.destroy();
+		tabel = $('#tbl_kelompok').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url": '<?php echo base_url('Master/load_data/load_kd_kelompok_list')?>',
+				"type": "POST",
+			},
+			"aLengthMenu": [
+				[5, 10, 50, 100, -1],
+				[5, 10, 50, 100, "Semua"]
+			],	
+			responsive: false,
+			"pageLength": 10,
+			"language": {
+				"emptyTable": "TIDAK ADA DATA.."
+			}
+		})
+	}
+
+	function add_timb(id_akun,nm_akun,kd_kelompok,nm_kelompok)
+	{		
+		$('.list_kelompok').modal('hide');
+		$("#id_akun").html(id_akun)
+		$("#kd_akun").val(id_akun)
+		$('#nm_akun').val(nm_akun);
+		$("#id_kelompok").html(id_akun+'.'+kd_kelompok)
+		$("#kd_kelompok").val(kd_kelompok)
+		$('#nm_kelompok').val(nm_kelompok);
+		$("#id_jenis").html(id_akun+'.'+kd_kelompok+'.')
+
+		swal.close();
+	}
 	
-	function edit_data(id,no_inv)
+	function edit_data(id,kd_jenis)
 	{
 		$(".row-input").attr('style', '');
 		$(".row-list").attr('style', 'display:none');
@@ -169,7 +306,7 @@
 		$.ajax({
 			url        : '<?= base_url(); ?>Master/load_data_1',
 			type       : "POST",
-			data       : { id, tbl:'m_kode_akun', jenis :'kode_akun',field :'id_akun' },
+			data       : { id, tbl:'m_kode_jenis', jenis :'kode_jenis',field :'id_jenis' },
 			dataType   : "JSON",
 			beforeSend: function() {
 				swal({
@@ -184,10 +321,18 @@
 			success: function(data) {
 				if(data){
 					// header
-					
-					$("#id_akun").val(data.header.id_akun);
-					$("#kode_akun").val(data.header.kd_akun);
-					$("#nm_akun").val(data.header.nm_akun);
+
+					$("#id_akun").html(data.header.kd_akun)
+					$("#kd_akun").val(data.header.kd_akun)
+					$('#nm_akun').val(data.header.nm_akun);
+					$("#id_kelompok").html(data.header.kd_akun+'.'+data.header.kd_kelompok)
+					$("#kd_kelompok").val(data.header.kd_kelompok)
+					$('#nm_kelompok').val(data.header.nm_kelompok);
+					$("#id_jenis").html(data.header.kd_akun+'.'+data.header.kd_kelompok+'.')
+					$("#id_jenis_old").val(data.header.id_jenis)
+					$("#kd_jenis").val(data.header.kd_jenis)
+					$('#nm_jenis').val(data.header.nm_jenis);
+
 
 					swal.close();
 
@@ -223,18 +368,26 @@
 	{
 		statusInput = 'insert'
 		$("#sts_input").val("")
-		$("#id_akun").val("")
-		$("#kode_akun").val("")
+		$("#id_akun").html(".")
+		$("#kd_akun").val("")
 		$("#nm_akun").val("")
+		$("#id_kelompok").html(".")
+		$("#kd_kelompok").val("")
+		$("#nm_kelompok").val("")
+		$("#id_jenis").html("")
+		$("#id_jenis_old").val("")
+		$("#kd_jenis").val("")
+		$("#nm_jenis").val("")
+		
 		swal.close()
 	}
 
 	function simpan() 
 	{
-		var kode_akun   = $("#kode_akun").val();
-		var nm_akun     = $("#nm_akun").val();
+		var kd_jenis    = $("#kd_jenis").val();
+		var nm_jenis    = $("#nm_jenis").val();
 
-		if (kode_akun='' || nm_akun== '' ) 
+		if (kd_jenis='' || nm_jenis== '' ) 
 		{			
 			swal.close();
 			swal({
@@ -247,7 +400,7 @@
 		}
 
 		$.ajax({
-			url        : '<?= base_url(); ?>Master/Insert_kode_akun',
+			url        : '<?= base_url(); ?>Master/Insert_kode_jenis',
 			type       : "POST",
 			data       : $('#myForm').serialize(),
 			dataType   : "JSON",
@@ -263,7 +416,7 @@
 					});
 					// location.href = "<?= base_url()?>Master/Invoice_edit?id="+data.id+"&no_inv="+no_inv_ok+"";					
 					kosong();
-					location.href = "<?= base_url()?>Master/Rek_akun";
+					location.href = "<?= base_url()?>Master/Rek_jenis";
 					
 				} else {
 					// toastr.error('Gagal Simpan');
@@ -334,8 +487,8 @@
 				url: '<?= base_url(); ?>Master/hapus',
 				data: ({
 					id: id,
-					jenis: 'm_kode_akun',
-					field: 'id_akun'
+					jenis: 'm_kode_jenis',
+					field: 'id_jenis'
 				}),
 				type: "POST",
 				beforeSend: function() {

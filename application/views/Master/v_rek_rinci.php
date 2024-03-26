@@ -25,7 +25,7 @@
 				<div class="col-md-12">
 					<div class="card card-info card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">Input Rekening Kelompok</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">Input Rekening Rinci</h3>
 						</div>
 											
 						<div class="card-body row" style="padding-bottom:none;font-weight:bold">						
@@ -36,54 +36,118 @@
 
 							<div class="card-body row" style="padding : 5px;font-weight:bold">
 								<div class="col-md-1"></div>
+
+								<div class="col-md-2">PILIH JENIS</div>
+								<div class="col-md-1">
 									
-								<div class="col-md-2">KODE AKUN</div>
-								<div class="col-md-4">
-									<select class="form-control select2" name="kd_akun" id="kd_akun" onchange="tempel_akun()">
-									</select>
+									<input type="hidden" class="angka form-control" name="sts_input" id="sts_input" >
+
+									<button class="btn btn-success btn-sm" style="width:100%;margin:auto" data-toggle="modal" data-target=".list_kelompok" type="button" onclick="load_jenis()">
+									<i class="fa fa-search"></i>
+								</button>
 								</div>
 
-								<div class="col-md-5"></div>
+								<div class="col-md-8"></div>
 							</div>
 							<div class="card-body row" style="padding : 5px;font-weight:bold">
 								<div class="col-md-1"></div>
-									
-								<div class="col-md-2">KODE KELOMPOK</div>
-								<div class="col-md-4">
-									<div class="input-group mb-3">
+
+								<div class="col-md-2">KODE AKUN</div>
+								
+								<div class="col-md-3">
+									<div class="input-group mb-1">
 										<div class="input-group-append">
-											<span class="input-group-text" id="idakun"></span>
+											<span class="input-group-text" id="id_akun">&nbsp;&nbsp; .</span>
 										</div>
-										<input type="hidden" class="angka form-control" name="sts_input" id="sts_input" >
-										<input type="hidden" class="angka form-control" name="id_kelompok" id="id_kelompok" >
-										
-										<input type="text" class="angka form-control" name="kd_kelompok" id="kd_kelompok" maxlength="2">
-										<input type="hidden" class="angka form-control" name="kd_kelompok_old" id="kd_kelompok_old" maxlength="2">
+										<input type="hidden" class="form-control" name="kd_akun" id="kd_akun" maxlength="4" readonly>
+										<input type="text" class="form-control" name="nm_akun" id="nm_akun" maxlength="4" readonly>
 
 									</div>
 								</div>
 
-								<div class="col-md-5"></div>
+								<div class="col-md-6"></div>
 							</div>
 							<div class="card-body row" style="padding : 5px;font-weight:bold">
 								<div class="col-md-1"></div>
-								<div class="col-md-2">NAMA KELOMPOK</div>
-								<div class="col-md-4">
-									<input type="text" class="form-control" name="nm_kelompok" id="nm_kelompok" oninput="this.value = this.value.toUpperCase()" >
-								</div>
+								<div class="col-md-2">KODE KELOMPOK</div>
+								<div class="col-md-3">
+									<div class="input-group mb-1">
+										<div class="input-group-append">
+											<span class="input-group-text" id="id_kelompok">&nbsp;&nbsp; .</span>
+										</div>
+										<input type="hidden" class="form-control" name="kd_kelompok" id="kd_kelompok" maxlength="4" readonly>
+										<input type="text" class="form-control" name="nm_kelompok" id="nm_kelompok" maxlength="4" readonly>
 
-								<div class="col-md-5"></div>
+									</div>
+								</div>
+									
+
+								<div class="col-md-6"></div>
+
+							</div>
+							<div class="card-body row" style="padding : 5px;font-weight:bold">
+								<div class="col-md-1"></div>
+								<div class="col-md-2">KODE JENIS</div>
+								<div class="col-md-3">
+									<div class="input-group mb-1">
+										<div class="input-group-append">
+											<span class="input-group-text" id="id_jenis">&nbsp;&nbsp; .</span>
+										</div>
+										<input type="hidden" class="form-control" name="kd_jenis" id="kd_jenis" maxlength="4" readonly>
+										<input type="text" class="form-control" name="nm_jenis" id="nm_jenis" maxlength="4" readonly>
+
+									</div>
+								</div>
+									
+
+								<div class="col-md-6"></div>
+
+							</div>
+							
+							<div class="card-body row" style="padding : 5px;font-weight:bold">
+								<div class="col-md-1"></div>
+								<div class="col-md-2">KODE RINCI</div>
+								<div class="col-md-3">
+									<div class="input-group mb-1">
+										<div class="input-group-append">
+											<span class="input-group-text" id="id_rinci">&nbsp;&nbsp; .</span>
+										</div>
+										<input type="hidden" class="angka form-control" name="id_rinci_old" id="id_rinci_old" maxlength="2" >
+										<input type="text" class="angka form-control" name="kd_rinci" id="kd_rinci" maxlength="2" >
+
+									</div>
+								</div>
+									
+
+								<div class="col-md-6"></div>
+
+							</div>
+							<div class="card-body row" style="padding : 5px;font-weight:bold">
+								<div class="col-md-1"></div>
+								<div class="col-md-2">NAMA RINCI</div>
+								<div class="col-md-3">
+									<div class="input-group mb-1">
+										<input type="text" class="form-control" name="nm_rinci" id="nm_rinci" oninput="this.value = this.value.toUpperCase()">
+
+									</div>
+								</div>									
+
+								<div class="col-md-6"></div>
 
 							</div>
 						<br>
 						
 						<div class="card-body row"style="font-weight:bold">
-							<div class="col-md-4">
+							<div class="col-md-2">
 								<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
 									<i class="fa fa-undo" ></i> Kembali</b>
 								</button>
-								<span id="btn-simpan"></span>
 							</div>
+							<div class="col-md-2">
+								<div id="btn-simpan"></div>
+								
+							</div>	
+							
 							<div class="col-md-6"></div>
 							
 						</div>
@@ -118,8 +182,10 @@
 								<tr>
 									<th class="text-center title-white">NO</th>
 									<th class="text-center title-white">NAMA AKUN</th>
-									<th class="text-center title-white">KODE KELOMPOK</th>
 									<th class="text-center title-white">NAMA KELOMPOK</th>
+									<th class="text-center title-white">NAMA JENIS</th>
+									<th class="text-center title-white">KODE RINCI</th>
+									<th class="text-center title-white">NAMA RINCI</th>
 									<th class="text-center title-white">JENIS</th>
 									<th class="text-center title-white">D/K</th>
 									<th class="text-center title-white">AKSI</th>
@@ -133,8 +199,43 @@
 		</div>
 	</section>
 
-	
 </div>
+
+<!-- Modal kelompok -->
+<div class="modal fade list_kelompok" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-full" style="width:100%;margin:auto">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5><b>Pilih Kelompok</b></h5>
+            </div>
+            <div class="modal-body">
+				<div style="overflow:auto;white-space:nowrap">
+
+                <table class="table table-bordered table-striped" id="tbl_jenis" style="margin:auto !important">
+                    <thead>
+                        <tr class="color-tabel">
+                            <th class="text-center title-white">NO </th>
+                            <th class="text-center title-white">NAMA AKUN</th>
+                            <th class="text-center title-white">NAMA KELOMPOK</th>
+                            <th class="text-center title-white">KODE JENIS</th>
+                            <th class="text-center title-white">NAMA JENIS</th>
+                            <th class="text-center title-white">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+				</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- Modal kelompok -->
 
 
 <script type="text/javascript">
@@ -145,7 +246,6 @@
 	{
 		kosong()
 		load_data()
-		load_akun()
 		$('.select2').select2();
 	});
 
@@ -154,52 +254,6 @@
 		table = $('#datatable').DataTable();
 		tabel.ajax.reload(null, false);
 	}
-
-	function load_akun() 
-	{
-		option = "";
-		$.ajax({
-			type       : 'POST',
-			url        : "<?= base_url(); ?>Master/load_akun",
-			dataType   : 'json',
-			// data       : {tgl_sj,type_po,stat},
-			beforeSend: function() {
-				swal({
-				title: 'loading ...',
-				allowEscapeKey    : false,
-				allowOutsideClick : false,
-				onOpen: () => {
-					swal.showLoading();
-				}
-				})
-			},
-			success:function(data){			
-				if(data.message == "Success")
-				{				
-					option = "<option>--- Pilih ---</option>";
-					$.each(data.data, function(index, val) 
-					{
-						option += `<option value="${val.kd_akun}" data-kd="${val.kd_akun}" >${val.kd_akun} | ${val.nm_akun}</option>`;
-					});
-
-					$('#kd_akun').html(option);
-					swal.close();
-				}else{	
-					option += "<option value=''>Data Kosong</option>";
-					$('#kd_akun').html(option);		
-					swal.close();
-				}
-			}
-		});
-	}
-
-	function tempel_akun()
-	{
-		var kd_akun   = $('#kd_akun option:selected').attr('data-kd');
-		$("#idakun").html(kd_akun+'.')
-
-	}
-
 
 	function load_data() 
 	{
@@ -210,14 +264,14 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url('Master/load_data/load_kd_kelompok')?>',
+				"url": '<?php echo base_url('Master/load_data/load_kd_rinci')?>',
 				"type": "POST",
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],
 				[5, 10, 50, 100, "Semua"]
 			],	
-			"responsive": true,
+			responsive: true,
 			"pageLength": 10,
 			"language": {
 				"emptyTable": "TIDAK ADA DATA.."
@@ -225,8 +279,48 @@
 		})
 	}
 	
+	function load_jenis()
+	{
+		let table = $('#tbl_jenis').DataTable();
+		table.destroy();
+		tabel = $('#tbl_jenis').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url": '<?php echo base_url('Master/load_data/load_kd_jenis_list')?>',
+				"type": "POST",
+			},
+			"aLengthMenu": [
+				[5, 10, 50, 100, -1],
+				[5, 10, 50, 100, "Semua"]
+			],	
+			responsive: false,
+			"pageLength": 10,
+			"language": {
+				"emptyTable": "TIDAK ADA DATA.."
+			}
+		})
+	}
+
+	function add_timb(id_akun,nm_akun,kd_kelompok,nm_kelompok,kd_jenis,nm_jenis)
+	{		
+		$('.list_kelompok').modal('hide');
+		$("#id_akun").html(id_akun)
+		$("#kd_akun").val(id_akun)
+		$('#nm_akun').val(nm_akun);
+		$("#id_kelompok").html(id_akun+'.'+kd_kelompok)
+		$("#kd_kelompok").val(kd_kelompok)
+		$('#nm_kelompok').val(nm_kelompok);
+		$("#id_jenis").html(id_akun+'.'+kd_kelompok+'.'+kd_jenis)
+		$("#kd_jenis").val(kd_jenis)
+		$('#nm_jenis').val(nm_jenis);
+		$("#id_rinci").html(id_akun+'.'+kd_kelompok+'.'+kd_jenis+'.')
+
+		swal.close();
+	}
 	
-	function edit_data(id,no_inv)
+	function edit_data(id,kd_rinci)
 	{
 		$(".row-input").attr('style', '');
 		$(".row-list").attr('style', 'display:none');
@@ -237,7 +331,7 @@
 		$.ajax({
 			url        : '<?= base_url(); ?>Master/load_data_1',
 			type       : "POST",
-			data       : { id, tbl:'m_kode_kelompok', jenis :'kode_akun',field :'id_kelompok' },
+			data       : { id, tbl:'m_kode_rinci', jenis :'kode_rinci',field :'id_rinci' },
 			dataType   : "JSON",
 			beforeSend: function() {
 				swal({
@@ -252,12 +346,24 @@
 			success: function(data) {
 				if(data){
 					// header
-					
-					$("#id_kelompok").val(data.header.id_kelompok);
-					$("#kd_akun").val(data.header.kd_akun).trigger('change');
-					$("#kd_kelompok").val(data.header.kd_kelompok);
-					$("#kd_kelompok_old").val(data.header.kd_kelompok);
-					$("#nm_kelompok").val(data.header.nm_kelompok);
+
+					$("#id_akun").html(data.header.kd_akun)
+					$("#kd_akun").val(data.header.kd_akun)
+					$('#nm_akun').val(data.header.nm_akun);
+
+					$("#id_kelompok").html(data.header.kd_akun+'.'+data.header.kd_kelompok)
+					$("#kd_kelompok").val(data.header.kd_kelompok)
+					$('#nm_kelompok').val(data.header.nm_kelompok);
+
+					$("#id_jenis").html(data.header.kd_akun+'.'+data.header.kd_kelompok+'.'+data.header.kd_jenis)
+					$("#kd_jenis").val(data.header.kd_jenis)
+					$('#nm_jenis').val(data.header.nm_jenis);
+
+					$("#id_rinci").html(data.header.kd_akun+'.'+data.header.kd_kelompok+'.'+data.header.kd_jenis+'.')
+					$("#id_rinci_old").val(data.header.id_rinci)
+					$("#kd_rinci").val(data.header.kd_rinci)
+					$('#nm_rinci').val(data.header.nm_rinci);
+
 
 					swal.close();
 
@@ -293,19 +399,29 @@
 	{
 		statusInput = 'insert'
 		$("#sts_input").val("")
-		$("#id_akun").val("")
-		$("#kode_akun").val("")
+		$("#id_akun").html(".")
+		$("#kd_akun").val("")
 		$("#nm_akun").val("")
+		$("#id_kelompok").html(".")
+		$("#kd_kelompok").val("")
+		$("#nm_kelompok").val("")
+		$("#id_jenis").html(".")
+		$("#kd_jenis").val("")
+		$("#nm_jenis").val("")
+		$("#id_rinci").html("")
+		$("#id_rinci_old").val("")
+		$("#kd_rinci").val("")
+		$("#nm_rinci").val("")
+		
 		swal.close()
 	}
 
 	function simpan() 
 	{
-		var kd_akun       = $("#kd_akun").val();
-		var kd_kelompok   = $("#kd_kelompok").val();
-		var nm_kelompok   = $("#nm_kelompok").val();
+		var kd_rinci    = $("#kd_rinci").val();
+		var nm_rinci    = $("#nm_rinci").val();
 
-		if ( kd_akun=='' || kd_kelompok=='' || nm_kelompok== '' ) 
+		if (kd_rinci='' || nm_rinci== '' ) 
 		{			
 			swal.close();
 			swal({
@@ -318,42 +434,23 @@
 		}
 
 		$.ajax({
-			url        : '<?= base_url(); ?>Master/Insert_kode_kelompok',
+			url        : '<?= base_url(); ?>Master/Insert_kode_rinci',
 			type       : "POST",
 			data       : $('#myForm').serialize(),
 			dataType   : "JSON",
-			beforeSend: function() {
-				swal({
-				title: 'loading ...',
-				allowEscapeKey    : false,
-				allowOutsideClick : false,
-				onOpen: () => {
-					swal.showLoading();
-				}
-				})
-			},
 			success: function(data) {
 				if(data.status=='1'){
 					// toastr.success('Berhasil Disimpan');
-					// swal.close();								
-					kosong();
-					location.href = "<?= base_url()?>Master/Rek_kelompok";
+					// swal.close();
 					swal({
 						title               : "Data",
 						html                : "Berhasil Disimpan",
 						type                : "success",
 						confirmButtonText   : "OK"
 					});
-					
-				} else if(data.status=='3'){
-					// toastr.success('Berhasil Disimpan');
-					// swal.close();								
-					swal({
-						title               : "Gagal Simpan",
-						html                : "Kode Sudah Pernah Di Pakai !",
-						type                : "error",
-						confirmButtonText   : "OK"
-					});
+					// location.href = "<?= base_url()?>Master/Invoice_edit?id="+data.id+"&no_inv="+no_inv_ok+"";					
+					kosong();
+					location.href = "<?= base_url()?>Master/Rek_rinci";
 					
 				} else {
 					// toastr.error('Gagal Simpan');
@@ -424,8 +521,8 @@
 				url: '<?= base_url(); ?>Master/hapus',
 				data: ({
 					id: id,
-					jenis: 'm_kode_kelompok',
-					field: 'id_kelompok'
+					jenis: 'm_kode_rinci',
+					field: 'id_rinci'
 				}),
 				type: "POST",
 				beforeSend: function() {

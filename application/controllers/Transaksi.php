@@ -1164,7 +1164,7 @@ class Transaksi extends CI_Controller
 				// $aksi = '-';
                 $aksi = '';
 
-				if (!in_array($this->session->userdata('level'), ['Admin','konsul_keu','Marketing','PPIC','Owner']))
+				if (!in_array($this->session->userdata('level'), ['Admin','konsul_keu','Marketing','PPIC','Owner','AP']))
                 {
 
 					if ($r->status == 'Open' && $r->status_app1 == 'N') {
@@ -1197,7 +1197,7 @@ class Transaksi extends CI_Controller
 							';
 						}
 						
-					}else if (in_array($this->session->userdata('level'), ['Hub'])) {
+					}else if (in_array($this->session->userdata('level'), ['Hub','AP'])) {
 						$aksi .= '';
 					}else {
 

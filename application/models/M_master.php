@@ -604,6 +604,78 @@ class M_master extends CI_Model{
 
 			
 	}
+	
+	function save_jenis()
+	{
+		$status_input   = $this->input->post('sts_input');
+		$kd_jns         = str_pad($this->input->post('kd_jenis'), 2, "0", STR_PAD_LEFT);
+		if($status_input == 'add')
+		{
+
+			$data_header = array(
+				'kd_akun'       => $this->input->post('kd_akun'),
+				'kd_kelompok'   => $this->input->post('kd_kelompok'),
+				'kd_jenis'      => $kd_jns,
+				'nm_jenis'      => $this->input->post('nm_jenis'),
+			);
+		
+			$result_header = $this->db->insert('m_kode_jenis', $data_header);
+			
+		}else{
+
+			$data_header = array(
+				'kd_akun'       => $this->input->post('kd_akun'),
+				'kd_kelompok'   => $this->input->post('kd_kelompok'),
+				'kd_jenis'      => $kd_jns,
+				'nm_jenis'      => $this->input->post('nm_jenis'),
+			);
+		
+			$this->db->where('id_jenis', $this->input->post('id_jenis_old'));
+			$result_header = $this->db->update('m_kode_jenis', $data_header);
+			
+		}
+		return $result_header;
+		
+
+			
+	}
+	
+	function save_rinci()
+	{
+		$status_input   = $this->input->post('sts_input');
+		$kd_rinci         = str_pad($this->input->post('kd_rinci'), 2, "0", STR_PAD_LEFT);
+		if($status_input == 'add')
+		{
+
+			$data_header = array(
+				'kd_akun'       => $this->input->post('kd_akun'),
+				'kd_kelompok'   => $this->input->post('kd_kelompok'),
+				'kd_jenis'   	=> $this->input->post('kd_jenis'),
+				'kd_rinci'      => $kd_rinci,
+				'nm_rinci'      => $this->input->post('nm_rinci'),
+			);
+		
+			$result_header = $this->db->insert('m_kode_rinci', $data_header);
+			
+		}else{
+
+			$data_header = array(
+				'kd_akun'       => $this->input->post('kd_akun'),
+				'kd_kelompok'   => $this->input->post('kd_kelompok'),
+				'kd_jenis'   	=> $this->input->post('kd_jenis'),
+				'kd_rinci'      => $kd_rinci,
+				'nm_rinci'      => $this->input->post('nm_rinci'),
+			);
+		
+			$this->db->where('id_rinci', $this->input->post('id_rinci_old'));
+			$result_header = $this->db->update('m_kode_rinci', $data_header);
+			
+		}
+		return $result_header;
+		
+
+			
+	}
 
     function m_setting($table,$status){
         
