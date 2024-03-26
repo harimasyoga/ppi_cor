@@ -157,6 +157,8 @@ class M_logistik extends CI_Model
 					$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 1 where id ='$id_pl_roll'");
 
 					// input stok berjalan HUB
+					
+					// $cek_po = $this->db->query("SELECT*FROM ");
 					// stok_bahanbaku($this->input->post('no_po['.$no.']'), $cekPO->id_hub, $this->input->post('tgl_inv'), 'HUB', 0, str_replace('.','',$hasil_ok), 'KELUAR DENGAN INV', 'KELUAR');
 
 					$result_rinci   = $this->db->insert("invoice_detail", $data);
