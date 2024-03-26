@@ -1817,7 +1817,9 @@
 
 				td_harga = ''
 
-				if (!in_array('<?= $this->session->userdata('level') ?>', ['PPIC','AP'])){
+				var user = '<?= $this->session->userdata('level') ?>'
+				if (user != 'PPIC' || user != 'AP'  )
+				{
 					td_harga = `
 						<td>
 							<input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
