@@ -30,7 +30,7 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<?php if (!in_array($this->session->userdata('level'), ['Marketing','PPIC','Owner','Keuangan1'])): ?>
+				<?php if (!in_array($this->session->userdata('level'), ['Marketing','PPIC','Owner','Keuangan1','AP'])): ?>
 					<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info "><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<?php endif ?>
 				<br><br>
@@ -38,25 +38,6 @@
 					<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 						<thead class="color-tabel">
 							<tr>
-								
-								<?php if ($this->session->userdata('level') != "PPIC")  {?>
-
-									<th style="text-align: center;" >No</th>
-									<th style="text-align: center;" >No PO</th>
-									<th style="text-align: center;padding: 12px 40px;" >Tgl PO</th>
-									<th style="text-align: center;" >Item</th>
-									<th style="text-align: center;" >Status</th>
-									<th style="text-align: center;" >Status Karet</th>
-									<th style="text-align: center;" >Kode PO</th>
-									<!-- <th style="display:none;">Kode PO</th> -->
-									<!-- <th style="text-align: center">Total Qty</th> -->
-									<th style="text-align: center;" >Customer</th>
-									<th style="text-align: center;" >Admin</th>
-									<th style="text-align: center;" >Mkt</th>
-									<th style="text-align: center;" >PPIC</th>
-									<th style="text-align: center;" >Owner</th>
-									<th style="text-align: center; padding: 12px 30px; ">Aksi</th>
-								<?php } else { ?>
 									<th style="text-align: center;" >No</th>
 									<th style="text-align: center;" >No PO</th>
 									<th style="text-align: center; padding: 12px 40px;" >Tgl PO</th>
@@ -72,7 +53,6 @@
 									<th style="text-align: center;" >PPIC</th>
 									<th style="text-align: center;" >Owner</th>
 									<th style="text-align: center;padding: 12px 30px; ">Aksi</th>
-								<?php }  ?>
 								
 							</tr>
 						</thead>
@@ -245,7 +225,7 @@
 										<th style="padding : 12px 40px" >Qty</th>
 										<th style="padding : 12px 40px" >PPN</th>
 
-										<?php if ($this->session->userdata('level') != "PPIC")  {
+										<?php if (!in_array($this->session->userdata('level'), ['PPIC','AP'])) {
 											?>
 												<th style="padding : 12px 15px" >Price Exclude</th>
 												<th style="padding : 12px 15px" >Price Include</th>
@@ -285,7 +265,7 @@
 												<option value="NP">NP</option>
 											</select>
 										</td>
-										<?php if ($this->session->userdata('level') != "PPIC"){ ?>
+										<?php if (!in_array($this->session->userdata('level'), ['PPIC','AP'])){ ?>
 										
 										<td style="padding : 12px 20px" >
 											<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
@@ -1062,8 +1042,7 @@
 				// $("#eta").val(eta); 
 				
 				$("#header_del").hide();
-
-				if (cek !='PPIC')
+				if (cek !='PPIC' && cek !='AP')
 				{
 					$("#header_p11").show();
 				}else{
@@ -1078,7 +1057,7 @@
 					$("#btn-hapus-"+index).hide();
 					$("#eta_item"+index).val(eta); 
 					
-					if (cek !='PPIC')
+					if (cek !='PPIC' && cek !='AP')
 					{
 						$("#p11_det"+index).show();
 						$("#id_pelanggan").prop("disabled", false);
@@ -1766,7 +1745,7 @@
 							</tr>
 							${lemparan_keterangan}
 							`;
-							<?php if ($this->session->userdata('level') != "PPIC"){ ?>
+							<?php if (!in_array($this->session->userdata('level'), ['PPIC','AP'])){ ?>
 							html_produk += `
 							<tr style=list-style:none;> 
 								<td>
@@ -1838,7 +1817,7 @@
 
 				td_harga = ''
 
-				if ('<?= $this->session->userdata('level') ?>' != 'PPIC') {
+				if (!in_array('<?= $this->session->userdata('level') ?>', ['PPIC','AP'])){
 					td_harga = `
 						<td>
 							<input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
@@ -2108,7 +2087,7 @@
 		$("#rm_plan0").prop("disabled", true);		
 		$("#ton_plan0").prop("disabled", true);		
 		
-		<?php if ($this->session->userdata('level') != "PPIC"){ ?>
+		<?php if (!in_array($this->session->userdata('level'), ['PPIC','AP'])){ ?>
 			$('#subs0').hide();
 			$('#subs_i0').hide();
 			$('#subs_hitung0').hide();
@@ -2141,7 +2120,7 @@
 
 	function hitung_p11(val,id)
 	{
-		<?php if ($this->session->userdata('level') != "PPIC"){ ?>
+		<?php if (!in_array($this->session->userdata('level'), ['PPIC','AP'])){ ?>
 		
 		var kode_po   = $('#kode_po').val()
 		var cek       = id.substr(0,9);

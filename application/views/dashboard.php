@@ -69,9 +69,9 @@
                   </div>
               </div> -->
 
-                <?php if(in_array($level, ['Admin','User'])){ ?>
+                <!-- <?php if(in_array($level, ['Admin','User'])){ ?>
                     
-                      <!-- CEK PRODUK -->
+                      CEK PRODUK
                       
                       <div class="col-md-12 row-stok_bhn">
                         <div class="card card-info card-outline">
@@ -105,9 +105,9 @@
                             </div>
                         </div>
                       </div>
-                      <!-- END CEK PRODUK -->
+                      END CEK PRODUK
 
-                  <?php } ?>
+                  <?php } ?> -->
 
                   <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub'])){ ?>
                     

@@ -86,6 +86,20 @@ class Master extends CI_Controller
 		}
 		$this->load->view('footer');
 	}
+	
+	function Rek_rinci()
+	{
+		$data = [
+			'judul' => "KODE REKENING RINCI",
+		];
+		$this->load->view('header',$data);
+		if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'User'])){
+			$this->load->view('Master/v_rek_rinci');
+		}else{
+			$this->load->view('home');
+		}
+		$this->load->view('footer');
+	}
 
 	function Produk_Laminasi()
 	{
@@ -550,6 +564,8 @@ class Master extends CI_Controller
 			$i               = 1;
 			foreach ($query as $r) {
 
+				$cek_data = $this->db->query("SELECT*FROM m_kode_kelompok where kd_akun='$r->kd_akun' ")->num_rows();
+
 				$id         = "'$r->id_akun'";
 				$kd_akun    = "'$r->kd_akun'";
 				$nm_akun    = "'$r->nm_akun'";
@@ -557,12 +573,23 @@ class Master extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center">'.$r->kd_akun.'</div>';
 				$row[] = $r->nm_akun;
+				$row[] = '<div class="text-center">'.$r->jenis.'</div>';
+				$row[] = '<div class="text-center">'.$r->dk.'</div>';
 
 				$aksi = "";
 
 				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))
 				{
-					$aksi = '
+					if($cek_data>0)
+					{
+						$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_akun . ')" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+
+						';
+					}else{
+						$aksi = '
 						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_akun . ')" title="EDIT DATA" >
 							<b><i class="fa fa-edit"></i> </b>
 						</a> 
@@ -571,6 +598,8 @@ class Master extends CI_Controller
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';
+					}
+					
 			
 				} else {
 					$aksi = '';
@@ -588,7 +617,62 @@ class Master extends CI_Controller
 			$i               = 1;
 			foreach ($query as $r) {
 
+				
+				$cek_data = $this->db->query("SELECT*FROM m_kode_jenis where kd_akun='$r->kd_akun' and kd_kelompok='$r->kd_kelompok' ")->num_rows();
+
 				$id             = "'$r->id_kelompok'";
+				$kd_kelompok    = "'$r->kd_kelompok'";
+				$nm_kelompok    = "'$r->nm_kelompok'";
+				
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<div class="">'.$r->nm_akun.'</div>';
+				$row[] = '<div class="text-center">'.$r->id_akun.'.'.$r->kd_kelompok.'</div>';
+				$row[] = $r->nm_kelompok;
+				$row[] = '<div class="text-center">'.$r->jenis.'</div>';
+				$row[] = '<div class="text-center">'.$r->dk.'</div>';
+
+				$aksi = "";
+
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))
+				{
+					if($cek_data>0)
+					{
+						$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_kelompok . ')" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+						';
+					}else{
+						$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_kelompok . ')" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $nm_kelompok . ')" class="btn btn-danger btn-sm">
+							<i class="fa fa-trash-alt"></i>
+						</button> 
+						';
+					}
+			
+				} else {
+					$aksi = '';
+				}
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+
+				$i++;
+			}
+		} else if ($jenis == "load_kd_kelompok_list") {
+			$query = $this->db->query("SELECT a.*,b.* FROM m_kode_kelompok a 
+			join m_kode_akun b ON a.kd_akun=b.kd_akun 
+			ORDER BY a.kd_akun ,a.id_kelompok ")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+
+				$id_akun             = "'$r->id_akun'";
+				$nm_akun        = "'$r->nm_akun'";
 				$kd_kelompok    = "'$r->kd_kelompok'";
 				$nm_kelompok    = "'$r->nm_kelompok'";
 				
@@ -602,15 +686,157 @@ class Master extends CI_Controller
 
 				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))
 				{
+					
 					$aksi = '
-						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $nm_kelompok . ')" title="EDIT DATA" >
+					<button type="button" title="PILIH"  onclick="add_timb(' . $id_akun . ',' . $nm_akun . ',' . $kd_kelompok . ',' . $nm_kelompok . ')" class="btn btn-success btn-sm">
+						<i class="fas fa-check-circle"></i>
+					</button> ';
+			
+				} else {
+					$aksi = '';
+				}
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+
+				$i++;
+			}
+		} else if ($jenis == "load_kd_jenis") {
+			$query = $this->db->query("SELECT * FROM m_kode_jenis a
+			join m_kode_akun b on a.kd_akun=b.kd_akun
+			join m_kode_kelompok c on a.kd_akun=c.kd_akun and a.kd_kelompok=c.kd_kelompok
+			ORDER BY id_jenis ")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+
+				
+				$cek_data = $this->db->query("SELECT*FROM m_kode_rinci where kd_akun='$r->kd_akun' and kd_kelompok='$r->kd_kelompok' and kd_jenis='$r->kd_jenis' ")->num_rows();
+
+
+				$id         = "'$r->id_jenis'";
+				$kd_jenis   = "'$r->kd_jenis'";
+				$nm_jenis   = "'$r->nm_jenis'";
+				
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<div class="">'.$r->nm_akun.'</div>';
+				$row[] = '<div class="">'.$r->nm_kelompok.'</div>';
+				$row[] = '<div class="text-center">'.$r->kd_akun.'.'.$r->kd_kelompok.'.'.$r->kd_jenis.'</div>';
+				$row[] = '<div class="text-center">'.$r->nm_jenis.'</div>';
+				$row[] = '<div class="text-center">'.$r->jenis.'</div>';
+				$row[] = '<div class="text-center">'.$r->dk.'</div>';
+
+				$aksi = "";
+
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))
+				{
+					if($cek_data>0)
+					{
+						$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $kd_jenis . ')" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+						';
+					}else{
+
+						$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $kd_jenis . ')" title="EDIT DATA" >
 							<b><i class="fa fa-edit"></i> </b>
 						</a> 
 
-						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $nm_kelompok . ')" class="btn btn-danger btn-sm">
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $kd_jenis . ')" class="btn btn-danger btn-sm">
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';
+					}
+					
+			
+				} else {
+					$aksi = '';
+				}
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+
+				$i++;
+			}
+		} else if ($jenis == "load_kd_rinci") {
+			$query = $this->db->query("SELECT * FROM m_kode_rinci a
+			join m_kode_akun b on a.kd_akun=b.kd_akun
+			join m_kode_kelompok c on a.kd_akun=c.kd_akun and a.kd_kelompok=c.kd_kelompok
+			join m_kode_jenis d on a.kd_akun=d.kd_akun and a.kd_kelompok=d.kd_kelompok and a.kd_jenis=d.kd_jenis
+			ORDER BY id_rinci")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+
+				$id         = "'$r->id_rinci'";
+				$kd_rinci   = "'$r->kd_rinci'";
+				$nm_rinci   = "'$r->nm_rinci'";
+				
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<div class="">'.$r->nm_akun.'</div>';
+				$row[] = '<div class="">'.$r->nm_kelompok.'</div>';
+				$row[] = '<div class="text-center">'.$r->nm_jenis.'</div>';
+				$row[] = '<div class="text-center">'.$r->kd_akun.'.'.$r->kd_kelompok.'.'.$r->kd_jenis.'.'.$r->kd_rinci.'</div>';
+				$row[] = '<div class="text-center">'.$r->nm_rinci.'</div>';
+				$row[] = '<div class="text-center">'.$r->jenis.'</div>';
+				$row[] = '<div class="text-center">'.$r->dk.'</div>';
+
+				$aksi = "";
+
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))
+				{
+					$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $kd_rinci . ')" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $nm_rinci . ')" class="btn btn-danger btn-sm">
+							<i class="fa fa-trash-alt"></i>
+						</button> 
+						';
+			
+				} else {
+					$aksi = '';
+				}
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+
+				$i++;
+			}
+		} else if ($jenis == "load_kd_jenis_list") {
+			$query = $this->db->query("SELECT * FROM m_kode_jenis a
+			join m_kode_akun b on a.kd_akun=b.kd_akun
+			join m_kode_kelompok c on a.kd_akun=c.kd_akun and a.kd_kelompok=c.kd_kelompok
+			ORDER BY id_jenis ")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+
+				$kd_akun        = "'$r->kd_akun'";
+				$nm_akun        = "'$r->nm_akun'";
+				$kd_kelompok    = "'$r->kd_kelompok'";
+				$nm_kelompok    = "'$r->nm_kelompok'";
+				$kd_jenis       = "'$r->kd_jenis'";
+				$nm_jenis       = "'$r->nm_jenis'";
+				
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<div class="">'.$r->nm_akun.'</div>';
+				$row[] = '<div class="">'.$r->nm_kelompok.'</div>';
+				$row[] = '<div class="text-center">'.$r->kd_akun.'.'.$r->kd_kelompok.'.'.$r->kd_jenis.'</div>';
+				$row[] = '<div class="">'.$r->nm_jenis.'</div>';
+
+				$aksi = "";
+
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))
+				{
+					
+					$aksi = '
+					<button type="button" title="PILIH"  onclick="add_timb(' . $kd_akun . ',' . $nm_akun . ',' . $kd_kelompok . ',' . $nm_kelompok . ',' . $kd_jenis . ',' . $nm_jenis . ')" class="btn btn-success btn-sm">
+						<i class="fas fa-check-circle"></i>
+					</button> ';
 			
 				} else {
 					$aksi = '';
@@ -704,6 +930,32 @@ class Master extends CI_Controller
 		}		
 	}
 
+	function Insert_kode_jenis()
+	{
+		if($this->session->userdata('username'))
+		{
+			$asc         = $this->m_master->save_jenis();	
+			if($asc){	
+				echo json_encode(array("status" =>"1","id" => $asc));	
+			}else{
+				echo json_encode(array("status" => "2","id" => $asc));	
+			}
+		}		
+	}
+	
+	function Insert_kode_rinci()
+	{
+		if($this->session->userdata('username'))
+		{
+			$asc         = $this->m_master->save_rinci();	
+			if($asc){	
+				echo json_encode(array("status" =>"1","id" => $asc));	
+			}else{
+				echo json_encode(array("status" => "2","id" => $asc));	
+			}
+		}		
+	}
+
 	function load_data_1()
 	{
 		$id       = $this->input->post('id');
@@ -715,6 +967,24 @@ class Master extends CI_Controller
 		{
 			$queryd   = "SELECT*FROM $tbl where $field='$id' ";
 			$queryh   = "SELECT*FROM $tbl where $field='$id' ";
+
+		}else if($jenis=='kode_jenis')
+		{
+			$queryd   = "SELECT*FROM $tbl where $field='$id' ";
+			$queryh   = "SELECT * FROM m_kode_jenis a
+			join m_kode_akun b on a.kd_akun=b.kd_akun
+			join m_kode_kelompok c on a.kd_akun=c.kd_akun and a.kd_kelompok=c.kd_kelompok where $field='$id' 
+			ORDER BY id_jenis ";
+
+		}else if($jenis=='kode_rinci')
+		{
+			$queryd   = "SELECT*FROM $tbl where $field='$id' ";
+			$queryh   = "SELECT * FROM m_kode_rinci a
+			join m_kode_akun b on a.kd_akun=b.kd_akun
+			join m_kode_kelompok c on a.kd_akun=c.kd_akun and a.kd_kelompok=c.kd_kelompok
+			join m_kode_jenis d on a.kd_akun=d.kd_akun and a.kd_kelompok=d.kd_kelompok and a.kd_jenis=d.kd_jenis
+			where $field='$id'
+			ORDER BY id_rinci";
 
 		}else{
 
