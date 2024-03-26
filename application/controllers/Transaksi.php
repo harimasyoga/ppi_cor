@@ -4388,6 +4388,7 @@ class Transaksi extends CI_Controller
 			"bahan_baku_rp" => number_format($get->bahan_baku_rp,0,',','.'),
 			"hasil_x_tonase" => number_format($get->hasil_x_tonase,0,',','.'),
 			"hasil_x_tonase_tanpa_bb" => number_format($get->hasil_x_tonase_tanpa_bb,0,',','.'),
+			"hpp_plus_plus" => number_format($get->hpp_plus_plus,0,',','.'),
 			"fix_hpp" => number_format($get->fix_hpp,0,',','.'),
 		];
 

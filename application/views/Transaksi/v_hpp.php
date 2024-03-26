@@ -2135,15 +2135,18 @@
 					$("#bk_rp").val(data.pm.hasil_x_tonase)
 					$("#mh_rp").val(data.pm.hasil_x_tonase)
 					$("#hpp_pm").val(data.pm.hasil_x_tonase_tanpa_bb)
+					$("#hpp_sheet").val(0)
 				}
 				if(opsi == 'box'){
 					$("#bk_rp_box").val(data.pm.hasil_x_tonase)
 					$("#mh_rp_box").val(data.pm.hasil_x_tonase)
 					$("#hpp_pm").val(0)
+					$("#hpp_sheet").val(data.pm.hpp_plus_plus)
 				}
 				if(opsi == 'laminasi'){
 					$("#wp_rp").val(data.pm.hasil_x_tonase)
 					$("#hpp_pm").val(data.pm.hasil_x_tonase_tanpa_bb)
+					$("#hpp_sheet").val(0)
 				}
 				$("#pilih_id_hpp").val(data.pm.id_hpp)
 

@@ -246,7 +246,9 @@ class M_logistik extends CI_Model
 		$data = $this->db->query("SELECT COUNT(g.id_gudang) AS jml,p.nm_pelanggan,i.nm_produk,g.* FROM m_gudang g
 		INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
 		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
-		WHERE g.gd_cek_spv='Open' $where
+		INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+		INNER JOIN trs_po t ON w.kode_po=t.kode_po
+		WHERE g.gd_cek_spv='Open' AND t.status_kiriman='Open' $where
 		GROUP BY p.nm_pelanggan,g.gd_id_produk");
 
 		return [
@@ -416,6 +418,7 @@ class M_logistik extends CI_Model
 				'rk_tgl' => date('Y-m-d'),
 				'id_pelanggan' => $r['options']['id_pelanggan'],
 				'id_produk' => $r['options']['id_produk'],
+				'kategori' => $r['options']['kategori'],
 				'id_gudang' => $r['options']['id_gudang'],
 				'qty_muat' => $r['options']['qty_muat'],
 				'rk_tonase' => $r['options']['rk_tonase'],
@@ -484,15 +487,15 @@ class M_logistik extends CI_Model
 	function selesaiMuat()
 	{
 		$urut = $_POST["urut"];
-		$cekMuat = $this->db->query("SELECT i.kategori,p.ppn,r.* FROM m_rencana_kirim r
-		INNER JOIN m_produk i ON r.id_produk=i.id_produk
+		$cekMuat = $this->db->query("SELECT p.ppn,r.* FROM m_rencana_kirim r
+		-- INNER JOIN m_produk i ON r.id_produk=i.id_produk
 		INNER JOIN trs_po_detail p ON r.id_produk=p.id_produk AND r.id_pelanggan=p.id_pelanggan AND r.rk_kode_po=p.kode_po
 		WHERE r.rk_urut='$urut' AND r.rk_status='Open'");
 
 		$tgl = date('Y-m-d');
 		// INSERT PL BOX
 		foreach($cekMuat->result() as $r){
-			($r->kategori == "K_BOX") ? $kategori = 'BOX' : $kategori = 'SHEET' ;
+			($r->kategori == "BOX") ? $kategori = 'BOX' : $kategori = 'SHEET';
 			$blnRomami = $this->m_fungsi->blnRomami(date('Y-m-d'));
 			if($r->ppn == "PP"){
 				$pajak = 'ppn';
@@ -526,10 +529,11 @@ class M_logistik extends CI_Model
 				'no_po' => $r->rk_kode_po,
 				'pajak' => $pajak,
 				'no_pl_urut' => $urut,
+				'kategori' => $kategori,
 			];
 
-			// CEK JIKA CUSTOMER DENGAN PO YANG SAMA ABAIKAN
-			$cekPL = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND id_perusahaan='$r->id_pelanggan' AND no_po='$r->rk_kode_po' AND no_pl_urut='$urut'");
+			// CEK JIKA CUSTOMER DENGAN PO DAN KETEGORI YANG SAMA ABAIKAN
+			$cekPL = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND id_perusahaan='$r->id_pelanggan' AND no_po='$r->rk_kode_po' AND no_pl_urut='$urut' AND kategori='$kategori'");
 			if($cekPL->num_rows() == 0){
 				$insertPl = $this->db->insert('pl_box', $data);
 			}else{
@@ -545,6 +549,7 @@ class M_logistik extends CI_Model
 			$this->db->where('rk_tgl', $l->tgl);
 			$this->db->where('rk_urut', $l->no_pl_urut);
 			$this->db->where('rk_kode_po', $l->no_po);
+			$this->db->where('kategori', $l->kategori);
 			$updateIDplBox = $this->db->update('m_rencana_kirim');
 		}
 
