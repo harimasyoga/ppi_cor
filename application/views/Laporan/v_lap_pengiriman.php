@@ -145,6 +145,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Laporan/plhOS')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				tahun, pelanggan, no_po
 			}),
@@ -155,6 +165,34 @@
 					$("#no_po").html(data.htmlPO)
 				}
 				$(".tampil-list-os").html(data.html)
+				swal.close()
+			}
+		})
+	}
+
+	function closePengiriman(id_po)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Laporan/closePengiriman')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_po
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				plhOS()
+				swal.close()
 			}
 		})
 	}

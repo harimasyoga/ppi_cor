@@ -3447,6 +3447,190 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function pilihPilihan()
+	{
+		$pelanggan = $_POST["pilih_cust"];
+		$htmlItem = '';
+		$htmlPO = '';
+
+		$data = $this->db->query("SELECT*FROM m_produk WHERE no_customer='$pelanggan' ORDER BY nm_produk");
+
+		$htmlItem .='<option value="">PILIH</option>';
+		foreach($data->result() as $r){
+			($r->kategori == 'K_BOX') ? $ket = '[BOX]' : $ket = '[SHEET]';
+			($r->kategori == 'K_BOX') ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
+			$htmlItem .='<option value="'.$r->id_produk.'">'.$ket.' '.$r->nm_produk.' | '.$r->flute.' | '.$ukuran.' | '.$r->kualitas.'</option>';
+		}
+
+		$data_po = $this->db->query("SELECT*FROM trs_po p
+		WHERE p.status='Approve' AND p.id_pelanggan='$pelanggan'
+		GROUP BY kode_po ORDER BY tgl_po");
+		$htmlPO .='<option value="">PILIH</option>';
+		foreach($data_po->result() as $r){	
+			$htmlPO .='<option value="'.$r->kode_po.'">'.$r->kode_po.'</option>';
+		}
+
+		echo json_encode([
+			'htmlItem' => $htmlItem,
+			'htmlPO' => $htmlPO,
+		]);
+	}
+	
+	function plhItems()
+	{
+		$pelanggan = $_POST["pilih_cust"];
+		$plhItems = $_POST["plhItems"];
+		$htmlPO = '';
+
+		$data = $this->db->query("SELECT*FROM trs_po p
+		WHERE p.status='Approve' AND p.id_pelanggan='$pelanggan'
+		GROUP BY kode_po ORDER BY tgl_po");
+
+		$htmlPO .='<option value="">PILIH</option>';
+		foreach($data->result() as $r){	
+			$htmlPO .='<option value="'.$r->kode_po.'">'.$r->kode_po.'</option>';
+		}
+
+		echo json_encode([
+			'htmlPO' => $htmlPO,
+		]);
+	}
+
+	function tampilPilihan()
+	{
+		$id_pelanggan = $_POST["pilih_cust"];
+		$id_produk = $_POST["pilih_items"];
+		$no_po = $_POST["pilih_no_po"];
+		$html = '';
+		
+		$htmlPO = '';
+		if($id_produk != '' && $no_po  == ''){
+			$where = "AND d.id_produk='$id_produk'";
+		}else if($id_produk == '' && $no_po  != ''){
+			$where = "AND d.kode_po='$no_po'";
+		}else if($id_produk != '' && $no_po  != ''){
+			$where = "AND d.id_produk='$id_produk' AND d.kode_po='$no_po'";
+		}else{
+			$where = '';
+		}
+
+		$data_po = $this->db->query("SELECT p.* FROM trs_po p
+		INNER JOIN trs_po_detail d ON p.kode_po=d.kode_po AND p.id_pelanggan=d.id_pelanggan
+		WHERE p.status='Approve' AND p.id_pelanggan='$id_pelanggan' $where
+		GROUP BY p.kode_po ORDER BY p.tgl_po");
+		$htmlPO .='<option value="">PILIH</option>';
+		foreach($data_po->result() as $r){	
+			$htmlPO .='<option value="'.$r->kode_po.'">'.$r->kode_po.'</option>';
+		}
+
+		$html .= '<table style="margin:12px">';
+			if($data_po->num_rows() > 0){
+				foreach($data_po->result() as $po){
+					$html .='<tr>
+						<td style="padding:5px;font-weight:bold;text-align:center;border-top:1px solid #888">PO.</td>
+						<td style="padding:5px;font-weight:bold;border-top:1px solid #888" colspan="2">'.$po->kode_po.'</td>
+					</tr>';
+					// DETAIL
+					if($id_produk != ''){
+						$wDtl = "AND d.id_produk='$id_produk'";
+					}else{
+						$wDtl = '';
+					}
+					$detail = $this->db->query("SELECT*FROM trs_po_detail d
+					INNER JOIN m_produk p ON d.id_produk=p.id_produk
+					WHERE d.id_pelanggan='$id_pelanggan' AND d.kode_po='$po->kode_po' $wDtl
+					GROUP BY d.id_pelanggan,d.id_produk,d.kode_po");
+					foreach($detail->result() as $dtl){
+						($dtl->kategori == 'K_BOX') ? $ukuran = $dtl->ukuran : $ukuran = $dtl->ukuran_sheet;
+						$html .='<tr>
+							<td></td>
+							<td style="padding:5px;text-align:right"><b>-</b></td>
+							<td style="padding:5px">'.$dtl->nm_produk.' | '.$dtl->flute.' | '.$ukuran.' | '.$dtl->kualitas.' <span style="margin-left:10px;font-weight:bold;float:right">'.number_format($dtl->qty,0,',','.').'</span></td>
+						</tr>';
+						// SO
+						$so = $this->db->query("SELECT*FROM trs_so_detail WHERE id_pelanggan='$dtl->id_pelanggan' AND id_produk='$dtl->id_produk' AND kode_po='$dtl->kode_po'");
+						foreach($so->result() as $s){
+							$html .='<tr>
+								<td></td>
+								<td style="padding:5px;font-weight:bold;text-align:center">SO.</td>
+								<td style="padding:5px;font-weight:bold">'.$s->urut_so.'.'.$s->rpt.' <span style="margin-left:10px;float:right">'.number_format($s->qty_so,0,',','.').'</span></td>
+							</tr>';
+							// WO
+							$no_wo = 'WO-'.$s->no_so.'.'.$s->urut_so.'.'.$s->rpt;
+							$wo = $this->db->query("SELECT*FROM trs_wo WHERE no_wo='$no_wo'");
+							if($wo->num_rows() > 0){
+								foreach($wo->result() as $w){
+									$html .='<tr>
+										<td></td>
+										<td style="padding:5px;font-weight:bold;text-align:center">WO</td>
+										<td></td>
+									</tr>';
+									// PLAN COR
+									$plan_cor = $this->db->query("SELECT*FROM plan_cor d INNER JOIN trs_wo w ON d.id_wo=w.id WHERE d.id_wo='$w->id'");
+									if($plan_cor->num_rows() > 0){
+										foreach($plan_cor->result() as $c){
+											$html .='<tr>
+												<td></td>
+												<td></td>
+												<td style="padding:5px"><b>-</b> ['.$c->shift_plan.'.'.$c->machine_plan.'] '.strtoupper(substr($this->m_fungsi->getHariIni($c->tgl_plan),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($c->tgl_plan)).' <span style="margin-left:10px;float:right">'.number_format($c->good_cor_p,0,',','.').'</span></td>
+											</tr>';
+											// PLAN FLEXO
+											$plan_flexo = $this->db->query("SELECT*FROM plan_flexo d INNER JOIN plan_cor c ON d.id_plan_cor=c.id_plan WHERE d.id_plan_cor='$c->id_plan'");
+											if($plan_flexo->num_rows() > 0){
+												foreach($plan_flexo->result() as $f){
+													$html .='<tr>
+														<td></td>
+														<td></td>
+														<td style="padding:5px"><b>--</b> ['.$f->shift_flexo.'.'.$f->mesin_flexo.'] '.strtoupper(substr($this->m_fungsi->getHariIni($f->tgl_flexo),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($f->tgl_flexo)).' <span style="margin-left:10px;float:right">'.number_format($f->good_flexo_p,0,',','.').'</span></td>
+													</tr>';
+													// PLAN FINISHING
+													$plan_finishing = $this->db->query("SELECT*FROM plan_finishing d
+													INNER JOIN plan_cor c ON d.id_plan_cor=c.id_plan
+													INNER JOIN plan_flexo f ON d.id_plan_flexo=f.id_flexo
+													WHERE d.id_plan_cor='$f->id_plan_cor' AND d.id_plan_flexo='$f->id_flexo'");
+													if($plan_finishing->num_rows() > 0){
+														foreach($plan_finishing->result() as $x){
+															$html .='<tr>
+																<td></td>
+																<td></td>
+																<td style="padding:5px"><b>---</b> ['.$x->shift_fs.'.'.$x->joint_fs.'] '.strtoupper(substr($this->m_fungsi->getHariIni($x->tgl_fs),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($x->tgl_fs)).' <span style="margin-left:10px;float:right">'.number_format($x->good_fs_p,0,',','.').'</span></td>
+															</tr>';
+														}
+													}
+												}
+											}
+											// GUDANG
+											$gudang = $this->db->query("SELECT*FROM m_gudang WHERE gd_id_pelanggan='$c->id_pelanggan' AND  gd_id_produk='$c->id_produk' AND gd_id_trs_wo='$c->id_wo' AND gd_id_plan_cor='$c->id_plan'");
+											if($gudang->num_rows() > 0){
+												$g_qty = ($gudang->row()->gd_good_qty == 0) ? '-' : number_format($gudang->row()->gd_good_qty,0,',','.');
+												$html .='<tr>
+													<td></td>
+													<td></td>
+													<td style="padding:5px"><b>---- GUDANG <span style="margin-left:10px;float:right">'.$g_qty.'</span></b></td>
+												</tr>';
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}else{
+				$html .='<tr>
+					<td style="padding:5px 0;font-weight:bold">DATA KOSONG!</td>
+				</tr>';
+			}
+		$html .= '</table>';
+
+		echo json_encode([
+			'html' => $html,
+			'htmlPO' => $htmlPO,
+		]);
+	}
+
+	//
+
 	function plhListPlan()
 	{
 		$html = '';
@@ -3893,6 +4077,7 @@ class Logistik extends CI_Controller
 						($isi->gd_id_plan_flexo == null) ? $fx = '' : $fx = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfx.'">FX</span>';
 						($isi->gd_id_plan_finishing == null) ? $fs = '' : $fs = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfs.'">FS</span>';
 						($isi->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
+						($isi->kategori == "K_BOX") ? $kategori2 = 'BOX' : $kategori2 = 'SHEET';
 		
 						$btnAksi = '<button type="button" id="simpan_muat'.$isi->id_gudang.'" class="btn btn-sm btn-success btn-block" style="font-weight:bold" onclick="addCartRKSJ('."'".$isi->id_gudang."'".')"><i class="fas fa-plus"></i> ADD</button>';
 		
@@ -3920,6 +4105,7 @@ class Logistik extends CI_Controller
 								<input type="hidden" id="hidden-id-produk-'.$isi->id_gudang.'" value="'.$isi->gd_id_produk.'">
 								<input type="hidden" id="hidden-nm-pelanggan-'.$isi->id_gudang.'" value="'.$isi->nm_pelanggan.'">
 								<input type="hidden" id="hidden-nm-produk-'.$isi->id_gudang.'" value="'.$isi->nm_produk.'">
+								<input type="hidden" id="hidden-kategori-'.$isi->id_gudang.'" value="'.$kategori2.'">
 								<input type="hidden" id="hidden-kode-po-'.$isi->id_gudang.'" value="'.$isi->kode_po.'">
 								<input type="hidden" id="hidden-bb-'.$isi->id_gudang.'" value="'.$isi->gd_berat_box.'">
 								<input type="hidden" id="hidden-qty-'.$isi->id_gudang.'" value="'.$qty.'">
@@ -4000,7 +4186,7 @@ class Logistik extends CI_Controller
 		$kode_po = $_POST["kode_po"];
 		$html = '';
 
-		$getIsi = $this->db->query("SELECT p.nm_pelanggan,i.nm_produk,w.kode_po,g.*,c.*,fx.*,fs.* FROM m_gudang g
+		$getIsi = $this->db->query("SELECT p.nm_pelanggan,i.nm_produk,i.kategori,w.kode_po,g.*,c.*,fx.*,fs.* FROM m_gudang g
 		INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
 		LEFT JOIN plan_flexo fx ON g.gd_id_plan_flexo=fx.id_flexo
 		LEFT JOIN plan_finishing fs ON g.gd_id_plan_finishing=fs.id_fs
@@ -4049,6 +4235,7 @@ class Logistik extends CI_Controller
 
 				$rk = $this->db->query("SELECT SUM(qty_muat) AS muat FROM m_rencana_kirim WHERE id_gudang='$isi->id_gudang' GROUP BY id_gudang");
 				($rk->num_rows() == 0) ? $qty = $isi->gd_good_qty : $qty = $isi->gd_good_qty - $rk->row()->muat;
+				($isi->kategori == "K_BOX") ? $kategori2 = 'BOX' : $kategori2 = 'SHEET';
 
 				$html .='<tr>
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
@@ -4068,6 +4255,7 @@ class Logistik extends CI_Controller
 						<input type="hidden" id="hidden-id-produk-'.$isi->id_gudang.'" value="'.$gd_id_produk.'">
 						<input type="hidden" id="hidden-nm-pelanggan-'.$isi->id_gudang.'" value="'.$isi->nm_pelanggan.'">
 						<input type="hidden" id="hidden-nm-produk-'.$isi->id_gudang.'" value="'.$isi->nm_produk.'">
+						<input type="hidden" id="hidden-kategori-'.$isi->id_gudang.'" value="'.$kategori2.'">
 						<input type="hidden" id="hidden-kode-po-'.$isi->id_gudang.'" value="'.$kode_po.'">
 						<input type="hidden" id="hidden-bb-'.$isi->id_gudang.'" value="'.$isi->gd_berat_box.'">
 						<input type="hidden" id="hidden-qty-'.$isi->id_gudang.'" value="'.$qty.'">
@@ -4104,6 +4292,7 @@ class Logistik extends CI_Controller
 			'options' => array(
 				'nm_pelanggan' => $_POST["nmPelanggan"],
 				'nm_produk' => $_POST["nmProduk"],
+				'kategori' => $_POST["kategori"],
 				'id_pelanggan' => $_POST["idPelanggan"],
 				'id_produk' => $_POST["idProduk"],
 				'id_gudang' => $_POST["id_gudang"],
@@ -4118,7 +4307,7 @@ class Logistik extends CI_Controller
 		$id_gudang = $_POST['id_gudang'];
 		$cekGudang = $this->db->query("SELECT*FROM m_gudang WHERE id_gudang='$id_gudang' AND gd_cek_spv='Close' AND gd_status='Close'");
 		if($cekGudang->num_rows() != 0){
-			echo json_encode(array('data' => false, 'isi' => 'STOK GUDANG DI SUDAH DICLOSE!'));
+			echo json_encode(array('data' => false, 'isi' => 'STOK GUDANG SUDAH DI DICLOSE!'));
 			return;
 		}else if($_POST["muat"] == 0 || $_POST["muat"] == '' || !preg_match("/^[0-9]*$/", $_POST["muat"])){
 			echo json_encode(array('data' => false, 'isi' => 'MUAT TIDAK BOLEH KOSONG!'));
@@ -4381,7 +4570,7 @@ class Logistik extends CI_Controller
 						</td>
 					</tr>';
 					$getSJnPO = $this->db->query("SELECT*FROM pl_box WHERE tgl='$urut->tgl' AND no_pl_urut='$urut->no_pl_urut'
-					GROUP BY id_perusahaan,no_surat,no_po,no_pl_urut
+					GROUP BY id_perusahaan,no_surat,no_po,no_pl_urut,kategori
 					ORDER BY no_surat");
 					$no = 0;
 					$sumAll = 0;
@@ -4415,10 +4604,11 @@ class Logistik extends CI_Controller
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">NO. PO : '.$sjpo->no_po.'</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="6">'.$btnPrint.' '.$btnJasa.'</td>
 						</tr>';
+						($sjpo->kategori == null) ? $wKategori = "" : $wKategori = "AND r.kategori='$sjpo->kategori'";
 						$getItems = $this->db->query("SELECT r.*,i.*,p.nm_pelanggan FROM m_rencana_kirim r
 						INNER JOIN m_produk i ON r.id_produk=i.id_produk
 						INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
-						WHERE r.rk_tgl='$sjpo->tgl' AND r.rk_urut='$sjpo->no_pl_urut' AND r.rk_kode_po='$sjpo->no_po' AND r.id_pelanggan='$sjpo->id_perusahaan'
+						WHERE r.rk_tgl='$sjpo->tgl' AND r.rk_urut='$sjpo->no_pl_urut' AND r.rk_kode_po='$sjpo->no_po' AND r.id_pelanggan='$sjpo->id_perusahaan' $wKategori
 						ORDER BY i.nm_produk");
 						$sumItems = 0;
 						foreach($getItems->result() as $item){
@@ -4492,7 +4682,7 @@ class Logistik extends CI_Controller
         $html = '';
 
 		// UPDATE CETAK
-		$this->db->query("UPDATE pl_box SET cetak_sj='acc' WHERE no_pkb='$jenis'");
+		$this->db->query("UPDATE pl_box SET cetak_sj='acc' WHERE no_surat='$jenis'");
 
         $data_pl = $this->db->query("SELECT h.id_hub,h.nm_hub,h.alamat AS alamat_hub,b.nm_pelanggan,b.attn,b.alamat_kirim,b.no_telp,a.* FROM pl_box a
 		INNER JOIN m_pelanggan b ON a.id_perusahaan=b.id_pelanggan

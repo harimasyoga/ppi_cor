@@ -249,6 +249,7 @@
 		let idProduk = $("#hidden-id-produk-"+id_gudang).val()
 		let nmPelanggan = $("#hidden-nm-pelanggan-"+id_gudang).val()
 		let nmProduk = $("#hidden-nm-produk-"+id_gudang).val()
+		let kategori = $("#hidden-kategori-"+id_gudang).val()
 		let kodePo = $("#hidden-kode-po-"+id_gudang).val()
 		let bb = $("#hidden-bb-"+id_gudang).val()
 		let qty = $("#hidden-qty-"+id_gudang).val()
@@ -257,7 +258,7 @@
 			url: '<?php echo base_url('Logistik/addCartRKSJ')?>',
 			type: "POST",
 			data: ({
-				id_gudang, muat, tonase, idPelanggan, idProduk, nmPelanggan, nmProduk, kodePo, bb, qty
+				id_gudang, muat, tonase, idPelanggan, idProduk, nmPelanggan, nmProduk, kategori, kodePo, bb, qty
 			}),
 			success: function(res){
 				data = JSON.parse(res)
