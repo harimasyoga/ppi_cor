@@ -2616,14 +2616,11 @@
 		let hxt_tanpa_bb = 0;
 		(hitung_hpp == 0 || h_tonase_order == '') ? hxt_tanpa_bb = 0 : hxt_tanpa_bb = Math.round((parseInt(hitung_hpp_tanpa_bb) / parseInt(h_tonase_order).toFixed())).toFixed();
 		$("#hasil_x_tonase_tanpa_bb").val(formatRupiah(hxt_tanpa_bb.toString()));
-		console.log("hxt_tanpa_bb : ", hxt_tanpa_bb);
 		
 		// HPP PM / HPP SHEET
 		let hppHPP = (pilih_hpp == 'SHEET' || pilih_hpp == 'LAMINASI') ? $("#hpp_pm").val().split('.').join('') : $("#hpp_sheet").val().split('.').join('');
 		let h_hppHPP = (hppHPP == 0 || isNaN(hppHPP)) ? 0 : hppHPP;
-		console.log("h_hppHPP : ", h_hppHPP);
 		let hpp_plus_plus = (hxt_tanpa_bb == 0 || isNaN(hxt_tanpa_bb)) ? 0 : parseInt(hxt_tanpa_bb) + parseInt(h_hppHPP);
-		console.log("hpp_plus_plus : ", hpp_plus_plus);
 
 		let hpp_akhir = 0;
 		if(pilih_hpp == 'PM2'){

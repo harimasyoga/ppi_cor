@@ -143,8 +143,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
-
 				let htmlGG = ''
 				let bgTd = ''
 				htmlGG += `<table class="table table-bordered" style="margin:0;border:0">
@@ -262,7 +260,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					clickHasilProduksiPlan(opsi, id_pelanggan, id_produk, no_po, i)
 					let i_jml = 0;
