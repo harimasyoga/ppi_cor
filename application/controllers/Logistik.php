@@ -610,7 +610,7 @@ class Logistik extends CI_Controller
 		$html ='';
 		$tgl = date('Y-m-d');
 		$tahun = substr(date('Y'),2,2);
-		$group = $this->db->query("SELECT rk.*,p.nm_pelanggan_lm FROM m_rk_laminasi rk
+		$group = $this->db->query("SELECT rk.*,p.nm_pelanggan_lm,p.alamat_kirim,p.no_telp FROM m_rk_laminasi rk
 		INNER JOIN m_pelanggan_lm p ON rk.id_pelanggan_lm=p.id_pelanggan_lm
 		WHERE rk.rk_urut='0'
 		GROUP BY rk.id_pelanggan_lm");
@@ -634,39 +634,53 @@ class Logistik extends CI_Controller
 				foreach($group->result() as $g){
 					$j++;
 					$html .='<tr style="border-top:3px solid #6c757d">
-						<th style="background:#e8e9ec;padding:6px" colspan="9">'.$g->nm_pelanggan_lm.'</th>
+						<th style="background:#e8e9ec;padding:6px" colspan="10">'.$g->nm_pelanggan_lm.'</th>
 					</tr>';
 
 					$noSJ = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat LIKE '%$tahun%' ORDER BY no_surat DESC LIMIT 1");
 					($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_surat,0,6);
 					$sj = str_pad($no+$j, 6, "0", STR_PAD_LEFT);
 					$html .='<tr>
-						<td style="padding:6px;border:0" colspan="2">TANGGAL <span style="float:right">:</span></td>
-						<td style="padding:6px;border:0" colspan="2">
+						<td style="padding:6px 6px 3px;border:0" colspan="2">TANGGAL <span style="float:right">:</span></td>
+						<td style="padding:6px 6px 3px;border:0" colspan="2">
 							<input type="date" class="form-control" id="p_tgl-'.$g->id_pelanggan_lm.'" value="'.$tgl.'">
 						</td>
-						<td style="padding:6px;border:0" colspan="5"></td>
+						<td style="padding:6px 6px 3px;border:0" colspan="5"></td>
 					</tr>
 					<tr>
-						<td style="padding:6px;border:0" colspan="2">NO. SURAT JALAN <span style="float:right">:</span></td>
-						<td style="padding:6px;border:0" colspan="2">
+						<td style="padding:3px 6px;border:0" colspan="2">NO. SURAT JALAN <span style="float:right">:</span></td>
+						<td style="padding:3px 6px;border:0" colspan="2">
 							<input type="number" class="form-control" style="padding:6px;height:100%;text-align:right" id="p_no_sj-'.$g->id_pelanggan_lm.'" value="'.$sj.'" onkeyup="noSJLaminasi('."'".$g->id_pelanggan_lm."'".')">
 						</td>
-						<td style="padding:6px;border:0" colspan="5">/'.$tahun.'/LM</td>
+						<td style="padding:3px 6px;border:0" colspan="5">/'.$tahun.'/LM</td>
 					</tr>
 					<tr>
-						<td style="padding:6px;border:0" colspan="2">ATTN <span style="float:right">:</span></td>
-						<td style="padding:6px;border:0" colspan="2">
+						<td style="padding:3px 6px;border:0" colspan="2">ATTN <span style="float:right">:</span></td>
+						<td style="padding:3px 6px;border:0" colspan="2">
 							<input type="text" class="form-control" style="padding:6px;height:100%" id="attn-'.$g->id_pelanggan_lm.'" value="'.$g->nm_pelanggan_lm.'" oninput="this.value=this.value.toUpperCase()">
 						</td>
-						<td style="padding:6px;border:0" colspan="5"></td>
+						<td style="padding:3px 6px;border:0" colspan="5"></td>
 					</tr>
 					<tr>
-						<td style="padding:6px;border:0" colspan="2">NO. KENDARAAN <span style="float:right">:</span></td>
-						<td style="padding:6px;border:0" colspan="2">
+						<td style="padding:3px 6px;border:0" colspan="2">ALAMAT KIRIM <span style="float:right">:</span></td>
+						<td style="padding:3px 6px;border:0" colspan="2">
+							<textarea class="form-control" style="padding:6px;height:100%;resize:none" id="alamat_kirim-'.$g->id_pelanggan_lm.'" value="'.$g->alamat_kirim.'" oninput="this.value=this.value.toUpperCase()"></textarea>
+						</td>
+						<td style="padding:3px 6px;border:0" colspan="5"></td>
+					</tr>
+					<tr>
+						<td style="padding:3px 6px;border:0" colspan="2">NO. TELP <span style="float:right">:</span></td>
+						<td style="padding:3px 6px;border:0" colspan="2">
+							<input type="text" class="form-control" style="padding:6px;height:100%" id="no_telp-'.$g->id_pelanggan_lm.'" value="'.$g->no_telp.'" oninput="this.value=this.value.toUpperCase()">
+						</td>
+						<td style="padding:3px 6px;border:0" colspan="5"></td>
+					</tr>
+					<tr>
+						<td style="padding:3px 6px;border:0" colspan="2">NO. KENDARAAN <span style="float:right">:</span></td>
+						<td style="padding:3px 6px;border:0" colspan="2">
 							<input type="text" class="form-control" style="padding:6px;height:100%" id="p_no_kendaraan-'.$g->id_pelanggan_lm.'" oninput="this.value=this.value.toUpperCase()">
 						</td>
-						<td style="padding:6px;border:0" colspan="5"></td>
+						<td style="padding:3px 6px;border:0" colspan="5"></td>
 					</tr>
 					<tr>
 						<td style="padding:6px;border:0;font-weight:bold" colspan="2">LIST :</td>
@@ -807,11 +821,9 @@ class Logistik extends CI_Controller
 		$pl = $this->db->query("SELECT*FROM pl_laminasi l
 		INNER JOIN m_pelanggan_lm p ON l.id_perusahaan=p.id_pelanggan_lm
 		WHERE l.no_surat='$no_surat' GROUP BY l.no_surat")->row();
-		if($pl->attn_pl == null){
-			$attn = $pl->nm_pelanggan_lm;
-		}else{
-			$attn = $pl->attn_pl;
-		}
+		($pl->attn_pl == null) ? $attn = $pl->nm_pelanggan_lm : $attn = $pl->attn_pl;
+		($pl->alamat_pl == null) ? $alamat_kirim = $pl->alamat_kirim : $alamat_kirim = $pl->alamat_pl;
+		($pl->no_telp_pl == null) ? $no_telp_pl = $pl->no_telp : $no_telp_pl = $pl->no_telp_pl;
 
 		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;vertical-align:top;border-collapse:collapse;color:#000;width:100%">
 			<tr>
@@ -839,12 +851,12 @@ class Logistik extends CI_Controller
 			<tr>
 				<td style="padding:3px 0;font-weight:bold">ALAMAT</td>
 				<td style="padding:3px 0">:</td>
-				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$pl->alamat_kirim.'</td>
+				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$alamat_kirim.'</td>
 			</tr>
 			<tr>
 				<td style="padding:3px 0;font-weight:bold">NO. TELP</td>
 				<td style="padding:3px 0">:</td>
-				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$pl->no_telp.'</td>
+				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$no_telp_pl.'</td>
 			</tr>
 			<tr>
 				<td style="padding:3px 0;font-weight:bold">NO. KENDARAAN</td>
@@ -891,7 +903,7 @@ class Logistik extends CI_Controller
 					<td style="padding:3px;border:1px solid #000;text-align:center">'.$i.'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->rk_no_po.'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->nm_produk_lm.'</td>
-					<td style="padding:3px 10px 3px 3px;border:1px solid #000;border-width:1px 0 1px 1px;text-align:right">'.$muat.'</td>
+					<td style="padding:3px;border:1px solid #000;border-width:1px 0 1px 1px;text-align:right">'.$muat.'</td>
 					<td style="padding:3px 3px 3px 0;border:1px solid #000;border-width:1px 1px 1px 0">'.$jenis_qty.'</td>
 					<td style="padding:3px;border:1px solid #000">'.$r->rk_ket.'</td>
 				</tr>';
@@ -935,7 +947,7 @@ class Logistik extends CI_Controller
 				($qty->row()->jenis_qty_lm == 'pack') ? $t_jenis_qty = 'BALL' : $t_jenis_qty = strtoupper($qty->row()->jenis_qty_lm);
 				$html .='<tr>
 					<td style="padding:3px;border:1px solid #000;font-weight:bold;text-align:center" colspan="3">TOTAL</td>
-					<td style="padding:3px 10px 3px 3px;border:1px solid #000;border-width:1px 0 1px 1px;text-align:right;font-weight:bold">'.$total.'</td>
+					<td style="padding:3px;border:1px solid #000;border-width:1px 0 1px 1px;text-align:right;font-weight:bold">'.$total.'</td>
 					<td style="padding:3px 3px 3px 0;border:1px solid #000;border-width:1px 1px 1px 0;font-weight:bold">'.strtoupper($t_jenis_qty).'</td>
 					<td style="padding:3px;border:1px solid #000"></td>
 				</tr>';
@@ -1424,10 +1436,33 @@ class Logistik extends CI_Controller
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
-				$row[] = substr($this->m_fungsi->getHariIni($r->tgl),0,3).', '.$this->m_fungsi->tglIndSkt($r->tgl);
-				$row[] = $r->no_kendaraan;
-				$row[] = $r->nm_pelanggan_lm;
-				$row[] = $r->no_po;
+				// $row[] = substr($this->m_fungsi->getHariIni($r->tgl),0,3).', '.$this->m_fungsi->tglIndSkt($r->tgl);
+				// $row[] = $r->no_kendaraan;
+				// $row[] = $r->nm_pelanggan_lm;
+				// $row[] = $r->no_po;
+				// $row[] = 'HARI, TGL : '.substr($this->m_fungsi->getHariIni($r->tgl),0,3).', '.$this->m_fungsi->tglIndSkt($r->tgl).'<br>PLAT : '.$r->no_kendaraan.'<br>CUSTOMER : '.$r->nm_pelanggan_lm.'<br>NO. PO : '.$r->no_po;
+				$row[] = '<table>
+					<tr>
+						<td style="padding:0;border:0;background:#fff">HARI, TGL</td>
+						<td style="padding:0 5px;border:0;background:#fff">:</td>
+						<td style="padding:0;border:0;background:#fff">'.substr($this->m_fungsi->getHariIni($r->tgl),0,3).', '.$this->m_fungsi->tglIndSkt($r->tgl).'</td>
+					</tr>
+					<tr>
+						<td style="padding:0;border:0;background:#fff">PLAT</td>
+						<td style="padding:0 5px;border:0;background:#fff">:</td>
+						<td style="padding:0;border:0;background:#fff">'.$r->no_kendaraan.'</td>
+					</tr>
+					<tr>
+						<td style="padding:0;border:0;background:#fff">CUSTOMER</td>
+						<td style="padding:0 5px;border:0;background:#fff">:</td>
+						<td style="padding:0;border:0;background:#fff">'.$r->nm_pelanggan_lm.'</td>
+					</tr>
+					<tr>
+						<td style="padding:0;border:0;background:#fff">NO. PO</td>
+						<td style="padding:0 5px;border:0;background:#fff">:</td>
+						<td style="padding:0;border:0;background:#fff">'.$r->no_po.'</td>
+					</tr>
+				</table>';
 				$row[] = $r->no_surat;
 				$row[] = '<div class="text-center">
 					<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Logistik/SJ_Laminasi?no=".$r->no_surat."").'">

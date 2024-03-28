@@ -1595,9 +1595,9 @@ class Transaksi extends CI_Controller
 				}else{
 					$row[] = $r->nm_pelanggan_lm;
 					$row[] = $r->no_po_lm;
-					$row[] = '<div class="text-center">
-						<button type="button" title="ADD" class="btn btn-primary btn-sm" onclick="addListPOLaminasi('."'".$r->id."'".')"><i class="fas fa-search"></i></button>
-					</div>';
+					$cariPO = '<button type="button" title="ADD" class="btn btn-primary btn-sm" onclick="addListPOLaminasi('."'".$r->id."'".')"><i class="fas fa-search"></i></button>';
+					$closePO = '<button type="button" title="CLOSE" class="btn btn-danger btn-sm" style="padding:4px 10px" onclick="addListPOLaminasi('."'".$r->id."'".')"><i class="fas fa-times"></i></button>';
+					$row[] = '<div class="text-center">'.$cariPO.' '.$closePO.'</div>';
 				}
 				
 				$data[] = $row;

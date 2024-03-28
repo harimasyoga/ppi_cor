@@ -706,6 +706,8 @@ class M_logistik extends CI_Model
 		$tgl = $_POST["tgl"];
 		$no_sj = $_POST["no_sj"];
 		$attn = $_POST["attn"];
+		$alamat_kirim = $_POST["alamat_kirim"];
+		$no_telp = $_POST["no_telp"];
 		$no_kendaraan = $_POST["no_kendaraan"];
 
 		$tahun = substr(date('Y'),2,2);
@@ -719,6 +721,12 @@ class M_logistik extends CI_Model
 		}else if($attn == ''){
 			$data = false; $insertPL = false; $updateIDPL = false;
 			$msg = 'ATTN TIDAK BOLEH KOSONG!';
+		}else if($alamat_kirim == ''){
+			$data = false; $insertPL = false; $updateIDPL = false;
+			$msg = 'ALAMAT KIRIM TIDAK BOLEH KOSONG!';
+		}else if($no_telp == ''){
+			$data = false; $insertPL = false; $updateIDPL = false;
+			$msg = 'NO. TELP TIDAK BOLEH KOSONG!';
 		}else if($no_kendaraan == ''){
 			$data = false; $insertPL = false; $updateIDPL = false;
 			$msg = 'NOMER KENDARAAN TIDAK BOLEH KOSONG!';
@@ -737,6 +745,8 @@ class M_logistik extends CI_Model
 					'tgl' => $tgl,
 					'no_surat' => $no_surat,
 					'attn_pl' => $attn,
+					'alamat_pl' => ($alamat_kirim == "") ? NULL : $alamat_kirim,
+					'no_telp_pl' => ($no_telp == "") ? NULL : $no_telp,
 					'no_kendaraan' => $no_kendaraan,
 					'no_po' => $r->rk_no_po,
 					'sj' => 'Open',
