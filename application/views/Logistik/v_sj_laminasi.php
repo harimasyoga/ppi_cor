@@ -73,10 +73,6 @@
 									<table id="datatable1" class="table table-bordered table-striped">
 										<thead>
 											<tr>
-												<!-- <th style="padding:12px;text-align:center">HARI, TGL</th>
-												<th style="padding:12px;text-align:center">PLAT</th>
-												<th style="padding:12px;text-align:center">CUSTOMER</th>
-												<th style="padding:12px;text-align:center">NO. PO</th> -->
 												<th style="padding:12px;text-align:center">DESKRIPSI</th>
 												<th style="padding:12px;text-align:center">NO. SJ</th>
 												<th style="padding:12px;text-align:center">AKSI</th>
@@ -91,7 +87,7 @@
 				</div>
 
 				<div class="col-md-6">
-					<div class="card card-secondary card-outline">
+					<div class="card card-secondary card-outline" style="position:sticky;top:12px;bottom:12px">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">PO LAMINASI</h3>
 							<div class="card-tools">
@@ -176,14 +172,14 @@
 	});
 
 	function reloadTable() {
-		table = $('#datatable').DataTable();
-		tabel.ajax.reload(null, false);
+		let table2 = $('#datatable').DataTable();
+		tabel2.ajax.reload(null, false);
 	}
 
 	function load_data() {
-		let table = $('#datatable').DataTable();
-		table.destroy();
-		tabel = $('#datatable').DataTable({
+		let table2 = $('#datatable').DataTable();
+		table2.destroy();
+		tabel2 = $('#datatable').DataTable({
 			"processing": true,
 			"pageLength": true,
 			"paging": true,
@@ -207,7 +203,7 @@
 	}
 
 	function reloadTableSJ() {
-		table = $('#datatable1').DataTable();
+		let table = $('#datatable1').DataTable();
 		tabel.ajax.reload(null, false);
 	}
 
@@ -275,8 +271,26 @@
 				data = JSON.parse(res)
 				$(".row-list-po").show()
 				$(".list-po-sj-laminasi").html(data.html)
-				// swal.close()
 				listRencanKirim()
+			}
+		})
+	}
+
+	function closePOLaminasi(id)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Logistik/closePOLaminasi')?>',
+			type: "POST",
+			data: ({ id }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.data){
+					$(".row-list-po").hide()
+					$(".list-po-sj-laminasi").html('')
+					toastr.success(`<b>BERHASIL CLOSE PO ${data.po_lm.no_po_lm}!</b>`)
+					reloadTable()
+				}
 			}
 		})
 	}

@@ -1485,7 +1485,7 @@ class Transaksi extends CI_Controller
 					$where = "WHERE po.id_sales='XXX'";
 				}
 			}
-			($_POST["po"] == 'pengiriman') ? $stats = "AND po.status_lm='Approve' ORDER BY pl.nm_pelanggan_lm,po.no_po_lm" : $stats = "ORDER BY id DESC" ;
+			($_POST["po"] == 'pengiriman') ? $stats = "AND po.status_lm='Approve' AND status_kirim='Open' ORDER BY pl.nm_pelanggan_lm,po.no_po_lm" : $stats = "ORDER BY id DESC" ;
 			$query = $this->db->query("SELECT po.*,pl.nm_pelanggan_lm FROM trs_po_lm po
 			INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm $where $stats")->result();
 			$i = 0;
@@ -1595,8 +1595,8 @@ class Transaksi extends CI_Controller
 				}else{
 					$row[] = $r->nm_pelanggan_lm;
 					$row[] = $r->no_po_lm;
-					$cariPO = '<button type="button" title="ADD" class="btn btn-primary btn-sm" onclick="addListPOLaminasi('."'".$r->id."'".')"><i class="fas fa-search"></i></button>';
-					$closePO = '<button type="button" title="CLOSE" class="btn btn-danger btn-sm" style="padding:4px 10px" onclick="addListPOLaminasi('."'".$r->id."'".')"><i class="fas fa-times"></i></button>';
+					$cariPO = '<button type="button" title="CARI" class="btn btn-primary btn-sm" onclick="addListPOLaminasi('."'".$r->id."'".')"><i class="fas fa-search"></i></button>';
+					$closePO = '<button type="button" title="CLOSE" class="btn btn-danger btn-sm" onclick="closePOLaminasi('."'".$r->id."'".')"><i class="fas fa-check"></i></button>';
 					$row[] = '<div class="text-center">'.$cariPO.' '.$closePO.'</div>';
 				}
 				

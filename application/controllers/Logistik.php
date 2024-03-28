@@ -605,6 +605,21 @@ class Logistik extends CI_Controller
 		echo $html;
 	}
 
+	function closePOLaminasi()
+	{
+		$id = $_POST["id"];
+		$po_lm = $this->db->query("SELECT*FROM trs_po_lm po WHERE id='$id'")->row();
+
+		$this->db->set('status_kirim', 'Close');
+		$this->db->where('id', $_POST["id"]);
+		$data = $this->db->update('trs_po_lm');
+
+		echo json_encode([
+			'po_lm' => $po_lm,
+			'data' => $data,
+		]);
+	}
+
 	function listRencanKirim()
 	{
 		$html ='';
@@ -1435,35 +1450,31 @@ class Logistik extends CI_Controller
 			$where GROUP BY pl.no_surat DESC")->result();
 			$i = 1;
 			foreach ($query as $r) {
+				($r->nm_pelanggan_lm != $r->attn_pl && $r->attn_pl != null) ? $customer = $r->nm_pelanggan_lm.' - <i>( '.$r->attn_pl.' )</i>' : $customer = $r->nm_pelanggan_lm;
 				$row = array();
-				// $row[] = substr($this->m_fungsi->getHariIni($r->tgl),0,3).', '.$this->m_fungsi->tglIndSkt($r->tgl);
-				// $row[] = $r->no_kendaraan;
-				// $row[] = $r->nm_pelanggan_lm;
-				// $row[] = $r->no_po;
-				// $row[] = 'HARI, TGL : '.substr($this->m_fungsi->getHariIni($r->tgl),0,3).', '.$this->m_fungsi->tglIndSkt($r->tgl).'<br>PLAT : '.$r->no_kendaraan.'<br>CUSTOMER : '.$r->nm_pelanggan_lm.'<br>NO. PO : '.$r->no_po;
 				$row[] = '<table>
 					<tr>
-						<td style="padding:0;border:0;background:#fff">HARI, TGL</td>
+						<td style="padding:0;border:0;background:#fff;font-weight:bold">HARI, TGL</td>
 						<td style="padding:0 5px;border:0;background:#fff">:</td>
-						<td style="padding:0;border:0;background:#fff">'.substr($this->m_fungsi->getHariIni($r->tgl),0,3).', '.$this->m_fungsi->tglIndSkt($r->tgl).'</td>
+						<td style="padding:0;border:0;background:#fff">'.strtoupper(substr($this->m_fungsi->getHariIni($r->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl)).'</td>
 					</tr>
 					<tr>
-						<td style="padding:0;border:0;background:#fff">PLAT</td>
+						<td style="padding:0;border:0;background:#fff;font-weight:bold">PLAT</td>
 						<td style="padding:0 5px;border:0;background:#fff">:</td>
 						<td style="padding:0;border:0;background:#fff">'.$r->no_kendaraan.'</td>
 					</tr>
 					<tr>
-						<td style="padding:0;border:0;background:#fff">CUSTOMER</td>
+						<td style="padding:0;border:0;background:#fff;font-weight:bold">CUSTOMER</td>
 						<td style="padding:0 5px;border:0;background:#fff">:</td>
-						<td style="padding:0;border:0;background:#fff">'.$r->nm_pelanggan_lm.'</td>
+						<td style="padding:0;border:0;background:#fff">'.$customer.'</td>
 					</tr>
 					<tr>
-						<td style="padding:0;border:0;background:#fff">NO. PO</td>
+						<td style="padding:0;border:0;background:#fff;font-weight:bold">NO. PO</td>
 						<td style="padding:0 5px;border:0;background:#fff">:</td>
 						<td style="padding:0;border:0;background:#fff">'.$r->no_po.'</td>
 					</tr>
 				</table>';
-				$row[] = $r->no_surat;
+				$row[] = '<div class="text-center">'.$r->no_surat.'</div>';
 				$row[] = '<div class="text-center">
 					<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Logistik/SJ_Laminasi?no=".$r->no_surat."").'">
 						<i class="fas fa-print"></i>
