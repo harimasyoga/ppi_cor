@@ -295,7 +295,11 @@ class Transaksi extends CI_Controller
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_x_tonase,0,",",".").'</a></div>';
 			$edit = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
 			$view = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')" class="btn btn-info btn-sm" style="color:#000"><i class="fas fa-eye"></i></button>';
-			$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".')" class="btn btn-danger btn-sm" style="color:#000"><i class="fas fa-trash-alt"></i></button>';
+			if($this->session->userdata('level') == 'Admin'){
+				$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".')" class="btn btn-danger btn-sm" style="color:#000"><i class="fas fa-trash-alt"></i></button>';
+			}else{
+				$hapus = '';
+			}
 
 			if($r->pilih_hpp == 'PM2' && $r->jenis_hpp != 'WP' && $r->cek_sheet != 'N'){
 				$aksi = $edit.' '.$view;

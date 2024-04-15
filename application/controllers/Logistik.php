@@ -65,6 +65,16 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	public function Invoice_Laminasi()
+	{
+		$data = array(
+			'judul' => "Invoice Laminasi",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_invoice_lam');
+		$this->load->view('footer');
+	}
+
 	function stok_bb()
 	{
 		$data = [

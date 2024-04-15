@@ -1652,9 +1652,11 @@
 							</div>
 						</div>
 						<div class="card-body" style="padding:12px 6px">
-							<div style="margin-bottom:12px">
-								<button type="button" class="btn btn-sm btn-info" onclick="addHPP()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
-							</div>
+							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Owner', 'Keuangan2'])){ ?>
+								<div style="margin-bottom:12px">
+									<button type="button" class="btn btn-sm btn-info" onclick="addHPP()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+								</div>
+							<?php } ?>
 							<div style="overflow:auto;white-space:nowrap">
 								<table id="datatable" class="table table-bordered table-striped">
 									<thead>
@@ -1682,6 +1684,7 @@
 
 <script type="text/javascript">
 	let statusInput = 'insert';
+	const urlAuth = '<?= $this->session->userdata('level')?>';
 
 	$(document).ready(function ()
 	{
@@ -1938,8 +1941,15 @@
 	{
 		$(".card-pemakaian-bahan-"+cbx).attr('style', (opsi == 'show') ? '' : 'display:none')
 		$(".card-biaya-produksi-"+cbx).attr('style', (opsi == 'show') ? '' : 'display:none')
-		$(".col-hitung-hpp").attr('style', (opsi == 'show') ? '' : 'display:none')
-		$(".col-hitung-hpp-tanpa-bb").attr('style', (opsi == 'show') ? '' : 'display:none')
+		let option = '';
+		(urlAuth == 'Keuangan2') ? option = 'position:sticky;top:12px' : option = '';
+		$(".col-hitung-hpp").attr('style', (opsi == 'show') ? option : 'display:none')
+
+		if(urlAuth == 'Keuangan2'){
+			$(".col-hitung-hpp-tanpa-bb").attr('style', 'display:none')
+		}else{
+			$(".col-hitung-hpp-tanpa-bb").attr('style', (opsi == 'show') ? '' : 'display:none')
+		}
 
 		$(".tambah-bahan").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('bb','pm','')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
 		$(".tambah-upah").html(`<button type="button" class="btn btn-xs btn-success" onclick="keteranganHPP('upah','pm','')"><i class="fa fa-plus"></i> <b>TAMBAH</b></button>`)
@@ -2390,8 +2400,8 @@
 	// HITUNG PEMAKAIAN BAHAN PM
 	function hitungKetBahan()
 	{
-		let ket_bahan_kg = $("#ket_bahan_kg").val()
-		let ket_bahan_rp = $("#ket_bahan_rp").val()
+		let ket_bahan_kg = $("#ket_bahan_kg").val().split('.').join('')
+		let ket_bahan_rp = $("#ket_bahan_rp").val().split('.').join('')
 		$("#ket_bahan_kg").val(formatRupiah(ket_bahan_kg))
 		$("#ket_bahan_rp").val(formatRupiah(ket_bahan_rp))
 		let h_ket_bahan_kg = (ket_bahan_kg == '' || isNaN(ket_bahan_kg)) ? 0 : parseInt(ket_bahan_kg.split('.').join(''));
@@ -2461,8 +2471,8 @@
 			o = 'l_'
 		}
 
-		let ket_dll_kg = $("#"+o+"ket_dll_kg").val()
-		let ket_dll_rp = $("#"+o+"ket_dll_rp").val()
+		let ket_dll_kg = $("#"+o+"ket_dll_kg").val().split('.').join('')
+		let ket_dll_rp = $("#"+o+"ket_dll_rp").val().split('.').join('')
 		$("#"+o+"ket_dll_kg").val(formatRupiah(ket_dll_kg))
 		$("#"+o+"ket_dll_rp").val(formatRupiah(ket_dll_rp))
 		let h_ket_dll_kg = (ket_dll_kg == '' || isNaN(ket_dll_kg)) ? 0 : parseInt(ket_dll_kg.split('.').join(''));
@@ -2487,8 +2497,8 @@
 			o = 'l_'
 		}
 
-		let batu_bara_kg = $("#"+o+"batu_bara_kg").val()
-		let batu_bara_rp = $("#"+o+"batu_bara_rp").val()
+		let batu_bara_kg = $("#"+o+"batu_bara_kg").val().split('.').join('')
+		let batu_bara_rp = $("#"+o+"batu_bara_rp").val().split('.').join('')
 		$("#"+o+"batu_bara_kg").val(formatRupiah(batu_bara_kg))
 		$("#"+o+"batu_bara_rp").val(formatRupiah(batu_bara_rp))
 		let h_batu_bara_kg = (batu_bara_kg == '' || isNaN(batu_bara_kg)) ? 0 : parseInt(batu_bara_kg.split('.').join(''));
@@ -2514,8 +2524,8 @@
 			o = 'l_'
 		}
 
-		let chemical_kg = $("#"+o+"chemical_kg").val()
-		let chemical_rp = $("#"+o+"chemical_rp").val()
+		let chemical_kg = $("#"+o+"chemical_kg").val().split('.').join('')
+		let chemical_rp = $("#"+o+"chemical_rp").val().split('.').join('')
 		$("#"+o+"chemical_kg").val(formatRupiah(chemical_kg))
 		$("#"+o+"chemical_rp").val(formatRupiah(chemical_rp))
 		let h_chemical_kg = (chemical_kg == '' || isNaN(chemical_kg)) ? 0 : parseInt(chemical_kg.split('.').join(''));
