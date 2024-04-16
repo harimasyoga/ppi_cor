@@ -850,7 +850,7 @@ class Logistik extends CI_Controller
 		($pl->alamat_pl == null) ? $alamat_kirim = $pl->alamat_kirim : $alamat_kirim = $pl->alamat_pl;
 		($pl->no_telp_pl == null) ? $no_telp_pl = $pl->no_telp : $no_telp_pl = $pl->no_telp_pl;
 
-		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;vertical-align:top;border-collapse:collapse;color:#000;width:100%">
+		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;vertical-align:top;border-collapse:collapse;color:#000;width:100%;font-family:tahoma">
 			<tr>
 				<td style="width:55%"></td>
 				<td style="width:16%"></td>
@@ -890,7 +890,7 @@ class Logistik extends CI_Controller
 			</tr>';
 		$html .='</table>';
 
-		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;border-collapse:collapse;color:#000;width:100%">
+		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;border-collapse:collapse;color:#000;width:100%;font-family:tahoma">
 			<tr>
 				<th style="width:5%"></th>
 				<th style="width:21%"></th>
@@ -980,7 +980,7 @@ class Logistik extends CI_Controller
 
 		$html .='</table>';
 
-		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;text-align:center;border-collapse:collapse;color:#000;width:100%">
+		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;text-align:center;border-collapse:collapse;color:#000;width:100%;font-family:tahoma">
 			<tr>
 				<td style="width:35%"></td>
 				<td style="width:16%"></td>
@@ -5730,5 +5730,30 @@ class Logistik extends CI_Controller
 		$judul = 'JEMBATAN TIMBANG - '.$id;
 		$this->m_fungsi->newMpdf($judul, '', $html, $top, 3, 3, 3, 'P', 'TT', $judul.'.pdf');
 	}
+
+	//
+
+	function cariSJLaminasi()
+	{
+		$tgl_sj = $_POST["tgl_sj"];
+		$htmlCustomer = '';
+
+		$query = $this->db->query("SELECT l.* FROM m_rk_laminasi rk
+		INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
+		WHERE l.tgl='$tgl_sj' AND l.no_pl_inv='0'
+		GROUP BY l.tgl,l.no_surat,l.no_pl_urut");
+
+		($query->num_rows() == 0) ? $htmlCustomer = '<option value="">DATA KOSONG</option>' : $htmlCustomer = '<option value="">PILIH</option>';
+		foreach($query->result() as $r){
+			$htmlCustomer .= '<option value="'.$r->no_surat.'">'.$r->no_surat.' | '.$r->attn_pl.'</option>';
+		}
+
+		echo json_encode([
+			'numRows' => $query->num_rows(),
+			'htmlCustomer' => $htmlCustomer,
+		]);
+	}
+
+	//
 
 }
