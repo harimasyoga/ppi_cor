@@ -50,15 +50,18 @@
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">CUSTOMER</div>
 							<div class="col-md-9">
-								<select id="customer" class="form-control select2" disabled>
+								<select id="no_surat_jalan" class="form-control select2" onchange="pilihSJInvLam()" disabled>
 									<option value="">PILIH</option>
 								</select>
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">NO. INVOICE</div>
-							<div class="col-md-9">
-								<input type="text" id="no_invoice" class="form-control" autocomplete="off" placeholder="No. Invoice" oninput="this.value=this.value.toUpperCase()">
+							<div class="col-md-8">
+								<input type="text" id="no_invoice" class="form-control" style="text-align:right" autocomplete="off" placeholder="000000" oninput="this.value=this.value.toUpperCase()">
+							</div>
+							<div class="col-md-1">
+								<span class="tahun-no-invoice"></span>
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 16px">
@@ -77,19 +80,14 @@
 						<div class="card-body row" style="font-weight:bold;padding:16px 12px 6px">
 							<div class="col-md-3">KEPADA</div>
 							<div class="col-md-9">
-								<input type="text" id="kepada" class="form-control" placeholder="Kepada" oninput="this.value=this.value.toUpperCase()">
-							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">NAMA PERUSAHAAN</div>
-							<div class="col-md-9">
-								<input type="text" id="nm_perusahaan" class="form-control" placeholder="Nama Perusahaan" oninput="this.value=this.value.toUpperCase()">
+								<input type="hidden" id="h_id_pelanggan_lm" value="">
+								<input type="text" id="kepada" class="form-control" placeholder="Kepada" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">ALAMAT PERUSAHAAN</div>
 							<div class="col-md-9">
-								<textarea id="no_invoice" class="form-control" style="resize:none" rows="3" placeholder="Alamat Perusahaan" oninput="this.value=this.value.toUpperCase()"></textarea>
+								<textarea id="alamat_perusahaan" class="form-control" style="resize:none" rows="3" placeholder="Alamat Perusahaan" autocomplete="off" oninput="this.value=this.value.toUpperCase()"></textarea>
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 16px">
@@ -126,7 +124,9 @@
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST ITEM</h3>
 						</div>
 						<div class="card-body" style="padding:6px">
-							LIST
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="list-item"></div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -234,20 +234,26 @@
 	{
 		// $("#tgl_invoice").val("")
 		$("#tgl_sj").val("")
-		$("#customer").val("")
+		$("#no_surat_jalan").val("")
 		$("#no_invoice").val("")
+		$(".tahun-no-invoice").html("")
 		$("#tgl_jatuh_tempo").val("")
+
+		$("#h_id_pelanggan_lm").val("")
 		$("#kepada").val("")
-		$("#nm_perusahaan").val("")
-		$("#no_invoice").val("")
+		$("#alamat_perusahaan").val("")
 		$("#pilihan_bank").val("")
+
+		$(".list-item").html('')
 
 		statusInput = 'insert'
 		// swal.close()
 	}
 
 	function cariSJLaminasi(){
-		$("#customer").html(`<option value="">PILIH</option>`).prop('disabled', true)
+		$("#no_surat_jalan").html(`<option value="">PILIH</option>`).prop('disabled', true)
+		$(".tahun-no-invoice").html('')
+		$(".list-item").html('')
 		let tgl_sj= $("#tgl_sj").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/cariSJLaminasi')?>',
@@ -256,7 +262,29 @@
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
-				$("#customer").html(data.htmlCustomer).prop('disabled', (data.numRows == 0) ? true : false)
+				$("#no_surat_jalan").html(data.htmlSJ).prop('disabled', (data.numRows == 0) ? true : false)
+			}
+		})
+	}
+
+	function pilihSJInvLam() {
+		$(".list-item").html('')
+		let no_surat = $("#no_surat_jalan").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/pilihSJInvLam')?>',
+			type: "POST",
+			data: ({ no_surat }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+
+				$("#no_invoice").val(data.no_invoice)
+				$(".tahun-no-invoice").html(data.tahun)
+				$("#h_id_pelanggan_lm").val(data.id_pelanggan_lm)
+				$("#kepada").val(data.kepada)
+				$("#alamat_perusahaan").val(data.alamat)
+
+				$(".list-item").html(data.htmlItem)
 			}
 		})
 	}
