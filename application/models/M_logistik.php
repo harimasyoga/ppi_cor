@@ -789,6 +789,67 @@ class M_logistik extends CI_Model
 
 	//
 
+	function simpanInvLam()
+	{
+		$tgl_invoice = $_POST["tgl_invoice"];
+		$tgl_sj = $_POST["tgl_sj"];
+		$no_surat_jalan = $_POST["no_surat_jalan"];
+		$no_inv = $_POST["no_invoice"];
+		$tgl_jatuh_tempo = $_POST["tgl_jatuh_tempo"];
+		$id_pelanggan_lm = $_POST["h_id_pelanggan_lm"];
+		$kepada = $_POST["kepada"];
+		$alamat = $_POST["alamat"];
+		$pilihan_bank = $_POST["pilihan_bank"];
+
+		$tahun = substr($tgl_sj,2,2);
+		$noSJ = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE no_invoice LIKE '%$tahun%' ORDER BY no_invoice DESC LIMIT 1");
+		($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 4, 6);
+		$no_invoice = 'INV/'.str_pad($no+1, 6, "0", STR_PAD_LEFT).'/'.$tahun.'/LM';
+
+		if($no_inv == 000000 || $no_inv == '000000' || $no_inv == '' || $no_inv < 0 || strlen("'.$no_inv.'") < 6){
+			$data = false; $insert = false; $no_pl_inv = false;
+			$msg = 'NOMER INVOICE TIDAK BOLEH KOSONG!';
+		}else if($tgl_invoice == "" || $no_inv == "" || $tgl_jatuh_tempo == "" || $kepada == "" || $alamat == "" || $pilihan_bank == ""){
+			$data = false; $insert = false;
+			$msg = 'HARAP LENGKAPI FORM!';
+		}else{
+			$data = array(
+				'tgl_invoice' => $tgl_invoice,
+				'tgl_surat_jalan' => $tgl_sj,
+				'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
+				// 'tgl_ctk' => null,
+				'id_pelanggan_lm' => $id_pelanggan_lm,
+				'no_surat' => $no_surat_jalan,
+				'no_invoice' => $no_invoice,
+				'attn_lam_inv' => $kepada,
+				'alamat_lam_inv' => $alamat,
+				'bank' => $pilihan_bank,
+				'status_inv' => 'Open',
+				'acc_admin' => 'Y',
+				'time_admin' => date('Y-m-d H:i:s'),
+				'acc_owner' => 'N',
+				// 'time_owner' => null,
+			);
+			$insert = $this->db->insert('invoice_laminasi_header', $data);
+			// update no_pl_inv di pl laminasi
+			if($insert){
+				$this->db->set('no_pl_inv', 1);
+				$this->db->where('no_surat', $no_surat_jalan);
+				$no_pl_inv = $this->db->update('pl_laminasi');
+			}
+			$msg = 'OK!';
+		}
+
+		return [
+			'data' => $data,
+			'insert' => $insert,
+			'no_pl_inv' => $no_pl_inv,
+			'msg' => $msg,
+		];
+	}
+
+	//
+
 	function simpanTimbangan_2()
 	{
 		$thn = date('Y');
