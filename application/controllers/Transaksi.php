@@ -1580,8 +1580,8 @@ class Transaksi extends CI_Controller
 						</div>
 					</div>';
 
-					$lapAcc = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Lap_POLaminasi?id=".$r->id."&opsi=acc").'" title="Cetak Plan" ><i class="fas fa-print"></i></a>'; 
-					$lapProd = '<a target="_blank" class="btn btn-sm btn-warning" href="'.base_url("Transaksi/Lap_POLaminasi?id=".$r->id."&opsi=prod").'" title="Cetak Plan" ><i class="fas fa-print"></i></a>'; 
+					$lapAcc = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Lap_POLaminasi?id=".$r->id."&opsi=acc").'" title="Laporan Laminasi" ><i class="fas fa-print"></i></a>'; 
+					$lapProd = '<a target="_blank" class="btn btn-sm btn-warning" href="'.base_url("Transaksi/Lap_POLaminasi?id=".$r->id."&opsi=prod").'" title="Laporan Laminasi" ><i class="fas fa-print"></i></a>'; 
 					$row[] = '<div class="text-center">'.$lapAcc.' '.$lapProd.'</div>';
 
 					($r->status_lm1 == 'Y' && $r->status_lm2 == 'Y') ? $xEditVerif = 'verif' : $xEditVerif = 'edit';

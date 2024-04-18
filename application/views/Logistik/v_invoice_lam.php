@@ -22,7 +22,7 @@
 	<section class="content">
 		<div class="container-fluid">
 
-			<div class="row row-input-invoice-laminasi">
+			<div class="row row-input-invoice-laminasi" style="display:none">
 				<div class="col-md-7">
 					<div class="card card-success card-outline">
 						<div class="card-header" style="padding:12px">
@@ -43,9 +43,7 @@
 							<div class="col-md-8">
 								<input type="date" id="tgl_sj" class="form-control" onchange="cariSJLaminasi()">
 							</div>
-							<div class="col-md-1">
-								<button type="button" class="btn btn-primary" onclick="cariSJLaminasi()"><i class="fas fa-search"></i><b></b></button>
-							</div>
+							<div class="col-md-1"></div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">SURAT JALAN</div>
@@ -58,7 +56,7 @@
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">NO. INVOICE</div>
 							<div class="col-md-8">
-								<input type="text" class="form-control" style="font-weight:bold" value="AUTO" disabled>
+								<input type="text" class="form-control" style="font-weight:bold" id="txt_no_invoice" value="AUTO" disabled>
 								<input type="hidden" id="no_invoice" value="">
 							</div>
 							<div class="col-md-1"></div>
@@ -103,20 +101,32 @@
 				</div>
 
 				<div class="col-md-5">
-					<div class="col-verif-invoice-laminasi">
-						<div class="card card-info card-outline">
+					<div class="col-verif-invoice-laminasi" style="display:none">
+						<div class="card card-info card-outline" style="padding-bottom:18px">
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
 							</div>
-							<div class="card-body" style="padding:6px">
-								Verif
+							<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
+								<div class="col-md-3">ADMIN</div>
+								<div class="col-md-9">
+									<div id="verif-admin"></div>
+								</div>
 							</div>
+							<div id="input-marketing"></div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">OWNER</div>
+								<div class="col-md-9">
+									<div id="verif-owner"></div>
+								</div>
+							</div>
+							<div id="input-owner"></div>
 						</div>
 					</div>
 				</div>
+				<input type="hidden" id="h_id_header" value="">
 			</div>
 
-			<div class="row row-list-invoice-laminasi">
+			<div class="row row-item-invoice-laminasi" style="display:none">
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
@@ -129,82 +139,98 @@
 								<!-- DISCOUNT DAN POTONGAN -->
 								<div class="disc-potongan" style="display:none">
 									<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
-										<div class="col-md-1">JENIS</div>
-										<div class="col-md-2">
-											<select id="dc_jenis" class="form-control select2">
+										<div class="col-md-1">*OPSI</div>
+										<div class="col-md-3">
+											<select id="dc_opsi" class="form-control select2" onchange="discOpsi()">
 												<option value="">PILIH</option>
 												<option value="DISCOUNT">DISCOUNT</option>
-												<option value="POTONGAN">POTONGAN</option>
+												<option value="BIAYA BONGKAR">BIAYA BONGKAR</option>
+												<option value="POTONG KARUNG">POTONG KARUNG</option>
 											</select>
 										</div>
-										<div class="col-md-9"></div>
+										<div class="col-md-8"></div>
 									</div>
-									<!-- DISCOUNT -->
-									<div class="pdc-discount">
+
+									<div class="dcp-persen" style="display:none">
 										<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
 											<div class="col-md-1"></div>
-											<div class="col-md-2">
+											<div class="col-md-3">
 												<div class="input-group">
-													<input type="number" id="dc_disc_persen" class="form-control" autocomplete="off" placeholder="%">
+													<input type="number" id="dcp_input_persen" class="form-control" autocomplete="off" placeholder="%" onkeyup="keyUpDisc('persen')">
 													<div class="input-group-append">
 														<span class="input-group-text" style="font-weight:bold">%</span>
 													</div>
 												</div>
 											</div>
-											<div class="col-md-9"></div>
+											<div class="col-md-8"></div>
 										</div>
+									</div>
+									<div class="dcp-hari" style="display:none">
 										<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
 											<div class="col-md-1"></div>
-											<div class="col-md-2">
+											<div class="col-md-3">
 												<div class="input-group">
-													<input type="number" id="dc_disc_hari" class="form-control" autocomplete="off" placeholder="HARI">
+													<input type="number" id="dcp_input_hari" class="form-control" autocomplete="off" placeholder="HARI" onkeyup="keyUpDisc('hari')">
 													<div class="input-group-append">
 														<span class="input-group-text" style="font-weight:bold">HARI</span>
 													</div>
 												</div>
 											</div>
-											<div class="col-md-9"></div>
+											<div class="col-md-8"></div>
 										</div>
 									</div>
-									<!-- POTONGAN -->
-									<div class="pdc-potongan">
+									<div class="dcp-rupiah" style="display:none">
 										<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
 											<div class="col-md-1"></div>
-											<div class="col-md-2">
+											<div class="col-md-3">
 												<div class="input-group">
-													<input type="number" id="dc_pot_rp" class="form-control" autocomplete="off" placeholder="Rp.">
+													<input type="number" id="dcp_input_rupiah" class="form-control" autocomplete="off" placeholder="Rp." onkeyup="keyUpDisc('rupiah')">
 													<div class="input-group-append">
 														<span class="input-group-text" style="font-weight:bold">Rp</span>
 													</div>
 												</div>
 											</div>
-											<div class="col-md-9"></div>
+											<div class="col-md-8"></div>
 										</div>
+									</div>
+									<div class="dcp-ball" style="display:none">
 										<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
 											<div class="col-md-1"></div>
-											<div class="col-md-2">
+											<div class="col-md-3">
 												<div class="input-group">
-													<input type="number" id="dc_pot_bal" class="form-control" autocomplete="off" placeholder="BALL">
+													<input type="number" id="dcp_input_ball" class="form-control" autocomplete="off" placeholder="BALL" onkeyup="keyUpDisc('ball')">
 													<div class="input-group-append">
 														<span class="input-group-text" style="font-weight:bold">BALL</span>
 													</div>
 												</div>
 											</div>
-											<div class="col-md-9"></div>
+											<div class="col-md-8"></div>
+										</div>
+									</div>
+									<div class="dcp-hitung" style="display:none">
+										<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+											<div class="col-md-1"></div>
+											<div class="col-md-3">
+												<input type="text" id="dcp_input_hitung" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" disabled onkeyup="keyUpDisc('hitung')">
+											</div>
+											<div class="col-md-8"></div>
+										</div>
+									</div>
+									<div class="dcp-total" style="display:none">
+										<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+											<div class="col-md-1">HASIL</div>
+											<div class="col-md-3">
+												<input type="text" id="dcp_input_total" class="form-control" style="font-weight:bold;color:#000;text-align:right" autocomplete="off" placeholder="0" disabled onkeyup="keyUpDisc('total')">
+											</div>
+											<div class="col-md-8"></div>
 										</div>
 									</div>
 
-									<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
-										<div class="col-md-1">KET</div>
-										<div class="col-md-4">
-											<input type="text" id="dc_ket" class="form-control" autocomplete="off" placeholder="Keterangan">
-										</div>
-										<div class="col-md-7"></div>
-									</div>
 									<div class="card-body row" style="font-weight:bold;padding:0 6px 16px">
 										<div class="col-md-1"></div>
 										<div class="col-md-11">
-											<button type="button" class="btn btn-sm btn-success">ADD</button>
+											<div class="btn-add-disc"></div>
+											<!-- <button type="button" class="btn btn-sm btn-success" style="font-weight:bold" onclick="addDisc()"><i class="fas fa-plus"></i> ADD</button> -->
 										</div>
 									</div>
 								</div>
@@ -225,19 +251,24 @@
 								</button>
 							</div>
 						</div>
-						<div class="card-body" style="padding:6px">
-							<?php if(in_array($this->session->userdata('level'), ['Admin', 'User'])){ ?>
+						<div class="card-body">
+							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){ ?>
 								<div style="margin-bottom:12px">
 									<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								</div>
 							<?php } ?>
 							<div style="overflow:auto;white-space:nowrap">
 								<table id="datatable" class="table table-bordered table-striped">
-									<thead>
+									<thead class="color-tabel">
 										<tr>
-											<th style="width:47%;padding:12px;text-align:center">CUSTOMER</th>
-											<th style="width:47%;padding:12px;text-align:center">NO. PO</th>
-											<th style="width:6%;padding:12px;text-align:center">AKSI</th>
+											<th style="padding:12px;text-align:center">NO.</th>
+											<th style="padding:12px;text-align:center">DESKRIPSI</th>
+											<th style="padding:12px;text-align:center">JATUH TEMPO</th>
+											<th style="padding:12px;text-align:center">ADMIN</th>
+											<th style="padding:12px;text-align:center">OWNER</th>
+											<th style="padding:12px;text-align:center">TOTAL</th>
+											<th style="padding:12px;text-align:center">CETAK</th>
+											<th style="padding:12px;text-align:center">AKSI</th>
 										</tr>
 									</thead>
 									<tbody></tbody>
@@ -273,11 +304,12 @@
 <script type="text/javascript">
 	let statusInput = 'insert';
 	const urlAuth = '<?= $this->session->userdata('level')?>';
+	const urlUser = '<?= $this->session->userdata('username')?>';
 
 	$(document).ready(function ()
 	{
 		// kosong()
-		// load_data()
+		load_data()
 		$('.select2').select2();
 	});
 
@@ -286,65 +318,84 @@
 		tabel.ajax.reload(null, false);
 	}
 
-	// function load_data() {
-	// 	let table = $('#datatable').DataTable();
-	// 	table.destroy();
-	// 	tabel = $('#datatable').DataTable({
-	// 		"processing": true,
-	// 		"pageLength": true,
-	// 		"paging": true,
-	// 		"ajax": {
-	// 			"url": '<?php echo base_url('Transaksi/load_data/trs_po_laminasi')?>',
-	// 			"type": "POST",
-	// 			"data": ({
-	// 				po: 'list',
-	// 			}),
-	// 		},
-	// 		"aLengthMenu": [
-	// 			[5, 10, 50, 100, -1],
-	// 			[5, 10, 50, 100, "Semua"]
-	// 		],	
-	// 		responsive: false,
-	// 		"pageLength": 10,
-	// 		"language": {
-	// 			"emptyTable": "TIDAK ADA DATA.."
-	// 		}
-	// 	})
-	// }
+	function load_data() {
+		let table = $('#datatable').DataTable();
+		table.destroy();
+		tabel = $('#datatable').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url": '<?php echo base_url('Logistik/load_data/loadDataInvoiceLaminasi')?>',
+				"type": "POST",
+			},
+			"aLengthMenu": [
+				[5, 10, 50, 100, -1],
+				[5, 10, 50, 100, "Semua"]
+			],	
+			responsive: false,
+			"pageLength": 10,
+			"language": {
+				"emptyTable": "TIDAK ADA DATA.."
+			}
+		})
+	}
 
 	function kosong()
 	{
+		$("#h_id_header").val("")
+
 		let tanggal = '<?= date("Y-m-d")?>'
-		$("#tgl_invoice").val(tanggal)
-		$("#tgl_sj").val("")
-		$("#no_surat_jalan").val("").prop('disabled', true).trigger('change')
+		$("#tgl_invoice").val(tanggal).prop('disabled', false)
+		$("#tgl_sj").val("").prop('disabled', false)
+		$("#no_surat_jalan").html(`<option value="">PILIH</option>`).prop('disabled', true)
+		$("#txt_no_invoice").val("AUTO").prop('disabled', true)
 		$("#no_invoice").val("")
-		$("#tgl_jatuh_tempo").val("")
+		$("#tgl_jatuh_tempo").val("").prop('disabled', false)
 
 		$("#h_id_pelanggan_lm").val("")
-		$("#kepada").val("")
-		$("#alamat").val("")
-		$("#pilihan_bank").val("").trigger('change')
+		$("#kepada").val("").prop('disabled', false)
+		$("#alamat").val("").prop('disabled', false)
+		$("#pilihan_bank").val("").prop('disabled', false).trigger('change')
 
+		$("#verif-admin").html('. . .')
+		$("#verif-owner").html('. . .')
+		$("#input-owner").html('')
 		$(".list-item").html('LIST ITEM KOSONG')
 
-		$("#dc_jenis").val("").trigger('change')
-		$("#dc_disc_persen").val("")
-		$("#dc_disc_hari").val("")
-		$("#dc_pot_rp").val("")
-		$("#dc_pot_bal").val("")
-		$("#dc_ket").val("")
+		$(".disc-potongan").hide()
+		$("#dc_opsi").val("").prop('disabled', false).trigger('change')
+		$(".dcp-persen").hide()
+		$(".dcp-hari").hide()
+		$(".dcp-rupiah").hide()
+		$(".dcp-ball").hide()
+		
+		$("#dcp_input_persen").val("")
+		$("#dcp_input_hari").val("")
+		$("#dcp_input_rupiah").val("")
+		$("#dcp_input_ball").val("")
+		$("#dcp_input_hitung").val("")
+		$("#dcp_input_total").val("")
 
 		statusInput = 'insert'
-		// swal.close()
+		swal.close()
 	}
 
 	function tambahData() {
 		kosong()
+		$(".row-list-invoice-laminasi").hide()
+		$(".col-verif-invoice-laminasi").hide()
+		$(".row-input-invoice-laminasi").show()
+		$(".row-item-invoice-laminasi").show()
 	}
 
 	function kembali() {
 		kosong()
+		reloadTable()
+		$(".row-input-invoice-laminasi").hide()
+		$(".col-verif-invoice-laminasi").hide()
+		$(".row-item-invoice-laminasi").hide()
+		$(".row-list-invoice-laminasi").show()
 	}
 
 	function cariSJLaminasi(){
@@ -354,11 +405,22 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/cariSJLaminasi')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ tgl_sj }),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
 				$("#no_surat_jalan").html(data.htmlSJ).prop('disabled', (data.numRows == 0) ? true : false)
+				swal.close()
 			}
 		})
 	}
@@ -369,17 +431,29 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/pilihSJInvLam')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ no_surat }),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
 				if(no_surat != ''){
+					$("#txt_no_invoice").val("AUTO")
 					$("#no_invoice").val(data.no_invoice)
 					$("#h_id_pelanggan_lm").val(data.id_pelanggan_lm)
 					$("#kepada").val(data.kepada)
 					$("#alamat").val(data.alamat)	
 					$(".list-item").html(data.htmlItem)
 				}
+				swal.close()
 			}
 		})
 	}
@@ -397,23 +471,393 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/simpanInvLam')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
-				tgl_invoice, tgl_sj, no_surat_jalan, no_invoice, tgl_jatuh_tempo, h_id_pelanggan_lm, kepada, alamat, pilihan_bank
+				tgl_invoice, tgl_sj, no_surat_jalan, no_invoice, tgl_jatuh_tempo, h_id_pelanggan_lm, kepada, alamat, pilihan_bank, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
 				if(data.data){
-					kosong()
+					kembali()
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
 				}
 			}
 		})
 	}
 
-	// function cari_sj(){
-	// 	$("#modalForm").modal("show");
-	// }
+	function editInvoiceLaminasi(id_header, opsi) {
+		console.log("id_header : ", id_header)
+		console.log("opsi : ", opsi)
+		$(".row-list-invoice-laminasi").hide()
+		$(".row-input-invoice-laminasi").show()
+		$(".col-verif-invoice-laminasi").attr('style', 'position:sticky;top:12px;margin-bottom:16px')
+		$(".row-item-invoice-laminasi").show()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/editInvoiceLaminasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_header, opsi
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
 
+				$("#h_id_header").val(id_header)
+				
+				let prop = true;
+				(opsi == 'edit') ? prop = false : prop = true;
+				$("#tgl_invoice").val(data.header.tgl_invoice).prop('disabled', prop)
+				$("#tgl_sj").val(data.header.tgl_surat_jalan).prop('disabled', true)
+				$("#no_surat_jalan").html(`<option value="">${data.header.no_surat}</option>`).prop('disabled', true)
+				$("#txt_no_invoice").val(data.header.no_invoice)
+				$("#no_invoice").val(data.header.no_invoice).prop('disabled', true)
+				$("#tgl_jatuh_tempo").val(data.header.tgl_jatuh_tempo).prop('disabled', prop)
+
+				$("#h_id_pelanggan_lm").val(data.header.id_pelanggan_lm).prop('disabled', prop)
+				$("#kepada").val(data.header.attn_lam_inv).prop('disabled', prop)
+				$("#alamat").val(data.header.alamat_lam_inv).prop('disabled', prop)
+				$("#pilihan_bank").val(data.header.bank).prop('disabled', prop).trigger('change')
+
+				// VERIFIKASI DATA
+				$("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.oke_admin}`)
+				// VERIFIFIKASI OWNER
+				if((urlAuth == 'Admin' || (urlAuth == 'Keuangan1' && urlUser == 'bumagda')) && data.header.acc_admin == 'Y' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R')){
+					// BUTTON OWNER
+					let lock = ''
+					if(urlAuth == 'Admin' && data.header.acc_owner != 'N'){
+						lock = `<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifInvLaminasi('lock','owner')"><i class="fas fa-lock"></i> Lock</button>`
+					}else{
+						lock = ''
+					}
+					$("#verif-owner").html(`
+						${lock}
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifInvLaminasi('verifikasi','owner')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifInvLaminasi('hold','owner')"><i class="far fa-hand-paper"></i> Hold</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifInvLaminasi('reject','owner')"><i class="fas fa-times"></i> Reject</button>
+					`)
+					// KETERANGAN OWNER
+					if(data.header.acc_owner != 'N'){
+						if(data.header.acc_owner == 'H'){
+							callout = 'callout-warning'
+							colorbtn = 'btn-warning'
+							txtsave = 'HOLD!'
+						}else{
+							callout = 'callout-danger'
+							colorbtn = 'btn-danger'
+							txtsave = 'REJECT!'
+						}
+						$("#input-owner").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:0;margin:0">
+										<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.ket_owner}</textarea>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifInvLaminasi('${data.header.acc_owner}', 'owner')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+								</div>
+							</div>
+						`)
+					}
+				}else{
+					// BUTTON OWNER
+					if(data.header.acc_owner == 'N'){
+						$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+					}else if(data.header.acc_owner == 'H'){
+						$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.time_owner}`)
+					}else if(data.header.acc_owner == 'R'){
+						$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.time_owner}`)
+					}else{
+						$("#verif-owner").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.time_owner}`)
+					}
+					// KETERANGAN OWNER
+					if(data.header.acc_owner != 'N'){
+						if(data.header.acc_owner == 'H'){
+							callout = 'callout-warning'
+						}else if(data.header.acc_owner == 'R'){
+							callout = 'callout-danger'
+						}else{
+							callout = 'callout-success'
+						}
+						$("#input-owner").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:6px;margin:0">${data.header.ket_owner}</div>
+								</div>
+							</div>
+						`)
+					}
+				}
+
+				$(".list-item").html(data.htmlItem)
+
+				// DISCOUNT / POTONGAN
+				if(opsi == 'edit' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R') && (urlAuth == 'Admin' || urlAuth == 'Laminasi')){
+					$(".disc-potongan").show()
+				}else{
+					$(".disc-potongan").hide()
+				}
+
+				statusInput = 'update'
+				swal.close()
+			}
+		})
+	}
+
+	function verifInvLaminasi(aksi, status_verif)
+	{
+		if(aksi == 'verifikasi'){
+			vrf = 'Y'
+			callout = 'callout-success'
+			colorbtn = 'btn-success'
+			txtsave = 'VERIFIKASI!'
+		}else if(aksi == 'lock'){
+			vrf = 'N'
+			callout = 'callout-warning'
+			colorbtn = 'btn-warning'
+			txtsave = 'LOCK!'
+		}else if(aksi == 'hold'){
+			vrf = 'H'
+			callout = 'callout-warning'
+			colorbtn = 'btn-warning'
+			txtsave = 'HOLD!'
+		}else if(aksi == 'reject'){
+			vrf = 'R'
+			callout = 'callout-danger'
+			colorbtn = 'btn-danger'
+			txtsave = 'REJECT!'
+		}
+		$("#input-owner").html(`
+			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				<div class="col-md-3"></div>
+				<div class="col-md-9">
+					<div class="callout ${callout}" style="padding:0;margin:0">
+						<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()"></textarea>
+					</div>
+				</div>
+			</div>
+			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				<div class="col-md-3"></div>
+				<div class="col-md-9">
+					<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifInvLaminasi('${vrf}', '${status_verif}')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+				</div>
+			</div>
+		`)
+	}
+
+	function btnVerifInvLaminasi(aksi, status_verif)
+	{
+		let h_id_header = $("#h_id_header").val()
+		let ket_laminasi = $("#ket_laminasi").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/btnVerifInvLaminasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				h_id_header, ket_laminasi, aksi, status_verif
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data){
+					kembali()
+				}else{
+					toastr.error(`<b>KETERANGAN TIDAK BOLEH KOSONG!</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function keyUpDisc(opsi) {
+		let dc_opsi = $("#dc_opsi").val()
+		let h_total_inv = $("#h_total_inv").val()
+		// KEYUP
+		if(opsi == 'persen'){
+			let persen = $("#dcp_input_persen").val();
+			(persen < 0) ? persen = 0 : persen = persen;
+			$("#dcp_input_persen").val(persen)
+		}
+		if(opsi == 'hari'){
+			let hari = $("#dcp_input_hari").val();
+			(hari < 0) ? hari = 0 : hari = hari;
+			$("#dcp_input_hari").val(hari)
+		}
+		if(opsi == 'rupiah'){
+			let rupiah = $("#dcp_input_rupiah").val();
+			(rupiah < 0) ? rupiah = 0 : rupiah = rupiah;
+			$("#dcp_input_rupiah").val(rupiah)
+		}
+		if(opsi == 'ball'){
+			let ball = $("#dcp_input_ball").val();
+			(ball < 0) ? ball = 0 : ball = ball;
+			$("#dcp_input_ball").val(ball)
+		}
+		// PERHITUNGAN
+		// DISCOUNT
+		if(dc_opsi == 'DISCOUNT'){
+			let persen = $("#dcp_input_persen").val();
+			let hari = $("#dcp_input_hari").val();
+			let discount = 0;
+			let total = 0;
+			if((persen != 0 || persen != '') && (hari != 0 || hari != '')){
+				discount = (parseInt(h_total_inv) * parseInt(persen)) / 100
+				total = (parseInt(h_total_inv) - parseInt(discount))
+			}else{
+				discount = 0
+				total = 0
+			}
+			$("#dcp_input_hitung").val(format_angka(discount))
+			$("#dcp_input_total").val(format_angka(total))
+		}
+		// BIAYA BONGKAR	
+		if(dc_opsi == 'BIAYA BONGKAR'){
+			let rupiah = $("#dcp_input_rupiah").val();
+			let discount = 0;
+			let total = 0;
+			if(rupiah != 0 || rupiah != ''){
+				discount = rupiah
+				total = (parseInt(h_total_inv) - parseInt(discount))
+			}else{
+				discount = 0
+				total = 0
+			}
+			$("#dcp_input_hitung").val(format_angka(discount))
+			$("#dcp_input_total").val(format_angka(total))
+		}
+		// POTONG KARUNG
+		if(dc_opsi == 'POTONG KARUNG'){
+			let rupiah = $("#dcp_input_rupiah").val();
+			let ball = $("#dcp_input_ball").val();
+			let discount = 0;
+			let total = 0;
+			if((rupiah != 0 || rupiah != '') && (ball != 0 || ball != '')){
+				discount = parseInt(rupiah) * parseInt(ball)
+				total = (parseInt(h_total_inv) - parseInt(discount))
+			}else{
+				discount = 0
+				total = 0
+			}
+			$("#dcp_input_hitung").val(format_angka(discount))
+			$("#dcp_input_total").val(format_angka(total))
+		}
+	}
+
+	function discOpsi(){
+		let dc_opsi = $("#dc_opsi").val()
+		$("#dcp_input_persen").val("")
+		$("#dcp_input_hari").val("")
+		$("#dcp_input_rupiah").val("")
+		$("#dcp_input_ball").val("")
+		$("#dcp_input_hitung").val("")
+		$("#dcp_input_total").val("")
+		$(".btn-add-disc").html("")
+
+		if(dc_opsi == ''){
+			$(".dcp-persen").hide()
+			$(".dcp-hari").hide()
+			$(".dcp-rupiah").hide()
+			$(".dcp-ball").hide()
+			$(".dcp-hitung").hide()
+			$(".dcp-total").hide()
+		}
+		if(dc_opsi == 'DISCOUNT'){
+			$(".dcp-persen").show()
+			$(".dcp-hari").show()
+			$(".dcp-rupiah").hide()
+			$(".dcp-ball").hide()
+		}
+		if(dc_opsi == 'BIAYA BONGKAR'){
+			$(".dcp-persen").hide()
+			$(".dcp-hari").hide()
+			$(".dcp-rupiah").show()
+			$(".dcp-ball").hide()
+		}
+		if(dc_opsi == 'POTONG KARUNG'){
+			$(".dcp-persen").hide()
+			$(".dcp-hari").hide()
+			$(".dcp-rupiah").show()
+			$(".dcp-ball").show()
+		}
+		if(dc_opsi != ''){
+			$(".dcp-hitung").show()
+			$(".dcp-total").show()
+			$(".btn-add-disc").html('<button type="button" class="btn btn-sm btn-success" style="font-weight:bold" onclick="addDisc()"><i class="fas fa-plus"></i> ADD</button>')
+		}
+	}
+
+	function addDisc() {
+		let id_header = $("#h_id_header").val()
+		let no_invoice = $("#no_invoice").val()
+		let dc_opsi = $("#dc_opsi").val()
+		let persen = $("#dcp_input_persen").val()
+		let hari = $("#dcp_input_hari").val()
+		let rupiah = $("#dcp_input_rupiah").val()
+		let ball = $("#dcp_input_ball").val()
+		let hitung = $("#dcp_input_hitung").val().split('.').join('')
+		let total = $("#dcp_input_total").val().split('.').join('')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/addDisc')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				no_invoice, dc_opsi, persen, hari, rupiah, ball, hitung, total
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.result){
+					editInvoiceLaminasi(id_header, 'edit')
+					$("#dc_opsi").val("").trigger('change')
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
 </script>
