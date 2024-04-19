@@ -1204,7 +1204,14 @@ class Master extends CI_Controller
 
 	function rekap_bhn()
 	{
-		$jenis = $this->uri->segment(3);
+		$vall = $this->uri->segment(3);
+		if($vall=='po')
+		{
+			$value='KELUAR DENGAN PO';
+		}else{
+			$value='KELUAR DENGAN INV';
+
+		}
 
 		$data = array();
 		$query = $this->m_master->query("SELECT*FROM (
@@ -1218,8 +1225,8 @@ class Master extends CI_Controller
 
 		SELECT 
 		(select sum(masuk)masuk from trs_stok_bahanbaku b where a.id_hub=b.id_hub group by id_hub)masuk,
-		(select sum(keluar)keluar from trs_stok_bahanbaku c where a.id_hub=c.id_hub group by id_hub)keluar,
-		(select sum(masuk-keluar)stok_akhir from trs_stok_bahanbaku d where a.id_hub=d.id_hub group by id_hub)stok_akhir,
+		(select sum(keluar)keluar from trs_stok_bahanbaku c where a.id_hub=c.id_hub and ket='$value' group by id_hub)keluar,
+		(select sum(masuk-(case when d.ket='$value' then keluar else 0 end) )stok_akhir from trs_stok_bahanbaku d where a.id_hub=d.id_hub group by id_hub)stok_akhir,
 		a.* FROM m_hub a
 		
 		")->result();
@@ -1257,12 +1264,21 @@ class Master extends CI_Controller
 	{		
 		$id_hub   = $this->input->post('id_hub');
 		$ket      = $this->input->post('ket');
+		$status   = $this->input->post('status');
+
+		if($ket=='po')
+		{
+			$value='KELUAR DENGAN PO';
+		}else{
+			$value='KELUAR DENGAN INV';
+
+		}
 		
 		if($id_hub=='0')
 		{
-			$where ="where id_hub is null and status = '$ket' ";
+			$where ="where status = '$status' and ket='$value' and id_hub is null ";
 		}else{
-			$where ="where id_hub='$id_hub' and status = '$ket' ";
+			$where ="where status = '$status' and ket='$value' and id_hub='$id_hub' ";
 
 		}
 		$query    = $this->m_master->query("SELECT*from trs_stok_bahanbaku $where")->result();

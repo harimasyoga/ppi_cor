@@ -32,116 +32,120 @@
 			<form role="form" method="post" id="myForm">
 				<div class="card-body">
 					<div class="col-md-12">
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Status Invoice</div>
-								<div class="col-md-10">
-									<select id="cek_inv" name="cek_inv" class="form-control select2" style="width: 100%">
-										<option value="baru">BARU</option>
-										<option value="revisi">REVISI</option>
-									</select>
-									<input type="hidden" name="cek_inv2" id="cek_inv2">
-								</div>
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+							<div class="col-md-2">Status Invoice</div>
+							<div class="col-md-3">
+								<select id="cek_inv" name="cek_inv" class="form-control select2" style="width: 100%">
+									<option value="baru">BARU</option>
+									<option value="revisi">REVISI</option>
+								</select>
+								<input type="hidden" name="cek_inv2" id="cek_inv2">
 							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+							<div class="col-md-1"></div>
+							<div class="col-md-2">Type</div>
+							<div class="col-md-3">
+								<input type="hidden" name="jenis" id="jenis" value="invoice">
+
+								<input type="hidden" class="form-control" value="Add" name="status" id="status">
+
+								<input type="hidden" class="form-control" value="<?= $id ?>" name="id_header" id="id_header">
+
+								<input type="hidden" class="form-control" value="<?= $no_inv ?>" name="no_invoice" id="no_invoice">
+
+								<select name="type_po" id="type_po" class="form-control select2" style="width: 100%" >
+															
+									<option value="">-- PILIH --</option>
+									<option value="roll">Roll</option>
+									<option value="sheet">Sheet</option>
+									<option value="box">Box</option>
+								</select>
+								<input type="hidden" name="type_po2" id="type_po2">
+
+							</div>
+
+						</div>
+
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
 							
-								<div class="col-md-2">Type</div>
-								<div class="col-md-10">
-									<input type="hidden" name="jenis" id="jenis" value="invoice">
-
-									<input type="hidden" class="form-control" value="Add" name="status" id="status">
-
-									<input type="hidden" class="form-control" value="<?= $id ?>" name="id_header" id="id_header">
-
-									<input type="hidden" class="form-control" value="<?= $no_inv ?>" name="no_invoice" id="no_invoice">
-
-									<select name="type_po" id="type_po" class="form-control select2" style="width: 100%" >
-																
-										<option value="">-- PILIH --</option>
-										<option value="roll">Roll</option>
-										<option value="sheet">Sheet</option>
-										<option value="box">Box</option>
-									</select>
-									<input type="hidden" name="type_po2" id="type_po2">
-
-								</div>
+							<div class="col-md-2">Tanggal Invoice</div>
+							<div class="col-md-3">
+								<input type="date" id="tgl_inv" name="tgl_inv" class="form-control" autocomplete="off" placeholder="Tanggal Invoice" onchange="noinv()">
 							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Pajak</div>
-								<div class="col-md-10">
-									
-									<select id="pajak" name="pajak" class="form-control select2" style="width: 100%" onchange="noinv()">
-										<option value="">-- PILIH --</option>
-										<option value="ppn">PPN 11%</option>
-										<option value="ppn_pph">PPN 11% + PPH22</option>
-										<option value="nonppn">NON PPN</option>
-									</select>
-									<input type="hidden" name="pajak2" id="pajak2">
+							<div class="col-md-1"></div>
+							<div class="col-md-2">Pajak</div>
+							<div class="col-md-3">
+								<select id="pajak" name="pajak" class="form-control select2" style="width: 100%" onchange="noinv()">
+									<option value="">-- PILIH --</option>
+									<option value="ppn">PPN 11%</option>
+									<option value="ppn_pph">PPN 11% + PPH22</option>
+									<option value="nonppn">NON PPN</option>
+								</select>
+								<input type="hidden" name="pajak2" id="pajak2">
+							</div>
 
-								</div>
+						</div>
+
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="ppn_pilihan">						
+							<div class="col-md-2">Incl / Excl</div>
+							<div class="col-md-9">
+								<select id="inc_exc" name="inc_exc" class="form-control select2" style="width: 100%" >
+									<option value="Include">Include</option>
+									<option value="Exclude">Exclude</option>
+									<option value="nonppn_inc">Non PPN</option>
+								</select>
 							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold;display:none" id="ppn_pilihan" >
-								<div class="col-md-2">Incl / Excl</div>
-								<div class="col-md-10">
-									
-									<select id="inc_exc" name="inc_exc" class="form-control select2" style="width: 100%" >
-										<option value="Include">Include</option>
-										<option value="Exclude">Exclude</option>
-										<option value="nonppn_inc">Non PPN</option>
-									</select>
-								</div>
+						</div>
+						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+							<div class="col-md-2">Tanggal SJ</div>
+							<div class="col-md-3">
+								<input type="date" id="tgl_sj" name="tgl_sj" class="form-control" autocomplete="off" placeholder="Tanggal Surat Jalan" onchange="load_sj()" >
+								<input type="hidden" name="id_pl_sementara" id="id_pl_sementara" value="">
 							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Tanggal Invoice</div>
-								<div class="col-md-4">
-									<input type="date" id="tgl_inv" name="tgl_inv" class="form-control" autocomplete="off" placeholder="Tanggal Invoice" onchange="noinv()">
-								</div>
-								<div class="col-md-6"> </div>
+							<div class="col-md-1"></div>
+
+							<div class="col-md-2">Tanggal Jatuh Tempo</div>
+							<div class="col-md-3">
+								<input type="date" id="tgl_tempo" name="tgl_tempo" class="form-control" autocomplete="off" placeholder="Jatuh Tempo" >
 							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Tanggal SJ</div>
-								<div class="col-md-4">
-									<input type="date" id="tgl_sj" name="tgl_sj" class="form-control" autocomplete="off" placeholder="Tanggal Surat Jalan" onchange="load_sj()" >
-									<input type="hidden" name="id_pl_sementara" id="id_pl_sementara" value="">
-								</div>
-								<div class="col-md-6"> </div>
-							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Customer</div>
-								<div class="col-md-10">
-									<select class="form-control select2" id="id_pl" name="id_pl" style="width: 100%" autocomplete="off" >
-									</select>
-									<!-- onchange="load_cs()" -->
-								</div>
-							</div>
+
+						</div>
+
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
 							
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">No Invoice</div>
-									
-								<div class="col-md-1">							
-									<input style="" type="hidden" id="id_inv" name="id_inv" class="input-border-none" autocomplete="off"  readonly>
-
-									<input style="" type="hidden" id="no_inv_old" name="no_inv_old" class="input-border-none" autocomplete="off"  readonly>
-
-									<input style="height: calc(2.25rem + 2px);font-size: 1rem;" type="text" id="no_inv_kd" name="no_inv_kd" class="input-border-none" autocomplete="off"  readonly>
-								</div>
-								<div class="col-md-1">
-									<input style="height: calc(2.25rem + 2px);font-size: 1rem;"  type="text" id="no_inv" name="no_inv" class="input-border-none" autocomplete="off" readonly>
-								</div>
-								<div class="col-md-3">
-									<input style="height: calc(2.25rem + 2px);font-size: 1rem;"  type="text" id="no_inv_tgl" name="no_inv_tgl" class="input-border-none" autocomplete="off" readonly>
-								</div>
-								<div class="col-md-5">
-									&nbsp;
-								</div>
+							<div class="col-md-2">Customer</div>
+							<div class="col-md-9">
+								<select class="form-control select2" id="id_pl" name="id_pl" style="width: 100%" autocomplete="off" >
+								</select>
+								<!-- onchange="load_cs()" -->
 							</div>
 							
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Tanggal Jatuh Tempo</div>
-								<div class="col-md-4">
-									<input type="date" id="tgl_tempo" name="tgl_tempo" class="form-control" autocomplete="off" placeholder="Jatuh Tempo" >
-								</div>
-								<div class="col-md-6"> </div>
+							<!-- <div class="col-md-1">
+								<button type="button" class="btn btn-primary" id="btn-simpan" onclick="load_sj()"><i class="fas fa-search"></i><b></b></button>
+							</div> -->
+							
+						</div>
+
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+							
+							<div class="col-md-2">No Invoice</div>
+							<div class="col-md-1">
+								<input style="" type="hidden" id="id_inv" name="id_inv" class="input-border-none" autocomplete="off"  readonly>
+
+								<input style="" type="hidden" id="no_inv_old" name="no_inv_old" class="input-border-none" autocomplete="off"  readonly>
+
+								<input style="height: calc(2.25rem + 2px);font-size: 1rem;" type="text" id="no_inv_kd" name="no_inv_kd" class="input-border-none" autocomplete="off"  readonly>
 							</div>
+							<div class="col-md-1">
+								<input style="height: calc(2.25rem + 2px);font-size: 1rem;"  type="text" id="no_inv" name="no_inv" class="input-border-none" autocomplete="off" readonly>
+							</div>
+							<div class="col-md-3">
+								<input style="height: calc(2.25rem + 2px);font-size: 1rem;"  type="text" id="no_inv_tgl" name="no_inv_tgl" class="input-border-none" autocomplete="off" readonly>
+							</div>
+							
+							<div class="col-md-4"></div>
+							
+						</div>
 
 							<hr>
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
@@ -484,8 +488,9 @@
 									<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${no_po}">
 								</td>
 
-								<td style="text-align: center" >${val.nm_ker}
+								<td style="text-align: center" >${val.id_produk_simcorr} - ${val.nm_ker}
 									<input type="hidden" name="item[${no}]" id="item${no}" value="${val.nm_ker}">
+									<input type="hidden" id="id_produk_simcorr${no}" name="id_produk_simcorr[${no}]" value="${val.id_produk_simcorr}">
 								</td>
 
 								<td style="text-align: center" >${val.g_label}
@@ -530,16 +535,14 @@
 								<td style="text-align: center" colspan="3">&nbsp;
 								</td>`;
 						list += `</table>`;
-						$("#datatable_input").html(list);
-						swal.close();
+						// $("#datatable_input").html(list);
 					}
 					
 					$("#datatable_input").html(list);
-					swal.close();
+					// swal.close();
 
 				} else {
 
-					swal.close();
 					swal({
 						title               : "Cek Kembali",
 						html                : "Gagal Simpan",
@@ -552,7 +555,6 @@
 			error: function(jqXHR, textStatus, errorThrown) {
 				// toastr.error('Terjadi Kesalahan');
 				
-				swal.close();
 				swal({
 					title               : "Cek Kembali",
 					html                : "Terjadi Kesalahan",
@@ -594,7 +596,8 @@
 		var pajak     = $("#pajak").val();
 		var tgl_tempo = $("#tgl_tempo").val();
 
-		if (tgl_inv == '' || tgl_sj == '' || id_pl=='' || pajak=='' || tgl_tempo=='' ) {			
+		if (tgl_inv == '' || tgl_sj == '' || id_pl=='' || pajak=='' || tgl_tempo=='' ) 
+		{
 			swal.close();
 			swal({
 				title               : "Cek Kembali",
