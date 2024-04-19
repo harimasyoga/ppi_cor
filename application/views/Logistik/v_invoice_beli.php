@@ -33,181 +33,79 @@
 				<div class="card-body">
 					<div class="col-md-12">
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
-							<div class="col-md-2">Status Invoice</div>
+							<div class="col-md-2">No Invoice</div>
 							<div class="col-md-3">
-								<select id="cek_inv" name="cek_inv" class="form-control select2" style="width: 100%" onchange="cek_invoice()">
-									<option value="baru">BARU</option>
-									<option value="revisi">REVISI</option>
-								</select>
-								<input type="hidden" name="cek_inv2" id="cek_inv2">
+								<input type="text" class="form-control" name="no_inv" id="no_inv" placeholder="AUTO" readonly>
 							</div>
 							<div class="col-md-1"></div>
-							<div class="col-md-2">Type</div>
-							<div class="col-md-3">
-								
-								<input type="hidden" name="sts_input" id="sts_input">
-								<input type="hidden" name="jenis" id="jenis" value="invoice">
-								<input type="hidden" class="form-control" value="Add" name="status" id="status">
-								<select name="type_po" id="type_po" class="form-control select2" style="width: 100%" onchange="noinv(),no_inv2()">
-									<option value="">-- PILIH --</option>
-									<option value="roll">Roll</option>
-									<option value="sheet">Sheet</option>
-									<option value="box">Box</option>
-								</select>
-								<input type="hidden" name="type_po2" id="type_po2">
-							</div>
-
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
-							
 							<div class="col-md-2">Tanggal Invoice</div>
 							<div class="col-md-3">
 								<input type="date" id="tgl_inv" name="tgl_inv" class="form-control" autocomplete="off" placeholder="Tanggal Invoice" onchange="noinv(),no_inv2()">
 							</div>
+
+						</div>
+						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">	
+							<div class="col-md-2">Nama Barang</div>
+							<div class="col-md-3">
+								<input type="text" id="nm_barang" name="nm_barang" class="form-control" autocomplete="off" placeholder="Nama Barang">
+							</div>							
+							
 							<div class="col-md-1"></div>
-							<div class="col-md-2">Pajak</div>
+							<div class="col-md-2">Jenis Beban</div>
 							<div class="col-md-3">
-								<select id="pajak" name="pajak" class="form-control select2" style="width: 100%" onchange="noinv(),no_inv2()">
-									<option value="">-- PILIH --</option>
-									<option value="ppn">PPN 11%</option>
-									<option value="ppn_pph">PPN 11% + PPH22</option>
-									<option value="nonppn">NON PPN</option>
-								</select>
-								<input type="hidden" name="pajak2" id="pajak2">
-							</div>
-
-						</div>
-
-						<div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="ppn_pilihan">						
-							<div class="col-md-2">Incl / Excl</div>
-							<div class="col-md-9">
-								<select id="inc_exc" name="inc_exc" class="form-control select2" style="width: 100%" >
-									<option value="Include">Include</option>
-									<option value="Exclude">Exclude</option>
-									<option value="nonppn_inc">Non PPN</option>
+								<select id="modal_cek_inv" name="modal_cek_inv" class="form-control select2" style="width: 100%">
+									<option value="baru">BARU</option>
+									<option value="revisi">REVISI</option>
 								</select>
 							</div>
+
 						</div>
 
-						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
-							<div class="col-md-2">Tanggal SJ</div>
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">	
+							<div class="col-md-2">Nominal</div>
 							<div class="col-md-3">
-								<input type="date" id="tgl_sj" name="tgl_sj" class="form-control" autocomplete="off" placeholder="Tanggal Surat Jalan" >
-								<input type="hidden" name="id_pl_sementara" id="id_pl_sementara" value="">
-							</div>
-							<div class="col-md-1"></div>
-
-							<div class="col-md-2">Tanggal Jatuh Tempo</div>
-							<div class="col-md-3">
-								<input type="date" id="tgl_tempo" name="tgl_tempo" class="form-control" autocomplete="off" placeholder="Jatuh Tempo" >
-							</div>
-
-						</div>
-
-						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
-							
-							<div class="col-md-2">Customer</div>
-							<div class="col-md-8">
-								<select class="form-control select2" id="id_pl" name="id_pl" style="width: 100%" autocomplete="off" onchange="load_cs()" disabled>
-								</select>
-							</div>
-							
-							<div class="col-md-1">
-								<button type="button" class="btn btn-primary" id="btn-search" onclick="load_sj()"><i class="fas fa-search"></i><b></b></button>
-							</div>
-							
-							
-						</div>
-
-						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
-							
-							<div class="col-md-2">No Invoice</div>
-							<div class="col-md-1">
-								<input style="" type="hidden" id="id_inv" name="id_inv" class="input-border-none" autocomplete="off"  readonly>
+								<div class="input-group mb-1">
+									<div class="input-group-append">
+										<span class="input-group-text"><b>Rp</b>
+										</span>
+									</div>		
+									<input type="text" name="nominal" id="nominal" class="angka form-control" onkeyup="ubah_angka(this.value,this.id)">
+								</div>
 								
-								<input style="" type="hidden" id="no_inv_old" name="no_inv_old" class="input-border-none" autocomplete="off"  readonly>
-
-								<input style="height: calc(2.25rem + 2px);font-size: 1rem;" type="text" id="no_inv_kd" name="no_inv_kd" class="input-border-none" autocomplete="off"  readonly>
-							</div>
-							<div class="col-md-1">
-								<input style="height: calc(2.25rem + 2px);font-size: 1rem;"  type="text" id="no_inv" name="no_inv" class="input-border-none" autocomplete="off" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " readonly>
-							</div>
-							<div class="col-md-3">
-								<input style="height: calc(2.25rem + 2px);font-size: 1rem;"  type="text" id="no_inv_tgl" name="no_inv_tgl" class="input-border-none" autocomplete="off" readonly>
-							</div>
+							</div>									
+							<div class="col-md-1"></div>
 							
-							<div class="col-md-4"></div>
+							<div class="col-md-2">ATTN</div>
+							<div class="col-md-3">
+								<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" >
+									<?php foreach ($hub as $r) : ?>
+										<option value="<?= $r->id_hub ?>" detail="
+										<?=$r->id_hub."|".$r->nm_hub ?>">
+											<?= $r->id_hub . " | " . $r->nm_hub . " | <b>" . number_format($r->sisa_hub, 0, ",", ".") ."</b>" ?>
+										</option>
+									<?php endforeach ?>
+								</select>
+							</div>
+						</div>			
+						
+					</div>
+				</div>
+				<div class="col-md-12">
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">		
+						
+							<div class="col-md-1"></div>				
+							<div class="col-md-4">
+								<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+									<i class="fa fa-undo" ></i> Kembali</b>
+								</button>
+								<button type="button" class="btn btn-sm btn-primary" id="btn-simpan" ><i class="fas fa-save"></i><b> Simpan</b></button>
+							</div>
+							<div class="col-md-6"></div>
+							
 							
 						</div>
-
-
-							<hr>
-							<div class="card-body row" style="padding:0 20px;font-weight:bold">
-								<div class="col-md-12" style="font-family:Cambria;color:#4e73df;font-size:25px"><b>DIKIRIM KE</b></div>
-							</div>
-							<hr>
-
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Kepada</div>
-								<div class="col-md-10">
-									<input type="hidden" id="id_perusahaan" name="id_perusahaan" >
-
-									<input type="text" id="kpd" name="kpd" class="form-control" autocomplete="off" placeholder="Kepada" >
-								</div>
-							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Nama Perusahaan</div>
-								<div class="col-md-10">
-									<input type="text" id="nm_perusahaan" name="nm_perusahaan" class="form-control" autocomplete="off" placeholder="Nama Perusahaan" >
-								</div>
-							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2" style="padding-right:0">Alamat Perusahaan</div>
-								<div class="col-md-10">
-									<textarea class="form-control" name="alamat_perusahaan" id="alamat_perusahaan" cols="30" rows="5" placeholder="Alamat Perusahaan" ></textarea>
-								</div>
-							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Pilihan Bank</div>
-								<div class="col-md-10">
-									<select class="form-control select2" id="bank" name="bank" style="width: 100%" autocomplete="off">
-										<option value="BCA_AKB">BCA AKB</option>
-										<option value="BCA_SSB">BCA SSB</option>
-										<option value="BCA_KSM">BCA KSM</option>
-										<option value="BCA_GMB">BCA GMB</option>
-										<option value="BCA">BCA</option>
-										<option value="BNI">BNI</option>
-									</select>
-								</div>
-							</div>
-							<hr>
-							<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-								<div class="col-md-2" style="padding-right:0">List Item</div>
-								<div class="col-md-10">&nbsp;
-								</div>
-							</div>
-							<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">		
-								<div class="col-md-12"	style="overflow:auto;white-space:nowrap;" width="100%">	
-									<table id="datatable_input" class="table table-hover table- table-bordered table-condensed table-scrollable">
-										
-									</table>
-								</div>
-							</div>						
-						
 					</div>
-				</div>
-				<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-					<div class="col-md-12">
-						<!-- <a href="<?= base_url('Logistik/Invoice')?>" class="btn btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a> -->
-
-						<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
-							<i class="fa fa-undo" ></i> Kembali</b>
-						</button>
-						
-						<button type="button" class="btn btn-sm btn-primary" id="btn-simpan" ><i class="fas fa-save"></i><b> Simpan</b></button>
-					</div>
-				</div>
 				<br>
 				<br>
 			</form>	
@@ -233,17 +131,11 @@
 				<div class="card-body">
 					<?php if (in_array($this->session->userdata('username'), ['karina','developer'])) { ?>
 
-					<!-- <a href="<?= base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a> -->
-
 					<button type="button" class="btn btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 						<br>
 
 					<?php } ?>
 					<br>
-					<!-- <button onclick="cetak_jurnal(0)"  class="btn btn-danger">
-					<i class="fa fa-print"></i> CETAK JURNAL</button>
-						<br>
-						<br> -->
 					<div style="overflow:auto;white-space:nowrap;" >
 
 						<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
@@ -389,78 +281,6 @@
 									
 								</div>
 
-									<hr>
-									<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-										<div class="col-md-12" style="font-family:Cambria;color:#4e73df;font-size:25px"><b>DIKIRIM KE</b></div>
-									</div>
-									<hr>
-
-									<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-										<div class="col-md-2">Kepada</div>
-										<div class="col-md-10">
-											<input type="hidden" id="modal_id_perusahaan" name="modal_id_perusahaan" >
-
-											<input type="text" id="modal_kpd" name="modal_kpd" class="form-control" autocomplete="off" placeholder="Kepada" >
-										</div>
-									</div>
-									<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-										<div class="col-md-2">Nama Perusahaan</div>
-										<div class="col-md-10">
-											<input type="text" id="modal_nm_perusahaan" name="modal_nm_perusahaan" class="form-control" autocomplete="off" placeholder="Nama Perusahaan" >
-										</div>
-									</div>
-									<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-										<div class="col-md-2" style="padding-right:0">Alamat Perusahaan</div>
-										<div class="col-md-10">
-											<textarea class="form-control" name="modal_alamat_perusahaan" id="modal_alamat_perusahaan" cols="30" rows="5" placeholder="Alamat Perusahaan" ></textarea>
-										</div>
-									</div>
-									<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-										<div class="col-md-2">Pilihan Bank</div>
-										<div class="col-md-10">
-											<select class="form-control select2" id="modal_bank" name="modal_bank" style="width: 100%" autocomplete="off">
-												<option value="BCA_AKB">BCA AKB</option>
-												<option value="BCA_SSB">BCA SSB</option>
-												<option value="BCA_KSM">BCA KSM</option>
-												<option value="BCA_GMB">BCA GMB</option>
-												<option value="BCA">BCA</option>
-												<option value="BNI">BNI</option>
-											</select>
-										</div>
-									</div>
-									<hr>
-									<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-										<div class="col-md-2" style="padding-right:0">List Item</div>
-										<div class="col-md-10">&nbsp;
-										</div>
-									</div>
-									<div class="card-body row" style="padding-bottom:5px;">		
-										<div class="col-md-12"	style="overflow:auto;white-space:nowrap;" width="100%">	
-												<table id="modal_datatable_input" class="table table-hover table- table-bordered table-condensed table-scrollable">
-												</table>
-											</div>
-										</div>
-									<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-										<div class="col-md-12">
-											<input type="hidden" name="modal_status_inv_owner" id="modal_status_inv_owner">
-											<input type="hidden" name="modal_status_inv_admin" id="modal_status_inv_admin">
-											
-											<!-- <button type="button" class="btn btn-success" id="btn_verif" onclick="acc_inv()"><i class="fas fa-check"></i><b> VERIFIKASI</b></button> -->
-
-											<span id="modal_btn_verif"></span>
-
-											<button type="button" class="btn btn-danger" id="modal_btn-print" onclick="Cetak()" ><i class="fas fa-print"></i> <b>Print</b></button>
-											
-											<button type="button" class="btn btn-danger" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-undo"></i> <b> Batal</b></button>
-											
-											
-											
-										</div>
-									</div>
-									<br>
-									<br>
-									
-								
 							</div>
 						</div>
 					

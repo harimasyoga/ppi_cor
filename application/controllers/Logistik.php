@@ -17,7 +17,7 @@ class Logistik extends CI_Controller
 	public function Invoice()
 	{
 		$data = array(
-			'judul' => "Invoice",
+			'judul' => "Invoice Penjualan",
 		);
 		$this->load->view('header', $data);
 		$this->load->view('Logistik/v_invoice');
@@ -52,7 +52,7 @@ class Logistik extends CI_Controller
 	function bayar_inv()
 	{
 		$data = [
-			'judul' => "PEMBAYARAN INVOICE",
+			'judul' => "PEMBAYARAN INVOICE PENJUALAN",
 		];
 
 		$this->load->view('header',$data);
@@ -64,6 +64,33 @@ class Logistik extends CI_Controller
 		}
 		$this->load->view('footer');
 	}
+
+	public function Invoice_beli()
+	{
+		$data = array(
+			'judul' => "Invoice Pembelian",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_invoice_beli');
+		$this->load->view('footer');
+	}
+
+	function bayar_inv_beli()
+	{
+		$data = [
+			'judul' => "PEMBAYARAN INVOICE PEMBELIAN",
+		];
+
+		$this->load->view('header',$data);
+		if($this->session->userdata('level'))
+		{
+			$this->load->view('Logistik/v_bayar_inv_beli');
+		}else{
+			$this->load->view('home');
+		}
+		$this->load->view('footer');
+	}
+	
 
 	function stok_bb()
 	{
@@ -138,13 +165,11 @@ class Logistik extends CI_Controller
 
 	function Insert_stok_bb()
 	{
-
 		if($this->session->userdata('username'))
 		{
 			$result = $this->m_logistik->save_stok_bb();
 			echo json_encode($result);
 		}
-		
 	}
 
 	function update_stok_bb()
@@ -1265,22 +1290,22 @@ class Logistik extends CI_Controller
 
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_invoice).'</div>';
-				$row[] = $r->no_invoice;
+				$row[] = 'No Inv: <b>'.$r->no_invoice .'</b><br> Tgl Inv : <b>'. $this->m_fungsi->tanggal_ind($r->tgl_invoice).'</b><br> Kepada : <b>'.$r->kepada.'</b><br> Cust : <b>'. $r->nm_perusahaan.'</b>';
 				$row[] = $no_sj;
-				$row[] = $r->kepada;
-				$row[] = $r->nm_perusahaan;
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo).'</div>';
-				
+				$row[] = '<div class="text-right"><b>'.number_format($total, 0, ",", ".").'</b></div>';
 				if (in_array($this->session->userdata('username'), ['karina']))
 				{
-					$urll1 = "onclick=acc_inv(`admin`,'$r->acc_admin','$r->no_invoice')";
+					// $urll1 = "onclick=acc_inv(`admin`,'$r->acc_admin','$r->no_invoice')";
+					// $urll1 = "onclick=open_modal('$r->id','$r->no_invoice')";
+					$urll1 = '';
 					$urll2 = '';
 
-				} else if (in_array($this->session->userdata('username'), ['bumagda']))
+				} else if (in_array($this->session->userdata('username'), ['bumagda','developer']))
 				{
 					$urll1 = '';
-					$urll2 = "onclick=acc_inv(`owner`,'$r->acc_owner','$r->no_invoice')";
+					// $urll2 = "onclick=acc_inv(`owner`,'$r->acc_owner','$r->no_invoice')";
+					$urll2 = "onclick=open_modal('$r->id','$r->no_invoice')";
 				} else {
 					$urll1 = '';
 					$urll2 = '';
@@ -1294,40 +1319,47 @@ class Logistik extends CI_Controller
 				$row[] ='<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn2.' " '.$urll2.' title="VERIFIKASI DATA" >
 				<b>'.$i2.' </b> </a><span style="font-size:1px;color:transparent">'.$r->acc_owner.'</span><div>';
 
-				$row[] = '<div class="text-right"><b>'.number_format($total, 0, ",", ".").'</b></div>';
-
 				$cek_pembayaran = $this->db->query("SELECT*FROM trs_bayar_inv WHERE no_inv='$r->no_invoice' ")->num_rows();
 				$aksi = "";
 
 				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','Keuangan1']))
 				{
-					if ($r->acc_owner == "N") {
+					if ($r->acc_owner == "N") 
+					{
 
 						if($cek_pembayaran > 0)
 						{
-
 							$aksi = '
-							<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&no_inv=" .$r->no_invoice ."") . '" title="EDIT DATA" >
-								<b><i class="fa fa-edit"></i> </b>
-							</a> 
-
 							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
 							';
 
 						}else{
 
-							$aksi = '
-							<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&no_inv=" .$r->no_invoice ."") . '" title="EDIT DATA" >
-								<b><i class="fa fa-edit"></i> </b>
-							</a> 
+							if (!in_array($this->session->userdata('username'), ['developer','karina']))
+							{
+								$aksi = '
+								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+								';
 
-							<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-danger btn-sm">
-								<i class="fa fa-trash-alt"></i>
-							</button> 
+							}else{
 
-							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
-							
-							';
+								// $aksi = '
+								// <a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&no_inv=" .$r->no_invoice ."") . '" title="EDIT DATA" >
+								// 	<b><i class="fa fa-edit"></i> </b>
+								// </a> ';
+								$aksi = '
+								<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv . ')" title="EDIT DATA" >
+									<b><i class="fa fa-edit"></i> </b>
+								</a> 
+								
+								<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-danger btn-sm">
+									<i class="fa fa-trash-alt"></i>
+								</button> 
+
+								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+								';
+
+							}
 						}
 						
 					} else {
@@ -1336,26 +1368,28 @@ class Logistik extends CI_Controller
 						{
 
 							$aksi = '
-							<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&no_inv=" .$r->no_invoice ."") . '" title="EDIT DATA" >
-								<b><i class="fa fa-edit"></i> </b>
-							</a> 
-							
 							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
 							';
 
 						}else{
 
-							$aksi = '
-							<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&no_inv=" .$r->no_invoice ."") . '" title="EDIT DATA" >
-								<b><i class="fa fa-edit"></i> </b>
-							</a> 
+							if (!in_array($this->session->userdata('username'), ['developer','karina']))
+							{
 
-							<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-danger btn-sm">
-								<i class="fa fa-trash-alt"></i>
-							</button> 
-							
-							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
-							';
+								$aksi = '								
+								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+								';
+
+							}else{
+
+								$aksi = '
+								<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv . ')" title="EDIT DATA" >
+									<b><i class="fa fa-edit"></i> </b>
+								</a> 
+								
+								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+								';
+							}
 
 						}
 						
@@ -1895,7 +1929,7 @@ class Logistik extends CI_Controller
 				$where_po    = 'and d.po is null';
 			}
 			$query = $db2->query("SELECT b.id as id_pl, a.qty, a.qty_ket, b.tgl, b.id_perusahaan, c.nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.item, d.kualitas, d.ukuran2,d.ukuran, 
-			d.flute, d.po
+			d.flute, d.po, a.id_produk_simcorr
 			FROM m_box a 
 			JOIN pl_box b ON a.id_pl = b.id 
 			LEFT JOIN m_perusahaan2 c ON b.id_perusahaan=c.id
@@ -1927,59 +1961,89 @@ class Logistik extends CI_Controller
 		if($this->session->userdata('username'))
 		{
 
-			$c_no_inv_kd   = $this->input->post('no_inv_kd');
-			$c_no_inv      = $this->input->post('no_inv');
-			$c_no_inv_tgl  = $this->input->post('no_inv_tgl');
-			$cek_inv       = $this->input->post('cek_inv');
-
-			$no_inv_ok     = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
-			$query_cek_no  = $this->db->query("SELECT*FROM invoice_header where no_invoice='$no_inv_ok' ")->num_rows();
-
-			if($query_cek_no>0)
+			$sts_input    = $this->input->post('sts_input');
+			if($sts_input=='add')
 			{
-				echo json_encode(array("status" => "3","id" => '0'));
-			}else{
+				$c_no_inv_kd   = $this->input->post('no_inv_kd');
+				$c_no_inv      = $this->input->post('no_inv');
+				$c_no_inv_tgl  = $this->input->post('no_inv_tgl');
+				$cek_inv       = $this->input->post('cek_inv');
+
+				$no_inv_ok     = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
+				$query_cek_no  = $this->db->query("SELECT*FROM invoice_header where no_invoice='$no_inv_ok' ")->num_rows();
+
+				if($query_cek_no>0)
+				{
+					echo json_encode(array("status" => "3","id" => '0'));
+				}else{
+					
+					$c_type_po    = $this->input->post('type_po');
+					$c_pajak      = $this->input->post('pajak');
+					$tgl_inv      = $this->input->post('tgl_inv');
+					$tanggal      = explode('-',$tgl_inv);
+					$tahun        = $tanggal[0];
+
+					$asc         = $this->m_logistik->save_invoice();
+			
+					if($asc){
+			
+						($c_type_po=='roll')? $type_ok=$c_type_po : $type_ok='SHEET_BOX';
 				
-				$c_type_po    = $this->input->post('type_po');
-				$c_pajak      = $this->input->post('pajak');
-				$tgl_inv      = $this->input->post('tgl_inv');
-				$tanggal      = explode('-',$tgl_inv);
-				$tahun        = $tanggal[0];
+						($c_pajak=='nonppn')? $pajak_ok='non' : $pajak_ok='ppn';
+				
+						$no_urut    = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok.'_'.$tahun);
+						$kode_ok    = $type_ok.'_'.$pajak_ok.'_'.$tahun;
 
-				$asc         = $this->m_logistik->save_invoice();
-		
-				if($asc){
-		
-					($c_type_po=='roll')? $type_ok=$c_type_po : $type_ok='SHEET_BOX';
-			
-					($c_pajak=='nonppn')? $pajak_ok='non' : $pajak_ok='ppn';
-			
-					$no_urut    = $this->m_fungsi->tampil_no_urut($type_ok.'_'.$pajak_ok.'_'.$tahun);
-					$kode_ok    = $type_ok.'_'.$pajak_ok.'_'.$tahun;
-
-					if($cek_inv =='baru')
-					{
-						$this->db->query("UPDATE m_urut set no_urut=$no_urut+1 where kode='$kode_ok' ");
-					}else{
-						
-						if($c_no_inv == $no_urut)
+						if($cek_inv =='baru')
 						{
 							$this->db->query("UPDATE m_urut set no_urut=$no_urut+1 where kode='$kode_ok' ");
+						}else{
+							
+							if($c_no_inv == $no_urut)
+							{
+								$this->db->query("UPDATE m_urut set no_urut=$no_urut+1 where kode='$kode_ok' ");
+							}
 						}
+			
+						echo json_encode(array("status" =>"1","id" => $asc));
+			
+					}else{
+						echo json_encode(array("status" => "2","id" => $asc));
+			
 					}
-		
-					echo json_encode(array("status" =>"1","id" => $asc));
-		
+
+				}
+			}else{
+
+				$c_no_inv_kd    = $this->input->post('no_inv_kd');
+				$c_no_inv       = $this->input->post('no_inv');
+				$c_no_inv_tgl   = $this->input->post('no_inv_tgl');
+				$no_inv_old     = $this->input->post('no_inv_old');
+
+				$no_inv_ok      = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
+
+				$query_cek_no   = $this->db->query("SELECT*FROM invoice_header where no_invoice='$no_inv_ok' and no_invoice <> '$no_inv_old' ")->num_rows();
+
+				if($query_cek_no>0)
+				{
+					echo json_encode(array("status" => "3","id" => '0'));
 				}else{
-					echo json_encode(array("status" => "2","id" => $asc));
-		
+					
+					$asc = $this->m_logistik->update_invoice();
+			
+					if($asc){			
+						echo json_encode(array("status" =>"1","id" => $asc));
+			
+					}else{
+						echo json_encode(array("status" => "2","id" => $asc));
+			
+					}
+
 				}
 
 			}
 
 		}
-
-		
 		
 	}
 
@@ -2030,9 +2094,7 @@ class Logistik extends CI_Controller
 
 			}
 
-		}
-
-		
+		}		
 		
 	}
 
@@ -2147,6 +2209,9 @@ class Logistik extends CI_Controller
 				$result          = $this->m_master->query("DELETE FROM invoice_header WHERE  $field = '$id'");
 
 				$result          = $this->m_master->query("DELETE FROM invoice_detail WHERE  no_invoice = '$no_inv'");
+
+				// delete stok
+				$result          = $this->m_master->query("DELETE FROM trs_stok_bahanbaku WHERE  no_transaksi = '$no_inv'");
 			}
 			
 			
@@ -2281,7 +2346,7 @@ class Logistik extends CI_Controller
 		$this->m_fungsi->template_kop('STOK BAHAN BAKU',$no_stok,$html,'P','1');
 		// $this->m_fungsi->mPDFP($html);
 	}
-
+	
 	function cetak_inv_bb()
 	{
 		$no_po        = $_GET['no_po'];

@@ -32,99 +32,106 @@
 			<form role="form" method="post" id="myForm">
 				<div class="card-body">
 					<div class="col-md-12">
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Status Invoice</div>
-								<div class="col-md-10">
-									<select id="cek_inv" name="cek_inv" class="form-control select2" style="width: 100%" onchange="cek_invoice()">
-										<option value="baru">BARU</option>
-										<option value="revisi">REVISI</option>
-									</select>
-								</div>
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+							<div class="col-md-2">Status Invoice</div>
+							<div class="col-md-3">
+								<select id="cek_inv" name="cek_inv" class="form-control select2" style="width: 100%" onchange="cek_invoice()">
+									<option value="baru">BARU</option>
+									<option value="revisi">REVISI</option>
+								</select>
 							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Type</div>
-								<div class="col-md-10">
-									<input type="hidden" name="jenis" id="jenis" value="invoice">
-									<input type="hidden" class="form-control" value="Add" name="status" id="status">
-									<select name="type_po" id="type_po" class="form-control select2" style="width: 100%" onchange="noinv(),no_inv2()">
-										<option value="">-- PILIH --</option>
-										<option value="roll">Roll</option>
-										<option value="sheet">Sheet</option>
-										<option value="box">Box</option>
-									</select>
-								</div>
+							<div class="col-md-1"></div>
+							<div class="col-md-2">Type</div>
+							<div class="col-md-3">
+								<input type="hidden" name="jenis" id="jenis" value="invoice">
+								<input type="hidden" class="form-control" value="Add" name="status" id="status">
+								<select name="type_po" id="type_po" class="form-control select2" style="width: 100%" onchange="noinv(),no_inv2()">
+									<option value="">-- PILIH --</option>
+									<option value="roll">Roll</option>
+									<option value="sheet">Sheet</option>
+									<option value="box">Box</option>
+								</select>
 							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Pajak</div>
-								<div class="col-md-10">
-									
-									<select id="pajak" name="pajak" class="form-control select2" style="width: 100%" onchange="noinv(),no_inv2()">
-										<option value="">-- PILIH --</option>
-										<option value="ppn">PPN 11%</option>
-										<option value="ppn_pph">PPN 11% + PPH22</option>
-										<option value="nonppn">NON PPN</option>
-									</select>
-								</div>
+
+						</div>
+						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+							
+							<div class="col-md-2">Tanggal Invoice</div>
+							<div class="col-md-3">
+								<input type="date" id="tgl_inv" name="tgl_inv" class="form-control" autocomplete="off" placeholder="Tanggal Invoice" onchange="noinv(),no_inv2()">
 							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold;display:none" id="ppn_pilihan" >
-								<div class="col-md-2">Incl / Excl</div>
-								<div class="col-md-10">
-									
-									<select id="inc_exc" name="inc_exc" class="form-control select2" style="width: 100%" >
-										<option value="Include">Include</option>
-										<option value="Exclude">Exclude</option>
-										<option value="nonppn_inc">Non PPN</option>
-									</select>
-								</div>
+							<div class="col-md-1"></div>
+							<div class="col-md-2">Pajak</div>
+							<div class="col-md-3">
+								<select id="pajak" name="pajak" class="form-control select2" style="width: 100%" onchange="noinv(),no_inv2()">
+									<option value="">-- PILIH --</option>
+									<option value="ppn">PPN 11%</option>
+									<option value="ppn_pph">PPN 11% + PPH22</option>
+									<option value="nonppn">NON PPN</option>
+								</select>
 							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Tanggal Invoice</div>
-								<div class="col-md-4">
-									<input type="date" id="tgl_inv" name="tgl_inv" class="form-control" autocomplete="off" placeholder="Tanggal Invoice" onchange="noinv(),no_inv2()">
-								</div>
-								<div class="col-md-6"> </div>
+
+						</div>
+
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="ppn_pilihan">						
+							<div class="col-md-2">Incl / Excl</div>
+							<div class="col-md-9">
+								<select id="inc_exc" name="inc_exc" class="form-control select2" style="width: 100%" >
+									<option value="Include">Include</option>
+									<option value="Exclude">Exclude</option>
+									<option value="nonppn_inc">Non PPN</option>
+								</select>
 							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Tanggal SJ</div>
-								<div class="col-md-4">
-									<input type="date" id="tgl_sj" name="tgl_sj" class="form-control" autocomplete="off" placeholder="Tanggal Surat Jalan" >
-									<input type="hidden" name="id_pl_sementara" id="id_pl_sementara" value="">
-								</div>
-								<div class="col-md-6"> 
-									<button type="button" class="btn btn-primary" id="btn-simpan" onclick="load_sj()"><i class="fas fa-search"></i><b></b></button>
-								</div>
+						</div>
+
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+							<div class="col-md-2">Tanggal SJ</div>
+							<div class="col-md-3">
+								<input type="date" id="tgl_sj" name="tgl_sj" class="form-control" autocomplete="off" placeholder="Tanggal Surat Jalan" >
+								<input type="hidden" name="id_pl_sementara" id="id_pl_sementara" value="">
 							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">Customer</div>
-								<div class="col-md-10">
-									<select class="form-control select2" id="id_pl" name="id_pl" style="width: 100%" autocomplete="off" onchange="load_cs()" disabled>
-									</select>
-								</div>
+							<div class="col-md-1"></div>
+
+							<div class="col-md-2">Tanggal Jatuh Tempo</div>
+							<div class="col-md-3">
+								<input type="date" id="tgl_tempo" name="tgl_tempo" class="form-control" autocomplete="off" placeholder="Jatuh Tempo" >
+							</div>
+
+						</div>
+
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+							
+							<div class="col-md-2">Customer</div>
+							<div class="col-md-8">
+								<select class="form-control select2" id="id_pl" name="id_pl" style="width: 100%" autocomplete="off" onchange="load_cs()" disabled>
+								</select>
 							</div>
 							
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2">No Invoice</div>
-								<div class="col-md-1">
-									<input style="height: calc(2.25rem + 2px);font-size: 1rem;" type="text" id="no_inv_kd" name="no_inv_kd" class="input-border-none" autocomplete="off"  readonly>
-								</div>
-								<div class="col-md-1">
-									<input style="height: calc(2.25rem + 2px);font-size: 1rem;"  type="text" id="no_inv" name="no_inv" class="input-border-none" autocomplete="off" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " readonly>
-								</div>
-								<div class="col-md-3">
-									<input style="height: calc(2.25rem + 2px);font-size: 1rem;"  type="text" id="no_inv_tgl" name="no_inv_tgl" class="input-border-none" autocomplete="off" readonly>
-								</div>
-								<div class="col-md-5">
-									&nbsp;
-								</div>
+							<div class="col-md-1">
+								<button type="button" class="btn btn-primary" id="btn-simpan" onclick="load_sj()"><i class="fas fa-search"></i><b></b></button>
 							</div>
 							
-							<div class="card-body row" style="font-weight:bold">
-								<div class="col-md-2">Tanggal Jatuh Tempo</div>
-								<div class="col-md-4">
-									<input type="date" id="tgl_tempo" name="tgl_tempo" class="form-control" autocomplete="off" placeholder="Jatuh Tempo" >
-								</div>
-								<div class="col-md-6"> </div>
+							
+						</div>
+
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+							
+							<div class="col-md-2">No Invoice</div>
+							<div class="col-md-1">
+								<input style="height: calc(2.25rem + 2px);font-size: 1rem;" type="text" id="no_inv_kd" name="no_inv_kd" class="input-border-none" autocomplete="off"  readonly>
 							</div>
+							<div class="col-md-1">
+								<input style="height: calc(2.25rem + 2px);font-size: 1rem;"  type="text" id="no_inv" name="no_inv" class="input-border-none" autocomplete="off" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " readonly>
+							</div>
+							<div class="col-md-3">
+								<input style="height: calc(2.25rem + 2px);font-size: 1rem;"  type="text" id="no_inv_tgl" name="no_inv_tgl" class="input-border-none" autocomplete="off" readonly>
+							</div>
+							
+							<div class="col-md-4"></div>
+							
+						</div>
+
 
 							<hr>
 							<div class="card-body row" style="padding:0 20px;font-weight:bold">
@@ -201,7 +208,6 @@
 <script type="text/javascript">
 	rowNum = 0;
 	$(document).ready(function() {
-		load_data();
 		// getMax();
 		$("#id_pl").prop('disabled', true);
 		$('.select2').select2({
@@ -210,102 +216,6 @@
 			dropdownAutoWidth: true
 		});
 	});
-
-	status = "insert";
-	$(".tambah_data").click(function(event) 
-	{
-		kosong();
-		
-		$("#judul").html('<h3> Form Tambah Data</h3>');
-		status = "insert";
-		$("#status").val("insert");
-		$("#id_produk0").val("").prop("", true).html(`<option value="">-- Pilih --</option>`);
-	});
-
-	function setProduk(cek,pelanggan,id) 
-	{
-		if(cek=='new'){
-			clearRow();
-		}
-		if (status == 'insert' ){
-
-			$("#id_produk"+id).val("").prop("", false);
-			if (pelanggan!=''){
-				option = "";
-				$.ajax({
-					type: 'POST',
-					url: "<?= base_url(); ?>Logistik/load_produk",
-					data: { idp: pelanggan, kd: '' },
-					dataType: 'json',
-					beforeSend: function() {
-						swal({
-						title: 'loading ...',
-						allowEscapeKey    : false,
-						allowOutsideClick : false,
-						onOpen: () => {
-							swal.showLoading();
-						}
-						})
-					},
-					success:function(data){			
-						if(data.message == "Success"){						
-							option = "<option>-- Pilih --</option>";
-							$.each(data.data, function(index, val) {
-							option += "<option value='"+val.id_produk+"'>"+val.nm_produk+"</option>";
-							});
-		
-							$('#id_produk'+id).html(option);
-							swal.close();
-						}else{	
-							option += "<option value=''></option>";
-							$('#id_produk'+id).html(option);						
-							$("#txt_detail_produk"+id).html("");	
-							swal.close();
-						}
-					}
-				});
-			}
-		}
-		
-	}
-
-	function load_data() 
-	{
-
-
-		var table = $('#datatable').DataTable();
-
-		table.destroy();
-
-		tabel = $('#datatable').DataTable({
-
-			"processing": true,
-			"pageLength": true,
-			"paging": true,
-			"ajax": {
-				"url": '<?= base_url(); ?>Logistik/load_data/Invoice',
-				"type": "POST",
-				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
-			},
-			"aLengthMenu": [
-				[10, 15, 20, 25, -1],
-				[10, 15, 20, 25, "Semua"] // change per page values here
-			],		
-
-			responsive: true,
-			"pageLength": 10,
-			"language": {
-				"emptyTable": "Tidak ada data.."
-			}
-		});
-
-	}
-
-	function reloadTable() 
-	{
-		table = $('#datatable').DataTable();
-		tabel.ajax.reload(null, false);
-	}
 	
 	function simpan() 
 	{
@@ -322,14 +232,15 @@
 				swal.showLoading();
 			} 
 		})		
-
+		
 		var tgl_inv   = $("#tgl_inv").val();
 		var tgl_sj    = $("#tgl_sj").val();
 		var id_pl     = $("#id_pl").val();
 		var pajak     = $("#pajak").val();
 		var tgl_tempo = $("#tgl_tempo").val();
 
-		if (tgl_inv == '' || tgl_sj == '' || id_pl=='' || pajak=='' || tgl_tempo=='' ) {			
+		if (tgl_inv == '' || tgl_sj == '' || id_pl=='' || pajak=='' || tgl_tempo=='' ) 
+		{
 			swal.close();
 			swal({
 				title               : "Cek Kembali",
@@ -340,6 +251,23 @@
 			return;
 		}
 
+		var bucket = $('#bucket').val();
+
+		for (var i = 1; i <= bucket-1; i++) {
+			id_produk_simcorr   = $("#id_produk_simcorr" + i).val();
+
+			if (id_produk_simcorr == '' ) {
+				swal({
+					title               : "Cek Kembali",
+					html                : "Kode ITEM Kosong !, Hubungi IT",
+					type                : "info",
+					confirmButtonText   : "OK"
+				});
+				return;
+				// swal.close();
+			}
+		}
+		
 		$.ajax({
 			url        : '<?= base_url(); ?>Logistik/Insert_inv',
 			type       : "POST",
@@ -423,7 +351,7 @@
 		$("#txt_top").val("");
 		$("#txt_marketing").val("");
 
-		clearRow();
+		// clearRow();
 		status = 'insert';
 		$("#status").val(status);
 
@@ -440,214 +368,8 @@
 
 	var no_po = ''
 
-	function tampil_edit(id, act) 
+	function load_sj() 
 	{
-		// kosong('s');
-		kosong();
-		var cek = '<?= $this->session->userdata('level') ?>';
-		$(".btn-tambah-produk").hide();
-		$("#btn-print").show();
-		
-		$("#status").val("update");
-		status    = 'update';
-
-		
-		if (act == 'detail') {
-			$("#judul").html('<h3> Detail Data</h3>');
-			$("#btn-simpan").hide();
-		} else {
-			$("#judul").html('<h3> Form Edit Data</h3>');
-			$("#btn-simpan").show();
-		} 
-
-		status = "update";
-
-		$.ajax({
-				url: '<?= base_url('Logistik/get_edit'); ?>',
-				type: 'POST',
-				data: {
-					id       : id,
-					jenis    : "trs_po",
-					field    : 'id'
-				},
-				dataType: "JSON",
-			})
-			.done(function(data) {
-				
-				btn_verif(data)
-				no_po = data[0].no_po
-
-				$("#no_po").val(data[0].no_po);
-				$("#tgl_po").val(data[0].tgl_po);
-				
-				$('#id_pelanggan').val(data[0].id_pelanggan).trigger('change');
-
-				kodepo    = (data[0].kode_po == '' ) ? '-' : data[0].kode_po ;
-				
-				$("#kode_po").val(kodepo);
-				// $("#eta").val(eta); 
-				
-				$("#header_del").hide();
-
-				if (cek !='PPIC')
-				{
-					$("#header_p11").show();
-				}else{
-					$("#header_p11").hide();
-				}
-
-				$.each(data, function(index, value) {
-					eta       = (value.eta == '' ) ? '-' : value.eta ;
-					
-					$("#detail-hapus-0").hide();
-					$("#detail-hapus-"+index).hide();
-					$("#btn-hapus-"+index).hide();
-					$("#eta_item"+index).val(eta); 
-					
-					if (cek !='PPIC')
-					{
-						$("#p11_det"+index).show();
-						$("#id_pelanggan").prop("", false);
-						$("#kode_po").prop("", false);
-						$("#eta_item"+index).prop("", false); 
-
-						$('#subs'+index).hide();
-						$('#subs_i'+index).hide();
-						$('#subs_hitung'+index).hide();
-						$('#subs_hasil_hitung'+index).hide();
-						
-					}else{
-						$("#p11_det"+index).hide();
-						$("#id_pelanggan").prop("", true);
-						$("#kode_po").prop("", true);
-						$("#eta_item"+index).prop("", true); 
-
-						$('#subs'+index).show();
-						$('#subs_i'+index).show();
-						$('#subs_hitung'+index).show();
-						$('#subs_hasil_hitung'+index).show();
-						
-					}
-					
-					
-					
-					var opt_produk = $("<option selected></option>").val(value.id_produk).text(value.nm_produk);
-
-					var opt_ppn = $("<option selected></option>").val(value.ppn).text(value.ppn);
-					
-					$('#id_produk'+index).append(opt_produk).trigger('change');
-					$("#qty"+index).val(format_angka(value.qty));
-
-					if(value.cek_rm==1)
-					{
-						$('#cek_rm'+index).prop('checked', true);
-					}else{
-						$('#cek_rm'+index).prop('checked', false);
-
-					}
-
-					$('#ppn'+index).append(opt_ppn).trigger('change');
-					// $("#ppn"+index).val(value.ppn);
-					$('#price_inc'+index).val(format_angka(value.price_inc));
-					$('#price_exc'+index).val(format_angka(value.price_exc));
-					$("#eta_ket"+index).val(value.eta_ket); 
-					
-					$("#p11"+index).val(value.p11);
-
-					if (act == 'detail') {
-						$("#id_pelanggan").prop("", true);
-						$("#qty"+index).prop("", true);
-						// $("#qty_dec"+index).prop("", true);
-						$('#cek_rm'+index).prop("", true);
-						$("#id_produk"+index).prop("", true);
-						$("#ppn"+index).prop("", true);
-						$("#price_inc"+index).prop("", true);
-						$("#price_exc"+index).prop("", true);
-						$("#eta_ket"+index).prop("", true);
-					} else {
-						$("#id_pelanggan").prop("", false);
-						$("#qty"+index).prop("", false);
-						// $("#qty_dec"+index).prop("", false);
-						$('#cek_rm'+index).prop("", false);
-						$("#id_produk"+index).prop("", false);
-						$("#ppn"+index).prop("", false);
-						$("#price_inc"+index).prop("", false);
-						$("#price_exc"+index).prop("", false);
-						$("#eta_ket"+index).prop("", false);
-					}
-					
-					if (index != (data.length) - 1) {
-						addRow();
-					}
-					// console.log(index, data.length);
-				});
-			})
-	}
-
-	function deleteData(id,no) 
-	{
-		// let cek = confirm("Apakah Anda Yakin?");
-		swal({
-			title: "PO",
-			html: "<p> Apakah Anda yakin ingin menghapus file ini ?</p><br>"
-			+"<strong>" +no+ " </strong> ",
-			type               : "question",
-			showCancelButton   : true,
-			confirmButtonText  : '<b>Hapus</b>',
-			cancelButtonText   : '<b>Batal</b>',
-			confirmButtonClass : 'btn btn-success',
-			cancelButtonClass  : 'btn btn-danger',
-			cancelButtonColor  : '#d33'
-		}).then(() => {
-
-		// if (cek) {
-			$.ajax({
-				url: '<?= base_url(); ?>Logistik/hapus',
-				data: ({
-					id: id,
-					jenis: 'trs_po',
-					field: 'no_po'
-				}),
-				type: "POST",
-				beforeSend: function() {
-					swal({
-					title: 'loading ...',
-					allowEscapeKey    : false,
-					allowOutsideClick : false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-					})
-				},
-				success: function(data) {
-					// toastr.success('Data Berhasil Di Hapus');
-					swal({
-						title               : "Data",
-						html                : "Data Berhasil Di Hapus",
-						type                : "success",
-						confirmButtonText   : "OK"
-					});
-					reloadTable();
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					// toastr.error('Terjadi Kesalahan');
-					swal({
-						title               : "Cek Kembali",
-						html                : "Terjadi Kesalahan",
-						type                : "error",
-						confirmButtonText   : "OK"
-					});
-					return;
-				}
-			});
-		// }
-
-		});
-
-
-	}
-
-	function load_sj() {
 		var tgl_sj    = $("#tgl_sj").val()
 		var type_po   = $("#type_po").val()
 		var stat      = 'add'
@@ -875,8 +597,9 @@
 										<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${no_po}">
 									</td>
 
-									<td style="text-align: center" >${val.item}
+									<td style="text-align: center" >${val.id_produk_simcorr} - ${val.item}
 										<input type="hidden" id="item${no}" name="item[${no}]" value="${val.item}">
+										<input type="hidden" id="id_produk_simcorr${no}" name="id_produk_simcorr[${no}]" value="${val.id_produk_simcorr}">
 									</td>
 
 									<td style="text-align: center" >${val.ukuran2}
@@ -919,6 +642,7 @@
 									<td style="text-align: center" >${format_angka(berat_total)}
 									</td>
 									<td style="text-align: center" colspan="3">&nbsp;
+										<input type="hidden" id="bucket" value="${no}"></input>
 									</td>`;
 							list += `</table>`;
 					}				
@@ -1178,13 +902,6 @@
 
 		$('#hasil'+id).val(format_angka(hasil));
 
-	}
-	
-	function Cetak() 
-	{
-		no_po = $("#no_po").val();
-		var url = "<?= base_url('Logistik/Cetak_PO'); ?>";
-		window.open(url + '?no_po=' + no_po, '_blank');
 	}
 
 </script>
