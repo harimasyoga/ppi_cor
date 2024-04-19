@@ -371,6 +371,7 @@ class Transaksi extends CI_Controller
 			$_POST["tgl"] == "" ||
 			$_POST["customer"] == "" ||
 			$_POST["id_sales"] == "" ||
+			$_POST["attn"] == "" ||
 			$_POST["no_po"] == "" ||
 			$_POST["item"] == "" ||
 			$_POST["ukuran_lm"] == "" ||
@@ -395,6 +396,7 @@ class Transaksi extends CI_Controller
 					'tgl' => $_POST["tgl"],
 					'customer' => $_POST["customer"],
 					'id_sales' => $_POST["id_sales"],
+					'attn' => $_POST["attn"],
 					'no_po' => $_POST["no_po"],
 					'item' => $_POST["item"],
 					'nm_produk_lm' => $_POST["nm_produk_lm"],
@@ -563,18 +565,13 @@ class Transaksi extends CI_Controller
 		($id != 0 && $id_dtl != 0 ) ? $e_po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.id='$id_dtl'")->row() : $e_po_dtl = '';
 
 		$html ='';
-		$html .='<table class="table table-bordered table-striped">
+		$html .='<table class="table table-bordered table-striped" style="margin:0">
 			<thead>
 				<tr>
 					<th style="padding:6px;text-align:center">NO.</th>
-					<th style="padding:6px">ITEM</th>
-					<th style="padding:6px">SIZE</th>
-					<th style="padding:6px;text-align:center">@PACK</th>
-					<th style="padding:6px;text-align:center">@BAL</th>
-					<th style="padding:6px;text-align:center">ORDER SHEET</th>
-					<th style="padding:6px;text-align:center">ORDER</th>
+					<th style="padding:6px" colspan="6">DESKRIPSI</th>
 					<th style="padding:6px;text-align:center">QTY(BAL)</th>
-					<th style="padding:6px;text-align:center">HARGA LEMBAR</th>
+					<th style="padding:6px;text-align:center">H. LEMBAR</th>
 					<th style="padding:6px;text-align:center">HARGA</th>
 					<th style="padding:6px;text-align:center">HARGA TOTAL</th>
 					<th style="padding:6px;text-align:center">AKSI</th>
@@ -606,20 +603,119 @@ class Transaksi extends CI_Controller
 				}
 				($r->jenis_qty_lm == 'kg') ? $order_pori_lm = $r->order_pori_lm : $order_pori_lm = number_format($r->order_pori_lm,0,",",".");
 				($r->jenis_qty_lm == 'kg') ? $qty_bal = $r->qty_bal : $qty_bal = number_format($r->qty_bal,0,",",".");
+
+				$ton = $r->qty_bal * 50;
+				$bb = round($ton / 0.75);
 				$html .='<tr>
 					<td style="padding:6px;text-align:center'.$bold.'">'.$i.'</td>
-					<td style="padding:6px'.$bold.'">'.$r->nm_produk_lm.'</td>
-					<td style="padding:6px'.$bold.'">'.$r->ukuran_lm.'</td>
-					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->isi_lm,0,",",".").' ( SHEET )</td>
-					<td style="padding:6px;text-align:right'.$bold.'">'.$qty.' '.$ket.'</td>
-					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->order_sheet_lm,0,",",".").'</td>
-					<td style="padding:6px;text-align:right'.$bold.'">'.$order_pori_lm.' '.$ket.'</td>
-					<td style="padding:6px;text-align:right'.$bold.'">'.$qty_bal.'</td>
-					<td style="padding:6px;text-align:right'.$bold.'">'.round($r->harga_lembar_lm,2).'</td>
+					<td style="padding:0;border:0'.$bold.'">
+						<table class="table" style="margin:0">
+							<tr>
+								<td style="border:0;padding:6px;font-weight:bold">ITEM</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px;font-weight:bold">SIZE</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px;font-weight:bold">@PACK</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px;font-weight:bold">@BAL</td>
+							</tr>
+						</table>
+					</td>
+					<td style="padding:0;border:0'.$bold.'">
+						<table class="table" style="margin:0">
+							<tr>
+								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
+							</tr>
+						</table>
+					</td>
+					<td style="padding:0;border:0'.$bold.'">
+						<table class="table" style="margin:0">
+							<tr>
+								<td style="border:0;padding:6px">'.$r->nm_produk_lm.'</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px">'.$r->ukuran_lm.'</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px">'.number_format($r->isi_lm,0,",",".").' ( SHEET )</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px">'.$qty.' '.$ket.'</td>
+							</tr>
+						</table>
+					</td>
+					<td style="padding:0;border:0'.$bold.'">
+						<table class="table" style="margin:0">
+							<tr>
+								<td style="border:0;padding:6px;font-weight:bold">ORDER SHEET</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px;font-weight:bold">ORDER</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px;font-weight:bold">TON</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px;font-weight:bold">BAHAN BAKU</td>
+							</tr>
+						</table>
+					</td>
+					<td style="padding:0;border:0'.$bold.'">
+						<table class="table" style="margin:0">
+							<tr>
+								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
+							</tr>
+						</table>
+					</td>
+					<td style="padding:0;border:0'.$bold.'">
+						<table class="table" style="margin:0">
+							<tr>
+								<td style="border:0;padding:6px">'.number_format($r->order_sheet_lm,0,",",".").'</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px">'.$order_pori_lm.' '.$ket.'</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px">'.number_format($ton,0,",",".").'</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px">'.number_format($bb,0,",",".").'</td>
+							</tr>
+						</table>
+					</td>
+					<td style="padding:6px;text-align:center'.$bold.'">'.$qty_bal.'</td>
+					<td style="padding:6px;text-align:center'.$bold.'">'.round($r->harga_lembar_lm,2).'</td>
 					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_pori_lm,0,",",".").'  '.$ket.'</td>
 					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_total_lm,0,",",".").'</td>
 					<td style="padding:6px;text-align:center'.$bold.'">'.$btnAksi.'</td>
 				</tr>';
+				// KOSONG
+				if($po_dtl->num_rows() != $i){
+					$html .='<tr>
+						<td colspan="12" style="padding:3px"></td>
+					</tr>';
+				}
 			}
 		$html .= '</table>';
 

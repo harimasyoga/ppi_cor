@@ -1118,7 +1118,6 @@ class Logistik extends CI_Controller
 		}
 
 		echo json_encode([
-			'1no' => $no,
 			'no_invoice' => $no_invoice,
 			'id_pelanggan_lm' => $id_pelanggan_lm,
 			'kepada' => $attn,
@@ -1142,6 +1141,18 @@ class Logistik extends CI_Controller
 	function addDisc()
 	{
 		$result = $this->m_logistik->addDisc();
+		echo json_encode($result);
+	}
+
+	function hapusDisc()
+	{
+		$result = $this->m_logistik->hapusDisc();
+		echo json_encode($result);
+	}
+
+	function hapusInvoiceLaminasi()
+	{
+		$result = $this->m_logistik->hapusInvoiceLaminasi();
 		echo json_encode($result);
 	}
 
@@ -1219,17 +1230,25 @@ class Logistik extends CI_Controller
 					}else if($c->opsi == 'POTONG KARUNG'){
 						$ketDsc = 'Potong Karung Rp. '.number_format($c->rupiah,0,",",".").' x '.$c->ball.' ball';
 					}
+
+					if($opsi == 'edit' && $header->acc_owner != 'Y' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+						$btnDsc = ' <button type="button" class="btn btn-xs btn-danger" style="padding:0 4px" onclick="hapusDisc('."'".$c->id."'".')"><i class="fas fa-times"></i></button>';
+					}else{
+						$btnDsc = '';
+					}
 					$htmlDisc .='<tr>
-						<td style="padding:6px;text-align:right;font-weight:bold" colspan="9">'.$ketDsc.'</td>
-						<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($c->hitung,0,",",".").'</td>
+						<td style="border:0;padding:6px;text-align:right;font-weight:bold" colspan="9">
+							'.$ketDsc.$btnDsc.'
+						</td>
+						<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($c->hitung,0,",",".").'</td>
 					</tr>';
 					$sumDisc += $c->hitung;
 				}
 				// FIX TOTAL
 				$fixTotal = $sumTotal - $sumDisc;
 				$htmlDisc .='<tr>
-					<td style="padding:6px;text-align:right;font-weight:bold" colspan="9">Total</td>
-					<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($fixTotal,0,",",".").'</td>
+					<td style="border:0;padding:6px;text-align:right;font-weight:bold" colspan="9">Total</td>
+					<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($fixTotal,0,",",".").'</td>
 				</tr>';
 			}else{
 				$fixTotal = $sumTotal;
@@ -1237,8 +1256,8 @@ class Logistik extends CI_Controller
 			}
 
 			$htmlItem .='<tr>
-				<td style="padding:6px;text-align:right;font-weight:bold" colspan="9">'.$txtTot.'</td>
-				<td style="padding:6px;text-align:right;font-weight:bold">
+				<td style="border:0;padding:6px;text-align:right;font-weight:bold" colspan="9">'.$txtTot.'</td>
+				<td style="border:0;padding:6px;text-align:right;font-weight:bold">
 					<input type="hidden" id="h_total_inv" value="'.$fixTotal.'">
 					'.number_format($sumTotal,0,",",".").'
 				</td>
@@ -1248,7 +1267,7 @@ class Logistik extends CI_Controller
 			// SIMPAN
 			if($opsi == 'edit' && $header->acc_owner == 'N'){
 				$htmlItem .='<tr>
-					<td style="padding:12px 6px 6px;text-align:right;font-weight:bold" colspan="10">
+					<td style="border:0;padding:12px 6px 6px;text-align:right;font-weight:bold" colspan="10">
 						<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanInvLam()"><i class="fas fa-save"></i> SIMPAN</button>
 					</td>
 				</tr>';
@@ -1257,6 +1276,7 @@ class Logistik extends CI_Controller
 
 		echo json_encode([
 			'header' => $header,
+			'no_invoice' => substr($header->no_invoice, 4, 6),
 			'oke_admin' => substr($this->m_fungsi->getHariIni(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin),0,3).', '.$this->m_fungsi->tglIndSkt(substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 0,10)).' ( '.substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 10,6).' )',
 			'time_owner' => ($header->time_owner == null) ? '' :substr($this->m_fungsi->getHariIni($header->time_owner),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->time_owner, 0,10)).' ( '.substr($header->time_owner, 10,6).' )',
 			'htmlItem' => $htmlItem,
@@ -1269,6 +1289,8 @@ class Logistik extends CI_Controller
 		$html = '';
 
 		$header = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE no_invoice='$no_invoice'")->row();
+		// CEK ADA DISC
+		$disc = $this->db->query("SELECT*FROM invoice_laminasi_disc WHERE no_invoice='$header->no_invoice'");
 
 		// HEADER
 		$html .= '<table cellspacing="0" style="color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-size:11px;font-family:tahoma">
@@ -1281,7 +1303,7 @@ class Logistik extends CI_Controller
 				<th style="border:0;padding:2px 0;height:0;width:32%"></th>
 			</tr>
 			<tr>
-				<td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px;text-align:center" colspan="6">INVOICE</td>
+				<td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px;font-weight:bold;text-align:center" colspan="6">INVOICE</td>
 			</tr>
 			<tr>
 				<td colspan="3"></td>
@@ -1326,7 +1348,7 @@ class Logistik extends CI_Controller
 		$html .= '</table>';
 
 		// ISI
-		$html .= '<table cellspacing="0" style="font-size:11px;text-align:center;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:tahoma">
+		$html .= '<table cellspacing="0" style="margin-bottom:25px;font-size:11px;text-align:center;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:tahoma">
 			<tr>
 				<th style="border:0;height:30px;width:36%"></th>
 				<th style="border:0;height:30px;width:10%"></th>
@@ -1400,10 +1422,7 @@ class Logistik extends CI_Controller
 			}
 
 			// DISC
-			// CEK ADA DISC
-			$disc = $this->db->query("SELECT*FROM invoice_laminasi_disc WHERE no_invoice='$header->no_invoice'");
 			($disc->num_rows() == 0) ? $txtTot = 'Total' : $txtTot = 'Sub Total';
-			// DISCOUNT
 			$htmlDisc = '';
 			$sumDisc = 0;
 			if($disc->num_rows() > 0){
@@ -1446,8 +1465,86 @@ class Logistik extends CI_Controller
 			$html .= '<tr>
 				<td style="border-bottom:2px solid #000" colspan="7"></td>
 			</tr>';
-
 		$html .= '</table>';
+
+		// PEMBAYARAN
+		if($header->bank == 7){
+			$nm_bank = 'BCA';
+			$norek_bank = '078-795-5758';
+			$an_bank = 'PT. PRIMA PAPER INDONESIA';
+		}else if($header->bank == 'IHI'){
+			$nm_bank = 'BCA';
+			$norek_bank = '015-015-7617';
+			$an_bank = 'IMAN HARTONO IR';
+		}else if($header->bank == 5){
+			$nm_bank = 'BCA';
+			$norek_bank = '369-014-9086';
+			$an_bank = 'CV. JAYA SETIA KEMASAN';
+		}else if($header->bank == 6){
+			$nm_bank = 'BCA';
+			$norek_bank = '764-524-2424';
+			$an_bank = 'CV. KEMASAN SENTOSA MULIA';
+		}else if($header->bank == 'ADM'){
+			$nm_bank = 'BCA';
+			$norek_bank = '708-072-9990';
+			$an_bank = 'CV. ANUGERAH DUTA MANDIRI';
+		}else{
+			$nm_bank = '';
+			$norek_bank = '';
+			$an_bank = '';
+		}
+		$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:tahoma">
+			<tr>
+				<td style="width:60%"></td>
+				<td style="width:40%"></td>
+			</tr>
+			<tr>
+				<td style="border:0"></td>
+				<td style="border:0;line-height:1.8;text-align:center">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($header->tgl_invoice).'</td> 
+			</tr>
+			<tr>
+				<td style="border:0;padding:0 0 30px;line-height:1.8">Pembayaran Full Amount ditransfer ke :<br/>'.$nm_bank.' '.$norek_bank.' <br/>A.n '.$an_bank.'</td>
+				<td style="border-bottom:1px solid #000"></td>
+			</tr>
+			<tr>
+				<td style="border:0;"></td>
+				<td style="border:0;line-height:1.8;text-align:center">Finance</td>
+			</tr>';
+			// KETERANGAN
+			if($disc->num_rows() > 0){
+				foreach($disc->result() as $c){
+					if($c->opsi == 'DISCOUNT'){
+						$html .='<tr>
+							<td style="border:0;padding:0;line-height:1.8">* Disc Cash '.$c->persen.'% hanya berlaku untuk pembayaran cash</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td style="border:0;padding:0;line-height:1.8">max '.$c->hari.' hari setelah barang di terima. Jika lebih dari '.$c->hari.' hari</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td style="border:0;padding:0;line-height:1.8">maka Disc Cash '.$c->persen.'% sudah tidak berlaku.</td>
+							<td></td>
+						</tr>';
+					}
+				}
+			}
+			// PPI
+			if($header->bank == 7 || $header->bank == 'IHI'){
+				$html .='<tr>
+					<td style="border:0;padding:0;line-height:1.8">* Harap bukti transfer di email ke</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td style="border:0;padding:0;line-height:1.8">primapaperin@gmail.com / bethppi@yahoo.co.id</td>
+					<td></td>
+				</tr>';
+			}
+		$html .= '</table>';
+
+		// UPDATE TGL CETAK
+		$ctk = date("Y-m-d H:i:s");
+		$this->db->query("UPDATE invoice_laminasi_header SET tgl_cetak='$ctk' WHERE no_invoice='$no_invoice' ");
 
 		$judul = 'INVOICE LAMINASI - '.$no_invoice;
 		$this->m_fungsi->newMpdf($judul, 'cetak', $html, 6, 7, 6, 7, 'P', 'A4', $judul.'.pdf');
@@ -2150,10 +2247,10 @@ class Logistik extends CI_Controller
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				// DESKRIPSI
 				$htmlDes = '<div>
-					<div><b>Tanggal :</b> '.$this->m_fungsi->tanggal_format_indonesia($r->tgl_invoice).'</div>
-					<div><b>No. Invoice :</b> '.$r->no_invoice.'</div>
-					<div><b>No. Surat Jalan :</b> '.$r->no_surat.'</div>
-					<div><b>Kepada :</b> '.$r->attn_lam_inv.'</div>
+					<div style="padding-bottom:4px"><b>Tanggal :</b> '.$this->m_fungsi->tanggal_format_indonesia($r->tgl_invoice).'</div>
+					<div style="padding-bottom:4px"><b>No. Invoice :</b> '.$r->no_invoice.'</div>
+					<div style="padding-bottom:4px"><b>No. Surat Jalan :</b> '.$r->no_surat.'</div>
+					<div style="padding-bottom:4px"><b>Kepada :</b> '.$r->attn_lam_inv.'</div>
 					<div><b>Alamat :</b> '.$r->alamat_lam_inv.'</div>
 				</div>';
 				$row[] = $htmlDes;
@@ -2208,8 +2305,8 @@ class Logistik extends CI_Controller
 				$row[] = '<div class="text-center">'.$lapLaporan.'</div>';
 				// AKSI
 				$btnEdit = '<button type="button" onclick="editInvoiceLaminasi('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button>'; 
-				$btnHapus = ($r->acc_admin == 'Y' && $r->acc_owner == 'Y') ? '' : '<button type="button" onclick="" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>';
-				$btnVerif = '<button type="button" onclick="editInvoiceLaminasi('."'".$r->id."'".','."'verif'".')" title="VERIF" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>'; 
+				$btnHapus = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="hapusInvoiceLaminasi('."'".$r->id."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>';
+				$btnVerif = '<button type="button" onclick="editInvoiceLaminasi('."'".$r->id."'".','."'verif'".')" title="VERIFIKASI" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>'; 
 				if($this->session->userdata('level') == 'Admin'){
 					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
 				}else if($this->session->userdata('level') == 'Laminasi'){

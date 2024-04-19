@@ -92,8 +92,11 @@
 							<div class="col-md-9">
 								<select id="pilihan_bank" class="form-control select2">
 									<option value="">PILIH</option>
-									<option value="BCA">BCA</option>
-									<option value="BNI">BNI</option>
+									<option value="7">BCA PT. PRIMA PAPER INDOENSIA</option>
+									<option value="IHI">BCA IMAN HARTONO IR</option>
+									<option value="ADM">BCA CV. ANUGERAH DUTA MANDIRI</option>
+									<option value="5">BCA CV. JAYA SETIA KEMASAN</option>
+									<option value="6">BCA CV. KEMASAN SENTOSA MULIA</option>
 								</select>
 							</div>
 						</div>
@@ -459,6 +462,7 @@
 	}
 
 	function simpanInvLam() {
+		let h_id_header = $("#h_id_header").val()
 		let tgl_invoice = $("#tgl_invoice").val()
 		let tgl_sj = $("#tgl_sj").val()
 		let no_surat_jalan = $("#no_surat_jalan").val()
@@ -482,7 +486,7 @@
 				});
 			},
 			data: ({
-				tgl_invoice, tgl_sj, no_surat_jalan, no_invoice, tgl_jatuh_tempo, h_id_pelanggan_lm, kepada, alamat, pilihan_bank, statusInput
+				h_id_header, tgl_invoice, tgl_sj, no_surat_jalan, no_invoice, tgl_jatuh_tempo, h_id_pelanggan_lm, kepada, alamat, pilihan_bank, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -859,5 +863,70 @@
 				}
 			}
 		})
+	}
+
+	function hapusDisc(id) {
+		console.log(id)
+		let id_header = $("#h_id_header").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/hapusDisc')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.data){
+					editInvoiceLaminasi(id_header, 'edit')
+					$("#dc_opsi").val("").trigger('change')
+				}else{
+					toastr.error(`<b>Terjadi Kesalahan</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function hapusInvoiceLaminasi(id){
+		swal({
+			title: "Apakah Kamu Yakin?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#C00",
+			confirmButtonText: "Delete"
+		}).then(function(result) {
+			$.ajax({
+				url: '<?php echo base_url('Logistik/hapusInvoiceLaminasi')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({ id }),
+				success: function(res){
+					data = JSON.parse(res)
+					if(data.no_pl_inv){
+						kosong()
+						reloadTable()
+					}
+				}
+			})
+		});
 	}
 </script>

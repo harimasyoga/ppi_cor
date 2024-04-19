@@ -64,10 +64,20 @@
 								<input type="text" id="no_po" class="form-control" autocomplete="off" placeholder="NO. PO" oninput="this.value=this.value.toUpperCase()">
 							</div>
 						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">NOTE. PO</div>
 							<div class="col-md-9">
 								<textarea id="note_po_lm" class="form-control" style="resize:none" placeholder="NOTE. PO" oninput="this.value=this.value.toUpperCase()"></textarea>
+							</div>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
+							<div class="col-md-3">ATTN</div>
+							<div class="col-md-9">
+								<select id="attn" class="form-control select2">
+									<option value="7">PPI</option>
+									<option value="5">JAYA SETIA KEMASAN</option>
+									<option value="6">KEMASAN SENTOSA MULIA</option>
+								</select>
 							</div>
 						</div>
 					</div>
@@ -342,6 +352,7 @@
 		$("#customer").val("").prop('disabled', false).trigger('change')
 		$("#no_po").val("").prop('disabled', false)
 		$("#note_po_lm").val("").prop('disabled', false)
+		$("#attn").val("7").prop('disabled', false).trigger('change')
 		$("#item").val("").prop('disabled', false).trigger('change')
 		$("#size").val("").prop('disabled', true)
 		$("#sheet").val("").prop('disabled', true)
@@ -521,6 +532,7 @@
 		(id_sales == undefined) ? id_sales = '' : id_sales = id_sales
 		let no_po = $("#no_po").val()
 		let note_po_lm = $("#note_po_lm").val()
+		let attn = $("#attn").val()
 		let item = $("#item").val()
 		let nm_produk_lm = $("#item option:selected").attr('nm_produk_lm');
 		(nm_produk_lm == undefined) ? nm_produk_lm = '' : nm_produk_lm = nm_produk_lm
@@ -553,7 +565,7 @@
 				});
 			},
 			data: ({
-				id_po_header, tgl, customer, id_sales, no_po, note_po_lm, item, nm_produk_lm, ukuran_lm, isi_lm, jenis_qty_lm, qty, order_sheet, order_pori, qty_bal, harga_lembar, harga_pori, harga_total, id_cart
+				id_po_header, tgl, customer, id_sales, no_po, note_po_lm, attn, item, nm_produk_lm, ukuran_lm, isi_lm, jenis_qty_lm, qty, order_sheet, order_pori, qty_bal, harga_lembar, harga_pori, harga_total, id_cart
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -564,6 +576,7 @@
 					$("#customer").prop('disabled', true)
 					$("#no_po").prop('disabled', true)
 					$("#note_po_lm").prop('disabled', true)
+					$("#attn").prop('disabled', true)
 					$("#item").val("").trigger('change')
 					$("#size").val("")
 					$("#sheet").val("")
@@ -625,6 +638,7 @@
 		let id_sales = $("#customer option:selected").attr('id_sales')
 		let no_po = $("#no_po").val()
 		let note_po_lm = $("#note_po_lm").val()
+		let attn = $("#attn").val()
 		let id_po_header = $("#id_po_header").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/simpanCartLaminasi')?>',
@@ -640,7 +654,7 @@
 				});
 			},
 			data: ({
-				tgl, customer, id_sales, no_po, note_po_lm, statusInput
+				tgl, customer, id_sales, no_po, note_po_lm, attn, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -668,6 +682,7 @@
 		$('#customer').prop('disabled', true)
 		$("#no_po").prop('disabled', true)
 		$("#note_po_lm").prop('disabled', true)
+		$("#attn").prop('disabled', true)
 		$("#item").val("").prop('disabled', false).trigger('change')
 		$("#size").val("").prop('disabled', true)
 		$("#sheet").val("").prop('disabled', true)
@@ -704,6 +719,7 @@
 				$('#customer').val(data.po_lm.id_pelanggan).trigger('change')
 				$("#no_po").val(data.po_lm.no_po_lm)
 				$("#note_po_lm").val(data.po_lm.note_po_lm)
+				$("#attn").val(data.po_lm.id_hub).trigger('change')
 				$("#list-input-sementara").html(data.html_dtl)
 				$("#id_po_header").val(data.po_lm.id)
 				if(id != 0 && id_dtl != 0){
@@ -977,6 +993,7 @@
 		let customer = $("#customer").val()
 		let no_po = $("#no_po").val()
 		let note_po_lm = $("#note_po_lm").val()
+		let attn = $("#attn").val()
 		let id_po_header = $("#id_po_header").val()
 		let id_po_detail = $("#id_po_detail").val()
 		let qty = (jenis == 'kg') ? $("#qty").val() : $("#qty").val().split('.').join('')
@@ -1000,7 +1017,7 @@
 				});
 			},
 			data: ({
-				tgl, customer, no_po, note_po_lm, id_po_header, id_po_detail, qty, order_sheet, order_pori, qty_bal, harga_lembar, harga_pori, harga_total
+				tgl, customer, no_po, note_po_lm, attn, id_po_header, id_po_detail, qty, order_sheet, order_pori, qty_bal, harga_lembar, harga_pori, harga_total
 			}),
 			success: function(res){
 				data = JSON.parse(res)

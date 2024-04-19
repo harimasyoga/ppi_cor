@@ -791,21 +791,23 @@ class M_logistik extends CI_Model
 
 	function simpanInvLam()
 	{
+		$id_header = $_POST["h_id_header"];
 		$tgl_invoice = $_POST["tgl_invoice"];
 		$tgl_sj = $_POST["tgl_sj"];
 		$no_surat_jalan = $_POST["no_surat_jalan"];
-		$no_inv = $_POST["no_invoice"];
 		$tgl_jatuh_tempo = $_POST["tgl_jatuh_tempo"];
 		$id_pelanggan_lm = $_POST["h_id_pelanggan_lm"];
 		$kepada = $_POST["kepada"];
 		$alamat = $_POST["alamat"];
 		$pilihan_bank = $_POST["pilihan_bank"];
+		$statusInput = $_POST["statusInput"];
 
 		$tahun = substr($tgl_sj,2,2);
 		$noSJ = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE no_invoice LIKE '%$tahun%' ORDER BY no_invoice DESC LIMIT 1");
 		($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 4, 6);
 		$no_invoice = 'INV/'.str_pad($no+1, 6, "0", STR_PAD_LEFT).'/'.$tahun.'/LM';
 
+		($statusInput == 'insert') ? $no_inv = $_POST["no_invoice"] : $no_inv = substr($_POST["no_invoice"], 4, 6);
 		if($no_inv == 000000 || $no_inv == '000000' || $no_inv == '' || $no_inv < 0 || strlen("'.$no_inv.'") < 6){
 			$data = false; $insert = false; $detail = false; $no_pl_inv = false;
 			$msg = 'NOMER INVOICE TIDAK BOLEH KOSONG!';
@@ -813,56 +815,72 @@ class M_logistik extends CI_Model
 			$data = false; $insert = false; $detail = false; $no_pl_inv = false;
 			$msg = 'HARAP LENGKAPI FORM!';
 		}else{
-			$data = array(
-				'tgl_invoice' => $tgl_invoice,
-				'tgl_surat_jalan' => $tgl_sj,
-				'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
-				// 'tgl_ctk' => null,
-				'id_pelanggan_lm' => $id_pelanggan_lm,
-				'no_surat' => $no_surat_jalan,
-				'no_invoice' => $no_invoice,
-				'attn_lam_inv' => $kepada,
-				'alamat_lam_inv' => $alamat,
-				'bank' => $pilihan_bank,
-				'status_inv' => 'Open',
-				'acc_admin' => 'Y',
-				'time_admin' => date('Y-m-d H:i:s'),
-				'acc_owner' => 'N',
-				// 'time_owner' => null,
-			);
-			$insert = $this->db->insert('invoice_laminasi_header', $data);
-			
-			if($insert){
-				$isi = $this->db->query("SELECT rk.*,i.*,dtl.*,rk.id AS id_rk_lam FROM m_rk_laminasi rk
-				INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
-				INNER JOIN trs_po_lm_detail dtl ON rk.id_po_dtl=dtl.id
-				INNER JOIN m_produk_lm i ON rk.id_m_produk_lm=i.id_produk_lm
-				WHERE l.no_surat='$no_surat_jalan'
-				ORDER BY rk.rk_no_po,i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm");
-				foreach($isi->result() as $r){
-					if($r->jenis_qty_lm == 'pack'){
-						$qty = $r->pack_lm;
-					}else if($r->jenis_qty_lm == 'ikat'){
-						$qty = $r->ikat_lm;
-					}else{
-						$qty = $r->kg_lm;
+			if($statusInput == 'insert'){
+				$data = array(
+					'tgl_invoice' => $tgl_invoice,
+					'tgl_surat_jalan' => $tgl_sj,
+					'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
+					// 'tgl_ctk' => null,
+					'id_pelanggan_lm' => $id_pelanggan_lm,
+					'no_surat' => $no_surat_jalan,
+					'no_invoice' => $no_invoice,
+					'attn_lam_inv' => $kepada,
+					'alamat_lam_inv' => $alamat,
+					'bank' => $pilihan_bank,
+					'status_inv' => 'Open',
+					'acc_admin' => 'Y',
+					'time_admin' => date('Y-m-d H:i:s'),
+					'acc_owner' => 'N',
+					// 'time_owner' => null,
+				);
+				$insert = $this->db->insert('invoice_laminasi_header', $data);
+				
+				if($insert){
+					$isi = $this->db->query("SELECT rk.*,i.*,dtl.*,rk.id AS id_rk_lam FROM m_rk_laminasi rk
+					INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
+					INNER JOIN trs_po_lm_detail dtl ON rk.id_po_dtl=dtl.id
+					INNER JOIN m_produk_lm i ON rk.id_m_produk_lm=i.id_produk_lm
+					WHERE l.no_surat='$no_surat_jalan'
+					ORDER BY rk.rk_no_po,i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm");
+					foreach($isi->result() as $r){
+						if($r->jenis_qty_lm == 'pack'){
+							$qty = $r->pack_lm;
+						}else if($r->jenis_qty_lm == 'ikat'){
+							$qty = $r->ikat_lm;
+						}else{
+							$qty = $r->kg_lm;
+						}
+						$total = ($qty * $r->qty_muat) * $r->harga_pori_lm;
+						$this->db->set('id_rk_lm', $r->id_rk_lam);
+						$this->db->set('id_produk_lm', $r->id_produk_lm);
+						$this->db->set('id_po_dtl', $r->id_po_dtl);
+						$this->db->set('no_surat', $no_surat_jalan);
+						$this->db->set('no_invoice', $no_invoice);
+						$this->db->set('total', $total);
+						$detail = $this->db->insert('invoice_laminasi_detail');
 					}
-					$total = ($qty * $r->qty_muat) * $r->harga_pori_lm;
-					$this->db->set('id_rk_lm', $r->id_rk_lam);
-					$this->db->set('id_produk_lm', $r->id_produk_lm);
-					$this->db->set('id_po_dtl', $r->id_po_dtl);
-					$this->db->set('no_surat', $no_surat_jalan);
-					$this->db->set('no_invoice', $no_invoice);
-					$this->db->set('total', $total);
-					$detail = $this->db->insert('invoice_laminasi_detail');
+					// update no_pl_inv di pl laminasi
+					if($detail){
+						$this->db->set('no_pl_inv', 1);
+						$this->db->where('no_surat', $no_surat_jalan);
+						$no_pl_inv = $this->db->update('pl_laminasi');
+					}
+					$msg = 'insert!';
 				}
-				// update no_pl_inv di pl laminasi
-				if($detail){
-					$this->db->set('no_pl_inv', 1);
-					$this->db->where('no_surat', $no_surat_jalan);
-					$no_pl_inv = $this->db->update('pl_laminasi');
-				}
-				$msg = 'OK!';
+			}else{
+				$data = array(
+					'tgl_invoice' => $tgl_invoice,
+					'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
+					'attn_lam_inv' => $kepada,
+					'alamat_lam_inv' => $alamat,
+					'bank' => $pilihan_bank,
+					'time_admin' => date('Y-m-d H:i:s'),
+				);
+				$this->db->where('id', $id_header);
+				$insert = $this->db->update('invoice_laminasi_header', $data);
+				$detail = true;
+				$no_pl_inv = true;
+				$msg = 'update!';
 			}
 		}
 
@@ -947,6 +965,47 @@ class M_logistik extends CI_Model
 		return [
 			'result' => $result,
 			'msg' => $msg,
+		];
+	}
+
+	function hapusDisc()
+	{
+		$id = $_POST["id"];
+		$this->db->where('id', $id);
+		$data = $this->db->delete('invoice_laminasi_disc');
+		return [
+			'data' => $data,
+		];
+	}
+
+	function hapusInvoiceLaminasi()
+	{
+		$id = $_POST["id"];
+		$data = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id'")->row();
+
+		$this->db->where('no_invoice', $data->no_invoice);
+		$header = $this->db->delete('invoice_laminasi_header');
+		if($header){
+			$this->db->where('no_invoice', $data->no_invoice);
+			$detail = $this->db->delete('invoice_laminasi_detail');
+			if($detail){
+				$this->db->where('no_invoice', $data->no_invoice);
+				$disc = $this->db->delete('invoice_laminasi_disc');
+				// UPDATE no_pl_inv jadi 0
+				if($disc){
+					$this->db->set('no_pl_inv', 0);
+					$this->db->where('no_surat', $data->no_surat);
+					$no_pl_inv = $this->db->update('pl_laminasi');
+				}
+			}
+		}
+
+		return [
+			'data' => $data,
+			'header' => $header,
+			'detail' => $detail,
+			'disc' => $disc,
+			'no_pl_inv' => $no_pl_inv,
 		];
 	}
 

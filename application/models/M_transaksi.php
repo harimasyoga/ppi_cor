@@ -1417,6 +1417,7 @@ class M_transaksi extends CI_Model
 				'tgl_lm' => $_POST["tgl"],
 				'id_pelanggan' => $_POST["customer"],
 				'id_sales' => $_POST["id_sales"],
+				'id_hub' => $_POST["attn"],
 				'no_po_lm' => $_POST["no_po"],
 				'note_po_lm' => $_POST["note_po_lm"],
 				'add_time' => date('Y-m-d H:i:s'),
