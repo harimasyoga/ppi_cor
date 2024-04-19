@@ -844,9 +844,10 @@ class M_transaksi extends CI_Model
 			$msg = 'Data Berhasil Diproses';
 
 		}else {
-			$cekPO         = $this->db->query("SELECT*FROM trs_po WHERE no_po='$id'")->row();
-			$cekPO_detail  = $this->db->query("SELECT sum(bhn_bk)bahan FROM trs_po_detail WHERE no_po='$id'")->row();
-			$expired       = strtotime($cekPO->add_time) + (48*60*60);
+			$cekPO         = $this->db->query("SELECT*FROM trs_po WHERE no_po='$id'");
+			$cekPO_detail  = $this->db->query("SELECT * FROM trs_po a join trs_po_detail b on a.kode_po=b.kode_po join m_produk c on b.id_produk=c.id_produk where b.no_po in ('$id') ");
+			
+			$expired       = strtotime($cekPO->row()->add_time) + (48*60*60);
 			$actualDate    = time();
 
 			if($this->session->userdata('level') != "Owner" && $actualDate > $expired || $actualDate == $expired)
@@ -865,7 +866,10 @@ class M_transaksi extends CI_Model
 					$app = "3";
 					if($status == 'Y')
 					{
-						stok_bahanbaku($cekPO->kode_po, $cekPO->id_hub, $cekPO->tgl_po, 'HUB', 0, $cekPO_detail->bahan, 'KELUAR DENGAN PO', 'KELUAR');
+						foreach ($cekPO_detail->result() as $row)
+						{
+							stok_bahanbaku($row->kode_po, $row->id_hub, $row->tgl_po, 'HUB', 0, $row->bhn_bk, 'KELUAR DENGAN PO', 'KELUAR',$row->id_produk);
+						}
 					}
 				}
 

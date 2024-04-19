@@ -1818,7 +1818,7 @@
 				td_harga = ''
 
 				var user = '<?= $this->session->userdata('level') ?>'
-				if (user != 'PPIC' || user != 'AP'  )
+				if (user != 'PPIC' && user != 'AP'  )
 				{
 					td_harga = `
 						<td>

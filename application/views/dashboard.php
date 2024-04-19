@@ -1,5 +1,3 @@
-
-
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -109,7 +107,7 @@
 
                   <?php } ?> -->
 
-                  <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub'])){ ?>
+                  <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub','Keuangan1'])){ ?>
                     
                     <!-- REKAP STOK BAHAN BAKU -->
                     
@@ -124,7 +122,7 @@
                             </div>
 
                             <div class="col-md-2">
-                              <select class="form-control select2" id="pil_keluar" name="pil_keluar" onchange="load_data_bhn()" style="font-weight:bold;" >
+                              <select class="form-control select2" id="pil_keluar" name="pil_keluar" onchange="load_list_bhn()" style="font-weight:bold;" >
                                   <option value="po"><b>PO</b></option>
                                   <option value="inv"><b>INVOICE</b></option>
                               </select>
@@ -282,7 +280,7 @@
       $(".select2").select2()
       load_data_hub()
       load_data_jt()
-      load_data_bhn()
+      load_list_bhn()
       load_cek_produk()
     });
 
@@ -290,7 +288,7 @@
     {
       load_data_hub()
       load_data_jt()
-      load_data_bhn()
+      load_list_bhn()
       load_cek_produk()
     }
 
@@ -339,16 +337,18 @@
       });
     }
     
-    function load_data_bhn() 
+    function load_list_bhn() 
     {
-      var table = $('#load_data_bhn').DataTable();
+      var vall    = $('#pil_keluar').val()
+      var table   = $('#load_data_bhn').DataTable()
+
       table.destroy();
       tabel = $('#load_data_bhn').DataTable({
         "processing": true,
         "pageLength": true,
         "paging": true,
         "ajax": {
-          "url": '<?php echo base_url(); ?>Master/rekap_bhn',
+          "url": '<?php echo base_url(); ?>Master/rekap_bhn/'+vall,
           "type": "POST",
         },
         responsive: true,
@@ -359,8 +359,9 @@
       });
     }
     
-    function load_data_bhn_rinci(id_hub,ket) 
+    function load_data_bhn_rinci(id_hub,status) 
     {
+      var ket   = $('#pil_keluar').val()
       var table = $('#load_data_bhn_rinci').DataTable();
       table.destroy();
       tabel = $('#load_data_bhn_rinci').DataTable({
@@ -370,7 +371,7 @@
         "ajax": {
           "url"       : '<?php echo base_url(); ?>Master/rekap_bhn_rinci',
           "type"      : 'POST',
-          data        : { id_hub,ket },
+          data        : { id_hub,status,ket },
           dataType    : 'JSON',
         },
         

@@ -127,39 +127,36 @@ class M_logistik extends CI_Model
 			
 			$no = 1;
 			foreach ( $query as $row ) 
-			{			
-
+			{
 				$cek = $this->input->post('aksi['.$no.']');
 				if($cek == 1)
 				{
-					$harga_ok    = $this->input->post('hrg['.$no.']');
-					$harga_inc   = $this->input->post('inc['.$no.']');
-					$harga_inc1  = str_replace('.','',$harga_inc);
+					$harga_ok            = $this->input->post('hrg['.$no.']');
+					$harga_inc           = $this->input->post('inc['.$no.']');
+					$harga_inc1          = str_replace('.','',$harga_inc);
 
-					$hasil_ok    = $this->input->post('hasil['.$no.']');
-					$id_pl_roll  = $this->input->post('id_pl_roll['.$no.']');
-					$data = [					
-						'no_invoice'   => $m_no_inv,
-						'type'         => $type,
-						'no_surat'     => $this->input->post('no_surat['.$no.']'),
-						'nm_ker'       => $this->input->post('item['.$no.']'),
-						'g_label'      => $this->input->post('ukuran['.$no.']'),
-						'kualitas'      => $this->input->post('kualitas['.$no.']'),
-						'qty'          => $this->input->post('qty['.$no.']'),
-						'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
-						'id_pl'        => $id_pl_roll,
-						'harga'        => str_replace('.','',$harga_ok),
-						'include'      => str_replace(',','.',$harga_inc1),
-						'hasil'        => str_replace('.','',$hasil_ok),
-						'no_po'        => $this->input->post('no_po['.$no.']'),
+					$hasil_ok            = $this->input->post('hasil['.$no.']');
+					$id_pl_roll          = $this->input->post('id_pl_roll['.$no.']');
+					$no_po               = $this->input->post('no_po['.$no.']');
+					$id_produk_simcorr   = $this->input->post('id_produk_simcorr['.$no.']');
+					$data = [
+						'no_invoice'          => $m_no_inv,
+						'type'                => $type,
+						'no_surat'            => $this->input->post('no_surat['.$no.']'),
+						'nm_ker'              => $this->input->post('item['.$no.']'),
+						'id_produk_simcorr'   => $id_produk_simcorr,
+						'g_label'             => $this->input->post('ukuran['.$no.']'),
+						'kualitas'            => $this->input->post('kualitas['.$no.']'),
+						'qty'                 => $this->input->post('qty['.$no.']'),
+						'retur_qty'           => $this->input->post('retur_qty['.$no.']'),
+						'id_pl'               => $id_pl_roll,
+						'harga'               => str_replace('.','',$harga_ok),
+						'include'             => str_replace(',','.',$harga_inc1),
+						'hasil'               => str_replace('.','',$hasil_ok),
+						'no_po'               => $this->input->post('no_po['.$no.']'),
 					];
 
 					$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 1 where id ='$id_pl_roll'");
-
-					// input stok berjalan HUB
-					
-					// $cek_po = $this->db->query("SELECT*FROM ");
-					// stok_bahanbaku($this->input->post('no_po['.$no.']'), $cekPO->id_hub, $this->input->post('tgl_inv'), 'HUB', 0, str_replace('.','',$hasil_ok), 'KELUAR DENGAN INV', 'KELUAR');
 
 					$result_rinci   = $this->db->insert("invoice_detail", $data);
 
@@ -1169,6 +1166,8 @@ class M_logistik extends CI_Model
 			'nm_perusahaan'      => $this->input->post('nm_perusahaan'),
 			'alamat_perusahaan'  => $this->input->post('alamat_perusahaan'),
 			'bank'  			 => $this->input->post('bank'),
+			'acc_owner' 		 => 'N',
+			
 			// 'status'             => 'Open',
 		);
 
@@ -1177,6 +1176,27 @@ class M_logistik extends CI_Model
 				'id' => $id_inv
 			)
 		);
+
+		$cek_detail   = $this->db->query("SELECT*FROM invoice_header a
+		join invoice_detail b on a.no_invoice=b.no_invoice
+		where b.no_invoice='$m_no_inv' ")->result();
+		foreach ( $cek_detail as $row ) 
+		{
+			if($row->type=='box' || $row->type=='sheet' )
+			{
+				// delete stok berjalan HUB
+				$cek_po = $this->db->query("SELECT * FROM trs_po a 
+				join trs_po_detail b on a.kode_po=b.kode_po 
+				join m_produk c on b.id_produk=c.id_produk
+				where b.kode_po in ('$row->no_po') and b.id_produk='$row->id_produk_simcorr'")->row();
+				
+				// delete jurnal
+				del_jurnal( $m_no_inv );
+
+				$del_stok    = $this->db->query("DELETE FROM trs_stok_bahanbaku WHERE no_transaksi='$m_no_inv' and id_hub='$cek_po->id_hub' and id_produk='$row->id_produk_simcorr' ");
+				
+			}
+		}
 
 		$tgl_sj           = $this->input->post('tgl_sj');
 		$id_perusahaan    = $this->input->post('id_perusahaan');
@@ -1227,40 +1247,49 @@ class M_logistik extends CI_Model
 			
 			$no = 1;
 			foreach ( $query as $row ) 
-			{			
+			{
+				$harga_ok             = $this->input->post('hrg['.$no.']');
+				$hasil_ok             = $this->input->post('hasil['.$no.']');
+				
+				$harga_inc            = $this->input->post('inc['.$no.']');
+				$harga_inc1           = str_replace('.','',$harga_inc);
 
-					$harga_ok        = $this->input->post('hrg['.$no.']');
-					$hasil_ok        = $this->input->post('hasil['.$no.']');
-					
-					$harga_inc       = $this->input->post('inc['.$no.']');
-					$harga_inc1      = str_replace('.','',$harga_inc);
+				$retur_qty_ok         = $this->input->post('retur_qty['.$no.']');
+				$id_pl_roll           = $this->input->post('id_pl_roll['.$no.']');
+				$id_inv_detail        = $this->input->post('id_inv_detail['.$no.']');
+				$no_po                = $this->input->post('no_po['.$no.']');
+				$id_produk_simcorr    = $this->input->post('id_produk_simcorr['.$no.']');
 
-					$retur_qty_ok    = $this->input->post('retur_qty['.$no.']');
-					$id_pl_roll      = $this->input->post('id_pl_roll['.$no.']');
-					$id_inv_detail   = $this->input->post('id_inv_detail['.$no.']');
+				$data = [					
+					'no_invoice'           => $m_no_inv,
+					'type'                 => $type,
+					'no_surat'             => $this->input->post('no_surat['.$no.']'),
+					'nm_ker'               => $this->input->post('item['.$no.']'),
+					'id_produk_simcorr'    => $id_produk_simcorr,
+					'g_label'              => $this->input->post('ukuran['.$no.']'),
+					'kualitas'             => $this->input->post('kualitas['.$no.']'),
+					'qty'                  => $this->input->post('qty['.$no.']'),
+					'retur_qty'            => str_replace('.','',$retur_qty_ok),
+					'id_pl'                => $id_pl_roll,
+					'harga'                => str_replace('.','',$harga_ok),
+					'include'              => str_replace(',','.',$harga_inc1),
+					'hasil'                => str_replace('.','',$hasil_ok),
+					'no_po'                => $no_po,
+				];
 
-					$data = [					
-						'no_invoice'   => $m_no_inv,
-						'type'         => $type,
-						'no_surat'     => $this->input->post('no_surat['.$no.']'),
-						'nm_ker'       => $this->input->post('item['.$no.']'),
-						'g_label'      => $this->input->post('ukuran['.$no.']'),
-						'kualitas'      => $this->input->post('kualitas['.$no.']'),
-						'qty'          => $this->input->post('qty['.$no.']'),
-						'retur_qty'    => str_replace('.','',$retur_qty_ok),
-						'id_pl'        => $id_pl_roll,
-						'harga'        => str_replace('.','',$harga_ok),
-						'include'      => str_replace(',','.',$harga_inc1),
-						'hasil'        => str_replace('.','',$hasil_ok),
-						'no_po'        => $this->input->post('no_po['.$no.']'),
-					];
+				$result_rinci = $this->db->update("invoice_detail", $data,
+					array(
+						'id' => $id_inv_detail
+					)
+				);
 
-					$result_rinci = $this->db->update("invoice_detail", $data,
-						array(
-							'id' => $id_inv_detail
-						)
-					);
-
+				// HAPUS STOK
+				$cek_po = $this->db->query("SELECT * FROM trs_po a 
+				join trs_po_detail b on a.kode_po=b.kode_po 
+				join m_produk c on b.id_produk=c.id_produk
+				where b.kode_po in ('$no_po') and b.id_produk='$id_produk_simcorr'")->row();
+				
+				$del_stok    = $this->db->query("DELETE FROM trs_stok_bahanbaku WHERE no_transaksi='$m_no_inv' and id_hub='$cek_po->id_hub' and id_produk='$id_produk_simcorr' ");
 				$no++;
 			}
 		}
@@ -1276,22 +1305,100 @@ class M_logistik extends CI_Model
 
 	function verif_inv()
 	{
-		$no_inv   = $this->input->post('no_inv');
-		$user     = $this->input->post('user');
-		$acc      = $this->input->post('acc');
-		$app      = "";
+		$no_inv       = $this->input->post('no_inv');
+		$acc          = $this->input->post('acc');
+		$app          = "";
+		
+		$cek_detail   = $this->db->query("SELECT*FROM invoice_header a
+		join invoice_detail b on a.no_invoice=b.no_invoice
+		where b.no_invoice='$no_inv' ")->result();
 
 		// KHUSUS ADMIN //
 		if ($this->session->userdata('level') == "Admin") 
 		{
-
 			if($acc=='N')
-			{
+			{				
+				foreach ( $cek_detail as $row ) 
+				{
+					if($row->type=='box' || $row->type=='sheet' )
+					{
+						// input stok berjalan HUB
+						$cek_po = $this->db->query("SELECT * FROM trs_po a 
+						join trs_po_detail b on a.kode_po=b.kode_po 
+						join m_produk c on b.id_produk=c.id_produk
+						where b.kode_po in ('$row->no_po') and b.id_produk='$row->id_produk_simcorr'")->row();
+
+						// pendapatan tanpa di kurangi retur
+						$pendapatan       = ($row->harga*$row->qty);
+						$pajak_pendapatan = ($row->harga*$row->qty)*0.5/100;
+						
+						add_jurnal($row->tgl_invoice, $no_inv,'1.01.03','Pendapatan', $pendapatan, 0);
+						add_jurnal($row->tgl_invoice, $no_inv,'4.01','Pendapatan', 0,$pendapatan);
+						// pajak pendapatan
+						add_jurnal($row->tgl_invoice, $no_inv,'6.37','Pajak Pendapatan', $pajak_pendapatan, 0);
+						add_jurnal($row->tgl_invoice, $no_inv,'2.01.03.02','Pajak Pendapatan', 0,$pajak_pendapatan);
+						
+						
+						// pembelian bahan baku		
+						$harga_bahan        = 3000;
+						$ton_tanpa_retur    = ($row->harga * $cek_po->berat_bersih);
+						$bhn_bk_tanpa_retur = ($ton_tanpa_retur / 0.7);
+						$nominal_bahan      = $bhn_bk_tanpa_retur*$harga_bahan;
+
+						add_jurnal($row->tgl_invoice, $no_inv,'5.01','Pembelian Bahan Baku', $nominal_bahan, 0);
+						add_jurnal($row->tgl_invoice, $no_inv,'1.01.05','Pembelian Bahan Baku', 0,$nominal_bahan);
+
+						if($row->retur_qty > 0)
+						{
+							// retur pendapatan
+							$retur            = ($row->harga*$row->retur_qty);
+							$pajak_retur      = ($row->harga*$row->retur_qty)*0.5/100;
+							
+							add_jurnal($row->tgl_invoice, $no_inv,'4.03','Retur Pendapatan', $retur, 0);
+							add_jurnal($row->tgl_invoice, $no_inv,'1.01.03','Retur Pendapatan', 0,$retur);
+							// pajak retur
+							add_jurnal($row->tgl_invoice, $no_inv,'2.01.03.02','Pajak Retur Pendapatan', $pajak_retur, 0);
+							add_jurnal($row->tgl_invoice, $no_inv,'6.37','Pajak Retur Pendapatan', 0,$pajak_retur);
+
+							// retur
+							$nominal_retur_bahan = ($row->retur_qty*$harga_bahan);
+
+							// retur jadi bahan baku
+							add_jurnal($row->tgl_invoice, $no_inv,'5.01','Retur Bahan Baku', $nominal_retur_bahan, 0);
+							add_jurnal($row->tgl_invoice, $no_inv,'1.01.05','Retur Bahan Baku', 0,$nominal_retur_bahan);
+						}
+						
+						// stok bahan setelah di kurangi retur
+						$ton            = ($row->hasil * $cek_po->berat_bersih);
+						$bhn_bk         = ($ton / 0.7);
+
+						stok_bahanbaku($no_inv, $cek_po->id_hub, $row->tgl_invoice, 'HUB', 0, $bhn_bk, 'KELUAR DENGAN INV', 'KELUAR', $row->id_produk_simcorr);
+						
+						
+					}
+				}
 				$this->db->set("acc_admin", 'Y');
 				$this->db->set("acc_owner", 'Y');
-				// stok_bahanbaku($cekPO->kode_po, $cekPO->id_hub, $cekPO->tgl_po, 'HUB', 0, $cekPO_detail->bahan, 'KELUAR DENGAN INV', 'KELUAR');
 			}else{
-				$this->db->set("acc_admin", 'N');
+				
+				foreach ( $cek_detail as $row ) 
+				{
+					if($row->type=='box' || $row->type=='sheet' )
+					{
+						// input stok berjalan HUB
+						$cek_po = $this->db->query("SELECT * FROM trs_po a 
+						join trs_po_detail b on a.kode_po=b.kode_po 
+						join m_produk c on b.id_produk=c.id_produk
+						where b.kode_po in ('$row->no_po') and b.id_produk='$row->id_produk_simcorr'")->row();
+						
+						// delete jurnal pendapatan
+						del_jurnal( $no_inv );
+
+						$del_stok    = $this->db->query("DELETE FROM trs_stok_bahanbaku WHERE no_transaksi='$no_inv' and id_hub='$cek_po->id_hub' and id_produk='$row->id_produk_simcorr' ");
+						
+					}
+				}
+				$this->db->set("acc_admin", 'Y');
 				$this->db->set("acc_owner", 'N');
 			}
 			
@@ -1314,19 +1421,86 @@ class M_logistik extends CI_Model
 		{
 			if($acc=='N')
 			{
+				foreach ( $cek_detail as $row ) 
+				{
+					if($row->type=='box' || $row->type=='sheet' )
+					{
+						// input stok berjalan HUB
+						$cek_po = $this->db->query("SELECT * FROM trs_po a 
+						join trs_po_detail b on a.kode_po=b.kode_po 
+						join m_produk c on b.id_produk=c.id_produk
+						where b.kode_po in ('$row->no_po') and b.id_produk='$row->id_produk_simcorr'")->row();
+
+						// pendapatan tanpa di kurangi retur
+						$pendapatan       = ($row->harga*$row->qty);
+						$pajak_pendapatan = ($row->harga*$row->qty)*0.5/100;
+						
+						add_jurnal($row->tgl_invoice, $no_inv,'1.01.03','Pendapatan', $pendapatan, 0);
+						add_jurnal($row->tgl_invoice, $no_inv,'4.01','Pendapatan', 0,$pendapatan);
+						// pajak pendapatan
+						add_jurnal($row->tgl_invoice, $no_inv,'6.37','Pajak Pendapatan', $pajak_pendapatan, 0);
+						add_jurnal($row->tgl_invoice, $no_inv,'2.01.03.02','Pajak Pendapatan', 0,$pajak_pendapatan);
+						
+						
+						// pembelian bahan baku		
+						$harga_bahan        = 3000;
+						$ton_tanpa_retur    = ($row->harga * $cek_po->berat_bersih);
+						$bhn_bk_tanpa_retur = ($ton_tanpa_retur / 0.7);
+						$nominal_bahan      = $bhn_bk_tanpa_retur*$harga_bahan;
+
+						add_jurnal($row->tgl_invoice, $no_inv,'5.01','Pembelian Bahan Baku', $nominal_bahan, 0);
+						add_jurnal($row->tgl_invoice, $no_inv,'1.01.05','Pembelian Bahan Baku', 0,$nominal_bahan);
+
+						if($row->retur_qty > 0)
+						{
+							// retur pendapatan
+							$retur            = ($row->harga*$row->retur_qty);
+							$pajak_retur      = ($row->harga*$row->retur_qty)*0.5/100;
+							
+							add_jurnal($row->tgl_invoice, $no_inv,'4.03','Retur Pendapatan', $retur, 0);
+							add_jurnal($row->tgl_invoice, $no_inv,'1.01.03','Retur Pendapatan', 0,$retur);
+							// pajak retur
+							add_jurnal($row->tgl_invoice, $no_inv,'2.01.03.02','Pajak Retur Pendapatan', $pajak_retur, 0);
+							add_jurnal($row->tgl_invoice, $no_inv,'6.37','Pajak Retur Pendapatan', 0,$pajak_retur);
+
+							// retur
+							$nominal_retur_bahan = ($row->retur_qty*$harga_bahan);
+
+							// retur jadi bahan baku
+							add_jurnal($row->tgl_invoice, $no_inv,'5.01','Retur Bahan Baku', $nominal_retur_bahan, 0);
+							add_jurnal($row->tgl_invoice, $no_inv,'1.01.05','Retur Bahan Baku', 0,$nominal_retur_bahan);
+						}
+						
+						// stok bahan setelah di kurangi retur
+						$ton            = ($row->hasil * $cek_po->berat_bersih);
+						$bhn_bk         = ($ton / 0.7);
+
+						stok_bahanbaku($no_inv, $cek_po->id_hub, $row->tgl_invoice, 'HUB', 0, $bhn_bk, 'KELUAR DENGAN INV', 'KELUAR', $row->id_produk_simcorr);
+						
+					}
+				}
+
 				$this->db->set("acc_owner", 'Y');
-				// $cek_detail = $this->db->query("SELECT*FROM invoice_header a
-				// join invoice_detail b on a.no_invoice=b.no_invoice
-				//  where b.no_invoice='$no_inv' ")->result();
-				// $no = 1;
-				// foreach ( $cek_detail as $row ) 
-				// {
-				// 	if($row->type=='box' || $row->type=='sheet' )
-				// 	{
-				// 		stok_bahanbaku($no_inv, $cekPO->id_hub, $row->tgl_invoice, 'HUB', 0, $cekPO_detail->bahan, 'KELUAR DENGAN INV', 'KELUAR');
-				// 	}
-				// }
 			}else{
+
+				foreach ( $cek_detail as $row ) 
+				{
+					if($row->type=='box' || $row->type=='sheet' )
+					{
+						// input stok berjalan HUB
+						$cek_po = $this->db->query("SELECT * FROM trs_po a 
+						join trs_po_detail b on a.kode_po=b.kode_po 
+						join m_produk c on b.id_produk=c.id_produk
+						where b.kode_po in ('$row->no_po') and b.id_produk='$row->id_produk_simcorr'")->row();
+						
+						// delete jurnal
+						del_jurnal( $no_inv );
+
+						$del_stok    = $this->db->query("DELETE FROM trs_stok_bahanbaku WHERE no_transaksi='$no_inv' and id_hub='$cek_po->id_hub' and id_produk='$row->id_produk_simcorr' ");
+						
+					}
+				}
+				
 				$this->db->set("acc_owner", 'N');
 			}
 			

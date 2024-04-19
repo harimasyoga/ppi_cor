@@ -96,23 +96,23 @@
                                         <td width="20%" class="text-center"><strong>Jumlah</strong></td>
                                     </tr>
                                     <tr>
-                                        <td>eCommerce Business Hosting Server SG - ppikeu.site (24/02/2024 - 23/02/2025) *</td>
+                                        <td>eCommerce Business Hosting Server SG - simcorrppi.com (15/04/2024 - 14/04/2025) *</td>
                                         <td class="text-center">Rp. 1.550,000</td>
                                     </tr>
                                                                     <tr>
-                                        <td>Produk Tambahan (ppikeu.site) - SSL Certificates - Geotrust True BusinessID (24/02/2024 - 23/02/2025)</td>
+                                        <td>Produk Tambahan (simcorrppi.com) - SSL Certificates - Geotrust True BusinessID (15/04/2024 - 14/04/2025)</td>
                                         <td class="text-center">Rp. 1.273,000</td>
                                     </tr>
                                     <tr>
-                                        <td>Produk Tambahan (ppikeu.site) - SSL Certificates - SSL Secure Site (24/02/2024 - 23/02/2025) *</td>
+                                        <td>Produk Tambahan (simcorrppi.com) - SSL Certificates - SSL Secure Site (15/04/2024 - 14/04/2025) *</td>
                                         <td class="text-center">Rp. 620,000</td>
                                     </tr>
                                                                     <tr>
-                                        <td>Produk Tambahan (ppikeu.site) - SiteLock - Lite Fix (24/02/2024 - 23/02/2025) *</td>
+                                        <td>Produk Tambahan (simcorrppi.com) - SiteLock - Lite Fix (15/04/2024 - 14/04/2025) *</td>
                                         <td class="text-center">Rp. 550,000</td>
                                     </tr>
                                     <tr>
-                                        <td>Domain Registration - ppikeu.site - 1 Tahun/s (24/02/2024 - 23/02/2025)<br />
+                                        <td>Domain Registration - simcorrppi.com - 1 Tahun/s (15/04/2024 - 14/04/2025)<br />
                                         + DNS Management<br />
                                         + ID Protection *</td>
                                             <td class="text-center">Rp. 80,000</td>

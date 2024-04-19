@@ -33,7 +33,7 @@
         return $result;
     } 
 
-    function stok_bahanbaku($no_transaksi, $id_hub, $tgl_input, $jenis, $masuk, $keluar, $ket, $status)
+    function stok_bahanbaku($no_transaksi, $id_hub, $tgl_input, $jenis, $masuk, $keluar, $ket, $status, $id_produk='')
     {	
         // CONTOH PENGGUNAAN 
         // stok_bahanbaku('0036/STOK/2024', '4', '2024-03-01', 'HUB', '10000', '0', 'MASUK DENGAN PO','MASUK')
@@ -49,9 +49,11 @@
             'keluar'          => $keluar,
             'ket'             => $ket,
             'status'          => $status,
+            'id_produk'       => $id_produk,
         );
         $result_stok_berjalan = $CI->db->insert('trs_stok_bahanbaku', $data_stok_berjalan);
 
         return $result_stok_berjalan;
     } 
+    
 ?>
