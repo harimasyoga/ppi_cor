@@ -160,7 +160,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(no_po == ""){
 					$("#no_po").html(data.htmlPO)
 				}
@@ -190,7 +189,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				plhOS()
 				swal.close()
 			}

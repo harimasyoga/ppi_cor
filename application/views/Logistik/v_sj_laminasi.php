@@ -23,7 +23,7 @@
 		<div class="container-fluid">
 
 			<div class="row">
-				<div class="col-md-7">
+				<div class="col-md-6">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">SURAT JALAN</h3>
@@ -73,10 +73,7 @@
 									<table id="datatable1" class="table table-bordered table-striped">
 										<thead>
 											<tr>
-												<th style="padding:12px;text-align:center">HARI, TGL</th>
-												<th style="padding:12px;text-align:center">PLAT</th>
-												<th style="padding:12px;text-align:center">CUSTOMER</th>
-												<th style="padding:12px;text-align:center">NO. PO</th>
+												<th style="padding:12px;text-align:center">DESKRIPSI</th>
 												<th style="padding:12px;text-align:center">NO. SJ</th>
 												<th style="padding:12px;text-align:center">AKSI</th>
 											</tr>
@@ -89,8 +86,8 @@
 					</div>
 				</div>
 
-				<div class="col-md-5">
-					<div class="card card-secondary card-outline">
+				<div class="col-md-6">
+					<div class="card card-secondary card-outline" style="position:sticky;top:12px;bottom:12px">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">PO LAMINASI</h3>
 							<div class="card-tools">
@@ -175,14 +172,14 @@
 	});
 
 	function reloadTable() {
-		table = $('#datatable').DataTable();
-		tabel.ajax.reload(null, false);
+		let table2 = $('#datatable').DataTable();
+		tabel2.ajax.reload(null, false);
 	}
 
 	function load_data() {
-		let table = $('#datatable').DataTable();
-		table.destroy();
-		tabel = $('#datatable').DataTable({
+		let table2 = $('#datatable').DataTable();
+		table2.destroy();
+		tabel2 = $('#datatable').DataTable({
 			"processing": true,
 			"pageLength": true,
 			"paging": true,
@@ -206,7 +203,7 @@
 	}
 
 	function reloadTableSJ() {
-		table = $('#datatable1').DataTable();
+		let table = $('#datatable1').DataTable();
 		tabel.ajax.reload(null, false);
 	}
 
@@ -237,7 +234,7 @@
 				"emptyTable": "TIDAK ADA DATA.."
 			},
 			"order": [
-				[4, "desc"]
+				[1, "desc"]
 			]
 		})
 	}
@@ -274,8 +271,26 @@
 				data = JSON.parse(res)
 				$(".row-list-po").show()
 				$(".list-po-sj-laminasi").html(data.html)
-				// swal.close()
 				listRencanKirim()
+			}
+		})
+	}
+
+	function closePOLaminasi(id)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Logistik/closePOLaminasi')?>',
+			type: "POST",
+			data: ({ id }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.data){
+					$(".row-list-po").hide()
+					$(".list-po-sj-laminasi").html('')
+					toastr.success(`<b>BERHASIL CLOSE PO ${data.po_lm.no_po_lm}!</b>`)
+					reloadTable()
+				}
 			}
 		})
 	}
@@ -490,6 +505,8 @@
 		let tgl = $("#p_tgl-"+id_pelanggan_lm).val()
 		let no_sj = $("#p_no_sj-"+id_pelanggan_lm).val()
 		let attn = $("#attn-"+id_pelanggan_lm).val()
+		let alamat_kirim = $("#alamat_kirim-"+id_pelanggan_lm).val()
+		let no_telp = $("#no_telp-"+id_pelanggan_lm).val()
 		let no_kendaraan = $("#p_no_kendaraan-"+id_pelanggan_lm).val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/kirimSJLaminasi')?>',
@@ -505,7 +522,7 @@
 				});
 			},
 			data: ({
-				id_pelanggan_lm, tgl, no_sj, attn, no_kendaraan
+				id_pelanggan_lm, tgl, no_sj, attn, alamat_kirim, no_telp, no_kendaraan
 			}),
 			success: function(res){
 				data = JSON.parse(res)
