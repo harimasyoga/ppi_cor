@@ -4755,7 +4755,6 @@ class Logistik extends CI_Controller
 	{
 		$opsi = $_POST["opsi"];
 		$html = '';
-
 		if($opsi == "tgl_kirim"){
 			$getCustomer = $this->db->query("SELECT p.nm_pelanggan,w.kode_po,i.kategori,i.nm_produk,g.*,c.*,fx.*,fs.* FROM m_gudang g
 			INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
@@ -4764,16 +4763,18 @@ class Logistik extends CI_Controller
 			LEFT JOIN plan_flexo fx ON g.gd_id_plan_flexo=fx.id_flexo
 			LEFT JOIN plan_finishing fs ON g.gd_id_plan_finishing=fs.id_fs
 			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-			WHERE g.gd_cek_spv='Close' AND g.gd_status='Open'
+			INNER JOIN trs_po o ON w.kode_po=o.kode_po AND w.id_pelanggan=o.id_pelanggan
+			WHERE g.gd_cek_spv='Close' AND g.gd_status='Open' AND o.status_kiriman='Open'
 			ORDER BY c.tgl_kirim_plan,p.nm_pelanggan,w.kode_po,i.nm_produk");
 		}else{
 			$getCustomer = $this->db->query("SELECT p.nm_pelanggan,g.* FROM m_gudang g
 			INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
-			WHERE g.gd_cek_spv='Close' AND g.gd_status='Open'
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			INNER JOIN trs_po o ON w.kode_po=o.kode_po AND w.id_pelanggan=o.id_pelanggan
+			WHERE g.gd_cek_spv='Close' AND g.gd_status='Open' AND o.status_kiriman='Open'
 			GROUP BY g.gd_id_pelanggan
 			ORDER BY p.nm_pelanggan");
 		}
-		
 		if($getCustomer->num_rows() == 0){
 			$html .='GUDANG KOSONG!';
 		}else{
@@ -4795,6 +4796,12 @@ class Logistik extends CI_Controller
 					$i = 0;
 					foreach($getCustomer->result() as $isi){
 						$i++;
+						$rk = $this->db->query("SELECT SUM(qty_muat) AS muat FROM m_rencana_kirim WHERE id_gudang='$isi->id_gudang' GROUP BY id_gudang");
+						($rk->num_rows() == 0) ? $qty = $isi->gd_good_qty : $qty = $isi->gd_good_qty - $rk->row()->muat;
+						// UPDATE STATUS GUDANG
+						if($qty == 0){
+							$this->db->query("UPDATE m_gudang SET gd_status='Close' WHERE id_gudang='$isi->id_gudang'");
+						}
 						if($isi->gd_id_plan_cor != null && $isi->gd_id_plan_flexo == null && $isi->gd_id_plan_finishing == null){
 							$rcr = ';border-radius:4px';
 							$rfx = '';
@@ -4814,45 +4821,41 @@ class Logistik extends CI_Controller
 							$shift = $isi->shift_fs;
 							$mesin = substr($isi->joint_fs,0,1);
 						}
-						
 						($isi->gd_id_plan_flexo == null) ? $fx = '' : $fx = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfx.'">FX</span>';
 						($isi->gd_id_plan_finishing == null) ? $fs = '' : $fs = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfs.'">FS</span>';
 						($isi->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
 						($isi->kategori == "K_BOX") ? $kategori2 = 'BOX' : $kategori2 = 'SHEET';
-		
 						$btnAksi = '<button type="button" id="simpan_muat'.$isi->id_gudang.'" class="btn btn-sm btn-success btn-block" style="font-weight:bold" onclick="addCartRKSJ('."'".$isi->id_gudang."'".')"><i class="fas fa-plus"></i> ADD</button>';
-		
-						$rk = $this->db->query("SELECT SUM(qty_muat) AS muat FROM m_rencana_kirim WHERE id_gudang='$isi->id_gudang' GROUP BY id_gudang");
-						($rk->num_rows() == 0) ? $qty = $isi->gd_good_qty : $qty = $isi->gd_good_qty - $rk->row()->muat;
-		
-						$html .='<tr>
-							<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px">'.substr($this->m_fungsi->getHariIni($isi->tgl_kirim_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_kirim_plan).'</td>
-							<td style="border:1px solid #dee2e6;padding:6px">'.$isi->nm_pelanggan.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px">'.$isi->kode_po.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px">'.$kategori.''.$isi->nm_produk.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px">['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($isi->tgl_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_plan).' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rcr.'">CR</span>'.$fx.''.$fs.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
-								<span class="hitung-sisa-'.$isi->id_gudang.'">'.number_format($qty,0,",",".").'</span>
-							</td>
-							<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$isi->gd_berat_box.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px">
-								<input type="number" class="form-control" style="height:100%;width:70px;text-align:right;padding:4px 6px" id="inp-muat-'.$isi->id_gudang.'" onkeyup="hitungSJTonase('."'".$isi->id_gudang."'".')">
-							</td>
-							<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
-								<span class="hitung-tonase-'.$isi->id_gudang.'">0</span>
-								<input type="hidden" id="hidden-hitung-tonase-'.$isi->id_gudang.'" value="">
-								<input type="hidden" id="hidden-id-pelanggan-'.$isi->id_gudang.'" value="'.$isi->gd_id_pelanggan.'">
-								<input type="hidden" id="hidden-id-produk-'.$isi->id_gudang.'" value="'.$isi->gd_id_produk.'">
-								<input type="hidden" id="hidden-nm-pelanggan-'.$isi->id_gudang.'" value="'.$isi->nm_pelanggan.'">
-								<input type="hidden" id="hidden-nm-produk-'.$isi->id_gudang.'" value="'.$isi->nm_produk.'">
-								<input type="hidden" id="hidden-kategori-'.$isi->id_gudang.'" value="'.$kategori2.'">
-								<input type="hidden" id="hidden-kode-po-'.$isi->id_gudang.'" value="'.$isi->kode_po.'">
-								<input type="hidden" id="hidden-bb-'.$isi->id_gudang.'" value="'.$isi->gd_berat_box.'">
-								<input type="hidden" id="hidden-qty-'.$isi->id_gudang.'" value="'.$qty.'">
-							</td>
-							<td style="border:1px solid #dee2e6;padding:3px 6px">'.$btnAksi.'</td>
-						</tr>';
+						if($qty > 0){
+							$html .='<tr>
+								<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
+								<td style="border:1px solid #dee2e6;padding:6px">'.substr($this->m_fungsi->getHariIni($isi->tgl_kirim_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_kirim_plan).'</td>
+								<td style="border:1px solid #dee2e6;padding:6px">'.$isi->nm_pelanggan.'</td>
+								<td style="border:1px solid #dee2e6;padding:6px">'.$isi->kode_po.'</td>
+								<td style="border:1px solid #dee2e6;padding:6px">'.$kategori.''.$isi->nm_produk.'</td>
+								<td style="border:1px solid #dee2e6;padding:6px">['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($isi->tgl_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_plan).' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rcr.'">CR</span>'.$fx.''.$fs.'</td>
+								<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
+									<span class="hitung-sisa-'.$isi->id_gudang.'">'.number_format($qty,0,",",".").'</span>
+								</td>
+								<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$isi->gd_berat_box.'</td>
+								<td style="border:1px solid #dee2e6;padding:6px">
+									<input type="number" class="form-control" style="height:100%;width:70px;text-align:right;padding:4px 6px" id="inp-muat-'.$isi->id_gudang.'" onkeyup="hitungSJTonase('."'".$isi->id_gudang."'".')">
+								</td>
+								<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
+									<span class="hitung-tonase-'.$isi->id_gudang.'">0</span>
+									<input type="hidden" id="hidden-hitung-tonase-'.$isi->id_gudang.'" value="">
+									<input type="hidden" id="hidden-id-pelanggan-'.$isi->id_gudang.'" value="'.$isi->gd_id_pelanggan.'">
+									<input type="hidden" id="hidden-id-produk-'.$isi->id_gudang.'" value="'.$isi->gd_id_produk.'">
+									<input type="hidden" id="hidden-nm-pelanggan-'.$isi->id_gudang.'" value="'.$isi->nm_pelanggan.'">
+									<input type="hidden" id="hidden-nm-produk-'.$isi->id_gudang.'" value="'.$isi->nm_produk.'">
+									<input type="hidden" id="hidden-kategori-'.$isi->id_gudang.'" value="'.$kategori2.'">
+									<input type="hidden" id="hidden-kode-po-'.$isi->id_gudang.'" value="'.$isi->kode_po.'">
+									<input type="hidden" id="hidden-bb-'.$isi->id_gudang.'" value="'.$isi->gd_berat_box.'">
+									<input type="hidden" id="hidden-qty-'.$isi->id_gudang.'" value="'.$qty.'">
+								</td>
+								<td style="border:1px solid #dee2e6;padding:3px 6px">'.$btnAksi.'</td>
+							</tr>';
+						}
 					}
 				$html .='</table>';
 			}else{
@@ -4880,7 +4883,9 @@ class Logistik extends CI_Controller
 		$html .='<div id="gudangItems">';
 			$getItems = $this->db->query("SELECT i.kategori,i.nm_produk,g.* FROM m_gudang g
 			INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
-			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_cek_spv='Close' AND g.gd_status='Open'
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			INNER JOIN trs_po o ON w.kode_po=o.kode_po AND w.id_pelanggan=o.id_pelanggan
+			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_cek_spv='Close' AND g.gd_status='Open' AND o.status_kiriman='Open'
 			GROUP BY g.gd_id_produk
 			ORDER BY i.kategori,i.nm_produk");
 			foreach($getItems->result() as $items){
@@ -4904,7 +4909,8 @@ class Logistik extends CI_Controller
 		$html .='<div id="gudangPOs">';
 			$getPOs = $this->db->query("SELECT w.kode_po,g.* FROM m_gudang g
 			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close' AND g.gd_status='Open'
+			INNER JOIN trs_po o ON w.kode_po=o.kode_po AND w.id_pelanggan=o.id_pelanggan
+			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close' AND g.gd_status='Open' AND o.status_kiriman='Open'
 			GROUP BY w.kode_po");
 			$i = 0;
 			foreach($getPOs->result() as $po){
@@ -4934,7 +4940,8 @@ class Logistik extends CI_Controller
 		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
 		INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
 		INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-		WHERE w.kode_po='$kode_po' AND g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close' AND g.gd_status='Open'");
+		INNER JOIN trs_po o ON w.kode_po=o.kode_po AND w.id_pelanggan=o.id_pelanggan
+		WHERE w.kode_po='$kode_po' AND g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close' AND g.gd_status='Open' AND o.status_kiriman='Open'");
 		$html .= '<table style="margin-bottom:6px;border:1px solid #dee2e6">
 			<tr style="background:#dee2e6">
 				<th style="padding:6px;border:1px solid #bbb;text-align:center">NO</th>
@@ -4949,6 +4956,12 @@ class Logistik extends CI_Controller
 			$i = 0;
 			foreach($getIsi->result() as $isi){
 				$i++;
+				$rk = $this->db->query("SELECT SUM(qty_muat) AS muat FROM m_rencana_kirim WHERE id_gudang='$isi->id_gudang' GROUP BY id_gudang");
+				($rk->num_rows() == 0) ? $qty = $isi->gd_good_qty : $qty = $isi->gd_good_qty - $rk->row()->muat;
+				// UPDATE STATUS GUDANG
+				if($qty == 0){
+					$this->db->query("UPDATE m_gudang SET gd_status='Close' WHERE id_gudang='$isi->id_gudang'");
+				}
 				if($isi->gd_id_plan_cor != null && $isi->gd_id_plan_flexo == null && $isi->gd_id_plan_finishing == null){
 					$rcr = ';border-radius:4px';
 					$rfx = '';
@@ -4968,44 +4981,39 @@ class Logistik extends CI_Controller
 					$shift = $isi->shift_fs;
 					$mesin = substr($isi->joint_fs,0,1);
 				}
-				
 				($isi->gd_id_plan_flexo == null) ? $fx = '' : $fx = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfx.'">FX</span>';
 				($isi->gd_id_plan_finishing == null) ? $fs = '' : $fs = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfs.'">FS</span>';
-
 				$btnAksi = '<button type="button" id="simpan_muat'.$isi->id_gudang.'" class="btn btn-sm btn-success btn-block" style="font-weight:bold" onclick="addCartRKSJ('."'".$isi->id_gudang."'".')"><i class="fas fa-plus"></i> ADD</button>';
-
-				$rk = $this->db->query("SELECT SUM(qty_muat) AS muat FROM m_rencana_kirim WHERE id_gudang='$isi->id_gudang' GROUP BY id_gudang");
-				($rk->num_rows() == 0) ? $qty = $isi->gd_good_qty : $qty = $isi->gd_good_qty - $rk->row()->muat;
 				($isi->kategori == "K_BOX") ? $kategori2 = 'BOX' : $kategori2 = 'SHEET';
-
-				$html .='<tr>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
-					<td style="border:1px solid #dee2e6;padding:6px">'.substr($this->m_fungsi->getHariIni($isi->tgl_kirim_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_kirim_plan).'</td>
-					<td style="border:1px solid #dee2e6;padding:6px">['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($isi->tgl_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_plan).' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rcr.'">CR</span>'.$fx.''.$fs.'</td>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
-						<span class="hitung-sisa-'.$isi->id_gudang.'">'.number_format($qty,0,",",".").'</span>
-					</td>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$isi->gd_berat_box.'</td>
-					<td style="border:1px solid #dee2e6;padding:6px">
-						<input type="number" class="form-control" style="height:100%;width:70px;text-align:right;padding:4px 6px" id="inp-muat-'.$isi->id_gudang.'" onkeyup="hitungSJTonase('."'".$isi->id_gudang."'".')">
-					</td>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
-						<span class="hitung-tonase-'.$isi->id_gudang.'">0</span>
-						<input type="hidden" id="hidden-hitung-tonase-'.$isi->id_gudang.'" value="">
-						<input type="hidden" id="hidden-id-pelanggan-'.$isi->id_gudang.'" value="'.$gd_id_pelanggan.'">
-						<input type="hidden" id="hidden-id-produk-'.$isi->id_gudang.'" value="'.$gd_id_produk.'">
-						<input type="hidden" id="hidden-nm-pelanggan-'.$isi->id_gudang.'" value="'.$isi->nm_pelanggan.'">
-						<input type="hidden" id="hidden-nm-produk-'.$isi->id_gudang.'" value="'.$isi->nm_produk.'">
-						<input type="hidden" id="hidden-kategori-'.$isi->id_gudang.'" value="'.$kategori2.'">
-						<input type="hidden" id="hidden-kode-po-'.$isi->id_gudang.'" value="'.$kode_po.'">
-						<input type="hidden" id="hidden-bb-'.$isi->id_gudang.'" value="'.$isi->gd_berat_box.'">
-						<input type="hidden" id="hidden-qty-'.$isi->id_gudang.'" value="'.$qty.'">
-					</td>
-					<td style="border:1px solid #dee2e6;padding:3px 6px">'.$btnAksi.'</td>
-				</tr>';
+				if($qty > 0){
+					$html .='<tr>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.substr($this->m_fungsi->getHariIni($isi->tgl_kirim_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_kirim_plan).'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($isi->tgl_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_plan).' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rcr.'">CR</span>'.$fx.''.$fs.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
+							<span class="hitung-sisa-'.$isi->id_gudang.'">'.number_format($qty,0,",",".").'</span>
+						</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$isi->gd_berat_box.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">
+							<input type="number" class="form-control" style="height:100%;width:70px;text-align:right;padding:4px 6px" id="inp-muat-'.$isi->id_gudang.'" onkeyup="hitungSJTonase('."'".$isi->id_gudang."'".')">
+						</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
+							<span class="hitung-tonase-'.$isi->id_gudang.'">0</span>
+							<input type="hidden" id="hidden-hitung-tonase-'.$isi->id_gudang.'" value="">
+							<input type="hidden" id="hidden-id-pelanggan-'.$isi->id_gudang.'" value="'.$gd_id_pelanggan.'">
+							<input type="hidden" id="hidden-id-produk-'.$isi->id_gudang.'" value="'.$gd_id_produk.'">
+							<input type="hidden" id="hidden-nm-pelanggan-'.$isi->id_gudang.'" value="'.$isi->nm_pelanggan.'">
+							<input type="hidden" id="hidden-nm-produk-'.$isi->id_gudang.'" value="'.$isi->nm_produk.'">
+							<input type="hidden" id="hidden-kategori-'.$isi->id_gudang.'" value="'.$kategori2.'">
+							<input type="hidden" id="hidden-kode-po-'.$isi->id_gudang.'" value="'.$kode_po.'">
+							<input type="hidden" id="hidden-bb-'.$isi->id_gudang.'" value="'.$isi->gd_berat_box.'">
+							<input type="hidden" id="hidden-qty-'.$isi->id_gudang.'" value="'.$qty.'">
+						</td>
+						<td style="border:1px solid #dee2e6;padding:3px 6px">'.$btnAksi.'</td>
+					</tr>';
+				}
 			}
 		$html .='</table>';
-
 		echo $html;
 	}
 

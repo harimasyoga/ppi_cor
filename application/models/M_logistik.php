@@ -241,15 +241,13 @@ class M_logistik extends CI_Model
 		}else{
 			$where = "";
 		}
-
 		$data = $this->db->query("SELECT COUNT(g.id_gudang) AS jml,p.nm_pelanggan,i.nm_produk,g.* FROM m_gudang g
 		INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
 		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
 		INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-		INNER JOIN trs_po t ON w.kode_po=t.kode_po
+		INNER JOIN trs_po t ON w.kode_po=t.kode_po AND w.id_pelanggan=t.id_pelanggan
 		WHERE g.gd_cek_spv='Open' AND t.status_kiriman='Open' $where
 		GROUP BY p.nm_pelanggan,g.gd_id_produk");
-
 		return [
 			'data' => $data->result(),
 			'opsi' => $opsi,
@@ -263,12 +261,11 @@ class M_logistik extends CI_Model
 		$opsi = $_POST["opsi"];
 		$id_pelanggan = $_POST["id_pelanggan"];
 		$id_produk = $_POST["id_produk"];
-
 		if($opsi == 'cor'){
 			$data = $this->db->query("SELECT w.kode_po,COUNT(g.id_gudang) AS jml_gd,g.* FROM m_gudang g
 			INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
 			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-			INNER JOIN trs_po t ON w.kode_po=t.kode_po
+			INNER JOIN trs_po t ON w.kode_po=t.kode_po AND w.id_pelanggan=t.id_pelanggan
 			WHERE g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk' AND t.status_kiriman='Open'
 			AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NULL AND g.gd_id_plan_finishing IS NULL AND g.gd_cek_spv='Open' 
 			GROUP BY g.gd_id_pelanggan,g.gd_id_produk,w.kode_po");
@@ -276,7 +273,7 @@ class M_logistik extends CI_Model
 			$data = $this->db->query("SELECT w.kode_po,COUNT(g.id_gudang) AS jml_gd,g.* FROM m_gudang g
 			INNER JOIN plan_flexo fx ON g.gd_id_plan_cor=fx.id_plan_cor AND g.gd_id_plan_flexo=fx.id_flexo
 			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-			INNER JOIN trs_po t ON w.kode_po=t.kode_po
+			INNER JOIN trs_po t ON w.kode_po=t.kode_po AND w.id_pelanggan=t.id_pelanggan
 			WHERE g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk' AND t.status_kiriman='Open'
 			AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NOT NULL AND g.gd_id_plan_finishing IS NULL AND g.gd_cek_spv='Open' 
 			GROUP BY g.gd_id_pelanggan,g.gd_id_produk,w.kode_po");
@@ -284,12 +281,11 @@ class M_logistik extends CI_Model
 			$data = $this->db->query("SELECT w.kode_po,COUNT(g.id_gudang) AS jml_gd,g.* FROM m_gudang g
 			INNER JOIN plan_finishing fs ON g.gd_id_plan_cor=fs.id_plan_cor AND g.gd_id_plan_flexo=fs.id_plan_flexo AND g.gd_id_plan_finishing=fs.id_fs
 			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-			INNER JOIN trs_po t ON w.kode_po=t.kode_po
+			INNER JOIN trs_po t ON w.kode_po=t.kode_po AND w.id_pelanggan=t.id_pelanggan
 			WHERE g.gd_id_pelanggan='$id_pelanggan' AND g.gd_id_produk='$id_produk' AND t.status_kiriman='Open'
 			AND g.gd_id_plan_cor IS NOT NULL AND g.gd_id_plan_flexo IS NOT NULL AND g.gd_id_plan_finishing IS NOT NULL AND g.gd_cek_spv='Open' 
 			GROUP BY g.gd_id_pelanggan,g.gd_id_produk,w.kode_po");
 		}
-
 		return $data;
 	}
 
