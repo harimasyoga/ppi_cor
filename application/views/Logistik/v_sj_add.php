@@ -591,11 +591,40 @@
 				data = JSON.parse(res)
 				if(data.data){
 					toastr.success('<b>BERHASIL!</b>');
-					listRencanaKirim()
 				}else{
 					toastr.error(`<b>${data.msg}</b>`);
-					listRencanaKirim()
 				}
+				listRencanaKirim()
+			}
+		})
+	}
+
+	function addTimbangan(tgl, urut){
+		let plat = $("#pp-noplat-"+urut).val()
+		let supir = $("#pp-supir-"+urut).val()
+		let timbangan = $("#pp-timbangan-"+urut).val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/addTimbangan')?>',
+			type: "POST",
+			data: ({ tgl, urut, plat, supir, timbangan }),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.result){
+					toastr.success('<b>BERHASIL!</b>');
+				}else{
+					toastr.error('<b>HARAP LENGKAPI DATA!</b>');
+				}
+				listRencanaKirim()
 			}
 		})
 	}

@@ -92,6 +92,16 @@
 								</select>
 							</div>
 						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px;<?= ($this->session->userdata('level') == 'Admin') ? '' : 'display:none'; ?>">
+							<div class="col-md-2">OPSI</div>
+							<div class="col-md-10">
+								<select class="form-control select2" id="opsi" onchange="plhOS()">
+									<option value="">PILIH</option>
+									<option value="OPEN">OPEN</option>
+									<option value="SEMUA">SEMUA</option>
+								</select>
+							</div>
+						</div>
 						<div class="card-body row" style="padding:0 6px 6px">
 							<div class="col-md-12">
 								<div style="overflow:auto;white-space:nowrap">
@@ -142,6 +152,7 @@
 		let tahun = $("#tahun").val()
 		let pelanggan = $("#pelanggan").val()
 		let no_po = $("#no_po").val()
+		let opsi = $("#opsi").val()
 		$.ajax({
 			url: '<?php echo base_url('Laporan/plhOS')?>',
 			type: "POST",
@@ -156,7 +167,7 @@
 				});
 			},
 			data: ({
-				tahun, pelanggan, no_po
+				tahun, pelanggan, no_po, opsi
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -169,7 +180,7 @@
 		})
 	}
 
-	function closePengiriman(id_po)
+	function closePengiriman(id_po, opsi)
 	{
 		$.ajax({
 			url: '<?php echo base_url('Laporan/closePengiriman')?>',
@@ -185,7 +196,7 @@
 				});
 			},
 			data: ({
-				id_po
+				id_po, opsi
 			}),
 			success: function(res){
 				data = JSON.parse(res)

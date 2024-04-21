@@ -413,6 +413,29 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function openGudang()
+	{
+		// open
+		$id_gudang = $_POST["id_gudang"];
+		$this->db->set('gd_status', 'Open');
+		$this->db->where('id_gudang', $id_gudang);
+		$updateGudang = $this->db->update('m_gudang');
+
+		// GET DATA
+		$getData = $this->db->query("SELECT p.nm_pelanggan,i.nm_produk,g.* FROM m_gudang g
+		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
+		INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
+		WHERE g.id_gudang='$id_gudang'")->row();
+
+		return [
+			'data' => $updateGudang,
+			'gd_id_pelanggan' => $getData->gd_id_pelanggan,
+			'gd_id_produk' => $getData->gd_id_produk,
+			'nm_pelanggan' => $getData->nm_pelanggan,
+			'nm_produk' => $getData->nm_produk,
+		];
+	}
+
 	//
 
 	function simpanCartRKSJ()
@@ -580,9 +603,15 @@ class M_logistik extends CI_Model
 		$this->db->where('rk_urut', $urut);
 		$updateRK = $this->db->update('m_rencana_kirim');
 
+		// HAPUS TIMBANGAN
+		$this->db->where('urut_t', $urut);
+		$this->db->where('tgl_t', $tgl);
+		$deleteTimb = $this->db->delete('m_jembatan_timbang');
+
 		return [
 			'deletePL' => $deletePL,
 			'updateRK' => $updateRK,
+			'deleteTimb' => $deleteTimb,
 		];
 	}
 
@@ -645,6 +674,100 @@ class M_logistik extends CI_Model
 
 		return [
 			'data' => $updateNO,
+			'msg' => $msg,
+		];
+	}
+
+	function addTimbangan()
+	{
+		$tgl = $_POST["tgl"];
+		$urut = $_POST["urut"];
+		$plat = $_POST["plat"];
+		$supir = $_POST["supir"];
+		$timbangan = $_POST["timbangan"];
+
+		if($supir == "" || $timbangan < 0 || $timbangan == 0 || $timbangan == ""){
+			$data = false; $result = false; $msg = false;
+		}else{
+			// KELUAR
+			$now = date("Y-m-d");
+			if($now == $tgl){
+				$date_keluar = date("Y-m-d H:i:s");
+			}else{
+				$k_detik = strtotime($tgl) + rand(1, 60); // 1 menit
+				$k_jam = $k_detik + 7200; // 2 jam
+				$k_rand = $k_jam + rand(28800, 57600); // 8 pagi - 4 sore
+				$date_keluar = date("Y-m-d H:i:s", $k_rand);
+			}
+			// DATE MASUK
+			$detik = strtotime($date_keluar) - rand(1, 60); // 1 menit
+			$jam = $detik - 3600; // 1 jam
+			$rand = $jam - rand(60, 1800); // 1 menit - 30 menit
+			$date_masuk = date("Y-m-d H:i:s", $rand);
+			// CATATAN
+			$getCatatan = $this->db->query("SELECT p.*,c.nm_pelanggan FROM pl_box p
+			INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
+			WHERE p.tgl='$tgl' AND p.no_pl_urut='$urut' AND p.no_kendaraan='$plat'
+			GROUP BY p.id_perusahaan ORDER BY c.nm_pelanggan");
+			$catatan = '';
+			if($getCatatan->num_rows() == 1){
+				$catatan .= $getCatatan->row()->nm_pelanggan;
+			}else{
+				$i = 0;
+				foreach($getCatatan->result() as $c){
+					$i++;
+					$catatan .= $c->nm_pelanggan;
+					if($getCatatan->num_rows() != $i){
+						$catatan .= ' ';
+					}
+				}
+			}
+			// CEK DATA TIMBANGAN
+			$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$urut' AND tgl_t='$tgl' GROUP BY urut_t,tgl_t");
+			if($qTimb->num_rows() == 0){
+				$no_timbangan = $this->m_fungsi->urut_transaksi('TIMBANGAN').'/TIMB'.'/'.date('Y');
+			}else{
+				$no_timbangan = $qTimb->row()->no_timbangan;
+			}
+			// DATA
+			$data = array(
+				'no_timbangan' => $no_timbangan,
+				'id_pelanggan' => null,
+				'input_t' => 'CORR',
+				'suplier' => 'PT. PRIMA PAPER INDONESIA',
+				'alamat' => 'Timang Kulon, Wonokerto, Wonogiri',
+				'no_polisi' => $plat,
+				'date_masuk' => $date_masuk,
+				'date_keluar' => $date_keluar,
+				'nm_barang' => 'KARTON BOX',
+				'berat_kotor' => 0,
+				'berat_truk' => 0,
+				'berat_bersih' => $timbangan,
+				'potongan' => 0,
+				'catatan' => $catatan,
+				'nm_penimbang' => 'Feri S',
+				'nm_sopir' => $supir,
+				'keterangan' => 'KIRIM',
+				'permintaan' => 'KIRIMAN',
+				'urut_t' => $urut,
+				'tgl_t' => $tgl,
+				'pilih_po' => 'TIDAK',
+			);
+			// INSERT - UPDATE
+			if($qTimb->num_rows() == 0){
+				$result = $this->db->insert("m_jembatan_timbang", $data);
+				$msg = 'insert';
+			}else{
+				$this->db->where("urut_t", $urut);
+				$this->db->where("tgl_t", $tgl);
+				$result = $this->db->update("m_jembatan_timbang", $data);
+				$msg = 'update';
+			}
+		}
+		// RETURN
+		return [
+			'data' => $data,
+			'result' => $result,
 			'msg' => $msg,
 		];
 	}

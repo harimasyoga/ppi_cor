@@ -4015,12 +4015,14 @@ class Logistik extends CI_Controller
 	}
 
 	function LoaDataGudang()
-	{
+	{//
 		$data = array();
 		$query = $this->db->query("SELECT i.kategori,p.nm_pelanggan,i.nm_produk,SUM(gd_good_qty) AS qty,g.* FROM m_gudang g
 		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
 		INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
-		WHERE g.gd_cek_spv='Close' AND g.gd_status='Open'
+		INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+		INNER JOIN trs_po o ON w.kode_po=o.kode_po AND w.id_pelanggan=o.id_pelanggan
+		WHERE g.gd_cek_spv='Close' AND g.gd_status='Open' AND o.status_kiriman='Open'
 		GROUP BY g.gd_id_pelanggan,g.gd_id_produk
 		ORDER BY p.nm_pelanggan,i.nm_produk")->result();
 		$i = 0;
@@ -4039,7 +4041,9 @@ class Logistik extends CI_Controller
 			WHERE g.id_gudang=r.id_gudang AND g.gd_id_pelanggan=r.id_pelanggan AND g.gd_id_produk=r.id_produk AND rk_status='Close' AND id_pl_box IS NOT NULL
 			GROUP BY id_pelanggan,id_produk) AS qty_muat,
 			g.* FROM m_gudang g
-			WHERE g.gd_cek_spv='Close' AND g.gd_status='Open' AND gd_id_pelanggan='$r->gd_id_pelanggan' AND g.gd_id_produk='$r->gd_id_produk'");
+			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
+			INNER JOIN trs_po o ON w.kode_po=o.kode_po AND w.id_pelanggan=o.id_pelanggan
+			WHERE g.gd_cek_spv='Close' AND g.gd_status='Open' AND o.status_kiriman='Open' AND gd_id_pelanggan='$r->gd_id_pelanggan' AND g.gd_id_produk='$r->gd_id_produk'");
 			$kiriman = 0;
 			foreach($queryKiriman->result() as $kir){
 				$kiriman += ($kir->qty_muat == null) ? 0 : $kir->qty_muat;
@@ -4070,7 +4074,8 @@ class Logistik extends CI_Controller
 
 			$getKodePO = $this->db->query("SELECT w.kode_po,g.* FROM m_gudang g
 			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close'
+			INNER JOIN trs_po o ON w.kode_po=o.kode_po AND w.id_pelanggan=o.id_pelanggan
+			WHERE g.gd_id_pelanggan='$gd_id_pelanggan' AND g.gd_id_produk='$gd_id_produk' AND g.gd_cek_spv='Close' AND o.status_kiriman='Open'
 			GROUP BY w.kode_po,g.gd_status");
 			$sumAllQty = 0;
 			$sumAllTon = 0;
@@ -4086,7 +4091,8 @@ class Logistik extends CI_Controller
 				$getIsi = $this->db->query("SELECT w.kode_po,g.*,c.* FROM m_gudang g
 				INNER JOIN plan_cor c ON g.gd_id_plan_cor=c.id_plan
 				INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
-				WHERE w.kode_po='$r->kode_po' AND g.gd_id_produk='$r->gd_id_produk' AND g.gd_cek_spv='Close' AND g.gd_status='$r->gd_status'");
+				INNER JOIN trs_po o ON w.kode_po=o.kode_po AND w.id_pelanggan=o.id_pelanggan
+				WHERE w.kode_po='$r->kode_po' AND g.gd_id_produk='$r->gd_id_produk' AND g.gd_cek_spv='Close' AND o.status_kiriman='Open' AND g.gd_status='$r->gd_status'");
 				$sumIsiQty = 0;
 				$sumIsiTon = 0;
 				foreach($getIsi->result() as $isi){
@@ -4108,8 +4114,9 @@ class Logistik extends CI_Controller
 					($isi->gd_id_plan_flexo == null) ? $fx = '' : $fx = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfx.'">FX</span>';
 					($isi->gd_id_plan_finishing == null) ? $fs = '' : $fs = '<span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rfs.'">FS</span>';
 					$bb = round($isi->gd_good_qty * $isi->gd_berat_box);
+					($r->gd_status == 'Close' && $this->session->userdata('level') == 'Admin') ? $openGudang = '<button type="button" class="btn btn-xs btn-info" style="font-weight:bold;padding:2px 4px" onclick="openGudang('."'".$r->kode_po."'".','."'".$r->id_gudang."'".')"">open</button> ' : $openGudang = '';
 					$html .='<tr>
-						<td style="border:1px solid #dee2e6;padding:6px">['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($isi->tgl_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_plan).' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rcr.'">CR</span>'.$fx.''.$fs.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$openGudang.'['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($isi->tgl_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_plan).' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rcr.'">CR</span>'.$fx.''.$fs.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($isi->gd_good_qty,0,",",".").'</td>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$isi->gd_berat_box.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($bb,0,",",".").'</td>
@@ -4179,6 +4186,12 @@ class Logistik extends CI_Controller
 	function closeGudang()
 	{
 		$result = $this->m_logistik->closeGudang();
+		echo json_encode($result);
+	}
+
+	function openGudang()
+	{
+		$result = $this->m_logistik->openGudang();
 		echo json_encode($result);
 	}
 
@@ -4927,7 +4940,7 @@ class Logistik extends CI_Controller
 	}
 
 	function loadSJIsiGudang()
-	{
+	{ //
 		$gd_id_pelanggan = $_POST["gd_id_pelanggan"];
 		$gd_id_produk = $_POST["gd_id_produk"];
 		$kode_po = $_POST["kode_po"];
@@ -5107,6 +5120,7 @@ class Logistik extends CI_Controller
 				</tr>';
 			}
 		}else{
+			$sumMuat = 0;
 			$sumTon = 0;
 			foreach($this->cart->contents() as $r){
 				$sisa = $r['options']['qty'] - $r['options']['qty_muat'];
@@ -5123,12 +5137,15 @@ class Logistik extends CI_Controller
 						<button type="button" class="btn btn-sm btn-danger btn-block" onclick="hapusCartRKSJ('."'".$r['rowid']."'".')">batal</button>
 					</td>
 				</tr>';
+				$sumMuat += $r['options']['qty_muat'];
 				$sumTon += $r['options']['rk_tonase'];
 			}
 
 			if($this->cart->total_items() != 1){
 				$html .='<tr style="background:#dee2e6">
-					<td style="padding:6px;font-weight:bold;text-align:right;border:1px solid #bbb" colspan="7">TOTAL</td>
+					<td style="padding:6px;font-weight:bold;text-align:right;border:1px solid #bbb" colspan="5">TOTAL</td>
+					<td style="padding:6px;font-weight:bold;text-align:right;border:1px solid #bbb">'.number_format($sumMuat,0,",",".").'</td>
+					<td style="padding:6px;border:1px solid #bbb"></td>
 					<td style="padding:6px;font-weight:bold;text-align:right;border:1px solid #bbb">'.number_format($sumTon,0,",",".").'</td>
 					<td style="border:1px solid #bbb" colspan="2"></td>
 				</tr>';
@@ -5137,7 +5154,7 @@ class Logistik extends CI_Controller
 
 		if($this->cart->total_items() != 0){
 			$html .= '<tr>
-				<td style="padding:6px" colspan="10">
+				<td style="padding:6px 0" colspan="10">
 					<button type="button" id="simpan_rk" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanCartRKSJ()"><i class="fas fa-save"></i> SIMPAN</button>
 				</td>
 			</tr>';
@@ -5157,16 +5174,17 @@ class Logistik extends CI_Controller
 				</tr>';
 
 				$date = date('Y-m-d');
-				$getIsi = $this->db->query("SELECT p.nm_pelanggan,i.kategori,i.nm_produk,r.* FROM m_rencana_kirim r
+				$getIsi = $this->db->query("SELECT p.nm_pelanggan,i.nm_produk,r.* FROM m_rencana_kirim r
 				INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
 				INNER JOIN m_produk i ON r.id_produk=i.id_produk
 				WHERE r.rk_urut='$rk->rk_urut' AND r.rk_tgl='$date' ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
+				$sumMuatt = 0;
 				$sumTonn = 0;
 				foreach($getIsi->result() as $isi){
 					$gudang = $this->db->query("SELECT*FROM m_gudang WHERE id_gudang='$isi->id_gudang'")->row();
 					$muat = $this->db->query("SELECT SUM(qty_muat) AS qty_muat FROM m_rencana_kirim WHERE id_gudang='$isi->id_gudang' GROUP BY id_gudang")->row();
 					$siissa = $gudang->gd_good_qty - $muat->qty_muat;
-					($isi->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
+					($isi->kategori == "BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
 					$html .='<tr>
 						<td style="border:1px solid #dee2e6;padding:6px">
 							<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" id="rk-urut-'.$isi->id_rk.'" value="'.$isi->rk_urut.'" onchange="editListUrutRK('."'".$isi->id_rk."'".')">
@@ -5195,12 +5213,15 @@ class Logistik extends CI_Controller
 							<button type="button" id="btn-hapus-rk" class="btn btn-sm btn-danger" style="font-weight:bold" onclick="hapusListRencanaKirim('."'".$isi->id_rk."'".')">HAPUS</button>
 						</td>
 					</tr>';
+					$sumMuatt += $isi->qty_muat;
 					$sumTonn += $isi->rk_tonase;
 				}
 
 				if($getIsi->num_rows() > 1){
 					$html .='<tr style="background:#dee2e6">
-						<td style="border:1px solid #bbb;padding:6px;font-weight:bold;text-align:right" colspan="7">TOTAL</td>
+						<td style="border:1px solid #bbb;padding:6px;font-weight:bold;text-align:right" colspan="5">TOTAL</td>
+						<td style="border:1px solid #bbb;padding:6px;font-weight:bold;text-align:right">'.number_format($sumMuatt,0,",",".").'</td>
+						<td style="border:1px solid #bbb;padding:6px"></td>
 						<td style="border:1px solid #bbb;padding:6px;font-weight:bold;text-align:right">'.number_format($sumTonn,0,",",".").'</td>
 						<td style="border:1px solid #bbb;padding:6px" colspan="2"></td>
 					</tr>';
@@ -5296,7 +5317,6 @@ class Logistik extends CI_Controller
 		if($getUrut->num_rows() == 0){
 			$html .='<b>TIDAK ADA DATA PENGIRIMAN!</b>';
 		}else{
-			// <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">ID</span>
 			$html .='<table>
 				<tr style="background:#dee2e6">
 					<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
@@ -5307,21 +5327,54 @@ class Logistik extends CI_Controller
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">QTY</th>
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">BB</th>
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">TONASE</th>
+					<th style="padding:6px 6px 6px 0;border:1px solid #bbb"></th>
 				</tr>';
-				foreach($getUrut->result() as $urut){ //
+				foreach($getUrut->result() as $urut){
 					($tglNow == $urut->tgl && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $btnBtl = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="btnBatalPengiriman('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')">BATAL</button> - ' : $btnBtl = '' ;
-					($tglNow == $urut->tgl && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $editPL = 'onchange="addPengirimanNoPlat('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"' : $editPL = 'disabled';
+
+					// TIMBANGAN
+					$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$urut->no_pl_urut' AND tgl_t='$urut->tgl' GROUP BY urut_t,tgl_t");
+					if($qTimb->num_rows() > 0){
+						$supir = $qTimb->row()->nm_sopir;
+						$berat = $qTimb->row()->berat_bersih;
+						$bgAa = 'btn-warning';
+						$txAa = '<i class="fas fa-pen"></i>';
+					}else{
+						$supir = '';
+						$berat = '';
+						$bgAa = 'btn-success';
+						$txAa = '<i class="fas fa-plus"></i>';
+					}
+					($tglNow == $urut->tgl && in_array($this->session->userdata('level'), ['Admin', 'User']) && $qTimb->num_rows() == 0) ? $editNopol = 'onchange="addPengirimanNoPlat('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"' : $editNopol = 'disabled';
+
+					if($urut->no_kendaraan != ""){
+						$aksiTimb = 'onclick="addTimbangan('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"';
+					}else{
+						$aksiTimb = 'disabled';
+					}
+
 					$html .='<tr>
 						<td style="background:#333;color:#fff;padding:6px;font-weight:bold">'.$btnBtl.''.$urut->no_pl_urut.'</td>
-						<td style="background:#333;color:#fff;padding:6px;text-align:right;font-weight:bold" colspan="5">NO. PLAT :</td>
+						<td style="background:#333;color:#fff;padding:6px;text-align:right;font-weight:bold">NO. PLAT :</td>
 						<td style="background:#333;color:#fff;padding:6px;text-align:right" colspan="2">
-							<input type="text" class="form-control" id="pp-noplat-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="-" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$urut->no_kendaraan.'" '.$editPL.'>
+							<input type="text" class="form-control" id="pp-noplat-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="-" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$urut->no_kendaraan.'" '.$editNopol.'>
+						</td>
+						<td style="background:#333;color:#fff;padding:6px;text-align:right;font-weight:bold">TIMBANGAN :</td>
+						<td style="background:#333;color:#fff;padding:6px;text-align:right" colspan="2">
+							<input type="text" class="form-control" id="pp-supir-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="SUPIR" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$supir.'">
+						</td>
+						<td style="background:#333;color:#fff;padding:6px;text-align:right">
+							<input type="number" class="form-control" id="pp-timbangan-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="BERAT" autocomplete="off"" value="'.$berat.'">
+						</td>
+						<td style="background:#333;color:#fff;padding:6px 6px 6px 0">
+							<button type="button" class="btn btn-xs '.$bgAa.'" style="font-weight:bold" '.$aksiTimb.'>'.$txAa.'</button>
 						</td>
 					</tr>';
 					$getSJnPO = $this->db->query("SELECT*FROM pl_box WHERE tgl='$urut->tgl' AND no_pl_urut='$urut->no_pl_urut'
 					GROUP BY id_perusahaan,no_surat,no_po,no_pl_urut,kategori
-					ORDER BY no_surat");
+					ORDER BY no_surat,no_po");
 					$no = 0;
+					$sumAllMuat = 0;
 					$sumAll = 0;
 					foreach($getSJnPO->result() as $sjpo){
 						$no++;
@@ -5346,12 +5399,13 @@ class Logistik extends CI_Controller
 						// EDIT NOMER SURAT JALAN
 						($sjpo->cetak_sj == 'not' && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $eNoSj = 'onchange="editPengirimanNoSJ('."'".$sjpo->id."'".')"' : $eNoSj = 'disabled';
 
+						// '.$this->m_fungsi->angkaRomawi($no).' - 
 						$html .='<tr style="background:#dee2e6">
 							<td style="padding:4px 6px;border:1px solid #bbb;font-weight:bold;display:flex">
-								'.$this->m_fungsi->angkaRomawi($no).' - NO. SURAT JALAN : &nbsp;<input type="number" class="form-control" id="pp-nosj-'.$sjpo->id.'" style="height:100%;width:50px;text-align:center;padding:2px 4px" value="'.$noSJ[0].'" '.$eNoSj.'>'.$ketSJ.'
+								NO. SURAT JALAN : &nbsp;<input type="number" class="form-control" id="pp-nosj-'.$sjpo->id.'" style="height:100%;width:50px;text-align:center;padding:2px 4px" value="'.$noSJ[0].'" '.$eNoSj.'>'.$ketSJ.'
 							</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">NO. PO : '.$sjpo->no_po.'</td>
-							<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="6">'.$btnPrint.' '.$btnJasa.'</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="7">'.$btnPrint.' '.$btnJasa.'</td>
 						</tr>';
 						($sjpo->kategori == null) ? $wKategori = "" : $wKategori = "AND r.kategori='$sjpo->kategori'";
 						$getItems = $this->db->query("SELECT r.*,i.*,p.nm_pelanggan FROM m_rencana_kirim r
@@ -5359,6 +5413,7 @@ class Logistik extends CI_Controller
 						INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
 						WHERE r.rk_tgl='$sjpo->tgl' AND r.rk_urut='$sjpo->no_pl_urut' AND r.rk_kode_po='$sjpo->no_po' AND r.id_pelanggan='$sjpo->id_perusahaan' $wKategori
 						ORDER BY i.nm_produk");
+						$sumMuat = 0;
 						$sumItems = 0;
 						foreach($getItems->result() as $item){
 							($item->kategori == "K_BOX") ? $ukuran = $item->ukuran : $ukuran = $item->ukuran_sheet;
@@ -5379,7 +5434,18 @@ class Logistik extends CI_Controller
 								$kualitas = $item->kualitas;
 							}
 							$tonase = $item->rk_bb * $item->qty_muat;
-							// <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$item->id_gudang.'</span>
+							// TONASE
+							if($getSJnPO->num_rows() == 1 && $getItems->num_rows() == 1){
+								$kurangsPS = round($tonase - ($tonase * 0.04));
+								$plussPS = round($tonase + ($tonase * 0.04));
+								$txtKurangPlus = '(<i>-'.number_format($kurangsPS,0,",",".").' +'.number_format($plussPS,0,",",".").'</i>)';
+								$cSS = 'colspan="2"';
+								$tdSS = '';
+							}else{
+								$txtKurangPlus = '';
+								$cSS = '';
+								$tdSS = '<td style="padding:6px;border:1px solid #dee2e6"></td>';
+							}
 							$html .='<tr>
 								<td style="padding:6px;border:1px solid #dee2e6">'.$item->nm_pelanggan.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">'.$item->nm_produk.'</td>
@@ -5388,16 +5454,22 @@ class Logistik extends CI_Controller
 								<td style="padding:6px;border:1px solid #dee2e6">'.$kualitas.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6;font-weight:bold;text-align:right">'.number_format($item->qty_muat,0,",",".").'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">'.$item->rk_bb.'</td>
-								<td style="padding:6px;border:1px solid #dee2e6;font-weight:bold;text-align:right">'.number_format($tonase,0,",",".").'</td>
+								<td style="padding:6px;border:1px solid #dee2e6;font-weight:bold;text-align:right" '.$cSS.'>'.number_format($tonase,0,",",".").' '.$txtKurangPlus.'</td>
+								'.$tdSS.'
 							</tr>';
+							$sumMuat += $item->qty_muat;
 							$sumItems += $tonase;
 						}
+						$sumAllMuat += $sumMuat;
 						$sumAll += $sumItems;
 					}
 					if($getSJnPO->num_rows() > 1 || ($getSJnPO->num_rows() == 1 && $getItems->num_rows() > 1)){
+						$kurangPS = round($sumAll - ($sumAll * 0.04));
+						$plusPS = round($sumAll + ($sumAll * 0.04));
 						$html .='<tr style="background:#dee2e6">
-							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="7">TOTAL</td>
-							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sumAll,0,",",".").'</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">TOTAL</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sumAllMuat,0,",",".").'</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="3">'.number_format($sumAll,0,",",".").' (<i>-'.number_format($kurangPS,0,",",".").' +'.number_format($plusPS,0,",",".").'</i>)</td>
 						</tr>';
 					}
 				}
@@ -5415,6 +5487,12 @@ class Logistik extends CI_Controller
 	function addPengirimanNoPlat()
 	{
 		$result = $this->m_logistik->addPengirimanNoPlat();
+		echo json_encode($result);
+	}
+
+	function addTimbangan()
+	{
+		$result = $this->m_logistik->addTimbangan();
 		echo json_encode($result);
 	}
 
