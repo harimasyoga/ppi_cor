@@ -127,12 +127,18 @@ class Laporan extends CI_Controller
 		$tahun = $_POST["tahun"];
 		$pelanggan = $_POST["pelanggan"];
 		$no_po = $_POST["no_po"];
+		$opsi = $_POST["opsi"];
 		$html = '';
 		$htmlPO = '';
 
 		($no_po == "") ? $w_nopo = '' : $w_nopo = "AND p.kode_po='$no_po'";
+		if($opsi == "" || $opsi == "OPEN"){
+			$w_opsi = "AND p.status_kiriman='Open'";
+		}else{
+			$w_opsi = "";
+		}
 		$data = $this->db->query("SELECT*FROM trs_po p
-		WHERE p.tgl_po LIKE '%$tahun%' AND p.status='Approve' AND p.status_kiriman='Open' AND p.id_pelanggan='$pelanggan' $w_nopo
+		WHERE p.tgl_po LIKE '%$tahun%' AND p.status='Approve' AND p.id_pelanggan='$pelanggan' $w_nopo $w_opsi
 		GROUP BY kode_po ORDER BY tgl_po");
 
 		$htmlPO .='<option value="">PILIH</option>';
@@ -153,8 +159,16 @@ class Laporan extends CI_Controller
 				</tr>';
 				foreach($data->result() as $r){
 					if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
-						($r->status_kiriman == 'Open') ? $aksi = 'onclick="closePengiriman('."'".$r->id."'".')' : $aksi = '';
-						$btnBtl = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" '.$aksi.'">close</button>';
+						if($r->status_kiriman == 'Open'){
+							$aksi = 'onclick="closePengiriman('."'".$r->id."'".','."'Close'".')';
+							$bgBtn = 'btn-danger';
+							$txtBtn = 'close';
+						}else{
+							$aksi = 'onclick="closePengiriman('."'".$r->id."'".','."'Open'".')';
+							$bgBtn = 'btn-info';
+							$txtBtn = 'open';
+						}
+						$btnBtl = '<button type="button" class="btn btn-xs '.$bgBtn.'" style="font-weight:bold" '.$aksi.'">'.$txtBtn.'</button>';
 					}else{
 						$btnBtl = '-';
 					}
@@ -220,8 +234,9 @@ class Laporan extends CI_Controller
 	function closePengiriman()
 	{
 		$id_po = $_POST["id_po"];
+		$opsi = $_POST["opsi"];
 
-		$this->db->set('status_kiriman', 'Close');
+		$this->db->set('status_kiriman', $opsi);
 		$this->db->where('id', $id_po);
 		$close_po = $this->db->update('trs_po');
 		echo json_encode([
