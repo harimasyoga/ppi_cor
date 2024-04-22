@@ -54,9 +54,7 @@
 							<div class="col-md-1"></div>
 							<div class="col-md-2">Jenis Beban</div>
 							<div class="col-md-3">
-								<select id="modal_cek_inv" name="modal_cek_inv" class="form-control select2" style="width: 100%">
-									<option value="baru">BARU</option>
-									<option value="revisi">REVISI</option>
+								<select id="jns_beban" name="jns_beban" class="form-control select2" style="width: 100%">
 								</select>
 							</div>
 
@@ -79,12 +77,6 @@
 							<div class="col-md-2">ATTN</div>
 							<div class="col-md-3">
 								<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" >
-									<?php foreach ($hub as $r) : ?>
-										<option value="<?= $r->id_hub ?>" detail="
-										<?=$r->id_hub."|".$r->nm_hub ?>">
-											<?= $r->id_hub . " | " . $r->nm_hub . " | <b>" . number_format($r->sisa_hub, 0, ",", ".") ."</b>" ?>
-										</option>
-									<?php endforeach ?>
 								</select>
 							</div>
 						</div>			
@@ -294,6 +286,8 @@
 	rowNum = 0;
 	$(document).ready(function() {
 		load_data();
+		load_hub();
+		jenis_beban();
 		// getMax();
 		$('.select2').select2({
 			containerCssClass: "wrap",
@@ -345,6 +339,83 @@
 			}
 		});
 
+	}
+
+	function load_hub() 
+	{
+		option = "";
+		$.ajax({
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Logistik/load_hub",
+			// data       : { idp: pelanggan, kd: '' },
+			dataType   : 'json',
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success"){					
+					option = `<option value="">-- Pilih --</option>`;	
+
+					$.each(data.data, function(index, val) {
+					option += `<option value="${val.id_hub}" data-aka="${val.aka}" >${val.nm_hub}</option>`;
+
+					});
+
+					$('#id_hub').html(option);
+					swal.close();
+				}else{	
+					option += "<option value=''></option>";
+					$('#id_hub').html(option);					
+					swal.close();
+				}
+			}
+		});
+	}
+	
+	function jenis_beban() 
+	{
+		option = "";
+		$.ajax({
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Logistik/load_jenis_beban",
+			// data       : { idp: pelanggan, kd: '' },
+			dataType   : 'json',
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success"){					
+					option = `<option value="">-- Pilih --</option>`;	
+
+					$.each(data.data, function(index, val) {
+						console.log(val.nm)
+					option += `<option value="${val.kd}" data-nm="${val.nm}" >${val.nm}</option>`;
+
+					});
+
+					$('#jns_beban').html(option);
+					swal.close();
+				}else{	
+					option += "<option value=''></option>";
+					$('#jns_beban').html(option);					
+					swal.close();
+				}
+			}
+		});
 	}
 
 	function reloadTable() 
