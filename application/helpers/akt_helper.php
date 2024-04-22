@@ -1,5 +1,22 @@
 <?php
     
+    function cari_data_rek($field='', $kd='')
+    {
+        $CI       = & get_instance();
+        $result_jurnal = $CI->db->query("SELECT*FROM(
+            select kd_akun as kd,nm_akun as nm,jenis,dk from m_kode_akun
+            union all
+            select concat(kd_akun,'.',kd_kelompok) as kd,nm_kelompok as nm,jenis,dk from m_kode_kelompok
+            union all
+            select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis) as kd,nm_jenis as nm,jenis,dk from m_kode_jenis
+            union all
+            select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci) as kd,nm_rinci as nm,jenis,dk from m_kode_rinci
+            )p
+            where p.$field like '%$kd%'
+            order by kd");
+        return $result_jurnal;
+    } 
+    
     function cari_rek($kd='')
     {
         $CI       = & get_instance();

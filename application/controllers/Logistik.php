@@ -6286,6 +6286,27 @@ class Logistik extends CI_Controller
             $json = json_encode($response);
             print_r($json);
     }
+	
+	function load_jenis_beban()
+    {
+        $query = cari_data_rek('nm','beban')->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
 
 	function load_po()
     {
