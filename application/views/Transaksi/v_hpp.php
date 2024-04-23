@@ -2631,8 +2631,8 @@
 			o = '_box'
 		}
 		if(jenis == 'BK'){
-			let bk_kg = $("#bk_kg"+o).val()
-			let bk_rp = $("#bk_rp"+o).val()
+			let bk_kg = $("#bk_kg"+o).val().split('.').join('')
+			let bk_rp = $("#bk_rp"+o).val().split('.').join('')
 			$("#bk_kg"+o).val(formatRupiah(bk_kg))
 			$("#bk_rp"+o).val(formatRupiah(bk_rp))
 			let h_bk_kg = (bk_kg == '' || isNaN(bk_kg)) ? 0 : parseInt(bk_kg.split('.').join(''));
@@ -2642,8 +2642,8 @@
 			$("#bk_x"+o).val(format_angka(x_bk))
 		}
 		if(jenis == 'MH'){
-			let mh_kg = $("#mh_kg"+o).val()
-			let mh_rp = $("#mh_rp"+o).val()
+			let mh_kg = $("#mh_kg"+o).val().split('.').join('')
+			let mh_rp = $("#mh_rp"+o).val().split('.').join('')
 			$("#mh_kg"+o).val(formatRupiah(mh_kg))
 			$("#mh_rp"+o).val(formatRupiah(mh_rp))
 			let h_mh_kg = (mh_kg == '' || isNaN(mh_kg)) ? 0 : parseInt(mh_kg.split('.').join(''));
@@ -2653,8 +2653,8 @@
 			$("#mh_x"+o).val(format_angka(x_mh))
 		}
 		if(jenis == 'GLOBAL' && opsi != 'laminasi'){
-			let global_kg = $("#global_kg"+o).val()
-			let global_rp = $("#global_rp"+o).val()
+			let global_kg = $("#global_kg"+o).val().split('.').join('')
+			let global_rp = $("#global_rp"+o).val().split('.').join('')
 			$("#global_kg"+o).val(formatRupiah(global_kg))
 			$("#global_rp"+o).val(formatRupiah(global_rp))
 			let h_global_kg = (global_kg == '' || isNaN(global_kg)) ? 0 : parseInt(global_kg.split('.').join(''));
@@ -2664,8 +2664,8 @@
 			$("#global_x"+o).val(format_angka(x_mh))
 		}
 		if(jenis == 'WP'){
-			let wp_kg = $("#wp_kg_lam").val()
-			let wp_rp = $("#wp_rp_lam").val()
+			let wp_kg = $("#wp_kg_lam").val().split('.').join('')
+			let wp_rp = $("#wp_rp_lam").val().split('.').join('')
 			$("#wp_kg_lam").val(formatRupiah(wp_kg))
 			$("#wp_rp_lam").val(formatRupiah(wp_rp))
 			let h_wp_kg = (wp_kg == '' || isNaN(wp_kg)) ? 0 : parseInt(wp_kg.split('.').join(''));
@@ -2675,8 +2675,8 @@
 			$("#wp_x_lam").val(format_angka(x_wp))
 		}
 		if(jenis == 'GLOBAL' && opsi == 'laminasi'){
-			let global_kg = $("#global_kg_lam").val()
-			let global_rp = $("#global_rp_lam").val()
+			let global_kg = $("#global_kg_lam").val().split('.').join('')
+			let global_rp = $("#global_rp_lam").val().split('.').join('')
 			$("#global_kg_lam").val(formatRupiah(global_kg))
 			$("#global_rp_lam").val(formatRupiah(global_rp))
 			let h_global_kg = (global_kg == '' || isNaN(global_kg)) ? 0 : parseInt(global_kg.split('.').join(''));
