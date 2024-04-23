@@ -4473,7 +4473,6 @@ class Transaksi extends CI_Controller
 				}else if($r->rentang_hpp == 'BULAN'){
 					$rentang = strtoupper($this->m_fungsi->getBulan($r->bulan_hpp));
 				}else{
-					// strtoupper($this->m_fungsi->getHariIni($r->tgl_hpp))
 					$rentang = strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp));
 				}
 				$html .='<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
