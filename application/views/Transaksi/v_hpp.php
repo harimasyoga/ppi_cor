@@ -44,15 +44,65 @@
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">TANGGAL</div>
-							<div class="col-md-9">
-								<input type="date" id="tgl1_hpp" class="form-control" onchange="pilihHPP()">
+							<div class="col-md-3">PERIODE</div>
+							<div class="col-md-4">
+								<select id="rentang" class="form-control select2" onchange="pilihHPP()">
+									<option value="">PILIH</option>
+									<option value="TAHUN">TAHUN</option>
+									<option value="BULAN">BULAN</option>
+									<option value="TANGGAL">TANGGAL</option>
+								</select>
+							</div>
+							<div class="col-md-5">
+								<div class="pilih-rentang-tahun" style="display:none">
+									<select id="rentang_tahun" class="form-control select2" onchange="pilihHPP()">
+										<option value="">PILIH</option>
+										<?php
+										$thang = date("Y");
+										$thang_maks = $thang;
+										$thang_min = $thang - 4;
+										for ($th = $thang_min; $th <= $thang_maks; $th++)
+										{ ?>
+											<?php if ($th==$thang) { ?>
+												<option value="<?= $th ?>"> <?= $thang ?> </option>
+											<?php }else{ ?>
+												<option value="<?= $th ?>"> <?= $th ?> </option>
+											<?php }
+										} ?>
+									</select>
+								</div>
+								<div class="pilih-rentang-bulan" style="display:none">
+									<select id="rentang_bulan" class="form-control select2" onchange="pilihHPP()">
+										<option value="">PILIH</option>
+										<option value="1">JANUARI</option>
+										<option value="2">FEBRUARI</option>
+										<option value="3">MARET</option>
+										<option value="4">APRIL</option>
+										<option value="5">MEI</option>
+										<option value="6">JUNI</option>
+										<option value="7">JULI</option>
+										<option value="8">AGUSTUS</option>
+										<option value="9">SEPTEMBER</option>
+										<option value="10">OKTOBER</option>
+										<option value="11">NOVEMBER</option>
+										<option value="12">DESEMBER</option>
+									</select>
+								</div>
+								<div class="pilih-rentang-tanggal" style="display:none">
+									<input type="date" id="rentang_tanggal" class="form-control" onchange="pilihHPP()">
+								</div>
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">JENIS</div>
 							<div class="col-md-9">
-								<select id="jenis_hpp" class="form-control select2" onchange="pilihHPP()"></select>
+								<select id="jenis_hpp" class="form-control select2" onchange="pilihHPP()">
+									<option value="">PILIH</option>
+									<option value="BK">BK</option>
+									<option value="MH">MH</option>
+									<option value="WP">WP</option>
+									<option value="GLOBAL">GLOBAL</option>
+								</select>
 							</div>
 						</div>
 					</div>
@@ -1662,7 +1712,8 @@
 									<thead>
 										<tr>
 											<th style="text-align:center">#</th>
-											<th style="text-align:center">HARI, TANGGAL</th>
+											<th style="text-align:center">PERI</th>
+											<th style="text-align:center">ODE</th>
 											<th style="text-align:center">HPP</th>
 											<th style="text-align:center">JENIS</th>
 											<th style="text-align:center">TOTAL</th>
@@ -1735,9 +1786,17 @@
 		$(".update-keterangan-upah-lam").html('')
 		$(".update-keterangan-dll-lam").html('')
 
-		$("#pilih_hpp").val("").prop('disabled', false)
-		$("#tgl1_hpp").val("").prop('disabled', true)
-		$("#jenis_hpp").html('<option value="">PILIH</option>').prop('disabled', true)
+		$("#pilih_hpp").val("").prop('disabled', false).trigger('change')
+		
+		$("#rentang").val("").prop('disabled', true).trigger('change')
+		$("#rentang_tahun").val("").trigger('change')
+		$("#rentang_bulan").val("")
+		$("#rentang_tanggal").val("")
+		$(".pilih-rentang-tahun").hide()
+		$(".pilih-rentang-bulan").hide()
+		$(".pilih-rentang-tanggal").hide()
+
+		$("#jenis_hpp").val("").prop('disabled', true).trigger('change')
 
 		// PEMAKAIAN BAHAN
 		$("#id_cart_bahan").val("777") // cart
@@ -1918,9 +1977,6 @@
 	{
 		reloadTable()
 		$(".llll").load("<?php echo base_url('Transaksi/destroyHPP') ?>")
-		$("#pilih_hpp").val("").trigger('change').prop('disabled', false)
-		$("#tgl1_hpp").val("").prop('disabled', false)
-		$("#jenis_hpp").html('<option value="">PILIH</option>').prop('disabled', false)
 		$(".row-input-hpp").hide()
 		$(".row-list-hpp").show()
 		hideAll('', 'none')
@@ -2013,63 +2069,88 @@
 	function pilihHPP()
 	{
 		let pilih_hpp = $("#pilih_hpp").val()
-		let tgl_hpp = $("#tgl1_hpp").val()
+		let rentang = $("#rentang").val()
 		let jenis_hpp = $("#jenis_hpp").val()
 
 		if(pilih_hpp == ''){
-			$("#pilih_hpp").val("").prop('disabled', false)
-			$("#tgl1_hpp").val("").prop('disabled', true)
-			$("#jenis_hpp").html('<option value="">PILIH</option>').prop('disabled', true)
-		}
-		if(pilih_hpp != '' && tgl_hpp == '' && (jenis_hpp == '' || jenis_hpp != '')){
+			$("#pilih_hpp").prop('disabled', false)
+			$("#rentang").prop('disabled', true)
+			$("#jenis_hpp").prop('disabled', true)
+		}else{
 			$("#pilih_hpp").prop('disabled', true)
-			$("#tgl1_hpp").val("").prop('disabled', false);
-			if(pilih_hpp == 'LAMINASI'){
-				$("#jenis_hpp").html('<option value="">PILIH</option><option value="WP">WP</option>').prop('disabled', true)
-			}else if(pilih_hpp == 'SHEET' || pilih_hpp == 'BOX'){
-				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option>').prop('disabled', false)
+			$("#rentang").prop('disabled', false)
+			$("#jenis_hpp").prop('disabled', true)
+		}
+
+		if(rentang == "TAHUN"){
+			$("#rentang").prop('disabled', true)
+			$(".pilih-rentang-tahun").show()
+			$(".pilih-rentang-bulan").hide()
+			$(".pilih-rentang-tanggal").hide()
+			let rentang_tahun = $("#rentang_tahun").val();
+			if(rentang_tahun == ''){
+				$("#rentang_tahun").prop('disabled', false)
+				$("#jenis_hpp").prop('disabled', true)
 			}else{
-				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option><option value="WP">WP</option>').prop('disabled', false)
+				$("#rentang_tahun").prop('disabled', true)
+				$("#jenis_hpp").prop('disabled', false)
 			}
-		}
-		if(pilih_hpp != '' && tgl_hpp != '' && jenis_hpp == ''){
-			$("#pilih_hpp").prop('disabled', true)
-			$("#tgl1_hpp").prop('disabled', true)
-			if(pilih_hpp == 'LAMINASI'){
-				$("#jenis_hpp").html('<option value="">PILIH</option><option value="WP">WP</option>').prop('disabled', false)
-			}else if(pilih_hpp == 'SHEET' || pilih_hpp == 'BOX'){
-				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option>').prop('disabled', false)
+		}else if(rentang == "BULAN"){
+			$("#rentang").prop('disabled', true)
+			$(".pilih-rentang-tahun").hide()
+			$(".pilih-rentang-bulan").show()
+			$(".pilih-rentang-tanggal").hide()
+			let rentang_bulan = $("#rentang_bulan").val()
+			if(rentang_bulan == ''){
+				$("#rentang_bulan").prop('disabled', false)
+				$("#jenis_hpp").prop('disabled', true)
 			}else{
-				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option><option value="WP">WP</option>').prop('disabled', false)
+				$("#rentang_bulan").prop('disabled', true)
+				$("#jenis_hpp").prop('disabled', false)
 			}
+		}else if(rentang == "TANGGAL"){
+			$("#rentang").prop('disabled', true)
+			$(".pilih-rentang-tahun").hide()
+			$(".pilih-rentang-bulan").hide()
+			$(".pilih-rentang-tanggal").show()
+			let rentang_tanggal = $("#rentang_tanggal").val()
+			if(rentang_tanggal == ''){
+				$("#rentang_tanggal").prop('disabled', false)
+				$("#jenis_hpp").prop('disabled', true)
+			}else{
+				$("#rentang_tanggal").prop('disabled', true)
+				$("#jenis_hpp").prop('disabled', false)
+			}
+		}else{
+			$(".pilih-rentang-tahun").hide()
+			$(".pilih-rentang-bulan").hide()
+			$(".pilih-rentang-tanggal").hide()
 		}
-		if(pilih_hpp != '' && tgl_hpp != '' && jenis_hpp != ''){
-			$("#pilih_hpp").prop('disabled', true)
-			$("#tgl1_hpp").prop('disabled', true)
+
+		if(jenis_hpp != ''){
 			$("#jenis_hpp").prop('disabled', true)
 		}
 
 		$(".cbx").attr('style', 'display:none')
-		if(pilih_hpp == "PM2" && tgl_hpp != '' && jenis_hpp != ''){
+		if(pilih_hpp == "PM2" && rentang != '' && jenis_hpp != ''){
 			hideAll('pm', 'show')
-		}else if(pilih_hpp == "BOX" && tgl_hpp != '' && jenis_hpp != ''){
-			tampilListHpp('box')
+		}else if(pilih_hpp == "BOX" && rentang != '' && jenis_hpp != ''){
+			tampilListHpp('box', rentang)
 			hideAll('box', 'show')
-		}else if(pilih_hpp == "SHEET" && tgl_hpp != '' && jenis_hpp != ''){
-			tampilListHpp('sheet')
+		}else if(pilih_hpp == "SHEET" && rentang != '' && jenis_hpp != ''){
+			tampilListHpp('sheet', rentang)
 			hideAll('sheet', 'show')
-		}else if(pilih_hpp == "LAMINASI" && tgl_hpp != '' && jenis_hpp != ''){
-			tampilListHpp('laminasi')
+		}else if(pilih_hpp == "LAMINASI" && rentang != '' && jenis_hpp != ''){
+			tampilListHpp('laminasi', rentang)
 			hideAll('laminasi', 'show')
 		}else{
 			hideAll('', 'none')
 		}
 	}
 
-	function tampilListHpp(opsi)
+	function tampilListHpp(opsi, rentang)
 	{
 		let pilih_hpp = $("#pilih_hpp").val()
-		let tgl1_hpp = $("#tgl1_hpp").val()
 		let jenis_hpp = $("#jenis_hpp").val()
 		$(".card-list-hpp-pm").show()
 		$.ajax({
@@ -2086,7 +2167,7 @@
 				});
 			},
 			data: ({
-				pilih_hpp, tgl1_hpp, jenis_hpp, opsi
+				pilih_hpp, jenis_hpp, opsi, rentang
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -2661,7 +2742,10 @@
 
 		// PILIH HPP
 		let pilih_hpp = $("#pilih_hpp").val()
-		let tgl1_hpp = $("#tgl1_hpp").val()
+		let rentang = $("#rentang").val()
+		let rentang_tahun = $("#rentang_tahun").val()
+		let rentang_bulan = $("#rentang_bulan").val()
+		let rentang_tanggal = $("#rentang_tanggal").val()
 		let jenis_hpp = $("#jenis_hpp").val()
 
 		// PEMAKAIAN BAHAN
@@ -2766,7 +2850,7 @@
 				});
 			},
 			data: ({
-				id_hpp, pilih_id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonase, fix_hpp_aktual, hxt_x_persen, presentase, hasil_hpp_tanpa_bb, hpp_pm, hpp_sheet, hpp_plus_plus, hasil_x_tonase_tanpa_bb, fix_hpp, statusInput
+				id_hpp, pilih_id_hpp, pilih_hpp, rentang, rentang_tahun, rentang_bulan, rentang_tanggal, jenis_hpp, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonase, fix_hpp_aktual, hxt_x_persen, presentase, hasil_hpp_tanpa_bb, hpp_pm, hpp_sheet, hpp_plus_plus, hasil_x_tonase_tanpa_bb, fix_hpp, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -2821,8 +2905,15 @@
 				let prop = true;
 				(opsi == 'edit') ? prop = false : prop = true;
 				$("#pilih_hpp").val(data.data.pilih_hpp).prop('disabled', true).trigger("change")
-				$("#tgl1_hpp").val(data.data.tgl_hpp).prop('disabled', true)
-				$("#jenis_hpp").html(`<option value="${data.data.jenis_hpp}">${data.data.jenis_hpp}</option>`).prop('disabled', true)
+				$("#rentang").val(data.data.rentang_hpp).prop('disabled', true).trigger("change")
+				if(data.data.rentang_hpp == "TAHUN"){
+					$("#rentang_tahun").val(data.data.tahun_hpp).prop('disabled', true).trigger("change")
+				}else if(data.data.rentang_hpp == "BULAN"){
+					$("#rentang_bulan").val(data.data.bulan_hpp).prop('disabled', true).trigger("change")
+				}else if(data.data.rentang_hpp == "TANGGAL"){
+					$("#rentang_tanggal").val(data.data.tgl_hpp).prop('disabled', true).trigger("change")
+				}
+				$("#jenis_hpp").val(data.data.jenis_hpp).prop('disabled', true).trigger("change")
 				$(".card-list-hpp-pm").hide()
 
 				// TAMPIL CART

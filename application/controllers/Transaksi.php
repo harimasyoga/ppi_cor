@@ -234,6 +234,9 @@ class Transaksi extends CI_Controller
 		$data = [
 			'id_hpp' => $hpp->id_hpp,
 			'pilih_hpp' => $hpp->pilih_hpp,
+			'rentang_hpp' => $hpp->rentang_hpp,
+			'bulan_hpp' => $hpp->bulan_hpp,
+			'tahun_hpp' => $hpp->tahun_hpp,
 			'tgl_hpp' => $hpp->tgl_hpp,
 			'jenis_hpp' => $hpp->jenis_hpp,
 			'bahan_baku_kg' => number_format($hpp->bahan_baku_kg,0,',','.'),
@@ -287,7 +290,16 @@ class Transaksi extends CI_Controller
 			$i++;
 			$row = [];
 			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$i.'<a></div>';
-			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.strtoupper($this->m_fungsi->getHariIni($r->tgl_hpp)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp)).'</a></div>';
+			if($r->rentang_hpp == 'TAHUN'){
+				$rentang = $r->tahun_hpp;
+			}else if($r->rentang_hpp == 'BULAN'){
+				$rentang = strtoupper($this->m_fungsi->getBulan($r->bulan_hpp));
+			}else{
+				// strtoupper($this->m_fungsi->getHariIni($r->tgl_hpp))
+				$rentang = strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp));
+			}
+			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->rentang_hpp.'</a></div>';
+			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$rentang.'</a></div>';
 			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->pilih_hpp.'<a></div>';
 			$row[] = '<div class="text-center"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->jenis_hpp.'<a></div>';
 			$row[] = '<div class="text-right"><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.number_format($r->hasil_hpp,0,",",".").'</a></div>';
@@ -4439,6 +4451,7 @@ class Transaksi extends CI_Controller
 	function tampilListHpp()
 	{
 		$jenis_hpp = $_POST["jenis_hpp"];
+		$rentang = $_POST["rentang"];
 		$opsi = $_POST["opsi"];
 		if($opsi == 'sheet'){
 			$pilih_hpp = 'PM2';
@@ -4451,16 +4464,23 @@ class Transaksi extends CI_Controller
 			$cek = "AND cek_laminasi='N'";
 		}
 
-		$data = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND jenis_hpp='$jenis_hpp' $cek");
+		$data = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND rentang_hpp='$rentang' AND jenis_hpp='$jenis_hpp' $cek");
 		$html = '';
 		if($data->num_rows() > 0){
 			foreach($data->result() as $r){
-				// <div class="col-md-3"><div class="tampil-pilih-hpp"></div></div>
+				if($r->rentang_hpp == 'TAHUN'){
+					$rentang = $r->tahun_hpp;
+				}else if($r->rentang_hpp == 'BULAN'){
+					$rentang = strtoupper($this->m_fungsi->getBulan($r->bulan_hpp));
+				}else{
+					// strtoupper($this->m_fungsi->getHariIni($r->tgl_hpp))
+					$rentang = strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp));
+				}
 				$html .='<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 					<div class="col-md-3">
 						<button type="button" class="btn btn-block btn-sm bg-gradient-success" style="color:#000;font-weight:bold" onclick="pilihListHPP('."'".$r->id_hpp."'".','."'".$opsi."'".')">
 							<i class="fas fa-list" style="margin-right:6px"></i>
-							'.strtoupper(substr($this->m_fungsi->getHariIni($r->tgl_hpp),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl_hpp)).', '.$r->jenis_hpp.'
+							'.$rentang.', '.$r->jenis_hpp.'
 						</button>
 					</div>
 					<div class="col-md-9"></div>

@@ -1116,7 +1116,10 @@ class M_transaksi extends CI_Model
 		$statusInput = $_POST["statusInput"];
 		$data = [
 			'pilih_hpp' => $_POST["pilih_hpp"],
-			'tgl_hpp' => $_POST["tgl1_hpp"],
+			'rentang_hpp' => $_POST["rentang"],
+			'tahun_hpp' => ($_POST["rentang_tahun"] == "") ? null : $_POST["rentang_tahun"],
+			'bulan_hpp' => ($_POST["rentang_bulan"] == "") ? null : $_POST["rentang_bulan"],
+			'tgl_hpp' => ($_POST["rentang_tanggal"] == "") ? null : $_POST["rentang_tanggal"],
 			'jenis_hpp' => $_POST["jenis_hpp"],
 			'bahan_baku_kg' => ($_POST["bahan_baku_kg"] == "") ? 0 : $_POST["bahan_baku_kg"],
 			'bahan_baku_rp' => ($_POST["bahan_baku_rp"] == "") ? 0 : $_POST["bahan_baku_rp"],
@@ -1161,9 +1164,9 @@ class M_transaksi extends CI_Model
 		}else{
 			$pilih_hpp = $_POST["pilih_hpp"];
 			$pilih_id_hpp = $_POST["pilih_id_hpp"];
-			$tgl_hpp = $_POST["tgl1_hpp"];
+			$rentang = $_POST["rentang"];
 			$jenis_hpp = $_POST["jenis_hpp"];
-			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp'")->num_rows();
+			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND rentang_hpp='$rentang' AND jenis_hpp='$jenis_hpp'")->num_rows();
 
 			if($statusInput == 'insert'){
 				if($cek == 0){
@@ -1173,7 +1176,7 @@ class M_transaksi extends CI_Model
 					// CART
 					if($insertHPP){
 						// UPDATE CEK
-						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND tgl_hpp='$tgl_hpp' AND jenis_hpp='$jenis_hpp'")->row();
+						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND rentang_hpp='$rentang' AND jenis_hpp='$jenis_hpp'")->row();
 						if($pilih_hpp != 'PM2'){
 							$this->db->set('edit_time', date('Y-m-d H:i:s'));
 							$this->db->set('edit_user', $this->username);
