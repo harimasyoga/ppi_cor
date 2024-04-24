@@ -1166,7 +1166,17 @@ class M_transaksi extends CI_Model
 			$pilih_id_hpp = $_POST["pilih_id_hpp"];
 			$rentang = $_POST["rentang"];
 			$jenis_hpp = $_POST["jenis_hpp"];
-			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND rentang_hpp='$rentang' AND jenis_hpp='$jenis_hpp'")->num_rows();
+			$rentang_tahun = $_POST["rentang_tahun"];
+			$rentang_bulan = $_POST["rentang_bulan"];
+			$rentang_tanggal = $_POST["rentang_tanggal"];
+			if($rentang == 'TAHUN'){
+				$periode = "AND tahun_hpp='$rentang_tahun'";
+			}else if($rentang == 'BULAN'){
+				$periode = "AND bulan_hpp='$rentang_bulan'";
+			}else{
+				$periode = "AND tgl_hpp='$rentang_tanggal'";
+			}
+			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND rentang_hpp='$rentang' $periode AND jenis_hpp='$jenis_hpp'")->num_rows();
 
 			if($statusInput == 'insert'){
 				if($cek == 0){
@@ -1176,7 +1186,7 @@ class M_transaksi extends CI_Model
 					// CART
 					if($insertHPP){
 						// UPDATE CEK
-						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND rentang_hpp='$rentang' AND jenis_hpp='$jenis_hpp'")->row();
+						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND rentang_hpp='$rentang' $periode AND jenis_hpp='$jenis_hpp'")->row();
 						if($pilih_hpp != 'PM2'){
 							$this->db->set('edit_time', date('Y-m-d H:i:s'));
 							$this->db->set('edit_user', $this->username);
