@@ -421,7 +421,6 @@
 			data: ({ tgl_sj }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$("#no_surat_jalan").html(data.htmlSJ).prop('disabled', (data.numRows == 0) ? true : false)
 				swal.close()
 			}
@@ -447,7 +446,6 @@
 			data: ({ no_surat }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(no_surat != ''){
 					$("#txt_no_invoice").val("AUTO")
 					$("#no_invoice").val(data.no_invoice)
@@ -490,7 +488,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					kembali()
 				}else{
@@ -502,8 +499,6 @@
 	}
 
 	function editInvoiceLaminasi(id_header, opsi) {
-		console.log("id_header : ", id_header)
-		console.log("opsi : ", opsi)
 		$(".row-list-invoice-laminasi").hide()
 		$(".row-input-invoice-laminasi").show()
 		$(".col-verif-invoice-laminasi").attr('style', 'position:sticky;top:12px;margin-bottom:16px')
@@ -526,7 +521,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 
 				$("#h_id_header").val(id_header)
 				
@@ -853,7 +847,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.result){
 					editInvoiceLaminasi(id_header, 'edit')
 					$("#dc_opsi").val("").trigger('change')
@@ -866,7 +859,6 @@
 	}
 
 	function hapusDisc(id) {
-		console.log(id)
 		let id_header = $("#h_id_header").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/hapusDisc')?>',
@@ -884,7 +876,6 @@
 			data: ({ id }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					editInvoiceLaminasi(id_header, 'edit')
 					$("#dc_opsi").val("").trigger('change')

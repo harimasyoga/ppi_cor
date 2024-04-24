@@ -75,6 +75,16 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	public function Invoice_Jasa()
+	{
+		$data = array(
+			'judul' => "Invoice Jasa",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_invoice_jasa');
+		$this->load->view('footer');
+	}
+
 	public function Invoice_beli()
 	{
 		$data = array(
@@ -1572,6 +1582,31 @@ class Logistik extends CI_Controller
 
 		$judul = 'INVOICE LAMINASI - '.$no_invoice;
 		$this->m_fungsi->newMpdf($judul, 'cetak', $html, 6, 7, 6, 7, 'P', 'A4', $judul.'.pdf');
+	}
+
+	//
+
+	function cariSJJasa()
+	{
+		$tgl_sj = $_POST["tgl_sj"];
+		$htmlSJ = '';
+
+		$query = $this->db->query("SELECT p.tgl,p.no_surat,c.nm_pelanggan,c.attn FROM pl_box p
+		INNER JOIN m_rencana_kirim k ON p.no_pl_urut=k.rk_urut AND p.id=k.id_pl_box
+		INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
+		WHERE k.rk_status='Close' AND p.id_hub!='7' AND p.tgl='$tgl_sj'
+		GROUP BY p.tgl,p.no_surat");
+
+		($query->num_rows() == 0) ? $htmlSJ = '<option value="">DATA KOSONG</option>' : $htmlSJ = '<option value="">PILIH</option>';
+		foreach($query->result() as $r){
+			($r->attn == "-") ? $attn = $r->nm_pelanggan : $attn = $r->nm_pelanggan.' ( '.$r->attn.' )';
+			$htmlSJ .= '<option value="'.$r->no_surat.'">'.$r->no_surat.' | '.$attn.'</option>';
+		}
+
+		echo json_encode([
+			'numRows' => $query->num_rows(),
+			'htmlSJ' => $htmlSJ,
+		]);
 	}
 
 	//
@@ -5289,7 +5324,7 @@ class Logistik extends CI_Controller
 
 			($r->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
 			$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$r->no_surat."&top=".$jarak."&ctk=0").'" title="'.$r->no_surat.'" >PRINT</a>';
-			$btnJasa = '<a target="_blank" class="btn btn-xs btn-primary" style="font-weight:bold" href="'.base_url("Logistik/suratJalanJasa?jenis=".$r->no_surat."&top=5&ctk=0").'" title="SJ JASA" >JASA</a>';
+			($r->id_hub != 7) ? $btnJasa = '<a target="_blank" class="btn btn-xs btn-primary" style="font-weight:bold" href="'.base_url("Logistik/suratJalanJasa?jenis=".$r->no_surat."&top=5&ctk=0").'" title="SJ JASA" >JASA</a>' : $btnJasa = '';
 
 			$no_surat = explode("/", $r->no_surat);
 			if($no_surat[0] == 000){
@@ -5390,10 +5425,14 @@ class Logistik extends CI_Controller
 						($sjpo->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
 						if($noSJ[0] != 000 && in_array($this->session->userdata('level'), ['Admin', 'User'])){
 							$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$sjpo->no_surat."&top=".$jarak."&ctk=0").'" title="'.$sjpo->no_surat.'" >PRINT</a>';
-							$btnJasa = '<a target="_blank" class="btn btn-xs btn-primary" style="font-weight:bold" href="'.base_url("Logistik/suratJalanJasa?jenis=".$sjpo->no_surat."&top=5&ctk=0").'" title="SJ JASA" >JASA</a>';
 						}else{
 							$btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
-							$btnJasa = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">JASA</span>';
+						}
+
+						if($sjpo->id_hub != 7){
+							$btnJasa = '<a target="_blank" class="btn btn-xs btn-primary" style="font-weight:bold" href="'.base_url("Logistik/suratJalanJasa?jenis=".$sjpo->no_surat."&top=5&ctk=0").'" title="SJ JASA" >JASA</a>';
+						}else{
+							$btnJasa = '';
 						}
 
 						// EDIT NOMER SURAT JALAN
