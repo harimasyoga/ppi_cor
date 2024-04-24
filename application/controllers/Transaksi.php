@@ -1433,7 +1433,18 @@ class Transaksi extends CI_Controller
 
 				if (in_array($this->session->userdata('level'), ['Admin','User']))
 				{
-					$aksi = '
+					$cek = $this->db->query("SELECT * FROM trs_d_stok_bb where no_po_bhn='$r->no_po_bhn' ")->num_rows();
+
+					if($cek>0)
+					{
+						$aksi = '						
+						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO_BAHAN?no_po_bhn=".$no_po_bhn2."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+
+						';
+
+					}else{
+
+						$aksi = '
 						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_po_bhn . ')" title="EDIT DATA" >
 							<b><i class="fa fa-edit"></i> </b>
 						</a> 
@@ -1444,6 +1455,9 @@ class Transaksi extends CI_Controller
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';
+
+					}
+					
 			
 				} else {
 					$aksi = '';

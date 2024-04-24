@@ -141,25 +141,30 @@ class Logistik extends CI_Controller
 
 			$i               = 1;
 			foreach ($query as $r) {
+				$cek_list = $r->ton_bhn - $r->history_po;
 
-				$id           = "'$r->id_po_bhn'";
-				$no_po        = "'$r->no_po_bhn'";
-				$row      = array();
-				$row[]    = '<div class="text-center">'.$i.'</div>';
-				$row[]    = '<div >'.$r->nm_hub.'</div>';
-				$row[]    = $r->no_po_bhn;
-				$row[]    = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_bhn).'</div>';
-				$row[]    = '<div class="text-center">'.number_format($r->ton_bhn, 0, ",", ".").'</div>';
-				$row[]    = '<div class="text-center">'.number_format($r->history_po, 0, ",", ".").'</div>';
-				
-				$aksi = '
-				<button type="button" title="PILIH"  onclick="spilldata(' . $id . ',' . $no_po . ',' . $id_name . ')" class="btn btn-success btn-sm">
-					<i class="fas fa-check-circle"></i>
-				</button> ';
+				if($cek_list == 0)
+				{
+				}else{
+					$id            = "'$r->id_po_bhn'";
+					$no_po         = "'$r->no_po_bhn'";
+					$row           = array();
+					$row[]         = '<div class="text-center">'.$i.'</div>';
+					$row[]         = '<div >'.$r->nm_hub.'</div>';
+					$row[]         = $r->no_po_bhn;
+					$row[]         = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_bhn).'</div>';
+					$row[]         = '<div class="text-center">'.number_format($r->ton_bhn, 0, ",", ".").'</div>';
+					$row[]         = '<div class="text-center">'.number_format($r->history_po, 0, ",", ".").'</div>';
+					
+					$aksi          = '
+					<button type   = "button" title="PILIH"  onclick="spilldata(' . $id . ',' . $no_po . ',' . $id_name . ')" class="btn btn-success btn-sm">
+						<i class      = "fas fa-check-circle"></i>
+					</button> ';
 
-				$row[] = '<div class="text-center">'.$aksi.'</div>';
-				$data[] = $row;
-				$i++;
+					$row[]         = '<div class="text-center">'.$aksi.'</div>';
+					$data[]        = $row;
+					$i++;
+				}
 			}
 		}else{
 
@@ -2004,16 +2009,27 @@ class Logistik extends CI_Controller
 
 				if ($this->session->userdata('level') == 'Admin') 
 				{
-					$aksi = '
-					<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/v_timbangan_edit?id_timb=" .$r->id_timbangan ."&no_timb=" .$r->no_timbangan ."") . '" title="EDIT DATA" >
-						<b><i class="fa fa-edit"></i> </b>
-					</a> 
-					<button type="button" title="DELETE" onclick="deleteTimbangan(' . $id . ',' . $no_timb . ')" class="btn btn-danger btn-sm">
-						<i class="fa fa-trash-alt"></i>
+					$cek = $this->db->query("SELECT * FROM trs_h_stok_bb where no_timbangan='$r->no_timbangan' ")->num_rows();
 
-					</button> 
-					<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
-					<a target="_blank" class="btn btn-sm btn-secondary" href="'.$printLampiran.'" title="LAMPIRAN"><i class="fas fa-paperclip" style="color:#fff"></i></a>';
+					if($cek>0)
+					{
+						$aksi = '
+						<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+						<a target="_blank" class="btn btn-sm btn-secondary" href="'.$printLampiran.'" title="LAMPIRAN"><i class="fas fa-paperclip" style="color:#fff"></i></a>';
+					}else{
+
+						$aksi = '
+						<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/v_timbangan_edit?id_timb=" .$r->id_timbangan ."&no_timb=" .$r->no_timbangan ."") . '" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+						<button type="button" title="DELETE" onclick="deleteTimbangan(' . $id . ',' . $no_timb . ')" class="btn btn-danger btn-sm">
+							<i class="fa fa-trash-alt"></i>
+
+						</button> 
+						<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+						<a target="_blank" class="btn btn-sm btn-secondary" href="'.$printLampiran.'" title="LAMPIRAN"><i class="fas fa-paperclip" style="color:#fff"></i></a>';
+					}
+					
 				} else {
 					$aksi = '<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
 				}
@@ -2244,32 +2260,38 @@ class Logistik extends CI_Controller
 
 			$i               = 1;
 			foreach ($query as $r) {
+				$cek_list = $r->berat_bersih - $r->history;
 
-				$id             = "'$r->id_timbangan'";
-				$no_timbangan   = "'$r->no_timbangan'";
-				$berat_bersih   = "'$r->berat_bersih'";
-				$tgl_masuk      = substr(($r->date_masuk),0,10);
+				if($cek_list == 0)
+				{
+				}else{
 
-				$row            = array();
-				$row[]          = '<div class="text-center">'.$i.'</div>';
-				$row[]          = '<div >'.$r->no_timbangan.'</div>';
-				$row[]          = '<div class="text-center">'.$this->m_fungsi->tanggal_format_indonesia($tgl_masuk).'</div>';
-				// $row[]          = $r->date_keluar;
-				$row[]          = '<div >'.$r->no_polisi.'</div>';
-				$row[]          = $r->nm_barang;
-				$row[]          = '<div class="text-center">'.number_format($r->berat_bersih, 0, ",", ".").'</div>';
-				$row[]          = '<div class="text-center">'.number_format($r->history, 0, ",", ".").'</div>';
-				$row[]          = $r->catatan;
-				$row[]          = $r->nm_sopir;
-				
-				$aksi = '
-				<button type="button" title="PILIH"  onclick="add_timb(' . $id . ',' . $no_timbangan . ',' . $berat_bersih . ',' . $r->history . ')" class="btn btn-success btn-sm">
-					<i class="fas fa-check-circle"></i>
-				</button> ';
+					$id             = "'$r->id_timbangan'";
+					$no_timbangan   = "'$r->no_timbangan'";
+					$berat_bersih   = "'$r->berat_bersih'";
+					$tgl_masuk      = substr(($r->date_masuk),0,10);
 
-				$row[] = '<div class="text-center">'.$aksi.'</div>';
-				$data[] = $row;
-				$i++;
+					$row            = array();
+					$row[]          = '<div class="text-center">'.$i.'</div>';
+					$row[]          = '<div >'.$r->no_timbangan.'</div>';
+					$row[]          = '<div class="text-center">'.$this->m_fungsi->tanggal_format_indonesia($tgl_masuk).'</div>';
+					// $row[]          = $r->date_keluar;
+					$row[]          = '<div >'.$r->no_polisi.'</div>';
+					$row[]          = $r->nm_barang;
+					$row[]          = '<div class="text-center">'.number_format($r->berat_bersih, 0, ",", ".").'</div>';
+					$row[]          = '<div class="text-center">'.number_format($r->history, 0, ",", ".").'</div>';
+					$row[]          = $r->catatan;
+					$row[]          = $r->nm_sopir;
+					
+					$aksi = '
+					<button type="button" title="PILIH"  onclick="add_timb(' . $id . ',' . $no_timbangan . ',' . $berat_bersih . ',' . $r->history . ')" class="btn btn-success btn-sm">
+						<i class="fas fa-check-circle"></i>
+					</button> ';
+
+					$row[] = '<div class="text-center">'.$aksi.'</div>';
+					$data[] = $row;
+					$i++;
+				}
 			}
 		}else if ($jenis == "loadDataInvoiceLaminasi") {
 			$query = $this->db->query("SELECT*FROM invoice_laminasi_header")->result();
@@ -2630,6 +2652,16 @@ class Logistik extends CI_Controller
 		$json = json_encode($response);
 		print_r($json);
     }
+
+	function insert_inv_beli()
+	{
+		if($this->session->userdata('username'))
+		{ 
+			$result = $this->m_logistik->save_inv_beli();
+			echo json_encode($result);
+		}
+		
+	}
 
 	function Insert_inv()
 	{
