@@ -493,7 +493,7 @@ class Keuangan extends CI_Controller
 		}
 
 		// echo($html);
-		$this->m_fungsi->template_kop('LAPORAN LABA RUGI','-',$html,'P','1');
+		$this->m_fungsi->template_kop('LAPORAN NERACA','-',$html,'P','1');
 	}
 	
 	function cetak_bukbes()
@@ -503,7 +503,7 @@ class Keuangan extends CI_Controller
 		$html = '';
 		$html .= '<br>';
 
-        $query_header = $this->db->query("SELECT kode_rek from jurnal_d group by kode_rek order by kode_rek");
+        $query_header = $this->db->query("SELECT kode_rek from jurnal_d group by kode_rek order by tgl_input asc,kode_rek");
         
         $data = $query_header->row();
 
@@ -511,7 +511,7 @@ class Keuangan extends CI_Controller
 		{
 			foreach ($query_header->result() as $header) 
 			{        
-				$query_detail = $this->db->query("SELECT kode_rek from jurnal_d where kode_rek='$header->kode_rek' order by kode_rek");
+				$query_detail = $this->db->query("SELECT kode_rek from jurnal_d where kode_rek='$header->kode_rek' order by tgl_input asc,kode_rek");
 
 					$html .= '<table border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:14px;font-family: ;" width="100%">
 					<thead class="color-tabel">
