@@ -44,15 +44,65 @@
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">TANGGAL</div>
-							<div class="col-md-9">
-								<input type="date" id="tgl1_hpp" class="form-control" onchange="pilihHPP()">
+							<div class="col-md-3">PERIODE</div>
+							<div class="col-md-4">
+								<select id="rentang" class="form-control select2" onchange="pilihHPP()">
+									<option value="">PILIH</option>
+									<option value="TAHUN">TAHUN</option>
+									<option value="BULAN">BULAN</option>
+									<option value="TANGGAL">TANGGAL</option>
+								</select>
+							</div>
+							<div class="col-md-5">
+								<div class="pilih-rentang-tahun" style="display:none">
+									<select id="rentang_tahun" class="form-control select2" onchange="pilihHPP()">
+										<option value="">PILIH</option>
+										<?php
+										$thang = date("Y");
+										$thang_maks = $thang;
+										$thang_min = $thang - 4;
+										for ($th = $thang_min; $th <= $thang_maks; $th++)
+										{ ?>
+											<?php if ($th==$thang) { ?>
+												<option value="<?= $th ?>"> <?= $thang ?> </option>
+											<?php }else{ ?>
+												<option value="<?= $th ?>"> <?= $th ?> </option>
+											<?php }
+										} ?>
+									</select>
+								</div>
+								<div class="pilih-rentang-bulan" style="display:none">
+									<select id="rentang_bulan" class="form-control select2" onchange="pilihHPP()">
+										<option value="">PILIH</option>
+										<option value="1">JANUARI</option>
+										<option value="2">FEBRUARI</option>
+										<option value="3">MARET</option>
+										<option value="4">APRIL</option>
+										<option value="5">MEI</option>
+										<option value="6">JUNI</option>
+										<option value="7">JULI</option>
+										<option value="8">AGUSTUS</option>
+										<option value="9">SEPTEMBER</option>
+										<option value="10">OKTOBER</option>
+										<option value="11">NOVEMBER</option>
+										<option value="12">DESEMBER</option>
+									</select>
+								</div>
+								<div class="pilih-rentang-tanggal" style="display:none">
+									<input type="date" id="rentang_tanggal" class="form-control" onchange="pilihHPP()">
+								</div>
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">JENIS</div>
 							<div class="col-md-9">
-								<select id="jenis_hpp" class="form-control select2" onchange="pilihHPP()"></select>
+								<select id="jenis_hpp" class="form-control select2" onchange="pilihHPP()">
+									<option value="">PILIH</option>
+									<option value="BK">BK</option>
+									<option value="MH">MH</option>
+									<option value="WP">WP</option>
+									<option value="GLOBAL">GLOBAL</option>
+								</select>
 							</div>
 						</div>
 					</div>
@@ -487,6 +537,35 @@
 									</div>
 								</div>
 							</div>
+							<div class="pb-sheet-global" style="display:none">
+								<div class="card-body row" style="font-weight:bold;padding:18px 12px">
+									<div class="col-md-3">GLOBAL</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<input type="text" id="global_kg" class="form-control" style="text-align:right" placeholder="0"  autocomplete="off" onkeyup="HitungBB('GLOBAL','sheet')">
+											<div class="input-group-append">
+												<span class="input-group-text" style="padding:6px">Kg</span>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px">Rp</span>
+											</div>
+											<input type="text" id="global_rp" class="form-control" style="text-align:right" placeholder="0"  autocomplete="off" onkeyup="HitungBB('GLOBAL','sheet')">
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+											</div>
+											<input type="text" id="global_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 					<!-- BIAYA PRODUKSI SHEET -->
@@ -822,6 +901,35 @@
 									</div>
 								</div>
 							</div>
+							<div class="pb-box-global" style="display:none">
+								<div class="card-body row" style="font-weight:bold;padding:18px 12px">
+									<div class="col-md-3">GLOBAL</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<input type="text" id="global_kg_box" class="form-control" style="text-align:right" placeholder="0"  autocomplete="off" onkeyup="HitungBB('GLOBAL','box')">
+											<div class="input-group-append">
+												<span class="input-group-text" style="padding:6px">Kg</span>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px">Rp</span>
+											</div>
+											<input type="text" id="global_rp_box" class="form-control" style="text-align:right" placeholder="0"  autocomplete="off" onkeyup="HitungBB('GLOBAL','box')">
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+											</div>
+											<input type="text" id="global_x_box" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 					<!-- BIAYA PRODUKSI BOX -->
@@ -1099,30 +1207,61 @@
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">PEMAKAIAN BAHAN</h3>
 							</div>
-							<div class="card-body row" style="font-weight:bold;padding:18px 12px">
-								<div class="col-md-3">WP</div>
-								<div class="col-md-3">
-									<div class="input-group">
-										<input type="text" id="wp_kg" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBB('WP','laminasi')">
-										<div class="input-group-append">
-											<span class="input-group-text" style="padding:6px">Kg</span>
+							<div class="pb-lam-wp" style="display:none">
+								<div class="card-body row" style="font-weight:bold;padding:18px 12px">
+									<div class="col-md-3">WP</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<input type="text" id="wp_kg_lam" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBB('WP','laminasi')">
+											<div class="input-group-append">
+												<span class="input-group-text" style="padding:6px">Kg</span>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px">Rp</span>
+											</div>
+											<input type="text" id="wp_rp_lam" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBB('WP','laminasi')">
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+											</div>
+											<input type="text" id="wp_x_lam" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
 										</div>
 									</div>
 								</div>
-								<div class="col-md-3">
-									<div class="input-group">
-										<div class="input-group-prepend">
-											<span class="input-group-text" style="padding:6px">Rp</span>
+							</div>
+							<div class="pb-lam-global" style="display:none">
+								<div class="card-body row" style="font-weight:bold;padding:18px 12px">
+									<div class="col-md-3">GLOBAL</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<input type="text" id="global_kg_lam" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBB('GLOBAL','laminasi')">
+											<div class="input-group-append">
+												<span class="input-group-text" style="padding:6px">Kg</span>
+											</div>
 										</div>
-										<input type="text" id="wp_rp" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBB('WP','laminasi')">
 									</div>
-								</div>
-								<div class="col-md-3">
-									<div class="input-group">
-										<div class="input-group-prepend">
-											<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+									<div class="col-md-3">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px">Rp</span>
+											</div>
+											<input type="text" id="global_rp_lam" class="form-control" style="text-align:right" placeholder="0" autocomplete="off" onkeyup="HitungBB('GLOBAL','laminasi')">
 										</div>
-										<input type="text" id="wp_x" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+									</div>
+									<div class="col-md-3">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text" style="padding:6px;font-weight:bold;color:#000">Rp</span>
+											</div>
+											<input type="text" id="global_x_lam" class="form-control" style="font-weight:bold;color:#000;text-align:right" placeholder="0" disabled>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -1662,11 +1801,12 @@
 									<thead>
 										<tr>
 											<th style="text-align:center">#</th>
-											<th style="text-align:center">HARI, TANGGAL</th>
+											<th style="text-align:center">PERI</th>
+											<th style="text-align:center">ODE</th>
 											<th style="text-align:center">HPP</th>
 											<th style="text-align:center">JENIS</th>
 											<th style="text-align:center">TOTAL</th>
-											<th style="text-align:center">TONASE ORDER</th>
+											<th style="text-align:center">T. ORDER</th>
 											<th style="text-align:center">HASIL</th>
 											<th style="text-align:center">AKSI</th>
 										</tr>
@@ -1735,9 +1875,17 @@
 		$(".update-keterangan-upah-lam").html('')
 		$(".update-keterangan-dll-lam").html('')
 
-		$("#pilih_hpp").val("").prop('disabled', false)
-		$("#tgl1_hpp").val("").prop('disabled', true)
-		$("#jenis_hpp").html('<option value="">PILIH</option>').prop('disabled', true)
+		$("#pilih_hpp").val("").prop('disabled', false).trigger('change')
+		
+		$("#rentang").val("").prop('disabled', true).trigger('change')
+		$("#rentang_tahun").val("").trigger('change')
+		$("#rentang_bulan").val("").trigger('change')
+		$("#rentang_tanggal").val("")
+		$(".pilih-rentang-tahun").hide()
+		$(".pilih-rentang-bulan").hide()
+		$(".pilih-rentang-tanggal").hide()
+
+		$("#jenis_hpp").val("").prop('disabled', true).trigger('change')
 
 		// PEMAKAIAN BAHAN
 		$("#id_cart_bahan").val("777") // cart
@@ -1755,6 +1903,9 @@
 		$("#mh_kg").val("")
 		$("#mh_rp").val("")
 		$("#mh_x").val("")
+		$("#global_kg").val("")
+		$("#global_rp").val("")
+		$("#global_x").val("")
 
 		// BOX
 		$("#bk_kg_box").val("")
@@ -1763,11 +1914,17 @@
 		$("#mh_kg_box").val("")
 		$("#mh_rp_box").val("")
 		$("#mh_x_box").val("")
+		$("#global_kg_box").val("")
+		$("#global_rp_box").val("")
+		$("#global_x_box").val("")
 
 		// LAMINASI
-		$("#wp_kg").val("")
-		$("#wp_rp").val("")
-		$("#wp_x").val("")
+		$("#wp_kg_lam").val("")
+		$("#wp_rp_lam").val("")
+		$("#wp_x_lam").val("")
+		$("#global_kg_lam").val("")
+		$("#global_rp_lam").val("")
+		$("#global_x_lam").val("")
 
 		// BIAYA PRODUKSI
 		$("#tenaga_kerja").val("").prop('disabled', false)
@@ -1918,9 +2075,6 @@
 	{
 		reloadTable()
 		$(".llll").load("<?php echo base_url('Transaksi/destroyHPP') ?>")
-		$("#pilih_hpp").val("").trigger('change').prop('disabled', false)
-		$("#tgl1_hpp").val("").prop('disabled', false)
-		$("#jenis_hpp").html('<option value="">PILIH</option>').prop('disabled', false)
 		$(".row-input-hpp").hide()
 		$(".row-list-hpp").show()
 		hideAll('', 'none')
@@ -2013,63 +2167,88 @@
 	function pilihHPP()
 	{
 		let pilih_hpp = $("#pilih_hpp").val()
-		let tgl_hpp = $("#tgl1_hpp").val()
+		let rentang = $("#rentang").val()
 		let jenis_hpp = $("#jenis_hpp").val()
 
 		if(pilih_hpp == ''){
-			$("#pilih_hpp").val("").prop('disabled', false)
-			$("#tgl1_hpp").val("").prop('disabled', true)
-			$("#jenis_hpp").html('<option value="">PILIH</option>').prop('disabled', true)
-		}
-		if(pilih_hpp != '' && tgl_hpp == '' && (jenis_hpp == '' || jenis_hpp != '')){
+			$("#pilih_hpp").prop('disabled', false)
+			$("#rentang").prop('disabled', true)
+			$("#jenis_hpp").prop('disabled', true)
+		}else{
 			$("#pilih_hpp").prop('disabled', true)
-			$("#tgl1_hpp").val("").prop('disabled', false);
-			if(pilih_hpp == 'LAMINASI'){
-				$("#jenis_hpp").html('<option value="">PILIH</option><option value="WP">WP</option>').prop('disabled', true)
-			}else if(pilih_hpp == 'SHEET' || pilih_hpp == 'BOX'){
-				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option>').prop('disabled', false)
+			$("#rentang").prop('disabled', false)
+			$("#jenis_hpp").prop('disabled', true)
+		}
+
+		if(rentang == "TAHUN"){
+			$("#rentang").prop('disabled', true)
+			$(".pilih-rentang-tahun").show()
+			$(".pilih-rentang-bulan").hide()
+			$(".pilih-rentang-tanggal").hide()
+			let rentang_tahun = $("#rentang_tahun").val();
+			if(rentang_tahun == ''){
+				$("#rentang_tahun").prop('disabled', false)
+				$("#jenis_hpp").prop('disabled', true)
 			}else{
-				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option><option value="WP">WP</option>').prop('disabled', false)
+				$("#rentang_tahun").prop('disabled', true)
+				$("#jenis_hpp").prop('disabled', false)
 			}
-		}
-		if(pilih_hpp != '' && tgl_hpp != '' && jenis_hpp == ''){
-			$("#pilih_hpp").prop('disabled', true)
-			$("#tgl1_hpp").prop('disabled', true)
-			if(pilih_hpp == 'LAMINASI'){
-				$("#jenis_hpp").html('<option value="">PILIH</option><option value="WP">WP</option>').prop('disabled', false)
-			}else if(pilih_hpp == 'SHEET' || pilih_hpp == 'BOX'){
-				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option>').prop('disabled', false)
+		}else if(rentang == "BULAN"){
+			$("#rentang").prop('disabled', true)
+			$(".pilih-rentang-tahun").hide()
+			$(".pilih-rentang-bulan").show()
+			$(".pilih-rentang-tanggal").hide()
+			let rentang_bulan = $("#rentang_bulan").val()
+			if(rentang_bulan == ''){
+				$("#rentang_bulan").prop('disabled', false)
+				$("#jenis_hpp").prop('disabled', true)
 			}else{
-				$("#jenis_hpp").html('<option value="">PILIH</option><option value="BK">BK</option><option value="MH">MH</option><option value="WP">WP</option>').prop('disabled', false)
+				$("#rentang_bulan").prop('disabled', true)
+				$("#jenis_hpp").prop('disabled', false)
 			}
+		}else if(rentang == "TANGGAL"){
+			$("#rentang").prop('disabled', true)
+			$(".pilih-rentang-tahun").hide()
+			$(".pilih-rentang-bulan").hide()
+			$(".pilih-rentang-tanggal").show()
+			let rentang_tanggal = $("#rentang_tanggal").val()
+			if(rentang_tanggal == ''){
+				$("#rentang_tanggal").prop('disabled', false)
+				$("#jenis_hpp").prop('disabled', true)
+			}else{
+				$("#rentang_tanggal").prop('disabled', true)
+				$("#jenis_hpp").prop('disabled', false)
+			}
+		}else{
+			$(".pilih-rentang-tahun").hide()
+			$(".pilih-rentang-bulan").hide()
+			$(".pilih-rentang-tanggal").hide()
 		}
-		if(pilih_hpp != '' && tgl_hpp != '' && jenis_hpp != ''){
-			$("#pilih_hpp").prop('disabled', true)
-			$("#tgl1_hpp").prop('disabled', true)
+
+		if(jenis_hpp != ''){
 			$("#jenis_hpp").prop('disabled', true)
 		}
 
 		$(".cbx").attr('style', 'display:none')
-		if(pilih_hpp == "PM2" && tgl_hpp != '' && jenis_hpp != ''){
+		if(pilih_hpp == "PM2" && rentang != '' && jenis_hpp != ''){
 			hideAll('pm', 'show')
-		}else if(pilih_hpp == "BOX" && tgl_hpp != '' && jenis_hpp != ''){
-			tampilListHpp('box')
+		}else if(pilih_hpp == "BOX" && rentang != '' && jenis_hpp != ''){
+			tampilListHpp('box', rentang)
 			hideAll('box', 'show')
-		}else if(pilih_hpp == "SHEET" && tgl_hpp != '' && jenis_hpp != ''){
-			tampilListHpp('sheet')
+		}else if(pilih_hpp == "SHEET" && rentang != '' && jenis_hpp != ''){
+			tampilListHpp('sheet', rentang)
 			hideAll('sheet', 'show')
-		}else if(pilih_hpp == "LAMINASI" && tgl_hpp != '' && jenis_hpp != ''){
-			tampilListHpp('laminasi')
+		}else if(pilih_hpp == "LAMINASI" && rentang != '' && jenis_hpp != ''){
+			tampilListHpp('laminasi', rentang)
 			hideAll('laminasi', 'show')
 		}else{
 			hideAll('', 'none')
 		}
 	}
 
-	function tampilListHpp(opsi)
+	function tampilListHpp(opsi, rentang)
 	{
 		let pilih_hpp = $("#pilih_hpp").val()
-		let tgl1_hpp = $("#tgl1_hpp").val()
 		let jenis_hpp = $("#jenis_hpp").val()
 		$(".card-list-hpp-pm").show()
 		$.ajax({
@@ -2086,7 +2265,7 @@
 				});
 			},
 			data: ({
-				pilih_hpp, tgl1_hpp, jenis_hpp, opsi
+				pilih_hpp, jenis_hpp, opsi, rentang
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -2097,22 +2276,46 @@
 				}
 				$(".tampil-list-hpp-pm").html(data.html)
 
+				// SHEET
 				if(opsi == 'sheet' && jenis_hpp == "MH"){
 					$(".pb-sheet-mh").show()
 					$(".pb-sheet-bk").hide()
+					$(".pb-sheet-global").hide()
 				}
 				if(opsi == 'sheet' && jenis_hpp == "BK"){
 					$(".pb-sheet-mh").hide()
 					$(".pb-sheet-bk").show()
+					$(".pb-sheet-global").hide()
 				}
-
+				if(opsi == 'sheet' && jenis_hpp == "GLOBAL"){
+					$(".pb-sheet-mh").hide()
+					$(".pb-sheet-bk").hide()
+					$(".pb-sheet-global").show()
+				}
+				// BOX
 				if(opsi == 'box' && jenis_hpp == "MH"){
 					$(".pb-box-mh").show()
 					$(".pb-box-bk").hide()
+					$(".pb-box-global").hide()
 				}
 				if(opsi == 'box' && jenis_hpp == "BK"){
 					$(".pb-box-mh").hide()
 					$(".pb-box-bk").show()
+					$(".pb-box-global").hide()
+				}
+				if(opsi == 'box' && jenis_hpp == "GLOBAL"){
+					$(".pb-box-mh").hide()
+					$(".pb-box-bk").hide()
+					$(".pb-box-global").show()
+				}
+				// LAMINASI
+				if(opsi == 'laminasi' && jenis_hpp == "WP"){
+					$(".pb-lam-wp").show()
+					$(".pb-lam-global").hide()
+				}
+				if(opsi == 'laminasi' && jenis_hpp == "GLOBAL"){
+					$(".pb-lam-wp").hide()
+					$(".pb-lam-global").show()
 				}
 				swal.close()
 			}
@@ -2123,6 +2326,9 @@
 	{
 		$("#pilih_id_hpp").val("")
 		$(".tampil-pilih-hpp").html("")
+		let pilih_hpp = $("#pilih_hpp").val()
+		let jenis_hpp = $("#jenis_hpp").val()
+
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/pilihListHPP')?>',
 			type: "POST",
@@ -2144,17 +2350,20 @@
 				if(opsi == 'sheet'){
 					$("#bk_rp").val(data.pm.hasil_x_tonase)
 					$("#mh_rp").val(data.pm.hasil_x_tonase)
+					$("#global_rp").val(data.pm.hasil_x_tonase)
 					$("#hpp_pm").val(data.pm.hasil_x_tonase_tanpa_bb)
 					$("#hpp_sheet").val(0)
 				}
 				if(opsi == 'box'){
 					$("#bk_rp_box").val(data.pm.hasil_x_tonase)
 					$("#mh_rp_box").val(data.pm.hasil_x_tonase)
+					$("#global_rp_box").val(data.pm.hasil_x_tonase)
 					$("#hpp_pm").val(0)
 					$("#hpp_sheet").val(data.pm.hpp_plus_plus)
 				}
 				if(opsi == 'laminasi'){
-					$("#wp_rp").val(data.pm.hasil_x_tonase)
+					$("#wp_rp_lam").val(data.pm.hasil_x_tonase)
+					$("#global_rp_lam").val(data.pm.hasil_x_tonase)
 					$("#hpp_pm").val(data.pm.hasil_x_tonase_tanpa_bb)
 					$("#hpp_sheet").val(0)
 				}
@@ -2422,8 +2631,8 @@
 			o = '_box'
 		}
 		if(jenis == 'BK'){
-			let bk_kg = $("#bk_kg"+o).val()
-			let bk_rp = $("#bk_rp"+o).val()
+			let bk_kg = $("#bk_kg"+o).val().split('.').join('')
+			let bk_rp = $("#bk_rp"+o).val().split('.').join('')
 			$("#bk_kg"+o).val(formatRupiah(bk_kg))
 			$("#bk_rp"+o).val(formatRupiah(bk_rp))
 			let h_bk_kg = (bk_kg == '' || isNaN(bk_kg)) ? 0 : parseInt(bk_kg.split('.').join(''));
@@ -2433,8 +2642,8 @@
 			$("#bk_x"+o).val(format_angka(x_bk))
 		}
 		if(jenis == 'MH'){
-			let mh_kg = $("#mh_kg"+o).val()
-			let mh_rp = $("#mh_rp"+o).val()
+			let mh_kg = $("#mh_kg"+o).val().split('.').join('')
+			let mh_rp = $("#mh_rp"+o).val().split('.').join('')
 			$("#mh_kg"+o).val(formatRupiah(mh_kg))
 			$("#mh_rp"+o).val(formatRupiah(mh_rp))
 			let h_mh_kg = (mh_kg == '' || isNaN(mh_kg)) ? 0 : parseInt(mh_kg.split('.').join(''));
@@ -2443,16 +2652,38 @@
 			((h_mh_kg == '' || h_mh_kg == 0 || isNaN(h_mh_kg)) && h_mh_rp != 0) ? x_mh = h_mh_rp : x_mh = h_mh_kg * h_mh_rp;
 			$("#mh_x"+o).val(format_angka(x_mh))
 		}
+		if(jenis == 'GLOBAL' && opsi != 'laminasi'){
+			let global_kg = $("#global_kg"+o).val().split('.').join('')
+			let global_rp = $("#global_rp"+o).val().split('.').join('')
+			$("#global_kg"+o).val(formatRupiah(global_kg))
+			$("#global_rp"+o).val(formatRupiah(global_rp))
+			let h_global_kg = (global_kg == '' || isNaN(global_kg)) ? 0 : parseInt(global_kg.split('.').join(''));
+			let h_global_rp = (global_rp == '' || isNaN(global_rp)) ? 0 : parseInt(global_rp.split('.').join(''));
+			let x_mh = 0;
+			((h_global_kg == '' || h_global_kg == 0 || isNaN(h_global_kg)) && h_global_rp != 0) ? x_mh = h_global_rp : x_mh = h_global_kg * h_global_rp;
+			$("#global_x"+o).val(format_angka(x_mh))
+		}
 		if(jenis == 'WP'){
-			let wp_kg = $("#wp_kg").val()
-			let wp_rp = $("#wp_rp").val()
-			$("#wp_kg").val(formatRupiah(wp_kg))
-			$("#wp_rp").val(formatRupiah(wp_rp))
+			let wp_kg = $("#wp_kg_lam").val().split('.').join('')
+			let wp_rp = $("#wp_rp_lam").val().split('.').join('')
+			$("#wp_kg_lam").val(formatRupiah(wp_kg))
+			$("#wp_rp_lam").val(formatRupiah(wp_rp))
 			let h_wp_kg = (wp_kg == '' || isNaN(wp_kg)) ? 0 : parseInt(wp_kg.split('.').join(''));
 			let h_wp_rp = (wp_rp == '' || isNaN(wp_rp)) ? 0 : parseInt(wp_rp.split('.').join(''));
 			let x_wp = 0;
 			((h_wp_kg == '' || h_wp_kg == 0 || isNaN(h_wp_kg)) && h_wp_rp != 0) ? x_wp = h_wp_rp : x_wp = h_wp_kg * h_wp_rp;
-			$("#wp_x").val(format_angka(x_wp))
+			$("#wp_x_lam").val(format_angka(x_wp))
+		}
+		if(jenis == 'GLOBAL' && opsi == 'laminasi'){
+			let global_kg = $("#global_kg_lam").val().split('.').join('')
+			let global_rp = $("#global_rp_lam").val().split('.').join('')
+			$("#global_kg_lam").val(formatRupiah(global_kg))
+			$("#global_rp_lam").val(formatRupiah(global_rp))
+			let h_global_kg = (global_kg == '' || isNaN(global_kg)) ? 0 : parseInt(global_kg.split('.').join(''));
+			let h_global_rp = (global_rp == '' || isNaN(global_rp)) ? 0 : parseInt(global_rp.split('.').join(''));
+			let x_wp = 0;
+			((h_global_kg == '' || h_global_kg == 0 || isNaN(h_global_kg)) && h_global_rp != 0) ? x_wp = h_global_rp : x_wp = h_global_kg * h_global_rp;
+			$("#global_x_lam").val(format_angka(x_wp))
 		}
 		hitungBiayaProduksi()
 	}
@@ -2556,11 +2787,23 @@
 		if(pilih_hpp == 'PM2'){
 			bahan_baku_rp = $("#bahan_baku_rp").val().split('.').join('')
 		}else if(pilih_hpp == 'SHEET'){
-			(jenis_hpp == 'MH') ? bahan_baku_rp =  $("#mh_x").val().split('.').join('') : bahan_baku_rp =  $("#bk_x").val().split('.').join(''); // sheet
+			if(jenis_hpp == 'MH'){
+				bahan_baku_rp =  $("#mh_x").val().split('.').join('')
+			}else if(jenis_hpp == 'BK'){
+				bahan_baku_rp =  $("#bk_x").val().split('.').join('')
+			}else{
+				bahan_baku_rp =  $("#global_x").val().split('.').join('')
+			}
 		}else if(pilih_hpp == 'BOX'){
-			(jenis_hpp == 'MH') ? bahan_baku_rp =  $("#mh_x_box").val().split('.').join('') : bahan_baku_rp =  $("#bk_x_box").val().split('.').join(''); // box
+			if(jenis_hpp == 'MH'){
+				bahan_baku_rp =  $("#mh_x_box").val().split('.').join('')
+			}else if(jenis_hpp == 'BK'){
+				bahan_baku_rp =  $("#bk_x_box").val().split('.').join('')
+			}else{
+				bahan_baku_rp =  $("#global_x_box").val().split('.').join('')
+			}
 		}else if(pilih_hpp == 'LAMINASI'){
-			bahan_baku_rp =  $("#wp_x").val().split('.').join('') // laminasi
+			(jenis_hpp == 'WP') ? bahan_baku_rp =  $("#wp_x_lam").val().split('.').join('') : bahan_baku_rp =  $("#global_x_lam").val().split('.').join(''); // box
 		}
 
 		let tenaga_kerja = $("#"+o+"tenaga_kerja").val().split('.').join('')
@@ -2661,37 +2904,64 @@
 
 		// PILIH HPP
 		let pilih_hpp = $("#pilih_hpp").val()
-		let tgl1_hpp = $("#tgl1_hpp").val()
+		let rentang = $("#rentang").val()
+		let rentang_tahun = $("#rentang_tahun").val()
+		let rentang_bulan = $("#rentang_bulan").val()
+		let rentang_tanggal = $("#rentang_tanggal").val()
 		let jenis_hpp = $("#jenis_hpp").val()
 
 		// PEMAKAIAN BAHAN
 		let bahan_baku_kg = 0
 		let bahan_baku_rp = 0
 		let bahan_baku_x = 0
+		// PM
 		if(pilih_hpp == 'PM2'){
 			bahan_baku_kg = $("#bahan_baku_kg").val().split('.').join('')
 			bahan_baku_rp = $("#bahan_baku_rp").val().split('.').join('')
 			bahan_baku_x = 0
-		}else if(pilih_hpp == 'SHEET' && jenis_hpp == 'BK'){
+		}
+		// SHEET
+		if(pilih_hpp == 'SHEET' && jenis_hpp == 'BK'){
 			bahan_baku_kg = $("#bk_kg").val().split('.').join('')
 			bahan_baku_rp = $("#bk_rp").val().split('.').join('')
 			bahan_baku_x = $("#bk_x").val().split('.').join('')
-		}else if(pilih_hpp == 'SHEET' && jenis_hpp == 'MH'){
+		}
+		if(pilih_hpp == 'SHEET' && jenis_hpp == 'MH'){
 			bahan_baku_kg = $("#mh_kg").val().split('.').join('')
 			bahan_baku_rp = $("#mh_rp").val().split('.').join('')
 			bahan_baku_x = $("#mh_x").val().split('.').join('')
-		}else if(pilih_hpp == 'BOX' && jenis_hpp == 'BK'){
+		}
+		if(pilih_hpp == 'SHEET' && jenis_hpp == 'GLOBAL'){
+			bahan_baku_kg = $("#global_kg").val().split('.').join('')
+			bahan_baku_rp = $("#global_rp").val().split('.').join('')
+			bahan_baku_x = $("#global_x").val().split('.').join('')
+		}
+		// BOX
+		if(pilih_hpp == 'BOX' && jenis_hpp == 'BK'){
 			bahan_baku_kg = $("#bk_kg_box").val().split('.').join('')
 			bahan_baku_rp = $("#bk_rp_box").val().split('.').join('')
 			bahan_baku_x = $("#bk_x_box").val().split('.').join('')
-		}else if(pilih_hpp == 'BOX' && jenis_hpp == 'MH'){
+		}
+		if(pilih_hpp == 'BOX' && jenis_hpp == 'MH'){
 			bahan_baku_kg = $("#mh_kg_box").val().split('.').join('')
 			bahan_baku_rp = $("#mh_rp_box").val().split('.').join('')
 			bahan_baku_x = $("#mh_x_box").val().split('.').join('')
-		}else if(pilih_hpp == 'LAMINASI'){
-			bahan_baku_kg = $("#wp_kg").val().split('.').join('')
-			bahan_baku_rp = $("#wp_rp").val().split('.').join('')
-			bahan_baku_x = $("#wp_x").val().split('.').join('')
+		}
+		if(pilih_hpp == 'BOX' && jenis_hpp == 'GLOBAL'){
+			bahan_baku_kg = $("#global_kg_box").val().split('.').join('')
+			bahan_baku_rp = $("#global_rp_box").val().split('.').join('')
+			bahan_baku_x = $("#global_x_box").val().split('.').join('')
+		}
+		// LAMINASI
+		if(pilih_hpp == 'LAMINASI' && jenis_hpp == 'WP'){
+			bahan_baku_kg = $("#wp_kg_lam").val().split('.').join('')
+			bahan_baku_rp = $("#wp_rp_lam").val().split('.').join('')
+			bahan_baku_x = $("#wp_x_lam").val().split('.').join('')
+		}
+		if(pilih_hpp == 'LAMINASI' && jenis_hpp == 'GLOBAL'){
+			bahan_baku_kg = $("#global_kg_lam").val().split('.').join('')
+			bahan_baku_rp = $("#global_rp_lam").val().split('.').join('')
+			bahan_baku_x = $("#global_x_lam").val().split('.').join('')
 		}
 
 		// BIAYA PRODUKSI
@@ -2766,7 +3036,7 @@
 				});
 			},
 			data: ({
-				id_hpp, pilih_id_hpp, pilih_hpp, tgl1_hpp, jenis_hpp, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonase, fix_hpp_aktual, hxt_x_persen, presentase, hasil_hpp_tanpa_bb, hpp_pm, hpp_sheet, hpp_plus_plus, hasil_x_tonase_tanpa_bb, fix_hpp, statusInput
+				id_hpp, pilih_id_hpp, pilih_hpp, rentang, rentang_tahun, rentang_bulan, rentang_tanggal, jenis_hpp, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonase, fix_hpp_aktual, hxt_x_persen, presentase, hasil_hpp_tanpa_bb, hpp_pm, hpp_sheet, hpp_plus_plus, hasil_x_tonase_tanpa_bb, fix_hpp, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -2821,8 +3091,15 @@
 				let prop = true;
 				(opsi == 'edit') ? prop = false : prop = true;
 				$("#pilih_hpp").val(data.data.pilih_hpp).prop('disabled', true).trigger("change")
-				$("#tgl1_hpp").val(data.data.tgl_hpp).prop('disabled', true)
-				$("#jenis_hpp").html(`<option value="${data.data.jenis_hpp}">${data.data.jenis_hpp}</option>`).prop('disabled', true)
+				$("#rentang").val(data.data.rentang_hpp).prop('disabled', true).trigger("change")
+				if(data.data.rentang_hpp == "TAHUN"){
+					$("#rentang_tahun").val(data.data.tahun_hpp).prop('disabled', true).trigger("change")
+				}else if(data.data.rentang_hpp == "BULAN"){
+					$("#rentang_bulan").val(data.data.bulan_hpp).prop('disabled', true).trigger("change")
+				}else if(data.data.rentang_hpp == "TANGGAL"){
+					$("#rentang_tanggal").val(data.data.tgl_hpp).prop('disabled', true).trigger("change")
+				}
+				$("#jenis_hpp").val(data.data.jenis_hpp).prop('disabled', true).trigger("change")
 				$(".card-list-hpp-pm").hide()
 
 				// TAMPIL CART
@@ -2836,22 +3113,46 @@
 					hideAll('laminasi', 'show')
 				}
 
-				// TAMPIL PEMAKAIAN BAHAN SHEET BOX
+				// TAMPIL PEMAKAIAN BAHAN SHEET BOX LAMINASI
 				if(data.data.pilih_hpp == "SHEET" && data.data.jenis_hpp == "MH"){
 					$(".pb-sheet-mh").show()
 					$(".pb-sheet-bk").hide()
+					$(".pb-sheet-global").hide()
 				}
 				if(data.data.pilih_hpp == "SHEET" && data.data.jenis_hpp == "BK"){
 					$(".pb-sheet-mh").hide()
 					$(".pb-sheet-bk").show()
+					$(".pb-sheet-global").hide()
 				}
+				if(data.data.pilih_hpp == "SHEET" && data.data.jenis_hpp == "GLOBAL"){
+					$(".pb-sheet-mh").hide()
+					$(".pb-sheet-bk").show()
+					$(".pb-sheet-global").show()
+				}
+
 				if(data.data.pilih_hpp == "BOX" && data.data.jenis_hpp == "MH"){
 					$(".pb-box-mh").show()
 					$(".pb-box-bk").hide()
+					$(".pb-box-global").hide()
 				}
 				if(data.data.pilih_hpp == "BOX" && data.data.jenis_hpp == "BK"){
 					$(".pb-box-mh").hide()
 					$(".pb-box-bk").show()
+					$(".pb-box-global").hide()
+				}
+				if(data.data.pilih_hpp == "BOX" && data.data.jenis_hpp == "GLOBAL"){
+					$(".pb-box-mh").hide()
+					$(".pb-box-bk").hide()
+					$(".pb-box-global").show()
+				}
+
+				if(data.data.pilih_hpp == "LAMINASI" && data.data.jenis_hpp == "WP"){
+					$(".pb-lam-wp").show()
+					$(".pb-lam-global").hide()
+				}
+				if(data.data.pilih_hpp == "LAMINASI" && data.data.jenis_hpp == "GLOBAL"){
+					$(".pb-lam-wp").hide()
+					$(".pb-lam-global").show()
 				}
 
 				let o = ''
@@ -2869,29 +3170,53 @@
 				$("#"+o+"ket_bahan_txt").prop('disabled', prop)
 				$("#"+o+"ket_bahan_kg").prop('disabled', prop)
 				$("#"+o+"ket_bahan_rp").prop('disabled', prop)
+				// PM
 				if(data.data.pilih_hpp == 'PM2'){
 					$("#"+o+"bahan_baku_kg").val(data.data.bahan_baku_kg)
 					$("#"+o+"bahan_baku_rp").val(data.data.bahan_baku_rp)
-				}else if(data.data.pilih_hpp == 'SHEET' && data.data.jenis_hpp == 'BK'){
+				}
+				// SHEET
+				if(data.data.pilih_hpp == 'SHEET' && data.data.jenis_hpp == 'BK'){
 					$("#bk_kg").val(data.data.bahan_baku_kg).prop('disabled', prop)
 					$("#bk_rp").val(data.data.bahan_baku_rp).prop('disabled', prop)
 					$("#bk_x").val(data.data.bahan_baku_x)
-				}else if(data.data.pilih_hpp == 'SHEET' && data.data.jenis_hpp == 'MH'){
+				}
+				if(data.data.pilih_hpp == 'SHEET' && data.data.jenis_hpp == 'MH'){
 					$("#mh_kg").val(data.data.bahan_baku_kg).prop('disabled', prop)
 					$("#mh_rp").val(data.data.bahan_baku_rp).prop('disabled', prop)
 					$("#mh_x").val(data.data.bahan_baku_x)
-				}else if(data.data.pilih_hpp == 'BOX' && data.data.jenis_hpp == 'BK'){
+				}
+				if(data.data.pilih_hpp == 'SHEET' && data.data.jenis_hpp == 'GLOBAL'){
+					$("#global_kg").val(data.data.bahan_baku_kg).prop('disabled', prop)
+					$("#global_rp").val(data.data.bahan_baku_rp).prop('disabled', prop)
+					$("#global_x").val(data.data.bahan_baku_x)
+				}
+				// BOX
+				if(data.data.pilih_hpp == 'BOX' && data.data.jenis_hpp == 'BK'){
 					$("#bk_kg_box").val(data.data.bahan_baku_kg).prop('disabled', prop)
 					$("#bk_rp_box").val(data.data.bahan_baku_rp).prop('disabled', prop)
 					$("#bk_x_box").val(data.data.bahan_baku_x)
-				}else if(data.data.pilih_hpp == 'BOX' && data.data.jenis_hpp == 'MH'){
+				}
+				if(data.data.pilih_hpp == 'BOX' && data.data.jenis_hpp == 'MH'){
 					$("#mh_kg_box").val(data.data.bahan_baku_kg).prop('disabled', prop)
 					$("#mh_rp_box").val(data.data.bahan_baku_rp).prop('disabled', prop)
 					$("#mh_x_box").val(data.data.bahan_baku_x)
-				}else if(data.data.pilih_hpp == 'LAMINASI'){
-					$("#wp_kg").val(data.data.bahan_baku_kg).prop('disabled', prop)
-					$("#wp_rp").val(data.data.bahan_baku_rp).prop('disabled', prop)
-					$("#wp_x").val(data.data.bahan_baku_x)
+				}
+				if(data.data.pilih_hpp == 'BOX' && data.data.jenis_hpp == 'GLOBAL'){
+					$("#global_kg_box").val(data.data.bahan_baku_kg).prop('disabled', prop)
+					$("#global_rp_box").val(data.data.bahan_baku_rp).prop('disabled', prop)
+					$("#global_x_box").val(data.data.bahan_baku_x)
+				}
+				// LAMINASI
+				if(data.data.pilih_hpp == 'LAMINASI' && data.data.jenis_hpp == 'WP'){
+					$("#wp_kg_lam").val(data.data.bahan_baku_kg).prop('disabled', prop)
+					$("#wp_rp_lam").val(data.data.bahan_baku_rp).prop('disabled', prop)
+					$("#wp_x_lam").val(data.data.bahan_baku_x)
+				}
+				if(data.data.pilih_hpp == 'LAMINASI' && data.data.jenis_hpp == 'GLOBAL'){
+					$("#global_kg_lam").val(data.data.bahan_baku_kg).prop('disabled', prop)
+					$("#global_rp_lam").val(data.data.bahan_baku_rp).prop('disabled', prop)
+					$("#global_x_lam").val(data.data.bahan_baku_x)
 				}
 
 				// BIAYA PRODUKSI
