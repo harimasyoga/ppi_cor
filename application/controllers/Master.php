@@ -1266,19 +1266,28 @@ class Master extends CI_Controller
 		$ket      = $this->input->post('ket');
 		$status   = $this->input->post('status');
 
-		if($ket=='po')
+		if($status=='keluar')
 		{
-			$value='KELUAR DENGAN PO';
+			if($ket=='po')
+			{
+				$value="and ket='KELUAR DENGAN PO'";
+			}else{
+				$value="and ket='KELUAR DENGAN INV'";
+			}			
 		}else{
-			$value='KELUAR DENGAN INV';
-
+			if($ket=='po')
+			{
+				$value="and ket='MASUK DENGAN PO'";
+			}else{
+				$value="and ket='MASUK DENGAN INV'";
+			}		
 		}
 		
 		if($id_hub=='0')
 		{
-			$where ="where status = '$status' and ket='$value' and id_hub is null ";
+			$where ="where status = '$status' $value and id_hub is null ";
 		}else{
-			$where ="where status = '$status' and ket='$value' and id_hub='$id_hub' ";
+			$where ="where status = '$status' $value and id_hub='$id_hub' ";
 
 		}
 		$query    = $this->m_master->query("SELECT*from trs_stok_bahanbaku $where")->result();
