@@ -1049,7 +1049,7 @@ class Logistik extends CI_Controller
 		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 	}
 
-	//
+	////
 
 	function cariSJLaminasi()
 	{
@@ -1589,7 +1589,7 @@ class Logistik extends CI_Controller
 		$this->m_fungsi->newMpdf($judul, 'cetak', $html, 6, 7, 6, 7, 'P', 'A4', $judul.'.pdf');
 	}
 
-	//
+	////
 
 	function cariSJJasa()
 	{
@@ -1599,7 +1599,7 @@ class Logistik extends CI_Controller
 		$query = $this->db->query("SELECT p.tgl,p.no_surat,c.nm_pelanggan,c.attn FROM pl_box p
 		INNER JOIN m_rencana_kirim k ON p.no_pl_urut=k.rk_urut AND p.id=k.id_pl_box
 		INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
-		WHERE k.rk_status='Close' AND p.id_hub!='7' AND p.tgl='$tgl_sj'
+		WHERE k.rk_status='Close' AND p.id_hub!='7' AND p.tgl='$tgl_sj' AND p.no_pl_jasa='0'
 		GROUP BY p.tgl,p.no_surat");
 
 		($query->num_rows() == 0) ? $htmlSJ = '<option value="">DATA KOSONG</option>' : $htmlSJ = '<option value="">PILIH</option>';
@@ -1611,6 +1611,160 @@ class Logistik extends CI_Controller
 		echo json_encode([
 			'numRows' => $query->num_rows(),
 			'htmlSJ' => $htmlSJ,
+		]);
+	}
+
+	function pilihSJInvJasa()
+	{
+		$no_surat = $_POST["no_surat"];
+		$htmlItem = '';
+
+		if($no_surat == ''){
+			$no_invoice = ''; $id_hub = ''; $kepada = ''; $alamat_kirim = ''; $htmlItem .= ''; $no = 0;
+		}else{
+			$pl = $this->db->query("SELECT*FROM pl_box p
+			INNER JOIN m_hub c ON p.id_hub=c.id_hub
+			WHERE p.no_surat='$no_surat' AND p.no_pl_jasa='0'
+			GROUP BY p.no_surat")->row();
+			$kepada = 'CV. '.$pl->nm_hub;
+			$alamat_kirim = strtoupper($pl->alamat);
+			$id_hub = $pl->id_hub;
+			
+			$tahun = substr($pl->tgl,2,2);
+			$noSJ = $this->db->query("SELECT*FROM invoice_jasa_header WHERE no_invoice LIKE '%$tahun%' ORDER BY no_invoice DESC LIMIT 1");
+			($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 3, 6);
+			$no_invoice = str_pad($no+1, 6, "0", STR_PAD_LEFT);
+			// JP/000001/01/24
+
+			$htmlItem .='<table class="table table-bordered" style="margin:0">
+				<tr style="background:#f8f9fc">
+					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">#</th>
+					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">NO. PO</th>
+					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">ITEM</th>
+					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">UKURAN</th>
+					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">FLUTE</th>
+					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">SUBSTANCE</th>
+					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">QTY</th>
+					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">BB</th>
+					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">TONASE</th>
+				</tr>';
+				$isi = $this->db->query("SELECT r.*,p.*,i.*,i.kategori AS kate FROM m_rencana_kirim r
+				INNER JOIN pl_box p ON r.id_pl_box=p.id AND r.rk_urut=p.no_pl_urut
+				INNER JOIN m_produk i ON r.id_produk=i.id_produk
+				WHERE p.no_surat='$no_surat' ORDER BY p.no_po,i.nm_produk");
+				$i = 0;
+				$sumTotal = 0;
+				foreach($isi->result() as $r){
+					$i++;
+					($r->kate == "K_BOX") ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
+					$expKualitas = explode("/", $r->kualitas);
+					if($r->flute == 'BCF'){
+						if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
+							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+						}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
+							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+						}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
+							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+						}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
+							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+						}else{
+							$kualitas = $r->kualitas;
+						}
+					}else{
+						$kualitas = $r->kualitas;
+					}
+					$tonase = round($r->berat_bersih * $r->qty_muat);
+					// TONASE
+					// $kurangsPS = round($tonase - ($tonase * 0.04));
+					// $plussPS = round($tonase + ($tonase * 0.04));
+					$htmlItem .='<tr>
+						<td style="padding:6px;text-align:center">'.$i.'</td>
+						<td style="padding:6px;text-align:center">'.$r->no_po.'</td>
+						<td style="padding:6px;text-align:center;text-align:left">'.$r->nm_produk.'</td>
+						<td style="padding:6px;text-align:center">'.$ukuran.'</td>
+						<td style="padding:6px;text-align:center">'.$r->flute.'</td>
+						<td style="padding:6px;text-align:center">'.$kualitas.'</td>
+						<td style="padding:6px;text-align:center;text-align:right">'.number_format($r->qty_muat,0,',','.').'</td>
+						<td style="padding:6px;text-align:center">'.$r->berat_bersih.'</td>
+						<td style="padding:6px;text-align:center;text-align:right">'.number_format($tonase,0,',','.').'</td>
+					</tr>';
+					// $sumTotal += $total;
+				}
+				// simpan
+				$htmlItem .='<tr>
+					<td style="padding:12px 6px 6px;text-align:right;font-weight:bold" colspan="10">
+						<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanInvJasa()"><i class="fas fa-save"></i> SIMPAN</button>
+					</td>
+				</tr>';
+			$htmlItem .='</table>';
+		}
+
+		echo json_encode([
+			'no_invoice' => $no_invoice,
+			'id_hub' => $id_hub,
+			'kepada' => $kepada,
+			'alamat' => $alamat_kirim,
+			'htmlItem' => $htmlItem,
+		]);
+	}
+
+	function simpanInvJasa()
+	{
+		$result = $this->m_logistik->simpanInvJasa();
+		echo json_encode($result);
+	}
+
+	function editInvoiceJasa()
+	{
+		$id_header = $_POST["id_header"];
+		$opsi = $_POST["opsi"];
+
+		$header = $this->db->query("SELECT*FROM invoice_jasa_header WHERE id='$id_header'")->row();
+
+		$htmlItem = '';
+		$htmlItem .='<table class="table table-bordered" style="margin:0">
+			<tr style="background:#f8f9fc">
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">#</th>
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">NO. PO</th>
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">ITEM</th>
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">UKURAN</th>
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">FLUTE</th>
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">SUBSTANCE</th>
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">QTY</th>
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">BB</th>
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">HARGA</th>
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">TONASE</th>
+			</tr>';
+			$isi = $this->db->query("SELECT r.*,p.*,i.*,i.kategori AS kate FROM m_rencana_kirim r
+			INNER JOIN pl_box p ON r.id_pl_box=p.id AND r.rk_urut=p.no_pl_urut
+			INNER JOIN m_produk i ON r.id_produk=i.id_produk
+			WHERE p.no_surat='$header->no_surat' ORDER BY p.no_po,i.nm_produk");
+			$i = 0;
+			$sumTotal = 0;
+			foreach($isi->result() as $r){
+				$total = $r->total;
+				$htmlItem .='<tr>
+					<td style="padding:6px;text-align:center">'.$i.'</td>
+				</tr>';
+				$sumTotal += $total;
+			}
+			
+			// SIMPAN
+			if($opsi == 'edit' && $header->acc_owner == 'N'){
+				$htmlItem .='<tr>
+					<td style="border:0;padding:12px 6px 6px;text-align:right;font-weight:bold" colspan="10">
+						<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanInvJasa()"><i class="fas fa-save"></i> SIMPAN</button>
+					</td>
+				</tr>';
+			}
+		$htmlItem .='</table>';
+
+		echo json_encode([
+			'header' => $header,
+			'no_invoice' => substr($header->no_invoice, 4, 6),
+			'oke_admin' => substr($this->m_fungsi->getHariIni(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin),0,3).', '.$this->m_fungsi->tglIndSkt(substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 0,10)).' ( '.substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 10,6).' )',
+			'time_owner' => ($header->time_owner == null) ? '' :substr($this->m_fungsi->getHariIni($header->time_owner),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->time_owner, 0,10)).' ( '.substr($header->time_owner, 10,6).' )',
+			'htmlItem' => $htmlItem,
 		]);
 	}
 
@@ -2400,6 +2554,90 @@ class Logistik extends CI_Controller
 				if($this->session->userdata('level') == 'Admin'){
 					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
 				}else if($this->session->userdata('level') == 'Laminasi'){
+					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
+				}else if($this->session->userdata('level') == 'Keuangan1' && $this->session->userdata('username') == 'bumagda'){
+					$row[] = '<div class="text-center">'.$btnVerif.'</div>';
+				}else{
+					$row[] = '<div class="text-center">-</div>';
+				}
+				$data[] = $row;
+			}
+		}else if ($jenis == "loadDataInvoiceJasa") {
+			$query = $this->db->query("SELECT*FROM invoice_jasa_header")->result();
+			$i = 0;
+			foreach ($query as $r) {
+				$i++;
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				// DESKRIPSI
+				$htmlDes = '<div>
+					<div style="padding-bottom:4px"><b>Tanggal :</b> '.$this->m_fungsi->tanggal_format_indonesia($r->tgl_invoice).'</div>
+					<div style="padding-bottom:4px"><b>No. Invoice :</b> '.$r->no_invoice.'</div>
+					<div style="padding-bottom:4px"><b>No. Surat Jalan :</b> '.$r->no_surat.'</div>
+					<div style="padding-bottom:4px"><b>Kepada :</b> '.$r->kepada_jasa_inv.'</div>
+					<div style="white-space:wrap"><b>Alamat :</b> '.$r->alamat_jasa_inv.'</div>
+				</div>';
+				$row[] = $htmlDes;
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo).'</div>';
+				// ADMIN
+				$row[] = '<div class="text-center">
+					<div class="dropup">
+						<button class="dropbtn btn btn-sm btn-success"><i class="fas fa-check-circle" onclick="editInvoiceJasa('."'".$r->id."'".','."'detail'".')"></i></button>
+						<div class="dropup-content">
+							<div class="time-admin">'.$this->m_fungsi->tglIndSkt(substr($r->time_admin,0,10)).' - '.substr($r->time_admin,10,9).'</div>
+						</div>
+					</div>
+				</div>';
+				// OWNER
+				if($r->acc_owner == 'N'){
+					$bt2 = 'btn-warning';
+					$fa2 = 'class="fas fa-lock"';
+					$time2 = 'BELUM ACC!';
+					$p2 = '';
+				}else if($r->acc_owner == 'H'){
+					$bt2 = 'btn-warning';
+					$fa2 = 'class="fas fa-hand-paper"';
+					$time2 = 'HOLD!';
+					$p2 = '';
+				}else if($r->acc_owner == 'R'){
+					$bt2 = 'btn-danger';
+					$fa2 = 'class="fas fa-times" style="color:#000"';
+					$time2 = 'REJECT!';
+					$p2 = 'style="padding:4px 10px"';
+				}else{
+					$bt2 = 'btn-success';
+					$fa2 = 'class="fas fa-check-circle"';
+					$time2 = $this->m_fungsi->tglIndSkt(substr($r->time_owner,0,10)).' - '.substr($r->time_owner,10,9);
+					$p2 = '';
+				}
+				$row[] = '<div class="text-center">
+					<div class="dropup">
+						<button class="dropbtn btn btn-sm '.$bt2.'" '.$p2.' onclick="editInvoiceJasa('."'".$r->id."'".','."'detail'".')"><i '.$fa2.'></i></button>
+						<div class="dropup-content">
+							<div class="time-admin">'.$time2.'</div>
+						</div>
+					</div>
+				</div>';
+				// TOTAL
+				// $detail = $this->db->query("SELECT SUM(total) AS total FROM invoice_laminasi_detail WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice")->row();
+				// $qDisc = $this->db->query("SELECT SUM(hitung) AS disc FROM invoice_laminasi_disc WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
+				// ($qDisc->num_rows() == 0) ? $disc = 0 : $disc = $qDisc->row()->disc;
+				// $total_disc = $detail->total - $disc;
+				// $row[] = '<div class="text-right" style="font-weight:bold;color:#000">'.number_format($total_disc,0,',','.').'</div>';
+				$row[] = '-';
+
+				// CETAK
+				// $lapLaporan = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/cetakInvoiceLaminasi?no_invoice=".$r->no_invoice."").'" title=""><i class="fas fa-print"></i></a>'; 
+				// $row[] = '<div class="text-center">'.$lapLaporan.'</div>';
+				$row[] = '-';
+
+				// AKSI
+				$btnEdit = '<button type="button" onclick="editInvoiceJasa('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button>'; 
+				$btnHapus = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="hapusInvoiceJasa('."'".$r->id."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>';
+				$btnVerif = '<button type="button" onclick="editInvoiceJasa('."'".$r->id."'".','."'verif'".')" title="VERIFIKASI" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>'; 
+				if($this->session->userdata('level') == 'Admin'){
+					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
+				}else if($this->session->userdata('level') == 'Owner'){
 					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
 				}else if($this->session->userdata('level') == 'Keuangan1' && $this->session->userdata('username') == 'bumagda'){
 					$row[] = '<div class="text-center">'.$btnVerif.'</div>';

@@ -26,7 +26,7 @@
 				<div class="col-md-7">
 					<div class="card card-success card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT PO LAMINASI</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT INVOICE LAMINASI</h3>
 						</div>
 						<div style="margin:12px 6px;display:flex">
 							<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>

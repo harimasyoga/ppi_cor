@@ -77,16 +77,26 @@
 						<div class="card-body row" style="font-weight:bold;padding:16px 12px 6px">
 							<div class="col-md-3">KEPADA</div>
 							<div class="col-md-9">
-								<input type="hidden" id="h_id_pelanggan_lm" value="">
+								<input type="hidden" id="h_id_hub" value="">
 								<input type="text" id="kepada" class="form-control" placeholder="Kepada" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
 							</div>
 						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">ALAMAT</div>
 							<div class="col-md-9">
 								<textarea id="alamat" class="form-control" style="resize:none" rows="3" placeholder="Alamat" autocomplete="off" oninput="this.value=this.value.toUpperCase()"></textarea>
 							</div>
 						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 16px">
+							<div class="col-md-3">PILIHAN BANK</div>
+							<div class="col-md-9">
+								<select id="pilihan_bank" class="form-control select2">
+									<option value="">PILIH</option>
+									<option value="7">BCA PT. PRIMA PAPER INDOENSIA</option>
+								</select>
+							</div>
+						</div>
+						<input type="hidden" id="h_id_header" value="">
 					</div>
 				</div>
 
@@ -130,11 +140,11 @@
 				</div>
 			</div>
 
-			<div class="row row-list-invoice-laminasi">
+			<div class="row row-list-invoice-jasa">
 				<div class="col-md-12">
 					<div class="card shadow mb-3">
 						<div class="card-header" style="font-family:Cambria;">
-							<h3 class="card-title" style="color:#4e73df;"><b>INVOICE LAMINASI</b></h3>
+							<h3 class="card-title" style="color:#4e73df;"><b>INVOICE JASA</b></h3>
 							<div class="card-tools">
 								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
 									<i class="fas fa-minus"></i>
@@ -142,7 +152,7 @@
 							</div>
 						</div>
 						<div class="card-body">
-							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){ ?>
+							<?php if(in_array($this->session->userdata('level'), ['Admin'])){ ?>
 								<div style="margin-bottom:12px">
 									<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								</div>
@@ -180,68 +190,70 @@
 
 	$(document).ready(function ()
 	{
-		// kosong()
-		// load_data()
+		kosong()
+		load_data()
 		$('.select2').select2();
 	});
 
-	// function reloadTable() {
-	// 	table = $('#datatable').DataTable();
-	// 	tabel.ajax.reload(null, false);
-	// }
+	function reloadTable() {
+		table = $('#datatable').DataTable();
+		tabel.ajax.reload(null, false);
+	}
 
-	// function load_data() {
-	// 	let table = $('#datatable').DataTable();
-	// 	table.destroy();
-	// 	tabel = $('#datatable').DataTable({
-	// 		"processing": true,
-	// 		"pageLength": true,
-	// 		"paging": true,
-	// 		"ajax": {
-	// 			"url": '<?php echo base_url('Logistik/load_data/loadDataInvoiceLaminasi')?>',
-	// 			"type": "POST",
-	// 		},
-	// 		"aLengthMenu": [
-	// 			[5, 10, 50, 100, -1],
-	// 			[5, 10, 50, 100, "Semua"]
-	// 		],	
-	// 		responsive: false,
-	// 		"pageLength": 10,
-	// 		"language": {
-	// 			"emptyTable": "TIDAK ADA DATA.."
-	// 		}
-	// 	})
-	// }
+	function load_data() {
+		let table = $('#datatable').DataTable();
+		table.destroy();
+		tabel = $('#datatable').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url": '<?php echo base_url('Logistik/load_data/loadDataInvoiceJasa')?>',
+				"type": "POST",
+			},
+			"aLengthMenu": [
+				[5, 10, 50, 100, -1],
+				[5, 10, 50, 100, "Semua"]
+			],	
+			responsive: false,
+			"pageLength": 10,
+			"language": {
+				"emptyTable": "TIDAK ADA DATA.."
+			}
+		})
+	}
 
 	function kosong()
 	{
-		$("#tgl_invoice").val("")
-		$("#tgl_sj").val("")
-		$("#no_surat_jalan").val("")
-		$("#txt_no_invoice").val("")
-		$("#no_invoice").val("")
-		$("#tgl_jatuh_tempo").val("")
-		$("#h_id_pelanggan_lm").val("")
-		$("#kepada").val("")
-		$("#alamat").val("")
+		let tanggal = '<?= date("Y-m-d")?>'
+		$("#tgl_invoice").val(tanggal).prop('disabled', false)
+		$("#tgl_sj").val("").prop('disabled', false)
+		$("#no_surat_jalan").html(`<option value="">PILIH</option>`).prop('disabled', true)
+		$("#txt_no_invoice").val("AUTO").prop('disabled', true)
+		$("#no_invoice").val("").prop('disabled', true)
+		$("#tgl_jatuh_tempo").val("").prop('disabled', false)
+
+		$("#h_id_hub").val("")
+		$("#kepada").val("").prop('disabled', false)
+		$("#alamat").val("").prop('disabled', false)
+		$("#pilihan_bank").val("").prop('disabled', false).trigger("change")
 
 		statusInput = 'insert'
 		swal.close()
 	}
 
-	// function tambahData() {
-	// 	kosong()
-	// }
+	function tambahData() {
+		kosong()
+	}
 
-	// function kembali() {
-	// 	kosong()
-	// 	reloadTable()
-	// }
+	function kembali() {
+		kosong()
+		reloadTable()
+	}
 
 	function cariSJJasa()
 	{
 		let tgl_sj = $("#tgl_sj").val()
-		console.log("tgl_sj : ", tgl_sj)
 		$("#no_surat_jalan").html(`<option value="">PILIH</option>`).prop('disabled', true)
 		$(".list-item").html('LIST ITEM KOSONG')
 		$.ajax({
@@ -256,5 +268,157 @@
 		})
 	}
 
-	
+	function pilihSJInvJasa() {
+		$(".list-item").html('LOAD DATA LIST ITEM')
+		let no_surat = $("#no_surat_jalan").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/pilihSJInvJasa')?>',
+			type: "POST",
+			data: ({ no_surat }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$("#txt_no_invoice").val("AUTO")
+				$("#no_invoice").val(data.no_invoice)
+				$("#h_id_hub").val(data.id_hub)
+				$("#kepada").val(data.kepada)
+				$("#alamat").val(data.alamat)
+				$(".list-item").html(data.htmlItem)
+			}
+		})
+	}
+
+	function simpanInvJasa() {
+		let h_id_header = $("#h_id_header").val()
+		let tgl_invoice = $("#tgl_invoice").val()
+		let tgl_sj = $("#tgl_sj").val()
+		let no_surat_jalan = $("#no_surat_jalan").val()
+		let no_invoice = $("#no_invoice").val()
+		let tgl_jatuh_tempo = $("#tgl_jatuh_tempo").val()
+		let h_id_hub = $("#h_id_hub").val()
+		let kepada = $("#kepada").val()
+		let alamat = $("#alamat").val()
+		let pilihan_bank = $("#pilihan_bank").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/simpanInvJasa')?>',
+			type: "POST",
+			data: ({
+				h_id_header, tgl_invoice, tgl_sj, no_surat_jalan, no_invoice, tgl_jatuh_tempo, h_id_hub, kepada, alamat, pilihan_bank, statusInput
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+			}
+		})
+	}
+
+	function editInvoiceJasa(id_header, opsi) {
+		$.ajax({
+			url: '<?php echo base_url('Logistik/editInvoiceJasa')?>',
+			type: "POST",
+			data: ({
+				id_header, opsi
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+
+				// $("#h_id_header").val(id_header)
+				
+				// let prop = true;
+				// (opsi == 'edit') ? prop = false : prop = true;
+				// $("#tgl_invoice").val(data.header.tgl_invoice).prop('disabled', prop)
+				// $("#tgl_sj").val(data.header.tgl_surat_jalan).prop('disabled', true)
+				// $("#no_surat_jalan").html(`<option value="">${data.header.no_surat}</option>`).prop('disabled', true)
+				// $("#txt_no_invoice").val(data.header.no_invoice)
+				// $("#no_invoice").val(data.header.no_invoice).prop('disabled', true)
+				// $("#tgl_jatuh_tempo").val(data.header.tgl_jatuh_tempo).prop('disabled', prop)
+
+				// $("#h_id_pelanggan_lm").val(data.header.id_pelanggan_lm).prop('disabled', prop)
+				// $("#kepada").val(data.header.attn_lam_inv).prop('disabled', prop)
+				// $("#alamat").val(data.header.alamat_lam_inv).prop('disabled', prop)
+				// $("#pilihan_bank").val(data.header.bank).prop('disabled', prop).trigger('change')
+
+				// VERIFIKASI DATA
+				// $("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.oke_admin}`)
+				// // VERIFIFIKASI OWNER
+				// if((urlAuth == 'Admin' || (urlAuth == 'Keuangan1' && urlUser == 'bumagda')) && data.header.acc_admin == 'Y' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R')){
+				// 	// BUTTON OWNER
+				// 	let lock = ''
+				// 	if(urlAuth == 'Admin' && data.header.acc_owner != 'N'){
+				// 		lock = `<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifInvLaminasi('lock','owner')"><i class="fas fa-lock"></i> Lock</button>`
+				// 	}else{
+				// 		lock = ''
+				// 	}
+				// 	$("#verif-owner").html(`
+				// 		${lock}
+				// 		<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifInvLaminasi('verifikasi','owner')"><i class="fas fa-check"></i> Verifikasi</button>
+				// 		<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifInvLaminasi('hold','owner')"><i class="far fa-hand-paper"></i> Hold</button>
+				// 		<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifInvLaminasi('reject','owner')"><i class="fas fa-times"></i> Reject</button>
+				// 	`)
+				// 	// KETERANGAN OWNER
+				// 	if(data.header.acc_owner != 'N'){
+				// 		if(data.header.acc_owner == 'H'){
+				// 			callout = 'callout-warning'
+				// 			colorbtn = 'btn-warning'
+				// 			txtsave = 'HOLD!'
+				// 		}else{
+				// 			callout = 'callout-danger'
+				// 			colorbtn = 'btn-danger'
+				// 			txtsave = 'REJECT!'
+				// 		}
+				// 		$("#input-owner").html(`
+				// 			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				// 				<div class="col-md-3"></div>
+				// 				<div class="col-md-9">
+				// 					<div class="callout ${callout}" style="padding:0;margin:0">
+				// 						<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.ket_owner}</textarea>
+				// 					</div>
+				// 				</div>
+				// 			</div>
+				// 			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				// 				<div class="col-md-3"></div>
+				// 				<div class="col-md-9">
+				// 					<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifInvLaminasi('${data.header.acc_owner}', 'owner')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+				// 				</div>
+				// 			</div>
+				// 		`)
+				// 	}
+				// }else{
+				// 	// BUTTON OWNER
+				// 	if(data.header.acc_owner == 'N'){
+				// 		$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+				// 	}else if(data.header.acc_owner == 'H'){
+				// 		$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.time_owner}`)
+				// 	}else if(data.header.acc_owner == 'R'){
+				// 		$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.time_owner}`)
+				// 	}else{
+				// 		$("#verif-owner").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.time_owner}`)
+				// 	}
+				// 	// KETERANGAN OWNER
+				// 	if(data.header.acc_owner != 'N'){
+				// 		if(data.header.acc_owner == 'H'){
+				// 			callout = 'callout-warning'
+				// 		}else if(data.header.acc_owner == 'R'){
+				// 			callout = 'callout-danger'
+				// 		}else{
+				// 			callout = 'callout-success'
+				// 		}
+				// 		$("#input-owner").html(`
+				// 			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				// 				<div class="col-md-3"></div>
+				// 				<div class="col-md-9">
+				// 					<div class="callout ${callout}" style="padding:6px;margin:0">${data.header.ket_owner}</div>
+				// 				</div>
+				// 			</div>
+				// 		`)
+				// 	}
+				// }
+
+				// $(".list-item").html(data.htmlItem)
+
+				statusInput = 'update'
+			}
+		})
+	}
 </script>

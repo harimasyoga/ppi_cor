@@ -1241,6 +1241,99 @@ class M_logistik extends CI_Model
 
 	//
 
+	function simpanInvJasa()
+	{
+		$h_id_header = $_POST["h_id_header"];
+		$tgl_invoice = $_POST["tgl_invoice"];
+		$tgl_sj = $_POST["tgl_sj"];
+		$no_surat_jalan = $_POST["no_surat_jalan"];
+		$no_invoice = $_POST["no_invoice"];
+		$tgl_jatuh_tempo = $_POST["tgl_jatuh_tempo"];
+		$h_id_hub = $_POST["h_id_hub"];
+		$kepada = $_POST["kepada"];
+		$alamat = $_POST["alamat"];
+		$pilihan_bank = $_POST["pilihan_bank"];
+		$statusInput = $_POST["statusInput"];
+
+		$tahun = substr($tgl_sj,2,2);
+		$bulan = substr($tgl_sj,5,2);
+		$noSJ = $this->db->query("SELECT*FROM invoice_jasa_header WHERE no_invoice LIKE '%$tahun%' ORDER BY no_invoice DESC LIMIT 1");
+		($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 3, 6);
+		$no_invoice = 'JP/'.str_pad($no+1, 6, "0", STR_PAD_LEFT).'/'.$bulan.'/'.$tahun; // JP/000001/01/24
+
+		($statusInput == 'insert') ? $no_inv = $_POST["no_invoice"] : $no_inv = substr($_POST["no_invoice"], 3, 6);
+		if($no_inv == 000000 || $no_inv == '000000' || $no_inv == '' || $no_inv < 0 || strlen("'.$no_inv.'") < 6){
+			$data = false; $insert = false; $detail = false; $no_pl_jasa = false;
+			$msg = 'NOMER INVOICE TIDAK BOLEH KOSONG!';
+		}else if($tgl_invoice == "" || $no_inv == "" || $tgl_jatuh_tempo == "" || $kepada == "" || $alamat == "" || $pilihan_bank == ""){
+			$data = false; $insert = false; $detail = false; $no_pl_jasa = false;
+			$msg = 'HARAP LENGKAPI FORM!';
+		}else{
+			if($statusInput == 'insert'){
+				$data = array(
+					'tgl_invoice' => $tgl_invoice,
+					'tgl_surat_jalan' => $tgl_sj,
+					'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
+					'id_hub' => $h_id_hub,
+					'no_surat' => $no_surat_jalan,
+					'no_invoice' => $no_invoice,
+					'kepada_jasa_inv' => $kepada,
+					'alamat_jasa_inv' => $alamat,
+					'bank' => $pilihan_bank,
+				);
+				$insert = $this->db->insert('invoice_jasa_header', $data);
+				
+				if($insert){
+					$isi = $this->db->query("SELECT r.*,p.*,i.*,i.kategori AS kate FROM m_rencana_kirim r
+					INNER JOIN pl_box p ON r.id_pl_box=p.id AND r.rk_urut=p.no_pl_urut
+					INNER JOIN m_produk i ON r.id_produk=i.id_produk
+					WHERE p.no_surat='$no_surat_jalan' ORDER BY p.no_po,i.nm_produk");
+					foreach($isi->result() as $r){
+						$this->db->set('id_rk', $r->id_rk);
+						$this->db->set('id_produk', $r->id_produk);
+						$this->db->set('no_surat', $no_surat_jalan);
+						$this->db->set('no_invoice', $no_invoice);
+						$this->db->set('harga', 0);
+						$this->db->set('total', 0);
+						$detail = $this->db->insert('invoice_jasa_detail');
+					}
+					// update no_pl_jasa di pl box
+					if($detail){
+						$this->db->set('no_pl_jasa', 1);
+						$this->db->where('no_surat', $no_surat_jalan);
+						$no_pl_jasa = $this->db->update('pl_box');
+					}
+					$msg = 'insert!';
+				}
+			}
+			// else{
+			// 	$data = array(
+			// 		'tgl_invoice' => $tgl_invoice,
+			// 		'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
+			// 		'attn_lam_inv' => $kepada,
+			// 		'alamat_lam_inv' => $alamat,
+			// 		'bank' => $pilihan_bank,
+			// 		'time_admin' => date('Y-m-d H:i:s'),
+			// 	);
+			// 	$this->db->where('id', $id_header);
+			// 	$insert = $this->db->update('invoice_laminasi_header', $data);
+			// 	$detail = true;
+			// 	$no_pl_jasa = true;
+			// 	$msg = 'update!';
+			// }
+		}
+
+		return [
+			'data' => $data,
+			'insert' => $insert,
+			'detail' => $detail,
+			'no_pl_jasa' => $no_pl_jasa,
+			'msg' => $msg,
+		];
+	}
+
+	//
+
 	function simpanTimbangan_2()
 	{
 		$thn = date('Y');
