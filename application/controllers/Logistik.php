@@ -141,7 +141,7 @@ class Logistik extends CI_Controller
 			WHERE a.no_po_bhn=c.no_po_bhn and a.hub=c.id_hub group by c.no_po_bhn,c.id_hub
 			)history_po
 			FROM trs_po_bhnbk a 
-			JOIN m_hub b ON a.hub=b.id_hub ORDER BY id_po_bhn")->result();
+			JOIN m_hub b ON a.hub=b.id_hub ORDER BY tgl_bhn ,id_po_bhn")->result();
 			// $query = $this->db->query("SELECT b.id as id_detail,DATE_ADD(a.tgl_po, INTERVAL 2 DAY) as tgl_po2, d.id_produk as id_produk , c.id_pelanggan as id_pelanggan, c.nm_pelanggan as nm_pelanggan, a.*,b.*,c.*,d.* from trs_po a 
 			// JOIN trs_po_detail b ON a.kode_po=b.kode_po
 			// JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
@@ -2184,7 +2184,7 @@ class Logistik extends CI_Controller
 				$i++;
 			}
 		}else if ($jenis == "stok_bb") {			
-			$query = $this->db->query("SELECT*FROM trs_h_stok_bb ORDER BY id_stok")->result();
+			$query = $this->db->query("SELECT*FROM trs_h_stok_bb ORDER BY tgl_stok desc,id_stok")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -2217,7 +2217,7 @@ class Logistik extends CI_Controller
 				$row            = array();
 				$row[]          = '<div class="text-center">'.$i.'</div>';
 				$row[]          = '<div >'.$r->no_stok.'</div>';
-				$row[]          = '<div class="text-center">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_stok).'</div>';
+				$row[]          = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_stok).'</div>';
 				$row[]          = '<div class="text-center"><button type="button" class="btn btn-sm btn-info ">'.$r->status.'</button></div>';
 				$row[]          = '<div >'.$r->no_timbangan.'</div>';
 				$row[]          = '<div class="text-center">'.number_format($r->total_timb, 0, ",", ".").' Kg</div>' ;
@@ -2290,8 +2290,8 @@ class Logistik extends CI_Controller
 			WHERE a.no_timbangan=c.no_timbangan group by a.no_timbangan
 			)
 			,0)history
-			FROM m_jembatan_timbang c 
-			ORDER BY id_timbangan")->result();
+			FROM m_jembatan_timbang c where c.keterangan='TERIMA' and c.no_timbangan like '%timb/%'
+			ORDER BY c.date_masuk desc,id_timbangan")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -2309,7 +2309,7 @@ class Logistik extends CI_Controller
 					$row            = array();
 					$row[]          = '<div class="text-center">'.$i.'</div>';
 					$row[]          = '<div >'.$r->no_timbangan.'</div>';
-					$row[]          = '<div class="text-center">'.$this->m_fungsi->tanggal_format_indonesia($tgl_masuk).'</div>';
+					$row[]          = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($tgl_masuk).'</div>';
 					// $row[]          = $r->date_keluar;
 					$row[]          = '<div >'.$r->no_polisi.'</div>';
 					$row[]          = $r->nm_barang;

@@ -1423,7 +1423,7 @@ class Transaksi extends CI_Controller
 			}
 		} else if ($jenis == "po_bahan") {
 
-			$query = $this->db->query("SELECT*FROM trs_po_bhnbk a JOIN m_hub b ON a.hub=b.id_hub ORDER BY a.id_po_bhn")->result();
+			$query = $this->db->query("SELECT*FROM trs_po_bhnbk a JOIN m_hub b ON a.hub=b.id_hub ORDER BY tgl_bhn desc,a.id_po_bhn")->result();
 
 			$i               = 1;
 			foreach ($query as $r) 
@@ -1435,7 +1435,7 @@ class Transaksi extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = '<div class="">'.$r->no_po_bhn.'</div>';
-				$row[] = '<div class="">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_bhn).'</div>';
+				$row[] = '<div class="">'.$this->m_fungsi->tanggal_ind($r->tgl_bhn).'</div>';
 				$row[] = '<div class="">'.$r->nm_hub.'</div>';
 				$row[] = '<div class="text-center">'.number_format($r->ton_bhn, 0, ",", ".").' Kg</div>';
 				$row[] = '<div class="text-center">'.number_format($r->hrg_bhn, 0, ",", ".").'</div>';
