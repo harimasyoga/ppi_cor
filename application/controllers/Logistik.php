@@ -153,7 +153,7 @@ class Logistik extends CI_Controller
 			foreach ($query as $r) {
 				$cek_list = $r->ton_bhn - $r->history_po;
 
-				if($cek_list == 0)
+				if($cek_list == 0 || $r->history_po > $r->ton_bhn)
 				{
 				}else{
 					$id            = "'$r->id_po_bhn'";
