@@ -238,6 +238,8 @@
 		$("#alamat").val("").prop('disabled', false)
 		$("#pilihan_bank").val("").prop('disabled', false).trigger("change")
 
+		$(".list-item").html("LIST ITEM KOSONG")
+
 		statusInput = 'insert'
 		swal.close()
 	}
@@ -313,6 +315,7 @@
 	}
 
 	function editInvoiceJasa(id_header, opsi) {
+		$(".list-item").html('LOAD DATA LIST ITEM')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/editInvoiceJasa')?>',
 			type: "POST",
@@ -323,101 +326,133 @@
 				data = JSON.parse(res)
 				console.log(data)
 
-				// $("#h_id_header").val(id_header)
+				$("#h_id_header").val(id_header)
 				
-				// let prop = true;
-				// (opsi == 'edit') ? prop = false : prop = true;
-				// $("#tgl_invoice").val(data.header.tgl_invoice).prop('disabled', prop)
-				// $("#tgl_sj").val(data.header.tgl_surat_jalan).prop('disabled', true)
-				// $("#no_surat_jalan").html(`<option value="">${data.header.no_surat}</option>`).prop('disabled', true)
-				// $("#txt_no_invoice").val(data.header.no_invoice)
-				// $("#no_invoice").val(data.header.no_invoice).prop('disabled', true)
-				// $("#tgl_jatuh_tempo").val(data.header.tgl_jatuh_tempo).prop('disabled', prop)
+				let prop = true;
+				(opsi == 'edit') ? prop = false : prop = true;
+				$("#tgl_invoice").val(data.header.tgl_invoice).prop('disabled', prop)
+				$("#tgl_sj").val(data.header.tgl_surat_jalan).prop('disabled', true)
+				$("#no_surat_jalan").html(`<option value="">${data.header.no_surat}</option>`).prop('disabled', true)
+				$("#txt_no_invoice").val(data.header.no_invoice)
+				$("#no_invoice").val(data.header.no_invoice).prop('disabled', true)
+				$("#tgl_jatuh_tempo").val(data.header.tgl_jatuh_tempo).prop('disabled', prop)
 
-				// $("#h_id_pelanggan_lm").val(data.header.id_pelanggan_lm).prop('disabled', prop)
-				// $("#kepada").val(data.header.attn_lam_inv).prop('disabled', prop)
-				// $("#alamat").val(data.header.alamat_lam_inv).prop('disabled', prop)
-				// $("#pilihan_bank").val(data.header.bank).prop('disabled', prop).trigger('change')
+				$("#h_id_hub").val(data.header.id_hub).prop('disabled', prop)
+				$("#kepada").val(data.header.kepada_jasa_inv).prop('disabled', prop)
+				$("#alamat").val(data.header.alamat_jasa_inv).prop('disabled', prop)
+				$("#pilihan_bank").val(data.header.bank).prop('disabled', prop).trigger('change')
 
 				// VERIFIKASI DATA
-				// $("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.oke_admin}`)
-				// // VERIFIFIKASI OWNER
-				// if((urlAuth == 'Admin' || (urlAuth == 'Keuangan1' && urlUser == 'bumagda')) && data.header.acc_admin == 'Y' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R')){
-				// 	// BUTTON OWNER
-				// 	let lock = ''
-				// 	if(urlAuth == 'Admin' && data.header.acc_owner != 'N'){
-				// 		lock = `<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifInvLaminasi('lock','owner')"><i class="fas fa-lock"></i> Lock</button>`
-				// 	}else{
-				// 		lock = ''
-				// 	}
-				// 	$("#verif-owner").html(`
-				// 		${lock}
-				// 		<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifInvLaminasi('verifikasi','owner')"><i class="fas fa-check"></i> Verifikasi</button>
-				// 		<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifInvLaminasi('hold','owner')"><i class="far fa-hand-paper"></i> Hold</button>
-				// 		<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifInvLaminasi('reject','owner')"><i class="fas fa-times"></i> Reject</button>
-				// 	`)
-				// 	// KETERANGAN OWNER
-				// 	if(data.header.acc_owner != 'N'){
-				// 		if(data.header.acc_owner == 'H'){
-				// 			callout = 'callout-warning'
-				// 			colorbtn = 'btn-warning'
-				// 			txtsave = 'HOLD!'
-				// 		}else{
-				// 			callout = 'callout-danger'
-				// 			colorbtn = 'btn-danger'
-				// 			txtsave = 'REJECT!'
-				// 		}
-				// 		$("#input-owner").html(`
-				// 			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-				// 				<div class="col-md-3"></div>
-				// 				<div class="col-md-9">
-				// 					<div class="callout ${callout}" style="padding:0;margin:0">
-				// 						<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.ket_owner}</textarea>
-				// 					</div>
-				// 				</div>
-				// 			</div>
-				// 			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-				// 				<div class="col-md-3"></div>
-				// 				<div class="col-md-9">
-				// 					<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifInvLaminasi('${data.header.acc_owner}', 'owner')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
-				// 				</div>
-				// 			</div>
-				// 		`)
-				// 	}
-				// }else{
-				// 	// BUTTON OWNER
-				// 	if(data.header.acc_owner == 'N'){
-				// 		$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
-				// 	}else if(data.header.acc_owner == 'H'){
-				// 		$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.time_owner}`)
-				// 	}else if(data.header.acc_owner == 'R'){
-				// 		$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.time_owner}`)
-				// 	}else{
-				// 		$("#verif-owner").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.time_owner}`)
-				// 	}
-				// 	// KETERANGAN OWNER
-				// 	if(data.header.acc_owner != 'N'){
-				// 		if(data.header.acc_owner == 'H'){
-				// 			callout = 'callout-warning'
-				// 		}else if(data.header.acc_owner == 'R'){
-				// 			callout = 'callout-danger'
-				// 		}else{
-				// 			callout = 'callout-success'
-				// 		}
-				// 		$("#input-owner").html(`
-				// 			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-				// 				<div class="col-md-3"></div>
-				// 				<div class="col-md-9">
-				// 					<div class="callout ${callout}" style="padding:6px;margin:0">${data.header.ket_owner}</div>
-				// 				</div>
-				// 			</div>
-				// 		`)
-				// 	}
-				// }
+				$("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.oke_admin}`)
+				// VERIFIFIKASI OWNER
+				if((urlAuth == 'Admin' || (urlAuth == 'Keuangan1' && urlUser == 'bumagda')) && data.header.acc_admin == 'Y' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R')){
+					// BUTTON OWNER
+					let lock = ''
+					if(urlAuth == 'Admin' && data.header.acc_owner != 'N'){
+						lock = `<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifInvLaminasi('lock','owner')"><i class="fas fa-lock"></i> Lock</button>`
+					}else{
+						lock = ''
+					}
+					$("#verif-owner").html(`
+						${lock}
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifInvLaminasi('verifikasi','owner')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifInvLaminasi('hold','owner')"><i class="far fa-hand-paper"></i> Hold</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifInvLaminasi('reject','owner')"><i class="fas fa-times"></i> Reject</button>
+					`)
+					// KETERANGAN OWNER
+					if(data.header.acc_owner != 'N'){
+						if(data.header.acc_owner == 'H'){
+							callout = 'callout-warning'
+							colorbtn = 'btn-warning'
+							txtsave = 'HOLD!'
+						}else{
+							callout = 'callout-danger'
+							colorbtn = 'btn-danger'
+							txtsave = 'REJECT!'
+						}
+						$("#input-owner").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:0;margin:0">
+										<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.ket_owner}</textarea>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifInvLaminasi('${data.header.acc_owner}', 'owner')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+								</div>
+							</div>
+						`)
+					}
+				}else{
+					// BUTTON OWNER
+					if(data.header.acc_owner == 'N'){
+						$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+					}else if(data.header.acc_owner == 'H'){
+						$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.time_owner}`)
+					}else if(data.header.acc_owner == 'R'){
+						$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.time_owner}`)
+					}else{
+						$("#verif-owner").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.time_owner}`)
+					}
+					// KETERANGAN OWNER
+					if(data.header.acc_owner != 'N'){
+						if(data.header.acc_owner == 'H'){
+							callout = 'callout-warning'
+						}else if(data.header.acc_owner == 'R'){
+							callout = 'callout-danger'
+						}else{
+							callout = 'callout-success'
+						}
+						$("#input-owner").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:6px;margin:0">${data.header.ket_owner}</div>
+								</div>
+							</div>
+						`)
+					}
+				}
 
-				// $(".list-item").html(data.htmlItem)
+				$(".list-item").html(data.htmlItem)
 
 				statusInput = 'update'
+			}
+		})
+	}
+
+	function keyupHargaJasa(id_dtl) {
+		let tonase = $("#tonase-"+id_dtl).val()
+		let harga = $("#harga-"+id_dtl).val().split('.').join('')
+		$("#harga-"+id_dtl).val(format_angka(harga))
+		
+		let hitung = tonase * harga;
+		(isNaN(hitung) || hitung == "" || hitung == 0) ? hitung = 0 : hitung = hitung
+		$("#total-"+id_dtl).val(format_angka(hitung))
+	}
+
+	function editHargaJasa(id_dtl) {
+		let id_header = $("#h_id_header").val()
+		let harga = $("#harga-"+id_dtl).val().split('.').join('')
+		let total = $("#total-"+id_dtl).val().split('.').join('')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/editHargaJasa')?>',
+			type: "POST",
+			data: ({
+				id_dtl, harga, total
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.data){
+					editInvoiceJasa(id_header, 'edit')
+				}else{
+					toastr.error(`<b>INPUT TIDAK BOLEH KOSONG!</b>`)
+				}
 			}
 		})
 	}

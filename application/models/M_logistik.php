@@ -1284,15 +1284,16 @@ class M_logistik extends CI_Model
 				$insert = $this->db->insert('invoice_jasa_header', $data);
 				
 				if($insert){
-					$isi = $this->db->query("SELECT r.*,p.*,i.*,i.kategori AS kate FROM m_rencana_kirim r
+					$isi = $this->db->query("SELECT r.*,p.*,i.*,SUM(r.qty_muat) AS muat,i.kategori AS kate FROM m_rencana_kirim r
 					INNER JOIN pl_box p ON r.id_pl_box=p.id AND r.rk_urut=p.no_pl_urut
 					INNER JOIN m_produk i ON r.id_produk=i.id_produk
-					WHERE p.no_surat='$no_surat_jalan' ORDER BY p.no_po,i.nm_produk");
+					WHERE p.no_surat='$no_surat_jalan' GROUP BY r.id_pelanggan,r.id_produk,r.rk_kode_po ORDER BY p.no_po,i.nm_produk");
 					foreach($isi->result() as $r){
-						$this->db->set('id_rk', $r->id_rk);
 						$this->db->set('id_produk', $r->id_produk);
 						$this->db->set('no_surat', $no_surat_jalan);
 						$this->db->set('no_invoice', $no_invoice);
+						$this->db->set('no_po', $r->no_po);
+						$this->db->set('qty_muat', $r->muat);
 						$this->db->set('harga', 0);
 						$this->db->set('total', 0);
 						$detail = $this->db->insert('invoice_jasa_detail');
@@ -1329,6 +1330,26 @@ class M_logistik extends CI_Model
 			'detail' => $detail,
 			'no_pl_jasa' => $no_pl_jasa,
 			'msg' => $msg,
+		];
+	}
+
+	function editHargaJasa()
+	{
+		$id_dtl = $_POST["id_dtl"];
+		$harga = $_POST["harga"];
+		$total = $_POST["total"];
+
+		if($harga == 0 || $total == 0 || $harga == "" || $total == ""){
+			$data = false;
+		}else{
+			$this->db->set('harga', $harga);
+			$this->db->set('total', $total);
+			$this->db->where('id', $id_dtl);
+			$data = $this->db->update('invoice_jasa_detail');
+		}
+
+		return [
+			'data' => $data,
 		];
 	}
 
