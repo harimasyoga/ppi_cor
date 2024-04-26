@@ -1332,7 +1332,7 @@ class Logistik extends CI_Controller
 		$disc = $this->db->query("SELECT*FROM invoice_laminasi_disc WHERE no_invoice='$header->no_invoice'");
 
 		// HEADER
-		$html .= '<table cellspacing="0" style="color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-size:11px;font-family:tahoma">
+		$html .= '<table style="color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-size:11px;font-family:tahoma">
 			<tr>
 				<th style="border:0;padding:2px 0;height:0;width:12%"></th>
 				<th style="border:0;padding:2px 0;height:0;width:1%"></th>
@@ -1371,7 +1371,7 @@ class Logistik extends CI_Controller
 					WHERE d.no_invoice='$no_invoice'
 					GROUP BY rk.rk_no_po");
 					if($result_po->num_rows() == '1'){
-						$html .= $result_po->row()->rk_no_po;;
+						$html .= $result_po->row()->rk_no_po;
 					}else{
 						foreach($result_po->result() as $r){
 							$html .= $r->rk_no_po.'<br/>';
@@ -1387,7 +1387,7 @@ class Logistik extends CI_Controller
 		$html .= '</table>';
 
 		// ISI
-		$html .= '<table cellspacing="0" style="margin-bottom:25px;font-size:11px;text-align:center;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:tahoma">
+		$html .= '<table style="margin-bottom:25px;font-size:11px;text-align:center;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:tahoma">
 			<tr>
 				<th style="border:0;height:30px;width:36%"></th>
 				<th style="border:0;height:30px;width:10%"></th>
@@ -1714,22 +1714,35 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function btnVerifInvJasa()
+	{
+		$result = $this->m_logistik->btnVerifInvJasa();
+		echo json_encode($result);
+	}
+
+	function hapusInvoiceJasa()
+	{
+		$result = $this->m_logistik->hapusInvoiceJasa();
+		echo json_encode($result);
+	}
+
 	function editInvoiceJasa()
 	{
 		$id_header = $_POST["id_header"];
 		$opsi = $_POST["opsi"];
 
 		$header = $this->db->query("SELECT*FROM invoice_jasa_header WHERE id='$id_header'")->row();
+		$detail = $this->db->query("SELECT SUM(d.harga) AS harga,SUM(d.total) AS total FROM invoice_jasa_detail d WHERE d.no_surat='$header->no_surat' AND d.no_invoice='$header->no_invoice' AND d.harga!='0' GROUP BY d.no_surat,d.no_invoice");
 
 		$htmlItem = '';
 		// NO. PO ITEM UKURAN FLUTE SUBSTANCE
 		$htmlItem .='<table class="table table-bordered" style="margin:0">
 			<tr style="background:#f8f9fc">
-				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">#</th>
+				<th style="padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">#</th>
 				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center" colspan="6">DESKRIPSI</th>
-				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">QTY</th>
-				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">BB</th>
-				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">TONASE</th>
+				<th style="padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">QTY</th>
+				<th style="padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">BB</th>
+				<th style="padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">TONASE</th>
 				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">HARGA</th>
 				<th style="padding:6px 50px;border-bottom:1px solid #6c757d;text-align:center">TOTAL</th>
 				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">AKSI</th>
@@ -1761,14 +1774,6 @@ class Logistik extends CI_Controller
 					$kualitas = $r->kualitas;
 				}
 				$tonase = round($r->berat_bersih * $r->qty_muat);
-				// AKSI
-				if($r->harga == 0){
-					$bgAksi = 'btn-primary';
-					$txtAksi = '<i class="fas fa-save"></i>';
-				}else{
-					$bgAksi = 'btn-warning';
-					$txtAksi = '<i class="fas fa-pen"></i>';
-				}
 				$htmlItem .='<tr>
 					<td style="padding:6px;text-align:center">'.$i.'</td>
 					<td style="padding:0;border:0">
@@ -1812,16 +1817,32 @@ class Logistik extends CI_Controller
 					</td>
 					<td style="padding:6px;text-align:center">'.number_format($r->qty_muat,0,',','.').'</td>
 					<td style="padding:6px;text-align:center">'.$r->berat_bersih.'</td>
-					<td style="padding:6px;text-align:center;font-weight:bold">'.number_format($tonase,0,',','.').'</td>
-					<td style="padding:6px;text-align:center">
+					<td style="padding:6px;text-align:center;font-weight:bold">'.number_format($tonase,0,',','.').'</td>';
+
+					if($opsi == 'edit' && $header->acc_owner != 'Y'){
+						$eKeyUp = 'onkeyup="keyupHargaJasa('."'".$r->id_dtl."'".')"';
+						$eClick = 'onclick="editHargaJasa('."'".$r->id_dtl."'".')"';
+					}else{
+						$eKeyUp = 'disabled';
+						$eClick = 'disabled';
+					}
+					// AKSI
+					if($r->harga == 0){
+						$bgAksi = 'btn-primary';
+						$txtAksi = '<i class="fas fa-save"></i>';
+					}else{
+						$bgAksi = 'btn-warning';
+						$txtAksi = '<i class="fas fa-pen"></i>';
+					}
+					$htmlItem .='<td style="padding:6px;text-align:center">
 						<input type="hidden" id="tonase-'.$r->id_dtl.'" value="'.$tonase.'">
-						<input type="text" id="harga-'.$r->id_dtl.'" class="form-control" autocomplete="off" style="padding:6px;width:100px;font-weight:bold;text-align:right" value="'.number_format($r->harga,0,',','.').'" onkeyup="keyupHargaJasa('."'".$r->id_dtl."'".')">
+						<input type="text" id="harga-'.$r->id_dtl.'" class="form-control" autocomplete="off" style="padding:6px;width:100px;color:#000;font-weight:bold;text-align:right" value="'.number_format($r->harga,0,',','.').'" '.$eKeyUp.'>
 					</td>
 					<td style="padding:6px;text-align:center">
 						<input type="text" id="total-'.$r->id_dtl.'" class="form-control" style="border:0;background:none;padding:6px;font-weight:bold;color:#000;text-align:right" value="'.number_format($r->total,0,',','.').'" disabled>
 					</td>
 					<td style="padding:6px;text-align:center">
-						<button type="button" class="btn btn-xs '.$bgAksi.'" style="font-weight:bold" onclick="editHargaJasa('."'".$r->id_dtl."'".')">'.$txtAksi.'</button>
+						<button type="button" class="btn btn-xs '.$bgAksi.'" style="font-weight:bold" '.$eClick.'>'.$txtAksi.'</button>
 					</td>
 				</tr>';
 			}
@@ -1838,11 +1859,216 @@ class Logistik extends CI_Controller
 
 		echo json_encode([
 			'header' => $header,
-			'no_invoice' => substr($header->no_invoice, 4, 6),
+			'detail' => ($detail->num_rows() == 0) ? 0 : $detail->row(),
+			'no_invoice' => substr($header->no_invoice, 3, 6),
 			'oke_admin' => substr($this->m_fungsi->getHariIni(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin),0,3).', '.$this->m_fungsi->tglIndSkt(substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 0,10)).' ( '.substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 10,6).' )',
 			'time_owner' => ($header->time_owner == null) ? '' :substr($this->m_fungsi->getHariIni($header->time_owner),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->time_owner, 0,10)).' ( '.substr($header->time_owner, 10,6).' )',
 			'htmlItem' => $htmlItem,
 		]);
+	}
+
+	function cetakInvJasa()
+	{
+		$no_invoice = $_GET["no_invoice"];
+		$html = '';
+
+		$header = $this->db->query("SELECT*FROM invoice_jasa_header WHERE no_invoice='$no_invoice'")->row();
+		// GET PO
+		$result_po = $this->db->query("SELECT d.no_po FROM invoice_jasa_detail d WHERE d.no_invoice='$no_invoice' GROUP BY d.no_invoice")->row();
+
+		// KOP
+		$html .= '<table style="margin-bottom:10px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-size:11px;font-family:tahoma">
+			<tr>
+				<td style="width:15%;text-align:center" rowspan="3">
+					<img src="'.base_url().'assets/gambar/ppi.png" width="80" height="70" />
+				</td>
+				<td style="width:85%;font-weight:bold;font-size:20px">PT. PRIMA PAPER INDONESIA</td>
+			</tr>
+			<tr>
+				<td>Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
+			</tr>
+			<tr>
+				<td>WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
+			</tr>
+		</table>';
+
+		// HEADER
+		$html .= '<table style="color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-size:11px;font-family:tahoma">
+			<tr>
+				<th style="border:0;padding:2px 0;height:0;width:10%"></th>
+				<th style="border:0;padding:2px 0;height:0;width:1%"></th>
+				<th style="border:0;padding:2px 0;height:0;width:44%"></th>
+				<th style="border:0;padding:2px 0;height:0;width:12%"></th>
+				<th style="border:0;padding:2px 0;height:0;width:1%"></th>
+				<th style="border:0;padding:2px 0;height:0;width:32%"></th>
+			</tr>
+			<tr>
+				<td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px;font-weight:bold;text-align:center" colspan="6">INVOICE</td>
+			</tr>
+			<tr>
+				<td colspan="3"></td>
+				<td style="padding:5px 0 25px;font-weight:bold">NOMOR</td>
+				<td style="padding:5px 0 25px;font-weight:bold">:</td>
+				<td style="padding:5px 0 25px;font-weight:bold">'.$header->no_invoice.'</td>
+			</tr>
+			<tr>
+				<td style="padding:3px 0">Kepada</td>
+				<td style="padding:3px 0">:</td>
+				<td style="padding:0 3px 0 0;line-height:1.8">'.$header->kepada_jasa_inv.'</td>
+				<td style="padding:3px 0;font-weight:bold">Jatuh Tempo</td>
+				<td style="padding:3px 0">:</td>
+				<td style="padding:3px 0;font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($header->tgl_jatuh_tempo).'</td>
+			</tr>
+			<tr>
+				<td style="padding:3px 0" rowspan="3">Alamat</td>
+				<td style="padding:3px 0" rowspan="3">:</td>
+				<td style="padding:0 3px 0 0;line-height:1.8" rowspan="3">'.$header->alamat_jasa_inv.'</td>
+				<td style="padding:3px 0">No. PO</td>
+				<td style="padding:3px 0">:</td>
+				<td style="padding:0;line-height:1.8">'.$result_po->no_po.'</td>
+			</tr>
+			<tr>
+				<td style="padding:3px 0">No. Surat Jalan</td>
+				<td style="padding:3px 0">:</td>
+				<td style="padding:3px 0">'.$header->no_surat.'</td>
+			</tr>
+			<tr>
+				<td style="padding:10px" colspan="3"></td>
+			</tr>';
+		$html .= '</table>';
+
+		// ISI
+		$html .= '<table style="margin-bottom:25px;font-size:11px;text-align:center;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:tahoma">
+			<tr>
+				<th style="border:0;height:30px;width:36%"></th>
+				<th style="border:0;height:30px;width:10%"></th>
+				<th style="border:0;height:30px;width:10%"></th>
+				<th style="border:0;height:30px;width:7%"></th>
+				<th style="border:0;height:30px;width:10%"></th>
+				<th style="border:0;height:30px;width:7%"></th>
+				<th style="border:0;height:30px;width:20%"></th>
+			</tr>
+			<tr>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;font-weight:bold">NAMA BARANG</td>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;font-weight:bold">SATUAN</td>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;font-weight:bold">JUMLAH</td>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;font-weight:bold" colspan="2">HARGA</td>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;font-weight:bold" colspan="2">TOTAL</td>
+			</tr>';
+
+			$isi = $this->db->query("SELECT d.*,h.*,i.* FROM invoice_jasa_detail d
+			INNER JOIN invoice_jasa_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
+			INNER JOIN m_produk i ON d.id_produk=i.id_produk
+			WHERE h.no_surat='$header->no_surat' AND h.no_invoice='$header->no_invoice'
+			ORDER BY d.no_po,i.nm_produk");
+			$sumTotal = 0;
+			foreach($isi->result() as $r){
+				// str_replace(",'","",$id_hub)
+				($r->kategori == "K_BOX") ? $ukuran = str_replace(" ","",$r->ukuran) : $ukuran = str_replace(" ","",$r->ukuran_sheet);
+				$expKualitas = explode("/", $r->kualitas);
+				if($r->flute == 'BCF'){
+					if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
+						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+					}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
+						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+					}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
+						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+					}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
+						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+					}else{
+						$kualitas = $r->kualitas;
+					}
+				}else{
+					$kualitas = $r->kualitas;
+				}
+				$jumlah = round($r->berat_bersih * $r->qty_muat);
+				$html .='<tr>
+					<td style="padding:6px 0;text-align:left">'.$r->nm_produk.'. '.strtolower($ukuran).'. '.$r->flute.'. '.$kualitas.'</td>
+					<td style="padding:6px">KG</td>
+					<td style="padding:6px;text-align:right">'.number_format($jumlah,0,",",".").'</td>
+					<td style="padding:6px">Rp</td>
+					<td style="padding:6px;text-align:right">'.number_format($r->harga,0,",",".").'</td>
+					<td style="padding:6px">Rp</td>
+					<td style="padding:6px 0;text-align:right">'.number_format($r->total,0,",",".").'</td>
+				</tr>';
+				$sumTotal += $r->total;
+			}
+
+			if($isi->num_rows() == 1) {
+				$xx = 9;
+			}else if($isi->num_rows() == 2){
+				$xx = 8;
+			}else if($isi->num_rows() == 3){
+				$xx = 7;
+			}else if($isi->num_rows() == 4){
+				$xx = 6;
+			}else if($isi->num_rows() == 5){  
+				$xx = 5;
+			}else if($isi->num_rows() == 6){  
+				$xx = 4;
+			}else if($isi->num_rows() == 7){  
+				$xx = 3;
+			}else if($isi->num_rows() == 8){  
+				$xx = 2;
+			}else if($isi->num_rows() == 9){  
+				$xx = 1;
+			}
+			if($isi->num_rows() <= 9) {
+				for($i = 0; $i < $xx; $i++){
+					$html .='<tr>
+						<td style="padding:8px" colspan="7"></td>
+					</tr>';
+				}
+			}
+
+			$html .= '<tr>
+				<td style="border-top:2px solid #000;padding:6px 0;text-align:left;line-height:1.8;text-transform:uppercase" colspan="2">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($sumTotal).'</i></b></td>
+				<td style="border-top:2px solid #000;padding:6px;text-align:left" colspan="3">Total</td>
+				<td style="border-top:2px solid #000;padding:6px">Rp</td>
+				<td style="border-top:2px solid #000;padding:6px 0;text-align:right">'.number_format($sumTotal, 0, ",", ".").'</td>
+			</tr>';
+			$html .= '<tr>
+				<td style="border-bottom:2px solid #000" colspan="7"></td>
+			</tr>';
+		$html .= '</table>';
+
+		// PEMBAYARAN REKENING
+		$nm_bank = 'BCA';
+		$norek_bank = '078-795-5758';
+		$an_bank = 'PT. PRIMA PAPER INDONESIA';
+		$html .= '<table style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:tahoma">
+			<tr>
+				<td style="width:60%"></td>
+				<td style="width:40%"></td>
+			</tr>
+			<tr>
+				<td style="border:0"></td>
+				<td style="border:0;line-height:1.8;text-align:center">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($header->tgl_invoice).'</td> 
+			</tr>
+			<tr>
+				<td style="border:0;padding:0 0 30px;line-height:1.8">Pembayaran Full Amount ditransfer ke :<br/>'.$nm_bank.' '.$norek_bank.' <br/>A.n '.$an_bank.'</td>
+				<td style="border-bottom:1px solid #000"></td>
+			</tr>
+			<tr>
+				<td style="border:0;"></td>
+				<td style="border:0;line-height:1.8;text-align:center">Finance</td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:0;line-height:1.8">* Harap bukti transfer di email ke</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:0;line-height:1.8">primapaperin@gmail.com / bethppi@yahoo.co.id</td>
+				<td></td>
+			</tr>
+		</table>';
+
+		// UPDATE TGL CETAK
+		$ctk = date("Y-m-d H:i:s");
+		$this->db->query("UPDATE invoice_jasa_header SET tgl_cetak='$ctk' WHERE no_invoice='$no_invoice' ");
+
+		$judul = 'INVOICE JASA - '.$no_invoice;
+		$this->m_fungsi->newMpdf($judul, 'cetak', $html, 6, 7, 6, 7, 'P', 'A4', $judul.'.pdf');
 	}
 
 	//
@@ -2575,7 +2801,9 @@ class Logistik extends CI_Controller
 					<div><b>Alamat :</b> '.$r->alamat_lam_inv.'</div>
 				</div>';
 				$row[] = $htmlDes;
-				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo).'</div>';
+				// TANGGAL JATUH TEMPO
+				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $jt = 'CASH' : $jt = $this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo);
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$jt.'</div>';
 				// ADMIN
 				$row[] = '<div class="text-center">
 					<div class="dropup">
@@ -2655,7 +2883,9 @@ class Logistik extends CI_Controller
 					<div style="white-space:wrap"><b>Alamat :</b> '.$r->alamat_jasa_inv.'</div>
 				</div>';
 				$row[] = $htmlDes;
-				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo).'</div>';
+				// JATUH TEMPO
+				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $jt = 'CASH' : $jt = $this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo);
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$jt.'</div>';
 				// ADMIN
 				$row[] = '<div class="text-center">
 					<div class="dropup">
@@ -2699,11 +2929,11 @@ class Logistik extends CI_Controller
 				// TOTAL
 				$dtl = $this->db->query("SELECT SUM(d.harga) AS harga,SUM(d.total) AS total FROM invoice_jasa_detail d WHERE d.no_surat='$r->no_surat' AND d.no_invoice='$r->no_invoice' GROUP BY d.no_surat,d.no_invoice")->row();
 				if($dtl->harga == 0){
-					$row[] = '<div class="text-center">-</div>';
-					$lapPrint = '<button class="btn btn-sm btn-primary" disabled><i class="fas fa-print"></i></button>';
+					$row[] = '<div class="text-center" style="color:#000;font-weight:bold">0</div>';
+					$lapPrint = '<button class="btn btn-sm btn-secondary" disabled><i class="fas fa-print"></i></button>';
 				}else{
 					$row[] = '<div class="text-right" style="font-weight:bold;color:#000">'.number_format($dtl->total,0,',','.').'</div>';
-					$lapPrint = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/cetakInvoiceLaminasi?no_invoice=".$r->no_invoice."").'" title=""><i class="fas fa-print"></i></a>';
+					$lapPrint = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/cetakInvJasa?no_invoice=".$r->no_invoice."").'" title=""><i class="fas fa-print"></i></a>';
 				}
 
 				// CETAK
@@ -2716,8 +2946,6 @@ class Logistik extends CI_Controller
 				if($this->session->userdata('level') == 'Admin'){
 					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
 				}else if($this->session->userdata('level') == 'Owner'){
-					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
-				}else if($this->session->userdata('level') == 'Keuangan1' && $this->session->userdata('username') == 'bumagda'){
 					$row[] = '<div class="text-center">'.$btnVerif.'</div>';
 				}else{
 					$row[] = '<div class="text-center">-</div>';

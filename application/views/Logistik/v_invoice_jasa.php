@@ -22,7 +22,7 @@
 	<section class="content">
 		<div class="container-fluid">
 			
-			<div class="row row-input-invoice-laminasi">
+			<div class="row row-input-invoice-jasa" style="display:none">
 				<div class="col-md-7">
 					<div class="card card-success card-outline">
 						<div class="card-header" style="padding:12px">
@@ -78,13 +78,13 @@
 							<div class="col-md-3">KEPADA</div>
 							<div class="col-md-9">
 								<input type="hidden" id="h_id_hub" value="">
-								<input type="text" id="kepada" class="form-control" placeholder="Kepada" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+								<input type="text" id="kepada" class="form-control" placeholder="Kepada" autocomplete="off" oninput="this.value=this.value.toUpperCase()" disabled>
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">ALAMAT</div>
 							<div class="col-md-9">
-								<textarea id="alamat" class="form-control" style="resize:none" rows="3" placeholder="Alamat" autocomplete="off" oninput="this.value=this.value.toUpperCase()"></textarea>
+								<textarea id="alamat" class="form-control" style="resize:none" rows="3" placeholder="Alamat" autocomplete="off" oninput="this.value=this.value.toUpperCase()" disabled></textarea>
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 16px">
@@ -101,7 +101,7 @@
 				</div>
 
 				<div class="col-md-5">
-					<div class="col-verif-invoice-laminasi">
+					<div class="col-verif-invoice-laminasi" style="display:none">
 						<div class="card card-info card-outline" style="padding-bottom:18px">
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
@@ -125,7 +125,7 @@
 				</div>
 			</div>
 
-			<div class="row row-item-invoice-laminasi">
+			<div class="row row-item-invoice-jasa" style="display:none">
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
@@ -162,7 +162,7 @@
 									<thead class="color-tabel">
 										<tr>
 											<th style="padding:12px;text-align:center">NO.</th>
-											<th style="padding:12px;text-align:center">DESKRIPSI</th>
+											<th style="padding:12px 150px;text-align:center">DESKRIPSI</th>
 											<th style="padding:12px;text-align:center">JATUH TEMPO</th>
 											<th style="padding:12px;text-align:center">ADMIN</th>
 											<th style="padding:12px;text-align:center">OWNER</th>
@@ -234,10 +234,13 @@
 		$("#tgl_jatuh_tempo").val("").prop('disabled', false)
 
 		$("#h_id_hub").val("")
-		$("#kepada").val("").prop('disabled', false)
-		$("#alamat").val("").prop('disabled', false)
+		$("#kepada").val("").prop('disabled', true)
+		$("#alamat").val("").prop('disabled', true)
 		$("#pilihan_bank").val("").prop('disabled', false).trigger("change")
 
+		$("#verif-admin").html('. . .')
+		$("#verif-owner").html('. . .')
+		$("#input-owner").html('')
 		$(".list-item").html("LIST ITEM KOSONG")
 
 		statusInput = 'insert'
@@ -246,11 +249,19 @@
 
 	function tambahData() {
 		kosong()
+		$(".row-input-invoice-jasa").show()
+		$(".col-verif-invoice-laminasi").hide()
+		$(".row-item-invoice-jasa").show()
+		$(".row-list-invoice-jasa").hide()
 	}
 
 	function kembali() {
 		kosong()
 		reloadTable()
+		$(".row-input-invoice-jasa").hide()
+		$(".col-verif-invoice-laminasi").hide()
+		$(".row-item-invoice-jasa").hide()
+		$(".row-list-invoice-jasa").show()
 	}
 
 	function cariSJJasa()
@@ -261,11 +272,22 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/cariSJJasa')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ tgl_sj }),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
 				$("#no_surat_jalan").html(data.htmlSJ).prop('disabled', (data.numRows == 0) ? true : false)
+				swal.close()
 			}
 		})
 	}
@@ -276,6 +298,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/pilihSJInvJasa')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ no_surat }),
 			success: function(res){
 				data = JSON.parse(res)
@@ -286,6 +318,7 @@
 				$("#kepada").val(data.kepada)
 				$("#alamat").val(data.alamat)
 				$(".list-item").html(data.htmlItem)
+				swal.close()
 			}
 		})
 	}
@@ -304,21 +337,51 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/simpanInvJasa')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				h_id_header, tgl_invoice, tgl_sj, no_surat_jalan, no_invoice, tgl_jatuh_tempo, h_id_hub, kepada, alamat, pilihan_bank, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
+				if(data.insert){
+					toastr.success(`<b>BERHASIL!</b>`)
+					kembali()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
 			}
 		})
 	}
 
 	function editInvoiceJasa(id_header, opsi) {
-		$(".list-item").html('LOAD DATA LIST ITEM')
+		$(".row-input-invoice-jasa").show()
+		$(".col-verif-invoice-laminasi").attr('style', 'position:sticky;top:12px;margin-bottom:16px')
+		$(".row-item-invoice-jasa").show()
+		$(".row-list-invoice-jasa").hide()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/editInvoiceJasa')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id_header, opsi
 			}),
@@ -337,27 +400,27 @@
 				$("#no_invoice").val(data.header.no_invoice).prop('disabled', true)
 				$("#tgl_jatuh_tempo").val(data.header.tgl_jatuh_tempo).prop('disabled', prop)
 
-				$("#h_id_hub").val(data.header.id_hub).prop('disabled', prop)
-				$("#kepada").val(data.header.kepada_jasa_inv).prop('disabled', prop)
-				$("#alamat").val(data.header.alamat_jasa_inv).prop('disabled', prop)
+				$("#h_id_hub").val(data.header.id_hub)
+				$("#kepada").val(data.header.kepada_jasa_inv).prop('disabled', true)
+				$("#alamat").val(data.header.alamat_jasa_inv).prop('disabled', true)
 				$("#pilihan_bank").val(data.header.bank).prop('disabled', prop).trigger('change')
 
 				// VERIFIKASI DATA
 				$("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.oke_admin}`)
 				// VERIFIFIKASI OWNER
-				if((urlAuth == 'Admin' || (urlAuth == 'Keuangan1' && urlUser == 'bumagda')) && data.header.acc_admin == 'Y' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R')){
+				if((urlAuth == 'Admin' || urlAuth == 'Owner') && data.detail != 0 && data.header.acc_admin == 'Y' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R')){
 					// BUTTON OWNER
 					let lock = ''
 					if(urlAuth == 'Admin' && data.header.acc_owner != 'N'){
-						lock = `<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifInvLaminasi('lock','owner')"><i class="fas fa-lock"></i> Lock</button>`
+						lock = `<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifInvJasa('lock','owner')"><i class="fas fa-lock"></i> Lock</button>`
 					}else{
 						lock = ''
 					}
 					$("#verif-owner").html(`
 						${lock}
-						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifInvLaminasi('verifikasi','owner')"><i class="fas fa-check"></i> Verifikasi</button>
-						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifInvLaminasi('hold','owner')"><i class="far fa-hand-paper"></i> Hold</button>
-						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifInvLaminasi('reject','owner')"><i class="fas fa-times"></i> Reject</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifInvJasa('verifikasi','owner')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifInvJasa('hold','owner')"><i class="far fa-hand-paper"></i> Hold</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifInvJasa('reject','owner')"><i class="fas fa-times"></i> Reject</button>
 					`)
 					// KETERANGAN OWNER
 					if(data.header.acc_owner != 'N'){
@@ -375,14 +438,14 @@
 								<div class="col-md-3"></div>
 								<div class="col-md-9">
 									<div class="callout ${callout}" style="padding:0;margin:0">
-										<textarea class="form-control" id="ket_laminasi" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.ket_owner}</textarea>
+										<textarea class="form-control" id="ket_jasa" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.ket_owner}</textarea>
 									</div>
 								</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-3"></div>
 								<div class="col-md-9">
-									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifInvLaminasi('${data.header.acc_owner}', 'owner')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifInvJasa('${data.header.acc_owner}', 'owner')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
 								</div>
 							</div>
 						`)
@@ -421,6 +484,7 @@
 				$(".list-item").html(data.htmlItem)
 
 				statusInput = 'update'
+				swal.close()
 			}
 		})
 	}
@@ -442,6 +506,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/editHargaJasa')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id_dtl, harga, total
 			}),
@@ -452,8 +526,118 @@
 					editInvoiceJasa(id_header, 'edit')
 				}else{
 					toastr.error(`<b>INPUT TIDAK BOLEH KOSONG!</b>`)
+					swal.close()
 				}
 			}
 		})
+	}
+
+	function verifInvJasa(aksi, status_verif)
+	{
+		if(aksi == 'verifikasi'){
+			vrf = 'Y'
+			callout = 'callout-success'
+			colorbtn = 'btn-success'
+			txtsave = 'VERIFIKASI!'
+		}else if(aksi == 'lock'){
+			vrf = 'N'
+			callout = 'callout-warning'
+			colorbtn = 'btn-warning'
+			txtsave = 'LOCK!'
+		}else if(aksi == 'hold'){
+			vrf = 'H'
+			callout = 'callout-warning'
+			colorbtn = 'btn-warning'
+			txtsave = 'HOLD!'
+		}else if(aksi == 'reject'){
+			vrf = 'R'
+			callout = 'callout-danger'
+			colorbtn = 'btn-danger'
+			txtsave = 'REJECT!'
+		}
+		$("#input-owner").html(`
+			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				<div class="col-md-3"></div>
+				<div class="col-md-9">
+					<div class="callout ${callout}" style="padding:0;margin:0">
+						<textarea class="form-control" id="ket_jasa" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()"></textarea>
+					</div>
+				</div>
+			</div>
+			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				<div class="col-md-3"></div>
+				<div class="col-md-9">
+					<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifInvJasa('${vrf}', '${status_verif}')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+				</div>
+			</div>
+		`)
+	}
+
+	function btnVerifInvJasa(aksi, status_verif)
+	{
+		let h_id_header = $("#h_id_header").val()
+		let ket_jasa = $("#ket_jasa").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/btnVerifInvJasa')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				h_id_header, ket_jasa, aksi, status_verif
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log()
+				if(data){
+					kembali()
+				}else{
+					toastr.error(`<b>KETERANGAN TIDAK BOLEH KOSONG!</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function hapusInvoiceJasa(id){
+		swal({
+			title: "Apakah Kamu Yakin?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#C00",
+			confirmButtonText: "Delete"
+		}).then(function(result) {
+			$.ajax({
+				url: '<?php echo base_url('Logistik/hapusInvoiceJasa')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({ id }),
+				success: function(res){
+					data = JSON.parse(res)
+					console.log(data)
+					if(data.no_pl_jasa){
+						kosong()
+						reloadTable()
+					}
+				}
+			})
+		});
 	}
 </script>

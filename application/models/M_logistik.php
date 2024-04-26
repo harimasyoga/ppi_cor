@@ -1050,7 +1050,6 @@ class M_logistik extends CI_Model
 					'tgl_invoice' => $tgl_invoice,
 					'tgl_surat_jalan' => $tgl_sj,
 					'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
-					// 'tgl_ctk' => null,
 					'id_pelanggan_lm' => $id_pelanggan_lm,
 					'no_surat' => $no_surat_jalan,
 					'no_invoice' => $no_invoice,
@@ -1061,7 +1060,6 @@ class M_logistik extends CI_Model
 					'acc_admin' => 'Y',
 					'time_admin' => date('Y-m-d H:i:s'),
 					'acc_owner' => 'N',
-					// 'time_owner' => null,
 				);
 				$insert = $this->db->insert('invoice_laminasi_header', $data);
 				
@@ -1104,7 +1102,7 @@ class M_logistik extends CI_Model
 					'attn_lam_inv' => $kepada,
 					'alamat_lam_inv' => $alamat,
 					'bank' => $pilihan_bank,
-					'time_admin' => date('Y-m-d H:i:s'),
+					'edit_admin' => date('Y-m-d H:i:s'),
 				);
 				$this->db->where('id', $id_header);
 				$insert = $this->db->update('invoice_laminasi_header', $data);
@@ -1306,22 +1304,21 @@ class M_logistik extends CI_Model
 					}
 					$msg = 'insert!';
 				}
+			}else{
+				$data = array(
+					'tgl_invoice' => $tgl_invoice,
+					'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
+					// 'attn_lam_inv' => $kepada,
+					// 'alamat_lam_inv' => $alamat,
+					'bank' => $pilihan_bank,
+					'edit_admin' => date('Y-m-d H:i:s'),
+				);
+				$this->db->where('id', $h_id_header);
+				$insert = $this->db->update('invoice_jasa_header', $data);
+				$detail = true;
+				$no_pl_jasa = true;
+				$msg = 'update!';
 			}
-			// else{
-			// 	$data = array(
-			// 		'tgl_invoice' => $tgl_invoice,
-			// 		'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
-			// 		'attn_lam_inv' => $kepada,
-			// 		'alamat_lam_inv' => $alamat,
-			// 		'bank' => $pilihan_bank,
-			// 		'time_admin' => date('Y-m-d H:i:s'),
-			// 	);
-			// 	$this->db->where('id', $id_header);
-			// 	$insert = $this->db->update('invoice_laminasi_header', $data);
-			// 	$detail = true;
-			// 	$no_pl_jasa = true;
-			// 	$msg = 'update!';
-			// }
 		}
 
 		return [
@@ -1331,6 +1328,38 @@ class M_logistik extends CI_Model
 			'no_pl_jasa' => $no_pl_jasa,
 			'msg' => $msg,
 		];
+	}
+
+	function btnVerifInvJasa()
+	{
+		if($_POST["ket_jasa"] == '' && ($_POST["aksi"] == 'H' || $_POST["aksi"] == 'R')){
+			$result = false;
+		}else{
+			if($_POST["aksi"] == 'H' || $_POST["aksi"] == 'N'){
+				$status = 'Open';
+			}else if($_POST["aksi"] == 'R'){
+				$status = 'Reject';
+			}else{
+				$status = 'Approve';
+			}
+
+			if($_POST["aksi"] == 'N'){
+				$ket = null;
+			}else if($_POST["aksi"] == 'Y' && $_POST["ket_jasa"] == ''){
+				$ket = 'OK!';
+			}else{
+				$ket = $_POST["ket_jasa"];
+			}
+
+			$this->db->set('status_inv', $status);
+			$this->db->set('acc_owner', $_POST["aksi"]);
+			$this->db->set('time_owner', ($_POST["aksi"] == 'N') ? null : date('Y-m-d H:i:s'));
+			$this->db->set('ket_owner', $ket);
+			$this->db->where('id', $_POST["h_id_header"]);
+			$result = $this->db->update('invoice_jasa_header');
+		}
+
+		return $result;
 	}
 
 	function editHargaJasa()
@@ -1350,6 +1379,31 @@ class M_logistik extends CI_Model
 
 		return [
 			'data' => $data,
+		];
+	}
+
+	function hapusInvoiceJasa()
+	{
+		$id = $_POST["id"];
+		$data = $this->db->query("SELECT*FROM invoice_jasa_header WHERE id='$id'")->row();
+
+		$this->db->where('no_invoice', $data->no_invoice);
+		$header = $this->db->delete('invoice_jasa_header');
+		if($header){
+			$this->db->where('no_invoice', $data->no_invoice);
+			$detail = $this->db->delete('invoice_jasa_detail');
+			if($detail){
+				$this->db->set('no_pl_jasa', 0);
+				$this->db->where('no_surat', $data->no_surat);
+				$no_pl_jasa = $this->db->update('pl_box');
+			}
+		}
+
+		return [
+			'data' => $data,
+			'header' => $header,
+			'detail' => $detail,
+			'no_pl_jasa' => $no_pl_jasa,
 		];
 	}
 

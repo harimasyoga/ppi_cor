@@ -489,6 +489,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
+					toastr.success(`<b>BERHASIL!</b>`)
 					kembali()
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
