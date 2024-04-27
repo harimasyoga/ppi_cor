@@ -2395,6 +2395,65 @@ class Logistik extends CI_Controller
 				$i++;
 			}
 		
+		}else if ($jenis == "inv_beli") {			
+			$query = $this->db->query("SELECT a.*,b.nm_hub,c.nm_supp FROM invoice_header_beli a
+			JOIN m_hub b ON a.id_hub=b.id_hub
+			JOIN m_supp c ON a.id_supp=c.id_supp
+			ORDER BY tgl_inv_beli desc,id_header_beli")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+
+				// $rinci_stok  = $this->db->query("SELECT*from invoice_header_beli a JOIN
+				// invoice_detail_beli b ON a.no_inv_beli=b.no_inv_beli
+				// WHERE no_inv_beli='$r->no_inv_beli'
+				// order by b.id_det_beli");
+
+				// if($rinci_stok->num_rows() == '1'){
+				// 	$nm_cust   = $rinci_stok->row()->nm_hub;
+				// 	$id_hub    = $rinci_stok->row()->id_hub;
+				// }else{
+				// 	$no                = 1;
+				// 	$nm_cust_result    = '';
+				// 	$id_hub_result     = '';
+				// 	foreach($rinci_stok->result() as $row_po){
+				// 		$nm_cust_result .= '<b>'.$no.'.</b> '.$row_po->nm_hub.'<br>';
+				// 		$id_hub_result .= $row_po->id_hub.'/';
+				// 		$no ++;
+				// 	}
+				// 	$nm_cust   = $nm_cust_result;
+				// 	$id_hub    = $id_hub_result;
+
+				// }
+
+				$id             = "'$r->id_header_beli'";
+				$no_inv_beli    = "'$r->no_inv_beli'";
+					
+				$row            = array();
+				$row[]          = '<div class="text-center">'.$i.'</div>';
+				$row[]          = '<div >'.$r->no_inv_beli.'</div>';
+				$row[]          = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_inv_beli).'</div>';
+				$row[]          = $r->nm_hub;
+				$row[]          = $r->nm_supp;
+				$row[]          = '<div >'.$r->pajak.'</div>';
+				$row[]          = '<div >'.$r->acc_owner.'</div>';
+				$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv_beli . ')" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+						
+						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_stok_bb?no_inv_beli=".$no_inv_beli."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv_beli . ',' . $r->id_hub . ')" class="btn btn-danger btn-sm">
+							<i class="fa fa-trash-alt"></i>
+						</button> 
+						';
+
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+				$i++;
+			}
+		
 		}else if ($jenis == "stok_ppi") {			
 			$query = $this->db->query("SELECT no_stok_ppi,tgl_stok,ket_header,jam_stok,sum(tonase_masuk)masuk, sum(tonase_keluar)keluar from trs_stok_ppi
 			group by no_stok_ppi,tgl_stok,ket_header,jam_stok
@@ -6578,6 +6637,27 @@ class Logistik extends CI_Controller
 	function load_hub()
     {
         $query = $this->db->query("SELECT*FROM m_hub order by id_hub")->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
+	
+	function load_supp()
+    {
+        $query = $this->db->query("SELECT*FROM m_supp order by nm_supp")->result();
 
             if (!$query) {
                 $response = [

@@ -176,6 +176,36 @@ class M_master extends CI_Model{
 		);
 	}
 
+	
+	function m_supp($table, $status)
+	{
+		$status_input = $this->input->post('sts_input');
+		if($status_input == 'insert')
+		{
+			$data_header = array(
+				'nm_supp'   => $this->input->post('nm_supplier'),
+				'alamat'        => $this->input->post('alamat'),
+				'no_telp'       => $this->input->post('no_telp'),
+			);
+
+			$result_header = $this->db->insert('m_supp', $data_header);
+			
+		}else{
+
+			$data_header = array(
+				'nm_supp'   => $this->input->post('nm_supplier'),
+				'alamat'        => $this->input->post('alamat'),
+				'no_telp'       => $this->input->post('no_telp'),
+			);
+		
+			$this->db->where('id_supp', $this->input->post('idx'));
+			$result_header = $this->db->update('m_supp', $data_header);
+			
+		}
+		return $result_header;
+		
+	}
+
     function m_hub($table,$status)
 	{
 		$nm_hub       = $_POST["nm_hub"];

@@ -41,13 +41,12 @@
 							<thead class="color-tabel">
 								<tr>
 									<th class="text-center">NO</th>
-									<th class="text-center">NO STOK</th>
+									<th class="text-center">NO INVOICE BELI</th>
 									<th class="text-center">TANGGAL</th>
-									<th class="text-center">STATUS</th>
-									<th class="text-center">NO TIMB</th>
-									<th class="text-center">TIMBANGAN</th>
-									<th class="text-center">TONASE</th>
-									<th class="text-center" style="padding : 12px 50px">CUST</th>
+									<th class="text-center">HUB</th>
+									<th class="text-center">SUPPLIER</th>
+									<th class="text-center">PAJAK</th>
+									<th class="text-center">ACC OWNER</th>
 									<th class="text-center">AKSI</th>
 								</tr>
 							</thead>
@@ -80,11 +79,16 @@
 						<div class="col-md-2">No Invoice</div>
 						<div class="col-md-3">
 							<input type="hidden" name="sts_input" id="sts_input">
-							<input type="hidden" name="id_stok_h" id="id_stok_h">
+							<input type="hidden" name="id_header_beli" id="id_header_beli">
 
-							<input type="text" class="angka form-control" name="no_stok" id="no_stok" value="AUTO" readonly>
+							<input type="text" class="angka form-control" name="no_inv_beli" id="no_inv_beli" value="AUTO" readonly>
 						</div>
-						<div class="col-md-6"></div>
+						<div class="col-md-1"></div>
+						<div class="col-md-2">Supplier</div>
+						<div class="col-md-3">
+							<select class="form-control select2" name="id_supp" id="id_supp" style="width: 100%;" >
+							</select>
+						</div>
 
 					</div>
 					
@@ -100,6 +104,37 @@
 								<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" >
 								</select>
 							</div>
+					</div>
+					
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+					<div class="col-md-2">Diskon</div>
+						<div class="col-md-3">
+							<div class="input-group mb-1">
+								<div class="input-group-append">
+									<span class="input-group-text"><b>Rp</b>
+									</span>
+								</div>	
+								<input type="text" class="angka form-control" name="diskon" id="diskon"  onkeyup="ubah_angka(this.value,this.id)">
+									
+							</div>
+						</div>
+						<div class="col-md-1"></div>
+
+						<div class="col-md-2">PPN</div>
+						<div class="col-md-3">
+							<select class="form-control select2" name="pajak" id="pajak" style="width: 100%;" >
+							<option value="PPN">PPN</option>
+							<option value="NONPPN">NON PPN</option>
+							</select>
+						</div>
+					</div>
+					
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+					<div class="col-md-2">Keterangan</div>
+						<div class="col-md-3">
+							<textarea type="text" class="form-control" name="ket" id="ket" ></textarea>
+						</div>
+						<div class="col-md-6"></div>
 					</div>
 					<br>
 					
@@ -117,7 +152,7 @@
 							<thead class="color-tabel">
 								<tr>
 									<th id="header_del">Delete</th>
-									<th style="padding : 12px 50px">Ket Transaksi</th>
+									<th style="padding : 12px 50px">Transaksi</th>
 									<th style="padding : 12px 70px" >Jenis Beban</th>
 									<th style="padding : 12px 50px" >Nominal</th>
 								</tr>
@@ -133,7 +168,7 @@
 									</td>
 									<td style="padding : 12px 20px">
 										<div class="input-group mb-1">
-											<input type="text" size="5" name="ket[0]" id="ket0" class="form-control">
+											<input type="text" size="5" name="transaksi[0]" id="transaksi0" class="form-control">
 										</div>
 									</td>		
 
@@ -158,16 +193,61 @@
 							</tbody>
 							<tfoot>
 								<tr>
-									<td colspan="3" class="text-center">
+									<td colspan="3" class="text-right">
+										<label for="total">SUB TOTAL</label>
+									</td>	
+									<td>
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>Rp</b>
+												</span>
+											</div>		
+											<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
+										</div>
+										
+									</td>	
+								</tr>
+								<tr>
+									<td colspan="3" class="text-right">
+										<label for="total">DISKON</label>
+									</td>	
+									<td>
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>Rp</b>
+												</span>
+											</div>		
+											<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
+										</div>
+										
+									</td>	
+								</tr>
+								<tr>
+									<td colspan="3" class="text-right">
+										<label for="total">PPN</label>
+									</td>	
+									<td>
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>Rp</b>
+												</span>
+											</div>		
+											<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
+										</div>
+										
+									</td>	
+								</tr>
+								<tr>
+									<td colspan="3" class="text-right">
 										<label for="total">TOTAL</label>
 									</td>	
 									<td>
 										<div class="input-group mb-1">
-											<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
 											<div class="input-group-append">
-												<span class="input-group-text"><b>Kg</b>
+												<span class="input-group-text"><b>Rp</b>
 												</span>
 											</div>		
+											<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
 										</div>
 										
 									</td>	
@@ -253,6 +333,7 @@
 		kosong()
 		load_data()
 		load_hub()
+		load_supp()
 		jenis_beban(0)
 		$('.select2').select2();
 	});
@@ -290,6 +371,44 @@
 				}else{	
 					option += "<option value=''></option>";
 					$('#id_hub').html(option);					
+					swal.close();
+				}
+			}
+		});
+		
+	}
+	
+	function load_supp() 
+	{
+		option = "";
+		$.ajax({
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Logistik/load_supp",
+			// data       : { idp: pelanggan, kd: '' },
+			dataType   : 'json',
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success"){					
+					option = `<option value="">-- Pilih --</option>`;	
+
+					$.each(data.data, function(index, val) {
+					option += "<option value='"+val.id_supp+"'>"+val.nm_supp+"</option>";
+					});
+
+					$('#id_supp').html(option);
+					swal.close();
+				}else{	
+					option += "<option value=''></option>";
+					$('#id_supp').html(option);					
 					swal.close();
 				}
 			}
@@ -364,7 +483,7 @@
 						</td>
 						<td style="padding : 12px 20px">
 							<div class="input-group mb-1">
-								<input type="text" size="5" name="ket${ rowNum }" id="ket${ rowNum }" class="form-control">
+								<input type="text" size="5" name="transaksi${ rowNum }" id="transaksi${ rowNum }" class="form-control">
 							</div>
 						</td>		
 
@@ -438,10 +557,10 @@
 	function cetak_inv_bb(id) 
 	{		
 		var id2         = id.substr(9,1);
-		var id_stok_h   = $("#id_stok_h").val();
-		var no_stok     = $("#no_stok").val();
+		var id_header_beli   = $("#id_header_beli").val();
+		var no_inv_beli     = $("#no_inv_beli").val();
 
-		if(id_stok_h=='' || id_stok_h == null)
+		if(id_header_beli=='' || id_header_beli == null)
 		{
 			swal({
 				title               : "Cek Kembali",
@@ -455,7 +574,7 @@
 		var no_po       = $("#no_po"+id2).val();
 		var url         = "<?= base_url('Logistik/cetak_inv_bb'); ?>";
 
-		window.open(url + '?no_po='+no_po+'&no_stok='+no_stok+'&id_stok_h='+id_stok_h, '_blank');
+		window.open(url + '?no_po='+no_po+'&no_inv_beli='+no_inv_beli+'&id_header_beli='+id_header_beli, '_blank');
 		  
 	}
 
@@ -495,7 +614,7 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url('Logistik/load_data/stok_bb')?>',
+				"url": '<?php echo base_url('Logistik/load_data/inv_beli')?>',
 				"type": "POST",
 			},
 			"aLengthMenu": [
@@ -539,8 +658,8 @@
 
 					var history = data.header.history - data.header.total_item - data.header.tonase_ppi
 
-					$("#id_stok_h").val(data.header.id_stok);
-					$("#no_stok").val(data.header.no_stok);
+					$("#id_header_beli").val(data.header.id_stok);
+					$("#no_inv_beli").val(data.header.no_inv_beli);
 					$("#muat_ppi").val(data.header.muatan_ppi).trigger('change');
 					$("#tgl_stok").val(data.header.tgl_stok);
 					$("#id_timb").val(data.header.id_timbangan);
@@ -692,12 +811,13 @@
 
 	function simpan() 
 	{
-		var tgl_stok    = $("#tgl_stok").val();
-		var hub         = $("#id_hub").val();
-		var ket0        = $("#ket0").val();
+		var id_supp   = $("#id_supp").val();
+		var tgl_inv   = $("#tgl_inv").val();
+		var id_hub    = $("#id_hub").val();
+		var pajak     = $("#pajak").val();
 		
-		if ( tgl_stok=='' || hub== '' || ket0 =='') 
-		{			
+		if ( id_supp=='' || id_hub== '' || pajak =='') 
+		{
 			swal({
 				title               : "Cek Kembali",
 				html                : "Harap Lengkapi Form Dahulu",
@@ -724,20 +844,18 @@
 			},
 			success: function(data) {
 				if(data == true){
-					// toastr.success('Berhasil Disimpan');
-					// swal.close();								
+					// toastr.success('Berhasil Disimpan');						
 					kosong();
-					location.href = "<?= base_url()?>Logistik/stok_bb";
 					swal({
 						title               : "Data",
 						html                : "Berhasil Disimpan",
 						type                : "success",
 						confirmButtonText   : "OK"
 					});
+					kembaliList()
 					
 				} else {
 					// toastr.error('Gagal Simpan');
-					swal.close();
 					swal({
 						title               : "Cek Kembali",
 						html                : "Gagal Simpan",
@@ -783,14 +901,14 @@
 		$(".row-list").attr('style', '')
 	}
 
-	function deleteData(id,no_stok,id_hub) 
+	function deleteData(id,no_inv_beli,id_hub) 
 	{
 		id_hub2 = id_hub.split('/').join(',')
 		// let cek = confirm("Apakah Anda Yakin?");
 		swal({
 			title: "HAPUS PEMBAYARAN",
 			html: "<p> Apakah Anda yakin ingin menghapus file ini ?</p><br>"
-			+"<strong>" +no_stok+ " </strong> ",
+			+"<strong>" +no_inv_beli+ " </strong> ",
 			type               : "question",
 			showCancelButton   : true,
 			confirmButtonText  : '<b>Hapus</b>',
@@ -805,7 +923,7 @@
 				url: '<?= base_url(); ?>Logistik/hapus',
 				data: ({
 					id         : id,
-					no_stok    : no_stok,
+					no_stok    : no_inv_beli,
 					id_hub     : id_hub2,
 					jenis      : 'trs_h_stok_bb',
 					field      : 'id_stok'
