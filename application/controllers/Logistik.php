@@ -6915,7 +6915,7 @@ class Logistik extends CI_Controller
 				<td style="padding:5px 0">'.$header->tgl.'</td>
 				<td style="padding:5px 0">KEPADA</td>
 				<td style="text-align:center;padding:5px 0">:</td>
-				<td style="padding:5px 0">'.$header->nm_hub.'</td>
+				<td style="padding:5px 0">CV. '.$header->nm_hub.'</td>
 			</tr>
 			<tr>
 				<td style="padding:5px 0">NO. SURAT</td>
