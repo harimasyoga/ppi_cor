@@ -244,7 +244,7 @@
 			</div>
 
 			<div class="row row-list-invoice-laminasi">
-				<div class="col-md-12">
+				<div class="col-md-12 col-list-laminasi">
 					<div class="card shadow mb-3">
 						<div class="card-header" style="font-family:Cambria;">
 							<h3 class="card-title" style="color:#4e73df;"><b>INVOICE LAMINASI</b></h3>
@@ -258,6 +258,7 @@
 							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){ ?>
 								<div style="margin-bottom:12px">
 									<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+									<button type="button" class="btn btn-sm btn-danger" onclick="laporanInvoice('laporan')"><i class="fas fa-file-alt"></i> <b>LAPORAN</b></button>
 								</div>
 							<?php } ?>
 							<div style="overflow:auto;white-space:nowrap">
@@ -276,6 +277,67 @@
 									</thead>
 									<tbody></tbody>
 								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-12 col-list-lam-laporan" style="display:none">
+					<div class="card shadow mb-3">
+						<div class="card-header" style="font-family:Cambria;">
+							<h3 class="card-title" style="color:#4e73df;"><b>LAPORAN LAMINASI</b></h3>
+							<div class="card-tools">
+								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+									<i class="fas fa-minus"></i>
+								</button>
+							</div>
+						</div>
+						<div class="card-body">
+							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){ ?>
+								<div style="margin-bottom:12px">
+									<button type="button" class="btn btn-sm btn-info" onclick="laporanInvoice('list')"><i class="fas fa-list"></i> <b>LIST INVOICE</b></button>
+								</div>
+							<?php } ?>
+							<div style="overflow:auto;white-space:nowrap">
+								<table style="font-weight:bold">
+									<tr>
+										<td style="padding:6px 0">CUSTOMER</td>
+										<td style="padding:6px 10px">:</td>
+										<td style="padding:6px 0" colspan="3">
+											<select id="plh-lap-cust" class="form-control select2">
+												<?php
+													$query = $this->db->query("SELECT id_pelanggan_lm,attn_lam_inv FROM invoice_laminasi_header GROUP BY id_pelanggan_lm,attn_lam_inv ORDER BY attn_lam_inv");
+													$html ='';
+													$html .='<option value="">SEMUA</option>';
+													foreach($query->result() as $r){
+														$html .='<option value="'.$r->id_pelanggan_lm.'">'.$r->attn_lam_inv.'</option>';
+													}
+													echo $html;
+												?>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td>TANGGAL SURAT JALAN</td>
+										<td style="padding:0 10px">:</td>
+										<td>
+											<input type="date" id="tgl1_lap" class="form-control">
+										</td>
+										<td style="padding:0 10px">S/D</td>
+										<td>
+											<input type="date" id="tgl2_lap" class="form-control">
+										</td>
+										<td style="padding-left:10px">
+											<button type="button" class="btn btn-primary" onclick="cariLaporanLaminasi('laporan')"><i class="fas fa-search"></i></button>
+										</td>
+										<td style="padding-left:10px">
+											<div class="btn-print-lap-lam-pdf"></div>
+										</td>
+									</tr>
+								</table>
+							</div>
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="cari-lap-laminasi"></div>
 							</div>
 						</div>
 					</div>
@@ -489,6 +551,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
+					toastr.success(`<b>BERHASIL!</b>`)
 					kembali()
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
@@ -919,5 +982,54 @@
 				}
 			})
 		});
+	}
+
+	function laporanInvoice(opsi){
+		$("#plh-lap-cust").val("").trigger('change')
+		$("#tgl1_lap").val("")
+		$("#tgl2_lap").val("")
+		$(".btn-print-lap-lam-pdf").html("")
+		$(".cari-lap-laminasi").html("")
+		if(opsi == 'laporan'){
+			$(".col-list-laminasi").hide()
+			$(".col-list-lam-laporan").show()
+		}else{
+			$(".col-list-laminasi").show()
+			$(".col-list-lam-laporan").hide()
+		}
+	}
+
+	function cariLaporanLaminasi(opsi) {
+		$(".btn-print-lap-lam-pdf").html("")
+		$(".cari-lap-laminasi").html("")
+		let plh_cust = $("#plh-lap-cust").val()
+		let tgl1_lap = $("#tgl1_lap").val()
+		let tgl2_lap = $("#tgl2_lap").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/cariLaporanLaminasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				opsi, plh_cust, tgl1_lap, tgl2_lap
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(opsi == 'laporan'){
+					$(".btn-print-lap-lam-pdf").html(data.pdf)
+					$(".cari-lap-laminasi").html(data.html)
+				}
+				swal.close()
+			}
+		})
 	}
 </script>
