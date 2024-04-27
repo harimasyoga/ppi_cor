@@ -26,7 +26,7 @@
 				<div class="col-md-7">
 					<div class="card card-success card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT PO LAMINASI</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT INVOICE JASA</h3>
 						</div>
 						<div style="margin:12px 6px;display:flex">
 							<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
@@ -285,7 +285,7 @@
 			data: ({ tgl_sj }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				$("#no_surat_jalan").html(data.htmlSJ).prop('disabled', (data.numRows == 0) ? true : false)
 				swal.close()
 			}
@@ -311,7 +311,7 @@
 			data: ({ no_surat }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				$("#txt_no_invoice").val("AUTO")
 				$("#no_invoice").val(data.no_invoice)
 				$("#h_id_hub").val(data.id_hub)
@@ -352,7 +352,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				if(data.insert){
 					toastr.success(`<b>BERHASIL!</b>`)
 					kembali()
@@ -387,7 +387,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 
 				$("#h_id_header").val(id_header)
 				
@@ -521,7 +521,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				if(data.data){
 					editInvoiceJasa(id_header, 'edit')
 				}else{
@@ -631,7 +631,7 @@
 				data: ({ id }),
 				success: function(res){
 					data = JSON.parse(res)
-					console.log(data)
+					// console.log(data)
 					if(data.no_pl_jasa){
 						kosong()
 						reloadTable()

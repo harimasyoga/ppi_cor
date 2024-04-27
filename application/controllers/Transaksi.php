@@ -4178,15 +4178,16 @@ class Transaksi extends CI_Controller
 
 	function laporanSO(){
 		$id = $_GET["id"];
-		$data = $this->db->query("SELECT c.nm_pelanggan,c.top,c.fax,c.no_telp,c.alamat,s.nm_sales,o.eta,p.tgl_po,o.tgl_so,p.time_app1,p.time_app2,p.time_app3,i.*,d.* FROM trs_so_detail d
+		$data = $this->db->query("SELECT c.nm_pelanggan,c.top,c.fax,c.no_telp,c.alamat,s.nm_sales,o.eta,p.tgl_po,o.tgl_so,p.time_app1,p.time_app2,p.time_app3,b.id_hub,b.nm_hub,b.alamat AS alamat_hub,i.*,d.* FROM trs_so_detail d
 		INNER JOIN trs_po p ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 		INNER JOIN trs_po_detail o ON o.no_po=d.no_po AND o.kode_po=d.kode_po AND o.no_so=d.no_so AND o.id_produk=d.id_produk
 		INNER JOIN m_produk i ON d.id_produk=i.id_produk
 		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 		INNER JOIN m_sales s ON c.id_sales=s.id_sales
+		INNER JOIN m_hub b ON p.id_hub=b.id_hub
 		WHERE d.id='$id'")->row();
 
-		$html = '<table style="margin-bottom:5px;border-collapse:collapse;vertical-align:top;width:100%;font-weight:bold">
+		$html = '<table style="margin-bottom:5px;border-collapse:collapse;vertical-align:top;width:100%;font-weight:bold;font-family:Tahoma">
 			<tr>
 				<th style="width:25%"></th>
 				<th style="width:75%"></th>
@@ -4225,8 +4226,16 @@ class Transaksi extends CI_Controller
 		}else{
 			$kualitas = $data->kualitas;
 		}
+		//
+		if($data->id_hub == 7){
+			$nm_pelanggan = $data->nm_pelanggan;
+			$alamat = $data->alamat;
+		}else{
+			$nm_pelanggan = 'CV. '.$data->nm_hub;
+			$alamat = $data->alamat_hub;
+		}
 
-		$html .='<table style="font-size:12px;border-collapse:collapse;vertical-align:top;width:100%">
+		$html .='<table style="font-size:12px;border-collapse:collapse;vertical-align:top;width:100%;font-family:Tahoma">
 			<tr>
 				<td style="width:10%;border:0;padding:0"></td>
 				<td style="width:1%;border:0;padding:0"></td>
@@ -4239,10 +4248,10 @@ class Transaksi extends CI_Controller
 				<td style="border-top:1px solid #000;padding:1px" colspan="6"></td>
 			</tr>
 			<tr>
-				<td style="border-top:1px solid #000;font-size:20px;font-family:Tahoma;padding:15px 0 2xp;text-align:center;font-weight:bold" colspan="6">SALES ORDER</td>
+				<td style="border-top:1px solid #000;font-size:20px;padding:15px 0 2xp;text-align:center;font-weight:bold" colspan="6">KONFIRMASI ORDER</td>
 			</tr>
 			<tr>
-				<td style="font-size:14px;padding:2px 0 25px;font-style:italic;text-align:center" colspan="6">( NO. SO : '.$data->no_so.'.'.$urutSo.'.'.$rpt.' )</td>
+				<td style="font-size:14px;padding:2px 0 25px;font-style:italic;text-align:center" colspan="6">( NO : '.$data->no_so.'.'.$urutSo.'.'.$rpt.' )</td>
 			</tr>
 			<tr>
 				<td style="padding:5px 0">Tanggal SO</td>
@@ -4270,7 +4279,7 @@ class Transaksi extends CI_Controller
 			<tr>
 				<td style="padding:10px 0 5px">Customer</td>
 				<td style="padding:10px 0 5px">:</td>
-				<td style="padding:10px 5px 5px">'.$data->nm_pelanggan.'</td>
+				<td style="padding:10px 5px 5px">'.$nm_pelanggan.'</td>
 				<td style="padding:10px 0 5px">TOP</td>
 				<td style="padding:10px 0 5px">:</td>
 				<td style="padding:10px 5px 5px">'.$data->top.'</td>
@@ -4278,7 +4287,7 @@ class Transaksi extends CI_Controller
 			<tr>
 				<td style="padding:5px 0" rowspan="3">Alamat</td>
 				<td style="padding:5px 0" rowspan="3">:</td>
-				<td style="padding:5px" rowspan="3">'.$data->alamat.'</td>
+				<td style="padding:5px" rowspan="3">'.strtoupper($alamat).'</td>
 				<td style="padding:5px 0">PO. Date</td>
 				<td style="padding:5px 0">:</td>
 				<td style="padding:5px">'.$this->m_fungsi->tanggal_format_indonesia($data->tgl_po).'</td>
@@ -4354,7 +4363,7 @@ class Transaksi extends CI_Controller
 			</tr>
 		</table>';
 
-		$html .='<table style="font-size:12px;text-align:center;border-collapse:collapse;vertical-align:top;width:100%">
+		$html .='<table style="font-size:12px;text-align:center;border-collapse:collapse;vertical-align:top;width:100%;font-family:Tahoma">
 			<tr>
 				<td style="width:30%;border:0;padding:5px"></td>
 				<td style="width:5%;border:0;padding:5px"></td>

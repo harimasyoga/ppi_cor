@@ -1709,7 +1709,7 @@ class Logistik extends CI_Controller
 							<td style="padding:6px" colspan="6"></td>
 							<td style="padding:6px;text-align:left" colspan="5">'.$ketDsc.'</td>
 							<td style="padding:6px">Rp</td>
-							<td style="padding:6px;text-align:right;font-style:italic">- '.number_format($c->hitung,0,",",".").'</td>
+							<td style="padding:6px;text-align:right">- '.number_format($c->hitung,0,",",".").'</td>
 						</tr>';
 						$sumDisc += $c->hitung;
 					}
@@ -1736,7 +1736,7 @@ class Logistik extends CI_Controller
 				$allTotal += $fixTotal;
 			}
 			// TOTAL ALL
-			if($header->num_rows() > 1 && ($isi->num_rows() > 1 || ($plh_cust != "" && $isi->num_rows() == 1))){
+			if($header->num_rows() > 1 && ($isi->num_rows() > 1 || (($plh_cust != "" || $plh_cust == "") && $isi->num_rows() == 1))){
 				$html .='<tr style="background:#5eafde">
 					<td style="padding:6px" colspan="6"></td>
 					<td style="padding:6px;text-align:left;font-weight:bold">TOTAL</td>
@@ -1750,6 +1750,8 @@ class Logistik extends CI_Controller
 
 		if($opsi == 'laporan'){
 			echo json_encode([
+				'01_header' => $header->num_rows(),
+				'02_isi' => $isi->num_rows(),
 				'html' => $html,
 				'pdf' => ($header->num_rows() == 0) ? '' : '<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold;padding:8px 12px" href="'.base_url("Logistik/cariLaporanLaminasi?opsi=pdf&plh_cust=".$plh_cust."&tgl1_lap=".$tgl1_lap."&tgl2_lap=".$tgl2_lap."").'"><i class="fas fa-file-pdf"></i> PDF</a>',
 			]);
