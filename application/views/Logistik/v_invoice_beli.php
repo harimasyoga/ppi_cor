@@ -114,7 +114,7 @@
 									<span class="input-group-text"><b>Rp</b>
 									</span>
 								</div>	
-								<input type="text" class="angka form-control" name="diskon" id="diskon"  onkeyup="ubah_angka(this.value,this.id)">
+								<input type="text" class="angka form-control" name="diskon" id="diskon"  onkeyup="ubah_angka(this.value,this.id),hitung_total()">
 									
 							</div>
 						</div>
@@ -217,7 +217,7 @@
 												<span class="input-group-text"><b>Rp</b>
 												</span>
 											</div>		
-											<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
+											<input type="text" size="5" name="disk_total" id="disk_total" class="angka form-control" value='0' readonly>
 										</div>
 										
 									</td>	
@@ -232,7 +232,7 @@
 												<span class="input-group-text"><b>Rp</b>
 												</span>
 											</div>		
-											<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
+											<input type="text" size="5" name="pajak_total" id="pajak_total" class="angka form-control" value='0' readonly>
 										</div>
 										
 									</td>	
@@ -247,7 +247,7 @@
 												<span class="input-group-text"><b>Rp</b>
 												</span>
 											</div>		
-											<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
+											<input type="text" size="5" name="total_all" id="total_all" class="angka form-control" value='0' readonly>
 										</div>
 										
 									</td>	
@@ -458,6 +458,54 @@
 			}
 		});
 	}
+	
+	function jenis_beban2(rowNum,jns_beban) 
+	{
+		option = "";
+		$.ajax({
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Logistik/load_jenis_beban",
+			// data       : { idp: pelanggan, kd: '' },
+			dataType   : 'json',
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success"){					
+					option = `<option value="">-- Pilih --</option>`;	
+
+					$.each(data.data, function(index, val) {
+					if(val.kd==jns_beban)
+					{
+						option += `<option value="${val.kd}" selected data-nm="${val.nm}" >${val.nm}</option>`;
+					}else{
+						option += `<option value="${val.kd}" data-nm="${val.nm}" >${val.nm}</option>`;
+					}
+
+					});
+
+					$('#jns_beban'+rowNum).html(option);
+					$('.select2').select2({
+						containerCssClass: "wrap",
+						placeholder: '--- Pilih ---',
+						dropdownAutoWidth: true
+					});
+					swal.close();
+				}else{	
+					option += "<option value=''></option>";
+					$('#jns_beban'+rowNum).html(option);					
+					swal.close();
+				}
+			}
+		});
+	}
 
 	function addRow() 
 	{
@@ -581,7 +629,11 @@
 
 	function hitung_total()
 	{
-		var total_nominal    = 0
+		var diskon        = $("#diskon").val()
+		var disk_total    = parseInt(diskon.split('.').join(''))
+		var pajak         = $("#pajak").val()
+		
+		var total_nominal = 0
 		for(loop = 0; loop <= rowNum; loop++)
 		{
 			var nom = $("#nominal"+loop).val()
@@ -596,7 +648,20 @@
 		}		
 		total_datang_ok = (total_nominal=='' || isNaN(total_nominal) || total_nominal == null) ? 0 : total_nominal
 		
+		if(pajak=='PPN')
+		{
+			var pajak_total   = 0
+		}else{
+			var pajak_total   = 0
+		}
+		
+		var total_all     = total_nominal-disk_total+pajak_total
+
 		$("#total_nom").val(format_angka(total_nominal))
+		
+		$("#disk_total").val(format_angka(disk_total))
+		$("#pajak_total").val(format_angka(pajak_total))
+		$("#total_all").val(format_angka(total_all))
 		
 	}
 
@@ -681,6 +746,8 @@
 						
 					var no   = 0;
 					$.each(data.detail, function(index, val) {
+						
+						jenis_beban2(no,val.jns_beban)	
 						list += `
 							<tr id="itemRow${ no }">
 								<td id="detail-hapus-${ no }">
@@ -699,7 +766,7 @@
 								<td style="padding : 12px 20px">
 									<div class="input-group mb-1">
 										<select name="jns_beban[${ no }]"  id="jns_beban${ no }" class="form-control select2" style="width: 100%">
-											<option value="${val.jns_beban}" selected data-nm="${val.nm}" >${val.nm}</option>
+											<option value="${val.jns_beban}" selected data-nm="${val.nm}" >${val.jns_beban}</option>
 										</select>	
 									</div>
 								</td>		
@@ -716,7 +783,6 @@
 								</td>		
 							</tr>
 						`;
-						jenis_beban(no)	
 						no ++;
 					})
 					
@@ -818,8 +884,19 @@
 
 	function kosong()
 	{
-		$tgl = '<?= date('Y-m-d') ?>'		
+		$tgl = '<?= date('Y-m-d') ?>'	
+		$("#id_hub").val('').trigger('change');	
+		$("#id_supp").val('').trigger('change');	
+		$("#pajak").val('').trigger('change');	
+		$("#diskon").val('') 
+		$("#diskon").val('') 
+		$("#ket").val('') 		
 		$("#tgl_inv").val($tgl) 
+		$("#no_inv_beli").val('AUTO') 
+
+		$("#transaksi0").val('');			
+		$("#jns_beban0").val('').trigger('change');	
+		$("#nominal0").val(0);		
 		load_hub()
 		clearRow()
 		hitung_total()

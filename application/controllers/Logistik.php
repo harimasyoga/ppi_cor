@@ -2362,7 +2362,19 @@ class Logistik extends CI_Controller
 			
 			$data_h   = $this->db->query($queryh)->row();
 
-			$queryd   = "SELECT*from invoice_detail_beli where no_inv_beli='$data_h->no_inv_beli'";
+			$queryd   = "SELECT*from invoice_detail_beli a
+			join 
+			(SELECT*FROM(
+						select kd_akun as kd,nm_akun as nm,jenis,dk from m_kode_akun
+						union all
+						select concat(kd_akun,'.',kd_kelompok) as kd,nm_kelompok as nm,jenis,dk from m_kode_kelompok
+						union all
+						select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis) as kd,nm_jenis as nm,jenis,dk from m_kode_jenis
+						union all
+						select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci) as kd,nm_rinci as nm,jenis,dk from m_kode_rinci
+						)b )b
+			ON a.jns_beban=b.kd
+			where no_inv_beli='$data_h->no_inv_beli'";
 
 		}else if($jenis=='edit_stok_ppi')
 		{ 
