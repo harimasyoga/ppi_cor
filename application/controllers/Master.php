@@ -146,6 +146,17 @@ class Master extends CI_Controller
 		$this->load->view('Master/v_pelanggan_laminasi', $data);
 		$this->load->view('footer');
 	}
+
+	function supp()
+	{
+		$data = array(
+			'judul' => "Master Supplier Pembelian"
+		);
+
+		$this->load->view('header', $data);
+		$this->load->view('Master/v_supp', $data);
+		$this->load->view('footer');
+	}
 	
 	function Hub()
 	{
@@ -387,6 +398,39 @@ class Master extends CI_Controller
 				$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
 				$data[] = $row;
 				$i++;
+			}
+		} else if ($jenis == "supp") {
+			$query = $this->m_master->query("SELECT*FROM m_supp ORDER BY nm_supp")->result();
+			$i = 0;
+			foreach ($query as $r) {
+ 
+				$id             = "'$r->id_supp'";
+				$i++;
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit(' . $id . ','."'detail'".')">'.$r->nm_supp.'<a>';
+				$row[] = '<div class="text-center">'.$r->alamat.'</div>';
+				$row[] = '<div class="text-center">'.$r->no_telp.'</div>';
+
+				$btnEdit = '<button type="button" class="btn btn-sm btn-warning" onclick="tampil_edit(' . $id . ')"><i class="fas fa-pen"></i></button>';
+
+				// $cekProduk = $this->db->query("SELECT*FROM trs_po_lm_detail WHERE id_m_produk_lm='$r->id_produk_lm' GROUP BY id_m_produk_lm");
+
+				// if($cekProduk->num_rows() == 0){
+					$btnHapus = '<button type="button" class="btn btn-sm btn-danger" style="padding:4px 10px" onclick="deleteData(' . $id . ')"><i class="fas fa-times"></i></button>';
+				// }else{
+				// 	$btnHapus = '';
+				// }
+
+				if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Laminasi']))
+				{
+					$btnAksi = $btnEdit.' '.$btnHapus;
+				}else{
+					$btnAksi = '';
+				}
+				$row[] = '<div class="text-center">'.$btnAksi.'</div>';
+				$data[] = $row;
+				
 			}
 		} else if ($jenis == "produk_laminasi") {
 			$query = $this->m_master->query("SELECT*FROM m_produk_lm ORDER BY nm_produk_lm")->result();
@@ -1394,6 +1438,17 @@ class Master extends CI_Controller
 		echo json_encode(array(
 			'pelanggan' => $data,
 			'cekPO' => $cekPO,
+		));
+	}
+	
+	function edit_m_supp()
+	{
+		$id = $_POST["id"];
+		$data =  $this->db->query("SELECT*FROM m_supp where id_supp='$id' ORDER BY nm_supp")->row();
+		// $cekPO = $this->db->query("SELECT*FROM trs_po_lm WHERE id_pelanggan='$id' GROUP BY id_pelanggan")->num_rows();
+		echo json_encode(array(
+			'supp' => $data,
+			// 'cekPO' => $cekPO,
 		));
 	}
 }
