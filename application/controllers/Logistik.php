@@ -2330,8 +2330,8 @@ class Logistik extends CI_Controller
 			),0)history_po
 			FROM trs_po_bhnbk a 
 			JOIN m_hub b ON a.hub=b.id_hub where id_po_bhn='$id' ";
-		}else if($jenis=='edit_stok_bb')
-		{ 
+		}else if($jenis=='edit_stok_bb'){
+			 
 			$queryh   = "SELECT *, IFNULL((
 				select sum(datang_bhn_bk)history from trs_h_stok_bb a 
 				JOIN trs_d_stok_bb b ON a.no_stok = b.no_stok
@@ -2348,6 +2348,19 @@ class Logistik extends CI_Controller
 			$queryd   = "SELECT *,
 			(select sum(datang_bhn_bk) from trs_d_stok_bb c WHERE c.no_po_bhn=a.no_po_bhn and c.id_hub=a.id_hub)history 
 			FROM trs_d_stok_bb a JOIN m_hub b ON a.id_hub=b.id_hub where no_stok='$data_h->no_stok' ";
+
+		
+		}else if($jenis=='edit_inv_beli')
+		{ 
+			$queryh   = "SELECT a.*,b.nm_hub,c.nm_supp FROM invoice_header_beli a
+			JOIN m_hub b ON a.id_hub=b.id_hub
+			JOIN m_supp c ON a.id_supp=c.id_supp
+			WHERE id_header_beli='$id'
+			ORDER BY tgl_inv_beli desc,id_header_beli";
+			
+			$data_h   = $this->db->query($queryh)->row();
+
+			$queryd   = "SELECT*from invoice_detail_beli where no_inv_beli='$data_h->no_inv_beli'";
 
 		}else if($jenis=='edit_stok_ppi')
 		{ 
@@ -2901,28 +2914,51 @@ class Logistik extends CI_Controller
 
 				$id             = "'$r->id_header_beli'";
 				$no_inv_beli    = "'$r->no_inv_beli'";
+
+				if($r->acc_owner=='N')
+                {
+                    $btn2   = 'btn-warning';
+                    $i2     = '<i class="fas fa-lock"></i>';
+                } else {
+                    $btn2   = 'btn-success';
+                    $i2     = '<i class="fas fa-check-circle"></i>';
+                }
+				
+				if (in_array($this->session->userdata('username'), ['bumagda','developer']))
+				{
+					$urll2 = "onclick=open_modal('$r->id_header_beli','$r->no_inv_beli')";
+				} else {
+					$urll2 = '';
+				}
+
 					
-				$row            = array();
-				$row[]          = '<div class="text-center">'.$i.'</div>';
-				$row[]          = '<div >'.$r->no_inv_beli.'</div>';
-				$row[]          = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_inv_beli).'</div>';
-				$row[]          = $r->nm_hub;
-				$row[]          = $r->nm_supp;
-				$row[]          = '<div >'.$r->pajak.'</div>';
-				$row[]          = '<div >'.$r->acc_owner.'</div>';
-				$aksi = '
-						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv_beli . ')" title="EDIT DATA" >
-							<b><i class="fa fa-edit"></i> </b>
-						</a> 
-						
-						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_stok_bb?no_inv_beli=".$no_inv_beli."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
+				$row    = array();
+				$row[]  = '<div class="text-center">'.$i.'</div>';
+				$row[]  = '<div class="text-center">'.$r->no_inv_beli.'</div>';
+				$row[]  = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_inv_beli).'</div>';
+				$row[]  = $r->nm_hub;
+				$row[]  = $r->nm_supp;
+				$row[]  = '<div class="text-center">'.$r->pajak.'</div>';
 
-						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv_beli . ',' . $r->id_hub . ')" class="btn btn-danger btn-sm">
-							<i class="fa fa-trash-alt"></i>
-						</button> 
-						';
+				$row[]  = '
+						<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn2.' " '.$urll2.' title="VERIFIKASI DATA" ><b>'.$i2.' </b> </a><span style="font-size:1px;color:transparent">'.$r->acc_owner.'</span><div>';
 
-				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$btncetak ='<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_stok_bb?no_inv_beli=".$no_inv_beli."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>';
+
+				$btnEdit = '<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv_beli . ')" title="EDIT DATA" >
+				<b><i class="fa fa-edit"></i> </b></a>';
+
+				$btnHapus = '<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv_beli . ',' . $r->id_hub . ')" class="btn btn-danger btn-sm">
+				<i class="fa fa-trash-alt"></i></button> ';
+					
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User','Keuangan1']))
+				{
+					$row[] = '<div class="text-center">'.$btncetak.' '.$btnEdit.' '.$btnHapus.'</div>';
+
+				}else{
+					$row[] = '<div class="text-center"></div>';
+				}
+				
 				$data[] = $row;
 				$i++;
 			}
@@ -3883,7 +3919,7 @@ class Logistik extends CI_Controller
 		JOIN m_hub c ON b.id_hub=c.id_hub
 		JOIN m_jembatan_timbang d ON a.no_timbangan=d.no_timbangan
 		JOIN trs_po_bhnbk e ON b.no_po_bhn = e.no_po_bhn
-		where b.no_po_bhn='$no_po' ");
+		where b.no_po_bhn='$no_po' and a.no_stok='$no_stok' ");
 
 		$html = '';
 
