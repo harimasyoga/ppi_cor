@@ -1023,7 +1023,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(opsi == 'laporan'){
 					$(".btn-print-lap-lam-pdf").html(data.pdf)
 					$(".cari-lap-laminasi").html(data.html)

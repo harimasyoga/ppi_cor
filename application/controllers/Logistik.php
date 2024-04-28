@@ -1750,8 +1750,8 @@ class Logistik extends CI_Controller
 
 		if($opsi == 'laporan'){
 			echo json_encode([
-				'01_header' => $header->num_rows(),
-				'02_isi' => $isi->num_rows(),
+				// '01_header' => $header->num_rows(),
+				// '02_isi' => $isi->num_rows(),
 				'html' => $html,
 				'pdf' => ($header->num_rows() == 0) ? '' : '<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold;padding:8px 12px" href="'.base_url("Logistik/cariLaporanLaminasi?opsi=pdf&plh_cust=".$plh_cust."&tgl1_lap=".$tgl1_lap."&tgl2_lap=".$tgl2_lap."").'"><i class="fas fa-file-pdf"></i> PDF</a>',
 			]);
