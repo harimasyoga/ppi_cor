@@ -25,6 +25,16 @@ class Keuangan extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	public function jurnal_u()
+	{
+		$data = array(
+			'judul' => "Jurnal Umum",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Keuangan/v_ju');
+		$this->load->view('footer');
+	}
+
 	public function bukbes()
 	{
 		$data = array(
@@ -54,6 +64,27 @@ class Keuangan extends CI_Controller
 		$this->load->view('Keuangan/v_neraca');
 		$this->load->view('footer');
 	}
+
+	function load_rek()
+    {
+        $query = load_rek()->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
 
 	function load_data()
 	{

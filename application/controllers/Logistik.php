@@ -2957,7 +2957,7 @@ class Logistik extends CI_Controller
 				$row[]  = '
 						<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn2.' " '.$urll2.' title="VERIFIKASI DATA" ><b>'.$i2.' </b> </a><span style="font-size:1px;color:transparent">'.$r->acc_owner.'</span><div>';
 
-				$btncetak ='<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_stok_bb?no_inv_beli=".$no_inv_beli."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>';
+				$btncetak ='<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_inv_beli?no_inv_beli="."$r->no_inv_beli"."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>';
 
 				$btnEdit = '<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv_beli . ')" title="EDIT DATA" >
 				<b><i class="fa fa-edit"></i> </b></a>';
@@ -2967,7 +2967,7 @@ class Logistik extends CI_Controller
 					
 				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User','Keuangan1']))
 				{
-					$row[] = '<div class="text-center">'.$btncetak.' '.$btnEdit.' '.$btnHapus.'</div>';
+					$row[] = '<div class="text-center">'.$btnEdit.' '.$btncetak.' '.$btnHapus.'</div>';
 
 				}else{
 					$row[] = '<div class="text-center"></div>';
@@ -3808,6 +3808,12 @@ class Logistik extends CI_Controller
 		} else if ($jenis == "byr_inv") {
 			$result          = $this->m_master->query("DELETE FROM trs_bayar_inv WHERE  $field = '$id'");	
 			
+		} else if ($jenis == "inv_beli") {
+
+			$result          = $this->m_master->query("DELETE FROM invoice_detail_beli WHERE  $field = '$id'");	
+
+			$result          = $this->m_master->query("DELETE FROM invoice_header_beli WHERE  $field = '$id'");	
+			
 		} else {
 
 			$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");
@@ -3817,6 +3823,110 @@ class Logistik extends CI_Controller
 	}
 
 
+	function Cetak_inv_beli()
+	{
+		$no_inv_beli  = $_GET['no_inv_beli'];
+
+        $query_header = $this->db->query("SELECT a.*,b.nm_hub,c.nm_supp FROM invoice_header_beli a
+		JOIN m_hub b ON a.id_hub=b.id_hub
+		JOIN m_supp c ON a.id_supp=c.id_supp
+		WHERE no_inv_beli = '$no_inv_beli'
+		ORDER BY tgl_inv_beli desc,id_header_beli");
+        
+        $data = $query_header->row();
+        
+        $query_detail = $this->db->query("SELECT*from invoice_detail_beli a
+		join 
+		(SELECT*FROM(
+					select kd_akun as kd,nm_akun as nm,jenis,dk from m_kode_akun
+					union all
+					select concat(kd_akun,'.',kd_kelompok) as kd,nm_kelompok as nm,jenis,dk from m_kode_kelompok
+					union all
+					select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis) as kd,nm_jenis as nm,jenis,dk from m_kode_jenis
+					union all
+					select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci) as kd,nm_rinci as nm,jenis,dk from m_kode_rinci
+					)b )b
+		ON a.jns_beban=b.kd
+		where no_inv_beli='$no_inv_beli' ");
+
+		$html = '';
+
+
+		if ($query_header->num_rows() > 0) 
+		{
+
+			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:14px;font-family: ;">
+                        <tr style="font-weight: bold;">
+                            <td colspan="5" align="center">
+                            <b>( No. ' . $no_inv_beli . ' )</b>
+                            </td>
+                        </tr>
+                 </table><br>';
+
+            $html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
+
+            <tr>
+                <td width="20 %"  align="left">Tgl STOK</td>
+                <td width="5%" > : </td>
+                <td width="75 %" > '. $this->m_fungsi->tanggal_format_indonesia($data->tgl_inv_beli) .'</td>
+            </tr>
+            <tr>
+                <td align="left">NO TIMBANGAN</td>
+                <td> : </td>
+                <td> '. $data->no_inv_beli .'</td>
+            </tr>
+            </table><br>';
+
+			$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
+                        <tr style="background-color: #cccccc">
+							<th align="center">NO</th>
+							<th align="center">Transaksi</th>
+                            <th align="center">Jenis Beban</th>
+                            <th align="center">Nominal</th>
+						</tr>';
+						
+			$no              = 1;
+			$nominal_all    = 0;
+			
+			foreach ($query_detail->result() as $r) 
+			{
+				$html .= '<tr>
+						<td align="center">' . $no . '</td>
+						<td align="">' . $r->transaksi . '</td>
+						<td align="">' . $r->nm . '</td>
+						<td align="right">' . number_format($r->nominal, 0, ",", ".") . '</td>
+					</tr>';
+
+				$nominal_all += $r->nominal;
+				$no++;
+			}
+			$html .='<tr style="">
+						<td align="right" colspan="3"><b>Sub Total</b></td>
+						<td align="right" ><b>' . number_format($nominal_all, 0, ",", ".") . '</b></td>						
+					</tr>
+					<tr style="">
+						<td align="right" colspan="3"><b>Diskon</b></td>
+						<td align="right" ><b>' . number_format($nominal_all, 0, ",", ".") . '</b></td>						
+					</tr>
+					<tr style="">
+						<td align="right" colspan="3"><b>Pajak</b></td>
+						<td align="right" ><b>' . number_format($nominal_all, 0, ",", ".") . '</b></td>						
+					</tr>
+					<tr style="">
+						<td align="right" colspan="3"><b>Total</b></td>
+						<td align="right" ><b>' . number_format($nominal_all, 0, ",", ".") . '</b></td>						
+					</tr>';
+			$html .= '
+                 </table>';
+		} else {
+			$html .= '<h1> Data Kosong </h1>';
+		}
+
+		// $this->m_fungsi->_mpdf($html);
+		$this->m_fungsi->template_kop('INVOICE PEMBELIAN',$no_inv_beli,$html,'P','1');
+		// $this->m_fungsi->mPDFP($html);
+	}
+	
 	function Cetak_stok_bb()
 	{
 		$no_stok  = $_GET['no_stok'];

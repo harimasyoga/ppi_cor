@@ -41,7 +41,7 @@
 							<thead class="color-tabel">
 								<tr>
 									<th class="text-center">NO</th>
-									<th class="text-center">NO INVOICE BELI</th>
+									<th class="text-center">NO VOUCHER</th>
 									<th class="text-center">TANGGAL</th>
 									<th class="text-center">HUB</th>
 									<th class="text-center">SUPPLIER</th>
@@ -71,71 +71,34 @@
 				</div>
 			</div>
 			<form role="form" method="post" id="myForm">
-				<div class="col-md-12">
-								
-					<br>
-						
+				<div class="col-md-12">								
+					<br>						
 					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
-						<div class="col-md-2">No Invoice</div>
+						<div class="col-md-2">No Voucher</div>
 						<div class="col-md-3">
 							<input type="hidden" name="sts_input" id="sts_input">
-							<input type="hidden" name="id_header_beli" id="id_header_beli">
+							<input type="hidden" name="id_jurnal" id="id_jurnal">
 
-							<input type="text" class="angka form-control" name="no_inv_beli" id="no_inv_beli" value="AUTO" readonly>
+							<input type="text" class="angka form-control" name="no_voucher" id="no_voucher" value="AUTO" readonly>
 						</div>
-						<div class="col-md-1"></div>
-						<div class="col-md-2">Supplier</div>
-						<div class="col-md-3">
-							<select class="form-control select2" name="id_supp" id="id_supp" style="width: 100%;" >
-							</select>
-						</div>
+						<div class="col-md-6"></div>
+							
+						
 
 					</div>
 					
 					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
-					<div class="col-md-2">Tanggal Invoice</div>
+					<div class="col-md-2">Tanggal Voucher</div>
 						<div class="col-md-3">
 							<input type="date" class="form-control" name="tgl_inv" id="tgl_inv" value ="<?= date('Y-m-d') ?>" >
 						</div>
 						<div class="col-md-1"></div>
-
-						<div class="col-md-2">ATTN</div>
-							<div class="col-md-3">
-								<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" >
-								</select>
-							</div>
-					</div>
-					
-					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
-					<div class="col-md-2">Diskon</div>
-						<div class="col-md-3">
-							<div class="input-group mb-1">
-								<div class="input-group-append">
-									<span class="input-group-text"><b>Rp</b>
-									</span>
-								</div>	
-								<input type="text" class="angka form-control" name="diskon" id="diskon"  onkeyup="ubah_angka(this.value,this.id),hitung_total()">
-									
-							</div>
-						</div>
-						<div class="col-md-1"></div>
-
-						<div class="col-md-2">PPN</div>
-						<div class="col-md-3">
-							<select class="form-control select2" name="pajak" id="pajak" style="width: 100%;" onchange="hitung_total();">
-							<option value="PPN">PPN</option>
-							<option value="NONPPN">NON PPN</option>
-							</select>
-						</div>
-					</div>
-					
-					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
-					<div class="col-md-2">Keterangan</div>
+						<div class="col-md-2">Keterangan</div>
 						<div class="col-md-3">
 							<textarea type="text" class="form-control" name="ket" id="ket" ></textarea>
 						</div>
-						<div class="col-md-6"></div>
 					</div>
+					
 					<br>
 					
 					<!-- detail PO-->
@@ -152,9 +115,10 @@
 							<thead class="color-tabel">
 								<tr>
 									<th id="header_del">Delete</th>
-									<th style="padding : 12px 50px">Transaksi</th>
-									<th style="padding : 12px 70px" >Jenis Beban</th>
-									<th style="padding : 12px 50px" >Nominal</th>
+									<th style="padding : 12px 70px" >Kode</th>
+									<th style="padding : 12px 70px" >Nama</th>
+									<th style="padding : 12px 50px" >Debit</th>
+									<th style="padding : 12px 50px" >Kredit</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -168,13 +132,12 @@
 									</td>
 									<td style="padding : 12px 20px">
 										<div class="input-group mb-1">
-											<input type="text" size="5" name="transaksi[0]" id="transaksi0" class="form-control">
+											<input type="text" class="form-control" name="kd_rek[0]" id="kd_rek0" readonly>
 										</div>
 									</td>		
-
 									<td style="padding : 12px 20px">
 										<div class="input-group mb-1">
-											<select name="jns_beban[0]"  id="jns_beban0" class="form-control select2" style="width: 100%">
+											<select name="nm_rek[0]"  id="nm_rek0" class="form-control select2" style="width: 100%">
 											</select>	
 										</div>
 									</td>		
@@ -184,74 +147,49 @@
 												<span class="input-group-text"><b>Rp</b>
 												</span>
 											</div>	
-											<input type="text" size="5" name="nominal[0]" id="nominal0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
-												
-										</div>
-										
+											<input type="text" size="5" name="debit[0]" id="debit0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
+										</div>										
+									</td>		
+									<td style="padding : 12px 20px">
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>Rp</b>
+												</span>
+											</div>	
+											<input type="text" size="5" name="kredit[0]" id="kredit0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
+										</div>										
 									</td>		
 								</tr>
 							</tbody>
 							<tfoot>
 								<tr>
 									<td colspan="3" class="text-right">
-										<label for="total">SUB TOTAL</label>
 									</td>	
 									<td>
+										<label for="total">DEBIT</label>
+										<br>
 										<div class="input-group mb-1">
 											<div class="input-group-append">
 												<span class="input-group-text"><b>Rp</b>
 												</span>
 											</div>		
-											<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
+											<input type="text" size="5" name="debit_all" id="debit_all" class="angka form-control" value='0' readonly>
 										</div>
 										
 									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">DISKON</label>
-									</td>	
 									<td>
+										<label for="total">KREDIT</label>
+										<br>
 										<div class="input-group mb-1">
 											<div class="input-group-append">
 												<span class="input-group-text"><b>Rp</b>
 												</span>
 											</div>		
-											<input type="text" size="5" name="disk_total" id="disk_total" class="angka form-control" value='0' readonly>
+											<input type="text" size="5" name="kredit_all" id="kredit_all" class="angka form-control" value='0' readonly>
 										</div>
 										
 									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">PPN</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="pajak_total" id="pajak_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">TOTAL</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="total_all" id="total_all" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
+								</tr>								
 							</tfoot>
 						</table>
 						<div id="add_button" >
@@ -304,9 +242,9 @@
 								<br>
 									
 								<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
-									<div class="col-md-2">No Invoice</div>
+									<div class="col-md-2">No Voucher</div>
 									<div class="col-md-3">			
-										<input type="text" class="angka form-control" name="m_no_inv_beli" id="m_no_inv_beli" value="AUTO" readonly>
+										<input type="text" class="angka form-control" name="m_no_voucher" id="m_no_voucher" value="AUTO" readonly>
 									</div>
 									<div class="col-md-1"></div>
 									<div class="col-md-2">Supplier</div>
@@ -317,7 +255,7 @@
 								</div>
 								
 								<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
-								<div class="col-md-2">Tanggal Invoice</div>
+								<div class="col-md-2">Tanggal Voucher</div>
 									<div class="col-md-3">
 										<input type="date" class="form-control" name="m_tgl_inv" id="m_tgl_inv" value ="<?= date('Y-m-d') ?>" readonly>
 									</div>
@@ -407,7 +345,7 @@
 		load_data()
 		load_hub()
 		load_supp()
-		jenis_beban(0)
+		load_kd_rek(0)
 		$('.select2').select2();
 	});
 	
@@ -489,13 +427,12 @@
 		
 	}
 
-	function jenis_beban(rowNum) 
+	function load_kd_rek(rowNum) 
 	{
 		option = "";
 		$.ajax({
 			type       : 'POST',
-			url        : "<?= base_url(); ?>Logistik/load_jenis_beban",
-			// data       : { idp: pelanggan, kd: '' },
+			url        : "<?= base_url(); ?>Keuangan/load_rek",
 			dataType   : 'json',
 			beforeSend: function() {
 				swal({
@@ -516,7 +453,7 @@
 
 					});
 
-					$('#jns_beban'+rowNum).html(option);
+					$('#nm_rek'+rowNum).html(option);
 					$('.select2').select2({
 						containerCssClass: "wrap",
 						placeholder: '--- Pilih ---',
@@ -525,7 +462,7 @@
 					swal.close();
 				}else{	
 					option += "<option value=''></option>";
-					$('#jns_beban'+rowNum).html(option);					
+					$('#nm_rek'+rowNum).html(option);					
 					swal.close();
 				}
 			}
@@ -588,12 +525,14 @@
 			b = 0;
 			rowNum = 0;
 		}
-		var ket         = $('#ket' + b).val();
-		var jns_beban   = $('#jns_beban' + b).val();
-		var nominal     = $('#nominal' + b).val();
+		var kd_rek    = $('#kd_rek' + b).val();
+		var nm_rek    = $('#nm_rek' + b).val();
+		var debit     = $('#debit' + b).val();
+		var kredit    = $('#kredit' + b).val();
 			
-		if (nominal != '0' && nominal != '' && jns_beban != '' && ket != '') 
-		{			
+		// if (nominal != '0' && nominal != '' && jns_beban != '' && ket != '') 
+		// {
+			
 			rowNum++;
 			var x = rowNum + 1;
 			
@@ -608,13 +547,12 @@
 						</td>
 						<td style="padding : 12px 20px">
 							<div class="input-group mb-1">
-								<input type="text" size="5" name="transaksi[${ rowNum }]" id="transaksi${ rowNum }" class="form-control">
+								<input type="text" class="form-control" name="kd_rek[${ rowNum }]" id="kd_rek${ rowNum }" readonly>
 							</div>
 						</td>		
-
 						<td style="padding : 12px 20px">
 							<div class="input-group mb-1">
-								<select name="jns_beban[${ rowNum }]"  id="jns_beban${ rowNum }" class="form-control select2" style="width: 100%">
+								<select name="nm_rek[${ rowNum }]"  id="nm_rek${ rowNum }" class="form-control select2" style="width: 100%">
 								</select>	
 							</div>
 						</td>		
@@ -624,25 +562,32 @@
 									<span class="input-group-text"><b>Rp</b>
 									</span>
 								</div>	
-								<input type="text" size="5" name="nominal[${ rowNum }]" id="nominal${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
-									
-							</div>
-							
+								<input type="text" size="5" name="debit[${ rowNum }]" id="debit${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
+							</div>										
+						</td>		
+						<td style="padding : 12px 20px">
+							<div class="input-group mb-1">
+								<div class="input-group-append">
+									<span class="input-group-text"><b>Rp</b>
+									</span>
+								</div>	
+								<input type="text" size="5" name="kredit[${ rowNum }]" id="kredit${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
+							</div>										
 						</td>		
 					</tr>
 					`);
-				jenis_beban(rowNum);
+				load_kd_rek(rowNum) 
 				$('#bucket').val(rowNum);
 				$('#list' + rowNum).focus();
-		}else{
-			swal({
-				title               : "Cek Kembali",
-				html                : "Isi form diatas terlebih dahulu",
-				type                : "info",
-				confirmButtonText   : "OK"
-			});
-			return;
-		}
+		// }else{
+		// 	swal({
+		// 		title               : "Cek Kembali",
+		// 		html                : "Isi form diatas terlebih dahulu",
+		// 		type                : "info",
+		// 		confirmButtonText   : "OK"
+		// 	});
+		// 	return;
+		// }
 	}
 
 	function removeRow(e) 
@@ -677,39 +622,29 @@
 
 	function hitung_total()
 	{
-		var diskon        = $("#diskon").val()
-		diskon_ok     = (diskon=='' || isNaN(diskon) || diskon == null) ? '0' : diskon;
-		var disk_total    = parseInt(diskon_ok.split('.').join(''))
-		var pajak         = $("#pajak").val()
-		
-		var total_nominal = 0
+
+		var total_debit   = 0
+		var total_kredit  = 0
 		for(loop = 0; loop <= rowNum; loop++)
 		{
-			var nom = $("#nominal"+loop).val()
-			if(nom=='')
-			{
-				nom1 = 0;
-			}else{
-				nom1 = nom;
-			}
-			var nominal   = parseInt(nom1.split('.').join(''))
-			total_nominal += nominal
-		}		
-		total_nominal_ok = (total_nominal=='' || isNaN(total_nominal) || total_nominal == null) ? 0 : total_nominal
-		
-		if(pajak=='PPN')
-		{
-			var pajak_total   = (total_nominal_ok *0.11).toFixed(0);
-		}else{
-			var pajak_total   = 0
-		}
-		
-		var total_all     = parseInt(total_nominal_ok)-parseInt(disk_total)+parseInt(pajak_total)
+			var debit        = $("#debit"+loop).val()
+			var kredit       = $("#kredit"+loop).val()
 
-		$("#total_nom").val(format_angka(total_nominal_ok))		
-		$("#disk_total").val(format_angka(disk_total))
-		$("#pajak_total").val(format_angka(pajak_total))
-		$("#total_all").val(format_angka(total_all))
+			debit_ok         = (debit=='' || isNaN(debit) || debit == null) ? '0' : debit;
+			kredit_ok        = (kredit=='' || isNaN(kredit) || kredit == null) ? '0' : kredit;
+
+			var debit_oke    = parseInt(debit_ok.split('.').join(''))
+			var kredit_oke   = parseInt(kredit_ok.split('.').join(''))
+			
+			total_debit      += debit_oke
+			total_kredit     += kredit_oke
+		}		
+
+		total_debit_ok    = (total_debit=='' || isNaN(total_debit) || total_debit == null) ? 0 : total_debit
+		total_kredit_ok   = (total_kredit=='' || isNaN(total_kredit) || total_kredit == null) ? 0 : total_kredit
+		
+		$("#debit_all").val(format_angka(total_debit_ok))		
+		$("#kredit_all").val(format_angka(total_kredit_ok))
 		
 	}
 	
@@ -807,8 +742,8 @@
 			success: function(data) {
 				if(data){
 					// header
-					$("#id_header_beli").val(data.header.id_header_beli);
-					$("#no_inv_beli").val(data.header.no_inv_beli);
+					$("#id_jurnal").val(data.header.id_jurnal);
+					$("#no_voucher").val(data.header.no_voucher);
 					$("#id_hub").val(data.header.id_hub).trigger('change');
 					$("#id_supp").val(data.header.id_supp).trigger('change');
 					$("#tgl_inv").val(data.header.tgl_inv_beli);
@@ -875,60 +810,28 @@
 					list +=`<tfoot>
 								<tr>
 									<td colspan="3" class="text-right">
-										<label for="total">SUB TOTAL</label>
 									</td>	
 									<td>
+										<label for="total">DEBIT</label>
+										<br>
 										<div class="input-group mb-1">
 											<div class="input-group-append">
 												<span class="input-group-text"><b>Rp</b>
 												</span>
 											</div>		
-											<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
+											<input type="text" size="5" name="debit_all" id="debit_all" class="angka form-control" value='0' readonly>
 										</div>
 										
 									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">DISKON</label>
-									</td>	
 									<td>
+										<label for="total">KREDIT</label>
+										<br>
 										<div class="input-group mb-1">
 											<div class="input-group-append">
 												<span class="input-group-text"><b>Rp</b>
 												</span>
 											</div>		
-											<input type="text" size="5" name="disk_total" id="disk_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">PPN</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="pajak_total" id="pajak_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">TOTAL</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="total_all" id="total_all" class="angka form-control" value='0' readonly>
+											<input type="text" size="5" name="kredit_all" id="kredit_all" class="angka form-control" value='0' readonly>
 										</div>
 										
 									</td>	
@@ -992,8 +895,8 @@
 			success: function(data) {
 				if(data){
 					// header
-					$("#m_id_header_beli").val(data.header.id_header_beli);
-					$("#m_no_inv_beli").val(data.header.no_inv_beli);
+					$("#m_id_jurnal").val(data.header.id_jurnal);
+					$("#m_no_voucher").val(data.header.no_voucher);
 					$("#m_id_hub").val(data.header.nm_hub);
 					$("#m_id_supp").val(data.header.nm_supp);
 					$("#m_tgl_inv").val(data.header.tgl_inv_beli);
@@ -1056,61 +959,29 @@
 					
 					list +=`<tfoot>
 								<tr>
-									<td colspan="2" class="text-right">
-										<label for="total">SUB TOTAL</label>
+									<td colspan="3" class="text-right">
 									</td>	
 									<td>
+										<label for="total">DEBIT</label>
+										<br>
 										<div class="input-group mb-1">
 											<div class="input-group-append">
 												<span class="input-group-text"><b>Rp</b>
 												</span>
 											</div>		
-											<input type="text" size="5" name="m_total_nom" id="m_total_nom" class="angka form-control" value='0' readonly>
+											<input type="text" size="5" name="m_debit_all" id="m_debit_all" class="angka form-control" value='0' readonly>
 										</div>
 										
 									</td>	
-								</tr>
-								<tr>
-									<td colspan="2" class="text-right">
-										<label for="total">DISKON</label>
-									</td>	
 									<td>
+										<label for="total">KREDIT</label>
+										<br>
 										<div class="input-group mb-1">
 											<div class="input-group-append">
 												<span class="input-group-text"><b>Rp</b>
 												</span>
 											</div>		
-											<input type="text" size="5" name="m_disk_total" id="m_disk_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="2" class="text-right">
-										<label for="total">PPN</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="m_pajak_total" id="m_pajak_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="2" class="text-right">
-										<label for="total">TOTAL</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="m_total_all" id="m_total_all" class="angka form-control" value='0' readonly>
+											<input type="text" size="5" name="m_kredit_all" id="m_kredit_all" class="angka form-control" value='0' readonly>
 										</div>
 										
 									</td>	
@@ -1154,7 +1025,7 @@
 	function acc_inv(acc_owner) 
 	{	
 		var user        = "<?= $this->session->userdata('username')?>"
-		var no_inv      = $('#m_no_inv_beli').val()
+		var no_inv      = $('#m_no_voucher').val()
 		
 		if(user=='bumagda' || user=='developer')
 		{
@@ -1215,8 +1086,8 @@
 						// });
 						
 						// setTimeout(function(){ location.reload(); }, 1000);
-						// location.href = "<?= base_url()?>Logistik/Invoice";
-						// location.href = "<?= base_url()?>Logistik/Invoice_edit?id="+id+"&statuss=Y&no_inv="+no_inv+"&acc=1";
+						// location.href = "<?= base_url()?>Logistik/Voucher";
+						// location.href = "<?= base_url()?>Logistik/Voucher_edit?id="+id+"&statuss=Y&no_inv="+no_inv+"&acc=1";
 						reloadTable()
 						close_modal()
 						swal.close();
@@ -1254,7 +1125,7 @@
 		$("#diskon").val('') 
 		$("#ket").val('') 		
 		$("#tgl_inv").val($tgl) 
-		$("#no_inv_beli").val('AUTO') 
+		$("#no_voucher").val('AUTO') 
 
 		$("#transaksi0").val('');			
 		$("#jns_beban0").val('').trigger('change');	
@@ -1358,13 +1229,13 @@
 		$(".row-list").attr('style', '')
 	}
 
-	function deleteData(id,no_inv_beli) 
+	function deleteData(id,no_voucher) 
 	{
 		// let cek = confirm("Apakah Anda Yakin?");
 		swal({
 			title: "HAPUS PEMBAYARAN",
 			html: "<p> Apakah Anda yakin ingin menghapus file ini ?</p><br>"
-			+"<strong>" +no_inv_beli+ " </strong> ",
+			+"<strong>" +no_voucher+ " </strong> ",
 			type               : "question",
 			showCancelButton   : true,
 			confirmButtonText  : '<b>Hapus</b>',
@@ -1378,9 +1249,9 @@
 			$.ajax({
 				url: '<?= base_url(); ?>Logistik/hapus',
 				data: ({
-					id         : no_inv_beli,
+					id         : no_voucher,
 					jenis      : 'inv_beli',
-					field      : 'no_inv_beli'
+					field      : 'no_voucher'
 				}),
 				type: "POST",
 				beforeSend: function() {
