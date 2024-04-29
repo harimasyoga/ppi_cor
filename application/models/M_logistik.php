@@ -68,38 +68,164 @@ class M_logistik extends CI_Model
 			return $result_detail;
 			
 		}else{
+			
+			$no_inv_beli    = $this->input->post('no_inv_beli');
 
-			$no_inv_beli   = $this->input->post('no_inv_beli');
-			$id_hub        = $this->input->post('id_hub');
-			$diskon        = $this->input->post('diskon');
-			$pajak         = $this->input->post('pajak');
-			$ket           = $this->input->post('ket');
-			
-			$tgl_inv       = $this->input->post('tgl_inv');
-			
 			$data_header = array(
-				'id_invoice_h'   => $this->input->post('id_invoice_h'),
-				'id_perusahaan'  => $this->input->post('id_perusahaan'),
-				'tgl_sj'         => $this->input->post('tgl_inv'),
-				'no_inv'         => $this->input->post('no_inv'),
-				'tgl_inv'        => $this->input->post('tgl_inv'),
-				'alasan_retur'   => $this->input->post('alasan'),
-				'total_inv'      => str_replace('.','',$this->input->post('total_inv')),
-				'tgl_jt'         => $this->input->post('tgl_jt'),
-				'tgl_bayar'      => $this->input->post('tgl_byr'),
-				'jumlah_bayar'   => str_replace('.','',$this->input->post('jml_byr')),
-				'status_jt'      => $this->input->post('status_jt'),
-				'status_lunas'   => $this->input->post('sts_lunas'),
-				'sales'          => $this->input->post('sales'),
-				'TOP'            => $this->input->post('top'),
+				'no_inv_beli'       => $no_inv_beli,
+				'tgl_inv_beli'      => $this->input->post('tgl_inv'),
+				'id_hub'            => $this->input->post('id_hub'),
+				'id_supp'           => $this->input->post('id_supp'),
+				'diskon'            => $this->input->post('diskon'),
+				'pajak'             => $this->input->post('pajak'),
+				'ket'               => $this->input->post('ket'),
+				'acc_owner'         => 'N',
 			);
-		
-			$this->db->where('id_bayar_inv', $this->input->post('id_byr_inv'));
-			$result_header = $this->db->update('trs_bayar_inv', $data_header);
+
+			$this->db->where('id_header_beli', $this->input->post('id_header_beli'));
+			$result_header = $this->db->update('invoice_header_beli', $data_header);
+	
+			// delete rinci
+			$del_detail = $this->db->query("DELETE FROM invoice_detail_beli where no_inv_beli='$no_inv_beli' ");
+
+			// rinci
+			if($del_detail)
+			{
+				$rowloop     = $this->input->post('bucket');
+				for($loop = 0; $loop <= $rowloop; $loop++)
+				{
+					$data_detail = array(				
+						'no_inv_beli'       => $this->input->post('no_inv_beli'),
+						'transaksi'     	=> $this->input->post('transaksi['.$loop.']'),
+						'jns_beban'     	=> $this->input->post('jns_beban['.$loop.']'),
+						'nominal'     		=> str_replace('.','',$this->input->post('nominal['.$loop.']')),
+					);
+	
+					$result_detail = $this->db->insert('invoice_detail_beli', $data_detail);
+				}		
+				return $result_detail;
+			}
 			
 		}
-		return $result_header;
 		
+	}
+
+	function batal_inv_beli()
+	{
+		$id       = $this->input->post('id');
+		$app      = "";
+
+		// KHUSUS ADMIN //
+		if ($this->session->userdata('level') == "Admin") 
+		{
+
+			$this->db->set("acc_admin", 'N');
+			$this->db->set("acc_owner", 'N');
+			$this->db->where("no_invoice",$id);
+			$valid = $this->db->update("invoice_header");
+
+		} else if ($this->session->userdata('level') == "Keuangan1" && $this->session->userdata('username') == "karina") 
+		{
+			$this->db->set("acc_admin", 'N');
+			$this->db->where("no_invoice",$id);
+			$valid = $this->db->update("invoice_header");
+
+		} else {
+	
+			$this->db->set("acc_owner", 'N');
+			$this->db->where("no_invoice",$id);
+			$valid = $this->db->update("invoice_header");
+
+		}
+
+		return $valid;
+	}
+
+	function verif_inv_beli()
+	{
+		$no_inv       = $this->input->post('no_inv');
+		$acc          = $this->input->post('acc');
+		$app          = "";
+		
+			$cek_detail   = $this->db->query("SELECT*FROM invoice_header_beli a
+			join invoice_detail_beli b on a.no_inv_beli=b.no_inv_beli
+			join m_hub c ON a.id_hub=c.id_hub
+			join m_supp d ON a.id_supp=d.id_supp
+			join 
+			(SELECT*FROM(
+						select kd_akun as kd,nm_akun as nm,jenis,dk from m_kode_akun
+						union all
+						select concat(kd_akun,'.',kd_kelompok) as kd,nm_kelompok as nm,jenis,dk from m_kode_kelompok
+						union all
+						select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis) as kd,nm_jenis as nm,jenis,dk from m_kode_jenis
+						union all
+						select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci) as kd,nm_rinci as nm,jenis,dk from m_kode_rinci
+						)b )e
+			ON b.jns_beban=e.kd
+			where b.no_inv_beli='$no_inv'
+			")->result();
+
+		// KHUSUS ADMIN //
+		if ($this->session->userdata('level') == "Admin") 
+		{
+			if($acc=='N')
+			{				
+				foreach ( $cek_detail as $row ) 
+				{
+					add_jurnal($row->tgl_inv_beli, $no_inv,$row->jns_beban,$row->nm, $row->nominal, 0);
+					add_jurnal($row->tgl_inv_beli, $no_inv,'2.01.01','Hutang Usaha', 0,$row->nominal);
+					
+				}
+				$this->db->set("acc_owner", 'Y');
+			}else{
+				
+				foreach ( $cek_detail as $row ) 
+				{
+					// delete jurnal pendapatan
+					del_jurnal( $no_inv );
+
+				}
+				$this->db->set("acc_owner", 'N');
+			}
+			
+			$this->db->where("no_inv_beli",$no_inv);
+			$valid = $this->db->update("invoice_header_beli");
+
+		} else if ($this->session->userdata('level') == "Keuangan1" && $this->session->userdata('username') == "bumagda") 
+		{
+			if($acc=='N')
+			{
+				foreach ( $cek_detail as $row ) 
+				{
+					// jurnal
+					add_jurnal($row->tgl_inv_beli, $no_inv,$row->jns_beban,$row->nm, $row->nominal, 0);
+					add_jurnal($row->tgl_inv_beli, $no_inv,'2.01.01','Hutang Usaha', 0,$row->nominal);
+				}
+
+				$this->db->set("acc_owner", 'Y');
+			}else{
+
+				foreach ( $cek_detail as $row ) 
+				{
+					
+					// delete jurnal
+					del_jurnal( $no_inv );
+						
+				}
+				
+				$this->db->set("acc_owner", 'N');
+			}
+			
+			$this->db->where("no_inv_beli",$no_inv);
+			$valid = $this->db->update("invoice_header_beli");
+
+		} else {
+			
+			$valid = false;
+
+		}
+
+		return $valid;
 	}
 	
 	function save_invoice()
@@ -1892,6 +2018,7 @@ class M_logistik extends CI_Model
 
 		return $valid;
 	}
+	
 
 	function batal_inv()
 	{
