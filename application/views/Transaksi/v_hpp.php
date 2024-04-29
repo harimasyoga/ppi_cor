@@ -117,15 +117,15 @@
 								<div class="col-md-3">KETERANGAN</div>
 								<div class="col-md-9">
 									<select id="ket_bahan_txt" class="form-control select2">
-										<option value="">PILIH</option>
-										<option value="LOCAL OCC">LOCAL OCC</option>
-										<option value="MIX WASTE">MIX WASTE</option>
-										<option value="PLUMPUNG">PLUMPUNG</option>
-										<option value="LAMINATING">LAMINATING</option>
-										<option value="SLUDGE">SLUDGE</option>
-										<option value="BROKE LAMINASI">BROKE LAMINASI</option>
-										<option value="BROKE CORR">BROKE CORR</option>
-										<option value="BROKE PM">BROKE PM</option>
+										<?php
+											$query = $this->db->query("SELECT*FROM m_hpp_pilihan WHERE plh_hpp='BAHAN' ORDER BY ket_hpp");
+											$html ='';
+											$html .='<option value="">PILIH</option>';
+											foreach($query->result() as $r){
+												$html .='<option value="'.$r->ket_hpp.'">'.$r->ket_hpp.'</option>';
+											}
+											echo $html;
+										?>
 									</select>
 								</div>
 							</div>
@@ -203,11 +203,15 @@
 									<div class="col-md-3">KETERANGAN</div>
 									<div class="col-md-9">
 										<select id="ket_upah_txt" class="form-control select2">
-											<option value="">PILIH</option>
-											<option value="HARIAN LEPAS">HARIAN LEPAS</option>
-											<option value="BORONGAN">BORONGAN</option>
-											<option value="INSENTIF">INSENTIF</option>
-											<option value="PHK">PHK</option>
+											<?php
+												$query = $this->db->query("SELECT*FROM m_hpp_pilihan WHERE plh_hpp='UPAH' ORDER BY ket_hpp");
+												$html ='';
+												$html .='<option value="">PILIH</option>';
+												foreach($query->result() as $r){
+													$html .='<option value="'.$r->ket_hpp.'">'.$r->ket_hpp.'</option>';
+												}
+												echo $html;
+											?>
 										</select>
 									</div>
 								</div>
@@ -583,11 +587,15 @@
 									<div class="col-md-3">KETERANGAN</div>
 									<div class="col-md-9">
 										<select id="s_ket_upah_txt" class="form-control select2">
-											<option value="">PILIH</option>
-											<option value="HARIAN LEPAS">HARIAN LEPAS</option>
-											<option value="BORONGAN">BORONGAN</option>
-											<option value="INSENTIF">INSENTIF</option>
-											<option value="PHK">PHK</option>
+											<?php
+												$query = $this->db->query("SELECT*FROM m_hpp_pilihan WHERE plh_hpp='UPAH' ORDER BY ket_hpp");
+												$html ='';
+												$html .='<option value="">PILIH</option>';
+												foreach($query->result() as $r){
+													$html .='<option value="'.$r->ket_hpp.'">'.$r->ket_hpp.'</option>';
+												}
+												echo $html;
+											?>
 										</select>
 									</div>
 								</div>
@@ -947,11 +955,15 @@
 									<div class="col-md-3">KETERANGAN</div>
 									<div class="col-md-9">
 										<select id="b_ket_upah_txt" class="form-control select2">
-											<option value="">PILIH</option>
-											<option value="HARIAN LEPAS">HARIAN LEPAS</option>
-											<option value="BORONGAN">BORONGAN</option>
-											<option value="INSENTIF">INSENTIF</option>
-											<option value="PHK">PHK</option>
+											<?php
+												$query = $this->db->query("SELECT*FROM m_hpp_pilihan WHERE plh_hpp='UPAH' ORDER BY ket_hpp");
+												$html ='';
+												$html .='<option value="">PILIH</option>';
+												foreach($query->result() as $r){
+													$html .='<option value="'.$r->ket_hpp.'">'.$r->ket_hpp.'</option>';
+												}
+												echo $html;
+											?>
 										</select>
 									</div>
 								</div>
@@ -1282,11 +1294,15 @@
 									<div class="col-md-3">KETERANGAN</div>
 									<div class="col-md-9">
 										<select id="l_ket_upah_txt" class="form-control select2">
-											<option value="">PILIH</option>
-											<option value="HARIAN LEPAS">HARIAN LEPAS</option>
-											<option value="BORONGAN">BORONGAN</option>
-											<option value="INSENTIF">INSENTIF</option>
-											<option value="PHK">PHK</option>
+											<?php
+												$query = $this->db->query("SELECT*FROM m_hpp_pilihan WHERE plh_hpp='UPAH' ORDER BY ket_hpp");
+												$html ='';
+												$html .='<option value="">PILIH</option>';
+												foreach($query->result() as $r){
+													$html .='<option value="'.$r->ket_hpp.'">'.$r->ket_hpp.'</option>';
+												}
+												echo $html;
+											?>
 										</select>
 									</div>
 								</div>
@@ -2485,27 +2501,27 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(opsi == 'upah' && jenis == 'pm'){
-					$("#ket_upah_txt").html('<option value="">PILIH</option><option value="HARIAN LEPAS">HARIAN LEPAS</option><option value="BORONGAN">BORONGAN</option><option value="INSENTIF">INSENTIF</option><option value="PHK">PHK</option>')
+					$("#ket_upah_txt").val("").trigger("change")
 					$("#ket_upah_rp").val("")
 					$(".list-keterangan-upah").html(data.htmlUpah)
 					$("#upah").val(data.sumUpah)
 				}else if(opsi == 'upah' && jenis == 'sheet'){
-					$("#s_ket_upah_txt").html('<option value="">PILIH</option><option value="HARIAN LEPAS">HARIAN LEPAS</option><option value="BORONGAN">BORONGAN</option><option value="INSENTIF">INSENTIF</option><option value="PHK">PHK</option>')
+					$("#s_ket_upah_txt").val("").trigger("change")
 					$("#s_ket_upah_rp").val("")
 					$(".list-keterangan-upah-sheet").html(data.htmlUpah)
 					$("#s_upah").val(data.sumUpah)
 				}else if(opsi == 'upah' && jenis == 'box'){
-					$("#b_ket_upah_txt").html('<option value="">PILIH</option><option value="HARIAN LEPAS">HARIAN LEPAS</option><option value="BORONGAN">BORONGAN</option><option value="INSENTIF">INSENTIF</option><option value="PHK">PHK</option>')
+					$("#b_ket_upah_txt").val("").trigger("change")
 					$("#b_ket_upah_rp").val("")
 					$(".list-keterangan-upah-box").html(data.htmlUpah)
 					$("#b_upah").val(data.sumUpah)
 				}else if(opsi == 'upah' && jenis == 'laminasi'){
-					$("#l_ket_upah_txt").html('<option value="">PILIH</option><option value="HARIAN LEPAS">HARIAN LEPAS</option><option value="BORONGAN">BORONGAN</option><option value="INSENTIF">INSENTIF</option><option value="PHK">PHK</option>')
+					$("#l_ket_upah_txt").val("").trigger("change")
 					$("#l_ket_upah_rp").val("")
 					$(".list-keterangan-upah-lam").html(data.htmlUpah)
 					$("#l_upah").val(data.sumUpah)
 				}else if(opsi == 'bb'){
-					$("#ket_bahan_txt").html('<option value="">PILIH</option><option value="LOCAL OCC">LOCAL OCC</option><option value="MIX WASTE">MIX WASTE</option><option value="PLUMPUNG">PLUMPUNG</option><option value="LAMINATING">LAMINATING</option><option value="SLUDGE">SLUDGE</option><option value="BROKE LAMINASI">BROKE LAMINASI</option><option value="BROKE CORR">BROKE CORR</option><option value="BROKE PM">BROKE PM</option>')
+					$("#ket_bahan_txt").val("").trigger("change")
 					$("#ket_bahan_kg").val("")
 					$("#ket_bahan_rp").val("")
 					$("#ket_bahan_x").val("")

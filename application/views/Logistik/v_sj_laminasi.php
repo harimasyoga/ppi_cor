@@ -153,6 +153,67 @@
 				</div>
 			</div>
 
+			<div class="row row-lap-sj-lam" style="display:none">
+				<div class="col-md-12">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">LAPORAN</h3>
+						</div>
+						<div class="card-body" style="padding:6px">
+							<div style="overflow:auto;white-space:nowrap">
+								<table style="font-weight:bold">
+									<tr>
+										<td style="padding:3px 0">JENIS LAPORAN</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="plh-sj-jenis" class="form-control select2">
+												<option value="HARI">PER HARI</option>
+												<option value="CUSTOMER">PER CUSTOMER</option>
+												<option value="BARANG">PER BARANG</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td style="padding:3px 0">CUSTOMER</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="plh-sj-cust" class="form-control select2">
+												<?php
+													$query = $this->db->query("SELECT id_pelanggan_lm,attn_lam_inv FROM invoice_laminasi_header GROUP BY id_pelanggan_lm,attn_lam_inv ORDER BY attn_lam_inv");
+													$html ='';
+													$html .='<option value="">SEMUA</option>';
+													foreach($query->result() as $r){
+														$html .='<option value="'.$r->id_pelanggan_lm.'">'.$r->attn_lam_inv.'</option>';
+													}
+													echo $html;
+												?>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td style="padding:3px 0">TANGGAL SURAT JALAN</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0">
+											<input type="date" id="tgl1_lap" class="form-control">
+										</td>
+										<td style="padding:3px 10px">S/D</td>
+										<td style="padding:3px 0">
+											<input type="date" id="tgl2_lap" class="form-control">
+										</td>
+										<td style="padding:3px 10px">
+											<button type="button" class="btn btn-primary" onclick="cariLaporanLaminasi('laporan')"><i class="fas fa-search"></i></button>
+										</td>
+										<td style="padding:3px 10px">
+											<div class="btn-print-lap-lam-pdf"></div>
+										</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 		</div>
 	</section>
 </div>
@@ -284,7 +345,6 @@
 			data: ({ id }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					$(".row-list-po").hide()
 					$(".list-po-sj-laminasi").html('')
@@ -322,7 +382,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.total_items == 0){
 					toastr.error(`<b>${data.isi}</b>`)
 					$(".row-input-rk").hide()
@@ -369,7 +428,6 @@
 			data: ({ rowid }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.total_items == 0){
 					$(".row-input-rk").hide()
 					swal.close()
@@ -398,7 +456,6 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				// kosong()
 				$(".list-rencana-sj-laminasi").load("<?php echo base_url('Logistik/destroyLaminasi') ?>")
 				$(".row-input-rk").hide()
@@ -445,7 +502,6 @@
 			data: ({ id_rk, keterangan }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				listRencanKirim()
 			}
 		})
@@ -526,7 +582,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					kosong()
 				}else{
