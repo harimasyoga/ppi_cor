@@ -37,88 +37,104 @@ class Laporan extends CI_Controller
 		$this->load->view('footer');
 	}
 
-	function plhTglLapPengiriman()
+	function cariListLaporan()
 	{
 		$html ='';
-		$tgl = $_POST["tgl"];
-		// RIT
-		$getRit = $this->db->query("SELECT no_pl_urut,tgl,no_kendaraan FROM pl_box WHERE tgl='$tgl'
-		GROUP BY no_pl_urut,tgl,no_kendaraan");
-		if($getRit->num_rows() == 0){
-			$html .= 'TIDAK ADA PENGIRIMAN';
-			$tampilTgl = '';
-		}else{
-			$LastRit = $this->db->query("SELECT no_pl_urut FROM pl_box WHERE tgl='$tgl' ORDER BY no_pl_urut DESC LIMIT 1")->row();
-			$i = 0;
-			$allQty = 0;
-			foreach($getRit->result() as $rit){
-				$i++;
-				$kategori = $this->db->query("SELECT i.kategori FROM pl_box p
-				INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
-				INNER JOIN m_produk i ON r.id_produk=i.id_produk
-				WHERE p.tgl='$rit->tgl' AND p.no_kendaraan='$rit->no_kendaraan' AND p.no_pl_urut='$rit->no_pl_urut'
-				GROUP BY i.kategori");
-				if($kategori->num_rows() == 1){
-					($kategori->row()->kategori == 'K_BOX') ? $title =  ' BOX ' : $title = ' SHEET ';
-					($kategori->row()->kategori == 'K_BOX') ? $sket = 'PCS' : $sket = 'LEMBAR';
-					$keterangan = $sket;
-				}else{
-					$title = ' ';
-					($kategori->row()->kategori == 'K_BOX') ? $sket = 'PCS' : $sket = 'LEMBAR';
-					$keterangan = 'PCS';
-				}
-				// GROUP PELANGGAN
-				$getPelanggan = $this->db->query("SELECT*FROM pl_box p
-				INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
-				INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
-				INNER JOIN m_produk i ON r.id_produk=i.id_produk
-				WHERE p.tgl='$rit->tgl' AND p.no_kendaraan='$rit->no_kendaraan' AND p.no_pl_urut='$rit->no_pl_urut'
-				GROUP BY p.id_perusahaan,p.no_pl_urut,i.kategori
-				ORDER BY p.pajak,p.no_surat");
-				($getPelanggan->num_rows() == 1) ? $brSatu = 'KE '.$getPelanggan->row()->nm_pelanggan.' - ( '.$rit->no_kendaraan.' )' : $brSatu = 'KE - ( '.$rit->no_kendaraan.' )<br>';
-				$html .= 'RIT '.$i.', PENGIRIMAN'.$title.$brSatu;
-				$p = 0;
-				$sumQty = 0;
-				foreach($getPelanggan->result() as $pel){
-					$p++;
-					if(($getPelanggan->num_rows() == 1)){
-						$html .= '';
-					}else{
-						if($kategori->num_rows() == 1){
-							$ketIisi = '';
-						}else{
-							($pel->kategori == 'K_BOX') ? $ketIisi = ' (BOX)' : $ketIisi = ' (SHEET)';
-						}
-						$html .= $p.'. '.$pel->nm_pelanggan.$ketIisi;
-					}
-					$html .= '<br>';
-					// KIRIMAN
-					$getKirim = $this->db->query("SELECT p.no_po,i.kategori,i.nm_produk,SUM(r.qty_muat) AS qty_muat FROM pl_box p
+		$id_pelanggan = $_POST["id_pelanggan"];
+		($id_pelanggan != "") ? $wCust = "AND p.id_perusahaan='$id_pelanggan'" : $wCust = '';
+		$tgl1 = $_POST["tgl1"];
+		$tgl2 = $_POST["tgl2"];
+
+		// TANGGAL
+		$getRit = $this->db->query("SELECT tgl FROM pl_box p
+		WHERE tgl BETWEEN '$tgl1' AND '$tgl2' $wCust
+		GROUP BY tgl");
+		$html .= '<table style="width:100%">';
+			if($getRit->num_rows() == 0){
+				$html .= '<tr><td>TIDAK ADA PENGIRIMAN</td></tr>';
+			}else{
+				$totTimbangan = 0;
+				foreach($getRit->result() as $t){
+					$html .= '<tr><td style="border:0"><br></td></tr>
+					<tr>
+						<td style="border:0;font-weight:bold">'.strtoupper($this->m_fungsi->getHariIni($t->tgl)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($t->tgl)).'</td>
+					</tr>';
+					// NOPOL
+					$nopol = $this->db->query("SELECT p.tgl,p.no_pl_urut,p.no_kendaraan,p.kategori FROM pl_box p
 					INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
-					INNER JOIN m_produk i ON r.id_produk=i.id_produk
-					WHERE p.tgl='$pel->tgl' AND p.no_kendaraan='$pel->no_kendaraan' AND p.no_pl_urut='$pel->no_pl_urut' AND p.id_perusahaan='$pel->id_perusahaan' AND i.kategori='$pel->kategori'
-					GROUP BY p.no_po,i.nm_produk");
-					foreach($getKirim->result() as $r){
-						($r->kategori == 'K_BOX') ? $ket = 'PCS' : $ket = 'LEMBAR';
-						$html .= '- '.$r->no_po.' - '.$r->nm_produk.'. TOTAL '.number_format($r->qty_muat).' '.$ket;
-						$html .= '<br>';
-						$sumQty += $r->qty_muat;
+					WHERE p.tgl='$t->tgl' $wCust
+					GROUP BY p.tgl,p.no_pl_urut,p.no_kendaraan");
+					$nn = 0;
+					$hariTimbang = 0;
+					foreach($nopol->result() as $n){
+						$nn++;
+						// CUSTOMER
+						$cPelanggan = $this->db->query("SELECT*FROM pl_box p
+						INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
+						INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
+						WHERE p.tgl='$n->tgl' AND p.no_kendaraan='$n->no_kendaraan' AND p.no_pl_urut='$n->no_pl_urut' $wCust
+						GROUP BY p.id_perusahaan,p.no_pl_urut,p.kategori");
+						($cPelanggan->num_rows() == 1) ? $cC = ' '.$cPelanggan->row()->nm_pelanggan : $cC = '';
+						$html .= '<tr><td style="border:0"><br></td></tr>
+						<tr>
+							<td style="border:0">RIT '.$nn.', PENGIRIMAN BOX KE'.$cC.'</td>
+						</tr>';
+
+						$pp = 0;
+						$sumQty = 0;
+						$sumTimbang = 0;
+						foreach($cPelanggan->result() as $p){
+							$pp++;
+							if($cPelanggan->num_rows() != 1){
+								$html .= '<tr>
+									<td style="border:0">'.$pp.'. '.$p->nm_pelanggan.'</td>
+								</tr>';
+							}
+							// KIRIMAN
+							$kiriman = $this->db->query("SELECT i.kategori,i.nm_produk,SUM(r.qty_muat) AS qty_muat FROM pl_box p
+							INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
+							INNER JOIN m_produk i ON r.id_produk=i.id_produk
+							WHERE p.tgl='$p->tgl' AND p.no_kendaraan='$p->no_kendaraan' AND p.no_pl_urut='$p->no_pl_urut' AND p.id_perusahaan='$p->id_perusahaan'
+							GROUP BY i.nm_produk,i.kategori");
+							foreach($kiriman->result() as $k){
+								($k->kategori == 'K_BOX') ? $ket = 'PCS' : $ket = 'LEMBAR';
+								($cPelanggan->num_rows() == 1 && $kiriman->num_rows() == 1) ? $kTot = '' : $kTot = '. TOTAL '.number_format($k->qty_muat).' '.$ket;
+								$html .= '<tr>
+									<td style="border:0">- '.$k->nm_produk.''.$kTot.'</td>
+								</tr>';
+								$sumQty += $k->qty_muat;
+							}
+						}
+						// TOTAL DAN TIMBANGAN
+						$timbangan = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE tgl_t='$p->tgl' AND urut_t='$p->no_pl_urut' AND no_polisi='$p->no_kendaraan'");
+						($timbangan->num_rows() == 0) ? $timbang = 0 : $timbang = $timbangan->row()->berat_bersih;
+						($n->kategori == 'BOX') ? $nket = 'PCS' : $nket = 'LEMBAR';
+						$html .= '<tr>
+							<td style="border:0">TOTAL '.number_format($sumQty).' '.$nket.' / '.number_format($timbang).' KG</td>
+						</tr>';
+						$sumTimbang += $timbang;
+						$hariTimbang += $sumTimbang;
 					}
+					// TOTAL HARI
+					if($nopol->num_rows() != 1){
+						$html .= '<tr><td style="border:0"><br></td></tr>
+						<tr>
+							<td style="border:0;font-weight:bold">TOTAL '.number_format($hariTimbang).' KG</td>
+						</tr>';
+					}
+					$totTimbangan += $hariTimbang;
 				}
-				$timbangan = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE tgl_t='$rit->tgl' AND urut_t='$rit->no_pl_urut' AND no_polisi='$rit->no_kendaraan'");
-				($timbangan->num_rows() == 0) ? $timbang = 0 : $timbang = $timbangan->row()->berat_bersih;
-				$html .='TOTAL '.number_format($sumQty).' '.$keterangan.' / '.number_format($timbang). ' KG';
-				$html .= '<br>';
-				($LastRit->no_pl_urut == $rit->no_pl_urut) ? $html .= '' : $html .= '<br>';
-				$allQty += $timbang;
+				// TOTAL SEMUA
+				if($tgl1 != $tgl2){
+					$html .= '<tr><td style="border:0"><br></td></tr>
+					<tr>
+						<td style="border:0;font-weight:bold">TOTAL '.number_format($totTimbangan).' KG</td>
+					</tr>';
+				}
 			}
-			// TOTAL KESELURUHAN
-			$html .='<br><b>TOTAL '.number_format($allQty).' KG</b>';
-			$tampilTgl = ' - '.strtoupper(substr($this->m_fungsi->getHariIni($tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt2($tgl));
-		}
+		$html .= '</table>';
 		echo json_encode([
 			'html' => $html,
-			'tgl' => $tampilTgl,
 		]);
 	}
 

@@ -9,19 +9,45 @@
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col-md-2">
+				<div class="col-md-4">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">TANGGAL</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">PILIH</h3>
 						</div>
-						<div class="card-body row" style="padding:6px 7px">
+						<div class="card-body row" style="padding:12px 6px 6px">
 							<div class="col-md-12">
-								<input type="date" id="tgl" class="form-control" onchange="pilihTanggal()">
+								<select class="form-control select2" id="cust_list_lap">
+									<?php
+										$query = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan");
+										$html ='';
+										$html .='<option value="">SEMUA</option>';
+										foreach($query->result() as $r){
+											if($r->attn == "-" || $r->attn == ""){
+												$attn = '';
+											}else{
+												$attn = ' | '.$r->attn;
+											}
+											$html .='<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.''.$attn.'</option>';
+										}
+										echo $html
+									?>
+								</select>
+							</div>
+						</div>
+						<div class="card-body row" style="padding:0 6px 6px">
+							<div class="col-md-5">
+								<input type="date" id="tgl1" class="form-control" style="margin-bottom:6px" value="<?= date("Y-m-d")?>">
+							</div>
+							<div class="col-md-5">
+								<input type="date" id="tgl2" class="form-control" style="margin-bottom:6px" value="<?= date("Y-m-d")?>">
+							</div>
+							<div class="col-md-2">
+								<button type="button" class="btn btn-primary" onclick="cariListLaporan()"><i class="fas fa-search"></i></button>
 							</div>
 						</div>
 					</div>
 				</div>
-				<div class="col-md-10">
+				<div class="col-md-8">
 					<div class="card card-info card-outline">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST LAPORAN PENGIRIMAN <span class="span-tanggal"></span></h3>
@@ -121,12 +147,16 @@
 		$(".select2").select2()
 	});
 
-	function pilihTanggal(){
-		let tgl = $("#tgl").val()
+	function cariListLaporan(){
+		let id_pelanggan = $("#cust_list_lap").val()
+		let tgl1 = $("#tgl1").val()
+		let tgl2 = $("#tgl2").val()
 		$.ajax({
-			url: '<?php echo base_url('Laporan/plhTglLapPengiriman')?>',
+			url: '<?php echo base_url('Laporan/cariListLaporan')?>',
 			type: "POST",
-			data: ({ tgl }),
+			data: ({
+				id_pelanggan, tgl1, tgl2
+			}),
 			beforeSend: function() {
 				swal({
 					title: 'Loading',
@@ -139,7 +169,8 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				$(".span-tanggal").html(data.tgl)
+				console.log(data)
+				// $(".span-tanggal").html(data.tgl)
 				$("#list-laporan").html(data.html)
 				swal.close()
 			}

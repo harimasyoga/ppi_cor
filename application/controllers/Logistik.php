@@ -1049,6 +1049,257 @@ class Logistik extends CI_Controller
 		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 	}
 
+	//
+
+	function cariLaporanSJLaminasi()
+	{
+		$html = '';
+		$opsi = $_POST["opsi"];
+		if($opsi == 'laporan'){
+			$jenis = $_POST["plh_sj_jenis"];
+			$pelanggan = $_POST["plh_sj_cust"];
+			$tgl1 = $_POST["tgl1_lap"];
+			$tgl2 = $_POST["tgl2_lap"];
+			$fz = '';
+		}else{
+			$jenis = $_GET["jenis"];
+			$pelanggan = $_GET["pelanggan"];
+			$tgl1 = $_GET["tgl1"];
+			$tgl2 = $_GET["tgl2"];
+			$fz = ';font-size:12px';
+		}
+		($pelanggan != "") ? $wcust = "AND l.id_perusahaan='$pelanggan'" : $wcust = '';
+		if($tgl1 == $tgl2){
+			$periode = strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl1));
+		}else{
+			$periode = strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl1)).' S/D '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl2));
+		}
+
+		$html .= '<table style="width:100%;margin-top:25px;color:#000;border-collapse:collapse;vertical-align:tops;text-align:center;font-family:tahoma'.$fz.'">';
+
+		if($jenis == 'HARI'){
+			$query = $this->db->query("SELECT l.tgl,l.attn_pl,c.nm_pelanggan_lm,l.no_surat,i.*,r.*,SUM(r.qty_muat) AS sum_muat FROM pl_laminasi l
+			INNER JOIN m_pelanggan_lm c ON l.id_perusahaan=c.id_pelanggan_lm
+			INNER JOIN m_rk_laminasi r ON r.id_pl_lm=l.id AND r.rk_urut=l.no_pl_urut AND r.rk_no_po=l.no_po AND r.rk_tgl=l.tgl AND r.id_pelanggan_lm=l.id_perusahaan
+			INNER JOIN m_produk_lm i ON r.id_m_produk_lm=i.id_produk_lm
+			WHERE r.rk_status='Close' AND l.tgl BETWEEN '$tgl1' AND '$tgl2' $wcust
+			GROUP BY l.tgl,l.id_perusahaan,l.no_surat,r.id_m_produk_lm
+			ORDER BY l.tgl,l.attn_pl,c.nm_pelanggan_lm,i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm");
+			if($query->num_rows() == 0){
+				$html .='<tr>
+					<th style="text-align:left">DATA KOSONG</th>
+				</tr>';
+			}else{
+				$html .='<thead>
+					<tr>
+						<th style="padding:6px" colspan="8">LAPORAN PENJUALAN</th>
+					</tr>
+					<tr>
+						<th style="padding:6px" colspan="8">BALL LAMINASI</th>
+					</tr>
+					<tr>
+						<th style="padding:6px" colspan="8">'.$periode.'</th>
+					</tr>
+					<tr style="background:#5eafde">
+						<th style="width:10%;padding:6px;border:1px solid #000">TANGGAL SJ</th>
+						<th style="width:24%;padding:6px;border:1px solid #000">CUSTOMER</th>
+						<th style="width:10%;padding:6px;border:1px solid #000">NOMER SJ</th>
+						<th style="width:32%;padding:6px;border:1px solid #000">URAIAN</th>
+						<th style="width:6%;padding:6px;border:1px solid #000">BALL</th>
+						<th style="width:6%;padding:6px;border:1px solid #000">IKAT</th>
+						<th style="width:6%;padding:6px;border:1px solid #000">PACK</th>
+						<th style="width:6%;padding:6px;border:1px solid #000">KG</th>
+					</tr>
+				</thead>';
+				$sumBall = 0;
+				$sumIkat = 0;
+				$sumKg = 0;
+				foreach($query->result() as $r){
+					($r->attn_pl == null) ? $attn = $r->nm_pelanggan_lm : $attn = $r->attn_pl;
+					($r->jenis_qty_lm == 'kg') ? $isiLm = '' : $isiLm = '('.$r->isi_lm.')';
+					if($r->jenis_qty_lm == 'pack'){
+						$oBall = $r->sum_muat;
+						$oIkat = 0;
+						$oKg = 0;
+					}else if($r->jenis_qty_lm == 'ikat'){
+						$oBall = 0;
+						$oIkat = $r->sum_muat;
+						$oKg = 0;
+					}else{
+						$oBall = 0;
+						$oIkat = 0;
+						$oKg = $r->sum_muat;
+					}
+					($oBall == 0 ) ? $tBall = '' : $tBall = number_format($oBall,0,',','.');
+					($oIkat == 0 ) ? $tIkat = '' : $tIkat = number_format($oIkat,0,',','.');
+					($oKg == 0 ) ? $tKg = '' : $tKg = round($oKg,2);
+					$html .='<tr>
+						<td style="padding:6px;border:1px solid #000">'.$this->m_fungsi->tglIndSkt($r->tgl).'</td>
+						<td style="padding:6px;border:1px solid #000;text-align:left">'.$attn.'</td>
+						<td style="padding:6px;border:1px solid #000">'.$r->no_surat.'</td>
+						<td style="padding:6px;border:1px solid #000;text-align:left">'.$r->nm_produk_lm.' '.$isiLm.'</td>
+						<td style="padding:6px;border:1px solid #000;text-align:right">'.$tBall.'</td>
+						<td style="padding:6px;border:1px solid #000;text-align:right">'.$tIkat.'</td>
+						<td style="padding:6px;border:1px solid #000;text-align:right"></td>
+						<td style="padding:6px;border:1px solid #000;text-align:right">'.$tKg.'</td>
+					</tr>';
+					$sumBall += $oBall;
+					$sumIkat += $oIkat;
+					$sumKg += $oKg;
+				}
+				// TOTAL
+				$html .='<tr style="background:#5eafde">
+					<td style="padding:6px;border:1px solid #000;font-weight:bold" colspan="4">TOTAL</td>
+					<td style="padding:6px;border:1px solid #000;font-weight:bold;text-align:right">'.number_format($sumBall,0,',','.').'</td>
+					<td style="padding:6px;border:1px solid #000;font-weight:bold;text-align:right">'.number_format($sumIkat,0,',','.').'</td>
+					<td style="padding:6px;border:1px solid #000;font-weight:bold;text-align:right"></td>
+					<td style="padding:6px;border:1px solid #000;font-weight:bold;text-align:right">'.round($sumKg,2).'</td>
+				</tr>';
+			}
+		}
+
+		if($jenis == 'CUSTOMER'){
+			$query = $this->db->query("SELECT l.id_perusahaan,l.attn_pl,c.nm_pelanggan_lm FROM pl_laminasi l
+			INNER JOIN m_pelanggan_lm c ON l.id_perusahaan=c.id_pelanggan_lm
+			INNER JOIN m_rk_laminasi r ON r.id_pl_lm=l.id AND r.rk_urut=l.no_pl_urut AND r.rk_no_po=l.no_po AND r.rk_tgl=l.tgl AND r.id_pelanggan_lm=l.id_perusahaan
+			WHERE r.rk_status='Close' AND l.tgl BETWEEN '$tgl1' AND '$tgl2' $wcust
+			GROUP BY l.id_perusahaan
+			ORDER BY l.attn_pl,c.nm_pelanggan_lm");
+
+			if($query->num_rows() == 0){
+				$html .='<tr>
+					<th style="text-align:left">DATA KOSONG</th>
+				</tr>';
+			}else{
+				$html .='<thead>
+					<tr>
+						<th style="padding:6px" colspan="6">LAMPIRAN CUSTOMER</th>
+					</tr>
+					<tr>
+						<th style="padding:6px" colspan="6">'.$periode.'</th>
+					</tr>
+					<tr style="background:#5eafde">
+						<th style="padding:6px;border:1px solid #000" colspan="2">URAIAN</th>
+						<th style="padding:6px;border:1px solid #000">TOTAL BALL</th>
+						<th style="padding:6px;border:1px solid #000">TOTAL IKAT</th>
+						<th style="padding:6px;border:1px solid #000">TOTAL PACK</th>
+						<th style="padding:6px;border:1px solid #000">TOTAL KG</th>
+					</tr>
+				</thead>';
+				$sumBall = 0;
+				$sumIkat = 0;
+				$sumKg = 0;
+				foreach($query->result() as $r){
+					($r->attn_pl == null) ? $attn = $r->nm_pelanggan_lm : $attn = $r->attn_pl;
+					// BALL
+					$qBall = $this->db->query("SELECT r.*,SUM(qty_muat) AS qty FROM m_rk_laminasi r
+					INNER JOIN pl_laminasi l ON r.id_pl_lm=l.id AND r.rk_urut=l.no_pl_urut AND r.rk_no_po=l.no_po AND r.rk_tgl=l.tgl AND r.id_pelanggan_lm=l.id_perusahaan
+					INNER JOIN m_produk_lm i ON r.id_m_produk_lm=i.id_produk_lm
+					WHERE l.tgl BETWEEN '$tgl1' AND '$tgl2' AND i.jenis_qty_lm='pack' AND r.id_pelanggan_lm='$r->id_perusahaan'
+					AND r.rk_status='Close' GROUP BY r.id_pelanggan_lm");
+					($qBall->num_rows() == 0) ? $ball = 0 : $ball = $qBall->row()->qty;
+					// IKAT
+					$qIkat = $this->db->query("SELECT r.*,SUM(qty_muat) AS qty FROM m_rk_laminasi r
+					INNER JOIN pl_laminasi l ON r.id_pl_lm=l.id AND r.rk_urut=l.no_pl_urut AND r.rk_no_po=l.no_po AND r.rk_tgl=l.tgl AND r.id_pelanggan_lm=l.id_perusahaan
+					INNER JOIN m_produk_lm i ON r.id_m_produk_lm=i.id_produk_lm
+					WHERE l.tgl BETWEEN '$tgl1' AND '$tgl2' AND i.jenis_qty_lm='ikat' AND r.id_pelanggan_lm='$r->id_perusahaan'
+					AND r.rk_status='Close' GROUP BY r.id_pelanggan_lm");
+					($qIkat->num_rows() == 0) ? $ikat = 0 : $ikat = $qIkat->row()->qty;
+					// IKAT
+					$qKg = $this->db->query("SELECT r.*,SUM(qty_muat) AS qty FROM m_rk_laminasi r
+					INNER JOIN pl_laminasi l ON r.id_pl_lm=l.id AND r.rk_urut=l.no_pl_urut AND r.rk_no_po=l.no_po AND r.rk_tgl=l.tgl AND r.id_pelanggan_lm=l.id_perusahaan
+					INNER JOIN m_produk_lm i ON r.id_m_produk_lm=i.id_produk_lm
+					WHERE l.tgl BETWEEN '$tgl1' AND '$tgl2' AND i.jenis_qty_lm='kg' AND r.id_pelanggan_lm='$r->id_perusahaan'
+					AND r.rk_status='Close' GROUP BY r.id_pelanggan_lm");
+					($qKg->num_rows() == 0) ? $kg = 0 : $kg = $qKg->row()->qty;
+
+					($ball == 0) ? $tUall = '' : $tUall = number_format($qBall->row()->qty,0,',','.');
+					($ikat == 0) ? $tUkat = '' : $tUkat = number_format($qIkat->row()->qty,0,',','.');
+					($kg == 0) ? $tUg = '' : $tUg = round($qKg->row()->qty,2);
+
+					$html .='<tr>
+						<td style="padding:6px;border:1px solid #000;font-weight:bold;text-align:left" colspan="2">'.$attn.'</td>
+						<td style="padding:6px;border:1px solid #000;font-weight:bold;text-align:right">'.$tUall.'</td>
+						<td style="padding:6px;border:1px solid #000;font-weight:bold;text-align:right">'.$tUkat.'</td>
+						<td style="padding:6px;border:1px solid #000;font-weight:bold;text-align:right"></td>
+						<td style="padding:6px;border:1px solid #000;font-weight:bold;text-align:right">'.$tUg.'</td>
+					</tr>';
+
+					// DETAIL
+					$detail = $this->db->query("SELECT r.*,i.*,SUM(r.qty_muat) AS qty FROM m_rk_laminasi r
+					INNER JOIN pl_laminasi l ON r.id_pl_lm=l.id AND r.rk_urut=l.no_pl_urut AND r.rk_no_po=l.no_po AND r.rk_tgl=l.tgl AND r.id_pelanggan_lm=l.id_perusahaan
+					INNER JOIN m_produk_lm i ON r.id_m_produk_lm=i.id_produk_lm
+					WHERE r.rk_status='Close' AND r.rk_tgl BETWEEN '$tgl1' AND '$tgl2' AND r.id_pelanggan_lm='$r->id_perusahaan'
+					GROUP BY r.id_m_produk_lm
+					ORDER BY i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm");
+					foreach($detail->result() as $d){
+						($d->jenis_qty_lm == 'kg') ? $isiLm = '' : $isiLm = '('.$d->isi_lm.')';
+						if($d->jenis_qty_lm == 'pack'){
+							$oBall = $d->qty;
+							$oIkat = 0;
+							$oKg = 0;
+						}else if($d->jenis_qty_lm == 'ikat'){
+							$oBall = 0;
+							$oIkat = $d->qty;
+							$oKg = 0;
+						}else{
+							$oBall = 0;
+							$oIkat = 0;
+							$oKg = $d->qty;
+						}
+						($oBall == 0 ) ? $tBall = '' : $tBall = number_format($oBall,0,',','.');
+						($oIkat == 0 ) ? $tIkat = '' : $tIkat = number_format($oIkat,0,',','.');
+						($oKg == 0 ) ? $tKg = '' : $tKg = round($oKg,2);
+						$html .='<tr>
+							<td style="padding:6px;border:1px solid #000"></td>
+							<td style="padding:6px;border:1px solid #000;text-align:left">'.$d->nm_produk_lm.' '.$isiLm.'</td>
+							<td style="padding:6px;border:1px solid #000;text-align:right">'.$tBall.'</td>
+							<td style="padding:6px;border:1px solid #000;text-align:right">'.$tIkat.'</td>
+							<td style="padding:6px;border:1px solid #000;text-align:right"></td>
+							<td style="padding:6px;border:1px solid #000;text-align:right">'.$tKg.'</td>
+						</tr>';
+					}
+
+					$sumBall += $ball;
+					$sumIkat += $ikat;
+					$sumKg += $kg;
+				}
+				// TOTAL
+				$html .='<tr style="background:#5eafde">
+					<td style="padding:6px;border:1px solid #000;font-weight:bold" colspan="2">TOTAL</td>
+					<td style="padding:6px;border:1px solid #000;font-weight:bold;text-align:right">'.number_format($sumBall,0,',','.').'</td>
+					<td style="padding:6px;border:1px solid #000;font-weight:bold;text-align:right">'.number_format($sumIkat,0,',','.').'</td>
+					<td style="padding:6px;border:1px solid #000;font-weight:bold;text-align:right"></td>
+					<td style="padding:6px;border:1px solid #000;font-weight:bold;text-align:right">'.round($sumKg,2).'</td>
+				</tr>';
+			}
+			// $btn = '';
+		}
+
+		if($jenis == 'BARANG'){
+			$html .= 'BARANG';
+			// $btn = '';
+		}
+
+		$html .= '</table>';
+
+		if($opsi == 'laporan'){
+			$btn = '<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold;padding:8px 12px" href="'.base_url("Logistik/cariLaporanSJLaminasi?opsi=pdf&jenis=".$jenis."&pelanggan=".$pelanggan."&tgl1=".$tgl1."&tgl2=".$tgl2."").'"><i class="fas fa-file-pdf"></i> PDF</a>';
+			echo json_encode([
+				'html' => $html,
+				'pdf' => ($query->num_rows() == 0) ? '' : $btn,
+			]);
+		}else{
+			$judul = 'PER '.$jenis.' - '.$tgl1.' - '.$tgl2;
+			if($jenis == "HARI"){
+				$keras = 'L';
+			}else{
+				$keras = 'P';
+			}
+			$this->m_fungsi->newMpdf($judul, '', $html, 3, 7, 7, 7, $keras, 'A4', $judul.'.pdf');
+		}
+	}
+
 	////
 
 	function cariSJLaminasi()
