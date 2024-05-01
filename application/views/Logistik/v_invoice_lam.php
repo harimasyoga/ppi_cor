@@ -306,11 +306,12 @@
 										<td style="padding:6px 0" colspan="3">
 											<select id="plh-lap-cust" class="form-control select2">
 												<?php
-													$query = $this->db->query("SELECT id_pelanggan_lm,attn_lam_inv FROM invoice_laminasi_header GROUP BY id_pelanggan_lm,attn_lam_inv ORDER BY attn_lam_inv");
+													$query = $this->db->query("SELECT id_pelanggan_lm,attn_lam_inv FROM invoice_laminasi_header
+													GROUP BY id_pelanggan_lm,attn_lam_inv ORDER BY attn_lam_inv");
 													$html ='';
-													$html .='<option value="">SEMUA</option>';
+													$html .='<option value="" attn="">SEMUA</option>';
 													foreach($query->result() as $r){
-														$html .='<option value="'.$r->id_pelanggan_lm.'">'.$r->attn_lam_inv.'</option>';
+														$html .='<option value="'.$r->id_pelanggan_lm.'" attn="'.$r->attn_lam_inv.'">'.$r->id_pelanggan_lm.' | '.$r->attn_lam_inv.'</option>';
 													}
 													echo $html;
 												?>
@@ -1002,6 +1003,7 @@
 	function cariLaporanLaminasi(opsi) {
 		$(".btn-print-lap-lam-pdf").html("")
 		$(".cari-lap-laminasi").html("")
+		let attn = $('#plh-lap-cust option:selected').attr('attn')
 		let plh_cust = $("#plh-lap-cust").val()
 		let tgl1_lap = $("#tgl1_lap").val()
 		let tgl2_lap = $("#tgl2_lap").val()
@@ -1019,7 +1021,7 @@
 				});
 			},
 			data: ({
-				opsi, plh_cust, tgl1_lap, tgl2_lap
+				opsi, plh_cust, tgl1_lap, tgl2_lap, attn
 			}),
 			success: function(res){
 				data = JSON.parse(res)

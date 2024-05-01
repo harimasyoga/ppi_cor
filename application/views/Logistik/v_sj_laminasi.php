@@ -188,7 +188,7 @@
 													GROUP BY p.id_perusahaan,p.attn_pl
 													ORDER BY p.attn_pl");
 													$html ='';
-													$html .='<option value="">SEMUA</option>';
+													$html .='<option value="" attn="">SEMUA</option>';
 													foreach($query->result() as $r){
 														if($r->attn_pl == null){
 															$attn = $r->nm_pelanggan_lm;
@@ -199,7 +199,7 @@
 																$attn = $r->attn_pl.' ( '.$r->nm_pelanggan_lm.' )';
 															}
 														}
-														$html .='<option value="'.$r->id_perusahaan.'">'.$r->id_perusahaan.' || '.$attn.'</option>';
+														$html .='<option value="'.$r->id_perusahaan.'" attn="'.$r->attn_pl.'">'.$r->id_perusahaan.' | '.$attn.'</option>';
 													}
 													echo $html;
 												?>
@@ -344,6 +344,7 @@
 			$(".row-list-surat-jalan").show()
 			$(".row-list-rk").show()
 			$(".row-lap-sj-lam").hide()
+			kosong()
 		}
 	}
 
@@ -353,6 +354,8 @@
 		$(".btn-print-lap-lam-pdf").html("")
 		let plh_sj_jenis = $("#plh_sj_jenis").val()
 		let plh_sj_cust = $("#plh_sj_cust").val()
+		let nm_pelanggan = $('#plh_sj_cust option:selected').attr('nm-pelanggan')
+		let attn = $('#plh_sj_cust option:selected').attr('attn')
 		let tgl1_lap = $("#tgl1_lap").val()
 		let tgl2_lap = $("#tgl2_lap").val()
 		$.ajax({
@@ -369,7 +372,7 @@
 				});
 			},
 			data: ({
-				opsi, plh_sj_jenis, plh_sj_cust, tgl1_lap, tgl2_lap
+				opsi, plh_sj_jenis, plh_sj_cust, nm_pelanggan, attn, tgl1_lap, tgl2_lap
 			}),
 			success: function(res){
 				data = JSON.parse(res)
