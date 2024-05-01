@@ -22,7 +22,7 @@
 	<section class="content">
 		<div class="container-fluid">
 
-			<div class="row">
+			<div class="row row-list-surat-jalan">
 				<div class="col-md-6">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
@@ -32,7 +32,10 @@
 								<i class="fas fa-minus"></i></button>
 							</div>
 						</div>
-						<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
+						<div class="card-body" style="padding:12px 6px 6px">
+							<button type="button" class="btn btn-sm btn-danger" onclick="laporanSJLaminasi('laporan')"><i class="fas fa-file-alt"></i> <b>LAPORAN</b></button>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:6px">
 							<div class="col-md-3">TAHUN</div>
 							<div class="col-md-9">
 								<select class="form-control select2" id="plh-thn" onchange="load_data_sj()">
@@ -139,7 +142,7 @@
 				</div>
 			</div>
 
-			<div class="row">
+			<div class="row row-list-rk">
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
@@ -159,14 +162,15 @@
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">LAPORAN</h3>
 						</div>
-						<div class="card-body" style="padding:6px">
+						<div class="card-body" style="padding:12px 6px">
+							<button type="button" class="btn btn-sm btn-info" onclick="laporanSJLaminasi('list')"><i class="fas fa-list"></i> <b>LIST</b></button>
 							<div style="overflow:auto;white-space:nowrap">
 								<table style="font-weight:bold">
 									<tr>
 										<td style="padding:3px 0">JENIS LAPORAN</td>
 										<td style="padding:3px 10px">:</td>
 										<td style="padding:3px 0" colspan="3">
-											<select id="plh-sj-jenis" class="form-control select2">
+											<select id="plh_sj_jenis" class="form-control select2">
 												<option value="HARI">PER HARI</option>
 												<option value="CUSTOMER">PER CUSTOMER</option>
 												<option value="BARANG">PER BARANG</option>
@@ -177,13 +181,25 @@
 										<td style="padding:3px 0">CUSTOMER</td>
 										<td style="padding:3px 10px">:</td>
 										<td style="padding:3px 0" colspan="3">
-											<select id="plh-sj-cust" class="form-control select2">
+											<select id="plh_sj_cust" class="form-control select2">
 												<?php
-													$query = $this->db->query("SELECT id_pelanggan_lm,attn_lam_inv FROM invoice_laminasi_header GROUP BY id_pelanggan_lm,attn_lam_inv ORDER BY attn_lam_inv");
+													$query = $this->db->query("SELECT p.id_perusahaan,p.attn_pl,l.nm_pelanggan_lm FROM pl_laminasi p
+													INNER JOIN m_pelanggan_lm l ON p.id_perusahaan=l.id_pelanggan_lm
+													GROUP BY p.id_perusahaan,p.attn_pl
+													ORDER BY p.attn_pl");
 													$html ='';
-													$html .='<option value="">SEMUA</option>';
+													$html .='<option value="" attn="">SEMUA</option>';
 													foreach($query->result() as $r){
-														$html .='<option value="'.$r->id_pelanggan_lm.'">'.$r->attn_lam_inv.'</option>';
+														if($r->attn_pl == null){
+															$attn = $r->nm_pelanggan_lm;
+														}else{
+															if($r->attn_pl == $r->nm_pelanggan_lm){
+																$attn = $r->nm_pelanggan_lm;
+															}else{
+																$attn = $r->attn_pl.' ( '.$r->nm_pelanggan_lm.' )';
+															}
+														}
+														$html .='<option value="'.$r->id_perusahaan.'" attn="'.$r->attn_pl.'">'.$r->id_perusahaan.' | '.$attn.'</option>';
 													}
 													echo $html;
 												?>
@@ -194,20 +210,23 @@
 										<td style="padding:3px 0">TANGGAL SURAT JALAN</td>
 										<td style="padding:3px 10px">:</td>
 										<td style="padding:3px 0">
-											<input type="date" id="tgl1_lap" class="form-control">
+											<input type="date" id="tgl1_lap" class="form-control" value="<?= date("Y-m-d")?>">
 										</td>
 										<td style="padding:3px 10px">S/D</td>
 										<td style="padding:3px 0">
-											<input type="date" id="tgl2_lap" class="form-control">
+											<input type="date" id="tgl2_lap" class="form-control" value="<?= date("Y-m-d")?>">
 										</td>
 										<td style="padding:3px 10px">
-											<button type="button" class="btn btn-primary" onclick="cariLaporanLaminasi('laporan')"><i class="fas fa-search"></i></button>
+											<button type="button" class="btn btn-primary" onclick="cariLaporanSJLaminasi('laporan')"><i class="fas fa-search"></i></button>
 										</td>
 										<td style="padding:3px 10px">
 											<div class="btn-print-lap-lam-pdf"></div>
 										</td>
 									</tr>
 								</table>
+							</div>
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="tampil-list-laporan"></div>
 							</div>
 						</div>
 					</div>
@@ -310,6 +329,62 @@
 		listRencanKirim()
 		reloadTableSJ()
 	}
+
+	// LAPORAN
+
+	function laporanSJLaminasi(opsi)
+	{
+		$(".row-list-po").hide()
+		$(".row-input-rk").hide()
+		if(opsi == 'laporan'){
+			$(".row-list-surat-jalan").hide()
+			$(".row-list-rk").hide()
+			$(".row-lap-sj-lam").show()
+		}else{
+			$(".row-list-surat-jalan").show()
+			$(".row-list-rk").show()
+			$(".row-lap-sj-lam").hide()
+			kosong()
+		}
+	}
+
+	function cariLaporanSJLaminasi(opsi)
+	{
+		$(".tampil-list-laporan").html("")
+		$(".btn-print-lap-lam-pdf").html("")
+		let plh_sj_jenis = $("#plh_sj_jenis").val()
+		let plh_sj_cust = $("#plh_sj_cust").val()
+		let nm_pelanggan = $('#plh_sj_cust option:selected').attr('nm-pelanggan')
+		let attn = $('#plh_sj_cust option:selected').attr('attn')
+		let tgl1_lap = $("#tgl1_lap").val()
+		let tgl2_lap = $("#tgl2_lap").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/cariLaporanSJLaminasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				opsi, plh_sj_jenis, plh_sj_cust, nm_pelanggan, attn, tgl1_lap, tgl2_lap
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$(".tampil-list-laporan").html(data.html)
+				$(".btn-print-lap-lam-pdf").html(data.pdf)
+				swal.close()
+			}
+		})
+	}
+
+	// END LAPORAN
 
 	function addListPOLaminasi(id)
 	{
