@@ -12,6 +12,104 @@
       </div><!-- /.container-fluid -->
     </section>
 
+    <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Keuangan1'])){ ?>
+    <!-- REKAP JATUH TEMPO BAHAN -->
+    <!-- content2 -->
+
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <!-- /.col (LEFT) -->
+          <div class="col-md-12">
+            <div class="row">
+
+                  <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub'])){ ?>
+                    
+                    <div class="col-md-12 row-jatuh_tempo">
+                      <div class="card card-info card-outline">
+                        <div class="card-header">
+                          <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP JATUH TEMPO BAHAN</h3>
+                        </div>
+                        
+                        <!--  AA -->
+                        <div class="col-md-12">								
+                          <br>						
+                          <div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+                            <div class="col-md-2">PERIODE</div>
+                            <div class="col-md-3">
+                              <select class="form-control select2" name="priode" id="priode" style="width: 100%;" onchange="cek_periode(),load_data_jt_bhn()">
+                                <option value="all">ALL</option>
+                                <option value="custom">Custom</option>
+                              </select>
+                            </div>
+                            <div class="col-md-6"></div>
+                          </div>
+                          
+                          <div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="periode_pilih" >						
+                            <div class="col-md-2">Periode</div>
+                            <div class="col-md-3">
+                              <input type="date" class="form-control" name="tgl_awal" id="tgl_awal" onchange="load_data_jt_bhn()" value ="<?= date('Y-m-d') ?>">
+                              <input type="date" class="form-control" name="tgl_akhir" id="tgl_akhir" onchange="load_data_jt_bhn()" value ="<?= date('Y-m-d') ?>">
+                            </div>
+                            <div class="col-md-6"></div>
+                          </div>
+                          
+                          <div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+                            
+                            <div class="col-md-2">ATTN</div>
+                            <div class="col-md-3">
+                              <select class="form-control select2" name="id_hub2" id="id_hub2" style="width: 100%;" onchange="load_data_jt_bhn()">
+                              </select>
+                            </div>
+                            
+                            <div class="col-md-6"></div>
+                          </div>
+                          <br>
+                          <hr>
+                        </div>
+                        <!-- AA -->
+
+                          <div style="padding:0 10px 20px;">
+                            <div style="overflow:auto;white-space:nowrap" >
+                              <table id="load_data_jt_bhn" class="table table-bordered table-striped" width="100%">
+                                <thead class="color-tabel">
+                                  <tr>
+                                    <th style="width:5%">NO.</th>
+                                    <th style="width:45%">NO STOK</th>
+                                    <th style="width:45%">TGL</th>
+                                    <th style="width:45%">TGL JT</th>
+                                    <th style="width:40%">HUB</th>
+                                    <th style="width:40%">HARGA</th>
+                                    <th style="width:40%">TONASE</th>
+                                    <th style="width:40%">TOTAL BAYAR</th>
+                                    <th style="width:10%">AKSI</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                      </div>
+                    </div>
+                  <?php } ?>
+
+                <br>
+                <hr>
+                
+            </div>
+          </div>
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- /.content2 -->
+    <!-- END JATUH TEMPO BAHAN-->
+
+    <?php } ?>
+    
+
     <section class="content">
       <!-- RINCIAN STOK -->
       <div class="col-md-12 row-stok_rinci" style="display: none;">
@@ -117,7 +215,7 @@
                           <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP STOK BAHAN BAKU</h3>
                         </div>
                         <div class="card-body">
-                        <div class="row">
+                          <div class="row">
                             <div class="col-md-10">
                             </div>
 
@@ -226,7 +324,7 @@
                     <div class="col-md-12 row-jatuh_tempo">
                       <div class="card card-info card-outline">
                         <div class="card-header">
-                          <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP JATUH TEMPO</h3>
+                          <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP JATUH TEMPO PENJUALAN</h3>
                         </div>
                         <div class="card-body">
                           <div class="row">
@@ -280,18 +378,33 @@
       $(".select2").select2()
       load_data_hub()
       load_data_jt()
+      load_data_jt_bhn()
       load_list_bhn()
       load_cek_produk()
+      load_hub_bhn() 
     });
 
     function reloadTable() 
     {
       load_data_hub()
       load_data_jt()
+      load_data_jt_bhn()
       load_list_bhn()
       load_cek_produk()
+      load_hub_bhn() 
     }
 
+    function cek_periode()
+    {
+      $cek = $('#priode').val();
+
+    if($cek=='all' )
+        {
+          $('#periode_pilih').hide("1000");
+        }else{
+          $('#periode_pilih').show("1000");
+        }
+      }
     function load_data_hub()
     {
       var th_hub = $('#th_hub').val();
@@ -317,6 +430,75 @@
       })
     }
 
+    function load_data_jt_bhn() 
+    {
+      var id_hub    = $('#id_hub2').val()
+      var priode    = $('#priode').val()
+      var tgl_awal  = $('#tgl_awal').val()
+      var tgl_akhir = $('#tgl_akhir').val()
+      var table     = $('#load_data_jt_bhn').DataTable();
+
+      table.destroy();
+      tabel = $('#load_data_jt_bhn').DataTable({
+        "processing": true,
+        "pageLength": true,
+        "paging": true,
+        "ajax": {
+          "url": '<?php echo base_url(); ?>Master/rekap_jt_bhn',
+          "type": "POST",
+          "data" : ({
+            priode    : priode,
+            id_hub    : id_hub,
+            tgl_awal  : tgl_awal,
+            tgl_akhir : tgl_akhir
+          }),
+        },
+        responsive: false,
+        "pageLength": 10,
+        "language": {
+          "emptyTable": "Tidak ada data.."
+        }
+      });
+    }
+    
+    function load_hub_bhn() 
+    {
+      option = "";
+      $.ajax({
+        type       : 'POST',
+        url        : "<?= base_url(); ?>Logistik/load_hub",
+        // data       : { idp: pelanggan, kd: '' },
+        dataType   : 'json',
+        beforeSend: function() {
+          swal({
+          title: 'loading ...',
+          allowEscapeKey    : false,
+          allowOutsideClick : false,
+          onOpen: () => {
+            swal.showLoading();
+          }
+          })
+        },
+        success:function(data){			
+          if(data.message == "Success"){					
+            option = `<option value="">-- Pilih --</option>`;	
+
+            $.each(data.data, function(index, val) {
+            option += "<option value='"+val.id_hub+"'>"+val.nm_hub+"</option>";
+            });
+
+            $('#id_hub2').html(option);
+            swal.close();
+          }else{	
+            option += "<option value=''></option>";
+            $('#id_hub2').html(option);					
+            swal.close();
+          }
+        }
+      });
+      
+    }
+    
     function load_data_jt() 
     {
       var table = $('#load_data_jt').DataTable();

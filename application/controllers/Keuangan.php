@@ -13,6 +13,7 @@ class Keuangan extends CI_Controller
 		$this->load->model('m_master');
 		$this->load->model('m_laporan');
 		$this->load->model('m_fungsi');
+		$this->load->model('m_keuangan');
 	}
 
 	public function jurnal()
@@ -65,6 +66,16 @@ class Keuangan extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function insert_ju()
+	{
+		if($this->session->userdata('username'))
+		{ 
+			$result = $this->m_keuangan->save_ju();
+			echo json_encode($result);
+		}
+		
+	}
+
 	function load_rek()
     {
         $query = load_rek()->result();
@@ -109,6 +120,47 @@ class Keuangan extends CI_Controller
 				$row[] = '<div class="text-center">'.number_format($r->debet, 0, ",", ".").'</div>';
 				$row[] = '<div class="text-center">'.number_format($r->kredit, 0, ",", ".").'</div>';
 				$row[] = '<div class="text-center">'.$r->ket .'</div>';
+				$data[] = $row;
+
+				$i++;
+			}
+		}else if ($jenis == "jur_umum") {
+			$query = $this->db->query("SELECT no_voucher, tgl_transaksi,sum(debet)debet,sum(kredit)kredit,a.id_hub,b.nm_hub,ket from jurnal_d a
+			JOIN m_hub b ON a.id_hub=b.id_hub
+			where no_voucher like'%JURUM%'
+			group by no_voucher, tgl_transaksi,a.id_hub,ket
+			order by tgl_transaksi desc")->result();
+
+			$i               = 1;
+			foreach ($query as $r) 
+			{
+				$no_voucher    = "'$r->no_voucher'";
+
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<div class="text-center">'.$r->no_voucher.'</div>';
+				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_transaksi).'</div>';
+				$row[] = '<div class="text-center">'.$r->nm_hub.'</div>';
+				$row[] = '<div class="text-center">Rp '.number_format($r->debet, 0, ",", ".").'</div>';
+				$row[] = '<div class="text-center">Rp '.number_format($r->kredit, 0, ",", ".").'</div>';
+				$row[] = '<div class="text-center">'.$r->ket .'</div>';
+
+				$btncetak ='<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_inv_beli?no_voucher="."$r->no_voucher"."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>';
+
+				$btnEdit = '<a class="btn btn-sm btn-warning" onclick="edit_data(' . $no_voucher . ')" title="EDIT DATA" >
+				<b><i class="fa fa-edit"></i> </b></a>';
+
+				$btnHapus = '<button type="button" title="DELETE"  onclick="deleteData(' . $no_voucher.')" class="btn btn-danger btn-sm">
+				<i class="fa fa-trash-alt"></i></button> ';
+
+				if (in_array($this->session->userdata('level'), ['konsul_keu','User','Admin']))
+				{
+					$row[] = '<div class="text-center">'.$btnEdit.' '.$btncetak.' '.$btnHapus.'</div>';
+
+				}else{
+					$row[] = '<div class="text-center"></div>';
+				}
+
 				$data[] = $row;
 
 				$i++;
@@ -592,5 +644,92 @@ class Keuangan extends CI_Controller
 		$this->m_fungsi->template_kop('LAPORAN BUKU BESAR','-',$html,'L','1');
 	}
 
+	function load_data_1()
+	{
+		$id       = $this->input->post('id');
+		$no       = $this->input->post('no');
+		$jenis    = $this->input->post('jenis');
 
+		if($jenis=='edit_ju')
+		{ 
+			$queryh   = "SELECT no_voucher, tgl_transaksi,sum(debet)debet,sum(kredit)kredit,a.id_hub,b.nm_hub,ket from jurnal_d a
+			JOIN m_hub b ON a.id_hub=b.id_hub
+			where no_voucher ='$no'
+			group by no_voucher, tgl_transaksi,a.id_hub,ket
+			order by tgl_transaksi desc";
+			
+			$data_h   = $this->db->query($queryh)->row();
+
+			$queryd   = "SELECT * from jurnal_d a
+			JOIN m_hub b ON a.id_hub=b.id_hub
+			JOIN 
+			(SELECT*FROM(
+						select kd_akun as kd,nm_akun as nm,jenis,dk from m_kode_akun
+						union all
+						select concat(kd_akun,'.',kd_kelompok) as kd,nm_kelompok as nm,jenis,dk from m_kode_kelompok
+						union all
+						select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis) as kd,nm_jenis as nm,jenis,dk from m_kode_jenis
+						union all
+						select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci) as kd,nm_rinci as nm,jenis,dk from m_kode_rinci
+						)b )c
+			ON a.kode_rek=c.kd
+			where no_voucher ='$no'
+			order by id_jurnal";
+
+		}else{
+
+			$queryh   = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
+			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
+		}
+		
+
+		$header   = $this->db->query($queryh)->row();
+		$detail   = $this->db->query($queryd)->result();
+		$data     = ["header" => $header, "detail" => $detail];
+
+        echo json_encode($data);
+	}
+
+	function hapus()
+	{
+		$jenis    = $_POST['jenis'];
+		$field    = $_POST['field'];
+		$id       = $_POST['id'];
+
+		if ($jenis == "contoh") {
+			
+			$no_inv          = $_POST['no_inv'];
+			// ubah no pl
+			$query_cek = $this->db->query("SELECT*FROM invoice_detail where no_invoice ='$no_inv'")->result();
+
+			foreach( $query_cek as $row)
+			{
+				$db2 = $this->load->database('database_simroll', TRUE);
+
+				if($row->type=='roll'){
+					$update_no_pl   = $db2->query("UPDATE pl set no_pl_inv = 0 where id ='$row->id_pl'");					
+				}else{
+					$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 0 where id ='$row->id_pl'");					
+				}
+			}
+
+			if($update_no_pl)
+			{
+
+				$result          = $this->m_master->query("DELETE FROM invoice_header WHERE  $field = '$id'");
+
+				$result          = $this->m_master->query("DELETE FROM invoice_detail WHERE  no_invoice = '$no_inv'");
+
+				// delete stok
+				$result          = $this->m_master->query("DELETE FROM trs_stok_bahanbaku WHERE  no_transaksi = '$no_inv'");
+			}
+			
+			
+		} else {
+
+			$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");
+		}
+
+		echo json_encode($result);
+	}
 }
