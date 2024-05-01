@@ -1,5 +1,5 @@
 <?php
-class M_Keuangan extends CI_Model
+class M_keuangan extends CI_Model
 {
 
 	function __construct()
