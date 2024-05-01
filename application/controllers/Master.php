@@ -1210,6 +1210,72 @@ class Master extends CI_Controller
 		
 	}
 
+	function rekap_jt_bhn()
+	{
+		$priode       = $_POST['priode'];
+		$attn         = $_POST['id_hub'];
+		$tgl_awal     = $_POST['tgl_awal'];
+		$tgl_akhir    = $_POST['tgl_akhir'];
+
+		if($attn=='' || $attn== null || $attn== 'null')
+		{
+			if($priode=='all')
+			{
+				$value="";
+			}else{
+				$value="where a.tgl_j_tempo BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}
+
+		}else{
+			if($priode=='all')
+			{
+				$value="where b.id_hub='$attn' ";
+			}else{
+				$value="where b.id_hub='$attn' and a.tgl_j_tempo BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}
+
+		}
+
+		$data = array();
+
+		$query = $this->m_master->query("SELECT*from trs_h_stok_bb a
+		JOIN trs_d_stok_bb b on a.no_stok=b.no_stok
+		JOIN m_hub c ON b.id_hub=c.id_hub
+		JOIN trs_po_bhnbk d ON b.no_po_bhn = d.no_po_bhn
+		$value
+		order by tgl_j_tempo,a.no_stok ")->result();
+	
+		
+		$i = 1;
+
+		foreach ($query as $r) {
+			$row = array();
+			$row[] = "<div class='text-center'>".$i."</div>";
+			$row[] = $r->no_stok;
+			$row[] = "<div class='text-center'>".$r->tgl_stok."</div>";
+			$row[] = "<div class='text-center'>".$r->tgl_j_tempo."</div>";
+			$row[] = $r->nm_hub;
+			$row[] = "Rp ".number_format($r->hrg_bhn,0,',','.');
+			$row[] = number_format($r->datang_bhn_bk,0,',','.')." Kg";
+			$row[] = "Rp ".number_format($r->hrg_bhn*$r->datang_bhn_bk,0,',','.');
+
+			// $idSales = $r->id;
+			// $cekPO = $this->db->query("SELECT COUNT(c.id_sales) AS jmlSales FROM trs_po p INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+			// WHERE c.id_sales='$idSales' GROUP BY c.id_sales")->num_rows();
+			$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->no_stok."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
+			// $row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit;
+			$row[] = $btnEdit;
+			$data[] = $row;
+			$i++;
+		}
+
+		$output = array(
+			"data" => $data,
+		);
+		//output to json format
+		echo json_encode($output);
+	}
+	
 	function rekap_jt()
 	{
 		$jenis = $this->uri->segment(3);
