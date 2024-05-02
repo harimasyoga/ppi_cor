@@ -628,4 +628,39 @@
 			}
 		})
 	}
+
+	function insertSuratJalanJasa(no_surat)
+	{
+		console.log(no_surat)
+		$.ajax({
+			url: '<?php echo base_url('Logistik/insertSuratJalanJasa')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				no_surat
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				let url = '<?php echo base_url('Logistik/suratJalanJasa') ?>'
+				if(data.insert){
+					toastr.success(`<b>BERHASIL! ${data.no_jasa}</b>`);
+					window.open(url+'?jenis='+data.no_jasa+'&top=5&ctk=0', '_blank');
+					swal.close()
+				}else{
+					window.open(url+'?jenis='+data.no_jasa+'&top=5&ctk=0', '_blank');
+					swal.close()
+				}
+			}
+		})
+	}
 </script>

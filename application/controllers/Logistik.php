@@ -6654,7 +6654,7 @@ class Logistik extends CI_Controller
 
 			($r->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
 			$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$r->no_surat."&top=".$jarak."&ctk=0").'" title="'.$r->no_surat.'" >PRINT</a>';
-			($r->id_hub != 7) ? $btnJasa = '<a target="_blank" class="btn btn-xs btn-primary" style="font-weight:bold" href="'.base_url("Logistik/suratJalanJasa?jenis=".$r->no_surat."&top=5&ctk=0").'" title="SJ JASA" >JASA</a>' : $btnJasa = '';
+			($r->id_hub != 7) ? $btnJasa = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" title="SJ JASA" onclick="insertSuratJalanJasa('."'".$r->no_surat."'".')">JASA</button>' : $btnJasa = '';
 
 			$no_surat = explode("/", $r->no_surat);
 			if($no_surat[0] == 000){
@@ -6760,7 +6760,7 @@ class Logistik extends CI_Controller
 						}
 
 						if($sjpo->id_hub != 7){
-							$btnJasa = '<a target="_blank" class="btn btn-xs btn-primary" style="font-weight:bold" href="'.base_url("Logistik/suratJalanJasa?jenis=".$sjpo->no_surat."&top=5&ctk=0").'" title="SJ JASA" >JASA</a>';
+							$btnJasa = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" title="SJ JASA" onclick="insertSuratJalanJasa('."'".$sjpo->no_surat."'".')">JASA</button>';
 						}else{
 							$btnJasa = '';
 						}
@@ -6845,6 +6845,12 @@ class Logistik extends CI_Controller
 			$html .='</table>';
 		}
 		echo $html;
+	}
+
+	function insertSuratJalanJasa()
+	{
+		$result = $this->m_logistik->insertSuratJalanJasa();
+		echo json_encode($result);
 	}
 
 	function btnBatalPengiriman()
@@ -7373,15 +7379,16 @@ class Logistik extends CI_Controller
 				<th style="padding:5px 0;text-align:left">DUSUN TIMANG KULON, DESA WONOKERTO, KEC. WONOGIRI, KAB. WONOGIRI</th>
 			</tr>
 			<tr>
-				<th style="padding:5px 0;text-align:left">WONOGIRI - JAWA TENGAH - INDONESIA. KODE POS 57615</th>
+				<th style="padding:5px 0 10px;text-align:left">WONOGIRI - JAWA TENGAH - INDONESIA. KODE POS 57615</th>
 			</tr>
 		</table>';
 
-		$header = $this->db->query("SELECT h.id_hub,h.nm_hub,h.alamat AS alamat_hub,b.nm_pelanggan,b.attn,b.alamat_kirim,a.* FROM pl_box a
+		$header = $this->db->query("SELECT h.id_hub,h.nm_hub,h.alamat AS alamat_hub,b.nm_pelanggan,b.attn,b.alamat_kirim,a.*,s.* FROM m_jasa s
+		INNER JOIN pl_box a ON a.no_surat=s.no_surat
 		INNER JOIN m_pelanggan b ON a.id_perusahaan=b.id_pelanggan
 		LEFT JOIN m_hub h ON a.id_hub=h.id_hub
-		WHERE a.no_surat='$jenis'
-		GROUP BY a.no_surat")->row();
+		WHERE s.no_jasa='$jenis'
+		GROUP BY s.no_jasa;")->row();
 
 		// DETAIL
 		$html .= '<table style="margin:0 0 5px;padding:0;border-top:2px solid #000;font-size:12px;vertical-align:top;border-collapse:collapse;color:#000;font-family:tahoma;width:100%">
@@ -7399,7 +7406,7 @@ class Logistik extends CI_Controller
 			<tr>
 				<td style="padding:5px 0">TANGGAL</td>
 				<td style="text-align:center;padding:5px 0">:</td>
-				<td style="padding:5px 0">'.$header->tgl.'</td>
+				<td style="padding:5px 0">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($header->tgl)).'</td>
 				<td style="padding:5px 0">KEPADA</td>
 				<td style="text-align:center;padding:5px 0">:</td>
 				<td style="padding:5px 0">CV. '.$header->nm_hub.'</td>
@@ -7407,7 +7414,7 @@ class Logistik extends CI_Controller
 			<tr>
 				<td style="padding:5px 0">NO. SURAT</td>
 				<td style="text-align:center;padding:5px 0">:</td>
-				<td style="padding:5px 0">'.$header->no_surat.'</td>
+				<td style="padding:5px 0">'.$header->no_jasa.'</td>
 				<td style="padding:5px 0">ATTN</td>
 				<td style="text-align:center;padding:5px 0">:</td>
 				<td style="padding:5px 0">'.$header->attn.'</td>
@@ -7418,7 +7425,7 @@ class Logistik extends CI_Controller
 				<td style="padding:5px 0"></td>
 				<td style="padding:5px 0">ALAMAT</td>
 				<td style="text-align:center;padding:5px 0">:</td>
-				<td style="padding:5px 0">'.$header->alamat_hub.'</td>
+				<td style="padding:5px 0">'.strtoupper($header->alamat_hub).'</td>
 			</tr>
 		</table>';
 
@@ -7441,10 +7448,10 @@ class Logistik extends CI_Controller
 			</tr>';
 
 			// AMBIL DATA
-			$detail = $this->db->query("SELECT r.*,p.*,i.*,SUM(r.qty_muat) AS muat FROM m_rencana_kirim r
-			INNER JOIN pl_box p ON r.id_pl_box=p.id
+			$detail = $this->db->query("SELECT r.*,j.*,i.*,SUM(r.qty_muat) AS muat FROM m_rencana_kirim r
+			INNER JOIN m_jasa j ON j.urut=r.rk_urut AND j.id_pl_box=r.id_pl_box
 			INNER JOIN m_produk i ON r.id_produk=i.id_produk
-			WHERE p.no_surat='$jenis'
+			WHERE j.no_jasa='$jenis'
 			GROUP BY r.id_pelanggan,r.id_produk,r.rk_kode_po");
 			$no = 0;
 			$sumQty = 0;
@@ -7497,7 +7504,7 @@ class Logistik extends CI_Controller
 
 		$html .='</table>';
 
-		$judul = 'SURAT JALAN JASA';
+		$judul = $jenis;
 		if($ctk == '0'){
 			$this->m_fungsi->newMpdf($judul, '', $html, $top, 5, 1, 5, 'P', 'A4', $judul.'.pdf');
 		}else{
