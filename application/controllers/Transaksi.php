@@ -284,7 +284,13 @@ class Transaksi extends CI_Controller
 	function loadDataHPP()
 	{
 		$data = [];
-		$query = $this->db->query("SELECT*FROM m_hpp ORDER BY id_hpp DESC")->result();
+		$periode_hpp = $_POST["periode_hpp"];
+		if($periode_hpp == ""){
+			$rentang = "";
+		}else{
+			$rentang = "WHERE rentang_hpp='$periode_hpp'";
+		}
+		$query = $this->db->query("SELECT*FROM m_hpp $rentang ORDER BY id_hpp DESC")->result();
 		$i = 0;
 		foreach ($query as $r) {
 			$i++;
@@ -293,9 +299,8 @@ class Transaksi extends CI_Controller
 			if($r->rentang_hpp == 'TAHUN'){
 				$rentang = $r->tahun_hpp;
 			}else if($r->rentang_hpp == 'BULAN'){
-				$rentang = strtoupper($this->m_fungsi->getBulan($r->bulan_hpp));
+				$rentang = strtoupper($this->m_fungsi->getBulan($r->bulan_hpp)).' <span style="vertical-align:top;font-size:12px">( '.substr($r->tahun_hpp,2,2).' )</span>';
 			}else{
-				// strtoupper($this->m_fungsi->getHariIni($r->tgl_hpp))
 				$rentang = strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_hpp));
 			}
 			$row[] = '<div><a href="javascript:void(0)" style="color:#212529" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')">'.$r->rentang_hpp.'</a></div>';

@@ -73,7 +73,7 @@
 								</div>
 								<div class="pilih-rentang-bulan" style="display:none">
 									<select id="rentang_bulan" class="form-control select2" onchange="pilihHPP()">
-										<option value="">PILIH</option>
+										<option value="">PILIH BULAN</option>
 										<option value="1">JANUARI</option>
 										<option value="2">FEBRUARI</option>
 										<option value="3">MARET</option>
@@ -87,6 +87,23 @@
 										<option value="11">NOVEMBER</option>
 										<option value="12">DESEMBER</option>
 									</select>
+									<div style="margin-top:6px">
+										<select id="rentang_bulan_tahun" class="form-control select2" onchange="pilihHPP()">
+											<option value="">PILIH TAHUN</option>
+											<?php
+											$thang = date("Y");
+											$thang_maks = $thang;
+											$thang_min = $thang - 4;
+											for ($th = $thang_min; $th <= $thang_maks; $th++)
+											{ ?>
+												<?php if ($th==$thang) { ?>
+													<option value="<?= $th ?>"> <?= $thang ?> </option>
+												<?php }else{ ?>
+													<option value="<?= $th ?>"> <?= $th ?> </option>
+												<?php }
+											} ?>
+										</select>
+									</div>
 								</div>
 								<div class="pilih-rentang-tanggal" style="display:none">
 									<input type="date" id="rentang_tanggal" class="form-control" onchange="pilihHPP()">
@@ -1812,6 +1829,17 @@
 									<button type="button" class="btn btn-sm btn-info" onclick="addHPP()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								</div>
 							<?php } ?>
+							<div class="card-body row" style="padding:0 0 12px;font-weight:bold">
+								<div class="col-md-2">
+									<select id="periode_hpp" class="form-control select2" onchange="load_data()">
+										<option value="">SEMUA</option>
+										<option value="TANGGAL">PER TANGGAL</option>
+										<option value="BULAN">PER BULAN</option>
+										<option value="TAHUN">PER TAHUN</option>
+									</select>
+								</div>
+								<div class="col-md-10"></div>
+							</div>
 							<div style="overflow:auto;white-space:nowrap">
 								<table id="datatable" class="table table-bordered table-striped">
 									<thead>
@@ -1856,6 +1884,7 @@
 	}
 
 	function load_data() {
+		let periode_hpp = $("#periode_hpp").val()
 		let table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -1865,6 +1894,7 @@
 			"ajax": {
 				"url": '<?php echo base_url('Transaksi/LoadDataHPP')?>',
 				"type": "POST",
+				"data": ({ periode_hpp }),
 			},
 			"aLengthMenu": [
 				[5, 10, 15, 20, -1],
@@ -1891,11 +1921,13 @@
 		$(".update-keterangan-upah-lam").html('')
 		$(".update-keterangan-dll-lam").html('')
 
+		$("#periode_hpp").val("").trigger('change')
 		$("#pilih_hpp").val("").prop('disabled', false).trigger('change')
 		
 		$("#rentang").val("").prop('disabled', true).trigger('change')
 		$("#rentang_tahun").val("").trigger('change')
 		$("#rentang_bulan").val("").trigger('change')
+		$("#rentang_bulan_tahun").val("").trigger('change')
 		$("#rentang_tanggal").val("")
 		$(".pilih-rentang-tahun").hide()
 		$(".pilih-rentang-bulan").hide()
@@ -2215,11 +2247,14 @@
 			$(".pilih-rentang-bulan").show()
 			$(".pilih-rentang-tanggal").hide()
 			let rentang_bulan = $("#rentang_bulan").val()
-			if(rentang_bulan == ''){
+			let rentang_bulan_tahun = $("#rentang_bulan_tahun").val()
+			if(rentang_bulan == '' || rentang_bulan_tahun == ''){
 				$("#rentang_bulan").prop('disabled', false)
+				$("#rentang_bulan_tahun").prop('disabled', false)
 				$("#jenis_hpp").prop('disabled', true)
 			}else{
 				$("#rentang_bulan").prop('disabled', true)
+				$("#rentang_bulan_tahun").prop('disabled', true)
 				$("#jenis_hpp").prop('disabled', false)
 			}
 		}else if(rentang == "TANGGAL"){
@@ -2923,6 +2958,7 @@
 		let rentang = $("#rentang").val()
 		let rentang_tahun = $("#rentang_tahun").val()
 		let rentang_bulan = $("#rentang_bulan").val()
+		let rentang_bulan_tahun = $("#rentang_bulan_tahun").val()
 		let rentang_tanggal = $("#rentang_tanggal").val()
 		let jenis_hpp = $("#jenis_hpp").val()
 
@@ -3052,7 +3088,7 @@
 				});
 			},
 			data: ({
-				id_hpp, pilih_id_hpp, pilih_hpp, rentang, rentang_tahun, rentang_bulan, rentang_tanggal, jenis_hpp, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonase, fix_hpp_aktual, hxt_x_persen, presentase, hasil_hpp_tanpa_bb, hpp_pm, hpp_sheet, hpp_plus_plus, hasil_x_tonase_tanpa_bb, fix_hpp, statusInput
+				id_hpp, pilih_id_hpp, pilih_hpp, rentang, rentang_tahun, rentang_bulan, rentang_bulan_tahun, rentang_tanggal, jenis_hpp, bahan_baku_kg, bahan_baku_rp, bahan_baku_x, tenaga_kerja, upah, thr, listrik, batu_bara_kg, batu_bara_rp, batu_bara_x, chemical_kg, chemical_rp, chemical_x, bahan_pembantu, solar, biaya_pemeliharaan, ekspedisi, depresiasi, lain_lain_kg, lain_lain_rp, hasil_hpp, tonase_order, hasil_x_tonase, fix_hpp_aktual, hxt_x_persen, presentase, hasil_hpp_tanpa_bb, hpp_pm, hpp_sheet, hpp_plus_plus, hasil_x_tonase_tanpa_bb, fix_hpp, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -3112,6 +3148,7 @@
 					$("#rentang_tahun").val(data.data.tahun_hpp).prop('disabled', true).trigger("change")
 				}else if(data.data.rentang_hpp == "BULAN"){
 					$("#rentang_bulan").val(data.data.bulan_hpp).prop('disabled', true).trigger("change")
+					$("#rentang_bulan_tahun").val(data.data.tahun_hpp).prop('disabled', true).trigger("change")
 				}else if(data.data.rentang_hpp == "TANGGAL"){
 					$("#rentang_tanggal").val(data.data.tgl_hpp).prop('disabled', true).trigger("change")
 				}
@@ -3376,24 +3413,33 @@
 
 	function hapusHPP(id_hpp)
 	{
-		$.ajax({
-			url: '<?php echo base_url('Transaksi/hapusHPP')?>',
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
-			data: ({ id_hpp }),
-			success: function(res){
-				data = JSON.parse(res)
-				kembaliHPP()
-			}
-		})
+		swal({
+			title: "Apakah Kamu Yakin?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#C00",
+			confirmButtonText: "Delete"
+		}).then(function(result) {
+			$.ajax({
+				url: '<?php echo base_url('Transaksi/hapusHPP')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({ id_hpp }),
+				success: function(res){
+					data = JSON.parse(res)
+					kembaliHPP()
+				}
+			})
+		});
 	}
 </script>
