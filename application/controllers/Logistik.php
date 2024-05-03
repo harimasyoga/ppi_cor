@@ -878,9 +878,12 @@ class Logistik extends CI_Controller
 	}
 
 	function SJ_Laminasi()
-	{
+	{ // 
 		$no_surat = $_GET["no"];
 		$html = '';
+
+		// UPDATE CETAK
+		$this->db->query("UPDATE pl_laminasi SET cetak_sj='acc' WHERE no_surat='$no_surat'");
 
 		$pl = $this->db->query("SELECT*FROM pl_laminasi l
 		INNER JOIN m_pelanggan_lm p ON l.id_perusahaan=p.id_pelanggan_lm

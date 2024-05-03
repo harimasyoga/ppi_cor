@@ -142,6 +142,20 @@
 				</div>
 			</div>
 
+			<!-- <div class="row row-list-edit-sj-lam">
+				<div class="col-md-12">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">EDIT SURAT JALAN</h3>
+						</div>
+						<div class="card-body" style="padding:6px">
+							<input type="hidden" id="h_header_po_lm" value="">
+							<div class="list-edit-sj-lam" style="overflow:auto;white-space:nowrap"></div>
+						</div>
+					</div>
+				</div>
+			</div> -->
+
 			<div class="row row-list-rk">
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline">
@@ -412,22 +426,32 @@
 		})
 	}
 
-	function closePOLaminasi(id)
+	function closePOLaminasi(id, no_po_lm)
 	{
-		$.ajax({
-			url: '<?php echo base_url('Logistik/closePOLaminasi')?>',
-			type: "POST",
-			data: ({ id }),
-			success: function(res){
-				data = JSON.parse(res)
-				if(data.data){
-					$(".row-list-po").hide()
-					$(".list-po-sj-laminasi").html('')
-					toastr.success(`<b>BERHASIL CLOSE PO ${data.po_lm.no_po_lm}!</b>`)
-					reloadTable()
+		swal({
+			title: "Yakin Close PO Ini?",
+			text: no_po_lm,
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#C00",
+			confirmButtonText: "Close",
+			cancelButtonText: "Batal"
+		}).then(function(result) {
+			$.ajax({
+				url: '<?php echo base_url('Logistik/closePOLaminasi')?>',
+				type: "POST",
+				data: ({ id }),
+				success: function(res){
+					data = JSON.parse(res)
+					if(data.data){
+						$(".row-list-po").hide()
+						$(".list-po-sj-laminasi").html('')
+						toastr.success(`<b>BERHASIL CLOSE PO ${data.po_lm.no_po_lm}!</b>`)
+						reloadTable()
+					}
 				}
-			}
-		})
+			})
+		});
 	}
 
 	// LIST PO
