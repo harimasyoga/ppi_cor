@@ -91,12 +91,15 @@
 							<div class="col-md-3">PILIHAN BANK</div>
 							<div class="col-md-9">
 								<select id="pilihan_bank" class="form-control select2">
-									<option value="">PILIH</option>
-									<option value="7">BCA PT. PRIMA PAPER INDOENSIA</option>
-									<option value="IHI">BCA IMAN HARTONO IR</option>
-									<option value="ADM">BCA CV. ANUGERAH DUTA MANDIRI</option>
-									<option value="5">BCA CV. JAYA SETIA KEMASAN</option>
-									<option value="6">BCA CV. KEMASAN SENTOSA MULIA</option>
+									<?php
+										$query = $this->db->query("SELECT*FROM m_no_rek_lam ORDER BY id");
+										$html ='';
+										$html .='<option value="">PILIH</option>';
+										foreach($query->result() as $r){
+											$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
+										}
+										echo $html;
+									?>
 								</select>
 							</div>
 						</div>

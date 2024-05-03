@@ -988,6 +988,43 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function insertSuratJalanJasa()
+	{
+		$no_surat = $_POST["no_surat"];
+		
+		// CEK
+		$cek = $this->db->query("SELECT*FROM m_jasa WHERE no_surat='$no_surat'");
+		// GET DATA PL
+		$pl = $this->db->query("SELECT*FROM pl_box WHERE no_surat='$no_surat' GROUP BY no_surat")->row();
+		if($cek->num_rows() == 0){
+			$no = explode('/',$no_surat);
+			$tahun = $no[3];
+			$db_jasa = $this->db->query("SELECT*FROM m_jasa WHERE no_jasa LIKE '%/$tahun'")->num_rows();
+			$jasa = str_pad($db_jasa+1, 3, "0", STR_PAD_LEFT);
+			$no_jasa = 'JASA/'.$jasa.'/PPI'.'/'.$no[2].'/'.$tahun;
+			$data = array(
+				'no_surat' => $no_surat,
+				'tgl' => $pl->tgl,
+				'no_po' => $pl->no_po,
+				'no_jasa' => $no_jasa,
+				'urut' => $pl->no_pl_urut,
+				'id_pl_box' => $pl->id ,
+			);
+			$insert = $this->db->insert('m_jasa', $data);
+		}else{
+			$data = false;
+			$insert = false;
+			// GET DATA
+			$no_jasa = $this->db->query("SELECT*FROM m_jasa WHERE no_surat='$no_surat' LIMIT 1")->row()->no_jasa;
+		}
+
+		return [
+			'insert' => $insert,
+			'data' => $data,
+			'no_jasa' => $no_jasa,
+		];
+	}
+
 	//
 
 	function simpanCartLaminasi()

@@ -1114,10 +1114,19 @@ class M_transaksi extends CI_Model
 	function simpanHPP()
 	{
 		$statusInput = $_POST["statusInput"];
+		$rentang_tahun = $_POST["rentang_tahun"];
+		$rentang_bulan = $_POST["rentang_bulan"];
+		$rentang_bulan_tahun = $_POST["rentang_bulan_tahun"];
+		if($rentang_bulan != "" && $rentang_bulan_tahun != ""){
+			$tahunHPP = $rentang_bulan_tahun;
+		}else{
+			($rentang_tahun == "") ? $tahunHPP = null : $tahunHPP = $rentang_tahun;
+		}
+
 		$data = [
 			'pilih_hpp' => $_POST["pilih_hpp"],
 			'rentang_hpp' => $_POST["rentang"],
-			'tahun_hpp' => ($_POST["rentang_tahun"] == "") ? null : $_POST["rentang_tahun"],
+			'tahun_hpp' => $tahunHPP,
 			'bulan_hpp' => ($_POST["rentang_bulan"] == "") ? null : $_POST["rentang_bulan"],
 			'tgl_hpp' => ($_POST["rentang_tanggal"] == "") ? null : $_POST["rentang_tanggal"],
 			'jenis_hpp' => $_POST["jenis_hpp"],
@@ -1166,17 +1175,15 @@ class M_transaksi extends CI_Model
 			$pilih_id_hpp = $_POST["pilih_id_hpp"];
 			$rentang = $_POST["rentang"];
 			$jenis_hpp = $_POST["jenis_hpp"];
-			$rentang_tahun = $_POST["rentang_tahun"];
-			$rentang_bulan = $_POST["rentang_bulan"];
 			$rentang_tanggal = $_POST["rentang_tanggal"];
 			if($rentang == 'TAHUN'){
 				$periode = "AND tahun_hpp='$rentang_tahun'";
 			}else if($rentang == 'BULAN'){
-				$periode = "AND bulan_hpp='$rentang_bulan'";
+				$periode = "AND bulan_hpp='$rentang_bulan' AND tahun_hpp='$rentang_bulan_tahun'";
 			}else{
 				$periode = "AND tgl_hpp='$rentang_tanggal'";
 			}
-			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND rentang_hpp='$rentang' $periode AND jenis_hpp='$jenis_hpp'")->num_rows();
+			$cek = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND jenis_hpp='$jenis_hpp' AND rentang_hpp='$rentang' $periode")->num_rows();
 
 			if($statusInput == 'insert'){
 				if($cek == 0){
@@ -1186,7 +1193,7 @@ class M_transaksi extends CI_Model
 					// CART
 					if($insertHPP){
 						// UPDATE CEK
-						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND rentang_hpp='$rentang' $periode AND jenis_hpp='$jenis_hpp'")->row();
+						$get = $this->db->query("SELECT*FROM m_hpp WHERE pilih_hpp='$pilih_hpp' AND jenis_hpp='$jenis_hpp' AND rentang_hpp='$rentang' $periode")->row();
 						if($pilih_hpp != 'PM2'){
 							$this->db->set('edit_time', date('Y-m-d H:i:s'));
 							$this->db->set('edit_user', $this->username);
