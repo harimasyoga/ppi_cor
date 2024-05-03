@@ -1257,23 +1257,59 @@ class Master extends CI_Controller
 			$row[] = $r->nm_hub;
 			$row[] = "Rp ".number_format($r->hrg_bhn,0,',','.');
 			$row[] = number_format($r->datang_bhn_bk,0,',','.')." Kg";
-			$row[] = "Rp ".number_format($r->hrg_bhn*$r->datang_bhn_bk,0,',','.');
+			$row[] = "<div style='font-weight:bold;' class='text-right'> Rp ".number_format($r->hrg_bhn*$r->datang_bhn_bk,0,',','.')."</div>";
 
 			// $idSales = $r->id;
 			// $cekPO = $this->db->query("SELECT COUNT(c.id_sales) AS jmlSales FROM trs_po p INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 			// WHERE c.id_sales='$idSales' GROUP BY c.id_sales")->num_rows();
 			$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->no_stok."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
 			// $row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit;
-			$row[] = $btnEdit;
+			// $row[] = $btnEdit;
 			$data[] = $row;
 			$i++;
 		}
-
 		$output = array(
 			"data" => $data,
 		);
 		//output to json format
 		echo json_encode($output);
+	}
+	
+	function rekap_all_jt_bahan()
+	{
+		$priode       = $_POST['priode'];
+		$attn         = $_POST['id_hub'];
+		$tgl_awal     = $_POST['tgl_awal'];
+		$tgl_akhir    = $_POST['tgl_akhir'];
+
+		if($attn=='' || $attn== null || $attn== 'null')
+		{
+			if($priode=='all')
+			{
+				$value="";
+			}else{
+				$value="where a.tgl_j_tempo BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}
+
+		}else{
+			if($priode=='all')
+			{
+				$value="where b.id_hub='$attn' ";
+			}else{
+				$value="where b.id_hub='$attn' and a.tgl_j_tempo BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}
+
+		}
+		$rekap_jumlah = $this->m_master->query("SELECT IFNULL(sum(hrg_bhn*datang_bhn_bk),0)jumlah from trs_h_stok_bb a
+				JOIN trs_d_stok_bb b on a.no_stok=b.no_stok
+				JOIN m_hub c ON b.id_hub=c.id_hub
+				JOIN trs_po_bhnbk d ON b.no_po_bhn = d.no_po_bhn
+				$value
+				order by tgl_j_tempo,a.no_stok ")->row();
+
+		$data     = ["rekap_jumlah" => $rekap_jumlah];
+
+        echo json_encode($data);
 	}
 	
 	function rekap_jt()
@@ -1329,7 +1365,7 @@ class Master extends CI_Controller
 		(select sum(masuk)masuk from trs_stok_bahanbaku b where b.jenis='PPI' group by jenis)masuk,
 		(select sum(keluar)keluar from trs_stok_bahanbaku b where b.jenis='PPI' group by jenis)keluar,
 		(select sum(masuk-keluar)stok_akhir from trs_stok_bahanbaku b where b.jenis='PPI' group by jenis)stok_akhir,
-		'0' as id_hub, 'PPI' as pimpinan, 'PPI' as nm_hub, 'PPI' as aka, '-' as alamat, '-' as kode_pos, '-' as no_telp, '-' as fax, '-' as add_time, '-' as add_user, '-' as edit_time, '-' as edit_user FROM m_hub e limit 1) as ppi
+		'0' as id_hub, 'PPI' as pimpinan, 'PPI' as nm_hub, 'PPI' as aka, ''no_rek,'-' as alamat, '-' as kode_pos, '-' as no_telp, '-' as fax, '-' as add_time, '-' as add_user, '-' as edit_time, '-' as edit_user FROM m_hub e limit 1) as ppi
 
 		UNION ALL
 

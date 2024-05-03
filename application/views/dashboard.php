@@ -42,28 +42,30 @@
                                 <option value="custom">Custom</option>
                               </select>
                             </div>
-                            <div class="col-md-6"></div>
-                          </div>
-                          
-                          <div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="periode_pilih" >						
-                            <div class="col-md-2">Periode</div>
-                            <div class="col-md-3">
-                              <input type="date" class="form-control" name="tgl_awal" id="tgl_awal" onchange="load_data_jt_bhn()" value ="<?= date('Y-m-d') ?>">
-                              <input type="date" class="form-control" name="tgl_akhir" id="tgl_akhir" onchange="load_data_jt_bhn()" value ="<?= date('Y-m-d') ?>">
-                            </div>
-                            <div class="col-md-6"></div>
-                          </div>
-                          
-                          <div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
-                            
+                            <div class="col-md-1"></div>
                             <div class="col-md-2">ATTN</div>
                             <div class="col-md-3">
                               <select class="form-control select2" name="id_hub2" id="id_hub2" style="width: 100%;" onchange="load_data_jt_bhn()">
                               </select>
                             </div>
-                            
+                          </div>
+                          
+                          <div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="tgl_awal_list" >						
+                            <div class="col-md-2">Tgl Awal</div>
+                            <div class="col-md-3">
+                              <input type="date" class="form-control" name="tgl_awal" id="tgl_awal" onchange="load_data_jt_bhn()" value ="<?= date('Y-m-d') ?>">
+                            </div>
                             <div class="col-md-6"></div>
                           </div>
+
+                          <div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="tgl_akhir_list" >						
+                            <div class="col-md-2">Tgl Akhir</div>
+                            <div class="col-md-3">
+                              <input type="date" class="form-control" name="tgl_akhir" id="tgl_akhir" onchange="load_data_jt_bhn()" value ="<?= date('Y-m-d') ?>">
+                            </div>
+                            <div class="col-md-6"></div>
+                          </div>
+                          
                           <br>
                           <hr>
                         </div>
@@ -82,11 +84,25 @@
                                     <th style="width:40%">HARGA</th>
                                     <th style="width:40%">TONASE</th>
                                     <th style="width:40%">TOTAL BAYAR</th>
-                                    <th style="width:10%">AKSI</th>
+                                    <!-- <th style="width:10%">AKSI</th> -->
                                   </tr>
                                 </thead>
                                 <tbody>
                                 </tbody>
+                                <tfoot>
+                                  <tr>
+                                    <td colspan="7" class="text-right">
+                                      <label for="total">TOTAL</label>
+                                    </td>	
+                                    <td>
+                                      <div class="input-group mb-1 text-right" style="font-weight:bold;color:red">
+                                        <!-- <input type="text" size="5" name="total_nom" id="total_nom" style="font-weight:bold;color:red" class="angka form-control text-right" value='0' readonly> -->
+                                        <span id="total_all_inv_bhn"></span>
+                                      </div>
+                                      
+                                    </td>	
+                                  </tr>
+                                </tfoot>
                               </table>
                             </div>
                           </div>
@@ -400,9 +416,11 @@
 
     if($cek=='all' )
         {
-          $('#periode_pilih').hide("1000");
+          $('#tgl_awal_list').hide("1000");
+          $('#tgl_akhir_list').hide("1000");
         }else{
-          $('#periode_pilih').show("1000");
+          $('#tgl_awal_list').show("1000");
+          $('#tgl_akhir_list').show("1000");
         }
       }
     function load_data_hub()
@@ -457,6 +475,57 @@
         "pageLength": 10,
         "language": {
           "emptyTable": "Tidak ada data.."
+        }
+      });
+      total_jt_bhn()
+    }
+
+    function total_jt_bhn()
+    {
+
+      var id_hub    = $('#id_hub2').val()
+      var priode    = $('#priode').val()
+      var tgl_awal  = $('#tgl_awal').val()
+      var tgl_akhir = $('#tgl_akhir').val()
+      var table     = $('#load_data_jt_bhn').DataTable();
+
+      $.ajax({
+        url   : '<?= base_url(); ?>Master/rekap_all_jt_bahan',
+        type  : "POST",
+        data  : {priode    : priode,id_hub    : id_hub,tgl_awal  : tgl_awal,tgl_akhir : tgl_akhir
+          },
+        dataType   : "JSON",
+        
+        success: function(data) {
+          if(data){
+            // header
+            $("#total_all_inv_bhn").html(`<div> <span style='font-weight:bold;' class='text-right'>Rp.${format_angka(data.rekap_jumlah.jumlah)}</span></div>`);
+            swal.close();
+
+          } else {
+            swal.close();
+            swal({
+              title               : "Cek Kembali",
+              html                : "Gagal Load Data",
+              type                : "error",
+              confirmButtonText   : "OK"
+            });
+            return;
+            $("#total_all_inv_bhn").val(0);
+          }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          // toastr.error('Terjadi Kesalahan');
+          
+          swal.close();
+          swal({
+            title               : "Cek Kembali",
+            html                : "Terjadi Kesalahan",
+            type                : "error",
+            confirmButtonText   : "OK"
+          });
+          
+          return;
         }
       });
     }
