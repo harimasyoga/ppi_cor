@@ -6739,10 +6739,14 @@ class Logistik extends CI_Controller
 							$btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
 						}
 
-						if($sjpo->id_hub != 7){
+						if($noSJ[0] != 000 && $sjpo->id_hub != 7){
 							$btnJasa = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" title="SJ JASA" onclick="insertSuratJalanJasa('."'".$sjpo->no_surat."'".')">JASA</button>';
 						}else{
-							$btnJasa = '';
+							if($sjpo->id_hub != 7){
+								$btnJasa = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">JASA</span>';
+							}else{
+								$btnJasa = '';
+							}
 						}
 
 						// EDIT NOMER SURAT JALAN
