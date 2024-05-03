@@ -994,7 +994,7 @@ class M_logistik extends CI_Model
 		
 		// CEK
 		$cek = $this->db->query("SELECT*FROM m_jasa WHERE no_surat='$no_surat'");
-		// GET URUT DAN ID PL
+		// GET DATA PL
 		$pl = $this->db->query("SELECT*FROM pl_box WHERE no_surat='$no_surat' GROUP BY no_surat")->row();
 		if($cek->num_rows() == 0){
 			$no = explode('/',$no_surat);
@@ -1004,6 +1004,7 @@ class M_logistik extends CI_Model
 			$no_jasa = 'JASA/'.$jasa.'/PPI'.'/'.$no[2].'/'.$tahun;
 			$data = array(
 				'no_surat' => $no_surat,
+				'tgl' => $pl->tgl,
 				'no_po' => $pl->no_po,
 				'no_jasa' => $no_jasa,
 				'urut' => $pl->no_pl_urut,

@@ -74,9 +74,15 @@
 							<div class="col-md-3">ATTN</div>
 							<div class="col-md-9">
 								<select id="attn" class="form-control select2">
-									<option value="7">PPI</option>
-									<option value="5">JAYA SETIA KEMASAN</option>
-									<option value="6">KEMASAN SENTOSA MULIA</option>
+									<?php
+										$query = $this->db->query("SELECT*FROM m_no_rek_lam ORDER BY id");
+										$html ='';
+										$html .='<option value="">PILIH</option>';
+										foreach($query->result() as $r){
+											$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
+										}
+										echo $html;
+									?>
 								</select>
 							</div>
 						</div>

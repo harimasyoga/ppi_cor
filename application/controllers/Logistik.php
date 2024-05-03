@@ -1873,31 +1873,8 @@ class Logistik extends CI_Controller
 		$html .= '</table>';
 
 		// PEMBAYARAN
-		if($header->bank == 7){
-			$nm_bank = 'BCA';
-			$norek_bank = '078-795-5758';
-			$an_bank = 'PT. PRIMA PAPER INDONESIA';
-		}else if($header->bank == 'IHI'){
-			$nm_bank = 'BCA';
-			$norek_bank = '015-015-7617';
-			$an_bank = 'IMAN HARTONO IR';
-		}else if($header->bank == 5){
-			$nm_bank = 'BCA';
-			$norek_bank = '369-014-9086';
-			$an_bank = 'CV. JAYA SETIA KEMASAN';
-		}else if($header->bank == 6){
-			$nm_bank = 'BCA';
-			$norek_bank = '764-524-2424';
-			$an_bank = 'CV. KEMASAN SENTOSA MULIA';
-		}else if($header->bank == 'ADM'){
-			$nm_bank = 'BCA';
-			$norek_bank = '708-072-9990';
-			$an_bank = 'CV. ANUGERAH DUTA MANDIRI';
-		}else{
-			$nm_bank = '';
-			$norek_bank = '';
-			$an_bank = '';
-		}
+		$id_hub = $header->bank;
+		$rek_lam = $this->db->query("SELECT*FROM m_no_rek_lam WHERE id_hub='$id_hub'")->row();
 		$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:tahoma">
 			<tr>
 				<td style="width:60%"></td>
@@ -1908,7 +1885,7 @@ class Logistik extends CI_Controller
 				<td style="border:0;line-height:1.8;text-align:center">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($header->tgl_invoice).'</td> 
 			</tr>
 			<tr>
-				<td style="border:0;padding:0 0 30px;line-height:1.8">Pembayaran Full Amount ditransfer ke :<br/>'.$nm_bank.' '.$norek_bank.' <br/>A.n '.$an_bank.'</td>
+				<td style="border:0;padding:0 0 30px;line-height:1.8">Pembayaran Full Amount ditransfer ke :<br/>'.$rek_lam->nm_bank.' '.$rek_lam->norek_bank.' <br/>A.n '.$rek_lam->an_bank.'</td>
 				<td style="border-bottom:1px solid #000"></td>
 			</tr>
 			<tr>
@@ -7384,7 +7361,7 @@ class Logistik extends CI_Controller
 		</table>';
 
 		$header = $this->db->query("SELECT h.id_hub,h.nm_hub,h.alamat AS alamat_hub,b.nm_pelanggan,b.attn,b.alamat_kirim,a.*,s.* FROM m_jasa s
-		INNER JOIN pl_box a ON a.no_surat=s.no_surat
+		INNER JOIN pl_box a ON a.no_surat=s.no_surat AND a.no_pl_urut=s.urut AND a.id=s.id_pl_box AND a.tgl=s.tgl
 		INNER JOIN m_pelanggan b ON a.id_perusahaan=b.id_pelanggan
 		LEFT JOIN m_hub h ON a.id_hub=h.id_hub
 		WHERE s.no_jasa='$jenis'
@@ -7449,7 +7426,7 @@ class Logistik extends CI_Controller
 
 			// AMBIL DATA
 			$detail = $this->db->query("SELECT r.*,j.*,i.*,SUM(r.qty_muat) AS muat FROM m_rencana_kirim r
-			INNER JOIN m_jasa j ON j.urut=r.rk_urut AND j.id_pl_box=r.id_pl_box
+			INNER JOIN m_jasa j ON j.urut=r.rk_urut AND j.id_pl_box=r.id_pl_box AND j.tgl=r.rk_tgl
 			INNER JOIN m_produk i ON r.id_produk=i.id_produk
 			WHERE j.no_jasa='$jenis'
 			GROUP BY r.id_pelanggan,r.id_produk,r.rk_kode_po");
