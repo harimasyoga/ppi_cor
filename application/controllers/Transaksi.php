@@ -1727,7 +1727,7 @@ class Transaksi extends CI_Controller
 					$row[] = $r->nm_pelanggan_lm;
 					$row[] = $r->no_po_lm;
 					$cariPO = '<button type="button" title="CARI" class="btn btn-primary btn-sm" onclick="addListPOLaminasi('."'".$r->id."'".')"><i class="fas fa-search"></i></button>';
-					$closePO = '<button type="button" title="CLOSE" class="btn btn-danger btn-sm" onclick="closePOLaminasi('."'".$r->id."'".')"><i class="fas fa-check"></i></button>';
+					$closePO = '<button type="button" title="CLOSE" class="btn btn-danger btn-sm" onclick="closePOLaminasi('."'".$r->id."'".','."'".$r->no_po_lm."'".')"><i class="fas fa-check"></i></button>';
 					$row[] = '<div class="text-center">'.$cariPO.' '.$closePO.'</div>';
 				}
 				

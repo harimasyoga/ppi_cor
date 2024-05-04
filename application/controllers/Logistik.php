@@ -878,9 +878,12 @@ class Logistik extends CI_Controller
 	}
 
 	function SJ_Laminasi()
-	{
+	{ // 
 		$no_surat = $_GET["no"];
 		$html = '';
+
+		// UPDATE CETAK
+		$this->db->query("UPDATE pl_laminasi SET cetak_sj='acc' WHERE no_surat='$no_surat'");
 
 		$pl = $this->db->query("SELECT*FROM pl_laminasi l
 		INNER JOIN m_pelanggan_lm p ON l.id_perusahaan=p.id_pelanggan_lm
@@ -6736,10 +6739,14 @@ class Logistik extends CI_Controller
 							$btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
 						}
 
-						if($sjpo->id_hub != 7){
+						if($noSJ[0] != 000 && $sjpo->id_hub != 7){
 							$btnJasa = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" title="SJ JASA" onclick="insertSuratJalanJasa('."'".$sjpo->no_surat."'".')">JASA</button>';
 						}else{
-							$btnJasa = '';
+							if($sjpo->id_hub != 7){
+								$btnJasa = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">JASA</span>';
+							}else{
+								$btnJasa = '';
+							}
 						}
 
 						// EDIT NOMER SURAT JALAN

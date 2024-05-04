@@ -824,10 +824,16 @@ class M_logistik extends CI_Model
 		$this->db->where('tgl_t', $tgl);
 		$deleteTimb = $this->db->delete('m_jembatan_timbang');
 
+		// HAPUS JASA
+		$this->db->where('tgl', $tgl);
+		$this->db->where('urut', $urut);
+		$deleteJasa = $this->db->delete('m_jasa');
+
 		return [
 			'deletePL' => $deletePL,
 			'updateRK' => $updateRK,
 			'deleteTimb' => $deleteTimb,
+			'deleteJasa' => $deleteJasa,
 		];
 	}
 
