@@ -131,7 +131,7 @@ class Keuangan extends CI_Controller
 			$query = $this->db->query("SELECT * FROM jurnal_d a
 			join m_hub b on a.id_hub=b.id_hub
 			$value
-			order by id_jurnal LIMIT 10")->result();
+			order by id_jurnal")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -487,14 +487,14 @@ class Keuangan extends CI_Controller
         $query_header = $this->db->query("SELECT * FROM jurnal_d a
 			join m_hub b on a.id_hub=b.id_hub
 			$value
-			order by id_jurnal LIMIT 10 ");
+			order by id_jurnal");
         
         $data = $query_header->row();
         
         $query_detail = $this->db->query("SELECT * FROM jurnal_d a
 			join m_hub b on a.id_hub=b.id_hub
 			$value
-			order by id_jurnal LIMIT 10 ");
+			order by id_jurnal");
 
 		$html = '';
 		$html .= '<br>';
