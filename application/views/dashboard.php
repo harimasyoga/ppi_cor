@@ -394,9 +394,11 @@
       $(".select2").select2()
       load_data_hub()
       load_data_jt()
-      load_data_jt_bhn()
       load_list_bhn()
       load_cek_produk()
+      <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub'])){ ?>        
+        load_data_jt_bhn()
+      <?php } ?>
       load_hub_bhn() 
     });
 
@@ -404,7 +406,9 @@
     {
       load_data_hub()
       load_data_jt()
-      load_data_jt_bhn()
+      <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub'])){ ?>
+        load_data_jt_bhn()      
+      <?php } ?>
       load_list_bhn()
       load_cek_produk()
       load_hub_bhn() 

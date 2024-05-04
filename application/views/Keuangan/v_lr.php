@@ -31,6 +31,45 @@
 					</div>
 				</div>
 				<div class="card-body">
+					<!--  AA -->
+					<div class="col-md-12">								
+						<br>						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+						<div class="col-md-2">PERIODE</div>
+						<div class="col-md-3">
+							<select class="form-control select2" name="priode" id="priode" style="width: 100%;" onchange="cek_periode(),load_data()">
+							<option value="all">ALL</option>
+							<option value="custom">Custom</option>
+							</select>
+						</div>
+						<div class="col-md-1"></div>
+						<div class="col-md-2">ATTN</div>
+						<div class="col-md-3">
+							<select class="form-control select2" name="id_hub2" id="id_hub2" style="width: 100%;" onchange="load_data()">
+							</select>
+						</div>
+						</div>
+						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="tgl_awal_list" >						
+						<div class="col-md-2">Tgl Awal</div>
+						<div class="col-md-3">
+							<input type="date" class="form-control" name="tgl_awal" id="tgl_awal" onchange="load_data()" value ="<?= date('Y-m-d') ?>">
+						</div>
+						<div class="col-md-6"></div>
+						</div>
+
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="tgl_akhir_list" >						
+						<div class="col-md-2">Tgl Akhir</div>
+						<div class="col-md-3">
+							<input type="date" class="form-control" name="tgl_akhir" id="tgl_akhir" onchange="load_data()" value ="<?= date('Y-m-d') ?>">
+						</div>
+						<div class="col-md-6"></div>
+						</div>
+						
+						<br>
+						<hr>
+					</div>
+					<!-- AA -->
 				<button onclick="cetak_lr(0)"  class="btn btn-danger">
 					<i class="fa fa-print"></i> CETAK L/R</button>
 						<br>
@@ -61,18 +100,74 @@
 
 	status = "insert";
 
+	function load_hub_bhn() 
+    {
+      option = "";
+      $.ajax({
+        type       : 'POST',
+        url        : "<?= base_url(); ?>Logistik/load_hub",
+        // data       : { idp: pelanggan, kd: '' },
+        dataType   : 'json',
+        beforeSend: function() {
+          swal({
+          title: 'loading ...',
+          allowEscapeKey    : false,
+          allowOutsideClick : false,
+          onOpen: () => {
+            swal.showLoading();
+          }
+          })
+        },
+        success:function(data){			
+          if(data.message == "Success"){					
+            option = `<option value="">-- Pilih --</option>`;	
+
+            $.each(data.data, function(index, val) {
+            option += "<option value='"+val.id_hub+"'>"+val.nm_hub+"</option>";
+            });
+
+            $('#id_hub2').html(option);
+            swal.close();
+          }else{	
+            option += "<option value=''></option>";
+            $('#id_hub2').html(option);					
+            swal.close();
+          }
+        }
+      });
+      
+    }
+	
 	function cetak_lr(ctk)
 	{		
+		var id_hub    = $('#id_hub2').val()
+		var priode    = $('#priode').val()
+		var tgl_awal  = $('#tgl_awal').val()
+		var tgl_akhir = $('#tgl_akhir').val()
+
 		var url    = "<?php echo base_url('Keuangan/cetak_lr'); ?>";
-		window.open(url, '_blank');   
+		window.open(url+'?id_hub='+id_hub+'&priode='+priode+'&tgl_awal='+tgl_awal+'&tgl_akhir='+tgl_akhir, '_blank');   
+
+		// var url    = "<?php echo base_url('Keuangan/cetak_lr'); ?>";
+		// window.open(url, '_blank');   
 	}
 
 	function load_data() 
 	{
+		var id_hub    = $('#id_hub2').val()
+		var priode    = $('#priode').val()
+		var tgl_awal  = $('#tgl_awal').val()
+		var tgl_akhir = $('#tgl_akhir').val()
 		$.ajax({
 			url: '<?php echo base_url('Keuangan/load_lr')?>',
 			type: "POST",
 			// data: ({ id, id_dtl, opsi }),
+			"data" : ({
+					priode    : priode,
+					id_hub    : id_hub,
+					tgl_awal  : tgl_awal,
+					tgl_akhir : tgl_akhir
+				}),
 			beforeSend: function() {
 				swal({
 					title: 'Loading',

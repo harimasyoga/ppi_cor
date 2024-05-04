@@ -103,7 +103,35 @@ class Keuangan extends CI_Controller
 		$data         = array();
 
 		if ($jenis == "Jurnal") {
-			$query = $this->db->query("SELECT * FROM jurnal_d order by id_jurnal")->result();
+
+			$priode       = $_POST['priode'];
+			$attn         = $_POST['id_hub'];
+			$tgl_awal     = $_POST['tgl_awal'];
+			$tgl_akhir    = $_POST['tgl_akhir'];
+
+			if($attn=='' || $attn== null || $attn== 'null')
+			{
+				if($priode=='all')
+				{
+					$value="";
+				}else{
+					$value="where a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+				}
+
+			}else{
+				if($priode=='all')
+				{
+					$value="where b.id_hub='$attn' ";
+				}else{
+					$value="where b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+				}
+
+			}
+			
+			$query = $this->db->query("SELECT * FROM jurnal_d a
+			join m_hub b on a.id_hub=b.id_hub
+			$value
+			order by id_jurnal LIMIT 10")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -111,6 +139,7 @@ class Keuangan extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = '<div class="text-center">'.$r->no_voucher.'</div>';
+				$row[] = '<div class="text-center">'.$r->nm_hub.'</div>';
 				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind(substr($r->tgl_input,0,10)).'</div>';
 				$row[] = '<div class="text-center">'.$r->jam_input.'</div>';
 				$row[] = '<div class="text-center">'.$r->no_transaksi.'</div>';
@@ -197,7 +226,31 @@ class Keuangan extends CI_Controller
 	function load_bubes()
 	{ //
 
-		$nrc_header = $this->db->query("SELECT kode_rek from jurnal_d group by kode_rek order by kode_rek ");
+		$priode       = $_POST['priode'];
+		$attn         = $_POST['id_hub'];
+		$tgl_awal     = $_POST['tgl_awal'];
+		$tgl_akhir    = $_POST['tgl_akhir'];
+
+		if($attn=='' || $attn== null || $attn== 'null')
+		{
+			if($priode=='all')
+			{
+				$value="";
+			}else{
+				$value="where a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}
+
+		}else{
+			if($priode=='all')
+			{
+				$value="where b.id_hub='$attn' ";
+			}else{
+				$value="where b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}
+
+		}
+		
+		$nrc_header = $this->db->query("SELECT kode_rek from jurnal_d a join m_hub b on a.id_hub=b.id_hub $value group by kode_rek order by kode_rek ");
 
 		$html ='';
 		$i         = 0;
@@ -209,6 +262,7 @@ class Keuangan extends CI_Controller
 					<th style="text-align: center;">No</th>
 					<th style="text-align: center;">Tanggal</th>
 					<th style="text-align: center;">No Voucher</th>
+					<th style="text-align: center;">Hub</th>
 					<th style="text-align: center;">Kode Rek</th>
 					<th style="text-align: center;">Nama Rek</th>
 					<th style="text-align: center;">Debit</th>
@@ -217,8 +271,27 @@ class Keuangan extends CI_Controller
 				</tr>
 			</thead>
 			<tbody>';
+			
+				if($attn=='' || $attn== null || $attn== 'null')
+				{
+					if($priode=='all')
+					{
+						$value2="where kode_rek='$header->kode_rek'";
+					}else{
+						$value2="where kode_rek='$header->kode_rek' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+					}
+		
+				}else{
+					if($priode=='all')
+					{
+						$value2="where kode_rek='$header->kode_rek' and b.id_hub='$attn' ";
+					}else{
+						$value2="where kode_rek='$header->kode_rek' and b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+					}
+		
+				}
 
-				$nrc = $this->db->query("SELECT* from jurnal_d where kode_rek='$header->kode_rek' order by kode_rek");
+				$nrc = $this->db->query("SELECT* from jurnal_d  a join m_hub b on a.id_hub=b.id_hub $value2 order by kode_rek");
 
 				$i        = 0;
 				$hitung   = 0;
@@ -230,6 +303,7 @@ class Keuangan extends CI_Controller
 						<td style="font-weight: bold;">'.$i.'</td>
 						<td style="font-weight: bold;">'.$r->tgl_transaksi.'</td>
 						<td style="font-weight: bold;">'.$r->no_voucher.'</td>
+						<td style="font-weight: bold;">'.$r->nm_hub.'</td>
 						<td style="font-weight: bold;text-align:center" >'.$r->kode_rek.'</td>
 						<td style="font-weight: bold;">'.cari_rek($r->kode_rek).'</td>
 						<td style="font-weight: bold;text-align:right">Rp ' . number_format($r->debet, 0, ",", ".") . '</td>
@@ -249,6 +323,30 @@ class Keuangan extends CI_Controller
 	function load_lr()
 	{ //
 
+		$priode       = $_POST['priode'];
+		$attn         = $_POST['id_hub'];
+		$tgl_awal     = $_POST['tgl_awal'];
+		$tgl_akhir    = $_POST['tgl_akhir'];
+
+		if($attn=='' || $attn== null || $attn== 'null')
+		{
+			if($priode=='all')
+			{
+				$value="";
+			}else{
+				$value="where a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}
+
+		}else{
+			if($priode=='all')
+			{
+				$value="where b.id_hub='$attn' ";
+			}else{
+				$value="where b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}
+
+		}
+		
 		$lr_dtl = $this->db->query("SELECT LENGTH(p.kd)length,p.* FROM(
 			select kd_akun as kd,nm_akun as nm,jenis,dk,(select sum(debet) from jurnal_d where left(kode_rek,1)=kd_akun)nominal from m_kode_akun
 			union all
@@ -360,13 +458,43 @@ class Keuangan extends CI_Controller
 
 	function cetak_jurnal()
 	{
-		$no_stok  = $_GET['no_stok'];
+		$no_stok    = $_GET['no_stok'];
 
-        $query_header = $this->db->query("SELECT * FROM jurnal_d order by id_jurnal ");
+		$priode     = $_GET['priode'];
+		$attn       = $_GET['id_hub'];
+		$tgl_awal   = $_GET['tgl_awal'];
+		$tgl_akhir  = $_GET['tgl_akhir'];
+ 
+		if($attn=='' || $attn== null || $attn== 'null')
+		{
+			if($priode=='all')
+			{
+				$value="";
+			}else{
+				$value="where a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}
+
+		}else{
+			if($priode=='all')
+			{
+				$value="where b.id_hub='$attn' ";
+			}else{
+				$value="where b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}
+
+		}
+			
+        $query_header = $this->db->query("SELECT * FROM jurnal_d a
+			join m_hub b on a.id_hub=b.id_hub
+			$value
+			order by id_jurnal LIMIT 10 ");
         
         $data = $query_header->row();
         
-        $query_detail = $this->db->query("SELECT * FROM jurnal_d order by id_jurnal ");
+        $query_detail = $this->db->query("SELECT * FROM jurnal_d a
+			join m_hub b on a.id_hub=b.id_hub
+			$value
+			order by id_jurnal LIMIT 10 ");
 
 		$html = '';
 		$html .= '<br>';
@@ -582,11 +710,35 @@ class Keuangan extends CI_Controller
 	function cetak_bukbes()
 	{
 		// $no_stok  = $_GET['no_stok'];
-		
+		 
+		$priode     = $_GET['priode'];
+		$attn       = $_GET['id_hub'];
+		$tgl_awal   = $_GET['tgl_awal'];
+		$tgl_akhir  = $_GET['tgl_akhir'];
+
+		if($attn=='' || $attn== null || $attn== 'null')
+		{
+			if($priode=='all')
+			{
+				$value="";
+			}else{
+				$value="where a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}
+
+		}else{
+			if($priode=='all')
+			{
+				$value="where b.id_hub='$attn' ";
+			}else{
+				$value="where b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}
+
+		}
+
 		$html = '';
 		$html .= '<br>';
 
-        $query_header = $this->db->query("SELECT kode_rek from jurnal_d group by kode_rek order by tgl_input asc,kode_rek");
+        $query_header = $this->db->query("SELECT kode_rek from jurnal_d group by kode_rek $value order by tgl_input asc,kode_rek");
         
         $data = $query_header->row();
 
