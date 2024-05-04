@@ -31,6 +31,46 @@
 					</div>
 				</div>
 				<div class="card-body">
+					 <!--  AA -->
+					 <div class="col-md-12">								
+						<br>						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+						<div class="col-md-2">PERIODE</div>
+						<div class="col-md-3">
+							<select class="form-control select2" name="priode" id="priode" style="width: 100%;" onchange="cek_periode(),load_data()">
+							<option value="all">ALL</option>
+							<option value="custom">Custom</option>
+							</select>
+						</div>
+						<div class="col-md-1"></div>
+						<div class="col-md-2">ATTN</div>
+						<div class="col-md-3">
+							<select class="form-control select2" name="id_hub2" id="id_hub2" style="width: 100%;" onchange="load_data()">
+							</select>
+						</div>
+						</div>
+						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="tgl_awal_list" >						
+						<div class="col-md-2">Tgl Awal</div>
+						<div class="col-md-3">
+							<input type="date" class="form-control" name="tgl_awal" id="tgl_awal" onchange="load_data()" value ="<?= date('Y-m-d') ?>">
+						</div>
+						<div class="col-md-6"></div>
+						</div>
+
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="tgl_akhir_list" >						
+						<div class="col-md-2">Tgl Akhir</div>
+						<div class="col-md-3">
+							<input type="date" class="form-control" name="tgl_akhir" id="tgl_akhir" onchange="load_data()" value ="<?= date('Y-m-d') ?>">
+						</div>
+						<div class="col-md-6"></div>
+						</div>
+						
+						<br>
+						<hr>
+					</div>
+					<!-- AA -->
+
 					<button onclick="cetak_jurnal(0)"  class="btn btn-danger">
 					<i class="fa fa-print"></i> CETAK JURNAL</button>
 						<br>
@@ -42,6 +82,7 @@
 								<tr>
 									<th style="text-align: center;">No</th>
 									<th style="text-align: center;">No Voucher</th>
+									<th style="text-align: center;">Hub</th>
 									<th style="text-align: center;">Tgl Input</th>
 									<th style="text-align: center;">Jam Input</th>
 									<th style="text-align: center;">No Transaksi</th>
@@ -71,6 +112,7 @@
 	rowNum = 0;
 	$(document).ready(function() {
 		load_data();
+		load_hub_bhn()
 		// getMax();
 		$('.select2').select2({
 			containerCssClass: "wrap",
@@ -83,10 +125,54 @@
 
 	function cetak_jurnal(ctk)
 	{		
+		var id_hub    = $('#id_hub2').val()
+		var priode    = $('#priode').val()
+		var tgl_awal  = $('#tgl_awal').val()
+		var tgl_akhir = $('#tgl_akhir').val()
+
 		var url    = "<?php echo base_url('Keuangan/cetak_jurnal'); ?>";
-		window.open(url, '_blank');   
+		window.open(url+'?id_hub='+id_hub+'&priode='+priode+'&tgl_awal='+tgl_awal+'&tgl_akhir='+tgl_akhir, '_blank');   
+		 
 	}
 
+	function load_hub_bhn() 
+    {
+      option = "";
+      $.ajax({
+        type       : 'POST',
+        url        : "<?= base_url(); ?>Logistik/load_hub",
+        // data       : { idp: pelanggan, kd: '' },
+        dataType   : 'json',
+        beforeSend: function() {
+          swal({
+          title: 'loading ...',
+          allowEscapeKey    : false,
+          allowOutsideClick : false,
+          onOpen: () => {
+            swal.showLoading();
+          }
+          })
+        },
+        success:function(data){			
+          if(data.message == "Success"){					
+            option = `<option value="">-- Pilih --</option>`;	
+
+            $.each(data.data, function(index, val) {
+            option += "<option value='"+val.id_hub+"'>"+val.nm_hub+"</option>";
+            });
+
+            $('#id_hub2').html(option);
+            swal.close();
+          }else{	
+            option += "<option value=''></option>";
+            $('#id_hub2').html(option);					
+            swal.close();
+          }
+        }
+      });
+      
+    }
+	
 	function Cetak() 
 	{
 		no_invoice = $("#no_invoice").val();
@@ -94,8 +180,26 @@
 		window.open(url + '?no_invoice=' + no_invoice, '_blank');
 	}
 
+	function cek_periode()
+    {
+      $cek = $('#priode').val();
+
+		if($cek=='all' )
+        {
+          $('#tgl_awal_list').hide("1000");
+          $('#tgl_akhir_list').hide("1000");
+        }else{
+          $('#tgl_awal_list').show("1000");
+          $('#tgl_akhir_list').show("1000");
+        }
+	}
+
 	function load_data() 
 	{
+		var id_hub    = $('#id_hub2').val()
+		var priode    = $('#priode').val()
+		var tgl_awal  = $('#tgl_awal').val()
+		var tgl_akhir = $('#tgl_akhir').val()
 		var table = $('#datatable').DataTable();
 
 		table.destroy();
@@ -108,6 +212,12 @@
 			"ajax": {
 				"url": '<?= base_url(); ?>Keuangan/load_data/Jurnal',
 				"type": "POST",
+				"data" : ({
+					priode    : priode,
+					id_hub    : id_hub,
+					tgl_awal  : tgl_awal,
+					tgl_akhir : tgl_akhir
+				}),
 				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
 			},
 			"aLengthMenu": [

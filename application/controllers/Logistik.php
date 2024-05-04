@@ -2816,8 +2816,8 @@ class Logistik extends CI_Controller
 
 		if ($jenis == "Invoice") {
 			$query = $this->db->query("SELECT * FROM invoice_header 
-			-- where no_invoice='FB/0051/01/2024' 
-			ORDER BY tgl_invoice desc,no_invoice ")->result();
+			where type in ('box','sheet') 
+			ORDER BY tgl_invoice desc,no_invoice limit 20")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {

@@ -50,7 +50,7 @@
         return $result_jurnal->row()->nm;
     } 
    
-    function add_jurnal($tgl_transaksi='', $no_transaksi='',$kode_rek='',$ket='' ,$debit=0, $kredit=0)
+    function add_jurnal($id_hub,$tgl_transaksi='', $no_transaksi='',$kode_rek='',$ket='' ,$debit=0, $kredit=0)
     {
         $CI       = & get_instance();
         $thn      = date('Y');
@@ -66,6 +66,7 @@
             'ket'             => $ket,
             'debet'           => $debit,
             'kredit'          => $kredit,
+            'id_hub'          => $id_hub,
         );
         $result_jurnal = $CI->db->insert('jurnal_d', $data_jurnal);
     } 
