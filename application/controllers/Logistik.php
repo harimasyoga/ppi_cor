@@ -6658,7 +6658,7 @@ class Logistik extends CI_Controller
 		$html = '';
 		$tgl = $_POST["tgl_kirim"];
 		$tglNow = date('Y-m-d');
-		$getUrut = $this->db->query("SELECT tgl,no_pl_urut,no_kendaraan FROM pl_box WHERE tgl='$tgl' GROUP BY no_pl_urut");
+		$getUrut = $this->db->query("SELECT tgl,no_pl_urut,no_kendaraan,cetak_sj FROM pl_box WHERE tgl='$tgl' GROUP BY no_pl_urut");
 		if($getUrut->num_rows() == 0){
 			$html .='<b>TIDAK ADA DATA PENGIRIMAN!</b>';
 		}else{
@@ -6681,18 +6681,20 @@ class Logistik extends CI_Controller
 					$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$urut->no_pl_urut' AND tgl_t='$urut->tgl' GROUP BY urut_t,tgl_t");
 					if($qTimb->num_rows() > 0){
 						$supir = $qTimb->row()->nm_sopir;
+						$bTruk = $qTimb->row()->berat_truk;
 						$berat = $qTimb->row()->berat_bersih;
 						$bgAa = 'btn-warning';
 						$txAa = '<i class="fas fa-pen"></i>';
 					}else{
 						$supir = '';
+						$bTruk = '';
 						$berat = '';
 						$bgAa = 'btn-success';
 						$txAa = '<i class="fas fa-plus"></i>';
 					}
 					($tglNow == $urut->tgl && in_array($this->session->userdata('level'), ['Admin', 'User']) && $qTimb->num_rows() == 0) ? $editNopol = 'onchange="addPengirimanNoPlat('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"' : $editNopol = 'disabled';
 
-					if($urut->no_kendaraan != ""){
+					if($urut->no_kendaraan != "" && $urut->cetak_sj == 'acc'){
 						$aksiTimb = 'onclick="addTimbangan('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"';
 					}else{
 						$aksiTimb = 'disabled';
@@ -6704,12 +6706,14 @@ class Logistik extends CI_Controller
 						<td style="background:#333;color:#fff;padding:6px;text-align:right" colspan="2">
 							<input type="text" class="form-control" id="pp-noplat-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="-" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$urut->no_kendaraan.'" '.$editNopol.'>
 						</td>
-						<td style="background:#333;color:#fff;padding:6px;text-align:right;font-weight:bold">TIMBANGAN :</td>
-						<td style="background:#333;color:#fff;padding:6px;text-align:right" colspan="2">
+						<td style="background:#333;color:#fff;padding:6px 6px 6px 40px">
 							<input type="text" class="form-control" id="pp-supir-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="SUPIR" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$supir.'">
 						</td>
-						<td style="background:#333;color:#fff;padding:6px;text-align:right">
-							<input type="number" class="form-control" id="pp-timbangan-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="BERAT" autocomplete="off"" value="'.$berat.'">
+						<td style="background:#333;color:#fff;padding:6px" colspan="2">
+							<input type="number" class="form-control" id="pp-timbangan-truk-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="B. TRUK" autocomplete="off"" value="'.$bTruk.'">
+						</td>
+						<td style="background:#333;color:#fff;padding:6px">
+							<input type="number" class="form-control" id="pp-timbangan-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="B. BERSIH" autocomplete="off"" value="'.$berat.'">
 						</td>
 						<td style="background:#333;color:#fff;padding:6px 6px 6px 0">
 							<button type="button" class="btn btn-xs '.$bgAa.'" style="font-weight:bold" '.$aksiTimb.'>'.$txAa.'</button>
@@ -6752,7 +6756,6 @@ class Logistik extends CI_Controller
 						// EDIT NOMER SURAT JALAN
 						($sjpo->cetak_sj == 'not' && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $eNoSj = 'onchange="editPengirimanNoSJ('."'".$sjpo->id."'".')"' : $eNoSj = 'disabled';
 
-						// '.$this->m_fungsi->angkaRomawi($no).' - 
 						$html .='<tr style="background:#dee2e6">
 							<td style="padding:4px 6px;border:1px solid #bbb;font-weight:bold;display:flex">
 								NO. SURAT JALAN : &nbsp;<input type="number" class="form-control" id="pp-nosj-'.$sjpo->id.'" style="height:100%;width:50px;text-align:center;padding:2px 4px" value="'.$noSJ[0].'" '.$eNoSj.'>'.$ketSJ.'
@@ -6799,12 +6802,20 @@ class Logistik extends CI_Controller
 								$cSS = '';
 								$tdSS = '<td style="padding:6px;border:1px solid #dee2e6"></td>';
 							}
+							($item->c_uk == 1) ? $c_uk = 'checked' : $c_uk = '';
+							($item->c_kl == 1) ? $c_kl = 'checked' : $c_kl = '';
 							$html .='<tr>
 								<td style="padding:6px;border:1px solid #dee2e6">'.$item->nm_pelanggan.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">'.$item->nm_produk.'</td>
-								<td style="padding:6px;border:1px solid #dee2e6">'.$ukuran.'</td>
+								<td style="padding:6px;border:1px solid #dee2e6">
+									<input type="checkbox" id="c_uk_'.$item->id_produk.'" onclick="cUkuranKualitas('."'".$item->id_rk."'".','."'".$item->id_produk."'".','."'UK'".')" value="'.$item->c_uk.'" '.$c_uk.'>
+									'.$ukuran.'
+								</td>
 								<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$item->flute.'</td>
-								<td style="padding:6px;border:1px solid #dee2e6">'.$kualitas.'</td>
+								<td style="padding:6px;border:1px solid #dee2e6">
+									<input type="checkbox" id="c_kl_'.$item->id_produk.'" onclick="cUkuranKualitas('."'".$item->id_rk."'".','."'".$item->id_produk."'".','."'KL'".')" value="'.$item->c_kl.'" '.$c_kl.'>
+									'.$kualitas.'
+								</td>
 								<td style="padding:6px;border:1px solid #dee2e6;font-weight:bold;text-align:right">'.number_format($item->qty_muat,0,",",".").'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">'.$item->rk_bb.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6;font-weight:bold;text-align:right" '.$cSS.'>'.number_format($tonase,0,",",".").' '.$txtKurangPlus.'</td>
@@ -6834,6 +6845,12 @@ class Logistik extends CI_Controller
 	function insertSuratJalanJasa()
 	{
 		$result = $this->m_logistik->insertSuratJalanJasa();
+		echo json_encode($result);
+	}
+
+	function cUkuranKualitas()
+	{
+		$result = $this->m_logistik->cUkuranKualitas();
 		echo json_encode($result);
 	}
 
@@ -7133,7 +7150,9 @@ class Logistik extends CI_Controller
 					$kualitas = $data->kualitas;
 				}
 				if($data->kategori == 'K_BOX'){
-					$ukuran = $data->nm_produk.'. '.strtolower(str_replace(' ', '', $data->ukuran)).'. '.$kualitas;
+					($data->c_uk == 1) ? $c_uk = '. '.strtolower(str_replace(' ', '', $data->ukuran)) : $c_uk = '';
+					($data->c_kl == 1) ? $c_kl = '. '.$kualitas : $c_kl = '';
+					$ukuran = $data->nm_produk.$c_uk.$c_kl;
 					$qty_ket = 'PCS';
 				}else{
 					$ukuran = $data->ukuran_sheet.'. '.$kualitas;

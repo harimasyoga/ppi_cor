@@ -906,9 +906,10 @@ class M_logistik extends CI_Model
 		$urut = $_POST["urut"];
 		$plat = $_POST["plat"];
 		$supir = $_POST["supir"];
+		$tb_truk = $_POST["tb_truk"];
 		$timbangan = $_POST["timbangan"];
 
-		if($supir == "" || $timbangan < 0 || $timbangan == 0 || $timbangan == ""){
+		if($supir == "" || $timbangan < 0 || $timbangan == 0 || $tb_truk < $timbangan || $tb_truk == "" || $timbangan == ""){
 			$data = false; $result = false; $msg = false;
 		}else{
 			// KELUAR
@@ -951,6 +952,7 @@ class M_logistik extends CI_Model
 			}else{
 				$no_timbangan = $qTimb->row()->no_timbangan;
 			}
+			$berat_kotor = $tb_truk - $timbangan;
 			// DATA
 			$data = array(
 				'no_timbangan' => $no_timbangan,
@@ -962,8 +964,8 @@ class M_logistik extends CI_Model
 				'date_masuk' => $date_masuk,
 				'date_keluar' => $date_keluar,
 				'nm_barang' => 'KARTON BOX',
-				'berat_kotor' => 0,
-				'berat_truk' => 0,
+				'berat_kotor' => $berat_kotor,
+				'berat_truk' => $tb_truk,
 				'berat_bersih' => $timbangan,
 				'potongan' => 0,
 				'catatan' => $catatan,
@@ -1028,6 +1030,36 @@ class M_logistik extends CI_Model
 			'insert' => $insert,
 			'data' => $data,
 			'no_jasa' => $no_jasa,
+		];
+	}
+
+	function cUkuranKualitas()
+	{
+		$id_rk = $_POST["id_rk"];
+		$c_uk = $_POST["c_uk"];
+		$c_kl = $_POST["c_kl"];
+		$id_produk = $_POST["id_produk"];
+		$opsi = $_POST["opsi"];
+		
+		// GET RENCANA KIRIM
+		$rk = $this->db->query("SELECT*FROM m_rencana_kirim WHERE id_rk='$id_rk'")->row();
+
+		if($opsi == "UK"){
+			$set = "c_uk";
+			$ket = $c_uk;
+		}else{
+			$set = "c_kl";
+			$ket = $c_kl;
+		}
+		$this->db->set($set, ($ket == 1) ? 0 : 1);
+		$this->db->where("rk_tgl", $rk->rk_tgl);
+		$this->db->where("id_produk", $rk->id_produk);
+		$this->db->where("rk_urut", $rk->rk_urut);
+		$result = $this->db->update("m_rencana_kirim");
+
+		return [
+			'rk' => $rk,
+			'data' => $result,
 		];
 	}
 
