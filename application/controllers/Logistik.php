@@ -2819,7 +2819,7 @@ class Logistik extends CI_Controller
 
 		if ($jenis == "Invoice") {
 			$query = $this->db->query("SELECT * FROM invoice_header 
-			where type in ('box','sheet') 
+			-- where type in ('box','sheet') 
 			ORDER BY tgl_invoice desc,no_invoice")->result();
 
 			$i               = 1;
