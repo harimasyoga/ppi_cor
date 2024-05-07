@@ -895,6 +895,28 @@ class M_fungsi extends CI_Model {
 		return $blnRomami;
 	}
 
+	function kualitas($substance, $flute)
+	{
+		$expKualitas = explode("/", $substance);
+		if($flute == 'BCF'){
+			if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
+				$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+			}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
+				$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+			}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
+				$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+			}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
+				$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+			}else{
+				$kualitas = $substance;
+			}
+		}else{
+			$kualitas = $substance;
+		}
+
+		return $kualitas;
+	}
+
 	function angkaRomawi($angka)
 	{
 		$angka = intval($angka);
