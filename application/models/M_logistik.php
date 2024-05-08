@@ -1459,16 +1459,19 @@ class M_logistik extends CI_Model
 				$insert = $this->db->insert('invoice_jasa_header', $data);
 				
 				if($insert){
-					$isi = $this->db->query("SELECT r.*,p.*,i.*,SUM(r.qty_muat) AS muat,i.kategori AS kate FROM m_rencana_kirim r
+					$isi = $this->db->query("SELECT r.*,p.*,i.*,d.qty AS fix_qty,d.retur_qty AS fix_retur,d.hasil AS fix_hasil,i.kategori AS kate FROM m_rencana_kirim r
 					INNER JOIN pl_box p ON r.id_pl_box=p.id AND r.rk_urut=p.no_pl_urut
 					INNER JOIN m_produk i ON r.id_produk=i.id_produk
+					INNER JOIN m_jasa s ON p.tgl=s.tgl AND p.no_pl_urut=s.urut AND p.id=s.id_pl_box
+					INNER JOIN invoice_detail d ON p.no_surat=d.no_surat AND s.no_surat=d.no_surat AND d.id_produk_simcorr=i.id_produk
+					INNER JOIN invoice_header h ON d.no_invoice=h.no_invoice
 					WHERE p.no_surat='$no_surat_jalan' GROUP BY r.id_pelanggan,r.id_produk,r.rk_kode_po ORDER BY p.no_po,i.nm_produk");
 					foreach($isi->result() as $r){
 						$this->db->set('id_produk', $r->id_produk);
 						$this->db->set('no_surat', $no_surat_jalan);
 						$this->db->set('no_invoice', $no_invoice);
 						$this->db->set('no_po', $r->no_po);
-						$this->db->set('qty_muat', $r->muat);
+						$this->db->set('qty_muat', $r->fix_hasil);
 						$this->db->set('harga', 0);
 						$this->db->set('total', 0);
 						$detail = $this->db->insert('invoice_jasa_detail');
@@ -1510,7 +1513,7 @@ class M_logistik extends CI_Model
 	function btnVerifInvJasa()
 	{
 		if($_POST["ket_jasa"] == '' && ($_POST["aksi"] == 'H' || $_POST["aksi"] == 'R')){
-			$result = false;
+			$result = false; $header = false; $detail = false;
 		}else{
 			if($_POST["aksi"] == 'H' || $_POST["aksi"] == 'N'){
 				$status = 'Open';
@@ -1534,9 +1537,56 @@ class M_logistik extends CI_Model
 			$this->db->set('ket_owner', $ket);
 			$this->db->where('id', $_POST["h_id_header"]);
 			$result = $this->db->update('invoice_jasa_header');
+
+			// INSERT INVOICE BELI
+			$id = $_POST["h_id_header"];
+			if($result && $_POST["aksi"] == 'Y'){
+				// GET INVOICE JASA
+				$jasa = $this->db->query("SELECT*FROM invoice_jasa_header WHERE id='$id'")->row();
+				$tanggal = explode('-', $jasa->tgl_invoice);
+				$tahun = $tanggal[0];
+				$bulan = $tanggal[1];
+				$c_no_inv = $this->m_fungsi->urut_transaksi('INV_BELI_NONPPN');
+				$m_no_inv = 'INV/PB/'.$c_no_inv.'/'.$bulan.'/'.$tahun;
+				$data_header = array(
+					'no_inv_beli' => $m_no_inv,
+					'no_inv_maklon' => $jasa->no_invoice,
+					'tgl_inv_beli' => $jasa->tgl_invoice,
+					'id_hub' => $jasa->id_hub,
+					'id_supp' => 1,
+					'diskon' => 0,
+					'pajak' => 'NONPPN',
+					'ket' => '-',
+					'acc_owner' => 'N',
+				);
+				$header = $this->db->insert('invoice_header_beli', $data_header);
+				if($header){
+					$dtl = $this->db->query("SELECT d.* FROM invoice_jasa_detail d
+					INNER JOIN invoice_jasa_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
+					INNER JOIN m_produk i ON d.id_produk=i.id_produk
+					WHERE h.id='$id' ORDER BY d.no_po,i.nm_produk");
+					foreach($dtl->result() as $d){
+						$data_detail = array(				
+							'no_inv_beli' => $m_no_inv,
+							'transaksi' => 'JASA',
+							'jns_beban' => '5.04',
+							'nominal' => $d->total,
+						);
+						$detail = $this->db->insert('invoice_detail_beli', $data_detail);
+					}
+				}else{
+					$detail = false;
+				}
+			}else{
+				$header = false; $detail = false;
+			}
 		}
 
-		return $result;
+		return [
+			'result' => $result,
+			'header' => $header,
+			'detail' => $detail,
+		];
 	}
 
 	function editHargaJasa()
