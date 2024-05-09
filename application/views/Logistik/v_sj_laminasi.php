@@ -328,7 +328,7 @@
 				"emptyTable": "TIDAK ADA DATA.."
 			},
 			"order": [
-				[1, "desc"]
+				[2, "desc"]
 			]
 		})
 	}
@@ -655,10 +655,10 @@
 		$("#p_no_sj-"+id_pelanggan_lm).val(no_sj)
 	}
 
-	function kirimSJLaminasi(id_pelanggan_lm)
+	function kirimSJLaminasi(id_pelanggan_lm, id_hub)
 	{
 		let tgl = $("#p_tgl-"+id_pelanggan_lm).val()
-		let no_sj = $("#p_no_sj-"+id_pelanggan_lm).val()
+		// let no_sj = $("#p_no_sj-"+id_pelanggan_lm).val()
 		let attn = $("#attn-"+id_pelanggan_lm).val()
 		let alamat_kirim = $("#alamat_kirim-"+id_pelanggan_lm).val()
 		let no_telp = $("#no_telp-"+id_pelanggan_lm).val()
@@ -677,10 +677,11 @@
 				});
 			},
 			data: ({
-				id_pelanggan_lm, tgl, no_sj, attn, alamat_kirim, no_telp, no_kendaraan
+				id_pelanggan_lm, id_hub, tgl, attn, alamat_kirim, no_telp, no_kendaraan
 			}),
 			success: function(res){
 				data = JSON.parse(res)
+				console.log(data)
 				if(data.data){
 					kosong()
 				}else{

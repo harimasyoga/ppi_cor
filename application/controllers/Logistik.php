@@ -673,9 +673,10 @@ class Logistik extends CI_Controller
 	{
 		$html ='';
 		$tgl = date('Y-m-d');
-		$tahun = substr(date('Y'),2,2);
-		$group = $this->db->query("SELECT rk.*,p.nm_pelanggan_lm,p.alamat_kirim,p.no_telp FROM m_rk_laminasi rk
+		$group = $this->db->query("SELECT rk.*,r.id_hub,p.nm_pelanggan_lm,p.alamat_kirim,p.no_telp FROM m_rk_laminasi rk
 		INNER JOIN m_pelanggan_lm p ON rk.id_pelanggan_lm=p.id_pelanggan_lm
+		INNER JOIN trs_po_lm po ON po.id=rk.id_po_lm
+		INNER JOIN m_no_rek_lam r ON r.id_hub=po.id_hub
 		WHERE rk.rk_urut='0'
 		GROUP BY rk.id_pelanggan_lm");
 		if($group->num_rows() == 0){
@@ -699,12 +700,8 @@ class Logistik extends CI_Controller
 					$j++;
 					$html .='<tr style="border-top:3px solid #6c757d">
 						<th style="background:#e8e9ec;padding:6px" colspan="10">'.$g->nm_pelanggan_lm.'</th>
-					</tr>';
-
-					$noSJ = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat LIKE '%$tahun%' ORDER BY no_surat DESC LIMIT 1");
-					($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_surat,0,6);
-					$sj = str_pad($no+$j, 6, "0", STR_PAD_LEFT);
-					$html .='<tr>
+					</tr>
+					<tr>
 						<td style="padding:6px 6px 3px;border:0" colspan="2">TANGGAL <span style="float:right">:</span></td>
 						<td style="padding:6px 6px 3px;border:0" colspan="2">
 							<input type="date" class="form-control" id="p_tgl-'.$g->id_pelanggan_lm.'" value="'.$tgl.'">
@@ -714,9 +711,9 @@ class Logistik extends CI_Controller
 					<tr>
 						<td style="padding:3px 6px;border:0" colspan="2">NO. SURAT JALAN <span style="float:right">:</span></td>
 						<td style="padding:3px 6px;border:0" colspan="2">
-							<input type="number" class="form-control" style="padding:6px;height:100%;text-align:right" id="p_no_sj-'.$g->id_pelanggan_lm.'" value="'.$sj.'" onkeyup="noSJLaminasi('."'".$g->id_pelanggan_lm."'".')">
+							<input type="text" class="form-control" style="padding:6px;height:100%;text-align:center;font-weight:bold" value="AUTO" disabled>
 						</td>
-						<td style="padding:3px 6px;border:0" colspan="5">/'.$tahun.'/LM</td>
+						<td style="padding:3px 6px;border:0" colspan="5"></td>
 					</tr>
 					<tr>
 						<td style="padding:3px 6px;border:0" colspan="2">ATTN <span style="float:right">:</span></td>
@@ -820,7 +817,7 @@ class Logistik extends CI_Controller
 					if($j == 1){
 						$html .='<tr>
 							<td style="padding:6px" colspan="10">
-								<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="kirimSJLaminasi('."'".$g->id_pelanggan_lm."'".')"><i class="fas fa-share"></i> KIRIM</button>
+								<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="kirimSJLaminasi('."'".$g->id_pelanggan_lm."'".','."'".$g->id_hub."'".')"><i class="fas fa-share"></i> KIRIM</button>
 							</td>
 						</tr>';
 					}
@@ -1453,6 +1450,19 @@ class Logistik extends CI_Controller
 			($pl->attn_pl == null) ? $attn = $pl->nm_pelanggan_lm : $attn = $pl->attn_pl;
 			($pl->alamat_pl == null) ? $alamat_kirim = $pl->alamat_kirim : $alamat_kirim = $pl->alamat_pl;
 			$id_pelanggan_lm = $pl->id_pelanggan_lm;
+			// BANK
+			$bank = $this->db->query("SELECT l.no_surat,p.id_hub,r.* FROM m_rk_laminasi rk
+			INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
+			INNER JOIN trs_po_lm_detail dtl ON rk.id_po_dtl=dtl.id
+			INNER JOIN trs_po_lm p ON p.id=rk.id_po_lm
+			INNER JOIN m_no_rek_lam r ON r.id_hub=p.id_hub
+			WHERE l.no_surat='$no_surat'
+			GROUP BY l.no_surat,p.id_hub");
+			if($bank->num_rows() == 1){
+				$pilihanBank = '<option value="'.$bank->row()->id_hub.'">'.$bank->row()->an_bank.'</option>';
+			}else{
+				$pilihanBank = '<option value="">PILIH</option>';
+			}
 			
 			$tahun = substr($pl->tgl,2,2);
 			$noSJ = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE no_invoice LIKE '%$tahun%' ORDER BY no_invoice DESC LIMIT 1");
@@ -1529,6 +1539,7 @@ class Logistik extends CI_Controller
 			'kepada' => $attn,
 			'alamat' => $alamat_kirim,
 			'htmlItem' => $htmlItem,
+			'htmlBank' => $pilihanBank,
 		]);
 	}
 
@@ -1568,6 +1579,9 @@ class Logistik extends CI_Controller
 		$opsi = $_POST["opsi"];
 
 		$header = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id_header'")->row();
+		// BANK
+		$bank = $this->db->query("SELECT*FROM invoice_laminasi_header h INNER JOIN m_no_rek_lam r ON r.id_hub=h.bank WHERE h.id='$id_header'");
+		$pilihanBank = '<option value="'.$bank->row()->bank.'">'.$bank->row()->an_bank.'</option>';
 
 		$htmlItem = '';
 		$htmlItem .='<table class="table table-bordered" style="margin:0">
@@ -1686,6 +1700,7 @@ class Logistik extends CI_Controller
 			'oke_admin' => substr($this->m_fungsi->getHariIni(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin),0,3).', '.$this->m_fungsi->tglIndSkt(substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 0,10)).' ( '.substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 10,6).' )',
 			'time_owner' => ($header->time_owner == null) ? '' :substr($this->m_fungsi->getHariIni($header->time_owner),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->time_owner, 0,10)).' ( '.substr($header->time_owner, 10,6).' )',
 			'htmlItem' => $htmlItem,
+			'htmlBank' => $pilihanBank,
 		]);
 	}
 
@@ -3055,7 +3070,7 @@ class Logistik extends CI_Controller
 			}
 			$query = $this->db->query("SELECT*FROM pl_laminasi pl
 			INNER JOIN m_pelanggan_lm p ON pl.id_perusahaan=p.id_pelanggan_lm
-			$where GROUP BY pl.no_surat DESC")->result();
+			$where GROUP BY pl.tgl DESC,pl.no_surat DESC")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				($r->nm_pelanggan_lm != $r->attn_pl && $r->attn_pl != null) ? $customer = $r->nm_pelanggan_lm.' - <i>( '.$r->attn_pl.' )</i>' : $customer = $r->nm_pelanggan_lm;
@@ -3082,7 +3097,7 @@ class Logistik extends CI_Controller
 						<td style="padding:0;border:0;background:#fff">'.$r->no_po.'</td>
 					</tr>
 				</table>';
-				$row[] = '<div class="text-center">'.$r->no_surat.'</div>';
+				$row[] = $r->no_surat;
 				$row[] = '<div class="text-center">
 					<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Logistik/SJ_Laminasi?no=".$r->no_surat."").'">
 						<i class="fas fa-print"></i>

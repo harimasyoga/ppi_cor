@@ -595,7 +595,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log()
+				// console.log()
 				if(data.result){
 					kembali()
 				}else{

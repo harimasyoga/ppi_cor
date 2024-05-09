@@ -1110,22 +1110,13 @@ class M_logistik extends CI_Model
 	function kirimSJLaminasi()
 	{
 		$id_pelanggan_lm = $_POST["id_pelanggan_lm"];
+		$id_hub = $_POST["id_hub"];
 		$tgl = $_POST["tgl"];
-		$no_sj = $_POST["no_sj"];
 		$attn = $_POST["attn"];
 		$alamat_kirim = $_POST["alamat_kirim"];
 		$no_telp = $_POST["no_telp"];
 		$no_kendaraan = $_POST["no_kendaraan"];
-
-		$tahun = substr(date('Y'),2,2);
-		$no_surat = $no_sj.'/'.$tahun.'/LM';
-
-		$cekNoSJ = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat='$no_surat'");
-
-		if($no_sj == 000000 || $no_sj == '000000' || $no_sj == '' || $no_sj < 0 || strlen("'.$no_sj.'") < 6){
-			$data = false; $insertPL = false; $updateIDPL = false;
-			$msg = 'NOMER SURAT JALAN TIDAK BOLEH KOSONG!';
-		}else if($attn == ''){
+		if($attn == ''){
 			$data = false; $insertPL = false; $updateIDPL = false;
 			$msg = 'ATTN TIDAK BOLEH KOSONG!';
 		}else if($alamat_kirim == ''){
@@ -1137,14 +1128,35 @@ class M_logistik extends CI_Model
 		}else if($no_kendaraan == ''){
 			$data = false; $insertPL = false; $updateIDPL = false;
 			$msg = 'NOMER KENDARAAN TIDAK BOLEH KOSONG!';
-		}else if($cekNoSJ->num_rows() > 0){
-			$data = false; $insertPL = false; $updateIDPL = false;
-			$msg = 'NOMER SURAT JALAN SUDAH TERPAKAI!';
 		}else{
+			// CARI NOMER SURAT JALAN BEDASARKAN HUB
+			$tahun = substr(date('Y'),2,2);
+			if($id_hub == 0 || $id_hub == 7){
+				$noSJ = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat LIKE '%/$tahun/LM' ORDER BY no_surat DESC LIMIT 1");
+				($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_surat,0,6);
+				$no_surat = str_pad($no+1, 6, "0", STR_PAD_LEFT).'/'.$tahun.'/LM';
+			}else{
+				$hub = $this->db->query("SELECT aka FROM m_hub WHERE id_hub='$id_hub'")->row();
+				$noSJ = $this->db->query("SELECT l.no_surat,p.id_hub,r.*,b.aka FROM m_rk_laminasi rk
+				INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
+				INNER JOIN trs_po_lm_detail dtl ON rk.id_po_dtl=dtl.id
+				INNER JOIN trs_po_lm p ON p.id=rk.id_po_lm
+				INNER JOIN m_no_rek_lam r ON r.id_hub=p.id_hub
+				LEFT JOIN m_hub b ON r.id_hub=b.id_hub
+				WHERE l.no_surat LIKE '%/$hub->aka/$tahun' AND p.id_hub='$id_hub' ORDER BY l.no_surat DESC LIMIT 1");
+				if($noSJ->num_rows() == 0){
+					$no = 0;
+					$aka = $hub->aka;
+				}else{
+					$no = substr($noSJ->row()->no_surat,3,3);
+					$aka = $noSJ->row()->aka;
+				}
+				$no_surat = 'LM/'.str_pad($no+1, 3, "0", STR_PAD_LEFT).'/'.$aka.'/'.$tahun;
+			}
 			// UPDATE RK URUT
 			$cekUrut = $this->db->query("SELECT*FROM m_rk_laminasi WHERE rk_tgl='$tgl' GROUP BY rk_urut DESC LIMIT 1");
 			($cekUrut->num_rows() == 0) ? $rk_urut = 1 : $rk_urut = $cekUrut->row()->rk_urut + 1;
-
+			// INSERT KE PACKING LIST
 			$no_po = $this->db->query("SELECT*FROM m_rk_laminasi WHERE id_pelanggan_lm='$id_pelanggan_lm' AND rk_urut='0' GROUP BY rk_no_po");
 			foreach($no_po->result() as $r){
 				$pl = array(
@@ -1165,7 +1177,6 @@ class M_logistik extends CI_Model
 				);
 				$insertPL = $this->db->insert('pl_laminasi', $pl);
 			}
-
 			// UPDATE ID PL DI RENCANA KIRIM
 			if($insertPL){
 				$cekPL = $this->db->query("SELECT*FROM pl_laminasi WHERE id_perusahaan='$id_pelanggan_lm' AND tgl='$tgl' AND no_pl_urut='$rk_urut'");
@@ -1181,14 +1192,12 @@ class M_logistik extends CI_Model
 					$updateIDPL = $this->db->update('m_rk_laminasi');
 				}
 			}
-
 			$data = true;
 			$msg = 'OK';
 		}
-
 		return [
-			'3insertPL' => $insertPL,
-			'5updateIDPL' => $updateIDPL,
+			'insertPL' => $insertPL,
+			'updateIDPL' => $updateIDPL,
 			'msg' => $msg,
 			'data' => $data,
 		];
@@ -1278,7 +1287,7 @@ class M_logistik extends CI_Model
 					'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
 					'attn_lam_inv' => $kepada,
 					'alamat_lam_inv' => $alamat,
-					'bank' => $pilihan_bank,
+					// 'bank' => $pilihan_bank,
 					'edit_admin' => date('Y-m-d H:i:s'),
 				);
 				$this->db->where('id', $id_header);
