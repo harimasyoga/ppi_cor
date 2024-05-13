@@ -232,9 +232,9 @@
 												<i class="fas fa-search"></i>
 											</button> 
 											
-											<button style="display: none;" type="button" title="PILIH"  onclick="cetak_inv_bb(this.id)" class="btn btn-danger btn-sm" name="print_inv[0]" id="print_inv0">
+											<!-- <button style="display: none;" type="button" title="PILIH"  onclick="cetak_inv_bb(this.id)" class="btn btn-danger btn-sm" name="print_inv[0]" id="print_inv0">
 												<i class="fas fa-print"></i>
-											</button> 
+											</button>  -->
 											
 										</div>
 									</td>
@@ -505,9 +505,6 @@
 									<i class="fas fa-search"></i>
 								</button>
 								
-								<button style="display: none;" type="button" title="PRINT"  onclick="cetak_inv_bb(this.id)" class="btn btn-danger btn-sm" name="print_inv[${ rowNum }]" id="print_inv${ rowNum }">
-									<i class="fas fa-print"></i>
-								</button> 
 							</div>
 						</td>
 						<td style="padding : 12px 20px" >
@@ -917,6 +914,11 @@
 						</thead>`;
 						
 					var no   = 0;
+					
+					// <button type="button" title="PILIH"  onclick="cetak_inv_bb(this.id)" class="btn btn-danger btn-sm" name="print_inv[${ no }]" id="print_inv${ no }">
+					// 	<i class="fas fa-print"></i>
+					// </button> 
+
 					$.each(data.detail, function(index, val) {
 						var history_detail = val.history - val.datang_bhn_bk
 						list += `
@@ -932,10 +934,6 @@
 									<div class="text-center">
 										<button type="button" title="PILIH"  onclick="load_item(this.id)" class="btn btn-success btn-sm" data-toggle="modal"  name="list[${ no }]" id="list${ no }">
 											<i class="fas fa-search"></i>
-										</button> 
-
-										<button type="button" title="PILIH"  onclick="cetak_inv_bb(this.id)" class="btn btn-danger btn-sm" name="print_inv[${ no }]" id="print_inv${ no }">
-											<i class="fas fa-print"></i>
 										</button> 
 										
 									</div>
@@ -1107,14 +1105,15 @@
 				if(data == true){
 					// toastr.success('Berhasil Disimpan');
 					// swal.close();								
-					kosong();
-					location.href = "<?= base_url()?>Logistik/stok_bb";
+					kosong();					
+					// location.href = "<?= base_url()?>Logistik/stok_bb";
 					swal({
 						title               : "Data",
 						html                : "Berhasil Disimpan",
 						type                : "success",
 						confirmButtonText   : "OK"
-					});
+					});					
+					kembaliList()
 					
 				} else {
 					// toastr.error('Gagal Simpan');
