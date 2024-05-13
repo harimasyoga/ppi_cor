@@ -95,6 +95,16 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	public function Invoice_bhn_bk()
+	{
+		$data = array(
+			'judul' => "Invoice Bahan Baku",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_invoice_bhn');
+		$this->load->view('footer');
+	}
+
 	function bayar_inv_beli()
 	{
 		$data = [
@@ -2677,6 +2687,20 @@ class Logistik extends CI_Controller
 			),0)history_po
 			FROM trs_po_bhnbk a 
 			JOIN m_hub b ON a.hub=b.id_hub where id_po_bhn='$id' ";
+		}else if($jenis=='spill_stok')
+		{ 
+			$queryh   = "SELECT*FROM trs_h_stok_bb a
+			JOIN trs_d_stok_bb b ON a.no_stok=b.no_stok
+			JOIN m_hub c ON b.id_hub=c.id_hub 
+			where status='Open' and id_stok_d='$id'
+			ORDER BY tgl_stok desc,a.no_stok,id_stok ";
+			
+			$queryd   = "SELECT*FROM trs_h_stok_bb a
+			JOIN trs_d_stok_bb b ON a.no_stok=b.no_stok
+			JOIN m_hub c ON b.id_hub=c.id_hub 
+			where status='Open' and id_stok_d='$id'
+			ORDER BY tgl_stok desc,a.no_stok,id_stok ";
+
 		}else if($jenis=='edit_stok_bb'){
 			 
 			$queryh   = "SELECT *, IFNULL((
@@ -2720,6 +2744,20 @@ class Logistik extends CI_Controller
 						)b )b
 			ON a.jns_beban=b.kd
 			where no_inv_beli='$data_h->no_inv_beli'";
+
+		}else if($jenis=='edit_inv_bhn')
+		{ 
+			$queryh   = "SELECT*from invoice_bhn a
+			join m_hub b on a.id_hub=b.id_hub
+			WHERE id_inv_bhn='$id'
+			order by tgl_inv_bhn desc, id_inv_bhn";
+			
+			$data_h   = $this->db->query($queryh)->row();
+
+			$queryd   = "SELECT*from invoice_bhn a
+			join m_hub b on a.id_hub=b.id_hub
+			WHERE id_inv_bhn='$id'
+			order by tgl_inv_bhn desc, id_inv_bhn";
 
 		}else if($jenis=='edit_stok_ppi')
 		{ 
@@ -3240,6 +3278,42 @@ class Logistik extends CI_Controller
 				$i++;
 			}
 		
+		}else if ($jenis == "stok_bb_rinci") {			
+			$query = $this->db->query("SELECT*FROM trs_h_stok_bb a
+			JOIN trs_d_stok_bb b ON a.no_stok=b.no_stok
+			JOIN m_hub c ON b.id_hub=c.id_hub 
+			where status='Open' AND id_stok_d not in (select id_stok_d from invoice_bhn)
+			ORDER BY tgl_stok ,a.no_stok,id_stok")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+
+				$id           = "'$r->id_stok'";
+				$id_stok_d    = "'$r->id_stok_d'";
+				$no_stok      = "'$r->no_stok'";
+				$no_stok2     = "$r->no_stok";
+
+				$row            = array();
+				$row[]          = '<div class="text-center">'.$i.'</div>';
+				$row[]          = '<div >'.$r->no_stok.'</div>';
+				$row[]          = '<div class="text-center">'.$r->tgl_stok.'</div>';
+				$row[]          = '<div class="text-center"><button type="button" class="btn btn-sm btn-info ">'.$r->status.'</button></div>';
+				$row[]          = '<div >'.$r->no_timbangan.'</div>';
+				$row[]          = '<div class="text-center">'.number_format($r->total_timb, 0, ",", ".").' Kg</div>' ;
+				$row[]          = '<div class="text-center">'.number_format($r->datang_bhn_bk, 0, ",", ".").' Kg</div>' ;
+				$row[]          = '<div class="text-center">'.$r->nm_hub.'</div>';
+				
+				$aksi = '
+						<button type="button" title="PILIH"  onclick="spilldata(' . $id_stok_d . ',' . $no_stok . ')" class="btn btn-success btn-sm">
+							<i class="fas fa-check-circle"></i>
+						</button> 
+						';
+
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+				$i++;
+			}
+		
 		}else if ($jenis == "inv_beli") {			
 			$query = $this->db->query("SELECT a.*,b.nm_hub,c.nm_supp FROM invoice_header_beli a
 			JOIN m_hub b ON a.id_hub=b.id_hub
@@ -3313,6 +3387,65 @@ class Logistik extends CI_Controller
 				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User','Keuangan1']))
 				{
 					$row[] = '<div class="text-center">'.$btnEdit.' '.$btncetak.' '.$btnHapus.'</div>';
+
+				}else{
+					$row[] = '<div class="text-center"></div>';
+				}
+				
+				$data[] = $row;
+				$i++;
+			}
+		
+		}else if ($jenis == "inv_bhn") {			
+			$query = $this->db->query("SELECT*from invoice_bhn a
+			join m_hub b on a.id_hub=b.id_hub
+			order by tgl_inv_bhn desc, id_inv_bhn")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+
+				$id           = "'$r->id_inv_bhn'";
+				$no_inv_bhn   = "'$r->no_inv_bhn'";
+
+				if($r->acc_owner=='N')
+                {
+                    $btn2   = 'btn-warning';
+                    $i2     = '<i class="fas fa-lock"></i>';
+                } else {
+                    $btn2   = 'btn-success';
+                    $i2     = '<i class="fas fa-check-circle"></i>';
+                }
+				
+				if (in_array($this->session->userdata('username'), ['owner','developer']))
+				{
+					$urll2 = "onclick=open_modal('$r->id_inv_bhn','$r->no_inv_bhn')";
+				} else {
+					$urll2 = '';
+				}
+					
+				$row    = array();
+				$row[]  = '<div class="text-center">'.$i.'</div>';
+				$row[]  = '<div class="text-center">'.$r->no_inv_bhn.'</div>';
+				$row[]  = '<div class="text-center">'.$r->no_stok.'</div>';
+				$row[]  = '<div class="text-center">'.$r->tgl_inv_bhn.'</div>';
+				$row[]  = $r->nm_hub;
+				$row[]  = '<div class="text-right">'.number_format($r->qty, 0, ",", ".").'</div>';
+				$row[]  = '<div class="text-right">'.number_format($r->nominal, 0, ",", ".").'</div>';
+				$row[]  = '<div class="text-right">'.number_format($r->qty * $r->nominal, 0, ",", ".").'</div>';
+				$row[]  = '
+						<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn2.' " '.$urll2.' title="VERIFIKASI DATA" ><b>'.$i2.' </b> </a><span style="font-size:1px;color:transparent">'.$r->acc_owner.'</span><div>';
+
+				$btncetak ='<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/cetak_inv_bb2?no_inv_bhn="."$r->no_inv_bhn"."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>';
+
+				$btnEdit = '<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv_bhn . ')" title="EDIT DATA" >
+				<b><i class="fa fa-edit"></i> </b></a>';
+
+				$btnHapus = '<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv_bhn . ',' . $r->id_hub . ')" class="btn btn-danger btn-sm">
+				<i class="fa fa-trash-alt"></i></button> ';
+					
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User','Keuangan1']))
+				{
+					$row[] = '<div class="text-center">'.$btnEdit.' '.$btncetak.'</div>';
 
 				}else{
 					$row[] = '<div class="text-center"></div>';
@@ -3865,6 +3998,16 @@ class Logistik extends CI_Controller
 		}
 		
 	}
+	
+	function insert_inv_bhn()
+	{
+		if($this->session->userdata('username'))
+		{ 
+			$result = $this->m_logistik->save_inv_bhn();
+			echo json_encode($result);
+		}
+		
+	}
 
 	function Insert_inv()
 	{
@@ -4134,6 +4277,21 @@ class Logistik extends CI_Controller
 			$id_hub2   = str_replace(",'","",$id_hub);
 			$id_hub3   = str_replace("'","",$id_hub2);
 
+			// delete jurnal & invoice
+			$cek_inv = $this->db->query("SELECT*from invoice_bhn where no_stok='$no_stok' and no_inv_bhn in (select no_transaksi from jurnal_d)");
+			if($cek_inv->num_rows() >0 )
+			{
+				foreach ($cek_inv->result() as $row_cek)
+				{
+					del_jurnal( $row_cek->no_inv_bhn );	
+
+					$result = $this->m_master->query("DELETE FROM invoice_bhn WHERE no_stok = '$no_stok' and no_inv_bhn='$row_cek->no_inv_bhn' ");
+				}
+				
+			}else{
+				$result = $this->m_master->query("DELETE FROM invoice_bhn WHERE no_stok = '$no_stok' ");
+			}
+			
 			$cek = $this->m_master->query("SELECT*FROM trs_h_stok_bb WHERE id_stok = '$id'");
 
 			// delete stok
@@ -4142,8 +4300,7 @@ class Logistik extends CI_Controller
 				$result = $this->m_master->query("DELETE FROM trs_stok_bahanbaku WHERE  no_transaksi = '$no_stok' and jenis in ('PPI') ");		
 			}			
 			$result = $this->m_master->query("DELETE FROM trs_stok_bahanbaku WHERE  no_transaksi = '$no_stok' and id_hub in ($id_hub3) ");	
-
-
+						
 			// delete tabel
 			$result = $this->m_master->query("DELETE FROM trs_h_stok_bb WHERE id_stok = '$id'");
 
@@ -4551,36 +4708,36 @@ class Logistik extends CI_Controller
 
             </table><br><br>';
 
-	$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
-		<tr>
-			<td style="">Di Bayarkan Kepada :</td>
-			<td style="text-align:center">Sragen, '.$this->m_fungsi->tanggal_format_indonesia($data->tgl_stok).'</td> 
-		</tr>
-		<tr>
-			
-			<td style="">BCA 5050290672 </td>
-			<td style=""></td>
-		</tr>
-		<tr>
-			
-			<td style="">A.n UD.PATRIOT</td>
-			<td style=""></td>
-		</tr>
-		<tr>
-			
-			<td style="">&nbsp;</td>
-			<td style=""></td>
-		</tr>
-		<tr>
-			<td style="">* Harap bukti transfer di email ke</td>
-			<td style="border-bottom:1px solid #000;"></td>
-		</tr>
-		<tr>
-			<td style="">patriot@gmail.com</td>
-			<td style="text-align:center">Finance</td>
-		</tr>		
-		</table>
-		';
+		$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
+			<tr>
+				<td style="">Di Bayarkan Kepada :</td>
+				<td style="text-align:center">Sragen, '.$this->m_fungsi->tanggal_format_indonesia($data->tgl_stok).'</td> 
+			</tr>
+			<tr>
+				
+				<td style="">BCA 5050290672 </td>
+				<td style=""></td>
+			</tr>
+			<tr>
+				
+				<td style="">A.n UD.PATRIOT</td>
+				<td style=""></td>
+			</tr>
+			<tr>
+				
+				<td style="">&nbsp;</td>
+				<td style=""></td>
+			</tr>
+			<tr>
+				<td style="">* Harap bukti transfer di email ke</td>
+				<td style="border-bottom:1px solid #000;"></td>
+			</tr>
+			<tr>
+				<td style="">patriot@gmail.com</td>
+				<td style="text-align:center">Finance</td>
+			</tr>		
+			</table>
+			';
 
 
 		} else {
@@ -4589,6 +4746,246 @@ class Logistik extends CI_Controller
 
 		$judul    = 'INVOICE';
 		$jdl_save = $no_po;
+		$position = 'P';
+		$cekpdf   = '1';
+
+		switch ($cekpdf) {
+			case 0;
+				echo ("<title>$judul</title>");
+				echo ($html);
+				break;
+
+			case 1;
+				$this->M_fungsi->_mpdf_hari($position, 'A4', $judul, $html, $jdl_save.'.pdf', 5, 5, 5, 10,'','','','PATRIOT');
+				break;
+			case 2;
+				header("Cache-Control: no-cache, no-store, must-revalidate");
+				header("Content-Type: application/vnd-ms-excel");
+				header("Content-Disposition: attachment; filename= $judul.xls");
+				$this->load->view('app/master_cetak', $data);
+				break;
+		}
+	}
+	
+	function cetak_inv_bb2()
+	{
+		$no_inv_bhn        = $_GET['no_inv_bhn'];
+
+        $query_header = $this->db->query("SELECT *,d.alamat as alamat_hub from invoice_bhn a
+		JOIN trs_h_stok_bb b ON a.no_stok=b.no_stok
+		JOIN trs_d_stok_bb c ON a.id_stok_d=c.id_stok_d
+		JOIN m_hub d ON d.id_hub=a.id_hub
+		JOIN m_jembatan_timbang e ON b.no_timbangan=e.no_timbangan
+		WHERE no_inv_bhn='$no_inv_bhn'"); 
+        
+        $data = $query_header->row();
+        
+        $querydetail = $this->db->query("SELECT *,d.alamat as alamat_hub from invoice_bhn a
+		JOIN trs_h_stok_bb b ON a.no_stok=b.no_stok
+		JOIN trs_d_stok_bb c ON a.id_stok_d=c.id_stok_d
+		JOIN m_hub d ON d.id_hub=a.id_hub
+		JOIN m_jembatan_timbang e ON b.no_timbangan=e.no_timbangan
+		WHERE no_inv_bhn='$no_inv_bhn'");
+
+		$html = '';
+
+		// header
+
+		$nm_toko  = 'UD PATRIOT';
+		$alamat   = 'Dukuh Masaran RT 34, Desa Masaran';
+		$alamat2  = 'Kecamatan Masaran, Kabupaten Sragen, Jawa Tengah';
+		$phone    = '0821-4800-4077';
+		$whatsapp = '0821-4800-4077';
+		$kodepos  = '-';
+		$npwp     = '-';
+		$html .= "
+			 <table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:12px; color:#000;\" width=\"100%\"  border=\"\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\">
+			 <thead>
+				  <tr>
+					   <td rowspan=\"5\" align=\"center\">
+							<img src=\"" . base_url() . "assets/gambar/patriot.png\"  width=\"150\" height=\"50\" />
+					   </td>
+					   <td colspan=\"20\">
+							<b>
+								 <tr>
+									  <td align=\"left\" style=\"font-size:28;border-bottom: none;\"><b>$nm_toko</b></td>
+								 </tr>
+								 <tr>
+									  <td align=\"left\" style=\"font-size:10px;\">$alamat</td>
+								 </tr>
+								 <tr>
+									  <td align=\"left\" style=\"font-size:10px;\">$alamat2  Kode Pos $kodepos </td>
+								 </tr>
+								 <tr>
+									  <td align=\"left\" style=\"font-size:10px;\">Wa : $whatsapp  |  Telp : $phone </td>
+								 </tr>
+							</b>
+					   </td>
+				  </tr>
+			 </table>";
+		$html .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:6px\" width=\"100%\" align=\"center\" border=\"0\">
+				  <tr>
+					   <td> &nbsp; </td>
+				  </tr> 
+			 </table>";
+
+		$html .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:2px\" width=\"100%\" align=\"center\" border=\"1\">     
+				  <tr>
+					   <td colspan=\"20\" style=\"border-top: none;border-right: none;border-left: none;\"></td>
+				  </tr> 
+			 </table>";
+		$html .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:4px\" width=\"100%\" align=\"center\" border=\"1\">     
+				  <tr>
+					   <td colspan=\"20\" style=\"border-top: none;border-right: none;border-left: none;border-bottom: 2px solid black;font-size:5px\"></td>
+				  </tr> 
+			 </table>";
+		$html .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:8px\" width=\"100%\" align=\"center\" border=\"0\">     
+				  <tr> <td>&nbsp;</td> </tr> 
+			 </table>";
+		// end header
+
+		$html .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:8px\" width=\"100%\" align=\"center\" border=\"0\">     
+				  <tr> <td>&nbsp;</td> </tr> 
+				  <tr> <td>&nbsp;</td> </tr> 
+			 </table>";
+
+		if ($query_header->num_rows() > 0) {
+
+            $html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: Trebuchet MS, Helvetica, sans-serif;;">
+
+            <tr>
+				<td width="40%" rowspan="3" align="center" style="font-size:35px;"><b>INVOICE</b></td>
+				<td width="20%" rowspan="4"></td>
+				<td width="40%">Kepada</td>
+			</tr>
+            <tr>
+				<td><b>'.$data->nm_hub.'</b></td>
+			</tr>
+            <tr>
+				<td>'.$data->no_telp.'</td>
+			</tr>
+            <tr>
+				<td align="center">No.'.$data->no_inv_bhn.'</td>
+				<td>'.$data->alamat_hub.'</td>
+			</tr>
+            </table><br><br>';
+
+			$html .= '<table width="100%" border="0" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: Trebuchet MS, Helvetica, sans-serif;;">
+                        <tr style="background-color: #f0b2b4">
+                            <th width="2%" align="center">NO</th>
+                            <th width="10%" align="center">ITEM</th>
+                            <th width="10%" align="center">JUMLAH</th>
+                            <th width="12%" align="center">SATUAN</th>
+                            <th width="8%" align="center">HARGA</th>
+                            <th width="10%" align="center">TOTAL </th>
+						</tr>';
+
+			$html .= '
+				<tr>
+					<td colspan="6" >&nbsp;</td>
+				</tr>';
+			$no = 1;
+			$tot_qty = $tot_value = $tot_total = 0;
+			foreach ($querydetail->result() as $r) {
+
+                $total = $r->nominal*$r->qty;
+				$html .= '
+				<tr >
+					<td align="center">' . $no . '</td>
+					<td align="center">' . $r->nm_barang . '</td>
+					<td align="center">' . number_format($r->qty, 0, ",", ".") . '</td>
+					<td align="center">Kg</td>
+					<td align="right">' . number_format($r->nominal, 0, ",", ".") . '</td>
+					<td align="right">' . number_format($total, 0, ",", ".") . '</td>
+					</tr>';
+
+				$no++;
+				$tot_total += $total;
+			}
+			$html .= '</table>';
+
+			
+			// $ppn11       = 0.11 * $tot_total;
+			$ppn11       = 0;
+			$total_all   = $ppn11 + $tot_total;
+
+			$html .= "
+			 <table style=\"border-collapse:collapse;font-family: tahoma; font-size:8px\" width=\"100%\" align=\"center\" border=\"0\">     
+				  <tr> <td>&nbsp;</td> </tr> 
+				  <tr> <td>&nbsp;</td> </tr> 
+				  <tr> <td>&nbsp;</td> </tr> 
+				  <tr> <td>&nbsp;</td> </tr>  
+			 </table>";
+
+
+		$html .= '<hr>
+		<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: Trebuchet MS, Helvetica, sans-serif;">
+			<tr> 
+				<td colspan="4" style="border-width:2px 0;border-top:1px solid #000;">&nbsp;</td>
+			</tr>
+            <tr>
+				<td width="65%" ><b>TERBILANG :</b></td>
+				<td width="20%" ><b></b></td>
+				<td  width="15%" align="right" ></td>
+			</tr>
+            <tr>
+				<td rowspan="2" style="font-size:15px;"><b>'.$this->m_fungsi->terbilang($total_all).'</b></td>
+				<td><b>Sub Total Incl</b></td>
+				<td align="right"><b>Rp.' . number_format($total_all, 0, ",", ".") . '</b></td>
+			</tr>
+            <tr>
+				<td><b></b></td>
+				<td align="right"><b></b></td>
+			</tr>
+			<tr> 
+				<td colspan="4" style="border-width:2px 0;border-bottom:1px solid #000;">&nbsp;</td>
+			</tr>
+
+            </table><br><br>';
+
+		$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
+			<tr>
+				<td style="">Di Bayarkan Kepada :</td>
+				<td style="text-align:center">Sragen, '.$this->m_fungsi->tanggal_format_indonesia($data->tgl_stok).'</td> 
+			</tr>
+			<tr>
+				
+				<td style="">BCA 5050290672 </td>
+				<td style=""></td>
+			</tr>
+			<tr>
+				
+				<td style="">A.n UD.PATRIOT</td>
+				<td style=""></td>
+			</tr>
+			<tr>
+				
+				<td style="">&nbsp;</td>
+				<td style=""></td>
+			</tr>
+			<tr>
+				<td style="">* Harap bukti transfer di email ke</td>
+				<td style="border-bottom:1px solid #000;"></td>
+			</tr>
+			<tr>
+				<td style="">patriot@gmail.com</td>
+				<td style="text-align:center">Finance</td>
+			</tr>		
+			</table>
+			';
+
+
+		} else {
+			$html .= '<h1> Data Kosong </h1>';
+		}
+
+		$judul    = 'INVOICE';
+		$jdl_save = $no_inv_bhn;
 		$position = 'P';
 		$cekpdf   = '1';
 

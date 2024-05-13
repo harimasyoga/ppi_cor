@@ -136,20 +136,21 @@ class Keuangan extends CI_Controller
 			$i               = 1;
 			foreach ($query as $r) {
 
-				$row = array();
-				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = '<div class="text-center">'.$r->no_voucher.'</div>';
-				$row[] = '<div class="text-center">'.$r->nm_hub.'</div>';
-				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind(substr($r->tgl_input,0,10)).'</div>';
-				$row[] = '<div class="text-center">'.$r->jam_input.'</div>';
-				$row[] = '<div class="text-center">'.$r->no_transaksi.'</div>';
-				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind(substr($r->tgl_transaksi,0,10)).'</div>';
-				$row[] = '<div class="text-center">'.$r->kode_rek.'</div>';
-				$row[] = '<div class="text-center">'.cari_rek($r->kode_rek).'</div>';
-				$row[] = '<div class="text-center">'.number_format($r->debet, 0, ",", ".").'</div>';
-				$row[] = '<div class="text-center">'.number_format($r->kredit, 0, ",", ".").'</div>';
-				$row[] = '<div class="text-center">'.$r->ket .'</div>';
-				$data[] = $row;
+				$nm_rekk    = strtolower(cari_rek($r->kode_rek));
+				$row        = array();
+				$row[]      = '<div class="text-center">'.$i.'</div>';
+				$row[]      = '<div class="text-center">'.$r->no_voucher.'</div>';
+				$row[]      = '<div class="text-center">'.$r->nm_hub.'</div>';
+				$row[]      = '<div class="text-center">'.$this->m_fungsi->tanggal_ind(substr($r->tgl_input,0,10)).'</div>';
+				$row[]      = '<div class="text-center">'.$r->jam_input.'</div>';
+				$row[]      = '<div class="text-center">'.$r->no_transaksi.'</div>';
+				$row[]      = '<div class="text-center">'.$this->m_fungsi->tanggal_ind(substr($r->tgl_transaksi,0,10)).'</div>';
+				$row[]      = '<div class="text-center">'.$r->kode_rek.'</div>';
+				$row[]      = '<div class="text-left" style="text-transform:capitalize;">'.$nm_rekk.'</div>';
+				$row[]      = '<div class="text-center">'.number_format($r->debet, 0, ",", ".").'</div>';
+				$row[]      = '<div class="text-center">'.number_format($r->kredit, 0, ",", ".").'</div>';
+				$row[]      = '<div class="text-center">'.$r->ket .'</div>';
+				$data[]     = $row;
 
 				$i++;
 			}
@@ -199,15 +200,16 @@ class Keuangan extends CI_Controller
 
 			$i               = 1;
 			foreach ($query as $r) {
-
-				$row = array();
-				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind(substr($r->tgl_input,0,10)).'</div>';
-				$row[] = '<div class="text-center">'.$r->no_voucher.'</div>';$row[] = '<div class="text-center">'.$r->kode_rek.'</div>';
-				$row[] = '<div class="text-center">'.cari_rek($r->kode_rek).'</div>';
-				$row[] = '<div class="text-center">'.number_format($r->debet, 0, ",", ".").'</div>';
-				$row[] = '<div class="text-center">'.number_format($r->kredit, 0, ",", ".").'</div>';
-				$row[] = '<div class="text-center">'.$r->ket .'</div>';
+				$nm_rekk    = strtolower(cari_rek($r->kode_rek));
+				
+				$row    = array();
+				$row[]  = '<div class="text-center">'.$i.'</div>';
+				$row[]  = '<div class="text-center">'.$this->m_fungsi->tanggal_ind(substr($r->tgl_input,0,10)).'</div>';
+				$row[]  = '<div class="text-center">'.$r->no_voucher.'</div>';$row[] = '<div class="text-center">'.$r->kode_rek.'</div>';
+				$row[]  = '<div class="text-left" style="text-transform:capitalize;">'.$nm_rekk.'</div>';
+				$row[]  = '<div class="text-center">'.number_format($r->debet, 0, ",", ".").'</div>';
+				$row[]  = '<div class="text-center">'.number_format($r->kredit, 0, ",", ".").'</div>';
+				$row[]  = '<div class="text-center">'.$r->ket .'</div>';
 				$data[] = $row;
 
 				$i++;
@@ -297,7 +299,8 @@ class Keuangan extends CI_Controller
 				$hitung   = 0;
 				foreach($nrc->result() as $r){
 					$i++;				
-					$hitung   += $r->debet - $r->kredit;
+					$nm_rekk   = strtolower(cari_rek($r->kode_rek));
+					$hitung    += $r->debet - $r->kredit;
 					$html .='
 					<tr>
 						<td style="font-weight: bold;">'.$i.'</td>
@@ -305,7 +308,7 @@ class Keuangan extends CI_Controller
 						<td style="font-weight: bold;">'.$r->no_voucher.'</td>
 						<td style="font-weight: bold;">'.$r->nm_hub.'</td>
 						<td style="font-weight: bold;text-align:center" >'.$r->kode_rek.'</td>
-						<td style="font-weight: bold;">'.cari_rek($r->kode_rek).'</td>
+						<td style="font-weight: bold; text-transform:capitalize;" class="text-left">'.$nm_rekk.'</td>
 						<td style="font-weight: bold;text-align:right">Rp ' . number_format($r->debet, 0, ",", ".") . '</td>
 						<td style="font-weight: bold;text-align:right">Rp ' . number_format($r->kredit, 0, ",", ".") . '</td>
 						<td style="font-weight: bold;text-align:right">Rp ' . number_format($hitung, 0, ",", ".") . '</td>
@@ -368,20 +371,21 @@ class Keuangan extends CI_Controller
 			foreach($lr_dtl->result() as $r){
 				$i++;
 				$html .='<tbody>';
+				$nm_rekk = strtolower(cari_rek($r->kd));
 
 				if($r->length=='1')
 				{
 					$html .='
 					<tr>
 						<td style="font-weight: bold;">'.$r->kd.'</td>
-						<td style="font-weight: bold;">'.cari_rek($r->kd).'</td>					
+						<td style="font-weight: bold;text-transform:capitalize;" class="text-left">'.$nm_rekk.'</td>					
 						<td style="font-weight: bold;text-align:right">Rp ' . number_format($r->nominal, 0, ",", ".") . '</td>
 					</tr>';
 				}else{
 					$html .='
 					<tr>
 						<td style="">&nbsp;&nbsp;&nbsp;&nbsp;'.$r->kd.'</td>
-						<td style="">&nbsp;&nbsp;&nbsp;&nbsp;'.cari_rek($r->kd).'</td>					
+						<td class="text-left" style="text-transform:capitalize;">&nbsp;&nbsp;&nbsp;&nbsp;'.$nm_rekk.'</td>					
 						<td style="text-align:right">Rp ' . number_format($r->nominal, 0, ",", ".") . '</td>
 					</tr>';
 
@@ -426,20 +430,21 @@ class Keuangan extends CI_Controller
 			foreach($nrc->result() as $r){
 				$i++;
 				$html .='<tbody>';
+				$nm_rekk = strtolower(cari_rek($r->kd));
 
 				if($r->length=='1')
 				{
 					$html .='
 					<tr>
 						<td style="font-weight: bold;">'.$r->kd.'</td>
-						<td style="font-weight: bold;">'.cari_rek($r->kd).'</td>					
+						<td style="font-weight: bold;text-transform:capitalize;" class="text-left" >'.$nm_rekk.'</td>					
 						<td style="font-weight: bold;text-align:right">Rp ' . number_format($r->nominal, 0, ",", ".") . '</td>
 					</tr>';
 				}else{
 					$html .='
 					<tr>
 						<td style="">&nbsp;&nbsp;&nbsp;&nbsp;'.$r->kd.'</td>
-						<td style="">&nbsp;&nbsp;&nbsp;&nbsp;'.cari_rek($r->kd).'</td>					
+						<td class="text-left" style="text-transform:capitalize;" >&nbsp;&nbsp;&nbsp;&nbsp;'.$nm_rekk.'</td>					
 						<td style="text-align:right">Rp ' . number_format($r->nominal, 0, ",", ".") . '</td>
 					</tr>';
 
@@ -588,20 +593,22 @@ class Keuangan extends CI_Controller
 			$no=0;
 			foreach ($query_detail->result() as $r) 
 			{
+				$nm_rekk    = strtolower(cari_rek($r->kd));
+
 				$no++;
 				if($r->length=='1')
 				{
 					$html .='
 					<tr>
 						<td style="font-weight: bold;">'.$r->kd.'</td>
-						<td style="font-weight: bold;">'.cari_rek($r->kd).'</td>					
+						<td style="font-weight: bold;" class="text-left" style="text-transform:capitalize;">'.$nm_rekk.'</td>					
 						<td style="font-weight: bold;text-align:right">Rp ' . number_format($r->nominal, 0, ",", ".") . '</td>
 					</tr>';
 				}else{
 					$html .='
 					<tr>
 						<td style="">&nbsp;&nbsp;&nbsp;&nbsp;'.$r->kd.'</td>
-						<td style="" style="text-transform:capitalize;">&nbsp;&nbsp;&nbsp;&nbsp;'.cari_rek($r->kd).'</td>					
+						<td style="" class="text-left" style="text-transform:capitalize;">&nbsp;&nbsp;&nbsp;&nbsp;'.$nm_rekk.'</td>					
 						<td style="text-align:right">Rp ' . number_format($r->nominal, 0, ",", ".") . '</td>
 					</tr>';
 
@@ -674,7 +681,7 @@ class Keuangan extends CI_Controller
 					$html .='
 					<tr>
 						<td style="font-weight: bold;">'.$r->kd.'</td>
-						<td style="font-weight: bold;">'.cari_rek($r->kd).'</td>					
+						<td style="font-weight: bold; text-transform:capitalize;" class="text-left">'.cari_rek($r->kd).'</td>					
 						<td style="font-weight: bold;text-align:right">Rp ' . number_format($r->nominal, 0, ",", ".") . '</td>
 					</tr>';
 				}else if($r->length=='4')
@@ -776,7 +783,7 @@ class Keuangan extends CI_Controller
 							<td style="font-weight: bold;">'.$r->tgl_transaksi.'</td>
 							<td style="font-weight: bold;">'.$r->no_voucher.'</td>
 							<td style="font-weight: bold;text-align:center" >'.$r->kode_rek.'</td>
-							<td style="font-weight: bold;">'.cari_rek($r->kode_rek).'</td>
+							<td style="font-weight: bold;text-transform:capitalize;" class="text-left" >'.cari_rek($r->kode_rek).'</td>
 							<td style="font-weight: bold;text-align:right">Rp ' . number_format($r->debet, 0, ",", ".") . '</td>
 							<td style="font-weight: bold;text-align:right">Rp ' . number_format($r->kredit, 0, ",", ".") . '</td>
 							<td style="font-weight: bold;text-align:right">Rp ' . number_format($hitung, 0, ",", ".") . '</td>
