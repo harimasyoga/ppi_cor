@@ -602,11 +602,12 @@
 	function addTimbangan(tgl, urut){
 		let plat = $("#pp-noplat-"+urut).val()
 		let supir = $("#pp-supir-"+urut).val()
+		let tb_truk = $("#pp-timbangan-truk-"+urut).val()
 		let timbangan = $("#pp-timbangan-"+urut).val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/addTimbangan')?>',
 			type: "POST",
-			data: ({ tgl, urut, plat, supir, timbangan }),
+			data: ({ tgl, urut, plat, supir, tb_truk, timbangan }),
 			beforeSend: function() {
 				swal({
 					title: 'Loading',
@@ -660,6 +661,24 @@
 					window.open(url+'?jenis='+data.no_jasa+'&top=5&ctk=0', '_blank');
 					swal.close()
 				}
+			}
+		})
+	}
+
+	function cUkuranKualitas(id_rk, id_produk, opsi)
+	{
+		let c_uk = $("#c_uk_"+id_produk).val()
+		let c_kl = $("#c_kl_"+id_produk).val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/cUkuranKualitas')?>',
+			type: "POST",
+			data: ({
+				id_rk, c_uk, c_kl, id_produk, opsi
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				listPengiriman()
 			}
 		})
 	}

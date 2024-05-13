@@ -90,16 +90,8 @@
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 16px">
 							<div class="col-md-3">PILIHAN BANK</div>
 							<div class="col-md-9">
-								<select id="pilihan_bank" class="form-control select2">
-									<?php
-										$query = $this->db->query("SELECT*FROM m_no_rek_lam ORDER BY id");
-										$html ='';
-										$html .='<option value="">PILIH</option>';
-										foreach($query->result() as $r){
-											$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
-										}
-										echo $html;
-									?>
+								<select id="pilihan_bank" class="form-control select2" disabled>
+									<option value="">PILIH</option>
 								</select>
 							</div>
 						</div>
@@ -425,7 +417,7 @@
 		$("#h_id_pelanggan_lm").val("")
 		$("#kepada").val("").prop('disabled', false)
 		$("#alamat").val("").prop('disabled', false)
-		$("#pilihan_bank").val("").prop('disabled', false).trigger('change')
+		$("#pilihan_bank").html('<option value="">PILIH</option>').prop('disabled', true)
 
 		$("#verif-admin").html('. . .')
 		$("#verif-owner").html('. . .')
@@ -517,7 +509,8 @@
 					$("#no_invoice").val(data.no_invoice)
 					$("#h_id_pelanggan_lm").val(data.id_pelanggan_lm)
 					$("#kepada").val(data.kepada)
-					$("#alamat").val(data.alamat)	
+					$("#alamat").val(data.alamat)
+					$("#pilihan_bank").html(data.htmlBank).prop('disabled', true)
 					$(".list-item").html(data.htmlItem)
 				}
 				swal.close()
@@ -588,7 +581,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-
 				$("#h_id_header").val(id_header)
 				
 				let prop = true;
@@ -603,7 +595,7 @@
 				$("#h_id_pelanggan_lm").val(data.header.id_pelanggan_lm).prop('disabled', prop)
 				$("#kepada").val(data.header.attn_lam_inv).prop('disabled', prop)
 				$("#alamat").val(data.header.alamat_lam_inv).prop('disabled', prop)
-				$("#pilihan_bank").val(data.header.bank).prop('disabled', prop).trigger('change')
+				$("#pilihan_bank").html(data.htmlBank).prop('disabled', true)
 
 				// VERIFIKASI DATA
 				$("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.oke_admin}`)

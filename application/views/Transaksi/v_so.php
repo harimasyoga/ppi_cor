@@ -26,20 +26,22 @@
 			<div class="card-body">
 				<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<br><br>
-				<table id="datatable" class="table table-bordered table-striped" width="100%">
-					<thead class="color-tabel">
-						<tr>
-							<th style="width:5%">NO.</th>
-							<th style="width:10%">TGL. SO</th>
-							<th style="width:20%">KODE MC</th>
-							<th style="width:20%">ITEM</th>
-							<th style="width:20%">CUSTOMER</th>
-							<th style="width:20%">NO. SO</th>
-							<th style="width:5%">AKSI</th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
+				<div style="overflow:auto;white-space:nowrap">
+					<table id="datatable" class="table table-bordered table-striped" width="100%">
+						<thead class="color-tabel">
+							<tr>
+								<th>NO.</th>
+								<th>TGL. SO</th>
+								<th>KODE MC</th>
+								<th>ITEM</th>
+								<th>CUSTOMER</th>
+								<th>NO. SO</th>
+								<th>AKSI</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -167,8 +169,10 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body" style="overflow:auto;white-space:nowrap">
-				<div id="modal-detail-so"></div>
+			<div class="modal-body">
+				<div style="overflow:auto;white-space:nowrap">
+					<div id="modal-detail-so"></div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -211,7 +215,7 @@
 				[5, 10, 15, 20, "Semua"] // change per page values here
 			],		
 			
-			responsive: true,
+			responsive: false,
 			"pageLength": 10,
 			"language": {
 				"emptyTable": "Tidak ada data.."
@@ -574,7 +578,7 @@
 			<tr>
 				<td style="border:0"></td>
 				<td style="border:0"></td>
-				<td style="border:0">RM : <span class="form-txt-rm" style="font-weight:normal">0</span> . TON : <span class="form-txt-ton" style="font-weight:normal">0</span></td>
+				<td style="border:0">RM : <span class="form-txt-rm" style="font-weight:normal">0</span> . TON : <span class="form-txt-ton" style="font-weight:normal">0</span>. B. BAKU : <span class="form-txt-bb" style="font-weight:normal">0</span></td>
 			</tr>
 			<tr>
 				<td style="border:0">KETERANGAN</td>
@@ -595,7 +599,6 @@
 		let ukl = (i == '') ? $("#ukl").val() : $("#ht-ukl-"+i).val();
 		let ukp = (i == '') ? $("#ukp").val() : $("#ht-ukp-"+i).val();
 		let bb = (i == '') ? $("#bb").val() : $("#ht-bb-"+i).val();
-		// let bbqtySo = 
 
 		let qtySO = (i == '') ? $("#form-bagi-qty-so").val() : $("#edit-qty-so"+i).val()
 		let rumusOut = 1800 / ukl
@@ -603,7 +606,8 @@
 		(Math.floor(rumusOut) >= 5) ? out = 5 : out = Math.floor(rumusOut);
 		let rm = (ukp * qtySO / out) / 1000;
 		let ton = qtySO * bb;
-		
+		let bahan_baku = Math.ceil(ton / 0.7)
+
 		let plhCB = '';
 		(i == '') ? plhCB = $("#form-cbx-rm-so") : plhCB = $("#cbso-"+i) ;
 		(plhCB.prop("checked")) ? plhCB.val(1) : plhCB.val(0);
@@ -611,6 +615,7 @@
 
 		let htmlTmplRm = (i == '') ? $(".form-txt-rm") : $(".span-rm-h-"+i);
 		let htmlTmplTon = (i == '') ? $(".form-txt-ton") : $(".span-ton-h-"+i);
+		let htmlTmplBb = (i == '') ? $(".form-txt-bb") : $(".span-bb-h-"+i);
 		if(cbso == 0){
 			if(Math.round(rm) == 0 || Math.round(rm) < 500){
 				htmlTmplRm.html(rupiah.format(Math.round(rm))).attr('style', "color:#f00;font-style:italic;font-weight:normal")
@@ -620,7 +625,9 @@
 		}else{
 			htmlTmplRm.html(rupiah.format(Math.round(rm))).attr('style', "color:#212529;font-weight:normal")
 		}
+
 		htmlTmplTon.html(rupiah.format(Math.round(ton))).attr('style', "font-weight:normal")
+		htmlTmplBb.html(rupiah.format(bahan_baku)).attr('style', "font-weight:normal")
 	}
 
 	function btnAddBagiSO(i, hQtyPo, hRmPo, hTonPo){

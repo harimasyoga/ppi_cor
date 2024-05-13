@@ -408,7 +408,7 @@
 				// VERIFIKASI DATA
 				$("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.oke_admin}`)
 				// VERIFIFIKASI OWNER
-				if((urlAuth == 'Admin' || urlAuth == 'Owner') && data.detail != 0 && data.header.acc_admin == 'Y' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R')){
+				if((urlAuth == 'Admin' || urlAuth == 'Owner') && data.cHarga == 0 && data.detail != 0 && data.header.acc_admin == 'Y' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R')){
 					// BUTTON OWNER
 					let lock = ''
 					if(urlAuth == 'Admin' && data.header.acc_owner != 'N'){
@@ -595,8 +595,8 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log()
-				if(data){
+				// console.log()
+				if(data.result){
 					kembali()
 				}else{
 					toastr.error(`<b>KETERANGAN TIDAK BOLEH KOSONG!</b>`)
