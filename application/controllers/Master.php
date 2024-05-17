@@ -488,25 +488,7 @@ class Master extends CI_Controller
 				$row[] = $r->nm_produk;
 				$row[] = $r->kode_mc;
 				$row[] = $r->flute;
-
-				$expKualitas = explode("/", $r->kualitas);
-				if($r->flute == 'BCF'){
-					$kualitas = $expKualitas[0].' - '.$expKualitas[1].' - '.$expKualitas[2].' - '.$expKualitas[3].' - '.$expKualitas[4];
-					if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else{
-						$kualitas = $r->kualitas;
-					}
-				}else{
-					$kualitas = $r->kualitas;
-				}
-				$row[] = $kualitas;
+				$row[] = $this->m_fungsi->kualitas($r->kualitas, $r->flute);
 
 				$idProduk = $r->id_produk; 
 				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))

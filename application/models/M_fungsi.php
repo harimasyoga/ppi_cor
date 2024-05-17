@@ -903,6 +903,10 @@ class M_fungsi extends CI_Model {
 				$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
 			}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
 				$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+			}else if($expKualitas[1] == 'M110' && $expKualitas[2] == 'M110' && $expKualitas[3] == 'M110'){
+				$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
+			}else if($expKualitas[1] == 'K110' && $expKualitas[2] == 'K110' && $expKualitas[3] == 'K110'){
+				$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
 			}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
 				$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
 			}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
