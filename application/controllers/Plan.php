@@ -970,24 +970,6 @@ class Plan extends CI_Controller
 		$i = 0;
 		foreach($query->result() as $r){
 			$i++;
-
-			$expKualitas = explode("/", $r->kualitas);
-			if($r->flute == 'BCF'){
-				if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
-					$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-				}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
-					$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-				}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
-					$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-				}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
-					$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-				}else{
-					$kualitas = $r->kualitas;
-				}
-			}else{
-				$kualitas = $r->kualitas;
-			}
-
 			if($r->kategoriItem == 'K_BOX'){
 				$score = $r->flap1.' - '.$r->creasing2wo.' - '.$r->flap2;
 			}else if($r->kategoriItem == 'K_SHEET'){
@@ -1045,7 +1027,7 @@ class Plan extends CI_Controller
 					<td style="border:1px solid #000" rowspan="4">'.$i.'</td>
 					<td style="border:1px solid #000;text-align:left">'.$r->kode_mc.'</td>
 					<td style="border:1px solid #000" rowspan="4">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
-					<td style="border:1px solid #000" rowspan="4">'.$kualitas.'</td>
+					<td style="border:1px solid #000" rowspan="4">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
 					<td style="border:1px solid #000" rowspan="4">'.$flute.'</td>
 					<td style="border:1px solid #000;font-weight:bold" rowspan="4">'.$r->lebar_roll_p.'</td>
 					<td style="border:1px solid #000" rowspan="4">'.$score.'</td>
@@ -3138,25 +3120,7 @@ class Plan extends CI_Controller
 				$i = 0;
 				foreach($data->result() as $r){
 					$i++;
-					$expKualitas = explode("/", $r->kualitas);
-					if($r->flute == 'BCF'){
-						if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
-							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-						}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
-							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-						}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
-							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-						}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
-							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-						}else{
-							$kualitas = $r->kualitas;
-						}
-					}else{
-						$kualitas = $r->kualitas;
-					}
-
 					($r->flute == 'BCF') ? $flute = 'BC' : $flute = $r->flute;
-
 					if($r->tgl_prod_p != "" && $r->good_cor_p != 0){
 						$good_cor_p = number_format($r->good_cor_p,0,",",".");
 						$ton = number_format($r->berat_bersih * $r->good_cor_p,0,",",".");
@@ -3186,7 +3150,7 @@ class Plan extends CI_Controller
 						<td style="border:1px solid #000" rowspan="4">'.$i.'</td>
 						<td style="border:1px solid #000;border-width:1px 0;text-align:left">'.$r->kode_mc.'</td>
 						<td style="border:1px solid #000" rowspan="4">'.$this->m_fungsi->tglPlan($r->tgl_kirim_plan).'</td>
-						<td style="border:1px solid #000" rowspan="4">'.$kualitas.'</td>
+						<td style="border:1px solid #000" rowspan="4">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
 						<td style="border:1px solid #000" rowspan="4">'.$flute.'</td>
 						<td style="border:1px solid #000" rowspan="4">'.$r->berat_bersih.'</td>
 						<td style="border:1px solid #000" rowspan="2"></td>
@@ -3350,23 +3314,6 @@ class Plan extends CI_Controller
 				$sumOrder = 0;
 				foreach($data->result() as $r){
 					$i++;
-					$expKualitas = explode("/", $r->kualitas_plan);
-					if($r->flute == 'BCF'){
-						if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
-							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-						}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
-							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-						}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
-							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-						}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
-							$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-						}else{
-							$kualitas = $r->kualitas;
-						}
-					}else{
-						$kualitas = $r->kualitas;
-					}
-
 					if($r->sambungan == 'G'){
 						$sambungan = 'GLUE';
 					}else if($r->sambungan == 'D'){
@@ -3398,7 +3345,7 @@ class Plan extends CI_Controller
 						<td style="border:1px solid #000;text-align:left">'.$r->kode_po.'</td>
 						<td style="border:1px solid #000;text-align:left">'.$r->nm_pelanggan.'</td>
 						<td style="border:1px solid #000;text-align:left">'.$r->nm_produk.'</td>
-						<td style="border:1px solid #000">'.$kualitas.'</td>
+						<td style="border:1px solid #000">'.$this->m_fungsi->kualitas($r->kualitas_plan, $r->flute).'</td>
 						<td style="border:1px solid #000;font-weight:bold;color:#f00">'.number_format($r->panjang_plan,0,',','.').'</td>
 						<td style="border:1px solid #000;font-weight:bold;color:#f00">'.number_format($r->lebar_plan,0,',','.').'</td>
 						<td style="border:1px solid #000">'.$r->berat_bersih.'</td>
@@ -4273,23 +4220,6 @@ class Plan extends CI_Controller
 			$sumQtySo = 0;
 			foreach($data->result() as $r){
 				$i++;
-				$expKualitas = explode("/", $r->kualitas_plan);
-				if($r->flute == 'BCF'){
-					if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else{
-						$kualitas = $r->kualitas;
-					}
-				}else{
-					$kualitas = $r->kualitas;
-				}
-
 				($r->flute == 'BCF') ? $flute = 'BC' : $flute = $r->flute;
 
 				if($r->tgl_prod_p != "" && $r->good_cor_p != 0){
@@ -4313,7 +4243,7 @@ class Plan extends CI_Controller
 					<td style="border:1px solid #000;text-align:left">'.$r->kode_mc.'</td>
 					<td style="border:1px solid #000;text-align:left">'.$r->nm_pelanggan.'</td>
 					<td style="border:1px solid #000;text-align:left">'.$r->nm_produk.'</td>
-					<td style="border:1px solid #000">'.$kualitas.'</td>
+					<td style="border:1px solid #000">'.$this->m_fungsi->kualitas($r->kualitas_plan, $r->flute).'</td>
 					<td style="border:1px solid #000;font-weight:bold;color:#f00">'.number_format($r->panjang_plan,0,",",".").'</td>
 					<td style="border:1px solid #000;font-weight:bold;color:#f00">'.number_format($r->lebar_plan,0,",",".").'</td>
 					<td style="border:1px solid #000">'.$r->berat_bersih.'</td>

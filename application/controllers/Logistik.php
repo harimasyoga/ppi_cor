@@ -2480,25 +2480,9 @@ class Logistik extends CI_Controller
 			foreach($isi->result() as $r){
 				// str_replace(",'","",$id_hub)
 				($r->kategori == "K_BOX") ? $ukuran = str_replace(" ","",$r->ukuran) : $ukuran = str_replace(" ","",$r->ukuran_sheet);
-				$expKualitas = explode("/", $r->kualitas);
-				if($r->flute == 'BCF'){
-					if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else{
-						$kualitas = $r->kualitas;
-					}
-				}else{
-					$kualitas = $r->kualitas;
-				}
 				$jumlah = round($r->berat_bersih * $r->qty_muat);
 				$html .='<tr>
-					<td style="padding:6px 0;text-align:left">'.$r->nm_produk.'. '.strtolower($ukuran).'. '.$r->flute.'. '.$kualitas.'</td>
+					<td style="padding:6px 0;text-align:left">'.$r->nm_produk.'. '.strtolower($ukuran).'. '.$r->flute.'. '.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
 					<td style="padding:6px">KG</td>
 					<td style="padding:6px;text-align:right">'.number_format($jumlah,0,",",".").'</td>
 					<td style="padding:6px">Rp</td>
@@ -6350,23 +6334,6 @@ class Logistik extends CI_Controller
 							$mesin = $r->joint_fs;
 						}
 
-						$expKualitas = explode("/", $r2->kualitas_plan);
-						if($r2->flute == 'BCF'){
-							if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
-								$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-							}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
-								$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-							}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
-								$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-							}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
-								$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-							}else{
-								$kualitas = $r2->kualitas;
-							}
-						}else{
-							$kualitas = $r2->kualitas;
-						}
-
 						($r2->gd_cek_spv == 'Close') ? $bgBlue = 'bg-blue' : $bgBlue = 'bg-secondary';
 						$html .='<div style="margin-right:5px">
 							<i class="fas '.$bgBlue.'">'.$l.'</i>
@@ -6402,7 +6369,7 @@ class Logistik extends CI_Controller
 										<tr>
 											<th style="padding:5px">KUALITAS</th>
 											<th>:</th>
-											<th style="padding:5px">'.$kualitas.'</th>
+											<th style="padding:5px">'.$this->m_fungsi->kualitas($r2->kualitas_plan, $r2->flute).'</th>
 										</tr>
 										<tr>
 											<th style="padding:5px">BB</th>
@@ -6625,7 +6592,7 @@ class Logistik extends CI_Controller
 		$gd_id_pelanggan = $_POST["gd_id_pelanggan"];
 		$html = '';
 		$html .='<div id="gudangItems">';
-			$getItems = $this->db->query("SELECT i.kategori,i.nm_produk,g.* FROM m_gudang g
+			$getItems = $this->db->query("SELECT i.*,g.* FROM m_gudang g
 			INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
 			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
 			INNER JOIN trs_po o ON w.kode_po=o.kode_po AND w.id_pelanggan=o.id_pelanggan
@@ -6634,8 +6601,9 @@ class Logistik extends CI_Controller
 			ORDER BY i.kategori,i.nm_produk");
 			foreach($getItems->result() as $items){
 				($items->kategori == "K_BOX") ? $kategori = 'BOX' : $kategori = 'SHEET';
+				($items->kategori == "K_BOX") ? $ukuran = $items->ukuran : $ukuran = $items->ukuran_sheet;
 				$html .='<a class="gd-link-items" style="font-weight:bold" data-toggle="collapse" href="#items-'.$items->gd_id_pelanggan.'-'.$items->gd_id_produk.'" onclick="loadSJPO('."'".$items->gd_id_pelanggan."'".','."'".$items->gd_id_produk."'".')">
-					['.$kategori.'] '.$items->nm_produk.'
+					['.$kategori.'] '.$items->nm_produk.' | '.$ukuran.' | '.$this->m_fungsi->kualitas($items->kualitas, $items->flute).' | '.$items->flute.'
 				</a>
 				<div id="items-'.$items->gd_id_pelanggan.'-'.$items->gd_id_produk.'" class="collapse" data-parent="#gudangItems">
 					<div id="tampilPO-'.$items->gd_id_pelanggan.'-'.$items->gd_id_produk.'"></div>
@@ -7159,22 +7127,6 @@ class Logistik extends CI_Controller
 						$sumItems = 0;
 						foreach($getItems->result() as $item){
 							($item->kategori == "K_BOX") ? $ukuran = $item->ukuran : $ukuran = $item->ukuran_sheet;
-							$expKualitas = explode("/", $item->kualitas);
-							if($item->flute == 'BCF'){
-								if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
-									$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-								}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
-									$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-								}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
-									$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-								}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
-									$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-								}else{
-									$kualitas = $item->kualitas;
-								}
-							}else{
-								$kualitas = $item->kualitas;
-							}
 							$tonase = $item->rk_bb * $item->qty_muat;
 							// TONASE
 							if($getSJnPO->num_rows() == 1 && $getItems->num_rows() == 1){
@@ -7200,7 +7152,7 @@ class Logistik extends CI_Controller
 								<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$item->flute.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">
 									<input type="checkbox" id="c_kl_'.$item->id_produk.'" onclick="cUkuranKualitas('."'".$item->id_rk."'".','."'".$item->id_produk."'".','."'KL'".')" value="'.$item->c_kl.'" '.$c_kl.'>
-									'.$kualitas.'
+									'.$this->m_fungsi->kualitas($item->kualitas, $item->flute).'
 								</td>
 								<td style="padding:6px;border:1px solid #dee2e6;font-weight:bold;text-align:right">'.number_format($item->qty_muat,0,",",".").'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">'.$item->rk_bb.'</td>
@@ -7519,29 +7471,13 @@ class Logistik extends CI_Controller
 			$sumQty = 0;
 			foreach ($data_detail->result() as $data ) {
 				$no++;
-				$expKualitas = explode("/", $data->kualitas);
-				if($data->flute == 'BCF'){
-					if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else{
-						$kualitas = $data->kualitas;
-					}
-				}else{
-					$kualitas = $data->kualitas;
-				}
 				if($data->kategori == 'K_BOX'){
 					($data->c_uk == 1) ? $c_uk = '. '.strtolower(str_replace(' ', '', $data->ukuran)) : $c_uk = '';
-					($data->c_kl == 1) ? $c_kl = '. '.$kualitas : $c_kl = '';
+					($data->c_kl == 1) ? $c_kl = '. '.$this->m_fungsi->kualitas($data->kualitas, $data->flute) : $c_kl = '';
 					$ukuran = $data->nm_produk.$c_uk.$c_kl;
 					$qty_ket = 'PCS';
 				}else{
-					$ukuran = $data->ukuran_sheet.'. '.$kualitas;
+					$ukuran = $data->ukuran_sheet.'. '.$this->m_fungsi->kualitas($data->kualitas, $data->flute);
 					$qty_ket = 'LEMBAR';
 				}
 				($data->flute == "BCF") ? $flute = 'BC' : $flute = $data->flute;
@@ -7846,27 +7782,11 @@ class Logistik extends CI_Controller
 			$sumQty = 0;
 			foreach ($detail->result() as $data ) {
 				$no++;
-				$expKualitas = explode("/", $data->kualitas);
-				if($data->flute == 'BCF'){
-					if($expKualitas[1] == 'M125' && $expKualitas[2] == 'M125' && $expKualitas[3] == 'M125'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'K125' && $expKualitas[2] == 'K125' && $expKualitas[3] == 'K125'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'M150' && $expKualitas[2] == 'M150' && $expKualitas[3] == 'M150'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else if($expKualitas[1] == 'K150' && $expKualitas[2] == 'K150' && $expKualitas[3] == 'K150'){
-						$kualitas = $expKualitas[0].'/'.$expKualitas[1].'x3/'.$expKualitas[4];
-					}else{
-						$kualitas = $data->kualitas;
-					}
-				}else{
-					$kualitas = $data->kualitas;
-				}
 				if($data->kategori == 'K_BOX'){
-					$ukuran = $data->nm_produk.'. '.strtolower(str_replace(' ', '', $data->ukuran)).'. '.$kualitas;
+					$ukuran = $data->nm_produk.'. '.strtolower(str_replace(' ', '', $data->ukuran)).'. '.$this->m_fungsi->kualitas($data->kualitas, $data->flute);
 					$qty_ket = 'PCS';
 				}else{
-					$ukuran = $data->ukuran_sheet.'. '.$kualitas;
+					$ukuran = $data->ukuran_sheet.'. '.$this->m_fungsi->kualitas($data->kualitas, $data->flute);
 					$qty_ket = 'LEMBAR';
 				}
 				($data->flute == "BCF") ? $flute = 'BC' : $flute = $data->flute;
