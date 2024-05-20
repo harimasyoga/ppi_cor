@@ -1617,7 +1617,7 @@ class Transaksi extends CI_Controller
 					$where = "WHERE po.id_sales='XXX'";
 				}
 			}
-			($_POST["po"] == 'pengiriman') ? $stats = "AND po.status_lm='Approve' AND status_kirim='Open' ORDER BY pl.nm_pelanggan_lm,po.no_po_lm" : $stats = "ORDER BY id DESC" ;
+			($_POST["po"] == 'pengiriman') ? $stats = "AND po.status_lm='Approve' AND status_kirim='Open' ORDER BY pl.tgl_lm DESC,pl.nm_pelanggan_lm,po.no_po_lm" : $stats = "ORDER BY tgl_lm DESC,no_po_lm" ;
 			$query = $this->db->query("SELECT po.*,pl.nm_pelanggan_lm FROM trs_po_lm po
 			INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm $where $stats")->result();
 			$i = 0;
