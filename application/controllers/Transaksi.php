@@ -404,71 +404,77 @@ class Transaksi extends CI_Controller
 		){
 			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
 		}else{
-			$data = array(
-				'id' => $_POST["id_cart"],
-				'name' => 'name'.$_POST["id_cart"],
-				'price' => 0,
-				'qty' => 1,
-				'options' => array(
-					'tgl' => $_POST["tgl"],
-					'customer' => $_POST["customer"],
-					'id_sales' => $_POST["id_sales"],
-					'attn' => $_POST["attn"],
-					'no_po' => $_POST["no_po"],
-					'item' => $_POST["item"],
-					'nm_produk_lm' => $_POST["nm_produk_lm"],
-					'ukuran_lm' => $_POST["ukuran_lm"],
-					'isi_lm' => $_POST["isi_lm"],
-					'jenis_qty_lm' => $_POST["jenis_qty_lm"],
-					'qty' => $_POST["qty"],
-					'order_sheet' => $_POST["order_sheet"],
-					'order_pori' => $_POST["order_pori"],
-					'qty_bal' => $_POST["qty_bal"],
-					'harga_lembar' => $_POST["harga_lembar"],
-					'harga_pori' => $_POST["harga_pori"],
-					'harga_total' => $_POST["harga_total"],
-					'id_cart' => $_POST["id_cart"],
-				)
-			);
-			$id = $_POST["id_po_header"];
-			$po_lm = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'");
-			if($po_lm->num_rows() > 0){
-				$no_po_lm = $po_lm->row()->no_po_lm;
-				$po_dtl = $this->db->query("SELECT d.* FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.no_po_lm='$no_po_lm'");
-			}else{
-				$po_dtl = '';
-			}
-			if($this->cart->total_items() != 0){
-				foreach($this->cart->contents() as $r){
-					if($r['options']['item'] == $_POST["item"]){
-						echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
-						return;
-					}
-				}
+			$no_po = str_replace(' ', '',$_POST["no_po"]);
+			$cek = $this->db->query("SELECT*FROM trs_po_lm WHERE no_po_lm='$no_po'");
+			if($cek->num_rows() == 0){
+				$data = array(
+					'id' => $_POST["id_cart"],
+					'name' => 'name'.$_POST["id_cart"],
+					'price' => 0,
+					'qty' => 1,
+					'options' => array(
+						'tgl' => $_POST["tgl"],
+						'customer' => $_POST["customer"],
+						'id_sales' => $_POST["id_sales"],
+						'attn' => $_POST["attn"],
+						'no_po' => $_POST["no_po"],
+						'item' => $_POST["item"],
+						'nm_produk_lm' => $_POST["nm_produk_lm"],
+						'ukuran_lm' => $_POST["ukuran_lm"],
+						'isi_lm' => $_POST["isi_lm"],
+						'jenis_qty_lm' => $_POST["jenis_qty_lm"],
+						'qty' => $_POST["qty"],
+						'order_sheet' => $_POST["order_sheet"],
+						'order_pori' => $_POST["order_pori"],
+						'qty_bal' => $_POST["qty_bal"],
+						'harga_lembar' => $_POST["harga_lembar"],
+						'harga_pori' => $_POST["harga_pori"],
+						'harga_total' => $_POST["harga_total"],
+						'id_cart' => $_POST["id_cart"],
+					)
+				);
+				$id = $_POST["id_po_header"];
+				$po_lm = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'");
 				if($po_lm->num_rows() > 0){
-					foreach($po_dtl->result() as $r){
-						if($r->id_m_produk_lm == $_POST["item"]){
+					$no_po_lm = $po_lm->row()->no_po_lm;
+					$po_dtl = $this->db->query("SELECT d.* FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.no_po_lm='$no_po_lm'");
+				}else{
+					$po_dtl = '';
+				}
+				if($this->cart->total_items() != 0){
+					foreach($this->cart->contents() as $r){
+						if($r['options']['item'] == $_POST["item"]){
 							echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
 							return;
 						}
 					}
-				}
-				$this->cart->insert($data);
-				echo json_encode(array('data' => true, 'isi' => $data));
-			}else{
-				if($_POST["id_po_header"] == ''){
+					if($po_lm->num_rows() > 0){
+						foreach($po_dtl->result() as $r){
+							if($r->id_m_produk_lm == $_POST["item"]){
+								echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
+								return;
+							}
+						}
+					}
 					$this->cart->insert($data);
 					echo json_encode(array('data' => true, 'isi' => $data));
 				}else{
-					foreach($po_dtl->result() as $r){
-						if($r->id_m_produk_lm == $_POST["item"]){
-							echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
-							return;
+					if($_POST["id_po_header"] == ''){
+						$this->cart->insert($data);
+						echo json_encode(array('data' => true, 'isi' => $data));
+					}else{
+						foreach($po_dtl->result() as $r){
+							if($r->id_m_produk_lm == $_POST["item"]){
+								echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
+								return;
+							}
 						}
+						$this->cart->insert($data);
+						echo json_encode(array('data' => true, 'isi' => $data));
 					}
-					$this->cart->insert($data);
-					echo json_encode(array('data' => true, 'isi' => $data));
 				}
+			}else{
+				echo json_encode(array('data' => false, 'isi' => 'NO. PO SUDAH TERPAKAI!'));
 			}
 		}
 	}
@@ -1617,7 +1623,7 @@ class Transaksi extends CI_Controller
 					$where = "WHERE po.id_sales='XXX'";
 				}
 			}
-			($_POST["po"] == 'pengiriman') ? $stats = "AND po.status_lm='Approve' AND status_kirim='Open' ORDER BY pl.tgl_lm DESC,pl.nm_pelanggan_lm,po.no_po_lm" : $stats = "ORDER BY tgl_lm DESC,no_po_lm" ;
+			($_POST["po"] == 'pengiriman') ? $stats = "AND po.status_lm='Approve' AND status_kirim='Open' ORDER BY po.tgl_lm DESC,pl.nm_pelanggan_lm,po.no_po_lm" : $stats = "ORDER BY tgl_lm DESC,no_po_lm" ;
 			$query = $this->db->query("SELECT po.*,pl.nm_pelanggan_lm FROM trs_po_lm po
 			INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm $where $stats")->result();
 			$i = 0;

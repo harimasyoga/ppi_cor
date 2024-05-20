@@ -61,7 +61,7 @@
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">NO. PO</div>
 							<div class="col-md-9">
-								<input type="text" id="no_po" class="form-control" autocomplete="off" placeholder="NO. PO" oninput="this.value=this.value.toUpperCase()">
+								<input type="text" id="no_po" class="form-control" autocomplete="off" placeholder="NO. PO" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); ">
 							</div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
@@ -666,12 +666,17 @@
 				data = JSON.parse(res)
 				// console.log(data)
 				if(statusInput == 'insert'){
-					kosong()
-					reloadTable()
-					$(".row-input").attr('style', 'display:none');
-					$(".row-sementara").attr('style', 'display:none');
-					$(".row-list").attr('style', '');
-					toastr.success(`<b>BERHASIL SIMPAN!</b>`)
+					if(data.insertPO == true && data.insertPOdtl == true){
+						kosong()
+						reloadTable()
+						$(".row-input").attr('style', 'display:none');
+						$(".row-sementara").attr('style', 'display:none');
+						$(".row-list").attr('style', '');
+						toastr.error(`<b>BERHASIL SIMPAN!</b>`)
+					}else{
+						toastr.success(`<b>NO. PO SUDAH TERPAKAI!</b>`)
+						swal.close()
+					}
 				}else{
 					editPOLaminasi(id_po_header, 0, 'edit')
 				}

@@ -1437,17 +1437,23 @@ class M_transaksi extends CI_Model
 	function simpanCartLaminasi()
 	{
 		if($_POST["statusInput"] == 'insert'){
-			$data_po = [
-				'tgl_lm' => $_POST["tgl"],
-				'id_pelanggan' => $_POST["customer"],
-				'id_sales' => $_POST["id_sales"],
-				'id_hub' => $_POST["attn"],
-				'no_po_lm' => $_POST["no_po"],
-				'note_po_lm' => $_POST["note_po_lm"],
-				'add_time' => date('Y-m-d H:i:s'),
-				'add_user' => $this->username,
-			];
-			$insertPO = $this->db->insert("trs_po_lm", $data_po);
+			$no_po = str_replace(' ', '',$_POST["no_po"]);
+			$cek = $this->db->query("SELECT*FROM trs_po_lm WHERE no_po_lm='$no_po'");
+			if($cek->num_rows() == 0){
+				$data_po = [
+					'tgl_lm' => $_POST["tgl"],
+					'id_pelanggan' => $_POST["customer"],
+					'id_sales' => $_POST["id_sales"],
+					'id_hub' => $_POST["attn"],
+					'no_po_lm' => $_POST["no_po"],
+					'note_po_lm' => $_POST["note_po_lm"],
+					'add_time' => date('Y-m-d H:i:s'),
+					'add_user' => $this->username,
+				];
+				$insertPO = $this->db->insert("trs_po_lm", $data_po);
+			}else{
+				$insertPO = false;
+			}
 		}else{
 			$insertPO = true;
 		}
@@ -1469,7 +1475,10 @@ class M_transaksi extends CI_Model
 				);
 				$insertPOdtl = $this->db->insert('trs_po_lm_detail', $data);
 			}
+		}else{
+			$insertPOdtl = false;
 		}
+		
 		return [
 			'insertPO' => $insertPO,
 			'insertPOdtl' => $insertPOdtl,
