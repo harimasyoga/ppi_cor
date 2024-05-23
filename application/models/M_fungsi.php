@@ -630,7 +630,6 @@ class M_fungsi extends CI_Model {
 
 	// 	$this->mpdf->output($jdlsave,'I');
     // }
-
 	
 	function mPDFP($html)
 	{

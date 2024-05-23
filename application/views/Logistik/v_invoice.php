@@ -962,18 +962,18 @@
 	}
 
 	
-	function acc_inv() 
+	function acc_inv(no_invoice,status_owner) 
 	{	
 		var user        = "<?= $this->session->userdata('username')?>"
-		var acc_owner   = $('#modal_status_inv_owner').val()
-		var acc_admin   = $('#modal_status_inv_admin').val()
-		var no_inv   = $('#modal_no_invoice').val()
+		var acc_owner   = status_owner
+		// var acc_admin   = $('#modal_status_inv_admin').val()
+		var no_inv      = no_invoice
 		
 		if(user=='bumagda' || user=='developer')
 		{
 			acc = acc_owner
 		}else{
-			acc = acc_admin
+			acc = acc_owner
 		}
 
 		// console.log(user)

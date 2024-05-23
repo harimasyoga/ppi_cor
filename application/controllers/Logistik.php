@@ -2932,7 +2932,8 @@ class Logistik extends CI_Controller
 				{
 					$urll1 = '';
 					// $urll2 = "onclick=acc_inv(`owner`,'$r->acc_owner','$r->no_invoice')";
-					$urll2 = "onclick=open_modal('$r->id','$r->no_invoice')";
+					// $urll2 = "onclick=open_modal('$r->id','$r->no_invoice')";
+					$urll2 = "onclick=acc_inv('$r->no_invoice','$r->acc_owner')";
 				} else {
 					$urll1 = '';
 					$urll2 = '';
@@ -5453,6 +5454,7 @@ class Logistik extends CI_Controller
 
     }
 	
+	
 	// function Cetak_Invoice2()
 	// {
     //     $no_invoice = $_GET['no_invoice'];
@@ -5464,7 +5466,7 @@ class Logistik extends CI_Controller
     //     $data_detail = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
 	// 	$ppnpph = $data_detail->pajak;
 
-	// 	$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif" border="0">';
+	// 	// $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif" border="1">';
 
     //     if($ppnpph == 'nonppn'){
     //         $html .= '<tr>
@@ -5475,37 +5477,60 @@ class Logistik extends CI_Controller
     //         </tr>';
     //         $html .= '</table>';
     //     }else{
-    //         $html .= '<tr>
-    //             <th style="border:0;width:55%;height:0"></th>
-    //             <th style="border:0;width:15%;height:0"></th>
-    //             <th style="border:0;width:25%;height:0"></th>
-    //         </tr>
+			
+    //         // $html .= '<tr>
+    //         //     <th style="border:0;width:55%;height:0"></th>
+    //         //     <th style="border:0;width:15%;height:0"></th>
+    //         //     <th style="border:0;width:25%;height:0"></th>
+    //         // </tr>
 
-    //         <tr>
+    //         // <tr>
 		   
-    //             <td style="font-size:20px;" align="left">IPUNG IRAWAN</td>
+    //         //     <td style="font-size:40px;" align="left">INVOICE</td>
 
-    //         </tr>
-    //         <tr>
-    //             <td style="font-size:11px" align="left">SURAKARTA</td>
-    //             <td></td>
-    //         </tr>
-    //         <tr>
-    //             <td style="font-size:11px;" align="left"></td>
-    //             <td style=""></td>
-    //         </tr>
-	// 		<tr><td>&nbsp;<br></td></tr>';
-    //         $html .= '</table>';
+    //         // </tr>
+    //         // <tr>
+    //         //     <td style="font-size:11px" align="left"></td>
+    //         //     <td></td>
+    //         // </tr>
+    //         // <tr>
+    //         //     <td style="font-size:11px;" align="left"></td>
+    //         //     <td style=""></td>
+    //         // </tr>
+	// 		// <tr><td>&nbsp;<br></td></tr>';
+    //         // $html .= '</table>';
 
-    //         $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif">
-    //         <tr>
-    //             <th style="height:0"></th>
-    //         </tr>
-    //         <tr>
-    //             <td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">INVOICE</td>
-    //         </tr>';
-    //         $html .= '</table>';
+            
     //     }       
+	// 	$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:Trebuchet MS, Helvetica, sans-serif" BORDER="0">
+	// 	<br>
+    //     <tr>
+    //         <th style="padding:2px 0;height:0;width:14%"></th>
+    //         <th style="padding:2px 0;height:0;width:1%"></th>
+    //         <th style="padding:2px 0;height:0;width:40%"></th>
+    //         <th style="padding:2px 0;height:0;width:12%"></th>
+    //         <th style="padding:2px 0;height:0;width:1%"></th>
+    //         <th style="padding:2px 0;height:0;width:32%"></th>
+	// 		<br>
+    //     </tr>';
+
+    //     $html .= '
+    //     <tr>
+    //         <td style="font-size:40px;text-align:center;font-weight:bold" colspan="3" rowspan="2">INVOICE</td>
+            
+	// 		<td style="padding:10px 0px -5px 1px;">No Invoice</td>
+	// 		<td style="padding:10px 0px -5px 1px;">:</td>
+	// 		<td style="padding:10px 0px -5px 1px;">011/FN/V/2024</td>
+    //     </tr>';
+
+	// 	$html .= '<tr>
+	// 		<td style="">Tgl Invoice</td>
+    //         <td style="">:</td>
+    //         <td style="">15 Mei 2024</td>
+	// 		</tr>';
+
+
+    //     $html .= '</table> <br><hr>';
 
 	// 	//////////////////////////////////////// D E T A I L //////////////////////////////////////
 
@@ -5519,26 +5544,15 @@ class Logistik extends CI_Controller
     //         <th style="border:0;padding:2px 0;height:0;width:32%"></th>
     //     </tr>';
 
-    //     $html .= '
-    //     <tr>
-    //         <td style="padding:3px 0">Nama Perusahaan</td>
-    //         <td style="padding:3px 0">:</td>
-    //         <td style="padding:0 3px 0 0;line-height:1.8">PT. Lintas Data Prima</td>
-    //         <td style="padding:3px 0;">Tgl Invoice</td>
-    //         <td style="padding:3px 0">:</td>
-    //         <td style="padding:3px 0;;color:#f00">03 Januari 2024</td>
-    //     </tr>';
-
 	// 	$html .= '<tr>
-	// 		<td style="padding:3px 0">Alamat</td>
+	// 		<td style="padding:3px 0">Penjual</td>
 	// 		<td style="padding:3px 0">:</td>
-	// 		<td style="padding:0 3px 0 0;line-height:1.8">Jl. Mangesti Raya Jl. Springville Residence No.1, Dusun II, Waru, Kec. Baki, Kabupaten Sukoharjo, Jawa Tengah 57556</td>
-	// 		<td style="padding:3px 0">No. Invoice</td>
+	// 		<td style="padding:0 3px 0 0;line-height:1.8">Fitria Ningsih</td>
+	// 		<td style="padding:3px 0">Pembeli</td>
 	// 		<td style="padding:3px 0">:</td>
-	// 		<td style="padding:0;line-height:1.8">035/IPKN/I/24';
+	// 		<td style="padding:0;line-height:1.8">PT. Gemilang Sarana Mandiri <br>Jl. Mangesti Raya Jl. Springville Residence No.1, Dusun II, Waru, Kec. Baki, Kabupaten Sukoharjo, Jawa Tengah 57556 </td>';
 
-	// 	$html .= '</td>
-	// 	</tr>';
+	// 	$html .= ' </tr>';
 
 
 	// 		// KONDISI JIKA LEBIH DARI 1 SURAT JALAN
@@ -5557,7 +5571,7 @@ class Logistik extends CI_Controller
 
 	// 	/////////////////////////////////////////////// I S I ///////////////////////////////////////////////
 
-    //     $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
+    //     $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif" border="0">
     //     <tr>
     //         <th style="border:0;height:15px;width:30%"></th>
     //         <th style="border:0;height:15px;width:10%"></th>
@@ -5569,40 +5583,28 @@ class Logistik extends CI_Controller
     //     </tr>';
 
     //     $html .= '<tr>
-    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">NAMA BARANG</td>
-    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">JUMLAH</td>			
-    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">SATUAN</td>
-    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold" colspan="2">HARGA</td>
-    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold" colspan="2">TOTAL</td>
+    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold;background-color: #54d1fd">NAMA BARANG</td>
+    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold;background-color: #54d1fd">QTY</td>			
+    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold;background-color: #54d1fd">SATUAN</td>
+    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold;background-color: #54d1fd" colspan="2">HARGA</td>
+    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold;background-color: #54d1fd" colspan="2">TOTAL</td>
     //     </tr>';
 	// 	$html .= '<tr>
 	// 		<td style="border:0;padding:20px 0 0" colspan="7"></td>
 	// 	</tr>';
 		
-	// 		$sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
-	// 		// TAMPILKAN DULU LABEL
-	// 		$totalHarga = 0;
-	// 		foreach($sqlLabel->result() as $label){
-
-	// 			$ukuran         = str_replace("X","x",$label->g_label);
-	// 			$total_harga    = round(($label->qty - $label->retur_qty) * $label->harga);
-
-	// 			$html .= '<tr>
-	// 				<td style="padding:5px 0">Kabel FO 48 core1</td>
-	// 				<td style="solid #000;padding:5px 0;text-align:right">500</td>
-	// 				<td style="padding:5px 0;text-align:center"> Meter</td>
-	// 				<td style="solid #000;padding:5px 0 0 15px;text-align:right">Rp</td>
-	// 				<td style="solid #000;padding:5px 0;text-align:right">'. number_format(8000, 0, ",", ".").'</td>
-	// 				<td style="padding:5px 0 0 15px;text-align:right">Rp</td>
-	// 				<td style="padding:5px 0;text-align:right">'.number_format(4000000, 0, ",", ".") .'</td>
-	// 			</tr>';
+	// 	$html .= '<tr>
+	// 		<td style="padding:5px 0">Kabel FO 96 core</td>
+	// 		<td style="solid #000;padding:5px 0;text-align:right">'. number_format(1000, 0, ",", ".").'</td>
+	// 		<td style="solid #000;padding:5px 0;text-align:center">Meter</td>
+	// 		<td style="solid #000;padding:5px 0 0 15px;text-align:right">Rp</td>
+	// 		<td style="solid #000;padding:5px 0;text-align:right">'. number_format(6500, 0, ",", ".").'</td>
+	// 		<td style="padding:5px 0 0 15px;text-align:right">Rp</td>
+	// 		<td style="padding:5px 0;text-align:right">'.number_format(6500000, 0, ",", ".") .'</td>
+	// 	</tr>';
 
 
-	// 			$totalHarga = 4000000;
-	// 		}
-			
-
-		
+	// 	$totalHarga = 6500000;		
 		
 		
 	// 	// T O T A L //
@@ -5616,7 +5618,7 @@ class Logistik extends CI_Controller
 	// 			// $terbilang = round($totalHarga + (0.11 * $totalHarga));
 
 
-	// 		$rowspan = 3;
+	// 		$rowspan = 2;
 		
 
 	// 	$html .= '<tr>
@@ -5628,27 +5630,6 @@ class Logistik extends CI_Controller
 
 	// 		<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($totalHarga, 0, ",", ".").'</td>
 	// 	</tr>';
-
-	// 	// PPN - PPH22
-	// 			$nominal = 0;
-	// 	$txtppn11 = '<tr>
-	// 			<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Ppn 11%</td>
-	// 			<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
-	// 			<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.$nominal.'</td>
-	// 		</tr>';
-
-	// 	if($ppnpph == 'ppn'){ // PPN 10 %
-	// 		$html .= $txtppn11;
-	// 	}else if($ppnpph == 'ppn_pph'){ // PPH22
-	// 		// pph22
-	// 		$html .= $txtppn11.'<tr>
-	// 			<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Pph 22</td>
-	// 			<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
-	// 			<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($pph22, 0, ",", ".").'</td>
-	// 		</tr>';
-	// 	}else{
-	// 		$html .= '';
-	// 	}
 
 	// 	$html .= '<tr>
 	// 		<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Total</td>
