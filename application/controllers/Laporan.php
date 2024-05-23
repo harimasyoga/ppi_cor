@@ -73,7 +73,7 @@ class Laporan extends CI_Controller
 						INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
 						INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
 						WHERE p.tgl='$n->tgl' AND p.no_kendaraan='$n->no_kendaraan' AND p.no_pl_urut='$n->no_pl_urut' $wCust
-						GROUP BY p.id_perusahaan,p.no_pl_urut,p.kategori");
+						GROUP BY p.id_perusahaan,p.no_pl_urut");
 						($cPelanggan->num_rows() == 1) ? $cC = ' '.$cPelanggan->row()->nm_pelanggan : $cC = '';
 						$html .= '<tr><td style="border:0"><br></td></tr>
 						<tr>
@@ -91,16 +91,33 @@ class Laporan extends CI_Controller
 								</tr>';
 							}
 							// KIRIMAN
-							$kiriman = $this->db->query("SELECT i.kategori,i.nm_produk,SUM(r.qty_muat) AS qty_muat FROM pl_box p
+							$kiriman = $this->db->query("SELECT i.nm_produk,i.ukuran_sheet,SUM(r.qty_muat) AS qty_muat,r.* FROM pl_box p
 							INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
 							INNER JOIN m_produk i ON r.id_produk=i.id_produk
 							WHERE p.tgl='$p->tgl' AND p.no_kendaraan='$p->no_kendaraan' AND p.no_pl_urut='$p->no_pl_urut' AND p.id_perusahaan='$p->id_perusahaan'
-							GROUP BY i.nm_produk,i.kategori");
+							GROUP BY i.kategori,i.id_produk ORDER BY i.kategori,i.nm_produk");
+							$gK = $this->db->query("SELECT i.kategori FROM pl_box p
+							INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
+							INNER JOIN m_produk i ON r.id_produk=i.id_produk
+							WHERE p.tgl='$p->tgl' AND p.no_kendaraan='$p->no_kendaraan' AND p.no_pl_urut='$p->no_pl_urut' AND p.id_perusahaan='$p->id_perusahaan'
+							GROUP BY i.kategori");
 							foreach($kiriman->result() as $k){
-								($k->kategori == 'K_BOX') ? $ket = 'PCS' : $ket = 'LEMBAR';
+								if($k->kategori == 'SHEET'){
+									($k->c_uk == 1) ? $c_uk = $k->nm_produk.'. '.$k->ukuran_sheet : $c_uk = $k->nm_produk;
+									$nm_produk = $c_uk;
+									$ket = 'LEMBAR';
+								}else{
+									$nm_produk = $k->nm_produk;
+									$ket = 'PCS';
+								}
+								if($gK->num_rows() == 1){
+									$t_ket = '';
+								}else{
+									($k->kategori == 'SHEET') ? $t_ket = ' (SHEET)' : $t_ket = ' (BOX)';
+								}
 								($cPelanggan->num_rows() == 1 && $kiriman->num_rows() == 1) ? $kTot = '' : $kTot = '. TOTAL '.number_format($k->qty_muat).' '.$ket;
 								$html .= '<tr>
-									<td style="border:0">- '.$k->nm_produk.''.$kTot.'</td>
+									<td style="border:0">- '.$nm_produk.$kTot.$t_ket.'</td>
 								</tr>';
 								$sumQty += $k->qty_muat;
 							}

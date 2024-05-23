@@ -157,11 +157,13 @@
 								}else{
 									bgTd = ';background:#fff'
 								}
+								let attn = '';
+								(r.attn == '-') ? attn = '' : attn = ' | '+r.attn;
 
 								htmlGG += `<tr>
 									<td class="bgtd" style="padding:6px;text-align:left;text-align:left;border-width:0 0 1px${bgTd}">
 										<a href="javascript:void(0)" style="color:#212529" onclick="loadGudang('${opsi}', ${r.gd_id_pelanggan}, ${r.gd_id_produk})">
-											${r.nm_pelanggan} - ${r.nm_produk}
+											${r.nm_pelanggan}${attn} - ${r.nm_produk}
 										</a>
 										<span id="h_span_${opsi}_${r.gd_id_pelanggan}_${r.gd_id_produk}" class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:4px">${r.jml}</span>
 									</td>

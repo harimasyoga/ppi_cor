@@ -348,6 +348,7 @@ class Master extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_pelanggan."'".','."'detail'".')">'.$i."<a></div>";
 				$row[] = $r->nm_pelanggan;
+				$row[] = $r->attn;
 				$row[] = $r->prov_name;
 				$row[] = $r->alamat_kirim;
 				$row[] = ($r->nm_sales == 0) ? '-' : $r->nm_sales;
@@ -470,25 +471,22 @@ class Master extends CI_Controller
 				$data[] = $row;
 			}
 		} else if ($jenis == "produk") {
-			$query = $this->m_master->query("SELECT c.nm_pelanggan,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan ORDER BY nm_produk")->result();
+			$query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan ORDER BY kategori,nm_produk")->result();
 			$i = 1;
 			foreach ($query as $r) {
-				
-				if( $r->kategori =='K_SHEET' )
-				{
-					$kategori='SHEET';
-				}else{
-					$kategori='BOX';
-				}
+				( $r->kategori =='K_SHEET' ) ? $kategori='SHEET' : $kategori='BOX';
+				($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
+				($r->kategori == 'K_BOX') ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
 
 				$row = array();
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_produk."'".','."'detail'".')">'.$i."<a></div>";
-				$row[] = $r->nm_pelanggan;
-				$row[] = $kategori;
+				$row[] = $r->nm_pelanggan.$attn;
+				$row[] = '<div class="text-center">'.$kategori.'</div>';
 				$row[] = $r->nm_produk;
-				$row[] = $r->kode_mc;
-				$row[] = $r->flute;
+				$row[] = $ukuran;
+				$row[] = '<div class="text-center">'.$r->flute.'</div>';
 				$row[] = $this->m_fungsi->kualitas($r->kualitas, $r->flute);
+				$row[] = $r->kode_mc;
 
 				$idProduk = $r->id_produk; 
 				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User']))

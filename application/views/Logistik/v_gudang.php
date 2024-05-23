@@ -243,7 +243,7 @@
 		$("#pilih_no_po").html(`<option value="">PILIH</option>`).prop('disabled', true)
 		$(".tampil-pilih").html("")
 		let pilih_cust = $("#pilih_cust").val()
-		console.log("pilih_cust : ", pilih_cust)
+		// console.log("pilih_cust : ", pilih_cust)
 		$.ajax({
 			url: '<?php echo base_url('Logistik/pilihPilihan')?>',
 			type: "POST",
@@ -252,7 +252,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				$("#pilih_items").html(data.htmlItem).prop('disabled', false)
 				$("#pilih_no_po").html(data.htmlPO).prop('disabled', false)
 			}
@@ -283,7 +283,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				$("#pilih_no_po").html(data.htmlPO).prop('disabled', false)
 				$(".tampil-pilih").html(data.html)
 				swal.close()
@@ -315,7 +315,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				$(".tampil-pilih").html(data.html)
 				swal.close()
 			}

@@ -556,7 +556,7 @@ class M_logistik extends CI_Model
 		}else{
 			$where = "";
 		}
-		$data = $this->db->query("SELECT COUNT(g.id_gudang) AS jml,p.nm_pelanggan,i.nm_produk,g.* FROM m_gudang g
+		$data = $this->db->query("SELECT COUNT(g.id_gudang) AS jml,p.nm_pelanggan,p.attn,i.nm_produk,g.* FROM m_gudang g
 		INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
 		INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
 		INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
@@ -1008,8 +1008,12 @@ class M_logistik extends CI_Model
 		$tb_truk = $_POST["tb_truk"];
 		$timbangan = $_POST["timbangan"];
 
-		if($supir == "" || $timbangan < 0 || $timbangan == 0 || $tb_truk < $timbangan || $tb_truk == "" || $timbangan == ""){
-			$data = false; $result = false; $msg = false;
+		if($supir == "" || $timbangan < 0 || $timbangan == 0 || $tb_truk == "" || $timbangan == ""){
+			$data = false; $result = false; $msg = 'HARAP LENGKAPI DATA!';
+		}else if($tb_truk == $timbangan){
+			$data = false; $result = false; $msg = 'BERAT TRUK TIDAK BOLEH SAMA DENGAN BERAT BERSIH!';
+		}else if($tb_truk < $timbangan){
+			$data = false; $result = false; $msg = 'BERAT TRUK HARUS LEBIH BESAR DARI BERAT BERSIH!';
 		}else{
 			// KELUAR
 			$now = date("Y-m-d");

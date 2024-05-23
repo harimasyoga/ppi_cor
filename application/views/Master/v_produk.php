@@ -35,22 +35,24 @@
 				<?php } ?>
 				<!-- <button type="button" class="btn-cetak btn  btn-outline-success pull-right" onclick="cetak(1)">Export Excel</button> -->
 				
-				<table id="datatable" class="table table-bordered table-striped" width="100%">
-					<thead class="color-tabel">
-						<tr>
-							<th style="text-align: center;width:5%">NO.</th>
-							<th style="text-align: center;width:20%">CUSTOMER</th>
-							<th style="text-align: center;width:25%">TYPE</th>
-							<th style="text-align: center;width:25%">ITEM</th>
-							<th style="text-align: center;width:25%">KODE MC</th>
-							<th style="text-align: center;width:5%">FLUTE</th>
-							<th style="text-align: center;width:10%">KUALITAS</th>
-							<th style="text-align: center;width:10%">AKSI</th>
-						</tr>
-					</thead>
-					<tbody>
-					</tbody>
-				</table>
+				<div style="overflow:auto;white-space:nowrap">
+					<table id="datatable" class="table table-bordered table-striped" width="100%">
+						<thead class="color-tabel">
+							<tr>
+								<th>NO.</th>
+								<th>PELANGGAN</th>
+								<th>TYPE</th>
+								<th>ITEM</th>
+								<th>UKURAN</th>
+								<th>FLUTE</th>
+								<th>KUALITAS</th>
+								<th>KODE MC</th>
+								<th>AKSI</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 		<!-- /.card -->
@@ -327,7 +329,7 @@
 				"url": '<?php echo base_url(); ?>Master/load_data/produk',
 				"type": "POST",
 			},
-			responsive: true,
+			responsive: false,
 			"pageLength": 10,
 			"language": {
 				"emptyTable": "Tidak ada data.."
