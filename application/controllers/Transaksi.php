@@ -1446,7 +1446,7 @@ class Transaksi extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = '<div class="">'.$r->no_po_bhn.'</div>';
-				$row[] = '<div class="">'.$this->m_fungsi->tanggal_ind($r->tgl_bhn).'</div>';
+				$row[] = '<div class="">'.$r->tgl_bhn.'</div>';
 				$row[] = '<div class="">'.$r->nm_hub.'</div>';
 				$row[] = '<div class="text-center">'.number_format($r->ton_bhn, 0, ",", ".").' Kg</div>';
 				$row[] = '<div class="text-center">'.number_format($r->hrg_bhn, 0, ",", ".").'</div>';
@@ -1996,7 +1996,7 @@ class Transaksi extends CI_Controller
                     JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
                     LEFT JOIN m_kab d ON c.kab=d.kab_id
                     LEFT JOIN m_produk e ON b.id_produk=e.id_produk
-					WHERE a.no_po = '".$header->no_po."'
+					WHERE a.no_po = '$header->no_po' ORDER BY b.id
 				")->result();
 
 			$data = ["header" => $header, "detail" => $detail, "url_foto" => $url_foto];
