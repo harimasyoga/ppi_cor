@@ -641,7 +641,6 @@
 
 	function insertSuratJalanJasa(no_surat)
 	{
-		console.log(no_surat)
 		$.ajax({
 			url: '<?php echo base_url('Logistik/insertSuratJalanJasa')?>',
 			type: "POST",
@@ -656,18 +655,17 @@
 				});
 			},
 			data: ({
-				no_surat
+				no_surat, opsi: 'cor'
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				let url = '<?php echo base_url('Logistik/suratJalanJasa') ?>'
 				if(data.insert){
 					toastr.success(`<b>BERHASIL! ${data.no_jasa}</b>`);
-					window.open(url+'?jenis='+data.no_jasa+'&top=5&ctk=0', '_blank');
+					window.open(url+'?jenis='+data.no_jasa+'&top=5&ctk=0&opsi=cor', '_blank');
 					swal.close()
 				}else{
-					window.open(url+'?jenis='+data.no_jasa+'&top=5&ctk=0', '_blank');
+					window.open(url+'?jenis='+data.no_jasa+'&top=5&ctk=0&opsi=cor', '_blank');
 					swal.close()
 				}
 			}
@@ -686,7 +684,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				listPengiriman()
 			}
 		})

@@ -39,6 +39,17 @@
 							<div class="col-md-1"></div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3">TRANSAKSI</div>
+							<div class="col-md-8">
+								<select id="pilih_transaksi" class="form-control select2" onchange="pilihTransaksi()">
+									<option value="">PILIH</option>
+									<option value="CORRUGATED">CORRUGATED</option>
+									<option value="LAMINASI">LAMINASI</option>
+								</select>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3">TGL. SJ</div>
 							<div class="col-md-8">
 								<input type="date" id="tgl_sj" class="form-control" onchange="cariSJJasa()">
@@ -227,7 +238,8 @@
 	{
 		let tanggal = '<?= date("Y-m-d")?>'
 		$("#tgl_invoice").val(tanggal).prop('disabled', false)
-		$("#tgl_sj").val("").prop('disabled', false)
+		$("#pilih_transaksi").val("").prop('disabled', false)
+		$("#tgl_sj").val("").prop('disabled', true)
 		$("#no_surat_jalan").html(`<option value="">PILIH</option>`).prop('disabled', true)
 		$("#txt_no_invoice").val("AUTO").prop('disabled', true)
 		$("#no_invoice").val("").prop('disabled', true)
@@ -264,8 +276,20 @@
 		$(".row-list-invoice-jasa").show()
 	}
 
+	function pilihTransaksi()
+	{
+		let pilih_transaksi = $("#pilih_transaksi").val();
+		$("#tgl_sj").val("").prop('disabled', (pilih_transaksi == "") ? true : false);
+		if(pilih_transaksi == ""){
+			$("#no_surat_jalan").val("")
+			cariSJJasa()
+			pilihSJInvJasa()
+		}
+	}
+
 	function cariSJJasa()
 	{
+		let pilih_transaksi = $("#pilih_transaksi").val()
 		let tgl_sj = $("#tgl_sj").val()
 		$("#no_surat_jalan").html(`<option value="">PILIH</option>`).prop('disabled', true)
 		$(".list-item").html('LIST ITEM KOSONG')
@@ -282,10 +306,12 @@
 					}
 				});
 			},
-			data: ({ tgl_sj }),
+			data: ({
+				pilih_transaksi, tgl_sj
+			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
+				console.log(data)
 				$("#no_surat_jalan").html(data.htmlSJ).prop('disabled', (data.numRows == 0) ? true : false)
 				swal.close()
 			}
@@ -326,6 +352,7 @@
 	function simpanInvJasa() {
 		let h_id_header = $("#h_id_header").val()
 		let tgl_invoice = $("#tgl_invoice").val()
+		let pilih_transaksi = $("#pilih_transaksi").val()
 		let tgl_sj = $("#tgl_sj").val()
 		let no_surat_jalan = $("#no_surat_jalan").val()
 		let no_invoice = $("#no_invoice").val()
@@ -348,7 +375,7 @@
 				});
 			},
 			data: ({
-				h_id_header, tgl_invoice, tgl_sj, no_surat_jalan, no_invoice, tgl_jatuh_tempo, h_id_hub, kepada, alamat, pilihan_bank, statusInput
+				h_id_header, tgl_invoice, pilih_transaksi, tgl_sj, no_surat_jalan, no_invoice, tgl_jatuh_tempo, h_id_hub, kepada, alamat, pilihan_bank, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -394,6 +421,7 @@
 				let prop = true;
 				(opsi == 'edit') ? prop = false : prop = true;
 				$("#tgl_invoice").val(data.header.tgl_invoice).prop('disabled', prop)
+				$("#pilih_transaksi").val(data.header.transaksi).prop('disabled', true)
 				$("#tgl_sj").val(data.header.tgl_surat_jalan).prop('disabled', true)
 				$("#no_surat_jalan").html(`<option value="">${data.header.no_surat}</option>`).prop('disabled', true)
 				$("#txt_no_invoice").val(data.header.no_invoice)

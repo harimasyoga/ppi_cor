@@ -1102,17 +1102,32 @@ class M_logistik extends CI_Model
 	function insertSuratJalanJasa()
 	{
 		$no_surat = $_POST["no_surat"];
+		$opsi = $_POST["opsi"];
 		
 		// CEK
 		$cek = $this->db->query("SELECT*FROM m_jasa WHERE no_surat='$no_surat'");
 		// GET DATA PL
-		$pl = $this->db->query("SELECT*FROM pl_box WHERE no_surat='$no_surat' GROUP BY no_surat")->row();
+		if($opsi == 'cor'){
+			$pl = $this->db->query("SELECT*FROM pl_box WHERE no_surat='$no_surat' GROUP BY no_surat")->row();
+		}
+		if($opsi == 'lam'){
+			$pl = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat='$no_surat' GROUP BY no_surat")->row();
+		}
 		if($cek->num_rows() == 0){
 			$no = explode('/',$no_surat);
-			$tahun = $no[3];
-			$db_jasa = $this->db->query("SELECT*FROM m_jasa WHERE no_jasa LIKE '%/$tahun'")->num_rows();
-			$jasa = str_pad($db_jasa+1, 3, "0", STR_PAD_LEFT);
-			$no_jasa = 'JASA/'.$jasa.'/PPI'.'/'.$no[2].'/'.$tahun;
+			if($opsi == 'cor'){
+				$tahun = $no[3];
+				$db_jasa = $this->db->query("SELECT*FROM m_jasa WHERE no_jasa LIKE '%/$tahun'")->num_rows();
+				$jasa = str_pad($db_jasa+1, 3, "0", STR_PAD_LEFT);
+				$no_jasa = 'JASA/'.$jasa.'/PPI'.'/'.$no[2].'/'.$tahun;
+			}
+			if($opsi == 'lam'){
+				$str_len = strlen($no_surat);
+				($str_len == 12) ? $tahun = $no[1] : $tahun = $no[3];
+				$db_jasa = $this->db->query("SELECT*FROM m_jasa WHERE no_jasa LIKE '%/$tahun/LAMINASI'")->num_rows();
+				$jasa = str_pad($db_jasa+1, 3, "0", STR_PAD_LEFT);
+				$no_jasa = 'JASA/'.$jasa.'/PPI'.'/'.$tahun.'/LAMINASI';
+			}
 			$data = array(
 				'no_surat' => $no_surat,
 				'tgl' => $pl->tgl,
@@ -1532,6 +1547,7 @@ class M_logistik extends CI_Model
 	{
 		$h_id_header = $_POST["h_id_header"];
 		$tgl_invoice = $_POST["tgl_invoice"];
+		$pilih_transaksi = $_POST["pilih_transaksi"];
 		$tgl_sj = $_POST["tgl_sj"];
 		$no_surat_jalan = $_POST["no_surat_jalan"];
 		$no_invoice = $_POST["no_invoice"];
@@ -1552,7 +1568,7 @@ class M_logistik extends CI_Model
 		if($no_inv == 000000 || $no_inv == '000000' || $no_inv == '' || $no_inv < 0 || strlen("'.$no_inv.'") < 6){
 			$data = false; $insert = false; $detail = false; $no_pl_jasa = false;
 			$msg = 'NOMER INVOICE TIDAK BOLEH KOSONG!';
-		}else if($tgl_invoice == "" || $no_inv == "" || $tgl_jatuh_tempo == "" || $kepada == "" || $alamat == "" || $pilihan_bank == ""){
+		}else if($tgl_invoice == "" || $no_inv == "" || $tgl_jatuh_tempo == "" || $kepada == "" || $alamat == "" || $pilihan_bank == "" || $pilih_transaksi == ""){
 			$data = false; $insert = false; $detail = false; $no_pl_jasa = false;
 			$msg = 'HARAP LENGKAPI FORM!';
 		}else{
@@ -1561,6 +1577,7 @@ class M_logistik extends CI_Model
 					'tgl_invoice' => $tgl_invoice,
 					'tgl_surat_jalan' => $tgl_sj,
 					'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
+					'transaksi' => $pilih_transaksi,
 					'id_hub' => $h_id_hub,
 					'no_surat' => $no_surat_jalan,
 					'no_invoice' => $no_invoice,
@@ -1673,14 +1690,22 @@ class M_logistik extends CI_Model
 				);
 				$header = $this->db->insert('invoice_header_beli', $data_header);
 				if($header){
-					$dtl = $this->db->query("SELECT d.* FROM invoice_jasa_detail d
+					$dtl = $this->db->query("SELECT d.*,i.* FROM invoice_jasa_detail d
 					INNER JOIN invoice_jasa_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
 					INNER JOIN m_produk i ON d.id_produk=i.id_produk
 					WHERE h.id='$id' ORDER BY d.no_po,i.nm_produk");
 					foreach($dtl->result() as $d){
+						($d->flute == "BCF") ? $flute = '. BC' : $flute = '. '.$d->flute;
+						if($d->kategori == 'K_BOX'){
+							$c_uk = '. '.strtolower(str_replace(' ', '', $d->ukuran));
+							$ukuran = $d->nm_produk.$c_uk.'. '.$this->m_fungsi->kualitas($d->kualitas, $d->flute).$flute;
+						}else{
+							$c_uk = '. '.$d->ukuran_sheet;
+							$ukuran = $d->nm_produk.$c_uk.'. '.$this->m_fungsi->kualitas($d->kualitas, $d->flute).$flute;
+						}
 						$data_detail = array(				
 							'no_inv_beli' => $m_no_inv,
-							'transaksi' => 'JASA',
+							'transaksi' => 'JASA. '.$ukuran,
 							'jns_beban' => '5.04',
 							'nominal' => $d->total,
 						);

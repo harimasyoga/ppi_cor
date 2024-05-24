@@ -2135,21 +2135,37 @@ class Logistik extends CI_Controller
 
 	function cariSJJasa()
 	{
+		$pilih_transaksi = $_POST["pilih_transaksi"];
 		$tgl_sj = $_POST["tgl_sj"];
 		$htmlSJ = '';
 
-		$query = $this->db->query("SELECT p.tgl,p.no_surat,s.no_jasa,c.nm_pelanggan,c.attn FROM pl_box p
-		INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
-		INNER JOIN m_jasa s ON p.tgl=s.tgl AND p.no_pl_urut=s.urut AND p.id=s.id_pl_box
-		INNER JOIN invoice_detail d ON p.no_surat=d.no_surat AND s.no_surat=d.no_surat
-		INNER JOIN invoice_header h ON d.no_invoice=h.no_invoice
-		WHERE p.id_hub!='7' AND p.tgl='$tgl_sj' AND p.no_pl_jasa='0' AND h.acc_owner='Y' AND d.id_produk_simcorr IS NOT NULL
-		GROUP BY p.tgl,p.no_surat,s.no_jasa");
+		if($pilih_transaksi == "CORRUGATED"){
+			$query = $this->db->query("SELECT p.tgl,p.no_surat,s.no_jasa,c.nm_pelanggan,c.attn FROM pl_box p
+			INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
+			INNER JOIN m_jasa s ON p.tgl=s.tgl AND p.no_pl_urut=s.urut AND p.id=s.id_pl_box
+			INNER JOIN invoice_detail d ON p.no_surat=d.no_surat AND s.no_surat=d.no_surat
+			INNER JOIN invoice_header h ON d.no_invoice=h.no_invoice
+			WHERE p.id_hub!='7' AND p.tgl='$tgl_sj' AND p.no_pl_jasa='0' AND h.acc_owner='Y' AND d.id_produk_simcorr IS NOT NULL
+			GROUP BY p.tgl,p.no_surat,s.no_jasa");
+			($query->num_rows() == 0) ? $htmlSJ = '<option value="">DATA KOSONG</option>' : $htmlSJ = '<option value="">PILIH</option>';
+			foreach($query->result() as $r){
+				($r->attn == "-") ? $attn = $r->nm_pelanggan : $attn = $r->nm_pelanggan.' ( '.$r->attn.' )';
+				$htmlSJ .= '<option value="'.$r->no_surat.'">'.$r->no_surat.' | '.$r->no_jasa.' | '.$attn.'</option>';
+			}
+		}
 
-		($query->num_rows() == 0) ? $htmlSJ = '<option value="">DATA KOSONG</option>' : $htmlSJ = '<option value="">PILIH</option>';
-		foreach($query->result() as $r){
-			($r->attn == "-") ? $attn = $r->nm_pelanggan : $attn = $r->nm_pelanggan.' ( '.$r->attn.' )';
-			$htmlSJ .= '<option value="'.$r->no_surat.'">'.$r->no_surat.' | '.$r->no_jasa.' | '.$attn.'</option>';
+		if($pilih_transaksi == "LAMINASI"){
+			$query = $this->db->query("SELECT p.*,s.no_jasa FROM pl_laminasi p
+			INNER JOIN trs_po_lm po ON p.no_po=po.no_po_lm
+			INNER JOIN m_jasa s ON p.tgl=s.tgl AND p.no_pl_urut=s.urut AND p.id=s.id_pl_box
+			INNER JOIN invoice_laminasi_header h ON p.tgl=h.tgl_surat_jalan AND p.no_surat=h.no_surat
+			INNER JOIN invoice_laminasi_detail d ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
+			WHERE p.tgl='$tgl_sj' AND p.no_pl_jasa='0' AND h.acc_owner='Y'
+			GROUP BY p.tgl,p.no_surat,s.no_jasa");
+			($query->num_rows() == 0) ? $htmlSJ = '<option value="">DATA KOSONG</option>' : $htmlSJ = '<option value="">PILIH</option>';
+			foreach($query->result() as $r){
+				$htmlSJ .= '<option value="'.$r->no_surat.'">'.$r->no_surat.' | '.$r->no_jasa.' | '.$r->attn_pl.'</option>';
+			}
 		}
 
 		echo json_encode([
@@ -2164,7 +2180,7 @@ class Logistik extends CI_Controller
 		$htmlItem = '';
 
 		if($no_surat == ''){
-			$no_invoice = ''; $id_hub = ''; $kepada = ''; $alamat_kirim = ''; $htmlItem .= ''; $no = 0;
+			$no_invoice = ''; $id_hub = ''; $kepada = ''; $alamat_kirim = ''; $htmlItem .= 'LIST ITEM KOSONG'; $no = 0;
 		}else{
 			$pl = $this->db->query("SELECT p.*,c.* FROM pl_box p
 			INNER JOIN m_jasa s ON p.tgl=s.tgl AND p.no_pl_urut=s.urut AND p.id=s.id_pl_box
@@ -2359,8 +2375,16 @@ class Logistik extends CI_Controller
 						<button type="button" class="btn btn-xs '.$bgAksi.'" style="font-weight:bold" '.$eClick.'>'.$txtAksi.'</button>
 					</td>
 				</tr>';
+				$sumTotal += $r->total;
 			}
-			
+			// TOTAL
+			if($isi->num_rows() != 1){
+				$htmlItem .='<tr style="background:#f8f9fc">
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="9">TOTAL</td>
+					<td style="padding:6px 12px;font-weight:bold;text-align:right">'.number_format($sumTotal,0,',','.').'</td>
+					<td style="padding:6px"></td>
+				</tr>';
+			}
 			// SIMPAN
 			if($opsi == 'edit' && $header->acc_owner == 'N'){
 				$htmlItem .='<tr>
@@ -3083,17 +3107,18 @@ class Logistik extends CI_Controller
 				$i++;
 			}
 		}else if ($jenis == "load_data_sj") {
-			$plh_thn = $_POST["plh_thn"];
-			$tahun = substr($plh_thn,2,2);
-			$plh_customer = $_POST["plh_customer"];
-			if($plh_customer == ''){
-				$where = "WHERE pl.no_surat LIKE '%$tahun%'";
-			}else{
-				$where = "WHERE pl.id_perusahaan='$plh_customer' AND pl.no_surat LIKE '%$tahun%'";
-			}
-			$query = $this->db->query("SELECT*FROM pl_laminasi pl
+			// $plh_thn = $_POST["plh_thn"];
+			// $tahun = substr($plh_thn,2,2);
+			// $plh_customer = $_POST["plh_customer"];
+			// if($plh_customer == ''){
+			// 	$where = "WHERE pl.no_surat LIKE '%$tahun%'";
+			// }else{
+			// 	$where = "WHERE pl.id_perusahaan='$plh_customer' AND pl.no_surat LIKE '%$tahun%'";
+			// }
+			$query = $this->db->query("SELECT po.id_hub,pl.*,p.* FROM pl_laminasi pl
 			INNER JOIN m_pelanggan_lm p ON pl.id_perusahaan=p.id_pelanggan_lm
-			$where GROUP BY pl.tgl DESC,pl.no_surat DESC")->result();
+			INNER JOIN trs_po_lm po ON pl.no_po=po.no_po_lm
+			GROUP BY pl.tgl DESC,pl.no_surat DESC")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				($r->nm_pelanggan_lm != $r->attn_pl && $r->attn_pl != null) ? $customer = $r->nm_pelanggan_lm.' - <i>( '.$r->attn_pl.' )</i>' : $customer = $r->nm_pelanggan_lm;
@@ -3121,10 +3146,14 @@ class Logistik extends CI_Controller
 					</tr>
 				</table>';
 				$row[] = $r->no_surat;
+				if($r->id_hub == 7 || $r->id_hub == 0){
+					$jasa = '';
+				}else{
+					$jasa = '<button type="button" class="btn btn-sm btn-primary" title="SJ JASA" onclick="insertSuratJalanJasa('."'".$r->no_surat."'".')"><i class="fas fa-fax" style="color:#00a"></i></button>';
+				}
 				$row[] = '<div class="text-center">
-					<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Logistik/SJ_Laminasi?no=".$r->no_surat."").'">
-						<i class="fas fa-print"></i>
-					</a>
+					<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Logistik/SJ_Laminasi?no=".$r->no_surat."").'"><i class="fas fa-print"></i></a>
+					'.$jasa.'
 				</div>';
 				$data[] = $row;
 			}
@@ -7686,6 +7715,7 @@ class Logistik extends CI_Controller
 		$jenis = $_GET['jenis'];
         $top = $_GET['top'];
         $ctk = $_GET['ctk'];
+        $opsi = $_GET['opsi'];
         $html = '';
 
 		$html .= '<table style="margin:0 0 1px;padding:0;border-bottom:1px solid #000;font-size:12px;border-collapse:collapse;color:#000;font-family:tahoma;width:100%">
@@ -7703,12 +7733,22 @@ class Logistik extends CI_Controller
 			</tr>
 		</table>';
 
-		$header = $this->db->query("SELECT h.id_hub,h.nm_hub,h.alamat AS alamat_hub,b.nm_pelanggan,b.attn,b.alamat_kirim,a.*,s.* FROM m_jasa s
-		INNER JOIN pl_box a ON a.no_surat=s.no_surat AND a.no_pl_urut=s.urut AND a.id=s.id_pl_box AND a.tgl=s.tgl
-		INNER JOIN m_pelanggan b ON a.id_perusahaan=b.id_pelanggan
-		LEFT JOIN m_hub h ON a.id_hub=h.id_hub
-		WHERE s.no_jasa='$jenis'
-		GROUP BY s.no_jasa;")->row();
+		if($opsi == 'cor'){
+			$header = $this->db->query("SELECT h.id_hub,h.nm_hub,h.alamat AS alamat_hub,b.nm_pelanggan,b.attn,b.alamat_kirim,a.*,s.* FROM m_jasa s
+			INNER JOIN pl_box a ON a.no_surat=s.no_surat AND a.no_pl_urut=s.urut AND a.id=s.id_pl_box AND a.tgl=s.tgl
+			INNER JOIN m_pelanggan b ON a.id_perusahaan=b.id_pelanggan
+			LEFT JOIN m_hub h ON a.id_hub=h.id_hub
+			WHERE s.no_jasa='$jenis'
+			GROUP BY s.no_jasa;")->row();
+		}
+		if($opsi == 'lam'){
+			$header = $this->db->query("SELECT h.id_hub,h.nm_hub,h.alamat AS alamat_hub,a.*,s.* FROM m_jasa s
+			INNER JOIN pl_laminasi a ON a.no_surat=s.no_surat AND a.no_pl_urut=s.urut AND a.id=s.id_pl_box AND a.tgl=s.tgl
+			INNER JOIN trs_po_lm po ON a.no_po=po.no_po_lm
+			LEFT JOIN m_hub h ON h.id_hub=po.id_hub
+			WHERE s.no_jasa='$jenis'
+			GROUP BY s.no_jasa")->row();
+		}
 
 		// DETAIL
 		$html .= '<table style="margin:0 0 5px;padding:0;border-top:2px solid #000;font-size:12px;vertical-align:top;border-collapse:collapse;color:#000;font-family:tahoma;width:100%">
@@ -7735,26 +7775,26 @@ class Logistik extends CI_Controller
 				<td style="padding:5px 0">NO. SURAT</td>
 				<td style="text-align:center;padding:5px 0">:</td>
 				<td style="padding:5px 0">'.$header->no_jasa.'</td>
-				<td style="padding:5px 0">ATTN</td>
-				<td style="text-align:center;padding:5px 0">:</td>
-				<td style="padding:5px 0">'.$header->attn.'</td>
-			</tr>
-			<tr>
-				<td style="padding:5px 0"></td>
-				<td style="padding:5px 0"></td>
-				<td style="padding:5px 0"></td>
 				<td style="padding:5px 0">ALAMAT</td>
 				<td style="text-align:center;padding:5px 0">:</td>
 				<td style="padding:5px 0">'.strtoupper($header->alamat_hub).'</td>
 			</tr>
 		</table>';
 
+		if($opsi == 'cor'){
+			$width = '<th style="width:30%"></th>
+			<th style="width:8%"></th>';
+			$ketFlute = '<td style="border:1px solid #000;padding:5px">FLUTE</td>';
+		}
+		if($opsi == 'lam'){
+			$width = '<th style="width:38%"></th>';
+			$ketFlute = '';
+		}
 		$html .= '<table style="margin:0;padding:0;font-size:12px;border-collapse:collapse;text-align:center;vertical-align:top;color:#000;font-family:tahoma;width:100%">
 			<tr>
 				<th style="width:5%"></th>
 				<th style="width:25%"></th>
-				<th style="width:30%"></th>
-				<th style="width:8%"></th>
+				'.$width.'
 				<th style="width:13%"></th>
 				<th style="width:19%"></th>
 			</tr>
@@ -7762,50 +7802,72 @@ class Logistik extends CI_Controller
 				<td style="border:1px solid #000;padding:5px">NO</td>
 				<td style="border:1px solid #000;padding:5px;text-align:left">NO. PO</td>
 				<td style="border:1px solid #000;padding:5px;text-align:left">ITEM DESCRIPTION</td>
-				<td style="border:1px solid #000;padding:5px">FLUTE</td>
+				'.$ketFlute.'
 				<td style="border:1px solid #000;padding:5px">QTY</td>
 				<td style="border:1px solid #000;padding:5px">KETERANGAN</td>
 			</tr>';
 
 			// AMBIL DATA
-			$detail = $this->db->query("SELECT r.*,j.*,i.*,SUM(r.qty_muat) AS muat FROM m_rencana_kirim r
-			INNER JOIN m_jasa j ON j.urut=r.rk_urut AND j.id_pl_box=r.id_pl_box AND j.tgl=r.rk_tgl
-			INNER JOIN m_produk i ON r.id_produk=i.id_produk
-			WHERE j.no_jasa='$jenis'
-			GROUP BY r.id_pelanggan,r.id_produk,r.rk_kode_po");
-			$no = 0;
 			$sumQty = 0;
-			foreach ($detail->result() as $data ) {
-				$no++;
-				if($data->kategori == 'K_BOX'){
-					$ukuran = $data->nm_produk.'. '.strtolower(str_replace(' ', '', $data->ukuran)).'. '.$this->m_fungsi->kualitas($data->kualitas, $data->flute);
-					$qty_ket = 'PCS';
-				}else{
-					$ukuran = $data->ukuran_sheet.'. '.$this->m_fungsi->kualitas($data->kualitas, $data->flute);
-					$qty_ket = 'LEMBAR';
+			if($opsi == 'cor'){
+				$detail = $this->db->query("SELECT r.*,j.*,i.*,SUM(r.qty_muat) AS muat FROM m_rencana_kirim r
+				INNER JOIN m_jasa j ON j.urut=r.rk_urut AND j.id_pl_box=r.id_pl_box AND j.tgl=r.rk_tgl
+				INNER JOIN m_produk i ON r.id_produk=i.id_produk
+				WHERE j.no_jasa='$jenis'
+				GROUP BY r.id_pelanggan,r.id_produk,r.rk_kode_po");
+				$no = 0;
+				foreach ($detail->result() as $data ) {
+					$no++;
+					if($data->kategori == 'K_BOX'){
+						$ukuran = $data->nm_produk.'. '.strtolower(str_replace(' ', '', $data->ukuran)).'. '.$this->m_fungsi->kualitas($data->kualitas, $data->flute);
+						$qty_ket = 'PCS';
+					}else{
+						$ukuran = $data->ukuran_sheet.'. '.$this->m_fungsi->kualitas($data->kualitas, $data->flute);
+						$qty_ket = 'LEMBAR';
+					}
+					($data->flute == "BCF") ? $flute = 'BC' : $flute = $data->flute;
+					$html .= '<tr>
+						<td style="border:1px solid #000;padding:5px 0">'.$no.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:left">'.$data->rk_kode_po.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:left">'.$ukuran.'</td>
+						<td style="border:1px solid #000;padding:5px 0">'.$flute.'</td>
+						<td style="border:1px solid #000;padding:5px 0">'.number_format($data->muat).' '.$qty_ket.'</td>
+						<td style="border:1px solid #000;padding:5px 0"></td>
+					</tr>';
+					$sumQty += $data->muat;
 				}
-				($data->flute == "BCF") ? $flute = 'BC' : $flute = $data->flute;
-
-				$html .= '<tr>
-					<td style="border:1px solid #000;padding:5px 0">'.$no.'</td>
-					<td style="border:1px solid #000;padding:5px;text-align:left">'.$data->rk_kode_po.'</td>
-					<td style="border:1px solid #000;padding:5px;text-align:left">'.$ukuran.'</td>
-					<td style="border:1px solid #000;padding:5px 0">'.$flute.'</td>
-					<td style="border:1px solid #000;padding:5px 0">'.number_format($data->muat).' '.$qty_ket.'</td>
-					<td style="border:1px solid #000;padding:5px 0"></td>
-				</tr>';
-
-				$sumQty += $data->muat;
+				$colspan = 4;
 			}
-
+			if($opsi == 'lam'){
+				$detail = $this->db->query("SELECT r.*,j.*,i.*,SUM(r.qty_muat) AS muat FROM m_rk_laminasi r
+				INNER JOIN m_jasa j ON j.urut=r.rk_urut AND j.id_pl_box=r.id_pl_lm AND j.tgl=r.rk_tgl
+				INNER JOIN m_produk_lm i ON r.id_m_produk_lm=i.id_produk_lm
+				WHERE j.no_jasa='$jenis'
+				GROUP BY r.id_pelanggan_lm,r.id_m_produk_lm,r.rk_no_po
+				ORDER BY r.rk_no_po,i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm");
+				$no = 0;
+				foreach ($detail->result() as $data ) {
+					$no++;
+					($data->jenis_qty_lm == 'kg') ? $muat = round($data->qty_muat,2) : $muat = number_format($data->qty_muat,0);
+					($data->jenis_qty_lm == 'pack') ? $qty_ket = 'BALL' : $qty_ket = strtoupper($data->jenis_qty_lm);
+					$html .= '<tr>
+						<td style="border:1px solid #000;padding:5px 0">'.$no.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:left">'.$data->rk_no_po.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:left">'.$data->nm_produk_lm.'</td>
+						<td style="border:1px solid #000;padding:5px 0">'.$muat.' '.$qty_ket.'</td>
+						<td style="border:1px solid #000;padding:5px 0"></td>
+					</tr>';
+					$sumQty += $data->muat;
+				}
+				$colspan = 3;
+			}
 			if($detail->num_rows() > 1){
 				$html .= '<tr>
-					<td style="border:1px solid #000;padding:5px 0;font-weight:bold" colspan="4">TOTAL</td>
+					<td style="border:1px solid #000;padding:5px 0;font-weight:bold" colspan="'.$colspan.'">TOTAL</td>
 					<td style="border:1px solid #000;padding:5px 0;font-weight:bold">'.number_format($sumQty).' '.$qty_ket.'</td>
 					<td style="border:1px solid #000;padding:5px 0"></td>
 				</tr>';
 			}
-
 		$html .='</table>';
 
 		$judul = $jenis;
