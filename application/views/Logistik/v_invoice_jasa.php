@@ -320,36 +320,38 @@
 
 	function pilihSJInvJasa() {
 		$(".list-item").html('LOAD DATA LIST ITEM')
+		let pilih_transaksi = $("#pilih_transaksi").val()
 		let no_surat = $("#no_surat_jalan").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/pilihSJInvJasa')?>',
 			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
-			data: ({ no_surat }),
+			// beforeSend: function() {
+			// 	swal({
+			// 		title: 'Loading',
+			// 		allowEscapeKey: false,
+			// 		allowOutsideClick: false,
+			// 		onOpen: () => {
+			// 			swal.showLoading();
+			// 		}
+			// 	});
+			// },
+			data: ({
+				pilih_transaksi, no_surat
+			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				$("#txt_no_invoice").val("AUTO")
 				$("#no_invoice").val(data.no_invoice)
 				$("#h_id_hub").val(data.id_hub)
 				$("#kepada").val(data.kepada)
 				$("#alamat").val(data.alamat)
 				$(".list-item").html(data.htmlItem)
-				swal.close()
+				// swal.close()
 			}
 		})
 	}
 
-	function simpanInvJasa() {
+	function simpanInvJasa(opsi) {
 		let h_id_header = $("#h_id_header").val()
 		let tgl_invoice = $("#tgl_invoice").val()
 		let pilih_transaksi = $("#pilih_transaksi").val()
@@ -375,7 +377,7 @@
 				});
 			},
 			data: ({
-				h_id_header, tgl_invoice, pilih_transaksi, tgl_sj, no_surat_jalan, no_invoice, tgl_jatuh_tempo, h_id_hub, kepada, alamat, pilihan_bank, statusInput
+				h_id_header, tgl_invoice, pilih_transaksi, tgl_sj, no_surat_jalan, no_invoice, tgl_jatuh_tempo, h_id_hub, kepada, alamat, pilihan_bank, opsi, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
