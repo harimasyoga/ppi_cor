@@ -1619,14 +1619,14 @@ class M_logistik extends CI_Model
 
 		$tahun = substr($tgl_sj,2,2);
 		$bulan = substr($tgl_sj,5,2);
-		$noSJ = $this->db->query("SELECT*FROM invoice_jasa_header WHERE no_invoice LIKE '%$tahun%' AND transaksi='$opsi' ORDER BY no_invoice DESC LIMIT 1");
+		$noSJ = $this->db->query("SELECT*FROM invoice_jasa_header WHERE no_invoice LIKE '%/$tahun' AND transaksi='$opsi' ORDER BY no_invoice DESC LIMIT 1");
 		if($opsi == "CORRUGATED"){
 			($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 3, 6);
 			$no_invoice = 'JP/'.str_pad($no+1, 6, "0", STR_PAD_LEFT).'/'.$bulan.'/'.$tahun;
 		}
 		if($opsi == "LAMINASI"){
-			($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 6, 6);
-			$no_invoice = 'JP/LM/'.str_pad($no+1, 6, "0", STR_PAD_LEFT).'/'.$bulan.'/'.$tahun;
+			($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 6, 4);
+			$no_invoice = 'JP/LM/'.str_pad($no+1, 4, "0", STR_PAD_LEFT).'/'.$bulan.'/'.$tahun;
 		}
 
 		($statusInput == 'insert') ? $no_inv = $_POST["no_invoice"] : $no_inv = substr($_POST["no_invoice"], 3, 6);
@@ -1756,7 +1756,6 @@ class M_logistik extends CI_Model
 			}else{
 				$status = 'Approve';
 			}
-
 			if($_POST["aksi"] == 'N'){
 				$ket = null;
 			}else if($_POST["aksi"] == 'Y' && $_POST["ket_jasa"] == ''){
@@ -1764,14 +1763,12 @@ class M_logistik extends CI_Model
 			}else{
 				$ket = $_POST["ket_jasa"];
 			}
-
 			$this->db->set('status_inv', $status);
 			$this->db->set('acc_owner', $_POST["aksi"]);
 			$this->db->set('time_owner', ($_POST["aksi"] == 'N') ? null : date('Y-m-d H:i:s'));
 			$this->db->set('ket_owner', $ket);
 			$this->db->where('id', $_POST["h_id_header"]);
 			$result = $this->db->update('invoice_jasa_header');
-
 			// INSERT INVOICE BELI
 			$id = $_POST["h_id_header"];
 			if($result && $_POST["aksi"] == 'Y'){
@@ -1795,22 +1792,24 @@ class M_logistik extends CI_Model
 				);
 				$header = $this->db->insert('invoice_header_beli', $data_header);
 				if($header){
-					$dtl = $this->db->query("SELECT d.*,i.* FROM invoice_jasa_detail d
-					INNER JOIN invoice_jasa_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
-					INNER JOIN m_produk i ON d.id_produk=i.id_produk
-					WHERE h.id='$id' ORDER BY d.no_po,i.nm_produk");
+					if($jasa->transaksi == "CORRUGATED"){
+						$dtl = $this->db->query("SELECT d.*,i.*,h.transaksi FROM invoice_jasa_detail d
+						INNER JOIN invoice_jasa_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
+						INNER JOIN m_produk i ON d.id_produk=i.id_produk
+						WHERE h.id='$id'
+						ORDER BY d.no_po,i.nm_produk");
+					}
+					if($jasa->transaksi == "LAMINASI"){
+						$dtl = $this->db->query("SELECT d.*,i.*,h.transaksi FROM invoice_jasa_detail d
+						INNER JOIN invoice_jasa_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
+						INNER JOIN m_produk_lm i ON d.id_produk=i.id_produk_lm
+						WHERE h.id='$id' AND i.jenis_qty_lm!='kg'
+						ORDER BY d.no_po,i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm");
+					}
 					foreach($dtl->result() as $d){
-						($d->flute == "BCF") ? $flute = '. BC' : $flute = '. '.$d->flute;
-						if($d->kategori == 'K_BOX'){
-							$c_uk = '. '.strtolower(str_replace(' ', '', $d->ukuran));
-							$ukuran = $d->nm_produk.$c_uk.'. '.$this->m_fungsi->kualitas($d->kualitas, $d->flute).$flute;
-						}else{
-							$c_uk = '. '.$d->ukuran_sheet;
-							$ukuran = $d->nm_produk.$c_uk.'. '.$this->m_fungsi->kualitas($d->kualitas, $d->flute).$flute;
-						}
 						$data_detail = array(				
 							'no_inv_beli' => $m_no_inv,
-							'transaksi' => 'JASA. '.$ukuran,
+							'transaksi' => $d->transaksi.' | '.$d->no_surat.' | '.$d->no_invoice.' | '.$d->id_produk,
 							'jns_beban' => '5.04',
 							'nominal' => $d->total,
 						);
@@ -1823,7 +1822,6 @@ class M_logistik extends CI_Model
 				$header = false; $detail = false;
 			}
 		}
-
 		return [
 			'result' => $result,
 			'header' => $header,
@@ -1836,7 +1834,6 @@ class M_logistik extends CI_Model
 		$id_dtl = $_POST["id_dtl"];
 		$harga = $_POST["harga"];
 		$total = $_POST["total"];
-
 		if($harga == 0 || $total == 0 || $harga == "" || $total == ""){
 			$data = false;
 		}else{
@@ -1845,7 +1842,6 @@ class M_logistik extends CI_Model
 			$this->db->where('id', $id_dtl);
 			$data = $this->db->update('invoice_jasa_detail');
 		}
-
 		return [
 			'data' => $data,
 		];
@@ -1855,7 +1851,6 @@ class M_logistik extends CI_Model
 	{
 		$id = $_POST["id"];
 		$data = $this->db->query("SELECT*FROM invoice_jasa_header WHERE id='$id'")->row();
-
 		$this->db->where('no_invoice', $data->no_invoice);
 		$header = $this->db->delete('invoice_jasa_header');
 		if($header){
@@ -1864,10 +1859,10 @@ class M_logistik extends CI_Model
 			if($detail){
 				$this->db->set('no_pl_jasa', 0);
 				$this->db->where('no_surat', $data->no_surat);
-				$no_pl_jasa = $this->db->update('pl_box');
+				($data->transaksi == "CORRUGATED") ? $pl = 'pl_box' : $pl = 'pl_laminasi';
+				$no_pl_jasa = $this->db->update($pl);
 			}
 		}
-
 		return [
 			'data' => $data,
 			'header' => $header,

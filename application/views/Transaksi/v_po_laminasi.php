@@ -672,7 +672,7 @@
 						$(".row-input").attr('style', 'display:none');
 						$(".row-sementara").attr('style', 'display:none');
 						$(".row-list").attr('style', '');
-						toastr.error(`<b>BERHASIL SIMPAN!</b>`)
+						toastr.success(`<b>BERHASIL SIMPAN!</b>`)
 					}else{
 						toastr.success(`<b>NO. PO SUDAH TERPAKAI!</b>`)
 						swal.close()

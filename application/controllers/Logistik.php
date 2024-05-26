@@ -370,10 +370,8 @@ class Logistik extends CI_Controller
 	function addListPOLaminasi()
 	{
 		$id = $_POST["id"];
-
 		$po_lm = $this->db->query("SELECT po.*,pl.nm_pelanggan_lm FROM trs_po_lm po INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm WHERE id='$id'")->row();
 		$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.no_po_lm='$po_lm->no_po_lm'");
-
 		$html ='';
 		$html .='<table class="table table-bordered" style="border:0;margin:0">
 			<tr>
@@ -395,7 +393,6 @@ class Logistik extends CI_Controller
 			foreach($po_dtl->result() as $r){
 				$i++;
 				$kiriman = $this->db->query("SELECT*FROM m_rk_laminasi WHERE id_po_dtl='$r->id'");
-
 				($kiriman->num_rows() == 0) ? $border = '' : $border = ';border:0;border-bottom:1px solid #343a40';
 				$inputan = '<td style="padding:6px'.$border.'">
 					<input type="number" class="form-control" id="muat-'.$r->id.'" style="padding:3px;height:100%;text-align:right">
@@ -407,7 +404,6 @@ class Logistik extends CI_Controller
 				<td style="padding:6px;text-align:center'.$border.'">
 					<button class="btn btn-success btn-block btn-xs" onclick="addItemLaminasi('."'".$r->id."'".')"><i class="fas fa-plus"></i> ADD</button>
 				</td>';
-
 				($kiriman->num_rows() == 0) ? $btnAksi = $inputan : $btnAksi = '<td colspan="2"></td>';
 				if($r->jenis_qty_lm == 'pack'){
 					$ket = '( PACK )';
@@ -455,7 +451,6 @@ class Logistik extends CI_Controller
 							$t_text = 'SURAT JALAN';
 							$t_hapus = '';
 						}
-
 						$item = $this->db->query("SELECT*FROM m_produk_lm WHERE id_produk_lm='$k->id_m_produk_lm'")->row();
 						($item->jenis_qty_lm == 'kg') ? $sheet = '-' : $sheet = '- '.number_format(($r->isi_lm * $qty) * $k->qty_muat,0,',','.');
 						($item->jenis_qty_lm == 'kg') ? $order = '- '.round($qty * $k->qty_muat,2) : $order = '- '.number_format($qty * $k->qty_muat,0,',','.');
@@ -476,10 +471,8 @@ class Logistik extends CI_Controller
 						$orderBal += $ob;
 						$jmlMuat += $k->qty_muat;
 					}
-
 					($r->jenis_qty_lm == 'kg') ? $tol = '-' : $tol = $r->order_sheet_lm - $orderLembar;
 					($r->jenis_qty_lm == 'kg') ? $tob = round($r->order_pori_lm - $orderBal,2) : $tob = $r->order_pori_lm - $orderBal;
-
 					$sisa = $r->qty_bal - $jmlMuat;
 					$html .='<tr style="background:#f8f9fc">
 						<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40" colspan="5">-</td>
@@ -493,7 +486,6 @@ class Logistik extends CI_Controller
 				}
 			}
 		$html .= '</table>';
-
 		echo json_encode([
 			'po_lm' => $po_lm,
 			'po_dtl' => $po_dtl->result(),
@@ -511,7 +503,6 @@ class Logistik extends CI_Controller
 	{
 		$id_dtl = $_POST["id_dtl"];
 		$muat = $_POST["muat"];
-
 		if($muat == '' || $muat == 0 || $muat < 0){
 			echo json_encode(array('data' => false, 'isi' => 'MUAT TIDAK BOLEH KOSONG', 'total_items' => $this->cart->total_items()));
 		}else{
@@ -548,7 +539,6 @@ class Logistik extends CI_Controller
 					'qty_bal' => $po_dtl->qty_bal,
 				)
 			);
-
 			// KIRIMAN
 			$kiriman = $this->db->query("SELECT*FROM m_rk_laminasi WHERE id_po_dtl='$id_dtl'");
 			if($kiriman->num_rows() > 0){
@@ -559,7 +549,6 @@ class Logistik extends CI_Controller
 			}else{
 				$jmlMuat = 0;
 			}
-
 			if($muat > $po_dtl->qty_bal){
 				echo json_encode(array('data' => false, 'isi' => 'MUAT LEBIH BESAR DARI PADA QTY PO!', 'total_items' => $this->cart->total_items()));
 			}else if($this->cart->total_items() != 0){
@@ -592,7 +581,6 @@ class Logistik extends CI_Controller
 		if($this->cart->total_items() == 0){
 			$html .= '<span style="padding:6px;display:block">RENCANA KIRIM KOSONG!</span>';
 		}
-
 		if($this->cart->total_items() != 0){
 			$html .='<table class="table table-bordered table-striped" style="margin:0">
 				<tr style="border-bottom:3px solid #6c757d">
@@ -609,11 +597,9 @@ class Logistik extends CI_Controller
 					<th style="padding:6px;text-align:center">AKSI</th>
 				</tr>';
 		}
-		
 		$i= 0;
 		foreach($this->cart->contents() as $r){
 			$i++;
-
 			// KIRIMAN
 			$id = $r["id"];
 			$kiriman = $this->db->query("SELECT*FROM m_rk_laminasi WHERE id_po_dtl='$id'");
@@ -628,7 +614,6 @@ class Logistik extends CI_Controller
 				$qty_bal = $r["options"]["qty_bal"];
 				$sisa = $r["options"]["qty_bal"] - $r["options"]["muat"];
 			}
-
 			if($r["options"]["jenis"] == 'pack'){
 				$ket = '( PACK )';
 			}else if($r["options"]["jenis"] == 'ikat'){
@@ -636,7 +621,6 @@ class Logistik extends CI_Controller
 			}else{
 				$ket = '( KG )';
 			}
-
 			$html .='<tr>
 				<td style="padding:6px;text-align:center">'.$i.'</td>
 				<td style="padding:6px">'.$r["options"]["nm_produk_lm"].'</td>
@@ -653,14 +637,12 @@ class Logistik extends CI_Controller
 				</td>
 			</tr>';
 		}
-
 		if($this->cart->total_items() != 0){
 			$html .= '</table>';
 			$html .= '<div style="position:sticky;left:0;padding:6px 0">
 				<button class="btn btn-primary btn-xs" onclick="simpanCartLaminasi()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
 			</div>';
 		}
-
 		echo $html;
 	}
 
@@ -668,11 +650,9 @@ class Logistik extends CI_Controller
 	{
 		$id = $_POST["id"];
 		$po_lm = $this->db->query("SELECT*FROM trs_po_lm po WHERE id='$id'")->row();
-
 		$this->db->set('status_kirim', 'Close');
 		$this->db->where('id', $_POST["id"]);
 		$data = $this->db->update('trs_po_lm');
-
 		echo json_encode([
 			'po_lm' => $po_lm,
 			'data' => $data,
@@ -704,7 +684,6 @@ class Logistik extends CI_Controller
 					<th style="border:0;padding:0"></th>
 					<th style="border:0;padding:0"></th>
 				</tr>';
-
 				$j = 0;
 				foreach($group->result() as $g){
 					$j++;
@@ -728,7 +707,7 @@ class Logistik extends CI_Controller
 					<tr>
 						<td style="padding:3px 6px;border:0" colspan="2">ATTN <span style="float:right">:</span></td>
 						<td style="padding:3px 6px;border:0" colspan="2">
-							<input type="text" class="form-control" style="padding:6px;height:100%" id="attn-'.$g->id_pelanggan_lm.'" value="'.$g->nm_pelanggan_lm.'" oninput="this.value=this.value.toUpperCase()">
+							<input type="text" class="form-control" style="padding:6px;height:100%" id="attn-'.$g->id_pelanggan_lm.'" value="'.$g->nm_pelanggan_lm.'" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
 						</td>
 						<td style="padding:3px 6px;border:0" colspan="5"></td>
 					</tr>
@@ -742,14 +721,14 @@ class Logistik extends CI_Controller
 					<tr>
 						<td style="padding:3px 6px;border:0" colspan="2">NO. TELP <span style="float:right">:</span></td>
 						<td style="padding:3px 6px;border:0" colspan="2">
-							<input type="text" class="form-control" style="padding:6px;height:100%" id="no_telp-'.$g->id_pelanggan_lm.'" value="'.$g->no_telp.'" oninput="this.value=this.value.toUpperCase()">
+							<input type="text" class="form-control" style="padding:6px;height:100%" id="no_telp-'.$g->id_pelanggan_lm.'" value="'.$g->no_telp.'" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
 						</td>
 						<td style="padding:3px 6px;border:0" colspan="5"></td>
 					</tr>
 					<tr>
 						<td style="padding:3px 6px;border:0" colspan="2">NO. KENDARAAN <span style="float:right">:</span></td>
 						<td style="padding:3px 6px;border:0" colspan="2">
-							<input type="text" class="form-control" style="padding:6px;height:100%" id="p_no_kendaraan-'.$g->id_pelanggan_lm.'" oninput="this.value=this.value.toUpperCase()">
+							<input type="text" class="form-control" style="padding:6px;height:100%" id="p_no_kendaraan-'.$g->id_pelanggan_lm.'" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
 						</td>
 						<td style="padding:3px 6px;border:0" colspan="5"></td>
 					</tr>
@@ -768,7 +747,6 @@ class Logistik extends CI_Controller
 						<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">MUAT</th>
 						<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">AKSI</th>
 					</tr>';
-
 					$data = $this->db->query("SELECT rk.*,p.*,dtl.*,lm.*,rk.id AS id_rk FROM m_rk_laminasi rk
 					INNER JOIN m_pelanggan_lm p ON rk.id_pelanggan_lm=p.id_pelanggan_lm
 					INNER JOIN trs_po_lm po ON po.id=rk.id_po_lm
@@ -824,7 +802,6 @@ class Logistik extends CI_Controller
 							</td>
 						</tr>';
 					}
-
 					if($j == 1){
 						$html .='<tr>
 							<td style="padding:6px" colspan="10">
@@ -843,7 +820,6 @@ class Logistik extends CI_Controller
 		$this->db->set('rk_ket', ($_POST["keterangan"] == '') ? null : $_POST["keterangan"]);
 		$this->db->where('id', $_POST["id_rk"]);
 		$data = $this->db->update('m_rk_laminasi');
-
 		echo json_encode([
 			'data' => $data,
 		]);
@@ -853,7 +829,6 @@ class Logistik extends CI_Controller
 	{
 		$this->db->where('id', $_POST["id_rk"]);
 		$data = $this->db->delete('m_rk_laminasi');
-
 		echo json_encode([
 			'data' => $data,
 		]);
@@ -866,7 +841,6 @@ class Logistik extends CI_Controller
 			'qty' => 0,
 		);
 		$update = $this->cart->update($data);
-
 		echo json_encode([
 			'update' => $update,
 			'total_items' => $this->cart->total_items(),
@@ -886,20 +860,17 @@ class Logistik extends CI_Controller
 	}
 
 	function SJ_Laminasi()
-	{ // 
+	{
 		$no_surat = $_GET["no"];
 		$html = '';
-
 		// UPDATE CETAK
 		$this->db->query("UPDATE pl_laminasi SET cetak_sj='acc' WHERE no_surat='$no_surat'");
-
 		$pl = $this->db->query("SELECT*FROM pl_laminasi l
 		INNER JOIN m_pelanggan_lm p ON l.id_perusahaan=p.id_pelanggan_lm
 		WHERE l.no_surat='$no_surat' GROUP BY l.no_surat")->row();
 		($pl->attn_pl == null) ? $attn = $pl->nm_pelanggan_lm : $attn = $pl->attn_pl;
 		($pl->alamat_pl == null) ? $alamat_kirim = $pl->alamat_kirim : $alamat_kirim = $pl->alamat_pl;
 		($pl->no_telp_pl == null) ? $no_telp_pl = $pl->no_telp : $no_telp_pl = $pl->no_telp_pl;
-
 		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;vertical-align:top;border-collapse:collapse;color:#000;width:100%;font-family:tahoma">
 			<tr>
 				<td style="width:55%"></td>
@@ -939,7 +910,6 @@ class Logistik extends CI_Controller
 				<td style="padding:3px 0;border-bottom:1px dotted #000">'.$pl->no_kendaraan.'</td>
 			</tr>';
 		$html .='</table>';
-
 		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;border-collapse:collapse;color:#000;width:100%;font-family:tahoma">
 			<tr>
 				<th style="width:5%"></th>
@@ -956,18 +926,12 @@ class Logistik extends CI_Controller
 				<th style="padding:3px;border:1px solid #000" colspan="2">QTY</th>
 				<th style="padding:3px;border:1px solid #000">KETERANGAN</th>
 			</tr>';
-
-			// $isi = $this->db->query("SELECT*FROM m_rk_laminasi rk
-			// INNER JOIN m_produk_lm i ON rk.id_m_produk_lm=i.id_produk_lm
-			// WHERE id_pl_lm='$pl->id'");
 			$isi = $this->db->query("SELECT rk.*,i.* FROM m_rk_laminasi rk
-			INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po
-			AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
+			INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
 			INNER JOIN m_produk_lm i ON rk.id_m_produk_lm=i.id_produk_lm
 			WHERE l.no_surat='$no_surat'
 			ORDER BY rk.rk_no_po,i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm");
 			$count = $isi->num_rows();
-
 			$i = 0;
 			$sumQty = 0;
 			foreach($isi->result() as $r){
@@ -984,7 +948,6 @@ class Logistik extends CI_Controller
 				</tr>';
 				$sumQty += $r->qty_muat;
 			}
-
 			if($count == 1) {
 				$xx = 5;
 			}else if($count == 2){
@@ -996,7 +959,6 @@ class Logistik extends CI_Controller
 			}else if($count == 5){  
 				$xx = 1;
 			}
-
 			if($count <= 5) {
 				for($i = 0; $i < $xx; $i++){
 					$html .='<tr>
@@ -1008,7 +970,6 @@ class Logistik extends CI_Controller
 					</tr>';
 				}
 			}
-
 			// TOTAL
 			$qty = $this->db->query("SELECT i.jenis_qty_lm FROM m_rk_laminasi rk
 			INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po
@@ -1016,7 +977,6 @@ class Logistik extends CI_Controller
 			INNER JOIN m_produk_lm i ON rk.id_m_produk_lm=i.id_produk_lm
 			WHERE l.no_surat='$no_surat'
 			GROUP BY i.jenis_qty_lm");
-
 			if($qty->num_rows() == 1){
 				($qty->row()->jenis_qty_lm == 'kg') ? $total = round($sumQty,2) : $total = number_format($sumQty,0);
 				($qty->row()->jenis_qty_lm == 'pack') ? $t_jenis_qty = 'BALL' : $t_jenis_qty = strtoupper($qty->row()->jenis_qty_lm);
@@ -1027,9 +987,7 @@ class Logistik extends CI_Controller
 					<td style="padding:3px;border:1px solid #000"></td>
 				</tr>';
 			}
-
 		$html .='</table>';
-
 		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;text-align:center;border-collapse:collapse;color:#000;width:100%;font-family:tahoma">
 			<tr>
 				<td style="width:35%"></td>
@@ -1055,7 +1013,6 @@ class Logistik extends CI_Controller
 				<td style="border:1px solid #000;padding:50px;font-weight:bold"></td>
 			</tr>';
 		$html .='</table>';
-
 		$judul = 'SJ LAMINASI - '.$no_surat;
 		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 	}
@@ -2375,11 +2332,18 @@ class Logistik extends CI_Controller
 	{
 		$id_header = $_POST["id_header"];
 		$opsi = $_POST["opsi"];
-
 		$header = $this->db->query("SELECT*FROM invoice_jasa_header WHERE id='$id_header'")->row();
-		$detail = $this->db->query("SELECT SUM(d.harga) AS harga,SUM(d.total) AS total FROM invoice_jasa_detail d WHERE d.no_surat='$header->no_surat' AND d.no_invoice='$header->no_invoice' AND d.harga!='0' GROUP BY d.no_surat,d.no_invoice");
-		$cHarga = $this->db->query("SELECT*FROM invoice_jasa_detail d WHERE d.no_surat='$header->no_surat' AND d.no_invoice='$header->no_invoice' AND d.harga='0' GROUP BY d.harga");
-
+		$detail = $this->db->query("SELECT SUM(d.harga) AS harga,SUM(d.total) AS total FROM invoice_jasa_detail d
+		WHERE d.no_surat='$header->no_surat' AND d.no_invoice='$header->no_invoice' AND d.harga!='0'
+		GROUP BY d.no_surat,d.no_invoice");
+		if($header->transaksi == "CORRUGATED"){
+			$cHarga = $this->db->query("SELECT*FROM invoice_jasa_detail d WHERE d.no_surat='$header->no_surat' AND d.no_invoice='$header->no_invoice' AND d.harga='0' GROUP BY d.harga");
+		}
+		if($header->transaksi == "LAMINASI"){
+			$cHarga = $this->db->query("SELECT*FROM invoice_jasa_detail d
+			INNER JOIN m_produk_lm i ON d.id_produk=i.id_produk_lm
+			WHERE d.no_surat='$header->no_surat' AND d.no_invoice='$header->no_invoice' AND i.jenis_qty_lm!='kg' AND d.harga='0' GROUP BY d.harga");
+		}
 		$htmlItem = '';
 		// NO. PO ITEM UKURAN FLUTE SUBSTANCE
 		$htmlItem .='<table class="table table-bordered" style="margin:0">
@@ -2387,63 +2351,130 @@ class Logistik extends CI_Controller
 				<th style="padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">#</th>
 				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center" colspan="6">DESKRIPSI</th>
 				<th style="padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">QTY</th>
-				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">HARGA</th>
+				<th style="width:150px;padding:6px;border-bottom:1px solid #6c757d;text-align:center">HARGA</th>
 				<th style="padding:6px 50px;border-bottom:1px solid #6c757d;text-align:center">TOTAL</th>
 				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">AKSI</th>
 			</tr>';
-			$isi = $this->db->query("SELECT d.*,h.*,i.*,d.id AS id_dtl FROM invoice_jasa_detail d
-			INNER JOIN invoice_jasa_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
-			INNER JOIN m_produk i ON d.id_produk=i.id_produk
-			WHERE h.no_surat='$header->no_surat' AND h.no_invoice='$header->no_invoice'
-			ORDER BY d.no_po,i.nm_produk");
+			if($header->transaksi == "CORRUGATED"){
+				$isi = $this->db->query("SELECT d.*,h.*,i.*,d.id AS id_dtl FROM invoice_jasa_detail d
+				INNER JOIN invoice_jasa_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
+				INNER JOIN m_produk i ON d.id_produk=i.id_produk
+				WHERE h.no_surat='$header->no_surat' AND h.no_invoice='$header->no_invoice'
+				ORDER BY d.no_po,i.nm_produk");
+			}
+			if($header->transaksi == "LAMINASI"){
+				$isi = $this->db->query("SELECT d.*,h.*,i.*,d.id AS id_dtl,r.qty_muat AS rk_muat,vd.retur_qty FROM invoice_jasa_detail d
+				INNER JOIN invoice_jasa_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
+				INNER JOIN pl_laminasi p ON d.no_surat=p.no_surat AND h.no_surat=p.no_surat AND h.tgl_surat_jalan=p.tgl
+				INNER JOIN m_rk_laminasi r ON p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan_lm AND p.no_pl_urut=r.rk_urut AND r.id_m_produk_lm=d.id_produk
+				INNER JOIN invoice_laminasi_header vh ON p.tgl=vh.tgl_surat_jalan AND p.no_surat=vh.no_surat
+				INNER JOIN invoice_laminasi_detail vd ON vd.no_surat=vh.no_surat AND vd.no_invoice=vh.no_invoice AND vd.id_produk_lm=d.id_produk
+				INNER JOIN m_produk_lm i ON d.id_produk=i.id_produk_lm
+				WHERE h.no_surat='$header->no_surat' AND h.no_invoice='$header->no_invoice'
+				GROUP BY d.no_po,i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm");
+			}
 			$i = 0;
 			$sumTotal = 0;
 			foreach($isi->result() as $r){
 				$i++;
-				($r->kategori == "K_BOX") ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
+				if($r->transaksi == "CORRUGATED"){
+					($r->kategori == "K_BOX") ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
+				}
+				if($r->transaksi == "LAMINASI"){
+					if($r->jenis_qty_lm == 'pack'){
+						$ket = '( PACK )';
+						$qty = $r->pack_lm;
+						$retur = round($r->retur_qty);
+					}else if($r->jenis_qty_lm == 'ikat'){
+						$ket = '( IKAT )';
+						$qty = $r->ikat_lm;
+						$retur = round($r->retur_qty);
+					}else{
+						$ket = '( KG )';
+						$qty = $r->kg_lm;
+						$retur = round($r->retur_qty,2);
+					}
+					($r->jenis_qty_lm == 'kg') ? $orderBal = round($qty * $r->rk_muat,2) : $orderBal = number_format($qty * $r->rk_muat,0,',','.');
+					($r->jenis_qty_lm == 'kg') ? $muat = $r->rk_muat : $muat = number_format($r->rk_muat,0,',','.');
+				}
 				$htmlItem .='<tr>
 					<td style="padding:6px;text-align:center">'.$i.'</td>
 					<td style="padding:0;border-width:0 0 1px">
 						<table class="table" style="margin:0;border:0">
 							<tr><td style="border:0;padding:6px;font-weight:bold">NO. PO</td></tr>
-							<tr><td style="border:0;padding:6px;font-weight:bold">ITEM</td></tr>
-							<tr><td style="border:0;padding:6px;font-weight:bold">UKURAN</td></tr>
-						</table>
+							<tr><td style="border:0;padding:6px;font-weight:bold">ITEM</td></tr>';
+							if($r->transaksi == "CORRUGATED"){
+								$htmlItem .='<tr><td style="border:0;padding:6px;font-weight:bold">UKURAN</td></tr>';
+							}
+							if($r->transaksi == "LAMINASI"){
+								$htmlItem .='<tr><td style="border:0;padding:6px;font-weight:bold">SIZE</td></tr>
+								<tr><td style="border:0;padding:6px;font-weight:bold">@PACK</td></tr>';
+							}
+						$htmlItem .='</table>
 					</td>
 					<td style="padding:0;border-width:0 0 1px">
 						<table class="table" style="margin:0;border:0">
 							<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>
 							<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>';
+							if($r->transaksi == "LAMINASI"){
+								$htmlItem .='<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>';
+							}
+						$htmlItem .='</table>
+					</td>
+					<td style="padding:0;border-width:0 0 1px">
+						<table class="table" style="margin:0;border:0">
+							<tr><td style="border:0;padding:6px">'.$r->no_po.'</td></tr>';
+							if($r->transaksi == "CORRUGATED"){
+								$htmlItem .='<tr><td style="border:0;padding:6px">'.$r->nm_produk.'</td></tr>
+								<tr><td style="border:0;padding:6px">'.$ukuran.'</td></tr>';
+							}
+							if($r->transaksi == "LAMINASI"){
+								$htmlItem .='<tr><td style="border:0;padding:6px">'.$r->nm_produk_lm.'</td></tr>
+								<tr><td style="border:0;padding:6px">'.$r->ukuran_lm.'</td></tr>
+								<tr><td style="border:0;padding:6px">'.number_format($r->isi_lm,0,",",".").' ( SHEET )</td></tr>';
+							}
+						$htmlItem .='</table>
+					</td>
+					<td style="padding:0;border-width:0 0 1px">
+						<table class="table" style="margin:0;border:0">';
+						if($r->transaksi == "CORRUGATED"){
+							$htmlItem .='<tr><td style="border:0;padding:6px;font-weight:bold">FLUTE</td></tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">SUBSTANCE</td></tr>';
+						}
+						if($r->transaksi == "LAMINASI"){
+							$htmlItem .='<tr><td style="border:0;padding:6px;font-weight:bold">@BAL</td></tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">MUAT</td></tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">ORDER</td></tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">RETUR ORDER</td></tr>';
+						}
+						$htmlItem .='</table>
+					</td>
+					<td style="padding:0;border-width:0 0 1px">
+						<table class="table" style="margin:0;border:0">
 							<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>
-						</table>
+							<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>';
+							if($r->transaksi == "LAMINASI"){
+								$htmlItem .='<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>
+								<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>';
+							}
+						$htmlItem .='</table>
 					</td>
 					<td style="padding:0;border-width:0 0 1px">
-						<table class="table" style="margin:0;border:0">
-							<tr><td style="border:0;padding:6px">'.$r->no_po.'</td></tr>
-							<tr><td style="border:0;padding:6px">'.$r->nm_produk.'</td></tr>
-							<tr><td style="border:0;padding:6px">'.$ukuran.'</td></tr>
-						</table>
+						<table class="table" style="margin:0;border:0">';
+						if($r->transaksi == "CORRUGATED"){
+							$htmlItem .='<tr><td style="border:0;padding:6px">'.$r->flute.'</td></tr>
+							<tr><td style="border:0;padding:6px">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td></tr>';
+						}
+						if($r->transaksi == "LAMINASI"){
+							$htmlItem .='<tr><td style="border:0;padding:6px">'.number_format($qty,0,",",".").' '.$ket.'</td></tr>
+							<tr><td style="border:0;padding:6px">'.$muat.'</td></tr>
+							<tr><td style="border:0;padding:6px">'.$orderBal.'</td></tr>
+							<tr><td style="border:0;padding:6px">'.$retur.'</td></tr>';
+						}
+						$htmlItem .='</table>
 					</td>
-					<td style="padding:0;border-width:0 0 1px">
-						<table class="table" style="margin:0;border:0">
-							<tr><td style="border:0;padding:6px;font-weight:bold">FLUTE</td></tr>
-							<tr><td style="border:0;padding:6px;font-weight:bold">SUBSTANCE</td></tr>
-						</table>
-					</td>
-					<td style="padding:0;border-width:0 0 1px">
-						<table class="table" style="margin:0;border:0">
-							<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>
-							<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>
-						</table>
-					</td>
-					<td style="padding:0;border-width:0 0 1px">
-						<table class="table" style="margin:0;border:0">
-							<tr><td style="border:0;padding:6px">'.$r->flute.'</td></tr>
-							<tr><td style="border:0;padding:6px">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td></tr>
-						</table>
-					</td>
-					<td style="padding:6px;text-align:center">'.number_format($r->qty_muat,0,',','.').'</td>';
-
+					<td style="padding:6px;text-align:right">'.number_format($r->qty_muat,0,',','.').'</td>';
 					if($opsi == 'edit' && $header->acc_owner != 'Y'){
 						$eKeyUp = 'onkeyup="keyupHargaJasa('."'".$r->id_dtl."'".')"';
 						$eClick = 'onclick="editHargaJasa('."'".$r->id_dtl."'".')"';
@@ -2461,7 +2492,7 @@ class Logistik extends CI_Controller
 					}
 					$htmlItem .='<td style="padding:6px;text-align:center">
 						<input type="hidden" id="tonase-'.$r->id_dtl.'" value="'.$r->qty_muat.'">
-						<input type="text" id="harga-'.$r->id_dtl.'" class="form-control" autocomplete="off" style="padding:6px;width:100px;color:#000;font-weight:bold;text-align:right" value="'.number_format($r->harga,0,',','.').'" '.$eKeyUp.'>
+						<input type="text" id="harga-'.$r->id_dtl.'" class="form-control" autocomplete="off" style="padding:6px;color:#000;font-weight:bold;text-align:right" value="'.number_format($r->harga,0,',','.').'" '.$eKeyUp.'>
 					</td>
 					<td style="padding:6px;text-align:center">
 						<input type="text" id="total-'.$r->id_dtl.'" class="form-control" style="border:0;background:none;padding:6px;font-weight:bold;color:#000;text-align:right" value="'.number_format($r->total,0,',','.').'" disabled>
@@ -2489,7 +2520,6 @@ class Logistik extends CI_Controller
 				</tr>';
 			}
 		$htmlItem .='</table>';
-
 		echo json_encode([
 			'header' => $header,
 			'detail' => ($detail->num_rows() == 0) ? 0 : $detail->row(),
@@ -2505,11 +2535,9 @@ class Logistik extends CI_Controller
 	{
 		$no_invoice = $_GET["no_invoice"];
 		$html = '';
-
 		$header = $this->db->query("SELECT*FROM invoice_jasa_header WHERE no_invoice='$no_invoice'")->row();
 		// GET PO
 		$result_po = $this->db->query("SELECT d.no_po FROM invoice_jasa_detail d WHERE d.no_invoice='$no_invoice' GROUP BY d.no_invoice")->row();
-
 		// KOP
 		$html .= '<table style="margin-bottom:10px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-size:11px;font-family:tahoma">
 			<tr>
@@ -2525,7 +2553,6 @@ class Logistik extends CI_Controller
 				<td>WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
 			</tr>
 		</table>';
-
 		// HEADER
 		$html .= '<table style="color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-size:11px;font-family:tahoma">
 			<tr>
@@ -2570,12 +2597,20 @@ class Logistik extends CI_Controller
 				<td style="padding:10px" colspan="3"></td>
 			</tr>';
 		$html .= '</table>';
-
 		// ISI
+		if($header->transaksi == "CORRUGATED"){
+			$kopWdth = '<th style="border:0;height:30px;width:36%"></th>
+			<th style="border:0;height:30px;width:10%"></th>';
+			$kopKet = '<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;font-weight:bold">SATUAN</td>';
+			$csKet = 'colspan="2"';
+			$cs = 7;
+		}
+		if($header->transaksi == "LAMINASI"){
+			$kopWdth = '<th style="border:0;height:30px;width:46%"></th>'; $kopKet = ''; $csKet = ''; $cs = 6;
+		}
 		$html .= '<table style="margin-bottom:25px;font-size:11px;text-align:center;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:tahoma">
 			<tr>
-				<th style="border:0;height:30px;width:36%"></th>
-				<th style="border:0;height:30px;width:10%"></th>
+				'.$kopWdth.'
 				<th style="border:0;height:30px;width:10%"></th>
 				<th style="border:0;height:30px;width:7%"></th>
 				<th style="border:0;height:30px;width:10%"></th>
@@ -2584,25 +2619,42 @@ class Logistik extends CI_Controller
 			</tr>
 			<tr>
 				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;font-weight:bold">NAMA BARANG</td>
-				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;font-weight:bold">SATUAN</td>
+				'.$kopKet.'
 				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;font-weight:bold">JUMLAH</td>
 				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;font-weight:bold" colspan="2">HARGA</td>
 				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;font-weight:bold" colspan="2">TOTAL</td>
 			</tr>';
-
-			$isi = $this->db->query("SELECT d.*,h.*,i.* FROM invoice_jasa_detail d
-			INNER JOIN invoice_jasa_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
-			INNER JOIN m_produk i ON d.id_produk=i.id_produk
-			WHERE h.no_surat='$header->no_surat' AND h.no_invoice='$header->no_invoice'
-			ORDER BY d.no_po,i.nm_produk");
+			if($header->transaksi == "CORRUGATED"){
+				$isi = $this->db->query("SELECT d.*,h.*,i.* FROM invoice_jasa_detail d
+				INNER JOIN invoice_jasa_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
+				INNER JOIN m_produk i ON d.id_produk=i.id_produk
+				WHERE h.no_surat='$header->no_surat' AND h.no_invoice='$header->no_invoice'
+				ORDER BY d.no_po,i.nm_produk");
+			}
+			if($header->transaksi == "LAMINASI"){
+				$isi = $this->db->query("SELECT d.*,h.*,i.* FROM invoice_jasa_detail d
+				INNER JOIN invoice_jasa_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
+				INNER JOIN m_produk_lm i ON d.id_produk=i.id_produk_lm
+				WHERE h.no_surat='$header->no_surat' AND h.no_invoice='$header->no_invoice' AND i.jenis_qty_lm!='kg'
+				ORDER BY d.no_po,i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm");
+			}
 			$sumTotal = 0;
 			foreach($isi->result() as $r){
-				// str_replace(",'","",$id_hub)
-				($r->kategori == "K_BOX") ? $ukuran = str_replace(" ","",$r->ukuran) : $ukuran = str_replace(" ","",$r->ukuran_sheet);
-				$jumlah = round($r->berat_bersih * $r->qty_muat);
+				if($r->transaksi == "CORRUGATED"){
+					($r->kategori == "K_BOX") ? $ukuran = str_replace(" ","",$r->ukuran) : $ukuran = str_replace(" ","",$r->ukuran_sheet);
+					$nm_produk = $r->nm_produk.'. '.strtolower($ukuran).'. '.$r->flute.'. '.$this->m_fungsi->kualitas($r->kualitas, $r->flute);
+					$isiKet = '<td style="padding:6px">KG</td>';
+					$jumlah = round($r->berat_bersih * $r->qty_muat);
+				}
+				if($header->transaksi == "LAMINASI"){
+					($r->jenis_qty_lm == 'kg') ? $isiLm = '' : $isiLm = '('.$r->isi_lm.')';
+					$nm_produk = $r->nm_produk_lm.' '.$isiLm;
+					$isiKet = '';
+					$jumlah = $r->qty_muat;
+				}
 				$html .='<tr>
-					<td style="padding:6px 0;text-align:left">'.$r->nm_produk.'. '.strtolower($ukuran).'. '.$r->flute.'. '.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
-					<td style="padding:6px">KG</td>
+					<td style="padding:6px 0;text-align:left">'.$nm_produk.'</td>
+					'.$isiKet.'
 					<td style="padding:6px;text-align:right">'.number_format($jumlah,0,",",".").'</td>
 					<td style="padding:6px">Rp</td>
 					<td style="padding:6px;text-align:right">'.number_format($r->harga,0,",",".").'</td>
@@ -2611,7 +2663,6 @@ class Logistik extends CI_Controller
 				</tr>';
 				$sumTotal += $r->total;
 			}
-
 			if($isi->num_rows() == 1) {
 				$xx = 9;
 			}else if($isi->num_rows() == 2){
@@ -2634,22 +2685,20 @@ class Logistik extends CI_Controller
 			if($isi->num_rows() <= 9) {
 				for($i = 0; $i < $xx; $i++){
 					$html .='<tr>
-						<td style="padding:8px" colspan="7"></td>
+						<td style="padding:8px" colspan="'.$cs.'"></td>
 					</tr>';
 				}
 			}
-
 			$html .= '<tr>
-				<td style="border-top:2px solid #000;padding:6px 0;text-align:left;line-height:1.8;text-transform:uppercase" colspan="2">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($sumTotal).'</i></b></td>
+				<td style="border-top:2px solid #000;padding:6px 0;text-align:left;line-height:1.8;text-transform:uppercase" '.$csKet.'>Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($sumTotal).'</i></b></td>
 				<td style="border-top:2px solid #000;padding:6px;text-align:left" colspan="3">Total</td>
 				<td style="border-top:2px solid #000;padding:6px">Rp</td>
 				<td style="border-top:2px solid #000;padding:6px 0;text-align:right">'.number_format($sumTotal, 0, ",", ".").'</td>
 			</tr>';
 			$html .= '<tr>
-				<td style="border-bottom:2px solid #000" colspan="7"></td>
+				<td style="border-bottom:2px solid #000" colspan="'.$cs.'"></td>
 			</tr>';
 		$html .= '</table>';
-
 		// PEMBAYARAN REKENING
 		$nm_bank = 'BCA';
 		$norek_bank = '078-795-5758';
@@ -2680,11 +2729,9 @@ class Logistik extends CI_Controller
 				<td></td>
 			</tr>
 		</table>';
-
 		// UPDATE TGL CETAK
 		$ctk = date("Y-m-d H:i:s");
 		$this->db->query("UPDATE invoice_jasa_header SET tgl_cetak='$ctk' WHERE no_invoice='$no_invoice' ");
-
 		$judul = 'INVOICE JASA - '.$no_invoice;
 		$this->m_fungsi->newMpdf($judul, 'cetak', $html, 6, 7, 6, 7, 'P', 'A4', $judul.'.pdf');
 	}
@@ -3781,7 +3828,17 @@ class Logistik extends CI_Controller
 				</div>';
 				
 				// TOTAL
-				$cHarga = $this->db->query("SELECT*FROM invoice_jasa_detail d WHERE d.no_surat='$r->no_surat' AND d.no_invoice='$r->no_invoice' AND d.harga='0' GROUP BY d.harga")->num_rows();
+				if($r->transaksi == "CORRUGATED"){
+					$cHarga = $this->db->query("SELECT*FROM invoice_jasa_detail d
+					WHERE d.no_surat='$r->no_surat' AND d.no_invoice='$r->no_invoice' AND d.harga='0'
+					GROUP BY d.harga")->num_rows();
+				}
+				if($r->transaksi == "LAMINASI"){
+					$cHarga = $this->db->query("SELECT*FROM invoice_jasa_detail d
+					INNER JOIN m_produk_lm i ON d.id_produk=i.id_produk_lm
+					WHERE d.no_surat='$r->no_surat' AND d.no_invoice='$r->no_invoice' AND i.jenis_qty_lm!='kg' AND d.harga='0'
+					GROUP BY d.harga")->num_rows();
+				}
 				$dtl = $this->db->query("SELECT SUM(d.harga) AS harga,SUM(d.total) AS total FROM invoice_jasa_detail d WHERE d.no_surat='$r->no_surat' AND d.no_invoice='$r->no_invoice' GROUP BY d.no_surat,d.no_invoice")->row();
 				if($cHarga != 0 || $dtl->harga == 0){
 					$row[] = '<div class="text-center" style="color:#000;font-weight:bold">0</div>';
