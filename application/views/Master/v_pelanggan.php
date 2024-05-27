@@ -32,22 +32,23 @@
 
 				<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<br><br>
-
-				<table id="datatable" class="table table-bordered table-striped" width="100%">
-					<thead class="color-tabel">
-						<tr>
-							<th style="width:5%">NO.</th>
-							<th style="width:24%">NAMA</th>
-							<th style="width:34%">PROVINSI</th>
-							<th style="width:34%">ALAMAT</th>
-							<th style="width:22%">SALES</th>
-							<th style="width:5%">TOP</th>
-							<th style="width:10%">AKSI</th>
-						</tr>
-					</thead>
-					<tbody>
-					</tbody>
-				</table>
+				<div style="overflow:auto;white-space:nowrap">
+					<table id="datatable" class="table table-bordered table-striped" width="100%">
+						<thead class="color-tabel">
+							<tr>
+								<th>NO.</th>
+								<th>PELANGGAN</th>
+								<th>ATTN</th>
+								<th>PROVINSI</th>
+								<th>ALAMAT</th>
+								<th>SALES</th>
+								<th>TOP</th>
+								<th>AKSI</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 		<!-- /.card -->
@@ -97,13 +98,13 @@
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">ALAMAT</label>
 						<div class="col-sm-10">
-							<textarea class="form-control" id="alamat" placeholder="ALAMAT KANTOR"></textarea>
+							<textarea class="form-control" id="alamat" placeholder="ALAMAT KANTOR" oninput="this.value = this.value.toUpperCase()"></textarea>
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">ALAMAT KIRIM</label>
 						<div class="col-sm-10">
-							<textarea class="form-control" id="alamat_kirim" placeholder="ALAMAT KIRIM"></textarea>
+							<textarea class="form-control" id="alamat_kirim" placeholder="ALAMAT KIRIM" oninput="this.value = this.value.toUpperCase()"></textarea>
 						</div>
 					</div>
 					<div class="form-group row">
@@ -354,7 +355,7 @@
 				"url": '<?php echo base_url(); ?>Master/load_data/pelanggan',
 				"type": "POST",
 			},
-			responsive: true,
+			responsive: false,
 			"pageLength": 10,
 			"language": {
 				"emptyTable": "Tidak ada data.."

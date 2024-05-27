@@ -101,7 +101,10 @@
 											<?php foreach ($pelanggan as $r) : ?>
 												<option value="<?= $r->id_pelanggan ?>" detail="
 												<?=$r->kab_name."|".$r->no_telp . "|" . $r->fax . "|" . $r->top . "|" . $r->nm_sales ?>">
-													<?= $r->id_pelanggan . "|" . $r->nm_pelanggan ?>
+													<?php
+														($r->attn == '-') ? $attn = '' : $attn = ' - '.$r->attn;
+													?>
+													<?= $r->id_pelanggan . "|" . $r->nm_pelanggan.$attn ?>
 												</option>
 											<?php endforeach ?>
 										</select>

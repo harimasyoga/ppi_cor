@@ -688,6 +688,44 @@
 		})
 	}
 
+	function returInvLaminasi(id_dtl, id_header)
+	{
+		let retur_qty = $("#retur-"+id_dtl).val()
+		let qty_order = $("#h_qty_order-"+id_dtl).val().split('.').join('')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/returInvLaminasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_dtl, retur_qty, qty_order
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					if(data.data2){
+						toastr.error(`<b>${data.msg}</b>`)
+					}else{
+						toastr.success(`<b>${data.msg}</b>`)
+					}
+					editInvoiceLaminasi(id_header, 'edit')
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					editInvoiceLaminasi(id_header, 'edit')
+					swal.close()
+				}
+			}
+		})
+	}
+
 	function verifInvLaminasi(aksi, status_verif)
 	{
 		if(aksi == 'verifikasi'){

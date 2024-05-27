@@ -602,8 +602,8 @@
 	function addTimbangan(tgl, urut){
 		let plat = $("#pp-noplat-"+urut).val()
 		let supir = $("#pp-supir-"+urut).val()
-		let tb_truk = $("#pp-timbangan-truk-"+urut).val()
-		let timbangan = $("#pp-timbangan-"+urut).val()
+		let tb_truk = $("#pp-timbangan-truk-"+urut).val().split('.').join('')
+		let timbangan = $("#pp-timbangan-"+urut).val().split('.').join('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/addTimbangan')?>',
 			type: "POST",
@@ -623,16 +623,24 @@
 				if(data.result){
 					toastr.success('<b>BERHASIL!</b>');
 				}else{
-					toastr.error('<b>HARAP LENGKAPI DATA!</b>');
+					toastr.error(`<b>${data.msg}</b>`);
 				}
 				listRencanaKirim()
 			}
 		})
 	}
 
+	function hitungTimbangan(i)
+	{
+		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'})
+		let bb_truk = $("#pp-timbangan-truk-"+i).val().split('.').join('')
+		let bb_bersih = $("#pp-timbangan-"+i).val().split('.').join('');
+		(bb_truk == 0 || bb_truk < 0 || bb_truk == '') ? $("#pp-timbangan-truk-"+i).val(0) : $("#pp-timbangan-truk-"+i).val(rupiah.format(bb_truk));
+		(bb_bersih == 0 || bb_bersih < 0 || bb_bersih == '') ? $("#pp-timbangan-"+i).val(0) : $("#pp-timbangan-"+i).val(rupiah.format(bb_bersih))
+	}
+
 	function insertSuratJalanJasa(no_surat)
 	{
-		console.log(no_surat)
 		$.ajax({
 			url: '<?php echo base_url('Logistik/insertSuratJalanJasa')?>',
 			type: "POST",
@@ -647,18 +655,17 @@
 				});
 			},
 			data: ({
-				no_surat
+				no_surat, opsi: 'cor'
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				let url = '<?php echo base_url('Logistik/suratJalanJasa') ?>'
 				if(data.insert){
 					toastr.success(`<b>BERHASIL! ${data.no_jasa}</b>`);
-					window.open(url+'?jenis='+data.no_jasa+'&top=5&ctk=0', '_blank');
+					window.open(url+'?jenis='+data.no_jasa+'&top=5&ctk=0&opsi=cor', '_blank');
 					swal.close()
 				}else{
-					window.open(url+'?jenis='+data.no_jasa+'&top=5&ctk=0', '_blank');
+					window.open(url+'?jenis='+data.no_jasa+'&top=5&ctk=0&opsi=cor', '_blank');
 					swal.close()
 				}
 			}
@@ -677,7 +684,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				listPengiriman()
 			}
 		})
