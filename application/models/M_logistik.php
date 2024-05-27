@@ -2074,7 +2074,7 @@ class M_logistik extends CI_Model
 						add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'4.01','Pendapatan', 0,$pendapatan);
 						// pajak pendapatan
 						add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'6.37','Pajak Pendapatan', $pajak_pendapatan, 0);
-						add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.03.02','Pajak Pendapatan', 0,$pajak_pendapatan);
+						add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.04','Pajak Pendapatan', 0,$pajak_pendapatan);
 						
 						
 						// pembelian bahan baku		
@@ -2102,7 +2102,7 @@ class M_logistik extends CI_Model
 							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'4.03','Retur Pendapatan', $retur, 0);
 							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.03','Retur Pendapatan', 0,$retur);
 							// pajak retur
-							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.03.02','Pajak Retur Pendapatan', $pajak_retur, 0);
+							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.04','Pajak Retur Pendapatan', $pajak_retur, 0);
 							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'6.37','Pajak Retur Pendapatan', 0,$pajak_retur);
 
 							// retur
@@ -2184,7 +2184,7 @@ class M_logistik extends CI_Model
 						add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'4.01','Pendapatan', 0,$pendapatan);
 						// pajak pendapatan
 						add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'6.37','Pajak Pendapatan', $pajak_pendapatan, 0);
-						add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.03.02','Pajak Pendapatan', 0,$pajak_pendapatan);
+						add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.04','Pajak Pendapatan', 0,$pajak_pendapatan);
 						
 						
 						// pembelian bahan baku		
@@ -2208,7 +2208,7 @@ class M_logistik extends CI_Model
 							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'4.03','Retur Pendapatan', $retur, 0);
 							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.03','Retur Pendapatan', 0,$retur);
 							// pajak retur
-							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.03.02','Pajak Retur Pendapatan', $pajak_retur, 0);
+							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.04','Pajak Retur Pendapatan', $pajak_retur, 0);
 							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'6.37','Pajak Retur Pendapatan', 0,$pajak_retur);
 
 							// retur
