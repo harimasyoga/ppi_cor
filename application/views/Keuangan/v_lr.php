@@ -35,35 +35,58 @@
 					<div class="col-md-12">								
 						<br>						
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
-						<div class="col-md-2">PERIODE</div>
-						<div class="col-md-3">
-							<select class="form-control select2" name="priode" id="priode" style="width: 100%;" onchange="cek_periode(),load_data()">
-							<option value="all">ALL</option>
-							<option value="custom">Custom</option>
-							</select>
+							<div class="col-md-2">TAHUN</div>
+								<div class="col-md-3">
+								<?php 
+									$thang =  date("Y"); 
+									$thang_min = $thang - 2 ;
+								?>
+									<select class="form-control select2" name ="thun" id="thun" onchange="load_data()" > 
+								<?php 									
+									for ($th=$thang_min ; $th<=$thang ; $th++)
+									{
+										if ($th==$thang) {
+											echo "<option selected value=$th>$thang</option>";
+											}
+										else {	
+										echo "<option value=$th>$th</option>";
+										}
+									}		
+								?>  
+									</select>
+							</div>
+							<div class="col-md-1"></div>
+							<div class="col-md-2">ATTN</div>
+							<div class="col-md-3">
+								<select class="form-control select2" name="id_hub2" id="id_hub2" style="width: 100%;" onchange="load_data()">
+								</select>
+							</div>
 						</div>
-						<div class="col-md-1"></div>
-						<div class="col-md-2">ATTN</div>
-						<div class="col-md-3">
-							<select class="form-control select2" name="id_hub2" id="id_hub2" style="width: 100%;" onchange="load_data()">
-							</select>
-						</div>
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="tgl_awal_list" >						
-						<div class="col-md-2">Tgl Awal</div>
-						<div class="col-md-3">
-							<input type="date" class="form-control" name="tgl_awal" id="tgl_awal" onchange="load_data()" value ="<?= date('Y-m-d') ?>">
-						</div>
-						<div class="col-md-6"></div>
-						</div>
-
-						<div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="tgl_akhir_list" >						
-						<div class="col-md-2">Tgl Akhir</div>
-						<div class="col-md-3">
-							<input type="date" class="form-control" name="tgl_akhir" id="tgl_akhir" onchange="load_data()" value ="<?= date('Y-m-d') ?>">
-						</div>
-						<div class="col-md-6"></div>
+									
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold;" id="blnn" >						
+							<div class="col-md-2">BULAN</div>
+							<div class="col-md-3">
+								<?php 
+									$qbulan    = $this->db->query("SELECT*FROM m_bulan");
+									$bln_now   = date("m");
+								?>
+									<select id="rentang_bulan" class="form-control select2" onchange="load_data()" > 
+										<option value="all">-- SEMUA --</option>
+								<?php 									
+									foreach ($qbulan->result() as $bln_row)
+									{
+										if ($bln_row->id==$bln_now) {
+											echo "<option selected value=$bln_row->id>$bln_row->bulan</option>";
+											}
+										else {	
+										echo "<option value=$bln_row->id>$bln_row->bulan</option>";
+										}
+									}		
+								?>  
+									</select>
+							</div>
+							<div class="col-md-6"></div>
+							
 						</div>
 						
 						<br>
@@ -90,6 +113,7 @@
 	rowNum = 0;
 	$(document).ready(function() {
 		load_data();
+		load_hub();
 		// getMax();
 		$('.select2').select2({
 			containerCssClass: "wrap",
@@ -100,7 +124,7 @@
 
 	status = "insert";
 
-	function load_hub_bhn() 
+	function load_hub() 
     {
       option = "";
       $.ajax({
@@ -156,17 +180,17 @@
 	{
 		var id_hub    = $('#id_hub2').val()
 		var priode    = $('#priode').val()
-		var tgl_awal  = $('#tgl_awal').val()
-		var tgl_akhir = $('#tgl_akhir').val()
+		var blnn      = $('#rentang_bulan').val()
+		var thun      = $('#thun').val()
 		$.ajax({
 			url: '<?php echo base_url('Keuangan/load_lr')?>',
 			type: "POST",
 			// data: ({ id, id_dtl, opsi }),
 			"data" : ({
-					priode    : priode,
-					id_hub    : id_hub,
-					tgl_awal  : tgl_awal,
-					tgl_akhir : tgl_akhir
+					priode       : priode,
+					id_hub       : id_hub,
+					blnn         : blnn,
+					thun         : thun
 				}),
 			beforeSend: function() {
 				swal({

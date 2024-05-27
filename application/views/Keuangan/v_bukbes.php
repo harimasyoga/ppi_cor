@@ -90,7 +90,7 @@
 	rowNum = 0;
 	$(document).ready(function() {
 		load_data();
-		load_hub_bhn()
+		load_hub()
 		// getMax();
 		$('.select2').select2({
 			containerCssClass: "wrap",
@@ -112,7 +112,7 @@
 		window.open(url+'?id_hub='+id_hub+'&priode='+priode+'&tgl_awal='+tgl_awal+'&tgl_akhir='+tgl_akhir, '_blank');  
 	}
 
-	function load_hub_bhn() 
+	function load_hub() 
     {
       option = "";
       $.ajax({

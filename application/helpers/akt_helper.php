@@ -1,5 +1,56 @@
 <?php
     
+    function load_lr($field='')
+    {
+        $CI       = & get_instance();
+        $result_jurnal = $CI->db->query("SELECT LENGTH(p.kd)length,p.* FROM(
+            select kd_akun as kd,nm_akun as nm,jenis,dk,IFNULL((select sum(debet) from jurnal_d where left(kode_rek,1)=kd),0)debet, IFNULL((select sum(kredit) from jurnal_d where left(kode_rek,1)=kd),0)kredit from m_kode_akun
+            union all
+            select concat(kd_akun,'.',kd_kelompok) as kd,nm_kelompok as nm,jenis,dk,IFNULL((select sum(debet) from jurnal_d where left(kode_rek,4)=concat(kd_akun,'.',kd_kelompok)),0)debet, IFNULL((select sum(kredit) from jurnal_d where left(kode_rek,4)=kd),0)kredit from m_kode_kelompok
+            union all
+            select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis) as kd,nm_jenis as nm,jenis,dk,IFNULL((select sum(debet) from jurnal_d where left(kode_rek,7)=concat(kd_akun,'.',kd_kelompok,'.',kd_jenis)),0)debet, IFNULL((select sum(kredit) from jurnal_d where left(kode_rek,7)=kd),0)kredit from m_kode_jenis
+            union all
+            select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci) as kd,nm_rinci as nm,jenis,dk,IFNULL((select sum(debet) from jurnal_d where left(kode_rek,10)=concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci)),0)debet, IFNULL((select sum(kredit) from jurnal_d where left(kode_rek,10)=kd),0)kredit from m_kode_rinci
+            )p where jenis='$field'
+            order by kd");
+        return $result_jurnal;
+    } 
+    
+    function load_lr2($field='')
+    {
+        $CI       = & get_instance();
+        $result_jurnal = $CI->db->query("SELECT*from mapping_lr where kode_1 in 
+        (
+        select ''kode_rek
+        UNION ALL
+        select LEFT(kode_rek,1)kode_rek from jurnal_d group by LEFT(kode_rek,1)
+        UNION ALL
+        select LEFT(kode_rek,4)kode_rek from jurnal_d group by LEFT(kode_rek,4)
+        UNION ALL
+        select LEFT(kode_rek,7)kode_rek from jurnal_d group by LEFT(kode_rek,7)
+        UNION ALL
+        select LEFT(kode_rek,10)kode_rek from jurnal_d group by LEFT(kode_rek,10)
+        )
+        ORDER BY no_urut");
+        return $result_jurnal;
+    } 
+   
+    function total_penjualan($bulan='',$thn='')
+    {
+        $CI       = & get_instance();
+        $total_penjualan = $CI->db->query("SELECT sum(nominal) as nominal FROM(
+            SELECT IFNULL(kredit,0)nominal from jurnal_d 
+            where left(kode_rek,4) in (4.01) and YEAR(tgl_transaksi)='$thn' and MONTH(tgl_transaksi) in ('$bulan') 
+            union ALL
+            SELECT IFNULL(debet,0)*-1 as nominal from jurnal_d 
+            where left(kode_rek,4) in (4.02) and YEAR(tgl_transaksi)='$thn' and MONTH(tgl_transaksi) in ('$bulan') 
+            union ALL
+            SELECT IFNULL(debet,0)*-1 as nominal from jurnal_d 
+            where left(kode_rek,4) in (4.03) and YEAR(tgl_transaksi)='$thn' and MONTH(tgl_transaksi) in ('$bulan') 
+            )p");
+        return $total_penjualan;
+    } 
+
     function load_rek($field='', $kd='')
     {
         $CI       = & get_instance();

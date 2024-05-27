@@ -507,8 +507,8 @@
 		var total_kredit  = 0
 		for(loop = 0; loop <= rowNum; loop++)
 		{
-			var debit        = $("#debit"+loop).val()
-			var kredit       = $("#kredit"+loop).val()
+			var debit        = $("#debit"+loop).val().split('.').join('')
+			var kredit       = $("#kredit"+loop).val().split('.').join('')
 
 			debit_ok         = (debit=='' || isNaN(debit) || debit == null) ? '0' : debit;
 			kredit_ok        = (kredit=='' || isNaN(kredit) || kredit == null) ? '0' : kredit;
