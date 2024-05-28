@@ -3402,7 +3402,7 @@ class Logistik extends CI_Controller
 				$i++;
 			}
 		}else if ($jenis == "stok_bb") {			
-			$query = $this->db->query("SELECT*FROM trs_h_stok_bb ORDER BY tgl_stok desc,id_stok")->result();
+			$query = $this->db->query("SELECT a.*,(select b.no_polisi from m_jembatan_timbang b where a.no_timbangan=b.no_timbangan)nopol FROM trs_h_stok_bb a ORDER BY tgl_stok desc,id_stok")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -3435,9 +3435,10 @@ class Logistik extends CI_Controller
 				$row            = array();
 				$row[]          = '<div class="text-center">'.$i.'</div>';
 				$row[]          = '<div >'.$r->no_stok.'</div>';
-				$row[]          = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_stok).'</div>';
+				$row[]          = '<div class="text-center">'.$r->tgl_stok.'</div>';
 				$row[]          = '<div class="text-center"><button type="button" class="btn btn-sm btn-info ">'.$r->status.'</button></div>';
 				$row[]          = '<div >'.$r->no_timbangan.'</div>';
+				$row[]          = '<div >'.$r->nopol.'</div>';
 				$row[]          = '<div class="text-center">'.number_format($r->total_timb, 0, ",", ".").' Kg</div>' ;
 				$row[]          = '<div class="text-center">'.number_format($total_bb, 0, ",", ".").' Kg</div>' ;
 				$row[]          = '<div class="text-center">'.$nm_cust.'</div>';
