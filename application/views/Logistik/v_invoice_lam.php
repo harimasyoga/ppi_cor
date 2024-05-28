@@ -301,8 +301,15 @@
 										<td style="padding:6px 0" colspan="3">
 											<select id="plh-lap-cust" class="form-control select2">
 												<?php
-													$query = $this->db->query("SELECT id_pelanggan_lm,attn_lam_inv FROM invoice_laminasi_header
-													GROUP BY id_pelanggan_lm,attn_lam_inv ORDER BY attn_lam_inv");
+													if($this->session->userdata('username') == 'usman'){
+														$where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'";
+													}else{
+														$where = '';
+													}
+													$query = $this->db->query("SELECT h.id_pelanggan_lm,h.attn_lam_inv FROM invoice_laminasi_header h
+													INNER JOIN m_pelanggan_lm l ON h.id_pelanggan_lm=l.id_pelanggan_lm
+													INNER JOIN m_sales s ON l.id_sales=s.id_sales $where
+													GROUP BY h.id_pelanggan_lm,h.attn_lam_inv ORDER BY h.attn_lam_inv");
 													$html ='';
 													$html .='<option value="" attn="">SEMUA</option>';
 													foreach($query->result() as $r){
@@ -1012,6 +1019,10 @@
 					if(data.no_pl_inv){
 						kosong()
 						reloadTable()
+					}else{
+						toastr.error(`<b>PO SUDAH DI ACC!</b>`)
+						reloadTable()
+						swal.close()
 					}
 				}
 			})

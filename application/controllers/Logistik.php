@@ -1999,11 +1999,13 @@ class Logistik extends CI_Controller
 		}
 		($plh_cust == "") ? $wcust = '' : $wcust = "AND h.id_pelanggan_lm='$plh_cust'";
 		($attn != "") ? $wattn = "AND h.attn_lam_inv='$attn'" : $wattn = '';
+		($this->session->userdata('username') == 'usman') ? $where = "AND s.id_sales='9' OR s.nm_sales='Usman'" : $where = '';
 
 		$html .= '<table style="width:100%;margin-top:25px;color:#000;border-collapse:collapse;vertical-align:tops;text-align:center;font-family:tahoma'.$sps.'">';
-		$header = $this->db->query("SELECT (SELECT COUNT(*) FROM invoice_laminasi_detail d WHERE h.no_surat=d.no_surat AND h.no_invoice=d.no_invoice) AS detail, h.*
-		FROM invoice_laminasi_header h
-		WHERE h.tgl_surat_jalan BETWEEN '$tgl1_lap' AND '$tgl2_lap' $wcust $wattn
+		$header = $this->db->query("SELECT (SELECT COUNT(*) FROM invoice_laminasi_detail d WHERE h.no_surat=d.no_surat AND h.no_invoice=d.no_invoice) AS detail,h.* FROM invoice_laminasi_header h
+		INNER JOIN m_pelanggan_lm l ON h.id_pelanggan_lm=l.id_pelanggan_lm
+		INNER JOIN m_sales s ON l.id_sales=s.id_sales
+		WHERE h.tgl_surat_jalan BETWEEN '$tgl1_lap' AND '$tgl2_lap' $wcust $wattn $where
 		GROUP BY h.tgl_surat_jalan,h.no_surat,h.no_invoice");
 		if($header->num_rows() == 0){
 			$html .='<tr>
@@ -2064,20 +2066,24 @@ class Logistik extends CI_Controller
 					($isi->num_rows() == 1 && $disc->num_rows() == 0) ? $bold = ';font-weight:bold;font-style:italic' : $bold = '';
 					if($r->jenis_qty_lm == 'pack'){
 						$qty = $r->pack_lm;
+						$rr = number_format($r->retur_qty,0,',','.');
 					}else if($r->jenis_qty_lm == 'ikat'){
 						$qty = $r->ikat_lm;
+						$rr = number_format($r->retur_qty,0,',','.');
 					}else{
 						$qty = $r->kg_lm;
+						$rr = round($r->retur_qty,2);
 					}
 					($r->jenis_qty_lm == 'kg') ? $orderBal = round($qty * $r->qty_muat,2) : $orderBal = number_format($qty * $r->qty_muat,0,',','.');
 					($r->jenis_qty_lm == 'kg') ? $isiLm = '' : $isiLm = '('.$r->isi_lm.')';
+					($r->retur_qty == 0) ? $retur = '' : $retur = ' (-'.$rr.')';
 					// OPSI
 					if($opsi == 'pdf'){
 						$html .='<tr>';
 					}
 					$html .='<td style="padding:6px;text-align:left">'.$r->nm_produk_lm.' '.$isiLm.'</td>
 						<td style="padding:6px">'.round($r->qty_muat,2).' @'.$qty.'</td>
-						<td style="padding:6px;text-align:right">'.$orderBal.'</td>
+						<td style="padding:6px;text-align:right">'.$orderBal.$retur.'</td>
 						<td style="padding:6px">Rp</td>
 						<td style="padding:6px;text-align:right">'.number_format($r->harga_pori_lm,0,",",".").'</td>
 						<td style="padding:6px">Rp</td>
