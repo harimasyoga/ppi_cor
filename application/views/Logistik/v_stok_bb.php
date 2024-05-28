@@ -45,6 +45,7 @@
 									<th class="text-center">TANGGAL</th>
 									<th class="text-center">STATUS</th>
 									<th class="text-center">NO TIMB</th>
+									<th class="text-center">NO PLAT</th>
 									<th class="text-center">TIMBANGAN</th>
 									<th class="text-center">TONASE</th>
 									<th class="text-center" style="padding : 12px 50px">CUST</th>
