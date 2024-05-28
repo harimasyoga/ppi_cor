@@ -1434,7 +1434,10 @@ class Transaksi extends CI_Controller
 			}
 		} else if ($jenis == "po_bahan") {
 
-			$query = $this->db->query("SELECT*FROM trs_po_bhnbk a JOIN m_hub b ON a.hub=b.id_hub ORDER BY tgl_bhn desc,a.id_po_bhn")->result();
+			$query = $this->db->query("SELECT b.*,a.*,(select datang_bhn_bk from(select sum(datang_bhn_bk)datang_bhn_bk,no_po_bhn from trs_d_stok_bb group by no_po_bhn)c where c.no_po_bhn=a.no_po_bhn)datang
+			FROM trs_po_bhnbk a 
+			JOIN m_hub b ON a.hub=b.id_hub 
+			ORDER BY tgl_bhn desc,a.id_po_bhn")->result();
 
 			$i               = 1;
 			foreach ($query as $r) 
@@ -1448,7 +1451,9 @@ class Transaksi extends CI_Controller
 				$row[] = '<div class="">'.$r->no_po_bhn.'</div>';
 				$row[] = '<div class="">'.$r->tgl_bhn.'</div>';
 				$row[] = '<div class="">'.$r->nm_hub.'</div>';
-				$row[] = '<div class="text-center">'.number_format($r->ton_bhn, 0, ",", ".").' Kg</div>';
+				$row[] = '<div class="text-center" style="color:#e92944"><b>'.number_format($r->ton_bhn, 0, ",", ".").'</b> Kg</div>';
+				$row[] = '<div class="text-center" style="color:#e92944"><b>'.number_format($r->datang, 0, ",", ".").'</b> Kg</div>';
+				$row[] = '<div class="text-center" style="color:#e92944"><b>'.number_format($r->ton_bhn-$r->datang, 0, ",", ".").'</b> Kg</div>';
 				$row[] = '<div class="text-center">'.number_format($r->hrg_bhn, 0, ",", ".").'</div>';
 				$row[] = '<div class="text-center">'.number_format($r->total, 0, ",", ".").'</div>';
 

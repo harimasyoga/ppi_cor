@@ -44,7 +44,9 @@
 									<th class="text-center title-white">NO PO</th>
 									<th class="text-center title-white">TGL PO</th>
 									<th class="text-center title-white">HUB</th>
-									<th class="text-center title-white">TONASE</th>
+									<th class="text-center title-white">TONASE PO</th>
+									<th class="text-center title-white">TERKIRIM</th>
+									<th class="text-center title-white">SISA</th>
 									<th class="text-center title-white">HARGA</th>
 									<th class="text-center title-white">TOTAL</th>
 									<th class="text-center title-white">AKSI</th>
