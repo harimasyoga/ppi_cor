@@ -446,6 +446,30 @@ class Keuangan extends CI_Controller
 								}else{
 									$nominal = 'Rp '.number_format(0, 0, ",", ".");
 								}
+							}else if($r->id=='11')
+							{
+								// hp_penjualan
+								$hp_penjualan = hp_penjualan($bln->id,$thun);
+
+								if($hp_penjualan->num_rows() > 0)
+								{
+									$nom_hp_penjualan = $hp_penjualan->row()->nominal;
+									$nominal = 'Rp '.number_format($nom_hp_penjualan, 0, ",", ".");
+								}else{
+									$nominal = 'Rp '.number_format(0, 0, ",", ".");
+								}
+							}else if($r->id=='21')
+							{
+								// lr_kotor
+								$lr_kotor = lr_kotor($bln->id,$thun);
+
+								if($lr_kotor->num_rows() > 0)
+								{
+									$nom_lr_kotor = $lr_kotor->row()->nominal;
+									$nominal = 'Rp '.number_format($nom_lr_kotor, 0, ",", ".");
+								}else{
+									$nominal = 'Rp '.number_format(0, 0, ",", ".");
+								}
 							}else{
 								
 								$nominal   = '';

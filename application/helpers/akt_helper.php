@@ -50,6 +50,38 @@
             )p");
         return $total_penjualan;
     } 
+    
+    function hp_penjualan($bulan='',$thn='')
+    {
+        $CI       = & get_instance();
+        $total_penjualan = $CI->db->query("SELECT sum(nominal) as nominal FROM(
+            SELECT IFNULL(debet,0)nominal from jurnal_d 
+            where left(kode_rek,4) in (5.01) and YEAR(tgl_transaksi)='$thn' and MONTH(tgl_transaksi) in ('$bulan') 
+            union ALL
+            SELECT IFNULL(kredit,0)*-1 as nominal from jurnal_d 
+            where left(kode_rek,4) in (5.02) and YEAR(tgl_transaksi)='$thn' and MONTH(tgl_transaksi) in ('$bulan') 
+            union ALL
+            SELECT IFNULL(kredit,0)*-1 as nominal from jurnal_d 
+            where left(kode_rek,4) in (5.03) and YEAR(tgl_transaksi)='$thn' and MONTH(tgl_transaksi) in ('$bulan') 
+            )p");
+        return $total_penjualan;
+    } 
+    
+    function lr_kotor($bulan='',$thn='')
+    {
+        $CI       = & get_instance();
+        $total_penjualan = $CI->db->query("SELECT sum(nominal) as nominal FROM(
+            SELECT IFNULL(debet,0)nominal from jurnal_d 
+            where left(kode_rek,4) in (5.01) and YEAR(tgl_transaksi)='$thn' and MONTH(tgl_transaksi) in ('$bulan') 
+            union ALL
+            SELECT IFNULL(kredit,0)*-1 as nominal from jurnal_d 
+            where left(kode_rek,4) in (5.02) and YEAR(tgl_transaksi)='$thn' and MONTH(tgl_transaksi) in ('$bulan') 
+            union ALL
+            SELECT IFNULL(kredit,0)*-1 as nominal from jurnal_d 
+            where left(kode_rek,4) in (5.03) and YEAR(tgl_transaksi)='$thn' and MONTH(tgl_transaksi) in ('$bulan') 
+            )p");
+        return $total_penjualan;
+    } 
 
     function load_rek($field='', $kd='')
     {
