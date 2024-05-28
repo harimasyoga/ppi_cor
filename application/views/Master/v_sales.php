@@ -26,18 +26,20 @@
 			<div class="card-body">
 				<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<br><br>
-				<table id="datatable" class="table table-bordered table-striped" width="100%">
-					<thead class="color-tabel">
-						<tr>
-							<th style="width:5%">NO.</th>
-							<th style="width:45%">NAMA</th>
-							<th style="width:40%">NO. HP</th>
-							<th style="width:10%">AKSI</th>
-						</tr>
-					</thead>
-					<tbody>
-					</tbody>
-				</table>
+				<div style="overflow:auto;white-space:nowrap">
+					<table id="datatable" class="table table-bordered table-striped">
+						<thead class="color-tabel">
+							<tr>
+								<th style="width:5%">NO.</th>
+								<th style="width:45%">NAMA</th>
+								<th style="width:40%">NO. HP</th>
+								<th style="width:10%">AKSI</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -148,7 +150,7 @@
 				"url": '<?php echo base_url(); ?>Master/load_data/sales',
 				"type": "POST",
 			},
-			responsive: true,
+			responsive: false,
 			"pageLength": 25,
 			"language": {
 				"emptyTable": "Tidak ada data.."

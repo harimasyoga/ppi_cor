@@ -512,16 +512,25 @@ class Master extends CI_Controller
 			$i = 1;
 			foreach ($query as $r) {
 				$row = array();
-				$row[] = '<a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_sales."'".','."'detail'".')">'.$i."<a>";
+				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_sales."'".','."'detail'".')">'.$i.'<a></div>';
 				$row[] = $r->nm_sales;
 				$row[] = $r->no_sales;
 
 				$idSales = $r->id_sales;
 				$cekPO = $this->db->query("SELECT COUNT(c.id_sales) AS jmlSales FROM trs_po p INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 				WHERE c.id_sales='$idSales' GROUP BY c.id_sales")->num_rows();
+				$cekPOLam = $this->db->query("SELECT COUNT(c.id_sales) AS jmlSales FROM trs_po_lm p INNER JOIN m_pelanggan_lm c ON p.id_pelanggan=c.id_pelanggan_lm
+				WHERE c.id_sales='$idSales' GROUP BY c.id_sales")->num_rows();
 				$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_sales."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
 				$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_sales."'".')"><i class="fas fa-times"></i></button>';
-				$row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit;
+				if($cekPO != 0 && $cekPOLam == 0){
+					$btnAksi = $btnEdit;
+				}else if($cekPO == 0 && $cekPOLam != 0){
+					$btnAksi = $btnEdit;
+				}else{
+					$btnAksi = $btnEdit.' '.$btnHapus;
+				}
+				$row[] = '<div class="text-center">'.$btnAksi.'</div>';
 				$data[] = $row;
 				$i++;
 			}
