@@ -374,11 +374,7 @@ class Master extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "pelanggan_laminasi") {
-			if($this->session->userdata('username') == 'usman'){
-				$where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'";
-			}else{
-				$where = '';
-			}
+			($this->session->userdata('username') == 'usman') ? $where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'" : $where = '';
 			$query = $this->m_master->query("SELECT s.nm_sales,lm.* FROM m_pelanggan_lm lm
 			LEFT JOIN m_sales s ON lm.id_sales=s.id_sales
 			$where
@@ -468,9 +464,13 @@ class Master extends CI_Controller
 				}
 
 				if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Laminasi'])){
-					$btnAksi = $btnEdit.' '.$btnHapus;
+					if($this->session->userdata('username') != 'usman'){
+						$btnAksi = $btnEdit.' '.$btnHapus;
+					}else{
+						$btnAksi = '-';
+					}
 				}else{
-					$btnAksi = '';
+					$btnAksi = '-';
 				}
 
 				$row[] = '<div class="text-center">'.$btnAksi.'</div>';
@@ -1072,11 +1072,7 @@ class Master extends CI_Controller
 
 	function getPlhSales()
 	{
-		if($this->session->userdata('username') == 'usman'){
-			$where = "WHERE id_sales='9' OR nm_sales='Usman'";
-		}else{
-			$where = '';
-		}
+		($this->session->userdata('username') == 'usman') ? $where = "WHERE id_sales='9' OR nm_sales='Usman'" : $where = '';
 		$data = $this->db->query("SELECT*FROM m_sales $where ORDER BY nm_sales")->result();
 		echo json_encode($data);
 	}

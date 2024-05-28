@@ -23,7 +23,7 @@
 		<div class="container-fluid">
 			<div class="row row-input" style="display: none;">
 				<div class="col-md-6">
-					<div class="card card-success card-outline" style="position:sticky;top:12px">
+					<div class="card card-success card-outline" style="position:sticky;top:12px;padding-bottom:12px">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT PO LAMINASI</h3>
 						</div>
@@ -71,16 +71,26 @@
 								<textarea id="note_po_lm" class="form-control" style="resize:none" placeholder="NOTE. PO" oninput="this.value=this.value.toUpperCase()"></textarea>
 							</div>
 						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
+						<?php ($this->session->userdata('username') == 'usman') ? $display = ';display:none' : $display = ''?>
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px<?= $display?>">
 							<div class="col-md-3">ATTN</div>
 							<div class="col-md-9">
 								<select id="attn" class="form-control select2">
 									<?php
-										$query = $this->db->query("SELECT*FROM m_no_rek_lam ORDER BY id");
 										$html ='';
-										$html .='<option value="">PILIH</option>';
-										foreach($query->result() as $r){
-											$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
+										if($this->session->userdata('username') != 'usman'){
+											$query = $this->db->query("SELECT*FROM m_no_rek_lam ORDER BY id");
+											$html .='<option value="">PILIH</option>';
+											foreach($query->result() as $r){
+												$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
+											}
+										}else{
+											$r = $this->db->query("SELECT*FROM m_no_rek_lam WHERE on_pkl='1'");
+											if($r->num_rows() == 1){
+												$html .='<option value="'.$r->row()->id_hub.'">'.$r->row()->an_bank.'</option>';
+											}else{
+												$html .='<option value="">PILIH</option>';
+											}
 										}
 										echo $html;
 									?>
@@ -360,7 +370,7 @@
 		$("#customer").val("").prop('disabled', false).trigger('change')
 		$("#no_po").val("").prop('disabled', false)
 		$("#note_po_lm").val("").prop('disabled', false)
-		$("#attn").val("7").prop('disabled', false).trigger('change')
+		$("#attn").val((urlUser == 'usman') ? 15 : "").prop('disabled', false).trigger('change')
 		$("#item").val("").prop('disabled', false).trigger('change')
 		$("#size").val("").prop('disabled', true)
 		$("#sheet").val("").prop('disabled', true)
