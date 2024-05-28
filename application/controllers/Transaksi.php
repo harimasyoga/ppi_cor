@@ -1611,21 +1611,16 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_po_laminasi") {
-			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Laminasi', 'Owner'])){
-				$where = '';
+			if($this->session->userdata('username') == 'usman'){
+				$where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'";
 			}else{
-				$tb_nm_user = $this->session->userdata('nm_user');
-				$getSales = $this->db->query("SELECT*FROM m_sales WHERE nm_sales='$tb_nm_user'");
-				if($getSales->num_rows() == 1){
-					$id_sales = $getSales->row()->id_sales;
-					$where = "WHERE po.id_sales='$id_sales'";
-				}else{
-					$where = "WHERE po.id_sales='XXX'";
-				}
+				$where = '';
 			}
-			($_POST["po"] == 'pengiriman') ? $stats = "AND po.status_lm='Approve' AND status_kirim='Open' ORDER BY po.tgl_lm DESC,pl.nm_pelanggan_lm,po.no_po_lm" : $stats = "ORDER BY tgl_lm DESC,no_po_lm" ;
+			($_POST["po"] == 'pengiriman') ? $stats = "AND po.status_lm='Approve' AND po.status_kirim='Open' ORDER BY po.tgl_lm DESC,pl.nm_pelanggan_lm,po.no_po_lm" : $stats = "ORDER BY po.tgl_lm DESC,po.no_po_lm" ;
 			$query = $this->db->query("SELECT po.*,pl.nm_pelanggan_lm FROM trs_po_lm po
-			INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm $where $stats")->result();
+			INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm
+			INNER JOIN m_sales s ON po.id_sales=s.id_sales
+			$where $stats")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
@@ -1927,10 +1922,15 @@ class Transaksi extends CI_Controller
 			}
 
 		} else if ($jenis == "trs_po_lm") {
+			$cek = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id' AND status_lm2='Y' AND status_lm='Approve'")->num_rows();
 			$po = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'")->row();
-			$delDetail = $this->m_master->query("DELETE FROM trs_po_lm_detail WHERE no_po_lm = '$po->no_po_lm'");
-			if($delDetail){
-				$result = $this->m_master->query("DELETE FROM trs_po_lm WHERE id='$id'");
+			if($cek == 0){
+				$delDetail = $this->m_master->query("DELETE FROM trs_po_lm_detail WHERE no_po_lm = '$po->no_po_lm'");
+				if($delDetail){
+					$result = $this->m_master->query("DELETE FROM trs_po_lm WHERE id='$id'");
+				}
+			}else{
+				$result = false;
 			}
 		} else {
 
