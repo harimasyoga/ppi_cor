@@ -1571,23 +1571,30 @@ class M_logistik extends CI_Model
 	function hapusInvoiceLaminasi()
 	{
 		$id = $_POST["id"];
+		$cek = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id' AND status_inv='Approve' AND acc_owner='Y'")->num_rows();
 		$data = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id'")->row();
 
-		$this->db->where('no_invoice', $data->no_invoice);
-		$header = $this->db->delete('invoice_laminasi_header');
-		if($header){
+		if($cek == 0){
 			$this->db->where('no_invoice', $data->no_invoice);
-			$detail = $this->db->delete('invoice_laminasi_detail');
-			if($detail){
+			$header = $this->db->delete('invoice_laminasi_header');
+			if($header){
 				$this->db->where('no_invoice', $data->no_invoice);
-				$disc = $this->db->delete('invoice_laminasi_disc');
-				// UPDATE no_pl_inv jadi 0
-				if($disc){
-					$this->db->set('no_pl_inv', 0);
-					$this->db->where('no_surat', $data->no_surat);
-					$no_pl_inv = $this->db->update('pl_laminasi');
+				$detail = $this->db->delete('invoice_laminasi_detail');
+				if($detail){
+					$this->db->where('no_invoice', $data->no_invoice);
+					$disc = $this->db->delete('invoice_laminasi_disc');
+					if($disc){
+						$this->db->set('no_pl_inv', 0);
+						$this->db->where('no_surat', $data->no_surat);
+						$no_pl_inv = $this->db->update('pl_laminasi');
+					}
 				}
 			}
+		}else{
+			$header = false;
+			$detail = false;
+			$disc = false;
+			$no_pl_inv = false;
 		}
 
 		return [
