@@ -142,20 +142,6 @@
 				</div>
 			</div>
 
-			<!-- <div class="row row-list-edit-sj-lam">
-				<div class="col-md-12">
-					<div class="card card-secondary card-outline">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">EDIT SURAT JALAN</h3>
-						</div>
-						<div class="card-body" style="padding:6px">
-							<input type="hidden" id="h_header_po_lm" value="">
-							<div class="list-edit-sj-lam" style="overflow:auto;white-space:nowrap"></div>
-						</div>
-					</div>
-				</div>
-			</div> -->
-
 			<div class="row row-list-rk">
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline">
@@ -197,8 +183,15 @@
 										<td style="padding:3px 0" colspan="3">
 											<select id="plh_sj_cust" class="form-control select2">
 												<?php
+													if($this->session->userdata('username') == 'usman'){
+														$where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'";
+													}else{
+														$where = '';
+													}
 													$query = $this->db->query("SELECT p.id_perusahaan,p.attn_pl,l.nm_pelanggan_lm FROM pl_laminasi p
 													INNER JOIN m_pelanggan_lm l ON p.id_perusahaan=l.id_pelanggan_lm
+													INNER JOIN m_sales s ON l.id_sales=s.id_sales
+													$where
 													GROUP BY p.id_perusahaan,p.attn_pl
 													ORDER BY p.attn_pl");
 													$html ='';
@@ -390,7 +383,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".tampil-list-laporan").html(data.html)
 				$(".btn-print-lap-lam-pdf").html(data.pdf)
 				swal.close()
@@ -681,7 +673,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					kosong()
 				}else{
@@ -712,7 +703,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				let url = '<?php echo base_url('Logistik/suratJalanJasa') ?>'
 				if(data.insert){
 					toastr.success(`<b>BERHASIL! ${data.no_jasa}</b>`);

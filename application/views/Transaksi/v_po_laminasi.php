@@ -41,7 +41,8 @@
 							<div class="col-md-9">
 								<select id="customer" class="form-control select2" onchange="plhCustomer()">
 									<?php
-										$query = $this->db->query("SELECT lm.*,s.nm_sales FROM m_pelanggan_lm lm INNER JOIN m_sales s ON lm.id_sales=s.id_sales ORDER BY nm_pelanggan_lm");
+										($this->session->userdata('username') == 'usman') ? $where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'" : $where = '';
+										$query = $this->db->query("SELECT lm.*,s.nm_sales FROM m_pelanggan_lm lm INNER JOIN m_sales s ON lm.id_sales=s.id_sales $where ORDER BY nm_pelanggan_lm");
 										$html ='';
 										$html .='<option value="">PILIH</option>';
 										foreach($query->result() as $r){
@@ -311,6 +312,7 @@
 <script type="text/javascript">
 	let statusInput = 'insert';
 	const urlAuth = '<?= $this->session->userdata('level')?>';
+	const urlUser = '<?= $this->session->userdata('username')?>';
 
 	$(document).ready(function ()
 	{
@@ -791,7 +793,7 @@
 
 				$("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.add_time_po_lm}`)
 				// VERIFIFIKASI MARKETING
-				if((urlAuth == 'Admin' || urlAuth == 'Marketing Laminasi') && data.po_lm.status_lm2 == 'N' && (data.po_lm.status_lm1 == 'N' || data.po_lm.status_lm1 == 'H' || data.po_lm.status_lm1 == 'R')){
+				if((urlAuth == 'Admin' || urlAuth == 'Marketing Laminasi' || urlUser == 'usman') && data.po_lm.status_lm2 == 'N' && (data.po_lm.status_lm1 == 'N' || data.po_lm.status_lm1 == 'H' || data.po_lm.status_lm1 == 'R')){
 					// BUTTON MARKETING
 					$("#verif-marketing").html(`
 						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifLaminasi('verifikasi','marketing')"><i class="fas fa-check"></i> Verifikasi</button>
@@ -1073,13 +1075,20 @@
 						}
 					})
 				},
-				success: function(data) {
-					toastr.success(`<b>BERHASIL HAPUS!</b>`)
-					if(id_po_header == 0){
+				success: function(res) {
+					data = JSON.parse(res)
+					if(data){
+						toastr.success(`<b>BERHASIL HAPUS!</b>`)
+						if(id_po_header == 0){
+							reloadTable()
+							swal.close()
+						}else{
+							editPOLaminasi(id_po_header, 0, 'edit')
+						}
+					}else{
+						toastr.error(`<b>PO SUDAH DI ACC!</b>`)
 						reloadTable()
 						swal.close()
-					}else{
-						editPOLaminasi(id_po_header, 0, 'edit')
 					}
 				},
 			});

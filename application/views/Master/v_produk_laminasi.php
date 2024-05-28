@@ -93,12 +93,12 @@
 							<table id="datatable" class="table table-bordered table-striped">
 								<thead class="color-tabel">
 									<tr>
-										<th style="text-align:center">#</th>
-										<th style="text-align:center">NAMA</th>
-										<th style="text-align:center">UKURAN</th>
-										<th style="text-align:center">ISI</th>
-										<th style="text-align:center">QTY</th>
-										<th style="text-align:center">AKSI</th>
+										<th style="width:5%;text-align:center">#</th>
+										<th style="width:34%;text-align:center">NAMA</th>
+										<th style="width:14%;text-align:center">UKURAN</th>
+										<th style="width:14%;text-align:center">ISI</th>
+										<th style="width:14%;text-align:center">QTY</th>
+										<th style="width:15%;text-align:center">AKSI</th>
 									</tr>
 								</thead>
 								<tbody></tbody>
