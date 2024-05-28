@@ -1616,11 +1616,7 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_po_laminasi") {
-			if($this->session->userdata('username') == 'usman'){
-				$where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'";
-			}else{
-				$where = '';
-			}
+			($this->session->userdata('username') == 'usman') ? $where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'" : $where = '';
 			($_POST["po"] == 'pengiriman') ? $stats = "AND po.status_lm='Approve' AND po.status_kirim='Open' ORDER BY po.tgl_lm DESC,pl.nm_pelanggan_lm,po.no_po_lm" : $stats = "ORDER BY po.tgl_lm DESC,po.no_po_lm" ;
 			$query = $this->db->query("SELECT po.*,pl.nm_pelanggan_lm FROM trs_po_lm po
 			INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm

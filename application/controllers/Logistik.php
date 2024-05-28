@@ -1072,13 +1072,15 @@ class Logistik extends CI_Controller
 
 		$html .= '<table style="width:100%;margin-top:25px;color:#000;border-collapse:collapse;vertical-align:tops;text-align:center;font-family:tahoma'.$fz.'">';
 
+		($this->session->userdata('username') == 'usman') ? $where = "AND (s.id_sales='9' OR s.nm_sales='Usman')" : $where = '';
 		// HARI
 		if($jenis == 'HARI'){
 			$query = $this->db->query("SELECT l.tgl,l.attn_pl,c.nm_pelanggan_lm,l.no_surat,i.*,r.*,SUM(r.qty_muat) AS sum_muat FROM pl_laminasi l
 			INNER JOIN m_pelanggan_lm c ON l.id_perusahaan=c.id_pelanggan_lm
+			INNER JOIN m_sales s ON c.id_sales=s.id_sales
 			INNER JOIN m_rk_laminasi r ON r.id_pl_lm=l.id AND r.rk_urut=l.no_pl_urut AND r.rk_no_po=l.no_po AND r.rk_tgl=l.tgl AND r.id_pelanggan_lm=l.id_perusahaan
 			INNER JOIN m_produk_lm i ON r.id_m_produk_lm=i.id_produk_lm
-			WHERE r.rk_status='Close' AND l.tgl BETWEEN '$tgl1' AND '$tgl2' $wcust $wattn
+			WHERE r.rk_status='Close' AND l.tgl BETWEEN '$tgl1' AND '$tgl2' $wcust $wattn $where
 			GROUP BY l.tgl,l.id_perusahaan,l.attn_pl,l.no_surat,r.id_m_produk_lm
 			ORDER BY l.tgl,l.attn_pl,c.nm_pelanggan_lm,i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm");
 			if($query->num_rows() == 0){
@@ -1155,8 +1157,9 @@ class Logistik extends CI_Controller
 		if($jenis == 'CUSTOMER'){
 			$query = $this->db->query("SELECT l.id_perusahaan,l.attn_pl,c.nm_pelanggan_lm FROM pl_laminasi l
 			INNER JOIN m_pelanggan_lm c ON l.id_perusahaan=c.id_pelanggan_lm
+			INNER JOIN m_sales s ON c.id_sales=s.id_sales
 			INNER JOIN m_rk_laminasi r ON r.id_pl_lm=l.id AND r.rk_urut=l.no_pl_urut AND r.rk_no_po=l.no_po AND r.rk_tgl=l.tgl AND r.id_pelanggan_lm=l.id_perusahaan
-			WHERE r.rk_status='Close' AND l.tgl BETWEEN '$tgl1' AND '$tgl2' $wcust $wattn
+			WHERE r.rk_status='Close' AND l.tgl BETWEEN '$tgl1' AND '$tgl2' $wcust $wattn $where
 			GROUP BY l.id_perusahaan,l.attn_pl
 			ORDER BY l.attn_pl,c.nm_pelanggan_lm");
 
@@ -1294,8 +1297,10 @@ class Logistik extends CI_Controller
 		if($jenis == 'BARANG'){
 			$query = $this->db->query("SELECT i.*,r.*,l.* FROM m_rk_laminasi r
 			INNER JOIN pl_laminasi l ON r.id_pl_lm=l.id AND r.rk_urut=l.no_pl_urut AND r.rk_no_po=l.no_po AND r.rk_tgl=l.tgl AND r.id_pelanggan_lm=l.id_perusahaan
+			INNER JOIN m_pelanggan_lm c ON l.id_perusahaan=c.id_pelanggan_lm
+			INNER JOIN m_sales s ON c.id_sales=s.id_sales
 			INNER JOIN m_produk_lm i ON r.id_m_produk_lm=i.id_produk_lm
-			WHERE r.rk_status='Close' AND l.tgl BETWEEN '$tgl1' AND '$tgl2' $wcust $wattn
+			WHERE r.rk_status='Close' AND l.tgl BETWEEN '$tgl1' AND '$tgl2' $wcust $wattn $where
 			GROUP BY r.id_m_produk_lm
 			ORDER BY i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm");
 
@@ -1412,11 +1417,7 @@ class Logistik extends CI_Controller
 		$tgl_sj = $_POST["tgl_sj"];
 		$htmlSJ = '';
 
-		if($this->session->userdata('username') == 'usman'){
-			$where = "AND s.id_sales='9' OR s.nm_sales='Usman'";
-		}else{
-			$where = '';
-		}
+		($this->session->userdata('username') == 'usman') ? $where = "AND (s.id_sales='9' OR s.nm_sales='Usman')" : $where = '';
 		$query = $this->db->query("SELECT p.*,c.* FROM pl_laminasi p
 		INNER JOIN m_pelanggan_lm c ON p.id_perusahaan=c.id_pelanggan_lm
 		INNER JOIN m_sales s ON c.id_sales=s.id_sales
@@ -1443,11 +1444,7 @@ class Logistik extends CI_Controller
 		if($no_surat == ''){
 			$no_invoice = ''; $id_pelanggan_lm = ''; $attn = ''; $alamat_kirim = ''; $htmlItem .= ''; $no = 0;
 		}else{
-			if($this->session->userdata('username') == 'usman'){
-				$where = "AND s.id_sales='9' OR s.nm_sales='Usman'";
-			}else{
-				$where = '';
-			}
+			($this->session->userdata('username') == 'usman') ? $where = "AND (s.id_sales='9' OR s.nm_sales='Usman')" : $where = '';
 			$pl = $this->db->query("SELECT*FROM pl_laminasi p
 			INNER JOIN m_pelanggan_lm c ON p.id_perusahaan=c.id_pelanggan_lm
 			INNER JOIN m_sales s ON c.id_sales=s.id_sales
@@ -1999,7 +1996,7 @@ class Logistik extends CI_Controller
 		}
 		($plh_cust == "") ? $wcust = '' : $wcust = "AND h.id_pelanggan_lm='$plh_cust'";
 		($attn != "") ? $wattn = "AND h.attn_lam_inv='$attn'" : $wattn = '';
-		($this->session->userdata('username') == 'usman') ? $where = "AND s.id_sales='9' OR s.nm_sales='Usman'" : $where = '';
+		($this->session->userdata('username') == 'usman') ? $where = "AND (s.id_sales='9' OR s.nm_sales='Usman')" : $where = '';
 
 		$html .= '<table style="width:100%;margin-top:25px;color:#000;border-collapse:collapse;vertical-align:tops;text-align:center;font-family:tahoma'.$sps.'">';
 		$header = $this->db->query("SELECT (SELECT COUNT(*) FROM invoice_laminasi_detail d WHERE h.no_surat=d.no_surat AND h.no_invoice=d.no_invoice) AS detail,h.* FROM invoice_laminasi_header h
@@ -3293,11 +3290,7 @@ class Logistik extends CI_Controller
 				$i++;
 			}
 		}else if ($jenis == "load_data_sj") {
-			if($this->session->userdata('username') == 'usman'){
-				$where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'";
-			}else{
-				$where = '';
-			}
+			($this->session->userdata('username') == 'usman') ? $where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'" : $where = '';
 			$query = $this->db->query("SELECT po.id_hub,pl.*,p.* FROM pl_laminasi pl
 			INNER JOIN m_pelanggan_lm p ON pl.id_perusahaan=p.id_pelanggan_lm
 			INNER JOIN trs_po_lm po ON pl.no_po=po.no_po_lm
@@ -3731,11 +3724,7 @@ class Logistik extends CI_Controller
 				}
 			}
 		}else if ($jenis == "loadDataInvoiceLaminasi") {
-			if($this->session->userdata('username') == 'usman'){
-				$where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'";
-			}else{
-				$where = '';
-			}
+			($this->session->userdata('username') == 'usman') ? $where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'" : $where = '';
 			$query = $this->db->query("SELECT h.*,s.* FROM invoice_laminasi_header h
 			INNER JOIN m_pelanggan_lm l ON h.id_pelanggan_lm=l.id_pelanggan_lm
 			INNER JOIN m_sales s ON l.id_sales=s.id_sales
