@@ -214,6 +214,7 @@
 									<th style="padding : 12px 150px">PO</th>
 									<th style="padding : 12px 50px">Tonase PO</th>
 									<th style="padding : 12px 70px" >History PO</th>
+									<th style="padding : 12px 70px" >Sisa</th>
 									<th style="padding : 12px 50px" >Kedatangan</th>
 								</tr>
 							</thead>
@@ -280,6 +281,15 @@
 									</td>		
 									<td style="padding : 12px 20px">
 										<div class="input-group mb-1">
+											<input type="text" size="5" name="sisa[0]" id="sisa0" class="angka form-control" value='0' readonly>
+											<div class="input-group-append">
+												<span class="input-group-text"><b>Kg</b>
+												</span>
+											</div>		
+										</div>
+									</td>		
+									<td style="padding : 12px 20px">
+										<div class="input-group mb-1">
 											<input type="text" size="5" name="datang[0]" id="datang0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
 											<div class="input-group-append">
 												<span class="input-group-text"><b>Kg</b>
@@ -292,7 +302,7 @@
 							</tbody>
 							<tfoot>
 								<tr>
-									<td colspan="5" class="text-center">
+									<td colspan="6" class="text-center">
 										<label for="total">TOTAL</label>
 									</td>	
 									<td>
@@ -361,6 +371,7 @@
                             <th class="text-center title-white">TGL PO</th>
                             <th class="text-center title-white">TONASE ORDER</th>
                             <th class="text-center title-white">HISTORY DATANG</th>
+							<th class="text-center title-white">SISA</th>
                             <th class="text-center title-white">AKSI</th>
                         </tr>
                     </thead>
@@ -550,6 +561,15 @@
 						</td>		
 						<td style="padding : 12px 20px">
 							<div class="input-group mb-1">
+								<input type="text" size="5" name="sisa[${ rowNum }]" id="sisa${ rowNum }" class="angka form-control" value='0' readonly>
+								<div class="input-group-append">
+									<span class="input-group-text"><b>Kg</b>
+									</span>
+								</div>		
+							</div>
+						</td>		
+						<td style="padding : 12px 20px">
+							<div class="input-group mb-1">
 								<input type="text" size="5" name="datang[${ rowNum }]" id="datang${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
 								<div class="input-group-append">
 									<span class="input-group-text"><b>Kg</b>
@@ -621,6 +641,7 @@
 		$("#ton0").val("")
 		$("#kebutuhan0").val("")
 		$("#history0").val("")
+		$("#sisa0").val("")
 		$("#datang0").val("")
 		$("#no_po0").val("") 
 
@@ -727,19 +748,19 @@
 		var no_timb   = $('#no_timb').val()
 		
 
-		if (no_timb == '' || no_timb == null) 
-		{			
-			swal.close();
-			swal({
-				title               : "Cek Kembali",
-				html                : "Pilih No Timbangan Dahulu",
-				type                : "info",
-				confirmButtonText   : "OK"
-			});
-			return;
-		}else{			
+		// if (no_timb == '' || no_timb == null) 
+		// {			
+		// 	swal.close();
+		// 	swal({
+		// 		title               : "Cek Kembali",
+		// 		html                : "Pilih No Timbangan Dahulu",
+		// 		type                : "info",
+		// 		confirmButtonText   : "OK"
+		// 	});
+		// 	return;
+		// }else{			
 			$('.list_item').modal('show');
-		}
+		// }
 		
 		var table   = $('#tbl_po').DataTable();
 		table.destroy();
@@ -792,6 +813,7 @@
 					$('#no_po'+id_name).val(data.header.no_po_bhn);
 					$('#ton'+id_name).val(format_angka(data.header.ton_bhn));
 					$('#history'+id_name).val(format_angka(data.header.history_po));
+					$('#sisa'+id_name).val(format_angka(data.header.ton_bhn-data.header.history_po));
 					$('#datang'+id_name).val(format_angka(0));
 
 					swal.close();
@@ -828,6 +850,7 @@
 
 	function reloadTable() 
 	{
+		load_data()
 		table = $('#datatable').DataTable();
 		tabel.ajax.reload(null, false);
 	}
@@ -909,6 +932,7 @@
 								<th style="padding : 12px 150px">PO</th>
 								<th style="padding : 12px 50px">Tonase PO</th>
 								<th style="padding : 12px 70px" >History PO</th>
+								<th style="padding : 12px 70px" >Sisa</th>
 								<th style="padding : 12px 50px" >Kedatangan</th>
 							</tr>
 						</thead>`;
@@ -921,6 +945,7 @@
 
 					$.each(data.detail, function(index, val) {
 						var history_detail = val.history - val.datang_bhn_bk
+						var sisa_po = val.tonase_po-val.history
 						list += `
 							<tr id="itemRow${ no }">
 								<td id="detail-hapus-${ no }">
@@ -973,6 +998,15 @@
 								<td style="padding : 12px 20px">
 									<div class="input-group mb-1">
 										<input type="text" size="5" name="history[${ no }]" id="history${ no }" class="angka form-control" value="${format_angka(history_detail)}"  readonly>
+										<div class="input-group-append">
+											<span class="input-group-text"><b>Kg</b>
+											</span>
+										</div>		
+									</div>
+								</td>		
+								<td style="padding : 12px 20px">
+									<div class="input-group mb-1">
+										<input type="text" size="5" name="sisa[${ no }]" id="sisa${ no }" class="angka form-control" value="${format_angka(sisa_po)}"  readonly>
 										<div class="input-group-append">
 											<span class="input-group-text"><b>Kg</b>
 											</span>

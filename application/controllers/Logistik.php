@@ -144,14 +144,13 @@ class Logistik extends CI_Controller
 
 		if ($jenis == "load_po_bahan") 
 		{
-			$query = $this->db->query("SELECT *,
-			(
-			select sum(datang_bhn_bk)history_po from trs_h_stok_bb b 
-			JOIN trs_d_stok_bb c ON b.no_stok = c.no_stok
-			WHERE a.no_po_bhn=c.no_po_bhn and a.hub=c.id_hub group by c.no_po_bhn,c.id_hub
-			)history_po
+			$query = $this->db->query("SELECT b.*,a.*,
+			(select datang_bhn_bk from(select sum(datang_bhn_bk)datang_bhn_bk,no_po_bhn from trs_d_stok_bb group by no_po_bhn)c where c.no_po_bhn=a.no_po_bhn)history_po
+			
 			FROM trs_po_bhnbk a 
-			JOIN m_hub b ON a.hub=b.id_hub ORDER BY tgl_bhn ,id_po_bhn")->result();
+			JOIN m_hub b ON a.hub=b.id_hub 
+			ORDER BY tgl_bhn desc,a.id_po_bhn")->result();
+
 			// $query = $this->db->query("SELECT b.id as id_detail,DATE_ADD(a.tgl_po, INTERVAL 2 DAY) as tgl_po2, d.id_produk as id_produk , c.id_pelanggan as id_pelanggan, c.nm_pelanggan as nm_pelanggan, a.*,b.*,c.*,d.* from trs_po a 
 			// JOIN trs_po_detail b ON a.kode_po=b.kode_po
 			// JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
@@ -173,8 +172,9 @@ class Logistik extends CI_Controller
 					$row[]         = '<div >'.$r->nm_hub.'</div>';
 					$row[]         = $r->no_po_bhn;
 					$row[]         = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_bhn).'</div>';
-					$row[]         = '<div class="text-center">'.number_format($r->ton_bhn, 0, ",", ".").'</div>';
-					$row[]         = '<div class="text-center">'.number_format($r->history_po, 0, ",", ".").'</div>';
+					$row[]         = '<div class="text-center" style="color:#e92944"><b>'.number_format($r->ton_bhn, 0, ",", ".").'</b></div>';
+					$row[]         = '<div class="text-center" style="color:#e92944"><b>'.number_format($r->history_po, 0, ",", ".").'</b></div>';
+					$row[]         = '<div class="text-center" style="color:#e92944"><b>'.number_format($r->ton_bhn - $r->history_po, 0, ",", ".").'</b></div>';
 					
 					$aksi          = '
 					<button type   = "button" title="PILIH"  onclick="spilldata(' . $id . ',' . $no_po . ',' . $id_name . ')" class="btn btn-success btn-sm">
