@@ -29,7 +29,7 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<?php if($this->session->userdata('level') == 'Admin') { ?>
+				<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','User'])){ ?>
 					<!-- <button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button> -->
 					<a href="<?php echo base_url('Logistik/Timbangan/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
 					<br><br>
