@@ -3251,7 +3251,7 @@ class Logistik extends CI_Controller
 				$row[]      = '<div class="text-center">'.$i.'</div>';
 				$row[]      = '<div class="text-center">'.$r->no_timbangan.'</div>';
 				$row[]      = '<div class="text-center">'.$r->permintaan.'</div>';
-				$row[]      = '<div class="text-center">'.$this->m_fungsi->tanggal_ind(substr($r->date_masuk,0,10)).'</div>';
+				$row[]      = '<div class="text-center">'.substr($r->date_masuk,0,10).'</div>';
 				$row[]      = $r->suplier;
 				$row[]      = $r->nm_barang;
 				$row[]      = $r->catatan;
