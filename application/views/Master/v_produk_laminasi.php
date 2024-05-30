@@ -33,6 +33,16 @@
 						</div>
 					</div>
 					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+						<div class="col-md-1">PRODUK</div>
+						<div class="col-md-11">
+							<select id="jenis_lm" class="form-control select2" onchange="plhProduk()">
+								<option value="">PILIH</option>
+								<option value="PPI">PPI</option>
+								<option value="PEKALONGAN">PEKALONGAN</option>
+							</select>
+						</div>
+					</div>
+					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 						<div class="col-md-1">NAMA</div>
 						<div class="col-md-11">
 							<input type="text" id="nama_lm" class="form-control" autocomplete="off" placeholder="NAMA" oninput="this.value=this.value.toUpperCase()">
@@ -45,19 +55,49 @@
 						</div>
 					</div>
 					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-						<div class="col-md-1">ISI</div>
-						<div class="col-md-11">
-							<input type="number" id="isi_lm" class="form-control" autocomplete="off" placeholder="ISI">
+						<div class="col-md-1"></div>
+						<div class="col-md-2">
+							<div class="input-group">
+								<input type="number" id="isi_lm" class="form-control" autocomplete="off" placeholder="ISI">
+								<div class="input-group-append">
+									<span class="input-group-text" style="font-weight:bold">ISI</span>
+								</div>
+							</div>
 						</div>
+						<div class="col-md-9"></div>
 					</div>
-					<div class="row-qty"></div>
 					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 						<div class="col-md-1"></div>
 						<div class="col-md-2">
 							<div class="input-group">
-								<input type="number" id="qty_lm" class="form-control" autocomplete="" placeholder="0">
+								<input type="number" id="ikat_lm" class="form-control" autocomplete="" placeholder="IKAT" onkeyup="hitungIkat()">
+								<div class="input-group-append">
+									<span class="input-group-text" style="font-weight:bold">IKAT</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+						<div class="col-md-1"></div>
+						<div class="col-md-2">
+							<div class="input-group">
+								<input type="number" id="pack_lm" class="form-control" autocomplete="" placeholder="PACK" onkeyup="hitungIkat()">
 								<div class="input-group-append">
 									<span class="input-group-text" style="font-weight:bold">PACK</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="row-qty"></div>
+					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+						<div class="col-md-1">@BALL</div>
+						<div class="col-md-2">
+							<div class="input-group">
+								<input type="number" id="qty_lm" class="form-control" style="font-weight:bold" autocomplete="" placeholder="0">
+								<div class="input-group-append">
+									<span class="input-group-text igt-ball" style="font-weight:bold">PACK</span>
 								</div>
 							</div>
 						</div>
@@ -66,7 +106,8 @@
 					<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
 						<div class="col-md-1"></div>
 						<div class="col-md-11">
-							<button type="button" class="btn btn-sm btn-primary" onclick="simpanDataLaminasi()"><i class="fa fa-save"></i> <b>SIMPAN</b></button>
+							<div class="btn-simpan"></div>
+							<!-- <button type="button" class="btn btn-sm btn-primary" onclick="simpanDataLaminasi()"><i class="fa fa-save"></i> <b>SIMPAN</b></button> -->
 						</div>
 					</div>
 					<input type="hidden" id="plh-qty" value="pack">
@@ -116,6 +157,22 @@
 
 <script type="text/javascript">
 	let aksiInput = "insert"
+	let satuan = `<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+		<div class="col-md-1">QTY</div>
+		<div class="col-md-11">
+			<div class="btn-group btn-group-toggle" data-toggle="buttons">
+				<label class="btn btn-xs btn-secondary btn-pack active">
+					<input type="radio" name="radio" id="radio-pack" autocomplete="off" checked onclick="plhQty('pack')"> PACK
+				</label>
+				<label class="btn btn-xs btn-secondary btn-ikat">
+					<input type="radio" name="radio" id="radio-ikat" autocomplete="off" onclick="plhQty('ikat')"> IKAT
+				</label>
+				<label class="btn btn-xs btn-secondary btn-kg">
+					<input type="radio" name="radio" id="radio-kg" autocomplete="off" onclick="plhQty('kg')"> KG
+				</label>
+			</div>
+		</div>
+	</div>`
 
 	$(document).ready(function() {
 		load_data();
@@ -152,33 +209,22 @@
 	{
 		aksiInput = "insert"
 		$("#h_id").val("")
-		$("#nama_lm").val("")
+		$("#jenis_lm").val("").prop('disabled', false).trigger('change')
+		$("#nama_lm").val("").prop('disabled', false)
 		$("#ukuran_lm").val("").prop('disabled', false)
 		$("#isi_lm").val("").prop('disabled', false)
+		$("#ikat_lm").val("").prop('disabled', false)
+		$("#pack_lm").val("").prop('disabled', false)
 		$(".btn-pack").addClass('active')
 		$(".btn-ikat").removeClass('focus active')
 		$("#radio-pack").prop("checked")
 		$("#radio-ikat").prop("checked", false)
 		$("#radio-kg").prop("checked", false)
 		$("#plh-qty").val("pack")
-		$(".input-group-text").html("PACK")
+		$(".igt-ball").html("PACK")
 		$("#qty_lm").val("").prop('disabled', false)
-		$(".row-qty").html(`<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-			<div class="col-md-1">QTY</div>
-			<div class="col-md-11">
-				<div class="btn-group btn-group-toggle" data-toggle="buttons">
-					<label class="btn btn-xs btn-secondary btn-pack active">
-						<input type="radio" name="radio" id="radio-pack" autocomplete="off" checked onclick="plhQty('pack')"> PACK
-					</label>
-					<label class="btn btn-xs btn-secondary btn-ikat">
-						<input type="radio" name="radio" id="radio-ikat" autocomplete="off" onclick="plhQty('ikat')"> IKAT
-					</label>
-					<label class="btn btn-xs btn-secondary btn-kg">
-						<input type="radio" name="radio" id="radio-kg" autocomplete="off" onclick="plhQty('kg')"> KG
-					</label>
-				</div>
-			</div>
-		</div>`)
+		$(".row-qty").html(satuan)
+		$(".btn-simpan").html('<button type="button" class="btn btn-sm btn-primary" onclick="simpanDataLaminasi()"><i class="fa fa-save"></i> <b>SIMPAN</b></button>')
 		reloadTable()
 		swal.close()
 	}
@@ -195,22 +241,66 @@
 		}
 	}
 
+	function plhProduk()
+	{
+		let jenis_lm = $("#jenis_lm").val()
+		console.log("jenis_lm : ", jenis_lm)
+		$("#nama_lm").val("").prop('disabled', false)
+		$("#ukuran_lm").val("").prop('disabled', false)
+		$("#isi_lm").val("").prop('disabled', false)
+		$("#ikat_lm").val("").prop('disabled', false)
+		$("#pack_lm").val("").prop('disabled', false)
+		$(".igt-ball").html("PACK")
+		if(jenis_lm == "" || jenis_lm == "PPI"){
+			$("#qty_lm").val("").prop('disabled', false)
+			$(".row-qty").html(satuan)
+			$("#plh-qty").val("pack")
+		}else{
+			$("#qty_lm").val("").prop('disabled', true)
+			$(".row-qty").html("").attr('style', 'padding:0')
+			$("#plh-qty").val("ikat")
+		}
+	}
+
+	function hitungIkat()
+	{
+		let jenis_lm = $("#jenis_lm").val()
+		let ikat_lm = $("#ikat_lm").val()
+		let pack_lm = $("#pack_lm").val()
+		console.log("pack_lm : ", pack_lm)
+		console.log("ikat_lm : ", ikat_lm);
+		(ikat_lm < 0) ? $("#ikat_lm").val(0) : $("#ikat_lm").val(ikat_lm);
+		(pack_lm < 0) ? $("#pack_lm").val(0) : $("#pack_lm").val(pack_lm);
+		if(jenis_lm == "PEKALONGAN"){
+			let hitung = ikat_lm * pack_lm;
+			(hitung < 0 || hitung == 0) ? $("#qty_lm").val(0) : $("#qty_lm").val(hitung);
+			console.log("hitung : ", hitung)
+		}
+	}
+
 	function plhQty(aksi)
 	{
-		(aksi == 'kg') ? $("#ukuran_lm").val("").prop('disabled', true) : $("#ukuran_lm").prop('disabled', false);
-		(aksi == 'kg') ? $("#isi_lm").val("").prop('disabled', true) : $("#isi_lm").prop('disabled', false);
+		let opsi = true;
+		(aksi == 'kg') ? opsi = true : opsi = false;
+		$("#ukuran_lm").val("").prop('disabled', opsi)
+		$("#isi_lm").val("").prop('disabled', opsi)
+		$("#ikat_lm").val("").prop('disabled', opsi)
+		$("#pack_lm").val("").prop('disabled', opsi)
 
 		$("#plh-qty").val(aksi)
 		$("#qty_lm").val("")
-		$(".input-group-text").html(aksi.toUpperCase())
+		$(".igt-ball").html(aksi.toUpperCase())
 	}
 
 	function simpanDataLaminasi()
 	{
 		let h_id = $("#h_id").val()
+		let jenis_lm = $("#jenis_lm").val()
 		let nama_lm = $("#nama_lm").val()
 		let ukuran_lm = $("#ukuran_lm").val()
 		let isi_lm = $("#isi_lm").val()
+		let ikat_lm = $("#ikat_lm").val()
+		let pack_lm = $("#pack_lm").val()
 		let plh_qty = $("#plh-qty").val()
 		let qty_lm = $("#qty_lm").val()
 		$.ajax({
@@ -227,11 +317,11 @@
 				});
 			},
 			data: ({
-				h_id, nama_lm, ukuran_lm, isi_lm, plh_qty, qty_lm, aksiInput
+				h_id, jenis_lm, nama_lm, ukuran_lm, isi_lm, ikat_lm, pack_lm, plh_qty, qty_lm, aksiInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
+				console.log(data)
 				if(data.insert){
 					$(".row-input").attr('style', 'display:none')
 					$(".row-list").attr('style', '')
@@ -244,7 +334,7 @@
 		})
 	}
 
-	function editDataLaminasi(id)
+	function editDataLaminasi(id, opsi)
 	{
 		$(".row-input").attr('style', '')
 		$(".row-list").attr('style', 'display:none')
@@ -269,9 +359,12 @@
 				// console.log(data)
 				aksiInput = "update"
 				$("#h_id").val(data.produk.id_produk_lm)
-				$("#nama_lm").val(data.produk.nm_produk_lm)
-				$("#ukuran_lm").val(data.produk.ukuran_lm).prop('disabled', (data.produk.jenis_qty_lm == 'kg') ? true : false)
-				$("#isi_lm").val(data.produk.isi_lm).prop('disabled', (data.cek == 1 || data.produk.jenis_qty_lm == 'kg') ? true : false)
+				$("#jenis_lm").val(data.produk.jenis_lm).prop('disabled', (opsi == 'detail' || data.cek == 1) ? true : false).trigger('change')
+				$("#nama_lm").val(data.produk.nm_produk_lm).prop('disabled', (opsi == 'detail' || data.cek == 1) ? true : false)
+				$("#ukuran_lm").val(data.produk.ukuran_lm).prop('disabled', (opsi == 'detail' || data.cek == 1 || data.produk.jenis_qty_lm == 'kg') ? true : false)
+				$("#isi_lm").val(data.produk.isi_lm).prop('disabled', (opsi == 'detail' || data.cek == 1 || data.produk.jenis_qty_lm == 'kg') ? true : false)
+				$("#ikat_lm").val((data.produk.ikat_x == null) ? 0 : data.produk.ikat_x).prop('disabled', (opsi == 'detail' || data.cek == 1 || data.produk.jenis_qty_lm == 'kg') ? true : false)
+				$("#pack_lm").val((data.produk.pack_x == null) ? 0 : data.produk.pack_x).prop('disabled', (opsi == 'detail' || data.cek == 1 || data.produk.jenis_qty_lm == 'kg') ? true : false)
 				$("#plh-qty").val(data.produk.jenis_qty_lm);
 				let qty = 0
 				if(data.produk.jenis_qty_lm == 'pack'){
@@ -281,26 +374,17 @@
 				}else{
 					qty = data.produk.kg_lm
 				}
-				$("#qty_lm").val(qty).prop('disabled', (data.cek == 1) ? true : false);				
-				if(data.cek == 1){
-					$(".row-qty").html("").attr('style', 'padding:0')
+				$("#qty_lm").val(qty).prop('disabled', (opsi == 'detail' || data.cek == 1) ? true : false);
+				if(data.produk.jenis_lm == "PPI"){
+					if(opsi == 'detail' || data.cek == 1){
+						$(".row-qty").html("").attr('style', 'padding:0')
+					}else{
+						$(".row-qty").html(satuan)
+					}
+					$(".igt-ball").html(data.produk.jenis_qty_lm.toUpperCase())
 				}else{
-					$(".row-qty").html(`<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-						<div class="col-md-1">QTY</div>
-						<div class="col-md-11">
-							<div class="btn-group btn-group-toggle" data-toggle="buttons">
-								<label class="btn btn-xs btn-secondary btn-pack active">
-									<input type="radio" name="radio" id="radio-pack" autocomplete="off" checked onclick="plhQty('pack')"> PACK
-								</label>
-								<label class="btn btn-xs btn-secondary btn-ikat">
-									<input type="radio" name="radio" id="radio-ikat" autocomplete="off" onclick="plhQty('ikat')"> IKAT
-								</label>
-								<label class="btn btn-xs btn-secondary btn-kg">
-									<input type="radio" name="radio" id="radio-kg" autocomplete="off" onclick="plhQty('kg')"> KG
-								</label>
-							</div>
-						</div>
-					</div>`)
+					$(".row-qty").html("").attr('style', 'padding:0')
+					$(".igt-ball").html("PACK")
 				}
 				if(data.produk.jenis_qty_lm == 'pack'){
 					$(".btn-pack").addClass('focus active')
@@ -324,7 +408,11 @@
 					$("#radio-ikat").prop("checked", false)
 					$("#radio-kg").prop("checked")
 				}
-				$(".input-group-text").html(data.produk.jenis_qty_lm.toUpperCase())
+				if(opsi == 'edit' && data.cek == 0){
+					$(".btn-simpan").html('<button type="button" class="btn btn-sm btn-primary" onclick="simpanDataLaminasi()"><i class="fa fa-save"></i> <b>SIMPAN</b></button>')
+				}else{
+					$(".btn-simpan").html('')
+				}
 				swal.close()
 			}
 		})

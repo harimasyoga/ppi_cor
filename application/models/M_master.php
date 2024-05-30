@@ -500,33 +500,46 @@ class M_master extends CI_Model{
 	function simpanDataLaminasi()
 	{
 		$h_id = $_POST["h_id"];
+		$jenis_lm = $_POST["jenis_lm"];
 		$nama_lm = $_POST["nama_lm"];
 		$ukuran_lm = $_POST["ukuran_lm"];
 		$isi_lm = $_POST["isi_lm"];
+		$ikat_lm = $_POST["ikat_lm"];
+		$pack_lm = $_POST["pack_lm"];
 		$plh_qty = $_POST["plh_qty"];
 		$qty_lm = $_POST["qty_lm"];
 		
-		if(($nama_lm == '' || $ukuran_lm == '' || $isi_lm == '' || $qty_lm == '' || $qty_lm == 0 || $qty_lm < 0) && ($plh_qty == 'pack' || $plh_qty == 'ikat')){
+		if(($jenis_lm == '' || $nama_lm == '' || $ukuran_lm == '' || $isi_lm < 0 || $isi_lm == '' || $isi_lm == 0 || $qty_lm == '' || $qty_lm == 0 || $qty_lm < 0) && ($plh_qty == 'pack' || $plh_qty == 'ikat')){
 			$insert = false;
 			$isi = 'DATA TIDAK BOLEH KOSONG!';
-		}else if(($nama_lm == '' || $qty_lm == '' || $qty_lm == 0 || $qty_lm < 0) && $plh_qty == 'kg'){
+		}else if(($jenis_lm == '' || $nama_lm == '' || $qty_lm == '' || $qty_lm == 0 || $qty_lm < 0) && $plh_qty == 'kg'){
+			$insert = false;
+			$isi = 'DATA TIDAK BOLEH KOSONG!';
+		}else if($jenis_lm == 'PEKALONGAN' && ($nama_lm == '' || $ukuran_lm == '' || $isi_lm < 0 || $isi_lm == '' || $isi_lm == 0 || $ikat_lm == 0 || $ikat_lm == "" || $pack_lm == 0 || $pack_lm == "" || $qty_lm == '' || $qty_lm == 0 || $qty_lm < 0)){
 			$insert = false;
 			$isi = 'DATA TIDAK BOLEH KOSONG!';
 		}else{		
 			if($plh_qty == 'pack'){
 				$where = "AND pack_lm='$qty_lm'";
 			}else if($plh_qty == 'ikat'){
-				$where = "AND ikat_lm='$qty_lm'";
+				if($jenis_lm == 'PEKALONGAN'){
+					$where = "AND pack_lm='$pack_lm' AND ikat_lm='$ikat_lm'";
+				}else{
+					$where = "AND ikat_lm='$qty_lm'";
+				}
 			}else{
 				$where = "AND kg_lm='$qty_lm'";
 			}
-			$cekData = $this->db->query("SELECT*FROM m_produk_lm WHERE nm_produk_lm='$nama_lm' AND ukuran_lm='$ukuran_lm' AND isi_lm='$isi_lm' AND jenis_qty_lm='$plh_qty' $where");
+			$cekData = $this->db->query("SELECT*FROM m_produk_lm WHERE jenis_lm='$jenis_lm' AND nm_produk_lm='$nama_lm' AND ukuran_lm='$ukuran_lm' AND isi_lm='$isi_lm' AND jenis_qty_lm='$plh_qty' $where");
 			
 			$data = [
+				'jenis_lm' => $jenis_lm,
 				'nm_produk_lm' => $nama_lm,
 				'ukuran_lm' => ($ukuran_lm == '') ? '-' : $ukuran_lm,
 				'isi_lm' => ($isi_lm == '') ? 0 : $isi_lm,
-				'jenis_qty_lm' => $_POST["plh_qty"],
+				'jenis_qty_lm' => $plh_qty,
+				'ikat_x' => ($ikat_lm == "" || $ikat_lm == 0) ? null : $ikat_lm,
+				'pack_x' => ($pack_lm == "" || $pack_lm == 0) ? null : $pack_lm,
 				'ikat_lm' => ($plh_qty == 'ikat') ? $qty_lm : null,
 				'pack_lm' => ($plh_qty == 'pack') ? $qty_lm : null,
 				'kg_lm' => ($plh_qty == 'kg') ? $qty_lm : null,
