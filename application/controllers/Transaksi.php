@@ -376,6 +376,39 @@ class Transaksi extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function plhProduk()
+	{
+		$jenis_lm = $_POST["jenis_lm"];
+		$query = $this->db->query("SELECT*FROM m_produk_lm WHERE jenis_lm='$jenis_lm' ORDER BY nm_produk_lm");
+		$html ='';
+		$html .='<option value="">PILIH</option>';
+		foreach($query->result() as $r){
+			if($r->jenis_qty_lm == 'pack'){
+				$qty = $r->pack_lm;
+			}else if($r->jenis_qty_lm == 'ikat'){
+				$qty = $r->ikat_lm.' ( IKAT )';
+			}else{
+				$qty = $r->kg_lm.' ( KG )';
+			}
+			$html .='<option
+				value="'.$r->id_produk_lm.'"
+				nm_produk_lm="'.$r->nm_produk_lm.'"
+				ukuran_lm="'.$r->ukuran_lm.'"
+				isi_lm="'.$r->isi_lm.'"
+				jenis_qty_lm="'.$r->jenis_qty_lm.'"
+				pack_x="'.$r->pack_x.'"
+				ikat_x="'.$r->ikat_x.'"
+				pack_lm="'.$r->pack_lm.'"
+				ikat_lm="'.$r->ikat_lm.'"
+				kg_lm="'.$r->kg_lm.'"
+			>'.$r->nm_produk_lm.' | '.$r->ukuran_lm.' | '.$r->isi_lm.' | '.$qty.'</option>';
+		}
+		echo json_encode([
+			'num_rows' => $query->num_rows(),
+			'html' => $html,
+		]);
+	}
+
 	function destroyLaminasi()
 	{
 		$this->cart->destroy();
@@ -390,6 +423,7 @@ class Transaksi extends CI_Controller
 			$_POST["id_sales"] == "" ||
 			$_POST["attn"] == "" ||
 			$_POST["no_po"] == "" ||
+			$_POST["jenis_lm"] == "" ||
 			$_POST["item"] == "" ||
 			$_POST["ukuran_lm"] == "" ||
 			$_POST["isi_lm"] == "" ||
@@ -404,77 +438,72 @@ class Transaksi extends CI_Controller
 		){
 			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
 		}else{
-			$no_po = str_replace(' ', '',$_POST["no_po"]);
-			$cek = $this->db->query("SELECT*FROM trs_po_lm WHERE no_po_lm='$no_po'");
-			if($cek->num_rows() == 0){
-				$data = array(
-					'id' => $_POST["id_cart"],
-					'name' => 'name'.$_POST["id_cart"],
-					'price' => 0,
-					'qty' => 1,
-					'options' => array(
-						'tgl' => $_POST["tgl"],
-						'customer' => $_POST["customer"],
-						'id_sales' => $_POST["id_sales"],
-						'attn' => $_POST["attn"],
-						'no_po' => $_POST["no_po"],
-						'item' => $_POST["item"],
-						'nm_produk_lm' => $_POST["nm_produk_lm"],
-						'ukuran_lm' => $_POST["ukuran_lm"],
-						'isi_lm' => $_POST["isi_lm"],
-						'jenis_qty_lm' => $_POST["jenis_qty_lm"],
-						'qty' => $_POST["qty"],
-						'order_sheet' => $_POST["order_sheet"],
-						'order_pori' => $_POST["order_pori"],
-						'qty_bal' => $_POST["qty_bal"],
-						'harga_lembar' => $_POST["harga_lembar"],
-						'harga_pori' => $_POST["harga_pori"],
-						'harga_total' => $_POST["harga_total"],
-						'id_cart' => $_POST["id_cart"],
-					)
-				);
-				$id = $_POST["id_po_header"];
-				$po_lm = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'");
-				if($po_lm->num_rows() > 0){
-					$no_po_lm = $po_lm->row()->no_po_lm;
-					$po_dtl = $this->db->query("SELECT d.* FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.no_po_lm='$no_po_lm'");
-				}else{
-					$po_dtl = '';
+			$data = array(
+				'id' => $_POST["id_cart"],
+				'name' => 'name'.$_POST["id_cart"],
+				'price' => 0,
+				'qty' => 1,
+				'options' => array(
+					'tgl' => $_POST["tgl"],
+					'customer' => $_POST["customer"],
+					'id_sales' => $_POST["id_sales"],
+					'attn' => $_POST["attn"],
+					'no_po' => $_POST["no_po"],
+					'jenis_lm' => $_POST["jenis_lm"],
+					'item' => $_POST["item"],
+					'nm_produk_lm' => $_POST["nm_produk_lm"],
+					'ukuran_lm' => $_POST["ukuran_lm"],
+					'isi_lm' => $_POST["isi_lm"],
+					'jenis_qty_lm' => $_POST["jenis_qty_lm"],
+					'qty' => $_POST["qty"],
+					'order_sheet' => $_POST["order_sheet"],
+					'order_pori' => $_POST["order_pori"],
+					'qty_bal' => $_POST["qty_bal"],
+					'harga_lembar' => $_POST["harga_lembar"],
+					'harga_pori' => $_POST["harga_pori"],
+					'harga_total' => $_POST["harga_total"],
+					'id_cart' => $_POST["id_cart"],
+				)
+			);
+			$id = $_POST["id_po_header"];
+			$po_lm = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'");
+			if($po_lm->num_rows() > 0){
+				$no_po_lm = $po_lm->row()->no_po_lm;
+				$po_dtl = $this->db->query("SELECT d.* FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.no_po_lm='$no_po_lm'");
+			}else{
+				$po_dtl = '';
+			}
+			if($this->cart->total_items() != 0){
+				foreach($this->cart->contents() as $r){
+					if($r['options']['item'] == $_POST["item"]){
+						echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
+						return;
+					}
 				}
-				if($this->cart->total_items() != 0){
-					foreach($this->cart->contents() as $r){
-						if($r['options']['item'] == $_POST["item"]){
+				if($po_lm->num_rows() > 0){
+					foreach($po_dtl->result() as $r){
+						if($r->id_m_produk_lm == $_POST["item"]){
 							echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
 							return;
 						}
 					}
-					if($po_lm->num_rows() > 0){
-						foreach($po_dtl->result() as $r){
-							if($r->id_m_produk_lm == $_POST["item"]){
-								echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
-								return;
-							}
+				}
+				$this->cart->insert($data);
+				echo json_encode(array('data' => true, 'isi' => $data));
+			}else{
+				if($_POST["id_po_header"] == ''){
+					$this->cart->insert($data);
+					echo json_encode(array('data' => true, 'isi' => $data));
+				}else{
+					foreach($po_dtl->result() as $r){
+						if($r->id_m_produk_lm == $_POST["item"]){
+							echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
+							return;
 						}
 					}
 					$this->cart->insert($data);
 					echo json_encode(array('data' => true, 'isi' => $data));
-				}else{
-					if($_POST["id_po_header"] == ''){
-						$this->cart->insert($data);
-						echo json_encode(array('data' => true, 'isi' => $data));
-					}else{
-						foreach($po_dtl->result() as $r){
-							if($r->id_m_produk_lm == $_POST["item"]){
-								echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
-								return;
-							}
-						}
-						$this->cart->insert($data);
-						echo json_encode(array('data' => true, 'isi' => $data));
-					}
 				}
-			}else{
-				echo json_encode(array('data' => false, 'isi' => 'NO. PO SUDAH TERPAKAI!'));
 			}
 		}
 	}

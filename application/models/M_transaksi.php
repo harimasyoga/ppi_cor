@@ -1442,6 +1442,7 @@ class M_transaksi extends CI_Model
 			if($cek->num_rows() == 0){
 				$data_po = [
 					'tgl_lm' => $_POST["tgl"],
+					'jenis_lm' => $_POST["jenis_lm"],
 					'id_pelanggan' => $_POST["customer"],
 					'id_sales' => $_POST["id_sales"],
 					'id_hub' => $_POST["attn"],

@@ -107,7 +107,6 @@
 						<div class="col-md-1"></div>
 						<div class="col-md-11">
 							<div class="btn-simpan"></div>
-							<!-- <button type="button" class="btn btn-sm btn-primary" onclick="simpanDataLaminasi()"><i class="fa fa-save"></i> <b>SIMPAN</b></button> -->
 						</div>
 					</div>
 					<input type="hidden" id="plh-qty" value="pack">
@@ -244,7 +243,6 @@
 	function plhProduk()
 	{
 		let jenis_lm = $("#jenis_lm").val()
-		console.log("jenis_lm : ", jenis_lm)
 		$("#nama_lm").val("").prop('disabled', false)
 		$("#ukuran_lm").val("").prop('disabled', false)
 		$("#isi_lm").val("").prop('disabled', false)
@@ -266,15 +264,12 @@
 	{
 		let jenis_lm = $("#jenis_lm").val()
 		let ikat_lm = $("#ikat_lm").val()
-		let pack_lm = $("#pack_lm").val()
-		console.log("pack_lm : ", pack_lm)
-		console.log("ikat_lm : ", ikat_lm);
+		let pack_lm = $("#pack_lm").val();
 		(ikat_lm < 0) ? $("#ikat_lm").val(0) : $("#ikat_lm").val(ikat_lm);
 		(pack_lm < 0) ? $("#pack_lm").val(0) : $("#pack_lm").val(pack_lm);
 		if(jenis_lm == "PEKALONGAN"){
 			let hitung = ikat_lm * pack_lm;
-			(hitung < 0 || hitung == 0) ? $("#qty_lm").val(0) : $("#qty_lm").val(hitung);
-			console.log("hitung : ", hitung)
+			(hitung < 0 || hitung == 0) ? $("#qty_lm").val(0) : $("#qty_lm").val(hitung)
 		}
 	}
 
@@ -321,7 +316,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.insert){
 					$(".row-input").attr('style', 'display:none')
 					$(".row-list").attr('style', '')
@@ -356,7 +350,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				aksiInput = "update"
 				$("#h_id").val(data.produk.id_produk_lm)
 				$("#jenis_lm").val(data.produk.jenis_lm).prop('disabled', (opsi == 'detail' || data.cek == 1) ? true : false).trigger('change')
@@ -450,8 +443,6 @@
 					})
 				},
 				success: function(data) {
-					// console.log(data)
-					// swal.close()
 					kosong()
 				},
 			});
