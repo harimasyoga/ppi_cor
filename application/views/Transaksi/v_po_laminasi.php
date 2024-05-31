@@ -178,10 +178,26 @@
 									<input type="text" id="order_sheet" class="form-control" placeholder="-" disabled onkeyup="hitungOrder()">
 								</div>
 							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3"><span class="txt-order-pack-ikat">PACK</span></div>
-								<div class="col-md-9">
-									<input type="text" id="order_pori" class="form-control" placeholder="-" disabled onkeyup="hitungOrder()">
+							<div class="order-ppi">
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3"><span class="txt-order-pack-ikat">PACK</span></div>
+									<div class="col-md-9">
+										<input type="text" id="order_pori" class="form-control" placeholder="-" disabled onkeyup="hitungOrder()">
+									</div>
+								</div>
+							</div>
+							<div class="order-pekalongan" style="display:none">
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">PACK</div>
+									<div class="col-md-9">
+										<input type="text" id="order_pack" class="form-control" placeholder="-" disabled onkeyup="hitungOrder()">
+									</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">IKAT</div>
+									<div class="col-md-9">
+										<input type="text" id="order_ikat" class="form-control" placeholder="-" disabled onkeyup="hitungOrder()">
+									</div>
 								</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 18px">
@@ -204,10 +220,26 @@
 									<input type="number" id="harga_lembar" class="form-control" autocomplete="off" placeholder="0" onkeyup="hitungHarga('lembar')">
 								</div>
 							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">HARGA <span class="txt-harga-pack-ikat">PACK</span></div>
-								<div class="col-md-9">
-									<input type="text" id="harga_pori" class="form-control" autocomplete="off" placeholder="0" onkeyup="hitungHarga('pori')">
+							<div class="harga-ppi">
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">HARGA <span class="txt-harga-pack-ikat">PACK</span></div>
+									<div class="col-md-9">
+										<input type="text" id="harga_pori" class="form-control" autocomplete="off" placeholder="0" onkeyup="hitungHarga('pori')">
+									</div>
+								</div>
+							</div>
+							<div class="harga-pekalongan">
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">HARGA PACK</div>
+									<div class="col-md-9">
+										<input type="text" id="harga_pack" class="form-control" autocomplete="off" placeholder="0" onkeyup="hitungHarga('pack')">
+									</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">HARGA IKAT</div>
+									<div class="col-md-9">
+										<input type="text" id="harga_ikat" class="form-control" autocomplete="off" placeholder="0" onkeyup="hitungHarga('ikat')">
+									</div>
 								</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
@@ -378,11 +410,18 @@
 		$("#size").val("").prop('disabled', true)
 		$("#sheet").val("").prop('disabled', true)
 		$("#qty").val("").prop('disabled', true)
+		$(".order-ppi").show()
+		$(".order-pekalongan").hide()
+		$("#order_pack").val("").prop('disabled', true)
+		$("#order_ikat").val("").prop('disabled', true)
 		$("#order_sheet").val("").prop('disabled', true)
 		$("#order_pori").val("").prop('disabled', true)
-		$("#order_ikat").val("").prop('disabled', true)
 		$("#qty_bal").val("").prop('disabled', true)
+		$(".harga-ppi").show()
+		$(".harga-pekalongan").hide()
 		$("#harga_lembar").val("").prop('disabled', true)
+		$("#harga_ikat").val("").prop('disabled', true)
+		$("#harga_pack").val("").prop('disabled', true)
 		$("#harga_pori").val("").prop('disabled', true)
 		$("#harga_total").val("").prop('disabled', true)
 		$("#id_po_header").val("")
@@ -412,6 +451,17 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
+				if(jenis_lm == "PEKALONGAN"){
+					$(".order-ppi").hide()
+					$(".order-pekalongan").show()
+					$(".harga-ppi").hide()
+					$(".harga-pekalongan").show()
+				}else{
+					$(".order-ppi").show()
+					$(".order-pekalongan").hide()
+					$(".harga-ppi").show()
+					$(".harga-pekalongan").hide()
+				}
 				let boll = true;
 				let boll2 = true;
 				(data.num_rows == 0) ? boll = true : boll = false;
@@ -454,9 +504,12 @@
 		}
 		$("#order_sheet").val("").prop('disabled', true)
 		$("#order_pori").val("").prop('disabled', true)
+		$("#order_pack").val("").prop('disabled', true)
 		$("#order_ikat").val("").prop('disabled', true)
 		$("#qty_bal").val("").prop('disabled', (jenis_qty_lm == undefined) ? true : false)
 		$("#harga_lembar").val("").prop('disabled', true)
+		$("#harga_ikat").val("").prop('disabled', true)
+		$("#harga_pack").val("").prop('disabled', true)
 		$("#harga_pori").val("").prop('disabled', true)
 		$("#harga_total").val("").prop('disabled', true)
 		$("#size").val(ukuran_lm)
@@ -494,6 +547,7 @@
 
 	function hitungOrder()
 	{
+		let jenis_lm = $("#jenis_lm").val()
 		let jenis = $("#item option:selected").attr('jenis_qty_lm')
 		let at_sheet = $("#sheet").val()
 		let at_bal = $("#qty").val()
@@ -501,62 +555,124 @@
 		let qty_bal = 0
 		let orderSheet = 0
 		let orderPackOrIkat = 0
-		if(jenis == 'kg'){
+		if(jenis_lm == "PEKALONGAN"){
 			qty_bal = $("#qty_bal").val()
-			orderSheet = 0
-			orderPackOrIkat = parseFloat(at_bal) * parseFloat(qty_bal);
-			(isNaN(orderPackOrIkat)) ? orderPackOrIkat = 0 : orderPackOrIkat = orderPackOrIkat
+			let sheet_x = $("#sheet").val()
+			let pack_x = $("#pack_x").val()
+			let ikat_x = $("#ikat_x").val();
+			(qty_bal == "" || qty_bal < 0) ? qty_bal = 0 : qty_bal = qty_bal;
+			let order_pack = (parseInt(pack_x) * parseInt(ikat_x)) * parseInt(qty_bal)
+			let order_isi = parseInt(order_pack) * parseInt(sheet_x)
+			let order_ikat = parseInt(qty_bal) * parseInt(ikat_x)
+			$("#order_sheet").val(format_angka(order_isi))
+			$("#order_pack").val(format_angka(order_pack))
+			$("#order_ikat").val(format_angka(order_ikat))
 		}else{
-			qty_bal = $("#qty_bal").val().split('.').join('')
-			orderSheet = parseInt(at_sheet) * (parseInt(at_bal) * parseInt(qty_bal))
-			orderPackOrIkat = parseInt(at_bal) * parseInt(qty_bal)
-			$("#qty_bal").val(qty_bal)
+			if(jenis == 'kg'){
+				qty_bal = $("#qty_bal").val()
+				orderSheet = 0
+				orderPackOrIkat = parseFloat(at_bal) * parseFloat(qty_bal);
+				(isNaN(orderPackOrIkat)) ? orderPackOrIkat = 0 : orderPackOrIkat = orderPackOrIkat
+			}else{
+				qty_bal = $("#qty_bal").val().split('.').join('')
+				orderSheet = parseInt(at_sheet) * (parseInt(at_bal) * parseInt(qty_bal))
+				orderPackOrIkat = parseInt(at_bal) * parseInt(qty_bal)
+				$("#qty_bal").val(qty_bal)
+			}
+			$("#order_sheet").val(format_angka(orderSheet));
+			$("#order_pori").val((jenis == 'kg') ? orderPackOrIkat : format_angka(orderPackOrIkat));
 		}
-		$("#order_sheet").val(format_angka(orderSheet));
-		$("#order_pori").val((jenis == 'kg') ? orderPackOrIkat : format_angka(orderPackOrIkat));
 
 		let cek = (jenis == 'kg') ? parseFloat(qty_bal) : parseInt(qty_bal);
-		if(jenis == 'kg'){
-			$("#harga_lembar").val(0).prop('disabled', true)
+		if(jenis_lm == "PEKALONGAN"){
+			$("#harga_lembar").val("").prop('disabled', (isNaN(cek) || cek == 0 || cek < 0) ? true : false)
+			$("#harga_pack").val("").prop('disabled', (isNaN(cek) || cek == 0 || cek < 0) ? true : false)
+			$("#harga_ikat").val("").prop('disabled', (isNaN(cek) || cek == 0 || cek < 0) ? true : false)
 		}else{
-			$("#harga_lembar").val("").prop('disabled', (isNaN(cek) || cek == 0) ? true : false)
+			if(jenis == 'kg'){
+				$("#harga_lembar").val(0).prop('disabled', true)
+			}else{
+				$("#harga_lembar").val("").prop('disabled', (isNaN(cek) || cek == 0 || cek < 0) ? true : false)
+			}
+			$("#harga_pori").val("").prop('disabled', (isNaN(cek) || cek == 0 || cek < 0) ? true : false)
 		}
-		$("#harga_pori").val("").prop('disabled', (isNaN(cek) || cek == 0) ? true : false)
 		$("#harga_total").val("")
 	}
 
 	function hitungHarga(opsi)
 	{
+		let jenis_lm = $("#jenis_lm").val()
 		let jenis = $("#item option:selected").attr('jenis_qty_lm')
 		let at_sheet = $("#sheet").val()
+		let at_pack = $("#pack_x").val()
+		let at_ikat = $("#ikat_x").val()
 		let order_sheet = $("#order_sheet").val().split('.').join('')
+		let order_pack = $("#order_pack").val().split('.').join('')
+		let order_ikat = $("#order_ikat").val().split('.').join('')
 		let order_pori = (jenis == 'kg') ? $("#order_pori").val() : $("#order_pori").val().split('.').join('')
-
+		let harga_lembar = $("#harga_lembar").val()
+		let harga_pack = $("#harga_pack").val().split('.').join('')
+		let harga_ikat = $("#harga_ikat").val().split('.').join('')
+		let harga_pori = $("#harga_pori").val().split('.').join('')
 		let harga_total = 0
-		if(opsi == 'lembar'){
-			let harga_lembar = $("#harga_lembar").val()
-			$("#harga_lembar").val(harga_lembar)
-
-			let hitungPori = parseInt(at_sheet) * parseInt(harga_lembar);
-			(isNaN(hitungPori)) ? hitungPori = 0 : hitungPori = hitungPori
-			$("#harga_pori").val(format_angka(hitungPori))
-
-			harga_total = parseInt(order_sheet) * parseInt(harga_lembar)
-		}
-
-		if(opsi == 'pori'){
-			let harga_pori = $("#harga_pori").val().split('.').join('')
-			$("#harga_pori").val(format_angka(harga_pori))
-
-			let hargaSheet = parseInt(harga_pori) / parseInt(at_sheet);
-			(isNaN(hargaSheet)) ? hargaSheet = 0 : hargaSheet = parseFloat(hargaSheet).toFixed(2);
-			$("#harga_lembar").val(hargaSheet)
-
-			harga_total = Math.round(((jenis == 'kg') ? parseFloat(order_pori) : parseInt(order_pori)) * parseInt(harga_pori))
-		}
-
-		if(jenis == 'kg'){
-			$("#harga_lembar").val(0).prop('disabled', true)
+		if(jenis_lm == "PEKALONGAN"){
+			if(opsi == 'pack'){
+				$("#harga_pack").val(format_angka(harga_pack));
+				(harga_pack == "") ? harga_pack = 0 : harga_pack = harga_pack;
+				harga_lembar = parseFloat(parseInt(harga_pack) / parseInt(at_sheet)).toFixed(2)
+				harga_ikat = parseInt(harga_pack) * parseInt(at_ikat)
+				harga_total = parseInt(harga_pack) * parseInt(order_pack)
+				console.log("harga_pack : ", harga_pack)
+				console.log("harga_lembar : ", harga_lembar)
+				console.log("harga_ikat : ", harga_ikat)
+				console.log("harga_total : ", harga_total)
+				$("#harga_lembar").val(harga_lembar)
+				$("#harga_ikat").val(format_angka(harga_ikat))
+			}
+			if(opsi == 'lembar'){
+				$("#harga_lembar").val(harga_lembar);
+				(harga_lembar == "") ? harga_lembar = 0 : harga_lembar = harga_lembar;
+				harga_pack = parseInt(at_sheet) * parseInt(harga_lembar)
+				harga_ikat = parseInt(at_ikat) * parseInt(harga_pack)
+				harga_total = parseInt(harga_pack) * parseInt(order_pack)
+				console.log("harga_pack : ", harga_pack)
+				console.log("harga_lembar : ", harga_lembar)
+				console.log("harga_ikat : ", harga_ikat)
+				console.log("harga_total : ", harga_total)
+				$("#harga_pack").val(format_angka(harga_pack))
+				$("#harga_ikat").val(format_angka(harga_ikat))
+			}
+			if(opsi == 'ikat'){
+				$("#harga_ikat").val(format_angka(harga_ikat));
+				(harga_ikat == "") ? harga_ikat = 0 : harga_ikat = harga_ikat;
+				harga_pack = parseInt(harga_ikat) / parseInt(at_pack)
+				harga_lembar = parseFloat(parseInt(harga_pack) / parseInt(at_sheet)).toFixed(2)
+				harga_total = parseInt(harga_pack) * parseInt(order_pack)
+				console.log("harga_pack : ", harga_pack)
+				console.log("harga_lembar : ", harga_lembar)
+				console.log("harga_ikat : ", harga_ikat)
+				console.log("harga_total : ", harga_total)
+				$("#harga_lembar").val(harga_lembar)
+				$("#harga_pack").val(format_angka(harga_pack))
+			}
+		}else{
+			if(opsi == 'lembar'){
+				$("#harga_lembar").val(harga_lembar)
+				let hitungPori = parseInt(at_sheet) * parseInt(harga_lembar);
+				(isNaN(hitungPori)) ? hitungPori = 0 : hitungPori = hitungPori
+				$("#harga_pori").val(format_angka(hitungPori))
+				harga_total = parseInt(order_sheet) * parseInt(harga_lembar)
+			}
+			if(opsi == 'pori'){
+				$("#harga_pori").val(format_angka(harga_pori))
+				let hargaSheet = parseInt(harga_pori) / parseInt(at_sheet);
+				(isNaN(hargaSheet)) ? hargaSheet = 0 : hargaSheet = parseFloat(hargaSheet).toFixed(2);
+				$("#harga_lembar").val(hargaSheet)
+				harga_total = Math.round(((jenis == 'kg') ? parseFloat(order_pori) : parseInt(order_pori)) * parseInt(harga_pori))
+			}
+			if(jenis == 'kg'){
+				$("#harga_lembar").val(0).prop('disabled', true)
+			}
 		}
 
 		$("#harga_total").val(format_angka(harga_total))

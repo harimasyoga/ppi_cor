@@ -1916,7 +1916,7 @@ class Transaksi extends CI_Controller
 		$html .= '</table>';
 		
 		$judul = 'PO: '.$po_lm->no_po_lm.' - '.$po_lm->nm_pelanggan_lm;
-		$this->m_fungsi->newMpdf($judul, 'cetak', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
+		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 	}
 
 	function hapus()
