@@ -417,27 +417,10 @@ class Transaksi extends CI_Controller
 
 	function addItemLaminasi()
 	{
-		if(
-			$_POST["tgl"] == "" ||
-			$_POST["customer"] == "" ||
-			$_POST["id_sales"] == "" ||
-			$_POST["attn"] == "" ||
-			$_POST["no_po"] == "" ||
-			$_POST["jenis_lm"] == "" ||
-			$_POST["item"] == "" ||
-			$_POST["ukuran_lm"] == "" ||
-			$_POST["isi_lm"] == "" ||
-			$_POST["jenis_qty_lm"] == "" ||
-			$_POST["qty"] == "" ||
-			$_POST["order_sheet"] == "" ||
-			$_POST["order_pori"] == "" ||
-			$_POST["qty_bal"] == "" ||
-			$_POST["harga_lembar"] == "" ||
-			$_POST["harga_pori"] == "" ||
-			$_POST["harga_total"] == "" 
-		){
+		if($_POST["tgl"] == "" || $_POST["customer"] == "" || $_POST["id_sales"] == "" || $_POST["attn"] == "" || $_POST["no_po"] == "" || $_POST["jenis_lm"] == "" || $_POST["item"] == "" || $_POST["qty_bal"] == "" || $_POST["harga_total"] == ""){
 			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
 		}else{
+			// id_po_header, tgl, customer, id_sales, no_po, note_po_lm, attn, jenis_lm, item, nm_produk_lm, ukuran_lm, isi_lm, jenis_qty_lm, qty, order_sheet, order_pack, order_ikat, order_pori, qty_bal, harga_lembar, harga_pack, harga_ikat, harga_pori, harga_total, id_cart
 			$data = array(
 				'id' => $_POST["id_cart"],
 				'name' => 'name'.$_POST["id_cart"],
@@ -457,9 +440,13 @@ class Transaksi extends CI_Controller
 					'jenis_qty_lm' => $_POST["jenis_qty_lm"],
 					'qty' => $_POST["qty"],
 					'order_sheet' => $_POST["order_sheet"],
+					'order_pack' => $_POST["order_pack"],
+					'order_ikat' => $_POST["order_ikat"],
 					'order_pori' => $_POST["order_pori"],
 					'qty_bal' => $_POST["qty_bal"],
 					'harga_lembar' => $_POST["harga_lembar"],
+					'harga_pack' => $_POST["harga_pack"],
+					'harga_ikat' => $_POST["harga_ikat"],
 					'harga_pori' => $_POST["harga_pori"],
 					'harga_total' => $_POST["harga_total"],
 					'id_cart' => $_POST["id_cart"],
@@ -522,14 +509,16 @@ class Transaksi extends CI_Controller
 				<tr>
 					<th style="padding:6px;text-align:center">NO.</th>
 					<th style="padding:6px">ITEM</th>
-					<th style="padding:6px">SIZE</th>
-					<th style="padding:6px;text-align:center">@PACK</th>
+					<th style="padding:6px;text-align:center">SIZE</th>
+					<th style="padding:6px;text-align:center">ISI</th>
 					<th style="padding:6px;text-align:center">@BAL</th>
 					<th style="padding:6px;text-align:center">ORDER SHEET</th>
-					<th style="padding:6px;text-align:center">ORDER</th>
+					<th style="padding:6px;text-align:center">ORDER PACK</th>
+					<th style="padding:6px;text-align:center">ORDER IKAT</th>
 					<th style="padding:6px;text-align:center">QTY(BAL)</th>
 					<th style="padding:6px;text-align:center">HARGA LEMBAR</th>
-					<th style="padding:6px;text-align:center">HARGA</th>
+					<th style="padding:6px;text-align:center">HARGA PACK</th>
+					<th style="padding:6px;text-align:center">HARGA IKAT</th>
 					<th style="padding:6px;text-align:center">HARGA TOTAL</th>
 					<th style="padding:6px;text-align:center">AKSI</th>
 				</tr>
@@ -539,29 +528,45 @@ class Transaksi extends CI_Controller
 		$i = 0;
 		foreach($this->cart->contents() as $r){
 			$i++;
-			if($r['options']['jenis_qty_lm'] == 'pack'){
-				$ket = '( PACK )';
-				$qty = number_format($r['options']['qty'],0,",",".");
-			}else if($r['options']['jenis_qty_lm'] == 'ikat'){
-				$ket = '( IKAT )';
-				$qty = number_format($r['options']['qty'],0,",",".");
-			}else{
-				$ket = '( KG )';
-				$qty = $r['options']['qty'];
-			}
-			($r['options']['jenis_qty_lm'] == 'kg') ? $order_pori = $r['options']['order_pori'] : $order_pori = number_format($r['options']['order_pori'],0,",",".");
+			($r['options']['jenis_qty_lm'] == 'kg') ? $qty = $r['options']['qty'] : $qty = number_format($r['options']['qty'],0,",",".");
 			($r['options']['jenis_qty_lm'] == 'kg') ? $qty_bal = $r['options']['qty_bal'] : $qty_bal = number_format($r['options']['qty_bal'],0,",",".");
+			if($r['options']['jenis_lm'] == 'PPI'){
+				if($r['options']['jenis_qty_lm'] == 'pack'){
+					$order_pack = number_format($r['options']['order_pori'],0,",",".");
+					$order_ikat = '-';
+					$harga_pack = number_format($r['options']['harga_pori'],0,",",".");
+					$harga_ikat = '-';
+				}else if($r['options']['jenis_qty_lm'] == 'ikat'){
+					$order_pack = '-';
+					$order_ikat = number_format($r['options']['order_pori'],0,",",".");
+					$harga_pack = '-';
+					$harga_ikat = number_format($r['options']['harga_pori'],0,",",".");
+				}else{
+					$order_pack = '-';
+					$order_ikat = '-';
+					$harga_pack = '-';
+					$harga_ikat = '-';
+				}
+			}
+			if($r['options']['jenis_lm'] == 'PEKALONGAN'){
+				$order_pack = number_format($r['options']['order_pack'],0,",",".");
+				$order_ikat = number_format($r['options']['order_ikat'],0,",",".");
+				$harga_pack = number_format($r['options']['harga_pack'],0,",",".");
+				$harga_ikat = number_format($r['options']['harga_ikat'],0,",",".");
+			}
 			$html .='<tr>
 				<td style="padding:6px;text-align:center">'.$i.'</td>
 				<td style="padding:6px">'.$r['options']['nm_produk_lm'].'</td>
-				<td style="padding:6px">'.$r['options']['ukuran_lm'].'</td>
-				<td style="padding:6px;text-align:right">'.number_format($r['options']['isi_lm'],0,",",".").' ( SHEET )</td>
-				<td style="padding:6px;text-align:right">'.$qty.' '.$ket.'</td>
+				<td style="padding:6px;text-align:center">'.$r['options']['ukuran_lm'].'</td>
+				<td style="padding:6px;text-align:center">'.number_format($r['options']['isi_lm'],0,",",".").'</td>
+				<td style="padding:6px;text-align:right">'.$qty.'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r['options']['order_sheet'],0,",",".").'</td>
-				<td style="padding:6px;text-align:right">'.$order_pori.' '.$ket.'</td>
+				<td style="padding:6px;text-align:right">'.$order_pack.'</td>
+				<td style="padding:6px;text-align:right">'.$order_ikat.'</td>
 				<td style="padding:6px;text-align:right">'.$qty_bal.'</td>
 				<td style="padding:6px;text-align:right">'.round($r['options']['harga_lembar'],2).'</td>
-				<td style="padding:6px;text-align:right">'.number_format($r['options']['harga_pori'],0,",",".").' '.$ket.'</td>
+				<td style="padding:6px;text-align:right">'.$harga_pack.'</td>
+				<td style="padding:6px;text-align:right">'.$harga_ikat.'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r['options']['harga_total'],0,",",".").'</td>
 				<td style="padding:6px;text-align:center">
 					<button class="btn btn-danger btn-xs" onclick="hapusCartLaminasi('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
@@ -616,6 +621,12 @@ class Transaksi extends CI_Controller
 		$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.no_po_lm='$po_lm->no_po_lm'");
 		($id != 0 && $id_dtl != 0 ) ? $e_po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.id='$id_dtl'")->row() : $e_po_dtl = '';
 
+		if($po_lm->jenis_lm == "PEKALONGAN"){
+			$ketKop = '<th style="padding:6px;text-align:center">H. PACK</th>
+			<th style="padding:6px;text-align:center">H. IKAT</th>';
+		}else{
+			$ketKop = '<th style="padding:6px;text-align:center">HARGA</th>';
+		}
 		$html ='';
 		$html .='<table class="table table-bordered table-striped" style="margin:0">
 			<thead>
@@ -624,7 +635,7 @@ class Transaksi extends CI_Controller
 					<th style="padding:6px" colspan="6">DESKRIPSI</th>
 					<th style="padding:6px;text-align:center">QTY(BAL)</th>
 					<th style="padding:6px;text-align:center">H. LEMBAR</th>
-					<th style="padding:6px;text-align:center">HARGA</th>
+					'.$ketKop.'
 					<th style="padding:6px;text-align:center">HARGA TOTAL</th>
 					<th style="padding:6px;text-align:center">AKSI</th>
 				</tr>
@@ -641,7 +652,6 @@ class Transaksi extends CI_Controller
 				}else{
 					($opsi == 'edit') ? $btnAksi = $edit.' '.$hapus : $btnAksi = '-';
 				}
-
 				($id_dtl == $r->id) ? $bold = ';font-weight:bold;background:#ffd700' : $bold = '';
 				if($r->jenis_qty_lm == 'pack'){
 					$ket = '( PACK )';
@@ -655,110 +665,91 @@ class Transaksi extends CI_Controller
 				}
 				($r->jenis_qty_lm == 'kg') ? $order_pori_lm = $r->order_pori_lm : $order_pori_lm = number_format($r->order_pori_lm,0,",",".");
 				($r->jenis_qty_lm == 'kg') ? $qty_bal = $r->qty_bal : $qty_bal = number_format($r->qty_bal,0,",",".");
-
-				$ton = $r->qty_bal * 50;
-				$bb = round($ton / 0.75);
+				if($r->jenis_qty_lm == 'kg'){
+					$ton = 0;
+					$bb = 0;
+				}else{
+					$ton = $r->qty_bal * 50;
+					$bb = round($ton / 0.75);
+				}
+				//
+				if($po_lm->jenis_lm == "PEKALONGAN"){
+					$ket1 = '<tr><td style="border:0;padding:6px;font-weight:bold">IKAT</td></tr>
+					<tr><td style="border:0;padding:6px;font-weight:bold">PACK</td></tr>';
+					$ket2 = '<tr><td style="border:0;padding:6px 3px;font-weight:bold">:</td></tr>
+					<tr><td style="border:0;padding:6px 3px;font-weight:bold">:</td></tr>';
+					$isi1 = '<tr><td style="border:0;padding:6px">'.$r->ikat_x.'</td></tr>
+					<tr><td style="border:0;padding:6px">'.$r->pack_x.'</td></tr>
+					<tr><td style="border:0;padding:6px">'.$qty.' ( PACK )</td></tr>';
+					$ket3 = '<tr><td style="border:0;padding:6px;font-weight:bold">ORDER PACK</td></tr>
+					<tr><td style="border:0;padding:6px;font-weight:bold">ORDER IKAT</td></tr>';
+					$isi3 = '<tr><td style="border:0;padding:6px">'.number_format($r->order_pack_lm,0,",",".").'</td></tr>
+					<tr><td style="border:0;padding:6px">'.number_format($r->order_ikat_lm,0,",",".").'</td></tr>';
+					$harga1 = '<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_pack_lm,0,",",".").'</td>
+					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_ikat_lm,0,",",".").'</td>';
+				}else{
+					$ket1 = '';
+					$ket2 = '';
+					$isi1 = '<tr><td style="border:0;padding:6px">'.$qty.' '.$ket.'</td></tr>';
+					$ket3 = '<tr><td style="border:0;padding:6px;font-weight:bold">ORDER</td></tr>';
+					$isi3 = '<tr><td style="border:0;padding:6px">'.$order_pori_lm.' '.$ket.'</td></tr>';
+					$harga1 = '<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_pori_lm,0,",",".").'  '.$ket.'</td>';
+				}
 				$html .='<tr>
 					<td style="padding:6px;text-align:center'.$bold.'">'.$i.'</td>
 					<td style="padding:0;border:0'.$bold.'">
 						<table class="table" style="margin:0">
-							<tr>
-								<td style="border:0;padding:6px;font-weight:bold">ITEM</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px;font-weight:bold">SIZE</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px;font-weight:bold">@PACK</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px;font-weight:bold">@BAL</td>
-							</tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">ITEM</td></tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">SIZE</td></tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">ISI</td></tr>
+							'.$ket1.'
+							<tr><td style="border:0;padding:6px;font-weight:bold">@BAL</td></tr>
 						</table>
 					</td>
 					<td style="padding:0;border:0'.$bold.'">
 						<table class="table" style="margin:0">
-							<tr>
-								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
-							</tr>
+							<tr><td style="border:0;padding:6px 3px;font-weight:bold">:</td></tr>
+							<tr><td style="border:0;padding:6px 3px;font-weight:bold">:</td></tr>
+							<tr><td style="border:0;padding:6px 3px;font-weight:bold">:</td></tr>
+							'.$ket2.'
+							<tr><td style="border:0;padding:6px 3px;font-weight:bold">:</td></tr>
 						</table>
 					</td>
 					<td style="padding:0;border:0'.$bold.'">
 						<table class="table" style="margin:0">
-							<tr>
-								<td style="border:0;padding:6px">'.$r->nm_produk_lm.'</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px">'.$r->ukuran_lm.'</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px">'.number_format($r->isi_lm,0,",",".").' ( SHEET )</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px">'.$qty.' '.$ket.'</td>
-							</tr>
+							<tr><td style="border:0;padding:6px">'.$r->nm_produk_lm.'</td></tr>
+							<tr><td style="border:0;padding:6px">'.$r->ukuran_lm.'</td></tr>
+							<tr><td style="border:0;padding:6px">'.number_format($r->isi_lm,0,",",".").' ( LEMBAR )</td></tr>
+							'.$isi1.'
 						</table>
 					</td>
 					<td style="padding:0;border:0'.$bold.'">
 						<table class="table" style="margin:0">
-							<tr>
-								<td style="border:0;padding:6px;font-weight:bold">ORDER SHEET</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px;font-weight:bold">ORDER</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px;font-weight:bold">TON</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px;font-weight:bold">BAHAN BAKU</td>
-							</tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">ORDER LEMBAR</td></tr>
+							'.$ket3.'
+							<tr><td style="border:0;padding:6px;font-weight:bold">TON</td></tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">BAHAN BAKU</td></tr>
 						</table>
 					</td>
 					<td style="padding:0;border:0'.$bold.'">
 						<table class="table" style="margin:0">
-							<tr>
-								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px 3px;font-weight:bold">:</td>
-							</tr>
+							<tr><td style="border:0;padding:6px 3px;font-weight:bold">:</td></tr>
+							'.$ket2.'
+							<tr><td style="border:0;padding:6px 3px;font-weight:bold">:</td></tr>
+							<tr><td style="border:0;padding:6px 3px;font-weight:bold">:</td></tr>
 						</table>
 					</td>
 					<td style="padding:0;border:0'.$bold.'">
 						<table class="table" style="margin:0">
-							<tr>
-								<td style="border:0;padding:6px">'.number_format($r->order_sheet_lm,0,",",".").'</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px">'.$order_pori_lm.' '.$ket.'</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px">'.number_format($ton,0,",",".").'</td>
-							</tr>
-							<tr>
-								<td style="border:0;padding:6px">'.number_format($bb,0,",",".").'</td>
-							</tr>
+							<tr><td style="border:0;padding:6px">'.number_format($r->order_sheet_lm,0,",",".").'</td></tr>
+							'.$isi3.'
+							<tr><td style="border:0;padding:6px">'.number_format($ton,0,",",".").'</td></tr>
+							<tr><td style="border:0;padding:6px">'.number_format($bb,0,",",".").'</td></tr>
 						</table>
 					</td>
 					<td style="padding:6px;text-align:center'.$bold.'">'.$qty_bal.'</td>
-					<td style="padding:6px;text-align:center'.$bold.'">'.round($r->harga_lembar_lm,2).'</td>
-					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_pori_lm,0,",",".").'  '.$ket.'</td>
+					<td style="padding:6px;text-align:right'.$bold.'">'.round($r->harga_lembar_lm,2).'</td>
+					'.$harga1.'
 					<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_total_lm,0,",",".").'</td>
 					<td style="padding:6px;text-align:center'.$bold.'">'.$btnAksi.'</td>
 				</tr>';

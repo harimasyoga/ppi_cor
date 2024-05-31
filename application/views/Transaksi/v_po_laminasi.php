@@ -622,10 +622,6 @@
 				harga_lembar = parseFloat(parseInt(harga_pack) / parseInt(at_sheet)).toFixed(2)
 				harga_ikat = parseInt(harga_pack) * parseInt(at_ikat)
 				harga_total = parseInt(harga_pack) * parseInt(order_pack)
-				console.log("harga_pack : ", harga_pack)
-				console.log("harga_lembar : ", harga_lembar)
-				console.log("harga_ikat : ", harga_ikat)
-				console.log("harga_total : ", harga_total)
 				$("#harga_lembar").val(harga_lembar)
 				$("#harga_ikat").val(format_angka(harga_ikat))
 			}
@@ -635,10 +631,6 @@
 				harga_pack = parseInt(at_sheet) * parseInt(harga_lembar)
 				harga_ikat = parseInt(at_ikat) * parseInt(harga_pack)
 				harga_total = parseInt(harga_pack) * parseInt(order_pack)
-				console.log("harga_pack : ", harga_pack)
-				console.log("harga_lembar : ", harga_lembar)
-				console.log("harga_ikat : ", harga_ikat)
-				console.log("harga_total : ", harga_total)
 				$("#harga_pack").val(format_angka(harga_pack))
 				$("#harga_ikat").val(format_angka(harga_ikat))
 			}
@@ -648,10 +640,6 @@
 				harga_pack = parseInt(harga_ikat) / parseInt(at_pack)
 				harga_lembar = parseFloat(parseInt(harga_pack) / parseInt(at_sheet)).toFixed(2)
 				harga_total = parseInt(harga_pack) * parseInt(order_pack)
-				console.log("harga_pack : ", harga_pack)
-				console.log("harga_lembar : ", harga_lembar)
-				console.log("harga_ikat : ", harga_ikat)
-				console.log("harga_total : ", harga_total)
 				$("#harga_lembar").val(harga_lembar)
 				$("#harga_pack").val(format_angka(harga_pack))
 			}
@@ -700,9 +688,13 @@
 		(jenis_qty_lm == undefined) ? jenis_qty_lm = '' : jenis_qty_lm = jenis_qty_lm
 		let qty = (jenis_qty_lm == 'kg') ? $("#qty").val() : $("#qty").val().split('.').join('')
 		let order_sheet = $("#order_sheet").val().split('.').join('')
+		let order_pack = $("#order_pack").val().split('.').join('')
+		let order_ikat = $("#order_ikat").val().split('.').join('')
 		let order_pori = (jenis_qty_lm == 'kg') ? $("#order_pori").val() : $("#order_pori").val().split('.').join('')
 		let qty_bal = $("#qty_bal").val()
 		let harga_lembar = $("#harga_lembar").val()
+		let harga_pack = $("#harga_pack").val().split('.').join('')
+		let harga_ikat = $("#harga_ikat").val().split('.').join('')
 		let harga_pori = $("#harga_pori").val().split('.').join('')
 		let harga_total = $("#harga_total").val().split('.').join('')
 		let id_cart = parseInt($("#id_cart").val()) + 1
@@ -721,7 +713,7 @@
 				});
 			},
 			data: ({
-				id_po_header, tgl, customer, id_sales, no_po, note_po_lm, attn, jenis_lm, item, nm_produk_lm, ukuran_lm, isi_lm, jenis_qty_lm, qty, order_sheet, order_pori, qty_bal, harga_lembar, harga_pori, harga_total, id_cart
+				id_po_header, tgl, customer, id_sales, no_po, note_po_lm, attn, jenis_lm, item, nm_produk_lm, ukuran_lm, isi_lm, jenis_qty_lm, qty, order_sheet, order_pack, order_ikat, order_pori, qty_bal, harga_lembar, harga_pack, harga_ikat, harga_pori, harga_total, id_cart
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -1136,7 +1128,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				// console.log(data)
-				if(data){
+				if(data.result){
 					kembaliListPOLaminasi()
 				}else{
 					toastr.error(`<b>KETERANGAN TIDAK BOLEH KOSONG!</b>`)

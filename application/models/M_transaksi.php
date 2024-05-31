@@ -1465,10 +1465,14 @@ class M_transaksi extends CI_Model
 					'id_m_produk_lm' => $r['options']['item'],
 					'no_po_lm' => $r['options']['no_po'],
 					'order_sheet_lm' => $r['options']['order_sheet'],
+					'order_pack_lm' => $r['options']['order_pack'],
+					'order_ikat_lm' => $r['options']['order_ikat'],
 					'jenis_order_lm' => $r['options']['jenis_qty_lm'],
 					'order_pori_lm' => $r['options']['order_pori'],
 					'qty_bal' => $r['options']['qty_bal'],
 					'harga_lembar_lm' => $r['options']['harga_lembar'],
+					'harga_pack_lm' => $r['options']['harga_pack'],
+					'harga_ikat_lm' => $r['options']['harga_ikat'],
 					'harga_pori_lm' => $r['options']['harga_pori'],
 					'harga_total_lm' => $r['options']['harga_total'],
 					'add_time' => date('Y-m-d H:i:s'),
@@ -1501,7 +1505,6 @@ class M_transaksi extends CI_Model
 				$status = 'Approve';
 			}
 			($_POST["status_verif"] == 'marketing') ? $i = 1 : $i = 2 ;
-
 			$this->db->set('status_lm', $status);
 			$this->db->set('status_lm'.$i, $_POST["aksi"]);
 			$this->db->set('user_lm'.$i, $this->username);
@@ -1509,9 +1512,35 @@ class M_transaksi extends CI_Model
 			$this->db->set('ket_lm'.$i, ($_POST["aksi"] == 'Y' && $_POST["ket_laminasi"] == '') ? 'OK' : $_POST["ket_laminasi"]);
 			$this->db->where('id', $_POST["id_po_lm"]);
 			$result = $this->db->update('trs_po_lm');
+
+			if($_POST["aksi"] == 'Y' && $result == true){
+				$id = $_POST["id_po_lm"];
+				$po_lm = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'")->row();
+				$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail d WHERE d.no_po_lm='$po_lm->no_po_lm'");
+				foreach($po_dtl->result() as $r){
+					$data = [
+						'tgl' => date('Y-m-d'),
+						'no_po_lm' => $po_lm->no_po_lm,
+						'id_trs_po_lm' => $id,
+						'id_trs_po_dtl' => $r->id,
+						'id_produk_lm' => $r->id_m_produk_lm,
+						'qty_isi' => $r->order_sheet_lm,
+						'qty_pack' => $r->order_pack_lm,
+						'qty_ikat' => $r->order_ikat_lm,
+						'qty_ball' => $r->qty_bal,
+						'add_time' => date('Y-m-d H:i:s'),
+					];
+					$gudang_pkl = $this->db->insert("m_gudang_pkl", $data);
+				}
+			}else{
+				$gudang_pkl = false;
+			}
 		}
 
-		return $result;
+		return [
+			'result' => $result,
+			'gudang_pkl' => $gudang_pkl,
+		];
 	}
 
 	function editListLaminasi()
