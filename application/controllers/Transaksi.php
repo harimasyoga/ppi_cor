@@ -633,7 +633,7 @@ class Transaksi extends CI_Controller
 				<tr>
 					<th style="padding:6px;text-align:center">NO.</th>
 					<th style="padding:6px" colspan="6">DESKRIPSI</th>
-					<th style="padding:6px;text-align:center">QTY(BAL)</th>
+					<th style="padding:6px;text-align:center">QTY</th>
 					<th style="padding:6px;text-align:center">H. LEMBAR</th>
 					'.$ketKop.'
 					<th style="padding:6px;text-align:center">HARGA TOTAL</th>
@@ -1636,12 +1636,14 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_po_laminasi") {
-			($this->session->userdata('username') == 'usman') ? $where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'" : $where = '';
-			($_POST["po"] == 'pengiriman') ? $stats = "AND po.status_lm='Approve' AND po.status_kirim='Open' ORDER BY po.tgl_lm DESC,pl.nm_pelanggan_lm,po.no_po_lm" : $stats = "ORDER BY po.tgl_lm DESC,po.no_po_lm" ;
+			($this->session->userdata('username') == 'usman') ? $where = "AND (s.id_sales='9' OR s.nm_sales='Usman') AND po.jenis_lm='PEKALONGAN'" : $where = "";
+			($_POST["po"] == 'pengiriman') ? $stats = "po.status_lm='Approve' AND po.status_kirim='Open'" : $stats = "po.status_lm LIKE '%%'";
+			($_POST["po"] == 'pengiriman') ? $order = "ORDER BY po.tgl_lm DESC,pl.nm_pelanggan_lm,po.no_po_lm" : $order = "ORDER BY po.tgl_lm DESC,po.no_po_lm";
 			$query = $this->db->query("SELECT po.*,pl.nm_pelanggan_lm FROM trs_po_lm po
 			INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm
 			INNER JOIN m_sales s ON po.id_sales=s.id_sales
-			$where $stats")->result();
+			WHERE $stats $where
+			$order")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
@@ -1742,7 +1744,11 @@ class Transaksi extends CI_Controller
 					if($this->session->userdata('level') == 'Admin'){
 						$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
 					}else if($this->session->userdata('level') == 'Laminasi'){
-						$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
+						if($this->session->userdata('username') == 'usman'){
+							$row[] = '<div class="text-center">'.$btnVerif.'</div>';
+						}else{
+							$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
+						}
 					}else{
 						$row[] = '<div class="text-center">'.$btnVerif.'</div>';
 					}

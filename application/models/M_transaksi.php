@@ -1513,33 +1513,33 @@ class M_transaksi extends CI_Model
 			$this->db->where('id', $_POST["id_po_lm"]);
 			$result = $this->db->update('trs_po_lm');
 
-			if($_POST["aksi"] == 'Y' && $result == true){
-				$id = $_POST["id_po_lm"];
-				$po_lm = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'")->row();
-				$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail d WHERE d.no_po_lm='$po_lm->no_po_lm'");
-				foreach($po_dtl->result() as $r){
-					$data = [
-						'tgl' => date('Y-m-d'),
-						'no_po_lm' => $po_lm->no_po_lm,
-						'id_trs_po_lm' => $id,
-						'id_trs_po_dtl' => $r->id,
-						'id_produk_lm' => $r->id_m_produk_lm,
-						'qty_isi' => $r->order_sheet_lm,
-						'qty_pack' => $r->order_pack_lm,
-						'qty_ikat' => $r->order_ikat_lm,
-						'qty_ball' => $r->qty_bal,
-						'add_time' => date('Y-m-d H:i:s'),
-					];
-					$gudang_pkl = $this->db->insert("m_gudang_pkl", $data);
-				}
-			}else{
-				$gudang_pkl = false;
-			}
+			// if($_POST["aksi"] == 'Y' && $result == true){
+			// 	$id = $_POST["id_po_lm"];
+			// 	$po_lm = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'")->row();
+			// 	$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail d WHERE d.no_po_lm='$po_lm->no_po_lm'");
+			// 	foreach($po_dtl->result() as $r){
+			// 		$data = [
+			// 			'tgl' => date('Y-m-d'),
+			// 			'no_po_lm' => $po_lm->no_po_lm,
+			// 			'id_trs_po_lm' => $id,
+			// 			'id_trs_po_dtl' => $r->id,
+			// 			'id_produk_lm' => $r->id_m_produk_lm,
+			// 			'qty_isi' => $r->order_sheet_lm,
+			// 			'qty_pack' => $r->order_pack_lm,
+			// 			'qty_ikat' => $r->order_ikat_lm,
+			// 			'qty_ball' => $r->qty_bal,
+			// 			'add_time' => date('Y-m-d H:i:s'),
+			// 		];
+			// 		$gudang_pkl = $this->db->insert("m_gudang_pkl", $data);
+			// 	}
+			// }else{
+			// 	$gudang_pkl = false;
+			// }
 		}
 
 		return [
 			'result' => $result,
-			'gudang_pkl' => $gudang_pkl,
+			// 'gudang_pkl' => $gudang_pkl,
 		];
 	}
 

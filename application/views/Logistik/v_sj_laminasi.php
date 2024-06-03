@@ -59,7 +59,12 @@
 							<div class="col-md-9">
 								<select class="form-control select2" id="plh-customer" onchange="load_data_sj()">
 									<?php
-										$query = $this->db->query("SELECT lm.*,s.nm_sales FROM m_pelanggan_lm lm INNER JOIN m_sales s ON lm.id_sales=s.id_sales ORDER BY nm_pelanggan_lm");
+										if($this->session->userdata('username') == 'usman'){
+											$where = "WHERE (s.id_sales='9' OR s.nm_sales='Usman')";
+										}else{
+											$where = "WHERE (s.id_sales!='9' OR s.nm_sales!='Usman')";
+										}
+										$query = $this->db->query("SELECT lm.*,s.nm_sales FROM m_pelanggan_lm lm INNER JOIN m_sales s ON lm.id_sales=s.id_sales $where ORDER BY nm_pelanggan_lm");
 										$html ='';
 										$html .='<option value="">SEMUA</option>';
 										foreach($query->result() as $r){
@@ -184,9 +189,9 @@
 											<select id="plh_sj_cust" class="form-control select2">
 												<?php
 													if($this->session->userdata('username') == 'usman'){
-														$where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'";
+														$where = "WHERE (s.id_sales='9' OR s.nm_sales='Usman')";
 													}else{
-														$where = '';
+														$where = "WHERE (s.id_sales!='9' OR s.nm_sales!='Usman')";
 													}
 													$query = $this->db->query("SELECT p.id_perusahaan,p.attn_pl,l.nm_pelanggan_lm FROM pl_laminasi p
 													INNER JOIN m_pelanggan_lm l ON p.id_perusahaan=l.id_pelanggan_lm
@@ -473,6 +478,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
+				console.log(data)
 				if(data.total_items == 0){
 					toastr.error(`<b>${data.isi}</b>`)
 					$(".row-input-rk").hide()
@@ -482,18 +488,21 @@
 						toastr.error(`<b>${data.isi}</b>`)
 					}
 					$(".row-input-rk").show()
-					loadItemLaminasi()
+					loadItemLaminasi(h_idpo)
 				}
 			}
 		})
 	}
 
-	function loadItemLaminasi()
+	function loadItemLaminasi(id_po)
 	{
 		$(".row-input-rk").show()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadItemLaminasi')?>',
 			type: "POST",
+			data : ({
+				id_po
+			}),
 			success: function(res){
 				$(".list-rencana-sj-laminasi").html(res)
 				swal.close()
@@ -647,7 +656,7 @@
 		$("#p_no_sj-"+id_pelanggan_lm).val(no_sj)
 	}
 
-	function kirimSJLaminasi(id_pelanggan_lm, id_hub)
+	function kirimSJLaminasi(id_pelanggan_lm, id_hub, opsi)
 	{
 		let tgl = $("#p_tgl-"+id_pelanggan_lm).val()
 		// let no_sj = $("#p_no_sj-"+id_pelanggan_lm).val()
@@ -669,7 +678,7 @@
 				});
 			},
 			data: ({
-				id_pelanggan_lm, id_hub, tgl, attn, alamat_kirim, no_telp, no_kendaraan
+				id_pelanggan_lm, id_hub, opsi, tgl, attn, alamat_kirim, no_telp, no_kendaraan
 			}),
 			success: function(res){
 				data = JSON.parse(res)

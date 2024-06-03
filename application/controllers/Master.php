@@ -391,10 +391,20 @@ class Master extends CI_Controller
 				$cekPO = $this->db->query("SELECT*FROM trs_po_lm WHERE id_pelanggan='$r->id_pelanggan_lm' GROUP BY id_pelanggan")->num_rows();
 				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User','Laminasi']))
 				{
-					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_pelanggan_lm."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
-					($cekPO == 1) ? $btnHapus = '' : $btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_pelanggan_lm."'".')"><i class="fas fa-times"></i></button>';
+					if($r->id_sales != 9){
+						// if($this->session->userdata('username') != 'usman'){
+							$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_pelanggan_lm."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
+							($cekPO == 1) ? $btnHapus = '' : $btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_pelanggan_lm."'".')"><i class="fas fa-times"></i></button>';
+						// }else{
+						// 	$btnEdit = '-';
+						// 	$btnHapus = '';
+						// }
+					}else{
+						$btnEdit = '-';
+						$btnHapus = '';
+					}
 				}else{
-					$btnEdit = '';
+					$btnEdit = '-';
 					$btnHapus = '';
 				}
 
