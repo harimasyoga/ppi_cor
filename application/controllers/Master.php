@@ -391,10 +391,20 @@ class Master extends CI_Controller
 				$cekPO = $this->db->query("SELECT*FROM trs_po_lm WHERE id_pelanggan='$r->id_pelanggan_lm' GROUP BY id_pelanggan")->num_rows();
 				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User','Laminasi']))
 				{
-					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_pelanggan_lm."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
-					($cekPO == 1) ? $btnHapus = '' : $btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_pelanggan_lm."'".')"><i class="fas fa-times"></i></button>';
+					if($r->id_sales != 9){
+						// if($this->session->userdata('username') != 'usman'){
+							$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_pelanggan_lm."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
+							($cekPO == 1) ? $btnHapus = '' : $btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_pelanggan_lm."'".')"><i class="fas fa-times"></i></button>';
+						// }else{
+						// 	$btnEdit = '-';
+						// 	$btnHapus = '';
+						// }
+					}else{
+						$btnEdit = '-';
+						$btnHapus = '';
+					}
 				}else{
-					$btnEdit = '';
+					$btnEdit = '-';
 					$btnHapus = '';
 				}
 
@@ -436,26 +446,31 @@ class Master extends CI_Controller
 				
 			}
 		} else if ($jenis == "produk_laminasi") {
-			$query = $this->m_master->query("SELECT*FROM m_produk_lm ORDER BY nm_produk_lm")->result();
+			($this->session->userdata('username') == 'usman') ? $where = "WHERE jenis_lm='PEKALONGAN'" : $where = '';
+			$query = $this->m_master->query("SELECT*FROM m_produk_lm $where ORDER BY nm_produk_lm")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = $r->nm_produk_lm;
+				($this->session->userdata('username') != 'usman' && $r->jenis_lm == "PEKALONGAN") ? $ket = ' <span style="font-size:12px;vertical-align:top;font-style:italic">( pkl )</span>' : $ket = '';
+				$row[] = '<a href="javascript:void(0)" onclick="editDataLaminasi('."'".$r->id_produk_lm."'".','."'detail'".')">'.$r->nm_produk_lm.$ket.'<a>';
 				$row[] = '<div class="text-center">'.$r->ukuran_lm.'</div>';
 				$row[] = '<div class="text-right">'.number_format($r->isi_lm,0,',','.').'</div>';
-
 				if($r->jenis_qty_lm == 'pack'){
-					$qty = number_format($r->pack_lm,0,',','.');
+					$qty = number_format($r->pack_lm,0,',','.').' <span style="font-size:12px;vertical-align:top;font-style:italic">( pack )</span>';
 				}else if($r->jenis_qty_lm == 'ikat'){
-					$qty = number_format($r->ikat_lm,0,',','.').' <span style="font-size:12px;vertical-align:top;font-style:italic">( ikat )</span>';
+					if($r->jenis_lm == "PEKALONGAN"){
+						$qty = number_format($r->ikat_x,0,',','.').' <span style="font-size:12px;vertical-align:top;font-style:italic">( ikat )</span>';
+					}else{
+						$qty = number_format($r->ikat_lm,0,',','.').' <span style="font-size:12px;vertical-align:top;font-style:italic">( ikat )</span>';
+					}
 				}else{
 					$qty = round($r->kg_lm,2).' <span style="font-size:12px;vertical-align:top;font-style:italic">( kg )</span>';
 				}
 				$row[] = '<div class="text-right">'.$qty.'</div>';
 
-				$btnEdit = '<button type="button" class="btn btn-sm btn-warning" onclick="editDataLaminasi('."'".$r->id_produk_lm."'".')"><i class="fas fa-pen"></i></button>';
+				$btnEdit = '<button type="button" class="btn btn-sm btn-warning" onclick="editDataLaminasi('."'".$r->id_produk_lm."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
 				$cekProduk = $this->db->query("SELECT*FROM trs_po_lm_detail WHERE id_m_produk_lm='$r->id_produk_lm' GROUP BY id_m_produk_lm");
 				if($cekProduk->num_rows() == 0){
 					$btnHapus = '<button type="button" class="btn btn-sm btn-danger" style="padding:4px 10px" onclick="hapusDataLaminasi('."'".$r->id_produk_lm."'".')"><i class="fas fa-times"></i></button>';

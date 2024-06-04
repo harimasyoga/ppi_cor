@@ -1229,6 +1229,7 @@ class M_logistik extends CI_Model
 	{
 		$id_pelanggan_lm = $_POST["id_pelanggan_lm"];
 		$id_hub = $_POST["id_hub"];
+		$jenis_lm = $_POST["opsi"];
 		$tgl = $_POST["tgl"];
 		$attn = $_POST["attn"];
 		$alamat_kirim = $_POST["alamat_kirim"];
@@ -1249,31 +1250,50 @@ class M_logistik extends CI_Model
 		}else{
 			// CARI NOMER SURAT JALAN BEDASARKAN HUB
 			$tahun = substr(date('Y'),2,2);
+			$romawi = $this->m_fungsi->blnRomami(date('Y-m-d'));
 			if($id_hub == 0 || $id_hub == 7){
 				$noSJ = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat LIKE '%/$tahun/LM' ORDER BY no_surat DESC LIMIT 1");
 				($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_surat,0,6);
 				$no_surat = str_pad($no+1, 6, "0", STR_PAD_LEFT).'/'.$tahun.'/LM';
 			}else{
 				$hub = $this->db->query("SELECT aka FROM m_hub WHERE id_hub='$id_hub'")->row();
+				if($jenis_lm == "PPI"){
+					$w_sj = '/'.$hub->aka.'/'.$tahun;
+					$w_hb = "AND p.id_hub='$id_hub'";
+				}
+				if($jenis_lm == "PEKALONGAN"){
+					$w_sj = '/PKL'.'/'.$romawi.'/'.$tahun;
+					$w_hb = "";
+				}
 				$noSJ = $this->db->query("SELECT l.no_surat,p.id_hub,r.*,b.aka FROM m_rk_laminasi rk
 				INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
 				INNER JOIN trs_po_lm_detail dtl ON rk.id_po_dtl=dtl.id
 				INNER JOIN trs_po_lm p ON p.id=rk.id_po_lm
 				INNER JOIN m_no_rek_lam r ON r.id_hub=p.id_hub
 				LEFT JOIN m_hub b ON r.id_hub=b.id_hub
-				WHERE l.no_surat LIKE '%/$hub->aka/$tahun' AND p.id_hub='$id_hub' ORDER BY l.no_surat DESC LIMIT 1");
+				WHERE l.no_surat LIKE '%$w_sj' $w_hb ORDER BY l.no_surat DESC LIMIT 1");
 				if($noSJ->num_rows() == 0){
 					$no = 0;
 					$aka = $hub->aka;
 				}else{
-					$no = substr($noSJ->row()->no_surat,3,3);
+					($jenis_lm == "PEKALONGAN") ? $no = substr($noSJ->row()->no_surat,0,3) : $no = substr($noSJ->row()->no_surat,3,3);
 					$aka = $noSJ->row()->aka;
 				}
-				$no_surat = 'LM/'.str_pad($no+1, 3, "0", STR_PAD_LEFT).'/'.$aka.'/'.$tahun;
+				if($jenis_lm == "PPI"){
+					$no_surat = 'LM/'.str_pad($no+1, 3, "0", STR_PAD_LEFT).'/'.$aka.'/'.$tahun;
+				}
+				if($jenis_lm == "PEKALONGAN"){
+					$no_surat = str_pad($no+1, 3, "0", STR_PAD_LEFT).'/PKL'.'/'.$romawi.'/'.$tahun;
+				}
 			}
 			// UPDATE RK URUT
-			$cekUrut = $this->db->query("SELECT*FROM m_rk_laminasi WHERE rk_tgl='$tgl' GROUP BY rk_urut DESC LIMIT 1");
-			($cekUrut->num_rows() == 0) ? $rk_urut = 1 : $rk_urut = $cekUrut->row()->rk_urut + 1;
+			$cekUrut = $this->db->query("SELECT*FROM m_rk_laminasi rk INNER JOIN trs_po_lm p ON p.id=rk.id_po_lm WHERE rk.rk_tgl='$tgl' AND p.jenis_lm='$jenis_lm' GROUP BY rk.rk_urut DESC LIMIT 1");
+			if($jenis_lm == "PPI"){
+				($cekUrut->num_rows() == 0) ? $rk_urut = 1 : $rk_urut = $cekUrut->row()->rk_urut + 1;
+			}
+			if($jenis_lm == "PEKALONGAN"){
+				($cekUrut->num_rows() == 0) ? $rk_urut = 100 : $rk_urut = $cekUrut->row()->rk_urut + 1;
+			}
 			// INSERT KE PACKING LIST
 			$no_po = $this->db->query("SELECT rk.* FROM m_rk_laminasi rk
 			INNER JOIN trs_po_lm p ON p.id=rk.id_po_lm
@@ -1338,13 +1358,27 @@ class M_logistik extends CI_Model
 		$pilihan_bank = $_POST["pilihan_bank"];
 		$statusInput = $_POST["statusInput"];
 
-		$tahun = substr($tgl_sj,2,2);
-		$noSJ = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE no_invoice LIKE '%$tahun%' ORDER BY no_invoice DESC LIMIT 1");
-		($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 4, 6);
-		$no_invoice = 'INV/'.str_pad($no+1, 6, "0", STR_PAD_LEFT).'/'.$tahun.'/LM';
+		// QUERY UTAMA
+		$q = $this->db->query("SELECT l.no_surat,po.jenis_lm FROM m_rk_laminasi rk
+		INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
+		INNER JOIN trs_po_lm po ON rk.id_po_lm=po.id
+		WHERE l.no_surat='$no_surat_jalan'
+		GROUP BY l.no_surat")->row();
 
-		($statusInput == 'insert') ? $no_inv = $_POST["no_invoice"] : $no_inv = substr($_POST["no_invoice"], 4, 6);
-		if($no_inv == 000000 || $no_inv == '000000' || $no_inv == '' || $no_inv < 0 || strlen("'.$no_inv.'") < 6){
+		$tahun = substr($tgl_sj,2,2);
+		$noSJ = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE no_invoice LIKE '%$tahun%' AND jenis_lm='$q->jenis_lm' ORDER BY no_invoice DESC LIMIT 1");
+		if($q->jenis_lm == "PEKALONGAN"){
+			($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 8, 3);
+			$no_invoice = 'INV-PKL/'.str_pad($no+1, 3, "0", STR_PAD_LEFT).'/'.$tahun;
+			($statusInput == 'insert') ? $no_inv = $_POST["no_invoice"] : $no_inv = substr($_POST["no_invoice"], 8, 3);
+		}
+		if($q->jenis_lm == "PPI"){
+			($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 4, 6);
+			$no_invoice = 'INV/'.str_pad($no+1, 6, "0", STR_PAD_LEFT).'/'.$tahun.'/LM';
+			($statusInput == 'insert') ? $no_inv = $_POST["no_invoice"] : $no_inv = substr($_POST["no_invoice"], 4, 6);
+		}
+
+		if($no_inv == '' || $no_inv < 0 || (strlen("'.$no_inv.'") < 6 && $q->jenis_lm == "PPI")){
 			$data = false; $insert = false; $detail = false; $no_pl_inv = false;
 			$msg = 'NOMER INVOICE TIDAK BOLEH KOSONG!';
 		}else if($tgl_invoice == "" || $no_inv == "" || $tgl_jatuh_tempo == "" || $kepada == "" || $alamat == "" || $pilihan_bank == ""){
@@ -1357,6 +1391,7 @@ class M_logistik extends CI_Model
 					'tgl_surat_jalan' => $tgl_sj,
 					'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
 					'id_pelanggan_lm' => $id_pelanggan_lm,
+					'jenis_lm' => $q->jenis_lm,
 					'no_surat' => $no_surat_jalan,
 					'no_invoice' => $no_invoice,
 					'attn_lam_inv' => $kepada,
@@ -1370,13 +1405,14 @@ class M_logistik extends CI_Model
 				$insert = $this->db->insert('invoice_laminasi_header', $data);
 				
 				if($insert){
-					$isi = $this->db->query("SELECT rk.*,i.*,dtl.*,rk.id AS id_rk_lam FROM m_rk_laminasi rk
+					$p = $this->db->query("SELECT rk.*,i.*,dtl.*,rk.id AS id_rk_lam,po.jenis_lm FROM m_rk_laminasi rk
 					INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
+					INNER JOIN trs_po_lm po ON rk.id_po_lm=po.id
 					INNER JOIN trs_po_lm_detail dtl ON rk.id_po_dtl=dtl.id
 					INNER JOIN m_produk_lm i ON rk.id_m_produk_lm=i.id_produk_lm
 					WHERE l.no_surat='$no_surat_jalan'
 					ORDER BY rk.rk_no_po,i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm");
-					foreach($isi->result() as $r){
+					foreach($p->result() as $r){
 						if($r->jenis_qty_lm == 'pack'){
 							$qty = $r->pack_lm;
 						}else if($r->jenis_qty_lm == 'ikat'){
@@ -1384,7 +1420,7 @@ class M_logistik extends CI_Model
 						}else{
 							$qty = $r->kg_lm;
 						}
-						$total = ($qty * $r->qty_muat) * $r->harga_pori_lm;
+						($r->jenis_lm == "PEKALONGAN") ? $total = 0 : $total = ($qty * $r->qty_muat) * $r->harga_pori_lm;;
 						$this->db->set('id_rk_lm', $r->id_rk_lam);
 						$this->db->set('id_produk_lm', $r->id_produk_lm);
 						$this->db->set('id_po_dtl', $r->id_po_dtl);
@@ -1393,7 +1429,6 @@ class M_logistik extends CI_Model
 						$this->db->set('total', $total);
 						$detail = $this->db->insert('invoice_laminasi_detail');
 					}
-					// update no_pl_inv di pl laminasi
 					if($detail){
 						$this->db->set('no_pl_inv', 1);
 						$this->db->where('no_surat', $no_surat_jalan);
@@ -1407,7 +1442,6 @@ class M_logistik extends CI_Model
 					'tgl_jatuh_tempo' => $tgl_jatuh_tempo,
 					'attn_lam_inv' => $kepada,
 					'alamat_lam_inv' => $alamat,
-					// 'bank' => $pilihan_bank,
 					'edit_admin' => date('Y-m-d H:i:s'),
 				);
 				$this->db->where('id', $id_header);
@@ -1438,19 +1472,26 @@ class M_logistik extends CI_Model
 		}if($retur_qty > $qty_order){
 			$data = false; $data2 = false; $msg = 'QTY RETUR LEBIH DARI QTY ORDER!';
 		}else{
-			$r = $this->db->query("SELECT i.*,r.qty_muat,d.retur_qty,l.harga_pori_lm,d.total,d.no_invoice FROM invoice_laminasi_detail d
+			$r = $this->db->query("SELECT i.*,r.qty_muat,d.retur_qty,l.harga_pori_lm,d.total,d.no_invoice,d.harga_pkl FROM invoice_laminasi_detail d
 			INNER JOIN m_rk_laminasi r ON d.id_rk_lm=r.id
 			INNER JOIN m_produk_lm i ON d.id_produk_lm=i.id_produk_lm
 			INNER JOIN trs_po_lm_detail l ON d.id_po_dtl=l.id
 			WHERE d.id='$id_dtl'")->row();
-			if($r->jenis_qty_lm == 'pack'){
-				$qty = $r->pack_lm;
-			}else if($r->jenis_qty_lm == 'ikat'){
-				$qty = $r->ikat_lm;
-			}else{
-				$qty = $r->kg_lm;
+			if($r->jenis_lm == "PEKALONGAN"){
+				$qty = $r->ikat_x;
+				$harga = $r->harga_pkl;
 			}
-			$total = (($qty * $r->qty_muat) - $retur_qty) * $r->harga_pori_lm;
+			if($r->jenis_lm == "PPI"){
+				if($r->jenis_qty_lm == 'pack'){
+					$qty = $r->pack_lm;
+				}else if($r->jenis_qty_lm == 'ikat'){
+					$qty = $r->ikat_lm;
+				}else{
+					$qty = $r->kg_lm;
+				}
+				$harga = $r->harga_pori_lm;
+			}
+			$total = (($qty * $r->qty_muat) - $retur_qty) * $harga;
 			$this->db->set('retur_qty', ($retur_qty == "") ? 0 : $retur_qty);
 			$this->db->set('total', $total);
 			$this->db->where('id', $id_dtl);
@@ -1463,7 +1504,7 @@ class M_logistik extends CI_Model
 				($qDisc->num_rows() == 0) ? $disc = 0 : $disc = $qDisc->row()->disc;
 				$total_dtl = $d->total - $disc;
 				if($total_dtl < 0){
-					$total2 = ($qty * $r->qty_muat) * $r->harga_pori_lm;
+					$total2 = ($qty * $r->qty_muat) * $harga;
 					$this->db->set('retur_qty', 0);
 					$this->db->set('total', $total2);
 					$this->db->where('id', $id_dtl);
@@ -1479,6 +1520,32 @@ class M_logistik extends CI_Model
 		return [
 			'data' => $data,
 			'data2' => $data2,
+			'msg' => $msg,
+		];
+	}
+
+	function hargaInvLaminasi()
+	{
+		$id_dtl = $_POST["id_dtl"];
+		$harga = $_POST["harga"];
+
+		if($harga == 0 || $harga < 0){
+			$data = false; $msg = 'QTY RETUR TIDAK BOLEH KOSONG!';
+		}else{
+			$r = $this->db->query("SELECT i.*,r.qty_muat,d.retur_qty,l.harga_pori_lm,d.total,d.no_invoice FROM invoice_laminasi_detail d
+			INNER JOIN m_rk_laminasi r ON d.id_rk_lm=r.id
+			INNER JOIN m_produk_lm i ON d.id_produk_lm=i.id_produk_lm
+			INNER JOIN trs_po_lm_detail l ON d.id_po_dtl=l.id
+			WHERE d.id='$id_dtl'")->row();
+			$total = ($r->ikat_x * $r->qty_muat) * $harga;
+			$this->db->set('harga_pkl', $harga);
+			$this->db->set('total', $total);
+			$this->db->where('id', $id_dtl);
+			$data = $this->db->update('invoice_laminasi_detail');
+			$msg = 'OK!';
+		}
+		return [
+			'data' => $data,
 			'msg' => $msg,
 		];
 	}

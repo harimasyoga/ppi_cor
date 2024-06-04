@@ -594,7 +594,7 @@
 				(opsi == 'edit') ? prop = false : prop = true;
 				$("#tgl_invoice").val(data.header.tgl_invoice).prop('disabled', prop)
 				$("#tgl_sj").val(data.header.tgl_surat_jalan).prop('disabled', true)
-				$("#no_surat_jalan").html(`<option value="">${data.header.no_surat}</option>`).prop('disabled', true)
+				$("#no_surat_jalan").html(`<option value="${data.header.no_surat}">${data.header.no_surat}</option>`).prop('disabled', true)
 				$("#txt_no_invoice").val(data.header.no_invoice)
 				$("#no_invoice").val(data.header.no_invoice).prop('disabled', true)
 				$("#tgl_jatuh_tempo").val(data.header.tgl_jatuh_tempo).prop('disabled', prop)
@@ -729,6 +729,42 @@
 					editInvoiceLaminasi(id_header, 'edit')
 					swal.close()
 				}
+			}
+		})
+	}
+
+	function upHargainv(i)
+	{
+		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'})
+		let harga = $("#harga-"+i).val().split('.').join('');
+		(harga == 0 || harga < 0 || harga == '') ? $("#harga-"+i).val(0) : $("#harga-"+i).val(rupiah.format(harga));
+		console.log(harga)
+	}
+
+	function hargaInvLaminasi(id_dtl, id_header)
+	{
+		let harga = $("#harga-"+id_dtl).val().split('.').join('')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/hargaInvLaminasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_dtl, harga
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				// swal.close()
+				editInvoiceLaminasi(id_header, 'edit')
 			}
 		})
 	}
