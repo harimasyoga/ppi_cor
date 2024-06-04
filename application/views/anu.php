@@ -96,23 +96,23 @@
                                         <td width="20%" class="text-center"><strong>Jumlah</strong></td>
                                     </tr>
                                     <tr>
-                                        <td>eCommerce Business Hosting Server SG - simcorrppi.com (15/04/2024 - 14/04/2025) *</td>
+                                        <td>eCommerce Business Hosting Server SG - kemasansumberberkat.com (30/05/2024 - 29/05/2025) *</td>
                                         <td class="text-center">Rp. 1.550,000</td>
                                     </tr>
                                                                     <tr>
-                                        <td>Produk Tambahan (simcorrppi.com) - SSL Certificates - Geotrust True BusinessID (15/04/2024 - 14/04/2025)</td>
+                                        <td>Produk Tambahan (kemasansumberberkat.com) - SSL Certificates - Geotrust True BusinessID (30/05/2024 - 29/05/2025)</td>
                                         <td class="text-center">Rp. 1.273,000</td>
                                     </tr>
                                     <tr>
-                                        <td>Produk Tambahan (simcorrppi.com) - SSL Certificates - SSL Secure Site (15/04/2024 - 14/04/2025) *</td>
+                                        <td>Produk Tambahan (kemasansumberberkat.com) - SSL Certificates - SSL Secure Site (30/05/2024 - 29/05/2025) *</td>
                                         <td class="text-center">Rp. 620,000</td>
                                     </tr>
-                                                                    <tr>
-                                        <td>Produk Tambahan (simcorrppi.com) - SiteLock - Lite Fix (15/04/2024 - 14/04/2025) *</td>
+                                    <tr>
+                                        <td>Produk Tambahan (kemasansumberberkat.com) - SiteLock - Lite Fix (30/05/2024 - 29/05/2025) *</td>
                                         <td class="text-center">Rp. 550,000</td>
                                     </tr>
                                     <tr>
-                                        <td>Domain Registration - simcorrppi.com - 1 Tahun/s (15/04/2024 - 14/04/2025)<br />
+                                        <td>Domain Registration - kemasansumberberkat.com - 1 Tahun/s (30/05/2024 - 29/05/2025)<br />
                                         + DNS Management<br />
                                         + ID Protection *</td>
                                             <td class="text-center">Rp. 80,000</td>
