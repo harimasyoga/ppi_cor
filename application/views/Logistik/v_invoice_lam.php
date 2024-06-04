@@ -738,7 +738,6 @@
 		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'})
 		let harga = $("#harga-"+i).val().split('.').join('');
 		(harga == 0 || harga < 0 || harga == '') ? $("#harga-"+i).val(0) : $("#harga-"+i).val(rupiah.format(harga));
-		console.log(harga)
 	}
 
 	function hargaInvLaminasi(id_dtl, id_header)
@@ -762,7 +761,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				// swal.close()
 				editInvoiceLaminasi(id_header, 'edit')
 			}

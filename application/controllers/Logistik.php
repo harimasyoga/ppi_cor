@@ -2903,7 +2903,7 @@ class Logistik extends CI_Controller
 			// PPN + PPH
 			$ppn = $sumTotal * 0.11;
 			$pph23 = $sumTotal * 0.02;
-			$total = $sumTotal + $ppn + $pph23;
+			$total = ($sumTotal + $ppn) - $pph23;
 			$html .= '<tr>
 				<td style="border-top:2px solid #000;padding:6px 0;text-align:left;line-height:1.8;text-transform:uppercase" '.$csKet.' rowspan="4">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($total).'</i></b></td>
 				<td style="border-top:2px solid #000;padding:6px;text-align:left" colspan="3">Sub Total</td>
@@ -2918,7 +2918,7 @@ class Logistik extends CI_Controller
 			<tr>
 				<td style="border:0;padding:6px;text-align:left" colspan="3">Pph23</td>
 				<td style="border:0;padding:6px">Rp</td>
-				<td style="border:0;padding:6px 0;text-align:right">'.number_format($pph23, 0, ",", ".").'</td>
+				<td style="border:0;padding:6px 0;text-align:right">- '.number_format($pph23, 0, ",", ".").'</td>
 			</tr>
 			<tr>
 				<td style="border:0;padding:6px;text-align:left" colspan="3">Total</td>

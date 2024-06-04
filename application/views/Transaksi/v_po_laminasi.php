@@ -717,7 +717,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					toastr.success(`<b>BERHASIL ADD!</b>`)
 					$("#tgl").prop('disabled', true)
@@ -808,7 +807,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(statusInput == 'insert'){
 					if(data.insertPO == true && data.insertPOdtl == true){
 						kosong()
@@ -867,7 +865,6 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				statusInput = 'update'
 				$("#btn-header").html((opsi == 'edit') ? `<button type="button" class="btn btn-sm btn-info" onclick="editPOLaminasi(${id}, 0 ,'edit')"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>` : '')
 				$("#tgl").val(data.po_lm.tgl_lm)
@@ -1127,7 +1124,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.result){
 					kembaliListPOLaminasi()
 				}else{

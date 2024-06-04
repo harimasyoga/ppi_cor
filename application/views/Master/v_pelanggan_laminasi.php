@@ -166,7 +166,6 @@
 			type: "POST",
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				let htmlCust = ''
 				htmlCust += `<option value="">PILIH</option>`
 				data.forEach(loadCust)
@@ -211,7 +210,6 @@
 			}),
 			success: function(res) {
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					swal("BERHASIL DISIMPAN!", "", "success")
 					$("#modalForm").modal("hide");
@@ -252,8 +250,6 @@
 			data: ({ id }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
-
 				$("#idx").val(id)
 				$("#id_sales").val(data.pelanggan.id_sales).trigger('change')
 				$("#nm_pelanggan").val(data.pelanggan.nm_pelanggan_lm)
@@ -261,7 +257,6 @@
 				$("#alamat").val(data.pelanggan.alamat)
 				$("#alamat_kirim").val(data.pelanggan.alamat_kirim)
 				$("#no_telp").val(data.pelanggan.no_telp)
-
 				swal.close()
 			}
 		})
