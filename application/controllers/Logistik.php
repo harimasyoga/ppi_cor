@@ -2580,6 +2580,7 @@ class Logistik extends CI_Controller
 				$i++;
 				if($r->transaksi == "CORRUGATED"){
 					($r->kategori == "K_BOX") ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
+					$qty_muat = round($r->berat_bersih * $r->qty_muat);
 				}
 				if($r->transaksi == "LAMINASI"){
 					if($r->jenis_qty_lm == 'pack'){
@@ -2597,6 +2598,7 @@ class Logistik extends CI_Controller
 					}
 					($r->jenis_qty_lm == 'kg') ? $orderBal = round($qty * $r->rk_muat,2) : $orderBal = number_format($qty * $r->rk_muat,0,',','.');
 					($r->jenis_qty_lm == 'kg') ? $muat = $r->rk_muat : $muat = number_format($r->rk_muat,0,',','.');
+					$qty_muat = $r->qty_muat * 50;
 				}
 				$htmlItem .='<tr>
 					<td style="padding:6px;text-align:center">'.$i.'</td>
@@ -2641,7 +2643,9 @@ class Logistik extends CI_Controller
 						<table class="table" style="margin:0;border:0">';
 						if($r->transaksi == "CORRUGATED"){
 							$htmlItem .='<tr><td style="border:0;padding:6px;font-weight:bold">FLUTE</td></tr>
-							<tr><td style="border:0;padding:6px;font-weight:bold">SUBSTANCE</td></tr>';
+							<tr><td style="border:0;padding:6px;font-weight:bold">SUBSTANCE</td></tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">BB</td></tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">MUAT</td></tr>';
 						}
 						if($r->transaksi == "LAMINASI"){
 							$htmlItem .='<tr><td style="border:0;padding:6px;font-weight:bold">@BAL</td></tr>
@@ -2655,6 +2659,10 @@ class Logistik extends CI_Controller
 						<table class="table" style="margin:0;border:0">
 							<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>
 							<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>';
+							if($r->transaksi == "CORRUGATED"){
+								$htmlItem .='<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>
+								<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>';
+							}
 							if($r->transaksi == "LAMINASI"){
 								$htmlItem .='<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>
 								<tr><td style="border:0;padding:6px;font-weight:bold">:</td></tr>';
@@ -2665,7 +2673,9 @@ class Logistik extends CI_Controller
 						<table class="table" style="margin:0;border:0">';
 						if($r->transaksi == "CORRUGATED"){
 							$htmlItem .='<tr><td style="border:0;padding:6px">'.$r->flute.'</td></tr>
-							<tr><td style="border:0;padding:6px">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td></tr>';
+							<tr><td style="border:0;padding:6px">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td></tr>
+							<tr><td style="border:0;padding:6px">'.$r->berat_bersih.'</td></tr>
+							<tr><td style="border:0;padding:6px">'.number_format($r->qty_muat,0,",",".").'</td></tr>';
 						}
 						if($r->transaksi == "LAMINASI"){
 							$htmlItem .='<tr><td style="border:0;padding:6px">'.number_format($qty,0,",",".").' '.$ket.'</td></tr>
@@ -2675,7 +2685,7 @@ class Logistik extends CI_Controller
 						}
 						$htmlItem .='</table>
 					</td>
-					<td style="padding:6px;text-align:right">'.number_format($r->qty_muat,0,',','.').'</td>';
+					<td style="padding:6px;text-align:right">'.number_format($qty_muat,0,',','.').'</td>';
 					if($opsi == 'edit' && $header->acc_owner != 'Y'){
 						$eKeyUp = 'onkeyup="keyupHargaJasa('."'".$r->id_dtl."'".')"';
 						$eClick = 'onclick="editHargaJasa('."'".$r->id_dtl."'".')"';
@@ -2692,7 +2702,7 @@ class Logistik extends CI_Controller
 						$txtAksi = '<i class="fas fa-pen"></i>';
 					}
 					$htmlItem .='<td style="padding:6px;text-align:center">
-						<input type="hidden" id="tonase-'.$r->id_dtl.'" value="'.$r->qty_muat.'">
+						<input type="hidden" id="tonase-'.$r->id_dtl.'" value="'.$qty_muat.'">
 						<input type="text" id="harga-'.$r->id_dtl.'" class="form-control" autocomplete="off" style="padding:6px;color:#000;font-weight:bold;text-align:right" value="'.number_format($r->harga,0,',','.').'" '.$eKeyUp.'>
 					</td>
 					<td style="padding:6px;text-align:center">
@@ -2716,7 +2726,7 @@ class Logistik extends CI_Controller
 			if($opsi == 'edit' && $header->acc_owner == 'N'){
 				$htmlItem .='<tr>
 					<td style="padding:6px;text-align:right;font-weight:bold" colspan="13">
-						<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanInvJasa()"><i class="fas fa-save"></i> SIMPAN</button>
+						<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanInvJasa('."'".$opsi."'".')"><i class="fas fa-save"></i> SIMPAN</button>
 					</td>
 				</tr>';
 			}
@@ -2890,11 +2900,30 @@ class Logistik extends CI_Controller
 					</tr>';
 				}
 			}
+			// PPN + PPH
+			$ppn = $sumTotal * 0.11;
+			$pph23 = $sumTotal * 0.02;
+			$total = $sumTotal + $ppn + $pph23;
 			$html .= '<tr>
-				<td style="border-top:2px solid #000;padding:6px 0;text-align:left;line-height:1.8;text-transform:uppercase" '.$csKet.'>Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($sumTotal).'</i></b></td>
-				<td style="border-top:2px solid #000;padding:6px;text-align:left" colspan="3">Total</td>
+				<td style="border-top:2px solid #000;padding:6px 0;text-align:left;line-height:1.8;text-transform:uppercase" '.$csKet.' rowspan="4">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($total).'</i></b></td>
+				<td style="border-top:2px solid #000;padding:6px;text-align:left" colspan="3">Sub Total</td>
 				<td style="border-top:2px solid #000;padding:6px">Rp</td>
 				<td style="border-top:2px solid #000;padding:6px 0;text-align:right">'.number_format($sumTotal, 0, ",", ".").'</td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:6px;text-align:left" colspan="3">Ppn</td>
+				<td style="border:0;padding:6px">Rp</td>
+				<td style="border:0;padding:6px 0;text-align:right">'.number_format($ppn, 0, ",", ".").'</td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:6px;text-align:left" colspan="3">Pph23</td>
+				<td style="border:0;padding:6px">Rp</td>
+				<td style="border:0;padding:6px 0;text-align:right">'.number_format($pph23, 0, ",", ".").'</td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:6px;text-align:left" colspan="3">Total</td>
+				<td style="border:0;padding:6px">Rp</td>
+				<td style="border:0;padding:6px 0;text-align:right">'.number_format($total, 0, ",", ".").'</td>
 			</tr>';
 			$html .= '<tr>
 				<td style="border-bottom:2px solid #000" colspan="'.$cs.'"></td>
@@ -2934,7 +2963,7 @@ class Logistik extends CI_Controller
 		$ctk = date("Y-m-d H:i:s");
 		$this->db->query("UPDATE invoice_jasa_header SET tgl_cetak='$ctk' WHERE no_invoice='$no_invoice' ");
 		$judul = 'INVOICE JASA - '.$no_invoice;
-		$this->m_fungsi->newMpdf($judul, 'cetak', $html, 6, 7, 6, 7, 'P', 'A4', $judul.'.pdf');
+		$this->m_fungsi->newMpdf($judul, '', $html, 6, 7, 6, 7, 'P', 'A4', $judul.'.pdf');
 	}
 
 	//
@@ -4062,7 +4091,11 @@ class Logistik extends CI_Controller
 					$row[] = '<div class="text-center" style="color:#000;font-weight:bold">0</div>';
 					$lapPrint = '<button class="btn btn-sm btn-secondary" disabled><i class="fas fa-print"></i></button>';
 				}else{
-					$row[] = '<div class="text-right" style="font-weight:bold;color:#000">'.number_format($dtl->total,0,',','.').'</div>';
+					// PPN + PPH
+					$ppn = $dtl->total * 0.11;
+					$pph23 = $dtl->total * 0.02;
+					$total = $dtl->total + $ppn + $pph23;
+					$row[] = '<div class="text-right" style="font-weight:bold;color:#000">'.number_format($total,0,',','.').'</div>';
 					$lapPrint = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/cetakInvJasa?no_invoice=".$r->no_invoice."").'" title=""><i class="fas fa-print"></i></a>';
 				}
 
