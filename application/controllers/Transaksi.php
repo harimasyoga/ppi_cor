@@ -1648,7 +1648,11 @@ class Transaksi extends CI_Controller
 			}else if($this->session->userdata('level') == 'Owner'){
 				$where2 = "AND po.jenis_lm!='PEKALONGAN'";
 			}else if($this->session->userdata('level') == 'Laminasi' && $this->session->userdata('username') != 'usman'){
-				$where2 = "";
+				if($_POST["po"] == 'pengiriman'){
+					$where2 = "AND po.jenis_lm='PPI'";
+				}else{
+					$where2 = "";
+				}
 			}else{
 				$where2 = "AND (s.id_sales='9' OR s.nm_sales='Usman') AND po.jenis_lm='PEKALONGAN'";
 			}
