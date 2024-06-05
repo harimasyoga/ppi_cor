@@ -880,7 +880,7 @@ class Logistik extends CI_Controller
 						($r->jenis_qty_lm == 'kg') ? $uk = '' : $uk = $r->ukuran_lm.'. '.$r->isi_lm.'( LBR ). ';
 						$pc = $uk.$qty.$ket;
 						if($r->jenis_lm == "PEKALONGAN"){
-							$order_pack_lm = $r->pack_x * $muat;
+							$order_pack_lm = $r->pack_x * $r->qty_muat;
 							$order_sheet_lm = $order_pack_lm * $r->isi_lm;
 							$isi1 = '<td style="padding:6px;text-align:right">'.number_format($r->isi_lm,0,",",".").'</td>
 							<td style="padding:6px;text-align:right">'.number_format($r->pack_x,0,",",".").'</td>
@@ -1727,10 +1727,12 @@ class Logistik extends CI_Controller
 			$cs1 = 12; $cs2 = 13;
 			$kop1 = '<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">IKAT</th>
 			<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">PACK</th>';
+			$kop2 = '<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">ORDER PACK</th>';
 		}
 		if($header->jenis_lm == "PPI"){
 			$cs1 = 10; $cs2 = 11;
 			$kop1 = '';
+			$kop2 = '<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">ORDER</th>';
 		}
 		$htmlItem .='<table class="table table-bordered" style="margin:0">
 			<tr style="background:#f8f9fc">
@@ -1742,7 +1744,7 @@ class Logistik extends CI_Controller
 				'.$kop1.'
 				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">@BAL</th>
 				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">MUAT</th>
-				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">ORDER</th>
+				'.$kop2.'
 				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">RETUR</th>
 				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">HARGA</th>
 				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">TOTAL</th>
@@ -1770,7 +1772,8 @@ class Logistik extends CI_Controller
 					$retur = round($r->retur_qty);
 					$isi1 = '<td style="padding:6px;text-align:right">'.number_format($r->ikat_x,0,",",".").'</td>
 					<td style="padding:6px;text-align:right">'.number_format($r->pack_x,0,",",".").'</td>';
-					$orderBal = number_format($r->ikat_x * $r->qty_muat,0,',','.');
+					$orderBal = number_format($r->pack_x * $r->qty_muat,0,',','.');
+					// $order_pack_lm = $r->pack_x * $r->qty_muat;
 				}
 				if($header->jenis_lm == "PPI"){
 					$btnHarga = number_format($r->harga_pori_lm,0,",",".");
@@ -1976,7 +1979,7 @@ class Logistik extends CI_Controller
 			foreach($isi->result() as $r){
 				if($r->jenis_lm == "PEKALONGAN"){
 					$harga = $r->harga_pkl;
-					$qty = $r->ikat_x;
+					$qty = $r->pack_x;
 					$rr = number_format($r->retur_qty,0,',','.');
 				}
 				if($r->jenis_lm == "PPI"){
