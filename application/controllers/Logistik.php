@@ -477,7 +477,7 @@ class Logistik extends CI_Controller
 						if($po_lm->jenis_lm == 'PEKALONGAN'){
 							$order_pack_lm = $r->pack_x * $k->qty_muat;
 							$order_sheet_lm = $order_pack_lm * $r->isi_lm;
-							$isi1 = '<td style="padding:6px;border:0;text-align:right" colspan="7">'.$t_tgl.'</td>
+							$isi2 = '<td style="padding:6px;border:0;text-align:right" colspan="7">'.$t_tgl.'</td>
 							<td style="padding:6px;border:0;text-align:right">- '.number_format($order_sheet_lm,0,',','.').'</td>
 							<td style="padding:6px;border:0;text-align:right">- '.number_format($order_pack_lm,0,',','.').'</td>';
 							$ol = $order_sheet_lm;
@@ -485,14 +485,14 @@ class Logistik extends CI_Controller
 						}else{
 							($item->jenis_qty_lm == 'kg') ? $sheet = '-' : $sheet = '- '.number_format(($r->isi_lm * $qty) * $k->qty_muat,0,',','.');
 							($item->jenis_qty_lm == 'kg') ? $order = '- '.round($qty * $k->qty_muat,2) : $order = '- '.number_format($qty * $k->qty_muat,0,',','.');
-							$isi1 ='<td style="padding:6px;border:0;text-align:right" colspan="5">'.$t_tgl.'</td>
+							$isi2 ='<td style="padding:6px;border:0;text-align:right" colspan="5">'.$t_tgl.'</td>
 							<td style="padding:6px;border:0;text-align:right">'.$sheet.'</td>
 							<td style="padding:6px;border:0;text-align:right">'.$order.'</td>';
 							($item->jenis_qty_lm == 'kg') ? $ol = 0 : $ol = ($r->isi_lm * $qty) * $k->qty_muat;
 							($item->jenis_qty_lm == 'kg') ? $ob = round($qty * $k->qty_muat,2) : $ob = $qty * $k->qty_muat;
 						}
 						$html .= '<tr>
-							'.$isi1.'
+							'.$isi2.'
 							<td style="padding:6px;border:0;text-align:right">'.$muat.'</td>
 							<td style="padding:6px;border:0">
 								<button type="button" class="btn btn-xs" style="cursor:default'.$t_btn.'">'.$t_text.'</button>
@@ -735,7 +735,11 @@ class Logistik extends CI_Controller
 	{
 		$id = $_POST["id"];
 		$po_lm = $this->db->query("SELECT*FROM trs_po_lm po WHERE id='$id'")->row();
-		$this->db->set('status_kirim', 'Close');
+		if($this->session->userdata('username') != 'usman'){
+			$this->db->set('status_kirim', 'Close');
+		}else{
+			$this->db->set('status_pkl', 'Close');
+		}
 		$this->db->where('id', $_POST["id"]);
 		$data = $this->db->update('trs_po_lm');
 		echo json_encode([
@@ -2142,6 +2146,7 @@ class Logistik extends CI_Controller
 		$opsi = $_POST["opsi"];
 		if($opsi == 'laporan'){
 			$attn = $_POST["attn"];
+			$pilih = $_POST["pilih"];
 			$plh_cust = $_POST["plh_cust"];
 			$tgl1_lap = $_POST["tgl1_lap"];
 			$tgl2_lap = $_POST["tgl2_lap"];
@@ -2149,6 +2154,7 @@ class Logistik extends CI_Controller
 		}else{
 			$opsi = $_GET["opsi"];
 			$attn = $_GET["attn"];
+			$pilih = $_GET["pilih"];
 			$plh_cust = $_GET["plh_cust"];
 			$tgl1_lap = $_GET["tgl1_lap"];
 			$tgl2_lap = $_GET["tgl2_lap"];
@@ -2156,8 +2162,11 @@ class Logistik extends CI_Controller
 		}
 		($plh_cust == "") ? $wcust = '' : $wcust = "AND h.id_pelanggan_lm='$plh_cust'";
 		($attn != "") ? $wattn = "AND h.attn_lam_inv='$attn'" : $wattn = '';
-		($this->session->userdata('username') == 'usman') ? $where = "AND (s.id_sales='9' OR s.nm_sales='Usman') AND h.jenis_lm='PEKALONGAN'" : $where = '';
-
+		if($this->session->userdata('username') == 'usman'){
+			$where = "AND (s.id_sales='9' OR s.nm_sales='Usman') AND h.jenis_lm='PEKALONGAN'";
+		}else{
+			$where = "AND h.jenis_lm LIKE '%".$pilih."%'";
+		}
 		$html .= '<table style="width:100%;margin-top:25px;color:#000;border-collapse:collapse;vertical-align:tops;text-align:center;font-family:tahoma'.$sps.'">';
 		$header = $this->db->query("SELECT (SELECT COUNT(*) FROM invoice_laminasi_detail d WHERE h.no_surat=d.no_surat AND h.no_invoice=d.no_invoice) AS detail,h.* FROM invoice_laminasi_header h
 		INNER JOIN m_pelanggan_lm l ON h.id_pelanggan_lm=l.id_pelanggan_lm
@@ -2305,7 +2314,7 @@ class Logistik extends CI_Controller
 		if($opsi == 'laporan'){
 			echo json_encode([
 				'html' => $html,
-				'pdf' => ($header->num_rows() == 0) ? '' : '<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold;padding:8px 12px" href="'.base_url("Logistik/cariLaporanLaminasi?opsi=pdf&plh_cust=".$plh_cust."&attn=".$attn."&tgl1_lap=".$tgl1_lap."&tgl2_lap=".$tgl2_lap."").'"><i class="fas fa-file-pdf"></i> PDF</a>',
+				'pdf' => ($header->num_rows() == 0) ? '' : '<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold;padding:8px 12px" href="'.base_url("Logistik/cariLaporanLaminasi?opsi=pdf&plh_cust=".$plh_cust."&attn=".$attn."&tgl1_lap=".$tgl1_lap."&tgl2_lap=".$tgl2_lap."&pilih=".$pilih."").'"><i class="fas fa-file-pdf"></i> PDF</a>',
 			]);
 		}else{
 			$judul = 'PENJUALAN LAMINASI - '.$tgl1_lap.' - '.$tgl2_lap;
