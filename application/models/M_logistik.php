@@ -1673,6 +1673,49 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function bayarInvoiceLaminasi()
+	{
+		$id_header = $_POST["id_header"];
+		$tgl_bayar = $_POST["tgl_bayar"];
+		$input_bayar = $_POST["input_bayar"];
+
+		$header = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id_header'")->row();
+		if($input_bayar < 0 || $input_bayar == 0 || $input_bayar == ''){
+			$data = false; $bayar = false;
+			$msg = 'PEMBAYARAN TIDAK BOLEH KOSONG!';
+		}else if($tgl_bayar == ''){
+			$data = false; $bayar = false;
+			$msg = 'PILIH TANGGAL PEMBAYARAN!';
+		}else if($tgl_bayar < $header->tgl_invoice){
+			$data = false; $bayar = false;
+			$msg = 'TGL. BAYAR LEBIH KECIL DARI TGL. INVOICE!';
+		}else{
+			$data = [
+				'no_invoice' => $header->no_invoice,
+				'tgl_bayar' => $tgl_bayar,
+				'nominal_bayar' => $input_bayar,
+			];
+			$bayar = $this->db->insert('invoice_laminasi_bayar', $data);
+			$msg = 'OK!';
+		}
+
+		return [
+			'data' => $data,
+			'bayar' => $bayar,
+			'msg' => $msg,
+		];
+	}
+
+	function hapusBayarInvLam()
+	{
+		$id = $_POST["id"];
+		$this->db->where('id', $id);
+		$data = $this->db->delete('invoice_laminasi_bayar');
+		return [
+			'data' => $data,
+		];
+	}
+
 	//
 
 	function simpanInvJasa()

@@ -69,7 +69,6 @@
 							<div class="col-md-1"></div>
 						</div>
 					</div>
-
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">DIKIRIM KE</h3>
@@ -133,8 +132,6 @@
 						<div class="card-body" style="padding:6px">
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="list-item">LIST ITEM KOSONG</div>
-
-								<!-- DISCOUNT DAN POTONGAN -->
 								<div class="disc-potongan" style="display:none">
 									<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
 										<div class="col-md-1">*OPSI</div>
@@ -148,7 +145,6 @@
 										</div>
 										<div class="col-md-8"></div>
 									</div>
-
 									<div class="dcp-persen" style="display:none">
 										<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
 											<div class="col-md-1"></div>
@@ -223,12 +219,10 @@
 											<div class="col-md-8"></div>
 										</div>
 									</div>
-
 									<div class="card-body row" style="font-weight:bold;padding:0 6px 16px">
 										<div class="col-md-1"></div>
 										<div class="col-md-11">
 											<div class="btn-add-disc"></div>
-											<!-- <button type="button" class="btn btn-sm btn-success" style="font-weight:bold" onclick="addDisc()"><i class="fas fa-plus"></i> ADD</button> -->
 										</div>
 									</div>
 								</div>
@@ -238,7 +232,7 @@
 				</div>
 			</div>
 
-			<div class="row row-pembayaran">
+			<div class="row row-pembayaran" style="display:none">
 				<div class="col-md-12">
 					<div class="card card-primary card-outline">
 						<div class="card-header" style="padding:12px">
@@ -470,6 +464,9 @@
 		$(".dcp-hari").hide()
 		$(".dcp-rupiah").hide()
 		$(".dcp-ball").hide()
+
+		$(".row-pembayaran").hide()
+		$(".list-pembayaran").html("")
 		
 		$("#dcp_input_persen").val("")
 		$("#dcp_input_hari").val("")
@@ -713,9 +710,19 @@
 					}
 				}
 
-				$(".list-item").html(data.htmlItem)
 				// PEMBAYARAN
-				$(".list-pembayaran").html(data.htmlBayar)
+				if(data.header.acc_owner != 'Y'){
+					$(".row-item-invoice-laminasi").show()
+					$(".row-pembayaran").hide()
+					$(".list-item").html(data.htmlItem)
+					$(".list-pembayaran").html("")
+				}
+				if(data.header.acc_owner == 'Y'){
+					$(".row-item-invoice-laminasi").hide()
+					$(".row-pembayaran").show()
+					$(".list-item").html("")
+					$(".list-pembayaran").html(data.htmlBayar)
+				}
 
 				// DISCOUNT / POTONGAN
 				if(opsi == 'edit' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R') && (urlAuth == 'Admin' || urlAuth == 'Laminasi')){
@@ -1096,6 +1103,80 @@
 				}
 			})
 		});
+	}
+
+	function bayarInvoiceLaminasi(opsi)
+	{
+		let id_header = $("#h_id_header").val()
+		let h_bayar_inv = $("#h_bayar_inv").val()
+		let tgl_bayar = $("#tgl_bayar").val()
+		let input_bayar = $("#input_bayar").val().split('.').join('')
+		if(opsi == 'input'){
+			(input_bayar < 0 || input_bayar == '') ? input_bayar = 0 : input_bayar = input_bayar;
+			let hitung = input_bayar - h_bayar_inv;
+			let t_hitung = 0;
+			(hitung == 0 || parseInt(input_bayar) > parseInt(h_bayar_inv)) ? t_hitung = 0 : t_hitung = hitung;
+			(parseInt(input_bayar) > parseInt(h_bayar_inv)) ? input_bayar = h_bayar_inv : input_bayar = input_bayar;
+			$("#hasil_bayar").val(format_angka(t_hitung))
+			$("#input_bayar").val(format_angka(input_bayar))
+		}
+		if(opsi == 'button'){
+			$.ajax({
+				url: '<?php echo base_url('Logistik/bayarInvoiceLaminasi')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({
+					tgl_bayar, input_bayar, id_header
+				}),
+				success: function(res){
+					data = JSON.parse(res)
+					console.log(data)
+					if(data.bayar){
+						editInvoiceLaminasi(id_header, 'edit')
+					}else{
+						toastr.error(`<b>${data.msg}</b>`)
+						swal.close()
+					}
+				}
+			})
+		}
+	}
+
+	function hapusBayarInvLam(id) {
+		let id_header = $("#h_id_header").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/hapusBayarInvLam')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					editInvoiceLaminasi(id_header, 'edit')
+				}else{
+					toastr.error(`<b>Terjadi Kesalahan</b>`)
+					swal.close()
+				}
+			}
+		})
 	}
 
 	function laporanInvoice(opsi){

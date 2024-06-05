@@ -1712,6 +1712,18 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function bayarInvoiceLaminasi()
+	{
+		$result = $this->m_logistik->bayarInvoiceLaminasi();
+		echo json_encode($result);
+	}
+
+	function hapusBayarInvLam()
+	{
+		$result = $this->m_logistik->hapusBayarInvLam();
+		echo json_encode($result);
+	}
+
 	function editInvoiceLaminasi()
 	{
 		$id_header = $_POST["id_header"];
@@ -1867,26 +1879,66 @@ class Logistik extends CI_Controller
 			$htmlDisc;
 
 			// PEMBAYARAN
-			if($opsi == 'edit' && $header->acc_owner == 'Y'){
+			if($header->acc_owner == 'Y'){
 				$htmlItem .='<tr>
-					<td style="border:0;padding:6px;text-align:right;font-weight:bold" colspan="'.$cs1.'">PEMBAYARAN</td>
-				</tr>
-				<tr>
-					<td style="border:0;padding:6px" colspan="'.$cs0.'"></td>
-					<td style="border:0;padding:6px;text-align:right;font-weight:bold" colspan="2">
-						<input type="date" id="tgl_bayar" class="form-control select2" style="text-align:center">
-					</td>
-					<td style="border:0;padding:6px;text-align:right;font-weight:bold">
-						<input type="text" id="input_bayar" style="background:#eee;padding:8px 4px;width:150px;height:100%;text-align:right;border:0;border-radius:5px" placeholder="0" autocomplete="off">
-					</td>
+					<td style="background:#eee;border:0;padding:6px;text-align:right;font-weight:bold" colspan="'.$cs1.'">PEMBAYARAN</td>
+					<td style="background:#eee;border:0;padding:6px"></td>
 				</tr>';
 
-				$htmlItem .='<tr>
-					<td style="border:0;padding:6px" colspan="'.$cs1.'"></td>
-					<td style="border:0;padding:6px;text-align:right;font-weight:bold">
-						<input type="text" id="hasil_bayar" style="background:#eee;padding:8px 4px;width:150px;height:100%;text-align:right;border:0;border-radius:5px" placeholder="0" disabled>
-					</td>
-				</tr>';
+				$bayar = $this->db->query("SELECT*FROM invoice_laminasi_bayar WHERE no_invoice='$header->no_invoice' ORDER BY tgl_bayar");
+				$nominal_bayar = 0;
+				if($bayar->num_rows() > 0){
+					foreach($bayar->result() as $b){
+						if($opsi == 'edit' && $header->acc_owner == 'Y' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+							$btnByr = ' <button type="button" class="btn btn-xs btn-danger" style="padding:0 4px" onclick="hapusBayarInvLam('."'".$b->id."'".')"><i class="fas fa-times"></i></button>';
+						}else{
+							$btnByr = '';
+						}
+						$htmlItem .='<tr>
+							<td style="border:0;padding:6px;text-align:right;font-weight:bold" colspan="'.$cs1.'">'.$this->m_fungsi->getHariIni($b->tgl_bayar).', '.$this->m_fungsi->tglIndSkt(substr($b->tgl_bayar, 0,10)).$btnByr.'</td>
+							<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($b->nominal_bayar,0,',','.').'</td>
+						</tr>';
+						$nominal_bayar += $b->nominal_bayar;
+					}
+					if($bayar->num_rows() > 1){
+						$htmlItem .='<tr>
+							<td style="border:0;padding:6px;text-align:right;font-weight:bold" colspan="'.$cs1.'">Total Bayar</td>
+							<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($nominal_bayar,0,',','.').'</td>
+						</tr>';
+					}
+				}
+
+				($bayar->num_rows() == 0) ? $nominal = $fixTotal : $nominal = $fixTotal - $nominal_bayar;
+				($bayar->num_rows() == 0) ? $t_nominal = 0 : $t_nominal = $nominal_bayar - $fixTotal;
+				if($nominal != 0){
+					$htmlItem .='<tr>
+						<td style="border:0;padding:6px" colspan="'.$cs1.'"></td>
+						<td style="border:0;padding:6px;text-align:right;font-weight:bold">
+							<input type="text" id="hasil_bayar" style="background:#eee;padding:8px 4px;height:100%;text-align:right;border:0;font-weight:bold;color:#000;border-radius:5px" value="'.number_format($t_nominal,0,',','.').'" disabled>
+						</td>
+					</tr>';
+				}
+
+				if($opsi == 'edit' && $header->acc_owner == 'Y' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+					if($nominal != 0){
+						$htmlItem .='<tr>
+							<td style="border:0;padding:6px" colspan="'.$cs0.'"></td>
+							<td style="border:0;padding:6px;text-align:right;font-weight:bold" colspan="2">
+								<input type="date" id="tgl_bayar" class="form-control select2" style="text-align:center">
+							</td>
+							<td style="border:0;padding:6px;text-align:right;font-weight:bold">
+								<input type="hidden" id="h_bayar_inv" value="'.$nominal.'">
+								<input type="text" id="input_bayar" style="background:#eee;padding:8px 4px;height:100%;text-align:right;border:0;font-weight:bold;color:#000;border-radius:5px" placeholder="0" autocomplete="off" onkeyup="bayarInvoiceLaminasi('."'input'".')">
+							</td>
+						</tr>
+						<tr>
+							<td style="border:0;padding:6px" colspan="'.$cs1.'"></td>
+							<td style="border:0;padding:6px;text-align:right;font-weight:bold">
+								<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="bayarInvoiceLaminasi('."'button'".')"><i class="fas fa-money-bill-wave" style="margin-right:3px"></i> BAYAR</button>
+							</td>
+						</tr>';
+					}
+				}
 			}
 			
 			// SIMPAN
