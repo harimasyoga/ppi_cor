@@ -1478,7 +1478,7 @@ class M_logistik extends CI_Model
 			INNER JOIN trs_po_lm_detail l ON d.id_po_dtl=l.id
 			WHERE d.id='$id_dtl'")->row();
 			if($r->jenis_lm == "PEKALONGAN"){
-				$qty = $r->ikat_x;
+				$qty = $r->pack_x;
 				$harga = $r->harga_pkl;
 			}
 			if($r->jenis_lm == "PPI"){
@@ -1537,7 +1537,7 @@ class M_logistik extends CI_Model
 			INNER JOIN m_produk_lm i ON d.id_produk_lm=i.id_produk_lm
 			INNER JOIN trs_po_lm_detail l ON d.id_po_dtl=l.id
 			WHERE d.id='$id_dtl'")->row();
-			$total = ($r->ikat_x * $r->qty_muat) * $harga;
+			$total = ($r->pack_x * $r->qty_muat) * $harga;
 			$this->db->set('harga_pkl', $harga);
 			$this->db->set('total', $total);
 			$this->db->where('id', $id_dtl);

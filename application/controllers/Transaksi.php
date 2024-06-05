@@ -1864,7 +1864,11 @@ class Transaksi extends CI_Controller
 						$kg = ' ( KG )';
 					}else{
 						$isi = number_format($r->isi_lm,0,',','.');
-						($r->jenis_qty_lm == 'pack') ? $kg = '' : $kg = ' ( IKAT )';
+						if($po_lm->jenis_lm == "PEKALONGAN"){
+							$kg = ' ( PACK )';
+						}else{
+							($r->jenis_qty_lm == 'pack') ? $kg = '' : $kg = ' ( IKAT )';
+						}
 					}
 					if($opsi == 'acc'){
 						$html .='<tr>
