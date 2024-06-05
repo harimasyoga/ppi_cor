@@ -1636,21 +1636,27 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_po_laminasi") {
-			if($this->session->userdata('level') == 'Admin'){
-				$where = "";
-			}else if($this->session->userdata('level') == 'Owner'){
-				$where = "AND po.jenis_lm!='PEKALONGAN'";
-			}else if($this->session->userdata('level') == 'Laminasi' && $this->session->userdata('username') != 'usman'){
-				$where = "";
+			if($_POST["po"] == 'pengiriman' && $this->session->userdata('username') != 'usman'){
+				$where1 = "po.status_lm='Approve' AND po.status_kirim='Open'";
+			}else if($_POST["po"] == 'pengiriman' && $this->session->userdata('username') == 'usman'){
+				$where1 = "po.status_lm='Approve' AND po.status_pkl='Open'";
 			}else{
-				$where = "AND (s.id_sales='9' OR s.nm_sales='Usman') AND po.jenis_lm='PEKALONGAN'";
+				$where1 = "po.status_lm LIKE '%%'";
 			}
-			($_POST["po"] == 'pengiriman' && $this->session->userdata('username') != 'usman') ? $stats = "po.status_lm='Approve' AND po.status_kirim='Open'" : $stats = "po.status_lm='Approve' AND po.status_pkl='Open'";
+			if($this->session->userdata('level') == 'Admin'){
+				$where2 = "";
+			}else if($this->session->userdata('level') == 'Owner'){
+				$where2 = "AND po.jenis_lm!='PEKALONGAN'";
+			}else if($this->session->userdata('level') == 'Laminasi' && $this->session->userdata('username') != 'usman'){
+				$where2 = "";
+			}else{
+				$where2 = "AND (s.id_sales='9' OR s.nm_sales='Usman') AND po.jenis_lm='PEKALONGAN'";
+			}
 			($_POST["po"] == 'pengiriman') ? $order = "ORDER BY po.tgl_lm DESC,pl.nm_pelanggan_lm,po.no_po_lm" : $order = "ORDER BY po.tgl_lm DESC,po.no_po_lm";
 			$query = $this->db->query("SELECT po.*,pl.nm_pelanggan_lm FROM trs_po_lm po
 			INNER JOIN m_pelanggan_lm pl ON po.id_pelanggan=pl.id_pelanggan_lm
 			INNER JOIN m_sales s ON po.id_sales=s.id_sales
-			WHERE $stats $where
+			WHERE $where1 $where2
 			$order")->result();
 			$i = 0;
 			foreach ($query as $r) {
