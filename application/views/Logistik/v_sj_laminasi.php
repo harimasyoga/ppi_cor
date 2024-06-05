@@ -478,7 +478,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.total_items == 0){
 					toastr.error(`<b>${data.isi}</b>`)
 					$(".row-input-rk").hide()

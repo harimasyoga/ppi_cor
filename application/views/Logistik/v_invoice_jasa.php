@@ -311,7 +311,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$("#no_surat_jalan").html(data.htmlSJ).prop('disabled', (data.numRows == 0) ? true : false)
 				swal.close()
 			}
@@ -325,16 +324,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/pilihSJInvJasa')?>',
 			type: "POST",
-			// beforeSend: function() {
-			// 	swal({
-			// 		title: 'Loading',
-			// 		allowEscapeKey: false,
-			// 		allowOutsideClick: false,
-			// 		onOpen: () => {
-			// 			swal.showLoading();
-			// 		}
-			// 	});
-			// },
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				pilih_transaksi, no_surat
 			}),
@@ -346,7 +345,7 @@
 				$("#kepada").val(data.kepada)
 				$("#alamat").val(data.alamat)
 				$(".list-item").html(data.htmlItem)
-				// swal.close()
+				swal.close()
 			}
 		})
 	}
@@ -381,7 +380,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.insert){
 					toastr.success(`<b>BERHASIL!</b>`)
 					kembali()
@@ -416,10 +414,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
-
 				$("#h_id_header").val(id_header)
-				
 				let prop = true;
 				(opsi == 'edit') ? prop = false : prop = true;
 				$("#tgl_invoice").val(data.header.tgl_invoice).prop('disabled', prop)
@@ -510,9 +505,7 @@
 						`)
 					}
 				}
-
 				$(".list-item").html(data.htmlItem)
-
 				statusInput = 'update'
 				swal.close()
 			}
@@ -551,7 +544,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					editInvoiceJasa(id_header, 'edit')
 				}else{
@@ -625,7 +617,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log()
 				if(data.result){
 					kembali()
 				}else{
@@ -661,7 +652,6 @@
 				data: ({ id }),
 				success: function(res){
 					data = JSON.parse(res)
-					// console.log(data)
 					if(data.no_pl_jasa){
 						kosong()
 						reloadTable()

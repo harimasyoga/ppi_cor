@@ -296,6 +296,24 @@
 							<div style="overflow:auto;white-space:nowrap">
 								<table style="font-weight:bold">
 									<tr>
+										<td style="padding:6px 0">PILIH</td>
+										<td style="padding:6px 10px">:</td>
+										<td style="padding:6px 0" colspan="3">
+											<select id="plh-lap-lap" class="form-control select2">
+												<?php
+													if($this->session->userdata('username') == 'usman'){
+														$html .='<option value="PEKALONGAN">PEKALONGAN</option>';
+													}else{
+														$html .='<option value="">SEMUA</option>
+														<option value="PPI">PPI</option>
+														<option value="PEKALONGAN">PEKALONGAN</option>';
+													}
+													echo $html;
+												?>
+											</select>
+										</td>
+									</tr>
+									<tr>
 										<td style="padding:6px 0">CUSTOMER</td>
 										<td style="padding:6px 10px">:</td>
 										<td style="padding:6px 0" colspan="3">
@@ -324,11 +342,11 @@
 										<td>TANGGAL SURAT JALAN</td>
 										<td style="padding:0 10px">:</td>
 										<td>
-											<input type="date" id="tgl1_lap" class="form-control">
+											<input type="date" id="tgl1_lap" class="form-control" value="<?= date("Y-m-d")?>">
 										</td>
 										<td style="padding:0 10px">S/D</td>
 										<td>
-											<input type="date" id="tgl2_lap" class="form-control">
+											<input type="date" id="tgl2_lap" class="form-control" value="<?= date("Y-m-d")?>">
 										</td>
 										<td style="padding-left:10px">
 											<button type="button" class="btn btn-primary" onclick="cariLaporanLaminasi('laporan')"><i class="fas fa-search"></i></button>
@@ -738,7 +756,6 @@
 		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'})
 		let harga = $("#harga-"+i).val().split('.').join('');
 		(harga == 0 || harga < 0 || harga == '') ? $("#harga-"+i).val(0) : $("#harga-"+i).val(rupiah.format(harga));
-		console.log(harga)
 	}
 
 	function hargaInvLaminasi(id_dtl, id_header)
@@ -762,7 +779,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				// swal.close()
 				editInvoiceLaminasi(id_header, 'edit')
 			}
@@ -1066,9 +1082,10 @@
 	}
 
 	function laporanInvoice(opsi){
+		if(urlUser != 'usman'){
+			$("#plh-lap-lap").val("").trigger('change')
+		}
 		$("#plh-lap-cust").val("").trigger('change')
-		$("#tgl1_lap").val("")
-		$("#tgl2_lap").val("")
 		$(".btn-print-lap-lam-pdf").html("")
 		$(".cari-lap-laminasi").html("")
 		if(opsi == 'laporan'){
@@ -1083,6 +1100,7 @@
 	function cariLaporanLaminasi(opsi) {
 		$(".btn-print-lap-lam-pdf").html("")
 		$(".cari-lap-laminasi").html("")
+		let pilih = $("#plh-lap-lap").val()
 		let attn = $('#plh-lap-cust option:selected').attr('attn')
 		let plh_cust = $("#plh-lap-cust").val()
 		let tgl1_lap = $("#tgl1_lap").val()
@@ -1101,7 +1119,7 @@
 				});
 			},
 			data: ({
-				opsi, plh_cust, tgl1_lap, tgl2_lap, attn
+				opsi, pilih, plh_cust, tgl1_lap, tgl2_lap, attn
 			}),
 			success: function(res){
 				data = JSON.parse(res)
