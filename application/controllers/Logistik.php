@@ -1717,6 +1717,7 @@ class Logistik extends CI_Controller
 		$id_header = $_POST["id_header"];
 		$opsi = $_POST["opsi"];
 		$htmlItem = '';
+		$htmlBayar = '';
 
 		$header = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id_header'")->row();
 		// BANK
@@ -1724,13 +1725,13 @@ class Logistik extends CI_Controller
 		$pilihanBank = '<option value="'.$bank->row()->bank.'">'.$bank->row()->an_bank.'</option>';
 
 		if($header->jenis_lm == "PEKALONGAN"){
-			$cs1 = 12; $cs2 = 13;
+			$cs0 = 10; $cs1 = 12; $cs2 = 13;
 			$kop1 = '<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">IKAT</th>
 			<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">PACK</th>';
 			$kop2 = '<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">ORDER PACK</th>';
 		}
 		if($header->jenis_lm == "PPI"){
-			$cs1 = 10; $cs2 = 11;
+			$cs0 = 8; $cs1 = 10; $cs2 = 11;
 			$kop1 = '';
 			$kop2 = '<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">ORDER</th>';
 		}
@@ -1864,6 +1865,29 @@ class Logistik extends CI_Controller
 				</td>
 			</tr>'.
 			$htmlDisc;
+
+			// PEMBAYARAN
+			if($opsi == 'edit' && $header->acc_owner == 'Y'){
+				$htmlItem .='<tr>
+					<td style="border:0;padding:6px;text-align:right;font-weight:bold" colspan="'.$cs1.'">PEMBAYARAN</td>
+				</tr>
+				<tr>
+					<td style="border:0;padding:6px" colspan="'.$cs0.'"></td>
+					<td style="border:0;padding:6px;text-align:right;font-weight:bold" colspan="2">
+						<input type="date" id="tgl_bayar" class="form-control select2" style="text-align:center">
+					</td>
+					<td style="border:0;padding:6px;text-align:right;font-weight:bold">
+						<input type="text" id="input_bayar" style="background:#eee;padding:8px 4px;width:150px;height:100%;text-align:right;border:0;border-radius:5px" placeholder="0" autocomplete="off">
+					</td>
+				</tr>';
+
+				$htmlItem .='<tr>
+					<td style="border:0;padding:6px" colspan="'.$cs1.'"></td>
+					<td style="border:0;padding:6px;text-align:right;font-weight:bold">
+						<input type="text" id="hasil_bayar" style="background:#eee;padding:8px 4px;width:150px;height:100%;text-align:right;border:0;border-radius:5px" placeholder="0" disabled>
+					</td>
+				</tr>';
+			}
 			
 			// SIMPAN
 			if($opsi == 'edit' && $header->acc_owner == 'N'){
@@ -1875,12 +1899,30 @@ class Logistik extends CI_Controller
 			}
 		$htmlItem .='</table>';
 
+		// PEMBAYARAN
+		$htmlBayar .= '<table style="margin:0">
+			<tr>
+				<td style="padding:6px">STATUS JT</td>
+				<td style="padding:6px;font-weight:bold">JATUH TEMPO / CASH</td>
+			</tr>
+			<tr>
+				<td style="padding:6px">TGL. JT</td>
+				<td style="padding:6px;font-weight:bold">CASH / 1 JUNI 2024</td>
+			</tr>
+			<tr>
+				<td style="padding:6px">TENGGAT</td>
+				<td style="padding:6px;font-weight:bold">CASH / - 7 HARI</td>
+			</tr>';
+		$htmlBayar .='</table>';
+		$htmlBayar .= $htmlItem;
+
 		echo json_encode([
 			'header' => $header,
 			'no_invoice' => substr($header->no_invoice, 4, 6),
 			'oke_admin' => substr($this->m_fungsi->getHariIni(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin),0,3).', '.$this->m_fungsi->tglIndSkt(substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 0,10)).' ( '.substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 10,6).' )',
 			'time_owner' => ($header->time_owner == null) ? '' :substr($this->m_fungsi->getHariIni($header->time_owner),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->time_owner, 0,10)).' ( '.substr($header->time_owner, 10,6).' )',
 			'htmlItem' => $htmlItem,
+			'htmlBayar' => $htmlBayar,
 			'htmlBank' => $pilihanBank,
 		]);
 	}

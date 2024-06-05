@@ -238,6 +238,21 @@
 				</div>
 			</div>
 
+			<div class="row row-pembayaran">
+				<div class="col-md-12">
+					<div class="card card-primary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">PEMBAYARAN</h3>
+						</div>
+						<div class="card-body" style="padding:6px">
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="list-pembayaran"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div class="row row-list-invoice-laminasi">
 				<div class="col-md-12 col-list-laminasi">
 					<div class="card shadow mb-3">
@@ -699,6 +714,8 @@
 				}
 
 				$(".list-item").html(data.htmlItem)
+				// PEMBAYARAN
+				$(".list-pembayaran").html(data.htmlBayar)
 
 				// DISCOUNT / POTONGAN
 				if(opsi == 'edit' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R') && (urlAuth == 'Admin' || urlAuth == 'Laminasi')){
