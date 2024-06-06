@@ -272,9 +272,11 @@
 											<th style="padding:12px;text-align:center">NO.</th>
 											<th style="padding:12px;text-align:center">DESKRIPSI</th>
 											<th style="padding:12px;text-align:center">JATUH TEMPO</th>
+											<th style="padding:12px;text-align:center">BATAS WAKTU</th>
+											<th style="padding:12px;text-align:center">PEMBAYARAN</th>
+											<th style="padding:12px;text-align:center">TOTAL</th>
 											<th style="padding:12px;text-align:center">ADMIN</th>
 											<th style="padding:12px;text-align:center">OWNER</th>
-											<th style="padding:12px;text-align:center">TOTAL</th>
 											<th style="padding:12px;text-align:center">CETAK</th>
 											<th style="padding:12px;text-align:center">AKSI</th>
 										</tr>
@@ -329,7 +331,7 @@
 											<select id="plh-lap-cust" class="form-control select2">
 												<?php
 													if($this->session->userdata('username') == 'usman'){
-														$where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'";
+														$where = "WHERE (s.id_sales='9' OR s.nm_sales='Usman') AND h.jenis_lm='PEKALONGAN'";
 													}else{
 														$where = '';
 													}
@@ -1166,7 +1168,9 @@
 					}
 				});
 			},
-			data: ({ id }),
+			data: ({
+				id, id_header
+			}),
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){

@@ -71,7 +71,11 @@ class Logistik extends CI_Controller
 			'judul' => "Invoice Laminasi",
 		);
 		$this->load->view('header', $data);
-		$this->load->view('Logistik/v_invoice_lam');
+		if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Owner'])){
+			$this->load->view('Logistik/v_invoice_lam');
+		}else{
+			$this->load->view('home');
+		}
 		$this->load->view('footer');
 	}
 
@@ -1735,6 +1739,8 @@ class Logistik extends CI_Controller
 		// BANK
 		$bank = $this->db->query("SELECT*FROM invoice_laminasi_header h INNER JOIN m_no_rek_lam r ON r.id_hub=h.bank WHERE h.id='$id_header'");
 		$pilihanBank = '<option value="'.$bank->row()->bank.'">'.$bank->row()->an_bank.'</option>';
+		// BAYAR
+		$bayar = $this->db->query("SELECT*FROM invoice_laminasi_bayar WHERE no_invoice='$header->no_invoice' ORDER BY tgl_bayar");
 
 		if($header->jenis_lm == "PEKALONGAN"){
 			$cs0 = 10; $cs1 = 12; $cs2 = 13;
@@ -1771,15 +1777,29 @@ class Logistik extends CI_Controller
 			$i = 0;
 			$sumTotal = 0;
 			foreach($isi->result() as $r){
+				$i_btnRtr = 'onchange="returInvLaminasi('."'".$r->id_dtl."'".','."'".$id_header."'".')"';
+				$i_editHarga = 'onchange="hargaInvLaminasi('."'".$r->id_dtl."'".','."'".$id_header."'".')" onkeyup="upHargainv('."'".$r->id_dtl."'".')"';
 				if($opsi == 'edit' && $header->acc_owner != 'Y' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
-					$btnRtr = 'onchange="returInvLaminasi('."'".$r->id_dtl."'".','."'".$id_header."'".')"';
-					$editHarga = 'onchange="hargaInvLaminasi('."'".$r->id_dtl."'".','."'".$id_header."'".')" onkeyup="upHargainv('."'".$r->id_dtl."'".')"';
+					$btnRtr = $i_btnRtr;
+					$editHarga = $i_editHarga;
+					$f_b = '';
+				}else if($opsi == 'edit' && $header->acc_owner == 'Y' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+					if($bayar->num_rows() == 0){
+						$btnRtr = $i_btnRtr;
+						$editHarga = $i_editHarga;
+						$f_b = '';
+					}else{
+						$btnRtr = 'disabled';
+						$editHarga = 'disabled';
+						$f_b = ';color:#000;font-weight:bold';
+					}
 				}else{
 					$btnRtr = 'disabled';
 					$editHarga = 'disabled';
+					$f_b = ';color:#000;font-weight:bold';
 				}
 				if($header->jenis_lm == "PEKALONGAN"){
-					$btnHarga = '<input type="number" id="harga-'.$r->id_dtl.'" style="margin-right:3px;padding:3px;width:80px;height:100%;text-align:right;border:0" value="'.number_format($r->harga_pkl,0,',','.').'" '.$editHarga.'>';
+					$btnHarga = '<input type="number" id="harga-'.$r->id_dtl.'" style="background:#eee;margin-right:3px;padding:3px;width:80px;height:100%;text-align:right;border:0'.$f_b.'" value="'.number_format($r->harga_pkl,0,',','.').'" '.$editHarga.'>';
 					$ket = '';
 					$qty = $r->ikat_lm;
 					$retur = round($r->retur_qty);
@@ -1821,7 +1841,7 @@ class Logistik extends CI_Controller
 					<td style="padding:6px;text-align:right">'.$orderBal.$ket.'</td>
 					<td style="padding:6px;text-align:right">
 						<input type="hidden" id="h_qty_order-'.$r->id_dtl.'" value="'.$orderBal.'">
-						<input type="number" id="retur-'.$r->id_dtl.'" style="margin-right:3px;padding:3px;width:80px;height:100%;text-align:right;border:0" value="'.$retur.'" '.$btnRtr.'>
+						<input type="number" id="retur-'.$r->id_dtl.'" style="background:#eee;margin-right:3px;padding:3px;width:80px;height:100%;text-align:right;border:0'.$f_b.'" value="'.$retur.'" '.$btnRtr.'>
 					</td>
 					<td style="padding:6px;text-align:right">'.$btnHarga.'</td>
 					<td style="padding:6px;text-align:right">'.number_format($total,0,",",".").'</td>
@@ -1880,17 +1900,29 @@ class Logistik extends CI_Controller
 
 			// PEMBAYARAN
 			if($header->acc_owner == 'Y'){
-				$htmlItem .='<tr>
-					<td style="background:#eee;border:0;padding:6px;text-align:right;font-weight:bold" colspan="'.$cs1.'">PEMBAYARAN</td>
-					<td style="background:#eee;border:0;padding:6px"></td>
-				</tr>';
-
-				$bayar = $this->db->query("SELECT*FROM invoice_laminasi_bayar WHERE no_invoice='$header->no_invoice' ORDER BY tgl_bayar");
+				($header->jenis_lm == "PEKALONGAN") ? $cTotal = "AND d.harga_pkl='0'" : $cTotal = "AND d.total='0'";
+				$cekHarga = $this->db->query("SELECT SUM(total) AS total FROM invoice_laminasi_detail d
+				INNER JOIN invoice_laminasi_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
+				WHERE d.no_invoice='$header->no_invoice' $cTotal
+				GROUP BY d.no_invoice");
+				if($cekHarga->num_rows() == 0){
+					$htmlItem .='<tr>
+						<td style="background:#eee;border:0;padding:6px;text-align:right;font-weight:bold" colspan="'.$cs1.'">PEMBAYARAN</td>
+						<td style="background:#eee;border:0;padding:6px"></td>
+					</tr>';
+				}
 				$nominal_bayar = 0;
 				if($bayar->num_rows() > 0){
 					foreach($bayar->result() as $b){
 						if($opsi == 'edit' && $header->acc_owner == 'Y' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
-							$btnByr = ' <button type="button" class="btn btn-xs btn-danger" style="padding:0 4px" onclick="hapusBayarInvLam('."'".$b->id."'".')"><i class="fas fa-times"></i></button>';
+							$btnHH = ' <button type="button" class="btn btn-xs btn-danger" style="padding:0 4px" onclick="hapusBayarInvLam('."'".$b->id."'".')"><i class="fas fa-times"></i></button>';
+							if($header->status_bayar == 'LUNAS' && $this->session->userdata('level') == 'Admin'){
+								$btnByr = $btnHH;
+							}else if($header->status_bayar != 'LUNAS'){
+								$btnByr = $btnHH;
+							}else{
+								$btnByr = '';
+							}
 						}else{
 							$btnByr = '';
 						}
@@ -1907,40 +1939,41 @@ class Logistik extends CI_Controller
 						</tr>';
 					}
 				}
-
 				($bayar->num_rows() == 0) ? $nominal = $fixTotal : $nominal = $fixTotal - $nominal_bayar;
 				($bayar->num_rows() == 0) ? $t_nominal = 0 : $t_nominal = $nominal_bayar - $fixTotal;
-				if($nominal != 0){
-					$htmlItem .='<tr>
-						<td style="border:0;padding:6px" colspan="'.$cs1.'"></td>
-						<td style="border:0;padding:6px;text-align:right;font-weight:bold">
-							<input type="text" id="hasil_bayar" style="background:#eee;padding:8px 4px;height:100%;text-align:right;border:0;font-weight:bold;color:#000;border-radius:5px" value="'.number_format($t_nominal,0,',','.').'" disabled>
-						</td>
-					</tr>';
-				}
-
-				if($opsi == 'edit' && $header->acc_owner == 'Y' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+				if($cekHarga->num_rows() == 0){
 					if($nominal != 0){
 						$htmlItem .='<tr>
-							<td style="border:0;padding:6px" colspan="'.$cs0.'"></td>
-							<td style="border:0;padding:6px;text-align:right;font-weight:bold" colspan="2">
-								<input type="date" id="tgl_bayar" class="form-control select2" style="text-align:center">
-							</td>
-							<td style="border:0;padding:6px;text-align:right;font-weight:bold">
-								<input type="hidden" id="h_bayar_inv" value="'.$nominal.'">
-								<input type="text" id="input_bayar" style="background:#eee;padding:8px 4px;height:100%;text-align:right;border:0;font-weight:bold;color:#000;border-radius:5px" placeholder="0" autocomplete="off" onkeyup="bayarInvoiceLaminasi('."'input'".')">
-							</td>
-						</tr>
-						<tr>
 							<td style="border:0;padding:6px" colspan="'.$cs1.'"></td>
 							<td style="border:0;padding:6px;text-align:right;font-weight:bold">
-								<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="bayarInvoiceLaminasi('."'button'".')"><i class="fas fa-money-bill-wave" style="margin-right:3px"></i> BAYAR</button>
+								<input type="text" id="hasil_bayar" style="background:#eee;padding:8px 4px;height:100%;text-align:right;border:0;font-weight:bold;color:#000;border-radius:5px" value="'.number_format($t_nominal,0,',','.').'" disabled>
 							</td>
 						</tr>';
 					}
 				}
+				if($opsi == 'edit' && $header->acc_owner == 'Y' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+					if($cekHarga->num_rows() == 0){
+						if($nominal != 0){
+							$htmlItem .='<tr>
+								<td style="border:0;padding:6px" colspan="'.$cs0.'"></td>
+								<td style="border:0;padding:6px;text-align:right;font-weight:bold" colspan="2">
+									<input type="date" id="tgl_bayar" class="form-control select2" style="text-align:center">
+								</td>
+								<td style="border:0;padding:6px;text-align:right;font-weight:bold">
+									<input type="hidden" id="h_bayar_inv" value="'.$nominal.'">
+									<input type="text" id="input_bayar" style="background:#eee;padding:8px 4px;height:100%;text-align:right;border:0;font-weight:bold;color:#000;border-radius:5px" placeholder="0" autocomplete="off" onkeyup="bayarInvoiceLaminasi('."'input'".')">
+								</td>
+							</tr>
+							<tr>
+								<td style="border:0;padding:6px" colspan="'.$cs1.'"></td>
+								<td style="border:0;padding:6px;text-align:right;font-weight:bold">
+									<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="bayarInvoiceLaminasi('."'button'".')"><i class="fas fa-money-bill-wave" style="margin-right:3px"></i> BAYAR</button>
+								</td>
+							</tr>';
+						}
+					}
+				}
 			}
-			
 			// SIMPAN
 			if($opsi == 'edit' && $header->acc_owner == 'N'){
 				$htmlItem .='<tr>
@@ -1952,18 +1985,48 @@ class Logistik extends CI_Controller
 		$htmlItem .='</table>';
 
 		// PEMBAYARAN
+		if($header->tgl_invoice == $header->tgl_jatuh_tempo){
+			$statusJT = 'CASH'; $Tenggat = 'CASH'; $durasi = '';
+		}else{
+			$statusJT = 'TEMPO';
+			$scDay = strtotime($header->tgl_jatuh_tempo) - strtotime($header->tgl_invoice);
+			$Tenggat = floor($scDay/60/60/24).' Hari';
+			$secondsDiff = strtotime($header->tgl_jatuh_tempo) - strtotime(date("Y-m-d"));
+			$days = floor($secondsDiff/60/60/24);
+			($days == 0) ? $tDays = '' : $tDays = $days.' HARI<br>';
+			if($header->status_bayar != "LUNAS"){
+				if($days == 0){
+					$durasi = ' / <span style="color:#f00">0</span>';
+				}else{
+					$durasi = ' / <span style="color:#f00">- '.$tDays.'</span>';
+				}
+			}else{
+				$durasi = '';
+			}
+		}
+		if($header->status_bayar == "LUNAS"){
+			$txtBayar = '<span class="btn btn-sm btn-success" style="font-weight:bold;letter-spacing:2px">LUNAS</span>';
+		}else if($header->status_bayar == "NYICIL"){
+			$txtBayar = '<span class="btn btn-sm btn-info" style="font-weight:bold;letter-spacing:2px">NYICIL</span>';
+		}else{
+			$txtBayar = '<span class="btn btn-sm btn-secondary" style="font-weight:bold;letter-spacing:2px">BELUM BAYAR</span>';
+		}
 		$htmlBayar .= '<table style="margin:0">
 			<tr>
 				<td style="padding:6px">STATUS JT</td>
-				<td style="padding:6px;font-weight:bold">JATUH TEMPO / CASH</td>
+				<td style="padding:6px;font-weight:bold">'.$statusJT.'</td>
 			</tr>
 			<tr>
 				<td style="padding:6px">TGL. JT</td>
-				<td style="padding:6px;font-weight:bold">CASH / 1 JUNI 2024</td>
+				<td style="padding:6px;font-weight:bold">'.$this->m_fungsi->tanggal_format_indonesia($header->tgl_jatuh_tempo).'</td>
 			</tr>
 			<tr>
 				<td style="padding:6px">TENGGAT</td>
-				<td style="padding:6px;font-weight:bold">CASH / - 7 HARI</td>
+				<td style="padding:6px;font-weight:bold">'.$Tenggat.$durasi.'</td>
+			</tr>
+			<tr>
+				<td style="padding:6px 6px 12px"></td>
+				<td style="padding:6px 6px 12px;font-weight:bold">'.$txtBayar.'</td>
 			</tr>';
 		$htmlBayar .='</table>';
 		$htmlBayar .= $htmlItem;
@@ -2327,15 +2390,23 @@ class Logistik extends CI_Controller
 				$sumTotal = 0;
 				foreach($isi->result() as $r){
 					($isi->num_rows() == 1 && $disc->num_rows() == 0) ? $bold = ';font-weight:bold;font-style:italic' : $bold = '';
-					if($r->jenis_qty_lm == 'pack'){
-						$qty = $r->pack_lm;
+					if($h->jenis_lm == 'PEKALONGAN'){
+						$qty = $r->pack_x;
 						$rr = number_format($r->retur_qty,0,',','.');
-					}else if($r->jenis_qty_lm == 'ikat'){
-						$qty = $r->ikat_lm;
-						$rr = number_format($r->retur_qty,0,',','.');
-					}else{
-						$qty = $r->kg_lm;
-						$rr = round($r->retur_qty,2);
+						$harga = $r->harga_pkl;
+					}
+					if($h->jenis_lm == 'PPI'){
+						if($r->jenis_qty_lm == 'pack'){
+							$qty = $r->pack_lm;
+							$rr = number_format($r->retur_qty,0,',','.');
+						}else if($r->jenis_qty_lm == 'ikat'){
+							$qty = $r->ikat_lm;
+							$rr = number_format($r->retur_qty,0,',','.');
+						}else{
+							$qty = $r->kg_lm;
+							$rr = round($r->retur_qty,2);
+						}
+						$harga = $r->harga_pori_lm;
 					}
 					($r->jenis_qty_lm == 'kg') ? $orderBal = round($qty * $r->qty_muat,2) : $orderBal = number_format($qty * $r->qty_muat,0,',','.');
 					($r->jenis_qty_lm == 'kg') ? $isiLm = '' : $isiLm = '('.$r->isi_lm.')';
@@ -2348,7 +2419,7 @@ class Logistik extends CI_Controller
 						<td style="padding:6px">'.round($r->qty_muat,2).' @'.$qty.'</td>
 						<td style="padding:6px;text-align:right">'.$orderBal.$retur.'</td>
 						<td style="padding:6px">Rp</td>
-						<td style="padding:6px;text-align:right">'.number_format($r->harga_pori_lm,0,",",".").'</td>
+						<td style="padding:6px;text-align:right">'.number_format($harga,0,",",".").'</td>
 						<td style="padding:6px">Rp</td>
 						<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->total,0,",",".").'</td>
 					</tr>';
@@ -4043,8 +4114,62 @@ class Logistik extends CI_Controller
 				</div>';
 				$row[] = $htmlDes;
 				// TANGGAL JATUH TEMPO
+				$scDay = strtotime($r->tgl_jatuh_tempo) - strtotime($r->tgl_invoice);
 				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $jt = 'CASH' : $jt = $this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo);
+				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $tenggat = 'CASH' : $tenggat = floor($scDay/60/60/24).' Hari';
+				// DURASI
+				$secondsDiff2 = strtotime(date("Y-m-d")) - strtotime($r->tgl_jatuh_tempo);
+				$days2 = floor($secondsDiff2/60/60/24);
+				($days2 == 0) ? $tDays2 = '' : $tDays2 = $days2.' Hari';
+				$secondsDiff = strtotime($r->tgl_jatuh_tempo) - strtotime(date("Y-m-d"));
+				$days = floor($secondsDiff/60/60/24);
+				($days == 0) ? $tDays = '' : $tDays = $days.' Hari';
+				if($r->tgl_invoice != $r->tgl_jatuh_tempo){
+					if($r->status_bayar != 'LUNAS'){
+						if($days < 0){
+							$ketDurasi = '<br><span style="color:#f00">+'.$tDays2.'<br>LEWAT DARI<br>JATUH TEMPO!</span>';
+						}else if($days == 0){
+							$ketDurasi = '<br><span style="color:#f00">JATUH TEMPO!</span>';
+						}else{
+							$ketDurasi = '<br><span style="color:#ff5733">-'.$tDays.'</span>';
+						}
+					}else{
+						$ketDurasi = '';
+					}
+				}else{
+					$ketDurasi = '';
+				}
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$jt.'</div>';
+				$row[] = '<div class="text-center" style="font-weight:bold">'.$tenggat.$ketDurasi.'</div>';
+				// PEMABAYARAN
+				$bayar = $this->db->query("SELECT SUM(nominal_bayar) AS bayarCuy FROM invoice_laminasi_bayar WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
+				$detail = $this->db->query("SELECT SUM(total) AS total FROM invoice_laminasi_detail WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice")->row();
+				$qDisc = $this->db->query("SELECT SUM(hitung) AS disc FROM invoice_laminasi_disc WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
+				($qDisc->num_rows() == 0) ? $disc = 0 : $disc = $qDisc->row()->disc;
+				$total_disc = $detail->total - $disc;
+				if($r->acc_owner != 'Y'){
+					$txtB = 'btn-light'; $txtT = '-'; $kurengByr = '';
+				}
+				if($r->acc_owner == 'Y'){
+					if($bayar->num_rows() == 0){
+						$txtB = 'btn-secondary'; $txtT = 'BELUM BAYAR';
+						$kurengByr = '';
+					}
+					if($bayar->num_rows() > 0){
+						if($bayar->row()->bayarCuy == $total_disc){
+							$txtB = 'btn-success'; $txtT = 'LUNAS';
+							$kurengByr = '';
+						}else{
+							$txtB = 'btn-info'; $txtT = 'NYICIL';
+							$kurengByr = '<br><span style="color:#ff5733">'.number_format($bayar->row()->bayarCuy-$total_disc,0,',','.').'</span>';
+						}
+					}
+				}
+				$row[] = '<div class="text-center">
+					<button type="button" class="btn btn-xs '.$txtB.'" style="font-weight:bold" onclick="editInvoiceLaminasi('."'".$r->id."'".','."'detail'".')">'.$txtT.'</button>
+				</div>';
+				// TOTAL
+				$row[] = '<div class="text-right" style="font-weight:bold;color:#000">'.number_format($total_disc,0,',','.').$kurengByr.'</div>';
 				// ADMIN
 				$row[] = '<div class="text-center">
 					<div class="dropup">
@@ -4084,12 +4209,6 @@ class Logistik extends CI_Controller
 						</div>
 					</div>
 				</div>';
-				// TOTAL
-				$detail = $this->db->query("SELECT SUM(total) AS total FROM invoice_laminasi_detail WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice")->row();
-				$qDisc = $this->db->query("SELECT SUM(hitung) AS disc FROM invoice_laminasi_disc WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
-				($qDisc->num_rows() == 0) ? $disc = 0 : $disc = $qDisc->row()->disc;
-				$total_disc = $detail->total - $disc;
-				$row[] = '<div class="text-right" style="font-weight:bold;color:#000">'.number_format($total_disc,0,',','.').'</div>';
 				// CETAK
 				$print2 = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/cetakInvoiceLaminasi?no_invoice=".$r->no_invoice."").'" title=""><i class="fas fa-print"></i></a>';
 				if($r->jenis_lm == "PEKALONGAN"){
