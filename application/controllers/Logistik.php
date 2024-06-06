@@ -722,7 +722,7 @@ class Logistik extends CI_Controller
 				<td style="padding:6px;text-align:right">'.$r["options"]["muat"].'</td>
 				<td style="padding:6px;text-align:right">'.$sisa.'</td>
 				<td style="padding:3px;text-align:center">
-					<button class="btn btn-danger btn-xs" onclick="hapusItemLaminasi('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
+					<button class="btn btn-danger btn-xs" onclick="hapusItemLaminasi('."'".$r['rowid']."'".','."'".$id_po."'".')"><i class="fas fa-times"></i> BATAL</button>
 				</td>
 			</tr>';
 		}
@@ -2320,18 +2320,11 @@ class Logistik extends CI_Controller
 			$tgl2_lap = $_GET["tgl2_lap"];
 			$sps = ';font-size:12px';
 		}
-		($plh_cust == "") ? $wcust = '' : $wcust = "AND h.id_pelanggan_lm='$plh_cust'";
-		($attn != "") ? $wattn = "AND h.attn_lam_inv='$attn'" : $wattn = '';
-		if($this->session->userdata('username') == 'usman'){
-			$where = "AND (s.id_sales='9' OR s.nm_sales='Usman') AND h.jenis_lm='PEKALONGAN'";
-		}else{
-			$where = "AND h.jenis_lm LIKE '%".$pilih."%'";
-		}
-		$html .= '<table style="width:100%;margin-top:25px;color:#000;border-collapse:collapse;vertical-align:tops;text-align:center;font-family:tahoma'.$sps.'">';
+		($plh_cust == "") ? $wcust = '' : $wcust = "AND h.id_pelanggan_lm='$plh_cust' AND h.attn_lam_inv='$attn'";
+		$html .= '<table style="width:100%;margin-top:25px;color:#000;border-collapse:collapse;vertical-align:top;text-align:center;font-family:tahoma'.$sps.'">';
 		$header = $this->db->query("SELECT (SELECT COUNT(*) FROM invoice_laminasi_detail d WHERE h.no_surat=d.no_surat AND h.no_invoice=d.no_invoice) AS detail,h.* FROM invoice_laminasi_header h
 		INNER JOIN m_pelanggan_lm l ON h.id_pelanggan_lm=l.id_pelanggan_lm
-		INNER JOIN m_sales s ON l.id_sales=s.id_sales
-		WHERE h.tgl_surat_jalan BETWEEN '$tgl1_lap' AND '$tgl2_lap' $wcust $wattn $where
+		WHERE h.tgl_surat_jalan BETWEEN '$tgl1_lap' AND '$tgl2_lap' AND h.jenis_lm LIKE '%$pilih%' $wcust
 		GROUP BY h.tgl_surat_jalan,h.no_surat,h.no_invoice");
 		if($header->num_rows() == 0){
 			$html .='<tr>
@@ -2487,6 +2480,149 @@ class Logistik extends CI_Controller
 		}else{
 			$judul = 'PENJUALAN LAMINASI - '.$tgl1_lap.' - '.$tgl2_lap;
 			$this->m_fungsi->newMpdf($judul, '', $html, 3, 7, 7, 7, 'L', 'A4', $judul.'.pdf');
+		}
+	}
+
+	function cariPembayaranLaminasi()
+	{
+		$opsi = $_POST["opsi"];
+		if($opsi == 'laporan'){
+			$plh_pilih = $_POST["plh_pilih"];
+			$plh_bayar = $_POST["plh_bayar"];
+			$plh_cust = $_POST["plh_cust"];
+			$attn = $_POST["attn"];
+			$tgl1_jt = $_POST["tgl1_jt"];
+			$tgl2_jt = $_POST["tgl2_jt"];
+		}else{
+			$plh_pilih = $_GET["plh_pilih"];
+			$plh_bayar = $_GET["plh_bayar"];
+			$plh_cust = $_GET["plh_cust"];
+			$attn = $_GET["attn"];
+			$tgl1_jt = $_GET["tgl1_jt"];
+			$tgl2_jt = $_GET["tgl2_jt"];
+		}
+
+		$html = '';
+
+		//
+		($plh_cust == "") ? $wcust = '' : $wcust = "AND h.id_pelanggan_lm='$plh_cust' AND h.attn_lam_inv='$attn'";
+		$header = $this->db->query("SELECT*FROM invoice_laminasi_header h
+		WHERE h.acc_owner='Y' AND h.tgl_jatuh_tempo BETWEEN '$tgl1_jt' AND '$tgl2_jt' AND h.jenis_lm LIKE '%$plh_pilih%' AND h.status_bayar LIKE '%$plh_bayar%' $wcust
+		ORDER BY h.tgl_jatuh_tempo");
+
+		$html .='<table style="width:100%;margin-top:25px;color:#000;border-collapse:collapse;vertical-align:top;text-align:center;font-family:tahoma">';
+		if($header->num_rows() == 0){
+			$html .='<tr>
+				<th style="text-align:left">DATA KOSONG</th>
+			</tr>';
+		}else{
+			$html .='<thead>
+				<tr>
+					<th style="padding:6px" colspan="13">PEMBAYARAN LAMINASI</th>
+				</tr>
+				<tr style="background:#5eafde">
+					<th style="padding:6px">#</th>
+					<th style="padding:6px">NO. INVOICE</th>
+					<th style="padding:6px">CUSTOMER</th>
+					<th style="padding:6px">JT. TEMPO</th>
+					<th style="padding:6px">BATAS WAKTU</th>
+					<th style="padding:6px">STATUS BAYAR</th>
+					<th style="padding:6px" colspan="2">JUMLAH BAYAR</th>
+					<th style="padding:6px" colspan="2">TOTAL</th>
+				</tr>
+			</thead>';
+			$i = 0;
+			$sumJmlBayar = 0;
+			$sumtotBayar = 0;
+			foreach($header->result() as $r){
+				$i++;
+				// BATAS WAKTU
+				$secondsDiff2 = strtotime(date("Y-m-d")) - strtotime($r->tgl_jatuh_tempo);
+				$days2 = floor($secondsDiff2/60/60/24);
+				($days2 == 0) ? $tDays2 = '' : $tDays2 = $days2.' Hari';
+				$secondsDiff = strtotime($r->tgl_jatuh_tempo) - strtotime(date("Y-m-d"));
+				$days = floor($secondsDiff/60/60/24);
+				($days == 0) ? $tDays = '' : $tDays = $days.' Hari';
+				if($r->tgl_invoice != $r->tgl_jatuh_tempo){
+					if($r->status_bayar != 'LUNAS'){
+						if($days < 0){
+							$ketDurasi = ' / <span style="color:#f00;font-weight:bold">+ '.$tDays2.'</span>';
+						}else if($days == 0){
+							$ketDurasi = ' / <span style="color:#f00">JATUH TEMPO!</span>';
+						}else{
+							$ketDurasi = ' / <span style="color:#f00">-'.$tDays.'</span>';
+						}
+					}else{
+						$ketDurasi = '';
+					}
+				}else{
+					$ketDurasi = '';
+				}
+				$scDay = strtotime($r->tgl_jatuh_tempo) - strtotime($r->tgl_invoice);
+				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $tenggat = 'CASH' : $tenggat = floor($scDay/60/60/24).' Hari';
+				// STATUS BAYAR
+				$bayar = $this->db->query("SELECT SUM(nominal_bayar) AS bayarCuy FROM invoice_laminasi_bayar WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
+				$detail = $this->db->query("SELECT SUM(total) AS total FROM invoice_laminasi_detail WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice")->row();
+				$qDisc = $this->db->query("SELECT SUM(hitung) AS disc FROM invoice_laminasi_disc WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
+				($qDisc->num_rows() == 0) ? $disc = 0 : $disc = $qDisc->row()->disc;
+				$total_disc = $detail->total - $disc;
+				if($r->acc_owner == 'Y'){
+					if($bayar->num_rows() == 0){
+						$txtT = 'BELUM BAYAR';
+						$jmlBayar = 0;
+						$kurBayar = 0;
+					}
+					if($bayar->num_rows() > 0){
+						if($bayar->row()->bayarCuy == $total_disc){
+							$txtT = 'LUNAS';
+							$jmlBayar = $bayar->row()->bayarCuy;
+							$kurBayar = 0;
+						}else{
+							$txtT = 'NYICIL';
+							$jmlBayar = $bayar->row()->bayarCuy;
+							$kurBayar = $bayar->row()->bayarCuy - $total_disc;
+						}
+					}
+				}
+				($jmlBayar == 0) ? $t_jmlBayar = '-' : $t_jmlBayar = number_format($jmlBayar,0,',','.');
+				($kurBayar == 0) ? $t_kurBayar = '' : $t_kurBayar = ' / <span style="color:#f00">'.number_format($kurBayar,0,',','.').'</span>';
+				$html .='<tr>
+					<td style="padding:6px">'.$i.'</td>
+					<td style="padding:6px">'.$r->no_invoice.'</td>
+					<td style="padding:6px;text-align:left">'.$r->attn_lam_inv.'</td>
+					<td style="padding:6px">'.$this->m_fungsi->tglIndSkt($r->tgl_jatuh_tempo).'</td>
+					<td style="padding:6px">'.$tenggat.$ketDurasi.'</td>
+					<td style="padding:6px">'.$txtT.'</td>
+					<td style="padding:6px">Rp</td>
+					<td style="padding:6px;text-align:right">'.$t_jmlBayar.$t_kurBayar.'</td>
+					<td style="padding:6px">Rp</td>
+					<td style="padding:6px;text-align:right">'.number_format($total_disc,0,',','.').'</td>
+				</tr>';
+				$sumJmlBayar += $jmlBayar;
+				$sumtotBayar += $total_disc;
+			}
+			// TOTAL ALL
+			if($header->num_rows() > 1){
+				$html .='<tr style="background:#5eafde">
+					<td style="padding:6px" colspan="5"></td>
+					<td style="padding:6px;text-align:center;font-weight:bold">TOTAL</td>
+					<td style="padding:6px;font-weight:bold">Rp</td>
+					<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumJmlBayar,0,",",".").'</td>
+					<td style="padding:6px;font-weight:bold">Rp</td>
+					<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumtotBayar,0,",",".").'</td>
+				</tr></tbody>';
+			}
+		}
+		$html .='</table>';
+
+		if($opsi == 'laporan'){
+			echo json_encode([
+				'html' => $html,
+				'pdf' => ($header->num_rows() == 0) ? '' : '<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold;padding:8px 12px" href="'.base_url("Logistik/cariPembayaranLaminasi?opsi=pdf&plh_pilih=".$plh_pilih."&attn=".$attn."&tgl1_jt=".$tgl1_jt."&tgl2_jt=".$tgl2_jt."&plh_cust=".$plh_cust."&plh_bayar=".$plh_bayar."").'"><i class="fas fa-file-pdf"></i> PDF</a>',
+			]);
+		}else{
+			$judul = 'PEMBAYARAN LAMINASI';
+			$this->m_fungsi->newMpdf($judul, 'cetak', $html, 3, 7, 15, 7, 'L', 'A4', $judul.'.pdf');
 		}
 	}
 
@@ -4114,10 +4250,9 @@ class Logistik extends CI_Controller
 				</div>';
 				$row[] = $htmlDes;
 				// TANGGAL JATUH TEMPO
-				$scDay = strtotime($r->tgl_jatuh_tempo) - strtotime($r->tgl_invoice);
 				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $jt = 'CASH' : $jt = $this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo);
-				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $tenggat = 'CASH' : $tenggat = floor($scDay/60/60/24).' Hari';
-				// DURASI
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$jt.'</div>';
+				// BATAS WAKTU
 				$secondsDiff2 = strtotime(date("Y-m-d")) - strtotime($r->tgl_jatuh_tempo);
 				$days2 = floor($secondsDiff2/60/60/24);
 				($days2 == 0) ? $tDays2 = '' : $tDays2 = $days2.' Hari';
@@ -4139,7 +4274,8 @@ class Logistik extends CI_Controller
 				}else{
 					$ketDurasi = '';
 				}
-				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$jt.'</div>';
+				$scDay = strtotime($r->tgl_jatuh_tempo) - strtotime($r->tgl_invoice);
+				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $tenggat = 'CASH' : $tenggat = floor($scDay/60/60/24).' Hari';
 				$row[] = '<div class="text-center" style="font-weight:bold">'.$tenggat.$ketDurasi.'</div>';
 				// PEMABAYARAN
 				$bayar = $this->db->query("SELECT SUM(nominal_bayar) AS bayarCuy FROM invoice_laminasi_bayar WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");

@@ -1397,14 +1397,15 @@ class M_logistik extends CI_Model
 					'attn_lam_inv' => $kepada,
 					'alamat_lam_inv' => $alamat,
 					'bank' => $pilihan_bank,
-					'status_inv' => 'Open',
 					'acc_admin' => 'Y',
 					'time_admin' => date('Y-m-d H:i:s'),
 				);
 				if($q->jenis_lm == "PPI"){
+					$this->db->set('status_inv', 'Open');
 					$this->db->set('acc_owner', 'N');
 				}
 				if($q->jenis_lm == "PEKALONGAN"){
+					$this->db->set('status_inv', 'Approve');
 					$this->db->set('acc_owner', 'Y');
 					$this->db->set('time_owner', date('Y-m-d H:i:s'));
 					$this->db->set('ket_owner', 'PEKALONGAN');
@@ -1661,6 +1662,10 @@ class M_logistik extends CI_Model
 						$this->db->set('no_pl_inv', 0);
 						$this->db->where('no_surat', $data->no_surat);
 						$no_pl_inv = $this->db->update('pl_laminasi');
+						if($no_pl_inv){
+							$this->db->where('no_invoice', $data->no_invoice);
+							$this->db->delete('invoice_laminasi_bayar');
+						}
 					}
 				}
 			}

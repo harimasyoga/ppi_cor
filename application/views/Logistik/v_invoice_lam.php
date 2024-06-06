@@ -263,6 +263,7 @@
 								<div style="margin-bottom:12px">
 									<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 									<button type="button" class="btn btn-sm btn-danger" onclick="laporanInvoice('laporan')"><i class="fas fa-file-alt"></i> <b>LAPORAN</b></button>
+									<button type="button" class="btn btn-sm btn-danger" onclick="laporanInvoice('pembayaran')"><i class="fas fa-money-check"></i> <b>PEMBAYARAN</b></button>
 								</div>
 							<?php } ?>
 							<div style="overflow:auto;white-space:nowrap">
@@ -307,11 +308,12 @@
 							<div style="overflow:auto;white-space:nowrap">
 								<table style="font-weight:bold">
 									<tr>
-										<td style="padding:6px 0">PILIH</td>
-										<td style="padding:6px 10px">:</td>
-										<td style="padding:6px 0" colspan="3">
+										<td style="padding:3px 0">PILIH</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
 											<select id="plh-lap-lap" class="form-control select2">
 												<?php
+													$html ='';
 													if($this->session->userdata('username') == 'usman'){
 														$html .='<option value="PEKALONGAN">PEKALONGAN</option>';
 													}else{
@@ -325,44 +327,38 @@
 										</td>
 									</tr>
 									<tr>
-										<td style="padding:6px 0">CUSTOMER</td>
-										<td style="padding:6px 10px">:</td>
-										<td style="padding:6px 0" colspan="3">
+										<td style="padding:3px 0">CUSTOMER</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
 											<select id="plh-lap-cust" class="form-control select2">
 												<?php
-													if($this->session->userdata('username') == 'usman'){
-														$where = "WHERE (s.id_sales='9' OR s.nm_sales='Usman') AND h.jenis_lm='PEKALONGAN'";
-													}else{
-														$where = '';
-													}
+													($this->session->userdata('username') == 'usman') ? $where = "WHERE h.jenis_lm='PEKALONGAN'" : $where = '';
 													$query = $this->db->query("SELECT h.id_pelanggan_lm,h.attn_lam_inv FROM invoice_laminasi_header h
-													INNER JOIN m_pelanggan_lm l ON h.id_pelanggan_lm=l.id_pelanggan_lm
-													INNER JOIN m_sales s ON l.id_sales=s.id_sales $where
-													GROUP BY h.id_pelanggan_lm,h.attn_lam_inv ORDER BY h.attn_lam_inv");
-													$html ='';
-													$html .='<option value="" attn="">SEMUA</option>';
+													$where GROUP BY h.id_pelanggan_lm,h.attn_lam_inv ORDER BY h.attn_lam_inv");
+													$html2 ='';
+													$html2 .='<option value="" attn="">SEMUA</option>';
 													foreach($query->result() as $r){
-														$html .='<option value="'.$r->id_pelanggan_lm.'" attn="'.$r->attn_lam_inv.'">'.$r->id_pelanggan_lm.' | '.$r->attn_lam_inv.'</option>';
+														$html2 .='<option value="'.$r->id_pelanggan_lm.'" attn="'.$r->attn_lam_inv.'">'.$r->id_pelanggan_lm.' | '.$r->attn_lam_inv.'</option>';
 													}
-													echo $html;
+													echo $html2;
 												?>
 											</select>
 										</td>
 									</tr>
 									<tr>
-										<td>TANGGAL SURAT JALAN</td>
-										<td style="padding:0 10px">:</td>
+										<td style="padding:3px 0">TANGGAL SURAT JALAN</td>
+										<td style="padding:3px 10px">:</td>
 										<td>
 											<input type="date" id="tgl1_lap" class="form-control" value="<?= date("Y-m-d")?>">
 										</td>
-										<td style="padding:0 10px">S/D</td>
+										<td style="padding:3px 10px">S/D</td>
 										<td>
 											<input type="date" id="tgl2_lap" class="form-control" value="<?= date("Y-m-d")?>">
 										</td>
-										<td style="padding-left:10px">
+										<td style="padding:3px 10px">
 											<button type="button" class="btn btn-primary" onclick="cariLaporanLaminasi('laporan')"><i class="fas fa-search"></i></button>
 										</td>
-										<td style="padding-left:10px">
+										<td style="padding:3px 10px">
 											<div class="btn-print-lap-lam-pdf"></div>
 										</td>
 									</tr>
@@ -370,6 +366,100 @@
 							</div>
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="cari-lap-laminasi"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-12 col-list-lam-pembayaran" style="display:none">
+					<div class="card shadow mb-3">
+						<div class="card-header" style="font-family:Cambria;">
+							<h3 class="card-title" style="color:#4e73df;"><b>LAPORAN PEMBAYARAN LAMINASI</b></h3>
+							<div class="card-tools">
+								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+									<i class="fas fa-minus"></i>
+								</button>
+							</div>
+						</div>
+						<div class="card-body">
+							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){ ?>
+								<div style="margin-bottom:12px">
+									<button type="button" class="btn btn-sm btn-info" onclick="laporanInvoice('list')"><i class="fas fa-list"></i> <b>LIST INVOICE</b></button>
+								</div>
+							<?php } ?>
+							<div style="overflow:auto;white-space:nowrap">
+								<table style="font-weight:bold">
+									<tr>
+										<td style="padding:3px 0">PILIH</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="plh_pilih" class="form-control select2">
+												<?php
+													$html3 = '';
+													if($this->session->userdata('username') == 'usman'){
+														$html3 .='<option value="PEKALONGAN">PEKALONGAN</option>';
+													}else{
+														$html3 .='<option value="">SEMUA</option>
+														<option value="PPI">PPI</option>
+														<option value="PEKALONGAN">PEKALONGAN</option>';
+													}
+													echo $html3;
+												?>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td style="padding:3px 0">PEMBAYARAN</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="plh_bayar" class="form-control select2">
+												<option value="">SEMUA</option>
+												<option value="BELUM BAYAR">BELUM BAYAR</option>
+												<option value="NYICIL">NYICIL</option>
+												<option value="LUNAS">LUNAS</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td style="padding:3px 0">CUSTOMER</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="plh_cust" class="form-control select2">
+												<?php
+													($this->session->userdata('username') == 'usman') ? $where2 = "WHERE h.jenis_lm='PEKALONGAN'" : $where2 = '';
+													$query = $this->db->query("SELECT h.id_pelanggan_lm,h.attn_lam_inv FROM invoice_laminasi_header h
+													$where2 GROUP BY h.id_pelanggan_lm,h.attn_lam_inv ORDER BY h.attn_lam_inv");
+													$html4 ='';
+													$html4 .='<option value="" attn="">SEMUA</option>';
+													foreach($query->result() as $r){
+														$html4 .='<option value="'.$r->id_pelanggan_lm.'" attn="'.$r->attn_lam_inv.'">'.$r->id_pelanggan_lm.' | '.$r->attn_lam_inv.'</option>';
+													}
+													echo $html4;
+												?>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td style="padding:3px 0">TGL. JATUH TEMPO</td>
+										<td style="padding:3px 10px">:</td>
+										<td>
+											<input type="date" id="tgl1_jt" class="form-control" value="<?= date("Y-m-d")?>">
+										</td>
+										<td style="padding:3px 10px">S/D</td>
+										<td>
+											<input type="date" id="tgl2_jt" class="form-control" value="<?= date("Y-m-d")?>">
+										</td>
+										<td style="padding:3px 10px">
+											<button type="button" class="btn btn-primary" onclick="cariPembayaranLaminasi('laporan')"><i class="fas fa-search"></i></button>
+										</td>
+										<td style="padding:3px 10px">
+											<div class="btn-print-bayar-lam-pdf"></div>
+										</td>
+									</tr>
+								</table>
+							</div>
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="cari-lap-pembayaran"></div>
 							</div>
 						</div>
 					</div>
@@ -1184,18 +1274,30 @@
 	}
 
 	function laporanInvoice(opsi){
-		if(urlUser != 'usman'){
-			$("#plh-lap-lap").val("").trigger('change')
-		}
-		$("#plh-lap-cust").val("").trigger('change')
 		$(".btn-print-lap-lam-pdf").html("")
 		$(".cari-lap-laminasi").html("")
+		$(".cari-lap-pembayaran").html("")
 		if(opsi == 'laporan'){
+			if(urlUser != 'usman'){
+				$("#plh-lap-lap").val("").trigger('change')
+			}
+			$("#plh-lap-cust").val("").trigger('change')
 			$(".col-list-laminasi").hide()
 			$(".col-list-lam-laporan").show()
+			$(".col-list-lam-pembayaran").hide()
+		}else if(opsi == 'pembayaran'){
+			if(urlUser != 'usman'){
+				$("#plh_pilih").val("").trigger('change')
+			}
+			$("#plh_bayar").val("").trigger('change')
+			$("#plh_cust").val("").trigger('change')
+			$(".col-list-laminasi").hide()
+			$(".col-list-lam-laporan").hide()
+			$(".col-list-lam-pembayaran").show()
 		}else{
 			$(".col-list-laminasi").show()
 			$(".col-list-lam-laporan").hide()
+			$(".col-list-lam-pembayaran").hide()
 		}
 	}
 
@@ -1228,6 +1330,43 @@
 				if(opsi == 'laporan'){
 					$(".btn-print-lap-lam-pdf").html(data.pdf)
 					$(".cari-lap-laminasi").html(data.html)
+				}
+				swal.close()
+			}
+		})
+	}
+
+	function cariPembayaranLaminasi(opsi) {
+		$(".btn-print-bayar-lam-pdf").html("")
+		$(".cari-lap-pembayaran").html("")
+		let plh_pilih = $("#plh_pilih").val()
+		let plh_bayar = $("#plh_bayar").val()
+		let plh_cust = $("#plh_cust").val()
+		let attn = $('#plh_cust option:selected').attr('attn')
+		let tgl1_jt = $("#tgl1_jt").val()
+		let tgl2_jt = $("#tgl2_jt").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/cariPembayaranLaminasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				opsi, plh_pilih, plh_bayar, plh_cust, attn, tgl1_jt, tgl2_jt
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(opsi == 'laporan'){
+					$(".btn-print-bayar-lam-pdf").html(data.pdf)
+					$(".cari-lap-pembayaran").html(data.html)
 				}
 				swal.close()
 			}
