@@ -461,12 +461,14 @@ class Keuangan extends CI_Controller
 							}else if($r->id=='21')
 							{
 								// lr_kotor
-								$lr_kotor = lr_kotor($bln->id,$thun);
+								$total_penjualan    = total_penjualan($bln->id,$thun);
+								$hp_penjualan       = hp_penjualan($bln->id,$thun);
+								$beban              = beban($bln->id,$thun);
 
-								if($lr_kotor->num_rows() > 0)
+								if($beban->num_rows() > 0)
 								{
-									$nom_lr_kotor = $lr_kotor->row()->nominal;
-									$nominal = 'Rp '.number_format($nom_lr_kotor, 0, ",", ".");
+									$nom_beban = $beban->row()->nominal;
+									$nominal = 'Rp '.number_format($nom_beban, 0, ",", ".");
 								}else{
 									$nominal = 'Rp '.number_format(0, 0, ",", ".");
 								}
