@@ -1397,11 +1397,19 @@ class M_logistik extends CI_Model
 					'attn_lam_inv' => $kepada,
 					'alamat_lam_inv' => $alamat,
 					'bank' => $pilihan_bank,
-					'status_inv' => 'Open',
 					'acc_admin' => 'Y',
 					'time_admin' => date('Y-m-d H:i:s'),
-					'acc_owner' => 'N',
 				);
+				if($q->jenis_lm == "PPI"){
+					$this->db->set('status_inv', 'Open');
+					$this->db->set('acc_owner', 'N');
+				}
+				if($q->jenis_lm == "PEKALONGAN"){
+					$this->db->set('status_inv', 'Approve');
+					$this->db->set('acc_owner', 'Y');
+					$this->db->set('time_owner', date('Y-m-d H:i:s'));
+					$this->db->set('ket_owner', 'PEKALONGAN');
+				}
 				$insert = $this->db->insert('invoice_laminasi_header', $data);
 				
 				if($insert){
@@ -1654,6 +1662,10 @@ class M_logistik extends CI_Model
 						$this->db->set('no_pl_inv', 0);
 						$this->db->where('no_surat', $data->no_surat);
 						$no_pl_inv = $this->db->update('pl_laminasi');
+						if($no_pl_inv){
+							$this->db->where('no_invoice', $data->no_invoice);
+							$this->db->delete('invoice_laminasi_bayar');
+						}
 					}
 				}
 			}
@@ -1670,6 +1682,81 @@ class M_logistik extends CI_Model
 			'detail' => $detail,
 			'disc' => $disc,
 			'no_pl_inv' => $no_pl_inv,
+		];
+	}
+
+	function bayarInvoiceLaminasi()
+	{
+		$id_header = $_POST["id_header"];
+		$tgl_bayar = $_POST["tgl_bayar"];
+		$input_bayar = $_POST["input_bayar"];
+
+		$header = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id_header'")->row();
+		if($input_bayar < 0 || $input_bayar == 0 || $input_bayar == ''){
+			$data = false; $bayar = false;
+			$msg = 'PEMBAYARAN TIDAK BOLEH KOSONG!';
+		}else if($tgl_bayar == ''){
+			$data = false; $bayar = false;
+			$msg = 'PILIH TANGGAL PEMBAYARAN!';
+		}else if($tgl_bayar < $header->tgl_invoice){
+			$data = false; $bayar = false;
+			$msg = 'TGL. BAYAR LEBIH KECIL DARI TGL. INVOICE!';
+		}else{
+			$data = [
+				'no_invoice' => $header->no_invoice,
+				'tgl_bayar' => $tgl_bayar,
+				'nominal_bayar' => $input_bayar,
+				'add_time' => date('Y-m-d H:i:s'),
+			];
+			$bayar = $this->db->insert('invoice_laminasi_bayar', $data);
+			$msg = 'OK!';
+			if($bayar){
+				$bayar2 = $this->db->query("SELECT SUM(nominal_bayar) AS bayarCuy FROM invoice_laminasi_bayar WHERE no_invoice='$header->no_invoice' GROUP BY no_invoice")->row();
+				$detail = $this->db->query("SELECT SUM(total) AS total FROM invoice_laminasi_detail WHERE no_invoice='$header->no_invoice' GROUP BY no_invoice")->row();
+				$qDisc = $this->db->query("SELECT SUM(hitung) AS disc FROM invoice_laminasi_disc WHERE no_invoice='$header->no_invoice' GROUP BY no_invoice");
+				($qDisc->num_rows() == 0) ? $disc = 0 : $disc = $qDisc->row()->disc;
+				$total_disc = $detail->total - $disc;
+				if($bayar2->bayarCuy == $total_disc){
+					$this->db->set('status_bayar', 'LUNAS');
+				}else{
+					$this->db->set('status_bayar', 'NYICIL');
+				}
+				$this->db->where('id', $id_header);
+				$this->db->update('invoice_laminasi_header');
+			}
+		}
+		return [
+			'data' => $data,
+			'bayar' => $bayar,
+			'msg' => $msg,
+		];
+	}
+
+	function hapusBayarInvLam()
+	{
+		$id = $_POST["id"];
+		$id_header = $_POST["id_header"];
+		$this->db->where('id', $id);
+		$data = $this->db->delete('invoice_laminasi_bayar');
+		if($data){
+			$header = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id_header'")->row();
+			$bayar = $this->db->query("SELECT SUM(nominal_bayar) AS bayarCuy FROM invoice_laminasi_bayar WHERE no_invoice='$header->no_invoice' GROUP BY no_invoice");
+			$detail = $this->db->query("SELECT SUM(total) AS total FROM invoice_laminasi_detail WHERE no_invoice='$header->no_invoice' GROUP BY no_invoice")->row();
+			$qDisc = $this->db->query("SELECT SUM(hitung) AS disc FROM invoice_laminasi_disc WHERE no_invoice='$header->no_invoice' GROUP BY no_invoice");
+			($qDisc->num_rows() == 0) ? $disc = 0 : $disc = $qDisc->row()->disc;
+			$total_disc = $detail->total - $disc;
+			if($bayar->num_rows() == 0){
+				$this->db->set('status_bayar', 'BELUM BAYAR');
+			}else if($bayar->row()->bayarCuy == $total_disc){
+				$this->db->set('status_bayar', 'LUNAS');
+			}else{
+				$this->db->set('status_bayar', 'NYICIL');
+			}
+			$this->db->where('id', $id_header);
+			$this->db->update('invoice_laminasi_header');
+		}
+		return [
+			'data' => $data,
 		];
 	}
 

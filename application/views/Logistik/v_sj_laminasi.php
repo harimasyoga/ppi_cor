@@ -509,7 +509,7 @@
 		})
 	}
 
-	function hapusItemLaminasi(rowid)
+	function hapusItemLaminasi(rowid, id_po)
 	{
 		$.ajax({
 			url: '<?php echo base_url('Logistik/hapusItemLaminasi')?>',
@@ -531,7 +531,7 @@
 					$(".row-input-rk").hide()
 					swal.close()
 				}else{
-					loadItemLaminasi()
+					loadItemLaminasi(id_po)
 				}
 			}
 		})

@@ -69,7 +69,6 @@
 							<div class="col-md-1"></div>
 						</div>
 					</div>
-
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">DIKIRIM KE</h3>
@@ -133,8 +132,6 @@
 						<div class="card-body" style="padding:6px">
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="list-item">LIST ITEM KOSONG</div>
-
-								<!-- DISCOUNT DAN POTONGAN -->
 								<div class="disc-potongan" style="display:none">
 									<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
 										<div class="col-md-1">*OPSI</div>
@@ -148,7 +145,6 @@
 										</div>
 										<div class="col-md-8"></div>
 									</div>
-
 									<div class="dcp-persen" style="display:none">
 										<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
 											<div class="col-md-1"></div>
@@ -223,15 +219,28 @@
 											<div class="col-md-8"></div>
 										</div>
 									</div>
-
 									<div class="card-body row" style="font-weight:bold;padding:0 6px 16px">
 										<div class="col-md-1"></div>
 										<div class="col-md-11">
 											<div class="btn-add-disc"></div>
-											<!-- <button type="button" class="btn btn-sm btn-success" style="font-weight:bold" onclick="addDisc()"><i class="fas fa-plus"></i> ADD</button> -->
 										</div>
 									</div>
 								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row row-pembayaran" style="display:none">
+				<div class="col-md-12">
+					<div class="card card-primary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">PEMBAYARAN</h3>
+						</div>
+						<div class="card-body" style="padding:6px">
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="list-pembayaran"></div>
 							</div>
 						</div>
 					</div>
@@ -254,6 +263,7 @@
 								<div style="margin-bottom:12px">
 									<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 									<button type="button" class="btn btn-sm btn-danger" onclick="laporanInvoice('laporan')"><i class="fas fa-file-alt"></i> <b>LAPORAN</b></button>
+									<button type="button" class="btn btn-sm btn-danger" onclick="laporanInvoice('pembayaran')"><i class="fas fa-money-check"></i> <b>PEMBAYARAN</b></button>
 								</div>
 							<?php } ?>
 							<div style="overflow:auto;white-space:nowrap">
@@ -263,9 +273,11 @@
 											<th style="padding:12px;text-align:center">NO.</th>
 											<th style="padding:12px;text-align:center">DESKRIPSI</th>
 											<th style="padding:12px;text-align:center">JATUH TEMPO</th>
+											<th style="padding:12px;text-align:center">BATAS WAKTU</th>
+											<th style="padding:12px;text-align:center">PEMBAYARAN</th>
+											<th style="padding:12px;text-align:center">TOTAL</th>
 											<th style="padding:12px;text-align:center">ADMIN</th>
 											<th style="padding:12px;text-align:center">OWNER</th>
-											<th style="padding:12px;text-align:center">TOTAL</th>
 											<th style="padding:12px;text-align:center">CETAK</th>
 											<th style="padding:12px;text-align:center">AKSI</th>
 										</tr>
@@ -296,11 +308,12 @@
 							<div style="overflow:auto;white-space:nowrap">
 								<table style="font-weight:bold">
 									<tr>
-										<td style="padding:6px 0">PILIH</td>
-										<td style="padding:6px 10px">:</td>
-										<td style="padding:6px 0" colspan="3">
+										<td style="padding:3px 0">PILIH</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
 											<select id="plh-lap-lap" class="form-control select2">
 												<?php
+													$html ='';
 													if($this->session->userdata('username') == 'usman'){
 														$html .='<option value="PEKALONGAN">PEKALONGAN</option>';
 													}else{
@@ -314,44 +327,38 @@
 										</td>
 									</tr>
 									<tr>
-										<td style="padding:6px 0">CUSTOMER</td>
-										<td style="padding:6px 10px">:</td>
-										<td style="padding:6px 0" colspan="3">
+										<td style="padding:3px 0">CUSTOMER</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
 											<select id="plh-lap-cust" class="form-control select2">
 												<?php
-													if($this->session->userdata('username') == 'usman'){
-														$where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'";
-													}else{
-														$where = '';
-													}
+													($this->session->userdata('username') == 'usman') ? $where = "WHERE h.jenis_lm='PEKALONGAN'" : $where = '';
 													$query = $this->db->query("SELECT h.id_pelanggan_lm,h.attn_lam_inv FROM invoice_laminasi_header h
-													INNER JOIN m_pelanggan_lm l ON h.id_pelanggan_lm=l.id_pelanggan_lm
-													INNER JOIN m_sales s ON l.id_sales=s.id_sales $where
-													GROUP BY h.id_pelanggan_lm,h.attn_lam_inv ORDER BY h.attn_lam_inv");
-													$html ='';
-													$html .='<option value="" attn="">SEMUA</option>';
+													$where GROUP BY h.id_pelanggan_lm,h.attn_lam_inv ORDER BY h.attn_lam_inv");
+													$html2 ='';
+													$html2 .='<option value="" attn="">SEMUA</option>';
 													foreach($query->result() as $r){
-														$html .='<option value="'.$r->id_pelanggan_lm.'" attn="'.$r->attn_lam_inv.'">'.$r->id_pelanggan_lm.' | '.$r->attn_lam_inv.'</option>';
+														$html2 .='<option value="'.$r->id_pelanggan_lm.'" attn="'.$r->attn_lam_inv.'">'.$r->id_pelanggan_lm.' | '.$r->attn_lam_inv.'</option>';
 													}
-													echo $html;
+													echo $html2;
 												?>
 											</select>
 										</td>
 									</tr>
 									<tr>
-										<td>TANGGAL SURAT JALAN</td>
-										<td style="padding:0 10px">:</td>
+										<td style="padding:3px 0">TANGGAL SURAT JALAN</td>
+										<td style="padding:3px 10px">:</td>
 										<td>
 											<input type="date" id="tgl1_lap" class="form-control" value="<?= date("Y-m-d")?>">
 										</td>
-										<td style="padding:0 10px">S/D</td>
+										<td style="padding:3px 10px">S/D</td>
 										<td>
 											<input type="date" id="tgl2_lap" class="form-control" value="<?= date("Y-m-d")?>">
 										</td>
-										<td style="padding-left:10px">
+										<td style="padding:3px 10px">
 											<button type="button" class="btn btn-primary" onclick="cariLaporanLaminasi('laporan')"><i class="fas fa-search"></i></button>
 										</td>
-										<td style="padding-left:10px">
+										<td style="padding:3px 10px">
 											<div class="btn-print-lap-lam-pdf"></div>
 										</td>
 									</tr>
@@ -359,6 +366,100 @@
 							</div>
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="cari-lap-laminasi"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-12 col-list-lam-pembayaran" style="display:none">
+					<div class="card shadow mb-3">
+						<div class="card-header" style="font-family:Cambria;">
+							<h3 class="card-title" style="color:#4e73df;"><b>LAPORAN PEMBAYARAN LAMINASI</b></h3>
+							<div class="card-tools">
+								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+									<i class="fas fa-minus"></i>
+								</button>
+							</div>
+						</div>
+						<div class="card-body">
+							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){ ?>
+								<div style="margin-bottom:12px">
+									<button type="button" class="btn btn-sm btn-info" onclick="laporanInvoice('list')"><i class="fas fa-list"></i> <b>LIST INVOICE</b></button>
+								</div>
+							<?php } ?>
+							<div style="overflow:auto;white-space:nowrap">
+								<table style="font-weight:bold">
+									<tr>
+										<td style="padding:3px 0">PILIH</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="plh_pilih" class="form-control select2">
+												<?php
+													$html3 = '';
+													if($this->session->userdata('username') == 'usman'){
+														$html3 .='<option value="PEKALONGAN">PEKALONGAN</option>';
+													}else{
+														$html3 .='<option value="">SEMUA</option>
+														<option value="PPI">PPI</option>
+														<option value="PEKALONGAN">PEKALONGAN</option>';
+													}
+													echo $html3;
+												?>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td style="padding:3px 0">PEMBAYARAN</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="plh_bayar" class="form-control select2">
+												<option value="">SEMUA</option>
+												<option value="BELUM BAYAR">BELUM BAYAR</option>
+												<option value="NYICIL">NYICIL</option>
+												<option value="LUNAS">LUNAS</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td style="padding:3px 0">CUSTOMER</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="plh_cust" class="form-control select2">
+												<?php
+													($this->session->userdata('username') == 'usman') ? $where2 = "WHERE h.jenis_lm='PEKALONGAN'" : $where2 = '';
+													$query = $this->db->query("SELECT h.id_pelanggan_lm,h.attn_lam_inv FROM invoice_laminasi_header h
+													$where2 GROUP BY h.id_pelanggan_lm,h.attn_lam_inv ORDER BY h.attn_lam_inv");
+													$html4 ='';
+													$html4 .='<option value="" attn="">SEMUA</option>';
+													foreach($query->result() as $r){
+														$html4 .='<option value="'.$r->id_pelanggan_lm.'" attn="'.$r->attn_lam_inv.'">'.$r->id_pelanggan_lm.' | '.$r->attn_lam_inv.'</option>';
+													}
+													echo $html4;
+												?>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td style="padding:3px 0">TGL. JATUH TEMPO</td>
+										<td style="padding:3px 10px">:</td>
+										<td>
+											<input type="date" id="tgl1_jt" class="form-control" value="<?= date("Y-m-d")?>">
+										</td>
+										<td style="padding:3px 10px">S/D</td>
+										<td>
+											<input type="date" id="tgl2_jt" class="form-control" value="<?= date("Y-m-d")?>">
+										</td>
+										<td style="padding:3px 10px">
+											<button type="button" class="btn btn-primary" onclick="cariPembayaranLaminasi('laporan')"><i class="fas fa-search"></i></button>
+										</td>
+										<td style="padding:3px 10px">
+											<div class="btn-print-bayar-lam-pdf"></div>
+										</td>
+									</tr>
+								</table>
+							</div>
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="cari-lap-pembayaran"></div>
 							</div>
 						</div>
 					</div>
@@ -455,6 +556,9 @@
 		$(".dcp-hari").hide()
 		$(".dcp-rupiah").hide()
 		$(".dcp-ball").hide()
+
+		$(".row-pembayaran").hide()
+		$(".list-pembayaran").html("")
 		
 		$("#dcp_input_persen").val("")
 		$("#dcp_input_hari").val("")
@@ -698,7 +802,19 @@
 					}
 				}
 
-				$(".list-item").html(data.htmlItem)
+				// PEMBAYARAN
+				if(data.header.acc_owner != 'Y'){
+					$(".row-item-invoice-laminasi").show()
+					$(".row-pembayaran").hide()
+					$(".list-item").html(data.htmlItem)
+					$(".list-pembayaran").html("")
+				}
+				if(data.header.acc_owner == 'Y'){
+					$(".row-item-invoice-laminasi").hide()
+					$(".row-pembayaran").show()
+					$(".list-item").html("")
+					$(".list-pembayaran").html(data.htmlBayar)
+				}
 
 				// DISCOUNT / POTONGAN
 				if(opsi == 'edit' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R') && (urlAuth == 'Admin' || urlAuth == 'Laminasi')){
@@ -1081,19 +1197,107 @@
 		});
 	}
 
-	function laporanInvoice(opsi){
-		if(urlUser != 'usman'){
-			$("#plh-lap-lap").val("").trigger('change')
+	function bayarInvoiceLaminasi(opsi)
+	{
+		let id_header = $("#h_id_header").val()
+		let h_bayar_inv = $("#h_bayar_inv").val()
+		let tgl_bayar = $("#tgl_bayar").val()
+		let input_bayar = $("#input_bayar").val().split('.').join('')
+		if(opsi == 'input'){
+			(input_bayar < 0 || input_bayar == '') ? input_bayar = 0 : input_bayar = input_bayar;
+			let hitung = input_bayar - h_bayar_inv;
+			let t_hitung = 0;
+			(hitung == 0 || parseInt(input_bayar) > parseInt(h_bayar_inv)) ? t_hitung = 0 : t_hitung = hitung;
+			(parseInt(input_bayar) > parseInt(h_bayar_inv)) ? input_bayar = h_bayar_inv : input_bayar = input_bayar;
+			$("#hasil_bayar").val(format_angka(t_hitung))
+			$("#input_bayar").val(format_angka(input_bayar))
 		}
-		$("#plh-lap-cust").val("").trigger('change')
+		if(opsi == 'button'){
+			$.ajax({
+				url: '<?php echo base_url('Logistik/bayarInvoiceLaminasi')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({
+					tgl_bayar, input_bayar, id_header
+				}),
+				success: function(res){
+					data = JSON.parse(res)
+					console.log(data)
+					if(data.bayar){
+						editInvoiceLaminasi(id_header, 'edit')
+					}else{
+						toastr.error(`<b>${data.msg}</b>`)
+						swal.close()
+					}
+				}
+			})
+		}
+	}
+
+	function hapusBayarInvLam(id) {
+		let id_header = $("#h_id_header").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/hapusBayarInvLam')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id, id_header
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					editInvoiceLaminasi(id_header, 'edit')
+				}else{
+					toastr.error(`<b>Terjadi Kesalahan</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function laporanInvoice(opsi){
 		$(".btn-print-lap-lam-pdf").html("")
 		$(".cari-lap-laminasi").html("")
+		$(".cari-lap-pembayaran").html("")
 		if(opsi == 'laporan'){
+			if(urlUser != 'usman'){
+				$("#plh-lap-lap").val("").trigger('change')
+			}
+			$("#plh-lap-cust").val("").trigger('change')
 			$(".col-list-laminasi").hide()
 			$(".col-list-lam-laporan").show()
+			$(".col-list-lam-pembayaran").hide()
+		}else if(opsi == 'pembayaran'){
+			if(urlUser != 'usman'){
+				$("#plh_pilih").val("").trigger('change')
+			}
+			$("#plh_bayar").val("").trigger('change')
+			$("#plh_cust").val("").trigger('change')
+			$(".col-list-laminasi").hide()
+			$(".col-list-lam-laporan").hide()
+			$(".col-list-lam-pembayaran").show()
 		}else{
 			$(".col-list-laminasi").show()
 			$(".col-list-lam-laporan").hide()
+			$(".col-list-lam-pembayaran").hide()
 		}
 	}
 
@@ -1126,6 +1330,43 @@
 				if(opsi == 'laporan'){
 					$(".btn-print-lap-lam-pdf").html(data.pdf)
 					$(".cari-lap-laminasi").html(data.html)
+				}
+				swal.close()
+			}
+		})
+	}
+
+	function cariPembayaranLaminasi(opsi) {
+		$(".btn-print-bayar-lam-pdf").html("")
+		$(".cari-lap-pembayaran").html("")
+		let plh_pilih = $("#plh_pilih").val()
+		let plh_bayar = $("#plh_bayar").val()
+		let plh_cust = $("#plh_cust").val()
+		let attn = $('#plh_cust option:selected').attr('attn')
+		let tgl1_jt = $("#tgl1_jt").val()
+		let tgl2_jt = $("#tgl2_jt").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/cariPembayaranLaminasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				opsi, plh_pilih, plh_bayar, plh_cust, attn, tgl1_jt, tgl2_jt
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(opsi == 'laporan'){
+					$(".btn-print-bayar-lam-pdf").html(data.pdf)
+					$(".cari-lap-pembayaran").html(data.html)
 				}
 				swal.close()
 			}
