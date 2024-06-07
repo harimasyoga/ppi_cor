@@ -71,7 +71,7 @@ class Logistik extends CI_Controller
 			'judul' => "Invoice Laminasi",
 		);
 		$this->load->view('header', $data);
-		if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Owner'])){
+		if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Owner', 'Keuangan1'])){
 			$this->load->view('Logistik/v_invoice_lam');
 		}else{
 			$this->load->view('home');
