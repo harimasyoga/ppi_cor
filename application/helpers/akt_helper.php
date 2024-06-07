@@ -67,7 +67,7 @@
         return $total_penjualan;
     } 
     
-    function lr_kotor($bulan='',$thn='')
+    function beban($bulan='',$thn='')
     {
         $CI       = & get_instance();
         $total_penjualan = $CI->db->query("SELECT sum(nominal) as nominal FROM(
