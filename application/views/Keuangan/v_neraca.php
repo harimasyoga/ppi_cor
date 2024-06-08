@@ -31,6 +31,68 @@
 					</div>
 				</div>
 				<div class="card-body">
+					<!--  AA -->
+					<div class="col-md-12">								
+						<br>						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+							<div class="col-md-2">TAHUN</div>
+								<div class="col-md-3">
+								<?php 
+									$thang =  date("Y"); 
+									$thang_min = $thang - 2 ;
+								?>
+									<select class="form-control select2" name ="thun" id="thun" onchange="load_data()" > 
+								<?php 									
+									for ($th=$thang_min ; $th<=$thang ; $th++)
+									{
+										if ($th==$thang) {
+											echo "<option selected value=$th>$thang</option>";
+											}
+										else {	
+										echo "<option value=$th>$th</option>";
+										}
+									}		
+								?>  
+									</select>
+							</div>
+							<div class="col-md-1"></div>
+							<div class="col-md-2">ATTN</div>
+							<div class="col-md-3">
+								<select class="form-control select2" name="id_hub2" id="id_hub2" style="width: 100%;" onchange="load_data()">
+								</select>
+							</div>
+						</div>
+									
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold;" id="blnn" >						
+							<div class="col-md-2">BULAN</div>
+							<div class="col-md-3">
+								<?php 
+									$qbulan    = $this->db->query("SELECT*FROM m_bulan");
+									$bln_now   = date("m");
+								?>
+									<select id="rentang_bulan" class="form-control select2" onchange="load_data()" > 
+										<option value="all">-- SEMUA --</option>
+								<?php 									
+									foreach ($qbulan->result() as $bln_row)
+									{
+										if ($bln_row->id==$bln_now) {
+											echo "<option selected value=$bln_row->id>$bln_row->bulan</option>";
+											}
+										else {	
+										echo "<option value=$bln_row->id>$bln_row->bulan</option>";
+										}
+									}		
+								?>  
+									</select>
+							</div>
+							<div class="col-md-6"></div>
+							
+						</div>
+						
+						<br>
+						<hr>
+					</div>
+					<!-- AA -->
 					<button onclick="cetak_nrc(0)"  class="btn btn-danger">
 					<i class="fa fa-print"></i> CETAK NERACA</button>
 						<br>
@@ -51,6 +113,7 @@
 	rowNum = 0;
 	$(document).ready(function() {
 		load_data();
+		load_hub();
 		// getMax();
 		$('.select2').select2({
 			containerCssClass: "wrap",
@@ -61,6 +124,44 @@
 
 	status = "insert";
 
+	function load_hub() 
+    {
+      option = "";
+      $.ajax({
+        type       : 'POST',
+        url        : "<?= base_url(); ?>Logistik/load_hub",
+        // data       : { idp: pelanggan, kd: '' },
+        dataType   : 'json',
+        beforeSend: function() {
+          swal({
+          title: 'loading ...',
+          allowEscapeKey    : false,
+          allowOutsideClick : false,
+          onOpen: () => {
+            swal.showLoading();
+          }
+          })
+        },
+        success:function(data){			
+          if(data.message == "Success"){					
+            option = `<option value="">-- Pilih --</option>`;	
+
+            $.each(data.data, function(index, val) {
+            option += "<option value='"+val.id_hub+"'>"+val.nm_hub+"</option>";
+            });
+
+            $('#id_hub2').html(option);
+            swal.close();
+          }else{	
+            option += "<option value=''></option>";
+            $('#id_hub2').html(option);					
+            swal.close();
+          }
+        }
+      });
+      
+    }
+
 	function cetak_nrc(ctk)
 	{		
 		var url    = "<?php echo base_url('Keuangan/cetak_nrc'); ?>";
@@ -69,10 +170,19 @@
 
 	function load_data() 
 	{
+		var id_hub    = $('#id_hub2').val()
+		var blnn      = $('#rentang_bulan').val()
+		var thun      = $('#thun').val()
+
 		$.ajax({
-			url: '<?php echo base_url('Keuangan/load_neraca')?>',
-			type: "POST",
+			url    : '<?php echo base_url('Keuangan/load_neraca')?>',
+			type   : "POST",
 			// data: ({ id, id_dtl, opsi }),
+			"data" : ({
+					id_hub       : id_hub,
+					blnn         : blnn,
+					thun         : thun
+				}),
 			beforeSend: function() {
 				swal({
 					title: 'Loading',
