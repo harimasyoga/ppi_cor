@@ -403,7 +403,129 @@ class Keuangan extends CI_Controller
 
 				if($r->kode_1=='' || $r->kode_1 == null)
 				{
-					$nom_awal  = '';
+					if($r->id=='5')
+					{
+						// total_jual_awal
+						$total_jual_awal = total_penjualan('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($total_jual_awal->num_rows() > 0)
+						{
+							$nom_total_jual_awal = $total_jual_awal->row()->nominal;
+							$nom_awal = 'Rp '.number_format($nom_total_jual_awal, 0, ",", ".");
+
+						}else{
+							$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+						}
+					}else if($r->id=='11')
+					{
+						// hp_penjualan_awal
+						$hp_penjualan_awal = hp_penjualan('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($hp_penjualan_awal->num_rows() > 0)
+						{
+							$nom_hp_penjualan_awal = $hp_penjualan_awal->row()->nominal;
+							$nom_awal = 'Rp '.number_format($nom_hp_penjualan_awal, 0, ",", ".");
+						}else{
+							$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+						}
+					}else if($r->id=='21')
+					{
+						// lr_kotor_awal
+						$lr_kotor_awal = lr_kotor('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($lr_kotor_awal->num_rows() > 0)
+						{
+							$nom_lr_kotor_awal = $lr_kotor_awal->row()->nominal;
+							$nom_awal = 'Rp '.number_format($nom_lr_kotor_awal, 0, ",", ".");
+						}else{
+							$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+						}
+					}else if($r->id=='62')
+					{
+						// jum_beban_awal
+						$jum_beban_awal = jum_beban('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($jum_beban_awal->num_rows() > 0)
+						{
+							$nom_jum_beban_awal = $jum_beban_awal->row()->nominal;
+							$nom_awal = 'Rp '.number_format($nom_jum_beban_awal, 0, ",", ".");
+						}else{
+							$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+						}
+					}else if($r->id=='63')
+					{
+
+						// lr_kotor_awal
+						$lr_kotor_awal              = lr_kotor('awal',$blnn,$bln->id,$thun,$attn);
+						if($lr_kotor_awal->num_rows() > 0)
+						{
+							$nom_lr_kotor_awal = $lr_kotor_awal->row()->nominal;
+						}else{
+							$nom_lr_kotor_awal = 0;
+						}
+
+						// jum_beban_awal
+						$jum_beban_awal = jum_beban('awal',$blnn,$bln->id,$thun,$attn);
+						if($jum_beban_awal->num_rows() > 0)
+						{
+							$nom_jum_beban_awal = $jum_beban_awal->row()->nominal;
+						}else{
+							$nom_jum_beban_awal = 0;
+						}
+
+
+						$nom_awal = 'Rp '.number_format($nom_lr_kotor_awal - $nom_jum_beban_awal, 0, ",", ".");
+
+
+					}else if($r->id=='77')
+					{
+						// pll_awal
+						$pll_awal = pll('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($pll_awal->num_rows() > 0)
+						{
+							$nom_pll_awal = $pll_awal->row()->nominal;
+							$nom_awal = 'Rp '.number_format($nom_pll_awal, 0, ",", ".");
+						}else{
+							$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+						}
+
+					}else if($r->id=='78')
+					{
+						// lr_kotor_awal
+						$lr_kotor_awal = lr_kotor('awal',$blnn,$bln->id,$thun,$attn);
+						if($lr_kotor_awal->num_rows() > 0)
+						{
+							$nom_lr_kotor_awal = $lr_kotor_awal->row()->nominal;
+						}else{
+							$nom_lr_kotor_awal = 0;
+						}
+
+						// jum_beban_awal
+						$jum_beban_awal              = jum_beban('awal',$blnn,$bln->id,$thun,$attn);
+						if($jum_beban_awal->num_rows() > 0)
+						{
+							$nom_jum_beban_awal = $jum_beban_awal->row()->nominal;
+						}else{
+							$nom_jum_beban_awal = 0;
+						}
+						
+						// pll_awal
+						$pll_awal= pll('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($pll_awal->num_rows() > 0)
+						{
+							$nom_pll_awal = $pll_awal->row()->nominal;
+						}else{
+							$nom_pll_awal = 0;
+						}
+
+						$nom_awal = 'Rp '.number_format($nom_lr_kotor_awal - $nom_jum_beban_awal - $nom_pll_awal, 0, ",", ".");
+
+					}else{
+						
+						$nom_awal   = '';
+					}
 
 				}else{
 
@@ -437,19 +559,20 @@ class Keuangan extends CI_Controller
 							if($r->id=='5')
 							{
 								// total_penjualan
-								$total_penjualan = total_penjualan($bln->id,$thun);
+								$total_penjualan = total_penjualan('now',$blnn,$bln->id,$thun,$attn);
 
 								if($total_penjualan->num_rows() > 0)
 								{
 									$nom_total_jual = $total_penjualan->row()->nominal;
 									$nominal = 'Rp '.number_format($nom_total_jual, 0, ",", ".");
+
 								}else{
 									$nominal = 'Rp '.number_format(0, 0, ",", ".");
 								}
 							}else if($r->id=='11')
 							{
 								// hp_penjualan
-								$hp_penjualan = hp_penjualan($bln->id,$thun);
+								$hp_penjualan = hp_penjualan('now',$blnn,$bln->id,$thun,$attn);
 
 								if($hp_penjualan->num_rows() > 0)
 								{
@@ -461,17 +584,99 @@ class Keuangan extends CI_Controller
 							}else if($r->id=='21')
 							{
 								// lr_kotor
-								$total_penjualan    = total_penjualan($bln->id,$thun);
-								$hp_penjualan       = hp_penjualan($bln->id,$thun);
-								$beban              = beban($bln->id,$thun);
+								$lr_kotor              = lr_kotor('now',$blnn,$bln->id,$thun,$attn);
 
-								if($beban->num_rows() > 0)
+								if($lr_kotor->num_rows() > 0)
 								{
-									$nom_beban = $beban->row()->nominal;
-									$nominal = 'Rp '.number_format($nom_beban, 0, ",", ".");
+									$nom_lr_kotor = $lr_kotor->row()->nominal;
+									$nominal = 'Rp '.number_format($nom_lr_kotor, 0, ",", ".");
 								}else{
 									$nominal = 'Rp '.number_format(0, 0, ",", ".");
 								}
+							}else if($r->id=='62')
+							{
+								// jum_beban
+								$jum_beban              = jum_beban('now',$blnn,$bln->id,$thun,$attn);
+
+								if($jum_beban->num_rows() > 0)
+								{
+									$nom_jum_beban = $jum_beban->row()->nominal;
+									$nominal = 'Rp '.number_format($nom_jum_beban, 0, ",", ".");
+								}else{
+									$nominal = 'Rp '.number_format(0, 0, ",", ".");
+								}
+							}else if($r->id=='63')
+							{
+
+								// lr_kotor
+								$lr_kotor              = lr_kotor('now',$blnn,$bln->id,$thun,$attn);
+								if($lr_kotor->num_rows() > 0)
+								{
+									$nom_lr_kotor = $lr_kotor->row()->nominal;
+								}else{
+									$nom_lr_kotor = 0;
+								}
+
+								// jum_beban
+								$jum_beban              = jum_beban('now',$blnn,$bln->id,$thun,$attn);
+								if($jum_beban->num_rows() > 0)
+								{
+									$nom_jum_beban = $jum_beban->row()->nominal;
+								}else{
+									$nom_jum_beban = 0;
+								}
+
+
+								$nominal = 'Rp '.number_format($nom_lr_kotor - $nom_jum_beban, 0, ",", ".");
+
+
+							}else if($r->id=='77')
+							{
+
+								// pll
+								$pll              = pll('now',$blnn,$bln->id,$thun,$attn);
+
+								if($pll->num_rows() > 0)
+								{
+									$nom_pll = $pll->row()->nominal;
+									$nominal = 'Rp '.number_format($nom_pll, 0, ",", ".");
+								}else{
+									$nominal = 'Rp '.number_format(0, 0, ",", ".");
+								}
+
+							}else if($r->id=='78')
+							{
+
+								// lr_kotor
+								$lr_kotor              = lr_kotor('now',$blnn,$bln->id,$thun,$attn);
+								if($lr_kotor->num_rows() > 0)
+								{
+									$nom_lr_kotor = $lr_kotor->row()->nominal;
+								}else{
+									$nom_lr_kotor = 0;
+								}
+
+								// jum_beban
+								$jum_beban              = jum_beban('now',$blnn,$bln->id,$thun,$attn);
+								if($jum_beban->num_rows() > 0)
+								{
+									$nom_jum_beban = $jum_beban->row()->nominal;
+								}else{
+									$nom_jum_beban = 0;
+								}
+								
+								// pll
+								$pll              = pll('now',$blnn,$bln->id,$thun,$attn);
+
+								if($pll->num_rows() > 0)
+								{
+									$nom_pll = $pll->row()->nominal;
+								}else{
+									$nom_pll = 0;
+								}
+
+								$nominal = 'Rp '.number_format($nom_lr_kotor - $nom_jum_beban - $nom_pll, 0, ",", ".");
+
 							}else{
 								
 								$nominal   = '';
@@ -491,7 +696,7 @@ class Keuangan extends CI_Controller
 							}
 
 						}
-										
+								
 						$html .='<td style="'.$r->bold.'text-align:right">' . $nominal . '</td>';
 					}
 
@@ -551,53 +756,591 @@ class Keuangan extends CI_Controller
 	function load_neraca()
 	{ //
 
-		$nrc = $this->db->query("SELECT LENGTH(p.kd)length,p.* FROM(
-			select kd_akun as kd,nm_akun as nm,jenis,dk,(select sum(debet) from jurnal_d where left(kode_rek,1)=kd_akun)nominal from m_kode_akun
-			union all
-			select concat(kd_akun,'.',kd_kelompok) as kd,nm_kelompok as nm,jenis,dk,(select sum(debet) from jurnal_d where left(kode_rek,4)=concat(kd_akun,'.',kd_kelompok))nominal from m_kode_kelompok 
-       union all
-       select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis) as kd,nm_jenis as nm,jenis,dk,(select sum(debet) from jurnal_d where left(kode_rek,7)=concat(kd_akun,'.',kd_kelompok,'.',kd_jenis))nominal from m_kode_jenis
-			union all
-			select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci) as kd,nm_rinci as nm,jenis,dk,(select sum(debet) from jurnal_d where left(kode_rek,10)=concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci))nominal from m_kode_rinci
-			 )p
-			 where jenis='Neraca'
-			 order by kd");
+		$attn         = $_POST['id_hub'];
+		$blnn         = $_POST['blnn'];
+		$thun         = $_POST['thun'];
 
-		$html ='';
-		$html .='<table class="table table-bordered table-striped table-scrollable" width="100%">
-		<thead class="color-tabel">
-			<tr>
-				<th style="text-align: center;">Kode Rek</th>
-				<th style="text-align: center;">Nama Akun</th>
-				<th style="text-align: center;"> MARET 2024</th>
-			</tr>
-		</thead>';
-			$i = 0;
-			foreach($nrc->result() as $r){
+		if($attn=='' || $attn== null || $attn== 'null')
+		{
+			if($blnn=='all')
+			{
+				$value            = "";
+				$cek_bulan        = '';
+				$where_bln_awal   = "and YEAR(tgl_transaksi)<'$thun' ";
+				$where_bln        = "and YEAR(tgl_transaksi)='$thun' ";
+			}else{
+				// $value="where a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+				$cek_bulan ="where id ='$blnn'";
+				$where_bln_awal   = "and YEAR(tgl_transaksi)='$thun' and MONTH(tgl_transaksi) < ('$blnn') ";
+				$where_bln        = "and YEAR(tgl_transaksi)='$thun' and MONTH(tgl_transaksi) <= ('$blnn') ";
+			}
+
+		}else{
+			if($blnn=='all')
+			{
+				$value            = "where b.id_hub='$attn' ";
+				$cek_bulan        = '';
+				$where_bln_awal   = "and id_hub='$attn' and YEAR(tgl_transaksi)<'$thun' ";
+				$where_bln        = "and id_hub='$attn' and YEAR(tgl_transaksi)='$thun' ";
+			}else{
+				// $value="where b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+				$cek_bulan        = "where id ='$blnn'";
+				$where_bln_awal   = "and id_hub='$attn' and YEAR(tgl_transaksi)='$thun' and MONTH(tgl_transaksi) < ('$blnn') ";
+				$where_bln        = "and id_hub='$attn' and YEAR(tgl_transaksi)='$thun' and MONTH(tgl_transaksi) <= ('$blnn') ";
+			}
+
+		}
+
+	// 	$nrc = $this->db->query("SELECT LENGTH(p.kd)length,p.* FROM(
+	// 		select kd_akun as kd,nm_akun as nm,jenis,dk,(select sum(debet) from jurnal_d where left(kode_rek,1)=kd_akun)nominal from m_kode_akun
+	// 		union all
+	// 		select concat(kd_akun,'.',kd_kelompok) as kd,nm_kelompok as nm,jenis,dk,(select sum(debet) from jurnal_d where left(kode_rek,4)=concat(kd_akun,'.',kd_kelompok))nominal from m_kode_kelompok 
+    //    union all
+    //    select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis) as kd,nm_jenis as nm,jenis,dk,(select sum(debet) from jurnal_d where left(kode_rek,7)=concat(kd_akun,'.',kd_kelompok,'.',kd_jenis))nominal from m_kode_jenis
+	// 		union all
+	// 		select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci) as kd,nm_rinci as nm,jenis,dk,(select sum(debet) from jurnal_d where left(kode_rek,10)=concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci))nominal from m_kode_rinci
+	// 		 )p
+	// 		 where jenis='Neraca'
+	// 		 order by kd");
+
+			$nrc = load_map_nrc();
+
+			$html ='';
+			$html .='<table class="table table-bordered table-striped table-scrollable" width="100%">
+			<thead class="color-tabel">
+				<tr>
+					<th style="text-align: center;">Kode Rek</th>
+					<th style="text-align: center;">Nama Akun</th>
+					<th style="text-align: center;">Saldo Awal</th>';
+
+			$query_bln = $this->db->query("SELECT*FROM m_bulan $cek_bulan order by id");
+			foreach($query_bln->result() as $bln){
+				$html .=' <th style="text-align: center;"> '.$bln->bulan.' '.$thun.'</th>';
+					
+			}
+			$html .='</tr>
+			</thead>';
+
+			$i         = 0;
+			$nominal   = 0;
+			$nom_awal  = 0;
+			foreach($nrc->result() as $r)
+			{
 				$i++;
 				$html .='<tbody>';
-				$nm_rekk = strtolower(cari_rek($r->kd));
+				$kode = str_replace("'",'',$r->kode_1);
 
-				if($r->length=='1')
+				if($r->kode_1=='' || $r->kode_1 == null)
 				{
-					$html .='
-					<tr>
-						<td style="font-weight: bold;">'.$r->kd.'</td>
-						<td style="font-weight: bold;text-transform:capitalize;" class="text-left" >'.$nm_rekk.'</td>					
-						<td style="font-weight: bold;text-align:right">Rp ' . number_format($r->nominal, 0, ",", ".") . '</td>
-					</tr>';
+					if($r->id=='14')
+					{
+						// total_aset_lancar
+						$total_aset_lancar = total_aset_lancar('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($total_aset_lancar->num_rows() > 0)
+						{
+							$nom_total_jual = $total_aset_lancar->row()->nominal;
+							$nom_awal = 'Rp '.number_format($nom_total_jual, 0, ",", ".");
+
+						}else{
+							$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+						}
+					}else if($r->id=='20')
+					{
+						// aset_tetap
+						$aset_tetap = aset_tetap('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($aset_tetap->num_rows() > 0)
+						{
+							$nom_aset_tetap = $aset_tetap->row()->nominal;
+							$nom_awal = 'Rp '.number_format($nom_aset_tetap, 0, ",", ".");
+						}else{
+							$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+						}
+					}else if($r->id=='26')
+					{
+						// akumulasi_penyusutan
+						$akumulasi_penyusutan = akumulasi_penyusutan('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($akumulasi_penyusutan->num_rows() > 0)
+						{
+							$nom_akumulasi_penyusutan = $akumulasi_penyusutan->row()->nominal;
+							$nom_awal = 'Rp '.number_format($nom_akumulasi_penyusutan, 0, ",", ".");
+						}else{
+							$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+						}
+					}else if($r->id=='27')
+					{
+						// total_aset
+						$total_aset = total_aset('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($total_aset->num_rows() > 0)
+						{
+							$nom_total_aset = $total_aset->row()->nominal;
+							$nom_awal = 'Rp '.number_format($nom_total_aset, 0, ",", ".");
+						}else{
+							$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+						}
+					}else if($r->id=='37')
+					{
+						// total_kewajiban_lancar
+						$total_kewajiban_lancar = total_kewajiban_lancar('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($total_kewajiban_lancar->num_rows() > 0)
+						{
+							$nom_total_kewajiban_lancar = $total_kewajiban_lancar->row()->nominal;
+							$nom_awal = 'Rp '.number_format($nom_total_kewajiban_lancar, 0, ",", ".");
+						}else{
+							$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+						}
+					}else if($r->id=='42')
+					{
+						// total_kewajiban_jp
+						$total_kewajiban_jp = total_kewajiban_jp('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($total_kewajiban_jp->num_rows() > 0)
+						{
+							$nom_total_kewajiban_jp = $total_kewajiban_jp->row()->nominal;
+							$nom_awal = 'Rp '.number_format($nom_total_kewajiban_jp, 0, ",", ".");
+						}else{
+							$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+						}
+					}else if($r->id=='43')
+					{
+						// total_kewajiban
+						$total_kewajiban = total_kewajiban('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($total_kewajiban->num_rows() > 0)
+						{
+							$nom_total_kewajiban = $total_kewajiban->row()->nominal;
+							$nom_awal = 'Rp '.number_format($nom_total_kewajiban, 0, ",", ".");
+						}else{
+							$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+						}
+					}else if($r->id=='50')
+					{
+						// total_ekuitas
+						$total_ekuitas = total_ekuitas('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($total_ekuitas->num_rows() > 0)
+						{
+							$nom_total_ekuitas = $total_ekuitas->row()->nominal;
+						}else{
+							$nom_total_ekuitas = 0;
+						}
+
+						// lr_kotor_nrc
+						$lr_kotor_nrc              = lr_kotor_nrc('awal',$blnn,$bln->id,$thun,$attn);
+						if($lr_kotor_nrc->num_rows() > 0)
+						{
+							$nom_lr_kotor_nrc = $lr_kotor_nrc->row()->nominal;
+						}else{
+							$nom_lr_kotor_nrc = 0;
+						}
+
+						// jum_beban_nrc
+						$jum_beban_nrc              = jum_beban_nrc('awal',$blnn,$bln->id,$thun,$attn);
+						if($jum_beban_nrc->num_rows() > 0)
+						{
+							$nom_jum_beban_nrc = $jum_beban_nrc->row()->nominal;
+						}else{
+							$nom_jum_beban_nrc = 0;
+						}
+						
+						// pll
+						$pll_nrc              = pll_nrc('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($pll_nrc->num_rows() > 0)
+						{
+							$nom_pll_nrc = $pll_nrc->row()->nominal;
+						}else{
+							$nom_pll_nrc = 0;
+						}
+
+						$nom_awal = 'Rp '.number_format($nom_total_ekuitas+ ($nom_lr_kotor_nrc - $nom_jum_beban_nrc - $nom_pll_nrc), 0, ",", ".");
+
+					}else if($r->id=='51')
+					{
+						// total_kewajiban
+						$total_kewajiban = total_kewajiban('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($total_kewajiban->num_rows() > 0)
+						{
+							$nom_total_kewajiban = $total_kewajiban->row()->nominal;
+						}else{
+							$nom_total_kewajiban = 0;
+						}
+
+						// total_ekuitas
+						$total_ekuitas = total_ekuitas('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($total_ekuitas->num_rows() > 0)
+						{
+							$nom_total_ekuitas = $total_ekuitas->row()->nominal;
+						}else{
+							$nom_total_ekuitas = 0;
+						}
+
+						
+						// lr_kotor_nrc
+						$lr_kotor_nrc              = lr_kotor_nrc('awal',$blnn,$bln->id,$thun,$attn);
+						if($lr_kotor_nrc->num_rows() > 0)
+						{
+							$nom_lr_kotor_nrc = $lr_kotor_nrc->row()->nominal;
+						}else{
+							$nom_lr_kotor_nrc = 0;
+						}
+
+						// jum_beban_nrc
+						$jum_beban_nrc              = jum_beban_nrc('awal',$blnn,$bln->id,$thun,$attn);
+						if($jum_beban_nrc->num_rows() > 0)
+						{
+							$nom_jum_beban_nrc = $jum_beban_nrc->row()->nominal;
+						}else{
+							$nom_jum_beban_nrc = 0;
+						}
+						
+						// pll
+						$pll_nrc              = pll_nrc('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($pll_nrc->num_rows() > 0)
+						{
+							$nom_pll_nrc = $pll_nrc->row()->nominal;
+						}else{
+							$nom_pll_nrc = 0;
+						}
+
+						$nom_awal = 'Rp '.number_format($nom_total_kewajiban+ + $nom_total_ekuitas + ($nom_lr_kotor_nrc - $nom_jum_beban_nrc - $nom_pll_nrc), 0, ",", ".");
+					}else{
+						
+						$nom_awal   = '';
+					}
+
 				}else{
-					$html .='
-					<tr>
-						<td style="">&nbsp;&nbsp;&nbsp;&nbsp;'.$r->kd.'</td>
-						<td class="text-left" style="text-transform:capitalize;" >&nbsp;&nbsp;&nbsp;&nbsp;'.$nm_rekk.'</td>					
-						<td style="text-align:right">Rp ' . number_format($r->nominal, 0, ",", ".") . '</td>
-					</tr>';
+
+					if($r->id=='48')
+					{
+						// lr_kotor_nrc
+						$lr_kotor_nrc              = lr_kotor_nrc('awal',$blnn,$bln->id,$thun,$attn);
+						if($lr_kotor_nrc->num_rows() > 0)
+						{
+							$nom_lr_kotor_nrc = $lr_kotor_nrc->row()->nominal;
+						}else{
+							$nom_lr_kotor_nrc = 0;
+						}
+
+						// jum_beban_nrc
+						$jum_beban_nrc              = jum_beban_nrc('awal',$blnn,$bln->id,$thun,$attn);
+						if($jum_beban_nrc->num_rows() > 0)
+						{
+							$nom_jum_beban_nrc = $jum_beban_nrc->row()->nominal;
+						}else{
+							$nom_jum_beban_nrc = 0;
+						}
+						
+						// pll
+						$pll_nrc              = pll_nrc('awal',$blnn,$bln->id,$thun,$attn);
+
+						if($pll_nrc->num_rows() > 0)
+						{
+							$nom_pll_nrc = $pll_nrc->row()->nominal;
+						}else{
+							$nom_pll_nrc = 0;
+						}
+
+						$lr_dtahan = $nom_lr_kotor_nrc - $nom_jum_beban_nrc - $nom_pll_nrc;
+						if($lr_dtahan<0)
+						{
+							$lr_dtahan_ok =$lr_dtahan*-1;
+						}else{
+							$lr_dtahan_ok =$lr_dtahan;
+
+						}
+
+						$nom_awal = 'Rp '.number_format($lr_dtahan_ok, 0, ",", ".");
+					}else if($r->id=='49')
+					{
+						$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+					}else{
+						$nom_awall = $this->db->query("SELECT IFNULL(sum($r->dk),0)nom_awal from jurnal_d where left(kode_rek,$r->length) in ('$r->kode_1') $where_bln_awal GROUP BY left(kode_rek,$r->length)");
+
+						// if($r->dk=='debet')
+						// {
+						// 	$nom_awall = $this->db->query("SELECT IFNULL(sum(debet)-sum(kredit),0)nom_awal from jurnal_d where left(kode_rek,$r->length) in ('$r->kode_1') $where_bln_awal GROUP BY left(kode_rek,$r->length)");
+						// }else{
+						// 	$nom = $this->db->query("SELECT IFNULL(sum(debet)-sum(kredit)*-1,0)nom_awal from jurnal_d where left(kode_rek,$r->length) in ('$r->kode_1') $where_bln_awal GROUP BY left(kode_rek,$r->length)");
+						// }
+						
+						if($nom_awall->num_rows() > 0)
+						{
+							($nom_awall->row()->nom_awal == '' || $nom_awall->row()->nom_awal == null) ? $nomi_awall = 0 : $nomi_awall = $nom_awall->row()->nom_awal;
+
+							$nom_awal = 'Rp '.number_format($nomi_awall, 0, ",", ".");
+						}else{
+							$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+						}
+					}
 
 				}
 
+				$html .='
+				<tr>
+					<td style="'.$r->bold.'">'.$r->spasi.''.$kode.'</td>
+					<td style="'.$r->bold.'text-transform:capitalize;" class="text-left">'.$r->spasi.''.$r->uraian.'</td>
+					<td style="'.$r->bold.'text-align:right">' . $nom_awal . '</td>';
+					
+					$query_bln = $this->db->query("SELECT*FROM m_bulan $cek_bulan order by id");
+					
+					foreach($query_bln->result() as $bln)
+					{
+						// $where_bln2        = "and MONTH(tgl_transaksi)='$bln->id' ";
+
+						if($r->kode_1=='' || $r->kode_1 == null)
+						{
+							if($r->id=='14')
+							{
+								// total_aset_lancar
+								$total_aset_lancar = total_aset_lancar('now',$blnn,$bln->id,$thun,$attn);
+
+								if($total_aset_lancar->num_rows() > 0)
+								{
+									$nom_total_jual = $total_aset_lancar->row()->nominal;
+									$nominal = 'Rp '.number_format($nom_total_jual, 0, ",", ".");
+
+								}else{
+									$nominal = 'Rp '.number_format(0, 0, ",", ".");
+								}
+							}else if($r->id=='20')
+							{
+								// aset_tetap
+								$aset_tetap = aset_tetap('now',$blnn,$bln->id,$thun,$attn);
+
+								if($aset_tetap->num_rows() > 0)
+								{
+									$nom_aset_tetap = $aset_tetap->row()->nominal;
+									$nominal = 'Rp '.number_format($nom_aset_tetap, 0, ",", ".");
+								}else{
+									$nominal = 'Rp '.number_format(0, 0, ",", ".");
+								}
+							}else if($r->id=='26')
+							{
+								// akumulasi_penyusutan
+								$akumulasi_penyusutan = akumulasi_penyusutan('now',$blnn,$bln->id,$thun,$attn);
+
+								if($akumulasi_penyusutan->num_rows() > 0)
+								{
+									$nom_akumulasi_penyusutan = $akumulasi_penyusutan->row()->nominal;
+									$nominal = 'Rp '.number_format($nom_akumulasi_penyusutan, 0, ",", ".");
+								}else{
+									$nominal = 'Rp '.number_format(0, 0, ",", ".");
+								}
+							}else if($r->id=='27')
+							{
+								// total_aset
+								$total_aset = total_aset('now',$blnn,$bln->id,$thun,$attn);
+
+								if($total_aset->num_rows() > 0)
+								{
+									$nom_total_aset = $total_aset->row()->nominal;
+									$nominal = 'Rp '.number_format($nom_total_aset, 0, ",", ".");
+								}else{
+									$nominal = 'Rp '.number_format(0, 0, ",", ".");
+								}
+							}else if($r->id=='37')
+							{
+								// total_kewajiban_lancar
+								$total_kewajiban_lancar = total_kewajiban_lancar('now',$blnn,$bln->id,$thun,$attn);
+
+								if($total_kewajiban_lancar->num_rows() > 0)
+								{
+									$nom_total_kewajiban_lancar = $total_kewajiban_lancar->row()->nominal;
+									$nominal = 'Rp '.number_format($nom_total_kewajiban_lancar, 0, ",", ".");
+								}else{
+									$nominal = 'Rp '.number_format(0, 0, ",", ".");
+								}
+							}else if($r->id=='42')
+							{
+								// total_kewajiban_jp
+								$total_kewajiban_jp = total_kewajiban_jp('now',$blnn,$bln->id,$thun,$attn);
+
+								if($total_kewajiban_jp->num_rows() > 0)
+								{
+									$nom_total_kewajiban_jp = $total_kewajiban_jp->row()->nominal;
+									$nominal = 'Rp '.number_format($nom_total_kewajiban_jp, 0, ",", ".");
+								}else{
+									$nominal = 'Rp '.number_format(0, 0, ",", ".");
+								}
+							}else if($r->id=='43')
+							{
+								// total_kewajiban
+								$total_kewajiban = total_kewajiban('now',$blnn,$bln->id,$thun,$attn);
+
+								if($total_kewajiban->num_rows() > 0)
+								{
+									$nom_total_kewajiban = $total_kewajiban->row()->nominal;
+									$nominal = 'Rp '.number_format($nom_total_kewajiban, 0, ",", ".");
+								}else{
+									$nominal = 'Rp '.number_format(0, 0, ",", ".");
+								}
+							}else if($r->id=='50')
+							{
+								// total_ekuitas
+								$total_ekuitas = total_ekuitas('now',$blnn,$bln->id,$thun,$attn);
+
+								if($total_ekuitas->num_rows() > 0)
+								{
+									$nom_total_ekuitas = $total_ekuitas->row()->nominal;
+								}else{
+									$nom_total_ekuitas = 0;
+								}
+
+								// lr_kotor_nrc
+								$lr_kotor_nrc              = lr_kotor_nrc('now',$blnn,$bln->id,$thun,$attn);
+								if($lr_kotor_nrc->num_rows() > 0)
+								{
+									$nom_lr_kotor_nrc = $lr_kotor_nrc->row()->nominal;
+								}else{
+									$nom_lr_kotor_nrc = 0;
+								}
+
+								// jum_beban_nrc
+								$jum_beban_nrc              = jum_beban_nrc('now',$blnn,$bln->id,$thun,$attn);
+								if($jum_beban_nrc->num_rows() > 0)
+								{
+									$nom_jum_beban_nrc = $jum_beban_nrc->row()->nominal;
+								}else{
+									$nom_jum_beban_nrc = 0;
+								}
+								
+								// pll
+								$pll_nrc              = pll_nrc('now',$blnn,$bln->id,$thun,$attn);
+
+								if($pll_nrc->num_rows() > 0)
+								{
+									$nom_pll_nrc = $pll_nrc->row()->nominal;
+								}else{
+									$nom_pll_nrc = 0;
+								}
+
+								$nominal = 'Rp '.number_format($nom_total_ekuitas+ ($nom_lr_kotor_nrc - $nom_jum_beban_nrc - $nom_pll_nrc), 0, ",", ".");
+
+							}else if($r->id=='51')
+							{
+								// total_kewajiban
+								$total_kewajiban = total_kewajiban('now',$blnn,$bln->id,$thun,$attn);
+
+								if($total_kewajiban->num_rows() > 0)
+								{
+									$nom_total_kewajiban = $total_kewajiban->row()->nominal;
+								}else{
+									$nom_total_kewajiban = 0;
+								}
+
+								// total_ekuitas
+								$total_ekuitas = total_ekuitas('now',$blnn,$bln->id,$thun,$attn);
+
+								if($total_ekuitas->num_rows() > 0)
+								{
+									$nom_total_ekuitas = $total_ekuitas->row()->nominal;
+								}else{
+									$nom_total_ekuitas = 0;
+								}
+
+								
+								// lr_kotor_nrc
+								$lr_kotor_nrc              = lr_kotor_nrc('now',$blnn,$bln->id,$thun,$attn);
+								if($lr_kotor_nrc->num_rows() > 0)
+								{
+									$nom_lr_kotor_nrc = $lr_kotor_nrc->row()->nominal;
+								}else{
+									$nom_lr_kotor_nrc = 0;
+								}
+
+								// jum_beban_nrc
+								$jum_beban_nrc              = jum_beban_nrc('now',$blnn,$bln->id,$thun,$attn);
+								if($jum_beban_nrc->num_rows() > 0)
+								{
+									$nom_jum_beban_nrc = $jum_beban_nrc->row()->nominal;
+								}else{
+									$nom_jum_beban_nrc = 0;
+								}
+								
+								// pll
+								$pll_nrc              = pll_nrc('now',$blnn,$bln->id,$thun,$attn);
+
+								if($pll_nrc->num_rows() > 0)
+								{
+									$nom_pll_nrc = $pll_nrc->row()->nominal;
+								}else{
+									$nom_pll_nrc = 0;
+								}
+
+								$nominal = 'Rp '.number_format($nom_total_kewajiban+ + $nom_total_ekuitas + ($nom_lr_kotor_nrc - $nom_jum_beban_nrc - $nom_pll_nrc), 0, ",", ".");
+							}else{
+								$nominal   = '';
+							}
+
+						}else{
+							if($r->id=='48')
+							{
+								// lr_kotor_nrc
+								$lr_kotor_nrc              = lr_kotor_nrc('now',$blnn,$bln->id,$thun,$attn);
+								if($lr_kotor_nrc->num_rows() > 0)
+								{
+									$nom_lr_kotor_nrc = $lr_kotor_nrc->row()->nominal;
+								}else{
+									$nom_lr_kotor_nrc = 0;
+								}
+
+								// jum_beban_nrc
+								$jum_beban_nrc              = jum_beban_nrc('now',$blnn,$bln->id,$thun,$attn);
+								if($jum_beban_nrc->num_rows() > 0)
+								{
+									$nom_jum_beban_nrc = $jum_beban_nrc->row()->nominal;
+								}else{
+									$nom_jum_beban_nrc = 0;
+								}
+								
+								// pll
+								$pll_nrc              = pll_nrc('now',$blnn,$bln->id,$thun,$attn);
+
+								if($pll_nrc->num_rows() > 0)
+								{
+									$nom_pll_nrc = $pll_nrc->row()->nominal;
+								}else{
+									$nom_pll_nrc = 0;
+								}
+
+								$nominal = 'Rp '.number_format($nom_lr_kotor_nrc - $nom_jum_beban_nrc - $nom_pll_nrc, 0, ",", ".");
+							}else if($r->id=='49')
+							{
+
+								$nominal = 'Rp '.number_format(0, 0, ",", ".");
+							}else{
+								if($r->dk=='debet')
+								{
+									$nom = $this->db->query("SELECT IFNULL(sum(debet)-sum(kredit),0)nominal from jurnal_d where left(kode_rek,$r->length) in ('$r->kode_1') $where_bln GROUP BY left(kode_rek,$r->length)");
+								}else{
+									$nom = $this->db->query("SELECT IFNULL(sum(debet)-sum(kredit)*-1,0)nominal from jurnal_d where left(kode_rek,$r->length) in ('$r->kode_1') $where_bln GROUP BY left(kode_rek,$r->length)");
+								}
+							
+								if($nom->num_rows() > 0)
+								{
+									($nom->row()->nominal == '' || $nom->row()->nominal == null) ? $nomi = 0 : $nomi = $nom->row()->nominal;
+
+									$nominal = 'Rp '.number_format($nomi, 0, ",", ".");
+								}else{
+									$nominal = 'Rp '.number_format(0, 0, ",", ".");
+								}
+							}
+							
+
+						}
+								
+						$html .='<td style="'.$r->bold.'text-align:right">' . $nominal . '</td>';
+					}
 				
-				$html .='</tbody>';
+				$html .='</tr></tbody>';
 				
 			}
 		$html .= '</table>';

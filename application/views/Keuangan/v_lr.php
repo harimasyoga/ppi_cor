@@ -93,7 +93,7 @@
 						<hr>
 					</div>
 					<!-- AA -->
-				<button onclick="cetak_lr(0)"  class="btn btn-danger">
+					<button onclick="cetak_lr(0)"  class="btn btn-danger">
 					<i class="fa fa-print"></i> CETAK L/R</button>
 						<br>
 						<br>
