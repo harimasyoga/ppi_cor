@@ -4234,7 +4234,7 @@ class Logistik extends CI_Controller
 			($this->session->userdata('username') == 'usman') ? $where = "WHERE h.jenis_lm='PEKALONGAN'" : $where = "";
 			$query = $this->db->query("SELECT h.* FROM invoice_laminasi_header h
 			$where
-			ORDER BY acc_owner,id DESC")->result();
+			ORDER BY acc_owner,tgl_invoice,no_invoice")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
@@ -4262,7 +4262,7 @@ class Logistik extends CI_Controller
 				if($r->tgl_invoice != $r->tgl_jatuh_tempo){
 					if($r->status_bayar != 'LUNAS'){
 						if($days < 0){
-							$ketDurasi = '<br><span style="color:#f00">+'.$tDays2.'<br>LEWAT DARI<br>JATUH TEMPO!</span>';
+							$ketDurasi = '<br><span style="color:#f00">+'.$tDays2.'<br>LEWAT<br>JATUH TEMPO!</span>';
 						}else if($days == 0){
 							$ketDurasi = '<br><span style="color:#f00">JATUH TEMPO!</span>';
 						}else{
