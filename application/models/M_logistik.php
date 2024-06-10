@@ -1249,8 +1249,8 @@ class M_logistik extends CI_Model
 			$msg = 'NOMER KENDARAAN TIDAK BOLEH KOSONG!';
 		}else{
 			// CARI NOMER SURAT JALAN BEDASARKAN HUB
-			$tahun = substr(date('Y'),2,2);
-			$romawi = $this->m_fungsi->blnRomami(date('Y-m-d'));
+			$tahun = substr($tgl,2,2);
+			$romawi = $this->m_fungsi->blnRomami($tgl);
 			if(($id_hub == 0 || $id_hub == 7) && $jenis_lm == "PPI"){
 				$noSJ = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat LIKE '%/$tahun/LM' ORDER BY no_surat DESC LIMIT 1");
 				($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_surat,0,6);
@@ -1262,8 +1262,8 @@ class M_logistik extends CI_Model
 					$w_hb = "AND p.id_hub='$id_hub'";
 				}
 				if($jenis_lm == "PEKALONGAN"){
-					$w_sj = '/PKL'.'/'.$romawi.'/'.$tahun;
-					$w_hb = "";
+					$w_sj = '/'.$tahun;
+					$w_hb = "AND p.jenis_lm='PEKALONGAN'";
 				}
 				$noSJ = $this->db->query("SELECT l.no_surat,p.id_hub,r.*,b.aka FROM m_rk_laminasi rk
 				INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
