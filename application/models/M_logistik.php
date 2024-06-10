@@ -1251,7 +1251,7 @@ class M_logistik extends CI_Model
 			// CARI NOMER SURAT JALAN BEDASARKAN HUB
 			$tahun = substr(date('Y'),2,2);
 			$romawi = $this->m_fungsi->blnRomami(date('Y-m-d'));
-			if($id_hub == 0 || $id_hub == 7){
+			if(($id_hub == 0 || $id_hub == 7) && $jenis_lm == "PPI"){
 				$noSJ = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat LIKE '%/$tahun/LM' ORDER BY no_surat DESC LIMIT 1");
 				($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_surat,0,6);
 				$no_surat = str_pad($no+1, 6, "0", STR_PAD_LEFT).'/'.$tahun.'/LM';
