@@ -1570,12 +1570,13 @@ class Logistik extends CI_Controller
 		$htmlItem = '';
 
 		if($no_surat == ''){
-			$no_invoice = ''; $id_pelanggan_lm = ''; $attn = ''; $alamat_kirim = ''; $htmlItem .= ''; $no = 0;
+			$no_invoice = ''; $id_pelanggan_lm = ''; $attn = ''; $alamat_kirim = ''; $htmlItem = ''; $pilihanBank = '' ;$no = 0;
 		}else{
 			($this->session->userdata('username') == 'usman') ? $where = "AND (s.id_sales='9' OR s.nm_sales='Usman')" : $where = '';
 			$pl = $this->db->query("SELECT*FROM pl_laminasi p
 			INNER JOIN m_pelanggan_lm c ON p.id_perusahaan=c.id_pelanggan_lm
 			INNER JOIN m_sales s ON c.id_sales=s.id_sales
+			INNER JOIN trs_po_lm o ON p.no_po=o.no_po_lm
 			WHERE p.no_surat='$no_surat' AND p.no_pl_inv='0' $where
 			GROUP BY p.no_surat")->row();
 			($pl->attn_pl == null) ? $attn = $pl->nm_pelanggan_lm : $attn = $pl->attn_pl;
@@ -1596,22 +1597,35 @@ class Logistik extends CI_Controller
 			}
 			
 			$tahun = substr($pl->tgl,2,2);
-			$noSJ = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE no_invoice LIKE '%$tahun%' ORDER BY no_invoice DESC LIMIT 1");
-			($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 4, 6);
-			$no_invoice = str_pad($no+1, 6, "0", STR_PAD_LEFT);
+			if($pl->jenis_lm == "PPI"){
+				$noSJ = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE no_invoice LIKE '%/$tahun/LM' AND jenis_lm='PPI' ORDER BY no_invoice DESC LIMIT 1");
+				($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 4, 6);
+				$no_invoice = str_pad($no+1, 6, "0", STR_PAD_LEFT);
+				$kop1 = '<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">@PACK</th>';
+				$kopHarga = '<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">ORDER</th>
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">HARGA</th>
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">TOTAL</th>';
+			}
+			if($pl->jenis_lm == "PEKALONGAN"){
+				$noSJ = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE no_invoice LIKE '%/$tahun' AND jenis_lm='PEKALONGAN' ORDER BY no_invoice DESC LIMIT 1");
+				($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 8, 3);
+				$no_invoice = str_pad($no+1, 3, "0", STR_PAD_LEFT);
+				$kop1 = '<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">ISI</th>
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">PACK</th>
+				<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">IKAT</th>';
+				$kopHarga = '<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">ORDER PACK</th>';
+			}
 
 			$htmlItem .='<table class="table table-bordered" style="margin:0">
 				<tr style="background:#f8f9fc">
 					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">#</th>
 					<th style="padding:6px;border-bottom:1px solid #6c757d">NO. PO</th>
 					<th style="padding:6px;border-bottom:1px solid #6c757d">ITEM</th>
-					<th style="padding:6px;border-bottom:1px solid #6c757d">SIZE</th>
-					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">@PACK</th>
+					<th style="padding:6px;border-bottom:1px solid #6c757d">UK</th>
+					'.$kop1.'
 					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">@BAL</th>
 					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">MUAT</th>
-					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">ORDER</th>
-					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">HARGA</th>
-					<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">TOTAL</th>
+					'.$kopHarga.'
 				</tr>';
 				$isi = $this->db->query("SELECT rk.*,i.*,dtl.* FROM m_rk_laminasi rk
 				INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
@@ -1623,38 +1637,55 @@ class Logistik extends CI_Controller
 				$sumTotal = 0;
 				foreach($isi->result() as $r){
 					$i++;
-					if($r->jenis_qty_lm == 'pack'){
-						$ket = '( PACK )';
-						$qty = $r->pack_lm;
-					}else if($r->jenis_qty_lm == 'ikat'){
-						$ket = '( IKAT )';
-						$qty = $r->ikat_lm;
-					}else{
-						$ket = '( KG )';
-						$qty = $r->kg_lm;
+					if($pl->jenis_lm == "PEKALONGAN"){
+						$ket = '';
+						$qty = $r->pack_x;
+						$isi1 = '<td style="padding:6px;text-align:right">'.number_format($r->isi_lm,0,",",".").'</td>
+						<td style="padding:6px;text-align:right">'.number_format($r->pack_x,0,",",".").'</td>
+						<td style="padding:6px;text-align:right">'.number_format($r->ikat_x,0,",",".").'</td>
+						<td style="padding:6px;text-align:right">'.number_format($r->ikat_lm,0,",",".").$ket.'</td>';
+						$total = 0;
+						$harga1 = '';
+					}
+					if($pl->jenis_lm == "PPI"){
+						if($r->jenis_qty_lm == 'pack'){
+							$ket = ' ( PACK )';
+							$qty = $r->pack_lm;
+						}else if($r->jenis_qty_lm == 'ikat'){
+							$ket = ' ( IKAT )';
+							$qty = $r->ikat_lm;
+						}else{
+							$ket = ' ( KG )';
+							$qty = $r->kg_lm;
+						}
+						$isi1 = '<td style="padding:6px;text-align:right">'.number_format($r->isi_lm,0,",",".").' ( SHEET )</td>
+						<td style="padding:6px;text-align:right">'.number_format($qty,0,",",".").$ket.'</td>';
+						$total = ($qty * $r->qty_muat) * $r->harga_pori_lm;
+						$harga1 = '<td style="padding:6px;text-align:right">'.number_format($r->harga_pori_lm,0,",",".").'</td>
+						<td style="padding:6px;text-align:right">'.number_format($total,0,",",".").'</td>';
 					}
 					($r->jenis_qty_lm == 'kg') ? $orderBal = round($qty * $r->qty_muat,2) : $orderBal = number_format($qty * $r->qty_muat,0,',','.');
 					($r->jenis_qty_lm == 'kg') ? $muat = $r->qty_muat : $muat = number_format($r->qty_muat,0,',','.');
-					$total = ($qty * $r->qty_muat) * $r->harga_pori_lm;
 					$htmlItem .='<tr>
 						<td style="padding:6px;text-align:center">'.$i.'</td>
 						<td style="padding:6px">'.$r->rk_no_po.'</td>
 						<td style="padding:6px">'.$r->nm_produk_lm.'</td>
 						<td style="padding:6px">'.$r->ukuran_lm.'</td>
-						<td style="padding:6px;text-align:right">'.number_format($r->isi_lm,0,",",".").' ( SHEET )</td>
-						<td style="padding:6px;text-align:right">'.number_format($qty,0,",",".").' '.$ket.'</td>
+						'.$isi1.'
 						<td style="padding:6px;text-align:right">'.$muat.'</td>
-						<td style="padding:6px;text-align:right">'.$orderBal.' '.$ket.'</td>
-						<td style="padding:6px;text-align:right">'.number_format($r->harga_pori_lm,0,",",".").'</td>
-						<td style="padding:6px;text-align:right">'.number_format($total,0,",",".").'</td>
+						<td style="padding:6px;text-align:right">'.$orderBal.$ket.'</td>
+						'.$harga1.'
 					</tr>';
 					$sumTotal += $total;
 				}
 				// total
-				$htmlItem .='<tr>
-					<td style="padding:6px;text-align:right;font-weight:bold" colspan="9">TOTAL</td>
-					<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumTotal,0,",",".").'</td>
-				</tr>';
+				if($pl->jenis_lm == "PPI" && $isi->num_rows() > 1){
+					$htmlItem .='<tr>
+						<td style="padding:6px;text-align:right;font-weight:bold" colspan="9">TOTAL</td>
+						<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumTotal,0,",",".").'</td>
+					</tr>';
+				}
+
 				// simpan
 				$htmlItem .='<tr>
 					<td style="padding:12px 6px 6px;text-align:right;font-weight:bold" colspan="10">
