@@ -71,7 +71,7 @@ class Logistik extends CI_Controller
 			'judul' => "Invoice Laminasi",
 		);
 		$this->load->view('header', $data);
-		if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Owner', 'Keuangan1'])){
+		if(in_array($this->session->userdata('level'), ['Admin', 'konsul_keu','Laminasi', 'Owner', 'Keuangan1'])){
 			$this->load->view('Logistik/v_invoice_lam');
 		}else{
 			$this->load->view('home');
@@ -4162,7 +4162,7 @@ class Logistik extends CI_Controller
 				$btnHapus = '<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv_bhn . ',' . $r->id_hub . ')" class="btn btn-danger btn-sm">
 				<i class="fa fa-trash-alt"></i></button> ';
 					
-				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User','Keuangan1']))
+				if (in_array($this->session->userdata('level'), ['Admin','User','Keuangan1']))
 				{
 					$row[] = '<div class="text-center">'.$btnEdit.' '.$btncetak.'</div>';
 
@@ -6344,13 +6344,13 @@ class Logistik extends CI_Controller
             
 	// 		<td style="padding:10px 0px -5px 1px;">No Invoice</td>
 	// 		<td style="padding:10px 0px -5px 1px;">:</td>
-	// 		<td style="padding:10px 0px -5px 1px;">014/FN/V/2024</td>
+	// 		<td style="padding:10px 0px -5px 1px;">005/FN/VI/2024</td>
     //     </tr>';
 
 	// 	$html .= '<tr>
 	// 		<td style="">Tgl Invoice</td>
     //         <td style="">:</td>
-    //         <td style="">22 Mei 2024</td>
+    //         <td style="">4 Juni 2024</td>
 	// 		</tr>';
 
 
@@ -6418,17 +6418,17 @@ class Logistik extends CI_Controller
 	// 	</tr>';
 		
 	// 	$html .= '<tr>
-	// 		<td style="padding:5px 0">Rack outdoor</td>
-	// 		<td style="solid #000;padding:5px 0;text-align:right">'. number_format(2, 0, ",", ".").'</td>
-	// 		<td style="solid #000;padding:5px 0;text-align:center">Unit</td>
+	// 		<td style="padding:5px 0">Kabel FO ADSS 24 core</td>
+	// 		<td style="solid #000;padding:5px 0;text-align:right">'. number_format(3000, 0, ",", ".").'</td>
+	// 		<td style="solid #000;padding:5px 0;text-align:center">Meter</td>
 	// 		<td style="solid #000;padding:5px 0 0 15px;text-align:right">Rp</td>
-	// 		<td style="solid #000;padding:5px 0;text-align:right">'. number_format(2500000, 0, ",", ".").'</td>
+	// 		<td style="solid #000;padding:5px 0;text-align:right">'. number_format(4500, 0, ",", ".").'</td>
 	// 		<td style="padding:5px 0 0 15px;text-align:right">Rp</td>
-	// 		<td style="padding:5px 0;text-align:right">'.number_format(5000000, 0, ",", ".") .'</td>
+	// 		<td style="padding:5px 0;text-align:right">'.number_format(13500000, 0, ",", ".") .'</td>
 	// 	</tr>';
 
 
-	// 	$totalHarga = 5000000;		
+	// 	$totalHarga = 13500000;		
 		
 		
 	// 	// T O T A L //

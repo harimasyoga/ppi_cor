@@ -31,7 +31,7 @@
 						</div>
 				</div>
 				<div class="card-body" >
-					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi'])){ ?>
+					<?php if(in_array($this->session->userdata('level'), ['Admin','Laminasi'])){ ?>
 						<div style="margin-bottom:12px">
 							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 						</div>
@@ -559,8 +559,8 @@
 					$("#tgl_inv").val(data.header.tgl_inv_bhn);
 					$("#id_hub").val(data.header.id_hub).trigger('change');
 					$("#ket").val(data.header.ket);
-					$("#qty").val(data.header.qty);
-					$("#nom").val(data.header.nominal);
+					$("#qty").val(format_angka(data.header.qty));
+					$("#nom").val(format_angka(data.header.nominal));
 					var total = data.header.qty*data.header.nominal
 					$("#total_bayar").val(format_angka(total));						
 					swal.close();
