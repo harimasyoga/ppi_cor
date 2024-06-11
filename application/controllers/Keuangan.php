@@ -1020,6 +1020,9 @@ class Keuangan extends CI_Controller
 
 					if($r->id=='48')
 					{
+						$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
+					}else if($r->id=='49')
+					{
 						// lr_kotor_nrc
 						$lr_kotor_nrc              = lr_kotor_nrc('awal',$blnn,$bln->id,$thun,$attn);
 						if($lr_kotor_nrc->num_rows() > 0)
@@ -1058,9 +1061,6 @@ class Keuangan extends CI_Controller
 						}
 
 						$nom_awal = 'Rp '.number_format($lr_dtahan_ok, 0, ",", ".");
-					}else if($r->id=='49')
-					{
-						$nom_awal = 'Rp '.number_format(0, 0, ",", ".");
 					}else{
 						$nom_awall = $this->db->query("SELECT IFNULL(sum($r->dk),0)nom_awal from jurnal_d where left(kode_rek,$r->length) in ('$r->kode_1') $where_bln_awal GROUP BY left(kode_rek,$r->length)");
 
@@ -1283,6 +1283,9 @@ class Keuangan extends CI_Controller
 						}else{
 							if($r->id=='48')
 							{
+								$nominal = 'Rp '.number_format(0, 0, ",", ".");
+							}else if($r->id=='49')
+							{
 								// lr_kotor_nrc
 								$lr_kotor_nrc              = lr_kotor_nrc('now',$blnn,$bln->id,$thun,$attn);
 								if($lr_kotor_nrc->num_rows() > 0)
@@ -1312,10 +1315,6 @@ class Keuangan extends CI_Controller
 								}
 
 								$nominal = 'Rp '.number_format($nom_lr_kotor_nrc - $nom_jum_beban_nrc - $nom_pll_nrc, 0, ",", ".");
-							}else if($r->id=='49')
-							{
-
-								$nominal = 'Rp '.number_format(0, 0, ",", ".");
 							}else{
 								if($r->dk=='debet')
 								{
