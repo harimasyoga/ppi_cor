@@ -456,10 +456,7 @@ class Logistik extends CI_Controller
 				
 				// KIRIMAN
 				if($kiriman->num_rows() > 0){
-					$orderLembar = 0;
-					$orderBal = 0;
-					$jmlMuat = 0;
-					$jmlMuat = 0;
+					$orderLembar = 0; $orderBal = 0; $jmlMuat = 0; $jmlMuat = 0; $sumRIsi = 0; $sumRPack = 0; $sumRIkat = 0;
 					foreach($kiriman->result() as $k){
 						$pl = $this->db->query("SELECT*FROM pl_laminasi pl
 						INNER JOIN m_rk_laminasi i ON pl.tgl=i.rk_tgl AND pl.id_perusahaan=i.id_pelanggan_lm AND pl.no_pl_urut=i.rk_urut
@@ -504,17 +501,44 @@ class Logistik extends CI_Controller
 							<td style="padding:6px;border:0">'.$t_hapus.'</td>
 						</tr>';
 
+						// RETUR
+						$retur = $this->db->query("SELECT d.* FROM invoice_laminasi_detail d
+						INNER JOIN invoice_laminasi_header h ON d.no_invoice=h.no_invoice AND d.no_surat=h.no_surat
+						INNER JOIN m_rk_laminasi r ON d.id_rk_lm=r.id AND d.id_produk_lm=r.id_m_produk_lm AND d.id_po_dtl=r.id_po_dtl
+						WHERE d.id_rk_lm='$k->id' AND d.id_produk_lm='$k->id_m_produk_lm' AND d.id_po_dtl='$k->id_po_dtl' AND d.retur_qty!='0' AND h.status_bayar='LUNAS'
+						GROUP BY d.id_rk_lm,d.id_produk_lm,d.id_po_dtl");
+						if($retur->num_rows() > 0 && $po_lm->jenis_lm == 'PEKALONGAN'){
+							$rorder_sheet_lm = $retur->row()->retur_qty * $r->isi_lm;
+							$rorder_ikat_lm = floor($retur->row()->retur_qty / $r->pack_x);
+							$html .= '<tr>
+								<td style="padding:0 6px;border:0" colspan="7"></td>
+								<td style="padding:0 6px;border:0;font-weight:bold;font-style:italic;color:#000;text-align:right">+ '.number_format($rorder_sheet_lm,0,',','.').'</td>
+								<td style="padding:0 6px;border:0;font-weight:bold;font-style:italic;color:#000;text-align:right">+ '.number_format($retur->row()->retur_qty,0,',','.').'</td>
+								<td style="padding:0 6px;border:0;font-weight:bold;font-style:italic;color:#000;text-align:right">+ '.$rorder_ikat_lm.'</td>
+								<td style="padding:0 6px;border:0">
+									<button type="button" class="btn btn-xs" style="cursor:default;border-left:3px solid #f00">RETUR</button>
+								</td>
+							</tr>';
+							$sumRIsi += $rorder_sheet_lm;
+							$sumRPack += $retur->row()->retur_qty;
+							$sumRIkat += $rorder_ikat_lm;
+						}else{
+							$sumRIsi += 0;
+							$sumRPack += 0;
+							$sumRIkat += 0;
+						}
+
 						$orderLembar += $ol;
 						$orderBal += $ob;
 						$jmlMuat += $k->qty_muat;
 					}
 					if($po_lm->jenis_lm == 'PEKALONGAN'){
-						$sum_sheet_x = $r->order_sheet_lm - $orderLembar;
-						$sum_pack_x = $r->order_pack_lm - $orderBal;
+						$sum_sheet_x = ($r->order_sheet_lm - $orderLembar) + $sumRIsi;
+						$sum_pack_x = ($r->order_pack_lm - $orderBal) + $sumRPack;
 						$bot1 = '<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40" colspan="7">-</td>
 						<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40">'.number_format($sum_sheet_x,0,',','.').'</td>
 						<td style="padding:6px;border:0;font-weight:bold;text-align:right;border-bottom:1px solid #343a40">'.number_format($sum_pack_x,0,',','.').'</td>';
-						$sisa = $r->order_ikat_lm - $jmlMuat;
+						$sisa = ($r->order_ikat_lm - $jmlMuat) + $sumRIkat;
 					}else{
 						($r->jenis_qty_lm == 'kg') ? $tol = '-' : $tol = number_format($r->order_sheet_lm - $orderLembar,0,',','.');
 						($r->jenis_qty_lm == 'kg') ? $tob = round($r->order_pori_lm - $orderBal,2) : $tob = number_format($r->order_pori_lm - $orderBal,0,',','.');
@@ -563,6 +587,9 @@ class Logistik extends CI_Controller
 				$order_ikat_lm = $muat;
 				$order_pori_lm = 0;
 				$qty_ball = $po_dtl->order_ikat_lm;
+				// RETUR
+				$retur = $this->db->query("SELECT SUM(retur_qty) AS retur_qty FROM invoice_laminasi_detail WHERE id_po_dtl='$id_dtl' GROUP BY id_po_dtl");
+				($retur->num_rows() == 0) ? $retur_qty = 0 : $retur_qty = floor($retur->row()->retur_qty / $po_dtl->pack_x);
 			}else{
 				if($po_dtl->jenis_qty_lm == 'pack'){
 					$qty = $po_dtl->pack_lm;
@@ -576,6 +603,7 @@ class Logistik extends CI_Controller
 				$order_pack_lm = 0;
 				$order_ikat_lm = 0;
 				$qty_ball = $po_dtl->qty_bal;
+				$retur_qty = 0;
 			}
 			$data = array(
 				'id' => $_POST["id_dtl"],
@@ -604,6 +632,7 @@ class Logistik extends CI_Controller
 					'order_ikat_lm' => $order_ikat_lm,
 					'order_pori_lm' => $order_pori_lm,
 					'qty_bal' => $qty_ball,
+					'retur_qty' => $retur_qty,
 				)
 			);
 			// KIRIMAN
@@ -625,14 +654,14 @@ class Logistik extends CI_Controller
 						return;
 					}
 				}
-				if(($muat + $jmlMuat) > $qty_ball){
+				if(($muat + ($jmlMuat - $retur_qty)) > $qty_ball){
 					echo json_encode(array('data' => false, 'isi' => 'MUAT LEBIH BESAR DARI PADA QTY PO!', 'total_items' => $this->cart->total_items()));
 					return;
 				}
 				$this->cart->insert($data);
 				echo json_encode(array('data' => true, 'isi' => $data, 'total_items' => $this->cart->total_items()));
 			}else{
-				if(($muat + $jmlMuat) > $qty_ball){
+				if(($muat + ($jmlMuat - $retur_qty)) > $qty_ball){
 					echo json_encode(array('data' => false, 'isi' => 'MUAT LEBIH BESAR DARI PADA QTY PO!', 'total_items' => $this->cart->total_items()));
 					return;
 				}
@@ -688,7 +717,7 @@ class Logistik extends CI_Controller
 					$jmlMuat += $k->qty_muat;
 				}
 				$qty_bal = $r["options"]["qty_bal"] - $jmlMuat;
-				$sisa = ($r["options"]["qty_bal"] - $r["options"]["muat"]) - $jmlMuat;
+				$sisa = (($r["options"]["qty_bal"] - $r["options"]["muat"]) - $jmlMuat) + $r["options"]["retur_qty"];
 			}else{
 				$qty_bal = $r["options"]["qty_bal"];
 				$sisa = $r["options"]["qty_bal"] - $r["options"]["muat"];
@@ -2006,9 +2035,16 @@ class Logistik extends CI_Controller
 				}
 			}
 			// SIMPAN
-			if($opsi == 'edit' && $header->acc_owner == 'N'){
+			if($opsi == 'edit' && $header->acc_owner == 'N' && $this->session->userdata('username') != 'usman'){
 				$htmlItem .='<tr>
 					<td style="border:0;padding:12px 6px 6px;text-align:right;font-weight:bold" colspan="'.$cs2.'">
+						<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanInvLam()"><i class="fas fa-save"></i> SIMPAN</button>
+					</td>
+				</tr>';
+			}
+			if($opsi == 'edit' && $this->session->userdata('username') == 'usman' && $bayar->num_rows() == 0 && $header->status_bayar != "LUNAS"){
+				$htmlItem .='<tr>
+					<td style="border:0;padding:12px 6px 6px;font-weight:bold" colspan="'.$cs2.'">
 						<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanInvLam()"><i class="fas fa-save"></i> SIMPAN</button>
 					</td>
 				</tr>';
@@ -2020,6 +2056,11 @@ class Logistik extends CI_Controller
 			$statusJT = 'CASH'; $Tenggat = 'CASH'; $durasi = '';
 		}else{
 			$statusJT = 'TEMPO';
+			// LEBIH DARI JATUH TEMPO
+			$secondsDiff2 = strtotime(date("Y-m-d")) - strtotime($header->tgl_jatuh_tempo);
+			$days2 = floor($secondsDiff2/60/60/24);
+			($days2 == 0) ? $tDays2 = '' : $tDays2 = $days2.' HARI';
+			// KURANG DARI JATUH TEMPO
 			$scDay = strtotime($header->tgl_jatuh_tempo) - strtotime($header->tgl_invoice);
 			$Tenggat = floor($scDay/60/60/24).' Hari';
 			$secondsDiff = strtotime($header->tgl_jatuh_tempo) - strtotime(date("Y-m-d"));
@@ -2028,8 +2069,10 @@ class Logistik extends CI_Controller
 			if($header->status_bayar != "LUNAS"){
 				if($days == 0){
 					$durasi = ' / <span style="color:#f00">0</span>';
+				}else if($days < 0){
+					$durasi = ' / <span style="color:#f00">+ '.$tDays2.' LEWAT JATUH TEMPO!</span>';
 				}else{
-					$durasi = ' / <span style="color:#f00">- '.$tDays.'</span>';
+					$durasi = ' / <span style="color:#ff5733">- '.$tDays.'</span>';
 				}
 			}else{
 				$durasi = '';
