@@ -2983,8 +2983,9 @@ class Logistik extends CI_Controller
 						$qty = $r->kg_lm;
 						$retur = round($r->retur_qty,2);
 					}
+					($retur == 0) ? $k_retur = '' : $k_retur = ' / '.$r->qty_muat;
 					($r->jenis_qty_lm == 'kg') ? $orderBal = round($qty * $r->rk_muat,2) : $orderBal = number_format($qty * $r->rk_muat,0,',','.');
-					($r->jenis_qty_lm == 'kg') ? $muat = $r->rk_muat : $muat = number_format($r->rk_muat,0,',','.');
+					($r->jenis_qty_lm == 'kg') ? $muat = $r->rk_muat : $muat = number_format($r->rk_muat,0,',','.').$k_retur;
 					$qty_muat = $r->qty_muat * 50;
 				}
 				$htmlItem .='<tr>
@@ -3104,8 +3105,29 @@ class Logistik extends CI_Controller
 			// TOTAL
 			if($isi->num_rows() != 1){
 				$htmlItem .='<tr style="background:#f8f9fc">
-					<td style="padding:6px;font-weight:bold;text-align:right" colspan="9">TOTAL</td>
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="9">SUB TOTAL</td>
 					<td style="padding:6px 12px;font-weight:bold;text-align:right">'.number_format($sumTotal,0,',','.').'</td>
+					<td style="padding:6px"></td>
+				</tr>';
+			}
+			// PPN + PPH
+			if($cHarga->num_rows() == 0){
+				$ppn = round($sumTotal * 0.11);
+				$pph23 = round($sumTotal * 0.02);
+				$total = ($sumTotal + $ppn) - $pph23;
+				$htmlItem .='<tr style="background:#f8f9fc">
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="9">PPN</td>
+					<td style="padding:6px 12px;font-weight:bold;text-align:right">'.number_format($ppn,0,',','.').'</td>
+					<td style="padding:6px"></td>
+				</tr>
+				<tr style="background:#f8f9fc">
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="9">PPH23</td>
+					<td style="padding:6px 12px;font-weight:bold;text-align:right">- '.number_format($pph23,0,',','.').'</td>
+					<td style="padding:6px"></td>
+				</tr>
+				<tr style="background:#f8f9fc">
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="9">TOTAL</td>
+					<td style="padding:6px 12px;font-weight:bold;text-align:right">'.number_format($total,0,',','.').'</td>
 					<td style="padding:6px"></td>
 				</tr>';
 			}
@@ -3288,8 +3310,8 @@ class Logistik extends CI_Controller
 				}
 			}
 			// PPN + PPH
-			$ppn = $sumTotal * 0.11;
-			$pph23 = $sumTotal * 0.02;
+			$ppn = round($sumTotal * 0.11);
+			$pph23 = round($sumTotal * 0.02);
 			$total = ($sumTotal + $ppn) - $pph23;
 			$html .= '<tr>
 				<td style="border-top:2px solid #000;padding:6px 0;text-align:left;line-height:1.8;text-transform:uppercase" '.$csKet.' rowspan="4">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($total).'</i></b></td>
@@ -4527,9 +4549,9 @@ class Logistik extends CI_Controller
 					$lapPrint = '<button class="btn btn-sm btn-secondary" disabled><i class="fas fa-print"></i></button>';
 				}else{
 					// PPN + PPH
-					$ppn = $dtl->total * 0.11;
-					$pph23 = $dtl->total * 0.02;
-					$total = $dtl->total + $ppn + $pph23;
+					$ppn = round($dtl->total * 0.11);
+					$pph23 = round($dtl->total * 0.02);
+					$total = ($dtl->total + $ppn) - $pph23;
 					$row[] = '<div class="text-right" style="font-weight:bold;color:#000">'.number_format($total,0,',','.').'</div>';
 					$lapPrint = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/cetakInvJasa?no_invoice=".$r->no_invoice."").'" title=""><i class="fas fa-print"></i></a>';
 				}

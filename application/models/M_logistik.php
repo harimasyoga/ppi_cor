@@ -1861,7 +1861,7 @@ class M_logistik extends CI_Model
 								$qty = $r->kg_lm;
 								$retur = round($r->retur_qty,2);
 							}
-							$muat = ($qty * $r->qty_muat) - $retur;
+							$muat = (($qty * $r->qty_muat) - $retur) / $qty;
 							$this->db->set('id_produk', $r->id_produk_lm);
 							$this->db->set('no_surat', $no_surat_jalan);
 							$this->db->set('no_invoice', $no_invoice);
