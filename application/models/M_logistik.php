@@ -1538,14 +1538,14 @@ class M_logistik extends CI_Model
 		$harga = $_POST["harga"];
 
 		if($harga == 0 || $harga < 0){
-			$data = false; $msg = 'QTY RETUR TIDAK BOLEH KOSONG!';
+			$data = false; $msg = 'HARGA TIDAK BOLEH KOSONG!';
 		}else{
 			$r = $this->db->query("SELECT i.*,r.qty_muat,d.retur_qty,l.harga_pori_lm,d.total,d.no_invoice FROM invoice_laminasi_detail d
 			INNER JOIN m_rk_laminasi r ON d.id_rk_lm=r.id
 			INNER JOIN m_produk_lm i ON d.id_produk_lm=i.id_produk_lm
 			INNER JOIN trs_po_lm_detail l ON d.id_po_dtl=l.id
 			WHERE d.id='$id_dtl'")->row();
-			$total = ($r->pack_x * $r->qty_muat) * $harga;
+			$total = (($r->pack_x * $r->qty_muat) - $r->retur_qty) * $harga;
 			$this->db->set('harga_pkl', $harga);
 			$this->db->set('total', $total);
 			$this->db->where('id', $id_dtl);
@@ -1682,6 +1682,22 @@ class M_logistik extends CI_Model
 			'detail' => $detail,
 			'disc' => $disc,
 			'no_pl_inv' => $no_pl_inv,
+		];
+	}
+
+	function rejectInvLam(){
+		$opsi = $_POST["opsi"];
+		$id_header = $_POST["id_header"];
+		if($opsi == 'batal'){
+			$this->db->set('status_bayar', 'BELUM BAYAR');
+		}
+		if($opsi == 'reject'){
+			$this->db->set('status_bayar', 'REJECT');
+		}
+		$this->db->where('id', $id_header);
+		$data = $this->db->update('invoice_laminasi_header');
+		return [
+			'data' => $data,
 		];
 	}
 
@@ -1861,7 +1877,7 @@ class M_logistik extends CI_Model
 								$qty = $r->kg_lm;
 								$retur = round($r->retur_qty,2);
 							}
-							$muat = ($qty * $r->qty_muat) - $retur;
+							$muat = (($qty * $r->qty_muat) - $retur) / $qty;
 							$this->db->set('id_produk', $r->id_produk_lm);
 							$this->db->set('no_surat', $no_surat_jalan);
 							$this->db->set('no_invoice', $no_invoice);
