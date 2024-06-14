@@ -505,7 +505,7 @@ class Logistik extends CI_Controller
 						$retur = $this->db->query("SELECT d.* FROM invoice_laminasi_detail d
 						INNER JOIN invoice_laminasi_header h ON d.no_invoice=h.no_invoice AND d.no_surat=h.no_surat
 						INNER JOIN m_rk_laminasi r ON d.id_rk_lm=r.id AND d.id_produk_lm=r.id_m_produk_lm AND d.id_po_dtl=r.id_po_dtl
-						WHERE d.id_rk_lm='$k->id' AND d.id_produk_lm='$k->id_m_produk_lm' AND d.id_po_dtl='$k->id_po_dtl' AND d.retur_qty!='0' AND h.status_bayar='LUNAS'
+						WHERE d.id_rk_lm='$k->id' AND d.id_produk_lm='$k->id_m_produk_lm' AND d.id_po_dtl='$k->id_po_dtl' AND d.retur_qty!='0' AND h.status_bayar IN ('LUNAS', 'REJECT')
 						GROUP BY d.id_rk_lm,d.id_produk_lm,d.id_po_dtl");
 						if($retur->num_rows() > 0 && $po_lm->jenis_lm == 'PEKALONGAN'){
 							$rorder_sheet_lm = $retur->row()->retur_qty * $r->isi_lm;
@@ -1776,6 +1776,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function rejectInvLam()
+	{
+		$result = $this->m_logistik->rejectInvLam();
+		echo json_encode($result);
+	}
+
 	function bayarInvoiceLaminasi()
 	{
 		$result = $this->m_logistik->bayarInvoiceLaminasi();
@@ -1839,24 +1845,30 @@ class Logistik extends CI_Controller
 			foreach($isi->result() as $r){
 				$i_btnRtr = 'onchange="returInvLaminasi('."'".$r->id_dtl."'".','."'".$id_header."'".')"';
 				$i_editHarga = 'onchange="hargaInvLaminasi('."'".$r->id_dtl."'".','."'".$id_header."'".')" onkeyup="upHargainv('."'".$r->id_dtl."'".')"';
-				if($opsi == 'edit' && $header->acc_owner != 'Y' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
-					$btnRtr = $i_btnRtr;
-					$editHarga = $i_editHarga;
-					$f_b = '';
-				}else if($opsi == 'edit' && $header->acc_owner == 'Y' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
-					if($bayar->num_rows() == 0){
+				if($header->status_bayar == 'REJECT'){
+					$btnRtr = 'disabled';
+					$editHarga = 'disabled';
+					$f_b = ';color:#000;font-weight:bold';
+				}else{
+					if($opsi == 'edit' && $header->acc_owner != 'Y' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
 						$btnRtr = $i_btnRtr;
 						$editHarga = $i_editHarga;
 						$f_b = '';
+					}else if($opsi == 'edit' && $header->acc_owner == 'Y' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+						if($bayar->num_rows() == 0){
+							$btnRtr = $i_btnRtr;
+							$editHarga = $i_editHarga;
+							$f_b = '';
+						}else{
+							$btnRtr = 'disabled';
+							$editHarga = 'disabled';
+							$f_b = ';color:#000;font-weight:bold';
+						}
 					}else{
 						$btnRtr = 'disabled';
 						$editHarga = 'disabled';
 						$f_b = ';color:#000;font-weight:bold';
 					}
-				}else{
-					$btnRtr = 'disabled';
-					$editHarga = 'disabled';
-					$f_b = ';color:#000;font-weight:bold';
 				}
 				if($header->jenis_lm == "PEKALONGAN"){
 					$btnHarga = '<input type="number" id="harga-'.$r->id_dtl.'" style="background:#eee;margin-right:3px;padding:3px;width:80px;height:100%;text-align:right;border:0'.$f_b.'" value="'.number_format($r->harga_pkl,0,',','.').'" '.$editHarga.'>';
@@ -1866,7 +1878,6 @@ class Logistik extends CI_Controller
 					$isi1 = '<td style="padding:6px;text-align:right">'.number_format($r->ikat_x,0,",",".").'</td>
 					<td style="padding:6px;text-align:right">'.number_format($r->pack_x,0,",",".").'</td>';
 					$orderBal = number_format($r->pack_x * $r->qty_muat,0,',','.');
-					// $order_pack_lm = $r->pack_x * $r->qty_muat;
 				}
 				if($header->jenis_lm == "PPI"){
 					$btnHarga = number_format($r->harga_pori_lm,0,",",".");
@@ -1966,10 +1977,12 @@ class Logistik extends CI_Controller
 				WHERE d.no_invoice='$header->no_invoice' $cTotal
 				GROUP BY d.no_invoice");
 				if($cekHarga->num_rows() == 0){
-					$htmlItem .='<tr>
-						<td style="background:#eee;border:0;padding:6px;text-align:right;font-weight:bold" colspan="'.$cs1.'">PEMBAYARAN</td>
-						<td style="background:#eee;border:0;padding:6px"></td>
-					</tr>';
+					if($fixTotal != 0){
+						$htmlItem .='<tr>
+							<td style="background:#eee;border:0;padding:6px;text-align:right;font-weight:bold" colspan="'.$cs1.'">PEMBAYARAN</td>
+							<td style="background:#eee;border:0;padding:6px"></td>
+						</tr>';
+					}
 				}
 				$nominal_bayar = 0;
 				if($bayar->num_rows() > 0){
@@ -2034,6 +2047,27 @@ class Logistik extends CI_Controller
 					}
 				}
 			}
+			// REJECT
+			if($fixTotal == 0){
+				if($opsi == 'edit' && $header->status_bayar == 'REJECT' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi']) && $this->session->userdata('username') != 'usman'){
+					$bgRjt = 'btn-info';
+					$btnRjt = 'onclick="rejectInvLam('."'batal'".')"';
+					$txtRjt = ' BATAL REJECT';
+				}else if($opsi == 'edit' && $header->status_bayar != 'REJECT' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+					$bgRjt = 'btn-danger';
+					$btnRjt = 'onclick="rejectInvLam('."'reject'".')"';
+					$txtRjt = ' REJECT';
+				}else{
+					$bgRjt = 'btn-secondary';
+					$btnRjt = 'disabled';
+					$txtRjt = ' REJECT';
+				}
+				$htmlItem .='<tr>
+					<td style="border:0;padding:12px 6px 6px;text-align:right;font-weight:bold" colspan="'.$cs2.'">
+						<button type="button" class="btn btn-sm '.$bgRjt.'" style="font-weight:bold" '.$btnRjt.'><i class="fas fa-times"></i>'.$txtRjt.'</button>
+					</td>
+				</tr>';
+			}
 			// SIMPAN
 			if($opsi == 'edit' && $header->acc_owner == 'N' && $this->session->userdata('username') != 'usman'){
 				$htmlItem .='<tr>
@@ -2053,7 +2087,7 @@ class Logistik extends CI_Controller
 
 		// PEMBAYARAN
 		if($header->tgl_invoice == $header->tgl_jatuh_tempo){
-			$statusJT = 'CASH'; $Tenggat = 'CASH'; $durasi = '';
+			$statusJT = 'CASH'; $tenggat = 'CASH'; $durasi = ''; $tglJt = $this->m_fungsi->tanggal_format_indonesia($header->tgl_jatuh_tempo);
 		}else{
 			$statusJT = 'TEMPO';
 			// LEBIH DARI JATUH TEMPO
@@ -2061,27 +2095,34 @@ class Logistik extends CI_Controller
 			$days2 = floor($secondsDiff2/60/60/24);
 			($days2 == 0) ? $tDays2 = '' : $tDays2 = $days2.' HARI';
 			// KURANG DARI JATUH TEMPO
-			$scDay = strtotime($header->tgl_jatuh_tempo) - strtotime($header->tgl_invoice);
-			$Tenggat = floor($scDay/60/60/24).' Hari';
-			$secondsDiff = strtotime($header->tgl_jatuh_tempo) - strtotime(date("Y-m-d"));
-			$days = floor($secondsDiff/60/60/24);
-			($days == 0) ? $tDays = '' : $tDays = $days.' HARI<br>';
-			if($header->status_bayar != "LUNAS"){
-				if($days == 0){
-					$durasi = ' / <span style="color:#f00">0</span>';
-				}else if($days < 0){
-					$durasi = ' / <span style="color:#f00">+ '.$tDays2.' LEWAT JATUH TEMPO!</span>';
-				}else{
-					$durasi = ' / <span style="color:#ff5733">- '.$tDays.'</span>';
-				}
+			if($header->status_bayar == 'REJECT'){
+				$tglJt = '<span style="color:#f00">-</span>'; $tenggat = ''; $durasi = '<span style="color:#f00">-</span>';
 			}else{
-				$durasi = '';
+				$tglJt = $this->m_fungsi->tanggal_format_indonesia($header->tgl_jatuh_tempo);
+				$scDay = strtotime($header->tgl_jatuh_tempo) - strtotime($header->tgl_invoice);
+				$tenggat = floor($scDay/60/60/24).' Hari';
+				$secondsDiff = strtotime($header->tgl_jatuh_tempo) - strtotime(date("Y-m-d"));
+				$days = floor($secondsDiff/60/60/24);
+				($days == 0) ? $tDays = '' : $tDays = $days.' HARI<br>';
+				if($header->status_bayar != "LUNAS"){
+					if($days == 0){
+						$durasi = ' / <span style="color:#f00">0</span>';
+					}else if($days < 0){
+						$durasi = ' / <span style="color:#f00">+ '.$tDays2.' LEWAT JATUH TEMPO!</span>';
+					}else{
+						$durasi = ' / <span style="color:#ff5733">- '.$tDays.'</span>';
+					}
+				}else{
+					$durasi = '';
+				}
 			}
 		}
 		if($header->status_bayar == "LUNAS"){
 			$txtBayar = '<span class="btn btn-sm btn-success" style="font-weight:bold;letter-spacing:2px">LUNAS</span>';
 		}else if($header->status_bayar == "NYICIL"){
 			$txtBayar = '<span class="btn btn-sm btn-info" style="font-weight:bold;letter-spacing:2px">NYICIL</span>';
+		}else if($header->status_bayar == "REJECT"){
+			$txtBayar = '<span class="btn btn-sm btn-danger" style="font-weight:bold;letter-spacing:2px">REJECT</span>';
 		}else{
 			$txtBayar = '<span class="btn btn-sm btn-secondary" style="font-weight:bold;letter-spacing:2px">BELUM BAYAR</span>';
 		}
@@ -2092,11 +2133,11 @@ class Logistik extends CI_Controller
 			</tr>
 			<tr>
 				<td style="padding:6px">TGL. JT</td>
-				<td style="padding:6px;font-weight:bold">'.$this->m_fungsi->tanggal_format_indonesia($header->tgl_jatuh_tempo).'</td>
+				<td style="padding:6px;font-weight:bold">'.$tglJt.'</td>
 			</tr>
 			<tr>
 				<td style="padding:6px">TENGGAT</td>
-				<td style="padding:6px;font-weight:bold">'.$Tenggat.$durasi.'</td>
+				<td style="padding:6px;font-weight:bold">'.$tenggat.$durasi.'</td>
 			</tr>
 			<tr>
 				<td style="padding:6px 6px 12px"></td>
@@ -2575,10 +2616,8 @@ class Logistik extends CI_Controller
 			$tgl1_jt = $_GET["tgl1_jt"];
 			$tgl2_jt = $_GET["tgl2_jt"];
 		}
-
 		$html = '';
 
-		//
 		($plh_cust == "") ? $wcust = '' : $wcust = "AND h.id_pelanggan_lm='$plh_cust' AND h.attn_lam_inv='$attn'";
 		$header = $this->db->query("SELECT*FROM invoice_laminasi_header h
 		WHERE h.acc_owner='Y' AND h.tgl_jatuh_tempo BETWEEN '$tgl1_jt' AND '$tgl2_jt' AND h.jenis_lm LIKE '%$plh_pilih%' AND h.status_bayar LIKE '%$plh_bayar%' $wcust
@@ -2611,60 +2650,71 @@ class Logistik extends CI_Controller
 			foreach($header->result() as $r){
 				$i++;
 				// BATAS WAKTU
-				$secondsDiff2 = strtotime(date("Y-m-d")) - strtotime($r->tgl_jatuh_tempo);
-				$days2 = floor($secondsDiff2/60/60/24);
-				($days2 == 0) ? $tDays2 = '' : $tDays2 = $days2.' Hari';
-				$secondsDiff = strtotime($r->tgl_jatuh_tempo) - strtotime(date("Y-m-d"));
-				$days = floor($secondsDiff/60/60/24);
-				($days == 0) ? $tDays = '' : $tDays = $days.' Hari';
-				if($r->tgl_invoice != $r->tgl_jatuh_tempo){
-					if($r->status_bayar != 'LUNAS'){
-						if($days < 0){
-							$ketDurasi = ' / <span style="color:#f00;font-weight:bold">+ '.$tDays2.'</span>';
-						}else if($days == 0){
-							$ketDurasi = ' / <span style="color:#f00">JATUH TEMPO!</span>';
+				if($r->status_bayar == 'REJECT'){
+					$tglJt = '-';
+					$ketDurasi = '';
+					$tenggat = '-';
+				}else{
+					$tglJt = $this->m_fungsi->tglIndSkt($r->tgl_jatuh_tempo);
+					$secondsDiff2 = strtotime(date("Y-m-d")) - strtotime($r->tgl_jatuh_tempo);
+					$days2 = floor($secondsDiff2/60/60/24);
+					($days2 == 0) ? $tDays2 = '' : $tDays2 = $days2.' Hari';
+					$secondsDiff = strtotime($r->tgl_jatuh_tempo) - strtotime(date("Y-m-d"));
+					$days = floor($secondsDiff/60/60/24);
+					($days == 0) ? $tDays = '' : $tDays = $days.' Hari';
+					if($r->tgl_invoice != $r->tgl_jatuh_tempo){
+						if($r->status_bayar != 'LUNAS'){
+							if($days < 0){
+								$ketDurasi = ' / <span style="color:#f00;font-weight:bold">+ '.$tDays2.'</span>';
+							}else if($days == 0){
+								$ketDurasi = ' / <span style="color:#f00">JATUH TEMPO!</span>';
+							}else{
+								$ketDurasi = ' / <span style="color:#f00">-'.$tDays.'</span>';
+							}
 						}else{
-							$ketDurasi = ' / <span style="color:#f00">-'.$tDays.'</span>';
+							$ketDurasi = '';
 						}
 					}else{
 						$ketDurasi = '';
 					}
-				}else{
-					$ketDurasi = '';
+					$scDay = strtotime($r->tgl_jatuh_tempo) - strtotime($r->tgl_invoice);
+					($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $tenggat = 'CASH' : $tenggat = floor($scDay/60/60/24).' Hari';
 				}
-				$scDay = strtotime($r->tgl_jatuh_tempo) - strtotime($r->tgl_invoice);
-				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $tenggat = 'CASH' : $tenggat = floor($scDay/60/60/24).' Hari';
+
 				// STATUS BAYAR
 				$bayar = $this->db->query("SELECT SUM(nominal_bayar) AS bayarCuy FROM invoice_laminasi_bayar WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
 				$detail = $this->db->query("SELECT SUM(total) AS total FROM invoice_laminasi_detail WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice")->row();
 				$qDisc = $this->db->query("SELECT SUM(hitung) AS disc FROM invoice_laminasi_disc WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
 				($qDisc->num_rows() == 0) ? $disc = 0 : $disc = $qDisc->row()->disc;
 				$total_disc = $detail->total - $disc;
-				if($r->acc_owner == 'Y'){
-					if($bayar->num_rows() == 0){
-						$txtT = 'BELUM BAYAR';
-						$jmlBayar = 0;
-						$kurBayar = 0;
-					}
-					if($bayar->num_rows() > 0){
-						if($bayar->row()->bayarCuy == $total_disc){
-							$txtT = 'LUNAS';
-							$jmlBayar = $bayar->row()->bayarCuy;
-							$kurBayar = 0;
-						}else{
-							$txtT = 'NYICIL';
-							$jmlBayar = $bayar->row()->bayarCuy;
-							$kurBayar = $bayar->row()->bayarCuy - $total_disc;
+				if($r->status_bayar == 'REJECT'){
+					$txtT = 'REJECT'; $jmlBayar = 0; $kurBayar = 0;
+				}else{
+					if($r->acc_owner == 'Y'){
+						if($bayar->num_rows() == 0){
+							$txtT = 'BELUM BAYAR'; $jmlBayar = 0; $kurBayar = 0;
+						}
+						if($bayar->num_rows() > 0){
+							if($bayar->row()->bayarCuy == $total_disc){
+								$txtT = 'LUNAS';
+								$jmlBayar = $bayar->row()->bayarCuy;
+								$kurBayar = 0;
+							}else{
+								$txtT = 'NYICIL';
+								$jmlBayar = $bayar->row()->bayarCuy;
+								$kurBayar = $bayar->row()->bayarCuy - $total_disc;
+							}
 						}
 					}
 				}
+
 				($jmlBayar == 0) ? $t_jmlBayar = '-' : $t_jmlBayar = number_format($jmlBayar,0,',','.');
 				($kurBayar == 0) ? $t_kurBayar = '' : $t_kurBayar = ' / <span style="color:#f00">'.number_format($kurBayar,0,',','.').'</span>';
 				$html .='<tr>
 					<td style="padding:6px">'.$i.'</td>
 					<td style="padding:6px">'.$r->no_invoice.'</td>
 					<td style="padding:6px;text-align:left">'.$r->attn_lam_inv.'</td>
-					<td style="padding:6px">'.$this->m_fungsi->tglIndSkt($r->tgl_jatuh_tempo).'</td>
+					<td style="padding:6px">'.$tglJt.'</td>
 					<td style="padding:6px">'.$tenggat.$ketDurasi.'</td>
 					<td style="padding:6px">'.$txtT.'</td>
 					<td style="padding:6px">Rp</td>
@@ -4345,33 +4395,38 @@ class Logistik extends CI_Controller
 					<div><b>Alamat :</b> '.$r->alamat_lam_inv.'</div>
 				</div>';
 				$row[] = $htmlDes;
-				// TANGGAL JATUH TEMPO
-				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $jt = 'CASH' : $jt = $this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo);
-				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$jt.'</div>';
-				// BATAS WAKTU
-				$secondsDiff2 = strtotime(date("Y-m-d")) - strtotime($r->tgl_jatuh_tempo);
-				$days2 = floor($secondsDiff2/60/60/24);
-				($days2 == 0) ? $tDays2 = '' : $tDays2 = $days2.' Hari';
-				$secondsDiff = strtotime($r->tgl_jatuh_tempo) - strtotime(date("Y-m-d"));
-				$days = floor($secondsDiff/60/60/24);
-				($days == 0) ? $tDays = '' : $tDays = $days.' Hari';
-				if($r->tgl_invoice != $r->tgl_jatuh_tempo){
-					if($r->status_bayar != 'LUNAS'){
-						if($days < 0){
-							$ketDurasi = '<br><span style="color:#f00">+'.$tDays2.'<br>LEWAT<br>JATUH TEMPO!</span>';
-						}else if($days == 0){
-							$ketDurasi = '<br><span style="color:#f00">JATUH TEMPO!</span>';
+				// TANGGAL JATUH TEMPO DAN BATAS WAKTU
+				if($r->status_bayar == 'REJECT'){
+					$jt = '<span style="color:#f00">-</span>';
+					$tenggat = '';
+					$ketDurasi = '<span style="color:#f00">-</span>';
+				}else{
+					($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $jt = 'CASH' : $jt = $this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo);
+					$secondsDiff2 = strtotime(date("Y-m-d")) - strtotime($r->tgl_jatuh_tempo);
+					$days2 = floor($secondsDiff2/60/60/24);
+					($days2 == 0) ? $tDays2 = '' : $tDays2 = $days2.' Hari';
+					$secondsDiff = strtotime($r->tgl_jatuh_tempo) - strtotime(date("Y-m-d"));
+					$days = floor($secondsDiff/60/60/24);
+					($days == 0) ? $tDays = '' : $tDays = $days.' Hari';
+					if($r->tgl_invoice != $r->tgl_jatuh_tempo){
+						if($r->status_bayar != 'LUNAS'){
+							if($days < 0){
+								$ketDurasi = '<br><span style="color:#f00">+'.$tDays2.'<br>LEWAT<br>JATUH TEMPO!</span>';
+							}else if($days == 0){
+								$ketDurasi = '<br><span style="color:#f00">JATUH TEMPO!</span>';
+							}else{
+								$ketDurasi = '<br><span style="color:#ff5733">-'.$tDays.'</span>';
+							}
 						}else{
-							$ketDurasi = '<br><span style="color:#ff5733">-'.$tDays.'</span>';
+							$ketDurasi = '';
 						}
 					}else{
 						$ketDurasi = '';
 					}
-				}else{
-					$ketDurasi = '';
+					$scDay = strtotime($r->tgl_jatuh_tempo) - strtotime($r->tgl_invoice);
+					($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $tenggat = 'CASH' : $tenggat = floor($scDay/60/60/24).' Hari';
 				}
-				$scDay = strtotime($r->tgl_jatuh_tempo) - strtotime($r->tgl_invoice);
-				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $tenggat = 'CASH' : $tenggat = floor($scDay/60/60/24).' Hari';
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$jt.'</div>';
 				$row[] = '<div class="text-center" style="font-weight:bold">'.$tenggat.$ketDurasi.'</div>';
 				// PEMABAYARAN
 				$bayar = $this->db->query("SELECT SUM(nominal_bayar) AS bayarCuy FROM invoice_laminasi_bayar WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
@@ -4379,21 +4434,26 @@ class Logistik extends CI_Controller
 				$qDisc = $this->db->query("SELECT SUM(hitung) AS disc FROM invoice_laminasi_disc WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
 				($qDisc->num_rows() == 0) ? $disc = 0 : $disc = $qDisc->row()->disc;
 				$total_disc = $detail->total - $disc;
-				if($r->acc_owner != 'Y'){
-					$txtB = 'btn-light'; $txtT = '-'; $kurengByr = '';
-				}
-				if($r->acc_owner == 'Y'){
-					if($bayar->num_rows() == 0){
-						$txtB = 'btn-secondary'; $txtT = 'BELUM BAYAR';
-						$kurengByr = '';
+				if($r->status_bayar == 'REJECT'){
+					$txtB = 'btn-danger'; $txtT = 'REJECT';
+					$kurengByr = '';
+				}else{
+					if($r->acc_owner != 'Y'){
+						$txtB = 'btn-light'; $txtT = '-'; $kurengByr = '';
 					}
-					if($bayar->num_rows() > 0){
-						if($bayar->row()->bayarCuy == $total_disc){
-							$txtB = 'btn-success'; $txtT = 'LUNAS';
+					if($r->acc_owner == 'Y'){
+						if($bayar->num_rows() == 0){
+							$txtB = 'btn-secondary'; $txtT = 'BELUM BAYAR';
 							$kurengByr = '';
-						}else{
-							$txtB = 'btn-info'; $txtT = 'NYICIL';
-							$kurengByr = '<br><span style="color:#ff5733">'.number_format($bayar->row()->bayarCuy-$total_disc,0,',','.').'</span>';
+						}
+						if($bayar->num_rows() > 0){
+							if($bayar->row()->bayarCuy == $total_disc){
+								$txtB = 'btn-success'; $txtT = 'LUNAS';
+								$kurengByr = '';
+							}else{
+								$txtB = 'btn-info'; $txtT = 'NYICIL';
+								$kurengByr = '<br><span style="color:#ff5733">'.number_format($bayar->row()->bayarCuy-$total_disc,0,',','.').'</span>';
+							}
 						}
 					}
 				}
@@ -4444,14 +4504,18 @@ class Logistik extends CI_Controller
 				// CETAK
 				$print2 = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/cetakInvoiceLaminasi?no_invoice=".$r->no_invoice."").'" title=""><i class="fas fa-print"></i></a>';
 				if($r->jenis_lm == "PEKALONGAN"){
-					$cekHarga = $this->db->query("SELECT SUM(total) AS total FROM invoice_laminasi_detail d
-					INNER JOIN invoice_laminasi_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
-					WHERE d.no_invoice='$r->no_invoice' AND d.harga_pkl='0'
-					GROUP BY d.no_invoice");
-					if($cekHarga->num_rows() > 0){
+					if($r->status_bayar == 'REJECT'){
 						$lapLaporan = '<button type="button" class="btn btn-sm btn-secondary" disabled><i class="fa fa-print"></i></button>';
 					}else{
-						$lapLaporan = $print2;
+						$cekHarga = $this->db->query("SELECT SUM(total) AS total FROM invoice_laminasi_detail d
+						INNER JOIN invoice_laminasi_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
+						WHERE d.no_invoice='$r->no_invoice' AND d.harga_pkl='0'
+						GROUP BY d.no_invoice");
+						if($cekHarga->num_rows() > 0){
+							$lapLaporan = '<button type="button" class="btn btn-sm btn-secondary" disabled><i class="fa fa-print"></i></button>';
+						}else{
+							$lapLaporan = $print2;
+						}
 					}
 				}else{
 					$lapLaporan = $print2;

@@ -711,7 +711,6 @@
 			success: function(res){
 				data = JSON.parse(res)
 				$("#h_id_header").val(id_header)
-				
 				let prop = true;
 				(opsi == 'edit') ? prop = false : prop = true;
 				$("#tgl_invoice").val(data.header.tgl_invoice).prop('disabled', prop)
@@ -720,12 +719,10 @@
 				$("#txt_no_invoice").val(data.header.no_invoice)
 				$("#no_invoice").val(data.header.no_invoice).prop('disabled', true)
 				$("#tgl_jatuh_tempo").val(data.header.tgl_jatuh_tempo).prop('disabled', prop)
-
 				$("#h_id_pelanggan_lm").val(data.header.id_pelanggan_lm).prop('disabled', prop)
 				$("#kepada").val(data.header.attn_lam_inv).prop('disabled', prop)
 				$("#alamat").val(data.header.alamat_lam_inv).prop('disabled', prop)
 				$("#pilihan_bank").html(data.htmlBank).prop('disabled', true)
-
 				// VERIFIKASI DATA
 				$("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.oke_admin}`)
 				// VERIFIFIKASI OWNER
@@ -801,7 +798,6 @@
 						`)
 					}
 				}
-
 				// PEMBAYARAN
 				if(data.header.acc_owner != 'Y'){
 					$(".row-item-invoice-laminasi").show()
@@ -815,14 +811,12 @@
 					$(".list-item").html("")
 					$(".list-pembayaran").html(data.htmlBayar)
 				}
-
 				// DISCOUNT / POTONGAN
 				if(opsi == 'edit' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R') && (urlAuth == 'Admin' || urlAuth == 'Laminasi')){
 					$(".disc-potongan").show()
 				}else{
 					$(".disc-potongan").hide()
 				}
-
 				statusInput = 'update'
 				swal.close()
 			}
@@ -895,7 +889,9 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// swal.close()
+				if(data.data == false){
+					toastr.error(`<b>${data.msg}</b>`)
+				}
 				editInvoiceLaminasi(id_header, 'edit')
 			}
 		})
@@ -1197,6 +1193,32 @@
 		});
 	}
 
+	function rejectInvLam(opsi){
+		let id_header = $("#h_id_header").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/rejectInvLam')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				opsi, id_header
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				editInvoiceLaminasi(id_header, 'edit')
+			}
+		})
+	}
+
 	function bayarInvoiceLaminasi(opsi)
 	{
 		let id_header = $("#h_id_header").val()
@@ -1231,7 +1253,6 @@
 				}),
 				success: function(res){
 					data = JSON.parse(res)
-					console.log(data)
 					if(data.bayar){
 						editInvoiceLaminasi(id_header, 'edit')
 					}else{
@@ -1363,7 +1384,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(opsi == 'laporan'){
 					$(".btn-print-bayar-lam-pdf").html(data.pdf)
 					$(".cari-lap-pembayaran").html(data.html)
