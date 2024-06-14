@@ -1125,7 +1125,7 @@ class Transaksi extends CI_Controller
 				$time_po    = substr($r->time_input, 10,6);
 
 				$result_po  = $this->db->query("SELECT nm_produk from trs_po_detail a join m_produk b ON a.id_produk=b.id_produk where no_po='$r->no_po'
-				GROUP BY a.id_produk ORDER BY a.id_produk");
+				GROUP BY a.id_produk ORDER BY a.id");
 
 				if($result_po->num_rows() == '1'){
 					$nm_item = $result_po->row()->nm_produk;
@@ -2275,7 +2275,7 @@ class Transaksi extends CI_Controller
         JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
         LEFT JOIN m_kab d ON c.kab=d.kab_id
         LEFT JOIN m_produk e ON b.id_produk=e.id_produk
-        WHERE a.no_po = '$id' ");
+        WHERE a.no_po = '$id' order by b.id");
 
 		$html = '';
 
