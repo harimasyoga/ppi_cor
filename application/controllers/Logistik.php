@@ -3708,6 +3708,20 @@ class Logistik extends CI_Controller
 					}
 					$no_sj = $no_sj_result;
 				}
+				
+				$result_hub = $this->db->query("SELECT b.*,d.aka FROM invoice_detail b
+				join trs_po c on b.no_po=c.kode_po
+				join m_hub d on c.id_hub=d.id_hub
+				WHERE no_invoice='$r->no_invoice'");
+				if($result_hub->num_rows() == '1'){
+					$hub = $result_hub->row()->aka;
+				}else{					
+					$hub_result    = '';
+					foreach($result_hub->result() as $row){
+						$hub_result .= $row->aka.'<br>';
+					}
+					$hub = $hub_result;
+				}
 
 				$ppn11        = 0.11 * $queryd->jumlah;
 				$pph22        = 0.001 * $queryd->jumlah;
@@ -3773,6 +3787,8 @@ class Logistik extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = 'No Inv: <b>'.$r->no_invoice .'</b><br> Tgl Inv : <b>'. $this->m_fungsi->tanggal_ind($r->tgl_invoice).'</b><br> Kepada : <b>'.$r->kepada.'</b><br> Cust : <b>'. $r->nm_perusahaan.'</b>';
+
+				$row[] = $hub;
 				$row[] = $no_sj;
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo).'</div>';
 				$row[] = '<div class="text-right"><b>'.number_format($total, 0, ",", ".").'</b></div>';

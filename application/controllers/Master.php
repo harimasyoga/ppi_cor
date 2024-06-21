@@ -1163,9 +1163,27 @@ class Master extends CI_Controller
 			$cek_data = '';
 		}
 		
-		$query  = $this->db->query("SELECT a.*,IFNULL((select sum(c.qty*price_inc)jum from trs_po b JOIN trs_po_detail c ON b.no_po=c.no_po where b.id_hub=a.id_hub and YEAR(b.tgl_po) in ('$tahun')
-		group by b.id_hub ,YEAR(b.tgl_po)),0) total_hub FROM m_hub a $cek_data
-		order by id_hub ")->result();
+		$query  = $this->db->query("SELECT a.*,IFNULL(
+		(
+		select jum from(
+		select id_hub,nm_hub,sum(jum) jum from (select b.id_hub,d.nm_hub,c.qty*price_inc as jum 
+		from trs_po b 
+		JOIN trs_po_detail c ON b.no_po=c.no_po 
+		JOIN m_hub d on b.id_hub=d.id_hub
+		where YEAR(b.tgl_po) in ('$tahun') 
+		union all
+		SELECT po.id_hub,hub.nm_hub,dtl.order_pori_lm*dtl.harga_pori_lm as jum
+		FROM trs_po_lm po
+		INNER JOIN trs_po_lm_detail dtl ON po.no_po_lm=dtl.no_po_lm
+		LEFT JOIN m_hub hub ON hub.id_hub=po.id_hub
+		WHERE (po.id_hub!='0') and po.jenis_lm='PPI' and YEAR(po.tgl_lm) in ('$tahun') 
+		)p group by p.id_hub,p.nm_hub
+		)q where q.id_hub=a.id_hub
+		),0) total_hub 
+		FROM m_hub a $cek_data
+		order by id_hub 
+		
+		")->result();
 
 		$html .='<div style="font-weight:bold">';
 		$html .='<table class="table table-bordered table-striped">
@@ -1173,6 +1191,7 @@ class Master extends CI_Controller
 			<tr>
 				<th style="text-align:center">NO</th>
 				<th style="text-align:center">Nama HUB</th>
+				<th style="text-align:center">JENIS</th>
 				<th style="text-align:center">OMSET</th>
 				<th style="text-align:center">SISA PLAFON</th>
 				<th style="text-align:center">TAHUN</th>
@@ -1189,6 +1208,7 @@ class Master extends CI_Controller
 				$html .= '</tr>
 					<td style="text-align:center">'.$i.'</td>
 					<td style="text-align:left">'.$r->nm_hub.'</td>
+					<td style="text-align:left">'.$r->jns.'</td>
 					<td style="text-align:right">'.number_format($r->total_hub, 0, ",", ".").'</td>
 					<td style="text-align:right">'.number_format(4800000000-$r->total_hub, 0, ",", ".").'</td>
 					<td style="text-align:right">'.$tahun.'</td>
@@ -1376,7 +1396,7 @@ class Master extends CI_Controller
 		(select sum(masuk)masuk from trs_stok_bahanbaku b where b.jenis='PPI' group by jenis)masuk,
 		(select sum(keluar)keluar from trs_stok_bahanbaku b where b.jenis='PPI' group by jenis)keluar,
 		(select sum(masuk-keluar)stok_akhir from trs_stok_bahanbaku b where b.jenis='PPI' group by jenis)stok_akhir,
-		'0' as id_hub, 'PPI' as pimpinan, 'PPI' as nm_hub, 'PPI' as aka, ''no_rek,'-' as alamat, '-' as kode_pos, '-' as no_telp, '-' as fax, '-' as add_time, '-' as add_user, '-' as edit_time, '-' as edit_user FROM m_hub e limit 1) as ppi
+		'0' as id_hub, 'PPI' as pimpinan, 'PPI' as nm_hub, 'PPI' as aka, ''no_rek,'-' as alamat, '-' as kode_pos, '-' as no_telp, '-' as fax, '-' as add_time, '-' as add_user, '-' as edit_time, '-' as edit_user,'' as jns FROM m_hub e limit 1) as ppi
 
 		UNION ALL
 
