@@ -251,6 +251,7 @@
 								<tr>
 									<th style="text-align: center;">No</th>
 									<th style="text-align: center;">Invoice</th>
+									<th style="text-align: center;">Hub</th>
 									<th style="text-align: center;">No SJ</th>
 									<th style="text-align: center;">Jatuh Tempo</th>
 									<th style="text-align: center;">Total</th>
