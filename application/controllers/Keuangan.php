@@ -683,8 +683,13 @@ class Keuangan extends CI_Controller
 							}
 
 						}else{
-							
-							$nom = $this->db->query("SELECT IFNULL(sum($r->dk),0)nominal from jurnal_d where left(kode_rek,$r->length) in ($r->kode_1) $where_bln $where_bln2 GROUP BY left(kode_rek,$r->length)");
+							if($r->pengurang == null || $r->pengurang == '')
+							{
+
+								$nom = $this->db->query("SELECT IFNULL(sum($r->dk),0)nominal from jurnal_d where left(kode_rek,$r->length) in ($r->kode_1) $where_bln $where_bln2 GROUP BY left(kode_rek,$r->length)");
+							}else{
+								$nom = $this->db->query("SELECT IFNULL(sum($r->dk)-sum($r->pengurang),0)nominal from jurnal_d where left(kode_rek,$r->length) in ($r->kode_1) $where_bln $where_bln2 GROUP BY left(kode_rek,$r->length)");
+							}
 
 							if($nom->num_rows() > 0)
 							{
