@@ -2385,7 +2385,7 @@ class M_logistik extends CI_Model
 						
 						// pembelian bahan baku		
 						$harga_bahan        = 2300;
-						$ton_tanpa_retur    = ($row->qty * $cek_po->berat_bersih);
+						$ton_tanpa_retur    = ($row->hasil * $cek_po->berat_bersih);
 						$bhn_bk_tanpa_retur = ($ton_tanpa_retur / 0.7);
 						$nominal_bahan      = $bhn_bk_tanpa_retur*$harga_bahan;
 
@@ -2402,21 +2402,21 @@ class M_logistik extends CI_Model
 						if($row->retur_qty > 0)
 						{
 							// retur pendapatan
-							$retur            = ($row->harga*$row->retur_qty);
-							$pajak_retur      = ($row->harga*$row->retur_qty)*0.5/100;
+							// $retur            = ($row->harga*$row->retur_qty);
+							// $pajak_retur      = ($row->harga*$row->retur_qty)*0.5/100;
 							
-							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'4.03','Retur Pendapatan', $retur, 0);
-							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.03','Retur Pendapatan', 0,$retur);
-							// pajak retur
-							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.04','Pajak Retur Pendapatan', $pajak_retur, 0);
-							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'6.37','Pajak Retur Pendapatan', 0,$pajak_retur);
+							// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'4.03','Retur Pendapatan', $retur, 0);
+							// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.03','Retur Pendapatan', 0,$retur);
+							// // pajak retur
+							// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.04','Pajak Retur Pendapatan', $pajak_retur, 0);
+							// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'6.37','Pajak Retur Pendapatan', 0,$pajak_retur);
 
-							// retur
-							$nominal_retur_bahan = ($row->retur_qty*$harga_bahan);
+							// // retur
+							// $nominal_retur_bahan = ($row->retur_qty*$harga_bahan);
 
-							// retur jadi bahan baku
-							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'5.01','Retur Bahan Baku', $nominal_retur_bahan, 0);
-							add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.05','Retur Bahan Baku', 0,$nominal_retur_bahan);
+							// // retur jadi bahan baku
+							// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'5.01','Retur Bahan Baku', $nominal_retur_bahan, 0);
+							// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.05','Retur Bahan Baku', 0,$nominal_retur_bahan);
 						}
 						
 						// stok bahan setelah di kurangi retur
