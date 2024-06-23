@@ -766,7 +766,7 @@
 
         $CI       = & get_instance();
         
-        $total_total_kewajiban_lancar = $CI->db->query("SELECT IFNULL(sum(debet)-sum(kredit)*-1,0)nominal 
+        $total_total_kewajiban_lancar = $CI->db->query("SELECT IFNULL(sum(kredit)-sum(debet),0)nominal 
             from jurnal_d where left(kode_rek,4) in ('2.01')
             $tahunn $bulann $hub
             GROUP BY left(kode_rek,4)
@@ -838,7 +838,7 @@
 
         $CI       = & get_instance();
         
-        $total_total_kewajiban = $CI->db->query("SELECT IFNULL(sum(debet)-sum(kredit)*-1,0)nominal 
+        $total_total_kewajiban = $CI->db->query("SELECT IFNULL(sum(debet)-sum(kredit),0)*-1 nominal 
             from jurnal_d where left(kode_rek,1) in ('2')
             $tahunn $bulann $hub
             GROUP BY left(kode_rek,1)
