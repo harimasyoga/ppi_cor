@@ -2385,7 +2385,7 @@ class M_logistik extends CI_Model
 						
 						// pembelian bahan baku		
 						$harga_bahan        = 2300;
-						$ton_tanpa_retur    = ($row->hasil * $cek_po->berat_bersih);
+						$ton_tanpa_retur    = ($row->qty * $cek_po->berat_bersih);
 						$bhn_bk_tanpa_retur = ($ton_tanpa_retur / 0.7);
 						$nominal_bahan      = $bhn_bk_tanpa_retur*$harga_bahan;
 
