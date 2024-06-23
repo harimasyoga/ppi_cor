@@ -1078,7 +1078,7 @@ class Keuangan extends CI_Controller
 						{
 							$nom_awall = $this->db->query("SELECT IFNULL(sum(debet)-sum(kredit),0)nom_awal from jurnal_d where left(kode_rek,$r->length) in ('$r->kode_1') $where_bln_awal GROUP BY left(kode_rek,$r->length)");
 						}else{
-							$nom_awall = $this->db->query("SELECT IFNULL(sum(debet)-sum(kredit),0)nom_awal from jurnal_d where left(kode_rek,$r->length) in ('$r->kode_1') $where_bln_awal GROUP BY left(kode_rek,$r->length)");
+							$nom_awall = $this->db->query("SELECT IFNULL(sum(kredit)-sum(debet),0)nom_awal from jurnal_d where left(kode_rek,$r->length) in ('$r->kode_1') $where_bln_awal GROUP BY left(kode_rek,$r->length)");
 						}
 						
 						
@@ -1339,7 +1339,7 @@ class Keuangan extends CI_Controller
 								{
 									$nom = $this->db->query("SELECT IFNULL(sum(debet)-sum(kredit),0)nominal from jurnal_d where left(kode_rek,$r->length) in ('$r->kode_1') $where_bln GROUP BY left(kode_rek,$r->length)");
 								}else{
-									$nom = $this->db->query("SELECT IFNULL(sum(debet)-sum(kredit)*-1,0)nominal from jurnal_d where left(kode_rek,$r->length) in ('$r->kode_1') $where_bln GROUP BY left(kode_rek,$r->length)");
+									$nom = $this->db->query("SELECT IFNULL(sum(kredit)-sum(debet),0)nominal from jurnal_d where left(kode_rek,$r->length) in ('$r->kode_1') $where_bln GROUP BY left(kode_rek,$r->length)");
 								}
 							
 								if($nom->num_rows() > 0)
