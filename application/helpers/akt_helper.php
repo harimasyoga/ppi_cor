@@ -532,7 +532,7 @@
         $CI       = & get_instance();
         $total_penjualan = $CI->db->query("SELECT sum(nominal) as nominal FROM(
             -- biaya
-            SELECT IFNULL(debet,0) as nominal from jurnal_d 
+            SELECT IFNULL(debet-kredit,0) as nominal from jurnal_d 
             where left(kode_rek,4) in (6.01 ,6.02 ,6.03 ,6.04 ,6.05 ,6.06 ,6.07 ,6.08 ,6.09 ,6.10 ,6.11 ,6.12 ,6.13 ,6.14 ,6.15 ,6.16 ,6.17 ,6.18 ,6.19 ,6.20 ,6.21 ,6.22 ,6.23 ,6.24 ,6.25 ,6.26 ,6.27 ,6.28 ,6.29 ,6.30 ,6.31 ,6.32 ,6.33 ,6.34 ,6.35 ,6.36 ,6.37 ,6.38) $tahunn $bulann $hub
             )p");
         return $total_penjualan;
@@ -766,7 +766,7 @@
 
         $CI       = & get_instance();
         
-        $total_total_kewajiban_lancar = $CI->db->query("SELECT IFNULL(sum(debet)-sum(kredit)*-1,0)nominal 
+        $total_total_kewajiban_lancar = $CI->db->query("SELECT IFNULL(sum(kredit)-sum(debet),0)nominal 
             from jurnal_d where left(kode_rek,4) in ('2.01')
             $tahunn $bulann $hub
             GROUP BY left(kode_rek,4)
@@ -838,7 +838,7 @@
 
         $CI       = & get_instance();
         
-        $total_total_kewajiban = $CI->db->query("SELECT IFNULL(sum(debet)-sum(kredit)*-1,0)nominal 
+        $total_total_kewajiban = $CI->db->query("SELECT IFNULL(sum(debet)-sum(kredit),0)*-1 nominal 
             from jurnal_d where left(kode_rek,1) in ('2')
             $tahunn $bulann $hub
             GROUP BY left(kode_rek,1)
@@ -1000,7 +1000,7 @@
         $CI       = & get_instance();
         $total_penjualan = $CI->db->query("SELECT sum(nominal) as nominal FROM(
             -- biaya
-            SELECT IFNULL(debet,0) as nominal from jurnal_d 
+            SELECT IFNULL(debet-kredit,0) as nominal from jurnal_d 
             where left(kode_rek,4) in (6.01 ,6.02 ,6.03 ,6.04 ,6.05 ,6.06 ,6.07 ,6.08 ,6.09 ,6.10 ,6.11 ,6.12 ,6.13 ,6.14 ,6.15 ,6.16 ,6.17 ,6.18 ,6.19 ,6.20 ,6.21 ,6.22 ,6.23 ,6.24 ,6.25 ,6.26 ,6.27 ,6.28 ,6.29 ,6.30 ,6.31 ,6.32 ,6.33 ,6.34 ,6.35 ,6.36 ,6.37 ,6.38) $tahunn $bulann $hub
             )p");
         return $total_penjualan;
