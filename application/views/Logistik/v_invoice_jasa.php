@@ -103,7 +103,7 @@
 							<div class="col-md-9">
 								<select id="pilihan_bank" class="form-control select2">
 									<option value="">PILIH</option>
-									<option value="7">BCA PT. PRIMA PAPER INDOENSIA</option>
+									<option value="7">BCA PT. PRIMA PAPER INDONESIA</option>
 								</select>
 							</div>
 						</div>

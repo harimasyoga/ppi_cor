@@ -3320,7 +3320,7 @@ class Logistik extends CI_Controller
 					($r->jenis_qty_lm == 'kg') ? $isiLm = '' : $isiLm = '('.$r->isi_lm.')';
 					$nm_produk = $r->nm_produk_lm.' '.$isiLm;
 					$isiKet = '';
-					$jumlah = $r->qty_muat;
+					$jumlah = $r->qty_muat * 50;
 				}
 				$html .='<tr>
 					<td style="padding:6px 0;text-align:left">'.$nm_produk.'</td>
