@@ -3390,7 +3390,9 @@ class Logistik extends CI_Controller
 		$html .= '</table>';
 		// PEMBAYARAN REKENING
 		$nm_bank = 'BCA';
-		$norek_bank = '078-795-5758';
+		// 078-795-5758 (NON PPN)
+		// 078-027-5758 (PPN)
+		$norek_bank = '078-027-5758';
 		$an_bank = 'PT. PRIMA PAPER INDONESIA';
 		$html .= '<table style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:tahoma">
 			<tr>

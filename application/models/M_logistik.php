@@ -1954,8 +1954,8 @@ class M_logistik extends CI_Model
 				$tanggal = explode('-', $jasa->tgl_invoice);
 				$tahun = $tanggal[0];
 				$bulan = $tanggal[1];
-				$c_no_inv = $this->m_fungsi->urut_transaksi('INV_BELI_NONPPN');
-				$m_no_inv = 'INV/PB/'.$c_no_inv.'/'.$bulan.'/'.$tahun;
+				$c_no_inv = $this->m_fungsi->urut_transaksi('INV_BELI_PPN');
+				$m_no_inv = 'INV/PA/'.$c_no_inv.'/'.$bulan.'/'.$tahun;
 				$data_header = array(
 					'no_inv_beli' => $m_no_inv,
 					'no_inv_maklon' => $jasa->no_invoice,
@@ -1963,7 +1963,7 @@ class M_logistik extends CI_Model
 					'id_hub' => $jasa->id_hub,
 					'id_supp' => 1,
 					'diskon' => 0,
-					'pajak' => 'NONPPN',
+					'pajak' => 'PPN',
 					'ket' => '-',
 					'acc_owner' => 'N',
 				);
