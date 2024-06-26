@@ -953,7 +953,7 @@ class M_logistik extends CI_Model
 	}
 
 	function editPengirimanNoSJ()
-	{ //
+	{
 		$id_pl = $_POST["id_pl"];
 		$no_surat = $_POST["no_surat"];
 
@@ -968,13 +968,16 @@ class M_logistik extends CI_Model
 				$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3];
 				$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3];
 				$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2].'/'.$pkb[3];
+				$thn = $sj[3];
+				$cekSJ = $this->db->query("SELECT*FROM pl_box WHERE no_surat LIKE '$no_surat/%' AND no_surat LIKE '%/$thn' AND id_hub='$pl->id_hub'");
 			}else{
 				$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3].'/'.$sj[4];
 				$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3].'/'.$so[4];
 				$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2];
+				$thn = $sj[3].'/'.$sj[4];
+				$cekSJ = $this->db->query("SELECT*FROM pl_box WHERE no_surat LIKE '$no_surat/%' AND no_surat LIKE '%/$thn'");
 			}
 
-			$cekSJ = $this->db->query("SELECT*FROM pl_box WHERE no_surat='$noSJ'");
 			if($cekSJ->num_rows() == 0){
 				$this->db->set('no_surat', $noSJ);
 				$this->db->set('no_so', $noSO);
