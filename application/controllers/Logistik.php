@@ -2118,13 +2118,13 @@ class Logistik extends CI_Controller
 			}
 		}
 		if($header->status_bayar == "LUNAS"){
-			$txtBayar = '<span class="btn btn-sm btn-success" style="font-weight:bold;letter-spacing:2px">LUNAS</span>';
+			$txtBayar = '<span class="btn btn-sm btn-success" style="font-weight:bold;letter-spacing:2px;cursor:default">LUNAS</span>';
 		}else if($header->status_bayar == "NYICIL"){
-			$txtBayar = '<span class="btn btn-sm btn-info" style="font-weight:bold;letter-spacing:2px">NYICIL</span>';
+			$txtBayar = '<span class="btn btn-sm btn-info" style="font-weight:bold;letter-spacing:2px;cursor:default">NYICIL</span>';
 		}else if($header->status_bayar == "REJECT"){
-			$txtBayar = '<span class="btn btn-sm btn-danger" style="font-weight:bold;letter-spacing:2px">REJECT</span>';
+			$txtBayar = '<span class="btn btn-sm btn-danger" style="font-weight:bold;letter-spacing:2px;cursor:default">REJECT</span>';
 		}else{
-			$txtBayar = '<span class="btn btn-sm btn-secondary" style="font-weight:bold;letter-spacing:2px">BELUM BAYAR</span>';
+			$txtBayar = '<span class="btn btn-sm btn-secondary" style="font-weight:bold;letter-spacing:2px;cursor:default">BELUM BAYAR</span>';
 		}
 		$htmlBayar .= '<table style="margin:0">
 			<tr>
@@ -2976,11 +2976,13 @@ class Logistik extends CI_Controller
 		GROUP BY d.no_surat,d.no_invoice");
 		if($header->transaksi == "CORRUGATED"){
 			$cHarga = $this->db->query("SELECT*FROM invoice_jasa_detail d WHERE d.no_surat='$header->no_surat' AND d.no_invoice='$header->no_invoice' AND d.harga='0' GROUP BY d.harga");
+			$no_invoice = substr($header->no_invoice, 3, 6);
 		}
 		if($header->transaksi == "LAMINASI"){
 			$cHarga = $this->db->query("SELECT*FROM invoice_jasa_detail d
 			INNER JOIN m_produk_lm i ON d.id_produk=i.id_produk_lm
 			WHERE d.no_surat='$header->no_surat' AND d.no_invoice='$header->no_invoice' AND i.jenis_qty_lm!='kg' AND d.harga='0' GROUP BY d.harga");
+			$no_invoice = substr($header->no_invoice, 6, 4);
 		}
 		$htmlItem = '';
 		// NO. PO ITEM UKURAN FLUTE SUBSTANCE
@@ -3194,7 +3196,7 @@ class Logistik extends CI_Controller
 			'header' => $header,
 			'detail' => ($detail->num_rows() == 0) ? 0 : $detail->row(),
 			'cHarga' => $cHarga->num_rows(),
-			'no_invoice' => substr($header->no_invoice, 3, 6),
+			'no_invoice' => $no_invoice,
 			'oke_admin' => substr($this->m_fungsi->getHariIni(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin),0,3).', '.$this->m_fungsi->tglIndSkt(substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 0,10)).' ( '.substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 10,6).' )',
 			'time_owner' => ($header->time_owner == null) ? '' :substr($this->m_fungsi->getHariIni($header->time_owner),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->time_owner, 0,10)).' ( '.substr($header->time_owner, 10,6).' )',
 			'htmlItem' => $htmlItem,
@@ -3390,7 +3392,9 @@ class Logistik extends CI_Controller
 		$html .= '</table>';
 		// PEMBAYARAN REKENING
 		$nm_bank = 'BCA';
-		$norek_bank = '078-795-5758';
+		// 078-795-5758 (NON PPN)
+		// 078-027-5758 (PPN)
+		$norek_bank = '078-027-5758';
 		$an_bank = 'PT. PRIMA PAPER INDONESIA';
 		$html .= '<table style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:tahoma">
 			<tr>
@@ -4653,7 +4657,7 @@ class Logistik extends CI_Controller
 				$btnEdit = '<button type="button" onclick="editInvoiceJasa('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button>'; 
 				$btnHapus = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="hapusInvoiceJasa('."'".$r->id."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>';
 				$btnVerif = '<button type="button" onclick="editInvoiceJasa('."'".$r->id."'".','."'verif'".')" title="VERIFIKASI" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>'; 
-				if($this->session->userdata('level') == 'Admin'){
+				if(in_array($this->session->userdata('level'), ['Admin', 'Admin2'])){
 					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
 				}else if($this->session->userdata('level') == 'Owner'){
 					$row[] = '<div class="text-center">'.$btnVerif.'</div>';

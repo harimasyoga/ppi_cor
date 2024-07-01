@@ -91,7 +91,7 @@ class Laporan extends CI_Controller
 								</tr>';
 							}
 							// KIRIMAN
-							$kiriman = $this->db->query("SELECT i.nm_produk,i.ukuran_sheet,SUM(r.qty_muat) AS qty_muat,r.* FROM pl_box p
+							$kiriman = $this->db->query("SELECT i.nm_produk,i.ukuran_sheet,SUM(r.qty_muat) AS sum_qty_muat,r.* FROM pl_box p
 							INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
 							INNER JOIN m_produk i ON r.id_produk=i.id_produk
 							WHERE p.tgl='$p->tgl' AND p.no_kendaraan='$p->no_kendaraan' AND p.no_pl_urut='$p->no_pl_urut' AND p.id_perusahaan='$p->id_perusahaan'
@@ -115,11 +115,11 @@ class Laporan extends CI_Controller
 								}else{
 									($k->kategori == 'SHEET') ? $t_ket = ' (SHEET)' : $t_ket = ' (BOX)';
 								}
-								($cPelanggan->num_rows() == 1 && $kiriman->num_rows() == 1) ? $kTot = '' : $kTot = '. TOTAL '.number_format($k->qty_muat).' '.$ket;
+								($cPelanggan->num_rows() == 1 && $kiriman->num_rows() == 1) ? $kTot = '' : $kTot = '. TOTAL '.number_format($k->sum_qty_muat).' '.$ket;
 								$html .= '<tr>
 									<td style="border:0">- '.$nm_produk.$kTot.$t_ket.'</td>
 								</tr>';
-								$sumQty += $k->qty_muat;
+								$sumQty += $k->sum_qty_muat;
 							}
 						}
 						// TOTAL DAN TIMBANGAN
@@ -216,6 +216,7 @@ class Laporan extends CI_Controller
 					foreach($detail->result() as $d){
 						$i++;
 						($d->kategori == 'K_BOX') ? $ukuran = $d->ukuran : $ukuran = $d->ukuran_sheet;
+						($this->session->userdata('level') == 'Admin') ? $spanS = '<span style="vertical-align:top;font-style:italic;font-size:12px">'.$d->id_produk.'</span>' : $spanS = '';
 						$html .='<tr>
 							<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$i.'</td>
 							<td style="padding:5px;border:1px solid #aaa">'.$d->nm_produk.'</td>
@@ -223,7 +224,7 @@ class Laporan extends CI_Controller
 							<td style="padding:5px;border:1px solid #aaa">'.$d->kualitas.'</td>
 							<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$d->flute.'</td>
 							<td style="padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($d->qty,0,',','.').'</td>
-							<td style="padding:5px;border:1px solid #aaa"></td>
+							<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$spanS.'</td>
 						</tr>';
 						$kirim = $this->db->query("SELECT SUM(r.qty_muat) AS tot_muat,r.*,p.* FROM m_rencana_kirim r
 						INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id

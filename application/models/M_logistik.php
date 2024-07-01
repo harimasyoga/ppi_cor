@@ -953,7 +953,7 @@ class M_logistik extends CI_Model
 	}
 
 	function editPengirimanNoSJ()
-	{ //
+	{
 		$id_pl = $_POST["id_pl"];
 		$no_surat = $_POST["no_surat"];
 
@@ -968,13 +968,16 @@ class M_logistik extends CI_Model
 				$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3];
 				$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3];
 				$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2].'/'.$pkb[3];
+				$thn = $sj[3];
+				$cekSJ = $this->db->query("SELECT*FROM pl_box WHERE no_surat LIKE '$no_surat/%' AND no_surat LIKE '%/$thn' AND id_hub='$pl->id_hub'");
 			}else{
 				$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3].'/'.$sj[4];
 				$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3].'/'.$so[4];
 				$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2];
+				$thn = $sj[3].'/'.$sj[4];
+				$cekSJ = $this->db->query("SELECT*FROM pl_box WHERE no_surat LIKE '$no_surat/%' AND no_surat LIKE '%/$thn'");
 			}
 
-			$cekSJ = $this->db->query("SELECT*FROM pl_box WHERE no_surat='$noSJ'");
 			if($cekSJ->num_rows() == 0){
 				$this->db->set('no_surat', $noSJ);
 				$this->db->set('no_so', $noSO);
@@ -1785,7 +1788,7 @@ class M_logistik extends CI_Model
 		$pilih_transaksi = $_POST["pilih_transaksi"];
 		$tgl_sj = $_POST["tgl_sj"];
 		$no_surat_jalan = $_POST["no_surat_jalan"];
-		$no_invoice = $_POST["no_invoice"];
+		// $no_invoice = $_POST["no_invoice"];
 		$tgl_jatuh_tempo = $_POST["tgl_jatuh_tempo"];
 		$h_id_hub = $_POST["h_id_hub"];
 		$kepada = $_POST["kepada"];
@@ -1806,10 +1809,12 @@ class M_logistik extends CI_Model
 			$no_invoice = 'JP/LM/'.str_pad($no+1, 4, "0", STR_PAD_LEFT).'/'.$bulan.'/'.$tahun;
 		}
 
-		($statusInput == 'insert') ? $no_inv = $_POST["no_invoice"] : $no_inv = substr($_POST["no_invoice"], 3, 6);
-		if($no_inv == 000000 || $no_inv == '000000' || $no_inv == '' || $no_inv < 0 || strlen("'.$no_inv.'") < 6){
+		// ($statusInput == 'insert') ? $no_inv = $_POST["no_invoice"] : $no_inv = substr($_POST["no_invoice"], 3, 6);
+		$no_inv = $_POST["no_invoice"];
+		// if($no_inv == 000000 || $no_inv == '000000' || $no_inv == '' || $no_inv < 0 || ($opsi == "CORRUGATED" && strlen("'.$no_inv.'") < 6)){
+		if($no_inv == ''){
 			$data = false; $insert = false; $detail = false; $no_pl_jasa = false;
-			$msg = 'NOMER INVOICE TIDAK BOLEH KOSONG!';
+			$msg = 'NOMER INVOICE TIDAK BOLEH KOSONG! '.$no_inv;
 		}else if($tgl_invoice == "" || $no_inv == "" || $tgl_jatuh_tempo == "" || $kepada == "" || $alamat == "" || $pilihan_bank == "" || $pilih_transaksi == ""){
 			$data = false; $insert = false; $detail = false; $no_pl_jasa = false;
 			$msg = 'HARAP LENGKAPI FORM!';
@@ -1954,8 +1959,8 @@ class M_logistik extends CI_Model
 				$tanggal = explode('-', $jasa->tgl_invoice);
 				$tahun = $tanggal[0];
 				$bulan = $tanggal[1];
-				$c_no_inv = $this->m_fungsi->urut_transaksi('INV_BELI_NONPPN');
-				$m_no_inv = 'INV/PB/'.$c_no_inv.'/'.$bulan.'/'.$tahun;
+				$c_no_inv = $this->m_fungsi->urut_transaksi('INV_BELI_PPN');
+				$m_no_inv = 'INV/PA/'.$c_no_inv.'/'.$bulan.'/'.$tahun;
 				$data_header = array(
 					'no_inv_beli' => $m_no_inv,
 					'no_inv_maklon' => $jasa->no_invoice,
@@ -1963,7 +1968,7 @@ class M_logistik extends CI_Model
 					'id_hub' => $jasa->id_hub,
 					'id_supp' => 1,
 					'diskon' => 0,
-					'pajak' => 'NONPPN',
+					'pajak' => 'PPN',
 					'ket' => '-',
 					'acc_owner' => 'N',
 				);

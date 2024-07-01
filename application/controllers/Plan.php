@@ -112,7 +112,7 @@ class Plan extends CI_Controller
 	{
 		$html = '';
 
-		$allWo = $this->db->query("SELECT w.id_pelanggan,c.nm_pelanggan,COUNT(w.id_pelanggan) AS jmlWO FROM trs_wo w
+		$allWo = $this->db->query("SELECT w.id_pelanggan,c.attn,c.nm_pelanggan,COUNT(w.id_pelanggan) AS jmlWO FROM trs_wo w
 		INNER JOIN m_pelanggan c ON w.id_pelanggan=c.id_pelanggan
 		WHERE w.status='Open'
 		GROUP BY w.id_pelanggan
@@ -122,9 +122,10 @@ class Plan extends CI_Controller
 				CUSTOMER <span class="bg-light" style="vertical-align:top;padding:2px 4px;font-size:12px">JUMLAH WO</span>
 			</div>';
 			foreach($allWo->result() as $r){
+				($r->attn == "-" || $r->attn == "") ? $attn = '' : $attn = ' | '.$r->attn;
 				$html .='<div class="card m-0" style="border-radius:0">
 					<div class="card-header bg-gradient-info" style="padding:0;border-radius:0">
-						<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseHeaderWO'.$r->id_pelanggan.'" onclick="onClickHeaderWO('."'".$r->id_pelanggan."'".')">'.$r->nm_pelanggan.' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->jmlWO.'</span></a>
+						<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseHeaderWO'.$r->id_pelanggan.'" onclick="onClickHeaderWO('."'".$r->id_pelanggan."'".')">'.$r->nm_pelanggan.$attn.' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->jmlWO.'</span></a>
 					</div>
 					<div id="collapseHeaderWO'.$r->id_pelanggan.'" class="collapse" data-parent="#accordion">
 						<div id="tampil-all-wo-isi-'.$r->id_pelanggan.'"></div>
@@ -2008,7 +2009,7 @@ class Plan extends CI_Controller
 	function loadDataAllPlanCor()
 	{
 		$html = '';
-		$allPlanCor = $this->db->query("SELECT COUNT(p.id_plan) AS jml_plan,c.nm_pelanggan,p.* FROM plan_cor p
+		$allPlanCor = $this->db->query("SELECT COUNT(p.id_plan) AS jml_plan,c.attn,c.nm_pelanggan,p.* FROM plan_cor p
 		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 		WHERE p.next_plan!='GUDANG' AND p.status_flexo_plan='Open'
 		GROUP BY p.id_pelanggan
@@ -2018,10 +2019,11 @@ class Plan extends CI_Controller
 				CUSTOMER <span class="bg-light" style="vertical-align:top;padding:2px 4px;font-size:12px">JUMLAH PLAN COR</span>
 			</div>';
 			foreach($allPlanCor->result() as $r){
+				($r->attn == "-" || $r->attn == "") ? $attn = '' : $attn = ' | '.$r->attn;
 				$html .='<div class="card m-0" style="border-radius:0">
 					<div class="card-header bg-gradient-info" style="padding:0;border-radius:0">
 						<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseHeaderPlanCor'.$r->id_pelanggan.'" onclick="onClickHeaderPlanCor('."'".$r->id_pelanggan."'".')">
-							'.$r->nm_pelanggan.' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->jml_plan.'</span>
+							'.$r->nm_pelanggan.$attn.' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->jml_plan.'</span>
 						</a>
 					</div>
 					<div id="collapseHeaderPlanCor'.$r->id_pelanggan.'" class="collapse" data-parent="#accordion">
@@ -3478,7 +3480,7 @@ class Plan extends CI_Controller
 	function fsDataAllCustFlexo()
 	{
 		$html = '';
-		$allPlanCor = $this->db->query("SELECT COUNT(p.id_flexo) AS jml_plan,c.id_pelanggan,c.nm_pelanggan,p.* FROM plan_flexo p
+		$allPlanCor = $this->db->query("SELECT COUNT(p.id_flexo) AS jml_plan,c.id_pelanggan,c.attn,c.nm_pelanggan,p.* FROM plan_flexo p
 		INNER JOIN plan_cor r ON p.id_plan_cor=r.id_plan
 		INNER JOIN m_pelanggan c ON r.id_pelanggan=c.id_pelanggan
 		WHERE p.status_stt_f='Open' AND p.next_flexo!='GUDANG'
@@ -3489,10 +3491,11 @@ class Plan extends CI_Controller
 				CUSTOMER <span class="bg-light" style="vertical-align:top;padding:2px 4px;font-size:12px">JUMLAH PLAN FLEXO</span>
 			</div>';
 			foreach($allPlanCor->result() as $r){
+				($r->attn == "-" || $r->attn == "") ? $attn = '' : $attn = ' | '.$r->attn;
 				$html .='<div class="card m-0" style="border-radius:0">
 					<div class="card-header bg-gradient-info" style="padding:0;border-radius:0">
 						<a class="d-block w-100 link-h-wo" style="font-weight:bold;padding:6px" data-toggle="collapse" href="#collapseHeaderPlanCor'.$r->id_pelanggan.'" onclick="onClickHeaderPlanFlexo('."'".$r->id_pelanggan."'".')">
-							'.$r->nm_pelanggan.' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->jml_plan.'</span>
+							'.$r->nm_pelanggan.$attn.' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->jml_plan.'</span>
 						</a>
 					</div>
 					<div id="collapseHeaderPlanCor'.$r->id_pelanggan.'" class="collapse" data-parent="#accordion-h-cust">

@@ -163,7 +163,7 @@
 							</div>
 						</div>
 						<div class="card-body">
-							<?php if(in_array($this->session->userdata('level'), ['Admin'])){ ?>
+							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Admin2'])){ ?>
 								<div style="margin-bottom:12px">
 									<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								</div>
@@ -238,7 +238,7 @@
 	{
 		let tanggal = '<?= date("Y-m-d")?>'
 		$("#tgl_invoice").val(tanggal).prop('disabled', false)
-		$("#pilih_transaksi").val("").prop('disabled', false)
+		$("#pilih_transaksi").val("").prop('disabled', false).trigger("change")
 		$("#tgl_sj").val("").prop('disabled', true)
 		$("#no_surat_jalan").html(`<option value="">PILIH</option>`).prop('disabled', true)
 		$("#txt_no_invoice").val("AUTO").prop('disabled', true)
