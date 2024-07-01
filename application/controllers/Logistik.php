@@ -2118,13 +2118,13 @@ class Logistik extends CI_Controller
 			}
 		}
 		if($header->status_bayar == "LUNAS"){
-			$txtBayar = '<span class="btn btn-sm btn-success" style="font-weight:bold;letter-spacing:2px">LUNAS</span>';
+			$txtBayar = '<span class="btn btn-sm btn-success" style="font-weight:bold;letter-spacing:2px;cursor:default">LUNAS</span>';
 		}else if($header->status_bayar == "NYICIL"){
-			$txtBayar = '<span class="btn btn-sm btn-info" style="font-weight:bold;letter-spacing:2px">NYICIL</span>';
+			$txtBayar = '<span class="btn btn-sm btn-info" style="font-weight:bold;letter-spacing:2px;cursor:default">NYICIL</span>';
 		}else if($header->status_bayar == "REJECT"){
-			$txtBayar = '<span class="btn btn-sm btn-danger" style="font-weight:bold;letter-spacing:2px">REJECT</span>';
+			$txtBayar = '<span class="btn btn-sm btn-danger" style="font-weight:bold;letter-spacing:2px;cursor:default">REJECT</span>';
 		}else{
-			$txtBayar = '<span class="btn btn-sm btn-secondary" style="font-weight:bold;letter-spacing:2px">BELUM BAYAR</span>';
+			$txtBayar = '<span class="btn btn-sm btn-secondary" style="font-weight:bold;letter-spacing:2px;cursor:default">BELUM BAYAR</span>';
 		}
 		$htmlBayar .= '<table style="margin:0">
 			<tr>

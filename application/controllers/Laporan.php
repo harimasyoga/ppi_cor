@@ -91,7 +91,7 @@ class Laporan extends CI_Controller
 								</tr>';
 							}
 							// KIRIMAN
-							$kiriman = $this->db->query("SELECT i.nm_produk,i.ukuran_sheet,SUM(r.qty_muat) AS qty_muat,r.* FROM pl_box p
+							$kiriman = $this->db->query("SELECT i.nm_produk,i.ukuran_sheet,SUM(r.qty_muat) AS sum_qty_muat,r.* FROM pl_box p
 							INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
 							INNER JOIN m_produk i ON r.id_produk=i.id_produk
 							WHERE p.tgl='$p->tgl' AND p.no_kendaraan='$p->no_kendaraan' AND p.no_pl_urut='$p->no_pl_urut' AND p.id_perusahaan='$p->id_perusahaan'
@@ -115,11 +115,11 @@ class Laporan extends CI_Controller
 								}else{
 									($k->kategori == 'SHEET') ? $t_ket = ' (SHEET)' : $t_ket = ' (BOX)';
 								}
-								($cPelanggan->num_rows() == 1 && $kiriman->num_rows() == 1) ? $kTot = '' : $kTot = '. TOTAL '.number_format($k->qty_muat).' '.$ket;
+								($cPelanggan->num_rows() == 1 && $kiriman->num_rows() == 1) ? $kTot = '' : $kTot = '. TOTAL '.number_format($k->sum_qty_muat).' '.$ket;
 								$html .= '<tr>
 									<td style="border:0">- '.$nm_produk.$kTot.$t_ket.'</td>
 								</tr>';
-								$sumQty += $k->qty_muat;
+								$sumQty += $k->sum_qty_muat;
 							}
 						}
 						// TOTAL DAN TIMBANGAN
