@@ -1788,7 +1788,7 @@ class M_logistik extends CI_Model
 		$pilih_transaksi = $_POST["pilih_transaksi"];
 		$tgl_sj = $_POST["tgl_sj"];
 		$no_surat_jalan = $_POST["no_surat_jalan"];
-		$no_invoice = $_POST["no_invoice"];
+		// $no_invoice = $_POST["no_invoice"];
 		$tgl_jatuh_tempo = $_POST["tgl_jatuh_tempo"];
 		$h_id_hub = $_POST["h_id_hub"];
 		$kepada = $_POST["kepada"];
@@ -1809,10 +1809,12 @@ class M_logistik extends CI_Model
 			$no_invoice = 'JP/LM/'.str_pad($no+1, 4, "0", STR_PAD_LEFT).'/'.$bulan.'/'.$tahun;
 		}
 
-		($statusInput == 'insert') ? $no_inv = $_POST["no_invoice"] : $no_inv = substr($_POST["no_invoice"], 3, 6);
-		if($no_inv == 000000 || $no_inv == '000000' || $no_inv == '' || $no_inv < 0 || strlen("'.$no_inv.'") < 6){
+		// ($statusInput == 'insert') ? $no_inv = $_POST["no_invoice"] : $no_inv = substr($_POST["no_invoice"], 3, 6);
+		$no_inv = $_POST["no_invoice"];
+		// if($no_inv == 000000 || $no_inv == '000000' || $no_inv == '' || $no_inv < 0 || ($opsi == "CORRUGATED" && strlen("'.$no_inv.'") < 6)){
+		if($no_inv == ''){
 			$data = false; $insert = false; $detail = false; $no_pl_jasa = false;
-			$msg = 'NOMER INVOICE TIDAK BOLEH KOSONG!';
+			$msg = 'NOMER INVOICE TIDAK BOLEH KOSONG! '.$no_inv;
 		}else if($tgl_invoice == "" || $no_inv == "" || $tgl_jatuh_tempo == "" || $kepada == "" || $alamat == "" || $pilihan_bank == "" || $pilih_transaksi == ""){
 			$data = false; $insert = false; $detail = false; $no_pl_jasa = false;
 			$msg = 'HARAP LENGKAPI FORM!';
