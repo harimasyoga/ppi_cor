@@ -231,15 +231,39 @@
 					</div>
 				</div>
 				<div class="card-body">
-					<?php if (in_array($this->session->userdata('username'), ['karina','developer'])) { ?>
+					<div class="row">
+						<div class="" style="position: absolute;left: 20px;">
+							<?php if (in_array($this->session->userdata('username'), ['karina','developer'])) { ?>
 
-					<!-- <a href="<?= base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a> -->
+							<!-- <a href="<?= base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a> -->
 
-					<button type="button" class="btn btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
-						<br>
-
-					<?php } ?>
+							<button type="button" class="btn btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+							<?php } ?>
+						</div>
+						<div class="" style="position: absolute;right: 20px; font-weight:bold">
+							<?php 
+								$qbulan    = $this->db->query("SELECT*FROM m_bulan");
+								$bln_now   = date("m");
+							?>
+								<select id="rentang_bulan" class="form-control select2" onchange="load_data()"> 
+									<option value="all">-- SEMUA --</option>
+							<?php 									
+								foreach ($qbulan->result() as $bln_row)
+								{
+									if ($bln_row->id==$bln_now) {
+										echo "<option selected value=$bln_row->id><b>$bln_row->bulan</b></option>";
+										}
+									else {	
+									echo "<option value=$bln_row->id><b>$bln_row->bulan</b></option>";
+									}
+								}		
+							?>  
+							</select>
+						</div>
+					</div>
 					<br>
+					<br>
+
 					<!-- <button onclick="cetak_jurnal(0)"  class="btn btn-danger">
 					<i class="fa fa-print"></i> CETAK JURNAL</button>
 						<br>
@@ -251,9 +275,9 @@
 								<tr>
 									<th style="text-align: center;">No</th>
 									<th style="text-align: center;">Invoice</th>
-									<th style="text-align: center;">Hub</th>
 									<th style="text-align: center;">No SJ</th>
-									<th style="text-align: center;">Jatuh Tempo</th>
+									<th style="text-align: center;">Tgl Inv</th>
+									<th style="text-align: center;">J. Tempo</th>
 									<th style="text-align: center;">Total</th>
 									<th style="text-align: center;">Admin</th>
 									<th style="text-align: center;">Owner</th>
@@ -500,7 +524,9 @@
 
 	function load_data() 
 	{
-		var table = $('#datatable').DataTable();
+		
+		var blnn    = $('#rentang_bulan').val();
+		var table   = $('#datatable').DataTable();
 
 		table.destroy();
 
@@ -512,6 +538,7 @@
 			"ajax": {
 				"url": '<?= base_url(); ?>Logistik/load_data/Invoice',
 				"type": "POST",
+				data  : ({blnn:blnn}), 
 				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
 			},
 			"aLengthMenu": [
