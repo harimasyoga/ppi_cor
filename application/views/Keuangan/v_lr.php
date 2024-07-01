@@ -75,11 +75,11 @@
 								<?php 									
 									foreach ($qbulan->result() as $bln_row)
 									{
-										if ($bln_row->id==$bln_now) {
+										if ($bln_row->id==$bln_now) 
+										{
 											echo "<option selected value=$bln_row->id>$bln_row->bulan</option>";
-											}
-										else {	
-										echo "<option value=$bln_row->id>$bln_row->bulan</option>";
+										} else {	
+											echo "<option value=$bln_row->id>$bln_row->bulan</option>";
 										}
 									}		
 								?>  

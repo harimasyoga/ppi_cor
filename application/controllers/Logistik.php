@@ -3679,12 +3679,15 @@ class Logistik extends CI_Controller
 	function load_data()
 	{
 		// $db2 = $this->load->database('database_simroll', TRUE);
-		$jenis        = $this->uri->segment(3);
-		$data         = array();
+		$jenis    = $this->uri->segment(3);
+		$data     = array();
 
 		if ($jenis == "Invoice") {
-			$query = $this->db->query("SELECT * FROM invoice_header 
+			
+			$blnn    = $_POST['blnn'];
+			$query   = $this->db->query("SELECT * FROM invoice_header
 			-- where type in ('box','sheet') 
+			where month(tgl_invoice) in ('$blnn')
 			ORDER BY tgl_invoice desc,no_invoice")->result();
 
 			$i               = 1;
@@ -3698,7 +3701,7 @@ class Logistik extends CI_Controller
 				FROM invoice_detail 
 				WHERE no_invoice='$r->no_invoice' ")->row();
 
-				$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$r->no_invoice' GROUP BY no_surat ORDER BY no_surat");
+				$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$r->no_invoice' GROUP BY trim(no_surat) ORDER BY no_surat");
 				if($result_sj->num_rows() == '1'){
 					$no_sj = $result_sj->row()->no_surat;
 				}else{					
@@ -3709,19 +3712,26 @@ class Logistik extends CI_Controller
 					$no_sj = $no_sj_result;
 				}
 				
-				$result_hub = $this->db->query("SELECT b.*,d.aka FROM invoice_detail b
-				join trs_po c on b.no_po=c.kode_po
-				join m_hub d on c.id_hub=d.id_hub
-				WHERE no_invoice='$r->no_invoice'");
-				if($result_hub->num_rows() == '1'){
-					$hub = $result_hub->row()->aka;
-				}else{					
-					$hub_result    = '';
-					foreach($result_hub->result() as $row){
-						$hub_result .= $row->aka.'<br>';
+				if($r->type=='roll')
+				{
+					$hub =' - ';
+				}else{
+
+					$result_hub = $this->db->query("SELECT b.*,d.aka FROM invoice_detail b
+					join trs_po c on b.no_po=c.kode_po
+					join m_hub d on c.id_hub=d.id_hub
+					WHERE no_invoice='$r->no_invoice' GROUP BY d.aka");
+					if($result_hub->num_rows() == '1'){
+						$hub = $result_hub->row()->aka;
+					}else{					
+						$hub_result    = '';
+						foreach($result_hub->result() as $row){
+							$hub_result .= $row->aka.', ';
+						}
+						$hub = $hub_result;
 					}
-					$hub = $hub_result;
 				}
+				
 
 				$ppn11        = 0.11 * $queryd->jumlah;
 				$pph22        = 0.001 * $queryd->jumlah;
@@ -3786,11 +3796,11 @@ class Logistik extends CI_Controller
 
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = 'No Inv: <b>'.$r->no_invoice .'</b><br> Tgl Inv : <b>'. $this->m_fungsi->tanggal_ind($r->tgl_invoice).'</b><br> Kepada : <b>'.$r->kepada.'</b><br> Cust : <b>'. $r->nm_perusahaan.'</b>';
+				$row[] = '<b>No Inv :</b> '.$r->no_invoice .'<br> <b>Kepada :</b> '.$r->kepada.'<br> <b>Cust :</b> '. $r->nm_perusahaan.'<br> <b>HUB :</b> '. $hub.'';
 
-				$row[] = $hub;
 				$row[] = $no_sj;
-				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo).'</div>';
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_invoice.'</div>';
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_jatuh_tempo.'</div>';
 				$row[] = '<div class="text-right"><b>'.number_format($total, 0, ",", ".").'</b></div>';
 				if (in_array($this->session->userdata('username'), ['karina']))
 				{
