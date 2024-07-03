@@ -24,8 +24,10 @@
 				</div>
 			</div>
 			<div class="card-body">
+			<?php if(in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
 				<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<br><br>
+			<?php } ?>
 				<div style="overflow:auto;white-space:nowrap">
 					<table id="datatable" class="table table-bordered table-striped" width="100%">
 						<thead class="color-tabel">

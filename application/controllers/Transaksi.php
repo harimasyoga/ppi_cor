@@ -1581,21 +1581,22 @@ class Transaksi extends CI_Controller
 				$row[] = $r->nm_pelanggan;
 
 				if ($r->statusWO == 'Open') {
-
-                    $aksi = ' 
+					if(in_array($this->session->userdata('level'), ['Admin','User'])){
+						$aksi = ' 
 							<button type="button" onclick="tampil_edit(' . "'" . $r->id_wo . "'" . ',' . "'edit'" . ')" class="btn btn-info btn-sm">
-                                <i class="fa fa-edit"></i>
-                            </button>
-
+								<i class="fa fa-edit"></i>
+							</button>
 							<a target="_blank" class="btn btn-sm btn-warning" href="' . base_url("Transaksi/Cetak_WO?no_wo=" . $r->no_wo . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
-
-                            <button type="button" onclick="deleteData(' . "'" . $r->id_wo . "'" . ',' . "'" . $r->no_wo . "'" . ')" class="btn btn-danger btn-sm">
-                                <i class="fa fa-trash-alt"></i>
-                            </button>  
-                            ';
-
+							<button type="button" onclick="deleteData(' . "'" . $r->id_wo . "'" . ',' . "'" . $r->no_wo . "'" . ')" class="btn btn-danger btn-sm">
+								<i class="fa fa-trash-alt"></i>
+							</button>  
+						';
+					}else{
+						$aksi = '<a target="_blank" class="btn btn-sm btn-warning" href="' . base_url("Transaksi/Cetak_WO?no_wo=" . $r->no_wo . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>';
+					}
 				} else {
-					$aksi = '-';
+					// $aksi = '-';
+					$aksi = '<a target="_blank" class="btn btn-sm btn-warning" href="' . base_url("Transaksi/Cetak_WO?no_wo=" . $r->no_wo . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>';
 				}
 
 				$row[] = $aksi;
@@ -3923,10 +3924,14 @@ class Transaksi extends CI_Controller
 			if($aksi == 'detail'){
 				$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
 			}else{
-				($r->id == $id) ?
-					$btnBagi = '<button type="button" class="btn btn-success btn-sm" id="addBagiSO" onclick="addBagiSO('."'".$r->id."'".')"><i class="fas fa-plus"></i></button>
-						<button type="button" class="btn btn-danger btn-sm" id="hapusListSO" onclick="hapusListSO('."'".$r->id."'".')"><i class="fas fa-trash"></i></button>' :
+				if(in_array($this->session->userdata('level'), ['Admin','User'])){
+					($r->id == $id) ?
+						$btnBagi = '<button type="button" class="btn btn-success btn-sm" id="addBagiSO" onclick="addBagiSO('."'".$r->id."'".')"><i class="fas fa-plus"></i></button>
+							<button type="button" class="btn btn-danger btn-sm" id="hapusListSO" onclick="hapusListSO('."'".$r->id."'".')"><i class="fas fa-trash"></i></button>' :
+						$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
+				}else{
 					$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
+				}
 			}
 			($r->kategori == "K_BOX") ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
 			($r->kategori == "K_BOX") ? $ket_p = '[BOX]' : $ket_p = '[SHEET]';
@@ -3983,15 +3988,19 @@ class Transaksi extends CI_Controller
 						if($so->status == 'Close'){
 							$btnHapus = '';
 						}else{
-							if($r->id == $id){
-								if($so->rpt == 1){
-									$btnHapus = '';
-								}else{
-									if($dataHapusSO->row()->jml_rpt == $so->rpt){
-										$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>';
-									}else{
+							if(in_array($this->session->userdata('level'), ['Admin','User'])){
+								if($r->id == $id){
+									if($so->rpt == 1){
 										$btnHapus = '';
+									}else{
+										if($dataHapusSO->row()->jml_rpt == $so->rpt){
+											$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>';
+										}else{
+											$btnHapus = '';
+										}
 									}
+								}else{
+									$btnHapus = '';
 								}
 							}else{
 								$btnHapus = '';
@@ -4011,8 +4020,13 @@ class Transaksi extends CI_Controller
 							$rTxt = 1;
 							$diss = 'disabled';
 						}else{
-							($r->id == $id) ? $diss = '' : $diss = 'disabled';
-							($r->id == $id) ? $btnAksi = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi = $print;
+							if(in_array($this->session->userdata('level'), ['Admin','User'])){
+								($r->id == $id) ? $diss = '' : $diss = 'disabled';
+								($r->id == $id) ? $btnAksi = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi = $print;
+							}else{
+								$diss = 'disabled';
+								$btnAksi = $print;
+							}
 							($r->id == $id) ? $rTxt = 2 : $rTxt = 1;
 						}
 					}
