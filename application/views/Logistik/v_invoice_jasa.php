@@ -112,6 +112,45 @@
 				</div>
 
 				<div class="col-md-5">
+					<div class="col-list-surat-jalan" style="display:none">
+						<div class="card card-secondary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST SURAT JALAN</h3>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:5px 5px 0">
+								<div class="col-md-6" style="padding-bottom:5px">
+									<select id="plh_jenis" class="form-control select2" onchange="plhListSJasa()">
+										<option value="">PILIH</option>
+										<option value="CORRUGATED">CORRUGATED</option>
+										<option value="LAMINASI">LAMINASI</option>
+									</select>
+								</div>
+								<div class="col-md-6" style="padding-bottom:5px">
+									<select id="plh_hub" class="form-control select2" onchange="plhListSJasa()">
+										<?php
+											$query = $this->db->query("SELECT*FROM m_hub ORDER BY nm_hub");
+											$html ='';
+											$html .='<option value="">PILIH</option>';
+											foreach($query->result() as $r){
+												$html .='<option value="'.$r->id_hub.'">CV. '.$r->nm_hub.'</option>';
+											}
+											echo $html
+										?>
+									</select>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 5px 0">
+								<div class="col-md-6" style="padding-bottom:5px">
+									<input type="date" id="tgl1" class="form-control" onchange="plhListSJasa()">
+								</div>
+								<div class="col-md-6" style="padding-bottom:5px">
+									<input type="date" id="tgl2" class="form-control" onchange="plhListSJasa()">
+								</div>
+							</div>
+							<div id="hasil_cari"></div>
+						</div>
+					</div>
+
 					<div class="col-verif-invoice-laminasi" style="display:none">
 						<div class="card card-info card-outline" style="padding-bottom:18px">
 							<div class="card-header" style="padding:12px">
@@ -250,6 +289,11 @@
 		$("#alamat").val("").prop('disabled', true)
 		$("#pilihan_bank").val("").prop('disabled', false).trigger("change")
 
+		// $("#plh_jenis").val("").trigger("change")
+		// $("#plh_hub").val("").trigger("change")
+		// $("#tgl1").val("").trigger("change")
+		// $("#tgl2").val("").trigger("change")
+
 		$("#verif-admin").html('. . .')
 		$("#verif-owner").html('. . .')
 		$("#input-owner").html('')
@@ -262,18 +306,52 @@
 	function tambahData() {
 		kosong()
 		$(".row-input-invoice-jasa").show()
+		$(".col-list-surat-jalan").show()
 		$(".col-verif-invoice-laminasi").hide()
 		$(".row-item-invoice-jasa").show()
 		$(".row-list-invoice-jasa").hide()
+		$("#plh_jenis").trigger("change")
 	}
 
 	function kembali() {
 		kosong()
 		reloadTable()
 		$(".row-input-invoice-jasa").hide()
+		$(".col-list-surat-jalan").hide()
 		$(".col-verif-invoice-laminasi").hide()
 		$(".row-item-invoice-jasa").hide()
 		$(".row-list-invoice-jasa").show()
+	}
+
+	function plhListSJasa()
+	{
+		let plh_jenis = $("#plh_jenis").val()
+		let plh_hub = $("#plh_hub").val()
+		let tgl1 = $("#tgl1").val()
+		let tgl2 = $("#tgl2").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/plhListSJasa')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				plh_jenis, plh_hub, tgl1, tgl2
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$("#hasil_cari").html(data.html)
+				swal.close()
+			}
+		})
 	}
 
 	function pilihTransaksi()
@@ -430,6 +508,12 @@
 				$("#alamat").val(data.header.alamat_jasa_inv).prop('disabled', true)
 				$("#pilihan_bank").val(data.header.bank).prop('disabled', prop).trigger('change')
 
+				// LIST SURAT JALAN
+				$("#plh_jenis").val("").trigger("change")
+				$("#plh_hub").val("").trigger("change")
+				$("#tgl1").val("").trigger("change")
+				$("#tgl2").val("").trigger("change")
+				$(".col-list-surat-jalan").hide()
 				// VERIFIKASI DATA
 				$("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.oke_admin}`)
 				// VERIFIFIKASI OWNER
