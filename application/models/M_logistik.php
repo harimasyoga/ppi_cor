@@ -1131,10 +1131,15 @@ class M_logistik extends CI_Model
 		];
 	}
 
-	function insertSuratJalanJasa()
+	function insertSuratJalanJasa($i_no_surat = '', $i_opsi = '')
 	{
-		$no_surat = $_POST["no_surat"];
-		$opsi = $_POST["opsi"];
+		if($i_no_surat == '' && $i_opsi == ''){
+			$no_surat = $_POST["no_surat"];
+			$opsi = $_POST["opsi"];
+		}else{
+			$no_surat = $i_no_surat;
+			$opsi = $i_opsi;
+		}
 		
 		// CEK
 		$cek = $this->db->query("SELECT*FROM m_jasa WHERE no_surat='$no_surat'");

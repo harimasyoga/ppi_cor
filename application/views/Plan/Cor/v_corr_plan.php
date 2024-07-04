@@ -32,7 +32,7 @@
 		<div class="container-fluid">
 
 			<div class="row">
-				<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User'])) { ?>
+				<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User','plan'])) { ?>
 					<div class="col-md-12">
 						<div class="card">
 							<div class="card-body p-0">
@@ -217,7 +217,7 @@
 								</div>
 							</div>
 
-							<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','Corrugator','User'])) { ?>
+							<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','Corrugator','User','plan'])) { ?>
 								<div id="btn-aksi-produksi"></div>
 							<?php } ?>
 						</div>
@@ -326,7 +326,7 @@
 						<div id="btn-ganti-tgl"></div>
 
 						<div id="group_ganti_kualitas">
-							<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User'])) {
+							<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User','plan'])) {
 								$gKualitas = 'style="padding:20px 20px 5px;font-weight:bold"';
 								$dis = '';
 							}else{
@@ -516,7 +516,7 @@
 						</div>
 
 						<br/>
-						<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User'])) { ?>
+						<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User','plan'])) { ?>
 							<div id="btn-aksi-plan"></div>
 						<?php } ?>
 					</div>
@@ -1842,7 +1842,7 @@
 					$("#mesin").html(optMesin).prop("disabled", tms)
 
 					let htmlBtnGantiTgl = '';
-					(data.wo.status_plan == 'Open' && data.wo.total_cor_p == 0 && (urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'User')) ?
+					(data.wo.status_plan == 'Open' && data.wo.total_cor_p == 0 && (urlAuth == 'Admin' || urlAuth == 'PPIC' || urlAuth == 'User' || urlAuth == 'plan')) ?
 						htmlBtnGantiTgl = `<div class="card-body row" style="padding:0 20px 5px">
 							<div class="col-md-2"></div>
 							<div class="col-md-10">

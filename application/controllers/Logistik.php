@@ -785,7 +785,8 @@ class Logistik extends CI_Controller
 	{
 		$html ='';
 		$tgl = date('Y-m-d');
-		($this->session->userdata('username') == 'usman') ? $where = "AND (s.id_sales='9' OR s.nm_sales='Usman') AND po.jenis_lm='PEKALONGAN'" : $where = "AND (s.id_sales!='9' OR s.nm_sales!='Usman') AND po.jenis_lm='PPI'";
+		($this->session->userdata('username') == 'usman') ? $where = "AND (s.id_sales='9' OR s.nm_sales='Usman') AND po.jenis_lm='PEKALONGAN'" : $where = "AND po.jenis_lm='PPI'";
+		// $where = "AND (s.id_sales!='9' OR s.nm_sales!='Usman') AND po.jenis_lm='PPI'
 		$group = $this->db->query("SELECT rk.*,po.jenis_lm,r.id_hub,p.nm_pelanggan_lm,p.alamat_kirim,p.no_telp FROM m_rk_laminasi rk
 		INNER JOIN m_pelanggan_lm p ON rk.id_pelanggan_lm=p.id_pelanggan_lm
 		INNER JOIN trs_po_lm po ON po.id=rk.id_po_lm
@@ -2752,11 +2753,114 @@ class Logistik extends CI_Controller
 
 	////
 
+	function plhListSJasa()
+	{
+		$plh_jenis = $_POST["plh_jenis"];
+		$plh_hub = $_POST["plh_hub"];
+		$tgl1 = $_POST["tgl1"];
+		$tgl2 = $_POST["tgl2"];
+		$html = '';
+
+		if($plh_jenis == "CORRUGATED"){
+			$query = $this->db->query("SELECT*FROM pl_box p
+			INNER JOIN m_rencana_kirim r ON r.id_pl_box=p.id AND r.rk_urut=p.no_pl_urut
+			WHERE p.id_hub='$plh_hub' AND p.tgl BETWEEN '$tgl1' AND '$tgl2'
+			GROUP BY p.tgl,no_surat;");
+		}
+		if($plh_jenis == "LAMINASI"){
+			$query = $this->db->query("SELECT*FROM pl_laminasi p
+			INNER JOIN m_rk_laminasi r ON r.id_pl_lm=p.id AND r.rk_urut=p.no_pl_urut AND r.rk_no_po=p.no_po
+			INNER JOIN trs_po_lm po ON p.no_po=po.no_po_lm
+			WHERE po.id_hub='$plh_hub' AND p.tgl BETWEEN '$tgl1' AND '$tgl2'
+			GROUP BY p.tgl,p.no_surat");
+		}
+		if($plh_jenis == "" || $plh_hub == "" || $tgl1 == "" || $tgl2 == ""){
+			$s_p = 'style="padding:0"';
+		}else{
+			$s_p = 'style="padding:12px 5px"';
+		}
+
+		$html .= '<div class="card-body" '.$s_p.'>
+			<div style="overflow:auto;white-space:nowrap">';
+				if($plh_jenis == "" || $plh_hub == "" || $tgl1 == "" || $tgl2 == ""){
+					$html .= '';
+				}else if($query->num_rows() == 0){
+					$html .= 'DATA KOSONG!';
+				}else{
+					$html .= '<table>
+						<tr>
+							<th style="padding:5px">#</th>
+							<th style="padding:5px">TGL</th>
+							<th style="padding:5px">NO. SJ</th>
+							<th style="padding:5px">INV</th>
+							<th style="padding:5px">CEK</th>
+							<th style="padding:5px">JASA</th>
+						</tr>';
+						$i = 0;
+						foreach($query->result() as $r){
+							$i++;
+							// INVOICE
+							if($plh_jenis == "CORRUGATED"){
+								$qInv = $this->db->query("SELECT * FROM pl_box p
+								INNER JOIN m_rencana_kirim r ON r.id_pl_box=p.id AND r.rk_urut=p.no_pl_urut
+								INNER JOIN m_produk i ON r.id_produk=i.id_produk
+								INNER JOIN invoice_detail d ON p.no_surat=d.no_surat AND p.no_surat=d.no_surat AND d.id_produk_simcorr=i.id_produk
+								INNER JOIN invoice_header h ON d.no_invoice=h.no_invoice
+								WHERE p.no_surat='$r->no_surat' AND r.rk_tgl='$r->rk_tgl' AND h.acc_owner='Y'
+								GROUP BY p.no_surat");
+							}
+							if($plh_jenis == "LAMINASI"){
+								$qInv = $this->db->query("SELECT * FROM pl_laminasi p
+								INNER JOIN m_rk_laminasi r ON r.id_pl_lm=p.id AND r.rk_urut=p.no_pl_urut AND r.rk_no_po=p.no_po
+								INNER JOIN m_produk_lm i ON r.id_m_produk_lm=i.id_produk_lm
+								INNER JOIN invoice_laminasi_header h ON p.tgl=h.tgl_surat_jalan AND p.no_surat=h.no_surat
+								INNER JOIN invoice_laminasi_detail d ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice AND d.id_produk_lm=i.id_produk_lm
+								WHERE p.no_surat='$r->no_surat' AND r.rk_tgl='$r->rk_tgl' AND h.acc_owner='Y'
+								GROUP BY p.no_surat");
+							}
+							if($qInv->num_rows() == 0){
+								$invoice = 'X';
+							}else{
+								$invoice = 'Y';
+							}
+							// CEK M_JASA
+							$qJasa = $this->db->query("SELECT*FROM m_jasa WHERE no_surat='$r->no_surat' AND tgl='$r->rk_tgl'");
+							if($qJasa->num_rows() == 0){
+								$jasa = 'X';
+							}else{
+								$jasa = 'Y';
+							}
+							// CEK INVOICE JASA
+							$qINVJasa = $this->db->query("SELECT*FROM invoice_jasa_header WHERE no_surat='$r->no_surat' AND tgl_surat_jalan='$r->rk_tgl'");
+							if($qINVJasa->num_rows() == 0){
+								$invJasa = '-';
+							}else{
+								$invJasa = $qINVJasa->row()->no_invoice;
+							}
+							$html .='<tr>
+								<td style="padding:5px">'.$i.'</td>
+								<td style="padding:5px">'.$r->tgl.'</td>
+								<td style="padding:5px">'.$r->no_surat.'</td>
+								<td style="padding:5px;text-align:center">'.$invoice.'</td>
+								<td style="padding:5px;text-align:center">'.$jasa.'</td>
+								<td style="padding:5px">'.$invJasa.'</td>
+							</tr>';
+						}
+					$html .= '</table>';
+				}
+			$html .= '</div>
+		</div>';
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
 	function cariSJJasa()
 	{
 		$pilih_transaksi = $_POST["pilih_transaksi"];
 		$tgl_sj = $_POST["tgl_sj"];
-		$htmlSJ = '';
+		$htmlSJ = '<option value="">PILIH</option>';
 
 		if($pilih_transaksi == "CORRUGATED"){
 			$query = $this->db->query("SELECT p.tgl,p.no_surat,s.no_jasa,c.nm_pelanggan,c.attn FROM pl_box p
@@ -2788,7 +2892,7 @@ class Logistik extends CI_Controller
 		}
 
 		echo json_encode([
-			'numRows' => $query->num_rows(),
+			'numRows' => ($pilih_transaksi == "LAMINASI" || $pilih_transaksi == "CORRUGATED") ? $query->num_rows() : 0,
 			'htmlSJ' => $htmlSJ,
 		]);
 	}
@@ -4010,25 +4114,25 @@ class Logistik extends CI_Controller
 				}
 				$row = array();
 				$row[] = '<table>
-					<tr>
-						<td style="padding:0;border:0;background:#fff;font-weight:bold">HARI, TGL</td>
-						<td style="padding:0 5px;border:0;background:#fff">:</td>
-						<td style="padding:0;border:0;background:#fff">'.strtoupper(substr($this->m_fungsi->getHariIni($r->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl)).'</td>
+					<tr style="background:transparent !important">
+						<td style="padding:0;border:0;font-weight:bold">HARI, TGL</td>
+						<td style="padding:0 5px;border:0">:</td>
+						<td style="padding:0;border:0">'.strtoupper(substr($this->m_fungsi->getHariIni($r->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl)).'</td>
 					</tr>
-					<tr>
-						<td style="padding:0;border:0;background:#fff;font-weight:bold">PLAT</td>
-						<td style="padding:0 5px;border:0;background:#fff">:</td>
-						<td style="padding:0;border:0;background:#fff">'.$r->no_kendaraan.'</td>
+					<tr style="background:transparent !important">
+						<td style="padding:0;border:0;font-weight:bold">PLAT</td>
+						<td style="padding:0 5px;border:0">:</td>
+						<td style="padding:0;border:0">'.$r->no_kendaraan.'</td>
 					</tr>
-					<tr>
-						<td style="padding:0;border:0;background:#fff;font-weight:bold">CUSTOMER</td>
-						<td style="padding:0 5px;border:0;background:#fff">:</td>
-						<td style="padding:0;border:0;background:#fff">'.$customer.'</td>
+					<tr style="background:transparent !important">
+						<td style="padding:0;border:0;font-weight:bold">CUSTOMER</td>
+						<td style="padding:0 5px;border:0">:</td>
+						<td style="padding:0;border:0">'.$customer.'</td>
 					</tr>
-					<tr>
-						<td style="padding:0;border:0;background:#fff;font-weight:bold">NO. PO</td>
-						<td style="padding:0 5px;border:0;background:#fff">:</td>
-						<td style="padding:0;border:0;background:#fff">'.$r->no_po.'</td>
+					<tr style="background:transparent !important">
+						<td style="padding:0;border:0;font-weight:bold">NO. PO</td>
+						<td style="padding:0 5px;border:0">:</td>
+						<td style="padding:0;border:0">'.$r->no_po.'</td>
 					</tr>
 				</table>';
 				$row[] = $r->no_surat;
@@ -4599,13 +4703,29 @@ class Logistik extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				// DESKRIPSI
-				$htmlDes = '<div>
-					<div style="padding-bottom:4px"><b>Tanggal :</b> '.$this->m_fungsi->tanggal_format_indonesia($r->tgl_invoice).'</div>
-					<div style="padding-bottom:4px"><b>No. Invoice :</b> '.$r->no_invoice.'</div>
-					<div style="padding-bottom:4px"><b>No. Surat Jalan :</b> '.$r->no_surat.'</div>
-					<div style="padding-bottom:4px"><b>Kepada :</b> '.$r->kepada_jasa_inv.'</div>
-					<div style="white-space:wrap"><b>Alamat :</b> '.$r->alamat_jasa_inv.'</div>
-				</div>';
+				// <div style="white-space:wrap"><b>Alamat :</b> '.$r->alamat_jasa_inv.'</div>
+				$htmlDes = '<table>
+					<tr style="background:transparent !important">
+						<td style="padding:0 0 3px;border:0;font-weight:bold">Tanggal</td>
+						<td style="padding:0 6px 3px;border:0;font-weight:bold">:</td>
+						<td style="padding:0 0 3px;border:0">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_invoice).'</td>
+					</tr>
+					<tr style="background:transparent !important">
+						<td style="padding:3px 0;border:0;font-weight:bold">No. Invoice</td>
+						<td style="padding:3px 6px;border:0;font-weight:bold">:</td>
+						<td style="padding:3px 0;border:0">'.$r->no_invoice.'</td>
+					</tr>
+					<tr style="background:transparent !important">
+						<td style="padding:3px 0;border:0;font-weight:bold">No. Surat Jalan</td>
+						<td style="padding:3px 6px;border:0;font-weight:bold">:</td>
+						<td style="padding:3px 0;border:0">'.$r->no_surat.'</td>
+					</tr>
+					<tr style="background:transparent !important">
+						<td style="padding:3px 0 0;border:0;font-weight:bold">Kepada</td>
+						<td style="padding:3px 6px 0;border:0;font-weight:bold">:</td>
+						<td style="padding:3px 0 0;border:0">'.$r->kepada_jasa_inv.'</td>
+					</tr>
+				</table>';
 				$row[] = $htmlDes;
 				// JATUH TEMPO
 				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $jt = 'CASH' : $jt = $this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo);
@@ -8274,7 +8394,7 @@ class Logistik extends CI_Controller
 
 	function insertSuratJalanJasa()
 	{
-		$result = $this->m_logistik->insertSuratJalanJasa();
+		$result = $this->m_logistik->insertSuratJalanJasa('','');
 		echo json_encode($result);
 	}
 
@@ -8769,6 +8889,7 @@ class Logistik extends CI_Controller
 		$judul = $data_pl->no_surat;
         if($ctk == '0') {
 			if($data_pl->id_hub != 7){
+				$this->m_logistik->insertSuratJalanJasa($data_pl->no_surat, 'cor');
 				$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 			}else{
 				$this->m_fungsi->newMpdf($judul, '', $html, 1, 10, 1, 10, 'P', 'A4', $judul.'.pdf');

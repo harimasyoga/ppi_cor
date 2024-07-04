@@ -26,7 +26,7 @@
 
 			<div class="card-body">
 
-				<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User'])) { ?>
+				<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User','plan'])) { ?>
 					<a href="<?php echo base_url('Plan/Corrugator/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
 					<br><br>
 				<?php } ?>
