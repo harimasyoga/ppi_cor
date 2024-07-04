@@ -424,21 +424,44 @@ class M_logistik extends CI_Model
 				$no++;
 			}
 		}else{
-			if ($type == 'box')
-			{				
-				$where_po    = 'and d.po ="box"';
+			if ($tgl_sj >= '2024-07-01' )
+			{
+				if ($type == 'box')
+				{				
+					$where_po    = 'and d.kategori ="K_BOX"';
+				}else{
+					$where_po    = 'and d.kategori ="K_SHEET"';
+				}
+				
+				$query = $this->db->query("SELECT b.id as id_pl, sum(a.qty_muat) as qty, 'pcs' as qty_ket, b.tgl, b.id_perusahaan, c.nm_pelanggan as nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.nm_produk as item, 
+				d.kualitas, d.ukuran as ukuran2,d.ukuran, d.flute, d.kategori, a.id_produk as id_produk_simcorr 
+				FROM m_rencana_kirim a 
+				JOIN pl_box b ON a.id_pl_box = b.id 
+				JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan 
+				JOIN m_produk d ON a.id_produk=d.id_produk 
+				WHERE b.no_pl_inv = '0' AND b.tgl = '$tgl_sj' AND b.id_perusahaan='$id_perusahaan' $where_po 
+				GROUP BY id_perusahaan, no_surat,no_po,a.id_produk
+				ORDER BY b.tgl desc ")->result();
+
 			}else{
-				$where_po    = 'and d.po is null';
+
+				if ($type == 'box')
+				{				
+					$where_po    = 'and d.po ="box"';
+				}else{
+					$where_po    = 'and d.po is null';
+				}
+
+				$query = $db2->query("SELECT b.id as id_pl, a.qty, a.qty_ket, b.tgl, b.id_perusahaan, c.nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.item, d.kualitas, d.ukuran2,d.ukuran, 
+				d.flute, d.po, a.id_produk_simcorr
+				FROM m_box a 
+				JOIN pl_box b ON a.id_pl = b.id 
+				LEFT JOIN m_perusahaan2 c ON b.id_perusahaan=c.id
+				JOIN po_box_master d ON b.no_po=d.no_po and a.ukuran=d.ukuran
+				WHERE b.no_pl_inv = '0' AND b.tgl = '$tgl_sj' AND b.id_perusahaan='$id_perusahaan' $where_po
+				ORDER BY b.tgl desc ")->result();
+
 			}
-			
-			$query = $db2->query("SELECT b.id as id_pl, a.qty, a.qty_ket, b.tgl, b.id_perusahaan, c.nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.item, d.kualitas, d.ukuran2,d.ukuran, 
-			d.flute, d.po
-			FROM m_box a 
-			JOIN pl_box b ON a.id_pl = b.id 
-			LEFT JOIN m_perusahaan c ON b.id_perusahaan=c.id
-			JOIN po_box_master d ON b.no_po=d.no_po and a.ukuran=d.ukuran
-			WHERE b.no_pl_inv = '0' AND b.tgl = '$tgl_sj' AND b.id_perusahaan='$id_perusahaan' $where_po
-			ORDER BY b.tgl desc ")->result();
 			
 			$no = 1;
 			foreach ( $query as $row ) 
@@ -471,7 +494,13 @@ class M_logistik extends CI_Model
 						'no_po'               => $this->input->post('no_po['.$no.']'),
 					];
 
-					$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 1 where id ='$id_pl_roll'");
+					if ($tgl_sj >= '2024-07-01' )
+					{
+						$update_no_pl   = $this->db->query("UPDATE pl_box set no_pl_inv = 1 where id ='$id_pl_roll'");
+					}else{
+						$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 1 where id ='$id_pl_roll'");
+					}
+					
 
 					$result_rinci   = $this->db->insert("invoice_detail", $data);
 
