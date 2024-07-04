@@ -785,7 +785,8 @@ class Logistik extends CI_Controller
 	{
 		$html ='';
 		$tgl = date('Y-m-d');
-		($this->session->userdata('username') == 'usman') ? $where = "AND (s.id_sales='9' OR s.nm_sales='Usman') AND po.jenis_lm='PEKALONGAN'" : $where = "AND (s.id_sales!='9' OR s.nm_sales!='Usman') AND po.jenis_lm='PPI'";
+		($this->session->userdata('username') == 'usman') ? $where = "AND (s.id_sales='9' OR s.nm_sales='Usman') AND po.jenis_lm='PEKALONGAN'" : $where = "AND po.jenis_lm='PPI'";
+		// $where = "AND (s.id_sales!='9' OR s.nm_sales!='Usman') AND po.jenis_lm='PPI'
 		$group = $this->db->query("SELECT rk.*,po.jenis_lm,r.id_hub,p.nm_pelanggan_lm,p.alamat_kirim,p.no_telp FROM m_rk_laminasi rk
 		INNER JOIN m_pelanggan_lm p ON rk.id_pelanggan_lm=p.id_pelanggan_lm
 		INNER JOIN trs_po_lm po ON po.id=rk.id_po_lm
@@ -8277,7 +8278,7 @@ class Logistik extends CI_Controller
 
 	function insertSuratJalanJasa()
 	{
-		$result = $this->m_logistik->insertSuratJalanJasa();
+		$result = $this->m_logistik->insertSuratJalanJasa('','');
 		echo json_encode($result);
 	}
 
@@ -8772,6 +8773,7 @@ class Logistik extends CI_Controller
 		$judul = $data_pl->no_surat;
         if($ctk == '0') {
 			if($data_pl->id_hub != 7){
+				$this->m_logistik->insertSuratJalanJasa($data_pl->no_surat, 'cor');
 				$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 			}else{
 				$this->m_fungsi->newMpdf($judul, '', $html, 1, 10, 1, 10, 'P', 'A4', $judul.'.pdf');
