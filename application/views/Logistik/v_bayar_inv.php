@@ -81,6 +81,7 @@
 							<div class="col-md-3">
 								<select name="sts_lunas" id="sts_lunas" class="form-control select2" >
 									<option value="OPEN">OPEN</option>
+									<option value="TEMPO">TEMPO</option>
 									<option value="LUNAS">LUNAS</option>
 								</select>
 							</div>
@@ -266,27 +267,53 @@
 
 <!-- Modal Regist -->
 <div class="modal fade list_inv" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-full" style="width:100%;margin:auto">
+    <div class="modal-dialog modal-full" >
 
         <div class="modal-content">
-            <div class="modal-header">
-                <h5><b>Pilih Invoice</b></h5>
-            </div>
+
+			<div class="card-header" style="font-family:Cambria;" >
+				<h3 class="card-title" style="color:#4e73df;"><b>Pilih Invoice</b></h3>
+
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+			
             <div class="modal-body">
 				<div style="overflow:auto;white-space:nowrap">
+					
+				<div class="" style="position: absolute;right: 20px; font-weight:bold">
+					<?php 
+						$qbulan    = $this->db->query("SELECT*FROM m_bulan");
+						$bln_now   = date("m");
+					?>
+						<select id="rentang_bulan" class="form-control select2" onchange="load_data()"> 
+							<option value="all">-- SEMUA --</option>
+					<?php 									
+						foreach ($qbulan->result() as $bln_row)
+						{
+							if ($bln_row->id==$bln_now) {
+								echo "<option selected value=$bln_row->id><b>$bln_row->bulan</b></option>";
+								}
+							else {	
+							echo "<option value=$bln_row->id><b>$bln_row->bulan</b></option>";
+							}
+						}		
+					?>  
+					</select>
+				</div>
+				<br>
+				<br>
 
                 <table class="table table-bordered table-striped" id="tbl_inv" style="margin:auto !important">
                     <thead>
                         <tr class="color-tabel">
                             <th class="text-center title-white">NO </th>
-                            <th class="text-center title-white">CUSTOMER</th>
-                            <th class="text-center title-white">NO PO</th>
-                            <th class="text-center title-white">NO INVOICE</th>
+                            <th class="text-center title-white">Invoice</th>
                             <th class="text-center title-white">NO SJ</th>
-                            <th class="text-center title-white">ITEM</th>
-                            <th class="text-center title-white">TGL inv</th>
-                            <th class="text-center title-white">TANGGAL SJ</th>
-                            <th class="text-center title-white">TIPE</th>
+                            <th class="text-center title-white">TGL INV</th>
+                            <th class="text-center title-white">TGL SJ</th>
                             <th class="text-center title-white">EXCLUDE</th>
                             <th class="text-center title-white">INCLUDE</th>
                             <th class="text-center title-white">HISTORY BAYAR</th>
@@ -351,15 +378,17 @@
 	
 	function load_invoice()
 	{
-		let table = $('#tbl_inv').DataTable();
+		var blnn    = $('#rentang_bulan').val();
+		var table   = $('#tbl_inv').DataTable();
 		table.destroy();
 		tabel = $('#tbl_inv').DataTable({
 			"processing": true,
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url('Logistik/load_invoice/byr_inv')?>',
-				"type": "POST",
+				"url"   : '<?php echo base_url('Logistik/load_invoice/byr_inv')?>',
+				"type"  : "POST",
+				"data"  : ({blnn:blnn}),
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],

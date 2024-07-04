@@ -3726,7 +3726,12 @@ class Logistik extends CI_Controller
 					join m_hub d on c.id_hub=d.id_hub
 					WHERE no_invoice='$r->no_invoice' GROUP BY d.aka");
 					if($result_hub->num_rows() == '1'){
-						$hub = $result_hub->row()->aka;
+						if($result_hub->row()->aka == 'MMM')
+						{
+							$hub = 'PPI';
+						}else{
+							$hub = $result_hub->row()->aka;
+						}
 					}else{					
 						$hub_result    = '';
 						foreach($result_hub->result() as $row){
@@ -3734,8 +3739,7 @@ class Logistik extends CI_Controller
 						}
 						$hub = $hub_result;
 					}
-				}
-				
+				}				
 
 				$ppn11        = 0.11 * $queryd->jumlah;
 				$pph22        = 0.001 * $queryd->jumlah;
@@ -3800,7 +3804,30 @@ class Logistik extends CI_Controller
 
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = '<b>No Inv :</b> '.$r->no_invoice .'<br> <b>Kepada :</b> '.$r->kepada.'<br> <b>Cust :</b> '. $r->nm_perusahaan.'<br> <b>HUB :</b> '. $hub.'';
+				$row[] = '
+				
+				<table>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>No Inv </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$r->no_invoice .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>Kepada </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$r->kepada .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>Cust </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$r->nm_perusahaan .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>HUB </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$hub .'<br></td>
+					</tr>
+					';
 
 				$row[] = $no_sj;
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_invoice.'</div>';
@@ -3823,7 +3850,6 @@ class Logistik extends CI_Controller
 					$urll1 = '';
 					$urll2 = '';
 				}
-
 
 				$row[] = '<div class="text-center">
 				<button '.$urll1.' type="button" title="VERIFIKASI DATA" style="text-align: center;" class="btn btn-sm '.$btn1.' ">'.$i1.'</button>
@@ -3879,7 +3905,6 @@ class Logistik extends CI_Controller
 
 						if($cek_pembayaran > 0)
 						{
-
 							$aksi = '
 							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
 							';
@@ -4684,8 +4709,9 @@ class Logistik extends CI_Controller
 		$data         = array();
 
 		if ($jenis == "byr_inv") 
-		{
-			$query = $this->db->query("SELECT *, IFNULL((select sum(jumlah_bayar) from trs_bayar_inv t
+		{ 
+			$blnn    = $_POST['blnn'];
+			$query   = $this->db->query("SELECT *, IFNULL((select sum(jumlah_bayar) from trs_bayar_inv t
 			where t.no_inv=p.no_invoice
 			group by no_inv),0) jum_bayar
 			FROM(
@@ -4694,6 +4720,7 @@ class Logistik extends CI_Controller
 			join invoice_detail b on a.no_invoice=b.no_invoice
 			left join m_pelanggan c on a.id_perusahaan=c.id_pelanggan
 			-- where a.no_invoice in ('AA/2605/12/2023','A/0009/01/2023','A/1436/12/2023') 
+			where month(a.tgl_invoice) in ('$blnn')
 			group by a.no_invoice
 			) as p")->result();
 
@@ -4729,9 +4756,9 @@ class Logistik extends CI_Controller
 
 					foreach($result_detail->result() as $row)
 					{
-						$no_po_result .= '<b>'.$no.'.) </b>'.$row->no_po.'<br>';
+						$no_po_result .= '<br><b>'.$no.'.) </b>'.$row->no_po.'';
 						$no_sj_result .= '<b>'.$no.'.) </b>'.$row->no_surat.'<br>';
-						$item_result .= '<b>'.$no.'.) </b>'.$row->nm_ker.''.$row->g_label.''.$row->kualitas.'<br>';
+						$item_result .= '<br><b>'.$no.'.) </b>'.$row->nm_ker.''.$row->g_label.''.$row->kualitas.'';
 
 						if($row->type=='roll')
 						{
@@ -4758,25 +4785,25 @@ class Logistik extends CI_Controller
 				{
 					if($r->inc_exc=='Include')
 					{
-						$tax            = '<b>PPN  </b>- Include';
+						$tax            = 'PPN - Include';
 						$ket_inc        = '<div>';
 						$ket_exc        = '<div style="font-weight:bold;color:#f00">';
 						$kurang_bayar   = $total_exclude - $r->jum_bayar;
 
 					}else{
-						$tax            = '<b>PPN </b> - Exclude';
+						$tax            = 'PPN - Exclude';
 						$ket_inc        = '<div style="font-weight:bold;color:#f00">';
 						$ket_exc        = '<div>';
 						$kurang_bayar   = $total_include - $r->jum_bayar;
 					}
 				}else if($r->pajak=='ppn_pph')
 				{
-					$tax             = '<b>PPN PPH </b>';
+					$tax             = 'PPN PPH';
 					$ket_inc         = '<div style="font-weight:bold;color:#f00">';
 					$ket_exc         = '<div>';
 					$kurang_bayar    = $total_include - $r->jum_bayar;
 				}else{
-					$tax             = '<b>NON PPN </b>';
+					$tax             = 'NON PPN';
 					$ket_inc         = '<div>';
 					$ket_exc         = '<div style="font-weight:bold;color:#f00">';
 					$kurang_bayar    = $total_exclude - $r->jum_bayar;
@@ -4789,14 +4816,44 @@ class Logistik extends CI_Controller
 
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = '<div >'.$r->nm_perusahaan.'</div>';
-				$row[] = $no_po;
-				$row[] = $r->no_invoice;
+
+
+				$row[] = '
+				<table>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 3px;border:none;"><b>No Inv </td>
+						<td style="padding : 3px;border:none;">:</td></b> 
+						<td style="padding : 3px;border:none;">'.$r->no_invoice .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 3px;border:none;"><b>No PO </td>
+						<td style="padding : 3px;border:none;">:</td></b> 
+						<td style="padding : 3px;border:none;">'.$no_po .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 3px;border:none;"><b>Cust </td>
+						<td style="padding : 3px;border:none;">:</td></b> 
+						<td style="padding : 3px;border:none;">'.$r->nm_perusahaan .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 3px;border:none;"><b>Type </td>
+						<td style="padding : 3px;border:none;">:</td></b> 
+						<td style="padding : 3px;border:none;">'.$tax .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 3px;border:none;"><b>ITEM </td>
+						<td style="padding : 3px;border:none;">:</td></b> 
+						<td style="padding : 3px;border:none;">'.$item .'<br></td>
+					</tr>
+				</tr>
+				</table>
+				 ';
+
+
+
 				$row[] = $no_sj;
-				$row[] = $item;
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_invoice).'</div>';
-				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_sj).'</div>';			
-				$row[] = $tax;
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_sj).'</div>';	
 				$row[] = $ket_exc .''. number_format($total_exclude, 0, ",", ".").'</div>';				
 				$row[] = $ket_inc .''. number_format($total_include, 0, ",", ".").'</div>';				
 				$row[] = '<div class="text-right" style="font-weight:bold;">'. number_format($r->jum_bayar, 0, ",", ".").'</div>';
@@ -4837,28 +4894,6 @@ class Logistik extends CI_Controller
 		$type_po    = $this->input->post('type_po');
 		$tgl        = $this->input->post('tgl_sj');
 		$stat       = $this->input->post('stat');
-		
-		if ($type_po == 'roll')
-		{
-			$tbl1          = 'pl';
-			$tbl2          = 'm_timbangan';
-			$perusahaan    = 'm_perusahaan';
-			$where_po      = '';
-			$join_po       = '';
-		}else{
-			if ($type_po == 'box')
-			{				
-				$where_po    = 'and d.po ="box"';
-			}else{
-				$where_po    = 'and d.po is null';
-			}
-			
-			$tbl1          = 'pl_box';
-			$tbl2          = 'm_box';
-			$perusahaan    = 'm_perusahaan2';
-
-			$join_po       = 'JOIN po_box_master d ON a.no_po=d.no_po and b.ukuran=d.ukuran';
-		}
 
 		if($stat == 'add')
 		{
@@ -4868,7 +4903,16 @@ class Logistik extends CI_Controller
 
 		}
 
-		$query = $db2->query("SELECT DATE_FORMAT(a.tgl, '%d-%m-%Y')tgll,a.*,c.id as id_perusahaan, c.nm_perusahaan as nm_perusahaan , c.pimpinan as pimpinan, c.alamat as alamat_perusahaan, c.no_telp as no_telp FROM $tbl1 a
+		
+		if ($type_po == 'roll')
+		{
+			$tbl1          = 'pl';
+			$tbl2          = 'm_timbangan';
+			$perusahaan    = 'm_perusahaan';
+			$where_po      = '';
+			$join_po       = '';
+
+			$query = $db2->query("SELECT DATE_FORMAT(a.tgl, '%d-%m-%Y')tgll,a.*,c.id as id_perusahaan, c.nm_perusahaan as nm_perusahaan , c.pimpinan as pimpinan, c.alamat as alamat_perusahaan, c.no_telp as no_telp FROM $tbl1 a
 			JOIN $tbl2 b ON a.id = b.id_pl
 			LEFT JOIN $perusahaan c ON a.id_perusahaan=c.id
 			$join_po
@@ -4877,6 +4921,46 @@ class Logistik extends CI_Controller
 			$where_status $where_po 
 			GROUP BY a.tgl,a.id_perusahaan
 			ORDER BY a.tgl,a.id_perusahaan,a.no_pl_inv")->result();
+
+		}else{
+			if ($type_po == 'box')
+			{				
+				$where_po    = 'and d.kategori ="K_BOX"';
+			}else{
+				$where_po    = 'and d.kategori ="K_SHEET"';
+			}
+			
+			if ($tgl >= '2024-07-01' )
+			{
+				$query = $this->db->query("SELECT DATE_FORMAT(a.tgl, '%d-%m-%Y')tgll,a.*,c.id_pelanggan as id_perusahaan, c.nm_pelanggan as nm_perusahaan , c.attn as pimpinan, c.alamat_kirim as alamat_perusahaan, c.no_telp as no_telp 
+				FROM pl_box a 
+				JOIN m_rencana_kirim b ON a.id = b.id_pl_box 
+				JOIN m_pelanggan c ON a.id_perusahaan=c.id_pelanggan
+				JOIN m_produk d ON b.id_produk=d.id_produk
+				WHERE a.tgl = '$tgl' 
+				$where_status $where_po 
+				GROUP BY a.tgl,a.id_perusahaan 
+				ORDER BY a.tgl,a.id_perusahaan,a.no_pl_inv ")->result();
+
+			}else{
+
+				$tbl1          = 'pl_box';
+				$tbl2          = 'm_box';
+				$perusahaan    = 'm_perusahaan2';
+				$join_po       = 'JOIN po_box_master d ON a.no_po=d.no_po and b.ukuran=d.ukuran';
+				
+				$query = $db2->query("SELECT DATE_FORMAT(a.tgl, '%d-%m-%Y')tgll,a.*,c.id as id_perusahaan, c.nm_perusahaan as nm_perusahaan , c.pimpinan as pimpinan, c.alamat as alamat_perusahaan, c.no_telp as no_telp FROM $tbl1 a
+				JOIN $tbl2 b ON a.id = b.id_pl
+				LEFT JOIN $perusahaan c ON a.id_perusahaan=c.id
+				$join_po
+				WHERE a.tgl = '$tgl' 
+				-- and a.id_perusahaan not in ('210','217') 
+				$where_status 
+				GROUP BY a.tgl,a.id_perusahaan
+				ORDER BY a.tgl,a.id_perusahaan,a.no_pl_inv")->result();
+
+			}
+		}	
 
 		if (!$query) {
 			$response = [
@@ -4912,21 +4996,46 @@ class Logistik extends CI_Controller
 			LEFT JOIN m_perusahaan c ON b.id_perusahaan=c.id
 			WHERE b.no_pl_inv = '0' AND b.tgl='$tgl_sj' AND b.id_perusahaan='$id_perusahaan'
 			GROUP BY b.no_pkb,b.no_po,a.nm_ker,a.g_label,a.width")->result();
-		}else{
-			if ($type_po == 'box')
-			{				
-				$where_po    = 'and d.po ="box"';
+		}else{			
+
+			if ($tgl >= '2024-07-01' )
+			{
+				if ($type_po == 'box')
+				{				
+					$where_po    = 'and d.kategori ="K_BOX"';
+				}else{
+					$where_po    = 'and d.kategori ="K_SHEET"';
+				}
+				
+				$query = $this->db->query("SELECT b.id as id_pl, sum(a.qty_muat) as qty, 'pcs' as qty_ket, b.tgl, b.id_perusahaan, c.nm_pelanggan as nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.nm_produk as item, 
+				d.kualitas, d.ukuran as ukuran2,d.ukuran, d.flute, d.kategori, a.id_produk as id_produk_simcorr 
+				FROM m_rencana_kirim a 
+				JOIN pl_box b ON a.id_pl_box = b.id 
+				JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan 
+				JOIN m_produk d ON a.id_produk=d.id_produk 
+				WHERE b.no_pl_inv = '0' AND b.tgl = '$tgl_sj' AND b.id_perusahaan='$id_perusahaan' $where_po 
+				GROUP BY id_perusahaan, no_surat,no_po,a.id_produk
+				ORDER BY b.tgl desc ")->result();
+
 			}else{
-				$where_po    = 'and d.po is null';
+
+				if ($type_po == 'box')
+				{				
+					$where_po    = 'and d.po ="box"';
+				}else{
+					$where_po    = 'and d.po is null';
+				}
+
+				$query = $db2->query("SELECT b.id as id_pl, a.qty, a.qty_ket, b.tgl, b.id_perusahaan, c.nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.item, d.kualitas, d.ukuran2,d.ukuran, 
+				d.flute, d.po, a.id_produk_simcorr
+				FROM m_box a 
+				JOIN pl_box b ON a.id_pl = b.id 
+				LEFT JOIN m_perusahaan2 c ON b.id_perusahaan=c.id
+				JOIN po_box_master d ON b.no_po=d.no_po and a.ukuran=d.ukuran
+				WHERE b.no_pl_inv = '0' AND b.tgl = '$tgl_sj' AND b.id_perusahaan='$id_perusahaan' $where_po
+				ORDER BY b.tgl desc ")->result();
+
 			}
-			$query = $db2->query("SELECT b.id as id_pl, a.qty, a.qty_ket, b.tgl, b.id_perusahaan, c.nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.item, d.kualitas, d.ukuran2,d.ukuran, 
-			d.flute, d.po, a.id_produk_simcorr
-			FROM m_box a 
-			JOIN pl_box b ON a.id_pl = b.id 
-			LEFT JOIN m_perusahaan2 c ON b.id_perusahaan=c.id
-			JOIN po_box_master d ON b.no_po=d.no_po and a.ukuran=d.ukuran
-			WHERE b.no_pl_inv = '0' AND b.tgl = '$tgl_sj' AND b.id_perusahaan='$id_perusahaan' $where_po
-			ORDER BY b.tgl desc ")->result();
 		}
 		
 		if (!$query) {
@@ -5210,7 +5319,14 @@ class Logistik extends CI_Controller
 				if($row->type=='roll'){
 					$update_no_pl   = $db2->query("UPDATE pl set no_pl_inv = 0 where id ='$row->id_pl'");					
 				}else{
-					$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 0 where id ='$row->id_pl'");					
+					$cek_tgl = $this->db->query("SELECT*FROM invoice_header where no_invoice ='$no_inv'")->row();
+
+					if ($cek_tgl->tgl_sj >= '2024-07-01' )
+					{
+						$update_no_pl   = $this->db->query("UPDATE pl_box set no_pl_inv = 0 where id ='$row->id_pl'");
+					}else{
+						$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 0 where id ='$row->id_pl'");
+					}					
 				}
 			}
 

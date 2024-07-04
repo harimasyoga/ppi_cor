@@ -1698,73 +1698,120 @@
 						var tgl_kirim = tanggal_format_indonesia(hariKedepan.toISOString().slice(0, 10));
 						
 						if(cs == '139' ){
-							var lemparan_keterangan = `<tr style=list-style:none;>
-								<td><b>Minimal stock </b>: 10.000</td>
-								<td colspan="2"><b>Monitoring Pengiriman </b>: ${monitoring_kirim} Pcs / Minggu
-								</td>
+							var lemparan_keterangan = `
+							<tr style="list-style:none;background-color: transparent !important;"> 
+								<td style="padding : 5px;border:none;"><b>Minimal stock </td>
+								<td style="padding : 5px;border:none;">:</td> </b>
+								<td style="padding : 5px;border:none;">10.000</td>
+
+								<td style="padding : 5px;border:none;"><b>Monitoring Pengiriman </td>
+								<td style="padding : 5px;border:none;">:</td> </b>
+								<td style="padding : 5px;border:none;">${monitoring_kirim} Pcs / Minggu</td>
+								
+								<td style="padding : 5px;border:none;"><b>Kualitas </td>
+								<td style="padding : 5px;border:none;">:</td> </b>
+								<td style="padding : 5px;border:none;">${ val.kualitas }</td>
 							</tr>`;
 						}else{
-							var lemparan_keterangan = `<tr style=list-style:none;>
-								<td colspan="3"><b>Monitoring Pengiriman </b>: ${monitoring_kirim} Pcs / Minggu
-								</td>
+							var lemparan_keterangan = `
+							<tr style="list-style:none;background-color: transparent !important;"> 
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Monitoring Pengiriman </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000" colspan="6">${monitoring_kirim} Pcs / Minggu</td>
 							</tr>`;
 						}
 						
 						html_produk = `
 						<table class='table' border='0' style='font-size:12px'>
-						<tr> 
-							<tr style=list-style:none;> 
-								<td><b>Nama Item : </b>${ val.nm_produk }</td>
-								<td><b>Ukuran Box : </b>${ uk }</td>
-								<td><b>Kualitas : </b>${ val.kualitas }</td>
-							</tr>
-							<tr style=list-style:none;>
-								<td><b>Kode MC </b>: ${val.kode_mc}</td>
-								<td><b>Ukuran Sheet </b>: <input type="hidden" class="input-border-none" name="p_sheet[${id}]" id="p_sheet${id}" value="${val.ukuran_sheet_p}" > ${val.ukuran_sheet}</td>
-								<td><b>Flute </b>: <input type="hidden" class="input-border-none" name="fl[${id}]" id="fl${id}" value="${val.flute}" > ${val.flute}</td>
-									
-							</tr>
-							<tr style=list-style:none;> 
-								<td><b>Jenis Item </b>: ${val.jenis_produk}</td>
-								<td><b>Creasing : </b>${ val.creasing }-${ val.creasing2 }-${ val.creasing3 }</td> 
-								<td><b>Toleransi : </b>${ val.toleransi_kirim }%</td> 
-							</tr> 
-							<tr style=list-style:none;> 
-								<td><b>RM : <input type="text" class="input-border-none" name="rm[${id}]" id="rm${id}" readonly >
-								</b>
-								</td> 
+							<tr style="list-style:none;background-color: transparent !important;"> 
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Nama Item </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">${ val.nm_produk }</td>
 
-								<td><b>BB : <input type="text" class="input-border-none" name="bb[${id}]" id="bb${id}" value="${val.berat_bersih}" readonly ></b>
-								</td> 
-
-								<td><b>Ton : <input type="text" class="input-border-none" name="ton[${id}]" id="ton${id}" readonly >
-								</b></td>  
-							</tr> 
-							<tr style=list-style:none;>
-								<td><b>Tipe Box </b>: ${val.tipe_box}</td>
-								<td><b>Joint </b>: ${$join}</td>
-								<td><b>Bahan Baku : <input type="text" class="input-border-none" name="bhn_bk[${id}]" id="bhn_bk${id}" readonly >
-								</b></td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Ukuran Box </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">${ uk }</td>
+								
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Kualitas </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">${ val.kualitas }</td>
 							</tr>
+							<tr style="list-style:none;background-color: transparent !important;"> 
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Kode MC </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">${ val.kode_mc }</td>
+								
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Ukuran Sheet </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><input type="hidden" class="input-border-none" name="p_sheet[${id}]" id="p_sheet${id}" value="${val.ukuran_sheet_p}" > ${val.ukuran_sheet}</td>
+								
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Flute </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b> <input type="hidden" class="input-border-none" name="fl[${id}]" id="fl${id}" value="${val.flute}" > ${val.flute}</td>
+
+							</tr>
+							<tr style="list-style:none;background-color: transparent !important;"> 
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Jenis Item </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">${val.jenis_produk}</td>
+								
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Creasing </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">${ val.creasing }-${ val.creasing2 }-${ val.creasing3 }</td>
+								
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Toleransi </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">${ val.toleransi_kirim }%</td>
+							</tr>
+							<tr style="list-style:none;background-color: transparent !important;"> 
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>RM </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><input type="text" class="input-border-none" name="rm[${id}]" id="rm${id}" readonly ></td>
+								
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>BB </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><input type="text" class="input-border-none" name="bb[${id}]" id="bb${id}" value="${val.berat_bersih}" readonly ></td>
+								
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Ton </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><input type="text" class="input-border-none" name="ton[${id}]" id="ton${id}" readonly ></td>
+
+							</tr>
+							
+							<tr style="list-style:none;background-color: transparent !important;"> 
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Tipe Box </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">${val.tipe_box}</td>
+								
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Joint </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">${$join}</td>
+								
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Bahan Baku </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><input type="text" class="input-border-none" name="bhn_bk[${id}]" id="bhn_bk${id}" readonly ></td>
+
+							</tr>
+							
 							${lemparan_keterangan}
 							`;
 							<?php if (!in_array($this->session->userdata('level'), ['PPIC','AP'])){ ?>
 							html_produk += `
-							<tr style=list-style:none;> 
-								<td>
-									<b>Harga / Kg : 
-									</b>
-									<input type="text" class="input-border-none" name="hrg_kg[${id}]" id="hrg_kg${id}" readonly >
-								</td> 
-								<td>
-									<b>QTY PO : 
-									</b> ${qty_po}
-								</td> 
-								<td>
-									<b>Max Kirim PO: 
-									</b> ${tgl_kirim}
-								</td> 
-							</tr> `;
+							
+							<tr style="list-style:none;background-color: transparent !important;"> 
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Harga / Kg </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><input type="text" class="input-border-none" name="hrg_kg[${id}]" id="hrg_kg${id}" readonly ></td>
+								
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>QTY PO </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">${qty_po}</td>
+								
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Max Kirim PO </td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">${tgl_kirim}</td>
+
+							</tr>`;
 							<?php } ?>
 
 							html_produk += `</table>`;

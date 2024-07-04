@@ -2284,19 +2284,12 @@ class Transaksi extends CI_Controller
 
             $data   = $query->row();
 
-			if($this->session->userdata('level')=='Admin')
-			{
-				$kode_po ='<br> ( ' . $data->kode_po . ' )';
-			}else{
-				$kode_po ='';
-	
-			}
+			$kode_po ='<br> ( ' . $data->kode_po . ' )';
 	
 
 			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:14px;">
                         <tr style="font-weight: bold;">
                             <td colspan="15" align="center">
-                            ( No. ' . $id . ' )
                             </td>
                         </tr>
                  </table><br>';
@@ -2306,7 +2299,7 @@ class Transaksi extends CI_Controller
 					<th>PO '.substr($data->kategori,2,10).' '. $data->nm_pelanggan .' '.$kode_po.'</th>
 				</tr>
 				<tr align="left">
-					<th>ITEM </th>';
+					<th>ITEM :</th>';
 				 
 				$no = 1;
 				foreach ($query->result() as $r) { 
@@ -2316,10 +2309,24 @@ class Transaksi extends CI_Controller
 								</tr>';
 					$no++;
 				}
+				
+				$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:22px;">
+				
+				<tr align="left">
+					<th>QTY :</th>';
+				 
+				$no = 1;
+				foreach ($query->result() as $r) { 
+					$html .= '
+								<tr>
+									<td>' . $no . '. ' . number_format($r->qty, 0, ",", ".") . '</td>
+								</tr>';
+					$no++;
+				}
 	 
 				$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:22px;">
 					<tr align="left">
-						<th>RM </th>';
+						<th>RM :</th>';
                         
 			$no = 1;
 			foreach ($query->result() as $r) { 
@@ -2332,7 +2339,7 @@ class Transaksi extends CI_Controller
 
             $html .= '
             <tr align="left">
-                <th>Harga / kg</th>
+                <th>Harga / kg:</th>
             </tr>';
 
             $no       = 1;
@@ -2418,8 +2425,9 @@ class Transaksi extends CI_Controller
 			$html .= '<h1> Data Kosong </h1>';
 		}
 
+		echo $html;
 		// $this->m_fungsi->_mpdf($html);
-		$this->m_fungsi->template_kop('PURCHASE ORDER', $id ,$html,'L','0');
+		// $this->m_fungsi->template_kop('PURCHASE ORDER', $id ,$html,'L','0');
 		// $this->m_fungsi->mPDFP($html);
 	}
    
