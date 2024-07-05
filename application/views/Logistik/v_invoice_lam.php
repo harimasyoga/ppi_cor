@@ -259,9 +259,11 @@
 							</div>
 						</div>
 						<div class="card-body">
-							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){ ?>
+							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Keuangan1'])){ ?>
 								<div style="margin-bottom:12px">
-									<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+									<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){ ?>
+										<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+									<?php } ?>
 									<button type="button" class="btn btn-sm btn-danger" onclick="laporanInvoice('laporan')"><i class="fas fa-file-alt"></i> <b>LAPORAN</b></button>
 									<button type="button" class="btn btn-sm btn-danger" onclick="laporanInvoice('pembayaran')"><i class="fas fa-money-check"></i> <b>PEMBAYARAN</b></button>
 								</div>
@@ -300,7 +302,7 @@
 							</div>
 						</div>
 						<div class="card-body">
-							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){ ?>
+							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Keuangan1'])){ ?>
 								<div style="margin-bottom:12px">
 									<button type="button" class="btn btn-sm btn-info" onclick="laporanInvoice('list')"><i class="fas fa-list"></i> <b>LIST INVOICE</b></button>
 								</div>
@@ -382,7 +384,7 @@
 							</div>
 						</div>
 						<div class="card-body">
-							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){ ?>
+							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Keuangan1'])){ ?>
 								<div style="margin-bottom:12px">
 									<button type="button" class="btn btn-sm btn-info" onclick="laporanInvoice('list')"><i class="fas fa-list"></i> <b>LIST INVOICE</b></button>
 								</div>

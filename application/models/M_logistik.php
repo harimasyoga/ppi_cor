@@ -1619,6 +1619,7 @@ class M_logistik extends CI_Model
 			$this->db->set('status_inv', $status);
 			$this->db->set('acc_owner', $_POST["aksi"]);
 			$this->db->set('time_owner', ($_POST["aksi"] == 'N') ? null : date('Y-m-d H:i:s'));
+			$this->db->set('acc_by', $this->session->userdata('username'));
 			$this->db->set('ket_owner', $ket);
 			$this->db->where('id', $_POST["h_id_header"]);
 			$result = $this->db->update('invoice_laminasi_header');
