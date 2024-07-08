@@ -4539,7 +4539,7 @@ class Logistik extends CI_Controller
 			($this->session->userdata('username') == 'usman') ? $where = "WHERE h.jenis_lm='PEKALONGAN'" : $where = "";
 			$query = $this->db->query("SELECT h.* FROM invoice_laminasi_header h
 			$where
-			ORDER BY acc_owner,tgl_invoice,no_invoice")->result();
+			ORDER BY acc_owner,tgl_invoice DESC,no_invoice DESC")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
