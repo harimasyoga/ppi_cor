@@ -1814,6 +1814,31 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function batalInvoiceLaminasi()
+	{
+		$id = $_POST["id"];
+		$header = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id'")->row();
+		// CEK JIKA SUDAH DI BUAT INVOICE JASA 
+		$jasa = $this->db->query("SELECT*FROM invoice_jasa_header WHERE no_surat='$header->no_surat'")->num_rows();
+		if($jasa == 0){
+			$this->db->where('id', $id);
+			$this->db->set('acc_owner', 'N');
+			$this->db->set('time_owner', null);
+			$this->db->set('acc_by', null);
+			$this->db->set('ket_owner', null);
+			$data = $this->db->update('invoice_laminasi_header');
+			$msg = "BERHASIL BATAL ACC OWNER!";
+		}else{
+			$data = false;
+			$msg = "HAPUS DATA INVOICE JASA DAHULU!";
+		}
+		return [
+			'header' => $header,
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	//
 
 	function simpanInvJasa()
@@ -2085,6 +2110,43 @@ class M_logistik extends CI_Model
 			'header' => $header,
 			'detail' => $detail,
 			'no_pl_jasa' => $no_pl_jasa,
+		];
+	}
+
+	function batalInvoiceJasa()
+	{
+		$id = $_POST["id"];
+		$header = $this->db->query("SELECT*FROM invoice_jasa_header WHERE id='$id'")->row();
+		$beli_header = $this->db->query("SELECT*FROM invoice_header_beli WHERE no_inv_maklon='$header->no_invoice'")->row();
+		if($beli_header->acc_owner != 'Y'){
+			// DELETE INVOICE DETAIL BELI
+			$this->db->where('no_inv_beli', $beli_header->no_inv_beli);
+			$delInvDtlBeli = $this->db->delete('invoice_detail_beli');
+			// DELETE INVOICE HEADER BELI
+			$this->db->where('no_inv_maklon', $header->no_invoice);
+			$delInvHdrBeli = $this->db->delete('invoice_header_beli');
+			// UDPATE ACC INVOICE HEADER JASA
+			$this->db->where('id', $id);
+			$this->db->set('acc_owner', 'N');
+			$this->db->set('time_owner', null);
+			$this->db->set('ket_owner', null);
+			$updInvHdrJasa = $this->db->update('invoice_jasa_header');
+			if($delInvDtlBeli && $delInvHdrBeli && $updInvHdrJasa){
+				$data = true;
+				$msg = 'BATAL ACC OWNER BERHASIL!';
+			}else{
+				$data = false;
+				$msg = 'delInvDtlBeli = '.$delInvDtlBeli.' | delInvHdrBeli = '.$delInvHdrBeli.' | updInvHdrJasa = '.$updInvHdrJasa;
+			}
+		}else{
+			$data = false;
+			$msg = 'BATAL ACC DATA INVOICE PEMBELIAN DAHULU!';
+		}
+		return [
+			'header' => $header,
+			'beli_header' => $beli_header,
+			'data' => $data,
+			'msg' => $msg,
 		];
 	}
 

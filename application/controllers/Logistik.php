@@ -1795,6 +1795,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function batalInvoiceLaminasi()
+	{
+		$result = $this->m_logistik->batalInvoiceLaminasi();
+		echo json_encode($result);
+	}
+
 	function editInvoiceLaminasi()
 	{
 		$id_header = $_POST["id_header"];
@@ -3067,6 +3073,12 @@ class Logistik extends CI_Controller
 	function hapusInvoiceJasa()
 	{
 		$result = $this->m_logistik->hapusInvoiceJasa();
+		echo json_encode($result);
+	}
+
+	function batalInvoiceJasa()
+	{
+		$result = $this->m_logistik->batalInvoiceJasa();
 		echo json_encode($result);
 	}
 
@@ -4681,13 +4693,17 @@ class Logistik extends CI_Controller
 				}
 				$row[] = '<div class="text-center">'.$lapLaporan.'</div>';
 				// AKSI
-				$btnEdit = '<button type="button" onclick="editInvoiceLaminasi('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button>'; 
-				$btnHapus = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="hapusInvoiceLaminasi('."'".$r->id."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>';
-				$btnVerif = '<button type="button" onclick="editInvoiceLaminasi('."'".$r->id."'".','."'verif'".')" title="VERIFIKASI" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>'; 
+				$btnEdit = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="editInvoiceLaminasi('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button> '; 
+				$btnHapus = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="hapusInvoiceLaminasi('."'".$r->id."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button> ';
+				if($r->acc_owner == 'Y' && $r->status_bayar == 'BELUM BAYAR' && $this->session->userdata('level') == 'Admin'){
+					$btnVerif = '<button type="button" onclick="batalInvoiceLaminasi('."'".$r->id."'".')" title="BATAL ACC OWNER" class="btn btn-danger btn-sm"><i class="fa fa-lock" style="color:#000"></i></button>'; 
+				}else{
+					$btnVerif = '<button type="button" onclick="editInvoiceLaminasi('."'".$r->id."'".','."'verif'".')" title="VERIFIKASI" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>';
+				}
 				if($this->session->userdata('level') == 'Admin'){
-					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
+					$row[] = '<div class="text-center">'.$btnEdit.$btnHapus.$btnVerif.'</div>';
 				}else if($this->session->userdata('level') == 'Laminasi'){
-					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
+					$row[] = '<div class="text-center">'.$btnEdit.$btnHapus.'</div>';
 				}else if($this->session->userdata('level') == 'Keuangan1' && $this->session->userdata('username') == 'bumagda'){
 					$row[] = '<div class="text-center">'.$btnVerif.'</div>';
 				}else{
@@ -4703,7 +4719,6 @@ class Logistik extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				// DESKRIPSI
-				// <div style="white-space:wrap"><b>Alamat :</b> '.$r->alamat_jasa_inv.'</div>
 				$htmlDes = '<table>
 					<tr style="background:transparent !important">
 						<td style="padding:0 0 3px;border:0;font-weight:bold">Tanggal</td>
@@ -4769,7 +4784,6 @@ class Logistik extends CI_Controller
 						</div>
 					</div>
 				</div>';
-				
 				// TOTAL
 				if($r->transaksi == "CORRUGATED"){
 					$cHarga = $this->db->query("SELECT*FROM invoice_jasa_detail d
@@ -4794,16 +4808,22 @@ class Logistik extends CI_Controller
 					$row[] = '<div class="text-right" style="font-weight:bold;color:#000">'.number_format($total,0,',','.').'</div>';
 					$lapPrint = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/cetakInvJasa?no_invoice=".$r->no_invoice."").'" title=""><i class="fas fa-print"></i></a>';
 				}
-
 				// CETAK
 				$row[] = '<div class="text-center">'.$lapPrint.'</div>';
-
 				// AKSI
-				$btnEdit = '<button type="button" onclick="editInvoiceJasa('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button>'; 
-				$btnHapus = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="hapusInvoiceJasa('."'".$r->id."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>';
-				$btnVerif = '<button type="button" onclick="editInvoiceJasa('."'".$r->id."'".','."'verif'".')" title="VERIFIKASI" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>'; 
+				$btnEdit =  ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="editInvoiceJasa('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button> '; 
+				$btnHapus = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="hapusInvoiceJasa('."'".$r->id."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button> ';
+				if($r->acc_owner == 'Y'){
+					if($this->session->userdata('level') == 'Admin'){
+						$btnVerif = '<button type="button" onclick="batalInvoiceJasa('."'".$r->id."'".')" title="BATAL ACC OWNER" class="btn btn-danger btn-sm"><i class="fa fa-lock" style="color:#000"></i></button>'; 
+					}else{
+						$btnVerif = '-'; 
+					}
+				}else{
+					$btnVerif = '<button type="button" onclick="editInvoiceJasa('."'".$r->id."'".','."'verif'".')" title="VERIFIKASI" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>'; 
+				}
 				if(in_array($this->session->userdata('level'), ['Admin', 'Admin2'])){
-					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
+					$row[] = '<div class="text-center">'.$btnEdit.$btnHapus.$btnVerif.'</div>';
 				}else if($this->session->userdata('level') == 'Owner'){
 					$row[] = '<div class="text-center">'.$btnVerif.'</div>';
 				}else{
