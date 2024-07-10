@@ -497,7 +497,6 @@
 
 	$(document).ready(function ()
 	{
-		// kosong()
 		load_data()
 		$('.select2').select2();
 	});
@@ -1215,7 +1214,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				editInvoiceLaminasi(id_header, 'edit')
 			}
 		})
@@ -1393,5 +1391,45 @@
 				swal.close()
 			}
 		})
+	}
+
+	function batalInvoiceLaminasi(id)
+	{
+		swal({
+			title: "BATAL ACC YAKIN?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#C00",
+			confirmButtonText: "Yakin Bgt!"
+		}).then(function(result) {
+			$.ajax({
+				url: '<?php echo base_url('Logistik/batalInvoiceLaminasi')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({ id }),
+				success: function(res){
+					data = JSON.parse(res)
+					if(data.data){
+						toastr.success(`<b>${data.msg}</b>`)
+						kosong()
+						reloadTable()
+					}else{
+						toastr.error(`<b>${data.msg}</b>`)
+						reloadTable()
+						swal.close()
+					}
+				}
+			})
+		});
 	}
 </script>
