@@ -3943,12 +3943,47 @@ class Logistik extends CI_Controller
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">'.$hub .'<br></td>
 					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>NO SJ </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$no_sj .'<br></td>
+					</tr>
 					';
-
-				$row[] = $no_sj;
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_invoice.'</div>';
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_jatuh_tempo.'</div>';
 				$row[] = '<div class="text-right"><b>'.number_format($total, 0, ",", ".").'</b></div>';
+				// Pembayaran
+				$bayar = $this->db->query("SELECT SUM(jumlah_bayar) AS byr_jual from trs_bayar_inv where no_inv='$r->no_invoice' GROUP BY no_inv");
+
+				if ($r->acc_owner == "N") 
+				{
+					$txtB            = 'btn-light';
+					$txtT            = '-';
+					$kurang_bayar    = '';
+				}else{
+
+					if($bayar->num_rows() == 0){
+						$txtB           = 'btn-danger';
+						$txtT           = 'BELUM BAYAR';
+						$kurang_bayar   = '';
+					}
+					
+					if($bayar->num_rows() > 0){
+						if($bayar->row()->byr_jual == round($total)){
+							$txtB            = 'btn-success';
+							$txtT            = 'LUNAS';
+							$kurang_bayar    = '';
+						}else{
+							$txtB            = 'btn-warning';
+							$txtT            = 'DI CICIL';
+							$kurang_bayar    = '<br><span style="color:#ff5733">'.number_format($total-$bayar->row()->byr_jual,0,',','.').'</span>';
+						}
+					}
+				}
+				$row[] = '<div class="text-center">
+					<button type="button" class="btn btn-xs '.$txtB.'" style="font-weight:bold" >'.$txtT.'</button><br>
+				</div>';
+
 				if (in_array($this->session->userdata('username'), ['karina']))
 				{
 					// $urll1 = "onclick=acc_inv(`admin`,'$r->acc_admin','$r->no_invoice')";
@@ -4160,7 +4195,7 @@ class Logistik extends CI_Controller
 				$data[] = $row;
 			}
 		}else if ($jenis == "byr_inv") {
-			$query = $this->db->query("SELECT *,a.id_bayar_inv as id_ok FROM trs_bayar_inv a join invoice_header b on a.no_inv=b.no_invoice ORDER BY id_bayar_inv ")->result();
+			$query = $this->db->query("SELECT *,a.id_bayar_inv as id_ok,a.acc_owner FROM trs_bayar_inv a join invoice_header b on a.no_inv=b.no_invoice ORDER BY id_bayar_inv ")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -4187,6 +4222,22 @@ class Logistik extends CI_Controller
 					$item = $item_result;
 				}				
 
+				if($r->acc_owner=='N')
+                {
+                    $btn2   = 'btn-warning';
+                    $i2     = '<i class="fas fa-lock"></i>';
+                } else {
+                    $btn2   = 'btn-success';
+                    $i2     = '<i class="fas fa-check-circle"></i>';
+                }
+				
+				if (in_array($this->session->userdata('username'), ['bumagda','developer']))
+				{
+					$urll2 = "onclick=acc_inv('$r->no_invoice','$r->acc_owner')";
+				} else {
+					$urll2 = '';
+				}
+
 
 				$id       = "'$r->id_ok'";
 				$no_inv   = "'$r->no_invoice'";
@@ -4194,13 +4245,29 @@ class Logistik extends CI_Controller
 
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = $r->nm_perusahaan;
-				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_bayar).'</div>';
+				$row[] = '
+				
+				<table>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>CUST </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$r->nm_perusahaan .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>ITEM </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$item .'<br></td>
+					</tr>
+					';
+				$row[] = '<div class="text-center">'.$r->tgl_bayar.'</div>';
 				$row[] = $r->no_inv;
-				$row[] = $item;
 				$row[] = $no_sj;
 				$row[] = '<div class="text-right"><b>'.number_format($r->total_inv, 0, ",", ".").'</b></div>';
 				$row[] = '<div class="text-right"><b>'.number_format($r->jumlah_bayar, 0, ",", ".").'</b></div>';
+
+				
+				$row[]  = '
+						<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn2.' " '.$urll2.' title="VERIFIKASI DATA" ><b>'.$i2.' </b> </a><span style="font-size:1px;color:transparent">'.$r->acc_owner.'</span><div>';
 
 				$aksi = "";
 
