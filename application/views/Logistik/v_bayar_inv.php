@@ -244,7 +244,7 @@
 						</div>
 				</div>
 				<div class="card-body" >
-					<?php if(in_array($this->session->userdata('level'), ['Admin','Laminasi','Keuangan1'])){ ?>
+					<?php if(in_array($this->session->userdata('level'), ['Admin','Laminasi','Keuangan1','Pembayaran'])){ ?>
 						<div style="margin-bottom:12px">
 							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 						</div>
