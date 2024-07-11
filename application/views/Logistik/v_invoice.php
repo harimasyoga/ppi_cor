@@ -275,10 +275,10 @@
 								<tr>
 									<th style="text-align: center;">No</th>
 									<th style="text-align: center;">Invoice</th>
-									<th style="text-align: center;">No SJ</th>
 									<th style="text-align: center;">Tgl Inv</th>
 									<th style="text-align: center;">J. Tempo</th>
 									<th style="text-align: center;">Total</th>
+									<th style="text-align: center;">Pembayaran</th>
 									<th style="text-align: center;">Admin</th>
 									<th style="text-align: center;">Owner</th>
 									<th style="text-align: center;;">Aksi</th>
