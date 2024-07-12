@@ -1839,6 +1839,69 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function addJurnalInvLaminasi()
+	{
+		$id = $_POST["id"];
+		$header = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id'")->row();
+		$detail = $this->db->query("SELECT d.*,i.jenis_qty_lm,i.pack_lm,i.ikat_lm,i.kg_lm,rk.qty_muat FROM invoice_laminasi_detail d
+		INNER JOIN m_rk_laminasi rk ON d.id_rk_lm=rk.id
+		INNER JOIN m_produk_lm i ON d.id_produk_lm=i.id_produk_lm
+		INNER JOIN trs_po_lm_detail p ON d.id_po_dtl=p.id
+		WHERE d.no_invoice='$header->no_invoice'
+		ORDER BY rk.rk_no_po,i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm")->result();
+		$hargaBahan = $this->db->query("SELECT b.*,d.* FROM pl_laminasi p
+		INNER JOIN trs_po_bhnbk_detail d ON p.no_po=d.kode_po
+		INNER JOIN trs_po_bhnbk b ON b.no_po_bhn=d.no_po_bhn
+		WHERE p.no_surat='$header->no_surat'
+		ORDER BY b.hrg_bhn DESC LIMIT 1");
+
+		if($hargaBahan->num_rows() != 0){
+			foreach($detail as $r){
+				// PENDAPATAN DAN PAJAK PENDAPATAN
+				$pendapatan = $r->total;
+				$pajak_pendapatan = (($r->total) * 0.5) / 100;
+				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '1.01.03', 'Pendapatan', $pendapatan, 0);
+				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '4.01', 'Pendapatan', 0, $pendapatan);
+				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '6.37', 'Pajak Pendapatan', $pajak_pendapatan, 0);
+				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '2.01.04', 'Pajak Pendapatan', 0, $pajak_pendapatan);
+				// PEMBELIAN BAHAN BAKU		
+				$harga_bahan = $hargaBahan->row()->hrg_bhn;
+				if($r->jenis_qty_lm == 'pack'){
+					$qty = $r->pack_lm;
+					$retur = round($r->retur_qty);
+				}else if($r->jenis_qty_lm == 'ikat'){
+					$qty = $r->ikat_lm;
+					$retur = round($r->retur_qty);
+				}else{
+					$qty = $r->kg_lm;
+					$retur = round($r->retur_qty,2);
+				}
+				$ton = ((($qty * $r->qty_muat) - $retur) / $qty) * 50;
+				$bb = ($ton / 0.75);
+				$nominal_bahan = $bb * $harga_bahan;
+				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '1.01.05', 'Penggunaan Bahan Baku', $nominal_bahan, 0);
+				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '1.01.06', 'Penggunaan Bahan Baku', 0, $nominal_bahan);
+				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '5.01', 'Pembelian Bahan Baku', $nominal_bahan, 0);
+				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '1.01.05', 'Pembelian Bahan Baku', 0, $nominal_bahan);
+				// STOK BAHAN BAKU
+				stok_bahanbaku($header->no_invoice, $header->bank, $header->tgl_invoice, 'HUB', 0, $bb, 'KELUAR DENGAN INVs', 'KELUAR', $r->id_produk_lm);
+			}
+			$data = true;
+			$msg = 'BERHASIL TAMBAH JURNAL!';
+		}else{
+			$data = false;
+			$msg = 'PO BAHAN BAKU BELUM ADA!';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+			'header' => $header,
+			'detail' => $detail,
+			'hargaBahan' => ($hargaBahan->num_rows() != 0) ? $hargaBahan->row()->hrg_bhn : '',
+		];
+	}
+
 	//
 
 	function simpanInvJasa()
@@ -2448,7 +2511,7 @@ class M_logistik extends CI_Model
 	}
 
 	function verif_inv()
-	{
+	{ //
 		$no_inv       = $this->input->post('no_inv');
 		$acc          = $this->input->post('acc');
 		$app          = "";

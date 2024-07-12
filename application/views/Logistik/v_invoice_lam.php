@@ -1432,4 +1432,37 @@
 			})
 		});
 	}
+
+	function addJurnalInvLaminasi(id)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Logistik/addJurnalInvLaminasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				// if(data.data){
+				// 	toastr.success(`<b>${data.msg}</b>`)
+				// 	kosong()
+				// 	reloadTable()
+				// }else{
+				// 	toastr.error(`<b>${data.msg}</b>`)
+				// 	reloadTable()
+				// 	swal.close()
+				// }
+				swal.close()
+			}
+		})
+	}
 </script>

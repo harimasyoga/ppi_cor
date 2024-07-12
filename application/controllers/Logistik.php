@@ -1801,8 +1801,14 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
-	function editInvoiceLaminasi()
+	function addJurnalInvLaminasi()
 	{
+		$result = $this->m_logistik->addJurnalInvLaminasi();
+		echo json_encode($result);
+	}
+
+	function editInvoiceLaminasi()
+	{ //
 		$id_header = $_POST["id_header"];
 		$opsi = $_POST["opsi"];
 		$htmlItem = '';
@@ -4762,13 +4768,19 @@ class Logistik extends CI_Controller
 				// AKSI
 				$btnEdit = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="editInvoiceLaminasi('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button> '; 
 				$btnHapus = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="hapusInvoiceLaminasi('."'".$r->id."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button> ';
-				if($r->acc_owner == 'Y' && $r->status_bayar == 'BELUM BAYAR' && $this->session->userdata('level') == 'Admin'){
-					$btnVerif = '<button type="button" onclick="batalInvoiceLaminasi('."'".$r->id."'".')" title="BATAL ACC OWNER" class="btn btn-danger btn-sm"><i class="fa fa-lock" style="color:#000"></i></button>'; 
+				if($r->acc_owner == 'Y' && $r->status_bayar == 'BELUM BAYAR' && $r->jenis_lm == 'PPI' && $this->session->userdata('level') == 'Admin'){
+					$btnVerif = '<button type="button" onclick="batalInvoiceLaminasi('."'".$r->id."'".')" title="BATAL ACC OWNER" class="btn btn-danger btn-sm"><i class="fa fa-lock" style="color:#000"></i></button> ';
 				}else{
-					$btnVerif = '<button type="button" onclick="editInvoiceLaminasi('."'".$r->id."'".','."'verif'".')" title="VERIFIKASI" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>';
+					$btnVerif = '<button type="button" onclick="editInvoiceLaminasi('."'".$r->id."'".','."'verif'".')" title="VERIFIKASI" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button> ';
+				}
+				// ADD JURNAL
+				if($r->acc_owner == 'Y' && $r->status_bayar != 'REJECT' && $r->bank != '7' && $r->bank != '0' && $r->jenis_lm == 'PPI' && $this->session->userdata('level') == 'Admin'){
+					$btnJurnal = '<button type="button" onclick="addJurnalInvLaminasi('."'".$r->id."'".')" title="JURNAL" class="btn btn-warning btn-sm"><i class="fa fa-book"></i></button>';
+				}else{
+					$btnJurnal = '';
 				}
 				if($this->session->userdata('level') == 'Admin'){
-					$row[] = '<div class="text-center">'.$btnEdit.$btnHapus.$btnVerif.'</div>';
+					$row[] = '<div class="text-center">'.$btnEdit.$btnHapus.$btnVerif.$btnJurnal.'</div>';
 				}else if($this->session->userdata('level') == 'Laminasi'){
 					$row[] = '<div class="text-center">'.$btnEdit.$btnHapus.'</div>';
 				}else if($this->session->userdata('level') == 'Keuangan1' && $this->session->userdata('username') == 'bumagda'){
