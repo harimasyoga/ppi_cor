@@ -3608,6 +3608,37 @@ class Logistik extends CI_Controller
 			group by no_inv),0) jum_bayar, a.id_bayar_inv as id_ok FROM trs_bayar_inv a join invoice_header b on a.no_inv=b.no_invoice where b.no_invoice='$no' and a.id_bayar_inv='$id' ORDER BY id_bayar_inv";
 			
 			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
+		}else if($jenis=='byr_invoice_beli')
+		{
+			$queryh   = "	SELECT *,IFNULL(
+			(select sum(jumlah_bayar) from trs_bayar_inv_beli t
+						where t.no_inv_beli=a.no_inv_beli
+						group by no_inv_beli),0) jum_bayar,
+						
+						a.id_bayar_inv as id_ok,a.acc_owner 
+				FROM trs_bayar_inv_beli a 
+				join invoice_header_beli b on a.no_inv_beli=b.no_inv_beli 
+				join m_hub c on b.id_hub=c.id_hub
+				join m_supp d on b.id_supp=d.id_supp
+				where a.no_inv_beli='$no' and id_bayar_inv='$id'
+				ORDER BY id_bayar_inv
+				";
+				
+				$queryd   = "SELECT *,
+				(
+				SELECT nm FROM(
+							select kd_akun as kd,nm_akun as nm,jenis,dk from m_kode_akun
+							union all
+							select concat(kd_akun,'.',kd_kelompok) as kd,nm_kelompok as nm,jenis,dk from m_kode_kelompok
+							union all
+							select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis) as kd,nm_jenis as nm,jenis,dk from m_kode_jenis
+							union all
+							select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci) as kd,nm_rinci as nm,jenis,dk from m_kode_rinci
+							)p
+							where p.kd = invoice_detail_beli.jns_beban
+										) nm
+	
+				FROM invoice_detail_beli WHERE no_inv_beli='$no' order by id_det_beli";
 		}else if($jenis=='spill')
 		{
 			$queryh   = "SELECT *,IFNULL((select sum(jumlah_bayar) from trs_bayar_inv t
@@ -3615,6 +3646,33 @@ class Logistik extends CI_Controller
 			group by no_inv),0) jum_bayar FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
 			
 			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
+		}else if($jenis=='spill_inv_beli')
+		{
+			$queryh   = "SELECT IFNULL(
+			(select sum(jumlah_bayar) from trs_bayar_inv_beli t
+						where t.no_inv_beli=a.no_inv_beli
+						group by no_inv_beli),0) jum_bayar,
+						a.*,b.nm_hub,c.nm_supp FROM invoice_header_beli a
+			JOIN m_hub b ON a.id_hub=b.id_hub
+			JOIN m_supp c ON a.id_supp=c.id_supp
+			where a.no_inv_beli='$no'
+			ORDER BY tgl_inv_beli desc,id_header_beli";
+			 
+			$queryd   = "SELECT *,
+		(
+		SELECT nm FROM(
+					select kd_akun as kd,nm_akun as nm,jenis,dk from m_kode_akun
+					union all
+					select concat(kd_akun,'.',kd_kelompok) as kd,nm_kelompok as nm,jenis,dk from m_kode_kelompok
+					union all
+					select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis) as kd,nm_jenis as nm,jenis,dk from m_kode_jenis
+					union all
+					select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci) as kd,nm_rinci as nm,jenis,dk from m_kode_rinci
+					)p
+					where p.kd = invoice_detail_beli.jns_beban
+								) nm
+
+		FROM invoice_detail_beli WHERE no_inv_beli='$no' order by id_det_beli";
 		}else if($jenis=='spill_po')
 		{ 
 			$queryh   = "SELECT *,
@@ -4233,7 +4291,7 @@ class Logistik extends CI_Controller
 				
 				if (in_array($this->session->userdata('username'), ['bumagda','developer']))
 				{
-					$urll2 = "onclick=acc_inv('$r->no_invoice','$r->acc_owner')";
+					$urll2 = "onclick=acc_inv('$r->id_bayar_inv','$r->acc_owner')";
 				} else {
 					$urll2 = '';
 				}
@@ -4262,6 +4320,135 @@ class Logistik extends CI_Controller
 				$row[] = '<div class="text-center">'.$r->tgl_bayar.'</div>';
 				$row[] = $r->no_inv;
 				$row[] = $no_sj;
+				$row[] = '<div class="text-right"><b>'.number_format($r->total_inv, 0, ",", ".").'</b></div>';
+				$row[] = '<div class="text-right"><b>'.number_format($r->jumlah_bayar, 0, ",", ".").'</b></div>';
+
+				
+				$row[]  = '
+						<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn2.' " '.$urll2.' title="VERIFIKASI DATA" ><b>'.$i2.' </b> </a><span style="font-size:1px;color:transparent">'.$r->acc_owner.'</span><div>';
+
+				$aksi = "";
+
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','Keuangan1']))
+				{
+					$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv . ')" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-danger btn-sm">
+							<i class="fa fa-trash-alt"></i>
+						</button> 
+						';
+			
+				} else {
+					$aksi = '';
+				}
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+
+				$i++;
+			}
+		}else if ($jenis == "byr_inv_beli") {
+			$query = $this->db->query("SELECT *,a.id_bayar_inv as id_ok,a.acc_owner 
+			FROM trs_bayar_inv_beli a 
+			join invoice_header_beli b on a.no_inv_beli=b.no_inv_beli 
+			join m_hub c on b.id_hub=c.id_hub
+			join m_supp d on b.id_supp=d.id_supp
+			ORDER BY id_bayar_inv 
+			")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {				
+				// $result_transaksi = $this->db->query("SELECT *,
+				// (
+				// SELECT nm FROM(
+				// 			select kd_akun as kd,nm_akun as nm,jenis,dk from m_kode_akun
+				// 			union all
+				// 			select concat(kd_akun,'.',kd_kelompok) as kd,nm_kelompok as nm,jenis,dk from m_kode_kelompok
+				// 			union all
+				// 			select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis) as kd,nm_jenis as nm,jenis,dk from m_kode_jenis
+				// 			union all
+				// 			select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci) as kd,nm_rinci as nm,jenis,dk from m_kode_rinci
+				// 			)p
+				// 			where p.kd = invoice_detail_beli.jns_beban
+				// 						) nm
+
+				// FROM invoice_detail_beli WHERE no_inv_beli='$r->no_inv_beli' order by id_det_beli");
+				// if($result_transaksi->num_rows() == '1'){
+				// 	$transaksi = $result_transaksi->row()->transaksi;
+				// }else{					
+				// 	$transaksi_result    = '';
+				// 	foreach($result_transaksi->result() as $row){
+				// 		$transaksi_result .= '<b>- </b>'.$row->transaksi.'<br>';
+				// 	}
+				// 	$transaksi = $transaksi_result;
+				// }				
+
+				if($r->acc_owner=='N')
+                {
+                    $btn2   = 'btn-warning';
+                    $i2     = '<i class="fas fa-lock"></i>';
+                } else {
+                    $btn2   = 'btn-success';
+                    $i2     = '<i class="fas fa-check-circle"></i>';
+                }
+
+				if($r->pajak=='PPN')
+				{
+					$pajak    = 'PPN';
+					
+				}else if($r->pajak=='PPN_PPH')
+				{
+					$pajak   = 'PPN & PPH';
+				}else{
+					$pajak   = 'NON PPN';
+				}
+				
+				if (in_array($this->session->userdata('username'), ['bumagda','developer']))
+				{
+					$urll2 = "onclick=acc_inv('$r->id_bayar_inv','$r->acc_owner')";
+				} else {
+					$urll2 = '';
+				}
+
+
+				$id       = "'$r->id_bayar_inv'";
+				$no_inv   = "'$r->no_inv_beli'";
+				$print    = base_url("laporan/print_invoice_v2?no_inv_beli=") . $r->no_inv_beli;
+
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '
+				
+				<table>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>NO INV </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$r->no_inv_beli .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>TGL INV </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$r->tgl_inv .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>HUB</td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$r->nm_hub .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>TAX</td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$pajak .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>SUPPLIER</td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$r->nm_supp .'<br></td>
+					</tr>
+					';
+				$row[] = '<div class="text-center">'.$r->tgl_bayar.'</div>';
 				$row[] = '<div class="text-right"><b>'.number_format($r->total_inv, 0, ",", ".").'</b></div>';
 				$row[] = '<div class="text-right"><b>'.number_format($r->jumlah_bayar, 0, ",", ".").'</b></div>';
 
@@ -4918,18 +5105,32 @@ class Logistik extends CI_Controller
 		if ($jenis == "byr_inv") 
 		{ 
 			$blnn    = $_POST['blnn'];
-			$query   = $this->db->query("SELECT *, IFNULL((select sum(jumlah_bayar) from trs_bayar_inv t
-			where t.no_inv=p.no_invoice
-			group by no_inv),0) jum_bayar
-			FROM(
-			SELECT a.*,sum(harga)harga_ok,sum(include)include_ok,c.* 
+			$query   = $this->db->query("SELECT*FROM(
+			SELECT *, IFNULL((select sum(jumlah_bayar) from trs_bayar_inv t where t.no_inv=p.no_invoice group by no_inv),0) jum_bayar
+						FROM
+						(
+						SELECT a.*,sum(harga)harga_ok,sum(include)include_ok,c.* ,
+						CASE 
+			WHEN (a.type='box' or a.type='sheet') and pajak='ppn' and inc_exc='Include' THEN sum(round(harga*hasil,0))
+			WHEN (a.type='box' or a.type='sheet') and pajak='ppn' and inc_exc='Exclude' THEN sum(round((harga*hasil)+(harga*hasil*0.11),0))
+			WHEN (a.type='box' or a.type='sheet') and pajak='ppn_pph' and inc_exc='Include' THEN sum(round((harga*hasil)+(harga*hasil*0.001),0))
+			WHEN (a.type='box' or a.type='sheet') and pajak='ppn_pph' and inc_exc='Exclude' THEN sum(round((harga*hasil)+(harga*hasil*0.11)+(harga*hasil*0.001),0))
+
+			WHEN (a.type='roll') and pajak='ppn' and inc_exc='Include' THEN sum(round(harga*(weight-seset),0))
+			WHEN (a.type='roll') and pajak='ppn' and inc_exc='Exclude' THEN sum(round((harga*(weight-seset))+(harga*(weight-seset)*0.11),0))
+			WHEN (a.type='roll') and pajak='ppn_pph' and inc_exc='Include' THEN sum(round((harga*(weight-seset))+(harga*(weight-seset)*0.001),0))
+			WHEN (a.type='roll') and pajak='ppn_pph' and inc_exc='Exclude' THEN sum(round((harga*(weight-seset))+(harga*hasil*0.11)+(harga*hasil*0.001),0))
+			ELSE 0 END AS total
 			from invoice_header a 
 			join invoice_detail b on a.no_invoice=b.no_invoice
 			left join m_pelanggan c on a.id_perusahaan=c.id_pelanggan
 			-- where a.no_invoice in ('AA/2605/12/2023','A/0009/01/2023','A/1436/12/2023') 
 			where month(a.tgl_invoice) in ('$blnn')
 			group by a.no_invoice
-			) as p")->result();
+			) as p ) AS q 
+			-- where total-jum_bayar<>0
+			
+			")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -5057,7 +5258,7 @@ class Logistik extends CI_Controller
 				 ';
 
 
-
+				
 				$row[] = $no_sj;
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_invoice).'</div>';
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_sj).'</div>';	
@@ -5065,6 +5266,118 @@ class Logistik extends CI_Controller
 				$row[] = $ket_inc .''. number_format($total_include, 0, ",", ".").'</div>';				
 				$row[] = '<div class="text-right" style="font-weight:bold;">'. number_format($r->jum_bayar, 0, ",", ".").'</div>';
 				$row[] = '<div class="text-right" style="font-weight:bold;">'. number_format($kurang_bayar, 0, ",", ".").'</div>';
+				
+				$aksi = '
+				<button type="button" title="PILIH"  onclick="spilldata(' . $id . ',' . $no_inv . ')" class="btn btn-success btn-sm">
+					<i class="fas fa-check-circle"></i>
+				</button> ';
+
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+				$i++;
+			}
+		}else if ($jenis == "byr_inv_beli") 
+		{ 
+			$blnn    = $_POST['blnn'];
+			$query   = $this->db->query("SELECT IFNULL(
+			(select sum(jumlah_bayar) from trs_bayar_inv_beli t
+						where t.no_inv_beli=a.no_inv_beli
+						group by no_inv_beli),0) jum_bayar,a.*,b.nm_hub,c.nm_supp FROM invoice_header_beli a
+			JOIN m_hub b ON a.id_hub=b.id_hub
+			JOIN m_supp c ON a.id_supp=c.id_supp
+			ORDER BY tgl_inv_beli desc,id_header_beli")->result();
+
+			$i               = 1;
+			foreach ($query as $r) {
+				
+				$result_detail = $this->db->query("SELECT * FROM invoice_detail_beli WHERE no_inv_beli='$r->no_inv_beli' order by id_det_beli");
+
+				if($result_detail->num_rows() == '1')
+				{
+					$ket_tr    = $result_detail->row()->transaksi;
+					$jns_beban = cari_data_rek('kd',$result_detail->row()->jns_beban)->row()->nm;
+					$nominal   = $result_detail->row()->nominal;
+
+				
+				}else{				
+					$no                  = 1;
+					$ket_tr_result       = '';
+					$jns_beban_result    = '';
+					$nominal_result      = '';
+
+					foreach($result_detail->result() as $row)
+					{
+						$ket_tr_result       .= '<b>'.$no.'.) </b>'.$row->transaksi.'<br>';
+						$jns_beban_result    .= '<b>'.$no.'.) </b>'.cari_data_rek('kd',$row->jns_beban)->row()->nm.'<br>';
+						$nominal_result      += $row->nominal;
+
+						$no++; 
+
+					}
+					$ket_tr    = $ket_tr_result;
+					$jns_beban = $jns_beban_result;
+					$nominal   = $nominal_result;
+
+				}	
+
+				if($r->pajak=='PPN')
+					{
+						$tax          = 'PPN';
+						$ppn_total    = round($nominal *0.11,0);
+						$pph_total    = 0;
+					}else if($r->pajak=='PPN_PPH')
+					{
+						$tax          = 'PPN PPH';
+						$ppn_total    = round($nominal *0.11,0);
+						$pph_total    = round($nominal *0.02,0);
+					}else{
+						$tax          = 'NON PPN';
+						$ppn_total    = 0;
+						$pph_total    = 0;
+					}
+
+				$total = $nominal + $ppn_total - $pph_total;
+
+				$id       = "'$r->id_header_beli'";
+				$no_inv   = "'$r->no_inv_beli'";
+				$print    = base_url("laporan/print_invoice_v2?no_inv_beli=") . $r->no_inv_beli;
+
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+
+
+				$row[] = '
+				<table>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 3px;border:none;"><b>No Inv</td>
+						<td style="padding : 3px;border:none;">:</td></b> 
+						<td style="padding : 3px;border:none;">'.$r->no_inv_beli .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 3px;border:none;"><b>ATTN </td>
+						<td style="padding : 3px;border:none;">:</td></b> 
+						<td style="padding : 3px;border:none;">'.$r->nm_hub .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 3px;border:none;"><b>PAJAK </td>
+						<td style="padding : 3px;border:none;">:</td></b> 
+						<td style="padding : 3px;border:none;">'.$tax .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 3px;border:none;"><b>Tgl Inv </td>
+						<td style="padding : 3px;border:none;">:</td></b> 
+						<td style="padding : 3px;border:none;">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_inv_beli).'<br></td>
+					</tr>
+				</tr>
+				</table>
+				 ';
+
+
+				 $row[] = '<div class="text-center" style="font-weight:bold;">'.$ket_tr.'</div>';	
+				 $row[] = '<div class="text-center" style="font-weight:bold;">'.$jns_beban.'</div>';				
+				$row[] = '<div class="text-center" style="font-weight:bold;">'.number_format($total, 0, ",", ".").'</div>';				
+				$row[] = '<div class="text-center" style="font-weight:bold;">'.number_format($r->jum_bayar, 0, ",", ".").'</div>';
+				$row[] = '<div class="text-center" style="font-weight:bold;">'.number_format($total-$r->jum_bayar, 0, ",", ".").'</div>';
 				
 				$aksi = '
 				<button type="button" title="PILIH"  onclick="spilldata(' . $id . ',' . $no_inv . ')" class="btn btn-success btn-sm">
@@ -5427,10 +5740,8 @@ class Logistik extends CI_Controller
 
 	function Insert_byr_inv()
 	{
-
 		if($this->session->userdata('username'))
 		{
-
 			$asc         = $this->m_logistik->save_byr_invoice();
 	
 			if($asc){
@@ -5442,6 +5753,26 @@ class Logistik extends CI_Controller
 	
 			}
 
+		}
+
+		
+		
+	}
+	
+	function Insert_byr_inv_beli()
+	{
+		if($this->session->userdata('username'))
+		{
+			$asc         = $this->m_logistik->save_byr_invoice_beli();
+	
+			if($asc){
+	
+				echo json_encode(array("status" =>"1","id" => $asc));
+	
+			}else{
+				echo json_encode(array("status" => "2","id" => $asc));
+	
+			}
 
 		}
 
@@ -5589,6 +5920,9 @@ class Logistik extends CI_Controller
 			
 		} else if ($jenis == "byr_inv") {
 			$result          = $this->m_master->query("DELETE FROM trs_bayar_inv WHERE  $field = '$id'");	
+			
+		} else if ($jenis == "byr_inv_beli") {
+			$result          = $this->m_master->query("DELETE FROM trs_bayar_inv_beli WHERE  $field = '$id'");	
 			
 		} else if ($jenis == "inv_beli") {
 
