@@ -1401,7 +1401,7 @@
 			type: "warning",
 			showCancelButton: true,
 			confirmButtonColor: "#C00",
-			confirmButtonText: "Yakin Bgt!"
+			confirmButtonText: "Yakin"
 		}).then(function(result) {
 			$.ajax({
 				url: '<?php echo base_url('Logistik/batalInvoiceLaminasi')?>',
@@ -1428,6 +1428,130 @@
 						reloadTable()
 						swal.close()
 					}
+				}
+			})
+		});
+	}
+
+	function addJurnalInvLaminasi(id)
+	{
+		swal({
+			title: "TAMBAHKAN JURNAL?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#0C0",
+			confirmButtonText: "Tambah"
+		}).then(function(result) {
+			$.ajax({
+				url: '<?php echo base_url('Logistik/addJurnalInvLaminasi')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({ id }),
+				success: function(res){
+					data = JSON.parse(res)
+					console.log(data)
+					if(data.data){
+						toastr.success(`<b>${data.msg}</b>`)
+						kosong()
+						reloadTable()
+					}else{
+						toastr.error(`<b>${data.msg}</b>`)
+						reloadTable()
+						swal.close()
+					}
+				}
+			})
+		});
+	}
+
+	function batalJurnalInvLaminasi(id)
+	{
+		swal({
+			title: "BATAL JURNAL DAN BB?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#C00",
+			confirmButtonText: "Batal"
+		}).then(function(result) {
+			$.ajax({
+				url: '<?php echo base_url('Logistik/batalJurnalInvLaminasi')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({ id }),
+				success: function(res){
+					data = JSON.parse(res)
+					console.log(data)
+					if(data.data){
+						toastr.success(`<b>${data.msg}</b>`)
+						kosong()
+						reloadTable()
+					}else{
+						toastr.error(`<b>${data.msg}</b>`)
+						reloadTable()
+						swal.close()
+					}
+				}
+			})
+		});
+	}
+
+	function bayarJurnalInvLaminasi(id)
+	{
+		swal({
+			title: "PEMBAYARANN JURNAL?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#00C",
+			confirmButtonText: "Bayar"
+		}).then(function(result) {
+			$.ajax({
+				url: '<?php echo base_url('Logistik/bayarJurnalInvLaminasi')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({ id }),
+				success: function(res){
+					data = JSON.parse(res)
+					console.log(data)
+					// if(data.data){
+					// 	toastr.success(`<b>${data.msg}</b>`)
+					// 	kosong()
+					// 	reloadTable()
+					// }else{
+					// 	toastr.error(`<b>${data.msg}</b>`)
+					// 	reloadTable()
+					// 	swal.close()
+					// }
+					swal.close()
 				}
 			})
 		});
