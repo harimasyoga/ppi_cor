@@ -1555,12 +1555,12 @@
 
 	}
 
-	function acc_inv(no_invoice,status_owner) 
+	function acc_inv(id,status_owner) 
 	{	
 		var user        = "<?= $this->session->userdata('username')?>"
 		var acc_owner   = status_owner
 		// var acc_admin   = $('#modal_status_inv_admin').val()
-		var no_inv      = no_invoice
+		var id      = id
 		
 		if(user=='bumagda' || user=='developer')
 		{
@@ -1596,7 +1596,7 @@
 				$.ajax({
 					url: '<?= base_url(); ?>Logistik/prosesData',
 					data: ({
-						no_inv    : no_inv,
+						id    : id,
 						acc       : acc,
 						jenis     : 'verif_byr_inv'
 					}),

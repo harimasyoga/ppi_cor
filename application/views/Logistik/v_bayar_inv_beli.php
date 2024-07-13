@@ -40,96 +40,63 @@
 							<div class="col-md-8"></div>
 
 						</div>
+
 						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							<div class="col-md-2">Nama Perusahaan</div>
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+							<div class="col-md-2">No Invoice</div>
 							<div class="col-md-3">
-								<input type="hidden" name="idpl" id="idpl">
-								<input type="hidden" name="id_invoice_h" id="id_invoice_h">
-								<input type="hidden" name="id_perusahaan" id="id_perusahaan">
-								<input type="text" name="nm_perusahaan" id="nm_perusahaan" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" readonly>
+								<input type="hidden" name="id_header_beli" id="id_header_beli">
+
+								<input type="text" class="angka form-control" name="no_inv_beli" id="no_inv_beli" value="AUTO" readonly>
 							</div>
 							<div class="col-md-1"></div>
-
-							<div class="col-md-2">No Inv</div>
+							<div class="col-md-2">Supplier</div>
 							<div class="col-md-3">
-								<input type="text" name="no_inv" id="no_inv" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" readonly>
-							</div>
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							<div class="col-md-2">Tgl Sj</div>
-							<div class="col-md-3">
-								<input type="date" name="tgl_sj" id="tgl_sj" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" readonly>
-							</div>
-							<div class="col-md-1"></div>
-
-							<div class="col-md-2">Tgl Inv</div>
-							<div class="col-md-3">
-								<input type="date" name="tgl_inv" id="tgl_inv" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" readonly>
-							</div>
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							<div class="col-md-2">Tgl J Tempo</div>
-							<div class="col-md-3">
-								<input type="date" name="tgl_jt" id="tgl_jt" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" readonly>
-							</div>
-
-							<div class="col-md-1"></div>
-							<div class="col-md-2">Status Lunas</div>
-							<div class="col-md-3">
-								<select name="sts_lunas" id="sts_lunas" class="form-control select2" >
-									<option value="OPEN">OPEN</option>
-									<option value="LUNAS">LUNAS</option>
+								<select class="form-control select2" name="id_supp" id="id_supp" style="width: 100%;" >
 								</select>
 							</div>
-						</div>
-											
-						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-							<div class="col-md-2">Tgl Bayar</div>
-							<div class="col-md-3">
-								<input type="hidden" name="tgl_hari_ini" id="tgl_hari_ini" class="form-control" value="<?= date('Y-m-d') ?>" >
-								<input type="date" name="tgl_byr" id="tgl_byr" class="form-control" value="<?= date('Y-m-d') ?>" >
-							</div>
 
+						</div>
+						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+						<div class="col-md-2">Tanggal Invoice</div>
+							<div class="col-md-3">
+								<input type="date" class="form-control" name="tgl_inv" id="tgl_inv" value ="<?= date('Y-m-d') ?>" readonly>
+							</div>
 							<div class="col-md-1"></div>
 
-							<div class="col-md-2">Status J Tempo</div>
+							<div class="col-md-2">ATTN</div>
 							<div class="col-md-3">
-								<select name="status_jt" id="status_jt" class="form-control select2" readonly>
-									<option value="jt">JATUH TEMPO</option>
-									<option value="blm">BELUM</option>
+								<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" >
 								</select>
 							</div>
 						</div>
 						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							
-							<div class="col-md-2">Tipe</div>
-							<div class="col-md-3">								
-								<select id="pajak" name="pajak" class="form-control select2" style="width: 100%" disabled>
-									<option value="">-- PILIH --</option>
-									<option value="ppn">PPN 11%</option>
-									<option value="ppn_pph">PPN 11% + PPH22</option>
-									<option value="nonppn">NON PPN</option>
-								</select>
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+						<div class="col-md-2">Diskon</div>
+							<div class="col-md-3">
+								<div class="input-group mb-1">
+									<div class="input-group-append">
+										<span class="input-group-text"><b>Rp</b>
+										</span>
+									</div>	
+									<input type="text" class="angka form-control" name="diskon" id="diskon"  onkeyup="ubah_angka(this.value,this.id),hitung_total()" readonly>
+										
+								</div>
 							</div>
 							<div class="col-md-1"></div>
-							<div class="col-md-2">Include / Exclude</div>
+
+							<div class="col-md-2">PPN</div>
 							<div class="col-md-3">
-								<select id="inc_exc" name="inc_exc" class="form-control select2" style="width: 100%" disabled>
-										<option value="Include">Include</option>
-										<option value="Exclude">Exclude</option>
-										<option value="nonppn_inc">Non PPN</option>
-									</select>
+								<select class="form-control select2" name="pajak" id="pajak" style="width: 100%;" onchange="hitung_total();">
+								<option value="PPN">PPN</option>
+								<option value="PPN_PPH">PPN PPH </option>
+								<option value="NONPPN">NON PPN</option>
+								</select>
 							</div>
-							
 						</div>
 						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
 							<div class="col-md-2">Total Inv</div>
 							<div class="col-md-3">
 								
@@ -141,17 +108,41 @@
 								</div>
 							</div>
 							
-							
 							<div class="col-md-1"></div>
-
-							
-							<div class="col-md-2">Alasan Retur</div>
+							<div class="col-md-2">Keterangan</div>
 							<div class="col-md-3">
-								<input type="text" name="alasan" id="alasan" class="form-control" value="-">
+								<textarea type="text" class="form-control" name="ket" id="ket" readonly></textarea>
 							</div>
+							
+						</div>
+														
+						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">				
+							
+							<div class="col-md-2">History bayar</div>
+							<div class="col-md-3">
+								<div class="input-group mb-3">
+									<div class="input-group-append">
+										<span class="input-group-text">Rp</span>
+									</div>
+									<input style="text-align: right;font-weight: bold;"  type="text" name="history_byr" id="history_byr" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id)" readonly> 
+								</div>
+							</div>							
+							<div class="col-md-1"></div>
+							<div class="col-md-2">Jumlah Bayar</div>
+							<div class="col-md-3">
+								<div class="input-group mb-3">
+									<div class="input-group-append">
+										<span class="input-group-text">Rp</span>
+									</div>
+									<input style="text-align: right;font-weight: bold; color:#ff5733;"   type="text" name="jml_byr" id="jml_byr" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id),hitung_kurang(this.value)" > 
+								</div>
+								
+							</div>		
+							
 						</div>
 						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
+						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">		
+							
 							<div class="col-md-2">Kurang bayar</div>
 							<div class="col-md-3">
 								<div class="input-group mb-3">
@@ -160,34 +151,12 @@
 									</div>
 									<input style="text-align: right;font-weight: bold;"  type="text" name="krg_byr" id="krg_byr" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id)" readonly> 
 								</div>
-							</div>						
-							
-							<div class="col-md-1"></div>
-							<div class="col-md-2">Sales</div>
-							<div class="col-md-3">
-								<input type="text" name="sales" id="sales" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" >
-							</div>
-							
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							<div class="col-md-2">Jumlah Bayar</div>
-							<div class="col-md-3">
-								<div class="input-group mb-3">
-									<div class="input-group-append">
-										<span class="input-group-text">Rp</span>
-									</div>
-									<input style="text-align: right;font-weight: bold;"   type="text" name="jml_byr" id="jml_byr" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id)" > 
-								</div>
-								
 							</div>	
-							
 							<div class="col-md-1"></div>
-							<div class="col-md-2">TOP</div>
+							<div class="col-md-2">Tgl Bayar</div>
 							<div class="col-md-3">
-								<input type="text" name="top" id="top" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id)" >
-							</div>
-							
+								<input type="date" name="tgl_byr" id="tgl_byr" class="form-control" value="<?= date('Y-m-d') ?>" >
+							</div>	
 						</div>
 						<br>
 						<hr>
@@ -235,29 +204,27 @@
 						</div>
 				</div>
 				<div class="card-body" >
-					<?php if(in_array($this->session->userdata('level'), ['Admin','Laminasi','Keuangan1'])){ ?>
+					<?php if(in_array($this->session->userdata('level'), ['Admin','Laminasi','Keuangan1','Pembayaran'])){ ?>
 						<div style="margin-bottom:12px">
 							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 						</div>
 					<?php } ?>
-					<!-- <div style="overflow:auto;white-space:nowrap"> -->
-						<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
+					<div style="overflow:auto;white-space:nowrap;" >
+						<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%"> 
 							<thead class="color-tabel">
 								<tr>
 									<th class="text-center title-white">NO</th>
-									<th class="text-center title-white">CUSTOMER</th>
+									<th class="text-center title-white">Invoice</th>
 									<th class="text-center title-white">TGL BAYAR</th>
-									<th class="text-center title-white">NO INVOICE</th>
-									<th class="text-center title-white">ITEM</th>
-									<th class="text-center title-white">NO SJ</th>
-									<th class="text-center title-white">TOTAL INVOICE</th>
+									<th class="text-center title-white">TOTAL INV</th>
 									<th class="text-center title-white">TOTAL BAYAR</th>
+									<th class="text-center title-white">ACC OWNER</th>
 									<th class="text-center title-white">AKSI</th>
 								</tr>
 							</thead>
 							<tbody></tbody>
 						</table>
-					<!-- </div> -->
+					</div>
 				</div>
 			</div>			
 		</div>
@@ -266,30 +233,54 @@
 
 <!-- Modal Regist -->
 <div class="modal fade list_inv" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-full" style="width:100%;margin:auto">
+    <div class="modal-dialog modal-full" >
 
         <div class="modal-content">
-            <div class="modal-header">
-                <h5><b>Pilih Invoice</b></h5>
-            </div>
+
+			<div class="card-header" style="font-family:Cambria;" >
+				<h3 class="card-title" style="color:#4e73df;"><b>Pilih Invoice</b></h3>
+
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+			
             <div class="modal-body">
 				<div style="overflow:auto;white-space:nowrap">
+					
+				<div class="" style="position: absolute;right: 20px; font-weight:bold">
+					<?php 
+						$qbulan    = $this->db->query("SELECT*FROM m_bulan");
+						$bln_now   = date("m");
+					?>
+						<select id="rentang_bulan" class="form-control select2" onchange="load_invoice()"> 
+							<option value="all">-- SEMUA --</option>
+					<?php 									
+						foreach ($qbulan->result() as $bln_row)
+						{
+							if ($bln_row->id==$bln_now) {
+								echo "<option selected value=$bln_row->id><b>$bln_row->bulan</b></option>";
+								}
+							else {	
+							echo "<option value=$bln_row->id><b>$bln_row->bulan</b></option>";
+							}
+						}		
+					?>  
+					</select>
+				</div>
+				<br>
+				<br>
 
                 <table class="table table-bordered table-striped" id="tbl_inv" style="margin:auto !important">
                     <thead>
                         <tr class="color-tabel">
                             <th class="text-center title-white">NO </th>
-                            <th class="text-center title-white">CUSTOMER</th>
-                            <th class="text-center title-white">NO PO</th>
-                            <th class="text-center title-white">NO INVOICE</th>
-                            <th class="text-center title-white">NO SJ</th>
-                            <th class="text-center title-white">ITEM</th>
-                            <th class="text-center title-white">TGL inv</th>
-                            <th class="text-center title-white">TANGGAL SJ</th>
-                            <th class="text-center title-white">TIPE</th>
-                            <th class="text-center title-white">EXCLUDE</th>
-                            <th class="text-center title-white">INCLUDE</th>
-                            <th class="text-center title-white">HISTORY BAYAR</th>
+                            <th class="text-center title-white">Invoice</th>
+                            <th class="text-center title-white">TRANSAKSI</th>
+                            <th class="text-center title-white">JENIS BEBAN</th>
+                            <th class="text-center title-white">TOTAL</th>
+                            <th class="text-center title-white">HISTORY</th>
                             <th class="text-center title-white">KURANG BAYAR</th>
                             <th class="text-center title-white">AKSI</th>
                         </tr>
@@ -316,6 +307,8 @@
 	{
 		kosong()
 		load_data()
+		load_hub()
+		load_supp()
 		$('.select2').select2();
 	});
 
@@ -334,32 +327,155 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url('Logistik/load_data/byr_inv')?>',
+				"url": '<?php echo base_url('Logistik/load_data/byr_inv_beli')?>',
 				"type": "POST",
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],
 				[5, 10, 50, 100, "Semua"]
 			],	
-			responsive: true,
+			responsive: false,
 			"pageLength": 10,
 			"language": {
 				"emptyTable": "TIDAK ADA DATA.."
 			}
 		})
 	}
+
+	function load_hub() 
+	{
+		option = "";
+		$.ajax({
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Logistik/load_hub",
+			// data       : { idp: pelanggan, kd: '' },
+			dataType   : 'json',
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success"){					
+					option = `<option value="">-- Pilih --</option>`;	
+
+					$.each(data.data, function(index, val) {
+					option += "<option value='"+val.id_hub+"'>"+val.nm_hub+"</option>";
+					});
+
+					$('#id_hub').html(option);
+					swal.close();
+				}else{	
+					option += "<option value=''></option>";
+					$('#id_hub').html(option);					
+					swal.close();
+				}
+			}
+		});
+		
+	}
+
+	function hitung_total()
+	{
+		// var diskon        = $("#diskon").val()
+		// diskon_ok         = (diskon=='' || isNaN(diskon) || diskon == null) ? '0' : diskon;
+		// var disk_total    = parseInt(diskon_ok.split('.').join(''))
+		// var pajak         = $("#pajak").val()
+		
+		// var total_nominal = 0
+		// for(loop = 0; loop <= rowNum; loop++)
+		// {
+		// 	var nom = $("#nominal"+loop).val()
+		// 	if(nom=='')
+		// 	{
+		// 		nom1 = 0;
+		// 	}else{
+		// 		nom1 = nom;
+		// 	}
+		// 	var nominal   = parseInt(nom1.split('.').join(''))
+		// 	total_nominal += nominal
+		// }		
+		// total_nominal_ok = (total_nominal=='' || isNaN(total_nominal) || total_nominal == null) ? 0 : total_nominal
+		
+		// if(pajak=='PPN')
+		// {
+		// 	var ppn_total    = (total_nominal_ok *0.11).toFixed(0);
+		// 	var pph_total    = 0
+		// }else if(pajak=='PPN_PPH')
+		// {
+		// 	var ppn_total   = (total_nominal_ok *0.11).toFixed(0);
+		// 	var pph_total   = (total_nominal_ok *0.02).toFixed(0);
+		// }else{
+		// 	var ppn_total   = 0
+		// 	var pph_total   = 0
+		// }
+		
+		// var total_all     = parseInt(total_nominal_ok)-parseInt(disk_total)+parseInt(ppn_total)-parseInt(pph_total)
+
+		// $("#total_nom").val(format_angka(total_nominal_ok))		
+		// $("#disk_total").val(format_angka(disk_total))
+		// $("#pajak_total").val(format_angka(ppn_total))
+		// $("#pph_total").val(format_angka(pph_total))
+		// $("#total_all").val(format_angka(total_all))
+		
+	}
+	
+	function load_supp() 
+	{
+		option = "";
+		$.ajax({
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Logistik/load_supp",
+			// data       : { idp: pelanggan, kd: '' },
+			dataType   : 'json',
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success"){					
+					option = `<option value="">-- Pilih --</option>`;	
+
+					$.each(data.data, function(index, val) {
+					option += "<option value='"+val.id_supp+"'>"+val.nm_supp+"</option>";
+					});
+
+					$('#id_supp').html(option);
+					swal.close();
+				}else{	
+					option += "<option value=''></option>";
+					$('#id_supp').html(option);					
+					swal.close();
+				}
+			}
+		});
+		
+	}
 	
 	function load_invoice()
 	{
-		let table = $('#tbl_inv').DataTable();
+		var blnn    = $('#rentang_bulan').val();
+		var table   = $('#tbl_inv').DataTable();
 		table.destroy();
 		tabel = $('#tbl_inv').DataTable({
 			"processing": true,
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url('Logistik/load_invoice/byr_inv')?>',
-				"type": "POST",
+				"url"   : '<?php echo base_url('Logistik/load_invoice/byr_inv_beli')?>',
+				"type"  : "POST",
+				"data"  : ({blnn:blnn}),
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],
@@ -384,7 +500,7 @@
 		$.ajax({
 			url        : '<?= base_url(); ?>Logistik/load_data_1',
 			type       : "POST",
-			data       : { id, no:no_inv, jenis:'byr_invoice' },
+			data       : { id, no:no_inv, jenis:'byr_invoice_beli' },
 			dataType   : "JSON",
 			beforeSend: function() {
 				swal({
@@ -399,295 +515,130 @@
 			success: function(data) {
 				// console.log(data)
 				if(data){
-					var jth_tempo = data.header.tgl_jatuh_tempo;
-					var tgl_hari_ini = $("#tgl_hari_ini").val();
-					$('.list_inv').modal('hide');
-					// header
-					// $("#sts_lunas").val(data.header.type).trigger('change');
-					if(tgl_hari_ini>=jth_tempo)
-					{
-						$("#status_jt").val('jt').trigger('change');
-					}else{
-						$("#status_jt").val('blm').trigger('change');
-
-					}
-					$("#pajak").val(data.header.pajak).trigger('change');
-					$("#inc_exc").val(data.header.inc_exc).trigger('change');
-					$("#id_invoice_h").val(data.header.id);
-					$("#tgl_sj").val(data.header.tgl_sj);
-					$("#tgl_inv").val(data.header.tgl_invoice);
-					$("#tgl_jt").val(data.header.tgl_jatuh_tempo);
-					$("#tgl_byr").val(data.header.tgl_jatuh_tempo);
-					$("#jml_byr").val(format_angka(data.header.jumlah_bayar));
-					$("#top").val(data.header.TOP);
-					$("#alasan").val(data.header.alasan_retur);
-					$("#id_byr_inv").val(data.header.id_bayar_inv);
-
-					$("#id_perusahaan").val(data.header.id_perusahaan);
-					$("#nm_perusahaan").val(data.header.nm_perusahaan);
-					$("#no_inv").val(data.header.no_invoice);
-					$("#sales").val(data.header.sales);
 					
-					$("#type_po").prop("disabled", true);
+					$('.list_inv').modal('hide');
+
+					// header
+					$("#id_byr_inv").val(data.header.id_byr_inv);
+					$("#id_header_beli").val(data.header.id_header_beli);
+					$("#no_inv_beli").val(data.header.no_inv_beli);
+					$("#tgl_inv").val(data.header.tgl_inv_beli);
+					$("#tgl_byr").val(data.header.tgl_bayar);
+					$("#jml_byr").val(format_angka(data.header.jumlah_bayar));
+					$("#diskon").val(data.header.diskon);
+					$("#ket").val(data.header.ket);
+					$("#id_supp").val(data.header.id_supp).trigger('change');
+					$("#id_hub").val(data.header.id_hub).trigger('change');
+					$("#pajak").val(data.header.pajak).trigger('change');
 
 					// detail
-					if(data.header.type=='roll')
-					{
-						var list = `
-						<table id="datatable_input" class="table ">
+				
+					var list = `
+					<table id="datatable_input" class="table">
 						<thead class="color-tabel">
 							<th style="text-align: center" >No</th>
-							<th style="text-align: center" >NO SJ</th>
-							<th style="text-align: center" >NO PO</th>
-							<th style="text-align: center" >GSM</th>
-							<th style="text-align: center" >ITEM</th>
-							<th style="text-align: center; padding-right: 30px" >Exclude</th>
-							<th style="text-align: center; padding-right: 40px" >Include</th>
-							<th style="text-align: center" >QTY</th>
-							<th style="text-align: center; padding-right: 10px">R. QTY</th>
-							<th style="text-align: center" >BERAT</th>
-							<th style="text-align: center; padding-right: 25px" >SESET</th>
-							<th style="text-align: center; padding-right: 30px" >QTY FIX</th>
-							<th style="text-align: center; padding-right: 50px" >TOTAL INV</th>
-						</thead>`;
-
-						var no            = 1;
-						var berat_total   = 0;
-						var exclude       = 0;
-						var include       = 0;
-						var qty           = 0;
-						var r_qty         = 0;
-						var qty_fix       = 0;
-						var total_inv     = 0;
-						var pph22         = 0;
-						$.each(data.detail, function(index, val) {
-
-							if(data.header.pajak=='ppn')
-							{
-								if(data.header.inc_exc=='Include')
-								{
-									// exclude
-									var total_invo = val.harga*val.weight 
-
-								}else{
-									// include
-									var total_invo = val.include*val.weight 
-								}
-							}else if(data.header.pajak=='ppn_pph')
-							{
-								// include
-								var pph22      = val.harga*val.weight * 0.001 ;
-								var total_invo = ( val.include*val.weight ) + pph22
-							}else{
-								// exclude
-								var total_invo = val.harga*val.weight 
-
-							}
+							<th style="text-align: center" >Transaksi</th>
+							<th style="text-align: center; padding-right: 35px" >Jenis Beban</th>
+							<th style="text-align: center; padding-right: 35px">Nominal</th>
 							
-							list += `
-							<tbody>
-								<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
-									<input type="hidden" name="nm_ker[${no}]" id="nm_ker${no}" value="${val.nm_ker}">
-									<input type="hidden" name="id_inv_detail[${no}]" id="id_inv_detail${no}" value="${val.id}">
-									</td>
+						</thead>`;
+					var no            = 1;
+					var total_nominal = 0
+					$.each(data.detail, function(index, val) {
+						
 
-								<td style="text-align: center" >${val.no_surat}
-									<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
-								</td>
+						// total invoice
+						var total_invo = val.harga*val.hasil; 
 
-								<td style="text-align: center" >${val.no_po}
-									<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${val.no_po}">
-								</td>
+						list += `
+						<tbody>
+							<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
+							
+							</td>
 
-								<td style="text-align: center" >${val.g_label}
-									<input type="hidden" id="g_label${no}" name="g_label[${no}]" value="${val.g_label}">
-								</td>
+							<td style="text-align: LEFT" >${val.transaksi}
+							</td>
+							
+							<td style="text-align: LEFT" >${val.nm}
+							</td>
 
-								<td style="text-align: center" >${val.width}
-									<input type="hidden" id="width${no}" name="width[${no}]" value="${val.width}">
-								</td>
+							<td style="text-align: RIGHT" >${format_angka(val.nominal)}
+							</td>
 
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}">
-								</td>
-								
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}">
-								</td>
+						</tbody>`;
+						total_nominal   += parseInt(val.nominal)
 
-								<td style="text-align: center" >${val.qty}
-									<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
-								</td>
+						no ++;
+					})
 
-								<td style="text-align: center" >
-									<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.retur_qty)}">
-								</td>
 
-								<td style="text-align: center" >${format_angka(val.weight)}
-									<input type="hidden" id="weight${no}" name="weight[${no}]"  value="${val.weight}">
-								</td>
-
-								<td style="text-align: center" >
-									<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.seset)}" >
-								</td>
-
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.hasil)}" readonly>
-								</td>
-								
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" id="total_invo${no}" name="total_invo[${no}]"  class="form-control" value="${format_angka(total_invo)}" readonly>
-								</td>
-
-							</tbody>`;
-							berat_total    += parseInt(val.qty);
-							total_inv      += parseInt(total_invo);
-							no ++;
-						})
-						list += `<td style="text-align: center" colspan="7">TOTAL
-								</td>
-								<td style="text-align: right" >${format_angka(berat_total)}
-								</td>
-								<td style="text-align: right" colspan="4">&nbsp;
-								</td>`;
-						list += `</table>`;
+					var diskon        = data.header.diskon
+					diskon_ok         = (diskon=='' || isNaN(diskon) || diskon == null) ? '0' : diskon;
+					var pajak         = data.header.pajak					
+					
+					total_nominal_ok = (total_nominal=='' || isNaN(total_nominal) || total_nominal == null) ? 0 : total_nominal
+					
+					if(pajak=='PPN')
+					{
+						var ppn_total    = (total_nominal_ok *0.11).toFixed(0);
+						var pph_total    = 0
+					}else if(pajak=='PPN_PPH')
+					{
+						var ppn_total   = (total_nominal_ok *0.11).toFixed(0);
+						var pph_total   = (total_nominal_ok *0.02).toFixed(0);
 					}else{
+						var ppn_total   = 0
+						var pph_total   = 0
+					}
+					
+					var total_all     = parseInt(total_nominal_ok)-parseInt(diskon_ok)+parseInt(ppn_total)-parseInt(pph_total)
+					
+					
 
-						var list = `
-						<table id="datatable_input" class="table">
-							<thead class="color-tabel">
-								<th style="text-align: center" >No</th>
-								<th style="text-align: center" >NO SJ</th>
-								<th style="text-align: center" >NO PO</th>
-								<th style="text-align: center" >ITEM</th>
-								<th style="text-align: center" >Ukuran</th>
-								<th style="text-align: center" >Kualitas</th>
-								<th style="text-align: center; padding-right: 35px" >Exclude</th>
-								<th style="text-align: center; padding-right: 40px" >Include</th>
-								<th style="text-align: center" >QTY</th>
-								<th style="text-align: center; padding-right: 35px">R. QTY</th>
-								<th style="text-align: center; padding-right: 35px" >QTY FIX</th>
-								<th style="text-align: center; padding-right: 50px" >TOTAL INV</th>
+					list += `
+					<tr>
+					<td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">SUB TOTAL
+							</td>
+							<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(total_nominal_ok)}
+							</td>
+					</tr>`;
+					
+					list += `
+					<tr>
+					<td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">DISKON
+							</td>
+							<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(diskon_ok)}
+							</td>
+					</tr>`;
 
-							</thead>`;
-						var no            = 1;
-						var berat_total   = 0;
-						var exclude       = 0;
-						var include       = 0;
-						var qty           = 0;
-						var r_qty         = 0;
-						var qty_fix       = 0;
-						var total_inv     = 0;
-						$.each(data.detail, function(index, val) {
-							if(val.no_po_sj == null || val.no_po_sj == '')
-							{
-								no_po = val.no_po
-							}else{
-								no_po = val.no_po_sj
-							}
-
-							// total invoice
-							if(data.header.pajak=='ppn')
-							{
-								if(data.header.inc_exc=='Include')
-								{
-									// exclude
-									var total_invo = val.harga*val.hasil; 
-
-								}else{
-									// include
-									var total_invo = val.include*val.hasil; 
-								}
-							}else if(data.header.pajak=='ppn_pph')
-							{
-								// include
-								var total_invo = val.include*val.hasil; 
-							}else{
-								// exclude
-								var total_invo = val.harga*val.hasil; 
-
-							}
-
-							list += `
-							<tbody>
-								<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
-								
-									<input type="hidden" name="id_pl_roll[${no}]" id="id_pl_roll${no}" value="${val.id_pl}">
-									
-									<input type="hidden" name="id_inv_detail[${no}]" id="id_inv_detail${no}" value="${val.id}">
-								</td>
-
-								<td style="text-align: center" >${val.no_surat}
-									<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
-								</td>
-
-								<td style="text-align: center" >${no_po}
-									<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${no_po}">
-								</td>
-
-								<td style="text-align: center" >${val.nm_ker}
-									<input type="hidden" name="item[${no}]" id="item${no}" value="${val.nm_ker}">
-								</td>
-
-								<td style="text-align: center" >${val.g_label}
-									<input type="hidden" id="ukuran${no}" name="ukuran[${no}]" value="${val.g_label}">
-								</td>
-
-								<td style="text-align: center" >${val.kualitas}
-									<input type="hidden" id="kualitas${no}" name="kualitas[${no}]" value="${val.kualitas}">
-								</td>
-
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}" readonly>
-								</td>
-
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}" readonly>
-								</td>
-
-								<td style="text-align: right" >${format_angka(val.qty)}
-									<input type="hidden" id="qty${no}" name="qty[${no}]" onkeyup="ubah_angka(this.value,this.id)" value="${val.qty}" readonly>
-								</td>
-								
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" id="retur_qty${no}" name="retur_qty[${no}]" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.retur_qty)}" readonly>
-								</td>
-
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.hasil)}" readonly>
-								</td>
-
-								<td style="text-align: center" >
-									<input style="text-align: right;font-weight: bold;" type="text" id="total_invo${no}" name="total_invo[${no}]"  class="form-control" value="${format_angka(total_invo)}" readonly>
-								</td>
-
-							</tbody>`;
-							exclude    += parseInt(val.harga);
-							include    += parseInt(val.include);
-							qty        += parseInt(val.qty);
-							r_qty      += parseInt(val.retur_qty);
-							qty_fix    += parseInt(val.hasil);
-							total_inv  += parseInt(total_invo);
-							no ++;
-						})
-						list += `<td style="text-align: center;color:#d90002;background: #e9ecef;" colspan="6">TOTAL
-								</td>
-								<td id="exclude" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(exclude)}
-								</td>
-								<td id="include" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(include)}
-								</td>
-								<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(qty)}
-								</td>
-								<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(r_qty)}
-								</td>
-								<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(qty_fix)}
-								<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(total_inv)}
-								</td>`;
-						list += `</table>`;
-						swal.close();
-					} 
-					$("#total_inv").val(format_angka(total_inv));
-					$("#krg_byr").val(format_angka(total_inv - data.header.jum_bayar));
+					list +=`
+					<tr>
+					<td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">PPN
+					</td>
+					<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(ppn_total)}
+					</td>
+					</tr>`;
+					
+					list +=`						
+					<tr>
+					<td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">PPH
+					</td>
+					<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(pph_total)}
+					</td>
+					</tr>`;
+					
+					list += `
+					<tr><td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">TOTAL
+					</td>
+					<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(total_all)}
+					</td>
+					</tr>`;
+					list += `</table>`;
+					swal.close();
+					
+					$("#total_inv").val(format_angka(total_all));
+					$("#history_byr").val(format_angka(data.header.jum_bayar-data.header.jumlah_bayar));
+					hitung_kurang()
 					$("#data_list").html(list);
 					swal.close();
 
@@ -725,7 +676,7 @@
 		$.ajax({
 			url        : '<?= base_url(); ?>Logistik/load_data_1',
 			type       : "POST",
-			data       : { id, no:no_inv, jenis:'spill' },
+			data       : { id, no:no_inv, jenis:'spill_inv_beli' },
 			dataType   : "JSON",
 			beforeSend: function() {
 				swal({
@@ -740,291 +691,127 @@
 			success: function(data) {
 				// console.log(data)
 				if(data){
-					var jth_tempo = data.header.tgl_jatuh_tempo;
-					var tgl_hari_ini = $("#tgl_hari_ini").val();
 					$('.list_inv').modal('hide');
 					// header
-					// $("#sts_lunas").val(data.header.type).trigger('change');
-					if(tgl_hari_ini>=jth_tempo)
-					{
-						$("#status_jt").val('jt').trigger('change');
-					}else{
-						$("#status_jt").val('blm').trigger('change');
-
-					}
-					$("#pajak").val(data.header.pajak).trigger('change');
-					$("#inc_exc").val(data.header.inc_exc).trigger('change');
-					$("#id_invoice_h").val(data.header.id);
-					$("#tgl_sj").val(data.header.tgl_sj);
-					$("#tgl_inv").val(data.header.tgl_invoice);
-					$("#tgl_jt").val(data.header.tgl_jatuh_tempo);
-					$("#tgl_byr").val(data.header.tgl_jatuh_tempo);
-
-					$("#id_perusahaan").val(data.header.id_perusahaan);
-					$("#nm_perusahaan").val(data.header.nm_perusahaan);
-					$("#no_inv").val(data.header.no_invoice);
-					$("#sales").val(data.header.sales);
 					
-					$("#type_po").prop("disabled", true);
+					$("#id_header_beli").val(data.header.id_header_beli);
+					$("#no_inv_beli").val(data.header.no_inv_beli);
+					$("#tgl_inv").val(data.header.tgl_inv_beli);
+					$("#diskon").val(data.header.diskon);
+					$("#ket").val(data.header.ket);
+					$("#id_supp").val(data.header.id_supp).trigger('change');
+					$("#id_hub").val(data.header.id_hub).trigger('change');
+					$("#pajak").val(data.header.pajak).trigger('change');
+
 					// detail
-					if(data.header.type=='roll')
-					{
-						var list = `
-						<table id="datatable_input" class="table ">
+				
+					var list = `
+					<table id="datatable_input" class="table">
 						<thead class="color-tabel">
 							<th style="text-align: center" >No</th>
-							<th style="text-align: center" >NO SJ</th>
-							<th style="text-align: center" >NO PO</th>
-							<th style="text-align: center" >GSM</th>
-							<th style="text-align: center" >ITEM</th>
-							<th style="text-align: center; padding-right: 30px" >Exclude</th>
-							<th style="text-align: center; padding-right: 40px" >Include</th>
-							<th style="text-align: center" >QTY</th>
-							<th style="text-align: center; padding-right: 10px">R. QTY</th>
-							<th style="text-align: center" >BERAT</th>
-							<th style="text-align: center; padding-right: 25px" >SESET</th>
-							<th style="text-align: center; padding-right: 30px" >QTY FIX</th>
-							<th style="text-align: center; padding-right: 50px" >TOTAL INV</th>
-						</thead>`;
-
-						var no            = 1;
-						var berat_total   = 0;
-						var exclude       = 0;
-						var include       = 0;
-						var qty           = 0;
-						var r_qty         = 0;
-						var qty_fix       = 0;
-						var total_inv     = 0;
-						var pph22         = 0;
-						$.each(data.detail, function(index, val) {
-
-							if(data.header.pajak=='ppn')
-							{
-								if(data.header.inc_exc=='Include')
-								{
-									// exclude
-									var total_invo = val.harga*val.weight 
-
-								}else{
-									// include
-									var total_invo = val.include*val.weight 
-								}
-							}else if(data.header.pajak=='ppn_pph')
-							{
-								// include
-								var pph22      = val.harga*val.weight * 0.001 ;
-								var total_invo = ( val.include*val.weight ) + pph22
-							}else{
-								// exclude
-								var total_invo = val.harga*val.weight 
-
-							}
+							<th style="text-align: center" >Transaksi</th>
+							<th style="text-align: center; padding-right: 35px" >Jenis Beban</th>
+							<th style="text-align: center; padding-right: 35px">Nominal</th>
 							
-							list += `
-							<tbody>
-								<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
-									<input type="hidden" name="nm_ker[${no}]" id="nm_ker${no}" value="${val.nm_ker}">
-									<input type="hidden" name="id_inv_detail[${no}]" id="id_inv_detail${no}" value="${val.id}">
-									</td>
+						</thead>`;
+					var no            = 1;
+					var total_nominal = 0
+					$.each(data.detail, function(index, val) {
+						
 
-								<td style="text-align: center" >${val.no_surat}
-									<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
-								</td>
+						// total invoice
+						var total_invo = val.harga*val.hasil; 
 
-								<td style="text-align: center" >${val.no_po}
-									<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${val.no_po}">
-								</td>
+						list += `
+						<tbody>
+							<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
+							
+							</td>
 
-								<td style="text-align: center" >${val.g_label}
-									<input type="hidden" id="g_label${no}" name="g_label[${no}]" value="${val.g_label}">
-								</td>
+							<td style="text-align: LEFT" >${val.transaksi}
+							</td>
+							
+							<td style="text-align: LEFT" >${val.nm}
+							</td>
 
-								<td style="text-align: center" >${val.width}
-									<input type="hidden" id="width${no}" name="width[${no}]" value="${val.width}">
-								</td>
+							<td style="text-align: RIGHT" >${format_angka(val.nominal)}
+							</td>
 
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}">
-								</td>
-								
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}">
-								</td>
+						</tbody>`;
+						total_nominal   += parseInt(val.nominal)
 
-								<td style="text-align: center" >${val.qty}
-									<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
-								</td>
+						no ++;
+					})
 
-								<td style="text-align: center" >
-									<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.retur_qty)}">
-								</td>
 
-								<td style="text-align: center" >${format_angka(val.weight)}
-									<input type="hidden" id="weight${no}" name="weight[${no}]"  value="${val.weight}">
-								</td>
-
-								<td style="text-align: center" >
-									<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.seset)}" >
-								</td>
-
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.hasil)}" readonly>
-								</td>
-								
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" id="total_invo${no}" name="total_invo[${no}]"  class="form-control" value="${format_angka(total_invo)}" readonly>
-								</td>
-
-							</tbody>`;
-							berat_total += parseInt(val.qty);
-							total_inv  += parseInt(total_invo);
-							no ++;
-						})
-						list += `<td style="text-align: center" colspan="7">TOTAL
-								</td>
-								<td style="text-align: right" >${format_angka(berat_total)}
-								</td>
-								<td style="text-align: right" colspan="4">&nbsp;
-								</td>`;
-						list += `</table>`;
+					var diskon        = data.header.diskon
+					diskon_ok         = (diskon=='' || isNaN(diskon) || diskon == null) ? '0' : diskon;
+					var pajak         = data.header.pajak					
+					
+					total_nominal_ok = (total_nominal=='' || isNaN(total_nominal) || total_nominal == null) ? 0 : total_nominal
+					
+					if(pajak=='PPN')
+					{
+						var ppn_total    = (total_nominal_ok *0.11).toFixed(0);
+						var pph_total    = 0
+					}else if(pajak=='PPN_PPH')
+					{
+						var ppn_total   = (total_nominal_ok *0.11).toFixed(0);
+						var pph_total   = (total_nominal_ok *0.02).toFixed(0);
 					}else{
+						var ppn_total   = 0
+						var pph_total   = 0
+					}
+					
+					var total_all     = parseInt(total_nominal_ok)-parseInt(diskon_ok)+parseInt(ppn_total)-parseInt(pph_total)
+					
+					
 
-						var list = `
-						<table id="datatable_input" class="table">
-							<thead class="color-tabel">
-								<th style="text-align: center" >No</th>
-								<th style="text-align: center" >NO SJ</th>
-								<th style="text-align: center" >NO PO</th>
-								<th style="text-align: center" >ITEM</th>
-								<th style="text-align: center" >Ukuran</th>
-								<th style="text-align: center" >Kualitas</th>
-								<th style="text-align: center; padding-right: 35px" >Exclude</th>
-								<th style="text-align: center; padding-right: 40px" >Include</th>
-								<th style="text-align: center" >QTY</th>
-								<th style="text-align: center; padding-right: 35px">R. QTY</th>
-								<th style="text-align: center; padding-right: 35px" >QTY FIX</th>
-								<th style="text-align: center; padding-right: 50px" >TOTAL INV</th>
+					list += `
+					<tr>
+					<td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">SUB TOTAL
+							</td>
+							<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(total_nominal_ok)}
+							</td>
+					</tr>`;
+					
+					list += `
+					<tr>
+					<td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">DISKON
+							</td>
+							<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(diskon_ok)}
+							</td>
+					</tr>`;
 
-							</thead>`;
-						var no            = 1;
-						var berat_total   = 0;
-						var exclude       = 0;
-						var include       = 0;
-						var qty           = 0;
-						var r_qty         = 0;
-						var qty_fix       = 0;
-						var total_inv     = 0;
-						$.each(data.detail, function(index, val) {
-							if(val.no_po_sj == null || val.no_po_sj == '')
-							{
-								no_po = val.no_po
-							}else{
-								no_po = val.no_po_sj
-							}
-
-							// total invoice
-							if(data.header.pajak=='ppn')
-							{
-								if(data.header.inc_exc=='Include')
-								{
-									// exclude
-									var total_invo = val.harga*val.hasil; 
-
-								}else{
-									// include
-									var total_invo = val.include*val.hasil; 
-								}
-							}else if(data.header.pajak=='ppn_pph')
-							{
-								// include
-								var total_invo = val.include*val.hasil; 
-							}else{
-								// exclude
-								var total_invo = val.harga*val.hasil; 
-
-							}
-
-							list += `
-							<tbody>
-								<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
-								
-									<input type="hidden" name="id_pl_roll[${no}]" id="id_pl_roll${no}" value="${val.id_pl}">
-									
-									<input type="hidden" name="id_inv_detail[${no}]" id="id_inv_detail${no}" value="${val.id}">
-								</td>
-
-								<td style="text-align: center" >${val.no_surat}
-									<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
-								</td>
-
-								<td style="text-align: center" >${no_po}
-									<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${no_po}">
-								</td>
-
-								<td style="text-align: center" >${val.nm_ker}
-									<input type="hidden" name="item[${no}]" id="item${no}" value="${val.nm_ker}">
-								</td>
-
-								<td style="text-align: center" >${val.g_label}
-									<input type="hidden" id="ukuran${no}" name="ukuran[${no}]" value="${val.g_label}">
-								</td>
-
-								<td style="text-align: center" >${val.kualitas}
-									<input type="hidden" id="kualitas${no}" name="kualitas[${no}]" value="${val.kualitas}">
-								</td>
-
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}" readonly>
-								</td>
-
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}" readonly>
-								</td>
-
-								<td style="text-align: right" >${format_angka(val.qty)}
-									<input type="hidden" id="qty${no}" name="qty[${no}]" onkeyup="ubah_angka(this.value,this.id)" value="${val.qty}" readonly>
-								</td>
-								
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" id="retur_qty${no}" name="retur_qty[${no}]" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.retur_qty)}" readonly>
-								</td>
-
-								<td style="text-align: center" >
-									<input style="text-align: right" type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.hasil)}" readonly>
-								</td>
-
-								<td style="text-align: center" >
-									<input style="text-align: right;font-weight: bold;" type="text" id="total_invo${no}" name="total_invo[${no}]"  class="form-control" value="${format_angka(total_invo)}" readonly>
-								</td>
-
-							</tbody>`;
-							exclude    += parseInt(val.harga);
-							include    += parseInt(val.include);
-							qty        += parseInt(val.qty);
-							r_qty      += parseInt(val.retur_qty);
-							qty_fix    += parseInt(val.hasil);
-							total_inv  += parseInt(total_invo);
-							no ++;
-						})
-						list += `<td style="text-align: center;color:#d90002;background: #e9ecef;" colspan="6">TOTAL
-								</td>
-								<td id="exclude" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(exclude)}
-								</td>
-								<td id="include" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(include)}
-								</td>
-								<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(qty)}
-								</td>
-								<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(r_qty)}
-								</td>
-								<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(qty_fix)}
-								<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(total_inv)}
-								</td>`;
-						list += `</table>`;
-						swal.close();
-					} 
-					$("#total_inv").val(format_angka(total_inv));
-					$("#krg_byr").val(format_angka(total_inv - data.header.jum_bayar));
+					list +=`
+					<tr>
+					<td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">PPN
+					</td>
+					<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(ppn_total)}
+					</td>
+					</tr>`;
+					
+					list +=`						
+					<tr>
+					<td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">PPH
+					</td>
+					<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(pph_total)}
+					</td>
+					</tr>`;
+					
+					list += `
+					<tr><td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">TOTAL
+					</td>
+					<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(total_all)}
+					</td>
+					</tr>`;
+					list += `</table>`;
+					swal.close();
+					
+					$("#total_inv").val(format_angka(total_all));					
+					$("#history_byr").val(format_angka(data.header.jum_bayar));
 					$("#data_list").html(list);
+					hitung_kurang()
 					swal.close();
 
 				} else {
@@ -1058,7 +845,7 @@
 	function kosong()
 	{
 		statusInput = 'insert'
-		$("#id_invoice_h").val("")
+		$("#id_header_beli").val("")
 		$("#id_perusahaan").val("")
 		$("#nm_perusahaan").val("")
 		$("#tgl_sj").val("")
@@ -1081,16 +868,27 @@
 		swal.close()
 	}
 
+	function hitung_kurang()
+	{
+		var total_inv       = $("#total_inv").val().split('.').join('')
+		var history_byr     = $("#history_byr").val().split('.').join('')
+		var jml_byr         = $("#jml_byr").val().split('.').join('')
+		var kurang_bayar    = total_inv - history_byr - jml_byr
+		if(kurang_bayar==0)
+		{
+			krg_byr = 0
+		}else{
+			krg_byr = kurang_bayar
+		}		
+		$("#krg_byr").val(format_angka(krg_byr))
+		
+	}
+
 	function simpan() 
 	{
-		var nm_perusahaan   = $("#nm_perusahaan").val();
-		var alasan          = $("#alasan").val();
 		var tgl_byr         = $("#tgl_byr").val();
 		var jml_byr         = $("#jml_byr").val();
-		var sales           = $("#sales").val();
-		var top             = $("#top").val();
-
-		if (nm_perusahaan=='' || alasan== '' || tgl_byr == '' || jml_byr=='' || sales=='' || top=='' ) 
+		if (tgl_byr == '' || jml_byr=='' ||jml_byr==0 ) 
 		{			
 			swal.close();
 			swal({
@@ -1103,7 +901,7 @@
 		}
 
 		$.ajax({
-			url        : '<?= base_url(); ?>Logistik/Insert_byr_inv',
+			url        : '<?= base_url(); ?>Logistik/Insert_byr_inv_beli',
 			type       : "POST",
 			data       : $('#myForm').serialize(),
 			dataType   : "JSON",
@@ -1119,7 +917,8 @@
 					});
 					// location.href = "<?= base_url()?>Logistik/Invoice_edit?id="+data.id+"&no_inv="+no_inv_ok+"";					
 					kosong();
-					location.href = "<?= base_url()?>Logistik/bayar_inv";
+					location.href = "<?= base_url()?>Logistik/bayar_inv_beli";
+					// kembaliList();
 					
 				} else {
 					// toastr.error('Gagal Simpan');
@@ -1190,7 +989,7 @@
 				url: '<?= base_url(); ?>Logistik/hapus',
 				data: ({
 					id: id,
-					jenis: 'byr_inv',
+					jenis: 'byr_inv_beli',
 					field: 'id_bayar_inv'
 				}),
 				type: "POST",
@@ -1215,6 +1014,8 @@
 					// 	confirmButtonText   : "OK"
 					// });
 					reloadTable();
+					
+					location.href = "<?= base_url()?>Logistik/bayar_inv_beli";
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					// toastr.error('Terjadi Kesalahan');
@@ -1232,5 +1033,100 @@
 		});
 
 
+	}
+
+	function acc_inv(id,status_owner) 
+	{	
+		var user        = "<?= $this->session->userdata('username')?>"
+		var acc_owner   = status_owner
+		// var acc_admin   = $('#modal_status_inv_admin').val()
+		var id          = id
+		
+		if(user=='bumagda' || user=='developer')
+		{
+			acc = acc_owner
+		}else{
+			acc = acc_owner
+		}
+
+		// console.log(user)
+		// console.log(acc)
+		if (acc=='N')
+		{
+			var html = 'VERIFIKASI'
+			var icon = '<i class="fas fa-check"></i>'
+		}else{
+			var html = 'BATAL VERIFIKASI'
+			var icon = '<i class="fas fa-lock"></i>'
+		}
+		
+		swal({
+			title              : html,
+			html               : "<p> Apakah Anda yakin ?</p><br>",
+			type               : "question",
+			showCancelButton   : true,
+			confirmButtonText  : '<b>'+icon+' '+html+'</b>',
+			cancelButtonText   : '<b><i class="fas fa-undo"></i> Batal</b>',
+			confirmButtonClass : 'btn btn-success',
+			cancelButtonClass  : 'btn btn-danger',
+			confirmButtonColor : '#28a745',
+			cancelButtonColor  : '#d33'
+		}).then(() => {
+
+				$.ajax({
+					url: '<?= base_url(); ?>Logistik/prosesData',
+					data: ({
+						id    : id,
+						acc   : acc,
+						jenis : 'verif_byr_inv_beli'
+					}),
+					type: "POST",
+					beforeSend: function() {
+						swal({
+							title: 'loading ...',
+							allowEscapeKey    : false,
+							allowOutsideClick : false,
+							onOpen: () => {
+								swal.showLoading();
+							}
+						})
+					},
+					success: function(data) {
+						toastr.success('Data Berhasil Diproses');
+						// swal({
+						// 	title               : "Data",
+						// 	html                : "Data Berhasil Diproses",
+						// 	type                : "success",
+						// 	confirmButtonText   : "OK"
+						// });
+						
+						// setTimeout(function(){ location.reload(); }, 1000);
+						// location.href = "<?= base_url()?>Logistik/Invoice";
+						// location.href = "<?= base_url()?>Logistik/Invoice_edit?id="+id+"&statuss=Y&no_inv="+no_inv+"&acc=1";
+						reloadTable()
+						close_modal()
+						swal.close();
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						// toastr.error('Terjadi Kesalahan');
+						swal({
+							title               : "Cek Kembali",
+							html                : "Terjadi Kesalahan",
+							type                : "error",
+							confirmButtonText   : "OK"
+						});
+						return;
+					}
+				});
+		
+		});
+
+
+	}
+
+	function close_modal()
+	{
+		$('#modalForm').modal('hide');
+		reloadTable()
 	}
 </script>

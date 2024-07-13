@@ -124,6 +124,7 @@
 						<div class="col-md-3">
 							<select class="form-control select2" name="pajak" id="pajak" style="width: 100%;" onchange="hitung_total();">
 							<option value="PPN">PPN</option>
+							<option value="PPN_PPH">PPN PPH </option>
 							<option value="NONPPN">NON PPN</option>
 							</select>
 						</div>
@@ -233,6 +234,21 @@
 												</span>
 											</div>		
 											<input type="text" size="5" name="pajak_total" id="pajak_total" class="angka form-control" value='0' readonly>
+										</div>
+										
+									</td>	
+								</tr>
+								<tr>
+									<td colspan="3" class="text-right">
+										<label for="total">PPH</label>
+									</td>	
+									<td>
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>Rp</b>
+												</span>
+											</div>		
+											<input type="text" size="5" name="pph_total" id="pph_total" class="angka form-control" value='0' readonly>
 										</div>
 										
 									</td>	
@@ -699,16 +715,23 @@
 		
 		if(pajak=='PPN')
 		{
-			var pajak_total   = (total_nominal_ok *0.11).toFixed(0);
+			var ppn_total    = (total_nominal_ok *0.11).toFixed(0);
+			var pph_total    = 0
+		}else if(pajak=='PPN_PPH')
+		{
+			var ppn_total   = (total_nominal_ok *0.11).toFixed(0);
+			var pph_total   = (total_nominal_ok *0.02).toFixed(0);
 		}else{
-			var pajak_total   = 0
+			var ppn_total   = 0
+			var pph_total   = 0
 		}
 		
-		var total_all     = parseInt(total_nominal_ok)-parseInt(disk_total)+parseInt(pajak_total)
+		var total_all     = parseInt(total_nominal_ok)-parseInt(disk_total)+parseInt(ppn_total)-parseInt(pph_total)
 
 		$("#total_nom").val(format_angka(total_nominal_ok))		
 		$("#disk_total").val(format_angka(disk_total))
-		$("#pajak_total").val(format_angka(pajak_total))
+		$("#pajak_total").val(format_angka(ppn_total))
+		$("#pph_total").val(format_angka(pph_total))
 		$("#total_all").val(format_angka(total_all))
 		
 	}
@@ -920,6 +943,21 @@
 								</tr>
 								<tr>
 									<td colspan="3" class="text-right">
+										<label for="total">PPH</label>
+									</td>	
+									<td>
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>Rp</b>
+												</span>
+											</div>		
+											<input type="text" size="5" name="pph_total" id="pph_total" class="angka form-control" value='0' readonly>
+										</div>
+										
+									</td>	
+								</tr>
+								<tr>
+									<td colspan="3" class="text-right">
 										<label for="total">TOTAL</label>
 									</td>	
 									<td>
@@ -1096,6 +1134,21 @@
 												</span>
 											</div>		
 											<input type="text" size="5" name="m_pajak_total" id="m_pajak_total" class="angka form-control" value='0' readonly>
+										</div>
+										
+									</td>	
+								</tr>
+								<tr>
+									<td colspan="3" class="text-right">
+										<label for="total">PPH</label>
+									</td>	
+									<td>
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>Rp</b>
+												</span>
+											</div>		
+											<input type="text" size="5" name="m_pph_total" id="m_pph_total" class="angka form-control" value='0' readonly>
 										</div>
 										
 									</td>	

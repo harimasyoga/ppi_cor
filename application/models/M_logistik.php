@@ -524,7 +524,6 @@ class M_logistik extends CI_Model
 		$status_input = $this->input->post('sts_input');
 		if($status_input == 'add')
 		{
-
 			$data_header = array(
 				'id_invoice_h'   => $this->input->post('id_invoice_h'),
 				'id_perusahaan'  => $this->input->post('id_perusahaan'),
@@ -568,8 +567,41 @@ class M_logistik extends CI_Model
 			
 		}
 		return $result_header;
+			
+	}
+	
+	function save_byr_invoice_beli()
+	{
+		$status_input = $this->input->post('sts_input');
+		if($status_input == 'add')
+		{
+			$data_header = array(
+				'id_invoice_h'   => $this->input->post('id_header_beli'),
+				'no_inv_beli'    => $this->input->post('no_inv_beli'),
+				'tgl_inv'        => $this->input->post('tgl_inv'),
+				'total_inv'      => str_replace('.','',$this->input->post('total_inv')),
+				'tgl_bayar'      => $this->input->post('tgl_byr'),
+				'jumlah_bayar'   => str_replace('.','',$this->input->post('jml_byr')),
+			);
 		
+			$result_header = $this->db->insert('trs_bayar_inv_beli', $data_header);
+			
+		}else{
 
+			$data_header = array(
+				'id_invoice_h'   => $this->input->post('id_header_beli'),
+				'no_inv_beli'    => $this->input->post('no_inv_beli'),
+				'tgl_inv'        => $this->input->post('tgl_inv'),
+				'total_inv'      => str_replace('.','',$this->input->post('total_inv')),
+				'tgl_bayar'      => $this->input->post('tgl_byr'),
+				'jumlah_bayar'   => str_replace('.','',$this->input->post('jml_byr')),
+			);
+		
+			$this->db->where('id_bayar_inv', $this->input->post('id_byr_inv'));
+			$result_header = $this->db->update('trs_bayar_inv_beli', $data_header);
+			
+		}
+		return $result_header;
 			
 	}
 
@@ -2674,227 +2706,174 @@ class M_logistik extends CI_Model
 	
 	function verif_byr_inv()
 	{
-		$no_inv       = $this->input->post('no_inv');
-		$acc          = $this->input->post('acc');
-		$app          = "";
+		$id   = $this->input->post('id');
+		$acc  = $this->input->post('acc');
+		$app  = "";
 		
-		// $cek_detail   = $this->db->query("SELECT*,b.no_po as no_po FROM invoice_header a
-		// join invoice_detail b on a.no_invoice=b.no_invoice
-		// join trs_po c on b.no_po=c.kode_po
-		// join m_hub d on c.id_hub=d.id_hub
-		// where b.no_invoice='$no_inv' ")->result();
+		$cek_detail   = $this->db->query(" SELECT *,a.id_bayar_inv as id_ok,a.acc_owner 
+		FROM trs_bayar_inv a 
+		join invoice_header b on a.no_inv=b.no_invoice 
+		where id_bayar_inv='$id' 
+		ORDER BY id_bayar_inv")->result();
 
-		// // KHUSUS ADMIN //
-		// if ($this->session->userdata('level') == "Admin") 
-		// {
-		// 	if($acc=='N')
-		// 	{				
-		// 		foreach ( $cek_detail as $row ) 
-		// 		{
-		// 			if($row->type=='box' || $row->type=='sheet' )
-		// 			{
-		// 				// input stok berjalan HUB
-		// 				$cek_po = $this->db->query("SELECT * FROM trs_po a 
-		// 				join trs_po_detail b on a.kode_po=b.kode_po 
-		// 				join m_produk c on b.id_produk=c.id_produk
-		// 				where b.kode_po in ('$row->no_po') and b.id_produk='$row->id_produk_simcorr'")->row();
+		// KHUSUS ADMIN //
+		if ($this->session->userdata('level') == "Admin") 
+		{
+			if($acc=='N')
+			{				
+				foreach ( $cek_detail as $row ) 
+				{
+					// input stok berjalan HUB
+					$cek_po = $this->db->query("SELECT *, (select id_hub from trs_po b where a.no_po=b.kode_po)id_hub from invoice_detail a where no_invoice='$row->no_inv'")->row();
 
-		// 				// pendapatan tanpa di kurangi retur
-		// 				$pendapatan       = ($row->harga*$row->qty);
-		// 				$pajak_pendapatan = ($row->harga*$row->qty)*0.5/100;
-						
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.03','Pendapatan', $pendapatan, 0);
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'4.01','Pendapatan', 0,$pendapatan);
-		// 				// pajak pendapatan
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'6.37','Pajak Pendapatan', $pajak_pendapatan, 0);
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.04','Pajak Pendapatan', 0,$pajak_pendapatan);
-						
-						
-		// 				// pembelian bahan baku		
-		// 				$harga_bahan        = 2300;
-		// 				$ton_tanpa_retur    = ($row->hasil * $cek_po->berat_bersih);
-		// 				$bhn_bk_tanpa_retur = ($ton_tanpa_retur / 0.7);
-		// 				$nominal_bahan      = $bhn_bk_tanpa_retur*$harga_bahan;
-
-		// 				// $cek_po = $this->db->query(" hrd : $row->harga,<br> bb : $cek_po->berat_bersih <br> bhn bk  : $bhn_bk_tanpa_retur <br> $nominal_bahan x x")->row();
-
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.05','Penggunaan Bahan Baku',$nominal_bahan, 0);
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.06','Penggunaan Bahan Baku',0, $nominal_bahan);
-
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'5.01','Pembelian Bahan Baku', $nominal_bahan, 0);
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.05','Pembelian Bahan Baku', 0,$nominal_bahan);
-						
-						
-						
-		// 				if($row->retur_qty > 0)
-		// 				{
-		// 					// retur pendapatan
-		// 					// $retur            = ($row->harga*$row->retur_qty);
-		// 					// $pajak_retur      = ($row->harga*$row->retur_qty)*0.5/100;
-							
-		// 					// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'4.03','Retur Pendapatan', $retur, 0);
-		// 					// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.03','Retur Pendapatan', 0,$retur);
-		// 					// // pajak retur
-		// 					// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.04','Pajak Retur Pendapatan', $pajak_retur, 0);
-		// 					// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'6.37','Pajak Retur Pendapatan', 0,$pajak_retur);
-
-		// 					// // retur
-		// 					// $nominal_retur_bahan = ($row->retur_qty*$harga_bahan);
-
-		// 					// // retur jadi bahan baku
-		// 					// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'5.01','Retur Bahan Baku', $nominal_retur_bahan, 0);
-		// 					// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.05','Retur Bahan Baku', 0,$nominal_retur_bahan);
-		// 				}
-						
-		// 				// stok bahan setelah di kurangi retur
-		// 				$ton            = ($row->hasil * $cek_po->berat_bersih);
-		// 				$bhn_bk         = ($ton / 0.7);
-
-		// 				stok_bahanbaku($no_inv, $cek_po->id_hub, $row->tgl_invoice, 'HUB', 0, $bhn_bk, 'KELUAR DENGAN INVs', 'KELUAR', $row->id_produk_simcorr);
-						
-						
-		// 			}
-		// 		}
-		// 		$this->db->set("acc_admin", 'Y');
-		// 		$this->db->set("acc_owner", 'Y');
-		// 	}else{
+					// pendapatan tanpa di kurangi retur						
+					add_jurnal($cek_po->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv,'1.01.02','Pembayaran Penjualan', $row->jumlah_bayar, 0);
+					add_jurnal($cek_po->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv,'1.01.03','Pembayaran Penjualan', 0,$row->jumlah_bayar);
+				}
+				$this->db->set("acc_owner", 'Y');
+			}else{
 				
-		// 		foreach ( $cek_detail as $row ) 
-		// 		{
-		// 			if($row->type=='box' || $row->type=='sheet' )
-		// 			{
-		// 				// input stok berjalan HUB
-		// 				$cek_po = $this->db->query("SELECT * FROM trs_po a 
-		// 				join trs_po_detail b on a.kode_po=b.kode_po 
-		// 				join m_produk c on b.id_produk=c.id_produk
-		// 				where b.kode_po in ('$row->no_po') and b.id_produk='$row->id_produk_simcorr'")->row();
+				foreach ( $cek_detail as $row ) 
+				{
+						// delete jurnal pendapatan
+						del_jurnal( $id.'_'.$row->no_inv );
 						
-		// 				// delete jurnal pendapatan
-		// 				del_jurnal( $no_inv );
-
-		// 				$del_stok    = $this->db->query("DELETE FROM trs_stok_bahanbaku WHERE no_transaksi='$no_inv' and id_hub='$cek_po->id_hub' and id_produk='$row->id_produk_simcorr' ");
-						
-		// 			}
-		// 		}
-		// 		$this->db->set("acc_admin", 'Y');
-		// 		$this->db->set("acc_owner", 'N');
-		// 	}
+				}
+				$this->db->set("acc_owner", 'N');
+			}
 			
-		// 	$this->db->where("no_invoice",$no_inv);
-		// 	$valid = $this->db->update("invoice_header");
+			$this->db->where("id_bayar_inv",$id);
+			$valid = $this->db->update("trs_bayar_inv");
 
-		// } else if ($this->session->userdata('level') == "Keuangan1" && $this->session->userdata('username') == "karina") 
-		// {
-		// 	if($acc=='N')
-		// 	{
-		// 		$this->db->set("acc_admin", 'Y');
-		// 	}else{
-		// 		$this->db->set("acc_admin", 'N');
-		// 	}
+		} else if ($this->session->userdata('level') == "Keuangan1" && $this->session->userdata('username') == "karina") 
+		{
 			
-		// 	$this->db->where("no_invoice",$no_inv);
-		// 	$valid = $this->db->update("invoice_header");
+		} else if ($this->session->userdata('level') == "Keuangan1" && $this->session->userdata('username') == "bumagda") 
+		{
+			if($acc=='N')
+			{
+				foreach ( $cek_detail as $row ) 
+				{
+					// input stok berjalan HUB
+					$cek_po = $this->db->query("SELECT *, (select id_hub from trs_po b where a.no_po=b.kode_po)id_hub from invoice_detail a where no_invoice='$row->no_inv'")->row();
 
-		// } else if ($this->session->userdata('level') == "Keuangan1" && $this->session->userdata('username') == "bumagda") 
-		// {
-		// 	if($acc=='N')
-		// 	{
-		// 		foreach ( $cek_detail as $row ) 
-		// 		{
-		// 			if($row->type=='box' || $row->type=='sheet' )
-		// 			{
-		// 				// input stok berjalan HUB
-		// 				$cek_po = $this->db->query("SELECT * FROM trs_po a 
-		// 				join trs_po_detail b on a.kode_po=b.kode_po 
-		// 				join m_produk c on b.id_produk=c.id_produk
-		// 				where b.kode_po in ('$row->no_po') and b.id_produk='$row->id_produk_simcorr'")->row();
+					// pendapatan tanpa di kurangi retur						
+					add_jurnal($cek_po->id_hub,$row->tgl_bayar, $row->no_inv,'1.01.02','Pembayaran Penjualan', $row->jumlah_bayar, 0);
+					add_jurnal($cek_po->id_hub,$row->tgl_bayar, $row->no_inv,'1.01.03','Pembayaran Penjualan', 0,$row->jumlah_bayar);
+				}
 
-		// 				// pendapatan tanpa di kurangi retur
-		// 				$pendapatan       = ($row->harga*$row->qty);
-		// 				$pajak_pendapatan = ($row->harga*$row->qty)*0.5/100;
-						
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.03','Pendapatan', $pendapatan, 0);
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'4.01','Pendapatan', 0,$pendapatan);
-		// 				// pajak pendapatan
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'6.37','Pajak Pendapatan', $pajak_pendapatan, 0);
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.04','Pajak Pendapatan', 0,$pajak_pendapatan);
-						
-						
-		// 				// pembelian bahan baku		
-		// 				$harga_bahan        = 2300;
-		// 				$ton_tanpa_retur    = ($row->hasil * $cek_po->berat_bersih);
-		// 				$bhn_bk_tanpa_retur = ($ton_tanpa_retur / 0.7);
-		// 				$nominal_bahan      = $bhn_bk_tanpa_retur*$harga_bahan;
+				$this->db->set("acc_owner", 'Y');
+			}else{
 
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.05','Penggunaan Bahan Baku',$nominal_bahan, 0);
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.06','Penggunaan Bahan Baku',0, $nominal_bahan);
-
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'5.01','Pembelian Bahan Baku', $nominal_bahan, 0);
-		// 				add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.05','Pembelian Bahan Baku', 0,$nominal_bahan);
-
-		// 				if($row->retur_qty > 0)
-		// 				{
-		// 					// // retur pendapatan
-		// 					// $retur            = ($row->harga*$row->retur_qty);
-		// 					// $pajak_retur      = ($row->harga*$row->retur_qty)*0.5/100;
-							
-		// 					// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'4.03','Retur Pendapatan', $retur, 0);
-		// 					// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.03','Retur Pendapatan', 0,$retur);
-		// 					// // pajak retur
-		// 					// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'2.01.04','Pajak Retur Pendapatan', $pajak_retur, 0);
-		// 					// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'6.37','Pajak Retur Pendapatan', 0,$pajak_retur);
-
-		// 					// // retur
-		// 					// $nominal_retur_bahan = ($row->retur_qty*$harga_bahan);
-
-		// 					// // retur jadi bahan baku
-		// 					// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'5.01','Retur Bahan Baku', $nominal_retur_bahan, 0);
-		// 					// add_jurnal($row->id_hub,$row->tgl_invoice, $no_inv,'1.01.05','Retur Bahan Baku', 0,$nominal_retur_bahan);
-		// 				}
-						
-		// 				// stok bahan setelah di kurangi retur
-		// 				$ton            = ($row->hasil * $cek_po->berat_bersih);
-		// 				$bhn_bk         = ($ton / 0.7);
-
-		// 				stok_bahanbaku($no_inv, $cek_po->id_hub, $row->tgl_invoice, 'HUB', 0, $bhn_bk, 'KELUAR DENGAN INV', 'KELUAR', $row->id_produk_simcorr);
-						
-		// 			}
-		// 		}
-
-		// 		$this->db->set("acc_owner", 'Y');
-		// 	}else{
-
-		// 		foreach ( $cek_detail as $row ) 
-		// 		{
-		// 			if($row->type=='box' || $row->type=='sheet' )
-		// 			{
-		// 				// input stok berjalan HUB
-		// 				$cek_po = $this->db->query("SELECT * FROM trs_po a 
-		// 				join trs_po_detail b on a.kode_po=b.kode_po 
-		// 				join m_produk c on b.id_produk=c.id_produk
-		// 				where b.kode_po in ('$row->no_po') and b.id_produk='$row->id_produk_simcorr'")->row();
-						
-		// 				// delete jurnal
-		// 				del_jurnal( $no_inv );
-
-		// 				$del_stok    = $this->db->query("DELETE FROM trs_stok_bahanbaku WHERE no_transaksi='$no_inv' and id_hub='$cek_po->id_hub' and id_produk='$row->id_produk_simcorr' ");
-						
-		// 			}
-		// 		}
+				foreach ( $cek_detail as $row ) 
+				{
+					
+					// delete jurnal pendapatan
+					del_jurnal( $id.'_'.$row->no_inv );
+				}
 				
-		// 		$this->db->set("acc_owner", 'N');
-		// 	}
+				$this->db->set("acc_owner", 'N');
+			}
 			
-		// 	$this->db->where("no_invoice",$no_inv);
-		// 	$valid = $this->db->update("invoice_header");
+			$this->db->where("id_bayar_inv",$id);
+			$valid = $this->db->update("trs_bayar_inv");
 
-		// } else {
+		} else {
 			
 			$valid = false;
 
-		// }
+		}
 
 		return $valid;
+	}	
+	
+	function verif_byr_inv_beli()
+	{
+		
+		$id   = $this->input->post('id');
+		$acc  = $this->input->post('acc');
+		$app  = "";
+		
+		$cek_detail   = $this->db->query(" SELECT *,IFNULL(
+			(select sum(jumlah_bayar) from trs_bayar_inv_beli t
+						where t.no_inv_beli=a.no_inv_beli
+						group by no_inv_beli),0) jum_bayar,
+						
+						a.id_bayar_inv as id_ok,a.acc_owner 
+				FROM trs_bayar_inv_beli a 
+				join invoice_header_beli b on a.no_inv_beli=b.no_inv_beli 
+				join m_hub c on b.id_hub=c.id_hub
+				join m_supp d on b.id_supp=d.id_supp
+				where id_bayar_inv='$id'
+				ORDER BY id_bayar_inv")->result();
+
+		// KHUSUS ADMIN //
+		if ($this->session->userdata('level') == "Admin") 
+		{
+			if($acc=='N')
+			{				
+				foreach ( $cek_detail as $row ) 
+				{
+						// pendapatan tanpa di kurangi
+						add_jurnal($row->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv_beli,'5.04','Pembayaran Maklon', $row->jumlah_bayar, 0);
+						add_jurnal($row->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv_beli,'2.01.01','Pembayaran Maklon', 0,$row->jumlah_bayar);
+						add_jurnal($row->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv_beli,'6.37','Pembayaran Maklon', $row->jumlah_bayar, 0);
+						add_jurnal($row->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv_beli,'2.01.03','Pembayaran Maklon', 0,$row->jumlah_bayar);
+				}
+				$this->db->set("acc_owner", 'Y');
+			}else{
+				
+				foreach ( $cek_detail as $row ) 
+				{
+						// delete jurnal pendapatan
+						del_jurnal( $id.'_'.$row->no_inv_beli );
+						
+				}
+				$this->db->set("acc_owner", 'N');
+			}
+			
+			$this->db->where("id_bayar_inv",$id);
+			$valid = $this->db->update("trs_bayar_inv_beli");
+
+		} else if ($this->session->userdata('level') == "Keuangan1" && $this->session->userdata('username') == "karina") 
+		{
+			
+		} else if ($this->session->userdata('level') == "Keuangan1" && $this->session->userdata('username') == "bumagda") 
+		{
+			if($acc=='N')
+			{
+				foreach ( $cek_detail as $row ) 
+				{
+					add_jurnal($row->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv_beli,'5.04','Pembayaran Maklon', $row->jumlah_bayar, 0);
+					add_jurnal($row->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv_beli,'2.01.01','Pembayaran Maklon', 0,$row->jumlah_bayar);
+					add_jurnal($row->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv_beli,'6.37','Pembayaran Maklon', $row->jumlah_bayar, 0);
+					add_jurnal($row->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv_beli,'2.01.03','Pembayaran Maklon', 0,$row->jumlah_bayar);
+				}
+
+				$this->db->set("acc_owner", 'Y');
+			}else{
+
+				foreach ( $cek_detail as $row ) 
+				{
+					
+					// delete jurnal pendapatan
+					del_jurnal( $id.'_'.$row->no_inv_beli );
+				}
+				
+				$this->db->set("acc_owner", 'N');
+			}
+			
+			$this->db->where("id_bayar_inv",$id);
+			$valid = $this->db->update("trs_bayar_inv_beli");
+
+		} else {
+			
+			$valid = false;
+
+		}
+
+		return $valid;
+	
 	}	
 
 	function batal_inv()
