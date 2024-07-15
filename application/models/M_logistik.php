@@ -1886,6 +1886,10 @@ class M_logistik extends CI_Model
 		INNER JOIN trs_po_lm_detail p ON d.id_po_dtl=p.id
 		WHERE d.no_invoice='$header->no_invoice'
 		ORDER BY rk.rk_no_po,i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm")->result();
+		// DISKON
+		$diskon = $this->db->query("SELECT SUM(hitung) AS disc FROM invoice_laminasi_disc WHERE no_invoice='$header->no_invoice' GROUP BY no_invoice");
+		($diskon->num_rows() == 0) ? $disc = 0 : $disc = $diskon->row()->disc;
+		// CEK PO BAHAN BAKU
 		$hargaBahan = $this->db->query("SELECT b.*,d.* FROM pl_laminasi p
 		INNER JOIN trs_po_bhnbk_detail d ON p.no_po=d.kode_po
 		INNER JOIN trs_po_bhnbk b ON b.no_po_bhn=d.no_po_bhn
@@ -1893,16 +1897,9 @@ class M_logistik extends CI_Model
 		ORDER BY b.hrg_bhn DESC LIMIT 1");
 		// CEK JURNAL SUDAH ADA
 		$jurnal = $this->db->query("SELECT*FROM jurnal_d WHERE no_transaksi='$header->no_invoice' GROUP BY no_transaksi");
-
 		if($hargaBahan->num_rows() != 0 && $jurnal->num_rows() == 0){
+			$sumTotal = 0;
 			foreach($detail as $r){
-				// PENDAPATAN DAN PAJAK PENDAPATAN
-				$pendapatan = $r->total;
-				$pajak_pendapatan = (($r->total) * 0.5) / 100;
-				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '1.01.03', 'Pendapatan', $pendapatan, 0);
-				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '4.01', 'Pendapatan', 0, $pendapatan);
-				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '6.37', 'Pajak Pendapatan', $pajak_pendapatan, 0);
-				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '2.01.04', 'Pajak Pendapatan', 0, $pajak_pendapatan);
 				// PEMBELIAN BAHAN BAKU		
 				$harga_bahan = $hargaBahan->row()->hrg_bhn;
 				if($r->jenis_qty_lm == 'pack'){
@@ -1916,15 +1913,23 @@ class M_logistik extends CI_Model
 					$retur = round($r->retur_qty,2);
 				}
 				$ton = ((($qty * $r->qty_muat) - $retur) / $qty) * 50;
-				$bb = ($ton / 0.75);
+				$bb = round($ton / 0.75);
 				$nominal_bahan = $bb * $harga_bahan;
 				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '1.01.05', 'Penggunaan Bahan Baku', $nominal_bahan, 0);
 				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '1.01.06', 'Penggunaan Bahan Baku', 0, $nominal_bahan);
-				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '5.01', 'Pembelian Bahan Baku', $nominal_bahan, 0);
 				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '1.01.05', 'Pembelian Bahan Baku', 0, $nominal_bahan);
+				add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '5.01', 'Pembelian Bahan Baku', $nominal_bahan, 0);
 				// STOK BAHAN BAKU
 				stok_bahanbaku($header->no_invoice, $header->bank, $header->tgl_invoice, 'HUB', 0, $bb, 'KELUAR DENGAN INVs', 'KELUAR', $r->id_produk_lm);
+				$sumTotal += $r->total;
 			}
+			// PENDAPATAN DAN PAJAK PENDAPATAN
+			$pendapatan = $sumTotal - $disc;
+			$pajak_pendapatan = ($pendapatan * 0.5) / 100;
+			add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '1.01.03', 'Pendapatan', $pendapatan, 0);
+			add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '4.01', 'Pendapatan', 0, $pendapatan);
+			add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '6.37', 'Pajak Pendapatan', $pajak_pendapatan, 0);
+			add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '2.01.04', 'Pajak Pendapatan', 0, $pajak_pendapatan);
 			$data = true;
 			$msg = 'BERHASIL TAMBAH JURNAL!';
 		}else if($jurnal->num_rows() != 0){
@@ -1974,17 +1979,18 @@ class M_logistik extends CI_Model
 		$id = $_POST["id"];
 		$header = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id'")->row();
 		// CEK JURNAL SUDAH ADA
-		$jurnal = $this->db->query("SELECT*FROM jurnal_d WHERE no_transaksi='$header->no_invoice' GROUP BY no_transaksi");
+		$jurnal = $this->db->query("SELECT*FROM jurnal_d WHERE no_transaksi='$header->no_invoice' GROUP BY no_transaksi")->num_rows();
 		// CEK PEMBAYARAN
-		$bayarJurnal = $this->db->query("SELECT*FROM jurnal_d WHERE no_transaksi='$header->no_invoice' AND kode_rek IN ('1.01.02','1.01.03') GROUP BY no_transaksi");
+		$debet = $this->db->query("SELECT*FROM jurnal_d WHERE no_transaksi='$header->no_invoice' AND kode_rek='1.01.02' AND debet!='0' AND kredit='0' GROUP BY no_transaksi")->num_rows();
+		$kredit = $this->db->query("SELECT*FROM jurnal_d WHERE no_transaksi='$header->no_invoice' AND kode_rek='1.01.03' AND debet='0' AND kredit!='0' GROUP BY no_transaksi")->num_rows();
 
-		if($jurnal->num_rows() != 0 && $bayarJurnal->num_rows() == 0){
+		if($jurnal != 0 && ($debet == 0 || $kredit == 0)){
 			$bayar = $this->db->query("SELECT SUM(nominal_bayar) AS bayarCuy FROM invoice_laminasi_bayar WHERE no_invoice='$header->no_invoice' GROUP BY no_invoice")->row();
 			add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '1.01.02', 'Pembayaran Invoice Laminasi', $bayar->bayarCuy, 0);
 			add_jurnal($header->bank, $header->tgl_invoice, $header->no_invoice, '1.01.03', 'Pembayaran Invoice Laminasi', 0, $bayar->bayarCuy);
 			$data = true;
 			$msg = 'BERHASIL BAYAR JURNAL!';
-		}else if($bayarJurnal->num_rows() != 0){
+		}else if($debet != 0 || $kredit != 0){
 			$data = false;
 			$msg = 'DATA PEMBAYARAN JURNAL SUDAH ADA!';
 		}else{
@@ -1993,6 +1999,9 @@ class M_logistik extends CI_Model
 		}
 
 		return [
+			'jurnal' => $jurnal,
+			'debet' => $debet,
+			'kredit' => $kredit,
 			'data' => $data,
 			'msg' => $msg,
 			'header' => $header,
