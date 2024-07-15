@@ -1820,7 +1820,7 @@ class Logistik extends CI_Controller
 	}
 
 	function editInvoiceLaminasi()
-	{ //
+	{
 		$id_header = $_POST["id_header"];
 		$opsi = $_POST["opsi"];
 		$htmlItem = '';
@@ -4820,9 +4820,14 @@ class Logistik extends CI_Controller
 				}
 			}
 		}else if ($jenis == "loadDataInvoiceLaminasi") {
-			($this->session->userdata('username') == 'usman') ? $where = "WHERE h.jenis_lm='PEKALONGAN'" : $where = "";
-			$query = $this->db->query("SELECT h.* FROM invoice_laminasi_header h
-			$where
+			$tahun = $_POST["tahun"];
+			$plhJenis = $_POST["jenis"];
+			$plhHub = $_POST["hub"];
+			($plhHub == "") ? $wHub = '' : $wHub = "AND h.bank='$plhHub'";
+			($this->session->userdata('username') == 'usman') ? $where = "AND h.jenis_lm='PEKALONGAN'" : $where = "";
+			$query = $this->db->query("SELECT h.*,b.aka FROM invoice_laminasi_header h
+			INNER JOIN m_hub b ON h.bank=b.id_hub
+			WHERE h.tgl_invoice LIKE '%$tahun%' AND h.jenis_lm LIKE '%$plhJenis%' $wHub $where
 			ORDER BY acc_owner,tgl_invoice DESC,no_invoice DESC")->result();
 			$i = 0;
 			foreach ($query as $r) {
@@ -4830,14 +4835,28 @@ class Logistik extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				// DESKRIPSI
-				$htmlDes = '<div>
-					<div style="padding-bottom:4px"><b>Tanggal :</b> '.$this->m_fungsi->tanggal_format_indonesia($r->tgl_invoice).'</div>
-					<div style="padding-bottom:4px"><b>No. Invoice :</b> '.$r->no_invoice.'</div>
-					<div style="padding-bottom:4px"><b>No. Surat Jalan :</b> '.$r->no_surat.'</div>
-					<div style="padding-bottom:4px"><b>Kepada :</b> '.$r->attn_lam_inv.'</div>
-					<div><b>Alamat :</b> '.$r->alamat_lam_inv.'</div>
-				</div>';
-				$row[] = $htmlDes;
+				$row[] = '<table>
+					<tr style="background: transparent !important">
+						<td style="border:0;padding:0 0 3px;font-weight:bold">Tanggal</td>
+						<td style="border:0;padding:0 5px 3px;font-weight:bold">:</td>
+						<td style="border:0;padding:0 0 3px">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_invoice).'</td>
+					</tr>
+					<tr style="background: transparent !important">
+						<td style="border:0;padding:3px 0;font-weight:bold">No. Invoice</td>
+						<td style="border:0;padding:3px 5px;font-weight:bold">:</td>
+						<td style="border:0;padding:3px 0">'.$r->no_invoice.'</td>
+					</tr>
+					<tr style="background: transparent !important">
+						<td style="border:0;padding:3px 0;font-weight:bold">No. Surat Jalan</td>
+						<td style="border:0;padding:3px 5px;font-weight:bold">:</td>
+						<td style="border:0;padding:3px 0">'.$r->no_surat.'</td>
+					</tr>
+					<tr style="background: transparent !important">
+						<td style="border:0;padding:3px 0 0;font-weight:bold">Kepada</td>
+						<td style="border:0;padding:3px 5px 0;font-weight:bold">:</td>
+						<td style="border:0;padding:3px 0 0">'.$r->attn_lam_inv.'</td>
+					</tr>
+				</table>';
 				// TANGGAL JATUH TEMPO DAN BATAS WAKTU
 				if($r->status_bayar == 'REJECT'){
 					$jt = '<span style="color:#f00">-</span>';
@@ -4982,7 +5001,9 @@ class Logistik extends CI_Controller
 					$btnJurnal = '';
 				}
 				// ADD PEMBAYARAN JURNAL
-				if($r->acc_owner == 'Y' && $jurnal->num_rows() != 0 && $r->status_bayar == 'LUNAS' && $r->bank != '7' && $r->bank != '0' && $r->jenis_lm == 'PPI' && $this->session->userdata('level') == 'Admin'){
+				$debet = $this->db->query("SELECT*FROM jurnal_d WHERE no_transaksi='$r->no_invoice' AND kode_rek='1.01.02' AND debet!='0' AND kredit='0' GROUP BY no_transaksi")->num_rows();
+				$kredit = $this->db->query("SELECT*FROM jurnal_d WHERE no_transaksi='$r->no_invoice' AND kode_rek='1.01.03' AND debet='0' AND kredit!='0' GROUP BY no_transaksi")->num_rows();
+				if($r->acc_owner == 'Y' && $jurnal->num_rows() != 0 && $r->status_bayar == 'LUNAS' && $r->bank != '7' && $r->bank != '0' && $r->jenis_lm == 'PPI' && $debet == 0 && $kredit == 0 && $this->session->userdata('level') == 'Admin'){
 					$btnJurnalBayar = '<button type="button" onclick="bayarJurnalInvLaminasi('."'".$r->id."'".')" title="PEMBAYARAN JURNAL" class="btn btn-warning btn-sm"><i class="fas fa-credit-card"></i></button>';
 				}else{
 					$btnJurnalBayar = '';

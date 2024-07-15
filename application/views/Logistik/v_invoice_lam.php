@@ -268,6 +268,46 @@
 									<button type="button" class="btn btn-sm btn-danger" onclick="laporanInvoice('pembayaran')"><i class="fas fa-money-check"></i> <b>PEMBAYARAN</b></button>
 								</div>
 							<?php } ?>
+							<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
+								<div class="col-md-2" style="padding-bottom:3px">
+									<select id="tahun" class="form-control select2" onchange="load_data()">
+										<?php 
+											$thang = date("Y");
+											$thang_maks = $thang + 2;
+											$thang_min = $thang - 2;
+											for ($th = $thang_min; $th <= $thang_maks; $th++)
+											{ ?>
+												<?php if ($th==$thang) { ?>
+													<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+												<?php }else{ ?>
+													<option value="<?= $th ?>"> <?= $th ?> </option>
+												<?php }
+											}
+										?>
+									</select>
+								</div>
+								<div class="col-md-2" style="padding-bottom:3px">
+									<select id="jenis" class="form-control select2" onchange="load_data()">
+										<option value="">SEMUA</option>
+										<option value="PPI">PPI</option>
+										<option value="PEKALONGAN">PEKALONGAN</option>
+									</select>
+								</div>
+								<div class="col-md-4" style="padding-bottom:3px">
+									<select id="hub" class="form-control select2" onchange="load_data()">
+										<?php
+											$query = $this->db->query("SELECT*FROM m_no_rek_lam WHERE id_hub!='0' AND id_hub!='7' ORDER BY an_bank");
+											$html ='';
+											$html .='<option value="">SEMUA</option>';
+											foreach($query->result() as $r){
+												$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
+											}
+											echo $html
+										?>
+									</select>
+								</div>
+								<div class="col-md-4"></div>
+							</div>
 							<div style="overflow:auto;white-space:nowrap">
 								<table id="datatable" class="table table-bordered table-striped">
 									<thead class="color-tabel">
@@ -507,6 +547,9 @@
 	}
 
 	function load_data() {
+		let tahun = $("#tahun").val()
+		let jenis = $("#jenis").val()
+		let hub = $("#hub").val()
 		let table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -516,6 +559,9 @@
 			"ajax": {
 				"url": '<?php echo base_url('Logistik/load_data/loadDataInvoiceLaminasi')?>',
 				"type": "POST",
+				"data": ({
+					tahun, jenis, hub
+				}),
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],
@@ -1518,7 +1564,7 @@
 	function bayarJurnalInvLaminasi(id)
 	{
 		swal({
-			title: "PEMBAYARANN JURNAL?",
+			title: "PEMBAYARAN JURNAL?",
 			text: "",
 			type: "warning",
 			showCancelButton: true,
@@ -1542,16 +1588,15 @@
 				success: function(res){
 					data = JSON.parse(res)
 					console.log(data)
-					// if(data.data){
-					// 	toastr.success(`<b>${data.msg}</b>`)
-					// 	kosong()
-					// 	reloadTable()
-					// }else{
-					// 	toastr.error(`<b>${data.msg}</b>`)
-					// 	reloadTable()
-					// 	swal.close()
-					// }
-					swal.close()
+					if(data.data){
+						toastr.success(`<b>${data.msg}</b>`)
+						kosong()
+						reloadTable()
+					}else{
+						toastr.error(`<b>${data.msg}</b>`)
+						reloadTable()
+						swal.close()
+					}
 				}
 			})
 		});
