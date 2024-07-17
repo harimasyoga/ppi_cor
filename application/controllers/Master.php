@@ -1396,7 +1396,7 @@ class Master extends CI_Controller
 		(select sum(masuk)masuk from trs_stok_bahanbaku b where b.jenis='PPI' group by jenis)masuk,
 		(select sum(keluar)keluar from trs_stok_bahanbaku b where b.jenis='PPI' group by jenis)keluar,
 		(select sum(masuk-keluar)stok_akhir from trs_stok_bahanbaku b where b.jenis='PPI' group by jenis)stok_akhir,
-		'0' as id_hub, 'PPI' as pimpinan, 'PPI' as nm_hub, 'PPI' as aka, ''no_rek,'-' as alamat, '-' as kode_pos, '-' as no_telp, '-' as fax, '-' as add_time, '-' as add_user, '-' as edit_time, '-' as edit_user,'' as jns FROM m_hub e limit 1) as ppi
+		'0' as id_hub, 'PPI' as pimpinan, 'PPI' as nm_hub, 'PPI' as aka, ''nm_bank,''no_rek,'-' as alamat, '-' as kode_pos, '-' as no_telp, '-' as fax, '-' as add_time, '-' as add_user, '-' as edit_time, '-' as edit_user,'' as jns FROM m_hub e limit 1) as ppi
 
 		UNION ALL
 

@@ -172,12 +172,12 @@
 								<div class="col-md-2">Pilihan Bank</div>
 								<div class="col-md-10">
 									<select class="form-control select2" id="bank" name="bank" style="width: 100%" autocomplete="off">
-										<option value="BCA_AKB">BCA AKB</option>
+										<!-- <option value="BCA_AKB">BCA AKB</option>
 										<option value="BCA_SSB">BCA SSB</option>
 										<option value="BCA_KSM">BCA KSM</option>
 										<option value="BCA_GMB">BCA GMB</option>
 										<option value="BCA">BCA</option>
-										<option value="BNI">BNI</option>
+										<option value="BNI">BNI</option> -->
 									</select>
 								</div>
 							</div>
@@ -499,6 +499,7 @@
 	rowNum = 0;
 	$(document).ready(function() {
 		load_data();
+		load_bank();
 		// getMax();
 		$('.select2').select2({
 			containerCssClass: "wrap",
@@ -553,6 +554,44 @@
 			}
 		});
 
+	}
+
+	function load_bank() 
+	{
+		option = "";
+		$.ajax({
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Logistik/load_bank",
+			// data       : { idp: pelanggan, kd: '' },
+			dataType   : 'json',
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success"){					
+					option = `<option value="">-- Pilih --</option>`;	
+
+					$.each(data.data, function(index, val) {
+					option += "<option value='"+val.nm_bank+"'>"+val.nm_bank+"</option>";
+					});
+
+					$('#bank').html(option);
+					swal.close();
+				}else{	
+					option += "<option value=''></option>";
+					$('#bank').html(option);					
+					swal.close();
+				}
+			}
+		});
+		
 	}
 
 	function reloadTable() 

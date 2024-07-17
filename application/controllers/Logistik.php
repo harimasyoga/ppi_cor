@@ -3910,7 +3910,7 @@ class Logistik extends CI_Controller
 				
 				if($r->type=='roll')
 				{
-					$hub =' - ';
+					$hub =' PPI - ROLL ';
 				}else{
 
 					$result_hub = $this->db->query("SELECT b.*,d.aka FROM invoice_detail b
@@ -4297,6 +4297,60 @@ class Logistik extends CI_Controller
 					}
 					$item = $item_result;
 				}				
+				
+				if ($r->type == 'roll')
+				{
+					$aka = 'PPI - ROLL';
+
+				}else{
+					
+					if ($r->tgl_sj >= '2024-07-01' )
+					{
+						$result_hub = $this->db->query("SELECT * FROM invoice_detail a
+						join trs_po b on a.no_po=b.kode_po
+						join m_hub c on b.id_hub=c.id_hub
+						WHERE no_invoice='$r->no_inv' 
+						GROUP BY no_invoice ORDER BY no_invoice");
+
+						if($result_hub->num_rows() == '1'){
+							$aka = $result_hub->row()->aka;
+						}else{					
+							$hub_result    = '';
+							foreach($result_hub->result() as $row){
+								$hub_result .= '<b>- </b>'.$row->aka.'<br>';
+							}
+							$aka = $hub_result;
+						}		
+
+					}else{
+
+						if($r->bank=='BCA_AKB')
+						{
+							$aka = 'AKB';
+						}else if($r->bank=='BCA_GMB')
+						{
+							$aka = 'GMB';
+						}else if($r->bank=='BCA_SSB')
+						{
+							$aka = 'SSB';
+						}else if($r->bank=='BCA_KSM')
+						{
+							$aka = 'KSM';
+						}else if($r->bank=='BCA')
+						{
+							$aka = 'PPI';
+						}else if($r->bank=='BNI')
+						{
+							$aka = 'PPI';
+						}else{
+							$aka = '';
+
+						}
+
+					}
+				}	
+				
+						
 
 				if($r->acc_owner=='N')
                 {
@@ -4333,6 +4387,16 @@ class Logistik extends CI_Controller
 						<td style="padding : 2px;border:none;"><b>ITEM </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">'.$item .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>HUB </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$aka .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>TYPE </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">'.$r->type .'<br></td>
 					</tr>
 					';
 				$row[] = '<div class="text-center">'.$r->tgl_bayar.'</div>';
@@ -7021,31 +7085,17 @@ class Logistik extends CI_Controller
 			<td style="border:0;padding:20px 0 0" colspan="7"></td>
 		</tr>';
 
-		if($data_detail->bank=='BNI')
+		$cek_bank = $this->db->query("SELECT*FROM m_hub where CONCAT(nm_bank,'_',aka)='$data_detail->bank' ");
+
+		if($cek_bank->num_rows() > 0)
 		{
 			if($data_detail->pajak=='nonppn')
 			{
-				$norek        = '5758699099';
-				$nm_bank      = 'BNI';
-				$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
-				$ket_email    = '* Harap bukti transfer di email ke';
-				$an           = 'PT. PRIMA PAPER INDONESIA';
-			}else{
-				$norek        = '5758699690';
-				$nm_bank      = 'BNI';
-				$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
-				$ket_email    = '* Harap bukti transfer di email ke';
-				$an           = 'PT. PRIMA PAPER INDONESIA';
-			}
-		}else if($data_detail->bank=='BCA_AKB')
-		{
-			if($data_detail->pajak=='nonppn')
-			{
-				$norek        = '5050290672';
-				$nm_bank      = 'BCA';
+				$norek        = $cek_bank->row()->no_rek;
+				$nm_bank      = $cek_bank->row()->nm_bank;
 				$email        = '';
 				$ket_email    = '';
-				$an           = 'CV Artha Karunia Berkah';
+				$an           = 'CV .'.$cek_bank->row()->nm_hub;
 			}else{
 				$norek        = '-';
 				$nm_bank      = '-';
@@ -7053,74 +7103,136 @@ class Logistik extends CI_Controller
 				$ket_email    = '-';
 				$an           = '-';
 			}
-			
-		}else if($data_detail->bank=='BCA_SSB')
-		{
-			if($data_detail->pajak=='nonppn')
-			{
-				$norek        = '0153926538';
-				$nm_bank      = 'BCA';
-				$email        = '';
-				$ket_email    = '';
-				$an           = 'Arga Deo Kristya Duta';
-			}else{
-				$norek        = '-';
-				$nm_bank      = '-';
-				$email        = '-';
-				$ket_email    = '-';
-				$an           = '-';
-			}
-			
-		}else if($data_detail->bank=='BCA_KSM')
-		{
-			if($data_detail->pajak=='nonppn')
-			{
-				$norek        = '0153926538';
-				$nm_bank      = 'BCA';
-				$email        = '';
-				$ket_email    = '';
-				$an           = 'Arga Deo Kristya Duta';
-			}else{
-				$norek        = '-';
-				$nm_bank      = '-';
-				$email        = '-';
-				$ket_email    = '-';
-				$an           = '-';
-			}
-			
-		}else if($data_detail->bank=='BCA_GMB')
-		{
-			if($data_detail->pajak=='nonppn')
-			{
-				$norek        = '4824569888';
-				$nm_bank      = 'BCA';
-				$email        = '';
-				$ket_email    = '';
-				$an           = 'CV Global Mulia Bakti';
-			}else{
-				$norek        = '-';
-				$nm_bank      = '-';
-				$email        = '-';
-				$ket_email    = '-';
-				$an           = '-';
-			}
-			
 		}else{
-			if($data_detail->pajak=='nonppn')
+
+			if($data_detail->bank=='BNI')
 			{
-				$norek        = '078 795 5758';
-				$nm_bank      = 'BCA';
-				$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
-				$ket_email    = '* Harap bukti transfer di email ke';
-				$an           = 'PT. PRIMA PAPER INDONESIA';
+				if($data_detail->pajak=='nonppn')
+				{
+					$norek        = '5758699099';
+					$nm_bank      = 'BNI';
+					$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+					$ket_email    = '* Harap bukti transfer di email ke';
+					$an           = 'PT. PRIMA PAPER INDONESIA';
+				}else{
+					$norek        = '5758699690';
+					$nm_bank      = 'BNI';
+					$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+					$ket_email    = '* Harap bukti transfer di email ke';
+					$an           = 'PT. PRIMA PAPER INDONESIA';
+				}
+			}else if($data_detail->bank=='BCA')
+			{
+				if($data_detail->pajak=='nonppn')
+				{
+					$norek        = '078 795 5758';
+					$nm_bank      = 'BCA';
+					$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+					$ket_email    = '* Harap bukti transfer di email ke';
+					$an           = 'PT. PRIMA PAPER INDONESIA';
+				}else{
+					$norek        = '078 027 5758';
+					$nm_bank      = 'BCA';
+					$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+					$ket_email    = '* Harap bukti transfer di email ke';
+					$an           = 'PT. PRIMA PAPER INDONESIA';
+				}
+			// }else if($data_detail->bank=='BCA_AKB')
+			// {
+			// 	if($data_detail->pajak=='nonppn')
+			// 	{
+			// 		$norek        = '5050290672';
+			// 		$nm_bank      = 'BCA';
+			// 		$email        = '';
+			// 		$ket_email    = '';
+			// 		$an           = 'CV Artha Karunia Berkah';
+			// 	}else{
+			// 		$norek        = '-';
+			// 		$nm_bank      = '-';
+			// 		$email        = '-';
+			// 		$ket_email    = '-';
+			// 		$an           = '-';
+			// 	}
+				
+			// }else if($data_detail->bank=='BCA_SSB')
+			// {
+			// 	if($data_detail->pajak=='nonppn')
+			// 	{
+			// 		$norek        = '0153926538';
+			// 		$nm_bank      = 'BCA';
+			// 		$email        = '';
+			// 		$ket_email    = '';
+			// 		$an           = 'Arga Deo Kristya Duta';
+			// 	}else{
+			// 		$norek        = '-';
+			// 		$nm_bank      = '-';
+			// 		$email        = '-';
+			// 		$ket_email    = '-';
+			// 		$an           = '-';
+			// 	}
+				
+			// }else if($data_detail->bank=='BCA_KSM')
+			// {
+			// 	if($data_detail->pajak=='nonppn')
+			// 	{
+			// 		$norek        = '0153926538';
+			// 		$nm_bank      = 'BCA';
+			// 		$email        = '';
+			// 		$ket_email    = '';
+			// 		$an           = 'Arga Deo Kristya Duta';
+			// 	}else{
+			// 		$norek        = '-';
+			// 		$nm_bank      = '-';
+			// 		$email        = '-';
+			// 		$ket_email    = '-';
+			// 		$an           = '-';
+			// 	}
+				
+			// }else if($data_detail->bank=='BCA_GMB')
+			// {
+			// 	if($data_detail->pajak=='nonppn')
+			// 	{
+			// 		$norek        = '4824569888';
+			// 		$nm_bank      = 'BCA';
+			// 		$email        = '';
+			// 		$ket_email    = '';
+			// 		$an           = 'CV Global Mulia Bakti';
+			// 	}else{
+			// 		$norek        = '-';
+			// 		$nm_bank      = '-';
+			// 		$email        = '-';
+			// 		$ket_email    = '-';
+			// 		$an           = '-';
+			// 	}
+				
+			// }else if($data_detail->bank=='BCA_MDK')
+			// {
+			// 	if($data_detail->pajak=='nonppn')
+			// 	{
+			// 		$norek        = '673-214-2424';
+			// 		$nm_bank      = 'BCA';
+			// 		$email        = '';
+			// 		$ket_email    = '';
+			// 		$an           = 'CV MARGA DUTA KREASI';
+			// 	}else{
+			// 		$norek        = '-';
+			// 		$nm_bank      = '-';
+			// 		$email        = '-';
+			// 		$ket_email    = '-';
+			// 		$an           = '-';
+			// 	}
+				
 			}else{
-				$norek        = '078 027 5758';
-				$nm_bank      = 'BCA';
-				$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
-				$ket_email    = '* Harap bukti transfer di email ke';
-				$an           = 'PT. PRIMA PAPER INDONESIA';
+				
+				$norek        = '-';
+				$nm_bank      = '-';
+				$email        = '-';
+				$ket_email    = '-';
+				$an           = '-';
+
 			}
 		}
+		
 		$html .= '<tr>
 			<td style="border:0;padding:5px" colspan="3"></td>
 			<td style="border:0;padding:5px;text-align:center" colspan="4">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($data_detail->tgl_invoice).'</td> 
@@ -9698,6 +9810,32 @@ class Logistik extends CI_Controller
 	function load_supp()
     {
         $query = $this->db->query("SELECT*FROM m_supp order by nm_supp")->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
+	
+	function load_bank()
+    {
+        $query = $this->db->query("SELECT 'BCA' as nm_bank
+		union all
+		select 'BNI' as nm_bank
+		union all
+		select CONCAT(nm_bank,'_',aka)nm_bank from m_hub where jns='box'
+		order by nm_bank")->result();
 
             if (!$query) {
                 $response = [
