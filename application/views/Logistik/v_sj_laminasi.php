@@ -279,7 +279,7 @@
 				"url": '<?php echo base_url('Transaksi/load_data/trs_po_laminasi')?>',
 				"type": "POST",
 				"data": ({
-					po: 'pengiriman'
+					po: 'pengiriman', tahun: '', jenis: '', hub: ''
 				}),
 			},
 			"aLengthMenu": [

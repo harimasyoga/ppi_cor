@@ -374,8 +374,9 @@ class Plan extends CI_Controller
 
 	function LoaDataCor()
 	{
+		$tahun = $_POST["tahun"];
 		$data = array();
-		$query = $this->db->query("SELECT COUNT(p.id_plan) AS jml,p.* FROM plan_cor p GROUP BY tgl_plan DESC,shift_plan,machine_plan")->result();
+		$query = $this->db->query("SELECT COUNT(p.id_plan) AS jml,p.* FROM plan_cor p WHERE p.tgl_plan LIKE '%$tahun%' GROUP BY tgl_plan DESC,shift_plan,machine_plan")->result();
 		$i = 0;
 		foreach ($query as $r) {
 			$i++;
@@ -1938,8 +1939,9 @@ class Plan extends CI_Controller
 
 	function LoaDataFlexo()
 	{
+		$tahun = $_POST["tahun"];
 		$data = array();
-		$query = $this->db->query("SELECT COUNT(id_flexo) AS jml,f.* FROM plan_flexo f GROUP BY tgl_flexo DESC,shift_flexo,mesin_flexo")->result();
+		$query = $this->db->query("SELECT COUNT(id_flexo) AS jml,f.* FROM plan_flexo f WHERE f.tgl_flexo LIKE '%$tahun%' GROUP BY tgl_flexo DESC,shift_flexo,mesin_flexo")->result();
 		$i = 0;
 		foreach ($query as $r) {
 			$i++;
@@ -3420,8 +3422,9 @@ class Plan extends CI_Controller
 
 	function LoaDataFinishing()
 	{
+		$tahun = $_POST["tahun"];
 		$data = array();
-		$query = $this->db->query("SELECT COUNT(id_fs) AS jml,f.* FROM plan_finishing f GROUP BY tgl_fs DESC,shift_fs,joint_fs")->result();
+		$query = $this->db->query("SELECT COUNT(id_fs) AS jml,f.* FROM plan_finishing f WHERE f.tgl_fs LIKE '%$tahun%' GROUP BY tgl_fs DESC,shift_fs,joint_fs")->result();
 		$i = 0;
 		foreach ($query as $r) {
 			$i++;
