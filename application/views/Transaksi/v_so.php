@@ -24,10 +24,31 @@
 				</div>
 			</div>
 			<div class="card-body">
-			<?php if(in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
-				<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
-				<br><br>
-			<?php } ?>
+				<?php if(in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
+					<div style="margin-bottom:12px">
+						<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
+					</div>
+				<?php } ?>
+				<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
+					<div class="col-md-2" style="padding-bottom:3px">
+						<select id="tahun" class="form-control select2" onchange="load_data()">
+							<?php 
+								$thang = date("Y");
+								$thang_maks = $thang + 2;
+								$thang_min = $thang - 2;
+								for ($th = $thang_min; $th <= $thang_maks; $th++)
+								{ ?>
+									<?php if ($th==$thang) { ?>
+										<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+									<?php }else{ ?>
+										<option value="<?= $th ?>"> <?= $th ?> </option>
+									<?php }
+								}
+							?>
+						</select>
+					</div>
+					<div class="col-md-10"></div>
+				</div>
 				<div style="overflow:auto;white-space:nowrap">
 					<table id="datatable" class="table table-bordered table-striped" width="100%">
 						<thead class="color-tabel">
@@ -202,6 +223,7 @@
 	});
 
 	function load_data() {
+		let tahun = $("#tahun").val()
 		let table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -211,6 +233,9 @@
 			"ajax": {
 				"url": '<?php echo base_url(); ?>Transaksi/load_data/trs_so_detail',
 				"type": "POST",
+				"data": ({
+					tahun
+				}),
 			},
 			"aLengthMenu": [
 				[5, 10, 15, 20, -1],

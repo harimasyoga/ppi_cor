@@ -24,12 +24,31 @@
 				</div>
 			</div>
 			<div class="card-body">
-
 				<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User','plan'])) { ?>
-					<a href="<?php echo base_url('Plan/Flexo/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
-					<br><br>
+					<div style="margin-bottom:12px">
+						<a href="<?php echo base_url('Plan/Flexo/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
+					</div>
 				<?php } ?>
-
+				<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
+					<div class="col-md-2" style="padding-bottom:3px">
+						<select id="tahun" class="form-control select2" onchange="load_data()">
+							<?php 
+								$thang = date("Y");
+								$thang_maks = $thang + 2;
+								$thang_min = $thang - 2;
+								for ($th = $thang_min; $th <= $thang_maks; $th++)
+								{ ?>
+									<?php if ($th==$thang) { ?>
+										<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+									<?php }else{ ?>
+										<option value="<?= $th ?>"> <?= $th ?> </option>
+									<?php }
+								}
+							?>
+						</select>
+					</div>
+					<div class="col-md-10"></div>
+				</div>
 				<table id="datatable" class="table table-bordered table-striped" width="100%">
 					<thead class="color-tabel">
 						<tr>
@@ -68,6 +87,7 @@
 <script type="text/javascript">
 	$(document).ready(function () {
 		load_data()
+		$('.select2').select2();
 	});
 
 	function reloadTable() {
@@ -76,6 +96,7 @@
 	}
 
 	function load_data() {
+		let tahun = $("#tahun").val()
 		let table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -85,6 +106,9 @@
 			"ajax": {
 				"url": '<?php echo base_url('Plan/LoaDataFlexo')?>',
 				"type": "POST",
+				"data": ({
+					tahun
+				}),
 			},
 			"aLengthMenu": [
 				[5, 10, 15, 20, -1],

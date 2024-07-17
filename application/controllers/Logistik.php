@@ -2795,7 +2795,7 @@ class Logistik extends CI_Controller
 			$query = $this->db->query("SELECT*FROM pl_laminasi p
 			INNER JOIN m_rk_laminasi r ON r.id_pl_lm=p.id AND r.rk_urut=p.no_pl_urut AND r.rk_no_po=p.no_po
 			INNER JOIN trs_po_lm po ON p.no_po=po.no_po_lm
-			WHERE po.id_hub='$plh_hub' AND p.tgl BETWEEN '$tgl1' AND '$tgl2'
+			WHERE po.id_hub='$plh_hub' AND p.tgl BETWEEN '$tgl1' AND '$tgl2' AND po.jenis_lm='PPI'
 			GROUP BY p.tgl,p.no_surat");
 		}
 		if($plh_jenis == "" || $plh_hub == "" || $tgl1 == "" || $tgl2 == ""){
@@ -2839,7 +2839,7 @@ class Logistik extends CI_Controller
 								INNER JOIN m_produk_lm i ON r.id_m_produk_lm=i.id_produk_lm
 								INNER JOIN invoice_laminasi_header h ON p.tgl=h.tgl_surat_jalan AND p.no_surat=h.no_surat
 								INNER JOIN invoice_laminasi_detail d ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice AND d.id_produk_lm=i.id_produk_lm
-								WHERE p.no_surat='$r->no_surat' AND r.rk_tgl='$r->rk_tgl' AND h.acc_owner='Y'
+								WHERE p.no_surat='$r->no_surat' AND r.rk_tgl='$r->rk_tgl' AND h.acc_owner='Y' AND h.jenis_lm='PPI'
 								GROUP BY p.no_surat");
 							}
 							if($qInv->num_rows() == 0){
@@ -5084,7 +5084,13 @@ class Logistik extends CI_Controller
 				$data[] = $row;
 			}
 		}else if ($jenis == "loadDataInvoiceJasa") {
-			$query = $this->db->query("SELECT*FROM invoice_jasa_header ORDER BY acc_owner,id DESC")->result();
+			$tahunJ = $_POST["tahun"];
+			$plhJenisJ = $_POST["jenis"];
+			$plhHubJ = $_POST["hub"];
+			($plhHubJ == "") ? $wHubJ = '' : $wHubJ = "AND id_hub='$plhHubJ'";
+			$query = $this->db->query("SELECT*FROM invoice_jasa_header
+			WHERE tgl_invoice LIKE '%$tahunJ%' AND transaksi LIKE '%$plhJenisJ%' $wHubJ
+			ORDER BY acc_owner,id DESC")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;

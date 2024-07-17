@@ -128,7 +128,7 @@
 								<div class="col-md-6" style="padding-bottom:5px">
 									<select id="plh_hub" class="form-control select2" onchange="plhListSJasa()">
 										<?php
-											$query = $this->db->query("SELECT*FROM m_hub ORDER BY nm_hub");
+											$query = $this->db->query("SELECT*FROM m_hub WHERE id_hub!='7' ORDER BY nm_hub");
 											$html ='';
 											$html .='<option value="">PILIH</option>';
 											foreach($query->result() as $r){
@@ -207,6 +207,46 @@
 									<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								</div>
 							<?php } ?>
+							<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
+								<div class="col-md-2" style="padding-bottom:3px">
+									<select id="tahun" class="form-control select2" onchange="load_data()">
+										<?php 
+											$thang = date("Y");
+											$thang_maks = $thang + 2;
+											$thang_min = $thang - 2;
+											for ($th = $thang_min; $th <= $thang_maks; $th++)
+											{ ?>
+												<?php if ($th==$thang) { ?>
+													<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+												<?php }else{ ?>
+													<option value="<?= $th ?>"> <?= $th ?> </option>
+												<?php }
+											}
+										?>
+									</select>
+								</div>
+								<div class="col-md-2" style="padding-bottom:3px">
+									<select id="jenis" class="form-control select2" onchange="load_data()">
+										<option value="">SEMUA</option>
+										<option value="CORRUGATED">CORRUGATED</option>
+										<option value="LAMINASI">LAMINASI</option>
+									</select>
+								</div>
+								<div class="col-md-4" style="padding-bottom:3px">
+									<select id="hub" class="form-control select2" onchange="load_data()">
+										<?php
+											$query = $this->db->query("SELECT*FROM m_hub WHERE id_hub!='7' ORDER BY nm_hub");
+											$html ='';
+											$html .='<option value="">SEMUA</option>';
+											foreach($query->result() as $r){
+												$html .='<option value="'.$r->id_hub.'">CV. '.$r->nm_hub.'</option>';
+											}
+											echo $html
+										?>
+									</select>
+								</div>
+								<div class="col-md-4"></div>
+							</div>
 							<div style="overflow:auto;white-space:nowrap">
 								<table id="datatable" class="table table-bordered table-striped">
 									<thead class="color-tabel">
@@ -251,6 +291,9 @@
 	}
 
 	function load_data() {
+		let tahun = $("#tahun").val()
+		let jenis = $("#jenis").val()
+		let hub = $("#hub").val()
 		let table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -260,6 +303,9 @@
 			"ajax": {
 				"url": '<?php echo base_url('Logistik/load_data/loadDataInvoiceJasa')?>',
 				"type": "POST",
+				"data": ({
+					tahun, jenis, hub
+				}),
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],

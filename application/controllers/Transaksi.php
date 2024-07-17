@@ -1516,11 +1516,12 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_so_detail") {
-			$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,s.* FROM trs_po_detail d
+			$tahunn = $_POST["tahun"];
+			$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,s.* FROM trs_po_detail d
 			INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so=s.no_so AND d.id_produk=s.id_produk
 			INNER JOIN m_produk p ON d.id_produk=p.id_produk
 			INNER JOIN m_pelanggan l ON d.id_pelanggan=l.id_pelanggan
-			WHERE d.no_so IS NOT NULL AND d.tgl_so IS NOT NULL AND d.status_so IS NOT NULL
+			WHERE d.no_so IS NOT NULL AND d.tgl_so IS NOT NULL AND d.status_so IS NOT NULL AND d.tgl_so LIKE '%$tahunn%'
 			GROUP BY d.id DESC")->result();
 			$i = 1;
 			foreach ($query as $r) {
@@ -1529,7 +1530,8 @@ class Transaksi extends CI_Controller
 				$row[] = $this->m_fungsi->tglIndSkt($r->tgl_so);
 				$row[] = $r->kode_mc;
 				$row[] = $r->nm_produk;
-				$row[] = $r->nm_pelanggan;
+				($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
+				$row[] = $r->nm_pelanggan.$attn;
 
 				$urut_so = str_pad($r->urut_so, 2, "0", STR_PAD_LEFT);
 				$row[] = $r->no_so.'.'.$urut_so.'('.$r->c_rpt.')';
@@ -1637,12 +1639,16 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_po_laminasi") {
+			$tahun = $_POST["tahun"];
+			$plhJenis = $_POST["jenis"];
+			$plhHub = $_POST["hub"];
+			($plhHub == "") ? $wHub = '' : $wHub = "AND po.id_hub='$plhHub'";
 			if($_POST["po"] == 'pengiriman' && $this->session->userdata('username') != 'usman'){
 				$where1 = "po.status_lm='Approve' AND po.status_kirim='Open'";
 			}else if($_POST["po"] == 'pengiriman' && $this->session->userdata('username') == 'usman'){
 				$where1 = "po.status_lm='Approve' AND po.status_pkl='Open'";
 			}else{
-				$where1 = "po.status_lm LIKE '%%'";
+				$where1 = "po.tgl_lm LIKE '%$tahun%' AND po.jenis_lm LIKE '%$plhJenis%' $wHub";
 			}
 			if($this->session->userdata('level') == 'Admin'){
 				$where2 = "";
@@ -1670,7 +1676,7 @@ class Transaksi extends CI_Controller
 				if($_POST["po"] == 'list'){
 					$row[] = '<div class="text-center">'.$i.'</div>';
 					$row[] = $r->no_po_lm;
-					$row[] = $r->tgl_lm;
+					$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_lm).'</div>';
 					if($r->status_lm == 'Open'){
 						$btn_s = 'btn-info';
 					}else if($r->status_lm == 'Approve'){
@@ -1680,15 +1686,15 @@ class Transaksi extends CI_Controller
 					}
 					$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.'" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')">'.$r->status_lm.'</button></div>';
 					$row[] = $r->nm_pelanggan_lm;
-					$row[] = '<div class="text-center">
-						<div class="dropup">
-							<button class="dropbtn btn btn-sm btn-success"><i class="fas fa-check-circle" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')"></i></button>
-							<div class="dropup-content">
-								<div class="time-admin">'.$this->m_fungsi->tglIndSkt(substr($r->add_time,0,10)).' - '.substr($r->add_time,10,9).'</div>
-							</div>
-						</div>
-					</div>';
-
+					// ADMIN
+					// $row[] = '<div class="text-center">
+					// 	<div class="dropup">
+					// 		<button class="dropbtn btn btn-sm btn-success"><i class="fas fa-check-circle" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')"></i></button>
+					// 		<div class="dropup-content">
+					// 			<div class="time-admin">'.$this->m_fungsi->tglIndSkt(substr($r->add_time,0,10)).' - '.substr($r->add_time,10,9).'</div>
+					// 		</div>
+					// 	</div>
+					// </div>';
 					// MARKETING
 					if($r->status_lm1 == 'N'){
 						$bt1 = 'btn-warning';
