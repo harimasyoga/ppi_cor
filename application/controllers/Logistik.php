@@ -4656,7 +4656,7 @@ class Logistik extends CI_Controller
 			}
 		
 		}else if ($jenis == "inv_beli") {			
-			$query = $this->db->query("SELECT a.*,b.nm_hub,c.nm_supp FROM invoice_header_beli a
+			$query = $this->db->query("SELECT a.*,b.nm_hub,b.aka,c.nm_supp FROM invoice_header_beli a
 			JOIN m_hub b ON a.id_hub=b.id_hub
 			JOIN m_supp c ON a.id_supp=c.id_supp
 			ORDER BY tgl_inv_beli desc,id_header_beli")->result();
@@ -4666,7 +4666,7 @@ class Logistik extends CI_Controller
 
 				// $rinci_stok  = $this->db->query("SELECT*from invoice_header_beli a JOIN
 				// invoice_detail_beli b ON a.no_inv_beli=b.no_inv_beli
-				// WHERE no_inv_beli='$r->no_inv_beli'
+				// WHERE a.no_inv_beli='$r->no_inv_beli'
 				// order by b.id_det_beli");
 
 				// if($rinci_stok->num_rows() == '1'){
@@ -4686,6 +4686,36 @@ class Logistik extends CI_Controller
 
 				// }
 
+				// HITUNG NOMINAL
+
+				$rinci_stok  = $this->db->query("SELECT*from invoice_header_beli a JOIN
+				invoice_detail_beli b ON a.no_inv_beli=b.no_inv_beli
+				WHERE a.no_inv_beli='$r->no_inv_beli'
+				order by b.id_det_beli");
+
+				$nominal = 0;
+				foreach ($rinci_stok->result() as $row_detail) 
+				{
+					$nominal   += $row_detail->nominal;
+				}		
+
+				$total_nominal = $nominal;
+				
+				if($r->pajak=='PPN')
+				{
+					$ppn_total    = ROUND($total_nominal *0.11);
+					$pph_total    = 0;
+				}else if($r->pajak=='PPN_PPH')
+				{
+					$ppn_total   = ROUND($total_nominal *0.11);
+					$pph_total   = ROUND($total_nominal *0.02);
+				}else{
+					$ppn_total   = 0;
+					$pph_total   = 0;
+				}
+				
+				$total_all     = $total_nominal - $r->diskon + $ppn_total - $pph_total;
+
 				$id             = "'$r->id_header_beli'";
 				$no_inv_beli    = "'$r->no_inv_beli'";
 
@@ -4700,19 +4730,75 @@ class Logistik extends CI_Controller
 				
 				if (in_array($this->session->userdata('username'), ['bumagda','developer']))
 				{
-					$urll2 = "onclick=open_modal('$r->id_header_beli','$r->no_inv_beli')";
+					// $urll2 = "onclick=open_modal('$r->id_header_beli','$r->no_inv_beli')";
+					$urll2 = "onclick=acc_inv('$r->no_inv_beli','$r->acc_owner')";
 				} else {
 					$urll2 = '';
 				}
 
+				if($r->pajak=='PPN_PPH')
+				{
+					$pajak = 'PPN - PPH';
+				}else{
+					$pajak = $r->pajak;
+				}
 					
 				$row    = array();
 				$row[]  = '<div class="text-center">'.$i.'</div>';
-				$row[]  = '<div class="text-center">'.$r->no_inv_beli.'</div>';
-				$row[]  = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_inv_beli).'</div>';
-				$row[]  = $r->nm_hub;
-				$row[]  = $r->nm_supp;
-				$row[]  = '<div class="text-center">'.$r->pajak.'</div>';
+				$row[] = '<table>
+					<tr style="background: transparent !important">
+						<td style="border:0;padding:0 0 3px;font-weight:bold">No Inv</td>
+						<td style="border:0;padding:0 5px 3px;font-weight:bold">:</td>
+						<td style="border:0;padding:0 0 3px">'.$r->no_inv_beli.'</td>
+					</tr>
+					<tr style="background: transparent !important">
+						<td style="border:0;padding:0 0 3px;font-weight:bold">HUB</td>
+						<td style="border:0;padding:0 5px 3px;font-weight:bold">:</td>
+						<td style="border:0;padding:0 0 3px">'.$r->aka.'</td>
+					</tr>
+					<tr style="background: transparent !important">
+						<td style="border:0;padding:0 0 3px;font-weight:bold">SUPPLIER</td>
+						<td style="border:0;padding:0 5px 3px;font-weight:bold">:</td>
+						<td style="border:0;padding:0 0 3px">'.$r->nm_supp.'</td>
+					</tr>
+				</table>';
+				$row[]  = '<div class="text-center">'.$r->tgl_inv_beli.'</div>';
+				$row[]  = '<div class="text-center"><b>'.number_format($total_all, 0, ",", ".").'</b></div>';
+
+				// Pembayaran
+				$bayar = $this->db->query("SELECT SUM(jumlah_bayar) AS byr_beli from trs_bayar_inv_beli where no_inv_beli='$r->no_inv_beli' GROUP BY no_inv_beli");
+
+				if ($r->acc_owner == "N") 
+				{
+					$txtB            = 'btn-light';
+					$txtT            = '-';
+					$kurang_bayar    = '';
+				}else{
+
+					if($bayar->num_rows() == 0){
+						$txtB           = 'btn-danger';
+						$txtT           = 'BELUM BAYAR';
+						$kurang_bayar   = '';
+					}
+					
+					if($bayar->num_rows() > 0){
+						if($bayar->row()->byr_beli == round($total_all)){
+							$txtB            = 'btn-success';
+							$txtT            = 'LUNAS';
+							$kurang_bayar    = '';
+						}else{
+							$txtB            = 'btn-warning';
+							$txtT            = 'DI CICIL';
+							$kurang_bayar    = '<br><span style="color:#ff5733">'.number_format($total_all-$bayar->row()->byr_beli,0,',','.').'</span>';
+						}
+					}
+				}
+				$row[] = '<div class="text-center">
+					<button type="button" class="btn btn-xs '.$txtB.'" style="font-weight:bold" >'.$txtT.'</button><br>
+				</div>';
+
+
+				$row[]  = '<div class="text-center">'.$pajak.'</div>';
 
 				$row[]  = '
 						<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn2.' " '.$urll2.' title="VERIFIKASI DATA" ><b>'.$i2.' </b> </a><span style="font-size:1px;color:transparent">'.$r->acc_owner.'</span><div>';
@@ -4727,7 +4813,21 @@ class Logistik extends CI_Controller
 					
 				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User','Keuangan1']))
 				{
-					$row[] = '<div class="text-center">'.$btnEdit.' '.$btncetak.' '.$btnHapus.'</div>';
+					if ($r->acc_owner == "N") 
+					{						
+						$row[] = '<div class="text-center">'.$btnEdit.' '.$btncetak.' '.$btnHapus.'</div>';
+					}else{
+
+						if($bayar->num_rows() == 0)
+						{
+							$row[] = '<div class="text-center">'.$btnEdit.' '.$btncetak.' '.$btnHapus.'</div>';
+						}else{
+							$row[] = '<div class="text-center">'.$btnEdit.' '.$btncetak.'</div>';
+
+						}
+						
+						
+					}
 
 				}else{
 					$row[] = '<div class="text-center"></div>';
@@ -5409,6 +5509,7 @@ class Logistik extends CI_Controller
 						group by no_inv_beli),0) jum_bayar,a.*,b.nm_hub,c.nm_supp FROM invoice_header_beli a
 			JOIN m_hub b ON a.id_hub=b.id_hub
 			JOIN m_supp c ON a.id_supp=c.id_supp
+			where MONTH(tgl_inv_beli) in ('$blnn') and acc_owner='Y'
 			ORDER BY tgl_inv_beli desc,id_header_beli")->result();
 
 			$i               = 1;
@@ -5460,7 +5561,7 @@ class Logistik extends CI_Controller
 						$pph_total    = 0;
 					}
 
-				$total = $nominal + $ppn_total - $pph_total;
+				$total = $nominal - $r->diskon + $ppn_total - $pph_total;
 
 				$id       = "'$r->id_header_beli'";
 				$no_inv   = "'$r->no_inv_beli'";
@@ -6091,6 +6192,16 @@ class Logistik extends CI_Controller
 
 		$html = '';
 
+		if($data->pajak=='PPN')
+		{
+			$pajak    = 'PPN';
+			
+		}else if($data->pajak=='PPN_PPH')
+		{
+			$pajak   = 'PPN & PPH';
+		}else{
+			$pajak   = 'NON PPN';
+		}
 
 		if ($query_header->num_rows() > 0) 
 		{
@@ -6104,17 +6215,31 @@ class Logistik extends CI_Controller
                  </table><br>';
 
             $html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
-
-            <tr>
-                <td width="20 %"  align="left">Tgl STOK</td>
-                <td width="5%" > : </td>
-                <td width="75 %" > '. $this->m_fungsi->tanggal_format_indonesia($data->tgl_inv_beli) .'</td>
+			<tr>
+                <td width="10 %" align="left">No Invoice</td>
+                <td width="5 %" align="right"> : </td>
+                <td width="30 %" > '. $data->no_inv_beli .'</td>
+                <td width="5 %" ></td>
+                <td width="15 %" align="left">ATTN</td>
+                <td width="5 %" align="right"> : </td>
+                <td width="35 %" > '. $data->nm_hub .'</td>
             </tr>
             <tr>
-                <td align="left">NO TIMBANGAN</td>
-                <td> : </td>
-                <td> '. $data->no_inv_beli .'</td>
+                <td align="left">Tgl STOK</td>
+                <td align="right"> : </td>
+                <td> '. $this->m_fungsi->tanggal_format_indonesia($data->tgl_inv_beli) .'</td>
+				
+                <td></td>
+                <td align="left">TAX</td>
+                <td align="right"> : </td>
+                <td> '. $pajak .'</td>
             </tr>
+            <tr>
+                <td align="left">Ket</td>
+                <td align="right"> : </td>
+                <td> '. $data->ket .'</td>
+            </tr>
+           
             </table><br>';
 
 			$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
@@ -6140,21 +6265,43 @@ class Logistik extends CI_Controller
 				$nominal_all += $r->nominal;
 				$no++;
 			}
+
+			$total_nominal = $nominal_all;
+				
+			if($data->pajak=='PPN')
+			{
+				$ppn_total    = ROUND($total_nominal *0.11);
+				$pph_total    = 0;
+			}else if($data->pajak=='PPN_PPH')
+			{
+				$ppn_total   = ROUND($total_nominal *0.11);
+				$pph_total   = ROUND($total_nominal *0.02);
+			}else{
+				$ppn_total   = 0;
+				$pph_total   = 0;
+			}
+			
+			$total_all     = $total_nominal - $data->diskon + $ppn_total - $pph_total;
+
 			$html .='<tr style="">
 						<td align="right" colspan="3"><b>Sub Total</b></td>
 						<td align="right" ><b>' . number_format($nominal_all, 0, ",", ".") . '</b></td>						
 					</tr>
 					<tr style="">
 						<td align="right" colspan="3"><b>Diskon</b></td>
-						<td align="right" ><b>' . number_format($nominal_all, 0, ",", ".") . '</b></td>						
+						<td align="right" ><b>' . number_format($data->diskon, 0, ",", ".") . '</b></td>						
 					</tr>
 					<tr style="">
-						<td align="right" colspan="3"><b>Pajak</b></td>
-						<td align="right" ><b>' . number_format($nominal_all, 0, ",", ".") . '</b></td>						
+						<td align="right" colspan="3"><b>PPN</b></td>
+						<td align="right" ><b>' . number_format($ppn_total, 0, ",", ".") . '</b></td>						
+					</tr>
+					<tr style="">
+						<td align="right" colspan="3"><b>PPH</b></td>
+						<td align="right" ><b>' . number_format($pph_total, 0, ",", ".") . '</b></td>						
 					</tr>
 					<tr style="">
 						<td align="right" colspan="3"><b>Total</b></td>
-						<td align="right" ><b>' . number_format($nominal_all, 0, ",", ".") . '</b></td>						
+						<td align="right" ><b>' . number_format($total_all, 0, ",", ".") . '</b></td>						
 					</tr>';
 			$html .= '
                  </table>';
@@ -6162,6 +6309,7 @@ class Logistik extends CI_Controller
 			$html .= '<h1> Data Kosong </h1>';
 		}
 
+		// echo $html;
 		// $this->m_fungsi->_mpdf($html);
 		$this->m_fungsi->template_kop('INVOICE PEMBELIAN',$no_inv_beli,$html,'P','1');
 		// $this->m_fungsi->mPDFP($html);
