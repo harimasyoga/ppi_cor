@@ -253,6 +253,7 @@
 										<tr>
 											<th style="padding:12px;text-align:center">NO.</th>
 											<th style="padding:12px 150px;text-align:center">DESKRIPSI</th>
+											<th style="padding:12px;text-align:center">TGL INV</th>
 											<th style="padding:12px;text-align:center">JATUH TEMPO</th>
 											<th style="padding:12px;text-align:center">ADMIN</th>
 											<th style="padding:12px;text-align:center">OWNER</th>

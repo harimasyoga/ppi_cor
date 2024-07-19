@@ -5199,11 +5199,6 @@ class Logistik extends CI_Controller
 				// DESKRIPSI
 				$htmlDes = '<table>
 					<tr style="background:transparent !important">
-						<td style="padding:0 0 3px;border:0;font-weight:bold">Tanggal</td>
-						<td style="padding:0 6px 3px;border:0;font-weight:bold">:</td>
-						<td style="padding:0 0 3px;border:0">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_invoice).'</td>
-					</tr>
-					<tr style="background:transparent !important">
 						<td style="padding:3px 0;border:0;font-weight:bold">No. Invoice</td>
 						<td style="padding:3px 6px;border:0;font-weight:bold">:</td>
 						<td style="padding:3px 0;border:0">'.$r->no_invoice.'</td>
@@ -5221,7 +5216,8 @@ class Logistik extends CI_Controller
 				</table>';
 				$row[] = $htmlDes;
 				// JATUH TEMPO
-				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $jt = 'CASH' : $jt = $this->m_fungsi->tanggal_format_indonesia($r->tgl_jatuh_tempo);
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_invoice.'</div>';
+				($r->tgl_invoice == $r->tgl_jatuh_tempo) ? $jt = 'CASH' : $jt = $r->tgl_jatuh_tempo;
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$jt.'</div>';
 				// ADMIN
 				$row[] = '<div class="text-center">
