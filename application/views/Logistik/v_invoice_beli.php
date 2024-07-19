@@ -43,8 +43,8 @@
 									<th class="text-center">NO</th>
 									<th class="text-center">NO INVOICE BELI</th>
 									<th class="text-center">TANGGAL</th>
-									<th class="text-center">HUB</th>
-									<th class="text-center">SUPPLIER</th>
+									<th class="text-center">TOTAL</th>
+									<th class="text-center">PEMBAYARAN</th>
 									<th class="text-center">PAJAK</th>
 									<th class="text-center">ACC OWNER</th>
 									<th class="text-center">AKSI</th>
@@ -1204,16 +1204,18 @@
 
 	}
 
-	function acc_inv(acc_owner) 
+	function acc_inv(no_invoice,status_owner) 
 	{	
 		var user        = "<?= $this->session->userdata('username')?>"
-		var no_inv      = $('#m_no_inv_beli').val()
+		var acc_owner   = status_owner
+		// var acc_admin   = $('#modal_status_inv_admin').val()
+		var no_inv      = no_invoice
 		
-		if(user=='bumagda' || user=='developer')
+		if(user=='bumagda' || user=='developer' || user=='yolanda_zu')
 		{
 			acc = acc_owner
 		}else{
-			acc = ''
+			acc = acc_owner
 		}
 
 		// console.log(user)
@@ -1287,6 +1289,7 @@
 				});
 		
 		});
+
 
 	}
 	
