@@ -89,6 +89,16 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	public function Debit_Note()
+	{
+		$data = array(
+			'judul' => "Debit Note",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_debit_note');
+		$this->load->view('footer');
+	}
+
 	public function Invoice_beli()
 	{
 		$data = array(
@@ -3561,6 +3571,107 @@ class Logistik extends CI_Controller
 		$this->db->query("UPDATE invoice_jasa_header SET tgl_cetak='$ctk' WHERE no_invoice='$no_invoice' ");
 		$judul = 'INVOICE JASA - '.$no_invoice;
 		$this->m_fungsi->newMpdf($judul, '', $html, 6, 7, 6, 7, 'P', 'A4', $judul.'.pdf');
+	}
+
+	//
+
+	function destroyDebitNote()
+	{
+		$this->cart->destroy();
+	}
+
+	function hapusCartDN()
+	{
+		$data = array(
+			'rowid' => $_POST['rowid'],
+			'qty' => 0,
+		);
+		$this->cart->update($data);
+	}
+
+	function tambahDataDN()
+	{
+		$tgl_debit_note = $_POST["tgl_debit_note"];
+		$transaksi = $_POST["transaksi"];
+		$ketentuan = $_POST["ketentuan"];
+		$tgl_jatuh_tempo = $_POST["tgl_jatuh_tempo"];
+		$no_po = $_POST["no_po"];
+		$tagih_ke = $_POST["tagih_ke"];
+		$deskripsi = $_POST["deskripsi"];
+		$qty = $_POST["qty"];
+		$harga = $_POST["harga"];
+		$total = $_POST["total"];
+
+		$data = array(
+			'id' => rand(),
+			'name' => rand(),
+			'price' => 0,
+			'qty' => 1,
+			'options' => array(
+				'deskripsi' => $deskripsi,
+				'qty' => $qty,
+				'harga' => $harga,
+				'total' => $total,
+			)
+		);
+
+		if($tgl_debit_note == "" || $transaksi == "" || $ketentuan == "" || $tgl_jatuh_tempo == "" || $no_po == "" || $tagih_ke == "" || $deskripsi == ""){
+			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
+			return;
+		}else if($qty == 0 || $qty == "" || $qty < 0 || $harga == 0 || $harga == "" || $harga < 0 || $total == 0 || $total == "" || $total < 0){
+			echo json_encode(array('data' => false, 'isi' => 'QTY, HARGA, TOTAL TIDAK BOLEH KOSONG!'));
+			return;
+		}else if($this->cart->total_items() != 0){
+			foreach($this->cart->contents() as $r){
+				if($r['options']['deskripsi'] == $deskripsi){
+					echo json_encode(array('data' => false, 'isi' => 'DATA DESKRIPSI SAMA!'));
+					return;
+				}
+			}
+			$this->cart->insert($data);
+			echo json_encode(array('data' => true, 'isi' => $data));
+		}else{
+			$this->cart->insert($data);
+			echo json_encode(array('data' => true, 'isi' => $data));
+		}
+	}
+
+	function listItemDebitNote()
+	{
+		$html = '';
+		if($this->cart->total_items() == 0){
+			$html .= 'LIST ITEM KOSONG!';
+		}
+		if($this->cart->total_items() != 0){
+			$html .= '<table class="table table-bordered" style="margin:0">
+				<tr style="background:#f8f9fc">
+					<th style="padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">#</th>
+					<th style="padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">DESKRIPSI</th>
+					<th style="padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">QTY</th>
+					<th style="padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">HARGA</th>
+					<th style="padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">JUMLAH</th>
+					<th style="padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">AKSI</th>
+				</tr>';
+		}
+		$i = 0;
+		foreach($this->cart->contents() as $r){
+			$i++;
+			$html .= '<tr>
+				<td style="padding:6px;text-align:center">'.$i.'</td>
+				<td style="padding:6px">'.$r['options']['deskripsi'].'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r['options']['qty'],0,',','.').'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r['options']['harga'],0,',','.').'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r['options']['total'],0,',','.').'</td>
+				<td style="padding:6px;text-align:center">
+					<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="hapusCartDN('."'".$r['rowid']."'".')">batal</button>
+				</td>
+			</tr>';
+		}
+		if($this->cart->total_items() != 0){
+			$html .= '</table>';
+		}
+
+		echo $html;
 	}
 
 	//
