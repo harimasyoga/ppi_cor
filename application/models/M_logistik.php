@@ -2321,6 +2321,165 @@ class M_logistik extends CI_Model
 
 	//
 
+	function simpanDebitNote()
+	{
+		$id_dn = $_POST["id_dn"];
+		$tgl_debit_note = $_POST["tgl_debit_note"];
+		$transaksi = $_POST["transaksi"];
+		$ketentuan = $_POST["ketentuan"];
+		$tgl_jatuh_tempo = $_POST["tgl_jatuh_tempo"];
+		$no_po = $_POST["no_po"];
+		$tagih_ke = $_POST["tagih_ke"];
+		$statusInput = $_POST["statusInput"];
+		if($statusInput == 'insert'){
+			// NOMER DEBIT
+			$tahun = substr($tgl_debit_note,2,2);
+			$q = $this->db->query("SELECT*FROM debit_note_header WHERE jenis_dn='$transaksi' AND no_dn LIKE '%/$tahun' ORDER BY no_dn DESC LIMIT 1");
+			($q->num_rows() == 0) ? $no = 0 : $no = substr($q->row()->no_dn, 6, 3);
+			if($transaksi == 'CORRUGATED'){
+				$no_debit = 'DN/BX/'.str_pad($no+1, 3, "0", STR_PAD_LEFT).'/'.$tahun;
+			}
+			if($transaksi == 'LAMINASI'){
+				$no_debit = 'DN/LM/'.str_pad($no+1, 3, "0", STR_PAD_LEFT).'/'.$tahun;
+			}
+			// HEADER
+			$header = array(
+				'tgl_dn' => $tgl_debit_note,
+				'jenis_dn' => $transaksi,
+				'no_dn' => $no_debit,
+				'ket_dn' => $ketentuan,
+				'jt_dn' => $tgl_jatuh_tempo,
+				'po_dn' => $no_po,
+				'tagih_dn' => $tagih_ke,
+			);
+			$i_header = $this->db->insert('debit_note_header', $header);
+			// DETAIL
+			if($i_header){
+				foreach($this->cart->contents() as $r){
+					$detail = array(
+						'no_dn' => $no_debit,
+						'des_dn' => $r['options']['deskripsi'],
+						'qty_dn' => $r['options']['qty'],
+						'harga_dn' => $r['options']['harga'],
+						'jumlah_dn' => $r['options']['total'],
+					);
+					$i_detail = $this->db->insert('debit_note_detail', $detail);
+				}
+			}
+			if($i_header && $i_detail){
+				$data = true;
+				$msg = 'BERHASIL SIMPAN DEBIT NOTE!';
+			}else{
+				$data = false;
+				$msg = 'TERJADI KESALAHAN!';
+			}
+		}
+		if($statusInput == 'update'){
+			if($tgl_debit_note == "" || $transaksi == "" || $ketentuan == "" || $tgl_jatuh_tempo == "" || $no_po == "" || $tagih_ke == ""){
+				$data = false;
+				$msg = 'HARAP LENGKAPI FORM!';
+			}else{
+				$header = array(
+					'tgl_dn' => $tgl_debit_note,
+					'ket_dn' => $ketentuan,
+					'jt_dn' => $tgl_jatuh_tempo,
+					'po_dn' => $no_po,
+					'tagih_dn' => $tagih_ke,
+				);
+				$this->db->where('id_dn', $id_dn);
+				$data = $this->db->update('debit_note_header', $header);
+				$msg = 'BERHASIL EDIT DEBIT NOTE!';
+			}
+		}
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function tambahItemDN()
+	{
+		$id_dn = $_POST["id_dn"];
+		$deskripsi = $_POST["deskripsi"];
+		$qty = $_POST["qty"];
+		$harga = $_POST["harga"];
+		$total = $_POST["total"];
+		if($deskripsi == ""){
+			$data = false;
+			$msg = 'HARAP LENGKAPI FORM!';
+		}else if($qty == 0 || $qty == "" || $qty < 0 || $harga == 0 || $harga == "" || $harga < 0 || $total == 0 || $total == "" || $total < 0){
+			$data = false;
+			$msg = 'QTY, HARGA, TOTAL TIDAK BOLEH KOSONG!';
+		}else{
+			$header = $this->db->query("SELECT*FROM debit_note_header WHERE id_dn='$id_dn'")->row();
+			$detail = array(
+				'no_dn' => $header->no_dn,
+				'des_dn' => $deskripsi,
+				'qty_dn' => $qty,
+				'harga_dn' => $harga,
+				'jumlah_dn' => $total,
+			);
+			$data = $this->db->insert('debit_note_detail', $detail);
+			$msg = 'BERHASIL TAMBAH ITEM DEBIT NOTE!';
+		}
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function hapusItemDN()
+	{
+		$id_dn = $_POST["id_dn"];
+		$id_dtl = $_POST["id_dtl"];
+		// DELETE DETAIL
+		$this->db->where('id', $id_dtl);
+		$del_dtl = $this->db->delete('debit_note_detail');
+		if($del_dtl){
+			$header = $this->db->query("SELECT*FROM debit_note_header WHERE id_dn='$id_dn'")->row();
+			$detail = $this->db->query("SELECT*FROM debit_note_detail WHERE no_dn='$header->no_dn'")->num_rows();
+			// DELETE HEADER JIKA DETAIL DATANYA KOSONG
+			if($detail == 0){
+				$this->db->where('id_dn', $id_dn);
+				$del_header = $this->db->delete('debit_note_header');
+			}else{
+				$del_header = false;
+			}
+		}
+		return [
+			'del_header' => $del_header,
+			'del_dtl' => $del_dtl,
+			'detail' => $detail,
+		];
+	}
+
+	function hapusDebitNote()
+	{
+		$id_dn = $_POST["id_dn"];
+		$header = $this->db->query("SELECT*FROM debit_note_header WHERE id_dn='$id_dn'")->row();
+		// HAPUS DETAIL
+		$this->db->where('no_dn', $header->no_dn);
+		$del_dtl = $this->db->delete('debit_note_detail');
+		if($del_dtl){
+			// HAPUS HEADER
+			$this->db->where('id_dn', $id_dn);
+			$del_header = $this->db->delete('debit_note_header');
+		}
+		if($del_dtl && $del_header){
+			$data = true;
+			$msg = 'BERHASIL HAPUS DATA DEBIT NOTE!';
+		}else{
+			$data = false;
+			$msg = 'TERJADI KESALAHAN!';
+		}
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	//
+
 	function simpanTimbangan_2()
 	{
 		$thn = date('Y');
