@@ -286,27 +286,34 @@
 										?>
 									</select>
 								</div>
-								<div class="col-md-2" style="padding-bottom:3px">
-									<select id="jenis" class="form-control select2" onchange="load_data()">
-										<option value="">SEMUA</option>
-										<option value="PPI">PPI</option>
-										<option value="PEKALONGAN">PEKALONGAN</option>
-									</select>
-								</div>
-								<div class="col-md-4" style="padding-bottom:3px">
-									<select id="hub" class="form-control select2" onchange="load_data()">
-										<?php
-											$query = $this->db->query("SELECT*FROM m_no_rek_lam WHERE id_hub!='0' AND id_hub!='7' ORDER BY an_bank");
-											$html ='';
-											$html .='<option value="">SEMUA</option>';
-											foreach($query->result() as $r){
-												$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
-											}
-											echo $html
-										?>
-									</select>
-								</div>
-								<div class="col-md-4"></div>
+								<?php if($this->session->userdata('username') != 'usman'){ ?>
+									<div class="col-md-2" style="padding-bottom:3px">
+										<select id="jenis" class="form-control select2" onchange="load_data()">
+											<option value="">SEMUA</option>
+											<option value="PPI">PPI</option>
+											<option value="PEKALONGAN">PEKALONGAN</option>
+										</select>
+									</div>
+									<div class="col-md-4" style="padding-bottom:3px">
+										<select id="hub" class="form-control select2" onchange="load_data()">
+											<?php
+												$query = $this->db->query("SELECT*FROM m_no_rek_lam WHERE id_hub!='0' AND id_hub!='7' ORDER BY an_bank");
+												$html ='';
+												$html .='<option value="">SEMUA</option>';
+												foreach($query->result() as $r){
+													$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
+												}
+												echo $html
+											?>
+										</select>
+									</div>
+									<div class="col-md-4"></div>
+								<?php }else{ ?>
+									<div class="col-md-10">
+										<input type="hidden" id="jenis" value="">
+										<input type="hidden" id="hub" value="">
+									</div>
+								<?php } ?>
 							</div>
 							<div style="overflow:auto;white-space:nowrap">
 								<table id="datatable" class="table table-bordered table-striped">
