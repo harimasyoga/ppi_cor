@@ -89,6 +89,16 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	public function Debit_Note()
+	{
+		$data = array(
+			'judul' => "Debit Note",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_debit_note');
+		$this->load->view('footer');
+	}
+
 	public function Invoice_beli()
 	{
 		$data = array(
@@ -3565,6 +3575,344 @@ class Logistik extends CI_Controller
 
 	//
 
+	function simpanDebitNote()
+	{
+		$result = $this->m_logistik->simpanDebitNote();
+		echo json_encode($result);
+	}
+
+	function hapusItemDN()
+	{
+		$result = $this->m_logistik->hapusItemDN();
+		echo json_encode($result);
+	}
+
+	function tambahItemDN()
+	{
+		$result = $this->m_logistik->tambahItemDN();
+		echo json_encode($result);
+	}
+
+	function hapusDebitNote()
+	{
+		$result = $this->m_logistik->hapusDebitNote();
+		echo json_encode($result);
+	}
+
+	function destroyDebitNote()
+	{
+		$this->cart->destroy();
+	}
+
+	function hapusCartDN()
+	{
+		$data = array(
+			'rowid' => $_POST['rowid'],
+			'qty' => 0,
+		);
+		$this->cart->update($data);
+	}
+
+	function tambahDataDN()
+	{
+		$tgl_debit_note = $_POST["tgl_debit_note"];
+		$transaksi = $_POST["transaksi"];
+		$ketentuan = $_POST["ketentuan"];
+		$tgl_jatuh_tempo = $_POST["tgl_jatuh_tempo"];
+		$no_po = $_POST["no_po"];
+		$tagih_ke = $_POST["tagih_ke"];
+		$deskripsi = $_POST["deskripsi"];
+		$qty = $_POST["qty"];
+		$harga = $_POST["harga"];
+		$total = $_POST["total"];
+
+		$data = array(
+			'id' => rand(),
+			'name' => rand(),
+			'price' => 0,
+			'qty' => 1,
+			'options' => array(
+				'deskripsi' => $deskripsi,
+				'qty' => $qty,
+				'harga' => $harga,
+				'total' => $total,
+			)
+		);
+
+		if($tgl_debit_note == "" || $transaksi == "" || $ketentuan == "" || $tgl_jatuh_tempo == "" || $no_po == "" || $tagih_ke == "" || $deskripsi == ""){
+			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
+			return;
+		}else if($qty == 0 || $qty == "" || $qty < 0 || $harga == 0 || $harga == "" || $harga < 0 || $total == 0 || $total == "" || $total < 0){
+			echo json_encode(array('data' => false, 'isi' => 'QTY, HARGA, TOTAL TIDAK BOLEH KOSONG!'));
+			return;
+		}else if($this->cart->total_items() != 0){
+			foreach($this->cart->contents() as $r){
+				if($r['options']['deskripsi'] == $deskripsi){
+					echo json_encode(array('data' => false, 'isi' => 'DATA DESKRIPSI SAMA!'));
+					return;
+				}
+			}
+			$this->cart->insert($data);
+			echo json_encode(array('data' => true, 'isi' => $data));
+		}else{
+			$this->cart->insert($data);
+			echo json_encode(array('data' => true, 'isi' => $data));
+		}
+	}
+
+	function listItemDebitNote()
+	{
+		$html = '';
+		if($this->cart->total_items() == 0){
+			$html .= 'LIST ITEM KOSONG!';
+		}
+		if($this->cart->total_items() != 0){
+			$html .= '<table class="table table-bordered" style="margin:0">
+				<tr style="background:#f8f9fc">
+					<th style="width:5%;padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">#</th>
+					<th style="width:45%;padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">DESKRIPSI</th>
+					<th style="width:10%;padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">QTY</th>
+					<th style="width:15%;padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">HARGA</th>
+					<th style="width:15%;padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">JUMLAH</th>
+					<th style="width:10%;padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">AKSI</th>
+				</tr>';
+		}
+		$i = 0;
+		$subTotal = 0;
+		foreach($this->cart->contents() as $r){
+			$i++;
+			$html .= '<tr>
+				<td style="padding:6px;text-align:center">'.$i.'</td>
+				<td style="padding:6px">'.$r['options']['deskripsi'].'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r['options']['qty'],0,',','.').'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r['options']['harga'],0,',','.').'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r['options']['total'],0,',','.').'</td>
+				<td style="padding:6px;text-align:center">
+					<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="hapusCartDN('."'".$r['rowid']."'".')">batal</button>
+				</td>
+			</tr>';
+			$subTotal += $r['options']['total'];
+		}
+		if($this->cart->total_items() != 0){
+			if($this->cart->total_items() > 1){
+				$html .= '<tr>
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="4">SUBTOTAL</td>
+					<td style="padding:6px;font-weight:bold;text-align:right">'.number_format($subTotal,0,',','.').'</td>
+					<td style="padding:6px"></td>
+				</tr>';
+			}
+			$html .= '<tr>
+				<td style="padding:12px 6px;font-weight:bold;text-align:right" colspan="6">
+					<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanDebitNote()"><i class="fas fa-save"></i> SIMPAN</button>
+				</td>
+			</tr>';
+			$html .= '</table>';
+		}
+		echo $html;
+	}
+
+	function editDebitNote()
+	{
+		$id_dn = $_POST["id_dn"];
+		$opsi = $_POST["opsi"];
+		$htmlDtl = '';
+
+		$header = $this->db->query("SELECT*FROM debit_note_header WHERE id_dn='$id_dn'")->row();
+		$detail = $this->db->query("SELECT*FROM debit_note_detail WHERE no_dn='$header->no_dn' ORDER BY des_dn");
+		$htmlDtl .= '<table class="table table-bordered" style="margin:0">
+			<tr style="background:#f8f9fc">
+				<th style="width:5%;padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">#</th>
+				<th style="width:45%;padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">DESKRIPSI</th>
+				<th style="width:10%;padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">QTY</th>
+				<th style="width:15%;padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">HARGA</th>
+				<th style="width:15%;padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">JUMLAH</th>
+				<th style="width:10%;padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">AKSI</th>
+			</tr>';
+			$i = 0;
+			$subTotal = 0;
+			foreach($detail->result() as $r){
+				$i++;
+				$htmlDtl .= '<tr>
+					<td style="padding:6px;text-align:center">'.$i.'</td>
+					<td style="padding:6px">'.$r->des_dn.'</td>
+					<td style="padding:6px;text-align:right">'.number_format($r->qty_dn,0,',','.').'</td>
+					<td style="padding:6px;text-align:right">'.number_format($r->harga_dn,0,',','.').'</td>
+					<td style="padding:6px;text-align:right">'.number_format($r->jumlah_dn,0,',','.').'</td>
+					<td style="padding:6px;text-align:center">
+						<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="hapusItemDN('."'".$r->id."'".')">hapus</button>
+					</td>
+				</tr>';
+				$subTotal += $r->jumlah_dn;
+			}
+			if($detail->num_rows() > 1){
+				$htmlDtl .= '<tr>
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="4">SUBTOTAL</td>
+					<td style="padding:6px;font-weight:bold;text-align:right">'.number_format($subTotal,0,',','.').'</td>
+					<td style="padding:6px"></td>
+				</tr>';
+			}
+		$htmlDtl .= '</table>';
+		$htmlSimpan = '<div class="card-body row" style="font-weight:bold;padding:6px 12px 0">
+			<div class="col-md-3"></div>
+			<div class="col-md-9">
+				<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanDebitNote()"><i class="fas fa-save"></i> SIMPAN</button>
+			</div>
+		</div>';
+
+		echo json_encode([
+			'header' => $header,
+			'htmlDtl' => $htmlDtl,
+			'htmlSimpan' => $htmlSimpan,
+		]);
+	}
+
+	function cetakDebitNote()
+	{
+		$id_dn = $_GET["id_dn"];
+		$html = '';
+		// KOP
+		$html .= '<table style="margin-bottom:10px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-size:11px;font-family:tahoma">
+			<tr>
+				<td style="width:15%;text-align:center" rowspan="3">
+					<img src="'.base_url().'assets/gambar/ppi.png" width="80" height="70" />
+				</td>
+				<td style="width:85%;font-weight:bold;font-size:20px">PT. PRIMA PAPER INDONESIA</td>
+			</tr>
+			<tr>
+				<td>Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
+			</tr>
+			<tr>
+				<td>WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
+			</tr>
+		</table>';
+		// HEADER
+		$header = $this->db->query("SELECT*FROM debit_note_header WHERE id_dn='$id_dn'")->row();
+		$hub = $this->db->query("SELECT*FROM m_hub WHERE id_hub='$header->tagih_dn'")->row();
+		$html .= '<table style="margin-bottom:15px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-size:11px;font-family:tahoma">
+			<tr>
+				<td style="padding:3px;border:0;width:14%"></td>
+				<td style="padding:3px;border:0;width:1%"></td>
+				<td style="padding:3px;border:0;width:35%"></td>
+				<td style="padding:3px;border:0;width:14%"></td>
+				<td style="padding:3px;border:0;width:10%"></td>
+				<td style="padding:3px;border:0;width:1%"></td>
+				<td style="padding:3px;border:0;width:25%"></td>
+			</tr>
+			<tr>
+				<td style="padding:5px 5px 20px;border:0;text-align:center;font-weight:bold;font-size:20px" colspan="7">DEBIT NOTE</td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:3px;font-weight:bold">NO. DEBIT NOTE</td>
+				<td style="border:0;padding:3px;font-weight:bold;text-align:center">:</td>
+				<td style="border:0;padding:3px" colspan="2">'.$header->no_dn.'</td>
+				<td style="border:0;padding:3px;font-weight:bold">TANGGAL</td>
+				<td style="border:0;padding:3px;font-weight:bold;text-align:center">:</td>
+				<td style="border:0;padding:3px">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($header->tgl_dn)).'</td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:3px;font-weight:bold">KETENTUAN</td>
+				<td style="border:0;padding:3px;font-weight:bold;text-align:center">:</td>
+				<td style="border:0;padding:3px" colspan="2">'.$header->ket_dn.'</td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:3px;font-weight:bold">JATUH TEMPO</td>
+				<td style="border:0;padding:3px;font-weight:bold;text-align:center">:</td>
+				<td style="border:0;padding:3px" colspan="2">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($header->jt_dn)).'</td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:3px;font-weight:bold">PO #</td>
+				<td style="border:0;padding:3px;font-weight:bold;text-align:center">:</td>
+				<td style="border:0;padding:3px" colspan="2">'.$header->po_dn.'</td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:15px 3px 3px;font-weight:bold" colspan="3">PEMBAYARAN KE :</td>
+				<td style="border:0;padding:15px 3px 3px;font-weight:bold" colspan="4">DIKIRIM KE :</td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:3px" colspan="3">CV. '.$hub->nm_hub.'</td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:3px" colspan="3">CV. '.strtoupper($hub->alamat).'</td>
+			</tr>';
+		$html .= '</table>';
+		// DETAIL
+		$html .= '<table style="margin-bottom:10px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-size:11px;font-family:tahoma">
+			<tr>
+				<td style="padding:3px;border:0;width:50%"></td>
+				<td style="padding:3px;border:0;width:10%"></td>
+				<td style="padding:3px;border:0;width:20%"></td>
+				<td style="padding:3px;border:0;width:20%"></td>
+			</tr>
+			<tr>
+				<td style="padding:5px;border:1px solid #000;font-weight:bold">DESKRIPSI</td>
+				<td style="padding:5px;border:1px solid #000;font-weight:bold;text-align:right">KUANTITAS</td>
+				<td style="padding:5px;border:1px solid #000;font-weight:bold;text-align:right">HARGA SATUAN (Rp.)</td>
+				<td style="padding:5px;border:1px solid #000;font-weight:bold;text-align:right">JUMLAH (Rp.)</td>
+			</tr>';
+			$detail = $this->db->query("SELECT*FROM debit_note_detail WHERE no_dn='$header->no_dn' ORDER BY des_dn");
+			$subTotal = 0;
+			foreach($detail->result() as $r){
+				$html .='<tr>
+					<td style="padding:5px;border:1px solid #000">'.$r->des_dn.'</td>
+					<td style="padding:5px;border:1px solid #000;text-align:right">'.number_format($r->qty_dn,0,',','.').'</td>
+					<td style="padding:5px;border:1px solid #000;text-align:right">'.number_format($r->harga_dn,0,',','.').'</td>
+					<td style="padding:5px;border:1px solid #000;text-align:right">'.number_format($r->jumlah_dn,0,',','.').'</td>
+				</tr>';
+				$subTotal += $r->jumlah_dn;
+			}
+			$html .='<tr>
+				<td style="padding:5px;border:0;font-weight:bold;text-align:right" colspan="3">TOTAL</td>
+				<td style="padding:5px;border:0;font-weight:bold;text-align:right">'.number_format($subTotal,0,',','.').'</td>
+			</tr>';
+			// KOTAK KOSONG
+			if($detail->num_rows() == 1) {
+				$xx = 4;
+			}else if($detail->num_rows() == 2){
+				$xx = 3;
+			}else if($detail->num_rows() == 3){
+				$xx = 2;
+			}else if($detail->num_rows() == 4){
+				$xx = 1;
+			}
+			if($detail->num_rows() <= 4) {
+				for($i = 0; $i < $xx; $i++){
+					$html .='<tr>
+						<td style="padding:14px" colspan="4"></td>
+					</tr>';
+				}
+			}
+		$html .= '</table>';
+		// TRANSFER DAN TTD
+		// '.$this->m_fungsi->tanggal_format_indonesia(date('Y-m-d')).'
+		$html .= '<table style="margin-bottom:10px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-size:11px;font-family:tahoma">
+			<tr>
+				<td style="border:0;padding:5px;width:60%"></td>
+				<td style="border:0;padding:5px;width:40%"></td> 
+			</tr>
+			<tr>
+				<td style="border:0;padding:5px"></td>
+				<td style="border:0;padding:5px;text-align:center">Wonogiri</td> 
+			</tr>
+			<tr>
+				<td style="border:0;padding:0 0 20px;line-height:1.8">Pembayaran Full Amount ditransfer ke :<br/>BCA 078 027 5758 <br/>A.n PT. PRIMA PAPER INDONESIA</td>
+				<td style="border:0;padding:0"></td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:0;line-height:1.8">* Harap bukti transfer di email ke</td>
+				<td style="border-bottom:1px solid #000;padding:0"></td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:0;line-height:1.8">primapaperin@gmail.com / bethppi@yahoo.co.id</td>
+				<td style="border:0;padding:0;line-height:1.8;text-align:center">Finance</td>
+			</tr>
+		</table>';
+
+		$judul = 'DEBIT NOTE - '.$header->no_dn;
+		$this->m_fungsi->newMpdf($judul, '', $html, 10, 10, 10, 10, 'P', 'A4', $judul.'.pdf');
+	}
+
+	//
+
 	function load_produk()
     {
         
@@ -5303,6 +5651,57 @@ class Logistik extends CI_Controller
 				}else{
 					$row[] = '<div class="text-center">-</div>';
 				}
+				$data[] = $row;
+			}
+		}else if ($jenis == "loadDataDebitNote") {
+			$query = $this->db->query("SELECT*FROM debit_note_header")->result();
+			$i = 0;
+			foreach ($query as $r) {
+				$i++;
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				// DESKRIPSI
+				$hub = $this->db->query("SELECT*FROM m_hub WHERE id_hub='$r->tagih_dn'")->row();
+				$htmlDes = '<table>
+					<tr style="background:transparent !important">
+						<td style="padding:3px 0;border:0;font-weight:bold">NO. DEBIT NOTE</td>
+						<td style="padding:3px 6px;border:0;font-weight:bold">:</td>
+						<td style="padding:3px 0;border:0">'.$r->no_dn.'</td>
+					</tr>
+					<tr style="background:transparent !important">
+						<td style="padding:3px 0;border:0;font-weight:bold">KETENTUAN</td>
+						<td style="padding:3px 6px;border:0;font-weight:bold">:</td>
+						<td style="padding:3px 0;border:0">'.$r->ket_dn.'</td>
+					</tr>
+					<tr style="background:transparent !important">
+						<td style="padding:3px 0;border:0;font-weight:bold">PO #</td>
+						<td style="padding:3px 6px;border:0;font-weight:bold">:</td>
+						<td style="padding:3px 0;border:0">'.$r->po_dn.'</td>
+					</tr>
+					<tr style="background:transparent !important">
+						<td style="padding:3px 0;border:0;font-weight:bold">TAGIH KE</td>
+						<td style="padding:3px 6px;border:0;font-weight:bold">:</td>
+						<td style="padding:3px 0;border:0">CV. '.$hub->nm_hub.'</td>
+					</tr>
+				</table>';
+				$row[] = $htmlDes;
+				// TANGGAL DAN JATUH TEMPO DEBIT NOTE
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_dn.'</div>';
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->jt_dn.'</div>';
+				// TOTAL
+				$total = $this->db->query("SELECT SUM(jumlah_dn) AS total FROM debit_note_detail WHERE no_dn='$r->no_dn' GROUP BY no_dn")->row();
+				$row[] = '<div class="text-right" style="font-weight:bold;color:#000">'.number_format($total->total,0,',','.').'</div>';
+				// VERIF
+				$row[] = '<div class="text-center">-</div>';
+				// CETAK
+				$btnPrint = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/cetakDebitNote?id_dn=".$r->id_dn."").'" title="PRINT"><i class="fas fa-print"></i></a>';
+				$row[] = '<div class="text-center">'.$btnPrint.'</div>';
+				// AKSI
+				$btnEdit = '<button type="button" onclick="editDebitNote('."'".$r->id_dn."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button> ';
+				$btnHapus = '<button type="button" onclick="hapusDebitNote('."'".$r->id_dn."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>';
+				$row[] = '<div class="text-center">
+					'.$btnEdit.$btnHapus.'
+				</div>';
 				$data[] = $row;
 			}
 		}else{
