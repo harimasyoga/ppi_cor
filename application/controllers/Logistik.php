@@ -125,6 +125,22 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 	
+	function bayar_inv_bahan()
+	{
+		$data = [
+			'judul' => "PEMBAYARAN INVOICE BAHAN BAKU",
+		];
+
+		$this->load->view('header',$data);
+		if($this->session->userdata('level'))
+		{
+			$this->load->view('Logistik/v_bayar_inv_bahan');
+		}else{
+			$this->load->view('home');
+		}
+		$this->load->view('footer');
+	}
+	
 	function stok_bb()
 	{
 		$data = [
@@ -5331,11 +5347,13 @@ class Logistik extends CI_Controller
 						(
 						SELECT a.*,sum(harga)harga_ok,sum(include)include_ok,c.* ,
 						CASE 
+			WHEN (a.type='box' or a.type='sheet') and pajak='nonppn' THEN sum(round((harga*hasil),0))			
 			WHEN (a.type='box' or a.type='sheet') and pajak='ppn' and inc_exc='Include' THEN sum(round(harga*hasil,0))
 			WHEN (a.type='box' or a.type='sheet') and pajak='ppn' and inc_exc='Exclude' THEN sum(round((harga*hasil)+(harga*hasil*0.11),0))
 			WHEN (a.type='box' or a.type='sheet') and pajak='ppn_pph' and inc_exc='Include' THEN sum(round((harga*hasil)+(harga*hasil*0.001),0))
 			WHEN (a.type='box' or a.type='sheet') and pajak='ppn_pph' and inc_exc='Exclude' THEN sum(round((harga*hasil)+(harga*hasil*0.11)+(harga*hasil*0.001),0))
 
+			WHEN (a.type='roll') and pajak='nonppn' THEN sum(round(harga*(weight-seset),0))
 			WHEN (a.type='roll') and pajak='ppn' and inc_exc='Include' THEN sum(round(harga*(weight-seset),0))
 			WHEN (a.type='roll') and pajak='ppn' and inc_exc='Exclude' THEN sum(round((harga*(weight-seset))+(harga*(weight-seset)*0.11),0))
 			WHEN (a.type='roll') and pajak='ppn_pph' and inc_exc='Include' THEN sum(round((harga*(weight-seset))+(harga*(weight-seset)*0.001),0))
@@ -5348,6 +5366,7 @@ class Logistik extends CI_Controller
 			where month(a.tgl_invoice) in ('$blnn')
 			group by a.no_invoice
 			) as p ) AS q 
+			where total<>jum_bayar
 			-- where total-jum_bayar<>0
 			
 			")->result();
@@ -5499,13 +5518,32 @@ class Logistik extends CI_Controller
 		}else if ($jenis == "byr_inv_beli") 
 		{ 
 			$blnn    = $_POST['blnn'];
-			$query   = $this->db->query("SELECT IFNULL(
-			(select sum(jumlah_bayar) from trs_bayar_inv_beli t
-						where t.no_inv_beli=a.no_inv_beli
-						group by no_inv_beli),0) jum_bayar,a.*,b.nm_hub,c.nm_supp FROM invoice_header_beli a
-			JOIN m_hub b ON a.id_hub=b.id_hub
-			JOIN m_supp c ON a.id_supp=c.id_supp
-			where MONTH(tgl_inv_beli) in ('$blnn') and acc_owner='Y'
+
+			if($blnn=='all')
+			{
+				$where_bulan = "";
+			}else{
+				$where_bulan = "and MONTH(tgl_inv_beli) in ('$blnn')";
+			}
+
+			$query   = $this->db->query("SELECT*FROM(
+			SELECT *,
+			CASE WHEN pajak='PPN_PPH' THEN nominal_beli + ppn - pph
+			WHEN pajak='PPN' THEN nominal_beli + ppn 
+			ELSE nominal_beli
+			END AS total_beli
+			from( 
+				SELECT IFNULL(
+				(select sum(jumlah_bayar) from trs_bayar_inv_beli t
+				where t.no_inv_beli=a.no_inv_beli
+				group by no_inv_beli),0) jum_bayar,sum(d.nominal)nominal_beli,round(sum(d.nominal)*0.11,0)ppn,round(sum(d.nominal)*0.02,0)pph,a.*,b.nm_hub,c.nm_supp FROM invoice_header_beli a
+				JOIN m_hub b ON a.id_hub=b.id_hub
+				JOIN m_supp c ON a.id_supp=c.id_supp
+				JOIN invoice_detail_beli d on a.no_inv_beli=d.no_inv_beli
+				where acc_owner='Y' $where_bulan
+				group by a.no_inv_beli  
+				)p
+			)q where jum_bayar<>total_beli
 			ORDER BY tgl_inv_beli desc,id_header_beli")->result();
 
 			$i               = 1;
@@ -5559,53 +5597,61 @@ class Logistik extends CI_Controller
 
 				$total = $nominal - $r->diskon + $ppn_total - $pph_total;
 
-				$id       = "'$r->id_header_beli'";
-				$no_inv   = "'$r->no_inv_beli'";
-				$print    = base_url("laporan/print_invoice_v2?no_inv_beli=") . $r->no_inv_beli;
+				if($total-$r->jum_bayar==0)
+				{
+					$data[] = '';
+				}else{
 
-				$row = array();
-				$row[] = '<div class="text-center">'.$i.'</div>';
+					$id       = "'$r->id_header_beli'";
+					$no_inv   = "'$r->no_inv_beli'";
+					$print    = base_url("laporan/print_invoice_v2?no_inv_beli=") . $r->no_inv_beli;
+
+					$row = array();
+					$row[] = '<div class="text-center">'.$i.'</div>';
 
 
-				$row[] = '
-				<table>
-					<tr style="background-color: transparent !important">
-						<td style="padding : 3px;border:none;"><b>No Inv</td>
-						<td style="padding : 3px;border:none;">:</td></b> 
-						<td style="padding : 3px;border:none;">'.$r->no_inv_beli .'<br></td>
+					$row[] = '
+					<table>
+						<tr style="background-color: transparent !important">
+							<td style="padding : 3px;border:none;"><b>No Inv</td>
+							<td style="padding : 3px;border:none;">:</td></b> 
+							<td style="padding : 3px;border:none;">'.$r->no_inv_beli .'<br></td>
+						</tr>
+						<tr style="background-color: transparent !important">
+							<td style="padding : 3px;border:none;"><b>ATTN </td>
+							<td style="padding : 3px;border:none;">:</td></b> 
+							<td style="padding : 3px;border:none;">'.$r->nm_hub .'<br></td>
+						</tr>
+						<tr style="background-color: transparent !important">
+							<td style="padding : 3px;border:none;"><b>PAJAK </td>
+							<td style="padding : 3px;border:none;">:</td></b> 
+							<td style="padding : 3px;border:none;">'.$tax .'<br></td>
+						</tr>
+						<tr style="background-color: transparent !important">
+							<td style="padding : 3px;border:none;"><b>Tgl Inv </td>
+							<td style="padding : 3px;border:none;">:</td></b> 
+							<td style="padding : 3px;border:none;">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_inv_beli).'<br></td>
+						</tr>
 					</tr>
-					<tr style="background-color: transparent !important">
-						<td style="padding : 3px;border:none;"><b>ATTN </td>
-						<td style="padding : 3px;border:none;">:</td></b> 
-						<td style="padding : 3px;border:none;">'.$r->nm_hub .'<br></td>
-					</tr>
-					<tr style="background-color: transparent !important">
-						<td style="padding : 3px;border:none;"><b>PAJAK </td>
-						<td style="padding : 3px;border:none;">:</td></b> 
-						<td style="padding : 3px;border:none;">'.$tax .'<br></td>
-					</tr>
-					<tr style="background-color: transparent !important">
-						<td style="padding : 3px;border:none;"><b>Tgl Inv </td>
-						<td style="padding : 3px;border:none;">:</td></b> 
-						<td style="padding : 3px;border:none;">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_inv_beli).'<br></td>
-					</tr>
-				</tr>
-				</table>
-				 ';
+					</table>
+					';
 
 
-				 $row[] = '<div class="text-center" style="font-weight:bold;">'.$ket_tr.'</div>';	
-				 $row[] = '<div class="text-center" style="font-weight:bold;">'.$jns_beban.'</div>';				
-				$row[] = '<div class="text-center" style="font-weight:bold;">'.number_format($total, 0, ",", ".").'</div>';				
-				$row[] = '<div class="text-center" style="font-weight:bold;">'.number_format($r->jum_bayar, 0, ",", ".").'</div>';
-				$row[] = '<div class="text-center" style="font-weight:bold;">'.number_format($total-$r->jum_bayar, 0, ",", ".").'</div>';
+					$row[] = '<div class="text-center" style="font-weight:bold;">'.$ket_tr.'</div>';	
+					$row[] = '<div class="text-center" style="font-weight:bold;">'.$jns_beban.'</div>';				
+					$row[] = '<div class="text-center" style="font-weight:bold;">'.number_format($total, 0, ",", ".").'</div>';				
+					$row[] = '<div class="text-center" style="font-weight:bold;">'.number_format($r->jum_bayar, 0, ",", ".").'</div>';
+					$row[] = '<div class="text-center" style="font-weight:bold;">'.number_format($total-$r->jum_bayar, 0, ",", ".").'</div>';
+					
+					$aksi = '
+					<button type="button" title="PILIH"  onclick="spilldata(' . $id . ',' . $no_inv . ')" class="btn btn-success btn-sm">
+						<i class="fas fa-check-circle"></i>
+					</button> ';
+
+					$row[] = '<div class="text-center">'.$aksi.'</div>';
+					
+				}
 				
-				$aksi = '
-				<button type="button" title="PILIH"  onclick="spilldata(' . $id . ',' . $no_inv . ')" class="btn btn-success btn-sm">
-					<i class="fas fa-check-circle"></i>
-				</button> ';
-
-				$row[] = '<div class="text-center">'.$aksi.'</div>';
 				$data[] = $row;
 				$i++;
 			}
