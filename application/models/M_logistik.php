@@ -2478,6 +2478,18 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function verifDebitNote()
+	{
+		$id_dn = $_POST["id_dn"];
+		$this->db->where('id_dn', $id_dn);
+		$this->db->set('verif_dn', 'Y');
+		$this->db->set('verif_time', date('Y-m-d H:i:s'));
+		$data = $this->db->update('debit_note_header');
+		return [
+			'data' => $data,
+		];
+	}
+
 	//
 
 	function simpanTimbangan_2()
