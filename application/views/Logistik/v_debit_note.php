@@ -295,7 +295,7 @@
 		let no_po = $("#no_po").val()
 		let tagih_ke = $("#tagih_ke").val()
 		let deskripsi = $("#i_deskripsi").val()
-		let qty = $("#i_qty").val().split('.').join('')
+		let qty = $("#i_qty").val()
 		let harga = $("#i_harga").val().split('.').join('')
 		let total = $("#i_total").val().split('.').join('')
 		$.ajax({
@@ -449,7 +449,7 @@
 	{
 		let id_dn = $("#h_id_header").val()
 		let deskripsi = $("#i_deskripsi").val()
-		let qty = $("#i_qty").val().split('.').join('')
+		let qty = $("#i_qty").val()
 		let harga = $("#i_harga").val().split('.').join('')
 		let total = $("#i_total").val().split('.').join('')
 		$.ajax({
