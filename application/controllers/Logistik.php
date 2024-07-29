@@ -3870,7 +3870,7 @@ class Logistik extends CI_Controller
 			foreach($detail->result() as $r){
 				$html .='<tr>
 					<td style="padding:5px;border:1px solid #000">'.$r->des_dn.'</td>
-					<td style="padding:5px;border:1px solid #000;text-align:right">'.number_format($r->qty_dn,0,',','.').'</td>
+					<td style="padding:5px;border:1px solid #000;text-align:right">'.$r->qty_dn.'</td>
 					<td style="padding:5px;border:1px solid #000;text-align:right">'.number_format($r->harga_dn,0,',','.').'</td>
 					<td style="padding:5px;border:1px solid #000;text-align:right">'.number_format($r->jumlah_dn,0,',','.').'</td>
 				</tr>';
