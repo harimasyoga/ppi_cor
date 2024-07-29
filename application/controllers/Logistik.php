@@ -144,7 +144,7 @@ class Logistik extends CI_Controller
 		$this->load->view('header',$data);
 		if($this->session->userdata('level'))
 		{
-			$this->load->view('Logistik/v_bayar_inv_bahan');
+			$this->load->view('Logistik/v_bayar_inv_bahan_baku');
 		}else{
 			$this->load->view('home');
 		}
