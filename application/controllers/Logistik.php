@@ -3700,7 +3700,7 @@ class Logistik extends CI_Controller
 			$html .= '<tr>
 				<td style="padding:6px;text-align:center">'.$i.'</td>
 				<td style="padding:6px">'.$r['options']['deskripsi'].'</td>
-				<td style="padding:6px;text-align:right">'.number_format($r['options']['qty'],0,',','.').'</td>
+				<td style="padding:6px;text-align:right">'.$r['options']['qty'].'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r['options']['harga'],0,',','.').'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r['options']['total'],0,',','.').'</td>
 				<td style="padding:6px;text-align:center">
@@ -3751,7 +3751,7 @@ class Logistik extends CI_Controller
 				$htmlDtl .= '<tr>
 					<td style="padding:6px;text-align:center">'.$i.'</td>
 					<td style="padding:6px">'.$r->des_dn.'</td>
-					<td style="padding:6px;text-align:right">'.number_format($r->qty_dn,0,',','.').'</td>
+					<td style="padding:6px;text-align:right">'.$r->qty_dn.'</td>
 					<td style="padding:6px;text-align:right">'.number_format($r->harga_dn,0,',','.').'</td>
 					<td style="padding:6px;text-align:right">'.number_format($r->jumlah_dn,0,',','.').'</td>
 					<td style="padding:6px;text-align:center">

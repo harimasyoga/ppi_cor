@@ -276,12 +276,12 @@
 	function onKeyUpDN()
 	{
 		let qty = $("#i_qty").val();
-		(qty < 0) ? qty = 0 : qty = qty
-		$("#i_qty").val(qty)
+		// (qty < 0) ? qty = 0 : qty = qty
+		// $("#i_qty").val(qty)
 		let harga = $("#i_harga").val().split('.').join('')
 		$("#i_harga").val(format_angka(harga))
 		let total = $("#i_total").val().split('.').join('')
-		let hitung = parseInt(qty) * parseInt(harga);
+		let hitung = parseFloat(qty) * parseInt(harga);
 		(isNaN(hitung) || hitung == "" || hitung == 0) ? hitung = 0 : hitung = hitung
 		$("#i_total").val(format_angka(hitung))
 	}
