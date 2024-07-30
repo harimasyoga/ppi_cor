@@ -3866,7 +3866,7 @@ class Logistik extends CI_Controller
 				<td style="border:0;padding:3px" colspan="3">CV. '.$hub->nm_hub.'</td>
 			</tr>
 			<tr>
-				<td style="border:0;padding:3px" colspan="3">CV. '.strtoupper($hub->alamat).'</td>
+				<td style="border:0;padding:3px" colspan="3">'.strtoupper($hub->alamat).'</td>
 			</tr>';
 		$html .= '</table>';
 		// DETAIL
