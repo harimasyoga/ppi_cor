@@ -3615,6 +3615,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function verifDebitNote()
+	{
+		$result = $this->m_logistik->verifDebitNote();
+		echo json_encode($result);
+	}
+
 	function destroyDebitNote()
 	{
 		$this->cart->destroy();
@@ -3748,6 +3754,11 @@ class Logistik extends CI_Controller
 			$subTotal = 0;
 			foreach($detail->result() as $r){
 				$i++;
+				if($header->verif_dn == 'Y'){
+					$hBtn = 'class="btn btn-xs btn-secondary" disabled';
+				}else{
+					$hBtn = 'class="btn btn-xs btn-danger" style="font-weight:bold" onclick="hapusItemDN('."'".$r->id."'".')"';
+				}
 				$htmlDtl .= '<tr>
 					<td style="padding:6px;text-align:center">'.$i.'</td>
 					<td style="padding:6px">'.$r->des_dn.'</td>
@@ -3755,7 +3766,7 @@ class Logistik extends CI_Controller
 					<td style="padding:6px;text-align:right">'.number_format($r->harga_dn,0,',','.').'</td>
 					<td style="padding:6px;text-align:right">'.number_format($r->jumlah_dn,0,',','.').'</td>
 					<td style="padding:6px;text-align:center">
-						<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="hapusItemDN('."'".$r->id."'".')">hapus</button>
+						<button type="button" '.$hBtn.'>hapus</button>
 					</td>
 				</tr>';
 				$subTotal += $r->jumlah_dn;
@@ -3768,10 +3779,17 @@ class Logistik extends CI_Controller
 				</tr>';
 			}
 		$htmlDtl .= '</table>';
+		if($header->verif_dn == 'Y'){
+			$oBtn = 'disabled';
+			$cBtn = 'btn-secondary';
+		}else{
+			$oBtn = 'style="font-weight:bold" onclick="simpanDebitNote()"';
+			$cBtn = 'btn-primary';
+		}
 		$htmlSimpan = '<div class="card-body row" style="font-weight:bold;padding:6px 12px 0">
 			<div class="col-md-3"></div>
 			<div class="col-md-9">
-				<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanDebitNote()"><i class="fas fa-save"></i> SIMPAN</button>
+				<button type="button" class="btn btn-sm '.$cBtn.'" '.$oBtn.'><i class="fas fa-save"></i> SIMPAN</button>
 			</div>
 		</div>';
 
@@ -3848,7 +3866,7 @@ class Logistik extends CI_Controller
 				<td style="border:0;padding:3px" colspan="3">CV. '.$hub->nm_hub.'</td>
 			</tr>
 			<tr>
-				<td style="border:0;padding:3px" colspan="3">CV. '.strtoupper($hub->alamat).'</td>
+				<td style="border:0;padding:3px" colspan="3">'.strtoupper($hub->alamat).'</td>
 			</tr>';
 		$html .= '</table>';
 		// DETAIL
@@ -3870,7 +3888,7 @@ class Logistik extends CI_Controller
 			foreach($detail->result() as $r){
 				$html .='<tr>
 					<td style="padding:5px;border:1px solid #000">'.$r->des_dn.'</td>
-					<td style="padding:5px;border:1px solid #000;text-align:right">'.number_format($r->qty_dn,0,',','.').'</td>
+					<td style="padding:5px;border:1px solid #000;text-align:right">'.$r->qty_dn.'</td>
 					<td style="padding:5px;border:1px solid #000;text-align:right">'.number_format($r->harga_dn,0,',','.').'</td>
 					<td style="padding:5px;border:1px solid #000;text-align:right">'.number_format($r->jumlah_dn,0,',','.').'</td>
 				</tr>';
@@ -5670,7 +5688,7 @@ class Logistik extends CI_Controller
 				$data[] = $row;
 			}
 		}else if ($jenis == "loadDataDebitNote") {
-			$query = $this->db->query("SELECT*FROM debit_note_header")->result();
+			$query = $this->db->query("SELECT*FROM debit_note_header ORDER BY verif_dn,no_dn ASC")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
@@ -5708,15 +5726,33 @@ class Logistik extends CI_Controller
 				$total = $this->db->query("SELECT SUM(jumlah_dn) AS total FROM debit_note_detail WHERE no_dn='$r->no_dn' GROUP BY no_dn")->row();
 				$row[] = '<div class="text-right" style="font-weight:bold;color:#000">'.number_format($total->total,0,',','.').'</div>';
 				// VERIF
-				$row[] = '<div class="text-center">-</div>';
+				// fas fa-check-circle
+				// fa fa-lock
+				if($r->verif_dn == 'Y'){
+					$btnClassDN = 'btn-success';
+					$iClassDN = 'fas fa-check-circle';
+					$onClickDN = 'title="TERVERIFIKASI"';
+				}else{
+					$onClickDN = 'onclick="verifDebitNote('."'".$r->id_dn."'".')" title="VERIF"';
+					$btnClassDN = 'btn-warning';
+					$iClassDN = 'fa fa-lock';
+				}
+				$row[] = '<div class="text-center">
+					<button type="button" '.$onClickDN.' class="btn btn-sm '.$btnClassDN.'"><i class="'.$iClassDN.'"></i></button>
+				</div>';
 				// CETAK
 				$btnPrint = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/cetakDebitNote?id_dn=".$r->id_dn."").'" title="PRINT"><i class="fas fa-print"></i></a>';
 				$row[] = '<div class="text-center">'.$btnPrint.'</div>';
 				// AKSI
 				$btnEdit = '<button type="button" onclick="editDebitNote('."'".$r->id_dn."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button> ';
 				$btnHapus = '<button type="button" onclick="hapusDebitNote('."'".$r->id_dn."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>';
+				if($r->verif_dn == 'Y'){
+					$btnAksi = $btnEdit;
+				}else{
+					$btnAksi = $btnEdit.$btnHapus;
+				}
 				$row[] = '<div class="text-center">
-					'.$btnEdit.$btnHapus.'
+					'.$btnAksi.'
 				</div>';
 				$data[] = $row;
 			}

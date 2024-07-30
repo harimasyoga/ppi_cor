@@ -316,7 +316,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					$("#tgl_debit_note").prop('disabled', true)
 					$("#transaksi").prop('disabled', true)
@@ -386,7 +385,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					toastr.success(`<b>${data.msg}</b>`)
 					kembali()
@@ -435,7 +433,16 @@
 				// $("#i_qty").val("")
 				// $("#i_harga").val("")
 				// $("#i_total").val("")
-				$("#button_aksi").html('<button type="button" class="btn btn-sm btn-success" style="font-weight:bold" onclick="tambahItemDN()"><i class="fas fa-plus"></i> TAMBAH</button>')
+				let oBtn = '';
+				let cBtn = '';
+				if(data.header.verif_dn == 'Y'){
+					oBtn = 'disabled';
+					cBtn = 'btn-secondary';
+				}else{
+					oBtn = 'style="font-weight:bold" onclick="tambahItemDN()"';
+					cBtn = 'btn-success';
+				}
+				$("#button_aksi").html(`<button type="button" class="btn btn-sm ${cBtn}" ${oBtn}><i class="fas fa-plus"></i> TAMBAH</button>`)
 				$(".list-item").html(data.htmlDtl)
 				$(".btn-edit-simpan").html(data.htmlSimpan)
 
@@ -470,7 +477,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					toastr.success(`<b>${data.msg}</b>`)
 					$("#i_deskripsi").val("")
@@ -497,7 +503,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.del_dtl && data.detail != 0){
 					toastr.success(`<b>BERHASIL HAPUS!</b>`)
 					editDebitNote(id_dn, 'edit')
@@ -536,13 +541,54 @@
 				}),
 				success: function(res){
 					data = JSON.parse(res)
-					console.log(data)
 					if(data.data){
 						toastr.success(`<b>${data.msg}</b>`)
 						reloadTable()
 						kosong()
 					}else{
 						toastr.error(`<b>${data.msg}</b>`)
+						swal.close()
+					}
+				}
+			})
+		});
+	}
+
+	function verifDebitNote(id_dn)
+	{
+		swal({
+			title: "VERIFIKASI DATA DEBIT NOTE?",
+			text: "",
+			type: "success",
+			showCancelButton: true,
+			confirmButtonColor: "#0C0",
+			confirmButtonText: "Verif!"
+		}).then(function(result) {
+			$.ajax({
+				url: '<?php echo base_url('Logistik/verifDebitNote')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({
+					id_dn
+				}),
+				success: function(res){
+					data = JSON.parse(res)
+					console.log(data)
+					if(data.data){
+						toastr.success(`<b>VERIF BERHASIL!</b>`)
+						reloadTable()
+						kosong()
+					}else{
+						toastr.error(`<b>TERJADI KESALHAN!</b>`)
 						swal.close()
 					}
 				}
