@@ -558,7 +558,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				let prop = '';
 				(urlAuth == 'Admin') ? prop = false : prop = true;
 				$("#h_id_header").val(id_dn)
@@ -722,7 +722,6 @@
 				}),
 				success: function(res){
 					data = JSON.parse(res)
-					console.log(data)
 					if(data.data){
 						toastr.success(`<b>VERIF BERHASIL!</b>`)
 						reloadTable()
@@ -753,7 +752,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".cari-pdf-debit-note").html(data.pdf)
 				$(".cari-lap-debit-note").html(data.html)
 			}

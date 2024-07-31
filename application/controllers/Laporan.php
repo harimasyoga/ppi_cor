@@ -191,7 +191,7 @@ class Laporan extends CI_Controller
 					<th style="padding:5px 10px;text-align:center;border:1px solid #aaa">O S</th>
 				</tr>';
 				foreach($data->result() as $r){
-					if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
+					if($this->session->userdata('level') == 'Admin'){
 						if($r->status_kiriman == 'Open'){
 							$aksi = 'onclick="closePengiriman('."'".$r->id."'".','."'Close'".')';
 							$bgBtn = 'btn-danger';
@@ -221,7 +221,7 @@ class Laporan extends CI_Controller
 							<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$i.'</td>
 							<td style="padding:5px;border:1px solid #aaa">'.$d->nm_produk.'</td>
 							<td style="padding:5px;border:1px solid #aaa">'.$ukuran.'</td>
-							<td style="padding:5px;border:1px solid #aaa">'.$d->kualitas.'</td>
+							<td style="padding:5px;border:1px solid #aaa">'.$this->m_fungsi->kualitas($d->kualitas, $d->flute).'</td>
 							<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$d->flute.'</td>
 							<td style="padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($d->qty,0,',','.').'</td>
 							<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$spanS.'</td>
@@ -231,29 +231,84 @@ class Laporan extends CI_Controller
 						WHERE p.no_po='$d->kode_po' AND r.id_produk='$d->id_produk'
 						GROUP BY r.rk_tgl,r.id_pelanggan,r.id_produk,r.rk_kode_po,r.rk_urut");
 						$sumKirim = 0;
+						$sumRetur = 0;
 						if($kirim->num_rows() > 0){
 							foreach($kirim->result() as $k){
+								$ii = (((rand(1, 999) * 888) - 777) + 666) * 123;
+								$retur = $this->db->query("SELECT*FROM m_rencana_kirim_retur
+								WHERE rtr_tgl='$k->tgl' AND rtr_id_pelanggan='$k->id_pelanggan' AND rtr_id_produk='$k->id_produk' AND rtr_kode_po='$k->rk_kode_po' AND rtr_urut='$k->rk_urut'");
+								if($r->status_kiriman == 'Open' && $retur->num_rows() == 0 && in_array($this->session->userdata('level'), ['Admin', 'User'])){
+									$btnRetur = '<button type="button" class="btn btn-xs btn-warning" style="font-weight:bold;padding:2px 6px" onclick="returKiriman('."'".$ii."'".')">+</button>
+										<input type="hidden" id="h_tot_muat_'.$ii.'" value="'.$k->tot_muat.'">
+										<input type="hidden" id="h_tgl_'.$ii.'" value="'.$k->tgl.'">
+										<input type="hidden" id="h_id_pelanggan_'.$ii.'" value="'.$k->id_pelanggan.'">
+										<input type="hidden" id="h_id_produk_'.$ii.'" value="'.$k->id_produk.'">
+										<input type="hidden" id="h_kode_po_'.$ii.'" value="'.$k->rk_kode_po.'">
+										<input type="hidden" id="h_urut_'.$ii.'" value="'.$k->rk_urut.'">
+										<input type="hidden" id="h_no_surat_'.$ii.'" value="'.$k->no_surat.'">
+										<input type="hidden" id="h_plat_'.$ii.'" value="'.$k->no_kendaraan.'">';
+								}else{
+									$btnRetur = '';
+								}
 								$html .='<tr>
 									<td style="padding:5px;border-left:1px solid #aaa"></td>
 									<td style="padding:5px" colspan="4">- '.strtoupper($this->m_fungsi->getHariIni($k->tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->tgl)).' - '.$k->no_surat.' - '.$k->no_kendaraan.'</td>
 									<td style="padding:5px;text-align:right">'.number_format($k->tot_muat,0,',','.').'</td>
-									<td style="padding:5px;border-right:1px solid #aaa"></td>
+									<td style="padding:5px;border-right:1px solid #aaa;text-align:center">'.$btnRetur.'</td>
 								</tr>';
+								// RETUR
+								if($retur->num_rows() != 0){
+									($this->session->userdata('level') == 'Admin') ? $delR = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="deleteReturkiriman('."'".$retur->row()->id."'".')">x</button>' : $delR = '';
+									$html .='<tr>
+										<td style="padding:5px;border-left:1px solid #aaa"></td>
+										<td style="padding:5px;text-align:right;font-style:italic" colspan="4">'.$retur->row()->rtr_ket.'</td>
+										<td style="padding:5px;text-align:right;font-style:italic">'.number_format($retur->row()->rtr_jumlah,0,',','.').'</td>
+										<td style="padding:5px;text-align:center;border-right:1px solid #aaa">
+											<span class="btn btn-xs btn-secondary" style="font-weight:bold;cursor:default">retur</span>
+											'.$delR.'
+										</td>
+									</tr>';
+								}
+								if($r->status_kiriman == 'Open' && $retur->num_rows() == 0 && in_array($this->session->userdata('level'), ['Admin', 'User'])){
+									$html .='<tr class="tr tampilkantr-'.$ii.'" style="display:none">
+										<td style="padding:5px;border-left:1px solid #aaa"></td>
+										<td style="padding:5px;vertical-align:top">
+											<input type="date" class="form-control" id="rtr_tgl_'.$ii.'">
+										</td>
+										<td style="padding:5px" colspan="3">
+											<textarea class="form-control" id="rtr_ket_'.$ii.'" placeholder="ALASAN RETUR '.$k->no_surat.'" style="resize:none" oninput="this.value=this.value.toUpperCase()"></textarea>
+										</td>
+										<td style="padding:5px;vertical-align:top">
+											<input type="number" class="form-control" id="rtr_jumlah_'.$ii.'" placeholder="0" style="padding:7px 6px;height:100%;width:70px;text-align:right">
+										</td>
+										<td style="padding:5px;vertical-align:top;text-align:center;border-right:1px solid #aaa">
+											<button type="button" class="btn btn-xs btn-secondary" style="font-weight:bold" onclick="addReturKiriman('."'".$ii."'".')">retur</button>
+										</td>
+									</tr>';
+								}
 								$sumKirim += $k->tot_muat;
+								$sumRetur += ($retur->num_rows() == 0) ? 0 : $retur->row()->rtr_jumlah;
 							}
 						}
 						if($kirim->num_rows() > 0){
-							$sisa = $sumKirim - $d->qty;
+							if($sumRetur != 0){
+								$html .='<tr>
+									<td style="padding:5px;font-weight:bold;text-align:right;border-left:1px solid #aaa" colspan="5">TOTAL RETUR</td>
+									<td style="padding:5px;font-weight:bold;text-align:right">'.number_format($sumRetur,0,',','.').'</td>
+									<td style="padding:5px;border-right:1px solid #aaa"></td>
+								</tr>';
+							}
+							$sisa = ($sumKirim - $sumRetur) - $d->qty;
 							($sisa <= 0) ? $bgtd = ';background:#74c69d' : $bgtd = ';background:#ff758f';
 							$html .='<tr style="border-bottom:1px solid #aaa">
-								<td style="padding:5px;font-weight:bold;text-align:right;border-left:1px solid #aaa" colspan="5">TOTAL</td>
+								<td style="padding:5px;font-weight:bold;text-align:right;border-left:1px solid #aaa" colspan="5">TOTAL KIRIMAN</td>
 								<td style="padding:5px;font-weight:bold;text-align:right">'.number_format($sumKirim,0,',','.').'</td>
 								<td style="padding:5px;font-weight:bold;text-align:right;border-right:1px solid #aaa'.$bgtd.'">'.number_format($sisa,0,',','.').'</td>
 							</tr>';
 						}
 					}
 				}
-			$html .='</table>';
+			$html .='<input type="hidden" id="h_tr" value=""></table>';
 		}else{
 			$html .='DATA KOSONG!';
 		}
@@ -276,6 +331,18 @@ class Laporan extends CI_Controller
 		echo json_encode([
 			'close_po' => $close_po,
 		]);
+	}
+
+	function addReturKiriman()
+	{
+		$result = $this->m_laporan->addReturKiriman();
+		echo json_encode($result);
+	}
+
+	function deleteReturkiriman()
+	{
+		$result = $this->m_laporan->deleteReturkiriman();
+		echo json_encode($result);
 	}
 
 	function load_rekap_omset()
