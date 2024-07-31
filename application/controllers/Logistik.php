@@ -9634,21 +9634,40 @@ class Logistik extends CI_Controller
 						$noSJ = explode('/', $sjpo->no_surat);
 
 						if($sjpo->id_hub != 7){
-							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'&nbsp;<span style="background:#007bff;color:#fff;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>';
+							if($sjpo->pajak == 'ppn'){
+								$spjkH = 'background:#e4003a;';
+							}else{
+								$spjkH = 'background:#007bff;';
+							}
+							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'&nbsp;<span style="'.$spjkH.'color:#fff;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>';
 						}else{
-							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'/'.$noSJ[4].'&nbsp;<span style="background:#f8f9fa;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>';
+							if($sjpo->pajak == 'ppn'){
+								$spjk = 'background:#f8f9fa;';
+							}else{
+								$spjk = 'background:#ffb22c;';
+							}
+							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'/'.$noSJ[4].'&nbsp;<span style="'.$spjk.'height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>';
 						}
 
 						// PRINT SURAT JALAN
 						($sjpo->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
 						if($noSJ[0] != 000 && in_array($this->session->userdata('level'), ['Admin', 'User'])){
-							$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$sjpo->no_surat."&top=".$jarak."&ctk=0").'" title="'.$sjpo->no_surat.'" >PRINT</a>';
+							$btnPrint2 = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$sjpo->no_surat."&top=".$jarak."&ctk=0").'" title="'.$sjpo->no_surat.'" >PRINT</a>';
+							if($sjpo->pajak == 'ppn' && $sjpo->id_hub != 7){
+								$btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
+							}else{
+								$btnPrint = $btnPrint2;
+							}
 						}else{
 							$btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
 						}
 
 						if($noSJ[0] != 000 && $sjpo->id_hub != 7){
-							$btnJasa = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" title="SJ JASA" onclick="insertSuratJalanJasa('."'".$sjpo->no_surat."'".')">JASA</button>';
+							if($sjpo->pajak == 'ppn'){
+								$btnJasa = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">JASA</span>';
+							}else{
+								$btnJasa = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" title="SJ JASA" onclick="insertSuratJalanJasa('."'".$sjpo->no_surat."'".')">JASA</button>';
+							}
 						}else{
 							if($sjpo->id_hub != 7){
 								$btnJasa = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">JASA</span>';
