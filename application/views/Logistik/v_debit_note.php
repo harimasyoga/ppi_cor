@@ -23,7 +23,7 @@
 		<div class="container-fluid">
 
 			<div class="row row-list-debit-note">
-				<div class="col-md-12">
+				<div class="col-md-12 col-list-debit-note">
 					<div class="card shadow mb-3">
 						<div class="card-header" style="font-family:Cambria;">
 							<h3 class="card-title" style="color:#4e73df;"><b>DEBIT NOTE</b></h3>
@@ -34,11 +34,52 @@
 							</div>
 						</div>
 						<div class="card-body">
-							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Admin2'])){ ?>
-								<div style="margin-bottom:12px">
+							<div style="margin-bottom:12px">
+								<?php if(in_array($this->session->userdata('level'), ['Admin', 'Admin2'])){ ?>
 									<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+								<?php } ?>
+								<button type="button" class="btn btn-sm btn-danger" onclick="LaporanDebitNote('laporan')"><i class="fas fa-file-alt"></i> <b>LAPORAN</b></button>
+							</div>
+							<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
+								<div class="col-md-2" style="padding-bottom:3px">
+									<select id="tahun" class="form-control select2" onchange="load_data()">
+										<?php
+											$thang = date("Y");
+											$thang_maks = $thang + 2;
+											$thang_min = $thang - 2;
+											for ($th = $thang_min; $th <= $thang_maks; $th++)
+											{ ?>
+												<?php if ($th==$thang) { ?>
+													<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+												<?php }else{ ?>
+													<option value="<?= $th ?>"> <?= $th ?> </option>
+												<?php }
+											}
+										?>
+									</select>
 								</div>
-							<?php } ?>
+								<div class="col-md-2" style="padding-bottom:3px">
+									<select id="jenis" class="form-control select2" onchange="load_data()">
+										<option value="">SEMUA</option>
+										<option value="CORRUGATED">CORRUGATED</option>
+										<option value="LAMINASI">LAMINASI</option>
+									</select>
+								</div>
+								<div class="col-md-4" style="padding-bottom:3px">
+									<select id="hub" class="form-control select2" onchange="load_data()">
+										<?php
+											$query = $this->db->query("SELECT*FROM m_hub WHERE id_hub!='7' ORDER BY nm_hub");
+											$html ='';
+											$html .='<option value="">SEMUA</option>';
+											foreach($query->result() as $r){
+												$html .='<option value="'.$r->id_hub.'">CV. '.$r->nm_hub.'</option>';
+											}
+											echo $html
+										?>
+									</select>
+								</div>
+								<div class="col-md-4"></div>
+							</div>
 							<div style="overflow:auto;white-space:nowrap">
 								<table id="datatable" class="table table-bordered table-striped">
 									<thead class="color-tabel">
@@ -55,6 +96,87 @@
 									</thead>
 									<tbody></tbody>
 								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-12 col-laporan-debit-note" style="display:none">
+					<div class="card shadow mb-3">
+						<div class="card-header" style="font-family:Cambria;">
+							<h3 class="card-title" style="color:#4e73df;"><b>LAPORAN DEBIT NOTE</b></h3>
+							<div class="card-tools">
+								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+									<i class="fas fa-minus"></i>
+								</button>
+							</div>
+						</div>
+						<div class="card-body">
+							<div style="margin-bottom:12px">
+								<button type="button" class="btn btn-sm btn-info" onclick="LaporanDebitNote('list')"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
+							</div>
+							<div style="overflow:auto;white-space:nowrap">
+								<table style="font-weight:bold">
+									<tr>
+										<td style="padding:3px 0">PILIH</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="lap_jenis" class="form-control select2">
+												<option value="">SEMUA</option>
+												<option value="CORRUGATED">CORRUGATED</option>
+												<option value="LAMINASI">LAMINASI</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td style="padding:3px 0">ATTN</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="lap_cv" class="form-control select2">
+												<?php
+													$query = $this->db->query("SELECT*FROM m_hub WHERE id_hub!='7' ORDER BY nm_hub");
+													$html ='';
+													$html .='<option value="">SEMUA</option>';
+													foreach($query->result() as $r){
+														$html .='<option value="'.$r->id_hub.'">CV. '.$r->nm_hub.'</option>';
+													}
+													echo $html
+												?>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td style="padding:3px 0">VERIF</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="lap_verif" class="form-control select2">
+												<option value="">SEMUA</option>
+												<option value="N">BELUM</option>
+												<option value="Y">VERIF</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td style="padding:3px 0">TANGGAL DEBIT NOTE</td>
+										<td style="padding:3px 10px">:</td>
+										<td>
+											<input type="date" id="lap_tgl1" class="form-control" value="<?= date("Y-m-d")?>">
+										</td>
+										<td style="padding:3px 10px">S/D</td>
+										<td>
+											<input type="date" id="lap_tgl2" class="form-control" value="<?= date("Y-m-d")?>">
+										</td>
+										<td style="padding:3px 10px">
+											<button type="button" class="btn btn-primary" onclick="cariLaporanDebitNote('laporan')"><i class="fas fa-search"></i></button>
+										</td>
+										<td style="padding:3px 10px">
+											<div class="cari-pdf-debit-note"></div>
+										</td>
+									</tr>
+								</table>
+							</div>
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="cari-lap-debit-note"></div>
 							</div>
 						</div>
 					</div>
@@ -207,9 +329,9 @@
 	}
 
 	function load_data() {
-		// let tahun = $("#tahun").val()
-		// let jenis = $("#jenis").val()
-		// let hub = $("#hub").val()
+		let tahun = $("#tahun").val()
+		let jenis = $("#jenis").val()
+		let hub = $("#hub").val()
 		let table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -219,9 +341,9 @@
 			"ajax": {
 				"url": '<?php echo base_url('Logistik/load_data/loadDataDebitNote')?>',
 				"type": "POST",
-				// "data": ({
-				// 	tahun, jenis, hub
-				// }),
+				"data": ({
+					tahun, jenis, hub
+				}),
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],
@@ -271,6 +393,22 @@
 		$(".row-list-debit-note").show()
 		$(".row-input-debit-note").hide()
 		$(".row-item-debit-note").hide()
+	}
+
+	function LaporanDebitNote(opsi)
+	{
+		if(opsi == 'laporan'){
+			$(".col-list-debit-note").hide()
+			$(".col-laporan-debit-note").show()
+			// $(".row-input-debit-note").hide()
+			// $(".row-item-debit-note").hide()
+		}
+		if(opsi == 'list'){
+			$(".col-laporan-debit-note").hide()
+			$(".col-list-debit-note").show()
+			// $(".row-input-debit-note").hide()
+			// $(".row-item-debit-note").hide()
+		}
 	}
 
 	function onKeyUpDN()
@@ -416,26 +554,28 @@
 				});
 			},
 			data: ({
-				id_dn, opsi
+				id_dn, opsi, urlAuth
 			}),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
+				let prop = '';
+				(urlAuth == 'Admin') ? prop = false : prop = true;
 				$("#h_id_header").val(id_dn)
-				$("#tgl_debit_note").val(data.header.tgl_dn)
+				$("#tgl_debit_note").val(data.header.tgl_dn).prop("disabled", prop)
 				$("#transaksi").val(data.header.jenis_dn).trigger("change").prop("disabled", true)
 				$("#no_debit_note").val(data.header.no_dn)
-				$("#ketentuan").val(data.header.ket_dn)
-				$("#tgl_jatuh_tempo").val(data.header.jt_dn)
-				$("#no_po").val(data.header.po_dn)
-				$("#tagih_ke").val(data.header.tagih_dn).trigger("change")
-				// $("#i_deskripsi").val("")
-				// $("#i_qty").val("")
-				// $("#i_harga").val("")
-				// $("#i_total").val("")
+				$("#ketentuan").val(data.header.ket_dn).prop("disabled", prop)
+				$("#tgl_jatuh_tempo").val(data.header.jt_dn).prop("disabled", prop)
+				$("#no_po").val(data.header.po_dn).prop("disabled", prop)
+				$("#tagih_ke").val(data.header.tagih_dn).trigger("change").prop("disabled", prop)
+				$("#i_deskripsi").val("").prop("disabled", prop)
+				$("#i_qty").val("").prop("disabled", prop)
+				$("#i_harga").val("").prop("disabled", prop)
+				$("#i_total").val("").prop("disabled", prop)
 				let oBtn = '';
 				let cBtn = '';
-				if(data.header.verif_dn == 'Y'){
+				if(data.header.verif_dn == 'Y' || urlAuth != 'Admin'){
 					oBtn = 'disabled';
 					cBtn = 'btn-secondary';
 				}else{
@@ -594,5 +734,29 @@
 				}
 			})
 		});
+	}
+
+	function cariLaporanDebitNote(opsi)
+	{
+		$(".cari-pdf-debit-note").html("")
+		$(".cari-lap-debit-note").html("")
+		let lap_jenis = $("#lap_jenis").val()
+		let lap_cv = $("#lap_cv").val()
+		let lap_verif = $("#lap_verif").val()
+		let lap_tgl1 = $("#lap_tgl1").val()
+		let lap_tgl2 = $("#lap_tgl2").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/cariLaporanDebitNote')?>',
+			type: "POST",
+			data: ({
+				opsi, lap_jenis, lap_cv, lap_verif, lap_tgl1, lap_tgl2
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$(".cari-pdf-debit-note").html(data.pdf)
+				$(".cari-lap-debit-note").html(data.html)
+			}
+		})
 	}
 </script>

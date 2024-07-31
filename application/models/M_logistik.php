@@ -2484,6 +2484,7 @@ class M_logistik extends CI_Model
 		$this->db->where('id_dn', $id_dn);
 		$this->db->set('verif_dn', 'Y');
 		$this->db->set('verif_time', date('Y-m-d H:i:s'));
+		$this->db->set('verif_by', $this->session->userdata('username'));
 		$data = $this->db->update('debit_note_header');
 		return [
 			'data' => $data,
