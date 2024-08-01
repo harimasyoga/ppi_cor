@@ -2467,7 +2467,7 @@ class Logistik extends CI_Controller
 	}
 
 	function cariLaporanLaminasi()
-	{
+	{ //
 		$html = '';
 		$opsi = $_POST["opsi"];
 		if($opsi == 'laporan'){
@@ -3737,6 +3737,7 @@ class Logistik extends CI_Controller
 	{
 		$id_dn = $_POST["id_dn"];
 		$opsi = $_POST["opsi"];
+		$urlAuth = $_POST["urlAuth"];
 		$htmlDtl = '';
 
 		$header = $this->db->query("SELECT*FROM debit_note_header WHERE id_dn='$id_dn'")->row();
@@ -3754,7 +3755,7 @@ class Logistik extends CI_Controller
 			$subTotal = 0;
 			foreach($detail->result() as $r){
 				$i++;
-				if($header->verif_dn == 'Y'){
+				if($header->verif_dn == 'Y' || $urlAuth != 'Admin'){
 					$hBtn = 'class="btn btn-xs btn-secondary" disabled';
 				}else{
 					$hBtn = 'class="btn btn-xs btn-danger" style="font-weight:bold" onclick="hapusItemDN('."'".$r->id."'".')"';
@@ -3779,7 +3780,7 @@ class Logistik extends CI_Controller
 				</tr>';
 			}
 		$htmlDtl .= '</table>';
-		if($header->verif_dn == 'Y'){
+		if($header->verif_dn == 'Y' || $urlAuth != 'Admin'){
 			$oBtn = 'disabled';
 			$cBtn = 'btn-secondary';
 		}else{
@@ -3943,6 +3944,120 @@ class Logistik extends CI_Controller
 
 		$judul = 'DEBIT NOTE - '.$header->no_dn;
 		$this->m_fungsi->newMpdf($judul, '', $html, 10, 10, 10, 10, 'P', 'A4', $judul.'.pdf');
+	}
+
+	function cariLaporanDebitNote()
+	{
+		$html = '';
+		$opsi = $_POST["opsi"];
+		if($opsi == 'laporan'){
+			$lap_jenis = $_POST["lap_jenis"];
+			$lap_cv = $_POST["lap_cv"];
+			$lap_verif = $_POST["lap_verif"];
+			$lap_tgl1 = $_POST["lap_tgl1"];
+			$lap_tgl2 = $_POST["lap_tgl2"];
+			$sps = '';
+		}else{
+			$opsi = $_GET["opsi"];
+			$lap_jenis = $_GET["lap_jenis"];
+			$lap_cv = $_GET["lap_cv"];
+			$lap_verif = $_GET["lap_verif"];
+			$lap_tgl1 = $_GET["lap_tgl1"];
+			$lap_tgl2 = $_GET["lap_tgl2"];
+			$sps = ';font-size:12px';
+		}
+		// HEADER
+		($lap_cv == "") ? $cv = "" : $cv = "AND tagih_dn='$lap_cv'";
+		$header = $this->db->query("SELECT h.*,b.nm_hub,(SELECT COUNT(*) FROM debit_note_detail z WHERE z.no_dn=h.no_dn) AS detail FROM debit_note_header h
+		INNER JOIN m_hub b ON h.tagih_dn=b.id_hub
+		WHERE jenis_dn LIKE '%$lap_jenis%' AND tgl_dn BETWEEN '$lap_tgl1' AND '$lap_tgl2' AND verif_dn LIKE '%$lap_verif%' $cv
+		GROUP BY tgl_dn,jenis_dn,no_dn");
+		$html .= '<table style="width:100%;margin-top:25px;color:#000;border-collapse:collapse;vertical-align:top;font-family:tahoma'.$sps.'">';
+		if($header->num_rows() == 0){
+			$html .='<tr>
+				<td>DATA KOSONG!</td>
+			</tr>';
+		}else{
+			$html .='<thead>
+				<tr>
+					<th style="padding:6px 6px 12px" colspan="9">LAPORAN DEBIT NOTE</th>
+				</tr>
+				<tr style="background:#5eafde">
+					<th style="padding:6px">#</th>
+					<th style="padding:6px">TANGGAL</th>
+					<th style="padding:6px">NO. DEBIT NOTE</th>
+					<th style="padding:6px">TAGIH KE</th>
+					<th style="padding:6px">VERIF</th>
+					<th style="padding:6px">DESKRIPSI</th>
+					<th style="padding:6px">QTY</th>
+					<th style="padding:6px">HARGA</th>
+					<th style="padding:6px">JUMLAH</th>
+				</tr>
+			</thead>';
+			$i = 0;
+			$sumTotal = 0;
+			foreach($header->result() as $r){
+				$i++;
+				if($opsi == 'pdf'){
+					$plus = $r->detail+1;
+					$rw = "rowspan='$plus'";
+				}else{
+					($r->detail == 1) ? $rw = '' : $rw = "rowspan='$r->detail'";
+				}
+				($r->detail == 1) ? $st = 'border:1px solid #ccc;border-width:1px 0;' : $st = 'border-top:1px solid #ccc;';
+				$html .='<tr>
+					<td style="'.$st.'padding:6px;vertical-align:top;text-align:center" '.$rw.'>'.$i.'</td>
+					<td style="'.$st.'padding:6px;vertical-align:top;text-align:center" '.$rw.'>'.$r->tgl_dn.'</td>
+					<td style="'.$st.'padding:6px;vertical-align:top" '.$rw.'>'.$r->no_dn.'</td>
+					<td style="'.$st.'padding:6px;vertical-align:top" '.$rw.'>CV. '.$r->nm_hub.'</td>
+					<td style="'.$st.'padding:6px;vertical-align:top;text-align:center" '.$rw.'>'.$r->verif_dn.'</td>';
+				if($opsi == 'pdf'){
+					$html .= '</tr>';
+				}
+				// DETAIL
+				$detail = $this->db->query("SELECT*FROM debit_note_detail WHERE no_dn='$r->no_dn' ORDER BY des_dn");
+				($r->detail == 1) ? $dd = ';font-weight:bold;font-style:italic' : $dd = '';
+				($r->detail == 1) ? $sd = 'border:1px solid #ccc;border-width:1px 0;' : $sd = '';
+				$sumJumlah = 0;
+				foreach($detail->result() as $d){
+					if($opsi == 'pdf'){
+						$html .= '<tr>';
+					}
+					$html .='<td style="'.$sd.'padding:6px">'.$d->des_dn.'</td>
+						<td style="'.$sd.'padding:6px;text-align:right">'.round($d->qty_dn,2).'</td>
+						<td style="'.$sd.'padding:6px;text-align:right">'.number_format($d->harga_dn,0,',','.').'</td>
+						<td style="'.$sd.'padding:6px;text-align:right'.$dd.'">'.number_format($d->jumlah_dn,0,',','.').'</td>
+					</tr>';
+					$sumJumlah += $d->jumlah_dn;
+				}
+				// TOTAL
+				if($r->detail != 1){
+					$html .= '<tr>
+						<td style="border-bottom:1px solid #ccc;padding:6px" colspan="5"></td>
+						<td style="border-bottom:1px solid #ccc;padding:6px;font-weight:bold" colspan="3">TOTAL</td>
+						<td style="border-bottom:1px solid #ccc;padding:6px;text-align:right;font-weight:bold;font-style:italic">'.number_format($sumJumlah,0,',','.').'</td>
+					</tr>';
+				}
+				$sumTotal += $sumJumlah;
+			}
+			// GRAND TOTAL
+			$html .= '<tr style="background:#5eafde">
+				<td style="padding:6px" colspan="5"></td>
+				<td style="padding:6px;font-weight:bold" colspan="3">TOTAL KESELURUHAN</td>
+				<td style="padding:6px;text-align:right;font-weight:bold;font-style:italic">'.number_format($sumTotal,0,',','.').'</td>
+			</tr>';
+		}
+		$html .= '</table>';
+
+		if($opsi == 'laporan'){
+			echo json_encode([
+				'html' => $html,
+				'pdf' => ($header->num_rows() == 0) ? '' : '<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold;padding:8px 12px" href="'.base_url("Logistik/cariLaporanDebitNote?opsi=pdf&lap_jenis=".$lap_jenis."&lap_cv=".$lap_cv."&lap_verif=".$lap_verif."&lap_tgl1=".$lap_tgl1."&lap_tgl2=".$lap_tgl2."").'"><i class="fas fa-file-pdf"></i> PDF</a>',
+			]);
+		}else{
+			$judul = 'LAPORAN DEBIT NOTE';
+			$this->m_fungsi->newMpdf($judul, '', $html, 3, 7, 7, 7, 'L', 'A4', $judul.'.pdf');
+		}
 	}
 
 	//
@@ -5688,7 +5803,13 @@ class Logistik extends CI_Controller
 				$data[] = $row;
 			}
 		}else if ($jenis == "loadDataDebitNote") {
-			$query = $this->db->query("SELECT*FROM debit_note_header ORDER BY verif_dn,no_dn ASC")->result();
+			$tahunD = $_POST["tahun"];
+			$jenisD = $_POST["jenis"];
+			$hubD = $_POST["hub"];
+			($hubD == "") ? $wHubD = '' : $wHubD = "AND tagih_dn='$hubD'";
+			$query = $this->db->query("SELECT*FROM debit_note_header
+			WHERE tgl_dn LIKE '%$tahunD%' AND jenis_dn LIKE '%$jenisD%' $wHubD
+			ORDER BY verif_dn,no_dn ASC")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
@@ -5745,7 +5866,7 @@ class Logistik extends CI_Controller
 				$row[] = '<div class="text-center">'.$btnPrint.'</div>';
 				// AKSI
 				$btnEdit = '<button type="button" onclick="editDebitNote('."'".$r->id_dn."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button> ';
-				$btnHapus = '<button type="button" onclick="hapusDebitNote('."'".$r->id_dn."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>';
+				$btnHapus = ($this->session->userdata('level') == 'Admin') ? '<button type="button" onclick="hapusDebitNote('."'".$r->id_dn."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>' : '';
 				if($r->verif_dn == 'Y'){
 					$btnAksi = $btnEdit;
 				}else{
@@ -9393,7 +9514,7 @@ class Logistik extends CI_Controller
 		INNER JOIN m_rencana_kirim k ON p.no_pl_urut=k.rk_urut AND p.id=k.id_pl_box
 		INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
 		WHERE p.tgl LIKE '%$tahun%' AND pajak='$pajak'
-		GROUP BY p.no_surat DESC,p.no_kendaraan,p.id_perusahaan,p.no_po");
+		GROUP BY p.tgl DESC,p.no_surat DESC,p.no_kendaraan,p.id_perusahaan,p.no_po");
 
 		$data = array();
 		$i = 0;
@@ -9513,21 +9634,40 @@ class Logistik extends CI_Controller
 						$noSJ = explode('/', $sjpo->no_surat);
 
 						if($sjpo->id_hub != 7){
-							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'&nbsp;<span style="background:#007bff;color:#fff;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>';
+							if($sjpo->pajak == 'ppn'){
+								$spjkH = 'background:#e4003a;';
+							}else{
+								$spjkH = 'background:#007bff;';
+							}
+							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'&nbsp;<span style="'.$spjkH.'color:#fff;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>';
 						}else{
-							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'/'.$noSJ[4].'&nbsp;<span style="background:#f8f9fa;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>';
+							if($sjpo->pajak == 'ppn'){
+								$spjk = 'background:#f8f9fa;';
+							}else{
+								$spjk = 'background:#ffb22c;';
+							}
+							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'/'.$noSJ[4].'&nbsp;<span style="'.$spjk.'height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>';
 						}
 
 						// PRINT SURAT JALAN
 						($sjpo->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
 						if($noSJ[0] != 000 && in_array($this->session->userdata('level'), ['Admin', 'User'])){
-							$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$sjpo->no_surat."&top=".$jarak."&ctk=0").'" title="'.$sjpo->no_surat.'" >PRINT</a>';
+							$btnPrint2 = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$sjpo->no_surat."&top=".$jarak."&ctk=0").'" title="'.$sjpo->no_surat.'" >PRINT</a>';
+							if($sjpo->pajak == 'ppn' && $sjpo->id_hub != 7){
+								$btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
+							}else{
+								$btnPrint = $btnPrint2;
+							}
 						}else{
 							$btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
 						}
 
 						if($noSJ[0] != 000 && $sjpo->id_hub != 7){
-							$btnJasa = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" title="SJ JASA" onclick="insertSuratJalanJasa('."'".$sjpo->no_surat."'".')">JASA</button>';
+							if($sjpo->pajak == 'ppn'){
+								$btnJasa = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">JASA</span>';
+							}else{
+								$btnJasa = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" title="SJ JASA" onclick="insertSuratJalanJasa('."'".$sjpo->no_surat."'".')">JASA</button>';
+							}
 						}else{
 							if($sjpo->id_hub != 7){
 								$btnJasa = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">JASA</span>';

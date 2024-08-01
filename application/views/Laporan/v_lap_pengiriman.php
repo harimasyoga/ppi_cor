@@ -6,6 +6,16 @@
 			</div>
 		</div>
 	</section>
+
+	<style>
+		/* Chrome, Safari, Edge, Opera */
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+	</style>
+
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row">
@@ -118,7 +128,7 @@
 								</select>
 							</div>
 						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px;<?= ($this->session->userdata('level') == 'Admin') ? '' : 'display:none'; ?>">
+						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px;<?= (in_array($this->session->userdata('level'), ['Admin', 'User'])) ? '' : 'display:none'; ?>">
 							<div class="col-md-2">OPSI</div>
 							<div class="col-md-10">
 								<select class="form-control select2" id="opsi" onchange="plhOS()">
@@ -169,8 +179,6 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
-				// $(".span-tanggal").html(data.tgl)
 				$("#list-laporan").html(data.html)
 				swal.close()
 			}
@@ -233,6 +241,88 @@
 				data = JSON.parse(res)
 				plhOS()
 				swal.close()
+			}
+		})
+	}
+
+	function returKiriman(ii)
+	{
+		let h_tr = $("#h_tr").val()
+		if(parseInt(h_tr) == parseInt(ii)){
+			$("#h_tr").val("")
+			$(".tr").hide()
+		}else{
+			$("#h_tr").val(ii)
+			$(".tr").hide()
+			$(".tampilkantr-"+ii).show()
+		}
+	}
+
+	function addReturKiriman(ii)
+	{
+		let h_tot_muat = $("#h_tot_muat_"+ii).val()
+		let h_tgl = $("#h_tgl_"+ii).val()
+		let h_id_pelanggan = $("#h_id_pelanggan_"+ii).val()
+		let h_id_produk = $("#h_id_produk_"+ii).val()
+		let h_kode_po = $("#h_kode_po_"+ii).val()
+		let h_urut = $("#h_urut_"+ii).val()
+		let h_no_surat = $("#h_no_surat_"+ii).val()
+		let h_plat = $("#h_plat_"+ii).val()
+		let rtr_tgl = $("#rtr_tgl_"+ii).val()
+		let rtr_ket = $("#rtr_ket_"+ii).val()
+		let rtr_jumlah = $("#rtr_jumlah_"+ii).val()
+		$.ajax({
+			url: '<?php echo base_url('Laporan/addReturKiriman')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				h_tot_muat, h_tgl, h_id_pelanggan, h_id_produk, h_kode_po, h_urut, h_no_surat, h_plat, rtr_tgl, rtr_ket, rtr_jumlah
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					plhOS()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function deleteReturkiriman(id)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Laporan/deleteReturkiriman')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					plhOS()
+				}
 			}
 		})
 	}
