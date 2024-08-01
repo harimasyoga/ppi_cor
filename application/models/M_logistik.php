@@ -1328,28 +1328,20 @@ class M_logistik extends CI_Model
 				$hub = $this->db->query("SELECT aka FROM m_hub WHERE id_hub='$id_hub'")->row();
 				if($jenis_lm == "PPI"){
 					$w_sj = '/'.$hub->aka.'/'.$tahun;
-					$w_hb = "AND p.id_hub='$id_hub'";
+					$w_hb = "";
 				}
 				if($jenis_lm == "PEKALONGAN"){
 					$w_sj = '/'.$tahun;
 					$w_hb = "AND p.jenis_lm='PEKALONGAN'";
 				}
-				$noSJ = $this->db->query("SELECT l.no_surat,p.id_hub,r.*,b.aka FROM m_rk_laminasi rk
-				INNER JOIN pl_laminasi l ON rk.id_pl_lm=l.id AND rk.rk_urut=l.no_pl_urut AND rk.rk_no_po=l.no_po AND rk.rk_tgl=l.tgl AND rk.id_pelanggan_lm=l.id_perusahaan
-				INNER JOIN trs_po_lm_detail dtl ON rk.id_po_dtl=dtl.id
-				INNER JOIN trs_po_lm p ON p.id=rk.id_po_lm
-				INNER JOIN m_no_rek_lam r ON r.id_hub=p.id_hub
-				LEFT JOIN m_hub b ON r.id_hub=b.id_hub
-				WHERE l.no_surat LIKE '%$w_sj' $w_hb ORDER BY l.no_surat DESC LIMIT 1");
+				$noSJ = $this->db->query("SELECT*FROM pl_laminasi l WHERE l.no_surat LIKE '%$w_sj' $w_hb ORDER BY l.no_surat DESC LIMIT 1");
 				if($noSJ->num_rows() == 0){
 					$no = 0;
-					$aka = $hub->aka;
 				}else{
 					($jenis_lm == "PEKALONGAN") ? $no = substr($noSJ->row()->no_surat,0,3) : $no = substr($noSJ->row()->no_surat,3,3);
-					$aka = $noSJ->row()->aka;
 				}
 				if($jenis_lm == "PPI"){
-					$no_surat = 'LM/'.str_pad($no+1, 3, "0", STR_PAD_LEFT).'/'.$aka.'/'.$tahun;
+					$no_surat = 'LM/'.str_pad($no+1, 3, "0", STR_PAD_LEFT).'/'.$hub->aka.'/'.$tahun;
 				}
 				if($jenis_lm == "PEKALONGAN"){
 					$no_surat = str_pad($no+1, 3, "0", STR_PAD_LEFT).'/PKL'.'/'.$romawi.'/'.$tahun;

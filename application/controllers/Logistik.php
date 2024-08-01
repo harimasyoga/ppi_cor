@@ -9514,7 +9514,7 @@ class Logistik extends CI_Controller
 		INNER JOIN m_rencana_kirim k ON p.no_pl_urut=k.rk_urut AND p.id=k.id_pl_box
 		INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
 		WHERE p.tgl LIKE '%$tahun%' AND pajak='$pajak'
-		GROUP BY p.no_surat DESC,p.no_kendaraan,p.id_perusahaan,p.no_po");
+		GROUP BY p.tgl DESC,p.no_surat DESC,p.no_kendaraan,p.id_perusahaan,p.no_po");
 
 		$data = array();
 		$i = 0;
