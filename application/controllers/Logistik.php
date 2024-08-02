@@ -3929,7 +3929,7 @@ class Logistik extends CI_Controller
 				<td style="border:0;padding:5px;text-align:center">Wonogiri</td> 
 			</tr>
 			<tr>
-				<td style="border:0;padding:0 0 20px;line-height:1.8">Pembayaran Full Amount ditransfer ke :<br/>BCA 078 027 5758 <br/>A.n PT. PRIMA PAPER INDONESIA</td>
+				<td style="border:0;padding:0 0 20px;line-height:1.8">Pembayaran Full Amount ditransfer ke :<br/>BJB 0144384024001 <br/>A.n PT. PRIMA PAPER INDONESIA</td>
 				<td style="border:0;padding:0"></td>
 			</tr>
 			<tr>
