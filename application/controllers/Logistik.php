@@ -1980,7 +1980,7 @@ class Logistik extends CI_Controller
 			if($disc->num_rows() > 0){
 				foreach($disc->result() as $c){
 					if($c->opsi == 'DISCOUNT'){
-						$ketDsc = 'Discount Cash '.$c->persen.'% ('.$c->hari.' hari)';
+						$ketDsc = 'Discount Cash '.round($c->persen,2).'% ('.$c->hari.' hari)';
 					}else if($c->opsi == 'BIAYA BONGKAR'){
 						$ketDsc = 'Biaya Bongkar';
 					}else if($c->opsi == 'POTONG KARUNG'){
@@ -2589,7 +2589,7 @@ class Logistik extends CI_Controller
 				if($disc->num_rows() > 0){
 					foreach($disc->result() as $c){
 						if($c->opsi == 'DISCOUNT'){
-							$ketDsc = 'Discount Cash '.$c->persen.'% ('.$c->hari.' hari)';
+							$ketDsc = 'Discount Cash '.round($c->persen,2).'% ('.$c->hari.' hari)';
 						}else if($c->opsi == 'BIAYA BONGKAR'){
 							$ketDsc = 'Biaya Bongkar';
 						}else if($c->opsi == 'POTONG KARUNG'){

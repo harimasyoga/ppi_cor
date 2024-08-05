@@ -1056,7 +1056,7 @@
 			let discount = 0;
 			let total = 0;
 			if((persen != 0 || persen != '') && (hari != 0 || hari != '')){
-				discount = (parseInt(h_total_inv) * parseInt(persen)) / 100
+				discount = (parseInt(h_total_inv) * parseFloat(persen)) / 100
 				total = (parseInt(h_total_inv) - parseInt(discount))
 			}else{
 				discount = 0
