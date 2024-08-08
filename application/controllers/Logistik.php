@@ -3917,7 +3917,7 @@ class Logistik extends CI_Controller
 				}
 			}
 		$html .= '</table>';
-		$bank = $this->db->query("SELECT*FROM m_no_rek_debit_note WHERE bank_dn='$header->bank_dn'")->row();
+		$bank = $this->db->query("SELECT*FROM m_no_rek_debit_note WHERE id_dn='$header->bank_dn'")->row();
 		// TRANSFER DAN TTD
 		// '.$this->m_fungsi->tanggal_format_indonesia(date('Y-m-d')).'
 		$html .= '<table style="margin-bottom:10px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-size:11px;font-family:tahoma">
