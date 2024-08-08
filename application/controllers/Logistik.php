@@ -3917,6 +3917,7 @@ class Logistik extends CI_Controller
 				}
 			}
 		$html .= '</table>';
+		$bank = $this->db->query("SELECT*FROM m_no_rek_debit_note WHERE bank_dn='$header->bank_dn'")->row();
 		// TRANSFER DAN TTD
 		// '.$this->m_fungsi->tanggal_format_indonesia(date('Y-m-d')).'
 		$html .= '<table style="margin-bottom:10px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-size:11px;font-family:tahoma">
@@ -3929,7 +3930,7 @@ class Logistik extends CI_Controller
 				<td style="border:0;padding:5px;text-align:center">Wonogiri</td> 
 			</tr>
 			<tr>
-				<td style="border:0;padding:0 0 20px;line-height:1.8">Pembayaran Full Amount ditransfer ke :<br/>BJB 0144384024001 <br/>A.n PT. PRIMA PAPER INDONESIA</td>
+				<td style="border:0;padding:0 0 20px;line-height:1.8">Pembayaran Full Amount ditransfer ke :<br/>'.$bank->nm_bank.' '.$bank->no_rek_bank.' <br/>A.n '.$bank->attn_bank.'</td>
 				<td style="border:0;padding:0"></td>
 			</tr>
 			<tr>
