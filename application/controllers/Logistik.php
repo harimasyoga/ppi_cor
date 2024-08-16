@@ -7874,6 +7874,22 @@ class Logistik extends CI_Controller
 					$ket_email    = '* Harap bukti transfer di email ke';
 					$an           = 'PT. PRIMA PAPER INDONESIA';
 				}
+			}else if($data_detail->bank=='BJB')
+			{
+				if($data_detail->pajak=='nonppn')
+				{
+					$norek        = '-';
+					$nm_bank      = '-';
+					$email        = '-';
+					$ket_email    = '-';
+					$an           = '-';
+				}else{
+					$norek        = '0144384024001';
+					$nm_bank      = 'BJB';
+					$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+					$ket_email    = '* Harap bukti transfer di email ke';
+					$an           = 'PT. PRIMA PAPER INDONESIA';
+				}
 			}else if($data_detail->bank=='BCA')
 			{
 				if($data_detail->pajak=='nonppn')
@@ -10605,6 +10621,8 @@ class Logistik extends CI_Controller
         $query = $this->db->query("SELECT 'BCA' as nm_bank
 		union all
 		select 'BNI' as nm_bank
+		union all
+		select 'BJB' as nm_bank
 		union all
 		select CONCAT(nm_bank,'_',aka)nm_bank from m_hub where jns='box'
 		order by nm_bank")->result();
