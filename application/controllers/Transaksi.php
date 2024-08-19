@@ -1454,9 +1454,18 @@ class Transaksi extends CI_Controller
 			}
 		} else if ($jenis == "po_bahan") {
 
+			$id_hub    = $this->input->post('id_hub');
+			if($id_hub)
+			{
+				$where_hub = "where id_hub in ('$id_hub') ";
+			}else{
+				$where_hub = "";
+			}
+
 			$query = $this->db->query("SELECT b.*,a.*,(select datang_bhn_bk from(select sum(datang_bhn_bk)datang_bhn_bk,no_po_bhn from trs_d_stok_bb group by no_po_bhn)c where c.no_po_bhn=a.no_po_bhn)datang
 			FROM trs_po_bhnbk a 
 			JOIN m_hub b ON a.hub=b.id_hub 
+			$where_hub
 			ORDER BY tgl_bhn desc,a.id_po_bhn")->result();
 
 			$i               = 1;
