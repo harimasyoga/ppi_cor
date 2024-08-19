@@ -31,11 +31,30 @@
 						</div>
 				</div>
 				<div class="card-body" >
+					<div class="row">
 					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi','User'])){ ?>
-						<div style="margin-bottom:12px">
+						<div style="margin-bottom:12px; position: absolute;left: 20px;">
 							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 						</div>
-					<?php } ?>
+
+						<div class="" style="position: absolute;left: 250px; font-weight:bold">
+								<select id="list_hub" class="form-control select2" onchange="load_data()">
+								<?php
+										$query = $this->db->query("SELECT*FROM m_hub order by id_hub");
+										$html ='';
+										$html .='<option value="">SEMUA</option>';
+										foreach($query->result() as $r){
+											$html .='<option value="'.$r->id_hub.'">'.$r->nm_hub.'</option>';
+										}
+										echo $html
+									?>
+								</select>
+						</div>
+						<?php } ?>
+					</div>
+					<br>
+					<br>
+					
 					<!-- <div style="overflow:auto;white-space:nowrap"> -->
 						<table id="datatable_list" class="table table-bordered table-striped table-scrollable" width="100%">
 							<thead class="color-tabel">
@@ -212,7 +231,7 @@
 					$('#hub').html(option);
 					swal.close();
 				}else{	
-					option += "<option value=''></option>";
+					option += "<option value=''></option>";			
 					$('#hub').html(option);					
 					swal.close();
 				}
@@ -244,7 +263,8 @@
 
 	function load_data() 
 	{
-		let table = $('#datatable_list').DataTable();
+		var list_hub    = $("#list_hub").val()
+		let table       = $('#datatable_list').DataTable();
 		table.destroy();
 		tabel = $('#datatable_list').DataTable({
 			"processing": true,
@@ -252,7 +272,8 @@
 			"paging": true,
 			"ajax": {
 				"url": '<?php echo base_url('Transaksi/load_data/po_bahan')?>',
-				"type": "POST",
+				"type": "POST", 
+				"data"  : { id_hub:list_hub },
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],
