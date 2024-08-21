@@ -210,6 +210,7 @@
 												<option value="REPEAT">REPEAT</option>
 												<option value="NEW_ORDER">NEW ORDER</option>
 												<option value="REVISI">REVISI DESAIN</option>
+												<option value="TAMBAH_DESAIN">TAMBAHAN DESAIN</option>
 											</select>
 										</div>
 									</div>
