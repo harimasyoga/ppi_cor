@@ -5058,8 +5058,20 @@ class Logistik extends CI_Controller
 
 				$i++;
 			}
-		}else if ($jenis == "stok_bb") {			
-			$query = $this->db->query("SELECT a.*,(select b.no_polisi from m_jembatan_timbang b where a.no_timbangan=b.no_timbangan)nopol FROM trs_h_stok_bb a ORDER BY tgl_stok desc,id_stok")->result();
+		}else if ($jenis == "stok_bb") {	
+			
+			$id_hub    = $this->input->post('id_hub');
+			if($id_hub)
+			{
+				$where_hub = "where a.no_stok in (SELECT no_stok FROM trs_d_stok_bb where id_hub in ('$id_hub')) ";
+			}else{
+				$where_hub = "";
+			}
+			
+			$query = $this->db->query("SELECT a.*,(select b.no_polisi from m_jembatan_timbang b where a.no_timbangan=b.no_timbangan)nopol 
+			FROM trs_h_stok_bb a 
+			$where_hub
+			ORDER BY tgl_stok desc,id_stok")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {

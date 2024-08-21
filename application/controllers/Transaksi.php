@@ -1149,6 +1149,10 @@ class Transaksi extends CI_Controller
 					$status_karet    = '<b>REVISI DESAIN</b>';
 					$btn_sk          = 'btn-success';
 
+				}else if($r->status_karet=='TAMBAH_DESAIN'){
+					$status_karet    = '<b>TAMBAHAN DESAIN</b>';
+					$btn_sk          = 'btn-secondary';
+
 				}else{
 					$status_karet    = '<b>NEW ORDER</b>';
 					$btn_sk          = 'btn-info';
