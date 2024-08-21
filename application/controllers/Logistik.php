@@ -4687,7 +4687,7 @@ class Logistik extends CI_Controller
 				// $row[] = '<div class="text-right"><a href="javascript:void(0)" onclick="editTimbangan('."'".$r->id_timbangan."'".','."'detail'".')">'.number_format($r->berat_bersih).'</a></div>';
 				$aksi       = "";
 
-				if ($this->session->userdata('level') == 'Admin') 
+				if (in_array($this->session->userdata('level'), ['Admin','Pembayaran'])) 
 				{
 					$cek = $this->db->query("SELECT * FROM trs_h_stok_bb where no_timbangan='$r->no_timbangan' ")->num_rows();
 
