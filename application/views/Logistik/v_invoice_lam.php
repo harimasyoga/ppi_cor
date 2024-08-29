@@ -394,6 +394,27 @@
 											</select>
 										</td>
 									</tr>
+									<?php if($this->session->userdata('username') != 'usman'){?>
+										<td style="padding:3px 0">ATTN</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="lap_attn" class="form-control select2">
+												<?php
+													$html ='';
+													$query = $this->db->query("SELECT*FROM m_no_rek_lam ORDER BY id");
+													$html .='<option value="">SEMUA</option>';
+													foreach($query->result() as $r){
+														$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
+													}
+													echo $html;
+												?>
+											</select>
+										</td>
+									<?php }else{ ?>
+										<td style="padding:0" colspan="5">
+											<input type="hidden" id="lap_attn" value="">
+										</td>
+									<?php }?>
 									<tr>
 										<td style="padding:3px 0">TANGGAL SURAT JALAN</td>
 										<td style="padding:3px 10px">:</td>
@@ -488,6 +509,27 @@
 											</select>
 										</td>
 									</tr>
+									<?php if($this->session->userdata('username') != 'usman'){?>
+										<td style="padding:3px 0">ATTN</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="byr_attn" class="form-control select2">
+												<?php
+													$html ='';
+													$query = $this->db->query("SELECT*FROM m_no_rek_lam ORDER BY id");
+													$html .='<option value="">SEMUA</option>';
+													foreach($query->result() as $r){
+														$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
+													}
+													echo $html;
+												?>
+											</select>
+										</td>
+									<?php }else{ ?>
+										<td style="padding:0" colspan="5">
+											<input type="hidden" id="byr_attn" value="">
+										</td>
+									<?php }?>
 									<tr>
 										<td style="padding:3px 0">TGL. JATUH TEMPO</td>
 										<td style="padding:3px 10px">:</td>
@@ -1356,6 +1398,7 @@
 				$("#plh-lap-lap").val("").trigger('change')
 			}
 			$("#plh-lap-cust").val("").trigger('change')
+			$("#lap_attn").val("").trigger('change')
 			$(".col-list-laminasi").hide()
 			$(".col-list-lam-laporan").show()
 			$(".col-list-lam-pembayaran").hide()
@@ -1365,6 +1408,7 @@
 			}
 			$("#plh_bayar").val("").trigger('change')
 			$("#plh_cust").val("").trigger('change')
+			$("#byr_attn").val("").trigger('change')
 			$(".col-list-laminasi").hide()
 			$(".col-list-lam-laporan").hide()
 			$(".col-list-lam-pembayaran").show()
@@ -1381,6 +1425,7 @@
 		let pilih = $("#plh-lap-lap").val()
 		let attn = $('#plh-lap-cust option:selected').attr('attn')
 		let plh_cust = $("#plh-lap-cust").val()
+		let lap_attn = $("#lap_attn").val()
 		let tgl1_lap = $("#tgl1_lap").val()
 		let tgl2_lap = $("#tgl2_lap").val()
 		$.ajax({
@@ -1397,7 +1442,7 @@
 				});
 			},
 			data: ({
-				opsi, pilih, plh_cust, tgl1_lap, tgl2_lap, attn
+				opsi, pilih, plh_cust, lap_attn, tgl1_lap, tgl2_lap, attn
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -1417,6 +1462,7 @@
 		let plh_bayar = $("#plh_bayar").val()
 		let plh_cust = $("#plh_cust").val()
 		let attn = $('#plh_cust option:selected').attr('attn')
+		let byr_attn = $("#byr_attn").val()
 		let tgl1_jt = $("#tgl1_jt").val()
 		let tgl2_jt = $("#tgl2_jt").val()
 		$.ajax({
@@ -1433,7 +1479,7 @@
 				});
 			},
 			data: ({
-				opsi, plh_pilih, plh_bayar, plh_cust, attn, tgl1_jt, tgl2_jt
+				opsi, plh_pilih, plh_bayar, plh_cust, attn, byr_attn, tgl1_jt, tgl2_jt
 			}),
 			success: function(res){
 				data = JSON.parse(res)

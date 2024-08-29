@@ -1332,7 +1332,7 @@ class M_logistik extends CI_Model
 				}
 				if($jenis_lm == "PEKALONGAN"){
 					$w_sj = '/'.$tahun;
-					$w_hb = "AND p.jenis_lm='PEKALONGAN'";
+					$w_hb = "AND l.no_surat LIKE '%/PKL/%'";
 				}
 				$noSJ = $this->db->query("SELECT*FROM pl_laminasi l WHERE l.no_surat LIKE '%$w_sj' $w_hb ORDER BY l.no_surat DESC LIMIT 1");
 				if($noSJ->num_rows() == 0){

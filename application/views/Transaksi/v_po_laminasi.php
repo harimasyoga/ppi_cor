@@ -42,7 +42,7 @@
 								<select id="customer" class="form-control select2" onchange="plhCustomer()">
 									<?php
 										($this->session->userdata('username') == 'usman') ? $where = "WHERE s.id_sales='9' OR s.nm_sales='Usman'" : $where = '';
-										$query = $this->db->query("SELECT lm.*,s.nm_sales FROM m_pelanggan_lm lm INNER JOIN m_sales s ON lm.id_sales=s.id_sales $where ORDER BY nm_pelanggan_lm");
+										$query = $this->db->query("SELECT lm.*,s.nm_sales FROM m_pelanggan_lm lm INNER JOIN m_sales s ON lm.id_sales=s.id_sales ORDER BY nm_pelanggan_lm");
 										$html ='';
 										$html .='<option value="">PILIH</option>';
 										foreach($query->result() as $r){

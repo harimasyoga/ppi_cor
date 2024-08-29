@@ -54,7 +54,7 @@
 								</select>
 							</div>
 						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
+						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
 							<div class="col-md-3">CUSTOMER</div>
 							<div class="col-md-9">
 								<select class="form-control select2" id="plh-customer" onchange="load_data_sj()">
@@ -68,13 +68,33 @@
 										$html ='';
 										$html .='<option value="">SEMUA</option>';
 										foreach($query->result() as $r){
-											$html .='<option value="'.$r->id_pelanggan_lm.'" id_sales="'.$r->id_sales.'" nm_sales="'.$r->nm_sales.'">'.$r->nm_pelanggan_lm.'</option>';
+											$html .='<option value="'.$r->id_pelanggan_lm.'">'.$r->nm_pelanggan_lm.'</option>';
 										}
 										echo $html
 									?>
 								</select>
 							</div>
 						</div>
+						<?php if($this->session->userdata('username') != 'usman'){?>
+							<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
+								<div class="col-md-3">ATTN</div>
+								<div class="col-md-9">
+									<select id="attn_cv" class="form-control select2" onchange="load_data_sj()">
+										<?php
+											$html ='';
+											$query = $this->db->query("SELECT*FROM m_no_rek_lam ORDER BY id");
+											$html .='<option value="">SEMUA</option>';
+											foreach($query->result() as $r){
+												$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
+											}
+											echo $html;
+										?>
+									</select>
+								</div>
+							</div>
+						<?php }else{?>
+							<input type="hidden" id="attn_cv" value="">
+						<?php }?>
 						<div class="card-body row" style="padding:0 6px 6px">
 							<div class="col-md-12">
 								<div style="overflow:auto;white-space:nowrap">
@@ -219,6 +239,29 @@
 										</td>
 									</tr>
 									<tr>
+									<?php if($this->session->userdata('username') != 'usman'){?>
+										<td style="padding:3px 0">ATTN</td>
+										<td style="padding:3px 10px">:</td>
+										<td style="padding:3px 0" colspan="3">
+											<select id="lap_attn" class="form-control select2">
+												<?php
+													$html ='';
+													$query = $this->db->query("SELECT*FROM m_no_rek_lam ORDER BY id");
+													$html .='<option value="">SEMUA</option>';
+													foreach($query->result() as $r){
+														$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
+													}
+													echo $html;
+												?>
+											</select>
+										</td>
+									<?php }else{ ?>
+										<td style="padding:0" colspan="5">
+											<input type="hidden" id="lap_attn" value="">
+										</td>
+									<?php }?>
+									</tr>
+									<tr>
 										<td style="padding:3px 0">TANGGAL SURAT JALAN</td>
 										<td style="padding:3px 10px">:</td>
 										<td style="padding:3px 0">
@@ -302,6 +345,7 @@
 	function load_data_sj() {
 		let plh_thn = $("#plh-thn").val()
 		let plh_customer = $("#plh-customer").val()
+		let attn_cv = $("#attn_cv").val()
 
 		let table = $('#datatable1').DataTable();
 		table.destroy();
@@ -313,7 +357,7 @@
 				"url": '<?php echo base_url('Logistik/load_data/load_data_sj')?>',
 				"type": "POST",
 				"data": ({
-					plh_thn, plh_customer
+					plh_thn, plh_customer, attn_cv
 				}),
 			},
 			"aLengthMenu": [
@@ -368,6 +412,7 @@
 		let plh_sj_cust = $("#plh_sj_cust").val()
 		let nm_pelanggan = $('#plh_sj_cust option:selected').attr('nm-pelanggan')
 		let attn = $('#plh_sj_cust option:selected').attr('attn')
+		let cv_attn = $("#lap_attn").val()
 		let tgl1_lap = $("#tgl1_lap").val()
 		let tgl2_lap = $("#tgl2_lap").val()
 		$.ajax({
@@ -384,7 +429,7 @@
 				});
 			},
 			data: ({
-				opsi, plh_sj_jenis, plh_sj_cust, nm_pelanggan, attn, tgl1_lap, tgl2_lap
+				opsi, plh_sj_jenis, plh_sj_cust, nm_pelanggan, attn, cv_attn,tgl1_lap, tgl2_lap
 			}),
 			success: function(res){
 				data = JSON.parse(res)
