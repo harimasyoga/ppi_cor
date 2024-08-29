@@ -4586,6 +4586,16 @@ class Logistik extends CI_Controller
 				$cek_pembayaran = $this->db->query("SELECT*FROM trs_bayar_inv WHERE no_inv='$r->no_invoice' ")->num_rows();
 				$aksi = "";
 
+				$btncetak ='<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
+
+				$btnEdit = '<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv . ')" title="EDIT DATA" >
+									<b><i class="fa fa-edit"></i> </b>
+								</a> ';
+
+				$btnHapus = '<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-secondary btn-sm">
+									<i class="fa fa-trash-alt"></i>
+								</button> ';
+
 				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','Keuangan1']))
 				{
 					if ($r->acc_owner == "N") 
@@ -4593,34 +4603,23 @@ class Logistik extends CI_Controller
 
 						if($cek_pembayaran > 0)
 						{
-							$aksi = '
-							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
-							';
+							$aksi = '<div class="text-center">'.$btncetak.'<div>';
 
 						}else{
 
 							if (!in_array($this->session->userdata('username'), ['developer','karina']))
 							{
-								$aksi = '
-								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
-								';
-
+								$aksi = '<div class="text-center">'.$btncetak.'<div>';
 							}else{
 
 								// $aksi = '
 								// <a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&no_inv=" .$r->no_invoice ."") . '" title="EDIT DATA" >
 								// 	<b><i class="fa fa-edit"></i> </b>
 								// </a> ';
-								$aksi = '
-								<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv . ')" title="EDIT DATA" >
-									<b><i class="fa fa-edit"></i> </b>
-								</a> 
-								
-								<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-danger btn-sm">
-									<i class="fa fa-trash-alt"></i>
-								</button> 
-
-								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+								$aksi = '<div class="text-center">
+								'.$btnEdit.'
+								'.$btnHapus.'
+								'.$btncetak.'</div>
 								';
 
 							}
@@ -4630,27 +4629,18 @@ class Logistik extends CI_Controller
 
 						if($cek_pembayaran > 0)
 						{
-							$aksi = '
-							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
-							';
+							$aksi = '<div class="text-center">'.$btncetak.'</div>';
 
 						}else{
 
 							if (!in_array($this->session->userdata('username'), ['developer','karina']))
 							{
-
-								$aksi = '								
-								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
-								';
+								$aksi = '<div class="text-center">'.$btncetak.'</div>';
 
 							}else{
 
-								$aksi = '
-								<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv . ')" title="EDIT DATA" >
-									<b><i class="fa fa-edit"></i> </b>
-								</a> 
-								
-								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+								$aksi = '<div class="text-center">'.$btnEdit.'
+								'.$btncetak.'</div>
 								';
 							}
 
@@ -4694,7 +4684,7 @@ class Logistik extends CI_Controller
 					if($cek>0)
 					{
 						$aksi = '
-						<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+						<a target="_blank" class="btn btn-sm btn-danger" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
 						<a target="_blank" class="btn btn-sm btn-secondary" href="'.$printLampiran.'" title="LAMPIRAN"><i class="fas fa-paperclip" style="color:#fff"></i></a>';
 					}else{
 
@@ -4702,12 +4692,13 @@ class Logistik extends CI_Controller
 						<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/v_timbangan_edit?id_timb=" .$r->id_timbangan ."&no_timb=" .$r->no_timbangan ."") . '" title="EDIT DATA" >
 							<b><i class="fa fa-edit"></i> </b>
 						</a> 
-						<button type="button" title="DELETE" onclick="deleteTimbangan(' . $id . ',' . $no_timb . ')" class="btn btn-danger btn-sm">
+						<button type="button" title="DELETE" onclick="deleteTimbangan(' . $id . ',' . $no_timb . ')" class="btn btn-secondary btn-sm">
 							<i class="fa fa-trash-alt"></i>
 
 						</button> 
-						<a target="_blank" class="btn btn-sm btn-primary" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
-						<a target="_blank" class="btn btn-sm btn-secondary" href="'.$printLampiran.'" title="LAMPIRAN"><i class="fas fa-paperclip" style="color:#fff"></i></a>';
+						<a target="_blank" class="btn btn-sm btn-danger" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+
+						<a target="_blank" class="btn btn-sm btn-primary" href="'.$printLampiran.'" title="LAMPIRAN"><i class="fas fa-paperclip" style="color:#fff"></i></a>';
 					}
 					
 				} else {
@@ -4916,7 +4907,7 @@ class Logistik extends CI_Controller
 							<b><i class="fa fa-edit"></i> </b>
 						</a> 
 
-						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-danger btn-sm">
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-secondary btn-sm">
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';
@@ -5045,7 +5036,7 @@ class Logistik extends CI_Controller
 							<b><i class="fa fa-edit"></i> </b>
 						</a> 
 
-						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-danger btn-sm">
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-secondary btn-sm">
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';
@@ -5119,7 +5110,7 @@ class Logistik extends CI_Controller
 						
 						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_stok_bb?no_stok=".$no_stok2."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
-						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_stok . ',' . $id_hub2 . ')" class="btn btn-danger btn-sm">
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_stok . ',' . $id_hub2 . ')" class="btn btn-secondary btn-sm">
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';
@@ -5318,7 +5309,7 @@ class Logistik extends CI_Controller
 				$btnEdit = '<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv_beli . ')" title="EDIT DATA" >
 				<b><i class="fa fa-edit"></i> </b></a>';
 
-				$btnHapus = '<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv_beli . ',' . $r->id_hub . ')" class="btn btn-danger btn-sm">
+				$btnHapus = '<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv_beli . ',' . $r->id_hub . ')" class="btn btn-secondary btn-sm">
 				<i class="fa fa-trash-alt"></i></button> ';
 					
 				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User','Keuangan1']))
@@ -5391,7 +5382,7 @@ class Logistik extends CI_Controller
 				$btnEdit = '<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv_bhn . ')" title="EDIT DATA" >
 				<b><i class="fa fa-edit"></i> </b></a>';
 
-				$btnHapus = '<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv_bhn . ',' . $r->id_hub . ')" class="btn btn-danger btn-sm">
+				$btnHapus = '<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv_bhn . ',' . $r->id_hub . ')" class="btn btn-secondary btn-sm">
 				<i class="fa fa-trash-alt"></i></button> ';
 					
 				if (in_array($this->session->userdata('level'), ['Admin','User','Keuangan1']))
@@ -5659,8 +5650,8 @@ class Logistik extends CI_Controller
 				$row[] = '<div class="text-center">'.$lapLaporan.'</div>';
 				// AKSI
 				$jurnal = $this->db->query("SELECT*FROM jurnal_d WHERE no_transaksi='$r->no_invoice' GROUP BY no_transaksi");
-				$btnEdit = '<button type="button" onclick="editInvoiceLaminasi('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button> '; 
-				$btnHapus = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="hapusInvoiceLaminasi('."'".$r->id."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button> ';
+				$btnEdit = '<button type="button" onclick="editInvoiceLaminasi('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></button> '; 
+				$btnHapus = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="hapusInvoiceLaminasi('."'".$r->id."'".')" title="HAPUS" class="btn btn-secondary btn-sm"><i class="fa fa-trash-alt"></i></button> ';
 				if($r->acc_owner == 'Y' && $jurnal->num_rows() == 0 && $r->status_bayar == 'BELUM BAYAR' && $r->jenis_lm == 'PPI' && $this->session->userdata('level') == 'Admin'){
 					$btnVerif = '<button type="button" onclick="batalInvoiceLaminasi('."'".$r->id."'".')" title="BATAL ACC OWNER" class="btn btn-danger btn-sm"><i class="fa fa-lock" style="color:#000"></i></button> ';
 				}else{
@@ -5790,13 +5781,15 @@ class Logistik extends CI_Controller
 					$pph23 = round($dtl->total * 0.02);
 					$total = ($dtl->total + $ppn) - $pph23;
 					$row[] = '<div class="text-right" style="font-weight:bold;color:#000">'.number_format($total,0,',','.').'</div>';
-					$lapPrint = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/cetakInvJasa?no_invoice=".$r->no_invoice."").'" title=""><i class="fas fa-print"></i></a>';
+					$lapPrint = '<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Logistik/cetakInvJasa?no_invoice=".$r->no_invoice."").'" title=""><i class="fas fa-print"></i></a>';
 				}
 				// CETAK
 				$row[] = '<div class="text-center">'.$lapPrint.'</div>';
 				// AKSI
-				$btnEdit =  ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="editInvoiceJasa('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button> '; 
-				$btnHapus = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="hapusInvoiceJasa('."'".$r->id."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button> ';
+				$btnEdit =  ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="editInvoiceJasa('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></button> '; 
+
+				$btnHapus = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="hapusInvoiceJasa('."'".$r->id."'".')" title="HAPUS" class="btn btn-secondary btn-sm"><i class="fa fa-trash-alt"></i></button> ';
+
 				if($r->acc_owner == 'Y'){
 					if($this->session->userdata('level') == 'Admin'){
 						$btnVerif = '<button type="button" onclick="batalInvoiceJasa('."'".$r->id."'".')" title="BATAL ACC OWNER" class="btn btn-danger btn-sm"><i class="fa fa-lock" style="color:#000"></i></button>'; 

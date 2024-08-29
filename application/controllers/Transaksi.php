@@ -313,7 +313,7 @@ class Transaksi extends CI_Controller
 			$edit = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
 			$view = '<button type="button" onclick="editHPP('."'".$r->id_hpp."'".','."'detail'".')" class="btn btn-info btn-sm" style="color:#000"><i class="fas fa-eye"></i></button>';
 			if($this->session->userdata('level') == 'Admin'){
-				$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".')" class="btn btn-danger btn-sm" style="color:#000"><i class="fas fa-trash-alt"></i></button>';
+				$hapus = '<button type="button" onclick="hapusHPP('."'".$r->id_hpp."'".')" class="btn btn-secondary btn-sm" ><i class="fas fa-trash-alt"></i></button>';
 			}else{
 				$hapus = '';
 			}
@@ -806,7 +806,7 @@ class Transaksi extends CI_Controller
 
 		$html .='<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
 		$html .='<table class="table table-bordered table-striped">
-		<thead>
+		<thead class="color-tabel">
 			<tr>
 				<th style="text-align:center">NO</th>
 				<th style="text-align:center">Nama Sales</th>
@@ -1398,11 +1398,11 @@ class Transaksi extends CI_Controller
 
 						if($r->status_app1 == 'N' || $r->status_app2 == 'N' || $r->status_app3 == 'N' || $r->status_app1 == 'H' || $r->status_app2 == 'H' || $r->status_app3 == 'H' || $r->status_app1 == 'R' || $r->status_app2 == 'R' || $r->status_app3 == 'R'){
 							$aksi .=  '
-								<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
+								<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-warning btn-sm">
 									<i class="fa fa-edit"></i>
 								</button>
 
-								<button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ',' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
+								<button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ',' . "'" . $r->no_po . "'" . ')" class="btn btn-secondary btn-sm">
 									<i class="fa fa-trash-alt"></i>
 								</button>  
 	                            <button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
@@ -1512,7 +1512,7 @@ class Transaksi extends CI_Controller
 						
 						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO_BAHAN?no_po_bhn=".$no_po_bhn2."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
-						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_po_bhn . ')" class="btn btn-danger btn-sm">
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_po_bhn . ')" class="btn btn-secondary btn-sm">
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';
@@ -1595,23 +1595,27 @@ class Transaksi extends CI_Controller
 				// $row[] = $r->id_pelanggan;
 				$row[] = $r->nm_pelanggan;
 
+				$btncetak ='<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_WO?no_wo=" . $r->no_wo . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>';
+
+				$btnEdit = '<button type="button" onclick="tampil_edit(' . "'" . $r->id_wo . "'" . ',' . "'edit'" . ')" class="btn btn-warning btn-sm">
+								<i class="fa fa-edit"></i>
+							</button>';
+
+				$btnHapus = '<button type="button" onclick="deleteData(' . "'" . $r->id_wo . "'" . ',' . "'" . $r->no_wo . "'" . ')" class="btn btn-secondary btn-sm">
+								<i class="fa fa-trash-alt"></i>
+							</button> ';
+
+
+
 				if ($r->statusWO == 'Open') {
 					if(in_array($this->session->userdata('level'), ['Admin','User'])){
-						$aksi = ' 
-							<button type="button" onclick="tampil_edit(' . "'" . $r->id_wo . "'" . ',' . "'edit'" . ')" class="btn btn-info btn-sm">
-								<i class="fa fa-edit"></i>
-							</button>
-							<a target="_blank" class="btn btn-sm btn-warning" href="' . base_url("Transaksi/Cetak_WO?no_wo=" . $r->no_wo . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
-							<button type="button" onclick="deleteData(' . "'" . $r->id_wo . "'" . ',' . "'" . $r->no_wo . "'" . ')" class="btn btn-danger btn-sm">
-								<i class="fa fa-trash-alt"></i>
-							</button>  
-						';
+						$aksi = '<div class="text-center">'.$btnEdit.' '.$btncetak.' '.$btnHapus.'</div>';
 					}else{
-						$aksi = '<a target="_blank" class="btn btn-sm btn-warning" href="' . base_url("Transaksi/Cetak_WO?no_wo=" . $r->no_wo . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>';
+						$aksi = '<div class="text-center">'.$btncetak.'</div>';
 					}
 				} else {
 					// $aksi = '-';
-					$aksi = '<a target="_blank" class="btn btn-sm btn-warning" href="' . base_url("Transaksi/Cetak_WO?no_wo=" . $r->no_wo . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>';
+					$aksi = '<div class="text-center">'.$btncetak.' </div>';
 				}
 
 				$row[] = $aksi;
@@ -1771,12 +1775,12 @@ class Transaksi extends CI_Controller
 					</div>';
 
 					$lapAcc = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Lap_POLaminasi?id=".$r->id."&opsi=acc").'" title="Laporan Laminasi" ><i class="fas fa-print"></i></a>'; 
-					$lapProd = '<a target="_blank" class="btn btn-sm btn-warning" href="'.base_url("Transaksi/Lap_POLaminasi?id=".$r->id."&opsi=prod").'" title="Laporan Laminasi" ><i class="fas fa-print"></i></a>'; 
+					$lapProd = '<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Lap_POLaminasi?id=".$r->id."&opsi=prod").'" title="Laporan Laminasi" ><i class="fas fa-print"></i></a>'; 
 					$row[] = '<div class="text-center">'.$lapAcc.' '.$lapProd.'</div>';
 
 					($r->status_lm1 == 'Y' && $r->status_lm2 == 'Y') ? $xEditVerif = 'verif' : $xEditVerif = 'edit';
-					$btnEdit = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'".$xEditVerif."'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button>'; 
-					$btnHapus = ($r->status_lm1 == 'Y' && $r->status_lm2 == 'Y') ? '' : '<button type="button" onclick="hapusPOLaminasi(0,'."'".$r->id."'".','."'trs_po_lm'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>';
+					$btnEdit = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'".$xEditVerif."'".')" title="EDIT" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></button>'; 
+					$btnHapus = ($r->status_lm1 == 'Y' && $r->status_lm2 == 'Y') ? '' : '<button type="button" onclick="hapusPOLaminasi(0,'."'".$r->id."'".','."'trs_po_lm'".')" title="HAPUS" class="btn btn-secondary btn-sm"><i class="fa fa-trash-alt"></i></button>';
 					$btnVerif = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'verif'".')" title="VERIF" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>'; 
 					
 					if($this->session->userdata('level') == 'Admin'){

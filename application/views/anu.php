@@ -96,23 +96,23 @@
                                         <td width="20%" class="text-center"><strong>Jumlah</strong></td>
                                     </tr>
                                     <tr>
-                                        <td>eCommerce Business Hosting Server SG - kemasansumberberkat.com (30/05/2024 - 29/05/2025) *</td>
+                                        <td>eCommerce Business Hosting Server SG - rukunsumberbarokah.com (26/08/2024 - 25/08/2025) *</td>
                                         <td class="text-center">Rp. 1.550,000</td>
                                     </tr>
                                                                     <tr>
-                                        <td>Produk Tambahan (kemasansumberberkat.com) - SSL Certificates - Geotrust True BusinessID (30/05/2024 - 29/05/2025)</td>
+                                        <td>Produk Tambahan (rukunsumberbarokah.com) - SSL Certificates - Geotrust True BusinessID (26/08/2024 - 25/08/2025)</td>
                                         <td class="text-center">Rp. 1.273,000</td>
                                     </tr>
                                     <tr>
-                                        <td>Produk Tambahan (kemasansumberberkat.com) - SSL Certificates - SSL Secure Site (30/05/2024 - 29/05/2025) *</td>
+                                        <td>Produk Tambahan (rukunsumberbarokah.com) - SSL Certificates - SSL Secure Site (26/08/2024 - 25/08/2025) *</td>
                                         <td class="text-center">Rp. 620,000</td>
                                     </tr>
                                     <tr>
-                                        <td>Produk Tambahan (kemasansumberberkat.com) - SiteLock - Lite Fix (30/05/2024 - 29/05/2025) *</td>
+                                        <td>Produk Tambahan (rukunsumberbarokah.com) - SiteLock - Lite Fix (26/08/2024 - 25/08/2025) *</td>
                                         <td class="text-center">Rp. 550,000</td>
                                     </tr>
                                     <tr>
-                                        <td>Domain Registration - kemasansumberberkat.com - 1 Tahun/s (30/05/2024 - 29/05/2025)<br />
+                                        <td>Domain Registration - rukunsumberbarokah.com - 1 Tahun/s (26/08/2024 - 25/08/2025)<br />
                                         + DNS Management<br />
                                         + ID Protection *</td>
                                             <td class="text-center">Rp. 80,000</td>

@@ -33,33 +33,35 @@
         </div>
         <div class="card-body">
 
-		<?php if(in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
+          <?php if(in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
           <button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
-          <br><br>
-		<?php } ?>
+              <br><br>
+          <?php } ?>
          
 
-          <table id="datatable" class="table table-bordered table-striped" width="100%">
-            <thead class="color-tabel">
-            <tr>
-              <th style="text-align: center; width:5%">No</th>
-              <th style="text-align: center; width:15%">No WO</th>
-              <th style="text-align: center; width:10%">Type</th>
-              <th style="text-align: center; width:10%">Tgl WO</th>
-              <!-- <th style="text-align: center; width:15%">No SO</th> -->
-              <th style="text-align: center; width:10%">Tgl SO</th>
-              <th style="text-align: center; width:5%">Status</th>
-              <th style="text-align: center; width:15%">Kode MC</th>
-              <th style="text-align: center; width:5%">Qty</th>
-              <!-- <th style="text-align: center; width:%">ID Pelanggan</th> -->
-              <th style="text-align: center; width:15%">Pelanggan</th>
+          <div style="overflow:auto;">
+            <table id="datatable" class="table table-bordered table-striped" width="100%">
+              <thead class="color-tabel">
+                <tr>
+                  <th style="text-align: center; width:5%">No</th>
+                  <th style="text-align: center; width:15%">No WO</th>
+                  <th style="text-align: center; width:10%">Type</th>
+                  <th style="text-align: center; width:10%">Tgl WO</th>
+                  <!-- <th style="text-align: center; width:15%">No SO</th> -->
+                  <th style="text-align: center; width:10%">Tgl SO</th>
+                  <th style="text-align: center; width:5%">Status</th>
+                  <th style="text-align: center; width:15%">Kode MC</th>
+                  <th style="text-align: center; width:5%">Qty</th>
+                  <!-- <th style="text-align: center; width:%">ID Pelanggan</th> -->
+                  <th style="text-align: center; width:15%">Pelanggan</th>
 
-              <th style="text-align: center; width:10%">Aksi</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
+                  <th style="text-align: center; width:10%">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       <!-- /.card -->
@@ -500,7 +502,7 @@
           [5, 10, 15, 20, "Semua"] // change per page values here
       ],		
       
-      responsive: true,
+      responsive: false,
       "pageLength": 5,
       "language": {
         "emptyTable": "Tidak ada data.."

@@ -38,8 +38,9 @@
                             <div class="col-md-2">PERIODE</div>
                             <div class="col-md-3">
                               <select class="form-control select2" name="priode" id="priode" style="width: 100%;" onchange="cek_periode(),load_data_jt_bhn()">
-                                <option value="all">ALL</option>
+                                <option value="bln_ini">BULAN INI</option>
                                 <option value="custom">Custom</option>
+                                <option value="all">ALL</option>
                               </select>
                             </div>
                             <div class="col-md-1"></div>
@@ -342,14 +343,43 @@
                         <div class="card-header">
                           <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP JATUH TEMPO PENJUALAN</h3>
                         </div>
-                        <div class="card-body">
-                          <div class="row">
-                            <div class="col-md-10">
+                        
+                          <!--  AA -->
+                          <div class="col-md-12">								
+                            <br>						
+                            <div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+                              <div class="col-md-2">PERIODE</div>
+                              <div class="col-md-3">
+                                <select class="form-control select2" name="priode_jual" id="priode_jual" style="width: 100%;" onchange="cek_periode_jual(),load_data_jt()">
+                                  <option value="bln_ini">BULAN INI</option>
+                                  <option value="custom">Custom</option>
+                                  <option value="all">ALL</option>
+                                </select>
+                              </div>
+                              <div class="col-md-6"></div>
                             </div>
+                            
+                            <div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="tgl_awal_list_jual" >
+                              <div class="col-md-2">Tgl Awal</div>
+                              <div class="col-md-3">
+                                <input type="date" class="form-control" name="tgl_awal_jual" id="tgl_awal_jual" onchange="load_data_jt()" value ="<?= date('Y-m-d') ?>">
+                              </div>
+                              <div class="col-md-6"></div>
+                            </div>
+
+                            <div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="tgl_akhir_list_jual" >						
+                              <div class="col-md-2">Tgl Akhir</div>
+                              <div class="col-md-3">
+                                <input type="date" class="form-control" name="tgl_akhir_jual" id="tgl_akhir_jual" onchange="load_data_jt()" value ="<?= date('Y-m-d') ?>">
+                              </div>
+                              <div class="col-md-6"></div>
+                            </div>
+                            
+                            <br>
+                            <hr>
                           </div>
+                          <!-- AA -->
                           
-                          
-                        </div>
                           <div style="padding:0 10px 20px;">
                             <div style="overflow:auto;white-space:nowrap" >
                               <table id="load_data_jt" class="table table-bordered table-striped" width="100%">
@@ -418,15 +448,30 @@
     {
       $cek = $('#priode').val();
 
-    if($cek=='all' )
+      if($cek=='custom' )
         {
-          $('#tgl_awal_list').hide("1000");
-          $('#tgl_akhir_list').hide("1000");
-        }else{
           $('#tgl_awal_list').show("1000");
           $('#tgl_akhir_list').show("1000");
+        }else{
+          $('#tgl_awal_list').hide("1000");
+          $('#tgl_akhir_list').hide("1000");
         }
-      }
+    }
+
+    function cek_periode_jual()
+    {
+      $cek = $('#priode_jual').val();
+
+      if($cek=='custom' )
+        {
+          $('#tgl_awal_list_jual').show("1000");
+          $('#tgl_akhir_list_jual').show("1000");
+        }else{
+          $('#tgl_awal_list_jual').hide("1000");
+          $('#tgl_akhir_list_jual').hide("1000");
+        }
+    }
+
     function load_data_hub()
     {
       var th_hub = $('#th_hub').val();
@@ -561,10 +606,12 @@
             });
 
             $('#id_hub2').html(option);
+            $('#id_hub_jual').html(option);
             swal.close();
           }else{	
             option += "<option value=''></option>";
             $('#id_hub2').html(option);					
+            $('#id_hub_jual').html(option);					
             swal.close();
           }
         }
@@ -574,7 +621,12 @@
     
     function load_data_jt() 
     {
-      var table = $('#load_data_jt').DataTable();
+      var id_hub    = $('#id_hub_jual').val()
+      var priode    = $('#priode_jual').val()
+      var tgl_awal  = $('#tgl_awal_jual').val()
+      var tgl_akhir = $('#tgl_akhir_jual').val()
+      var table     = $('#load_data_jt').DataTable();
+
       table.destroy();
       tabel = $('#load_data_jt').DataTable({
         "processing": true,
@@ -582,9 +634,15 @@
         "paging": true,
         "ajax": {
           "url": '<?php echo base_url(); ?>Master/rekap_jt',
-          "type": "POST",
+          "type": "POST",          
+          "data" : ({
+            priode    : priode,
+            id_hub    : id_hub,
+            tgl_awal  : tgl_awal,
+            tgl_akhir : tgl_akhir
+          }),
         },
-        responsive: true,
+        responsive: false,
         "pageLength": 10,
         "language": {
           "emptyTable": "Tidak ada data.."

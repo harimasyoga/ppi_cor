@@ -1247,22 +1247,32 @@ class Master extends CI_Controller
 		$attn         = $_POST['id_hub'];
 		$tgl_awal     = $_POST['tgl_awal'];
 		$tgl_akhir    = $_POST['tgl_akhir'];
+		$bln          = date('m');
 
 		if($attn=='' || $attn== null || $attn== 'null')
 		{
-			if($priode=='all')
+			if($priode=='custom')
 			{
-				$value="";
-			}else{
 				$value="where a.tgl_j_tempo BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+
+			}else if($priode=='bln_ini'){
+
+				$value="where MONTH(a.tgl_j_tempo) in ('$bln') ";
+
+			}else{
+				$value="";
 			}
 
 		}else{
-			if($priode=='all')
+			if($priode=='custom')
 			{
-				$value="where b.id_hub='$attn' ";
-			}else{
 				$value="where b.id_hub='$attn' and a.tgl_j_tempo BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}else if($priode=='bln_ini'){
+
+				$value="where b.id_hub='$attn' and MONTH(a.tgl_j_tempo) in ('$bln')";
+
+			}else{
+				$value="where b.id_hub='$attn' ";
 			}
 
 		}
@@ -1312,23 +1322,36 @@ class Master extends CI_Controller
 		$attn         = $_POST['id_hub'];
 		$tgl_awal     = $_POST['tgl_awal'];
 		$tgl_akhir    = $_POST['tgl_akhir'];
+		$bln          = date('m');
 
 		if($attn=='' || $attn== null || $attn== 'null')
 		{
-			if($priode=='all')
+
+			if($priode=='custom')
 			{
-				$value="";
-			}else{
 				$value="where a.tgl_j_tempo BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+
+			}else if($priode=='bln_ini'){
+
+				$value="where MONTH(a.tgl_j_tempo) in ('$bln') ";
+
+			}else{
+				$value="";
 			}
 
 		}else{
-			if($priode=='all')
+
+			if($priode=='custom')
 			{
-				$value="where b.id_hub='$attn' ";
-			}else{
 				$value="where b.id_hub='$attn' and a.tgl_j_tempo BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+			}else if($priode=='bln_ini'){
+
+				$value="where b.id_hub='$attn' and MONTH(a.tgl_j_tempo) in ('$bln')";
+
+			}else{
+				$value="where b.id_hub='$attn' ";
 			}
+
 
 		}
 		$rekap_jumlah = $this->m_master->query("SELECT IFNULL(sum(hrg_bhn*datang_bhn_bk),0)jumlah from trs_h_stok_bb a
@@ -1347,9 +1370,27 @@ class Master extends CI_Controller
 	{
 		$jenis = $this->uri->segment(3);
 
+		$priode       = $_POST['priode'];
+		$tgl_awal     = $_POST['tgl_awal'];
+		$tgl_akhir    = $_POST['tgl_akhir'];
+		$bln          = date('m');
+
+		if($priode=='custom')
+		{
+			$value="where a.tgl_invoice BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+
+		}else if($priode=='bln_ini'){
+
+			$value="where MONTH(a.tgl_invoice) in ('$bln') ";
+
+		}else{
+			$value="";
+		}
+
 		$data = array();
 		$query = $this->m_master->query("SELECT*FROM invoice_header a 
 		join invoice_detail b ON a.no_invoice=b.no_invoice
+		$value
 		ORDER BY tgl_jatuh_tempo desc,a.no_invoice")->result();
 		$i = 1;
 
