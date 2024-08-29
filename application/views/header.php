@@ -131,8 +131,11 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 								<!-- Add icons to the links using the .nav-icon class
 					with font-awesome or any other icon font library -->
 								<li class="nav-item has-treeview">
-								<a href="<?= base_url('Master') ?>" class="nav-link">
-									<h2><i class="fa fa-box-open"></i>
+								<a  href="<?= base_url('Master') ?>" class="nav-link">
+									<h2>
+										<!-- <i class="fa fa-box-open"></i> -->
+
+									<img style="width:30%;" src="<?= base_url('assets/gambar/simcor.png') ?>" >
 										<?= $setting->singkatan ?></h2>
 								</a>
 								</li>

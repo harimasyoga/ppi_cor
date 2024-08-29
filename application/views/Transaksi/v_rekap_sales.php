@@ -22,21 +22,32 @@
 						<div class="card-header">
 							<h3 class="card-title" style="font-weight:bold;font-style:italic">PILIH</h3>
 						</div>
-						<div class="card-body row" style="padding-bottom:17px;font-weight:bold">
-							<div class="col-md-6" style="margin-bottom:3px">
-								<button type="button" class="btn btn-block btn-info" onclick="pilihan('tgl','tanggal')"><b>TANGGAL</b></button>
-							</div>
-							<div class="col-md-6" style="margin-bottom:3px">
-								<button type="button" class="btn btn-block btn-info" onclick="pilihan('all','semua')"><b>SEMUA</b></button>
-							</div>
-						</div>
-					</div>
 
-					<div class="card card-info card-outline">
-						<div class="card-header">
-							<h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP</h3>
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+							<div class="col-md-2"></div>
+							<div class="col-md-3" >
+								<div class="input-group">								
+									<button type="button" class="btn btn-block btn-info" onclick="pilihan('tgl','tanggal')"><b>TANGGAL</b></button>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="input-group">								
+									<button type="button" class="btn btn-block btn-info" onclick="pilihan('all','semua')"><b>SEMUA</b></button>
+								</div>
+							</div>	
+							
+							<div class="col-md-3"></div>
+
+							<br>
+							<br>
+							<br>
 						</div>
+						
+						<div id="tampil-pilihan"></div>
+
+						
 						<div id="tampil-rincian"></div>
+
 					</div>
 				</div>
 
@@ -69,6 +80,7 @@
 <script type="text/javascript">
 	$(document).ready(function () {
 		// load_data()
+		$("#tampil-pilihan").html(``)
 		$("#tampil-rincian").html(``)
 		$("#tampil-data").html(``)
 		$('.select2').select2({
@@ -86,20 +98,30 @@
 	function pilihan(ket ,opsi)
 	{
 		$("#tampil-data").html(``)
+		$("#tampil-pilihan").html(``)
+		$("#tampil-rincian").html(``)
 		if(ket == 'tgl' && opsi == 'tanggal'){
-			$("#tampil-rincian").html(`
-			<div class="card-body row" style="padding-bottom:20px;font-weight:bold">
-				<div class="col-md-6" style="margin-bottom:4px">
-					BULAN
-				</div>
-				<br>
-				<div class="col-md-6" style="margin-bottom:4px">
-					<input type="month" class="form-control " name="bulan" id="bulan">
-				</div>
-				<div class="col-md-12">
-					<buton class="btn btn-block btn-info" onclick="tampil_data()">CARI</buton>
-				</div>
+			$("#tampil-pilihan").html(`
+			<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+				<div class="col-md-3"></div>
+				<div class="col-md-2" >BULAN</div>
+				<div class="col-md-3">
+					<div class="input-group">								
+						<input type="month" class="form-control " name="bulan" id="bulan">
+					</div>
+				</div>	
+				<div class="col-md-3"></div>
 			</div>
+			<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+				<div class="col-md-5"></div>
+				<div class="col-md-3">
+					<div class="input-group">								
+						<buton class="btn btn-block btn-info" onclick="tampil_data()">CARI</buton>
+					</div>
+				</div>	
+				<div class="col-md-3"></div>
+			</div>
+			<br>
 			`)
 			$('.select2').select2();
 		}else{
