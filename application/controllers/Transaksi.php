@@ -683,6 +683,7 @@ class Transaksi extends CI_Controller
 					<tr><td style="border:0;padding:6px">'.$qty.' ( PACK )</td></tr>';
 					$ket3 = '<tr><td style="border:0;padding:6px;font-weight:bold">ORDER PACK</td></tr>
 					<tr><td style="border:0;padding:6px;font-weight:bold">ORDER IKAT</td></tr>';
+					$ket4 = '';
 					$isi3 = '<tr><td style="border:0;padding:6px">'.number_format($r->order_pack_lm,0,",",".").'</td></tr>
 					<tr><td style="border:0;padding:6px">'.number_format($r->order_ikat_lm,0,",",".").'</td></tr>';
 					$harga1 = '<td style="padding:6px;text-align:right'.$bold.'">'.number_format($r->harga_pack_lm,0,",",".").'</td>
@@ -690,6 +691,7 @@ class Transaksi extends CI_Controller
 				}else{
 					$ket1 = '';
 					$ket2 = '';
+					$ket4 = '<tr><td style="border:0;padding:6px 3px;font-weight:bold">:</td></tr>';
 					$isi1 = '<tr><td style="border:0;padding:6px">'.$qty.' '.$ket.'</td></tr>';
 					$ket3 = '<tr><td style="border:0;padding:6px;font-weight:bold">ORDER</td></tr>';
 					$isi3 = '<tr><td style="border:0;padding:6px">'.$order_pori_lm.' '.$ket.'</td></tr>';
@@ -737,6 +739,7 @@ class Transaksi extends CI_Controller
 							'.$ket2.'
 							<tr><td style="border:0;padding:6px 3px;font-weight:bold">:</td></tr>
 							<tr><td style="border:0;padding:6px 3px;font-weight:bold">:</td></tr>
+							'.$ket4.'
 						</table>
 					</td>
 					<td style="padding:0;border:0'.$bold.'">
@@ -1674,7 +1677,7 @@ class Transaksi extends CI_Controller
 					$where2 = "";
 				}
 			}else{
-				$where2 = "AND (s.id_sales='9' OR s.nm_sales='Usman') AND po.jenis_lm='PEKALONGAN'";
+				$where2 = "AND po.jenis_lm='PEKALONGAN'";
 			}
 			($_POST["po"] == 'pengiriman') ? $order = "ORDER BY po.tgl_lm DESC,pl.nm_pelanggan_lm,po.no_po_lm" : $order = "ORDER BY po.tgl_lm DESC,po.no_po_lm";
 			$query = $this->db->query("SELECT po.*,pl.nm_pelanggan_lm FROM trs_po_lm po
