@@ -650,7 +650,7 @@
         success: function(data) {
           if(data){
             // header
-            $("#total_all_realisasi_hub").html(`<div> <span style='font-weight:bold;' class='text-right'>Rp${format_angka(data.rekap_jumlah.jumlah)}</span></div>`);
+            $("#total_all_realisasi_hub").html(`<div> <span style='font-weight:bold;' class='text-right'>Rp${format_angka(data.rekap_jumlah)}</span></div>`);
             swal.close();
 
           } else {
