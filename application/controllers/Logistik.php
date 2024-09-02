@@ -4686,21 +4686,29 @@ class Logistik extends CI_Controller
 				// $row[] = '<div class="text-right"><a href="javascript:void(0)" onclick="editTimbangan('."'".$r->id_timbangan."'".','."'detail'".')">'.number_format($r->berat_bersih).'</a></div>';
 				$aksi       = "";
 
-				if (in_array($this->session->userdata('level'), ['Admin','Pembayaran'])) 
+				if (in_array($this->session->userdata('level'), ['Admin','Pembayaran','User'])) 
 				{
 					$cek = $this->db->query("SELECT * FROM trs_h_stok_bb where no_timbangan='$r->no_timbangan' ")->num_rows();
 
 					if($cek>0)
 					{
 						$aksi = '
+						
+						<a class="btn btn-sm btn-primary" onclick=editTimbangan(' . $id . ',' . $no_timb . ',"look") title="PREVIEW DATA" >
+							<b><i class="fa fa-eye"></i> </b>
+						</a> 
+
 						<a target="_blank" class="btn btn-sm btn-danger" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+
 						<a target="_blank" class="btn btn-sm btn-secondary" href="'.$printLampiran.'" title="LAMPIRAN"><i class="fas fa-paperclip" style="color:#fff"></i></a>';
 					}else{
 
 						$aksi = '
-						<a class="btn btn-sm btn-warning" href="' . base_url("Logistik/v_timbangan_edit?id_timb=" .$r->id_timbangan ."&no_timb=" .$r->no_timbangan ."") . '" title="EDIT DATA" >
+						<a class="btn btn-sm btn-warning" onclick=editTimbangan(' . $id . ',' . $no_timb . ',"editt") title="EDIT DATA" >
 							<b><i class="fa fa-edit"></i> </b>
 						</a> 
+
+
 						<button type="button" title="DELETE" onclick="deleteTimbangan(' . $id . ',' . $no_timb . ')" class="btn btn-secondary btn-sm">
 							<i class="fa fa-trash-alt"></i>
 
