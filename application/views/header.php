@@ -136,7 +136,8 @@ $setting = $this->db->query("SELECT * FROM m_setting")->row();
 										<!-- <i class="fa fa-box-open"></i> -->
 
 									<img style="width:30%;" src="<?= base_url('assets/gambar/simcor.png') ?>" >
-										<?= $setting->singkatan ?></h2>
+										<?= $setting->singkatan ?>
+									</h2>
 								</a>
 								</li>
 							</ul>
