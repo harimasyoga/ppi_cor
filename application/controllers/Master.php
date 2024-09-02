@@ -1315,6 +1315,29 @@ class Master extends CI_Controller
 			}else{
 				$realisasi = 0;
 			}
+
+			// LAMINASI
+			$queryInvLam = $this->db->query("SELECT h.bank,b.nm_hub,SUM(d.total) AS total FROM invoice_laminasi_header h
+			INNER JOIN m_hub b ON h.bank=b.id_hub
+			INNER JOIN invoice_laminasi_detail d ON h.no_invoice=d.no_invoice
+			WHERE h.bank='$r->id_hub' AND h.tgl_invoice LIKE '%$tahun%' AND h.jenis_lm='PPI'
+			GROUP BY h.bank");
+			// DISKON LAMINASI
+			$discLaminasi = $this->db->query("SELECT h.bank,b.nm_hub,SUM(hitung) AS disc FROM invoice_laminasi_disc c
+			INNER JOIN invoice_laminasi_header h ON c.no_invoice=h.no_invoice
+			INNER JOIN m_hub b ON h.bank=b.id_hub
+			WHERE h.bank='$r->id_hub' AND h.tgl_invoice LIKE '%$tahun%' AND h.jenis_lm='PPI'
+			GROUP BY h.bank");
+			if($discLaminasi->num_rows() > 0) {
+				$disc_laminasi = $discLaminasi->row()->disc;
+			}else{
+				$disc_laminasi = 0;
+			}
+			if($queryInvLam->num_rows() > 0) {
+				$realisasi_laminasi = $queryInvLam->row()->total - $disc_laminasi;
+			}else{
+				$realisasi_laminasi = 0;
+			}
 			
 			if($r->nm_hub=='MITRA MAJU MAKMUR')
 			{
@@ -1327,9 +1350,9 @@ class Master extends CI_Controller
 			$row[] = "<div class='text-center'>".$i."</div>";
 			$row[] = "<div style='font-weight:bold;' class=''>".$nm_hub."</div>";
 			$row[] = $r->jns;
-			$row[] = "<div style='font-weight:bold;' class='text-right'>".number_format($r->total_hub, 0, ",", ".")."</div>";
-			$row[] = "<div style='font-weight:bold;color:#2e46f9' class='text-right'>".number_format(4800000000-$r->total_hub, 0, ",", ".")."</div>";
-			$row[] = "<div class='text-right'>".number_format($realisasi, 0, ",", ".")."</div>";
+			$row[] = "<div style='font-weight:bold;color:#2e46f9;text-align:right''>".number_format($r->total_hub, 0, ",", ".")."</div>";
+			$row[] = "<div style='font-weight:bold;text-align:right''>".number_format(4800000000-$r->total_hub, 0, ",", ".")."</div>";
+			$row[] = "<div style='font-weight:bold;color:#02ae46;text-align:right'>".number_format($realisasi+$realisasi_laminasi, 0, ",", ".")."</div>";
 			
 			$row[] = "<div style='font-weight:bold;' class='text-right'>".$tahun."</div>";
 
@@ -1433,8 +1456,30 @@ class Master extends CI_Controller
 		where a.type not in ('roll') and YEAR(a.tgl_invoice) in ('$tahun')
 		group by a.no_invoice
 		)p ")->row();
+		// LAMINASI
+		$queryInvLam = $this->db->query("SELECT h.bank,b.nm_hub,SUM(d.total) AS total FROM invoice_laminasi_header h
+		INNER JOIN m_hub b ON h.bank=b.id_hub
+		INNER JOIN invoice_laminasi_detail d ON h.no_invoice=d.no_invoice
+		WHERE h.tgl_invoice LIKE '%$tahun%' AND h.jenis_lm='PPI' AND h.bank!='0'");
+		// DISKON LAMINASI
+		$discLaminasi = $this->db->query("SELECT h.bank,b.nm_hub,SUM(hitung) AS disc FROM invoice_laminasi_disc c
+		INNER JOIN invoice_laminasi_header h ON c.no_invoice=h.no_invoice
+		INNER JOIN m_hub b ON h.bank=b.id_hub
+		WHERE h.tgl_invoice LIKE '%$tahun%' AND h.jenis_lm='PPI' AND h.bank!='0'");
+		if($discLaminasi->num_rows() > 0) {
+			$disc_laminasi = $discLaminasi->row()->disc;
+		}else{
+			$disc_laminasi = 0;
+		}
+		if($queryInvLam->num_rows() > 0) {
+			$realisasi_laminasi = $queryInvLam->row()->total - $disc_laminasi;
+		}else{
+			$realisasi_laminasi = 0;
+		}
 
-		$data     = ["rekap_jumlah" => $rekap_jumlah];
+		$data     = [
+			"rekap_jumlah" => $rekap_jumlah->jumlah + $realisasi_laminasi,
+		];
 
         echo json_encode($data);
 	}
