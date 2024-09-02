@@ -4703,19 +4703,37 @@ class Logistik extends CI_Controller
 						<a target="_blank" class="btn btn-sm btn-secondary" href="'.$printLampiran.'" title="LAMPIRAN"><i class="fas fa-paperclip" style="color:#fff"></i></a>';
 					}else{
 
-						$aksi = '
-						<a class="btn btn-sm btn-warning" onclick=editTimbangan(' . $id . ',' . $no_timb . ',"editt") title="EDIT DATA" >
-							<b><i class="fa fa-edit"></i> </b>
+						if($r->input_t=='CORR')
+						{
+							$aksi = '
+							<a class="btn btn-sm btn-primary" onclick=editTimbangan(' . $id . ',' . $no_timb . ',"look") title="PREVIEW DATA" >
+							<b><i class="fa fa-eye"></i> </b>
 						</a> 
 
 
-						<button type="button" title="DELETE" onclick="deleteTimbangan(' . $id . ',' . $no_timb . ')" class="btn btn-secondary btn-sm">
-							<i class="fa fa-trash-alt"></i>
+							<button type="button" title="DELETE" onclick="deleteTimbangan(' . $id . ',' . $no_timb . ')" class="btn btn-secondary btn-sm">
+								<i class="fa fa-trash-alt"></i>
 
-						</button> 
-						<a target="_blank" class="btn btn-sm btn-danger" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+							</button> 
+							<a target="_blank" class="btn btn-sm btn-danger" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
 
-						<a target="_blank" class="btn btn-sm btn-primary" href="'.$printLampiran.'" title="LAMPIRAN"><i class="fas fa-paperclip" style="color:#fff"></i></a>';
+							<a target="_blank" class="btn btn-sm btn-primary" href="'.$printLampiran.'" title="LAMPIRAN"><i class="fas fa-paperclip" style="color:#fff"></i></a>';
+						}else{
+
+							$aksi = '
+							<a class="btn btn-sm btn-warning" onclick=editTimbangan(' . $id . ',' . $no_timb . ',"editt") title="EDIT DATA" >
+								<b><i class="fa fa-edit"></i> </b>
+							</a> 
+
+
+							<button type="button" title="DELETE" onclick="deleteTimbangan(' . $id . ',' . $no_timb . ')" class="btn btn-secondary btn-sm">
+								<i class="fa fa-trash-alt"></i>
+
+							</button> 
+							<a target="_blank" class="btn btn-sm btn-danger" href="'.$print.'" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>
+
+							<a target="_blank" class="btn btn-sm btn-primary" href="'.$printLampiran.'" title="LAMPIRAN"><i class="fas fa-paperclip" style="color:#fff"></i></a>';
+						}
 					}
 					
 				} else {
