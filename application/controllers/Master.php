@@ -1194,6 +1194,7 @@ class Master extends CI_Controller
 				<th style="text-align:center">JENIS</th>
 				<th style="text-align:center">OMSET</th>
 				<th style="text-align:center">SISA PLAFON</th>
+				<th style="text-align:center">REALISASI</th>
 				<th style="text-align:center">TAHUN</th>
 			</tr>
 		</thead>';
@@ -1211,6 +1212,7 @@ class Master extends CI_Controller
 					<td style="text-align:left">'.$r->jns.'</td>
 					<td style="text-align:right">'.number_format($r->total_hub, 0, ",", ".").'</td>
 					<td style="text-align:right">'.number_format(4800000000-$r->total_hub, 0, ",", ".").'</td>
+					<td style="text-align:right">'.number_format(0, 0, ",", ".").'</td>
 					<td style="text-align:right">'.$tahun.'</td>
 				</tr>';
 				$total    += $r->total_hub;
@@ -1218,9 +1220,11 @@ class Master extends CI_Controller
 			}
 			
 			$html .='<tr>
+					<th style="text-align:center" ></th>
 					<th style="text-align:center" colspan="2" >Total</th>
 					<th style="text-align:right">'.number_format($total, 0, ",", ".").'</th>
 					<th style="text-align:right">'.number_format($sisa_hub, 0, ",", ".").'</th>
+					<th style="text-align:center" ></th>
 					<th style="text-align:right"></th>
 				</tr>
 				';
@@ -1241,6 +1245,200 @@ class Master extends CI_Controller
 		
 	}
 
+	function rekap_omset_hub2()
+	{ 
+		$th_hub = $this->input->post('th_hub');
+		if($th_hub){
+			$tahun  = $th_hub;
+		}else{
+			$tahun  = date('Y');
+		}
+
+		$level   = $this->session->userdata('level');
+		$nm_user = $this->session->userdata('nm_user');
+
+		if($level =='Hub')
+		{
+			$cek     = $this->db->query("SELECT*FROM m_hub where nm_hub='$nm_user' ")->row();
+			$cek_data = "WHERE a.id_hub in ('$cek->id_hub')";
+		}else{
+
+			$cek_data = '';
+		}
+		
+		$query  = $this->db->query("SELECT a.*,IFNULL(
+		(
+		select jum from(
+		select id_hub,nm_hub,sum(jum) jum from (select b.id_hub,d.nm_hub,c.qty*price_inc as jum 
+		from trs_po b 
+		JOIN trs_po_detail c ON b.no_po=c.no_po 
+		JOIN m_hub d on b.id_hub=d.id_hub
+		where YEAR(b.tgl_po) in ('$tahun') 
+		union all
+		SELECT po.id_hub,hub.nm_hub,dtl.order_pori_lm*dtl.harga_pori_lm as jum
+		FROM trs_po_lm po
+		INNER JOIN trs_po_lm_detail dtl ON po.no_po_lm=dtl.no_po_lm
+		LEFT JOIN m_hub hub ON hub.id_hub=po.id_hub
+		WHERE (po.id_hub!='0') and po.jenis_lm='PPI' and YEAR(po.tgl_lm) in ('$tahun') 
+		)p group by p.id_hub,p.nm_hub
+		)q where q.id_hub=a.id_hub
+		),0) total_hub 
+		FROM m_hub a $cek_data
+		order by id_hub ")->result();
+
+		$data         = array();
+		$i            = 1;
+		$total        = 0;
+		$total_rata   = 0;
+		$sisa_hub     = 0;
+		foreach ($query as $r) {
+
+			$queryd = $this->db->query("SELECT id_hub,sum(total)total  from(
+			SELECT c.id_hub,b.no_po,a.*,sum(harga)harga_ok,sum(include)include_ok,
+			CASE 
+			WHEN (a.type='box' or a.type='sheet') and pajak='nonppn' THEN sum(round((harga*hasil),0))			
+			WHEN (a.type='box' or a.type='sheet') and pajak='ppn' and inc_exc='Include' THEN sum(round(harga*hasil,0))
+			WHEN (a.type='box' or a.type='sheet') and pajak='ppn' and inc_exc='Exclude' THEN sum(round((harga*hasil)+(harga*hasil*0.11),0))
+			WHEN (a.type='box' or a.type='sheet') and pajak='ppn_pph' and inc_exc='Include' THEN sum(round((harga*hasil)+(harga*hasil*0.001),0))
+			WHEN (a.type='box' or a.type='sheet') and pajak='ppn_pph' and inc_exc='Exclude' THEN sum(round((harga*hasil)+(harga*hasil*0.11)+(harga*hasil*0.001),0))
+			ELSE 0 END AS total
+			from invoice_header a 
+			join invoice_detail b on a.no_invoice=b.no_invoice
+			join trs_po c on b.no_po=c.kode_po
+			where a.type not in ('roll') and YEAR(a.tgl_invoice) in ('$tahun') and id_hub in ($r->id_hub)
+			group by a.no_invoice
+			)p group by id_hub");
+
+			if($queryd->num_rows()>0)
+			{
+				$realisasi = $queryd->row()->total;
+			}else{
+				$realisasi = 0;
+			}
+			
+			if($r->nm_hub=='MITRA MAJU MAKMUR')
+			{
+				$nm_hub = 'MMJ / PPI';
+			}else{
+				$nm_hub = $r->nm_hub;
+
+			}
+			$row = array();
+			$row[] = "<div class='text-center'>".$i."</div>";
+			$row[] = "<div style='font-weight:bold;' class=''>".$nm_hub."</div>";
+			$row[] = $r->jns;
+			$row[] = "<div style='font-weight:bold;' class='text-right'>".number_format($r->total_hub, 0, ",", ".")."</div>";
+			$row[] = "<div style='font-weight:bold;color:#2e46f9' class='text-right'>".number_format(4800000000-$r->total_hub, 0, ",", ".")."</div>";
+			$row[] = "<div class='text-right'>".number_format($realisasi, 0, ",", ".")."</div>";
+			
+			$row[] = "<div style='font-weight:bold;' class='text-right'>".$tahun."</div>";
+
+			$total    += $r->total_hub;
+			$sisa_hub += 4800000000-$r->total_hub;
+			// $idSales = $r->id;
+			// $cekPO = $this->db->query("SELECT COUNT(c.id_sales) AS jmlSales FROM trs_po p INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+			// WHERE c.id_sales='$idSales' GROUP BY c.id_sales")->num_rows();
+			$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->nm_hub."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
+			// $row[] = ($cekPO == 0) ? $btnEdit.' '.$btnHapus : $btnEdit;
+			// $row[] = $btnEdit;
+			$data[] = $row;
+			$i++;
+		}
+		$output = array(
+			"data" => $data,
+		);
+		//output to json format
+		echo json_encode($output);
+	}
+
+	function rekap_all_omset_hub()
+	{
+		$th_hub = $this->input->post('th_hub');
+		if($th_hub){
+			$tahun  = $th_hub;
+		}else{
+			$tahun  = date('Y');
+		}
+
+		$level   = $this->session->userdata('level');
+		$nm_user = $this->session->userdata('nm_user');
+
+		if($level =='Hub')
+		{
+			$cek     = $this->db->query("SELECT*FROM m_hub where nm_hub='$nm_user' ")->row();
+			$cek_data = "WHERE a.id_hub in ('$cek->id_hub')";
+		}else{
+
+			$cek_data = '';
+		}
+		
+		$rekap_jumlah  = $this->db->query("SELECT IFNULL(sum(total_hub),0)jumlah from( SELECT a.*,IFNULL(
+		(
+		select jum from(
+		select id_hub,nm_hub,sum(jum) jum from (select b.id_hub,d.nm_hub,c.qty*price_inc as jum 
+		from trs_po b 
+		JOIN trs_po_detail c ON b.no_po=c.no_po 
+		JOIN m_hub d on b.id_hub=d.id_hub
+		where YEAR(b.tgl_po) in ('$tahun') 
+		union all
+		SELECT po.id_hub,hub.nm_hub,dtl.order_pori_lm*dtl.harga_pori_lm as jum
+		FROM trs_po_lm po
+		INNER JOIN trs_po_lm_detail dtl ON po.no_po_lm=dtl.no_po_lm
+		LEFT JOIN m_hub hub ON hub.id_hub=po.id_hub
+		WHERE (po.id_hub!='0') and po.jenis_lm='PPI' and YEAR(po.tgl_lm) in ('$tahun') 
+		)p group by p.id_hub,p.nm_hub
+		)q where q.id_hub=a.id_hub
+		),0) total_hub 
+		FROM m_hub a $cek_data
+		)p ")->row();
+
+		$data     = ["rekap_jumlah" => $rekap_jumlah];
+
+        echo json_encode($data);
+	}
+	
+	function rekap_all_realisasi_hub()
+	{
+		$th_hub = $this->input->post('th_hub');
+		if($th_hub){
+			$tahun  = $th_hub;
+		}else{
+			$tahun  = date('Y');
+		}
+
+		$level   = $this->session->userdata('level');
+		$nm_user = $this->session->userdata('nm_user');
+
+		if($level =='Hub')
+		{
+			$cek     = $this->db->query("SELECT*FROM m_hub where nm_hub='$nm_user' ")->row();
+			$cek_data = "WHERE a.id_hub in ('$cek->id_hub')";
+		}else{
+
+			$cek_data = '';
+		}
+		
+		$rekap_jumlah  = $this->db->query("SELECT IFNULL(sum(total),0)jumlah  from(
+		SELECT c.id_hub,b.no_po,a.*,sum(harga)harga_ok,sum(include)include_ok,
+		CASE 
+		WHEN (a.type='box' or a.type='sheet') and pajak='nonppn' THEN sum(round((harga*hasil),0))			
+		WHEN (a.type='box' or a.type='sheet') and pajak='ppn' and inc_exc='Include' THEN sum(round(harga*hasil,0))
+		WHEN (a.type='box' or a.type='sheet') and pajak='ppn' and inc_exc='Exclude' THEN sum(round((harga*hasil)+(harga*hasil*0.11),0))
+		WHEN (a.type='box' or a.type='sheet') and pajak='ppn_pph' and inc_exc='Include' THEN sum(round((harga*hasil)+(harga*hasil*0.001),0))
+		WHEN (a.type='box' or a.type='sheet') and pajak='ppn_pph' and inc_exc='Exclude' THEN sum(round((harga*hasil)+(harga*hasil*0.11)+(harga*hasil*0.001),0))
+		ELSE 0 END AS total
+		from invoice_header a 
+		join invoice_detail b on a.no_invoice=b.no_invoice
+		join trs_po c on b.no_po=c.kode_po
+		where a.type not in ('roll') and YEAR(a.tgl_invoice) in ('$tahun')
+		group by a.no_invoice
+		)p ")->row();
+
+		$data     = ["rekap_jumlah" => $rekap_jumlah];
+
+        echo json_encode($data);
+	}
+	
 	function rekap_jt_bhn()
 	{
 		$priode       = $_POST['priode'];

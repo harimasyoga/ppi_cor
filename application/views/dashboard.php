@@ -12,6 +12,98 @@
       </div><!-- /.container-fluid -->
     </section>
 
+    <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub','Keuangan1'])){ ?>
+                    
+      <!-- REKAP OMSET HUB -->
+      <div class="col-md-12 row-omset_hub">
+        <div class="card card-info card-outline">
+          <div class="card-header">
+            <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP OMSET HUB</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-10">
+              </div>
+
+              <div class="col-md-2">
+                <select class="form-control select2" id="th_hub" name="th_hub" onchange="load_data_hub()">
+                  <?php 
+                  $thang        = date("Y");
+                  $thang_maks   = $thang + 3 ;
+                  $thang_min    = $thang - 3 ;
+                  for ($th=$thang_min ; $th<=$thang_maks ; $th++)
+                  { ?>
+
+                    <?php if ($th==$thang) { ?>
+
+                      <option selected value="<?= $th ?>"> <?= $thang ?> </option>
+                      
+                    <?php }else{ ?>
+                      
+                      <option value="<?= $th ?>"> <?= $th ?> </option>
+                    <?php } ?>
+                  <?php } ?>
+                </select>
+              </div>
+            </div>
+            
+          </div>
+          
+
+            <div style="padding:0 10px 20px;">
+              <div style="overflow:auto;white-space:nowrap" >
+                <table id="datatable_omset_hub" class="table table-bordered table-striped" width="100%">
+                  <thead class="color-tabel">
+                    <tr>
+                      <th style="width:5%">NO.</th>
+                      <th style="width:45%">Nama HUB</th>
+                      <th style="width:45%">JENIS</th>
+                      <th style="width:45%">OMSET</th>
+                      <th style="width:40%">SISA PLAFON</th>
+                      <th style="width:40%">REALISASI INV</th>
+                      <th style="width:40%">TAHUN</th>
+                      
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="3" class="text-right">
+                        <label for="total">TOTAL</label>
+                      </td>	
+                      <td>
+                        <div class="mb-1 text-right" style="font-weight:bold;color:red">
+                          <span id="total_all_omset_hub"></span>
+                        </div>
+                        
+                      </td>	
+
+                      <td>
+                        <div class="input-group mb-1 text-right" style="font-weight:bold;color:red">&nbsp;
+                        </div>
+                        
+                      </td>	
+                      <td>
+                        <div class="input-group mb-1 text-right" style="font-weight:bold;color:red">
+                          <span id="total_all_realisasi_hub"></span>
+                        </div>
+                      </td>	
+                      <td class="text-right">&nbsp;
+                      </td>	
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+        </div>
+      </div>
+      <!-- END REKAP OMSET HUB -->
+      
+
+    <?php } ?>
+
+          
     <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Keuangan1'])){ ?>
     <!-- REKAP JATUH TEMPO BAHAN -->
     <!-- content2 -->
@@ -267,50 +359,6 @@
                     </div>
                     <!-- END REKAP STOK BAHAN BAKU -->
 
-
-                    <!-- REKAP OMSET HUB -->
-                    <div class="col-md-12 row-omset_hub">
-                      <div class="card card-info card-outline">
-                        <div class="card-header">
-                          <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP OMSET HUB</h3>
-                        </div>
-                        <div class="card-body">
-                          <div class="row">
-                            <div class="col-md-10">
-                            </div>
-
-                            <div class="col-md-2">
-                              <select class="form-control select2" id="th_hub" name="th_hub" onchange="load_data_hub()">
-                                <?php 
-                                $thang        = date("Y");
-                                $thang_maks   = $thang + 3 ;
-                                $thang_min    = $thang - 3 ;
-                                for ($th=$thang_min ; $th<=$thang_maks ; $th++)
-                                { ?>
-
-                                  <?php if ($th==$thang) { ?>
-
-                                    <option selected value="<?= $th ?>"> <?= $thang ?> </option>
-                                    
-                                  <?php }else{ ?>
-                                      
-                                    <option value="<?= $th ?>"> <?= $th ?> </option>
-                                  <?php } ?>
-                                <?php } ?>
-                              </select>
-                            </div>
-                          </div>
-                          
-                          
-                        </div>
-                          <div style="padding:0 10px 20px;">
-                            <div style="overflow:auto;white-space:nowrap" id="datatable_omset_hub"></div>
-                          </div>
-                      </div>
-                    </div>
-                    <!-- END REKAP OMSET HUB -->
-                    
-
                   <?php } ?>
 
                 <br>
@@ -472,31 +520,168 @@
         }
     }
 
-    function load_data_hub()
-    {
-      var th_hub = $('#th_hub').val();
+    // function load_data_hub()
+    // {
+    //   var th_hub = $('#th_hub').val();
 
-      $.ajax({
-        url   : '<?php echo base_url('Master/rekap_omset_hub')?>',
-        type  : "POST",
-        data  : {th_hub},
-        beforeSend: function() {
-          swal({
-            title: 'Loading',
-            allowEscapeKey: false,
-            allowOutsideClick: false,
-            onOpen: () => {
-              swal.showLoading();
-            }
-          });
+    //   $.ajax({
+    //     url   : '<?php echo base_url('Master/rekap_omset_hub')?>',
+    //     type  : "POST",
+    //     data  : {th_hub},
+    //     beforeSend: function() {
+    //       swal({
+    //         title: 'Loading',
+    //         allowEscapeKey: false,
+    //         allowOutsideClick: false,
+    //         onOpen: () => {
+    //           swal.showLoading();
+    //         }
+    //       });
+    //     },
+    //     success: function(res){
+    //       $("#datatable_omset_hub").html(res)
+    //       swal.close()
+    //     }
+    //   })
+    // }
+
+    function load_data_hub() 
+    {
+      
+      // var id_hub    = $('#id_hub2').val()
+      // var priode    = $('#priode').val()
+      // var tgl_awal  = $('#tgl_awal').val()
+      // var tgl_akhir = $('#tgl_akhir').val()
+      var th_hub    = $('#th_hub').val();
+      var table     = $('#datatable_omset_hub').DataTable();
+
+      table.destroy();
+      tabel = $('#datatable_omset_hub').DataTable({
+        "processing": true,
+        "pageLength": true,
+        "dom": 'rtip',
+        "searching" : false,
+        "paging": true,
+        "ajax": {
+          "url": '<?php echo base_url(); ?>Master/rekap_omset_hub2',
+          "type": "POST",
+          "data" : ({
+            th_hub    : th_hub
+          }),
         },
-        success: function(res){
-          $("#datatable_omset_hub").html(res)
-          swal.close()
+        responsive: false,
+        "pageLength": 50,
+        "language": {
+          "emptyTable": "Tidak ada data.."
         }
-      })
+      });
+      total_omset_hub()
+      total_realisasi_hub()
     }
 
+    function total_omset_hub()
+    {
+
+      // var id_hub    = $('#id_hub2').val()
+      // var priode    = $('#priode').val()
+      // var tgl_awal  = $('#tgl_awal').val()
+      // var tgl_akhir = $('#tgl_akhir').val()
+      var th_hub    = $('#th_hub').val();
+
+      $.ajax({
+        url   : '<?= base_url(); ?>Master/rekap_all_omset_hub',
+        type  : "POST",
+        "data" : ({
+            th_hub    : th_hub
+          }),
+        dataType   : "JSON",
+        
+        success: function(data) {
+          if(data){
+            // header
+            $("#total_all_omset_hub").html(`<div> <span style='font-weight:bold;' class='text-right'>Rp${format_angka(data.rekap_jumlah.jumlah)}</span></div>`);
+            swal.close();
+
+          } else {
+            swal.close();
+            swal({
+              title               : "Cek Kembali",
+              html                : "Gagal Load Data",
+              type                : "error",
+              confirmButtonText   : "OK"
+            });
+            return;
+            $("#total_all_omset_hub").val(0);
+          }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          // toastr.error('Terjadi Kesalahan');
+          
+          swal.close();
+          swal({
+            title               : "Cek Kembali",
+            html                : "Terjadi Kesalahan",
+            type                : "error",
+            confirmButtonText   : "OK"
+          });
+          
+          return;
+        }
+      });
+    }
+    
+    function total_realisasi_hub()
+    {
+
+      // var id_hub    = $('#id_hub2').val()
+      // var priode    = $('#priode').val()
+      // var tgl_awal  = $('#tgl_awal').val()
+      // var tgl_akhir = $('#tgl_akhir').val()
+      var th_hub    = $('#th_hub').val();
+
+      $.ajax({
+        url   : '<?= base_url(); ?>Master/rekap_all_realisasi_hub',
+        type  : "POST",
+        "data" : ({
+            th_hub    : th_hub
+          }),
+        dataType   : "JSON",
+        
+        success: function(data) {
+          if(data){
+            // header
+            $("#total_all_realisasi_hub").html(`<div> <span style='font-weight:bold;' class='text-right'>Rp${format_angka(data.rekap_jumlah.jumlah)}</span></div>`);
+            swal.close();
+
+          } else {
+            swal.close();
+            swal({
+              title               : "Cek Kembali",
+              html                : "Gagal Load Data",
+              type                : "error",
+              confirmButtonText   : "OK"
+            });
+            return;
+            $("#total_all_realisasi_hub").val(0);
+          }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          // toastr.error('Terjadi Kesalahan');
+          
+          swal.close();
+          swal({
+            title               : "Cek Kembali",
+            html                : "Terjadi Kesalahan",
+            type                : "error",
+            confirmButtonText   : "OK"
+          });
+          
+          return;
+        }
+      });
+    }
+    
+    
     function load_data_jt_bhn() 
     {
       var id_hub    = $('#id_hub2').val()
