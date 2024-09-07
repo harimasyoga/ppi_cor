@@ -411,8 +411,25 @@
 								</div>
 								<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi']) && $this->session->userdata('username') != 'usman') { ?>
 									<div class="col-md-2" style="padding-bottom:3px">
+										<select id="bulan" class="form-control select2" onchange="load_data()">
+											<option value="">BULAN</option>
+											<option value="1">JANUARI</option>
+											<option value="2">FEBRUARI</option>
+											<option value="3">MARET</option>
+											<option value="4">APRIL</option>
+											<option value="5">MEI</option>
+											<option value="6">JUNI</option>
+											<option value="7">JULI</option>
+											<option value="8">AGUSTUS</option>
+											<option value="9">SEPTEMBER</option>
+											<option value="10">OKTOBER</option>
+											<option value="11">NOVEMBER</option>
+											<option value="12">DESEMBER</option>
+										</select>
+									</div>
+									<div class="col-md-2" style="padding-bottom:3px">
 										<select id="jenis" class="form-control select2" onchange="load_data()">
-											<option value="">SEMUA</option>
+											<option value="">JENIS</option>
 											<option value="PPI">PPI</option>
 											<option value="PEKALONGAN">PEKALONGAN</option>
 										</select>
@@ -422,7 +439,7 @@
 											<?php
 												$query = $this->db->query("SELECT*FROM m_no_rek_lam WHERE id_hub!='0' AND id_hub!='7' ORDER BY an_bank");
 												$html ='';
-												$html .='<option value="">SEMUA</option>';
+												$html .='<option value="">ATTN</option>';
 												foreach($query->result() as $r){
 													$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
 												}
@@ -430,11 +447,19 @@
 											?>
 										</select>
 									</div>
-									<div class="col-md-4"></div>
+									<div class="col-md-2">
+										<select id="status_kiriman" class="form-control select2" onchange="load_data()">
+											<option value="">STATUS</option>
+											<option value="Open">OPEN</option>
+											<option value="Close">CLOSE</option>
+										</select>
+									</div>
 								<?php }else{ ?>
 									<div class="col-md-10">
 										<input type="hidden" id="jenis" value="">
 										<input type="hidden" id="hub" value="">
+										<input type="hidden" id="bulan" value="">
+										<input type="hidden" id="status_kiriman" value="">
 									</div>
 								<?php } ?>
 							</div>
@@ -486,6 +511,8 @@
 		let tahun = $("#tahun").val()
 		let jenis = $("#jenis").val()
 		let hub = $("#hub").val()
+		let bulan = $("#bulan").val()
+		let status_kiriman = $("#status_kiriman").val()
 		let table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -496,7 +523,7 @@
 				"url": '<?php echo base_url('Transaksi/load_data/trs_po_laminasi')?>',
 				"type": "POST",
 				"data": ({
-					po: 'list', tahun, jenis, hub
+					po: 'list', tahun, jenis, hub, bulan, status_kiriman
 				}),
 			},
 			"aLengthMenu": [

@@ -1887,13 +1887,17 @@ class Transaksi extends CI_Controller
 			$tahun = $_POST["tahun"];
 			$plhJenis = $_POST["jenis"];
 			$plhHub = $_POST["hub"];
+			$bulan = $_POST["bulan"];
+			$status_kiriman = $_POST["status_kiriman"];
 			($plhHub == "") ? $wHub = '' : $wHub = "AND po.id_hub='$plhHub'";
+			($bulan == "") ? $wBln = '' : $wBln = "AND MONTH(po.tgl_lm) IN ('$bulan')";
+			($status_kiriman == "") ? $wSts = '' : $wSts = "AND po.status_kirim='$status_kiriman'";
 			if($_POST["po"] == 'pengiriman' && $this->session->userdata('username') != 'usman'){
 				$where1 = "po.status_lm='Approve' AND po.status_kirim='Open'";
 			}else if($_POST["po"] == 'pengiriman' && $this->session->userdata('username') == 'usman'){
 				$where1 = "po.status_lm='Approve' AND po.status_pkl='Open'";
 			}else{
-				$where1 = "po.tgl_lm LIKE '%$tahun%' AND po.jenis_lm LIKE '%$plhJenis%' $wHub";
+				$where1 = "po.tgl_lm LIKE '%$tahun%' AND po.jenis_lm LIKE '%$plhJenis%' $wHub $wBln $wSts";
 			}
 			if($this->session->userdata('level') == 'Admin'){
 				$where2 = "";
