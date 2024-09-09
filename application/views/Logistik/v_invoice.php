@@ -202,7 +202,7 @@
 						<!-- <a href="<?= base_url('Logistik/Invoice')?>" class="btn btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a> -->
 
 						<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
-							<i class="fa fa-undo" ></i> Kembali</b>
+							<i class="fa fa-arrow-left" ></i> Kembali</b>
 						</button>
 						
 						<button type="button" class="btn btn-sm btn-primary" id="btn-simpan" ><i class="fas fa-save"></i><b> Simpan</b></button>
@@ -213,7 +213,141 @@
 			</form>	
 		</div>
 		<!-- /.card -->
-		</section>
+	</section>
+	
+	<section class="content">
+
+		<!-- Default box -->
+		<div class="card shadow list_lap" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;" >
+				<h3 class="card-title" style="color:#4e73df;"><b>LAPORAN INVOICE</b></h3>
+
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+
+			<div class="card shadow mb-3">
+				<div class="card-body">
+					<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Keuangan1'])){ ?>
+						<div style="margin-bottom:12px">
+							<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+								<i class="fa fa-arrow-left" ></i> Kembali</b>
+							</button>
+						</div>
+					<?php } ?>
+					
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+						<div class="col-md-2">TYPE</div>
+						<div class="col-md-3">
+							<select id="pilih_type" class="form-control select2" style="font-weight:bold" onchange="cek_type()" >
+								<option value="box">BOX / SHEET</option>
+								<option value="roll">ROLL</option>
+							</select>
+						</div>
+						<div class="col-md-6"></div>
+					</div>
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold" id="list_attn" >						
+						<div class="col-md-2">ATTN</div>
+						<div class="col-md-3">
+							<select id="byr_attn" class="form-control select2">
+								<?php
+									$html ='';
+									$query = $this->db->query("SELECT*FROM m_hub where jns='BOX' ORDER BY id_hub");
+									$html .='<option value="">SEMUA</option>';
+									foreach($query->result() as $r){
+										$html .='<option value="'.$r->id_hub.'">'.$r->nm_hub.'</option>';
+									}
+									echo $html;
+								?>
+							</select>
+						</div>
+						<div class="col-md-6"></div>
+					</div>
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold" id="list_cust">						
+						
+						<div class="col-md-2">CUSTOMER</div>
+						<div class="col-md-3">
+							<select id="plh_cust" class="form-control select2">
+								<?php
+									$query = $this->db->query("SELECT c.id_pelanggan,d.nm_pelanggan,d.attn
+									from invoice_header a 
+									join invoice_detail b on a.no_invoice=b.no_invoice
+									join trs_po c on b.no_po=c.kode_po
+									join m_pelanggan d on c.id_pelanggan=d.id_pelanggan
+									group by c.id_pelanggan,d.nm_pelanggan
+									order by d.nm_pelanggan");
+
+									$html4 ='';
+									$html4 .='<option value="" attn="">SEMUA</option>';
+									foreach($query->result() as $r)
+									{
+										if($r->attn=='-')
+										{
+											$html4 .='<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.'</option>';
+										}else{
+											$html4 .='<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.' - '.$r->attn.'</option>';
+										}
+										
+									}
+									echo $html4;
+								?>
+							</select>
+						</div>
+						<div class="col-md-6"></div>
+					</div>
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+						<div class="col-md-2">PEMBAYARAN</div>
+						<div class="col-md-3">
+							<select id="plh_bayar" class="form-control select2">
+								<option value="">SEMUA</option>
+								<option value="BELUM BAYAR">BELUM BAYAR</option>
+								<option value="NYICIL">NYICIL</option>
+								<option value="LUNAS">LUNAS</option>
+							</select>
+						</div>
+						<div class="col-md-6"></div>
+					</div>
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+						<div class="col-md-2">PERIODE</div>
+						<div class="col-md-3">
+							<select class="form-control select2" name="priode" id="priode" style="width: 100%;" onchange="cek_periode()">
+								<option value="bln_ini">BULAN INI</option>
+								<option value="custom">Custom</option>
+								<option value="all">ALL</option>
+							</select>
+						</div>
+						<div class="col-md-6"></div>
+					</div>
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="list_tgl">						
+						<div class="col-md-2">TGL INV</div>
+						<div class="col-md-3">
+							<input type="date" id="tgl1_inv" class="form-control" value="<?= date("Y-m-d")?>">
+						</div>
+						<div class="col-md-1">S/D</div>
+						<div class="col-md-3">
+							<input type="date" id="tgl2_inv" class="form-control" value="<?= date("Y-m-d")?>">
+						</div>
+						<div class="col-md-2"></div>
+					</div>
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold;" >
+						<div class="col-md-2">
+							<button type="button" class="btn btn-primary" onclick="tampil_data_inv('laporan')"><i class="fas fa-search"></i></button>
+						</div>
+						
+						<div class="col-md-9"></div>
+					</div>
+
+					<div style="overflow:auto;white-space:nowrap">
+						<div id="tampil_lap_inv"></div>
+					</div>
+				</div>
+			</div>
+		
+		</div>
+		<!-- /.card -->
+	</section>
 
 	<!-- Main content -->
 	<section class="content">
@@ -231,16 +365,22 @@
 					</div>
 				</div>
 				<div class="card-body">
-					<div class="row">
-						<div class="" style="position: absolute;left: 20px;">
-							<?php if (in_array($this->session->userdata('username'), ['karina','developer'])) { ?>
+					<div class="row" style="padding-bottom:15px;font-weight:bold">
+						
+						<div class="col-md-7" style="padding-bottom:5px;font-weight:bold">												
+								<?php if (in_array($this->session->userdata('username'), ['karina','developer'])) { ?>
 
-							<!-- <a href="<?= base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a> -->
+								<!-- <a href="<?= base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a> -->
 
-							<button type="button" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
-							<?php } ?>
+								<button type="button" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+
+								<button type="button" class="btn btn-danger btn-sm" onclick="open_laporan()"><i class="fa fa-print"></i> <b>Laporan</b></button>
+								<?php } ?>
+
 						</div>
-						<div class="" style="position: absolute;right: 20px; font-weight:bold">
+						
+						<div class="col-md-3" style="padding-bottom:5px;font-weight:bold">									
+						
 							<?php 
 								$qbulan    = $this->db->query("SELECT*FROM m_bulan");
 								$bln_now   = date("m");
@@ -260,9 +400,29 @@
 							?>  
 							</select>
 						</div>
+
+						<div class="col-md-2" style="padding-bottom:5px;font-weight:bold">									
+						
+							<select class="form-control select2" id="rentang_thn" name="rentang_thn" onchange="load_data()">
+								<?php 
+								$thang        = date("Y");
+								$thang_maks   = $thang + 3 ;
+								$thang_min    = $thang - 3 ;
+								for ($th=$thang_min ; $th<=$thang_maks ; $th++)
+								{ ?>
+
+									<?php if ($th==$thang) { ?>
+
+									<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+									
+									<?php }else{ ?>
+									
+									<option value="<?= $th ?>"> <?= $th ?> </option>
+									<?php } ?>
+								<?php } ?>
+							</select>
+						</div>
 					</div>
-					<br>
-					<br>
 
 					<!-- <button onclick="cetak_jurnal(0)"  class="btn btn-danger">
 					<i class="fa fa-print"></i> CETAK JURNAL</button>
@@ -527,6 +687,7 @@
 	{
 		
 		var blnn    = $('#rentang_bulan').val();
+		var thnn    = $('#rentang_thn').val();
 		var table   = $('#datatable').DataTable();
 
 		table.destroy();
@@ -539,7 +700,7 @@
 			"ajax": {
 				"url": '<?= base_url(); ?>Logistik/load_data/Invoice',
 				"type": "POST",
-				data  : ({blnn:blnn}), 
+				data  : ({blnn,thnn}), 
 				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
 			},
 			"aLengthMenu": [
@@ -677,9 +838,18 @@
 		kosong()
 		$(".row-input").attr('style', '')
 		$(".row-list").attr('style', 'display:none')
+		$(".list_lap").attr('style', 'display:none')
 		$("#sts_input").val('add');
 		
 		$("#btn-simpan").html(`<button type="button" onclick="simpan()" class="btn-tambah-produk btn btn-sm btn-primary"><b><i class="fa fa-save" ></i> Simpan</b> </button>`)
+	}
+	
+	function open_laporan()
+	{
+		$(".row-input").attr('style', 'display:none')
+		$(".row-list").attr('style', 'display:none')
+		$(".list_lap").attr('style', '')
+		
 	}
 
 	function kembaliList()
@@ -687,6 +857,7 @@
 		kosong()
 		reloadTable()
 		$(".row-input").attr('style', 'display:none')
+		$(".list_lap").attr('style', 'display:none')
 		$(".row-list").attr('style', '')
 	}
 
@@ -2225,5 +2396,67 @@
 	}
 
 	// INVOICE EDIT END //
+
+	function cek_periode()
+    {
+      $cek = $('#priode').val();
+
+      if($cek=='custom' )
+        {
+          $('#list_tgl').show("1000");
+        }else{
+          $('#list_tgl').hide("1000");
+        }
+    }
+
+	function cek_type()
+    {
+      $cek = $('#pilih_type').val();
+
+      if($cek=='box' )
+        {
+          $('#list_attn').show("1000");
+          $('#list_cust').show("1000");
+        }else{
+          $('#list_attn').hide("1000");
+          $('#list_cust').hide("1000");
+          $('#byr_attn').val("").trigger('change');;
+          $('#plh_cust').val("").trigger('change');;
+        }
+    }
+
+	function tampil_data_inv()
+	{
+		var pilih_type    = $("#pilih_type").val()
+		var list_attn     = $("#list_attn").val()
+		var list_cust     = $("#list_cust").val()
+		var plh_bayar     = $("#plh_bayar").val()
+		var priode        = $("#priode").val()
+		var tgl1_inv      = $("#tgl1_inv").val()
+		var tgl2_inv      = $("#tgl2_inv").val()
+		
+		$.ajax({
+			url    : '<?php echo base_url('Logistik/tampil_data_inv')?>',
+			type   : "POST",
+			data   : {pilih_type ,list_attn ,list_cust ,plh_bayar ,priode ,tgl1_inv ,tgl2_inv},
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res)
+			{
+				// data = JSON.parse(res)
+				$("#tampil_lap_inv").html(res)
+				swal.close()
+			}
+
+		})
+	}
 
 </script>
