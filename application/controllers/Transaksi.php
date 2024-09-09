@@ -654,12 +654,15 @@ class Transaksi extends CI_Controller
 				}
 				($id_dtl == $r->id) ? $bold = ';font-weight:bold;background:#ffd700' : $bold = '';
 				if($r->jenis_qty_lm == 'pack'){
+					$ket0 = '@BAL';
 					$ket = '( PACK )';
 					$qty = number_format($r->pack_lm,0,',','.');
 				}else if($r->jenis_qty_lm == 'ikat'){
-					$ket = '( IKAT )';
+					$ket0 = '@IKAT';
+					$ket = '( PACK )';
 					$qty = number_format($r->ikat_lm,0,',','.');
 				}else{
+					$ket0 = '@KG';
 					$ket = '( KG )';
 					$qty = $r->kg_lm;
 				}
@@ -669,7 +672,7 @@ class Transaksi extends CI_Controller
 					$ton = 0;
 					$bb = 0;
 				}else{
-					$ton = $r->qty_bal * 50;
+					($r->jenis_qty_lm == 'ikat') ? $ton = $r->qty_bal * 7 : $ton = $r->qty_bal * 50;
 					$bb = round($ton / 0.75);
 				}
 				//
@@ -705,7 +708,7 @@ class Transaksi extends CI_Controller
 							<tr><td style="border:0;padding:6px;font-weight:bold">SIZE</td></tr>
 							<tr><td style="border:0;padding:6px;font-weight:bold">ISI</td></tr>
 							'.$ket1.'
-							<tr><td style="border:0;padding:6px;font-weight:bold">@BAL</td></tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">'.$ket0.'</td></tr>
 						</table>
 					</td>
 					<td style="padding:0;border:0'.$bold.'">
@@ -1901,7 +1904,7 @@ class Transaksi extends CI_Controller
 			}
 			if($this->session->userdata('level') == 'Admin'){
 				$where2 = "";
-			}else if($this->session->userdata('level') == 'Owner'){
+			}else if($this->session->userdata('level') == 'Owner' || $this->session->userdata('level') == 'Marketing Laminasi'){
 				$where2 = "AND po.jenis_lm!='PEKALONGAN'";
 			}else if($this->session->userdata('level') == 'Laminasi' && $this->session->userdata('username') != 'usman'){
 				if($_POST["po"] == 'pengiriman'){
@@ -1935,15 +1938,6 @@ class Transaksi extends CI_Controller
 					}
 					$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.'" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')">'.$r->status_lm.'</button></div>';
 					$row[] = $r->nm_pelanggan_lm;
-					// ADMIN
-					// $row[] = '<div class="text-center">
-					// 	<div class="dropup">
-					// 		<button class="dropbtn btn btn-sm btn-success"><i class="fas fa-check-circle" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')"></i></button>
-					// 		<div class="dropup-content">
-					// 			<div class="time-admin">'.$this->m_fungsi->tglIndSkt(substr($r->add_time,0,10)).' - '.substr($r->add_time,10,9).'</div>
-					// 		</div>
-					// 	</div>
-					// </div>';
 					// MARKETING
 					if($r->status_lm1 == 'N'){
 						$bt1 = 'btn-warning';
@@ -1974,7 +1968,6 @@ class Transaksi extends CI_Controller
 							</div>
 						</div>
 					</div>';
-
 					// OWNER
 					if($r->status_lm2 == 'N'){
 						$bt2 = 'btn-warning';
@@ -2005,11 +1998,13 @@ class Transaksi extends CI_Controller
 							</div>
 						</div>
 					</div>';
-
 					$lapAcc = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Lap_POLaminasi?id=".$r->id."&opsi=acc").'" title="Laporan Laminasi" ><i class="fas fa-print"></i></a>'; 
 					$lapProd = '<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Lap_POLaminasi?id=".$r->id."&opsi=prod").'" title="Laporan Laminasi" ><i class="fas fa-print"></i></a>'; 
-					$row[] = '<div class="text-center">'.$lapAcc.' '.$lapProd.'</div>';
-
+					if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi']) && $this->session->userdata('username') != 'usman'){
+						$row[] = '<div class="text-center">'.$lapAcc.' '.$lapProd.'</div>';
+					}else{
+						$row[] = '<div class="text-center">'.$lapAcc.'</div>';
+					}
 					($r->status_lm1 == 'Y' && $r->status_lm2 == 'Y') ? $xEditVerif = 'verif' : $xEditVerif = 'edit';
 					$btnEdit = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'".$xEditVerif."'".')" title="EDIT" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></button>'; 
 					$btnHapus = ($r->status_lm1 == 'Y' && $r->status_lm2 == 'Y') ? '' : '<button type="button" onclick="hapusPOLaminasi(0,'."'".$r->id."'".','."'trs_po_lm'".')" title="HAPUS" class="btn btn-secondary btn-sm"><i class="fa fa-trash-alt"></i></button>';

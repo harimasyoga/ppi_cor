@@ -472,7 +472,6 @@
 											<th style="padding:12px;text-align:center">TGL</th>
 											<th style="padding:12px;text-align:center">STATUS</th>
 											<th style="padding:12px;text-align:center">CUSTOMER</th>
-											<!-- <th style="padding:12px;text-align:center">ADMIN</th> -->
 											<th style="padding:12px;text-align:center">MKT</th>
 											<th style="padding:12px;text-align:center">OWNER</th>
 											<th style="padding:12px;text-align:center">LAPORAN</th>
