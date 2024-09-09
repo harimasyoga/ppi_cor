@@ -612,7 +612,7 @@ class Transaksi extends CI_Controller
 	}
 
 	function editPOLaminasi()
-	{ //
+	{
 		$id = $_POST["id"];
 		$id_dtl = $_POST["id_dtl"];
 		$opsi = $_POST["opsi"];
@@ -654,12 +654,15 @@ class Transaksi extends CI_Controller
 				}
 				($id_dtl == $r->id) ? $bold = ';font-weight:bold;background:#ffd700' : $bold = '';
 				if($r->jenis_qty_lm == 'pack'){
+					$ket0 = '@BAL';
 					$ket = '( PACK )';
 					$qty = number_format($r->pack_lm,0,',','.');
 				}else if($r->jenis_qty_lm == 'ikat'){
-					$ket = '( IKAT )';
+					$ket0 = '@IKAT';
+					$ket = '( PACK )';
 					$qty = number_format($r->ikat_lm,0,',','.');
 				}else{
+					$ket0 = '@KG';
 					$ket = '( KG )';
 					$qty = $r->kg_lm;
 				}
@@ -669,7 +672,7 @@ class Transaksi extends CI_Controller
 					$ton = 0;
 					$bb = 0;
 				}else{
-					$ton = $r->qty_bal * 50;
+					($r->jenis_qty_lm == 'ikat') ? $ton = $r->qty_bal * 7 : $ton = $r->qty_bal * 50;
 					$bb = round($ton / 0.75);
 				}
 				//
@@ -705,7 +708,7 @@ class Transaksi extends CI_Controller
 							<tr><td style="border:0;padding:6px;font-weight:bold">SIZE</td></tr>
 							<tr><td style="border:0;padding:6px;font-weight:bold">ISI</td></tr>
 							'.$ket1.'
-							<tr><td style="border:0;padding:6px;font-weight:bold">@BAL</td></tr>
+							<tr><td style="border:0;padding:6px;font-weight:bold">'.$ket0.'</td></tr>
 						</table>
 					</td>
 					<td style="padding:0;border:0'.$bold.'">
@@ -765,6 +768,25 @@ class Transaksi extends CI_Controller
 			}
 		$html .= '</table>';
 
+		if($po_lm->status_kirim == "Close" && $opsi == 'verif' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi']) && $this->session->userdata('username') != 'usman'){
+			$cekKiriman = $this->db->query("SELECT p.no_po_lm,d.id_m_produk_lm,(SELECT SUM(r.qty_muat) FROM m_rk_laminasi r WHERE r.id_m_produk_lm=d.id_m_produk_lm AND r.id_po_lm=p.id AND r.id_po_dtl=d.id) AS muat,d.qty_bal FROM trs_po_lm p
+			INNER JOIN trs_po_lm_detail d ON p.no_po_lm=d.no_po_lm
+			WHERE p.id='$id'
+			AND (SELECT SUM(r.qty_muat) FROM m_rk_laminasi r WHERE r.id_m_produk_lm=d.id_m_produk_lm AND r.id_po_lm=p.id AND r.id_po_dtl=d.id) = d.qty_bal
+			GROUP BY p.no_po_lm,d.id_m_produk_lm
+			ORDER BY d.id");
+			if($po_dtl->num_rows() != $cekKiriman->num_rows()){
+				$aSS = '<button type="button" class="btn btn-warning" style="font-weight:bold" onclick="editSplitPO()">SPLIT PO</button>';
+			}else{
+				$aSS = '<button type="button" class="btn btn-secondary" style="font-weight:bold" disabled>SPLIT PO</button>';
+			}
+			$btnSpiltPO = '<div class="card-body row" style="padding:0 12px">
+				<div class="col-md-3"></div>
+				<div class="col-md-9">'.$aSS.'</div>
+			</div>';
+		}else{
+			$btnSpiltPO = '';
+		}
 		echo json_encode([
 			'po_lm' => $po_lm,
 			'add_time_po_lm' => substr($this->m_fungsi->getHariIni(($po_lm->edit_time == null) ? $po_lm->add_time : $po_lm->edit_time),0,3).', '.$this->m_fungsi->tglIndSkt(substr(($po_lm->edit_time == null) ? $po_lm->add_time : $po_lm->edit_time, 0,10)).' ( '.substr(($po_lm->edit_time == null) ? $po_lm->add_time : $po_lm->edit_time, 10,6).' )',
@@ -772,7 +794,213 @@ class Transaksi extends CI_Controller
 			'time_lm2' => ($po_lm->time_lm2 == null) ? '' :substr($this->m_fungsi->getHariIni($po_lm->time_lm2),0,3).', '.$this->m_fungsi->tglIndSkt(substr($po_lm->time_lm2, 0,10)).' ( '.substr($po_lm->time_lm2, 10,6).' )',
 			'po_dtl' => $e_po_dtl,
 			'html_dtl' => $html,
+			'html_split_po' => $btnSpiltPO,
 		]);
+	}
+
+	function editSplitPO()
+	{
+		$id_header = $_POST["id_po_header"];
+
+		$po_lm = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id_header'")->row();
+		$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.no_po_lm='$po_lm->no_po_lm'");
+		$cekKiriman = $this->db->query("SELECT p.no_po_lm,d.id_m_produk_lm,(SELECT SUM(r.qty_muat) FROM m_rk_laminasi r WHERE r.id_m_produk_lm=d.id_m_produk_lm AND r.id_po_lm=p.id AND r.id_po_dtl=d.id) AS muat,d.qty_bal FROM trs_po_lm p INNER JOIN trs_po_lm_detail d ON p.no_po_lm=d.no_po_lm
+		WHERE p.id='$id_header' AND (SELECT SUM(r.qty_muat) FROM m_rk_laminasi r WHERE r.id_m_produk_lm=d.id_m_produk_lm AND r.id_po_lm=p.id AND r.id_po_dtl=d.id) = d.qty_bal
+		GROUP BY p.no_po_lm,d.id_m_produk_lm ORDER BY d.id");
+		$ckNull = $this->db->query("SELECT d.* FROM trs_po_lm p INNER JOIN trs_po_lm_detail d ON p.no_po_lm=d.no_po_lm
+		WHERE p.id='$id_header' AND (SELECT SUM(r.qty_muat) FROM m_rk_laminasi r WHERE r.id_m_produk_lm=d.id_m_produk_lm AND r.id_po_lm=p.id AND r.id_po_dtl=d.id) IS NULL
+		GROUP BY p.no_po_lm,d.id_m_produk_lm ORDER BY d.id");
+		$pelanggan_lm = $this->db->query("SELECT*FROM m_pelanggan_lm WHERE id_pelanggan_lm='$po_lm->id_pelanggan'")->row();
+
+		// LIST PO
+		$html = '';
+		$html .= '<table class="table table-bordered" style="margin:0">
+			<tr>
+				<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">#</th>
+				<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px">ITEM</th>
+				<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">QTY PO</th>
+				<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">KIRIMAN</th>
+				<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">SISA PO</th>
+			</tr>';
+			$i0 = 0;
+			foreach($po_dtl->result() as $r){
+				$i0++;
+				if($r->jenis_qty_lm == 'pack'){
+					$ket = '';
+				}else if($r->jenis_qty_lm == 'ikat'){
+					$ket = '<span style="font-size:11px;vertical-align:top;font-style:italic">( IKAT )</span>';
+				}else{
+					$ket = '<span style="font-size:11px;vertical-align:top;font-style:italic">( KG )</span>';
+				}
+				($r->jenis_qty_lm == 'kg') ? $qty_bal = $r->qty_bal : $qty_bal = number_format($r->qty_bal,0,",",".");
+				$kiriman = $this->db->query("SELECT SUM(qty_muat) AS qty_muat FROM m_rk_laminasi WHERE id_po_lm='$id_header' AND id_po_dtl='$r->id' AND rk_urut!='0' AND rk_status='Close'
+				GROUP BY id_m_produk_lm,id_po_lm,id_po_dtl");
+				($kiriman->num_rows() == 0) ? $muat = 0 : $muat = $kiriman->row()->qty_muat;
+				($r->jenis_qty_lm == 'kg') ? $muat2 = round($muat,2) : $muat2 = number_format($muat,0,",",".");
+				($r->jenis_qty_lm == 'kg') ? $sisa = $r->qty_bal - $muat : $sisa = number_format($r->qty_bal - $muat,0,",",".");
+				// SISA
+				if($sisa == 0 && $muat != 0){
+					$bg = 'background:#dee2e6;color:#333;border:1px solid #babec2;';
+				}else if($sisa != 0 && $muat == 0){
+					$bg = '';
+				}else{
+					$bg = 'font-weight:bold;';
+				}
+				// JIKA BELUM ADA KIRIMAN
+				if($muat == 0){
+					$bgr = ';background:#ffbdbd;color:#333;border:1px solid #c99999;';
+				}else{
+					$bgr = '';
+				}
+				$html .= '<tr>
+					<td style="'.$bg.'padding:6px;text-align:center'.$bgr.'">'.$i0.'.</td>
+					<td style="'.$bg.'padding:6px'.$bgr.'">'.$r->nm_produk_lm.' '.$ket.'</td>
+					<td style="'.$bg.'padding:6px;text-align:right'.$bgr.'">'.$qty_bal.'</td>
+					<td style="'.$bg.'padding:6px;text-align:right'.$bgr.'">'.$muat2.'</td>
+					<td style="'.$bg.'padding:6px;text-align:right'.$bgr.'">'.$sisa.'</td>
+				</tr>';
+			}
+		$html .= '</table>';
+		
+		// REVISI LIST PO SPLIT
+		$htmlL = '';
+		if($ckNull->num_rows() == $po_dtl->num_rows()){
+			$htmlL .= '<div style="padding:0 6px;font-weight:bold;font-style:italic">KIRIMAN KOSONG!</div>';
+		}else{
+			$htmlL .= '<table class="table table-bordered" style="margin:0">
+				<tr>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">#</th>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px">ITEM</th>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">@BAL</th>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">ORDER</th>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">QTY PO</th>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">HARGA</th>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">TOTAL</th>
+				</tr>';
+				$i1 = 0;
+				foreach($po_dtl->result() as $rl){
+					if($rl->jenis_qty_lm == 'pack'){
+						$l_ket = '';
+						$l_qty = number_format($rl->pack_lm,0,',','.'); $l_qty_2 = $rl->pack_lm;
+					}else if($rl->jenis_qty_lm == 'ikat'){
+						$l_ket = '<span style="font-size:11px;vertical-align:top;font-style:italic">( IKAT )</span>';
+						$l_qty = number_format($rl->ikat_lm,0,',','.'); $l_qty_2 = $rl->ikat_lm;
+					}else{
+						$l_ket = '<span style="font-size:11px;vertical-align:top;font-style:italic">( KG )</span>';
+						$l_qty = $rl->kg_lm; $l_qty_2 = $rl->kg_lm;
+					}
+					$l_kiriman = $this->db->query("SELECT SUM(qty_muat) AS qty_muat FROM m_rk_laminasi WHERE id_po_lm='$id_header' AND id_po_dtl='$rl->id' AND rk_urut!='0' AND rk_status='Close'
+					GROUP BY id_m_produk_lm,id_po_lm,id_po_dtl");
+					($l_kiriman->num_rows() == 0) ? $l_muat = 0 : $l_muat = $l_kiriman->row()->qty_muat;
+					($rl->jenis_qty_lm == 'kg') ? $l_muat2 = round($l_muat,2) : $l_muat2 = number_format($l_muat,0,",",".");
+					// QTY PO
+					$l_sisa2 = $rl->qty_bal - $l_muat;
+					// TAMPIL JIKA MASIH ADA SISA PO
+					if(($l_sisa2 != 0 || $l_sisa2 == 0) && $l_muat != 0){
+						$i1++;
+						// ORDER
+						($rl->jenis_qty_lm == 'kg') ? $l_order = round($l_muat * $l_qty_2,2) : $l_order = number_format($l_muat * $l_qty_2,0,',','.');
+						$l_order2 = $l_muat * $l_qty_2;
+						// HARGA TOTAL
+						$l_harga = $l_order2 * $rl->harga_pori_lm;
+						($l_sisa2 == 0) ? $bgl = 'background:#dee2e6;color:#333;border:1px solid #babec2;' : $bgl = '';
+						$htmlL .= '<tr>
+							<td style="'.$bgl.'padding:6px;text-align:center">'.$i1.'.</td>
+							<td style="'.$bgl.'padding:6px">'.$rl->nm_produk_lm.' '.$l_ket.'</td>
+							<td style="'.$bgl.'padding:6px;text-align:right">'.$l_qty.'</td>
+							<td style="'.$bgl.'padding:6px;text-align:right">'.$l_order.'</td>
+							<td style="'.$bgl.'padding:6px;text-align:right">'.$l_muat2.'</td>
+							<td style="'.$bgl.'padding:6px;text-align:right">'.number_format($rl->harga_pori_lm,0,',','.').'</td>
+							<td style="'.$bgl.'padding:6px;text-align:right">'.number_format($l_harga,0,',','.').'</td>
+						</tr>';
+					}
+				}
+			$htmlL .= '</table>';
+		}
+
+		// BARU LIST PO SPLIT
+		$htmlS = '';
+		if($ckNull->num_rows() == $po_dtl->num_rows()){
+			$htmlS .= '<div style="padding:0 6px;font-weight:bold;font-style:italic">KIRIMAN KOSONG!</div>';
+		}else{
+			$htmlS .= '<table class="table table-bordered" style="margin:0">
+				<tr>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">#</th>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px">ITEM</th>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">@BAL</th>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">ORDER</th>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">QTY PO</th>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">HARGA</th>
+					<th style="background:#f2f2f2;border:1px solid #d1d1d1;padding:6px;text-align:center">TOTAL</th>
+				</tr>';
+				$i2 = 0;
+				foreach($po_dtl->result() as $rs){
+					if($rs->jenis_qty_lm == 'pack'){
+						$s_ket = '';
+						$s_qty = number_format($rs->pack_lm,0,',','.'); $s_qty_2 = $rs->pack_lm;
+					}else if($rs->jenis_qty_lm == 'ikat'){
+						$s_ket = '<span style="font-size:11px;vertical-align:top;font-style:italic">( IKAT )</span>';
+						$s_qty = number_format($rs->ikat_lm,0,',','.'); $s_qty_2 = $rs->ikat_lm;
+					}else{
+						$s_ket = '<span style="font-size:11px;vertical-align:top;font-style:italic">( KG )</span>';
+						$s_qty = $rs->kg_lm; $s_qty_2 = $rs->kg_lm;
+					}
+					$s_kiriman = $this->db->query("SELECT SUM(qty_muat) AS qty_muat FROM m_rk_laminasi WHERE id_po_lm='$id_header' AND id_po_dtl='$rs->id' AND rk_urut!='0' AND rk_status='Close'
+					GROUP BY id_m_produk_lm,id_po_lm,id_po_dtl");
+					($s_kiriman->num_rows() == 0) ? $s_muat = 0 : $s_muat = $s_kiriman->row()->qty_muat;
+					// QTY PO
+					$s_sisa2 = $rs->qty_bal - $s_muat;
+					// TAMPIL JIKA MASIH ADA SISA PO
+					if($s_sisa2 != 0){
+						$i2++;
+						// ORDER
+						($rs->jenis_qty_lm == 'kg') ? $s_order = round($s_sisa2 * $s_qty_2,2) : $s_order = number_format($s_sisa2 * $s_qty_2,0,',','.');
+						$s_order2 = $s_sisa2 * $s_qty_2;
+						// HARGA TOTAL
+						$s_harga = $s_order2 * $rs->harga_pori_lm;
+						$htmlS .= '<tr>
+							<td style="padding:6px;text-align:center">'.$i2.'.</td>
+							<td style="padding:6px">'.$rs->nm_produk_lm.' '.$s_ket.'</td>
+							<td style="padding:6px;text-align:right">'.$s_qty.'</td>
+							<td style="padding:6px;text-align:right">'.$s_order.'</td>
+							<td style="padding:6px;text-align:right">'.$s_sisa2.'</td>
+							<td style="padding:6px;text-align:right">'.number_format($rs->harga_pori_lm,0,',','.').'</td>
+							<td style="padding:6px;text-align:right">'.number_format($s_harga,0,',','.').'</td>
+						</tr>';
+					}
+				}
+			$htmlS .= '</table>';
+		}
+
+		// BUTTON KONFIRMASI SPLIT PO
+		if($po_dtl->num_rows() != $cekKiriman->num_rows()){
+			$btnAccSplit = '<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				<div class="col-md-3"></div>
+				<div class="col-md-9">
+					<button type="button" class="btn btn-warning" style="font-weight:bold" onclick="konfirmasiSplitPO()">KONFIRMASI SPLIT PO</button>
+				</div>
+			</div>';
+		}else{
+			$btnAccSplit = '';
+		}
+
+		echo json_encode([
+			'id_header' => $id_header,
+			'po_lm' => $po_lm,
+			'pelanggan_lm' => $pelanggan_lm,
+			'html_list' => $html,
+			'html_rlist' => $htmlL,
+			'html_slist' => $htmlS,
+			'btnAccSplit' => $btnAccSplit,
+			'nr_poDtl' => $po_dtl->num_rows(),
+			'nr_cekKiriman' => $cekKiriman->num_rows(),
+		]);
+	}
+
+	function konfirmasiSplitPO()
+	{
+		$result = $this->m_transaksi->konfirmasiSplitPO();
+		echo json_encode($result);
 	}
 
 	function editListPOLaminasi()
@@ -1662,17 +1890,21 @@ class Transaksi extends CI_Controller
 			$tahun = $_POST["tahun"];
 			$plhJenis = $_POST["jenis"];
 			$plhHub = $_POST["hub"];
+			$bulan = $_POST["bulan"];
+			$status_kiriman = $_POST["status_kiriman"];
 			($plhHub == "") ? $wHub = '' : $wHub = "AND po.id_hub='$plhHub'";
+			($bulan == "") ? $wBln = '' : $wBln = "AND MONTH(po.tgl_lm) IN ('$bulan')";
+			($status_kiriman == "") ? $wSts = '' : $wSts = "AND po.status_kirim='$status_kiriman'";
 			if($_POST["po"] == 'pengiriman' && $this->session->userdata('username') != 'usman'){
 				$where1 = "po.status_lm='Approve' AND po.status_kirim='Open'";
 			}else if($_POST["po"] == 'pengiriman' && $this->session->userdata('username') == 'usman'){
 				$where1 = "po.status_lm='Approve' AND po.status_pkl='Open'";
 			}else{
-				$where1 = "po.tgl_lm LIKE '%$tahun%' AND po.jenis_lm LIKE '%$plhJenis%' $wHub";
+				$where1 = "po.tgl_lm LIKE '%$tahun%' AND po.jenis_lm LIKE '%$plhJenis%' $wHub $wBln $wSts";
 			}
 			if($this->session->userdata('level') == 'Admin'){
 				$where2 = "";
-			}else if($this->session->userdata('level') == 'Owner'){
+			}else if($this->session->userdata('level') == 'Owner' || $this->session->userdata('level') == 'Marketing Laminasi'){
 				$where2 = "AND po.jenis_lm!='PEKALONGAN'";
 			}else if($this->session->userdata('level') == 'Laminasi' && $this->session->userdata('username') != 'usman'){
 				if($_POST["po"] == 'pengiriman'){
@@ -1706,15 +1938,6 @@ class Transaksi extends CI_Controller
 					}
 					$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.'" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')">'.$r->status_lm.'</button></div>';
 					$row[] = $r->nm_pelanggan_lm;
-					// ADMIN
-					// $row[] = '<div class="text-center">
-					// 	<div class="dropup">
-					// 		<button class="dropbtn btn btn-sm btn-success"><i class="fas fa-check-circle" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')"></i></button>
-					// 		<div class="dropup-content">
-					// 			<div class="time-admin">'.$this->m_fungsi->tglIndSkt(substr($r->add_time,0,10)).' - '.substr($r->add_time,10,9).'</div>
-					// 		</div>
-					// 	</div>
-					// </div>';
 					// MARKETING
 					if($r->status_lm1 == 'N'){
 						$bt1 = 'btn-warning';
@@ -1745,7 +1968,6 @@ class Transaksi extends CI_Controller
 							</div>
 						</div>
 					</div>';
-
 					// OWNER
 					if($r->status_lm2 == 'N'){
 						$bt2 = 'btn-warning';
@@ -1776,11 +1998,13 @@ class Transaksi extends CI_Controller
 							</div>
 						</div>
 					</div>';
-
 					$lapAcc = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Lap_POLaminasi?id=".$r->id."&opsi=acc").'" title="Laporan Laminasi" ><i class="fas fa-print"></i></a>'; 
 					$lapProd = '<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Lap_POLaminasi?id=".$r->id."&opsi=prod").'" title="Laporan Laminasi" ><i class="fas fa-print"></i></a>'; 
-					$row[] = '<div class="text-center">'.$lapAcc.' '.$lapProd.'</div>';
-
+					if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi']) && $this->session->userdata('username') != 'usman'){
+						$row[] = '<div class="text-center">'.$lapAcc.' '.$lapProd.'</div>';
+					}else{
+						$row[] = '<div class="text-center">'.$lapAcc.'</div>';
+					}
 					($r->status_lm1 == 'Y' && $r->status_lm2 == 'Y') ? $xEditVerif = 'verif' : $xEditVerif = 'edit';
 					$btnEdit = '<button type="button" onclick="editPOLaminasi('."'".$r->id."'".',0,'."'".$xEditVerif."'".')" title="EDIT" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></button>'; 
 					$btnHapus = ($r->status_lm1 == 'Y' && $r->status_lm2 == 'Y') ? '' : '<button type="button" onclick="hapusPOLaminasi(0,'."'".$r->id."'".','."'trs_po_lm'".')" title="HAPUS" class="btn btn-secondary btn-sm"><i class="fa fa-trash-alt"></i></button>';

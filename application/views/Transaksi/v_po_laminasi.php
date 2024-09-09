@@ -88,6 +88,7 @@
 								</select>
 							</div>
 						</div>
+						<div class="split-po"></div>
 					</div>
 				</div>
 
@@ -297,6 +298,81 @@
 				</div>
 			</div>
 
+			<div class="row row-split-po" style="display:none">
+				<div class="col-md-6">
+					<div class="card card-success card-outline" style="font-weight:bold;padding-bottom:10px">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT SPLIT PO LAMINASI</h3>
+						</div>
+						<div style="margin:12px 6px">
+							<div class="kembali-list-po"></div>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3">CUSTOMER</div>
+							<div class="col-md-9">
+								<input type="text" id="s_customer" class="form-control" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3">NO. PO</div>
+							<div class="col-md-9">
+								<input type="text" id="s_no_po" class="form-control" disabled>
+							</div>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3">ATTN</div>
+							<div class="col-md-9">
+								<select id="s_attn" class="form-control select2">
+									<?php
+										$html ='';
+										$query = $this->db->query("SELECT*FROM m_no_rek_lam ORDER BY id");
+										$html .='<option value="">PILIH</option>';
+										foreach($query->result() as $r){
+											$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
+										}
+										echo $html;
+									?>
+								</select>
+							</div>
+						</div>
+						<div class="btn-acc-split-po"></div>
+					</div>
+				</div>
+
+				<div class="col-md-6">
+					<div class="card card-info card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST OUTSTANDING PO</h3>
+						</div>
+						<div class="card-body" style="padding:6px">
+							<div id="list-po-split" style="overflow:auto;white-space:nowrap"></div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-6">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">RINCIAN REVISI LIST ITEM PO</h3>
+						</div>
+						<div class="card-body" style="padding:6px">
+							<div id="list-po-rlist" style="overflow:auto;white-space:nowrap"></div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-6">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">RINCIAN HASIL SPLIT PO</h3>
+						</div>
+						<div class="card-body" style="padding:6px">
+							<div id="list-po-rsplit" style="overflow:auto;white-space:nowrap"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div class="row row-list">
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline">
@@ -335,8 +411,25 @@
 								</div>
 								<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi']) && $this->session->userdata('username') != 'usman') { ?>
 									<div class="col-md-2" style="padding-bottom:3px">
+										<select id="bulan" class="form-control select2" onchange="load_data()">
+											<option value="">BULAN</option>
+											<option value="1">JANUARI</option>
+											<option value="2">FEBRUARI</option>
+											<option value="3">MARET</option>
+											<option value="4">APRIL</option>
+											<option value="5">MEI</option>
+											<option value="6">JUNI</option>
+											<option value="7">JULI</option>
+											<option value="8">AGUSTUS</option>
+											<option value="9">SEPTEMBER</option>
+											<option value="10">OKTOBER</option>
+											<option value="11">NOVEMBER</option>
+											<option value="12">DESEMBER</option>
+										</select>
+									</div>
+									<div class="col-md-2" style="padding-bottom:3px">
 										<select id="jenis" class="form-control select2" onchange="load_data()">
-											<option value="">SEMUA</option>
+											<option value="">JENIS</option>
 											<option value="PPI">PPI</option>
 											<option value="PEKALONGAN">PEKALONGAN</option>
 										</select>
@@ -346,7 +439,7 @@
 											<?php
 												$query = $this->db->query("SELECT*FROM m_no_rek_lam WHERE id_hub!='0' AND id_hub!='7' ORDER BY an_bank");
 												$html ='';
-												$html .='<option value="">SEMUA</option>';
+												$html .='<option value="">ATTN</option>';
 												foreach($query->result() as $r){
 													$html .='<option value="'.$r->id_hub.'">'.$r->an_bank.'</option>';
 												}
@@ -354,11 +447,19 @@
 											?>
 										</select>
 									</div>
-									<div class="col-md-4"></div>
+									<div class="col-md-2">
+										<select id="status_kiriman" class="form-control select2" onchange="load_data()">
+											<option value="">STATUS</option>
+											<option value="Open">OPEN</option>
+											<option value="Close">CLOSE</option>
+										</select>
+									</div>
 								<?php }else{ ?>
 									<div class="col-md-10">
 										<input type="hidden" id="jenis" value="">
 										<input type="hidden" id="hub" value="">
+										<input type="hidden" id="bulan" value="">
+										<input type="hidden" id="status_kiriman" value="">
 									</div>
 								<?php } ?>
 							</div>
@@ -371,7 +472,6 @@
 											<th style="padding:12px;text-align:center">TGL</th>
 											<th style="padding:12px;text-align:center">STATUS</th>
 											<th style="padding:12px;text-align:center">CUSTOMER</th>
-											<!-- <th style="padding:12px;text-align:center">ADMIN</th> -->
 											<th style="padding:12px;text-align:center">MKT</th>
 											<th style="padding:12px;text-align:center">OWNER</th>
 											<th style="padding:12px;text-align:center">LAPORAN</th>
@@ -410,6 +510,8 @@
 		let tahun = $("#tahun").val()
 		let jenis = $("#jenis").val()
 		let hub = $("#hub").val()
+		let bulan = $("#bulan").val()
+		let status_kiriman = $("#status_kiriman").val()
 		let table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -420,7 +522,7 @@
 				"url": '<?php echo base_url('Transaksi/load_data/trs_po_laminasi')?>',
 				"type": "POST",
 				"data": ({
-					po: 'list', tahun, jenis, hub
+					po: 'list', tahun, jenis, hub, bulan, status_kiriman
 				}),
 			},
 			"aLengthMenu": [
@@ -439,11 +541,13 @@
 	{
 		statusInput = 'insert'
 		$("#btn-header").html('')
+		$(".split-po").html('')
+		$(".kembali-list-po").html('')
 		$("#tgl").prop('disabled', false)
 		$("#customer").val("").prop('disabled', false).trigger('change')
 		$("#no_po").val("").prop('disabled', false)
 		$("#note_po_lm").val("").prop('disabled', false)
-		$("#attn").val((urlUser == 'usman') ? 15 : "").prop('disabled', false).trigger('change')
+		$("#attn").val("").prop('disabled', false).trigger('change')
 		$("#jenis_lm").val("").prop('disabled', false).trigger('change')
 		$("#item").val("").prop('disabled', true).trigger('change')
 		$("#pack_x").val("").prop('disabled', true)
@@ -570,6 +674,85 @@
 		$(".card-harga").attr('style', '')
 		$(".row-list").attr('style', 'display:none')
 		$(".card-verifikasi").attr('style', 'display:none')
+	}
+
+	function editSplitPO()
+	{
+		let id_po_header = $("#id_po_header").val()
+		$(".row-input").attr('style', 'display:none')
+		$(".row-sementara").attr('style', 'display:none')
+		$(".card-verifikasi").attr('style', 'display:none')
+		$(".row-split-po").attr('style', '')
+		$(".kembali-list-po").html('')
+		$(".btn-acc-split-po").html('')
+		$("#s_customer").val("").prop('disabled', true)
+		$("#s_no_po").val("").prop('disabled', true)
+		$("#s_attn").val("").prop('disabled', false).trigger('change')
+		$("#list-po-split").html('LOADING . . .')
+		$("#list-po-rlist").html('LOADING . . .')
+		$("#list-po-rsplit").html('LOADING . . .')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/editSplitPO')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_po_header
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$(".kembali-list-po").html(`<button type="button" class="btn btn-sm btn-info" onclick="editPOLaminasi('${id_po_header}',0,'verif')"><i class="fa fa-arrow-left"></i> <b>LIST PO</b></button>`)
+				$("#s_customer").val(data.pelanggan_lm.nm_pelanggan_lm)
+				$("#s_no_po").val(data.po_lm.no_po_lm)
+				$(".btn-acc-split-po").html(data.btnAccSplit)
+				$("#list-po-split").html(data.html_list)
+				$("#list-po-rlist").html(data.html_rlist)
+				$("#list-po-rsplit").html(data.html_slist)
+				swal.close()
+			}
+		})
+	}
+
+	function konfirmasiSplitPO()
+	{
+		let id_po_header = $("#id_po_header").val()
+		let s_attn = $("#s_attn").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/konfirmasiSplitPO')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_po_header, s_attn
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.data){
+					editPOLaminasi(id_po_header, 0, 'verif')
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
 	}
 
 	function kembaliListPOLaminasi()
@@ -869,9 +1052,10 @@
 
 	function editPOLaminasi(id, id_dtl, opsi)
 	{
-		$(".row-input").attr('style', '');
-		$(".row-sementara").attr('style', '');
-		$(".row-list").attr('style', 'display:none');
+		$(".row-input").attr('style', '')
+		$(".row-sementara").attr('style', '')
+		$(".row-split-po").attr('style', 'display:none')
+		$(".row-list").attr('style', 'display:none')
 		$("#tgl").prop('disabled', true)
 		$('#customer').prop('disabled', true)
 		$("#no_po").prop('disabled', true)
@@ -908,6 +1092,7 @@
 				data = JSON.parse(res)
 				statusInput = 'update'
 				$("#btn-header").html((opsi == 'edit') ? `<button type="button" class="btn btn-sm btn-info" onclick="editPOLaminasi(${id}, 0 ,'edit')"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>` : '')
+				$(".split-po").html(data.html_split_po)
 				$("#tgl").val(data.po_lm.tgl_lm)
 				$('#customer').val(data.po_lm.id_pelanggan).trigger('change')
 				$("#no_po").val(data.po_lm.no_po_lm)

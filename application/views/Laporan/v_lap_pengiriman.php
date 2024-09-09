@@ -128,6 +128,15 @@
 								</select>
 							</div>
 						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+							<div class="col-md-2">RINCIAN</div>
+							<div class="col-md-10">
+								<select class="form-control select2" id="rincian" onchange="plhOS()">
+									<option value="LIST">LIST</option>
+									<option value="REKAP">REKAP</option>
+								</select>
+							</div>
+						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px;<?= (in_array($this->session->userdata('level'), ['Admin', 'User'])) ? '' : 'display:none'; ?>">
 							<div class="col-md-2">OPSI</div>
 							<div class="col-md-10">
@@ -191,6 +200,7 @@
 		let tahun = $("#tahun").val()
 		let pelanggan = $("#pelanggan").val()
 		let no_po = $("#no_po").val()
+		let rincian = $("#rincian").val()
 		let opsi = $("#opsi").val()
 		$.ajax({
 			url: '<?php echo base_url('Laporan/plhOS')?>',
@@ -206,7 +216,7 @@
 				});
 			},
 			data: ({
-				tahun, pelanggan, no_po, opsi
+				tahun, pelanggan, no_po, rincian, opsi
 			}),
 			success: function(res){
 				data = JSON.parse(res)

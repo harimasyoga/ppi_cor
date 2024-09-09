@@ -1543,6 +1543,171 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function konfirmasiSplitPO()
+	{
+		$id = $_POST["id_po_header"];
+		$s_attn = $_POST["s_attn"];
+		$po_lm = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'")->row();
+		$po_dtl = $this->db->query("SELECT*FROM trs_po_lm_detail d INNER JOIN m_produk_lm p ON d.id_m_produk_lm=p.id_produk_lm WHERE d.no_po_lm='$po_lm->no_po_lm'");
+		$kiriman = $this->db->query("SELECT SUM(qty_muat) AS qty_muat FROM m_rk_laminasi WHERE id_po_lm='$id' AND rk_urut!='0' AND rk_status='Close' GROUP BY id_m_produk_lm,id_po_lm,id_po_dtl");
+		if($id == "" || $s_attn == ""){
+			$header = false; $data = false; $msg = "PILIH ATTN!"; $i_header = false; $i_detail = false; $u_detail = false;
+		}else if($s_attn == $po_lm->id_hub){
+			$header = false; $data = false; $msg = "ATTN SAMA DENGAN SEBELUMNYA!"; $i_header = false; $i_detail = false; $u_detail = false;
+		}else{
+			if($kiriman->num_rows() == 0){
+				// CUMA GANTI ATTN
+				$i_header = false;
+				$i_detail = false;
+				$ghub = $this->db->query("SELECT*FROM m_hub WHERE id_hub='$po_lm->id_hub'");
+				($ghub->num_rows() == 0) ? $nm_hub = '' : $nm_hub = $ghub->row()->aka;
+				$header = array(
+					'note_po_lm' => 'GANTI ATTN!. '.$nm_hub,
+					'id_hub' => $s_attn,
+					'status_kirim' => 'Open',
+					'edit_time' => date('Y-m-d H:i:s'),
+					'edit_user' => $this->username,
+				);
+				$this->db->set('id_hub', $id);
+				$this->db->where('id', $id);
+				$u_detail = $this->db->update('trs_po_lm', $header);
+				$data = true;
+				$msg = "update!";
+			}else{
+				// PO DI SPLIT
+				$cekPOSplit = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id' AND split IS NULL");
+				if($cekPOSplit->num_rows() == 1){
+					$nn = '-S.1';
+					$ss = 1;
+					$noSplit = $po_lm->no_po_lm.$nn;
+				}else{
+					$ns = explode('-S.', $po_lm->no_po_lm);
+					$ss = $po_lm->split+1;
+					$nn = '-S.'.$ss;
+					$noSplit = $ns[0].$nn;
+				}
+				$header = array(
+					'tgl_lm' => $po_lm->tgl_lm,
+					'jenis_lm' => $po_lm->jenis_lm,
+					'id_pelanggan' => $po_lm->id_pelanggan,
+					'id_sales' => $po_lm->id_sales,
+					'id_hub' => $s_attn,
+					'no_po_lm' => $noSplit,
+					'status_lm' => 'Approve',
+					'note_po_lm' => 'SPLIT PO!',
+					'status_lm1' => 'Y',
+					'user_lm1' => $this->username,
+					'time_lm1' => $po_lm->time_lm1,
+					'ket_lm1' => 'OK!',
+					'status_lm2' => 'Y',
+					'status_kirim' => 'Open',
+					'status_pkl' => 'Open',
+					'user_lm2' => $this->username,
+					'time_lm2' => $po_lm->time_lm2,
+					'ket_lm2' => 'OK!',
+					'add_time' => date('Y-m-d H:i:s'),
+					'add_user' => $this->username,
+					'split' => $ss,
+				);
+				// INSERT PO SPLIT
+				$i_header = $this->db->insert('trs_po_lm', $header);
+				if($i_header){
+					foreach($po_dtl->result() as $rs){
+						if($rs->jenis_qty_lm == 'pack'){
+							$s_qty_2 = $rs->pack_lm;
+						}else if($rs->jenis_qty_lm == 'ikat'){
+							$s_qty_2 = $rs->ikat_lm;
+						}else{
+							$s_qty_2 = $rs->kg_lm;
+						}
+						// CEK KIRIMAN
+						$s_kiriman = $this->db->query("SELECT SUM(qty_muat) AS qty_muat FROM m_rk_laminasi WHERE id_po_lm='$id' AND id_po_dtl='$rs->id' AND rk_urut!='0' AND rk_status='Close'
+						GROUP BY id_m_produk_lm,id_po_lm,id_po_dtl");
+						($s_kiriman->num_rows() == 0) ? $s_muat = 0 : $s_muat = $s_kiriman->row()->qty_muat;
+						// QTY PO
+						$s_sisa2 = $rs->qty_bal - $s_muat;
+						// TAMPIL JIKA MASIH ADA SISA PO
+						if($s_sisa2 != 0){
+							// ORDER LEMBAR DAN ORDER PACK
+							$s_order2 = $s_sisa2 * $s_qty_2;
+							$s_lembar = $s_order2 * $rs->isi_lm;
+							// HARGA TOTAL
+							$s_harga = $s_order2 * $rs->harga_pori_lm;
+							$detail = array(
+								'id_m_produk_lm' => $rs->id_m_produk_lm,
+								'no_po_lm' => $noSplit,
+								'jenis_order_lm' => $rs->jenis_order_lm,
+								'order_sheet_lm' => $s_lembar,
+								'order_pack_lm' => $rs->order_pack_lm,
+								'order_ikat_lm' => $rs->order_ikat_lm,
+								'order_pori_lm' => $s_order2,
+								'qty_bal' => $s_sisa2,
+								'harga_lembar_lm' => $rs->harga_lembar_lm,
+								'harga_pack_lm' => $rs->harga_pack_lm,
+								'harga_ikat_lm' => $rs->harga_ikat_lm,
+								'harga_pori_lm' => $rs->harga_pori_lm,
+								'harga_total_lm' => $s_harga,
+								'add_time' => date('Y-m-d H:i:s'),
+								'add_user' => $this->username,
+							);
+							// UPDATE PO SPLIT DETAIL
+							$i_detail = $this->db->insert('trs_po_lm_detail', $detail);
+							if($i_detail){
+								foreach($po_dtl->result() as $rl){
+									if($rl->jenis_qty_lm == 'pack'){
+										$l_qty_2 = $rl->pack_lm;
+									}else if($rl->jenis_qty_lm == 'ikat'){
+										$l_qty_2 = $rl->ikat_lm;
+									}else{
+										$l_qty_2 = $rl->kg_lm;
+									}
+									// CEK KIRIMAN
+									$l_kiriman = $this->db->query("SELECT SUM(qty_muat) AS qty_muat FROM m_rk_laminasi WHERE id_po_lm='$id' AND id_po_dtl='$rl->id' AND rk_urut!='0' AND rk_status='Close'
+									GROUP BY id_m_produk_lm,id_po_lm,id_po_dtl");
+									($l_kiriman->num_rows() == 0) ? $l_muat = 0 : $l_muat = $l_kiriman->row()->qty_muat;
+									// QTY PO
+									$l_sisa2 = $rl->qty_bal - $l_muat;
+									// TAMPIL JIKA MASIH ADA SISA PO
+									if(($l_sisa2 != 0 || $l_sisa2 == 0) && $l_muat != 0){
+										// ORDER LEMBAR DAN ORDER PACK
+										$l_order2 = $l_muat * $l_qty_2;
+										$l_lembar = $l_order2 * $rl->isi_lm;
+										// HARGA TOTAL
+										$l_harga = $l_order2 * $rl->harga_pori_lm;
+										$detail_lama = array(
+											'order_sheet_lm' => $l_lembar,
+											'order_pori_lm' => $l_order2,
+											'qty_bal' => $l_muat,
+											'harga_total_lm' => $l_harga,
+											'edit_time' => date('Y-m-d H:i:s'),
+											'edit_user' => $this->username,
+										);
+										$this->db->where('id', $rl->id);
+										$u_detail = $this->db->update('trs_po_lm_detail', $detail_lama);
+									}else{
+										// HAPUS JIKA BELUM ADA YANG TERKIRIM
+										$this->db->where('id', $rl->id);
+										$u_detail = $this->db->delete('trs_po_lm_detail');
+									}
+								}
+							}
+						}
+					}
+				}
+				$data = true;
+				$msg = "insert!";
+			}
+		}
+		return [
+			'header' => $header,
+			'i_header' => $i_header,
+			'i_detail' => $i_detail,
+			'u_detail' => $u_detail,
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function editListLaminasi()
 	{
 		if($_POST["harga_pori"] == 0 || $_POST["harga_total"] == 0 || $_POST["harga_pori"] == '' || $_POST["harga_total"] == ''){
