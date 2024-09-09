@@ -17,7 +17,7 @@ class Logistik extends CI_Controller
 	public function Invoice()
 	{
 		$data = array(
-			'judul' => "Invoice Penjualan",
+			'judul' => "INVOICE PENJUALAN",
 		);
 		$this->load->view('header', $data);
 		$this->load->view('Logistik/v_invoice');
@@ -4385,12 +4385,14 @@ class Logistik extends CI_Controller
 		$jenis    = $this->uri->segment(3);
 		$data     = array();
 
-		if ($jenis == "Invoice") {
+		if ($jenis == "Invoice") 
+		{
 			
 			$blnn    = $_POST['blnn'];
+			$thnn    = $_POST['thnn'];
 			$query   = $this->db->query("SELECT * FROM invoice_header
 			-- where type in ('box','sheet') 
-			where month(tgl_invoice) in ('$blnn')
+			where month(tgl_invoice) in ('$blnn') and YEAR(tgl_invoice) in ('$thnn')
 			ORDER BY tgl_invoice desc,no_invoice")->result();
 
 			$i               = 1;
@@ -10923,5 +10925,137 @@ class Logistik extends CI_Controller
 		$judul = 'JEMBATAN TIMBANG - '.$id;
 		$this->m_fungsi->newMpdf($judul, '', $html, $top, 3, 3, 3, 'P', 'TT', $judul.'.pdf');
 	}
+
+	function tampil_data_inv()
+	{
+		
+		$pilih_type   = $this->input->post('pilih_type');
+		$list_attn    = $this->input->post('list_attn');
+		$list_cust    = $this->input->post('list_cust');
+		$plh_bayar    = $this->input->post('plh_bayar');
+		$priode       = $this->input->post('priode');
+		$tgl1_inv     = $this->input->post('tgl1_inv');
+		$tgl2_inv     = $this->input->post('tgl2_inv');
+		$bln          = date('m');
+
+		// tgl
+		if($priode=='custom')
+		{
+			$val_tgl="and a.tgl_invoice BETWEEN  '$tgl1_inv' and  '$tgl2_inv'";
+
+		}else if($priode=='bln_ini'){
+
+			$val_tgl="and MONTH(a.tgl_invoice) in ('$bln') ";
+
+		}else{
+			$val_tgl="";
+		}
+
+		// hub
+		if($list_attn=='' || $list_attn== null || $list_attn== 'null')
+		{
+		}else{
+			$val_attn    = "and b.id_hub='$attn'";
+			// $join_po     = "join trs_po d on b.no_po=d.kode_po";
+		}
+
+		// type
+		if($pilih_type=='box')
+		{
+			$query_header   = $this->db->query("SELECT * FROM invoice_header a
+			join invoice_detail b on a.no_invoice=b.no_invoice
+			join m_pelanggan c on a.id_perusahaan=c.id_pelanggan
+			where a.id<>'' $val_tgl
+			ORDER BY tgl_invoice desc,a.no_invoice")->result();
+			
+			$query_det   = $this->db->query("SELECT * FROM invoice_header a
+			join invoice_detail b on a.no_invoice=b.no_invoice
+			join m_pelanggan c on a.id_perusahaan=c.id_pelanggan
+			where a.id<>'' $val_tgl
+			ORDER BY tgl_invoice desc,a.no_invoice")->result();
+		}else{
+			$query_header   = $this->db->query("SELECT * FROM invoice_header
+			-- where type in ('box','sheet') 
+			where month(tgl_invoice) in ('$blnn') and YEAR(tgl_invoice) in ('$thnn')
+			ORDER BY tgl_invoice desc,no_invoice")->result();
+
+			$query_det   = $this->db->query("SELECT * FROM invoice_header a
+			join invoice_detail b on a.no_invoice=b.no_invoice
+			join m_pelanggan c on a.id_perusahaan=c.id_pelanggan
+			where a.id<>'' $val_tgl
+			ORDER BY tgl_invoice desc,a.no_invoice")->result();
+		}
+
+		$html  ='';
+		$html .='<table class="table table-bordered table-striped">
+		<thead class="color-tabel">
+			<tr>
+				<th style="text-align:center">No</th>
+				<th style="text-align:center">No Inv</th>
+				<th style="text-align:center">Tgl Inv</th>
+				<th style="text-align:center">Jt Tempo</th>
+				<th style="text-align:center">Customer</th>
+				<th style="text-align:center">Hub</th>
+				<th style="text-align:center">Bank</th>
+				<th style="text-align:center">Item</th>
+				<th style="text-align:center">Satuan</th>
+				<th style="text-align:center">Qty</th>
+				<th style="text-align:center">Harga</th>
+				<th style="text-align:center">Total</th>
+			</tr>
+		</thead>';
+		$i = 0;
+		$total =0;
+		$total_rata =0;
+		if($query_header)
+		{
+			// foreach($query_header as $r)
+			// {
+			// 	$i++;
+			// 	$html .= '
+			// 	</tr>
+			// 		<td style="text-align:center">'.$i.'</td>
+			// 		<td style="text-align:left">'.$r->no_invoice.'</td>
+			// 		<td style="text-align:left">'.$r->tgl_invoice.'</td>
+			// 		<td style="text-align:left">'.$r->tgl_jatuh_tempo.'</td>
+			// 		<td style="text-align:left">'.$r->no_invoice.'</td>
+			// 		<td style="text-align:left">'.$r->no_invoice.'</td>
+			// 		<td style="text-align:left">'.$r->no_invoice.'</td>
+			// 		<td style="text-align:left">'.$r->no_invoice.'</td>
+			// 		<td style="text-align:left">'.$r->no_invoice.'</td>
+			// 		<td style="text-align:left">'.$r->no_invoice.'</td>
+			// 		<td style="text-align:right">'.number_format($r->id, 0, ",", ".").'</td>
+			// 		<td style="text-align:right">'.number_format($r->id, 0, ",", ".").'</td>
+			// 	</tr>';
+			// 	// $total += $r->ton; 
+			// 	// $total_rata += $r->exc;
+			// }
+			// $total_all = $total_rata/$total;
+			
+			// $html .='<tr>
+			// 		<th style="text-align:center" colspan="2" >Total</th>
+			// 		<th style="text-align:right">'.number_format($total, 0, ",", ".").'</th>
+			// 		<th style="text-align:right">'.number_format($total_all, 0, ",", ".").'</th>
+			// 	</tr>
+			// 	';
+			$html .='<tr>
+				<th style="text-align:center" colspan="12" >Segera Hadir...</th>
+			</tr>
+			';
+		}else{
+			$html .='<tr>
+				<th style="text-align:center" colspan="12" >Data Kosong</th>
+			</tr>
+			';
+		
+		}
+		$html .='</table>
+		</div>';
+		
+		echo $html;
+		
+		
+	}
+    
 
 }

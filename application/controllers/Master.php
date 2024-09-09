@@ -32,6 +32,15 @@ class Master extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function erorr_page()
+	{
+		$data = array(
+			'judul' => "ERROR"
+		);
+
+		$this->load->view('Master/v_error_page', $data);
+	}
+	
 	function Produk()
 	{
 
