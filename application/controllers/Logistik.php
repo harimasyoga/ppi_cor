@@ -10051,12 +10051,10 @@ class Logistik extends CI_Controller
 		}
 
 		// ISI
-        // $html .= '<table cellspacing="0" style="font-size:11px !important;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
-
-			// HUB
-			if($data_pl->id_hub != 7){
-				$html .= '<table cellspacing="0" style="font-size:12px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:tahoma">';
-				$html .= '<tr>
+		// HUB
+		if($data_pl->id_hub != 7){
+			$html .= '<table cellspacing="0" style="font-size:12px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:tahoma">
+				<tr>
 					<th style="width:5% !important;height:15px"></th>
 					<th style="width:39% !important;height:15px"></th>
 					<th style="width:10% !important;height:15px"></th>
@@ -10072,9 +10070,9 @@ class Logistik extends CI_Controller
 					<td style="border:1px solid #000;padding:5px 0">SATUAN</td>
 					<td style="border:1px solid #000;padding:5px 0">KETERANGAN</td>
 				</tr>';
-			}else{
-				$html .= '<table cellspacing="0" style="font-size:11px !important;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
-				$html .= '<tr>
+		}else{
+			$html .= '<table cellspacing="0" style="font-size:11px !important;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">
+				<tr>
 					<th style="width:5% !important;height:15px"></th>
 					<th style="width:25% !important;height:15px"></th>
 					<th style="width:30% !important;height:15px"></th>
@@ -10090,7 +10088,7 @@ class Logistik extends CI_Controller
 					<td style="border:1px solid #000;padding:5px 0">QTY</td>
 					<td style="border:1px solid #000;padding:5px 0">KETERANGAN</td>
 				</tr>';
-			}
+		}
 
 			// AMBIL DATA
 			$data_detail = $this->db->query("SELECT r.*,p.*,i.*,SUM(r.qty_muat) AS muat FROM m_rencana_kirim r
@@ -10236,6 +10234,14 @@ class Logistik extends CI_Controller
 			// 	</tr>';
 			// }
 			else{
+				if(in_array($data_pl->id_perusahaan, ['242','257','268','269'])){
+					$ntGod = '<tr>
+						<td style="font-weight:normal;text-align:left;padding:3px 0 3px 40px"></td>
+						<td style="font-weight:normal;text-align:left;padding:3px 0" colspan="3"><span style="color:#fff">:</span> KEMBALI KE SUPPLIER</td>
+					</tr>';
+				}else{
+					$ntGod = '0';
+				}
 				$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
 				$html .= '<tr>
 					<th style="width:14% !important;height:35px"></th>
@@ -10284,6 +10290,7 @@ class Logistik extends CI_Controller
 					<td style="font-weight:normal;text-align:left;padding:3px 0" colspan="3" >: PEMBELI / CUSTOMER</td>
 					<td style="border:1px solid #000;font-size:13px;line-height:2;font-weight:bold" colspan="3" rowspan="5">KLAIM BARANG KURANG / RUSAK<br/>TIDAK DI TERIMA SETELAH TRUK / SOPIR<br/>KELUAR LOKASI BONGKAR</td>
 				</tr>
+				'.$ntGod.'
 				<tr>
 					<td style="font-weight:normal;text-align:left;padding:3px 0 3px 40px">PINK</td>
 					<td style="font-weight:normal;text-align:left;padding:3px 0">: FINANCE</td>
