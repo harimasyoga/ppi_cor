@@ -302,80 +302,92 @@
 												ETA
 											</div>
 										</td>
-										<td>
-											<input class="form-control" type="date" name="eta_item[0]" id="eta_item0">
-										</td>
-										<td>
-											<textarea class="form-control" name="eta_ket[0]" id="eta_ket0" placeholder="KET. ETA" rows="3" style="resize:none"></textarea>
-										</td>
-										<td width="10%" id="subs0" name="subs[0]">
-											<select id="tl_al0" name="tl_al[0]" class="form-control select2" onchange="ayoBerhitung(0)">
-												<option value="">-</option>
-												<option value="M">M</option>
-												<option value="K">K</option>
-												<option value="MC">MC</option>
-												<option value="MN">MN</option>
-											</select>
-
-											<select id="bmf0" name="bmf[0]" class="form-control select2" onchange="ayoBerhitung(0)">
-												<option value="">-</option>
-												<option value="M">M</option>
-												<option value="K">K</option>
-												<option value="MC">MC</option>
-												<option value="MN">MN</option>
-											</select>
-											<select id="bl0" name="bl[0]" class="form-control select2" onchange="ayoBerhitung(0)">
-												<option value="">-</option>
-												<option value="M">M</option>
-												<option value="K">K</option>
-												<option value="MC">MC</option>
-												<option value="MN">MN</option>
-											</select>
-											<select id="cmf0" name="cmf[0]" class="form-control select2" onchange="ayoBerhitung(0)">
-												<option value="">-</option>
-												<option value="M">M</option>
-												<option value="K">K</option>
-												<option value="MC">MC</option>
-												<option value="MN">MN</option>
-											</select>
-											<select id="cl0" name="cl[0]" class="form-control select2" onchange="ayoBerhitung(0)">
-												<option value="">-</option>
-												<option value="M">M</option>
-												<option value="K">K</option>
-												<option value="MC">MC</option>
-												<option value="MN">MN</option>
-											</select>
-
-										</td>
-										<td width="10%" id="subs_i0" name="subs_i[0]">
-											<input type="text" id="tl_al_i0" name="tl_al_i[0]"  class="form-control angka" autocomplete="off" placeholder="TL/AL">
-
-											<input type="text" id="bmf_i0" name="bmf_i[0]" class="form-control angka" autocomplete="off" placeholder="B.MF">
-
-											<input type="text" id="bl_i0" name="bl_i[0]" class="form-control angka" autocomplete="off" placeholder="B.L">
-
-											<input type="text" id="cmf_i0" name="cmf_i[0]" class="form-control angka" autocomplete="off" placeholder="C.MF">
-											
-											<input type="text" id="cl_i0" name="cl_i[0]" class="form-control angka" autocomplete="off" placeholder="C.L">
-										</td>
-										<td width="10%" id="subs_hitung0" name="subs_hitung[0]">
-											Lebar Sheet : <input type="text" id="ii_lebar0" name="ii_lebar[0]" class="form-control angka" autocomplete="off" placeholder="LEBAR SHEET" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(0)">
-
-											Qty Plan : <input type="text" id="qty_plan0" name="qty_plan[0]" class="form-control angka" autocomplete="off" placeholder="QTY PLAN" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(0)">
-
-											Lebar Roll : <input type="text" id="i_lebar_roll0" name="i_lebar_roll[0]" class="form-control angka" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" placeholder="LEBAR ROLL" onchange="ayoBerhitung(0)">
-											
-											Out : <input type="text" id="out_plan0" name="out_plan[0]" class="form-control angka" autocomplete="off"  onkeyup="ubah_angka(this.value,this.id)" placeholder="OUT" onchange="ayoBerhitung(0)">
-										</td>
 										
-										<td width="20%" id="subs_hasil_hitung0" name="subs_hasil_hitung[0]">
-											trim : <input type="number" id="trim0" name="trim[0]" class="form-control" autocomplete="off" placeholder="TRIM" disabled>
-											coff : <input type="number" id="c_off0" name="c_off[0]" class="form-control" autocomplete="off" placeholder="NUM OF CUT" disabled>
-											rm : <input type="number" id="rm_plan0" name="rm_plan[0]" class="form-control" autocomplete="off" placeholder="RM PLAN" disabled>
-											ton : <input type="number" id="ton_plan0" name="ton_plan[0]" class="form-control" autocomplete="off" placeholder="TONASE PLAN" disabled>
-										
-										</td>
 
+										<?php if (in_array($this->session->userdata('level'), ['PPIC','AP'])){ ?>
+											<td colspan="2">
+												<input class="form-control" type="date" name="eta_item[0]" id="eta_item0"><br>
+												<textarea class="form-control" name="eta_ket[0]" id="eta_ket0" placeholder="KET. ETA" rows="3" style="color#fa3c3e;"></textarea>
+											</td>
+											<td width="10%" id="subs0" name="subs[0]">
+												<select id="tl_al0" name="tl_al[0]" class="form-control select2" onchange="ayoBerhitung(0)">
+													<option value="">-</option>
+													<option value="M">M</option>
+													<option value="K">K</option>
+													<option value="MC">MC</option>
+													<option value="MN">MN</option>
+												</select>
+
+												<select id="bmf0" name="bmf[0]" class="form-control select2" onchange="ayoBerhitung(0)">
+													<option value="">-</option>
+													<option value="M">M</option>
+													<option value="K">K</option>
+													<option value="MC">MC</option>
+													<option value="MN">MN</option>
+												</select>
+												<select id="bl0" name="bl[0]" class="form-control select2" onchange="ayoBerhitung(0)">
+													<option value="">-</option>
+													<option value="M">M</option>
+													<option value="K">K</option>
+													<option value="MC">MC</option>
+													<option value="MN">MN</option>
+												</select>
+												<select id="cmf0" name="cmf[0]" class="form-control select2" onchange="ayoBerhitung(0)">
+													<option value="">-</option>
+													<option value="M">M</option>
+													<option value="K">K</option>
+													<option value="MC">MC</option>
+													<option value="MN">MN</option>
+												</select>
+												<select id="cl0" name="cl[0]" class="form-control select2" onchange="ayoBerhitung(0)">
+													<option value="">-</option>
+													<option value="M">M</option>
+													<option value="K">K</option>
+													<option value="MC">MC</option>
+													<option value="MN">MN</option>
+												</select>
+
+											</td>
+											<td width="10%" id="subs_i0" name="subs_i[0]">
+												<input type="text" id="tl_al_i0" name="tl_al_i[0]"  class="form-control angka" autocomplete="off" placeholder="TL/AL">
+
+												<input type="text" id="bmf_i0" name="bmf_i[0]" class="form-control angka" autocomplete="off" placeholder="B.MF">
+
+												<input type="text" id="bl_i0" name="bl_i[0]" class="form-control angka" autocomplete="off" placeholder="B.L">
+
+												<input type="text" id="cmf_i0" name="cmf_i[0]" class="form-control angka" autocomplete="off" placeholder="C.MF">
+												
+												<input type="text" id="cl_i0" name="cl_i[0]" class="form-control angka" autocomplete="off" placeholder="C.L">
+											</td>
+											<td width="10%" id="subs_hitung0" name="subs_hitung[0]">
+												Lebar Sheet : <input type="text" id="ii_lebar0" name="ii_lebar[0]" class="form-control angka" autocomplete="off" placeholder="LEBAR SHEET" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(0)">
+
+												Qty Plan : <input type="text" id="qty_plan0" name="qty_plan[0]" class="form-control angka" autocomplete="off" placeholder="QTY PLAN" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(0)">
+
+												Lebar Roll : <input type="text" id="i_lebar_roll0" name="i_lebar_roll[0]" class="form-control angka" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" placeholder="LEBAR ROLL" onchange="ayoBerhitung(0)">
+												
+												Out : <input type="text" id="out_plan0" name="out_plan[0]" class="form-control angka" autocomplete="off"  onkeyup="ubah_angka(this.value,this.id)" placeholder="OUT" onchange="ayoBerhitung(0)">
+											</td>
+											
+											<td width="20%" id="subs_hasil_hitung0" name="subs_hasil_hitung[0]">
+												trim : <input type="number" id="trim0" name="trim[0]" class="form-control" autocomplete="off" placeholder="TRIM" disabled>
+												coff : <input type="number" id="c_off0" name="c_off[0]" class="form-control" autocomplete="off" placeholder="NUM OF CUT" disabled>
+												rm : <input type="number" id="rm_plan0" name="rm_plan[0]" class="form-control" autocomplete="off" placeholder="RM PLAN" disabled>
+												ton : <input type="number" id="ton_plan0" name="ton_plan[0]" class="form-control" autocomplete="off" placeholder="TONASE PLAN" disabled>
+											
+											</td>
+
+										
+										<?php }else{ ?>
+
+											<td>
+												<input class="form-control" type="date" name="eta_item[0]" id="eta_item0">
+											</td>
+											<td colspan="6">
+												<textarea class="form-control" name="eta_ket[0]" id="eta_ket0" placeholder="KET. ETA" rows="3" style=""></textarea>
+											</td>
+											
+										<?php } ?>
 									</tr>
 								</tbody>
 							</table>
@@ -459,7 +471,9 @@
 <script type="text/javascript">
 	rowNum = 0;
 	$(document).ready(function() {
-		load_data();
+		load_data();		
+		$("#eta_ket0").css("color","#fa3c3e");
+		$("#eta_ket0").css("font-weight","bold");
 		// getMax();
 		$('.select2').select2({
 			containerCssClass: "wrap",
@@ -1107,7 +1121,9 @@
 					// $("#ppn"+index).val(value.ppn);
 					$('#price_inc'+index).val(format_angka(value.price_inc));
 					$('#price_exc'+index).val(format_angka(value.price_exc));
-					$("#eta_ket"+index).val(value.eta_ket); 
+					$("#eta_ket"+index).val(value.eta_ket); 		
+					$("#eta_ket"+index).css("color","#fa3c3e");
+					$("#eta_ket"+index).css("font-weight","bold");
 					
 					$("#p11"+index).val(value.p11);
 
@@ -1882,85 +1898,112 @@
 
 						</td>
 					`
-					hitung = ``;
 					p11_tambahan = `
 						<td id="p11_det${rowNum}">
 							<input type="text" name="p11[${rowNum}]" id="p11${rowNum}"  class="angka form-control" readonly value="0">
 						 
 						</td>
 					`;
+					item_tambahan = `
+						<tr id="item_tambahan${ rowNum }">
+							<td>
+								<div class="text-center">
+									ETA
+								</div>
+							</td>
+							<td>
+								<input class="form-control" type="date" name="eta_item[${ rowNum }]" id="eta_item${ rowNum }">
+							</td>
+							<td colspan="6">			
+								<textarea class="form-control" name="eta_ket[${ rowNum }]" id="eta_ket${ rowNum }" placeholder="KET. ETA" rows="3" style="color:#fa3c3e;font-weight:bold"></textarea>
+							</td>
+
+						</tr>	
+					`;
 					coll=``;
 				}else{
 					p11_tambahan = ``;
 					coll=`colspan="5"`;
-					hitung = `
-					<td width="10%" id="subs${ rowNum }" name="subs[${ rowNum }]">
-							<select id="tl_al${ rowNum }" name="tl_al[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
-								<option value="">-</option>
-								<option value="M">M</option>
-								<option value="K">K</option>
-								<option value="MC">MC</option>
-								<option value="MN">MN</option>
-							</select>
+					item_tambahan = `
+						<tr id="item_tambahan${ rowNum }">
+							<td>
+								<div class="text-center">
+									ETA
+								</div>
+							</td>
+							<td colspan="2">
+								<input class="form-control" type="date" name="eta_item[${ rowNum }]" id="eta_item${ rowNum }">
+								<br>							
+								<textarea class="form-control" name="eta_ket[${ rowNum }]" id="eta_ket${ rowNum }" placeholder="KET. ETA" rows="3" style="color:#fa3c3e;font-weight:bold;"></textarea>
+							</td>
+							<td width="10%" id="subs${ rowNum }" name="subs[${ rowNum }]">
+								<select id="tl_al${ rowNum }" name="tl_al[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
+									<option value="">-</option>
+									<option value="M">M</option>
+									<option value="K">K</option>
+									<option value="MC">MC</option>
+									<option value="MN">MN</option>
+								</select>
 
-							<select id="bmf${ rowNum }" name="bmf[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
-								<option value="">-</option>
-								<option value="M">M</option>
-								<option value="K">K</option>
-								<option value="MC">MC</option>
-								<option value="MN">MN</option>
-							</select>
-							<select id="bl${ rowNum }" name="bl[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
-								<option value="">-</option>
-								<option value="M">M</option>
-								<option value="K">K</option>
-								<option value="MC">MC</option>
-								<option value="MN">MN</option>
-							</select>
-							<select id="cmf${ rowNum }" name="cmf[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
-								<option value="">-</option>
-								<option value="M">M</option>
-								<option value="K">K</option>
-								<option value="MC">MC</option>
-								<option value="MN">MN</option>
-							</select>
-							<select id="cl${ rowNum }" name="cl[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
-								<option value="">-</option>
-								<option value="M">M</option>
-								<option value="K">K</option>
-								<option value="MC">MC</option>
-								<option value="MN">MN</option>
-							</select>
+								<select id="bmf${ rowNum }" name="bmf[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
+									<option value="">-</option>
+									<option value="M">M</option>
+									<option value="K">K</option>
+									<option value="MC">MC</option>
+									<option value="MN">MN</option>
+								</select>
+								<select id="bl${ rowNum }" name="bl[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
+									<option value="">-</option>
+									<option value="M">M</option>
+									<option value="K">K</option>
+									<option value="MC">MC</option>
+									<option value="MN">MN</option>
+								</select>
+								<select id="cmf${ rowNum }" name="cmf[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
+									<option value="">-</option>
+									<option value="M">M</option>
+									<option value="K">K</option>
+									<option value="MC">MC</option>
+									<option value="MN">MN</option>
+								</select>
+								<select id="cl${ rowNum }" name="cl[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
+									<option value="">-</option>
+									<option value="M">M</option>
+									<option value="K">K</option>
+									<option value="MC">MC</option>
+									<option value="MN">MN</option>
+								</select>
 
-						</td>
-						<td width="10%" id="subs_i${ rowNum }" name="subs_i[${ rowNum }]">
-							<input type="text" id="tl_al_i${ rowNum }" name="tl_al_i[${ rowNum }]"  class="form-control angka" autocomplete="off" placeholder="TL/AL">
+							</td>
+							<td width="10%" id="subs_i${ rowNum }" name="subs_i[${ rowNum }]">
+								<input type="text" id="tl_al_i${ rowNum }" name="tl_al_i[${ rowNum }]"  class="form-control angka" autocomplete="off" placeholder="TL/AL">
 
-							<input type="text" id="bmf_i${ rowNum }" name="bmf_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="B.MF">
+								<input type="text" id="bmf_i${ rowNum }" name="bmf_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="B.MF">
 
-							<input type="text" id="bl_i${ rowNum }" name="bl_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="B.L">
+								<input type="text" id="bl_i${ rowNum }" name="bl_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="B.L">
 
-							<input type="text" id="cmf_i${ rowNum }" name="cmf_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="C.MF">
+								<input type="text" id="cmf_i${ rowNum }" name="cmf_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="C.MF">
+								
+								<input type="text" id="cl_i${ rowNum }" name="cl_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="C.L">
+							</td>
+							<td width="10%" id="subs_hitung${ rowNum }" name="subs_hitung[${ rowNum }]">
+								Lebar Sheet : <input type="text" id="ii_lebar${ rowNum }" name="ii_lebar[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="LEBAR SHEET" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
+
+								Qty Plan : <input type="text" id="qty_plan${ rowNum }" name="qty_plan[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="QTY PLAN" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
+
+								Lebar Roll : <input type="text" id="i_lebar_roll${ rowNum }" name="i_lebar_roll[${ rowNum }]" class="form-control angka" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" placeholder="LEBAR ROLL" onchange="ayoBerhitung(${ rowNum })">
+								
+								Out : <input type="text" id="out_plan${ rowNum }" name="out_plan[${ rowNum }]" class="form-control angka" autocomplete="off"  onkeyup="ubah_angka(this.value,this.id)" placeholder="OUT" onchange="ayoBerhitung(${ rowNum })">
+							</td>
 							
-							<input type="text" id="cl_i${ rowNum }" name="cl_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="C.L">
-						</td>
-						<td width="10%" id="subs_hitung${ rowNum }" name="subs_hitung[${ rowNum }]">
-							Lebar Sheet : <input type="text" id="ii_lebar${ rowNum }" name="ii_lebar[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="LEBAR SHEET" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
-
-							Qty Plan : <input type="text" id="qty_plan${ rowNum }" name="qty_plan[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="QTY PLAN" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
-
-							Lebar Roll : <input type="text" id="i_lebar_roll${ rowNum }" name="i_lebar_roll[${ rowNum }]" class="form-control angka" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" placeholder="LEBAR ROLL" onchange="ayoBerhitung(${ rowNum })">
+							<td width="20%" id="subs_hasil_hitung${ rowNum }" name="subs_hasil_hitung[${ rowNum }]">
+								trim : <input type="number" id="trim${ rowNum }" name="trim[${ rowNum }]" class="form-control" autocomplete="off" placeholder="TRIM" disabled>
+								coff : <input type="number" id="c_off${ rowNum }" name="c_off[${ rowNum }]" class="form-control" autocomplete="off" placeholder="NUM OF CUT" disabled>
+								rm : <input type="number" id="rm_plan${ rowNum }" name="rm_plan[${ rowNum }]" class="form-control" autocomplete="off" placeholder="RM PLAN" disabled>
+								ton : <input type="number" id="ton_plan${ rowNum }" name="ton_plan[${ rowNum }]" class="form-control" autocomplete="off" placeholder="TONASE PLAN" disabled>
 							
-							Out : <input type="text" id="out_plan${ rowNum }" name="out_plan[${ rowNum }]" class="form-control angka" autocomplete="off"  onkeyup="ubah_angka(this.value,this.id)" placeholder="OUT" onchange="ayoBerhitung(${ rowNum })">
-						</td>
-						
-						<td width="20%" id="subs_hasil_hitung${ rowNum }" name="subs_hasil_hitung[${ rowNum }]">
-							trim : <input type="number" id="trim${ rowNum }" name="trim[${ rowNum }]" class="form-control" autocomplete="off" placeholder="TRIM" disabled>
-							coff : <input type="number" id="c_off${ rowNum }" name="c_off[${ rowNum }]" class="form-control" autocomplete="off" placeholder="NUM OF CUT" disabled>
-							rm : <input type="number" id="rm_plan${ rowNum }" name="rm_plan[${ rowNum }]" class="form-control" autocomplete="off" placeholder="RM PLAN" disabled>
-							ton : <input type="number" id="ton_plan${ rowNum }" name="ton_plan[${ rowNum }]" class="form-control" autocomplete="off" placeholder="TONASE PLAN" disabled>
-						
-						</td>
+							</td>
+						</tr>	
 					`;
 				}
 				
@@ -2003,22 +2046,8 @@
 						${ p11_tambahan }
 						<td ${ coll } id="txt_detail_produk${ rowNum }"> 
 						</td>
-					</tr>
-					<tr id="item_tambahan${ rowNum }">
-						<td>
-							<div class="text-center">
-								ETA
-							</div>
-						</td>
-						<td>
-							<input class="form-control" type="date" name="eta_item[${ rowNum }]" id="eta_item${ rowNum }">
-						</td>
-						<td>
-							<textarea class="form-control" name="eta_ket[${ rowNum }]" id="eta_ket${ rowNum }" placeholder="KET. ETA" rows="3" style="resize:none"></textarea>
-						</td>
-						${ hitung }
-
-					</tr>				
+					</tr>					
+					${ item_tambahan }
 					`);
 				$('.select2').select2({
 					placeholder: '--- Pilih ---',
