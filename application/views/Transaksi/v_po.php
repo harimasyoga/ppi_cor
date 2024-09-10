@@ -43,7 +43,7 @@
 									<th style="text-align: center; padding: 12px 40px;" >Tgl PO</th>
 									<th style="text-align: center;" >Item</th>
 									<th style="text-align: center;" >Status</th>
-									<th style="text-align: center;" >Status Karet</th>
+									<th style="text-align: center; padding: 12px 40px;" >Status Karet</th>
 									<th style="text-align: center;" >Kode PO</th>
 									<!-- <th style="display:none;">Kode PO</th> -->
 									<!-- <th style="text-align: center">Total Qty</th> -->
@@ -206,12 +206,12 @@
 
 										<div class="col-md-2">STATUS KARET</div>
 										<div class="col-md-3">
-											<select class="form-control" name="status_karet" id="status_karet">
-												<option value="REPEAT">REPEAT</option>
+											<select class="form-control select2" name="status_karet" id="status_karet">
+												<!-- <option value="REPEAT">REPEAT</option>
 												<option value="NEW_ORDER">NEW ORDER</option>
 												<option value="REVISI">REVISI DESAIN</option>
-												<option value="TAMBAH_DESAIN">TAMBAHAN DESAIN</option>
-											</select>
+												<option value="TAMBAH_DESAIN">TAMBAHAN DESAIN</option> -->
+											</select> 
 										</div>
 									</div>
 								</div>
@@ -472,6 +472,7 @@
 	rowNum = 0;
 	$(document).ready(function() {
 		load_data();		
+		load_status_karet();
 		$("#eta_ket0").css("color","#fa3c3e");
 		$("#eta_ket0").css("font-weight","bold");
 		// getMax();
@@ -536,6 +537,44 @@
 
 	function close_modal(){
 		$('#modalForm').modal('hide');
+	}
+
+	function load_status_karet() 
+	{
+		option = "";
+		$.ajax({
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Transaksi/load_karet",
+			// data       : { idp: pelanggan, kd: '' },
+			dataType   : 'json',
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success"){					
+					option = `<option value="">-- Pilih --</option>`;	
+
+					$.each(data.data, function(index, val) {
+					option += `<option value="${val.status}" ><b>${val.ket}</b></option>`;
+
+					});
+
+					$('#status_karet').html(option);
+					swal.close();
+				}else{	
+					option += "<option value=''></option>";			
+					$('#status_karet').html(option);					
+					swal.close();
+				}
+			}
+		});
 	}
 
 	function setProduk(cek,pelanggan,id) 

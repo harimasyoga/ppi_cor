@@ -1145,6 +1145,27 @@ class Transaksi extends CI_Controller
             print_r($json);
     }
    
+	function load_karet()
+    {
+        $query = $this->db->query("SELECT*FROM m_status_karet order by id_karet")->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
+	
     function load_produk_1()
     {
         
@@ -1371,24 +1392,7 @@ class Transaksi extends CI_Controller
 
 				}
 
-				if($r->status_karet=='REPEAT')
-				{
-					$status_karet    = '<b>REPEAT</b>';
-					$btn_sk          = 'btn-warning';
-					
-				}else if($r->status_karet=='REVISI'){
-					$status_karet    = '<b>REVISI DESAIN</b>';
-					$btn_sk          = 'btn-success';
-
-				}else if($r->status_karet=='TAMBAH_DESAIN'){
-					$status_karet    = '<b>TAMBAHAN DESAIN</b>';
-					$btn_sk          = 'btn-secondary';
-
-				}else{
-					$status_karet    = '<b>NEW ORDER</b>';
-					$btn_sk          = 'btn-info';
-
-				}
+				$row_karet  = $this->db->query("SELECT *FROM m_status_karet where status='$r->status_karet' ")->row();
 
 				// timer
 				// $dateFormat           = "Y-m-d H:i:s";
@@ -1515,7 +1519,7 @@ class Transaksi extends CI_Controller
                 $time3 = ( ($r->time_app3 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app3,0,10))  . ' - ' .substr($r->time_app3,10,9));
 
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status.'</button></div>';
-				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_sk.' ">'.$status_karet.'</button></div>';
+				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$row_karet->btn_class.' ">'.$row_karet->ket.'</button></div>';
 
 				$row[] = '<div class="text-center">'.$r->kode_po.'</div>';
 				// $row[] = $r->total_qty;
