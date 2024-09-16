@@ -5861,6 +5861,27 @@ class Logistik extends CI_Controller
 			foreach ($query as $r) {
 				$i++;
 				$row = array();
+
+				$result_detail = $this->db->query("SELECT * FROM debit_note_detail WHERE no_dn='$r->no_dn' ");
+
+				if($result_detail->num_rows() == '1')
+				{
+					$ket_tr    = $result_detail->row()->des_dn;
+				
+				}else{				
+					$no                  = 1;
+					$ket_tr_result       = '';
+
+					foreach($result_detail->result() as $rowdes)
+					{
+						$ket_tr_result       .= '<b>'.$no.'.) </b>'.$rowdes->des_dn.'<br>';
+						$no++; 
+
+					}
+					$ket_tr    = $ket_tr_result;
+
+				}	
+				
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				// DESKRIPSI
 				$hub = $this->db->query("SELECT*FROM m_hub WHERE id_hub='$r->tagih_dn'")->row();
@@ -5885,11 +5906,16 @@ class Logistik extends CI_Controller
 						<td style="padding:3px 6px;border:0;font-weight:bold">:</td>
 						<td style="padding:3px 0;border:0">CV. '.$hub->nm_hub.'</td>
 					</tr>
+					<tr style="background:transparent !important">
+						<td style="padding:3px 0;border:0;font-weight:bold">KET</td>
+						<td style="padding:3px 6px;border:0;font-weight:bold">:</td>
+						<td style="padding:3px 0;border:0">'.$ket_tr.'</td>
+					</tr>
 				</table>';
 				$row[] = $htmlDes;
 				// TANGGAL DAN JATUH TEMPO DEBIT NOTE
-				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_dn.'</div>';
-				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->jt_dn.'</div>';
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00;width:100px;">'.$r->tgl_dn.'</div>';
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00;width:100px;">'.$r->jt_dn.'</div>';
 				// TOTAL
 				$total = $this->db->query("SELECT SUM(jumlah_dn) AS total FROM debit_note_detail WHERE no_dn='$r->no_dn' GROUP BY no_dn")->row();
 				$row[] = '<div class="text-right" style="font-weight:bold;color:#000">'.number_format($total->total,0,',','.').'</div>';

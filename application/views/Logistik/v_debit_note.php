@@ -80,12 +80,12 @@
 								</div>
 								<div class="col-md-4"></div>
 							</div>
-							<div style="overflow:auto;white-space:nowrap">
+							<div style="overflow:auto;">
 								<table id="datatable" class="table table-bordered table-striped">
 									<thead class="color-tabel">
 										<tr>
 											<th style="padding:12px;text-align:center">NO.</th>
-											<th style="padding:12px 150px;text-align:center">DESKRIPSI</th>
+											<th style="padding:12px 200px;text-align:center">DESKRIPSI</th>
 											<th style="padding:12px;text-align:center">TGL. DEBIT NOTE</th>
 											<th style="padding:12px;text-align:center">JATUH TEMPO</th>
 											<th style="padding:12px;text-align:center">TOTAL</th>
