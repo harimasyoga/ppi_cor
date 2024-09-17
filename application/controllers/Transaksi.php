@@ -1165,6 +1165,36 @@ class Transaksi extends CI_Controller
             $json = json_encode($response);
             print_r($json);
     }
+
+	function load_po_jual()
+    {
+		$blnn        = date("m");
+		$blnn_min1   = $blnn + 1 ;
+		$blnn_min2   = $blnn - 2 ;
+        $query = $this->db->query("SELECT no_po_lm as kode from trs_po_lm
+				where MONTH(tgl_lm) in ($blnn_min2,$blnn_min1,$blnn)
+				group by no_po_lm
+				union ALL
+				SELECT kode_po as kode FROM trs_po
+				where MONTH(tgl_po) in ($blnn_min2,$blnn_min1,$blnn)
+				group by kode_po ")->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
 	
     function load_produk_1()
     {
@@ -1733,7 +1763,11 @@ class Transaksi extends CI_Controller
 
 					if($cek>0)
 					{
-						$aksi = '						
+						$aksi = '				
+						<a class="btn btn-sm btn-primary" onclick=edit_data(' . $id . ',' . $no_po_bhn . ',"preview") title="EDIT DATA" >
+							<b><i class="fa fa-eye"></i> </b>
+						</a> 
+								
 						<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO_BAHAN?no_po_bhn=".$no_po_bhn2."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
 
 						';
@@ -1741,7 +1775,7 @@ class Transaksi extends CI_Controller
 					}else{
 
 						$aksi = '
-						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_po_bhn . ')" title="EDIT DATA" >
+						<a class="btn btn-sm btn-warning" onclick=edit_data(' . $id . ',' . $no_po_bhn . ',"editt") title="EDIT DATA" >
 							<b><i class="fa fa-edit"></i> </b>
 						</a> 
 						
@@ -2052,9 +2086,10 @@ class Transaksi extends CI_Controller
 
 		if($jenis=='po_bahan_baku')
 		{
-			$queryh   = "SELECT * FROM $tbl a JOIN m_hub b ON a.hub=b.id_hub WHERE $field = '$id' ";
+			$queryh    = "SELECT * FROM $tbl a JOIN m_hub b ON a.hub=b.id_hub WHERE $field = '$id' ";
 			
-			$queryd   = "SELECT*FROM $tbl where $field = '$id' ";
+			$no_po     = $this->db->query($queryh)->row()->no_po_bhn;
+			$queryd    = "SELECT*FROM trs_po_bhnbk_detail where no_po_bhn='$no_po'";
 		}else{
 
 			$queryh   = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
@@ -2235,6 +2270,13 @@ class Transaksi extends CI_Controller
 				}
 			}else{
 				$result = false;
+			}
+		} else if ($jenis == "trs_po_bhnbk") {			
+			$no_po       = $_POST['no_po'];
+			$delDetail   = $this->db->query("DELETE FROM trs_po_bhnbk_detail where no_po_bhn='$no_po' ");
+
+			if($delDetail){
+				$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");
 			}
 		} else {
 

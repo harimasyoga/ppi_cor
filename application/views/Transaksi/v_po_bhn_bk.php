@@ -165,6 +165,49 @@
 					</div>
 					
 					<br>
+					<!-- detail PO-->
+					<hr>
+					<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
+						<div class="col-md-4" style="padding-right:0">List Item PO</div>
+						<div class="col-md-8">&nbsp;
+						</div>
+					</div>
+
+					<div style="overflow:auto;white-space:nowrap;" >
+						<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table_list_po" width="100%">
+							<thead class="color-tabel">
+								<tr>
+									<th id="header_del">Delete</th>
+									<th style="padding : 12px 70px" >PO PENJUALAN</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="itemRow0">
+									<td id="detail-hapus-0">
+										<div class="text-center">
+											<a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)">
+												<i class="far fa-trash-alt" style="color:#fff"></i> 
+											</a>
+										</div>
+									</td>
+									<td style="padding : 12px 20px">
+										<div class="input-group mb-1">
+											<select name="po_jual[0]"  id="po_jual0" class="form-control select2" style="width: 100%">
+											</select>	
+										</div>
+									</td>			
+								</tr>
+							</tbody>
+						</table>
+						<div id="add_button" >
+							<button type="button" onclick="addRow()" class="btn-tambah-produk btn  btn-success"><b><i class="fa fa-plus" ></i></b></button>
+							<input type="hidden" name="bucket" id="bucket" value="0">
+						</div>
+						<br>
+					</div>
+
+					<!-- end detail PO-->
+
 				
 					<div class="card-body row"style="font-weight:bold">
 						<div class="col-md-4">
@@ -198,8 +241,11 @@
 		kosong()
 		load_data()
 		load_hub()
+		po_juall(0)
 		$('.select2').select2();
 	});
+
+	var rowNum = 0;
 
 	function load_hub() 
 	{
@@ -239,10 +285,148 @@
 		});
 	}
 
+	function po_juall(rowNum) 
+	{
+		option = "";
+		$.ajax({
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Transaksi/load_po_jual",
+			// data       : { idp: pelanggan, kd: '' },
+			dataType   : 'json',
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success"){					
+					option = `<option value="">-- Pilih --</option>`;	
+
+					$.each(data.data, function(index, val) {
+					option += `<option value="${val.kode}" >${val.kode}</option>`;
+
+					});
+
+					$('#po_jual'+rowNum).html(option);
+					$('.select2').select2({
+						containerCssClass: "wrap",
+						placeholder: '--- Pilih ---',
+						dropdownAutoWidth: true
+					});
+					swal.close();
+				}else{	
+					option += "<option value=''></option>";
+					$('#po_jual'+rowNum).html(option);					
+					swal.close();
+				}
+			}
+		});
+	}
+
+	function po_juall2(rowNum,kode_po) 
+	{
+		option = "";
+		$.ajax({
+			type       : 'POST',
+			url        : "<?= base_url(); ?>Transaksi/load_po_jual",
+			// data       : { idp: pelanggan, kd: '' },
+			dataType   : 'json',
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success:function(data){			
+				if(data.message == "Success"){					
+					option = `<option value="">-- Pilih --</option>`;	
+
+					$.each(data.data, function(index, val) {
+					if(val.kode==kode_po)
+					{
+						option += `<option value="${val.kode}" selected >${val.kode}</option>`;
+					}else{
+						option += `<option value="${val.kode}" >${val.kode}</option>`;
+					}
+
+					});
+
+					$('#po_jual'+rowNum).html(option);
+					$('.select2').select2({
+						containerCssClass: "wrap",
+						placeholder: '--- Pilih ---',
+						dropdownAutoWidth: true
+					});
+					swal.close();
+				}else{	
+					option += "<option value=''></option>";
+					$('#po_jual'+rowNum).html(option);					
+					swal.close();
+				}
+			}
+		});
+	}
+	
+
 	function load_aka()
 	{
 		var aka = $('#hub option:selected').attr('data-aka');
 		$("#aka").val(aka)
+	}
+
+	function addRow() 
+	{
+		var b = $('#bucket').val();
+
+		if (b == -1) {
+			b = 0;
+			rowNum = 0;
+		}
+		var po_jual   = $('#po_jual' + b).val();
+			
+		if (po_jual != '') 
+		{			
+			rowNum++;
+			var x = rowNum + 1;
+				$('#table_list_po').append(
+					`<tr id="itemRow${ rowNum }">
+						<td id="detail-hapus-${ rowNum }">
+							<div class="text-center">
+								<a class="btn btn-danger" id="btn-hapus-${ rowNum }" onclick="removeRow(${ rowNum })">
+									<i class="far fa-trash-alt" style="color:#fff"></i> 
+								</a>
+							</div>
+						</td>
+						<td style="padding : 12px 20px">
+							<div class="input-group mb-1">
+								<select name="po_jual[${ rowNum }]"  id="po_jual${ rowNum }" class="form-control select2" style="width: 100%">
+								</select>	
+							</div>
+						</td>	
+					</tr>
+					`);
+				po_juall(rowNum);
+				$('#bucket').val(rowNum);
+				$('#po_jual' + rowNum).focus();
+				
+		}else{
+			swal({
+				title               : "Cek Kembali",
+				html                : "Isi form diatas terlebih dahulu",
+				type                : "info",
+				confirmButtonText   : "OK"
+			});
+			return;
+		}
 	}
 
 	function hitung_total()
@@ -286,14 +470,50 @@
 			}
 		})
 	}
+
+	function removeRow(e) 
+	{
+		if (rowNum > 0) {
+			jQuery('#itemRow' + e).remove();
+			rowNum--;
+		} else {
+			// toastr.error('Baris pertama tidak bisa dihapus');
+			// return;
+
+			swal({
+					title               : "Cek Kembali",
+					html                : "Baris pertama tidak bisa dihapus",
+					type                : "error",
+					confirmButtonText   : "OK"
+				});
+			return;
+		}
+		$('#bucket').val(rowNum);
+	}
+
+	function clearRow() 
+	{
+		var bucket = $('#bucket').val();
+		for (var e = bucket; e > 0; e--) {
+			jQuery('#itemRow' + e).remove();
+			rowNum--;
+		}		
+		$('#bucket').val(rowNum);
+	}
 	
-	function edit_data(id,kd_po)
+	function edit_data(id,kd_po,cek)
 	{
 		$(".row-input").attr('style', '');
 		$(".row-list").attr('style', 'display:none');
 		$("#sts_input").val('edit');
 
-		$("#btn-simpan").html(`<button type="button" onclick="simpan()" class="btn-tambah-produk btn  btn-primary"><b><i class="fa fa-save" ></i> Update</b> </button>`)
+		if(cek=='editt')
+		{
+			$("#btn-simpan").html(`<button type="button" onclick="simpan()" class="btn-tambah-produk btn  btn-primary"><b><i class="fa fa-save" ></i> Update</b> </button>`)
+		}else{
+			$("#btn-simpan").html(``)
+		}
+		
 
 		$.ajax({
 			url        : '<?= base_url(); ?>Transaksi/load_data_1',
@@ -323,6 +543,47 @@
 					$("#aka").val(data.header.aka);
 					$("#total_po").val(format_angka(data.header.total));
 
+					swal.close();
+
+					// detail
+
+					var list = `
+						<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table_list_po" width="100%">
+							<thead class="color-tabel">
+								<tr>
+									<th id="header_del">Delete</th>
+									<th style="padding : 12px 70px" >PO PENJUALAN</th>
+								</tr>
+							</thead>`;
+						
+					var no   = 0;
+					$.each(data.detail, function(index, val) {
+						
+						po_juall2(no,val.kode_po)	
+						list += `
+							<tr id="itemRow${ no }">
+								<td id="detail-hapus-${ no }">
+									<div class="text-center">
+										<a class="btn btn-danger" id="btn-hapus-${ no }" onclick="removeRow(${ no })">
+											<i class="far fa-trash-alt" style="color:#fff"></i> 
+										</a>
+									</div>
+								</td>
+								<td style="padding : 12px 20px">
+									<div class="input-group mb-1">
+										<select name="po_jual[${ no }]"  id="po_jual${ no }" class="form-control select2" style="width: 100%">
+											<option value="${val.kode_po}" selected >${val.kode_po}</option>
+										</select>	
+									</div>
+								</td>		
+							</tr>
+						`;
+						no ++;
+					})
+					
+					rowNum = no-1 
+					$('#bucket').val(rowNum);					
+					$("#table_list_po").html(list);
 					swal.close();
 
 				} else {
@@ -375,7 +636,6 @@
 		var harga     = $("#harga").val().split('.').join('');
 		var total_po  = $("#total_po").val().split('.').join('');
 		var hub       = $("#hub").val();
-		
 		
 		if ( ton == '' || ton == 0 || no_po == '' || harga == '' || tgl_po == '' || total_po == '' || total_po == 0 || hub == '' ) 
 		{			
@@ -485,9 +745,10 @@
 			$.ajax({
 				url: '<?= base_url(); ?>Transaksi/hapus',
 				data: ({
-					id: id,
-					jenis: 'trs_po_bhnbk',
-					field: 'id_po_bhn'
+					id       : id,
+					jenis    : 'trs_po_bhnbk',
+					field    : 'id_po_bhn',
+					no_po    : no_po
 				}),
 				type: "POST",
 				beforeSend: function() {
