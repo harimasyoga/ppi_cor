@@ -1401,6 +1401,23 @@ class M_transaksi extends CI_Model
 		if($sts_input=='edit')
 		{
 			$no_po_bhn    = $this->input->post('no_po_old');
+			
+			// delete detail
+			$del_detail = $this->db->query("DELETE FROM trs_po_bhnbk_detail where no_po_bhn='$no_po_bhn' ");
+
+			$rowloop     = $this->input->post('bucket');
+			for($loop = 0; $loop <= $rowloop; $loop++)
+			{
+				$data_detail = array(				
+					'no_po_bhn'     => $no_po_bhn,
+					'kode_po'     	=> $this->input->post('po_jual['.$loop.']'),
+				);
+
+				$result_detail = $this->db->insert('trs_po_bhnbk_detail', $data_detail);
+
+			}		
+
+			// header
 			$data_header = array(			
 				'no_po_bhn'  => $no_po_bhn,
 				'tgl_bhn'    => $this->input->post('tgl_po'),
@@ -1417,6 +1434,20 @@ class M_transaksi extends CI_Model
 		}else{
 			$no_po_bhn    = $this->m_fungsi->urut_transaksi('PO_BAHAN').'/'.$aka.'/'.$thn;
 
+			// detail
+			$rowloop     = $this->input->post('bucket');
+			for($loop = 0; $loop <= $rowloop; $loop++)
+			{
+				$data_detail = array(				
+					'no_po_bhn'     => $no_po_bhn,
+					'kode_po'     	=> $this->input->post('po_jual['.$loop.']'),
+				);
+
+				$result_detail = $this->db->insert('trs_po_bhnbk_detail', $data_detail);
+
+			}		
+
+			// header
 			$data_header = array(			
 				'no_po_bhn'  => $no_po_bhn,
 				'tgl_bhn'    => $this->input->post('tgl_po'),
