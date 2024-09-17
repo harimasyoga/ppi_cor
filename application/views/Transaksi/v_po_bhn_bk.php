@@ -621,7 +621,7 @@
 		$("#id_po_bhn").val("")
 		$("#no_po").val("AUTO")
 		$("#ton").val("")
-		$("#tgl_po").val(tgl_now)
+		// $("#tgl_po").val(tgl_now)
 		$("#harga").val("")
 		$("#hub").val("")
 		$("#total_po").val("")		
