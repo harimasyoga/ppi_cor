@@ -1169,7 +1169,7 @@ class Transaksi extends CI_Controller
 	function load_po_jual()
     {
 		$blnn        = date("m");
-		$blnn_min1   = $blnn + 1 ;
+		$blnn_min1   = $blnn - 1 ;
 		$blnn_min2   = $blnn - 2 ;
         $query = $this->db->query("SELECT no_po_lm as kode from trs_po_lm
 				where MONTH(tgl_lm) in ($blnn_min2,$blnn_min1,$blnn)
