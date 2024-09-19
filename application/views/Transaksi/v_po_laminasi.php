@@ -293,6 +293,82 @@
 							<div id="list-sementara" style="overflow:auto;white-space:nowrap">
 								LIST KOSONG
 							</div>
+							<div class="list-potongan" style="display:none">
+								<input type="hidden" id="subtotal" value="">
+								<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px" onchange="discPO()">
+									<div class="col-md-1">OPSI*</div>
+									<div class="col-md-2">
+										<select id="ps_opsi" class="form-control select2">
+											<option value="">PILIH</option>
+											<option value="DISKON">DISKON</option>
+											<option value="FEE">FEE</option>
+											<option value="DISKONFEE">DISKON+FEE</option>
+										</select>
+									</div>
+									<div class="col-md-9"></div>
+								</div>
+								<div class="ls-disc" style="display:none">
+									<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
+										<div class="col-md-1">DISC</div>
+										<div class="col-md-2">
+											<div class="input-group">
+												<input type="number" id="ps_disc" class="form-control" autocomplete="off" placeholder="%" onkeyup="changeDisc('disc')" disabled>
+												<div class="input-group-append">
+													<span class="input-group-text" style="font-weight:bold">%</span>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-9"></div>
+									</div>
+									<div class="card-body row" style="font-weight:bold;padding:0 6px">
+										<div class="col-md-1"></div>
+										<div class="col-md-2">
+											<div class="input-group">
+												<input type="text" id="txt_disc" class="form-control" style="font-weight:bold;text-align:right" disabled>
+											</div>
+										</div>
+										<div class="col-md-9"></div>
+									</div>
+									<div class="card-body row" style="font-weight:bold;padding:6px">
+										<div class="col-md-3">
+											<input type="text" id="fix_disc" class="form-control" style="font-weight:bold;text-align:right" disabled>
+										</div>
+										<div class="col-md-9"></div>
+									</div>
+								</div>
+								<div class="ls-fee" style="display:none">
+									<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
+										<div class="col-md-1">FEE</div>
+										<div class="col-md-2">
+											<div class="input-group">
+												<input type="number" id="ps_fee" class="form-control" autocomplete="off" placeholder="%" onkeyup="changeDisc('fee')" disabled>
+												<div class="input-group-append">
+													<span class="input-group-text" style="font-weight:bold">%</span>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-9"></div>
+									</div>
+									<div class="card-body row" style="font-weight:bold;padding:0 6px">
+										<div class="col-md-1"></div>
+										<div class="col-md-2">
+											<div class="input-group">
+												<input type="text" id="txt_fee" class="form-control" style="font-weight:bold;text-align:right" disabled>
+											</div>
+										</div>
+										<div class="col-md-9"></div>
+									</div>
+									<div class="card-body row" style="font-weight:bold;padding:6px">
+										<div class="col-md-3">
+											<div class="input-group">
+												<input type="text" id="fix_fee" class="form-control" style="font-weight:bold;text-align:right" disabled>
+											</div>
+										</div>
+										<div class="col-md-9"></div>
+									</div>
+								</div>
+								<div class="btn-disc"></div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -576,6 +652,19 @@
 		$("#btn-add").html('<button type="button" class="btn btn-sm btn-success" onclick="addItemLaminasi()"><i class="fa fa-plus"></i> <b>ADD</b></button>')
 		$("#input-marketing").html('')
 		$("#input-owner").html('')
+		// DISC
+		$(".list-potongan").attr('style', 'display:none')
+		$(".btn-disc").html('')
+		$(".ls-disc").attr('style', 'display:none')
+		$(".ls-fee").attr('style', 'display:none')
+		$("#subtotal").val("")
+		$("#ps_opsi").val("").trigger('change')
+		$("#ps_disc").val("").prop('disabled', true)
+		$("#txt_disc").val("").prop('disabled', true)
+		$("#fix_disc").val("").prop('disabled', true)
+		$("#ps_fee").val("").prop('disabled', true)
+		$("#txt_fee").val("").prop('disabled', true)
+		$("#fix_fee").val("").prop('disabled', true)
 		swal.close()
 	}
 
@@ -709,7 +798,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".kembali-list-po").html(`<button type="button" class="btn btn-sm btn-info" onclick="editPOLaminasi('${id_po_header}',0,'verif')"><i class="fa fa-arrow-left"></i> <b>LIST PO</b></button>`)
 				$("#s_customer").val(data.pelanggan_lm.nm_pelanggan_lm)
 				$("#s_no_po").val(data.po_lm.no_po_lm)
@@ -744,7 +832,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					editPOLaminasi(id_po_header, 0, 'verif')
 				}else{
@@ -888,6 +975,144 @@
 		}
 
 		$("#harga_total").val(format_angka(harga_total))
+	}
+
+	function discPO()
+	{
+		$(".btn-disc").html('')
+		$("#ps_disc").val("").prop('disabled', true)
+		$("#txt_disc").val("").prop('disabled', true)
+		$("#fix_disc").val("").prop('disabled', true)
+		$("#ps_fee").val("").prop('disabled', true)
+		$("#txt_fee").val("").prop('disabled', true)
+		$("#fix_fee").val("").prop('disabled', true)
+		let ps_opsi = $("#ps_opsi").val()
+
+		if(ps_opsi == ''){
+			$(".ls-disc").attr('style', 'display:none')
+			$(".ls-fee").attr('style', 'display:none')
+		}
+		if(ps_opsi == 'DISKON'){
+			$("#ps_disc").val("").prop('disabled', false)
+			$(".ls-disc").attr('style', '')
+			$(".ls-fee").attr('style', 'display:none')
+		}
+		if(ps_opsi == 'FEE'){
+			$("#ps_fee").val("").prop('disabled', false)
+			$(".ls-disc").attr('style', 'display:none')
+			$(".ls-fee").attr('style', '')
+		}
+		if(ps_opsi == 'DISKONFEE'){
+			$("#ps_disc").val("").prop('disabled', false)
+			$(".ls-disc").attr('style', '')
+			$(".ls-fee").attr('style', '')
+		}
+		if(ps_opsi != ''){
+			$(".btn-disc").html(`<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+				<div class="col-md-1"></div>
+				<div class="col-md-11">
+					<button type="button" class="btn btn-sm btn-primary" onclick="btnDiscPOLM()"><i class="fas fa-plus"></i> SIMPAN</button>
+				</div>
+			</div>`)
+		}
+	}
+
+	function changeDisc(opsi)
+	{
+		let ps_opsi = $("#ps_opsi").val()
+		let subTotal = $("#subtotal").val()
+		let disc = $("#ps_disc").val()
+		let fee = $("#ps_fee").val()
+		if(opsi == 'disc' && (ps_opsi == 'DISKON' || ps_opsi == 'DISKONFEE')){
+			(disc < 0 || disc == 0 || disc > 100) ? disc = '' : disc = disc;
+			$("#ps_disc").val(disc)
+			let txt_disc = Math.round((parseFloat(disc) * parseInt(subTotal)) / 100);
+			$("#txt_disc").val(format_angka(txt_disc)).prop('disabled', true)
+			let fix_disc = parseInt(subTotal) - parseInt(txt_disc);
+			$("#fix_disc").val(format_angka(fix_disc)).prop('disabled', true)
+			$("#ps_fee").val("").prop('disabled', (isNaN(fix_disc)) ? true : false)
+			$("#txt_fee").val("").prop('disabled', true)
+			$("#fix_fee").val("").prop('disabled', true)
+		}
+		if(opsi == 'fee' && (ps_opsi == 'FEE' || ps_opsi == 'DISKONFEE')){
+			let i_disc = 0
+			if(ps_opsi == 'DISKONFEE'){
+				i_disc = $("#fix_disc").val().split('.').join('');
+			}
+			if(ps_opsi == 'FEE'){
+				i_disc = subTotal = $("#subtotal").val();
+			}
+			(fee < 0 || fee == 0 || fee > 100) ? fee = '' : fee = fee;
+			$("#ps_fee").val(fee)
+			let txt_fee = Math.round((parseInt(i_disc) * parseFloat(fee)) / 100);
+			$("#txt_fee").val(format_angka(txt_fee)).prop('disabled', true)
+			let fix_fee = parseInt(i_disc) - parseInt(txt_fee);
+			$("#fix_fee").val(format_angka(fix_fee)).prop('disabled', true)
+		}
+	}
+
+	function btnDiscPOLM()
+	{
+		let id_po_header = $("#id_po_header").val()
+		let ps_opsi = $("#ps_opsi").val()
+		let ps_disc = $("#ps_disc").val()
+		let ps_fee = $("#ps_fee").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/btnDiscPOLM')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_po_header, ps_opsi, ps_disc, ps_fee
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					editPOLaminasi(id_po_header, 0, 'edit')
+					toastr.success(`<b>${data.msg}</b>`)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function hapusDiscPOLM(id_po_header, opsi_disc)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/hapusDiscPOLM')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_po_header }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					editPOLaminasi(id_po_header, 0, 'edit')
+					toastr.success(`<b>BERHASIL HAPUS ${opsi_disc}!</b>`)
+				}else{
+					toastr.error(`<b>TERJADI KESALAHAN!</b>`)
+					swal.close()
+				}
+			}
+		})
 	}
 
 	function addItemLaminasi()
@@ -1074,6 +1299,13 @@
 		$("#id_po_header").val("")
 		$("#id_po_detail").val("")
 		$("#list-sementara").html('')
+		$("#ps_opsi").val("").trigger('change')
+		$("#ps_disc").val("").prop('disabled', true)
+		$("#txt_disc").val("").prop('disabled', true)
+		$("#fix_disc").val("").prop('disabled', true)
+		$("#ps_fee").val("").prop('disabled', true)
+		$("#txt_fee").val("").prop('disabled', true)
+		$("#fix_fee").val("").prop('disabled', true)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editPOLaminasi')?>',
 			type: "POST",
@@ -1100,6 +1332,7 @@
 				$("#attn").val(data.po_lm.id_hub).trigger('change')
 				$("#list-input-sementara").html(data.html_dtl)
 				$("#id_po_header").val(data.po_lm.id)
+				$("#subtotal").val(data.sub_total) // discount
 				if(id != 0 && id_dtl == 0){
 					$("#jenis_lm").val(data.po_lm.jenis_lm).prop('disabled', true).trigger('change')
 				}else{
@@ -1286,6 +1519,12 @@
 						`)
 					}
 				}
+				// DISKON
+				if(opsi == 'edit' && (urlAuth == 'Admin' || urlAuth == 'Laminasi') && data.po_lm.opsi_disc == null && data.po_lm.jenis_lm == 'PPI' && data.po_lm.status_lm2 != 'Y'){
+					$(".list-potongan").attr('style', '')
+				}else{
+					$(".list-potongan").attr('style', 'display:none')
+				}
 				swal.close()
 			}
 		})
@@ -1398,7 +1637,7 @@
 				if(data.updatePOdtl){
 					editPOLaminasi(id_po_header, 0, 'edit')
 				}else{
-					toastr.error(`<b>HARGA TIDAK BOLEH KOSONG!</b>`)
+					toastr.error(`<b>${data.msg}</b>`)
 					swal.close()
 				}
 			}
@@ -1423,7 +1662,8 @@
 				data: ({
 					id : id,
 					jenis : table,
-					field : 'id'
+					field : 'id',
+					id_po_header
 				}),
 				type: "POST",
 				beforeSend: function() {
@@ -1438,7 +1678,7 @@
 				},
 				success: function(res) {
 					data = JSON.parse(res)
-					if(data){
+					if(data.result){
 						toastr.success(`<b>BERHASIL HAPUS!</b>`)
 						if(id_po_header == 0){
 							reloadTable()
@@ -1447,7 +1687,7 @@
 							editPOLaminasi(id_po_header, 0, 'edit')
 						}
 					}else{
-						toastr.error(`<b>PO SUDAH DI ACC!</b>`)
+						toastr.error(`<b>${data.msg}</b>`)
 						reloadTable()
 						swal.close()
 					}

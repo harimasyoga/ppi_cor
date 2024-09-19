@@ -611,6 +611,18 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function btnDiscPOLM()
+	{
+		$result = $this->m_transaksi->btnDiscPOLM();
+		echo json_encode($result);
+	}
+
+	function hapusDiscPOLM()
+	{
+		$result = $this->m_transaksi->hapusDiscPOLM();
+		echo json_encode($result);
+	}
+
 	function editPOLaminasi()
 	{
 		$id = $_POST["id"];
@@ -636,11 +648,12 @@ class Transaksi extends CI_Controller
 					<th style="padding:6px;text-align:center">QTY</th>
 					<th style="padding:6px;text-align:center">H. LEMBAR</th>
 					'.$ketKop.'
-					<th style="padding:6px;text-align:center">HARGA TOTAL</th>
+					<th style="padding:6px;text-align:center">JUMLAH</th>
 					<th style="padding:6px;text-align:center">AKSI</th>
 				</tr>
 			</thead>';
 			$i = 0;
+			$subTotal = 0;
 			foreach($po_dtl->result() as $r){
 				$i++;
 				$edit = '<button class="btn btn-warning btn-xs" onclick="editPOLaminasi('."'".$po_lm->id."'".','."'".$r->id."'".','."'edit'".')"><i class="fas fa-edit"></i> EDIT</button>';
@@ -765,7 +778,88 @@ class Transaksi extends CI_Controller
 						<td colspan="12" style="padding:3px"></td>
 					</tr>';
 				}
+				$subTotal += $r->harga_total_lm;
 			}
+			// total
+			if($po_lm->opsi_disc != ''){
+				$xTotal = 'SUB TOTAL';
+			}else{
+				$xTotal = 'HARGA TOTAL';
+			}
+			if($po_dtl->num_rows() > 1 || $po_lm->opsi_disc != ''){
+				$html .='<tr>
+					<td colspan="12" style="padding:3px"></td>
+				</tr>
+				<tr>
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="10">'.$xTotal.'</td>
+					<td style="padding:6px;font-weight:bold;text-align:right">'.number_format($subTotal,0,',','.').'</td>
+					<td style="padding:6px"></td>
+				</tr>';
+			}
+			// HAPUS
+			if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi']) && $opsi == 'edit' && $po_lm->jenis_lm == 'PPI' && $po_lm->status_lm2 != 'Y'){
+				$hapus_disc = '<button class="btn btn-danger btn-xs" onclick="hapusDiscPOLM('."'".$po_lm->id."'".','."'".$po_lm->opsi_disc."'".')"><i class="fas fa-times"></i></button>';
+			}else{
+				$hapus_disc = '';
+			}
+			if($po_lm->opsi_disc == 'DISKON' || $po_lm->opsi_disc == 'FEE'){
+				if($po_lm->opsi_disc == 'DISKON'){
+					$df_lm = $po_lm->disc_lm;
+				}
+				if($po_lm->opsi_disc == 'FEE'){
+					$df_lm = $po_lm->fee_lm;
+				}
+				// HITUNG
+				$hitung_df = round(($subTotal * $df_lm) / 100);
+				$fix_df = $subTotal - $hitung_df;
+				$html .='<tr>
+					<td colspan="12" style="padding:3px"></td>
+				</tr>
+				<tr>
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="10">'.$po_lm->opsi_disc.' '.round($df_lm,2).' %</td>
+					<td style="padding:6px;font-weight:bold;text-align:right">- '.number_format($hitung_df,0,',','.').'</td>
+					<td style="padding:6px">'.$hapus_disc.'</td>
+				</tr>
+				<tr>
+					<td colspan="12" style="padding:3px"></td>
+				</tr>
+				<tr>
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="10">GRAND TOTAL</td>
+					<td style="padding:6px;font-weight:bold;text-align:right">'.number_format($fix_df,0,',','.').'</td>
+					<td style="padding:6px"></td>
+				</tr>';
+			}
+			if($po_lm->opsi_disc == 'DISKONFEE'){
+				// HITUNG
+				$hitung_d = round(($subTotal * $po_lm->disc_lm) / 100);
+				$hitung_f = round(($hitung_d * $po_lm->fee_lm) / 100);
+				$fix_a = $subTotal - ($hitung_d + $hitung_f);
+				$html .='<tr>
+					<td colspan="12" style="padding:3px"></td>
+				</tr>
+				<tr>
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="10">DISKON '.round($po_lm->disc_lm,2).' %</td>
+					<td style="padding:6px;font-weight:bold;text-align:right">- '.number_format($hitung_d,0,',','.').'</td>
+					<td style="padding:6px"></td>
+				</tr>
+				<tr>
+					<td colspan="12" style="padding:3px"></td>
+				</tr>
+				<tr>
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="10">FEE '.round($po_lm->fee_lm,2).' %</td>
+					<td style="padding:6px;font-weight:bold;text-align:right">- '.number_format($hitung_f,0,',','.').'</td>
+					<td style="padding:6px">'.$hapus_disc.'</td>
+				</tr>
+				<tr>
+					<td colspan="12" style="padding:3px"></td>
+				</tr>
+				<tr>
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="10">GRAND TOTAL</td>
+					<td style="padding:6px;font-weight:bold;text-align:right">'.number_format($fix_a,0,',','.').'</td>
+					<td style="padding:6px"></td>
+				</tr>';
+			}
+
 		$html .= '</table>';
 
 		if($po_lm->status_kirim == "Close" && $opsi == 'verif' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi']) && $this->session->userdata('username') != 'usman'){
@@ -789,6 +883,7 @@ class Transaksi extends CI_Controller
 		}
 		echo json_encode([
 			'po_lm' => $po_lm,
+			'sub_total' => $subTotal,
 			'add_time_po_lm' => substr($this->m_fungsi->getHariIni(($po_lm->edit_time == null) ? $po_lm->add_time : $po_lm->edit_time),0,3).', '.$this->m_fungsi->tglIndSkt(substr(($po_lm->edit_time == null) ? $po_lm->add_time : $po_lm->edit_time, 0,10)).' ( '.substr(($po_lm->edit_time == null) ? $po_lm->add_time : $po_lm->edit_time, 10,6).' )',
 			'time_lm1' => ($po_lm->time_lm1 == null) ? '' :substr($this->m_fungsi->getHariIni($po_lm->time_lm1),0,3).', '.$this->m_fungsi->tglIndSkt(substr($po_lm->time_lm1, 0,10)).' ( '.substr($po_lm->time_lm1, 10,6).' )',
 			'time_lm2' => ($po_lm->time_lm2 == null) ? '' :substr($this->m_fungsi->getHariIni($po_lm->time_lm2),0,3).', '.$this->m_fungsi->tglIndSkt(substr($po_lm->time_lm2, 0,10)).' ( '.substr($po_lm->time_lm2, 10,6).' )',
@@ -2266,10 +2361,16 @@ class Transaksi extends CI_Controller
 			if($cek == 0){
 				$delDetail = $this->m_master->query("DELETE FROM trs_po_lm_detail WHERE no_po_lm = '$po->no_po_lm'");
 				if($delDetail){
-					$result = $this->m_master->query("DELETE FROM trs_po_lm WHERE id='$id'");
+					$result = array(
+						'result' => $this->m_master->query("DELETE FROM trs_po_lm WHERE id='$id'"),
+						'msg' => 'HAPUS PO LM!',
+					);
 				}
 			}else{
-				$result = false;
+				$result = array(
+					'result' => false,
+					'msg' => 'PO SUDAH DI ACC!',
+				);
 			}
 		} else if ($jenis == "trs_po_bhnbk") {			
 			$no_po       = $_POST['no_po'];
@@ -2277,6 +2378,20 @@ class Transaksi extends CI_Controller
 
 			if($delDetail){
 				$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");
+			}
+		} else if ($jenis == "trs_po_lm_detail") {			
+			$id_po_header = $_POST['id_po_header'];
+			$po_lm = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id_po_header'")->row();
+			if($po_lm->opsi_disc != ''){
+				$result = array(
+					'result' => false,
+					'msg' => 'HAPUS DISKON / FEE DAHULU!',
+				);
+			}else{
+				$result = array(
+					'result' => $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'"),
+					'msg' => 'HAPUS PO LM DETAIL!',
+				);
 			}
 		} else {
 
