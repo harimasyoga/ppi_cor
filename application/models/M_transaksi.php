@@ -1574,6 +1574,62 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function btnDiscPOLM()
+	{
+		$id = $_POST["id_po_header"];
+		$ps_opsi = $_POST["ps_opsi"];
+		$ps_disc = $_POST["ps_disc"];
+		$ps_fee = $_POST["ps_fee"];
+		// !preg_match("/^[0-9]*$/", $_POST["muat"]
+		if($ps_opsi == ''){
+			$data = false;
+			$msg = 'HARAP LENGKAPI FORM!';
+		}else if($ps_opsi == 'DISKON' && ($ps_disc == '' || $ps_disc == 0 || $ps_disc < 0 || $ps_disc > 100)){
+			$data = false;
+			$msg = 'HARAP LENGKAPI FORM DISKON!';
+		}else if($ps_opsi == 'FEE' && ($ps_fee == '' || $ps_fee == 0 || $ps_fee < 0 || $ps_fee > 100)){
+			$data = false;
+			$msg = 'HARAP LENGKAPI FORM FEE!';
+		}else if($ps_opsi == 'DISKONFEE' && ($ps_disc == '' || $ps_disc == 0 || $ps_disc < 0 || $ps_disc > 100 || $ps_fee == '' || $ps_fee == 0 || $ps_fee < 0 || $ps_fee > 100)){
+			$data = false;
+			$msg = 'HARAP LENGKAPI FORM DISKON+FEE!';
+		}else{
+			if($ps_opsi == 'DISKON'){
+				$this->db->set('disc_lm', $ps_disc);
+				$this->db->set('fee_lm', null);
+			}
+			if($ps_opsi == 'FEE'){
+				$this->db->set('disc_lm', null);
+				$this->db->set('fee_lm', $ps_fee);
+			}
+			if($ps_opsi == 'DISKONFEE'){
+				$this->db->set('disc_lm', $ps_disc);
+				$this->db->set('fee_lm', $ps_fee);
+			}
+			$this->db->set('opsi_disc', $ps_opsi);
+			$this->db->where('id', $id);
+			$data = $this->db->update('trs_po_lm');
+			$msg = 'BERHASIL TAMBAH '.$ps_opsi.'!';
+		}
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function hapusDiscPOLM()
+	{
+		$id = $_POST["id_po_header"];
+		$this->db->set('disc_lm', null);
+		$this->db->set('fee_lm', null);
+		$this->db->set('opsi_disc', null);
+		$this->db->where('id', $id);
+		$data = $this->db->update('trs_po_lm');
+		return [
+			'data' => $data,
+		];
+	}
+
 	function konfirmasiSplitPO()
 	{
 		$id = $_POST["id_po_header"];
@@ -1741,8 +1797,14 @@ class M_transaksi extends CI_Model
 
 	function editListLaminasi()
 	{
+		$id = $_POST["id_po_header"];
+		$po_lm = $this->db->query("SELECT*FROM trs_po_lm WHERE id='$id'")->row();
 		if($_POST["harga_pori"] == 0 || $_POST["harga_total"] == 0 || $_POST["harga_pori"] == '' || $_POST["harga_total"] == ''){
 			$updatePOdtl = false;
+			$msg = 'HARGA TIDAK BOLEH KOSONG!';
+		}else if($po_lm->opsi_disc != ''){
+			$updatePOdtl = false;
+			$msg = 'HAPUS DISKON / FEE DAHULU!';
 		}else{
 			$this->db->set('edit_time', date('Y-m-d H:i:s'));
 			$this->db->set('edit_user', $this->username);
@@ -1764,10 +1826,11 @@ class M_transaksi extends CI_Model
 				$this->db->where('id', $_POST["id_po_detail"]);
 				$updatePOdtl = $this->db->update('trs_po_lm_detail', $editData);
 			}
+			$msg = 'BERHASIL EDIT!';
 		}
-
 		return [
 			'updatePOdtl' => $updatePOdtl,
+			'msg' => $msg,
 		];
 	}
 }
