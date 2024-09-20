@@ -476,12 +476,16 @@ class Transaksi extends CI_Controller
 					}
 				}
 				$this->cart->insert($data);
-				echo json_encode(array('data' => true, 'isi' => $data));
+				echo json_encode(array('data' => true, 'isi' => 'BERHASIL ADD!'));
 			}else{
 				if($_POST["id_po_header"] == ''){
 					$this->cart->insert($data);
-					echo json_encode(array('data' => true, 'isi' => $data));
+					echo json_encode(array('data' => true, 'isi' => 'BERHASIL ADD!'));
 				}else{
+					if($po_lm->num_rows() > 0 && $po_lm->row()->opsi_disc != ''){
+						echo json_encode(array('data' => false, 'isi' => 'HAPUS HAPUS DISKON / FEE DAHULU!'));
+						return;
+					}
 					foreach($po_dtl->result() as $r){
 						if($r->id_m_produk_lm == $_POST["item"]){
 							echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
@@ -489,7 +493,7 @@ class Transaksi extends CI_Controller
 						}
 					}
 					$this->cart->insert($data);
-					echo json_encode(array('data' => true, 'isi' => $data));
+					echo json_encode(array('data' => true, 'isi' => 'BERHASIL ADD!'));
 				}
 			}
 		}
@@ -640,7 +644,7 @@ class Transaksi extends CI_Controller
 			$ketKop = '<th style="padding:6px;text-align:center">HARGA</th>';
 		}
 		$html ='';
-		$html .='<table class="table table-bordered table-striped" style="margin:0">
+		$html .='<table class="table table-bordered table-striped" style="margin:0 0 12px">
 			<thead>
 				<tr>
 					<th style="padding:6px;text-align:center">NO.</th>
@@ -832,7 +836,8 @@ class Transaksi extends CI_Controller
 			if($po_lm->opsi_disc == 'DISKONFEE'){
 				// HITUNG
 				$hitung_d = round(($subTotal * $po_lm->disc_lm) / 100);
-				$hitung_f = round(($hitung_d * $po_lm->fee_lm) / 100);
+				$fix_d = $subTotal - $hitung_d;
+				$hitung_f = round((($subTotal - $hitung_d) * $po_lm->fee_lm) / 100);
 				$fix_a = $subTotal - ($hitung_d + $hitung_f);
 				$html .='<tr>
 					<td colspan="12" style="padding:3px"></td>
@@ -840,7 +845,7 @@ class Transaksi extends CI_Controller
 				<tr>
 					<td style="padding:6px;font-weight:bold;text-align:right" colspan="10">DISKON '.round($po_lm->disc_lm,2).' %</td>
 					<td style="padding:6px;font-weight:bold;text-align:right">- '.number_format($hitung_d,0,',','.').'</td>
-					<td style="padding:6px"></td>
+					<td style="padding:6px;font-weight:bold;text-align:center">'.number_format($fix_d,0,',','.').'</td>
 				</tr>
 				<tr>
 					<td colspan="12" style="padding:3px"></td>

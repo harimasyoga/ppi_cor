@@ -1167,7 +1167,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
-					toastr.success(`<b>BERHASIL ADD!</b>`)
+					toastr.success(`<b>${data.isi}</b>`)
 					$("#tgl").prop('disabled', true)
 					$("#customer").prop('disabled', true)
 					$("#no_po").prop('disabled', true)
