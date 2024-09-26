@@ -56,10 +56,10 @@
         return $result_stok_berjalan;
     } 
 
-    function inv_bahan($no_stok,$status='')
+    function inv_bahan($no_stok,$status='',$hrg_bhn)
     {	        
         $CI =& get_instance();	  
-        $harga_bhn = 2300;
+        $harga_bhn = $hrg_bhn;
 
         if($status=='edit')
         {
