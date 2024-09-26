@@ -3239,12 +3239,16 @@ class M_logistik extends CI_Model
 			{
 				for($loop = 0; $loop <= $rowloop; $loop++)
 				{
+					$no_po_bhn = $this->input->post('no_po['.$loop.']');
+
+					$cek_harga = $this->db->query("SELECT*FROM trs_po_bhnbk where no_po_bhn in ('$no_po_bhn') limit 1")->row();
+
 					// pecah stok
 					$data_detail = array(				
 						'no_stok'       => $no_stokbb,
 						'id_hub'        => $this->input->post('id_hub['.$loop.']'),
 						'id_po_bhn'     => $this->input->post('id_po_bhn['.$loop.']'),
-						'no_po_bhn'     => $this->input->post('no_po['.$loop.']'),
+						'no_po_bhn'     => $no_po_bhn,
 						'tonase_po'     => str_replace('.','',$this->input->post('ton['.$loop.']')),
 						'datang_bhn_bk' => str_replace('.','',$this->input->post('datang['.$loop.']')),
 					);
@@ -3256,6 +3260,7 @@ class M_logistik extends CI_Model
 
 					stok_bahanbaku($no_stokbb, $this->input->post('id_hub['.$loop.']'), $this->input->post('tgl_stok'), 'HUB', str_replace('.','',$this->input->post('datang['.$loop.']')), 0, 'MASUK DENGAN PO', 'MASUK');
 
+					
 				}
 
 			}			
@@ -3280,7 +3285,11 @@ class M_logistik extends CI_Model
 				$this->db->where('id_stok', $this->input->post('id_stok_h'));
 				$result_header = $this->db->update('trs_h_stok_bb', $data_header);
 
-				
+				if($result_header)
+				{
+					// input invoice bahan
+					inv_bahan($no_stokbb,'edit',$cek_harga->hrg_bhn); 
+				}
 					// input stok berjalan PPI
 				if($tonase_ppi>0)
 				{
@@ -3303,21 +3312,23 @@ class M_logistik extends CI_Model
 					$result_stok_berjalan = $this->db->update('trs_stok_bahanbaku', $data_stok_berjalan);
 				
 				}
-				// input invoice bahan
-				inv_bahan($no_stokbb,'edit'); 
 			}
 		}else{
 			$no_stokbb   = $this->m_fungsi->urut_transaksi('STOK_BB').'/'.'STOK/'.$thn;
 			$tonase_ppi  = str_replace('.','',$this->input->post('tonase_ppi')) ;
-
+			
 			$rowloop     = $this->input->post('bucket');
 			for($loop = 0; $loop <= $rowloop; $loop++)
 			{
+				$no_po_bhn = $this->input->post('no_po['.$loop.']');
+
+				$cek_harga = $this->db->query("SELECT*FROM trs_po_bhnbk where no_po_bhn in ('$no_po_bhn') limit 1")->row();
+
 				$data_detail = array(				
 					'no_stok'       => $no_stokbb,
 					'id_hub'        => $this->input->post('id_hub['.$loop.']'),
 					'id_po_bhn'     => $this->input->post('id_po_bhn['.$loop.']'),
-					'no_po_bhn'     => $this->input->post('no_po['.$loop.']'),
+					'no_po_bhn'     => $no_po_bhn,
 					'tonase_po'     => str_replace('.','',$this->input->post('ton['.$loop.']')),
 					'datang_bhn_bk' => str_replace('.','',$this->input->post('datang['.$loop.']')),
 				);
@@ -3326,6 +3337,8 @@ class M_logistik extends CI_Model
 				// input stok berjalan
 
 				stok_bahanbaku($no_stokbb, $this->input->post('id_hub['.$loop.']'), $this->input->post('tgl_stok'), 'HUB', str_replace('.','',$this->input->post('datang['.$loop.']')), 0, 'MASUK DENGAN PO', 'MASUK');
+
+				
 			}
 
 			if($result_detail)
@@ -3344,17 +3357,21 @@ class M_logistik extends CI_Model
 				);
 			
 				$result_header = $this->db->insert('trs_h_stok_bb', $data_header);
+
+				if($result_header)
+				{
+					// input invoice bahan
+					inv_bahan($no_stokbb,'add',$cek_harga->hrg_bhn);
+					// echo $cek_harga->hrg_bhn;
+				}
 			}
 
 			// input stok berjalan PPI
 			if($tonase_ppi>0)
 			{
-
 				stok_bahanbaku($no_stokbb, NULL, $this->input->post('tgl_stok'), 'PPI', $tonase_ppi, 0, 'MASUK DENGAN PO', 'MASUK');
 			
 			}
-			// input invoice bahan
-			inv_bahan($no_stokbb,'add');
 				
 		}
 		
