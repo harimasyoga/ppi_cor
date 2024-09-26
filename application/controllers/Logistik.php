@@ -5832,7 +5832,7 @@ class Logistik extends CI_Controller
 				$btnHapus = ($r->acc_owner == 'Y') ? '' : '<button type="button" onclick="hapusInvoiceJasa('."'".$r->id."'".')" title="HAPUS" class="btn btn-secondary btn-sm"><i class="fa fa-trash-alt"></i></button> ';
 
 				if($r->acc_owner == 'Y'){
-					if($this->session->userdata('level') == 'Admin'){
+					if(in_array($this->session->userdata('level'), ['Admin', 'Admin2'])){
 						$btnVerif = '<button type="button" onclick="batalInvoiceJasa('."'".$r->id."'".')" title="BATAL ACC OWNER" class="btn btn-danger btn-sm"><i class="fa fa-lock" style="color:#000"></i></button>'; 
 					}else{
 						$btnVerif = '-'; 
