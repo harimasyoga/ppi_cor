@@ -563,10 +563,10 @@
 				// VERIFIKASI DATA
 				$("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.oke_admin}`)
 				// VERIFIFIKASI OWNER
-				if((urlAuth == 'Admin' || urlAuth == 'Owner') && data.cHarga == 0 && data.detail != 0 && data.header.acc_admin == 'Y' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R')){
+				if((urlAuth == 'Admin' || urlAuth == 'Admin2' || urlAuth == 'Owner') && data.cHarga == 0 && data.detail != 0 && data.header.acc_admin == 'Y' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R')){
 					// BUTTON OWNER
 					let lock = ''
-					if(urlAuth == 'Admin' && data.header.acc_owner != 'N'){
+					if((urlAuth == 'Admin' || urlAuth == 'Admin2') && data.header.acc_owner != 'N'){
 						lock = `<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifInvJasa('lock','owner')"><i class="fas fa-lock"></i> Lock</button>`
 					}else{
 						lock = ''
