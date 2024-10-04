@@ -444,7 +444,14 @@ class Logistik extends CI_Controller
 				<td style="padding:6px;text-align:center'.$border.'">
 					<button class="btn btn-success btn-block btn-xs" onclick="addItemLaminasi('."'".$r->id."'".')"><i class="fas fa-plus"></i> ADD</button>
 				</td>';
-				($kiriman->num_rows() == 0) ? $btnAksi = $inputan : $btnAksi = '<td colspan="2"></td>';
+				// DETAIL KIRIMAN
+				if($kiriman->num_rows() == 0){
+					$btnAksi = $inputan;
+				}else{
+					$btnAksi = '<td style="padding:6px;text-align:center" colspan="2">
+						<button class="btn btn-xs btn-lmlm btn-lam-'.$i.'" style="padding:1px 4px;font-style:italic;font-weight:bold;background:#fcba03" onclick="tampilKirimLam('."'".$i."'".')">DETAIL KIRIMAN</button>
+					</td>';
+				}
 				if($r->jenis_qty_lm == 'pack'){
 					$ket = '( PACK )';
 					$qty = $r->pack_lm;
@@ -473,7 +480,10 @@ class Logistik extends CI_Controller
 					<td style="padding:6px;text-align:right">'.$qty_bal.'</td>';
 				}
 				$html .='<tr>
-					<td style="padding:6px;text-align:center">'.$i.'</td>
+					<td style="padding:6px;text-align:center">
+						'.$i.'
+						<input type="hidden" id="l_tr" value="">
+					</td>
 					<td style="padding:6px">'.$r->nm_produk_lm.'</td>
 					<td style="padding:6px">'.$r->ukuran_lm.'</td>
 					'.$isi1.'
@@ -518,7 +528,7 @@ class Logistik extends CI_Controller
 							($item->jenis_qty_lm == 'kg') ? $ol = 0 : $ol = ($r->isi_lm * $qty) * $k->qty_muat;
 							($item->jenis_qty_lm == 'kg') ? $ob = round($qty * $k->qty_muat,2) : $ob = $qty * $k->qty_muat;
 						}
-						$html .= '<tr>
+						$html .= '<tr class="tr tkirim-'.$i.'" style="display:none">
 							'.$isi2.'
 							<td style="padding:6px;border:0;text-align:right">'.$muat.'</td>
 							<td style="padding:6px;border:0">
@@ -536,7 +546,7 @@ class Logistik extends CI_Controller
 						if($retur->num_rows() > 0 && $po_lm->jenis_lm == 'PEKALONGAN'){
 							$rorder_sheet_lm = $retur->row()->retur_qty * $r->isi_lm;
 							$rorder_ikat_lm = floor($retur->row()->retur_qty / $r->pack_x);
-							$html .= '<tr>
+							$html .= '<tr class="tr tkirim-'.$i.'" style="display:none">
 								<td style="padding:0 6px;border:0" colspan="7"></td>
 								<td style="padding:0 6px;border:0;font-weight:bold;font-style:italic;color:#000;text-align:right">+ '.number_format($rorder_sheet_lm,0,',','.').'</td>
 								<td style="padding:0 6px;border:0;font-weight:bold;font-style:italic;color:#000;text-align:right">+ '.number_format($retur->row()->retur_qty,0,',','.').'</td>
