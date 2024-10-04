@@ -768,4 +768,20 @@
 			}
 		})
 	}
+
+	function tampilKirimLam(i)
+	{
+		$(".btn-lmlm").html('DETAIL KIRIMAN').attr('style', 'padding:1px 4px;font-style:italic;font-weight:bold;color:#000;background:#fcba03')
+		let l_tr = $("#l_tr").val()
+		if(parseInt(l_tr) == parseInt(i)){
+			$("#l_tr").val("")
+			$(".tr").hide()
+			$(".btn-lam-"+i).html('DETAIL KIRIMAN').attr('style', 'padding:1px 4px;font-style:italic;font-weight:bold;color:#000;background:#fcba03')
+		}else{
+			$("#l_tr").val(i)
+			$(".tr").hide()
+			$(".tkirim-"+i).show()
+			$(".btn-lam-"+i).html('TUTUP').attr('style', 'padding:1px 4px;font-style:italic;font-weight:bold;color:#fff;background:#fc0303')
+		}
+	}
 </script>
