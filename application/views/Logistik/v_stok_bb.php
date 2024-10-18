@@ -35,8 +35,17 @@
 
 						<div style="margin-bottom:12px; position: absolute;left: 20px;">
 							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+
 						</div>
 
+						<div style="margin-bottom:12px; position: absolute;right: 20px;">
+							<?php if(in_array($this->session->userdata('level'), ['Admin'])){ ?>
+								<button type="button" class="btn btn-sm btn-danger" onclick="inv_all()"><i class="fa fa-plus"></i> <b>INVOICE ULANG ALL</b></button>
+							<?php } ?>
+
+						</div>
+
+						
 						<div class="" style="position: absolute;left: 250px; font-weight:bold">
 								<select id="list_hub" class="form-control select2" onchange="load_data()">
 								<?php
@@ -1280,6 +1289,115 @@
 			});
 		// }
 
+		});
+
+
+	}
+	
+	function Invoice_ulang(no_stok) 
+	{
+
+		// if (cek) {
+			$.ajax({
+				url: '<?= base_url(); ?>Logistik/inv_stok_bb',
+				data: ({
+					no_stok    : no_stok
+				}),
+				type: "POST",
+				beforeSend: function() {
+					swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+					})
+				},
+				success: function(data) {
+					toastr.success('Data Berhasil Di Invoice Ulang');
+					swal.close();
+
+					// swal({
+					// 	title               : "Data",
+					// 	html                : "Data Berhasil Di Hapus",
+					// 	type                : "success",
+					// 	confirmButtonText   : "OK"
+					// });
+					reloadTable();
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					// toastr.error('Terjadi Kesalahan');
+					swal({
+						title               : "Cek Kembali",
+						html                : "Terjadi Kesalahan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
+				}
+			});
+		// }
+
+
+
+	}
+	
+	function inv_all() 
+	{
+
+		swal({
+			title: "INVOICE ULANG",
+			html: "<p> yakin Bosss ?? ingin melakukan  </p><br>"
+			+"<strong> INVOICE ULANG SEMUA ?</strong> ",
+			type               : "question",
+			showCancelButton   : true,
+			confirmButtonText  : '<b>YA</b>',
+			cancelButtonText   : '<b>Batal</b>',
+			confirmButtonClass : 'btn btn-success',
+			cancelButtonClass  : 'btn btn-danger',
+			cancelButtonColor  : '#d33'
+		}).then(() => {
+
+		// if (cek) {
+			$.ajax({
+				url: '<?= base_url(); ?>Logistik/inv_stok_bb_all',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+					})
+				},
+				success: function(data) {
+					toastr.success('Data Berhasil Di Invoice Ulang');
+					swal.close();
+
+					// swal({
+					// 	title               : "Data",
+					// 	html                : "Data Berhasil Di Hapus",
+					// 	type                : "success",
+					// 	confirmButtonText   : "OK"
+					// });
+					reloadTable();
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					// toastr.error('Terjadi Kesalahan');
+					swal({
+						title               : "Cek Kembali",
+						html                : "Terjadi Kesalahan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
+				}
+			});
+			// }
+			
 		});
 
 

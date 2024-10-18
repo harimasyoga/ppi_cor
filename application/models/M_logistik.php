@@ -193,14 +193,18 @@ class M_logistik extends CI_Model
 				$rowloop     = $this->input->post('bucket');
 				for($loop = 0; $loop <= $rowloop; $loop++)
 				{
-					$data_detail = array(				
-						'no_inv_beli'       => $this->input->post('no_inv_beli'),
-						'transaksi'     	=> $this->input->post('transaksi['.$loop.']'),
-						'jns_beban'     	=> $this->input->post('jns_beban['.$loop.']'),
-						'nominal'     		=> str_replace('.','',$this->input->post('nominal['.$loop.']')),
-					);
-	
-					$result_detail = $this->db->insert('invoice_detail_beli', $data_detail);
+					if($this->input->post('transaksi['.$loop.']'))
+					{
+
+						$data_detail = array(				
+							'no_inv_beli'       => $this->input->post('no_inv_beli'),
+							'transaksi'     	=> $this->input->post('transaksi['.$loop.']'),
+							'jns_beban'     	=> $this->input->post('jns_beban['.$loop.']'),
+							'nominal'     		=> str_replace('.','',$this->input->post('nominal['.$loop.']')),
+						);
+		
+						$result_detail = $this->db->insert('invoice_detail_beli', $data_detail);
+					}
 				}		
 				return $result_detail;
 			}
@@ -3377,6 +3381,19 @@ class M_logistik extends CI_Model
 		
 		return $result_header;
 			
+	}
+
+	function inv_stok_bb($no_stokbb)
+	{
+		$queryd   = $this->db->query("SELECT * FROM trs_d_stok_bb where no_stok='$no_stokbb' ");
+		foreach($queryd->result() as $r)
+		{			
+			$cek_harga = $this->db->query("SELECT*FROM trs_po_bhnbk where no_po_bhn in ('$r->no_po_bhn')")->row();
+				
+			// input invoice bahan
+			inv_bahan($no_stokbb,'edit',$cek_harga->hrg_bhn); 
+			
+		}
 	}
 
 	function save_stok_ppi()

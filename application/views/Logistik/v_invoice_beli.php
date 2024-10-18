@@ -107,7 +107,7 @@
 					</div>
 					
 					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
-					<div class="col-md-2">Diskon</div>
+						<div class="col-md-2">Diskon</div>
 						<div class="col-md-3">
 							<div class="input-group mb-1">
 								<div class="input-group-append">
