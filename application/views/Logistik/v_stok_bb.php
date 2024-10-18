@@ -40,7 +40,7 @@
 
 						<div style="margin-bottom:12px; position: absolute;right: 20px;">
 							<?php if(in_array($this->session->userdata('level'), ['Admin'])){ ?>
-								<button type="button" class="btn btn-sm btn-danger" onclick="inv_all()"><i class="fa fa-plus"></i> <b>INVOICE ULANG ALL</b></button>
+								<!-- <button type="button" class="btn btn-sm btn-danger" onclick="inv_all()"><i class="fa fa-plus"></i> <b>INVOICE ULANG ALL</b></button> -->
 							<?php } ?>
 
 						</div>
