@@ -235,7 +235,7 @@ class Logistik extends CI_Controller
 			echo json_encode($result);
 		}
 	}
-
+	
 	function update_stok_bb()
 	{
 
@@ -287,6 +287,57 @@ class Logistik extends CI_Controller
 
 		
 		
+	}
+
+	function inv_stok_bb()
+	{
+		if($this->session->userdata('username'))
+		{
+			
+			$no_stok   = $_POST['no_stok'];
+			$result    = $this->m_logistik->inv_stok_bb($no_stok);
+			echo json_encode($result);
+		}
+	}
+	
+	function inv_stok_bb_all()
+	{
+		if($this->session->userdata('username'))
+		{
+			ini_set("memory_limit", "-1");
+			ini_set("MAX_EXECUTION_TIME","-1");
+			ini_set("pcre.backtrack_limit", "5000000");
+			set_time_limit(0);
+			
+			$delete_all        = $this->db->query("TRUNCATE TABLE invoice_bhn");
+			
+			if($delete_all)
+			{
+				$update_urut_inv   = $this->db->query("UPDATE m_urut SET no_urut= 0 WHERE kode='INV_BHN'");
+
+				if($update_urut_inv)
+				{
+					$queryd   = $this->db->query("SELECT * FROM trs_d_stok_bb a 
+					join trs_h_stok_bb b on a.no_stok=b.no_stok 
+					order by b.tgl_stok,b.no_stok,a.id_stok_d");
+		
+					foreach($queryd->result() as $r)
+					{			
+						
+						$cek_harga = $this->db->query("SELECT*FROM trs_po_bhnbk where no_po_bhn in ('$r->no_po_bhn')")->row();
+							
+						// input invoice bahan
+						$result = inv_bahan($r->no_stok,'edit',$cek_harga->hrg_bhn); 
+						
+					}
+		
+					echo json_encode($result);
+				}
+				
+			}
+
+			
+		}
 	}
 
 	function stok_ppi()
@@ -5164,6 +5215,11 @@ class Logistik extends CI_Controller
 						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_stok . ',' . $id_hub2 . ')" class="btn btn-secondary btn-sm">
 							<i class="fa fa-trash-alt"></i>
 						</button> 
+						
+						<button type="button" title="INVOICE"  onclick="Invoice_ulang('. $no_stok .')" class="btn btn-success btn-sm">
+							<i class="fa fa-paste"></i>
+						</button>
+					
 						';
 
 				$row[] = '<div class="text-center">'.$aksi.'</div>';
