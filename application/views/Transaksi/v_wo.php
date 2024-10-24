@@ -783,6 +783,9 @@
                 <td><b>Joint </b>: ${$join}</td>
                 <td><b>Toleransi </b>: ${data.toleransi_kirim} %</td>
               </tr>
+              <tr style=list-style:none;>
+                <td><b>Jml Ikat </b>: ${data.tipe_box}</td>
+              </tr>
             <tr>
             </table>`);
 
@@ -1101,6 +1104,9 @@
                   <td><b>Tipe Box </b>: ${data.tipe_box}</td>
                   <td><b>Joint </b>: ${$join}</td>
                   <td><b>Toleransi </b>: ${data.toleransi_kirim} %</td>
+                </tr>
+                <tr style=list-style:none;>
+                  <td><b>Jml Ikat </b>: ${data.jml_ikat}</td>
                 </tr>
               <tr>
               </table>`);
