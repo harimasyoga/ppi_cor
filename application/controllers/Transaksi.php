@@ -3373,6 +3373,13 @@ class Transaksi extends CI_Controller
 						<td></td>
 						<td>Joint</td>
 						<td>: <b>' . $join . '</b></td>
+					 </tr>
+					 <tr>
+						<td style="">Jumlah Ikat</td>
+						<td style="">: <b>' . $data->jml_ikat . '</b></td>
+						<td></td>
+						<td>Jumlah Paku</td>
+						<td>: <b>' . $data->jml_paku .  '</b></td>
 					 </tr><br>
 				 </table>';
 
