@@ -1767,13 +1767,25 @@
 								<td style="padding : 5px;border:none;"><b>Kualitas </td>
 								<td style="padding : 5px;border:none;">:</td> </b>
 								<td style="padding : 5px;border:none;">${ val.kualitas }</td>
-							</tr>`;
+							</tr>
+							<tr style="list-style:none;background-color: transparent !important;"> 
+								<td style="padding : 5px;border:none;"><b>Jml Ikat</td>
+								<td style="padding : 5px;border:none;">:</td> </b>
+								<td style="padding : 5px;border:none;" colspan="6">${ val.jml_ikat }</td>
+
+							</tr>
+							`;
 						}else{
 							var lemparan_keterangan = `
 							<tr style="list-style:none;background-color: transparent !important;"> 
 								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Monitoring Pengiriman </td>
 								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
-								<td style="padding : 7px;border-right:none;border-left:none;color:#000" colspan="6">${monitoring_kirim} Pcs / Minggu</td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000" >${monitoring_kirim} Pcs / Minggu</td>
+
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Jumlah Ikat</td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000" colspan="3">${ val.jml_ikat }</td>
+								
 							</tr>`;
 						}
 						
