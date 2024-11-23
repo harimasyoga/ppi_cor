@@ -8396,14 +8396,105 @@ class Logistik extends CI_Controller
 
 	//
 
+	function simpanGDLaminasi()
+	{
+		$result = $this->m_logistik->simpanGDLaminasi();
+		echo json_encode($result);
+	}
+
+	function Gudang_Laminasi()
+	{
+		$data_header = array(
+			'judul' => "Gudang Laminasi",
+		);
+		$this->load->view('header', $data_header);
+		$this->load->view('Logistik/v_gudang_laminasi');
+		$this->load->view('footer');
+	}
+
+	function ListGDProdukLM()
+	{
+		$html = '';
+		$produk = $this->db->query("SELECT*FROM m_produk_lm WHERE jenis_lm='PPI' ORDER BY nm_produk_lm, ukuran_lm");
+
+		$html .= '<form role="form" method="post" id="myForm">
+			<div style="padding:0;overflow:auto;white-space:nowrap">
+				<table>
+					<tr>
+						<td>TANGGAL</td>
+						<td>:</td>
+						<td>
+							<input type="date" id="tgl" name="tgl" class="form-control">
+						</td>
+					</tr>
+				</table>
+				<table class="table table-bordered table-striped" style="margin:0;border:0">
+					<tr>
+						<th style="background:#fff;padding:0;border:0" colspan="3"></th>
+						<th style="background:#fff;padding:6px;border:0">
+							<input type="date" class="form-control">
+						</th>
+						<th style="background:#fff;padding:0;border:0" colspan="4"></th>
+					</tr>
+					<tr>
+						<th style="padding:0;border:0" colspan="8"></th>
+					</tr>
+					<tr>
+						<th style="text-align:center;padding:6px">#</th>
+						<th style="text-align:center;padding:6px">MEREK</th>
+						<th style="text-align:center;padding:6px">UKURAN</th>
+						<th style="text-align:center;padding:6px">STOK AWAL</th>
+						<th style="text-align:center;padding:6px 30px">IN</th>
+						<th style="text-align:center;padding:6px 23px">OUT</th>
+						<th style="text-align:center;padding:6px">STOK AKHIR</th>
+						<th style="text-align:center;padding:6px 20px">KETERANGAN</th>
+					</tr>';
+					$i = 0;
+					foreach($produk->result() as $r) {
+						$i++;
+						$html .= '<tr>
+							<td style="padding:6px;text-align:center">'.$i.'</td>
+							<td style="padding:6px">'.$r->nm_produk_lm.'</td>
+							<td style="padding:6px;text-align:center">'.$r->ukuran_lm.'</td>
+							<td style="padding:6px">
+								<input type="number" id="stok_awal_'.$r->id_produk_lm.'" name="stok_awal_'.$r->id_produk_lm.'" onkeyup="keyUpGD('."'".$r->id_produk_lm."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right">
+							</td>
+							<td style="padding:6px">
+								<input type="number" id="in_'.$r->id_produk_lm.'" name="in_'.$r->id_produk_lm.'" onkeyup="keyUpGD('."'".$r->id_produk_lm."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right">
+							</td>
+							<td style="padding:6px">
+								<input type="number" id="out_'.$r->id_produk_lm.'" name="out_'.$r->id_produk_lm.'" onkeyup="keyUpGD('."'".$r->id_produk_lm."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right">
+							</td>
+							<td style="padding:6px">
+								<input type="hidden" id="hstok_akhir_'.$r->id_produk_lm.'" name="hstok_akhir_'.$r->id_produk_lm.'" value="">
+								<input type="number" id="stok_akhir_'.$r->id_produk_lm.'" name="stok_akhir_'.$r->id_produk_lm.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right" disabled>
+							</td>
+							<td style="padding:6px">
+								<input type="number" id="ket_'.$r->id_produk_lm.'" name="ket_'.$r->id_produk_lm.'" onkeyup="keyUpGD('."'".$r->id_produk_lm."'".')" class="form-control" placeholder="KETERANGAN" style="padding:2px 4px">
+							</td>
+						</tr>';
+					}
+				$html .= '</table>
+			</div>';
+
+			$html .= '<div style="margin-top:16px">
+				<button type="button" class="btn btn-primary" style="font-weight:bold" onclick="simpanGDLaminasi()"><i class="fas fa-save"></i> SIMPAN</button>
+			</div>';
+		$html .= '</form>';
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	//
+
 	function Gudang()
 	{
 		$data_header = array(
 			'judul' => "Gudang",
 		);
-
 		$this->load->view('header', $data_header);
-
 		$jenis = $this->uri->segment(3);
 		if($jenis == 'Add'){
 			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Gudang','User'])){
@@ -8418,8 +8509,6 @@ class Logistik extends CI_Controller
 				$this->load->view('home');
 			}
 		}
-
-
 		$this->load->view('footer');
 	}
 

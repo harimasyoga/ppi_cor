@@ -609,6 +609,45 @@ class M_logistik extends CI_Model
 			
 	}
 
+	function simpanGDLaminasi()
+	{
+		$tgl = $_POST["tgl"];
+		if($tgl == ''){
+			$data = false; $msg = 'HARAP PILIH TANGGAL!';
+		}else{
+			$produk = $this->db->query("SELECT*FROM m_produk_lm WHERE jenis_lm='PPI' ORDER BY nm_produk_lm, ukuran_lm");
+			foreach($produk->result() as $r){
+				$hari = date('d', strtotime($tgl));
+				$bulan = date('m', strtotime($tgl));
+				$tahun = date('Y', strtotime($tgl));
+				$stok_awal = str_replace('.', '', $_POST["stok_awal_".$r->id_produk_lm]);
+				$in = str_replace('.', '', $_POST["in_".$r->id_produk_lm]);
+				$out = str_replace('.', '', $_POST["out_".$r->id_produk_lm]);
+				$stok_akhir = str_replace('.', '', $_POST["hstok_akhir_".$r->id_produk_lm]);
+				$ket = $_POST["ket_".$r->id_produk_lm];
+				if(($stok_awal != 0 || $stok_awal != '') && ($stok_akhir != 0 || $stok_akhir != '')){
+					$gudang = [
+						'id_produk_lm' => $r->id_produk_lm,
+						'bulan' => $bulan,
+						'tahun' => $tahun,
+						$hari.'_in' => $in,
+						$hari.'_out' => $out,
+						$hari.'_stok' => $stok_akhir,
+						$hari.'_ket' => $ket,
+					];
+					$this->db->insert('m_gudang_lm', $gudang);
+				}
+				$data = true;
+				$msg = true;
+			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function loadGudang()
 	{
 		$opsi = $_POST["opsi"];
