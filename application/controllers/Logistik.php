@@ -8650,25 +8650,8 @@ class Logistik extends CI_Controller
 				'pdf' => $pdf,
 			]);
 		}else{
-
-			switch ($opsi) {
-				case 0;
-					echo ("<title>$judul</title>");
-					echo ($html);
-					break;
-	
-				case pdf;					
-					
-					$judul = 'STOK KERTAS LAMINASI - '.strtoupper($this->m_fungsi->getHariIni($plh_tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($plh_tgl));
-					$this->m_fungsi->newMpdf($judul, '', $html, 4, 4, 4, 4, 'P', 'A4', $judul.'.pdf');
-
-				case 2;
-					header("Cache-Control: no-cache, no-store, must-revalidate");
-					header("Content-Type: application/vnd-ms-excel");
-					header("Content-Disposition: attachment; filename= $judul.xls");
-					$this->load->view('app/master_cetak', $data);
-					break;
-			}
+			$judul = 'STOK KERTAS LAMINASI - '.strtoupper($this->m_fungsi->getHariIni($plh_tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($plh_tgl));
+			$this->m_fungsi->newMpdf($judul, '', $html, 4, 4, 4, 4, 'P', 'A4', $judul.'.pdf');
 		}
 	}
 
