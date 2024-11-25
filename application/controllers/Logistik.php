@@ -8396,14 +8396,280 @@ class Logistik extends CI_Controller
 
 	//
 
+	function simpanGDLaminasi()
+	{
+		$result = $this->m_logistik->simpanGDLaminasi();
+		echo json_encode($result);
+	}
+
+	function Gudang_Laminasi()
+	{
+		$data_header = array(
+			'judul' => "Gudang Laminasi",
+		);
+		$this->load->view('header', $data_header);
+		$this->load->view('Logistik/v_gudang_laminasi');
+		$this->load->view('footer');
+	}
+
+	function loadDataGDLaminasi()
+	{
+		$plh_tgl = $_POST["plh_tgl"];
+		$hari = date('d', strtotime($plh_tgl));
+		$bulan = date('m', strtotime($plh_tgl));
+		$tahun = date('Y', strtotime($plh_tgl));
+		$wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
+		$query = $this->db->query("SELECT i.nm_produk_lm,i.ukuran_lm,i.isi_lm,i.jenis_qty_lm,g.* FROM m_gudang_lm g
+		INNER JOIN m_produk_lm i ON g.id_produk_lm=i.id_produk_lm
+		WHERE bulan='$bulan' AND tahun='$tahun' $wA
+		ORDER BY i.nm_produk_lm")->result();
+		$data = array();
+		$i = 0;
+		foreach ($query as $r) {
+			$i++;
+			$row = array();
+			$row[] = '<div style="text-align:center">'.$i.'</div>';
+			$isi = ' <span style="vertical-align:top;font-size:11px;font-weight:normal;font-style:italic">'.$r->isi_lm.'</span>';
+			($r->jenis_qty_lm == 'ikat') ? $ket = ' <span style="vertical-align:top;font-size:11px;font-weight:normal;font-style:italic">( IKAT )</span>' : $ket = '';
+			$row[] = $r->nm_produk_lm.$isi.$ket;
+			$row[] = '<div style="text-align:center">'.$r->ukuran_lm.'</div>';
+			$qq = $this->db->query("SELECT*FROM m_gudang_lm WHERE bulan='$bulan' AND tahun='$tahun' AND id_produk_lm='$r->id_produk_lm' $wA");
+			if($qq->num_rows() != 0){
+				$vSa = number_format($qq->row($hari.'_stok_awal'),0,',','.');
+				$vIn = number_format($qq->row($hari.'_in'),0,',','.');
+				$vOut = number_format($qq->row($hari.'_out'),0,',','.');
+				$vSk = number_format($qq->row($hari.'_stok_akhir'),0,',','.');
+				$vKet = $qq->row($hari.'_ket');
+			}else{
+				$vSa = 0; $vIn = 0; $vOut = 0; $vSk = 0; $vKet = '-';
+			}
+			$row[] = '<div style="text-align:right">'.$vSa.'</div>';
+			$row[] = '<div style="text-align:right">'.$vIn.'</div>';
+			$row[] = '<div style="text-align:right">'.$vOut.'</div>';
+			$row[] = '<div style="text-align:right">'.$vSk.'</div>';
+			$row[] = $vKet;
+			$data[] = $row;
+		}
+		$output = array(
+			"data" => $data,
+		);
+		echo json_encode($output);
+	}
+
+	function ListGDProdukLM()
+	{
+		$html = '';
+		$opsi = $_POST["opsi"];
+		if($opsi == 'html'){
+			$tgl_awal = $_POST["tgl_awal"];
+			$plh_tgl = $_POST["plh_tgl"];
+			$produk = $this->db->query("SELECT*FROM m_produk_lm WHERE jenis_lm='PPI' AND jenis_qty_lm!='kg' ORDER BY nm_produk_lm, ukuran_lm");
+		}else{
+			$opsi = $_GET["opsi"];
+			$tgl_awal = $_GET["tgl_awal"];
+			$plh_tgl = $_GET["plh_tgl"];
+			$h2 = date('d', strtotime($plh_tgl));
+			$b2 = date('m', strtotime($plh_tgl));
+			$t2 = date('Y', strtotime($plh_tgl));
+			$wW = 'AND ('.$h2.'_stok_awal IS NOT NULL OR '.$h2.'_stok_akhir IS NOT NULL OR '.$h2.'_in IS NOT NULL OR '.$h2.'_out IS NOT NULL)';
+			$produk = $this->db->query("SELECT i.nm_produk_lm,i.isi_lm,i.jenis_qty_lm,i.ukuran_lm,g.* FROM m_gudang_lm g
+			INNER JOIN m_produk_lm i ON g.id_produk_lm=i.id_produk_lm
+			WHERE bulan='$b2' AND tahun='$t2' $wW
+			ORDER BY i.nm_produk_lm");
+		}
+
+		if($opsi == 'html'){
+			$html .= '<form role="form" method="post" id="myForm">
+				<table>
+					<tr>
+						<td style="padding:6px 0 16px">TGL STOK AWAL</td>
+						<td style="padding:6px 6px 16px">:</td>
+						<td style="padding:6px 0 16px">
+							<input type="date" id="tgl_awal" name="tgl_awal" value="'.$tgl_awal.'" class="form-control" onchange="plhStokAwal()">
+						</td>
+					</tr>
+				</table>
+				<div style="padding:0;overflow:auto;white-space:nowrap">
+			<table class="table table-bordered table-striped" style="margin:0;border:0">
+				<tr>
+					<th style="text-align:center;padding:6px">#</th>
+					<th style="text-align:center;padding:6px">MEREK</th>
+					<th style="text-align:center;padding:6px">UKURAN</th>
+					<th style="text-align:center;padding:6px">STOK AWAL</th>
+					<th style="text-align:center;padding:6px 30px">IN</th>
+					<th style="text-align:center;padding:6px 23px">OUT</th>
+					<th style="text-align:center;padding:6px">STOK AKHIR</th>
+					<th style="text-align:center;padding:6px 20px">KETERANGAN</th>
+				</tr>';
+		}else{
+			$html .= '';
+			$html .= '<table style="width:100%;margin-top:25px;color:#000;border-collapse:collapse;vertical-align:top;font-family:tahoma;font-size:12px">
+				<tr>
+					<th style="padding:6px" colspan="8">STOK KERTAS LAMINASI</th>
+				</tr>
+				<tr>
+					<th style="padding:0 6px 12px" colspan="8">HARI / TANGGAL : '.strtoupper($this->m_fungsi->getHariIni($plh_tgl)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($plh_tgl)).'</th>
+				</tr>
+				<tr style="background:#5eafde">
+					<th style="text-align:center;padding:6px;width:5%">#</th>
+					<th style="text-align:center;padding:6px;width:23%">MEREK</th>
+					<th style="text-align:center;padding:6px;width:10%">UKURAN</th>
+					<th style="text-align:center;padding:6px;width:12%">STOK AWAL</th>
+					<th style="text-align:center;padding:6px;width:10%">IN</th>
+					<th style="text-align:center;padding:6px;width:10%">OUT</th>
+					<th style="text-align:center;padding:6px;width:12%">STOK AKHIR</th>
+					<th style="text-align:center;padding:6px;width:18%">KETERANGAN</th>
+				</tr>';
+		}
+		$i = 0;
+		$sumSAPack = 0;
+		$sumInPack = 0;
+		$sumOutPack = 0;
+		$sumSkPack = 0;
+		$sumSAIkat = 0;
+		$sumInIkat = 0;
+		$sumOutIkat = 0;
+		$sumSkIkat = 0;
+		foreach($produk->result() as $r) {
+			$i++;
+			if($opsi == 'html'){
+				$hari = date('d', strtotime($tgl_awal));
+				$bulan = date('m', strtotime($tgl_awal));
+				$tahun = date('Y', strtotime($tgl_awal));
+				$fS = 11;
+			}else{
+				$hari = date('d', strtotime($plh_tgl));
+				$bulan = date('m', strtotime($plh_tgl));
+				$tahun = date('Y', strtotime($plh_tgl));
+				$fS = 8;
+			}
+			$isi = ' <span style="vertical-align:top;font-size:'.$fS.';font-weight:normal;font-style:italic">'.$r->isi_lm.'</span>';
+			($r->jenis_qty_lm == 'ikat') ? $ket = ' <span style="vertical-align:top;font-size:'.$fS.';font-weight:normal;font-style:italic">( IKAT )</span>' : $ket = '';
+			$wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
+			$qq = $this->db->query("SELECT*FROM m_gudang_lm WHERE bulan='$bulan' AND tahun='$tahun' AND id_produk_lm='$r->id_produk_lm' $wA");
+			if($qq->num_rows() != 0){
+				$vSk = $qq->row($hari.'_stok_akhir');
+				$dsb = 'disabled';
+				$vSa2 = number_format($qq->row($hari.'_stok_awal'),0,',','.');
+				$vIn22 = number_format($qq->row($hari.'_in'),0,',','.');
+				$vOut = number_format($qq->row($hari.'_out'),0,',','.');
+				$vSk2 = number_format($qq->row($hari.'_stok_akhir'),0,',','.');
+				$vKet2 = $qq->row($hari.'_ket');
+			}else{
+				$vSk = ''; $dsb = ''; $vSa2 = ''; $vIn22 = ''; $vOut = ''; $vSk2 = ''; $vKet2 = '';
+			}
+			if($opsi == 'html'){
+				$html .= '<tr>
+					<td style="padding:6px;text-align:center">'.$i.'</td>
+					<td style="padding:6px">
+						<input type="hidden" id="hstok_awal_'.$r->id_produk_lm.'" name="hstok_awal_'.$r->id_produk_lm.'" value="'.$vSk.'">
+						<input type="hidden" id="hstok_akhir_'.$r->id_produk_lm.'" name="hstok_akhir_'.$r->id_produk_lm.'" value="'.$vSk.'">
+						'.$r->nm_produk_lm.$isi.$ket.'
+					</td>
+					<td style="padding:6px;text-align:center">'.$r->ukuran_lm.'</td>
+					<td style="padding:6px">
+						<input type="number" id="stok_awal_'.$r->id_produk_lm.'" name="stok_awal_'.$r->id_produk_lm.'" value="'.$vSk2.'" onkeyup="keyUpGD('."'".$r->id_produk_lm."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$dsb.'>
+					</td>
+					<td style="padding:6px">
+						<input type="number" id="in_'.$r->id_produk_lm.'" name="in_'.$r->id_produk_lm.'" onkeyup="keyUpGD('."'".$r->id_produk_lm."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
+					</td>
+					<td style="padding:6px">
+						<input type="number" id="out_'.$r->id_produk_lm.'" name="out_'.$r->id_produk_lm.'" onkeyup="keyUpGD('."'".$r->id_produk_lm."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
+					</td>
+					<td style="padding:6px">
+						<input type="number" id="stok_akhir_'.$r->id_produk_lm.'" name="stok_akhir_'.$r->id_produk_lm.'" value="'.$vSk2.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
+					</td>
+					<td style="padding:6px">
+						<input type="text" id="ket_'.$r->id_produk_lm.'" name="ket_'.$r->id_produk_lm.'" class="form-control" placeholder="KETERANGAN" style="padding:2px 4px;font-weight:bold" oninput="this.value=this.value.toUpperCase()">
+					</td>
+				</tr>';
+			}else{
+				$html .= '<tr>
+					<td style="border:1px solid #ccc;padding:6px;text-align:center">'.$i.'</td>
+					<td style="border:1px solid #ccc;padding:6px">'.$r->nm_produk_lm.$isi.$ket.'</td>
+					<td style="border:1px solid #ccc;padding:6px;text-align:center">'.$r->ukuran_lm.'</td>
+					<td style="border:1px solid #ccc;padding:6px;text-align:right">'.$vSa2.'</td>
+					<td style="border:1px solid #ccc;padding:6px;text-align:right">'.$vIn22.'</td>
+					<td style="border:1px solid #ccc;padding:6px;text-align:right">'.$vOut.'</td>
+					<td style="border:1px solid #ccc;padding:6px;text-align:right">'.$vSk2.'</td>
+					<td style="border:1px solid #ccc;padding:6px">'.$vKet2.'</td>
+				</tr>';
+				$sumSAPack += ($r->jenis_qty_lm == 'pack') ? $qq->row($hari.'_stok_awal') : 0;
+				$sumInPack += ($r->jenis_qty_lm == 'pack') ? $qq->row($hari.'_in') : 0;
+				$sumOutPack += ($r->jenis_qty_lm == 'pack') ? $qq->row($hari.'_out') : 0;
+				$sumSkPack += ($r->jenis_qty_lm == 'pack') ? $qq->row($hari.'_stok_akhir') : 0;
+				$sumSAIkat += ($r->jenis_qty_lm == 'ikat') ? $qq->row($hari.'_stok_awal') : 0;
+				$sumInIkat += ($r->jenis_qty_lm == 'ikat') ? $qq->row($hari.'_in') : 0;
+				$sumOutIkat += ($r->jenis_qty_lm == 'ikat') ? $qq->row($hari.'_out') : 0;
+				$sumSkIkat += ($r->jenis_qty_lm == 'ikat') ? $qq->row($hari.'_stok_akhir') : 0;
+			}
+		}
+		if($opsi == 'html'){
+			$html .= '</table></div>';
+			$html .= '<table>
+				<tr>
+					<td style="padding:16px 0 6px">PILIH TANGGAL</td>
+					<td style="padding:16px 6px 6px">:</td>
+					<td style="padding:16px 0 6px">
+						<input type="date" id="tgl" name="tgl" class="form-control">
+					</td>
+				</tr>
+			</table>
+			<div style="margin-top:10px">
+				<button type="button" class="btn btn-primary" style="font-weight:bold" onclick="simpanGDLaminasi()"><i class="fas fa-save"></i> SIMPAN</button>
+			</div>';
+			$html .= '</form>';
+		}else{
+			// TOTAL
+			$html .= '<tr style="background:#5eafde">
+				<td style="padding:6px;text-align:right;font-weight:bold" colspan="3">TOTAL PACK</td>
+				<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumSAPack,0,',','.').'</td>
+				<td style="padding:6px;text-align:right;font-weight:bold">+ '.number_format($sumInPack,0,',','.').'</td>
+				<td style="padding:6px;text-align:right;font-weight:bold">- '.number_format($sumOutPack,0,',','.').'</td>
+				<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumSkPack,0,',','.').'</td>
+			</tr>';
+			$html .= '<tr style="background:#5eafde">
+				<td style="padding:6px;text-align:right;font-weight:bold" colspan="3">TOTAL IKAT</td>
+				<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumSAIkat,0,',','.').'</td>
+				<td style="padding:6px;text-align:right;font-weight:bold">+ '.number_format($sumInIkat,0,',','.').'</td>
+				<td style="padding:6px;text-align:right;font-weight:bold">- '.number_format($sumOutIkat,0,',','.').'</td>
+				<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumSkIkat,0,',','.').'</td>
+			</tr>';
+			$html .= '</table>';
+		}
+
+		if($opsi == 'html'){
+			$h = date('d', strtotime($plh_tgl));
+			$b = date('m', strtotime($plh_tgl));
+			$t = date('Y', strtotime($plh_tgl));
+			$wQ = 'AND ('.$h.'_stok_awal IS NOT NULL OR '.$h.'_stok_akhir IS NOT NULL OR '.$h.'_in IS NOT NULL OR '.$h.'_out IS NOT NULL)';
+			$ff = $this->db->query("SELECT*FROM m_gudang_lm WHERE bulan='$b' AND tahun='$t' $wQ GROUP BY bulan,tahun");
+			if($ff->num_rows() != 0){
+				$pdf = '<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold;padding:8px 12px" href="'.base_url('Logistik/ListGDProdukLM?opsi=pdf&tgl_awal='.$tgl_awal.'&plh_tgl='.$plh_tgl.'').'"><i class="fas fa-file-pdf"></i> PDF</a>';
+			}else{
+				$pdf = '';
+			}
+		}
+
+		if($opsi == 'html'){
+			echo json_encode([
+				'html' => $html,
+				'pdf' => $pdf,
+			]);
+		}else{
+			$judul = 'STOK KERTAS LAMINASI - '.strtoupper($this->m_fungsi->getHariIni($plh_tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($plh_tgl));
+			$this->m_fungsi->newMpdf($judul, '', $html, 4, 4, 4, 4, 'P', 'A4', $judul.'.pdf');
+		}
+	}
+
+	//
+
 	function Gudang()
 	{
 		$data_header = array(
 			'judul' => "Gudang",
 		);
-
 		$this->load->view('header', $data_header);
-
 		$jenis = $this->uri->segment(3);
 		if($jenis == 'Add'){
 			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Gudang','User'])){
@@ -8418,8 +8684,6 @@ class Logistik extends CI_Controller
 				$this->load->view('home');
 			}
 		}
-
-
 		$this->load->view('footer');
 	}
 

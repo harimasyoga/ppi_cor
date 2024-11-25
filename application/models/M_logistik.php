@@ -609,6 +609,68 @@ class M_logistik extends CI_Model
 			
 	}
 
+	function simpanGDLaminasi()
+	{
+		$tgl_awal = $_POST["tgl_awal"];
+		$tgl = $_POST["tgl"];
+		$hari = date('d', strtotime($tgl));
+		$bulan = date('m', strtotime($tgl));
+		$tahun = date('Y', strtotime($tgl));
+		$wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
+		$wH = $hari.'_stok_awal, '.$hari.'_stok_akhir, '.$hari.'_in, '.$hari.'_out';
+		$cek = $this->db->query("SELECT*FROM m_gudang_lm WHERE bulan='$bulan' AND tahun='$tahun' $wA GROUP BY $wH");
+		if($tgl == ''){
+			$data = false; $msg = 'HARAP PILIH TANGGAL!';
+		}else if($tgl < $tgl_awal){
+			$data = false; $msg = 'PILIH TANGGAL KURANG DARI TANGGL STOK AWAL!';
+		}else if($cek->num_rows() != 0){
+			$data = false; $msg = 'DATA SUDAH ADA!';
+		}else{
+			$produk = $this->db->query("SELECT*FROM m_produk_lm WHERE jenis_lm='PPI' AND jenis_qty_lm!='kg' ORDER BY nm_produk_lm, ukuran_lm");
+			foreach($produk->result() as $r){
+				$stok_awal = ($_POST["hstok_awal_".$r->id_produk_lm] == '' || $_POST["hstok_awal_".$r->id_produk_lm] == 0) ? 0 : $_POST["hstok_awal_".$r->id_produk_lm];
+				$stok_akhir = ($_POST["hstok_akhir_".$r->id_produk_lm] == '' || $_POST["hstok_akhir_".$r->id_produk_lm] == 0) ? 0 : $_POST["hstok_akhir_".$r->id_produk_lm];
+				if($stok_awal != 0 || $stok_awal != ''){
+					$in = str_replace('.', '', $_POST["in_".$r->id_produk_lm]);
+					$out = str_replace('.', '', $_POST["out_".$r->id_produk_lm]);
+					$ket = trim($_POST["ket_".$r->id_produk_lm]);
+					$cek2 = $this->db->query("SELECT*FROM m_gudang_lm WHERE bulan='$bulan' AND tahun='$tahun' AND id_produk_lm='$r->id_produk_lm'");
+					if($cek2->num_rows() == 0){
+						$gudang = [
+							'id_produk_lm' => $r->id_produk_lm,
+							'bulan' => $bulan,
+							'tahun' => $tahun,
+							$hari.'_stok_awal' => $stok_awal,
+							$hari.'_in' => ($in == '') ? 0 : $in,
+							$hari.'_out' => ($out == '') ? 0 : $out,
+							$hari.'_stok_akhir' => $stok_akhir,
+							$hari.'_ket' => ($ket == '') ? null : $ket,
+						];
+						$data = $this->db->insert('m_gudang_lm', $gudang);
+					}else{
+						$this->db->set($hari.'_stok_awal', $stok_awal);
+						$this->db->set($hari.'_in', ($in == '') ? 0 : $in);
+						$this->db->set($hari.'_out', ($out == '') ? 0 : $out);
+						$this->db->set($hari.'_stok_akhir', $stok_akhir);
+						$this->db->set($hari.'_ket', ($ket == '') ? null : $ket);
+						$this->db->where('id_produk_lm', $r->id_produk_lm);
+						$this->db->where('bulan', $bulan);
+						$this->db->where('tahun', $tahun);
+						$data = $this->db->update('m_gudang_lm');
+					}
+				}else{
+					$data = true;
+				}
+				$msg = true;
+			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function loadGudang()
 	{
 		$opsi = $_POST["opsi"];
