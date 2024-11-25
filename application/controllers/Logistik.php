@@ -8657,7 +8657,7 @@ class Logistik extends CI_Controller
 					echo ($html);
 					break;
 	
-				case 'pdf';					
+				case pdf;					
 					
 					$judul = 'STOK KERTAS LAMINASI - '.strtoupper($this->m_fungsi->getHariIni($plh_tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($plh_tgl));
 					$this->m_fungsi->newMpdf($judul, '', $html, 4, 4, 4, 4, 'P', 'A4', $judul.'.pdf');
