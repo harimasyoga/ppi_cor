@@ -8435,10 +8435,10 @@ class Logistik extends CI_Controller
 			$row[] = '<div style="text-align:center">'.$r->ukuran_lm.'</div>';
 			$qq = $this->db->query("SELECT*FROM m_gudang_lm WHERE bulan='$bulan' AND tahun='$tahun' AND id_produk_lm='$r->id_produk_lm' $wA");
 			if($qq->num_rows() != 0){
-				$vSa = number_format($qq->row($hari.'_stok_awal'),0,',','.');
-				$vIn = number_format($qq->row($hari.'_in'),0,',','.');
-				$vOut = number_format($qq->row($hari.'_out'),0,',','.');
-				$vSk = number_format($qq->row($hari.'_stok_akhir'),0,',','.');
+				$vSa = ($qq->row($hari.'_stok_awal') == 0) ? '-' : number_format($qq->row($hari.'_stok_awal'),0,',','.');
+				$vIn = ($qq->row($hari.'_in') == 0) ? '-' : number_format($qq->row($hari.'_in'),0,',','.');
+				$vOut = ($qq->row($hari.'_out') == 0) ? '-' : number_format($qq->row($hari.'_out'),0,',','.');
+				$vSk = ($qq->row($hari.'_stok_akhir') == 0) ? '-' : number_format($qq->row($hari.'_stok_akhir'),0,',','.');
 				$vKet = $qq->row($hari.'_ket');
 			}else{
 				$vSa = 0; $vIn = 0; $vOut = 0; $vSk = 0; $vKet = '-';
@@ -8522,14 +8522,7 @@ class Logistik extends CI_Controller
 				</tr>';
 		}
 		$i = 0;
-		$sumSAPack = 0;
-		$sumInPack = 0;
-		$sumOutPack = 0;
-		$sumSkPack = 0;
-		$sumSAIkat = 0;
-		$sumInIkat = 0;
-		$sumOutIkat = 0;
-		$sumSkIkat = 0;
+		$sumSAPack = 0; $sumInPack = 0; $sumOutPack = 0; $sumSkPack = 0; $sumSAIkat = 0; $sumInIkat = 0; $sumOutIkat = 0; $sumSkIkat = 0;
 		foreach($produk->result() as $r) {
 			$i++;
 			if($opsi == 'html'){
@@ -8549,11 +8542,11 @@ class Logistik extends CI_Controller
 			$qq = $this->db->query("SELECT*FROM m_gudang_lm WHERE bulan='$bulan' AND tahun='$tahun' AND id_produk_lm='$r->id_produk_lm' $wA");
 			if($qq->num_rows() != 0){
 				$vSk = $qq->row($hari.'_stok_akhir');
-				$dsb = 'disabled';
-				$vSa2 = number_format($qq->row($hari.'_stok_awal'),0,',','.');
-				$vIn22 = number_format($qq->row($hari.'_in'),0,',','.');
-				$vOut = number_format($qq->row($hari.'_out'),0,',','.');
-				$vSk2 = number_format($qq->row($hari.'_stok_akhir'),0,',','.');
+				($vSk == 0) ? $dsb = '' : $dsb = 'disabled';
+				$vSa2 = ($qq->row($hari.'_stok_awal') == 0) ? '-' : number_format($qq->row($hari.'_stok_awal'),0,',','.');
+				$vIn22 = ($qq->row($hari.'_in') == 0) ? '-' : number_format($qq->row($hari.'_in'),0,',','.');
+				$vOut = ($qq->row($hari.'_out') == 0) ? '-' : number_format($qq->row($hari.'_out'),0,',','.');
+				$vSk2 = ($qq->row($hari.'_stok_akhir') == 0) ? '-' : number_format($qq->row($hari.'_stok_akhir'),0,',','.');
 				$vKet2 = $qq->row($hari.'_ket');
 			}else{
 				$vSk = ''; $dsb = ''; $vSa2 = ''; $vIn22 = ''; $vOut = ''; $vSk2 = ''; $vKet2 = '';

@@ -630,9 +630,9 @@ class M_logistik extends CI_Model
 			foreach($produk->result() as $r){
 				$stok_awal = ($_POST["hstok_awal_".$r->id_produk_lm] == '' || $_POST["hstok_awal_".$r->id_produk_lm] == 0) ? 0 : $_POST["hstok_awal_".$r->id_produk_lm];
 				$stok_akhir = ($_POST["hstok_akhir_".$r->id_produk_lm] == '' || $_POST["hstok_akhir_".$r->id_produk_lm] == 0) ? 0 : $_POST["hstok_akhir_".$r->id_produk_lm];
-				if($stok_awal != 0 || $stok_awal != ''){
-					$in = str_replace('.', '', $_POST["in_".$r->id_produk_lm]);
-					$out = str_replace('.', '', $_POST["out_".$r->id_produk_lm]);
+				$in = str_replace('.', '', $_POST["in_".$r->id_produk_lm]);
+				$out = str_replace('.', '', $_POST["out_".$r->id_produk_lm]);
+				if(($stok_awal != 0 || $stok_awal != '') || ($in != 0 || $in != '') || ($out != 0 || $out != '')){
 					$ket = trim($_POST["ket_".$r->id_produk_lm]);
 					$cek2 = $this->db->query("SELECT*FROM m_gudang_lm WHERE bulan='$bulan' AND tahun='$tahun' AND id_produk_lm='$r->id_produk_lm'");
 					if($cek2->num_rows() == 0){
