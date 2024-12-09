@@ -297,7 +297,7 @@ class M_fungsi extends CI_Model {
 
     }
         
-    function  getBulan($bln)
+    function getBulan($bln)
 	{
         switch  ($bln)
 		{

@@ -52,3 +52,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route['default_controller'] = 'Login';
 $route['404_override'] = 'Master/erorr_page';
 $route['translate_uri_dashes'] = FALSE;
+
+
+// REKAP KEU
+$route['Kge5pB65nbf7iHq'] = 'Rekapan/Penjualan';
+$route['z6QPdLBuaVr793p'] = 'Rekapan/Beli_bb';
+$route['jGN0frs3iYpaTXI'] = 'Rekapan/Penggunaan_bb';
+$route['ttz4VvfvMLA3gFl'] = 'Rekapan/Bayar';
