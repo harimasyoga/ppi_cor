@@ -5542,7 +5542,8 @@ class Logistik extends CI_Controller
 			}
 		
 		}else if ($jenis == "load_timbangan") { 
-			$query = $this->db->query("SELECT * ,
+			$query = $this->db->query("SELECT*from(
+			SELECT * ,
 			IFNULL((
 			select sum(datang_bhn_bk)history from trs_h_stok_bb a 
 			JOIN trs_d_stok_bb b ON a.no_stok = b.no_stok
@@ -5553,8 +5554,8 @@ class Logistik extends CI_Controller
 			WHERE a.no_timbangan=c.no_timbangan group by a.no_timbangan
 			)
 			,0)history
-			FROM m_jembatan_timbang c where c.keterangan='TERIMA' and c.no_timbangan like '%timb/%'
-			ORDER BY c.date_masuk desc,id_timbangan")->result();
+			FROM m_jembatan_timbang c where c.keterangan='TERIMA' and c.no_timbangan like '%timb/%') p where no_timbangan not in (select no from tbl_bantuan2)
+			ORDER BY p.date_masuk desc,id_timbangan")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
