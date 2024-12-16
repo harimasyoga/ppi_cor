@@ -1269,14 +1269,22 @@ class Transaksi extends CI_Controller
 	function load_po_jual()
     {
 		$blnn        = date("m");
-		$blnn_min1   = $blnn - 1 ;
-		$blnn_min2   = $blnn - 2 ;
+		$blnn_min1   = $blnn - 7 ;
+
+		$bln_ok1 = '';
+		for($x=$blnn_min1;$x<$blnn;$x++) 
+		{
+			$bln_ok1 .= $x.',';
+		}
+
+		$bln_ok2 = $bln_ok1.$blnn;
+		
         $query = $this->db->query("SELECT no_po_lm as kode from trs_po_lm
-				where MONTH(tgl_lm) in ($blnn_min2,$blnn_min1,$blnn)
+				where MONTH(tgl_lm) in ($bln_ok2)
 				group by no_po_lm
 				union ALL
 				SELECT kode_po as kode FROM trs_po
-				where MONTH(tgl_po) in ($blnn_min2,$blnn_min1,$blnn)
+				where MONTH(tgl_po) in ($bln_ok2)
 				group by kode_po ")->result();
 
             if (!$query) {

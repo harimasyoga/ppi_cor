@@ -53,6 +53,10 @@ $route['default_controller'] = 'Login';
 $route['404_override'] = 'Master/erorr_page';
 $route['translate_uri_dashes'] = FALSE;
 
+// PEMBAYARAN
+$route['0V6bNg0f8CS9uzm'] = 'Logistik/bayar_inv_beli';
+$route['W9hAMMa5JEx3ekj'] = 'Logistik/bayar_inv_bahan';
+$route['JKgb0KAj57KIXwk'] = 'Logistik/bayar_inv';
 
 // REKAP KEU
 $route['Kge5pB65nbf7iHq'] = 'Rekapan/Penjualan';

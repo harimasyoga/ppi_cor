@@ -10997,6 +10997,27 @@ class Logistik extends CI_Controller
             print_r($json);
     }
 	
+	function load_hub_bhn()
+    {
+        $query = $this->db->query("SELECT*FROM m_hub order by id_hub")->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
+	
 	function load_supp()
     {
         $query = $this->db->query("SELECT*FROM m_supp order by nm_supp")->result();
