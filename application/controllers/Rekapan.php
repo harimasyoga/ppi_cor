@@ -187,8 +187,13 @@ class Rekapan extends CI_Controller
 			if($jns_data=='box')
 			{
 
-				$query = $this->db->query("SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm_ker,b.no_po,b.type,
-				b.qty,b.retur_qty,b.hasil,b.harga,a.pajak,f.berat_bersih ,b.hasil*f.berat_bersih as tonase,round(b.hasil*f.berat_bersih/0.7) as bahan, 
+				$query = $this->db->query("SELECT *, f.berat_bersih ,
+				r.hasil*f.berat_bersih as tonase,
+				round(r.hasil*f.berat_bersih/0.7) as bahan 
+				
+				from(
+SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm_ker,b.no_po,b.type,
+				b.qty,b.retur_qty,b.hasil,b.harga,a.pajak, 
 				(
 				select hrg_bhn from (
 				select * from (
@@ -196,15 +201,18 @@ class Rekapan extends CI_Controller
 				join trs_po_bhnbk_detail b on a.no_po_bhn=b.no_po_bhn
 				group by b.kode_po,a.hrg_bhn desc
 				)bhn group by kode_po
-				)bhn where bhn.kode_po = c.kode_po) as harga_bahan
+				)bhn where bhn.kode_po = c.kode_po) as harga_bahan,
+				(select e.id_produk from trs_po_detail e where b.no_po=e.kode_po and b.id_produk_simcorr=e.id_produk)id_produk
 				from invoice_header a 
 				join invoice_detail b on a.no_invoice=b.no_invoice
 				join trs_po c on b.no_po=c.kode_po
 				join m_hub d on c.id_hub=d.id_hub
-				join trs_po_detail e on b.no_po=e.kode_po and e.id_produk=b.id_produk_simcorr
-				join m_produk f on e.id_produk=f.id_produk
+				-- join trs_po_detail e on b.no_po=e.kode_po and e.id_produk=b.id_produk_simcorr
+				-- join m_produk f on e.id_produk=f.id_produk
 				where a.type in ('box','sheet') and YEAR(tgl_invoice) ='$tahun' and MONTH(tgl_invoice) ='$blnn' and c.id_hub not in ('7')
-				order by c.id_hub,a.tgl_invoice,a.no_invoice")->result();
+				)r
+				join m_produk f on r.id_produk=f.id_produk
+				order by r.id_hub,r.tgl_invoice,r.no_invoice  ")->result();
 
 				$i               = 1;
 				foreach ($query as $r) {
@@ -229,7 +237,7 @@ class Rekapan extends CI_Controller
 					$row[]   = $r->berat_bersih;
 					$row[]   = '<div class="text-center">'.number_format($r->tonase, 0, ",", ".").'</div>';
 					$row[]   = '<div class="text-center">'.number_format($r->bahan, 0, ",", ".").'</div>';
-					$row[]   = '<div class="text-center">Rp '.number_format($r->harga_bahan, 0, ",", ".").'</div>';
+					$row[]   = '<div class="text-right">Rp '.number_format($r->harga_bahan, 0, ",", ".").'</div>';
 
 					$data[]     = $row;
 
@@ -728,24 +736,32 @@ class Rekapan extends CI_Controller
 		if($jns_data == 'box')
 		{
 			$judul1 = 'BOX';
-			$query_detail = $this->db->query("SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm_ker,b.no_po,b.type,
-			b.qty,b.retur_qty,b.hasil,b.harga,a.pajak,f.berat_bersih ,b.hasil*f.berat_bersih as tonase,round(b.hasil*f.berat_bersih/0.7) as bahan, 
-			(
-			select hrg_bhn from (
-			select * from (
-			select b.kode_po,a.hrg_bhn from trs_po_bhnbk a
-			join trs_po_bhnbk_detail b on a.no_po_bhn=b.no_po_bhn
-			group by b.kode_po,a.hrg_bhn desc
-			)bhn group by kode_po
-			)bhn where bhn.kode_po = c.kode_po) as harga_bahan
-			from invoice_header a 
-			join invoice_detail b on a.no_invoice=b.no_invoice
-			join trs_po c on b.no_po=c.kode_po
-			join m_hub d on c.id_hub=d.id_hub
-			join trs_po_detail e on b.no_po=e.kode_po and e.id_produk=b.id_produk_simcorr
-			join m_produk f on e.id_produk=f.id_produk
-			where a.type in ('box','sheet') and YEAR(tgl_invoice) ='$tahun' and MONTH(tgl_invoice) ='$blnn' and c.id_hub not in ('7')
-			order by c.id_hub,a.tgl_invoice,a.no_invoice");
+			$query_detail = $this->db->query("SELECT *, f.berat_bersih ,
+				r.hasil*f.berat_bersih as tonase,
+				round(r.hasil*f.berat_bersih/0.7) as bahan 
+				
+				from(
+SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm_ker,b.no_po,b.type,
+				b.qty,b.retur_qty,b.hasil,b.harga,a.pajak, 
+				(
+				select hrg_bhn from (
+				select * from (
+				select b.kode_po,a.hrg_bhn from trs_po_bhnbk a
+				join trs_po_bhnbk_detail b on a.no_po_bhn=b.no_po_bhn
+				group by b.kode_po,a.hrg_bhn desc
+				)bhn group by kode_po
+				)bhn where bhn.kode_po = c.kode_po) as harga_bahan,
+				(select e.id_produk from trs_po_detail e where b.no_po=e.kode_po and b.id_produk_simcorr=e.id_produk)id_produk
+				from invoice_header a 
+				join invoice_detail b on a.no_invoice=b.no_invoice
+				join trs_po c on b.no_po=c.kode_po
+				join m_hub d on c.id_hub=d.id_hub
+				-- join trs_po_detail e on b.no_po=e.kode_po and e.id_produk=b.id_produk_simcorr
+				-- join m_produk f on e.id_produk=f.id_produk
+				where a.type in ('box','sheet') and YEAR(tgl_invoice) ='$tahun' and MONTH(tgl_invoice) ='$blnn' and c.id_hub not in ('7')
+				)r
+				join m_produk f on r.id_produk=f.id_produk
+				order by r.id_hub,r.tgl_invoice,r.no_invoice ");
 		}else{
 			$judul1 = 'LAMINASI';
 			$query_detail = $this->db->query("SELECT no_invoice,nm_pelanggan_lm,id_hub,nm_hub,tgl_invoice,nm_produk_lm,no_po_lm, qty_ok as qty,retur_qty as retur_qty,

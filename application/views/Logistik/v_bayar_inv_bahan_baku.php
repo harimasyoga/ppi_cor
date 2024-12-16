@@ -27,152 +27,101 @@
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">Input Pembayaran</h3>
 						</div>
-
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">						
-							<div class="col-md-2">PILIH INVOICE</div>
-							<div class="col-md-1">
-								<button class="btn btn-success btn-sm" style="width:100%;margin:auto" data-toggle="modal" data-target=".list_inv" type="button" onclick="load_invoice()">
-									<i class="fa fa-search"></i>
-								</button>
-								<input type="hidden" name="sts_input" id="sts_input">
-								<input type="hidden" name="id_byr_inv" id="id_byr_inv">
-							</div>
-							<div class="col-md-8"></div>
-
-						</div>
-
 						
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
-							<div class="col-md-2">No Invoice</div>
+							<div class="col-md-2">No Pembayaran</div>
 							<div class="col-md-3">
-								<input type="hidden" name="id_header_beli" id="id_header_beli">
+								<input type="hidden" name="id_header_bayar" id="id_header_bayar">
 
-								<input type="text" class="angka form-control" name="no_inv_beli" id="no_inv_beli" value="AUTO" readonly>
+								<input type="text" class="angka form-control" name="no_bayar_bhn" id="no_bayar_bhn" value="AUTO" readonly>
 							</div>
 							<div class="col-md-1"></div>
-							<div class="col-md-2">Supplier</div>
-							<div class="col-md-3">
-								<select class="form-control select2" name="id_supp" id="id_supp" style="width: 100%;" >
-								</select>
-							</div>
-
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
-						<div class="col-md-2">Tanggal Invoice</div>
-							<div class="col-md-3">
-								<input type="date" class="form-control" name="tgl_inv" id="tgl_inv" value ="<?= date('Y-m-d') ?>" readonly>
-							</div>
-							<div class="col-md-1"></div>
-
-							<div class="col-md-2">ATTN</div>
-							<div class="col-md-3">
-								<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" >
-								</select>
-							</div>
-						</div>
-						
-						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
-						<div class="col-md-2">Diskon</div>
+							<div class="col-md-2">Total Bayar</div>
 							<div class="col-md-3">
 								<div class="input-group mb-1">
 									<div class="input-group-append">
 										<span class="input-group-text"><b>Rp</b>
 										</span>
 									</div>	
-									<input type="text" class="angka form-control" name="diskon" id="diskon"  onkeyup="ubah_angka(this.value,this.id),hitung_total()" readonly>
+									<input type="text" class="angka form-control" name="total_byr" id="total_byr" readonly>
 										
 								</div>
 							</div>
-							<div class="col-md-1"></div>
 
-							<div class="col-md-2">PPN</div>
-							<div class="col-md-3">
-								<select class="form-control select2" name="pajak" id="pajak" style="width: 100%;" onchange="hitung_total();">
-								<option value="PPN">PPN</option>
-								<option value="PPN_PPH">PPN PPH </option>
-								<option value="NONPPN">NON PPN</option>
-								</select>
-							</div>
 						</div>
 						
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
-							<div class="col-md-2">Total Inv</div>
+							<div class="col-md-2">Tanggal Bayar</div>
 							<div class="col-md-3">
-								
-								<div class="input-group mb-3">
-									<div class="input-group-append">
-										<span class="input-group-text">Rp</span>
-									</div>
-									<input style="text-align: right;font-weight: bold;"  type="text" name="total_inv" id="total_inv" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" readonly>
-								</div>
+								<input type="date" name="tgl_byr" id="tgl_byr" class="form-control" value="<?= date('Y-m-d') ?>" >
 							</div>
-							
 							<div class="col-md-1"></div>
-							<div class="col-md-2">Keterangan</div>
-							<div class="col-md-3">
-								<textarea type="text" class="form-control" name="ket" id="ket" readonly></textarea>
-							</div>
-							
-						</div>
-														
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">				
-							
+
 							<div class="col-md-2">History bayar</div>
 							<div class="col-md-3">
 								<div class="input-group mb-3">
 									<div class="input-group-append">
-										<span class="input-group-text">Rp</span>
+										<span class="input-group-text"><b>Rp</b></span>
 									</div>
-									<input style="text-align: right;font-weight: bold;"  type="text" name="history_byr" id="history_byr" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id)" readonly> 
+									<input style="text-align: right;font-weight: bold;"  type="text" name="history_byr" id="history_byr" class="form-control" readonly> 
 								</div>
-							</div>							
+							</div>
+						</div>
+						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+						<div class="col-md-2">ATTN</div>
+							<div class="col-md-3">
+								<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" onchange="spill_data()" >
+								</select>
+							</div>
 							<div class="col-md-1"></div>
-							<div class="col-md-2">Jumlah Bayar</div>
+
+							<div class="col-md-2">Kurang bayar</div>
+							<div class="col-md-3">
+								
+								<div class="input-group mb-3">
+									<div class="input-group-append">
+										<span class="input-group-text"><b>Rp</b></span>
+									</div>
+									<input style="text-align: right;font-weight: bold;"  type="text" name="krg_byr" id="krg_byr" class="form-control" readonly> 
+								</div>
+							</div>
+						</div>
+						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+							<div class="col-md-2">Jenis Produk</div>
+							<div class="col-md-3">
+								<input type="text" name="jns_prod" id="jns_prod" class="form-control" value="AUTO" readonly>
+							</div>
+							
+							<div class="col-md-1"></div>
+							<div class="col-md-2">Jumlah bayar</div>
 							<div class="col-md-3">
 								<div class="input-group mb-3">
 									<div class="input-group-append">
-										<span class="input-group-text">Rp</span>
+										<span class="input-group-text"><b>Rp</b></span>
 									</div>
-									<input style="text-align: right;font-weight: bold; color:#ff5733;"   type="text" name="jml_byr" id="jml_byr" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id),hitung_kurang(this.value)" > 
+									<input style="text-align: right;font-weight: bold; color:#ff5733;"   type="text" name="jml_byr" id="jml_byr" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id)" > 
 								</div>
-								
-							</div>		
+							</div>
 							
 						</div>
 						
-						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">		
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+							<div class="col-md-2">Jenis Bayar</div>
+							<div class="col-md-3">
+								<select name="jns_byr" id="jns_byr" class="form-control select2">
+									<option value="">-- PILIH --</option>
+									<option value="tf">TRANSFER</option>
+									<option value="tunai">CEK / TUNAI</option>
+								</select>
+							</div>
 							
-							<div class="col-md-2">Kurang bayar</div>
-							<div class="col-md-3">
-								<div class="input-group mb-3">
-									<div class="input-group-append">
-										<span class="input-group-text">Rp</span>
-									</div>
-									<input style="text-align: right;font-weight: bold;"  type="text" name="krg_byr" id="krg_byr" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id)" readonly> 
-								</div>
-							</div>	
-							<div class="col-md-1"></div>
-							<div class="col-md-2">Tgl Bayar</div>
-							<div class="col-md-3">
-								<input type="date" name="tgl_byr" id="tgl_byr" class="form-control" value="<?= date('Y-m-d') ?>" >
-							</div>	
+							<div class="col-md-6"></div>
 						</div>
+									
 						<br>
-						<hr>
-
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
-								<div class="col-md-2" style="padding-right:0">List Item</div>
-								<div class="col-md-10">&nbsp;
-								</div>
-							</div>
-							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">		
-							<div class="col-md-12"	style="overflow:auto;white-space:nowrap;" width="100%">	
-									<table id="data_list" class="table table-hover table- table-bordered table-condensed table-scrollable">
-										
-									</table>
-								</div>
-							</div>
+						
 						
 						<div class="card-body row"style="font-weight:bold">
 							<div class="col-md-4">
@@ -196,7 +145,9 @@
 		<div class="card shadow mb-3">
 			<div class="row-list">
 				<div class="card-header" style="font-family:Cambria;">		
-						<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?></b></h3>
+						<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?>&nbsp;
+						</b>  </h3>
+						<i style="color:#4e73df;" class="fas fa-info-circle" title="PEMBAYARAN SELAIN DEBIT NOTE"></i>
 
 						<div class="card-tools">
 							<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
@@ -231,74 +182,6 @@
 	</section>
 </div>
 
-<!-- Modal Regist -->
-<div class="modal fade list_inv" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-full" >
-
-        <div class="modal-content">
-
-			<div class="card-header" style="font-family:Cambria;" >
-				<h3 class="card-title" style="color:#4e73df;"><b>Pilih Invoice</b></h3>
-
-				<div class="card-tools">
-					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
-						<i class="fas fa-minus"></i></button>
-				</div>
-			</div>
-			
-            <div class="modal-body">
-				<div style="overflow:auto;white-space:nowrap">
-					
-				<div class="" style="position: absolute;right: 20px; font-weight:bold">
-					<?php 
-						$qbulan    = $this->db->query("SELECT*FROM m_bulan");
-						$bln_now   = date("m");
-					?>
-						<select id="rentang_bulan" class="form-control select2" onchange="load_invoice()"> 
-							<option value="all">-- SEMUA --</option>
-					<?php 									
-						foreach ($qbulan->result() as $bln_row)
-						{
-							// if ($bln_row->id==$bln_now) {
-							// 	echo "<option selected value=$bln_row->id><b>$bln_row->bulan</b></option>";
-							// 	}
-							// else {	
-							echo "<option value=$bln_row->id><b>$bln_row->bulan</b></option>";
-							// }
-						}		
-					?>  
-					</select>
-				</div>
-				<br>
-				<br>
-
-                <table class="table table-bordered table-striped" id="tbl_inv" style="margin:auto !important">
-                    <thead>
-                        <tr class="color-tabel">
-                            <th class="text-center title-white">NO </th>
-                            <th class="text-center title-white">Invoice</th>
-                            <th class="text-center title-white">TRANSAKSI</th>
-                            <th class="text-center title-white">JENIS BEBAN</th>
-                            <th class="text-center title-white">TOTAL</th>
-                            <th class="text-center title-white">HISTORY</th>
-                            <th class="text-center title-white">KURANG BAYAR</th>
-                            <th class="text-center title-white">AKSI</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-				</div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-
-    </div>
-</div>
-<!-- Modal Regist -->
-
 <script type="text/javascript">
 	let statusInput = 'insert';
 	const urlAuth = '<?= $this->session->userdata('level')?>';
@@ -307,7 +190,7 @@
 	{
 		kosong()
 		load_data()
-		load_hub()
+		load_hub_bhn()
 		load_supp()
 		$('.select2').select2();
 	});
@@ -342,12 +225,12 @@
 		})
 	}
 
-	function load_hub() 
+	function load_hub_bhn() 
 	{
 		option = "";
 		$.ajax({
 			type       : 'POST',
-			url        : "<?= base_url(); ?>Logistik/load_hub",
+			url        : "<?= base_url(); ?>Logistik/load_hub_bhn",
 			// data       : { idp: pelanggan, kd: '' },
 			dataType   : 'json',
 			beforeSend: function() {
@@ -845,25 +728,18 @@
 	function kosong()
 	{
 		statusInput = 'insert'
-		$("#id_header_beli").val("")
-		$("#id_perusahaan").val("")
-		$("#nm_perusahaan").val("")
-		$("#tgl_sj").val("")
-		$("#tgl_inv").val("")
-		$("#no_inv").val("")
-		$("#tgl_inv").val("")
-		$("#alasan").val("")
-		$("#total_inv").val("")
-		$("#tgl_jt").val("")
+		$("#id_header_bayar").val("")
+		$("#no_bayar_bhn").val("AUTO")
+		$("#total_byr").val("")
 		$("#tgl_byr").val("")
+		$("#history_byr").val("")
+		$("#id_hub").val("")
+		$("#krg_byr").val("")
+		$("#jns_prod").val("AUTO")
 		$("#jml_byr").val("")
-		$("#sales").val("")
-		$("#top").val("")
+		$("#jns_byr").val("")
 
-		$("#status_jt").val("jt").trigger('change')
-		$("#sts_lunas").val("OPEN").trigger('change')
-
-		$("#data_list").html('')		
+		$("#id_hub").val("").trigger('change')
 
 		swal.close()
 	}
