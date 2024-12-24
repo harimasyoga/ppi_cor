@@ -1756,22 +1756,23 @@
 						if(cs == '139' ){
 							var lemparan_keterangan = `
 							<tr style="list-style:none;background-color: transparent !important;"> 
-								<td style="padding : 5px;border:none;"><b>Minimal stock </td>
-								<td style="padding : 5px;border:none;">:</td> </b>
-								<td style="padding : 5px;border:none;">10.000</td>
-
 								<td style="padding : 5px;border:none;"><b>Monitoring Pengiriman </td>
 								<td style="padding : 5px;border:none;">:</td> </b>
 								<td style="padding : 5px;border:none;">${monitoring_kirim} Pcs / Minggu</td>
 								
-								<td style="padding : 5px;border:none;"><b>Kualitas </td>
+								<td style="padding : 5px;border:none;"><b>Minimal stock </td>
 								<td style="padding : 5px;border:none;">:</td> </b>
-								<td style="padding : 5px;border:none;">${ val.kualitas }</td>
-							</tr>
-							<tr style="list-style:none;background-color: transparent !important;"> 
+								<td style="padding : 5px;border:none;">10.000</td>
+								
 								<td style="padding : 5px;border:none;"><b>Jml Ikat</td>
 								<td style="padding : 5px;border:none;">:</td> </b>
-								<td style="padding : 5px;border:none;" colspan="6">${ val.jml_ikat }</td>
+								<td style="padding : 5px;border:none;">${ val.jml_ikat }</td>
+								
+							</tr>
+							<tr style="list-style:none;background-color: transparent !important;"> 
+								<td style="padding : 5px;border:none;"><b>COA</td>
+								<td style="padding : 5px;border:none;">:</td> </b>
+								<td style="padding : 5px;border:none;" colspan="6">${ val.COA }</td>
 
 							</tr>
 							`;
@@ -1784,7 +1785,11 @@
 
 								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>Jumlah Ikat</td>
 								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
-								<td style="padding : 7px;border-right:none;border-left:none;color:#000" colspan="3">${ val.jml_ikat }</td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000" >${ val.jml_ikat }</td>
+
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000"><b>COA</td>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding : 7px;border-right:none;border-left:none;color:#000" >${ val.COA }</td>
 								
 							</tr>`;
 						}
