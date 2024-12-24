@@ -1760,19 +1760,21 @@
 								<td style="padding : 5px;border:none;">:</td> </b>
 								<td style="padding : 5px;border:none;">${monitoring_kirim} Pcs / Minggu</td>
 								
-								<td style="padding : 5px;border:none;"><b>Minimal stock </td>
-								<td style="padding : 5px;border:none;">:</td> </b>
-								<td style="padding : 5px;border:none;">10.000</td>
-								
 								<td style="padding : 5px;border:none;"><b>Jml Ikat</td>
 								<td style="padding : 5px;border:none;">:</td> </b>
 								<td style="padding : 5px;border:none;">${ val.jml_ikat }</td>
 								
-							</tr>
-							<tr style="list-style:none;background-color: transparent !important;"> 
+
 								<td style="padding : 5px;border:none;"><b>COA</td>
 								<td style="padding : 5px;border:none;">:</td> </b>
-								<td style="padding : 5px;border:none;" colspan="6">${ val.COA }</td>
+								<td style="padding : 5px;border:none;">${ val.COA }</td>
+								
+								
+							</tr>
+							<tr style="list-style:none;background-color: transparent !important;"> 								
+								<td style="padding : 5px;border:none;"><b>Minimal stock </td>
+								<td style="padding : 5px;border:none;">:</td> </b>
+								<td style="padding : 5px;border:none;" colspan="6" >10.000</td>
 
 							</tr>
 							`;
