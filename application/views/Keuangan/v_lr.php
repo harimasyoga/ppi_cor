@@ -32,8 +32,7 @@
 				</div>
 				<div class="card-body">
 					<!--  AA -->
-					<div class="col-md-12">								
-						<br>						
+					<div class="col-md-12">			
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
 							<div class="col-md-2">TAHUN</div>
 								<div class="col-md-3">
@@ -90,13 +89,27 @@
 						</div>
 						
 						<br>
-						<hr>
 					</div>
 					<!-- AA -->
-					<button onclick="cetak_lr(0)"  class="btn btn-danger">
-					<i class="fa fa-print"></i> CETAK L/R</button>
-						<br>
-						<br>
+
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
+						<div class="col-md-6">
+							
+							<button onclick="cetak_lr(0)"  class="btn btn-primary">
+							<i class="fa fa-print"></i> <b>LAYAR</b></button>
+							
+							<button onclick="cetak_lr(1)"  class="btn btn-danger">
+							<i class="fa fa-print"></i> <b>PDF</b></button>
+
+							<button onclick="cetak_lr(2)"  class="btn btn-success">
+							<i class="fa fa-download"></i> <b>EXCEL</b></button>
+									<br>
+									<br>
+								
+						</div>
+						<div class="col-md-5"></div>
+					</div>
+
 					<div id="data_lr" style="overflow:auto;white-space:nowrap;" >
 					</div>
 				</div>

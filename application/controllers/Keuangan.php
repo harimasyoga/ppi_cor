@@ -104,34 +104,42 @@ class Keuangan extends CI_Controller
 
 		if ($jenis == "Jurnal") {
 
-			$priode       = $_POST['priode'];
-			$attn         = $_POST['id_hub'];
-			$tgl_awal     = $_POST['tgl_awal'];
-			$tgl_akhir    = $_POST['tgl_akhir'];
+			$priode    = $_POST['priode'];
+			$attn      = $_POST['id_hub'];
+			$tgl_awal  = $_POST['tgl_awal'];
+			$tgl_akhir = $_POST['tgl_akhir'];
+			$tahun     = date('Y');
+			$blnn      = date('m');
 
 			if($attn=='' || $attn== null || $attn== 'null')
 			{
 				if($priode=='all')
 				{
 					$value="";
+				}else if($priode=='now')
+				{
+					$value="and YEAR(a.tgl_transaksi) = '$tahun' and MONTH(a.tgl_transaksi) ='$blnn'";
 				}else{
-					$value="where a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+					$value="and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 				}
 
 			}else{
 				if($priode=='all')
 				{
-					$value="where b.id_hub='$attn' ";
+					$value="and b.id_hub='$attn' ";
+				}else if($priode=='now')
+				{
+					$value="and b.id_hub='$attn' and YEAR(a.tgl_transaksi) = '$tahun' and MONTH(a.tgl_transaksi) ='$blnn'";
 				}else{
-					$value="where b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+					$value="and b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 				}
 
 			}
 			
 			$query = $this->db->query("SELECT * FROM jurnal_d a
 			join m_hub b on a.id_hub=b.id_hub
-			$value
-			order by id_jurnal")->result();
+			where b.id_hub <>'7' $value
+			order by b.id_hub,id_jurnal")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -231,32 +239,40 @@ class Keuangan extends CI_Controller
 		$priode       = $_POST['priode'];
 		$attn         = $_POST['id_hub'];
 		$tgl_awal     = $_POST['tgl_awal'];
-		$tgl_akhir    = $_POST['tgl_akhir'];
+		$tgl_akhir    = $_POST['tgl_akhir'];		
+		$tahun        = date('Y');
+		$blnn         = date('m');
 
 		if($attn=='' || $attn== null || $attn== 'null')
 		{
 			if($priode=='all')
 			{
 				$value="";
+			}else if($priode=='now')
+			{
+				$value="and YEAR(a.tgl_transaksi) = '$tahun' and MONTH(a.tgl_transaksi) ='$blnn'";
 			}else{
-				$value="where a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+				$value="and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 			}
 
 		}else{
 			if($priode=='all')
 			{
-				$value="where b.id_hub='$attn' ";
+				$value="and b.id_hub='$attn' ";
+			}else if($priode=='now')
+			{
+				$value="and b.id_hub='$attn' ";
 			}else{
-				$value="where b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+				$value="and b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 			}
 
 		}
 		
-		$nrc_header = $this->db->query("SELECT kode_rek from jurnal_d a join m_hub b on a.id_hub=b.id_hub $value group by kode_rek order by kode_rek ");
+		$nrc_header = $this->db->query("SELECT kode_rek from jurnal_d a join m_hub b on a.id_hub=b.id_hub where b.id_hub <>'7' $value group by kode_rek order by kode_rek ");
 
-		$html ='';
-		$i         = 0;
-		$cek_rek   = '';
+		$html       = '';
+		$i          = 0;
+		$cek_rek    = '';
 		foreach($nrc_header->result() as $header){
 			$html .='<table class="table table-bordered table-striped table-scrollable" width="100%">
 			<thead class="color-tabel">
@@ -279,21 +295,29 @@ class Keuangan extends CI_Controller
 					if($priode=='all')
 					{
 						$union ="";
-						$value2="where kode_rek='$header->kode_rek'";
+						$value2="and kode_rek='$header->kode_rek'";
+					}else if($priode=='now')
+					{
+						$union ="";
+						$value2="and kode_rek='$header->kode_rek' and YEAR(a.tgl_transaksi) = '$tahun' and MONTH(a.tgl_transaksi) ='$blnn'";
 					}else{
 						$union ="(SELECT 0 id_jurnal,b.id_hub,b.nm_hub,'$tgl_awal' tgl_transaksi,tgl_input,jam_input,'SALDO AWAL'no_voucher,''no_transaksi,kode_rek,sum(debet)debet,sum(kredit)kredit
 						from jurnal_d a join m_hub b on a.id_hub=b.id_hub 
 						where kode_rek='$header->kode_rek' and a.tgl_transaksi < '$tgl_awal' 
 						GROUP BY b.id_hub,b.nm_hub,kode_rek)
 						UNION ALL"; 
-						$value2="where kode_rek='$header->kode_rek' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+						$value2="and kode_rek='$header->kode_rek' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 					}
 		
 				}else{
 					if($priode=='all')
 					{
 						$union ="";
-						$value2="where kode_rek='$header->kode_rek' and b.id_hub='$attn' ";
+						$value2="and kode_rek='$header->kode_rek' and b.id_hub='$attn' ";
+					}else if($priode=='now')
+					{
+						$union ="";
+						$value2="and kode_rek='$header->kode_rek' and b.id_hub='$attn' and YEAR(a.tgl_transaksi) = '$tahun' and MONTH(a.tgl_transaksi) ='$blnn'";
 					}else{
 						$union ="(SELECT 0 id_jurnal,b.id_hub,b.nm_hub,'$tgl_awal' tgl_transaksi,tgl_input,jam_input,'SALDO AWAL'no_voucher,''no_transaksi,kode_rek,sum(debet)debet,sum(kredit)kredit
 						from jurnal_d a join m_hub b on a.id_hub=b.id_hub 
@@ -301,12 +325,12 @@ class Keuangan extends CI_Controller
 						GROUP BY b.id_hub,b.nm_hub,kode_rek)
 						UNION ALL";
 						
-						$value2="where kode_rek='$header->kode_rek' and b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+						$value2="and kode_rek='$header->kode_rek' and b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 					}
 		
 				}
 
-				$nrc = $this->db->query("$union SELECT id_jurnal,b.id_hub,b.nm_hub,tgl_transaksi,tgl_input,jam_input,no_voucher,no_transaksi,kode_rek,debet,kredit from jurnal_d  a join m_hub b on a.id_hub=b.id_hub $value2 order by kode_rek,tgl_transaksi,id_jurnal");
+				$nrc = $this->db->query("$union SELECT id_jurnal,b.id_hub,b.nm_hub,tgl_transaksi,tgl_input,jam_input,no_voucher,no_transaksi,kode_rek,debet,kredit from jurnal_d  a join m_hub b on a.id_hub=b.id_hub where b.id_hub<>'7' $value2 order by kode_rek,tgl_transaksi,id_jurnal");
 
 				$i        = 0;
 				$hitung   = 0;
@@ -316,7 +340,7 @@ class Keuangan extends CI_Controller
 					$hitung    += $r->debet - $r->kredit;
 					$html .='
 					<tr>
-						<td style="font-weight: bold;">'.$i.'</td>
+						<td style="font-weight: bold;text-align:center" >'.$i.'</td>
 						<td style="font-weight: bold;">'.$r->tgl_transaksi.'</td>
 						<td style="font-weight: bold;">'.$r->no_voucher.'</td>
 						<td style="font-weight: bold;">'.$r->nm_hub.'</td>
@@ -1370,43 +1394,52 @@ class Keuangan extends CI_Controller
 
 	function cetak_jurnal()
 	{
-		$no_stok    = $_GET['no_stok'];
+		// $no_stok    = $_GET['no_stok'];
 
+		$ctk        = $_GET['ctk'];
 		$priode     = $_GET['priode'];
 		$attn       = $_GET['id_hub'];
 		$tgl_awal   = $_GET['tgl_awal'];
 		$tgl_akhir  = $_GET['tgl_akhir'];
+		$tahun      = date('Y');
+		$blnn       = date('m');
  
 		if($attn=='' || $attn== null || $attn== 'null')
 		{
 			if($priode=='all')
 			{
 				$value="";
+			}else if($priode=='now')
+			{
+				$value="and YEAR(a.tgl_transaksi) = '$tahun' and MONTH(a.tgl_transaksi) ='$blnn'";
 			}else{
-				$value="where a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+				$value="and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 			}
 
 		}else{
 			if($priode=='all')
 			{
-				$value="where b.id_hub='$attn' ";
+				$value="and b.id_hub='$attn' ";
+			}else if($priode=='now')
+			{
+				$value="and b.id_hub='$attn' and YEAR(a.tgl_transaksi) = '$tahun' and MONTH(a.tgl_transaksi) ='$blnn'";
 			}else{
-				$value="where b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+				$value="and b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 			}
 
 		}
 			
         $query_header = $this->db->query("SELECT * FROM jurnal_d a
 			join m_hub b on a.id_hub=b.id_hub
-			$value
-			order by id_jurnal");
+			where b.id_hub <>'7' $value
+			order by b.id_hub,id_jurnal");
         
         $data = $query_header->row();
         
         $query_detail = $this->db->query("SELECT * FROM jurnal_d a
 			join m_hub b on a.id_hub=b.id_hub
-			$value
-			order by id_jurnal");
+			where b.id_hub <>'7' $value
+			order by b.id_hub,id_jurnal");
 
 		$html = '';
 		$html .= '<br>';
@@ -1418,8 +1451,7 @@ class Keuangan extends CI_Controller
                         <tr style="background-color: #cccccc">
 							<Th Align="Center">No</Th>
 							<Th Align="Center">No Voucher</Th>
-							<Th Align="Center">Tgl Input</Th>
-							<Th Align="Center">Jam Input</Th>
+							<Th Align="Center">Hub</Th>
 							<Th Align="Center">No Transaksi</Th>
 							<Th Align="Center">Tgl Transaksi</Th>
 							<Th Align="Center">Kode Rek</Th>
@@ -1435,8 +1467,7 @@ class Keuangan extends CI_Controller
 				$html .= '<tr>
 						<td align="center">'.$no.'</td>
 						<td align="center">' . $r->no_voucher . '</td>
-						<td align="center">'.$this->m_fungsi->tanggal_ind(substr($r->tgl_input,0,10)).'</td>
-						<td align="center">' . $r->jam_input . '</td>
+						<td align="center">' . $r->nm_hub . '</td>
 						<td align="center">' . $r->no_transaksi . '</td>
 						<td align="center">'.$this->m_fungsi->tanggal_ind(substr($r->tgl_transaksi,0,10)).'</td>
 						<td align="left">' . $r->kode_rek . '</td>
@@ -1455,8 +1486,9 @@ class Keuangan extends CI_Controller
 		}
 
 		// $this->m_fungsi->_mpdf($html);
-		$this->m_fungsi->template_kop('JURNAL UMUM','-',$html,'L','1');
+		$this->m_fungsi->template_kop('JURNAL UMUM','-',$html,'L',$ctk);
 		// $this->m_fungsi->mPDFP($html);
+		
 	}
 	
 	function cetak_lr()
@@ -1625,10 +1657,13 @@ class Keuangan extends CI_Controller
 	{
 		// $no_stok  = $_GET['no_stok'];
 		 
-		$priode       = $_GET['priode'];
-		$attn         = $_GET['id_hub'];
-		$tgl_awal     = $_GET['tgl_awal'];
-		$tgl_akhir    = $_GET['tgl_akhir'];
+		$ctk        = $_GET['ctk'];
+		$priode     = $_GET['priode'];
+		$attn       = $_GET['id_hub'];
+		$tgl_awal   = $_GET['tgl_awal'];
+		$tgl_akhir  = $_GET['tgl_akhir'];
+		$tahun      = date('Y');
+		$blnn       = date('m');
 
 		$hubb         = $this->db->query("SELECT * from m_hub where id_hub='$attn' ")->row();
 
@@ -1637,15 +1672,20 @@ class Keuangan extends CI_Controller
 			if($priode=='all')
 			{
 				$attn_head    = "";
-				$periode      = "";
 				$value        = "";
+				$periode      = "";
+			}else if($priode=='now')
+			{
+				$attn_head    = "";
+				$value        = "and YEAR(a.tgl_transaksi) = '$tahun' and MONTH(a.tgl_transaksi) ='$blnn'";
+				$periode      = "";
 			}else{
 				$attn_head    = "";
+				$value        = "and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 				$periode      = '<tr>
 				<td width="10%" style="text-align:left; font-size:15px;"><b>PERIODE</b></td>
 				<td width="5%" style="text-align:left; font-size:15px;"><b>:</b></td>
 				<td width="85%" style="text-align:left; font-size:15px;"><b>'.$this->m_fungsi->tanggal_ind($tgl_awal).' s/d '.$this->m_fungsi->tanggal_ind($tgl_akhir).'</b></td> </tr>';
-				$value        = "where a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 			}
 
 		}else{
@@ -1655,18 +1695,26 @@ class Keuangan extends CI_Controller
 				<td width="10%" style="text-align:left; font-size:15px;"><b>ATTN</b></td>
 				<td width="5%" style="text-align:left; font-size:15px;"><b>:</b></td>
 				<td width="85%" style="text-align:left; font-size:15px;"><b>'.$hubb->nm_hub.'</b></td> </tr>';
+				$value        = "and b.id_hub='$attn' ";
 				$periode      = "";
-				$value        = "where b.id_hub='$attn' ";
+			}else if($priode=='now')
+			{
+				$attn_head    = '<tr>
+				<td width="10%" style="text-align:left; font-size:15px;"><b>ATTN</b></td>
+				<td width="5%" style="text-align:left; font-size:15px;"><b>:</b></td>
+				<td width="85%" style="text-align:left; font-size:15px;"><b>'.$hubb->nm_hub.'</b></td> </tr>';
+				$value        = "and b.id_hub='$attn' and YEAR(a.tgl_transaksi) = '$tahun' and MONTH(a.tgl_transaksi) ='$blnn'";
+				$periode      = "";
 			}else{
 				$attn_head    = '<tr>
 				<td width="10%" style="text-align:left; font-size:15px;"><b>ATTN</b></td>
 				<td width="5%" style="text-align:left; font-size:15px;"><b>:</b></td>
 				<td width="85%" style="text-align:left; font-size:15px;"><b>'.$hubb->nm_hub.'</b></td> </tr>';
+				$value        = "and b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 				$periode      = '<tr>
 				<td width="10%" style="text-align:left; font-size:15px;"><b>PERIODE</b></td>
 				<td width="5%" style="text-align:left; font-size:15px;"><b>:</b></td>
 				<td width="85%" style="text-align:left; font-size:15px;"><b>'.$this->m_fungsi->tanggal_ind($tgl_awal).' s/d '.$this->m_fungsi->tanggal_ind($tgl_akhir).'</b></td> </tr>';
-				$value        = "where b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 			}
 
 		}
@@ -1681,7 +1729,7 @@ class Keuangan extends CI_Controller
 					
 		$html .= '<br>';
 
-        $query_header = $this->db->query("SELECT kode_rek from jurnal_d a join m_hub b on a.id_hub=b.id_hub $value group by kode_rek order by tgl_input asc,kode_rek");
+        $query_header = $this->db->query("SELECT kode_rek from jurnal_d a join m_hub b on a.id_hub=b.id_hub where b.id_hub <>'7' $value group by kode_rek order by tgl_input asc,kode_rek");
         
         $data = $query_header->row();
 
@@ -1690,7 +1738,7 @@ class Keuangan extends CI_Controller
 			foreach ($query_header->result() as $header) 
 			{        
 				
-				$query_detail = $this->db->query("SELECT kode_rek from jurnal_d a join m_hub b on a.id_hub=b.id_hub where kode_rek='$header->kode_rek' order by tgl_input asc,kode_rek");
+				$query_detail = $this->db->query("SELECT kode_rek from jurnal_d a join m_hub b on a.id_hub=b.id_hub where b.id_hub <>'7' and kode_rek='$header->kode_rek' order by tgl_input asc,kode_rek");
 
 					$html .= '<table border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:14px;font-family: ;" width="100%">
 					<thead class="color-tabel">
@@ -1698,6 +1746,7 @@ class Keuangan extends CI_Controller
 							<th style="text-align: center;">No</th>
 							<th style="text-align: center;">Tanggal</th>
 							<th style="text-align: center;">No Voucher</th>
+							<th style="text-align: center;">ATTN</th>
 							<th style="text-align: center;">Kode Rek</th>
 							<th style="text-align: center;">Nama Rek</th>
 							<th style="text-align: center;">Debit</th>
@@ -1712,7 +1761,11 @@ class Keuangan extends CI_Controller
 						if($priode=='all')
 						{
 							$union ="";
-							$value2="where kode_rek='$header->kode_rek'";
+							$value2="and kode_rek='$header->kode_rek'";
+						}else if($priode=='now')
+						{
+							$union ="";
+							$value2="and kode_rek='$header->kode_rek' and YEAR(a.tgl_transaksi) = '$tahun' and MONTH(a.tgl_transaksi) ='$blnn'";
 						}else{
 							$union ="(SELECT 0 id_jurnal,b.id_hub,b.nm_hub,'$tgl_awal' tgl_transaksi,tgl_input,jam_input,'SALDO AWAL'no_voucher,''no_transaksi,kode_rek,sum(debet)debet,sum(kredit)kredit
 							from jurnal_d a join m_hub b on a.id_hub=b.id_hub 
@@ -1720,14 +1773,18 @@ class Keuangan extends CI_Controller
 							GROUP BY b.id_hub,b.nm_hub,kode_rek)
 							UNION ALL"; 
 
-							$value2="where kode_rek='$header->kode_rek' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+							$value2="and kode_rek='$header->kode_rek' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 						}
 
 					}else{
 						if($priode=='all')
 						{
 							$union ="";
-							$value2="where kode_rek='$header->kode_rek' and b.id_hub='$attn' ";
+							$value2="and kode_rek='$header->kode_rek' and b.id_hub='$attn' ";
+						}else if($priode=='now')
+						{
+							$union ="";
+							$value2="and kode_rek='$header->kode_rek' and b.id_hub='$attn' and YEAR(a.tgl_transaksi) = '$tahun' and MONTH(a.tgl_transaksi) ='$blnn' ";
 						}else{
 							$union ="(SELECT 0 id_jurnal,b.id_hub,b.nm_hub,'$tgl_awal' tgl_transaksi,tgl_input,jam_input,'SALDO AWAL'no_voucher,''no_transaksi,kode_rek,sum(debet)debet,sum(kredit)kredit
 							from jurnal_d a join m_hub b on a.id_hub=b.id_hub 
@@ -1735,12 +1792,12 @@ class Keuangan extends CI_Controller
 							GROUP BY b.id_hub,b.nm_hub,kode_rek)
 							UNION ALL";
 							
-							$value2="where kode_rek='$header->kode_rek' and b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
+							$value2="and kode_rek='$header->kode_rek' and b.id_hub='$attn' and a.tgl_transaksi BETWEEN  '$tgl_awal' and  '$tgl_akhir'";
 						}
 
 					}
 					
-					$nrc = $this->db->query("$union SELECT id_jurnal,b.id_hub,b.nm_hub,tgl_transaksi,tgl_input,jam_input,no_voucher,no_transaksi,kode_rek,debet,kredit from jurnal_d  a join m_hub b on a.id_hub=b.id_hub $value2 order by kode_rek,tgl_transaksi,id_jurnal");
+					$nrc = $this->db->query("$union SELECT id_jurnal,b.id_hub,b.nm_hub,tgl_transaksi,tgl_input,jam_input,no_voucher,no_transaksi,kode_rek,debet,kredit from jurnal_d  a join m_hub b on a.id_hub=b.id_hub where b.id_hub <>'7' $value2 order by kode_rek,tgl_transaksi,id_jurnal");
 
 					$i        = 0;
 					$hitung   = 0;
@@ -1749,9 +1806,10 @@ class Keuangan extends CI_Controller
 						$hitung   += $r->debet - $r->kredit;
 						$html .='
 						<tr>
-							<td style="font-weight: bold;">'.$i.'</td>
+							<td style="font-weight: bold;text-align:center">'.$i.'</td>
 							<td style="font-weight: bold;">'.$r->tgl_transaksi.'</td>
 							<td style="font-weight: bold;">'.$r->no_voucher.'</td>
+							<td style="font-weight: bold;">'.$r->nm_hub.'</td>
 							<td style="font-weight: bold;text-align:center" >'.$r->kode_rek.'</td>
 							<td style="font-weight: bold;text-transform:capitalize;" class="text-left" >'.cari_rek($r->kode_rek).'</td>
 							<td style="font-weight: bold;text-align:right">Rp ' . number_format($r->debet, 0, ",", ".") . '</td>
@@ -1770,7 +1828,7 @@ class Keuangan extends CI_Controller
 		}
 
 		// echo($html);
-		$this->m_fungsi->template_kop('LAPORAN BUKU BESAR','-',$html,'L','1');
+		$this->m_fungsi->template_kop('LAPORAN BUKU BESAR','-',$html,'L',$ctk);
 	}
 
 	function load_data_1()

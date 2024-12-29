@@ -38,8 +38,10 @@
 					<div class="col-md-2">PERIODE</div>
 					<div class="col-md-3">
 						<select class="form-control select2" name="priode" id="priode" style="width: 100%;" onchange="cek_periode(),load_data()">
-						<option value="all">ALL</option>
-						<option value="custom">Custom</option>
+							
+							<option value="now">Bulan ini</option>
+							<option value="custom">Custom</option>
+							<option value="all">ALL</option>
 						</select>
 					</div>
 					<div class="col-md-1"></div>
@@ -67,13 +69,27 @@
 					</div>
 					
 					<br>
-					<hr>
 				</div>
 				<!-- AA -->
-				<button onclick="cetak_bukbes(0)"  class="btn btn-danger">
-					<i class="fa fa-print"></i> CETAK BUKU BESAR</button>
-						<br>
-						<br>
+
+				<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
+					<div class="col-md-6">
+						
+						<button onclick="cetak_bukbes(0)"  class="btn btn-primary">
+						<i class="fa fa-print"></i> <b>LAYAR</b></button>
+						
+						<button onclick="cetak_bukbes(1)"  class="btn btn-danger">
+						<i class="fa fa-print"></i> <b>PDF</b></button>
+
+						<button onclick="cetak_bukbes(2)"  class="btn btn-success">
+						<i class="fa fa-download"></i> <b>EXCEL</b></button>
+								<br>
+								<br>
+							
+					</div>
+					<div class="col-md-5"></div>
+				</div>
+				
 					<div id="data_buber" style="overflow:auto;white-space:nowrap;" >
 					</div>
 				</div>
@@ -94,7 +110,6 @@
 		// getMax();
 		$('.select2').select2({
 			containerCssClass: "wrap",
-			placeholder: '--- Pilih ---',
 			dropdownAutoWidth: true
 		});
 	});
@@ -109,7 +124,7 @@
 		var tgl_akhir = $('#tgl_akhir').val()
 
 		var url    = "<?php echo base_url('Keuangan/cetak_bukbes'); ?>";
-		window.open(url+'?id_hub='+id_hub+'&priode='+priode+'&tgl_awal='+tgl_awal+'&tgl_akhir='+tgl_akhir, '_blank');  
+		window.open(url+'?id_hub='+id_hub+'&ctk='+ctk+'&priode='+priode+'&tgl_awal='+tgl_awal+'&tgl_akhir='+tgl_akhir, '_blank');  
 	}
 
 	function load_hub() 
@@ -132,7 +147,7 @@
         },
         success:function(data){			
           if(data.message == "Success"){					
-            option = `<option value="">-- Pilih --</option>`;	
+            // option = `<option value="">-- Pilih --</option>`;	
 
             $.each(data.data, function(index, val) {
             option += "<option value='"+val.id_hub+"'>"+val.nm_hub+"</option>";
@@ -145,6 +160,7 @@
             $('#id_hub2').html(option);					
             swal.close();
           }
+		  load_data()
         }
       });
       
@@ -154,13 +170,13 @@
     {
       $cek = $('#priode').val();
 
-		if($cek=='all' )
+		if($cek=='custom' )
         {
-          $('#tgl_awal_list').hide("1000");
-          $('#tgl_akhir_list').hide("1000");
-        }else{
-          $('#tgl_awal_list').show("1000");
-          $('#tgl_akhir_list').show("1000");
+			$('#tgl_awal_list').show("1000");
+			$('#tgl_akhir_list').show("1000");
+		}else{
+			$('#tgl_awal_list').hide("1000");
+			$('#tgl_akhir_list').hide("1000");
         }
 	}
 

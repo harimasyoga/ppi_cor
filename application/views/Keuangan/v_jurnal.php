@@ -35,19 +35,24 @@
 					 <div class="col-md-12">								
 						<br>						
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
-						<div class="col-md-2">PERIODE</div>
-						<div class="col-md-3">
-							<select class="form-control select2" name="priode" id="priode" style="width: 100%;" onchange="cek_periode(),load_data()">
-							<option value="all">ALL</option>
-							<option value="custom">Custom</option>
-							</select>
+							<div class="col-md-2">PERIODE</div>
+							<div class="col-md-3">
+								<select class="form-control select2" name="priode" id="priode" style="width: 100%;" onchange="cek_periode(),load_data()">
+								<option value="now">Bulan ini</option>
+								<option value="custom">Custom</option>
+								<option value="all">ALL</option>
+								</select>
+							</div>
+							<div class="col-md-6"></div>
 						</div>
-						<div class="col-md-1"></div>
-						<div class="col-md-2">ATTN</div>
-						<div class="col-md-3">
-							<select class="form-control select2" name="id_hub2" id="id_hub2" style="width: 100%;" onchange="load_data()">
-							</select>
-						</div>
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">	
+							<div class="col-md-2">ATTN</div>
+							<div class="col-md-3">
+								<select class="form-control select2" name="id_hub2" id="id_hub2" style="width: 100%;" onchange="load_data()">
+								</select>
+							</div>
+							
+							<div class="col-md-6"></div>
 						</div>
 						
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold;display:none" id="tgl_awal_list" >						
@@ -67,14 +72,27 @@
 						</div>
 						
 						<br>
-						<hr>
 					</div>
 					<!-- AA -->
 
-					<button onclick="cetak_jurnal(0)"  class="btn btn-danger">
-					<i class="fa fa-print"></i> CETAK JURNAL</button>
-						<br>
-						<br>
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
+						<div class="col-md-6">
+							
+							<button onclick="cetak_jurnal(0)"  class="btn btn-primary">
+							<i class="fa fa-print"></i> <b>LAYAR</b></button>
+							
+							<button onclick="cetak_jurnal(1)"  class="btn btn-danger">
+							<i class="fa fa-print"></i> <b>PDF</b></button>
+
+							<button onclick="cetak_jurnal(2)"  class="btn btn-success">
+							<i class="fa fa-download"></i> <b>EXCEL</b></button>
+									<br>
+									<br>
+								
+						</div>
+						<div class="col-md-5"></div>
+					</div>
+								
 					<div style="overflow:auto;white-space:nowrap;" >
 
 						<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
@@ -116,7 +134,6 @@
 		// getMax();
 		$('.select2').select2({
 			containerCssClass: "wrap",
-			placeholder: '--- Pilih ---',
 			dropdownAutoWidth: true
 		});
 	});
@@ -131,7 +148,7 @@
 		var tgl_akhir = $('#tgl_akhir').val()
 
 		var url    = "<?php echo base_url('Keuangan/cetak_jurnal'); ?>";
-		window.open(url+'?id_hub='+id_hub+'&priode='+priode+'&tgl_awal='+tgl_awal+'&tgl_akhir='+tgl_akhir, '_blank');   
+		window.open(url+'?id_hub='+id_hub+'&ctk='+ctk+'&priode='+priode+'&tgl_awal='+tgl_awal+'&tgl_akhir='+tgl_akhir, '_blank');   
 		 
 	}
 
@@ -155,7 +172,7 @@
         },
         success:function(data){			
           if(data.message == "Success"){					
-            option = `<option value="">-- Pilih --</option>`;	
+            option = `<option value="">-- ALL --</option>`;	
 
             $.each(data.data, function(index, val) {
             option += "<option value='"+val.id_hub+"'>"+val.nm_hub+"</option>";
@@ -184,13 +201,13 @@
     {
       $cek = $('#priode').val();
 
-		if($cek=='all' )
+		if($cek=='custom' )
         {
-          $('#tgl_awal_list').hide("1000");
-          $('#tgl_akhir_list').hide("1000");
-        }else{
-          $('#tgl_awal_list').show("1000");
-          $('#tgl_akhir_list').show("1000");
+			$('#tgl_awal_list').show("1000");
+			$('#tgl_akhir_list').show("1000");
+		}else{
+			$('#tgl_awal_list').hide("1000");
+			$('#tgl_akhir_list').hide("1000");
         }
 	}
 
