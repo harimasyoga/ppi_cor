@@ -53,6 +53,18 @@ class Rekapan extends CI_Controller
 		$this->load->view('footer');
 	}
 	
+	function Jurum()
+	{
+		$data = array(
+			'judul' => "Rekap Rekap Jurnal Umum",
+			// 'pelanggan' => $this->m_master->get_data("m_pelanggan")->result()
+		);
+
+		$this->load->view('header', $data);
+		$this->load->view('Rekap/v_jurum_keu', $data);
+		$this->load->view('footer');
+	}
+	
 	function Bayar()
 	{
 		$data = array(

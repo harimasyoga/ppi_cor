@@ -163,11 +163,23 @@ class Keuangan extends CI_Controller
 				$i++;
 			}
 		}else if ($jenis == "jur_umum") {
+			
+			$thn   = $_POST['thn'];
+			$attn  = $_POST['id_hub'];
+
+			if($attn=='')
+			{
+				$hub ="";
+			}else{
+				$hub ="and b.id_hub='$attn'";
+			}
+
+			
 			$query = $this->db->query("SELECT no_voucher, tgl_transaksi,sum(debet)debet,sum(kredit)kredit,a.id_hub,b.nm_hub,ket from jurnal_d a
 			JOIN m_hub b ON a.id_hub=b.id_hub
-			where no_voucher like'%JURUM%'
+			where no_voucher like'%JURUM%' and YEAR(tgl_transaksi) = '$thn' $hub
 			group by no_voucher, tgl_transaksi,a.id_hub,ket
-			order by tgl_transaksi desc")->result();
+			order by b.id_hub,tgl_transaksi desc")->result();
 
 			$i               = 1;
 			foreach ($query as $r) 
@@ -177,7 +189,7 @@ class Keuangan extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = '<div class="text-center">'.$r->no_voucher.'</div>';
-				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($r->tgl_transaksi).'</div>';
+				$row[] = '<div class="text-center">'.$r->tgl_transaksi.'</div>';
 				$row[] = '<div class="text-center">'.$r->nm_hub.'</div>';
 				$row[] = '<div class="text-center">Rp '.number_format($r->debet, 0, ",", ".").'</div>';
 				$row[] = '<div class="text-center">Rp '.number_format($r->kredit, 0, ",", ".").'</div>';
@@ -1474,6 +1486,83 @@ class Keuangan extends CI_Controller
 						<td align="left" style="text-transform:capitalize;">' . cari_rek($r->kode_rek) . '</td> 
 						<td align="right">Rp ' . number_format($r->debet, 0, ",", ".") . '</td>
 						<td align="right">Rp ' . number_format($r->kredit, 0, ",", ".") . '</td>
+						<td align="left">' . $r->ket . '</td>
+					</tr>';
+
+					$no++;
+			}
+			$html .= '
+                 </table>';
+		} else {
+			$html .= '<h1> Data Kosong </h1>';
+		}
+
+		// $this->m_fungsi->_mpdf($html);
+		$this->m_fungsi->template_kop('JURNAL UMUM','-',$html,'L',$ctk);
+		// $this->m_fungsi->mPDFP($html);
+		
+	}
+	
+	function cetak_jurnal_umum()
+	{
+		// $no_stok    = $_GET['no_stok'];
+
+		$thn        = $_GET['thn'];
+		$ctk        = $_GET['ctk'];
+		$attn       = $_GET['id_hub'];
+		$tahun      = date('Y');
+		$blnn       = date('m');
+ 
+		if($attn=='' || $attn== null || $attn== 'null')
+		{
+			$hub="";
+		}else{
+			$hub="and b.id_hub='$attn' ";
+
+		}
+			
+        $query_header = $this->db->query("SELECT no_voucher, tgl_transaksi,sum(debet)debet,sum(kredit)kredit,a.id_hub,b.nm_hub,ket from jurnal_d a
+			JOIN m_hub b ON a.id_hub=b.id_hub
+			where no_voucher like'%JURUM%' and YEAR(tgl_transaksi) = '$thn' $hub
+			group by no_voucher, tgl_transaksi,a.id_hub,ket
+			order by b.id_hub,tgl_transaksi desc");
+        
+        $data = $query_header->row();
+        
+        $query_detail = $this->db->query("SELECT no_voucher, tgl_transaksi,sum(debet)debet,sum(kredit)kredit,a.id_hub,b.nm_hub,ket from jurnal_d a
+			JOIN m_hub b ON a.id_hub=b.id_hub
+			where no_voucher like'%JURUM%' and YEAR(tgl_transaksi) = '$thn' $hub
+			group by no_voucher, tgl_transaksi,a.id_hub,ket
+			order by b.id_hub,tgl_transaksi desc");
+
+		$html = '';
+		$html .= '<br>';
+
+		if ($query_header->num_rows() > 0) 
+		{
+
+			$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
+				<tr style="background-color: #cccccc">
+					<th class="text-center">NO</th>
+					<th class="text-center">NO VOUCHER</th>
+					<th class="text-center">TANGGAL</th>
+					<th class="text-center">HUB</th>
+					<th class="text-center">DEBIT</th>
+					<th class="text-center">KREDIT</th>
+					<th class="text-center">KET</th>
+				</tr>';
+			
+			$no=1;
+
+			foreach ($query_detail->result() as $r) 
+			{
+				$html .= '<tr>
+						<td align="center">'.$no.'</td>
+						<td align="center">' . $r->no_voucher . '</td>
+						<td align="center">' . $r->tgl_transaksi . '</td>
+						<td align="">' . $r->nm_hub . '</td>
+						<td align="right">'.$r->debet.'</td>
+						<td align="right">' . $r->kredit . '</td>
 						<td align="left">' . $r->ket . '</td>
 					</tr>';
 

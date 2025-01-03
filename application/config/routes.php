@@ -63,3 +63,4 @@ $route['Kge5pB65nbf7iHq'] = 'Rekapan/Penjualan';
 $route['z6QPdLBuaVr793p'] = 'Rekapan/Beli_bb';
 $route['jGN0frs3iYpaTXI'] = 'Rekapan/Penggunaan_bb';
 $route['ttz4VvfvMLA3gFl'] = 'Rekapan/Bayar';
+$route['g4EHXNVTM7kPr90'] = 'Rekapan/Jurum';
