@@ -30,28 +30,74 @@
 								<i class="fas fa-minus"></i></button>
 						</div>
 				</div>
-				<div class="card-body" >
-					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi'])){ ?>
-						<div style="margin-bottom:12px">
-							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+
+				<div class="col-md-12">								
+					<br>			
+					
+					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
+						<div class="col-md-5">
+							<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi'])){ ?>
+								<button type="button" class="btn btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+							<?php } ?>
+							
+							<button onclick="cetak_jurnal(0)"  class="btn btn-primary">
+							<i class="fa fa-print"></i> LAYAR</button>
+
+							<button onclick="cetak_jurnal(1)"  class="btn btn-danger">
+							<i class="fa fa-print"></i> PDF</button>
+							
 						</div>
-					<?php } ?>
-					<div style="overflow:auto;">
-						<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
-							<thead class="color-tabel">
-								<tr>
-									<th class="text-center">NO</th>
-									<th class="text-center">NO VOUCHER</th>
-									<th class="text-center">TANGGAL</th>
-									<th class="text-center">HUB</th>
-									<th class="text-center">DEBIT</th>
-									<th class="text-center">KREDIT</th>
-									<th class="text-center">KET</th>
-									<th class="text-center">AKSI</th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table>
+						<div class="col-md-2">
+							<select class="form-control select2" id="thn" name="thn" onchange="load_data()">
+							<?php 
+							$thang        = date("Y");
+							$thang_maks   = $thang + 3 ;
+							$thang_min    = $thang - 3 ;
+							for ($th=$thang_min ; $th<=$thang_maks ; $th++)
+							{ ?>
+
+								<?php if ($th==$thang) { ?>
+
+								<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+								
+								<?php }else{ ?>
+								
+								<option value="<?= $th ?>"> <?= $th ?> </option>
+								<?php } ?>
+							<?php } ?>
+							</select>
+						</div>
+						<div class="col-md-3">							
+							<select class="form-control select2" name="id_hub2" id="id_hub2" style="width: 100%;" onchange="load_data()">
+							</select>
+						</div>
+						<div class="col-md-1"></div>
+					</div>
+					
+					
+				</div>
+				
+				
+				<div class="col-md-12">	
+					<div class="card-body" >
+						
+						<div style="overflow:auto;">
+							<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
+								<thead class="color-tabel">
+									<tr>
+										<th class="text-center">NO</th>
+										<th class="text-center">NO VOUCHER</th>
+										<th class="text-center">TANGGAL</th>
+										<th class="text-center">HUB</th>
+										<th class="text-center">DEBIT</th>
+										<th class="text-center">KREDIT</th>
+										<th class="text-center">KET</th>
+										<th class="text-center">AKSI</th>
+									</tr>
+								</thead>
+								<tbody></tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>			
@@ -239,6 +285,7 @@
 		kosong()
 		load_data()
 		load_hub()
+		load_hub_list()
 		load_kd_rek(0)
 		$('.select2').select2();
 	});
@@ -283,6 +330,44 @@
 		
 	}
 
+	function load_hub_list() 
+    {
+      option = "";
+      $.ajax({
+        type       : 'POST',
+        url        : "<?= base_url(); ?>Logistik/load_hub",
+        // data       : { idp: pelanggan, kd: '' },
+        dataType   : 'json',
+        beforeSend: function() {
+          swal({
+          title: 'loading ...',
+          allowEscapeKey    : false,
+          allowOutsideClick : false,
+          onOpen: () => {
+            swal.showLoading();
+          }
+          })
+        },
+        success:function(data){			
+          if(data.message == "Success"){					
+            option = `<option value="">-- ALL --</option>`;	
+
+            $.each(data.data, function(index, val) {
+            option += "<option value='"+val.id_hub+"'>"+val.nm_hub+"</option>";
+            });
+
+            $('#id_hub2').html(option);
+            swal.close();
+          }else{	
+            option += "<option value=''></option>";
+            $('#id_hub2').html(option);					
+            swal.close();
+          }
+        }
+      });
+      
+    }
+	
 	function load_kd_rek(rowNum) 
 	{
 		option = "";
@@ -312,7 +397,7 @@
 					$('#nm_rek'+rowNum).html(option);
 					$('.select2').select2({
 						containerCssClass: "wrap",
-						placeholder: '--- Pilih ---',
+						// placeholder: '--- Pilih ---',
 						dropdownAutoWidth: true
 					});
 					swal.close();
@@ -534,9 +619,22 @@
 		tabel.ajax.reload(null, false);
 	}
 
+	function cetak_jurnal(ctk)
+	{		
+		var thn       = $('#thn').val()
+		var id_hub    = $('#id_hub2').val()
+
+		var url    = "<?php echo base_url('Keuangan/cetak_jurnal_umum'); ?>";
+		window.open(url+'?id_hub='+id_hub+'&ctk='+ctk+'&thn='+thn, '_blank');   
+		
+	}
+
 	function load_data() 
 	{
-		let table = $('#datatable').DataTable();
+		
+		var thn       = $('#thn').val()
+		var id_hub    = $('#id_hub2').val()
+		let table     = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
 			"processing": true,
@@ -545,6 +643,10 @@
 			"ajax": {
 				"url": '<?php echo base_url('Keuangan/load_data/jur_umum')?>',
 				"type": "POST",
+				"data" : ({
+					id_hub   : id_hub,
+					thn      : thn
+				}),
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],

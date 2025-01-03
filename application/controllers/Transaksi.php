@@ -1280,11 +1280,11 @@ class Transaksi extends CI_Controller
 		$bln_ok2 = $bln_ok1.$blnn;
 		
         $query = $this->db->query("SELECT no_po_lm as kode from trs_po_lm
-				where MONTH(tgl_lm) in ($bln_ok2)
+				-- where MONTH(tgl_lm) in ($bln_ok2)
 				group by no_po_lm
 				union ALL
 				SELECT kode_po as kode FROM trs_po
-				where MONTH(tgl_po) in ($bln_ok2)
+				-- where MONTH(tgl_po) in ($bln_ok2)
 				group by kode_po ")->result();
 
             if (!$query) {

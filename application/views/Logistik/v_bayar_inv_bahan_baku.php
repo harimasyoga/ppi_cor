@@ -71,7 +71,7 @@
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
 						<div class="col-md-2">ATTN</div>
 							<div class="col-md-3">
-								<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" onchange="spill_data()" >
+								<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" >
 								</select>
 							</div>
 							<div class="col-md-1"></div>
