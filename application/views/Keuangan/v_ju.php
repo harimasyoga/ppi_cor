@@ -36,7 +36,7 @@
 					
 					<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
 						<div class="col-md-5">
-							<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi'])){ ?>
+							<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi','User'])){ ?>
 								<button type="button" class="btn btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 							<?php } ?>
 							
