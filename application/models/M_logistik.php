@@ -967,13 +967,9 @@ class M_logistik extends CI_Model
 			($r->kategori == "BOX") ? $kategori = 'BOX' : $kategori = 'SHEET';
 			$blnRomami = $this->m_fungsi->blnRomami(date('Y-m-d'));
 			if($r->ppn == "PP"){
-				$pajak = 'ppn';
-				$sjSo = 'A';
-				$pkb = '';
+				$pajak = 'ppn'; $sjSo = 'A'; $pkb = '';
 			}else{
-				$pajak = 'non';
-				$sjSo = 'B';
-				$pkb = '.';
+				$pajak = 'non'; $sjSo = 'B'; $pkb = '.';
 			}
 
 			$id_hub = $this->db->query("SELECT h.aka,p.* FROM trs_po p INNER JOIN m_hub h ON p.id_hub=h.id_hub WHERE p.kode_po='$r->rk_kode_po'")->row();
@@ -1101,8 +1097,9 @@ class M_logistik extends CI_Model
 				$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3].'/'.$sj[4];
 				$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3].'/'.$so[4];
 				$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2];
+				$noSurat = $no_surat.'/'.$sj[1];
 				$thn = $sj[3].'/'.$sj[4];
-				$cekSJ = $this->db->query("SELECT*FROM pl_box WHERE no_surat LIKE '$no_surat/%' AND no_surat LIKE '%/$thn'");
+				$cekSJ = $this->db->query("SELECT*FROM pl_box WHERE no_surat LIKE '$noSurat/%' AND no_surat LIKE '%/$thn'");
 			}
 
 			if($cekSJ->num_rows() == 0){
