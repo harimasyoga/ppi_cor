@@ -25,17 +25,34 @@
 				<div class="col-md-12">
 					<div class="card card-info card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">Input Pembayaran</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT - <?= $judul ?></h3>
 						</div>
 						
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
-							<div class="col-md-2">No Pembayaran</div>
+							<div class="col-md-2">No Bayar</div>
 							<div class="col-md-3">
-								<input type="hidden" name="id_header_bayar" id="id_header_bayar">
+								<input type="hidden" name="id_bayar_bb" id="id_bayar_bb">
 
+								<input type="hidden" name="sts_input" id="sts_input">
+								
 								<input type="text" class="angka form-control" name="no_bayar_bhn" id="no_bayar_bhn" value="AUTO" readonly>
 							</div>
 							<div class="col-md-1"></div>
+							<div class="col-md-2">Jenis Produk</div>
+							<div class="col-md-3">
+								<input type="text" name="jns_prod" id="jns_prod" class="form-control" value="AUTO" readonly>
+							</div>
+						</div>
+						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+							
+							<div class="col-md-2">ATTN</div>
+							<div class="col-md-3">
+								<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" >
+								</select>
+							</div>
+							<div class="col-md-1"></div>
+
 							<div class="col-md-2">Total Bayar</div>
 							<div class="col-md-3">
 								<div class="input-group mb-1">
@@ -47,7 +64,7 @@
 										
 								</div>
 							</div>
-
+							
 						</div>
 						
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
@@ -56,7 +73,6 @@
 								<input type="date" name="tgl_byr" id="tgl_byr" class="form-control" value="<?= date('Y-m-d') ?>" >
 							</div>
 							<div class="col-md-1"></div>
-
 							<div class="col-md-2">History bayar</div>
 							<div class="col-md-3">
 								<div class="input-group mb-3">
@@ -68,14 +84,20 @@
 							</div>
 						</div>
 						
-						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
-						<div class="col-md-2">ATTN</div>
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">										
+							<div class="col-md-2">BAYAR KE</div>
 							<div class="col-md-3">
-								<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" >
+								<select class="form-control select2" name="byr_ke" id="byr_ke" style="width: 100%;">
+									<option value="PATRIOT">PATRIOT</option>
+									<option value="MMJ">MANDIRI MULIA JAYA</option>
+									<option value="BUM">BERKAT USAHA MULIA</option>
+									<option value="PIL">PUSAKA INDAH LESTARI</option>
+									<option value="SUS">SETIA USAHA SENTOSA</option>
 								</select>
 							</div>
-							<div class="col-md-1"></div>
 
+							<div class="col-md-1"></div>
+							
 							<div class="col-md-2">Kurang bayar</div>
 							<div class="col-md-3">
 								
@@ -86,15 +108,21 @@
 									<input style="text-align: right;font-weight: bold;"  type="text" name="krg_byr" id="krg_byr" class="form-control" readonly> 
 								</div>
 							</div>
+							
 						</div>
 						
-						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
-							<div class="col-md-2">Jenis Produk</div>
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold" >			
+							<div class="col-md-2">Jenis Bayar</div>
 							<div class="col-md-3">
-								<input type="text" name="jns_prod" id="jns_prod" class="form-control" value="AUTO" readonly>
+								<select name="jns_byr" id="jns_byr" class="form-control select2" onchange="cek_rekening()" >
+									<option value="">-- PILIH --</option>
+									<option value="tf">TRANSFER</option>
+									<option value="tunai">CEK / TUNAI</option>
+								</select>
 							</div>
 							
 							<div class="col-md-1"></div>
+							
 							<div class="col-md-2">Jumlah bayar</div>
 							<div class="col-md-3">
 								<div class="input-group mb-3">
@@ -104,24 +132,26 @@
 									<input style="text-align: right;font-weight: bold; color:#ff5733;"   type="text" name="jml_byr" id="jml_byr" class="form-control" value="" onkeyup="ubah_angka(this.value,this.id)" > 
 								</div>
 							</div>
-							
 						</div>
 						
-						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
-							<div class="col-md-2">Jenis Bayar</div>
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold; display:none" id="rek_bayar_bb" >			
+							<div class="col-md-2">BANK</div>
 							<div class="col-md-3">
-								<select name="jns_byr" id="jns_byr" class="form-control select2">
-									<option value="">-- PILIH --</option>
-									<option value="tf">TRANSFER</option>
-									<option value="tunai">CEK / TUNAI</option>
-								</select>
+								<input style="font-weight: bold; color:#ff5733;"   type="text" name="bank_tf" id="bank_tf" class="form-control" value="" oninput="this.value = this.value.toUpperCase()" > 
 							</div>
 							
-							<div class="col-md-6"></div>
+							<div class="col-md-1"></div>
+							
+							<div class="col-md-2">REKENING</div>
+							<div class="col-md-3">
+								<div class="input-group mb-3">
+									
+									<input style="font-weight: bold; color:#ff5733;"   type="text" name="rek_tf" id="rek_tf" class="form-control" value="" > 
+								</div>
+							</div>
 						</div>
 									
-						<br>
-						
+						<br>						
 						
 						<div class="card-body row"style="font-weight:bold">
 							<div class="col-md-4">
@@ -165,11 +195,12 @@
 							<thead class="color-tabel">
 								<tr>
 									<th class="text-center title-white">NO</th>
-									<th class="text-center title-white">Invoice</th>
-									<th class="text-center title-white">TGL BAYAR</th>
-									<th class="text-center title-white">TOTAL INV</th>
-									<th class="text-center title-white">TOTAL BAYAR</th>
-									<th class="text-center title-white">ACC OWNER</th>
+									<th class="text-center title-white">NO BAYAR</th>
+									<th class="text-center title-white">TGL</th>
+									<th class="text-center title-white">ATTN</th>
+									<th class="text-center title-white">BAYAR KE</th>
+									<th class="text-center title-white">JUMLAH</th>
+									<th class="text-center title-white">ACC</th>
 									<th class="text-center title-white">AKSI</th>
 								</tr>
 							</thead>
@@ -210,7 +241,7 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url('Logistik/load_data/byr_inv_beli')?>',
+				"url": '<?php echo base_url('Logistik/load_data/byr_bb')?>',
 				"type": "POST",
 			},
 			"aLengthMenu": [
@@ -346,31 +377,18 @@
 		
 	}
 	
-	function load_invoice()
-	{
-		var blnn    = $('#rentang_bulan').val();
-		var table   = $('#tbl_inv').DataTable();
-		table.destroy();
-		tabel = $('#tbl_inv').DataTable({
-			"processing": true,
-			"pageLength": true,
-			"paging": true,
-			"ajax": {
-				"url"   : '<?php echo base_url('Logistik/load_invoice/byr_inv_beli')?>',
-				"type"  : "POST",
-				"data"  : ({blnn:blnn}),
-			},
-			"aLengthMenu": [
-				[5, 10, 50, 100, -1],
-				[5, 10, 50, 100, "Semua"]
-			],	
-			responsive: false,
-			"pageLength": 10,
-			"language": {
-				"emptyTable": "TIDAK ADA DATA.."
-			}
-		})
+	function cek_rekening()
+    {
+      $cek = $('#jns_byr').val();
+
+		if($cek=='tf' )
+        {
+			$('#rek_bayar_bb').show("1000");
+		}else{
+			$('#rek_bayar_bb').hide("1000");
+        }
 	}
+
 	
 	function edit_data(id,no_inv)
 	{
@@ -383,7 +401,7 @@
 		$.ajax({
 			url        : '<?= base_url(); ?>Logistik/load_data_1',
 			type       : "POST",
-			data       : { id, no:no_inv, jenis:'byr_invoice_beli' },
+			data       : { id, no:no_inv, jenis:'byr_bahan' },
 			dataType   : "JSON",
 			beforeSend: function() {
 				swal({
@@ -402,129 +420,19 @@
 					$('.list_inv').modal('hide');
 
 					// header
-					$("#id_byr_inv").val(data.header.id_byr_inv);
-					$("#id_header_beli").val(data.header.id_header_beli);
-					$("#no_inv_beli").val(data.header.no_inv_beli);
-					$("#tgl_inv").val(data.header.tgl_inv_beli);
+					$("#id_bayar_bb").val(data.header.id_bayar_bb);
+					$("#no_bayar_bhn").val(data.header.no_bayar);
 					$("#tgl_byr").val(data.header.tgl_bayar);
+					$("#jns_prod").val(data.header.jenis_produk);
+					$("#id_hub").val(data.header.attn).trigger('change');
+					$("#byr_ke").val(data.header.bayar_ke).trigger('change');
+					$("#jns_byr").val(data.header.jenis_bayar).trigger('change');
 					$("#jml_byr").val(format_angka(data.header.jumlah_bayar));
-					$("#diskon").val(data.header.diskon);
-					$("#ket").val(data.header.ket);
-					$("#id_supp").val(data.header.id_supp).trigger('change');
-					$("#id_hub").val(data.header.id_hub).trigger('change');
-					$("#pajak").val(data.header.pajak).trigger('change');
-
-					// detail
-				
-					var list = `
-					<table id="datatable_input" class="table">
-						<thead class="color-tabel">
-							<th style="text-align: center" >No</th>
-							<th style="text-align: center" >Transaksi</th>
-							<th style="text-align: center; padding-right: 35px" >Jenis Beban</th>
-							<th style="text-align: center; padding-right: 35px">Nominal</th>
-							
-						</thead>`;
-					var no            = 1;
-					var total_nominal = 0
-					$.each(data.detail, function(index, val) {
-						
-
-						// total invoice
-						var total_invo = val.harga*val.hasil; 
-
-						list += `
-						<tbody>
-							<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
-							
-							</td>
-
-							<td style="text-align: LEFT" >${val.transaksi}
-							</td>
-							
-							<td style="text-align: LEFT" >${val.nm}
-							</td>
-
-							<td style="text-align: RIGHT" >${format_angka(val.nominal)}
-							</td>
-
-						</tbody>`;
-						total_nominal   += parseInt(val.nominal)
-
-						no ++;
-					})
+					$("#bank_tf").val(data.header.bank);
+					$("#rek_tf").val(data.header.rekening);
 
 
-					var diskon        = data.header.diskon
-					diskon_ok         = (diskon=='' || isNaN(diskon) || diskon == null) ? '0' : diskon;
-					var pajak         = data.header.pajak					
-					
-					total_nominal_ok = (total_nominal=='' || isNaN(total_nominal) || total_nominal == null) ? 0 : total_nominal
-					
-					if(pajak=='PPN')
-					{
-						var ppn_total    = (total_nominal_ok *0.11).toFixed(0);
-						var pph_total    = 0
-					}else if(pajak=='PPN_PPH')
-					{
-						var ppn_total   = (total_nominal_ok *0.11).toFixed(0);
-						var pph_total   = (total_nominal_ok *0.02).toFixed(0);
-					}else{
-						var ppn_total   = 0
-						var pph_total   = 0
-					}
-					
-					var total_all     = parseInt(total_nominal_ok)-parseInt(diskon_ok)+parseInt(ppn_total)-parseInt(pph_total)
-					
-					
-
-					list += `
-					<tr>
-					<td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">SUB TOTAL
-							</td>
-							<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(total_nominal_ok)}
-							</td>
-					</tr>`;
-					
-					list += `
-					<tr>
-					<td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">DISKON
-							</td>
-							<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(diskon_ok)}
-							</td>
-					</tr>`;
-
-					list +=`
-					<tr>
-					<td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">PPN
-					</td>
-					<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(ppn_total)}
-					</td>
-					</tr>`;
-					
-					list +=`						
-					<tr>
-					<td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">PPH
-					</td>
-					<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(pph_total)}
-					</td>
-					</tr>`;
-					
-					list += `
-					<tr><td style="text-align: RIGHT;color:#d90002;background: #e9ecef;" colspan="3">TOTAL
-					</td>
-					<td id="qty" style="text-align: right;color:#d90002;background: #e9ecef;" >${format_angka(total_all)}
-					</td>
-					</tr>`;
-					list += `</table>`;
 					swal.close();
-					
-					$("#total_inv").val(format_angka(total_all));
-					$("#history_byr").val(format_angka(data.header.jum_bayar-data.header.jumlah_bayar));
-					hitung_kurang()
-					$("#data_list").html(list);
-					swal.close();
-
 				} else {
 
 					swal.close();
@@ -728,7 +636,7 @@
 	function kosong()
 	{
 		statusInput = 'insert'
-		$("#id_header_bayar").val("")
+		$("#id_bayar_bb").val("")
 		$("#no_bayar_bhn").val("AUTO")
 		$("#total_byr").val("")
 		$("#tgl_byr").val("")
@@ -777,7 +685,7 @@
 		}
 
 		$.ajax({
-			url        : '<?= base_url(); ?>Logistik/Insert_byr_inv_beli',
+			url        : '<?= base_url(); ?>Logistik/Insert_byr_bb',
 			type       : "POST",
 			data       : $('#myForm').serialize(),
 			dataType   : "JSON",
@@ -793,8 +701,8 @@
 					});
 					// location.href = "<?= base_url()?>Logistik/Invoice_edit?id="+data.id+"&no_inv="+no_inv_ok+"";					
 					kosong();
-					location.href = "<?= base_url()?>Logistik/bayar_inv_beli";
-					// kembaliList();
+					// location.href = "<?= base_url()?>W9hAMMa5JEx3ekj";
+					kembaliList();
 					
 				} else {
 					// toastr.error('Gagal Simpan');
@@ -865,8 +773,8 @@
 				url: '<?= base_url(); ?>Logistik/hapus',
 				data: ({
 					id: id,
-					jenis: 'byr_inv_beli',
-					field: 'id_bayar_inv'
+					jenis: 'trs_bayar_bb',
+					field: 'id_bayar_bb'
 				}),
 				type: "POST",
 				beforeSend: function() {
@@ -889,9 +797,9 @@
 					// 	type                : "success",
 					// 	confirmButtonText   : "OK"
 					// });
+					kembaliList();
 					reloadTable();
-					
-					location.href = "<?= base_url()?>Logistik/bayar_inv_beli";
+					// location.href = "<?= base_url()?>Logistik/bayar_inv_beli";
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					// toastr.error('Terjadi Kesalahan');
@@ -954,7 +862,7 @@
 					data: ({
 						id    : id,
 						acc   : acc,
-						jenis : 'verif_byr_inv_beli'
+						jenis : 'verif_byr_bb'
 					}),
 					type: "POST",
 					beforeSend: function() {
