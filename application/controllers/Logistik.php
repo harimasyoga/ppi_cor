@@ -3691,6 +3691,24 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function addJurnalDebitNote()
+	{
+		$result = $this->m_logistik->addJurnalDebitNote();
+		echo json_encode($result);
+	}
+
+	function batalJurnalDebitNote()
+	{
+		$result = $this->m_logistik->batalJurnalDebitNote();
+		echo json_encode($result);
+	}
+
+	function editDbNoteJurnal()
+	{
+		$result = $this->m_logistik->editDbNoteJurnal();
+		echo json_encode($result);
+	}
+
 	function destroyDebitNote()
 	{
 		$this->cart->destroy();
@@ -3851,15 +3869,43 @@ class Logistik extends CI_Controller
 			}
 		$htmlDtl .= '</table>';
 		if($header->verif_dn == 'Y' || $urlAuth != 'Admin'){
+			$jurnal = $this->db->query("SELECT*FROM jurnal_d WHERE no_transaksi='$header->no_dn' GROUP BY no_transaksi");
+			($jurnal->num_rows() != '') ? $dss = 'disabled' : $dss = '';
 			$oBtn = 'disabled';
 			$cBtn = 'btn-secondary';
+			$htmlJurnal = '<div class="card-body row" style="font-weight:bold;padding:6px 12px 0">
+				<div class="col-md-3">JURNAL</div>
+				<div class="col-md-9">
+					<select id="opt_jurnal" class="form-control select2" '.$dss.'>';
+					// KODE KELOMPOK
+					if($jurnal->num_rows() != ''){
+						$kdkd = $this->db->query("SELECT*FROM m_kode_kelompok WHERE kd_akun='$header->kd_akun' AND kd_kelompok='$header->kd_kelompok'")->row();
+						$htmlJurnal .= '<option value="'.$kdkd->kd_akun.'.'.$kdkd->kd_kelompok.'">'.$kdkd->kd_akun.'.'.$kdkd->kd_kelompok.' || '.$kdkd->nm_kelompok.'</option>';
+					}else{
+						$kdKelompok = $this->db->query("SELECT*FROM m_kode_kelompok WHERE nm_kelompok LIKE '%BEBAN%' ORDER BY kd_akun,kd_kelompok");
+						foreach($kdKelompok->result() as $k){
+							($k->kd_akun == 6 && $k->kd_kelompok == '06') ? $slc = 'selected' : $slc = '';
+							$htmlJurnal .= '<option value="'.$k->nm_kelompok.'" kdakun="'.$k->kd_akun.'" kdkelompok="'.$k->kd_kelompok.'" '.$slc.'>'.$k->kd_akun.'.'.$k->kd_kelompok.' || '.$k->nm_kelompok.'</option>';
+						}
+					}
+					$htmlJurnal .= '</select>
+				</div>
+			</div>';
+			if($jurnal->num_rows() != ''){
+				$btnJurnal = '<button type="button" class="btn btn-sm btn-secondary" disabled>EDIT JURNAL</button>';
+			}else{
+				$btnJurnal = '<button type="button" class="btn btn-sm btn-warning" style="font-weight:bold" onclick="editDbNoteJurnal()">EDIT JURNAL</button>';
+			}
 		}else{
 			$oBtn = 'style="font-weight:bold" onclick="simpanDebitNote()"';
 			$cBtn = 'btn-primary';
+			$htmlJurnal = '';
+			$btnJurnal = '';
 		}
 		$htmlSimpan = '<div class="card-body row" style="font-weight:bold;padding:6px 12px 0">
 			<div class="col-md-3"></div>
 			<div class="col-md-9">
+				'.$btnJurnal.'
 				<button type="button" class="btn btn-sm '.$cBtn.'" '.$oBtn.'><i class="fas fa-save"></i> SIMPAN</button>
 			</div>
 		</div>';
@@ -3868,6 +3914,7 @@ class Logistik extends CI_Controller
 			'header' => $header,
 			'htmlDtl' => $htmlDtl,
 			'htmlSimpan' => $htmlSimpan,
+			'htmlJurnal' => $htmlJurnal,
 		]);
 	}
 
@@ -5996,27 +6043,18 @@ class Logistik extends CI_Controller
 			foreach ($query as $r) {
 				$i++;
 				$row = array();
-
 				$result_detail = $this->db->query("SELECT * FROM debit_note_detail WHERE no_dn='$r->no_dn' ");
-
-				if($result_detail->num_rows() == '1')
-				{
+				if($result_detail->num_rows() == '1') {
 					$ket_tr    = $result_detail->row()->des_dn;
-				
 				}else{				
 					$no                  = 1;
 					$ket_tr_result       = '';
-
-					foreach($result_detail->result() as $rowdes)
-					{
+					foreach($result_detail->result() as $rowdes) {
 						$ket_tr_result       .= '<b>'.$no.'.) </b>'.$rowdes->des_dn.'<br>';
 						$no++; 
-
 					}
 					$ket_tr    = $ket_tr_result;
-
 				}	
-				
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				// DESKRIPSI
 				$hub = $this->db->query("SELECT*FROM m_hub WHERE id_hub='$r->tagih_dn'")->row();
@@ -6055,12 +6093,10 @@ class Logistik extends CI_Controller
 				$total = $this->db->query("SELECT SUM(jumlah_dn) AS total FROM debit_note_detail WHERE no_dn='$r->no_dn' GROUP BY no_dn")->row();
 				$row[] = '<div class="text-right" style="font-weight:bold;color:#000">'.number_format($total->total,0,',','.').'</div>';
 				// VERIF
-				// fas fa-check-circle
-				// fa fa-lock
 				if($r->verif_dn == 'Y'){
+					$onClickDN = 'title="TERVERIFIKASI"';
 					$btnClassDN = 'btn-success';
 					$iClassDN = 'fas fa-check-circle';
-					$onClickDN = 'title="TERVERIFIKASI"';
 				}else{
 					$onClickDN = 'onclick="verifDebitNote('."'".$r->id_dn."'".')" title="VERIF"';
 					$btnClassDN = 'btn-warning';
@@ -6073,10 +6109,16 @@ class Logistik extends CI_Controller
 				$btnPrint = '<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/cetakDebitNote?id_dn=".$r->id_dn."").'" title="PRINT"><i class="fas fa-print"></i></a>';
 				$row[] = '<div class="text-center">'.$btnPrint.'</div>';
 				// AKSI
+				$jurnal = $this->db->query("SELECT*FROM jurnal_d WHERE no_transaksi='$r->no_dn' GROUP BY no_transaksi");
+				if($jurnal->num_rows() == 0){
+					$btnJurnal = '<button type="button" onclick="addJurnalDebitNote('."'".$r->id_dn."'".')" title="ADD JURNAL" class="btn btn-warning btn-sm"><i class="fa fa-book"></i></button>';
+				}else{
+					$btnJurnal = '<button type="button" onclick="batalJurnalDebitNote('."'".$r->id_dn."'".')" title="BATAL JURNAL" class="btn btn-danger btn-sm"><i class="fa fa-book" style="color:#000"></i></button>';
+				}
 				$btnEdit = '<button type="button" onclick="editDebitNote('."'".$r->id_dn."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm"><i class="fa fa-edit"></i></button> ';
 				$btnHapus = ($this->session->userdata('level') == 'Admin') ? '<button type="button" onclick="hapusDebitNote('."'".$r->id_dn."'".')" title="HAPUS" class="btn btn-danger btn-sm"><i class="fa fa-trash-alt"></i></button>' : '';
 				if($r->verif_dn == 'Y'){
-					$btnAksi = $btnEdit;
+					$btnAksi = $btnEdit.$btnJurnal;
 				}else{
 					$btnAksi = $btnEdit.$btnHapus;
 				}

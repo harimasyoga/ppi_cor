@@ -1023,13 +1023,9 @@ class M_logistik extends CI_Model
 			($r->kategori == "BOX") ? $kategori = 'BOX' : $kategori = 'SHEET';
 			$blnRomami = $this->m_fungsi->blnRomami(date('Y-m-d'));
 			if($r->ppn == "PP"){
-				$pajak = 'ppn';
-				$sjSo = 'A';
-				$pkb = '';
+				$pajak = 'ppn'; $sjSo = 'A'; $pkb = '';
 			}else{
-				$pajak = 'non';
-				$sjSo = 'B';
-				$pkb = '.';
+				$pajak = 'non'; $sjSo = 'B'; $pkb = '.';
 			}
 
 			$id_hub = $this->db->query("SELECT h.aka,p.* FROM trs_po p INNER JOIN m_hub h ON p.id_hub=h.id_hub WHERE p.kode_po='$r->rk_kode_po'")->row();
@@ -1157,8 +1153,9 @@ class M_logistik extends CI_Model
 				$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3].'/'.$sj[4];
 				$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3].'/'.$so[4];
 				$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2];
+				$noSurat = $no_surat.'/'.$sj[1];
 				$thn = $sj[3].'/'.$sj[4];
-				$cekSJ = $this->db->query("SELECT*FROM pl_box WHERE no_surat LIKE '$no_surat/%' AND no_surat LIKE '%/$thn'");
+				$cekSJ = $this->db->query("SELECT*FROM pl_box WHERE no_surat LIKE '$noSurat/%' AND no_surat LIKE '%/$thn'");
 			}
 
 			if($cekSJ->num_rows() == 0){
@@ -2602,6 +2599,75 @@ class M_logistik extends CI_Model
 		$data = $this->db->update('debit_note_header');
 		return [
 			'data' => $data,
+		];
+	}
+
+	function addJurnalDebitNote()
+	{
+		$id_dn = $_POST["id"];
+		$header = $this->db->query("SELECT*FROM debit_note_header WHERE id_dn='$id_dn'")->row();
+		$subTotal = 0;
+		if($header->kd_akun == null || $header->kd_kelompok == null){
+			$data = false;
+			$msg = 'HARAP PILIH JURNAL DAHULU!';
+		}else{
+			$detail = $this->db->query("SELECT*FROM debit_note_detail WHERE no_dn='$header->no_dn' ORDER BY des_dn");
+			foreach($detail->result() as $r){
+				$subTotal += $r->jumlah_dn;
+			}
+			$kode = $this->db->query("SELECT*FROM m_kode_kelompok WHERE kd_akun='$header->kd_akun' AND kd_kelompok='$header->kd_kelompok'")->row();
+			add_jurnal($header->tagih_dn, $header->tgl_dn, $header->no_dn, $header->kd_akun.'.'.$header->kd_kelompok, $kode->nm_kelompok, $subTotal, 0);
+			add_jurnal($header->tagih_dn, $header->tgl_dn, $header->no_dn, '2.01.01', 'Hutang Usaha DN', 0, $subTotal);
+			add_jurnal($header->tagih_dn, $header->tgl_dn, $header->no_dn, '2.01.01', 'Hutang Usaha DN', $subTotal, 0);
+			add_jurnal($header->tagih_dn, $header->tgl_dn, $header->no_dn, '1.01.02', 'Pembayaran Debit Note', 0, $subTotal);
+			$data = true;
+			$msg = 'BERHASIL TAMBAH JURNAL!';
+		}
+		return [
+			'data' => $data,
+			'msg' => $msg,
+			'subTotal' => $subTotal,
+		];
+	}
+
+	function batalJurnalDebitNote()
+	{
+		$id_dn = $_POST["id"];
+		$header = $this->db->query("SELECT*FROM debit_note_header WHERE id_dn='$id_dn'")->row();
+		// DELETE JURNAL
+		$this->db->where('no_transaksi', $header->no_dn);
+		$delJurnal = $this->db->delete('jurnal_d');
+		if($delJurnal){
+			$data = true;
+			$msg = 'BERHASIL BATAL JURNAL!';
+		}else{
+			$data = false;
+			$msg = 'TERJADI KESALAHAN!';
+		}
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function editDbNoteJurnal()
+	{
+		$id_dn = $_POST["id_dn"];
+		$opt_jurnal = $_POST["opt_jurnal"];
+		$kdakun = $_POST["kdakun"];
+		$kdkelompok = $_POST["kdkelompok"];
+		if($opt_jurnal == ''){
+			$data = false; $msg = 'HARAP PILIH JURNAL!';
+		}else{
+			$this->db->where('id_dn', $id_dn);
+			$this->db->set('kd_akun', $kdakun);
+			$this->db->set('kd_kelompok', $kdkelompok);
+			$data = $this->db->update('debit_note_header');
+			$msg = 'BERHASIL!';
+		}
+		return [
+			'data' => $data,
+			'msg' => $msg,
 		];
 	}
 
