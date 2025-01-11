@@ -5580,7 +5580,7 @@ class Logistik extends CI_Controller
                     $i2     = '<i class="fas fa-check-circle"></i>';
                 }
 				
-				if (in_array($this->session->userdata('username'), ['owner','developer']))
+				if (in_array($this->session->userdata('username'), ['owner','developer','tegar']))
 				{
 					$urll2 = "onclick=open_modal('$r->id_inv_bhn','$r->no_inv_bhn')";
 				} else {
