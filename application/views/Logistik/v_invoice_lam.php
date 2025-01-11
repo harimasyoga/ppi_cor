@@ -1558,7 +1558,6 @@
 				data: ({ id }),
 				success: function(res){
 					data = JSON.parse(res)
-					console.log(data)
 					if(data.data){
 						toastr.success(`<b>${data.msg}</b>`)
 						kosong()
@@ -1599,7 +1598,6 @@
 				data: ({ id }),
 				success: function(res){
 					data = JSON.parse(res)
-					console.log(data)
 					if(data.data){
 						toastr.success(`<b>${data.msg}</b>`)
 						kosong()
@@ -1640,7 +1638,6 @@
 				data: ({ id }),
 				success: function(res){
 					data = JSON.parse(res)
-					console.log(data)
 					if(data.data){
 						toastr.success(`<b>${data.msg}</b>`)
 						kosong()

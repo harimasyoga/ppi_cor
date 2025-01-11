@@ -2546,6 +2546,75 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function addJurnalDebitNote()
+	{
+		$id_dn = $_POST["id"];
+		$header = $this->db->query("SELECT*FROM debit_note_header WHERE id_dn='$id_dn'")->row();
+		$subTotal = 0;
+		if($header->kd_akun == null || $header->kd_kelompok == null){
+			$data = false;
+			$msg = 'HARAP PILIH JURNAL DAHULU!';
+		}else{
+			$detail = $this->db->query("SELECT*FROM debit_note_detail WHERE no_dn='$header->no_dn' ORDER BY des_dn");
+			foreach($detail->result() as $r){
+				$subTotal += $r->jumlah_dn;
+			}
+			$kode = $this->db->query("SELECT*FROM m_kode_kelompok WHERE kd_akun='$header->kd_akun' AND kd_kelompok='$header->kd_kelompok'")->row();
+			add_jurnal($header->tagih_dn, $header->tgl_dn, $header->no_dn, $header->kd_akun.'.'.$header->kd_kelompok, $kode->nm_kelompok, $subTotal, 0);
+			add_jurnal($header->tagih_dn, $header->tgl_dn, $header->no_dn, '2.01.01', 'Hutang Usaha DN', 0, $subTotal);
+			add_jurnal($header->tagih_dn, $header->tgl_dn, $header->no_dn, '2.01.01', 'Hutang Usaha DN', $subTotal, 0);
+			add_jurnal($header->tagih_dn, $header->tgl_dn, $header->no_dn, '1.01.02', 'Pembayaran Debit Note', 0, $subTotal);
+			$data = true;
+			$msg = 'BERHASIL TAMBAH JURNAL!';
+		}
+		return [
+			'data' => $data,
+			'msg' => $msg,
+			'subTotal' => $subTotal,
+		];
+	}
+
+	function batalJurnalDebitNote()
+	{
+		$id_dn = $_POST["id"];
+		$header = $this->db->query("SELECT*FROM debit_note_header WHERE id_dn='$id_dn'")->row();
+		// DELETE JURNAL
+		$this->db->where('no_transaksi', $header->no_dn);
+		$delJurnal = $this->db->delete('jurnal_d');
+		if($delJurnal){
+			$data = true;
+			$msg = 'BERHASIL BATAL JURNAL!';
+		}else{
+			$data = false;
+			$msg = 'TERJADI KESALAHAN!';
+		}
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function editDbNoteJurnal()
+	{
+		$id_dn = $_POST["id_dn"];
+		$opt_jurnal = $_POST["opt_jurnal"];
+		$kdakun = $_POST["kdakun"];
+		$kdkelompok = $_POST["kdkelompok"];
+		if($opt_jurnal == ''){
+			$data = false; $msg = 'HARAP PILIH JURNAL!';
+		}else{
+			$this->db->where('id_dn', $id_dn);
+			$this->db->set('kd_akun', $kdakun);
+			$this->db->set('kd_kelompok', $kdkelompok);
+			$data = $this->db->update('debit_note_header');
+			$msg = 'BERHASIL!';
+		}
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	//
 
 	function simpanTimbangan_2()

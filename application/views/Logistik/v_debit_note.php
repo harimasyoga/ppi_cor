@@ -249,6 +249,7 @@
 								</select>
 							</div>
 						</div>
+						<div class="debit-note-jurnal"></div>
 						<div class="btn-edit-simpan"></div>
 					</div>
 				</div>
@@ -361,6 +362,7 @@
 	{
 		$("#hide_list_item").load("<?php echo base_url('Logistik/destroyDebitNote') ?>")
 		$(".list-item").html("LIST ITEM KOSONG!")
+		$(".debit-note-jurnal").html("")
 		$(".btn-edit-simpan").html("")
 		let tanggal = '<?= date("Y-m-d")?>'
 		$("#h_id_header").val("")
@@ -558,7 +560,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				let prop = '';
 				(urlAuth == 'Admin') ? prop = false : prop = true;
 				$("#h_id_header").val(id_dn)
@@ -584,8 +585,9 @@
 				}
 				$("#button_aksi").html(`<button type="button" class="btn btn-sm ${cBtn}" ${oBtn}><i class="fas fa-plus"></i> TAMBAH</button>`)
 				$(".list-item").html(data.htmlDtl)
+				$(".debit-note-jurnal").html(data.htmlJurnal)
 				$(".btn-edit-simpan").html(data.htmlSimpan)
-
+				$('.select2').select2()
 				statusInput = 'update'
 				swal.close()
 			}
@@ -756,5 +758,115 @@
 				$(".cari-lap-debit-note").html(data.html)
 			}
 		})
+	}
+
+	function editDbNoteJurnal()
+	{
+		let id_dn = $("#h_id_header").val()
+		let opt_jurnal = $('#opt_jurnal').val()
+		let kdakun = $('#opt_jurnal option:selected').attr('kdakun')
+		let kdkelompok = $('#opt_jurnal option:selected').attr('kdkelompok')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/editDbNoteJurnal')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_dn, opt_jurnal, kdakun, kdkelompok
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
+				swal.close()
+			}
+		})
+	}
+
+	function addJurnalDebitNote(id)
+	{
+		swal({
+			title: "TAMBAHKAN JURNAL?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#0C0",
+			confirmButtonText: "Tambah"
+		}).then(function(result) {
+			$.ajax({
+				url: '<?php echo base_url('Logistik/addJurnalDebitNote')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({ id }),
+				success: function(res){
+					data = JSON.parse(res)
+					if(data.data){
+						toastr.success(`<b>${data.msg}</b>`)
+						reloadTable()
+					}else{
+						toastr.error(`<b>${data.msg}</b>`)
+					}
+					swal.close()
+				}
+			})
+		});
+	}
+
+	function batalJurnalDebitNote(id)
+	{
+		swal({
+			title: "BATAL JURNAL?",
+			text: "",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#C00",
+			confirmButtonText: "Batal"
+		}).then(function(result) {
+			$.ajax({
+				url: '<?php echo base_url('Logistik/batalJurnalDebitNote')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({ id }),
+				success: function(res){
+					data = JSON.parse(res)
+					if(data.data){
+						toastr.success(`<b>${data.msg}</b>`)
+						reloadTable()
+					}else{
+						toastr.error(`<b>${data.msg}</b>`)
+					}
+					swal.close()
+				}
+			})
+		});
 	}
 </script>
