@@ -80,7 +80,7 @@ class M_logistik extends CI_Model
 		")->row();
 
 		// KHUSUS ADMIN //
-		if ( in_array($this->session->userdata('level'), ['Admin','Owner']) ) 
+		if ( in_array($this->session->userdata('level'), ['Admin','Owner','Pembayaran']) ) 
 		{
 			if($acc=='N')
 			{
