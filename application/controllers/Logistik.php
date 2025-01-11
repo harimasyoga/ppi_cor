@@ -4225,6 +4225,13 @@ class Logistik extends CI_Controller
 										) nm
 	
 				FROM invoice_detail_beli WHERE no_inv_beli='$no' order by id_det_beli";
+		}else if($jenis=='byr_bahan')
+		{
+			$queryh   = "SELECT*from trs_bayar_bb a JOIN m_hub b on a.attn=b.id_hub order by id_bayar_bb
+				";
+				
+				$queryd   = "SELECT*from trs_bayar_bb a JOIN m_hub b on a.attn=b.id_hub order by id_bayar_bb";
+				
 		}else if($jenis=='spill')
 		{
 			$queryh   = "SELECT *,IFNULL((select sum(jumlah_bayar) from trs_bayar_inv t
@@ -5139,6 +5146,67 @@ class Logistik extends CI_Controller
 						</a> 
 
 						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-secondary btn-sm">
+							<i class="fa fa-trash-alt"></i>
+						</button> 
+						';
+			
+				} else {
+					$aksi = '';
+				}
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				$data[] = $row;
+
+				$i++;
+			}
+		}else if ($jenis == "byr_bb") {
+			$query = $this->db->query("SELECT*from trs_bayar_bb a JOIN m_hub b on a.attn=b.id_hub order by id_bayar_bb")->result();
+ 
+			$i               = 1;
+			foreach ($query as $r) {			
+
+				if($r->acc_owner=='N')
+                {
+                    $btn2   = 'btn-warning';
+                    $i2     = '<i class="fas fa-lock"></i>';
+                } else {
+                    $btn2   = 'btn-success';
+                    $i2     = '<i class="fas fa-check-circle"></i>';
+                }
+
+				if (in_array($this->session->userdata('username'), ['bumagda','developer']))
+				{
+					$urll2 = "onclick=acc_inv('$r->id_bayar_bb','$r->acc_owner')";
+				} else {
+					$urll2 = '';
+				}
+
+
+				$id       = "'$r->id_bayar_bb'";
+				$no_byr   = "'$r->no_bayar'";
+				$print    = base_url("laporan/print_invoice_v2?no_bayar=") . $r->no_bayar;
+
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<div class="text-center">'.$r->no_bayar.'</div>';
+				$row[] = '<div class="text-center">'.$r->tgl_bayar.'</div>';
+				$row[] = '<div class="text-center">'.$r->nm_hub.'</div>';
+				$row[] = '<div class="text-center">'.$r->bayar_ke.'</div>';
+				$row[] = '<div class="text-right"><b>'.number_format($r->jumlah_bayar, 0, ",", ".").'</b></div>';
+
+				
+				$row[]  = '
+						<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn2.' " '.$urll2.' title="VERIFIKASI DATA" ><b>'.$i2.' </b> </a><span style="font-size:1px;color:transparent">'.$r->acc_owner.'</span><div>';
+
+				$aksi = "";
+
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','Keuangan1']))
+				{
+					$aksi = '
+						<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_byr . ')" title="EDIT DATA" >
+							<b><i class="fa fa-edit"></i> </b>
+						</a> 
+
+						<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_byr . ')" class="btn btn-secondary btn-sm">
 							<i class="fa fa-trash-alt"></i>
 						</button> 
 						';
@@ -6727,6 +6795,27 @@ class Logistik extends CI_Controller
 		if($this->session->userdata('username'))
 		{
 			$asc         = $this->m_logistik->save_byr_invoice_beli();
+	
+			if($asc){
+	
+				echo json_encode(array("status" =>"1","id" => $asc));
+	
+			}else{
+				echo json_encode(array("status" => "2","id" => $asc));
+	
+			}
+
+		}
+
+		
+		
+	}
+	
+	function Insert_byr_bb()
+	{
+		if($this->session->userdata('username'))
+		{
+			$asc         = $this->m_logistik->save_byr_bb();
 	
 			if($asc){
 	

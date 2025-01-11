@@ -608,6 +608,62 @@ class M_logistik extends CI_Model
 		return $result_header;
 			
 	}
+	
+	function save_byr_bb()
+	{
+		$status_input   = $this->input->post('sts_input');
+
+		$tgl_inv        = $this->input->post('tgl_byr');
+		$tanggal        = explode('-',$tgl_inv);
+		$tahun          = $tanggal[0];
+
+		$c_no_byr_bb   = $this->m_fungsi->urut_transaksi('BAYAR_BB');
+		$m_no_byr       = $c_no_byr_bb.'/BYR-BB'.'/'.$tahun;
+
+		if($status_input == 'add')
+		{
+			$data_header = array(
+				'no_bayar'        => $m_no_byr,
+				'tgl_bayar'       => $this->input->post('tgl_byr'),
+				'attn'            => $this->input->post('id_hub'),
+				'bayar_ke'        => $this->input->post('byr_ke'),
+				'jenis_produk'    => $this->input->post('jns_prod'),
+				'jenis_bayar'     => $this->input->post('jns_byr'),
+				'jumlah_bayar'    => str_replace('.','',$this->input->post('jml_byr')),
+				'bank'            => $this->input->post('bank_tf'),
+				'rekening'        => $this->input->post('rek_tf'),
+				'acc_owner'       => 'N',
+				'add_time'        => date('Y-m-d H:i:s'),
+				'add_user'        => $this->username,
+				
+			);
+		
+			$result_header = $this->db->insert('trs_bayar_bb', $data_header);
+			
+		}else{
+
+			$data_header = array(
+				'no_bayar'        => $this->input->post('no_bayar_bhn'),
+				'tgl_bayar'       => $this->input->post('tgl_byr'),
+				'attn'            => $this->input->post('id_hub'),
+				'bayar_ke'        => $this->input->post('byr_ke'),
+				'jenis_produk'    => $this->input->post('jns_prod'),
+				'jenis_bayar'     => $this->input->post('jns_byr'),
+				'jumlah_bayar'    => str_replace('.','',$this->input->post('jml_byr')),
+				'bank'            => $this->input->post('bank_tf'),
+				'rekening'        => $this->input->post('rek_tf'),
+				'acc_owner'       => 'N',
+				'add_time'        => date('Y-m-d H:i:s'),
+				'add_user'        => $this->username,
+			);
+		
+			$this->db->where('id_bayar_inv', $this->input->post('id_byr_inv'));
+			$result_header = $this->db->update('trs_bayar_bb', $data_header);
+			
+		}
+		return $result_header;
+			
+	}
 
 	function simpanGDLaminasi()
 	{
@@ -3234,6 +3290,53 @@ class M_logistik extends CI_Model
 			$valid = $this->db->update("trs_bayar_inv_beli");
 
 		} else {
+			
+			$valid = false;
+
+		}
+
+		return $valid;
+	
+	}	
+	
+	function verif_byr_bb()
+	{
+		
+		$id   = $this->input->post('id');
+		$acc  = $this->input->post('acc');
+		$app  = "";
+		
+		$cek_detail   = $this->db->query(" SELECT*from trs_bayar_bb a JOIN m_hub b on a.attn=b.id_hub where id_bayar_bb='$id' order by id_bayar_bb")->result();
+
+		// KHUSUS ADMIN //
+		if ($this->session->userdata('level') == "Admin") 
+		{
+			if($acc=='N')
+			{				
+				foreach ( $cek_detail as $row ) 
+				{
+						// pendapatan tanpa di kurangi
+						// add_jurnal($row->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv_beli,'5.04','Pembayaran Maklon', $row->jumlah_bayar, 0);
+						// add_jurnal($row->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv_beli,'2.01.01','Pembayaran Maklon', 0,$row->jumlah_bayar);
+						// add_jurnal($row->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv_beli,'6.37','Pembayaran Maklon', $row->jumlah_bayar, 0);
+						// add_jurnal($row->id_hub,$row->tgl_bayar, $id.'_'.$row->no_inv_beli,'2.01.03','Pembayaran Maklon', 0,$row->jumlah_bayar);
+				}
+				$this->db->set("acc_owner", 'Y');
+			}else{
+				
+				foreach ( $cek_detail as $row ) 
+				{
+						// delete jurnal pendapatan
+						// del_jurnal( $id.'_'.$row->no_inv_beli );
+						
+				}
+				$this->db->set("acc_owner", 'N');
+			}
+			
+			$this->db->where("id_bayar_bb",$id);
+			$valid = $this->db->update("trs_bayar_bb");
+
+		}  else {
 			
 			$valid = false;
 
