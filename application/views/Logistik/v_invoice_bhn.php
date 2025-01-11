@@ -673,7 +673,7 @@
 		var user        = "<?= $this->session->userdata('username')?>"
 		var no_inv      = $('#m_no_inv_bhn').val()
 		
-		if(user=='owner' || user=='developer')
+		if(user=='owner' || user=='developer' || user=='tegar')
 		{
 			acc = acc_owner
 		}else{
