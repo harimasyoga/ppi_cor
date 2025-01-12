@@ -78,7 +78,7 @@ class Rekapan extends CI_Controller
 	}
 
 	function load_data()
-	{
+	{ //
 		$jenis        = $this->uri->segment(3);
 		$data         = array();
 
@@ -439,7 +439,7 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 	}
 
 	function cetak_jual_inv()
-	{
+	{ //
 		$bulan    = $_GET['bulan'];
 		$jns_data = $_GET['jns_data'];
 		$cekpdf   = $_GET['ctk'];
@@ -469,21 +469,32 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 			order by c.id_hub,a.tgl_invoice,a.no_invoice");
 		}else{
 			$judul1 = 'LAMINASI';
-			$query_detail = $this->db->query("SELECT no_invoice,nm_pelanggan_lm,id_hub,nm_hub,tgl_invoice,nm_produk_lm,no_po_lm,''type, qty_ok as qty,retur_qty as retur_qty,qty_ok-retur_qty as qty_fix,harga_pori_lm as harga,(qty_ok-retur_qty)*harga_pori_lm as total_jual,hitung as diskon,(qty_ok-retur_qty)*harga_pori_lm-hitung as total_inv FROM(
-
-				SELECT a.no_invoice,a.tgl_invoice,g.nm_pelanggan_lm,h.id_hub,h.nm_hub,d.*,e.*,f.no_po_lm,c.hitung, d.qty_muat*(case when jenis_qty_lm='pack' then e.pack_lm else ikat_lm end) as qty_ok, b.retur_qty,f.harga_pori_lm
-				FROM invoice_laminasi_header a 
-				join invoice_laminasi_detail b ON a.no_surat=b.no_surat AND a.no_invoice=b.no_invoice
-				left join ( select no_invoice,sum(hitung)hitung from invoice_laminasi_disc group by no_invoice ) c ON a.no_invoice=c.no_invoice
-				JOIN m_rk_laminasi d ON b.id_rk_lm=d.id
-				JOIN m_produk_lm e ON b.id_produk_lm=e.id_produk_lm
-				JOIN trs_po_lm_detail f ON b.id_po_dtl=f.id
-				JOIN m_pelanggan_lm g ON g.id_pelanggan_lm=a.id_pelanggan_lm
-				JOIN m_hub h ON h.id_hub=a.bank
-				WHERE MONTH(a.tgl_surat_jalan) in ($blnn) and YEAR(a.tgl_surat_jalan) in ($tahun) and a.jenis_lm='PPI'
-				-- GROUP BY a.tgl_surat_jalan,a.no_surat,a.no_invoice 
-				)p
-				order by id_hub,p.tgl_invoice,no_invoice");
+			// $query_detail = $this->db->query("SELECT no_invoice,nm_pelanggan_lm,id_hub,nm_hub,tgl_invoice,nm_produk_lm,no_po_lm,''type, qty_ok as qty,retur_qty as retur_qty,qty_ok-retur_qty as qty_fix,harga_pori_lm as harga,(qty_ok-retur_qty)*harga_pori_lm as total_jual,hitung as diskon,(qty_ok-retur_qty)*harga_pori_lm-hitung as total_inv FROM(
+			// 	SELECT a.no_invoice,a.tgl_invoice,g.nm_pelanggan_lm,h.id_hub,h.nm_hub,d.*,e.*,f.no_po_lm,c.hitung, d.qty_muat*(case when jenis_qty_lm='pack' then e.pack_lm else ikat_lm end) as qty_ok, b.retur_qty,f.harga_pori_lm
+			// 	FROM invoice_laminasi_header a 
+			// 	join invoice_laminasi_detail b ON a.no_surat=b.no_surat AND a.no_invoice=b.no_invoice
+			// 	left join ( select no_invoice,sum(hitung)hitung from invoice_laminasi_disc group by no_invoice ) c ON a.no_invoice=c.no_invoice
+			// 	JOIN m_rk_laminasi d ON b.id_rk_lm=d.id
+			// 	JOIN m_produk_lm e ON b.id_produk_lm=e.id_produk_lm
+			// 	JOIN trs_po_lm_detail f ON b.id_po_dtl=f.id
+			// 	JOIN m_pelanggan_lm g ON g.id_pelanggan_lm=a.id_pelanggan_lm
+			// 	JOIN m_hub h ON h.id_hub=a.bank
+			// 	WHERE MONTH(a.tgl_surat_jalan) in ($blnn) and YEAR(a.tgl_surat_jalan) in ($tahun) and a.jenis_lm='PPI'
+			// 	-- GROUP BY a.tgl_surat_jalan,a.no_surat,a.no_invoice 
+			// 	)p
+			// 	order by id_hub,p.tgl_invoice,no_invoice");
+			$query_detail = $this->db->query("SELECT no_invoice,nm_pelanggan_lm,id_hub,nm_hub,tgl_invoice,nm_produk_lm,no_po_lm,''type, qty_ok as qty,retur_qty as retur_qty,qty_ok-retur_qty as qty_fix,harga_pori_lm as harga,(qty_ok-retur_qty)*harga_pori_lm as total_jual FROM(
+			SELECT a.no_invoice,a.tgl_invoice,g.nm_pelanggan_lm,h.id_hub,h.nm_hub,d.*,e.*,f.no_po_lm, d.qty_muat*(case when jenis_qty_lm='pack' then e.pack_lm else ikat_lm end) as qty_ok, b.retur_qty,f.harga_pori_lm
+			FROM invoice_laminasi_header a 
+			join invoice_laminasi_detail b ON a.no_surat=b.no_surat AND a.no_invoice=b.no_invoice
+			JOIN m_rk_laminasi d ON b.id_rk_lm=d.id
+			JOIN m_produk_lm e ON b.id_produk_lm=e.id_produk_lm
+			JOIN trs_po_lm_detail f ON b.id_po_dtl=f.id
+			JOIN m_pelanggan_lm g ON g.id_pelanggan_lm=a.id_pelanggan_lm
+			JOIN m_hub h ON h.id_hub=a.bank
+			WHERE MONTH(a.tgl_surat_jalan) in ($blnn) and YEAR(a.tgl_surat_jalan) in ($tahun) and a.jenis_lm='PPI'
+			)p
+			order by id_hub,p.tgl_invoice,no_invoice");
 		}
 
 		$html = '';
@@ -545,7 +556,6 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 				}
 				$html .= '</table>';
 			}else{
-				
 				$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
 				<tr style="background-color: #cccccc">
 					<th style="text-align: center;">No</th>
@@ -565,34 +575,42 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 					<th style="text-align: center;">Diskon </th>
 					<th style="text-align: center;">Total Inv </th>
 				</tr>';
-
 				$no=1;
-				foreach ($query_detail->result() as $r) 
-				{
+				foreach ($query_detail->result() as $r) {
 					$html .= '<tr>
-							<td align="center">'.$no.'</td>
-							<td align="">'.$r->no_invoice.'</td>
-							<td align="">'.$r->nm_pelanggan_lm.'</td>
-							<td align="">'.$r->id_hub.'</td>
-							<td align="">'.$r->nm_hub.'</td>
-							<td align="">'.$r->tgl_invoice.'</td>
-							<td align="">'.$r->nm_produk_lm.'</td>
-							<td align="">'.$r->no_po_lm.'</td>
-							<td align="">'.$r->type.'</td>
-							<td align="">'.$r->qty.'</td>
-							<td align="">'.$r->retur_qty.'</td>
-							<td align="">'.$r->qty_fix.'</td>
-							<td align="">'.$r->harga.'</td>
-							<td align="">'.$r->total_jual.'</td>
-							<td align="">'.$r->diskon.'</td>
-							<td align="">'.$r->total_inv.'</td>
-						</tr>';
-
-						$no++;
+						<td align="center">'.$no.'</td>
+						<td>'.$r->no_invoice.'</td>
+						<td>'.$r->nm_pelanggan_lm.'</td>
+						<td>'.$r->id_hub.'</td>
+						<td>'.$r->nm_hub.'</td>
+						<td>'.$r->tgl_invoice.'</td>
+						<td>'.$r->nm_produk_lm.'</td>
+						<td>'.$r->no_po_lm.'</td>
+						<td>'.$r->type.'</td>
+						<td>'.$r->qty.'</td>
+						<td>'.$r->retur_qty.'</td>
+						<td>'.$r->qty_fix.'</td>
+						<td>'.$r->harga.'</td>
+						<td>'.$r->total_jual.'</td>';
+						// GET JML INVOICE + DISC
+						$jmlInv = $this->db->query("SELECT COUNT(no_invoice) AS jml FROM invoice_laminasi_detail WHERE no_invoice='$r->no_invoice'");
+						$disc = $this->db->query("SELECT*FROM invoice_laminasi_disc WHERE no_invoice='$r->no_invoice'");
+						// TOTAL + DISKON
+						$sumDisc = 0;
+						if($disc->num_rows() > 0){
+							foreach($disc->result() as $c){
+								$sumDisc += $c->hitung;
+							}
+							$fixTot = $r->total_jual - round($sumDisc / $jmlInv->row()->jml);
+							$html .= '<td>'.number_format(round($sumDisc / $jmlInv->row()->jml), 0, ",", ".").'</td><td>'.number_format($fixTot, 0, ",", ".").'</td>';
+						}else{
+							$html .= '<td>0</td><td>'.number_format($r->total_jual, 0, ",", ".").'</td>';
+						}
+					$html .= '</tr>';
+					$no++;
 				}
 				$html .= '</table>';
 			}
-
 		} else {
 			$html .= '<h1> Data Kosong </h1>';
 		}
