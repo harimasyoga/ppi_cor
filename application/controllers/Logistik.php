@@ -6965,12 +6965,22 @@ class Logistik extends CI_Controller
 			if($update_no_pl)
 			{
 
-				$result          = $this->m_master->query("DELETE FROM invoice_header WHERE  $field = '$id'");
+				$result1 = $this->m_master->query("DELETE FROM invoice_header WHERE  $field = '$id'");
 
-				$result          = $this->m_master->query("DELETE FROM invoice_detail WHERE  no_invoice = '$no_inv'");
+				if($result1)
+				{
+					$result2 = $this->m_master->query("DELETE FROM invoice_detail WHERE  no_invoice = '$no_inv'");
 
-				// delete stok
-				$result          = $this->m_master->query("DELETE FROM trs_stok_bahanbaku WHERE  no_transaksi = '$no_inv'");
+					if($result2)
+					{
+						// delete stok
+						$result          = $this->m_master->query("DELETE FROM trs_stok_bahanbaku WHERE  no_transaksi = '$no_inv'");
+					}
+				}
+
+
+				
+
 			}
 			
 			
