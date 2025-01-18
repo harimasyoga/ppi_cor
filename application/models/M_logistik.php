@@ -1546,7 +1546,7 @@ class M_logistik extends CI_Model
 		GROUP BY l.no_surat")->row();
 
 		$tahun = substr($tgl_sj,2,2);
-		$noSJ = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE no_invoice LIKE '%$tahun%' AND jenis_lm='$q->jenis_lm' ORDER BY no_invoice DESC LIMIT 1");
+		$noSJ = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE no_invoice LIKE '%/$tahun/LM' AND jenis_lm='$q->jenis_lm' ORDER BY no_invoice DESC LIMIT 1");
 		if($q->jenis_lm == "PEKALONGAN"){
 			($noSJ->num_rows() == 0) ? $no = 0 : $no = substr($noSJ->row()->no_invoice, 8, 3);
 			$no_invoice = 'INV-PKL/'.str_pad($no+1, 3, "0", STR_PAD_LEFT).'/'.$tahun;
