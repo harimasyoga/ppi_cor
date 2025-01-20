@@ -61,28 +61,15 @@ class Transaksi extends CI_Controller
 		$data = [
 			'judul' => "PO Roll Paper",
 		];
-		$this->load->view('header',$data);
+		$this->load->view('header', $data);
 		$this->load->view('Transaksi/v_po_roll_paper');
 		$this->load->view('footer');
 	}
 
 	function UploadFilePORoll()
 	{
-		$config['upload_path'] = './assets/gambar_po_roll/'; //path folder
-		$config['allowed_types'] = 'gif|jpg|png|jpeg|bmp'; //type yang dapat diakses bisa anda sesuaikan
-		$config['max_size'] = '1024';
-		$config['encrypt_name'] = TRUE; //nama yang terupload nantinya
-
-		$this->load->library('upload',$config);
-		for ($i=1; $i <=5 ; $i++) { 
-			if(!empty($_FILES['filefoto'.$i]['name'])) {
-				if(!$this->upload->do_upload('filefoto'.$i)) {
-					$this->upload->display_errors();
-				}else{
-					echo $this->upload->data('file_name');
-				}
-			}
-		}
+		$result = $this->m_transaksi->UploadFilePORoll();
+		echo json_encode($result);
 	}
 
 	//

@@ -30,52 +30,56 @@
 						<div style="margin:12px 6px;display:flex">
 							<button type="button" class="btn btn-sm btn-info" onclick=""><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
 						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">TGL. INPUT PO</div>
-							<div class="col-md-9">
-								<input type="date" id="tgl" class="form-control" value="<?= date('Y-m-d')?>">
+						<form role="form" method="post" id="myForm" action="<?php echo base_url('Transaksi/UploadFilePORoll')?>" enctype="multipart/form-data">
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">TGL. INPUT PO</div>
+								<div class="col-md-9">
+									<input type="date" id="tgl" name="tgl" class="form-control" value="<?= date('Y-m-d')?>">
+								</div>
 							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">CUSTOMER</div>
-							<div class="col-md-9">
-								<select id="nm_pelanggan" class="form-control select2">
-									<option value="">PILIH</option>
-									<?php
-										$db = $this->load->database('database_simroll', TRUE);
-										$query = $db->query("SELECT*FROM m_perusahaan WHERE jns='ROLL' GROUP BY nm_perusahaan, pimpinan");
-										$html = '';
-										foreach($query->result() as $r){
-											if($r->pimpinan == '-' && $r->nm_perusahaan != '-'){
-												$nm = $r->nm_perusahaan;
-											}else if($r->pimpinan != '-' && $r->nm_perusahaan == '-'){
-												$nm = $r->pimpinan;
-											}else if($r->pimpinan != '-' && $r->nm_perusahaan != '-'){
-												$nm = $r->nm_perusahaan.' - '.$r->pimpinan;
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">NO. PO</div>
+								<div class="col-md-9">
+									<input type="text" id="no_po" name="no_po" class="form-control" placeholder="NO. PO" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">CUSTOMER</div>
+								<div class="col-md-9">
+									<select id="nm_pelanggan" name="nm_pelanggan" class="form-control select2">
+										<option value="">PILIH</option>
+										<?php
+											$db = $this->load->database('database_simroll', TRUE);
+											$query = $db->query("SELECT*FROM m_perusahaan WHERE jns='ROLL' GROUP BY nm_perusahaan, pimpinan");
+											$html = '';
+											foreach($query->result() as $r){
+												if($r->pimpinan == '-' && $r->nm_perusahaan != '-'){
+													$nm = $r->nm_perusahaan;
+												}else if($r->pimpinan != '-' && $r->nm_perusahaan == '-'){
+													$nm = $r->pimpinan;
+												}else if($r->pimpinan != '-' && $r->nm_perusahaan != '-'){
+													$nm = $r->nm_perusahaan.' - '.$r->pimpinan;
+												}
+												$html .= '<option value="'.$nm.'">'.$nm.'</option>';
 											}
-											$html .= '<option value="'.$nm.'">'.$nm.'</option>';
-										}
-										echo $html;
-									?>
-								</select>
+											echo $html;
+										?>
+									</select>
+								</div>
 							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">FILE</div>
-							<div class="col-md-9">
-								<form action="<?php echo base_url('Transaksi/UploadFilePORoll')?>" method="post" enctype="multipart/form-data">
-									<?php for ($i=1; $i<=5; $i++) :?>
-										<input type="file" name="filefoto<?php echo $i;?>"><br/>
-									<?php endfor;?>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3">FILE</div>
+								<div class="col-md-9">
+									<input type="file" data-max-size="2048" name="filefoto" id="filefoto" accept=".jpg,.png,.pdf">
+								</div>
 							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3"></div>
-							<div class="col-md-9">
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
 									<button type="submit" class="btn btn-primary">Upload</button>
-								</form>
+								</div>
 							</div>
-						</div>
+						</form>
 					</div>
 				</div>
 
@@ -179,6 +183,30 @@
 	// {
 	// 	statusInput = 'insert'
 	// 	swal.close()
+	// }
+
+	// function UploadFilePORoll()
+	// {
+	// 	// let tgl = $("#tgl").val()
+	// 	// let nm_pelanggan = $("#nm_pelanggan").val()
+	// 	// let file = $('#filefoto').prop('files')[0];
+
+	// 	let form = $('#myForm')[0];
+	// 	let data = new FormData(form);
+
+	// 	$.ajax({
+	// 		url: '<?php echo base_url('Transaksi/UploadFilePORoll')?>',
+	// 		type: "POST",
+	// 		enctype: 'multipart/form-data',
+	// 		data: new FormData($('#myForm')[0]),
+	// 		// data: ({
+	// 		// 	tgl, nm_pelanggan
+	// 		// }),
+	// 		success: function(res){
+	// 			data = JSON.parse(res)
+	// 			alert(data)
+	// 		}
+	// 	})
 	// }
 
 	// function editInvoiceLaminasi(id_header, opsi) {

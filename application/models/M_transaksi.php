@@ -1833,4 +1833,53 @@ class M_transaksi extends CI_Model
 			'msg' => $msg,
 		];
 	}
+
+	function generateFileName()
+	{
+		$stringSpace = '-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
+		$stringLength = strlen($stringSpace);
+		$string = str_repeat($stringSpace, ceil(16 / $stringLength));
+		$shuffledString = str_shuffle($string);
+		$code = substr($shuffledString, 1, 32);
+		return $code;
+	}
+
+	function UploadFilePORoll()
+	{
+		$tgl = $this->input->post('tgl');
+		$nm_pelanggan = $this->input->post('nm_pelanggan');
+		$nmFile = $_FILES['filefoto']['name'];
+
+		$data = [
+			'tgl_po' => $tgl,
+			'nm_pelanggan' => $nm_pelanggan,
+			'creat_at' => date('Y-m-d H:i:s'),
+			'creat_by' => $this->username,
+		];
+		$insert = $this->db->insert('trs_po_roll_header', $data);
+		// $dname = explode('.', $_FILES['filefoto'.$i]['name']);
+		// $exs = end($dname);
+		// if($upload){
+		// 	for ($i=1; $i <=5 ; $i++) { 
+		// 		$config['upload_path'] = './assets/gambar_po_roll/';
+		// 		$config['allowed_types'] = 'pdf|jpg|png';
+		// 		$config['max_size'] = '1024';
+		// 		$config['file_name'] = $this->generateFileName();
+		// 		$this->load->library('upload',$config);
+		// 		$this->upload->initialize($config);
+		// 		if(!empty($_FILES['filefoto'.$i]['name'])) {
+		// 			$this->upload->do_upload('filefoto'.$i);
+		// 		}
+		// 	}
+		// }else{
+		// 	$upload = 'FILE TIDAK DIDUKUNG!';
+		// }
+
+		return [
+			'tgl' => $tgl,
+			'nm_pelanggan' => $nm_pelanggan,
+			'nmFile' => $nmFile,
+			'insert' => $insert,
+		];
+	}
 }
