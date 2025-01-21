@@ -56,10 +56,14 @@ class Transaksi extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	//
+
 	function PO_Roll_Paper()
 	{
 		$data = [
 			'judul' => "PO Roll Paper",
+			'data' => '',
+			'msg' => '',
 		];
 		$this->load->view('header', $data);
 		$this->load->view('Transaksi/v_po_roll_paper');
@@ -69,7 +73,28 @@ class Transaksi extends CI_Controller
 	function UploadFilePORoll()
 	{
 		$result = $this->m_transaksi->UploadFilePORoll();
-		echo json_encode($result);
+		if($result['data'] == 1) {
+			redirect(base_url("Transaksi/PO_Roll_Paper"));
+		}else{
+			$data = [
+				'judul' => "PO Roll Paper",
+				'data' => $result['data'],
+				'msg' => $result['msg'],
+			];
+			$this->load->view('header', $data);
+			$this->load->view('Transaksi/v_po_roll_paper');
+			$this->load->view('footer');
+		}
+	}
+
+	function editPORoll()
+	{
+		$id_hdr = $_POST['id_hdr'];
+		$opsi = $_POST['opsi'];
+		echo json_encode([
+			'id_hdr' => $id_hdr,
+			'opsi' => $opsi,
+		]);
 	}
 
 	//
@@ -2193,6 +2218,101 @@ class Transaksi extends CI_Controller
 					$row[] = '<div class="text-center">'.$cariPO.' '.$closePO.'</div>';
 				}
 				
+				$data[] = $row;
+			}
+		} else if ($jenis == "trs_po_roll") {
+			$query = $this->db->query("SELECT*FROM trs_po_roll_header ORDER BY tgl_po DESC, no_po")->result();
+			$i = 0;
+			foreach ($query as $r) {
+				$i++;
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = $r->no_po;
+				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_po).'</div>';
+				if($r->status_po == 'Open'){
+					$btn_s = 'btn-info';
+				}else if($r->status_po == 'Approve'){
+					$btn_s = 'btn-success';
+				}else{
+					$btn_s = 'btn-danger';
+				}
+				// editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')
+				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.'" onclick="">'.$r->status_po.'</button></div>';
+				$row[] = $r->nm_pelanggan;
+				// MARKETING
+				if($r->mkt_status == 'N'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-lock"';
+					$time1 = 'BELUM ACC!';
+					$p1 = '';
+				}else if($r->mkt_status == 'H'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-hand-paper"';
+					$time1 = 'HOLD!';
+					$p1 = '';
+				}else if($r->mkt_status == 'R'){
+					$bt1 = 'btn-danger';
+					$fa1 = 'class="fas fa-times" style="color:#000"';
+					$time1 = 'REJECT!';
+					$p1 = 'style="padding:4px 10px"';
+				}else{
+					$bt1 = 'btn-success';
+					$fa1 = 'class="fas fa-check-circle"';
+					$time1 = $this->m_fungsi->tglIndSkt(substr($r->mkt_time,0,10)).' - '.substr($r->mkt_time,10,9);
+					$p1 = '';
+				}
+				// editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')
+				$row[] = '<div class="text-center">
+					<div class="dropup">
+						<button class="dropbtn btn btn-sm '.$bt1.'" '.$p1.' onclick=""><i '.$fa1.'></i></button>
+						<div class="dropup-content">
+							<div class="time-admin">'.$time1.'</div>
+						</div>
+					</div>
+				</div>';
+				// OWNER
+				if($r->owner_status == 'N'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-lock"';
+					$time1 = 'BELUM ACC!';
+					$p1 = '';
+				}else if($r->owner_status == 'H'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-hand-paper"';
+					$time1 = 'HOLD!';
+					$p1 = '';
+				}else if($r->owner_status == 'R'){
+					$bt1 = 'btn-danger';
+					$fa1 = 'class="fas fa-times" style="color:#000"';
+					$time1 = 'REJECT!';
+					$p1 = 'style="padding:4px 10px"';
+				}else{
+					$bt1 = 'btn-success';
+					$fa1 = 'class="fas fa-check-circle"';
+					$time1 = $this->m_fungsi->tglIndSkt(substr($r->owner_time,0,10)).' - '.substr($r->owner_time,10,9);
+					$p1 = '';
+				}
+				// editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')
+				$row[] = '<div class="text-center">
+					<div class="dropup">
+						<button class="dropbtn btn btn-sm '.$bt1.'" '.$p1.' onclick=""><i '.$fa1.'></i></button>
+						<div class="dropup-content">
+							<div class="time-admin">'.$time1.'</div>
+						</div>
+					</div>
+				</div>';
+				// AKSI
+				// ($r->mkt_status == 'Y' && $r->owner_status == 'Y') ? $xEditVerif = 'verif' : $xEditVerif = 'edit';
+				$btnEdit = '<button type="button" title="EDIT" class="btn btn-warning btn-sm" onclick="editPORoll('."'".$r->id_hdr."'".', '."'edit'".')"><i class="fa fa-edit"></i></button>'; 
+				$btnHapus = ($r->mkt_status == 'Y' && $r->owner_status == 'Y') ? '' : '<button type="button" title="HAPUS" class="btn btn-secondary btn-sm"><i class="fa fa-trash-alt"></i></button>';
+				$btnVerif = '<button type="button" title="VERIF" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>'; 
+				if($this->session->userdata('level') == 'Admin'){
+					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
+				}else if($this->session->userdata('level') == 'User'){
+					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
+				}else{
+					$row[] = '<div class="text-center">'.$btnVerif.'</div>';
+				}
 				$data[] = $row;
 			}
 		}

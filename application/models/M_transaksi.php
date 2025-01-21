@@ -1847,39 +1847,63 @@ class M_transaksi extends CI_Model
 	function UploadFilePORoll()
 	{
 		$tgl = $this->input->post('tgl');
+		$no_po = str_replace(' ', '', $this->input->post('no_po'));
 		$nm_pelanggan = $this->input->post('nm_pelanggan');
+		// CEK NO PO
+		$cek = $this->db->query("SELECT*FROM trs_po_roll_header	WHERE no_po='$no_po' AND nm_pelanggan='$nm_pelanggan'");
+		// FILE
 		$nmFile = $_FILES['filefoto']['name'];
+		$config['upload_path'] = './assets/gambar_po_roll/';
+		$config['allowed_types'] = 'pdf|jpg|png';
+		$config['overwrite'] = true;
+		$config['max_size'] = 1024; // 1MB
+		$config['file_name'] = str_replace(' ', '', $nmFile);
+		$this->load->library('upload',$config);
+		$this->upload->initialize($config);
 
-		$data = [
-			'tgl_po' => $tgl,
-			'nm_pelanggan' => $nm_pelanggan,
-			'creat_at' => date('Y-m-d H:i:s'),
-			'creat_by' => $this->username,
-		];
-		$insert = $this->db->insert('trs_po_roll_header', $data);
-		// $dname = explode('.', $_FILES['filefoto'.$i]['name']);
-		// $exs = end($dname);
-		// if($upload){
-		// 	for ($i=1; $i <=5 ; $i++) { 
-		// 		$config['upload_path'] = './assets/gambar_po_roll/';
-		// 		$config['allowed_types'] = 'pdf|jpg|png';
-		// 		$config['max_size'] = '1024';
-		// 		$config['file_name'] = $this->generateFileName();
-		// 		$this->load->library('upload',$config);
-		// 		$this->upload->initialize($config);
-		// 		if(!empty($_FILES['filefoto'.$i]['name'])) {
-		// 			$this->upload->do_upload('filefoto'.$i);
-		// 		}
-		// 	}
-		// }else{
-		// 	$upload = 'FILE TIDAK DIDUKUNG!';
-		// }
+		if($tgl == ''){
+			$data = false; $msg = 'HARAP PILIH TANGGAL!';
+		}else if($no_po == ''){
+			$data = false; $msg = 'HARAP ISI NO. PO!';
+		}else if($nm_pelanggan == ''){
+			$data = false; $msg = 'HARAP ISI NAMA CUSTOMER!';
+		}else if($nmFile == ''){
+			$data = false; $msg = 'HARAP PILIH FILE!';
+		}else if($cek->num_rows() > 0){
+			$data = false; $msg = 'NO. PO SUDAH ADA!';
+		}else if(!$this->upload->do_upload('filefoto')) {
+			$data = false; $msg = 'UKURAN / FORMAT FILE TIDAK DIDUKUNG!';
+		}else{
+			$dh = [
+				'tgl_po' => $tgl,
+				'no_po' => $no_po,
+				'nm_pelanggan' => $nm_pelanggan,
+				'creat_at' => date('Y-m-d H:i:s'),
+				'creat_by' => $this->username,
+			];
+			$header = $this->db->insert('trs_po_roll_header', $dh);
+			if($header){
+				if($this->upload->do_upload('filefoto')){
+					$getHdr = $this->db->query("SELECT*FROM trs_po_roll_header	WHERE tgl_po='$tgl' AND no_po='$no_po' AND nm_pelanggan='$nm_pelanggan'")->row();
+					$gbrBukti = $this->upload->data();
+					$filefoto = $gbrBukti['file_name'];
+					$dtl = [
+						'id_hdr' => $getHdr->id_hdr,
+						'no_po' => $no_po,
+						'file' => $filefoto,
+					];
+					$detail = $this->db->insert('trs_po_roll_detail', $dtl);
+					if($detail){
+						$data = true;
+						$msg = 'OK!';
+					}
+				}
+			}
+		}
 
 		return [
-			'tgl' => $tgl,
-			'nm_pelanggan' => $nm_pelanggan,
-			'nmFile' => $nmFile,
-			'insert' => $insert,
+			'data' => $data,
+			'msg' => $msg,
 		];
 	}
 }

@@ -23,12 +23,12 @@
 		<div class="container-fluid">
 			<div class="row row-input">
 				<div class="col-md-6">
-					<div class="card card-success card-outline" style="position:sticky;top:12px;padding-bottom:12px">
+					<div class="card card-primary card-outline" style="position:sticky;top:12px;padding-bottom:12px">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT PO ROLL PAPER</h3>
 						</div>
 						<div style="margin:12px 6px;display:flex">
-							<button type="button" class="btn btn-sm btn-info" onclick=""><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
+							<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
 						</div>
 						<form role="form" method="post" id="myForm" action="<?php echo base_url('Transaksi/UploadFilePORoll')?>" enctype="multipart/form-data">
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
@@ -67,7 +67,7 @@
 									</select>
 								</div>
 							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="card-body row" style="font-weight:bold;padding:0 12px">
 								<div class="col-md-3">FILE</div>
 								<div class="col-md-9">
 									<input type="file" data-max-size="2048" name="filefoto" id="filefoto" accept=".jpg,.png,.pdf">
@@ -75,18 +75,32 @@
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-3"></div>
+								<div class="col-md-9" style="color:#f00;font-style:italic">
+									* .jpg, .png, .pdf
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
 								<div class="col-md-9">
-									<button type="submit" class="btn btn-primary">Upload</button>
+									<button class="btn btn-primary btn-sm"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
 								</div>
 							</div>
 						</form>
 					</div>
 				</div>
 
-				<div class="col-md-6">
+				<div class="col-md-6 col-verifikasi">
 					<div class="card card-success card-outline" style="position:sticky;top:12px;padding-bottom:12px">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI PO</h3>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-12 col-detail">
+					<div class="card card-secondary card-outline" style="position:sticky;top:12px;padding-bottom:12px">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">DETAIL PO</h3>
 						</div>
 					</div>
 				</div>
@@ -121,7 +135,6 @@
 											<th style="padding:12px;text-align:center">CUSTOMER</th>
 											<th style="padding:12px;text-align:center">MKT</th>
 											<th style="padding:12px;text-align:center">OWNER</th>
-											<th style="padding:12px;text-align:center">LAPORAN</th>
 											<th style="padding:12px;text-align:center">AKSI</th>
 										</tr>
 									</thead>
@@ -140,74 +153,63 @@
 	let statusInput = 'insert';
 	const urlAuth = '<?= $this->session->userdata('level')?>';
 	const urlUser = '<?= $this->session->userdata('username')?>';
+	const betul = '<?= $data ?>';
+	const msg = '<?= $msg ?>';
 
 	$(document).ready(function ()
 	{
-		// kosong()
-		// load_data()
+		load_data()
 		$('.select2').select2();
 	});
 
-	// function reloadTable() {
-	// 	table = $('#datatable').DataTable();
-	// 	tabel.ajax.reload(null, false);
-	// }
+	function reloadTable() {
+		table = $('#datatable').DataTable();
+		tabel.ajax.reload(null, false);
+	}
 
-	// function load_data() {
-	// 	let table = $('#datatable').DataTable();
-	// 	table.destroy();
-	// 	tabel = $('#datatable').DataTable({
-	// 		"processing": true,
-	// 		"pageLength": true,
-	// 		"paging": true,
-	// 		"ajax": {
-	// 			"url": '<?php echo base_url('Transaksi/load_data/trs_po_laminasi')?>',
-	// 			"type": "POST",
-	// 			// "data": ({
-	// 			// 	po: 'list', tahun, jenis, hub, bulan, status_kiriman
-	// 			// }),
-	// 		},
-	// 		"aLengthMenu": [
-	// 			[5, 10, 50, 100, -1],
-	// 			[5, 10, 50, 100, "Semua"]
-	// 		],	
-	// 		responsive: false,
-	// 		"pageLength": 10,
-	// 		"language": {
-	// 			"emptyTable": "TIDAK ADA DATA.."
-	// 		}
-	// 	})
-	// }
+	function load_data() {
+		let table = $('#datatable').DataTable();
+		table.destroy();
+		tabel = $('#datatable').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url": '<?php echo base_url('Transaksi/load_data/trs_po_roll')?>',
+				"type": "POST",
+				// "data": ({
+				// 	po: 'list', tahun, jenis, hub, bulan, status_kiriman
+				// }),
+			},
+			"aLengthMenu": [
+				[5, 10, 50, 100, -1],
+				[5, 10, 50, 100, "Semua"]
+			],	
+			responsive: false,
+			"pageLength": 10,
+			"language": {
+				"emptyTable": "TIDAK ADA DATA.."
+			}
+		})
+	}
 
-	// function kosong()
-	// {
-	// 	statusInput = 'insert'
-	// 	swal.close()
-	// }
+	function kembali()
+	{
+		window.location.href = '<?php echo base_url('Transaksi/PO_Roll_Paper')?>'
+	}
 
-	// function UploadFilePORoll()
-	// {
-	// 	// let tgl = $("#tgl").val()
-	// 	// let nm_pelanggan = $("#nm_pelanggan").val()
-	// 	// let file = $('#filefoto').prop('files')[0];
-
-	// 	let form = $('#myForm')[0];
-	// 	let data = new FormData(form);
-
-	// 	$.ajax({
-	// 		url: '<?php echo base_url('Transaksi/UploadFilePORoll')?>',
-	// 		type: "POST",
-	// 		enctype: 'multipart/form-data',
-	// 		data: new FormData($('#myForm')[0]),
-	// 		// data: ({
-	// 		// 	tgl, nm_pelanggan
-	// 		// }),
-	// 		success: function(res){
-	// 			data = JSON.parse(res)
-	// 			alert(data)
-	// 		}
-	// 	})
-	// }
+	function editPORoll(id_hdr, opsi)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/editPORoll')?>',
+			type: "POST",
+			data: ({ id_hdr, opsi }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+			}
+		})
+	}
 
 	// function editInvoiceLaminasi(id_header, opsi) {
 	// 	$(".row-list-invoice-laminasi").hide()
