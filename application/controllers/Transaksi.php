@@ -91,10 +91,45 @@ class Transaksi extends CI_Controller
 	{
 		$id_hdr = $_POST['id_hdr'];
 		$opsi = $_POST['opsi'];
+		// HEADER
+		$header = $this->db->query("SELECT*FROM trs_po_roll_header WHERE id_hdr='$id_hdr'")->row();
+		// DETAIL
+		$htmlDtl = '';
+		$detail = $this->db->query("SELECT*FROM trs_po_roll_detail WHERE id_hdr='$header->id_hdr' AND no_po='$header->no_po'");
+		foreach($detail->result() as $r){
+			$e = explode('.', $r->nm_file);
+			$ext = end($e);
+			if($ext == 'pdf'){
+				$htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" height="600" style="width:100%"></object>';
+				// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" width="600" height="400"></embed>';
+				// $htmlDtl .= '<iframe src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" height="600" style="width:100%"></iframe>';
+			}else{
+				$htmlDtl .= '<img id="preview_img" src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm img-thumbnail">
+				<span class="help-block"></span>';
+			}
+		}
+
 		echo json_encode([
-			'id_hdr' => $id_hdr,
+			'header' => $header,
 			'opsi' => $opsi,
+			'ext' => $ext,
+			'htmlDtl' => $htmlDtl,
+			'oke_admin' => substr($this->m_fungsi->getHariIni(($header->edit_at == null) ? $header->creat_at : $header->edit_at),0,3).', '.$this->m_fungsi->tglIndSkt(substr(($header->edit_at == null) ? $header->creat_at : $header->edit_at, 0,10)).' ( '.substr(($header->edit_at == null) ? $header->creat_at : $header->edit_at, 10,6).' )',
+			'mkt_time' => ($header->mkt_time == null) ? '' :substr($this->m_fungsi->getHariIni($header->mkt_time),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->mkt_time, 0,10)).' ( '.substr($header->mkt_time, 10,6).' )',
+			'owner_time' => ($header->owner_time == null) ? '' :substr($this->m_fungsi->getHariIni($header->owner_time),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->owner_time, 0,10)).' ( '.substr($header->owner_time, 10,6).' )',
 		]);
+	}
+
+	function btnVerifPORoll()
+	{
+		$result = $this->m_transaksi->btnVerifPORoll();
+		echo json_encode($result);
+	}
+
+	function hapusPORoll()
+	{
+		$result = $this->m_transaksi->hapusPORoll();
+		echo json_encode($result);
 	}
 
 	//
@@ -2221,7 +2256,10 @@ class Transaksi extends CI_Controller
 				$data[] = $row;
 			}
 		} else if ($jenis == "trs_po_roll") {
-			$query = $this->db->query("SELECT*FROM trs_po_roll_header ORDER BY tgl_po DESC, no_po")->result();
+			$tahun = $_POST["tahun"];
+			$bulan = $_POST["bulan"];
+			($bulan == "") ? $wBln = '' : $wBln = "AND MONTH(tgl_po) IN ('$bulan')";
+			$query = $this->db->query("SELECT*FROM trs_po_roll_header WHERE tgl_po LIKE '%$tahun%' $wBln ORDER BY tgl_po DESC, no_po")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
@@ -2236,8 +2274,7 @@ class Transaksi extends CI_Controller
 				}else{
 					$btn_s = 'btn-danger';
 				}
-				// editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')
-				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.'" onclick="">'.$r->status_po.'</button></div>';
+				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.'" onclick="editPORoll('."'".$r->id_hdr."'".', '."'detail'".')">'.$r->status_po.'</button></div>';
 				$row[] = $r->nm_pelanggan;
 				// MARKETING
 				if($r->mkt_status == 'N'){
@@ -2261,10 +2298,9 @@ class Transaksi extends CI_Controller
 					$time1 = $this->m_fungsi->tglIndSkt(substr($r->mkt_time,0,10)).' - '.substr($r->mkt_time,10,9);
 					$p1 = '';
 				}
-				// editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')
 				$row[] = '<div class="text-center">
 					<div class="dropup">
-						<button class="dropbtn btn btn-sm '.$bt1.'" '.$p1.' onclick=""><i '.$fa1.'></i></button>
+						<button class="dropbtn btn btn-sm '.$bt1.'" '.$p1.' onclick="editPORoll('."'".$r->id_hdr."'".', '."'detail'".')"><i '.$fa1.'></i></button>
 						<div class="dropup-content">
 							<div class="time-admin">'.$time1.'</div>
 						</div>
@@ -2292,20 +2328,19 @@ class Transaksi extends CI_Controller
 					$time1 = $this->m_fungsi->tglIndSkt(substr($r->owner_time,0,10)).' - '.substr($r->owner_time,10,9);
 					$p1 = '';
 				}
-				// editPOLaminasi('."'".$r->id."'".',0,'."'detail'".')
 				$row[] = '<div class="text-center">
 					<div class="dropup">
-						<button class="dropbtn btn btn-sm '.$bt1.'" '.$p1.' onclick=""><i '.$fa1.'></i></button>
+						<button class="dropbtn btn btn-sm '.$bt1.'" '.$p1.' onclick="editPORoll('."'".$r->id_hdr."'".', '."'detail'".')"><i '.$fa1.'></i></button>
 						<div class="dropup-content">
 							<div class="time-admin">'.$time1.'</div>
 						</div>
 					</div>
 				</div>';
 				// AKSI
-				// ($r->mkt_status == 'Y' && $r->owner_status == 'Y') ? $xEditVerif = 'verif' : $xEditVerif = 'edit';
-				$btnEdit = '<button type="button" title="EDIT" class="btn btn-warning btn-sm" onclick="editPORoll('."'".$r->id_hdr."'".', '."'edit'".')"><i class="fa fa-edit"></i></button>'; 
-				$btnHapus = ($r->mkt_status == 'Y' && $r->owner_status == 'Y') ? '' : '<button type="button" title="HAPUS" class="btn btn-secondary btn-sm"><i class="fa fa-trash-alt"></i></button>';
-				$btnVerif = '<button type="button" title="VERIF" class="btn btn-info btn-sm"><i class="fa fa-check"></i></button>'; 
+				($r->mkt_status == 'Y' && $r->owner_status == 'Y') ? $exd = 'verif' : $exd = 'edit';
+				$btnEdit = '<button type="button" title="EDIT" class="btn btn-warning btn-sm" onclick="editPORoll('."'".$r->id_hdr."'".', '."'.$exd.'".')"><i class="fa fa-edit"></i></button>'; 
+				$btnHapus = ($r->mkt_status == 'Y' && $r->owner_status == 'Y') ? '' : '<button type="button" title="HAPUS" class="btn btn-secondary btn-sm" onclick="hapusPORoll('."'".$r->id_hdr."'".')"><i class="fa fa-trash-alt"></i></button>';
+				$btnVerif = '<button type="button" title="VERIF" class="btn btn-info btn-sm" onclick="editPORoll('."'".$r->id_hdr."'".', '."'verif'".')"><i class="fa fa-check"></i></button>'; 
 				if($this->session->userdata('level') == 'Admin'){
 					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
 				}else if($this->session->userdata('level') == 'User'){

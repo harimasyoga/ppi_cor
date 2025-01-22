@@ -1836,11 +1836,11 @@ class M_transaksi extends CI_Model
 
 	function generateFileName()
 	{
-		$stringSpace = '-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
+		$stringSpace = '-0123456789_abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ_';
 		$stringLength = strlen($stringSpace);
-		$string = str_repeat($stringSpace, ceil(16 / $stringLength));
+		$string = str_repeat($stringSpace, ceil(11 / $stringLength));
 		$shuffledString = str_shuffle($string);
-		$code = substr($shuffledString, 1, 32);
+		$code = substr($shuffledString, 1, 11);
 		return $code;
 	}
 
@@ -1849,6 +1849,7 @@ class M_transaksi extends CI_Model
 		$tgl = $this->input->post('tgl');
 		$no_po = str_replace(' ', '', $this->input->post('no_po'));
 		$nm_pelanggan = $this->input->post('nm_pelanggan');
+		$id_sales = $this->input->post('id_sales');
 		// CEK NO PO
 		$cek = $this->db->query("SELECT*FROM trs_po_roll_header	WHERE no_po='$no_po' AND nm_pelanggan='$nm_pelanggan'");
 		// FILE
@@ -1856,17 +1857,22 @@ class M_transaksi extends CI_Model
 		$config['upload_path'] = './assets/gambar_po_roll/';
 		$config['allowed_types'] = 'pdf|jpg|png';
 		$config['overwrite'] = true;
-		$config['max_size'] = 1024; // 1MB
-		$config['file_name'] = str_replace(' ', '', $nmFile);
+		// $config['max_size'] = 2024; //1MB
+		// $config['max_width'] = 'none'; //lebar maksimum 1288 px
+		// $config['max_height'] = 'none';
+		// $config['file_name'] = str_replace(' ', '', $nmFile);
+		$config['file_name'] = $this->generateFileName();
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
 
 		if($tgl == ''){
 			$data = false; $msg = 'HARAP PILIH TANGGAL!';
+		}else if($nm_pelanggan == ''){
+			$data = false; $msg = 'HARAP PILIH NAMA CUSTOMER!';
 		}else if($no_po == ''){
 			$data = false; $msg = 'HARAP ISI NO. PO!';
-		}else if($nm_pelanggan == ''){
-			$data = false; $msg = 'HARAP ISI NAMA CUSTOMER!';
+		}else if($id_sales == ''){
+			$data = false; $msg = 'HARAP PILIH MARKETING!';
 		}else if($nmFile == ''){
 			$data = false; $msg = 'HARAP PILIH FILE!';
 		}else if($cek->num_rows() > 0){
@@ -1878,6 +1884,7 @@ class M_transaksi extends CI_Model
 				'tgl_po' => $tgl,
 				'no_po' => $no_po,
 				'nm_pelanggan' => $nm_pelanggan,
+				'id_sales' => $id_sales,
 				'creat_at' => date('Y-m-d H:i:s'),
 				'creat_by' => $this->username,
 			];
@@ -1890,7 +1897,7 @@ class M_transaksi extends CI_Model
 					$dtl = [
 						'id_hdr' => $getHdr->id_hdr,
 						'no_po' => $no_po,
-						'file' => $filefoto,
+						'nm_file' => $filefoto,
 					];
 					$detail = $this->db->insert('trs_po_roll_detail', $dtl);
 					if($detail){
@@ -1904,6 +1911,66 @@ class M_transaksi extends CI_Model
 		return [
 			'data' => $data,
 			'msg' => $msg,
+		];
+	}
+
+	function btnVerifPORoll()
+	{
+		if($_POST["ket_roll"] == '' && ($_POST["aksi"] == 'H' || $_POST["aksi"] == 'R')){
+			$result = false;
+		}else{
+			if($_POST["aksi"] == 'H'){
+				$status = 'Open';
+			}else if($_POST["aksi"] == 'R'){
+				$status = 'Reject';
+			}else if($_POST["aksi"] == 'Y' && $_POST["status_verif"] == 'marketing'){
+				$status = 'Open';
+			}else{
+				$status = 'Approve';
+			}
+			if($_POST["status_verif"] == 'marketing'){
+				$vstatus = 'mkt_status';
+				$vuser = 'mkt_user';
+				$vtime = 'mkt_time';
+				$vket = 'mkt_ket';
+			}else{
+				$vstatus = 'owner_status';
+				$vuser = 'owner_user';
+				$vtime = 'owner_time';
+				$vket = 'owner_ket';
+			}
+			$this->db->set('status_po', $status);
+			$this->db->set($vstatus, $_POST["aksi"]);
+			$this->db->set($vuser, $this->username);
+			$this->db->set($vtime, date('Y-m-d H:i:s'));
+			$this->db->set($vket, ($_POST["aksi"] == 'Y' && $_POST["ket_roll"] == '') ? 'OK' : $_POST["ket_roll"]);
+			$this->db->where('id_hdr', $_POST["id_hdr"]);
+			$result = $this->db->update('trs_po_roll_header');
+		}
+
+		return [
+			'result' => $result,
+		];
+	}
+
+	function hapusPORoll()
+	{
+		$id_hdr = $_POST["id_hdr"];
+		// HAPUS DETAIL
+		$detail = $this->db->query("SELECT*FROM trs_po_roll_detail WHERE id_hdr='$id_hdr'")->row();
+		// HAPUS FILE
+		unlink("assets/gambar_po_roll/".$detail->nm_file);
+		$this->db->where("id_hdr", $id_hdr);
+		$hdtl = $this->db->delete("trs_po_roll_detail");
+		if($hdtl){
+			// HAPUS HEADER
+			$this->db->where("id_hdr", $id_hdr);
+			$hhdr = $this->db->delete("trs_po_roll_header");
+		}
+
+		return [
+			'hdtl' => $hdtl,
+			'hhdr' => $hhdr,
 		];
 	}
 }
