@@ -646,6 +646,8 @@
 		$("#jns_prod").val("AUTO")
 		$("#jml_byr").val("")
 		$("#jns_byr").val("")
+		$("#bank_tf").val("")
+		$("#rek_tf").val("")
 
 		$("#id_hub").val("").trigger('change')
 
