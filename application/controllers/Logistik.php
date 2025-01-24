@@ -10189,6 +10189,8 @@ class Logistik extends CI_Controller
 								$spjk = 'background:#f8f9fa;';
 							}else if($sjpo->pajak == 'ppn' && $sjpo->kategori == 'SHEET'){
 								$spjk = 'background:#333;color:#f8f9fa;';
+							}else if($sjpo->pajak == 'non' && $sjpo->kategori == 'SHEET'){
+								$spjk = 'background:#333;color:#ffb22c;';
 							}else{
 								$spjk = 'background:#ffb22c;';
 							}
