@@ -10195,8 +10195,12 @@ class Logistik extends CI_Controller
 							}
 							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'&nbsp;<span style="'.$spjkH.'color:#fff;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>';
 						}else{
-							if($sjpo->pajak == 'ppn'){
+							if($sjpo->pajak == 'ppn' && $sjpo->kategori == 'BOX'){
 								$spjk = 'background:#f8f9fa;';
+							}else if($sjpo->pajak == 'ppn' && $sjpo->kategori == 'SHEET'){
+								$spjk = 'background:#333;color:#f8f9fa;';
+							}else if($sjpo->pajak == 'non' && $sjpo->kategori == 'SHEET'){
+								$spjk = 'background:#333;color:#ffb22c;';
 							}else{
 								$spjk = 'background:#ffb22c;';
 							}
