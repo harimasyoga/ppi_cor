@@ -141,7 +141,7 @@
 					<div class="col-detail" style="display: none;">
 						<div class="card card-secondary card-outline">
 							<div class="card-header" style="padding:12px">
-								<h3 class="card-title" style="font-weight:bold;font-size:18px">DETAIL PO</h3>
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">FILE PO</h3>
 							</div>
 							<div class="card-body" style="padding:12px 6px">
 								<div class="detail-po"></div>
@@ -150,7 +150,54 @@
 					</div>
 				</div>
 
+				<div class="col-md-12">
+					<div class="col-roll-input">
+						<div class="card card-secondary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT DETAIL PO</h3>
+							</div>
+							<div class="list-sementara"></div>
+							<div class="card-body row" style="font-weight:bold;padding:12px 12px 6px">
+								<div class="col-md-1">JENIS</div>
+								<div class="col-md-3">
+									<input type="text" id="i_jenis" class="form-control" autocomplete="off" placeholder="MH / MN / BK / WP">
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-1">GSM</div>
+								<div class="col-md-3">
+									<input type="number" id="i_gsm" class="form-control" autocomplete="off" placeholder="0">
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-1">UKURAN</div>
+								<div class="col-md-3">
+									<input type="number" id="i_ukuran" class="form-control" autocomplete="off" placeholder="0">
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-1">QTY</div>
+								<div class="col-md-3">
+									<input type="number" id="i_qty" class="form-control" autocomplete="off" placeholder="0">
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 12px">
+								<div class="col-md-1"></div>
+								<div class="col-md-3">
+									<button type="button" class="btn btn-sm btn-success" style="font-weight:bold" onclick="addListUK()">ADD</button>
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
 				<input type="hidden" id="id_hdr" value="">
+				<input type="hidden" id="id_cart" value="0">
 			</div>
 
 			<div class="row row-list">
@@ -246,6 +293,7 @@
 	{
 		load_data()
 		$('.select2').select2();
+		$(".list-sementara").load("<?php echo base_url('Transaksi/destroyPORoll') ?>")
 	});
 
 	function reloadTable() {
@@ -302,8 +350,8 @@
 		let no_po = $("#no_po").val()
 		let id_sales = $("#id_sales").val()
 		let filefoto = $("#filefoto").val()
-
-		if(tgl != '' && nm_pelanggan != '' && no_po != '' && id_sales != '' && filefoto != ''){
+		let id_cart = $("#id_cart").val()
+		if(tgl != '' && nm_pelanggan != '' && no_po != '' && id_sales != '' && filefoto != '' && id_cart != 0){
 			$(".simpan-save").html('<button class="btn btn-primary btn-sm"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
 		}else{
 			$(".simpan-save").html('')
@@ -315,6 +363,56 @@
 		$(".row-input").hide()
 		$(".row-list").show()
 		reloadTable()
+	}
+
+	function addListUK()
+	{
+		let jenis = $("#i_jenis").val()
+		let gsm = $("#i_gsm").val()
+		let ukuran = $("#i_ukuran").val()
+		let qty = $("#i_qty").val()
+
+		let id_cart = parseInt($("#id_cart").val()) + 1
+		$("#id_cart").val(id_cart)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/addListUK')?>',
+			type: "POST",
+			data: ({
+				jenis, gsm, ukuran, qty, id_cart
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				cartListPORoll()
+			}
+		})
+	}
+
+	function cartListPORoll()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/cartListPORoll')?>',
+			type: "POST",
+			success: function(res){
+				$(".list-sementara").html(res)
+				if(res == ''){
+					$("#id_cart").val(0)
+				}
+				diPilih()
+			}
+		})
+	}
+
+	function hapusCartPORoll(rowid)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/hapusCartPORoll')?>',
+			type: "POST",
+			data: ({ rowid }),
+			success: function(res){
+				cartListPORoll()
+			}
+		})
 	}
 
 	function editPORoll(id_hdr, opsi)

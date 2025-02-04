@@ -1901,10 +1901,30 @@ class M_transaksi extends CI_Model
 					];
 					$detail = $this->db->insert('trs_po_roll_detail', $dtl);
 					if($detail){
-						$data = true;
-						$msg = 'OK!';
+						foreach($this->cart->contents() as $r){
+							$data = array(
+								'id_hdr' => $getHdr->id_hdr,
+								'no_po' => $no_po,
+								'nm_ker' => $r['options']['jenis'],
+								'g_label' => $r['options']['gsm'],
+								'width' => $r['options']['ukuran'],
+								'jml_roll' => $r['options']['qty'],
+							);
+							$item = $this->db->insert('trs_po_roll_item', $data);
+							if($item){
+								$data = true; $msg = 'OK!';
+							}else{
+								$data = false; $msg = 'GAGAL INSERT ITEM!';
+							}
+						}
+					}else{
+						$data = false; $msg = 'GAGAL INSERT ITEM!';
 					}
+				}else{
+					$data = false; $msg = 'GAGAL INSERT DETAIL!';
 				}
+			}else{
+				$data = false; $msg = 'GAGAL UPLOAD FILE!';
 			}
 		}
 

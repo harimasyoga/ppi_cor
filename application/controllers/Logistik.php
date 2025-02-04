@@ -8538,6 +8538,72 @@ class Logistik extends CI_Controller
 
 	//
 
+	function Gudang_Cor()
+	{
+		$data_header = array(
+			'judul' => "Gudang Cor",
+		);
+		$this->load->view('header', $data_header);
+		$this->load->view('Logistik/v_gudang_cor');
+		$this->load->view('footer');
+	}
+
+	function CariGProduk()
+	{
+		$cari = $_POST["cari"];
+
+		$produk = $this->db->query("SELECT*FROM m_produk WHERE nm_produk LIKE '%$cari%' OR ukuran LIKE '%$cari%' OR ukuran_sheet LIKE '%$cari%' OR kualitas LIKE '%$cari%' OR flute LIKE '%$cari%' ORDER BY nm_produk");
+		$html = '';
+		if($produk->num_rows() > 100){
+			$html .= 'DATA TERLALU BANYAK UNTUK DITAMPILKAN! LEBIH SPESIFIK!';
+		}else{
+			$html .= '<div style="overflow:auto;white-space:nowrap">
+				<table class="table table-bordered" style="margin:0">
+					<tr style="background:#f8f9fc">
+						<th style="padding:6px 12px;border-bottom:1px solid #6c757d;text-align:center">#</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d">NAMA PRODUK</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d">UKURAN</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d">SUBSTANCE</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d">FLUTE</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d">INPUT</th>
+						<th style="padding:6px;border-bottom:1px solid #6c757d;text-align:center">AKSI</th>
+					</tr>';
+					$i = 0;
+					foreach($produk->result() as $r){
+						$i++;
+						($r->kategori == 'K_BOX') ? $kat = '[BOX] ' : $kat = '[SHEET] ';
+						($r->kategori == 'K_BOX') ? $uk = $r->ukuran : $uk = $r->ukuran_sheet;
+						$html .= '<tr>
+							<td style="padding:6px;text-align:center">'.$i.'</td>
+							<td style="padding:6px">'.$kat.$r->nm_produk.'</td>
+							<td style="padding:6px;text-align:center">'.$uk.'</td>
+							<td style="padding:6px;text-align:center">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
+							<td style="padding:6px;text-align:center">'.$r->flute.'</td>
+							<td style="padding:6px">
+								<input type="number" id="i_produk" class="form-control" style="padding:2px 4px;min-width:80px;text-align:right;font-weight:bold" placeholder="0">
+							</td>
+							<td style="padding:6px;text-align:center;font-weight:bold">
+								<button type="button" class="btn btn-sm btn-success"><i class="fa fa-plus"></i> ADD</button>
+							</td>
+						</tr>';
+					}
+				$html .= '</table>
+			</div>';
+		}
+
+		echo json_encode([
+			'html' => $html,
+			'cari' => $cari,
+		]);
+	}
+
+	function sList()
+	{
+		$tgl_awal = $_POST["tgl_awal"];
+	}
+
+	//
+
 	function simpanGDLaminasi()
 	{
 		$result = $this->m_logistik->simpanGDLaminasi();
@@ -11579,6 +11645,4 @@ class Logistik extends CI_Controller
 		
 		
 	}
-    
-
 }

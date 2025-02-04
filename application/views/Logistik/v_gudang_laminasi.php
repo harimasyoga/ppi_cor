@@ -131,7 +131,6 @@
 			data: ({ tgl_awal: '', plh_tgl, opsi: 'html' }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".btn-pdf").html(data.pdf)
 			}
 		})
@@ -158,7 +157,6 @@
 			data: ({ tgl_awal: '', plh_tgl: '', opsi: 'html' }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".produk-lm").html(data.html)
 				swal.close()
 			}
@@ -192,7 +190,6 @@
 			data: ({ tgl_awal, plh_tgl: '', opsi: 'html' }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".produk-lm").html(data.html)
 				swal.close()
 			}
@@ -241,7 +238,6 @@
 			data: $('#myForm').serialize(),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					toastr.success(`<b>BERHASIL SIMPAN!</b>`)
 					kembali()

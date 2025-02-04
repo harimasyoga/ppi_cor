@@ -132,6 +132,107 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function destroyPORoll()
+	{
+		$this->cart->destroy();
+	}
+
+	function addListUK()
+	{
+		if($_POST["jenis"] == "" || $_POST["gsm"] == "" || $_POST["ukuran"] == "" || $_POST["qty"] == ""){
+			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
+		}else{
+			$data = array(
+				'id' => $_POST["id_cart"],
+				'name' => 'name'.$_POST["id_cart"],
+				'price' => 0,
+				'qty' => 1,
+				'options' => array(
+					'jenis' => $_POST["jenis"],
+					'gsm' => $_POST["gsm"],
+					'ukuran' => $_POST["ukuran"],
+					'qty' => $_POST["qty"],
+					'id_cart' => $_POST["id_cart"],
+				)
+			);
+			if($this->cart->total_items() != 0){
+				foreach($this->cart->contents() as $r){
+					if($r['options']['jenis'] == $_POST["jenis"] && $r['options']['gsm'] == $_POST["gsm"] && $r['options']['ukuran'] == $_POST["ukuran"]){
+						echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!')); return;
+					}
+				}
+				$this->cart->insert($data);
+				echo json_encode(array('data' => true, 'isi' => 'BERHASIL ADD!'));
+			}else{
+				$this->cart->insert($data);
+				echo json_encode(array('data' => true, 'isi' => 'BERHASIL ADD!'));
+			}
+		}
+
+	}
+
+	function cartListPORoll()
+	{
+		$html = '';
+		if($this->cart->total_items() == 0){
+			$html .= '';
+		}
+		if($this->cart->total_items() != 0){
+			$html .='<div class="card-body" style="padding:6px">
+				<table class="table table-bordered table-striped">
+				<thead>
+					<tr>
+						<th style="padding:6px;text-align:center">NO.</th>
+						<th style="padding:6px">JENIS</th>
+						<th style="padding:6px;text-align:center">GSM</th>
+						<th style="padding:6px;text-align:center">UKURAN</th>
+						<th style="padding:6px;text-align:center">QTY</th>
+						<th style="padding:6px;text-align:center">AKSI</th>
+					</tr>
+					<tr>
+						<th style="padding:0;border:0" colspan="6"></th>
+					</tr>
+				</thead>
+			';
+		}
+		$i = 0;
+		foreach($this->cart->contents() as $r){
+			$i++;
+			$html .='<tr>
+				<td style="padding:6px;text-align:center">'.$i.'</td>
+				<td style="padding:6px">'.$r['options']['jenis'].'</td>
+				<td style="padding:6px;text-align:center">'.$r['options']['gsm'].'</td>
+				<td style="padding:6px;text-align:right">'.$r['options']['ukuran'].'</td>
+				<td style="padding:6px;text-align:right">'.$r['options']['qty'].'</td>
+				<td style="padding:6px;text-align:center">
+					<button class="btn btn-danger btn-xs" onclick="hapusCartPORoll('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
+				</td>
+			</tr>';
+			if($this->cart->total_items() != $i){
+				$html .= '<tr>
+					<th style="padding:2px" colspan="6"></th>
+				</tr>';
+			}
+		}
+		if($this->cart->total_items() != 0){
+			$html .= '</table></div>';
+			// $html .= '<div>
+			// 	<button class="btn btn-primary btn-sm" onclick=""><i class="fas fa-save"></i> <b>SIMPAN</b></button>
+			// </div>';
+		}
+
+		echo $html;
+	}
+
+	function hapusCartPORoll()
+	{
+		$data = array(
+			'rowid' => $_POST['rowid'],
+			'qty' => 0,
+		);
+		$this->cart->update($data);
+	}
+
 	//
 
 	function HPP()
@@ -494,7 +595,7 @@ class Transaksi extends CI_Controller
 	}
 
 	function addItemLaminasi()
-	{
+	{ //
 		if($_POST["tgl"] == "" || $_POST["customer"] == "" || $_POST["id_sales"] == "" || $_POST["attn"] == "" || $_POST["no_po"] == "" || $_POST["jenis_lm"] == "" || $_POST["item"] == "" || $_POST["qty_bal"] == "" || $_POST["harga_total"] == ""){
 			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
 		}else{
