@@ -655,6 +655,95 @@
 	</div>
 	<!-- /.MODAL -->
 
+	
+<div class="modal fade" id="modal_foto">
+	<div class="modal-dialog modal-full">
+		<div class="modal-content">
+			<div class="card-header" style="font-family:Arial;" >
+				<h4 class="card-title" style="color:#4e73df;" id="judulbc">FILE BC</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				</button>
+			</div>
+
+			<br><br>
+			
+			<form role="form" method="post" id="form_foto" enctype="multipart/form-data">
+				<div>
+					<div class="card-body row" style="padding : 5px;font-weight:bold">
+						<div class="col-md-1"></div>
+						<div class="col-md-2">No Inv</div>
+						<div class="col-md-3">
+						<input type="text" name="no_inv_foto" id="no_inv_foto" class="form-control" readonly>
+															
+						</div>
+						
+						<div class="col-md-6"></div>
+
+					</div>
+					
+					<div class="card-body row" style="padding : 5px;font-weight:bold">
+						<div class="col-md-1"></div>
+						<div class="col-md-2">Upload File
+						</div>
+						<div class="col-md-3">
+
+							<div class="col-9">
+								<input type="file" name="filefoto" id="filefoto" accept=".jpg,.jpeg,.png,.pdf" onchange="diPilih()">
+							</div>
+						</div>
+						
+						<div class="col-md-1">
+							<div style="">
+								<input style="color:#f00;font-style:italic;height: calc(2.25rem + 2px);font-size: 1rem;" type="text" value="* Max 1.5MB" class="input-border-none" autocomplete="off"  readonly>
+							</div>
+						</div>
+						<div class="col-md-5"></div>
+
+					</div>
+
+					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+						<div class="col-md-3"></div>
+						<div class="col-md-9" style="color:#f00;font-size:12px;font-style:italic">
+							* .jpg, .jpeg, .png, .pdf
+						</div>
+					</div>
+					<br>
+					
+					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+						<div class="col-md-3"></div>
+						<div class="col-md-9">
+							<div class="simpan-save"></div>
+						</div>
+					</div>
+					
+					<br><br>
+					<div class="card-body row" style="padding : 5px;font-weight:bold">
+						<div class="col-md-1"></div>
+						<div class="col-md-10">
+
+								<div class="detail-inv"></div>
+								<span class="help-block"></span>	
+						</div>
+						
+						<div class="col-md-1"></div>
+
+					</div>
+					<br><br>
+				</div>
+			</form>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+<!-- Image Zoom HTML -->
+<div id="mymodal-img" class="modal-img">
+  <img class="modal-img-content" id="img01">
+</div>
+<!-- End Image Zoom HTML -->
+
 <script type="text/javascript">
 	rowNum = 0;
 	$(document).ready(function() {
@@ -669,6 +758,168 @@
 	});
 
 	status = "insert";
+
+	$("#filefoto").change(function() {
+		
+		$(".detail-inv").html('')
+        // readURL(this);
+        // cek_size(this);
+    });	
+	
+	function cek_size(input) {
+		console.log(input.files[0].size)
+	}
+	function readURL(input) {
+		if (input.files && input.files[0]) {
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			$('#div_preview_foto').css("display","block");
+			$('#preview_img').attr('src', e.target.result);
+		}
+		reader.readAsDataURL(input.files[0]);
+		} else {
+			$('#div_preview_foto').css("display","none");
+			$('#preview_img').attr('src', '');
+		}
+	}
+
+	function open_foto(no_inv)
+	{
+		
+		$(".simpan-save").html('')
+		$(".detail-inv").html('')
+		$("#filefoto").html('')
+		$('#modal_foto').modal('show');			
+		$("#no_inv_foto").val(no_inv);		
+		$('#filefoto').css("display","block");
+		
+		$.ajax({
+				url: '<?= base_url('Logistik/get_foto_inv_jual'); ?>',
+				type: 'POST',
+				data: {
+					no       : no_inv,
+					jenis    : "invoice_header",
+					field    : 'no_invoice'
+				},
+				dataType: "JSON",
+			})
+			.done(function(data) {
+
+				
+				$('#div_preview_foto').css("display","block");
+				$(".detail-inv").html(data.htmlDtl)
+				if(data.ext=='pdf')
+				{
+					
+				}else{
+					var modal = document.getElementById('mymodal-img');
+
+					// Get the image and insert it inside the modal - use its "alt" text as a caption
+					var img            = document.getElementById('preview_img');
+					var modalImg       = document.getElementById("img01");
+					img.onclick = function(){
+						modal.style.display   = "block";
+						modalImg.src          = this.src;
+						modalImg.alt          = this.alt;
+					}
+
+
+					// When the user clicks on <span> (x), close the modal
+					modal.onclick = function() {
+						img01.className       += " out";
+						setTimeout(function() {
+							modal.style.display   = "none";
+							img01.className       = "modal-img-content";
+						}, 400);
+						
+					}    
+
+					// $('#preview_img').attr('src',data.url_foto);
+				}
+				
+			})
+	}
+
+	function diPilih()
+	{
+			$(".simpan-save").html('<button class="btn btn-primary btn-sm" onclick="simpan_bc()" ><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
+	}
+
+	
+	function simpan_bc() 
+	{
+		
+		var file_data   = $('#filefoto').prop('files')[0];
+		var form_data   = new FormData();
+		form_data.append('filefoto', file_data);
+		var url_        = '<?= base_url(); ?>Logistik/save_bc';
+		var form        = $('#form_foto')[0];
+		var data        = new FormData(form);
+		var noinv       = $('#no_inv_foto').val();
+
+		$(".simpan-save").html('')
+
+		swal({
+			title: 'loading ...',
+			allowEscapeKey    : false,
+			allowOutsideClick : false,
+			onOpen: () => {
+				swal.showLoading();
+			} 
+		})
+
+		$.ajax({
+			url            : url_,
+			type           : "POST",
+			enctype        : 'multipart/form-data',
+			data           : data,
+			dataType       : "JSON",
+			contentType    : false,
+			cache          : false,
+			timeout        : 600000,
+			processData    : false,
+			success: function(data) {
+				if (data) 
+				{
+					swal.close();
+					// console.log('TERSIMPAN');
+					// swal({
+					// 	title               : "Data",
+					// 	html                : "Berhasil Disimpan",
+					// 	type                : "success",
+					// 	confirmButtonText   : "OK"
+					// });
+					toastr.success(`<b>Berhasil Disimpan</b>`)
+					
+					$('#modal_foto').modal('hide');	
+					reloadTable()	
+
+				} else {
+					// console.log('GAGAL SIMPAN');
+					swal.close();
+					swal({
+						title               : "Cek Kembali",
+						html                : "Gagal Simpan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) 
+			{
+				// toastr.error('Terjadi Kesalahan');				
+				swal({
+					title               : "Cek Kembali",
+					html                : "Terjadi Kesalahan",
+					type                : "error",
+					confirmButtonText   : "OK"
+				});
+				return;
+			}
+		});
+		
+	}
 
 	function cetak_jurnal(ctk)
 	{		

@@ -4484,6 +4484,95 @@ class Logistik extends CI_Controller
         echo json_encode($data);
 	}
 
+	function get_foto_inv_jual()
+	{
+		$no       = $this->input->post('no');
+		$jenis    = $this->input->post('jenis');
+		$field    = $this->input->post('field');
+		$htmlDtl  = '';
+
+		$header   = $this->db->query("SELECT*FROM $jenis where $field ='$no' ")->row();
+		$e        = explode('.', $header->img_po_inv);
+		$ext      = end($e);
+		
+		if($header->img_po_inv==null || $header->img_po_inv=='') {
+			$url_foto = base_url('assets/gambar_inv_jual/foto.jpg');
+		}else{
+			$url_foto = base_url('assets/gambar_inv_jual/') . $header->img_po_inv;
+		}
+
+		if($ext == 'pdf' || $ext == 'PDF'){
+				// $htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$header->img_po_inv.'" height="600" style="width:100%"></object>';
+				// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$header->img_po_inv.'" width="600" height="400"></embed>';
+				$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_jual/'.$header->img_po_inv.'" height="600" style="width:100%"></iframe>';
+			}else{
+				$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
+				<span class="help-block"></span>';
+			}
+
+		$data = ["header" => $header, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
+
+		
+		echo json_encode($data);
+	}
+
+	function save_bc()
+	{
+		$params   = (object)$this->input->post();
+
+		$cek_data = $this->db->query("SELECT*FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
+
+		if($cek_data->img_po_inv == '' || $cek_data->img_po_inv == null )
+		{
+		}else{
+			// Hapus File Foto
+			unlink("assets/gambar_inv_jual/".$cek_data->img_po_inv);
+
+		}
+
+		/* LOGO */
+		//$nmfile = "file_".time(); //nama file saya beri nama langsung dan diikuti fungsi time
+		$config['upload_path']   = './assets/gambar_inv_jual/'; //path folder
+		$config['allowed_types'] = 'jpg|png|jpeg|pdf'; //type yang dapat diakses bisa anda sesuaikan
+		// $config['max_size']      = 1024; //maksimum besar file 2M
+		// $config['max_width']     = 'none'; //lebar maksimum 1288 px
+		// $config['max_height']    = 'none'; //tinggi maksimu 768 px
+		//$config['file_name'] = $nmfile; //nama yang terupload nantinya
+
+		$this->load->library('upload',$config);
+		$this->upload->initialize($config);
+
+		if($_FILES['filefoto']['name'])
+		{
+			if ($this->upload->do_upload('filefoto'))
+			{
+				$gbrBukti = $this->upload->data();
+				$filefoto = $gbrBukti['file_name'];
+				// $filefoto    = $_FILES['filefoto']['name'];
+				
+				// update data
+				$this->db->set('img_po_inv', $filefoto);
+				$this->db->where('no_invoice', $params->no_inv_foto);
+				$data = $this->db->update('invoice_header');
+
+
+			}else{
+				$filefoto = 'foto.jpg';
+			}
+		} else {
+			$error = array('error' => $this->upload->display_errors());
+			var_dump($error);
+			exit;
+		}
+
+
+		/*END LOGO */
+		echo json_encode($filefoto);
+
+	}
+
+
+
 	function edit_timbangan()
 	{
 		$id       = $_POST["id"];
@@ -4612,12 +4701,12 @@ class Logistik extends CI_Controller
                     $i2     = '<i class="fas fa-check-circle"></i>';
                 }
 
-				$total    = $queryd->jumlah + $nominal;
+				$total        = $queryd->jumlah + $nominal;
 
-				$id       = "'$r->id'";
-				$no_inv   = "'$r->no_invoice'";
-				$print    = base_url("laporan/print_invoice_v2?no_invoice=") . $r->no_invoice;
-
+				$id           = "'$r->id'";
+				$no_inv       = "'$r->no_invoice'";
+				$print        = base_url("laporan/print_invoice_v2?no_invoice=") . $r->no_invoice;
+				$urll_foto    = "onclick=open_foto('$r->no_invoice')";
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = '
@@ -4647,6 +4736,15 @@ class Logistik extends CI_Controller
 						<td style="padding : 2px;border:none;"><b>NO SJ </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">'.$no_sj .'<br></td>
+					</tr>
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>BC </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">
+						<div class="col-md-12">
+		<a type="button" '.$urll_foto.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FOTO"></i> </b></span></a>
+		<br>
+		</div><br></td>
 					</tr>
 					';
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_invoice.'</div>';
