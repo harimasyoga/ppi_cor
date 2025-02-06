@@ -31,6 +31,7 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 /tests/results/
 /assets/gambar_po/
 /assets/gambar_po_roll/
+/assets/gambar_inv_jual/
 db_penjualan.sql
 application/config/database.php
 .vscode

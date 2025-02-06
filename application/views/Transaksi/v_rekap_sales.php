@@ -23,6 +23,8 @@
 							<h3 class="card-title" style="font-weight:bold;font-style:italic">PILIH</h3>
 						</div>
 
+						<div id="tampil_cek_selisih"></div>
+						
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
 							<div class="col-md-2"></div>
 							<div class="col-md-3" >
@@ -77,9 +79,63 @@
 	</div>
 </div>
 
+
+
+<div class="modal fade" id="modal_ket">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="card-header" style="font-family:Arial;" >
+				<h4 class="card-title" style="color:#4e73df;" id="judul">INFO*</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				</button>
+			</div>
+
+			<div class="modal-body">
+				<div class="card-body">
+					<div class="col-md-12">
+						<div class="card-body row" style="padding : 5px;font-weight:bold">
+							<div class="col-md-2">1. </div>
+							<div class="col-md-7">
+								Ada Tonase Yang Tidak Tersimpan
+							</div>
+
+							<div class="col-md-2"></div>
+
+						</div>
+						<div class="card-body row" style="padding : 5px;font-weight:bold">
+							<div class="col-md-2">2. </div>
+							<div class="col-md-7">
+								Silahkan Cek di menu PO
+							</div>
+
+							<div class="col-md-2"></div>
+
+						</div>
+						<div class="card-body row" style="padding : 5px;font-weight:bold">
+							<div class="col-md-2">3. </div>
+							<div class="col-md-7">
+								Inputkan manual di "trs_po_detail" untuk tonasenya
+							</div>
+
+							<div class="col-md-2"></div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
 <script type="text/javascript">
 	$(document).ready(function () {
 		// load_data()
+		cek_tonase_kosong()
+		$("#tampil_cek_selisih").html(``)
 		$("#tampil-pilihan").html(``)
 		$("#tampil-rincian").html(``)
 		$("#tampil-data").html(``)
@@ -95,6 +151,36 @@
 	// 	tabel.ajax.reload(null, false);
 	// }
 
+	function open_ket(){
+		$('#modal_ket').modal('show');
+	}
+
+	function cek_tonase_kosong(ket ,opsi)
+	{
+		$("#tampil_cek_selisih").html(``)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/cek_tonase_kosong')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				opsi
+			}),
+			success: function(res){
+				$("#tampil_cek_selisih").html(res)
+				swal.close()
+			}
+		})
+	}
+	
 	function pilihan(ket ,opsi)
 	{
 		$("#tampil-data").html(``)

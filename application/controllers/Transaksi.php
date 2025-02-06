@@ -1188,6 +1188,60 @@ class Transaksi extends CI_Controller
 		echo json_encode($data);
 	}
 
+	function cek_tonase_kosong()
+	{
+		
+
+		$html ='';
+
+		$query = $this->db->query("SELECT a.no_po,a.kode_po,b.id_sales ,c.nm_sales, (a.price_exc*a.qty)exclude, a.ton
+		from trs_po_detail a 
+		join m_pelanggan b ON a.id_pelanggan=b.id_pelanggan
+		join m_sales c ON b.id_sales=c.id_sales
+		join trs_po d ON a.kode_po=d.kode_po
+		WHERE a.status <> 'Reject' and d.status_app3 not in ('H') and (a.ton ='' or ISNULL(a.ton) or a.ton=0)")->result();
+
+		
+		$i = 0;
+		$total =0;
+		$total_rata =0;
+		if($query)
+		{
+		$html .='<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
+		$html .='<div class="col-md-12">
+		<a type="button" onclick="open_ket()"><span style="color:red">[ Ada Tonase PO Kosong <i style="color:#4e73df;" class="fas fa-info-circle" title="Cek Tonase"></i> ]</span></a>
+
+		<br>
+		</div>
+		';
+		$html .='<table class="table table-bordered table-striped">
+		<thead class="color-tabel">
+			<tr>
+				<th style="text-align:center">NO</th>
+				<th style="text-align:center">KODE PO</th>
+				<th style="text-align:center">EXCLUDE</th>
+				<th style="text-align:center">TONASE</th>
+			</tr>
+		</thead>';
+			foreach($query as $r){
+				$i++;
+				$html .= '</tr>
+					<td style="text-align:center">'.$i.'</td>
+					<td style="text-align:left;color:red">'.$r->kode_po.'</td>
+					<td style="text-align:right;color:red">'.number_format($r->exclude, 0, ",", ".").'</td>
+					<td style="text-align:right;color:red" >'.number_format($r->ton, 0, ",", ".").'</td>
+				</tr>';
+			}
+		
+			$html .='</table> </div>';
+		}else{
+			$html .='';
+		}
+
+		echo $html;
+		
+	}
+	
 	function hitung_rekap()
 	{
 		
