@@ -25,14 +25,14 @@
 				<div class="col-md-6">
 					<div class="card card-primary card-outline" style="position:sticky;top:12px;padding-bottom:12px">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT PO ROLL PAPER</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">PO ROLL PAPER</h3>
 						</div>
 						<div style="margin:12px 6px;display:flex">
 							<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
 						</div>
 						<form role="form" method="post" id="myForm" action="<?php echo base_url('Transaksi/UploadFilePORoll')?>" enctype="multipart/form-data">
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">TGL. INPUT PO</div>
+								<div class="col-md-3">TGL. PO</div>
 								<div class="col-md-9">
 									<input type="date" id="tgl" name="tgl" class="form-control" value="<?= date('Y-m-d')?>" onchange="diPilih()">
 								</div>
@@ -87,13 +87,13 @@
 								<div class="card-body row" style="font-weight:bold;padding:0 12px">
 									<div class="col-md-3">FILE</div>
 									<div class="col-md-9">
-										<input type="file" name="filefoto" id="filefoto" accept=".jpg,.png,.pdf" onchange="diPilih()">
+										<input type="file" name="filefoto" id="filefoto" accept=".jpg,.jpeg,.png,.pdf" onchange="diPilih()">
 									</div>
 								</div>
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 									<div class="col-md-3"></div>
 									<div class="col-md-9" style="color:#f00;font-size:12px;font-style:italic">
-										* .jpg, .png, .pdf
+										* .jpg, .jpeg, .png, .pdf
 									</div>
 								</div>
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
@@ -141,7 +141,7 @@
 					<div class="col-detail" style="display: none;">
 						<div class="card card-secondary card-outline">
 							<div class="card-header" style="padding:12px">
-								<h3 class="card-title" style="font-weight:bold;font-size:18px">DETAIL PO</h3>
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">FILE PO</h3>
 							</div>
 							<div class="card-body" style="padding:12px 6px">
 								<div class="detail-po"></div>
@@ -150,7 +150,78 @@
 					</div>
 				</div>
 
+				<div class="col-md-12">
+					<div class="col-roll-input">
+						<div class="card card-secondary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT DETAIL PO</h3>
+							</div>
+							<div class="list-sementara"></div>
+							<div class="card-body row" style="font-weight:bold;padding:12px 12px 6px">
+								<div class="col-md-1">JENIS</div>
+								<div class="col-md-3">
+									<input type="text" id="i_jenis" class="form-control" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-1">GSM</div>
+								<div class="col-md-3">
+									<input type="number" id="i_gsm" class="form-control" autocomplete="off" placeholder="0">
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-1">WIDTH</div>
+								<div class="col-md-3">
+									<input type="number" id="i_ukuran" class="form-control" autocomplete="off" placeholder="0">
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-1">QTY</div>
+								<div class="col-md-3">
+									<input type="number" id="i_qty" class="form-control" autocomplete="off" placeholder="0">
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 12px">
+								<div class="col-md-1"></div>
+								<div class="col-md-3">
+									<button type="button" class="btn btn-sm btn-success" style="font-weight:bold" onclick="addListUK()">ADD</button>
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-roll-list">
+						<div class="card card-secondary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST DETAIL PO</h3>
+							</div>
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="list-roll" style="padding:5px"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
+								<div class="col-md-1">NOTE</div>
+								<div class="col-md-5">
+									<textarea id="note_po_roll" class="form-control" style="font-weight:bold;resize:none" rows="3" oninput="this.value=this.value.toUpperCase()"></textarea>
+								</div>
+								<div class="col-md-6"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
+								<div class="col-md-1"></div>
+								<div class="col-md-11">
+									<div class="simpan-note"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
 				<input type="hidden" id="id_hdr" value="">
+				<input type="hidden" id="id_cart" value="0">
 			</div>
 
 			<div class="row row-list">
@@ -246,6 +317,7 @@
 	{
 		load_data()
 		$('.select2').select2();
+		$(".list-sementara").load("<?php echo base_url('Transaksi/destroyPORoll') ?>")
 	});
 
 	function reloadTable() {
@@ -285,6 +357,9 @@
 	{
 		$(".row-input").show()
 		$(".row-list").hide()
+		$(".col-roll-input").show()
+		$(".col-roll-list").hide()
+		$(".list-roll").html('')
 	}
 
 	function kembali()
@@ -302,8 +377,8 @@
 		let no_po = $("#no_po").val()
 		let id_sales = $("#id_sales").val()
 		let filefoto = $("#filefoto").val()
-
-		if(tgl != '' && nm_pelanggan != '' && no_po != '' && id_sales != '' && filefoto != ''){
+		let id_cart = $("#id_cart").val()
+		if(tgl != '' && nm_pelanggan != '' && no_po != '' && id_sales != '' && filefoto != '' && id_cart != 0){
 			$(".simpan-save").html('<button class="btn btn-primary btn-sm"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
 		}else{
 			$(".simpan-save").html('')
@@ -317,6 +392,107 @@
 		reloadTable()
 	}
 
+	function addListUK()
+	{
+		let jenis = $("#i_jenis").val()
+		let gsm = $("#i_gsm").val()
+		let ukuran = $("#i_ukuran").val()
+		let qty = $("#i_qty").val()
+
+		let id_cart = parseInt($("#id_cart").val()) + 1
+		$("#id_cart").val(id_cart)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/addListUK')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({
+				jenis, gsm, ukuran, qty, id_cart
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				cartListPORoll()
+			}
+		})
+	}
+
+	function cartListPORoll()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/cartListPORoll')?>',
+			type: "POST",
+			success: function(res){
+				$(".list-sementara").html(res)
+				if(res == ''){
+					$("#id_cart").val(0)
+				}
+				diPilih()
+				swal.close()
+			}
+		})
+	}
+
+	function hapusCartPORoll(rowid)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/hapusCartPORoll')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ rowid }),
+			success: function(res){
+				cartListPORoll()
+			}
+		})
+	}
+
+	function addNotePORoll()
+	{
+		let id_hdr = $("#id_hdr").val()
+		let note_po_roll = $("#note_po_roll").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/addNotePORoll')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_hdr, note_po_roll }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					editPORoll(id_hdr, 'verif')
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
 	function editPORoll(id_hdr, opsi)
 	{
 		$(".detail-po").html('')
@@ -327,6 +503,9 @@
 		$(".row-input").show()
 		$(".col-verifikasi").show()
 		$(".col-detail").show()
+		$(".col-roll-input").hide()
+		$(".col-roll-list").show()
+		$(".list-roll").html('')
 
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editPORoll')?>',
@@ -344,14 +523,13 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
-
 				$("#id_hdr").val(data.header.id_hdr)
 				$("#tgl").val(data.header.tgl_po).prop('disabled', true)
 				$("#nm_pelanggan").val(data.header.nm_pelanggan).prop('disabled', true).trigger('change')
 				$("#no_po").val(data.header.no_po).prop('disabled', true)
 				$("#id_sales").val(data.header.id_sales).prop('disabled', true).trigger('change')
 				$(".detail-po").html(data.htmlDtl)
+				$(".list-roll").html(data.htmlI)
 
 				if(data.ext != 'pdf'){
 					let modal = document.getElementById('mymodal-img')
@@ -369,6 +547,16 @@
 							img01.className = "modal-img-content";
 						}, 400);
 					}
+				}
+
+				// NOTE
+				$("#note_po_roll").val(data.header.note_po).prop('disabled', (data.opsi != 'detail' && data.header.owner_status != 'Y') ? false : true)
+				if((data.header.note_po == null || data.header.note_po == '') && (data.opsi != 'detail') && data.header.owner_status != 'Y'){
+					$(".simpan-note").html('<button type="button" class="btn btn-sm btn-success" style="font-weight:bold" onclick="addNotePORoll()">ADD</button>')
+				}else if(data.header.note_po != '' && (data.opsi != 'detail') && data.header.owner_status != 'Y'){
+					$(".simpan-note").html('<button type="button" class="btn btn-sm btn-warning" style="font-weight:bold" onclick="addNotePORoll()">EDIT</button>')
+				}else{
+					$(".simpan-note").html('')
 				}
 
 				// VERIFIKASI DATA
@@ -439,7 +627,6 @@
 						`)
 					}
 				}
-
 				// VERIFIFIKASI OWNER
 				if((urlAuth == 'Admin' || urlAuth == 'Owner') && data.opsi == 'verif' && data.header.mkt_status == 'Y' && (data.header.owner_status == 'N' || data.header.owner_status == 'H' || data.header.owner_status == 'R')){
 					// BUTTON OWNER
@@ -609,7 +796,6 @@
 				},
 				success: function(res){
 					data = JSON.parse(res)
-					console.log(data)
 					if(data.hhdr){
 						reloadTable()
 					}else{

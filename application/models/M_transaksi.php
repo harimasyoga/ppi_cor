@@ -1855,7 +1855,7 @@ class M_transaksi extends CI_Model
 		// FILE
 		$nmFile = $_FILES['filefoto']['name'];
 		$config['upload_path'] = './assets/gambar_po_roll/';
-		$config['allowed_types'] = 'pdf|jpg|png';
+		$config['allowed_types'] = 'pdf|jpg|jpeg|png';
 		$config['overwrite'] = true;
 		// $config['max_size'] = 2024; //1MB
 		// $config['max_width'] = 'none'; //lebar maksimum 1288 px
@@ -1891,7 +1891,7 @@ class M_transaksi extends CI_Model
 			$header = $this->db->insert('trs_po_roll_header', $dh);
 			if($header){
 				if($this->upload->do_upload('filefoto')){
-					$getHdr = $this->db->query("SELECT*FROM trs_po_roll_header	WHERE tgl_po='$tgl' AND no_po='$no_po' AND nm_pelanggan='$nm_pelanggan'")->row();
+					$getHdr = $this->db->query("SELECT*FROM trs_po_roll_header WHERE tgl_po='$tgl' AND no_po='$no_po' AND nm_pelanggan='$nm_pelanggan'")->row();
 					$gbrBukti = $this->upload->data();
 					$filefoto = $gbrBukti['file_name'];
 					$dtl = [
@@ -1901,13 +1901,32 @@ class M_transaksi extends CI_Model
 					];
 					$detail = $this->db->insert('trs_po_roll_detail', $dtl);
 					if($detail){
-						$data = true;
-						$msg = 'OK!';
+						foreach($this->cart->contents() as $r){
+							$data = array(
+								'id_hdr' => $getHdr->id_hdr,
+								'no_po' => $no_po,
+								'nm_ker' => $r['options']['jenis'],
+								'g_label' => $r['options']['gsm'],
+								'width' => $r['options']['ukuran'],
+								'jml_roll' => $r['options']['qty'],
+							);
+							$item = $this->db->insert('trs_po_roll_item', $data);
+							if($item){
+								$data = true; $msg = 'OK!';
+							}else{
+								$data = false; $msg = 'GAGAL INSERT ITEM!';
+							}
+						}
+					}else{
+						$data = false; $msg = 'GAGAL INSERT ITEM!';
 					}
+				}else{
+					$data = false; $msg = 'GAGAL INSERT DETAIL!';
 				}
+			}else{
+				$data = false; $msg = 'GAGAL UPLOAD FILE!';
 			}
 		}
-
 		return [
 			'data' => $data,
 			'msg' => $msg,
@@ -1956,21 +1975,45 @@ class M_transaksi extends CI_Model
 	function hapusPORoll()
 	{
 		$id_hdr = $_POST["id_hdr"];
-		// HAPUS DETAIL
 		$detail = $this->db->query("SELECT*FROM trs_po_roll_detail WHERE id_hdr='$id_hdr'")->row();
 		// HAPUS FILE
 		unlink("assets/gambar_po_roll/".$detail->nm_file);
+		// HAPUS ITEM
 		$this->db->where("id_hdr", $id_hdr);
-		$hdtl = $this->db->delete("trs_po_roll_detail");
-		if($hdtl){
-			// HAPUS HEADER
+		$itm = $this->db->delete("trs_po_roll_item");
+		if($itm){
+			// HAPUS DETAIL
 			$this->db->where("id_hdr", $id_hdr);
-			$hhdr = $this->db->delete("trs_po_roll_header");
+			$hdtl = $this->db->delete("trs_po_roll_detail");
+			if($hdtl){
+				// HAPUS HEADER
+				$this->db->where("id_hdr", $id_hdr);
+				$hhdr = $this->db->delete("trs_po_roll_header");
+			}
 		}
-
 		return [
+			'itm' => $itm,
 			'hdtl' => $hdtl,
 			'hhdr' => $hhdr,
+		];
+	}
+
+	function addNotePORoll()
+	{
+		$id_hdr = $_POST["id_hdr"];
+		$note_po_roll = $_POST["note_po_roll"];
+
+		if($note_po_roll == ''){
+			$data = false; $msg = 'NOTE TIDAK BOLEH KOSONG!';
+		}else{
+			$this->db->set('note_po', $note_po_roll);
+			$this->db->where('id_hdr', $id_hdr);
+			$data = $this->db->update('trs_po_roll_header');
+			$msg = 'BERHASIL!';
+		}
+		return [
+			'data' => $data,
+			'msg' => $msg,
 		];
 	}
 }

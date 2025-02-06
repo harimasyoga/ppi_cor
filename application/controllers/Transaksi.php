@@ -109,15 +109,65 @@ class Transaksi extends CI_Controller
 			}
 		}
 
+		// ITEM
+		$htmlI = '';
+		$htmlI .= '<div style="display:flex">';
+		$list = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$header->id_hdr' AND no_po='$header->no_po' GROUP BY nm_ker,g_label");
+		foreach($list->result() as $l){
+			if(($l->nm_ker == 'MH' || $l->nm_ker == 'MN') && $l->g_label <= 110){
+				$bT = 'style="background:#ccf"';
+			}else if(($l->nm_ker == 'MH' || $l->nm_ker == 'MN') && ($l->g_label == 120 || $l->g_label == 125)){
+				$bT = 'style="background:#ffc"';
+			}else if(($l->nm_ker == 'MH' || $l->nm_ker == 'MN') && $l->g_label >= 150){
+				$bT = 'style="background:#fcc"';
+			}else if($l->nm_ker == 'WP' || $l->nm_ker == 'WS'){
+				$bT = 'style="background:#cfc"';
+			}else{
+				$bT = 'style="background:#fff"';
+			}
+			$htmlI .= '<div>';
+				$htmlI .= '<table>
+					<tr '.$bT.'>
+						<th style="padding:6px;border-style:solid;border-width:1px 1px 3px;border-color:#bbb #bbb #666">'.$l->nm_ker.' '.$l->g_label.'</th>
+						<th style="padding:6px;border-style:solid;border-width:1px 1px 3px;border-color:#bbb #bbb #666">ROLL</th>
+					</tr>';
+				$item = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$header->id_hdr' AND no_po='$header->no_po' AND nm_ker='$l->nm_ker' AND g_label='$l->g_label' ORDER BY nm_ker,g_label");
+				$x = 0;
+				foreach($item->result() as $i){
+					$x++;
+					$htmlI .= '<tr>
+						<td style="padding:6px;background:#f2f2f2;border:1px solid #dee2e6;text-align:center">'.round($i->width,2).'</td>
+						<td style="padding:6px;background:#f2f2f2;border:1px solid #dee2e6;text-align:right">'.$i->jml_roll.'</td>
+					</tr>';
+					if($item->num_rows() != $x){
+						$htmlI .= '<tr>
+							<th style="padding:1px;background:#fff;border:1px solid #dee2e6" colspan="2"></th>
+						</tr>';
+					}
+				}
+				$htmlI .= '</table>';
+			$htmlI .= '</div>';
+			// BATAS
+			$htmlI .= '<div style="padding:3px"></div>';
+		}
+		$htmlI .= '</div>';
+
 		echo json_encode([
 			'header' => $header,
 			'opsi' => $opsi,
 			'ext' => $ext,
 			'htmlDtl' => $htmlDtl,
+			'htmlI' => $htmlI,
 			'oke_admin' => substr($this->m_fungsi->getHariIni(($header->edit_at == null) ? $header->creat_at : $header->edit_at),0,3).', '.$this->m_fungsi->tglIndSkt(substr(($header->edit_at == null) ? $header->creat_at : $header->edit_at, 0,10)).' ( '.substr(($header->edit_at == null) ? $header->creat_at : $header->edit_at, 10,6).' )',
 			'mkt_time' => ($header->mkt_time == null) ? '' :substr($this->m_fungsi->getHariIni($header->mkt_time),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->mkt_time, 0,10)).' ( '.substr($header->mkt_time, 10,6).' )',
 			'owner_time' => ($header->owner_time == null) ? '' :substr($this->m_fungsi->getHariIni($header->owner_time),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->owner_time, 0,10)).' ( '.substr($header->owner_time, 10,6).' )',
 		]);
+	}
+
+	function addNotePORoll()
+	{
+		$result = $this->m_transaksi->addNotePORoll();
+		echo json_encode($result);
 	}
 
 	function btnVerifPORoll()
@@ -130,6 +180,107 @@ class Transaksi extends CI_Controller
 	{
 		$result = $this->m_transaksi->hapusPORoll();
 		echo json_encode($result);
+	}
+
+	function destroyPORoll()
+	{
+		$this->cart->destroy();
+	}
+
+	function addListUK()
+	{
+		if($_POST["jenis"] == "" || $_POST["gsm"] == "" || $_POST["ukuran"] == "" || $_POST["qty"] == ""){
+			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
+		}else{
+			$data = array(
+				'id' => $_POST["id_cart"],
+				'name' => 'name'.$_POST["id_cart"],
+				'price' => 0,
+				'qty' => 1,
+				'options' => array(
+					'jenis' => $_POST["jenis"],
+					'gsm' => $_POST["gsm"],
+					'ukuran' => $_POST["ukuran"],
+					'qty' => $_POST["qty"],
+					'id_cart' => $_POST["id_cart"],
+				)
+			);
+			if($this->cart->total_items() != 0){
+				foreach($this->cart->contents() as $r){
+					if($r['options']['jenis'] == $_POST["jenis"] && $r['options']['gsm'] == $_POST["gsm"] && $r['options']['ukuran'] == $_POST["ukuran"]){
+						echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!')); return;
+					}
+				}
+				$this->cart->insert($data);
+				echo json_encode(array('data' => true, 'isi' => 'BERHASIL ADD!'));
+			}else{
+				$this->cart->insert($data);
+				echo json_encode(array('data' => true, 'isi' => 'BERHASIL ADD!'));
+			}
+		}
+
+	}
+
+	function cartListPORoll()
+	{
+		$html = '';
+		if($this->cart->total_items() == 0){
+			$html .= '';
+		}
+		if($this->cart->total_items() != 0){
+			$html .='<div class="card-body" style="padding:6px">
+				<table class="table table-bordered table-striped">
+				<thead>
+					<tr>
+						<th style="padding:6px;text-align:center">NO.</th>
+						<th style="padding:6px">JENIS</th>
+						<th style="padding:6px;text-align:center">GSM</th>
+						<th style="padding:6px;text-align:center">UKURAN</th>
+						<th style="padding:6px;text-align:center">QTY</th>
+						<th style="padding:6px;text-align:center">AKSI</th>
+					</tr>
+					<tr>
+						<th style="padding:0;border:0" colspan="6"></th>
+					</tr>
+				</thead>
+			';
+		}
+		$i = 0;
+		foreach($this->cart->contents() as $r){
+			$i++;
+			$html .='<tr>
+				<td style="padding:6px;text-align:center">'.$i.'</td>
+				<td style="padding:6px">'.$r['options']['jenis'].'</td>
+				<td style="padding:6px;text-align:center">'.$r['options']['gsm'].'</td>
+				<td style="padding:6px;text-align:right">'.$r['options']['ukuran'].'</td>
+				<td style="padding:6px;text-align:right">'.$r['options']['qty'].'</td>
+				<td style="padding:6px;text-align:center">
+					<button class="btn btn-danger btn-xs" onclick="hapusCartPORoll('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
+				</td>
+			</tr>';
+			if($this->cart->total_items() != $i){
+				$html .= '<tr>
+					<th style="padding:2px" colspan="6"></th>
+				</tr>';
+			}
+		}
+		if($this->cart->total_items() != 0){
+			$html .= '</table></div>';
+			// $html .= '<div>
+			// 	<button class="btn btn-primary btn-sm" onclick=""><i class="fas fa-save"></i> <b>SIMPAN</b></button>
+			// </div>';
+		}
+
+		echo $html;
+	}
+
+	function hapusCartPORoll()
+	{
+		$data = array(
+			'rowid' => $_POST['rowid'],
+			'qty' => 0,
+		);
+		$this->cart->update($data);
 	}
 
 	//
@@ -494,7 +645,7 @@ class Transaksi extends CI_Controller
 	}
 
 	function addItemLaminasi()
-	{
+	{ //
 		if($_POST["tgl"] == "" || $_POST["customer"] == "" || $_POST["id_sales"] == "" || $_POST["attn"] == "" || $_POST["no_po"] == "" || $_POST["jenis_lm"] == "" || $_POST["item"] == "" || $_POST["qty_bal"] == "" || $_POST["harga_total"] == ""){
 			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
 		}else{
@@ -2392,7 +2543,7 @@ class Transaksi extends CI_Controller
 				</div>';
 				// AKSI
 				($r->mkt_status == 'Y' && $r->owner_status == 'Y') ? $exd = 'verif' : $exd = 'edit';
-				$btnEdit = '<button type="button" title="EDIT" class="btn btn-warning btn-sm" onclick="editPORoll('."'".$r->id_hdr."'".', '."'.$exd.'".')"><i class="fa fa-edit"></i></button>'; 
+				$btnEdit = '<button type="button" title="EDIT" class="btn btn-warning btn-sm" onclick="editPORoll('."'".$r->id_hdr."'".', '."'".$exd."'".')"><i class="fa fa-edit"></i></button>'; 
 				$btnHapus = ($r->mkt_status == 'Y' && $r->owner_status == 'Y') ? '' : '<button type="button" title="HAPUS" class="btn btn-secondary btn-sm" onclick="hapusPORoll('."'".$r->id_hdr."'".')"><i class="fa fa-trash-alt"></i></button>';
 				$btnVerif = '<button type="button" title="VERIF" class="btn btn-info btn-sm" onclick="editPORoll('."'".$r->id_hdr."'".', '."'verif'".')"><i class="fa fa-check"></i></button>'; 
 				if($this->session->userdata('level') == 'Admin'){
