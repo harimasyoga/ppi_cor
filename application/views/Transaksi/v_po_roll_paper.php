@@ -43,8 +43,8 @@
 									<select id="nm_pelanggan" name="nm_pelanggan" class="form-control select2" onchange="diPilih()">
 										<option value="">PILIH</option>
 										<?php
-											$db = $this->load->database('database_simroll', TRUE);
-											$query = $db->query("SELECT*FROM m_perusahaan WHERE jns='ROLL' GROUP BY nm_perusahaan, pimpinan");
+											// $db = $this->load->database('database_simroll', TRUE);
+											$query = $this->db->query("SELECT*FROM m_perusahaan WHERE jns='ROLL' GROUP BY nm_perusahaan, pimpinan");
 											$html = '';
 											foreach($query->result() as $r){
 												if($r->pimpinan == '-' && $r->nm_perusahaan != '-'){
