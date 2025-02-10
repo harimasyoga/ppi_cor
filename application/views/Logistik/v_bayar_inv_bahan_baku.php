@@ -177,13 +177,17 @@
 				<div class="card-header" style="font-family:Cambria;">		
 						<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?>&nbsp;
 						</b>  </h3>
-						<i style="color:#4e73df;" class="fas fa-info-circle" title="PEMBAYARAN SELAIN DEBIT NOTE"></i>
+						<a type="button" onclick="open_ket()"><i style="color:#4e73df;" class="fas fa-info-circle" title="Cek Tonase"></i> </a>
+
+						<!-- <i style="color:#4e73df;" class="fas fa-info-circle" title="PEMBAYARAN SELAIN DEBIT NOTE"></i>
 
 						<div class="card-tools">
 							<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
-								<i class="fas fa-minus"></i></button>
-						</div>
+								<i class="fas fa-minus"></i></button> 
+							
+						</div>-->
 				</div>
+				
 				<div class="card-body" >
 					<?php if(in_array($this->session->userdata('level'), ['Admin','Laminasi','Keuangan1','Pembayaran'])){ ?>
 						<div style="margin-bottom:12px">
@@ -213,6 +217,35 @@
 	</section>
 </div>
 
+
+<div class="modal fade" id="modal_ket">
+	<div class="modal-dialog modal-small">
+		<div class="modal-content">
+			<div class="card-header" style="font-family:Arial;" >
+				<h4 class="card-title" style="" id="judul"><b>INFO*</b></h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				</button>
+			</div>
+
+			<div class="modal-body">
+				<div class="card-body">
+					<div class="col-md-12">
+						<div class="card-body row" style="padding : 5px;font-weight:bold;color:#f00;font-style:italic"">
+							<div class="col-md-11">
+								Inputan Khusus Pembayaran Bahan Baku yang Selain Debit Note
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
 <script type="text/javascript">
 	let statusInput = 'insert';
 	const urlAuth = '<?= $this->session->userdata('level')?>';
@@ -232,6 +265,10 @@
 		tabel.ajax.reload(null, false);
 	}
 
+	function open_ket(){
+		$('#modal_ket').modal('show');
+	}
+	
 	function load_data() 
 	{
 		let table = $('#datatable').DataTable();
