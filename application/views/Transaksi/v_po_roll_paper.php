@@ -103,6 +103,7 @@
 									</div>
 								</div>
 							</div>
+							<input type="hidden" name="hidhdr" id="hidhdr" value="">
 						</form>
 					</div>
 				</div>
@@ -144,7 +145,9 @@
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">FILE PO</h3>
 							</div>
 							<div class="card-body" style="padding:12px 6px">
-								<div class="detail-po"></div>
+								<div style="overflow:auto;white-space:nowrap">
+									<div class="detail-po"></div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -385,6 +388,15 @@
 		}
 	}
 
+	function diPilihUpdate(){
+		let filefoto = $("#updatefilefoto").val()
+		if(filefoto != ''){
+			$(".update-save").html('<button class="btn btn-primary btn-sm"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
+		}else{
+			$(".update-save").html('')
+		}
+	}
+
 	function backList()
 	{
 		$(".row-input").hide()
@@ -506,6 +518,7 @@
 		$(".col-roll-input").hide()
 		$(".col-roll-list").show()
 		$(".list-roll").html('')
+		$("#hidhdr").val('')
 
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editPORoll')?>',
@@ -531,22 +544,29 @@
 				$(".detail-po").html(data.htmlDtl)
 				$(".list-roll").html(data.htmlI)
 
-				if(data.ext != 'pdf'){
-					let modal = document.getElementById('mymodal-img')
-					let img = document.getElementById('preview_img')
-					let modalImg = document.getElementById("img01")
-					img.onclick = function(){
-						modal.style.display = "block";
-						modalImg.src = this.src;
-						modalImg.alt = this.alt;
-					}
-					modal.onclick = function() {
-						img01.className += " out";
-						setTimeout(function() {
-							modal.style.display = "none";
-							img01.className = "modal-img-content";
-						}, 400);
-					}
+				// UPLOAD
+				if(urlAuth == 'Admin' && data.header.owner_status != 'Y' && data.opsi != 'detail'){
+					$("#hidhdr").val(data.header.id_hdr)
+					$(".add-file").html(`
+						<div class="card-body row" style="font-weight:bold;padding:0 12px">
+							<div class="col-md-3">FILE</div>
+							<div class="col-md-9">
+								<input type="file" name="updatefilefoto" id="updatefilefoto" accept=".jpg,.jpeg,.png,.pdf" onchange="diPilihUpdate()">
+							</div>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3"></div>
+							<div class="col-md-9" style="color:#f00;font-size:12px;font-style:italic">
+								* .jpg, .jpeg, .png, .pdf
+							</div>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3"></div>
+							<div class="col-md-9">
+								<div class="update-save"></div>
+							</div>
+						</div>
+					`)
 				}
 
 				// NOTE
@@ -693,9 +713,29 @@
 						`)
 					}
 				}
+				statusInput = 'update'
 				swal.close()
 			}
 		})
+	}
+
+	function imgClick(klik)
+	{
+		let modal = document.getElementById('mymodal-img')
+		let img = document.getElementById(klik)
+		let modalImg = document.getElementById("img01")
+		img.onclick = function(){
+			modal.style.display = "block";
+			modalImg.src = this.src;
+			modalImg.alt = this.alt;
+		}
+		modal.onclick = function() {
+			img01.className += " out";
+			setTimeout(function() {
+				modal.style.display = "none";
+				img01.className = "modal-img-content";
+			}, 400);
+		}
 	}
 
 	function verifPORoll(aksi, status_verif)
