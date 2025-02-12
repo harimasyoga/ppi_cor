@@ -73,6 +73,7 @@ class Transaksi extends CI_Controller
 	function UploadFilePORoll()
 	{
 		$result = $this->m_transaksi->UploadFilePORoll();
+		// echo json_encode($result);
 		if($result['data'] == 1) {
 			redirect(base_url("Transaksi/PO_Roll_Paper"));
 		}else{
@@ -93,21 +94,28 @@ class Transaksi extends CI_Controller
 		$opsi = $_POST['opsi'];
 		// HEADER
 		$header = $this->db->query("SELECT*FROM trs_po_roll_header WHERE id_hdr='$id_hdr'")->row();
+
 		// DETAIL
 		$htmlDtl = '';
 		$detail = $this->db->query("SELECT*FROM trs_po_roll_detail WHERE id_hdr='$header->id_hdr' AND no_po='$header->no_po'");
-		foreach($detail->result() as $r){
-			$e = explode('.', $r->nm_file);
-			$ext = end($e);
-			if($ext == 'pdf'){
-				$htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" height="600" style="width:100%"></object>';
-				// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" width="600" height="400"></embed>';
-				// $htmlDtl .= '<iframe src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" height="600" style="width:100%"></iframe>';
-			}else{
-				$htmlDtl .= '<img id="preview_img" src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm img-thumbnail">
-				<span class="help-block"></span>';
+		$htmlDtl .= '<div style="display:flex">';
+			$z = 0;
+			foreach($detail->result() as $r){
+				$z++;
+				$e = explode('.', $r->nm_file);
+				$ext = end($e);
+				if($ext == 'pdf'){
+					// $htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" height="600" style="width:100%"></object>';
+					// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" width="600" height="400"></embed>';
+					$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" height="600" style="width:100%"></iframe>';
+				}else{
+					$preview = 'p'.$z;
+					$htmlDtl .= '<div style="margin-right:8px">
+						<img id="'.$preview.'" src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" alt="Preview Foto 2" width="100" class="shadow-sm" onclick="imgClick('."'".$preview."'".')">
+					</div>';
+				}
 			}
-		}
+		$htmlDtl .= '</div>';
 
 		// ITEM
 		$htmlI = '';
@@ -2464,7 +2472,7 @@ class Transaksi extends CI_Controller
 			$tahun = $_POST["tahun"];
 			$bulan = $_POST["bulan"];
 			($bulan == "") ? $wBln = '' : $wBln = "AND MONTH(tgl_po) IN ('$bulan')";
-			$query = $this->db->query("SELECT*FROM trs_po_roll_header WHERE tgl_po LIKE '%$tahun%' $wBln ORDER BY tgl_po DESC, no_po")->result();
+			$query = $this->db->query("SELECT*FROM trs_po_roll_header WHERE tgl_po LIKE '%$tahun%' $wBln ORDER BY owner_status, tgl_po DESC, no_po")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
