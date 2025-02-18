@@ -764,13 +764,13 @@ class M_transaksi extends CI_Model
 		$status         = $this->input->post('status');
 		$alasan         = $this->input->post('alasan');
 
-		$koneksi_hub    = $this->db->query("SELECT *from trs_po a 
-		Join m_hub b ON a.id_hub=b.id_hub 
-		Join akses_db_hub c ON b.nm_hub=c.nm_hub
-		WHERE no_po='$id'")->row();
+		// $koneksi_hub    = $this->db->query("SELECT *from trs_po a 
+		// Join m_hub b ON a.id_hub=b.id_hub 
+		// Join akses_db_hub c ON b.nm_hub=c.nm_hub
+		// WHERE no_po='$id'")->row();
 
-		$db_ppi_hub = '$'.$koneksi_hub->nm_db_hub;
-		$db_ppi_hub = $this->load->database($koneksi_hub->nm_db_hub, TRUE);
+		// $db_ppi_hub = '$'.$koneksi_hub->nm_db_hub;
+		// $db_ppi_hub = $this->load->database($koneksi_hub->nm_db_hub, TRUE);
 
 		if($status == 'Y')
 		{
@@ -815,13 +815,13 @@ class M_transaksi extends CI_Model
 			$this->db->where("no_po",$id);
 			$update_trs_po = $this->db->update("trs_po", $data);
 			// UPDATE HUB
-			if($update_trs_po)
-			{
-				$db_ppi_hub->where("no_po",$id);
-				$verif_data = $db_ppi_hub->update("trs_po", $data);
-			}else{
-				$verif_data = false;
-			}
+			// if($update_trs_po)
+			// {
+			// 	$db_ppi_hub->where("no_po",$id);
+			// 	$verif_data = $db_ppi_hub->update("trs_po", $data);
+			// }else{
+			// 	$verif_data = false;
+			// }
 
 			// TRS PO DETAIL
 			$this->db->set("status", $sts);
@@ -829,14 +829,14 @@ class M_transaksi extends CI_Model
 			$update_trs_po_detail = $this->db->update("trs_po_detail");
 
 			// UPDATE HUB
-			if($update_trs_po_detail)
-			{
-				$db_ppi_hub->set("status", $sts);
-				$db_ppi_hub->where("no_po",$id);
-				$verif_data_detail = $db_ppi_hub->update("trs_po_detail");
-			}else{
-				$verif_data_detail = false;
-			}
+			// if($update_trs_po_detail)
+			// {
+			// 	$db_ppi_hub->set("status", $sts);
+			// 	$db_ppi_hub->where("no_po",$id);
+			// 	$verif_data_detail = $db_ppi_hub->update("trs_po_detail");
+			// }else{
+			// 	$verif_data_detail = false;
+			// }
 
 			// history
 			history_tr('PO', 'VERIFIKASI_PO_ADMIN', $stts, $id, '-');
@@ -885,13 +885,13 @@ class M_transaksi extends CI_Model
 				$update_trs_po = $this->db->update("trs_po",$data_verif_po);
 
 				// UPDATE HUB
-				if($update_trs_po)
-				{					
-					$db_ppi_hub->where("no_po",$id);
-					$verif_data_po = $db_ppi_hub->update("trs_po",$data_verif_po);
-				}else{
-					$verif_data_po = false;
-				}
+				// if($update_trs_po)
+				// {					
+				// 	$db_ppi_hub->where("no_po",$id);
+				// 	$verif_data_po = $db_ppi_hub->update("trs_po",$data_verif_po);
+				// }else{
+				// 	$verif_data_po = false;
+				// }
 
 				// history
 				history_tr('PO', 'VERIFIKASI_PO', $stts, $id, $alasan);
@@ -901,14 +901,14 @@ class M_transaksi extends CI_Model
 				$this->db->where("no_po",$id);
 				$update_trs_po_detail = $this->db->update("trs_po_detail");
 				// UPDATE HUB
-				if($update_trs_po_detail)
-				{							
-					$db_ppi_hub->set("status", $sts);
-					$db_ppi_hub->where("no_po",$id);
-					$verif_data_detail = $db_ppi_hub->update("trs_po_detail");
-				}else{
-					$verif_data_detail = false;
-				}
+				// if($update_trs_po_detail)
+				// {							
+				// 	$db_ppi_hub->set("status", $sts);
+				// 	$db_ppi_hub->where("no_po",$id);
+				// 	$verif_data_detail = $db_ppi_hub->update("trs_po_detail");
+				// }else{
+				// 	$verif_data_detail = false;
+				// }
 
 				$msg = 'Data Berhasil Diproses';
 			}
