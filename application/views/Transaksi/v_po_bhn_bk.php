@@ -31,28 +31,33 @@
 						</div>
 				</div>
 				<div class="card-body" >
-					<div class="row">
 					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi','User'])){ ?>
-						<div style="margin-bottom:12px; position: absolute;left: 20px;">
-							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+						<div class="col-md-12" style="">			
+							<div class="card-body row" style="padding-left:0px;padding-right:0px;padding-bottom:1px;font-weight:bold">
+								<div class="col-md-2">
+									<button type="button" class="btn btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+								</div>
+								<div class="col-md-3">
+									<button type="button" class="btn btn-danger" onclick="rekap_penjualan()"><i class="fa fa-file-invoice"></i> <b>REKAP PENJUALAN</b></button>
+								</div>
+								<div class="col-md-3"></div>
+								<div class="col-md-4">
+									<select id="list_hub" class="form-control select2" onchange="load_data()">
+									<?php
+											$query = $this->db->query("SELECT*FROM m_hub order by id_hub");
+											$html ='';
+											$html .='<option value="">SEMUA</option>';
+											foreach($query->result() as $r){
+												$html .='<option value="'.$r->id_hub.'">'.$r->nm_hub.'</option>';
+											}
+											echo $html
+										?>
+									</select>
+								</div>
+							</div>
 						</div>
-
-						<div class="" style="position: absolute;left: 250px; font-weight:bold">
-								<select id="list_hub" class="form-control select2" onchange="load_data()">
-								<?php
-										$query = $this->db->query("SELECT*FROM m_hub order by id_hub");
-										$html ='';
-										$html .='<option value="">SEMUA</option>';
-										foreach($query->result() as $r){
-											$html .='<option value="'.$r->id_hub.'">'.$r->nm_hub.'</option>';
-										}
-										echo $html
-									?>
-								</select>
-						</div>
-						<?php } ?>
-					</div>
-					<br>
+						
+					<?php } ?>
 					<br>
 					
 					<!-- <div style="overflow:auto;white-space:nowrap"> -->
@@ -80,7 +85,6 @@
 	</section>
 
 	<section class="content">
-
 		<!-- Default box -->
 		<div class="card shadow row-input" style="display: none;">
 			<div class="card-header" style="font-family:Cambria;" >
@@ -227,6 +231,67 @@
 					
 				</div>
 			</form>	
+		</div>
+		<!-- /.card -->
+	</section>
+	
+	<section class="content">
+		<!-- Default box -->
+		<div class="card shadow row_rekap_jual" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;" >
+				<h3 class="card-title" style="color:#4e73df;"><b>INPUT PO BAHAN BAKU</b></h3>
+
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+			<div class="col-md-12">
+							
+				<br>
+					
+				<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+					
+					<div class="col-md-2">JENIS</div>
+					<div class="col-md-3">
+						<select name="jns" id="jns" class="form-control">
+							<option value="BOX">BOX</option>
+							<option value="LAMINASI">LAMINASI</option>
+						</select>
+					</div>
+					<div class="col-md-6"></div>
+		
+				</div>
+										
+				<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
+
+					<div class="col-md-2">BULAN</div>
+					<div class="col-md-3">
+						<input type="month" class="form-control" name="bulan" id="bulan" value ="<?= date('m-d') ?>" >
+					</div>
+					<div class="col-md-6"></div>
+				</div>
+				
+			
+				<div class="card-body row"style="font-weight:bold">
+					<div class="col-md-4">
+						<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-secondary"><b>
+							<i class="fa fa-arrow-left" ></i> Kembali</b>
+						</button>
+
+						<button type="button" class="btn btn-danger" id="btn-print" onclick="Cetak()"><i class="fas fa-print"></i> <b>CETAK</b></button>
+
+						<span id="btn-simpan"></span>
+
+					</div>
+					
+					<div class="col-md-6"></div>
+					
+				</div>
+
+				<br>
+				
+			</div>
 		</div>
 		<!-- /.card -->
 	</section>
@@ -715,6 +780,13 @@
 		$("#sts_input").val('add');
 		
 		$("#btn-simpan").html(`<button type="button" onclick="simpan()" class="btn-tambah-produk btn  btn-primary"><b><i class="fa fa-save" ></i> Simpan</b> </button>`)
+	}
+	
+	function rekap_penjualan()
+	{
+		$(".row_rekap_jual").attr('style', '')
+		$(".row-list").attr('style', 'display:none')
+		
 	}
 
 	function kembaliList()

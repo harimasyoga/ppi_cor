@@ -404,18 +404,48 @@
 					<!-- </div> -->
 					<div class="modal-footer">
 
-						<button type="button" class="btn btn-success btn-verif" id="btn-verif_acc" style="display: none;" onclick="prosesData_acc('Y')"><i class="fas fa-check"></i> <b>Verifikasi</b></button>
-						
-						<button type="button" class="btn btn-warning btn-verif" id="btn-verif_hold" style="display: none;" onclick="prosesData_hold('H')"><i class="far fa-hand-paper"></i> <b>HOLD</b></button>
+						<div class="col-md-12" style="display: none;" id="aksi_verif">
+							<div class="card-body row" style="font-weight:bold">
+								<div class="col-md-5"></div>
 
-						<button type="button" class="btn btn-danger btn-verif" id="btn-verif_r" style="display: none;" onclick="prosesData_r('R')"><i class="fas fa-times"></i> <b>Reject</b></button>
-						<!--<button type="button" class="btn btn-primary" id="btn-simpan-plan" onclick="simpan_plan()"><i class="fas fa-save"></i><b> Simpan Plan</b></button> -->
-						
-						<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan</b></button>
+								<div class="col-md-5">
+									<textarea class="form-control" name="ket_verif" id="ket_verif" placeholder="Keterangan" style=""></textarea>
+								</div>
+								<div class="col-md-2">
+									<button type="button" class="btn btn-warning btn-verif" id="btn-verif_hold2" onclick="prosesData_hold2('H')" rows="3" placeholder="HOLD">
+										<i class="far fa-hand-paper"></i> <b>HOLD</b>
+									</button>
+									
+									<button type="button" class="btn btn-danger btn-verif" id="btn-verif_reject2" onclick="prosesData_r2('R')" rows="3" placeholder="REJECT">
+										<i class="fas fa-times"></i> <b>REJECT</b>
+									</button>
 
-						<button type="button" class="btn btn-danger" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> <b>Print</b></button>
+									<button type="button" class="btn btn-danger" placeholder="BATAL" onclick="muncul_aksi('B')"><i class="fas fa-times" ></i></button>
+								</div>
+								
+							</div>							
+						</div>
 
-						<button type="button" class="btn btn-outline-danger" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-times-circle"></i> <b> Batal</b></button>
+						<div class="col-md-12" id="tombol_verif">
+							<div class="card-body row" >
+								<div class="col-md-6"></div>
+								<div class="col-md-6">
+									<button type="button" class="btn btn-success btn-verif" id="btn-verif_acc" style="display: none;" onclick="prosesData_acc('Y')"><i class="fas fa-check"></i> <b>Verifikasi</b></button>
+								
+									<button type="button" class="btn btn-warning btn-verif" id="btn-verif_hold" style="display: none;" onclick="muncul_aksi('H')"><i class="far fa-hand-paper"></i> <b>HOLD</b></button>
+
+									<button type="button" class="btn btn-danger btn-verif" id="btn-verif_r" style="display: none;" onclick="muncul_aksi('R')"><i class="fas fa-times"></i> <b>Reject</b></button>
+									<!--<button type="button" class="btn btn-primary" id="btn-simpan-plan" onclick="simpan_plan()"><i class="fas fa-save"></i><b> Simpan Plan</b></button> -->
+									
+									<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan</b></button>
+
+									<button type="button" class="btn btn-danger" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> <b>Print</b></button>
+
+									<button type="button" class="btn btn-outline-danger" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-times-circle"></i> <b> Batal</b></button>
+
+								</div>
+							</div>
+						</div>
 					</div>
 				</form>			
 			</div>
@@ -529,6 +559,7 @@
 		kosong();
 		$('#filefoto').css("display","block");
 		$("#modalForm").modal("show");
+		muncul_aksi('B')
 		$("#judul").html('<h3> Form Tambah Data</h3>');
 		status = "insert";
 		$("#status").val("insert");
@@ -1056,6 +1087,7 @@
 		status    = 'update';
 
 		$("#modalForm").modal("show");
+		muncul_aksi('B')
 		if (act == 'detail') {
 			$("#judul").html('<h3> Detail Data</h3>');
 			$("#btn-simpan").hide();
@@ -1515,153 +1547,302 @@
 		});
 	}
 
-	function prosesData_hold(tipe) 
+	// function prosesData_hold(tipe) 
+	// {
+	// 	swal({
+    //         text                : "Alasan di Hold : ",
+    //         type                : 'info',
+    //         input               : 'text',
+    //         showCancelButton    : true,			
+	// 		confirmButtonClass : 'btn btn-warning',
+	// 		cancelButtonClass  : 'btn btn-secondary',
+	// 		confirmButtonColor  : '#ffc107',
+	// 		cancelButtonColor  : '#d33',
+    //         confirmButtonText   : '<b><i class="far fa-hand-paper"></i> Hold </b>',
+    //         cancelButtonText    : '<b><i class="fa fa-undo" ></i> Batal </b>'
+    //     }).then(function(alasan) {
+	// 		if(alasan==''){
+	// 			swal({
+	// 				title               : "Alasan",
+	// 				html                : "Wajib Di Isi !",
+	// 				type                : "error",
+	// 				confirmButtonText   : "OK"
+	// 			});
+	// 			prosesData_hold(tipe);
+	// 			// return;
+	// 		}else{
+	// 			$.ajax({
+	// 				url: '<?= base_url(); ?>Transaksi/prosesData',
+	// 				data: ({
+	// 					id: no_po,
+	// 					status: tipe,
+	// 					alasan: alasan,
+	// 					jenis: 'verifPO'
+	// 				}),
+	// 				type: "POST",
+	// 				beforeSend: function() {
+	// 					swal({
+	// 						title: 'loading ...',
+	// 						allowEscapeKey    : false,
+	// 						allowOutsideClick : false,
+	// 						onOpen: () => {
+	// 							swal.showLoading();
+	// 						}
+	// 					})
+	// 				},
+	// 				success: function(res) {
+	// 					data = JSON.parse(res)
+	// 					if(data.update_trs_po){
+	// 						toastr.success(`${data.msg}`);
+	// 						$("#modalForm").modal("hide");
+	// 						reloadTable();
+	// 						swal.close();
+	// 					}else{
+	// 						swal({
+	// 							title               : "EXPIRED",
+	// 							html                : `${data.msg}`,
+	// 							type                : "error",
+	// 							confirmButtonText   : "OK"
+	// 						});
+	// 						return;
+	// 					}
+	// 				},
+	// 				error: function(jqXHR, textStatus, errorThrown) {
+	// 					swal({
+	// 						title               : "Cek Kembali",
+	// 						html                : "Terjadi Kesalahan",
+	// 						type                : "error",
+	// 						confirmButtonText   : "OK"
+	// 					});
+	// 					return;
+	// 				}
+	// 			});
+	// 		}
+	// 	});
+	// }
+	
+	function muncul_aksi(cek_aksi)
+    {
+		$('#ket_verif').val('')
+
+		if(cek_aksi=='H' )
+		{
+			$('#aksi_verif').show("1000");
+			$('#btn-verif_hold2').show();
+			$('#btn-verif_reject2').hide();
+			$('#tombol_verif').hide("1000");
+		}else if(cek_aksi=='R' )
+		{
+			$('#aksi_verif').show("1000");
+			$('#btn-verif_hold2').hide();
+			$('#btn-verif_reject2').show();
+			$('#tombol_verif').hide("1000");
+		}else{
+			$('#aksi_verif').hide("1000");			
+			$('#tombol_verif').show("1000");
+		}
+    }
+
+
+	function prosesData_hold2(tipe) 
 	{
-		swal({
-            text                : "Alasan di Hold : ",
-            type                : 'info',
-            input               : 'text',
-            showCancelButton    : true,			
-			confirmButtonClass : 'btn btn-warning',
-			cancelButtonClass  : 'btn btn-secondary',
-			confirmButtonColor  : '#ffc107',
-			cancelButtonColor  : '#d33',
-            confirmButtonText   : '<b><i class="far fa-hand-paper"></i> Hold </b>',
-            cancelButtonText    : '<b><i class="fa fa-undo" ></i> Batal </b>'
-        }).then(function(alasan) {
-			if(alasan==''){
-				swal({
-					title               : "Alasan",
-					html                : "Wajib Di Isi !",
-					type                : "error",
-					confirmButtonText   : "OK"
-				});
-				prosesData_hold(tipe);
-				// return;
-			}else{
-				$.ajax({
-					url: '<?= base_url(); ?>Transaksi/prosesData',
-					data: ({
-						id: no_po,
-						status: tipe,
-						alasan: alasan,
-						jenis: 'verifPO'
-					}),
-					type: "POST",
-					beforeSend: function() {
-						swal({
-							title: 'loading ...',
-							allowEscapeKey    : false,
-							allowOutsideClick : false,
-							onOpen: () => {
-								swal.showLoading();
-							}
-						})
-					},
-					success: function(res) {
-						data = JSON.parse(res)
-						if(data.update_trs_po){
-							toastr.success(`${data.msg}`);
-							$("#modalForm").modal("hide");
-							reloadTable();
-							swal.close();
-						}else{
-							swal({
-								title               : "EXPIRED",
-								html                : `${data.msg}`,
-								type                : "error",
-								confirmButtonText   : "OK"
-							});
-							return;
+		ket_verif_h = $('#ket_verif').val()
+
+		if(ket_verif_h==''){
+			swal({
+				title               : "Keterangan",
+				html                : "Wajib Di Isi !",
+				type                : "error",
+				confirmButtonText   : "OK"
+			});
+			// return;
+		}else{
+			$.ajax({
+				url: '<?= base_url(); ?>Transaksi/prosesData',
+				data: ({
+					id: no_po,
+					status: tipe,
+					alasan: ket_verif_h,
+					jenis: 'verifPO'
+				}),
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'loading ...',
+						allowEscapeKey    : false,
+						allowOutsideClick : false,
+						onOpen: () => {
+							swal.showLoading();
 						}
-					},
-					error: function(jqXHR, textStatus, errorThrown) {
+					})
+				},
+				success: function(res) {
+					data = JSON.parse(res)
+					if(data.update_trs_po){
+						toastr.success(`${data.msg}`);
+						$("#modalForm").modal("hide");
+						reloadTable();
+						swal.close();
+					}else{
 						swal({
-							title               : "Cek Kembali",
-							html                : "Terjadi Kesalahan",
+							title               : "EXPIRED",
+							html                : `${data.msg}`,
 							type                : "error",
 							confirmButtonText   : "OK"
 						});
 						return;
 					}
-				});
-			}
-		});
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					swal({
+						title               : "Cek Kembali",
+						html                : "Terjadi Kesalahan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
+				}
+			});
+		}
 	}
 	
-	function prosesData_r(tipe) 
+	// function prosesData_r(tipe) 
+	// {
+	// 	swal({
+    //         text                : "Alasan di Reject : ",
+    //         type                : 'info',
+    //         input               : 'text',
+    //         showCancelButton    : true,			
+	// 		confirmButtonClass : 'btn btn-danger',
+	// 		cancelButtonClass  : 'btn btn-secondary',
+	// 		confirmButtonColor  : '#d33',
+	// 		cancelButtonColor  : '#d33',
+    //         confirmButtonText   : '<b><i class="fas fa-times-circle"></i> Reject </b>',
+    //         cancelButtonText    : '<b><i class="fas fa-undo"></i> Batal </b>'
+    //     }).then(function(alasan) {
+	// 		if(alasan==''){
+	// 			swal({
+	// 				title               : "Alasan",
+	// 				html                : "Wajib Di Isi !",
+	// 				type                : "error",
+	// 				confirmButtonText   : "OK"
+	// 			});
+	// 			prosesData_r(tipe);
+	// 			// return;
+	// 		}else{
+	// 			$.ajax({
+	// 				url: '<?= base_url(); ?>Transaksi/prosesData',
+	// 				data: ({
+	// 					id: no_po,
+	// 					status: tipe,
+	// 					alasan: alasan,
+	// 					jenis: 'verifPO'
+	// 				}),
+	// 				type: "POST",
+	// 				beforeSend: function() {
+	// 					swal({
+	// 						title: 'loading ...',
+	// 						allowEscapeKey    : false,
+	// 						allowOutsideClick : false,
+	// 						onOpen: () => {
+	// 							swal.showLoading();
+	// 						}
+	// 					})
+	// 				},
+	// 				success: function(res) {
+	// 					data = JSON.parse(res)
+	// 					if(data.update_trs_po){
+	// 						toastr.success(`${data.msg}`);
+	// 						$("#modalForm").modal("hide");
+	// 						swal.close();
+	// 						reloadTable();
+	// 					}else{
+	// 						swal({
+	// 							title               : "EXPIRED",
+	// 							html                : `${data.msg}`,
+	// 							type                : "error",
+	// 							confirmButtonText   : "OK"
+	// 						});
+	// 						return;
+	// 					}
+	// 				},
+	// 				error: function(jqXHR, textStatus, errorThrown) {
+	// 					// toastr.error('Terjadi Kesalahan');
+	// 					swal({
+	// 						title               : "Cek Kembali",
+	// 						html                : "Terjadi Kesalahan",
+	// 						type                : "error",
+	// 						confirmButtonText   : "OK"
+	// 					});
+	// 					return;
+	// 				}
+	// 			});
+	// 		}
+	// 	});
+	// }
+	
+	function prosesData_r2(tipe) 
 	{
-		swal({
-            text                : "Alasan di Reject : ",
-            type                : 'info',
-            input               : 'text',
-            showCancelButton    : true,			
-			confirmButtonClass : 'btn btn-danger',
-			cancelButtonClass  : 'btn btn-secondary',
-			confirmButtonColor  : '#d33',
-			cancelButtonColor  : '#d33',
-            confirmButtonText   : '<b><i class="fas fa-times-circle"></i> Reject </b>',
-            cancelButtonText    : '<b><i class="fas fa-undo"></i> Batal </b>'
-        }).then(function(alasan) {
-			if(alasan==''){
-				swal({
-					title               : "Alasan",
-					html                : "Wajib Di Isi !",
-					type                : "error",
-					confirmButtonText   : "OK"
-				});
-				prosesData_r(tipe);
-				// return;
-			}else{
-				$.ajax({
-					url: '<?= base_url(); ?>Transaksi/prosesData',
-					data: ({
-						id: no_po,
-						status: tipe,
-						alasan: alasan,
-						jenis: 'verifPO'
-					}),
-					type: "POST",
-					beforeSend: function() {
-						swal({
-							title: 'loading ...',
-							allowEscapeKey    : false,
-							allowOutsideClick : false,
-							onOpen: () => {
-								swal.showLoading();
-							}
-						})
-					},
-					success: function(res) {
-						data = JSON.parse(res)
-						if(data.update_trs_po){
-							toastr.success(`${data.msg}`);
-							$("#modalForm").modal("hide");
-							swal.close();
-							reloadTable();
-						}else{
-							swal({
-								title               : "EXPIRED",
-								html                : `${data.msg}`,
-								type                : "error",
-								confirmButtonText   : "OK"
-							});
-							return;
+		ket_verif_h = $('#ket_verif').val()
+
+		if(ket_verif_h==''){
+			swal({
+				title               : "Alasan",
+				html                : "Wajib Di Isi !",
+				type                : "error",
+				confirmButtonText   : "OK"
+			});
+			// prosesData_r(tipe);
+			// return;
+		}else{
+			$.ajax({
+				url: '<?= base_url(); ?>Transaksi/prosesData',
+				data: ({
+					id: no_po,
+					status: tipe,
+					alasan: ket_verif_h,
+					jenis: 'verifPO'
+				}),
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'loading ...',
+						allowEscapeKey    : false,
+						allowOutsideClick : false,
+						onOpen: () => {
+							swal.showLoading();
 						}
-					},
-					error: function(jqXHR, textStatus, errorThrown) {
-						// toastr.error('Terjadi Kesalahan');
+					})
+				},
+				success: function(res) {
+					data = JSON.parse(res)
+					if(data.update_trs_po){
+						toastr.success(`${data.msg}`);
+						$("#modalForm").modal("hide");
+						swal.close();
+						reloadTable();
+					}else{
 						swal({
-							title               : "Cek Kembali",
-							html                : "Terjadi Kesalahan",
+							title               : "EXPIRED",
+							html                : `${data.msg}`,
 							type                : "error",
 							confirmButtonText   : "OK"
 						});
 						return;
 					}
-				});
-			}
-		});
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					// toastr.error('Terjadi Kesalahan');
+					swal({
+						title               : "Cek Kembali",
+						html                : "Terjadi Kesalahan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
+				}
+			});
+		}
 	}
 
 	$("#id_pelanggan").change(function() 
