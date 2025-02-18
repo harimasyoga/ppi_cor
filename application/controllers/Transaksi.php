@@ -3282,6 +3282,156 @@ class Transaksi extends CI_Controller
 		// $this->m_fungsi->mPDFP($html);
 	}
 
+	function Cetak_rekap_penjualan()
+	{
+		$jns        = $_GET['jns'];
+		$bulan      = $_GET['bulan'];
+		$cekpdf     = $_GET['ctk'];
+		$judul      = 'PO BAHAN BAKU ';
+		$position   = 'P';
+
+
+		$param      = $judul;
+		$unit       = $this->session->userdata('unit');
+		$npwp       = '-';
+		$chari      = '';
+
+		if($jns=='BOX')
+		{
+			// BOX
+			$query_header = $this->db->query("SELECT a.tgl_po,a.kode_po,e.nm_pelanggan,a.id_hub,d.nm_hub,b.qty,c.berat_bersih,CEILING(b.qty*c.berat_bersih) as tonase,CEILING(b.qty*c.berat_bersih/0.70) as bahan_bk FROM trs_po a 
+			join trs_po_detail b on a.kode_po=b.kode_po
+			join m_produk c on b.id_produk=c.id_produk
+			join m_hub d on a.id_hub=d.id_hub
+			join m_pelanggan e on a.id_pelanggan=e.id_pelanggan
+			where a.id_hub <>'7' and a.tgl_po like '%$bulan%' and a.status_app3='Y'
+			order by a.id_hub,a.tgl_po");			
+
+		}else{
+
+			// LAMINASI
+			$query_header = $this->db->query("SELECT po.tgl_lm,hub.nm_hub,lm.nm_pelanggan_lm,po.no_po_lm,dtl.qty_bal,(dtl.qty_bal * (case when i.jenis_qty_lm='ikat' then 7 else 50 end)) AS ton,ROUND((dtl.qty_bal * (case when i.jenis_qty_lm='ikat' then 7 else 50 end))/0.75) AS bahan_baku,i.* FROM trs_po_lm po
+			INNER JOIN trs_po_lm_detail dtl ON po.no_po_lm=dtl.no_po_lm
+			LEFT JOIN m_hub hub ON hub.id_hub=po.id_hub
+			INNER JOIN m_pelanggan_lm lm ON lm.id_pelanggan_lm=po.id_pelanggan
+			INNER JOIN m_produk_lm i ON i.id_produk_lm=dtl.id_m_produk_lm
+			WHERE (po.id_hub!='7' AND po.id_hub!='0') AND i.jenis_qty_lm!='kg' and po.tgl_lm like '%$bulan%' and po.jenis_lm='PPI'
+			GROUP BY po.id_hub,po.tgl_lm,po.id_pelanggan,po.no_po_lm,dtl.id_m_produk_lm
+			");
+
+		}
+       
+        
+		if ($query_header->num_rows() > 0) 
+		{
+			if($jns=='BOX')
+			{
+				$chari .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
+                        <tr style="background-color: #fcf22c">
+                            <th width="2%" align="center">No</th>
+                            <th width="12%" align="center">tgl po</th>
+                            <th width="15%" align="center">kode po</th>
+                            <th width="10%" align="center">nm pelanggan</th>
+                            <th width="5%" align="center">id hub</th>
+                            <th width="18%" align="center">nm hub</th>
+                            <th width="10%" align="center">qty</th>
+                            <th width="10%" align="center">berat bersih</th>
+                            <th width="10%" align="center">tonase</th>
+                            <th width="10%" align="center">bahan bk</th>
+							</tr>';
+				$no = 1;
+				foreach ($query_header->result() as $r) {
+
+					$chari .= '
+
+								<tr >
+									<td align="center">' . $no . '</td>
+									<td align="left">' . $r->tgl_po . '</td>
+									<td align="left">' . $r->kode_po . '</td>
+									<td align="left">' . $r->nm_pelanggan . '</td>
+									<td align="left">' . $r->id_hub . '</td>
+									<td align="left">' . $r->nm_hub . '</td>
+									<td align="right">' . $r->qty . '</td>
+									<td align="right">' . $r->berat_bersih . '</td>
+									<td align="right">' . $r->tonase . '</td>
+									<td align="right">' . $r->bahan_bk . '</td>
+									</tr>';
+
+					$no++;
+				}
+				
+			}else{
+
+				$chari .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
+                        <tr style="background-color: #fcf22c">
+                            <th width="2%" align="center">No</th>
+                            <th width="10%" align="center">tgl lm</th>
+                            <th width="20%" align="center">nm hub</th>
+                            <th width="10%" align="center">nm pelanggan lm</th>
+                            <th width="20%" align="center">no po lm</th>
+                            <th width="10%" align="center">qty bal</th>
+                            <th width="10%" align="center">ton</th>
+                            <th width="10%" align="center">bahan baku</th>
+							</tr>';
+				$no = 1;
+				foreach ($query_header->result() as $r) {
+
+					$chari .= '
+
+								<tr >
+									<td align="center">' . $no . '</td>
+									<td align="left">' . $r->tgl_lm . '</td>
+									<td align="left">' . $r->nm_hub . '</td>
+									<td align="left">' . $r->nm_pelanggan_lm . '</td>
+									<td align="left">' . $r->no_po_lm . '</td>
+									<td align="right">' . $r->qty_bal . '</td>
+									<td align="right">' . $r->ton . '</td>
+									<td align="right">' . $r->bahan_baku . '</td>
+									</tr>';
+
+					$no++;
+				}
+
+
+			}
+			
+			
+
+            
+		} else {
+			$chari .= '<h1> Data Kosong </h1>';
+		}
+
+		// $this->m_fungsi->_mpdf($html);
+		// $this->m_fungsi->template_kop('PURCHASE ORDER',$id,$html,'P','1');
+		// $this->m_fungsi->mPDFP($html);
+
+		// $data['prev']   = $chari;
+
+		switch ($cekpdf) {
+			case 0;
+				echo ("<title>$judul</title>");
+				echo ($chari);
+				break;
+
+			case 1;
+				// $this->M_fungsi->_mpdf_hari($position, 'A4', $judul, $chari, $no_po_bhn.'.pdf', 5, 5, 5, 10);
+
+				$this->m_fungsi->newMpdf($judul, '', $chari, 10, 3, 3, 3, 'P', 'TT', $no_po_bhn.'.pdf');
+				break;
+
+				
+				
+			case 2;
+				header("Cache-Control: no-cache, no-store, must-revalidate");
+				header("Content-Type: application/vnd-ms-excel");
+				header("Content-Disposition: attachment; filename= $judul.xls");
+				$this->load->view('app/master_cetak', $data);
+				break;
+		}
+
+	}
+	
 	function Cetak_PO_BAHAN()
 	{
 		$no_po_bhn    = $_GET['no_po_bhn'];
@@ -3461,7 +3611,6 @@ class Transaksi extends CI_Controller
 		}
 
 	}
-
 
 	function Cetak_SO()
 	{

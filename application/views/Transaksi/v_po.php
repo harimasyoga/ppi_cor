@@ -176,7 +176,7 @@
 								</div>
 								<div>
 									<div class="card-body row" style="padding : 5px;font-weight:bold">
-										<?php if ($this->session->userdata('level') != "PPIC")  {
+										<?php if (!in_array($this->session->userdata('level'), ['PPIC','AP']))  {
 													?>
 											<div class="col-md-2">Upload PO</div>
 											<div class="col-md-3">
