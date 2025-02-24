@@ -31,7 +31,7 @@
 						</div>
 				</div>
 				<div class="card-body" >
-					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi','User'])){ ?>
+					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','User','Pembayaran'])){ ?>
 						<div class="col-md-12" style="">			
 							<div class="card-body row" style="padding-left:0px;padding-right:0px;padding-bottom:1px;font-weight:bold">
 								<div class="col-md-2">
