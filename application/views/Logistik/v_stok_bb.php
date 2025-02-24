@@ -31,37 +31,56 @@
 						</div>
 				</div>
 				<div class="card-body" >
-					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','User','Pembayaran'])){ ?>
+					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','Laminasi','User'])){ ?>
+						<div class="col-md-12" style="">			
+							<div class="card-body row" style="padding-left:0px;padding-right:0px;padding-bottom:1px;font-weight:bold">
+								<div class="col-md-2">
+									<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+								</div>
+								<div class="col-md-3">
+									<?php if(in_array($this->session->userdata('level'), ['Admin'])){ ?>
+										<!-- <button type="button" class="btn btn-sm btn-danger" onclick="inv_all()"><i class="fa fa-plus"></i> <b>INVOICE ULANG ALL</b></button> -->
+									<?php } ?>
+								</div>
+								<div class="col-md-3">
 
-						<div style="margin-bottom:12px; position: absolute;left: 20px;">
-							<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
-
-						</div>
-
-						<div style="margin-bottom:12px; position: absolute;right: 20px;">
-							<?php if(in_array($this->session->userdata('level'), ['Admin'])){ ?>
-								<!-- <button type="button" class="btn btn-sm btn-danger" onclick="inv_all()"><i class="fa fa-plus"></i> <b>INVOICE ULANG ALL</b></button> -->
-							<?php } ?>
-
-						</div>
-
-						
-						<div class="" style="position: absolute;left: 250px; font-weight:bold">
-								<select id="list_hub" class="form-control select2" onchange="load_data()">
-								<?php
-										$query = $this->db->query("SELECT*FROM m_hub order by id_hub");
-										$html ='';
-										$html .='<option value="">SEMUA</option>';
-										foreach($query->result() as $r){
-											$html .='<option value="'.$r->id_hub.'">'.$r->nm_hub.'</option>';
-										}
-										echo $html
+									<?php 
+										$thang =  date("Y"); 
+										$thang_min = $thang - 2 ;
 									?>
-								</select>
+										<select class="form-control select2" name ="tahun_list" id="tahun_list" onchange="load_data()" > 
+									<?php 									
+										for ($th=$thang_min ; $th<=$thang ; $th++)
+										{
+											if ($th==$thang) {
+												echo "<option selected value=$th>$thang</option>";
+												}
+											else {	
+											echo "<option value=$th>$th</option>";
+											}
+										}		
+									?>  
+										</select>
+								</div>
+								<div class="col-md-4">
+									<select id="list_hub" class="form-control select2" onchange="load_data()">
+									<?php
+											$query = $this->db->query("SELECT*FROM m_hub order by id_hub");
+											$html ='';
+											$html .='<option value="">SEMUA</option>';
+											foreach($query->result() as $r){
+												$html .='<option value="'.$r->id_hub.'">'.$r->nm_hub.'</option>';
+											}
+											echo $html
+										?>
+									</select>
+								</div>
+							</div>
 						</div>
+						
 					<?php } ?>
 					<br>
-					<br>
+					
 					<div style="overflow:auto;">
 						<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 							<thead class="color-tabel">
@@ -82,6 +101,7 @@
 						</table>
 					</div>
 				</div>
+
 			</div>			
 		</div>
 	</section>
@@ -424,30 +444,66 @@
             <div class="modal-header">
                 <h5><b>PILIH TIMBANGAN</b></h5>
             </div>
+
+			<div class="modal-body">
+
+				<div class="card-body">
+					<div class="col-md-12">
+						<div class="card-body row" style="padding : 5px;font-weight:bold">
+							<div class="col-md-2">TAHUN</div>
+							<div class="col-md-3">
+								<?php 
+									$thang =  date("Y"); 
+									$thang_min = $thang - 2 ;
+								?>
+									<select class="form-control select2" name ="thun" id="thun" onchange="search_timbangan2()" > 
+								<?php 									
+									for ($th=$thang_min ; $th<=$thang ; $th++)
+									{
+										if ($th==$thang) {
+											echo "<option selected value=$th>$thang</option>";
+											}
+										else {	
+										echo "<option value=$th>$th</option>";
+										}
+									}		
+								?>  
+									</select>
+							</div>
+
+							<div class="col-md-7"></div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			
             <div class="modal-body">
+			
 				<div style="overflow:auto;white-space:nowrap">
 
-                <table class="table table-bordered table-striped" id="tbl_timbangan" style="margin:auto !important">
-                    <thead>
-                        <tr class="color-tabel">
-                            <th class="text-center title-white">NO </th>
-                            <th class="text-center title-white">NO TIMBANGAN</th>
-                            <th class="text-center title-white">TGL MASUK</th>
-                            <!-- <th class="text-center title-white">TGL KELUAR</th> -->
-                            <th class="text-center title-white">NO POLISI</th>
-                            <th class="text-center title-white">NAMA BARANG</th>
-                            <th class="text-center title-white">BERAT BERSIH</th>
-                            <th class="text-center title-white">HISTORY DATANG</th>
-                            <th class="text-center title-white">CATATAN</th>
-                            <th class="text-center title-white">NAMA SOPIR</th>
-                            <th class="text-center title-white">AKSI</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+					<table class="table table-bordered table-striped" id="tbl_timbangan" style="margin:auto !important">
+						<thead>
+							<tr class="color-tabel">
+								<th class="text-center title-white">NO </th>
+								<th class="text-center title-white">NO TIMBANGAN</th>
+								<th class="text-center title-white">TGL MASUK</th>
+								<!-- <th class="text-center title-white">TGL KELUAR</th> -->
+								<th class="text-center title-white">NO POLISI</th>
+								<th class="text-center title-white">NAMA BARANG</th>
+								<th class="text-center title-white">BERAT BERSIH</th>
+								<th class="text-center title-white">HISTORY DATANG</th>
+								<th class="text-center title-white">CATATAN</th>
+								<th class="text-center title-white">NAMA SOPIR</th>
+								<th class="text-center title-white">AKSI</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
 				</div>
             </div>
+			
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
             </div>
@@ -731,11 +787,17 @@
 		}
 		hitung_total()
 	}
+
 	function search_timbangan()
 	{
 		$('.list_timbangan').modal('show');
-		
-		var table   = $('#tbl_timbangan').DataTable();
+		search_timbangan2()
+	}
+	
+	function search_timbangan2()
+	{
+		var tahun_timbangan   = $('#thun').val();
+		var table             = $('#tbl_timbangan').DataTable();
 		table.destroy();
 		tabel = $('#tbl_timbangan').DataTable({
 			"processing"   : true,
@@ -744,6 +806,7 @@
 			"ajax": {
 				"url"   : '<?php echo base_url('Logistik/load_data/load_timbangan')?>',
 				"type"  : "POST",
+				data    : { tahun_timbangan },
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],
@@ -885,6 +948,7 @@
 	function load_data() 
 	{
 		var list_hub    = $("#list_hub").val()
+		var tahun_list  = $("#tahun_list").val()
 		let table       = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -894,7 +958,7 @@
 			"ajax": {
 				"url"   : '<?php echo base_url('Logistik/load_data/stok_bb')?>',
 				"type"  : "POST",
-				"data"  : { id_hub:list_hub },
+				"data"  : { id_hub:list_hub,tahun_list },
 			},
 			"aLengthMenu": [
 				[5, 10, 50, 100, -1],
