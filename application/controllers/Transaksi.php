@@ -3340,10 +3340,27 @@ class Transaksi extends CI_Controller
                             <th width="10%" align="center">bahan bk</th>
 							</tr>';
 				$no = 1;
+				$nmhub = '';
 				foreach ($query_header->result() as $r) {
+					 
+					if($nmhub <> $r->nm_hub)
+					{
+						$chari .= '
+								<tr >
+									<td align="center">&nbsp;</td>
+									<td align="left"></td>
+									<td align="left"></td>
+									<td align="left"></td>
+									<td align="left"></td>
+									<td align="left"></td>
+									<td align="right"></td>
+									<td align="right"></td>
+									<td align="right"></td>
+									<td align="right"></td>
+									</tr>';
+					}
 
 					$chari .= '
-
 								<tr >
 									<td align="center">' . $no . '</td>
 									<td align="left">' . $r->tgl_po . '</td>
@@ -3358,6 +3375,7 @@ class Transaksi extends CI_Controller
 									</tr>';
 
 					$no++;
+					$nmhub = $r->nm_hub;
 				}
 				
 			}else{
@@ -3373,8 +3391,24 @@ class Transaksi extends CI_Controller
                             <th width="10%" align="center">ton</th>
                             <th width="10%" align="center">bahan baku</th>
 							</tr>';
-				$no = 1;
+				$no       = 1;
+				$nmhub2   = '';
 				foreach ($query_header->result() as $r) {
+
+					if($nmhub2 <> $r->nm_hub)
+					{
+						$chari .= '
+								<tr >
+									<td align="center">&nbsp;</td>
+									<td align="left"></td>
+									<td align="left"></td>
+									<td align="left"></td>
+									<td align="left"></td>
+									<td align="left"></td>
+									<td align="right"></td>
+									<td align="right"></td>
+									</tr>';
+					}
 
 					$chari .= '
 
@@ -3390,6 +3424,8 @@ class Transaksi extends CI_Controller
 									</tr>';
 
 					$no++;
+					
+					$nmhub2 = $r->nm_hub;
 				}
 
 
