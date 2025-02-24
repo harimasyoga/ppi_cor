@@ -5366,12 +5366,13 @@ class Logistik extends CI_Controller
 			}
 		}else if ($jenis == "stok_bb") {	
 			
-			$id_hub    = $this->input->post('id_hub');
+			$id_hub        = $this->input->post('id_hub');
+			$tahun_list    = $this->input->post('tahun_list');
 			if($id_hub)
 			{
-				$where_hub = "where a.no_stok in (SELECT no_stok FROM trs_d_stok_bb where id_hub in ('$id_hub')) ";
+				$where_hub = "where tgl_stok like '%$tahun_list%' and a.no_stok in (SELECT no_stok FROM trs_d_stok_bb where id_hub in ('$id_hub')) ";
 			}else{
-				$where_hub = "";
+				$where_hub = "where tgl_stok like '%$tahun_list%'";
 			}
 			
 			$query = $this->db->query("SELECT a.*,(select b.no_polisi from m_jembatan_timbang b where a.no_timbangan=b.no_timbangan)nopol 
@@ -5755,6 +5756,9 @@ class Logistik extends CI_Controller
 			}
 		
 		}else if ($jenis == "load_timbangan") { 
+			
+			$tahun_timbangan       = $this->input->post('tahun_timbangan');
+
 			$query = $this->db->query("SELECT*from(
 			SELECT * ,
 			IFNULL((
@@ -5767,7 +5771,7 @@ class Logistik extends CI_Controller
 			WHERE a.no_timbangan=c.no_timbangan group by a.no_timbangan
 			)
 			,0)history
-			FROM m_jembatan_timbang c where c.keterangan='TERIMA' and c.no_timbangan like '%timb/%') p where no_timbangan not in (select no from tbl_bantuan2)
+			FROM m_jembatan_timbang c where c.keterangan='TERIMA' and c.no_timbangan like '%timb/%') p where date_masuk like '%$tahun_timbangan%' and no_timbangan not in (select no from tbl_bantuan2)
 			ORDER BY p.date_masuk desc,id_timbangan")->result();
 
 			$i               = 1;
