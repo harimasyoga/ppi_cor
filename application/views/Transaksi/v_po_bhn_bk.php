@@ -136,7 +136,6 @@
 
 						<button type="button" class="btn btn-danger" id="btn-print" onclick="Cetak(1)"><i class="fas fa-print"></i> <b>PDF</b></button>
 
-						<span id="btn-simpan"></span>
 
 					</div>
 					
