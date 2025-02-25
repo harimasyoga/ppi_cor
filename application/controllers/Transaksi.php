@@ -1487,7 +1487,7 @@ class Transaksi extends CI_Controller
 
 			$html ='';
 
-			$query = $this->db->query("SELECT*from(
+			$query = $this->db->query("SELECT id_sales,nm_sales,sum(tonase) tonase from(
 			select d.id_sales,nm_sales,a.*,round(qty_muat*rk_bb) tonase from m_rencana_kirim a
 			join m_produk b on a.id_produk=b.id_produk
 			JOIN m_pelanggan c ON b.no_customer=c.id_pelanggan
