@@ -14,13 +14,53 @@
 		</div>
 	</section>
 	
-	<section class="content" style="padding-bottom:30px">
+	<section class="content" style="padding-bottom:30px" id="pilihan_awal">
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-md-12">
 					<div class="card card-info card-outline">
 						<div class="card-header">
-							<h3 class="card-title" style="font-weight:bold;font-style:italic">PILIH</h3>
+							<h3 class="card-title" style="font-weight:bold;font-style:italic">PILIH JENIS</h3>
+						</div>
+
+						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+							<div class="col-md-2"></div>
+							<div class="col-md-3" >
+								<div class="input-group">								
+									<button type="button" class="btn btn-block btn-primary" onclick="pilih_jenis('PO')"><b>PO</b></button>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="input-group">								
+									<button type="button" class="btn btn-block btn-primary" onclick="pilih_jenis('KIRIM')"><b>PENGIRIMAN</b></button>
+								</div>
+							</div>	
+							
+							<div class="col-md-3"></div>
+
+							<br>
+							<br>
+							<br>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	<section class="content" style="padding-bottom:30px;display:none" id="pilihan_po" >
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card card-info card-outline">
+						<div class="card-header">
+							<h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP PO</h3>
+
+							<div class="card-tools">
+								<button type="button" class="btn btn-danger" onclick="kembali_pilih()">
+									<i class="fas fa-times"></i></button>
+							</div>
 						</div>
 
 						<div id="tampil_cek_selisih"></div>
@@ -56,6 +96,57 @@
 				<div class="col-md-12">
 					<!-- <div class="card card-info card-outline"> -->
 						<div class="col-md-12" id="tampil-data"></div>
+					<!-- </div> -->
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	<section class="content" style="padding-bottom:30px;display:none" id="pilihan_kirim" >
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card card-info card-outline">
+						<div class="card-header">
+							<h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP PENGIRIMAN</h3>
+
+							<div class="card-tools">
+								<button type="button" class="btn btn-danger" onclick="kembali_pilih()">
+									<i class="fas fa-times"></i></button>
+							</div>
+						</div>
+
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+							<div class="col-md-2"></div>
+							<div class="col-md-3" >
+								<div class="input-group">								
+									<button type="button" class="btn btn-block btn-info" onclick="pilihan_kiriman('tgl','tanggal')"><b>TANGGAL</b></button>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="input-group">								
+									<button type="button" class="btn btn-block btn-info" onclick="pilihan_kiriman('all','semua')"><b>SEMUA</b></button>
+								</div>
+							</div>	
+							
+							<div class="col-md-3"></div>
+
+							<br>
+							<br>
+							<br>
+						</div>
+						
+						<div id="tampil_pilihan_kiriman"></div>
+
+						
+						<div id="tampil_rincian_kiriman"></div>
+
+					</div>
+				</div>
+
+				<div class="col-md-12">
+					<!-- <div class="card card-info card-outline"> -->
+						<div class="col-md-12" id="tampil_data_kiriman"></div>
 					<!-- </div> -->
 				</div>
 			</div>
@@ -155,6 +246,42 @@
 		$('#modal_ket').modal('show');
 	}
 
+	function kembali_pilih(jns)
+	{
+		$("#pilihan_awal").show()
+		$("#pilihan_po").hide()
+		$("#pilihan_kirim").hide()
+	}
+
+	function pilih_jenis(jns)
+	{
+		if(jns=='PO')
+		{			
+			$("#pilihan_awal").hide()
+			$("#pilihan_po").show()
+
+			$("#tampil-data").html(``)
+			$("#tampil-pilihan").html(``)
+			$("#tampil-rincian").html(``)
+
+			$("#tampil_data_kiriman").html(``)
+			$("#tampil_pilihan_kiriman").html(``)
+			$("#tampil_rincian_kiriman").html(``)
+		}else{
+			$("#pilihan_awal").hide()
+			$("#pilihan_kirim").show()
+
+			
+			$("#tampil-data").html(``)
+			$("#tampil-pilihan").html(``)
+			$("#tampil-rincian").html(``)
+
+			$("#tampil_data_kiriman").html(``)
+			$("#tampil_pilihan_kiriman").html(``)
+			$("#tampil_rincian_kiriman").html(``)
+		}
+	}
+
 	function cek_tonase_kosong(ket ,opsi)
 	{
 		$("#tampil_cek_selisih").html(``)
@@ -234,14 +361,92 @@
 			})
 		}
 	}
+	
+	function pilihan_kiriman(ket ,opsi)
+	{
+		$("#tampil_data_kiriman").html(``)
+		$("#tampil_pilihan_kiriman").html(``)
+		$("#tampil_rincian_kiriman").html(``)
+		if(ket == 'tgl' && opsi == 'tanggal'){
+			$("#tampil_pilihan_kiriman").html(`
+			<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+				<div class="col-md-3"></div>
+				<div class="col-md-2" >BULAN</div>
+				<div class="col-md-3">
+					<div class="input-group">								
+						<input type="month" class="form-control " name="bulan_kirim" id="bulan_kirim">
+					</div>
+				</div>	
+				<div class="col-md-3"></div>
+			</div>
+			<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+				<div class="col-md-5"></div>
+				<div class="col-md-3">
+					<div class="input-group">								
+						<buton class="btn btn-block btn-info" onclick="tampil_data_kiriman()">CARI</buton>
+					</div>
+				</div>	
+				<div class="col-md-3"></div>
+			</div>
+			<br>
+			`)
+			$('.select2').select2();
+		}else{
+			$.ajax({
+				url: '<?php echo base_url('Transaksi/hitung_rekap')?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+				data: ({
+					opsi
+				}),
+				success: function(res){
+					$("#tampil_rincian_kiriman").html(res)
+					swal.close()
+				}
+			})
+		}
+	}
 
+	function tampil_data_kiriman()
+	{
+		var bulan = $("#bulan_kirim").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/hitung_rekap')?>',
+			type: "POST",
+			data: {bulan : bulan, jns:'kiriman'},
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				$("#tampil_rincian_kiriman").html(res)
+				swal.close()
+			}
+		})
+	}
+	
 	function tampil_data()
 	{
 		var bulan = $("#bulan").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/hitung_rekap')?>',
 			type: "POST",
-			data: {bulan : bulan},
+			data: {bulan : bulan, jns : 'po'},
 			beforeSend: function() {
 				swal({
 					title: 'Loading',

@@ -1404,74 +1404,145 @@ class Transaksi extends CI_Controller
 	function hitung_rekap()
 	{
 		
-		$bulan = $this->input->post('bulan');
+		$bulan    = $this->input->post('bulan');
+		$jns      = $this->input->post('jns');
 
-		if($bulan)
+		if($jns=='po')
 		{
-			$ket= "and a.tgl_po like '%$bulan%'";
+			if($bulan)
+			{
+				$ket= "and a.tgl_po like '%$bulan%'";
+			}else{
+				$ket='';
+			}
+
+			$html ='';
+
+			$query = $this->db->query("SELECT id_sales,nm_sales,sum(ton)ton ,sum(exclude)exc, (sum(exclude)/sum(ton))avg from(
+			
+			select a.no_po,b.id_sales ,c.nm_sales, (a.price_exc*a.qty)exclude, a.ton
+			from trs_po_detail a 
+			join m_pelanggan b ON a.id_pelanggan=b.id_pelanggan
+			join m_sales c ON b.id_sales=c.id_sales
+			join trs_po d ON a.kode_po=d.kode_po
+			WHERE a.status <> 'Reject' and d.status_app3 not in ('H')
+			$ket 
+			)p group by id_sales,nm_sales")->result();
+
+			$html .='<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
+			$html .='<table class="table table-bordered table-striped">
+			<thead class="color-tabel">
+				<tr>
+					<th style="text-align:center">NO</th>
+					<th style="text-align:center">Nama Sales</th>
+					<th style="text-align:center">Total PO</th>
+					<th style="text-align:center">Harga Rata2 / Kg</th>
+				</tr>
+			</thead>';
+			$i = 0;
+			$total =0;
+			$total_rata =0;
+			if($query)
+			{
+				foreach($query as $r)
+				{
+					$i++;
+					$html .= '</tr>
+						<td style="text-align:center">'.$i.'</td>
+						<td style="text-align:left">'.$r->nm_sales.'</td>
+						<td style="text-align:right">'.number_format($r->ton, 0, ",", ".").'</td>
+						<td style="text-align:right">'.number_format($r->avg, 0, ",", ".").'</td>
+					</tr>';
+					$total += $r->ton; 
+					$total_rata += $r->exc;
+				}
+				$total_all = $total_rata/$total;
+				
+				$html .='<tr>
+						<th style="text-align:center" colspan="2" >Total</th>
+						<th style="text-align:right">'.number_format($total, 0, ",", ".").'</th>
+						<th style="text-align:right">'.number_format($total_all, 0, ",", ".").'</th>
+					</tr>
+					';
+				
+				$html .='</table>
+				</div>';
+			}else{
+				$html .='<tr>
+					<th style="text-align:center" colspan="4" >Data Kosong</th>
+				</tr>
+				';
+			
+				$html .='</table></div>';
+			}
+
 		}else{
-			$ket='';
-		}
 
-		$html ='';
+			if($bulan)
+			{
+				$ket= "WHERE a.rk_tgl like '%$bulan%'";
+			}else{
+				$ket='';
+			}
 
-		$query = $this->db->query("SELECT id_sales,nm_sales,sum(ton)ton ,sum(exclude)exc, (sum(exclude)/sum(ton))avg from(
-		
-		select a.no_po,b.id_sales ,c.nm_sales, (a.price_exc*a.qty)exclude, a.ton
-		from trs_po_detail a 
-		join m_pelanggan b ON a.id_pelanggan=b.id_pelanggan
-		join m_sales c ON b.id_sales=c.id_sales
-		join trs_po d ON a.kode_po=d.kode_po
-		WHERE a.status <> 'Reject' and d.status_app3 not in ('H')
-		$ket 
-		)p group by id_sales,nm_sales")->result();
+			$html ='';
 
-		$html .='<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
-		$html .='<table class="table table-bordered table-striped">
-		<thead class="color-tabel">
-			<tr>
-				<th style="text-align:center">NO</th>
-				<th style="text-align:center">Nama Sales</th>
-				<th style="text-align:center">Total PO</th>
-				<th style="text-align:center">Harga Rata2 / Kg</th>
-			</tr>
-		</thead>';
-		$i = 0;
-		$total =0;
-		$total_rata =0;
-		if($query)
-		{
-		foreach($query as $r){
-			$i++;
-			$html .= '</tr>
-				<td style="text-align:center">'.$i.'</td>
-				<td style="text-align:left">'.$r->nm_sales.'</td>
-				<td style="text-align:right">'.number_format($r->ton, 0, ",", ".").'</td>
-				<td style="text-align:right">'.number_format($r->avg, 0, ",", ".").'</td>
-			</tr>';
-			$total += $r->ton; 
-			$total_rata += $r->exc;
+			$query = $this->db->query("SELECT*from(
+			select d.id_sales,nm_sales,a.*,round(qty_muat*rk_bb) tonase from m_rencana_kirim a
+			join m_produk b on a.id_produk=b.id_produk
+			JOIN m_pelanggan c ON b.no_customer=c.id_pelanggan
+			JOIN m_sales d ON c.id_sales=d.id_sales
+			$ket
+			)p group by id_sales")->result();
+
+			$html .='<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
+			$html .='<table class="table table-bordered table-striped">
+			<thead class="color-tabel">
+				<tr>
+					<th style="text-align:center">NO</th>
+					<th style="text-align:center">Nama Sales</th>
+					<th style="text-align:center">Qty Muat</th>
+					<th style="text-align:center">Tonase Kirim</th>
+				</tr>
+			</thead>';
+			$i             = 0;
+			$total_muat    = 0;
+			$total_ton     = 0;
+			if($query)
+			{
+				foreach($query as $r)
+				{
+					$i++;
+					$html .= '</tr>
+						<td style="text-align:center">'.$i.'</td>
+						<td style="text-align:left">'.$r->nm_sales.'</td>
+						<td style="text-align:right">'.number_format($r->qty_muat, 0, ",", ".").'</td>
+						<td style="text-align:right">'.number_format($r->tonase, 0, ",", ".").'</td>
+					</tr>';
+					$total_muat += $r->qty_muat; 
+					$total_ton += $r->tonase; 
+				}
+				
+				$html .='<tr>
+						<th style="text-align:center" colspan="2" >Total</th>
+						<th style="text-align:right">'.number_format($total_muat, 0, ",", ".").'</th>
+						<th style="text-align:right">'.number_format($total_ton, 0, ",", ".").'</th>
+					</tr>
+					';
+				
+				$html .='</table>
+				</div>';
+			}else{
+				$html .='<tr>
+					<th style="text-align:center" colspan="4" >Data Kosong</th>
+				</tr>
+				';
+			
+				$html .='</table></div>';
+			}
+
 		}
-		$total_all = $total_rata/$total;
 		
-		$html .='<tr>
-				<th style="text-align:center" colspan="2" >Total</th>
-				<th style="text-align:right">'.number_format($total, 0, ",", ".").'</th>
-				<th style="text-align:right">'.number_format($total_all, 0, ",", ".").'</th>
-			</tr>
-			';
-		
-		$html .='</table>
-		</div>';
-		}else{
-			$html .='<tr>
-				<th style="text-align:center" colspan="4" >Data Kosong</th>
-			</tr>
-			';
-		
-		$html .='</table>
-		</div>';
-		}
 
 		echo $html;
 		
