@@ -1480,20 +1480,23 @@ class Transaksi extends CI_Controller
 
 			if($bulan)
 			{
-				$ket= "WHERE a.rk_tgl like '%$bulan%'";
+				$ket= "WHERE r.rk_tgl like '%$bulan%'";
 			}else{
 				$ket='';
 			}
 
 			$html ='';
 
-			$query = $this->db->query("SELECT id_sales,nm_sales,sum(tonase) tonase from(
-			select d.id_sales,nm_sales,a.*,round(qty_muat*rk_bb) tonase from m_rencana_kirim a
-			join m_produk b on a.id_produk=b.id_produk
-			JOIN m_pelanggan c ON b.no_customer=c.id_pelanggan
-			JOIN m_sales d ON c.id_sales=d.id_sales
+			$query = $this->db->query("SELECT p.id_sales,p.nm_sales,SUM(p.berat_bersih) AS ton FROM (
+			SELECT r.*,d.id_sales,d.nm_sales,j.berat_bersih FROM m_rencana_kirim r
+			INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
+			INNER JOIN m_jembatan_timbang j ON j.tgl_t=p.tgl AND j.urut_t=p.no_pl_urut AND j.no_polisi=p.no_kendaraan
+			INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
+			INNER JOIN m_sales d ON c.id_sales=d.id_sales
 			$ket
-			)p group by id_sales")->result();
+			GROUP BY r.rk_tgl,r.rk_urut
+			
+			)p GROUP BY p.id_sales,p.nm_sales")->result();
 
 			$html .='<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
 			$html .='<table class="table table-bordered table-striped">
@@ -1501,12 +1504,10 @@ class Transaksi extends CI_Controller
 				<tr>
 					<th style="text-align:center">NO</th>
 					<th style="text-align:center">Nama Sales</th>
-					<th style="text-align:center">Qty Muat</th>
 					<th style="text-align:center">Tonase Kirim</th>
 				</tr>
 			</thead>';
 			$i             = 0;
-			$total_muat    = 0;
 			$total_ton     = 0;
 			if($query)
 			{
@@ -1516,16 +1517,13 @@ class Transaksi extends CI_Controller
 					$html .= '</tr>
 						<td style="text-align:center">'.$i.'</td>
 						<td style="text-align:left">'.$r->nm_sales.'</td>
-						<td style="text-align:right">'.number_format($r->qty_muat, 0, ",", ".").'</td>
-						<td style="text-align:right">'.number_format($r->tonase, 0, ",", ".").'</td>
+						<td style="text-align:right">'.number_format($r->ton, 0, ",", ".").'</td>
 					</tr>';
-					$total_muat += $r->qty_muat; 
-					$total_ton += $r->tonase; 
+					$total_ton += $r->ton; 
 				}
 				
 				$html .='<tr>
 						<th style="text-align:center" colspan="2" >Total</th>
-						<th style="text-align:right">'.number_format($total_muat, 0, ",", ".").'</th>
 						<th style="text-align:right">'.number_format($total_ton, 0, ",", ".").'</th>
 					</tr>
 					';
