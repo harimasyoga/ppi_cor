@@ -7406,7 +7406,7 @@ class Logistik extends CI_Controller
 		$bulan      = $_GET['bulan'];
 		$cekpdf     = $_GET['ctk'];
 		$judul      = 'STOK BB BULANAN ';
-		$position   = 'P';
+		$position   = 'L';
 
 
 		$param      = $judul;
@@ -7432,21 +7432,20 @@ class Logistik extends CI_Controller
 		where c.jns in ('$ket') and tgl_stok like '%$bulan%'
 		order by CAST(b.id_hub as int),tgl_j_tempo,a.no_stok");			
        
-        
 		if ($query_header->num_rows() > 0) 
 		{
 			$chari .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
 				<tr style="background-color: #fcf22c">
-					<th width="2%" align="center">No</th>
-					<th width="12%" align="center">no_stok</th>
-					<th width="12%" align="center">tgl_stok</th>
-					<th width="12%" align="center">tgl_j_tempo</th>
-					<th width="12%" align="center">no_timbangan</th>
-					<th width="12%" align="center">no_po_bhn</th>
-					<th width="12%" align="center">nm_hub</th>
-					<th width="12%" align="center">hrg_bhn</th>
-					<th width="12%" align="center">datang_bhn_bk</th>
-					<th width="12%" align="center">total</th>
+					<th width="5%" align="center">No</th>
+					<th width="10%" align="center">no_stok</th>
+					<th width="10%" align="center">tgl_stok</th>
+					<th width="10%" align="center">tgl_j_tempo</th>
+					<th width="10%" align="center">no_timbangan</th>
+					<th width="10%" align="center">no_po_bhn</th>
+					<th width="15%" align="center">nm_hub</th>
+					<th width="10%" align="center">hrg_bhn</th>
+					<th width="10%" align="center">datang_bhn_bk</th>
+					<th width="10%" align="center">total</th>
 				</tr>';
 
 				
@@ -7480,15 +7479,16 @@ class Logistik extends CI_Controller
 								<td align="left">' . $r->no_timbangan . '</td>
 								<td align="left">' . $r->no_po_bhn . '</td>
 								<td align="left">' . $r->nm_hub . '</td>
-								<td align="left">' . $r->hrg_bhn . '</td>
-								<td align="left">' . $r->datang_bhn_bk . '</td>
-								<td align="left">' . $r->total . '</td>
+								<td align="RIGHT">' . $r->hrg_bhn . '</td>
+								<td align="RIGHT">' . $r->datang_bhn_bk . '</td>
+								<td align="RIGHT">' . $r->total . '</td>
 								</tr>';
 
 				$no++;
 				$nmhub = $r->nm_hub;
 			}
-				
+
+			$chari .= '</table>';
 			
 			
 
@@ -7510,9 +7510,9 @@ class Logistik extends CI_Controller
 				break;
 
 			case 1;
-				// $this->M_fungsi->_mpdf_hari($position, 'A4', $judul, $chari, $no_po_bhn.'.pdf', 5, 5, 5, 10);
+				$this->M_fungsi->_mpdf_hari($position, 'A4', $judul, $chari, 'REKAP.pdf', 5, 5, 5, 10);
 
-				$this->m_fungsi->newMpdf($judul, '', $chari, 10, 3, 3, 3, 'P', 'TT', $no_po_bhn.'.pdf');
+				// $this->m_fungsi->newMpdf($judul, '', $chari, 10, 3, 3, 3, 'P', 'TT', $no_po_bhn.'.pdf');
 				break;
 
 				
