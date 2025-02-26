@@ -35,12 +35,13 @@
 						<div class="col-md-12" style="">			
 							<div class="card-body row" style="padding-left:0px;padding-right:0px;padding-bottom:1px;font-weight:bold">
 								<div class="col-md-2">
-									<button type="button" class="btn btn-sm btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+									<button type="button" class="btn btn-info" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								</div>
 								<div class="col-md-3">
-									<?php if(in_array($this->session->userdata('level'), ['Admin'])){ ?>
-										<!-- <button type="button" class="btn btn-sm btn-danger" onclick="inv_all()"><i class="fa fa-plus"></i> <b>INVOICE ULANG ALL</b></button> -->
-									<?php } ?>
+									<!-- <?php if(in_array($this->session->userdata('level'), ['Admin'])){ ?>
+										<button type="button" class="btn btn-sm btn-danger" onclick="inv_all()"><i class="fa fa-plus"></i> <b>INVOICE ULANG ALL</b></button>
+									<?php } ?> -->
+									<button type="button" class="btn btn-danger" onclick="rekap_stok()"><i class="fa fa-file-invoice"></i> <b>REKAP STOK</b></button>
 								</div>
 								<div class="col-md-3">
 
@@ -105,6 +106,71 @@
 			</div>			
 		</div>
 	</section>
+
+	<section class="content">
+		<!-- Default box -->
+		<div class="card shadow row_rekap_stok" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;" >
+				<h3 class="card-title" style="color:#4e73df;"><b>REKAP STOK</b></h3>
+
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+			<div class="col-md-12">
+							
+				<br>
+					
+				<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
+					
+					<div class="col-md-2">JENIS</div>
+					<div class="col-md-3">
+						<select name="jns" id="jns" class="form-control">
+							<option value="BOX">BOX</option>
+							<option value="LAMINASI">LAMINASI</option>
+						</select>
+					</div>
+					<div class="col-md-6"></div>
+		
+				</div>
+										
+				<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
+
+					<div class="col-md-2">BULAN</div>
+					<div class="col-md-3">
+						<input type="month" class="form-control" name="bulan" id="bulan" value ="<?= date('m-d') ?>" >
+					</div>
+					<div class="col-md-6"></div>
+				</div>
+				
+			
+				<div class="card-body row"style="font-weight:bold">
+					<div class="col-md-6">
+						<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-secondary"><b>
+							<i class="fa fa-arrow-left" ></i> Kembali</b>
+						</button>
+
+						<button onclick="cetak_stok(0)"  class="btn btn-primary">
+							<i class="fa fa-print"></i> <b>LAYAR</b></button>
+							
+
+						<button type="button" class="btn btn-danger" id="btn-print" onclick="cetak_stok(1)"><i class="fas fa-print"></i> <b>PDF</b></button>
+
+
+					</div>
+					
+					<div class="col-md-4"></div>
+					
+				</div>
+
+				<br>
+				
+			</div>
+		</div>
+		<!-- /.card -->
+	</section>
+	
 
 	<section class="content">
 
@@ -698,7 +764,7 @@
 		}
 		$('#bucket').val(rowNum);
 	}
-
+	
 	function clear_data()
 	{
 		clearRow()
@@ -729,6 +795,88 @@
 		$("#no_po0").val("") 
 
 	}
+
+	
+	function cetak_stok(ctk)
+	{		
+		update_tgl_jtempo()
+		var jns   = $('#jns').val()
+		var bulan = $('#bulan').val()
+		if(bulan=='')
+		{
+			swal({
+						title               : "Cek Kembali",
+						html                : "Bulan Wajib di isi !",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
+		}else{
+
+			var url   = "<?php echo base_url('Logistik/Cetak_stok_bb_bulanan'); ?>";
+			window.open(url+'?jns='+jns+'&bulan='+bulan+'&ctk='+ctk, '_blank');   
+		}
+
+		 
+	}
+
+	function update_tgl_jtempo()
+	{		
+		$.ajax({
+			url        : '<?= base_url(); ?>Logistik/update_jtempo',
+			type       : "POST",
+			dataType   : "JSON",
+			// data       : { id, no:no_po, jenis:'spill_po' },
+			// beforeSend: function() {
+			// 	swal({
+			// 	title: 'loading data...',
+			// 	allowEscapeKey    : false,
+			// 	allowOutsideClick : false,
+			// 	onOpen: () => {
+			// 		swal.showLoading();
+			// 	}
+			// 	})
+			// },
+			success: function(data) {
+				// console.log(data)
+				if(data){			
+
+					// swal.close();
+					// swal({
+					// 	title               : "Berhasil ",
+					// 	html                : "Berhasil Update",
+					// 	type                : "success",
+					// 	confirmButtonText   : "OK"
+					// });
+
+				} else {
+
+					swal.close();
+					swal({
+						title               : "Cek Kembali",
+						html                : "Gagal Simpan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				// toastr.error('Terjadi Kesalahan');
+				
+				swal.close();
+				swal({
+					title               : "Cek Kembali",
+					html                : "Terjadi Kesalahan",
+					type                : "error",
+					confirmButtonText   : "OK"
+				});
+				
+				return;
+			}
+		});
+	}
+
 
 	function cetak_inv_bb(id) 
 	{		
@@ -1282,11 +1430,20 @@
 		$("#btn-simpan").html(`<button type="button" onclick="simpan()" class="btn-tambah-produk btn  btn-primary"><b><i class="fa fa-save" ></i> Simpan</b> </button>`)
 	}
 
+	
+	function rekap_stok()
+	{
+		$(".row_rekap_stok").attr('style', '')
+		$(".row-list").attr('style', 'display:none')
+		
+	}
+
 	function kembaliList()
 	{
 		kosong()
 		reloadTable()
 		$(".row-input").attr('style', 'display:none')
+		$(".row_rekap_stok").attr('style', 'display:none')
 		$(".row-list").attr('style', '')
 	}
 

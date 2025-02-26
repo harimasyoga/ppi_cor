@@ -3362,7 +3362,6 @@ class Transaksi extends CI_Controller
 
 		$param      = $judul;
 		$unit       = $this->session->userdata('unit');
-		$npwp       = '-';
 		$chari      = '';
 
 		if($jns=='BOX')
@@ -3547,7 +3546,6 @@ class Transaksi extends CI_Controller
 
 		$param        = $judul;
 		$unit         = $this->session->userdata('unit');
-		$npwp         = '-';
 		$chari        = '';
 
         $query_header = $this->db->query("SELECT * FROM trs_po_bhnbk a JOIN m_hub b ON a.hub   = b.id_hub WHERE a.no_po_bhn = '$no_po_bhn' ");
