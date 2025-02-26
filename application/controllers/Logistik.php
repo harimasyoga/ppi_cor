@@ -7391,7 +7391,143 @@ class Logistik extends CI_Controller
 		$this->m_fungsi->template_kop('STOK BAHAN BAKU',$no_stok,$html,'P','1');
 		// $this->m_fungsi->mPDFP($html);
 	}
+
+	function update_jtempo()
+	{
+		$this->db->query("UPDATE trs_h_stok_bb set tgl_j_tempo=DATE_ADD(tgl_stok,INTERVAL 30 DAY) where tgl_j_tempo is null");
+
+		echo json_encode(array("status" =>"1"));
+	}
 	
+	
+	function Cetak_stok_bb_bulanan()
+	{
+		$jns        = $_GET['jns'];
+		$bulan      = $_GET['bulan'];
+		$cekpdf     = $_GET['ctk'];
+		$judul      = 'STOK BB BULANAN ';
+		$position   = 'P';
+
+
+		$param      = $judul;
+		$unit       = $this->session->userdata('unit');
+		$chari      = '';
+
+		if($jns=='BOX')
+		{
+			// BOX
+			$ket ='BOX';			
+
+		}else{
+
+			// LAMINASI
+			$ket ='LAMINASI';
+		}
+
+		$query_header = $this->db->query("SELECT a.no_stok,tgl_stok,tgl_j_tempo,no_timbangan,d.no_po_bhn,nm_hub,hrg_bhn,datang_bhn_bk,hrg_bhn*datang_bhn_bk as total 
+		from trs_h_stok_bb a
+		JOIN trs_d_stok_bb b on a.no_stok=b.no_stok
+		JOIN m_hub c ON b.id_hub=c.id_hub
+		JOIN trs_po_bhnbk d ON b.no_po_bhn = d.no_po_bhn
+		where c.jns in ('$ket') and tgl_stok like '%$bulan%'
+		order by CAST(b.id_hub as int),tgl_j_tempo,a.no_stok");			
+       
+        
+		if ($query_header->num_rows() > 0) 
+		{
+			$chari .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
+				<tr style="background-color: #fcf22c">
+					<th width="2%" align="center">No</th>
+					<th width="12%" align="center">no_stok</th>
+					<th width="12%" align="center">tgl_stok</th>
+					<th width="12%" align="center">tgl_j_tempo</th>
+					<th width="12%" align="center">no_timbangan</th>
+					<th width="12%" align="center">no_po_bhn</th>
+					<th width="12%" align="center">nm_hub</th>
+					<th width="12%" align="center">hrg_bhn</th>
+					<th width="12%" align="center">datang_bhn_bk</th>
+					<th width="12%" align="center">total</th>
+				</tr>';
+
+				
+			$no = 1;
+			$nmhub = '';
+			foreach ($query_header->result() as $r) {
+					
+				if($nmhub <> $r->nm_hub)
+				{
+					$chari .= '
+							<tr >
+								<td align="center">&nbsp;</td>
+								<td align="left"></td>
+								<td align="left"></td>
+								<td align="left"></td>
+								<td align="left"></td>
+								<td align="left"></td>
+								<td align="left"></td>
+								<td align="left"></td>
+								<td align="left"></td>
+								<td align="left"></td>
+								</tr>';
+				}
+
+				$chari .= '
+							<tr >
+								<td align="center">' . $no . '</td>
+								<td align="left">' . $r->no_stok . '</td>
+								<td align="left">' . $r->tgl_stok . '</td>
+								<td align="left">' . $r->tgl_j_tempo . '</td>
+								<td align="left">' . $r->no_timbangan . '</td>
+								<td align="left">' . $r->no_po_bhn . '</td>
+								<td align="left">' . $r->nm_hub . '</td>
+								<td align="left">' . $r->hrg_bhn . '</td>
+								<td align="left">' . $r->datang_bhn_bk . '</td>
+								<td align="left">' . $r->total . '</td>
+								</tr>';
+
+				$no++;
+				$nmhub = $r->nm_hub;
+			}
+				
+			
+			
+
+            
+		} else {
+			$chari .= '<h1> Data Kosong </h1>';
+		}
+
+		// $this->m_fungsi->_mpdf($html);
+		// $this->m_fungsi->template_kop('PURCHASE ORDER',$id,$html,'P','1');
+		// $this->m_fungsi->mPDFP($html);
+
+		// $data['prev']   = $chari;
+
+		switch ($cekpdf) {
+			case 0;
+				echo ("<title>$judul</title>");
+				echo ($chari);
+				break;
+
+			case 1;
+				// $this->M_fungsi->_mpdf_hari($position, 'A4', $judul, $chari, $no_po_bhn.'.pdf', 5, 5, 5, 10);
+
+				$this->m_fungsi->newMpdf($judul, '', $chari, 10, 3, 3, 3, 'P', 'TT', $no_po_bhn.'.pdf');
+				break;
+
+				
+				
+			case 2;
+				header("Cache-Control: no-cache, no-store, must-revalidate");
+				header("Content-Type: application/vnd-ms-excel");
+				header("Content-Disposition: attachment; filename= $judul.xls");
+				$this->load->view('app/master_cetak', $data);
+				break;
+		}
+
+	}
+	
+
 	function cetak_inv_bb()
 	{
 		$no_po        = $_GET['no_po'];

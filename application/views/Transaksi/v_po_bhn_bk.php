@@ -154,7 +154,7 @@
 		<!-- Default box -->
 		<div class="card shadow row-input" style="display: none;">
 			<div class="card-header" style="font-family:Cambria;" >
-				<h3 class="card-title" style="color:#4e73df;"><b>INPUT PO BAHAN BAKU</b></h3>
+				<h3 class="card-title" style="color:#4e73df;"><b>REKAP PO BAHAN BAKU</b></h3>
 
 				<div class="card-tools">
 					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
