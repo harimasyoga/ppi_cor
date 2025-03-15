@@ -1064,10 +1064,18 @@
 				// $("#btn-simpan-plan").show()
 			}
 
-			if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data.header.status_app1 == 'Y' && data.header.status_app2 == 'Y'  && ( data.header.status_app3 == 'N' || data.header.status_app3 == 'H' || data.header.status_app3 == 'R' ) ) 
+			// if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data.header.status_app1 == 'Y' && data.header.status_app2 == 'Y'  && ( data.header.status_app3 == 'N' || data.header.status_app3 == 'H' || data.header.status_app3 == 'R' ) ) 
+			if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data.header.status_app1 == 'Y'  && ( data.header.status_app3 == 'N' || data.header.status_app3 == 'H' || data.header.status_app3 == 'R' ) ) 
 			{
 				$(".btn-verif").show()
 			}
+		}else{
+			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data.header.status_app1 == 'Y' && ( data.header.status_app2 == 'N' || data.header.status_app2 == 'H' || data.header.status_app2 == 'R' ) ) 
+			{
+				$(".btn-verif").show()
+				// $("#btn-simpan-plan").show()
+			}
+
 		}
 		
 
