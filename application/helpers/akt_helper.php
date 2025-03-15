@@ -84,6 +84,7 @@
         $CI->db->query("DELETE FROM jurnal_d where no_transaksi='$no_transaksi' $rek ");
     } 
     
+    
     function add_jurnal_all($tgl_transaksi='', $no_transaksi='', $nominal='')
     {
         $CI       = & get_instance();

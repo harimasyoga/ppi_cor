@@ -171,7 +171,7 @@
 					<div class="card-body row"style="font-weight:bold">
 						<div class="col-md-4">
 							<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
-								<i class="fa fa-undo" ></i> Kembali</b>
+								<i class="fa fa-chevron-left" ></i> Kembali</b>
 							</button>
 
 							<span id="btn-simpan"></span>
@@ -318,7 +318,7 @@
 						<!-- <span id="btn-simpan"></span> -->
 						<span id="modal_btn_verif"></span>
 						
-						<button type="button" class="btn btn-danger" data-dismiss="modal"  ><i class="fa fa-undo"></i> <b> Batal</b></button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal"  ><i class="fa fa-times"></i> <b> Batal</b></button>
 
 
 					</div>

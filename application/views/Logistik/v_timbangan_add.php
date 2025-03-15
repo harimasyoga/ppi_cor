@@ -251,7 +251,7 @@
 							
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">			
 								<div class="col-md-5">
-									<a href="<?= base_url('Logistik/Timbangan')?>" class="btn btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a>
+									<a href="<?= base_url('Logistik/Timbangan')?>" class="btn btn-danger"><i class="fa fa-chevron-left"></i> <b>Kembali</b></a>
 									
 									<button type="button" onclick="simpanTimbangan()" class="btn-tambah-produk btn  btn-primary"><b>
 										<i class="fa fa-save" ></i> Simpan</b>

@@ -202,7 +202,7 @@
 							<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 								<div class="col-md-12">
 										
-									<a href="<?= base_url('Logistik/Invoice')?>" class="btn btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a>
+									<a href="<?= base_url('Logistik/Invoice')?>" class="btn btn-danger"><i class="fa fa-chevron-left"></i> <b>Kembali</b></a>
 									
 									<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Update</b></button>
 									
