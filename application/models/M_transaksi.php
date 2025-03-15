@@ -1850,6 +1850,7 @@ class M_transaksi extends CI_Model
 		$tgl = $this->input->post('tgl');
 		$no_po = str_replace(' ', '', $this->input->post('no_po'));
 		$nm_pelanggan = $this->input->post('nm_pelanggan');
+		$id_pt = $this->input->post('id_pt');
 		$id_sales = $this->input->post('id_sales');
 		// CEK NO PO
 		$cek = $this->db->query("SELECT*FROM trs_po_roll_header	WHERE no_po='$no_po' AND nm_pelanggan='$nm_pelanggan'");
@@ -1897,6 +1898,7 @@ class M_transaksi extends CI_Model
 				$dh = [
 					'tgl_po' => $tgl,
 					'no_po' => $no_po,
+					'id_pt' => $id_pt,
 					'nm_pelanggan' => $nm_pelanggan,
 					'id_sales' => $id_sales,
 					'creat_at' => date('Y-m-d H:i:s'),
@@ -1923,6 +1925,7 @@ class M_transaksi extends CI_Model
 									'g_label' => $r['options']['gsm'],
 									'width' => $r['options']['ukuran'],
 									'jml_roll' => $r['options']['qty'],
+									'ket' => $r['options']['ket'],
 								);
 								$item = $this->db->insert('trs_po_roll_item', $data);
 								if($item){
@@ -2012,6 +2015,44 @@ class M_transaksi extends CI_Model
 			'itm' => $itm,
 			'hdtl' => $hdtl,
 			'hhdr' => $hhdr,
+		];
+	}
+
+	function InputPORoll()
+	{
+		$id_hdr = $_POST["id_hdr"];
+		$db_ppi = $this->load->database('database_simroll', TRUE);
+
+		$header = $this->db->query("SELECT*FROM trs_po_roll_header WHERE id_hdr='$id_hdr'")->row();
+		$detail = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$id_hdr' AND no_po='$header->no_po' ORDER BY nm_ker,g_label,width");
+		foreach($detail->result() as $r){
+			$items = array(
+				'id_perusahaan' => $header->id_pt,
+				'tgl' => $header->tgl_po,
+				'nm_ker' => $r->nm_ker,
+				'g_label' => $r->g_label,
+				'width' => $r->width,
+				'jml_roll' => $r->jml_roll,
+				'no_po' => $r->no_po,
+				'tonase' => 0,
+				'harga' => 0,
+				'pajak' => 'ppn',
+				'status' => 'Open',
+				'status_roll' => 0,
+				'ket' => $r->ket,
+				'created_at' => date('Y-m-d H:i:s'),
+				'created_by' => $this->username,
+			);
+			$data = $db_ppi->insert('po_master', $items);
+		}
+		if($data){
+			$this->db->set('input_po', 'Y');
+			$this->db->where('id_hdr', $id_hdr);
+			$this->db->update('trs_po_roll_header');
+		}
+		return [
+			'data' => $data,
+			'id_hdr' => $id_hdr,
 		];
 	}
 

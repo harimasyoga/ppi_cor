@@ -54,11 +54,12 @@
 												}else if($r->pimpinan != '-' && $r->nm_perusahaan != '-'){
 													$nm = $r->nm_perusahaan.' - '.$r->pimpinan;
 												}
-												$html .= '<option value="'.$nm.'">'.$nm.'</option>';
+												$html .= '<option value="'.$nm.'" idpt="'.$r->id.'">'.$nm.'</option>';
 											}
 											echo $html;
 										?>
 									</select>
+									<input type="hidden" id="id_pt" name="id_pt" value="">
 								</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
@@ -134,6 +135,7 @@
 								</div>
 							</div>
 							<div id="input-owner"></div>
+							<div id="input-po"></div>
 						</div>
 					</div>
 				</div>
@@ -185,6 +187,13 @@
 								<div class="col-md-1">QTY</div>
 								<div class="col-md-3">
 									<input type="number" id="i_qty" class="form-control" autocomplete="off" placeholder="0">
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-1">KET</div>
+								<div class="col-md-3">
+									<input type="text" id="i_ket" class="form-control" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
 								</div>
 								<div class="col-md-8"></div>
 							</div>
@@ -377,6 +386,9 @@
 	function diPilih(){
 		let tgl = $("#tgl").val()
 		let nm_pelanggan = $("#nm_pelanggan").val()
+		let id_pt = $('#nm_pelanggan option:selected').attr('idpt')
+		$("#id_pt").val(id_pt)
+
 		let no_po = $("#no_po").val()
 		let id_sales = $("#id_sales").val()
 		let filefoto = $("#filefoto").val()
@@ -410,6 +422,7 @@
 		let gsm = $("#i_gsm").val()
 		let ukuran = $("#i_ukuran").val()
 		let qty = $("#i_qty").val()
+		let ket = $("#i_ket").val()
 
 		let id_cart = parseInt($("#id_cart").val()) + 1
 		$("#id_cart").val(id_cart)
@@ -427,7 +440,7 @@
 				})
 			},
 			data: ({
-				jenis, gsm, ukuran, qty, id_cart
+				jenis, gsm, ukuran, qty, ket, id_cart
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -518,6 +531,7 @@
 		$(".col-roll-input").hide()
 		$(".col-roll-list").show()
 		$(".list-roll").html('')
+		$("#input-po").html('')
 		$("#hidhdr").val('')
 
 		$.ajax({
@@ -713,6 +727,19 @@
 						`)
 					}
 				}
+
+				// INPUT PO KE SIMROLLPPI
+				if(data.header.owner_status == 'Y' && urlAuth == 'Admin' && data.header.input_po == 'N'){
+					$("#input-po").html(`
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3"></div>
+							<div class="col-md-9">
+								<button type="button" title="INPUT PO" class="btn btn-danger btn-sm" style="font-weight:bold" onclick="inputPO('${data.header.id_hdr}')"><i class="fas fa-file-upload"></i> UPLOAD</button>
+							</div>
+						</div>
+					`)
+				}
+
 				statusInput = 'update'
 				swal.close()
 			}
@@ -844,6 +871,32 @@
 					swal.close()
 				}
 			})
+		})
+	}
+
+	function inputPO(id_hdr)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/InputPORoll') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_hdr }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					backList()
+				}
+				swal.close()
+			}
 		})
 	}
 </script>
