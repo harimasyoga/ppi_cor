@@ -1559,7 +1559,7 @@
 	// 		confirmButtonColor  : '#ffc107',
 	// 		cancelButtonColor  : '#d33',
     //         confirmButtonText   : '<b><i class="far fa-hand-paper"></i> Hold </b>',
-    //         cancelButtonText    : '<b><i class="fa fa-undo" ></i> Batal </b>'
+    //         cancelButtonText    : '<b><i class="fa fa-times" ></i> Batal </b>'
     //     }).then(function(alasan) {
 	// 		if(alasan==''){
 	// 			swal({

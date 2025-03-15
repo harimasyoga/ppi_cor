@@ -199,7 +199,7 @@
 				</div>
 				<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 					<div class="col-md-12">
-						<!-- <a href="<?= base_url('Logistik/Invoice')?>" class="btn btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a> -->
+						<!-- <a href="<?= base_url('Logistik/Invoice')?>" class="btn btn-danger"><i class="fa fa-chevron-left"></i> <b>Kembali</b></a> -->
 
 						<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
 							<i class="fa fa-arrow-left" ></i> Kembali</b>
@@ -636,7 +636,7 @@
 
 											<button type="button" class="btn btn-danger" id="modal_btn-print" onclick="Cetak()" ><i class="fas fa-print"></i> <b>Print</b></button>
 											
-											<button type="button" class="btn btn-danger" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-undo"></i> <b> Batal</b></button>
+											<button type="button" class="btn btn-danger" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-times"></i> <b> Batal</b></button>
 											
 											
 											

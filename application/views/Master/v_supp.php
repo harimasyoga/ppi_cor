@@ -84,7 +84,7 @@
 					
 					<span id="btn-simpan"></span>
 					<button type="button" data-dismiss="modal" class="btn-tambah-produk btn  btn-danger"><b>
-						<i class="fa fa-undo" ></i> Kembali</b>
+						<i class="fa fa-chevron-left" ></i> Kembali</b>
 					</button>
 				</div>
 			</form>

@@ -27,7 +27,7 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-md-12">
-					<a href="<?= base_url('Logistik/Gudang')?>" class="btn btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a>
+					<a href="<?= base_url('Logistik/Gudang')?>" class="btn btn-danger"><i class="fa fa-chevron-left"></i> <b>Kembali</b></a>
 				</div>
 			</div>
 
@@ -101,7 +101,7 @@
 
 			<div class="row">
 				<div class="col-md-12">
-					<a href="<?= base_url('Logistik/Gudang')?>" class="btn btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a>
+					<a href="<?= base_url('Logistik/Gudang')?>" class="btn btn-danger"><i class="fa fa-chevron-left"></i> <b>Kembali</b></a>
 				</div>
 			</div>
 		</div>

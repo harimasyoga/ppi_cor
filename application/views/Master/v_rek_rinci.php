@@ -140,7 +140,7 @@
 						<div class="card-body row"style="font-weight:bold">
 							<div class="col-md-2">
 								<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
-									<i class="fa fa-undo" ></i> Kembali</b>
+									<i class="fa fa-chevron-left" ></i> Kembali</b>
 								</button>
 							</div>
 							<div class="col-md-2">

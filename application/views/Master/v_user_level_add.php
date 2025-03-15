@@ -70,7 +70,7 @@
 						</tbody>
 					</table>
 					<br>
-					<a href="<?= base_url('Master/User_level')?>" class="btn btn-sm btn-danger"><i class="fa fa-undo"></i> <b>Kembali</b></a>
+					<a href="<?= base_url('Master/User_level')?>" class="btn btn-sm btn-danger"><i class="fa fa-chevron-left"></i> <b>Kembali</b></a>
 					
 					&nbsp;&nbsp;&nbsp;
 					<button type="button" class="btn btn-sm btn-primary " id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan </b></button>
