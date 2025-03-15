@@ -2037,7 +2037,7 @@ class M_transaksi extends CI_Model
 				'tonase' => 0,
 				'harga' => 0,
 				'pajak' => 'ppn',
-				'status' => 'Open',
+				'status' => 'open',
 				'status_roll' => 0,
 				'ket' => $r->ket,
 				'created_at' => date('Y-m-d H:i:s'),
