@@ -2116,7 +2116,7 @@ class Transaksi extends CI_Controller
 						}
 					}
 
-					if ($this->session->userdata('level') == 'Owner' && $r->status_app1 == 'Y' && $r->status_app2 == 'Y' ) {
+					if ($this->session->userdata('level') == 'Owner' && $r->status_app1 == 'Y'  ) {
 						if($r->status_app3 == 'N' || $r->status_app3 == 'H' || $r->status_app3 == 'R'){
 
 							$aksi .=  ' 
