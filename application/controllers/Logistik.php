@@ -1257,25 +1257,23 @@ class Logistik extends CI_Controller
 		$html .='</table>';
 		$html .='<table style="margin:0 0 10px;padding:0;font-size:12px;text-align:center;border-collapse:collapse;color:#000;width:100%;font-family:tahoma">
 			<tr>
-				<td style="width:35%"></td>
+				<td style="width:36%"></td>
 				<td style="width:16%"></td>
 				<td style="width:16%"></td>
-				<td style="width:1%"></td>
 				<td style="width:16%"></td>
 				<td style="width:16%"></td>
 			</tr>
 			<tr>
-				<td style="padding:10px 0;font-weight:bold">PENERIMA,</td>
-				<td style="border:1px solid #000;padding:10px 0;font-weight:bold" colspan="2">MENGETAHUI</td>
 				<td></td>
+				<td style="border:1px solid #000;padding:10px 0;font-weight:bold">GUDANG</td>
 				<td style="border:1px solid #000;padding:10px 0;font-weight:bold">ADMIN</td>
 				<td style="border:1px solid #000;padding:10px 0;font-weight:bold">SOPIR</td>
+				<td style="border:1px solid #000;padding:10px 0;font-weight:bold">PENERIMA</td>
 			</tr>
 			<tr>
 				<td></td>
 				<td style="border:1px solid #000;padding:50px;font-weight:bold"></td>
 				<td style="border:1px solid #000;padding:50px;font-weight:bold"></td>
-				<td></td>
 				<td style="border:1px solid #000;padding:50px;font-weight:bold"></td>
 				<td style="border:1px solid #000;padding:50px;font-weight:bold"></td>
 			</tr>';

@@ -1479,6 +1479,10 @@ class M_transaksi extends CI_Model
 					'id_hub' => $_POST["attn"],
 					'no_po_lm' => $_POST["no_po"],
 					'note_po_lm' => $_POST["note_po_lm"],
+					'status_lm1' => 'Y',
+					'user_lm1' => $this->username,
+					'time_lm1' => date('Y-m-d H:i:s'),
+					'ket_lm1' => 'OK',
 					'add_time' => date('Y-m-d H:i:s'),
 					'add_user' => $this->username,
 				];
