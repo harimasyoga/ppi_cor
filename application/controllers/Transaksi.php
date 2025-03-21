@@ -3156,6 +3156,157 @@ class Transaksi extends CI_Controller
 		// $this->m_fungsi->mPDFP($html);
 	}
 	
+	function cetak_rfp()
+	{
+		$id  = $_GET['no_po'];
+
+		// $query = $this->m_master->get_data_one("trs_po_detail", "no_po", $id);
+        $query_header = $this->db->query("SELECT*from lampiran_rfp order by no");
+        
+        $data = $query_header->row();
+        
+        $query = $this->db->query("SELECT*from lampiran_rfp order by no ");
+
+		$html = '';
+
+
+		if ($query->num_rows() > 0) {
+
+			$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
+                        <tr style="background-color: #cccccc">
+                            <th style="background-color: #cccccc" weight="10px" align="center">no</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">item</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">company</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">delivery</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">area</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">p</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">l</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">t</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">material</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">Categori</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">flute</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">weight/pcs</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">BB RUMUS</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">QTY Pak Indra</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">QTY Hanif</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">RM</th>
+                            <th style="background-color: #cccccc" weight="10px" align="center">TONASE</th>
+							</tr>
+							
+							';
+			$no        = 1;
+			$p_sheet   = '';
+			$l_sheet   = '';
+			$bb        = 0;
+			foreach ($query->result() as $r) {
+
+				// ubah uk box ke sheet
+				if($r->p == '' || $r->p == 0 || $r->l == '' || $r->l == 0 || $r->t == 0 || $r->t == ''){
+					$p_sheet = 0 ;
+					$l_sheet = 0 ;
+				}else{
+					if($r->flute == ""){
+						$p_sheet = 0 ;
+						$l_sheet = 0 ;
+					} else if($r->flute == "BC"){
+						$p_sheet = 2 * ($r->p + $r->l) + 61;
+						$l_sheet = $r->l + $r->t + 23;
+	
+					} else if($r->flute == "C") {
+						$p_sheet = 2 * ($r->p + $r->l) + 43;
+						$l_sheet = $r->l + $r->t + 13;
+	
+					} else if($r->flute == "B") {
+						$p_sheet = 2 * ($r->p + $r->l) + 39;
+						$l_sheet = $r->l + $r->t + 9;
+	
+					} else {
+						$p_sheet = 0;
+						$l_sheet = 0;
+					}
+				}
+
+
+			// bb
+				if($r->flute == 'B'){
+					$bb =  ($r->tl_al_i + ($r->bmf_i*1.36) + $r->bl_i) / 1000 * $p_sheet / 1000 * $l_sheet / 1000 ;
+		
+					$bb = $bb ;
+		
+				}else if($r->flute == 'C'){
+					$bb = ($r->tl_al_i + ($r->cmf_i*1.46) + $r->cl_i) / 1000 * $p_sheet / 1000 * $l_sheet / 1000 ;
+					
+		
+				}else if($r->flute == 'BC'){
+		
+					$bb = ($r->tl_al_i + ($r->bmf_i*1.36) + $r->bl_i + ($r->cmf_i*1.46) + $r->cl_i) / 1000 * $p_sheet / 1000 * $l_sheet / 1000 ;
+		
+					$bb = $bb ;
+		
+				}else{
+					$bb = 0;
+				}
+
+
+				// rm
+
+				$out = intval(1800/$l_sheet);
+				if($out >= 5){
+					$out = 5;
+				}
+
+				$rm       = ceil($p_sheet * $r->qty_pak_hanif / $out / 1000);
+				$ton      = ceil($r->qty_pak_hanif * number_format($bb, 4));
+
+				if ($r->qty_pak_indra==0 || $r->qty_pak_indra== null)
+				{
+					$qty_indra = 0;
+				}else{
+					$qty_indra = $r->qty_pak_indra;
+				}
+				
+				if ($r->qty_pak_hanif==0 || $r->qty_pak_hanif== null)
+				{
+					$qty_hanif = 0;
+				}else{
+					$qty_hanif = $r->qty_pak_hanif;
+				}
+				$html .= '
+
+                            <tr >
+                                <td align="center">' . $r->no . '</td>
+                                <td align="left">' . $r->item . '</td>
+                                <td align="center">' . $r->company . '</td>
+                                <td align="center">' . $r->delivery . '</td>
+                                <td align="center">' . $r->area . '</td>
+                                <td align="center">' . $r->p . '</td>
+                                <td align="center">' . $r->l . '</td>
+                                <td align="center">' . $r->t . '</td>
+                                <td align="center">' . $r->material . '</td>
+                                <td align="center">' . $r->kategori . '</td>
+                                <td align="center">' . $r->flute . '</td>
+                                <td align="center">' . $r->weight . '</td>
+                                <td align="center">' . number_format($bb, 4) . '</td>
+                                <td align="center">' . number_format($qty_indra, 0, ",", ".") . '</td>
+                                <td align="center">' . number_format($qty_hanif, 0, ",", ".") . '</td>
+                                <td align="center">' . number_format($rm, 0, ",", ".") . '</td>
+                                <td align="center">' . number_format($ton, 0, ",", ".") . '</td>
+								';
+						$html .= '</tr>';
+
+			}
+			$html .= '
+                 </table>';
+		} else {
+			$html .= '<h1> Data Kosong </h1>';
+		}
+
+		echo ("<title>DATA ITEM FKS</title>");
+		echo ($html);
+		
+		// $this->m_fungsi->_mpdf_hari('L', 'A4', '-', $html, 'DATA ITEM FKS.pdf', 5, 5, 5, 15);
+	}
+	
     function Cetak_wa_po()
 	{
 		$id  = $_GET['no_po'];
