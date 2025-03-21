@@ -9059,11 +9059,12 @@ class Logistik extends CI_Controller
 		}else{
 			// TOTAL
 			$html .= '<tr style="background:#5eafde">
-				<td style="padding:6px;text-align:right;font-weight:bold" colspan="3">TOTAL PACK</td>
+				<td style="padding:6px;text-align:right;font-weight:bold" colspan="3">TOTAL BALL</td>
 				<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumSAPack,0,',','.').'</td>
 				<td style="padding:6px;text-align:right;font-weight:bold">+ '.number_format($sumInPack,0,',','.').'</td>
 				<td style="padding:6px;text-align:right;font-weight:bold">- '.number_format($sumOutPack,0,',','.').'</td>
 				<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumSkPack,0,',','.').'</td>
+				<td style="padding:6px;font-weight:bold">BALL</td>
 			</tr>';
 			$html .= '<tr style="background:#5eafde">
 				<td style="padding:6px;text-align:right;font-weight:bold" colspan="3">TOTAL IKAT</td>
@@ -9071,6 +9072,7 @@ class Logistik extends CI_Controller
 				<td style="padding:6px;text-align:right;font-weight:bold">+ '.number_format($sumInIkat,0,',','.').'</td>
 				<td style="padding:6px;text-align:right;font-weight:bold">- '.number_format($sumOutIkat,0,',','.').'</td>
 				<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumSkIkat,0,',','.').'</td>
+				<td style="padding:6px;font-weight:bold">IKAT</td>
 			</tr>';
 			$html .= '</table>';
 		}

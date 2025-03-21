@@ -113,7 +113,7 @@
 				[5, 10, 15, 20, "Semua"]
 			],	
 			responsive: true,
-			"pageLength": 10,
+			"pageLength": -1,
 			"language": {
 				"emptyTable": "Tidak ada data.."
 			}
