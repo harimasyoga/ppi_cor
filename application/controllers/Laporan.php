@@ -171,18 +171,15 @@ class Laporan extends CI_Controller
 			$w_opsi = "";
 		}
 		// $data = $this->db->query("SELECT*FROM trs_po p
-		// INNER JOIN m_pelanggan i ON p.id_pelanggan=i.id_pelanggan
-		// -- WHERE p.tgl_po LIKE '%$tahun%' AND p.status='Approve' AND p.id_pelanggan='$pelanggan' $w_nopo $w_opsi
-		// WHERE p.tgl_po BETWEEN '2024-12-01' AND '2024-12-31' AND p.status='Approve' AND p.status_kiriman='Open'
-		// GROUP BY p.kode_po ORDER BY i.nm_pelanggan,i.attn,p.tgl_po,p.kode_po");
-		// ($r->attn == '-' || $r->attn == '') ? $attn = '' : $attn = '-'.$r->attn;
-		// $html .='<tr>
-		// 	<td style="background:#adb5bd;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="6">'.$r->nm_pelanggan.$attn.' ('.$r->tgl_po.') : '.$r->kode_po.'</td>
-		// 	'.$kopBtn.'
-		// 	<td style="background:#adb5bd;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:center">'.$btnBtl.'</td>
-		// </tr>';
+		// WHERE p.tgl_po LIKE '%$tahun%' AND p.status='Approve' AND p.id_pelanggan='$pelanggan' $w_nopo $w_opsi
+		// GROUP BY p.kode_po ORDER BY p.tgl_po");
+		if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
+			$wherePO = "AND p.status_app1='Y' AND p.status_app2='Y' AND (p.status_app3='Y' OR p.status_app3='N' OR p.status_app3='R')";
+		}else{
+			$wherePO = "AND p.status='Approve'";
+		}
 		$data = $this->db->query("SELECT*FROM trs_po p
-		WHERE p.tgl_po LIKE '%$tahun%' AND p.status='Approve' AND p.id_pelanggan='$pelanggan' $w_nopo $w_opsi
+		WHERE p.tgl_po LIKE '%$tahun%' AND p.id_pelanggan='$pelanggan' $wherePO $w_nopo $w_opsi
 		GROUP BY p.kode_po ORDER BY p.tgl_po");
 		$htmlPO .='<option value="">PILIH</option>';
 		foreach($data->result() as $r){	
@@ -222,8 +219,9 @@ class Laporan extends CI_Controller
 					}else{
 						$btnBtl = '-';
 					}
+					($r->status_app3!='Y') ? $ketPO = ' <span class="bg-danger" style="vertical-align:top;font-weight:bold;font-style:italic;padding:2px 4px;font-size:12px">( BELUM DI ACC )</span>' : $ketPO = '';
 					$html .='<tr>
-						<td style="background:#adb5bd;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="6">'.$r->kode_po.'</td>
+						<td style="background:#adb5bd;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="6">'.$r->kode_po.$ketPO.'</td>
 						'.$kopBtn.'
 						<td style="background:#adb5bd;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:center">'.$btnBtl.'</td>
 					</tr>';
