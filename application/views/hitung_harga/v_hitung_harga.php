@@ -178,7 +178,13 @@
 									<div class="col-md-12">&nbsp;</div>
 
 									<input class="btn btn-danger" type="reset" name="" id="" value="RESET" onclick="kosong()">
+									&nbsp;&nbsp;
+
+									<?php if (in_array($this->session->userdata('level'), ['Admin'])){ ?>
+
+									<button type="button" class="btn btn-danger" id="btn-print" onclick="cetak()" ><i class="fas fa-print"></i> <b>CETAK FKS</b></button>
 									
+									<?php }?>
 									<!-- <input class="btn btn-success" type="button" name="" id="" value="COBA API" onclick="Coba_api()"> -->
 									
 								</div>
@@ -204,6 +210,13 @@
 			dropdownAutoWidth: true
 		});
 	})
+
+	function cetak() 
+	{
+		no_po = '123';
+		var url = "<?= base_url('Transaksi/cetak_rfp'); ?>";
+		window.open(url + '?no_po=' + no_po, '_blank');
+	}
 
 	function cek_type(vall)
 	{
