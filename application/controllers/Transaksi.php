@@ -3286,11 +3286,11 @@ class Transaksi extends CI_Controller
                                 <td align="center">' . $r->kategori . '</td>
                                 <td align="center">' . $r->flute . '</td>
                                 <td align="center">' . $r->weight . '</td>
-                                <td align="center">' . number_format($bb, 4) . '</td>
-                                <td align="center">' . number_format($qty_indra, 0, ",", ".") . '</td>
-                                <td align="center">' . number_format($qty_hanif, 0, ",", ".") . '</td>
-                                <td align="center">' . number_format($rm, 0, ",", ".") . '</td>
-                                <td align="center">' . number_format($ton, 0, ",", ".") . '</td>
+                                <td align="center">' . $bb .'</td>
+                                <td align="center">' . $qty_indra . '</td>
+                                <td align="center">' . $qty_hanif . '</td>
+                                <td align="center">' . $rm . '</td>
+                                <td align="center">' . $ton . '</td>
 								';
 						$html .= '</tr>';
 
