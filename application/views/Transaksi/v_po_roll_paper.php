@@ -184,6 +184,13 @@
 								<div class="col-md-8"></div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-1">BERAT</div>
+								<div class="col-md-3">
+									<input type="number" id="i_berat" class="form-control" autocomplete="off" placeholder="0">
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-1">QTY</div>
 								<div class="col-md-3">
 									<input type="number" id="i_qty" class="form-control" autocomplete="off" placeholder="0">
@@ -421,6 +428,7 @@
 		let jenis = $("#i_jenis").val()
 		let gsm = $("#i_gsm").val()
 		let ukuran = $("#i_ukuran").val()
+		let berat = $("#i_berat").val()
 		let qty = $("#i_qty").val()
 		let ket = $("#i_ket").val()
 
@@ -440,7 +448,7 @@
 				})
 			},
 			data: ({
-				jenis, gsm, ukuran, qty, ket, id_cart
+				jenis, gsm, ukuran, berat, qty, ket, id_cart
 			}),
 			success: function(res){
 				data = JSON.parse(res)
