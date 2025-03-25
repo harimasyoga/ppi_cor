@@ -1928,6 +1928,7 @@ class M_transaksi extends CI_Model
 									'nm_ker' => $r['options']['jenis'],
 									'g_label' => $r['options']['gsm'],
 									'width' => $r['options']['ukuran'],
+									'tonase' => $r['options']['berat'],
 									'jml_roll' => $r['options']['qty'],
 									'ket' => $r['options']['ket'],
 								);
@@ -2038,7 +2039,7 @@ class M_transaksi extends CI_Model
 				'width' => $r->width,
 				'jml_roll' => $r->jml_roll,
 				'no_po' => $r->no_po,
-				'tonase' => 0,
+				'tonase' => ($r->tonase == null) ? 0 : $r->tonase,
 				'harga' => 0,
 				'pajak' => 'ppn',
 				'status' => 'open',

@@ -216,6 +216,7 @@ class Transaksi extends CI_Controller
 					'jenis' => $_POST["jenis"],
 					'gsm' => $_POST["gsm"],
 					'ukuran' => $_POST["ukuran"],
+					'berat' => $_POST["berat"],
 					'qty' => $_POST["qty"],
 					'ket' => ($_POST["ket"] == '') ? '' : $_POST["ket"],
 					'id_cart' => $_POST["id_cart"],
@@ -252,6 +253,7 @@ class Transaksi extends CI_Controller
 						<th style="padding:6px">JENIS</th>
 						<th style="padding:6px;text-align:center">GSM</th>
 						<th style="padding:6px;text-align:center">UKURAN</th>
+						<th style="padding:6px;text-align:center">BERAT</th>
 						<th style="padding:6px;text-align:center">QTY</th>
 						<th style="padding:6px;text-align:center">KETERANGAN</th>
 						<th style="padding:6px;text-align:center">AKSI</th>
@@ -270,6 +272,7 @@ class Transaksi extends CI_Controller
 				<td style="padding:6px">'.$r['options']['jenis'].'</td>
 				<td style="padding:6px;text-align:center">'.$r['options']['gsm'].'</td>
 				<td style="padding:6px;text-align:right">'.$r['options']['ukuran'].'</td>
+				<td style="padding:6px;text-align:right">'.number_format($r['options']['berat']).'</td>
 				<td style="padding:6px;text-align:right">'.$r['options']['qty'].'</td>
 				<td style="padding:6px">'.$r['options']['ket'].'</td>
 				<td style="padding:6px;text-align:center">
@@ -284,11 +287,7 @@ class Transaksi extends CI_Controller
 		}
 		if($this->cart->total_items() != 0){
 			$html .= '</table></div>';
-			// $html .= '<div>
-			// 	<button class="btn btn-primary btn-sm" onclick=""><i class="fas fa-save"></i> <b>SIMPAN</b></button>
-			// </div>';
 		}
-
 		echo $html;
 	}
 
