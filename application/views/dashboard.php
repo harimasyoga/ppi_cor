@@ -127,6 +127,15 @@
                         <div class="col-md-12">								
                           <br>						
                           <div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+                            <div class="col-md-2"></div>
+                            <div class="col-md-3">
+                              <button type="button" class="btn btn-danger btn-sm" onclick="open_jt_bhn()" id="tombol_jt_bhn"><i class="fa fa-print"></i> <b>Open Data</b></button>
+
+                            </div>
+                            <div class="col-md-6"></div>
+                          </div>
+                          
+                          <div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
                             <div class="col-md-2">PERIODE</div>
                             <div class="col-md-3">
                               <select class="form-control select2" name="priode" id="priode" style="width: 100%;" onchange="cek_periode(),load_data_jt_bhn()">
@@ -164,7 +173,7 @@
                         </div>
                         <!-- AA -->
 
-                          <div style="padding:0 10px 20px;">
+                          <div style="padding:0 10px 20px;"> 
                             <div style="overflow:auto;white-space:nowrap" >
                               <table id="load_data_jt_bhn" class="table table-bordered table-striped" width="100%">
                                 <thead class="color-tabel">
@@ -323,6 +332,17 @@
                         <div class="card-header">
                           <h3 class="card-title" style="font-weight:bold;font-style:italic">REKAP STOK BAHAN BAKU</h3>
                         </div>
+
+                        <div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+                            <div class="col-md-2"></div>
+                            <div class="col-md-3">
+                              <button type="button" class="btn btn-danger btn-sm" onclick="open_stok_bhn()" id="tombol_stok_bhn"><i class="fa fa-print"></i> <b>Open Data</b></button>
+
+                            </div>
+                            <div class="col-md-6"></div>
+                          </div>
+
+
                         <div class="card-body">
                           <div class="row">
                             <div class="col-md-10">
@@ -393,12 +413,22 @@
                         </div>
                         
                           <!--  AA -->
-                          <div class="col-md-12">								
+                          <div class="col-md-12">
+                            
+                          <div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
+                            <div class="col-md-2"></div>
+                            <div class="col-md-3">
+                              <button type="button" class="btn btn-danger btn-sm" onclick="open_jt_jual()" id="tombol_jt_jual"><i class="fa fa-print"></i> <b>Open Data</b></button>
+
+                            </div>
+                            <div class="col-md-6"></div>
+                          </div>
+
                             <br>						
                             <div class="card-body row" style="padding-bottom:1px;font-weight:bold">						
                               <div class="col-md-2">PERIODE</div>
                               <div class="col-md-3">
-                                <select class="form-control select2" name="priode_jual" id="priode_jual" style="width: 100%;" onchange="cek_periode_jual(),load_data_jt()">
+                                <select class="form-control select2" name="priode_jual" id="priode_jual" style="width: 100%;" onchange="cek_periode_jual(),load_data_jt()" >
                                   <option value="bln_ini">BULAN INI</option>
                                   <option value="custom">Custom</option>
                                   <option value="all">ALL</option>
@@ -471,11 +501,11 @@
     $(document).ready(function() {
       $(".select2").select2()
       load_data_hub()
-      load_data_jt()
-      load_list_bhn()
+      // load_data_jt()
+      // load_list_bhn()
       load_cek_produk()
       <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub'])){ ?>        
-        load_data_jt_bhn()
+        // load_data_jt_bhn()
       <?php } ?>
       load_hub_bhn() 
     });
@@ -483,11 +513,11 @@
     function reloadTable() 
     {
       load_data_hub()
-      load_data_jt()
+      // load_data_jt()
       <?php if(in_array($level, ['Admin','konsul_keu','User','Owner','Hub'])){ ?>
-        load_data_jt_bhn()      
+        // load_data_jt_bhn()      
       <?php } ?>
-      load_list_bhn()
+      // load_list_bhn()
       load_cek_produk()
       load_hub_bhn() 
     }
@@ -681,7 +711,13 @@
       });
     }
     
-    
+    function open_jt_bhn()
+    {
+      // $("#tombol_jt_bhn").attr('style', 'display:none')
+      $("#tombol_jt_bhn").attr('style', 'display:none')
+      load_data_jt_bhn()
+    }
+
     function load_data_jt_bhn() 
     {
       var id_hub    = $('#id_hub2').val()
@@ -804,6 +840,13 @@
       
     }
     
+    
+    function open_jt_jual()
+    {
+      $("#tombol_jt_jual").attr('style', 'display:none')
+      load_data_jt()
+    }
+
     function load_data_jt() 
     {
       var id_hub    = $('#id_hub_jual').val()
@@ -835,6 +878,13 @@
       });
     }
     
+    
+    function open_stok_bhn()
+    {
+      $("#tombol_stok_bhn").attr('style', 'display:none')
+      load_list_bhn()
+    }
+
     function load_list_bhn() 
     {
       var vall    = $('#pil_keluar').val()
