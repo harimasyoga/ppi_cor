@@ -38,7 +38,7 @@
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
 							<div class="col-md-2">JENIS</div>
 							<div class="col-md-3">
-								<select name="jns_data" id="jns_data" class="form-control" style="font-weight:bold" onchange="cek_header()">
+								<select name="jns_data" id="jns_data" class="form-control" style="font-weight:bold" onchange="cek_header(),load_hub_bhn()">
 									<option value="box">BOX</option>
 									<option value="lm">LAMINASI</option>
 								</select>
@@ -49,6 +49,14 @@
 							<div class="col-md-2">BULAN</div>
 							<div class="col-md-3">
 								<input type="month" class="form-control " name="bulan" id="bulan" onchange="cek_header()">
+							</div>
+							<div class="col-md-6"></div>
+						</div>
+						
+						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
+							<div class="col-md-2">ATTN</div>
+							<div class="col-md-3">
+								<select class="form-control select2" name="id_hub2" id="id_hub2" style="width: 100%;"> </select>
 							</div>
 							<div class="col-md-6"></div>
 						</div>
@@ -76,7 +84,7 @@
 					</div>
 					<!-- AA -->
 
-					
+<!-- 					
 					<div style="overflow:auto;white-space:nowrap;" >
 
 						<div class="row-box">
@@ -133,7 +141,7 @@
 								</tbody>
 							</table>
 						</div>
-					</div>
+					</div> -->
 				</div>
 			</div>
 		</div>
@@ -149,10 +157,11 @@
 	$(document).ready(function() {
 		// load_data();
 		// getMax();
+		load_hub_bhn()
 		cek_header()
 		$('.select2').select2({
 			containerCssClass: "wrap",
-			placeholder: '--- Pilih ---',
+			// placeholder: '--- Pilih ---',
 			dropdownAutoWidth: true
 		});
 	});
@@ -163,9 +172,10 @@
 	{		
 		var bulan       = $('#bulan').val()
 		var jns_data    = $('#jns_data').val()
+		var id_hub2     = $('#id_hub2').val()
 
 		var url    = "<?php echo base_url('Rekapan/cetak_penggunaan_bahan'); ?>";
-		window.open(url+'?bulan='+bulan+'&ctk='+ctk+'&jns_data='+jns_data, '_blank');   
+		window.open(url+'?bulan='+bulan+'&ctk='+ctk+'&jns_data='+jns_data+'&id_hub2='+id_hub2, '_blank');   
 		 
 	}
 	
@@ -203,6 +213,45 @@
 		});
 
 	}
+
+	function load_hub_bhn() 
+    {
+		var jns_data = $('#jns_data').val()
+		option = "";
+		$.ajax({
+		type       : 'POST',
+		url        : "<?= base_url(); ?>Rekapan/load_hub",
+		data       : { jns_data },
+		dataType   : 'json',
+		beforeSend: function() {
+			swal({
+			title: 'loading ...',
+			allowEscapeKey    : false,
+			allowOutsideClick : false,
+			onOpen: () => {
+			swal.showLoading();
+			}
+			})
+		},
+		success:function(data){			
+			if(data.message == "Success"){					
+			option = `<option value="">-- Semua --</option>`;	
+
+			$.each(data.data, function(index, val) {
+			option += "<option value='"+val.id_hub+"'>"+val.nm_hub+"</option>";
+			});
+
+			$('#id_hub2').html(option);
+			swal.close();
+			}else{	
+			option += "<option value=''></option>";
+			$('#id_hub2').html(option);						
+			swal.close();
+			}
+		}
+		});
+      
+    }
 
 	function reloadTable() 
 	{
@@ -245,7 +294,7 @@
 
 		}
 
-		load_data()
+		// load_data()
 
 	}
 

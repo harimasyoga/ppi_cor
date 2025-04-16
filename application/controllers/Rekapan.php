@@ -52,6 +52,33 @@ class Rekapan extends CI_Controller
 		$this->load->view('Rekap/v_guna_bb_keu', $data);
 		$this->load->view('footer');
 	}
+
+	function load_hub()
+    {
+		
+		$jns_data       = $this->input->post('jns_data');
+
+		($jns_data == 'box') ? $jns=$jns_data : $jns='Laminasi' ;
+
+        $query    = $this->db->query("SELECT*FROM m_hub where jns ='$jns' order by id_hub")->result();
+
+            if (!$query) {
+                $response = [
+                    'message'	=> 'not found',
+                    'data'		=> [],
+                    'status'	=> false,
+                ];
+            }else{
+                $response = [
+                    'message'	=> 'Success',
+                    'data'		=> $query,
+                    'status'	=> true,
+                ];
+            }
+            $json = json_encode($response);
+            print_r($json);
+    }
+	
 	
 	function Jurum()
 	{
@@ -442,7 +469,9 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 	{ //
 		$bulan    = $_GET['bulan'];
 		$jns_data = $_GET['jns_data'];
-		$cekpdf   = $_GET['ctk'];
+		$cekpdf   = $_GET['ctk'];		
+		$id_hub2  = $_GET['id_hub2'];
+
 		// $cekpdf   = 0;
 		$position = 'L';
 
@@ -460,14 +489,28 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 			
 		if($jns_data == 'box')
 		{
+			if ($id_hub2==''){
+				$hub = "";
+			}else{
+				$hub = "and d.id_hub='$id_hub2' ";
+				
+			}
 			$judul1 = 'BOX';
 			$query_detail = $this->db->query("SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm_ker,b.no_po,b.type,b.qty,b.retur_qty,b.hasil,b.harga,a.pajak from invoice_header a 
 			join invoice_detail b on a.no_invoice=b.no_invoice
 			join trs_po c on b.no_po=c.kode_po
 			join m_hub d on c.id_hub=d.id_hub
-			where a.type in ('box','sheet') and YEAR(tgl_invoice) ='$tahun' and MONTH(tgl_invoice) ='$blnn' and c.id_hub not in ('7')
+			where a.type in ('box','sheet') and YEAR(tgl_invoice) ='$tahun' and MONTH(tgl_invoice) ='$blnn' and c.id_hub not in ('7') $hub
 			order by c.id_hub,a.tgl_invoice,a.no_invoice");
 		}else{
+
+			if ($id_hub2==''){
+				$hub = "";
+			}else{
+				$hub = "and h.id_hub='$id_hub2' ";
+				
+			}
+
 			$judul1 = 'LAMINASI';
 			// $query_detail = $this->db->query("SELECT no_invoice,nm_pelanggan_lm,id_hub,nm_hub,tgl_invoice,nm_produk_lm,no_po_lm,''type, qty_ok as qty,retur_qty as retur_qty,qty_ok-retur_qty as qty_fix,harga_pori_lm as harga,(qty_ok-retur_qty)*harga_pori_lm as total_jual,hitung as diskon,(qty_ok-retur_qty)*harga_pori_lm-hitung as total_inv FROM(
 			// 	SELECT a.no_invoice,a.tgl_invoice,g.nm_pelanggan_lm,h.id_hub,h.nm_hub,d.*,e.*,f.no_po_lm,c.hitung, d.qty_muat*(case when jenis_qty_lm='pack' then e.pack_lm else ikat_lm end) as qty_ok, b.retur_qty,f.harga_pori_lm
@@ -492,7 +535,7 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 			JOIN trs_po_lm_detail f ON b.id_po_dtl=f.id
 			JOIN m_pelanggan_lm g ON g.id_pelanggan_lm=a.id_pelanggan_lm
 			JOIN m_hub h ON h.id_hub=a.bank
-			WHERE MONTH(a.tgl_surat_jalan) in ($blnn) and YEAR(a.tgl_surat_jalan) in ($tahun) and a.jenis_lm='PPI'
+			WHERE MONTH(a.tgl_surat_jalan) in ($blnn) and YEAR(a.tgl_surat_jalan) in ($tahun) and a.jenis_lm='PPI' $hub
 			)p
 			order by id_hub,p.tgl_invoice,no_invoice");
 		}
@@ -587,11 +630,11 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 						<td>'.$r->nm_produk_lm.'</td>
 						<td>'.$r->no_po_lm.'</td>
 						<td>'.$r->type.'</td>
-						<td>'.$r->qty.'</td>
+						<td>'.floor($r->qty).'</td>
 						<td>'.$r->retur_qty.'</td>
-						<td>'.$r->qty_fix.'</td>
+						<td>'.floor($r->qty_fix).'</td>
 						<td>'.$r->harga.'</td>
-						<td>'.$r->total_jual.'</td>';
+						<td>'.floor($r->total_jual).'</td>';
 						// GET JML INVOICE + DISC
 						$jmlInv = $this->db->query("SELECT COUNT(no_invoice) AS jml FROM invoice_laminasi_detail WHERE no_invoice='$r->no_invoice'");
 						$disc = $this->db->query("SELECT*FROM invoice_laminasi_disc WHERE no_invoice='$r->no_invoice'");
@@ -602,9 +645,10 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 								$sumDisc += $c->hitung;
 							}
 							$fixTot = $r->total_jual - round($sumDisc / $jmlInv->row()->jml);
-							$html .= '<td>'.number_format(round($sumDisc / $jmlInv->row()->jml), 0, ",", ".").'</td><td>'.number_format($fixTot, 0, ",", ".").'</td>';
+							$html .= '<td>'.floor((round($sumDisc / $jmlInv->row()->jml))).'</td>
+							<td>'.floor($fixTot).'</td>';
 						}else{
-							$html .= '<td>0</td><td>'.number_format($r->total_jual, 0, ",", ".").'</td>';
+							$html .= '<td>0</td><td>'.floor($r->total_jual).'</td>';
 						}
 					$html .= '</tr>';
 					$no++;
@@ -649,7 +693,10 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 		$bulan    = $_GET['bulan'];
 		$jns_data = $_GET['jns_data'];
 		$cekpdf   = $_GET['ctk'];
+		$id_hub2  = $_GET['id_hub2'];
+
 		// $cekpdf   = 0;
+		
 		$position = 'L';
 	
 		if($jns_data == 'box')
@@ -673,11 +720,17 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 		$bln_judul = $this->m_fungsi->getBulan($blnn) ;
 		$judul    = 'REKAP INVOICE PENJUALAN '.$judul1.' ('.$bln_judul.' - '.$tahun.' )';
 
+		if ($id_hub2==''){
+			$hub = "";
+		}else{
+			$hub = "and c.id_hub='$id_hub2' ";
+			
+		}
 		$query_detail = $this->db->query("SELECT a.no_stok,tgl_stok,tgl_j_tempo,no_timbangan,d.no_po_bhn,nm_hub,hrg_bhn,datang_bhn_bk,hrg_bhn*datang_bhn_bk as total from trs_h_stok_bb a 
 			JOIN trs_d_stok_bb b on a.no_stok=b.no_stok
 			JOIN m_hub c ON b.id_hub=c.id_hub
 			JOIN trs_po_bhnbk d ON b.no_po_bhn = d.no_po_bhn
-			where c.jns in ('$judul1') and MONTH(tgl_stok) in ($blnn) and YEAR(tgl_stok) ='$tahun'
+			where c.jns in ('$judul1') and MONTH(tgl_stok) in ($blnn) and YEAR(tgl_stok) ='$tahun' $hub
 			order by CAST(b.id_hub as int),tgl_j_tempo,a.no_stok");
 
 		$html = '';
@@ -765,6 +818,7 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 	{
 		$bulan    = $_GET['bulan'];
 		$jns_data = $_GET['jns_data'];
+		$id_hub2  = $_GET['id_hub2'];
 		$cekpdf   = $_GET['ctk'];
 		// $cekpdf   = 0;
 		$position = 'L';
@@ -782,13 +836,18 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 			
 		if($jns_data == 'box')
 		{
+			if ($id_hub2==''){
+				$hub = "";
+			}else{
+				$hub = "and d.id_hub='$id_hub2' ";
+				
+			}
 			$judul1 = 'BOX';
 			$query_detail = $this->db->query("SELECT *, f.berat_bersih ,
 				r.hasil*f.berat_bersih as tonase,
 				round(r.hasil*f.berat_bersih/0.7) as bahan 
 				
-				from(
-SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm_ker,b.no_po,b.type,
+				from( SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm_ker,b.no_po,b.type,
 				b.qty,b.retur_qty,b.hasil,b.harga,a.pajak, 
 				(
 				select hrg_bhn from (
@@ -805,17 +864,25 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 				join m_hub d on c.id_hub=d.id_hub
 				-- join trs_po_detail e on b.no_po=e.kode_po and e.id_produk=b.id_produk_simcorr
 				-- join m_produk f on e.id_produk=f.id_produk
-				where a.type in ('box','sheet') and YEAR(tgl_invoice) ='$tahun' and MONTH(tgl_invoice) ='$blnn' and c.id_hub not in ('7')
+				where a.type in ('box','sheet') and YEAR(tgl_invoice) ='$tahun' and MONTH(tgl_invoice) ='$blnn' and c.id_hub not in ('7') $hub
 				)r
 				join m_produk f on r.id_produk=f.id_produk
 				order by r.id_hub,r.tgl_invoice,r.no_invoice ");
 		}else{
+
+			if ($id_hub2==''){
+				$hub = "";
+			}else{
+				$hub = "and h.id_hub='$id_hub2' ";
+				
+			}
+
 			$judul1 = 'LAMINASI';
 			$query_detail = $this->db->query("SELECT no_invoice,nm_pelanggan_lm,id_hub,nm_hub,tgl_invoice,nm_produk_lm,no_po_lm, qty_ok as qty,retur_qty as retur_qty,
 			qty_ok-retur_qty as qty_fix_pack,
 			(qty_ok-retur_qty)/(case when jenis_qty_lm='pack' then pack_lm else ikat_lm end)qty_bal,
-			(qty_ok-retur_qty)/(case when jenis_qty_lm='pack' then pack_lm else ikat_lm end)*50 as tonase,
-			round( (qty_ok-retur_qty)/(case when jenis_qty_lm='pack' then pack_lm else ikat_lm end)*50/0.75 )as bahan_Kg,
+			(qty_ok-retur_qty)/(case when jenis_qty_lm='pack' then pack_lm else ikat_lm end)*(case when jenis_qty_lm='pack' then 50 else 7 end) as tonase,
+			round( (qty_ok-retur_qty)/(case when jenis_qty_lm='pack' then pack_lm else ikat_lm end)*(case when jenis_qty_lm='pack' then 50 else 7 end)/0.75 )as bahan_Kg,
 			(
 			select hrg_bhn from (
 			select * from (
@@ -835,10 +902,10 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 			JOIN trs_po_lm_detail f ON b.id_po_dtl=f.id
 			JOIN m_pelanggan_lm g ON g.id_pelanggan_lm=a.id_pelanggan_lm
 			JOIN m_hub h ON h.id_hub=a.bank
-			WHERE (h.id_hub!='7' AND h.id_hub!='0') AND MONTH(a.tgl_surat_jalan) in ($blnn) AND YEAR(a.tgl_surat_jalan) in ($tahun) and a.jenis_lm='PPI'
+			WHERE (h.id_hub!='7' AND h.id_hub!='0') AND MONTH(a.tgl_surat_jalan) in ($blnn) AND YEAR(a.tgl_surat_jalan) in ($tahun) and a.jenis_lm='PPI' $hub
 			-- GROUP BY a.tgl_surat_jalan,a.no_surat,a.no_invoice 
 			)p
-			order by id_hub,p.tgl_invoice,no_invoice");
+			order by id_hub,p.tgl_invoice,no_invoice,nm_produk_lm");
 		}
 
 		$bln_judul = $this->m_fungsi->getBulan($blnn) ;
@@ -880,11 +947,13 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 					<th style="text-align: center;">Tonase </th>
 					<th style="text-align: center;">Bahan </th>
 					<th style="text-align: center;">Harga Bahan </th>
+					<th style="text-align: center;">TOTAL </th>
 				</tr>';
 
 				$no=1;
 				foreach ($query_detail->result() as $r) 
 				{
+					$total_guna = $r->harga_bahan * $r->bahan;
 					$html .= '<tr>
 							<td align="center">'.$no.'</td>
 							<td align="">'.$r->no_invoice.'</td> 
@@ -902,9 +971,10 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 							<td align="">'.$r->harga.'</td> 
 							<td align="">'.$r->pajak.'</td> 
 							<td align="">'.$r->berat_bersih.'</td> 
-							<td align="">'.$r->tonase.'</td> 
+							<td align="">'.floor($r->tonase).'</td> 
 							<td align="">'.$r->bahan.'</td> 
 							<td align="">'.$r->harga_bahan.'</td> 
+							<td align="">'.$total_guna.'</td> 
 						</tr>';
 
 						$no++;
@@ -929,11 +999,13 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 					<th style="text-align: center;">Tonase  </th>
 					<th style="text-align: center;">Bahan Kg  </th>
 					<th style="text-align: center;">Harga Bahan  </th>
+					<th style="text-align: center;">TOTAL</th>
 				</tr>';
 
 				$no=1;
 				foreach ($query_detail->result() as $r) 
 				{
+					$total_guna = $r->harga_bahan * $r->bahan_Kg;
 					$html .= '<tr>
 							<td align="center">'.$no.'</td>
 							<td align="">'.$r->no_invoice.'</td>
@@ -943,13 +1015,14 @@ SELECT a.no_invoice,a.nm_perusahaan, c.id_hub,d.nm_hub,a.bank,a.tgl_invoice,b.nm
 							<td align="">'.$r->tgl_invoice.'</td>
 							<td align="">'.$r->nm_produk_lm.'</td>
 							<td align="">'.$r->no_po_lm.'</td>
-							<td align="">'.$r->qty.'</td>
+							<td align="">'.floor($r->qty).'</td>
 							<td align="">'.$r->retur_qty.'</td>
-							<td align="">'.$r->qty_fix_pack.'</td>
-							<td align="">'.number_format($r->qty_bal, 0, ",", ".").'</td>
-							<td align="">'.$r->tonase.'</td>
+							<td align="">'.floor($r->qty_fix_pack).'</td>
+							<td align="">'.floor($r->qty_bal).'</td>
+							<td align="">'.floor($r->tonase).'</td>
 							<td align="">'.$r->bahan_Kg.'</td>
-							<td align="">'.number_format($r->harga_bahan, 0, ",", ".").'</td>
+							<td align="">'.floor($r->harga_bahan).'</td>
+							<td align="">'.$total_guna.'</td>
 						</tr>';
 
 						$no++;
