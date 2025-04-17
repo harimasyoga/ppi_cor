@@ -109,6 +109,12 @@ class Transaksi extends CI_Controller
 					// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" width="600" height="400"></embed>';
 					$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" height="600" style="width:100%"></iframe>';
 				}else{
+					// HAPUS GAMBAR
+					if($this->session->userdata('level') == 'Admin' && $opsi == 'edit' && $detail->num_rows() > 1){
+						$htmlDtl .= '<div style="margin-right:4px">
+							<button class="btn btn-xs btn-danger" onclick="hapusFilePO('."'".$r->id_dtl."'".')"><i class="fas fa-trash"></i></button>
+						</div>';
+					}
 					$preview = 'p'.$z;
 					$htmlDtl .= '<div style="margin-right:8px">
 						<img id="'.$preview.'" src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" alt="Preview Foto 2" width="100" class="shadow-sm" onclick="imgClick('."'".$preview."'".')">
@@ -118,9 +124,114 @@ class Transaksi extends CI_Controller
 		$htmlDtl .= '</div>';
 
 		// ITEM
+		$htmlE = '';
+		// EDIT LIST DETAIL PO
+		$list = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$header->id_hdr' AND no_po='$header->no_po' GROUP BY nm_ker,g_label");
+		if($this->session->userdata('level') == 'Admin' && $opsi == 'edit'){
+			$htmlE .= '<div style="margin-bottom:5px;display:flex">';
+				foreach($list->result() as $l2){
+					$htmlE .= '<div>
+						<table style="background:#e9ecef">
+							<tr>
+								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">#</th>
+								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">'.$l2->nm_ker.'</th>
+								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">'.$l2->g_label.'</th>
+								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">WIDTH</th>
+								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">BERAT</th>
+								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">ROLL</th>
+								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">KET</th>
+								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">-</th>
+							</tr>';
+							$listDtl = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$header->id_hdr' AND no_po='$header->no_po' AND nm_ker='$l2->nm_ker' AND g_label='$l2->g_label' ORDER BY nm_ker,g_label,width");
+							$q = 0;
+							$sumTonase = 0;
+							$sumRoll = 0;
+							foreach($listDtl->result() as $e){
+								$q++;
+								$htmlE .= '<tr>
+									<td style="padding:6px;text-align:center">'.$q.'</td>
+									<td style="padding:6px">
+										<input type="text" class="iproll" style="width:50px;text-align:center" id="e_nm_ker'.$e->id.'" value="'.$e->nm_ker.'" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+									</td>
+									<td style="padding:6px">
+										<input type="number" class="iproll" style="width:50px;text-align:center" id="e_g_label'.$e->id.'" value="'.$e->g_label.'" autocomplete="off">
+									</td>
+									<td style="padding:6px">
+										<input type="number" class="iproll" style="width:50px;text-align:right" id="e_width'.$e->id.'" value="'.round($e->width,2).'" autocomplete="off">
+									</td>
+									<td style="padding:6px">
+										<input type="number" class="iproll" style="width:80px;text-align:right" id="e_tonase'.$e->id.'" value="'.$e->tonase.'" autocomplete="off">
+									</td>
+									<td style="padding:6px">
+										<input type="number" class="iproll" style="width:50px;text-align:right" id="e_jml_roll'.$e->id.'" value="'.$e->jml_roll.'" autocomplete="off">
+									</td>
+									<td style="padding:6px">
+										<input type="text" class="iproll" style="width:100px" id="e_ket'.$e->id.'" value="'.$e->ket.'" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
+									</td>
+									<td style="padding:6px">
+										<button class="btn btn-xs btn-warning" onclick="editListPORoll('."'".$e->id."'".')"><i class="fas fa-pen"></i></button>
+										<button class="btn btn-xs" onclick="hapusListPORoll('."'".$e->id."'".')"><i class="fas fa-trash" style="color:#333"></i></button>
+									</td>
+								</tr>';
+								$sumTonase += $e->tonase;
+								$sumRoll += $e->jml_roll;
+							}
+							// TOTAL
+							if($listDtl->num_rows() != 1){
+								$htmlE .= '<tr>
+									<td style="padding:6px;font-weight:bold;text-align:right" colspan="4">TOTAL</td>
+									<td style="padding:6px;font-weight:bold;text-align:right">'.number_format($sumTonase).'</td>
+									<td style="padding:6px;font-weight:bold;text-align:right">'.number_format($sumRoll).'</td>
+								</tr>';
+							}
+						$htmlE .= '</table>
+					</div>';
+					// BATAS
+					$htmlE .= '<div style="padding:3px"></div>';
+				}
+			$htmlE .= '</div>';
+			// ADD NEW ITEM
+			$htmlE .= '<div>
+				<table style="background:#e9ecef">
+					<tr>
+						<th style="background:#fff;padding:6px" rowspan="2">NEW</th>
+						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">JENIS</th>
+						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">GSM</th>
+						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">WIDTH</th>
+						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">BERAT</th>
+						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">ROLL</th>
+						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">KET</th>
+						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666"></th>
+					</tr>';
+					$htmlE .= '<tr>
+						<td style="padding:6px">
+							<input type="text" class="iproll" style="width:50px;text-align:center" id="n_nm_ker" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
+						</td>
+						<td style="padding:6px">
+							<input type="number" class="iproll" style="width:50px;text-align:center" id="n_g_label" placeholder="0" autocomplete="off">
+						</td>
+						<td style="padding:6px">
+							<input type="number" class="iproll" style="width:50px;text-align:right" id="n_width" placeholder="0" autocomplete="off">
+						</td>
+						<td style="padding:6px">
+							<input type="number" class="iproll" style="width:80px;text-align:right" id="n_tonase" placeholder="0" autocomplete="off">
+						</td>
+						<td style="padding:6px">
+							<input type="number" class="iproll" style="width:50px;text-align:right" id="n_jml_roll" placeholder="0" autocomplete="off">
+						</td>
+						<td style="padding:6px">
+							<input type="text" class="iproll" style="width:100px" id="n_ket" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
+						</td>
+						<td style="padding:6px">
+							<button class="btn btn-xs btn-success" onclick="addListPORoll()"><i class="fas fa-plus-circle"></i></button>
+						</td>
+					</tr>';
+				$htmlE .= '</table>
+			</div>';
+		}
+		// ITEM SIMPLE
 		$htmlI = '';
 		$htmlI .= '<div style="display:flex">';
-		$list = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$header->id_hdr' AND no_po='$header->no_po' GROUP BY nm_ker,g_label");
 		foreach($list->result() as $l){
 			if(($l->nm_ker == 'MH' || $l->nm_ker == 'MN') && $l->g_label <= 110){
 				$bT = 'style="background:#ccf"';
@@ -139,7 +250,7 @@ class Transaksi extends CI_Controller
 						<th style="padding:6px;border-style:solid;border-width:1px 1px 3px;border-color:#bbb #bbb #666">'.$l->nm_ker.' '.$l->g_label.'</th>
 						<th style="padding:6px;border-style:solid;border-width:1px 1px 3px;border-color:#bbb #bbb #666">ROLL</th>
 					</tr>';
-				$item = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$header->id_hdr' AND no_po='$header->no_po' AND nm_ker='$l->nm_ker' AND g_label='$l->g_label' ORDER BY nm_ker,g_label");
+				$item = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$header->id_hdr' AND no_po='$header->no_po' AND nm_ker='$l->nm_ker' AND g_label='$l->g_label' ORDER BY nm_ker,g_label,width");
 				$x = 0;
 				foreach($item->result() as $i){
 					$x++;
@@ -167,6 +278,7 @@ class Transaksi extends CI_Controller
 			'ext' => $ext,
 			'htmlDtl' => $htmlDtl,
 			'htmlI' => $htmlI,
+			'htmlE' => $htmlE,
 			'oke_admin' => substr($this->m_fungsi->getHariIni(($header->edit_at == null) ? $header->creat_at : $header->edit_at),0,3).', '.$this->m_fungsi->tglIndSkt(substr(($header->edit_at == null) ? $header->creat_at : $header->edit_at, 0,10)).' ( '.substr(($header->edit_at == null) ? $header->creat_at : $header->edit_at, 10,6).' )',
 			'mkt_time' => ($header->mkt_time == null) ? '' :substr($this->m_fungsi->getHariIni($header->mkt_time),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->mkt_time, 0,10)).' ( '.substr($header->mkt_time, 10,6).' )',
 			'owner_time' => ($header->owner_time == null) ? '' :substr($this->m_fungsi->getHariIni($header->owner_time),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->owner_time, 0,10)).' ( '.substr($header->owner_time, 10,6).' )',
@@ -194,6 +306,30 @@ class Transaksi extends CI_Controller
 	function hapusPORoll()
 	{
 		$result = $this->m_transaksi->hapusPORoll();
+		echo json_encode($result);
+	}
+
+	function hapusFilePO()
+	{
+		$result = $this->m_transaksi->hapusFilePO();
+		echo json_encode($result);
+	}
+
+	function addListPORoll()
+	{
+		$result = $this->m_transaksi->addListPORoll();
+		echo json_encode($result);
+	}
+
+	function editListPORoll()
+	{
+		$result = $this->m_transaksi->editListPORoll();
+		echo json_encode($result);
+	}
+
+	function hapusListPORoll()
+	{
+		$result = $this->m_transaksi->hapusListPORoll();
 		echo json_encode($result);
 	}
 

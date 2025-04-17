@@ -1852,7 +1852,7 @@ class M_transaksi extends CI_Model
 	{
 		$hidhdr = $this->input->post('hidhdr');
 		$tgl = $this->input->post('tgl');
-		$no_po = str_replace(' ', '', $this->input->post('no_po'));
+		$no_po = $this->input->post('no_po');
 		$nm_pelanggan = $this->input->post('nm_pelanggan');
 		$id_pt = $this->input->post('id_pt');
 		$id_sales = $this->input->post('id_sales');
@@ -2061,11 +2061,109 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function hapusFilePO()
+	{
+		$id_dtl = $_POST["id_dtl"];
+		$detail = $this->db->query("SELECT*FROM trs_po_roll_detail WHERE id_dtl='$id_dtl'")->row();
+		// HAPUS FILE
+		$unlink = unlink("assets/gambar_po_roll/".$detail->nm_file);
+		// HAPUS DETAIL
+		$this->db->where("id_dtl", $id_dtl);
+		$hdtl = $this->db->delete("trs_po_roll_detail");
+		return [
+			'id_dtl' => $id_dtl,
+			'unlink' => $unlink,
+			'hdtl' => $hdtl,
+		];
+	}
+
+	function editListPORoll()
+	{
+		$id_hdr = $_POST["id_hdr"];
+		$id = $_POST["id_item"];
+		$nm_ker = $_POST["e_nm_ker"];
+		$g_label = $_POST["e_g_label"];
+		$width = $_POST["e_width"];
+		$tonase = $_POST["e_tonase"];
+		$jml_roll = $_POST["e_jml_roll"];
+		$ket = $_POST["e_ket"];
+		$item = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id='$id'");
+		$cek = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$id_hdr' AND nm_ker='$nm_ker' AND g_label='$g_label' AND width='$width'");
+		if($cek->num_rows() != 0 && $item->row()->id != $cek->row()->id){
+			$data = false;
+			$msg = 'ITEM SUDAH ADA!';
+		}else if($nm_ker == '' || $g_label == '' || $width == '' || $tonase == '' || $tonase == 0 || $jml_roll == '' || $jml_roll == 0){
+			$data = false;
+			$msg = 'HARAP LENGKAPI INPUTAN!';
+		}else{
+			$this->db->set('nm_ker', $nm_ker);
+			$this->db->set('g_label', $g_label);
+			$this->db->set('width', $width);
+			$this->db->set('tonase', $tonase);
+			$this->db->set('jml_roll', $jml_roll);
+			$this->db->set('ket', $ket);
+			$this->db->where('id', $id);
+			$data = $this->db->update('trs_po_roll_item');
+			$msg = 'BERHASIL!';
+		}
+		return [
+			'item' => $item->row(),
+			'cek' => $cek->row(),
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function addListPORoll()
+	{
+		$id_hdr = $_POST["id_hdr"];
+		$nm_ker = $_POST["n_nm_ker"];
+		$g_label = $_POST["n_g_label"];
+		$width = $_POST["n_width"];
+		$tonase = $_POST["n_tonase"];
+		$jml_roll = $_POST["n_jml_roll"];
+		$ket = $_POST["n_ket"];
+		$cek = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$id_hdr' AND nm_ker='$nm_ker' AND g_label='$g_label' AND width='$width'");
+		if($cek->num_rows() != 0){
+			$data = false;
+			$msg = 'ITEM SUDAH ADA!';
+		}else if($nm_ker == '' || $g_label == '' || $width == '' || $tonase == '' || $tonase == 0 || $jml_roll == '' || $jml_roll == 0){
+			$data = false;
+			$msg = 'HARAP LENGKAPI INPUTAN!';
+		}else{
+			$header = $this->db->query("SELECT*FROM trs_po_roll_header WHERE id_hdr='$id_hdr'")->row();
+			$item = array(
+				'id_hdr' => $id_hdr,
+				'no_po' => $header->no_po,
+				'nm_ker' => $nm_ker,
+				'g_label' => $g_label,
+				'width' => $width,
+				'tonase' => $tonase,
+				'jml_roll' => $jml_roll,
+				'ket' => $ket,
+			);
+			$data = $this->db->insert('trs_po_roll_item', $item);
+			$msg = 'BERHASIL!';
+		}
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function hapusListPORoll()
+	{
+		$this->db->where('id', $_POST["id_item"]);
+		$del = $this->db->delete("trs_po_roll_item");
+		return [
+			'del' => $del,
+		];
+	}
+
 	function addNotePORoll()
 	{
 		$id_hdr = $_POST["id_hdr"];
 		$note_po_roll = $_POST["note_po_roll"];
-
 		if($note_po_roll == ''){
 			$data = false; $msg = 'NOTE TIDAK BOLEH KOSONG!';
 		}else{
