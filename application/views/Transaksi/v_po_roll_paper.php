@@ -219,6 +219,11 @@
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST DETAIL PO</h3>
 							</div>
+							<?php if($this->session->userdata('level') == 'Admin'){?>
+								<div style="overflow:auto;white-space:nowrap">
+									<div class="list-edit-roll" style="padding:5px"></div>
+								</div>
+							<?php } ?>
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="list-roll" style="padding:5px"></div>
 							</div>
@@ -379,6 +384,9 @@
 		$(".col-roll-input").show()
 		$(".col-roll-list").hide()
 		$(".list-roll").html('')
+		if(urlAuth == 'Admin'){
+			$(".list-edit-roll").html('')
+		}
 	}
 
 	function kembali()
@@ -539,6 +547,9 @@
 		$(".col-roll-input").hide()
 		$(".col-roll-list").show()
 		$(".list-roll").html('')
+		if(urlAuth == 'Admin'){
+			$(".list-edit-roll").html('')
+		}
 		$("#input-po").html('')
 		$("#hidhdr").val('')
 
@@ -565,6 +576,10 @@
 				$("#id_sales").val(data.header.id_sales).prop('disabled', true).trigger('change')
 				$(".detail-po").html(data.htmlDtl)
 				$(".list-roll").html(data.htmlI)
+				// EDIT LIST DETAIL PO
+				if(urlAuth == 'Admin'){
+					$(".list-edit-roll").html(data.htmlE)
+				}
 
 				// UPLOAD
 				if(urlAuth == 'Admin' && data.header.owner_status != 'Y' && data.opsi != 'detail'){
@@ -750,6 +765,149 @@
 
 				statusInput = 'update'
 				swal.close()
+			}
+		})
+	}
+
+	function hapusFilePO(id_dtl)
+	{
+		let id_hdr = $("#hidhdr").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/hapusFilePO')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_dtl }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.hdtl){
+					editPORoll(id_hdr, 'edit')
+				}
+			}
+		})
+	}
+
+	function editPORollList(id_hdr, opsi)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/editPORoll')?>',
+			type: "POST",
+			data: ({ id_hdr, opsi }),
+			success: function(res){
+				data = JSON.parse(res)
+				$(".list-roll").html(data.htmlI)
+				$(".list-edit-roll").html(data.htmlE)
+				swal.close()
+			}
+		})
+	}
+
+	function editListPORoll(id_item)
+	{
+		let id_hdr = $("#hidhdr").val()
+		let e_nm_ker = $('#e_nm_ker'+id_item).val()
+		let e_g_label = $('#e_g_label'+id_item).val()
+		let e_width = $('#e_width'+id_item).val()
+		let e_tonase = $('#e_tonase'+id_item).val().split('.').join('')
+		let e_jml_roll = $('#e_jml_roll'+id_item).val().split('.').join('')
+		let e_ket = $('#e_ket'+id_item).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/editListPORoll')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({
+				id_hdr, id_item, e_nm_ker, e_g_label, e_width, e_tonase, e_jml_roll, e_ket
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					editPORollList(id_hdr, 'edit')
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function hapusListPORoll(id_item)
+	{
+		let id_hdr = $("#hidhdr").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/hapusListPORoll')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_item }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.del){
+					editPORollList(id_hdr, 'edit')
+				}
+			}
+		})
+	}
+
+	function addListPORoll()
+	{
+		let id_hdr = $("#hidhdr").val()
+		let n_nm_ker = $('#n_nm_ker').val()
+		let n_g_label = $('#n_g_label').val()
+		let n_width = $('#n_width').val()
+		let n_tonase = $('#n_tonase').val()
+		let n_jml_roll = $('#n_jml_roll').val()
+		let n_ket = $('#n_ket').val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/addListPORoll')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({
+				id_hdr, n_nm_ker, n_g_label, n_width, n_tonase, n_jml_roll, n_ket
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					editPORollList(id_hdr, 'edit')
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
 			}
 		})
 	}
