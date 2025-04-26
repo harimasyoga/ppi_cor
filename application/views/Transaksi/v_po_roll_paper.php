@@ -262,6 +262,7 @@
 							<?php if(in_array($this->session->userdata('level'), ['Admin', 'User'])){ ?>
 								<div style="margin-bottom:12px">
 									<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+									<button type="button" class="btn btn-sm btn-danger" onclick=""><i class="fas fa-file-alt"></i> <b>LAPORAN</b></button>
 								</div>
 							<?php } ?>
 							<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
@@ -322,6 +323,89 @@
 					</div>
 				</div>
 			</div>
+
+			<?php if($this->session->userdata('level') == 'Admin'){?>
+				<div class="row row-lap">
+					<div class="col-md-12">
+						<div class="card card-secondary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">LAPORAN PO ROLL PAPER</h3>
+								<div class="card-tools">
+									<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+									<i class="fas fa-minus"></i></button>
+								</div>
+							</div>
+							<div style="padding:6px">
+								<button type="button" class="btn btn-sm btn-info" onclick=""><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">CUSTOMER</div>
+								<div class="col-md-8">
+									<select id="lap_id_pt" class="form-control select2" onchange="plhCustomer()">
+										<option value="">PILIH</option>
+										<?php
+											$db3 = $this->load->database('database_simroll', TRUE);
+											$query3 = $db3->query("SELECT c.id,c.pimpinan,c.nm_perusahaan FROM po_master po
+												INNER JOIN m_perusahaan c ON po.id_perusahaan=c.id
+												WHERE po.id_perusahaan!='210' AND po.id_perusahaan!='217'
+												AND po.tgl BETWEEN '2024-12-01' AND '9999-01-01'
+												AND po.status='Open'
+												GROUP BY c.id
+												ORDER BY c.nm_perusahaan");
+											$html3 = '';
+											foreach($query3->result() as $r3){
+												$html3 .= '<option value="'.$r3->id.'"> '.$r3->pimpinan.' | '.$r3->nm_perusahaan.'</option>';
+											}
+											echo $html3;
+										?>
+									</select>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">STATUS</div>
+								<div class="col-md-8">
+									<select id="lap_status" class="form-control select2" onchange="plhStatus()" disabled>
+										<option value="">OPEN</option>
+										<option value="ALL">ALL</option>
+									</select>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">NO. PO</div>
+								<div class="col-md-8">
+									<select id="lap_no_po" class="form-control select2" disabled>
+										<option value="">PILIH</option>
+									</select>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">ORDER BY</div>
+								<div class="col-md-8">
+									<select id="lap_order" class="form-control select2" disabled>
+										<option value="">JENIS - GSM - UKURAN</option>
+										<option value="TNP">TGL - NO. PO</option>
+									</select>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2"></div>
+								<div class="col-md-10">
+									<button type="button" class="btn btn-sm btn-primary" onclick="cariLaporanPORoll()"><b>CARI</b></button>
+								</div>
+							</div>
+							<div class="card-body" style="padding:6px">
+								<div style="overflow:auto;white-space:nowrap">
+									<div id="lap_list_po"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			<?php } ?>
 		</div>
 	</section>
 </div>
@@ -1061,6 +1145,61 @@
 				if(data.data){
 					backList()
 				}
+				swal.close()
+			}
+		})
+	}
+
+	// laporan
+
+	function plhCustomer()
+	{
+		let id_pt = $("#lap_id_pt").val()
+		$("#lap_status").prop('disabled', (id_pt == '') ? true : false).trigger('change')
+		$("#lap_no_po").prop('disabled', (id_pt == '') ? true : false)
+		$("#lap_order").prop('disabled', (id_pt == '') ? true : false)
+	}
+
+	function plhStatus()
+	{
+		$("#lap_no_po").html('<option value="">LOADING</option>')
+		let id_pt = $("#lap_id_pt").val()
+		let lap_status = $("#lap_status").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/plhStatus') ?>',
+			type: "POST",
+			data: ({ id_pt, lap_status }),
+			success: function(res){
+				data = JSON.parse(res)
+				$("#lap_no_po").html(data.noPO)
+			}
+		})
+	}
+
+	function cariLaporanPORoll()
+	{
+		$("#lap_list_po").html('Loading...')
+		let id_pt = $("#lap_id_pt").val()
+		let status = $("#lap_status").val()
+		let no_po = $("#lap_no_po").val()
+		let order = $("#lap_order").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/cariLaporanPORoll') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_pt, status, no_po, order }),
+			success: function(res){
+				data = JSON.parse(res)
+				$("#lap_list_po").html(data.html)
 				swal.close()
 			}
 		})
