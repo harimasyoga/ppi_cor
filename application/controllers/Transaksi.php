@@ -126,7 +126,7 @@ class Transaksi extends CI_Controller
 		// ITEM
 		$htmlE = '';
 		// EDIT LIST DETAIL PO
-		$list = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$header->id_hdr' AND no_po='$header->no_po' GROUP BY nm_ker,g_label");
+		$list = $this->db->query("SELECT i.*,SUM(tonase) AS tonase FROM trs_po_roll_item i WHERE i.id_hdr='$header->id_hdr' AND i.no_po='$header->no_po' GROUP BY i.nm_ker,i.g_label");
 		if($this->session->userdata('level') == 'Admin' && $opsi == 'edit'){
 			$htmlE .= '<div style="margin-bottom:5px;display:flex">';
 				foreach($list->result() as $l2){
@@ -232,44 +232,67 @@ class Transaksi extends CI_Controller
 		// ITEM SIMPLE
 		$htmlI = '';
 		$htmlI .= '<div style="display:flex">';
-		foreach($list->result() as $l){
-			if(($l->nm_ker == 'MH' || $l->nm_ker == 'MN') && $l->g_label <= 110){
-				$bT = 'style="background:#ccf"';
-			}else if(($l->nm_ker == 'MH' || $l->nm_ker == 'MN') && ($l->g_label == 120 || $l->g_label == 125)){
-				$bT = 'style="background:#ffc"';
-			}else if(($l->nm_ker == 'MH' || $l->nm_ker == 'MN') && $l->g_label >= 150){
-				$bT = 'style="background:#fcc"';
-			}else if($l->nm_ker == 'WP' || $l->nm_ker == 'WS'){
-				$bT = 'style="background:#cfc"';
-			}else{
-				$bT = 'style="background:#fff"';
-			}
-			$htmlI .= '<div>';
-				$htmlI .= '<table>
-					<tr '.$bT.'>
-						<th style="padding:6px;border-style:solid;border-width:1px 1px 3px;border-color:#bbb #bbb #666">'.$l->nm_ker.' '.$l->g_label.'</th>
-						<th style="padding:6px;border-style:solid;border-width:1px 1px 3px;border-color:#bbb #bbb #666">ROLL</th>
-					</tr>';
-				$item = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$header->id_hdr' AND no_po='$header->no_po' AND nm_ker='$l->nm_ker' AND g_label='$l->g_label' ORDER BY nm_ker,g_label,width");
-				$x = 0;
-				foreach($item->result() as $i){
-					$x++;
-					($i->ket != '') ? $ket = ' <span style="font-size:11px;vertical-align:top;font-style:italic">( '.$i->ket.' )</span>' : $ket = '';
-					$htmlI .= '<tr>
-						<td style="padding:6px;background:#f2f2f2;border:1px solid #dee2e6;text-align:center">'.round($i->width,2).'</td>
-						<td style="padding:6px;background:#f2f2f2;border:1px solid #dee2e6;text-align:right">'.$i->jml_roll.$ket.'</td>
-					</tr>';
-					if($item->num_rows() != $x){
-						$htmlI .= '<tr>
-							<th style="padding:1px;background:#fff;border:1px solid #dee2e6" colspan="2"></th>
-						</tr>';
-					}
+			foreach($list->result() as $l){
+				if(($l->nm_ker == 'MH' || $l->nm_ker == 'MN') && $l->g_label <= 110){
+					$bT = 'style="background:#ccf"';
+				}else if(($l->nm_ker == 'MH' || $l->nm_ker == 'MN') && ($l->g_label == 120 || $l->g_label == 125)){
+					$bT = 'style="background:#ffc"';
+				}else if(($l->nm_ker == 'MH' || $l->nm_ker == 'MN') && $l->g_label >= 150){
+					$bT = 'style="background:#fcc"';
+				}else if($l->nm_ker == 'WP' || $l->nm_ker == 'WS'){
+					$bT = 'style="background:#cfc"';
+				}else{
+					$bT = 'style="background:#fff"';
 				}
+				$htmlI .= '<div>';
+					$htmlI .= '<table>
+						<tr '.$bT.'>
+							<th style="padding:6px;border-style:solid;border-width:1px 1px 3px;border-color:#bbb #bbb #666">'.$l->nm_ker.' '.$l->g_label.'</th>
+							<th style="padding:6px;border-style:solid;border-width:1px 1px 3px;border-color:#bbb #bbb #666">ROLL</th>
+						</tr>';
+					$item = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$header->id_hdr' AND no_po='$header->no_po' AND nm_ker='$l->nm_ker' AND g_label='$l->g_label' ORDER BY nm_ker,g_label,width");
+					$x = 0;
+					foreach($item->result() as $i){
+						$x++;
+						($i->ket != '') ? $ket = ' <span style="font-size:11px;vertical-align:top;font-style:italic">( '.$i->ket.' )</span>' : $ket = '';
+						$htmlI .= '<tr>
+							<td style="padding:6px;background:#f2f2f2;border:1px solid #dee2e6;text-align:center">'.round($i->width,2).'</td>
+							<td style="padding:6px;background:#f2f2f2;border:1px solid #dee2e6;text-align:right">'.$i->jml_roll.$ket.'</td>
+						</tr>';
+						if($item->num_rows() != $x){
+							$htmlI .= '<tr>
+								<th style="padding:1px;background:#fff;border:1px solid #dee2e6" colspan="2"></th>
+							</tr>';
+						}
+					}
+					$htmlI .= '</table>';
+				$htmlI .= '</div>';
+				// BATAS
+				$htmlI .= '<div style="padding:3px"></div>';
+			}
+			// TONASE
+			$htmlI .= '<div>';
+			if($list->num_rows() == 1){
+				$htmlI .= 'TONASE : <b>'.number_format($list->row()->tonase, 0, ',', '.').'</b> Kg';
+			}else{
+				$htmlI .= 'TONASE<br>';
+				$htmlI .= '<table>';
+					$tTot = 0;
+					foreach($list->result() as $t){
+						$htmlI .= '<tr>
+							<td>'.$t->nm_ker.' '.$t->g_label.'</td>
+							<td style="padding:0 6px">:</td>
+							<td style="text-align:right"><b>'.number_format($t->tonase, 0, ',', '.').'</b> Kg</td>
+						</tr>';
+						$tTot += $t->tonase;
+					}
+					$htmlI .= '<tr>
+						<td colspan="2"></td>
+						<td style="text-align:right"><b>'.number_format($tTot, 0, ',', '.').'</b> Kg</td>
+					</tr>';
 				$htmlI .= '</table>';
+			}
 			$htmlI .= '</div>';
-			// BATAS
-			$htmlI .= '<div style="padding:3px"></div>';
-		}
 		$htmlI .= '</div>';
 
 		echo json_encode([
@@ -434,6 +457,144 @@ class Transaksi extends CI_Controller
 			'qty' => 0,
 		);
 		$this->cart->update($data);
+	}
+
+	// LAPORAN PO
+
+	function plhStatus()
+	{
+		$db = $this->load->database('database_simroll', TRUE);
+		$id_pt = $_POST["id_pt"];
+		$status = $_POST["lap_status"];
+		($status == 'ALL') ? $stat = '' : $stat = "AND po.status='open'";
+
+		$query = $db->query("SELECT pt.id,po.no_po FROM po_master po
+		INNER JOIN m_perusahaan pt ON pt.id=po.id_perusahaan
+		WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' AND pt.id='$id_pt' $stat
+		GROUP BY po.no_po");
+		$noPO = '';
+		if($query->num_rows() == 0){
+			$noPO .= '<option value="">PILIH</option>';
+		}else{
+			$noPO .= '<option value="">SEMUA</option>';
+			foreach($query->result() as $r){
+				$noPO .= '<option value="'.$r->no_po.'" optIdPt="'.$r->id.'">'.$r->no_po.'</option>';
+			}
+		}
+
+		echo json_encode([
+			'noPO' => $noPO,
+		]);
+	}
+
+	function cariLaporanPORoll()
+	{
+		$db = $this->load->database('database_simroll', TRUE);
+		$id_pt = $_POST["id_pt"];
+		$stts = $_POST["status"];
+		$no_po = $_POST["no_po"];
+		$orderBy = $_POST["order"];
+		$opsi = $_POST["opsi"];
+		$html = '';
+
+		if($id_pt != ''){
+			$data = true;
+			$html .= '<table style="color:#000">
+				<tr>
+					<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">TGL</th>
+					<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">NO PO</th>
+					<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">JENIS</th>
+					<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">GSM</th>
+					<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">WIDTH</th>
+					<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">ROLL PO</th>
+					<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">KIRIM ROLL</th>
+					<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">-/+ ROLL</th>
+					<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">TONASE PO</th>
+					<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">KIRIM TONASE</th>
+					<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">-/+ TON</th>
+				</tr>';
+
+				// STATUS, NO. PO, ORDER BY
+				($stts == '') ? $stas = "AND po.status='open'" : $stas = "";
+				($no_po == '') ? $noPO = "" : $noPO = "AND po.no_po='$no_po'";
+				($orderBy == 'TNP') ? $oBy = 'ORDER BY po.tgl,po.no_po,po.nm_ker,po.g_label,po.width' : $oBy = '';
+
+				$list = $db->query("SELECT po.tgl,po.no_po,po.nm_ker,po.g_label,po.width,
+				(SELECT COUNT(t.roll) FROM m_timbangan t
+				INNER JOIN pl p ON t.id_pl=p.id AND p.no_po=po.no_po AND t.nm_ker=po.nm_ker
+				AND t.g_label=po.g_label AND t.width=po.width AND p.id_perusahaan=po.id_perusahaan) AS kiriman_roll,po.jml_roll AS jml_roll_po,
+				po.tonase,
+				(SELECT SUM(t.weight) FROM m_timbangan t INNER JOIN pl p ON t.id_pl=p.id AND p.no_po=po.no_po AND t.nm_ker=po.nm_ker AND t.g_label=po.g_label AND t.width=po.width AND p.id_perusahaan=po.id_perusahaan) AS kirim_tonase,
+				pt.nm_perusahaan,po.status
+				FROM po_master po
+				INNER JOIN m_perusahaan pt ON pt.id=po.id_perusahaan
+				WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' AND pt.id='$id_pt' $stas $noPO
+				GROUP BY po.nm_ker,po.g_label,po.width,po.tgl,po.no_po $oBy");
+				$sumTonase = 0; $sumKirimTon = 0; $poTonase = 0; $poKirimTon = 0;
+				foreach($list->result() as $r){
+					// KURANG ROLL
+					$minRoll = $r->kiriman_roll - $r->jml_roll_po;
+					($minRoll == 0) ? $bgR = ' style="background:#ccc"' : $bgR = '';
+					// KURANG TONASE
+					$minTonase = $r->kirim_tonase - $r->tonase;
+					// STATUS
+					if($r->status == 'open'){
+						$ketS = '<button type="button" class="btn btn-xs btn-success" onclick=""><i class="fas fa-check-circle"></i></button>';
+					}else{
+						$ketS = '<button type="button" class="btn btn-xs btn-danger" onclick=""><i class="fas fa-times-circle"></i></button>';
+					}
+					if($opsi == '' || ($opsi != '' && $minRoll != 0)){
+						$html .= '<tr'.$bgR.'>
+							<td style="padding:6px;border:1px solid #888">'.$r->tgl.'</td>
+							<td style="padding:6px;border:1px solid #888">'.$r->no_po.'</td>
+							<td style="padding:6px;border:1px solid #888;text-align:center">'.$r->nm_ker.'</td>
+							<td style="padding:6px;border:1px solid #888;text-align:center">'.$r->g_label.'</td>
+							<td style="padding:6px;border:1px solid #888;text-align:center">'.round($r->width,2).'</td>
+							<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->jml_roll_po, 0, ',', '.').'</td>
+							<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->kiriman_roll, 0, ',', '.').'</td>
+							<td style="padding:6px;border:1px solid #888;text-align:right;font-weight:bold">'.number_format($minRoll, 0, ',', '.').'</td>
+							<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->tonase, 0, ',', '.').'</td>
+							<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->kirim_tonase, 0, ',', '.').'</td>
+							<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($minTonase, 0, ',', '.').'</td>
+						</tr>';
+					}
+
+					// SUM TONASE
+					$sumTonase += ($minRoll < 0) ? $r->tonase : 0;
+					$sumKirimTon += ($minRoll < 0) ? $r->kirim_tonase : 0;
+					$poTonase += $r->tonase;
+					$poKirimTon += $r->kirim_tonase;
+				}
+				// TONASE
+				$totKurangTon = $sumKirimTon - $sumTonase;
+				$totPOKurangTon = $poKirimTon - $poTonase;
+				if($list->num_rows() != 1){
+					$html .= '<tr>
+						<td style="padding:6px;background:#f2f2f2;border:1px solid #888;font-weight:bold;text-align:right" colspan="8">OPEN</td>
+						<td style="padding:6px;background:#f2f2f2;border:1px solid #888;font-weight:bold;text-align:right">'.number_format($sumTonase, 0, ',', '.').'</td>
+						<td style="padding:6px;background:#f2f2f2;border:1px solid #888;font-weight:bold;text-align:right">'.number_format($sumKirimTon, 0, ',', '.').'</td>
+						<td style="padding:6px;background:#f2f2f2;border:1px solid #888;font-weight:bold;text-align:right">'.number_format($totKurangTon, 0, ',', '.').'</td>
+					</tr>';
+				}
+				if($list->num_rows() != 1 && $stts == 'ALL'){
+					$html .= '<tr>
+						<td style="padding:6px;background:#f2f2f2;border:1px solid #888;font-weight:bold;text-align:right" colspan="8">ALL</td>
+						<td style="padding:6px;background:#f2f2f2;border:1px solid #888;font-weight:bold;text-align:right">'.number_format($poTonase, 0, ',', '.').'</td>
+						<td style="padding:6px;background:#f2f2f2;border:1px solid #888;font-weight:bold;text-align:right">'.number_format($poKirimTon, 0, ',', '.').'</td>
+						<td style="padding:6px;background:#f2f2f2;border:1px solid #888;font-weight:bold;text-align:right">'.number_format($totPOKurangTon, 0, ',', '.').'</td>
+					</tr>';
+				}
+
+			$html .= '</table>';
+		}else{
+			$data = false;
+			$html .= 'DATA KOSONG';
+		}
+
+		echo json_encode([
+			'data' => $data,
+			'html' => $html,
+		]);
 	}
 
 	//

@@ -21,307 +21,399 @@
 
 	<section class="content">
 		<div class="container-fluid">
-			<div class="row row-input" style="display: none;">
-				<div class="col-md-6">
-					<div class="card card-primary card-outline" style="position:sticky;top:12px;padding-bottom:12px">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">PO ROLL PAPER</h3>
-						</div>
-						<div style="margin:12px 6px;display:flex">
-							<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
-						</div>
-						<form role="form" method="post" id="myForm" action="<?php echo base_url('Transaksi/UploadFilePORoll')?>" enctype="multipart/form-data">
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">TGL. PO</div>
-								<div class="col-md-9">
-									<input type="date" id="tgl" name="tgl" class="form-control" value="<?= date('Y-m-d')?>" onchange="diPilih()">
-								</div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">CUSTOMER</div>
-								<div class="col-md-9">
-									<select id="nm_pelanggan" name="nm_pelanggan" class="form-control select2" onchange="diPilih()">
-										<option value="">PILIH</option>
-										<?php
-											// $db = $this->load->database('database_simroll', TRUE);
-											$query = $this->db->query("SELECT*FROM m_perusahaan WHERE jns='ROLL' GROUP BY nm_perusahaan, pimpinan");
-											$html = '';
-											foreach($query->result() as $r){
-												if($r->pimpinan == '-' && $r->nm_perusahaan != '-'){
-													$nm = $r->nm_perusahaan;
-												}else if($r->pimpinan != '-' && $r->nm_perusahaan == '-'){
-													$nm = $r->pimpinan;
-												}else if($r->pimpinan != '-' && $r->nm_perusahaan != '-'){
-													$nm = $r->nm_perusahaan.' - '.$r->pimpinan;
-												}
-												$html .= '<option value="'.$nm.'" idpt="'.$r->id.'">'.$nm.'</option>';
-											}
-											echo $html;
-										?>
-									</select>
-									<input type="hidden" id="id_pt" name="id_pt" value="">
-								</div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">NO. PO</div>
-								<div class="col-md-9">
-									<input type="text" id="no_po" name="no_po" class="form-control" placeholder="NO. PO" autocomplete="off" oninput="this.value=this.value.toUpperCase()" onkeyup="diPilih()">
-								</div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">MARKETING</div>
-								<div class="col-md-9">
-									<select id="id_sales" name="id_sales" class="form-control select2" onchange="diPilih()">
-										<option value="">PILIH</option>
-										<?php
-											$query2 = $this->db->query("SELECT*FROM m_sales GROUP BY nm_sales");
-											$html2 = '';
-											foreach($query2->result() as $r2){
-												$html2 .= '<option value="'.$r2->id_sales.'">'.$r2->nm_sales.'</option>';
-											}
-											echo $html2;
-										?>
-									</select>
-								</div>
-							</div>
-							<div class="add-file">
-								<div class="card-body row" style="font-weight:bold;padding:0 12px">
-									<div class="col-md-3">FILE</div>
-									<div class="col-md-9">
-										<input type="file" name="filefoto" id="filefoto" accept=".jpg,.jpeg,.png,.pdf" onchange="diPilih()">
-									</div>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3"></div>
-									<div class="col-md-9" style="color:#f00;font-size:12px;font-style:italic">
-										* .jpg, .jpeg, .png, .pdf
-									</div>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-									<div class="col-md-3"></div>
-									<div class="col-md-9">
-										<div class="simpan-save"></div>
-									</div>
-								</div>
-							</div>
-							<input type="hidden" name="hidhdr" id="hidhdr" value="">
-						</form>
-					</div>
-				</div>
-
-				<div class="col-md-6">
-					<div class="col-verifikasi" style="display: none;">
-						<div class="card card-info card-outline" style="position:sticky;top:12px;padding-bottom:12px">
+			<?php if(in_array($this->session->userdata('level'), ['Admin', 'Owner'])){ ?>
+				<div class="row row-input" style="display: none;">
+					<div class="col-md-6">
+						<div class="card card-primary card-outline" style="position:sticky;top:12px;padding-bottom:12px">
 							<div class="card-header" style="padding:12px">
-								<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">PO ROLL PAPER</h3>
 							</div>
-							<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
-								<div class="col-md-3">ADMIN</div>
-								<div class="col-md-9">
-									<div id="verif-admin"></div>
+							<div style="margin:12px 6px;display:flex">
+								<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
+							</div>
+							<form role="form" method="post" id="myForm" action="<?php echo base_url('Transaksi/UploadFilePORoll')?>" enctype="multipart/form-data">
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">TGL. PO</div>
+									<div class="col-md-9">
+										<input type="date" id="tgl" name="tgl" class="form-control" value="<?= date('Y-m-d')?>" onchange="diPilih()">
+									</div>
 								</div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">MARKETING</div>
-								<div class="col-md-9">
-									<div id="verif-marketing"></div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">CUSTOMER</div>
+									<div class="col-md-9">
+										<select id="nm_pelanggan" name="nm_pelanggan" class="form-control select2" onchange="diPilih()">
+											<option value="">PILIH</option>
+											<?php
+												// $db = $this->load->database('database_simroll', TRUE);
+												$query = $this->db->query("SELECT*FROM m_perusahaan WHERE jns='ROLL' GROUP BY nm_perusahaan, pimpinan");
+												$html = '';
+												foreach($query->result() as $r){
+													if($r->pimpinan == '-' && $r->nm_perusahaan != '-'){
+														$nm = $r->nm_perusahaan;
+													}else if($r->pimpinan != '-' && $r->nm_perusahaan == '-'){
+														$nm = $r->pimpinan;
+													}else if($r->pimpinan != '-' && $r->nm_perusahaan != '-'){
+														$nm = $r->nm_perusahaan.' - '.$r->pimpinan;
+													}
+													$html .= '<option value="'.$nm.'" idpt="'.$r->id.'">'.$nm.'</option>';
+												}
+												echo $html;
+											?>
+										</select>
+										<input type="hidden" id="id_pt" name="id_pt" value="">
+									</div>
 								</div>
-							</div>
-							<div id="input-marketing"></div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">OWNER</div>
-								<div class="col-md-9">
-									<div id="verif-owner"></div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">NO. PO</div>
+									<div class="col-md-9">
+										<input type="text" id="no_po" name="no_po" class="form-control" placeholder="NO. PO" autocomplete="off" oninput="this.value=this.value.toUpperCase()" onkeyup="diPilih()">
+									</div>
 								</div>
-							</div>
-							<div id="input-owner"></div>
-							<div id="input-po"></div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">MARKETING</div>
+									<div class="col-md-9">
+										<select id="id_sales" name="id_sales" class="form-control select2" onchange="diPilih()">
+											<option value="">PILIH</option>
+											<?php
+												$query2 = $this->db->query("SELECT*FROM m_sales GROUP BY nm_sales");
+												$html2 = '';
+												foreach($query2->result() as $r2){
+													$html2 .= '<option value="'.$r2->id_sales.'">'.$r2->nm_sales.'</option>';
+												}
+												echo $html2;
+											?>
+										</select>
+									</div>
+								</div>
+								<div class="add-file">
+									<div class="card-body row" style="font-weight:bold;padding:0 12px">
+										<div class="col-md-3">FILE</div>
+										<div class="col-md-9">
+											<input type="file" name="filefoto" id="filefoto" accept=".jpg,.jpeg,.png,.pdf" onchange="diPilih()">
+										</div>
+									</div>
+									<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+										<div class="col-md-3"></div>
+										<div class="col-md-9" style="color:#f00;font-size:12px;font-style:italic">
+											* .jpg, .jpeg, .png, .pdf
+										</div>
+									</div>
+									<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+										<div class="col-md-3"></div>
+										<div class="col-md-9">
+											<div class="simpan-save"></div>
+										</div>
+									</div>
+								</div>
+								<input type="hidden" name="hidhdr" id="hidhdr" value="">
+							</form>
 						</div>
 					</div>
+
+					<div class="col-md-6">
+						<div class="col-verifikasi" style="display: none;">
+							<div class="card card-info card-outline" style="position:sticky;top:12px;padding-bottom:12px">
+								<div class="card-header" style="padding:12px">
+									<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
+									<div class="col-md-3">ADMIN</div>
+									<div class="col-md-9">
+										<div id="verif-admin"></div>
+									</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">MARKETING</div>
+									<div class="col-md-9">
+										<div id="verif-marketing"></div>
+									</div>
+								</div>
+								<div id="input-marketing"></div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">OWNER</div>
+									<div class="col-md-9">
+										<div id="verif-owner"></div>
+									</div>
+								</div>
+								<div id="input-owner"></div>
+								<div id="input-po"></div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-12">
+						<div class="col-detail" style="display: none;">
+							<div class="card card-secondary card-outline">
+								<div class="card-header" style="padding:12px">
+									<h3 class="card-title" style="font-weight:bold;font-size:18px">FILE PO</h3>
+								</div>
+								<div class="card-body" style="padding:12px 6px">
+									<div style="overflow:auto;white-space:nowrap">
+										<div class="detail-po"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-12">
+						<div class="col-roll-input">
+							<div class="card card-secondary card-outline">
+								<div class="card-header" style="padding:12px">
+									<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT DETAIL PO</h3>
+								</div>
+								<div class="list-sementara"></div>
+								<div class="card-body row" style="font-weight:bold;padding:12px 12px 6px">
+									<div class="col-md-1">JENIS</div>
+									<div class="col-md-3">
+										<input type="text" id="i_jenis" class="form-control" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
+									</div>
+									<div class="col-md-8"></div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-1">GSM</div>
+									<div class="col-md-3">
+										<input type="number" id="i_gsm" class="form-control" autocomplete="off" placeholder="0">
+									</div>
+									<div class="col-md-8"></div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-1">WIDTH</div>
+									<div class="col-md-3">
+										<input type="number" id="i_ukuran" class="form-control" autocomplete="off" placeholder="0">
+									</div>
+									<div class="col-md-8"></div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-1">BERAT</div>
+									<div class="col-md-3">
+										<input type="number" id="i_berat" class="form-control" autocomplete="off" placeholder="0">
+									</div>
+									<div class="col-md-8"></div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-1">QTY</div>
+									<div class="col-md-3">
+										<input type="number" id="i_qty" class="form-control" autocomplete="off" placeholder="0">
+									</div>
+									<div class="col-md-8"></div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-1">KET</div>
+									<div class="col-md-3">
+										<input type="text" id="i_ket" class="form-control" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
+									</div>
+									<div class="col-md-8"></div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 12px">
+									<div class="col-md-1"></div>
+									<div class="col-md-3">
+										<button type="button" class="btn btn-sm btn-success" style="font-weight:bold" onclick="addListUK()">ADD</button>
+									</div>
+									<div class="col-md-8"></div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-roll-list">
+							<div class="card card-secondary card-outline">
+								<div class="card-header" style="padding:12px">
+									<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST DETAIL PO</h3>
+								</div>
+								<?php if($this->session->userdata('level') == 'Admin'){?>
+									<div style="overflow:auto;white-space:nowrap">
+										<div class="list-edit-roll" style="padding:5px"></div>
+									</div>
+								<?php } ?>
+								<div style="overflow:auto;white-space:nowrap">
+									<div class="list-roll" style="padding:5px"></div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
+									<div class="col-md-1">NOTE</div>
+									<div class="col-md-5">
+										<textarea id="note_po_roll" class="form-control" style="font-weight:bold;resize:none" rows="3" oninput="this.value=this.value.toUpperCase()"></textarea>
+									</div>
+									<div class="col-md-6"></div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
+									<div class="col-md-1"></div>
+									<div class="col-md-11">
+										<div class="simpan-note"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<input type="hidden" id="id_hdr" value="">
+					<input type="hidden" id="id_cart" value="0">
 				</div>
 
-				<div class="col-md-12">
-					<div class="col-detail" style="display: none;">
+				<div class="row row-list">
+					<div class="col-md-12">
 						<div class="card card-secondary card-outline">
 							<div class="card-header" style="padding:12px">
-								<h3 class="card-title" style="font-weight:bold;font-size:18px">FILE PO</h3>
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">PO ROLL PAPER</h3>
+								<div class="card-tools">
+									<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+									<i class="fas fa-minus"></i></button>
+								</div>
 							</div>
 							<div class="card-body" style="padding:12px 6px">
+								<?php if(in_array($this->session->userdata('level'), ['Admin', 'User'])){ ?>
+									<div style="margin-bottom:12px">
+										<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+									</div>
+								<?php } ?>
+								<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
+									<div class="col-md-2" style="padding-bottom:3px">
+										<select id="tahun" class="form-control select2" onchange="load_data()">
+											<?php 
+												$thang = date("Y");
+												$thang_maks = $thang + 2;
+												$thang_min = $thang - 2;
+												for ($th = $thang_min; $th <= $thang_maks; $th++)
+												{ ?>
+													<?php if ($th==$thang) { ?>
+														<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+													<?php }else{ ?>
+														<option value="<?= $th ?>"> <?= $th ?> </option>
+													<?php }
+												}
+											?>
+										</select>
+									</div>
+									<div class="col-md-2" style="padding-bottom:3px">
+										<select id="bulan" class="form-control select2" onchange="load_data()">
+											<option value="">BULAN</option>
+											<option value="1">JANUARI</option>
+											<option value="2">FEBRUARI</option>
+											<option value="3">MARET</option>
+											<option value="4">APRIL</option>
+											<option value="5">MEI</option>
+											<option value="6">JUNI</option>
+											<option value="7">JULI</option>
+											<option value="8">AGUSTUS</option>
+											<option value="9">SEPTEMBER</option>
+											<option value="10">OKTOBER</option>
+											<option value="11">NOVEMBER</option>
+											<option value="12">DESEMBER</option>
+										</select>
+									</div>
+									<div class="col-md-8" style="padding-bottom:3px"></div>
+								</div>
 								<div style="overflow:auto;white-space:nowrap">
-									<div class="detail-po"></div>
+									<table id="datatable" class="table table-bordered table-striped">
+										<thead class="color-tabel">
+											<tr>
+												<th style="padding:12px;text-align:center">#</th>
+												<th style="padding:12px;text-align:center">NO. PO</th>
+												<th style="padding:12px;text-align:center">TGL</th>
+												<th style="padding:12px;text-align:center">STATUS</th>
+												<th style="padding:12px;text-align:center">CUSTOMER</th>
+												<th style="padding:12px;text-align:center">MKT</th>
+												<th style="padding:12px;text-align:center">OWNER</th>
+												<th style="padding:12px;text-align:center">AKSI</th>
+											</tr>
+										</thead>
+										<tbody></tbody>
+									</table>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+			<?php } ?>
 
-				<div class="col-md-12">
-					<div class="col-roll-input">
+			<?php if(in_array($this->session->userdata('level'), ['Admin', 'User'])){ ?>
+				<div class="row row-lap">
+					<div class="col-md-12">
 						<div class="card card-secondary card-outline">
 							<div class="card-header" style="padding:12px">
-								<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT DETAIL PO</h3>
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">LAPORAN PO ROLL PAPER</h3>
+								<div class="card-tools">
+									<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+									<i class="fas fa-minus"></i></button>
+								</div>
 							</div>
-							<div class="list-sementara"></div>
 							<div class="card-body row" style="font-weight:bold;padding:12px 12px 6px">
-								<div class="col-md-1">JENIS</div>
-								<div class="col-md-3">
-									<input type="text" id="i_jenis" class="form-control" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
-								</div>
-								<div class="col-md-8"></div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-1">GSM</div>
-								<div class="col-md-3">
-									<input type="number" id="i_gsm" class="form-control" autocomplete="off" placeholder="0">
-								</div>
-								<div class="col-md-8"></div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-1">WIDTH</div>
-								<div class="col-md-3">
-									<input type="number" id="i_ukuran" class="form-control" autocomplete="off" placeholder="0">
-								</div>
-								<div class="col-md-8"></div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-1">BERAT</div>
-								<div class="col-md-3">
-									<input type="number" id="i_berat" class="form-control" autocomplete="off" placeholder="0">
-								</div>
-								<div class="col-md-8"></div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-1">QTY</div>
-								<div class="col-md-3">
-									<input type="number" id="i_qty" class="form-control" autocomplete="off" placeholder="0">
-								</div>
-								<div class="col-md-8"></div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-1">KET</div>
-								<div class="col-md-3">
-									<input type="text" id="i_ket" class="form-control" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
-								</div>
-								<div class="col-md-8"></div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 12px">
-								<div class="col-md-1"></div>
-								<div class="col-md-3">
-									<button type="button" class="btn btn-sm btn-success" style="font-weight:bold" onclick="addListUK()">ADD</button>
-								</div>
-								<div class="col-md-8"></div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-roll-list">
-						<div class="card card-secondary card-outline">
-							<div class="card-header" style="padding:12px">
-								<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST DETAIL PO</h3>
-							</div>
-							<?php if($this->session->userdata('level') == 'Admin'){?>
-								<div style="overflow:auto;white-space:nowrap">
-									<div class="list-edit-roll" style="padding:5px"></div>
-								</div>
-							<?php } ?>
-							<div style="overflow:auto;white-space:nowrap">
-								<div class="list-roll" style="padding:5px"></div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
-								<div class="col-md-1">NOTE</div>
-								<div class="col-md-5">
-									<textarea id="note_po_roll" class="form-control" style="font-weight:bold;resize:none" rows="3" oninput="this.value=this.value.toUpperCase()"></textarea>
-								</div>
-								<div class="col-md-6"></div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
-								<div class="col-md-1"></div>
-								<div class="col-md-11">
-									<div class="simpan-note"></div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<input type="hidden" id="id_hdr" value="">
-				<input type="hidden" id="id_cart" value="0">
-			</div>
-
-			<div class="row row-list">
-				<div class="col-md-12">
-					<div class="card card-secondary card-outline">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">PO ROLL PAPER</h3>
-							<div class="card-tools">
-								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
-								<i class="fas fa-minus"></i></button>
-							</div>
-						</div>
-						<div class="card-body" style="padding:12px 6px">
-							<?php if(in_array($this->session->userdata('level'), ['Admin', 'User'])){ ?>
-								<div style="margin-bottom:12px">
-									<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
-								</div>
-							<?php } ?>
-							<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
-								<div class="col-md-2" style="padding-bottom:3px">
-									<select id="tahun" class="form-control select2" onchange="load_data()">
-										<?php 
-											$thang = date("Y");
-											$thang_maks = $thang + 2;
-											$thang_min = $thang - 2;
-											for ($th = $thang_min; $th <= $thang_maks; $th++)
-											{ ?>
-												<?php if ($th==$thang) { ?>
-													<option selected value="<?= $th ?>"> <?= $thang ?> </option>
-												<?php }else{ ?>
-													<option value="<?= $th ?>"> <?= $th ?> </option>
-												<?php }
+								<div class="col-md-2">CUSTOMER</div>
+								<div class="col-md-8">
+									<select id="lap_id_pt" class="form-control select2" onchange="plhCustomer()">
+										<option value="">PILIH</option>
+										<?php
+											$db3 = $this->load->database('database_simroll', TRUE);
+											$query3 = $db3->query("SELECT c.id,c.pimpinan,c.nm_perusahaan FROM po_master po
+												INNER JOIN m_perusahaan c ON po.id_perusahaan=c.id
+												WHERE po.id_perusahaan!='210' AND po.id_perusahaan!='217'
+												AND po.tgl BETWEEN '2024-12-01' AND '9999-01-01'
+												AND po.status='Open'
+												GROUP BY c.id
+												ORDER BY c.nm_perusahaan");
+											$html3 = '';
+											foreach($query3->result() as $r3){
+												$html3 .= '<option value="'.$r3->id.'"> '.$r3->pimpinan.' | '.$r3->nm_perusahaan.'</option>';
 											}
+											echo $html3;
 										?>
 									</select>
 								</div>
-								<div class="col-md-2" style="padding-bottom:3px">
-									<select id="bulan" class="form-control select2" onchange="load_data()">
-										<option value="">BULAN</option>
-										<option value="1">JANUARI</option>
-										<option value="2">FEBRUARI</option>
-										<option value="3">MARET</option>
-										<option value="4">APRIL</option>
-										<option value="5">MEI</option>
-										<option value="6">JUNI</option>
-										<option value="7">JULI</option>
-										<option value="8">AGUSTUS</option>
-										<option value="9">SEPTEMBER</option>
-										<option value="10">OKTOBER</option>
-										<option value="11">NOVEMBER</option>
-										<option value="12">DESEMBER</option>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">STATUS</div>
+								<div class="col-md-8">
+									<select id="lap_status" class="form-control select2" onchange="plhStatus()" disabled>
+										<option value="">OPEN</option>
+										<option value="ALL">ALL</option>
 									</select>
 								</div>
-								<div class="col-md-8" style="padding-bottom:3px"></div>
+								<div class="col-md-2"></div>
 							</div>
-							<div style="overflow:auto;white-space:nowrap">
-								<table id="datatable" class="table table-bordered table-striped">
-									<thead class="color-tabel">
-										<tr>
-											<th style="padding:12px;text-align:center">#</th>
-											<th style="padding:12px;text-align:center">NO. PO</th>
-											<th style="padding:12px;text-align:center">TGL</th>
-											<th style="padding:12px;text-align:center">STATUS</th>
-											<th style="padding:12px;text-align:center">CUSTOMER</th>
-											<th style="padding:12px;text-align:center">MKT</th>
-											<th style="padding:12px;text-align:center">OWNER</th>
-											<th style="padding:12px;text-align:center">AKSI</th>
-										</tr>
-									</thead>
-									<tbody></tbody>
-								</table>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">NO. PO</div>
+								<div class="col-md-8">
+									<select id="lap_no_po" class="form-control select2" disabled>
+										<option value="">PILIH</option>
+									</select>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">OPSI</div>
+								<div class="col-md-8">
+									<select id="lap_opsi" class="form-control select2" disabled>
+										<option value="">SEMUA</option>
+										<option value="TSDN">TIDAK SAMA DENGAN NOL</option>
+									</select>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">ORDER BY</div>
+								<div class="col-md-8">
+									<select id="lap_order" class="form-control select2" disabled>
+										<option value="">JENIS - GSM - UKURAN</option>
+										<option value="TNP">TGL - NO. PO</option>
+									</select>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2"></div>
+								<div class="col-md-10">
+									<button type="button" class="btn btn-sm btn-primary" onclick="cariLaporanPORoll()"><b>CARI</b></button>
+								</div>
+							</div>
+							<div class="card-body" style="padding:6px">
+								<div style="overflow:auto;white-space:nowrap">
+									<div id="lap_list_po"></div>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
+			<?php } ?>
 		</div>
 	</section>
 </div>
@@ -381,6 +473,7 @@
 	{
 		$(".row-input").show()
 		$(".row-list").hide()
+		$(".row-lap").hide()
 		$(".col-roll-input").show()
 		$(".col-roll-list").hide()
 		$(".list-roll").html('')
@@ -428,6 +521,7 @@
 	{
 		$(".row-input").hide()
 		$(".row-list").show()
+		$(".row-lap").show()
 		reloadTable()
 	}
 
@@ -541,6 +635,7 @@
 		$("#input-marketing").html('')
 		$("#input-owner").html('')
 		$(".row-list").hide()
+		$(".row-lap").hide()
 		$(".row-input").show()
 		$(".col-verifikasi").show()
 		$(".col-detail").show()
@@ -1061,6 +1156,63 @@
 				if(data.data){
 					backList()
 				}
+				swal.close()
+			}
+		})
+	}
+
+	// laporan
+
+	function plhCustomer()
+	{
+		let id_pt = $("#lap_id_pt").val()
+		$("#lap_status").prop('disabled', (id_pt == '') ? true : false).trigger('change')
+		$("#lap_no_po").prop('disabled', (id_pt == '') ? true : false)
+		$("#lap_order").prop('disabled', (id_pt == '') ? true : false)
+		$("#lap_opsi").prop('disabled', (id_pt == '') ? true : false)
+	}
+
+	function plhStatus()
+	{
+		$("#lap_no_po").html('<option value="">LOADING</option>')
+		let id_pt = $("#lap_id_pt").val()
+		let lap_status = $("#lap_status").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/plhStatus') ?>',
+			type: "POST",
+			data: ({ id_pt, lap_status }),
+			success: function(res){
+				data = JSON.parse(res)
+				$("#lap_no_po").html(data.noPO)
+			}
+		})
+	}
+
+	function cariLaporanPORoll()
+	{
+		$("#lap_list_po").html('Loading...')
+		let id_pt = $("#lap_id_pt").val()
+		let status = $("#lap_status").val()
+		let no_po = $("#lap_no_po").val()
+		let order = $("#lap_order").val()
+		let opsi = $("#lap_opsi").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/cariLaporanPORoll') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_pt, status, no_po, order, opsi }),
+			success: function(res){
+				data = JSON.parse(res)
+				$("#lap_list_po").html(data.html)
 				swal.close()
 			}
 		})
