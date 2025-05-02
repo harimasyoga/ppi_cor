@@ -21,7 +21,7 @@
 
 	<section class="content">
 		<div class="container-fluid">
-			<?php if(in_array($this->session->userdata('level'), ['Admin', 'Owner'])){ ?>
+			<?php if(in_array($this->session->userdata('level'), ['Admin', 'Owner', 'Keuangan1'])){ ?>
 				<div class="row row-input" style="display: none;">
 					<div class="col-md-6">
 						<div class="card card-primary card-outline" style="position:sticky;top:12px;padding-bottom:12px">
