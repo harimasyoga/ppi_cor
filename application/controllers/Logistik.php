@@ -10386,6 +10386,8 @@ class Logistik extends CI_Controller
 			($r->attn == '-') ? $attn = '' : $attn = ' - '.$r->attn;
 			$row[] = $r->nm_pelanggan.$attn;
 			$row[] = $r->no_kendaraan;
+			($r->sj_blk == null) ? $jj = '' : $jj = strtoupper(substr($this->m_fungsi->getHariIni($r->sj_blk),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->sj_blk));
+			$row[] = $jj;
 
 			($r->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
 			$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$r->no_surat."&top=".$jarak."&ctk=0").'" title="'.$r->no_surat.'" >PRINT</a>';
@@ -10537,7 +10539,14 @@ class Logistik extends CI_Controller
 								$btnJasa = '';
 							}
 						}
-
+						// SJ BALEK
+						if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
+							($sjpo->sj_blk == null) ? $bn = '' : $bn = 'background:#dee2e6;';
+							($sjpo->sj_blk == null) ? $nn = 'btn-light' : $nn = '';
+							$btnSJBalik = ' - <input type="date" id="tgl_balek'.$sjpo->id.'" value="'.$sjpo->sj_blk.'" style="'.$bn.'margin:0;padding:0;border:0;font-size:13px"> <button type="button" class="btn btn-xs '.$nn.'" style="padding:0 2px" onclick="sjBalek('."'".$sjpo->id."'".')"><i class="fas fa-check"></i></button>';
+						}else{
+							$btnSJBalik = '';
+						}
 						// EDIT NOMER SURAT JALAN
 						($sjpo->cetak_sj == 'not' && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $eNoSj = 'onchange="editPengirimanNoSJ('."'".$sjpo->id."'".')"' : $eNoSj = 'disabled';
 
@@ -10546,7 +10555,7 @@ class Logistik extends CI_Controller
 								NO. SURAT JALAN : &nbsp;<input type="number" class="form-control" id="pp-nosj-'.$sjpo->id.'" style="height:100%;width:50px;text-align:center;padding:2px 4px" value="'.$noSJ[0].'" '.$eNoSj.'>'.$ketSJ.'
 							</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">NO. PO : '.$sjpo->no_po.'</td>
-							<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="7">'.$btnPrint.' '.$btnJasa.'</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="7">'.$btnPrint.' '.$btnJasa.''.$btnSJBalik.'</td>
 						</tr>';
 						($sjpo->kategori == null) ? $wKategori = "" : $wKategori = "AND r.kategori='$sjpo->kategori'";
 						$getItems = $this->db->query("SELECT r.*,i.*,p.nm_pelanggan,p.attn FROM m_rencana_kirim r
@@ -10645,6 +10654,12 @@ class Logistik extends CI_Controller
 	function editPengirimanNoSJ()
 	{
 		$result = $this->m_logistik->editPengirimanNoSJ();
+		echo json_encode($result);
+	}
+
+	function sjBalek()
+	{
+		$result = $this->m_logistik->sjBalek();
 		echo json_encode($result);
 	}
 

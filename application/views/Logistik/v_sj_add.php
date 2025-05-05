@@ -109,11 +109,12 @@
 											<thead>
 												<tr>
 													<th style="width:5%;padding:12px;text-align:center">NO.</th>
-													<th style="width:16%;padding:12px;text-align:center">HARI, TGL</th>
+													<th style="width:8%;padding:12px;text-align:center">HARI, TGL</th>
 													<th style="width:16%;padding:12px;text-align:center">NO. SJ</th>
 													<th style="width:16%;padding:12px;text-align:center">NO. PO</th>
 													<th style="width:31%;padding:12px;text-align:center">CUSTOMER</th>
 													<th style="width:8%;padding:12px;text-align:center">PLAT</th>
+													<th style="width:8%;padding:12px;text-align:center">SJ BALIK</th>
 													<th style="width:8%;padding:12px;text-align:center">AKSI</th>
 												</tr>
 											</thead>
@@ -685,6 +686,37 @@
 			success: function(res){
 				data = JSON.parse(res)
 				listPengiriman()
+			}
+		})
+	}
+
+	function sjBalek(iidd)
+	{
+		let tgl_balek = $("#tgl_balek"+iidd).val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/sjBalek')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				iidd, tgl_balek
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success('<b>BERHASIL!</b>');
+				}else{
+					toastr.error(`<b>${data.msg}</b>`);
+				}
+				listRencanaKirim()
 			}
 		})
 	}
