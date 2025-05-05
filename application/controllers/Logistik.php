@@ -4780,7 +4780,7 @@ class Logistik extends CI_Controller
 					<button type="button" class="btn btn-xs '.$txtB.'" style="font-weight:bold" >'.$txtT.'</button><br>
 				</div>';
 
-				if (in_array($this->session->userdata('username'), ['karina']))
+				if (in_array($this->session->userdata('username'), ['karina','tegar']))
 				{
 					// $urll1 = "onclick=acc_inv(`admin`,'$r->acc_admin','$r->no_invoice')";
 					// $urll1 = "onclick=open_modal('$r->id','$r->no_invoice')";
@@ -4818,7 +4818,7 @@ class Logistik extends CI_Controller
 									<i class="fa fa-trash-alt"></i>
 								</button> ';
 
-				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','Keuangan1']))
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','Keuangan1','Pembayaran']))
 				{
 					if ($r->acc_owner == "N") 
 					{
@@ -4855,7 +4855,7 @@ class Logistik extends CI_Controller
 
 						}else{
 
-							if (!in_array($this->session->userdata('username'), ['developer','karina']))
+							if (!in_array($this->session->userdata('username'), ['developer','karina','tegar']))
 							{
 								$aksi = '<div class="text-center">'.$btncetak.'</div>';
 
