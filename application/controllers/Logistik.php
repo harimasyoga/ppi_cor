@@ -4829,7 +4829,7 @@ class Logistik extends CI_Controller
 
 						}else{
 
-							if (!in_array($this->session->userdata('username'), ['developer','karina']))
+							if (!in_array($this->session->userdata('username'), ['developer','karina','tegar']))
 							{
 								$aksi = '<div class="text-center">'.$btncetak.'<div>';
 							}else{
