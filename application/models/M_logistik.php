@@ -1182,6 +1182,27 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function sjBalek()
+	{
+		$id = $_POST["iidd"];
+		$tgl_balek = $_POST["tgl_balek"];
+
+		if($tgl_balek == ''){
+			$data = false;
+			$msg = "PILIH TANGGAL SJ BALIK!";
+		}else{
+			$this->db->set('sj_blk', $tgl_balek);
+			$this->db->where('id', $id);
+			$data = $this->db->update('pl_box');
+			$msg = "BERHASIL!";
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function addTimbangan()
 	{
 		$tgl = $_POST["tgl"];
