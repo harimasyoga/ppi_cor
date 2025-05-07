@@ -4982,28 +4982,28 @@ class Logistik extends CI_Controller
 				{
 					$cek_bc = '';
 				}else{
-					$cek_bc = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_bc,0,10).'...';
+					$cek_bc = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_bc,0,20).'...';
 				}
 				
 				if($r->img_faktur=='')
 				{
 					$cek_faktur = '';
 				}else{
-					$cek_faktur = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_faktur,0,10).'...';
+					$cek_faktur = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_faktur,0,20).'...';
 				}
 
 				if($r->img_resi=='')
 				{
 					$cek_resi = '';
 				}else{
-					$cek_resi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_resi,0,15).'...';
+					$cek_resi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_resi,0,20).'...';
 				}
 
 				if($r->img_mutasi=='')
 				{
 					$cek_mutasi = '';
 				}else{
-					$cek_mutasi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.$r->img_mutasi;
+					$cek_mutasi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_mutasi,0,20).'...';
 				}
 
 				$row = array();
