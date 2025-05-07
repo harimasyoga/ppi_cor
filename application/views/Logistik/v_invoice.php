@@ -660,7 +660,7 @@
 	<div class="modal-dialog modal-full">
 		<div class="modal-content">
 			<div class="card-header" style="font-family:Arial;" >
-				<h4 class="card-title" style="color:#4e73df;" id="judulbc">FILE BC</h4>
+				<h4 class="card-title" style="color:#4e73df;" id="judul_file"></h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 				</button>
 			</div>
@@ -673,6 +673,8 @@
 						<div class="col-md-1"></div>
 						<div class="col-md-2">No Inv</div>
 						<div class="col-md-3">
+						<input type="hidden" name="status_modal" id="status_modal" class="form-control" readonly>
+
 						<input type="text" name="no_inv_foto" id="no_inv_foto" class="form-control" readonly>
 															
 						</div>
@@ -681,7 +683,7 @@
 
 					</div>
 					
-					<div class="card-body row" style="padding : 5px;font-weight:bold">
+					<div id="upload_file" class="card-body row" style="padding : 5px;font-weight:bold">
 						<div class="col-md-1"></div>
 						<div class="col-md-2">Upload File
 						</div>
@@ -783,7 +785,7 @@
 		}
 	}
 
-	function open_foto(no_inv)
+	function open_foto(no_inv,ket,username)
 	{
 		
 		$(".simpan-save").html('')
@@ -792,9 +794,32 @@
 		$('#modal_foto').modal('show');			
 		$("#no_inv_foto").val(no_inv);		
 		$('#filefoto').css("display","block");
+		if(ket=='bc' && username=='karina' )
+		{
+			$('#upload_file').show();
+		}else if(ket=='faktur' && username=='siska')
+		{
+			$('#upload_file').show();
+		}else if(ket=='resi' && username=='karina')
+		{
+			$('#upload_file').show();
+		}else if(ket=='mutasi' && username=='karina')
+		{
+			$('#upload_file').show();
+		}else if(username=='developer')
+		{
+			$('#upload_file').show();
+		}else{
+			$('#upload_file').css("display","none");
+
+		}
+ 
+		document.getElementById("judul_file").innerHTML = "FILE "+ket.toUpperCase();
+		$("#status_modal").val(ket);		
+
 		
 		$.ajax({
-				url: '<?= base_url('Logistik/get_foto_inv_jual'); ?>',
+				url: '<?= base_url('Logistik/get_foto_'); ?>'+ket,
 				type: 'POST',
 				data: {
 					no       : no_inv,
@@ -842,20 +867,23 @@
 
 	function diPilih()
 	{
-			$(".simpan-save").html('<button class="btn btn-primary btn-sm" onclick="simpan_bc()" ><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
+			$(".simpan-save").html('<button class="btn btn-primary btn-sm" onclick="simpan_file()" ><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
 	}
 
 	
-	function simpan_bc() 
+	function simpan_file() 
 	{
 		
-		var file_data   = $('#filefoto').prop('files')[0];
-		var form_data   = new FormData();
+		var status_modal    = $('#status_modal').val();
+		var file_data       = $('#filefoto').prop('files')[0];
+		var form_data       = new FormData();
 		form_data.append('filefoto', file_data);
-		var url_        = '<?= base_url(); ?>Logistik/save_bc';
-		var form        = $('#form_foto')[0];
-		var data        = new FormData(form);
-		var noinv       = $('#no_inv_foto').val();
+		// alert(status_modal)
+		var url_            = '<?= base_url(); ?>Logistik/save_'+status_modal;
+		
+		var form            = $('#form_foto')[0];
+		var data            = new FormData(form);
+		var noinv           = $('#no_inv_foto').val();
 
 		$(".simpan-save").html('')
 
