@@ -4977,6 +4977,35 @@ class Logistik extends CI_Controller
 				$urll_foto_faktur   = "onclick=open_foto('$r->no_invoice','faktur','$usnm')";
 				$urll_foto_resi     = "onclick=open_foto('$r->no_invoice','resi','$usnm')";
 				$urll_foto_mutasi   = "onclick=open_foto('$r->no_invoice','mutasi','$usnm')";
+
+				if($r->img_bc=='')
+				{
+					$cek_bc = '';
+				}else{
+					$cek_bc = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_bc,0,10).'...';
+				}
+				
+				if($r->img_faktur=='')
+				{
+					$cek_faktur = '';
+				}else{
+					$cek_faktur = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_faktur,0,10).'...';
+				}
+
+				if($r->img_resi=='')
+				{
+					$cek_resi = '';
+				}else{
+					$cek_resi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_resi,0,15).'...';
+				}
+
+				if($r->img_mutasi=='')
+				{
+					$cek_mutasi = '';
+				}else{
+					$cek_mutasi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.$r->img_mutasi;
+				}
+
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 				$row[] = '
@@ -5012,7 +5041,9 @@ class Logistik extends CI_Controller
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
 						<div class="col-md-12">
-							<a type="button" '.$urll_foto_bc.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FOTO"></i> </b></span></a>
+							<a type="button" '.$urll_foto_bc.'>
+								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="BC"></i> </b></span>
+							</a> '.$cek_bc.'
 							<br>
 						</div></td>
 					</tr>
@@ -5022,7 +5053,8 @@ class Logistik extends CI_Controller
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
 						<div class="col-md-12">
-							<a type="button" '.$urll_foto_faktur.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FOTO"></i> </b></span></a>
+							<a type="button" '.$urll_foto_faktur.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FAKTUR"></i> </b></span></a>
+							'.$cek_faktur.'
 							<br>
 						</div></td>
 					</tr>
@@ -5032,7 +5064,8 @@ class Logistik extends CI_Controller
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
 						<div class="col-md-12">
-							<a type="button" '.$urll_foto_resi.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FOTO"></i> </b></span></a>
+							<a type="button" '.$urll_foto_resi.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="RESI"></i> </b></span></a>
+							'.$cek_resi.'
 							<br>
 						</div></td>
 					</tr>
@@ -5042,7 +5075,8 @@ class Logistik extends CI_Controller
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
 						<div class="col-md-12">
-							<a type="button" '.$urll_foto_mutasi.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FOTO"></i> </b></span></a>
+							<a type="button" '.$urll_foto_mutasi.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="MUTASI"></i> </b></span></a>
+							'.$cek_mutasi.'
 							<br>
 						</div></td>
 					</tr>
