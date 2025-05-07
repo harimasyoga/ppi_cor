@@ -794,7 +794,7 @@
 		$('#modal_foto').modal('show');			
 		$("#no_inv_foto").val(no_inv);		
 		$('#filefoto').css("display","block");
-		if(ket=='bc' && username=='karina' )
+		if(ket=='bc' && (username=='karina' || username=='siska') )
 		{
 			$('#upload_file').show();
 		}else if(ket=='faktur' && username=='siska')
