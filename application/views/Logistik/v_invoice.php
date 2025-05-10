@@ -1990,11 +1990,12 @@
 									</td>
 									
 									<td style="text-align: center" >
-										<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" >
+										<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.exc)}" readonly>
+
 									</td>
 
 									<td style="text-align: center" >
-										<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" >
+										<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.inc)}" readonly>
 									</td>
 
 									<td style="text-align: center" >${format_angka(val.qty)}
