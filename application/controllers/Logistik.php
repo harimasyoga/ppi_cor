@@ -7037,7 +7037,9 @@ class Logistik extends CI_Controller
 				}
 				
 				$query = $this->db->query("SELECT b.id as id_pl, sum(a.qty_muat) as qty, 'pcs' as qty_ket, b.tgl, b.id_perusahaan, c.nm_pelanggan as nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.nm_produk as item, 
-				d.kualitas, d.ukuran as ukuran2,d.ukuran, d.flute, d.kategori, a.id_produk as id_produk_simcorr 
+				d.kualitas, case when d.kategori ='K_SHEET' then d.ukuran_sheet else d.ukuran end as ukuran2,d.ukuran, d.flute, d.kategori, a.id_produk as id_produk_simcorr ,
+				(select price_inc from trs_po_detail f where f.kode_po=b.no_po and f.id_produk=d.id_produk)inc,
+				(select price_exc from trs_po_detail f where f.kode_po=b.no_po and f.id_produk=d.id_produk)exc
 				FROM m_rencana_kirim a 
 				JOIN pl_box b ON a.id_pl_box = b.id 
 				JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan 
@@ -7056,7 +7058,8 @@ class Logistik extends CI_Controller
 				}
 
 				$query = $db2->query("SELECT b.id as id_pl, a.qty, a.qty_ket, b.tgl, b.id_perusahaan, c.nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.item, d.kualitas, d.ukuran2,d.ukuran, 
-				d.flute, d.po, a.id_produk_simcorr
+				d.flute, d.po, a.id_produk_simcorr,
+				0 inc, 0 exc
 				FROM m_box a 
 				JOIN pl_box b ON a.id_pl = b.id 
 				LEFT JOIN m_perusahaan2 c ON b.id_perusahaan=c.id
