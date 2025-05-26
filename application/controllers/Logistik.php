@@ -4654,6 +4654,7 @@ class Logistik extends CI_Controller
 				
 				// update data
 				$this->db->set('img_bc', $filefoto);
+				$this->db->set('inp_bc', date('Y-m-d H:i:s'));
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -4709,6 +4710,7 @@ class Logistik extends CI_Controller
 				
 				// update data
 				$this->db->set('img_faktur', $filefoto);
+				$this->db->set('inp_faktur', date('Y-m-d H:i:s'));
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -4764,6 +4766,7 @@ class Logistik extends CI_Controller
 				
 				// update data
 				$this->db->set('img_resi', $filefoto);
+				$this->db->set('inp_resi', date('Y-m-d H:i:s'));
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -4819,6 +4822,7 @@ class Logistik extends CI_Controller
 				
 				// update data
 				$this->db->set('img_mutasi', $filefoto);
+				$this->db->set('inp_mutasi', date('Y-m-d H:i:s'));
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -4980,30 +4984,30 @@ class Logistik extends CI_Controller
 
 				if($r->img_bc=='')
 				{
-					$cek_bc = '';
+					$cek_bc = '-';
 				}else{
-					$cek_bc = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_bc,0,20).'...';
+					$cek_bc = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_bc,0,10).' - '.substr($r->inp_bc,11,8).'';
 				}
 				
 				if($r->img_faktur=='')
 				{
-					$cek_faktur = '';
+					$cek_faktur = '-';
 				}else{
-					$cek_faktur = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_faktur,0,20).'...';
+					$cek_faktur = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_faktur,0,10).' - '.substr($r->inp_faktur,11,8).'';
 				}
 
 				if($r->img_resi=='')
 				{
-					$cek_resi = '';
+					$cek_resi = '-';
 				}else{
-					$cek_resi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_resi,0,20).'...';
+					$cek_resi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_resi,0,10).' - '.substr($r->inp_resi,11,8).'';
 				}
 
 				if($r->img_mutasi=='')
 				{
-					$cek_mutasi = '';
+					$cek_mutasi = '-';
 				}else{
-					$cek_mutasi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->img_mutasi,0,20).'...';
+					$cek_mutasi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_mutasi,0,10).' - '.substr($r->inp_mutasi,11,8).'';
 				}
 
 				$row = array();
