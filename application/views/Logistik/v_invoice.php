@@ -368,7 +368,7 @@
 					<div class="row" style="padding-bottom:15px;font-weight:bold">
 						
 						<div class="col-md-7" style="padding-bottom:5px;font-weight:bold">												
-								<?php if (in_array($this->session->userdata('username'), ['karina','developer'])) { ?>
+								<?php if (in_array($this->session->userdata('username'), ['karina', 'tegar', 'developer'])) { ?>
 
 								<!-- <a href="<?= base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a> -->
 
