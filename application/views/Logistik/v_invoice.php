@@ -800,10 +800,10 @@
 		}else if(ket=='faktur' && username=='siska')
 		{
 			$('#upload_file').show();
-		}else if(ket=='resi' && (username=='karina' || || username=='tegar'))
+		}else if(ket=='resi' && (username=='karina' || username=='tegar'))
 		{
 			$('#upload_file').show();
-		}else if(ket=='mutasi' && (username=='karina' || || username=='tegar'))
+		}else if(ket=='mutasi' && (username=='karina' || username=='tegar'))
 		{
 			$('#upload_file').show();
 		}else if(username=='developer')
