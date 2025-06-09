@@ -14,7 +14,17 @@
 		</div>
 	</section>
 
+	<style>
+		/* Chrome, Safari, Edge, Opera */
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+	</style>
+
 	<section class="content">
+
 		<div class="card shadow mb-3 card-list-so">
 			<div class="card-header" style="font-family:Cambria;" >
 				<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?></b></h3>
@@ -24,9 +34,12 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<?php if(in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
+				<?php if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])) { ?>
 					<div style="margin-bottom:12px">
 						<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
+						<button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="LaporanSOTrim()"></i>&nbsp;&nbsp;<b>Laporan</b></button>
+						<?php if(in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
+						<?php } ?>
 					</div>
 				<?php } ?>
 				<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
@@ -64,6 +77,30 @@
 						</thead>
 						<tbody></tbody>
 					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="row row-lap-so">
+			<div class="col-md-12">
+				<div class="card card-secondary card-outline">
+					<div class="card-header" style="padding:12px">
+						<h3 class="card-title" style="font-weight:bold;font-size:18px">LAPORAN</h3>
+					</div>
+					<div class="card-body" style="padding:6px">
+						<!-- ORDERS -->
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="trim-orders"></div>
+						</div>
+						<!-- ORDER ITEMS -->
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="trim-order-items"></div>
+						</div>
+						<!-- PPIC -->
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="trim-ppic"></div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -203,6 +240,7 @@
 
 <script type="text/javascript">
 	status ="insert";
+	const urlAuth = '<?= $this->session->userdata('level')?>';
 
 	$(document).ready(function () {
 		load_data()
@@ -882,6 +920,114 @@
 				}
 			})
 		});
+	}
+
+	function btnSOHasil(id){
+		let h_id = $("#h_id").val()
+		let no_po = $("#h_no_po").val()
+		let kode_po = $("#h_kodepo").val()
+		let hasil_tgl = $("#hasil_tgl"+id).val()
+		let hasil_pcs = $("#hasil_pcs"+id).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/btnSOHasil')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id, hasil_tgl, hasil_pcs }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					swal(data.msg, "", "success")
+					tampilEditSO(h_id, no_po, kode_po, 'edit')
+					reloadTable()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function cbOSHasil(id)
+	{
+		let h_id = $("#h_id").val()
+		let no_po = $("#h_no_po").val()
+		let kode_po = $("#h_kodepo").val()
+		let cbhs = $("#cbhs-"+id).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/cbOSHasil')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id, cbhs }),
+			success: function(res){
+				data = JSON.parse(res)
+				tampilEditSO(h_id, no_po, kode_po, 'edit')
+			}
+		})
+	}
+
+	function LaporanSOTrim()
+	{
+		$(".trim-orders").html('')
+		$(".trim-order-items").html('')
+		$(".trim-ppic").html('')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/LaporanSOTrim')?>',
+			type: "POST",
+			// data: ({ id, cbhs }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(urlAuth == 'ppic'){
+					$(".trim-ppic").html(data.htmlP)
+				}else{
+					$(".trim-orders").html(data.htmlO)
+					$(".trim-order-items").html(data.htmlOI)
+				}
+			}
+		})
+	}
+
+	function hapusOSList(id)
+	{
+		let h_id = $("#h_id").val()
+		let no_po = $("#h_no_po").val()
+		let kode_po = $("#h_kodepo").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/hapusOSList')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id }),
+			success: function(res){
+				data = JSON.parse(res)
+				tampilEditSO(h_id, no_po, kode_po, 'edit')
+			}
+		})
 	}
 
 </script>
