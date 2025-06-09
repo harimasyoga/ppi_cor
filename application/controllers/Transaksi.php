@@ -2572,12 +2572,17 @@ class Transaksi extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "trs_so_detail") {
+			if ($this->session->userdata('level') == "PPIC") {
+				$wSt2 = "AND s.status_2='Open' AND s.add_user='ppic'";
+			}else{
+				$wSt2 = "";
+			}
 			$tahunn = $_POST["tahun"];
 			$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,s.* FROM trs_po_detail d
 			INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so=s.no_so AND d.id_produk=s.id_produk
 			INNER JOIN m_produk p ON d.id_produk=p.id_produk
 			INNER JOIN m_pelanggan l ON d.id_pelanggan=l.id_pelanggan
-			WHERE d.no_so IS NOT NULL AND d.tgl_so IS NOT NULL AND d.status_so IS NOT NULL AND d.tgl_so LIKE '%$tahunn%'
+			WHERE d.no_so IS NOT NULL AND d.tgl_so IS NOT NULL AND d.status_so IS NOT NULL AND d.tgl_so LIKE '%$tahunn%' $wSt2
 			GROUP BY d.id DESC")->result();
 			$i = 1;
 			foreach ($query as $r) {
@@ -5444,10 +5449,14 @@ class Transaksi extends CI_Controller
 					<th style="padding:12px 6px;width:10%;text-align:center">AKSI</th>
 				</tr>
 			</thead>';
-
+		if($this->session->userdata('level') == 'PPIC'){
+			$wId = "AND d.id='$id'";
+		}else{
+			$wId = "";
+		}
 		$getSO = $this->db->query("SELECT p.kode_mc,p.nm_produk,p.kategori,p.ukuran,p.ukuran_sheet,p.ukuran_sheet_l,p.ukuran_sheet_p,p.kualitas,p.flute,p.berat_bersih,d.* FROM trs_po_detail d
 		INNER JOIN m_produk p ON d.id_produk=p.id_produk
-		WHERE no_po='$no_po' AND kode_po='$kode_po'");
+		WHERE no_po='$no_po' AND kode_po='$kode_po' $wId");
 
 		$i = 0;
 		foreach($getSO->result() as $r){
@@ -5459,7 +5468,7 @@ class Transaksi extends CI_Controller
 			if($aksi == 'detail'){
 				$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
 			}else{
-				if(in_array($this->session->userdata('level'), ['Admin','User'])){
+				if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])){
 					($r->id == $id) ?
 						$btnBagi = '<button type="button" class="btn btn-success btn-sm" id="addBagiSO" onclick="addBagiSO('."'".$r->id."'".')"><i class="fas fa-plus"></i></button>
 							<button type="button" class="btn btn-danger btn-sm" id="hapusListSO" onclick="hapusListSO('."'".$r->id."'".')"><i class="fas fa-trash"></i></button>' :
@@ -5487,21 +5496,30 @@ class Transaksi extends CI_Controller
 			WHERE s.id_produk='$r->id_produk' AND s.no_po='$r->no_po' AND s.kode_po='$r->kode_po' AND s.no_so='$r->no_so'");
 			
 			if($dataSO->num_rows() != 0){
+				if($this->session->userdata('level') == 'PPIC'){
+					$ketPPIC = '<th style="padding:6px;'.$bHead.''.$bold.'">HASIL TGL</th>
+					<th style="padding:6px;'.$bHead.''.$bold.'">HASIL QTY</th>
+					<th style="padding:6px;'.$bHead.''.$bold.'">HASIL AKSI</th>
+					<th style="padding:6px;'.$bHead.''.$bold.'">DONE</th>';
+				}else{
+					$ketPPIC = '';
+				}
 				$html .='<tr style="'.$borLf.'">
 					<td colspan="8">
 						<table class="table table-bordered" style="margin:0;border:0;width:100%">
 							<thead>
 								<tr>
-									<th style="padding:6px;width:3%;'.$bHead.''.$bold.'" class="text-center">NO.</th>
-									<th style="padding:6px;width:10%;'.$bHead.''.$bold.'">ETA SO</th>
-									<th style="padding:6px;width:20%;'.$bHead.''.$bold.'">NO. SO</th>
-									<th style="padding:6px;width:12%;'.$bHead.''.$bold.'">QTY SO</th>
-									<th style="padding:6px;width:20%;'.$bHead.''.$bold.'">KETERANGAN</th>
-									<th style="padding:6px;width:5%;'.$bHead.''.$bold.'" class="text-center">-</th>
-									<th style="padding:6px;width:7%;'.$bHead.''.$bold.'" class="text-center">RM</th>
-									<th style="padding:6px;width:7%;'.$bHead.''.$bold.'" class="text-center">TON</th>
-									<th style="padding:6px;width:7%;'.$bHead.''.$bold.'" class="text-center">B. BAKU</th>
-									<th style="padding:6px;width:10%;'.$bHead.''.$bold.'" class="text-center">AKSI</th>
+									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">NO.</th>
+									<th style="padding:6px;'.$bHead.''.$bold.'">ETA SO</th>
+									<th style="padding:6px;'.$bHead.''.$bold.'">NO. SO</th>
+									<th style="padding:6px;'.$bHead.''.$bold.'">QTY SO</th>
+									'.$ketPPIC.'
+									<th style="padding:6px;'.$bHead.''.$bold.'">KETERANGAN</th>
+									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">-</th>
+									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">RM</th>
+									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">TON</th>
+									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">B. BAKU</th>
+									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">AKSI</th>
 								</tr>
 							</thead>';
 
@@ -5523,7 +5541,7 @@ class Transaksi extends CI_Controller
 						if($so->status == 'Close'){
 							$btnHapus = '';
 						}else{
-							if(in_array($this->session->userdata('level'), ['Admin','User'])){
+							if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])){
 								if($r->id == $id){
 									if($so->rpt == 1){
 										$btnHapus = '';
@@ -5555,7 +5573,7 @@ class Transaksi extends CI_Controller
 							$rTxt = 1;
 							$diss = 'disabled';
 						}else{
-							if(in_array($this->session->userdata('level'), ['Admin','User'])){
+							if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])){
 								($r->id == $id) ? $diss = '' : $diss = 'disabled';
 								($r->id == $id) ? $btnAksi = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi = $print;
 							}else{
@@ -5567,41 +5585,173 @@ class Transaksi extends CI_Controller
 					}
 
 					($so->cek_rm_so == 0) ? $check = '' : $check = 'checked';
+					($so->cek_st_2 == 0) ? $check2 = '' : $check2 = 'checked';
 					$bahan_baku = ceil($so->ton / 0.7);
 					
 					$urut_so = str_pad($so->urut_so, 2, "0", STR_PAD_LEFT);
 					$rpt = str_pad($so->rpt, 2, "0", STR_PAD_LEFT);
-					$html .='<tr>
-						<td style="padding:6px;'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
-						<td style="padding:6px;'.$bTd.''.$bold.'"><input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$diss.'></td>
-						<td style="padding:6px;'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
-						<td style="padding:6px;'.$bTd.''.$bold.'"><input type="number" id="edit-qty-so'.$so->id.'" class="form-control" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.$so->qty_so.'" '.$diss.'></td>
-						<td style="padding:6px;'.$bTd.''.$bold.'"><textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt.'" style="resize:none" '.$diss.'>'.$so->ket_so.'</textarea></td>
-						<td style="padding:6px;'.$bTd.''.$bold.'">
-							<input type="checkbox" id="cbso-'.$so->id.'" style="height:25px;width:100%" onclick="keyUpQtySO('."'".$so->id."'".')" value="'.$so->cek_rm_so.'" '.$check.' '.$diss.'>
-						</td>
-						<td style="padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->rm).'<br><span class="span-rm-h-'.$so->id.'"></span></td>
-						<td style="padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->ton).'<br><span class="span-ton-h-'.$so->id.'"></span></td>
-						<td style="padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($bahan_baku).'<br><span class="span-bb-h-'.$so->id.'"></span></td>
-						<td style="padding:6px;'.$bTd.''.$bold.'" class="text-center">
-							<input type="hidden" id="ht-ukl-'.$so->id.'" value="'.$so->ukuran_sheet_l.'">
-							<input type="hidden" id="ht-ukp-'.$so->id.'" value="'.$so->ukuran_sheet_p.'">
-							<input type="hidden" id="ht-bb-'.$so->id.'" value="'.$so->berat_bersih.'">
-							<input type="hidden" id="edit-qtypo-so'.$so->id.'" value="'.$r->qty.'">
-							'.$btnAksi.' '.$btnHapus.'
-						</td>
-					</tr>';
-					$sumQty += $so->qty_so;
-					$sumRm += $so->rm;
-					$sumTon += $so->ton;
-					$sumBB += $bahan_baku;
+					if($this->session->userdata('level') == 'PPIC' && $so->add_user == 'ppic'){
+						if($aksi == 'detail'){
+							$dis2 = 'disabled';
+							$rTxt2 = '1';
+							$btnAksi2 = $print;
+						}else{
+							if($so->status_2 == 'Close'){
+								$btnAksi2 = $print;
+								$rTxt2 = 1;
+								$dis2 = 'disabled';
+
+								$btnDone = '';
+								$btnHaksi = '';
+							}else{
+								($r->id == $id) ? $dis2 = '' : $dis2 = 'disabled';
+								($r->id == $id) ? $btnAksi2 = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi2 = $print;
+								($r->id == $id) ? $rTxt2 = 2 : $rTxt2 = 1;
+
+								$btnDone = 'onclick="btnSOHasil('."'".$so->id."'".')"';
+								$btnHaksi = 'onclick="cbOSHasil('."'".$so->id."'".')"';
+							}
+						}
+						$html .='<tr>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'"><input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$dis2.'></td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'"><input type="number" id="edit-qty-so'.$so->id.'" class="form-control" style="text-align:right" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.$so->qty_so.'" '.$dis2.'></td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
+								<input type="date" id="hasil_tgl'.$so->id.'" class="form-control" '.$dis2.'>
+							</td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
+								<input type="number" id="hasil_pcs'.$so->id.'" class="form-control" style="text-align:right" onkeyup="" placeholder="0" '.$dis2.'>
+							</td>
+							<td style="background:#f2f2f2;padding:6px;text-align:center;'.$bTd.''.$bold.'">
+								<button type="button" class="btn btn-primary btn-sm" '.$btnDone.' '.$dis2.'><i class="fas fa-check"></i></button>
+							</td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
+								<input type="checkbox" id="cbhs-'.$so->id.'" style="height:25px;width:100%" '.$btnHaksi.' value="'.$so->cek_st_2.'" '.$check2.' '.$dis2.'>
+							</td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'"><textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt2.'" style="resize:none">'.$so->ket_so.'</textarea></td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
+								<input type="checkbox" id="cbso-'.$so->id.'" style="height:25px;width:100%" onclick="keyUpQtySO('."'".$so->id."'".')" value="'.$so->cek_rm_so.'" '.$check.'>
+							</td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->rm).'<br><span class="span-rm-h-'.$so->id.'"></span></td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->ton).'<br><span class="span-ton-h-'.$so->id.'"></span></td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($bahan_baku).'<br><span class="span-bb-h-'.$so->id.'"></span></td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-center">
+								<input type="hidden" id="ht-ukl-'.$so->id.'" value="'.$so->ukuran_sheet_l.'">
+								<input type="hidden" id="ht-ukp-'.$so->id.'" value="'.$so->ukuran_sheet_p.'">
+								<input type="hidden" id="ht-bb-'.$so->id.'" value="'.$so->berat_bersih.'">
+								<input type="hidden" id="edit-qtypo-so'.$so->id.'" value="'.$r->qty.'">
+								'.$btnAksi2.' '.$btnHapus.'
+							</td>
+						</tr>';
+
+						// HTML HASIL
+						$qHasil = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$so->id' ORDER BY hasil_tgl");
+						if($qHasil->num_rows() != 0){
+							$sumHasil = 0;
+							foreach($qHasil->result() as $h){
+								if($qHasil->num_rows() == 1){
+									$kurHass = $h->hasil_qty - $so->qty_so;
+									$sHx = '<td style="background:#fff;padding:6px;text-align:right;font-weight:bold">'.$kurHass.'</td>
+									<td colspan="7" style="background:#fff"></td>';
+									$hfb = ';font-weight:bold';
+								}else{
+									$sHx = '<td colspan="8" style="background:#fff"></td>';
+									$hfb = '';
+								}
+								if($so->status_2 == 'Close'){
+									$bHsH = '';
+								}else{
+									$bHsH = '<button class="btn btn-xs btn-danger" onclick="hapusOSList('."'".$h->id."'".')"><i class="fas fa-trash"></i></button> ';
+								}
+								$html .= '<tr>
+									<td colspan="4" style="background:#fff"></td>
+									<td style="background:#fff;padding:6px">'.$bHsH.substr($this->m_fungsi->getHariIni($h->hasil_tgl),0,3).', '.$this->m_fungsi->tglIndSkt(substr($h->hasil_tgl, 0,10)).'</td>
+									<td style="background:#fff;padding:6px;text-align:right'.$hfb.'">'.number_format($h->hasil_qty).'</td>
+									'.$sHx.'
+								</tr>';
+								$sumHasil += $h->hasil_qty;
+							}
+						}
+						// TOTAL HASIL
+						if($qHasil->num_rows() > 1){
+							$xHasil = $sumHasil - $so->qty_so;
+							$html .= '<tr>
+								<td colspan="5" style="background:#fff"></td>
+								<td style="background:#fff;padding:6px;font-weight:bold;text-align:right">'.number_format($sumHasil).'</td>
+								<td style="background:#fff;padding:6px;font-weight:bold;text-align:right">'.$xHasil.'</td>
+								<td colspan="7" style="background:#fff;padding:6px"></td>
+							</tr>';
+						}
+
+						$sumQty += $so->qty_so;
+						$sumRm += $so->rm;
+						$sumTon += $so->ton;
+						$sumBB += $bahan_baku;
+					}
+					if(in_array($this->session->userdata('level'), ['Admin','User']) && ($so->add_user == 'user' || $so->add_user == 'developer')){
+						if($aksi == 'detail'){
+							$diss = 'disabled';
+							$rTxt = '1';
+							$btnAksi = $print;
+						}else{
+							if($so->status == 'Close'){
+								$btnAksi = $print;
+								$rTxt = 1;
+								$diss = 'disabled';
+							}else{
+								if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])){
+									($r->id == $id) ? $diss = '' : $diss = 'disabled';
+									($r->id == $id) ? $btnAksi = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi = $print;
+								}else{
+									$diss = 'disabled';
+									$btnAksi = $print;
+								}
+								($r->id == $id) ? $rTxt = 2 : $rTxt = 1;
+							}
+						}
+						$html .='<tr>
+							<td style="padding:6px;'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
+							<td style="padding:6px;'.$bTd.''.$bold.'"><input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$diss.'></td>
+							<td style="padding:6px;'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
+							<td style="padding:6px;'.$bTd.''.$bold.'"><input type="number" id="edit-qty-so'.$so->id.'" class="form-control" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.$so->qty_so.'" '.$diss.'></td>
+							<td style="padding:6px;'.$bTd.''.$bold.'"><textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt.'" style="resize:none" '.$diss.'>'.$so->ket_so.'</textarea></td>
+							<td style="padding:6px;'.$bTd.''.$bold.'">
+								<input type="checkbox" id="cbso-'.$so->id.'" style="height:25px;width:100%" onclick="keyUpQtySO('."'".$so->id."'".')" value="'.$so->cek_rm_so.'" '.$check.' '.$diss.'>
+							</td>
+							<td style="padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->rm).'<br><span class="span-rm-h-'.$so->id.'"></span></td>
+							<td style="padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->ton).'<br><span class="span-ton-h-'.$so->id.'"></span></td>
+							<td style="padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($bahan_baku).'<br><span class="span-bb-h-'.$so->id.'"></span></td>
+							<td style="padding:6px;'.$bTd.''.$bold.'" class="text-center">
+								<input type="hidden" id="ht-ukl-'.$so->id.'" value="'.$so->ukuran_sheet_l.'">
+								<input type="hidden" id="ht-ukp-'.$so->id.'" value="'.$so->ukuran_sheet_p.'">
+								<input type="hidden" id="ht-bb-'.$so->id.'" value="'.$so->berat_bersih.'">
+								<input type="hidden" id="edit-qtypo-so'.$so->id.'" value="'.$r->qty.'">
+								'.$btnAksi.' '.$btnHapus.'
+							</td>
+						</tr>';
+						$sumQty += $so->qty_so;
+						$sumRm += $so->rm;
+						$sumTon += $so->ton;
+						$sumBB += $bahan_baku;
+					}
+
 				}
 
 				if($dataSO->num_rows() > 1){
+					if($this->session->userdata('level') == 'PPIC'){
+						$sumPPIC = '<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
+						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
+						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
+						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>';
+					}else{
+						$sumPPIC = '';
+					}
 					$html .='<tr>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0" colspan="3"></td>
-						<td style="background:#fff;padding:6px;font-weight:bold;border:0">'.number_format($sumQty).'</td>
+						<td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumQty).'</td>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
+						'.$sumPPIC.'
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumRm).'</td>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumTon).'</td>
@@ -5628,6 +5778,115 @@ class Transaksi extends CI_Controller
 
 		$html .= '</table>';
 		echo $html;
+	}
+
+	function LaporanSOTrim()
+	{
+		$htmlO = '';
+		$htmlOI = '';
+		// ORDERS
+		$htmlO .= 'orders.xlsx';
+		$htmlO .= '<table style="margin-bottom:20px">
+			<tr>
+				<td style="padding:6px">order_id</td>
+				<td style="padding:6px">customer_id</td>
+				<td style="padding:6px">created_at</td>
+			</tr>';
+			$oQ = $this->db->query("SELECT s.no_po,c.kode_unik FROM trs_so_detail s
+			INNER JOIN m_pelanggan c ON s.id_pelanggan=c.id_pelanggan
+			WHERE s.add_user='ppic' AND s.status_2='Open'
+			GROUP BY s.no_po,c.kode_unik,s.status_2");
+			foreach($oQ->result() as $c){
+				$th = date('Y');
+				$bln = date('m');
+				$date = date('d');
+				$htmlO .= '<tr>
+					<td style="padding:6px">'.str_replace('PO/', 'SO/', $c->no_po).'</td>
+					<td style="padding:6px">'.$c->kode_unik.'</td>
+					<td style="padding:6px">'.$th.'-'.$bln.'-'.$date.'T22:32:00</td>
+				</tr>';
+			}
+		$htmlO .= '</table>';
+
+		// ORDER ITEMS
+		$htmlOI .= 'order-items.xlsx';
+		$htmlOI .= '<table>
+			<tr>
+				<td style="padding:6px">id</td>
+				<td style="padding:6px">order_id</td>
+				<td style="padding:6px">item_id</td>
+				<td style="padding:6px">sequence_id</td>
+				<td style="padding:6px">quantity</td>
+				<td style="padding:6px">eta</td>
+				<td style="padding:6px">status</td>
+			</tr>';
+
+			$qOI = $this->db->query("SELECT s.no_po, s.id_produk
+			FROM trs_so_detail s
+			WHERE s.add_user='ppic' AND s.status_2='Open'
+			GROUP BY s.no_po,s.id_produk,s.status_2");
+			foreach($qOI->result() as $r){
+				$sQ = $this->db->query("SELECT 
+				s.no_po AS order_id,
+				s.id_produk AS item_id,
+				s.rpt AS sequence_id,
+				s.qty_so,
+				(SELECT SUM(h.hasil_qty) FROM trs_so_hasil h WHERE s.id=h.id_so_dtl) AS hasil,
+				s.eta_so AS eta
+				FROM trs_so_detail s
+				WHERE s.add_user='ppic' AND s.status_2='Open' AND s.no_po='$r->no_po' AND s.id_produk='$r->id_produk'
+				GROUP BY s.no_po,s.id_produk,s.urut_so,s.rpt,s.status_2");
+				$ii = 0;
+				foreach($sQ->result() as $s){
+					$prod = ($s->hasil == null) ? 0 : $s->hasil;
+					$hasil = $s->qty_so - $prod;
+					if($hasil > 0){
+						$ii++;
+						$htmlOI .= '<tr>
+							<td style="padding:6px"></td>
+							<td style="padding:6px">'.str_replace('PO/', 'SO/', $s->order_id).'</td>
+							<td style="padding:6px">ITEM'.$s->item_id.'</td>
+							<td style="padding:6px;text-align:right">'.str_pad($ii, 3, "0", STR_PAD_LEFT).'</td>
+							<td style="padding:6px;text-align:right">'.$hasil.'</td>
+							<td style="padding:6px">'.$s->eta.'T00:00:00</td>
+							<td style="padding:6px">pending</td>
+						</tr>';
+					}
+				}
+			}
+		$htmlOI .= '</table>';
+
+		// CUSTOMERS
+		// SELECT kode_unik, nm_pelanggan, no_telp, '2025-06-05T17:03:00'created_at FROM m_pelanggan
+		// WHERE id_pelanggan IN (SELECT no_customer FROM m_produk)
+		// GROUP BY id_pelanggan
+		// ORDER BY nm_pelanggan,kode_unik;
+
+		// ITEMS
+		// SELECT CONCAT('ITEM',a.id_produk)item_id,b.kode_unik customer_id,a.nm_produk description,ROUND((a.ukuran_sheet_l/10),2) sheet_width,ROUND((a.ukuran_sheet_p/10),2) sheet_length,LOWER(a.wall) wall_type,'0.04'toleransi,
+		// CASE WHEN flute IN ('BF','CF') THEN CONCAT('[["liner", "' , SUBSTR(material,1,1),'", ' ,SUBSTR(kualitas_isi,1,3),'], ["fluting"," ', REPLACE(flute,'F',''),'", ' ,SUBSTR(kualitas_isi,5,3),'], ["liner", "',SUBSTR(material,5,1),'", ',SUBSTR(kualitas_isi,9,3),']]' )
+		// ELSE CONCAT('[["liner", "' , SUBSTR(material,1,1),'", ' ,SUBSTR(kualitas_isi,1,3),'], ["fluting", "B", ' ,SUBSTR(kualitas_isi,5,3),'], ["liner", "',SUBSTR(material,5,1),'", ',SUBSTR(kualitas_isi,9,3),'], ["fluting", "C", ',SUBSTR(kualitas_isi,13,3),'], ["liner", "',SUBSTR(material,9,1),'", ',SUBSTR(kualitas_isi,17,3),']]' ) END
+		// layer, a.flute ,a.material,a.kualitas_isi FROM m_produk a
+		// INNER JOIN m_pelanggan b ON a.no_customer=b.id_pelanggan
+		// GROUP BY a.id_produk, no_customer,kode_unik,nm_produk
+
+		// rolls
+		// roll_id	width	spec	grammage	running_meter	assigned(false)
+
+		$htmlP = '';
+		$htmlP .= '<table>
+			<tr>
+				<td>ETA</td>
+				<td>NO. PO</td>
+				<td>CUSTOMER</td>
+				<td>ITEM</td>
+			</tr>';
+		$htmlP .= '</table>';
+
+		echo json_encode([
+			'htmlO' => $htmlO,
+			'htmlOI' => $htmlOI,
+		]);
 	}
 
 	function editBagiSO()
@@ -5801,6 +6060,24 @@ class Transaksi extends CI_Controller
 	function hapusListSO()
 	{
 		$result = $this->m_transaksi->hapusListSO();
+		echo json_encode($result);
+	}
+
+	function btnSOHasil()
+	{
+		$result = $this->m_transaksi->btnSOHasil();
+		echo json_encode($result);
+	}
+
+	function cbOSHasil()
+	{
+		$result = $this->m_transaksi->cbOSHasil();
+		echo json_encode($result);
+	}
+
+	function hapusOSList()
+	{
+		$result = $this->m_transaksi->hapusOSList();
 		echo json_encode($result);
 	}
 

@@ -947,6 +947,7 @@ class M_transaksi extends CI_Model
 				'rpt' => 1,
 				'qty_so' => $jml_so,
 				'status' => 'Open',
+				'status_2' => 'Open',
 				'ket_so' => '',
 				'rm' => $r['options']['rm'],
 				'ton' => $r['options']['ton'],
@@ -1051,6 +1052,7 @@ class M_transaksi extends CI_Model
 				'rpt' => $r['options']['rpt'],
 				'qty_so' => $r['options']['qty_so'],
 				'status' => 'Open',
+				'status_2' => 'Open',
 				'ket_so' => $r['options']['ket_so'],
 				'cek_rm_so' => ($r['options']['rm'] < 500) ? $r['options']['cek_rm_so'] : 0,
 				'rm' => $r['options']['rm'],
@@ -1109,6 +1111,66 @@ class M_transaksi extends CI_Model
 				'msg' => 'BERHASIL HAPUS DATA SO!',
 			);
 		}
+	}
+
+	function btnSOHasil()
+	{
+		$id = $_POST["id"];
+		$hasil_tgl = $_POST["hasil_tgl"];
+		$hasil_pcs = $_POST["hasil_pcs"];
+
+		if($hasil_tgl == ''){
+			$data = false;
+			$msg = 'TANGGAL KOSONG!';
+		}else if($hasil_pcs == '' || $hasil_pcs == 0 || $hasil_pcs < 0){
+			$data = false;
+			$msg = 'HASIL PCS SALAH!';
+		}else{
+			$soHasil = array(
+				'id_so_dtl' => $id,
+				'hasil_tgl' => $hasil_tgl,
+				'hasil_qty' => $hasil_pcs,
+			);
+			$data = $this->db->insert('trs_so_hasil', $soHasil);
+			$msg = 'BERHASIL!';
+		}
+
+		return [
+			'id' => $id,
+			'hasil_tgl' => $hasil_tgl,
+			'hasil_pcs' => $hasil_pcs,
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function cbOSHasil()
+	{
+		$id = $_POST["id"];
+		$cbhs = $_POST["cbhs"];
+
+		$this->db->set('cek_st_2', 1);
+		$this->db->set('status_2', 'Close');
+		$this->db->where('id', $id);
+		$data = $this->db->update('trs_so_detail');
+
+		return [
+			'id' => $id,
+			'cbhs' => $cbhs,
+			'data' => $data,
+		];
+	}
+
+	function hapusOSList()
+	{
+		$id = $_POST["id"];
+
+		$this->db->where('id', $id);
+		$data = $this->db->delete('trs_so_hasil');
+
+		return [
+			'data' => $data,
+		];
 	}
 
 	function simpanHPP()
