@@ -4865,9 +4865,16 @@ class Logistik extends CI_Controller
 			
 			$blnn    = $_POST['blnn'];
 			$thnn    = $_POST['thnn'];
+
+			if($blnn=='' || $blnn=='all'){
+				$cek_bulan ="";
+			}else{
+				$cek_bulan = "and month(tgl_invoice) in ('$blnn') ";
+			}
+			
 			$query   = $this->db->query("SELECT * FROM invoice_header
 			-- where type in ('box','sheet') 
-			where month(tgl_invoice) in ('$blnn') and YEAR(tgl_invoice) in ('$thnn')
+			where YEAR(tgl_invoice) in ('$thnn') $cek_bulan
 			ORDER BY tgl_invoice desc,no_invoice")->result();
 
 			$i               = 1;
