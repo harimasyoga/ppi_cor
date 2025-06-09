@@ -794,16 +794,16 @@
 		$('#modal_foto').modal('show');			
 		$("#no_inv_foto").val(no_inv);		
 		$('#filefoto').css("display","block");
-		if(ket=='bc' && (username=='karina' || username=='siska') )
+		if(ket=='bc' && (username=='karina' || username=='siska'  || username=='tegar') )
 		{
 			$('#upload_file').show();
 		}else if(ket=='faktur' && username=='siska')
 		{
 			$('#upload_file').show();
-		}else if(ket=='resi' && username=='karina')
+		}else if(ket=='resi' && (username=='karina' || || username=='tegar'))
 		{
 			$('#upload_file').show();
-		}else if(ket=='mutasi' && username=='karina')
+		}else if(ket=='mutasi' && (username=='karina' || || username=='tegar'))
 		{
 			$('#upload_file').show();
 		}else if(username=='developer')
