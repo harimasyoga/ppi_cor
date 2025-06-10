@@ -21,6 +21,10 @@
 			-webkit-appearance: none;
 			margin: 0;
 		}
+
+		.thdhdz:hover {
+			background: #eee;
+		}
 	</style>
 
 	<section class="content">
@@ -38,6 +42,7 @@
 					<div style="margin-bottom:12px">
 						<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 						<button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="LaporanSOTrim()"></i>&nbsp;&nbsp;<b>Laporan</b></button>
+						<button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick=""></i>&nbsp;&nbsp;<b>Roll</b></button>
 						<?php if(in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
 						<?php } ?>
 					</div>
@@ -100,6 +105,77 @@
 						<div style="overflow:auto;white-space:nowrap">
 							<div class="trim-ppic"></div>
 						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row row-peng-roll">
+			<div class="col-md-12">
+				<div class="card card-secondary card-outline">
+					<div class="card-header" style="padding:12px">
+						<h3 class="card-title" style="font-weight:bold;font-size:18px">PENGGUNAAN ROLL</h3>
+					</div>
+					<div style="margin:12px 6px;display:flex">
+						<button type="button" class="btn btn-sm btn-info" onclick="pRoll('list')"><b>LIST</b></button><div id="btn-header" style="margin-left:6px"></div>
+						<button type="button" class="btn btn-sm btn-info" onclick="pRoll('add')"><b>ADD</b></button><div id="btn-header" style="margin-left:6px"></div>
+						<button type="button" class="btn btn-sm btn-info" onclick="pRoll('guna')"><b>PENGGUNAAN</b></button><div id="btn-header" style="margin-left:6px"></div>
+					</div>
+					<div class="card-list" style="display:none">
+						<div class="card-body row" style="padding:6px">
+							<div class="col-md-3">SURAT JALAN</div>
+							<div class="col-md-9">
+								list
+							</div>
+						</div>
+						<div>LIST 1</div>
+					</div>
+					<div class="card-add" style="padding-bottom:12px;display:none">
+						<div class="card-body row" style="padding:6px;font-weight:bold">
+							<div class="col-md-1">PILIH</div>
+							<div class="col-md-4">
+								<select id="add_pilih" class="form-control select2" onchange="pRoll('add','pilih')">
+									<option value="">PILIH</option>
+									<option value="PM">PM</option>
+									<option value="GUDANG">GUDANG</option>
+								</select>
+							</div>
+							<div class="col-md-7"></div>
+						</div>
+						<div class="add-pm" style="display:none">
+							<div class="card-body row" style="padding:3px 6px 6px;font-weight:bold">
+								<div class="col-md-1">TGL. PROD.</div>
+								<div class="col-md-4">
+									<input type="date" class="form-control" id="tgl_pm">
+								</div>
+								<div class="col-md-7">
+									<button type="button" class="btn btn-primary" onclick="addCari('pm')"><i class="fas fa-search"></i></button>
+								</div>
+							</div>
+						</div>
+						<div class="add-gudang" style="display:none">
+							<div class="card-body row" style="padding:3px 6px 6px;font-weight:bold">
+								<div class="col-md-1">TGL.</div>
+								<div class="col-md-4">
+									<input type="date" class="form-control" id="tgl_gudang">
+								</div>
+								<div class="col-md-7">
+									<button type="button" class="btn btn-primary" onclick="addCari('gudang')"><i class="fas fa-search"></i></button>
+								</div>
+							</div>
+						</div>
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="add-list"></div>
+						</div>
+					</div>
+					<div class="card-guna" style="display:none">
+						<div class="card-body row" style="padding:6px">
+							<div class="col-md-3">SURAT JALAN</div>
+							<div class="col-md-9">
+								guna
+							</div>
+						</div>
+						<div>LIST 2</div>
 					</div>
 				</div>
 			</div>
@@ -307,6 +383,132 @@
 		$("#no_so").val("").prop("disabled", true)
 		$("#btn-simpan").prop("disabled", false);
 		soPlhNoPO()
+	}
+
+	function pRoll(opsi, opsi2=''){
+		$(".add-list").html('')
+		if(opsi == 'list'){
+			$(".card-list").show()
+			$(".card-add").hide()
+			$(".card-guna").hide()
+		}
+		if(opsi == 'add'){
+			$(".card-list").hide()
+			$(".card-add").show()
+			$(".card-guna").hide()
+			$(".add-pm").hide()
+			$(".add-gudang").hide()
+			
+			if(opsi2 == 'pilih'){
+				let add_pilih = $("#add_pilih").val()
+				$("#tgl_pm").val('')
+				$("#tgl_gudang").val('')
+				if(add_pilih == 'PM'){
+					$(".add-pm").show()
+					$(".add-gudang").hide()
+				}
+				if(add_pilih == 'GUDANG'){
+					$(".add-pm").hide()
+					$(".add-gudang").show()
+				}
+			}
+		}
+		if(opsi == 'guna'){
+			$(".card-list").hide()
+			$(".card-add").hide()
+			$(".card-guna").show()
+		}
+	}
+
+	function addCari(opsi){
+		let tgl_pm = $("#tgl_pm").val()
+		let tgl_gudang = $("#tgl_gudang").val()
+		$(".add-list").html('')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/addCari')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				opsi, tgl_pm, tgl_gudang
+			}),
+			success: function(json){
+				data = JSON.parse(json)
+				console.log(data)
+				$(".add-list").html(data.html)
+				swal.close()
+			}
+		})
+	}
+
+	function addRollCorr(opsi){
+		let tgl_pm = $("#tgl_pm").val()
+		let tgl_gudang = $("#tgl_gudang").val()
+		let tgl_input = $("#add_tgl_input").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/addRollCorr')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				opsi, tgl_pm, tgl_gudang, tgl_input
+			}),
+			success: function(json){
+				data = JSON.parse(json)
+				console.log(data)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					addCari(opsi)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function editRollCorr(id){
+		let opsi = $("#add_pilih").val().toLowerCase()
+		let corcab = $("#corcab"+id).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/editRollCorr')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id, corcab
+			}),
+			success: function(json){
+				data = JSON.parse(json)
+				console.log(data)
+				toastr.success(`<b>BERHASIL!</b>`)
+				addCari(opsi)
+			}
+		})
 	}
 
 	function soPlhNoPO(){

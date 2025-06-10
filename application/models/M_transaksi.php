@@ -1173,6 +1173,84 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function addRollCorr()
+	{
+		$opsi = $_POST["opsi"];
+		$tgl_pm = $_POST["tgl_pm"];
+		$tgl_gudang = $_POST["tgl_gudang"];
+		$tgl_input = $_POST["tgl_input"];
+
+		$db9 = $this->load->database('database_simroll', TRUE);
+		if($opsi == 'pm'){
+			$qR = $db9->query("SELECT*FROM m_timbangan WHERE tgl='$tgl_pm' AND nm_ker!='WP' AND (status='2' OR status='4' OR status='5' OR status='6' OR status='7') ORDER BY roll");
+		}
+		if($opsi == 'gudang'){
+			$qR = $db9->query("SELECT t.* FROM m_timbangan t
+			INNER JOIN pl p ON t.id_pl=p.id
+			WHERE p.tgl='$tgl_gudang' AND t.nm_ker!='WP' AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			ORDER BY t.nm_ker,t.g_label,t.width,t.pm,t.roll");
+		}
+
+		if($tgl_input == ''){
+			$data = false;
+			$msg = 'HARAP PILIH TGL INPUT!';
+		}else{
+			foreach($qR->result() as $r){
+				$cek = $this->db->query("SELECT*FROM m_roll WHERE roll='$r->roll' AND id_roll='$r->id'");
+				if($cek->num_rows() == 0){
+					($opsi == 'pm') ? $o = 'PM' : $o = 'FG';
+					$berat = $r->weight - $r->seset;
+					$rL = array(
+						't_cor' => 'CA',
+						'roll' => $r->roll,
+						'i_tgl' => $tgl_input,
+						'nm_ker' => $r->nm_ker,
+						'g_label' => $r->g_label,
+						'width' => $r->width,
+						'diameter' => $r->diameter,
+						'weight' => $berat,
+						'joint' => $r->joint,
+						'ket' => $r->ket,
+						'status_r' => $r->status,
+						'g_ac' => $r->g_ac,
+						'rct' => $r->rct,
+						'bi' => $r->bi,
+						'cobb' => $r->cobb,
+						'moisture' => $r->moisture,
+						'rm' => $r->rm,
+						'dari' => $o,
+						'created_at' => date('Y-m-d H:i:s'),
+						'created_by' => $this->username,
+						'id_roll' => $r->id,
+					);
+					$data = $this->db->insert("m_roll", $rL);
+				}else{
+					$data = true;
+				}
+			}
+			$msg = 'BERHASIL!';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function editRollCorr()
+	{
+		$id = $_POST["id"];
+		$cab = $_POST["corcab"];
+
+		$this->db->set('t_cor', $cab);
+		$this->db->where('id', $id);
+		$data = $this->db->update('m_roll');
+
+		return [
+			'data' => $data,
+		];
+	}
+
 	function simpanHPP()
 	{
 		$statusInput = $_POST["statusInput"];

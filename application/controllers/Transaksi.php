@@ -6081,6 +6081,18 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function addRollCorr()
+	{
+		$result = $this->m_transaksi->addRollCorr();
+		echo json_encode($result);
+	}
+
+	function editRollCorr()
+	{
+		$result = $this->m_transaksi->editRollCorr();
+		echo json_encode($result);
+	}
+
 	function laporanSO(){
 		$id = $_GET["id"];
 		$data = $this->db->query("SELECT c.nm_pelanggan,c.top,c.fax,c.no_telp,c.alamat,s.nm_sales,o.eta,p.tgl_po,o.tgl_so,p.time_app1,p.time_app2,p.time_app3,b.id_hub,b.nm_hub,b.alamat AS alamat_hub,i.*,d.* FROM trs_so_detail d
@@ -6291,6 +6303,147 @@ class Transaksi extends CI_Controller
 
 		$judul = 'SO - '.$data->no_so.'.'.$urutSo.'.'.$rpt;
 		$this->m_fungsi->newMpdf($judul, 'footer', $html, 10, 10, 10, 10, 'P', 'A4', $judul.'.pdf');
+	}
+
+	function addCari()
+	{
+		$opsi = $_POST["opsi"];
+		$tgl_pm = $_POST["tgl_pm"];
+		$tgl_gudang = $_POST["tgl_gudang"];
+		$html = '';
+
+		$db9 = $this->load->database('database_simroll', TRUE);
+		if($opsi == 'pm'){
+			$qR = $db9->query("SELECT*FROM m_timbangan WHERE tgl='$tgl_pm' AND nm_ker!='WP' AND (status='2' OR status='4' OR status='5' OR status='6' OR status='7') ORDER BY roll");
+			$qRc = $db9->query("SELECT nm_ker,g_label,width,COUNT(roll) AS jml_roll FROM m_timbangan WHERE tgl='$tgl_pm' AND nm_ker!='WP' AND (status='2' OR status='4' OR status='5' OR status='6' OR status='7') GROUP BY nm_ker,g_label,width");
+		}
+		if($opsi == 'gudang'){
+			$qR = $db9->query("SELECT t.*,p.tgl AS tgl_pl,p.no_surat,p.nama,p.nm_perusahaan FROM m_timbangan t
+			INNER JOIN pl p ON t.id_pl=p.id
+			WHERE p.tgl='$tgl_gudang' AND t.nm_ker!='WP' AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			ORDER BY t.nm_ker,t.g_label,t.width,t.pm,t.roll");
+			$qRc = $db9->query("SELECT t.nm_ker,t.g_label,t.width,COUNT(t.roll) AS jml_roll FROM m_timbangan t
+			INNER JOIN pl p ON t.id_pl=p.id
+			WHERE p.tgl='$tgl_gudang' AND t.nm_ker!='WP' AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			GROUP BY t.nm_ker,t.g_label,t.width");
+		}
+
+		if($qR->num_rows() == 0){
+			$html .= '<span style="padding:6px;font-weight:bold">DATA KOSONG!</span>';
+		}else{
+			$html .= '<table class="table table-bordered" style="margin:6px 6px 12px;text-align:center">
+				<tr>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold">JENIS</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold">GSM</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold">WIDTH</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold">JUMLAH</td>
+				</tr>';
+				$sumRoll = 0;
+				foreach($qRc->result() as $z){
+					$html .= '<tr>
+						<td style="padding:6px">'.$z->nm_ker.'</td>
+						<td style="padding:6px">'.$z->g_label.'</td>
+						<td style="padding:6px">'.round($z->width,2).'</td>
+						<td style="padding:6px">'.$z->jml_roll.'</td>
+					</tr>';
+					$sumRoll += $z->jml_roll;
+				}
+				// TOTAL
+				if($qRc->num_rows() > 1){
+					$html .= '<tr>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold" colspan="3">TOTAL</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold">'.$sumRoll.'</td>
+					</tr>';
+				}
+			$html .= '</table>';
+
+			$html .= '<table class="table table-bordered" style="margin:6px">
+				<tr>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">CORR</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">ROLL</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">JENIS</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">GSM</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">WIDTH</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">DIA(cm)</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">BERAT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">JOINT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">KETERANGAN</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">STATUS</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">BW</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">RCT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">BI</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">AKSI</td>
+				</tr>';
+				foreach($qR->result() as $r){
+					$cek = $this->db->query("SELECT*FROM m_roll WHERE roll='$r->roll' AND id_roll='$r->id'");
+					if($r->status == 0){
+						$pStt = 'STOK';
+					}else if($r->status == 2){
+						$pStt = 'PPI';
+					}else if($r->status == 4){
+						$pStt = 'PPI SIZING';
+					}else if($r->status == 5){
+						$pStt = 'PPI CALENDER';
+					}else if($r->status == 6){
+						$pStt = 'PPI WARNA';
+					}else if($r->status == 7){
+						$pStt = 'PPI BAROKAH / NUSANTARA';
+					}else if($r->status == 3){
+						$pStt = 'BUFFER';
+					}else{
+						$pStt = '-';
+					}
+					$berat = $r->weight - $r->seset;
+					// aksi edit
+					if($cek->num_rows() != 0){
+						if($cek->row()->t_cor == 'CA'){
+							$opt = '<option value="CA">ATAS</option><option value="CB">BAWAH</option>';
+						}
+						if($cek->row()->t_cor == 'CB'){
+							$opt = '<option value="CB">BAWAH</option><option value="CA">ATAS</option>';
+						}
+						$cAB = '<select id="corcab'.$cek->row()->id.'" style="background:none;border:0;">'.$opt.'</select>';
+						$aksi = '<button type="button" onclick="editRollCorr('."'".$cek->row()->id."'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
+					}else{
+						$cAB = '<select style="background:none;border:0;">
+							<option value="CA">ATAS</option>
+							<option value="CB">BAWAH</option>
+						</select>';
+						$aksi = '-';
+					}
+					$html .= '<tr class="thdhdz">
+						<td style="padding:6px">'.$cAB.'</td>
+						<td style="padding:6px">'.$r->roll.'</td>
+						<td style="padding:6px;text-align:center">'.$r->nm_ker.'</td>
+						<td style="padding:6px;text-align:center">'.$r->g_label.'</td>
+						<td style="padding:6px;text-align:center">'.round($r->width,2).'</td>
+						<td style="padding:6px;text-align:center">'.$r->diameter.'</td>
+						<td style="padding:6px;text-align:center">'.number_format($berat).'</td>
+						<td style="padding:6px;text-align:center">'.$r->joint.'</td>
+						<td style="padding:6px">'.$r->ket.'</td>
+						<td style="padding:6px">'.$pStt.'</td>
+						<td style="padding:6px;text-align:center">'.round($r->g_ac,2).'</td>
+						<td style="padding:6px;text-align:center">'.round($r->rct,2).'</td>
+						<td style="padding:6px;text-align:center">'.round($r->bi,2).'</td>
+						<td style="padding:6px;text-align:center">'.$aksi.'</td>
+					</tr>';
+				}
+			$html .= '</table>';
+
+			$html .= '<div class="card-body row" style="padding:12px 6px;font-weight:bold">
+				<div class="col-md-1">INPUT</div>
+				<div class="col-md-3">
+					<input type="date" id="add_tgl_input" class="form-control">
+				</div>
+				<div class="col-md-8">
+					<button type="button" class="btn btn-success" style="font-weight:bold" onclick="addRollCorr('."'".$opsi."'".')"><i class="fas fa-plus"></i> TAMBAH</button>
+				</div>
+			</div>';
+		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
 	}
 
 	function pilihanEtaPO()
