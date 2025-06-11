@@ -118,9 +118,9 @@
 					</div>
 					<div style="margin:12px 6px;display:flex">
 						<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>LIST SO</b></button><div id="btn-header" style="margin-left:6px"></div>
-						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('list')"><b>LIST</b></button><div id="btn-header" style="margin-left:6px"></div>
-						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('add')"><b>ADD</b></button><div id="btn-header" style="margin-left:6px"></div>
-						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('guna')"><b>PENGGUNAAN</b></button><div id="btn-header" style="margin-left:6px"></div>
+						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('list')"><i class="fas fa-list-ul"></i> <b>LIST</b></button><div id="btn-header" style="margin-left:6px"></div>
+						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('add')"><i class="fas fa-plus"></i> <b>ADD</b></button><div id="btn-header" style="margin-left:6px"></div>
+						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('guna')"><i class="fas fa-minus"></i> <b>PENGGUNAAN</b></button><div id="btn-header" style="margin-left:6px"></div>
 					</div>
 					<div class="card-list" style="display:none">
 						<div class="card-body row" style="padding:6px">
@@ -171,7 +171,7 @@
 						<div class="card-body row" style="padding:3px 6px 12px;font-weight:bold">
 							<div class="col-md-1">TGL.</div>
 							<div class="col-md-4">
-								<input type="date" class="form-control" id="tgl_guna" onchange="">
+								<input type="date" class="form-control" id="tgl_guna" onchange="cariGunaRoll()">
 							</div>
 							<div class="col-md-7"></div>
 						</div>
@@ -517,6 +517,23 @@
 				console.log(data)
 				toastr.success(`<b>BERHASIL!</b>`)
 				addCari(opsi)
+			}
+		})
+	}
+
+	function cariGunaRoll() {
+		let tgl_guna = $("#tgl_guna").val()
+		$(".guna-list").html('')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/cariGunaRoll')?>',
+			type: "POST",
+			data: ({
+				tgl_guna
+			}),
+			success: function(json){
+				data = JSON.parse(json)
+				console.log(data)
+				$(".guna-list").html(data.html)
 			}
 		})
 	}

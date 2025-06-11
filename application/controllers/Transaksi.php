@@ -6456,6 +6456,48 @@ class Transaksi extends CI_Controller
 		]);
 	}
 
+	function cariGunaRoll(){
+		$tgl_guna = $_POST["tgl_guna"];
+		$html = '';
+
+		$zV = $this->db->query("SELECT COUNT(r.roll) AS jml_roll,l.* FROM trs_so_roll r
+		INNER JOIN trs_so_detail so ON so.id=r.id_so_dtl
+		INNER JOIN m_roll l ON l.id=r.id_roll
+		WHERE so.eta_so='$tgl_guna'
+		GROUP BY r.id_roll
+		ORDER BY l.t_cor,r.roll");
+
+		if($zV->num_rows() == 0){
+			$html .= '<div style="padding:6px;font-weight:bold">DATA KOSONG!</div>';
+		}else{
+			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 6px 12px">
+				<tr>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
+				</tr>';
+				$i = 0;
+				foreach($zV->result() as $r){
+					$i++;
+					($r->jml_roll == 1) ? $k = '' : $k = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->jml_roll.'</span>';
+					$html .= '<tr class="thdhdz">
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.$k.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">
+							<button type="button" onclick="" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>
+						</td>
+					</tr>';
+				}
+			$html .= '</table></div>';
+		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
 	function pilihanEtaPO()
 	{
 		$html ='';

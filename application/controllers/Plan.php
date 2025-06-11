@@ -4548,7 +4548,7 @@ class Plan extends CI_Controller
 		ORDER BY no_po,urut_so,rpt");
 
 		if($qS->num_rows() == 0){
-			$html .= 'DATA KOSONG!';
+			$html .= '<div style="padding:12px 6px;font-weight:bold">DATA KOSONG!</div>';
 		}else{
 			$html .= '<table class="table table-bordered">
 				<tr>
@@ -4713,7 +4713,7 @@ class Plan extends CI_Controller
 			}else if($q->status_r == 3){ $pStt = 'BUFFER';
 			}else{ $pStt = '-'; }
 			$html .= '<tr class="thdhdz">
-				<td style="padding:6px;border:1px solid #dee2e6">'.$x.'</td>
+				<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$x.'</td>
 				<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->t_cor.'</td>
 				<td style="padding:6px;border:1px solid #dee2e6">'.$q->roll.'</td>
 				<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->nm_ker.'</td>
@@ -4756,7 +4756,7 @@ class Plan extends CI_Controller
 				if($cek->num_rows() == 0){
 					$i++;
 					$html .= '<tr class="thdhdz">
-						<td style="padding:6px;border:1px solid #dee2e6">'.$i.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
 						<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->nm_ker.'</td>

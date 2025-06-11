@@ -28,6 +28,7 @@
 	</style>
 
 	<section class="content">
+		<?php if(in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
 			<div class="card card-list-so">
 				<div class="card-header">
 					<h3 class="card-title">Corrugator</h3>
@@ -36,7 +37,6 @@
 						<i class="fas fa-minus"></i></button>
 					</div>
 				</div>
-
 				<div class="card-body">
 					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User','plan'])) { ?>
 						<div style="margin-bottom:12px">
@@ -79,6 +79,7 @@
 					</table>
 				</div>
 			</div>
+		<?php } ?>
 
 		<?php if(in_array($this->session->userdata('level'), ['Admin','PPIC','User','plan'])) { ?>
 			<div class="row">
