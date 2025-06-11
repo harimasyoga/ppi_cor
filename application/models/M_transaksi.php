@@ -1187,7 +1187,7 @@ class M_transaksi extends CI_Model
 		if($opsi == 'gudang'){
 			$qR = $db9->query("SELECT t.* FROM m_timbangan t
 			INNER JOIN pl p ON t.id_pl=p.id
-			WHERE p.tgl='$tgl_gudang' AND t.nm_ker!='WP' AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			WHERE p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
 			ORDER BY t.nm_ker,t.g_label,t.width,t.pm,t.roll");
 		}
 

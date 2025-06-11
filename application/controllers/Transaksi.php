@@ -5290,6 +5290,11 @@ class Transaksi extends CI_Controller
 
 	function soPlhNoPO()
 	{
+		if($this->session->userdata('level') == 'PPIC'){
+			$wId = "";
+		}else{
+			$wId = "AND d.no_so IS NULL AND d.tgl_so IS NULL AND d.status_so IS NULL";
+		}
 		// AND p.status_app3='Y' AND p.status='Approve'
 		$po = $this->db->query("SELECT c.kode_unik,c.nm_pelanggan,s.nm_sales,p.*,d.eta FROM trs_po p
 		INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
@@ -5297,7 +5302,7 @@ class Transaksi extends CI_Controller
 		INNER JOIN m_sales s ON c.id_sales=s.id_sales
 		-- WHERE p.status_app1='Y' AND p.status_app2='Y' AND p.status_kiriman='Open'
 		WHERE p.status_kiriman='Open'
-		AND d.no_so IS NULL AND d.tgl_so IS NULL AND d.status_so IS NULL
+		$wId
 		GROUP BY p.no_po,p.kode_po ORDER BY c.nm_pelanggan,p.no_po")->result();
 		echo json_encode(array(
 			'po' => $po,
@@ -5308,10 +5313,15 @@ class Transaksi extends CI_Controller
 	{
 		$no_po = $_POST["no_po"];
 		// d.status='Approve'
+		if($this->session->userdata('level') == 'PPIC'){
+			$wId = "";
+		}else{
+			$wId = "AND no_so IS NULL AND tgl_so IS NULL";
+		}
 		$poDetail = $this->db->query("SELECT p.nm_produk,p.kode_mc,p.ukuran,p.ukuran_sheet,p.flute,p.kualitas,d.eta,d.* FROM trs_po_detail d
 		INNER JOIN trs_po o ON d.no_po=o.no_po AND d.kode_po=o.kode_po
 		INNER JOIN m_produk p ON d.id_produk=p.id_produk
-		WHERE d.no_po='$no_po' AND no_so IS NULL AND tgl_so IS NULL")->result();
+		WHERE d.no_po='$no_po' $wId")->result();
 		echo json_encode(array(
 			'po_detail' => $poDetail,
 		));
@@ -5510,7 +5520,7 @@ class Transaksi extends CI_Controller
 							<thead>
 								<tr>
 									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">NO.</th>
-									<th style="padding:6px;'.$bHead.''.$bold.'">ETA SO</th>
+									<th style="padding:6px;'.$bHead.''.$bold.'">TGL PLAN</th>
 									<th style="padding:6px;'.$bHead.''.$bold.'">NO. SO</th>
 									<th style="padding:6px;'.$bHead.''.$bold.'">QTY SO</th>
 									'.$ketPPIC.'
@@ -6320,59 +6330,59 @@ class Transaksi extends CI_Controller
 		if($opsi == 'gudang'){
 			$qR = $db9->query("SELECT t.*,p.tgl AS tgl_pl,p.no_surat,p.nama,p.nm_perusahaan FROM m_timbangan t
 			INNER JOIN pl p ON t.id_pl=p.id
-			WHERE p.tgl='$tgl_gudang' AND t.nm_ker!='WP' AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			WHERE p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
 			ORDER BY t.nm_ker,t.g_label,t.width,t.pm,t.roll");
 			$qRc = $db9->query("SELECT t.nm_ker,t.g_label,t.width,COUNT(t.roll) AS jml_roll FROM m_timbangan t
 			INNER JOIN pl p ON t.id_pl=p.id
-			WHERE p.tgl='$tgl_gudang' AND t.nm_ker!='WP' AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			WHERE p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
 			GROUP BY t.nm_ker,t.g_label,t.width");
 		}
 
 		if($qR->num_rows() == 0){
 			$html .= '<span style="padding:6px;font-weight:bold">DATA KOSONG!</span>';
 		}else{
-			$html .= '<table class="table table-bordered" style="margin:6px 6px 12px;text-align:center">
+			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:6px 6px 12px;text-align:center">
 				<tr>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold">JENIS</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold">GSM</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold">WIDTH</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold">JUMLAH</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;border:1px solid #dee2e6">JENIS</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;border:1px solid #dee2e6">GSM</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;border:1px solid #dee2e6">WIDTH</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;border:1px solid #dee2e6">JUMLAH</td>
 				</tr>';
 				$sumRoll = 0;
 				foreach($qRc->result() as $z){
 					$html .= '<tr>
-						<td style="padding:6px">'.$z->nm_ker.'</td>
-						<td style="padding:6px">'.$z->g_label.'</td>
-						<td style="padding:6px">'.round($z->width,2).'</td>
-						<td style="padding:6px">'.$z->jml_roll.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$z->nm_ker.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$z->g_label.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.round($z->width,2).'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$z->jml_roll.'</td>
 					</tr>';
 					$sumRoll += $z->jml_roll;
 				}
 				// TOTAL
 				if($qRc->num_rows() > 1){
 					$html .= '<tr>
-						<td style="background:#f2f2f2;padding:6px;font-weight:bold" colspan="3">TOTAL</td>
-						<td style="background:#f2f2f2;padding:6px;font-weight:bold">'.$sumRoll.'</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;border:1px solid #dee2e6" colspan="3">TOTAL</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;border:1px solid #dee2e6">'.$sumRoll.'</td>
 					</tr>';
 				}
-			$html .= '</table>';
+			$html .= '</table></div>';
 
-			$html .= '<table class="table table-bordered" style="margin:6px">
+			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:6px">
 				<tr>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">CORR</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">ROLL</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">JENIS</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">GSM</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">WIDTH</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">DIA(cm)</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">BERAT</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">JOINT</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">KETERANGAN</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">STATUS</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">BW</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">RCT</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">BI</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center">AKSI</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JENIS</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GSM</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">WIDTH</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">DIA(cm)</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BERAT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BW</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">RCT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BI</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
 				</tr>';
 				foreach($qR->result() as $r){
 					$cek = $this->db->query("SELECT*FROM m_roll WHERE roll='$r->roll' AND id_roll='$r->id'");
@@ -6412,23 +6422,23 @@ class Transaksi extends CI_Controller
 						$aksi = '-';
 					}
 					$html .= '<tr class="thdhdz">
-						<td style="padding:6px">'.$cAB.'</td>
-						<td style="padding:6px">'.$r->roll.'</td>
-						<td style="padding:6px;text-align:center">'.$r->nm_ker.'</td>
-						<td style="padding:6px;text-align:center">'.$r->g_label.'</td>
-						<td style="padding:6px;text-align:center">'.round($r->width,2).'</td>
-						<td style="padding:6px;text-align:center">'.$r->diameter.'</td>
-						<td style="padding:6px;text-align:center">'.number_format($berat).'</td>
-						<td style="padding:6px;text-align:center">'.$r->joint.'</td>
-						<td style="padding:6px">'.$r->ket.'</td>
-						<td style="padding:6px">'.$pStt.'</td>
-						<td style="padding:6px;text-align:center">'.round($r->g_ac,2).'</td>
-						<td style="padding:6px;text-align:center">'.round($r->rct,2).'</td>
-						<td style="padding:6px;text-align:center">'.round($r->bi,2).'</td>
-						<td style="padding:6px;text-align:center">'.$aksi.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$cAB.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->nm_ker.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->g_label.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->width,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->diameter.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$pStt.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->g_ac,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->rct,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->bi,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$aksi.'</td>
 					</tr>';
 				}
-			$html .= '</table>';
+			$html .= '</table></div>';
 
 			$html .= '<div class="card-body row" style="padding:12px 6px;font-weight:bold">
 				<div class="col-md-1">INPUT</div>

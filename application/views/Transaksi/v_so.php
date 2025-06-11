@@ -41,9 +41,9 @@
 				<?php if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])) { ?>
 					<div style="margin-bottom:12px">
 						<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
-						<button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="LaporanSOTrim()"></i>&nbsp;&nbsp;<b>Laporan</b></button>
-						<button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick=""></i>&nbsp;&nbsp;<b>Roll</b></button>
+						<button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="RollCor()"><i class="fas fa-toilet-paper"></i>&nbsp;&nbsp;<b>Roll</b></button>
 						<?php if(in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
+							<button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="LaporanSOTrim()"></i>&nbsp;&nbsp;<b>Laporan</b></button>
 						<?php } ?>
 					</div>
 				<?php } ?>
@@ -86,7 +86,7 @@
 			</div>
 		</div>
 
-		<div class="row row-lap-so">
+		<div class="row row-lap-so" style="display:none">
 			<div class="col-md-12">
 				<div class="card card-secondary card-outline">
 					<div class="card-header" style="padding:12px">
@@ -110,16 +110,17 @@
 			</div>
 		</div>
 
-		<div class="row row-peng-roll">
+		<div class="row row-peng-roll" style="display:none">
 			<div class="col-md-12">
 				<div class="card card-secondary card-outline">
 					<div class="card-header" style="padding:12px">
 						<h3 class="card-title" style="font-weight:bold;font-size:18px">PENGGUNAAN ROLL</h3>
 					</div>
 					<div style="margin:12px 6px;display:flex">
-						<button type="button" class="btn btn-sm btn-info" onclick="pRoll('list')"><b>LIST</b></button><div id="btn-header" style="margin-left:6px"></div>
-						<button type="button" class="btn btn-sm btn-info" onclick="pRoll('add')"><b>ADD</b></button><div id="btn-header" style="margin-left:6px"></div>
-						<button type="button" class="btn btn-sm btn-info" onclick="pRoll('guna')"><b>PENGGUNAAN</b></button><div id="btn-header" style="margin-left:6px"></div>
+						<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>LIST SO</b></button><div id="btn-header" style="margin-left:6px"></div>
+						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('list')"><b>LIST</b></button><div id="btn-header" style="margin-left:6px"></div>
+						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('add')"><b>ADD</b></button><div id="btn-header" style="margin-left:6px"></div>
+						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('guna')"><b>PENGGUNAAN</b></button><div id="btn-header" style="margin-left:6px"></div>
 					</div>
 					<div class="card-list" style="display:none">
 						<div class="card-body row" style="padding:6px">
@@ -164,18 +165,17 @@
 								</div>
 							</div>
 						</div>
-						<div style="overflow:auto;white-space:nowrap">
-							<div class="add-list"></div>
-						</div>
+						<div class="add-list"></div>
 					</div>
 					<div class="card-guna" style="display:none">
-						<div class="card-body row" style="padding:6px">
-							<div class="col-md-3">SURAT JALAN</div>
-							<div class="col-md-9">
-								guna
+						<div class="card-body row" style="padding:3px 6px 12px;font-weight:bold">
+							<div class="col-md-1">TGL.</div>
+							<div class="col-md-4">
+								<input type="date" class="form-control" id="tgl_guna" onchange="">
 							</div>
+							<div class="col-md-7"></div>
 						</div>
-						<div>LIST 2</div>
+						<div class="guna-list"></div>
 					</div>
 				</div>
 			</div>
@@ -383,6 +383,16 @@
 		$("#no_so").val("").prop("disabled", true)
 		$("#btn-simpan").prop("disabled", false);
 		soPlhNoPO()
+	}
+
+	function RollCor(){
+		$(".card-list-so").hide()
+		$(".row-peng-roll").show()
+	}
+
+	function kembali(){
+		$(".card-list-so").show()
+		$(".row-peng-roll").hide()
 	}
 
 	function pRoll(opsi, opsi2=''){
@@ -1187,6 +1197,7 @@
 
 	function LaporanSOTrim()
 	{
+		$(".row-lap-so").show()
 		$(".trim-orders").html('')
 		$(".trim-order-items").html('')
 		$(".trim-ppic").html('')

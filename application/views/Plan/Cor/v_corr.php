@@ -14,58 +14,95 @@
 		</div>
 	</section>
 
+	<style>
+		/* Chrome, Safari, Edge, Opera */
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		.thdhdz:hover {
+			background: #eee;
+		}
+	</style>
+
 	<section class="content">
-		<div class="card card-list-so">
-			<div class="card-header">
-				<h3 class="card-title">Corrugator</h3>
-				<div class="card-tools">
-					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
-					<i class="fas fa-minus"></i></button>
+			<div class="card card-list-so">
+				<div class="card-header">
+					<h3 class="card-title">Corrugator</h3>
+					<div class="card-tools">
+						<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+					</div>
+				</div>
+
+				<div class="card-body">
+					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User','plan'])) { ?>
+						<div style="margin-bottom:12px">
+							<a href="<?php echo base_url('Plan/Corrugator/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
+						</div>
+					<?php } ?>
+					<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
+						<div class="col-md-2" style="padding-bottom:3px">
+							<select id="tahun" class="form-control select2" onchange="load_data()">
+								<?php 
+									$thang = date("Y");
+									$thang_maks = $thang + 2;
+									$thang_min = $thang - 2;
+									for ($th = $thang_min; $th <= $thang_maks; $th++)
+									{ ?>
+										<?php if ($th==$thang) { ?>
+											<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+										<?php }else{ ?>
+											<option value="<?= $th ?>"> <?= $th ?> </option>
+										<?php }
+									}
+								?>
+							</select>
+						</div>
+						<div class="col-md-10"></div>
+					</div>
+					<table id="datatable" class="table table-bordered table-striped" width="100%">
+						<thead class="color-tabel">
+							<tr>
+								<th style="width:5%">#</th>
+								<th style="width:20%">TANGGAL</th>
+								<th style="width:10%">SHIFT</th>
+								<th style="width:10%">MESIN</th>
+								<th style="width:30%">NO. PLAN</th>
+								<th style="width:10%">JUMLAH</th>
+								<th style="width:15%">AKSI</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
 				</div>
 			</div>
 
-			<div class="card-body">
-				<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User','plan'])) { ?>
-					<div style="margin-bottom:12px">
-						<a href="<?php echo base_url('Plan/Corrugator/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
+		<?php if(in_array($this->session->userdata('level'), ['Admin','PPIC','User','plan'])) { ?>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">COR</h3>
+						</div>
+						<div class="card-body row" style="padding:12px 6px;font-weight:bold">
+							<div class="col-md-1">TGL. PLAN</div>
+							<div class="col-md-2">
+								<input type="date" id="p_tgl_plan" class="form-control" onchange="planCariCor()">
+							</div>
+							<div class="col-md-9"></div>
+						</div>
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="list-pencarian-plan"></div>
+						</div>
+						<div class="input-roll"></div>
+						<div class="list-roll"></div>
 					</div>
-				<?php } ?>
-				<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
-					<div class="col-md-2" style="padding-bottom:3px">
-						<select id="tahun" class="form-control select2" onchange="load_data()">
-							<?php 
-								$thang = date("Y");
-								$thang_maks = $thang + 2;
-								$thang_min = $thang - 2;
-								for ($th = $thang_min; $th <= $thang_maks; $th++)
-								{ ?>
-									<?php if ($th==$thang) { ?>
-										<option selected value="<?= $th ?>"> <?= $thang ?> </option>
-									<?php }else{ ?>
-										<option value="<?= $th ?>"> <?= $th ?> </option>
-									<?php }
-								}
-							?>
-						</select>
-					</div>
-					<div class="col-md-10"></div>
 				</div>
-				<table id="datatable" class="table table-bordered table-striped" width="100%">
-					<thead class="color-tabel">
-						<tr>
-							<th style="width:5%">#</th>
-							<th style="width:20%">TANGGAL</th>
-							<th style="width:10%">SHIFT</th>
-							<th style="width:10%">MESIN</th>
-							<th style="width:30%">NO. PLAN</th>
-							<th style="width:10%">JUMLAH</th>
-							<th style="width:15%">AKSI</th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
 			</div>
-		</div>
+		<?php } ?>
 	</section>
 </div>
 
@@ -78,13 +115,8 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-
-			<div class="modal-body" style="overflow:auto;white-space:nowrap">
-				
-			</div>
-			<div class="modal-footer">
-				
-			</div>
+			<div class="modal-body" style="overflow:auto;white-space:nowrap"></div>
+			<div class="modal-footer"></div>
 		</div>
 	</div>
 </div>
@@ -132,5 +164,118 @@
 			}
 		})
 	}
+
+	//
+
+	function planCariCor(kosong = '') {
+		$(".list-pencarian-plan").html('')
+		if(kosong == ''){
+			$(".input-roll").html('')
+			$(".list-roll").html('')
+		}else{
+			planCariRoll()
+		}
+		let p_tgl_plan = $("#p_tgl_plan").val()
+		$.ajax({
+			url: '<?php echo base_url('Plan/planCariCor')?>',
+			type: "POST",
+			data: ({ p_tgl_plan }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$(".list-pencarian-plan").html(data.html)
+			}
+		})
+	}
+
+	function sLbrRoll(id) {
+		let lbr_roll = $("#slbroll"+id).val()
+		$.ajax({
+			url: '<?php echo base_url('Plan/sLbrRoll')?>',
+			type: "POST",
+			data: ({ id, lbr_roll }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					planCariCor()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function addRoll(l, kualitas, id) {
+		$(".input-roll").html('')
+		$(".list-roll").html('')
+		let lbr_roll = $("#slbroll"+id).val()
+		$.ajax({
+			url: '<?php echo base_url('Plan/addRoll')?>',
+			type: "POST",
+			data: ({ l, kualitas, id, lbr_roll }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$(".input-roll").html(data.html)
+				$('.select2').select2();
+				planCariRoll()
+			}
+		})
+	}
+
+	function planCariRoll() {	
+		let s_corr = $("#s_corr").val()
+		let s_lebar = $("#s_lebar").val()
+		let s_roll = $("#s_roll").val()
+		let s_l = $("#s_l").val()
+		let s_kualitas = $("#s_kualitas").val()
+		let s_id = $("#s_id").val()
+		$(".list-roll").html('')
+		$.ajax({
+			url: '<?php echo base_url('Plan/planCariRoll')?>',
+			type: "POST",
+			data: ({ s_corr, s_lebar, s_roll, s_l, s_kualitas, s_id }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$(".list-roll").html(data.html)
+			}
+		})
+	}
+
+	function addListRoll(id){
+		let s_corr = $("#s_corr").val()
+		let s_lebar = $("#s_lebar").val()
+		let s_roll = $("#s_roll").val()
+		let s_l = $("#s_l").val()
+		let s_kualitas = $("#s_kualitas").val()
+		let s_id = $("#s_id").val()
+		$.ajax({
+			url: '<?php echo base_url('Plan/addListRoll')?>',
+			type: "POST",
+			data: ({ s_corr, s_lebar, s_roll, s_l, s_kualitas, s_id, id }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				planCariCor('a')
+			}
+		})
+	}
+
+	function delListRoll(id){
+		$.ajax({
+			url: '<?php echo base_url('Plan/delListRoll')?>',
+			type: "POST",
+			data: ({ id }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				planCariCor('a')
+			}
+		})
+	}
+
 
 </script>
