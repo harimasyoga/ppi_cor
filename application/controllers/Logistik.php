@@ -8472,9 +8472,9 @@ class Logistik extends CI_Controller
             <td style="padding:0;line-height:1.8">';
 
 			// KONDISI JIKA LEBIH DARI 1 SURAT JALAN
-			$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY no_surat ORDER BY no_surat");
+			$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY LTRIM(no_surat) ORDER BY no_surat");
 			if($result_sj->num_rows() == '1'){
-				$html .= $result_sj->row()->no_surat;;
+				$html .= $result_sj->row()->no_surat;
 			}else{
 				foreach($result_sj->result() as $r){
 					$html .= $r->no_surat.'<br/>';

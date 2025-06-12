@@ -1306,4 +1306,60 @@ class M_plan extends CI_Model
 		-- LEFT JOIN plan_flexo_dt dt ON f.id_flexo=dt.id_plan_flexo
 		WHERE fs.id_plan_cor='$id_plan' AND fs.id_plan_flexo='$id_flexo'");
 	}
+
+	function sLbrRoll()
+	{
+		$id = $_POST["id"];
+		$lbr_roll = $_POST["lbr_roll"];
+
+		if($lbr_roll < 0){
+			$data = false;
+			$msg = 'LEBAR ROLL SALAH!';
+		}else{
+			$this->db->set('lebar_roll_so', ($lbr_roll == 0 || $lbr_roll == '') ? null : $lbr_roll);
+			$this->db->where('id', $id);
+			$data = $this->db->update('trs_so_detail');
+			$msg = 'BERHASIL!';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function addListRoll()
+	{
+		$s_corr = $_POST["s_corr"];
+		$s_lebar = $_POST["s_lebar"];
+		$s_roll = $_POST["s_roll"];
+		$s_l = $_POST["s_l"];
+		$s_kualitas = $_POST["s_kualitas"];
+		$id_so_dtl = $_POST["s_id"];
+		$id_roll = $_POST["id"];
+		$gR = $this->db->query("SELECT*FROM m_roll WHERE id='$id_roll'");
+
+		$z = array(
+			'l' => $s_l,
+			'id_so_dtl' => $id_so_dtl,
+			'id_roll' => $id_roll,
+			'roll' => $gR->row()->roll,
+			'creat_at' => date("Y-m-d H:i:s"),
+			'creat_by' => $this->session->userdata('username'),
+		);
+		$data = $this->db->insert('trs_so_roll', $z);
+
+		return [
+			'data' => $data,
+		];
+	}
+
+	function delListRoll()
+	{
+		$this->db->where('id', $_POST["id"]);
+		$data = $this->db->delete('trs_so_roll');
+		return [
+			'data' => $data,
+		];
+	}
 }
