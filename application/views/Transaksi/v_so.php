@@ -122,15 +122,41 @@
 						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('add')"><i class="fas fa-plus"></i> <b>ADD</b></button><div id="btn-header" style="margin-left:6px"></div>
 						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('guna')"><i class="fas fa-minus"></i> <b>PENGGUNAAN</b></button><div id="btn-header" style="margin-left:6px"></div>
 					</div>
+					<!-- list -->
 					<div class="card-list" style="display:none">
-						<div class="card-body row" style="padding:6px">
-							<div class="col-md-3">SURAT JALAN</div>
-							<div class="col-md-9">
-								list
+						<div class="card-body row" style="padding:12px 6px 3px;font-weight:bold">
+							<div class="col-md-1">CORR</div>
+							<div class="col-md-4">
+								<select id="list_pilih" class="form-control select2">
+									<option value="CA">ATAS</option>
+									<option value="CB">BAWAH</option>
+								</select>
+							</div>
+							<div class="col-md-7"></div>
+						</div>
+						<div class="card-body row" style="padding:3px 6px 12px;font-weight:bold">
+							<div class="col-md-1">CORR</div>
+							<div class="col-md-4">
+								<select id="list_nmker" class="form-control select2">
+									<option value="">SEMUA</option>
+									<option value="BK">BK</option>
+									<option value="BL">BL</option>
+									<option value="MF">MF</option>
+									<option value="MH">MH</option>
+									<option value="MH COLOR">MHC</option>
+									<option value="ML">ML</option>
+									<option value="MN">MN</option>
+									<option value="MS">MS</option>
+									<option value="TL">TL</option>
+								</select>
+							</div>
+							<div class="col-md-7">
+								<button type="button" class="btn btn-primary" onclick="cariListRoll()"><i class="fas fa-search"></i></button>
 							</div>
 						</div>
-						<div>LIST 1</div>
+						<div class="list-list"></div>
 					</div>
+					<!-- add -->
 					<div class="card-add" style="padding-bottom:12px;display:none">
 						<div class="card-body row" style="padding:6px;font-weight:bold">
 							<div class="col-md-1">PILIH</div>
@@ -167,6 +193,7 @@
 						</div>
 						<div class="add-list"></div>
 					</div>
+					<!-- guna -->
 					<div class="card-guna" style="display:none">
 						<div class="card-body row" style="padding:3px 6px 12px;font-weight:bold">
 							<div class="col-md-1">TGL.</div>
@@ -393,10 +420,14 @@
 	function kembali(){
 		$(".card-list-so").show()
 		$(".row-peng-roll").hide()
+		$(".card-list").hide()
+		$(".card-add").hide()
+		$(".card-guna").hide()
 	}
 
 	function pRoll(opsi, opsi2=''){
 		$(".add-list").html('')
+		$(".list-list").html('')
 		if(opsi == 'list'){
 			$(".card-list").show()
 			$(".card-add").hide()
@@ -428,6 +459,24 @@
 			$(".card-add").hide()
 			$(".card-guna").show()
 		}
+	}
+
+	function cariListRoll(){
+		$(".list-list").html('')
+		let list_pilih = $("#list_pilih").val()
+		let list_nmker = $("#list_nmker").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/cariListRoll')?>',
+			type: "POST",
+			data: ({
+				list_pilih, list_nmker
+			}),
+			success: function(json){
+				data = JSON.parse(json)
+				console.log(data)
+				$(".list-list").html(data.html)
+			}
+		})
 	}
 
 	function addCari(opsi){

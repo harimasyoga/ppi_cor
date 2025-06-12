@@ -6315,6 +6315,97 @@ class Transaksi extends CI_Controller
 		$this->m_fungsi->newMpdf($judul, 'footer', $html, 10, 10, 10, 10, 'P', 'A4', $judul.'.pdf');
 	}
 
+	function cariListRoll()
+	{
+		$pilih = $_POST["list_pilih"];
+		$lNmKer = $_POST["list_nmker"];
+		$html = '';
+		
+		$html .='<div style="overflow:auto;white-space:nowrap;">
+			<table style="margin:12px 6px;padding:0;color:#000;text-align:center;vertical-align:middle;border-collapse:collapse" border="1">';
+
+			// DATA INTI DARI SEGALA INTI
+			($lNmKer != "") ? $wK = "AND nm_ker='$lNmKer'" : $wK = "AND nm_ker IN('BK', 'BL', 'MF', 'MH', 'MH COLOR', 'ML', 'MN', 'MS', 'TL')";
+            $getLabel = $this->db->query("SELECT nm_ker FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY nm_ker");
+
+			// GET SEMUA KOP JENIS
+            $html .='<tr style="background:#e9e9e9">
+				<td style="padding:5px;font-weight:bold" rowspan="2">NO.</td>
+				<td style="padding:5px;font-weight:bold" rowspan="2">UKURAN</td>';
+				foreach($getLabel->result() as $lbl){
+					$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+					($lbl->nm_ker == 'MH COLOR') ? $nmKer = 'MC' : $nmKer = $lbl->nm_ker;
+					$html .='<td style="padding:5px;font-weight:bold" colspan="'.$getGsm->num_rows().'">'.$nmKer.'</td>';
+				}
+            $html .='</tr>';
+
+			// GET SEMUA KOP GRAMATURE
+            $html .='<tr>';
+            foreach($getLabel->result() as $lbl){
+                $getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+                foreach($getGsm->result() as $gsm){
+                    $html .='<td style="padding:5px;background:#e9e9e9;font-weight:bold">'.$gsm->g_label.'</td>';
+                }
+            }
+            $html .='</tr>';
+
+			// TAMPIL SEMUA DATA UKURAN
+            $getWidth = $this->db->query("SELECT width FROM m_roll
+            WHERE status_p='Open' AND t_cor='$pilih' $wK
+            -- AND width BETWEEN '165' AND '170' # TESTING
+            GROUP BY width");
+            $i = 0;
+            foreach($getWidth->result() as $width){
+                $i++;
+                $html .='<tr class="new-stok-gg"><td style="font-weight:bold">'.$i.'</td><td style="font-weight:bold">'.round($width->width,2).'</td>';
+
+                $getLabel = $this->db->query("SELECT nm_ker FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY nm_ker");
+                foreach($getLabel->result() as $lbl){
+                    $getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll
+                    WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker'
+                    GROUP BY nm_ker,g_label");
+                    foreach($getGsm->result() as $gsm){
+						if($gsm->g_label == 125 || $gsm->g_label == '125'){
+							$a120 = "(g_label='120' OR g_label='125')";
+						}else{
+							$a120 = "g_label='$gsm->g_label'";
+						}
+
+                        $getWidth = $this->db->query("SELECT nm_ker,g_label,width,COUNT(width) as jml FROM m_roll
+                        WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND $a120 AND width='$width->width'
+                        GROUP BY nm_ker,width");
+                        if($gsm->nm_ker == 'MH' || $gsm->nm_ker == 'MF' || $gsm->nm_ker == 'ML'){
+                            $gbGsm = '#ffc';
+                        }else if($gsm->nm_ker == 'MN' || $gsm->nm_ker == 'MS'){
+                            $gbGsm = '#fcc';
+                        }else if($gsm->nm_ker == 'BK' || $gsm->nm_ker == 'BL' || $gsm->nm_ker == 'TL'){
+                            $gbGsm = '#ccc';
+                        }else if($gsm->nm_ker == 'MH COLOR'){
+                            $gbGsm = '#ccf';
+                        }else{
+                            $gbGsm = '#fff';
+                        }
+                        if($getWidth->num_rows() == 0){
+                            $html .='<td style="padding:5px;background:'.$gbGsm.'">
+                                <button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="">0</button>
+                            </td>';
+                        }else{
+                            $html .='<td style="padding:5px">
+                                <button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="">'.$getWidth->row()->jml.'</button>
+                            </td>';
+                        }
+                    }
+                }
+            }
+            $html .='</tr>';
+		$html .= '</table>';
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+		
+
 	function addCari()
 	{
 		$opsi = $_POST["opsi"];
