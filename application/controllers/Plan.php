@@ -4550,20 +4550,21 @@ class Plan extends CI_Controller
 		if($qS->num_rows() == 0){
 			$html .= '<div style="padding:12px 6px;font-weight:bold">DATA KOSONG!</div>';
 		}else{
-			$html .= '<table class="table table-bordered">
+			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:6px">
 				<tr>
-					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold">HAR, TGL</td>
-					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold">NO. PO</td>
-					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold">CUSTOMER</td>
-					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold">ITEM</td>
-					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold">TL</td>
-					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold">BF</td>
-					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold">BL</td>
-					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold">CF</td>
-					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold">CL</td>
-					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold">FT</td>
-					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold">LBR. ROLL</td>
-					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold">ORDER</td>
+					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold;border:1px solid #dee2e6">HAR, TGL</td>
+					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold;border:1px solid #dee2e6">NO. PO</td>
+					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold;border:1px solid #dee2e6">CUSTOMER</td>
+					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold;border:1px solid #dee2e6">ITEM</td>
+					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold;border:1px solid #dee2e6">TL</td>
+					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold;border:1px solid #dee2e6">BF</td>
+					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold;border:1px solid #dee2e6">BL</td>
+					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold;border:1px solid #dee2e6">CF</td>
+					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold;border:1px solid #dee2e6">CL</td>
+					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold;border:1px solid #dee2e6">FT</td>
+					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold;border:1px solid #dee2e6">LBR. ROLL</td>
+					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold;border:1px solid #dee2e6">ORDER</td>
+					<td style="background:#f2f2f2;padding:6px;text-align:center;font-weight:bold;border:1px solid #dee2e6">HASIL</td>
 				</tr>';
 				foreach($qS->result() as $r){
 					($r->kategori == 'K_BOX') ? $k = '[BOX] ' : $k = '[SHEET] ';
@@ -4588,7 +4589,6 @@ class Plan extends CI_Controller
 						$kua5 = '<a href="javascript:void(0)" style="font-weight:bold" onclick="addRoll('."'CL'".','."'".$xKua[4]."'".', '."'".$r->id."'".')">'.$xKua[4].'<a>';
 					}
 					($r->lebar_roll_so == 0 || $r->lebar_roll_so == null) ? $lbr = '' : $lbr = $r->lebar_roll_so;
-					// <span class="bg-dark" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">6</span>
 					$cTL = $this->db->query("SELECT COUNT(roll) AS roll FROM trs_so_roll WHERE l='TL' AND id_so_dtl='$r->id' GROUP BY id_so_dtl");
 					$cBF = $this->db->query("SELECT COUNT(roll) AS roll FROM trs_so_roll WHERE l='BF' AND id_so_dtl='$r->id' GROUP BY id_so_dtl");
 					$cBL = $this->db->query("SELECT COUNT(roll) AS roll FROM trs_so_roll WHERE l='BL' AND id_so_dtl='$r->id' GROUP BY id_so_dtl");
@@ -4599,24 +4599,28 @@ class Plan extends CI_Controller
 					$sBL = ($cBL->num_rows() == 0) ? '' : '<span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$cBL->row()->roll.'</span>';
 					$sCF = ($cCF->num_rows() == 0) ? '' : '<span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$cCF->row()->roll.'</span>';
 					$sCL = ($cCL->num_rows() == 0) ? '' : '<span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$cCL->row()->roll.'</span>';
+					// hasil
+					$qH = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$r->id' AND hasil_tgl='$r->eta_so'");
+					($qH->num_rows() == 0) ? $hasil = '-' : $hasil = number_format($qH->row()->hasil_qty);
 					$html .= '<tr class="thdhdz">
-						<td style="padding:6px">'.strtoupper(substr($this->m_fungsi->getHariIni($r->eta_so),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->eta_so)).'</td>
-						<td style="padding:6px">'.$r->kode_po.'</td>
-						<td style="padding:6px">'.$r->nm_pelanggan.'</td>
-						<td style="padding:6px">'.$k.$r->nm_produk.'</td>
-						<td style="padding:6px;text-align:center">'.$kua1.' '.$sTL.'</td>
-						<td style="padding:6px;text-align:center">'.$kua2.' '.$sBF.'</td>
-						<td style="padding:6px;text-align:center">'.$kua3.' '.$sBL.'</td>
-						<td style="padding:6px;text-align:center">'.$kua4.' '.$sCF.'</td>
-						<td style="padding:6px;text-align:center">'.$kua5.' '.$sCL.'</td>
-						<td style="padding:6px;text-align:center">'.$r->flute.'</td>
-						<td style="padding:6px;text-align:center">
+						<td style="padding:6px;border:1px solid #dee2e6">'.strtoupper(substr($this->m_fungsi->getHariIni($r->eta_so),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->eta_so)).'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->kode_po.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->nm_pelanggan.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$k.$r->nm_produk.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$kua1.' '.$sTL.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$kua2.' '.$sBF.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$kua3.' '.$sBL.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$kua4.' '.$sCF.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$kua5.' '.$sCL.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->flute.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">
 							<input type="number" id="slbroll'.$r->id.'" style="background:none;text-align:center;border:0;padding:0;height:100%;width:80px" onchange="sLbrRoll('."'".$r->id."'".')" value="'.$lbr.'">
 						</td>
-						<td style="padding:6px;text-align:right">'.number_format($r->qty_so).'</td>
+						<td style="padding:6px;text-align:right;border:1px solid #dee2e6">'.number_format($r->qty_so).'</td>
+						<td style="padding:6px;text-align:right;border:1px solid #dee2e6">'.$hasil.'</td>
 					</tr>';
 				}
-			$html .= '</table>';
+			$html .= '</table></div>';
 		}
 
 		echo json_encode([

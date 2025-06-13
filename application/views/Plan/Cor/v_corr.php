@@ -93,7 +93,9 @@
 							<div class="col-md-2">
 								<input type="date" id="p_tgl_plan" class="form-control" onchange="planCariCor()">
 							</div>
-							<div class="col-md-9"></div>
+							<div class="col-md-9">
+								<button type="button" class="btn btn-primary" onclick="planCariCor()"><i class="fas fa-search"></i></button>
+							</div>
 						</div>
 						<div style="overflow:auto;white-space:nowrap">
 							<div class="list-pencarian-plan"></div>

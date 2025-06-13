@@ -1083,7 +1083,9 @@ class M_transaksi extends CI_Model
 		WHERE no_po='$getSoDetail->no_po' AND kode_po='$getSoDetail->kode_po'
 		GROUP BY no_po,kode_po;");
 
-		if($cekWo->num_rows() != 0){
+		// $cH = $this->db->
+
+		if($cekWo->num_rows() != 0 && $this->session->userdata('level') != 'PPIC'){
 			return array(
 				'data' => false,
 				'msg' => 'SO SUDAH MASUK WO!'
@@ -1248,6 +1250,37 @@ class M_transaksi extends CI_Model
 
 		return [
 			'data' => $data,
+		];
+	}
+
+	function btnGunaSisa()
+	{
+		$tgl_guna = $_POST["tgl_guna"];
+		$roll = $_POST["roll"];
+		$guna = $_POST["guna"];
+		$sisa = $_POST["sisa"];
+		$ket = $_POST["ket"];
+
+		$qR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
+		$ay = array(
+			'tgl' => $tgl_guna,
+			'id_roll' => $roll,
+			'roll' => $qR->roll,
+			'pemakaian' => $guna,
+			'sisa' => $sisa,
+			'ket' => $ket,
+		);
+		$data = $this->db->insert("trs_so_guna", $ay);
+		if($data){
+			// seset
+			($qR->seset == 0) ? $seset = $guna : $seset = $qR->seset + $guna;
+			$this->db->set('seset', $seset);
+			$this->db->where('id', $roll);
+			$uRoll = $this->db->update('m_roll');
+		}
+		return [
+			'data' => $data,
+			'uRoll' => $uRoll,
 		];
 	}
 
