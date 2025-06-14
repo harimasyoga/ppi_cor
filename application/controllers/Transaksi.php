@@ -2588,14 +2588,13 @@ class Transaksi extends CI_Controller
 			foreach ($query as $r) {
 				$row = array();
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampilEditSO('."'".$r->id_po_detail."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'detail'".')">'.$i."<a></div>";
-				$row[] = $this->m_fungsi->tglIndSkt($r->tgl_so);
-				$row[] = $r->kode_mc;
+				// $row[] = $this->m_fungsi->tglIndSkt($r->tgl_so);
+				// $row[] = $r->kode_mc;
+				$urut_so = str_pad($r->urut_so, 2, "0", STR_PAD_LEFT);
+				$row[] = $r->kode_po.'.'.$urut_so.'('.$r->c_rpt.')';
 				$row[] = $r->nm_produk;
 				($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
 				$row[] = $r->nm_pelanggan.$attn;
-
-				$urut_so = str_pad($r->urut_so, 2, "0", STR_PAD_LEFT);
-				$row[] = $r->no_so.'.'.$urut_so.'('.$r->c_rpt.')';
 				// $row[] = $r->no_so;
 				if ($r->status_so == 'Open') {
 					$aksi = '<button type="button" onclick="tampilEditSO('."'".$r->id_po_detail."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
@@ -5501,9 +5500,14 @@ class Transaksi extends CI_Controller
 				<td style="padding:6px;text-align:center;'.$bold.'">'.$btnBagi.'</td>
 			</tr>';
 
+			if($this->session->userdata('level') == 'PPIC'){
+				$whPPIC = "AND s.add_user='ppic'";
+			}else{
+				$whPPIC = "AND s.add_user!='ppic'";
+			}
 			$dataSO = $this->db->query("SELECT p.nm_produk,p.ukuran_sheet_l,p.ukuran_sheet_p,p.berat_bersih,s.* FROM trs_so_detail s
 			INNER JOIN m_produk p ON s.id_produk=p.id_produk
-			WHERE s.id_produk='$r->id_produk' AND s.no_po='$r->no_po' AND s.kode_po='$r->kode_po' AND s.no_so='$r->no_so'");
+			WHERE s.id_produk='$r->id_produk' AND s.no_po='$r->no_po' AND s.kode_po='$r->kode_po' AND s.no_so='$r->no_so' $whPPIC");
 			
 			if($dataSO->num_rows() != 0){
 				if($this->session->userdata('level') == 'PPIC'){
@@ -5533,9 +5537,14 @@ class Transaksi extends CI_Controller
 								</tr>
 							</thead>';
 
+				if($this->session->userdata('level') == 'PPIC'){
+					$whP = "AND so.add_user='ppic'";
+				}else{
+					$whP = "AND so.add_user!='ppic'";
+				}
 				$dataHapusSO = $this->db->query("SELECT COUNT(so.rpt) AS jml_rpt FROM trs_po_detail ps
 				INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
-				WHERE ps.id='$idPoSo' GROUP BY so.no_po,so.kode_po,so.no_so,so.id_produk");
+				WHERE ps.id='$idPoSo' $whP GROUP BY so.no_po,so.kode_po,so.no_so,so.id_produk");
 				
 				($r->id == $id) ? $bTd = 'border:1px solid #999;' : $bTd = '';
 				$l = 0 ;
@@ -6103,6 +6112,12 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function btnGunaSisa()
+	{
+		$result = $this->m_transaksi->btnGunaSisa();
+		echo json_encode($result);
+	}
+
 	function laporanSO(){
 		$id = $_GET["id"];
 		$data = $this->db->query("SELECT c.nm_pelanggan,c.top,c.fax,c.no_telp,c.alamat,s.nm_sales,o.eta,p.tgl_po,o.tgl_so,p.time_app1,p.time_app2,p.time_app3,b.id_hub,b.nm_hub,b.alamat AS alamat_hub,i.*,d.* FROM trs_so_detail d
@@ -6315,6 +6330,113 @@ class Transaksi extends CI_Controller
 		$this->m_fungsi->newMpdf($judul, 'footer', $html, 10, 10, 10, 10, 'P', 'A4', $judul.'.pdf');
 	}
 
+	function cariListRoll()
+	{
+		$pilih = $_POST["list_pilih"];
+		$lNmKer = $_POST["list_nmker"];
+		$html = '';
+		
+		$html .='<div style="overflow:auto;white-space:nowrap;">
+			<table style="margin:12px 6px;padding:0;color:#000;text-align:center;vertical-align:middle;border-collapse:collapse" border="1">';
+
+			// DATA INTI DARI SEGALA INTI
+			($lNmKer != "") ? $wK = "AND nm_ker='$lNmKer'" : $wK = "AND nm_ker IN('BK', 'BL', 'MF', 'MH', 'MH COLOR', 'ML', 'MN', 'MS', 'TL')";
+            $getLabel = $this->db->query("SELECT nm_ker FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY nm_ker");
+
+			// GET SEMUA KOP JENIS
+            $html .='<tr style="background:#e9e9e9">
+				<td style="padding:5px;font-weight:bold" rowspan="3">NO.</td>
+				<td style="padding:5px;font-weight:bold" rowspan="3">UKURAN</td>';
+				foreach($getLabel->result() as $lbl){
+					$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+					($lbl->nm_ker == 'MH COLOR') ? $nmKer = 'MC' : $nmKer = $lbl->nm_ker;
+					$nrs = $getGsm->num_rows() * 2;
+					$html .='<td style="padding:5px;font-weight:bold" colspan="'.$nrs.'">'.$nmKer.'</td>';
+				}
+            $html .='</tr>';
+
+			// GET SEMUA KOP GRAMATURE
+            $html .='<tr>';
+            foreach($getLabel->result() as $lbl){
+                $getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+                foreach($getGsm->result() as $gsm){
+                    $html .='<td style="padding:5px;background:#e9e9e9;font-weight:bold" colspan="2">'.$gsm->g_label.'</td>';
+                }
+            }
+            $html .='</tr>';
+
+			$html .='<tr>';
+            foreach($getLabel->result() as $lbl){
+                $getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+                foreach($getGsm->result() as $gsm){
+                    $html .='<td style="padding:5px 12px;background:#e9e9e9;font-weight:bold">U</td><td style="padding:5px 12px;background:#e9e9e9;font-weight:bold">S</td>';
+                }
+            }
+            $html .='</tr>';
+
+			// TAMPIL SEMUA DATA UKURAN
+            $getWidth = $this->db->query("SELECT width FROM m_roll
+            WHERE status_p='Open' AND t_cor='$pilih' $wK
+            -- AND width BETWEEN '165' AND '170' # TESTING
+            GROUP BY width");
+            $i = 0;
+            foreach($getWidth->result() as $width){
+                $i++;
+                $html .='<tr class="new-stok-gg"><td style="font-weight:bold">'.$i.'</td><td style="font-weight:bold">'.round($width->width,2).'</td>';
+
+                $getLabel = $this->db->query("SELECT nm_ker FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY nm_ker");
+                foreach($getLabel->result() as $lbl){
+                    $getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll
+                    WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker'
+                    GROUP BY nm_ker,g_label");
+                    foreach($getGsm->result() as $gsm){
+						if($gsm->g_label == 125 || $gsm->g_label == '125'){
+							$a120 = "(g_label='120' OR g_label='125')";
+						}else{
+							$a120 = "g_label='$gsm->g_label'";
+						}
+
+                        $getWidth = $this->db->query("SELECT nm_ker,g_label,width,COUNT(width) as jml FROM m_roll
+                        WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND $a120 AND width='$width->width'
+                        GROUP BY nm_ker,width");
+                        if($gsm->nm_ker == 'MH' || $gsm->nm_ker == 'MF' || $gsm->nm_ker == 'ML'){
+                            $gbGsm = '#ffc';
+                        }else if($gsm->nm_ker == 'MN' || $gsm->nm_ker == 'MS'){
+                            $gbGsm = '#fcc';
+                        }else if($gsm->nm_ker == 'BK' || $gsm->nm_ker == 'BL' || $gsm->nm_ker == 'TL'){
+                            $gbGsm = '#ccc';
+                        }else if($gsm->nm_ker == 'MH COLOR'){
+                            $gbGsm = '#ccf';
+                        }else{
+                            $gbGsm = '#fff';
+                        }
+                        if($getWidth->num_rows() == 0){
+                            $html .='<td style="padding:5px;background:'.$gbGsm.'">
+                                <button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="">0</button>
+                            </td>
+							<td style="padding:5px;background:'.$gbGsm.'">
+                                <button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="">S</button>
+                            </td>';
+                        }else{
+                            $html .='<td style="padding:5px">
+                                <button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="">'.$getWidth->row()->jml.'</button>
+                            </td>
+							<td style="padding:5px">
+                                <button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="">S</button>
+                            </td>';
+                        }
+                    }
+                }
+            }
+            $html .='</tr>';
+		$html .= '</table>';
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+		
+
 	function addCari()
 	{
 		$opsi = $_POST["opsi"];
@@ -6460,7 +6582,7 @@ class Transaksi extends CI_Controller
 		$tgl_guna = $_POST["tgl_guna"];
 		$html = '';
 
-		$zV = $this->db->query("SELECT COUNT(r.roll) AS jml_roll,l.* FROM trs_so_roll r
+		$zV = $this->db->query("SELECT COUNT(r.roll) AS jml_roll,r.id_roll AS rollid,r.id_so_dtl,l.* FROM trs_so_roll r
 		INNER JOIN trs_so_detail so ON so.id=r.id_so_dtl
 		INNER JOIN m_roll l ON l.id=r.id_roll
 		WHERE so.eta_so='$tgl_guna'
@@ -6470,7 +6592,7 @@ class Transaksi extends CI_Controller
 		if($zV->num_rows() == 0){
 			$html .= '<div style="padding:6px;font-weight:bold">DATA KOSONG!</div>';
 		}else{
-			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 6px 12px">
+			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 6px 6px">
 				<tr>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
@@ -6481,13 +6603,135 @@ class Transaksi extends CI_Controller
 				foreach($zV->result() as $r){
 					$i++;
 					($r->jml_roll == 1) ? $k = '' : $k = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->jml_roll.'</span>';
+					// CEK HASIL
+					$cH = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$r->id_so_dtl' GROUP BY id_so_dtl");
+					if($cH->num_rows() != 0){
+						$aH = '<button type="button" onclick="bGunaRoll('."'".$r->rollid."'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
+					}else{
+						$aH = '-';
+					}
 					$html .= '<tr class="thdhdz">
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
 						<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.$k.'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">
-							<button type="button" onclick="" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>
+							'.$aH.'
 						</td>
+					</tr>';
+				}
+			$html .= '</table></div>';
+		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function bGunaRoll()
+	{
+		$tgl_guna = $_POST["tgl_guna"];
+		$roll = $_POST["roll"];
+		$html = '';
+
+		$qR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
+		$fixBerat = $qR->weight - $qR->seset;
+		$html .= '<div style="overflow:auto;white-space:nowrap">
+			<input type="hidden" id="add_roll" value="'.$roll.'">
+			<input type="hidden" id="add_weight" value="'.$fixBerat.'">
+			<table style="margin:0 6px 6px">
+			<tr>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JENIS</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GSM</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">WIDTH</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BERAT</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
+			</tr>';
+			$html .= '<tr class="thdhdz">
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->t_cor.'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->roll.'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->nm_ker.'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->g_label.'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.round($qR->width).'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.number_format($qR->weight).'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->joint.'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->ket.'</td>
+			</tr>';
+			// guna
+			$qH = $this->db->query("SELECT*FROM trs_so_guna WHERE id_roll='$roll' ORDER BY tgl");
+			if($qH->num_rows() != 0){
+				foreach($qH->result() as $h){
+					$html .= '<tr>
+						<td style="padding:6px;text-align:right" colspan="5">'.$h->tgl.'</td>
+						<td style="padding:6px;text-align:right">'.number_format($h->pemakaian).'</td>
+						<td style="padding:6px;center" colspan="2">'.$h->ket.'</td>
+					</tr>';
+				}
+				$html .= '<tr>
+					<td style="padding:6px;text-align:right" colspan="5">SISA</td>
+					<td style="padding:6px;text-align:right">'.number_format($fixBerat).'</td>
+				</tr>';
+			}
+		$html .= '</table></div>';
+
+
+		$html .= '<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+			<div class="col-md-1">PENGGUNAAN</div>
+			<div class="col-md-1">
+				<input type="number" id="add_guna" class="form-control" autocomplete="off" placeholder="0" onkeyup="hitungGuna('."'guna'".')">
+			</div>
+			<div class="col-md-10"></div>
+		</div>
+		<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+			<div class="col-md-1">SISA</div>
+			<div class="col-md-1">
+				<input type="number" id="add_sisa" class="form-control" autocomplete="off" placeholder="0" onkeyup="hitungGuna('."'sisa'".')">
+			</div>
+			<div class="col-md-10"></div>
+		</div>
+		<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+			<div class="col-md-1">KETERANGAN</div>
+			<div class="col-md-3">
+				<input type="text" id="add_ket" class="form-control" autocomplete="off" placeholder="KET" oninput="this.value=this.value.toUpperCase()">
+			</div>
+			<div class="col-md-8"></div>
+		</div>
+		<div class="card-body row" style="padding:3px 6px 6px;font-weight:bold">
+			<div class="col-md-1"></div>
+			<div class="col-md-11">
+				<button type="button" class="btn btn-primary btn-sm" style="font-weight:bold" onclick="btnGunaSisa()"><i class="fas fa-plus"></i> TAMBAH</button>
+			</div>
+		</div>';
+
+		$qS = $this->db->query("SELECT s.kode_po,c.nm_pelanggan,c.attn,s.eta_so,r.*,i.* FROM trs_so_roll r
+		INNER JOIN m_roll l ON l.id=r.id_roll
+		INNER JOIN trs_so_detail s ON s.id=r.id_so_dtl
+		INNER JOIN m_pelanggan c ON s.id_pelanggan=c.id_pelanggan
+		INNER JOIN m_produk i ON s.id_produk=i.id_produk
+		WHERE r.id_roll='$roll'
+		ORDER BY s.eta_so");
+
+		if($qS->num_rows() == 0){
+			$html .= '<div style="padding:6px;font-weight:bold">DATA KOSONG!</div>';
+		}else{
+			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 6px 6px">
+				<tr>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">HARI, TGL</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">NO. PO</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CUSTOMER</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ITEM</td>
+				</tr>';
+				$i = 0;
+				foreach($qS->result() as $r){
+					$i++;
+					($r->kategori == 'K_BOX') ? $k = '[BOX] ' : $k = '[SHEET] ';
+					$html .= '<tr class="thdhdz">
+						<td style="padding:6px;border:1px solid #dee2e6">'.strtoupper(substr($this->m_fungsi->getHariIni($r->eta_so),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->eta_so)).'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->kode_po.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->nm_pelanggan.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$k.$r->nm_produk.'</td>
 					</tr>';
 				}
 			$html .= '</table></div>';
