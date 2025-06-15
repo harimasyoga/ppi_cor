@@ -185,7 +185,6 @@
 			data: ({ p_tgl_plan }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".list-pencarian-plan").html(data.html)
 			}
 		})
@@ -210,17 +209,16 @@
 		})
 	}
 
-	function addRoll(l, kualitas, id) {
+	function addRoll(l, kualitas, gsm, id) {
 		$(".input-roll").html('')
 		$(".list-roll").html('')
 		let lbr_roll = $("#slbroll"+id).val()
 		$.ajax({
 			url: '<?php echo base_url('Plan/addRoll')?>',
 			type: "POST",
-			data: ({ l, kualitas, id, lbr_roll }),
+			data: ({ l, kualitas, gsm, id, lbr_roll }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".input-roll").html(data.html)
 				$('.select2').select2();
 				planCariRoll()
@@ -228,22 +226,37 @@
 		})
 	}
 
-	function planCariRoll() {	
+	function planCariRoll() {
+		let tgl_plan = $("#p_tgl_plan").val()
 		let s_corr = $("#s_corr").val()
 		let s_lebar = $("#s_lebar").val()
 		let s_roll = $("#s_roll").val()
 		let s_l = $("#s_l").val()
-		let s_kualitas = $("#s_kualitas").val()
+		let s_gsm = $("#s_gsm").val()
 		let s_id = $("#s_id").val()
 		$(".list-roll").html('')
 		$.ajax({
 			url: '<?php echo base_url('Plan/planCariRoll')?>',
 			type: "POST",
-			data: ({ s_corr, s_lebar, s_roll, s_l, s_kualitas, s_id }),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				tgl_plan, s_corr, s_lebar, s_roll, s_l, s_gsm, s_id
+			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".list-roll").html(data.html)
+				if(data.html != ''){
+					swal.close()
+				}
 			}
 		})
 	}
@@ -261,7 +274,6 @@
 			data: ({ s_corr, s_lebar, s_roll, s_l, s_kualitas, s_id, id }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				planCariCor('a')
 			}
 		})
@@ -274,7 +286,6 @@
 			data: ({ id }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				planCariCor('a')
 			}
 		})

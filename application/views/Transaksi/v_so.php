@@ -72,6 +72,11 @@
 						<thead class="color-tabel">
 							<tr>
 								<th>NO.</th>
+								<?php if($this->session->userdata('level') == 'PPIC') { ?>
+									<th>TGL. PLAN</th>
+								<?php }else{ ?>
+									<th>TGL. SO</th>
+								<?php } ?>
 								<th>NO. PO</th>
 								<th>ITEM</th>
 								<th>CUSTOMER</th>
@@ -232,7 +237,7 @@
 						<td style="width:90%;padding:0;border:0"></td>
 					</tr>
 					<tr>
-						<td style="padding:5px 0;font-weight:bold">TANGGAL SO</td>
+						<td style="padding:5px 0;font-weight:bold">TANGGAL</td>
 						<td style="padding:5px 0">
 							<input type="date" name="tgl_so" id="tgl_so" class="form-control" value="<?= date('Y-m-d')?>">
 						</td>
@@ -476,7 +481,6 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				console.log(data)
 				$(".list-list").html(data.html)
 			}
 		})
@@ -504,7 +508,6 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				console.log(data)
 				$(".add-list").html(data.html)
 				swal.close()
 			}
@@ -533,7 +536,6 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				console.log(data)
 				if(data.data){
 					toastr.success(`<b>${data.msg}</b>`)
 					addCari(opsi)
@@ -566,7 +568,6 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				console.log(data)
 				toastr.success(`<b>BERHASIL!</b>`)
 				addCari(opsi)
 			}
@@ -585,7 +586,6 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				console.log(data)
 				$(".guna-list").html(data.html)
 			}
 		})
@@ -602,14 +602,12 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				console.log(data)
 				$(".guna-roll").html(data.html)
 			}
 		})
 	}
 
 	function hitungGuna(opsi) {
-		console.log("opsi : ", opsi)
 		let weight = $("#add_weight").val()
 		let guna = $("#add_guna").val()
 		let sisa = $("#add_sisa").val();
@@ -618,18 +616,14 @@
 		if(opsi == 'guna'){
 			hitungGuna = guna
 			hitungSisa = weight - guna;
-			console.log("hitungGuna : ", hitungGuna);
-			console.log("hitungSisa : ", hitungSisa);
 			(guna == "" || guna == 0 || guna < 0 || hitungSisa < 0) ? $("#add_guna").val('') : $("#add_guna").val(hitungGuna);
 			(guna == "" || guna == 0 || guna < 0 || hitungSisa < 0) ? $("#add_sisa").val('') : $("#add_sisa").val(hitungSisa);
 		}
 		if(opsi == 'sisa'){
 			hitungGuna = weight - sisa
 			hitungSisa = sisa;
-			console.log("hitungGuna : ", hitungGuna);
-			console.log("hitungSisa : ", hitungSisa);
-			(sisa == "" || sisa == 0 || sisa < 0 || hitungGuna < 0) ? $("#add_guna").val('') : $("#add_guna").val(hitungGuna);
-			(sisa == "" || sisa == 0 || sisa < 0 || hitungGuna < 0) ? $("#add_sisa").val('') : $("#add_sisa").val(hitungSisa);
+			(sisa == "" || sisa < 0 || hitungGuna < 0 || (sisa == 0 && sisa.length == 2)) ? $("#add_guna").val('') : $("#add_guna").val(hitungGuna);
+			(sisa == "" || sisa < 0 || hitungGuna < 0 || (sisa == 0 && sisa.length == 2)) ? $("#add_sisa").val('') : $("#add_sisa").val(hitungSisa);
 		}
 	}
 
@@ -647,7 +641,20 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				console.log(data)
+				bGunaRoll(roll)
+			}
+		})
+	}
+
+	function delRollGuna(id){
+		let roll = $("#add_roll").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/delRollGuna')?>',
+			type: "POST",
+			data: ({ id, roll }),
+			success: function(json){
+				data = JSON.parse(json)
+				bGunaRoll(roll)
 			}
 		})
 	}
@@ -1265,11 +1272,11 @@
 		});
 	}
 
-	function btnSOHasil(id){
+	function btnSOHasil(id){ //
 		let h_id = $("#h_id").val()
 		let no_po = $("#h_no_po").val()
 		let kode_po = $("#h_kodepo").val()
-		let hasil_tgl = $("#hasil_tgl"+id).val()
+		// let hasil_tgl = $("#hasil_tgl"+id).val()
 		let hasil_pcs = $("#hasil_pcs"+id).val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/btnSOHasil')?>',
@@ -1284,7 +1291,7 @@
 					}
 				});
 			},
-			data: ({ id, hasil_tgl, hasil_pcs }),
+			data: ({ id, hasil_pcs }),
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
