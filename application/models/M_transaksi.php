@@ -932,14 +932,25 @@ class M_transaksi extends CI_Model
 			$id_pelanggan = $r['options']['id_pelanggan'];
 			$jml_so = $r['options']['jml_so'];
 
+			if($this->session->userdata('level') == 'PPIC'){
+				$wH = "AND add_user='ppic'";
+				$no = 1;
+				$tglSO = $_POST["tgl_so"];
+				$addUser = strtolower($this->session->userdata('level'));
+			}else{
+				$wH = "AND add_user!='ppic'";
+				$no = 50;
+				$tglSO = $r['options']['eta_po'];
+				$addUser = $this->username;
+			}
 			$tmbhUrutSo = $this->db->query("SELECT urut_so FROM trs_so_detail
-			WHERE id_pelanggan='$id_pelanggan' AND no_po='$no_po' AND kode_po='$kode_po'
+			WHERE id_pelanggan='$id_pelanggan' AND no_po='$no_po' AND kode_po='$kode_po' $wH
 			ORDER BY urut_so DESC LIMIT 1");
-			($tmbhUrutSo->num_rows() == 0) ? $urut = 1 : $urut = $tmbhUrutSo->row()->urut_so + 1;
+			($tmbhUrutSo->num_rows() == 0) ? $urut = $no : $urut = $tmbhUrutSo->row()->urut_so + 1;
 			$data = array(
 				'id_pelanggan' => $id_pelanggan,
 				'id_produk' => $id_produk,
-				'eta_so' => $r['options']['eta_po'],
+				'eta_so' => $tglSO,
 				'no_po' => $no_po,
 				'kode_po' => $kode_po,
 				'no_so' => $no_so,
@@ -952,15 +963,20 @@ class M_transaksi extends CI_Model
 				'rm' => $r['options']['rm'],
 				'ton' => $r['options']['ton'],
 				'add_time' => date('Y-m-d H:i:s'),
-				'add_user' => $this->username,
+				'add_user' => $addUser,
 			);
 			$result = $this->db->insert('trs_so_detail', $data);
 
-			$this->db->set("no_so", $no_so);
-			$this->db->set("tgl_so", $_POST["tgl_so"]);
-			$this->db->set("status_so", 'Open');
-			$this->db->set("add_time_so", date('Y-m-d H:i:s'));
-			$this->db->set("add_user_so", $this->username);
+			if($this->session->userdata('level') == 'PPIC'){
+				$this->db->set("tgl_so_p", $_POST["tgl_so"]);
+				$this->db->set("no_so_p", $no_so);
+			}else{
+				$this->db->set("no_so", $no_so);
+				$this->db->set("tgl_so", $_POST["tgl_so"]);
+				$this->db->set("status_so", 'Open');
+				$this->db->set("add_time_so", date('Y-m-d H:i:s'));
+				$this->db->set("add_user_so", $this->username);
+			}
 			$this->db->where("id", $id);
 			$this->db->where("no_po", $no_po);
 			$this->db->where("kode_po", $kode_po);
@@ -1094,13 +1110,19 @@ class M_transaksi extends CI_Model
 			$this->db->where('no_po', $getSoDetail->no_po);
 			$this->db->where('kode_po', $getSoDetail->kode_po);
 			$this->db->where('id_produk', $getSoDetail->id_produk);
+			$this->db->where('add_user', ($this->session->userdata('level') == 'PPIC') ? 'ppic' : $this->username);
 			$hapusDetailSO = $this->db->delete('trs_so_detail');
 
-			$this->db->set('no_so', null);
-			$this->db->set('tgl_so', null);
-			$this->db->set('status_so', null);
-			$this->db->set('add_time_so', '0000-00-00 00:00:00');
-			$this->db->set('add_user_so', null);
+			if($this->session->userdata('level') == 'PPIC'){
+				$this->db->set('tgl_so_p', null);
+				$this->db->set('no_so_p', null);
+			}else{
+				$this->db->set('no_so', null);
+				$this->db->set('tgl_so', null);
+				$this->db->set('status_so', null);
+				$this->db->set('add_time_so', '0000-00-00 00:00:00');
+				$this->db->set('add_user_so', null);
+			}
 			$this->db->where('no_po', $getSoDetail->no_po);
 			$this->db->where('kode_po', $getSoDetail->kode_po);
 			$this->db->where('id_produk', $getSoDetail->id_produk);
@@ -1118,19 +1140,16 @@ class M_transaksi extends CI_Model
 	function btnSOHasil()
 	{
 		$id = $_POST["id"];
-		$hasil_tgl = $_POST["hasil_tgl"];
 		$hasil_pcs = $_POST["hasil_pcs"];
 
-		if($hasil_tgl == ''){
+		if($hasil_pcs == '' || $hasil_pcs == 0 || $hasil_pcs < 0){
 			$data = false;
-			$msg = 'TANGGAL KOSONG!';
-		}else if($hasil_pcs == '' || $hasil_pcs == 0 || $hasil_pcs < 0){
-			$data = false;
-			$msg = 'HASIL PCS SALAH!';
+			$msg = 'HASIL PCS KOSONG / SALAH!';
 		}else{
+			$sO = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$id'")->row();
 			$soHasil = array(
 				'id_so_dtl' => $id,
-				'hasil_tgl' => $hasil_tgl,
+				'hasil_tgl' => $sO->eta_so,
 				'hasil_qty' => $hasil_pcs,
 			);
 			$data = $this->db->insert('trs_so_hasil', $soHasil);
@@ -1139,7 +1158,6 @@ class M_transaksi extends CI_Model
 
 		return [
 			'id' => $id,
-			'hasil_tgl' => $hasil_tgl,
 			'hasil_pcs' => $hasil_pcs,
 			'data' => $data,
 			'msg' => $msg,
@@ -1281,6 +1299,31 @@ class M_transaksi extends CI_Model
 		return [
 			'data' => $data,
 			'uRoll' => $uRoll,
+		];
+	}
+
+	function delRollGuna()
+	{
+		$id_guna = $_POST["id"];
+		$id_roll = $_POST["roll"];
+
+		$qG = $this->db->query("SELECT*FROM trs_so_guna WHERE id='$id_guna'")->row();
+		$qR = $this->db->query("SELECT*FROM m_roll WHERE id='$id_roll'")->row();
+
+		// update seset
+		$seset = $qR->seset - $qG->pemakaian;
+		$this->db->set('seset', $seset);
+		$this->db->where('id', $id_roll);
+		$uRoll = $this->db->update('m_roll');
+		if($uRoll){
+			// delete guna
+			$this->db->where('id', $id_guna);
+			$data = $this->db->delete('trs_so_guna');
+		}
+
+		return [
+			'uRoll' => $uRoll,
+			'data' => $data,
 		];
 	}
 
