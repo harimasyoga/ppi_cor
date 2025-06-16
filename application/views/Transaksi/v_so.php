@@ -25,6 +25,10 @@
 		.thdhdz:hover {
 			background: #eee;
 		}
+
+		.new-stok-gg:hover {
+			background: rgba(238, 238, 238, 0.5);
+		}
 	</style>
 
 	<section class="content">
@@ -138,7 +142,7 @@
 							<div class="col-md-9"></div>
 						</div>
 						<div class="card-body row" style="padding:3px 6px 12px;font-weight:bold">
-							<div class="col-md-1">CORR</div>
+							<div class="col-md-1">JENIS</div>
 							<div class="col-md-2">
 								<select id="list_nmker" class="form-control select2">
 									<option value="">SEMUA</option>
@@ -146,11 +150,14 @@
 									<option value="BL">BL</option>
 									<option value="MF">MF</option>
 									<option value="MH">MH</option>
-									<option value="MH COLOR">MHC</option>
+									<option value="MH COLOR">MC</option>
 									<option value="ML">ML</option>
 									<option value="MN">MN</option>
 									<option value="MS">MS</option>
 									<option value="TL">TL</option>
+									<option value="BKBLTL">BK, BL, TL</option>
+									<option value="MHMFMC">MH, MF, MC</option>
+									<option value="MLMNMS">ML, MN, MS</option>
 								</select>
 							</div>
 							<div class="col-md-9">
@@ -158,6 +165,7 @@
 							</div>
 						</div>
 						<div class="list-list"></div>
+						<div class="list-roll"></div>
 					</div>
 					<!-- add -->
 					<div class="card-add" style="padding-bottom:12px;display:none">
@@ -434,6 +442,7 @@
 	function pRoll(opsi, opsi2=''){
 		$(".add-list").html('')
 		$(".list-list").html('')
+		$(".list-roll").html('')
 		$(".guna-list").html('')
 		$(".guna-roll").html('')
 		if(opsi == 'list'){
@@ -471,17 +480,67 @@
 
 	function cariListRoll(){
 		$(".list-list").html('')
+		$(".list-roll").html('')
 		let list_pilih = $("#list_pilih").val()
 		let list_nmker = $("#list_nmker").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/cariListRoll')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				list_pilih, list_nmker
 			}),
 			success: function(json){
 				data = JSON.parse(json)
 				$(".list-list").html(data.html)
+				if(data.html){
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function btnPatokanRoll(t_cor, width){
+		let ptk = $("#ptk_"+t_cor+width).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/btnPatokanRoll')?>',
+			type: "POST",
+			data: ({
+				t_cor, width, ptk
+			}),
+			success: function(json){
+				data = JSON.parse(json)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					cariListRoll()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function btnListRoll(t_cor, nm_ker, g_label, width, opsi){
+		$(".list-roll").html('')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/btnListRoll')?>',
+			type: "POST",
+			data: ({
+				t_cor, nm_ker, g_label, width, opsi
+			}),
+			success: function(json){
+				data = JSON.parse(json)
+				$(".list-roll").html(data.html)
 			}
 		})
 	}
@@ -517,7 +576,6 @@
 	function addRollCorr(opsi){
 		let tgl_pm = $("#tgl_pm").val()
 		let tgl_gudang = $("#tgl_gudang").val()
-		let tgl_input = $("#add_tgl_input").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/addRollCorr')?>',
 			type: "POST",
@@ -532,7 +590,7 @@
 				});
 			},
 			data: ({
-				opsi, tgl_pm, tgl_gudang, tgl_input
+				opsi, tgl_pm, tgl_gudang
 			}),
 			success: function(json){
 				data = JSON.parse(json)
@@ -547,8 +605,10 @@
 		})
 	}
 
-	function editRollCorr(id){
-		let opsi = $("#add_pilih").val().toLowerCase()
+	function editRollCorr(id, pilihan = ''){
+		if(pilihan = ''){
+			let opsi = $("#add_pilih").val().toLowerCase()
+		}
 		let corcab = $("#corcab"+id).val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editRollCorr')?>',
@@ -568,8 +628,12 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				toastr.success(`<b>BERHASIL!</b>`)
-				addCari(opsi)
+				if(pilihan = ''){
+					toastr.success(`<b>BERHASIL!</b>`)
+					addCari(opsi)
+				}else{
+					cariListRoll()
+				}
 			}
 		})
 	}

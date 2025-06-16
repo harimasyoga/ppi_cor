@@ -1198,7 +1198,6 @@ class M_transaksi extends CI_Model
 		$opsi = $_POST["opsi"];
 		$tgl_pm = $_POST["tgl_pm"];
 		$tgl_gudang = $_POST["tgl_gudang"];
-		$tgl_input = $_POST["tgl_input"];
 
 		$db9 = $this->load->database('database_simroll', TRUE);
 		if($opsi == 'pm'){
@@ -1211,45 +1210,40 @@ class M_transaksi extends CI_Model
 			ORDER BY t.nm_ker,t.g_label,t.width,t.pm,t.roll");
 		}
 
-		if($tgl_input == ''){
-			$data = false;
-			$msg = 'HARAP PILIH TGL INPUT!';
-		}else{
-			foreach($qR->result() as $r){
-				$cek = $this->db->query("SELECT*FROM m_roll WHERE roll='$r->roll' AND id_roll='$r->id'");
-				if($cek->num_rows() == 0){
-					($opsi == 'pm') ? $o = 'PM' : $o = 'FG';
-					$berat = $r->weight - $r->seset;
-					$rL = array(
-						't_cor' => 'CA',
-						'roll' => $r->roll,
-						'i_tgl' => $tgl_input,
-						'nm_ker' => $r->nm_ker,
-						'g_label' => $r->g_label,
-						'width' => $r->width,
-						'diameter' => $r->diameter,
-						'weight' => $berat,
-						'joint' => $r->joint,
-						'ket' => $r->ket,
-						'status_r' => $r->status,
-						'g_ac' => $r->g_ac,
-						'rct' => $r->rct,
-						'bi' => $r->bi,
-						'cobb' => $r->cobb,
-						'moisture' => $r->moisture,
-						'rm' => $r->rm,
-						'dari' => $o,
-						'created_at' => date('Y-m-d H:i:s'),
-						'created_by' => $this->username,
-						'id_roll' => $r->id,
-					);
-					$data = $this->db->insert("m_roll", $rL);
-				}else{
-					$data = true;
-				}
+		foreach($qR->result() as $r){
+			$cek = $this->db->query("SELECT*FROM m_roll WHERE roll='$r->roll' AND id_roll='$r->id'");
+			if($cek->num_rows() == 0){
+				($opsi == 'pm') ? $o = 'PM' : $o = 'FG';
+				$berat = $r->weight - $r->seset;
+				$rL = array(
+					't_cor' => 'CA',
+					'roll' => $r->roll,
+					'i_tgl' => $tgl_gudang,
+					'nm_ker' => $r->nm_ker,
+					'g_label' => $r->g_label,
+					'width' => $r->width,
+					'diameter' => $r->diameter,
+					'weight' => $berat,
+					'joint' => $r->joint,
+					'ket' => $r->ket,
+					'status_r' => $r->status,
+					'g_ac' => $r->g_ac,
+					'rct' => $r->rct,
+					'bi' => $r->bi,
+					'cobb' => $r->cobb,
+					'moisture' => $r->moisture,
+					'rm' => $r->rm,
+					'dari' => $o,
+					'created_at' => date('Y-m-d H:i:s'),
+					'created_by' => $this->username,
+					'id_roll' => $r->id,
+				);
+				$data = $this->db->insert("m_roll", $rL);
+			}else{
+				$data = true;
 			}
-			$msg = 'BERHASIL!';
 		}
+		$msg = 'BERHASIL!';
 
 		return [
 			'data' => $data,
@@ -1295,10 +1289,22 @@ class M_transaksi extends CI_Model
 			$this->db->set('seset', $seset);
 			$this->db->where('id', $roll);
 			$uRoll = $this->db->update('m_roll');
+			if($uRoll){
+				// JIKA BERAT == SESET : DICLOSE
+				$cR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
+				if($cR->weight == $cR->seset){
+					$this->db->set('status_p', 'Close');
+					$this->db->where('id', $roll);
+					$cRoll = $this->db->update('m_roll');
+				}else{
+					$cRoll = false;
+				}
+			}
 		}
 		return [
 			'data' => $data,
 			'uRoll' => $uRoll,
+			'cRoll' => $cRoll,
 		];
 	}
 
@@ -1312,6 +1318,9 @@ class M_transaksi extends CI_Model
 
 		// update seset
 		$seset = $qR->seset - $qG->pemakaian;
+		if($qR->weight == $qR->seset){
+			$this->db->set('status_p', 'Open');
+		}
 		$this->db->set('seset', $seset);
 		$this->db->where('id', $id_roll);
 		$uRoll = $this->db->update('m_roll');
@@ -1324,6 +1333,41 @@ class M_transaksi extends CI_Model
 		return [
 			'uRoll' => $uRoll,
 			'data' => $data,
+		];
+	}
+
+	function btnPatokanRoll()
+	{
+		$t_cor = $_POST["t_cor"];
+		$width = $_POST["width"];
+		$ptk = $_POST["ptk"];
+
+		$cek = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$t_cor' AND width='$width'");
+
+		if($ptk < 0){
+			$data = false;
+			$msg = "SALAH";
+		}else{
+			$aR = array(
+				't_cor' => $t_cor,
+				'width' => $width,
+				'ptk' => $ptk,
+			);
+			if($cek->num_rows() == 0){
+				$data = $this->db->insert('m_roll_ptk', $aR);
+				$msg = "BERHASIL!";
+			}else{
+				$this->db->set('ptk', $ptk);
+				$this->db->where('t_cor', $t_cor);
+				$this->db->where('width', $width);
+				$data = $this->db->update('m_roll_ptk', $aR);
+				$msg = "BERHASIL UPDATE!";
+			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
 		];
 	}
 
