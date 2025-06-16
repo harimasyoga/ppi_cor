@@ -2592,22 +2592,31 @@ class Transaksi extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampilEditSO('."'".$r->id_po_detail."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'detail'".')">'.$i."<a></div>";
 				if ($this->session->userdata('level') == "PPIC") {
-					$tP = $this->db->query("SELECT*FROM trs_so_detail WHERE no_po='$r->no_po' AND kode_po='$r->kode_po' AND add_user='ppic' ORDER BY eta_so");
+					$tP = $this->db->query("SELECT*FROM trs_so_detail WHERE no_po='$r->no_po' AND kode_po='$r->kode_po' AND id_produk='$r->id_produk' AND add_user='ppic' GROUP BY eta_so DESC,id");
 					$tt = '';
 					foreach($tP->result() as $z){
 						$tt .= $z->eta_so.'<br>';
 					}
-					$row[] = $tt;
+					$row[] = '<div class="text-center">'.$tt.'</div>';
 				}else{
 					$row[] = $this->m_fungsi->tglIndSkt($r->tgl_so);
 				}
 				// $row[] = $r->kode_mc;
 				$urut_so = str_pad($r->urut_so, 2, "0", STR_PAD_LEFT);
-				$row[] = $r->kode_po.'.'.$urut_so.'('.$r->c_rpt.')';
+				$row[] = $r->kode_po.'.'.$urut_so.' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->c_rpt.'</span>';
 				$row[] = $r->nm_produk;
 				($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
 				$row[] = $r->nm_pelanggan.$attn;
-				// $row[] = $r->no_so;
+				if($this->session->userdata('level') == "PPIC") {
+					$tt = '';
+					foreach($tP->result() as $z){
+						$qG = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$z->id'");
+						($qG->num_rows() == 0) ? $gg = '' : $gg = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.number_format($qG->row()->hasil_qty).'</span>';
+						($z->status_2 == "Close") ? $s2 = ' <span class="bg-primary" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px"><i class="fas fa-check"></i></span>' : $s2 = '';
+						$tt .= number_format($z->qty_so).$gg.$s2.'<br>';
+					}
+					$row[] = '<div class="text-right">'.$tt.'</div>';
+				}
 				if ($r->status_so == 'Open' || $r->no_so_p != null) {
 					$aksi = '<button type="button" onclick="tampilEditSO('."'".$r->id_po_detail."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
 				}else{
@@ -5461,7 +5470,7 @@ class Transaksi extends CI_Controller
 			<thead>
 				<tr>
 					<th style="padding:12px 6px;width:3%;text-align:center">NO.</th>
-					<th style="padding:12px 6px;width:20%">KODE MC</th>
+					<th style="padding:12px 6px;width:20%">ETA PO</th>
 					<th style="padding:12px 6px;width:32%">ITEM</th>
 					<th style="padding:12px 6px;width:10%">UKURAN</th>
 					<th style="padding:12px 6px;width:10%">KUALITAS</th>
@@ -5503,7 +5512,7 @@ class Transaksi extends CI_Controller
 			
 			$html .='<tr style="'.$borLf.'">
 				<td style="padding:6px;text-align:center;'.$bold.'">'.$i.'</td>
-				<td style="padding:6px;'.$bold.'">'.$r->kode_mc.'</td>
+				<td style="padding:6px;'.$bold.'">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->eta)).'</td>
 				<td style="padding:6px;'.$bold.'">'.$ket_p.' '.$r->nm_produk.'</td>
 				<td style="padding:6px;'.$bold.'">'.$ukuran.'</td>
 				<td style="padding:6px;'.$bold.'">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
@@ -5572,7 +5581,7 @@ class Transaksi extends CI_Controller
 					if($aksi == 'detail'){
 						$btnHapus = '';
 					}else{
-						if($so->status == 'Close'){
+						if($so->status == 'Close' || $so->status_2 == 'Close'){
 							$btnHapus = '';
 						}else{
 							if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])){
@@ -5597,27 +5606,6 @@ class Transaksi extends CI_Controller
 
 					$link = base_url('Transaksi/laporanSO?id=').$so->id;
 					$print = '<a href="'.$link.'" target="_blank"><button type="button" class="btn btn-dark btn-sm"><i class="fas fa-print"></i></button></a>';
-					if($aksi == 'detail'){
-						$diss = 'disabled';
-						$rTxt = '1';
-						$btnAksi = $print;
-					}else{
-						if($so->status == 'Close'){
-							$btnAksi = $print;
-							$rTxt = 1;
-							$diss = 'disabled';
-						}else{
-							if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])){
-								($r->id == $id) ? $diss = '' : $diss = 'disabled';
-								($r->id == $id) ? $btnAksi = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi = $print;
-							}else{
-								$diss = 'disabled';
-								$btnAksi = $print;
-							}
-							($r->id == $id) ? $rTxt = 2 : $rTxt = 1;
-						}
-					}
-
 					($so->cek_rm_so == 0) ? $check = '' : $check = 'checked';
 					($so->cek_st_2 == 0) ? $check2 = '' : $check2 = 'checked';
 					$bahan_baku = ceil($so->ton / 0.7);
@@ -5629,6 +5617,8 @@ class Transaksi extends CI_Controller
 							$dis2 = 'disabled';
 							$rTxt2 = '1';
 							$btnAksi2 = $print;
+							$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
+							$btnHaksi = '';
 						}else{
 							if($so->status_2 == 'Close'){
 								$btnAksi2 = $print;
@@ -5723,7 +5713,7 @@ class Transaksi extends CI_Controller
 								<td colspan="5" style="background:#fff"></td>
 								<td style="background:#fff;padding:6px;font-weight:bold;text-align:right">'.number_format($sumHasil).'</td>
 								<td style="background:#fff;padding:6px;font-weight:bold;text-align:right">'.$xHasil.'</td>
-								<td colspan="7" style="background:#fff;padding:6px"></td>
+								<td colspan="6" style="background:#fff;padding:6px"></td>
 							</tr>';
 						}
 
@@ -5784,7 +5774,6 @@ class Transaksi extends CI_Controller
 				if($dataSO->num_rows() > 1){
 					if($this->session->userdata('level') == 'PPIC'){
 						$sumPPIC = '<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
-						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>';
 					}else{
@@ -6155,6 +6144,12 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function btnPatokanRoll()
+	{
+		$result = $this->m_transaksi->btnPatokanRoll();
+		echo json_encode($result);
+	}
+
 	function laporanSO(){
 		$id = $_GET["id"];
 		$data = $this->db->query("SELECT c.nm_pelanggan,c.top,c.fax,c.no_telp,c.alamat,s.nm_sales,o.eta,p.tgl_po,o.tgl_so,p.time_app1,p.time_app2,p.time_app3,b.id_hub,b.nm_hub,b.alamat AS alamat_hub,i.*,d.* FROM trs_so_detail d
@@ -6377,7 +6372,17 @@ class Transaksi extends CI_Controller
 			<table style="margin:12px 6px;padding:0;color:#000;text-align:center;vertical-align:middle;border-collapse:collapse" border="1">';
 
 			// DATA INTI DARI SEGALA INTI
-			($lNmKer != "") ? $wK = "AND nm_ker='$lNmKer'" : $wK = "AND nm_ker IN('BK', 'BL', 'MF', 'MH', 'MH COLOR', 'ML', 'MN', 'MS', 'TL')";
+			if($lNmKer == ''){
+				$wK = "AND nm_ker IN('BK', 'BL', 'MF', 'MH', 'MH COLOR', 'ML', 'MN', 'MS', 'TL')";
+			}else if($lNmKer == 'BKBLTL'){
+				$wK = "AND nm_ker IN('BK', 'BL', 'TL')";
+			}else if($lNmKer == 'MHMFMC'){
+				$wK = "AND nm_ker IN('MF', 'MH', 'MH COLOR')";
+			}else if($lNmKer == 'MLMNMS'){
+				$wK = "AND nm_ker IN('ML', 'MN', 'MS')";
+			}else{
+				$wK = "AND nm_ker='$lNmKer'";
+			}
             $getLabel = $this->db->query("SELECT nm_ker FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY nm_ker");
 
 			// GET SEMUA KOP JENIS
@@ -6390,7 +6395,8 @@ class Transaksi extends CI_Controller
 					$nrs = $getGsm->num_rows() * 2;
 					$html .='<td style="padding:5px;font-weight:bold" colspan="'.$nrs.'">'.$nmKer.'</td>';
 				}
-            $html .='</tr>';
+				$html .='<td style="padding:5px;font-weight:bold" rowspan="3">P</td>
+			</tr>';
 
 			// GET SEMUA KOP GRAMATURE
             $html .='<tr>';
@@ -6414,16 +6420,15 @@ class Transaksi extends CI_Controller
 			// TAMPIL SEMUA DATA UKURAN
             $getWidth = $this->db->query("SELECT width FROM m_roll
             WHERE status_p='Open' AND t_cor='$pilih' $wK
-            -- AND width BETWEEN '165' AND '170' # TESTING
             GROUP BY width");
             $i = 0;
             foreach($getWidth->result() as $width){
                 $i++;
-                $html .='<tr class="new-stok-gg"><td style="font-weight:bold">'.$i.'</td><td style="font-weight:bold">'.round($width->width,2).'</td>';
+                $html .='<tr class="new-stok-gg" style="position:relative"><td style="font-weight:bold">'.$i.'</td><td style="font-weight:bold;background:#fff;border:1px solid #808080;position:sticky;left:0">'.round($width->width,2).'</td>';
 
                 $getLabel = $this->db->query("SELECT nm_ker FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY nm_ker");
                 foreach($getLabel->result() as $lbl){
-                    $getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll
+                    $getGsm = $this->db->query("SELECT*FROM m_roll
                     WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker'
                     GROUP BY nm_ker,g_label");
                     foreach($getGsm->result() as $gsm){
@@ -6433,12 +6438,23 @@ class Transaksi extends CI_Controller
 							$a120 = "g_label='$gsm->g_label'";
 						}
 
+						// CEK PTK
+						$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$pilih' AND width='$width->width'");
+						if($qP->num_rows() == 0){
+							$uPTK = "";
+							$sPTK = "";
+						}else{
+							$ptk = $qP->row()->ptk;
+							$uPTK = "AND (weight - seset) > '$ptk'";
+							$sPTK = "AND (weight - seset) <= '$ptk'";
+						}
                         $getWidth = $this->db->query("SELECT nm_ker,g_label,width,COUNT(width) as jml FROM m_roll
-                        WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND $a120 AND width='$width->width'
+                        WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND $a120 AND width='$width->width' $uPTK
                         GROUP BY nm_ker,width");
-                        if($gsm->nm_ker == 'MH' || $gsm->nm_ker == 'MF' || $gsm->nm_ker == 'ML'){
+						// UTUH
+                        if($gsm->nm_ker == 'MH' || $gsm->nm_ker == 'MF'){
                             $gbGsm = '#ffc';
-                        }else if($gsm->nm_ker == 'MN' || $gsm->nm_ker == 'MS'){
+                        }else if($gsm->nm_ker == 'MN' || $gsm->nm_ker == 'MS' || $gsm->nm_ker == 'ML'){
                             $gbGsm = '#fcc';
                         }else if($gsm->nm_ker == 'BK' || $gsm->nm_ker == 'BL' || $gsm->nm_ker == 'TL'){
                             $gbGsm = '#ccc';
@@ -6448,22 +6464,43 @@ class Transaksi extends CI_Controller
                             $gbGsm = '#fff';
                         }
                         if($getWidth->num_rows() == 0){
-                            $html .='<td style="padding:5px;background:'.$gbGsm.'">
-                                <button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="">0</button>
-                            </td>
-							<td style="padding:5px;background:'.$gbGsm.'">
-                                <button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="">S</button>
-                            </td>';
+                            $html .='<td style="padding:5px;font-weight:bold;background:'.$gbGsm.'">-</td>';
                         }else{
                             $html .='<td style="padding:5px">
-                                <button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="">'.$getWidth->row()->jml.'</button>
-                            </td>
-							<td style="padding:5px">
-                                <button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="">S</button>
+                                <button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="btnListRoll('."'".$gsm->t_cor."'".', '."'".$gsm->nm_ker."'".', '."'".$gsm->g_label."'".', '."'".round($width->width,2)."'".', '."'UTUH'".')">'.$getWidth->row()->jml.'</button>
                             </td>';
+                        }
+
+						// SISA
+						$getWSisa = $this->db->query("SELECT nm_ker,g_label,width,COUNT(width) as jml FROM m_roll
+                        WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND $a120 AND width='$width->width' $sPTK
+                        GROUP BY nm_ker,width");
+						if($gsm->nm_ker == 'MH' || $gsm->nm_ker == 'MF'){
+                            $gbGsmS = '#ff0';
+                        }else if($gsm->nm_ker == 'MN' || $gsm->nm_ker == 'MS' || $gsm->nm_ker == 'ML'){
+                            $gbGsmS = '#faa';
+                        }else if($gsm->nm_ker == 'BK' || $gsm->nm_ker == 'BL' || $gsm->nm_ker == 'TL'){
+                            $gbGsmS = '#aaa';
+                        }else if($gsm->nm_ker == 'MH COLOR'){
+                            $gbGsmS = '#aaf';
+                        }else{
+                            $gbGsmS = '#fff';
+                        }
+						if($getWSisa->num_rows() == 0 || $qP->num_rows() == 0){
+                            $html .='<td style="padding:5px;font-weight:bold;background:'.$gbGsmS.'">-</td>';
+                        }else{
+							$html .='<td style="padding:5px">
+								<button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="btnListRoll('."'".$gsm->t_cor."'".', '."'".$gsm->nm_ker."'".', '."'".$gsm->g_label."'".', '."'".round($width->width,2)."'".', '."'SISA'".')">'.$getWSisa->row()->jml.'</button>
+							</td>';
                         }
                     }
                 }
+				// PATOKAN SISA
+				$qC = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$pilih' AND width='$width->width'");
+				($qC->num_rows() == 0 || ($qC->num_rows() != 0 && $qC->row()->ptk == 0)) ? $cc = '' : $cc = $qC->row()->ptk;
+				$html .= '<td style="padding:5px">
+					<input type="number" style="border:0;width:60px;text-align:right" id="ptk_'.$gsm->t_cor.round($width->width,2).'" onchange="btnPatokanRoll('."'".$gsm->t_cor."'".', '."'".round($width->width,2)."'".')" value="'.$cc.'">
+				</td>';
             }
             $html .='</tr>';
 		$html .= '</table>';
@@ -6472,7 +6509,106 @@ class Transaksi extends CI_Controller
 			'html' => $html,
 		]);
 	}
-		
+
+	function btnListRoll()
+	{
+		$t_cor = $_POST["t_cor"];
+		$nm_ker = $_POST["nm_ker"];
+		$g_label = $_POST["g_label"];
+		$width = $_POST["width"];
+		$opsi = $_POST["opsi"];
+		$html = '';
+
+		// CEK PTK
+		$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$t_cor' AND width='$width'");
+		if($qP->num_rows() == 0){
+			$uPTK = "";
+		}else{
+			$ptk = $qP->row()->ptk;
+			if($opsi == 'UTUH'){
+				$uPTK = "AND (weight - seset) > '$ptk'";
+			}else{
+				$uPTK = "AND (weight - seset) <= '$ptk'";
+			}
+		}
+
+		$qR = $this->db->query("SELECT*FROM m_roll WHERE status_p='Open' AND t_cor='$t_cor' AND nm_ker='$nm_ker' AND g_label='$g_label' AND width='$width' $uPTK ORDER BY nm_ker, g_label, width");
+
+		if($qR->num_rows() == 0){
+			$html .= '<div style="padding:6px;font-weight:bold">DATA KOSONG!</div>';
+		}else{
+			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 6px 6px">
+				<tr>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JENIS</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GSM</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">WIDTH</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BERAT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BW</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">RCT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BI</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
+				</tr>';
+				$i = 0;
+				foreach($qR->result() as $r){
+					$i++;
+					if($r->status_r == 0){
+						$pStt = 'STOK';
+					}else if($r->status_r == 2){
+						$pStt = 'PPI';
+					}else if($r->status == 22){
+						$pStt = 'FG';
+					}else if($r->status_r == 4){
+						$pStt = 'PPI SIZING';
+					}else if($r->status_r == 5){
+						$pStt = 'PPI CALENDER';
+					}else if($r->status_r == 6){
+						$pStt = 'PPI WARNA';
+					}else if($r->status_r == 7){
+						$pStt = 'PPI BAROKAH / NUSANTARA';
+					}else if($r->status_r == 3){
+						$pStt = 'BUFFER';
+					}else{
+						$pStt = '-';
+					}
+					if($r->t_cor == 'CA'){
+						$opt = '<option value="CA">ATAS</option><option value="CB">BAWAH</option>';
+					}
+					if($r->t_cor == 'CB'){
+						$opt = '<option value="CB">BAWAH</option><option value="CA">ATAS</option>';
+					}
+					$cAB = '<select id="corcab'.$r->id.'" style="background:none;border:0;">'.$opt.'</select>';
+					$aksi = '<button type="button" onclick="editRollCorr('."'".$r->id."'".', '."'LIST'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
+					$berat = $r->weight - $r->seset;
+					$html .= '<tr>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$cAB.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->nm_ker.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->g_label.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->width,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
+						<td style="padding:6px;text-align:center;border;border:1px solid #dee2e6">'.$pStt.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->g_ac,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->rct,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->bi,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$aksi.'</td>
+					</tr>';
+				}
+			$html .= '</table></div>';
+		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
 
 	function addCari()
 	{
@@ -6483,17 +6619,17 @@ class Transaksi extends CI_Controller
 
 		$db9 = $this->load->database('database_simroll', TRUE);
 		if($opsi == 'pm'){
-			$qR = $db9->query("SELECT*FROM m_timbangan WHERE tgl='$tgl_pm' AND nm_ker!='WP' AND (status='2' OR status='4' OR status='5' OR status='6' OR status='7') ORDER BY roll");
-			$qRc = $db9->query("SELECT nm_ker,g_label,width,COUNT(roll) AS jml_roll FROM m_timbangan WHERE tgl='$tgl_pm' AND nm_ker!='WP' AND (status='2' OR status='4' OR status='5' OR status='6' OR status='7') GROUP BY nm_ker,g_label,width");
+			$qR = $db9->query("SELECT*FROM m_timbangan WHERE tgl>='2025-06-17' AND tgl='$tgl_pm' AND nm_ker!='WP' AND (status='2' OR status='4' OR status='5' OR status='6' OR status='7') ORDER BY roll");
+			$qRc = $db9->query("SELECT nm_ker,g_label,width,COUNT(roll) AS jml_roll FROM m_timbangan WHERE tgl>='2025-06-17' AND tgl='$tgl_pm' AND nm_ker!='WP' AND (status='2' OR status='4' OR status='5' OR status='6' OR status='7') GROUP BY nm_ker,g_label,width");
 		}
 		if($opsi == 'gudang'){
 			$qR = $db9->query("SELECT t.*,p.tgl AS tgl_pl,p.no_surat,p.nama,p.nm_perusahaan FROM m_timbangan t
 			INNER JOIN pl p ON t.id_pl=p.id
-			WHERE p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			WHERE p.tgl>='2025-06-17' AND p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
 			ORDER BY t.nm_ker,t.g_label,t.width,t.pm,t.roll");
 			$qRc = $db9->query("SELECT t.nm_ker,t.g_label,t.width,COUNT(t.roll) AS jml_roll FROM m_timbangan t
 			INNER JOIN pl p ON t.id_pl=p.id
-			WHERE p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			WHERE p.tgl>='2025-06-17' AND p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
 			GROUP BY t.nm_ker,t.g_label,t.width");
 		}
 
@@ -6590,7 +6726,7 @@ class Transaksi extends CI_Controller
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
 						<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
-						<td style="padding:6px;border:1px solid #dee2e6">'.$pStt.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$pStt.'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->g_ac,2).'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->rct,2).'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->bi,2).'</td>
@@ -6601,10 +6737,7 @@ class Transaksi extends CI_Controller
 
 			$html .= '<div class="card-body row" style="padding:12px 6px;font-weight:bold">
 				<div class="col-md-1">INPUT</div>
-				<div class="col-md-3">
-					<input type="date" id="add_tgl_input" class="form-control">
-				</div>
-				<div class="col-md-8">
+				<div class="col-md-11">
 					<button type="button" class="btn btn-success" style="font-weight:bold" onclick="addRollCorr('."'".$opsi."'".')"><i class="fas fa-plus"></i> TAMBAH</button>
 				</div>
 			</div>';
