@@ -2592,22 +2592,31 @@ class Transaksi extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampilEditSO('."'".$r->id_po_detail."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'detail'".')">'.$i."<a></div>";
 				if ($this->session->userdata('level') == "PPIC") {
-					$tP = $this->db->query("SELECT*FROM trs_so_detail WHERE no_po='$r->no_po' AND kode_po='$r->kode_po' AND urut_so='$r->urut_so' AND add_user='ppic' ORDER BY eta_so");
+					$tP = $this->db->query("SELECT*FROM trs_so_detail WHERE no_po='$r->no_po' AND kode_po='$r->kode_po' AND id_produk='$r->id_produk' AND add_user='ppic' GROUP BY eta_so DESC,id");
 					$tt = '';
 					foreach($tP->result() as $z){
 						$tt .= $z->eta_so.'<br>';
 					}
-					$row[] = $tt;
+					$row[] = '<div class="text-center">'.$tt.'</div>';
 				}else{
 					$row[] = $this->m_fungsi->tglIndSkt($r->tgl_so);
 				}
 				// $row[] = $r->kode_mc;
 				$urut_so = str_pad($r->urut_so, 2, "0", STR_PAD_LEFT);
-				$row[] = $r->kode_po.'.'.$urut_so.'('.$r->c_rpt.')';
+				$row[] = $r->kode_po.'.'.$urut_so.' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->c_rpt.'</span>';
 				$row[] = $r->nm_produk;
 				($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
 				$row[] = $r->nm_pelanggan.$attn;
-				// $row[] = $r->no_so;
+				if($this->session->userdata('level') == "PPIC") {
+					$tt = '';
+					foreach($tP->result() as $z){
+						$qG = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$z->id'");
+						($qG->num_rows() == 0) ? $gg = '' : $gg = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.number_format($qG->row()->hasil_qty).'</span>';
+						($z->status_2 == "Close") ? $s2 = ' <span class="bg-primary" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px"><i class="fas fa-check"></i></span>' : $s2 = '';
+						$tt .= number_format($z->qty_so).$gg.$s2.'<br>';
+					}
+					$row[] = '<div class="text-right">'.$tt.'</div>';
+				}
 				if ($r->status_so == 'Open' || $r->no_so_p != null) {
 					$aksi = '<button type="button" onclick="tampilEditSO('."'".$r->id_po_detail."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
 				}else{
@@ -5461,7 +5470,7 @@ class Transaksi extends CI_Controller
 			<thead>
 				<tr>
 					<th style="padding:12px 6px;width:3%;text-align:center">NO.</th>
-					<th style="padding:12px 6px;width:20%">KODE MC</th>
+					<th style="padding:12px 6px;width:20%">ETA PO</th>
 					<th style="padding:12px 6px;width:32%">ITEM</th>
 					<th style="padding:12px 6px;width:10%">UKURAN</th>
 					<th style="padding:12px 6px;width:10%">KUALITAS</th>
@@ -5503,7 +5512,7 @@ class Transaksi extends CI_Controller
 			
 			$html .='<tr style="'.$borLf.'">
 				<td style="padding:6px;text-align:center;'.$bold.'">'.$i.'</td>
-				<td style="padding:6px;'.$bold.'">'.$r->kode_mc.'</td>
+				<td style="padding:6px;'.$bold.'">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->eta)).'</td>
 				<td style="padding:6px;'.$bold.'">'.$ket_p.' '.$r->nm_produk.'</td>
 				<td style="padding:6px;'.$bold.'">'.$ukuran.'</td>
 				<td style="padding:6px;'.$bold.'">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
@@ -5572,7 +5581,7 @@ class Transaksi extends CI_Controller
 					if($aksi == 'detail'){
 						$btnHapus = '';
 					}else{
-						if($so->status == 'Close'){
+						if($so->status == 'Close' || $so->status_2 == 'Close'){
 							$btnHapus = '';
 						}else{
 							if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])){
@@ -5597,27 +5606,6 @@ class Transaksi extends CI_Controller
 
 					$link = base_url('Transaksi/laporanSO?id=').$so->id;
 					$print = '<a href="'.$link.'" target="_blank"><button type="button" class="btn btn-dark btn-sm"><i class="fas fa-print"></i></button></a>';
-					if($aksi == 'detail'){
-						$diss = 'disabled';
-						$rTxt = '1';
-						$btnAksi = $print;
-					}else{
-						if($so->status == 'Close'){
-							$btnAksi = $print;
-							$rTxt = 1;
-							$diss = 'disabled';
-						}else{
-							if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])){
-								($r->id == $id) ? $diss = '' : $diss = 'disabled';
-								($r->id == $id) ? $btnAksi = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi = $print;
-							}else{
-								$diss = 'disabled';
-								$btnAksi = $print;
-							}
-							($r->id == $id) ? $rTxt = 2 : $rTxt = 1;
-						}
-					}
-
 					($so->cek_rm_so == 0) ? $check = '' : $check = 'checked';
 					($so->cek_st_2 == 0) ? $check2 = '' : $check2 = 'checked';
 					$bahan_baku = ceil($so->ton / 0.7);
@@ -5629,6 +5617,8 @@ class Transaksi extends CI_Controller
 							$dis2 = 'disabled';
 							$rTxt2 = '1';
 							$btnAksi2 = $print;
+							$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
+							$btnHaksi = '';
 						}else{
 							if($so->status_2 == 'Close'){
 								$btnAksi2 = $print;
@@ -5723,7 +5713,7 @@ class Transaksi extends CI_Controller
 								<td colspan="5" style="background:#fff"></td>
 								<td style="background:#fff;padding:6px;font-weight:bold;text-align:right">'.number_format($sumHasil).'</td>
 								<td style="background:#fff;padding:6px;font-weight:bold;text-align:right">'.$xHasil.'</td>
-								<td colspan="7" style="background:#fff;padding:6px"></td>
+								<td colspan="6" style="background:#fff;padding:6px"></td>
 							</tr>';
 						}
 
@@ -5784,7 +5774,6 @@ class Transaksi extends CI_Controller
 				if($dataSO->num_rows() > 1){
 					if($this->session->userdata('level') == 'PPIC'){
 						$sumPPIC = '<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
-						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>';
 					}else{

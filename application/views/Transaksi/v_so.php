@@ -75,16 +75,19 @@
 					<table id="datatable" class="table table-bordered table-striped" width="100%">
 						<thead class="color-tabel">
 							<tr>
-								<th>NO.</th>
+								<th style="width:5%">NO.</th>
 								<?php if($this->session->userdata('level') == 'PPIC') { ?>
-									<th>TGL. PLAN</th>
+									<th style="width:10%">TGL. PLAN</th>
 								<?php }else{ ?>
 									<th>TGL. SO</th>
 								<?php } ?>
 								<th>NO. PO</th>
 								<th>ITEM</th>
 								<th>CUSTOMER</th>
-								<th>AKSI</th>
+								<?php if($this->session->userdata('level') == 'PPIC') { ?>
+									<th style="width:10%">ORDER</th>
+								<?php } ?>
+								<th style="width:5%">AKSI</th>
 							</tr>
 						</thead>
 						<tbody></tbody>
@@ -395,10 +398,13 @@
 			"aLengthMenu": [
 				[5, 10, 15, 20, -1],
 				[5, 10, 15, 20, "Semua"] // change per page values here
-			],		
+			],
+			order: [
+				[1, 'asc'],
+			],
 			
 			responsive: false,
-			"pageLength": 10,
+			"pageLength": 20,
 			"language": {
 				"emptyTable": "Tidak ada data.."
 			}
