@@ -711,6 +711,7 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
+				cariGunaRoll()
 				bGunaRoll(roll)
 			}
 		})
@@ -724,6 +725,7 @@
 			data: ({ id, roll }),
 			success: function(json){
 				data = JSON.parse(json)
+				cariGunaRoll()
 				bGunaRoll(roll)
 			}
 		})
@@ -1399,6 +1401,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				tampilEditSO(h_id, no_po, kode_po, 'edit')
+				reloadTable()
 			}
 		})
 	}
@@ -1447,6 +1450,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				tampilEditSO(h_id, no_po, kode_po, 'edit')
+				reloadTable()
 			}
 		})
 	}

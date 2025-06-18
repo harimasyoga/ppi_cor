@@ -2592,7 +2592,7 @@ class Transaksi extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampilEditSO('."'".$r->id_po_detail."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'detail'".')">'.$i."<a></div>";
 				if ($this->session->userdata('level') == "PPIC") {
-					$tP = $this->db->query("SELECT*FROM trs_so_detail WHERE no_po='$r->no_po' AND kode_po='$r->kode_po' AND id_produk='$r->id_produk' AND add_user='ppic' GROUP BY eta_so DESC,id");
+					$tP = $this->db->query("SELECT*FROM trs_so_detail WHERE no_po='$r->no_po' AND kode_po='$r->kode_po' AND id_produk='$r->id_produk' AND add_user='ppic' GROUP BY eta_so,id");
 					$tt = '';
 					foreach($tP->result() as $z){
 						$tt .= $z->eta_so.'<br>';
@@ -6780,10 +6780,16 @@ class Transaksi extends CI_Controller
 					}else{
 						$aH = '-';
 					}
+					// CEK GUNA
+					$cG = $this->db->query("SELECT g.* FROM trs_so_detail s
+					INNER JOIN trs_so_roll r ON s.id=r.id_so_dtl
+					INNER JOIN trs_so_guna g ON r.id_roll=g.id_roll AND s.eta_so=g.tgl
+					WHERE s.eta_so='$tgl_guna' AND g.id_roll='$r->rollid'");
+					($cG->num_rows() == 0) ? $gg = '' : $gg = ' <span style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px"><i class="fas fa-check" style="color:#007bff"></i></span>';
 					$html .= '<tr class="thdhdz">
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
-						<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.$k.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.$k.$gg.'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">
 							'.$aH.'
 						</td>
