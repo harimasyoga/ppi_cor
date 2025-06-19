@@ -4524,6 +4524,12 @@ class Plan extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function sHtgRoll()
+	{
+		$result = $this->m_plan->sHtgRoll();
+		echo json_encode($result);
+	}
+
 	function addListRoll()
 	{
 		$result = $this->m_plan->addListRoll();
@@ -4602,7 +4608,14 @@ class Plan extends CI_Controller
 					$sCL = ($cCL->num_rows() == 0) ? '' : '<span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$cCL->row()->roll.'</span>';
 					// hasil
 					$qH = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$r->id' AND hasil_tgl='$r->eta_so'");
-					($qH->num_rows() == 0) ? $hasil = '-' : $hasil = number_format($qH->row()->hasil_qty);
+					($qH->num_rows() == 0) ? $hasil = '' : $hasil = number_format($qH->row()->hasil_qty, 0, ',', '.');
+					if($r->status_2 == 'Open'){
+						$bgH = 'background:none;';
+						$btnHasil = 'onkeyup="hitungHasil('."'".$r->id."'".')" onchange="sHtgRoll('."'".$r->id."'".')"';
+					}else{
+						$bgH = 'background:#ccc;font-weight:bold;';
+						$btnHasil = 'disabled';
+					}
 					$html .= '<tr class="thdhdz">
 						<td style="padding:6px;border:1px solid #dee2e6">'.strtoupper(substr($this->m_fungsi->getHariIni($r->eta_so),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->eta_so)).'</td>
 						<td style="padding:6px;border:1px solid #dee2e6">'.$r->kode_po.'</td>
@@ -4618,7 +4631,9 @@ class Plan extends CI_Controller
 							<input type="number" id="slbroll'.$r->id.'" style="background:none;text-align:center;border:0;padding:0;height:100%;width:80px" onchange="sLbrRoll('."'".$r->id."'".')" value="'.$lbr.'">
 						</td>
 						<td style="padding:6px;text-align:right;border:1px solid #dee2e6">'.number_format($r->qty_so).'</td>
-						<td style="padding:6px;text-align:right;border:1px solid #dee2e6">'.$hasil.'</td>
+						<td style="padding:6px;text-align:right;border:1px solid #dee2e6">
+							<input type="number" id="shtgroll'.$r->id.'" style="'.$bgH.'text-align:right;border:0;padding:0;height:100%;width:52px" placeholder="-" '.$btnHasil.' value="'.$hasil.'">
+						</td>
 					</tr>';
 				}
 			$html .= '</table></div>';

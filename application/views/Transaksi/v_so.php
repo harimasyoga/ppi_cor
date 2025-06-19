@@ -75,15 +75,16 @@
 					<table id="datatable" class="table table-bordered table-striped" width="100%">
 						<thead class="color-tabel">
 							<tr>
-								<th style="width:5%">NO.</th>
 								<?php if($this->session->userdata('level') == 'PPIC') { ?>
 									<th style="width:10%">TGL. PLAN</th>
 								<?php }else{ ?>
+									<th style="width:5%">NO.</th>
 									<th>TGL. SO</th>
 								<?php } ?>
 								<th>NO. PO</th>
 								<th>ITEM</th>
 								<th>CUSTOMER</th>
+								<th style="width:10%">QTY PO</th>
 								<?php if($this->session->userdata('level') == 'PPIC') { ?>
 									<th style="width:10%">ORDER</th>
 								<?php } ?>
@@ -400,7 +401,7 @@
 				[5, 10, 15, 20, "Semua"] // change per page values here
 			],
 			order: [
-				[1, 'asc'],
+				[0, 'asc'],
 			],
 			
 			responsive: false,
@@ -541,12 +542,23 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/btnListRoll')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				t_cor, nm_ker, g_label, width, opsi
 			}),
 			success: function(json){
 				data = JSON.parse(json)
 				$(".list-roll").html(data.html)
+				swal.close()
 			}
 		})
 	}

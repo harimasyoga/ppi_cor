@@ -1328,6 +1328,39 @@ class M_plan extends CI_Model
 		];
 	}
 
+	function sHtgRoll()
+	{
+		$id = $_POST["id"];
+		$tgl_plan = $_POST["tgl_plan"];
+		$htg_roll = $_POST["htg_roll"];
+
+		if($htg_roll < 0 || $htg_roll == 0 || $htg_roll == ''){
+			$data = false;
+			$msg = 'HASIL ROLL SALAH!';
+		}else{
+			$cek = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$id' AND hasil_tgl='$tgl_plan'");
+			if($cek->num_rows() != 0){
+				$this->db->set('hasil_qty', $htg_roll);
+				$this->db->where('id', $cek->row()->id);
+				$data = $this->db->update("trs_so_hasil");
+				$msg = 'BERHASIL UPDATE!';
+			}else{
+				$aR = array(
+					'id_so_dtl' => $id,
+					'hasil_tgl' => $tgl_plan,
+					'hasil_qty' => $htg_roll,
+				);
+				$data = $this->db->insert('trs_so_hasil', $aR);
+				$msg = 'BERHASIL INSERT!';
+			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function addListRoll()
 	{
 		$s_corr = $_POST["s_corr"];

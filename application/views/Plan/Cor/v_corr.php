@@ -209,6 +209,34 @@
 		})
 	}
 
+	function hitungHasil(id) {
+		let rp = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'})
+		let hasil = $("#shtgroll"+id).val().split('.').join('');
+		(hasil < 0 || hasil == 0 || hasil == '' || hasil == undefined || hasil.length >= 7) ? hasil = 0 : hasil = hasil;
+		$("#shtgroll"+id).val(rp.format(hasil));
+	}
+
+	function sHtgRoll(id) {
+		let tgl_plan = $("#p_tgl_plan").val()
+		let htg_roll = $("#shtgroll"+id).val().split('.').join('')
+		$.ajax({
+			url: '<?php echo base_url('Plan/sHtgRoll')?>',
+			type: "POST",
+			data: ({ id, tgl_plan, htg_roll }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				// if(data.data){
+				// 	toastr.success(`<b>${data.msg}</b>`)
+				// 	planCariCor()
+				// }else{
+				// 	toastr.error(`<b>${data.msg}</b>`)
+				// 	swal.close()
+				// }
+			}
+		})
+	}
+
 	function addRoll(l, kualitas, gsm, id) {
 		$(".input-roll").html('')
 		$(".list-roll").html('')
