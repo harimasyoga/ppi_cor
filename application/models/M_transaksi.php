@@ -1169,8 +1169,14 @@ class M_transaksi extends CI_Model
 		$id = $_POST["id"];
 		$cbhs = $_POST["cbhs"];
 
-		$this->db->set('cek_st_2', 1);
-		$this->db->set('status_2', 'Close');
+		$cek = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$id'")->row();
+		if($cek->cek_st_2 == 0){
+			$this->db->set('cek_st_2', 1);
+			$this->db->set('status_2', 'Close');
+		}else{
+			$this->db->set('cek_st_2', 0);
+			$this->db->set('status_2', 'Open');
+		}
 		$this->db->where('id', $id);
 		$data = $this->db->update('trs_so_detail');
 

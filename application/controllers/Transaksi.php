@@ -2573,40 +2573,43 @@ class Transaksi extends CI_Controller
 		} else if ($jenis == "trs_so_detail") {
 			$tahunn = $_POST["tahun"];
 			if ($this->session->userdata('level') == "PPIC") {
-				$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.no_so_p,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,s.* FROM trs_po_detail d
+				$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.no_so_p,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,d.qty AS qty_po,s.* FROM trs_po_detail d
 				INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so_p=s.no_so AND d.id_produk=s.id_produk
 				INNER JOIN m_produk p ON d.id_produk=p.id_produk
 				INNER JOIN m_pelanggan l ON d.id_pelanggan=l.id_pelanggan
 				WHERE d.no_so_p IS NOT NULL AND d.tgl_so_p LIKE '%$tahunn%' AND s.add_user='ppic'
 				GROUP BY d.id DESC")->result();
 			}else{
-				$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,s.* FROM trs_po_detail d
+				$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,d.qty AS qty_po,s.* FROM trs_po_detail d
 				INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so=s.no_so AND d.id_produk=s.id_produk
 				INNER JOIN m_produk p ON d.id_produk=p.id_produk
 				INNER JOIN m_pelanggan l ON d.id_pelanggan=l.id_pelanggan
 				WHERE d.no_so IS NOT NULL AND d.tgl_so IS NOT NULL AND d.status_so IS NOT NULL AND d.tgl_so LIKE '%$tahunn%'
 				GROUP BY d.id DESC")->result();
 			}
-			$i = 1;
+			$i = 0;
 			foreach ($query as $r) {
 				$row = array();
-				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampilEditSO('."'".$r->id_po_detail."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'detail'".')">'.$i."<a></div>";
 				if ($this->session->userdata('level') == "PPIC") {
-					$tP = $this->db->query("SELECT*FROM trs_so_detail WHERE no_po='$r->no_po' AND kode_po='$r->kode_po' AND id_produk='$r->id_produk' AND add_user='ppic' GROUP BY eta_so,id");
+					$tP = $this->db->query("SELECT*FROM trs_so_detail WHERE no_po='$r->no_po' AND kode_po='$r->kode_po' AND id_produk='$r->id_produk' AND add_user='ppic' GROUP BY status_2 DESC,eta_so,id");
 					$tt = '';
 					foreach($tP->result() as $z){
-						$tt .= $z->eta_so.'<br>';
+						($z->status_2 == "Close") ? $s2 = '<span class="bg-primary" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">DONE</span> ' : $s2 = '';
+						$tt .= $s2.$z->eta_so.'<br>';
 					}
 					$row[] = '<div class="text-center">'.$tt.'</div>';
 				}else{
+					$i++;
+					$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampilEditSO('."'".$r->id_po_detail."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'detail'".')">'.$i."<a></div>";
 					$row[] = $this->m_fungsi->tglIndSkt($r->tgl_so);
 				}
-				// $row[] = $r->kode_mc;
-				$urut_so = str_pad($r->urut_so, 2, "0", STR_PAD_LEFT);
-				$row[] = $r->kode_po.'.'.$urut_so.' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->c_rpt.'</span>';
+				// $urut_so = str_pad($r->urut_so, 2, "0", STR_PAD_LEFT);
+				($r->c_rpt == 1) ? $cpt = '' : $cpt = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->c_rpt.'</span>';
+				$row[] = $r->kode_po.$cpt;
 				$row[] = $r->nm_produk;
 				($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
 				$row[] = $r->nm_pelanggan.$attn;
+				$row[] = '<div class="text-right"><b>'.number_format($r->qty_po).'</b></div>';
 				if($this->session->userdata('level') == "PPIC") {
 					$tt = '';
 					foreach($tP->result() as $z){
@@ -2624,7 +2627,6 @@ class Transaksi extends CI_Controller
 				}
 				$row[] = '<div class="text-center">'.$aksi.'</div>';
 				$data[] = $row;
-				$i++;
 			}
 		} else if ($jenis == "trs_wo") {
 			$query = $this->m_master->query("SELECT a.id as id_wo,a.status AS statusWO,a.*,b.*,c.*,d.* FROM trs_wo a 
@@ -5534,9 +5536,9 @@ class Transaksi extends CI_Controller
 			
 			if($dataSO->num_rows() != 0){
 				if($this->session->userdata('level') == 'PPIC'){
-					$ketPPIC = '<th style="padding:6px 12px 6px 6px;'.$bHead.''.$bold.'">HASIL QTY</th>
-					<th style="padding:6px;'.$bHead.''.$bold.'">HASIL AKSI</th>
-					<th style="padding:6px;'.$bHead.''.$bold.'">DONE</th>';
+					$ketPPIC = '<th style="padding:6px 12px 6px 6px;text-align:center;'.$bHead.''.$bold.'">HASIL QTY</th>
+					<th style="padding:6px;text-align:center;'.$bHead.''.$bold.'">HASIL AKSI</th>
+					<th style="padding:6px;text-align:center;'.$bHead.''.$bold.'">DONE</th>';
 				}else{
 					$ketPPIC = '';
 				}
@@ -5548,7 +5550,7 @@ class Transaksi extends CI_Controller
 									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">NO.</th>
 									<th style="padding:6px;'.$bHead.''.$bold.'">TGL PLAN</th>
 									<th style="padding:6px;'.$bHead.''.$bold.'">NO. SO</th>
-									<th style="padding:6px 30px 6px 6px;'.$bHead.''.$bold.'">QTY SO</th>
+									<th style="padding:6px 30px 6px 6px;text-align:center;'.$bHead.''.$bold.'">QTY SO</th>
 									'.$ketPPIC.'
 									<th style="padding:6px;'.$bHead.''.$bold.'">KETERANGAN</th>
 									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">-</th>
@@ -5613,37 +5615,39 @@ class Transaksi extends CI_Controller
 					$urut_so = str_pad($so->urut_so, 2, "0", STR_PAD_LEFT);
 					$rpt = str_pad($so->rpt, 2, "0", STR_PAD_LEFT);
 					if($this->session->userdata('level') == 'PPIC' && $so->add_user == 'ppic'){
+						$qHasil = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$so->id' ORDER BY hasil_tgl");
+						$dis3 = '';
 						if($aksi == 'detail'){
 							$dis2 = 'disabled';
 							$rTxt2 = '1';
 							$btnAksi2 = $print;
 							$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
-							$btnHaksi = '';
 						}else{
 							if($so->status_2 == 'Close'){
 								$btnAksi2 = $print;
 								$rTxt2 = 1;
 								$dis2 = 'disabled';
-
 								$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
-								$btnHaksi = '';
 							}else{
-								($r->id == $id) ? $dis2 = '' : $dis2 = 'disabled';
+								if($qHasil->num_rows() != 0){
+									$dis2 = '';
+									$dis3 = 'disabled';
+								}else{
+									($r->id == $id) ? $dis2 = '' : $dis2 = 'disabled';
+								}
 								($r->id == $id) ? $btnAksi2 = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi2 = $print;
 								($r->id == $id) ? $rTxt2 = 2 : $rTxt2 = 1;
-
 								$cH = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$so->id' GROUP BY id_so_dtl");
 								if($cH->num_rows() != ''){
 									$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
 								}else{
 									$btnDone = '<button type="button" class="btn btn-primary btn-sm" onclick="btnSOHasil('."'".$so->id."'".')"><i class="fas fa-check"></i></button>';
 								}
-								$btnHaksi = 'onclick="cbOSHasil('."'".$so->id."'".')"';
 							}
 						}
 						$html .='<tr>
 							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'"><input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$dis2.'></td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'"><input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$dis2.$dis3.'></td>
 							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
 							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'"><input type="number" id="edit-qty-so'.$so->id.'" class="form-control" style="text-align:right" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.$so->qty_so.'" '.$dis2.'></td>
 							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
@@ -5651,7 +5655,7 @@ class Transaksi extends CI_Controller
 							</td>
 							<td style="background:#f2f2f2;padding:6px;text-align:center;'.$bTd.''.$bold.'">'.$btnDone.'</td>
 							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
-								<input type="checkbox" id="cbhs-'.$so->id.'" style="height:25px;width:100%" '.$btnHaksi.' value="'.$so->cek_st_2.'" '.$check2.' '.$dis2.'>
+								<input type="checkbox" id="cbhs-'.$so->id.'" style="height:25px;width:100%" onclick="cbOSHasil('."'".$so->id."'".')" value="'.$so->cek_st_2.'" '.$check2.'>
 							</td>
 							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'"><textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt2.'" style="resize:none">'.$so->ket_so.'</textarea></td>
 							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
@@ -5670,9 +5674,7 @@ class Transaksi extends CI_Controller
 						</tr>';
 
 						// HTML HASIL
-						$qHasil = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$so->id' ORDER BY hasil_tgl");
 						if($qHasil->num_rows() != 0){
-							$sumHasil = 0;
 							foreach($qHasil->result() as $h){
 								if($qHasil->num_rows() == 1){
 									$kurHass = $h->hasil_qty - $so->qty_so;
@@ -5703,18 +5705,7 @@ class Transaksi extends CI_Controller
 									<td style="background:#fff;padding:6px;text-align:right'.$hfb.'">'.number_format($h->hasil_qty).'</td>
 									'.$sHx.'
 								</tr>';
-								$sumHasil += $h->hasil_qty;
 							}
-						}
-						// TOTAL HASIL
-						if($qHasil->num_rows() > 1){
-							$xHasil = $sumHasil - $so->qty_so;
-							$html .= '<tr>
-								<td colspan="5" style="background:#fff"></td>
-								<td style="background:#fff;padding:6px;font-weight:bold;text-align:right">'.number_format($sumHasil).'</td>
-								<td style="background:#fff;padding:6px;font-weight:bold;text-align:right">'.$xHasil.'</td>
-								<td colspan="6" style="background:#fff;padding:6px"></td>
-							</tr>';
 						}
 
 						$sumQty += $so->qty_so;
@@ -6561,7 +6552,7 @@ class Transaksi extends CI_Controller
 						$pStt = 'STOK';
 					}else if($r->status_r == 2){
 						$pStt = 'PPI';
-					}else if($r->status == 22){
+					}else if($r->status_r == 22){
 						$pStt = 'FG';
 					}else if($r->status_r == 4){
 						$pStt = 'PPI SIZING';
@@ -6762,40 +6753,42 @@ class Transaksi extends CI_Controller
 		if($zV->num_rows() == 0){
 			$html .= '<div style="padding:6px;font-weight:bold">DATA KOSONG!</div>';
 		}else{
-			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 6px 6px">
-				<tr>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
-				</tr>';
-				$i = 0;
-				foreach($zV->result() as $r){
-					$i++;
-					($r->jml_roll == 1) ? $k = '' : $k = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->jml_roll.'</span>';
-					// CEK HASIL
-					$cH = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$r->id_so_dtl' GROUP BY id_so_dtl");
-					if($cH->num_rows() != 0){
-						$aH = '<button type="button" onclick="bGunaRoll('."'".$r->rollid."'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
-					}else{
-						$aH = '-';
-					}
-					// CEK GUNA
-					$cG = $this->db->query("SELECT g.* FROM trs_so_detail s
-					INNER JOIN trs_so_roll r ON s.id=r.id_so_dtl
-					INNER JOIN trs_so_guna g ON r.id_roll=g.id_roll AND s.eta_so=g.tgl
-					WHERE s.eta_so='$tgl_guna' AND g.id_roll='$r->rollid'");
-					($cG->num_rows() == 0) ? $gg = '' : $gg = ' <span style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px"><i class="fas fa-check" style="color:#007bff"></i></span>';
-					$html .= '<tr class="thdhdz">
-						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
-						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
-						<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.$k.$gg.'</td>
-						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">
-							'.$aH.'
-						</td>
+			$html .= '<div style="overflow:auto;white-space:nowrap">
+				<table style="margin:0 6px 6px">
+					<tr>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
 					</tr>';
-				}
-			$html .= '</table></div>';
+					$i = 0;
+					foreach($zV->result() as $r){
+						$i++;
+						($r->jml_roll == 1) ? $k = '' : $k = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->jml_roll.'</span>';
+						// CEK HASIL
+						$cH = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$r->id_so_dtl' GROUP BY id_so_dtl");
+						if($cH->num_rows() != 0){
+							$aH = '<button type="button" onclick="bGunaRoll('."'".$r->rollid."'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
+						}else{
+							$aH = '-';
+						}
+						// CEK GUNA
+						$cG = $this->db->query("SELECT g.* FROM trs_so_detail s
+						INNER JOIN trs_so_roll r ON s.id=r.id_so_dtl
+						INNER JOIN trs_so_guna g ON r.id_roll=g.id_roll AND s.eta_so=g.tgl
+						WHERE s.eta_so='$tgl_guna' AND g.id_roll='$r->rollid'");
+						($cG->num_rows() == 0) ? $gg = '' : $gg = ' <span style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px"><i class="fas fa-check" style="color:#007bff"></i></span>';
+						$html .= '<tr class="thdhdz">
+							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
+							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
+							<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.$k.$gg.'</td>
+							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">
+								'.$aH.'
+							</td>
+						</tr>';
+					}
+				$html .= '</table>
+			</div>';
 		}
 
 		echo json_encode([
@@ -6808,6 +6801,38 @@ class Transaksi extends CI_Controller
 		$tgl_guna = $_POST["tgl_guna"];
 		$roll = $_POST["roll"];
 		$html = '';
+
+		$qS = $this->db->query("SELECT s.kode_po,c.nm_pelanggan,c.attn,s.eta_so,r.*,i.* FROM trs_so_roll r
+		INNER JOIN m_roll l ON l.id=r.id_roll
+		INNER JOIN trs_so_detail s ON s.id=r.id_so_dtl
+		INNER JOIN m_pelanggan c ON s.id_pelanggan=c.id_pelanggan
+		INNER JOIN m_produk i ON s.id_produk=i.id_produk
+		WHERE r.id_roll='$roll'
+		ORDER BY s.eta_so");
+
+		if($qS->num_rows() == 0){
+			$html .= '<div style="padding:6px;font-weight:bold">DATA KOSONG!</div>';
+		}else{
+			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 6px 6px">
+				<tr>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">HARI, TGL</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">NO. PO</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CUSTOMER</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ITEM</td>
+				</tr>';
+				$i = 0;
+				foreach($qS->result() as $r){
+					$i++;
+					($r->kategori == 'K_BOX') ? $k = '[BOX] ' : $k = '[SHEET] ';
+					$html .= '<tr class="thdhdz">
+						<td style="padding:6px;border:1px solid #dee2e6">'.strtoupper(substr($this->m_fungsi->getHariIni($r->eta_so),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->eta_so)).'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->kode_po.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->nm_pelanggan.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$k.$r->nm_produk.'</td>
+					</tr>';
+				}
+			$html .= '</table></div>';
+		}
 
 		$qR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
 		$fixBerat = $qR->weight - $qR->seset;
@@ -6893,39 +6918,6 @@ class Transaksi extends CI_Controller
 					<button type="button" class="btn btn-primary btn-sm" style="font-weight:bold" onclick="btnGunaSisa()"><i class="fas fa-plus"></i> TAMBAH</button>
 				</div>
 			</div>';
-		}
-
-
-		$qS = $this->db->query("SELECT s.kode_po,c.nm_pelanggan,c.attn,s.eta_so,r.*,i.* FROM trs_so_roll r
-		INNER JOIN m_roll l ON l.id=r.id_roll
-		INNER JOIN trs_so_detail s ON s.id=r.id_so_dtl
-		INNER JOIN m_pelanggan c ON s.id_pelanggan=c.id_pelanggan
-		INNER JOIN m_produk i ON s.id_produk=i.id_produk
-		WHERE r.id_roll='$roll'
-		ORDER BY s.eta_so");
-
-		if($qS->num_rows() == 0){
-			$html .= '<div style="padding:6px;font-weight:bold">DATA KOSONG!</div>';
-		}else{
-			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 6px 6px">
-				<tr>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">HARI, TGL</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">NO. PO</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CUSTOMER</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ITEM</td>
-				</tr>';
-				$i = 0;
-				foreach($qS->result() as $r){
-					$i++;
-					($r->kategori == 'K_BOX') ? $k = '[BOX] ' : $k = '[SHEET] ';
-					$html .= '<tr class="thdhdz">
-						<td style="padding:6px;border:1px solid #dee2e6">'.strtoupper(substr($this->m_fungsi->getHariIni($r->eta_so),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->eta_so)).'</td>
-						<td style="padding:6px;border:1px solid #dee2e6">'.$r->kode_po.'</td>
-						<td style="padding:6px;border:1px solid #dee2e6">'.$r->nm_pelanggan.'</td>
-						<td style="padding:6px;border:1px solid #dee2e6">'.$k.$r->nm_produk.'</td>
-					</tr>';
-				}
-			$html .= '</table></div>';
 		}
 
 		echo json_encode([
