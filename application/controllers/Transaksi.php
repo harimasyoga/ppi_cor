@@ -6759,9 +6759,11 @@ class Transaksi extends CI_Controller
 						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
 						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
 						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GUNA</td>
 						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
 					</tr>';
 					$i = 0;
+					$gNa = 0;
 					foreach($zV->result() as $r){
 						$i++;
 						($r->jml_roll == 1) ? $k = '' : $k = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->jml_roll.'</span>';
@@ -6778,13 +6780,25 @@ class Transaksi extends CI_Controller
 						INNER JOIN trs_so_guna g ON r.id_roll=g.id_roll AND s.eta_so=g.tgl
 						WHERE s.eta_so='$tgl_guna' AND g.id_roll='$r->rollid'");
 						($cG->num_rows() == 0) ? $gg = '' : $gg = ' <span style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px"><i class="fas fa-check" style="color:#007bff"></i></span>';
+						($cG->num_rows() == 0) ? $ig = '-' : $ig = number_format($cG->row()->pemakaian);
 						$html .= '<tr class="thdhdz">
 							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
 							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
-							<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.$k.$gg.'</td>
-							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">
-								'.$aH.'
+							<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.$k.'</td>
+							<td style="padding:6px;text-align:right;border:1px solid #dee2e6">'.$ig.'</td>
+							<td style="padding:6px;border:1px solid #dee2e6">
+								'.$aH.$gg.'
 							</td>
+						</tr>';
+
+						$gNa += ($cG->num_rows() == 0) ? $ig = 0 : $ig = $cG->row()->pemakaian;
+					}
+					// TOTAL
+					if($zV->num_rows() > 1){
+						$html .= '<tr>
+							<td style="background:#f2f2f2;padding:5px;border:1px solid #dee2e6;font-weight:bold;text-align:center" colspan="3">TOTAL</td>
+							<td style="background:#f2f2f2;padding:5px;border:1px solid #dee2e6;font-weight:bold;text-align:right">'.number_format($gNa).'</td>
+							<td style="background:#f2f2f2;padding:5px;border:1px solid #dee2e6"></td>
 						</tr>';
 					}
 				$html .= '</table>
