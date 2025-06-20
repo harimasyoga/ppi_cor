@@ -663,12 +663,23 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/cariGunaRoll')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				tgl_guna
 			}),
 			success: function(json){
 				data = JSON.parse(json)
 				$(".guna-list").html(data.html)
+				swal.close()
 			}
 		})
 	}
@@ -679,12 +690,23 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/bGunaRoll')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				tgl_guna, roll
 			}),
 			success: function(json){
 				data = JSON.parse(json)
 				$(".guna-roll").html(data.html)
+				swal.close()
 			}
 		})
 	}
