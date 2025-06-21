@@ -2551,6 +2551,15 @@
 							</tbody>`;
 							no ++;
 						})
+						// discount
+						let cci = '';
+						(data.header.disc != 0) ? cci = data.header.disc : cci = '';
+						list += `<td style="text-align: center" colspan="10"></td>
+						<td style="text-align:center">DISCOUNT (%)</td>
+						<td style="text-align:center">
+							<input type="text" id="disc_input" name="disc_input" onkeyup="ubah_angka(this.value,this.id)" class="form-control" value="${cci}" autocomplete="off">
+						</td>
+						<td style="text-align:center"></td>`;
 						list += `</table>`;
 					}else{
 						var list = `
@@ -2582,6 +2591,8 @@
 							<tbody>
 								<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
 								
+									<input type="hidden" name="disc_input" id="disc_input" value="0">
+									<input type="hidden" name="disc_cek" id="disc_cek" value="0">
 									<input type="hidden" name="id_pl_roll[${no}]" id="id_pl_roll${no}" value="${val.id_pl}">
 									
 									<input type="hidden" name="id_inv_detail[${no}]" id="id_inv_detail${no}" value="${val.id}">
