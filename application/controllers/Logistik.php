@@ -8618,16 +8618,16 @@ class Logistik extends CI_Controller
 			if($data_detail->inc_exc=='Include'){
 				$terbilang = round($subTotal);
 			}else if($data_detail->inc_exc=='Exclude'){
-				$terbilang = round($totalHarga + (0.11 * $subTotal));
+				$terbilang = round($subTotal + (0.11 * $subTotal));
 			}else{
 				$terbilang = '';
 			}
 			$rowspan = 3 + $d;
 		}else if($ppnpph == 'ppn_pph'){ // PPH22
 			if($data_detail->inc_exc=='Include'){
-				$terbilang = round($totalHarga + (0.001 * $subTotal));
+				$terbilang = round($subTotal + (0.001 * $subTotal));
 			}else if($data_detail->inc_exc=='Exclude'){
-				$terbilang = round($totalHarga + (0.11 * $subTotal) + (0.001 * $subTotal));
+				$terbilang = round($subTotal + (0.11 * $subTotal) + (0.001 * $subTotal));
 			}else{
 				$terbilang = '';
 			}
@@ -8650,7 +8650,7 @@ class Logistik extends CI_Controller
 			$html .= '<tr>
 				<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Discount '.$data_detail->disc.'%</td>
 				<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
-				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($txtDisc).'</td>
+				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($txtDisc, 0, ",", ".").'</td>
 			</tr>';
 		}
 
