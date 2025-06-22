@@ -8606,50 +8606,57 @@ class Logistik extends CI_Controller
 		</tr>';
 
         // RUMUS
+		// JIKA ADA DISCOUNT
+		if($data_detail->disc != 0){
+			$d = 1;
+			$subTotal = $totalHarga - ($totalHarga * ($data_detail->disc/100));
+		}else{
+			$d = 0;
+			$subTotal = $totalHarga;
+		}
 		if($ppnpph == 'ppn'){ // PPN 10 %
-			if($data_detail->inc_exc=='Include')
-			{
-				$terbilang = round($totalHarga);
-			}else if($data_detail->inc_exc=='Exclude')
-			{
-				$terbilang = round($totalHarga + (0.11 * $totalHarga));
+			if($data_detail->inc_exc=='Include'){
+				$terbilang = round($subTotal);
+			}else if($data_detail->inc_exc=='Exclude'){
+				$terbilang = round($subTotal + (0.11 * $subTotal));
 			}else{
 				$terbilang = '';
 			}
-
-
-			$rowspan = 3;
+			$rowspan = 3 + $d;
 		}else if($ppnpph == 'ppn_pph'){ // PPH22
-
-			if($data_detail->inc_exc=='Include')
-			{
-				$terbilang = round($totalHarga + (0.001 * $totalHarga));
-			}else if($data_detail->inc_exc=='Exclude')
-			{
-				$terbilang = round($totalHarga + (0.11 * $totalHarga) + (0.001 * $totalHarga));
+			if($data_detail->inc_exc=='Include'){
+				$terbilang = round($subTotal + (0.001 * $subTotal));
+			}else if($data_detail->inc_exc=='Exclude'){
+				$terbilang = round($subTotal + (0.11 * $subTotal) + (0.001 * $subTotal));
 			}else{
 				$terbilang = '';
 			}
-			
-			$rowspan = 4;
+			$rowspan = 4 + $d;
 		}else{ // NON
-			$terbilang = $totalHarga;
-			$rowspan = 2;
+			$terbilang = $subTotal;
+			$rowspan = 2 + $d;
 		}
 
 		$html .= '<tr>
 			<td style="border-width:2px 0;border:1px solid;font-weight:bold;padding:5px 0;line-height:1.8;text-transform:uppercase" colspan="3" rowspan="'.$rowspan.'">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($terbilang).'</i></b></td>
-
 			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Sub Total</td>
-
 			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
-
 			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($totalHarga, 0, ",", ".").'</td>
 		</tr>';
 
+		// DISCOUNT
+		if($data_detail->disc != 0){
+			$txtDisc = $totalHarga * ($data_detail->disc/100);
+			$html .= '<tr>
+				<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Discount '.$data_detail->disc.'%</td>
+				<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($txtDisc, 0, ",", ".").'</td>
+			</tr>';
+		}
+
 		// PPN - PPH22
-		$ppn11 = 0.11 * $totalHarga;
-        $pph22 = 0.001 * $totalHarga;
+		$ppn11 = 0.11 * $subTotal;
+        $pph22 = 0.001 * $subTotal;
 		if($data_detail->pajak=='ppn')
 		{
 			if($data_detail->inc_exc=='Include')

@@ -222,17 +222,26 @@
 		$.ajax({
 			url: '<?php echo base_url('Plan/sHtgRoll')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ id, tgl_plan, htg_roll }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
-				// if(data.data){
-				// 	toastr.success(`<b>${data.msg}</b>`)
-				// 	planCariCor()
-				// }else{
-				// 	toastr.error(`<b>${data.msg}</b>`)
-				// 	swal.close()
-				// }
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					planCariCor()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
+				swal.close()
 			}
 		})
 	}

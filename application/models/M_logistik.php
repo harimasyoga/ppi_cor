@@ -2887,9 +2887,10 @@ class M_logistik extends CI_Model
 		$type           = $this->input->post('type_po2');
 		$pajak          = $this->input->post('pajak2');
 		$no_inv_old     = $this->input->post('no_inv_old');
+		$disc 			= $this->input->post('disc_input');
+		($disc == 0 || $disc == "") ? $discount = 0 : $discount = $this->input->post('disc_input');
 
 		$m_no_inv       = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
-
 		$data_header = array(
 			'no_invoice'         => $m_no_inv,
 			'type'               => $type,
@@ -2905,6 +2906,7 @@ class M_logistik extends CI_Model
 			'alamat_perusahaan'  => $this->input->post('alamat_perusahaan'),
 			'bank'  			 => $this->input->post('bank'),
 			'acc_owner' 		 => 'N',
+			'disc' 			     => $discount,
 			
 			// 'status'             => 'Open',
 		);
