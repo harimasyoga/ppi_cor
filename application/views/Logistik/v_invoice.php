@@ -806,6 +806,12 @@
 		}else if(ket=='mutasi' && (username=='karina' || username=='tegar'))
 		{
 			$('#upload_file').show();
+		}else if(ket=='sj_balik' && (username=='karina' || username=='tegar'))
+		{
+			$('#upload_file').show();
+		}else if(ket=='upload_inv' && (username=='karina' || username=='tegar'))
+		{
+			$('#upload_file').show();
 		}else if(username=='developer')
 		{
 			$('#upload_file').show();

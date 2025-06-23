@@ -35,6 +35,8 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 /assets/gambar_inv_faktur/
 /assets/gambar_inv_resi/
 /assets/gambar_inv_mutasi/
+/assets/gambar_inv_sj_balik/
+/assets/gambar_inv_upload_inv/
 db_penjualan.sql
 application/config/database.php
 .vscode

@@ -4618,6 +4618,74 @@ class Logistik extends CI_Controller
 		echo json_encode($data);
 	}
 
+	function get_foto_sj_balik()
+	{
+		$no       = $this->input->post('no');
+		$jenis    = $this->input->post('jenis');
+		$field    = $this->input->post('field');
+		$htmlDtl  = '';
+
+		$header   = $this->db->query("SELECT*FROM $jenis where $field ='$no' ")->row();
+		$e        = explode('.', $header->img_sj_balik);
+		$ext      = end($e);
+		
+		if($header->img_sj_balik==null || $header->img_sj_balik=='') {
+			$url_foto = base_url('assets/gambar_inv_sj_balik/foto.jpg');
+		}else{
+			$url_foto = base_url('assets/gambar_inv_sj_balik/') . $header->img_sj_balik;
+		}
+
+		if($ext == 'pdf' || $ext == 'PDF'){
+				// $htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$header->img_sj_balik.'" height="600" style="width:100%"></object>';
+				// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$header->img_sj_balik.'" width="600" height="400"></embed>';
+				$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_sj_balik/'.$header->img_sj_balik.'" height="600" style="width:100%"></iframe>';
+
+				
+			}else{
+				$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
+				<span class="help-block"></span>';
+			}
+
+		$data = ["header" => $header, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
+
+		
+		echo json_encode($data);
+	}
+	
+	function get_foto_upload_inv()
+	{
+		$no       = $this->input->post('no');
+		$jenis    = $this->input->post('jenis');
+		$field    = $this->input->post('field');
+		$htmlDtl  = '';
+
+		$header   = $this->db->query("SELECT*FROM $jenis where $field ='$no' ")->row();
+		$e        = explode('.', $header->img_upload_inv);
+		$ext      = end($e);
+		
+		if($header->img_upload_inv==null || $header->img_upload_inv=='') {
+			$url_foto = base_url('assets/gambar_inv_upload_inv/foto.jpg');
+		}else{
+			$url_foto = base_url('assets/gambar_inv_upload_inv/') . $header->img_upload_inv;
+		}
+
+		if($ext == 'pdf' || $ext == 'PDF'){
+				// $htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$header->img_upload_inv.'" height="600" style="width:100%"></object>';
+				// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$header->img_upload_inv.'" width="600" height="400"></embed>';
+				$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_upload_inv/'.$header->img_upload_inv.'" height="600" style="width:100%"></iframe>';
+
+				
+			}else{
+				$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
+				<span class="help-block"></span>';
+			}
+
+		$data = ["header" => $header, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
+
+		
+		echo json_encode($data);
+	}
+
 	function save_bc()
 	{
 		$params   = (object)$this->input->post();
@@ -4841,6 +4909,118 @@ class Logistik extends CI_Controller
 		echo json_encode($filefoto);
 
 	}
+	
+	function save_sj_balik()
+	{
+		$params   = (object)$this->input->post();
+
+		$cek_data = $this->db->query("SELECT*FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
+
+		if($cek_data->img_sj_balik == '' || $cek_data->img_sj_balik == null )
+		{
+		}else{
+			// Hapus File Foto
+			unlink("assets/gambar_inv_sj_balik/".$cek_data->img_sj_balik);
+
+		}
+
+		/* LOGO */
+		//$nmfile = "file_".time(); //nama file saya beri nama langsung dan diikuti fungsi time
+		$config['upload_path']   = './assets/gambar_inv_sj_balik/'; //path folder
+		$config['allowed_types'] = 'jpg|png|jpeg|pdf'; //type yang dapat diakses bisa anda sesuaikan
+		// $config['max_size']      = 1024; //maksimum besar file 2M
+		// $config['max_width']     = 'none'; //lebar maksimum 1288 px
+		// $config['max_height']    = 'none'; //tinggi maksimu 768 px
+		//$config['file_name'] = $nmfile; //nama yang terupload nantinya
+
+		$this->load->library('upload',$config);
+		$this->upload->initialize($config);
+
+		if($_FILES['filefoto']['name'])
+		{
+			if ($this->upload->do_upload('filefoto'))
+			{
+				$gbrBukti = $this->upload->data();
+				$filefoto = $gbrBukti['file_name'];
+				// $filefoto    = $_FILES['filefoto']['name'];
+				
+				// update data
+				$this->db->set('img_sj_balik', $filefoto);
+				$this->db->set('inp_sj_balik', date('Y-m-d H:i:s'));
+				$this->db->where('no_invoice', $params->no_inv_foto);
+				$data = $this->db->update('invoice_header');
+
+
+			}else{
+				$filefoto = 'foto.jpg';
+			}
+		} else {
+			$error = array('error' => $this->upload->display_errors());
+			var_dump($error);
+			exit;
+		}
+
+
+		/*END LOGO */
+		echo json_encode($filefoto);
+
+	}
+	
+	function save_upload_inv()
+	{
+		$params   = (object)$this->input->post();
+
+		$cek_data = $this->db->query("SELECT*FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
+
+		if($cek_data->img_upload_inv == '' || $cek_data->img_upload_inv == null )
+		{
+		}else{
+			// Hapus File Foto
+			unlink("assets/gambar_inv_upload_inv/".$cek_data->img_upload_inv);
+
+		}
+
+		/* LOGO */
+		//$nmfile = "file_".time(); //nama file saya beri nama langsung dan diikuti fungsi time
+		$config['upload_path']   = './assets/gambar_inv_upload_inv/'; //path folder
+		$config['allowed_types'] = 'jpg|png|jpeg|pdf'; //type yang dapat diakses bisa anda sesuaikan
+		// $config['max_size']      = 1024; //maksimum besar file 2M
+		// $config['max_width']     = 'none'; //lebar maksimum 1288 px
+		// $config['max_height']    = 'none'; //tinggi maksimu 768 px
+		//$config['file_name'] = $nmfile; //nama yang terupload nantinya
+
+		$this->load->library('upload',$config);
+		$this->upload->initialize($config);
+
+		if($_FILES['filefoto']['name'])
+		{
+			if ($this->upload->do_upload('filefoto'))
+			{
+				$gbrBukti = $this->upload->data();
+				$filefoto = $gbrBukti['file_name'];
+				// $filefoto    = $_FILES['filefoto']['name'];
+				
+				// update data
+				$this->db->set('img_upload_inv', $filefoto);
+				$this->db->set('inp_upload_inv', date('Y-m-d H:i:s'));
+				$this->db->where('no_invoice', $params->no_inv_foto);
+				$data = $this->db->update('invoice_header');
+
+
+			}else{
+				$filefoto = 'foto.jpg';
+			}
+		} else {
+			$error = array('error' => $this->upload->display_errors());
+			var_dump($error);
+			exit;
+		}
+
+
+		/*END LOGO */
+		echo json_encode($filefoto);
+
+	}
 
 
 
@@ -4979,15 +5159,17 @@ class Logistik extends CI_Controller
                     $i2     = '<i class="fas fa-check-circle"></i>';
                 }
 
-				$total              = $queryd->jumlah + $nominal;
-				$usnm               = $this->session->userdata('username');
-				$id                 = "'$r->id'";
-				$no_inv             = "'$r->no_invoice'";
-				$print              = base_url("laporan/print_invoice_v2?no_invoice=") . $r->no_invoice;
-				$urll_foto_bc       = "onclick=open_foto('$r->no_invoice','bc','$usnm')";
-				$urll_foto_faktur   = "onclick=open_foto('$r->no_invoice','faktur','$usnm')";
-				$urll_foto_resi     = "onclick=open_foto('$r->no_invoice','resi','$usnm')";
-				$urll_foto_mutasi   = "onclick=open_foto('$r->no_invoice','mutasi','$usnm')";
+				$total                  = $queryd->jumlah + $nominal;
+				$usnm                   = $this->session->userdata('username');
+				$id                     = "'$r->id'";
+				$no_inv                 = "'$r->no_invoice'";
+				$print                  = base_url("laporan/print_invoice_v2?no_invoice=") . $r->no_invoice;
+				$urll_foto_bc           = "onclick=open_foto('$r->no_invoice','bc','$usnm')";
+				$urll_foto_faktur       = "onclick=open_foto('$r->no_invoice','faktur','$usnm')";
+				$urll_foto_resi         = "onclick=open_foto('$r->no_invoice','resi','$usnm')";
+				$urll_foto_mutasi       = "onclick=open_foto('$r->no_invoice','mutasi','$usnm')";
+				$urll_foto_sj_balik     = "onclick=open_foto('$r->no_invoice','sj_balik','$usnm')";
+				$urll_foto_upload_inv   = "onclick=open_foto('$r->no_invoice','upload_inv','$usnm')";
 
 				if($r->img_bc=='')
 				{
@@ -5015,6 +5197,20 @@ class Logistik extends CI_Controller
 					$cek_mutasi = '-';
 				}else{
 					$cek_mutasi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_mutasi,0,10).' - '.substr($r->inp_mutasi,11,8).'';
+				}
+				
+				if($r->img_sj_balik=='')
+				{
+					$cek_sj_balik = '-';
+				}else{
+					$cek_sj_balik = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_sj_balik,0,10).' - '.substr($r->inp_sj_balik,11,8).'';
+				}
+				
+				if($r->img_upload_inv=='')
+				{
+					$cek_upload_inv = '-';
+				}else{
+					$cek_upload_inv = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_upload_inv,0,10).' - '.substr($r->inp_upload_inv,11,8).'';
 				}
 
 				$row = array();
@@ -5088,6 +5284,28 @@ class Logistik extends CI_Controller
 						<div class="col-md-12">
 							<a type="button" '.$urll_foto_mutasi.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="MUTASI"></i> </b></span></a>
 							'.$cek_mutasi.'
+							<br>
+						</div></td>
+					</tr>
+					
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>SJ BALIK </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">
+						<div class="col-md-12">
+							<a type="button" '.$urll_foto_sj_balik.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="SJ BALIK"></i> </b></span></a>
+							'.$cek_sj_balik.'
+							<br>
+						</div></td>
+					</tr>
+					
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>UPLOAD INV </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">
+						<div class="col-md-12">
+							<a type="button" '.$urll_foto_upload_inv.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="UPLOAD INV"></i> </b></span></a>
+							'.$cek_upload_inv.'
 							<br>
 						</div></td>
 					</tr>
