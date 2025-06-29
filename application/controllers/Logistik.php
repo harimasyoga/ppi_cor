@@ -5052,10 +5052,10 @@ class Logistik extends CI_Controller
 				$cek_bulan = "and month(tgl_invoice) in ('$blnn') ";
 			}
 			
-			$query   = $this->db->query("SELECT * FROM invoice_header
+			$query   = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS sisa_hari_mutasi FROM invoice_header
 			-- where type in ('box','sheet') 
 			where YEAR(tgl_invoice) in ('$thnn') $cek_bulan
-			ORDER BY tgl_invoice desc,no_invoice")->result();
+			ORDER BY tgl_invoice desc,no_invoice limit 5")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -5159,6 +5159,25 @@ class Logistik extends CI_Controller
                     $i2     = '<i class="fas fa-check-circle"></i>';
                 }
 
+				// timer
+				// $dateFormat           = "Y-m-d H:i:s";
+				$expired              = strtotime($r->add_time) + (168*60*60) ;
+				$actualDate           = time();
+				$secondsDiff          = $expired - $actualDate;
+				$days                 = floor($secondsDiff/60/60/24);
+				$hours                = floor(($secondsDiff-($days*60*60*24))/60/60);
+				$minutes              = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))/60);
+				$seconds              = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))-($minutes*60));
+				// $actualDateDisplay    = date($dateFormat, $actualDate);
+				$expiredDisplay       = date("F d, Y H:i:s", $expired);
+
+				($days == 0) ? $tDays = '' : $tDays = $days.' Day | ';
+				($hours == 0) ? $tHours = '' : $tHours = $hours.' Hrs | ';
+				($minutes == 0) ? $tMinutes = '' : $tMinutes = $minutes.' Mnt ';
+				($seconds == 0) ? $tseconds = '' : $tseconds = $seconds.' Sec';
+				($days == 0 && $hours == 0 && $minutes == 0) ? $waktu = $tseconds : $waktu = $tDays.$tHours.$tMinutes;
+				
+
 				$total                  = $queryd->jumlah + $nominal;
 				$usnm                   = $this->session->userdata('username');
 				$id                     = "'$r->id'";
@@ -5170,51 +5189,110 @@ class Logistik extends CI_Controller
 				$urll_foto_mutasi       = "onclick=open_foto('$r->no_invoice','mutasi','$usnm')";
 				$urll_foto_sj_balik     = "onclick=open_foto('$r->no_invoice','sj_balik','$usnm')";
 				$urll_foto_upload_inv   = "onclick=open_foto('$r->no_invoice','upload_inv','$usnm')";
-
+					
 				if($r->img_bc=='')
 				{
-					$cek_bc = '-';
+					if($actualDate > $expired || $actualDate == $expired){
+						$cek_bc = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
+					}else{
+						$cek_bc = '
+							<a type="button" '.$urll_foto_bc.'>
+								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="BC"></i> </b></span>
+							</a> 
+							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
+					}
 				}else{
 					$cek_bc = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_bc,0,10).' - '.substr($r->inp_bc,11,8).'';
 				}
 				
 				if($r->img_faktur=='')
 				{
-					$cek_faktur = '-';
+					if($actualDate > $expired || $actualDate == $expired){
+						$cek_faktur = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
+					}else{
+						$cek_faktur = '
+						<a type="button" '.$urll_foto_faktur.'>
+								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FAKTUR"></i> </b></span>
+							</a> 
+							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
+					}
+
 				}else{
 					$cek_faktur = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_faktur,0,10).' - '.substr($r->inp_faktur,11,8).'';
 				}
 
 				if($r->img_resi=='')
 				{
-					$cek_resi = '-';
+					if($actualDate > $expired || $actualDate == $expired){
+						$cek_resi = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
+					}else{
+						$cek_resi = '
+							<a type="button" '.$urll_foto_resi.'>
+								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="RESI"></i> </b></span>
+							</a> 
+							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
+					}
+
 				}else{
 					$cek_resi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_resi,0,10).' - '.substr($r->inp_resi,11,8).'';
 				}
 
 				if($r->img_mutasi=='')
-				{
-					$cek_mutasi = '-';
+				{					
+					if($r->sisa_hari_mutasi < 0){
+						$cek_mutasi = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
+					}else{
+						$cek_mutasi = '
+							<a type="button" '.$urll_foto_mutasi.'>
+								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="MUTASI"></i> </b></span>
+							</a> 
+							<span style="color:#f00;font-weight:bold">'.$r->sisa_hari_mutasi.' Hari</span>';
+					}
+
 				}else{
 					$cek_mutasi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_mutasi,0,10).' - '.substr($r->inp_mutasi,11,8).'';
 				}
 				
 				if($r->img_sj_balik=='')
-				{
-					$cek_sj_balik = '-';
+				{										
+					if($actualDate > $expired || $actualDate == $expired){
+						$cek_sj_balik = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
+					}else{
+						$cek_sj_balik = '
+							<a type="button" '.$urll_foto_sj_balik.'>
+								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="SJ BALIK"></i> </b></span>
+							</a> 
+							
+							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
+					}
+
 				}else{
 					$cek_sj_balik = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_sj_balik,0,10).' - '.substr($r->inp_sj_balik,11,8).'';
 				}
 				
-				if($r->img_upload_inv=='')
-				{
-					$cek_upload_inv = '-';
-				}else{
-					$cek_upload_inv = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_upload_inv,0,10).' - '.substr($r->inp_upload_inv,11,8).'';
-				}
+				// if($r->img_upload_inv=='')
+				// {
+															
+				// 	if($actualDate > $expired || $actualDate == $expired){
+				// 		$cek_upload_inv = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
+				// 	}else{
+				// 		$cek_upload_inv = '
+				// 			<a type="button" '.$urll_foto_upload_inv.'>
+				// 				<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="UPLOAD INV"></i> </b></span>
+				// 			</a> 
+				// 			<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
+				// 	}
+
+				// }else{
+				// 	$cek_upload_inv = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_upload_inv,0,10).' - '.substr($r->inp_upload_inv,11,8).'';
+				// }
 
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
+
+				$btncetak_up ='<a target="_blank" class="" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><i style="color:#f6303d;" class="far fa-file-pdf" title=""></i> </a>
+				';
+
 				$row[] = '
 				
 				<table>
@@ -5241,16 +5319,15 @@ class Logistik extends CI_Controller
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>NO SJ </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
-						<td style="padding : 2px;border:none;">'.$no_sj .'<br></td>
+						<td style="padding : 2px;border:none;">'.$no_sj .' 
+							<span style="color:#3704ff;font-weight:bold"> ['.$r->tgl_sj .']</span><br></td>
 					</tr>
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>BC </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
 						<div class="col-md-12">
-							<a type="button" '.$urll_foto_bc.'>
-								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="BC"></i> </b></span>
-							</a> '.$cek_bc.'
+							'.$cek_bc.'
 							<br>
 						</div></td>
 					</tr>
@@ -5260,7 +5337,6 @@ class Logistik extends CI_Controller
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
 						<div class="col-md-12">
-							<a type="button" '.$urll_foto_faktur.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FAKTUR"></i> </b></span></a>
 							'.$cek_faktur.'
 							<br>
 						</div></td>
@@ -5271,7 +5347,6 @@ class Logistik extends CI_Controller
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
 						<div class="col-md-12">
-							<a type="button" '.$urll_foto_resi.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="RESI"></i> </b></span></a>
 							'.$cek_resi.'
 							<br>
 						</div></td>
@@ -5282,7 +5357,6 @@ class Logistik extends CI_Controller
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
 						<div class="col-md-12">
-							<a type="button" '.$urll_foto_mutasi.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="MUTASI"></i> </b></span></a>
 							'.$cek_mutasi.'
 							<br>
 						</div></td>
@@ -5293,7 +5367,6 @@ class Logistik extends CI_Controller
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
 						<div class="col-md-12">
-							<a type="button" '.$urll_foto_sj_balik.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="SJ BALIK"></i> </b></span></a>
 							'.$cek_sj_balik.'
 							<br>
 						</div></td>
@@ -5304,9 +5377,7 @@ class Logistik extends CI_Controller
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
 						<div class="col-md-12">
-							<a type="button" '.$urll_foto_upload_inv.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="UPLOAD INV"></i> </b></span></a>
-							'.$cek_upload_inv.'
-							<br>
+							'.$btncetak_up.'
 						</div></td>
 					</tr>
 					';

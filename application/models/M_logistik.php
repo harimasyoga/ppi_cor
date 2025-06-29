@@ -371,6 +371,8 @@ class M_logistik extends CI_Model
 			'alamat_perusahaan'  => $this->input->post('alamat_perusahaan'),
 			'bank'  			 => $this->input->post('bank'),
 			'acc_admin'          => 'Y',
+			'add_user'           => $this->username,
+			'add_time'           => date("Y:m:d H:i:s"),
 		);
 	
 		$result_header = $this->db->insert('invoice_header', $data_header);
@@ -2906,8 +2908,9 @@ class M_logistik extends CI_Model
 			'alamat_perusahaan'  => $this->input->post('alamat_perusahaan'),
 			'bank'  			 => $this->input->post('bank'),
 			'acc_owner' 		 => 'N',
-			'disc' 			     => $discount,
-			
+			'disc' 			     => $discount,			 
+			'edit_user'          => $this->username,
+			'edit_time'          => date("Y:m:d H:i:s"),
 			// 'status'             => 'Open',
 		);
 
