@@ -375,6 +375,8 @@
 								<button type="button" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 
 								<button type="button" class="btn btn-danger btn-sm" onclick="open_laporan()"><i class="fa fa-print"></i> <b>Laporan</b></button>
+
+								<button type="button" class="btn btn-danger btn-sm" onclick="load_data()"><i class="fas fa-sync"></i> <b>URUT EXPIRED</b></button>
 								<?php } ?>
 
 						</div>
