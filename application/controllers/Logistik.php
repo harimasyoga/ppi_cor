@@ -5055,7 +5055,7 @@ class Logistik extends CI_Controller
 			$query   = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS sisa_hari_mutasi FROM invoice_header
 			-- where type in ('box','sheet') 
 			where YEAR(tgl_invoice) in ('$thnn') $cek_bulan
-			ORDER BY tgl_invoice desc,no_invoice limit 5")->result();
+			ORDER BY tgl_invoice desc,no_invoice")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
