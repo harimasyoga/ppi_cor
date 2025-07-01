@@ -475,7 +475,7 @@
 				"url": '<?php echo base_url('Logistik/listNomerSJ')?>',
 				"type": "POST",
 				"data": ({
-					tahun, pajak
+					tahun, pajak, jenis: "sj"
 				}),
 			},
 			"aLengthMenu": [
