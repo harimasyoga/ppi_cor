@@ -364,7 +364,7 @@
 
 			<div class="card shadow mb-3">
 				<div class="card-body">
-					<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Keuangan1'])){ ?>
+					<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Keuangan1','Owner'])){ ?>
 						<div style="margin-bottom:12px">
 							<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
 								<i class="fa fa-arrow-left" ></i> Kembali</b>
@@ -458,6 +458,15 @@
 								<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
 
 								<button type="button" class="btn btn-danger btn-sm" onclick="load_data()"><i class="fas fa-sync"></i> <b>URUT EXPIRED</b></button>
+								<?php } ?>
+								
+								<?php if (in_array($this->session->userdata('username'), ['owner'])) { ?>
+
+								<!-- <a href="<?= base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a> -->
+
+
+								<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
+
 								<?php } ?>
 
 						</div>
