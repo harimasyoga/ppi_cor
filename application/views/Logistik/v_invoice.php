@@ -349,6 +349,86 @@
 		<!-- /.card -->
 	</section>
 
+	<section class="content">
+
+		<!-- Default box -->
+		<div class="card shadow list_sj" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;" >
+				<h3 class="card-title" style="color:#4e73df;"><b>LIST SURAT JALAN</b></h3>
+
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+
+			<div class="card shadow mb-3">
+				<div class="card-body">
+					<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Keuangan1'])){ ?>
+						<div style="margin-bottom:12px">
+							<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+								<i class="fa fa-arrow-left" ></i> Kembali</b>
+							</button>
+						</div>
+					<?php } ?>
+					
+					<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
+						<div class="col-md-2">TAHUN</div>
+						<div class="col-md-2">
+							<select class="form-control select2" id="ll_tahun" onchange="listNomerSJ()">
+								<?php 
+								$thang = date("Y");
+								$thang_maks = $thang + 2;
+								$thang_min = $thang - 2;
+								for ($th = $thang_min; $th <= $thang_maks; $th++)
+								{ ?>
+									<?php if ($th==$thang) { ?>
+										<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+									<?php }else{ ?>
+										<option value="<?= $th ?>"> <?= $th ?> </option>
+									<?php }
+								} ?>
+							</select>
+						</div>
+						<div class="col-md-8"></div>
+					</div>
+					<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+						<div class="col-md-2">PAJAK</div>
+						<div class="col-md-2">
+							<select class="form-control select2" id="ll_pajak" onchange="listNomerSJ()">
+								<option selected value="ppn">PPN</option>
+								<option value="non">NON PPN</option>
+							</select>
+						</div>
+						<div class="col-md-8"></div>
+					</div>
+					<div class="card-body row" style="padding:0 6px 6px">
+						<div class="col-md-12">
+							<div style="overflow:auto;white-space:nowrap">
+								<table id="datatable1" class="table table-bordered table-striped">
+									<thead>
+										<tr>
+											<th style="width:5%;padding:12px;text-align:center">NO.</th>
+											<th style="width:8%;padding:12px;text-align:center">HARI, TGL</th>
+											<th style="width:16%;padding:12px;text-align:center">NO. SJ</th>
+											<th style="width:16%;padding:12px;text-align:center">NO. PO</th>
+											<th style="width:31%;padding:12px;text-align:center">CUSTOMER</th>
+											<th style="width:8%;padding:12px;text-align:center">PLAT</th>
+											<th style="width:8%;padding:12px;text-align:center">SJ BALIK</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		
+		</div>
+		<!-- /.card -->
+	</section>
+
 	<!-- Main content -->
 	<section class="content">
 
@@ -375,6 +455,7 @@
 								<button type="button" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 
 								<button type="button" class="btn btn-danger btn-sm" onclick="open_laporan()"><i class="fa fa-print"></i> <b>Laporan</b></button>
+								<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
 
 								<button type="button" class="btn btn-danger btn-sm" onclick="load_data()"><i class="fas fa-sync"></i> <b>URUT EXPIRED</b></button>
 								<?php } ?>
@@ -1136,7 +1217,46 @@
 		$(".row-input").attr('style', 'display:none')
 		$(".row-list").attr('style', 'display:none')
 		$(".list_lap").attr('style', '')
-		
+	}
+
+	function open_sj()
+	{
+		$(".row-input").attr('style', 'display:none')
+		$(".row-list").attr('style', 'display:none')
+		$(".list_sj").attr('style', '')
+		listNomerSJ()
+	}
+
+	function listNomerSJ(){
+		let tahun = $("#ll_tahun").val()
+		let pajak = $("#ll_pajak").val()
+		let table = $('#datatable1').DataTable();
+		table.destroy();
+		tabel = $('#datatable1').DataTable({
+			"processing": true,
+			"pageLength": true,
+			"paging": true,
+			"ajax": {
+				"url": '<?php echo base_url('Logistik/listNomerSJ')?>',
+				"type": "POST",
+				"data": ({
+					tahun, pajak, jenis: "invoice"
+				}),
+			},
+			"aLengthMenu": [
+				[5, 10, 50, 100, -1],
+				[5, 10, 50, 100, "Semua"]
+			],	
+			responsive: false,
+			"pageLength": 25,
+			"language": {
+				"emptyTable": "TIDAK ADA DATA.."
+			},
+			// "order": [
+			// 	[4, "desc"]
+			// ]
+		})
+		swal.close()
 	}
 
 	function kembaliList()
@@ -1145,6 +1265,7 @@
 		reloadTable()
 		$(".row-input").attr('style', 'display:none')
 		$(".list_lap").attr('style', 'display:none')
+		$(".list_sj").attr('style', 'display:none')
 		$(".row-list").attr('style', '')
 	}
 

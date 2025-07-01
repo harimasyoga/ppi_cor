@@ -5055,7 +5055,7 @@ class Logistik extends CI_Controller
 			$query   = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS sisa_hari_mutasi FROM invoice_header
 			-- where type in ('box','sheet') 
 			where YEAR(tgl_invoice) in ('$thnn') $cek_bulan
-			ORDER BY tgl_invoice desc,no_invoice")->result();
+			ORDER BY tgl_invoice desc,no_invoice LIMIT 2")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -5176,7 +5176,20 @@ class Logistik extends CI_Controller
 				($minutes == 0) ? $tMinutes = '' : $tMinutes = $minutes.' Mnt ';
 				($seconds == 0) ? $tseconds = '' : $tseconds = $seconds.' Sec';
 				($days == 0 && $hours == 0 && $minutes == 0) ? $waktu = $tseconds : $waktu = $tDays.$tHours.$tMinutes;
-				
+
+				$expired2              = strtotime($r->add_time) + (72*60*60);
+				$actualDate2           = time();
+				$secondsDiff2          = $expired2 - $actualDate2;
+				$days2                 = floor($secondsDiff2/60/60/24);
+				$hours2                = floor(($secondsDiff2-($days2*60*60*24))/60/60);
+				$minutes2              = floor(($secondsDiff2-($days2*60*60*24)-($hours2*60*60))/60);
+				$seconds2              = floor(($secondsDiff2-($days2*60*60*24)-($hours2*60*60))-($minutes2*60));
+				($days2 == 0) ? $tDays3 = '' : $tDays3 = $days2.' Day | ';
+				($hours2 == 0) ? $tHours2 = '' : $tHours2 = $hours2.' Hrs | ';
+				($minutes2 == 0) ? $tMinutes2 = '' : $tMinutes2 = $minutes2.' Mnt ';
+				($seconds2 == 0) ? $tseconds2 = '' : $tseconds2 = $seconds.' Sec';
+				($days2 == 0 && $hours2 == 0 && $minutes2 == 0) ? $waktu2 = $tseconds2 : $waktu2 = $tDays3.$tHours2.$tMinutes2;
+
 
 				$total                  = $queryd->jumlah + $nominal;
 				$usnm                   = $this->session->userdata('username');
@@ -5192,14 +5205,14 @@ class Logistik extends CI_Controller
 					
 				if($r->img_bc=='')
 				{
-					if($actualDate > $expired || $actualDate == $expired){
+					if($actualDate2 > $expired2 || $actualDate2 == $expired2){
 						$cek_bc = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 					}else{
 						$cek_bc = '
 							<a type="button" '.$urll_foto_bc.'>
 								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="BC"></i> </b></span>
 							</a> 
-							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
+							<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
 					}
 				}else{
 					$cek_bc = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_bc,0,10).' - '.substr($r->inp_bc,11,8).'';
@@ -5207,16 +5220,15 @@ class Logistik extends CI_Controller
 				
 				if($r->img_faktur=='')
 				{
-					if($actualDate > $expired || $actualDate == $expired){
+					if($actualDate2 > $expired2 || $actualDate2 == $expired2){
 						$cek_faktur = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 					}else{
 						$cek_faktur = '
 						<a type="button" '.$urll_foto_faktur.'>
 								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FAKTUR"></i> </b></span>
 							</a> 
-							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
+							<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
 					}
-
 				}else{
 					$cek_faktur = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_faktur,0,10).' - '.substr($r->inp_faktur,11,8).'';
 				}
@@ -5232,7 +5244,6 @@ class Logistik extends CI_Controller
 							</a> 
 							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
 					}
-
 				}else{
 					$cek_resi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_resi,0,10).' - '.substr($r->inp_resi,11,8).'';
 				}
@@ -5248,7 +5259,6 @@ class Logistik extends CI_Controller
 							</a> 
 							<span style="color:#f00;font-weight:bold">'.$r->sisa_hari_mutasi.' Hari</span>';
 					}
-
 				}else{
 					$cek_mutasi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_mutasi,0,10).' - '.substr($r->inp_mutasi,11,8).'';
 				}
@@ -5265,14 +5275,12 @@ class Logistik extends CI_Controller
 							
 							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
 					}
-
 				}else{
 					$cek_sj_balik = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_sj_balik,0,10).' - '.substr($r->inp_sj_balik,11,8).'';
 				}
 				
 				// if($r->img_upload_inv=='')
 				// {
-															
 				// 	if($actualDate > $expired || $actualDate == $expired){
 				// 		$cek_upload_inv = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 				// 	}else{
@@ -5282,7 +5290,6 @@ class Logistik extends CI_Controller
 				// 			</a> 
 				// 			<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
 				// 	}
-
 				// }else{
 				// 	$cek_upload_inv = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_upload_inv,0,10).' - '.substr($r->inp_upload_inv,11,8).'';
 				// }
@@ -11013,6 +11020,7 @@ class Logistik extends CI_Controller
 	{
 		$tahun = $_POST["tahun"];
 		$pajak = $_POST["pajak"];
+		$jenis = $_POST["jenis"];
 
 		$query = $this->db->query("SELECT*FROM pl_box p
 		INNER JOIN m_rencana_kirim k ON p.no_pl_urut=k.rk_urut AND p.id=k.id_pl_box
@@ -11032,21 +11040,61 @@ class Logistik extends CI_Controller
 			($r->attn == '-') ? $attn = '' : $attn = ' - '.$r->attn;
 			$row[] = $r->nm_pelanggan.$attn;
 			$row[] = $r->no_kendaraan;
-			($r->sj_blk == null) ? $jj = '' : $jj = strtoupper(substr($this->m_fungsi->getHariIni($r->sj_blk),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->sj_blk));
-			$row[] = $jj;
+			// SJ BALEK
+			$expired = strtotime($r->tgl) + (168*60*60) ;
+			$actualDate = time();
+			$secondsDiff = $expired - $actualDate;
+			$days = floor($secondsDiff/60/60/24);
+			$hours = floor(($secondsDiff-($days*60*60*24))/60/60);
+			$minutes = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))/60);
+			$seconds = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))-($minutes*60));
+			($days == 0) ? $tDays = '' : $tDays = $days.' Day | ';
+			($hours == 0) ? $tHours = '' : $tHours = $hours.' Hrs | ';
+			($minutes == 0) ? $tMinutes = '' : $tMinutes = $minutes.' Mnt ';
+			($seconds == 0) ? $tseconds = '' : $tseconds = $seconds.' Sec';
+			($days == 0 && $hours == 0 && $minutes == 0) ? $waktu = $tseconds : $waktu = $tDays.$tHours.$tMinutes;
+			$expired2 = strtotime($r->sj_blk);
+			$actualDate2 = strtotime($r->tgl);
+			$secondsDiff2 = $expired2 - $actualDate2;
+			$days2 = floor($secondsDiff2/60/60/24);
 
-			($r->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
-			$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$r->no_surat."&top=".$jarak."&ctk=0").'" title="'.$r->no_surat.'" >PRINT</a>';
-			($r->id_hub != 7) ? $btnJasa = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" title="SJ JASA" onclick="insertSuratJalanJasa('."'".$r->no_surat."'".')">JASA</button>' : $btnJasa = '';
-
-			$no_surat = explode("/", $r->no_surat);
-			if($no_surat[0] == 000){
-				$aksi = '-';
+			if($jenis == 'invoice'){
+				if($r->sj_blk == null){
+					if($actualDate > $expired || $actualDate == $expired){
+						$jj = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
+					}else{
+						$jj = '<b>'.$waktu.'</b>';
+					}
+				}else{
+					if($days2 > 7){
+						$nt = ' <span class="bg-danger" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$days2.' HARI</span>';
+					}else{
+						$nt = ' <span class="bg-primary" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$days2.' HARI</span>';
+					}
+					$jj = strtoupper(substr($this->m_fungsi->getHariIni($r->sj_blk),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->sj_blk)).$nt;
+				}
 			}else{
-				$aksi = $btnPrint.' '.$btnJasa;
+				if($days2 > 7){
+					$nt = ' <span class="bg-danger" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$days2.' HARI</span>';
+				}else{
+					$nt = ' <span class="bg-primary" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$days2.' HARI</span>';
+				}
+				($r->sj_blk == null) ? $jj = '' : $jj = strtoupper(substr($this->m_fungsi->getHariIni($r->sj_blk),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->sj_blk)).$nt;
 			}
-			
-			$row[] = '<div class="text-center">'.$aksi.'</div>';
+			$row[] = '<div class="text-center">'.$jj.'</div>';
+
+			if($jenis == 'sj'){
+				($r->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
+				$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$r->no_surat."&top=".$jarak."&ctk=0").'" title="'.$r->no_surat.'" >PRINT</a>';
+				($r->id_hub != 7) ? $btnJasa = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" title="SJ JASA" onclick="insertSuratJalanJasa('."'".$r->no_surat."'".')">JASA</button>' : $btnJasa = '';
+				$no_surat = explode("/", $r->no_surat);
+				if($no_surat[0] == 000){
+					$aksi = '-';
+				}else{
+					$aksi = $btnPrint.' '.$btnJasa;
+				}
+				$row[] = '<div class="text-center">'.$aksi.'</div>';
+			}
 			$data[] = $row;
 		}
 
