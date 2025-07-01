@@ -4584,6 +4584,40 @@ class Logistik extends CI_Controller
 		echo json_encode($data);
 	}
 		
+	function get_foto_inv_terima()
+	{
+		$no       = $this->input->post('no');
+		$jenis    = $this->input->post('jenis');
+		$field    = $this->input->post('field');
+		$htmlDtl  = '';
+
+		$header   = $this->db->query("SELECT*FROM $jenis where $field ='$no' ")->row();
+		$e        = explode('.', $header->img_inv_terima);
+		$ext      = end($e);
+		
+		if($header->img_inv_terima==null || $header->img_inv_terima=='') {
+			$url_foto = base_url('assets/gambar_inv_inv_terima/foto.jpg');
+		}else{
+			$url_foto = base_url('assets/gambar_inv_inv_terima/') . $header->img_inv_terima;
+		}
+
+		if($ext == 'pdf' || $ext == 'PDF'){
+				// $htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$header->img_inv_terima.'" height="600" style="width:100%"></object>';
+				// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$header->img_inv_terima.'" width="600" height="400"></embed>';
+				$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_inv_terima/'.$header->img_inv_terima.'" height="600" style="width:100%"></iframe>';
+
+				
+			}else{
+				$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
+				<span class="help-block"></span>';
+			}
+
+		$data = ["header" => $header, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
+
+		
+		echo json_encode($data);
+	}
+		
 	function get_foto_mutasi()
 	{
 		$no       = $this->input->post('no');
@@ -4854,6 +4888,62 @@ class Logistik extends CI_Controller
 
 	}
 	
+	function save_inv_terima()
+	{
+		$params   = (object)$this->input->post();
+
+		$cek_data = $this->db->query("SELECT*FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
+
+		if($cek_data->img_inv_terima == '' || $cek_data->img_inv_terima == null )
+		{
+		}else{
+			// Hapus File Foto
+			unlink("assets/gambar_inv_inv_terima/".$cek_data->img_inv_terima);
+
+		}
+
+		/* LOGO */
+		//$nmfile = "file_".time(); //nama file saya beri nama langsung dan diikuti fungsi time
+		$config['upload_path']   = './assets/gambar_inv_inv_terima/'; //path folder
+		$config['allowed_types'] = 'jpg|png|jpeg|pdf'; //type yang dapat diakses bisa anda sesuaikan
+		// $config['max_size']      = 1024; //maksimum besar file 2M
+		// $config['max_width']     = 'none'; //lebar maksimum 1288 px
+		// $config['max_height']    = 'none'; //tinggi maksimu 768 px
+		//$config['file_name'] = $nmfile; //nama yang terupload nantinya
+
+		$this->load->library('upload',$config);
+		$this->upload->initialize($config);
+
+		if($_FILES['filefoto']['name'])
+		{
+			if ($this->upload->do_upload('filefoto'))
+			{
+				$gbrBukti = $this->upload->data();
+				$filefoto = $gbrBukti['file_name'];
+				// $filefoto    = $_FILES['filefoto']['name'];
+				
+				// update data
+				$this->db->set('img_inv_terima', $filefoto);
+				$this->db->set('inp_inv_terima', date('Y-m-d H:i:s'));
+				$this->db->where('no_invoice', $params->no_inv_foto);
+				$data = $this->db->update('invoice_header');
+
+
+			}else{
+				$filefoto = 'foto.jpg';
+			}
+		} else {
+			$error = array('error' => $this->upload->display_errors());
+			var_dump($error);
+			exit;
+		}
+
+
+		/*END LOGO */
+		echo json_encode($filefoto);
+
+	}
+	
 	function save_mutasi()
 	{
 		$params   = (object)$this->input->post();
@@ -5055,7 +5145,7 @@ class Logistik extends CI_Controller
 			$query   = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS sisa_hari_mutasi FROM invoice_header
 			-- where type in ('box','sheet') 
 			where YEAR(tgl_invoice) in ('$thnn') $cek_bulan
-			ORDER BY tgl_invoice desc,no_invoice LIMIT 2")->result();
+			ORDER BY tgl_invoice desc,no_invoice")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -5159,7 +5249,7 @@ class Logistik extends CI_Controller
                     $i2     = '<i class="fas fa-check-circle"></i>';
                 }
 
-				// timer
+				// timer 7 hari tgl inv
 				// $dateFormat           = "Y-m-d H:i:s";
 				$expired              = strtotime($r->add_time) + (168*60*60) ;
 				$actualDate           = time();
@@ -5177,6 +5267,8 @@ class Logistik extends CI_Controller
 				($seconds == 0) ? $tseconds = '' : $tseconds = $seconds.' Sec';
 				($days == 0 && $hours == 0 && $minutes == 0) ? $waktu = $tseconds : $waktu = $tDays.$tHours.$tMinutes;
 
+
+				// timer 3 hari tgl inv
 				$expired2              = strtotime($r->add_time) + (72*60*60);
 				$actualDate2           = time();
 				$secondsDiff2          = $expired2 - $actualDate2;
@@ -5190,6 +5282,20 @@ class Logistik extends CI_Controller
 				($seconds2 == 0) ? $tseconds2 = '' : $tseconds2 = $seconds.' Sec';
 				($days2 == 0 && $hours2 == 0 && $minutes2 == 0) ? $waktu2 = $tseconds2 : $waktu2 = $tDays3.$tHours2.$tMinutes2;
 
+				// timer 3 hari dari resi
+				$expired3              = strtotime($r->inp_resi) + (72*60*60);
+				$actualDate3           = time();
+				$secondsDiff3          = $expired3 - $actualDate3;
+				$days3                 = floor($secondsDiff3/60/60/24);
+				$hours3                = floor(($secondsDiff3-($days3*60*60*24))/60/60);
+				$minutes3              = floor(($secondsDiff3-($days3*60*60*24)-($hours3*60*60))/60);
+				$seconds3              = floor(($secondsDiff3-($days3*60*60*24)-($hours3*60*60))-($minutes3*60));
+				($days3 == 0) ? $tDays3 = '' : $tDays3 = $days3.' Day | ';
+				($hours3 == 0) ? $tHours3 = '' : $tHours3 = $hours3.' Hrs | ';
+				($minutes3 == 0) ? $tMinutes3 = '' : $tMinutes3 = $minutes3.' Mnt ';
+				($seconds3 == 0) ? $tseconds3 = '' : $tseconds3 = $seconds.' Sec';
+				($days3 == 0 && $hours3 == 0 && $minutes3 == 0) ? $waktu3 = $tseconds3 : $waktu3 = $tDays3.$tHours3.$tMinutes3;
+
 
 				$total                  = $queryd->jumlah + $nominal;
 				$usnm                   = $this->session->userdata('username');
@@ -5199,6 +5305,7 @@ class Logistik extends CI_Controller
 				$urll_foto_bc           = "onclick=open_foto('$r->no_invoice','bc','$usnm')";
 				$urll_foto_faktur       = "onclick=open_foto('$r->no_invoice','faktur','$usnm')";
 				$urll_foto_resi         = "onclick=open_foto('$r->no_invoice','resi','$usnm')";
+				$urll_foto_inv_terima   = "onclick=open_foto('$r->no_invoice','inv_terima','$usnm')";
 				$urll_foto_mutasi       = "onclick=open_foto('$r->no_invoice','mutasi','$usnm')";
 				$urll_foto_sj_balik     = "onclick=open_foto('$r->no_invoice','sj_balik','$usnm')";
 				$urll_foto_upload_inv   = "onclick=open_foto('$r->no_invoice','upload_inv','$usnm')";
@@ -5215,7 +5322,9 @@ class Logistik extends CI_Controller
 							<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
 					}
 				}else{
-					$cek_bc = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_bc,0,10).' - '.substr($r->inp_bc,11,8).'';
+					$cek_bc = '<i style="color:#156b00;" class="fas fa-check-square"></i> 
+					<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_bc,0,10).' - [ '.substr($r->inp_bc,11,8).']</span>
+					';
 				}
 				
 				if($r->img_faktur=='')
@@ -5230,22 +5339,51 @@ class Logistik extends CI_Controller
 							<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
 					}
 				}else{
-					$cek_faktur = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_faktur,0,10).' - '.substr($r->inp_faktur,11,8).'';
+					$cek_faktur = '<i style="color:#156b00;" class="fas fa-check-square"></i> 
+					<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_faktur,0,10).' - [ '.substr($r->inp_faktur,11,8).']</span>
+					';
 				}
 
 				if($r->img_resi=='')
 				{
-					if($actualDate > $expired || $actualDate == $expired){
+					if($actualDate2 > $expired2 || $actualDate2 == $expired2){
 						$cek_resi = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 					}else{
 						$cek_resi = '
 							<a type="button" '.$urll_foto_resi.'>
 								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="RESI"></i> </b></span>
 							</a> 
-							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
+							<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
 					}
 				}else{
-					$cek_resi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_resi,0,10).' - '.substr($r->inp_resi,11,8).'';
+					$cek_resi = '<i style="color:#156b00;" class="fas fa-check-square"></i> <span style="color:#3704ff;font-weight:bold">'.substr($r->inp_resi,0,10).' - [ '.substr($r->inp_resi,11,8).']</span>
+					';
+				}
+				
+				if($r->img_inv_terima=='')
+				{
+					if($r->img_resi=='')
+					{
+						$cek_inv_terima = '<span style="color:#3704ff;font-weight:bold">*Resi belum di upload</span>
+						';
+					}else 
+					{
+						if($actualDate3 > $expired3 || $actualDate3 == $expired3)
+						{
+							$cek_inv_terima = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
+						}else{
+							$cek_inv_terima = '
+								<a type="button" '.$urll_foto_inv_terima.'>
+									<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="inv_terima"></i> </b></span>
+								</a> 
+								<span style="color:#f00;font-weight:bold">'.$waktu3.'</span>';
+						}
+					}
+					
+				}else{
+					$cek_inv_terima = '<i style="color:#156b00;" class="fas fa-check-square"></i> 
+					<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_inv_terima,0,10).' - [ '.substr($r->inp_inv_terima,11,8).' ]</span>
+					';
 				}
 
 				if($r->img_mutasi=='')
@@ -5260,7 +5398,9 @@ class Logistik extends CI_Controller
 							<span style="color:#f00;font-weight:bold">'.$r->sisa_hari_mutasi.' Hari</span>';
 					}
 				}else{
-					$cek_mutasi = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_mutasi,0,10).' - '.substr($r->inp_mutasi,11,8).'';
+					$cek_mutasi = '<i style="color:#156b00;" class="fas fa-check-square"></i> 
+					<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_mutasi,0,10).' - [ '.substr($r->inp_mutasi,11,8).']</span>
+					';
 				}
 				
 				if($r->img_sj_balik=='')
@@ -5276,7 +5416,9 @@ class Logistik extends CI_Controller
 							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
 					}
 				}else{
-					$cek_sj_balik = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_sj_balik,0,10).' - '.substr($r->inp_sj_balik,11,8).'';
+					$cek_sj_balik = '<i style="color:#156b00;" class="fas fa-check-square"></i> 
+					<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_sj_balik,0,10).' - [ '.substr($r->inp_sj_balik,11,8).']</span>
+					';
 				}
 				
 				// if($r->img_upload_inv=='')
@@ -5297,7 +5439,9 @@ class Logistik extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 
-				$btncetak_up ='<a target="_blank" class="" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><i style="color:#f6303d;" class="far fa-file-pdf" title=""></i> </a>
+				$btncetak_up ='<a target="_blank" class="" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><i style="color:#f6303d;" class="far fa-file-pdf" title=""></i> </a> 
+				
+				<span style="color:#3704ff;font-weight:bold"> ['.$r->tgl_invoice .']</span>
 				';
 
 				$row[] = '
@@ -5355,6 +5499,16 @@ class Logistik extends CI_Controller
 						<td style="padding : 2px;border:none;">
 						<div class="col-md-12">
 							'.$cek_resi.'
+							<br>
+						</div></td>
+					</tr>
+
+					<tr style="background-color: transparent !important">
+						<td style="padding : 2px;border:none;"><b>Inv diterima </td>
+						<td style="padding : 2px;border:none;">:</td></b> 
+						<td style="padding : 2px;border:none;">
+						<div class="col-md-12">
+							'.$cek_inv_terima.'
 							<br>
 						</div></td>
 					</tr>

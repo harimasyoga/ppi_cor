@@ -886,6 +886,9 @@
 		}else if(ket=='resi' && (username=='karina' || username=='tegar'))
 		{
 			$('#upload_file').show();
+		}else if(ket=='inv_terima' && (username=='karina' || username=='tegar'))
+		{
+			$('#upload_file').show();
 		}else if(ket=='mutasi' && (username=='karina' || username=='tegar'))
 		{
 			$('#upload_file').show();
