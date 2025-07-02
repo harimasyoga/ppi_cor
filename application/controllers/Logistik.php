@@ -5145,7 +5145,7 @@ class Logistik extends CI_Controller
 			$query   = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS sisa_hari_mutasi FROM invoice_header
 			-- where type in ('box','sheet') 
 			where YEAR(tgl_invoice) in ('$thnn') $cek_bulan
-			ORDER BY tgl_invoice desc,no_invoice")->result();
+			ORDER BY tgl_invoice desc,no_invoice limit 2")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {
@@ -5315,16 +5315,14 @@ class Logistik extends CI_Controller
 					if($actualDate2 > $expired2 || $actualDate2 == $expired2){
 						$cek_bc = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 					}else{
-						$cek_bc = '
-							<a type="button" '.$urll_foto_bc.'>
-								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="BC"></i> </b></span>
-							</a> 
-							<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
+						$cek_bc = '<a type="button" '.$urll_foto_bc.'>
+							<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="BC"></i> </b></span>
+						</a> 
+						<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
 					}
 				}else{
-					$cek_bc = '<i style="color:#156b00;" class="fas fa-check-square"></i> 
-					<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_bc,0,10).' - [ '.substr($r->inp_bc,11,8).']</span>
-					';
+					$cek_bc = '<a type="button" '.$urll_foto_bc.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 
+						<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_bc,0,10).' - [ '.substr($r->inp_bc,11,8).']</span>';
 				}
 				
 				if($r->img_faktur=='')
@@ -5332,16 +5330,14 @@ class Logistik extends CI_Controller
 					if($actualDate2 > $expired2 || $actualDate2 == $expired2){
 						$cek_faktur = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 					}else{
-						$cek_faktur = '
-						<a type="button" '.$urll_foto_faktur.'>
-								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FAKTUR"></i> </b></span>
-							</a> 
-							<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
+						$cek_faktur = '<a type="button" '.$urll_foto_faktur.'>
+							<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FAKTUR"></i> </b></span>
+						</a> 
+						<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
 					}
 				}else{
-					$cek_faktur = '<i style="color:#156b00;" class="fas fa-check-square"></i> 
-					<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_faktur,0,10).' - [ '.substr($r->inp_faktur,11,8).']</span>
-					';
+					$cek_faktur = '<a type="button" '.$urll_foto_faktur.'><i style="color:#156b00;" class="fas fa-check-square"></i> </a>
+						<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_faktur,0,10).' - [ '.substr($r->inp_faktur,11,8).']</span>';
 				}
 
 				if($r->img_resi=='')
@@ -5349,15 +5345,13 @@ class Logistik extends CI_Controller
 					if($actualDate2 > $expired2 || $actualDate2 == $expired2){
 						$cek_resi = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 					}else{
-						$cek_resi = '
-							<a type="button" '.$urll_foto_resi.'>
-								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="RESI"></i> </b></span>
-							</a> 
-							<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
+						$cek_resi = '<a type="button" '.$urll_foto_resi.'>
+							<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="RESI"></i> </b></span>
+						</a> 
+						<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
 					}
 				}else{
-					$cek_resi = '<i style="color:#156b00;" class="fas fa-check-square"></i> <span style="color:#3704ff;font-weight:bold">'.substr($r->inp_resi,0,10).' - [ '.substr($r->inp_resi,11,8).']</span>
-					';
+					$cek_resi = '<a type="button" '.$urll_foto_resi.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> <span style="color:#3704ff;font-weight:bold">'.substr($r->inp_resi,0,10).' - [ '.substr($r->inp_resi,11,8).']</span>';
 				}
 				
 				if($r->img_inv_terima=='')
@@ -5372,18 +5366,16 @@ class Logistik extends CI_Controller
 						{
 							$cek_inv_terima = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 						}else{
-							$cek_inv_terima = '
-								<a type="button" '.$urll_foto_inv_terima.'>
-									<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="inv_terima"></i> </b></span>
-								</a> 
-								<span style="color:#f00;font-weight:bold">'.$waktu3.'</span>';
+							$cek_inv_terima = '<a type="button" '.$urll_foto_inv_terima.'>
+								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="inv_terima"></i> </b></span>
+							</a> 
+							<span style="color:#f00;font-weight:bold">'.$waktu3.'</span>';
 						}
 					}
 					
 				}else{
-					$cek_inv_terima = '<i style="color:#156b00;" class="fas fa-check-square"></i> 
-					<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_inv_terima,0,10).' - [ '.substr($r->inp_inv_terima,11,8).' ]</span>
-					';
+					$cek_inv_terima = '<a type="button" '.$urll_foto_inv_terima.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 
+						<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_inv_terima,0,10).' - [ '.substr($r->inp_inv_terima,11,8).' ]</span>';
 				}
 
 				if($r->img_mutasi=='')
@@ -5391,16 +5383,14 @@ class Logistik extends CI_Controller
 					if($r->sisa_hari_mutasi < 0){
 						$cek_mutasi = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 					}else{
-						$cek_mutasi = '
-							<a type="button" '.$urll_foto_mutasi.'>
-								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="MUTASI"></i> </b></span>
-							</a> 
-							<span style="color:#f00;font-weight:bold">'.$r->sisa_hari_mutasi.' Hari</span>';
+						$cek_mutasi = '<a type="button" '.$urll_foto_mutasi.'>
+							<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="MUTASI"></i> </b></span>
+						</a> 
+						<span style="color:#f00;font-weight:bold">'.$r->sisa_hari_mutasi.' Hari</span>';
 					}
 				}else{
-					$cek_mutasi = '<i style="color:#156b00;" class="fas fa-check-square"></i> 
-					<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_mutasi,0,10).' - [ '.substr($r->inp_mutasi,11,8).']</span>
-					';
+					$cek_mutasi = '<a type="button" '.$urll_foto_mutasi.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 
+						<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_mutasi,0,10).' - [ '.substr($r->inp_mutasi,11,8).']</span>';
 				}
 				
 				if($r->img_sj_balik=='')
@@ -5408,17 +5398,14 @@ class Logistik extends CI_Controller
 					if($actualDate > $expired || $actualDate == $expired){
 						$cek_sj_balik = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 					}else{
-						$cek_sj_balik = '
-							<a type="button" '.$urll_foto_sj_balik.'>
-								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="SJ BALIK"></i> </b></span>
-							</a> 
-							
-							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
+						$cek_sj_balik = '<a type="button" '.$urll_foto_sj_balik.'>
+							<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="SJ BALIK"></i> </b></span>
+						</a> 
+						<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
 					}
 				}else{
-					$cek_sj_balik = '<i style="color:#156b00;" class="fas fa-check-square"></i> 
-					<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_sj_balik,0,10).' - [ '.substr($r->inp_sj_balik,11,8).']</span>
-					';
+					$cek_sj_balik = '<a type="button" '.$urll_foto_sj_balik.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 
+						<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_sj_balik,0,10).' - [ '.substr($r->inp_sj_balik,11,8).']</span>';
 				}
 				
 				// if($r->img_upload_inv=='')
