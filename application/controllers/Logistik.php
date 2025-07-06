@@ -5133,19 +5133,46 @@ class Logistik extends CI_Controller
 		if ($jenis == "Invoice") 
 		{
 			
-			$blnn    = $_POST['blnn'];
-			$thnn    = $_POST['thnn'];
+			$blnn        = $_POST['blnn'];
+			$thnn        = $_POST['thnn'];
+			$order_by    = $_POST['order_by'];
 
 			if($blnn=='' || $blnn=='all'){
 				$cek_bulan ="";
 			}else{
 				$cek_bulan = "and month(tgl_invoice) in ('$blnn') ";
 			}
+
+			// order by
+			if($order_by=='edit')
+			{
+				$order_query = 'edit_time desc,tgl_invoice desc,no_invoice';
+			}else if ($order_by=='exp_bc')
+			{
+				$order_query = 'inp_bc,tgl_invoice desc,no_invoice';				
+			}else if ($order_by=='exp_faktur')
+			{
+				$order_query = 'inp_faktur,tgl_invoice desc,no_invoice';				
+			}else if ($order_by=='exp_resi')
+			{
+				$order_query = 'inp_resi,tgl_invoice desc,no_invoice';				
+			}else if ($order_by=='exp_inv_terima')
+			{
+				$order_query = 'inp_inv_terima,tgl_invoice desc,no_invoice';				
+			}else if ($order_by=='exp_mutasi')
+			{
+				$order_query = 'inp_mutasi,tgl_invoice desc,no_invoice';				
+			}else if ($order_by=='exp_sj_balik')
+			{
+				$order_query = 'inp_sj_balik,tgl_invoice desc,no_invoice';				
+			}else{
+				$order_query = 'tgl_invoice desc,no_invoice';
+			}
 			
 			$query   = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS sisa_hari_mutasi FROM invoice_header
 			-- where type in ('box','sheet') 
 			where YEAR(tgl_invoice) in ('$thnn') $cek_bulan
-			ORDER BY tgl_invoice desc,no_invoice")->result();
+			ORDER BY $order_query")->result();
 
 			$i               = 1;
 			foreach ($query as $r) {

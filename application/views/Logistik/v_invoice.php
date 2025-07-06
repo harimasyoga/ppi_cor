@@ -445,101 +445,107 @@
 					</div>
 				</div>
 				<div class="card-body">
-					<div class="row" style="padding-bottom:15px;font-weight:bold">
-						
-						<div class="col-md-7" style="padding-bottom:5px;font-weight:bold">												
-								<?php if (in_array($this->session->userdata('username'), ['karina', 'tegar', 'developer'])) { ?>
 
-								<!-- <a href="<?= base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a> -->
-
+					<div class="card-body" style="padding:12px 6px">
+						<?php if(in_array($this->session->userdata('username'), ['karina', 'tegar', 'developer'])){
+						?>
+							<div style="margin-bottom:12px">
+								
 								<button type="button" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 
 								<button type="button" class="btn btn-danger btn-sm" onclick="open_laporan()"><i class="fa fa-print"></i> <b>Laporan</b></button>
-								<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
-
-								<button type="button" class="btn btn-danger btn-sm" onclick="load_data()"><i class="fas fa-sync"></i> <b>URUT EXPIRED</b></button>
-								<?php } ?>
 								
-								<?php if (in_array($this->session->userdata('username'), ['owner'])) { ?>
-
-								<!-- <a href="<?= base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a> -->
-
-
 								<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
+							</div>
+						<?php } ?>
 
+						
+						<?php if (in_array($this->session->userdata('username'), ['owner'])) { ?>
+
+							<!-- <a href="<?= base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a> -->
+
+
+							<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
+
+						<?php } ?>
+
+						<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
+							<div class="col-md-2" style="padding-bottom:3px">
+								<select class="form-control select2" id="rentang_thn" name="rentang_thn" onchange="load_data()">
+									<?php 
+									$thang        = date("Y");
+									$thang_maks   = $thang + 3 ;
+									$thang_min    = $thang - 3 ;
+									for ($th=$thang_min ; $th<=$thang_maks ; $th++)
+									{ ?>
+
+										<?php if ($th==$thang) { ?>
+
+										<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+										
+										<?php }else{ ?>
+										
+										<option value="<?= $th ?>"> <?= $th ?> </option>
+										<?php } ?>
 								<?php } ?>
-
-						</div>
-						
-						<div class="col-md-3" style="padding-bottom:5px;font-weight:bold">									
-						
-							<?php 
-								$qbulan    = $this->db->query("SELECT*FROM m_bulan");
-								$bln_now   = date("m");
-							?>
-								<select id="rentang_bulan" class="form-control select2" onchange="load_data()"> 
-									<option value="all">-- SEMUA --</option>
-							<?php 									
-								foreach ($qbulan->result() as $bln_row)
-								{
-									if ($bln_row->id==$bln_now) {
-										echo "<option selected value=$bln_row->id><b>$bln_row->bulan</b></option>";
-										}
-									else {	
-									echo "<option value=$bln_row->id><b>$bln_row->bulan</b></option>";
-									}
-								}		
-							?>  
 							</select>
-						</div>
-
-						<div class="col-md-2" style="padding-bottom:5px;font-weight:bold">									
-						
-							<select class="form-control select2" id="rentang_thn" name="rentang_thn" onchange="load_data()">
+							</div>
+							<div class="col-md-2" style="padding-bottom:3px">
+								
 								<?php 
-								$thang        = date("Y");
-								$thang_maks   = $thang + 3 ;
-								$thang_min    = $thang - 3 ;
-								for ($th=$thang_min ; $th<=$thang_maks ; $th++)
-								{ ?>
-
-									<?php if ($th==$thang) { ?>
-
-									<option selected value="<?= $th ?>"> <?= $thang ?> </option>
-									
-									<?php }else{ ?>
-									
-									<option value="<?= $th ?>"> <?= $th ?> </option>
-									<?php } ?>
-								<?php } ?>
-							</select>
+									$qbulan    = $this->db->query("SELECT*FROM m_bulan");
+									$bln_now   = date("m");
+								?>
+									<select id="rentang_bulan" class="form-control select2" onchange="load_data()"> 
+										<option value="all">-- SEMUA --</option>
+								<?php 									
+									foreach ($qbulan->result() as $bln_row)
+									{
+										if ($bln_row->id==$bln_now) {
+											echo "<option selected value=$bln_row->id><b>$bln_row->bulan</b></option>";
+											}
+										else {	
+										echo "<option value=$bln_row->id><b>$bln_row->bulan</b></option>";
+										}
+									}		
+								?>  
+								</select>
+							</div>
+							<div class="col-md-2" style="padding-bottom:3px">
+								<select id="order_by" class="form-control select2" onchange="load_data()"> 
+									<option value="all">-- ORDER BY --</option>
+									<option value="exp_bc">EXPIRED BC</option>
+									<option value="exp_faktur">EXPIRED FAKTUR</option>
+									<option value="exp_resi">EXPIRED RESI</option>
+									<option value="exp_inv_terima">EXPIRED INV TERIMA</option>
+									<option value="exp_mutasi">EXPIRED MUTASI</option>
+									<option value="exp_sj_balik">EXPIRED SJ BALIK</option>
+									<option value="edit">EDIT TERAKHIR</option>
+								</select>
+							</div>
+							<div class="col-md-6" style="padding-bottom:3px">
+							</div>
+						</div>
+						<div style="overflow:auto;white-space:nowrap">
+							<table id="datatable" class="table table-bordered table-striped">
+								<thead class="color-tabel">
+									<tr>
+										<th style="padding:12px;text-align:center">#</th>
+										<th style="padding:12px;text-align:center">NO. PO</th>
+										<th style="padding:12px;text-align:center">TGL</th>
+										<th style="padding:12px;text-align:center">STATUS</th>
+										<th style="padding:12px;text-align:center">CUSTOMER</th>
+										<th style="padding:12px;text-align:center">MKT</th>
+										<th style="padding:12px;text-align:center">OWNER</th>
+										<th style="padding:12px;text-align:center">LAPORAN</th>
+										<th style="padding:12px;text-align:center">AKSI</th>
+									</tr>
+								</thead>
+								<tbody></tbody>
+							</table>
 						</div>
 					</div>
 
-					<!-- <button onclick="cetak_jurnal(0)"  class="btn btn-danger">
-					<i class="fa fa-print"></i> CETAK JURNAL</button>
-						<br>
-						<br> -->
-					<div style="overflow:auto;white-space:nowrap;" >
-
-						<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
-							<thead class="color-tabel">
-								<tr>
-									<th style="text-align: center;">No</th>
-									<th style="text-align: center;">Invoice</th>
-									<th style="text-align: center;">Tgl Inv</th>
-									<th style="text-align: center;">J. Tempo</th>
-									<th style="text-align: center;">Total</th>
-									<th style="text-align: center;">Pembayaran</th>
-									<th style="text-align: center;">Admin</th>
-									<th style="text-align: center;">Owner</th>
-									<th style="text-align: center;;">Aksi</th>
-								</tr>
-							</thead>
-							<tbody>
-							</tbody>
-						</table>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -1066,10 +1072,11 @@
 	function load_data() 
 	{
 		
-		var blnn    = $('#rentang_bulan').val();
-		var thnn    = $('#rentang_thn').val();
-		var table   = $('#datatable').DataTable();
-
+		var blnn        = $('#rentang_bulan').val();
+		var thnn        = $('#rentang_thn').val();
+		var order_by    = $('#order_by').val();
+		var table       = $('#datatable').DataTable();
+		
 		table.destroy();
 
 		tabel = $('#datatable').DataTable({
@@ -1080,7 +1087,7 @@
 			"ajax": {
 				"url": '<?= base_url(); ?>Logistik/load_data/Invoice',
 				"type": "POST",
-				data  : ({blnn,thnn}), 
+				data  : ({blnn,thnn,order_by}), 
 				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
 			},
 			"aLengthMenu": [
