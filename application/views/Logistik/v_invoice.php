@@ -371,7 +371,6 @@
 							</button>
 						</div>
 					<?php } ?>
-					
 					<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
 						<div class="col-md-2">TAHUN</div>
 						<div class="col-md-2">
@@ -388,6 +387,16 @@
 										<option value="<?= $th ?>"> <?= $th ?> </option>
 									<?php }
 								} ?>
+							</select>
+						</div>
+						<div class="col-md-8"></div>
+					</div>
+					<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+						<div class="col-md-2">PILIH</div>
+						<div class="col-md-2">
+							<select class="form-control select2" id="ll_pilih" onchange="listNomerSJ()">
+								<option selected value="BOX">BOX</option>
+								<option value="ROLL">ROLL</option>
 							</select>
 						</div>
 						<div class="col-md-8"></div>
@@ -414,6 +423,7 @@
 											<th style="width:16%;padding:12px;text-align:center">NO. PO</th>
 											<th style="width:31%;padding:12px;text-align:center">CUSTOMER</th>
 											<th style="width:8%;padding:12px;text-align:center">PLAT</th>
+											<th style="width:8%;padding:12px;text-align:center">EKSPEDISI</th>
 											<th style="width:8%;padding:12px;text-align:center">SJ BALIK</th>
 										</tr>
 									</thead>
@@ -783,28 +793,30 @@
 					
 					<div id="upload_file" class="card-body row" style="padding : 5px;font-weight:bold">
 						<div class="col-md-1"></div>
-						<div class="col-md-2">Upload File
-						</div>
+						<div class="col-md-2">Upload File</div>
 						<div class="col-md-3">
-
 							<div class="col-9">
 								<input type="file" name="filefoto" id="filefoto" accept=".jpg,.jpeg,.png,.pdf" onchange="diPilih()">
 							</div>
 						</div>
-						
 						<div class="col-md-1">
 							<div style="">
 								<input style="color:#f00;font-style:italic;height: calc(2.25rem + 2px);font-size: 1rem;" type="text" value="* Max 1.5MB" class="input-border-none" autocomplete="off"  readonly>
 							</div>
 						</div>
 						<div class="col-md-5"></div>
-
 					</div>
-
 					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 						<div class="col-md-3"></div>
 						<div class="col-md-9" style="color:#f00;font-size:12px;font-style:italic">
 							* .jpg, .jpeg, .png, .pdf
+						</div>
+					</div>
+					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+						<div class="col-md-1"></div>
+						<div class="col-md-2">Keterangan</div>
+						<div class="col-md-9">
+							<textarea id="ket_file" class="form-control" style="resize:none" onchange="changeKetFile()" oninput="this.value=this.value.toUpperCase()"></textarea>
 						</div>
 					</div>
 					<br>
@@ -889,6 +901,7 @@
 		$(".simpan-save").html('')
 		$(".detail-inv").html('')
 		$("#filefoto").html('')
+		$("#ket_file").val('')
 		$('#modal_foto').modal('show');			
 		$("#no_inv_foto").val(no_inv);		
 		$('#filefoto').css("display","block");
@@ -940,6 +953,7 @@
 				
 				$('#div_preview_foto').css("display","block");
 				$(".detail-inv").html(data.htmlDtl)
+				$("#ket_file").val(data.ket)
 				if(data.ext=='pdf')
 				{
 					
@@ -1054,6 +1068,27 @@
 			}
 		});
 		
+	}
+
+	function changeKetFile(){
+		let no_inv = $('#no_inv_foto').val()
+		let status_modal = $("#status_modal").val()
+		let ket_file = $("#ket_file").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/changeKetFile')?>',
+			type: "POST",
+			data: ({ no_inv, status_modal, ket_file }),
+			success: function(res){
+				data = JSON.parse(res)
+				// console.log(data)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					reloadTable()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
+			}
+		})
 	}
 
 	function cetak_jurnal(ctk)
@@ -1248,6 +1283,7 @@
 
 	function listNomerSJ(){
 		let tahun = $("#ll_tahun").val()
+		let pilih = $("#ll_pilih").val()
 		let pajak = $("#ll_pajak").val()
 		let table = $('#datatable1').DataTable();
 		table.destroy();
@@ -1259,7 +1295,7 @@
 				"url": '<?php echo base_url('Logistik/listNomerSJ')?>',
 				"type": "POST",
 				"data": ({
-					tahun, pajak, jenis: "invoice"
+					tahun, pilih, pajak, jenis: "invoice"
 				}),
 			},
 			"aLengthMenu": [
