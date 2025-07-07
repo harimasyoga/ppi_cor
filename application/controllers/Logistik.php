@@ -5282,24 +5282,19 @@ class Logistik extends CI_Controller
                     $i2     = '<i class="fas fa-check-circle"></i>';
                 }
 
-				// timer 7 hari tgl inv
-				// $dateFormat           = "Y-m-d H:i:s";
-				$expired              = strtotime($r->add_time) + (168*60*60) ;
+				// timer 4 hari tgl inv
+				$expired              = strtotime($r->add_time) + (96*60*60) ;
 				$actualDate           = time();
 				$secondsDiff          = $expired - $actualDate;
 				$days                 = floor($secondsDiff/60/60/24);
 				$hours                = floor(($secondsDiff-($days*60*60*24))/60/60);
 				$minutes              = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))/60);
 				$seconds              = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))-($minutes*60));
-				// $actualDateDisplay    = date($dateFormat, $actualDate);
-				$expiredDisplay       = date("F d, Y H:i:s", $expired);
-
 				($days == 0) ? $tDays = '' : $tDays = $days.' Day | ';
 				($hours == 0) ? $tHours = '' : $tHours = $hours.' Hrs | ';
 				($minutes == 0) ? $tMinutes = '' : $tMinutes = $minutes.' Mnt ';
 				($seconds == 0) ? $tseconds = '' : $tseconds = $seconds.' Sec';
 				($days == 0 && $hours == 0 && $minutes == 0) ? $waktu = $tseconds : $waktu = $tDays.$tHours.$tMinutes;
-
 
 				// timer 3 hari tgl inv
 				$expired2              = strtotime($r->add_time) + (72*60*60);
@@ -5314,6 +5309,20 @@ class Logistik extends CI_Controller
 				($minutes2 == 0) ? $tMinutes2 = '' : $tMinutes2 = $minutes2.' Mnt ';
 				($seconds2 == 0) ? $tseconds2 = '' : $tseconds2 = $seconds.' Sec';
 				($days2 == 0 && $hours2 == 0 && $minutes2 == 0) ? $waktu2 = $tseconds2 : $waktu2 = $tDays3.$tHours2.$tMinutes2;
+
+				// timer 6 hari tgl inv
+				$expired6              = strtotime($r->add_time) + (144*60*60);
+				$actualDate6           = time();
+				$secondsDiff6          = $expired6 - $actualDate6;
+				$days6                 = floor($secondsDiff6/60/60/24);
+				$hours6                = floor(($secondsDiff6-($days6*60*60*24))/60/60);
+				$minutes6              = floor(($secondsDiff6-($days6*60*60*24)-($hours6*60*60))/60);
+				$seconds6              = floor(($secondsDiff6-($days6*60*60*24)-($hours6*60*60))-($minutes6*60));
+				($days6 == 0) ? $tDays6 = '' : $tDays6 = $days6.' Day | ';
+				($hours6 == 0) ? $tHours6 = '' : $tHours6 = $hours6.' Hrs | ';
+				($minutes6 == 0) ? $tMinutes6 = '' : $tMinutes6 = $minutes6.' Mnt ';
+				($seconds6 == 0) ? $tseconds6 = '' : $tseconds6 = $seconds.' Sec';
+				($days6 == 0 && $hours6 == 0 && $minutes6 == 0) ? $waktu6 = $tseconds6 : $waktu6 = $tDays6.$tHours6.$tMinutes6;
 
 				// timer 3 hari dari resi
 				$expired3              = strtotime($r->inp_resi) + (72*60*60);
@@ -5345,13 +5354,13 @@ class Logistik extends CI_Controller
 					
 				if($r->img_bc=='')
 				{
-					if($actualDate2 > $expired2 || $actualDate2 == $expired2){
+					if($actualDate > $expired || $actualDate == $expired){
 						$cek_bc = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 					}else{
 						$cek_bc = '<a type="button" '.$urll_foto_bc.'>
 							<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="BC"></i> </b></span>
 						</a> 
-						<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
+						<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
 					}
 				}else{
 					$cek_bc = '<a type="button" '.$urll_foto_bc.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 
@@ -5375,13 +5384,13 @@ class Logistik extends CI_Controller
 
 				if($r->img_resi=='')
 				{
-					if($actualDate2 > $expired2 || $actualDate2 == $expired2){
+					if($actualDate > $expired || $actualDate == $expired){
 						$cek_resi = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 					}else{
 						$cek_resi = '<a type="button" '.$urll_foto_resi.'>
 							<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="RESI"></i> </b></span>
 						</a> 
-						<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
+						<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
 					}
 				}else{
 					$cek_resi = '<a type="button" '.$urll_foto_resi.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> <span style="color:#3704ff;font-weight:bold">'.substr($r->inp_resi,0,10).' - [ '.substr($r->inp_resi,11,8).']</span>';
@@ -5428,13 +5437,13 @@ class Logistik extends CI_Controller
 				
 				if($r->img_sj_balik=='')
 				{										
-					if($actualDate > $expired || $actualDate == $expired){
+					if($actualDate6 > $expired6 || $actualDate6 == $expired6){
 						$cek_sj_balik = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 					}else{
 						$cek_sj_balik = '<a type="button" '.$urll_foto_sj_balik.'>
 							<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="SJ BALIK"></i> </b></span>
 						</a> 
-						<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
+						<span style="color:#f00;font-weight:bold">'.$waktu6.'</span>';
 					}
 				}else{
 					$cek_sj_balik = '<a type="button" '.$urll_foto_sj_balik.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 
@@ -11280,7 +11289,7 @@ class Logistik extends CI_Controller
 			$row[] = $r->no_kendaraan;
 			$row[] = ($pilih == "ROLL") ? $r->pt : '';
 			// SJ BALEK
-			$expired = strtotime($r->tgl) + (168*60*60) ;
+			$expired = strtotime($r->tgl) + (144*60*60);
 			$actualDate = time();
 			$secondsDiff = $expired - $actualDate;
 			$days = floor($secondsDiff/60/60/24);
