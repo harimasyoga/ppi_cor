@@ -114,6 +114,7 @@
 													<th style="width:16%;padding:12px;text-align:center">NO. PO</th>
 													<th style="width:31%;padding:12px;text-align:center">CUSTOMER</th>
 													<th style="width:8%;padding:12px;text-align:center">PLAT</th>
+													<th style="width:8%;padding:12px;text-align:center">EKSPEDISI</th>
 													<th style="width:8%;padding:12px;text-align:center">SJ BALIK</th>
 													<th style="width:8%;padding:12px;text-align:center">AKSI</th>
 												</tr>
@@ -475,7 +476,7 @@
 				"url": '<?php echo base_url('Logistik/listNomerSJ')?>',
 				"type": "POST",
 				"data": ({
-					tahun, pajak, jenis: "sj"
+					tahun, pilih: "BOX", pajak, jenis: "sj"
 				}),
 			},
 			"aLengthMenu": [
