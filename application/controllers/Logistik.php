@@ -4510,7 +4510,7 @@ class Logistik extends CI_Controller
 				<span class="help-block"></span>';
 			}
 
-		$data = ["header" => $header, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
+		$data = ["header" => $header, "ket" => $header->ket_bc, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
 
 		
 		echo json_encode($data);
@@ -4544,7 +4544,7 @@ class Logistik extends CI_Controller
 				<span class="help-block"></span>';
 			}
 
-		$data = ["header" => $header, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
+		$data = ["header" => $header, "ket" => $header->ket_faktur, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
 
 		
 		echo json_encode($data);
@@ -4578,7 +4578,7 @@ class Logistik extends CI_Controller
 				<span class="help-block"></span>';
 			}
 
-		$data = ["header" => $header, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
+		$data = ["header" => $header, "ket" => $header->ket_resi, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
 
 		
 		echo json_encode($data);
@@ -4612,7 +4612,7 @@ class Logistik extends CI_Controller
 				<span class="help-block"></span>';
 			}
 
-		$data = ["header" => $header, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
+		$data = ["header" => $header, "ket" => $header->ket_inv_terima, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
 
 		
 		echo json_encode($data);
@@ -4646,7 +4646,7 @@ class Logistik extends CI_Controller
 				<span class="help-block"></span>';
 			}
 
-		$data = ["header" => $header, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
+		$data = ["header" => $header, "ket" => $header->ket_mutasi, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
 
 		
 		echo json_encode($data);
@@ -4680,7 +4680,7 @@ class Logistik extends CI_Controller
 				<span class="help-block"></span>';
 			}
 
-		$data = ["header" => $header, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
+		$data = ["header" => $header, "ket" => $header->ket_sj_balik, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
 
 		
 		echo json_encode($data);
@@ -5112,6 +5112,12 @@ class Logistik extends CI_Controller
 
 	}
 
+	function changeKetFile()
+	{
+		$result = $this->m_logistik->changeKetFile();
+		echo json_encode($result);
+	}
+
 
 
 	function edit_timbangan()
@@ -5458,6 +5464,56 @@ class Logistik extends CI_Controller
 				<span style="color:#3704ff;font-weight:bold"> ['.$r->tgl_invoice .']</span>
 				';
 
+				// KETERANGAN
+				if($r->ket_bc != ""){
+					$ket_bc = '<tr style="background-color: transparent !important">
+						<td style="padding:0;border:none" colspan="2"></td>
+						<td style="padding:0;border:none;font-style:italic">'.$r->ket_bc.'</td>
+					</tr>';
+				}else{
+					$ket_bc = '';
+				}
+				if($r->ket_faktur != ""){
+					$ket_faktur = '<tr style="background-color: transparent !important">
+						<td style="padding:0;border:none" colspan="2"></td>
+						<td style="padding:0;border:none;font-style:italic">'.$r->ket_faktur.'</td>
+					</tr>';
+				}else{
+					$ket_faktur = '';
+				}
+				if($r->ket_resi != ""){
+					$ket_resi = '<tr style="background-color: transparent !important">
+						<td style="padding:0;border:none" colspan="2"></td>
+						<td style="padding:0;border:none;font-style:italic">'.$r->ket_resi.'</td>
+					</tr>';
+				}else{
+					$ket_resi = '';
+				}
+				if($r->ket_inv_terima != ""){
+					$ket_inv_terima = '<tr style="background-color: transparent !important">
+						<td style="padding:0;border:none" colspan="2"></td>
+						<td style="padding:0;border:none;font-style:italic">'.$r->ket_inv_terima.'</td>
+					</tr>';
+				}else{
+					$ket_inv_terima = '';
+				}
+				if($r->ket_mutasi != ""){
+					$ket_mutasi = '<tr style="background-color: transparent !important">
+						<td style="padding:0;border:none" colspan="2"></td>
+						<td style="padding:0;border:none;font-style:italic">'.$r->ket_mutasi.'</td>
+					</tr>';
+				}else{
+					$ket_mutasi = '';
+				}
+				if($r->ket_sj_balik != ""){
+					$ket_sj_balik = '<tr style="background-color: transparent !important">
+						<td style="padding:0;border:none" colspan="2"></td>
+						<td style="padding:0;border:none;font-style:italic">'.$r->ket_sj_balik.'</td>
+					</tr>';
+				}else{
+					$ket_sj_balik = '';
+				}
+
 				$row[] = '
 				
 				<table>
@@ -5496,7 +5552,7 @@ class Logistik extends CI_Controller
 							<br>
 						</div></td>
 					</tr>
-
+					'.$ket_bc.'
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>Faktur </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
@@ -5506,7 +5562,7 @@ class Logistik extends CI_Controller
 							<br>
 						</div></td>
 					</tr>
-
+					'.$ket_faktur.'
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>No Resi </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
@@ -5516,7 +5572,7 @@ class Logistik extends CI_Controller
 							<br>
 						</div></td>
 					</tr>
-
+					'.$ket_resi.'
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>Inv diterima </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
@@ -5526,7 +5582,7 @@ class Logistik extends CI_Controller
 							<br>
 						</div></td>
 					</tr>
-
+					'.$ket_inv_terima.'
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>Mutasi </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
@@ -5536,7 +5592,7 @@ class Logistik extends CI_Controller
 							<br>
 						</div></td>
 					</tr>
-					
+					'.$ket_mutasi.'
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>SJ BALIK </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
@@ -5546,7 +5602,7 @@ class Logistik extends CI_Controller
 							<br>
 						</div></td>
 					</tr>
-					
+					'.$ket_sj_balik.'
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>UPLOAD INV </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
@@ -11187,14 +11243,28 @@ class Logistik extends CI_Controller
 	function listNomerSJ()
 	{
 		$tahun = $_POST["tahun"];
+		$pilih = $_POST["pilih"];
 		$pajak = $_POST["pajak"];
 		$jenis = $_POST["jenis"];
 
-		$query = $this->db->query("SELECT*FROM pl_box p
-		INNER JOIN m_rencana_kirim k ON p.no_pl_urut=k.rk_urut AND p.id=k.id_pl_box
-		INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
-		WHERE p.tgl LIKE '%$tahun%' AND pajak='$pajak'
-		GROUP BY p.tgl DESC,p.no_surat DESC,p.no_kendaraan,p.id_perusahaan,p.no_po");
+		if($pilih == "BOX"){
+			$query = $this->db->query("SELECT*FROM pl_box p
+			INNER JOIN m_rencana_kirim k ON p.no_pl_urut=k.rk_urut AND p.id=k.id_pl_box
+			INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
+			WHERE p.tgl LIKE '%$tahun%' AND pajak='$pajak'
+			GROUP BY p.tgl DESC,p.no_surat DESC,p.no_kendaraan,p.id_perusahaan,p.no_po");
+		}
+
+		if($pilih == "ROLL"){
+			$db2 = $this->load->database('database_simroll', TRUE);
+			$query = $db2->query("SELECT b.tgl,LTRIM(b.no_surat) AS no_surat,b.no_po,b.nama AS attn,b.nm_perusahaan AS nm_pelanggan,ex.plat AS no_kendaraan,ex.supir,ex.pt,b.sj_blk FROM m_timbangan a
+			INNER JOIN pl b ON a.id_pl=b.id AND a.nm_ker=b.nm_ker AND a.g_label=b.g_label
+			INNER JOIN m_expedisi ex ON ex.id=b.id_expedisi
+			WHERE b.id_perusahaan NOT IN('210', '217')
+			AND b.tgl LIKE '%$tahun%'
+			GROUP BY b.tgl DESC,ex.plat,LTRIM(b.no_surat),b.no_po");
+		}
+
 
 		$data = array();
 		$i = 0;
@@ -11208,6 +11278,7 @@ class Logistik extends CI_Controller
 			($r->attn == '-') ? $attn = '' : $attn = ' - '.$r->attn;
 			$row[] = $r->nm_pelanggan.$attn;
 			$row[] = $r->no_kendaraan;
+			$row[] = ($pilih == "ROLL") ? $r->pt : '';
 			// SJ BALEK
 			$expired = strtotime($r->tgl) + (168*60*60) ;
 			$actualDate = time();
@@ -11225,7 +11296,6 @@ class Logistik extends CI_Controller
 			$actualDate2 = strtotime($r->tgl);
 			$secondsDiff2 = $expired2 - $actualDate2;
 			$days2 = floor($secondsDiff2/60/60/24);
-
 			if($jenis == 'invoice'){
 				if($r->sj_blk == null){
 					if($actualDate > $expired || $actualDate == $expired){
@@ -11250,7 +11320,6 @@ class Logistik extends CI_Controller
 				($r->sj_blk == null) ? $jj = '' : $jj = strtoupper(substr($this->m_fungsi->getHariIni($r->sj_blk),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->sj_blk)).$nt;
 			}
 			$row[] = '<div class="text-center">'.$jj.'</div>';
-
 			if($jenis == 'sj'){
 				($r->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
 				$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$r->no_surat."&top=".$jarak."&ctk=0").'" title="'.$r->no_surat.'" >PRINT</a>';

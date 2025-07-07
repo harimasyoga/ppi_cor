@@ -3746,6 +3746,22 @@ class M_logistik extends CI_Model
 		return $result_detail;
 			
 	}
-	
+
+	function changeKetFile()
+	{
+		$no_inv = $_POST["no_inv"];
+		$stat = $_POST["status_modal"];
+		$ket_file = $_POST["ket_file"];
+
+		$this->db->set("ket_".$stat, $ket_file);
+		$this->db->where("no_invoice", $no_inv);
+		$data = $this->db->update("invoice_header");
+		$msg = "BERHASIL TAMBAH KETERANGAN ".strtoupper($stat).'!';
+
+		return array(
+			'data' => $data,
+			'msg' => $msg,
+		);
+	}
 
 }
