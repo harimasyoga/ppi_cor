@@ -3772,9 +3772,14 @@ class M_logistik extends CI_Model
 
 	function cekInv()
 	{
-		$no_inv = $_POST["no_inv"];
-		$stat = $_POST["status_modal"];
 		$opsi = $_POST["opsi"];
+		if($opsi == 'sj_inv'){
+			$stat = $opsi;
+			$no_inv = $_POST["oNoInv"];
+		}else{
+			$stat = $_POST["status_modal"];
+			$no_inv = $_POST["no_inv"];
+		}
 
 		$this->db->set("cek_".$stat, date('Y-m-d H:i:s'));
 		$this->db->set("cek_global", date('Y-m-d H:i:s'));

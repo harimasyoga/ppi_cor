@@ -793,9 +793,15 @@
 						</div>
 						
 						<div class="col-md-6"></div>
-
 					</div>
-					
+					<div id="upload_blk" class="card-body row" style="padding:5px;font-weight:bold">
+						<div class="col-md-1"></div>
+						<div class="col-md-2">Tgl Balik</div>
+						<div class="col-md-3">
+							<input type="date" name="tgl_blk" id="tgl_blk" class="form-control">
+						</div>
+						<div class="col-md-6"></div>
+					</div>
 					<div id="upload_file" class="card-body row" style="padding : 5px;font-weight:bold">
 						<div class="col-md-1"></div>
 						<div class="col-md-2">Upload File</div>
@@ -817,7 +823,7 @@
 							* .jpg, .jpeg, .png, .pdf
 						</div>
 					</div>
-					<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
+					<div class="card-body row" style="font-weight:bold;padding:0 5px 6px">
 						<div class="col-md-1"></div>
 						<div class="col-md-2">Keterangan</div>
 						<div class="col-md-9">
@@ -899,15 +905,17 @@
 		}
 	}
 
-	function open_foto(no_inv,ket,username)
+	function open_foto(no_inv, tipe, ket, username)
 	{
 		$(".cekcekcek").html('')
 		$(".simpan-save").html('')
 		$(".detail-inv").html('')
 		$("#filefoto").html('')
+		$("#tgl_blk").val('')
 		$("#ket_file").val('')
-		$('#modal_foto').modal('show');			
-		$("#no_inv_foto").val(no_inv);		
+		$('#modal_foto').modal('show');
+		$("#no_inv_foto").val(no_inv);
+		$('#upload_blk').hide();
 		$('#filefoto').css("display","block");
 		if(ket=='bc' && (username=='karina' || username=='siska'  || username=='tegar') )
 		{
@@ -926,14 +934,21 @@
 			$('#upload_file').show();
 		}else if(ket=='sj_balik' && (username=='karina' || username=='tegar'))
 		{
+			if(tipe == 'roll'){
+				$('#upload_blk').show();
+			}
 			$('#upload_file').show();
 		}else if(ket=='upload_inv' && (username=='karina' || username=='tegar'))
 		{
 			$('#upload_file').show();
 		}else if(username=='developer')
 		{
+			if(ket=='sj_balik' && tipe == 'roll'){
+				$('#upload_blk').show();
+			}
 			$('#upload_file').show();
 		}else{
+			$('#upload_blk').css("display","none");
 			$('#upload_file').css("display","none");
 		}
 
@@ -956,6 +971,13 @@
 				
 				$('#div_preview_foto').css("display","block");
 				$(".detail-inv").html(data.htmlDtl)
+				if(ket=='sj_balik' && data.header.type == 'roll'){
+					if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk == null && data.header.type == 'roll'){
+						$("#tgl_blk").val(data.header.inp_sj_balik.substr(0, 10))
+					}else if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk != null && data.header.type == 'roll'){
+						$("#tgl_blk").val(data.header.tgl_sj_blk)
+					}
+				}
 				$("#ket_file").val(data.ket)
 				if(data.ext=='pdf')
 				{
@@ -980,7 +1002,7 @@
 
 				// cek
 				if(data.header.cekinv == null && data.header.inpinv != null && (username=='bumagda' || username=='developer')){
-					$(".cekcekcek").html(`<select class="form-control select2" id="invinvinv" onchange="cekInv()">
+					$(".cekcekcek").html(`<select class="form-control select2" id="invinvinv" onchange="cekInv('lama', '')">
 						<option value="">CEK</option>
 						<option value="${ket}">OK</option>
 					</select>`)
@@ -993,8 +1015,7 @@
 			})
 	}
 
-	function cekInv(){
-		let opsi = $("#invinvinv").val()
+	function cekInv(opsi, oNoInv){
 		let no_inv = $('#no_inv_foto').val()
 		let status_modal = $("#status_modal").val()
 		$.ajax({
@@ -1010,7 +1031,7 @@
 				}
 				})
 			},
-			data: ({ no_inv, status_modal, opsi }),
+			data: ({ opsi, oNoInv, no_inv, status_modal }),
 			success: function(res){
 				data = JSON.parse(res)
 				// console.log(data)
@@ -1766,8 +1787,8 @@
 							load_bank()
 						}else{
 							toastr.error('<b>MUTASI BELUM DI UPLOAD!</b>');
+							swal.close()
 						}
-						swal.close()
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
 						// toastr.error('Terjadi Kesalahan');
