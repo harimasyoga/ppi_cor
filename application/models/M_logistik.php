@@ -373,6 +373,7 @@ class M_logistik extends CI_Model
 			'acc_admin'          => 'Y',
 			'add_user'           => $this->username,
 			'add_time'           => date("Y:m:d H:i:s"),
+			'cek_global'         => date("Y:m:d H:i:s"),
 		);
 	
 		$result_header = $this->db->insert('invoice_header', $data_header);
@@ -2911,6 +2912,7 @@ class M_logistik extends CI_Model
 			'disc' 			     => $discount,			 
 			'edit_user'          => $this->username,
 			'edit_time'          => date("Y:m:d H:i:s"),
+			'cek_global'          => date("Y:m:d H:i:s"),
 			// 'status'             => 'Open',
 		);
 
@@ -3047,7 +3049,7 @@ class M_logistik extends CI_Model
 	}
 
 	function verif_inv()
-	{ //
+	{
 		$no_inv       = $this->input->post('no_inv');
 		$acc          = $this->input->post('acc');
 		$app          = "";
@@ -3131,6 +3133,7 @@ class M_logistik extends CI_Model
 				}
 				$this->db->set("acc_admin", 'Y');
 				$this->db->set("acc_owner", 'Y');
+				$this->db->set("status_inv", 'Approve');
 			}else{
 				
 				foreach ( $cek_detail as $row ) 
@@ -3152,6 +3155,7 @@ class M_logistik extends CI_Model
 				}
 				$this->db->set("acc_admin", 'Y');
 				$this->db->set("acc_owner", 'N');
+				$this->db->set("status_inv", 'Open');
 			}
 			
 			$this->db->where("no_invoice",$no_inv);
@@ -3236,6 +3240,7 @@ class M_logistik extends CI_Model
 				}
 
 				$this->db->set("acc_owner", 'Y');
+				$this->db->set("status_inv", 'Approve');
 			}else{
 
 				foreach ( $cek_detail as $row ) 
@@ -3257,6 +3262,7 @@ class M_logistik extends CI_Model
 				}
 				
 				$this->db->set("acc_owner", 'N');
+				$this->db->set("status_inv", 'Open');
 			}
 			
 			$this->db->where("no_invoice",$no_inv);
@@ -3757,6 +3763,25 @@ class M_logistik extends CI_Model
 		$this->db->where("no_invoice", $no_inv);
 		$data = $this->db->update("invoice_header");
 		$msg = "BERHASIL TAMBAH KETERANGAN ".strtoupper($stat).'!';
+
+		return array(
+			'data' => $data,
+			'msg' => $msg,
+		);
+	}
+
+	function cekInv()
+	{
+		$no_inv = $_POST["no_inv"];
+		$stat = $_POST["status_modal"];
+		$opsi = $_POST["opsi"];
+
+		$this->db->set("cek_".$stat, date('Y-m-d H:i:s'));
+		$this->db->set("cek_global", date('Y-m-d H:i:s'));
+		$this->db->set("status_inv", 'Cek');
+		$this->db->where("no_invoice", $no_inv);
+		$data = $this->db->update("invoice_header");
+		$msg = "BERHASIL CEK ".strtoupper($stat).'!';
 
 		return array(
 			'data' => $data,
