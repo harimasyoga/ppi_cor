@@ -5164,7 +5164,7 @@ class Logistik extends CI_Controller
 			$type_inv    = $_POST['type_inv'];
 			$order_by    = $_POST['order_by'];
 
-			if($type_inv == ""){
+			if($type_inv == "all"){
 				$tipe = "";
 			}else{
 				$tipe = "AND type='$type_inv'";
