@@ -124,10 +124,8 @@
 							
 							<div class="col-md-2">No Invoice</div>
 							<div class="col-md-1">
-								<input style="" type="hidden" id="id_inv" name="id_inv" class="input-border-none" autocomplete="off"  readonly>
-								
-								<input style="" type="hidden" id="no_inv_old" name="no_inv_old" class="input-border-none" autocomplete="off"  readonly>
-
+								<input type="hidden" id="id_inv" name="id_inv" class="input-border-none" autocomplete="off"  readonly>
+								<input type="hidden" id="no_inv_old" name="no_inv_old" class="input-border-none" autocomplete="off"  readonly>
 								<input style="height: calc(2.25rem + 2px);font-size: 1rem;" type="text" id="no_inv_kd" name="no_inv_kd" class="input-border-none" autocomplete="off"  readonly>
 							</div>
 							<div class="col-md-1">
@@ -501,7 +499,6 @@
 							</select>
 							</div>
 							<div class="col-md-2" style="padding-bottom:3px">
-								
 								<?php 
 									$qbulan    = $this->db->query("SELECT*FROM m_bulan");
 									$bln_now   = date("m");
@@ -522,8 +519,16 @@
 								</select>
 							</div>
 							<div class="col-md-2" style="padding-bottom:3px">
+								<select id="type_inv" class="form-control select2" onchange="load_data()"> 
+									<option value="all">-- SEMUA --</option>
+									<option value="box">BOX</option>
+									<option value="roll">ROLL</option>
+								</select>
+							</div>
+							<div class="col-md-2" style="padding-bottom:3px">
 								<select id="order_by" class="form-control select2" onchange="load_data()"> 
 									<option value="all">-- ORDER BY --</option>
+									<option value="cek">CEK</option>
 									<option value="exp_bc">EXPIRED BC</option>
 									<option value="exp_faktur">EXPIRED FAKTUR</option>
 									<option value="exp_resi">EXPIRED RESI</option>
@@ -533,7 +538,7 @@
 									<option value="edit">EDIT TERAKHIR</option>
 								</select>
 							</div>
-							<div class="col-md-6" style="padding-bottom:3px">
+							<div class="col-md-4" style="padding-bottom:3px">
 							</div>
 						</div>
 						<div style="overflow:auto;white-space:nowrap">
@@ -543,11 +548,11 @@
 										<th style="padding:12px;text-align:center">#</th>
 										<th style="padding:12px;text-align:center">NO. PO</th>
 										<th style="padding:12px;text-align:center">TGL</th>
-										<th style="padding:12px;text-align:center">STATUS</th>
-										<th style="padding:12px;text-align:center">CUSTOMER</th>
+										<th style="padding:12px;text-align:center">JT. TEMPO</th>
+										<th style="padding:12px;text-align:center">TOTAL</th>
+										<th style="padding:12px;text-align:center">PEMBAYARAN</th>
 										<th style="padding:12px;text-align:center">MKT</th>
 										<th style="padding:12px;text-align:center">OWNER</th>
-										<th style="padding:12px;text-align:center">LAPORAN</th>
 										<th style="padding:12px;text-align:center">AKSI</th>
 									</tr>
 								</thead>
@@ -800,7 +805,7 @@
 							</div>
 						</div>
 						<div class="col-md-1">
-							<div style="">
+							<div>
 								<input style="color:#f00;font-style:italic;height: calc(2.25rem + 2px);font-size: 1rem;" type="text" value="* Max 1.5MB" class="input-border-none" autocomplete="off"  readonly>
 							</div>
 						</div>
@@ -812,33 +817,33 @@
 							* .jpg, .jpeg, .png, .pdf
 						</div>
 					</div>
-					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+					<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
 						<div class="col-md-1"></div>
 						<div class="col-md-2">Keterangan</div>
 						<div class="col-md-9">
 							<textarea id="ket_file" class="form-control" style="resize:none" onchange="changeKetFile()" oninput="this.value=this.value.toUpperCase()"></textarea>
 						</div>
 					</div>
-					<br>
-					
-					<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+					<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
 						<div class="col-md-3"></div>
 						<div class="col-md-9">
 							<div class="simpan-save"></div>
 						</div>
 					</div>
-					
-					<br><br>
 					<div class="card-body row" style="padding : 5px;font-weight:bold">
 						<div class="col-md-1"></div>
 						<div class="col-md-10">
-
 								<div class="detail-inv"></div>
 								<span class="help-block"></span>	
 						</div>
-						
 						<div class="col-md-1"></div>
-
+					</div>
+					<div class="card-body row" style="font-weight:bold;padding:20px 0 6px">
+						<div class="col-md-3"></div>
+						<div class="col-md-2">
+							<div class="cekcekcek"></div>
+						</div>
+						<div class="col-md-7"></div>
 					</div>
 					<br><br>
 				</div>
@@ -859,14 +864,13 @@
 <script type="text/javascript">
 	rowNum = 0;
 	$(document).ready(function() {
-		load_data();
-		load_bank();
-		// getMax();
+		load_data()
 		$('.select2').select2({
 			containerCssClass: "wrap",
 			placeholder: '--- Pilih ---',
 			dropdownAutoWidth: true
 		});
+		load_bank()
 	});
 
 	status = "insert";
@@ -897,7 +901,7 @@
 
 	function open_foto(no_inv,ket,username)
 	{
-		
+		$(".cekcekcek").html('')
 		$(".simpan-save").html('')
 		$(".detail-inv").html('')
 		$("#filefoto").html('')
@@ -931,9 +935,8 @@
 			$('#upload_file').show();
 		}else{
 			$('#upload_file').css("display","none");
-
 		}
- 
+
 		document.getElementById("judul_file").innerHTML = "FILE "+ket.toUpperCase();
 		$("#status_modal").val(ket);		
 
@@ -959,8 +962,6 @@
 					
 				}else{
 					var modal = document.getElementById('mymodal-img');
-
-					// Get the image and insert it inside the modal - use its "alt" text as a caption
 					var img            = document.getElementById('preview_img');
 					var modalImg       = document.getElementById("img01");
 					img.onclick = function(){
@@ -968,27 +969,66 @@
 						modalImg.src          = this.src;
 						modalImg.alt          = this.alt;
 					}
-
-
-					// When the user clicks on <span> (x), close the modal
 					modal.onclick = function() {
 						img01.className       += " out";
 						setTimeout(function() {
 							modal.style.display   = "none";
 							img01.className       = "modal-img-content";
 						}, 400);
-						
-					}    
-
-					// $('#preview_img').attr('src',data.url_foto);
+					}
 				}
-				
+
+				// cek
+				if(data.header.cekinv == null && data.header.inpinv != null && (username=='bumagda' || username=='developer')){
+					$(".cekcekcek").html(`<select class="form-control select2" id="invinvinv" onchange="cekInv()">
+						<option value="">CEK</option>
+						<option value="${ket}">OK</option>
+					</select>`)
+				}else if(data.header.cekinv != null && (username=='bumagda' || username=='developer')){
+					$(".cekcekcek").html(`<span style="font-weight:bold">CEK : ${data.header.cekinv}</span>`)
+				}else{
+					$(".cekcekcek").html(``)
+				}
+				$('.select2').select2()
 			})
+	}
+
+	function cekInv(){
+		let opsi = $("#invinvinv").val()
+		let no_inv = $('#no_inv_foto').val()
+		let status_modal = $("#status_modal").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/cekInv')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			data: ({ no_inv, status_modal, opsi }),
+			success: function(res){
+				data = JSON.parse(res)
+				// console.log(data)
+				if(data.data){
+					reloadTable()
+					toastr.success(`<b>${data.msg}</b>`)
+					$('#modal_foto').modal('hide')
+					load_bank()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
+			}
+		})
 	}
 
 	function diPilih()
 	{
-			$(".simpan-save").html('<button class="btn btn-primary btn-sm" onclick="simpan_file()" ><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
+		$(".simpan-save").html('<button class="btn btn-primary btn-sm" onclick="simpan_file()" ><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
 	}
 
 	
@@ -1030,19 +1070,11 @@
 			success: function(data) {
 				if (data) 
 				{
-					swal.close();
-					// console.log('TERSIMPAN');
-					// swal({
-					// 	title               : "Data",
-					// 	html                : "Berhasil Disimpan",
-					// 	type                : "success",
-					// 	confirmButtonText   : "OK"
-					// });
-					toastr.success(`<b>Berhasil Disimpan</b>`)
-					
-					$('#modal_foto').modal('hide');	
 					reloadTable()	
-
+					swal.close();
+					toastr.success(`<b>Berhasil Disimpan</b>`)
+					$('#modal_foto').modal('hide');	
+					load_bank()
 				} else {
 					// console.log('GAGAL SIMPAN');
 					swal.close();
@@ -1082,8 +1114,10 @@
 				data = JSON.parse(res)
 				// console.log(data)
 				if(data.data){
-					toastr.success(`<b>${data.msg}</b>`)
 					reloadTable()
+					toastr.success(`<b>${data.msg}</b>`)
+					$('#modal_foto').modal('hide')
+					load_bank()
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
 				}
@@ -1109,6 +1143,7 @@
 		
 		var blnn        = $('#rentang_bulan').val();
 		var thnn        = $('#rentang_thn').val();
+		var type_inv    = $('#type_inv').val();
 		var order_by    = $('#order_by').val();
 		var table       = $('#datatable').DataTable();
 		
@@ -1122,8 +1157,11 @@
 			"ajax": {
 				"url": '<?= base_url(); ?>Logistik/load_data/Invoice',
 				"type": "POST",
-				data  : ({blnn,thnn,order_by}), 
+				data  : ({blnn,thnn,type_inv,order_by}), 
 				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
+				// success: function(){
+				// 	swal.close()
+				// }
 			},
 			"aLengthMenu": [
 				[10, 15, 20, 25, -1],
@@ -1139,7 +1177,7 @@
 
 	}
 
-	function load_bank() 
+	function load_bank()
 	{
 		option = "";
 		$.ajax({
@@ -1702,7 +1740,7 @@
 		}).then(() => {
 
 				$.ajax({
-					url: '<?= base_url(); ?>Logistik/prosesData',
+					url: '<?= base_url(); ?>Logistik/prosesData2',
 					data: ({
 						no_inv    : no_inv,
 						acc       : acc,
@@ -1719,21 +1757,17 @@
 							}
 						})
 					},
-					success: function(data) {
-						toastr.success('Data Berhasil Diproses');
-						// swal({
-						// 	title               : "Data",
-						// 	html                : "Data Berhasil Diproses",
-						// 	type                : "success",
-						// 	confirmButtonText   : "OK"
-						// });
-						
-						// setTimeout(function(){ location.reload(); }, 1000);
-						// location.href = "<?= base_url()?>Logistik/Invoice";
-						// location.href = "<?= base_url()?>Logistik/Invoice_edit?id="+id+"&statuss=Y&no_inv="+no_inv+"&acc=1";
-						reloadTable()
-						close_modal()
-						swal.close();
+					success: function(res) {
+						data = JSON.parse(res)
+						if(data.data){
+							reloadTable()
+							toastr.success('Data Berhasil Diproses');
+							close_modal()
+							load_bank()
+						}else{
+							toastr.error('<b>MUTASI BELUM DI UPLOAD!</b>');
+						}
+						swal.close()
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
 						// toastr.error('Terjadi Kesalahan');
@@ -1746,15 +1780,10 @@
 						return;
 					}
 				});
-		
 		});
-
-
 	}
 
 	// INVOICE ADD //
-
-	
 	function simpan() 
 	{
 		var cek_inv   = $('#cek_inv').val();
