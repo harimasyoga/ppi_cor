@@ -5417,7 +5417,7 @@ class Logistik extends CI_Controller
 					if($r->type == 'roll' && $r->inp_sj_balik == null){
 						$cek_bc = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
 					}else if($actualDate > $expired || $actualDate == $expired){
-						if(in_array($this->session->userdata('level'), ['Admin', 'Keuangan1', 'Pembayaran']) && $this->session->userdata('username') != 'bumagda'){
+						if(in_array($this->session->userdata('level'), ['Admin', 'Keuangan1', 'Jasa', 'Pembayaran']) && $this->session->userdata('username') != 'bumagda'){
 							$cek_bc = '<a type="button" '.$urll_foto_bc.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="BC"></i></b></span></a> ';
 						}else{
 							$cek_bc = '';
@@ -5440,7 +5440,7 @@ class Logistik extends CI_Controller
 					if($r->type == 'roll' && $r->inp_sj_balik == null){
 						$cek_faktur = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
 					}else if($actualDate2 > $expired2 || $actualDate2 == $expired2){
-						if(in_array($this->session->userdata('level'), ['Admin', 'Keuangan1', 'Pembayaran']) && $this->session->userdata('username') != 'bumagda'){
+						if(in_array($this->session->userdata('level'), ['Admin', 'Keuangan1', 'Jasa', 'Pembayaran']) && $this->session->userdata('username') != 'bumagda'){
 							$cek_faktur = '<a type="button" '.$urll_foto_faktur.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FAKTUR"></i></b></span></a> ';
 						}else{
 							$cek_faktur = '';
