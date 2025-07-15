@@ -4758,6 +4758,9 @@ class Logistik extends CI_Controller
 				$this->db->set('img_bc', $filefoto);
 				$this->db->set('inp_bc', date('Y-m-d H:i:s'));
 				$this->db->set('cek_global', date('Y-m-d H:i:s'));
+				if($cek_data->status_inv == 'Cek'){
+					$this->db->set('status_inv', 'Open');
+				}
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -4815,6 +4818,9 @@ class Logistik extends CI_Controller
 				$this->db->set('img_faktur', $filefoto);
 				$this->db->set('inp_faktur', date('Y-m-d H:i:s'));
 				$this->db->set('cek_global', date('Y-m-d H:i:s'));
+				if($cek_data->status_inv == 'Cek'){
+					$this->db->set('status_inv', 'Open');
+				}
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -4872,6 +4878,9 @@ class Logistik extends CI_Controller
 				$this->db->set('img_resi', $filefoto);
 				$this->db->set('inp_resi', date('Y-m-d H:i:s'));
 				$this->db->set('cek_global', date('Y-m-d H:i:s'));
+				if($cek_data->status_inv == 'Cek'){
+					$this->db->set('status_inv', 'Open');
+				}
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -4929,6 +4938,9 @@ class Logistik extends CI_Controller
 				$this->db->set('img_inv_terima', $filefoto);
 				$this->db->set('inp_inv_terima', date('Y-m-d H:i:s'));
 				$this->db->set('cek_global', date('Y-m-d H:i:s'));
+				if($cek_data->status_inv == 'Cek'){
+					$this->db->set('status_inv', 'Open');
+				}
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -4986,6 +4998,9 @@ class Logistik extends CI_Controller
 				$this->db->set('img_mutasi', $filefoto);
 				$this->db->set('inp_mutasi', date('Y-m-d H:i:s'));
 				$this->db->set('cek_global', date('Y-m-d H:i:s'));
+				if($cek_data->status_inv == 'Cek'){
+					$this->db->set('status_inv', 'Open');
+				}
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -5043,10 +5058,13 @@ class Logistik extends CI_Controller
 				$this->db->set('img_sj_balik', $filefoto);
 				$this->db->set('inp_sj_balik', date('Y-m-d H:i:s'));
 				$this->db->set('cek_global', date('Y-m-d H:i:s'));
+				if($cek_data->status_inv == 'Cek'){
+					$this->db->set('status_inv', 'Open');
+				}
 				$this->db->set('tgl_sj_blk', $params->tgl_blk);
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
-				if($data){
+				if($data && $cek_data->type == 'roll'){
 					$db_ppi = $this->load->database('database_simroll', TRUE);
 					$dtl = $this->db->query("SELECT no_invoice,no_surat FROM invoice_detail WHERE no_invoice='$cek_data->no_invoice' GROUP BY no_invoice,no_surat");
 					foreach($dtl->result() as $r){
@@ -5109,6 +5127,9 @@ class Logistik extends CI_Controller
 				$this->db->set('img_upload_inv', $filefoto);
 				$this->db->set('inp_upload_inv', date('Y-m-d H:i:s'));
 				$this->db->set('cek_global', date('Y-m-d H:i:s'));
+				if($cek_data->status_inv == 'Cek'){
+					$this->db->set('status_inv', 'Open');
+				}
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
