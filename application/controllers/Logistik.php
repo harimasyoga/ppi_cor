@@ -5046,7 +5046,7 @@ class Logistik extends CI_Controller
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
 
-		if($_FILES['filefoto']['name'] && ($cek_data->type == 'box' || ($cek_data->type == 'roll' && $params->tgl_blk != '')))
+		if($_FILES['filefoto']['name'] && (($cek_data->type == 'box' || $cek_data->type == 'sheet') || ($cek_data->type == 'roll' && $params->tgl_blk != '')))
 		{
 			if ($this->upload->do_upload('filefoto'))
 			{
@@ -5411,51 +5411,59 @@ class Logistik extends CI_Controller
 				$urll_foto_inv_terima   = "onclick=open_foto('$r->no_invoice','$r->type','inv_terima','$usnm')";
 				$urll_foto_mutasi       = "onclick=open_foto('$r->no_invoice','$r->type','mutasi','$usnm')";
 				$urll_foto_sj_balik     = "onclick=open_foto('$r->no_invoice','$r->type','sj_balik','$usnm')";
-					
-				if($r->img_bc=='' || ($r->type == 'roll' && $r->inp_sj_balik == null))
-				{
-					if($r->type == 'roll' && $r->inp_sj_balik == null){
-						$cek_bc = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
-					}else if($actualDate > $expired || $actualDate == $expired){
-						if(in_array($this->session->userdata('level'), ['Admin', 'Keuangan1', 'Jasa', 'Pembayaran']) && $this->session->userdata('username') != 'bumagda'){
-							$cek_bc = '<a type="button" '.$urll_foto_bc.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="BC"></i></b></span></a> ';
+				
+				if($r->pajak == 'nonppn'){
+					$cek_bc = '<span style="color:#000;font-weight:bold">-</span>';
+				}else{
+					if($r->img_bc=='' || ($r->type == 'roll' && $r->inp_sj_balik == null))
+					{
+						if($r->type == 'roll' && $r->inp_sj_balik == null){
+							$cek_bc = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
+						}else if($actualDate > $expired || $actualDate == $expired){
+							if(in_array($this->session->userdata('level'), ['Admin', 'Keuangan1', 'Jasa', 'Pembayaran']) && $this->session->userdata('username') != 'bumagda'){
+								$cek_bc = '<a type="button" '.$urll_foto_bc.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="BC"></i></b></span></a> ';
+							}else{
+								$cek_bc = '';
+							}
+							$cek_bc .= '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
 						}else{
-							$cek_bc = '';
+							$cek_bc = '<a type="button" '.$urll_foto_bc.'>
+								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="BC"></i> </b></span>
+							</a> 
+							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
 						}
-						$cek_bc .= '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
-					}else{
-						$cek_bc = '<a type="button" '.$urll_foto_bc.'>
-							<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="BC"></i> </b></span>
-						</a> 
-						<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
+					}else{					
+						$cek_bc = '<a type="button" '.$urll_foto_bc.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 
+							<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_bc,0,10).' - [ '.substr($r->inp_bc,11,8).' ]</span>';
+						$cek_bc .= ($r->cek_bc != null) ? ' <i style="color:#3704ff;" class="fas fa-check-square" title="'.$r->cek_bc.'"></i>' : ' <i style="color:#bbb;" class="fas fa-check-square"></i>';
 					}
-				}else{					
-					$cek_bc = '<a type="button" '.$urll_foto_bc.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 
-						<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_bc,0,10).' - [ '.substr($r->inp_bc,11,8).' ]</span>';
-					$cek_bc .= ($r->cek_bc != null) ? ' <i style="color:#3704ff;" class="fas fa-check-square" title="'.$r->cek_bc.'"></i>' : ' <i style="color:#bbb;" class="fas fa-check-square"></i>';
 				}
 				
-				if($r->img_faktur=='' || ($r->type == 'roll' && $r->inp_sj_balik == null))
-				{
-					if($r->type == 'roll' && $r->inp_sj_balik == null){
-						$cek_faktur = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
-					}else if($actualDate2 > $expired2 || $actualDate2 == $expired2){
-						if(in_array($this->session->userdata('level'), ['Admin', 'Keuangan1', 'Jasa', 'Pembayaran']) && $this->session->userdata('username') != 'bumagda'){
-							$cek_faktur = '<a type="button" '.$urll_foto_faktur.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FAKTUR"></i></b></span></a> ';
-						}else{
-							$cek_faktur = '';
-						}
-						$cek_faktur .= '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
-					}else{
-						$cek_faktur = '<a type="button" '.$urll_foto_faktur.'>
-							<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FAKTUR"></i> </b></span>
-						</a> 
-						<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
-					}
+				if($r->pajak == 'nonppn'){
+					$cek_faktur = '<span style="color:#000;font-weight:bold">-</span>';
 				}else{
-					$cek_faktur = '<a type="button" '.$urll_foto_faktur.'><i style="color:#156b00;" class="fas fa-check-square"></i> </a>
-						<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_faktur,0,10).' - [ '.substr($r->inp_faktur,11,8).' ]</span>';
-					$cek_faktur .= ($r->cek_faktur != null) ? ' <i style="color:#3704ff;" class="fas fa-check-square" title="'.$r->cek_faktur.'"></i>' : ' <i style="color:#bbb;" class="fas fa-check-square"></i>';
+					if($r->img_faktur=='' || ($r->type == 'roll' && $r->inp_sj_balik == null))
+					{
+						if($r->type == 'roll' && $r->inp_sj_balik == null){
+							$cek_faktur = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
+						}else if($actualDate2 > $expired2 || $actualDate2 == $expired2){
+							if(in_array($this->session->userdata('level'), ['Admin', 'Keuangan1', 'Jasa', 'Pembayaran']) && $this->session->userdata('username') != 'bumagda'){
+								$cek_faktur = '<a type="button" '.$urll_foto_faktur.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FAKTUR"></i></b></span></a> ';
+							}else{
+								$cek_faktur = '';
+							}
+							$cek_faktur .= '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
+						}else{
+							$cek_faktur = '<a type="button" '.$urll_foto_faktur.'>
+								<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FAKTUR"></i> </b></span>
+							</a> 
+							<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
+						}
+					}else{
+						$cek_faktur = '<a type="button" '.$urll_foto_faktur.'><i style="color:#156b00;" class="fas fa-check-square"></i> </a>
+							<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_faktur,0,10).' - [ '.substr($r->inp_faktur,11,8).' ]</span>';
+						$cek_faktur .= ($r->cek_faktur != null) ? ' <i style="color:#3704ff;" class="fas fa-check-square" title="'.$r->cek_faktur.'"></i>' : ' <i style="color:#bbb;" class="fas fa-check-square"></i>';
+					}
 				}
 
 				if($r->img_resi=='' || ($r->type == 'roll' && $r->inp_sj_balik == null))
@@ -5545,25 +5553,11 @@ class Logistik extends CI_Controller
 						<span style="color:#f00;font-weight:bold">'.$waktu6.'</span>';
 					}
 				}else{
+					($r->inp_sj_balik != null && $r->tgl_sj_blk != null && $r->type == 'roll') ? $tglSJBlk = $r->tgl_sj_blk : $tglSJBlk = $r->inp_sj_balik;
 					$cek_sj_balik = '<a type="button" '.$urll_foto_sj_balik.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 
-						<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_sj_balik,0,10).' - [ '.substr($r->inp_sj_balik,11,8).' ]</span>';
+						<span style="color:#3704ff;font-weight:bold">'.substr($tglSJBlk,0,10).' - [ '.substr($r->inp_sj_balik,11,8).' ]</span>';
 					$cek_sj_balik .= ($r->cek_sj_balik != null) ? ' <i style="color:#3704ff;" class="fas fa-check-square" title="'.$r->cek_sj_balik.'"></i>' : ' <i style="color:#bbb;" class="fas fa-check-square"></i>';
 				}
-				
-				// if($r->img_upload_inv=='')
-				// {
-				// 	if($actualDate > $expired || $actualDate == $expired){
-				// 		$cek_upload_inv = '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
-				// 	}else{
-				// 		$cek_upload_inv = '
-				// 			<a type="button" '.$urll_foto_upload_inv.'>
-				// 				<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="UPLOAD INV"></i> </b></span>
-				// 			</a> 
-				// 			<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
-				// 	}
-				// }else{
-				// 	$cek_upload_inv = '<i style="color:#156b00;" class="fas fa-check-square"></i> '.substr($r->inp_upload_inv,0,10).' - '.substr($r->inp_upload_inv,11,8).'';
-				// }
 
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
@@ -5729,31 +5723,28 @@ class Logistik extends CI_Controller
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_invoice.'</div>';
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_jatuh_tempo.'</div>';
 				$row[] = '<div class="text-right"><b>'.number_format($total, 0, ",", ".").'</b></div>';
-				// Pembayaran
+				// PEMBAYARAN
 				$bayar = $this->db->query("SELECT SUM(jumlah_bayar) AS byr_jual from trs_bayar_inv where no_inv='$r->no_invoice' GROUP BY no_inv");
-
-				if ($r->acc_owner == "N") 
-				{
-					$txtB            = 'btn-light';
-					$txtT            = '-';
-					$kurang_bayar    = '';
+				if ($r->acc_owner == "N") {
+					$txtB = 'btn-light';
+					$txtT = '-';
 				}else{
-
-					if($bayar->num_rows() == 0){
-						$txtB           = 'btn-danger';
-						$txtT           = 'BELUM BAYAR';
-						$kurang_bayar   = '';
-					}
-					
-					if($bayar->num_rows() > 0){
-						if($bayar->row()->byr_jual == round($total)){
-							$txtB            = 'btn-success';
-							$txtT            = 'LUNAS';
-							$kurang_bayar    = '';
-						}else{
-							$txtB            = 'btn-warning';
-							$txtT            = 'DI CICIL';
-							$kurang_bayar    = '<br><span style="color:#ff5733">'.number_format($total-$bayar->row()->byr_jual,0,',','.').'</span>';
+					if($bayar->num_rows() == 0 && $r->img_mutasi != '' && $r->inp_mutasi != ''){
+						$txtB = 'btn-success';
+						$txtT = 'LUNAS';
+					}else{
+						if($bayar->num_rows() == 0){
+							$txtB = 'btn-danger';
+							$txtT = 'BELUM BAYAR';
+						}
+						if($bayar->num_rows() > 0){
+							if($bayar->row()->byr_jual == round($total)){
+								$txtB = 'btn-success';
+								$txtT = 'LUNAS';
+							}else{
+								$txtB = 'btn-warning';
+								$txtT = 'DI CICIL';
+							}
 						}
 					}
 				}
