@@ -458,11 +458,9 @@
 						<?php if(in_array($this->session->userdata('username'), ['karina', 'tegar', 'developer'])){
 						?>
 							<div style="margin-bottom:12px">
-								
+								<button type="button" class="btn btn-dark btn-sm" onclick="updateMutasi()" title="UPDATE JATUH TEMPO"><i class="fas fa-sync-alt"></i></button>
 								<button type="button" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
-
 								<button type="button" class="btn btn-danger btn-sm" onclick="open_laporan()"><i class="fa fa-print"></i> <b>Laporan</b></button>
-								
 								<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
 							</div>
 						<?php } ?>
@@ -2981,6 +2979,37 @@
 				swal.close()
 			}
 
+		})
+	}
+
+	function updateMutasi(){
+		let tahun = $("#rentang_thn").val()
+		let bulan = $("#rentang_bulan").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/updateMutasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ tahun, bulan }),
+			success: function(res){
+				data = JSON.parse(res)
+				// console.log(data)
+				if(data.data){
+					reloadTable()
+					toastr.success(`<b>UPDATE JT TEMPO MUTASI BERHASIL!</b>`)
+					load_bank()
+				}else{
+					toastr.error(`<b>Belum Beruntung</b>`)
+				}
+			}
 		})
 	}
 
