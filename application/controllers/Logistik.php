@@ -4724,14 +4724,13 @@ class Logistik extends CI_Controller
 	{
 		$params   = (object)$this->input->post();
 
-		$cek_data = $this->db->query("SELECT*FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
+		$cek_data = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS selisih FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
 
 		if($cek_data->img_bc == '' || $cek_data->img_bc == null )
 		{
 		}else{
 			// Hapus File Foto
 			unlink("assets/gambar_inv_bc/".$cek_data->img_bc);
-
 		}
 
 		/* LOGO */
@@ -4761,6 +4760,12 @@ class Logistik extends CI_Controller
 				if($cek_data->status_inv == 'Cek'){
 					$this->db->set('status_inv', 'Open');
 				}
+				if($cek_data->acc_owner == 'Y'){
+					($cek_data->selisih > 0) ? $s = 'Open' : $s = 'Xp';
+					$this->db->set('status_inv', $s);
+					$this->db->set('cek_bc', null);
+					$this->db->set('acc_owner', 'N');
+				}
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -4784,14 +4789,13 @@ class Logistik extends CI_Controller
 	{
 		$params   = (object)$this->input->post();
 
-		$cek_data = $this->db->query("SELECT*FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
+		$cek_data = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS selisih FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
 
 		if($cek_data->img_faktur == '' || $cek_data->img_faktur == null )
 		{
 		}else{
 			// Hapus File Foto
 			unlink("assets/gambar_inv_faktur/".$cek_data->img_faktur);
-
 		}
 
 		/* LOGO */
@@ -4821,6 +4825,12 @@ class Logistik extends CI_Controller
 				if($cek_data->status_inv == 'Cek'){
 					$this->db->set('status_inv', 'Open');
 				}
+				if($cek_data->acc_owner == 'Y'){
+					($cek_data->selisih > 0) ? $s = 'Open' : $s = 'Xp';
+					$this->db->set('status_inv', $s);
+					$this->db->set('cek_faktur', null);
+					$this->db->set('acc_owner', 'N');
+				}
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -4844,14 +4854,13 @@ class Logistik extends CI_Controller
 	{
 		$params   = (object)$this->input->post();
 
-		$cek_data = $this->db->query("SELECT*FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
+		$cek_data = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS selisih FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
 
 		if($cek_data->img_resi == '' || $cek_data->img_resi == null )
 		{
 		}else{
 			// Hapus File Foto
 			unlink("assets/gambar_inv_resi/".$cek_data->img_resi);
-
 		}
 
 		/* LOGO */
@@ -4881,6 +4890,12 @@ class Logistik extends CI_Controller
 				if($cek_data->status_inv == 'Cek'){
 					$this->db->set('status_inv', 'Open');
 				}
+				if($cek_data->acc_owner == 'Y'){
+					($cek_data->selisih > 0) ? $s = 'Open' : $s = 'Xp';
+					$this->db->set('status_inv', $s);
+					$this->db->set('cek_resi', null);
+					$this->db->set('acc_owner', 'N');
+				}
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -4904,14 +4919,13 @@ class Logistik extends CI_Controller
 	{
 		$params   = (object)$this->input->post();
 
-		$cek_data = $this->db->query("SELECT*FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
+		$cek_data = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS selisih FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
 
 		if($cek_data->img_inv_terima == '' || $cek_data->img_inv_terima == null )
 		{
 		}else{
 			// Hapus File Foto
 			unlink("assets/gambar_inv_inv_terima/".$cek_data->img_inv_terima);
-
 		}
 
 		/* LOGO */
@@ -4941,6 +4955,12 @@ class Logistik extends CI_Controller
 				if($cek_data->status_inv == 'Cek'){
 					$this->db->set('status_inv', 'Open');
 				}
+				if($cek_data->acc_owner == 'Y'){
+					($cek_data->selisih > 0) ? $s = 'Open' : $s = 'Xp';
+					$this->db->set('status_inv', $s);
+					$this->db->set('cek_inv_terima', null);
+					$this->db->set('acc_owner', 'N');
+				}
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -4964,14 +4984,13 @@ class Logistik extends CI_Controller
 	{
 		$params   = (object)$this->input->post();
 
-		$cek_data = $this->db->query("SELECT*FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
+		$cek_data = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS selisih FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
 
 		if($cek_data->img_mutasi == '' || $cek_data->img_mutasi == null )
 		{
 		}else{
 			// Hapus File Foto
 			unlink("assets/gambar_inv_mutasi/".$cek_data->img_mutasi);
-
 		}
 
 		/* LOGO */
@@ -5001,6 +5020,12 @@ class Logistik extends CI_Controller
 				if($cek_data->status_inv == 'Cek'){
 					$this->db->set('status_inv', 'Open');
 				}
+				if($cek_data->acc_owner == 'Y'){
+					($cek_data->selisih > 0) ? $s = 'Open' : $s = 'Xp';
+					$this->db->set('status_inv', $s);
+					$this->db->set('cek_mutasi', null);
+					$this->db->set('acc_owner', 'N');
+				}
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
 
@@ -5024,14 +5049,13 @@ class Logistik extends CI_Controller
 	{
 		$params   = (object)$this->input->post();
 
-		$cek_data = $this->db->query("SELECT*FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
+		$cek_data = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS selisih FROM invoice_header where no_invoice='$params->no_inv_foto' ")->row();
 
 		if($cek_data->img_sj_balik == '' || $cek_data->img_sj_balik == null )
 		{
 		}else{
 			// Hapus File Foto
 			unlink("assets/gambar_inv_sj_balik/".$cek_data->img_sj_balik);
-
 		}
 
 		/* LOGO */
@@ -5060,6 +5084,12 @@ class Logistik extends CI_Controller
 				$this->db->set('cek_global', date('Y-m-d H:i:s'));
 				if($cek_data->status_inv == 'Cek'){
 					$this->db->set('status_inv', 'Open');
+				}
+				if($cek_data->acc_owner == 'Y'){
+					($cek_data->selisih > 0) ? $s = 'Open' : $s = 'Xp';
+					$this->db->set('status_inv', $s);
+					$this->db->set('cek_sj_balik', null);
+					$this->db->set('acc_owner', 'N');
 				}
 				$this->db->set('tgl_sj_blk', $params->tgl_blk);
 				$this->db->where('no_invoice', $params->no_inv_foto);
@@ -5161,6 +5191,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function updateMutasi()
+	{
+		$result = $this->m_logistik->updateMutasi();
+		echo json_encode($result);
+	}
+
 
 	function edit_timbangan()
 	{
@@ -5229,7 +5265,7 @@ class Logistik extends CI_Controller
 				$order_query = 'status_inv desc, cek_global desc, tgl_invoice desc,no_invoice';
 			}
 			
-			$query   = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS sisa_hari_mutasi FROM invoice_header
+			$query   = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS sisa_hari_mutasi,DATEDIFF(tgl_jatuh_tempo , tgl_invoice) AS tempo FROM invoice_header
 			-- where type in ('box','sheet') 
 			where YEAR(tgl_invoice) in ('$thnn') $cek_bulan $tipe
 			ORDER BY $order_query")->result();
@@ -5524,12 +5560,13 @@ class Logistik extends CI_Controller
 						}else{
 							$cek_mutasi = '';
 						}
-						$cek_mutasi .= '<span style="color:#f00;font-weight:bold">EXPIRED</span>';
+						$lbh = '<span class="bg-primary" style="vertical-align:top;padding:2px 4px;font-size:12px;border-radius:2px 0 0 2px">'.$r->tempo.'</span><span class="bg-dark" style="vertical-align:top;padding:2px 4px;font-size:12px;border-radius:0 2px 2px 0">+'.str_replace("-", "", $r->sisa_hari_mutasi). ' HARI</span>';
+						$cek_mutasi .= '<span style="color:#f00;font-weight:bold">EXPIRED '.$lbh.'</span>';
 					}else{
 						$cek_mutasi = '<a type="button" '.$urll_foto_mutasi.'>
 							<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="MUTASI"></i> </b></span>
 						</a> 
-						<span style="color:#f00;font-weight:bold">'.$r->sisa_hari_mutasi.' Hari</span>';
+						<span style="color:#f00;font-weight:bold">'.$r->sisa_hari_mutasi.' Hari <span style="background:#3704ff;color:#fff;vertical-align:top;padding:2px 4px;font-size:12px;border-radius:2px">'.$r->tempo.'</span></span>';
 					}
 				}else{
 					$cek_mutasi = '<a type="button" '.$urll_foto_mutasi.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 

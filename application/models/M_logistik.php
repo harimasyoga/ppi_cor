@@ -2893,6 +2893,10 @@ class M_logistik extends CI_Model
 		$disc 			= $this->input->post('disc_input');
 		($disc == 0 || $disc == "") ? $discount = 0 : $discount = $this->input->post('disc_input');
 
+		$tgl_tempo = $this->input->post('tgl_tempo');
+		$cekTempo = $this->db->query("SELECT DATEDIFF('$tgl_tempo' , CURDATE()) AS selisih FROM invoice_header WHERE id='$id_inv'")->row();
+		($cekTempo->selisih > 0) ? $stts = 'Open' : $stts = 'Xp';
+
 		$m_no_inv       = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
 		$data_header = array(
 			'no_invoice'         => $m_no_inv,
@@ -2912,8 +2916,9 @@ class M_logistik extends CI_Model
 			'disc' 			     => $discount,			 
 			'edit_user'          => $this->username,
 			'edit_time'          => date("Y:m:d H:i:s"),
-			'cek_global'          => date("Y:m:d H:i:s"),
-			// 'status'             => 'Open',
+			'cek_sj_inv'         => null,
+			'cek_global'		 => date("Y-m-d"),
+			'status_inv'         => $stts,
 		);
 
 		$result_header = $this->db->update("invoice_header", $data_header,
@@ -3781,9 +3786,12 @@ class M_logistik extends CI_Model
 			$no_inv = $_POST["no_inv"];
 		}
 
+		$cekTempo = $this->db->query("SELECT DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS selisih FROM invoice_header WHERE no_invoice='$no_inv'")->row();
+		($cekTempo->selisih > 0) ? $stts = 'Cek' : $stts = 'Xp';
+
 		$this->db->set("cek_".$stat, date('Y-m-d H:i:s'));
 		$this->db->set("cek_global", date('Y-m-d H:i:s'));
-		$this->db->set("status_inv", 'Cek');
+		$this->db->set("status_inv", $stts);
 		$this->db->where("no_invoice", $no_inv);
 		$data = $this->db->update("invoice_header");
 		$msg = "BERHASIL CEK ".strtoupper($stat).'!';
@@ -3791,6 +3799,31 @@ class M_logistik extends CI_Model
 		return array(
 			'data' => $data,
 			'msg' => $msg,
+		);
+	}
+
+	function updateMutasi()
+	{
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		($bulan == 'all') ? $wBln = "" : $wBln = "AND MONTH(tgl_invoice) IN ('$bulan')";
+
+		$invoice = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS sisa_hari_mutasi FROM invoice_header
+		WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND img_mutasi IS NULL AND inp_mutasi IS NULL AND DATEDIFF(tgl_jatuh_tempo , CURDATE()) < '0'
+		ORDER BY status_inv DESC, cek_global DESC, tgl_invoice DESC,no_invoice");
+		if($invoice->num_rows() > 0){
+			foreach($invoice->result() as $r){
+				$this->db->set("status_inv", 'Xp');
+				$this->db->set("cek_global", date('Y-m-d H:i:s'));
+				$this->db->where("id", $r->id);
+				$data = $this->db->update("invoice_header");
+			}
+		}else{
+			$data = true;
+		}
+
+		return array(
+			'data' => $data,
 		);
 	}
 
