@@ -3001,7 +3001,7 @@
 			data: ({ tahun, bulan }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				// console.log(data)
 				if(data.data){
 					reloadTable()
 					toastr.success(`<b>UPDATE JT TEMPO MUTASI BERHASIL!</b>`)
