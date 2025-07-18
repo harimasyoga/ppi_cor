@@ -3786,12 +3786,7 @@ class M_logistik extends CI_Model
 			$no_inv = $_POST["no_inv"];
 		}
 
-		$cekTempo = $this->db->query("SELECT DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS selisih FROM invoice_header WHERE no_invoice='$no_inv'")->row();
-		($cekTempo->selisih > 0) ? $stts = 'Cek' : $stts = 'Xp';
-
 		$this->db->set("cek_".$stat, date('Y-m-d H:i:s'));
-		$this->db->set("cek_global", date('Y-m-d H:i:s'));
-		$this->db->set("status_inv", $stts);
 		$this->db->where("no_invoice", $no_inv);
 		$data = $this->db->update("invoice_header");
 		$msg = "BERHASIL CEK ".strtoupper($stat).'!';
@@ -3802,12 +3797,71 @@ class M_logistik extends CI_Model
 		);
 	}
 
-	function updateMutasi()
+	function updateExpired()
 	{
 		$tahun = $_POST["tahun"];
 		$bulan = $_POST["bulan"];
 		($bulan == 'all') ? $wBln = "" : $wBln = "AND MONTH(tgl_invoice) IN ('$bulan')";
+		// CEK YANG ADA BC
+		$qBC = $this->db->query("SELECT h.*,DATEDIFF(h.tgl_invoice, CURDATE()) AS sis_bc FROM invoice_header h
+		INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+		WHERE h.type!='roll' AND p.bc='Y' AND h.img_bc IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) < '-4' AND YEAR(tgl_invoice) IN ('$tahun') $bulan
+		GROUP BY h.no_invoice");
+		if($qBC->num_rows() > 0){
+			foreach($qBC->num_rows() as $bc){
+				$this->db->set("status_inv", 'Xp');
+				$this->db->set("cek_global", date('Y-m-d H:i:s'));
+				$this->db->where("id", $bc->id);
+				$xBc = $this->db->update("invoice_header");
+			}
+		}else{
+			$xBc = true;
+		}
 
+		// CEK FAKTUR
+		if($xBc){
+			$qFaktur = $this->db->query("SELECT h.*,DATEDIFF(h.tgl_invoice, CURDATE()) AS sisa_faktur FROM invoice_header h
+			INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+			WHERE YEAR(tgl_invoice) IN ('$tahun') $bulan AND h.img_faktur IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) < '-3'
+			GROUP BY h.no_invoice");
+			if($qFaktur->num_rows() > 0){
+				foreach($qFaktur->result() as $faktur){
+					$this->db->set("status_inv", 'Xp');
+					$this->db->set("cek_global", date('Y-m-d H:i:s'));
+					$this->db->where("id", $faktur->id);
+					$xFaktur = $this->db->update("invoice_header");
+				}
+			}else{
+				$xFaktur = true;
+			}
+		}
+
+		// CEK NO RESI
+		if($xFaktur){
+			$qNoResi = $this->db->query("SELECT h.*,DATEDIFF(h.tgl_invoice, CURDATE()) AS sisa_resi FROM invoice_header h
+			INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+			WHERE YEAR(tgl_invoice) IN ('$tahun') $bulan AND h.img_resi IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) < '-4'
+			GROUP BY h.no_invoice");
+			if($qNoResi->num_rows() > 0){
+				foreach($qNoResi->result() as $noresi){
+					$this->db->set("status_inv", 'Xp');
+					$this->db->set("cek_global", date('Y-m-d H:i:s'));
+					$this->db->where("id", $noresi->id);
+					$xNoResi = $this->db->update("invoice_header");
+				}
+			}else{
+				$xNoResi = true;
+			}
+		}
+
+		// CEK INVOICE DITERIMA
+		$qInvDiterima = $this->db->query("SELECT h.*,DATEDIFF(SUBSTRING(h.inp_resi, 1, 10), CURDATE()) AS sisa_inv_terima FROM invoice_header h
+		INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+		WHERE YEAR(tgl_invoice) IN ('$tahun') $bulan AND h.img_resi IS NOT NULL AND h.img_inv_terima IS NULL AND DATEDIFF(h.inp_resi, CURDATE()) < '-3'
+		GROUP BY h.no_invoice");
+
+
+		// MUTASI
 		$invoice = $this->db->query("SELECT *,DATEDIFF(tgl_jatuh_tempo , CURDATE()) AS sisa_hari_mutasi FROM invoice_header
 		WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND img_mutasi IS NULL AND inp_mutasi IS NULL AND DATEDIFF(tgl_jatuh_tempo , CURDATE()) < '0'
 		ORDER BY status_inv DESC, cek_global DESC, tgl_invoice DESC,no_invoice");
