@@ -16,6 +16,23 @@
 		</div><!-- /.container-fluid -->
 	</section>
 
+	<style>
+		.bg-expired {
+			position: relative;
+		}
+
+		.bg-expired::before {
+			content: "";
+			position: absolute;
+			top: -12px;
+			right: -12px;
+			bottom: -12px;
+			left: -12px;
+			background: #f00;
+			opacity: 0.2;
+		}
+	</style>
+
 	<section class="content">
 
 		<!-- Default box -->
@@ -524,16 +541,15 @@
 								</select>
 							</div>
 							<div class="col-md-2" style="padding-bottom:3px">
-								<select id="order_by" class="form-control select2" onchange="load_data()"> 
-									<option value="all">-- ORDER BY --</option>
-									<option value="cek">CEK</option>
-									<option value="exp_bc">EXPIRED BC</option>
-									<option value="exp_faktur">EXPIRED FAKTUR</option>
-									<option value="exp_resi">EXPIRED RESI</option>
-									<option value="exp_inv_terima">EXPIRED INV TERIMA</option>
-									<option value="exp_mutasi">EXPIRED MUTASI</option>
-									<option value="exp_sj_balik">EXPIRED SJ BALIK</option>
-									<option value="edit">EDIT TERAKHIR</option>
+								<select id="exp_pilih" class="form-control select2" onchange="load_data()"> 
+									<option value="all">-- EXPIRED --</option>
+									<option value="exp_bc">BC</option>
+									<option value="exp_faktur">FAKTUR</option>
+									<option value="exp_resi">RESI</option>
+									<option value="exp_inv_terima">INV TERIMA</option>
+									<option value="exp_sj_balik">SJ BALIK</option>
+									<option value="exp_mutasi">MUTASI</option>
+									<option value="exp_not">TIDAK ADA</option>
 								</select>
 							</div>
 							<div class="col-md-4" style="padding-bottom:3px">
@@ -1178,7 +1194,7 @@
 		var blnn        = $('#rentang_bulan').val();
 		var thnn        = $('#rentang_thn').val();
 		var type_inv    = $('#type_inv').val();
-		var order_by    = $('#order_by').val();
+		var exp_pilih   = $('#exp_pilih').val();
 		var table       = $('#datatable').DataTable();
 		
 		table.destroy();
@@ -1191,7 +1207,7 @@
 			"ajax": {
 				"url": '<?= base_url(); ?>Logistik/load_data/Invoice',
 				"type": "POST",
-				data  : ({blnn,thnn,type_inv,order_by}), 
+				data  : ({blnn, thnn, type_inv, exp_pilih}), 
 				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
 				// success: function(){
 				// 	swal.close()
@@ -3023,6 +3039,7 @@
 					load_bank()
 				}else{
 					toastr.error(`<b>Belum Beruntung</b>`)
+					swal.close()
 				}
 			}
 		})
