@@ -16,6 +16,23 @@
 		</div><!-- /.container-fluid -->
 	</section>
 
+	<style>
+		.bg-expired {
+			position: relative;
+		}
+
+		.bg-expired::before {
+			content: "";
+			position: absolute;
+			top: -12px;
+			right: -12px;
+			bottom: -12px;
+			left: -12px;
+			background: #f00;
+			opacity: 0.2;
+		}
+	</style>
+
 	<section class="content">
 
 		<!-- Default box -->
@@ -458,7 +475,7 @@
 						<?php if(in_array($this->session->userdata('username'), ['karina', 'tegar', 'developer'])){
 						?>
 							<div style="margin-bottom:12px">
-								<button type="button" class="btn btn-dark btn-sm" onclick="updateMutasi()" title="UPDATE JATUH TEMPO"><i class="fas fa-sync-alt"></i></button>
+								<button type="button" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE JATUH TEMPO"><i class="fas fa-sync-alt"></i></button>
 								<button type="button" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								<button type="button" class="btn btn-danger btn-sm" onclick="open_laporan()"><i class="fa fa-print"></i> <b>Laporan</b></button>
 								<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
@@ -524,16 +541,15 @@
 								</select>
 							</div>
 							<div class="col-md-2" style="padding-bottom:3px">
-								<select id="order_by" class="form-control select2" onchange="load_data()"> 
-									<option value="all">-- ORDER BY --</option>
-									<option value="cek">CEK</option>
-									<option value="exp_bc">EXPIRED BC</option>
-									<option value="exp_faktur">EXPIRED FAKTUR</option>
-									<option value="exp_resi">EXPIRED RESI</option>
-									<option value="exp_inv_terima">EXPIRED INV TERIMA</option>
-									<option value="exp_mutasi">EXPIRED MUTASI</option>
-									<option value="exp_sj_balik">EXPIRED SJ BALIK</option>
-									<option value="edit">EDIT TERAKHIR</option>
+								<select id="exp_pilih" class="form-control select2" onchange="load_data()"> 
+									<option value="all">-- EXPIRED --</option>
+									<option value="exp_bc">BC</option>
+									<option value="exp_faktur">FAKTUR</option>
+									<option value="exp_resi">RESI</option>
+									<option value="exp_inv_terima">INV TERIMA</option>
+									<option value="exp_sj_balik">SJ BALIK</option>
+									<option value="exp_mutasi">MUTASI</option>
+									<option value="exp_not">TIDAK ADA</option>
 								</select>
 							</div>
 							<div class="col-md-4" style="padding-bottom:3px">
@@ -792,6 +808,14 @@
 						
 						<div class="col-md-6"></div>
 					</div>
+					<div id="upload_invd" class="card-body row" style="padding:5px;font-weight:bold">
+						<div class="col-md-1"></div>
+						<div class="col-md-2">Tgl Inv Diterima</div>
+						<div class="col-md-3">
+							<input type="date" name="tgl_invd" id="tgl_invd" class="form-control">
+						</div>
+						<div class="col-md-6"></div>
+					</div>
 					<div id="upload_blk" class="card-body row" style="padding:5px;font-weight:bold">
 						<div class="col-md-1"></div>
 						<div class="col-md-2">Tgl Balik</div>
@@ -842,13 +866,7 @@
 						</div>
 						<div class="col-md-1"></div>
 					</div>
-					<div class="card-body row" style="font-weight:bold;padding:20px 0 6px">
-						<div class="col-md-3"></div>
-						<div class="col-md-2">
-							<div class="cekcekcek"></div>
-						</div>
-						<div class="col-md-7"></div>
-					</div>
+					<div class="cekcekcek"></div>
 					<br><br>
 				</div>
 			</form>
@@ -909,43 +927,42 @@
 		$(".simpan-save").html('')
 		$(".detail-inv").html('')
 		$("#filefoto").html('')
+		$("#tgl_invd").val('')
 		$("#tgl_blk").val('')
 		$("#ket_file").val('')
 		$('#modal_foto').modal('show');
 		$("#no_inv_foto").val(no_inv);
+		$('#upload_invd').hide();
 		$('#upload_blk').hide();
 		$('#filefoto').css("display","block");
-		if(ket=='bc' && (username=='karina' || username=='siska'  || username=='tegar') )
-		{
+		if(ket=='bc' && (username=='karina' || username=='siska'  || username=='tegar')){
 			$('#upload_file').show();
-		}else if(ket=='faktur' && username=='siska')
-		{
+		}else if(ket=='faktur' && username=='siska'){
 			$('#upload_file').show();
-		}else if(ket=='resi' && (username=='karina' || username=='tegar'))
-		{
+		}else if(ket=='resi' && (username=='karina' || username=='tegar')){
 			$('#upload_file').show();
-		}else if(ket=='inv_terima' && (username=='karina' || username=='tegar'))
-		{
+		}else if(ket=='inv_terima' && (username=='karina' || username=='tegar')){
+			$('#upload_invd').show();
 			$('#upload_file').show();
-		}else if(ket=='mutasi' && (username=='karina' || username=='tegar'))
-		{
+		}else if(ket=='mutasi' && (username=='karina' || username=='tegar')){
 			$('#upload_file').show();
-		}else if(ket=='sj_balik' && (username=='karina' || username=='tegar'))
-		{
+		}else if(ket=='sj_balik' && (username=='karina' || username=='tegar')){
 			if(tipe == 'roll'){
 				$('#upload_blk').show();
 			}
 			$('#upload_file').show();
-		}else if(ket=='upload_inv' && (username=='karina' || username=='tegar'))
-		{
+		}else if(ket=='upload_inv' && (username=='karina' || username=='tegar')){
 			$('#upload_file').show();
-		}else if(username=='developer')
-		{
+		}else if(username=='developer'){
+			if(ket=='inv_terima'){
+				$('#upload_invd').show();
+			}
 			if(ket=='sj_balik' && tipe == 'roll'){
 				$('#upload_blk').show();
 			}
 			$('#upload_file').show();
 		}else{
+			$('#upload_invd').css("display","none");
 			$('#upload_blk').css("display","none");
 			$('#upload_file').css("display","none");
 		}
@@ -969,6 +986,9 @@
 				
 				$('#div_preview_foto').css("display","block");
 				$(".detail-inv").html(data.htmlDtl)
+				if(ket=='inv_terima'){
+					$("#tgl_invd").val(data.header.inp_inv_terima.substr(0, 10))
+				}
 				if(ket=='sj_balik' && data.header.type == 'roll'){
 					if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk == null && data.header.type == 'roll'){
 						$("#tgl_blk").val(data.header.inp_sj_balik.substr(0, 10))
@@ -1000,12 +1020,23 @@
 
 				// cek
 				if(data.header.cekinv == null && data.header.inpinv != null && (username=='bumagda' || username=='developer')){
-					$(".cekcekcek").html(`<select class="form-control select2" id="invinvinv" onchange="cekInv('lama', '')">
-						<option value="">CEK</option>
-						<option value="${ket}">OK</option>
-					</select>`)
+					$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 0 6px">
+						<div class="col-md-3"></div>
+						<div class="col-md-2">
+							<select class="form-control select2" id="invinvinv" onchange="cekInv('lama', '')">
+								<option value="">CEK</option>
+								<option value="${ket}">OK</option>
+							</select>
+						</div>
+						<div class="col-md-7"></div>
+					</div>`)
 				}else if(data.header.cekinv != null && (username=='bumagda' || username=='developer')){
-					$(".cekcekcek").html(`<span style="font-weight:bold">CEK : ${data.header.cekinv}</span>`)
+					$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 5px 6px">
+						<div class="col-md-3"></div>
+						<div class="col-md-9">
+							<span style="font-weight:bold">CEK : ${data.header.cekinv}</span>
+						</div>
+					</div>`)
 				}else{
 					$(".cekcekcek").html(``)
 				}
@@ -1163,7 +1194,7 @@
 		var blnn        = $('#rentang_bulan').val();
 		var thnn        = $('#rentang_thn').val();
 		var type_inv    = $('#type_inv').val();
-		var order_by    = $('#order_by').val();
+		var exp_pilih   = $('#exp_pilih').val();
 		var table       = $('#datatable').DataTable();
 		
 		table.destroy();
@@ -1176,7 +1207,7 @@
 			"ajax": {
 				"url": '<?= base_url(); ?>Logistik/load_data/Invoice',
 				"type": "POST",
-				data  : ({blnn,thnn,type_inv,order_by}), 
+				data  : ({blnn, thnn, type_inv, exp_pilih}), 
 				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
 				// success: function(){
 				// 	swal.close()
@@ -2982,11 +3013,11 @@
 		})
 	}
 
-	function updateMutasi(){
+	function updateExpired(){
 		let tahun = $("#rentang_thn").val()
 		let bulan = $("#rentang_bulan").val()
 		$.ajax({
-			url: '<?php echo base_url('Logistik/updateMutasi')?>',
+			url: '<?php echo base_url('Logistik/updateExpired')?>',
 			type: "POST",
 			beforeSend: function() {
 				swal({
@@ -3008,6 +3039,7 @@
 					load_bank()
 				}else{
 					toastr.error(`<b>Belum Beruntung</b>`)
+					swal.close()
 				}
 			}
 		})
