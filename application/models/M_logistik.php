@@ -1258,6 +1258,22 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function noteSJ()
+	{
+		$id = $_POST["id"];
+		$note = $_POST["no_te"];
+
+		$this->db->set('note', $note);
+		$this->db->where('id', $id);
+		$data = $this->db->update('pl_box');
+		$msg = "TAMBAH NOTE BERHASIL!";
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function addTimbangan()
 	{
 		$tgl = $_POST["tgl"];
@@ -1437,6 +1453,7 @@ class M_logistik extends CI_Model
 		$this->db->where("rk_tgl", $rk->rk_tgl);
 		$this->db->where("id_produk", $rk->id_produk);
 		$this->db->where("rk_urut", $rk->rk_urut);
+		$this->db->where("id_rk", $rk->id_rk);
 		$result = $this->db->update("m_rencana_kirim");
 
 		return [
@@ -3822,8 +3839,25 @@ class M_logistik extends CI_Model
 			$xMutasi = true;
 		}
 
-		// CEK INVOICE DITERIMA
+		// CEK SURAT JALAN BALIK
 		if($xMutasi){
+			$qSJBalik = $this->db->query("SELECT h.*,DATEDIFF(h.tgl_invoice, CURDATE()) AS sisa_sj_balik FROM invoice_header h
+			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.img_sj_balik IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) < '-6'
+			GROUP BY h.no_invoice");
+			if($qSJBalik->num_rows() > 0){
+				foreach($qSJBalik->result() as $sjblk){
+					$this->db->set("status_inv", 'Xp');
+					$this->db->set("cek_global", date('Y-m-d H:i:s'));
+					$this->db->where("id", $sjblk->id);
+					$xSJBalik = $this->db->update("invoice_header");
+				}
+			}else{
+				$xSJBalik = true;
+			}
+		}
+
+		// CEK INVOICE DITERIMA
+		if($xSJBalik){
 			$qInvDiterima = $this->db->query("SELECT h.*,DATEDIFF(SUBSTRING(h.inp_resi, 1, 10), CURDATE()) AS sisa_inv_terima FROM invoice_header h
 			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.img_resi IS NOT NULL AND h.img_inv_terima IS NULL AND DATEDIFF(h.inp_resi, CURDATE()) < '-3'
 			GROUP BY h.no_invoice");
@@ -3894,6 +3928,7 @@ class M_logistik extends CI_Model
 
 		return array(
 			'data' => $data,
+			'xSJBalik' => $xSJBalik,
 			'xMutasi' => $xMutasi,
 			'xInvDiterima' => $xInvDiterima,
 			'xNoResi' => $xNoResi,

@@ -542,14 +542,14 @@
 							</div>
 							<div class="col-md-2" style="padding-bottom:3px">
 								<select id="exp_pilih" class="form-control select2" onchange="load_data()"> 
-									<option value="all">-- EXPIRED --</option>
-									<option value="exp_bc">BC</option>
-									<option value="exp_faktur">FAKTUR</option>
-									<option value="exp_resi">RESI</option>
-									<option value="exp_inv_terima">INV TERIMA</option>
-									<option value="exp_sj_balik">SJ BALIK</option>
-									<option value="exp_mutasi">MUTASI</option>
-									<option value="exp_not">TIDAK ADA</option>
+									<option value="all">-- CEK --</option>
+									<option value="exp_bc">EXPIRED BC</option>
+									<option value="exp_faktur">EXPIRED FAKTUR</option>
+									<option value="exp_resi">EXPIRED RESI</option>
+									<option value="exp_inv_terima">EXPIRED INV TERIMA</option>
+									<option value="exp_sj_balik">EXPIRED SJ BALIK</option>
+									<option value="exp_mutasi">EXPIRED MUTASI</option>
+									<option value="exp_not">EXPIRED TIDAK ADA</option>
 								</select>
 							</div>
 							<div class="col-md-4" style="padding-bottom:3px">
@@ -3035,10 +3035,10 @@
 				// console.log(data)
 				if(data.data){
 					reloadTable()
-					toastr.success(`<b>UPDATE JT TEMPO MUTASI BERHASIL!</b>`)
+					toastr.success(`<b>UPDATE EXPIRED BERHASIL!</b>`)
 					load_bank()
 				}else{
-					toastr.error(`<b>Belum Beruntung</b>`)
+					toastr.error(`<b>BELUM BERUNTUNG</b>`)
 					swal.close()
 				}
 			}

@@ -721,4 +721,21 @@
 			}
 		})
 	}
+
+	function noteSJ(id)
+	{
+		let no_te = $("#no_te"+id).val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/noteSJ')?>',
+			type: "POST",
+			data: ({
+				id, no_te
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				toastr.success(`<b>${data.msg}!</b>`);
+				listRencanaKirim()
+			}
+		})
+	}
 </script>
