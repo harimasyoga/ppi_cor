@@ -5151,7 +5151,7 @@ class Logistik extends CI_Controller
 			// EXPIRED
 			($exp_pilih == 'exp_bc') ? $wInn = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan" : $wInn = "";
 			if ($exp_pilih == 'exp_bc'){
-				$wExp = "AND status_inv='Xp' AND inp_bc IS NULL AND p.bc='Y'";
+				$wExp = "AND status_inv='Xp' AND inp_bc IS NULL AND p.bc='Y' AND h.type!='roll'";
 			}else if ($exp_pilih == 'exp_faktur'){
 				$wExp = "AND status_inv='Xp' AND inp_faktur IS NULL";
 			}else if ($exp_pilih == 'exp_resi'){
@@ -5339,7 +5339,6 @@ class Logistik extends CI_Controller
 				($seconds3 == 0) ? $tseconds3 = '' : $tseconds3 = $seconds.' Sec';
 				($days3 == 0 && $hours3 == 0 && $minutes3 == 0) ? $waktu3 = $tseconds3 : $waktu3 = $tDays3.$tHours3.$tMinutes3;
 
-
 				$total                  = $queryd->jumlah + $nominal;
 				$usnm                   = $this->session->userdata('username');
 				$id                     = "'$r->id'";
@@ -5352,7 +5351,7 @@ class Logistik extends CI_Controller
 				$urll_foto_mutasi       = "onclick=open_foto('$r->no_invoice','$r->type','mutasi','$usnm')";
 				$urll_foto_sj_balik     = "onclick=open_foto('$r->no_invoice','$r->type','sj_balik','$usnm')";
 				
-				// CEK BC
+				// BC
 				($r->type != 'roll') ? $peTe = $this->db->query("SELECT bc FROM m_pelanggan WHERE id_pelanggan='$r->id_perusahaan' AND bc='Y'")->num_rows() : $peTe = 0;
 				if($r->pajak == 'nonppn' || $r->type == 'roll' || $peTe == 0){
 					$cek_bc = '<span style="color:#000;font-weight:bold">-</span>';
@@ -5381,6 +5380,7 @@ class Logistik extends CI_Controller
 					}
 				}
 				
+				// FAKTUR
 				if($r->pajak == 'nonppn'){
 					$cek_faktur = '<span style="color:#000;font-weight:bold">-</span>';
 				}else{
@@ -5408,6 +5408,7 @@ class Logistik extends CI_Controller
 					}
 				}
 
+				// RESI
 				if($r->img_resi=='' || ($r->type == 'roll' && $r->inp_sj_balik == null)){
 					if($r->type == 'roll' && $r->inp_sj_balik == null){
 						$cek_resi = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
@@ -5429,6 +5430,7 @@ class Logistik extends CI_Controller
 					$cek_resi .= ($r->cek_resi != null) ? ' <i style="color:#3704ff;" class="fas fa-check-square" title="'.$r->cek_resi.'"></i>' : ' <i style="color:#bbb;" class="fas fa-check-square"></i>';
 				}
 				
+				// INVOICE DITERIMA
 				if($r->img_inv_terima=='' || ($r->type == 'roll' && $r->inp_sj_balik == null)){
 					if($r->type == 'roll' && $r->inp_sj_balik == null){
 						$cek_inv_terima = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
@@ -5456,6 +5458,7 @@ class Logistik extends CI_Controller
 					$cek_inv_terima .= ($r->cek_inv_terima != null) ? ' <i style="color:#3704ff;" class="fas fa-check-square" title="'.$r->cek_inv_terima.'"></i>' : ' <i style="color:#bbb;" class="fas fa-check-square"></i>';
 				}
 
+				// MUTASI
 				$sisaHari = $r->tempo + $r->sisa_invd;
 				if($sisaHari == 0){
 					$secondsDiffH = strtotime(substr($r->inp_inv_terima,0,10)) - time();
@@ -5491,6 +5494,7 @@ class Logistik extends CI_Controller
 					$cek_mutasi .= ($r->cek_mutasi != null) ? ' <i style="color:#3704ff;" class="fas fa-check-square" title="'.$r->cek_mutasi.'"></i>' : ' <i style="color:#bbb;" class="fas fa-check-square"></i>';
 				}
 				
+				// SURAT JALAN BALIK
 				if($r->img_sj_balik==''){
 					if($actualDate6 > $expired6 || $actualDate6 == $expired6){
 						if($this->session->userdata('level') == 'Admin'){
@@ -6727,14 +6731,16 @@ class Logistik extends CI_Controller
 			}
 		}else if ($jenis == "loadDataInvoiceLaminasi") {
 			$tahun = $_POST["tahun"];
+			$bulan = $_POST["bulan"];
+			($bulan == '' || $bulan == 'all') ? $cBulan = "" : $cBulan = "AND month(h.tgl_invoice) IN ('$bulan')";
 			$plhJenis = $_POST["jenis"];
 			$plhHub = $_POST["hub"];
 			($plhHub == "") ? $wHub = '' : $wHub = "AND h.bank='$plhHub'";
 			($this->session->userdata('username') == 'usman') ? $where = "AND h.jenis_lm='PEKALONGAN'" : $where = "AND h.jenis_lm='PPI'";
 			$query = $this->db->query("SELECT h.*,b.aka FROM invoice_laminasi_header h
 			INNER JOIN m_hub b ON h.bank=b.id_hub
-			WHERE h.tgl_invoice LIKE '%$tahun%' AND h.jenis_lm LIKE '%$plhJenis%' $wHub $where
-			ORDER BY acc_owner,tgl_invoice DESC,no_invoice DESC")->result();
+			WHERE h.tgl_invoice LIKE '%$tahun%' $cBulan AND h.jenis_lm LIKE '%$plhJenis%' $wHub $where
+			ORDER BY acc_owner, tgl_invoice DESC, no_invoice DESC")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
@@ -11554,7 +11560,10 @@ class Logistik extends CI_Controller
 								NO. SURAT JALAN : &nbsp;<input type="number" class="form-control" id="pp-nosj-'.$sjpo->id.'" style="height:100%;width:50px;text-align:center;padding:2px 4px" value="'.$noSJ[0].'" '.$eNoSj.'>'.$ketSJ.'
 							</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">NO. PO : '.$sjpo->no_po.'</td>
-							<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="7">'.$btnPrint.' '.$btnJasa.''.$btnSJBalik.'</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="3">'.$btnPrint.' '.$btnJasa.''.$btnSJBalik.'</td>
+							<td style="padding:3px 6px;border:1px solid #bbb;font-weight:bold" colspan="4">
+								<input type="text" class="form-control" id="no_te'.$sjpo->id.'" style="height:100%;width:100%;padding:2px 4px" placeholder="NOTE" onchange="noteSJ('."'".$sjpo->id."'".')" oninput="this.value=this.value.toUpperCase()" value="'.$sjpo->note.'">
+							</td>
 						</tr>';
 						($sjpo->kategori == null) ? $wKategori = "" : $wKategori = "AND r.kategori='$sjpo->kategori'";
 						$getItems = $this->db->query("SELECT r.*,i.*,p.nm_pelanggan,p.attn FROM m_rencana_kirim r
@@ -11659,6 +11668,12 @@ class Logistik extends CI_Controller
 	function sjBalek()
 	{
 		$result = $this->m_logistik->sjBalek();
+		echo json_encode($result);
+	}
+
+	function noteSJ()
+	{
+		$result = $this->m_logistik->noteSJ();
 		echo json_encode($result);
 	}
 

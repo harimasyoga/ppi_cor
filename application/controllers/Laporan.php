@@ -170,9 +170,6 @@ class Laporan extends CI_Controller
 		}else{
 			$w_opsi = "";
 		}
-		// $data = $this->db->query("SELECT*FROM trs_po p
-		// WHERE p.tgl_po LIKE '%$tahun%' AND p.status='Approve' AND p.id_pelanggan='$pelanggan' $w_nopo $w_opsi
-		// GROUP BY p.kode_po ORDER BY p.tgl_po");
 		if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
 			$wherePO = "AND p.status_app1='Y' AND p.status_app2='Y' AND (p.status_app3='Y' OR p.status_app3='N' OR p.status_app3='R')";
 		}else{
@@ -239,7 +236,7 @@ class Laporan extends CI_Controller
 									</td>
 								</tr>';
 							}else{
-								$spanS = '';
+								$spanS = '<td style="padding:5px;border:1px solid #aaa;text-align:center"></td></tr>';
 							}
 						}else{
 							$spanS = '';
@@ -284,6 +281,7 @@ class Laporan extends CI_Controller
 										<td style="padding:5px" colspan="4">- '.strtoupper($this->m_fungsi->getHariIni($k->tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->tgl)).' - '.$k->no_surat.' - '.$k->no_kendaraan.'</td>
 										<td style="padding:5px;text-align:right">'.number_format($k->tot_muat,0,',','.').'</td>
 										<td style="padding:5px;border-right:1px solid #aaa;text-align:center">'.$btnRetur.'</td>
+										<td style="padding:5px;text-align:center">'.$k->note.'</td>
 									</tr>';
 									// RETUR
 									if($retur->num_rows() != 0){
@@ -340,10 +338,10 @@ class Laporan extends CI_Controller
 										<td style="padding:5px;border-right:1px solid #aaa"></td>
 									</tr>';
 								}
-								$html .='<tr style="border-bottom:1px solid #aaa">
-									<td style="padding:5px;font-weight:bold;text-align:right;border-left:1px solid #aaa" colspan="5">TOTAL KIRIMAN</td>
-									<td style="padding:5px;font-weight:bold;text-align:right">'.number_format($sumKirim,0,',','.').'</td>
-									<td style="padding:5px;font-weight:bold;text-align:right;border-right:1px solid #aaa'.$bgtd.'">'.$txtSisa.'</td>
+								$html .='<tr>
+									<td style="padding:5px;font-weight:bold;text-align:right;border-bottom:1px solid #aaa;border-left:1px solid #aaa" colspan="5">TOTAL KIRIMAN</td>
+									<td style="padding:5px;font-weight:bold;text-align:right;border-bottom:1px solid #aaa">'.number_format($sumKirim,0,',','.').'</td>
+									<td style="padding:5px;font-weight:bold;text-align:right;border-bottom:1px solid #aaa;border-right:1px solid #aaa'.$bgtd.'">'.$txtSisa.'</td>
 								</tr>';
 							}
 						}

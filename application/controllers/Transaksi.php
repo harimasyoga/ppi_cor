@@ -126,7 +126,7 @@ class Transaksi extends CI_Controller
 		// ITEM
 		$htmlE = '';
 		// EDIT LIST DETAIL PO
-		$list = $this->db->query("SELECT i.*,SUM(tonase) AS tonase FROM trs_po_roll_item i WHERE i.id_hdr='$header->id_hdr' AND i.no_po='$header->no_po' GROUP BY i.nm_ker,i.g_label");
+		$list = $this->db->query("SELECT i.*,SUM(tonase) AS tonase, SUM(jml_roll) AS jml_roll FROM trs_po_roll_item i WHERE i.id_hdr='$header->id_hdr' AND i.no_po='$header->no_po' GROUP BY i.nm_ker,i.g_label");
 		if($this->session->userdata('level') == 'Admin' && $opsi == 'edit'){
 			$htmlE .= '<div style="margin-bottom:5px;display:flex">';
 				foreach($list->result() as $l2){
@@ -252,6 +252,7 @@ class Transaksi extends CI_Controller
 						</tr>';
 					$item = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$header->id_hdr' AND no_po='$header->no_po' AND nm_ker='$l->nm_ker' AND g_label='$l->g_label' ORDER BY nm_ker,g_label,width");
 					$x = 0;
+					$xJmlRoll = 0;
 					foreach($item->result() as $i){
 						$x++;
 						($i->ket != '') ? $ket = ' <span style="font-size:11px;vertical-align:top;font-style:italic">( '.$i->ket.' )</span>' : $ket = '';
@@ -264,6 +265,12 @@ class Transaksi extends CI_Controller
 								<th style="padding:1px;background:#fff;border:1px solid #dee2e6" colspan="2"></th>
 							</tr>';
 						}
+						$xJmlRoll += $i->jml_roll;
+					}
+					if($item->num_rows() > 1){
+						$htmlI .= '<tr>
+							<td style="padding:6px;background:#fff;text-align:right;font-weight:bold	" colspan="2">'.number_format($xJmlRoll, 0, ',', '.').'</td>
+						</tr>';
 					}
 					$htmlI .= '</table>';
 				$htmlI .= '</div>';
@@ -272,27 +279,38 @@ class Transaksi extends CI_Controller
 			}
 			// TONASE
 			$htmlI .= '<div>';
-			if($list->num_rows() == 1){
-				$htmlI .= 'TONASE : <b>'.number_format($list->row()->tonase, 0, ',', '.').'</b> Kg';
-			}else{
-				$htmlI .= 'TONASE<br>';
-				$htmlI .= '<table>';
-					$tTot = 0;
-					foreach($list->result() as $t){
+				if($list->num_rows() == 1){
+					$htmlI .= 'TONASE : <b>'.number_format($list->row()->tonase, 0, ',', '.').'</b> Kg';
+				}else{
+					$htmlI .= 'TONASE<br>';
+					$htmlI .= '<table>';
+						$tTot = 0;
+						foreach($list->result() as $t){
+							$htmlI .= '<tr>
+								<td>'.$t->nm_ker.' '.$t->g_label.'</td>
+								<td style="padding:0 6px">:</td>
+								<td style="text-align:right"><b>'.number_format($t->tonase, 0, ',', '.').'</b> Kg</td>
+							</tr>';
+							$tTot += $t->tonase;
+						}
 						$htmlI .= '<tr>
-							<td>'.$t->nm_ker.' '.$t->g_label.'</td>
-							<td style="padding:0 6px">:</td>
-							<td style="text-align:right"><b>'.number_format($t->tonase, 0, ',', '.').'</b> Kg</td>
+							<td colspan="2"></td>
+							<td style="text-align:right"><b>'.number_format($tTot, 0, ',', '.').'</b> Kg</td>
 						</tr>';
-						$tTot += $t->tonase;
-					}
-					$htmlI .= '<tr>
-						<td colspan="2"></td>
-						<td style="text-align:right"><b>'.number_format($tTot, 0, ',', '.').'</b> Kg</td>
-					</tr>';
-				$htmlI .= '</table>';
-			}
+					$htmlI .= '</table>';
+				}
 			$htmlI .= '</div>';
+			// JUMLAH ROLL
+			if($list->num_rows() > 1){
+				$htmlI .= '<div style="padding:3px"></div>';
+				$htmlI .= '<div>';
+					$tRoll = 0;
+					foreach($list->result() as $jr){
+						$tRoll += $jr->jml_roll;
+					}
+					$htmlI .= 'TOTAL : <b>'.number_format($tRoll, 0, ',', '.').'</b> ROLL';
+				$htmlI .= '</div>';
+			}
 		$htmlI .= '</div>';
 
 		echo json_encode([
