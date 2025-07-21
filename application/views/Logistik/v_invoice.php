@@ -935,7 +935,7 @@
 		$('#upload_invd').hide();
 		$('#upload_blk').hide();
 		$('#filefoto').css("display","block");
-		if(ket=='bc' && (username=='karina' || username=='siska'  || username=='tegar')){
+		if(ket=='bc' && (username=='karina' || username=='siska' || username=='tegar')){
 			$('#upload_file').show();
 		}else if(ket=='faktur' && username=='siska'){
 			$('#upload_file').show();
@@ -947,9 +947,7 @@
 		}else if(ket=='mutasi' && (username=='karina' || username=='tegar')){
 			$('#upload_file').show();
 		}else if(ket=='sj_balik' && (username=='karina' || username=='tegar')){
-			if(tipe == 'roll'){
-				$('#upload_blk').show();
-			}
+			$('#upload_blk').show();
 			$('#upload_file').show();
 		}else if(ket=='upload_inv' && (username=='karina' || username=='tegar')){
 			$('#upload_file').show();
