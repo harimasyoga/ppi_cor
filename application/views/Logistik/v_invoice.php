@@ -957,7 +957,7 @@
 			if(ket=='inv_terima'){
 				$('#upload_invd').show();
 			}
-			if(ket=='sj_balik' && tipe == 'roll'){
+			if(ket=='sj_balik'){
 				$('#upload_blk').show();
 			}
 			$('#upload_file').show();
@@ -989,10 +989,10 @@
 				if(ket=='inv_terima'){
 					$("#tgl_invd").val(data.header.inp_inv_terima.substr(0, 10))
 				}
-				if(ket=='sj_balik' && data.header.type == 'roll'){
-					if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk == null && data.header.type == 'roll'){
+				if(ket=='sj_balik'){
+					if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk == null){
 						$("#tgl_blk").val(data.header.inp_sj_balik.substr(0, 10))
-					}else if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk != null && data.header.type == 'roll'){
+					}else if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk != null){
 						$("#tgl_blk").val(data.header.tgl_sj_blk)
 					}
 				}

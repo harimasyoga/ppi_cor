@@ -4901,7 +4901,7 @@ class Logistik extends CI_Controller
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
 
-		if($_FILES['filefoto']['name'] || $params->tgl_invd != '')
+		if($_FILES['filefoto']['name'] && $params->tgl_invd != '')
 		{
 			if ($this->upload->do_upload('filefoto'))
 			{
@@ -4955,7 +4955,7 @@ class Logistik extends CI_Controller
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
 
-		if($_FILES['filefoto']['name'] && (($cek_data->type == 'box' || $cek_data->type == 'sheet') || ($cek_data->type == 'roll' && $params->tgl_blk != '')))
+		if($_FILES['filefoto']['name'] && $params->tgl_blk != '')
 		{
 			if ($this->upload->do_upload('filefoto'))
 			{
@@ -5276,9 +5276,9 @@ class Logistik extends CI_Controller
                     $i2     = '<i class="fas fa-check-circle"></i>';
                 }
 
-				if($r->inp_sj_balik != null && $r->tgl_sj_blk == null && $r->type == 'roll'){
+				if($r->inp_sj_balik != null && $r->tgl_sj_blk == null){
 					$tglBoxNRoll = strtotime(substr($r->inp_sj_balik, 0, 10));
-				}else if($r->inp_sj_balik != null && $r->tgl_sj_blk != null && $r->type == 'roll'){
+				}else if($r->inp_sj_balik != null && $r->tgl_sj_blk != null){
 					$tglBoxNRoll = strtotime($r->tgl_sj_blk);
 				}else{
 					$tglBoxNRoll = strtotime(substr($r->add_time, 0, 10));
@@ -5312,7 +5312,7 @@ class Logistik extends CI_Controller
 				($days2 == 0 && $hours2 == 0 && $minutes2 == 0) ? $waktu2 = $tseconds2 : $waktu2 = $tDays3.$tHours2.$tMinutes2;
 
 				// timer 6 hari tgl inv
-				$expired6              = $tglBoxNRoll + (144*60*60);
+				$expired6              = strtotime($r->tgl_invoice) + (144*60*60);
 				$actualDate6           = time();
 				$secondsDiff6          = $expired6 - $actualDate6;
 				$days6                 = floor($secondsDiff6/60/60/24);
@@ -5356,9 +5356,8 @@ class Logistik extends CI_Controller
 				if($r->pajak == 'nonppn' || $r->type == 'roll' || $peTe == 0){
 					$cek_bc = '<span style="color:#000;font-weight:bold">-</span>';
 				}else{
-					if($r->img_bc=='' || ($r->type == 'roll' && $r->inp_sj_balik == null))
-					{
-						if($r->type == 'roll' && $r->inp_sj_balik == null){
+					if($r->img_bc=='' || $r->inp_sj_balik == null){
+						if($r->inp_sj_balik == null){
 							$cek_bc = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
 						}else if($actualDate > $expired || $actualDate == $expired){
 							if($this->session->userdata('level') == 'Admin'){
@@ -5384,9 +5383,8 @@ class Logistik extends CI_Controller
 				if($r->pajak == 'nonppn'){
 					$cek_faktur = '<span style="color:#000;font-weight:bold">-</span>';
 				}else{
-					if($r->img_faktur=='' || ($r->type == 'roll' && $r->inp_sj_balik == null))
-					{
-						if($r->type == 'roll' && $r->inp_sj_balik == null){
+					if($r->img_faktur=='' || $r->inp_sj_balik == null) {
+						if($r->inp_sj_balik == null){
 							$cek_faktur = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
 						}else if($actualDate2 > $expired2 || $actualDate2 == $expired2){
 							if($this->session->userdata('level') == 'Admin'){
@@ -5409,8 +5407,8 @@ class Logistik extends CI_Controller
 				}
 
 				// RESI
-				if($r->img_resi=='' || ($r->type == 'roll' && $r->inp_sj_balik == null)){
-					if($r->type == 'roll' && $r->inp_sj_balik == null){
+				if($r->img_resi=='' || $r->inp_sj_balik == null){
+					if($r->inp_sj_balik == null){
 						$cek_resi = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
 					}else if($actualDate > $expired || $actualDate == $expired){
 						if($this->session->userdata('level') == 'Admin'){
@@ -5431,8 +5429,8 @@ class Logistik extends CI_Controller
 				}
 				
 				// INVOICE DITERIMA
-				if($r->img_inv_terima=='' || ($r->type == 'roll' && $r->inp_sj_balik == null)){
-					if($r->type == 'roll' && $r->inp_sj_balik == null){
+				if($r->img_inv_terima=='' || $r->inp_sj_balik == null){
+					if($r->inp_sj_balik == null){
 						$cek_inv_terima = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
 					}else if($r->img_resi==''){
 						$cek_inv_terima = '<span style="color:#3704ff;font-weight:bold">*Resi belum di upload</span>';
@@ -5472,7 +5470,7 @@ class Logistik extends CI_Controller
 					$sisaHariH = $sisaHari.' HARI ';
 				}
 				if($r->img_mutasi==''){
-					if($r->img_inv_terima==''){
+					if($r->img_inv_terima=='' || $r->img_sj_balik==''){
 						$cek_mutasi = '<span style="color:#3704ff;font-weight:bold">*Inv diterima belum di upload</span>';
 					}else if($sisaHari < 0){
 						if($this->session->userdata('level') == 'Admin'){
@@ -5510,7 +5508,7 @@ class Logistik extends CI_Controller
 						<span style="color:#f00;font-weight:bold">'.$waktu6.'</span>';
 					}
 				}else{
-					($r->inp_sj_balik != null && $r->tgl_sj_blk != null && $r->type == 'roll') ? $tglSJBlk = $r->tgl_sj_blk : $tglSJBlk = $r->inp_sj_balik;
+					($r->inp_sj_balik != null && $r->tgl_sj_blk != null) ? $tglSJBlk = $r->tgl_sj_blk : $tglSJBlk = $r->inp_sj_balik;
 					$cek_sj_balik = '<a type="button" '.$urll_foto_sj_balik.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 
 						<span style="color:#3704ff;font-weight:bold">'.substr($tglSJBlk,0,10).' - [ '.substr($r->inp_sj_balik,11,8).' ]</span>';
 					$cek_sj_balik .= ($r->cek_sj_balik != null) ? ' <i style="color:#3704ff;" class="fas fa-check-square" title="'.$r->cek_sj_balik.'"></i>' : ' <i style="color:#bbb;" class="fas fa-check-square"></i>';

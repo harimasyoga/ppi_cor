@@ -3841,7 +3841,7 @@ class M_logistik extends CI_Model
 
 		// CEK SURAT JALAN BALIK
 		if($xMutasi){
-			$qSJBalik = $this->db->query("SELECT h.*,DATEDIFF(h.tgl_invoice, CURDATE()) AS sisa_sj_balik FROM invoice_header h
+			$qSJBalik = $this->db->query("SELECT*FROM invoice_header h
 			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.img_sj_balik IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) < '-6'
 			GROUP BY h.no_invoice");
 			if($qSJBalik->num_rows() > 0){
@@ -3858,8 +3858,8 @@ class M_logistik extends CI_Model
 
 		// CEK INVOICE DITERIMA
 		if($xSJBalik){
-			$qInvDiterima = $this->db->query("SELECT h.*,DATEDIFF(SUBSTRING(h.inp_resi, 1, 10), CURDATE()) AS sisa_inv_terima FROM invoice_header h
-			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.img_resi IS NOT NULL AND h.img_inv_terima IS NULL AND DATEDIFF(h.inp_resi, CURDATE()) < '-3'
+			$qInvDiterima = $this->db->query("SELECT*FROM invoice_header h
+			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.img_resi IS NOT NULL AND h.img_inv_terima IS NULL AND DATEDIFF(SUBSTRING(h.inp_resi, 1, 10), CURDATE()) < '-3'
 			GROUP BY h.no_invoice");
 			if($qInvDiterima->num_rows() > 0){
 				foreach($qInvDiterima->result() as $invterima){
@@ -3875,8 +3875,14 @@ class M_logistik extends CI_Model
 
 		// CEK NO RESI
 		if($xInvDiterima){
-			$qNoResi = $this->db->query("SELECT h.*,DATEDIFF(h.tgl_invoice, CURDATE()) AS sisa_resi FROM invoice_header h
-			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.img_resi IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) < '-4'
+			$qNoResi = $this->db->query("SELECT*FROM invoice_header h
+			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.img_sj_balik IS NOT NULL AND h.img_resi IS NULL
+			AND DATEDIFF(
+				CASE 
+					WHEN h.tgl_sj_blk IS NULL THEN SUBSTRING(h.inp_sj_balik, 1, 10)
+					WHEN h.tgl_sj_blk
+				END
+			, CURDATE()) < '-4'
 			GROUP BY h.no_invoice");
 			if($qNoResi->num_rows() > 0){
 				foreach($qNoResi->result() as $noresi){
@@ -3892,8 +3898,14 @@ class M_logistik extends CI_Model
 
 		// CEK FAKTUR
 		if($xNoResi){
-			$qFaktur = $this->db->query("SELECT h.*,DATEDIFF(h.tgl_invoice, CURDATE()) AS sisa_faktur FROM invoice_header h
-			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.img_faktur IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) < '-3'
+			$qFaktur = $this->db->query("SELECT*FROM invoice_header h
+			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.pajak!='nonppn' AND h.img_sj_balik IS NOT NULL AND h.img_faktur IS NULL
+			AND DATEDIFF(
+				CASE 
+					WHEN h.tgl_sj_blk IS NULL THEN SUBSTRING(h.inp_sj_balik, 1, 10)
+					WHEN h.tgl_sj_blk
+				END
+			, CURDATE()) < '-3'
 			GROUP BY h.no_invoice");
 			if($qFaktur->num_rows() > 0){
 				foreach($qFaktur->result() as $faktur){
@@ -3909,9 +3921,10 @@ class M_logistik extends CI_Model
 
 		// CEK YANG ADA BC
 		if($xFaktur){
-			$qBC = $this->db->query("SELECT h.*,DATEDIFF(h.tgl_invoice, CURDATE()) AS sis_bc FROM invoice_header h
+			$qBC = $this->db->query("SELECT h.* FROM invoice_header h
 			INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
-			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.type!='roll' AND p.bc='Y' AND h.img_bc IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) < '-4'
+			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.type!='roll' AND p.bc='Y' AND h.pajak!='nonppn' AND h.img_sj_balik IS NULL AND h.img_bc IS NULL
+			AND DATEDIFF(h.tgl_invoice, CURDATE()) < '-4'
 			GROUP BY h.no_invoice");
 			if($qBC->num_rows() > 0){
 				foreach($qBC->result() as $bc){
