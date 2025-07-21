@@ -3877,12 +3877,7 @@ class M_logistik extends CI_Model
 		if($xInvDiterima){
 			$qNoResi = $this->db->query("SELECT*FROM invoice_header h
 			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.img_sj_balik IS NOT NULL AND h.img_resi IS NULL
-			AND DATEDIFF(
-				CASE 
-					WHEN h.tgl_sj_blk IS NULL THEN SUBSTRING(h.inp_sj_balik, 1, 10)
-					WHEN h.tgl_sj_blk
-				END
-			, CURDATE()) < '-4'
+			AND DATEDIFF(IF(h.tgl_sj_blk IS NULL, SUBSTRING(h.inp_sj_balik, 1, 10), h.tgl_sj_blk), CURDATE()) < '-4'
 			GROUP BY h.no_invoice");
 			if($qNoResi->num_rows() > 0){
 				foreach($qNoResi->result() as $noresi){
@@ -3900,12 +3895,7 @@ class M_logistik extends CI_Model
 		if($xNoResi){
 			$qFaktur = $this->db->query("SELECT*FROM invoice_header h
 			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.pajak!='nonppn' AND h.img_sj_balik IS NOT NULL AND h.img_faktur IS NULL
-			AND DATEDIFF(
-				CASE 
-					WHEN h.tgl_sj_blk IS NULL THEN SUBSTRING(h.inp_sj_balik, 1, 10)
-					WHEN h.tgl_sj_blk
-				END
-			, CURDATE()) < '-3'
+			AND DATEDIFF(IF(h.tgl_sj_blk IS NULL, SUBSTRING(h.inp_sj_balik, 1, 10), h.tgl_sj_blk), CURDATE()) < '-3'
 			GROUP BY h.no_invoice");
 			if($qFaktur->num_rows() > 0){
 				foreach($qFaktur->result() as $faktur){
