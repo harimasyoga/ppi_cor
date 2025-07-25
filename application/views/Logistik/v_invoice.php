@@ -3043,4 +3043,31 @@
 		})
 	}
 
+	function btnSakti(id_inv, jenis, izin = '') {
+		$.ajax({
+			url: '<?php echo base_url('Logistik/btnSakti')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_inv, jenis, izin }),
+			success: function(res){
+				data = JSON.parse(res)
+				// console.log(data)
+				if(data.data){
+					reloadTable()
+					toastr.success(`<b>BERHASIL!</b>`)
+					load_bank()
+				}
+			}
+		})
+	}
+
 </script>

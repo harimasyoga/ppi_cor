@@ -5121,6 +5121,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function btnSakti()
+	{
+		$result = $this->m_logistik->btnSakti();
+		echo json_encode($result);
+	}
+
 
 	function edit_timbangan()
 	{
@@ -5151,11 +5157,11 @@ class Logistik extends CI_Controller
 			// EXPIRED
 			($exp_pilih == 'exp_bc') ? $wInn = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan" : $wInn = "";
 			if ($exp_pilih == 'exp_bc'){
-				$wExp = "AND status_inv='Xp' AND inp_bc IS NULL AND p.bc='Y' AND h.type!='roll'";
+				$wExp = "AND status_inv='Xp' AND inp_sj_balik IS NOT NULL AND inp_bc IS NULL AND p.bc='Y' AND h.type!='roll'";
 			}else if ($exp_pilih == 'exp_faktur'){
-				$wExp = "AND status_inv='Xp' AND inp_faktur IS NULL";
+				$wExp = "AND status_inv='Xp' AND inp_sj_balik IS NOT NULL AND inp_faktur IS NULL";
 			}else if ($exp_pilih == 'exp_resi'){
-				$wExp = "AND status_inv='Xp' AND inp_resi IS NULL";
+				$wExp = "AND status_inv='Xp' AND inp_sj_balik IS NOT NULL AND inp_resi IS NULL";
 			}else if ($exp_pilih == 'exp_inv_terima'){
 				$wExp = "AND status_inv='Xp' AND inp_resi IS NOT NULL AND inp_inv_terima IS NULL";
 			}else if ($exp_pilih == 'exp_mutasi'){
@@ -5372,6 +5378,9 @@ class Logistik extends CI_Controller
 							</a> 
 							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
 						}
+						if($this->session->userdata('level') == 'Admin'){
+							$cek_bc .= ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'bc'".')"><i style="color:#156b00" class="fas fa-check-square"></i></a>';
+						}
 					}else{					
 						$cek_bc = '<a type="button" '.$urll_foto_bc.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 
 							<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_bc,0,10).' - [ '.substr($r->inp_bc,11,8).' ]</span>';
@@ -5399,6 +5408,9 @@ class Logistik extends CI_Controller
 							</a> 
 							<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
 						}
+						if($this->session->userdata('level') == 'Admin'){
+							$cek_faktur .= ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'faktur'".')"><i style="color:#156b00" class="fas fa-check-square"></i></a>';
+						}
 					}else{
 						$cek_faktur = '<a type="button" '.$urll_foto_faktur.'><i style="color:#156b00;" class="fas fa-check-square"></i> </a>
 							<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_faktur,0,10).' - [ '.substr($r->inp_faktur,11,8).' ]</span>';
@@ -5422,6 +5434,9 @@ class Logistik extends CI_Controller
 							<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="RESI"></i> </b></span>
 						</a> 
 						<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
+					}
+					if($this->session->userdata('level') == 'Admin'){
+						$cek_resi .= ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'resi'".')"><i style="color:#156b00" class="fas fa-check-square"></i></a>';
 					}
 				}else{
 					$cek_resi = '<a type="button" '.$urll_foto_resi.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> <span style="color:#3704ff;font-weight:bold">'.substr($r->inp_resi,0,10).' - [ '.substr($r->inp_resi,11,8).' ]</span>';
@@ -5449,7 +5464,9 @@ class Logistik extends CI_Controller
 							<span style="color:#f00;font-weight:bold">'.$waktu3.'</span>';
 						}
 					}
-					
+					if($this->session->userdata('level') == 'Admin'){
+						$cek_inv_terima .= ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'inv_terima'".')"><i style="color:#156b00" class="fas fa-check-square"></i></a>';
+					}
 				}else{
 					$cek_inv_terima = '<a type="button" '.$urll_foto_inv_terima.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 
 						<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_inv_terima,0,10).' - [ '.substr($r->inp_inv_terima,11,8).' ]</span>';
@@ -5486,6 +5503,9 @@ class Logistik extends CI_Controller
 						</a> 
 						<span style="color:#f00;font-weight:bold">'.$sisaHariH.' <span style="background:#3704ff;color:#fff;vertical-align:top;padding:2px 4px;font-size:12px;border-radius:2px">'.$r->tempo.'</span></span>';
 					}
+					if($this->session->userdata('level') == 'Admin'){
+						$cek_mutasi .= ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'mutasi'".')"><i style="color:#156b00" class="fas fa-check-square"></i></a>';
+					}
 				}else{
 					$cek_mutasi = '<a type="button" '.$urll_foto_mutasi.'><i style="color:#156b00;" class="fas fa-check-square"></i></a> 
 						<span style="color:#3704ff;font-weight:bold">'.substr($r->inp_mutasi,0,10).' - [ '.substr($r->inp_mutasi,11,8).' ]</span>';
@@ -5506,6 +5526,9 @@ class Logistik extends CI_Controller
 							<span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="SJ BALIK"></i> </b></span>
 						</a> 
 						<span style="color:#f00;font-weight:bold">'.$waktu6.'</span>';
+					}
+					if($this->session->userdata('level') == 'Admin'){
+						$cek_sj_balik .= ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'sj_balik'".')"><i style="color:#156b00" class="fas fa-check-square"></i></a>';
 					}
 				}else{
 					($r->inp_sj_balik != null && $r->tgl_sj_blk != null) ? $tglSJBlk = $r->tgl_sj_blk : $tglSJBlk = $r->inp_sj_balik;
@@ -5570,102 +5593,95 @@ class Logistik extends CI_Controller
 				}else{
 					$ket_sj_balik = '';
 				}
+				// IZIN
+				if($this->session->userdata('level') == 'Admin'){
+					($r->izin == 'N') ? $bg = 'color:#bbb' : $bg = 'color:#3704ff';
+					$btnIzin = ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".')" title="IZIN"><i style="'.$bg.'" class="fas fa-check-square"></i></a>';
+				}else{
+					$btnIzin = '';
+				}
 
 				($r->status_inv == 'Xp') ? $xP = 'bg-expired' : $xP = '';
 				$row[] = '<table style="width:100%" class="'.$xP.'">
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>No Inv </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
-						<td style="padding : 2px;border:none;">'.$r->no_invoice .'<br></td>
+						<td style="padding : 2px;border:none;">'.$r->no_invoice .'</td>
 					</tr>
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>Kepada </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
-						<td style="padding : 2px;border:none;">'.$r->kepada .'<br></td>
+						<td style="padding : 2px;border:none;">'.$r->kepada .'</td>
 					</tr>
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>Cust </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
-						<td style="padding : 2px;border:none;">'.$r->nm_perusahaan .'<br></td>
+						<td style="padding : 2px;border:none;">'.$r->nm_perusahaan .'</td>
 					</tr>
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>HUB </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
-						<td style="padding : 2px;border:none;">'.$hub .'<br></td>
+						<td style="padding : 2px;border:none;">'.$hub .'</td>
 					</tr>
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>NO SJ </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
-						<td style="padding : 2px;border:none;">'.$no_sj .' 
-							<span style="color:#3704ff;font-weight:bold"> [ '.$r->tgl_sj .' ]</span><br></td>
+						<td style="padding : 2px;border:none;">'.$no_sj .' <span style="color:#3704ff;font-weight:bold"> [ '.$r->tgl_sj .' ]</span>'.$btnIzin.'</td>
 					</tr>
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>BC </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
-						<div class="col-md-12">
-							'.$cek_bc.'
-							<br>
-						</div></td>
+							<div class="col-md-12">'.$cek_bc.'</div>
+						</td>
 					</tr>
 					'.$ket_bc.'
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>Faktur </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
-						<div class="col-md-12">
-							'.$cek_faktur.'
-							<br>
-						</div></td>
+							<div class="col-md-12">'.$cek_faktur.'</div>
+						</td>
 					</tr>
 					'.$ket_faktur.'
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>No Resi </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
-						<div class="col-md-12">
-							'.$cek_resi.'
-							<br>
-						</div></td>
+							<div class="col-md-12">'.$cek_resi.'</div>
+						</td>
 					</tr>
 					'.$ket_resi.'
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>Inv diterima </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
-						<div class="col-md-12">
-							'.$cek_inv_terima.'
-							<br>
-						</div></td>
+							<div class="col-md-12">'.$cek_inv_terima.'</div>
+						</td>
 					</tr>
 					'.$ket_inv_terima.'
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>Mutasi </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
-						<div class="col-md-12">
-							'.$cek_mutasi.'
-							<br>
-						</div></td>
+							<div class="col-md-12">'.$cek_mutasi.'</div>
+						</td>
 					</tr>
 					'.$ket_mutasi.'
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>SJ Balik </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
-						<div class="col-md-12">
-							'.$cek_sj_balik.'
-							<br>
-						</div></td>
+							<div class="col-md-12">'.$cek_sj_balik.'</div>
+						</td>
 					</tr>
 					'.$ket_sj_balik.'
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>Upload Inv </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
-						<div class="col-md-12">
-							'.$btncetak_up.'
-						</div></td>
+							<div class="col-md-12">'.$btncetak_up.'</div>
+						</td>
 					</tr>
 				</table>';
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_invoice.'</div>';
