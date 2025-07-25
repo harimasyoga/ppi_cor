@@ -3821,7 +3821,7 @@ class M_logistik extends CI_Model
 
 		// CEK MUTASI
 		$qInvoice = $this->db->query("SELECT h.*, DATEDIFF(h.tgl_jatuh_tempo, h.tgl_invoice) AS tempo, DATEDIFF(SUBSTRING(h.inp_inv_terima, 1, 10), CURDATE()) AS tempo_invd FROM invoice_header h
-		WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.img_inv_terima IS NOT NULL AND h.img_mutasi IS NULL
+		WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.status_inv!='Xp' AND h.img_inv_terima IS NOT NULL AND h.img_mutasi IS NULL
 		GROUP BY h.no_invoice");
 		if($qInvoice->num_rows() > 0){
 			foreach($qInvoice->result() as $invoice){
@@ -3842,7 +3842,7 @@ class M_logistik extends CI_Model
 		// CEK SURAT JALAN BALIK
 		if($xMutasi){
 			$qSJBalik = $this->db->query("SELECT*FROM invoice_header h
-			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.img_sj_balik IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) <= '-6'
+			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.status_inv!='Xp' AND h.img_sj_balik IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) <= '-6'
 			GROUP BY h.no_invoice");
 			if($qSJBalik->num_rows() > 0){
 				foreach($qSJBalik->result() as $sjblk){
@@ -3859,7 +3859,7 @@ class M_logistik extends CI_Model
 		// CEK INVOICE DITERIMA
 		if($xSJBalik){
 			$qInvDiterima = $this->db->query("SELECT*FROM invoice_header h
-			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.img_resi IS NOT NULL AND h.img_inv_terima IS NULL AND DATEDIFF(SUBSTRING(h.inp_resi, 1, 10), CURDATE()) <= '-3'
+			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.status_inv!='Xp' AND h.img_resi IS NOT NULL AND h.img_inv_terima IS NULL AND DATEDIFF(SUBSTRING(h.inp_resi, 1, 10), CURDATE()) <= '-3'
 			GROUP BY h.no_invoice");
 			if($qInvDiterima->num_rows() > 0){
 				foreach($qInvDiterima->result() as $invterima){
@@ -3876,7 +3876,7 @@ class M_logistik extends CI_Model
 		// CEK NO RESI
 		if($xInvDiterima){
 			$qNoResi = $this->db->query("SELECT*FROM invoice_header h
-			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.img_sj_balik IS NOT NULL AND h.img_resi IS NULL
+			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.status_inv!='Xp' AND h.img_sj_balik IS NOT NULL AND h.img_resi IS NULL
 			AND DATEDIFF(IF(h.tgl_sj_blk IS NULL, SUBSTRING(h.inp_sj_balik, 1, 10), h.tgl_sj_blk), CURDATE()) <= '-4'
 			GROUP BY h.no_invoice");
 			if($qNoResi->num_rows() > 0){
@@ -3894,7 +3894,7 @@ class M_logistik extends CI_Model
 		// CEK FAKTUR
 		if($xNoResi){
 			$qFaktur = $this->db->query("SELECT*FROM invoice_header h
-			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.pajak!='nonppn' AND h.img_sj_balik IS NOT NULL AND h.img_faktur IS NULL
+			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.status_inv!='Xp' AND h.pajak!='nonppn' AND h.img_sj_balik IS NOT NULL AND h.img_faktur IS NULL
 			AND DATEDIFF(IF(h.tgl_sj_blk IS NULL, SUBSTRING(h.inp_sj_balik, 1, 10), h.tgl_sj_blk), CURDATE()) <= '-3'
 			GROUP BY h.no_invoice");
 			if($qFaktur->num_rows() > 0){
@@ -3913,7 +3913,7 @@ class M_logistik extends CI_Model
 		if($xFaktur){
 			$qBC = $this->db->query("SELECT h.* FROM invoice_header h
 			INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
-			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.type!='roll' AND p.bc='Y' AND h.pajak!='nonppn' AND h.img_sj_balik IS NULL AND h.img_bc IS NULL
+			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.status_inv!='Xp' AND h.type!='roll' AND p.bc='Y' AND h.pajak!='nonppn' AND h.img_sj_balik IS NULL AND h.img_bc IS NULL
 			AND DATEDIFF(h.tgl_invoice, CURDATE()) <= '-4'
 			GROUP BY h.no_invoice");
 			if($qBC->num_rows() > 0){
@@ -3937,6 +3937,28 @@ class M_logistik extends CI_Model
 			'xNoResi' => $xNoResi,
 			'xFaktur' => $xFaktur,
 			'xBc' => $xBc,
+		);
+	}
+
+	function btnSakti()
+	{
+		$id_inv = $_POST["id_inv"];
+		$jenis = $_POST["jenis"];
+		$izin = $_POST["izin"];
+		$header = $this->db->query("SELECT*FROM invoice_header WHERE id='$id_inv'")->row();
+		if($jenis == 'izin'){
+			($izin == 'N') ? $z = 'Y' : $z = 'N';
+			$this->db->set("izin", $z);
+		}else{
+			$this->db->set("status_inv", 'Open');
+			$this->db->set("img_".$jenis, 'foto.jpg');
+			$this->db->set("inp_".$jenis, $header->tgl_invoice.' 00:00:00');
+			$this->db->set("cek_".$jenis, $header->tgl_invoice.' 00:00:00');
+		}
+		$this->db->where("id", $id_inv);
+		$data = $this->db->update("invoice_header");
+		return array(
+			'data' => $data,
 		);
 	}
 
