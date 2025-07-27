@@ -390,6 +390,27 @@
 								<div class="col-md-2"></div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">JENIS</div>
+								<div class="col-md-8">
+									<input type="text" id="lap_jenis" class="form-control" style="font-weight:bold" placeholder="JENIS" autocomplete="OFF" oninput="this.value=this.value.toUpperCase()" disabled>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">GSM</div>
+								<div class="col-md-8">
+									<input type="number" id="lap_gsm" class="form-control" style="font-weight:bold" placeholder="GSM" autocomplete="OFF" oninput="this.value=this.value.toUpperCase()" disabled>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">UKURAN</div>
+								<div class="col-md-8">
+									<input type="number" id="lap_ukuran" class="form-control" style="font-weight:bold" placeholder="UKURAN" autocomplete="OFF" oninput="this.value=this.value.toUpperCase()" disabled>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-2">ORDER BY</div>
 								<div class="col-md-8">
 									<select id="lap_order" class="form-control select2" disabled>
@@ -1170,6 +1191,9 @@
 		$("#lap_no_po").prop('disabled', (id_pt == '') ? true : false)
 		$("#lap_order").prop('disabled', (id_pt == '') ? true : false)
 		$("#lap_opsi").prop('disabled', (id_pt == '') ? true : false)
+		$("#lap_jenis").val('').prop('disabled', (id_pt == '') ? true : false)
+		$("#lap_gsm").val('').prop('disabled', (id_pt == '') ? true : false)
+		$("#lap_ukuran").val('').prop('disabled', (id_pt == '') ? true : false)
 	}
 
 	function plhStatus()
@@ -1196,6 +1220,9 @@
 		let no_po = $("#lap_no_po").val()
 		let order = $("#lap_order").val()
 		let opsi = $("#lap_opsi").val()
+		let jenis = $("#lap_jenis").val()
+		let gsm = $("#lap_gsm").val()
+		let ukuran = $("#lap_ukuran").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/cariLaporanPORoll') ?>',
 			type: "POST",
@@ -1209,7 +1236,7 @@
 					}
 				})
 			},
-			data: ({ id_pt, status, no_po, order, opsi }),
+			data: ({ id_pt, status, no_po, order, opsi, jenis, gsm, ukuran }),
 			success: function(res){
 				data = JSON.parse(res)
 				$("#lap_list_po").html(data.html)

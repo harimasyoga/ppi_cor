@@ -513,6 +513,9 @@ class Transaksi extends CI_Controller
 		$no_po = $_POST["no_po"];
 		$orderBy = $_POST["order"];
 		$opsi = $_POST["opsi"];
+		$jenis = $_POST["jenis"];
+		$gsm = $_POST["gsm"];
+		$ukuran = $_POST["ukuran"];
 		$html = '';
 
 		if($id_pt != ''){
@@ -535,6 +538,9 @@ class Transaksi extends CI_Controller
 				// STATUS, NO. PO, ORDER BY
 				($stts == '') ? $stas = "AND po.status='open'" : $stas = "";
 				($no_po == '') ? $noPO = "" : $noPO = "AND po.no_po='$no_po'";
+				($jenis == '') ? $wJenis = "" : $wJenis = "AND po.nm_ker LIKE '%$jenis%'";
+				($gsm == '') ? $wGsm = "" : $wGsm = "AND po.g_label LIKE '%$gsm%'";
+				($ukuran == '') ? $wUkuran = "" : $wUkuran = "AND po.width LIKE '%$ukuran%'";
 				($orderBy == 'TNP') ? $oBy = 'ORDER BY po.tgl,po.no_po,po.nm_ker,po.g_label,po.width' : $oBy = '';
 
 				$list = $db->query("SELECT po.tgl,po.no_po,po.nm_ker,po.g_label,po.width,
@@ -546,21 +552,21 @@ class Transaksi extends CI_Controller
 				pt.nm_perusahaan,po.status
 				FROM po_master po
 				INNER JOIN m_perusahaan pt ON pt.id=po.id_perusahaan
-				WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' AND pt.id='$id_pt' $stas $noPO
+				WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' AND pt.id='$id_pt' $stas $noPO $wJenis $wGsm $wUkuran
 				GROUP BY po.nm_ker,po.g_label,po.width,po.tgl,po.no_po $oBy");
 				$sumTonase = 0; $sumKirimTon = 0; $poTonase = 0; $poKirimTon = 0;
 				foreach($list->result() as $r){
 					// KURANG ROLL
 					$minRoll = $r->kiriman_roll - $r->jml_roll_po;
-					($minRoll == 0) ? $bgR = ' style="background:#ccc"' : $bgR = '';
+					($minRoll == 0 || $minRoll > 0) ? $bgR = ' style="background:#ccc"' : $bgR = '';
 					// KURANG TONASE
 					$minTonase = $r->kirim_tonase - $r->tonase;
 					// STATUS
-					if($r->status == 'open'){
-						$ketS = '<button type="button" class="btn btn-xs btn-success" onclick=""><i class="fas fa-check-circle"></i></button>';
-					}else{
-						$ketS = '<button type="button" class="btn btn-xs btn-danger" onclick=""><i class="fas fa-times-circle"></i></button>';
-					}
+					// if($r->status == 'open'){
+					// 	$ketS = '<button type="button" class="btn btn-xs btn-success" onclick=""><i class="fas fa-check-circle"></i></button>';
+					// }else{
+					// 	$ketS = '<button type="button" class="btn btn-xs btn-danger" onclick=""><i class="fas fa-times-circle"></i></button>';
+					// }
 					if($opsi == '' || ($opsi != '' && $minRoll != 0)){
 						$html .= '<tr'.$bgR.'>
 							<td style="padding:6px;border:1px solid #888">'.$r->tgl.'</td>

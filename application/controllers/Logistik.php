@@ -5157,9 +5157,9 @@ class Logistik extends CI_Controller
 			// EXPIRED
 			($exp_pilih == 'exp_bc') ? $wInn = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan" : $wInn = "";
 			if ($exp_pilih == 'exp_bc'){
-				$wExp = "AND status_inv='Xp' AND inp_sj_balik IS NOT NULL AND inp_bc IS NULL AND p.bc='Y' AND h.type!='roll'";
+				$wExp = "AND status_inv='Xp' AND inp_sj_balik IS NOT NULL AND inp_bc IS NULL AND p.bc='Y' AND h.type!='roll' AND h.pajak!='nonppn'";
 			}else if ($exp_pilih == 'exp_faktur'){
-				$wExp = "AND status_inv='Xp' AND inp_sj_balik IS NOT NULL AND inp_faktur IS NULL";
+				$wExp = "AND status_inv='Xp' AND inp_sj_balik IS NOT NULL AND inp_faktur IS NULL AND h.pajak!='nonppn'";
 			}else if ($exp_pilih == 'exp_resi'){
 				$wExp = "AND status_inv='Xp' AND inp_sj_balik IS NOT NULL AND inp_resi IS NULL";
 			}else if ($exp_pilih == 'exp_inv_terima'){
@@ -5202,11 +5202,9 @@ class Logistik extends CI_Controller
 					$no_sj = $no_sj_result;
 				}
 				
-				if($r->type=='roll')
-				{
+				if($r->type=='roll'){
 					$hub =' PPI - ROLL ';
 				}else{
-
 					$result_hub = $this->db->query("SELECT b.*,d.aka FROM invoice_detail b
 					join trs_po c on b.no_po=c.kode_po
 					join m_hub d on c.id_hub=d.id_hub
@@ -5229,43 +5227,33 @@ class Logistik extends CI_Controller
 
 				$ppn11        = 0.11 * $queryd->jumlah;
 				$pph22        = 0.001 * $queryd->jumlah;
-				if($r->pajak=='ppn')
-				{
-					if($r->inc_exc=='Include')
-					{
+				if($r->pajak=='ppn'){
+					if($r->inc_exc=='Include'){
 						$nominal    = 0;
-					}else if($r->inc_exc=='Exclude')
-					{				
+					}else if($r->inc_exc=='Exclude'){				
 						$nominal    = $ppn11;
 					}else{
 						$nominal    = 0;
 					}
-
 				}else if($r->pajak=='ppn_pph') {
-					if($r->inc_exc=='Include')
-					{
+					if($r->inc_exc=='Include'){
 						$nominal    = 0;
-					}else if($r->inc_exc=='Exclude')
-					{				
+					}else if($r->inc_exc=='Exclude'){				
 						$nominal    = $ppn11 + $pph22;
 					}else{
 						$nominal    = 0;
 					}
-
 				}else{
-					if($r->inc_exc=='Include')
-					{
+					if($r->inc_exc=='Include'){
 						$nominal    = 0;
-					}else if($r->inc_exc=='Exclude')
-					{
+					}else if($r->inc_exc=='Exclude'){
 						$nominal    = $ppn11;
 					}else{
 						$nominal    = 0;
 					}
 				}
 
-				if($r->acc_admin=='N')
-                {
+				if($r->acc_admin=='N'){
                     $btn1   = 'btn-warning';
                     $i1     = '<i class="fas fa-lock"></i>';
                 } else {
@@ -5273,8 +5261,7 @@ class Logistik extends CI_Controller
                     $i1     = '<i class="fas fa-check-circle"></i>';
                 }
 
-				if($r->acc_owner=='N')
-                {
+				if($r->acc_owner=='N'){
                     $btn2   = 'btn-warning';
                     $i2     = '<i class="fas fa-lock"></i>';
                 } else {
@@ -5378,7 +5365,7 @@ class Logistik extends CI_Controller
 							</a> 
 							<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
 						}
-						if($this->session->userdata('level') == 'Admin'){
+						if($this->session->userdata('level') == 'Admin' && $r->img_sj_balik != null){
 							$cek_bc .= ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'bc'".')"><i style="color:#156b00" class="fas fa-check-square"></i></a>';
 						}
 					}else{					
@@ -5408,7 +5395,7 @@ class Logistik extends CI_Controller
 							</a> 
 							<span style="color:#f00;font-weight:bold">'.$waktu2.'</span>';
 						}
-						if($this->session->userdata('level') == 'Admin'){
+						if($this->session->userdata('level') == 'Admin' && $r->img_sj_balik != null){
 							$cek_faktur .= ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'faktur'".')"><i style="color:#156b00" class="fas fa-check-square"></i></a>';
 						}
 					}else{
@@ -5435,7 +5422,7 @@ class Logistik extends CI_Controller
 						</a> 
 						<span style="color:#f00;font-weight:bold">'.$waktu.'</span>';
 					}
-					if($this->session->userdata('level') == 'Admin'){
+					if($this->session->userdata('level') == 'Admin' && $r->img_sj_balik != null){
 						$cek_resi .= ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'resi'".')"><i style="color:#156b00" class="fas fa-check-square"></i></a>';
 					}
 				}else{
@@ -5464,7 +5451,7 @@ class Logistik extends CI_Controller
 							<span style="color:#f00;font-weight:bold">'.$waktu3.'</span>';
 						}
 					}
-					if($this->session->userdata('level') == 'Admin'){
+					if($this->session->userdata('level') == 'Admin' && $r->img_resi != null){
 						$cek_inv_terima .= ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'inv_terima'".')"><i style="color:#156b00" class="fas fa-check-square"></i></a>';
 					}
 				}else{
@@ -5503,7 +5490,7 @@ class Logistik extends CI_Controller
 						</a> 
 						<span style="color:#f00;font-weight:bold">'.$sisaHariH.' <span style="background:#3704ff;color:#fff;vertical-align:top;padding:2px 4px;font-size:12px;border-radius:2px">'.$r->tempo.'</span></span>';
 					}
-					if($this->session->userdata('level') == 'Admin'){
+					if($this->session->userdata('level') == 'Admin' && $r->img_inv_terima != null){
 						$cek_mutasi .= ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'mutasi'".')"><i style="color:#156b00" class="fas fa-check-square"></i></a>';
 					}
 				}else{
@@ -5513,7 +5500,7 @@ class Logistik extends CI_Controller
 				}
 				
 				// SURAT JALAN BALIK
-				if($r->img_sj_balik==''){
+				if($r->img_sj_balik == ''){
 					if($actualDate6 > $expired6 || $actualDate6 == $expired6){
 						if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Keuangan1' ,'Pembayaran']) && $r->izin == 'Y' && $this->session->userdata('username') != 'bumagda')){
 							$cek_sj_balik = '<a type="button" '.$urll_foto_sj_balik.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="SJ BALIK"></i></b></span></a> ';
@@ -5543,6 +5530,11 @@ class Logistik extends CI_Controller
 				$btncetak_up ='<a target="_blank" class="" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><i style="color:#f6303d;" class="far fa-file-pdf" title=""></i> </a> 
 				<span style="color:#3704ff;font-weight:bold"> [ '.$r->tgl_invoice .' ]</span>
 				';
+				// IZIN
+				if($this->session->userdata('level') == 'Admin'){
+					($r->izin == 'N') ? $bg = 'color:#bbb' : $bg = 'color:#3704ff';
+					$btncetak_up .= ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".')" title="IZIN"><i style="'.$bg.'" class="fas fa-check-square"></i></a>';
+				}
 
 				// KETERANGAN
 				if($r->ket_bc != ""){
@@ -5593,13 +5585,6 @@ class Logistik extends CI_Controller
 				}else{
 					$ket_sj_balik = '';
 				}
-				// IZIN
-				if($this->session->userdata('level') == 'Admin'){
-					($r->izin == 'N') ? $bg = 'color:#bbb' : $bg = 'color:#3704ff';
-					$btnIzin = ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".')" title="IZIN"><i style="'.$bg.'" class="fas fa-check-square"></i></a>';
-				}else{
-					$btnIzin = '';
-				}
 
 				($r->status_inv == 'Xp') ? $xP = 'bg-expired' : $xP = '';
 				$row[] = '<table style="width:100%" class="'.$xP.'">
@@ -5626,7 +5611,7 @@ class Logistik extends CI_Controller
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>NO SJ </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
-						<td style="padding : 2px;border:none;">'.$no_sj .' <span style="color:#3704ff;font-weight:bold"> [ '.$r->tgl_sj .' ]</span>'.$btnIzin.'</td>
+						<td style="padding : 2px;border:none;">'.$no_sj .' <span style="color:#3704ff;font-weight:bold"> [ '.$r->tgl_sj .' ]</span></td>
 					</tr>
 					<tr style="background-color: transparent !important">
 						<td style="padding : 2px;border:none;"><b>BC </td>
@@ -5716,18 +5701,11 @@ class Logistik extends CI_Controller
 					<button type="button" class="btn btn-xs '.$txtB.'" style="font-weight:bold" >'.$txtT.'</button><br>
 				</div>';
 
-				if (in_array($this->session->userdata('username'), ['karina','tegar']))
-				{
-					// $urll1 = "onclick=acc_inv(`admin`,'$r->acc_admin','$r->no_invoice')";
-					// $urll1 = "onclick=open_modal('$r->id','$r->no_invoice')";
+				if (in_array($this->session->userdata('username'), ['karina','tegar'])){
 					$urll1 = '';
 					$urll2 = '';
-
-				} else if (in_array($this->session->userdata('username'), ['bumagda','developer']))
-				{
+				} else if (in_array($this->session->userdata('username'), ['bumagda','developer'])){
 					$urll1 = '';
-					// $urll2 = "onclick=acc_inv(`owner`,'$r->acc_owner','$r->no_invoice')";
-					// $urll2 = "onclick=open_modal('$r->id','$r->no_invoice')";
 					$urll2 = "onclick=acc_inv('$r->no_invoice','$r->acc_owner')";
 				} else {
 					$urll1 = '';
