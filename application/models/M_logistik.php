@@ -3945,10 +3945,11 @@ class M_logistik extends CI_Model
 		$id_inv = $_POST["id_inv"];
 		$jenis = $_POST["jenis"];
 		$izin = $_POST["izin"];
+		$jenisIzin = $_POST["jenisIzin"];
 		$header = $this->db->query("SELECT*FROM invoice_header WHERE id='$id_inv'")->row();
 		if($jenis == 'izin'){
 			($izin == 'N') ? $z = 'Y' : $z = 'N';
-			$this->db->set("izin", $z);
+			$this->db->set("izin_".$jenisIzin, $z);
 		}else{
 			$this->db->set("status_inv", 'Open');
 			$this->db->set("img_".$jenis, 'foto.jpg');

@@ -5353,7 +5353,7 @@ class Logistik extends CI_Controller
 						if($r->inp_sj_balik == null){
 							$cek_bc = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
 						}else if($actualDate > $expired || $actualDate == $expired){
-							if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Admin', 'Jasa', 'Keuangan1' ,'Pembayaran']) && $r->izin == 'Y' && $this->session->userdata('username') != 'bumagda')){
+							if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Admin', 'Jasa', 'Keuangan1' ,'Pembayaran']) && $r->izin_bc == 'Y' && $this->session->userdata('username') != 'bumagda')){
 								$cek_bc = '<a type="button" '.$urll_foto_bc.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="BC"></i></b></span></a> ';
 							}else{
 								$cek_bc = '';
@@ -5383,7 +5383,7 @@ class Logistik extends CI_Controller
 						if($r->inp_sj_balik == null){
 							$cek_faktur = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
 						}else if($actualDate2 > $expired2 || $actualDate2 == $expired2){
-							if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Jasa']) && $r->izin == 'Y' && $this->session->userdata('username') != 'bumagda')){
+							if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Jasa']) && $r->izin_faktur == 'Y' && $this->session->userdata('username') != 'bumagda')){
 								$cek_faktur = '<a type="button" '.$urll_foto_faktur.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="FAKTUR"></i></b></span></a> ';
 							}else{
 								$cek_faktur = '';
@@ -5410,7 +5410,7 @@ class Logistik extends CI_Controller
 					if($r->inp_sj_balik == null){
 						$cek_resi = '<span style="color:#3704ff;font-weight:bold">*SJ Balik belum di upload</span>';
 					}else if($actualDate > $expired || $actualDate == $expired){
-						if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Keuangan1' ,'Pembayaran']) && $r->izin == 'Y' && $this->session->userdata('username') != 'bumagda')){
+						if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Keuangan1' ,'Pembayaran']) && $r->izin_resi == 'Y' && $this->session->userdata('username') != 'bumagda')){
 							$cek_resi = '<a type="button" '.$urll_foto_resi.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="RESI"></i></b></span></a> ';
 						}else{
 							$cek_resi = '';
@@ -5438,7 +5438,7 @@ class Logistik extends CI_Controller
 						$cek_inv_terima = '<span style="color:#3704ff;font-weight:bold">*Resi belum di upload</span>';
 					}else{
 						if($actualDate3 > $expired3 || $actualDate3 == $expired3){
-							if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Keuangan1' ,'Pembayaran']) && $r->izin == 'Y' && $this->session->userdata('username') != 'bumagda')){
+							if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Keuangan1' ,'Pembayaran']) && $r->izin_inv_terima == 'Y' && $this->session->userdata('username') != 'bumagda')){
 								$cek_inv_terima = '<a type="button" '.$urll_foto_inv_terima.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="inv_terima"></i></b></span></a> ';
 							}else{
 								$cek_inv_terima = '';
@@ -5477,7 +5477,7 @@ class Logistik extends CI_Controller
 					if($r->img_inv_terima=='' || $r->img_sj_balik==''){
 						$cek_mutasi = '<span style="color:#3704ff;font-weight:bold">*Inv diterima belum di upload</span>';
 					}else if($sisaHari < 0){
-						if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Keuangan1' ,'Pembayaran']) && $r->izin == 'Y' && $this->session->userdata('username') != 'bumagda')){
+						if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Keuangan1' ,'Pembayaran']) && $r->izin_mutasi == 'Y' && $this->session->userdata('username') != 'bumagda')){
 							$cek_mutasi = '<a type="button" '.$urll_foto_mutasi.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="MUTASI"></i></b></span></a> ';
 						}else{
 							$cek_mutasi = '';
@@ -5502,7 +5502,7 @@ class Logistik extends CI_Controller
 				// SURAT JALAN BALIK
 				if($r->img_sj_balik == ''){
 					if($actualDate6 > $expired6 || $actualDate6 == $expired6){
-						if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Keuangan1' ,'Pembayaran']) && $r->izin == 'Y' && $this->session->userdata('username') != 'bumagda')){
+						if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Keuangan1' ,'Pembayaran']) && $r->izin_sj_balik == 'Y' && $this->session->userdata('username') != 'bumagda')){
 							$cek_sj_balik = '<a type="button" '.$urll_foto_sj_balik.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="SJ BALIK"></i></b></span></a> ';
 						}else{
 							$cek_sj_balik = '';
@@ -5532,8 +5532,20 @@ class Logistik extends CI_Controller
 				';
 				// IZIN
 				if($this->session->userdata('level') == 'Admin'){
-					($r->izin == 'N') ? $bg = 'color:#bbb' : $bg = 'color:#3704ff';
-					$btncetak_up .= ' <a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".')" title="IZIN"><i style="'.$bg.'" class="fas fa-check-square"></i></a>';
+					($r->izin_bc == 'N') ? $bg1 = 'color:#bbb' : $bg1 = 'color:#3704ff';
+					($r->izin_faktur == 'N') ? $bg2 = 'color:#bbb' : $bg2 = 'color:#3704ff';
+					($r->izin_resi == 'N') ? $bg3 = 'color:#bbb' : $bg3 = 'color:#3704ff';
+					($r->izin_inv_terima == 'N') ? $bg4 = 'color:#bbb' : $bg4 = 'color:#3704ff';
+					($r->izin_mutasi == 'N') ? $bg5 = 'color:#bbb' : $bg5 = 'color:#3704ff';
+					($r->izin_sj_balik == 'N') ? $bg6 = 'color:#bbb' : $bg6 = 'color:#3704ff';
+					$btncetak_up .= '
+						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".', '."'bc'".')" title="IZIN BC"><i style="'.$bg1.'" class="fas fa-check-square"></i></a>
+						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".', '."'faktur'".')" title="IZIN FAKTUR"><i style="'.$bg2.'" class="fas fa-check-square"></i></a>
+						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".', '."'resi'".')" title="IZIN RESI"><i style="'.$bg3.'" class="fas fa-check-square"></i></a>
+						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".', '."'inv_terima'".')" title="IZIN INV TERIMA"><i style="'.$bg4.'" class="fas fa-check-square"></i></a>
+						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".', '."'mutasi'".')" title="IZIN MUTASI"><i style="'.$bg5.'" class="fas fa-check-square"></i></a>
+						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".', '."'sj_balik'".')" title="IZIN SJ BALIK"><i style="'.$bg6.'" class="fas fa-check-square"></i></a>
+					';
 				}
 
 				// KETERANGAN

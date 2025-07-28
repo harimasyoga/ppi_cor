@@ -3043,7 +3043,7 @@
 		})
 	}
 
-	function btnSakti(id_inv, jenis, izin = '') {
+	function btnSakti(id_inv, jenis, izin = '', jenisIzin = '') {
 		$.ajax({
 			url: '<?php echo base_url('Logistik/btnSakti')?>',
 			type: "POST",
@@ -3057,7 +3057,7 @@
 					}
 				});
 			},
-			data: ({ id_inv, jenis, izin }),
+			data: ({ id_inv, jenis, izin, jenisIzin }),
 			success: function(res){
 				data = JSON.parse(res)
 				// console.log(data)
