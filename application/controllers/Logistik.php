@@ -5127,6 +5127,107 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function cariLapExpired()
+	{
+		$html = '';
+		$tgl_exp = $_POST["tgl_expired"];
+
+		if($tgl_exp == ''){
+			$html .= 'PILIH TGL!';
+		}else{
+			$header = $this->db->query("SELECT * FROM invoice_header h
+			INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
+			WHERE h.status_inv='Xp' AND h.cek_global LIKE '%$tgl_exp%'
+			GROUP BY h.no_invoice");
+			if($header->num_rows() == 0){
+				$html .= 'DATA KOSONG!';
+			}else{
+				$html .= '<table>
+					<tr>
+						<th style="border:1px solid #000;padding:6px">TGL INVOICE</th>
+						<th style="border:1px solid #000;padding:6px">TYPE</th>
+						<th style="border:1px solid #000;padding:6px">NO INVOICE</th>
+						<th style="border:1px solid #000;padding:6px">NO SURAT</th>
+						<th style="border:1px solid #000;padding:6px">NM PERUSAHAAN</th>
+						<th style="border:1px solid #000;padding:6px 23px;text-align:center">B C</th>
+						<th style="border:1px solid #000;padding:6px;text-align:center">FAKTUR</th>
+						<th style="border:1px solid #000;padding:6px;text-align:center">NO. RESI</th>
+						<th style="border:1px solid #000;padding:6px;text-align:center">I. TERIMA</th>
+						<th style="border:1px solid #000;padding:6px;text-align:center">MUTASI</th>
+						<th style="border:1px solid #000;padding:6px;text-align:center">SJ BALIK</th>
+					</tr>';
+					foreach($header->result() as $r){
+						// BC
+						$qBC = $this->db->query("SELECT h.* FROM invoice_header h
+						INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+						WHERE h.no_invoice='$r->no_invoice' AND h.type!='roll' AND p.bc='Y' AND h.pajak!='nonppn' AND h.img_sj_balik IS NULL AND h.img_bc IS NULL
+						AND DATEDIFF(h.tgl_invoice, CURDATE()) <= '-4'
+						GROUP BY h.no_invoice");
+						($qBC->num_rows() == 0) ? $kBC = '-' : $kBC = '<span style="color:#f00">EXPIRED</span>';
+
+						// FAKTUR
+						$qFaktur = $this->db->query("SELECT*FROM invoice_header h
+						WHERE h.no_invoice='$r->no_invoice' AND h.pajak!='nonppn' AND h.img_sj_balik IS NOT NULL AND h.img_faktur IS NULL
+						AND DATEDIFF(IF(h.tgl_sj_blk IS NULL, SUBSTRING(h.inp_sj_balik, 1, 10), h.tgl_sj_blk), CURDATE()) <= '-3'
+						GROUP BY h.no_invoice");
+						($qFaktur->num_rows() == 0) ? $kFaktur = '-' : $kFaktur = '<span style="color:#f00">EXPIRED</span>';
+
+						// RESI
+						$qNoResi = $this->db->query("SELECT*FROM invoice_header h
+						WHERE h.no_invoice='$r->no_invoice' AND h.img_sj_balik IS NOT NULL AND h.img_resi IS NULL
+						AND DATEDIFF(IF(h.tgl_sj_blk IS NULL, SUBSTRING(h.inp_sj_balik, 1, 10), h.tgl_sj_blk), CURDATE()) <= '-4'
+						GROUP BY h.no_invoice");
+						($qNoResi->num_rows() == 0) ? $kResi = '-' : $kResi = '<span style="color:#f00">EXPIRED</span>';
+
+						// INV TERIMA
+						$qInvDiterima = $this->db->query("SELECT*FROM invoice_header h
+						WHERE h.no_invoice='$r->no_invoice' AND h.img_resi IS NOT NULL AND h.img_inv_terima IS NULL AND DATEDIFF(SUBSTRING(h.inp_resi, 1, 10), CURDATE()) <= '-3'
+						GROUP BY h.no_invoice");
+						($qInvDiterima->num_rows() == 0) ? $kInvt = '-' : $kInvt = '<span style="color:#f00">EXPIRED</span>';
+
+						// MUTASI
+						$qMutasi = $this->db->query("SELECT h.*, DATEDIFF(h.tgl_jatuh_tempo, h.tgl_invoice) AS tempo, DATEDIFF(SUBSTRING(h.inp_inv_terima, 1, 10), CURDATE()) AS tempo_invd FROM invoice_header h
+						WHERE h.no_invoice='$r->no_invoice' AND h.img_inv_terima IS NOT NULL AND h.img_mutasi IS NULL
+						GROUP BY h.no_invoice");
+						if($qMutasi->num_rows() > 0){
+							$sisa = $qMutasi->row()->tempo + $qMutasi->row()->tempo_invd;
+							if($sisa < 0){
+								$kMutasi = '<span style="color:#f00">EXPIRED</span>';
+							}else{
+								$kMutasi = '-';
+							}
+						}else{
+							$kMutasi = '-';
+						}
+
+						// SJ BALIK
+						$qSJBalik = $this->db->query("SELECT*FROM invoice_header h
+						WHERE h.no_invoice='$r->no_invoice' AND h.img_sj_balik IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) <= '-6'
+						GROUP BY h.no_invoice");
+						($qSJBalik->num_rows() == 0) ? $kSJb = '-' : $kSJb = '<span style="color:#f00">EXPIRED</span>';
+
+						$html .= '<tr style="font-weight:normal">
+							<td style="border:1px solid #000;padding:6px;text-align:center">'.$this->m_fungsi->tglIndSkt3($r->tgl_invoice).'</td>
+							<td style="border:1px solid #000;padding:6px;text-align:center">'.strtoupper($r->type).'</td>
+							<td style="border:1px solid #000;padding:6px">'.$r->no_invoice.'</td>
+							<td style="border:1px solid #000;padding:6px">'.$r->no_surat.'</td>
+							<td style="border:1px solid #000;padding:6px">'.$r->nm_perusahaan.'</td>
+							<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kBC.'</td>
+							<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kFaktur.'</td>
+							<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kResi.'</td>
+							<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kInvt.'</td>
+							<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kMutasi.'</td>
+							<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kSJb.'</td>
+						</tr>';
+					}
+				$html .= '</table>';
+			}
+		}
+		echo json_encode(array(
+			'html' => $html,
+		));
+	}
+
 
 	function edit_timbangan()
 	{
@@ -5539,12 +5640,12 @@ class Logistik extends CI_Controller
 					($r->izin_mutasi == 'N') ? $bg5 = 'color:#bbb' : $bg5 = 'color:#3704ff';
 					($r->izin_sj_balik == 'N') ? $bg6 = 'color:#bbb' : $bg6 = 'color:#3704ff';
 					$btncetak_up .= '
-						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".', '."'bc'".')" title="IZIN BC"><i style="'.$bg1.'" class="fas fa-check-square"></i></a>
-						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".', '."'faktur'".')" title="IZIN FAKTUR"><i style="'.$bg2.'" class="fas fa-check-square"></i></a>
-						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".', '."'resi'".')" title="IZIN RESI"><i style="'.$bg3.'" class="fas fa-check-square"></i></a>
-						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".', '."'inv_terima'".')" title="IZIN INV TERIMA"><i style="'.$bg4.'" class="fas fa-check-square"></i></a>
-						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".', '."'mutasi'".')" title="IZIN MUTASI"><i style="'.$bg5.'" class="fas fa-check-square"></i></a>
-						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin."'".', '."'sj_balik'".')" title="IZIN SJ BALIK"><i style="'.$bg6.'" class="fas fa-check-square"></i></a>
+						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin_bc."'".', '."'bc'".')" title="IZIN BC"><i style="'.$bg1.'" class="fas fa-check-square"></i></a>
+						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin_faktur."'".', '."'faktur'".')" title="IZIN FAKTUR"><i style="'.$bg2.'" class="fas fa-check-square"></i></a>
+						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin_resi."'".', '."'resi'".')" title="IZIN RESI"><i style="'.$bg3.'" class="fas fa-check-square"></i></a>
+						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin_inv_terima."'".', '."'inv_terima'".')" title="IZIN INV TERIMA"><i style="'.$bg4.'" class="fas fa-check-square"></i></a>
+						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin_mutasi."'".', '."'mutasi'".')" title="IZIN MUTASI"><i style="'.$bg5.'" class="fas fa-check-square"></i></a>
+						<a type="button" onclick="btnSakti('."'".$r->id."'".', '."'izin'".', '."'".$r->izin_sj_balik."'".', '."'sj_balik'".')" title="IZIN SJ BALIK"><i style="'.$bg6.'" class="fas fa-check-square"></i></a>
 					';
 				}
 
