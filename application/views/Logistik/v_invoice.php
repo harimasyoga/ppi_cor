@@ -365,18 +365,14 @@
 	</section>
 
 	<section class="content">
-
-		<!-- Default box -->
 		<div class="card shadow list_sj" style="display: none;">
 			<div class="card-header" style="font-family:Cambria;" >
 				<h3 class="card-title" style="color:#4e73df;"><b>LIST SURAT JALAN</b></h3>
-
 				<div class="card-tools">
 					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
 						<i class="fas fa-minus"></i></button>
 				</div>
 			</div>
-
 			<div class="card shadow mb-3">
 				<div class="card-body">
 					<?php if(in_array($this->session->userdata('level'), ['Admin', 'Laminasi', 'Keuangan1','Owner'])){ ?>
@@ -449,9 +445,40 @@
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<div class="card shadow list_exp" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;" >
+				<h3 class="card-title" style="color:#4e73df;"><b>LAPORAN EXPIRED</b></h3>
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+			<div class="card shadow mb-3">
+				<div class="card-body">
+					<div style="margin-bottom:12px">
+						<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+							<i class="fa fa-arrow-left" ></i> Kembali</b>
+						</button>
+					</div>
+					<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
+						<div class="col-md-4">
+							<input type="date" id="tgl_expired" class="form-control" onchange="cariLapExpired()">
+						</div>
+						<div class="col-md-8"></div>
+					</div>
+					<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
+						<div class="col-md-12">
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="tab_expired"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		
 		</div>
-		<!-- /.card -->
 	</section>
 
 	<!-- Main content -->
@@ -472,24 +499,19 @@
 				<div class="card-body">
 
 					<div class="card-body" style="padding:12px 6px">
-						<?php if(in_array($this->session->userdata('username'), ['karina', 'tegar', 'developer'])){
-						?>
+						<?php if(in_array($this->session->userdata('username'), ['karina', 'tegar', 'developer'])){ ?>
 							<div style="margin-bottom:12px">
 								<button type="button" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE JATUH TEMPO"><i class="fas fa-sync-alt"></i></button>
 								<button type="button" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								<button type="button" class="btn btn-danger btn-sm" onclick="open_laporan()"><i class="fa fa-print"></i> <b>Laporan</b></button>
 								<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
+								<?php if (in_array($this->session->userdata('level'), ['Admin'])) { ?>
+									<button type="button" class="btn btn-danger btn-sm" onclick="open_lapExp()"><i class="fa fa-print"></i> <b>Lap Expired</b></button>
+								<?php } ?>
 							</div>
 						<?php } ?>
-
-						
 						<?php if (in_array($this->session->userdata('username'), ['owner'])) { ?>
-
-							<!-- <a href="<?= base_url('Logistik/Invoice_add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a> -->
-
-
 							<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
-
 						<?php } ?>
 
 						<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
@@ -1367,6 +1389,37 @@
 		listNomerSJ()
 	}
 
+	function open_lapExp() {
+		$(".row-input").attr('style', 'display:none')
+		$(".row-list").attr('style', 'display:none')
+		$(".list_exp").attr('style', '')
+	}
+
+	function cariLapExpired() {
+		$(".tab_expired").html('')
+		let tgl_expired = $("#tgl_expired").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/cariLapExpired')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ tgl_expired }),
+			success: function(res){
+				data = JSON.parse(res)
+				$(".tab_expired").html(data.html)
+				swal.close()
+			}
+		})
+	}
+
 	function listNomerSJ(){
 		let tahun = $("#ll_tahun").val()
 		let pilih = $("#ll_pilih").val()
@@ -1407,6 +1460,8 @@
 		$(".row-input").attr('style', 'display:none')
 		$(".list_lap").attr('style', 'display:none')
 		$(".list_sj").attr('style', 'display:none')
+		$(".list_exp").attr('style', 'display:none')
+		$("#tgl_expired").val('')
 		$(".row-list").attr('style', '')
 	}
 
