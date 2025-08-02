@@ -5240,7 +5240,12 @@ class Logistik extends CI_Controller
 						WHERE h.no_invoice='$r->no_invoice' AND h.img_sj_balik IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) <= '-6'
 						GROUP BY h.no_invoice");
 						if($qSJBalik->num_rows() == 0){
-							($r->inp_sj_balik == null) ? $kSJb = '-' :$kSJb = $this->m_fungsi->tglIndSkt3(substr($r->inp_sj_balik, 0, 10));
+							if($r->inp_sj_balik == null){
+								$kSJb = '-';
+							}else{
+								($r->tgl_sj_blk == null) ? $tSB = substr($r->inp_sj_balik, 0, 10) : $tSB = $r->tgl_sj_blk;
+								$kSJb = $this->m_fungsi->tglIndSkt3($tSB);
+							}
 						}else{
 							$kSJb = '<span style="color:#f00">EXPIRED</span>';
 						}
