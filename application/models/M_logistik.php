@@ -3813,6 +3813,42 @@ class M_logistik extends CI_Model
 		);
 	}
 
+	function sHpsFile()
+	{
+		$id_inv = $_POST["id_inv"];
+		$ket = $_POST["ket"];
+		// Hapus File Foto
+		$cek_data = $this->db->query("SELECT * FROM invoice_header where id='$id_inv'")->row();
+		if($ket == 'bc'){
+			$uLink = unlink("assets/gambar_inv_bc/".$cek_data->img_bc);
+		}else if($ket == 'faktur'){
+			$uLink = unlink("assets/gambar_inv_faktur/".$cek_data->img_faktur);
+		}else if($ket == 'resi'){
+			$uLink = unlink("assets/gambar_inv_resi/".$cek_data->img_resi);
+		}else if($ket == 'inv_terima'){
+			$uLink = unlink("assets/gambar_inv_inv_terima/".$cek_data->img_inv_terima);
+		}else if($ket == 'mutasi'){
+			$uLink = unlink("assets/gambar_inv_mutasi/".$cek_data->img_mutasi);
+		}else if($ket == 'sj_balik'){
+			$uLink = unlink("assets/gambar_inv_sj_balik/".$cek_data->img_sj_balik);
+		}
+		if($uLink){
+			if($ket == 'sj_balik'){
+				$this->db->set("tgl_sj_blk", null);
+			}
+			$this->db->set("img_".$ket, null);
+			$this->db->set("inp_".$ket, null);
+			$this->db->set("cek_".$ket, null);
+			$this->db->where("id", $id_inv);
+			$data = $this->db->update("invoice_header");
+		}
+		$msg = "BERHASIL HAPUS ".strtoupper($ket).'!';
+		return array(
+			'data' => $data,
+			'msg' => $msg,
+		);
+	}
+
 	function updateExpired()
 	{
 		$tahun = $_POST["tahun"];
@@ -3946,15 +3982,14 @@ class M_logistik extends CI_Model
 		$jenis = $_POST["jenis"];
 		$izin = $_POST["izin"];
 		$jenisIzin = $_POST["jenisIzin"];
-		$header = $this->db->query("SELECT*FROM invoice_header WHERE id='$id_inv'")->row();
 		if($jenis == 'izin'){
 			($izin == 'N') ? $z = 'Y' : $z = 'N';
 			$this->db->set("izin_".$jenisIzin, $z);
 		}else{
 			$this->db->set("status_inv", 'Open');
 			$this->db->set("img_".$jenis, 'foto.jpg');
-			$this->db->set("inp_".$jenis, $header->tgl_invoice.' 00:00:00');
-			$this->db->set("cek_".$jenis, $header->tgl_invoice.' 00:00:00');
+			$this->db->set("inp_".$jenis, date('Y-m-d').' 00:00:00');
+			$this->db->set("cek_".$jenis, date('Y-m-d').' 00:00:00');
 		}
 		$this->db->where("id", $id_inv);
 		$data = $this->db->update("invoice_header");

@@ -1004,9 +1004,22 @@
 			})
 			.done(function(data) {
 
-				
 				$('#div_preview_foto').css("display","block");
-				$(".detail-inv").html(data.htmlDtl)
+				let btnHapHap = ''
+				if(username == 'developer' && data.url_foto != 'foto'){
+					btnHapHap = `<div style="display:flex">
+						<div style="margin-right:4px">
+							<select id="hps_file_inv" onchange="sHpsFile('${data.header.id}', '${ket}')">
+								<option value=""></option>
+								<option value="HAPUS">HAPUS</option>
+							</select>
+						</div>
+						${data.htmlDtl}
+					</div>`;
+				}else{
+					btnHapHap = data.htmlDtl
+				}
+				$(".detail-inv").html(btnHapHap)
 				if(ket=='inv_terima'){
 					$("#tgl_invd").val(data.header.inp_inv_terima.substr(0, 10))
 				}
@@ -1063,6 +1076,36 @@
 				}
 				$('.select2').select2()
 			})
+	}
+
+	function sHpsFile(id_inv, ket){
+		$.ajax({
+			url: '<?php echo base_url('Logistik/sHpsFile')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			data: ({ id_inv, ket }),
+			success: function(res){
+				data = JSON.parse(res)
+				// console.log(data)
+				if(data.data){
+					reloadTable()
+					toastr.success(`<b>${data.msg}</b>`)
+					$('#modal_foto').modal('hide')
+					load_bank()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
+			}
+		})
 	}
 
 	function cekInv(opsi, oNoInv){
