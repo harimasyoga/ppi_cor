@@ -4494,25 +4494,20 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_bc==null || $header->img_bc=='') {
-			$url_foto = base_url('assets/gambar_inv_bc/foto.jpg');
+			$url_foto = base_url('assets/gambar_inv_bc/foto.jpg'); $uF2 = 'foto';
 		}else{
-			$url_foto = base_url('assets/gambar_inv_bc/') . $header->img_bc;
+			$url_foto = base_url('assets/gambar_inv_bc/') . $header->img_bc; $uF2 = '';
 		}
 
 		if($ext == 'pdf' || $ext == 'PDF'){
-				// $htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$header->img_bc.'" height="600" style="width:100%"></object>';
-				// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$header->img_bc.'" width="600" height="400"></embed>';
-				$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_bc/'.$header->img_bc.'" height="600" style="width:100%"></iframe>';
+			$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_bc/'.$header->img_bc.'" height="600" style="width:100%"></iframe>';
+		}else{
+			$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
+			<span class="help-block"></span>';
+		}
 
-				
-			}else{
-				$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
-				<span class="help-block"></span>';
-			}
+		$data = ["header" => $header, "ket" => $header->ket_bc, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $uF2];
 
-		$data = ["header" => $header, "ket" => $header->ket_bc, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
-
-		
 		echo json_encode($data);
 	}
 
@@ -4528,25 +4523,20 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_faktur==null || $header->img_faktur=='') {
-			$url_foto = base_url('assets/gambar_inv_faktur/foto.jpg');
+			$url_foto = base_url('assets/gambar_inv_faktur/foto.jpg'); $uF2 = 'foto';
 		}else{
-			$url_foto = base_url('assets/gambar_inv_faktur/') . $header->img_faktur;
+			$url_foto = base_url('assets/gambar_inv_faktur/') . $header->img_faktur; $uF2 = '';
 		}
 
 		if($ext == 'pdf' || $ext == 'PDF'){
-				// $htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$header->img_faktur.'" height="600" style="width:100%"></object>';
-				// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$header->img_faktur.'" width="600" height="400"></embed>';
-				$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_faktur/'.$header->img_faktur.'" height="600" style="width:100%"></iframe>';
+			$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_faktur/'.$header->img_faktur.'" height="600" style="width:100%"></iframe>';
+		}else{
+			$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
+			<span class="help-block"></span>';
+		}
 
-				
-			}else{
-				$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
-				<span class="help-block"></span>';
-			}
+		$data = ["header" => $header, "ket" => $header->ket_faktur, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $uF2];
 
-		$data = ["header" => $header, "ket" => $header->ket_faktur, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
-
-		
 		echo json_encode($data);
 	}
 	
@@ -4562,25 +4552,20 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_resi==null || $header->img_resi=='') {
-			$url_foto = base_url('assets/gambar_inv_resi/foto.jpg');
+			$url_foto = base_url('assets/gambar_inv_resi/foto.jpg'); $uF2 = 'foto';
 		}else{
-			$url_foto = base_url('assets/gambar_inv_resi/') . $header->img_resi;
+			$url_foto = base_url('assets/gambar_inv_resi/') . $header->img_resi; $uF2 = '';
 		}
 
 		if($ext == 'pdf' || $ext == 'PDF'){
-				// $htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$header->img_resi.'" height="600" style="width:100%"></object>';
-				// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$header->img_resi.'" width="600" height="400"></embed>';
-				$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_resi/'.$header->img_resi.'" height="600" style="width:100%"></iframe>';
+			$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_resi/'.$header->img_resi.'" height="600" style="width:100%"></iframe>';
+		}else{
+			$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
+			<span class="help-block"></span>';
+		}
 
-				
-			}else{
-				$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
-				<span class="help-block"></span>';
-			}
+		$data = ["header" => $header, "ket" => $header->ket_resi, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $uF2];
 
-		$data = ["header" => $header, "ket" => $header->ket_resi, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
-
-		
 		echo json_encode($data);
 	}
 		
@@ -4596,25 +4581,20 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_inv_terima==null || $header->img_inv_terima=='') {
-			$url_foto = base_url('assets/gambar_inv_inv_terima/foto.jpg');
+			$url_foto = base_url('assets/gambar_inv_inv_terima/foto.jpg'); $uF2 = 'foto';
 		}else{
-			$url_foto = base_url('assets/gambar_inv_inv_terima/') . $header->img_inv_terima;
+			$url_foto = base_url('assets/gambar_inv_inv_terima/') . $header->img_inv_terima; $uF2 = '';
 		}
 
 		if($ext == 'pdf' || $ext == 'PDF'){
-				// $htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$header->img_inv_terima.'" height="600" style="width:100%"></object>';
-				// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$header->img_inv_terima.'" width="600" height="400"></embed>';
-				$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_inv_terima/'.$header->img_inv_terima.'" height="600" style="width:100%"></iframe>';
+			$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_inv_terima/'.$header->img_inv_terima.'" height="600" style="width:100%"></iframe>';
+		}else{
+			$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
+			<span class="help-block"></span>';
+		}
 
-				
-			}else{
-				$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
-				<span class="help-block"></span>';
-			}
+		$data = ["header" => $header, "ket" => $header->ket_inv_terima, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $uF2];
 
-		$data = ["header" => $header, "ket" => $header->ket_inv_terima, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
-
-		
 		echo json_encode($data);
 	}
 		
@@ -4630,25 +4610,20 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_mutasi==null || $header->img_mutasi=='') {
-			$url_foto = base_url('assets/gambar_inv_mutasi/foto.jpg');
+			$url_foto = base_url('assets/gambar_inv_mutasi/foto.jpg'); $uF2 = 'foto';
 		}else{
-			$url_foto = base_url('assets/gambar_inv_mutasi/') . $header->img_mutasi;
+			$url_foto = base_url('assets/gambar_inv_mutasi/') . $header->img_mutasi; $uF2 = '';
 		}
 
 		if($ext == 'pdf' || $ext == 'PDF'){
-				// $htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$header->img_mutasi.'" height="600" style="width:100%"></object>';
-				// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$header->img_mutasi.'" width="600" height="400"></embed>';
-				$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_mutasi/'.$header->img_mutasi.'" height="600" style="width:100%"></iframe>';
+			$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_mutasi/'.$header->img_mutasi.'" height="600" style="width:100%"></iframe>';
+		}else{
+			$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
+			<span class="help-block"></span>';
+		}
 
-				
-			}else{
-				$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
-				<span class="help-block"></span>';
-			}
+		$data = ["header" => $header, "ket" => $header->ket_mutasi, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $uF2];
 
-		$data = ["header" => $header, "ket" => $header->ket_mutasi, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
-
-		
 		echo json_encode($data);
 	}
 
@@ -4664,25 +4639,20 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_sj_balik==null || $header->img_sj_balik=='') {
-			$url_foto = base_url('assets/gambar_inv_sj_balik/foto.jpg');
+			$url_foto = base_url('assets/gambar_inv_sj_balik/foto.jpg'); $uF2 = 'foto';
 		}else{
-			$url_foto = base_url('assets/gambar_inv_sj_balik/') . $header->img_sj_balik;
+			$url_foto = base_url('assets/gambar_inv_sj_balik/') . $header->img_sj_balik; $uF2 = '';
 		}
 
 		if($ext == 'pdf' || $ext == 'PDF'){
-				// $htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$header->img_sj_balik.'" height="600" style="width:100%"></object>';
-				// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$header->img_sj_balik.'" width="600" height="400"></embed>';
-				$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_sj_balik/'.$header->img_sj_balik.'" height="600" style="width:100%"></iframe>';
+			$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_sj_balik/'.$header->img_sj_balik.'" height="600" style="width:100%"></iframe>';
+		}else{
+			$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
+			<span class="help-block"></span>';
+		}
 
-				
-			}else{
-				$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
-				<span class="help-block"></span>';
-			}
+		$data = ["header" => $header, "ket" => $header->ket_sj_balik, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $uF2];
 
-		$data = ["header" => $header, "ket" => $header->ket_sj_balik, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
-
-		
 		echo json_encode($data);
 	}
 	
@@ -4698,23 +4668,33 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_upload_inv==null || $header->img_upload_inv=='') {
-			$url_foto = base_url('assets/gambar_inv_upload_inv/foto.jpg');
+			$url_foto = base_url('assets/gambar_inv_upload_inv/foto.jpg'); $uF2 = 'foto';
 		}else{
-			$url_foto = base_url('assets/gambar_inv_upload_inv/') . $header->img_upload_inv;
+			$url_foto = base_url('assets/gambar_inv_upload_inv/') . $header->img_upload_inv; $uF2 = '';
 		}
 
 		if($ext == 'pdf' || $ext == 'PDF'){
-				// $htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$header->img_upload_inv.'" height="600" style="width:100%"></object>';
-				// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$header->img_upload_inv.'" width="600" height="400"></embed>';
-				$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_upload_inv/'.$header->img_upload_inv.'" height="600" style="width:100%"></iframe>';
-			}else{
-				$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
-				<span class="help-block"></span>';
-			}
+			$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_inv_upload_inv/'.$header->img_upload_inv.'" height="600" style="width:100%"></iframe>';
+		}else{
+			$htmlDtl .= '<img id="preview_img" src="'.$url_foto.'" alt="Preview Foto" width="15%" class="shadow-sm img-thumbnail">
+			<span class="help-block"></span>';
+		}
 
-		$data = ["header" => $header, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $url_foto];
+		$data = ["header" => $header, "htmlDtl" => $htmlDtl, "ext" => $ext, "url_foto" => $uF2];
 
 		echo json_encode($data);
+	}
+
+	function generateFileName()
+	{
+		$stringSpace = '0123456789_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$stringLength = strlen($stringSpace);
+		$string = str_repeat($stringSpace, ceil(11 / $stringLength));
+		$shuffledString = str_shuffle($string);
+		$code = substr($shuffledString, 1, 11);
+		$thn = substr(date('Y'), 2, 2); $bln = date('m'); $date = date('d');
+		$naMa = $thn.$bln.$date.'-'.$code;
+		return $naMa;
 	}
 
 	function save_bc()
@@ -4735,7 +4715,7 @@ class Logistik extends CI_Controller
 		// $config['max_size']      = 1024; //maksimum besar file 2M
 		// $config['max_width']     = 'none'; //lebar maksimum 1288 px
 		// $config['max_height']    = 'none'; //tinggi maksimu 768 px
-		//$config['file_name'] = $nmfile; //nama yang terupload nantinya
+		$config['file_name'] = $this->generateFileName(); //nama yang terupload nantinya
 
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
@@ -4788,7 +4768,7 @@ class Logistik extends CI_Controller
 		// $config['max_size']      = 1024; //maksimum besar file 2M
 		// $config['max_width']     = 'none'; //lebar maksimum 1288 px
 		// $config['max_height']    = 'none'; //tinggi maksimu 768 px
-		//$config['file_name'] = $nmfile; //nama yang terupload nantinya
+		$config['file_name'] = $this->generateFileName(); //nama yang terupload nantinya
 
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
@@ -4842,7 +4822,7 @@ class Logistik extends CI_Controller
 		// $config['max_size']      = 1024; //maksimum besar file 2M
 		// $config['max_width']     = 'none'; //lebar maksimum 1288 px
 		// $config['max_height']    = 'none'; //tinggi maksimu 768 px
-		//$config['file_name'] = $nmfile; //nama yang terupload nantinya
+		$config['file_name'] = $this->generateFileName(); //nama yang terupload nantinya
 
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
@@ -4896,7 +4876,7 @@ class Logistik extends CI_Controller
 		// $config['max_size']      = 1024; //maksimum besar file 2M
 		// $config['max_width']     = 'none'; //lebar maksimum 1288 px
 		// $config['max_height']    = 'none'; //tinggi maksimu 768 px
-		//$config['file_name'] = $nmfile; //nama yang terupload nantinya
+		$config['file_name'] = $this->generateFileName(); //nama yang terupload nantinya
 
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
@@ -4950,7 +4930,7 @@ class Logistik extends CI_Controller
 		// $config['max_size']      = 1024; //maksimum besar file 2M
 		// $config['max_width']     = 'none'; //lebar maksimum 1288 px
 		// $config['max_height']    = 'none'; //tinggi maksimu 768 px
-		//$config['file_name'] = $nmfile; //nama yang terupload nantinya
+		$config['file_name'] = $this->generateFileName(); //nama yang terupload nantinya
 
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
@@ -5014,7 +4994,7 @@ class Logistik extends CI_Controller
 		// $config['max_size']      = 1024; //maksimum besar file 2M
 		// $config['max_width']     = 'none'; //lebar maksimum 1288 px
 		// $config['max_height']    = 'none'; //tinggi maksimu 768 px
-		//$config['file_name'] = $nmfile; //nama yang terupload nantinya
+		$config['file_name'] = $this->generateFileName(); //nama yang terupload nantinya
 
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
@@ -5068,7 +5048,7 @@ class Logistik extends CI_Controller
 		// $config['max_size']      = 1024; //maksimum besar file 2M
 		// $config['max_width']     = 'none'; //lebar maksimum 1288 px
 		// $config['max_height']    = 'none'; //tinggi maksimu 768 px
-		//$config['file_name'] = $nmfile; //nama yang terupload nantinya
+		$config['file_name'] = $this->generateFileName(); //nama yang terupload nantinya
 
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
@@ -5112,6 +5092,12 @@ class Logistik extends CI_Controller
 	function cekInv()
 	{
 		$result = $this->m_logistik->cekInv();
+		echo json_encode($result);
+	}
+
+	function sHpsFile()
+	{
+		$result = $this->m_logistik->sHpsFile();
 		echo json_encode($result);
 	}
 
@@ -5240,7 +5226,12 @@ class Logistik extends CI_Controller
 						WHERE h.no_invoice='$r->no_invoice' AND h.img_sj_balik IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) <= '-6'
 						GROUP BY h.no_invoice");
 						if($qSJBalik->num_rows() == 0){
-							($r->inp_sj_balik == null) ? $kSJb = '-' :$kSJb = $this->m_fungsi->tglIndSkt3(substr($r->inp_sj_balik, 0, 10));
+							if($r->inp_sj_balik == null){
+								$kSJb = '-';
+							}else{
+								($r->tgl_sj_blk == null) ? $tSB = substr($r->inp_sj_balik, 0, 10) : $tSB = $r->tgl_sj_blk;
+								$kSJb = $this->m_fungsi->tglIndSkt3($tSB);
+							}
 						}else{
 							$kSJb = '<span style="color:#f00">EXPIRED</span>';
 						}
