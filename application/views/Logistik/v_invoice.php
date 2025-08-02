@@ -463,11 +463,18 @@
 						</button>
 					</div>
 					<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
-						<div class="col-md-4">
-							<input type="date" id="tgl_expired" class="form-control" onchange="cariLapExpired()">
+						<div class="col-md-2">PILIH</div>
+						<div class="col-md-3">
+							<select id="ex_pilih" class="form-control select2" onchange="exPilih()">
+								<option value="">PILIH</option>
+								<option value="TANGGAL">TANGGAL</option>
+								<option value="BULAN">BULAN</option>
+								<option value="SEMUA">SEMUA</option>
+							</select>
 						</div>
-						<div class="col-md-8"></div>
+						<div class="col-md-7"></div>
 					</div>
+					<div class="ex-tmpl"></div>
 					<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
 						<div class="col-md-12">
 							<div style="overflow:auto;white-space:nowrap">
@@ -501,7 +508,7 @@
 					<div class="card-body" style="padding:12px 6px">
 						<?php if(in_array($this->session->userdata('username'), ['karina', 'tegar', 'developer'])){ ?>
 							<div style="margin-bottom:12px">
-								<button type="button" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE JATUH TEMPO"><i class="fas fa-sync-alt"></i></button>
+								<button type="button" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE EXPIRED"><i class="fas fa-sync-alt"></i></button>
 								<button type="button" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								<button type="button" class="btn btn-danger btn-sm" onclick="open_laporan()"><i class="fa fa-print"></i> <b>Laporan</b></button>
 								<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
@@ -518,21 +525,16 @@
 							<div class="col-md-2" style="padding-bottom:3px">
 								<select class="form-control select2" id="rentang_thn" name="rentang_thn" onchange="load_data()">
 									<?php 
-									$thang        = date("Y");
-									$thang_maks   = $thang + 3 ;
-									$thang_min    = $thang - 3 ;
-									for ($th=$thang_min ; $th<=$thang_maks ; $th++)
-									{ ?>
-
-										<?php if ($th==$thang) { ?>
-
-										<option selected value="<?= $th ?>"> <?= $thang ?> </option>
-										
-										<?php }else{ ?>
-										
-										<option value="<?= $th ?>"> <?= $th ?> </option>
-										<?php } ?>
-								<?php } ?>
+										$thang        = date("Y");
+										$thang_maks   = $thang + 3 ;
+										$thang_min    = $thang - 3 ;
+										for ($th=$thang_min ; $th<=$thang_maks ; $th++) { ?>
+											<?php if($th == $thang) { ?>
+												<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+											<?php }else{ ?>
+												<option value="<?= $th ?>"> <?= $th ?> </option>
+											<?php } ?>
+									<?php } ?>
 							</select>
 							</div>
 							<div class="col-md-2" style="padding-bottom:3px">
@@ -596,7 +598,6 @@
 							</table>
 						</div>
 					</div>
-
 				</div>
 			</div>
 		</div>
@@ -1395,8 +1396,39 @@
 		$(".list_exp").attr('style', '')
 	}
 
+	function exPilih(){
+		$('.ex-tmpl').html(``)
+		$(".tab_expired").html('')
+		let ex_pilih = $('#ex_pilih').val()
+		if(ex_pilih == 'TANGGAL'){
+			$('.ex-tmpl').html(`
+				<div class="card-body row" style="font-weight:bold;padding:6px 0">
+					<div class="col-md-2"></div>
+					<div class="col-md-3">
+						<input type="date" id="tgl_expired" class="form-control" onchange="cariLapExpired()">
+					</div>
+					<div class="col-md-7"></div>
+				</div>
+			`)
+		}else if(ex_pilih == 'BULAN'){
+			$('.ex-tmpl').html(`
+				<div class="card-body row" style="font-weight:bold;padding:6px 0">
+					<div class="col-md-2"></div>
+					<div class="col-md-3">
+						<input type="month" id="tgl_expired" class="form-control" onchange="cariLapExpired()">
+					</div>
+					<div class="col-md-7"></div>
+				</div>
+			`)
+		}else{
+			$('.ex-tmpl').html(`<input type="hidden" id="tgl_expired" value="">`)
+			cariLapExpired()
+		}
+	}
+
 	function cariLapExpired() {
 		$(".tab_expired").html('')
+		let ex_pilih = $('#ex_pilih').val()
 		let tgl_expired = $("#tgl_expired").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/cariLapExpired')?>',
@@ -1411,7 +1443,7 @@
 					}
 				});
 			},
-			data: ({ tgl_expired }),
+			data: ({ ex_pilih, tgl_expired }),
 			success: function(res){
 				data = JSON.parse(res)
 				$(".tab_expired").html(data.html)
@@ -1462,6 +1494,8 @@
 		$(".list_sj").attr('style', 'display:none')
 		$(".list_exp").attr('style', 'display:none')
 		$("#tgl_expired").val('')
+		$('#ex_pilih').val('').trigger('change')
+		$('.ex-tmpl').html(``)
 		$(".row-list").attr('style', '')
 	}
 
