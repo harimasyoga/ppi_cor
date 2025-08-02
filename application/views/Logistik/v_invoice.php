@@ -1012,6 +1012,7 @@
 							<select id="hps_file_inv" onchange="sHpsFile('${data.header.id}', '${ket}')">
 								<option value=""></option>
 								<option value="HAPUS">HAPUS</option>
+								<option value="DDDDD">UPDATE</option>
 							</select>
 						</div>
 						${data.htmlDtl}
@@ -1079,6 +1080,9 @@
 	}
 
 	function sHpsFile(id_inv, ket){
+		let hps_file_inv = $('#hps_file_inv').val()
+		let tgl_blk = $("#tgl_blk").val()
+		let tgl_invd = $("#tgl_invd").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/sHpsFile')?>',
 			type: "POST",
@@ -1092,7 +1096,7 @@
 				}
 				})
 			},
-			data: ({ id_inv, ket }),
+			data: ({ hps_file_inv, tgl_blk, tgl_invd, id_inv, ket }),
 			success: function(res){
 				data = JSON.parse(res)
 				// console.log(data)

@@ -3815,34 +3815,52 @@ class M_logistik extends CI_Model
 
 	function sHpsFile()
 	{
+		$hps_file_inv = $_POST["hps_file_inv"];
 		$id_inv = $_POST["id_inv"];
+		$tgl_blk = $_POST["tgl_blk"];
+		$tgl_invd = $_POST["tgl_invd"];
 		$ket = $_POST["ket"];
-		// Hapus File Foto
-		$cek_data = $this->db->query("SELECT * FROM invoice_header where id='$id_inv'")->row();
-		if($ket == 'bc'){
-			$uLink = unlink("assets/gambar_inv_bc/".$cek_data->img_bc);
-		}else if($ket == 'faktur'){
-			$uLink = unlink("assets/gambar_inv_faktur/".$cek_data->img_faktur);
-		}else if($ket == 'resi'){
-			$uLink = unlink("assets/gambar_inv_resi/".$cek_data->img_resi);
-		}else if($ket == 'inv_terima'){
-			$uLink = unlink("assets/gambar_inv_inv_terima/".$cek_data->img_inv_terima);
-		}else if($ket == 'mutasi'){
-			$uLink = unlink("assets/gambar_inv_mutasi/".$cek_data->img_mutasi);
-		}else if($ket == 'sj_balik'){
-			$uLink = unlink("assets/gambar_inv_sj_balik/".$cek_data->img_sj_balik);
-		}
-		if($uLink){
-			if($ket == 'sj_balik'){
-				$this->db->set("tgl_sj_blk", null);
+		if($hps_file_inv == 'DDDDD' && ($tgl_blk != '' || $tgl_invd != '')){
+			if($ket == 'inv_terima'){
+				$this->db->set("inp_inv_terima", $tgl_invd.' '.date('H:i:s'));
 			}
-			$this->db->set("img_".$ket, null);
-			$this->db->set("inp_".$ket, null);
-			$this->db->set("cek_".$ket, null);
+			if($ket == 'sj_balik'){
+				$this->db->set("tgl_sj_blk", $tgl_blk);
+			}
 			$this->db->where("id", $id_inv);
 			$data = $this->db->update("invoice_header");
+			$msg = "BERHASIL UPDATE ".strtoupper($ket).'!';
+		}else if($hps_file_inv == 'HAPUS'){
+			// Hapus File Foto
+			$cek_data = $this->db->query("SELECT * FROM invoice_header where id='$id_inv'")->row();
+			if($ket == 'bc'){
+				$uLink = unlink("assets/gambar_inv_bc/".$cek_data->img_bc);
+			}else if($ket == 'faktur'){
+				$uLink = unlink("assets/gambar_inv_faktur/".$cek_data->img_faktur);
+			}else if($ket == 'resi'){
+				$uLink = unlink("assets/gambar_inv_resi/".$cek_data->img_resi);
+			}else if($ket == 'inv_terima'){
+				$uLink = unlink("assets/gambar_inv_inv_terima/".$cek_data->img_inv_terima);
+			}else if($ket == 'mutasi'){
+				$uLink = unlink("assets/gambar_inv_mutasi/".$cek_data->img_mutasi);
+			}else if($ket == 'sj_balik'){
+				$uLink = unlink("assets/gambar_inv_sj_balik/".$cek_data->img_sj_balik);
+			}
+			if($uLink){
+				if($ket == 'sj_balik'){
+					$this->db->set("tgl_sj_blk", null);
+				}
+				$this->db->set("img_".$ket, null);
+				$this->db->set("inp_".$ket, null);
+				$this->db->set("cek_".$ket, null);
+				$this->db->where("id", $id_inv);
+				$data = $this->db->update("invoice_header");
+			}
+			$msg = "BERHASIL HAPUS ".strtoupper($ket).'!';
+		}else{
+			$msg = "COBA LAGI ".strtoupper($ket).'!';
 		}
-		$msg = "BERHASIL HAPUS ".strtoupper($ket).'!';
+		
 		return array(
 			'data' => $data,
 			'msg' => $msg,
