@@ -3913,7 +3913,7 @@ class M_logistik extends CI_Model
 		if($xFaktur){
 			$qBC = $this->db->query("SELECT h.* FROM invoice_header h
 			INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
-			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.status_inv!='Xp' AND h.type!='roll' AND p.bc='Y' AND h.pajak!='nonppn' AND h.img_sj_balik IS NULL AND h.img_bc IS NULL
+			WHERE YEAR(tgl_invoice) IN ('$tahun') $wBln AND h.status_inv!='Xp' AND h.type!='roll' AND p.bc='Y' AND h.pajak!='nonppn' AND h.img_sj_balik IS NOT NULL AND h.img_bc IS NULL
 			AND DATEDIFF(h.tgl_invoice, CURDATE()) <= '-4'
 			GROUP BY h.no_invoice");
 			if($qBC->num_rows() > 0){
