@@ -543,7 +543,7 @@ class Transaksi extends CI_Controller
 				($ukuran == '') ? $wUkuran = "" : $wUkuran = "AND po.width LIKE '%$ukuran%'";
 				($orderBy == 'TNP') ? $oBy = 'ORDER BY po.tgl,po.no_po,po.nm_ker,po.g_label,po.width' : $oBy = '';
 
-				$list = $db->query("SELECT po.tgl,po.no_po,po.nm_ker,po.g_label,po.width,
+				$list = $db->query("SELECT po.tgl,po.no_po,po.nm_ker,po.g_label,po.width,po.id_perusahaan,
 				(SELECT COUNT(t.roll) FROM m_timbangan t
 				INNER JOIN pl p ON t.id_pl=p.id AND p.no_po=po.no_po AND t.nm_ker=po.nm_ker
 				AND t.g_label=po.g_label AND t.width=po.width AND p.id_perusahaan=po.id_perusahaan) AS kiriman_roll,po.jml_roll AS jml_roll_po,
@@ -554,7 +554,7 @@ class Transaksi extends CI_Controller
 				INNER JOIN m_perusahaan pt ON pt.id=po.id_perusahaan
 				WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' AND pt.id='$id_pt' $stas $noPO $wJenis $wGsm $wUkuran
 				GROUP BY po.nm_ker,po.g_label,po.width,po.tgl,po.no_po $oBy");
-				$sumTonase = 0; $sumKirimTon = 0; $poTonase = 0; $poKirimTon = 0;
+				$sumTonase = 0; $sumKirimTon = 0; $poTonase = 0; $poKirimTon = 0; $i = 0;
 				foreach($list->result() as $r){
 					// KURANG ROLL
 					$minRoll = $r->kiriman_roll - $r->jml_roll_po;
@@ -567,13 +567,24 @@ class Transaksi extends CI_Controller
 					// }else{
 					// 	$ketS = '<button type="button" class="btn btn-xs btn-danger" onclick=""><i class="fas fa-times-circle"></i></button>';
 					// }
+					//
+					
 					if($opsi == '' || ($opsi != '' && $minRoll != 0)){
+						$i++;
 						$html .= '<tr'.$bgR.'>
 							<td style="padding:6px;border:1px solid #888">'.$r->tgl.'</td>
 							<td style="padding:6px;border:1px solid #888">'.$r->no_po.'</td>
 							<td style="padding:6px;border:1px solid #888;text-align:center">'.$r->nm_ker.'</td>
 							<td style="padding:6px;border:1px solid #888;text-align:center">'.$r->g_label.'</td>
-							<td style="padding:6px;border:1px solid #888;text-align:center">'.round($r->width,2).'</td>
+							<td style="padding:6px;border:1px solid #888;text-align:center">
+								<input type="hidden" id="h_id_perusahaan'.$i.'" value="'.$r->id_perusahaan.'">
+								<input type="hidden" id="h_no_po'.$i.'" value="'.$r->no_po.'">
+								<input type="hidden" id="h_nm_ker'.$i.'" value="'.$r->nm_ker.'">
+								<input type="hidden" id="h_g_label'.$i.'" value="'.$r->g_label.'">
+								<input type="hidden" id="h_width'.$i.'" value="'.$r->width.'">
+								<input type="hidden" id="h_jml_roll_po'.$i.'" value="'.$r->jml_roll_po.'">
+								<a href="javascript:void(0)" onclick="btnDtlPO('."'".$i."'".')">'.round($r->width,2).'</a>
+							</td>
 							<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->jml_roll_po, 0, ',', '.').'</td>
 							<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->kiriman_roll, 0, ',', '.').'</td>
 							<td style="padding:6px;border:1px solid #888;text-align:right;font-weight:bold">'.number_format($minRoll, 0, ',', '.').'</td>
@@ -617,6 +628,71 @@ class Transaksi extends CI_Controller
 
 		echo json_encode([
 			'data' => $data,
+			'html' => $html,
+		]);
+	}
+
+	function cariLapDtlPORoll()
+	{
+		$id_perusahaan = $_POST["h_id_perusahaan"];
+		$no_po = $_POST["h_no_po"];
+		$nm_ker = $_POST["h_nm_ker"];
+		$g_label = $_POST["h_g_label"];
+		$width = $_POST["h_width"];
+		$jml_roll_po = $_POST["h_jml_roll_po"];
+		$html = '';
+
+		$db = $this->load->database('database_simroll', TRUE);
+		$data = $db->query("SELECT b.tgl,TRIM(b.no_surat) AS no_surat,a.nm_ker,a.g_label,a.width,COUNT(*) AS jumlah,SUM(a.weight - a.seset) AS berat,b.nama,b.nm_perusahaan,ex.plat,ex.pt,ex.supir
+		FROM m_timbangan a
+		INNER JOIN pl b ON a.id_pl=b.id
+		INNER JOIN m_expedisi ex ON ex.id=b.id_expedisi
+		AND b.id_perusahaan='$id_perusahaan' AND b.no_po='$no_po' AND a.nm_ker='$nm_ker' AND a.g_label='$g_label' AND a.width='$width'
+		GROUP BY b.tgl,TRIM(b.no_surat),a.nm_ker,a.g_label,a.width");
+		if($data->num_rows() == 0){
+			$html .= '';
+		}else{
+			$html .= '<div class="card-body" style="padding:6px">
+				<div style="color:#000;font-weight:bold">'.$no_po.'</div>
+				<div style="color:#000;font-weight:bold">'.$nm_ker.$g_label.' - '.round($width,2).'</div>
+				<div style="overflow:auto;white-space:nowrap">
+					<table style="color:#000">
+						<tr>
+							<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">TGL</th>
+							<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">NO. SURAT</th>
+							<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">JUMLAH</th>
+							<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">BERAT</th>
+							<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">EKSPEDISI</th>
+						</tr>';
+						$sumJumlah = 0;
+						$sumBerat = 0;
+						foreach($data->result() as $r){
+							$html .= '<tr>
+								<td style="padding:6px;border:1px solid #888">'.$r->tgl.'</td>
+								<td style="padding:6px;border:1px solid #888">'.$r->no_surat.'</td>
+								<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->jumlah, 0, ',', '.').'</td>
+								<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->berat, 0, ',', '.').'</td>
+								<td style="padding:6px;border:1px solid #888">'.$r->supir.' ( '.$r->plat.' ) '.$r->pt.'</td>
+							</tr>';
+							$sumJumlah += $r->jumlah;
+							$sumBerat += $r->berat;
+						}
+						// total
+						$kuR = $sumJumlah - $jml_roll_po;
+						if($data->num_rows() != 1){
+							$html .= '<tr>
+								<td style="padding:6px;background:#f2f2f2;border:1px solid #888;font-weight:bold;text-align:right" colspan="2">TOTAL ('.$jml_roll_po.')</td>
+								<td style="padding:6px;background:#f2f2f2;border:1px solid #888;font-weight:bold;text-align:right">'.number_format($sumJumlah, 0, ',', '.').' ('.$kuR.')</td>
+								<td style="padding:6px;background:#f2f2f2;border:1px solid #888;font-weight:bold;text-align:right">'.number_format($sumBerat, 0, ',', '.').'</td>
+								<td style="padding:6px;background:#f2f2f2;border:1px solid #888"></td>
+							</tr>';
+						}
+					$html .= '</table>
+				</div>
+			</div>';
+		}
+
+		echo json_encode([
 			'html' => $html,
 		]);
 	}
