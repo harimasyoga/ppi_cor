@@ -392,21 +392,21 @@
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-2">JENIS</div>
 								<div class="col-md-8">
-									<input type="text" id="lap_jenis" class="form-control" style="font-weight:bold" placeholder="JENIS" autocomplete="OFF" oninput="this.value=this.value.toUpperCase()" disabled>
+									<input type="text" id="lap_jenis" class="form-control" style="font-weight:bold" placeholder="optional" autocomplete="OFF" oninput="this.value=this.value.toUpperCase()" disabled>
 								</div>
 								<div class="col-md-2"></div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-2">GSM</div>
 								<div class="col-md-8">
-									<input type="number" id="lap_gsm" class="form-control" style="font-weight:bold" placeholder="GSM" autocomplete="OFF" oninput="this.value=this.value.toUpperCase()" disabled>
+									<input type="number" id="lap_gsm" class="form-control" style="font-weight:bold" placeholder="optional" autocomplete="OFF" oninput="this.value=this.value.toUpperCase()" disabled>
 								</div>
 								<div class="col-md-2"></div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-2">UKURAN</div>
 								<div class="col-md-8">
-									<input type="number" id="lap_ukuran" class="form-control" style="font-weight:bold" placeholder="UKURAN" autocomplete="OFF" oninput="this.value=this.value.toUpperCase()" disabled>
+									<input type="number" id="lap_ukuran" class="form-control" style="font-weight:bold" placeholder="optional" autocomplete="OFF" oninput="this.value=this.value.toUpperCase()" disabled>
 								</div>
 								<div class="col-md-2"></div>
 							</div>
@@ -431,6 +431,7 @@
 									<div id="lap_list_po"></div>
 								</div>
 							</div>
+							<div id="lap_dtl_po"></div>
 						</div>
 					</div>
 				</div>
@@ -1215,6 +1216,7 @@
 	function cariLaporanPORoll()
 	{
 		$("#lap_list_po").html('Loading...')
+		$("#lap_dtl_po").html('')
 		let id_pt = $("#lap_id_pt").val()
 		let status = $("#lap_status").val()
 		let no_po = $("#lap_no_po").val()
@@ -1240,6 +1242,36 @@
 			success: function(res){
 				data = JSON.parse(res)
 				$("#lap_list_po").html(data.html)
+				swal.close()
+			}
+		})
+	}
+
+	function btnDtlPO(i){
+		$("#lap_dtl_po").html('')
+		let h_id_perusahaan =  $("#h_id_perusahaan"+i).val()
+		let h_no_po =  $("#h_no_po"+i).val()
+		let h_nm_ker =  $("#h_nm_ker"+i).val()
+		let h_g_label =  $("#h_g_label"+i).val()
+		let h_width =  $("#h_width"+i).val()
+		let h_jml_roll_po =  $("#h_jml_roll_po"+i).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/cariLapDtlPORoll') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ h_id_perusahaan, h_no_po, h_nm_ker, h_g_label, h_width, h_jml_roll_po }),
+			success: function(res){
+				data = JSON.parse(res)
+				$("#lap_dtl_po").html(data.html)
 				swal.close()
 			}
 		})
