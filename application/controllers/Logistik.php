@@ -5283,7 +5283,7 @@ class Logistik extends CI_Controller
 			$type_inv    = $_POST['type_inv'];
 			$exp_pilih    = $_POST['exp_pilih'];
 
-			($blnn == '' || $blnn == 'all') ? $cek_bulan = "" : $cek_bulan = "AND month(tgl_invoice) IN ('$blnn')";
+			($blnn == '' || $blnn == 'all') ? $cek_bulan = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.acc_owner!='Y'" : $cek_bulan = "AND month(tgl_invoice) IN ('$blnn')";
 			($type_inv == 'all') ? $tipe = "" : $tipe = "AND type='$type_inv'";
 
 			// EXPIRED
@@ -5303,7 +5303,7 @@ class Logistik extends CI_Controller
 			}else if ($exp_pilih == 'exp_not'){
 				$wExp = "AND status_inv='Open'";
 			}else{
-				$wExp = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.acc_owner!='Y'";
+				$wExp = "";
 			}
 
 			$query = $this->db->query("SELECT *, DATEDIFF(SUBSTR(h.inp_inv_terima, 1, 10), CURDATE()) AS sisa_invd, DATEDIFF(h.tgl_jatuh_tempo , h.tgl_invoice) AS tempo
