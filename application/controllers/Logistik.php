@@ -9481,11 +9481,11 @@ class Logistik extends CI_Controller
 			{
 				if($data_detail->pajak=='nonppn')
 				{
-					$norek        = '-';
-					$nm_bank      = '-';
-					$email        = '-';
-					$ket_email    = '-';
-					$an           = '-';
+					$norek        = '0144384024001';
+					$nm_bank      = 'PT Bank Pembangunan Daerah Jawa Barat dan Banten (BJB) <br>';
+					$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+					$ket_email    = '* Harap bukti transfer di email ke';
+					$an           = 'PT. PRIMA PAPER INDONESIA';
 				}else{
 					$norek        = '0144384024001';
 					$nm_bank      = 'PT Bank Pembangunan Daerah Jawa Barat dan Banten (BJB) <br>';
