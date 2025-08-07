@@ -3833,18 +3833,20 @@ class M_logistik extends CI_Model
 		}else if($hps_file_inv == 'HAPUS'){
 			// Hapus File Foto
 			$cek_data = $this->db->query("SELECT * FROM invoice_header where id='$id_inv'")->row();
-			if($ket == 'bc'){
+			if($ket == 'bc' && $cek_data->img_bc != 'foto.jpg'){
 				$uLink = unlink("assets/gambar_inv_bc/".$cek_data->img_bc);
-			}else if($ket == 'faktur'){
+			}else if($ket == 'faktur' && $cek_data->img_faktur != 'foto.jpg'){
 				$uLink = unlink("assets/gambar_inv_faktur/".$cek_data->img_faktur);
-			}else if($ket == 'resi'){
+			}else if($ket == 'resi' && $cek_data->img_resi != 'foto.jpg'){
 				$uLink = unlink("assets/gambar_inv_resi/".$cek_data->img_resi);
-			}else if($ket == 'inv_terima'){
+			}else if($ket == 'inv_terima' && $cek_data->img_inv_terima != 'foto.jpg'){
 				$uLink = unlink("assets/gambar_inv_inv_terima/".$cek_data->img_inv_terima);
-			}else if($ket == 'mutasi'){
+			}else if($ket == 'mutasi' && $cek_data->img_mutasi != 'foto.jpg'){
 				$uLink = unlink("assets/gambar_inv_mutasi/".$cek_data->img_mutasi);
-			}else if($ket == 'sj_balik'){
+			}else if($ket == 'sj_balik' && $cek_data->img_sj_balik != 'foto.jpg'){
 				$uLink = unlink("assets/gambar_inv_sj_balik/".$cek_data->img_sj_balik);
+			}else{
+				$uLink = true;
 			}
 			if($uLink){
 				if($ket == 'sj_balik'){
