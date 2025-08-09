@@ -411,6 +411,16 @@
 								<div class="col-md-2"></div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">GROUP BY</div>
+								<div class="col-md-8">
+									<select id="lap_group" class="form-control select2" disabled>
+										<option value="">PO - UKURAN</option>
+										<option value="UKURAN">UKURAN</option>
+									</select>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-2">ORDER BY</div>
 								<div class="col-md-8">
 									<select id="lap_order" class="form-control select2" disabled>
@@ -699,7 +709,7 @@
 				}
 
 				// UPLOAD
-				if(urlAuth == 'Admin' && data.header.owner_status != 'Y' && data.opsi != 'detail'){
+				if(urlAuth == 'Admin' && data.opsi == 'edit'){
 					$("#hidhdr").val(data.header.id_hdr)
 					$(".add-file").html(`
 						<div class="card-body row" style="font-weight:bold;padding:0 12px">
@@ -724,10 +734,10 @@
 				}
 
 				// NOTE
-				$("#note_po_roll").val(data.header.note_po).prop('disabled', (data.opsi != 'detail' && data.header.owner_status != 'Y') ? false : true)
-				if((data.header.note_po == null || data.header.note_po == '') && (data.opsi != 'detail') && data.header.owner_status != 'Y'){
+				$("#note_po_roll").val(data.header.note_po).prop('disabled', (data.opsi != 'detail') ? false : true)
+				if((data.header.note_po == null || data.header.note_po == '') && (data.opsi != 'detail')){
 					$(".simpan-note").html('<button type="button" class="btn btn-sm btn-success" style="font-weight:bold" onclick="addNotePORoll()">ADD</button>')
-				}else if(data.header.note_po != '' && (data.opsi != 'detail') && data.header.owner_status != 'Y'){
+				}else if(data.header.note_po != '' && (data.opsi != 'detail')){
 					$(".simpan-note").html('<button type="button" class="btn btn-sm btn-warning" style="font-weight:bold" onclick="addNotePORoll()">EDIT</button>')
 				}else{
 					$(".simpan-note").html('')
@@ -1188,13 +1198,14 @@
 	function plhCustomer()
 	{
 		let id_pt = $("#lap_id_pt").val()
-		$("#lap_status").prop('disabled', (id_pt == '') ? true : false).trigger('change')
+		$("#lap_status").val('').prop('disabled', (id_pt == '') ? true : false).trigger('change')
 		$("#lap_no_po").prop('disabled', (id_pt == '') ? true : false)
-		$("#lap_order").prop('disabled', (id_pt == '') ? true : false)
-		$("#lap_opsi").prop('disabled', (id_pt == '') ? true : false)
+		$("#lap_opsi").val('').prop('disabled', (id_pt == '') ? true : false).trigger('change')
 		$("#lap_jenis").val('').prop('disabled', (id_pt == '') ? true : false)
 		$("#lap_gsm").val('').prop('disabled', (id_pt == '') ? true : false)
 		$("#lap_ukuran").val('').prop('disabled', (id_pt == '') ? true : false)
+		$("#lap_group").val('').prop('disabled', (id_pt == '') ? true : false).trigger('change')
+		$("#lap_order").val('').prop('disabled', (id_pt == '') ? true : false).trigger('change')
 	}
 
 	function plhStatus()
@@ -1221,6 +1232,7 @@
 		let status = $("#lap_status").val()
 		let no_po = $("#lap_no_po").val()
 		let order = $("#lap_order").val()
+		let group = $("#lap_group").val()
 		let opsi = $("#lap_opsi").val()
 		let jenis = $("#lap_jenis").val()
 		let gsm = $("#lap_gsm").val()
@@ -1238,7 +1250,7 @@
 					}
 				})
 			},
-			data: ({ id_pt, status, no_po, order, opsi, jenis, gsm, ukuran }),
+			data: ({ id_pt, status, no_po, group, order, opsi, jenis, gsm, ukuran }),
 			success: function(res){
 				data = JSON.parse(res)
 				$("#lap_list_po").html(data.html)
