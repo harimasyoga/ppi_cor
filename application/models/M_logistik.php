@@ -991,6 +991,20 @@ class M_logistik extends CI_Model
 
 	//
 
+	function revisiSJBox()
+	{
+		$rk = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_status='Open' AND rk_urut='0' AND id_pl_box IS NULL");
+		foreach($rk->result() as $r){
+			$this->db->set('rk_sj', $_POST["revisi"]);
+			$this->db->where('id_rk', $r->id_rk);
+			$data = $this->db->update('m_rencana_kirim');
+		}
+
+		return [
+			'data' => $data,
+		];
+	}
+
 	function simpanCartRKSJ()
 	{
 		foreach($this->cart->contents() as $r){
@@ -1016,17 +1030,25 @@ class M_logistik extends CI_Model
 	function editListUrutRK()
 	{
 		$tgl = date('Y-m-d');
+		$opsi = $_POST["opsi"];
 		$urut = $_POST["urut"];
 
-		$cekKirim = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND no_pl_urut='$urut'");
-		if($cekKirim->num_rows() == 0){
+		if($opsi == 'new'){
+			$cekKirim = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND no_pl_urut='$urut'");
+			if($cekKirim->num_rows() == 0){
+				$this->db->set('rk_urut', $_POST["urut"]);
+				$this->db->where('id_rk', $_POST["id_rk"]);
+				$data = $this->db->update('m_rencana_kirim');
+				$msg = 'BERHASIL!';
+			}else{
+				$data = false;
+				$msg = 'NO URUT SUDAH TERPAKAI!';
+			}
+		}else{
 			$this->db->set('rk_urut', $_POST["urut"]);
 			$this->db->where('id_rk', $_POST["id_rk"]);
 			$data = $this->db->update('m_rencana_kirim');
 			$msg = 'BERHASIL!';
-		}else{
-			$data = false;
-			$msg = 'NO URUT SUDAH TERPAKAI!';
 		}
 
 		return [

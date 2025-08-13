@@ -1320,6 +1320,12 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function bukaAccPOLam()
+	{
+		$result = $this->m_transaksi->bukaAccPOLam();
+		echo json_encode($result);
+	}
+
 	function btnDiscPOLM()
 	{
 		$result = $this->m_transaksi->btnDiscPOLM();

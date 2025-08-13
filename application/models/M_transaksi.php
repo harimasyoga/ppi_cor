@@ -1844,6 +1844,30 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function bukaAccPOLam()
+	{
+		$opsi = $_POST["opsi"];
+		$id = $_POST["id_po_lm"];
+
+		if($opsi == 'acc'){
+			$this->db->set('status_lm2', 'Y');
+		}else if($opsi == 'edit'){
+			$this->db->set('status_lm2', 'N');
+		}else{
+			$this->db->set('status_lm', 'Open');
+			$this->db->set('status_lm2', 'N');
+			$this->db->set('user_lm2', null);
+			$this->db->set('time_lm2', null);
+			$this->db->set('ket_lm2', null);
+		}
+		$this->db->where('id', $id);
+		$data = $this->db->update('trs_po_lm');
+
+		return [
+			'data' => $data,
+		];
+	}
+
 	function btnDiscPOLM()
 	{
 		$id = $_POST["id_po_header"];

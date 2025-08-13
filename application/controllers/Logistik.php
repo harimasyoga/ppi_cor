@@ -11297,7 +11297,8 @@ class Logistik extends CI_Controller
 				<th style="padding:6px;border:1px solid #bbb;text-align:center" colspan="2">AKSI</th>
 			</tr>';
 
-		$cekRK = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_status='Open' GROUP BY rk_urut");
+		$cekRK = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_status='Open' AND rk_sj='new' GROUP BY rk_urut");
+		$cekRev = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_status='Open' AND rk_sj='revisi' GROUP BY rk_urut");
 
 		if($this->cart->total_items() == 0){
 			if($cekRK->num_rows() == 0){
@@ -11349,7 +11350,10 @@ class Logistik extends CI_Controller
 		if($cekRK->num_rows() != 0){
 			foreach($cekRK->result() as $rk){
 				if($rk->rk_urut == 0){
-					$txtUrut = '-';
+					$txtUrut = '<select style="padding:0 3px" id="revisi-box" onchange="revisiSJBox()">
+						<option value="new">BARU</option>
+						<option value="revisi">REVISI</option>
+					</select>';
 					$btnPengiriman = '';
 				}else{
 					$txtUrut = 'RENCANA KIRIM '.$rk->rk_urut;
@@ -11363,7 +11367,7 @@ class Logistik extends CI_Controller
 				$getIsi = $this->db->query("SELECT p.nm_pelanggan,i.nm_produk,r.* FROM m_rencana_kirim r
 				INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
 				INNER JOIN m_produk i ON r.id_produk=i.id_produk
-				WHERE r.rk_urut='$rk->rk_urut' AND r.rk_tgl='$date' ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
+				WHERE r.rk_urut='$rk->rk_urut' AND r.rk_tgl='$date' AND r.rk_sj='new' ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
 				$sumMuatt = 0;
 				$sumTonn = 0;
 				foreach($getIsi->result() as $isi){
@@ -11373,7 +11377,7 @@ class Logistik extends CI_Controller
 					($isi->kategori == "BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
 					$html .='<tr>
 						<td style="border:1px solid #dee2e6;padding:6px">
-							<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" id="rk-urut-'.$isi->id_rk.'" value="'.$isi->rk_urut.'" onchange="editListUrutRK('."'".$isi->id_rk."'".')">
+							<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" id="rk-urut-'.$isi->id_rk.'" value="'.$isi->rk_urut.'" onchange="editListUrutRK('."'new'".', '."'".$isi->id_rk."'".')">
 						</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$isi->nm_pelanggan.' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$isi->id_gudang.'</span></td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$isi->rk_kode_po.'</td>
@@ -11417,7 +11421,77 @@ class Logistik extends CI_Controller
 
 		$html .='</table>';
 
-		echo $html;
+		echo json_encode([
+			'html' => $html,
+			'revisi' => $cekRev->num_rows(),
+		]);
+	}
+
+	function listRevisiSJ()
+	{
+		$html ='';
+		$cekRev = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_status='Open' AND rk_sj='revisi' GROUP BY rk_urut");
+
+		if($cekRev->num_rows() != 0){
+			$html .='<table>
+				<tr style="background:#dee2e6">
+					<th style="padding:6px;border:1px solid #bbb;text-align:center">#</th>
+					<th style="padding:6px;border:1px solid #bbb">TANGGAL</th>
+					<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
+					<th style="padding:6px;border:1px solid #bbb">NO. PO</th>
+					<th style="padding:6px;border:1px solid #bbb">ITEM</th>
+					<th style="padding:6px;border:1px solid #bbb;text-align:center">MUAT</th>
+					<th style="padding:6px;border:1px solid #bbb;text-align:center">AKSI</th>
+				</tr>';
+				foreach($cekRev->result() as $v){
+					if($v->rk_urut == 0){
+						$txtUrut = '<select style="padding:0 3px" id="revisi-box" onchange="revisiSJBox()">
+							<option value="revisi">REVISI</option>
+							<option value="new">BARU</option>
+						</select>';
+						$btnPengiriman = '';
+					}else{
+						$txtUrut = '';
+						($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'User') ? $btnPengiriman = '<button type="button" id="btn-fix-kirim" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="selesaiMuat('."'".$v->rk_urut."'".')">SELESAI</button>' : $btnPengiriman = '';
+					}
+					$html .='<tr>
+						<td style="background:#333;color:#fff;padding:6px" colspan="10">'.$btnPengiriman.$txtUrut.'</td>
+					</tr>';
+
+					$getRev = $this->db->query("SELECT p.nm_pelanggan,i.nm_produk,r.* FROM m_rencana_kirim r
+					INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
+					INNER JOIN m_produk i ON r.id_produk=i.id_produk
+					WHERE r.rk_sj='revisi' AND r.rk_urut='$v->rk_urut' ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
+
+					foreach($getRev->result() as $r){
+						($r->kategori == "BOX") ? $katRev = '[BOX] ' : $katRev = '[SHEET] ';
+						$html .='<tr>
+							<td style="border:1px solid #dee2e6;padding:6px">
+								<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" id="rk-urut-'.$r->id_rk.'" value="'.$r->rk_urut.'" onchange="editListUrutRK('."'revisi'".', '."'".$r->id_rk."'".')">
+							</td>
+							<td style="border:1px solid #dee2e6;padding:6px">
+								<input type="date" class="form-control" id="tgl_rev'.$r->id_rk.'">
+							</td>
+							<td style="border:1px solid #dee2e6;padding:6px">'.$r->nm_pelanggan.'</td>
+							<td style="border:1px solid #dee2e6;padding:6px">'.$r->rk_kode_po.'</td>
+							<td style="border:1px solid #dee2e6;padding:6px">'.$katRev.''.$r->nm_produk.'</td>
+							<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">'.number_format($r->qty_muat).'</td>
+							<td style="border:1px solid #dee2e6;padding:3px;text-align:center"></td>
+						</tr>';
+					}
+				}
+			$html .='</table>';
+		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function revisiSJBox()
+	{
+		$result = $this->m_logistik->revisiSJBox();
+		echo json_encode($result);
 	}
 
 	function simpanCartRKSJ()
@@ -11691,9 +11765,12 @@ class Logistik extends CI_Controller
 						// EDIT NOMER SURAT JALAN
 						($sjpo->cetak_sj == 'not' && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $eNoSj = 'onchange="editPengirimanNoSJ('."'".$sjpo->id."'".')"' : $eNoSj = 'disabled';
 
+						// CEK INV
+						($sjpo->no_pl_inv == 0 && $tglNow != $urut->tgl) ? $btnInv = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="">BATAL</button>&nbsp' : $btnInv = '';
+
 						$html .='<tr style="background:#dee2e6">
 							<td style="padding:4px 6px;border:1px solid #bbb;font-weight:bold;display:flex">
-								NO. SURAT JALAN : &nbsp;<input type="number" class="form-control" id="pp-nosj-'.$sjpo->id.'" style="height:100%;width:50px;text-align:center;padding:2px 4px" value="'.$noSJ[0].'" '.$eNoSj.'>'.$ketSJ.'
+								'.$btnInv.'NO. SURAT JALAN : &nbsp;<input type="number" class="form-control" id="pp-nosj-'.$sjpo->id.'" style="height:100%;width:50px;text-align:center;padding:2px 4px" value="'.$noSJ[0].'" '.$eNoSj.'>'.$ketSJ.'
 							</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">NO. PO : '.$sjpo->no_po.'</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="3">'.$btnPrint.' '.$btnJasa.''.$btnSJBalik.'</td>
