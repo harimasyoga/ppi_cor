@@ -991,6 +991,74 @@ class M_logistik extends CI_Model
 
 	//
 
+	function revisiSJBox()
+	{
+		$rk = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_status='Open' AND rk_urut='0' AND id_pl_box IS NULL");
+		foreach($rk->result() as $r){
+			$this->db->set('rk_sj', $_POST["revisi"]);
+			$this->db->where('id_rk', $r->id_rk);
+			$data = $this->db->update('m_rencana_kirim');
+		}
+
+		return [
+			'data' => $data,
+		];
+	}
+
+	function batalRev()
+	{
+		$id = $_POST["id"];
+		$pL = $this->db->query("SELECT*FROM pl_box WHERE id='$id'");
+		$urut = $pL->row()->no_pl_urut;
+		$tgl = $pL->row()->tgl;
+		$grPL = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND no_pl_urut='$urut' GROUP BY no_surat");
+
+		// HAPUS TIMBANGAN
+		if($grPL->num_rows() == 1){
+			$this->db->where('urut_t', $pL->row()->no_pl_urut);
+			$this->db->where('tgl_t', $pL->row()->tgl);
+			$delTimb = $this->db->delete('m_jembatan_timbang');
+		}else{
+			$delTimb = false;
+		}
+
+		// HAPUS JASA
+		$this->db->where('urut', $pL->row()->no_pl_urut);
+		$this->db->where('tgl', $pL->row()->tgl);
+		$this->db->where('id_pl_box', $pL->row()->id);
+		$this->db->where('jenis', 'CORR');
+		$delJasa = $this->db->delete('m_jasa');
+		
+		// HAPUS RENCANA KIRIM
+		if($pL->row()->stat_sj == 'new'){
+			$this->db->where('id_pl_box', $id);
+			$delRk = $this->db->delete('m_rencana_kirim');
+			$updRk = false;
+		}else{
+			$delRk = false;
+			$rK = $this->db->query("SELECT*FROM m_rencana_kirim WHERE id_pl_box='$id'");
+			foreach($rK->result() as $r){
+				$this->db->set('rk_tgl', date('Y-m-d'));
+				$this->db->set('rk_status', 'Open');
+				$this->db->set('id_pl_box', null);
+				$this->db->where('id_rk', $r->id_rk);
+				$updRk = $this->db->update('m_rencana_kirim');
+			}
+		}
+
+		// HAPUS PACKING LIST
+		$this->db->where('id', $_POST["id"]);
+		$delPL = $this->db->delete('pl_box');
+
+		return [
+			'delTimb' => $delTimb,
+			'delJasa' => $delJasa,
+			'delRk' => $delRk,
+			'updRk' => $updRk,
+			'delPL' => $delPL,
+		];
+	}
+
 	function simpanCartRKSJ()
 	{
 		foreach($this->cart->contents() as $r){
@@ -1016,17 +1084,25 @@ class M_logistik extends CI_Model
 	function editListUrutRK()
 	{
 		$tgl = date('Y-m-d');
+		$opsi = $_POST["opsi"];
 		$urut = $_POST["urut"];
 
-		$cekKirim = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND no_pl_urut='$urut'");
-		if($cekKirim->num_rows() == 0){
+		if($opsi == 'new'){
+			$cekKirim = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND no_pl_urut='$urut'");
+			if($cekKirim->num_rows() == 0){
+				$this->db->set('rk_urut', $_POST["urut"]);
+				$this->db->where('id_rk', $_POST["id_rk"]);
+				$data = $this->db->update('m_rencana_kirim');
+				$msg = 'BERHASIL!';
+			}else{
+				$data = false;
+				$msg = 'NO URUT SUDAH TERPAKAI!';
+			}
+		}else{
 			$this->db->set('rk_urut', $_POST["urut"]);
 			$this->db->where('id_rk', $_POST["id_rk"]);
 			$data = $this->db->update('m_rencana_kirim');
 			$msg = 'BERHASIL!';
-		}else{
-			$data = false;
-			$msg = 'NO URUT SUDAH TERPAKAI!';
 		}
 
 		return [
@@ -1067,71 +1143,111 @@ class M_logistik extends CI_Model
 	function selesaiMuat()
 	{
 		$urut = $_POST["urut"];
+		$opsi = $_POST["opsi"];
+		$rev_tgl = $_POST["rev_tgl"];
 		$cekMuat = $this->db->query("SELECT p.ppn,r.* FROM m_rencana_kirim r
-		-- INNER JOIN m_produk i ON r.id_produk=i.id_produk
 		INNER JOIN trs_po_detail p ON r.id_produk=p.id_produk AND r.id_pelanggan=p.id_pelanggan AND r.rk_kode_po=p.kode_po
 		WHERE r.rk_urut='$urut' AND r.rk_status='Open'");
 
-		$tgl = date('Y-m-d');
-		// INSERT PL BOX
-		foreach($cekMuat->result() as $r){
-			($r->kategori == "BOX") ? $kategori = 'BOX' : $kategori = 'SHEET';
-			$blnRomami = $this->m_fungsi->blnRomami(date('Y-m-d'));
-			if($r->ppn == "PP"){
-				$pajak = 'ppn'; $sjSo = 'A'; $pkb = '';
-			}else{
-				$pajak = 'non'; $sjSo = 'B'; $pkb = '.';
+		$tglNow = date('Y-m-d');
+		// NEW DAN REVISI
+		($opsi == 'new') ? $tgl = date('Y-m-d') : $tgl = $rev_tgl;
+
+		if($tglNow == $tgl && $opsi == 'revisi'){
+			$insertPl = false;
+			$updateIDplBox = false;
+			$msg = 'TANGGAL SAMA!';
+		}else if($rev_tgl == '' && $opsi == 'revisi'){
+			$insertPl = false;
+			$updateIDplBox = false;
+			$msg = 'TANGGAL KOSONG!';
+		}else{
+			// INSERT PL BOX
+			foreach($cekMuat->result() as $r){
+				($r->kategori == "BOX") ? $kategori = 'BOX' : $kategori = 'SHEET';
+				$blnRomami = $this->m_fungsi->blnRomami($tgl);
+				if($r->ppn == "PP"){
+					$pajak = 'ppn'; $sjSo = 'A'; $pkb = '';
+				}else{
+					$pajak = 'non'; $sjSo = 'B'; $pkb = '.';
+				}
+
+				$id_hub = $this->db->query("SELECT h.aka,p.* FROM trs_po p INNER JOIN m_hub h ON p.id_hub=h.id_hub WHERE p.kode_po='$r->rk_kode_po'")->row();
+				if($id_hub->id_hub != 7){
+					$no_surat = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
+					$no_so = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
+					$no_pkb = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
+				}else{
+					$no_surat = '000/'.$kategori.'/'.$blnRomami.'/'.substr(date('Y'),2,2).'/'.$sjSo;
+					$no_so = '000/SO-'.$kategori.'/'.$blnRomami.'/'.substr(date('Y'),2,2).'/'.$sjSo;
+					$no_pkb = '000/'.substr(date('Y'),2,2).'/'.$kategori.$pkb;
+				}
+
+				$data = [
+					'id_perusahaan' => $r->id_pelanggan,
+					'id_hub' => $id_hub->id_hub,
+					'tgl' => $tgl,
+					'no_surat' => $no_surat,
+					'no_so' => $no_so,
+					'no_pkb' => $no_pkb,
+					'no_kendaraan' => '',
+					'no_po' => $r->rk_kode_po,
+					'pajak' => $pajak,
+					'no_pl_urut' => $urut,
+					'kategori' => $kategori,
+					'stat_sj' => $opsi,
+				];
+
+				// CEK JIKA CUSTOMER DENGAN PO DAN KETEGORI YANG SAMA ABAIKAN
+				$cekPL = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND stat_sj='$opsi' AND id_perusahaan='$r->id_pelanggan' AND no_po='$r->rk_kode_po' AND no_pl_urut='$urut' AND kategori='$kategori'");
+				if($cekPL->num_rows() == 0){
+					$insertPl = $this->db->insert('pl_box', $data);
+				}else{
+					$insertPl = true;
+				}
+
+				// UPDATE TANGGAL RENCANA KIRIM REVISI
+				if($opsi == 'revisi'){
+					$this->db->set('rk_tgl', $tgl);
+					$this->db->where('id_rk', $r->id_rk);
+					$this->db->update('m_rencana_kirim');
+				}
 			}
 
-			$id_hub = $this->db->query("SELECT h.aka,p.* FROM trs_po p INNER JOIN m_hub h ON p.id_hub=h.id_hub WHERE p.kode_po='$r->rk_kode_po'")->row();
-			if($id_hub->id_hub != 7){
-				$no_surat = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
-				$no_so = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
-				$no_pkb = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
-			}else{
-				$no_surat = '000/'.$kategori.'/'.$blnRomami.'/'.substr(date('Y'),2,2).'/'.$sjSo;
-				$no_so = '000/SO-'.$kategori.'/'.$blnRomami.'/'.substr(date('Y'),2,2).'/'.$sjSo;
-				$no_pkb = '000/'.substr(date('Y'),2,2).'/'.$kategori.$pkb;
+			// MASUKKAN LIST RENCANA KIRIM KE PACKING LIST, CUSTOMER DAN PO YANG SAMA
+			$getPL = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND stat_sj='$opsi' AND no_pl_urut='$urut'");
+			foreach($getPL->result() as $l){
+				$this->db->set('id_pl_box', $l->id);
+				$this->db->set('rk_status', 'Close');
+				$this->db->where('rk_tgl', $l->tgl);
+				$this->db->where('rk_urut', $l->no_pl_urut);
+				$this->db->where('rk_kode_po', $l->no_po);
+				$this->db->where('kategori', $l->kategori);
+				$this->db->where('rk_sj', $opsi);
+				$updateIDplBox = $this->db->update('m_rencana_kirim');
 			}
 
-			$data = [
-				'id_perusahaan' => $r->id_pelanggan,
-				'id_hub' => $id_hub->id_hub,
-				'tgl' => $tgl,
-				'no_surat' => $no_surat,
-				'no_so' => $no_so,
-				'no_pkb' => $no_pkb,
-				'no_kendaraan' => '',
-				'no_po' => $r->rk_kode_po,
-				'pajak' => $pajak,
-				'no_pl_urut' => $urut,
-				'kategori' => $kategori,
-			];
-
-			// CEK JIKA CUSTOMER DENGAN PO DAN KETEGORI YANG SAMA ABAIKAN
-			$cekPL = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND id_perusahaan='$r->id_pelanggan' AND no_po='$r->rk_kode_po' AND no_pl_urut='$urut' AND kategori='$kategori'");
-			if($cekPL->num_rows() == 0){
-				$insertPl = $this->db->insert('pl_box', $data);
-			}else{
-				$insertPl = true;
+			// MASUKKAN NOPOL DI PL REVISI
+			if($updateIDplBox && $opsi == 'revisi'){
+				$getNo = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND no_pl_urut='$urut' AND stat_sj='new' AND no_kendaraan!='' GROUP BY no_kendaraan");
+				if($getNo->num_rows() != 0){
+					foreach($getPL->result() as $o){
+						$this->db->set('no_kendaraan', $getNo->row()->no_kendaraan);
+						$this->db->where('tgl', $o->tgl);
+						$this->db->where('no_pl_urut', $o->no_pl_urut);
+						$this->db->where('stat_sj', 'revisi');
+						$this->db->update('pl_box');
+					}
+				}
 			}
-		}
 
-		// MASUKKAN LIST RENCANA KIRIM KE PACKING LIST, CUSTOMER DAN PO YANG SAMA
-		$getPL = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND no_pl_urut='$urut'");
-		foreach($getPL->result() as $l){
-			$this->db->set('id_pl_box', $l->id);
-			$this->db->set('rk_status', 'Close');
-			$this->db->where('rk_tgl', $l->tgl);
-			$this->db->where('rk_urut', $l->no_pl_urut);
-			$this->db->where('rk_kode_po', $l->no_po);
-			$this->db->where('kategori', $l->kategori);
-			$updateIDplBox = $this->db->update('m_rencana_kirim');
+			$msg = 'OK!';
 		}
 
 		return [
 			'insertPl' => $insertPl,
 			'updateIDplBox' => $updateIDplBox,
+			'msg' => $msg,
 		];
 	}
 
@@ -1160,6 +1276,7 @@ class M_logistik extends CI_Model
 		// HAPUS JASA
 		$this->db->where('tgl', $tgl);
 		$this->db->where('urut', $urut);
+		$this->db->where('jenis', 'CORR');
 		$deleteJasa = $this->db->delete('m_jasa');
 
 		return [
@@ -1400,6 +1517,7 @@ class M_logistik extends CI_Model
 				$db_jasa = $this->db->query("SELECT*FROM m_jasa WHERE no_jasa LIKE '%/$tahun'")->num_rows();
 				$jasa = str_pad($db_jasa+1, 3, "0", STR_PAD_LEFT);
 				$no_jasa = 'JASA/'.$jasa.'/PPI'.'/'.$no[2].'/'.$tahun;
+				$jns = 'CORR';
 			}
 			if($opsi == 'lam'){
 				$str_len = strlen($no_surat);
@@ -1407,6 +1525,7 @@ class M_logistik extends CI_Model
 				$db_jasa = $this->db->query("SELECT*FROM m_jasa WHERE no_jasa LIKE '%/$tahun/LAMINASI'")->num_rows();
 				$jasa = str_pad($db_jasa+1, 3, "0", STR_PAD_LEFT);
 				$no_jasa = 'JASA/'.$jasa.'/PPI'.'/'.$tahun.'/LAMINASI';
+				$jns = 'LAMINASI';
 			}
 			$data = array(
 				'no_surat' => $no_surat,
@@ -1414,7 +1533,8 @@ class M_logistik extends CI_Model
 				'no_po' => $pl->no_po,
 				'no_jasa' => $no_jasa,
 				'urut' => $pl->no_pl_urut,
-				'id_pl_box' => $pl->id ,
+				'id_pl_box' => $pl->id,
+				'jenis' => $jns,
 			);
 			$insert = $this->db->insert('m_jasa', $data);
 		}else{

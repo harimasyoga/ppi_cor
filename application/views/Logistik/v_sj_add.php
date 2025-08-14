@@ -49,6 +49,17 @@
 						</div>
 					</div>
 				</div>
+				<div class="col-md-12 col-revisi" style="display:none">
+					<div class="card card-secondary card-outline">
+						<input type="hidden" id="hidden-card-body-rk">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">REVISI SURAT JALAN</h3>
+						</div>
+						<div class="card-body" style="padding:0">
+							<div class="card-body-rev" style="padding:6px;overflow:auto;white-space:nowrap"></div>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<div class="row">
@@ -293,8 +304,27 @@
 				});
 			},
 			success: function(res){
-				$(".card-body-rk").html(res)
+				data = JSON.parse(res)
+				$(".card-body-rk").html(data.html)
+				if(data.revisi != 0){
+					listRevisiSJ()
+				}else{
+					$(".col-revisi").hide()
+				}
 				listPengiriman()
+			}
+		})
+	}
+
+	function listRevisiSJ() {
+		$(".card-body-rev").html('')
+		$(".col-revisi").show()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/listRevisiSJ')?>',
+			type: "POST",
+			success: function(res){
+				data = JSON.parse(res)
+				$(".card-body-rev").html(data.html)
 			}
 		})
 	}
@@ -358,8 +388,9 @@
 		$("#rk-hidden-h-ton-"+id_rk).val(Math.round(tonase))
 	}
 
-	function editListUrutRK(id_rk) {
+	function editListUrutRK(opsi, id_rk) {
 		let urut = $("#rk-urut-"+id_rk).val()
+		console.log(urut)
 		$.ajax({
 			url: '<?php echo base_url('Logistik/editListUrutRK')?>',
 			type: "POST",
@@ -373,7 +404,7 @@
 					}
 				});
 			},
-			data: ({ id_rk, urut }),
+			data: ({ opsi, id_rk, urut }),
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
@@ -441,11 +472,13 @@
 		})
 	}
 
-	function selesaiMuat(urut) {
+	function selesaiMuat(urut, opsi) {
+		let rev_tgl = '';
+		(opsi == 'revisi') ? rev_tgl = $("#rev_tgl"+urut).val() : rev_tgl = ''
 		$.ajax({
 			url: '<?php echo base_url('Logistik/selesaiMuat')?>',
 			type: "POST",
-			data: ({ urut }),
+			data: ({ urut, opsi, rev_tgl }),
 			beforeSend: function() {
 				swal({
 					title: 'Loading',
@@ -458,7 +491,17 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				listRencanaKirim()
+				if(opsi == 'new'){
+					listRencanaKirim()
+				}
+				if(opsi == 'revisi'){
+					if(data.insertPl && data.updateIDplBox){
+						listRencanaKirim()
+					}else{
+						toastr.error(`<b>${data.msg}!</b>`);
+						swal.close()
+					}
+				}
 			}
 		})
 	}
@@ -734,6 +777,35 @@
 			success: function(res){
 				data = JSON.parse(res)
 				toastr.success(`<b>${data.msg}!</b>`);
+				listRencanaKirim()
+			}
+		})
+	}
+
+	function revisiSJBox()
+	{
+		let revisi = $("#revisi-box").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/revisiSJBox')?>',
+			type: "POST",
+			data: ({
+				revisi
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				listRencanaKirim()
+			}
+		})
+	}
+
+	function batalRev(id)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Logistik/batalRev')?>',
+			type: "POST",
+			data: ({ id }),
+			success: function(res){
+				data = JSON.parse(res)
 				listRencanaKirim()
 			}
 		})

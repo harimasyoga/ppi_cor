@@ -277,6 +277,7 @@
 								</div>
 							</div>
 							<div id="input-owner"></div>
+							<div id="input-dev"></div>
 						</div>
 					</div>
 				</div>
@@ -652,6 +653,7 @@
 		$("#btn-add").html('<button type="button" class="btn btn-sm btn-success" onclick="addItemLaminasi()"><i class="fa fa-plus"></i> <b>ADD</b></button>')
 		$("#input-marketing").html('')
 		$("#input-owner").html('')
+		$("#input-dev").html('')
 		// DISC
 		$(".list-potongan").attr('style', 'display:none')
 		$(".btn-disc").html('')
@@ -1519,6 +1521,26 @@
 						`)
 					}
 				}
+				// VERIF DEV
+				if(urlAuth == 'Admin' && opsi == 'verif' && data.po_lm.status_lm == 'Approve'){
+					let btnAccUlang = ''
+					if(data.po_lm.status_lm2 == 'N'){
+						btnAccUlang = `<button type="button" class="btn btn-sm btn-primary" onclick="bukaAccPOLam('acc')"><i class="fas fa-lock"></i> <b>ACC</b></button>`
+					}else{
+						btnAccUlang = `
+							<button type="button" class="btn btn-sm btn-warning" onclick="bukaAccPOLam('edit')"><i class="fas fa-unlock"></i> <b>EDIT</b></button>
+							<button type="button" class="btn btn-sm btn-danger" onclick="bukaAccPOLam('ulang')"><i class="fas fa-unlock"></i> <b>ACC ULANG</b></button>
+						`
+					}
+					$("#input-dev").html(`
+						<div class="card-body row" style="font-weight:bold;padding:6px 12px 0">
+							<div class="col-md-3"></div>
+							<div class="col-md-9">${btnAccUlang}</div>
+						</div>
+					`)
+				}else{
+					$("#input-dev").html(``)
+				}
 				// DISKON
 				if(opsi == 'edit' && (urlAuth == 'Admin' || urlAuth == 'Laminasi') && data.po_lm.opsi_disc == null && data.po_lm.jenis_lm == 'PPI' && data.po_lm.status_lm2 != 'Y'){
 					$(".list-potongan").attr('style', '')
@@ -1526,6 +1548,34 @@
 					$(".list-potongan").attr('style', 'display:none')
 				}
 				swal.close()
+			}
+		})
+	}
+
+	function bukaAccPOLam(opsi)
+	{
+		let id_po_lm = $("#id_po_header").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/bukaAccPOLam')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				opsi, id_po_lm
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					editPOLaminasi(id_po_lm, 0, 'verif')
+				}
 			}
 		})
 	}
