@@ -1123,7 +1123,8 @@ class Logistik extends CI_Controller
 						'no_po' => $pl2->no_po,
 						'no_jasa' => $no_jasa,
 						'urut' => $pl2->no_pl_urut,
-						'id_pl_box' => $pl2->id ,
+						'id_pl_box' => $pl2->id,
+						'jenis' => 'LAMINASI',
 					);
 					$this->db->insert('m_jasa', $data);
 				}
@@ -11357,7 +11358,7 @@ class Logistik extends CI_Controller
 					$btnPengiriman = '';
 				}else{
 					$txtUrut = 'RENCANA KIRIM '.$rk->rk_urut;
-					($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'User') ? $btnPengiriman = '<button type="button" id="btn-fix-kirim" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="selesaiMuat('."'".$rk->rk_urut."'".')">SELESAI MUAT</button> - ' : $btnPengiriman = '';
+					($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'User') ? $btnPengiriman = '<button type="button" id="btn-fix-kirim" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="selesaiMuat('."'".$rk->rk_urut."'".', '."'new'".')">SELESAI MUAT</button> - ' : $btnPengiriman = '';
 				}
 				$html .='<tr>
 					<td style="background:#333;color:#fff;padding:6px" colspan="10">'.$btnPengiriman.''.$txtUrut.'</td>
@@ -11436,12 +11437,12 @@ class Logistik extends CI_Controller
 			$html .='<table>
 				<tr style="background:#dee2e6">
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">#</th>
-					<th style="padding:6px;border:1px solid #bbb">TANGGAL</th>
 					<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
 					<th style="padding:6px;border:1px solid #bbb">NO. PO</th>
 					<th style="padding:6px;border:1px solid #bbb">ITEM</th>
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">MUAT</th>
-					<th style="padding:6px;border:1px solid #bbb;text-align:center">AKSI</th>
+					<th style="padding:6px;border:1px solid #bbb;text-align:center">BB</th>
+					<th style="padding:6px;border:1px solid #bbb;text-align:center">TONASE</th>
 				</tr>';
 				foreach($cekRev->result() as $v){
 					if($v->rk_urut == 0){
@@ -11450,12 +11451,15 @@ class Logistik extends CI_Controller
 							<option value="new">BARU</option>
 						</select>';
 						$btnPengiriman = '';
+						$txtTgl = '';
 					}else{
 						$txtUrut = '';
-						($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'User') ? $btnPengiriman = '<button type="button" id="btn-fix-kirim" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="selesaiMuat('."'".$v->rk_urut."'".')">SELESAI</button>' : $btnPengiriman = '';
+						($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'User') ? $btnPengiriman = '<button type="button" id="btn-fix-kirim" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="selesaiMuat('."'".$v->rk_urut."'".', '."'revisi'".')">SELESAI</button>' : $btnPengiriman = '';
+						$txtTgl = '<input type="date" id="rev_tgl'.$v->rk_urut.'" style="margin:0;padding:3px;border:0;font-size:13px"> - ';
 					}
 					$html .='<tr>
-						<td style="background:#333;color:#fff;padding:6px" colspan="10">'.$btnPengiriman.$txtUrut.'</td>
+						<td style="background:#333;color:#fff;padding:6px" colspan="2">'.$txtTgl.$btnPengiriman.$txtUrut.'</td>
+						<td style="background:#333;color:#fff;padding:6px" colspan="7"></td>
 					</tr>';
 
 					$getRev = $this->db->query("SELECT p.nm_pelanggan,i.nm_produk,r.* FROM m_rencana_kirim r
@@ -11469,14 +11473,12 @@ class Logistik extends CI_Controller
 							<td style="border:1px solid #dee2e6;padding:6px">
 								<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" id="rk-urut-'.$r->id_rk.'" value="'.$r->rk_urut.'" onchange="editListUrutRK('."'revisi'".', '."'".$r->id_rk."'".')">
 							</td>
-							<td style="border:1px solid #dee2e6;padding:6px">
-								<input type="date" class="form-control" id="tgl_rev'.$r->id_rk.'">
-							</td>
 							<td style="border:1px solid #dee2e6;padding:6px">'.$r->nm_pelanggan.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px">'.$r->rk_kode_po.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px">'.$katRev.''.$r->nm_produk.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">'.number_format($r->qty_muat).'</td>
-							<td style="border:1px solid #dee2e6;padding:3px;text-align:center"></td>
+							<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$r->rk_bb.'</td>
+							<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">'.number_format($r->rk_tonase).'</td>
 						</tr>';
 					}
 				}
@@ -11491,6 +11493,12 @@ class Logistik extends CI_Controller
 	function revisiSJBox()
 	{
 		$result = $this->m_logistik->revisiSJBox();
+		echo json_encode($result);
+	}
+
+	function batalRev()
+	{
+		$result = $this->m_logistik->batalRev();
 		echo json_encode($result);
 	}
 
@@ -11630,7 +11638,7 @@ class Logistik extends CI_Controller
 		$html = '';
 		$tgl = $_POST["tgl_kirim"];
 		$tglNow = date('Y-m-d');
-		$getUrut = $this->db->query("SELECT tgl,no_pl_urut,no_kendaraan,cetak_sj FROM pl_box WHERE tgl='$tgl' GROUP BY no_pl_urut");
+		$getUrut = $this->db->query("SELECT tgl,no_pl_urut,no_kendaraan,stat_sj,cetak_sj FROM pl_box WHERE tgl='$tgl' GROUP BY no_pl_urut");
 		if($getUrut->num_rows() == 0){
 			$html .='<b>TIDAK ADA DATA PENGIRIMAN!</b>';
 		}else{
@@ -11671,7 +11679,7 @@ class Logistik extends CI_Controller
 						$bgAa = 'btn-success';
 						$txAa = '<i class="fas fa-plus"></i>';
 					}
-					($tglNow == $urut->tgl && in_array($this->session->userdata('level'), ['Admin', 'User']) && $qTimb->num_rows() == 0) ? $editNopol = 'onchange="addPengirimanNoPlat('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"' : $editNopol = 'disabled';
+					(($tglNow == $urut->tgl || $urut->stat_sj == 'revisi') && in_array($this->session->userdata('level'), ['Admin', 'User']) && $qTimb->num_rows() == 0) ? $editNopol = 'onchange="addPengirimanNoPlat('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"' : $editNopol = 'disabled';
 
 					if($urut->no_kendaraan != "" && $urut->cetak_sj == 'acc'){
 						$aksiTimb = 'onclick="addTimbangan('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"';
@@ -11708,13 +11716,14 @@ class Logistik extends CI_Controller
 						$no++;
 						$noSJ = explode('/', $sjpo->no_surat);
 
+						($sjpo->stat_sj == 'revisi') ? $ketRev = '&nbsp;<span style="background:#ffb22c;color:#000;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">REVISI</span>' : $ketRev = '';
 						if($sjpo->id_hub != 7){
 							if($sjpo->pajak == 'ppn'){
 								$spjkH = 'background:#e4003a;';
 							}else{
 								$spjkH = 'background:#007bff;';
 							}
-							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'&nbsp;<span style="'.$spjkH.'color:#fff;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>';
+							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'&nbsp;<span style="'.$spjkH.'color:#fff;height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>'.$ketRev;
 						}else{
 							if($sjpo->pajak == 'ppn' && $sjpo->kategori == 'BOX'){
 								$spjk = 'background:#f8f9fa;';
@@ -11725,7 +11734,7 @@ class Logistik extends CI_Controller
 							}else{
 								$spjk = 'background:#ffb22c;';
 							}
-							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'/'.$noSJ[4].'&nbsp;<span style="'.$spjk.'height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>';
+							$ketSJ = '/'.$noSJ[1].'/'.$noSJ[2].'/'.$noSJ[3].'/'.$noSJ[4].'&nbsp;<span style="'.$spjk.'height:100%;padding:0 4px;border-radius:2px;font-size:12px;font-weight:bold">'.strtoupper($sjpo->pajak).'</span>'.$ketRev;
 						}
 
 						// PRINT SURAT JALAN
@@ -11763,10 +11772,10 @@ class Logistik extends CI_Controller
 							$btnSJBalik = '';
 						}
 						// EDIT NOMER SURAT JALAN
-						($sjpo->cetak_sj == 'not' && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $eNoSj = 'onchange="editPengirimanNoSJ('."'".$sjpo->id."'".')"' : $eNoSj = 'disabled';
+						($sjpo->cetak_sj == 'not' && $sjpo->no_pl_inv == 0 && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $eNoSj = 'onchange="editPengirimanNoSJ('."'".$sjpo->id."'".')"' : $eNoSj = 'disabled';
 
 						// CEK INV
-						($sjpo->no_pl_inv == 0 && $tglNow != $urut->tgl) ? $btnInv = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="">BATAL</button>&nbsp' : $btnInv = '';
+						($sjpo->no_pl_inv == 0 && $tglNow != $urut->tgl && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $btnInv = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="batalRev('."'".$sjpo->id."'".')">BATAL</button>&nbsp' : $btnInv = '';
 
 						$html .='<tr style="background:#dee2e6">
 							<td style="padding:4px 6px;border:1px solid #bbb;font-weight:bold;display:flex">
@@ -11782,7 +11791,8 @@ class Logistik extends CI_Controller
 						$getItems = $this->db->query("SELECT r.*,i.*,p.nm_pelanggan,p.attn FROM m_rencana_kirim r
 						INNER JOIN m_produk i ON r.id_produk=i.id_produk
 						INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
-						WHERE r.rk_tgl='$sjpo->tgl' AND r.rk_urut='$sjpo->no_pl_urut' AND r.rk_kode_po='$sjpo->no_po' AND r.id_pelanggan='$sjpo->id_perusahaan' $wKategori
+						WHERE r.rk_tgl='$sjpo->tgl' AND r.rk_urut='$sjpo->no_pl_urut' AND r.rk_kode_po='$sjpo->no_po' AND r.rk_sj='$sjpo->stat_sj' AND r.id_pelanggan='$sjpo->id_perusahaan' $wKategori
+						-- GROUP BY i.id_produk, r.id_pl_box, r.rk_sj
 						ORDER BY i.nm_produk");
 						$sumMuat = 0;
 						$sumItems = 0;

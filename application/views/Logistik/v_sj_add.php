@@ -472,11 +472,13 @@
 		})
 	}
 
-	function selesaiMuat(urut) {
+	function selesaiMuat(urut, opsi) {
+		let rev_tgl = '';
+		(opsi == 'revisi') ? rev_tgl = $("#rev_tgl"+urut).val() : rev_tgl = ''
 		$.ajax({
 			url: '<?php echo base_url('Logistik/selesaiMuat')?>',
 			type: "POST",
-			data: ({ urut }),
+			data: ({ urut, opsi, rev_tgl }),
 			beforeSend: function() {
 				swal({
 					title: 'Loading',
@@ -489,7 +491,17 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				listRencanaKirim()
+				if(opsi == 'new'){
+					listRencanaKirim()
+				}
+				if(opsi == 'revisi'){
+					if(data.insertPl && data.updateIDplBox){
+						listRencanaKirim()
+					}else{
+						toastr.error(`<b>${data.msg}!</b>`);
+						swal.close()
+					}
+				}
 			}
 		})
 	}
@@ -779,6 +791,19 @@
 			data: ({
 				revisi
 			}),
+			success: function(res){
+				data = JSON.parse(res)
+				listRencanaKirim()
+			}
+		})
+	}
+
+	function batalRev(id)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Logistik/batalRev')?>',
+			type: "POST",
+			data: ({ id }),
 			success: function(res){
 				data = JSON.parse(res)
 				listRencanaKirim()
