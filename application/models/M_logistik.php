@@ -1233,6 +1233,8 @@ class M_logistik extends CI_Model
 				if($getNo->num_rows() != 0){
 					foreach($getPL->result() as $o){
 						$this->db->set('no_kendaraan', $getNo->row()->no_kendaraan);
+						$this->db->set('driver', $getNo->row()->driver);
+						$this->db->set('ekspedisi', $getNo->row()->ekspedisi);
 						$this->db->where('tgl', $o->tgl);
 						$this->db->where('no_pl_urut', $o->no_pl_urut);
 						$this->db->where('stat_sj', 'revisi');
@@ -1293,6 +1295,17 @@ class M_logistik extends CI_Model
 		$urut = $_POST["urut"];
 		$plat = $_POST["plat"];
 
+		// TIMBANGAN
+		$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$urut' AND tgl_t='$tgl' GROUP BY urut_t, tgl_t");
+		if($qTimb->num_rows() > 0){
+			$this->db->set("no_polisi", $plat);
+			$this->db->where("urut_t", $urut);
+			$this->db->where("tgl_t", $tgl);
+			$timb = $this->db->update("m_jembatan_timbang");
+		}else{
+			$timb = false;
+		}
+
 		$this->db->set('no_kendaraan', $plat);
 		$this->db->where('tgl', $tgl);
 		$this->db->where('no_pl_urut', $urut);
@@ -1300,6 +1313,41 @@ class M_logistik extends CI_Model
 
 		return [
 			'addPlat' => $addPlat,
+			'timb' => $timb,
+		];
+	}
+
+	function addSupirEkspedisi()
+	{
+		$tgl = $_POST["tgl"];
+		$urut = $_POST["urut"];
+		$supir = $_POST["supir"];
+		$ekspedisi = $_POST["ekspedisi"];
+		$opsi = $_POST["opsi"];
+
+		// TIMBANGAN
+		$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$urut' AND tgl_t='$tgl' GROUP BY urut_t, tgl_t");
+		if($qTimb->num_rows() > 0){
+			$this->db->set("nm_sopir", $supir);
+			$this->db->where("urut_t", $urut);
+			$this->db->where("tgl_t", $tgl);
+			$timb = $this->db->update("m_jembatan_timbang");
+		}else{
+			$timb = false;
+		}
+
+		if($opsi == 'supir'){
+			$this->db->set('driver', $supir);
+		}else{
+			$this->db->set('expedisi', $ekspedisi);
+		}
+		$this->db->where('tgl', $tgl);
+		$this->db->where('no_pl_urut', $urut);
+		$data = $this->db->update('pl_box');
+
+		return [
+			'data' => $data,
+			'timb' => $timb,
 		];
 	}
 

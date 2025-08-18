@@ -606,6 +606,31 @@
 		})
 	}
 
+	function addSupirEkspedisi(tgl, urut, opsi){
+		let supir = $("#pp-supir-"+urut).val()
+		let ekspedisi = $("#pp-ekspedisi-"+urut).val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/addSupirEkspedisi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ tgl, urut, supir, ekspedisi, opsi }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				listRencanaKirim()
+			}
+		})
+	}
+
 	function editPengirimanNoSJ(id_pl) {
 		let no_surat = $("#pp-nosj-"+id_pl).val()
 		if(no_surat.length == 0){
