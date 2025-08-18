@@ -12348,7 +12348,7 @@ class Logistik extends CI_Controller
 					<td style="border:1px solid #000;padding:5px 0">BP. SUMARTO<br>SPV GUDANG</td>
 					<td style="border:1px solid #000;padding:5px 0"></td>
 					<td style="border:1px solid #000;padding:5px 0"></td>
-					<td style="border:1px solid #000"></td>
+					<td style="border:1px solid #000;padding:5px 0">'.$data_pl->driver.'<br>'.$data_pl->expedisi.'</td>
 					<td style="border:1px solid #000"></td>
 				</tr>
 				<tr>
