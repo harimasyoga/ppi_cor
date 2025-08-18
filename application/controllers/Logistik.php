@@ -11570,7 +11570,7 @@ class Logistik extends CI_Controller
 			($r->attn == '-') ? $attn = '' : $attn = ' - '.$r->attn;
 			$row[] = $r->nm_pelanggan.$attn;
 			$row[] = $r->no_kendaraan;
-			$row[] = ($pilih == "ROLL") ? $r->pt : '';
+			$row[] = ($pilih == "ROLL") ? $r->pt : $r->expedisi;
 			// SJ BALEK
 			$expired = strtotime($r->tgl) + (144*60*60);
 			$actualDate = time();
@@ -11638,7 +11638,7 @@ class Logistik extends CI_Controller
 		$html = '';
 		$tgl = $_POST["tgl_kirim"];
 		$tglNow = date('Y-m-d');
-		$getUrut = $this->db->query("SELECT tgl,no_pl_urut,no_kendaraan,stat_sj,cetak_sj FROM pl_box WHERE tgl='$tgl' GROUP BY no_pl_urut");
+		$getUrut = $this->db->query("SELECT tgl,no_pl_urut,no_kendaraan,driver,expedisi,stat_sj,cetak_sj FROM pl_box WHERE tgl='$tgl' GROUP BY no_pl_urut");
 		if($getUrut->num_rows() == 0){
 			$html .='<b>TIDAK ADA DATA PENGIRIMAN!</b>';
 		}else{
@@ -11675,26 +11675,40 @@ class Logistik extends CI_Controller
 						$bgAa = 'btn-warning';
 						$txAa = '<i class="fas fa-pen"></i>';
 					}else{
-						$supir = ''; $bTruk = ''; $berat = '';
+						$supir = $urut->driver;
+						$bTruk = ''; $berat = '';
 						$bgAa = 'btn-success';
 						$txAa = '<i class="fas fa-plus"></i>';
 					}
-					(($tglNow == $urut->tgl || $urut->stat_sj == 'revisi') && in_array($this->session->userdata('level'), ['Admin', 'User']) && $qTimb->num_rows() == 0) ? $editNopol = 'onchange="addPengirimanNoPlat('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"' : $editNopol = 'disabled';
-
+					
+					// NO PLAT
+					(in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $editNopol = 'onchange="addPengirimanNoPlat('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"' : $editNopol = 'disabled';
+					// ADD TIMBANGAN
 					if($urut->no_kendaraan != "" && $urut->cetak_sj == 'acc'){
 						$aksiTimb = 'onclick="addTimbangan('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"';
 					}else{
 						$aksiTimb = 'disabled';
 					}
+					// EDIT SUPIR DAN EKSPEDISI
+					if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
+						$addSupir = 'onchange="addSupirEkspedisi('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".','."'supir'".')"';
+						$addEkspedisi = 'onchange="addSupirEkspedisi('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".','."'ekspedisi'".')"';
+					}else{
+						$addSupir = '';
+						$addEkspedisi = '';
+					}
 
 					$html .='<tr>
 						<td style="background:#333;color:#fff;padding:6px;font-weight:bold">'.$btnBtl.''.$urut->no_pl_urut.'</td>
 						<td style="background:#333;color:#fff;padding:6px;text-align:right;font-weight:bold">NO. PLAT :</td>
-						<td style="background:#333;color:#fff;padding:6px;text-align:right" colspan="2">
+						<td style="background:#333;color:#fff;padding:6px;text-align:right"">
 							<input type="text" class="form-control" id="pp-noplat-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="-" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$urut->no_kendaraan.'" '.$editNopol.'>
 						</td>
-						<td style="background:#333;color:#fff;padding:6px 6px 6px 40px">
-							<input type="text" class="form-control" id="pp-supir-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="SUPIR" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$supir.'">
+						<td style="background:#333;color:#fff;padding:6px">
+							<input type="text" class="form-control" id="pp-supir-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="SUPIR" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$supir.'" '.$addSupir.'>
+						</td>
+						<td style="background:#333;color:#fff;padding:6px">
+							<input type="text" class="form-control" id="pp-ekspedisi-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="EKSPEDISI" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$urut->expedisi.'" '.$addEkspedisi.'>
 						</td>
 						<td style="background:#333;color:#fff;padding:6px" colspan="2">
 							<input type="number" class="form-control" id="pp-timbangan-truk-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="B. TRUK" autocomplete="off" value="'.$bTruk.'" onkeyup="hitungTimbangan('."'".$urut->no_pl_urut."'".')">
@@ -11873,6 +11887,12 @@ class Logistik extends CI_Controller
 	function addPengirimanNoPlat()
 	{
 		$result = $this->m_logistik->addPengirimanNoPlat();
+		echo json_encode($result);
+	}
+
+	function addSupirEkspedisi()
+	{
+		$result = $this->m_logistik->addSupirEkspedisi();
 		echo json_encode($result);
 	}
 
