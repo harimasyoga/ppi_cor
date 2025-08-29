@@ -4495,7 +4495,7 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_bc==null || $header->img_bc=='') {
-			$url_foto = base_url('assets/gambar_inv_bc/foto.jpg'); $uF2 = 'foto';
+			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_bc/') . $header->img_bc; $uF2 = '';
 		}
@@ -4524,7 +4524,7 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_faktur==null || $header->img_faktur=='') {
-			$url_foto = base_url('assets/gambar_inv_faktur/foto.jpg'); $uF2 = 'foto';
+			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_faktur/') . $header->img_faktur; $uF2 = '';
 		}
@@ -4553,7 +4553,7 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_resi==null || $header->img_resi=='') {
-			$url_foto = base_url('assets/gambar_inv_resi/foto.jpg'); $uF2 = 'foto';
+			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_resi/') . $header->img_resi; $uF2 = '';
 		}
@@ -4582,7 +4582,7 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_inv_terima==null || $header->img_inv_terima=='') {
-			$url_foto = base_url('assets/gambar_inv_inv_terima/foto.jpg'); $uF2 = 'foto';
+			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_inv_terima/') . $header->img_inv_terima; $uF2 = '';
 		}
@@ -4611,7 +4611,7 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_mutasi==null || $header->img_mutasi=='') {
-			$url_foto = base_url('assets/gambar_inv_mutasi/foto.jpg'); $uF2 = 'foto';
+			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_mutasi/') . $header->img_mutasi; $uF2 = '';
 		}
@@ -4640,7 +4640,7 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_sj_balik==null || $header->img_sj_balik=='') {
-			$url_foto = base_url('assets/gambar_inv_sj_balik/foto.jpg'); $uF2 = 'foto';
+			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_sj_balik/') . $header->img_sj_balik; $uF2 = '';
 		}
@@ -4669,7 +4669,7 @@ class Logistik extends CI_Controller
 		$ext      = end($e);
 		
 		if($header->img_upload_inv==null || $header->img_upload_inv=='') {
-			$url_foto = base_url('assets/gambar_inv_upload_inv/foto.jpg'); $uF2 = 'foto';
+			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_upload_inv/') . $header->img_upload_inv; $uF2 = '';
 		}

@@ -455,62 +455,53 @@
 						<i class="fas fa-minus"></i></button>
 				</div>
 			</div>
-			<div class="card shadow mb-3">
-				<div class="card-body">
-					<div style="margin-bottom:12px">
-						<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
-							<i class="fa fa-arrow-left" ></i> Kembali</b>
-						</button>
+			<div class="card-body">
+				<div style="margin-bottom:12px">
+					<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+						<i class="fa fa-arrow-left" ></i> Kembali</b>
+					</button>
+				</div>
+				<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
+					<div class="col-md-2">PILIH</div>
+					<div class="col-md-3">
+						<select id="ex_pilih" class="form-control select2" onchange="exPilih()">
+							<option value="">PILIH</option>
+							<option value="TANGGAL">TANGGAL</option>
+							<option value="BULAN">BULAN</option>
+							<option value="SEMUA">SEMUA</option>
+						</select>
 					</div>
-					<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
-						<div class="col-md-2">PILIH</div>
-						<div class="col-md-3">
-							<select id="ex_pilih" class="form-control select2" onchange="exPilih()">
-								<option value="">PILIH</option>
-								<option value="TANGGAL">TANGGAL</option>
-								<option value="BULAN">BULAN</option>
-								<option value="SEMUA">SEMUA</option>
-							</select>
-						</div>
-						<div class="col-md-7"></div>
-					</div>
-					<div class="ex-tmpl"></div>
-					<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
-						<div class="col-md-12">
-							<div style="overflow:auto;white-space:nowrap">
-								<div class="tab_expired"></div>
-							</div>
+					<div class="col-md-7"></div>
+				</div>
+				<div class="ex-tmpl"></div>
+				<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
+					<div class="col-md-12">
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="tab_expired"></div>
 						</div>
 					</div>
 				</div>
 			</div>
-		
 		</div>
 	</section>
 
-	<!-- Main content -->
 	<section class="content">
-
-		<!-- Default box -->
 		<div class="card shadow mb-3">
-			
 			<div class="row-list">
 				<div class="card-header" style="font-family:Cambria;" >
 					<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?></b></h3>
-
 					<div class="card-tools">
 						<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
 							<i class="fas fa-minus"></i></button>
 					</div>
 				</div>
 				<div class="card-body">
-
 					<div class="card-body" style="padding:12px 6px">
 						<?php if(in_array($this->session->userdata('username'), ['karina', 'tegar', 'developer'])){ ?>
 							<div style="margin-bottom:12px">
 								<button type="button" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE EXPIRED"><i class="fas fa-sync-alt"></i></button>
 								<button type="button" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
-								<button type="button" class="btn btn-danger btn-sm" onclick="open_laporan()"><i class="fa fa-print"></i> <b>Laporan</b></button>
+								<!-- <button type="button" class="btn btn-danger btn-sm" onclick="open_laporan()"><i class="fa fa-print"></i> <b>Laporan</b></button> -->
 								<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
 								<?php if (in_array($this->session->userdata('level'), ['Admin'])) { ?>
 									<button type="button" class="btn btn-danger btn-sm" onclick="open_lapExp()"><i class="fa fa-print"></i> <b>Lap Expired</b></button>
@@ -601,11 +592,28 @@
 				</div>
 			</div>
 		</div>
-		<!-- /.card -->
 	</section>
-	<!-- /.content -->
+
+	<section class="content">
+		<div class="card shadow card-mutasi" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;" >
+				<h3 class="card-title" style="color:#4e73df;"><b>INPUT MUTASI</b></h3>
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+			<div class="card-body">
+				<div style="margin-bottom:12px">
+					<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+						<i class="fa fa-arrow-left" ></i> Kembali</b>
+					</button>
+				</div>
+				TEST
+			</div>
+		</div>
+	</section>
 </div>
-<!-- /.content-wrapper -->
 
 <!-- MODAL box -->
 	<div class="modal fade" id="modalForm">
@@ -805,7 +813,7 @@
 	</div>
 	<!-- /.MODAL -->
 
-	
+
 <div class="modal fade" id="modal_foto">
 	<div class="modal-dialog modal-full">
 		<div class="modal-content">
@@ -814,21 +822,16 @@
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 				</button>
 			</div>
-
 			<br><br>
-			
 			<form role="form" method="post" id="form_foto" enctype="multipart/form-data">
 				<div>
 					<div class="card-body row" style="padding : 5px;font-weight:bold">
 						<div class="col-md-1"></div>
 						<div class="col-md-2">No Inv</div>
 						<div class="col-md-3">
-						<input type="hidden" name="status_modal" id="status_modal" class="form-control" readonly>
-
-						<input type="text" name="no_inv_foto" id="no_inv_foto" class="form-control" readonly>
-															
+							<input type="hidden" name="status_modal" id="status_modal" class="form-control" readonly>
+							<input type="text" name="no_inv_foto" id="no_inv_foto" class="form-control" readonly>
 						</div>
-						
 						<div class="col-md-6"></div>
 					</div>
 					<div id="upload_invd" class="card-body row" style="padding:5px;font-weight:bold">
@@ -902,12 +905,14 @@
 
 <!-- Image Zoom HTML -->
 <div id="mymodal-img" class="modal-img">
-  <img class="modal-img-content" id="img01">
+	<img class="modal-img-content" id="img01">
 </div>
 <!-- End Image Zoom HTML -->
 
 <script type="text/javascript">
 	rowNum = 0;
+	const urlAuth = '<?= $this->session->userdata('level')?>';
+	const urlUser = '<?= $this->session->userdata('username')?>';
 	$(document).ready(function() {
 		load_data()
 		$('.select2').select2({
@@ -953,11 +958,16 @@
 		$("#tgl_invd").val('')
 		$("#tgl_blk").val('')
 		$("#ket_file").val('')
-		$('#modal_foto').modal('show');
 		$("#no_inv_foto").val(no_inv);
 		$('#upload_invd').hide();
 		$('#upload_blk').hide();
 		$('#filefoto').css("display","block");
+
+		if(ket != 'mutasi'){
+			$('#modal_foto').modal('show');
+			$('.card-mutasi').hide();
+		}
+
 		if(ket=='bc' && (username=='karina' || username=='siska' || username=='tegar')){
 			$('#upload_file').show();
 		}else if(ket=='faktur' && username=='siska'){
@@ -967,9 +977,15 @@
 		}else if(ket=='inv_terima' && (username=='karina' || username=='tegar')){
 			$('#upload_invd').show();
 			$('#upload_file').show();
-		}else if(ket=='mutasi' && (username=='karina' || username=='tegar')){
-			$('#upload_file').show();
-		}else if(ket=='sj_balik' && (username=='karina' || username=='tegar')){
+		}
+		// else if(ket=='mutasi' && (username=='karina' || username=='tegar')){
+		// 	$('#upload_file').show();
+		// }
+		else if(ket=='mutasi'){
+			$(".row-list").hide()
+			$('.card-mutasi').show();
+		}
+		else if(ket=='sj_balik' && (username=='karina' || username=='tegar')){
 			$('#upload_blk').show();
 			$('#upload_file').show();
 		}else if(ket=='upload_inv' && (username=='karina' || username=='tegar')){
@@ -993,90 +1009,89 @@
 
 		
 		$.ajax({
-				url: '<?= base_url('Logistik/get_foto_'); ?>'+ket,
-				type: 'POST',
-				data: {
-					no       : no_inv,
-					jenis    : "invoice_header",
-					field    : 'no_invoice'
-				},
-				dataType: "JSON",
-			})
-			.done(function(data) {
+			url: '<?= base_url('Logistik/get_foto_'); ?>'+ket,
+			type: 'POST',
+			data: {
+				no       : no_inv,
+				jenis    : "invoice_header",
+				field    : 'no_invoice'
+			},
+			dataType: "JSON",
+		})
+		.done(function(data) {
+			$('#div_preview_foto').css("display","block");
+			let btnHapHap = ''
+			if(username == 'developer' && data.url_foto != 'foto'){
+				btnHapHap = `<div style="display:flex">
+					<div style="margin-right:4px">
+						<select id="hps_file_inv" onchange="sHpsFile('${data.header.id}', '${ket}')">
+							<option value=""></option>
+							<option value="HAPUS">HAPUS</option>
+							<option value="DDDDD">UPDATE</option>
+						</select>
+					</div>
+					${data.htmlDtl}
+				</div>`;
+			}else{
+				btnHapHap = data.htmlDtl
+			}
+			$(".detail-inv").html(btnHapHap)
+			if(ket=='inv_terima'){
+				$("#tgl_invd").val(data.header.inp_inv_terima.substr(0, 10))
+			}
+			if(ket=='sj_balik'){
+				if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk == null){
+					$("#tgl_blk").val(data.header.inp_sj_balik.substr(0, 10))
+				}else if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk != null){
+					$("#tgl_blk").val(data.header.tgl_sj_blk)
+				}
+			}
+			$("#ket_file").val(data.ket)
+			if(data.ext=='pdf')
+			{
+				
+			}else{
+				var modal = document.getElementById('mymodal-img');
+				var img            = document.getElementById('preview_img');
+				var modalImg       = document.getElementById("img01");
+				img.onclick = function(){
+					modal.style.display   = "block";
+					modalImg.src          = this.src;
+					modalImg.alt          = this.alt;
+				}
+				modal.onclick = function() {
+					img01.className       += " out";
+					setTimeout(function() {
+						modal.style.display   = "none";
+						img01.className       = "modal-img-content";
+					}, 400);
+				}
+			}
 
-				$('#div_preview_foto').css("display","block");
-				let btnHapHap = ''
-				if(username == 'developer' && data.url_foto != 'foto'){
-					btnHapHap = `<div style="display:flex">
-						<div style="margin-right:4px">
-							<select id="hps_file_inv" onchange="sHpsFile('${data.header.id}', '${ket}')">
-								<option value=""></option>
-								<option value="HAPUS">HAPUS</option>
-								<option value="DDDDD">UPDATE</option>
-							</select>
-						</div>
-						${data.htmlDtl}
-					</div>`;
-				}else{
-					btnHapHap = data.htmlDtl
-				}
-				$(".detail-inv").html(btnHapHap)
-				if(ket=='inv_terima'){
-					$("#tgl_invd").val(data.header.inp_inv_terima.substr(0, 10))
-				}
-				if(ket=='sj_balik'){
-					if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk == null){
-						$("#tgl_blk").val(data.header.inp_sj_balik.substr(0, 10))
-					}else if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk != null){
-						$("#tgl_blk").val(data.header.tgl_sj_blk)
-					}
-				}
-				$("#ket_file").val(data.ket)
-				if(data.ext=='pdf')
-				{
-					
-				}else{
-					var modal = document.getElementById('mymodal-img');
-					var img            = document.getElementById('preview_img');
-					var modalImg       = document.getElementById("img01");
-					img.onclick = function(){
-						modal.style.display   = "block";
-						modalImg.src          = this.src;
-						modalImg.alt          = this.alt;
-					}
-					modal.onclick = function() {
-						img01.className       += " out";
-						setTimeout(function() {
-							modal.style.display   = "none";
-							img01.className       = "modal-img-content";
-						}, 400);
-					}
-				}
-
-				// cek
-				if(data.header.cekinv == null && data.header.inpinv != null && (username=='bumagda' || username=='developer')){
-					$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 0 6px">
-						<div class="col-md-3"></div>
-						<div class="col-md-2">
-							<select class="form-control select2" id="invinvinv" onchange="cekInv('lama', '')">
-								<option value="">CEK</option>
-								<option value="${ket}">OK</option>
-							</select>
-						</div>
-						<div class="col-md-7"></div>
-					</div>`)
-				}else if(data.header.cekinv != null && (username=='bumagda' || username=='developer')){
-					$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 5px 6px">
-						<div class="col-md-3"></div>
-						<div class="col-md-9">
-							<span style="font-weight:bold">CEK : ${data.header.cekinv}</span>
-						</div>
-					</div>`)
-				}else{
-					$(".cekcekcek").html(``)
-				}
-				$('.select2').select2()
-			})
+			// cek
+			if(data.header.cekinv == null && data.header.inpinv != null && (username=='bumagda' || username=='developer')){
+				$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 0 6px">
+					<div class="col-md-3"></div>
+					<div class="col-md-2">
+						<select class="form-control select2" id="invinvinv" onchange="cekInv('lama', '')">
+							<option value="">CEK</option>
+							<option value="${ket}">OK</option>
+						</select>
+					</div>
+					<div class="col-md-7"></div>
+				</div>`)
+			}else if(data.header.cekinv != null && (username=='bumagda' || username=='developer')){
+				$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 5px 6px">
+					<div class="col-md-3"></div>
+					<div class="col-md-9">
+						<span style="font-weight:bold">CEK : ${data.header.cekinv}</span>
+					</div>
+				</div>`)
+			}else{
+				$(".cekcekcek").html(``)
+			}
+			$('.select2').select2()
+		})
 	}
 
 	function sHpsFile(id_inv, ket){
@@ -1540,6 +1555,7 @@
 		$(".list_lap").attr('style', 'display:none')
 		$(".list_sj").attr('style', 'display:none')
 		$(".list_exp").attr('style', 'display:none')
+		$(".card-mutasi").attr('style', 'display:none')
 		$("#tgl_expired").val('')
 		$('#ex_pilih').val('').trigger('change')
 		$('.ex-tmpl').html(``)
