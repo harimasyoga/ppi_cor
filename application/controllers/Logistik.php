@@ -5310,7 +5310,7 @@ class Logistik extends CI_Controller
 			$query = $this->db->query("SELECT *, DATEDIFF(SUBSTR(h.inp_inv_terima, 1, 10), CURDATE()) AS sisa_invd, DATEDIFF(h.tgl_jatuh_tempo , h.tgl_invoice) AS tempo
 			FROM invoice_header h
 			$wInn
-			WHERE no_invoice='FC/0854/08/2025' AND YEAR(h.tgl_invoice) IN ('$thnn') $cek_bulan $tipe $wExp
+			WHERE no_invoice IN('FC/0795/08/2025', 'FC/0920/08/2025', 'FA/1673/08/2025') AND YEAR(h.tgl_invoice) IN ('$thnn') $cek_bulan $tipe $wExp
 			ORDER BY h.status_inv DESC, h.cek_global DESC, h.tgl_invoice DESC, h.no_invoice")->result();
 
 			$i               = 1;
@@ -9092,6 +9092,7 @@ class Logistik extends CI_Controller
 	function Cetak_Invoice()
 	{
 		$html = '';
+		$htmlKop = '';
 		$opsi = $_POST["opsi"];
 		if($opsi == 'html'){
 			$no_invoice = $_POST['no_invoice'];
@@ -9153,7 +9154,7 @@ class Logistik extends CI_Controller
 		//////////////////////////////////////// D E T A I L ///////////////////////////////////////
 
 		if($opsi == 'html'){
-			$html .= '<table>
+			$htmlKop .= '<table>
 				<tr>
 					<td style="padding:5px">Nama Perusahaan</td>
 					<td style="padding:5px">:</td>
@@ -9186,13 +9187,13 @@ class Logistik extends CI_Controller
 						// KONDISI JIKA LEBIH DARI 1 PO
 						$result_po = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY no_po ORDER BY no_po");
 						if($result_po->num_rows() == '1'){
-							$html .= $result_po->row()->no_po;;
+							$htmlKop .= $result_po->row()->no_po;;
 						}else{
 							foreach($result_po->result() as $r){
-								$html .= $r->no_po.'<br/>';
+								$htmlKop .= $r->no_po.'<br/>';
 							}
 						}
-					$html .= '</td>
+					$htmlKop .= '</td>
 				</tr>
 				<tr style="vertical-align:top">
 					<td style="padding:5px">No. Surat Jalan</td>
@@ -9201,15 +9202,15 @@ class Logistik extends CI_Controller
 						// KONDISI JIKA LEBIH DARI 1 SURAT JALAN
 						$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY LTRIM(no_surat) ORDER BY no_surat");
 						if($result_sj->num_rows() == '1'){
-							$html .= $result_sj->row()->no_surat;
+							$htmlKop .= $result_sj->row()->no_surat;
 						}else{
 							foreach($result_sj->result() as $r){
-								$html .= $r->no_surat.'<br/>';
+								$htmlKop .= $r->no_surat.'<br/>';
 							}
 						}
-					$html .= '</td>
+					$htmlKop .= '</td>
 				</tr>';
-			$html .= '</table>';
+			$htmlKop .= '</table>';
 		}else{
 			$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
 				<tr>
@@ -9376,8 +9377,8 @@ class Logistik extends CI_Controller
 			}
 		}
 		
-		
-		// T O T A L //
+		//////////////////////////////////////////////// T O T A L ////////////////////////////////////////////////
+
 		$html .= '<tr>
 			<td style="border:0;padding:20px 0 0" colspan="7"></td>
 		</tr>';
@@ -9475,6 +9476,80 @@ class Logistik extends CI_Controller
 			<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
 			<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($terbilang, 0, ",", ".").'</td>
 		</tr>';
+
+		//////////////////////////////////////////////// P E M B A Y A R A N ////////////////////////////////////////////////
+
+		if($opsi == 'html'){
+			$html .= '<tr>
+				<td style="padding:5px;background:#ccc;font-weight:bold;text-align:center" colspan="7">PEMBAYARAN</td>
+			</tr>';
+
+			$cByr = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$data_detail->no_invoice' AND file_mutasi='$data_detail->img_mutasi' GROUP BY no_invoice");
+			if($data_detail->img_mutasi != ''){
+				if($cByr->num_rows() != 0){
+					$zTgl = $cByr->row()->tgl_bayar;
+					$zKet = $cByr->row()->ket_byr;
+					$zNom = number_format($cByr->row()->jumlah, 0, ',', '.');
+				}else{
+					$zTgl = '';
+					$zKet = '';
+					$zNom = '';
+				}
+				$html .= '<tr style="vertical-align:top">
+					<td style="padding:5px"></td>
+					<td style="padding:5px;text-align:right">
+						<button class="btn btn-xs btn-danger" onclick="hpsInvMutasi()"><i class="fas fa-trash"></i></button>
+					</td>
+					<td style="padding:5px">
+						<input type="date" id="dit_tgl" value="'.$zTgl.'" class="form-control" style="margin-bottom:5px;display:block">
+						<textarea id="dit_ket" class="form-control" style="resize:none" oninput="this.value=this.value.toUpperCase()">'.$zKet.'</textarea>
+					</td>
+					<td style="padding:5px;text-align:right" colspan="2">
+						<img id="'.$data_detail->img_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$data_detail->img_mutasi.'" alt="preview foto" width="100" class="shadow-sm" onclick="imgClick('."'".$data_detail->img_mutasi."'".')">
+					</td>
+					<td style="padding:5px 0;text-align:right" colspan="2">
+						<input type="text" id="dit_nominal" value="'.$zNom.'" style="text-align:right;font-weight:bold" onkeyup="ubah_angka(this.value,this.id)" onchange="invInputNominalMutasi()">
+					</td>
+				</tr>';
+			}
+
+			if($data_detail->img_mutasi == null || $cByr->num_rows() != 0){
+				$html .= '<tr>
+					<form role="form" method="post" id="myForm" action="'.base_url('Logistik/uploadMutasi').'" enctype="multipart/form-data">
+						<table>
+							<tr>
+								<td style="padding:5px 0">Tanggal Bayar</td>
+								<td style="padding:5px">:</td>
+								<td style="padding:5px 0">
+									<input type="date" name="mut_tgl" id="mut_tgl" class="form-control">
+								</td>
+							</tr>
+							<tr>
+								<td style="padding:5px 0">Upload File</td>
+								<td style="padding:5px">:</td>
+								<td style="padding:5px 0">
+									<input type="file" name="mut_foto" id="mut_foto" accept=".jpg,.jpeg,.png">
+								</td>
+							</tr>
+							<tr>
+								<td style="padding:5px 0">Nominal</td>
+								<td style="padding:5px">:</td>
+								<td style="padding:5px 0">
+									<input type="text" id="mut_nominal" style="text-align:right;font-weight:bold" class="form-control" onkeyup="ubah_angka(this.value,this.id)">
+								</td>
+							</tr>
+							<tr style="vertical-align:top">
+								<td style="padding:5px 0">Keterangan</td>
+								<td style="padding:5px">:</td>
+								<td style="padding:5px 0">
+									<textarea name="mut_ket" id="mut_ket" class="form-control" style="resize:none" oninput="this.value=this.value.toUpperCase()"></textarea>
+								</td>
+							</tr>
+						</table>
+					</form>
+				</tr>';
+			}
+		}
 
 		//////////////////////////////////////////////// T T D ////////////////////////////////////////////////
 		
@@ -9581,40 +9656,24 @@ class Logistik extends CI_Controller
 		if($opsi == 'html'){
 			echo json_encode([
 				'html' => $html,
+				'htmlKop' => $htmlKop,
 			]);
 		}else{
 			$this->m_fungsi->_mpdf_hari('P', 'A4', 'INVOICE', $html, 'INVOICE.pdf', 5, 5, 5, 10);
 		}
     }
 
-	// public function coba_api()
-	// {
-	// 	$curl = curl_init();
+	function invInputNominalMutasi()
+	{
+		$result = $this->m_logistik->invInputNominalMutasi();
+		echo json_encode($result);
+	}
 
-	// 	curl_setopt_array($curl, array(
-	// 	CURLOPT_URL => "https://api.rajaongkir.com/starter/province?id=12",
-	// 	CURLOPT_RETURNTRANSFER => true,
-	// 	CURLOPT_ENCODING => "",
-	// 	CURLOPT_MAXREDIRS => 10,
-	// 	CURLOPT_TIMEOUT => 30,
-	// 	CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-	// 	CURLOPT_CUSTOMREQUEST => "GET",
-	// 	CURLOPT_HTTPHEADER => array(
-	// 		"key: c479d0aa6880c0337184539462eeec6f"
-	// 	),
-	// 	));
-
-	// 	$response   = curl_exec($curl);
-	// 	$err        = curl_error($curl);
-
-	// 	curl_close($curl);
-
-	// 	if ($err) {
-	// 		echo "cURL Error #:" . $err;
-	// 	} else {
-	// 		echo json_encode($response);
-	// 	}
-	// }
+	function hpsInvMutasi()
+	{
+		$result = $this->m_logistik->hpsInvMutasi();
+		echo json_encode($result);
+	}
 
 	//
 

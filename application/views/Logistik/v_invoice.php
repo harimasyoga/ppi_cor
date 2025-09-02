@@ -31,6 +31,13 @@
 			background: #f00;
 			opacity: 0.2;
 		}
+
+		/* Chrome, Safari, Edge, Opera */
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
 	</style>
 
 	<section class="content">
@@ -610,6 +617,9 @@
 					</button>
 				</div>
 				<div style="overflow:auto;white-space:nowrap">
+					<div class="tmpl-kop-invoice"></div>
+				</div>
+				<div style="overflow:auto;white-space:nowrap">
 					<div class="tmpl-invoice"></div>
 				</div>
 			</div>
@@ -905,11 +915,9 @@
 </div>
 <!-- /.modal -->
 
-<!-- Image Zoom HTML -->
 <div id="mymodal-img" class="modal-img">
 	<img class="modal-img-content" id="img01">
 </div>
-<!-- End Image Zoom HTML -->
 
 <script type="text/javascript">
 	rowNum = 0;
@@ -953,6 +961,7 @@
 
 	function cetakInvoice()
 	{
+		$(".tmpl-kop-invoice").html('')
 		$(".tmpl-invoice").html('')
 		let no_invoice = $("#no_inv_foto").val()
 		console.log(no_invoice)
@@ -965,7 +974,65 @@
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
+				$(".tmpl-kop-invoice").html(data.htmlKop)
 				$(".tmpl-invoice").html(data.html)
+			}
+		})
+	}
+
+	function imgClick(klik)
+	{
+		let modal = document.getElementById('mymodal-img')
+		let img = document.getElementById(klik)
+		let modalImg = document.getElementById("img01")
+		img.onclick = function(){
+			modal.style.display = "block";
+			modalImg.src = this.src;
+			modalImg.alt = this.alt;
+		}
+		modal.onclick = function() {
+			img01.className += " out";
+			setTimeout(function() {
+				modal.style.display = "none";
+				img01.className = "modal-img-content";
+			}, 400);
+		}
+	}
+
+	function invInputNominalMutasi()
+	{
+		let no_invoice = $("#no_inv_foto").val()
+		let dit_nominal = $("#dit_nominal").val().split('.').join('')
+		let dit_tgl = $("#dit_tgl").val()
+		let dit_ket = $("#dit_ket").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/invInputNominalMutasi')?>',
+			type: "POST",
+			data: ({ no_invoice, dit_nominal, dit_tgl, dit_ket }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.data){
+					toastr.success(`<b>BERHASIL!</b>`)
+					cetakInvoice()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
+			}
+		})
+	}
+
+	function hpsInvMutasi()
+	{
+		let no_invoice = $("#no_inv_foto").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/hpsInvMutasi')?>',
+			type: "POST",
+			data: ({ no_invoice }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				cetakInvoice()
 			}
 		})
 	}

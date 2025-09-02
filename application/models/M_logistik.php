@@ -4186,4 +4186,73 @@ class M_logistik extends CI_Model
 		);
 	}
 
+	function invInputNominalMutasi()
+	{
+		$no_invoice = $_POST["no_invoice"];
+		$dit_nominal = $_POST["dit_nominal"];
+		$dit_tgl = $_POST["dit_tgl"];
+		$dit_ket = $_POST["dit_ket"];
+
+		$header = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
+		$bayar = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$no_invoice'");
+
+		if($dit_nominal == "" || $dit_tgl == "" || $dit_ket == ""){
+			$data = false;
+			$msg = "LENGKAPI INPUTAN";
+		}else{
+			if($bayar->num_rows() == 0){
+				$h = [
+					'no_invoice' => $no_invoice,
+					'tgl_bayar' => $dit_tgl,
+					'file_mutasi' => $header->img_mutasi,
+					'jumlah' => $dit_nominal,
+					'ket_byr' => $dit_ket,
+				];
+				$data = $this->db->insert("invoice_bayar", $h);
+			}else{
+				$this->db->set("tgl_bayar", $dit_tgl);
+				$this->db->set("jumlah", $dit_nominal);
+				$this->db->set("ket_byr", $dit_ket);
+				$this->db->where("no_invoice", $no_invoice);
+				$data = $this->db->update("invoice_bayar");
+			}
+			$msg = 'OK!';
+		}
+
+		return array(
+			'data' => $data,
+			'msg' => $msg,
+		);
+	}
+
+	function hpsInvMutasi()
+	{
+		$no_invoice = $_POST["no_invoice"];
+		$header = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
+		$bayar = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$no_invoice' GROUP BY file_mutasi");
+
+		if($bayar->num_rows() == 1){
+			unlink("assets/gambar_inv_mutasi/".$header->img_mutasi);
+			$this->db->set('img_mutasi', null);
+			$this->db->set('inp_mutasi', null);
+			$this->db->set('cek_mutasi', null);
+			$this->db->set('acc_owner', 'N');
+			$this->db->set('status_inv', 'Open');
+			$this->db->where('no_invoice', $no_invoice);
+			$update = $this->db->update('invoice_header');
+		}else{
+			$update = true;
+		}
+
+		if($update){
+			$this->db->where("no_invoice", $no_invoice);
+			$this->db->where("file_mutasi", $header->img_mutasi);
+			$data = $this->db->delete("invoice_bayar");
+		}
+
+		return array(
+			'data' => $data,
+		);
+	}
+
 }
