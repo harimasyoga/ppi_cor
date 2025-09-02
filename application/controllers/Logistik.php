@@ -5310,7 +5310,7 @@ class Logistik extends CI_Controller
 			$query = $this->db->query("SELECT *, DATEDIFF(SUBSTR(h.inp_inv_terima, 1, 10), CURDATE()) AS sisa_invd, DATEDIFF(h.tgl_jatuh_tempo , h.tgl_invoice) AS tempo
 			FROM invoice_header h
 			$wInn
-			WHERE YEAR(h.tgl_invoice) IN ('$thnn') $cek_bulan $tipe $wExp
+			WHERE no_invoice='FC/0854/08/2025' AND YEAR(h.tgl_invoice) IN ('$thnn') $cek_bulan $tipe $wExp
 			ORDER BY h.status_inv DESC, h.cek_global DESC, h.tgl_invoice DESC, h.no_invoice")->result();
 
 			$i               = 1;
@@ -9091,135 +9091,196 @@ class Logistik extends CI_Controller
 
 	function Cetak_Invoice()
 	{
-        $no_invoice = $_GET['no_invoice'];
-        $ctk = 0;
-        $html = '';
+		$html = '';
+		$opsi = $_POST["opsi"];
+		if($opsi == 'html'){
+			$no_invoice = $_POST['no_invoice'];
+		}else{
+			$opsi = '';
+			$no_invoice = $_GET['no_invoice'];
+		}        
 
 		//////////////////////////////////////// K O P ////////////////////////////////////////
 
         $data_detail = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
 		$ppnpph = $data_detail->pajak;
 
-		$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif">';
-
-        if($ppnpph == 'nonppn'){
-            $html .= '<tr>
-                <th style="border:0;height:92px"></th>
-            </tr>
-            <tr>
-                <td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">INVOICE</td>
-            </tr>';
-            $html .= '</table>';
-        }else{
-            $html .= '<tr>
-                <th style="border:0;width:15%;height:0"></th>
-                <th style="border:0;width:55%;height:0"></th>
-                <th style="border:0;width:25%;height:0"></th>
-            </tr>
-
-            <tr>
-				<td rowspan="3" align="center">
-					<img src="' . base_url() . 'assets/gambar/ppi.png"  width="80" height="70" />
-				</td>
-		   
-                <td style="font-size:20px;" align="left">PT. PRIMA PAPER INDONESIA</td>
-
-            </tr>
-            <tr>
-                <td style="font-size:11px" align="left">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
-                <td></td>
-            </tr>
-            <tr>
-                <td style="font-size:11px;" align="left">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
-                <td style=""></td>
-            </tr>
-			<tr><td>&nbsp;<br></td></tr>';
-            $html .= '</table>';
-
-            $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif">
-            <tr>
-                <th style="height:0"></th>
-            </tr>
-            <tr>
-                <td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">INVOICE</td>
-            </tr>';
-            $html .= '</table>';
-        }       
+		if($opsi == 'html'){
+			$html .= '';
+		}else{
+			$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif">';
+			if($ppnpph == 'nonppn'){
+				$html .= '<tr>
+					<th style="border:0;height:92px"></th>
+				</tr>
+				<tr>
+					<td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">INVOICE</td>
+				</tr>';
+				$html .= '</table>';
+			}else{
+				$html .= '<tr>
+					<th style="border:0;width:15%;height:0"></th>
+					<th style="border:0;width:55%;height:0"></th>
+					<th style="border:0;width:25%;height:0"></th>
+				</tr>
+				<tr>
+					<td rowspan="3" align="center">
+						<img src="' . base_url() . 'assets/gambar/ppi.png"  width="80" height="70" />
+					</td>
+					<td style="font-size:20px;" align="left">PT. PRIMA PAPER INDONESIA</td>
+				</tr>
+				<tr>
+					<td style="font-size:11px" align="left">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td style="font-size:11px;" align="left">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
+					<td style=""></td>
+				</tr>
+				<tr><td>&nbsp;<br></td></tr>';
+				$html .= '</table>';
+				$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif">
+				<tr>
+					<th style="height:0"></th>
+				</tr>
+				<tr>
+					<td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">INVOICE</td>
+				</tr>';
+				$html .= '</table>';
+			}
+		}
 
 		//////////////////////////////////////// D E T A I L ///////////////////////////////////////
 
-        $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
-        <tr>
-            <th style="border:0;padding:2px 0;height:0;width:14%"></th>
-            <th style="border:0;padding:2px 0;height:0;width:1%"></th>
-            <th style="border:0;padding:2px 0;height:0;width:40%"></th>
-            <th style="border:0;padding:2px 0;height:0;width:12%"></th>
-            <th style="border:0;padding:2px 0;height:0;width:1%"></th>
-            <th style="border:0;padding:2px 0;height:0;width:32%"></th>
-        </tr>';
-
-        $html .= '
-        <tr>
-            <td colspan="3"></td>
-            <td style="padding:3px 0 20px;font-weight:bold">NOMOR</td>
-            <td style="padding:3px 0 20px;font-weight:bold">:</td>
-            <td style="padding:3px 0 20px;font-weight:bold">'.$data_detail->no_invoice.'</td>
-        </tr>
-        <tr>
-            <td style="padding:3px 0">Nama Perusahaan</td>
-            <td style="padding:3px 0">:</td>
-            <td style="padding:0 3px 0 0;line-height:1.8">'.$data_detail->nm_perusahaan.'</td>
-            <td style="padding:3px 0;font-weight:bold">Jatuh Tempo</td>
-            <td style="padding:3px 0">:</td>
-            <td style="padding:3px 0;font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($data_detail->tgl_jatuh_tempo).'</td>
-        </tr>';
-
-		$html .= '<tr>
-			<td style="padding:3px 0">Alamat</td>
-			<td style="padding:3px 0">:</td>
-			<td style="padding:0 3px 0 0;line-height:1.8">'.$data_detail->alamat_perusahaan.'</td>
-			<td style="padding:3px 0">No. PO</td>
-			<td style="padding:3px 0">:</td>
-			<td style="padding:0;line-height:1.8">';
-
-			// KONDISI JIKA LEBIH DARI 1 PO
-			$result_po = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY no_po ORDER BY no_po");
-			if($result_po->num_rows() == '1'){
-				$html .= $result_po->row()->no_po;;
-			}else{
-				foreach($result_po->result() as $r){
-					$html .= $r->no_po.'<br/>';
-				}
-			}
-		$html .= '</td>
-		</tr>';
-
-        $html .= '<tr>
-            <td style="padding:3px 0">Kepada</td>
-            <td style="padding:3px 0">:</td>
-            <td style="padding:0 3px 0 0;line-height:1.8">'.$data_detail->kepada.'</td>
-            <td style="padding:3px 0">No. Surat Jalan</td>
-            <td style="padding:3px 0">:</td>
-            <td style="padding:0;line-height:1.8">';
-
-			// KONDISI JIKA LEBIH DARI 1 SURAT JALAN
-			$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY LTRIM(no_surat) ORDER BY no_surat");
-			if($result_sj->num_rows() == '1'){
-				$html .= $result_sj->row()->no_surat;
-			}else{
-				foreach($result_sj->result() as $r){
-					$html .= $r->no_surat.'<br/>';
-				}
-			}
-		$html .= '</td>
-		</tr>';
-
-        $html .= '</table>';
+		if($opsi == 'html'){
+			$html .= '<table>
+				<tr>
+					<td style="padding:5px">Nama Perusahaan</td>
+					<td style="padding:5px">:</td>
+					<td style="padding:5px">'.$data_detail->nm_perusahaan.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px">Alamat</td>
+					<td style="padding:5px">:</td>
+					<td style="padding:5px">'.$data_detail->alamat_perusahaan.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px">Kepada</td>
+					<td style="padding:5px">:</td>
+					<td style="padding:5px;line-height:1.8">'.$data_detail->kepada.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px;font-weight:bold">NOMOR</td>
+					<td style="padding:5px;font-weight:bold">:</td>
+					<td style="padding:5px;font-weight:bold">'.$data_detail->no_invoice.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px;font-weight:bold">Jatuh Tempo</td>
+					<td style="padding:5px">:</td>
+					<td style="padding:5px;font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($data_detail->tgl_jatuh_tempo).'</td>
+				</tr>
+				<tr style="vertical-align:top">
+					<td style="padding:5px">No. PO</td>
+					<td style="padding:5px">:</td>
+					<td style="padding:5px;line-height:1.8">';
+						// KONDISI JIKA LEBIH DARI 1 PO
+						$result_po = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY no_po ORDER BY no_po");
+						if($result_po->num_rows() == '1'){
+							$html .= $result_po->row()->no_po;;
+						}else{
+							foreach($result_po->result() as $r){
+								$html .= $r->no_po.'<br/>';
+							}
+						}
+					$html .= '</td>
+				</tr>
+				<tr style="vertical-align:top">
+					<td style="padding:5px">No. Surat Jalan</td>
+					<td style="padding:5px">:</td>
+					<td style="padding:5px;line-height:1.8">';
+						// KONDISI JIKA LEBIH DARI 1 SURAT JALAN
+						$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY LTRIM(no_surat) ORDER BY no_surat");
+						if($result_sj->num_rows() == '1'){
+							$html .= $result_sj->row()->no_surat;
+						}else{
+							foreach($result_sj->result() as $r){
+								$html .= $r->no_surat.'<br/>';
+							}
+						}
+					$html .= '</td>
+				</tr>';
+			$html .= '</table>';
+		}else{
+			$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
+				<tr>
+					<th style="border:0;padding:2px 0;height:0;width:14%"></th>
+					<th style="border:0;padding:2px 0;height:0;width:1%"></th>
+					<th style="border:0;padding:2px 0;height:0;width:40%"></th>
+					<th style="border:0;padding:2px 0;height:0;width:12%"></th>
+					<th style="border:0;padding:2px 0;height:0;width:1%"></th>
+					<th style="border:0;padding:2px 0;height:0;width:32%"></th>
+				</tr>
+				<tr>
+					<td colspan="3"></td>
+					<td style="padding:3px 0 20px;font-weight:bold">NOMOR</td>
+					<td style="padding:3px 0 20px;font-weight:bold">:</td>
+					<td style="padding:3px 0 20px;font-weight:bold">'.$data_detail->no_invoice.'</td>
+				</tr>
+				<tr>
+					<td style="padding:3px 0">Nama Perusahaan</td>
+					<td style="padding:3px 0">:</td>
+					<td style="padding:0 3px 0 0;line-height:1.8">'.$data_detail->nm_perusahaan.'</td>
+					<td style="padding:3px 0;font-weight:bold">Jatuh Tempo</td>
+					<td style="padding:3px 0">:</td>
+					<td style="padding:3px 0;font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($data_detail->tgl_jatuh_tempo).'</td>
+				</tr>
+				<tr>
+					<td style="padding:3px 0">Alamat</td>
+					<td style="padding:3px 0">:</td>
+					<td style="padding:0 3px 0 0;line-height:1.8">'.$data_detail->alamat_perusahaan.'</td>
+					<td style="padding:3px 0">No. PO</td>
+					<td style="padding:3px 0">:</td>
+					<td style="padding:0;line-height:1.8">';
+						// KONDISI JIKA LEBIH DARI 1 PO
+						$result_po = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY no_po ORDER BY no_po");
+						if($result_po->num_rows() == '1'){
+							$html .= $result_po->row()->no_po;;
+						}else{
+							foreach($result_po->result() as $r){
+								$html .= $r->no_po.'<br/>';
+							}
+						}
+					$html .= '</td>
+				</tr>
+				<tr>
+					<td style="padding:3px 0">Kepada</td>
+					<td style="padding:3px 0">:</td>
+					<td style="padding:0 3px 0 0;line-height:1.8">'.$data_detail->kepada.'</td>
+					<td style="padding:3px 0">No. Surat Jalan</td>
+					<td style="padding:3px 0">:</td>
+					<td style="padding:0;line-height:1.8">';
+						// KONDISI JIKA LEBIH DARI 1 SURAT JALAN
+						$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY LTRIM(no_surat) ORDER BY no_surat");
+						if($result_sj->num_rows() == '1'){
+							$html .= $result_sj->row()->no_surat;
+						}else{
+							foreach($result_sj->result() as $r){
+								$html .= $r->no_surat.'<br/>';
+							}
+						}
+					$html .= '</td>
+				</tr>';
+			$html .= '</table>';
+		}
 
 		/////////////////////////////////////////////// I S I ///////////////////////////////////////////////
 
-        $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
-        <tr>
+		if($opsi == 'html'){
+			$html .= '<table>';
+		}else{
+			$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">';
+		}
+        $html .= '<tr>
             <th style="border:0;height:15px;width:30%"></th>
             <th style="border:0;height:15px;width:10%"></th>
             <th style="border:0;height:15px;width:15%"></th>
@@ -9227,26 +9288,23 @@ class Logistik extends CI_Controller
             <th style="border:0;height:15px;width:10%"></th>
             <th style="border:0;height:15px;width:8%"></th>
             <th style="border:0;height:15px;width:20%"></th>
-        </tr>';
-
-        $html .= '<tr>
+        </tr>
+		<tr>
             <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">NAMA BARANG</td>
             <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">SATUAN</td>
             <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">JUMLAH</td>
             <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold" colspan="2">HARGA</td>
             <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold" colspan="2">TOTAL</td>
-        </tr>';
-		$html .= '<tr>
+        </tr>
+		<tr>
 			<td style="border:0;padding:20px 0 0" colspan="7"></td>
 		</tr>';
 		
-		if($data_detail->type== 'roll')
-		{
+		if($data_detail->type== 'roll') {
 			$sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
 			// TAMPILKAN DULU LABEL
 			$totalHarga = 0;
 			foreach($sqlLabel->result() as $label){
-
 				if($label->nm_ker == 'MH'){
 					$jnsKertas = 'KERTAS MEDIUM';
 				}else if($label->nm_ker == 'WP'){
@@ -9265,7 +9323,6 @@ class Logistik extends CI_Controller
 				$html .= '<tr>
 					<td style="border:0;padding:5px 0" colspan="7">'.$jnsKertas.' ROLL '.$label->g_label.' GSM</td>
 				</tr>';
-
 				// TAMPILKAN ITEMNYA
 				$weightNmLbPo = 0;
 				$sqlWidth = $this->db->query("SELECT*FROM invoice_detail
@@ -9281,11 +9338,9 @@ class Logistik extends CI_Controller
 						<td style="border:0;padding:5px 0;text-align:right">'.number_format($fixBerat, 0, ",", ".").'</td>
 						<td style="border:0;padding:5px 0" colspan="4"></td>
 					</tr>';
-
 					// TOTAL BERAT PER GSM - LABEL - PO
 					$weightNmLbPo += $fixBerat;
 				}
-
 				// CARI HARGANYA
 				$sqlHargaPo = $this->db->query("SELECT*FROM invoice_detail
 				WHERE no_invoice='$label->no_invoice' AND nm_ker='$label->nm_ker' AND g_label='$label->g_label' AND no_po='$label->no_po'")->row();
@@ -9299,20 +9354,15 @@ class Logistik extends CI_Controller
 					<td style="border:0;padding:5px 0 0 15px;text-align:right">Rp</td>
 					<td style="border:0;padding:5px 0;text-align:right">'.number_format($weightXPo, 0, ",", ".").'</td>
 				</tr>';
-
 				$totalHarga += $weightXPo;
 			}
-
 		}else{
-
 			$sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
 			// TAMPILKAN DULU LABEL
 			$totalHarga = 0;
 			foreach($sqlLabel->result() as $label){
-
 				$ukuran         = str_replace("X","x",$label->g_label);
 				$total_harga    = round(($label->qty - $label->retur_qty) * $label->harga);
-
 				$html .= '<tr>
 					<td style="padding:5px 0">'.$label->nm_ker.' &nbsp;'.$ukuran.' &nbsp;'. $label->kualitas.'</td>
 					<td style="padding:5px 0;text-align:center"> PCS</td>
@@ -9322,12 +9372,8 @@ class Logistik extends CI_Controller
 					<td style="padding:5px 0 0 15px;text-align:right">Rp</td>
 					<td style="padding:5px 0;text-align:right">'.number_format($total_harga, 0, ",", ".") .'</td>
 				</tr>';
-
-
 				$totalHarga += $total_harga;
 			}
-			
-
 		}
 		
 		
@@ -9368,8 +9414,8 @@ class Logistik extends CI_Controller
 			$rowspan = 2 + $d;
 		}
 
-		$html .= '<tr>
-			<td style="border-width:2px 0;border:1px solid;font-weight:bold;padding:5px 0;line-height:1.8;text-transform:uppercase" colspan="3" rowspan="'.$rowspan.'">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($terbilang).'</i></b></td>
+		$html .= '<tr style="vertical-align:top">
+			<td style="border:1px solid #000;border-width:2px 0;font-weight:bold;padding:5px 0;line-height:1.8;text-transform:uppercase" colspan="3" rowspan="'.$rowspan.'">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($terbilang).'</i></b></td>
 			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Sub Total</td>
 			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
 			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($totalHarga, 0, ",", ".").'</td>
@@ -9388,34 +9434,28 @@ class Logistik extends CI_Controller
 		// PPN - PPH22
 		$ppn11 = 0.11 * $subTotal;
         $pph22 = 0.001 * $subTotal;
-		if($data_detail->pajak=='ppn')
-		{
-			if($data_detail->inc_exc=='Include')
-			{
+		if($data_detail->pajak=='ppn'){
+			if($data_detail->inc_exc=='Include'){
 				$nominal = 'KB';
-			}else if($data_detail->inc_exc=='Exclude')
-			{				
+			}else if($data_detail->inc_exc=='Exclude'){
 				$nominal = number_format($ppn11, 0, ",", ".");
 			}else{
 				$nominal = '';
 			}
-
 		}else{
-			if($data_detail->inc_exc=='Include')
-			{
+			if($data_detail->inc_exc=='Include'){
 				$nominal = 'KB';
-			}else if($data_detail->inc_exc=='Exclude')
-			{
+			}else if($data_detail->inc_exc=='Exclude'){
 				$nominal = number_format($ppn11, 0, ",", ".") ;
 			}else{
 				$nominal = '';
 			}
 		}
 		$txtppn11 = '<tr>
-				<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Ppn 11%</td>
-				<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
-				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.$nominal.'</td>
-			</tr>';
+			<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Ppn 11%</td>
+			<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+			<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.$nominal.'</td>
+		</tr>';
 
 		if($ppnpph == 'ppn'){ // PPN 10 %
 			$html .= $txtppn11;
@@ -9438,427 +9478,143 @@ class Logistik extends CI_Controller
 
 		//////////////////////////////////////////////// T T D ////////////////////////////////////////////////
 		
-		$html .= '<tr>
-			<td style="border:0;padding:20px 0 0" colspan="7"></td>
-		</tr>';
+		if($opsi != 'html'){
+			$html .= '<tr>
+				<td style="border:0;padding:20px 0 0" colspan="7"></td>
+			</tr>';
 
-		$cek_bank = $this->db->query("SELECT*FROM m_hub where CONCAT(nm_bank,'_',aka)='$data_detail->bank' ");
-
-		if($cek_bank->num_rows() > 0)
-		{
-			if($data_detail->pajak=='nonppn')
+			$cek_bank = $this->db->query("SELECT*FROM m_hub where CONCAT(nm_bank,'_',aka)='$data_detail->bank' ");
+			if($cek_bank->num_rows() > 0)
 			{
-				$norek        = $cek_bank->row()->no_rek;
-				$nm_bank      = $cek_bank->row()->nm_bank;
-				$email        = '';
-				$ket_email    = '';
-				$an           = 'CV .'.$cek_bank->row()->nm_hub;
+				if($data_detail->pajak=='nonppn')
+				{
+					$norek        = $cek_bank->row()->no_rek;
+					$nm_bank      = $cek_bank->row()->nm_bank;
+					$email        = '';
+					$ket_email    = '';
+					$an           = 'CV .'.$cek_bank->row()->nm_hub;
+				}else{
+					$norek        = '-';
+					$nm_bank      = '-';
+					$email        = '-';
+					$ket_email    = '-';
+					$an           = '-';
+				}
 			}else{
-				$norek        = '-';
-				$nm_bank      = '-';
-				$email        = '-';
-				$ket_email    = '-';
-				$an           = '-';
+				if($data_detail->bank=='BNI')
+				{
+					if($data_detail->pajak=='nonppn')
+					{
+						$norek        = '5758699099';
+						$nm_bank      = 'BNI';
+						$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+						$ket_email    = '* Harap bukti transfer di email ke';
+						$an           = 'PT. PRIMA PAPER INDONESIA';
+					}else{
+						$norek        = '5758699690';
+						$nm_bank      = 'BNI';
+						$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+						$ket_email    = '* Harap bukti transfer di email ke';
+						$an           = 'PT. PRIMA PAPER INDONESIA';
+					}
+				}else if($data_detail->bank=='BJB')
+				{
+					if($data_detail->pajak=='nonppn')
+					{
+						$norek        = '0144384024001';
+						$nm_bank      = 'PT Bank Pembangunan Daerah Jawa Barat dan Banten (BJB) <br>';
+						$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+						$ket_email    = '* Harap bukti transfer di email ke';
+						$an           = 'PT. PRIMA PAPER INDONESIA';
+					}else{
+						$norek        = '0144384024001';
+						$nm_bank      = 'PT Bank Pembangunan Daerah Jawa Barat dan Banten (BJB) <br>';
+						$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+						$ket_email    = '* Harap bukti transfer di email ke';
+						$an           = 'PT. PRIMA PAPER INDONESIA';
+					}
+				}else if($data_detail->bank=='BCA')
+				{
+					if($data_detail->pajak=='nonppn')
+					{
+						$norek        = '078 795 5758';
+						$nm_bank      = 'BCA';
+						$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+						$ket_email    = '* Harap bukti transfer di email ke';
+						$an           = 'PT. PRIMA PAPER INDONESIA';
+					}else{
+						$norek        = '078 027 5758';
+						$nm_bank      = 'BCA';
+						$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+						$ket_email    = '* Harap bukti transfer di email ke';
+						$an           = 'PT. PRIMA PAPER INDONESIA';
+					}
+				}else{
+					$norek        = '-';
+					$nm_bank      = '-';
+					$email        = '-';
+					$ket_email    = '-';
+					$an           = '-';
+				}
 			}
-		}else{
-
-			if($data_detail->bank=='BNI')
-			{
-				if($data_detail->pajak=='nonppn')
-				{
-					$norek        = '5758699099';
-					$nm_bank      = 'BNI';
-					$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
-					$ket_email    = '* Harap bukti transfer di email ke';
-					$an           = 'PT. PRIMA PAPER INDONESIA';
-				}else{
-					$norek        = '5758699690';
-					$nm_bank      = 'BNI';
-					$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
-					$ket_email    = '* Harap bukti transfer di email ke';
-					$an           = 'PT. PRIMA PAPER INDONESIA';
-				}
-			}else if($data_detail->bank=='BJB')
-			{
-				if($data_detail->pajak=='nonppn')
-				{
-					$norek        = '0144384024001';
-					$nm_bank      = 'PT Bank Pembangunan Daerah Jawa Barat dan Banten (BJB) <br>';
-					$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
-					$ket_email    = '* Harap bukti transfer di email ke';
-					$an           = 'PT. PRIMA PAPER INDONESIA';
-				}else{
-					$norek        = '0144384024001';
-					$nm_bank      = 'PT Bank Pembangunan Daerah Jawa Barat dan Banten (BJB) <br>';
-					$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
-					$ket_email    = '* Harap bukti transfer di email ke';
-					$an           = 'PT. PRIMA PAPER INDONESIA';
-				}
-			}else if($data_detail->bank=='BCA')
-			{
-				if($data_detail->pajak=='nonppn')
-				{
-					$norek        = '078 795 5758';
-					$nm_bank      = 'BCA';
-					$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
-					$ket_email    = '* Harap bukti transfer di email ke';
-					$an           = 'PT. PRIMA PAPER INDONESIA';
-				}else{
-					$norek        = '078 027 5758';
-					$nm_bank      = 'BCA';
-					$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
-					$ket_email    = '* Harap bukti transfer di email ke';
-					$an           = 'PT. PRIMA PAPER INDONESIA';
-				}
-			// }else if($data_detail->bank=='BCA_AKB')
-			// {
-			// 	if($data_detail->pajak=='nonppn')
-			// 	{
-			// 		$norek        = '5050290672';
-			// 		$nm_bank      = 'BCA';
-			// 		$email        = '';
-			// 		$ket_email    = '';
-			// 		$an           = 'CV Artha Karunia Berkah';
-			// 	}else{
-			// 		$norek        = '-';
-			// 		$nm_bank      = '-';
-			// 		$email        = '-';
-			// 		$ket_email    = '-';
-			// 		$an           = '-';
-			// 	}
-				
-			// }else if($data_detail->bank=='BCA_SSB')
-			// {
-			// 	if($data_detail->pajak=='nonppn')
-			// 	{
-			// 		$norek        = '0153926538';
-			// 		$nm_bank      = 'BCA';
-			// 		$email        = '';
-			// 		$ket_email    = '';
-			// 		$an           = 'Arga Deo Kristya Duta';
-			// 	}else{
-			// 		$norek        = '-';
-			// 		$nm_bank      = '-';
-			// 		$email        = '-';
-			// 		$ket_email    = '-';
-			// 		$an           = '-';
-			// 	}
-				
-			// }else if($data_detail->bank=='BCA_KSM')
-			// {
-			// 	if($data_detail->pajak=='nonppn')
-			// 	{
-			// 		$norek        = '0153926538';
-			// 		$nm_bank      = 'BCA';
-			// 		$email        = '';
-			// 		$ket_email    = '';
-			// 		$an           = 'Arga Deo Kristya Duta';
-			// 	}else{
-			// 		$norek        = '-';
-			// 		$nm_bank      = '-';
-			// 		$email        = '-';
-			// 		$ket_email    = '-';
-			// 		$an           = '-';
-			// 	}
-				
-			// }else if($data_detail->bank=='BCA_GMB')
-			// {
-			// 	if($data_detail->pajak=='nonppn')
-			// 	{
-			// 		$norek        = '4824569888';
-			// 		$nm_bank      = 'BCA';
-			// 		$email        = '';
-			// 		$ket_email    = '';
-			// 		$an           = 'CV Global Mulia Bakti';
-			// 	}else{
-			// 		$norek        = '-';
-			// 		$nm_bank      = '-';
-			// 		$email        = '-';
-			// 		$ket_email    = '-';
-			// 		$an           = '-';
-			// 	}
-				
-			// }else if($data_detail->bank=='BCA_MDK')
-			// {
-			// 	if($data_detail->pajak=='nonppn')
-			// 	{
-			// 		$norek        = '673-214-2424';
-			// 		$nm_bank      = 'BCA';
-			// 		$email        = '';
-			// 		$ket_email    = '';
-			// 		$an           = 'CV MARGA DUTA KREASI';
-			// 	}else{
-			// 		$norek        = '-';
-			// 		$nm_bank      = '-';
-			// 		$email        = '-';
-			// 		$ket_email    = '-';
-			// 		$an           = '-';
-			// 	}
-				
-			}else{
-				
-				$norek        = '-';
-				$nm_bank      = '-';
-				$email        = '-';
-				$ket_email    = '-';
-				$an           = '-';
-
-			}
-		}
-		
-		$html .= '<tr>
-			<td style="border:0;padding:5px" colspan="3"></td>
-			<td style="border:0;padding:5px;text-align:center" colspan="4">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($data_detail->tgl_invoice).'</td> 
-		</tr>
-		<tr>
 			
-			<td style="border:0;padding:0 0 15px;line-height:1.8" colspan="3">Pembayaran Full Amount ditransfer ke :<br/>'.$nm_bank.' '.$norek.' <br/>A.n '.$an.'</td>
-			<td style="border:0;padding:0" colspan="4"></td>
-		</tr>
-		<tr>
-			<td style="border:0;padding:0;line-height:1.8" colspan="3">'.$ket_email.'</td>
-			<td style="border-bottom:1px solid #000;padding:0" colspan="4"></td>
-		</tr>
-		<tr>
-			<td style="border:0;padding:0;line-height:1.8" colspan="3">'.$email.'</td>
-			<td style="border:0;padding:0;line-height:1.8;text-align:center" colspan="4">Finance</td>
-		</tr>
-		';
-
+			$html .= '<tr>
+				<td style="border:0;padding:5px" colspan="3"></td>
+				<td style="border:0;padding:5px;text-align:center" colspan="4">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($data_detail->tgl_invoice).'</td> 
+			</tr>
+			<tr>
+				<td style="border:0;padding:0 0 15px;line-height:1.8" colspan="3">Pembayaran Full Amount ditransfer ke :<br/>'.$nm_bank.' '.$norek.' <br/>A.n '.$an.'</td>
+				<td style="border:0;padding:0" colspan="4"></td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:0;line-height:1.8" colspan="3">'.$ket_email.'</td>
+				<td style="border-bottom:1px solid #000;padding:0" colspan="4"></td>
+			</tr>
+			<tr>
+				<td style="border:0;padding:0;line-height:1.8" colspan="3">'.$email.'</td>
+				<td style="border:0;padding:0;line-height:1.8;text-align:center" colspan="4">Finance</td>
+			</tr>
+			';
+		}
         $html .= '</table>';
 
-        // $this->m_fungsi->newPDF($html,'P',77,0);
-		$this->m_fungsi->_mpdf_hari('P', 'A4', 'INVOICE', $html, 'INVOICE.pdf', 5, 5, 5, 10);
-		// echo $html;
-
-    }
-	
-	
-	// function Cetak_Invoice2()
-	// {
-    //     $no_invoice = $_GET['no_invoice'];
-    //     $ctk = 0;
-    //     $html = '';
-
-	// 	//////////////////////////////////////// K O P ////////////////////////////////////////
-
-    //     $data_detail = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
-	// 	$ppnpph = $data_detail->pajak;
-
-	// 	// $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif" border="1">';
-
-    //     if($ppnpph == 'nonppn'){
-    //         $html .= '<tr>
-    //             <th style="border:0;height:92px"></th>
-    //         </tr>
-    //         <tr>
-    //             <td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">INVOICE</td>
-    //         </tr>';
-    //         $html .= '</table>';
-    //     }else{
-			
-    //         // $html .= '<tr>
-    //         //     <th style="border:0;width:55%;height:0"></th>
-    //         //     <th style="border:0;width:15%;height:0"></th>
-    //         //     <th style="border:0;width:25%;height:0"></th>
-    //         // </tr>
-
-    //         // <tr>
-		   
-    //         //     <td style="font-size:40px;" align="left">INVOICE</td>
-
-    //         // </tr>
-    //         // <tr>
-    //         //     <td style="font-size:11px" align="left"></td>
-    //         //     <td></td>
-    //         // </tr>
-    //         // <tr>
-    //         //     <td style="font-size:11px;" align="left"></td>
-    //         //     <td style=""></td>
-    //         // </tr>
-	// 		// <tr><td>&nbsp;<br></td></tr>';
-    //         // $html .= '</table>';
-
-            
-    //     }       
-	// 	$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:Trebuchet MS, Helvetica, sans-serif" BORDER="0">
-	// 	<br>
-    //     <tr>
-    //         <th style="padding:2px 0;height:0;width:14%"></th>
-    //         <th style="padding:2px 0;height:0;width:1%"></th>
-    //         <th style="padding:2px 0;height:0;width:40%"></th>
-    //         <th style="padding:2px 0;height:0;width:12%"></th>
-    //         <th style="padding:2px 0;height:0;width:1%"></th>
-    //         <th style="padding:2px 0;height:0;width:32%"></th>
-	// 		<br>
-    //     </tr>';
-
-    //     $html .= '
-    //     <tr>
-    //         <td style="font-size:40px;text-align:center;font-weight:bold" colspan="3" rowspan="2">INVOICE</td>
-            
-	// 		<td style="padding:10px 0px -5px 1px;">No Invoice</td>
-	// 		<td style="padding:10px 0px -5px 1px;">:</td>
-	// 		<td style="padding:10px 0px -5px 1px;">005/FN/VI/2024</td>
-    //     </tr>';
-
-	// 	$html .= '<tr>
-	// 		<td style="">Tgl Invoice</td>
-    //         <td style="">:</td>
-    //         <td style="">4 Juni 2024</td>
-	// 		</tr>';
-
-
-    //     $html .= '</table> <br><hr>';
-
-	// 	//////////////////////////////////////// D E T A I L //////////////////////////////////////
-
-    //     $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
-    //     <tr>
-    //         <th style="border:0;padding:2px 0;height:0;width:14%"></th>
-    //         <th style="border:0;padding:2px 0;height:0;width:1%"></th>
-    //         <th style="border:0;padding:2px 0;height:0;width:40%"></th>
-    //         <th style="border:0;padding:2px 0;height:0;width:12%"></th>
-    //         <th style="border:0;padding:2px 0;height:0;width:1%"></th>
-    //         <th style="border:0;padding:2px 0;height:0;width:32%"></th>
-    //     </tr>';
-
-	// 	$html .= '<tr>
-	// 		<td style="padding:3px 0">Penjual</td>
-	// 		<td style="padding:3px 0">:</td>
-	// 		<td style="padding:0 3px 0 0;line-height:1.8">Fitria Ningsih</td>
-	// 		<td style="padding:3px 0">Pembeli</td>
-	// 		<td style="padding:3px 0">:</td>
-	// 		<td style="padding:0;line-height:1.8">PT. Gemilang Sarana Mandiri <br>Jl. Mangesti Raya Jl. Springville Residence No.1, Dusun II, Waru, Kec. Baki, Kabupaten Sukoharjo, Jawa Tengah 57556 </td>';
-
-	// 	$html .= ' </tr>';
-
-
-	// 		// KONDISI JIKA LEBIH DARI 1 SURAT JALAN
-	// 		$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY no_surat ORDER BY no_surat");
-	// 		if($result_sj->num_rows() == '1'){
-	// 			$html .= $result_sj->row()->no_surat;;
-	// 		}else{
-	// 			foreach($result_sj->result() as $r){
-	// 				$html .= $r->no_surat.'<br/>';
-	// 			}
-	// 		}
-	// 	$html .= '</td>
-	// 	</tr>';
-
-    //     $html .= '</table>';
-
-	// 	/////////////////////////////////////////////// I S I ///////////////////////////////////////////////
-
-    //     $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif" border="0">
-    //     <tr>
-    //         <th style="border:0;height:15px;width:30%"></th>
-    //         <th style="border:0;height:15px;width:10%"></th>
-    //         <th style="border:0;height:15px;width:15%"></th>
-    //         <th style="border:0;height:15px;width:7%"></th>
-    //         <th style="border:0;height:15px;width:10%"></th>
-    //         <th style="border:0;height:15px;width:8%"></th>
-    //         <th style="border:0;height:15px;width:20%"></th>
-    //     </tr>';
-
-    //     $html .= '<tr>
-    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold;background-color: #54d1fd">NAMA BARANG</td>
-    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold;background-color: #54d1fd">QTY</td>			
-    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold;background-color: #54d1fd">SATUAN</td>
-    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold;background-color: #54d1fd" colspan="2">HARGA</td>
-    //         <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold;background-color: #54d1fd" colspan="2">TOTAL</td>
-    //     </tr>';
-	// 	$html .= '<tr>
-	// 		<td style="border:0;padding:20px 0 0" colspan="7"></td>
-	// 	</tr>';
-		
-	// 	$html .= '<tr>
-	// 		<td style="padding:5px 0">Kabel FO ADSS 24 core</td>
-	// 		<td style="solid #000;padding:5px 0;text-align:right">'. number_format(3000, 0, ",", ".").'</td>
-	// 		<td style="solid #000;padding:5px 0;text-align:center">Meter</td>
-	// 		<td style="solid #000;padding:5px 0 0 15px;text-align:right">Rp</td>
-	// 		<td style="solid #000;padding:5px 0;text-align:right">'. number_format(4500, 0, ",", ".").'</td>
-	// 		<td style="padding:5px 0 0 15px;text-align:right">Rp</td>
-	// 		<td style="padding:5px 0;text-align:right">'.number_format(13500000, 0, ",", ".") .'</td>
-	// 	</tr>';
-
-
-	// 	$totalHarga = 13500000;		
-		
-		
-	// 	// T O T A L //
-	// 	$html .= '<tr>
-	// 		<td style="border:0;padding:20px 0 0" colspan="7"></td>
-	// 	</tr>';
-
-    //     // RUMUS
-	// 	// PPN 10 %
-	// 			$terbilang = round($totalHarga);
-	// 			// $terbilang = round($totalHarga + (0.11 * $totalHarga));
-
-
-	// 		$rowspan = 2;
-		
-
-	// 	$html .= '<tr>
-	// 		<td style="border-width:2px 0;border:1px solid;font-weight:bold;padding:5px 0;line-height:1.8;text-transform:uppercase" colspan="3" rowspan="'.$rowspan.'">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($terbilang).'</i></b></td>
-
-	// 		<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Sub Total</td>
-
-	// 		<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
-
-	// 		<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($totalHarga, 0, ",", ".").'</td>
-	// 	</tr>';
-
-	// 	$html .= '<tr>
-	// 		<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Total</td>
-	// 		<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
-	// 		<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($terbilang, 0, ",", ".").'</td>
-	// 	</tr>';
-
-	// 	//////////////////////////////////////////////// T T D ////////////////////////////////////////////////
-		
-	// 	$html .= '<tr>
-	// 		<td style="border:0;padding:20px 0 0" colspan="7"></td>
-	// 	</tr>';
-
-    //     $html .= '</table>';
-
-    //     // $this->m_fungsi->newPDF($html,'P',77,0);
-	// 	$this->m_fungsi->_mpdf_hari2('P', 'A4', 'INVOICE', $html, 'INVOICE.pdf', 5, 5, 5, 10);
-	// 	// echo $html;
-
-    // }
-
-	public function coba_api()
-	{
-		$curl = curl_init();
-
-		curl_setopt_array($curl, array(
-		CURLOPT_URL => "https://api.rajaongkir.com/starter/province?id=12",
-		CURLOPT_RETURNTRANSFER => true,
-		CURLOPT_ENCODING => "",
-		CURLOPT_MAXREDIRS => 10,
-		CURLOPT_TIMEOUT => 30,
-		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-		CURLOPT_CUSTOMREQUEST => "GET",
-		CURLOPT_HTTPHEADER => array(
-			"key: c479d0aa6880c0337184539462eeec6f"
-		),
-		));
-
-		$response   = curl_exec($curl);
-		$err        = curl_error($curl);
-
-		curl_close($curl);
-
-		if ($err) {
-			echo "cURL Error #:" . $err;
-		} else {
-			// echo $response;
-			echo json_encode($response);
+		if($opsi == 'html'){
+			echo json_encode([
+				'html' => $html,
+			]);
+		}else{
+			$this->m_fungsi->_mpdf_hari('P', 'A4', 'INVOICE', $html, 'INVOICE.pdf', 5, 5, 5, 10);
 		}
-	}
+    }
+
+	// public function coba_api()
+	// {
+	// 	$curl = curl_init();
+
+	// 	curl_setopt_array($curl, array(
+	// 	CURLOPT_URL => "https://api.rajaongkir.com/starter/province?id=12",
+	// 	CURLOPT_RETURNTRANSFER => true,
+	// 	CURLOPT_ENCODING => "",
+	// 	CURLOPT_MAXREDIRS => 10,
+	// 	CURLOPT_TIMEOUT => 30,
+	// 	CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+	// 	CURLOPT_CUSTOMREQUEST => "GET",
+	// 	CURLOPT_HTTPHEADER => array(
+	// 		"key: c479d0aa6880c0337184539462eeec6f"
+	// 	),
+	// 	));
+
+	// 	$response   = curl_exec($curl);
+	// 	$err        = curl_error($curl);
+
+	// 	curl_close($curl);
+
+	// 	if ($err) {
+	// 		echo "cURL Error #:" . $err;
+	// 	} else {
+	// 		echo json_encode($response);
+	// 	}
+	// }
 
 	//
 

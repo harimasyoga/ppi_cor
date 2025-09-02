@@ -609,7 +609,9 @@
 						<i class="fa fa-arrow-left" ></i> Kembali</b>
 					</button>
 				</div>
-				TEST
+				<div style="overflow:auto;white-space:nowrap">
+					<div class="tmpl-invoice"></div>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -949,6 +951,25 @@
 		}
 	}
 
+	function cetakInvoice()
+	{
+		$(".tmpl-invoice").html('')
+		let no_invoice = $("#no_inv_foto").val()
+		console.log(no_invoice)
+		$.ajax({
+			url: '<?php echo base_url('Logistik/Cetak_Invoice')?>',
+			type: "POST",
+			data: ({
+				no_invoice, opsi: 'html'
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$(".tmpl-invoice").html(data.html)
+			}
+		})
+	}
+
 	function open_foto(no_inv, tipe, ket, username)
 	{
 		$(".cekcekcek").html('')
@@ -984,6 +1005,7 @@
 		else if(ket=='mutasi'){
 			$(".row-list").hide()
 			$('.card-mutasi').show();
+			cetakInvoice()
 		}
 		else if(ket=='sj_balik' && (username=='karina' || username=='tegar')){
 			$('#upload_blk').show();
