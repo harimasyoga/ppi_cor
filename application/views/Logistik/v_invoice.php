@@ -929,9 +929,9 @@
 	status = "insert";
 	const urlAuth = '<?= $this->session->userdata('level')?>';
 	const urlUser = '<?= $this->session->userdata('username')?>';
-	const vFile = '<?= $file ?>';
-	const vMsg = '<?= $msg ?>';
-	const vInv = '<?= $invMutasi ?>';
+	vFile = '<?= $file ?>';
+	vMsg = '<?= $msg ?>';
+	vInv = '<?= $invMutasi ?>';
 	$(document).ready(function() {
 		if(vInv != ''){
 			console.log("vFile : ", vFile)
@@ -1005,6 +1005,8 @@
 				$(".tmpl-pay-invoice").html(data.htmlPay)
 				if(vFile == 1){
 					toastr.success(`<b>${vMsg}</b>`)
+					vFile = ''
+					vMsg = ''
 				}else if(vMsg != ''){
 					toastr.error(`<b>${vMsg}</b>`)
 				}
@@ -2038,7 +2040,7 @@
 	}
 
 	
-	function acc_inv(no_invoice,status_owner) 
+	function acc_inv(no_invoice, status_owner, opsi = '') 
 	{	
 		var user        = "<?= $this->session->userdata('username')?>"
 		var acc_owner   = status_owner
@@ -2096,9 +2098,13 @@
 					},
 					success: function(res) {
 						data = JSON.parse(res)
-						if(data.data){
+						if(data.data && opsi == 'cek'){
+							cetakInvoice()
+							toastr.success('<b>DATA BERHASIL DIPROSES</b>');
+							swal.close()
+						}else if(data.data){
 							reloadTable()
-							toastr.success('Data Berhasil Diproses');
+							toastr.success('<b>DATA BERHASIL DIPROSES</b>');
 							close_modal()
 							load_bank()
 						}else{

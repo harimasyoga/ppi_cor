@@ -9294,27 +9294,34 @@ class Logistik extends CI_Controller
 		/////////////////////////////////////////////// I S I ///////////////////////////////////////////////
 
 		if($opsi == 'html'){
-			$html .= '<table>';
+			$html .= '<table>
+				<tr>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 25px;text-align:center;font-weight:bold">NAMA BARANG</td>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 70px;text-align:center;font-weight:bold">SATUAN</td>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 25px 5px 0;text-align:center;font-weight:bold">JUMLAH</td>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 25px;text-align:center;font-weight:bold" colspan="2">HARGA</td>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 25px;text-align:center;font-weight:bold" colspan="2">TOTAL</td>
+			</tr>';
 		}else{
-			$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">';
+			$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
+				<tr>
+				<th style="border:0;height:15px;width:30%"></th>
+				<th style="border:0;height:15px;width:10%"></th>
+				<th style="border:0;height:15px;width:15%"></th>
+				<th style="border:0;height:15px;width:7%"></th>
+				<th style="border:0;height:15px;width:10%"></th>
+				<th style="border:0;height:15px;width:8%"></th>
+				<th style="border:0;height:15px;width:20%"></th>
+			</tr>
+			<tr>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">NAMA BARANG</td>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">SATUAN</td>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">JUMLAH</td>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold" colspan="2">HARGA</td>
+				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold" colspan="2">TOTAL</td>
+			</tr>';
 		}
         $html .= '<tr>
-            <th style="border:0;height:15px;width:30%"></th>
-            <th style="border:0;height:15px;width:10%"></th>
-            <th style="border:0;height:15px;width:15%"></th>
-            <th style="border:0;height:15px;width:7%"></th>
-            <th style="border:0;height:15px;width:10%"></th>
-            <th style="border:0;height:15px;width:8%"></th>
-            <th style="border:0;height:15px;width:20%"></th>
-        </tr>
-		<tr>
-            <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">NAMA BARANG</td>
-            <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">SATUAN</td>
-            <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">JUMLAH</td>
-            <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold" colspan="2">HARGA</td>
-            <td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold" colspan="2">TOTAL</td>
-        </tr>
-		<tr>
 			<td style="border:0;padding:20px 0 0" colspan="7"></td>
 		</tr>';
 		
@@ -9431,9 +9438,14 @@ class Logistik extends CI_Controller
 			$terbilang = $subTotal;
 			$rowspan = 2 + $d;
 		}
+		if($opsi == 'html'){
+			$pT = ';max-width:150px;white-space: normal !important;word-wrap: break-word !important;';
+		}else{
+			$pT = '';
+		}
 
 		$html .= '<tr style="vertical-align:top">
-			<td style="border:1px solid #000;border-width:2px 0;font-weight:bold;padding:5px 0;line-height:1.8;text-transform:uppercase" colspan="3" rowspan="'.$rowspan.'">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($terbilang).'</i></b></td>
+			<td style="border:1px solid #000;border-width:2px 0;font-weight:bold;padding:5px 0;line-height:1.8;text-transform:uppercase'.$pT.'" colspan="3" rowspan="'.$rowspan.'">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($terbilang).'</i></b></td>
 			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Sub Total</td>
 			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
 			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($totalHarga, 0, ",", ".").'</td>
@@ -9509,69 +9521,115 @@ class Logistik extends CI_Controller
 					$zTgl = $cByr->row()->tgl_bayar;
 					$zKet = $cByr->row()->ket_byr;
 					$zNom = number_format($cByr->row()->jumlah, 0, ',', '.');
-					$zAcc = ($data_detail->cek_mutasi != '' ? '' : '<button class="btn btn-xs btn-primary" onclick="invInputNominalMutasi('."'".$cByr->row()->id."'".', '."'cek'".')"><i class="fas fa-check"></i></button> ');
-					$zEdit = '<button class="btn btn-xs btn-warning" onclick="invInputNominalMutasi('."'".$cByr->row()->id."'".', '."'edit'".')"><i class="fas fa-edit"></i></button> ';
+					$zEdit = '<button class="btn btn-sm btn-warning" onclick="invInputNominalMutasi('."'".$cByr->row()->id."'".')"><i class="fas fa-edit"></i></button> ';
 					$n = $cByr->row()->id;
 				}else{
 					$zTgl = '';
 					$zKet = '';
 					$zNom = '';
-					$zAcc = '';
 					$zEdit = '';
 					$n = 0;
 				}
-				$zHpsI = ($aBayar->num_rows() == 1 ? '<button class="btn btn-xs btn-danger" onclick="hpsInvMutasi('."'".$n."'".')"><i class="fas fa-trash"></i></button> ' : '');
-				if($uName == 'developer'){
-					$btnInMut = $zAcc.$zEdit.$zHpsI;
-				}else if($uName == 'bumagda'){
-					$btnInMut = $zAcc;
+
+				$zHpsI = ($aBayar->num_rows() == 1 ? '<button class="btn btn-sm btn-danger" onclick="hpsInvMutasi('."'".$n."'".')"><i class="fas fa-trash"></i></button> ' : '');
+				if($uName == 'bumagda'){
+					$btnInMut = '';
+					$oCinMut = '';
 				}else{
 					$btnInMut = $zEdit.$zHpsI;
+					$oCinMut = 'onchange="invInputNominalMutasi('."'".$n."'".')"';
 				}
-				// $lvl
-				// $uName
+
 				$html .= '<tr style="vertical-align:top">
 					<td style="padding:5px"></td>
-					<td style="padding:5px;text-align:right">
-						'.$btnInMut.'
-					</td>
+					<td style="padding:5px;text-align:right">'.$btnInMut.'</td>
 					<td style="padding:5px">
 						<input type="date" id="dit_tgl'.$n.'" value="'.$zTgl.'" class="form-control" style="margin-bottom:5px;display:block">
-						<textarea id="dit_ket'.$n.'" class="form-control" style="resize:none" oninput="this.value=this.value.toUpperCase()">'.$zKet.'</textarea>
+						<textarea id="dit_ket'.$n.'" class="form-control" style="resize:none" placeholder="KETERANGAN" oninput="this.value=this.value.toUpperCase()">'.$zKet.'</textarea>
 					</td>
-					<td style="padding:5px;text-align:right" colspan="2">
+					<td style="padding:5px;text-align:center" colspan="2">
 						<img id="'.$data_detail->img_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$data_detail->img_mutasi.'" alt="preview foto" width="100" class="shadow-sm" onclick="imgClick('."'".$data_detail->img_mutasi."'".')">
 					</td>
 					<td style="padding:5px 0;text-align:right" colspan="2">
-						<input type="text" id="dit_nominal'.$n.'" value="'.$zNom.'" style="text-align:right;font-weight:bold" onkeyup="ubah_angka(this.value,this.id)" onchange="invInputNominalMutasi('."'".$n."'".')">
+						<input type="text" id="dit_nominal'.$n.'" value="'.$zNom.'" style="background:#eee;border:0;padding:5px;text-align:right;font-weight:bold" placeholder="0" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" '.$oCinMut.'>
 					</td>
 				</tr>';
 				foreach($pBayar->result() as $b){
+					if($uName == 'bumagda'){
+						$btnInMut2 = '';
+						$oCinMut2 = '';
+					}else{
+						$btnInMut2 = '<button class="btn btn-sm btn-warning" onclick="invInputNominalMutasi('."'".$b->id."'".')"><i class="fas fa-edit"></i></button>
+							<button class="btn btn-sm btn-danger" onclick="hpsInvMutasi('."'".$b->id."'".')"><i class="fas fa-trash"></i></button>';
+						$oCinMut2 = 'onchange="invInputNominalMutasi('."'".$b->id."'".')"';
+					}
 					$html .= '<tr style="vertical-align:top">
 						<td style="padding:5px"></td>
-						<td style="padding:5px;text-align:right">
-							<button class="btn btn-xs btn-warning" onclick="invInputNominalMutasi('."'".$b->id."'".')"><i class="fas fa-edit"></i></button>
-							<button class="btn btn-xs btn-danger" onclick="hpsInvMutasi('."'".$b->id."'".')"><i class="fas fa-trash"></i></button>
-						</td>
+						<td style="padding:5px;text-align:right">'.$btnInMut2.'</td>
 						<td style="padding:5px">
 							<input type="date" id="dit_tgl'.$b->id.'" value="'.$b->tgl_bayar.'" class="form-control" style="margin-bottom:5px;display:block">
-							<textarea id="dit_ket'.$b->id.'" class="form-control" style="resize:none" oninput="this.value=this.value.toUpperCase()">'.$b->ket_byr.'</textarea>
+							<textarea id="dit_ket'.$b->id.'" class="form-control" style="resize:none" placeholder="KETERANGAN" oninput="this.value=this.value.toUpperCase()">'.$b->ket_byr.'</textarea>
 						</td>
-						<td style="padding:5px;text-align:right" colspan="2">
+						<td style="padding:5px;text-align:center" colspan="2">
 							<img id="'.$b->file_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$b->file_mutasi.'" alt="preview foto" width="100" class="shadow-sm" onclick="imgClick('."'".$b->file_mutasi."'".')">
 						</td>
 						<td style="padding:5px 0;text-align:right" colspan="2">
-							<input type="text" id="dit_nominal'.$b->id.'" value="'.number_format($b->jumlah, 0, ',', '.').'" style="text-align:right;font-weight:bold" onkeyup="ubah_angka(this.value,this.id)" onchange="invInputNominalMutasi('."'".$b->id."'".')">
+							<input type="text" id="dit_nominal'.$b->id.'" value="'.number_format($b->jumlah, 0, ',', '.').'" style="background:#eee;border:0;padding:5px;text-align:right;font-weight:bold" placeholder="0" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" '.$oCinMut2.'>
 						</td>
 					</tr>';
 				}
 
-				// CEK MUTASI
-				if($data_detail->cek_mutasi != ''){
-					$html .= '<tr style="vertical-align:top;font-weight:bold">
-						<td style="padding:5px;text-align:right" colspan="2">CEK :</td>
-						<td style="padding:5px">'.$data_detail->cek_mutasi.'</td>
+				// TOTAL PEMBAYARAN
+				if($aBayar->num_rows() != 0){
+					$sumBayar = $this->db->query("SELECT SUM(jumlah) AS jumlah FROM invoice_bayar WHERE no_invoice='$data_detail->no_invoice'")->row();
+					$seLisiH = $sumBayar->jumlah - $terbilang;
+					$html .= '<tr>
+						<td style="background:#ccc;border-top:2px solid #000" colspan="3"></td>
+						<td style="background:#ccc;border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Total Pembayaran</td>
+						<td style="background:#ccc;border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+						<td style="background:#ccc;border-top:2px solid #000;font-weight:bold;padding:5px;text-align:right">'.number_format($sumBayar->jumlah, 0, ',', '.').'</td>
+					</tr>
+					<tr>
+						<td style="background:#ccc" colspan="3"></td>
+						<td style="background:#ccc;font-weight:bold;padding:5px 0 0 15px" colspan="2">Kurang Bayar</td>
+						<td style="background:#ccc;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+						<td style="background:#ccc;font-weight:bold;padding:5px;text-align:right">'.number_format($seLisiH, 0, ',', '.').'</td>
 					</tr>';
+				}
+
+
+				// CEK MUTASI
+				if($aBayar->num_rows() != 0){
+					if($data_detail->acc_owner == 'N'){
+						$bBtn = 'btn-warning';
+						$iI = '<i class="fas fa-lock"></i>';
+					}else{
+						$bBtn = 'btn-success';
+						$iI = '<i class="fas fa-check-circle"></i>';
+					}
+					$oClL = ($uName == 'bumagda' || $uName == 'developer') ? 'onclick="acc_inv('."'".$data_detail->no_invoice."'".', '."'".$data_detail->acc_owner."'".', '."'cek'".')"' : '';
+
+					if($data_detail->cek_mutasi != ''){
+						$html .= '<tr style="vertical-align:top;font-weight:bold">
+							<td style="padding:5px;text-align:right" colspan="2">CEK :</td>
+							<td style="padding:5px">'.$data_detail->cek_mutasi.'</td>
+						</tr>
+						<tr style="vertical-align:top;font-weight:bold">
+							<td style="padding:5px" colspan="2"></td>
+							<td style="padding:5px">
+								<a class="btn btn-sm '.$bBtn.'" '.$oClL.' title="VERIFIKASI DATA">'.$iI.'</a>
+							</td>
+						</tr>';
+					}else{
+						if($uName == 'bumagda' || $uName == 'developer'){
+							$html .= '<tr style="vertical-align:top">
+								<td style="padding:5px" colspan="2"></td>
+								<td style="padding:5px">
+									<button class="btn btn-sm btn-primary" style="font-weight:bold" onclick="invInputNominalMutasi('."'".$cByr->row()->id."'".', '."'cek'".')"><i class="fas fa-check"></i> CEK</button>
+								</td>
+							</tr>';
+						}
+					}
 				}
 			}
 		}
@@ -9681,7 +9739,7 @@ class Logistik extends CI_Controller
 		//////////////////////////////////////////////// P E M B A Y A R A N - 2 ////////////////////////////////////////////////
 
 		$htmlPay = '';
-		if($opsi == 'html' && ($data_detail->img_mutasi == null || $cByr->num_rows() != 0)){
+		if($opsi == 'html' && $uName != 'bumagda' && ($data_detail->img_mutasi == null || $cByr->num_rows() != 0)){
 			$htmlPay .= '<div style="margin-top:6px">
 				<form role="form" method="post" id="myForm" action="'.base_url('Logistik/Invoice').'" enctype="multipart/form-data">
 					<input type="hidden" name="mut_noinv" id="mut_noinv" value="'.$data_detail->no_invoice.'">
@@ -9704,14 +9762,14 @@ class Logistik extends CI_Controller
 							<td style="padding:5px 0">Nominal</td>
 							<td style="padding:5px">:</td>
 							<td style="padding:5px 0">
-								<input type="text" name="mut_nominal" id="mut_nominal" style="text-align:right;font-weight:bold" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" onchange="cekFile()">
+								<input type="text" name="mut_nominal" id="mut_nominal" style="color:#000;text-align:right;font-weight:bold" class="form-control" placeholder="0" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" onchange="cekFile()">
 							</td>
 						</tr>
 						<tr style="vertical-align:top">
 							<td style="padding:5px 0">Keterangan</td>
 							<td style="padding:5px">:</td>
 							<td style="padding:5px 0">
-								<textarea name="mut_ket" id="mut_ket" class="form-control" style="resize:none" autocomplete="off" oninput="this.value=this.value.toUpperCase()"></textarea>
+								<textarea name="mut_ket" id="mut_ket" class="form-control" style="resize:none" placeholder="KETERANGAN" autocomplete="off" oninput="this.value=this.value.toUpperCase()"></textarea>
 							</td>
 						</tr>
 						<tr style="vertical-align:top">

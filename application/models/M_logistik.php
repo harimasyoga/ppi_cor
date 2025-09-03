@@ -4202,20 +4202,21 @@ class M_logistik extends CI_Model
 		if($opsi == 'cek'){
 			$this->db->set("cek_mutasi", $now);
 			$this->db->where("no_invoice", $no_invoice);
-			$cekHead = $this->db->update("invoice_header");
-			if($cekHead){
-				$this->db->set("cek_byr", $now);
-				$this->db->where("id", $id);
-				$this->db->where("no_invoice", $no_invoice);
-				$data = $this->db->update("invoice_bayar");
-				$msg = 'OK!';
-			}
+			$data = $this->db->update("invoice_header");
+			$msg = 'OK!';
 		}else{
-			if($dit_nominal == "" || $dit_tgl == "" || $dit_ket == ""){
+			if($dit_nominal == "" || $dit_nominal == 0 || $dit_nominal < 0 || $dit_tgl == ""){
 				$data = false;
 				$msg = "LENGKAPI INPUTAN";
 			}else{
-				if($bayar->num_rows() == 0){
+				$this->db->set('cek_global', $now);
+				$this->db->set('cek_mutasi', null);
+				$this->db->set('acc_owner', 'N');
+				$this->db->set('status_inv', 'Open');
+				$this->db->where('no_invoice', $no_invoice);
+				$update = $this->db->update('invoice_header');
+
+				if($update && $bayar->num_rows() == 0){
 					$h = [
 						'no_invoice' => $no_invoice,
 						'tgl_bayar' => $dit_tgl,
@@ -4225,17 +4226,11 @@ class M_logistik extends CI_Model
 					];
 					$data = $this->db->insert("invoice_bayar", $h);
 				}else{
-					$this->db->set('cek_global', $now);
-					$this->db->set('cek_mutasi', null);
-					$this->db->set('acc_owner', 'N');
-					$this->db->set('status_inv', 'Open');
-					$this->db->where('no_invoice', $no_invoice);
-					$update = $this->db->update('invoice_header');
 					if($update){
 						$this->db->set("tgl_bayar", $dit_tgl);
 						$this->db->set("jumlah", $dit_nominal);
 						$this->db->set("ket_byr", $dit_ket);
-						$this->db->set("cek_byr", null);
+						// $this->db->set("cek_byr", null);
 						$this->db->where("id", $id);
 						$this->db->where("no_invoice", $no_invoice);
 						$data = $this->db->update("invoice_bayar");
