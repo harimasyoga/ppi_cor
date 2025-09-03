@@ -16,9 +16,24 @@ class Logistik extends CI_Controller
 
 	public function Invoice()
 	{
-		$data = array(
-			'judul' => "INVOICE PENJUALAN",
-		);
+		$mut_noinv = $this->input->post('mut_noinv');
+		if($mut_noinv != ''){
+			$result = $this->m_logistik->uploadMutasi();
+			$data = array(
+				'judul' => "INVOICE PENJUALAN",
+				'file' => $result['file'],
+				'msg' => $result['msg'],
+				'invMutasi' => $result['mut_noinv'],
+			);
+		}else{
+			$data = array(
+				'judul' => "INVOICE PENJUALAN",
+				'file' => '',
+				'msg' => '',
+				'invMutasi' => '',
+			);
+		}
+		
 		$this->load->view('header', $data);
 		$this->load->view('Logistik/v_invoice');
 		$this->load->view('footer');
@@ -9091,6 +9106,8 @@ class Logistik extends CI_Controller
 
 	function Cetak_Invoice()
 	{
+		$lvl = $this->session->userdata('level');
+		$uName = $this->session->userdata('username');
 		$html = '';
 		$htmlKop = '';
 		$opsi = $_POST["opsi"];
@@ -9477,77 +9494,85 @@ class Logistik extends CI_Controller
 			<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($terbilang, 0, ",", ".").'</td>
 		</tr>';
 
-		//////////////////////////////////////////////// P E M B A Y A R A N ////////////////////////////////////////////////
+		//////////////////////////////////////////////// P E M B A Y A R A N - 1 ////////////////////////////////////////////////
 
 		if($opsi == 'html'){
 			$html .= '<tr>
 				<td style="padding:5px;background:#ccc;font-weight:bold;text-align:center" colspan="7">PEMBAYARAN</td>
 			</tr>';
 
-			$cByr = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$data_detail->no_invoice' AND file_mutasi='$data_detail->img_mutasi' GROUP BY no_invoice");
+			$aBayar = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$data_detail->no_invoice'");
+			$pBayar = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$data_detail->no_invoice' AND file_mutasi!='$data_detail->img_mutasi' GROUP BY id,no_invoice,file_mutasi");
+			$cByr = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$data_detail->no_invoice' AND file_mutasi='$data_detail->img_mutasi'");
 			if($data_detail->img_mutasi != ''){
 				if($cByr->num_rows() != 0){
 					$zTgl = $cByr->row()->tgl_bayar;
 					$zKet = $cByr->row()->ket_byr;
 					$zNom = number_format($cByr->row()->jumlah, 0, ',', '.');
+					$zAcc = ($data_detail->cek_mutasi != '' ? '' : '<button class="btn btn-xs btn-primary" onclick="invInputNominalMutasi('."'".$cByr->row()->id."'".', '."'cek'".')"><i class="fas fa-check"></i></button> ');
+					$zEdit = '<button class="btn btn-xs btn-warning" onclick="invInputNominalMutasi('."'".$cByr->row()->id."'".', '."'edit'".')"><i class="fas fa-edit"></i></button> ';
+					$n = $cByr->row()->id;
 				}else{
 					$zTgl = '';
 					$zKet = '';
 					$zNom = '';
+					$zAcc = '';
+					$zEdit = '';
+					$n = 0;
 				}
+				$zHpsI = ($aBayar->num_rows() == 1 ? '<button class="btn btn-xs btn-danger" onclick="hpsInvMutasi('."'".$n."'".')"><i class="fas fa-trash"></i></button> ' : '');
+				if($uName == 'developer'){
+					$btnInMut = $zAcc.$zEdit.$zHpsI;
+				}else if($uName == 'bumagda'){
+					$btnInMut = $zAcc;
+				}else{
+					$btnInMut = $zEdit.$zHpsI;
+				}
+				// $lvl
+				// $uName
 				$html .= '<tr style="vertical-align:top">
 					<td style="padding:5px"></td>
 					<td style="padding:5px;text-align:right">
-						<button class="btn btn-xs btn-danger" onclick="hpsInvMutasi()"><i class="fas fa-trash"></i></button>
+						'.$btnInMut.'
 					</td>
 					<td style="padding:5px">
-						<input type="date" id="dit_tgl" value="'.$zTgl.'" class="form-control" style="margin-bottom:5px;display:block">
-						<textarea id="dit_ket" class="form-control" style="resize:none" oninput="this.value=this.value.toUpperCase()">'.$zKet.'</textarea>
+						<input type="date" id="dit_tgl'.$n.'" value="'.$zTgl.'" class="form-control" style="margin-bottom:5px;display:block">
+						<textarea id="dit_ket'.$n.'" class="form-control" style="resize:none" oninput="this.value=this.value.toUpperCase()">'.$zKet.'</textarea>
 					</td>
 					<td style="padding:5px;text-align:right" colspan="2">
 						<img id="'.$data_detail->img_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$data_detail->img_mutasi.'" alt="preview foto" width="100" class="shadow-sm" onclick="imgClick('."'".$data_detail->img_mutasi."'".')">
 					</td>
 					<td style="padding:5px 0;text-align:right" colspan="2">
-						<input type="text" id="dit_nominal" value="'.$zNom.'" style="text-align:right;font-weight:bold" onkeyup="ubah_angka(this.value,this.id)" onchange="invInputNominalMutasi()">
+						<input type="text" id="dit_nominal'.$n.'" value="'.$zNom.'" style="text-align:right;font-weight:bold" onkeyup="ubah_angka(this.value,this.id)" onchange="invInputNominalMutasi('."'".$n."'".')">
 					</td>
 				</tr>';
-			}
+				foreach($pBayar->result() as $b){
+					$html .= '<tr style="vertical-align:top">
+						<td style="padding:5px"></td>
+						<td style="padding:5px;text-align:right">
+							<button class="btn btn-xs btn-warning" onclick="invInputNominalMutasi('."'".$b->id."'".')"><i class="fas fa-edit"></i></button>
+							<button class="btn btn-xs btn-danger" onclick="hpsInvMutasi('."'".$b->id."'".')"><i class="fas fa-trash"></i></button>
+						</td>
+						<td style="padding:5px">
+							<input type="date" id="dit_tgl'.$b->id.'" value="'.$b->tgl_bayar.'" class="form-control" style="margin-bottom:5px;display:block">
+							<textarea id="dit_ket'.$b->id.'" class="form-control" style="resize:none" oninput="this.value=this.value.toUpperCase()">'.$b->ket_byr.'</textarea>
+						</td>
+						<td style="padding:5px;text-align:right" colspan="2">
+							<img id="'.$b->file_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$b->file_mutasi.'" alt="preview foto" width="100" class="shadow-sm" onclick="imgClick('."'".$b->file_mutasi."'".')">
+						</td>
+						<td style="padding:5px 0;text-align:right" colspan="2">
+							<input type="text" id="dit_nominal'.$b->id.'" value="'.number_format($b->jumlah, 0, ',', '.').'" style="text-align:right;font-weight:bold" onkeyup="ubah_angka(this.value,this.id)" onchange="invInputNominalMutasi('."'".$b->id."'".')">
+						</td>
+					</tr>';
+				}
 
-			if($data_detail->img_mutasi == null || $cByr->num_rows() != 0){
-				$html .= '<tr>
-					<form role="form" method="post" id="myForm" action="'.base_url('Logistik/uploadMutasi').'" enctype="multipart/form-data">
-						<table>
-							<tr>
-								<td style="padding:5px 0">Tanggal Bayar</td>
-								<td style="padding:5px">:</td>
-								<td style="padding:5px 0">
-									<input type="date" name="mut_tgl" id="mut_tgl" class="form-control">
-								</td>
-							</tr>
-							<tr>
-								<td style="padding:5px 0">Upload File</td>
-								<td style="padding:5px">:</td>
-								<td style="padding:5px 0">
-									<input type="file" name="mut_foto" id="mut_foto" accept=".jpg,.jpeg,.png">
-								</td>
-							</tr>
-							<tr>
-								<td style="padding:5px 0">Nominal</td>
-								<td style="padding:5px">:</td>
-								<td style="padding:5px 0">
-									<input type="text" id="mut_nominal" style="text-align:right;font-weight:bold" class="form-control" onkeyup="ubah_angka(this.value,this.id)">
-								</td>
-							</tr>
-							<tr style="vertical-align:top">
-								<td style="padding:5px 0">Keterangan</td>
-								<td style="padding:5px">:</td>
-								<td style="padding:5px 0">
-									<textarea name="mut_ket" id="mut_ket" class="form-control" style="resize:none" oninput="this.value=this.value.toUpperCase()"></textarea>
-								</td>
-							</tr>
-						</table>
-					</form>
-				</tr>';
+				// CEK MUTASI
+				if($data_detail->cek_mutasi != ''){
+					$html .= '<tr style="vertical-align:top;font-weight:bold">
+						<td style="padding:5px;text-align:right" colspan="2">CEK :</td>
+						<td style="padding:5px">'.$data_detail->cek_mutasi.'</td>
+					</tr>';
+				}
 			}
 		}
 
@@ -9653,10 +9678,58 @@ class Logistik extends CI_Controller
 		}
         $html .= '</table>';
 
+		//////////////////////////////////////////////// P E M B A Y A R A N - 2 ////////////////////////////////////////////////
+
+		$htmlPay = '';
+		if($opsi == 'html' && ($data_detail->img_mutasi == null || $cByr->num_rows() != 0)){
+			$htmlPay .= '<div style="margin-top:6px">
+				<form role="form" method="post" id="myForm" action="'.base_url('Logistik/Invoice').'" enctype="multipart/form-data">
+					<input type="hidden" name="mut_noinv" id="mut_noinv" value="'.$data_detail->no_invoice.'">
+					<table>
+						<tr style="vertical-align:top">
+							<td style="padding:5px 0">Tanggal Bayar</td>
+							<td style="padding:5px">:</td>
+							<td style="padding:5px 0">
+								<input type="date" name="mut_tgl" id="mut_tgl" class="form-control" onchange="cekFile()">
+							</td>
+						</tr>
+						<tr style="vertical-align:top">
+							<td style="padding:5px 0">Upload File</td>
+							<td style="padding:5px">:</td>
+							<td style="padding:5px 0">
+								<input type="file" name="mut_foto" id="mut_foto" accept=".jpg,.jpeg,.png" onchange="cekFile()">
+							</td>
+						</tr>
+						<tr style="vertical-align:top">
+							<td style="padding:5px 0">Nominal</td>
+							<td style="padding:5px">:</td>
+							<td style="padding:5px 0">
+								<input type="text" name="mut_nominal" id="mut_nominal" style="text-align:right;font-weight:bold" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" onchange="cekFile()">
+							</td>
+						</tr>
+						<tr style="vertical-align:top">
+							<td style="padding:5px 0">Keterangan</td>
+							<td style="padding:5px">:</td>
+							<td style="padding:5px 0">
+								<textarea name="mut_ket" id="mut_ket" class="form-control" style="resize:none" autocomplete="off" oninput="this.value=this.value.toUpperCase()"></textarea>
+							</td>
+						</tr>
+						<tr style="vertical-align:top">
+							<td style="padding:5px 0" colspan="2"></td>
+							<td style="padding:5px 0">
+								<div class="save-mutasi"></div>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>';
+		}
+
 		if($opsi == 'html'){
 			echo json_encode([
 				'html' => $html,
 				'htmlKop' => $htmlKop,
+				'htmlPay' => $htmlPay,
 			]);
 		}else{
 			$this->m_fungsi->_mpdf_hari('P', 'A4', 'INVOICE', $html, 'INVOICE.pdf', 5, 5, 5, 10);
@@ -9673,6 +9746,22 @@ class Logistik extends CI_Controller
 	{
 		$result = $this->m_logistik->hpsInvMutasi();
 		echo json_encode($result);
+	}
+
+	function uploadMutasi()
+	{
+		$result = $this->m_logistik->uploadMutasi();
+		// echo json_encode($result);
+
+		$data = array(
+			'judul' => "INVOICE PENJUALAN",
+			'file' => $result['file'],
+			'msg' => $result['msg'],
+			'invMutasi' => $result['mut_noinv'],
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_invoice');
+		$this->load->view('footer');
 	}
 
 	//

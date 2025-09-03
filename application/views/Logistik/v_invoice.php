@@ -612,15 +612,20 @@
 			</div>
 			<div class="card-body">
 				<div style="margin-bottom:12px">
-					<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
-						<i class="fa fa-arrow-left" ></i> Kembali</b>
-					</button>
+					<div class="back-inv-mut">
+						<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+							<i class="fa fa-arrow-left" ></i> Kembali</b>
+						</button>
+					</div>
 				</div>
 				<div style="overflow:auto;white-space:nowrap">
 					<div class="tmpl-kop-invoice"></div>
 				</div>
 				<div style="overflow:auto;white-space:nowrap">
 					<div class="tmpl-invoice"></div>
+				</div>
+				<div style="overflow:auto;white-space:nowrap">
+					<div class="tmpl-pay-invoice"></div>
 				</div>
 			</div>
 		</div>
@@ -921,19 +926,39 @@
 
 <script type="text/javascript">
 	rowNum = 0;
+	status = "insert";
 	const urlAuth = '<?= $this->session->userdata('level')?>';
 	const urlUser = '<?= $this->session->userdata('username')?>';
+	const vFile = '<?= $file ?>';
+	const vMsg = '<?= $msg ?>';
+	const vInv = '<?= $invMutasi ?>';
 	$(document).ready(function() {
-		load_data()
-		$('.select2').select2({
-			containerCssClass: "wrap",
-			placeholder: '--- Pilih ---',
-			dropdownAutoWidth: true
-		});
-		load_bank()
+		if(vInv != ''){
+			console.log("vFile : ", vFile)
+			console.log("vMsg : ", vMsg)
+			console.log("vInv : ", vInv)
+			$("#no_inv_foto").val(vInv)
+			$(".row-list").hide()
+			$('.card-mutasi').show()
+			$('.back-inv-mut').html(`<button type="button" onclick="loadLoad()" class="btn-tambah-produk btn  btn-danger"><b>
+				<i class="fa fa-arrow-left" ></i> Kembali</b>
+			</button>`)
+			cetakInvoice()
+		}else{
+			load_data()
+			$('.select2').select2({
+				containerCssClass: "wrap",
+				placeholder: '--- Pilih ---',
+				dropdownAutoWidth: true
+			});
+			load_bank()
+		}
 	});
 
-	status = "insert";
+	function loadLoad()
+	{
+		window.location.replace('<?= base_url("Logistik/Invoice") ?>');
+	}
 
 	$("#filefoto").change(function() {
 		
@@ -963,6 +988,7 @@
 	{
 		$(".tmpl-kop-invoice").html('')
 		$(".tmpl-invoice").html('')
+		$(".tmpl-pay-invoice").html('')
 		let no_invoice = $("#no_inv_foto").val()
 		console.log(no_invoice)
 		$.ajax({
@@ -976,6 +1002,12 @@
 				console.log(data)
 				$(".tmpl-kop-invoice").html(data.htmlKop)
 				$(".tmpl-invoice").html(data.html)
+				$(".tmpl-pay-invoice").html(data.htmlPay)
+				if(vFile == 1){
+					toastr.success(`<b>${vMsg}</b>`)
+				}else if(vMsg != ''){
+					toastr.error(`<b>${vMsg}</b>`)
+				}
 			}
 		})
 	}
@@ -999,16 +1031,16 @@
 		}
 	}
 
-	function invInputNominalMutasi()
+	function invInputNominalMutasi(i, opsi = '')
 	{
 		let no_invoice = $("#no_inv_foto").val()
-		let dit_nominal = $("#dit_nominal").val().split('.').join('')
-		let dit_tgl = $("#dit_tgl").val()
-		let dit_ket = $("#dit_ket").val()
+		let dit_nominal = $("#dit_nominal"+i).val().split('.').join('')
+		let dit_tgl = $("#dit_tgl"+i).val()
+		let dit_ket = $("#dit_ket"+i).val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/invInputNominalMutasi')?>',
 			type: "POST",
-			data: ({ no_invoice, dit_nominal, dit_tgl, dit_ket }),
+			data: ({ id: i, no_invoice, dit_nominal, dit_tgl, dit_ket, urlAuth, urlUser, opsi }),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
@@ -1022,19 +1054,35 @@
 		})
 	}
 
-	function hpsInvMutasi()
+	function hpsInvMutasi(id)
 	{
 		let no_invoice = $("#no_inv_foto").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/hpsInvMutasi')?>',
 			type: "POST",
-			data: ({ no_invoice }),
+			data: ({ id, no_invoice }),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
 				cetakInvoice()
 			}
 		})
+	}
+
+	function cekFile()
+	{
+		let mut_tgl = $("#mut_tgl").val()
+		let mut_foto = $("#mut_foto").val()
+		let mut_nominal = $("#mut_nominal").val()
+		console.log("mut_tgl : ", mut_tgl)
+		console.log("mut_foto : ", mut_foto)
+		console.log("mut_nominal : ", mut_nominal)
+
+		if(mut_tgl != '' && mut_foto != '' && mut_nominal != ''){
+			$(".save-mutasi").html('<button class="btn btn-primary btn-sm save-muttt"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
+		}else{
+			$(".save-mutasi").html('')
+		}
 	}
 
 	function open_foto(no_inv, tipe, ket, username)
