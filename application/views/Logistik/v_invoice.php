@@ -32,6 +32,10 @@
 			opacity: 0.2;
 		}
 
+		.tr2:hover {
+			background-color: rgba(225, 225, 225, 0.5);
+		}
+
 		/* Chrome, Safari, Edge, Opera */
 		input::-webkit-outer-spin-button,
 		input::-webkit-inner-spin-button {
@@ -1649,10 +1653,57 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/listPiutang')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(res){
 				$(".tab_piutang").html(res)
+				swal.close()
 			}
 		})
+	}
+
+	function btnPiuSales(i)
+	{
+		$(".tr1").hide()
+		$(".tr2").hide()
+		$("#ts2").val("")
+		$(".ab1").removeClass("btn-warning").addClass("btn-success")
+		$(".af1").removeClass("fa-minus").addClass("fa-plus")
+		$(".ab2").removeClass("btn-secondary").addClass("btn-info")
+		$(".af2").removeClass("fa-minus").addClass("fa-plus")
+		let ts1 = $("#ts1").val()
+		if(parseInt(ts1) == parseInt(i)){
+			$("#ts1").val("")
+		}else{
+			$(".b1-"+i).removeClass("btn-success").addClass("btn-warning")
+			$(".f1-"+i).removeClass("fa-plus").addClass("fa-minus")
+			$("#ts1").val(i)
+			$(".t"+i).show()
+		}
+	}
+
+	function btnPiuCustomer(i)
+	{
+		$(".tr2").hide()
+		$(".ab2").removeClass("btn-secondary").addClass("btn-info")
+		$(".af2").removeClass("fa-minus").addClass("fa-plus")
+		let ts2 = $("#ts2").val()
+		if(parseInt(ts2) == parseInt(i)){
+			$("#ts2").val("")
+		}else{
+			$(".b2-"+i).removeClass("btn-info").addClass("btn-secondary")
+			$(".f2-"+i).removeClass("fa-plus").addClass("fa-minus")
+			$("#ts2").val(i)
+			$(".c"+i).show()
+		}
 	}
 
 	function open_lapExp() {
@@ -2170,7 +2221,7 @@
 							close_modal()
 							load_bank()
 						}else{
-							toastr.error('<b>MUTASI BELUM DI UPLOAD!</b>');
+							toastr.error(`<b>${data.msg}</b>`);
 							swal.close()
 						}
 					},

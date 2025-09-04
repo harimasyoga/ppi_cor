@@ -5266,84 +5266,130 @@ class Logistik extends CI_Controller
 	function listPiutang()
 	{
 		$html = '';
-		$sales = $this->db->query("SELECT s.id_sales,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+		$sales = $this->db->query("SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
 		INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
 		INNER JOIN m_sales s ON p.id_sales=s.id_sales
 		WHERE h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
-		GROUP BY s.nm_sales,s.id_sales");
+		GROUP BY s.nm_sales,s.id_sales
+		UNION
+		SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+		INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
+		INNER JOIN m_sales s ON p.id_sales=s.id_sales
+		WHERE h.type='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
+		GROUP BY s.nm_sales,s.id_sales,h.type");
 
 		if($sales->num_rows() != 0){
-			$html .= '<table style="border:1px solid #aaa;color:#000">';
+			$html .= '<table style="border:1px solid #aaa;color:#000;border-collapse: collapse">';
 				$html .= '<tr>
-					<td style="padding:5px;border:1px solid #aaa;font-weight:bold;text-align:center">SALES/CUSTOMER</td>
-					<td style="padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG TOTAL</td>
-					<td style="padding:5px 25px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG JT</td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold">SALES/CUSTOMER</td>
+					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG TOTAL</td>
+					<td style="background:#ccc;padding:5px 25px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG JT</td>
 				</tr>';
+				$sumTot = 0;
+				$sumJet = 0;
 				foreach($sales->result() as $s){
 					// PIUTANG JT SALES
+					if($s->type == 'roll'){
+						$se1 = "p.nm_perusahaan";
+						$in1 = "INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id";
+						$wh1 = "AND h.type='ROLL'";
+					}else{
+						$se1 = "p.nm_pelanggan";
+						$in1 = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan";
+						$wh1 = "AND h.type!='ROLL'";
+					}
 					$piuSalJt = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
-					INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
-					INNER JOIN m_sales s ON p.id_sales=s.id_sales
-					WHERE h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
-					AND s.id_sales='$s->id_sales' AND h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL 
-					GROUP BY s.id_sales");
+						$in1
+						INNER JOIN m_sales s ON p.id_sales=s.id_sales
+						WHERE h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wh1
+						AND s.id_sales='$s->id_sales' AND h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL 
+						GROUP BY s.id_sales
+					");
 					($piuSalJt->num_rows() != 0) ? $xPiuSalJt = $piuSalJt->row()->jml_mutasi_jt : $xPiuSalJt = 0;
-					$html .= '<tr>
-						<td style="border:1px solid #aaa;background:#ccc;font-weight:bold;padding:5px">'.$s->nm_sales.'</td>
-						<td style="border:1px solid #aaa;background:#ccc;font-weight:bold;padding:5px;text-align:right">'.number_format($s->jml_mutasi, 0, ',', '.').'</td>
-						<td style="border:1px solid #aaa;background:#ccc;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuSalJt, 0, ',', '.').'</td>
+					$html .= '<tr class="tr0">
+						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px">
+							<input type="hidden" id="ts1" value="">
+							<button class="btn btn-xs ab1 b1-'.$s->id_sales.' btn-success" style="padding:1px 5px" onclick="btnPiuSales('."'".$s->id_sales."'".')">
+								<i style="font-size:8px" class="fas af1 f1-'.$s->id_sales.' fa-plus"></i>
+							</button>&nbsp
+							'.$s->nm_sales.'
+						</td>
+						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($s->jml_mutasi, 0, ',', '.').'</td>
+						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuSalJt, 0, ',', '.').'</td>
 					</tr>';
 
 					// CUSTOMER
-					$cust = $this->db->query("SELECT s.id_sales,h.id_perusahaan,p.nm_pelanggan,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
-					INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
-					INNER JOIN m_sales s ON p.id_sales=s.id_sales
-					WHERE h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' AND s.id_sales='$s->id_sales'
-					GROUP BY p.nm_pelanggan,h.id_perusahaan");
+					$cust = $this->db->query("SELECT s.id_sales,h.type,h.id_perusahaan,$se1 AS nm_pelanggan,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+						$in1
+						INNER JOIN m_sales s ON p.id_sales=s.id_sales
+						WHERE h.jml_mutasi IS NOT NULL AND h.acc_owner='N' AND s.id_sales='$s->id_sales' $wh1
+						GROUP BY $se1,h.id_perusahaan
+					");
 					if($cust->num_rows() != 0){
 						foreach($cust->result() as $r){
 							// PIUTANG JT CUSTOMER
 							$piuCusJt = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
-							INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
-							INNER JOIN m_sales s ON p.id_sales=s.id_sales
-							WHERE h.type!='ROLL' AND h.acc_owner='N' AND h.jml_mutasi IS NOT NULL
-							AND s.id_sales='$r->id_sales' AND h.id_perusahaan='$r->id_perusahaan' AND h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL 
-							GROUP BY s.id_sales,h.id_perusahaan");
+								$in1
+								INNER JOIN m_sales s ON p.id_sales=s.id_sales
+								WHERE h.acc_owner='N' AND h.jml_mutasi IS NOT NULL $wh1
+								AND s.id_sales='$r->id_sales' AND h.id_perusahaan='$r->id_perusahaan' AND h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL
+								GROUP BY s.id_sales,h.id_perusahaan
+							");
 							($piuCusJt->num_rows() != 0) ? $xPiuCusJt = $piuCusJt->row()->jml_mutasi_jt : $xPiuCusJt = 0;
-							$html .= '<tr>
-								<td style="border:1px solid #aaa;background:#eee;font-weight:bold;padding:5px">'.$r->nm_pelanggan.'</td>
-								<td style="border:1px solid #aaa;background:#eee;font-weight:bold;padding:5px;text-align:right">'.number_format($r->jml_mutasi, 0, ',', '.').'</td>
-								<td style="border:1px solid #aaa;background:#eee;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuCusJt, 0, ',', '.').'</td>
+							//
+							if($r->type == 'roll'){
+								$pt1 = $r->id_perusahaan * 9;
+							}else{
+								$pt1 = $r->id_perusahaan;
+							}
+							//
+							$html .= '<tr class="tr1 t'.$r->id_sales.'" style="display:none">
+								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 15px">
+									<input type="hidden" id="ts2" value="">
+									<button class="btn btn-xs ab2 b2-'.$pt1.' btn-info" style="padding:1px 5px" onclick="btnPiuCustomer('."'".$pt1."'".')">
+										<i style="font-size:8px" class="fas af2 f2-'.$pt1.' fa-plus"></i>
+									</button>&nbsp
+									'.$r->nm_pelanggan.'
+								</td>
+								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($r->jml_mutasi, 0, ',', '.').'</td>
+								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuCusJt, 0, ',', '.').'</td>
 							</tr>';
-
 							// NO INVOICE DAN SURAT JALAN
-							$noInvNoSj = $this->db->query("SELECT s.id_sales,h.id_perusahaan,h.no_invoice,h.jml_mutasi FROM invoice_header h
-							INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
-							INNER JOIN m_sales s ON p.id_sales=s.id_sales
-							WHERE h.type!='ROLL' AND h.acc_owner='N' AND h.jml_mutasi IS NOT NULL
-							AND s.id_sales='$r->id_sales' AND h.id_perusahaan='$r->id_perusahaan'
-							GROUP BY s.id_sales,h.id_perusahaan,h.no_invoice");
+							$noInvNoSj = $this->db->query("SELECT s.id_sales,h.id_perusahaan,h.type,h.no_invoice,h.jml_mutasi FROM invoice_header h
+								$in1
+								INNER JOIN m_sales s ON p.id_sales=s.id_sales
+								WHERE h.acc_owner='N' AND h.jml_mutasi IS NOT NULL $wh1
+								AND s.id_sales='$r->id_sales' AND h.id_perusahaan='$r->id_perusahaan'
+								GROUP BY s.id_sales,h.id_perusahaan,h.no_invoice
+							");
 							if($noInvNoSj->num_rows() != 0){
 								$l = 0;
 								foreach($noInvNoSj->result() as $n){
 									$l++;
 									// PIUTANG JT NO INVOICE DAN SJ
 									$piuNoInvNoSj = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
-									INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
-									INNER JOIN m_sales s ON p.id_sales=s.id_sales
-									WHERE h.type!='ROLL' AND h.acc_owner='N' AND h.jml_mutasi IS NOT NULL
-									AND s.id_sales='$n->id_sales' AND h.id_perusahaan='$n->id_perusahaan' AND h.no_invoice='$n->no_invoice' AND h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL
-									GROUP BY s.id_sales,h.id_perusahaan,h.no_invoice");
+										$in1
+										INNER JOIN m_sales s ON p.id_sales=s.id_sales
+										WHERE h.acc_owner='N' AND h.jml_mutasi IS NOT NULL $wh1
+										AND s.id_sales='$n->id_sales' AND h.id_perusahaan='$n->id_perusahaan' AND h.no_invoice='$n->no_invoice' AND h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL
+										GROUP BY s.id_sales,h.id_perusahaan,h.no_invoice
+									");
 									($piuNoInvNoSj->num_rows() != 0) ? $xPiuNoInvNoSj = $piuNoInvNoSj->row()->jml_mutasi_jt : $xPiuNoInvNoSj = 0;
-
 									// CARI NO. SURAT JALANNYA
 									$noSJ = $this->db->query("SELECT no_invoice,LTRIM(no_surat) AS no_surat FROM invoice_detail WHERE no_invoice='$n->no_invoice' GROUP BY no_invoice,LTRIM(no_surat)");
 									$xNoSj = '';
 									foreach($noSJ->result() as $j){
 										$xNoSj .= ' - '.$j->no_surat;
 									}
-									$html .= '<tr>
-										<td style="padding:5px"><b>'.$l.'.</b> '.$n->no_invoice.$xNoSj.'</td>
+									//
+									if($n->type == 'roll'){
+										$pt2 = $n->id_perusahaan * 9;
+									}else{
+										$pt2 = $n->id_perusahaan;
+									}
+									//
+									$html .= '<tr class="tr2 c'.$pt2.' m-2" style="display:none">
+										<td style="padding:5px 5px 5px 25px"><b>'.$l.'.</b> '.$n->no_invoice.$xNoSj.'</td>
 										<td style="padding:5px;text-align:right">'.number_format($n->jml_mutasi, 0, ',', '.').'</td>
 										<td style="padding:5px;text-align:right">'.number_format($xPiuNoInvNoSj, 0, ',', '.').'</td>
 									</tr>';
@@ -5351,7 +5397,15 @@ class Logistik extends CI_Controller
 							}
 						}
 					}
+					$sumTot += $s->jml_mutasi;
+					$sumJet += $xPiuSalJt;
 				}
+				// TOTAL
+				$html .= '<tr>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa"></td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumTot, 0, ',', '.').'</td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumJet, 0, ',', '.').'</td>
+				</tr>';
 			$html .= '</table>';
 		}
 
@@ -7800,13 +7854,19 @@ class Logistik extends CI_Controller
 		$inv = $this->db->query("SELECT*FROM invoice_header where no_invoice='$no_inv' ")->row();
 		if($inv->img_mutasi == null || $inv->inp_mutasi == null){
 			$result = false;
+			$msg = 'MUTASI BELUM DI UPLOAD!';
+		}else if($inv->img_mutasi != null && $inv->cek_mutasi == null){
+			$result = false;
+			$msg = 'MUTASI BELUM DI CEK!';
 		}else{
 			$jenis    = $_POST['jenis'];
 			$result   = $this->m_logistik->$jenis();
+			$msg = 'OK!';
 		}
 
 		echo json_encode([
 			'data' => $result,
+			'msg' => $msg,
 		]);
 	}
 	
