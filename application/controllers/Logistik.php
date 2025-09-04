@@ -16,24 +16,12 @@ class Logistik extends CI_Controller
 
 	public function Invoice()
 	{
-		$mut_noinv = $this->input->post('mut_noinv');
-		if($mut_noinv != ''){
-			$result = $this->m_logistik->uploadMutasi();
-			$data = array(
-				'judul' => "INVOICE PENJUALAN",
-				'file' => $result['file'],
-				'msg' => $result['msg'],
-				'invMutasi' => $result['mut_noinv'],
-			);
-		}else{
-			$data = array(
-				'judul' => "INVOICE PENJUALAN",
-				'file' => '',
-				'msg' => '',
-				'invMutasi' => '',
-			);
-		}
-		
+		$data = array(
+			'judul' => "INVOICE PENJUALAN",
+			'file' => '',
+			'msg' => '',
+			'invMutasi' => '',
+		);
 		$this->load->view('header', $data);
 		$this->load->view('Logistik/v_invoice');
 		$this->load->view('footer');
@@ -5275,6 +5263,122 @@ class Logistik extends CI_Controller
 		));
 	}
 
+	function listPiutang()
+	{
+		$html = '';
+		$sales = $this->db->query("SELECT s.id_sales,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+		INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+		INNER JOIN m_sales s ON p.id_sales=s.id_sales
+		WHERE h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
+		GROUP BY s.nm_sales,s.id_sales");
+
+		if($sales->num_rows() != 0){
+			$html .= '<table style="border:1px solid #aaa;color:#000">';
+				$html .= '<tr>
+					<td style="padding:5px;border:1px solid #aaa;font-weight:bold;text-align:center">SALES/CUSTOMER</td>
+					<td style="padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG TOTAL</td>
+					<td style="padding:5px 25px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG JT</td>
+				</tr>';
+				foreach($sales->result() as $s){
+					// PIUTANG JT SALES
+					$piuSalJt = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
+					INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+					INNER JOIN m_sales s ON p.id_sales=s.id_sales
+					WHERE h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
+					AND s.id_sales='$s->id_sales' AND h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL 
+					GROUP BY s.id_sales");
+					($piuSalJt->num_rows() != 0) ? $xPiuSalJt = $piuSalJt->row()->jml_mutasi_jt : $xPiuSalJt = 0;
+					$html .= '<tr>
+						<td style="border:1px solid #aaa;background:#ccc;font-weight:bold;padding:5px">'.$s->nm_sales.'</td>
+						<td style="border:1px solid #aaa;background:#ccc;font-weight:bold;padding:5px;text-align:right">'.number_format($s->jml_mutasi, 0, ',', '.').'</td>
+						<td style="border:1px solid #aaa;background:#ccc;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuSalJt, 0, ',', '.').'</td>
+					</tr>';
+
+					// CUSTOMER
+					$cust = $this->db->query("SELECT s.id_sales,h.id_perusahaan,p.nm_pelanggan,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+					INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+					INNER JOIN m_sales s ON p.id_sales=s.id_sales
+					WHERE h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' AND s.id_sales='$s->id_sales'
+					GROUP BY p.nm_pelanggan,h.id_perusahaan");
+					if($cust->num_rows() != 0){
+						foreach($cust->result() as $r){
+							// PIUTANG JT CUSTOMER
+							$piuCusJt = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
+							INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+							INNER JOIN m_sales s ON p.id_sales=s.id_sales
+							WHERE h.type!='ROLL' AND h.acc_owner='N' AND h.jml_mutasi IS NOT NULL
+							AND s.id_sales='$r->id_sales' AND h.id_perusahaan='$r->id_perusahaan' AND h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL 
+							GROUP BY s.id_sales,h.id_perusahaan");
+							($piuCusJt->num_rows() != 0) ? $xPiuCusJt = $piuCusJt->row()->jml_mutasi_jt : $xPiuCusJt = 0;
+							$html .= '<tr>
+								<td style="border:1px solid #aaa;background:#eee;font-weight:bold;padding:5px">'.$r->nm_pelanggan.'</td>
+								<td style="border:1px solid #aaa;background:#eee;font-weight:bold;padding:5px;text-align:right">'.number_format($r->jml_mutasi, 0, ',', '.').'</td>
+								<td style="border:1px solid #aaa;background:#eee;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuCusJt, 0, ',', '.').'</td>
+							</tr>';
+
+							// NO INVOICE DAN SURAT JALAN
+							$noInvNoSj = $this->db->query("SELECT s.id_sales,h.id_perusahaan,h.no_invoice,h.jml_mutasi FROM invoice_header h
+							INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+							INNER JOIN m_sales s ON p.id_sales=s.id_sales
+							WHERE h.type!='ROLL' AND h.acc_owner='N' AND h.jml_mutasi IS NOT NULL
+							AND s.id_sales='$r->id_sales' AND h.id_perusahaan='$r->id_perusahaan'
+							GROUP BY s.id_sales,h.id_perusahaan,h.no_invoice");
+							if($noInvNoSj->num_rows() != 0){
+								$l = 0;
+								foreach($noInvNoSj->result() as $n){
+									$l++;
+									// PIUTANG JT NO INVOICE DAN SJ
+									$piuNoInvNoSj = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
+									INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+									INNER JOIN m_sales s ON p.id_sales=s.id_sales
+									WHERE h.type!='ROLL' AND h.acc_owner='N' AND h.jml_mutasi IS NOT NULL
+									AND s.id_sales='$n->id_sales' AND h.id_perusahaan='$n->id_perusahaan' AND h.no_invoice='$n->no_invoice' AND h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL
+									GROUP BY s.id_sales,h.id_perusahaan,h.no_invoice");
+									($piuNoInvNoSj->num_rows() != 0) ? $xPiuNoInvNoSj = $piuNoInvNoSj->row()->jml_mutasi_jt : $xPiuNoInvNoSj = 0;
+
+									// CARI NO. SURAT JALANNYA
+									$noSJ = $this->db->query("SELECT no_invoice,LTRIM(no_surat) AS no_surat FROM invoice_detail WHERE no_invoice='$n->no_invoice' GROUP BY no_invoice,LTRIM(no_surat)");
+									$xNoSj = '';
+									foreach($noSJ->result() as $j){
+										$xNoSj .= ' - '.$j->no_surat;
+									}
+									$html .= '<tr>
+										<td style="padding:5px"><b>'.$l.'.</b> '.$n->no_invoice.$xNoSj.'</td>
+										<td style="padding:5px;text-align:right">'.number_format($n->jml_mutasi, 0, ',', '.').'</td>
+										<td style="padding:5px;text-align:right">'.number_format($xPiuNoInvNoSj, 0, ',', '.').'</td>
+									</tr>';
+								}
+							}
+						}
+					}
+				}
+			$html .= '</table>';
+		}
+
+		echo $html;
+	}
+
+	function listPiuCustomer()
+	{
+		$id_sales = $_POST["id_sales"];
+		$html = '';
+
+		$cust = $this->db->query("SELECT h.id_perusahaan,h.nm_perusahaan,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+		INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+		INNER JOIN m_sales s ON p.id_sales=s.id_sales
+		WHERE h.type!='ROLL' AND s.id_sales='$id_sales' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
+		GROUP BY h.nm_perusahaan,h.id_perusahaan");
+		if($cust->num_rows() != 0){
+			foreach($cust->result() as $r){
+				$html .= '
+					<td style="padding:5px">'.$r->nm_perusahaan.'</td>
+					<td style="padding:5px;text-align:right">'.number_format($r->jml_mutasi, 0, ',', '.').'</td>
+				';
+			}
+		}
+
+		echo $html;
+	}
 
 	function edit_timbangan()
 	{
@@ -5325,7 +5429,7 @@ class Logistik extends CI_Controller
 			$query = $this->db->query("SELECT *, DATEDIFF(SUBSTR(h.inp_inv_terima, 1, 10), CURDATE()) AS sisa_invd, DATEDIFF(h.tgl_jatuh_tempo , h.tgl_invoice) AS tempo
 			FROM invoice_header h
 			$wInn
-			WHERE no_invoice IN('FC/0795/08/2025', 'FC/0920/08/2025', 'FA/1673/08/2025') AND YEAR(h.tgl_invoice) IN ('$thnn') $cek_bulan $tipe $wExp
+			WHERE YEAR(h.tgl_invoice) IN ('$thnn') $cek_bulan $tipe $wExp
 			ORDER BY h.status_inv DESC, h.cek_global DESC, h.tgl_invoice DESC, h.no_invoice")->result();
 
 			$i               = 1;
@@ -5831,30 +5935,63 @@ class Logistik extends CI_Controller
 				</table>';
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_invoice.'</div>';
 				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_jatuh_tempo.'</div>';
-				$row[] = '<div class="text-right"><b>'.number_format($total, 0, ",", ".").'</b></div>';
-				// PEMBAYARAN
-				$bayar = $this->db->query("SELECT SUM(jumlah_bayar) AS byr_jual from trs_bayar_inv where no_inv='$r->no_invoice' GROUP BY no_inv");
-				if ($r->acc_owner == "N") {
-					$txtB = 'btn-light';
-					$txtT = '-';
-				}else{
-					if($bayar->num_rows() == 0 && $r->img_mutasi != '' && $r->inp_mutasi != ''){
-						$txtB = 'btn-success';
-						$txtT = 'LUNAS';
-					}else{
-						if($bayar->num_rows() == 0){
-							$txtB = 'btn-danger';
-							$txtT = 'BELUM BAYAR';
+				// TOTAL
+				if($r->jml_mutasi != null){
+					$sumBayar = $this->db->query("SELECT SUM(jumlah) AS jumlah FROM invoice_bayar WHERE no_invoice='$r->no_invoice'")->row();
+					if($sumBayar->jumlah != 0){
+						$seLisiH = $sumBayar->jumlah - $r->jml_mutasi;
+						if($seLisiH < 0){
+							$txtSel = '<br><span style="color:#f00;font-style:italic">'.number_format($seLisiH, 0, ',', '.').'</span>';
+						}else{
+							$txtSel = '';
 						}
-						if($bayar->num_rows() > 0){
-							if($bayar->row()->byr_jual == round($total)){
+					}else{
+						$txtSel = '';
+						$seLisiH = 0;
+					}
+					$jmlNominal = $r->jml_mutasi;
+				}else{
+					$txtSel = '';
+					$seLisiH = 0;
+					$jmlNominal = $total;
+				}
+				$row[] = '<div class="text-right"><b>'.number_format($jmlNominal, 0, ",", ".").$txtSel.'</b></div>';
+				// PEMBAYARAN
+				if($r->acc_owner == "Y") {
+					if($r->jml_mutasi != null){
+						if($sumBayar->jumlah == null){
+							$txtB = 'btn-warning';
+							$txtT = 'BELUM BAYAR';
+						}else{
+							if($seLisiH < 0){
+								$txtB = 'btn-light';
+								$txtT = 'DI CICIL';
+							}else{
 								$txtB = 'btn-success';
 								$txtT = 'LUNAS';
-							}else{
-								$txtB = 'btn-warning';
-								$txtT = 'DI CICIL';
 							}
 						}
+					}else{
+						$txtB = 'btn-success';
+						$txtT = 'LUNAS';
+					}
+				}else{
+					if($r->jml_mutasi != null){
+						if($sumBayar->jumlah == null){
+							$txtB = 'btn-light';
+							$txtT = '-';
+						}else{
+							if($seLisiH < 0){
+								$txtB = 'btn-light';
+								$txtT = 'DI CICIL';
+							}else{
+								$txtB = 'btn-success';
+								$txtT = 'LUNAS';
+							}
+						}
+					}else{
+						$txtB = 'btn-light';
+						$txtT = '-';
 					}
 				}
 				$row[] = '<div class="text-center">
@@ -9591,12 +9728,11 @@ class Logistik extends CI_Controller
 					</tr>
 					<tr>
 						<td style="background:#ccc" colspan="3"></td>
-						<td style="background:#ccc;font-weight:bold;padding:5px 0 0 15px" colspan="2">Kurang Bayar</td>
-						<td style="background:#ccc;font-weight:bold;padding:5px 0 0 15px">Rp</td>
-						<td style="background:#ccc;font-weight:bold;padding:5px;text-align:right">'.number_format($seLisiH, 0, ',', '.').'</td>
+						<td style="background:#ccc;font-weight:bold;padding:5px 0 10px 15px" colspan="2">Kurang Bayar</td>
+						<td style="background:#ccc;font-weight:bold;padding:5px 0 10px 15px">Rp</td>
+						<td style="background:#ccc;font-weight:bold;padding:5px 5px 10px;text-align:right">'.number_format($seLisiH, 0, ',', '.').'</td>
 					</tr>';
 				}
-
 
 				// CEK MUTASI
 				if($aBayar->num_rows() != 0){
@@ -9741,47 +9877,49 @@ class Logistik extends CI_Controller
 		$htmlPay = '';
 		if($opsi == 'html' && $uName != 'bumagda' && ($data_detail->img_mutasi == null || $cByr->num_rows() != 0)){
 			$htmlPay .= '<div style="margin-top:6px">
-				<form role="form" method="post" id="myForm" action="'.base_url('Logistik/Invoice').'" enctype="multipart/form-data">
-					<input type="hidden" name="mut_noinv" id="mut_noinv" value="'.$data_detail->no_invoice.'">
-					<table>
-						<tr style="vertical-align:top">
-							<td style="padding:5px 0">Tanggal Bayar</td>
-							<td style="padding:5px">:</td>
-							<td style="padding:5px 0">
-								<input type="date" name="mut_tgl" id="mut_tgl" class="form-control" onchange="cekFile()">
-							</td>
-						</tr>
-						<tr style="vertical-align:top">
-							<td style="padding:5px 0">Upload File</td>
-							<td style="padding:5px">:</td>
-							<td style="padding:5px 0">
-								<input type="file" name="mut_foto" id="mut_foto" accept=".jpg,.jpeg,.png" onchange="cekFile()">
-							</td>
-						</tr>
-						<tr style="vertical-align:top">
-							<td style="padding:5px 0">Nominal</td>
-							<td style="padding:5px">:</td>
-							<td style="padding:5px 0">
-								<input type="text" name="mut_nominal" id="mut_nominal" style="color:#000;text-align:right;font-weight:bold" class="form-control" placeholder="0" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" onchange="cekFile()">
-							</td>
-						</tr>
-						<tr style="vertical-align:top">
-							<td style="padding:5px 0">Keterangan</td>
-							<td style="padding:5px">:</td>
-							<td style="padding:5px 0">
-								<textarea name="mut_ket" id="mut_ket" class="form-control" style="resize:none" placeholder="KETERANGAN" autocomplete="off" oninput="this.value=this.value.toUpperCase()"></textarea>
-							</td>
-						</tr>
-						<tr style="vertical-align:top">
-							<td style="padding:5px 0" colspan="2"></td>
-							<td style="padding:5px 0">
-								<div class="save-mutasi"></div>
-							</td>
-						</tr>
-					</table>
+				<form role="form" method="POST" id="mut_mutasi" enctype="multipart/form-data">
+					<div class="card-body row" style="padding:5px 0">
+						<div class="col-md-1">Tanggal Bayar</div>
+						<div class="col-md-2">
+							<input type="hidden" name="mut_noinv" id="mut_noinv" value="'.$data_detail->no_invoice.'">
+							<input type="date" name="mut_tgl" id="mut_tgl" class="form-control" onchange="cekFile()">
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:5px 0">
+						<div class="col-md-1">Upload File</div>
+						<div class="col-md-2">
+							<input type="file" name="mut_foto" id="mut_foto" accept=".jpg,.jpeg,.png" onchange="cekFile()">
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:5px 0">
+						<div class="col-md-1">Nominal</div>
+						<div class="col-md-2">
+							<input type="text" name="mut_nominal" id="mut_nominal" style="color:#000;text-align:right;font-weight:bold" class="form-control" placeholder="0" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" onchange="cekFile()">
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:5px 0">
+						<div class="col-md-1">Keterangan</div>
+						<div class="col-md-2">
+							<textarea name="mut_ket" id="mut_ket" class="form-control" style="resize:none" placeholder="KETERANGAN" autocomplete="off" oninput="this.value=this.value.toUpperCase()"></textarea>
+						</div>
+						<div class="col-md-9"></div>
+					</div>
 				</form>
+				<div class="card-body row" style="padding:5px 0">
+					<div class="col-md-1"></div>
+					<div class="col-md-2">
+						<div class="save-mutasi"></div>
+					</div>
+					<div class="col-md-9"></div>
+				</div>
 			</div>';
 		}
+
+		// UPDATE JML NOMINAL DI INVOICE HEADER
+		$this->db->query("UPDATE invoice_header SET jml_mutasi='$terbilang' WHERE no_invoice='$data_detail->no_invoice'");
 
 		if($opsi == 'html'){
 			echo json_encode([
@@ -9809,17 +9947,7 @@ class Logistik extends CI_Controller
 	function uploadMutasi()
 	{
 		$result = $this->m_logistik->uploadMutasi();
-		// echo json_encode($result);
-
-		$data = array(
-			'judul' => "INVOICE PENJUALAN",
-			'file' => $result['file'],
-			'msg' => $result['msg'],
-			'invMutasi' => $result['mut_noinv'],
-		);
-		$this->load->view('header', $data);
-		$this->load->view('Logistik/v_invoice');
-		$this->load->view('footer');
+		echo json_encode($result);
 	}
 
 	//

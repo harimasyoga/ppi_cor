@@ -4209,6 +4209,7 @@ class M_logistik extends CI_Model
 				$data = false;
 				$msg = "LENGKAPI INPUTAN";
 			}else{
+				$this->db->set('inp_mutasi', date('Y-m-d H:i:s'));
 				$this->db->set('cek_global', $now);
 				$this->db->set('cek_mutasi', null);
 				$this->db->set('acc_owner', 'N');
@@ -4320,8 +4321,8 @@ class M_logistik extends CI_Model
 				$cek = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$mut_noinv'")->row();
 				if($cek->img_mutasi == null){
 					$this->db->set('img_mutasi', $filefoto);
-					$this->db->set('inp_mutasi', date('Y-m-d H:i:s'));
 				}
+				$this->db->set('inp_mutasi', date('Y-m-d H:i:s'));
 				$this->db->set('cek_global', date('Y-m-d H:i:s'));
 				$this->db->set('cek_mutasi', null);
 				$this->db->set('acc_owner', 'N');

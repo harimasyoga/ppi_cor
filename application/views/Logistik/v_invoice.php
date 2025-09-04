@@ -490,6 +490,30 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="card shadow list_piutang" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;" >
+				<h3 class="card-title" style="color:#4e73df;"><b>LAPORAN PIUTANG</b></h3>
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+			<div class="card-body">
+				<div style="margin-bottom:12px">
+					<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+						<i class="fa fa-arrow-left" ></i> Kembali</b>
+					</button>
+				</div>
+				<div class="card-body row" style="padding:12px 0 6px">
+					<div class="col-md-12">
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="tab_piutang"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</section>
 
 	<section class="content">
@@ -510,13 +534,15 @@
 								<button type="button" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								<!-- <button type="button" class="btn btn-danger btn-sm" onclick="open_laporan()"><i class="fa fa-print"></i> <b>Laporan</b></button> -->
 								<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
+								<button type="button" class="btn btn-danger btn-sm" onclick="open_piutang()"><i class="fas fa-list"></i> <b>Lap Piutang</b></button>
 								<?php if (in_array($this->session->userdata('level'), ['Admin'])) { ?>
 									<button type="button" class="btn btn-danger btn-sm" onclick="open_lapExp()"><i class="fa fa-print"></i> <b>Lap Expired</b></button>
 								<?php } ?>
 							</div>
 						<?php } ?>
-						<?php if (in_array($this->session->userdata('username'), ['owner'])) { ?>
+						<?php if (in_array($this->session->userdata('username'), ['owner', 'bumagda'])) { ?>
 							<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
+							<button type="button" class="btn btn-danger btn-sm" onclick="open_piutang()"><i class="fas fa-list"></i> <b>Lap Piutang</b></button>
 						<?php } ?>
 
 						<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
@@ -929,47 +955,24 @@
 	status = "insert";
 	const urlAuth = '<?= $this->session->userdata('level')?>';
 	const urlUser = '<?= $this->session->userdata('username')?>';
-	vFile = '<?= $file ?>';
-	vMsg = '<?= $msg ?>';
-	vInv = '<?= $invMutasi ?>';
 	$(document).ready(function() {
-		if(vInv != ''){
-			console.log("vFile : ", vFile)
-			console.log("vMsg : ", vMsg)
-			console.log("vInv : ", vInv)
-			$("#no_inv_foto").val(vInv)
-			$(".row-list").hide()
-			$('.card-mutasi').show()
-			$('.back-inv-mut').html(`<button type="button" onclick="loadLoad()" class="btn-tambah-produk btn  btn-danger"><b>
-				<i class="fa fa-arrow-left" ></i> Kembali</b>
-			</button>`)
-			cetakInvoice()
-		}else{
-			load_data()
-			$('.select2').select2({
-				containerCssClass: "wrap",
-				placeholder: '--- Pilih ---',
-				dropdownAutoWidth: true
-			});
-			load_bank()
-		}
+		$('.select2').select2({
+			containerCssClass: "wrap",
+			placeholder: '--- Pilih ---',
+			dropdownAutoWidth: true
+		});
+		load_bank()
+		load_data()
 	});
 
-	function loadLoad()
-	{
-		window.location.replace('<?= base_url("Logistik/Invoice") ?>');
-	}
-
 	$("#filefoto").change(function() {
-		
 		$(".detail-inv").html('')
-        // readURL(this);
-        // cek_size(this);
     });	
 	
 	function cek_size(input) {
 		console.log(input.files[0].size)
 	}
+
 	function readURL(input) {
 		if (input.files && input.files[0]) {
 		var reader = new FileReader();
@@ -990,26 +993,28 @@
 		$(".tmpl-invoice").html('')
 		$(".tmpl-pay-invoice").html('')
 		let no_invoice = $("#no_inv_foto").val()
-		console.log(no_invoice)
 		$.ajax({
 			url: '<?php echo base_url('Logistik/Cetak_Invoice')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
 			data: ({
 				no_invoice, opsi: 'html'
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".tmpl-kop-invoice").html(data.htmlKop)
 				$(".tmpl-invoice").html(data.html)
 				$(".tmpl-pay-invoice").html(data.htmlPay)
-				if(vFile == 1){
-					toastr.success(`<b>${vMsg}</b>`)
-					vFile = ''
-					vMsg = ''
-				}else if(vMsg != ''){
-					toastr.error(`<b>${vMsg}</b>`)
-				}
+				swal.close()
 			}
 		})
 	}
@@ -1042,15 +1047,25 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/invInputNominalMutasi')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
 			data: ({ id: i, no_invoice, dit_nominal, dit_tgl, dit_ket, urlAuth, urlUser, opsi }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					toastr.success(`<b>BERHASIL!</b>`)
 					cetakInvoice()
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
 				}
 			}
 		})
@@ -1062,10 +1077,19 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/hpsInvMutasi')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
 			data: ({ id, no_invoice }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				cetakInvoice()
 			}
 		})
@@ -1076,15 +1100,47 @@
 		let mut_tgl = $("#mut_tgl").val()
 		let mut_foto = $("#mut_foto").val()
 		let mut_nominal = $("#mut_nominal").val()
-		console.log("mut_tgl : ", mut_tgl)
-		console.log("mut_foto : ", mut_foto)
-		console.log("mut_nominal : ", mut_nominal)
-
 		if(mut_tgl != '' && mut_foto != '' && mut_nominal != ''){
-			$(".save-mutasi").html('<button class="btn btn-primary btn-sm save-muttt"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
+			$(".save-mutasi").html('<button class="btn btn-primary btn-sm" onclick="uploadMutasi()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
 		}else{
 			$(".save-mutasi").html('')
 		}
+	}
+
+	function uploadMutasi(){
+		var form = $('#mut_mutasi')[0];
+		var data = new FormData(form);
+		let noinv = $('#no_inv_foto').val()
+		$.ajax({
+			url : '<?php echo base_url('Logistik/uploadMutasi')?>',
+			type : "POST",
+			enctype : 'multipart/form-data',
+			data : data,
+			contentType : false,
+			cache : false,
+			timeout : 600000,
+			processData : false,
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data.file){
+					toastr.success(`<b>${data.msg}</b>`)
+					cetakInvoice()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		});
 	}
 
 	function open_foto(no_inv, tipe, ket, username)
@@ -1115,16 +1171,11 @@
 		}else if(ket=='inv_terima' && (username=='karina' || username=='tegar')){
 			$('#upload_invd').show();
 			$('#upload_file').show();
-		}
-		// else if(ket=='mutasi' && (username=='karina' || username=='tegar')){
-		// 	$('#upload_file').show();
-		// }
-		else if(ket=='mutasi'){
+		}else if(ket == 'mutasi'){
 			$(".row-list").hide()
 			$('.card-mutasi').show();
 			cetakInvoice()
-		}
-		else if(ket=='sj_balik' && (username=='karina' || username=='tegar')){
+		}else if(ket=='sj_balik' && (username=='karina' || username=='tegar')){
 			$('#upload_blk').show();
 			$('#upload_file').show();
 		}else if(ket=='upload_inv' && (username=='karina' || username=='tegar')){
@@ -1146,91 +1197,88 @@
 		document.getElementById("judul_file").innerHTML = "FILE "+ket.toUpperCase();
 		$("#status_modal").val(ket);		
 
-		
-		$.ajax({
-			url: '<?= base_url('Logistik/get_foto_'); ?>'+ket,
-			type: 'POST',
-			data: {
-				no       : no_inv,
-				jenis    : "invoice_header",
-				field    : 'no_invoice'
-			},
-			dataType: "JSON",
-		})
-		.done(function(data) {
-			$('#div_preview_foto').css("display","block");
-			let btnHapHap = ''
-			if(username == 'developer' && data.url_foto != 'foto'){
-				btnHapHap = `<div style="display:flex">
-					<div style="margin-right:4px">
-						<select id="hps_file_inv" onchange="sHpsFile('${data.header.id}', '${ket}')">
-							<option value=""></option>
-							<option value="HAPUS">HAPUS</option>
-							<option value="DDDDD">UPDATE</option>
-						</select>
-					</div>
-					${data.htmlDtl}
-				</div>`;
-			}else{
-				btnHapHap = data.htmlDtl
-			}
-			$(".detail-inv").html(btnHapHap)
-			if(ket=='inv_terima'){
-				$("#tgl_invd").val(data.header.inp_inv_terima.substr(0, 10))
-			}
-			if(ket=='sj_balik'){
-				if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk == null){
-					$("#tgl_blk").val(data.header.inp_sj_balik.substr(0, 10))
-				}else if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk != null){
-					$("#tgl_blk").val(data.header.tgl_sj_blk)
+		if(ket != 'mutasi'){
+			$.ajax({
+				url: '<?= base_url('Logistik/get_foto_'); ?>'+ket,
+				type: 'POST',
+				data: {
+					no       : no_inv,
+					jenis    : "invoice_header",
+					field    : 'no_invoice'
+				},
+				dataType: "JSON",
+			})
+			.done(function(data) {
+				$('#div_preview_foto').css("display","block");
+				let btnHapHap = ''
+				if(username == 'developer' && data.url_foto != 'foto'){
+					btnHapHap = `<div style="display:flex">
+						<div style="margin-right:4px">
+							<select id="hps_file_inv" onchange="sHpsFile('${data.header.id}', '${ket}')">
+								<option value=""></option>
+								<option value="HAPUS">HAPUS</option>
+								<option value="DDDDD">UPDATE</option>
+							</select>
+						</div>
+						${data.htmlDtl}
+					</div>`;
+				}else{
+					btnHapHap = data.htmlDtl
 				}
-			}
-			$("#ket_file").val(data.ket)
-			if(data.ext=='pdf')
-			{
-				
-			}else{
-				var modal = document.getElementById('mymodal-img');
-				var img            = document.getElementById('preview_img');
-				var modalImg       = document.getElementById("img01");
-				img.onclick = function(){
-					modal.style.display   = "block";
-					modalImg.src          = this.src;
-					modalImg.alt          = this.alt;
+				$(".detail-inv").html(btnHapHap)
+				if(ket=='inv_terima'){
+					$("#tgl_invd").val(data.header.inp_inv_terima.substr(0, 10))
 				}
-				modal.onclick = function() {
-					img01.className       += " out";
-					setTimeout(function() {
-						modal.style.display   = "none";
-						img01.className       = "modal-img-content";
-					}, 400);
+				if(ket=='sj_balik'){
+					if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk == null){
+						$("#tgl_blk").val(data.header.inp_sj_balik.substr(0, 10))
+					}else if(data.header.inp_sj_balik != null && data.header.tgl_sj_blk != null){
+						$("#tgl_blk").val(data.header.tgl_sj_blk)
+					}
 				}
-			}
-
-			// cek
-			if(data.header.cekinv == null && data.header.inpinv != null && (username=='bumagda' || username=='developer')){
-				$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 0 6px">
-					<div class="col-md-3"></div>
-					<div class="col-md-2">
-						<select class="form-control select2" id="invinvinv" onchange="cekInv('lama', '')">
-							<option value="">CEK</option>
-							<option value="${ket}">OK</option>
-						</select>
-					</div>
-					<div class="col-md-7"></div>
-				</div>`)
-			}else if(data.header.cekinv != null && (username=='bumagda' || username=='developer')){
-				$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 5px 6px">
-					<div class="col-md-3"></div>
-					<div class="col-md-9">
-						<span style="font-weight:bold">CEK : ${data.header.cekinv}</span>
-					</div>
-				</div>`)
-			}else{
-				$(".cekcekcek").html(``)
-			}
-			$('.select2').select2()
-		})
+				$("#ket_file").val(data.ket)
+				if(data.ext!='pdf'){
+					var modal = document.getElementById('mymodal-img');
+					var img            = document.getElementById('preview_img');
+					var modalImg       = document.getElementById("img01");
+					img.onclick = function(){
+						modal.style.display   = "block";
+						modalImg.src          = this.src;
+						modalImg.alt          = this.alt;
+					}
+					modal.onclick = function() {
+						img01.className       += " out";
+						setTimeout(function() {
+							modal.style.display   = "none";
+							img01.className       = "modal-img-content";
+						}, 400);
+					}
+				}
+				// cek
+				if(data.header.cekinv == null && data.header.inpinv != null && (username=='bumagda' || username=='developer')){
+					$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 0 6px">
+						<div class="col-md-3"></div>
+						<div class="col-md-2">
+							<select class="form-control select2" id="invinvinv" onchange="cekInv('lama', '')">
+								<option value="">CEK</option>
+								<option value="${ket}">OK</option>
+							</select>
+						</div>
+						<div class="col-md-7"></div>
+					</div>`)
+				}else if(data.header.cekinv != null && (username=='bumagda' || username=='developer')){
+					$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 5px 6px">
+						<div class="col-md-3"></div>
+						<div class="col-md-9">
+							<span style="font-weight:bold">CEK : ${data.header.cekinv}</span>
+						</div>
+					</div>`)
+				}else{
+					$(".cekcekcek").html(``)
+				}
+				$('.select2').select2()
+			})
+		}
 	}
 
 	function sHpsFile(id_inv, ket){
@@ -1253,7 +1301,6 @@
 			data: ({ hps_file_inv, tgl_blk, tgl_invd, id_inv, ket }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					reloadTable()
 					toastr.success(`<b>${data.msg}</b>`)
@@ -1285,7 +1332,6 @@
 			data: ({ opsi, oNoInv, no_inv, status_modal }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					reloadTable()
 					toastr.success(`<b>${data.msg}</b>`)
@@ -1348,7 +1394,6 @@
 					$('#modal_foto').modal('hide');	
 					load_bank()
 				} else {
-					// console.log('GAGAL SIMPAN');
 					swal.close();
 					swal({
 						title               : "Cek Kembali",
@@ -1384,7 +1429,6 @@
 			data: ({ no_inv, status_modal, ket_file }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					reloadTable()
 					toastr.success(`<b>${data.msg}</b>`)
@@ -1591,6 +1635,26 @@
 		listNomerSJ()
 	}
 
+	function open_piutang()
+	{
+		$(".row-input").attr('style', 'display:none')
+		$(".row-list").attr('style', 'display:none')
+		$(".list_piutang").attr('style', '')
+		listPiutang()
+	}
+
+	function listPiutang()
+	{
+		$(".tab_piutang").html('')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/listPiutang')?>',
+			type: "POST",
+			success: function(res){
+				$(".tab_piutang").html(res)
+			}
+		})
+	}
+
 	function open_lapExp() {
 		$(".row-input").attr('style', 'display:none')
 		$(".row-list").attr('style', 'display:none')
@@ -1694,6 +1758,7 @@
 		$(".list_lap").attr('style', 'display:none')
 		$(".list_sj").attr('style', 'display:none')
 		$(".list_exp").attr('style', 'display:none')
+		$(".list_piutang").attr('style', 'display:none')
 		$(".card-mutasi").attr('style', 'display:none')
 		$("#tgl_expired").val('')
 		$('#ex_pilih').val('').trigger('change')
@@ -1724,7 +1789,6 @@
 				})
 			},
 			success: function(data) {
-				// console.log(data)
 				if(data){
 					// header
 					$("#modal_type_po").val(data.header.type).trigger('change');
@@ -2054,8 +2118,6 @@
 			acc = acc_owner
 		}
 
-		// console.log(user)
-		// console.log(acc)
 		if (acc=='N')
 		{
 			var html = 'VERIFIKASI'
@@ -2977,7 +3039,6 @@
 				})
 			},
 			success: function(data) {
-				// console.log(data)
 				if(data){
 					// header
 					$("#type_po").val(data.header.type).trigger('change');
@@ -3325,7 +3386,6 @@
 			data: ({ tahun, bulan }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					reloadTable()
 					toastr.success(`<b>UPDATE EXPIRED BERHASIL!</b>`)
@@ -3355,7 +3415,6 @@
 			data: ({ id_inv, jenis, izin, jenisIzin }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					reloadTable()
 					toastr.success(`<b>BERHASIL!</b>`)
