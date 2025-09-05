@@ -4037,6 +4037,89 @@ class M_logistik extends CI_Model
 		);
 	}
 
+	function updateInvMutasi()
+	{
+		$qInv = $this->db->query("SELECT*FROM invoice_header WHERE acc_owner='N' GROUP BY no_invoice");
+		if($qInv->num_rows() != 0){
+			foreach($qInv->result() as $header){
+				if($header->type== 'roll') {
+					// ROLL
+					$sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$header->no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
+					// TAMPILKAN DULU LABEL
+					$totalHarga = 0;
+					foreach($sqlLabel->result() as $label){
+						// TAMPILKAN ITEMNYA
+						$weightNmLbPo = 0;
+						$sqlWidth = $this->db->query("SELECT*FROM invoice_detail
+						WHERE no_invoice='$label->no_invoice' AND nm_ker='$label->nm_ker' AND g_label='$label->g_label' AND no_po='$label->no_po'
+						ORDER BY width ASC");
+						foreach($sqlWidth->result() as $items){
+							// BERAT SESETAN
+							$fixBerat = $items->weight - $items->seset;
+							// TOTAL BERAT PER GSM - LABEL - PO
+							$weightNmLbPo += $fixBerat;
+						}
+						// CARI HARGANYA
+						$sqlHargaPo = $this->db->query("SELECT*FROM invoice_detail
+						WHERE no_invoice='$label->no_invoice' AND nm_ker='$label->nm_ker' AND g_label='$label->g_label' AND no_po='$label->no_po'")->row();
+						// PERKALIAN ANTARA TOTAL BERAT DAN HARGA PO
+						$weightXPo = round($weightNmLbPo * $sqlHargaPo->harga);
+						$totalHarga += $weightXPo;
+					}
+				}else{
+					// BOX
+					$sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$header->no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
+					$totalHarga = 0;
+					foreach($sqlLabel->result() as $label){
+						$total_harga = round(($label->qty - $label->retur_qty) * $label->harga);
+						$totalHarga += $total_harga;
+					}
+				}
+
+				// RUMUS
+				// JIKA ADA DISCOUNT
+				if($header->disc != 0){
+					$subTotal = $totalHarga - ($totalHarga * ($header->disc/100));
+				}else{
+					$subTotal = $totalHarga;
+				}
+				if($header->pajak == 'ppn'){
+					// PPN 10 %
+					if($header->inc_exc=='Include'){
+						$terbilang = round($subTotal);
+					}else if($header->inc_exc=='Exclude'){
+						$terbilang = round($subTotal + (0.11 * $subTotal));
+					}else{
+						$terbilang = '';
+					}
+				}else if($header->pajak == 'ppn_pph'){
+					// PPH22
+					if($header->inc_exc=='Include'){
+						$terbilang = round($subTotal + (0.001 * $subTotal));
+					}else if($header->inc_exc=='Exclude'){
+						$terbilang = round($subTotal + (0.11 * $subTotal) + (0.001 * $subTotal));
+					}else{
+						$terbilang = '';
+					}
+				}else{
+					// NON
+					$terbilang = $subTotal;
+				}
+
+				// UPDATE
+				$this->db->set('jml_mutasi', $terbilang);
+				$this->db->where('no_invoice', $header->no_invoice);
+				$data = $this->db->update('invoice_header');
+			}
+		}else{
+			$data = true;
+		}
+
+		return array(
+			'data' => $data,
+		);
+	}
+
 	function updateExpired()
 	{
 		$tahun = $_POST["tahun"];
@@ -4196,7 +4279,7 @@ class M_logistik extends CI_Model
 		$dit_ket = $_POST["dit_ket"];
 		$now = date('Y-m-d H:i:s');
 
-		$header = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
+		$header = $this->db->query("SELECT*FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
 		$bayar = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$no_invoice'");
 
 		if($opsi == 'cek'){
@@ -4228,6 +4311,23 @@ class M_logistik extends CI_Model
 					$data = $this->db->insert("invoice_bayar", $h);
 				}else{
 					if($update){
+						// GET SALES
+						if($header->type == 'roll'){
+							$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
+								INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
+								INNER JOIN m_sales s ON p.id_sales=s.id_sales
+								WHERE h.no_invoice='$header->no_invoice'
+								GROUP BY s.id_sales")->row();
+						}else{
+							$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
+								INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+								INNER JOIN m_sales s ON p.id_sales=s.id_sales
+								WHERE h.no_invoice='$header->no_invoice'
+								GROUP BY s.id_sales")->row();
+						}
+						$this->db->set("type", $header->type);
+						$this->db->set("id_sales", $idS->id_sales);
+						$this->db->set("id_pelanggan", $header->id_perusahaan);
 						$this->db->set("tgl_bayar", $dit_tgl);
 						$this->db->set("jumlah", $dit_nominal);
 						$this->db->set("ket_byr", $dit_ket);
@@ -4330,8 +4430,26 @@ class M_logistik extends CI_Model
 				$this->db->where('no_invoice', $mut_noinv);
 				$update = $this->db->update('invoice_header');
 
+				// INPUT BAYAR
 				if($update){
+					// GET SALES
+					if($cek->type == 'roll'){
+						$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
+							INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
+							INNER JOIN m_sales s ON p.id_sales=s.id_sales
+							WHERE h.no_invoice='$mut_noinv'
+							GROUP BY s.id_sales")->row();
+					}else{
+						$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
+							INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+							INNER JOIN m_sales s ON p.id_sales=s.id_sales
+							WHERE h.no_invoice='$mut_noinv'
+							GROUP BY s.id_sales")->row();
+					}
 					$h = [
+						'type' => $cek->type,
+						'id_sales' => $idS->id_sales,
+						'id_pelanggan' => $cek->id_perusahaan,
 						'no_invoice' => $mut_noinv,
 						'tgl_bayar' => $mut_tgl,
 						'file_mutasi' => $filefoto,
@@ -4348,6 +4466,18 @@ class M_logistik extends CI_Model
 			'mut_noinv' => $mut_noinv,
 			'file' => $file,
 			'msg' => $msg,
+		];
+	}
+
+	function accSakti(){
+		$no_invoice = $_POST["no_invoice"];
+
+		$this->db->set('acc_owner', 'Y');
+		$this->db->where('no_invoice', $no_invoice);
+		$data = $this->db->update('invoice_header');
+
+		return [
+			'data' => $data,
 		];
 	}
 
