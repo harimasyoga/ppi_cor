@@ -4186,4 +4186,169 @@ class M_logistik extends CI_Model
 		);
 	}
 
+	function invInputNominalMutasi()
+	{
+		$id = $_POST["id"];
+		$opsi = $_POST["opsi"];
+		$no_invoice = $_POST["no_invoice"];
+		$dit_nominal = $_POST["dit_nominal"];
+		$dit_tgl = $_POST["dit_tgl"];
+		$dit_ket = $_POST["dit_ket"];
+		$now = date('Y-m-d H:i:s');
+
+		$header = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
+		$bayar = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$no_invoice'");
+
+		if($opsi == 'cek'){
+			$this->db->set("cek_mutasi", $now);
+			$this->db->where("no_invoice", $no_invoice);
+			$data = $this->db->update("invoice_header");
+			$msg = 'OK!';
+		}else{
+			if($dit_nominal == "" || $dit_nominal == 0 || $dit_nominal < 0 || $dit_tgl == ""){
+				$data = false;
+				$msg = "LENGKAPI INPUTAN";
+			}else{
+				$this->db->set('inp_mutasi', date('Y-m-d H:i:s'));
+				$this->db->set('cek_global', $now);
+				$this->db->set('cek_mutasi', null);
+				$this->db->set('acc_owner', 'N');
+				$this->db->set('status_inv', 'Open');
+				$this->db->where('no_invoice', $no_invoice);
+				$update = $this->db->update('invoice_header');
+
+				if($update && $bayar->num_rows() == 0){
+					$h = [
+						'no_invoice' => $no_invoice,
+						'tgl_bayar' => $dit_tgl,
+						'file_mutasi' => $header->img_mutasi,
+						'jumlah' => $dit_nominal,
+						'ket_byr' => $dit_ket,
+					];
+					$data = $this->db->insert("invoice_bayar", $h);
+				}else{
+					if($update){
+						$this->db->set("tgl_bayar", $dit_tgl);
+						$this->db->set("jumlah", $dit_nominal);
+						$this->db->set("ket_byr", $dit_ket);
+						// $this->db->set("cek_byr", null);
+						$this->db->where("id", $id);
+						$this->db->where("no_invoice", $no_invoice);
+						$data = $this->db->update("invoice_bayar");
+					}
+				}
+				$msg = 'OK!';
+			}
+		}
+
+		return array(
+			'data' => $data,
+			'msg' => $msg,
+		);
+	}
+
+	function hpsInvMutasi()
+	{
+		$id = $_POST["id"];
+		$no_invoice = $_POST["no_invoice"];
+		$header = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
+		$idBayar = $this->db->query("SELECT*FROM invoice_bayar WHERE id='$id'")->row();
+		$bayar = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$no_invoice'");
+
+		// HAPUS MUTASI HEADER
+		if($bayar->num_rows() == 1){
+			unlink("assets/gambar_inv_mutasi/".$header->img_mutasi);
+			$this->db->set('img_mutasi', null);
+			$this->db->set('inp_mutasi', null);
+		}
+		$this->db->set('cek_mutasi', null);
+		$this->db->set('acc_owner', 'N');
+		$this->db->set('status_inv', 'Open');
+		$this->db->where('no_invoice', $no_invoice);
+		$update = $this->db->update('invoice_header');
+
+		if($update){
+			// HAPUS IMG JIKA LEBIH DARI SATU PEMBAYARAN
+			if($bayar->num_rows() != 1){
+				unlink("assets/gambar_inv_mutasi/".$idBayar->file_mutasi);
+			}
+			if($id != 0){
+				$this->db->where("id", $id);
+			}
+			$this->db->where("no_invoice", $no_invoice);
+			$data = $this->db->delete("invoice_bayar");
+		}
+
+		return array(
+			'data' => $data,
+		);
+	}
+
+	function generateFileName()
+	{
+		$stringSpace = '0123456789_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$stringLength = strlen($stringSpace);
+		$string = str_repeat($stringSpace, ceil(11 / $stringLength));
+		$shuffledString = str_shuffle($string);
+		$code = substr($shuffledString, 1, 11);
+		return $code;
+	}
+
+	function uploadMutasi()
+	{
+		$mut_noinv = $this->input->post('mut_noinv');
+		$mut_tgl = $this->input->post('mut_tgl');
+		$mut_nominal = str_replace('.', '', $this->input->post('mut_nominal'));
+		$mut_ket = $this->input->post('mut_ket');
+
+		// FILE
+		$config['upload_path'] = './assets/gambar_inv_mutasi/';
+		$config['allowed_types'] = 'jpg|jpeg|png';
+		$config['overwrite'] = true;
+		$thn = substr(date('Y'), 2, 2); $bln = date('m'); $date = date('d');
+		$config['file_name'] = $thn.$bln.$date.'-'.$this->generateFileName();
+		$this->load->library('upload',$config);
+		$this->upload->initialize($config);
+
+		if(!$this->upload->do_upload('mut_foto')) {
+			$file = false; $msg = 'UKURAN / FORMAT FILE TIDAK DIDUKUNG!';
+		}else{
+			if($this->upload->do_upload('mut_foto')){
+				$gbrBukti = $this->upload->data();
+				$filefoto = $gbrBukti['file_name'];
+
+				// HEADER
+				$cek = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$mut_noinv'")->row();
+				if($cek->img_mutasi == null){
+					$this->db->set('img_mutasi', $filefoto);
+				}
+				$this->db->set('inp_mutasi', date('Y-m-d H:i:s'));
+				$this->db->set('cek_global', date('Y-m-d H:i:s'));
+				$this->db->set('cek_mutasi', null);
+				$this->db->set('acc_owner', 'N');
+				$this->db->set('status_inv', 'Open');
+				$this->db->where('no_invoice', $mut_noinv);
+				$update = $this->db->update('invoice_header');
+
+				if($update){
+					$h = [
+						'no_invoice' => $mut_noinv,
+						'tgl_bayar' => $mut_tgl,
+						'file_mutasi' => $filefoto,
+						'jumlah' => $mut_nominal,
+						'ket_byr' => $mut_ket,
+					];
+					$file = $this->db->insert("invoice_bayar", $h);
+					$msg = 'BERHASIL UPLOAD!';
+				}
+			}
+		}
+
+		return [
+			'mut_noinv' => $mut_noinv,
+			'file' => $file,
+			'msg' => $msg,
+		];
+	}
+
 }

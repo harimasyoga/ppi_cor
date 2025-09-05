@@ -31,6 +31,17 @@
 			background: #f00;
 			opacity: 0.2;
 		}
+
+		.tr2:hover {
+			background-color: rgba(225, 225, 225, 0.5);
+		}
+
+		/* Chrome, Safari, Edge, Opera */
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
 	</style>
 
 	<section class="content">
@@ -455,70 +466,87 @@
 						<i class="fas fa-minus"></i></button>
 				</div>
 			</div>
-			<div class="card shadow mb-3">
-				<div class="card-body">
-					<div style="margin-bottom:12px">
-						<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
-							<i class="fa fa-arrow-left" ></i> Kembali</b>
-						</button>
+			<div class="card-body">
+				<div style="margin-bottom:12px">
+					<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+						<i class="fa fa-arrow-left" ></i> Kembali</b>
+					</button>
+				</div>
+				<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
+					<div class="col-md-2">PILIH</div>
+					<div class="col-md-3">
+						<select id="ex_pilih" class="form-control select2" onchange="exPilih()">
+							<option value="">PILIH</option>
+							<option value="TANGGAL">TANGGAL</option>
+							<option value="BULAN">BULAN</option>
+							<option value="SEMUA">SEMUA</option>
+						</select>
 					</div>
-					<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
-						<div class="col-md-2">PILIH</div>
-						<div class="col-md-3">
-							<select id="ex_pilih" class="form-control select2" onchange="exPilih()">
-								<option value="">PILIH</option>
-								<option value="TANGGAL">TANGGAL</option>
-								<option value="BULAN">BULAN</option>
-								<option value="SEMUA">SEMUA</option>
-							</select>
-						</div>
-						<div class="col-md-7"></div>
-					</div>
-					<div class="ex-tmpl"></div>
-					<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
-						<div class="col-md-12">
-							<div style="overflow:auto;white-space:nowrap">
-								<div class="tab_expired"></div>
-							</div>
+					<div class="col-md-7"></div>
+				</div>
+				<div class="ex-tmpl"></div>
+				<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
+					<div class="col-md-12">
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="tab_expired"></div>
 						</div>
 					</div>
 				</div>
 			</div>
-		
+		</div>
+
+		<div class="card shadow list_piutang" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;" >
+				<h3 class="card-title" style="color:#4e73df;"><b>LAPORAN PIUTANG</b></h3>
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+			<div class="card-body">
+				<div style="margin-bottom:12px">
+					<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+						<i class="fa fa-arrow-left" ></i> Kembali</b>
+					</button>
+				</div>
+				<div class="card-body row" style="padding:12px 0 6px">
+					<div class="col-md-12">
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="tab_piutang"></div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</section>
 
-	<!-- Main content -->
 	<section class="content">
-
-		<!-- Default box -->
 		<div class="card shadow mb-3">
-			
 			<div class="row-list">
 				<div class="card-header" style="font-family:Cambria;" >
 					<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?></b></h3>
-
 					<div class="card-tools">
 						<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
 							<i class="fas fa-minus"></i></button>
 					</div>
 				</div>
 				<div class="card-body">
-
 					<div class="card-body" style="padding:12px 6px">
 						<?php if(in_array($this->session->userdata('username'), ['karina', 'tegar', 'developer'])){ ?>
 							<div style="margin-bottom:12px">
 								<button type="button" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE EXPIRED"><i class="fas fa-sync-alt"></i></button>
 								<button type="button" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
-								<button type="button" class="btn btn-danger btn-sm" onclick="open_laporan()"><i class="fa fa-print"></i> <b>Laporan</b></button>
+								<!-- <button type="button" class="btn btn-danger btn-sm" onclick="open_laporan()"><i class="fa fa-print"></i> <b>Laporan</b></button> -->
 								<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
+								<button type="button" class="btn btn-danger btn-sm" onclick="open_piutang()"><i class="fas fa-list"></i> <b>Lap Piutang</b></button>
 								<?php if (in_array($this->session->userdata('level'), ['Admin'])) { ?>
 									<button type="button" class="btn btn-danger btn-sm" onclick="open_lapExp()"><i class="fa fa-print"></i> <b>Lap Expired</b></button>
 								<?php } ?>
 							</div>
 						<?php } ?>
-						<?php if (in_array($this->session->userdata('username'), ['owner'])) { ?>
+						<?php if (in_array($this->session->userdata('username'), ['owner', 'bumagda'])) { ?>
 							<button type="button" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
+							<button type="button" class="btn btn-danger btn-sm" onclick="open_piutang()"><i class="fas fa-list"></i> <b>Lap Piutang</b></button>
 						<?php } ?>
 
 						<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
@@ -601,11 +629,38 @@
 				</div>
 			</div>
 		</div>
-		<!-- /.card -->
 	</section>
-	<!-- /.content -->
+
+	<section class="content">
+		<div class="card shadow card-mutasi" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;" >
+				<h3 class="card-title" style="color:#4e73df;"><b>INPUT MUTASI</b></h3>
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+			<div class="card-body">
+				<div style="margin-bottom:12px">
+					<div class="back-inv-mut">
+						<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+							<i class="fa fa-arrow-left" ></i> Kembali</b>
+						</button>
+					</div>
+				</div>
+				<div style="overflow:auto;white-space:nowrap">
+					<div class="tmpl-kop-invoice"></div>
+				</div>
+				<div style="overflow:auto;white-space:nowrap">
+					<div class="tmpl-invoice"></div>
+				</div>
+				<div style="overflow:auto;white-space:nowrap">
+					<div class="tmpl-pay-invoice"></div>
+				</div>
+			</div>
+		</div>
+	</section>
 </div>
-<!-- /.content-wrapper -->
 
 <!-- MODAL box -->
 	<div class="modal fade" id="modalForm">
@@ -805,7 +860,7 @@
 	</div>
 	<!-- /.MODAL -->
 
-	
+
 <div class="modal fade" id="modal_foto">
 	<div class="modal-dialog modal-full">
 		<div class="modal-content">
@@ -814,21 +869,16 @@
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 				</button>
 			</div>
-
 			<br><br>
-			
 			<form role="form" method="post" id="form_foto" enctype="multipart/form-data">
 				<div>
 					<div class="card-body row" style="padding : 5px;font-weight:bold">
 						<div class="col-md-1"></div>
 						<div class="col-md-2">No Inv</div>
 						<div class="col-md-3">
-						<input type="hidden" name="status_modal" id="status_modal" class="form-control" readonly>
-
-						<input type="text" name="no_inv_foto" id="no_inv_foto" class="form-control" readonly>
-															
+							<input type="hidden" name="status_modal" id="status_modal" class="form-control" readonly>
+							<input type="text" name="no_inv_foto" id="no_inv_foto" class="form-control" readonly>
 						</div>
-						
 						<div class="col-md-6"></div>
 					</div>
 					<div id="upload_invd" class="card-body row" style="padding:5px;font-weight:bold">
@@ -900,36 +950,33 @@
 </div>
 <!-- /.modal -->
 
-<!-- Image Zoom HTML -->
 <div id="mymodal-img" class="modal-img">
-  <img class="modal-img-content" id="img01">
+	<img class="modal-img-content" id="img01">
 </div>
-<!-- End Image Zoom HTML -->
 
 <script type="text/javascript">
 	rowNum = 0;
+	status = "insert";
+	const urlAuth = '<?= $this->session->userdata('level')?>';
+	const urlUser = '<?= $this->session->userdata('username')?>';
 	$(document).ready(function() {
-		load_data()
 		$('.select2').select2({
 			containerCssClass: "wrap",
 			placeholder: '--- Pilih ---',
 			dropdownAutoWidth: true
 		});
 		load_bank()
+		load_data()
 	});
 
-	status = "insert";
-
 	$("#filefoto").change(function() {
-		
 		$(".detail-inv").html('')
-        // readURL(this);
-        // cek_size(this);
     });	
 	
 	function cek_size(input) {
 		console.log(input.files[0].size)
 	}
+
 	function readURL(input) {
 		if (input.files && input.files[0]) {
 		var reader = new FileReader();
@@ -944,6 +991,162 @@
 		}
 	}
 
+	function cetakInvoice()
+	{
+		$(".tmpl-kop-invoice").html('')
+		$(".tmpl-invoice").html('')
+		$(".tmpl-pay-invoice").html('')
+		let no_invoice = $("#no_inv_foto").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/Cetak_Invoice')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			data: ({
+				no_invoice, opsi: 'html'
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				$(".tmpl-kop-invoice").html(data.htmlKop)
+				$(".tmpl-invoice").html(data.html)
+				$(".tmpl-pay-invoice").html(data.htmlPay)
+				swal.close()
+			}
+		})
+	}
+
+	function imgClick(klik)
+	{
+		let modal = document.getElementById('mymodal-img')
+		let img = document.getElementById(klik)
+		let modalImg = document.getElementById("img01")
+		img.onclick = function(){
+			modal.style.display = "block";
+			modalImg.src = this.src;
+			modalImg.alt = this.alt;
+		}
+		modal.onclick = function() {
+			img01.className += " out";
+			setTimeout(function() {
+				modal.style.display = "none";
+				img01.className = "modal-img-content";
+			}, 400);
+		}
+	}
+
+	function invInputNominalMutasi(i, opsi = '')
+	{
+		let no_invoice = $("#no_inv_foto").val()
+		let dit_nominal = $("#dit_nominal"+i).val().split('.').join('')
+		let dit_tgl = $("#dit_tgl"+i).val()
+		let dit_ket = $("#dit_ket"+i).val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/invInputNominalMutasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			data: ({ id: i, no_invoice, dit_nominal, dit_tgl, dit_ket, urlAuth, urlUser, opsi }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>BERHASIL!</b>`)
+					cetakInvoice()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function hpsInvMutasi(id)
+	{
+		let no_invoice = $("#no_inv_foto").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/hpsInvMutasi')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			data: ({ id, no_invoice }),
+			success: function(res){
+				data = JSON.parse(res)
+				cetakInvoice()
+			}
+		})
+	}
+
+	function cekFile()
+	{
+		let mut_tgl = $("#mut_tgl").val()
+		let mut_foto = $("#mut_foto").val()
+		let mut_nominal = $("#mut_nominal").val()
+		if(mut_tgl != '' && mut_foto != '' && mut_nominal != ''){
+			$(".save-mutasi").html('<button class="btn btn-primary btn-sm" onclick="uploadMutasi()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
+		}else{
+			$(".save-mutasi").html('')
+		}
+	}
+
+	function uploadMutasi(){
+		var form = $('#mut_mutasi')[0];
+		var data = new FormData(form);
+		let noinv = $('#no_inv_foto').val()
+		$.ajax({
+			url : '<?php echo base_url('Logistik/uploadMutasi')?>',
+			type : "POST",
+			enctype : 'multipart/form-data',
+			data : data,
+			contentType : false,
+			cache : false,
+			timeout : 600000,
+			processData : false,
+			beforeSend: function() {
+				swal({
+				title: 'loading ...',
+				allowEscapeKey    : false,
+				allowOutsideClick : false,
+				onOpen: () => {
+					swal.showLoading();
+				}
+				})
+			},
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data.file){
+					toastr.success(`<b>${data.msg}</b>`)
+					cetakInvoice()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		});
+	}
+
 	function open_foto(no_inv, tipe, ket, username)
 	{
 		$(".cekcekcek").html('')
@@ -953,11 +1156,16 @@
 		$("#tgl_invd").val('')
 		$("#tgl_blk").val('')
 		$("#ket_file").val('')
-		$('#modal_foto').modal('show');
 		$("#no_inv_foto").val(no_inv);
 		$('#upload_invd').hide();
 		$('#upload_blk').hide();
 		$('#filefoto').css("display","block");
+
+		if(ket != 'mutasi'){
+			$('#modal_foto').modal('show');
+			$('.card-mutasi').hide();
+		}
+
 		if(ket=='bc' && (username=='karina' || username=='siska' || username=='tegar')){
 			$('#upload_file').show();
 		}else if(ket=='faktur' && username=='siska'){
@@ -967,8 +1175,10 @@
 		}else if(ket=='inv_terima' && (username=='karina' || username=='tegar')){
 			$('#upload_invd').show();
 			$('#upload_file').show();
-		}else if(ket=='mutasi' && (username=='karina' || username=='tegar')){
-			$('#upload_file').show();
+		}else if(ket == 'mutasi'){
+			$(".row-list").hide()
+			$('.card-mutasi').show();
+			cetakInvoice()
 		}else if(ket=='sj_balik' && (username=='karina' || username=='tegar')){
 			$('#upload_blk').show();
 			$('#upload_file').show();
@@ -991,8 +1201,8 @@
 		document.getElementById("judul_file").innerHTML = "FILE "+ket.toUpperCase();
 		$("#status_modal").val(ket);		
 
-		
-		$.ajax({
+		if(ket != 'mutasi'){
+			$.ajax({
 				url: '<?= base_url('Logistik/get_foto_'); ?>'+ket,
 				type: 'POST',
 				data: {
@@ -1003,7 +1213,6 @@
 				dataType: "JSON",
 			})
 			.done(function(data) {
-
 				$('#div_preview_foto').css("display","block");
 				let btnHapHap = ''
 				if(username == 'developer' && data.url_foto != 'foto'){
@@ -1032,10 +1241,7 @@
 					}
 				}
 				$("#ket_file").val(data.ket)
-				if(data.ext=='pdf')
-				{
-					
-				}else{
+				if(data.ext!='pdf'){
 					var modal = document.getElementById('mymodal-img');
 					var img            = document.getElementById('preview_img');
 					var modalImg       = document.getElementById("img01");
@@ -1052,7 +1258,6 @@
 						}, 400);
 					}
 				}
-
 				// cek
 				if(data.header.cekinv == null && data.header.inpinv != null && (username=='bumagda' || username=='developer')){
 					$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 0 6px">
@@ -1077,6 +1282,7 @@
 				}
 				$('.select2').select2()
 			})
+		}
 	}
 
 	function sHpsFile(id_inv, ket){
@@ -1099,7 +1305,6 @@
 			data: ({ hps_file_inv, tgl_blk, tgl_invd, id_inv, ket }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					reloadTable()
 					toastr.success(`<b>${data.msg}</b>`)
@@ -1131,7 +1336,6 @@
 			data: ({ opsi, oNoInv, no_inv, status_modal }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					reloadTable()
 					toastr.success(`<b>${data.msg}</b>`)
@@ -1194,7 +1398,6 @@
 					$('#modal_foto').modal('hide');	
 					load_bank()
 				} else {
-					// console.log('GAGAL SIMPAN');
 					swal.close();
 					swal({
 						title               : "Cek Kembali",
@@ -1230,7 +1433,6 @@
 			data: ({ no_inv, status_modal, ket_file }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					reloadTable()
 					toastr.success(`<b>${data.msg}</b>`)
@@ -1437,6 +1639,73 @@
 		listNomerSJ()
 	}
 
+	function open_piutang()
+	{
+		$(".row-input").attr('style', 'display:none')
+		$(".row-list").attr('style', 'display:none')
+		$(".list_piutang").attr('style', '')
+		listPiutang()
+	}
+
+	function listPiutang()
+	{
+		$(".tab_piutang").html('')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/listPiutang')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res){
+				$(".tab_piutang").html(res)
+				swal.close()
+			}
+		})
+	}
+
+	function btnPiuSales(i)
+	{
+		$(".tr1").hide()
+		$(".tr2").hide()
+		$("#ts2").val("")
+		$(".ab1").removeClass("btn-warning").addClass("btn-success")
+		$(".af1").removeClass("fa-minus").addClass("fa-plus")
+		$(".ab2").removeClass("btn-secondary").addClass("btn-info")
+		$(".af2").removeClass("fa-minus").addClass("fa-plus")
+		let ts1 = $("#ts1").val()
+		if(parseInt(ts1) == parseInt(i)){
+			$("#ts1").val("")
+		}else{
+			$(".b1-"+i).removeClass("btn-success").addClass("btn-warning")
+			$(".f1-"+i).removeClass("fa-plus").addClass("fa-minus")
+			$("#ts1").val(i)
+			$(".t"+i).show()
+		}
+	}
+
+	function btnPiuCustomer(i)
+	{
+		$(".tr2").hide()
+		$(".ab2").removeClass("btn-secondary").addClass("btn-info")
+		$(".af2").removeClass("fa-minus").addClass("fa-plus")
+		let ts2 = $("#ts2").val()
+		if(parseInt(ts2) == parseInt(i)){
+			$("#ts2").val("")
+		}else{
+			$(".b2-"+i).removeClass("btn-info").addClass("btn-secondary")
+			$(".f2-"+i).removeClass("fa-plus").addClass("fa-minus")
+			$("#ts2").val(i)
+			$(".c"+i).show()
+		}
+	}
+
 	function open_lapExp() {
 		$(".row-input").attr('style', 'display:none')
 		$(".row-list").attr('style', 'display:none')
@@ -1540,6 +1809,8 @@
 		$(".list_lap").attr('style', 'display:none')
 		$(".list_sj").attr('style', 'display:none')
 		$(".list_exp").attr('style', 'display:none')
+		$(".list_piutang").attr('style', 'display:none')
+		$(".card-mutasi").attr('style', 'display:none')
 		$("#tgl_expired").val('')
 		$('#ex_pilih').val('').trigger('change')
 		$('.ex-tmpl').html(``)
@@ -1569,7 +1840,6 @@
 				})
 			},
 			success: function(data) {
-				// console.log(data)
 				if(data){
 					// header
 					$("#modal_type_po").val(data.header.type).trigger('change');
@@ -1885,7 +2155,7 @@
 	}
 
 	
-	function acc_inv(no_invoice,status_owner) 
+	function acc_inv(no_invoice, status_owner, opsi = '') 
 	{	
 		var user        = "<?= $this->session->userdata('username')?>"
 		var acc_owner   = status_owner
@@ -1899,8 +2169,6 @@
 			acc = acc_owner
 		}
 
-		// console.log(user)
-		// console.log(acc)
 		if (acc=='N')
 		{
 			var html = 'VERIFIKASI'
@@ -1943,13 +2211,17 @@
 					},
 					success: function(res) {
 						data = JSON.parse(res)
-						if(data.data){
+						if(data.data && opsi == 'cek'){
+							cetakInvoice()
+							toastr.success('<b>DATA BERHASIL DIPROSES</b>');
+							swal.close()
+						}else if(data.data){
 							reloadTable()
-							toastr.success('Data Berhasil Diproses');
+							toastr.success('<b>DATA BERHASIL DIPROSES</b>');
 							close_modal()
 							load_bank()
 						}else{
-							toastr.error('<b>MUTASI BELUM DI UPLOAD!</b>');
+							toastr.error(`<b>${data.msg}</b>`);
 							swal.close()
 						}
 					},
@@ -2818,7 +3090,6 @@
 				})
 			},
 			success: function(data) {
-				// console.log(data)
 				if(data){
 					// header
 					$("#type_po").val(data.header.type).trigger('change');
@@ -3166,7 +3437,6 @@
 			data: ({ tahun, bulan }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					reloadTable()
 					toastr.success(`<b>UPDATE EXPIRED BERHASIL!</b>`)
@@ -3196,7 +3466,6 @@
 			data: ({ id_inv, jenis, izin, jenisIzin }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					reloadTable()
 					toastr.success(`<b>BERHASIL!</b>`)
