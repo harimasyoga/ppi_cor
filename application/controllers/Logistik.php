@@ -9995,7 +9995,7 @@ class Logistik extends CI_Controller
 		//////////////////////////////////////////////// P E M B A Y A R A N - 2 ////////////////////////////////////////////////
 
 		$htmlPay = '';
-		if($opsi == 'html' && $uName != 'bumagda' && ($data_detail->img_mutasi == null || $cByr->num_rows() != 0)){
+		if($opsi == 'html' && ($uName != 'bumagda' || $uName != 'owner') && ($data_detail->img_mutasi == null || $cByr->num_rows() != 0)){
 			$htmlPay .= '<div style="margin-top:6px">
 				<form role="form" method="POST" id="mut_mutasi" enctype="multipart/form-data">
 					<div class="card-body row" style="padding:5px 0">
