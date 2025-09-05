@@ -5265,7 +5265,10 @@ class Logistik extends CI_Controller
 
 	function listPiutang()
 	{
+		$lvl = $this->session->userdata('level');
+		$uName = $this->session->userdata('username');
 		$html = '';
+
 		$sales = $this->db->query("SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
 		INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
 		INNER JOIN m_sales s ON p.id_sales=s.id_sales
@@ -5279,15 +5282,24 @@ class Logistik extends CI_Controller
 		GROUP BY s.nm_sales,s.id_sales,h.type");
 
 		if($sales->num_rows() != 0){
-			$html .= '<table style="border:1px solid #aaa;color:#000;border-collapse: collapse">';
+			$html .= '<table style="color:#000;border-collapse: collapse">';
 				$html .= '<tr>
-					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold">SALES/CUSTOMER</td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="2">SALES/CUSTOMER</td>
 					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG TOTAL</td>
 					<td style="background:#ccc;padding:5px 25px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG JT</td>
 				</tr>';
 				$sumTot = 0;
 				$sumJet = 0;
 				foreach($sales->result() as $s){
+					// COUNT SALES BAYAR
+					$cTT = $this->db->query("SELECT b.type,b.id_sales,COUNT(b.id_sales) AS cnt FROM invoice_bayar b
+					WHERE b.type='$s->type' AND b.id_sales='$s->id_sales'
+					GROUP BY b.type,b.id_sales");
+					if($cTT->num_rows() != 0){
+						$xCv = ' <span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$cTT->row()->cnt.'</span>';
+					}else{
+						$xCv = '';
+					}
 					// PIUTANG JT SALES
 					if($s->type == 'roll'){
 						$se1 = "p.nm_perusahaan";
@@ -5307,12 +5319,12 @@ class Logistik extends CI_Controller
 					");
 					($piuSalJt->num_rows() != 0) ? $xPiuSalJt = $piuSalJt->row()->jml_mutasi_jt : $xPiuSalJt = 0;
 					$html .= '<tr class="tr0">
-						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px">
+						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px" colspan="2">
 							<input type="hidden" id="ts1" value="">
 							<button class="btn btn-xs ab1 b1-'.$s->id_sales.' btn-success" style="padding:1px 5px" onclick="btnPiuSales('."'".$s->id_sales."'".')">
 								<i style="font-size:8px" class="fas af1 f1-'.$s->id_sales.' fa-plus"></i>
 							</button>&nbsp
-							'.$s->nm_sales.'
+							'.$s->nm_sales.$xCv.'
 						</td>
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($s->jml_mutasi, 0, ',', '.').'</td>
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuSalJt, 0, ',', '.').'</td>
@@ -5327,6 +5339,15 @@ class Logistik extends CI_Controller
 					");
 					if($cust->num_rows() != 0){
 						foreach($cust->result() as $r){
+							// COUNT SALES BAYAR
+							$cTz = $this->db->query("SELECT b.type,b.id_sales,b.id_pelanggan,COUNT(b.id_sales) AS cnt FROM invoice_bayar b
+							WHERE b.type='$r->type' AND b.id_sales='$r->id_sales' AND b.id_pelanggan='$r->id_perusahaan'
+							GROUP BY b.type,b.id_sales,b.id_pelanggan");
+							if($cTz->num_rows() != 0){
+								$xCz = ' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$cTz->row()->cnt.'</span>';
+							}else{
+								$xCz = '';
+							}
 							// PIUTANG JT CUSTOMER
 							$piuCusJt = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
 								$in1
@@ -5344,12 +5365,12 @@ class Logistik extends CI_Controller
 							}
 							//
 							$html .= '<tr class="tr1 t'.$r->id_sales.'" style="display:none">
-								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 15px">
+								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 15px" colspan="2">
 									<input type="hidden" id="ts2" value="">
 									<button class="btn btn-xs ab2 b2-'.$pt1.' btn-info" style="padding:1px 5px" onclick="btnPiuCustomer('."'".$pt1."'".')">
 										<i style="font-size:8px" class="fas af2 f2-'.$pt1.' fa-plus"></i>
 									</button>&nbsp
-									'.$r->nm_pelanggan.'
+									'.$r->nm_pelanggan.$xCz.'
 								</td>
 								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($r->jml_mutasi, 0, ',', '.').'</td>
 								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuCusJt, 0, ',', '.').'</td>
@@ -5388,11 +5409,52 @@ class Logistik extends CI_Controller
 										$pt2 = $n->id_perusahaan;
 									}
 									//
+
+									// BTN SAKTI
+									if($lvl == 'Admin'){
+										$bSz = '<td style="padding:5px 10px">
+											<button class="btn btn-xs btn-primary" style="padding:1px 5px" onclick="accSakti('."'".$n->no_invoice."'".')">
+												<i style="font-size:8px" class="fas fa-check"></i>
+											</button>
+										</td>';
+									}else{
+										$bSz = '';
+									}
+
 									$html .= '<tr class="tr2 c'.$pt2.' m-2" style="display:none">
-										<td style="padding:5px 5px 5px 25px"><b>'.$l.'.</b> '.$n->no_invoice.$xNoSj.'</td>
-										<td style="padding:5px;text-align:right">'.number_format($n->jml_mutasi, 0, ',', '.').'</td>
-										<td style="padding:5px;text-align:right">'.number_format($xPiuNoInvNoSj, 0, ',', '.').'</td>
+										<td style="border:1px solid #aaa;border-width:1px 0 1px 1px;padding:5px 5px 5px 25px" colspan="2"><b>'.$l.'.</b> '.$n->no_invoice.$xNoSj.'</td>
+										<td style="border:1px solid #aaa;border-width:1px 0;padding:5px;text-align:right">'.number_format($n->jml_mutasi, 0, ',', '.').'</td>
+										<td style="border:1px solid #aaa;border-width:1px 1px 1px 0;padding:5px;text-align:right">'.number_format($xPiuNoInvNoSj, 0, ',', '.').'</td>
+										'.$bSz.'
 									</tr>';
+
+									// PEMBAYARAN
+									$qPay = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$n->no_invoice'");
+									if($qPay->num_rows() != 0){
+										$sumPay = 0;
+										foreach($qPay->result() as $p){
+											($p->ket_byr == null || $p->ket_byr == '') ? $keT = '' : $keT = '<br>'.$p->ket_byr;
+											$html .= '<tr class="tr2 c'.$pt2.' m-2" style="display:none">
+												<td style="border-left:1px solid #aaa;padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.$p->tgl_bayar.$keT.'</td>
+												<td style="padding:5px;text-align:right">
+													<img id="'.$p->file_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$p->file_mutasi.'" alt="pay foto" width="100" class="shadow-sm" onclick="imgClick('."'".$p->file_mutasi."'".')">
+												</td>
+												<td style="padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.number_format($p->jumlah, 0, ',', '.').'</td>
+												<td style="border-right:1px solid #aaa;padding:5px"></td>
+											</tr>';
+											$sumPay += $p->jumlah;
+										}
+										// SELISIH
+										$hPay = $this->db->query("SELECT jml_mutasi FROM invoice_header WHERE no_invoice='$n->no_invoice'")->row();
+										$seLisiH = $sumPay - $hPay->jml_mutasi;
+										if($seLisiH < 0){
+											$html .= '<tr class="tr2 c'.$pt2.' m-2" style="display:none">
+												<td style="border-left:1px solid #aaa;padding:5px" colspan="2"></td>
+												<td style="border-top:2px solid #333;padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.number_format($seLisiH, 0, ',', '.').'</td>
+												<td style="border-right:1px solid #aaa;padding:5px"></td>
+											</tr>';
+										}
+									}
 								}
 							}
 						}
@@ -5402,7 +5464,7 @@ class Logistik extends CI_Controller
 				}
 				// TOTAL
 				$html .= '<tr>
-					<td style="background:#ccc;padding:5px;border:1px solid #aaa"></td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa" colspan="2"></td>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumTot, 0, ',', '.').'</td>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumJet, 0, ',', '.').'</td>
 				</tr>';
@@ -5410,6 +5472,12 @@ class Logistik extends CI_Controller
 		}
 
 		echo $html;
+	}
+
+	function accSakti()
+	{
+		$result = $this->m_logistik->accSakti();
+		echo json_encode($result);
 	}
 
 	function listPiuCustomer()
@@ -9721,7 +9789,7 @@ class Logistik extends CI_Controller
 				}
 
 				$zHpsI = ($aBayar->num_rows() == 1 ? '<button class="btn btn-sm btn-danger" onclick="hpsInvMutasi('."'".$n."'".')"><i class="fas fa-trash"></i></button> ' : '');
-				if($uName == 'bumagda'){
+				if($uName == 'bumagda' || $uName == 'owner'){
 					$btnInMut = '';
 					$oCinMut = '';
 				}else{
@@ -9744,7 +9812,7 @@ class Logistik extends CI_Controller
 					</td>
 				</tr>';
 				foreach($pBayar->result() as $b){
-					if($uName == 'bumagda'){
+					if($uName == 'bumagda' || $uName == 'owner'){
 						$btnInMut2 = '';
 						$oCinMut2 = '';
 					}else{
@@ -9809,7 +9877,7 @@ class Logistik extends CI_Controller
 							</td>
 						</tr>';
 					}else{
-						if($uName == 'bumagda' || $uName == 'developer'){
+						if($seLisiH >= 0 && ($uName == 'bumagda' || $uName == 'developer')){
 							$html .= '<tr style="vertical-align:top">
 								<td style="padding:5px" colspan="2"></td>
 								<td style="padding:5px">

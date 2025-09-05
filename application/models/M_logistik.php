@@ -4279,7 +4279,7 @@ class M_logistik extends CI_Model
 		$dit_ket = $_POST["dit_ket"];
 		$now = date('Y-m-d H:i:s');
 
-		$header = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
+		$header = $this->db->query("SELECT*FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
 		$bayar = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$no_invoice'");
 
 		if($opsi == 'cek'){
@@ -4311,6 +4311,23 @@ class M_logistik extends CI_Model
 					$data = $this->db->insert("invoice_bayar", $h);
 				}else{
 					if($update){
+						// GET SALES
+						if($header->type == 'roll'){
+							$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
+								INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
+								INNER JOIN m_sales s ON p.id_sales=s.id_sales
+								WHERE h.no_invoice='$header->no_invoice'
+								GROUP BY s.id_sales")->row();
+						}else{
+							$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
+								INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+								INNER JOIN m_sales s ON p.id_sales=s.id_sales
+								WHERE h.no_invoice='$header->no_invoice'
+								GROUP BY s.id_sales")->row();
+						}
+						$this->db->set("type", $header->type);
+						$this->db->set("id_sales", $idS->id_sales);
+						$this->db->set("id_pelanggan", $header->id_perusahaan);
 						$this->db->set("tgl_bayar", $dit_tgl);
 						$this->db->set("jumlah", $dit_nominal);
 						$this->db->set("ket_byr", $dit_ket);
@@ -4413,8 +4430,26 @@ class M_logistik extends CI_Model
 				$this->db->where('no_invoice', $mut_noinv);
 				$update = $this->db->update('invoice_header');
 
+				// INPUT BAYAR
 				if($update){
+					// GET SALES
+					if($cek->type == 'roll'){
+						$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
+							INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
+							INNER JOIN m_sales s ON p.id_sales=s.id_sales
+							WHERE h.no_invoice='$mut_noinv'
+							GROUP BY s.id_sales")->row();
+					}else{
+						$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
+							INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+							INNER JOIN m_sales s ON p.id_sales=s.id_sales
+							WHERE h.no_invoice='$mut_noinv'
+							GROUP BY s.id_sales")->row();
+					}
 					$h = [
+						'type' => $cek->type,
+						'id_sales' => $idS->id_sales,
+						'id_pelanggan' => $cek->id_perusahaan,
 						'no_invoice' => $mut_noinv,
 						'tgl_bayar' => $mut_tgl,
 						'file_mutasi' => $filefoto,
@@ -4431,6 +4466,18 @@ class M_logistik extends CI_Model
 			'mut_noinv' => $mut_noinv,
 			'file' => $file,
 			'msg' => $msg,
+		];
+	}
+
+	function accSakti(){
+		$no_invoice = $_POST["no_invoice"];
+
+		$this->db->set('acc_owner', 'Y');
+		$this->db->where('no_invoice', $no_invoice);
+		$data = $this->db->update('invoice_header');
+
+		return [
+			'data' => $data,
 		];
 	}
 

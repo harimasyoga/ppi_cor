@@ -382,7 +382,7 @@
 							<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_piutang()" title="LAPORAN PIUTANG"><i class="fas fa-list"></i> <b>Lap Piutang</b></button>
 						<?php } ?>
 
-						<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
+						<div class="card-body row" style="padding:8px 0;font-weight:bold">
 							<div class="col-md-2" style="padding-bottom:3px">
 								<select class="form-control select2" id="rentang_thn" name="rentang_thn" onchange="load_data()">
 									<?php
@@ -1465,6 +1465,28 @@
 			success: function(res) {
 				$(".tab_piutang").html(res)
 				swal.close()
+			}
+		})
+	}
+
+	function accSakti(no_invoice) {
+		$.ajax({
+			url: '<?php echo base_url('Logistik/accSakti') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ no_invoice }),
+			success: function(res) {
+				toastr.success(`<b>BERHASIL!</b>`)
+				listPiutang()
 			}
 		})
 	}
