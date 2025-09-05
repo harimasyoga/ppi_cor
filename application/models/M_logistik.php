@@ -4294,6 +4294,7 @@ class M_logistik extends CI_Model
 		return $code;
 	}
 
+	
 	function uploadMutasi()
 	{
 		$mut_noinv = $this->input->post('mut_noinv');
