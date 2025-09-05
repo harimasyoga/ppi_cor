@@ -5488,15 +5488,6 @@ class Logistik extends CI_Controller
 
 			$i               = 1;
 			foreach ($query as $r) {
-
-				$queryd = $this->db->query("SELECT  CASE WHEN type='roll' THEN
-					SUM(harga*weight)
-				ELSE
-					SUM(harga*hasil)
-				END AS jumlah
-				FROM invoice_detail 
-				WHERE no_invoice='$r->no_invoice' ")->row();
-
 				$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$r->no_invoice' GROUP BY trim(no_surat) ORDER BY no_surat");
 				if($result_sj->num_rows() == '1'){
 					$no_sj = $result_sj->row()->no_surat;
@@ -5528,34 +5519,6 @@ class Logistik extends CI_Controller
 							$hub_result .= $row->aka.', ';
 						}
 						$hub = $hub_result;
-					}
-				}				
-
-				$ppn11        = 0.11 * $queryd->jumlah;
-				$pph22        = 0.001 * $queryd->jumlah;
-				if($r->pajak=='ppn'){
-					if($r->inc_exc=='Include'){
-						$nominal    = 0;
-					}else if($r->inc_exc=='Exclude'){				
-						$nominal    = $ppn11;
-					}else{
-						$nominal    = 0;
-					}
-				}else if($r->pajak=='ppn_pph') {
-					if($r->inc_exc=='Include'){
-						$nominal    = 0;
-					}else if($r->inc_exc=='Exclude'){				
-						$nominal    = $ppn11 + $pph22;
-					}else{
-						$nominal    = 0;
-					}
-				}else{
-					if($r->inc_exc=='Include'){
-						$nominal    = 0;
-					}else if($r->inc_exc=='Exclude'){
-						$nominal    = $ppn11;
-					}else{
-						$nominal    = 0;
 					}
 				}
 
@@ -5638,7 +5601,6 @@ class Logistik extends CI_Controller
 				($seconds3 == 0) ? $tseconds3 = '' : $tseconds3 = $seconds.' Sec';
 				($days3 == 0 && $hours3 == 0 && $minutes3 == 0) ? $waktu3 = $tseconds3 : $waktu3 = $tDays3.$tHours3.$tMinutes3;
 
-				$total                  = $queryd->jumlah + $nominal;
 				$usnm                   = $this->session->userdata('username');
 				$id                     = "'$r->id'";
 				$no_inv                 = "'$r->no_invoice'";
@@ -6005,6 +5967,36 @@ class Logistik extends CI_Controller
 					}
 					$jmlNominal = $r->jml_mutasi;
 				}else{
+					$queryd = $this->db->query("SELECT CASE WHEN type='roll' THEN SUM(harga*weight) ELSE SUM(harga*hasil) END AS jumlah FROM invoice_detail 
+					WHERE no_invoice='$r->no_invoice'")->row();
+					$ppn11 = 0.11 * $queryd->jumlah;
+					$pph22 = 0.001 * $queryd->jumlah;
+					if($r->pajak == 'ppn'){
+						if($r->inc_exc == 'Include'){
+							$nominal = 0;
+						}else if($r->inc_exc == 'Exclude'){				
+							$nominal = $ppn11;
+						}else{
+							$nominal = 0;
+						}
+					}else if($r->pajak == 'ppn_pph'){
+						if($r->inc_exc == 'Include'){
+							$nominal = 0;
+						}else if($r->inc_exc == 'Exclude'){				
+							$nominal = $ppn11 + $pph22;
+						}else{
+							$nominal = 0;
+						}
+					}else{
+						if($r->inc_exc == 'Include'){
+							$nominal = 0;
+						}else if($r->inc_exc == 'Exclude'){
+							$nominal = $ppn11;
+						}else{
+							$nominal = 0;
+						}
+					}
+					$total = $queryd->jumlah + $nominal;
 					$txtSel = '';
 					$seLisiH = 0;
 					$jmlNominal = $total;
@@ -10007,6 +9999,12 @@ class Logistik extends CI_Controller
 	function uploadMutasi()
 	{
 		$result = $this->m_logistik->uploadMutasi();
+		echo json_encode($result);
+	}
+
+	function updateInvMutasi()
+	{
+		$result = $this->m_logistik->updateInvMutasi();
 		echo json_encode($result);
 	}
 

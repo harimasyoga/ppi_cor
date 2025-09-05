@@ -4037,6 +4037,89 @@ class M_logistik extends CI_Model
 		);
 	}
 
+	function updateInvMutasi()
+	{
+		$qInv = $this->db->query("SELECT*FROM invoice_header WHERE acc_owner='N' GROUP BY no_invoice");
+		if($qInv->num_rows() != 0){
+			foreach($qInv->result() as $header){
+				if($header->type== 'roll') {
+					// ROLL
+					$sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$header->no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
+					// TAMPILKAN DULU LABEL
+					$totalHarga = 0;
+					foreach($sqlLabel->result() as $label){
+						// TAMPILKAN ITEMNYA
+						$weightNmLbPo = 0;
+						$sqlWidth = $this->db->query("SELECT*FROM invoice_detail
+						WHERE no_invoice='$label->no_invoice' AND nm_ker='$label->nm_ker' AND g_label='$label->g_label' AND no_po='$label->no_po'
+						ORDER BY width ASC");
+						foreach($sqlWidth->result() as $items){
+							// BERAT SESETAN
+							$fixBerat = $items->weight - $items->seset;
+							// TOTAL BERAT PER GSM - LABEL - PO
+							$weightNmLbPo += $fixBerat;
+						}
+						// CARI HARGANYA
+						$sqlHargaPo = $this->db->query("SELECT*FROM invoice_detail
+						WHERE no_invoice='$label->no_invoice' AND nm_ker='$label->nm_ker' AND g_label='$label->g_label' AND no_po='$label->no_po'")->row();
+						// PERKALIAN ANTARA TOTAL BERAT DAN HARGA PO
+						$weightXPo = round($weightNmLbPo * $sqlHargaPo->harga);
+						$totalHarga += $weightXPo;
+					}
+				}else{
+					// BOX
+					$sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$header->no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
+					$totalHarga = 0;
+					foreach($sqlLabel->result() as $label){
+						$total_harga = round(($label->qty - $label->retur_qty) * $label->harga);
+						$totalHarga += $total_harga;
+					}
+				}
+
+				// RUMUS
+				// JIKA ADA DISCOUNT
+				if($header->disc != 0){
+					$subTotal = $totalHarga - ($totalHarga * ($header->disc/100));
+				}else{
+					$subTotal = $totalHarga;
+				}
+				if($header->pajak == 'ppn'){
+					// PPN 10 %
+					if($header->inc_exc=='Include'){
+						$terbilang = round($subTotal);
+					}else if($header->inc_exc=='Exclude'){
+						$terbilang = round($subTotal + (0.11 * $subTotal));
+					}else{
+						$terbilang = '';
+					}
+				}else if($header->pajak == 'ppn_pph'){
+					// PPH22
+					if($header->inc_exc=='Include'){
+						$terbilang = round($subTotal + (0.001 * $subTotal));
+					}else if($header->inc_exc=='Exclude'){
+						$terbilang = round($subTotal + (0.11 * $subTotal) + (0.001 * $subTotal));
+					}else{
+						$terbilang = '';
+					}
+				}else{
+					// NON
+					$terbilang = $subTotal;
+				}
+
+				// UPDATE
+				$this->db->set('jml_mutasi', $terbilang);
+				$this->db->where('no_invoice', $header->no_invoice);
+				$data = $this->db->update('invoice_header');
+			}
+		}else{
+			$data = true;
+		}
+
+		return array(
+			'data' => $data,
+		);
+	}
+
 	function updateExpired()
 	{
 		$tahun = $_POST["tahun"];
