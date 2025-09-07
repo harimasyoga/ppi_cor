@@ -5411,7 +5411,7 @@ class Logistik extends CI_Controller
 									//
 
 									// BTN SAKTI
-									if($lvl == 'Admin'){
+									if($lvl == 'Admin' || $uName == 'karina'){
 										$bSz = '<td style="padding:5px 10px">
 											<button class="btn btn-xs btn-primary" style="padding:1px 5px" onclick="accSakti('."'".$n->no_invoice."'".')">
 												<i style="font-size:8px" class="fas fa-check"></i>
