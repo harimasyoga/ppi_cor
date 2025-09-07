@@ -70,6 +70,16 @@
 									</div>
 								</div>
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-3">PAJAK</div>
+									<div class="col-md-9">
+										<select id="pajak" name="pajak" class="form-control select2" onchange="diPilih()">
+											<option value="">PILIH</option>
+											<option value="ppn">PPN</option>
+											<option value="non">NON PPN</option>
+										</select>
+									</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 									<div class="col-md-3">MARKETING</div>
 									<div class="col-md-9">
 										<select id="id_sales" name="id_sales" class="form-control select2" onchange="diPilih()">
@@ -199,6 +209,13 @@
 									<div class="col-md-8"></div>
 								</div>
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-1">HARGA</div>
+									<div class="col-md-3">
+										<input type="number" id="i_harga" class="form-control" autocomplete="off" placeholder="0">
+									</div>
+									<div class="col-md-8"></div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 									<div class="col-md-1">KET</div>
 									<div class="col-md-3">
 										<input type="text" id="i_ket" class="form-control" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
@@ -307,7 +324,7 @@
 										<thead class="color-tabel">
 											<tr>
 												<th style="padding:12px;text-align:center">#</th>
-												<th style="padding:12px;text-align:center">NO. PO</th>
+												<th style="padding:12px;text-align:center">NO. PO<span style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">(order)</span></th>
 												<th style="padding:12px;text-align:center">TGL</th>
 												<th style="padding:12px;text-align:center">STATUS</th>
 												<th style="padding:12px;text-align:center">CUSTOMER</th>
@@ -530,10 +547,11 @@
 		$("#id_pt").val(id_pt)
 
 		let no_po = $("#no_po").val()
+		let pajak = $("#pajak").val()
 		let id_sales = $("#id_sales").val()
 		let filefoto = $("#filefoto").val()
 		let id_cart = $("#id_cart").val()
-		if(tgl != '' && nm_pelanggan != '' && no_po != '' && id_sales != '' && filefoto != '' && id_cart != 0){
+		if(tgl != '' && nm_pelanggan != '' && no_po != '' && pajak != '' && id_sales != '' && filefoto != '' && id_cart != 0){
 			$(".simpan-save").html('<button class="btn btn-primary btn-sm"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
 		}else{
 			$(".simpan-save").html('')
@@ -564,6 +582,7 @@
 		let ukuran = $("#i_ukuran").val()
 		let berat = $("#i_berat").val()
 		let qty = $("#i_qty").val()
+		let harga = $("#i_harga").val()
 		let ket = $("#i_ket").val()
 
 		let id_cart = parseInt($("#id_cart").val()) + 1
@@ -582,7 +601,7 @@
 				})
 			},
 			data: ({
-				jenis, gsm, ukuran, berat, qty, ket, id_cart
+				jenis, gsm, ukuran, berat, qty, harga, ket, id_cart
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -700,6 +719,7 @@
 				$("#tgl").val(data.header.tgl_po).prop('disabled', true)
 				$("#nm_pelanggan").val(data.header.nm_pelanggan).prop('disabled', true).trigger('change')
 				$("#no_po").val(data.header.no_po).prop('disabled', true)
+				$("#pajak").val(data.header.pajak).prop('disabled', true).trigger('change')
 				$("#id_sales").val(data.header.id_sales).prop('disabled', true).trigger('change')
 				$(".detail-po").html(data.htmlDtl)
 				$(".list-roll").html(data.htmlI)
@@ -945,6 +965,7 @@
 		let e_width = $('#e_width'+id_item).val()
 		let e_tonase = $('#e_tonase'+id_item).val().split('.').join('')
 		let e_jml_roll = $('#e_jml_roll'+id_item).val().split('.').join('')
+		let e_harga = $('#e_harga'+id_item).val().split('.').join('')
 		let e_ket = $('#e_ket'+id_item).val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editListPORoll')?>',
@@ -960,7 +981,7 @@
 				})
 			},
 			data: ({
-				id_hdr, id_item, e_nm_ker, e_g_label, e_width, e_tonase, e_jml_roll, e_ket
+				id_hdr, id_item, e_nm_ker, e_g_label, e_width, e_tonase, e_jml_roll, e_harga, e_ket
 			}),
 			success: function(res){
 				data = JSON.parse(res)
