@@ -373,6 +373,7 @@
 								<button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE EXPIRED"><i class="fas fa-sync-alt"></i><b>UPDATE EXPIRED</b></button>
 								<button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateInvMutasi()" title="UPDATE TOTAL"><i class="fas fa-sync-alt"></i> </i><b>UPDATE TOTAL</b></button>
 								<?php if (in_array($this->session->userdata('level'), ['Admin'])) { ?>
+									<button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="updateMutasiBayar()"><i class="fa fa-sync-alt"></i> <b>UPDATE BAYAR</b></button>
 									<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_lapExp()"><i class="fa fa-print"></i> <b>Lap Expired</b></button>
 								<?php } ?>
 							</div>
@@ -3245,6 +3246,28 @@
 					toastr.error(`<b>BELUM BERUNTUNG</b>`)
 					swal.close()
 				}
+			}
+		})
+	}
+
+	function updateMutasiBayar() {
+		$.ajax({
+			url: '<?php echo base_url('Logistik/updateMutasiBayar') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res) {
+				data = JSON.parse(res)
+				console.log(data)
+				swal.close()
 			}
 		})
 	}
