@@ -4476,6 +4476,7 @@ class M_logistik extends CI_Model
 	function accSakti(){
 		$no_invoice = $_POST["no_invoice"];
 
+		$this->db->set('cek_mutasi', date("Y-m-d H:i:s"));
 		$this->db->set('acc_owner', 'Y');
 		$this->db->where('no_invoice', $no_invoice);
 		$data = $this->db->update('invoice_header');
