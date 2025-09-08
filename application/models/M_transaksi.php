@@ -2143,6 +2143,7 @@ class M_transaksi extends CI_Model
 		$hidhdr = $this->input->post('hidhdr');
 		$tgl = $this->input->post('tgl');
 		$no_po = $this->input->post('no_po');
+		$pajak = $this->input->post('pajak');
 		$nm_pelanggan = $this->input->post('nm_pelanggan');
 		$id_pt = $this->input->post('id_pt');
 		$id_sales = $this->input->post('id_sales');
@@ -2168,6 +2169,8 @@ class M_transaksi extends CI_Model
 			$data = false; $msg = 'HARAP PILIH NAMA CUSTOMER!';
 		}else if($no_po == '' && $hidhdr == ''){
 			$data = false; $msg = 'HARAP ISI NO. PO!';
+		}else if($pajak == '' && $hidhdr == ''){
+			$data = false; $msg = 'HARAP PILIH PAJAK!';
 		}else if($id_sales == '' && $hidhdr == ''){
 			$data = false; $msg = 'HARAP PILIH MARKETING!';
 		}else if($nmFile == '' && $hidhdr == ''){
@@ -2192,6 +2195,7 @@ class M_transaksi extends CI_Model
 				$dh = [
 					'tgl_po' => $tgl,
 					'no_po' => $no_po,
+					'pajak' => $pajak,
 					'id_pt' => $id_pt,
 					'nm_pelanggan' => $nm_pelanggan,
 					'id_sales' => $id_sales,
@@ -2220,6 +2224,7 @@ class M_transaksi extends CI_Model
 									'width' => $r['options']['ukuran'],
 									'tonase' => $r['options']['berat'],
 									'jml_roll' => $r['options']['qty'],
+									'harga' => $r['options']['harga'],
 									'ket' => $r['options']['ket'],
 								);
 								$item = $this->db->insert('trs_po_roll_item', $data);
@@ -2313,6 +2318,16 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function gF2()
+	{
+		$stringSpace = '0123456789_abcdefghijklmnopqrstuvwxyz';
+		$stringLength = strlen($stringSpace);
+		$string = str_repeat($stringSpace, ceil(11 / $stringLength));
+		$shuffledString = str_shuffle($string);
+		$code = substr($shuffledString, 1, 11);
+		return $code;
+	}
+
 	function InputPORoll()
 	{
 		$id_hdr = $_POST["id_hdr"];
@@ -2320,8 +2335,14 @@ class M_transaksi extends CI_Model
 
 		$header = $this->db->query("SELECT*FROM trs_po_roll_header WHERE id_hdr='$id_hdr'")->row();
 		$detail = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$id_hdr' AND no_po='$header->no_po' ORDER BY nm_ker,g_label,width");
+
+		$thn = substr(date('Y'), 2, 2);
+		$bln = date('m');
+		$date = date('d');
+		$idPO = 'x'.$header->id_pt.'.'.$thn.$bln.$date.'.'.$this->generateFileName();
 		foreach($detail->result() as $r){
 			$items = array(
+				'id_po' => $idPO,
 				'id_perusahaan' => $header->id_pt,
 				'tgl' => $header->tgl_po,
 				'nm_ker' => $r->nm_ker,
@@ -2329,9 +2350,9 @@ class M_transaksi extends CI_Model
 				'width' => $r->width,
 				'jml_roll' => $r->jml_roll,
 				'no_po' => $r->no_po,
+				'pajak' => $header->pajak,
 				'tonase' => ($r->tonase == null) ? 0 : $r->tonase,
-				'harga' => 0,
-				'pajak' => 'ppn',
+				'harga' => ($r->harga == null) ? 0 : $r->harga,
 				'status' => 'open',
 				'status_roll' => 0,
 				'ket' => $r->ket,
@@ -2376,13 +2397,14 @@ class M_transaksi extends CI_Model
 		$width = $_POST["e_width"];
 		$tonase = $_POST["e_tonase"];
 		$jml_roll = $_POST["e_jml_roll"];
+		$harga = $_POST["e_harga"];
 		$ket = $_POST["e_ket"];
 		$item = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id='$id'");
 		$cek = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$id_hdr' AND nm_ker='$nm_ker' AND g_label='$g_label' AND width='$width'");
 		if($cek->num_rows() != 0 && $item->row()->id != $cek->row()->id){
 			$data = false;
 			$msg = 'ITEM SUDAH ADA!';
-		}else if($nm_ker == '' || $g_label == '' || $width == '' || $tonase == '' || $tonase == 0 || $jml_roll == '' || $jml_roll == 0){
+		}else if($nm_ker == '' || $g_label == '' || $width == '' || $tonase == '' || $tonase == 0 || $jml_roll == '' || $jml_roll == 0 || $harga == '' || $harga == 0){
 			$data = false;
 			$msg = 'HARAP LENGKAPI INPUTAN!';
 		}else{
@@ -2391,6 +2413,7 @@ class M_transaksi extends CI_Model
 			$this->db->set('width', $width);
 			$this->db->set('tonase', $tonase);
 			$this->db->set('jml_roll', $jml_roll);
+			$this->db->set('harga', $harga);
 			$this->db->set('ket', $ket);
 			$this->db->where('id', $id);
 			$data = $this->db->update('trs_po_roll_item');

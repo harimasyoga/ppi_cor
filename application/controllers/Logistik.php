@@ -5411,7 +5411,7 @@ class Logistik extends CI_Controller
 									//
 
 									// BTN SAKTI
-									if($lvl == 'Admin'){
+									if($lvl == 'Admin' || $uName == 'karina'){
 										$bSz = '<td style="padding:5px 10px">
 											<button class="btn btn-xs btn-primary" style="padding:1px 5px" onclick="accSakti('."'".$n->no_invoice."'".')">
 												<i style="font-size:8px" class="fas fa-check"></i>
@@ -12152,9 +12152,8 @@ class Logistik extends CI_Controller
 		GROUP BY a.no_surat")->row();
 
         // KOP
-		// HUB
-		// CV. '.$data_pl->nm_hub.'</span><br>'.$data_pl->alamat_hub.'
 		if($data_pl->id_hub != 7){
+			// HUB
 			($data_pl->nm_pelanggan == "-" || $data_pl->nm_pelanggan == "") ? $nm_pelanggan = $data_pl->attn : $nm_pelanggan = $data_pl->nm_pelanggan;
 			$html .= '<table style="font-size:12px;color:#000;border-collapse:collapse;width:100%;vertical-align:top;font-family:tahoma">
 				<tr>
@@ -12191,52 +12190,10 @@ class Logistik extends CI_Controller
 				<tr>
 					<td style="padding:3px 5px">Nama Pengemudi</td>
 					<td style="padding:3px 0">:</td>
-					<td style="padding:3px 0"></td>
+					<td style="padding:3px 0">'.$data_pl->driver.'</td>
 				</tr>
 			</table>';
-		}
-		// else if($data_pl->id_hub == 4){
-		// 	($data_pl->nm_pelanggan == "-" || $data_pl->nm_pelanggan == "") ? $nm_pelanggan = $data_pl->attn : $nm_pelanggan = $data_pl->nm_pelanggan;
-		// 	$html .= '<table style="font-size:11px;color:#000;border-collapse:collapse;width:100%;vertical-align:top;font-family:Arial !important">
-		// 		<tr>
-		// 			<td style="width:14%"></td>
-		// 			<td style="width:1%"></td>
-		// 			<td style="width:25%"></td>
-		// 			<td style="width:60%"></td>
-		// 		</tr>
-		// 		<tr>
-		// 		<td style="padding-bottom:5px;text-align:center;font-size:16px;vertical-align:middle;font-weight:bold" colspan="3">SURAT JALAN</td>
-		// 			<td style="padding:0 5px 5px 0"><span style="font-size:12px;font-weight:bold">CV. '.$data_pl->nm_hub.'</span><br>'.$data_pl->alamat_hub.'</td>
-		// 		</tr>
-		// 		<tr>
-		// 			<td style="padding:3px 5px">Nomer Surat Jalan</td>
-		// 			<td style="padding:3px 0">:</td>
-		// 			<td style="padding:3px 0">'.$data_pl->no_surat.'</td>
-		// 			<td style="border:1px solid #000;padding:3px" rowspan="5">KEPADA : '.$nm_pelanggan.'<br>'.$data_pl->alamat_kirim.'</td>
-		// 		</tr>
-		// 		<tr>
-		// 			<td style="padding:3px 5px">Tanggal</td>
-		// 			<td style="padding:3px 0">:</td>
-		// 			<td style="padding:3px 0">'.$this->m_fungsi->tanggal_format_indonesia($data_pl->tgl).'</td>
-		// 		</tr>
-		// 		<tr>
-		// 			<td style="padding:3px 5px">No. PO</td>
-		// 			<td style="padding:3px 0">:</td>
-		// 			<td style="padding:3px 0">'.$data_pl->no_po.'</td>
-		// 		</tr>
-		// 		<tr>
-		// 			<td style="padding:3px 5px">No. Polisi</td>
-		// 			<td style="padding:3px 0">:</td>
-		// 			<td style="padding:3px 0">'.$data_pl->no_kendaraan.'</td>
-		// 		</tr>
-		// 		<tr>
-		// 			<td style="padding:3px 5px">Nama Pengemudi</td>
-		// 			<td style="padding:3px 0">:</td>
-		// 			<td style="padding:3px 0"></td>
-		// 		</tr>
-		// 	</table>';
-		// }
-		else{
+		}else{
 			// PPN
 			$kop = '<table style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:Arial !important">
 				<tr>
@@ -12494,35 +12451,11 @@ class Logistik extends CI_Controller
 				<tr>
 					<td style="padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
 					<td></td>
-					<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
+					<td style="border:1px solid #000;padding:60px 5px 5px"></td>
 					<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
 					<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
 				</tr>';
-			}
-			// else if($data_pl->id_hub == 4){
-			// 	$html .= '<tr>
-			// 		<th style="width:15% !important;height:15px"></th>
-			// 		<th style="width:15% !important;height:15px"></th>
-			// 		<th style="width:15% !important;height:15px"></th>
-			// 		<th style="width:35% !important;height:15px"></th>
-			// 		<th style="width:20% !important;height:15px"></th>
-			// 	</tr>
-			// 	<tr>
-			// 		<td style="border:1px solid #000;padding:5px">SOPIR</td>
-			// 		<td style="border:1px solid #000;padding:5px">MANAGER</td>
-			// 		<td style="border:1px solid #000;padding:5px">BAG. PACKING</td>
-			// 		<td></td>
-			// 		<td style="padding:5px">TANDA TERIMA</td>
-			// 	</tr>
-			// 	<tr>
-			// 		<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
-			// 		<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
-			// 		<td style="border:1px solid #000;padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
-			// 		<td></td>
-			// 		<td style="padding:60px 5px 5px">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</td>
-			// 	</tr>';
-			// }
-			else{
+			}else{
 				if(in_array($data_pl->id_perusahaan, ['242','257','268','269'])){
 					$ntGod = '<tr>
 						<td style="font-weight:normal;text-align:left;padding:3px 0 3px 40px"></td>

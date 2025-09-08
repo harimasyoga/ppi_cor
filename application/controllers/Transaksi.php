@@ -126,7 +126,7 @@ class Transaksi extends CI_Controller
 		// ITEM
 		$htmlE = '';
 		// EDIT LIST DETAIL PO
-		$list = $this->db->query("SELECT i.*,SUM(tonase) AS tonase, SUM(jml_roll) AS jml_roll FROM trs_po_roll_item i WHERE i.id_hdr='$header->id_hdr' AND i.no_po='$header->no_po' GROUP BY i.nm_ker,i.g_label");
+		$list = $this->db->query("SELECT i.*,SUM(tonase) AS tonase, SUM(jml_roll) AS jml_roll FROM trs_po_roll_item i WHERE i.id_hdr='$header->id_hdr' AND i.no_po='$header->no_po' GROUP BY i.nm_ker,i.g_label,i.harga");
 		if($this->session->userdata('level') == 'Admin' && $opsi == 'edit'){
 			$htmlE .= '<div style="margin-bottom:5px;display:flex">';
 				foreach($list->result() as $l2){
@@ -139,6 +139,7 @@ class Transaksi extends CI_Controller
 								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">WIDTH</th>
 								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">BERAT</th>
 								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">ROLL</th>
+								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">HARGA</th>
 								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">KET</th>
 								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">-</th>
 							</tr>';
@@ -164,6 +165,9 @@ class Transaksi extends CI_Controller
 									</td>
 									<td style="padding:6px">
 										<input type="number" class="iproll" style="width:50px;text-align:right" id="e_jml_roll'.$e->id.'" value="'.$e->jml_roll.'" autocomplete="off">
+									</td>
+									<td style="padding:6px">
+										<input type="number" class="iproll" style="width:80px;text-align:right" id="e_harga'.$e->id.'" value="'.$e->harga.'" autocomplete="off">
 									</td>
 									<td style="padding:6px">
 										<input type="text" class="iproll" style="width:100px" id="e_ket'.$e->id.'" value="'.$e->ket.'" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
@@ -277,7 +281,28 @@ class Transaksi extends CI_Controller
 				// BATAS
 				$htmlI .= '<div style="padding:3px"></div>';
 			}
+
+			// HARGA
+			$htmlI .= '<div>';
+				if($list->num_rows() == 1){
+					$htmlI .= 'HARGA : <b>Rp. '.number_format($list->row()->harga, 0, ',', '.').'</b>';
+				}else{
+					$htmlI .= 'HARGA<br>';
+					$htmlI .= '<table>';
+						foreach($list->result() as $h){
+							$htmlI .= '<tr>
+								<td>'.$h->nm_ker.' '.$h->g_label.'</td>
+								<td style="padding:0 6px">:</td>
+								<td style="padding:0 6px 0 0">Rp.</td>
+								<td style="text-align:right"><b>'.number_format($h->harga, 0, ',', '.').'</b></td>
+							</tr>';
+						}
+					$htmlI .= '</table>';
+				}
+			$htmlI .= '</div>';
+
 			// TONASE
+			$htmlI .= '<div style="padding:10px"></div>';
 			$htmlI .= '<div>';
 				if($list->num_rows() == 1){
 					$htmlI .= 'TONASE : <b>'.number_format($list->row()->tonase, 0, ',', '.').'</b> Kg';
@@ -300,9 +325,10 @@ class Transaksi extends CI_Controller
 					$htmlI .= '</table>';
 				}
 			$htmlI .= '</div>';
+
 			// JUMLAH ROLL
+			$htmlI .= '<div style="padding:10px"></div>';
 			if($list->num_rows() > 1){
-				$htmlI .= '<div style="padding:3px"></div>';
 				$htmlI .= '<div>';
 					$tRoll = 0;
 					foreach($list->result() as $jr){
@@ -381,7 +407,7 @@ class Transaksi extends CI_Controller
 
 	function addListUK()
 	{
-		if($_POST["jenis"] == "" || $_POST["gsm"] == "" || $_POST["ukuran"] == "" || $_POST["qty"] == ""){
+		if($_POST["jenis"] == "" || $_POST["gsm"] == "" || $_POST["ukuran"] == "" || $_POST["qty"] == "" || $_POST["harga"] == ""){
 			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
 		}else{
 			$data = array(
@@ -395,6 +421,7 @@ class Transaksi extends CI_Controller
 					'ukuran' => $_POST["ukuran"],
 					'berat' => $_POST["berat"],
 					'qty' => $_POST["qty"],
+					'harga' => $_POST["harga"],
 					'ket' => ($_POST["ket"] == '') ? '' : $_POST["ket"],
 					'id_cart' => $_POST["id_cart"],
 				)
@@ -432,6 +459,7 @@ class Transaksi extends CI_Controller
 						<th style="padding:6px;text-align:center">UKURAN</th>
 						<th style="padding:6px;text-align:center">BERAT</th>
 						<th style="padding:6px;text-align:center">QTY</th>
+						<th style="padding:6px;text-align:center">HARGA</th>
 						<th style="padding:6px;text-align:center">KETERANGAN</th>
 						<th style="padding:6px;text-align:center">AKSI</th>
 					</tr>
@@ -442,15 +470,18 @@ class Transaksi extends CI_Controller
 			';
 		}
 		$i = 0;
+		$sumBerat = 0;
+		$sumQty = 0;
 		foreach($this->cart->contents() as $r){
 			$i++;
 			$html .='<tr>
 				<td style="padding:6px;text-align:center">'.$i.'</td>
 				<td style="padding:6px">'.$r['options']['jenis'].'</td>
-				<td style="padding:6px;text-align:center">'.$r['options']['gsm'].'</td>
+				<td style="padding:6px;text-align:right">'.$r['options']['gsm'].'</td>
 				<td style="padding:6px;text-align:right">'.$r['options']['ukuran'].'</td>
 				<td style="padding:6px;text-align:right">'.number_format($r['options']['berat']).'</td>
 				<td style="padding:6px;text-align:right">'.$r['options']['qty'].'</td>
+				<td style="padding:6px;text-align:right">Rp. '.number_format($r['options']['harga']).'</td>
 				<td style="padding:6px">'.$r['options']['ket'].'</td>
 				<td style="padding:6px;text-align:center">
 					<button class="btn btn-danger btn-xs" onclick="hapusCartPORoll('."'".$r['rowid']."'".')"><i class="fas fa-times"></i> BATAL</button>
@@ -461,8 +492,19 @@ class Transaksi extends CI_Controller
 					<th style="padding:2px" colspan="6"></th>
 				</tr>';
 			}
+			$sumBerat += $r['options']['berat'];
+			$sumQty += $r['options']['qty'];
 		}
 		if($this->cart->total_items() != 0){
+			if($this->cart->total_items() > 1){
+				$html .= '
+				<tr style="font-weight:bold">
+					<th style="padding:6px;border-top:3px solid #dee2e6;text-align:center" colspan="4">TOTAL</th>
+					<th style="padding:6px;border-top:3px solid #dee2e6;text-align:right">'.number_format($sumBerat).'</th>
+					<th style="padding:6px;border-top:3px solid #dee2e6;text-align:right">'.number_format($sumQty).'</th>
+					<th style="padding:6px;border-top:3px solid #dee2e6" colspan="3"></th>
+				</tr>';
+			}
 			$html .= '</table></div>';
 		}
 		echo $html;
@@ -3048,7 +3090,24 @@ class Transaksi extends CI_Controller
 				$i++;
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = $r->no_po;
+				// ORDER
+				$qItems = $this->db->query("SELECT nm_ker,g_label FROM trs_po_roll_item WHERE id_hdr='$r->id_hdr' AND no_po='$r->no_po' GROUP BY nm_ker,g_label");
+				$items = '';
+				foreach($qItems->result() as $s){
+					if(($s->nm_ker == 'MH' || $s->nm_ker == 'MN') && $s->g_label <= 110){
+						$bT = 'background:#ccf;';
+					}else if(($s->nm_ker == 'MH' || $s->nm_ker == 'MN') && ($s->g_label == 120 || $s->g_label == 125)){
+						$bT = 'background:#ffc;';
+					}else if(($s->nm_ker == 'MH' || $s->nm_ker == 'MN') && $s->g_label >= 150){
+						$bT = 'background:#fcc;';
+					}else if($s->nm_ker == 'WP' || $s->nm_ker == 'WS'){
+						$bT = 'background:#cfc;';
+					}else{
+						$bT = 'background:#ddd;';
+					}
+					$items .= '<span style="'.$bT.'vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$s->nm_ker.$s->g_label.'</span>';
+				}
+				$row[] = $r->no_po.' '.$items;
 				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_format_indonesia($r->tgl_po).'</div>';
 				if($r->status_po == 'Open'){
 					$btn_s = 'btn-info';
@@ -3058,7 +3117,9 @@ class Transaksi extends CI_Controller
 					$btn_s = 'btn-danger';
 				}
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.'" onclick="editPORoll('."'".$r->id_hdr."'".', '."'detail'".')">'.$r->status_po.'</button></div>';
-				$row[] = $r->nm_pelanggan;
+				// PAJAK
+				($r->pajak == "non") ? $pajak = ' <span style="background:#ddd;vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">non</span>' : $pajak = '';
+				$row[] = $r->nm_pelanggan.$pajak;
 				// MARKETING
 				if($r->mkt_status == 'N'){
 					$bt1 = 'btn-warning';
