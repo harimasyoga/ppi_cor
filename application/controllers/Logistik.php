@@ -5433,12 +5433,17 @@ class Logistik extends CI_Controller
 									if($qPay->num_rows() != 0){
 										$sumPay = 0;
 										foreach($qPay->result() as $p){
+											$e = explode('.', $p->file_mutasi);
+											$ext = end($e);
+											if($ext == 'pdf'){
+												$LinkM = '<a target="_blank" class="" href="'.base_url().'assets/gambar_inv_mutasi/'.$p->file_mutasi.'" title="PDF"><i style="color:#f6303d" class="far fa-file-pdf"></i></a>';
+											}else{
+												$LinkM = '<img id="'.$p->file_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$p->file_mutasi.'" alt="pay foto" width="100" class="shadow-sm" onclick="imgClick('."'".$p->file_mutasi."'".')">';
+											}
 											($p->ket_byr == null || $p->ket_byr == '') ? $keT = '' : $keT = '<br>'.$p->ket_byr;
 											$html .= '<tr class="tr2 c'.$pt2.' m-2" style="display:none">
 												<td style="border-left:1px solid #aaa;padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.$p->tgl_bayar.$keT.'</td>
-												<td style="padding:5px;text-align:right">
-													<img id="'.$p->file_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$p->file_mutasi.'" alt="pay foto" width="100" class="shadow-sm" onclick="imgClick('."'".$p->file_mutasi."'".')">
-												</td>
+												<td style="padding:5px;text-align:right">'.$LinkM.'</td>
 												<td style="padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.number_format($p->jumlah, 0, ',', '.').'</td>
 												<td style="border-right:1px solid #aaa;padding:5px"></td>
 											</tr>';
@@ -9796,7 +9801,14 @@ class Logistik extends CI_Controller
 					$btnInMut = $zEdit.$zHpsI;
 					$oCinMut = 'onchange="invInputNominalMutasi('."'".$n."'".')"';
 				}
-
+				// 
+				$eI = explode('.', $data_detail->img_mutasi);
+				$extI = end($eI);
+				if($extI == 'pdf'){
+					$llM = '<a target="_blank" class="" href="'.base_url().'assets/gambar_inv_mutasi/'.$data_detail->img_mutasi.'" title="PDF"><i style="color:#f6303d" class="far fa-file-pdf"></i></a>';
+				}else{
+					$llM = '<img id="'.$data_detail->img_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$data_detail->img_mutasi.'" alt="preview foto" width="100" class="shadow-sm" onclick="imgClick('."'".$data_detail->img_mutasi."'".')">';
+				}
 				$html .= '<tr style="vertical-align:top">
 					<td style="padding:5px"></td>
 					<td style="padding:5px;text-align:right">'.$btnInMut.'</td>
@@ -9804,9 +9816,7 @@ class Logistik extends CI_Controller
 						<input type="date" id="dit_tgl'.$n.'" value="'.$zTgl.'" class="form-control" style="margin-bottom:5px;display:block">
 						<textarea id="dit_ket'.$n.'" class="form-control" style="resize:none" placeholder="KETERANGAN" oninput="this.value=this.value.toUpperCase()">'.$zKet.'</textarea>
 					</td>
-					<td style="padding:5px;text-align:center" colspan="2">
-						<img id="'.$data_detail->img_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$data_detail->img_mutasi.'" alt="preview foto" width="100" class="shadow-sm" onclick="imgClick('."'".$data_detail->img_mutasi."'".')">
-					</td>
+					<td style="padding:5px;text-align:center" colspan="2">'.$llM.'</td>
 					<td style="padding:5px 0;text-align:right" colspan="2">
 						<input type="text" id="dit_nominal'.$n.'" value="'.$zNom.'" style="background:#eee;border:0;padding:5px;text-align:right;font-weight:bold" placeholder="0" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" '.$oCinMut.'>
 					</td>
@@ -9820,6 +9830,14 @@ class Logistik extends CI_Controller
 							<button class="btn btn-sm btn-danger" onclick="hpsInvMutasi('."'".$b->id."'".')"><i class="fas fa-trash"></i></button>';
 						$oCinMut2 = 'onchange="invInputNominalMutasi('."'".$b->id."'".')"';
 					}
+					// 
+					$e = explode('.', $b->file_mutasi);
+					$ext = end($e);
+					if($ext == 'pdf'){
+						$linkMutasi = '<a target="_blank" class="" href="'.base_url().'assets/gambar_inv_mutasi/'.$b->file_mutasi.'" title="PDF"><i style="color:#f6303d" class="far fa-file-pdf"></i></a>';
+					}else{
+						$linkMutasi = '<img id="'.$b->file_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$b->file_mutasi.'" alt="preview foto" width="100" class="shadow-sm" onclick="imgClick('."'".$b->file_mutasi."'".')">';
+					}
 					$html .= '<tr style="vertical-align:top">
 						<td style="padding:5px"></td>
 						<td style="padding:5px;text-align:right">'.$btnInMut2.'</td>
@@ -9827,9 +9845,7 @@ class Logistik extends CI_Controller
 							<input type="date" id="dit_tgl'.$b->id.'" value="'.$b->tgl_bayar.'" class="form-control" style="margin-bottom:5px;display:block">
 							<textarea id="dit_ket'.$b->id.'" class="form-control" style="resize:none" placeholder="KETERANGAN" oninput="this.value=this.value.toUpperCase()">'.$b->ket_byr.'</textarea>
 						</td>
-						<td style="padding:5px;text-align:center" colspan="2">
-							<img id="'.$b->file_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$b->file_mutasi.'" alt="preview foto" width="100" class="shadow-sm" onclick="imgClick('."'".$b->file_mutasi."'".')">
-						</td>
+						<td style="padding:5px;text-align:center" colspan="2">'.$linkMutasi.'</td>
 						<td style="padding:5px 0;text-align:right" colspan="2">
 							<input type="text" id="dit_nominal'.$b->id.'" value="'.number_format($b->jumlah, 0, ',', '.').'" style="background:#eee;border:0;padding:5px;text-align:right;font-weight:bold" placeholder="0" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" '.$oCinMut2.'>
 						</td>
@@ -10009,9 +10025,15 @@ class Logistik extends CI_Controller
 					<div class="card-body row" style="padding:5px 0">
 						<div class="col-md-1">Upload File</div>
 						<div class="col-md-2">
-							<input type="file" name="mut_foto" id="mut_foto" accept=".jpg,.jpeg,.png" onchange="cekFile()">
+							<input type="file" name="mut_foto" id="mut_foto" accept=".jpg,.jpeg,.png,.pdf" onchange="cekFile()">
 						</div>
 						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:0 0 5px">
+						<div class="col-md-1"></div>
+						<div class="col-md-11" style="color:#f00;font-weight:bold;font-style:italic">
+							* .jpg, .jpeg, .png, .pdf
+						</div>
 					</div>
 					<div class="card-body row" style="padding:5px 0">
 						<div class="col-md-1">Nominal</div>
