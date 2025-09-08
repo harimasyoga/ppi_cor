@@ -4300,8 +4300,26 @@ class M_logistik extends CI_Model
 				$this->db->where('no_invoice', $no_invoice);
 				$update = $this->db->update('invoice_header');
 
+				// GET SALES
+				if($header->type == 'roll'){
+					$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
+						INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
+						INNER JOIN m_sales s ON p.id_sales=s.id_sales
+						WHERE h.no_invoice='$header->no_invoice'
+						GROUP BY s.id_sales")->row();
+				}else{
+					$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
+						INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+						INNER JOIN m_sales s ON p.id_sales=s.id_sales
+						WHERE h.no_invoice='$header->no_invoice'
+						GROUP BY s.id_sales")->row();
+				}
+
 				if($update && $bayar->num_rows() == 0){
 					$h = [
+						'type' => $header->type,
+						'id_sales' => $idS->id_sales,
+						'id_pelanggan' => $header->id_perusahaan,
 						'no_invoice' => $no_invoice,
 						'tgl_bayar' => $dit_tgl,
 						'file_mutasi' => $header->img_mutasi,
@@ -4311,20 +4329,6 @@ class M_logistik extends CI_Model
 					$data = $this->db->insert("invoice_bayar", $h);
 				}else{
 					if($update){
-						// GET SALES
-						if($header->type == 'roll'){
-							$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
-								INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
-								INNER JOIN m_sales s ON p.id_sales=s.id_sales
-								WHERE h.no_invoice='$header->no_invoice'
-								GROUP BY s.id_sales")->row();
-						}else{
-							$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
-								INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
-								INNER JOIN m_sales s ON p.id_sales=s.id_sales
-								WHERE h.no_invoice='$header->no_invoice'
-								GROUP BY s.id_sales")->row();
-						}
 						$this->db->set("type", $header->type);
 						$this->db->set("id_sales", $idS->id_sales);
 						$this->db->set("id_pelanggan", $header->id_perusahaan);
@@ -4403,7 +4407,7 @@ class M_logistik extends CI_Model
 
 		// FILE
 		$config['upload_path'] = './assets/gambar_inv_mutasi/';
-		$config['allowed_types'] = 'jpg|jpeg|png';
+		$config['allowed_types'] = 'jpg|jpeg|png|pdf';
 		$config['overwrite'] = true;
 		$thn = substr(date('Y'), 2, 2); $bln = date('m'); $date = date('d');
 		$config['file_name'] = $thn.$bln.$date.'-'.$this->generateFileName();
