@@ -5111,6 +5111,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function updateMutasiBayar()
+	{
+		$result = $this->m_logistik->updateMutasiBayar();
+		echo json_encode($result);
+	}
+
 	function btnSakti()
 	{
 		$result = $this->m_logistik->btnSakti();
@@ -9771,13 +9777,16 @@ class Logistik extends CI_Controller
 		//////////////////////////////////////////////// P E M B A Y A R A N - 1 ////////////////////////////////////////////////
 
 		if($opsi == 'html'){
-			$html .= '<tr>
-				<td style="padding:5px;background:#ccc;font-weight:bold;text-align:center" colspan="7">PEMBAYARAN</td>
-			</tr>';
-
 			$aBayar = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$data_detail->no_invoice'");
 			$pBayar = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$data_detail->no_invoice' AND file_mutasi!='$data_detail->img_mutasi' GROUP BY id,no_invoice,file_mutasi");
 			$cByr = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$data_detail->no_invoice' AND file_mutasi='$data_detail->img_mutasi'");
+
+			if($data_detail->img_mutasi != ''){
+				$html .= '<tr>
+					<td style="padding:5px;background:#ccc;font-weight:bold;text-align:center" colspan="7">PEMBAYARAN</td>
+				</tr>';
+			}
+
 			if($data_detail->img_mutasi != ''){
 				if($cByr->num_rows() != 0){
 					$zTgl = $cByr->row()->tgl_bayar;
@@ -10011,9 +10020,12 @@ class Logistik extends CI_Controller
 		//////////////////////////////////////////////// P E M B A Y A R A N - 2 ////////////////////////////////////////////////
 
 		$htmlPay = '';
-		if($opsi == 'html' && ($uName != 'bumagda' || $uName != 'owner') && ($data_detail->img_mutasi == null || $cByr->num_rows() != 0)){
+		if($opsi == 'html' && ($uName == 'karina' || $uName == 'tegar' || $uName == 'developer') && ($data_detail->img_mutasi == null || $cByr->num_rows() != 0)){
 			$htmlPay .= '<div style="margin-top:6px">
 				<form role="form" method="POST" id="mut_mutasi" enctype="multipart/form-data">
+					<div class="card-body row" style="padding:5px 0">
+						<div class="col-md-12" style="font-weight:bold">INPUT PEMBAYARAN :</div>
+					</div>
 					<div class="card-body row" style="padding:5px 0">
 						<div class="col-md-1">Tanggal Bayar</div>
 						<div class="col-md-2">

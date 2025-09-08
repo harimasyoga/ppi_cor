@@ -4247,6 +4247,49 @@ class M_logistik extends CI_Model
 		);
 	}
 
+	function updateMutasiBayar()
+	{
+		$qInv = $this->db->query("SELECT*FROM invoice_header h
+		WHERE h.img_mutasi IS NOT NULL AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
+		AND NOT EXISTS(SELECT*FROM invoice_bayar b WHERE h.no_invoice=b.no_invoice)
+		GROUP BY h.no_invoice");
+		if($qInv->num_rows() != 0 || $qInv->num_rows() != null){
+			foreach($qInv->result() as $r){
+				// GET SALES
+				if($r->type == 'roll'){
+					$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
+						INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
+						INNER JOIN m_sales s ON p.id_sales=s.id_sales
+						WHERE h.no_invoice='$r->no_invoice'
+						GROUP BY s.id_sales")->row();
+				}else{
+					$idS = $this->db->query("SELECT s.id_sales FROM invoice_header h
+						INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+						INNER JOIN m_sales s ON p.id_sales=s.id_sales
+						WHERE h.no_invoice='$r->no_invoice'
+						GROUP BY s.id_sales")->row();
+				}
+				$h = [
+					'type' => $r->type,
+					'id_sales' => $idS->id_sales,
+					'id_pelanggan' => $r->id_perusahaan,
+					'no_invoice' => $r->no_invoice,
+					'tgl_bayar' => $r->tgl_jatuh_tempo,
+					'file_mutasi' => $r->img_mutasi,
+					'jumlah' => $r->jml_mutasi,
+					'ket_byr' => '',
+				];
+				$data = $this->db->insert("invoice_bayar", $h);
+			}
+		}else{
+			$data = true;
+		}
+
+		return array(
+			'data' => $data,
+		);
+	}
+
 	function btnSakti()
 	{
 		$id_inv = $_POST["id_inv"];
