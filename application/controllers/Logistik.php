@@ -5297,15 +5297,6 @@ class Logistik extends CI_Controller
 				$sumTot = 0;
 				$sumJet = 0;
 				foreach($sales->result() as $s){
-					// COUNT SALES BAYAR
-					$cTT = $this->db->query("SELECT b.type,b.id_sales,COUNT(b.id_sales) AS cnt FROM invoice_bayar b
-					WHERE b.type='$s->type' AND b.id_sales='$s->id_sales'
-					GROUP BY b.type,b.id_sales");
-					if($cTT->num_rows() != 0){
-						$xCv = ' <span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$cTT->row()->cnt.'</span>';
-					}else{
-						$xCv = '';
-					}
 					// PIUTANG JT SALES
 					if($s->type == 'roll'){
 						$se1 = "p.nm_perusahaan";
@@ -5324,13 +5315,33 @@ class Logistik extends CI_Controller
 						GROUP BY s.id_sales
 					");
 					($piuSalJt->num_rows() != 0) ? $xPiuSalJt = $piuSalJt->row()->jml_mutasi_jt : $xPiuSalJt = 0;
+
+					// COUNT BELUM BAYAR ALL
+					$cTT = $this->db->query("SELECT s.id_sales,COUNT(h.no_invoice) AS cnt FROM invoice_header h
+						$in1
+						INNER JOIN m_sales s ON p.id_sales=s.id_sales
+						WHERE s.id_sales='$s->id_sales' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wh1
+						AND NOT EXISTS (SELECT*FROM invoice_bayar b WHERE h.no_invoice=b.no_invoice)
+						GROUP BY s.id_sales
+					");
+					($cTT->num_rows() != 0) ? $xCv = ' <span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$cTT->row()->cnt.'</span>' : $xCv = '';
+					// COUNT BELUM BAYAR ALL XP
+					$cXp = $this->db->query("SELECT s.id_sales,COUNT(h.no_invoice) AS cnt FROM invoice_header h
+						$in1
+						INNER JOIN m_sales s ON p.id_sales=s.id_sales
+						WHERE s.id_sales='$s->id_sales' AND h.status_inv='Xp' AND h.jml_mutasi IS NOT NULL AND h.img_inv_terima IS NOT NULL AND h.acc_owner='N' $wh1
+						AND NOT EXISTS (SELECT*FROM invoice_bayar b WHERE h.no_invoice=b.no_invoice)
+						GROUP BY s.id_sales
+					");
+					($cXp->num_rows() != 0) ? $xXxP = '<span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$cXp->row()->cnt.'</span>' : $xXxP = '';
+
 					$html .= '<tr class="tr0">
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px" colspan="2">
 							<input type="hidden" id="ts1" value="">
 							<button class="btn btn-xs ab1 b1-'.$s->id_sales.' btn-success" style="padding:1px 5px" onclick="btnPiuSales('."'".$s->id_sales."'".')">
 								<i style="font-size:8px" class="fas af1 f1-'.$s->id_sales.' fa-plus"></i>
 							</button>&nbsp
-							'.$s->nm_sales.$xCv.'
+							'.$s->nm_sales.$xCv.$xXxP.'
 						</td>
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($s->jml_mutasi, 0, ',', '.').'</td>
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuSalJt, 0, ',', '.').'</td>
@@ -5345,15 +5356,6 @@ class Logistik extends CI_Controller
 					");
 					if($cust->num_rows() != 0){
 						foreach($cust->result() as $r){
-							// COUNT SALES BAYAR
-							$cTz = $this->db->query("SELECT b.type,b.id_sales,b.id_pelanggan,COUNT(b.id_sales) AS cnt FROM invoice_bayar b
-							WHERE b.type='$r->type' AND b.id_sales='$r->id_sales' AND b.id_pelanggan='$r->id_perusahaan'
-							GROUP BY b.type,b.id_sales,b.id_pelanggan");
-							if($cTz->num_rows() != 0){
-								$xCz = ' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$cTz->row()->cnt.'</span>';
-							}else{
-								$xCz = '';
-							}
 							// PIUTANG JT CUSTOMER
 							$piuCusJt = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
 								$in1
@@ -5363,6 +5365,26 @@ class Logistik extends CI_Controller
 								GROUP BY s.id_sales,h.id_perusahaan
 							");
 							($piuCusJt->num_rows() != 0) ? $xPiuCusJt = $piuCusJt->row()->jml_mutasi_jt : $xPiuCusJt = 0;
+
+							// COUNT BELUM BAYAR PER CUST ALL
+							$c1 = $this->db->query("SELECT s.id_sales,COUNT(h.no_invoice) AS cnt FROM invoice_header h
+								$in1
+								INNER JOIN m_sales s ON p.id_sales=s.id_sales
+								WHERE s.id_sales='$s->id_sales' AND h.id_perusahaan='$r->id_perusahaan' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wh1
+								AND NOT EXISTS (SELECT*FROM invoice_bayar b WHERE h.no_invoice=b.no_invoice)
+								GROUP BY s.id_sales
+							");
+							($c1->num_rows() != 0) ? $t1 = ' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$c1->row()->cnt.'</span>' : $t1 = '';
+							// COUNT BELUM BAYAR PER CUST XP
+							$c2 = $this->db->query("SELECT s.id_sales,COUNT(h.no_invoice) AS cnt FROM invoice_header h
+								$in1
+								INNER JOIN m_sales s ON p.id_sales=s.id_sales
+								WHERE s.id_sales='$s->id_sales' AND h.id_perusahaan='$r->id_perusahaan' AND h.status_inv='Xp' AND h.jml_mutasi IS NOT NULL AND h.img_inv_terima IS NOT NULL AND h.acc_owner='N' $wh1
+								AND NOT EXISTS (SELECT*FROM invoice_bayar b WHERE h.no_invoice=b.no_invoice)
+								GROUP BY s.id_sales
+							");
+							($c2->num_rows() != 0) ? $t2 = '<span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$c2->row()->cnt.'</span>' : $t2 = '';
+
 							//
 							if($r->type == 'roll'){
 								$pt1 = $r->id_perusahaan * 9;
@@ -5376,13 +5398,13 @@ class Logistik extends CI_Controller
 									<button class="btn btn-xs ab2 b2-'.$pt1.' btn-info" style="padding:1px 5px" onclick="btnPiuCustomer('."'".$pt1."'".')">
 										<i style="font-size:8px" class="fas af2 f2-'.$pt1.' fa-plus"></i>
 									</button>&nbsp
-									'.$r->nm_pelanggan.$xCz.'
+									'.$r->nm_pelanggan.$t1.$t2.'
 								</td>
 								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($r->jml_mutasi, 0, ',', '.').'</td>
 								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuCusJt, 0, ',', '.').'</td>
 							</tr>';
 							// NO INVOICE DAN SURAT JALAN
-							$noInvNoSj = $this->db->query("SELECT s.id_sales,h.id_perusahaan,h.type,h.no_invoice,h.jml_mutasi FROM invoice_header h
+							$noInvNoSj = $this->db->query("SELECT s.id_sales,h.id_perusahaan,h.type,h.status_inv,h.no_invoice,h.jml_mutasi,h.inp_inv_terima, DATEDIFF(SUBSTR(h.inp_inv_terima, 1, 10), CURDATE()) AS sisa_invd, DATEDIFF(h.tgl_jatuh_tempo , h.tgl_invoice) AS tempo FROM invoice_header h
 								$in1
 								INNER JOIN m_sales s ON p.id_sales=s.id_sales
 								WHERE h.acc_owner='N' AND h.jml_mutasi IS NOT NULL $wh1
@@ -5427,15 +5449,38 @@ class Logistik extends CI_Controller
 										$bSz = '';
 									}
 
+									// PEMBAYARAN
+									$qPay = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$n->no_invoice'");
+									// MUTASI
+									if($n->status_inv == 'Xp'){
+										$sisaHari = $n->tempo + $n->sisa_invd;
+										if($sisaHari == 0){
+											$secondsDiffH = strtotime(substr($n->inp_inv_terima,0,10)) - time();
+											$daysH = floor($secondsDiffH/60/60/24);
+											$hoursH = floor(($secondsDiffH-($daysH*60*60*24))/60/60);
+											$minutesH = floor(($secondsDiffH-($daysH*60*60*24)-($hoursH*60*60))/60);
+											($hoursH == 0) ? $tHoursH = '' : $tHoursH = $hoursH.' Hrs | ';
+											($minutesH == 0) ? $tMinutesH = '' : $tMinutesH = $minutesH.' Mnt ';
+											$sisaHariH = $tHoursH.$tMinutesH;
+										}else{
+											$sisaHariH = $sisaHari.' HARI ';
+										}
+										if($qPay->num_rows() == 0 && $sisaHari < 0){
+											$cekMutmut = ' <span class="bg-primary" style="vertical-align:top;padding:2px 4px;font-size:12px;border-radius:2px 0 0 2px">'.$n->tempo.'</span><span class="bg-dark" style="vertical-align:top;padding:2px 4px;font-size:12px;border-radius:0 2px 2px 0">+'.str_replace("-", "", $sisaHari). ' HARI</span>';
+										}else{
+											$cekMutmut = '';
+										}
+									}else{
+										$cekMutmut = '';
+									}
+
 									$html .= '<tr class="tr2 c'.$pt2.' m-2" style="display:none">
-										<td style="border:1px solid #aaa;border-width:1px 0 1px 1px;padding:5px 5px 5px 25px" colspan="2"><b>'.$l.'.</b> '.$n->no_invoice.$xNoSj.'</td>
+										<td style="border:1px solid #aaa;border-width:1px 0 1px 1px;padding:5px 5px 5px 25px" colspan="2"><b>'.$l.'.</b> '.$n->no_invoice.$xNoSj.$cekMutmut.'</td>
 										<td style="border:1px solid #aaa;border-width:1px 0;padding:5px;text-align:right">'.number_format($n->jml_mutasi, 0, ',', '.').'</td>
 										<td style="border:1px solid #aaa;border-width:1px 1px 1px 0;padding:5px;text-align:right">'.number_format($xPiuNoInvNoSj, 0, ',', '.').'</td>
 										'.$bSz.'
 									</tr>';
 
-									// PEMBAYARAN
-									$qPay = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$n->no_invoice'");
 									if($qPay->num_rows() != 0){
 										$sumPay = 0;
 										foreach($qPay->result() as $p){
@@ -5525,7 +5570,6 @@ class Logistik extends CI_Controller
 
 	function load_data()
 	{
-		// $db2 = $this->load->database('database_simroll', TRUE);
 		$jenis    = $this->uri->segment(3);
 		$data     = array();
 
