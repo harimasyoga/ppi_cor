@@ -369,10 +369,10 @@
 							<div style="margin-bottom:12px">
 								<button type="button" style="margin-bottom:3px" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								<button type="button" style="margin-bottom:3px" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
-								<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_piutang()" title="LAPORAN PIUTANG"><i class="fas fa-list"></i> <b>Lap Piutang</b></button>
 								<button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE EXPIRED"><i class="fas fa-sync-alt"></i><b>UPDATE EXPIRED</b></button>
-								<button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateInvMutasi()" title="UPDATE TOTAL"><i class="fas fa-sync-alt"></i> </i><b>UPDATE TOTAL</b></button>
 								<?php if (in_array($this->session->userdata('level'), ['Admin'])) { ?>
+									<button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateInvMutasi()" title="UPDATE TOTAL"><i class="fas fa-sync-alt"></i> </i><b>UPDATE TOTAL</b></button>
+									<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_piutang()" title="LAPORAN PIUTANG"><i class="fas fa-list"></i> <b>Lap Piutang</b></button>
 									<button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="updateMutasiBayar()"><i class="fa fa-sync-alt"></i> <b>UPDATE BAYAR</b></button>
 									<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_lapExp()"><i class="fa fa-print"></i> <b>Lap Expired</b></button>
 								<?php } ?>
