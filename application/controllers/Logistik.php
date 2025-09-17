@@ -4497,7 +4497,7 @@ class Logistik extends CI_Controller
 		$e        = explode('.', $header->img_bc);
 		$ext      = end($e);
 		
-		if($header->img_bc==null || $header->img_bc=='') {
+		if($header->img_bc == null || $header->img_bc == '' || $header->img_bc == 'foto.jpg') {
 			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_bc/') . $header->img_bc; $uF2 = '';
@@ -4526,7 +4526,7 @@ class Logistik extends CI_Controller
 		$e        = explode('.', $header->img_faktur);
 		$ext      = end($e);
 		
-		if($header->img_faktur==null || $header->img_faktur=='') {
+		if($header->img_faktur == null || $header->img_faktur == '' || $header->img_faktur == 'foto.jpg') {
 			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_faktur/') . $header->img_faktur; $uF2 = '';
@@ -4555,7 +4555,7 @@ class Logistik extends CI_Controller
 		$e        = explode('.', $header->img_resi);
 		$ext      = end($e);
 		
-		if($header->img_resi==null || $header->img_resi=='') {
+		if($header->img_resi == null || $header->img_resi == '' || $header->img_resi == 'foto.jpg') {
 			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_resi/') . $header->img_resi; $uF2 = '';
@@ -4584,7 +4584,7 @@ class Logistik extends CI_Controller
 		$e        = explode('.', $header->img_inv_terima);
 		$ext      = end($e);
 		
-		if($header->img_inv_terima==null || $header->img_inv_terima=='') {
+		if($header->img_inv_terima == null || $header->img_inv_terima == '' || $header->img_inv_terima == 'foto.jpg') {
 			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_inv_terima/') . $header->img_inv_terima; $uF2 = '';
@@ -4613,7 +4613,7 @@ class Logistik extends CI_Controller
 		$e        = explode('.', $header->img_mutasi);
 		$ext      = end($e);
 		
-		if($header->img_mutasi==null || $header->img_mutasi=='') {
+		if($header->img_mutasi == null || $header->img_mutasi == '' || $header->img_mutasi == 'foto.jpg') {
 			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_mutasi/') . $header->img_mutasi; $uF2 = '';
@@ -4642,7 +4642,7 @@ class Logistik extends CI_Controller
 		$e        = explode('.', $header->img_sj_balik);
 		$ext      = end($e);
 		
-		if($header->img_sj_balik==null || $header->img_sj_balik=='') {
+		if($header->img_sj_balik == null || $header->img_sj_balik == '' || $header->img_sj_balik == 'foto.jpg') {
 			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_sj_balik/') . $header->img_sj_balik; $uF2 = '';
@@ -4671,7 +4671,7 @@ class Logistik extends CI_Controller
 		$e        = explode('.', $header->img_upload_inv);
 		$ext      = end($e);
 		
-		if($header->img_upload_inv==null || $header->img_upload_inv=='') {
+		if($header->img_upload_inv == null || $header->img_upload_inv == '' || $header->img_upload_inv == 'foto.jpg') {
 			$url_foto = base_url('assets/gambar/blank_foto.jpg'); $uF2 = 'foto';
 		}else{
 			$url_foto = base_url('assets/gambar_inv_upload_inv/') . $header->img_upload_inv; $uF2 = '';
@@ -4957,6 +4957,7 @@ class Logistik extends CI_Controller
 				$this->db->set('tgl_sj_blk', $params->tgl_blk);
 				$this->db->where('no_invoice', $params->no_inv_foto);
 				$data = $this->db->update('invoice_header');
+				// UPDATE SJ BALIK ROLL
 				if($data && $cek_data->type == 'roll'){
 					$db_ppi = $this->load->database('database_simroll', TRUE);
 					$dtl = $this->db->query("SELECT no_invoice,no_surat FROM invoice_detail WHERE no_invoice='$cek_data->no_invoice' GROUP BY no_invoice,no_surat");
@@ -4964,6 +4965,15 @@ class Logistik extends CI_Controller
 						$db_ppi->set('sj_blk', $params->tgl_blk);
 						$db_ppi->where('no_surat', $r->no_surat);
 						$db_ppi->update('pl');
+					}
+				}
+				// UPDATE SJ BALIK BOX/SHEET
+				if($data && $cek_data->type != 'roll'){
+					$dBox = $this->db->query("SELECT no_invoice,no_surat FROM invoice_detail WHERE no_invoice='$cek_data->no_invoice' GROUP BY no_invoice,no_surat");
+					foreach($dBox->result() as $b){
+						$this->db->set('sj_blk', $params->tgl_blk);
+						$this->db->where('no_surat', $b->no_surat);
+						$this->db->update('pl_box');
 					}
 				}
 

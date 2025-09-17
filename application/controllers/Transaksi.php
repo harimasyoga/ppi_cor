@@ -623,6 +623,8 @@ class Transaksi extends CI_Controller
 						($minRoll == 0 || $minRoll > 0) ? $bgR = ' style="background:#ccc"' : $bgR = '';
 						// KURANG TONASE
 						$minTonase = $r->kirim_tonase - $r->tonase;
+						// OPEN CLOSE
+						($r->status == 'close') ? $dO = ';color:#f00' : $dO = '';
 
 						if($opsi == '' || ($opsi != '' && $minRoll != 0)){
 							$i++;
@@ -642,7 +644,7 @@ class Transaksi extends CI_Controller
 								</td>
 								<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->jml_roll_po, 0, ',', '.').'</td>
 								<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->kiriman_roll, 0, ',', '.').'</td>
-								<td style="padding:6px;border:1px solid #888;text-align:right;font-weight:bold">'.number_format($minRoll, 0, ',', '.').'</td>
+								<td style="padding:6px;border:1px solid #888;text-align:right;font-weight:bold'.$dO.'">'.number_format($minRoll, 0, ',', '.').'</td>
 								<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->tonase, 0, ',', '.').'</td>
 								<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->kirim_tonase, 0, ',', '.').'</td>
 								<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($minTonase, 0, ',', '.').'</td>
@@ -658,7 +660,7 @@ class Transaksi extends CI_Controller
 						$kir = $db->query("SELECT po.nm_ker, po.g_label, po.width, COUNT(t.roll) AS kiriman_roll, SUM(t.weight - t.seset) AS kirim_tonase FROM po_master po
 						INNER JOIN m_timbangan t ON t.nm_ker=po.nm_ker AND t.g_label=po.g_label AND t.width=po.width
 						INNER JOIN pl p ON t.id_pl=p.id AND p.no_po=po.no_po AND t.nm_ker=p.nm_ker AND t.g_label=p.g_label AND t.width=po.width AND p.id_perusahaan=po.id_perusahaan
-						WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' AND p.id_perusahaan='$id_pt' AND po.nm_ker='$r->nm_ker' AND po.g_label='$r->g_label' AND po.width='$r->width' $stas
+						WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' AND p.id_perusahaan='$id_pt' AND po.nm_ker='$r->nm_ker' AND po.g_label='$r->g_label' AND po.width='$r->width' $stas $noPO
 						GROUP BY po.nm_ker,po.g_label,po.width");
 						if($kir->num_rows() != 0){
 							$kiriman_roll = $kir->row()->kiriman_roll;
