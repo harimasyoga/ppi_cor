@@ -5136,12 +5136,14 @@ class Logistik extends CI_Controller
 	function cariLapExpired()
 	{
 		$html = '';
+		$plh_sales = $_POST["plh_sales"];
 		$ex_pilih = $_POST["ex_pilih"];
 		$tgl_exp = $_POST["tgl_expired"];
 
 		if($tgl_exp == '' && $ex_pilih != 'SEMUA'){
 			$html .= 'PILIH DAHULU!';
 		}else{
+			// PILIH TANGGAL / BULAN
 			if($ex_pilih == 'TANGGAL'){
 				$wP = "AND h.cek_global LIKE '%$tgl_exp%'";
 			}else if($ex_pilih == 'BULAN'){
@@ -5149,127 +5151,158 @@ class Logistik extends CI_Controller
 			}else{
 				$wP = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01'";
 			}
-			$header = $this->db->query("SELECT * FROM invoice_header h
-			INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
-			WHERE h.status_inv='Xp' $wP
-			GROUP BY h.no_invoice");
-			if($header->num_rows() == 0){
-				$html .= 'DATA KOSONG!';
+			// PILIH SALES
+			($plh_sales == '') ? $wSales = "" : $wSales = "AND s.id_sales='$plh_sales'";
+
+			// GROUP SALES
+			$sales = $this->db->query("SELECT s.id_sales,s.nm_sales FROM invoice_header h
+			INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+			INNER JOIN m_sales s ON p.id_sales=s.id_sales
+			WHERE h.type!='roll' AND h.status_inv='Xp' $wP $wSales
+			GROUP BY s.nm_sales,s.id_sales
+			UNION
+			SELECT s.id_sales,s.nm_sales FROM invoice_header h
+			INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
+			INNER JOIN m_sales s ON p.id_sales=s.id_sales
+			WHERE h.type='roll' AND h.status_inv='Xp' $wP $wSales
+			GROUP BY s.nm_sales,s.id_sales");
+			if($sales->num_rows() == 0){
+				$html .= 'DATA KOSONG';
 			}else{
-				$html .= '<table>
-					<tr>
-						<th style="border:1px solid #000;padding:6px">NO.</th>
-						<th style="border:1px solid #000;padding:6px">TGL INVOICE</th>
-						<th style="border:1px solid #000;padding:6px">TYPE</th>
-						<th style="border:1px solid #000;padding:6px">NO INVOICE</th>
-						<th style="border:1px solid #000;padding:6px">NO SURAT</th>
-						<th style="border:1px solid #000;padding:6px">NM PERUSAHAAN</th>
-						<th style="border:1px solid #000;padding:6px 23px;text-align:center">B C</th>
-						<th style="border:1px solid #000;padding:6px;text-align:center">FAKTUR</th>
-						<th style="border:1px solid #000;padding:6px;text-align:center">NO. RESI</th>
-						<th style="border:1px solid #000;padding:6px;text-align:center">I. TERIMA</th>
-						<th style="border:1px solid #000;padding:6px;text-align:center">MUTASI</th>
-						<th style="border:1px solid #000;padding:6px;text-align:center">SJ BALIK</th>
-					</tr>';
-					$i = 0;
-					foreach($header->result() as $r){
-						$i++;
-						// BC
-						$qBC = $this->db->query("SELECT h.* FROM invoice_header h
-						INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
-						WHERE h.no_invoice='$r->no_invoice' AND h.type!='roll' AND p.bc='Y' AND h.pajak!='nonppn' AND h.img_sj_balik IS NOT NULL AND h.img_bc IS NULL
-						AND DATEDIFF(IF(h.tgl_sj_blk IS NULL, SUBSTRING(h.inp_sj_balik, 1, 10), h.tgl_sj_blk), CURDATE()) <= '-4'
-						GROUP BY h.no_invoice");
-						if($r->pajak != 'nonppn'){
-							if($qBC->num_rows() == 0){
-								($r->inp_bc == null) ? $kBC = '-' : $kBC = $this->m_fungsi->tglIndSkt3(substr($r->inp_bc, 0, 10));
-							}else{
-								$kBC = '<span style="color:#f00">EXPIRED</span>';
-							}
-						}else{
-							$kBC = '-';
-						}
-
-						// FAKTUR
-						$qFaktur = $this->db->query("SELECT*FROM invoice_header h
-						WHERE h.no_invoice='$r->no_invoice' AND h.pajak!='nonppn' AND h.img_sj_balik IS NOT NULL AND h.img_faktur IS NULL
-						AND DATEDIFF(IF(h.tgl_sj_blk IS NULL, SUBSTRING(h.inp_sj_balik, 1, 10), h.tgl_sj_blk), CURDATE()) <= '-3'
-						GROUP BY h.no_invoice");
-						if($r->pajak != 'nonppn'){
-							if($qFaktur->num_rows() == 0){
-								($r->inp_faktur == null) ? $kFaktur = '-' : $kFaktur = $this->m_fungsi->tglIndSkt3(substr($r->inp_faktur, 0, 10));
-							}else{
-								$kFaktur = '<span style="color:#f00">EXPIRED</span>';
-							}
-						}else{
-							$kFaktur = '-';
-						}
-
-						// RESI
-						$qNoResi = $this->db->query("SELECT*FROM invoice_header h
-						WHERE h.no_invoice='$r->no_invoice' AND h.img_sj_balik IS NOT NULL AND h.img_resi IS NULL
-						AND DATEDIFF(IF(h.tgl_sj_blk IS NULL, SUBSTRING(h.inp_sj_balik, 1, 10), h.tgl_sj_blk), CURDATE()) <= '-4'
-						GROUP BY h.no_invoice");
-						if($qNoResi->num_rows() == 0){
-							($r->inp_resi == null) ? $kResi = '-' : $kResi = $this->m_fungsi->tglIndSkt3(substr($r->inp_resi, 0, 10));
-						}else{
-							$kResi = '<span style="color:#f00">EXPIRED</span>';
-						}
-
-						// INV TERIMA
-						$qInvDiterima = $this->db->query("SELECT*FROM invoice_header h
-						WHERE h.no_invoice='$r->no_invoice' AND h.img_resi IS NOT NULL AND h.img_inv_terima IS NULL AND DATEDIFF(SUBSTRING(h.inp_resi, 1, 10), CURDATE()) <= '-3'
-						GROUP BY h.no_invoice");
-						if($qInvDiterima->num_rows() == 0){
-							($r->inp_inv_terima == null) ? $kInvt = '-' : $kInvt = $this->m_fungsi->tglIndSkt3(substr($r->inp_inv_terima, 0, 10));
-						}else{
-							$kInvt = '<span style="color:#f00">EXPIRED</span>';
-						}
-
-						// MUTASI
-						$qMutasi = $this->db->query("SELECT h.*, DATEDIFF(h.tgl_jatuh_tempo, h.tgl_invoice) AS tempo, DATEDIFF(SUBSTRING(h.inp_inv_terima, 1, 10), CURDATE()) AS tempo_invd FROM invoice_header h
-						WHERE h.no_invoice='$r->no_invoice' AND h.img_inv_terima IS NOT NULL AND h.img_mutasi IS NULL
-						GROUP BY h.no_invoice");
-						if($qMutasi->num_rows() > 0){
-							$sisa = $qMutasi->row()->tempo + $qMutasi->row()->tempo_invd;
-							if($sisa < 0){
-								$kMutasi = '<span style="color:#f00">EXPIRED</span>';
-							}else{
-								$kMutasi = '-';
-							}
-						}else{
-							($r->inp_mutasi == null) ? $kMutasi = '-' : $kMutasi = $this->m_fungsi->tglIndSkt3(substr($r->inp_mutasi, 0, 10));
-						}
-
-						// SJ BALIK
-						$qSJBalik = $this->db->query("SELECT*FROM invoice_header h
-						WHERE h.no_invoice='$r->no_invoice' AND h.img_sj_balik IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) <= '-6'
-						GROUP BY h.no_invoice");
-						if($qSJBalik->num_rows() == 0){
-							if($r->inp_sj_balik == null){
-								$kSJb = '-';
-							}else{
-								($r->tgl_sj_blk == null) ? $tSB = substr($r->inp_sj_balik, 0, 10) : $tSB = $r->tgl_sj_blk;
-								$kSJb = $this->m_fungsi->tglIndSkt3($tSB);
-							}
-						}else{
-							$kSJb = '<span style="color:#f00">EXPIRED</span>';
-						}
-
-						$html .= '<tr style="font-weight:normal">
-							<td style="border:1px solid #000;padding:6px;text-align:center">'.$i.'</td>
-							<td style="border:1px solid #000;padding:6px;text-align:center">'.$this->m_fungsi->tglIndSkt3($r->tgl_invoice).'</td>
-							<td style="border:1px solid #000;padding:6px;text-align:center">'.strtoupper($r->type).'</td>
-							<td style="border:1px solid #000;padding:6px">'.$r->no_invoice.'</td>
-							<td style="border:1px solid #000;padding:6px">'.$r->no_surat.'</td>
-							<td style="border:1px solid #000;padding:6px">'.$r->nm_perusahaan.'</td>
-							<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kBC.'</td>
-							<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kFaktur.'</td>
-							<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kResi.'</td>
-							<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kInvt.'</td>
-							<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kMutasi.'</td>
-							<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kSJb.'</td>
+				// TAMPIL DATA
+				$html .= '<table style="color:#000">';
+					foreach($sales->result() as $s){
+						$html .= '<tr>
+							<th style="background:#000;border:1px solid #666;color:#fff;padding:6px">NO.</th>
+							<th style="background:#000;border:1px solid #666;color:#fff;padding:6px">TGL INVOICE</th>
+							<th style="background:#000;border:1px solid #666;color:#fff;padding:6px">TYPE</th>
+							<th style="background:#000;border:1px solid #666;color:#fff;padding:6px">NO INVOICE</th>
+							<th style="background:#000;border:1px solid #666;color:#fff;padding:6px">NO SURAT</th>
+							<th style="background:#000;border:1px solid #666;color:#fff;padding:6px">NM PERUSAHAAN</th>
+							<th style="background:#000;border:1px solid #666;color:#fff;padding:6px 23px;text-align:center">B C</th>
+							<th style="background:#000;border:1px solid #666;color:#fff;padding:6px;text-align:center">FAKTUR</th>
+							<th style="background:#000;border:1px solid #666;color:#fff;padding:6px;text-align:center">NO. RESI</th>
+							<th style="background:#000;border:1px solid #666;color:#fff;padding:6px;text-align:center">I. TERIMA</th>
+							<th style="background:#000;border:1px solid #666;color:#fff;padding:6px;text-align:center">MUTASI</th>
+							<th style="background:#000;border:1px solid #666;color:#fff;padding:6px;text-align:center">SJ BALIK</th>
+						</tr>
+						<tr>
+							<td style="padding:6px;font-weight:bold;background:#ccc;border:1px solid #000" colspan="12">'.$s->nm_sales.'</td>
 						</tr>';
+						$header = $this->db->query("SELECT s.id_sales,s.nm_sales,h.*,d.* FROM invoice_header h
+							INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+							INNER JOIN m_sales s ON p.id_sales=s.id_sales
+							INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
+							WHERE h.type!='roll' AND h.status_inv='Xp' AND s.id_sales='$s->id_sales' $wP
+							GROUP BY h.no_invoice
+							UNION
+							SELECT s.id_sales,s.nm_sales,h.*,d.* FROM invoice_header h
+							INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
+							INNER JOIN m_sales s ON p.id_sales=s.id_sales
+							INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
+							WHERE h.type='roll' AND h.status_inv='Xp' AND s.id_sales='$s->id_sales' $wP
+							GROUP BY h.no_invoice
+						");
+						$i = 0;
+						foreach($header->result() as $r){
+							$i++;
+							// BC
+							$qBC = $this->db->query("SELECT h.* FROM invoice_header h
+							INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+							WHERE h.no_invoice='$r->no_invoice' AND h.type!='roll' AND p.bc='Y' AND h.pajak!='nonppn' AND h.img_sj_balik IS NOT NULL AND h.img_bc IS NULL
+							AND DATEDIFF(IF(h.tgl_sj_blk IS NULL, SUBSTRING(h.inp_sj_balik, 1, 10), h.tgl_sj_blk), CURDATE()) <= '-4'
+							GROUP BY h.no_invoice");
+							if($r->pajak != 'nonppn'){
+								if($qBC->num_rows() == 0){
+									($r->inp_bc == null) ? $kBC = '-' : $kBC = $this->m_fungsi->tglIndSkt3(substr($r->inp_bc, 0, 10));
+								}else{
+									$kBC = '<span style="color:#f00">EXPIRED</span>';
+								}
+							}else{
+								$kBC = '-';
+							}
+
+							// FAKTUR
+							$qFaktur = $this->db->query("SELECT*FROM invoice_header h
+							WHERE h.no_invoice='$r->no_invoice' AND h.pajak!='nonppn' AND h.img_sj_balik IS NOT NULL AND h.img_faktur IS NULL
+							AND DATEDIFF(IF(h.tgl_sj_blk IS NULL, SUBSTRING(h.inp_sj_balik, 1, 10), h.tgl_sj_blk), CURDATE()) <= '-3'
+							GROUP BY h.no_invoice");
+							if($r->pajak != 'nonppn'){
+								if($qFaktur->num_rows() == 0){
+									($r->inp_faktur == null) ? $kFaktur = '-' : $kFaktur = $this->m_fungsi->tglIndSkt3(substr($r->inp_faktur, 0, 10));
+								}else{
+									$kFaktur = '<span style="color:#f00">EXPIRED</span>';
+								}
+							}else{
+								$kFaktur = '-';
+							}
+
+							// RESI
+							$qNoResi = $this->db->query("SELECT*FROM invoice_header h
+							WHERE h.no_invoice='$r->no_invoice' AND h.img_sj_balik IS NOT NULL AND h.img_resi IS NULL
+							AND DATEDIFF(IF(h.tgl_sj_blk IS NULL, SUBSTRING(h.inp_sj_balik, 1, 10), h.tgl_sj_blk), CURDATE()) <= '-4'
+							GROUP BY h.no_invoice");
+							if($qNoResi->num_rows() == 0){
+								($r->inp_resi == null) ? $kResi = '-' : $kResi = $this->m_fungsi->tglIndSkt3(substr($r->inp_resi, 0, 10));
+							}else{
+								$kResi = '<span style="color:#f00">EXPIRED</span>';
+							}
+
+							// INV TERIMA
+							$qInvDiterima = $this->db->query("SELECT*FROM invoice_header h
+							WHERE h.no_invoice='$r->no_invoice' AND h.img_resi IS NOT NULL AND h.img_inv_terima IS NULL AND DATEDIFF(SUBSTRING(h.inp_resi, 1, 10), CURDATE()) <= '-3'
+							GROUP BY h.no_invoice");
+							if($qInvDiterima->num_rows() == 0){
+								($r->inp_inv_terima == null) ? $kInvt = '-' : $kInvt = $this->m_fungsi->tglIndSkt3(substr($r->inp_inv_terima, 0, 10));
+							}else{
+								$kInvt = '<span style="color:#f00">EXPIRED</span>';
+							}
+
+							// MUTASI
+							$qMutasi = $this->db->query("SELECT h.*, DATEDIFF(h.tgl_jatuh_tempo, h.tgl_invoice) AS tempo, DATEDIFF(SUBSTRING(h.inp_inv_terima, 1, 10), CURDATE()) AS tempo_invd FROM invoice_header h
+							WHERE h.no_invoice='$r->no_invoice' AND h.img_inv_terima IS NOT NULL AND h.img_mutasi IS NULL
+							GROUP BY h.no_invoice");
+							if($qMutasi->num_rows() > 0){
+								$sisa = $qMutasi->row()->tempo + $qMutasi->row()->tempo_invd;
+								if($sisa < 0){
+									$kMutasi = '<span style="color:#f00">EXPIRED</span>';
+								}else{
+									$kMutasi = '-';
+								}
+							}else{
+								($r->inp_mutasi == null) ? $kMutasi = '-' : $kMutasi = $this->m_fungsi->tglIndSkt3(substr($r->inp_mutasi, 0, 10));
+							}
+
+							// SJ BALIK
+							$qSJBalik = $this->db->query("SELECT*FROM invoice_header h
+							WHERE h.no_invoice='$r->no_invoice' AND h.img_sj_balik IS NULL AND DATEDIFF(h.tgl_invoice, CURDATE()) <= '-6'
+							GROUP BY h.no_invoice");
+							if($qSJBalik->num_rows() == 0){
+								if($r->inp_sj_balik == null){
+									$kSJb = '-';
+								}else{
+									($r->tgl_sj_blk == null) ? $tSB = substr($r->inp_sj_balik, 0, 10) : $tSB = $r->tgl_sj_blk;
+									$kSJb = $this->m_fungsi->tglIndSkt3($tSB);
+								}
+							}else{
+								$kSJb = '<span style="color:#f00">EXPIRED</span>';
+							}
+
+							$html .= '<tr style="font-weight:normal">
+								<td style="border:1px solid #000;padding:6px;text-align:center">'.$i.'</td>
+								<td style="border:1px solid #000;padding:6px;text-align:center">'.$this->m_fungsi->tglIndSkt3($r->tgl_invoice).'</td>
+								<td style="border:1px solid #000;padding:6px;text-align:center">'.strtoupper($r->type).'</td>
+								<td style="border:1px solid #000;padding:6px">'.$r->no_invoice.'</td>
+								<td style="border:1px solid #000;padding:6px">'.$r->no_surat.'</td>
+								<td style="border:1px solid #000;padding:6px">'.$r->nm_perusahaan.'</td>
+								<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kBC.'</td>
+								<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kFaktur.'</td>
+								<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kResi.'</td>
+								<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kInvt.'</td>
+								<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kMutasi.'</td>
+								<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kSJb.'</td>
+							</tr>';
+						}
 					}
 				$html .= '</table>';
 			}
@@ -5280,7 +5313,7 @@ class Logistik extends CI_Controller
 	}
 
 	function listPiutang()
-	{
+	{ //
 		$lvl = $this->session->userdata('level');
 		$uName = $this->session->userdata('username');
 		$html = '';
