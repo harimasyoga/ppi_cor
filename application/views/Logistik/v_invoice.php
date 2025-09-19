@@ -383,19 +383,19 @@
 						<?php if (in_array($this->session->userdata('username'), ['karina', 'tegar', 'developer'])) { ?>
 							<div style="margin-bottom:12px">
 								<button type="button" style="margin-bottom:3px" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
-								<button type="button" style="margin-bottom:3px" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
+								<button type="button" style="margin-bottom:3px" class="btn btn-secondary btn-sm" onclick="open_sj()" title="LIST SURAT JALAN"><i class="fas fa-list"></i> <b>LIST SURAT JALAN</b></button>
 								<button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE EXPIRED"><i class="fas fa-sync-alt"></i><b>UPDATE EXPIRED</b></button>
 								<?php if (in_array($this->session->userdata('level'), ['Admin'])) { ?>
 									<button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateInvMutasi()" title="UPDATE TOTAL"><i class="fas fa-sync-alt"></i> </i><b>UPDATE TOTAL</b></button>
-									<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_piutang()" title="LAPORAN PIUTANG"><i class="fas fa-list"></i> <b>Lap Piutang</b></button>
-									<button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="updateMutasiBayar()"><i class="fa fa-sync-alt"></i> <b>UPDATE BAYAR</b></button>
-									<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_lapExp()"><i class="fa fa-print"></i> <b>Lap Expired</b></button>
+									<button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="updateMutasiBayar()" title="UPDATE BAYAR"><i class="fa fa-sync-alt"></i> <b>UPDATE BAYAR</b></button>
+									<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_piutang()" title="LAPORAN PIUTANG"><i class="fas fa-list"></i> <b>LAP PIUTANG</b></button>
+									<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_lapExp()" title="LAPORAN EXPIRED"><i class="fa fa-print"></i> <b>LAP EXPIRED</b></button>
 								<?php } ?>
 							</div>
 						<?php } ?>
 						<?php if (in_array($this->session->userdata('username'), ['owner', 'bumagda'])) { ?>
-							<button type="button" style="margin-bottom:3px" class="btn btn-secondary btn-sm" onclick="open_sj()"><i class="fas fa-list"></i> <b>List SJ</b></button>
-							<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_piutang()" title="LAPORAN PIUTANG"><i class="fas fa-list"></i> <b>Lap Piutang</b></button>
+							<button type="button" style="margin-bottom:3px" class="btn btn-secondary btn-sm" onclick="open_sj()" title="LIST SURAT JALAN"><i class="fas fa-list"></i> <b>LIST SURAT JALAN</b></button>
+							<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_piutang()" title="LAPORAN PIUTANG"><i class="fas fa-list"></i> <b>LAPORAN PIUTANG</b></button>
 						<?php } ?>
 
 						<div class="card-body row" style="padding:8px 0;font-weight:bold">

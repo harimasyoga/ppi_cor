@@ -5149,7 +5149,7 @@ class Logistik extends CI_Controller
 			}else if($ex_pilih == 'BULAN'){
 				$wP = "AND h.tgl_invoice LIKE '%$tgl_exp%'";
 			}else{
-				$wP = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01'";
+				$wP = "AND h.tgl_invoice BETWEEN '2025-01-01' AND '9999-01-01'";
 			}
 			// PILIH SALES
 			($plh_sales == '') ? $wSales = "" : $wSales = "AND s.id_sales='$plh_sales'";
