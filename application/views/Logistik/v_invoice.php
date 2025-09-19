@@ -308,6 +308,21 @@
 				<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
 					<div class="col-md-2">PILIH</div>
 					<div class="col-md-3">
+						<?php $qSales = $this->db->query("SELECT*FROM m_sales ORDER BY nm_sales"); ?>
+						<select id="plh_sales" class="form-control" onchange="exPilih()">
+							<option value="">SEMUA</option>
+							<?php
+								foreach ($qSales->result() as $s) { ?>
+									<option value="<?= $s->id_sales ?>"><b><?= $s->nm_sales ?></b></option>
+								<?php }
+							?>
+						</select>
+					</div>
+					<div class="col-md-7"></div>
+				</div>
+				<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
+					<div class="col-md-2">PILIH</div>
+					<div class="col-md-3">
 						<select id="ex_pilih" class="form-control select2" onchange="exPilih()">
 							<option value="">PILIH</option>
 							<option value="TANGGAL">TANGGAL</option>
@@ -1564,6 +1579,7 @@
 
 	function cariLapExpired() {
 		$(".tab_expired").html('')
+		let plh_sales = $('#plh_sales').val()
 		let ex_pilih = $('#ex_pilih').val()
 		let tgl_expired = $("#tgl_expired").val()
 		$.ajax({
@@ -1579,10 +1595,7 @@
 					}
 				});
 			},
-			data: ({
-				ex_pilih,
-				tgl_expired
-			}),
+			data: ({ plh_sales, ex_pilih, tgl_expired }),
 			success: function(res) {
 				data = JSON.parse(res)
 				$(".tab_expired").html(data.html)

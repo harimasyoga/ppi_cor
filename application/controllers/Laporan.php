@@ -171,7 +171,7 @@ class Laporan extends CI_Controller
 			$w_opsi = "";
 		}
 		if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
-			$wherePO = "AND p.status_app1='Y' AND p.status_app2='Y' AND (p.status_app3='Y' OR p.status_app3='N' OR p.status_app3='R')";
+			$wherePO = "AND p.status_app1='Y' AND p.status_app2='Y'";
 		}else{
 			$wherePO = "AND p.status='Approve'";
 		}
