@@ -5909,7 +5909,7 @@ class Logistik extends CI_Controller
 				}
 				if($r->img_mutasi==''){
 					if($r->img_inv_terima=='' || $r->img_sj_balik==''){
-						$cek_mutasi = '<span style="color:#3704ff;font-weight:bold">*Inv diterima belum di upload</span>';
+						$cek_mutasi = '<span style="color:#3704ff;font-weight:bold">*Inv diterima belum di upload</span> <span style="background:#3704ff;color:#fff;vertical-align:top;padding:2px 4px;font-size:12px;font-weight:bold;border-radius:2px">'.$r->tempo.'</span></span>';
 					}else if($sisaHari < 0){
 						if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Keuangan1' ,'Pembayaran']) && $r->izin_mutasi == 'Y' && $this->session->userdata('username') != 'bumagda')){
 							$cek_mutasi = '<a type="button" '.$urll_foto_mutasi.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="MUTASI"></i></b></span></a> ';

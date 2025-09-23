@@ -1026,7 +1026,7 @@
 				.done(function(data) {
 					$('#div_preview_foto').css("display", "block");
 					let btnHapHap = ''
-					if (username == 'developer' && data.url_foto != 'foto') {
+					if (username == 'developer') {
 						btnHapHap = `<div style="display:flex">
 						<div style="margin-right:4px">
 							<select id="hps_file_inv" onchange="sHpsFile('${data.header.id}', '${ket}')">
