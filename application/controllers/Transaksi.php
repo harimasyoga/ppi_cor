@@ -587,6 +587,8 @@ class Transaksi extends CI_Controller
 				</tr>';
 
 				// STATUS, NO. PO, ORDER BY
+				($id_pt == 'ALL') ? $pt1 = "" : $pt1 = "AND pt.id='$id_pt'";
+				($id_pt == 'ALL') ? $pt2 = "" : $pt2 = "AND p.id_perusahaan='$id_pt'";
 				($stts == '') ? $stas = "AND po.status='open'" : $stas = "";
 				($no_po == '') ? $noPO = "" : $noPO = "AND po.no_po='$no_po'";
 				($jenis == '') ? $wJenis = "" : $wJenis = "AND po.nm_ker LIKE '%$jenis%'";
@@ -613,7 +615,7 @@ class Transaksi extends CI_Controller
 				$list = $db->query("SELECT po.tgl,po.no_po,po.nm_ker,po.g_label,po.width,po.id_perusahaan $iGy pt.nm_perusahaan,po.status
 				FROM po_master po
 				INNER JOIN m_perusahaan pt ON pt.id=po.id_perusahaan
-				WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' AND pt.id='$id_pt' $stas $noPO $wJenis $wGsm $wUkuran
+				WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' $pt1 $stas $noPO $wJenis $wGsm $wUkuran
 				$oGy $oBy");
 				$sumTonase = 0; $sumKirimTon = 0; $poTonase = 0; $poKirimTon = 0; $i = 0;
 				foreach($list->result() as $r){
@@ -660,7 +662,7 @@ class Transaksi extends CI_Controller
 						$kir = $db->query("SELECT po.nm_ker, po.g_label, po.width, COUNT(t.roll) AS kiriman_roll, SUM(t.weight - t.seset) AS kirim_tonase FROM po_master po
 						INNER JOIN m_timbangan t ON t.nm_ker=po.nm_ker AND t.g_label=po.g_label AND t.width=po.width
 						INNER JOIN pl p ON t.id_pl=p.id AND p.no_po=po.no_po AND t.nm_ker=p.nm_ker AND t.g_label=p.g_label AND t.width=po.width AND p.id_perusahaan=po.id_perusahaan
-						WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' AND p.id_perusahaan='$id_pt' AND po.nm_ker='$r->nm_ker' AND po.g_label='$r->g_label' AND po.width='$r->width' $stas $noPO
+						WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' AND po.nm_ker='$r->nm_ker' AND po.g_label='$r->g_label' AND po.width='$r->width' $pt2 $stas $noPO
 						GROUP BY po.nm_ker,po.g_label,po.width");
 						if($kir->num_rows() != 0){
 							$kiriman_roll = $kir->row()->kiriman_roll;
