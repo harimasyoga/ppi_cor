@@ -5149,7 +5149,7 @@ class Logistik extends CI_Controller
 			}else if($ex_pilih == 'BULAN'){
 				$wP = "AND h.tgl_invoice LIKE '%$tgl_exp%'";
 			}else{
-				$wP = "AND h.tgl_invoice BETWEEN '2025-01-01' AND '9999-01-01'";
+				$wP = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01'";
 			}
 			// PILIH SALES
 			($plh_sales == '') ? $wSales = "" : $wSales = "AND s.id_sales='$plh_sales'";
@@ -5313,7 +5313,7 @@ class Logistik extends CI_Controller
 	}
 
 	function listPiutang()
-	{ //
+	{
 		$lvl = $this->session->userdata('level');
 		$uName = $this->session->userdata('username');
 		$html = '';
@@ -5321,13 +5321,13 @@ class Logistik extends CI_Controller
 		$sales = $this->db->query("SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
 		INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
 		INNER JOIN m_sales s ON p.id_sales=s.id_sales
-		WHERE h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
+		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
 		GROUP BY s.nm_sales,s.id_sales
 		UNION
 		SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
 		INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
 		INNER JOIN m_sales s ON p.id_sales=s.id_sales
-		WHERE h.type='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
+		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
 		GROUP BY s.nm_sales,s.id_sales,h.type");
 
 		if($sales->num_rows() != 0){
@@ -5344,11 +5344,11 @@ class Logistik extends CI_Controller
 					if($s->type == 'roll'){
 						$se1 = "p.nm_perusahaan";
 						$in1 = "INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id";
-						$wh1 = "AND h.type='ROLL'";
+						$wh1 = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type='ROLL'";
 					}else{
 						$se1 = "p.nm_pelanggan";
 						$in1 = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan";
-						$wh1 = "AND h.type!='ROLL'";
+						$wh1 = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type!='ROLL'";
 					}
 					$piuSalJt = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
 						$in1
@@ -5909,7 +5909,7 @@ class Logistik extends CI_Controller
 				}
 				if($r->img_mutasi==''){
 					if($r->img_inv_terima=='' || $r->img_sj_balik==''){
-						$cek_mutasi = '<span style="color:#3704ff;font-weight:bold">*Inv diterima belum di upload</span>';
+						$cek_mutasi = '<span style="color:#3704ff;font-weight:bold">*Inv diterima belum di upload</span> <span style="background:#3704ff;color:#fff;vertical-align:top;padding:2px 4px;font-size:12px;font-weight:bold;border-radius:2px">'.$r->tempo.'</span></span>';
 					}else if($sisaHari < 0){
 						if($this->session->userdata('level') == 'Admin' || (in_array($this->session->userdata('level'), ['Keuangan1' ,'Pembayaran']) && $r->izin_mutasi == 'Y' && $this->session->userdata('username') != 'bumagda')){
 							$cek_mutasi = '<a type="button" '.$urll_foto_mutasi.'><span style="color:red"><b><i style="color:#f6303d;" class="far fa-file-pdf" title="MUTASI"></i></b></span></a> ';

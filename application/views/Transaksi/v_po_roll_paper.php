@@ -358,6 +358,7 @@
 								<div class="col-md-8">
 									<select id="lap_id_pt" class="form-control select2" onchange="plhCustomer()">
 										<option value="">PILIH</option>
+										<option value="ALL">SEMUA</option>
 										<?php
 											$db3 = $this->load->database('database_simroll', TRUE);
 											$query3 = $db3->query("SELECT c.id,c.pimpinan,c.nm_perusahaan FROM po_master po

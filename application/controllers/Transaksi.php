@@ -587,11 +587,13 @@ class Transaksi extends CI_Controller
 				</tr>';
 
 				// STATUS, NO. PO, ORDER BY
+				($id_pt == 'ALL') ? $pt1 = "" : $pt1 = "AND pt.id='$id_pt'";
+				($id_pt == 'ALL') ? $pt2 = "" : $pt2 = "AND p.id_perusahaan='$id_pt'";
 				($stts == '') ? $stas = "AND po.status='open'" : $stas = "";
 				($no_po == '') ? $noPO = "" : $noPO = "AND po.no_po='$no_po'";
-				($jenis == '') ? $wJenis = "" : $wJenis = "AND po.nm_ker LIKE '%$jenis%'";
+				($jenis == '') ? $wJenis = "" : $wJenis = "AND po.nm_ker='$jenis'";
 				($gsm == '') ? $wGsm = "" : $wGsm = "AND po.g_label LIKE '%$gsm%'";
-				($ukuran == '') ? $wUkuran = "" : $wUkuran = "AND po.width LIKE '%$ukuran%'";
+				($ukuran == '') ? $wUkuran = "" : $wUkuran = "AND po.width='$ukuran'";
 				if($groupBy == ''){
 					$iGy = ", po.jml_roll AS jml_roll_po, po.tonase, (SELECT COUNT(t.roll) FROM m_timbangan t
 					INNER JOIN pl p ON t.id_pl=p.id AND p.no_po=po.no_po AND t.nm_ker=po.nm_ker
@@ -605,7 +607,11 @@ class Transaksi extends CI_Controller
 				}else{
 					$iGy = ", SUM(po.jml_roll) AS jml_roll_po, SUM(po.tonase) AS tonase,";
 					$oGy = "GROUP BY po.nm_ker,po.g_label,po.width";
-					$oBy = "";
+					if($id_pt == 'ALL'){
+						$oBy = "ORDER BY pt.nm_perusahaan,po.tgl,po.no_po,po.nm_ker,po.g_label,po.width";
+					}else{
+						$oBy = "";
+					}
 					$cls = '6';
 					$tdKos = '<td style="padding:6px;background:#f2f2f2;border:1px solid #888"></td>';
 				}
@@ -613,24 +619,25 @@ class Transaksi extends CI_Controller
 				$list = $db->query("SELECT po.tgl,po.no_po,po.nm_ker,po.g_label,po.width,po.id_perusahaan $iGy pt.nm_perusahaan,po.status
 				FROM po_master po
 				INNER JOIN m_perusahaan pt ON pt.id=po.id_perusahaan
-				WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' AND pt.id='$id_pt' $stas $noPO $wJenis $wGsm $wUkuran
+				WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' $pt1 $stas $noPO $wJenis $wGsm $wUkuran
 				$oGy $oBy");
 				$sumTonase = 0; $sumKirimTon = 0; $poTonase = 0; $poKirimTon = 0; $i = 0;
 				foreach($list->result() as $r){
 					if($groupBy == ''){
 						// KURANG ROLL
 						$minRoll = $r->kiriman_roll - $r->jml_roll_po;
-						($minRoll == 0 || $minRoll > 0) ? $bgR = ' style="background:#ccc"' : $bgR = '';
+						($minRoll == 0 || $minRoll > 0 || $r->status == 'close') ? $bgR = ' style="background:#ccc"' : $bgR = '';
 						// KURANG TONASE
 						$minTonase = $r->kirim_tonase - $r->tonase;
 						// OPEN CLOSE
 						($r->status == 'close') ? $dO = ';color:#f00' : $dO = '';
+						($id_pt == 'ALL') ? $nM = ' <span style="background:#ddd;vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$r->nm_perusahaan.'</span>' : $nM = "";
 
 						if($opsi == '' || ($opsi != '' && $minRoll != 0)){
 							$i++;
 							$html .= '<tr'.$bgR.'>
 								<td style="padding:6px;border:1px solid #888">'.$r->tgl.'</td>
-								<td style="padding:6px;border:1px solid #888">'.$r->no_po.'</td>
+								<td style="padding:6px;border:1px solid #888">'.$r->no_po.$nM.'</td>
 								<td style="padding:6px;border:1px solid #888;text-align:center">'.$r->nm_ker.'</td>
 								<td style="padding:6px;border:1px solid #888;text-align:center">'.$r->g_label.'</td>
 								<td style="padding:6px;border:1px solid #888;text-align:center">
@@ -660,7 +667,7 @@ class Transaksi extends CI_Controller
 						$kir = $db->query("SELECT po.nm_ker, po.g_label, po.width, COUNT(t.roll) AS kiriman_roll, SUM(t.weight - t.seset) AS kirim_tonase FROM po_master po
 						INNER JOIN m_timbangan t ON t.nm_ker=po.nm_ker AND t.g_label=po.g_label AND t.width=po.width
 						INNER JOIN pl p ON t.id_pl=p.id AND p.no_po=po.no_po AND t.nm_ker=p.nm_ker AND t.g_label=p.g_label AND t.width=po.width AND p.id_perusahaan=po.id_perusahaan
-						WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' AND p.id_perusahaan='$id_pt' AND po.nm_ker='$r->nm_ker' AND po.g_label='$r->g_label' AND po.width='$r->width' $stas $noPO
+						WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' AND po.nm_ker='$r->nm_ker' AND po.g_label='$r->g_label' AND po.width='$r->width' $pt2 $stas $noPO
 						GROUP BY po.nm_ker,po.g_label,po.width");
 						if($kir->num_rows() != 0){
 							$kiriman_roll = $kir->row()->kiriman_roll;
