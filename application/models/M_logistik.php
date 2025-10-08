@@ -4122,11 +4122,6 @@ class M_logistik extends CI_Model
 
 	function updateExpired()
 	{
-		$tahun = $_POST["tahun"];
-		$bulan = $_POST["bulan"];
-		// ($bulan == 'all') ? $wBln = "" : $wBln = "AND MONTH(tgl_invoice) IN ('$bulan')";
-		// YEAR(tgl_invoice) IN ('$tahun') $wBln
-
 		// CEK MUTASI
 		$qInvoice = $this->db->query("SELECT h.*, DATEDIFF(h.tgl_jatuh_tempo, h.tgl_invoice) AS tempo, DATEDIFF(SUBSTRING(h.inp_inv_terima, 1, 10), CURDATE()) AS tempo_invd FROM invoice_header h
 		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.status_inv!='Xp' AND h.img_inv_terima IS NOT NULL AND h.img_mutasi IS NULL

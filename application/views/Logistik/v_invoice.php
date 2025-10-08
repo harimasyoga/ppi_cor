@@ -384,7 +384,7 @@
 							<div style="margin-bottom:12px">
 								<button type="button" style="margin-bottom:3px" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								<button type="button" style="margin-bottom:3px" class="btn btn-secondary btn-sm" onclick="open_sj()" title="LIST SURAT JALAN"><i class="fas fa-list"></i> <b>LIST SURAT JALAN</b></button>
-								<button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE EXPIRED"><i class="fas fa-sync-alt"></i><b>UPDATE EXPIRED</b></button>
+								<!-- <button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE EXPIRED"><i class="fas fa-sync-alt"></i><b>UPDATE EXPIRED</b></button> -->
 								<?php if (in_array($this->session->userdata('level'), ['Admin'])) { ?>
 									<button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateInvMutasi()" title="UPDATE TOTAL"><i class="fas fa-sync-alt"></i> </i><b>UPDATE TOTAL</b></button>
 									<button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="updateMutasiBayar()" title="UPDATE BAYAR"><i class="fa fa-sync-alt"></i> <b>UPDATE BAYAR</b></button>
@@ -769,6 +769,7 @@
 			placeholder: '--- Pilih ---',
 			dropdownAutoWidth: true
 		});
+		updateExpired()
 		load_bank()
 		load_data()
 	});
@@ -3230,35 +3231,12 @@
 	}
 
 	function updateExpired() {
-		let tahun = $("#rentang_thn").val()
-		let bulan = $("#rentang_bulan").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/updateExpired') ?>',
 			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
-			data: ({
-				tahun,
-				bulan
-			}),
 			success: function(res) {
 				data = JSON.parse(res)
-				if (data.data) {
-					reloadTable()
-					toastr.success(`<b>UPDATE EXPIRED BERHASIL!</b>`)
-					load_bank()
-				} else {
-					toastr.error(`<b>BELUM BERUNTUNG</b>`)
-					swal.close()
-				}
+				// console.log(data)
 			}
 		})
 	}

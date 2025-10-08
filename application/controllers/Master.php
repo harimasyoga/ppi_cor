@@ -1877,4 +1877,40 @@ class Master extends CI_Controller
 			// 'cekPO' => $cekPO,
 		));
 	}
+
+	function alertPOPOBaru()
+	{
+		$html = '';
+		
+		$qPORoll = $this->db->query("SELECT COUNT(no_po) AS jml_po FROM trs_po_roll_header WHERE owner_status='N'")->row();
+		$qPOLam = $this->db->query("SELECT COUNT(no_po_lm) AS jml_po_lm FROM trs_po_lm WHERE status_lm2='N'")->row();
+		($qPORoll->jml_po != 0 && $qPOLam->jml_po_lm != 0) ? $colMd = 6 : $colMd = 12;
+
+		$html .= '<div class="col-md-12">
+			<div class="row">';
+				if($qPORoll->jml_po != 0){
+					$html .= '<div class="col-md-'.$colMd.'">
+						<div class="alert alert-info alert-dismissible">
+							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+							<h5><i class="icon fas fa-info"></i> ADA <span style="background:#fff;padding:0 5px;color:#000;font-weight:bold;border-radius:3px">'.$qPORoll->jml_po.'</span> PO BARU ROLL PAPER</h5>
+							<a href="'.base_url('Transaksi/PO_Roll_Paper').'">Cek Selengkapnya</a>
+						</div>
+					</div>';
+				}
+				if($qPOLam->jml_po_lm != 0){
+					$html .= '<div class="col-md-'.$colMd.'">
+						<div class="alert alert-info alert-dismissible">
+							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+							<h5><i class="icon fas fa-info"></i> ADA <span style="background:#fff;padding:0 5px;color:#000;font-weight:bold;border-radius:3px">'.$qPOLam->jml_po_lm.'</span> PO BARU LAMINASI</h5>
+							<a href="'.base_url('Transaksi/PO_Laminasi').'">Cek Selengkapnya</a>
+						</div>
+					</div>';
+				}
+			$html .= '</div>
+		</div>';
+
+		echo json_encode(array(
+			'html' => $html,
+		));
+	}
 }
