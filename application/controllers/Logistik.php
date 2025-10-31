@@ -10373,6 +10373,7 @@ class Logistik extends CI_Controller
 		}else{
 			$html .= '';
 			$html .= '<table style="width:100%;margin-top:25px;color:#000;border-collapse:collapse;vertical-align:top;font-family:tahoma;font-size:12px">
+			<thead>
 				<tr>
 					<th style="padding:6px" colspan="8">STOK KERTAS LAMINASI</th>
 				</tr>
@@ -10388,7 +10389,8 @@ class Logistik extends CI_Controller
 					<th style="text-align:center;padding:6px;width:10%">OUT</th>
 					<th style="text-align:center;padding:6px;width:12%">STOK AKHIR</th>
 					<th style="text-align:center;padding:6px;width:18%">KETERANGAN</th>
-				</tr>';
+				</tr>
+			</thead>';
 		}
 		$i = 0;
 		$sumSAPack = 0; $sumInPack = 0; $sumOutPack = 0; $sumSkPack = 0; $sumSAIkat = 0; $sumInIkat = 0; $sumOutIkat = 0; $sumSkIkat = 0;
@@ -11802,7 +11804,7 @@ class Logistik extends CI_Controller
 					$getRev = $this->db->query("SELECT p.nm_pelanggan,i.nm_produk,r.* FROM m_rencana_kirim r
 					INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
 					INNER JOIN m_produk i ON r.id_produk=i.id_produk
-					WHERE r.rk_sj='revisi' AND r.rk_urut='$v->rk_urut' ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
+					WHERE r.rk_sj='revisi' AND rk_status='Open' AND r.rk_urut='$v->rk_urut' ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
 
 					foreach($getRev->result() as $r){
 						($r->kategori == "BOX") ? $katRev = '[BOX] ' : $katRev = '[SHEET] ';
@@ -11894,7 +11896,6 @@ class Logistik extends CI_Controller
 			GROUP BY b.tgl DESC,ex.plat,LTRIM(b.no_surat),b.no_po");
 		}
 
-
 		$data = array();
 		$i = 0;
 		foreach ($query->result() as $r) {
@@ -11907,7 +11908,8 @@ class Logistik extends CI_Controller
 			($r->attn == '-') ? $attn = '' : $attn = ' - '.$r->attn;
 			$row[] = $r->nm_pelanggan.$attn;
 			$row[] = $r->no_kendaraan;
-			$row[] = ($pilih == "ROLL") ? $r->pt : $r->expedisi;
+			($r->driver == '' || $r->driver == null) ? $dd = '' : $dd = ' ( '.$r->driver.' )';
+			$row[] = ($pilih == "ROLL") ? $r->pt : $r->expedisi.$dd;
 			// SJ BALEK
 			$expired = strtotime($r->tgl) + (144*60*60);
 			$actualDate = time();
@@ -12079,9 +12081,9 @@ class Logistik extends CI_Controller
 							if($sjpo->pajak == 'ppn' && $sjpo->kategori == 'BOX'){
 								$spjk = 'background:#f8f9fa;';
 							}else if($sjpo->pajak == 'ppn' && $sjpo->kategori == 'SHEET'){
-								$spjk = 'background:#333;color:#f8f9fa;';
+								$spjk = 'background:#f8f9fa;color:#333;';
 							}else if($sjpo->pajak == 'non' && $sjpo->kategori == 'SHEET'){
-								$spjk = 'background:#333;color:#ffb22c;';
+								$spjk = 'background:#ffb22c;color:#333;';
 							}else{
 								$spjk = 'background:#ffb22c;';
 							}
@@ -12128,8 +12130,10 @@ class Logistik extends CI_Controller
 						// CEK INV
 						($sjpo->no_pl_inv == 0 && $tglNow != $urut->tgl && in_array($this->session->userdata('level'), ['Admin', 'User'])) ? $btnInv = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="batalRev('."'".$sjpo->id."'".')">BATAL</button>&nbsp' : $btnInv = '';
 
+						($sjpo->kategori == 'SHEET') ? $tdX = 'background:#333;color:#fff;' : $tdX = '';
+
 						$html .='<tr style="background:#dee2e6">
-							<td style="padding:4px 6px;border:1px solid #bbb;font-weight:bold;display:flex">
+							<td style="'.$tdX.'padding:4px 6px;border:1px solid #bbb;font-weight:bold;display:flex">
 								'.$btnInv.'NO. SURAT JALAN : &nbsp;<input type="number" class="form-control" id="pp-nosj-'.$sjpo->id.'" style="height:100%;width:50px;text-align:center;padding:2px 4px" value="'.$noSJ[0].'" '.$eNoSj.'>'.$ketSJ.'
 							</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">NO. PO : '.$sjpo->no_po.'</td>
