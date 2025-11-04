@@ -2386,6 +2386,8 @@ class Transaksi extends CI_Controller
 
 				if($this->session->userdata('username')=='ppismg'){
 					$cek_data = 'WHERE id_sales in ("2","3")';
+				}else if($this->session->userdata('username')=='yan'){
+					$cek_data = "WHERE id_sales='13'";
 				}else{
 					$cek_data = '';
 				}
@@ -7178,28 +7180,27 @@ class Transaksi extends CI_Controller
 	{
 		$html ='';
 
-		$getData = $this->db->query("SELECT eta_so,COUNT(eta_so) AS jml FROM trs_so_detail
-		GROUP BY eta_so");
+		$tgl1 = date('Y-m-d');
+		$tgl3 = date('Y-m-d', strtotime('+12 month', strtotime($tgl1)));
+		$getData = $this->db->query("SELECT eta,COUNT(eta) AS jml FROM trs_po_detail WHERE eta BETWEEN '$tgl1' AND '$tgl3' GROUP BY eta ASC");
 
-		$html .='<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
-		$html .='<table class="table table-bordered table-striped">
-		<thead>
-			<tr>
-				<th style="text-align:center">NO.</th>
-				<th>TANGGAL</th>
-				<th style="text-align:center">JUMLAH</th>
-			</tr>
-		</thead>';
-		$i = 0;
-		foreach($getData->result() as $r){
-			$i++;
-			$html .= '</tr>
-				<td style="text-align:center">'.$i.'</td>
-				<td><a href="javascript:void(0)" onclick="tampilDataEtaPO('."'".$r->eta_so."'".',)">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->eta_so)).'<a></td>
-				<td style="text-align:center">'.$r->jml.'</td>
-			</tr>';
-		}
-		$html .='</table>
+		$html .='<div style="padding:6px;font-weight:bold">
+			<table class="table table-bordered table-striped">
+				<thead>
+					<tr>
+						<th>HARI, TANGGAL</th>
+						<th style="text-align:center">#</th>
+					</tr>
+				</thead>';
+				$i = 0;
+				foreach($getData->result() as $r){
+					$i++;
+					$html .= '</tr>
+						<td><a href="javascript:void(0)" onclick="tampilDataEtaPO('."''".', '."'".$r->eta."'".')">'.strtoupper(substr($this->m_fungsi->getHariIni($r->eta),0,3)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->eta)).'<a></td>
+						<td style="text-align:center">'.$r->jml.'</td>
+					</tr>';
+				}
+			$html .='</table>
 		</div>';
 
 		echo $html;
@@ -7208,41 +7209,100 @@ class Transaksi extends CI_Controller
 	function tampilDataEtaPO()
 	{
 		$html = '';
+		$id_pelanggan = $_POST["id_pelanggan"];
+		($id_pelanggan != '') ? $id_pt = "AND p.id_pelanggan='$id_pelanggan'" : $id_pt = "";
 		$tgl = $_POST["tgl"];
 
 		$html .='<div class="card card-info card-outline">
-		<div class="card-body row" style="padding-bottom:20px;font-weight:bold">';
-		
-		$getData = $this->db->query("SELECT * FROM trs_so_detail so
-		INNER JOIN m_pelanggan p ON so.id_pelanggan=p.id_pelanggan
-		WHERE so.eta_so='$tgl'");
-		if($getData->num_rows() == 0){
-			$html .= 'DATA KOSONG!';
-		}else{
-			$html .='<div class="col-md-12" style="margin-bottom:10px">
-				DATA ETA TANGGAL : '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl)).'
-			</div>';
-			$html .='<table class="table table-bordered table-striped">
-			<thead>
-				<tr>
-					<th style="text-align:center">NO.</th>
-					<th style="text-align:center">CUSTOMER</th>
-					<th style="text-align:center">NO. PO</th>
-				</tr>
-			</thead>';
-			$i = 0;
-			foreach($getData->result() as $r){
-				$i++;
-				$html .='<tr>
-					<td style="text-align:center">'.$i.'</td>
-					<td>'.$r->nm_pelanggan.'</td>
-					<td>'.$r->kode_po.'</td>
-				</tr>';
-			}
+			<div class="card-header">
+				<h3 class="card-title" style="font-weight:bold">'.strtoupper(substr($this->m_fungsi->getHariIni($tgl),0,3)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl)).'</h3>
+			</div>
+			<div style="overflow:auto;white-space:nowrap">
+				<div style="padding:6px;font-weight:bold">';
+				
+				$cust = $this->db->query("SELECT*FROM trs_po_detail p
+				INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+				WHERE eta='$tgl' $id_pt GROUP BY p.id_pelanggan ORDER BY c.nm_pelanggan");
+				if($cust->num_rows() == 0){
+					$html .= 'DATA KOSONG!';
+				}else{
+					$html .='<table>';
+						// CUSTOMER
+						foreach($cust->result() as $c){
+							$html .= '<tr>
+								<td style="background:#333;color:#fff;padding:5px;border:1px solid #aaa" colspan="3">'.$c->nm_pelanggan.'</td>
+							</tr>';
+							// NO. PO
+							$po = $this->db->query("SELECT*FROM trs_po_detail WHERE eta='$tgl' AND id_pelanggan='$c->id_pelanggan' GROUP BY kode_po");
+							foreach($po->result() as $p){
+								$html .= '<tr>
+									<td style="background:#ccc;padding:5px;border:1px solid #aaa" colspan="3">'.$p->kode_po.'</td>
+								</tr>';
+								// PRODUK
+								$produk = $this->db->query("SELECT*FROM trs_po_detail p
+								INNER JOIN m_produk i ON p.id_produk=i.id_produk
+								WHERE p.eta='$tgl' AND p.id_pelanggan='$p->id_pelanggan' AND p.kode_po='$p->kode_po'
+								ORDER BY i.nm_produk");
+								foreach($produk->result() as $i){
+									$html .= '<tr style="vertical-align:top">
+										<td style="padding:5px;border:1px solid #aaa">'.$i->nm_produk.'</td>
+										<td style="padding:5px;border:1px solid #aaa;text-align:right">'.number_format($i->qty, 0, ',', '.').'</td>
+										<td style="padding:5px;border:1px solid #aaa"><textarea style="resize:none;border:0;width:300px;height:70px;font-weight:bold">'.$i->eta_ket.'</textarea></td>
+									</tr>';
+								}
+							}
+						}
+					$html .='</table>';
+				}
 
+				$html .='</div>
+			</div>
+		</div>';
+
+		echo $html;
+	}
+
+	function cariAllEtaCust()
+	{
+		$html = '';
+		$id_pelanggan = $_POST["id_pelanggan"];
+		($id_pelanggan != '') ? $id_pt = "AND p.id_pelanggan='$id_pelanggan'" : $id_pt = "";
+		$tgl = $_POST["tgl_po"];
+		if($tgl != ''){
+			$wTgl = "p.eta='$tgl'";
+		}else{
+			$tgl1 = date('Y-m-d');
+			$tgl2 = date('Y-m-d', strtotime('+12 month', strtotime($tgl1)));
+			$wTgl = "p.eta BETWEEN '$tgl1' AND '$tgl2'";
 		}
 
-		$html .='</div></div>';
+		$cust = $this->db->query("SELECT*FROM trs_po_detail p
+		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+		WHERE $wTgl $id_pt
+		GROUP BY p.id_pelanggan
+		ORDER BY c.nm_pelanggan");
+
+		$html .='<div style="padding:6px;font-weight:bold">
+			<table class="table table-bordered table-striped">';
+			// CUSTOMER
+			foreach($cust->result() as $c){
+				$html .= '<thead>
+					<tr>
+						<th style="background:#333;color:#fff">'.$c->nm_pelanggan.'</th>
+						<th style="background:#333;color:#fff;text-align:center">#</th>
+					</tr>
+				</thead>';
+				// TANGGAL ETA
+				$eta = $this->db->query("SELECT p.eta,p.id_pelanggan,COUNT(p.eta) AS jml FROM trs_po_detail p WHERE $wTgl AND p.id_pelanggan='$c->id_pelanggan' GROUP BY p.eta ASC");
+				foreach($eta->result() as $e){
+					$html .= '<tr>
+						<td><a href="javascript:void(0)" onclick="tampilDataEtaPO('."'".$e->id_pelanggan."'".', '."'".$e->eta."'".')">'.strtoupper(substr($this->m_fungsi->getHariIni($e->eta),0,3)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($e->eta)).'<a></td>
+						<td style="text-align:center">'.$e->jml.'</td>
+					</tr>';
+				}
+			}
+			$html .='</table>
+		</div>';
 
 		echo $html;
 	}

@@ -20,11 +20,11 @@
 				<div class="col-md-6">
 					<div class="card card-info card-outline">
 						<div class="card-header">
-							<h3 class="card-title" style="font-weight:bold;font-style:italic">PILIH</h3>
+							<h3 class="card-title" style="font-weight:bold">PILIH</h3>
 						</div>
 						<div class="card-body row" style="padding-bottom:17px;font-weight:bold">
 							<div class="col-md-6" style="margin-bottom:3px">
-								<button type="button" class="btn btn-block btn-info" onclick="pilihan('tgl','tanggal')"><b>TANGGAL</b></button>
+								<button type="button" class="btn btn-block btn-info" onclick="pilihan('tgl','tanggal')"><b>CUST, TANGGAL</b></button>
 							</div>
 							<div class="col-md-6" style="margin-bottom:3px">
 								<button type="button" class="btn btn-block btn-info" onclick="pilihan('all','semua')"><b>SEMUA</b></button>
@@ -34,7 +34,7 @@
 
 					<div class="card card-info card-outline">
 						<div class="card-header">
-							<h3 class="card-title" style="font-weight:bold;font-style:italic">RINCIAN</h3>
+							<h3 class="card-title" style="font-weight:bold">RINCIAN</h3>
 						</div>
 						<div id="tampil-rincian"></div>
 					</div>
@@ -84,17 +84,44 @@
 		$("#tampil-data").html(``)
 		if(ket == 'tgl' && opsi == 'tanggal'){
 			$("#tampil-rincian").html(`
-			<div class="card-body row" style="padding-bottom:20px;font-weight:bold">
-				<div class="col-md-6" style="margin-bottom:4px">
-					TANGGAL
+				<div class="card-body row" style="padding:12px 12px 6px;font-weight:bold">
+					<div class="col-md-2" style="margin-bottom:4px">
+						CUSTOMER
+					</div>
+					<div class="col-md-10" style="margin-bottom:4px">
+						<select id="id_pelanggan" name="id_pelanggan" class="form-control select2">
+							<option value="">SEMUA</option>
+							<?php
+								$query = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan");
+								$html = '';
+								foreach($query->result() as $r){
+									if($r->attn == '-' && $r->nm_pelanggan != '-'){
+										$nm = $r->nm_pelanggan;
+									}else if($r->attn != '-' && $r->nm_pelanggan != '-'){
+										$nm = $r->nm_pelanggan.' - '.$r->attn;
+									}
+									$html .= '<option value="'.$r->id_pelanggan.'">'.$nm.' ('.$r->kode_unik.')</option>';
+								}
+								echo $html;
+							?>
+						</select>
+					</div>
 				</div>
-				<div class="col-md-6" style="margin-bottom:4px">
-					<input type="date" id="tgl_po" class="form-control">
+				<div class="card-body row" style="padding:0 12px 6px;font-weight:bold">
+					<div class="col-md-2" style="margin-bottom:4px">
+						TANGGAL
+					</div>
+					<div class="col-md-4" style="margin-bottom:4px">
+						<input type="date" id="tgl_po" class="form-control">
+					</div>
+					<div class="col-md-6"></div>
 				</div>
-				<div class="col-md-12">
-					<buton class="btn btn-block btn-info" onclick="pilihanEtaPO()">CARI</buton>
+				<div class="card-body row" style="padding:0 12px 12px;font-weight:bold">
+					<div class="col-md-2"></div>
+					<div class="col-md-10" style="margin-bottom:4px">
+						<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="cariAllEtaCust()"><i class="fas fa-search"></i> CARI</button>
+					</div>
 				</div>
-			</div>
 			`)
 		}else{
 			$.ajax({
@@ -119,19 +146,48 @@
 				}
 			})
 		}
+		$('.select2').select2();
+	}
+
+	function cariAllEtaCust()
+	{
+		let id_pelanggan = $("#id_pelanggan").val()
+		let tgl_po = $("#tgl_po").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/cariAllEtaCust')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_pelanggan, tgl_po
+			}),
+			success: function(res){
+				$("#tampil-rincian").html(res)
+				swal.close()
+			}
+		})
 	}
 
 	function pilihanEtaPO()
 	{
+		let id_pelanggan = $("#id_pelanggan").val()
 		let tgl_po = $("#tgl_po").val()
-		tampilDataEtaPO(tgl_po)
+		tampilDataEtaPO(id_pelanggan, tgl_po)
 	}
 
 	function kosong(){
 		//
 	}
 
-	function tampilDataEtaPO(tgl)
+	function tampilDataEtaPO(id_pelanggan, tgl)
 	{
 		// alert(tgl)
 		$.ajax({
@@ -148,7 +204,7 @@
 					});
 				},
 			data: ({
-				tgl
+				id_pelanggan, tgl
 			}),
 			success: function(res){
 				$("#tampil-data").html(res)
