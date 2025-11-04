@@ -1234,7 +1234,7 @@ class M_logistik extends CI_Model
 					foreach($getPL->result() as $o){
 						$this->db->set('no_kendaraan', $getNo->row()->no_kendaraan);
 						$this->db->set('driver', $getNo->row()->driver);
-						$this->db->set('ekspedisi', $getNo->row()->ekspedisi);
+						$this->db->set('expedisi', $getNo->row()->expedisi);
 						$this->db->where('tgl', $o->tgl);
 						$this->db->where('no_pl_urut', $o->no_pl_urut);
 						$this->db->where('stat_sj', 'revisi');

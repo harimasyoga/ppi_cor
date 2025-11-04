@@ -216,9 +216,9 @@ class Laporan extends CI_Controller
 					}else{
 						$btnBtl = '-';
 					}
-					($r->status_app3!='Y') ? $ketPO = ' <span class="bg-danger" style="vertical-align:top;font-weight:bold;font-style:italic;padding:2px 4px;font-size:12px">( BELUM DI ACC )</span>' : $ketPO = '';
+					($r->status_app3!='Y') ? $ketPO = ';font-style:italix' : $ketPO = '';
 					$html .='<tr>
-						<td style="background:#adb5bd;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="6">'.$r->kode_po.$ketPO.'</td>
+						<td style="background:#adb5bd;padding:5px;border:1px solid #aaa;font-weight:bold'.$ketPO.'" colspan="6">'.$r->kode_po.'</td>
 						'.$kopBtn.'
 						<td style="background:#adb5bd;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:center">'.$btnBtl.'</td>
 					</tr>';
@@ -241,9 +241,24 @@ class Laporan extends CI_Controller
 						}else{
 							$spanS = '';
 						}
+						// ADD GUDANG
+						if($rincian == 'REKAP'){
+							$cG = $this->db->query("SELECT*FROM m_gudang WHERE gd_id_pelanggan='$d->id_pelanggan' AND gd_id_produk='$d->id_produk' AND gd_kode_po='$d->kode_po'");
+							if(in_array($this->session->userdata('level'), ['Admin', 'User']) && $cG->num_rows() == 0 && $r->status_kiriman == 'Open'){
+								$adGd = ' <button type="button" class="btn btn-xs btn-secondary" style="font-weight:bold" onclick="addGudangLap('."'".$d->id."'".','."'OPEN'".')">+</button>';
+							}else if(in_array($this->session->userdata('level'), ['Admin', 'User']) && $cG->num_rows() != 0 && $r->status_kiriman == 'Open'){
+								$cG2 = $this->db->query("SELECT*FROM m_gudang WHERE gd_id_pelanggan='$d->id_pelanggan' AND gd_id_produk='$d->id_produk' AND gd_kode_po='$d->kode_po' AND gd_status='Open'");
+								($cG2->num_rows() != 0) ? $adGd = ' <button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="addGudangLap('."'".$d->id."'".','."'CLOSE'".')">x</button>' : $adGd = '';
+							}else{
+								$adGd = '';
+							}
+						}else{
+							$adGd = '';
+						}
+
 						$html .='<tr>
 							<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$i.'</td>
-							<td style="padding:5px;border:1px solid #aaa">'.$d->nm_produk.'</td>
+							<td style="padding:5px;border:1px solid #aaa">'.$d->nm_produk.$adGd.'</td>
 							<td style="padding:5px;border:1px solid #aaa">'.$ukuran.'</td>
 							<td style="padding:5px;border:1px solid #aaa">'.$this->m_fungsi->kualitas($d->kualitas, $d->flute).'</td>
 							<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$d->flute.'</td>
@@ -380,6 +395,12 @@ class Laporan extends CI_Controller
 	function deleteReturkiriman()
 	{
 		$result = $this->m_laporan->deleteReturkiriman();
+		echo json_encode($result);
+	}
+
+	function addGudangLap()
+	{
+		$result = $this->m_laporan->addGudangLap();
 		echo json_encode($result);
 	}
 

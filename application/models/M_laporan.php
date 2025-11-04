@@ -98,4 +98,47 @@ class M_laporan extends CI_Model
 			'data' => $data,
 		];
 	}
+
+	function addGudangLap()
+	{
+		$id = $_POST["id"];
+		$opsi = $_POST["opsi"];
+		$poDtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id'")->row();
+
+		if($opsi == 'OPEN'){
+			$hasil = $poDtl->qty + ($poDtl->qty * 0.1);
+			$edd = [
+				'gd_id_pelanggan' => $poDtl->id_pelanggan,
+				'gd_id_produk' => $poDtl->id_produk,
+				'gd_id_trs_wo' => null,
+				'gd_id_plan_cor' => null,
+				'gd_id_plan_flexo' => null,
+				'gd_id_plan_finishing' => null,
+				'gd_kode_po' => $poDtl->kode_po,
+				'gd_berat_box' => $poDtl->bb,
+				'gd_hasil_plan' => $hasil,
+				'gd_good_qty' => $hasil,
+				'gd_reject_qty' => 0,
+				'gd_cek_spv' => 'Close',
+				'gd_status' => 'Open',
+				'add_time' => date('Y-m-d H:i:s'),
+				'add_user' => $this->username,
+			];
+			$data = $this->db->insert('m_gudang', $edd);
+		}
+		if($opsi == 'CLOSE'){
+			$gd = $this->db->query("SELECT*FROM m_gudang WHERE gd_id_pelanggan='$poDtl->id_pelanggan' AND gd_id_produk='$poDtl->id_produk' AND gd_kode_po='$poDtl->kode_po'");
+			$edd = 'CLOSE';
+			foreach($gd->result() as $r){
+				$this->db->set('gd_status', 'Close');
+				$this->db->where('id_gudang', $r->id_gudang);
+				$data = $this->db->update('m_gudang');
+			}
+		}
+
+		return [
+			'edd' => $edd,
+			'data' => $data,
+		];
+	}
 }
