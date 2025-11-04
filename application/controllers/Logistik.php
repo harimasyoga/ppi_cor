@@ -11278,10 +11278,18 @@ class Logistik extends CI_Controller
 	{
 		$html = '';
 		$html .='<div id="gudangPilihan">
+			<a class="gd-link-pilihan plh-no_po" style="margin-bottom:6px;font-weight:bold" data-toggle="collapse" href="#pilihan-no_po" onclick="pilihanSJ('."'no_po'".')">NO. PO</a>
+			<div id="pilihan-no_po" class="collapse" data-parent="#gudangPilihan">
+				<div id="tampilPilihan-no_po" style="overflow:auto;white-space:nowrap"></div>
+			</div>
 			<a class="gd-link-pilihan plh-tgl_kirim" style="margin-bottom:6px;font-weight:bold" data-toggle="collapse" href="#pilihan-tgl_kirim" onclick="pilihanSJ('."'tgl_kirim'".')">TANGGAL KIRIM</a>
-			<div id="pilihan-tgl_kirim" class="collapse" data-parent="#gudangPilihan"><div id="tampilPilihan-tgl_kirim" style="overflow:auto;white-space:nowrap"></div></div>
+			<div id="pilihan-tgl_kirim" class="collapse" data-parent="#gudangPilihan">
+				<div id="tampilPilihan-tgl_kirim" style="overflow:auto;white-space:nowrap"></div>
+			</div>
 			<a class="gd-link-pilihan plh-customer" style="font-weight:bold" data-toggle="collapse" href="#pilihan-customer" onclick="pilihanSJ('."'customer'".')">CUSTOMER</a>
-			<div id="pilihan-customer" class="collapse" data-parent="#gudangPilihan"><div id="tampilPilihan-customer"></div></div>
+			<div id="pilihan-customer" class="collapse" data-parent="#gudangPilihan">
+				<div id="tampilPilihan-customer"></div>
+			</div>
 		</div>';
 		// }
 		echo $html;
@@ -11291,6 +11299,14 @@ class Logistik extends CI_Controller
 	{
 		$opsi = $_POST["opsi"];
 		$html = '';
+		if($opsi == "no_po"){
+			$getCustomer = $this->db->query("SELECT p.nm_pelanggan,p.attn,g.gd_kode_po,i.kategori,i.nm_produk,g.* FROM m_gudang g
+			INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
+			INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
+			INNER JOIN trs_po o ON g.gd_kode_po=o.kode_po AND g.gd_id_pelanggan=o.id_pelanggan
+			WHERE g.gd_kode_po IS NOT NULL AND g.gd_cek_spv='Close' AND g.gd_status='Open' AND o.status_kiriman='Open'
+			ORDER BY p.nm_pelanggan,g.gd_kode_po,i.nm_produk");
+		}
 		if($opsi == "tgl_kirim"){
 			$getCustomer = $this->db->query("SELECT p.nm_pelanggan,p.attn,w.kode_po,i.kategori,i.nm_produk,g.*,c.*,fx.*,fs.* FROM m_gudang g
 			INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
@@ -11302,13 +11318,8 @@ class Logistik extends CI_Controller
 			INNER JOIN trs_po o ON w.kode_po=o.kode_po AND w.id_pelanggan=o.id_pelanggan
 			WHERE g.gd_cek_spv='Close' AND g.gd_status='Open' AND o.status_kiriman='Open'
 			ORDER BY c.tgl_kirim_plan,p.nm_pelanggan,w.kode_po,i.nm_produk");
-			$getGudang = $this->db->query("SELECT p.nm_pelanggan,p.attn,g.gd_kode_po,i.kategori,i.nm_produk,g.* FROM m_gudang g
-			INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
-			INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
-			INNER JOIN trs_po o ON g.gd_kode_po=o.kode_po AND g.gd_id_pelanggan=o.id_pelanggan
-			WHERE g.gd_kode_po IS NOT NULL AND g.gd_cek_spv='Close' AND g.gd_status='Open' AND o.status_kiriman='Open'
-			ORDER BY p.nm_pelanggan,g.gd_kode_po,i.nm_produk");
-		}else{
+		}
+		if($opsi == "customer"){
 			$getCustomer = $this->db->query("SELECT p.nm_pelanggan,p.attn,g.* FROM m_gudang g
 			INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
 			INNER JOIN trs_wo w ON g.gd_id_trs_wo=w.id
@@ -11320,7 +11331,7 @@ class Logistik extends CI_Controller
 		if($getCustomer->num_rows() == 0){
 			$html .='GUDANG KOSONG!';
 		}else{
-			if($opsi == "tgl_kirim"){
+			if($opsi == "no_po"){
 				$html .= '<table style="margin-top:6px;border:1px solid #dee2e6">
 					<tr style="background:#dee2e6">
 						<th style="padding:6px;border:1px solid #bbb;text-align:center">NO</th>
@@ -11334,7 +11345,7 @@ class Logistik extends CI_Controller
 						<th style="padding:6px;text-align:center;border:1px solid #bbb">AKSI</th>
 					</tr>';
 					$ii = 0;
-					foreach($getGudang->result() as $gdi){
+					foreach($getCustomer->result() as $gdi){
 						$ii++;
 						$rk = $this->db->query("SELECT SUM(qty_muat) AS muat FROM m_rencana_kirim WHERE id_gudang='$gdi->id_gudang' GROUP BY id_gudang");
 						($rk->num_rows() == 0) ? $qty = $gdi->gd_good_qty : $qty = $gdi->gd_good_qty - $rk->row()->muat;
@@ -11376,7 +11387,8 @@ class Logistik extends CI_Controller
 						}
 					}
 				$html .='</table>';
-
+			}
+			if($opsi == "tgl_kirim"){
 				$html .= '<table style="margin-top:6px;border:1px solid #dee2e6">
 					<tr style="background:#dee2e6">
 						<th style="padding:6px;border:1px solid #bbb;text-align:center">NO</th>
@@ -11457,7 +11469,8 @@ class Logistik extends CI_Controller
 						}
 					}
 				$html .='</table>';
-			}else{
+			}
+			if($opsi == "customer"){
 				$html .='<div id="gudangCustomer" style="margin-top:6px">';
 					$i = 0;
 					foreach($getCustomer->result() as $cust){
