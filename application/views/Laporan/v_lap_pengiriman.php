@@ -336,4 +336,31 @@
 			}
 		})
 	}
+
+	function addGudangLap(id, opsi)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Laporan/addGudangLap')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id, opsi
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					plhOS()
+				}
+			}
+		})
+	}
 </script>

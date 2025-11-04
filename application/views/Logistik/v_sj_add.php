@@ -390,7 +390,6 @@
 
 	function editListUrutRK(opsi, id_rk) {
 		let urut = $("#rk-urut-"+id_rk).val()
-		console.log(urut)
 		$.ajax({
 			url: '<?php echo base_url('Logistik/editListUrutRK')?>',
 			type: "POST",
