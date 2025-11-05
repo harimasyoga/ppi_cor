@@ -7185,7 +7185,7 @@ class Transaksi extends CI_Controller
 		$getData = $this->db->query("SELECT eta,COUNT(eta) AS jml FROM trs_po_detail WHERE eta BETWEEN '$tgl1' AND '$tgl3' GROUP BY eta ASC");
 
 		$html .='<div style="padding:6px;font-weight:bold">
-			<table class="table table-bordered table-striped">
+			<table class="table table-bordered table-striped" style="margin:0">
 				<thead>
 					<tr>
 						<th>HARI, TANGGAL</th>
@@ -7217,44 +7217,53 @@ class Transaksi extends CI_Controller
 			<div class="card-header">
 				<h3 class="card-title" style="font-weight:bold">'.strtoupper(substr($this->m_fungsi->getHariIni($tgl),0,3)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl)).'</h3>
 			</div>
-			<div style="overflow:auto;white-space:nowrap">
-				<div style="padding:6px;font-weight:bold">';
-				
-				$cust = $this->db->query("SELECT*FROM trs_po_detail p
-				INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
-				WHERE eta='$tgl' $id_pt GROUP BY p.id_pelanggan ORDER BY c.nm_pelanggan");
-				if($cust->num_rows() == 0){
-					$html .= 'DATA KOSONG!';
-				}else{
-					$html .='<table>';
-						// CUSTOMER
-						foreach($cust->result() as $c){
-							$html .= '<tr>
-								<td style="background:#333;color:#fff;padding:5px;border:1px solid #aaa" colspan="3">'.$c->nm_pelanggan.'</td>
+			<div style="padding:6px">
+				<div style="overflow:auto;white-space:nowrap">';
+					$cust = $this->db->query("SELECT*FROM trs_po_detail p
+					INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+					WHERE eta='$tgl' $id_pt GROUP BY p.id_pelanggan ORDER BY c.nm_pelanggan");
+					if($cust->num_rows() == 0){
+						$html .= 'DATA KOSONG!';
+					}else{
+						$html .='<table>
+							<tr>
+								<td style="padding:5px;font-weight:bold;border:1px solid #aaa;border-width:1px 1px 3px">ITEM DESCRIPTION</td>
+								<td style="padding:5px;font-weight:bold;border:1px solid #aaa;border-width:1px 1px 3px;text-align:center">QTY</td>
+								<td style="padding:5px;font-weight:bold;border:1px solid #aaa;border-width:1px 1px 3px;text-align:center">TONASE</td>
+								<td style="padding:5px;font-weight:bold;border:1px solid #aaa;border-width:1px 1px 3px;text-align:center">ETA KETERANGAN</td>
 							</tr>';
-							// NO. PO
-							$po = $this->db->query("SELECT*FROM trs_po_detail WHERE eta='$tgl' AND id_pelanggan='$c->id_pelanggan' GROUP BY kode_po");
-							foreach($po->result() as $p){
+							// CUSTOMER
+							foreach($cust->result() as $c){
 								$html .= '<tr>
-									<td style="background:#ccc;padding:5px;border:1px solid #aaa" colspan="3">'.$p->kode_po.'</td>
+									<td style="background:#333;color:#fff;font-weight:bold;padding:5px;border:1px solid #aaa" colspan="4">'.$c->nm_pelanggan.'</td>
 								</tr>';
-								// PRODUK
-								$produk = $this->db->query("SELECT*FROM trs_po_detail p
-								INNER JOIN m_produk i ON p.id_produk=i.id_produk
-								WHERE p.eta='$tgl' AND p.id_pelanggan='$p->id_pelanggan' AND p.kode_po='$p->kode_po'
-								ORDER BY i.nm_produk");
-								foreach($produk->result() as $i){
-									$html .= '<tr style="vertical-align:top">
-										<td style="padding:5px;border:1px solid #aaa">'.$i->nm_produk.'</td>
-										<td style="padding:5px;border:1px solid #aaa;text-align:right">'.number_format($i->qty, 0, ',', '.').'</td>
-										<td style="padding:5px;border:1px solid #aaa"><textarea style="resize:none;border:0;width:300px;height:70px;font-weight:bold">'.$i->eta_ket.'</textarea></td>
+								// NO. PO
+								$po = $this->db->query("SELECT*FROM trs_po_detail WHERE eta='$tgl' AND id_pelanggan='$c->id_pelanggan' GROUP BY kode_po");
+								foreach($po->result() as $p){
+									$html .= '<tr>
+										<td style="background:#ccc;padding:5px;font-weight:bold;border:1px solid #aaa" colspan="4">'.$p->kode_po.'</td>
 									</tr>';
+									// PRODUK
+									$produk = $this->db->query("SELECT*FROM trs_po_detail p
+									INNER JOIN m_produk i ON p.id_produk=i.id_produk
+									WHERE p.eta='$tgl' AND p.id_pelanggan='$p->id_pelanggan' AND p.kode_po='$p->kode_po'
+									ORDER BY i.id_produk");
+									foreach($produk->result() as $i){
+										($i->kategori == 'K_BOX') ? $kat = 'BOX' : $kat = 'SHEET';
+										($i->kategori == 'K_BOX') ? $ukuran = '<br>'.$i->ukuran : $ukuran = '<br>'.$i->ukuran_sheet;
+										$subs = '<br>'.$this->m_fungsi->kualitas($i->kualitas, $i->flute).' ( '.$i->flute.' ) ';
+										$tonase = $i->bb * $i->qty;
+										$html .= '<tr style="vertical-align:top">
+											<td style="padding:5px;border:1px solid #aaa"><b>[ '.$kat.' ] '.$i->nm_produk.'</b> <span style="font-size:11px;vertical-align:top">( '.$i->bb.' )</span>'.$ukuran.$subs.'</td>
+											<td style="padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($i->qty, 0, ',', '.').'</td>
+											<td style="padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($tonase, 0, ',', '.').' KG</td>
+											<td style="padding:5px;border:1px solid #aaa"><textarea style="resize:none;border:0;width:300px;height:70px;font-weight:bold">'.$i->eta_ket.'</textarea></td>
+										</tr>';
+									}
 								}
 							}
-						}
-					$html .='</table>';
-				}
-
+						$html .='</table>';
+					}
 				$html .='</div>
 			</div>
 		</div>';
