@@ -3,12 +3,9 @@
 		<div class="container-fluid">
 			<div class="row mb-2">
 			<div class="col-sm-6" style="font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;" >
-				<!-- <h1><b>Data Transaksi </b></h1> -->
 			</div>
 			<div class="col-sm-6">
-				<ol class="breadcrumb float-sm-right">
-				<!-- <li class="breadcrumb-item active" ><a href="#"><?= $judul ?></a></li> -->
-				</ol>
+				<ol class="breadcrumb float-sm-right"></ol>
 			</div>
 			</div>
 		</div>
@@ -31,7 +28,6 @@
 							</div>
 						</div>
 					</div>
-
 					<div class="card card-info card-outline">
 						<div class="card-header">
 							<h3 class="card-title" style="font-weight:bold">RINCIAN</h3>
@@ -39,11 +35,8 @@
 						<div id="tampil-rincian"></div>
 					</div>
 				</div>
-
 				<div class="col-md-6">
-					<!-- <div class="card card-info card-outline"> -->
-						<div id="tampil-data"></div>
-					<!-- </div> -->
+					<div id="tampil-data"></div>
 				</div>
 			</div>
 		</div>
@@ -68,16 +61,10 @@
 
 <script type="text/javascript">
 	$(document).ready(function () {
-		// load_data()
 		$("#tampil-rincian").html(``)
 		$("#tampil-data").html(``)
 		$('.select2').select2();
 	});
-
-	// function reloadTable() {
-	// 	table = $('#datatable').DataTable();
-	// 	tabel.ajax.reload(null, false);
-	// }
 
 	function pilihan(ket ,opsi)
 	{
@@ -85,9 +72,7 @@
 		if(ket == 'tgl' && opsi == 'tanggal'){
 			$("#tampil-rincian").html(`
 				<div class="card-body row" style="padding:12px 12px 6px;font-weight:bold">
-					<div class="col-md-2" style="margin-bottom:4px">
-						CUSTOMER
-					</div>
+					<div class="col-md-2" style="margin-bottom:4px">CUST</div>
 					<div class="col-md-10" style="margin-bottom:4px">
 						<select id="id_pelanggan" name="id_pelanggan" class="form-control select2">
 							<option value="">SEMUA</option>
@@ -108,9 +93,7 @@
 					</div>
 				</div>
 				<div class="card-body row" style="padding:0 12px 6px;font-weight:bold">
-					<div class="col-md-2" style="margin-bottom:4px">
-						TANGGAL
-					</div>
+					<div class="col-md-2" style="margin-bottom:4px">TGL</div>
 					<div class="col-md-4" style="margin-bottom:4px">
 						<input type="date" id="tgl_po" class="form-control">
 					</div>
@@ -183,13 +166,8 @@
 		tampilDataEtaPO(id_pelanggan, tgl_po)
 	}
 
-	function kosong(){
-		//
-	}
-
 	function tampilDataEtaPO(id_pelanggan, tgl)
 	{
-		// alert(tgl)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/tampilDataEtaPO')?>',
 			type: "POST",
