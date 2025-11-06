@@ -12351,10 +12351,20 @@ class Logistik extends CI_Controller
 		WHERE a.no_surat='$jenis'
 		GROUP BY a.no_surat")->row();
 
+		if(($data_pl->pl_attn != null || $data_pl->pl_attn != '') && ($data_pl->pl_kepada != null || $data_pl->pl_kepada != '') && ($data_pl->pl_alamat != null || $data_pl->pl_alamat != '')){
+			$plAttn = $data_pl->pl_attn;
+			$plKepada = $data_pl->pl_kepada;
+			$plAlamat = $data_pl->pl_alamat;
+		}else{
+			$plAttn = $data_pl->attn;
+			$plKepada = $data_pl->nm_pelanggan;
+			$plAlamat = $data_pl->alamat_kirim;
+		}
+
         // KOP
 		if($data_pl->id_hub != 7){
 			// HUB
-			($data_pl->nm_pelanggan == "-" || $data_pl->nm_pelanggan == "") ? $nm_pelanggan = $data_pl->attn : $nm_pelanggan = $data_pl->nm_pelanggan;
+			($plKepada == "-" || $plKepada == "") ? $nm_pelanggan = $plAttn : $nm_pelanggan = $plKepada;
 			$html .= '<table style="font-size:12px;color:#000;border-collapse:collapse;width:100%;vertical-align:top;font-family:tahoma">
 				<tr>
 					<td style="width:60%"></td>
@@ -12367,7 +12377,7 @@ class Logistik extends CI_Controller
 					<td style="padding-bottom:5px;text-align:center;font-size:16px;vertical-align:middle;font-weight:bold" colspan="3">SURAT JALAN</td>
 				</tr>
 				<tr>
-					<td style="border:1px solid #000;padding:3px" rowspan="5">KEPADA : '.$nm_pelanggan.'<br>'.$data_pl->alamat_kirim.'</td>
+					<td style="border:1px solid #000;padding:3px" rowspan="5">KEPADA : '.$nm_pelanggan.'<br>'.$plAlamat.'</td>
 					<td style="padding:3px 5px">Nomer Surat Jalan</td>
 					<td style="padding:3px 0">:</td>
 					<td style="padding:3px 0">'.$data_pl->no_surat.'</td>
@@ -12459,7 +12469,7 @@ class Logistik extends CI_Controller
 					<td style="padding:5px 0">'.$kett_tgll.'</td>
 					<td style="padding:5px 0">KEPADA</td>
 					<td style="text-align:center;padding:5px 0">:</td>
-					<td style="padding:5px 0">'.$data_pl->nm_pelanggan.'</td>
+					<td style="padding:5px 0">'.$plKepada.'</td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0">NO. SURAT JALAN</td>
@@ -12467,7 +12477,7 @@ class Logistik extends CI_Controller
 					<td style="padding:5px 0">'.$data_pl->no_surat.'</td>
 					<td style="padding:5px 0">ATTN</td>
 					<td style="text-align:center;padding:5px 0">:</td>
-					<td style="padding:5px 0">'.$data_pl->attn.'</td>
+					<td style="padding:5px 0">'.$plAttn.'</td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0">NO. SO</td>
@@ -12475,7 +12485,7 @@ class Logistik extends CI_Controller
 					<td style="padding:5px 0">'.$data_pl->no_so.'</td>
 					<td style="padding:5px 0">ALAMAT</td>
 					<td style="text-align:center;padding:5px 0">:</td>
-					<td style="padding:5px 0">'.strtoupper($data_pl->alamat_kirim).'</td>
+					<td style="padding:5px 0">'.strtoupper($plAlamat).'</td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0">NO. PKB</td>
