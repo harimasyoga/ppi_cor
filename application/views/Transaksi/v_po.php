@@ -701,16 +701,16 @@
 		});
 	}
 	
-	function pilih_hub2(nm_hub)
+	function pilih_hub2(id_hub,nm_hub)
 	{
-		if(nm_hub=='')
+		if(id_hub=='')
 		{
 			option += "<option value=''></option>";
 			$('#id_hub').html(option);
 
 		}else{		
 			
-			option = "<option value='"+nm_hub+"'>"+nm_hub+"</option>";
+			option = "<option value='"+id_hub+"'>"+nm_hub+"</option>";
 			$('#id_hub').html(option);
 		}
 	}
@@ -1140,7 +1140,7 @@
 				$("#no_po").val(data.header.no_po);
 				$("#tgl_po").val(data.header.tgl_po);
 				// alert(data.header.id_hub);
-				pilih_hub2(data.header.nm_hub);
+				pilih_hub2(data.header.id_hub,data.header.nm_hub);
 				
 				$('#status_karet').val(data.header.status_karet).trigger('change');
 				$('#id_pelanggan').val(data.header.id_pelanggan).trigger('change');
