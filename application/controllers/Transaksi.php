@@ -2529,8 +2529,16 @@ class Transaksi extends CI_Controller
                     $btn_s   = 'btn-danger';
                 }
 
-				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')">' . $r->no_po . "<a></div>";
+				$row[] = '<div class="text-center">'.$i.'</div>'; 
+
+				if (in_array($this->session->userdata('level'), ['Admin','User']))
+                {
+
+					$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')">' . $r->no_po . "<a></div>";
+				}else{
+
+					$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="preview(' . "'" . $r->id . "'" . ',' . "'detail'" . ')">' . $r->no_po . "<a></div>";
+				}
 
 				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</div>';
 				
@@ -2590,7 +2598,7 @@ class Transaksi extends CI_Controller
 						} else {
 
 							$aksi .= ' 
-								<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
+								<button type="button" onclick="preview(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
 									<i class="fa fa-edit"></i>
 								</button>
 								
@@ -2625,7 +2633,7 @@ class Transaksi extends CI_Controller
 						if($r->status_app1 == 'N' || $r->status_app1 == 'H' || $r->status_app1 == 'R')
 						{
 							$aksi .=  ' 
-									<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
+									<button title="VERIFIKASI DATA" type="button" onclick="preview(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
 										<i class="fa fa-check"></i>
 									</button>  ';
 						}
@@ -2636,7 +2644,7 @@ class Transaksi extends CI_Controller
 						if($r->status_app2 == 'N' || $r->status_app2 == 'H' || $r->status_app2 == 'R'){
 
 							$aksi .=  ' 
-									<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
+									<button title="VERIFIKASI DATA" type="button" onclick="preview(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
 										<i class="fa fa-check"></i>
 									</button> ';
 						}
@@ -2646,7 +2654,7 @@ class Transaksi extends CI_Controller
 						if($r->status_app3 == 'N' || $r->status_app3 == 'H' || $r->status_app3 == 'R'){
 
 							$aksi .=  ' 
-									<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
+									<button title="VERIFIKASI DATA" type="button" onclick="preview(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
 										<i class="fa fa-check"></i>
 									</button>  ';
 						}
@@ -3492,6 +3500,29 @@ class Transaksi extends CI_Controller
 			}
 
 			$detail = $this->db->query("SELECT * FROM trs_po a 
+                    JOIN trs_po_detail b ON a.no_po = b.no_po
+                    JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+                    LEFT JOIN m_kab d ON c.kab=d.kab_id
+                    LEFT JOIN m_produk e ON b.id_produk=e.id_produk
+					WHERE a.no_po = '$header->no_po' ORDER BY b.id
+				")->result();
+
+			$data = ["header" => $header, "detail" => $detail, "url_foto" => $url_foto];
+
+		} else if ($jenis == "trs_po2") {
+			// $header =  $this->m_master->get_data_one('trs_po', $field, $id)->row();
+
+			$header = $this->db->query("SELECT *,(select nm_hub from m_hub h where a.id_hub=h.id_hub)nm_hub FROM trs_po a 
+					WHERE $field = '$id'")->row();
+			// $data = $this->m_master->get_data_one("trs_po_detail", "no_po", $header->no_po)->result();
+
+			if($header->img_po==null || $header->img_po=='') {
+				$url_foto = base_url('assets/gambar_po/foto.jpg');
+			}else{
+				$url_foto = base_url('assets/gambar_po/') . $header->img_po;
+			}
+
+			$detail = $this->db->query("SELECT *,(select nm_hub from m_hub h where a.id_hub=h.id_hub)nm_hub FROM trs_po a 
                     JOIN trs_po_detail b ON a.no_po = b.no_po
                     JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
                     LEFT JOIN m_kab d ON c.kab=d.kab_id

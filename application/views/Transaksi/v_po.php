@@ -700,6 +700,20 @@
 			}
 		});
 	}
+	
+	function pilih_hub2(nm_hub)
+	{
+		if(nm_hub=='')
+		{
+			option += "<option value=''></option>";
+			$('#id_hub').html(option);
+
+		}else{		
+			
+			option = "<option value='"+nm_hub+"'>"+nm_hub+"</option>";
+			$('#id_hub').html(option);
+		}
+	}
 
 	function load_data() 
 	{
@@ -1083,6 +1097,160 @@
 
 	var no_po = ''
 
+	function preview(id, act) 
+	{
+		// kosong('s');
+		kosong();
+		var cek = '<?= $this->session->userdata('level') ?>';
+		$(".btn-tambah-produk").hide();
+		$("#btn-print").show();
+		
+		$("#status").val("update");
+		status    = 'update';
+
+		$("#modalForm").modal("show");
+		muncul_aksi('B')
+		if (act == 'detail') {
+			$("#judul").html('<h3> Detail Data</h3>');
+			$("#btn-simpan").hide();
+			$('#filefoto').css("display","none");
+		} else {
+			$("#judul").html('<h3> Form Edit Data</h3>');
+			$("#btn-simpan").show();
+			$('#filefoto').css("display","block");
+		} 
+
+		status = "update";
+
+		$.ajax({
+				url: '<?= base_url('Transaksi/get_edit'); ?>',
+				type: 'POST',
+				data: {
+					id       : id,
+					jenis    : "trs_po2",
+					field    : 'id'
+				},
+				dataType: "JSON",
+			})
+			.done(function(data) {
+				
+				btn_verif(data)
+				no_po = data.header.no_po
+
+				$("#no_po").val(data.header.no_po);
+				$("#tgl_po").val(data.header.tgl_po);
+				// alert(data.header.id_hub);
+				pilih_hub2(data.header.nm_hub);
+				
+				$('#status_karet').val(data.header.status_karet).trigger('change');
+				$('#id_pelanggan').val(data.header.id_pelanggan).trigger('change');
+
+				kodepo    = (data.header.kode_po == '' ) ? '-' : data.header.kode_po ;
+				
+				$("#kode_po").val(kodepo);
+				
+				$('#div_preview_foto').css("display","block");
+				$('#preview_img').attr('src',data.url_foto);
+				// $("#eta").val(eta); 
+				
+				$("#header_del").hide();
+				if (cek !='PPIC' && cek !='AP')
+				{
+					$("#header_p11").show();
+				}else{
+					$("#header_p11").hide();
+				}
+
+				$.each(data.detail, function(index, value) {
+					eta       = (value.eta == '' ) ? '-' : value.eta ;
+					
+					$("#detail-hapus-0").hide();
+					$("#detail-hapus-"+index).hide();
+					$("#btn-hapus-"+index).hide();
+					$("#eta_item"+index).val(eta); 
+					
+					if (cek !='PPIC' && cek !='AP')
+					{
+						$("#p11_det"+index).show();
+						$("#id_pelanggan").prop("disabled", false);
+						$("#kode_po").prop("disabled", false);
+						$("#eta_item"+index).prop("disabled", false); 
+
+						$('#subs'+index).hide();
+						$('#subs_i'+index).hide();
+						$('#subs_hitung'+index).hide();
+						$('#subs_hasil_hitung'+index).hide();
+						
+					}else{
+						$("#p11_det"+index).hide();
+						$("#id_pelanggan").prop("disabled", true);
+						$("#kode_po").prop("disabled", true);
+						$("#eta_item"+index).prop("disabled", true); 
+
+						$('#subs'+index).show();
+						$('#subs_i'+index).show();
+						$('#subs_hitung'+index).show();
+						$('#subs_hasil_hitung'+index).show();
+						
+					}
+					
+					
+					
+					var opt_produk = $("<option selected></option>").val(value.id_produk).text(value.nm_produk);
+
+					var opt_ppn = $("<option selected></option>").val(value.ppn).text(value.ppn);
+					
+					$('#id_produk'+index).append(opt_produk).trigger('change');
+					$("#qty"+index).val(format_angka(value.qty));
+
+					if(value.cek_rm==1)
+					{
+						$('#cek_rm'+index).prop('checked', true);
+					}else{
+						$('#cek_rm'+index).prop('checked', false);
+
+					}
+
+					$('#ppn'+index).append(opt_ppn).trigger('change');
+					// $("#ppn"+index).val(value.ppn);
+					$('#price_inc'+index).val(format_angka(value.price_inc));
+					$('#price_exc'+index).val(format_angka(value.price_exc));
+					$("#eta_ket"+index).val(value.eta_ket); 		
+					$("#eta_ket"+index).css("color","#fa3c3e");
+					$("#eta_ket"+index).css("font-weight","bold");
+					
+					$("#p11"+index).val(value.p11);
+
+					if (act == 'detail') {
+						$("#id_pelanggan").prop("disabled", true);
+						$("#qty"+index).prop("disabled", true);
+						// $("#qty_dec"+index).prop("disabled", true);
+						$('#cek_rm'+index).prop("disabled", true);
+						$("#id_produk"+index).prop("disabled", true);
+						$("#ppn"+index).prop("disabled", true);
+						$("#price_inc"+index).prop("disabled", true);
+						$("#price_exc"+index).prop("disabled", true);
+						$("#eta_ket"+index).prop("disabled", true);
+					} else {
+						$("#id_pelanggan").prop("disabled", false);
+						$("#qty"+index).prop("disabled", false);
+						// $("#qty_dec"+index).prop("disabled", false);
+						$('#cek_rm'+index).prop("disabled", false);
+						$("#id_produk"+index).prop("disabled", false);
+						$("#ppn"+index).prop("disabled", false);
+						$("#price_inc"+index).prop("disabled", false);
+						$("#price_exc"+index).prop("disabled", false);
+						$("#eta_ket"+index).prop("disabled", false);
+					} 
+					
+					if (index != (data.detail.length) - 1) {
+						addRow();
+					}
+					// console.log(index, data.length);
+				});
+			})
+	}
+	
 	function tampil_edit(id, act) 
 	{
 		// kosong('s');
