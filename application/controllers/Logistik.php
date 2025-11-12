@@ -2884,17 +2884,31 @@ class Logistik extends CI_Controller
 		$html = '';
 
 		if($plh_jenis == "CORRUGATED"){
+			if($plh_hub == "ALL") {
+				$wHb = "AND p.id_hub!='7'";
+				$gHb = "p.id_hub,";
+			}else{
+				$wHb = "AND p.id_hub='$plh_hub'";
+				$gHb = "";
+			}
 			$query = $this->db->query("SELECT*FROM pl_box p
 			INNER JOIN m_rencana_kirim r ON r.id_pl_box=p.id AND r.rk_urut=p.no_pl_urut
-			WHERE p.id_hub='$plh_hub' AND p.tgl BETWEEN '$tgl1' AND '$tgl2'
-			GROUP BY p.tgl,no_surat;");
+			WHERE p.tgl BETWEEN '$tgl1' AND '$tgl2' $wHb
+			GROUP BY $gHb p.tgl, no_surat");
 		}
 		if($plh_jenis == "LAMINASI"){
+			if($plh_hub == "ALL") {
+				$wHb = "AND po.id_hub!='7'";
+				$gHb = "po.id_hub,";
+			}else{
+				$wHb = "AND po.id_hub='$plh_hub'";
+				$gHb = "";
+			}
 			$query = $this->db->query("SELECT*FROM pl_laminasi p
 			INNER JOIN m_rk_laminasi r ON r.id_pl_lm=p.id AND r.rk_urut=p.no_pl_urut AND r.rk_no_po=p.no_po
 			INNER JOIN trs_po_lm po ON p.no_po=po.no_po_lm
-			WHERE po.id_hub='$plh_hub' AND p.tgl BETWEEN '$tgl1' AND '$tgl2' AND po.jenis_lm='PPI'
-			GROUP BY p.tgl,p.no_surat");
+			WHERE p.tgl BETWEEN '$tgl1' AND '$tgl2' AND po.jenis_lm='PPI' $wHb
+			GROUP BY $gHb p.tgl,p.no_surat");
 		}
 		if($plh_jenis == "" || $plh_hub == "" || $tgl1 == "" || $tgl2 == ""){
 			$s_p = 'style="padding:0"';
