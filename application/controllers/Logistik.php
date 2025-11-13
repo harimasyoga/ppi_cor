@@ -2884,17 +2884,31 @@ class Logistik extends CI_Controller
 		$html = '';
 
 		if($plh_jenis == "CORRUGATED"){
+			if($plh_hub == "ALL") {
+				$wHb = "AND p.id_hub!='7'";
+				$gHb = "p.id_hub,";
+			}else{
+				$wHb = "AND p.id_hub='$plh_hub'";
+				$gHb = "";
+			}
 			$query = $this->db->query("SELECT*FROM pl_box p
 			INNER JOIN m_rencana_kirim r ON r.id_pl_box=p.id AND r.rk_urut=p.no_pl_urut
-			WHERE p.id_hub='$plh_hub' AND p.tgl BETWEEN '$tgl1' AND '$tgl2'
-			GROUP BY p.tgl,no_surat;");
+			WHERE p.tgl BETWEEN '$tgl1' AND '$tgl2' $wHb
+			GROUP BY $gHb p.tgl, no_surat");
 		}
 		if($plh_jenis == "LAMINASI"){
+			if($plh_hub == "ALL") {
+				$wHb = "AND po.id_hub!='7'";
+				$gHb = "po.id_hub,";
+			}else{
+				$wHb = "AND po.id_hub='$plh_hub'";
+				$gHb = "";
+			}
 			$query = $this->db->query("SELECT*FROM pl_laminasi p
 			INNER JOIN m_rk_laminasi r ON r.id_pl_lm=p.id AND r.rk_urut=p.no_pl_urut AND r.rk_no_po=p.no_po
 			INNER JOIN trs_po_lm po ON p.no_po=po.no_po_lm
-			WHERE po.id_hub='$plh_hub' AND p.tgl BETWEEN '$tgl1' AND '$tgl2' AND po.jenis_lm='PPI'
-			GROUP BY p.tgl,p.no_surat");
+			WHERE p.tgl BETWEEN '$tgl1' AND '$tgl2' AND po.jenis_lm='PPI' $wHb
+			GROUP BY $gHb p.tgl,p.no_surat");
 		}
 		if($plh_jenis == "" || $plh_hub == "" || $tgl1 == "" || $tgl2 == ""){
 			$s_p = 'style="padding:0"';
@@ -12351,10 +12365,20 @@ class Logistik extends CI_Controller
 		WHERE a.no_surat='$jenis'
 		GROUP BY a.no_surat")->row();
 
+		if(($data_pl->pl_attn != null || $data_pl->pl_attn != '') && ($data_pl->pl_kepada != null || $data_pl->pl_kepada != '') && ($data_pl->pl_alamat != null || $data_pl->pl_alamat != '')){
+			$plAttn = $data_pl->pl_attn;
+			$plKepada = $data_pl->pl_kepada;
+			$plAlamat = $data_pl->pl_alamat;
+		}else{
+			$plAttn = $data_pl->attn;
+			$plKepada = $data_pl->nm_pelanggan;
+			$plAlamat = $data_pl->alamat_kirim;
+		}
+
         // KOP
 		if($data_pl->id_hub != 7){
 			// HUB
-			($data_pl->nm_pelanggan == "-" || $data_pl->nm_pelanggan == "") ? $nm_pelanggan = $data_pl->attn : $nm_pelanggan = $data_pl->nm_pelanggan;
+			($plKepada == "-" || $plKepada == "") ? $nm_pelanggan = $plAttn : $nm_pelanggan = $plKepada;
 			$html .= '<table style="font-size:12px;color:#000;border-collapse:collapse;width:100%;vertical-align:top;font-family:tahoma">
 				<tr>
 					<td style="width:60%"></td>
@@ -12367,7 +12391,7 @@ class Logistik extends CI_Controller
 					<td style="padding-bottom:5px;text-align:center;font-size:16px;vertical-align:middle;font-weight:bold" colspan="3">SURAT JALAN</td>
 				</tr>
 				<tr>
-					<td style="border:1px solid #000;padding:3px" rowspan="5">KEPADA : '.$nm_pelanggan.'<br>'.$data_pl->alamat_kirim.'</td>
+					<td style="border:1px solid #000;padding:3px" rowspan="5">KEPADA : '.$nm_pelanggan.'<br>'.$plAlamat.'</td>
 					<td style="padding:3px 5px">Nomer Surat Jalan</td>
 					<td style="padding:3px 0">:</td>
 					<td style="padding:3px 0">'.$data_pl->no_surat.'</td>
@@ -12459,7 +12483,7 @@ class Logistik extends CI_Controller
 					<td style="padding:5px 0">'.$kett_tgll.'</td>
 					<td style="padding:5px 0">KEPADA</td>
 					<td style="text-align:center;padding:5px 0">:</td>
-					<td style="padding:5px 0">'.$data_pl->nm_pelanggan.'</td>
+					<td style="padding:5px 0">'.$plKepada.'</td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0">NO. SURAT JALAN</td>
@@ -12467,7 +12491,7 @@ class Logistik extends CI_Controller
 					<td style="padding:5px 0">'.$data_pl->no_surat.'</td>
 					<td style="padding:5px 0">ATTN</td>
 					<td style="text-align:center;padding:5px 0">:</td>
-					<td style="padding:5px 0">'.$data_pl->attn.'</td>
+					<td style="padding:5px 0">'.$plAttn.'</td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0">NO. SO</td>
@@ -12475,7 +12499,7 @@ class Logistik extends CI_Controller
 					<td style="padding:5px 0">'.$data_pl->no_so.'</td>
 					<td style="padding:5px 0">ALAMAT</td>
 					<td style="text-align:center;padding:5px 0">:</td>
-					<td style="padding:5px 0">'.strtoupper($data_pl->alamat_kirim).'</td>
+					<td style="padding:5px 0">'.strtoupper($plAlamat).'</td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0">NO. PKB</td>

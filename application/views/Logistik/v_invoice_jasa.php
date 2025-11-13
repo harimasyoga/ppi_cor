@@ -130,7 +130,8 @@
 										<?php
 											$query = $this->db->query("SELECT*FROM m_hub WHERE id_hub!='7' ORDER BY nm_hub");
 											$html ='';
-											$html .='<option value="">PILIH</option>';
+											$html .='<option value="">PILIH</option>
+												<option value="ALL">SEMUA</option>';
 											foreach($query->result() as $r){
 												$html .='<option value="'.$r->id_hub.'">CV. '.$r->nm_hub.'</option>';
 											}
