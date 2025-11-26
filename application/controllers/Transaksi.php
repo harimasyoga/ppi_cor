@@ -812,6 +812,18 @@ class Transaksi extends CI_Controller
 
 	//
 
+	function FromSampleDesign()
+	{
+		$data = [
+			'judul' => "Form Sample & Design",
+		];
+		$this->load->view('header',$data);
+		$this->load->view('Transaksi/v_sample_design');
+		$this->load->view('footer');
+	}
+
+	//
+
 	function HPP()
 	{
 		$data = [
