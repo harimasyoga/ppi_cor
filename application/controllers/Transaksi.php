@@ -812,7 +812,7 @@ class Transaksi extends CI_Controller
 
 	//
 
-	function FromSampleDesign()
+	function FormSampleDesign()
 	{
 		$data = [
 			'judul' => "Form Sample & Design",
@@ -820,6 +820,120 @@ class Transaksi extends CI_Controller
 		$this->load->view('header',$data);
 		$this->load->view('Transaksi/v_sample_design');
 		$this->load->view('footer');
+	}
+
+	function destroyDesign()
+	{
+		$this->cart->destroy();
+	}
+
+	function addCartDesign()
+	{
+		$tgl_s = $_POST["tgl_s"];
+		$pilih_s = $_POST["pilih_s"];
+		$dsg_pilih = $_POST["dsg_pilih"];
+		$nm64 = $_POST["nm64"];
+		// $dsg_foto = $_POST["dsg_foto"];
+		$id_cart = $_POST["id_cart"];
+
+		$data = array(
+			'id' => $id_cart,
+			'name' => 'name'.$id_cart,
+			'price' => 0,
+			'qty' => 1,
+			'options' => array(
+				'f_name' => $_FILES['dsg_foto']['name'],
+				'f_type' => $_FILES['dsg_foto']['type'],
+				'f_tmp_name' => $_FILES['dsg_foto']['tmp_name'],
+				'f_error' => $_FILES['dsg_foto']['error'],
+				'f_size' => $_FILES['dsg_foto']['size'],
+				'nm64' => $nm64,
+				'tgl_s' => $tgl_s,
+				'pilih_s' => $pilih_s,
+				'dsg_pilih' => $dsg_pilih,
+			)
+		);
+
+		// if($this->cart->total_items() != 0){
+		// 	echo json_encode(array('data' => true, 'isi' => 'BERHASIL ADD!'));
+		// }else{
+		// 	if($_POST["id_po_header"] == ''){
+		// 		$this->cart->insert($data);
+		// 		echo json_encode(array('data' => true, 'isi' => 'BERHASIL ADD!'));
+		// 	}else{
+		// 		if($po_lm->num_rows() > 0 && $po_lm->row()->opsi_disc != ''){
+		// 			echo json_encode(array('data' => false, 'isi' => 'HAPUS HAPUS DISKON / FEE DAHULU!'));
+		// 			return;
+		// 		}
+		// 		foreach($po_dtl->result() as $r){
+		// 			if($r->id_m_produk_lm == $_POST["item"]){
+		// 				echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
+		// 				return;
+		// 			}
+		// 		}
+		// 		$this->cart->insert($data);
+		// 		echo json_encode(array('data' => true, 'isi' => 'BERHASIL ADD!'));
+		// 	}
+		// }
+
+		$this->cart->insert($data);
+		echo json_encode([
+			'data' => $data,
+		]);
+	}
+
+	function tampilAllList()
+	{
+		$htmlAcuan = '';
+		$htmlDesign = '';
+		$htmlPenawaran = '';
+		$htmlSample = '';
+		
+		$i = 0;
+		if($this->cart->total_items() != 0){
+			foreach($this->cart->contents() as $r){
+				$i++;
+				$pilih_s = $r['options']['dsg_pilih'];
+				
+				// HAPUS GAMBAR
+				$htmlDel = '<div style="margin-right:4px">
+				<button class="btn btn-xs btn-danger" onclick="hapusCartDesign('."'".$r['rowid']."'".')"><i class="fas fa-trash"></i></button>
+				</div>';
+				$preview = 'p'.$i;
+				$htmlIsi = '<div style="margin-right:8px">
+					<img id="'.$preview.'" src="'.$r['options']['nm64'].'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$preview."'".')">
+				</div>';
+
+				if($pilih_s == "AW"){
+					$htmlAcuan .= $htmlDel.$htmlIsi;
+				}
+				if($pilih_s == "DG"){
+					$htmlDesign .= $htmlDel.$htmlIsi;
+				}
+				if($pilih_s == "PW"){
+					$htmlPenawaran .= $htmlDel.$htmlIsi;
+				}
+				if($pilih_s == "SP"){
+					$htmlSample .= $htmlDel.$htmlIsi;
+				}
+			}
+		}
+
+		echo json_encode([
+			'htmlAcuan' => $htmlAcuan,
+			'htmlDesign' => $htmlDesign,
+			'htmlPenawaran' => $htmlPenawaran,
+			'htmlSample' => $htmlSample,
+		]);
+	}
+
+	function hapusCartDesign()
+	{
+		$data = array(
+			'rowid' => $_POST['rowid'],
+			'qty' => 0,
+		);
+		$this->cart->update($data);
 	}
 
 	//
@@ -1184,7 +1298,7 @@ class Transaksi extends CI_Controller
 	}
 
 	function addItemLaminasi()
-	{ //
+	{
 		if($_POST["tgl"] == "" || $_POST["customer"] == "" || $_POST["id_sales"] == "" || $_POST["attn"] == "" || $_POST["no_po"] == "" || $_POST["jenis_lm"] == "" || $_POST["item"] == "" || $_POST["qty_bal"] == "" || $_POST["harga_total"] == ""){
 			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
 		}else{

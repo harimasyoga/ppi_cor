@@ -30,6 +30,7 @@
 						<div style="margin:12px 6px">
 							<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
 						</div>
+						<form role="form" method="POST" id="upload_design" enctype="multipart/form-data">
 						<div class="card-body row" style="font-weight:bold;padding:6px">
 							<div class="col-md-1">TANGGAL</div>
 							<div class="col-md-2">
@@ -37,7 +38,7 @@
 							</div>
 							<div class="col-md-9"></div>
 						</div>
-						<div class="card-body row" style="font-weight:bold;padding:6px 6px 12px">
+						<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
 							<div class="col-md-1">PILIH</div>
 							<div class="col-md-2">
 								<select name="pilih_s" id="pilih_s" class="form-control select2" onchange="pilihPilih()">
@@ -131,53 +132,86 @@
 						</div>
 					</div>
 
+					<div class="col-box-upload" style="display:none">
+						<div class="card card-success card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">UPLOAD FILE</h3>
+							</div>
+							<div class="card-body" style="padding:12px 0">
+									<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+										<div class="col-md-1">PILIH</div>
+										<div class="col-md-2">
+											<select name="dsg_pilih" id="dsg_pilih" class="form-control select2" onchange="cekUpload()">
+												<option value="">PILIH</option>
+												<option value="AW">ACUAN WARNA / SAMPLE CUSTOMER</option>
+												<option value="DG">DESIGN</option>
+												<option value="PW">PENAWARAN</option>
+												<option value="SP">SAMPLE</option>
+											</select>
+										</div>
+										<div class="col-md-9"></div>
+									</div>
+									<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+										<div class="col-md-1"></div>
+										<div class="col-md-11">
+											<input type="file" name="dsg_foto" id="dsg_foto" accept="image/*" onchange="cekUpload()">
+										</div>
+									</div>
+									<input type="hidden" name="id_cart" id="id_cart" value="0">
+									<input type="hidden" name="nm64" id="nm64" value="">
+								</form>
+								<div class="simpan-upload"></div>
+								<div class="list-sementara"></div>
+							</div>
+						</div>
+					</div>
+
 					<div class="col-box-acuan" style="display:none">
-						<div class="card card-info card-outline">
+						<div class="card card-secondary card-outline">
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">ACUAN WARNA / SAMPLE CUSTOMER</h3>
 							</div>
-							<div class="card-body" style="font-weight:bold;padding:12px 6px">
-								1
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="list-acuan" style="display:flex;padding:12px 6px"></div>
 							</div>
 						</div>
 					</div>
 
 					<div class="col-box-design" style="display:none">
-						<div class="card card-info card-outline">
+						<div class="card card-secondary card-outline">
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN</h3>
 							</div>
-							<div class="card-body" style="font-weight:bold;padding:12px 6px">
-								2
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="list-design" style="display:flex;padding:12px 6px"></div>
 							</div>
 						</div>
 					</div>
 
 					<div class="col-box-penawaran" style="display:none">
-						<div class="card card-info card-outline">
+						<div class="card card-secondary card-outline">
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">PENAWARAN</h3>
 							</div>
-							<div class="card-body" style="font-weight:bold;padding:12px 6px">
-								3
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="list-penawaran" style="display:flex;padding:12px 6px"></div>
 							</div>
 						</div>
 					</div>
 
 					<div class="col-box-sample" style="display:none">
-						<div class="card card-info card-outline">
+						<div class="card card-secondary card-outline">
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE</h3>
 							</div>
-							<div class="card-body" style="font-weight:bold;padding:12px 6px">
-								4
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="list-sample" style="display:flex;padding:12px 6px"></div>
 							</div>
 						</div>
 					</div>
 				</div>
 
 				<input type="hidden" id="id_hdr" value="">
-				<input type="hidden" id="id_cart" value="0">
 			</div>
 
 			<div class="row row-list">
@@ -271,6 +305,7 @@
 	{
 		// load_data()
 		$('.select2').select2();
+		$(".list-sementara").load("<?php echo base_url('Transaksi/destroyDesign') ?>")
 	});
 
 	function reloadTable() {
@@ -306,28 +341,142 @@
 		})
 	}
 
+	function imgClick(klik)
+	{
+		let modal = document.getElementById('mymodal-img')
+		let img = document.getElementById(klik)
+		let modalImg = document.getElementById("img01")
+		img.onclick = function(){
+			modal.style.display = "block";
+			modalImg.src = this.src;
+			modalImg.alt = this.alt;
+		}
+		modal.onclick = function() {
+			img01.className += " out";
+			setTimeout(function() {
+				modal.style.display = "none";
+				img01.className = "modal-img-content";
+			}, 400);
+		}
+	}
+
+	document.getElementById("dsg_foto").addEventListener("change", function(event) {
+		const file = event.target.files[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = function(e) {
+				$("#nm64").val(e.target.result)
+			}
+			reader.readAsDataURL(file);
+		}
+	});
+
 	function pilihPilih() {
 		let tgl_s = $("#tgl_s").val()
 		let pilih_s = $("#pilih_s").val()
+		$(".list-sementara").load("<?php echo base_url('Transaksi/destroyDesign') ?>")
+
+		$(".list-acuan").html('')
+		$(".list-design").html('')
+		$(".list-penawaran").html('')
+		$(".list-sample").html('')
+
+		$("#dsg_pilih").val("").trigger('change')
+		$("#dsg_foto").val("")
+		$(".simpan-upload").html('')
 
 		if(tgl_s != "" && pilih_s == "N"){
 			$(".col-box-po").hide()
+			$(".col-box-upload").show()
 			$(".col-box-acuan").show()
 			$(".col-box-design").show()
 			$(".col-box-penawaran").show()
 			$(".col-box-sample").show()
 		}else if(tgl_s != "" && pilih_s == "B"){
 			$(".col-box-po").show()
+			$(".col-box-upload").show()
 			$(".col-box-acuan").show()
 			$(".col-box-design").show()
 			$(".col-box-penawaran").show()
 			$(".col-box-sample").show()
 		}else{
 			$(".col-box-po").hide()
+			$(".col-box-upload").hide()
 			$(".col-box-acuan").hide()
 			$(".col-box-design").hide()
 			$(".col-box-penawaran").hide()
 			$(".col-box-sample").hide()
 		}
+	}
+
+	function cekUpload() {
+		let dsg_pilih = $("#dsg_pilih").val()
+		let dsg_foto = $("#dsg_foto").val()
+		if (dsg_pilih != '' && dsg_foto != '') {
+			$(".simpan-upload").html(`<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+				<div class="col-md-1"></div>
+				<div class="col-md-11">
+					<button class="btn btn-success btn-sm" onclick="addCartDesign()"><i class="fas fa-plus"></i> <b>ADD</b></button>
+				</div>
+			</div>`)
+		} else {
+			$(".simpan-upload").html('')
+		}
+	}
+
+	function addCartDesign() {
+		let tgl_s = $("#tgl_s").val()
+		let pilih_s = $("#pilih_s").val()
+		let dsg_pilih = $("#dsg_pilih").val()
+
+		var form = $('#upload_design')[0];
+		var data2 = new FormData(form);
+		// let dsg_foto = $("#dsg_foto").val()
+
+		let id_cart = parseInt($("#id_cart").val()) + 1
+		$("#id_cart").val(id_cart)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/addCartDesign')?>',
+			type: "POST",
+			enctype: 'multipart/form-data',
+			contentType: false,
+			processData: false,
+			data: data2,
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$("#dsg_pilih").val("").trigger('change')
+				$("#dsg_foto").val("")
+				$(".simpan-upload").html('')
+				tampilAllList()
+			}
+		})
+	}
+
+	function tampilAllList() {
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/tampilAllList')?>',
+			type: "POST",
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$(".list-acuan").html(data.htmlAcuan)
+				$(".list-design").html(data.htmlDesign)
+				$(".list-penawaran").html(data.htmlPenawaran)
+				$(".list-sample").html(data.htmlSample)
+			}
+		})
+	}
+
+	function hapusCartDesign(rowid)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/hapusCartDesign')?>',
+			type: "POST",
+			data: ({ rowid }),
+			success: function(res){
+				tampilAllList()
+			}
+		})
 	}
 </script>
