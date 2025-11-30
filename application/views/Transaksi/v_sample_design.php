@@ -210,9 +210,10 @@
 						</div>
 					</div>
 				</div>
-
 				<input type="hidden" id="id_hdr" value="">
 			</div>
+
+			<div class="simpan-save"></div>
 
 			<div class="row row-list">
 				<div class="col-md-12">
@@ -425,13 +426,13 @@
 	}
 
 	function addCartDesign() {
-		let tgl_s = $("#tgl_s").val()
-		let pilih_s = $("#pilih_s").val()
-		let dsg_pilih = $("#dsg_pilih").val()
+		// let tgl_s = $("#tgl_s").val()
+		// let pilih_s = $("#pilih_s").val()
+		// let dsg_pilih = $("#dsg_pilih").val()
+		// let dsg_foto = $("#dsg_foto").val()
 
 		var form = $('#upload_design')[0];
 		var data2 = new FormData(form);
-		// let dsg_foto = $("#dsg_foto").val()
 
 		let id_cart = parseInt($("#id_cart").val()) + 1
 		$("#id_cart").val(id_cart)
@@ -464,6 +465,7 @@
 				$(".list-design").html(data.htmlDesign)
 				$(".list-penawaran").html(data.htmlPenawaran)
 				$(".list-sample").html(data.htmlSample)
+				tmplSave()
 			}
 		})
 	}
@@ -476,6 +478,43 @@
 			data: ({ rowid }),
 			success: function(res){
 				tampilAllList()
+			}
+		})
+	}
+
+	function tmplSave(){
+		let tgl_s = $("#tgl_s").val()
+		let pilih_s = $("#pilih_s").val()
+		let id_cart = $("#id_cart").val()
+		let Lacuan = $(".list-acuan").html()
+		let Ldesign = $(".list-design").html()
+		let Lpenawaran = $(".list-penawaran").html()
+		let Lsample = $(".list-sample").html()
+
+		if(tgl_s != '' && pilih_s != '' && Lacuan != "" && Ldesign != "" && Lpenawaran != "" && Lsample != "" && id_cart != 0){
+			$(".simpan-save").html(`<div class="row" style="margin-bottom:16px">
+				<div class="col-md-12">
+					<button class="btn btn-primary btn-sm" onclick="simpanDesign()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
+				</div>
+			</div>`)
+		}else{
+			$(".simpan-save").html('')
+		}
+	}
+
+	function simpanDesign()
+	{
+		let tgl_s = $("#tgl_s").val()
+		let pilih_s = $("#pilih_s").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/simpanDesign')?>',
+			type: "POST",
+			data: ({
+				tgl_s, pilih_s
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
 			}
 		})
 	}

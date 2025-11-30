@@ -854,28 +854,6 @@ class Transaksi extends CI_Controller
 			)
 		);
 
-		// if($this->cart->total_items() != 0){
-		// 	echo json_encode(array('data' => true, 'isi' => 'BERHASIL ADD!'));
-		// }else{
-		// 	if($_POST["id_po_header"] == ''){
-		// 		$this->cart->insert($data);
-		// 		echo json_encode(array('data' => true, 'isi' => 'BERHASIL ADD!'));
-		// 	}else{
-		// 		if($po_lm->num_rows() > 0 && $po_lm->row()->opsi_disc != ''){
-		// 			echo json_encode(array('data' => false, 'isi' => 'HAPUS HAPUS DISKON / FEE DAHULU!'));
-		// 			return;
-		// 		}
-		// 		foreach($po_dtl->result() as $r){
-		// 			if($r->id_m_produk_lm == $_POST["item"]){
-		// 				echo json_encode(array('data' => false, 'isi' => 'ITEM SUDAH ADA!'));
-		// 				return;
-		// 			}
-		// 		}
-		// 		$this->cart->insert($data);
-		// 		echo json_encode(array('data' => true, 'isi' => 'BERHASIL ADD!'));
-		// 	}
-		// }
-
 		$this->cart->insert($data);
 		echo json_encode([
 			'data' => $data,
@@ -934,6 +912,12 @@ class Transaksi extends CI_Controller
 			'qty' => 0,
 		);
 		$this->cart->update($data);
+	}
+
+	function simpanDesign()
+	{
+		$result = $this->m_transaksi->simpanDesign();
+		echo json_encode($result);
 	}
 
 	//

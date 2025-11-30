@@ -2490,4 +2490,57 @@ class M_transaksi extends CI_Model
 			'msg' => $msg,
 		];
 	}
+
+	function simpanDesign()
+	{
+		$tgl_s = $_POST["tgl_s"];
+		$pilih_s = $_POST["pilih_s"];
+		$now = date('Y-m-d H:i:s');
+
+		$hItem = array(
+			'tgl' => $tgl_s,
+			'jenis' => $pilih_s,
+			'add_at' => date('Y-m-d H:i:s'),
+			'add_by' => $this->username,
+		);
+		$header = $this->db->insert('trs_design_header', $hItem);
+
+		if($header){
+			foreach($this->cart->contents() as $r){
+				$_FILES['image']['name'] = $r['options']['f_name'];
+				$_FILES['image']['type'] = $r['options']['f_type'];
+				$_FILES['image']['tmp_name'] = $r['options']['f_tmp_name'];
+				$_FILES['image']['error'] = $r['options']['f_error'];
+				$_FILES['image']['size'] = $r['options']['f_size'];
+
+				$config['upload_path'] = './assets/gambar_design/'; //path folder
+				// $config['allowed_types'] = 'jpg|png|jpeg'; //type yang dapat diakses bisa anda sesuaikan
+				$config['overwrite'] = true;
+				// $config['max_size']      = 1024; //maksimum besar file 2M
+				// $config['max_width']     = 'none'; //lebar maksimum 1288 px
+				// $config['max_height']    = 'none'; //tinggi maksimu 768 px
+				$config['file_name'] = $this->generateFileName(); //nama yang terupload nantinya
+				$this->load->library('upload', $config);
+				$this->upload->initialize($config);
+
+				if($this->upload->do_upload('image')){
+					$uploadData = $this->upload->data();
+					$filefoto = $uploadData['file_name'];
+
+					$dHeader = $this->db->query("SELECT*FROM trs_design_header WHERE tgl='$tgl_s' AND jenis='$pilih_s' AND add_at='$now'")->row();
+					$dtl = array(
+						'id_hdr' => $dHeader->id_dg,
+						'jenis_dtl' => $r['options']['dsg_pilih'],
+						'nm_file' => $filefoto,
+					);
+					$detail = $this->db->insert('trs_design_detail', $dtl);
+				}
+			}
+		}
+
+		return [
+			'header' => $header,
+			'detail' => $detail,
+		];
+	}
 }
