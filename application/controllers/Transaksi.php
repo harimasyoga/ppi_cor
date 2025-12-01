@@ -14,6 +14,16 @@ class Transaksi extends CI_Controller
 		$this->load->model('m_transaksi');
 	}
 
+	function dev_sys()
+	{
+		$data = [
+			'judul' => "ETA PO",
+		];
+		$this->load->view('header',$data);
+		$this->load->view('Transaksi/v_dev_sys');
+		$this->load->view('footer');
+	}
+
 	public function PO()
 	{
 		$tahun = date('Y');
@@ -7655,6 +7665,167 @@ class Transaksi extends CI_Controller
 			'qty' => 0,
 		);
 		$this->cart->update($data);
+	}
+
+	function list_dev()
+	{
+		$lvl = $this->session->userdata('level');
+		$uName = $this->session->userdata('username');
+		$html = '';
+
+		$sales = $this->db->query("SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+		INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+		INNER JOIN m_sales s ON p.id_sales=s.id_sales
+		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
+		GROUP BY s.nm_sales,s.id_sales
+		UNION
+		SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+		INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
+		INNER JOIN m_sales s ON p.id_sales=s.id_sales
+		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
+		GROUP BY s.nm_sales,s.id_sales,h.type");
+
+		if($sales->num_rows() != 0){
+			$html .= '<table style="color:#000;border-collapse: collapse" width="100%">';
+				$html .= '<tr>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="2">SALES/CUSTOMER</td>
+				</tr>';
+				$sumTot = 0;
+				$sumJet = 0;
+				foreach($sales->result() as $s){
+					// PIUTANG JT SALES
+					if($s->type == 'roll'){
+						$se1 = "p.nm_perusahaan";
+						$in1 = "INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id";
+						$wh1 = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type='ROLL'";
+					}else{
+						$se1 = "p.nm_pelanggan";
+						$in1 = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan";
+						$wh1 = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type!='ROLL'";
+					}
+					$html .= '<tr class="tr0">
+						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px" colspan="2">
+							<input type="hidden" id="ts1" value="">
+							<button class="btn btn-xs ab1 b1-'.$s->id_sales.' btn-success" style="padding:1px 5px" onclick="btnPiuSales('."'".$s->id_sales."'".')">
+								<i style="font-size:8px" class="fas af1 f1-'.$s->id_sales.' fa-plus"></i>
+							</button>&nbsp
+							'.$s->nm_sales.'
+						</td>
+					</tr>';
+
+					// CUSTOMER
+					$cust = $this->db->query("SELECT s.id_sales,h.type,h.id_perusahaan,$se1 AS nm_pelanggan,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+						$in1
+						INNER JOIN m_sales s ON p.id_sales=s.id_sales
+						WHERE h.jml_mutasi IS NOT NULL AND h.acc_owner='N' AND s.id_sales='$s->id_sales' $wh1
+						GROUP BY $se1,h.id_perusahaan
+					");
+					if($cust->num_rows() != 0){
+						foreach($cust->result() as $r){
+
+							if($r->type == 'roll'){
+								$pt1 = $r->id_perusahaan;
+							}else{
+								$pt1 = $r->id_perusahaan;
+							}
+							//
+							$html .= '<tr class="tr1 t'.$r->id_sales.'" style="display:none">
+								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 15px" colspan="2">
+									<input type="hidden" id="ts2" value="">
+									<button class="btn btn-xs ab2 b2-'.$pt1.' btn-info" style="padding:1px 5px" onclick="btnPiuCustomer('."'".$pt1."'".')">
+										<i style="font-size:8px" class="fas af2 f2-'.$pt1.' fa-plus"></i>
+									</button>&nbsp
+									'.$r->nm_pelanggan.'
+								</td>
+							</tr>';
+
+							// LOKASI
+							$lok = $this->db->query("SELECT*FROM m_pelanggan where id_pelanggan='$r->id_perusahaan'
+							");
+							if($lok->num_rows() != 0){
+								foreach($lok->result() as $l){
+
+									//
+									$html .= '<tr class="tr_l l'.$r->id_perusahaan.'" style="display:none">
+										<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 35px" colspan="2">
+											<input type="hidden" id="ts3" value="">
+											<button class="btn btn-xs ab3 b3-'.$r->id_perusahaan.' btn-danger" style="padding:1px 5px" onclick="btnPiuLok('."'".$l->id_pelanggan."'".')">
+												<i style="font-size:8px" class="fas af3 f3-'.$r->id_perusahaan.' fa-plus"></i>
+											</button>&nbsp
+											'.$l->alamat.'
+										</td>
+									</tr>';
+									// ITEM
+									$prod = $this->db->query("SELECT*FROM m_produk where no_customer='$l->id_pelanggan'
+									");
+									if($prod->num_rows() != 0){
+										foreach($prod->result() as $pr){
+
+											//
+											$html .= '<tr class="tr_p p'.$l->id_pelanggan.'" style="display:none">
+												<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 45px" colspan="2">
+													<input type="hidden" id="ts4" value="">
+													<button class="btn btn-xs ab4 b4-'.$pr->id_produk.' btn-danger" style="padding:1px 5px" onclick="btnPiuITEM('."'".$pr->id_produk."'".')">
+														<i style="font-size:8px" class="fas af4 f4-'.$pr->id_produk.' fa-plus"></i>
+													</button>&nbsp
+													'.$pr->nm_produk.'
+												</td>
+											</tr>';
+
+											// OUTSTANDING PO\
+													//
+													// OUTSTANDING PO
+							$html .= '<tr class="tr_i i'.$pr->id_produk.'" style="display:none">
+								<td colspan="2" style="padding:0;border:1px solid #aaa">
+									<table width="100%" style="border-collapse:collapse">
+										<tr>
+											<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#71ffffff;">NO</th>
+											<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#71ffffff;">ITEM</th>
+											<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#71ffffff;">UKURAN</th>
+											<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#71ffffff;">KUALITAS</th>
+											<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#71ffffff;">FLUTE</th>
+											<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#71ffffff;">QTY</th>
+											<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#71ffffff;">O S</th>
+										</tr>
+
+										<tr>
+											<td style="background:#00b0c0ff;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="6">001/ATM/VI/2025</td>
+											<td style="background:#00b0c0ff;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:center">
+											</td>
+										</tr>
+
+										<tr>
+											<td style="padding:5px;border:1px solid #aaa;text-align:center">1</td>
+											<td style="padding:5px;border:1px solid #aaa">'.$pr->nm_produk.'</td>
+											<td style="padding:5px;border:1px solid #aaa">'.$pr->ukuran.'</td>
+											<td style="padding:5px;border:1px solid #aaa">'.$pr->kualitas.'</td>
+											<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$pr->flute.'</td>
+											<td style="padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">10.000</td>
+											<td style="padding:5px;border:1px solid #aaa;text-align:center">
+												<span style="vertical-align:top;font-style:italic;font-size:12px">1742</span>
+											</td>
+										</tr>
+
+									</table>
+								</td>
+							</tr>';
+
+										}
+									}
+								}
+							}
+							
+						}
+					}
+				}
+				// TOTAL
+				$html .= '<tr>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa" colspan="2"></td>
+				</tr>';
+			$html .= '</table>';
+		}
+
+		echo $html;
 	}
 
 	public function Hitung_harga()
