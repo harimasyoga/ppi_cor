@@ -89,6 +89,7 @@
 		$(".tr1").hide()
 		$(".tr_l").hide()
 		$(".tr_p").hide()
+		$(".tr_i").hide()
 		$("#ts2").val("")
 		$(".ab1").removeClass("btn-warning").addClass("btn-success")
 		$(".af1").removeClass("fa-minus").addClass("fa-plus")
@@ -109,6 +110,7 @@
 		// $(".tr1").hide()
 		$(".tr_l").hide()
 		$(".tr_p").hide()
+		$(".tr_i").hide()
 		$("#ts3").val("")
 		$(".ab2").removeClass("btn-warning").addClass("btn-info")
 		$(".af2").removeClass("fa-minus").addClass("fa-plus")
@@ -128,6 +130,7 @@
 	function btnPiuLok(i) {
 		// $(".tr1").hide()
 		$(".tr_p").hide()
+		$(".tr_i").hide()
 		$("#ts4").val("")
 		$(".ab3").removeClass("btn-warning").addClass("btn-danger")
 		$(".af3").removeClass("fa-minus").addClass("fa-plus")
