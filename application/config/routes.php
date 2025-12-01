@@ -59,8 +59,9 @@ $route['W9hAMMa5JEx3ekj'] = 'Logistik/bayar_inv_bahan';
 $route['JKgb0KAj57KIXwk'] = 'Logistik/bayar_inv';
 
 // REKAP KEU
-$route['Kge5pB65nbf7iHq'] = 'Rekapan/Penjualan';
-$route['z6QPdLBuaVr793p'] = 'Rekapan/Beli_bb';
-$route['jGN0frs3iYpaTXI'] = 'Rekapan/Penggunaan_bb';
-$route['ttz4VvfvMLA3gFl'] = 'Rekapan/Bayar';
-$route['g4EHXNVTM7kPr90'] = 'Rekapan/Jurum';
+$route['Kge5pB65nbf7iHq']   = 'Rekapan/Penjualan';
+$route['z6QPdLBuaVr793p']   = 'Rekapan/Beli_bb';
+$route['jGN0frs3iYpaTXI']   = 'Rekapan/Penggunaan_bb';
+$route['ttz4VvfvMLA3gFl']   = 'Rekapan/Bayar';
+$route['g4EHXNVTM7kPr90']   = 'Rekapan/Jurum';
+$route['UbvuwEfLywee1I4Z']  = 'Transaksi/dev_sys';
