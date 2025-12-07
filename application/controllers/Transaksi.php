@@ -7923,7 +7923,7 @@ class Transaksi extends CI_Controller
 		$id_produk    = $_POST["id_produk"];
 		$id_pelanggan = $_POST["id_pelanggan"];
 		$nm_produk    = $_POST["nm_produk"];
-		$po_ = $this->db->query("SELECT*FROM trs_po p JOIN trs_po_detail d on P.kode_po=d.kode_po JOIN m_produk i ON d.id_produk=i.id_produk WHERE p.status_app3='Y' and p.id_pelanggan='$id_pelanggan' and d.id_produk='$id_produk'
+		$po_ = $this->db->query("SELECT*FROM trs_po p JOIN trs_po_detail d on p.kode_po=d.kode_po JOIN m_produk i ON d.id_produk=i.id_produk WHERE p.status_app3='Y' and p.id_pelanggan='$id_pelanggan' and d.id_produk='$id_produk'
 		-- GROUP BY p.kode_po ORDER BY p.tgl_po
 		");
 
