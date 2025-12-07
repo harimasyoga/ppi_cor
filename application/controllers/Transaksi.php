@@ -7783,36 +7783,48 @@ class Transaksi extends CI_Controller
 		$uName = $this->session->userdata('username');
 		$html = '';
 
-		$sales = $this->db->query("SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
-		INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+		$sales = $this->db->query("SELECT s.id_sales,s.nm_sales FROM m_pelanggan p
 		INNER JOIN m_sales s ON p.id_sales=s.id_sales
-		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
-		GROUP BY s.nm_sales,s.id_sales
-		UNION
-		SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
-		INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
-		INNER JOIN m_sales s ON p.id_sales=s.id_sales
-		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
-		GROUP BY s.nm_sales,s.id_sales,h.type");
+		GROUP BY s.nm_sales,s.id_sales");
+		// $sales = $this->db->query("SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+		// INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+		// INNER JOIN m_sales s ON p.id_sales=s.id_sales
+		// WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
+		// GROUP BY s.nm_sales,s.id_sales
+		// UNION
+		// SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+		// INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
+		// INNER JOIN m_sales s ON p.id_sales=s.id_sales
+		// WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
+		// GROUP BY s.nm_sales,s.id_sales,h.type");
 
 		if($sales->num_rows() != 0){
-			$html .= '<table style="color:#000;border-collapse: collapse" width="100%">';
+			$html .= '<div class="card card-info card-outline">
+			<div class="card-header">
+				<h3 class="card-title" style="font-weight:bold">SALES/CUSTOMER</h3>
+				<div class="card-tools">
+				</div>
+			</div>
+			<div style="padding:6px">
+				<div style="overflow:auto;white-space:nowrap">
+				
+				<table style="color:#000;border-collapse: collapse" width="100%">';
 				$html .= '<tr>
-					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="2">SALES/CUSTOMER</td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold"></td>
 				</tr>';
 				$sumTot = 0;
 				$sumJet = 0;
 				foreach($sales->result() as $s){
 					// PIUTANG JT SALES
-					if($s->type == 'roll'){
-						$se1 = "p.nm_perusahaan";
-						$in1 = "INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id";
-						$wh1 = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type='ROLL'";
-					}else{
-						$se1 = "p.nm_pelanggan";
-						$in1 = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan";
-						$wh1 = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type!='ROLL'";
-					}
+					// if($s->type == 'roll'){
+					// 	$se1 = "p.nm_perusahaan";
+					// 	$in1 = "INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id";
+					// 	$wh1 = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type='ROLL'";
+					// }else{
+					// 	$se1 = "p.nm_pelanggan";
+					// 	$in1 = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan";
+					// 	$wh1 = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type!='ROLL'";
+					// }
 					$html .= '<tr class="tr0">
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px" colspan="2">
 							<input type="hidden" id="ts1" value="">
@@ -7824,20 +7836,22 @@ class Transaksi extends CI_Controller
 					</tr>';
 
 					// CUSTOMER
-					$cust = $this->db->query("SELECT s.id_sales,h.type,h.id_perusahaan,$se1 AS nm_pelanggan,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
-						$in1
-						INNER JOIN m_sales s ON p.id_sales=s.id_sales
-						WHERE h.jml_mutasi IS NOT NULL AND h.acc_owner='N' AND s.id_sales='$s->id_sales' $wh1
-						GROUP BY $se1,h.id_perusahaan
+					$cust = $this->db->query("SELECT s.id_sales,p.id_pelanggan,p.nm_pelanggan AS nm_pelanggan
+					FROM m_pelanggan p
+					INNER JOIN m_sales s ON p.id_sales=s.id_sales 
+					WHERE s.id_sales='$s->id_sales'
+					GROUP BY p.nm_pelanggan
 					");
+					// $cust = $this->db->query("SELECT s.id_sales,h.type,h.id_perusahaan,$se1 AS nm_pelanggan,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+					// 	$in1
+					// 	INNER JOIN m_sales s ON p.id_sales=s.id_sales
+					// 	WHERE h.jml_mutasi IS NOT NULL AND h.acc_owner='N' AND s.id_sales='$s->id_sales' $wh1
+					// 	GROUP BY $se1,h.id_perusahaan
+					// ");
 					if($cust->num_rows() != 0){
 						foreach($cust->result() as $r){
 
-							if($r->type == 'roll'){
-								$pt1 = $r->id_perusahaan;
-							}else{
-								$pt1 = $r->id_perusahaan;
-							}
+								$pt1 = $r->id_pelanggan;
 							//
 							$html .= '<tr class="tr1 t'.$r->id_sales.'" style="display:none">
 								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 15px" colspan="2">
@@ -7850,17 +7864,17 @@ class Transaksi extends CI_Controller
 							</tr>';
 
 							// LOKASI
-							$lok = $this->db->query("SELECT*FROM m_pelanggan where id_pelanggan='$r->id_perusahaan'
+							$lok = $this->db->query("SELECT*FROM m_pelanggan where id_pelanggan='$r->id_pelanggan'
 							");
 							if($lok->num_rows() != 0){
 								foreach($lok->result() as $l){
 
 									//
-									$html .= '<tr class="tr_l l'.$r->id_perusahaan.'" style="display:none">
+									$html .= '<tr class="tr_l l'.$r->id_pelanggan.'" style="display:none">
 										<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 35px" colspan="2">
 											<input type="hidden" id="ts3" value="">
-											<button class="btn btn-xs ab3 b3-'.$r->id_perusahaan.' btn-danger" style="padding:1px 5px" onclick="btnPiuLok('."'".$l->id_pelanggan."'".')">
-												<i style="font-size:8px" class="fas af3 f3-'.$r->id_perusahaan.' fa-plus"></i>
+											<button class="btn btn-xs ab3 b3-'.$r->id_pelanggan.' btn-danger" style="padding:1px 5px" onclick="btnPiuLok('."'".$l->id_pelanggan."'".')">
+												<i style="font-size:8px" class="fas af3 f3-'.$r->id_pelanggan.' fa-plus"></i>
 											</button>&nbsp
 											'.$l->alamat.'
 										</td>
@@ -7874,51 +7888,13 @@ class Transaksi extends CI_Controller
 											//
 											$html .= '<tr class="tr_p p'.$l->id_pelanggan.'" style="display:none">
 												<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 45px" colspan="2">
-													<input type="hidden" id="ts4" value="">
-													<button class="btn btn-xs ab4 b4-'.$pr->id_produk.' btn-danger" style="padding:1px 5px" onclick="btnPiuITEM('."'".$pr->id_produk."'".')">
-														<i style="font-size:8px" class="fas af4 f4-'.$pr->id_produk.' fa-plus"></i>
+													<input type="hidden" id="ts5" value="">
+													<button class="btn btn-xs ab5 b5-'.$pr->id_produk.' btn-danger" style="padding:1px 5px" onclick="Tampil_po('."'".$pr->id_produk."'".','."'".$l->id_pelanggan."'".','."'".$pr->nm_produk."'".')">
+														<i style="font-size:8px" class="fas af5 f5-'.$pr->id_produk.' fa-plus"></i>
 													</button>&nbsp
 													'.$pr->nm_produk.'
 												</td>
-											</tr>';
-
-											// OUTSTANDING PO\
-													//
-													// OUTSTANDING PO
-							$html .= '<tr class="tr_i i'.$pr->id_produk.'" style="display:none">
-								<td colspan="2" style="padding:0;border:1px solid #aaa">
-									<table width="100%" style="border-collapse:collapse">
-										<tr>
-											<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#71ffffff;">NO</th>
-											<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#71ffffff;">ITEM</th>
-											<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#71ffffff;">UKURAN</th>
-											<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#71ffffff;">KUALITAS</th>
-											<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#71ffffff;">FLUTE</th>
-											<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#71ffffff;">QTY</th>
-											<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#71ffffff;">O S</th>
-										</tr>
-
-										<tr>
-											<td style="background:#00b0c0ff;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="6">001/ATM/VI/2025</td>
-											<td style="background:#00b0c0ff;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:center">
-											</td>
-										</tr>
-
-										<tr>
-											<td style="padding:5px;border:1px solid #aaa;text-align:center">1</td>
-											<td style="padding:5px;border:1px solid #aaa">'.$pr->nm_produk.'</td>
-											<td style="padding:5px;border:1px solid #aaa">'.$pr->ukuran.'</td>
-											<td style="padding:5px;border:1px solid #aaa">'.$pr->kualitas.'</td>
-											<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$pr->flute.'</td>
-											<td style="padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">10.000</td>
-											<td style="padding:5px;border:1px solid #aaa;text-align:center">
-												<span style="vertical-align:top;font-style:italic;font-size:12px">1742</span>
-											</td>
-										</tr>
-
-									</table>
-								</td>
-							</tr>';
+											</tr>';											
 
 										}
 									}
@@ -7932,8 +7908,139 @@ class Transaksi extends CI_Controller
 				$html .= '<tr>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa" colspan="2"></td>
 				</tr>';
-			$html .= '</table>';
+			$html .= '</table>
+			</div>
+			</div>
+		</div>';
 		}
+
+		echo $html;
+	}
+
+	function TampilPO_dev()
+	{
+		$html = '';
+		$id_produk    = $_POST["id_produk"];
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$nm_produk    = $_POST["nm_produk"];
+		$po_ = $this->db->query("SELECT*FROM trs_po p JOIN trs_po_detail d on P.kode_po=d.kode_po JOIN m_produk i ON d.id_produk=i.id_produk WHERE p.status_app3='Y' and p.id_pelanggan='$id_pelanggan' and d.id_produk='$id_produk'
+		-- GROUP BY p.kode_po ORDER BY p.tgl_po
+		");
+
+		$html .= '<div class="card card-info card-outline">
+			<div class="card-header">
+				<h3 class="card-title" style="font-weight:bold;">LIST PO  - <span style="color:red;"> '.$nm_produk.' </span></h3>
+				<div class="card-tools">
+					<button type="button" onclick="close_po()" class="btn  btn-danger"><b>
+							<i class="fa fa-arrow-left"></i> Kembali</b>
+					</button>
+				</div>
+			</div>
+			<div style="padding:6px">
+				<div style="overflow:auto;white-space:nowrap">
+				
+				<table style="color:#000;border-collapse: collapse" width="100%">';
+				$html .= '<tr>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold"></td>
+				</tr>';
+		if($po_->num_rows() != 0){
+			foreach($po_->result() as $po_ok){
+
+				$kirim = $this->db->query("SELECT SUM(r.qty_muat) AS tot_muat,r.*,p.* FROM m_rencana_kirim r
+						INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
+						WHERE p.no_po='$po_ok->kode_po' AND r.id_produk='$po_ok->id_produk'
+						GROUP BY r.rk_tgl,r.id_pelanggan,r.id_produk,r.rk_kode_po,r.rk_urut");
+						$sumKirim = 0;
+						$sumRetur = 0;
+						if($kirim->num_rows() > 0){
+							foreach($kirim->result() as $k){
+
+							$ii = (((rand(1, 999) * 888) - 777) + 666) * 123;
+							$retur = $this->db->query("SELECT*FROM m_rencana_kirim_retur
+							WHERE rtr_tgl='$k->tgl' AND rtr_id_pelanggan='$k->id_pelanggan' AND rtr_id_produk='$k->id_produk' AND rtr_kode_po='$k->rk_kode_po' AND rtr_urut='$k->rk_urut'");
+
+							$sumKirim += $k->tot_muat;
+							$sumRetur += ($retur->num_rows() == 0) ? 0 : $retur->row()->rtr_jumlah;
+							}
+						}
+						$sisa = $po_ok->qty - ($sumKirim - $sumRetur);
+
+
+					$html .= '<tr class="tr_po po'.$po_ok->id_produk.'" >
+						<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 5px" colspan="2">
+							<input type="hidden" id="ts4" value="">
+							<button class="btn btn-xs ab4 b4-'.$po_ok->id.' btn-danger" style="padding:1px 5px" onclick="btnPiuPO('."'".$po_ok->id."'".')">
+								<i style="font-size:8px" class="fas af4 f4-'.$po_ok->id.' fa-plus"></i>
+							</button>&nbsp
+							'.$po_ok->kode_po.'
+						</td>
+					</tr>';
+				// OUTSTANDING PO
+				$html .= '				
+				<tr class="tr_i i'.$po_ok->id.'" style="display:none">
+					<td style="padding:0;border:1px solid #aaa">
+						<table width="100%" style="border-collapse:collapse">
+							<tr>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">NO</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">PO</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">UKURAN</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">KUALITAS</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">FLUTE</th>
+								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;" rowspan="2" colspan="2">
+								
+								<button type="button" onclick="simpan()" class="btn-tambah-produk btn btn-sm btn-primary"><b><i class="fa fa-save" ></i> Simpan</b> </button>
+							</button>
+							</th>
+							</tr>
+
+							<tr>
+								<td style="padding:5px;border:1px solid #aaa;text-align:center">1</td>
+								<td style="padding:5px;border:1px solid #aaa">'.$po_ok->kode_po.'</td>
+								<td style="padding:5px;border:1px solid #aaa">'.$po_ok->ukuran.'</td>
+								<td style="padding:5px;border:1px solid #aaa">'.$po_ok->kualitas.'</td>
+								<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$po_ok->flute.'</td>
+							</tr>
+
+							<tr>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ffc800ff;">QTY PO</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ffc800ff;">DELIVERY</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ffc800ff;">OS</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS TERPLANNING</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS BELUM TERPLANNING</th>
+								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">QTY PLAN DELIVERY</th>
+								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">ETA</th>
+							</tr>
+
+							<tr>
+								<td style="padding:5px;text-align:right;border:1px solid #aaa;">'.number_format($po_ok->qty,0,',','.').'</td>
+								<td style="padding:5px;text-align:right;border:1px solid #aaa">'.number_format($sumKirim,0,',','.').'</td>
+								<td style="padding:5px;text-align:right;border:1px solid #aaa">'.number_format($sisa,0,',','.').'</td>
+								<td style="padding:5px;text-align:center;border:1px solid #aaa">-</td>
+								<td style="padding:5px;text-align:center;border:1px solid #aaa;">-</td>
+								<td style="padding:5px;text-align:center;border:1px solid #aaa;">
+								<input type="number" id="qty_plan" autocomplete="off" >
+								</td>
+								<td style="padding:5px;text-align:center;border:1px solid #aaa;text-align:center">
+									<input type="date" id="eta" autocomplete="off" >
+								</td>
+							</tr>
+
+						</table>
+					</td>
+				</tr>';
+
+			
+
+			}
+		}
+
+		$html .= '<tr>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa" colspan="2"></td>
+				</tr>';
+			$html .= '</table>
+			</div>
+			</div>
+		</div>';
 
 		echo $html;
 	}

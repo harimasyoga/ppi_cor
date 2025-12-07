@@ -29,10 +29,13 @@
 				</div> -->
 				<div class="card-body row" style="padding:12px 0 6px">
 					<div class="col-md-12">
-						<div style="overflow:auto;white-space:nowrap">
-							<div class="tab_piutang"></div>
-						</div>
+						<!-- <div style="overflow:auto;white-space:nowrap"> -->
+							<div style="" class="tab_dev"></div>
+							<div style="display:none" id="tampil-data"></div>
+						<!-- </div> -->
 					</div>
+					<!-- <div class="col-md-6">
+					</div> -->
 				</div>
 			</div>
 		</div>
@@ -60,11 +63,11 @@
 		$("#tampil-rincian").html(``)
 		$("#tampil-data").html(``)
 		$('.select2').select2();
-		listPiutang()
+		list_dev()
 	});
 
-	function listPiutang() {
-		$(".tab_piutang").html('')
+	function list_dev() {
+		$(".tab_dev").html('')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/list_dev') ?>',
 			type: "POST",
@@ -79,7 +82,7 @@
 				});
 			},
 			success: function(res) {
-				$(".tab_piutang").html(res)
+				$(".tab_dev").html(res)
 				swal.close()
 			}
 		})
@@ -89,12 +92,17 @@
 		$(".tr1").hide()
 		$(".tr_l").hide()
 		$(".tr_p").hide()
-		$(".tr_i").hide()
 		$("#ts2").val("")
 		$(".ab1").removeClass("btn-warning").addClass("btn-success")
 		$(".af1").removeClass("fa-minus").addClass("fa-plus")
 		$(".ab2").removeClass("btn-secondary").addClass("btn-info")
 		$(".af2").removeClass("fa-minus").addClass("fa-plus")
+		$(".ab3").removeClass("btn-secondary").addClass("btn-info")
+		$(".af3").removeClass("fa-minus").addClass("fa-plus")
+		$(".ab4").removeClass("btn-secondary").addClass("btn-info")
+		$(".af4").removeClass("fa-minus").addClass("fa-plus")
+		$(".ab5").removeClass("btn-secondary").addClass("btn-info")
+		$(".af5").removeClass("fa-minus").addClass("fa-plus")
 		let ts1 = $("#ts1").val()
 		if (parseInt(ts1) == parseInt(i)) {
 			$("#ts1").val("")
@@ -110,12 +118,16 @@
 		// $(".tr1").hide()
 		$(".tr_l").hide()
 		$(".tr_p").hide()
-		$(".tr_i").hide()
+		$("#ts5").val("")
 		$("#ts3").val("")
 		$(".ab2").removeClass("btn-warning").addClass("btn-info")
 		$(".af2").removeClass("fa-minus").addClass("fa-plus")
 		$(".ab3").removeClass("btn-secondary").addClass("btn-info")
 		$(".af3").removeClass("fa-minus").addClass("fa-plus")
+		$(".ab4").removeClass("btn-secondary").addClass("btn-info")
+		$(".af4").removeClass("fa-minus").addClass("fa-plus")
+		$(".ab5").removeClass("btn-secondary").addClass("btn-info")
+		$(".af5").removeClass("fa-minus").addClass("fa-plus")
 		let ts2 = $("#ts2").val()
 		if (parseInt(ts2) == parseInt(i)) {
 			$("#ts2").val("")
@@ -130,12 +142,14 @@
 	function btnPiuLok(i) {
 		// $(".tr1").hide()
 		$(".tr_p").hide()
-		$(".tr_i").hide()
+		$("#ts5").val("")
 		$("#ts4").val("")
 		$(".ab3").removeClass("btn-warning").addClass("btn-danger")
 		$(".af3").removeClass("fa-minus").addClass("fa-plus")
 		$(".ab4").removeClass("btn-secondary").addClass("btn-info")
 		$(".af4").removeClass("fa-minus").addClass("fa-plus")
+		$(".ab5").removeClass("btn-secondary").addClass("btn-info")
+		$(".af5").removeClass("fa-minus").addClass("fa-plus")
 		let ts3 = $("#ts3").val()
 		if (parseInt(ts3) == parseInt(i)) {
 			$("#ts3").val("")
@@ -149,12 +163,62 @@
 
 	function btnPiuITEM(i) {
 		// $(".tr1").hide()
-		$(".tr_i").hide()
 		$("#ts5").val("")
 		$(".ab4").removeClass("btn-warning").addClass("btn-danger")
 		$(".af4").removeClass("fa-minus").addClass("fa-plus")
 		$(".ab5").removeClass("btn-secondary").addClass("btn-info")
 		$(".af5").removeClass("fa-minus").addClass("fa-plus")
+		let ts4 = $("#ts4").val()
+		if (parseInt(ts4) == parseInt(i)) {
+			$("#ts4").val("")
+		} else {
+			$(".b4-" + i).removeClass("btn-danger").addClass("btn-warning")
+			$(".f4-" + i).removeClass("fa-plus").addClass("fa-minus")
+			$("#ts4").val(i)
+			$(".i" + i).show()
+		}
+	}
+
+	function Tampil_po(id_produk, id_pelanggan, nm_produk)
+	{
+		$('.tab_dev').hide("1000");
+		$('#tampil-data').show("1000");
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/TampilPO_dev')?>',
+			type: "POST",
+			beforeSend: function() {
+					swal({
+						title: 'Loading',
+						allowEscapeKey: false,
+						allowOutsideClick: false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					});
+				},
+			data: ({
+				id_pelanggan, id_produk, nm_produk
+			}),
+			success: function(res){
+				$("#tampil-data").html(res)
+				swal.close()
+			}
+		})
+	}
+	
+	function close_po()
+	{
+		$('.tab_dev').show("1000");
+		$('#tampil-data').hide("1000");
+		
+	}
+
+	function btnPiuPO(i) {
+		// $(".tr1").hide()
+		$(".tr_i").hide()
+		$(".i" + i).hide()
+		$(".ab4").removeClass("btn-warning").addClass("btn-danger")
+		$(".af4").removeClass("fa-minus").addClass("fa-plus")
 		let ts4 = $("#ts4").val()
 		if (parseInt(ts4) == parseInt(i)) {
 			$("#ts4").val("")
