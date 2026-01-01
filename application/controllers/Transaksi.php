@@ -417,7 +417,7 @@ class Transaksi extends CI_Controller
 
 	function addListUK()
 	{
-		if($_POST["jenis"] == "" || $_POST["gsm"] == "" || $_POST["ukuran"] == "" || $_POST["qty"] == "" || $_POST["harga"] == ""){
+		if($_POST["roll"] == "" || $_POST["jenis"] == "" || $_POST["gsm"] == "" || $_POST["ukuran"] == "" || $_POST["qty"] == "" || $_POST["harga"] == ""){
 			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
 		}else{
 			$data = array(
@@ -426,6 +426,7 @@ class Transaksi extends CI_Controller
 				'price' => 0,
 				'qty' => 1,
 				'options' => array(
+					'stat' => $_POST["roll"],
 					'jenis' => $_POST["jenis"],
 					'gsm' => $_POST["gsm"],
 					'ukuran' => $_POST["ukuran"],

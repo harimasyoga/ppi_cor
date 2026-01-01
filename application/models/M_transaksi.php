@@ -2147,6 +2147,7 @@ class M_transaksi extends CI_Model
 		$nm_pelanggan = $this->input->post('nm_pelanggan');
 		$id_pt = $this->input->post('id_pt');
 		$id_sales = $this->input->post('id_sales');
+		$jenis_file = $this->input->post('jenis_file');
 		// CEK NO PO
 		$cek = $this->db->query("SELECT*FROM trs_po_roll_header	WHERE no_po='$no_po' AND nm_pelanggan='$nm_pelanggan'");
 		// FILE
@@ -2187,6 +2188,7 @@ class M_transaksi extends CI_Model
 					$filefoto_u = $gbrBukti_u['file_name'];
 					$this->db->set('id_hdr', $hidhdr);
 					$this->db->set('no_po', $getHdrU->no_po);
+					$this->db->set('ket_po', $jenis_file);
 					$this->db->set('nm_file', $filefoto_u);
 					$data = $this->db->insert('trs_po_roll_detail');
 					$msg = 'Tambah file!';
@@ -2211,6 +2213,7 @@ class M_transaksi extends CI_Model
 						$dtl = [
 							'id_hdr' => $getHdr->id_hdr,
 							'no_po' => $no_po,
+							'ket_po' => $jenis_file,
 							'nm_file' => $filefoto,
 						];
 						$detail = $this->db->insert('trs_po_roll_detail', $dtl);
@@ -2226,6 +2229,7 @@ class M_transaksi extends CI_Model
 									'jml_roll' => $r['options']['qty'],
 									'harga' => $r['options']['harga'],
 									'ket' => $r['options']['ket'],
+									'stat' => $r['options']['stat'],
 								);
 								$item = $this->db->insert('trs_po_roll_item', $data);
 								if($item){
@@ -2354,7 +2358,7 @@ class M_transaksi extends CI_Model
 				'tonase' => ($r->tonase == null) ? 0 : $r->tonase,
 				'harga' => ($r->harga == null) ? 0 : $r->harga,
 				'status' => 'open',
-				'status_roll' => 0,
+				'status_roll' => $r->stat,
 				'ket' => $r->ket,
 				'created_at' => date('Y-m-d H:i:s'),
 				'created_by' => $this->username,
