@@ -2495,56 +2495,51 @@ class M_transaksi extends CI_Model
 		];
 	}
 
-	function simpanDesign()
+	function uploadDesign()
 	{
-		$tgl_s = $_POST["tgl_s"];
-		$pilih_s = $_POST["pilih_s"];
-		$now = date('Y-m-d H:i:s');
+		$dsg_pilih = $_POST["dsg_pilih"];
+		$config['upload_path'] = './assets/gambar_design/';
+		$config['allowed_types'] = 'jpg|jpeg|png|gif|webp';
+		$config['max_size'] = 2048; // 2MB
+		$config['overwrite'] = true;
+		$thn = substr(date('Y'), 2, 2); $bln = date('m'); $date = date('d');
+		$config['file_name'] = $dsg_pilih.'-'.$thn.$bln.$date.'-'.$this->generateFileName();
+		$this->load->library('upload',$config);
+		$this->upload->initialize($config);
 
-		$hItem = array(
-			'tgl' => $tgl_s,
-			'jenis' => $pilih_s,
-			'add_at' => date('Y-m-d H:i:s'),
-			'add_by' => $this->username,
-		);
-		$header = $this->db->insert('trs_design_header', $hItem);
-
-		if($header){
-			foreach($this->cart->contents() as $r){
-				$_FILES['image']['name'] = $r['options']['f_name'];
-				$_FILES['image']['type'] = $r['options']['f_type'];
-				$_FILES['image']['tmp_name'] = $r['options']['f_tmp_name'];
-				$_FILES['image']['error'] = $r['options']['f_error'];
-				$_FILES['image']['size'] = $r['options']['f_size'];
-
-				$config['upload_path'] = './assets/gambar_design/'; //path folder
-				// $config['allowed_types'] = 'jpg|png|jpeg'; //type yang dapat diakses bisa anda sesuaikan
-				$config['overwrite'] = true;
-				// $config['max_size']      = 1024; //maksimum besar file 2M
-				// $config['max_width']     = 'none'; //lebar maksimum 1288 px
-				// $config['max_height']    = 'none'; //tinggi maksimu 768 px
-				$config['file_name'] = $this->generateFileName(); //nama yang terupload nantinya
-				$this->load->library('upload', $config);
-				$this->upload->initialize($config);
-
-				if($this->upload->do_upload('image')){
-					$uploadData = $this->upload->data();
-					$filefoto = $uploadData['file_name'];
-
-					$dHeader = $this->db->query("SELECT*FROM trs_design_header WHERE tgl='$tgl_s' AND jenis='$pilih_s' AND add_at='$now'")->row();
-					$dtl = array(
-						'id_hdr' => $dHeader->id_dg,
-						'jenis_dtl' => $r['options']['dsg_pilih'],
-						'nm_file' => $filefoto,
-					);
-					$detail = $this->db->insert('trs_design_detail', $dtl);
-				}
+		if(!$this->upload->do_upload('dsg_foto')){
+			$data = false; $msg = 'UKURAN / FORMAT FILE TIDAK DIDUKUNG!';
+		}else{
+			if($this->upload->do_upload('dsg_foto')){
+				$gbrBukti = $this->upload->data();
+				$filefoto = $gbrBukti['file_name'];
+				$dtl = array(
+					'id_hdr' => 0,
+					'jenis_dtl' => $dsg_pilih,
+					'nm_file' => $filefoto,
+				);
+				$data = $this->db->insert('trs_design_detail', $dtl);
+				$msg = 'BERHASIL';
 			}
 		}
 
 		return [
-			'header' => $header,
-			'detail' => $detail,
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function deleteDesign()
+	{
+		$id_dtl = $_POST["id_dtl"];
+		$detail = $this->db->query("SELECT*FROM trs_design_detail WHERE id_dtl='$id_dtl'")->row();
+		// HAPUS FILE
+		unlink("assets/gambar_design/".$detail->nm_file);
+		// HAPUS ITEM
+		$this->db->where("id_dtl", $id_dtl);
+		$data = $this->db->delete("trs_design_detail");
+		return [
+			'data' => $data,
 		];
 	}
 }

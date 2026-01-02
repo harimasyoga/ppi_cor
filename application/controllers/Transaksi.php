@@ -833,102 +833,95 @@ class Transaksi extends CI_Controller
 		$this->load->view('footer');
 	}
 
-	function destroyDesign()
+	function uploadDesign()
 	{
-		$this->cart->destroy();
+		$result = $this->m_transaksi->uploadDesign();
+		echo json_encode($result);
 	}
 
-	function addCartDesign()
+	function deleteDesign()
 	{
-		$tgl_s = $_POST["tgl_s"];
-		$pilih_s = $_POST["pilih_s"];
-		$dsg_pilih = $_POST["dsg_pilih"];
-		$nm64 = $_POST["nm64"];
-		// $dsg_foto = $_POST["dsg_foto"];
-		$id_cart = $_POST["id_cart"];
-
-		$data = array(
-			'id' => $id_cart,
-			'name' => 'name'.$id_cart,
-			'price' => 0,
-			'qty' => 1,
-			'options' => array(
-				'f_name' => $_FILES['dsg_foto']['name'],
-				'f_type' => $_FILES['dsg_foto']['type'],
-				'f_tmp_name' => $_FILES['dsg_foto']['tmp_name'],
-				'f_error' => $_FILES['dsg_foto']['error'],
-				'f_size' => $_FILES['dsg_foto']['size'],
-				'nm64' => $nm64,
-				'tgl_s' => $tgl_s,
-				'pilih_s' => $pilih_s,
-				'dsg_pilih' => $dsg_pilih,
-			)
-		);
-
-		$this->cart->insert($data);
-		echo json_encode([
-			'data' => $data,
-		]);
+		$result = $this->m_transaksi->deleteDesign();
+		echo json_encode($result);
 	}
 
-	function tampilAllList()
+	function loadListDesign()
 	{
-		$htmlAcuan = '';
-		$htmlDesign = '';
-		$htmlPenawaran = '';
-		$htmlSample = '';
-		
-		$i = 0;
-		if($this->cart->total_items() != 0){
-			foreach($this->cart->contents() as $r){
+		$htmlAcuan = ''; $htmlDesign = ''; $htmlPenawaran = ''; $htmlSample = '';
+		// ACUAN
+		$qAcuan = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='0' AND jenis_dtl='A'");
+		if($qAcuan->num_rows() != ''){
+			$i = 0;
+			foreach($qAcuan->result() as $a){
 				$i++;
-				$pilih_s = $r['options']['dsg_pilih'];
-				
-				// HAPUS GAMBAR
-				$htmlDel = '<div style="margin-right:4px">
-				<button class="btn btn-xs btn-danger" onclick="hapusCartDesign('."'".$r['rowid']."'".')"><i class="fas fa-trash"></i></button>
+				$prevAcuan = 'a'.$i;
+				$htmlAcuan .= '<div style="margin-right:4px">
+					<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
+				</div>
+				<div style="margin-right:8px">
+					<img id="'.$prevAcuan.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevAcuan."'".')">
 				</div>';
-				$preview = 'p'.$i;
-				$htmlIsi = '<div style="margin-right:8px">
-					<img id="'.$preview.'" src="'.$r['options']['nm64'].'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$preview."'".')">
-				</div>';
-
-				if($pilih_s == "AW"){
-					$htmlAcuan .= $htmlDel.$htmlIsi;
-				}
-				if($pilih_s == "DG"){
-					$htmlDesign .= $htmlDel.$htmlIsi;
-				}
-				if($pilih_s == "PW"){
-					$htmlPenawaran .= $htmlDel.$htmlIsi;
-				}
-				if($pilih_s == "SP"){
-					$htmlSample .= $htmlDel.$htmlIsi;
-				}
 			}
+		}else{
+			$htmlAcuan .= '';
 		}
-
+		// DESIGN
+		$qDesign = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='0' AND jenis_dtl='D'");
+		if($qDesign->num_rows() != ''){
+			$i = 0;
+			foreach($qDesign->result() as $a){
+				$i++;
+				$prevDesign = 'd'.$i;
+				$htmlDesign .= '<div style="margin-right:4px">
+					<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
+				</div>
+				<div style="margin-right:8px">
+					<img id="'.$prevDesign.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevDesign."'".')">
+				</div>';
+			}
+		}else{
+			$htmlDesign .= '';
+		}
+		// PENAWARAN
+		$qPenawaran = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='0' AND jenis_dtl='P'");
+		if($qPenawaran->num_rows() != ''){
+			$i = 0;
+			foreach($qPenawaran->result() as $a){
+				$i++;
+				$prevPenawaran = 'p'.$i;
+				$htmlPenawaran .= '<div style="margin-right:4px">
+					<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
+				</div>
+				<div style="margin-right:8px">
+					<img id="'.$prevPenawaran.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevPenawaran."'".')">
+				</div>';
+			}
+		}else{
+			$htmlPenawaran .= '';
+		}
+		// SAMPLE
+		$qSample = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='0' AND jenis_dtl='S'");
+		if($qSample->num_rows() != ''){
+			$i = 0;
+			foreach($qSample->result() as $a){
+				$i++;
+				$prevSample = 's'.$i;
+				$htmlSample .= '<div style="margin-right:4px">
+					<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
+				</div>
+				<div style="margin-right:8px">
+					<img id="'.$prevSample.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevSample."'".')">
+				</div>';
+			}
+		}else{
+			$htmlSample .= '';
+		}
 		echo json_encode([
 			'htmlAcuan' => $htmlAcuan,
 			'htmlDesign' => $htmlDesign,
 			'htmlPenawaran' => $htmlPenawaran,
 			'htmlSample' => $htmlSample,
 		]);
-	}
-
-	function hapusCartDesign()
-	{
-		$data = array(
-			'rowid' => $_POST['rowid'],
-			'qty' => 0,
-		);
-		$this->cart->update($data);
-	}
-
-	function simpanDesign()
-	{
-		$result = $this->m_transaksi->simpanDesign();
-		echo json_encode($result);
 	}
 
 	//
