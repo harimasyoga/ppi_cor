@@ -95,7 +95,7 @@
 										<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
 											<div class="col-md-2">CUSTOMER</div>
 											<div class="col-md-10">
-												<select name="i_customer" id="i_customer" class="form-control select2">
+												<select name="i_customer" id="i_customer" class="form-control select2" onchange="loadNoPoDesign()">
 													<option value="">PILIH</option>
 												</select>
 											</div>
@@ -103,7 +103,7 @@
 										<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
 											<div class="col-md-2">NO. PO</div>
 											<div class="col-md-10">
-												<select name="i_po" id="i_po" class="form-control select2">
+												<select name="i_po" id="i_po" class="form-control select2" onchange="loadProdukDesign()">
 													<option value="">PILIH</option>
 												</select>
 											</div>
@@ -403,12 +403,62 @@
 			$(".col-box-upload").show()
 			$(".row-nasional").hide()
 			$(".row-lokal").show()
+			loadCustDesign()
 		}else{
 			$(".col-box-po").hide()
 			$(".col-box-upload").hide()
 			$(".row-nasional").hide()
 			$(".row-lokal").hide()
 		}
+	}
+
+	function loadCustDesign() {
+		$("#i_customer").html('<option value="" disabled>PILIH</option>')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/loadCustDesign')?>',
+			type: "POST",
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$("#i_customer").html(data.htmlCust)
+			}
+		})
+	}
+
+	function loadNoPoDesign() {
+		let id_pelanggan = $("#i_customer").val()
+		console.log("id_pelanggan : ", id_pelanggan)
+		$("#i_po").html('<option value="" no_po="" disabled>PILIH</option>')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/loadNoPoDesign')?>',
+			type: "POST",
+			data: ({ id_pelanggan }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$("#i_po").html(data.htmlNoPo)
+			}
+		})
+	}
+
+	function loadProdukDesign() {
+		let id_pelanggan = $("#i_customer").val()
+		let kode_po = $("#i_po").val()
+		let no_po = $('#i_po option:selected').attr('no_po')
+		console.log("id_pelanggan : ", id_pelanggan)
+		console.log("kode_po : ", kode_po)
+		console.log("no_po : ", no_po)
+		$("#i_produk").html('<option value="" disabled>PILIH</option>')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/loadProdukDesign')?>',
+			type: "POST",
+			data: ({ id_pelanggan, kode_po, no_po }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$("#i_produk").html(data.htmlProduk)
+			}
+		})
 	}
 
 	function cekUpload() {

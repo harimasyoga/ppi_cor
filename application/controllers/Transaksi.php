@@ -833,6 +833,62 @@ class Transaksi extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function loadCustDesign()
+	{
+		$qCust = $this->db->query("SELECT*FROM m_pelanggan c ORDER BY c.nm_pelanggan");
+		$htmlCust = '';
+		$htmlCust .= '<option value="">PILIH</option>';
+		foreach($qCust->result() as $r){
+			($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
+			$htmlCust .= '<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.$attn.'</option>';
+		}
+
+		echo json_encode([
+			'htmlCust' => $htmlCust,
+		]);
+	}
+
+	function loadNoPoDesign()
+	{
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$qNoPo = $this->db->query("SELECT*FROM trs_po WHERE id_pelanggan='$id_pelanggan' ORDER BY tgl_po DESC,kode_po");
+		$htmlNoPo = '';
+		if($qNoPo->num_rows() == 0){
+			$htmlNoPo .= '<option value="">PILIH</option>';
+		}else{
+			$htmlNoPo .= '<option value="">PILIH</option>';
+			foreach($qNoPo->result() as $r){
+				$htmlNoPo .= '<option value="'.$r->kode_po.'" no_po="'.$r->no_po.'">'.$r->kode_po.'</option>';
+			}
+		}
+
+		echo json_encode([
+			'htmlNoPo' => $htmlNoPo,
+		]);
+	}
+
+	function loadProdukDesign()
+	{
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$kode_po = $_POST["kode_po"];
+		$no_po = $_POST["no_po"];
+
+		$qProduk = $this->db->query("SELECT d.no_po,d.kode_po,d.id_pelanggan,d.id_produk,i.nm_produk FROM trs_po_detail d
+		INNER JOIN m_produk i ON d.id_produk=i.id_produk
+		WHERE d.no_po='$no_po' AND d.kode_po='$kode_po' AND d.id_pelanggan='$id_pelanggan'
+		GROUP BY d.no_po,d.kode_po,d.id_pelanggan,d.id_produk
+		ORDER BY i.nm_produk");
+		$htmlProduk = '';
+		$htmlProduk .= '<option value="">PILIH</option>';
+		foreach($qProduk->result() as $r){
+			$htmlProduk .= '<option value="'.$r->id_produk.'">'.$r->nm_produk.'</option>';
+		}
+
+		echo json_encode([
+			'htmlProduk' => $htmlProduk,
+		]);
+	}
+
 	function uploadDesign()
 	{
 		$result = $this->m_transaksi->uploadDesign();
