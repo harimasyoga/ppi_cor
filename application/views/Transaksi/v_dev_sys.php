@@ -213,7 +213,7 @@
 		
 	}
 
-	function btnPiuPO(i) {
+	function btnPiuPO(i,id_produk,id_pelanggan,sisa,sumkirim) {
 		// $(".tr1").hide()
 		$(".tr_i").hide()
 		$(".i" + i).hide()
@@ -222,12 +222,125 @@
 		let ts4 = $("#ts4").val()
 		if (parseInt(ts4) == parseInt(i)) {
 			$("#ts4").val("")
+			$("#i"+i).html(``)
 		} else {
 			$(".b4-" + i).removeClass("btn-danger").addClass("btn-warning")
 			$(".f4-" + i).removeClass("fa-plus").addClass("fa-minus")
 			$("#ts4").val(i)
 			$(".i" + i).show()
+			// tampil_data(i,id_produk,id_pelanggan,sisa,sumkirim)
 		}
+	}
+
+	function tampil_data(i,id_produk,id_pelanggan,sisa,sumkirim)
+	{
+		$.ajax({
+			url: '<?= base_url(); ?>Transaksi/load_det_dat',
+			type: "POST",
+			data: {
+				id: i,
+				id_produk: id_produk,
+				id_pelanggan: id_pelanggan
+			},
+			dataType: "JSON",
+			// beforeSend: function() {
+			// 	swal({
+			// 		title: 'loading data...',
+			// 		allowEscapeKey: false,
+			// 		allowOutsideClick: false,
+			// 		onOpen: () => {
+			// 			swal.showLoading();
+			// 		}
+			// 	})
+			// },
+			success: function(data) {
+				if (data) {
+
+					$("#plan_os"+i).html(`
+						<tr>
+							<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">QTY PO</th>
+							<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">DELIVERY</th>
+							<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">OS</th>
+							<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;" rowspan="2" >
+							
+								<button type="button" onclick="simpan()" class="btn-tambah-produk btn btn-sm btn-primary"><b><i class="fa fa-save" ></i> Simpan</b>
+								</button>
+							</th>
+						</tr>
+
+						<tr>
+							<td style="padding:5px;border:1px solid #aaa">${data.header.qty}</td>
+							<td style="padding:5px;border:1px solid #aaa">${format_angka(sumkirim)}</td>
+							<td style="padding:5px;border:1px solid #aaa">${format_angka(sisa)}</td>
+						</tr>
+						<tr>
+							<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS TERPLANNING</th>
+							<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS BELUM TERPLANNING</th>
+							<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">QTY PLAN DELIVERY</th>
+							<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">ETA</th>
+						</tr>
+						
+						<tr>
+							<td id="os_terplanning" name="os_terplanning" style="padding:5px;text-align:center;border:1px solid #aaa"></td>
+							<td style="padding:5px;text-align:center;border:1px solid #aaa;" value="${format_angka(sisa)}">${format_angka(sisa)}</td>
+							<td style="padding:5px;text-align:center;border:1px solid #aaa;">
+							<input type="number" id="qty_plan" autocomplete="off" onkeyup="hitung_os_plan(this.value,${sisa})">
+							</td>
+							<td style="padding:5px;text-align:center;border:1px solid #aaa;text-align:center">
+								<input type="date" id="eta" autocomplete="off" >
+							</td>
+						</tr>
+						
+					`)
+				} else {
+
+					swal({
+						title: "Cek Kembali",
+						html: "Gagal Simpan",
+						type: "error",
+						confirmButtonText: "OK"
+					});
+					return;
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				// toastr.error('Terjadi Kesalahan');
+
+				swal({
+					title: "Cek Kembali",
+					html: "Terjadi Kesalahan",
+					type: "error",
+					confirmButtonText: "OK"
+				});
+
+				return;
+			}
+		});
+		
+			
+	}
+
+	function hitung_os_plan(val,sisa) 
+	{
+		// pastikan string, hilangkan titik pemisah ribuan
+		sisa = sisa.toString().replace(/\./g, '');
+		val  = val.toString().replace(/\./g, '');
+
+		// konversi ke number
+		sisa = Number(sisa);
+		val  = Number(val);
+
+		if (isNaN(sisa) || isNaN(val)) {
+			$('#os_terplanning').val('');
+			return;
+		}
+
+		let os_plan = sisa - val;
+
+		if (os_plan < 0) os_plan = 0;
+alert(os_plan)
+		$('#os_terplanning').val(format_angka(os_plan));
+
 	}
 
 </script>
