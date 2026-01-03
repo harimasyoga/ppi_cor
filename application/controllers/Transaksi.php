@@ -417,7 +417,7 @@ class Transaksi extends CI_Controller
 
 	function addListUK()
 	{
-		if($_POST["jenis"] == "" || $_POST["gsm"] == "" || $_POST["ukuran"] == "" || $_POST["qty"] == "" || $_POST["harga"] == ""){
+		if($_POST["roll"] == "" || $_POST["jenis"] == "" || $_POST["gsm"] == "" || $_POST["ukuran"] == "" || $_POST["qty"] == "" || $_POST["harga"] == ""){
 			echo json_encode(array('data' => false, 'isi' => 'HARAP LENGKAPI FORM!'));
 		}else{
 			$data = array(
@@ -426,6 +426,7 @@ class Transaksi extends CI_Controller
 				'price' => 0,
 				'qty' => 1,
 				'options' => array(
+					'stat' => $_POST["roll"],
 					'jenis' => $_POST["jenis"],
 					'gsm' => $_POST["gsm"],
 					'ukuran' => $_POST["ukuran"],
@@ -832,102 +833,151 @@ class Transaksi extends CI_Controller
 		$this->load->view('footer');
 	}
 
-	function destroyDesign()
+	function loadCustDesign()
 	{
-		$this->cart->destroy();
-	}
+		$qCust = $this->db->query("SELECT*FROM m_pelanggan c ORDER BY c.nm_pelanggan");
+		$htmlCust = '';
+		$htmlCust .= '<option value="">PILIH</option>';
+		foreach($qCust->result() as $r){
+			($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
+			$htmlCust .= '<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.$attn.'</option>';
+		}
 
-	function addCartDesign()
-	{
-		$tgl_s = $_POST["tgl_s"];
-		$pilih_s = $_POST["pilih_s"];
-		$dsg_pilih = $_POST["dsg_pilih"];
-		$nm64 = $_POST["nm64"];
-		// $dsg_foto = $_POST["dsg_foto"];
-		$id_cart = $_POST["id_cart"];
-
-		$data = array(
-			'id' => $id_cart,
-			'name' => 'name'.$id_cart,
-			'price' => 0,
-			'qty' => 1,
-			'options' => array(
-				'f_name' => $_FILES['dsg_foto']['name'],
-				'f_type' => $_FILES['dsg_foto']['type'],
-				'f_tmp_name' => $_FILES['dsg_foto']['tmp_name'],
-				'f_error' => $_FILES['dsg_foto']['error'],
-				'f_size' => $_FILES['dsg_foto']['size'],
-				'nm64' => $nm64,
-				'tgl_s' => $tgl_s,
-				'pilih_s' => $pilih_s,
-				'dsg_pilih' => $dsg_pilih,
-			)
-		);
-
-		$this->cart->insert($data);
 		echo json_encode([
-			'data' => $data,
+			'htmlCust' => $htmlCust,
 		]);
 	}
 
-	function tampilAllList()
+	function loadNoPoDesign()
 	{
-		$htmlAcuan = '';
-		$htmlDesign = '';
-		$htmlPenawaran = '';
-		$htmlSample = '';
-		
-		$i = 0;
-		if($this->cart->total_items() != 0){
-			foreach($this->cart->contents() as $r){
-				$i++;
-				$pilih_s = $r['options']['dsg_pilih'];
-				
-				// HAPUS GAMBAR
-				$htmlDel = '<div style="margin-right:4px">
-				<button class="btn btn-xs btn-danger" onclick="hapusCartDesign('."'".$r['rowid']."'".')"><i class="fas fa-trash"></i></button>
-				</div>';
-				$preview = 'p'.$i;
-				$htmlIsi = '<div style="margin-right:8px">
-					<img id="'.$preview.'" src="'.$r['options']['nm64'].'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$preview."'".')">
-				</div>';
-
-				if($pilih_s == "AW"){
-					$htmlAcuan .= $htmlDel.$htmlIsi;
-				}
-				if($pilih_s == "DG"){
-					$htmlDesign .= $htmlDel.$htmlIsi;
-				}
-				if($pilih_s == "PW"){
-					$htmlPenawaran .= $htmlDel.$htmlIsi;
-				}
-				if($pilih_s == "SP"){
-					$htmlSample .= $htmlDel.$htmlIsi;
-				}
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$qNoPo = $this->db->query("SELECT*FROM trs_po WHERE id_pelanggan='$id_pelanggan' ORDER BY tgl_po DESC,kode_po");
+		$htmlNoPo = '';
+		if($qNoPo->num_rows() == 0){
+			$htmlNoPo .= '<option value="">PILIH</option>';
+		}else{
+			$htmlNoPo .= '<option value="">PILIH</option>';
+			foreach($qNoPo->result() as $r){
+				$htmlNoPo .= '<option value="'.$r->kode_po.'" no_po="'.$r->no_po.'">'.$r->kode_po.'</option>';
 			}
 		}
 
+		echo json_encode([
+			'htmlNoPo' => $htmlNoPo,
+		]);
+	}
+
+	function loadProdukDesign()
+	{
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$kode_po = $_POST["kode_po"];
+		$no_po = $_POST["no_po"];
+
+		$qProduk = $this->db->query("SELECT d.no_po,d.kode_po,d.id_pelanggan,d.id_produk,i.nm_produk FROM trs_po_detail d
+		INNER JOIN m_produk i ON d.id_produk=i.id_produk
+		WHERE d.no_po='$no_po' AND d.kode_po='$kode_po' AND d.id_pelanggan='$id_pelanggan'
+		GROUP BY d.no_po,d.kode_po,d.id_pelanggan,d.id_produk
+		ORDER BY i.nm_produk");
+		$htmlProduk = '';
+		$htmlProduk .= '<option value="">PILIH</option>';
+		foreach($qProduk->result() as $r){
+			$htmlProduk .= '<option value="'.$r->id_produk.'">'.$r->nm_produk.'</option>';
+		}
+
+		echo json_encode([
+			'htmlProduk' => $htmlProduk,
+		]);
+	}
+
+	function uploadDesign()
+	{
+		$result = $this->m_transaksi->uploadDesign();
+		echo json_encode($result);
+	}
+
+	function deleteDesign()
+	{
+		$result = $this->m_transaksi->deleteDesign();
+		echo json_encode($result);
+	}
+
+	function loadListDesign()
+	{
+		$htmlAcuan = ''; $htmlDesign = ''; $htmlPenawaran = ''; $htmlSample = '';
+		// ACUAN
+		$qAcuan = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='0' AND jenis_dtl='A'");
+		if($qAcuan->num_rows() != ''){
+			$i = 0;
+			foreach($qAcuan->result() as $a){
+				$i++;
+				$prevAcuan = 'a'.$i;
+				$htmlAcuan .= '<div style="margin-right:4px">
+					<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
+				</div>
+				<div style="margin-right:8px">
+					<img id="'.$prevAcuan.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevAcuan."'".')">
+				</div>';
+			}
+		}else{
+			$htmlAcuan .= '';
+		}
+		// DESIGN
+		$qDesign = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='0' AND jenis_dtl='D'");
+		if($qDesign->num_rows() != ''){
+			$i = 0;
+			foreach($qDesign->result() as $a){
+				$i++;
+				$prevDesign = 'd'.$i;
+				$htmlDesign .= '<div style="margin-right:4px">
+					<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
+				</div>
+				<div style="margin-right:8px">
+					<img id="'.$prevDesign.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevDesign."'".')">
+				</div>';
+			}
+		}else{
+			$htmlDesign .= '';
+		}
+		// PENAWARAN
+		$qPenawaran = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='0' AND jenis_dtl='P'");
+		if($qPenawaran->num_rows() != ''){
+			$i = 0;
+			foreach($qPenawaran->result() as $a){
+				$i++;
+				$prevPenawaran = 'p'.$i;
+				$htmlPenawaran .= '<div style="margin-right:4px">
+					<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
+				</div>
+				<div style="margin-right:8px">
+					<img id="'.$prevPenawaran.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevPenawaran."'".')">
+				</div>';
+			}
+		}else{
+			$htmlPenawaran .= '';
+		}
+		// SAMPLE
+		$qSample = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='0' AND jenis_dtl='S'");
+		if($qSample->num_rows() != ''){
+			$i = 0;
+			foreach($qSample->result() as $a){
+				$i++;
+				$prevSample = 's'.$i;
+				$htmlSample .= '<div style="margin-right:4px">
+					<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
+				</div>
+				<div style="margin-right:8px">
+					<img id="'.$prevSample.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevSample."'".')">
+				</div>';
+			}
+		}else{
+			$htmlSample .= '';
+		}
 		echo json_encode([
 			'htmlAcuan' => $htmlAcuan,
 			'htmlDesign' => $htmlDesign,
 			'htmlPenawaran' => $htmlPenawaran,
 			'htmlSample' => $htmlSample,
 		]);
-	}
-
-	function hapusCartDesign()
-	{
-		$data = array(
-			'rowid' => $_POST['rowid'],
-			'qty' => 0,
-		);
-		$this->cart->update($data);
-	}
-
-	function simpanDesign()
-	{
-		$result = $this->m_transaksi->simpanDesign();
-		echo json_encode($result);
 	}
 
 	//

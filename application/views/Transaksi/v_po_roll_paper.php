@@ -96,6 +96,35 @@
 									</div>
 								</div>
 								<div class="add-file">
+									<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+										<div class="col-md-3">JENIS FILE</div>
+										<div class="col-md-9">
+											<select name="jenis_file" id="jenis_file" class="form-control select2" onchange="diPilih()">
+												<option value="">PILIH</option>
+												<option value="PO">PO</option>
+												<option value="MASTER">MASTER</option>
+												<option value="RINCIAN">RINCIAN</option>
+												<option value="MEMO">MEMO</option>
+												<option value="BK110">BK110</option>
+												<option value="BK120">BK120</option>
+												<option value="BK125">BK125</option>
+												<option value="BK150">BK150</option>
+												<option value="BK200">BK200</option>
+												<option value="MH110">MH110</option>
+												<option value="MH120">MH120</option>
+												<option value="MH125">MH125</option>
+												<option value="MH150">MH150</option>
+												<option value="MH200">MH200</option>
+												<option value="MN110">MN110</option>
+												<option value="MN120">MN120</option>
+												<option value="MN125">MN125</option>
+												<option value="MN150">MN150</option>
+												<option value="MN200">MN200</option>
+												<option value="WP68">WP68</option>
+												<option value="WP70">WP70</option>
+											</select>
+										</div>
+									</div>
 									<div class="card-body row" style="font-weight:bold;padding:0 12px">
 										<div class="col-md-3">FILE</div>
 										<div class="col-md-9">
@@ -174,6 +203,16 @@
 								</div>
 								<div class="list-sementara"></div>
 								<div class="card-body row" style="font-weight:bold;padding:12px 12px 6px">
+									<div class="col-md-1">ROLL</div>
+									<div class="col-md-3">
+										<select id="i_roll">
+											<option value="0">STOK</option>
+											<option value="3">BUFFER</option>
+										</select>
+									</div>
+									<div class="col-md-8"></div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 									<div class="col-md-1">JENIS</div>
 									<div class="col-md-3">
 										<input type="text" id="i_jenis" class="form-control" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
@@ -550,9 +589,10 @@
 		let no_po = $("#no_po").val()
 		let pajak = $("#pajak").val()
 		let id_sales = $("#id_sales").val()
+		let jenis_file = $("#jenis_file").val()
 		let filefoto = $("#filefoto").val()
 		let id_cart = $("#id_cart").val()
-		if(tgl != '' && nm_pelanggan != '' && no_po != '' && pajak != '' && id_sales != '' && filefoto != '' && id_cart != 0){
+		if(tgl != '' && nm_pelanggan != '' && no_po != '' && pajak != '' && id_sales != '' && filefoto != '' && jenis_file != '' && id_cart != 0){
 			$(".simpan-save").html('<button class="btn btn-primary btn-sm"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
 		}else{
 			$(".simpan-save").html('')
@@ -560,8 +600,9 @@
 	}
 
 	function diPilihUpdate(){
+		let jenis_file = $("#jenis_file").val()
 		let filefoto = $("#updatefilefoto").val()
-		if(filefoto != ''){
+		if(filefoto != '' && jenis_file != ''){
 			$(".update-save").html('<button class="btn btn-primary btn-sm"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
 		}else{
 			$(".update-save").html('')
@@ -578,6 +619,7 @@
 
 	function addListUK()
 	{
+		let roll = $("#i_roll").val()
 		let jenis = $("#i_jenis").val()
 		let gsm = $("#i_gsm").val()
 		let ukuran = $("#i_ukuran").val()
@@ -602,7 +644,7 @@
 				})
 			},
 			data: ({
-				jenis, gsm, ukuran, berat, qty, harga, ket, id_cart
+				roll, jenis, gsm, ukuran, berat, qty, harga, ket, id_cart
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -733,6 +775,35 @@
 				if(urlAuth == 'Admin' && data.opsi == 'edit'){
 					$("#hidhdr").val(data.header.id_hdr)
 					$(".add-file").html(`
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3">JENIS FILE</div>
+							<div class="col-md-9">
+								<select name="jenis_file" id="jenis_file" class="form-control select2" onchange="diPilihUpdate()">
+									<option value="">PILIH</option>
+									<option value="PO">PO</option>
+									<option value="MASTER">MASTER</option>
+									<option value="RINCIAN">RINCIAN</option>
+									<option value="MEMO">MEMO</option>
+									<option value="BK110">BK110</option>
+									<option value="BK120">BK120</option>
+									<option value="BK125">BK125</option>
+									<option value="BK150">BK150</option>
+									<option value="BK200">BK200</option>
+									<option value="MH110">MH110</option>
+									<option value="MH120">MH120</option>
+									<option value="MH125">MH125</option>
+									<option value="MH150">MH150</option>
+									<option value="MH200">MH200</option>
+									<option value="MN110">MN110</option>
+									<option value="MN120">MN120</option>
+									<option value="MN125">MN125</option>
+									<option value="MN150">MN150</option>
+									<option value="MN200">MN200</option>
+									<option value="WP68">WP68</option>
+									<option value="WP70">WP70</option>
+								</select>
+							</div>
+						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 12px">
 							<div class="col-md-3">FILE</div>
 							<div class="col-md-9">
@@ -753,6 +824,7 @@
 						</div>
 					`)
 				}
+				$('.select2').select2();
 
 				// NOTE
 				$("#note_po_roll").val(data.header.note_po).prop('disabled', (data.opsi != 'detail') ? false : true)
