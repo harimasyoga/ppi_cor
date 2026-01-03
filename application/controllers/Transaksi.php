@@ -7926,10 +7926,17 @@ class Transaksi extends CI_Controller
 		$po_ = $this->db->query("SELECT*FROM trs_po p JOIN trs_po_detail d on p.kode_po=d.kode_po JOIN m_produk i ON d.id_produk=i.id_produk WHERE p.status_app3='Y' and p.id_pelanggan='$id_pelanggan' and d.id_produk='$id_produk'
 		-- GROUP BY p.kode_po ORDER BY p.tgl_po
 		");
+		$produk_ = $this->db->query("SELECT*from m_produk where id_produk='$id_produk'
+		")->row();
+
+
 
 		$html .= '<div class="card card-info card-outline">
 			<div class="card-header">
-				<h3 class="card-title" style="font-weight:bold;">LIST PO  - <span style="color:red;"> '.$nm_produk.' </span></h3>
+				<h3 class="card-title" style="font-weight:bold;">LIST PO  - 
+				<span style="color:red;"> '.$produk_->nm_produk.' </span> - 
+				<span style="color:red;"> '.$produk_->ukuran.' </span> - 
+				<span style="color:red;"> '.$produk_->kualitas.' </span> </h3>
 				<div class="card-tools">
 					<button type="button" onclick="close_po()" class="btn  btn-danger"><b>
 							<i class="fa fa-arrow-left"></i> Kembali</b>
@@ -7969,7 +7976,7 @@ class Transaksi extends CI_Controller
 					$html .= '<tr class="tr_po po'.$po_ok->id_produk.'" >
 						<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 5px" colspan="2">
 							<input type="hidden" id="ts4" value="">
-							<button class="btn btn-xs ab4 b4-'.$po_ok->id.' btn-danger" style="padding:1px 5px" onclick="btnPiuPO('."'".$po_ok->id."'".')">
+							<button class="btn btn-xs ab4 b4-'.$po_ok->id.' btn-danger" style="padding:1px 5px" onclick="btnPiuPO('."'".$po_ok->id."'".','."'".$id_produk."'".','."'".$id_pelanggan."'".','."'".$sisa."'".','."'".$sumKirim."'".')">
 								<i style="font-size:8px" class="fas af4 f4-'.$po_ok->id.' fa-plus"></i>
 							</button>&nbsp
 							'.$po_ok->kode_po.'
@@ -7980,51 +7987,43 @@ class Transaksi extends CI_Controller
 				<tr class="tr_i i'.$po_ok->id.'" style="display:none">
 					<td style="padding:0;border:1px solid #aaa">
 						<table width="100%" style="border-collapse:collapse">
+							
+						<tbody>
 							<tr>
-								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">NO</th>
-								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">PO</th>
-								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">UKURAN</th>
-								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">KUALITAS</th>
-								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">FLUTE</th>
-								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;" rowspan="2" colspan="2">
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">QTY PO</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">DELIVERY</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">OS</th>
+								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;" rowspan="2" >
 								
-								<button type="button" onclick="simpan()" class="btn-tambah-produk btn btn-sm btn-primary"><b><i class="fa fa-save" ></i> Simpan</b> </button>
-							</button>
-							</th>
+									<button type="button" onclick="simpan()" class="btn-tambah-produk btn btn-sm btn-primary"><b><i class="fa fa-save" ></i> Simpan</b>
+									</button>
+								</th>
 							</tr>
 
 							<tr>
-								<td style="padding:5px;border:1px solid #aaa;text-align:center">1</td>
-								<td style="padding:5px;border:1px solid #aaa">'.$po_ok->kode_po.'</td>
-								<td style="padding:5px;border:1px solid #aaa">'.$po_ok->ukuran.'</td>
-								<td style="padding:5px;border:1px solid #aaa">'.$po_ok->kualitas.'</td>
-								<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$po_ok->flute.'</td>
+								<td style="padding:5px;border:1px solid #aaa;text-align:center">'.number_format($po_ok->qty,0,',','.').'</td>
+								<td style="padding:5px;border:1px solid #aaa">'.number_format($sumKirim,0,',','.').'</td>
+								<td style="padding:5px;border:1px solid #aaa">'.number_format($sisa,0,',','.').'</td>
 							</tr>
-
 							<tr>
-								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ffc800ff;">QTY PO</th>
-								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ffc800ff;">DELIVERY</th>
-								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ffc800ff;">OS</th>
 								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS TERPLANNING</th>
 								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS BELUM TERPLANNING</th>
 								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">QTY PLAN DELIVERY</th>
 								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">ETA</th>
 							</tr>
-
+							
 							<tr>
-								<td style="padding:5px;text-align:right;border:1px solid #aaa;">'.number_format($po_ok->qty,0,',','.').'</td>
-								<td style="padding:5px;text-align:right;border:1px solid #aaa">'.number_format($sumKirim,0,',','.').'</td>
-								<td style="padding:5px;text-align:right;border:1px solid #aaa">'.number_format($sisa,0,',','.').'</td>
-								<td style="padding:5px;text-align:center;border:1px solid #aaa">-</td>
-								<td style="padding:5px;text-align:center;border:1px solid #aaa;">-</td>
+								<td id="os_terplanning'.$po_ok->id.'" name="os_terplanning" style="padding:5px;text-align:center;border:1px solid #aaa"></td>
+								<td style="padding:5px;text-align:center;border:1px solid #aaa;">'.number_format($sisa,0,',','.').'</td>
 								<td style="padding:5px;text-align:center;border:1px solid #aaa;">
-								<input type="number" id="qty_plan" autocomplete="off" >
+								<input type="number" id="qty_plan" autocomplete="off" onkeyup="hitung_os_plan(this.value,this.id,'.$sisa.')">
 								</td>
 								<td style="padding:5px;text-align:center;border:1px solid #aaa;text-align:center">
 									<input type="date" id="eta" autocomplete="off" >
 								</td>
 							</tr>
-
+						</tbody>
+							
 						</table>
 					</td>
 				</tr>';
@@ -8044,6 +8043,28 @@ class Transaksi extends CI_Controller
 
 		echo $html;
 	}
+
+	function load_det_dat()
+	{
+		$id           = $this->input->post('id');
+		$id_produk    = $this->input->post('id_produk');
+		$id_pelanggan = $this->input->post('id_pelanggan');
+
+		$queryh = "SELECT*FROM trs_po p JOIN trs_po_detail d on p.kode_po=d.kode_po JOIN m_produk i ON d.id_produk=i.id_produk WHERE p.status_app3='Y' and p.id_pelanggan='$id_pelanggan' and d.id_produk='$id_produk' and d.id='$id'
+		-- GROUP BY p.kode_po ORDER BY p.tgl_po
+		";
+		
+		$queryd   = "SELECT*FROM trs_po p JOIN trs_po_detail d on p.kode_po=d.kode_po JOIN m_produk i ON d.id_produk=i.id_produk WHERE p.status_app3='Y' and p.id_pelanggan='$id_pelanggan' and d.id_produk='$id_produk' and d.id='$id'
+		-- GROUP BY p.kode_po ORDER BY p.tgl_po
+		";
+
+		$header   = $this->db->query($queryh)->row();
+		$detail   = $this->db->query($queryd)->result();
+		$data     = ["header" => $header, "detail" => $detail];
+
+        echo json_encode($data);
+	}
+	
 
 	public function Hitung_harga()
 	{
