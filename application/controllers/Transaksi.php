@@ -835,12 +835,15 @@ class Transaksi extends CI_Controller
 
 	function loadCustDesign()
 	{
+		$h_id_pelanggan = $_POST["h_id_pelanggan"];
+		$opt = $_POST["opt"];
 		$qCust = $this->db->query("SELECT*FROM m_pelanggan c ORDER BY c.nm_pelanggan");
 		$htmlCust = '';
 		$htmlCust .= '<option value="">PILIH</option>';
 		foreach($qCust->result() as $r){
 			($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
-			$htmlCust .= '<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.$attn.'</option>';
+			($r->id_pelanggan == $h_id_pelanggan) ? $slt = 'selected' : $slt = '' ;
+			$htmlCust .= '<option value="'.$r->id_pelanggan.'" '.$slt.'>'.$r->nm_pelanggan.$attn.'</option>';
 		}
 
 		echo json_encode([
@@ -850,15 +853,19 @@ class Transaksi extends CI_Controller
 
 	function loadNoPoDesign()
 	{
+		$h_id_pelanggan = $_POST["h_id_pelanggan"];
+		$kode_po = $_POST["kode_po"];
 		$id_pelanggan = $_POST["id_pelanggan"];
-		$qNoPo = $this->db->query("SELECT*FROM trs_po WHERE id_pelanggan='$id_pelanggan' ORDER BY tgl_po DESC,kode_po");
+		($h_id_pelanggan != '' && $kode_po != '') ? $id_pt = $h_id_pelanggan : $id_pt = $id_pelanggan;
+		$qNoPo = $this->db->query("SELECT*FROM trs_po WHERE id_pelanggan='$id_pt' AND tgl_po BETWEEN '2025-01-01' AND '9999-01-01' ORDER BY tgl_po DESC,kode_po");
 		$htmlNoPo = '';
 		if($qNoPo->num_rows() == 0){
 			$htmlNoPo .= '<option value="">PILIH</option>';
 		}else{
 			$htmlNoPo .= '<option value="">PILIH</option>';
 			foreach($qNoPo->result() as $r){
-				$htmlNoPo .= '<option value="'.$r->kode_po.'" no_po="'.$r->no_po.'">'.$r->kode_po.'</option>';
+				($r->kode_po == $kode_po) ? $slt = 'selected' : $slt = '';
+				$htmlNoPo .= '<option value="'.$r->kode_po.'" '.$slt.'>'.$r->kode_po.'</option>';
 			}
 		}
 
@@ -869,23 +876,87 @@ class Transaksi extends CI_Controller
 
 	function loadProdukDesign()
 	{
+		$h_id_pelanggan = $_POST["h_id_pelanggan"];
+		$h_kode_po = $_POST["h_kode_po"];
+		$h_id_produk = $_POST["h_id_produk"];
 		$id_pelanggan = $_POST["id_pelanggan"];
 		$kode_po = $_POST["kode_po"];
-		$no_po = $_POST["no_po"];
+		if($h_id_pelanggan != '' && $h_kode_po != '' && $h_id_produk != ''){
+			$wIdPt = $h_id_pelanggan;
+			$wKodePO = $h_kode_po;
+		}else{
+			$wIdPt = $id_pelanggan;
+			$wKodePO = $kode_po;
+		}
 
 		$qProduk = $this->db->query("SELECT d.no_po,d.kode_po,d.id_pelanggan,d.id_produk,i.nm_produk FROM trs_po_detail d
 		INNER JOIN m_produk i ON d.id_produk=i.id_produk
-		WHERE d.no_po='$no_po' AND d.kode_po='$kode_po' AND d.id_pelanggan='$id_pelanggan'
+		WHERE d.kode_po='$wKodePO' AND d.id_pelanggan='$wIdPt' AND d.tgl_po BETWEEN '2025-01-01' AND '9999-01-01'
 		GROUP BY d.no_po,d.kode_po,d.id_pelanggan,d.id_produk
 		ORDER BY i.nm_produk");
 		$htmlProduk = '';
-		$htmlProduk .= '<option value="">PILIH</option>';
-		foreach($qProduk->result() as $r){
-			$htmlProduk .= '<option value="'.$r->id_produk.'">'.$r->nm_produk.'</option>';
+		if($qProduk->num_rows() == 0){
+			$htmlProduk .= '<option value="">PILIH</option>';
+		}else{
+			$htmlProduk .= '<option value="">PILIH</option>';
+			foreach($qProduk->result() as $r){
+				($r->id_produk == $h_id_produk) ? $slt = 'selected' : $slt = '';
+				$htmlProduk .= '<option value="'.$r->id_produk.'" '.$slt.'>'.$r->nm_produk.'</option>';
+			}
 		}
 
 		echo json_encode([
 			'htmlProduk' => $htmlProduk,
+		]);
+	}
+
+	function detailProdukDesign()
+	{
+		$h_id_produk = $_POST["h_id_produk"];
+		$i_produk = $_POST["i_produk"];
+		($h_id_produk != '') ? $id = $h_id_produk : $id = $i_produk;
+
+		$p = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$id'");
+
+		if($p->num_rows() == 0){
+			$htmlDtlProduk = '-';
+		}else{
+			$htmlDtlProduk = '<table>
+				<tr>
+					<td style="padding:5px">NAMA</td>
+					<td style="padding:5px">:</td>
+					<td style="padding:5px">'.$p->row()->nm_produk.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px">UKURAN BOX</td>
+					<td style="padding:5px">:</td>
+					<td style="padding:5px">'.$p->row()->ukuran.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px">UKURAN SHEET</td>
+					<td style="padding:5px">:</td>
+					<td style="padding:5px">'.$p->row()->ukuran_sheet.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px">CREASING</td>
+					<td style="padding:5px">:</td>
+					<td style="padding:5px">'.$p->row()->creasing.' - '.$p->row()->creasing2.' - '.$p->row()->creasing3.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px">KUALITAS</td>
+					<td style="padding:5px">:</td>
+					<td style="padding:5px">'.$this->m_fungsi->kualitas($p->row()->kualitas, $p->row()->flute).'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px">FLUTE</td>
+					<td style="padding:5px">:</td>
+					<td style="padding:5px">'.$p->row()->flute.'</td>
+				</tr>
+			</table>';
+		}
+
+		echo json_encode([
+			'htmlDtlProduk' => $htmlDtlProduk,
 		]);
 	}
 
@@ -901,11 +972,20 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function saveDesign()
+	{
+		$result = $this->m_transaksi->saveDesign();
+		echo json_encode($result);
+	}
+
 	function loadListDesign()
 	{
+		$id_dg = $_POST["id_dg"];
+		($id_dg != '') ? $id = $id_dg : $id = 0;
+
 		$htmlAcuan = ''; $htmlDesign = ''; $htmlPenawaran = ''; $htmlSample = '';
 		// ACUAN
-		$qAcuan = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='0' AND jenis_dtl='A'");
+		$qAcuan = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id' AND jenis_dtl='A'");
 		if($qAcuan->num_rows() != ''){
 			$i = 0;
 			foreach($qAcuan->result() as $a){
@@ -922,7 +1002,7 @@ class Transaksi extends CI_Controller
 			$htmlAcuan .= '';
 		}
 		// DESIGN
-		$qDesign = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='0' AND jenis_dtl='D'");
+		$qDesign = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id' AND jenis_dtl='D'");
 		if($qDesign->num_rows() != ''){
 			$i = 0;
 			foreach($qDesign->result() as $a){
@@ -939,7 +1019,7 @@ class Transaksi extends CI_Controller
 			$htmlDesign .= '';
 		}
 		// PENAWARAN
-		$qPenawaran = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='0' AND jenis_dtl='P'");
+		$qPenawaran = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id' AND jenis_dtl='P'");
 		if($qPenawaran->num_rows() != ''){
 			$i = 0;
 			foreach($qPenawaran->result() as $a){
@@ -956,7 +1036,7 @@ class Transaksi extends CI_Controller
 			$htmlPenawaran .= '';
 		}
 		// SAMPLE
-		$qSample = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='0' AND jenis_dtl='S'");
+		$qSample = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id' AND jenis_dtl='S'");
 		if($qSample->num_rows() != ''){
 			$i = 0;
 			foreach($qSample->result() as $a){
@@ -977,6 +1057,20 @@ class Transaksi extends CI_Controller
 			'htmlDesign' => $htmlDesign,
 			'htmlPenawaran' => $htmlPenawaran,
 			'htmlSample' => $htmlSample,
+		]);
+	}
+
+	function editFormDesign()
+	{
+		$id_dg = $_POST["id_dg"];
+		$opsi = $_POST["opsi"];
+
+		$header = $this->db->query("SELECT*FROM trs_design_header WHERE id_dg='$id_dg'")->row();
+
+
+		echo json_encode([
+			'header' => $header,
+			'opsi' => $opsi,
 		]);
 	}
 
@@ -3377,6 +3471,192 @@ class Transaksi extends CI_Controller
 				($r->input_po == 'N' && $r->owner_status == 'Y' && $this->session->userdata('level') == 'Admin') ? $btnUpload = '<button type="button" title="INPUT PO" class="btn btn-danger btn-sm" onclick=""><i class="fas fa-file-upload"></i></button>' : $btnUpload = '';
 				if($this->session->userdata('level') == 'Admin'){
 					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.' '.$btnUpload.'</div>';
+				}else{
+					$row[] = '<div class="text-center">'.$btnVerif.'</div>';
+				}
+				$data[] = $row;
+			}
+		} else if ($jenis == "form_design") {
+			$tahun = $_POST["tahun"];
+			$bulan = $_POST["bulan"];
+			($bulan == "") ? $wBln = '' : $wBln = "AND MONTH(tgl) IN ('$bulan')";
+			$query = $this->db->query("SELECT*FROM trs_design_header WHERE tgl LIKE '%$tahun%' $wBln ORDER BY jenis_dg, acc_a_stt, acc_d_stt, acc_p_stt, acc_s_stt, tgl DESC, kode_dg")->result();
+			$i = 0;
+			foreach ($query as $r) {
+				$i++;
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				// RINCIAN
+				if($r->jenis_dg == 'B'){
+					$item = $this->db->query("SELECT h.id_pelanggan,h.kode_po,h.id_produk,c.nm_pelanggan,c.attn,i.nm_produk FROM trs_design_header h
+					INNER JOIN m_pelanggan c ON h.id_pelanggan=c.id_pelanggan
+					INNER JOIN m_produk i ON h.id_produk=i.id_produk
+					WHERE h.id_pelanggan='$r->id_pelanggan' AND h.kode_po='$r->kode_po' AND h.id_produk='$r->id_produk'
+					GROUP BY h.id_pelanggan,h.kode_po,h.id_produk")->row();
+					($item->attn == '-') ? $attn = '' : $attn = ' | '.$item->attn;
+					$tHtml = '<tr style="background-color:transparent !important">
+						<td style="padding:2px;border:0;font-weight:bold">CUSTOMER</td>
+						<td style="padding:2px;border:0">:</td>
+						<td style="padding:2px;border:0">'.$item->nm_pelanggan.$attn.'</td>
+					</tr>
+					<tr style="background-color:transparent !important">
+						<td style="padding:2px;border:0;font-weight:bold">NO. PO</td>
+						<td style="padding:2px;border:0">:</td>
+						<td style="padding:2px;border:0">'.$item->kode_po.'</td>
+					</tr>
+					<tr style="background-color:transparent !important">
+						<td style="padding:2px;border:0;font-weight:bold">ITEM</td>
+						<td style="padding:2px;border:0">:</td>
+						<td style="padding:2px;border:0">'.$item->nm_produk.'</td>
+					</tr>';
+				}else{
+					$tHtml = '';
+				}
+				$row[] = '<table>
+					<tr style="background-color:transparent !important">
+						<td style="padding:2px;border:0;font-weight:bold">NO. FORM</td>
+						<td style="padding:2px;border:0">:</td>
+						<td style="padding:2px;border:0">'.$r->kode_dg.'</td>
+					</tr>
+					'.$tHtml.'
+				</table>';
+				$row[] = '<div style="text-align:center;font-weight:bold;color:#f00">'.$r->tgl.'</div>';
+				// STATUS
+				if($r->form_stat == 'Open'){
+					$btn_s = 'btn-info';
+				}else if($r->form_stat == 'Approve'){
+					$btn_s = 'btn-success';
+				}else{
+					$btn_s = 'btn-danger';
+				}
+				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.'" onclick="">'.$r->form_stat.'</button></div>';
+				// ACUAN
+				if($r->acc_a_stt == 'N'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-lock"';
+					$time1 = 'BELUM ACC!';
+					$p1 = '';
+				}else if($r->acc_a_stt == 'H'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-hand-paper"';
+					$time1 = 'HOLD!';
+					$p1 = '';
+				}else if($r->acc_a_stt == 'R'){
+					$bt1 = 'btn-danger';
+					$fa1 = 'class="fas fa-times" style="color:#000"';
+					$time1 = 'REJECT!';
+					$p1 = 'style="padding:4px 10px"';
+				}else{
+					$bt1 = 'btn-success';
+					$fa1 = 'class="fas fa-check-circle"';
+					$time1 = $this->m_fungsi->tglIndSkt(substr($r->acc_a_at,0,10)).' - '.substr($r->acc_a_at,10,9);
+					$p1 = '';
+				}
+				$row[] = '<div class="text-center">
+					<div class="dropup">
+						<button class="dropbtn btn btn-sm '.$bt1.'" '.$p1.' onclick=""><i '.$fa1.'></i></button>
+						<div class="dropup-content">
+							<div class="time-admin">'.$time1.'</div>
+						</div>
+					</div>
+				</div>';
+				// DESIGN
+				if($r->acc_d_stt == 'N'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-lock"';
+					$time1 = 'BELUM ACC!';
+					$p1 = '';
+				}else if($r->acc_d_stt == 'H'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-hand-paper"';
+					$time1 = 'HOLD!';
+					$p1 = '';
+				}else if($r->acc_d_stt == 'R'){
+					$bt1 = 'btn-danger';
+					$fa1 = 'class="fas fa-times" style="color:#000"';
+					$time1 = 'REJECT!';
+					$p1 = 'style="padding:4px 10px"';
+				}else{
+					$bt1 = 'btn-success';
+					$fa1 = 'class="fas fa-check-circle"';
+					$time1 = $this->m_fungsi->tglIndSkt(substr($r->acc_d_at,0,10)).' - '.substr($r->acc_d_at,10,9);
+					$p1 = '';
+				}
+				$row[] = '<div class="text-center">
+					<div class="dropup">
+						<button class="dropbtn btn btn-sm '.$bt1.'" '.$p1.' onclick=""><i '.$fa1.'></i></button>
+						<div class="dropup-content">
+							<div class="time-admin">'.$time1.'</div>
+						</div>
+					</div>
+				</div>';
+				// PENAWARAN
+				if($r->acc_p_stt == 'N'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-lock"';
+					$time1 = 'BELUM ACC!';
+					$p1 = '';
+				}else if($r->acc_p_stt == 'H'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-hand-paper"';
+					$time1 = 'HOLD!';
+					$p1 = '';
+				}else if($r->acc_p_stt == 'R'){
+					$bt1 = 'btn-danger';
+					$fa1 = 'class="fas fa-times" style="color:#000"';
+					$time1 = 'REJECT!';
+					$p1 = 'style="padding:4px 10px"';
+				}else{
+					$bt1 = 'btn-success';
+					$fa1 = 'class="fas fa-check-circle"';
+					$time1 = $this->m_fungsi->tglIndSkt(substr($r->acc_p_at,0,10)).' - '.substr($r->acc_p_at,10,9);
+					$p1 = '';
+				}
+				$row[] = '<div class="text-center">
+					<div class="dropup">
+						<button class="dropbtn btn btn-sm '.$bt1.'" '.$p1.' onclick=""><i '.$fa1.'></i></button>
+						<div class="dropup-content">
+							<div class="time-admin">'.$time1.'</div>
+						</div>
+					</div>
+				</div>';
+				// SAMPLE
+				if($r->acc_s_stt == 'N'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-lock"';
+					$time1 = 'BELUM ACC!';
+					$p1 = '';
+				}else if($r->acc_s_stt == 'H'){
+					$bt1 = 'btn-warning';
+					$fa1 = 'class="fas fa-hand-paper"';
+					$time1 = 'HOLD!';
+					$p1 = '';
+				}else if($r->acc_s_stt == 'R'){
+					$bt1 = 'btn-danger';
+					$fa1 = 'class="fas fa-times" style="color:#000"';
+					$time1 = 'REJECT!';
+					$p1 = 'style="padding:4px 10px"';
+				}else{
+					$bt1 = 'btn-success';
+					$fa1 = 'class="fas fa-check-circle"';
+					$time1 = $this->m_fungsi->tglIndSkt(substr($r->acc_s_at,0,10)).' - '.substr($r->acc_s_at,10,9);
+					$p1 = '';
+				}
+				$row[] = '<div class="text-center">
+					<div class="dropup">
+						<button class="dropbtn btn btn-sm '.$bt1.'" '.$p1.' onclick=""><i '.$fa1.'></i></button>
+						<div class="dropup-content">
+							<div class="time-admin">'.$time1.'</div>
+						</div>
+					</div>
+				</div>';
+				// AKSI
+				// AKSI
+				$btnEdit = '<button type="button" title="EDIT" class="btn btn-warning btn-sm" onclick="editFormDesign('."'".$r->id_dg."'".', '."'edit'".')"><i class="fa fa-edit"></i></button>'; 
+				$btnHapus = '<button type="button" title="HAPUS" class="btn btn-secondary btn-sm" onclick=""><i class="fa fa-trash-alt"></i></button>';
+				$btnVerif = '<button type="button" title="VERIF" class="btn btn-info btn-sm" onclick="editFormDesign('."'".$r->id_dg."'".', '."'verif'".')"><i class="fa fa-check"></i></button>';
+				if($this->session->userdata('level') == 'Admin'){
+					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.'</div>';
 				}else{
 					$row[] = '<div class="text-center">'.$btnVerif.'</div>';
 				}

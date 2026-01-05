@@ -2497,6 +2497,8 @@ class M_transaksi extends CI_Model
 
 	function uploadDesign()
 	{
+		$id_dg = $_POST["id_dg"];
+		$opt = $_POST["opt"];
 		$dsg_pilih = $_POST["dsg_pilih"];
 		$config['upload_path'] = './assets/gambar_design/';
 		$config['allowed_types'] = 'jpg|jpeg|png|gif|webp';
@@ -2513,8 +2515,9 @@ class M_transaksi extends CI_Model
 			if($this->upload->do_upload('dsg_foto')){
 				$gbrBukti = $this->upload->data();
 				$filefoto = $gbrBukti['file_name'];
+				($id_dg != '' && $opt != '') ? $id_hdr = $id_dg : $id_hdr = 0;
 				$dtl = array(
-					'id_hdr' => 0,
+					'id_hdr' => $id_hdr,
 					'jenis_dtl' => $dsg_pilih,
 					'nm_file' => $filefoto,
 				);
@@ -2540,6 +2543,100 @@ class M_transaksi extends CI_Model
 		$data = $this->db->delete("trs_design_detail");
 		return [
 			'data' => $data,
+		];
+	}
+
+	function saveDesign()
+	{
+		$id_dg = $_POST["id_dg"];
+		// $opt = $_POST["opt"];
+		$tgl = $_POST["tgl_s"];
+		$pilih = $_POST["pilih_s"];
+		$id_pelanggan = $_POST["i_customer"];
+		$kode_po = $_POST["i_po"];
+		$id_produk = $_POST["i_produk"];
+		$statusInput = $_POST["statusInput"];
+
+		// N - MULTINASIONAL / B - LOKAL CUSTOMER
+		if($pilih == 'B'){
+			$id_pelanggan = $_POST["i_customer"];
+			$kode_po = $_POST["i_po"];
+			$id_produk = $_POST["i_produk"];
+		}else{
+			$id_pelanggan = null;
+			$kode_po = null;
+			$id_produk = null;
+		}
+
+		if($pilih == 'B' && $id_pelanggan == '' && $kode_po == '' && $id_produk == ''){
+			$data = false;
+			$detail = false;
+			$msg = 'LENGKAPI FORM!';
+		}else{
+			// EDIT
+			if($statusInput == 'update'){
+				$qUrut = $this->db->query("SELECT*FROM trs_design_header WHERE id_dg='$id_dg'")->row();
+				$no = $qUrut->urut_dg;
+				$kode = $qUrut->kode_dg;
+			}else{
+				$qUrut = $this->db->query("SELECT*FROM trs_design_header WHERE tgl='$tgl' AND jenis_dg='$pilih' ORDER BY id_dg DESC LIMIT 1");
+				($qUrut->num_rows() == 0) ? $no = 1 : $no = $qUrut->row()->urut_dg + 1;
+				$urut = str_pad($no, 2, "0", STR_PAD_LEFT);
+				$kode = 'F'.$pilih.'/'.$this->m_fungsi->dateMonthYear($tgl).'/'.$urut;
+			}
+
+			$data = [
+				'tgl' => $tgl,
+				'jenis_dg' => $pilih,
+				'urut_dg' => $no,
+				'kode_dg' => $kode,
+				'id_pelanggan' => $id_pelanggan,
+				'kode_po' => $kode_po,
+				'id_produk' => $id_produk,
+				'add_at' => date('Y-m-d H:i:s'),
+				'add_by' => $this->username,
+			];
+
+			// EDIT
+			if($statusInput == 'update'){
+				$this->db->set('edit_at', date('Y-m-d H:i:s'));
+				$this->db->set('edit_by', $this->username);
+			}
+			// ACC ACUAN DAN PENAWARAN LANGSUNG JIKA LOKAL CUSTOMER
+			if($pilih == 'B'){
+				$this->db->set('acc_a_stt', 'Y');
+				$this->db->set('acc_a_ket', 'OK');
+				$this->db->set('acc_a_by', $this->username);
+				$this->db->set('acc_a_at', date('Y-m-d H:i:s'));
+				$this->db->set('acc_p_stt', 'Y');
+				$this->db->set('acc_p_ket', 'OK');
+				$this->db->set('acc_p_by', $this->username);
+				$this->db->set('acc_p_at', date('Y-m-d H:i:s'));
+			}
+			
+			// EDIT
+			if($statusInput == 'update'){
+				$header = $this->db->update('trs_design_header', $data);
+			}else{
+				$header = $this->db->insert('trs_design_header', $data);
+			}
+
+			if($header && $statusInput == 'insert'){
+				$cekHeader = $this->db->query("SELECT*FROM trs_design_header WHERE kode_dg='$kode'")->row();
+				$this->db->set('id_hdr', $cekHeader->id_dg);
+				$this->db->where("id_hdr", 0);
+				$detail = $this->db->update('trs_design_detail');
+				$msg = 'BERHASIL TAMBAH DATA!';
+			}else{
+				$detail = true;
+				$msg = 'BERHASIL UPDATE DATA!';
+			}
+		}
+
+		return [
+			'data' => $data,
+			'detail' => $detail,
+			'msg' => $msg,
 		];
 	}
 }

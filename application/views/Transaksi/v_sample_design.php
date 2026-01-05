@@ -52,37 +52,6 @@
 					</div>
 				</div>
 
-				<!-- <div class="col-md-6">
-					<div class="col-verifikasi">
-						<div class="card card-info card-outline" style="position:sticky;top:12px;padding-bottom:12px">
-							<div class="card-header" style="padding:12px">
-								<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
-								<div class="col-md-3">ACUAN WARNA / SAMPLE CUST</div>
-								<div class="col-md-9">
-									<div id="verif-admin"></div>
-								</div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">DESIGN</div>
-								<div class="col-md-9">
-									<div id="verif-marketing"></div>
-								</div>
-							</div>
-							<div id="input-marketing"></div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">SAMPLE BOX</div>
-								<div class="col-md-9">
-									<div id="verif-owner"></div>
-								</div>
-							</div>
-							<div id="input-owner"></div>
-							<div id="input-po"></div>
-						</div>
-					</div>
-				</div> -->
-
 				<div class="col-md-12">
 					<div class="col-box-po" style="display:none">
 						<div class="card card-info card-outline">
@@ -111,7 +80,7 @@
 										<div class="card-body row" style="font-weight:bold;padding:0 0 12px">
 											<div class="col-md-2">PRODUK</div>
 											<div class="col-md-10">
-												<select name="i_produk" id="i_produk" class="form-control select2">
+												<select name="i_produk" id="i_produk" class="form-control select2" onchange="detailProdukDesign()">
 													<option value="">PILIH</option>
 												</select>
 											</div>
@@ -122,8 +91,8 @@
 											<div class="card-header" style="padding:12px">
 												<h3 class="card-title" style="font-weight:bold;font-size:18px">DETAIL PRODUK</h3>
 											</div>
-											<div class="card-body" style="font-weight:bold;padding:6px 6px 12px">
-												-
+											<div class="card-body" style="overflow:auto;white-space:nowrap;font-weight:bold;padding:6px">
+												<div class="d_produk">-</div>
 											</div>
 										</div>
 									</div>
@@ -143,20 +112,27 @@
 										<div class="col-md-2">
 											<select name="dsg_pilih" id="dsg_pilih" class="form-control select2" onchange="cekUpload()">
 												<option value="">PILIH</option>
-												<option value="A">ACUAN WARNA / SAMPLE CUSTOMER</option>
-												<option value="D">DESIGN</option>
-												<option value="P">PENAWARAN</option>
-												<option value="S">SAMPLE</option>
 											</select>
 										</div>
 										<div class="col-md-9"></div>
 									</div>
-									<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+									<div class="card-body row" style="font-weight:bold;padding:0 6px">
 										<div class="col-md-1"></div>
 										<div class="col-md-11">
 											<input type="file" name="dsg_foto" id="dsg_foto" accept="image/*" onchange="cekUpload()">
 										</div>
 									</div>
+									<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+										<div class="col-md-1"></div>
+										<div class="col-md-11">
+											<span style="color:#f00;font-style:italic;font-size:12px">* .jpg .jpeg .png .gif .webp | MAX 2 MB</span>
+										</div>
+									</div>
+									<input type="hidden" name="id_dg" id="id_dg" value="">
+									<input type="hidden" name="id_pelanggan" id="id_pelanggan" value="">
+									<input type="hidden" name="kode_po" id="kode_po" value="">
+									<input type="hidden" name="id_produk" id="id_produk" value="">
+									<input type="hidden" name="opt" id="opt" value="">
 								</form>
 								<div class="simpan-upload"></div>
 							</div>
@@ -229,10 +205,48 @@
 						</div>
 					</div>
 				</div>
-				<input type="hidden" id="id_hdr" value="">
 			</div>
 
 			<div class="simpan-save"></div>
+
+			<div class="row row-verifikasi" style="display:none">
+				<div class="col-md-12">
+					<div class="card card-info card-outline" style="position:sticky;top:12px;padding-bottom:12px">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
+							<div class="col-md-3">ACUAN WARNA / SAMPLE CUST</div>
+							<div class="col-md-9">
+								<div id="verif-acuan"></div>
+							</div>
+						</div>
+						<div id="input-acuan"></div>
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3">DESIGN</div>
+							<div class="col-md-9">
+								<div id="verif-design"></div>
+							</div>
+						</div>
+						<div id="input-design"></div>
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3">PENAWARAN</div>
+							<div class="col-md-9">
+								<div id="verif-penawaran"></div>
+							</div>
+						</div>
+						<div id="input-marketing"></div>
+						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+							<div class="col-md-3">SAMPLE BOX</div>
+							<div class="col-md-9">
+								<div id="verif-sample"></div>
+							</div>
+						</div>
+						<div id="input-sample"></div>
+						<div id="input-po"></div>
+					</div>
+				</div>
+			</div>
 
 			<div class="row row-list">
 				<div class="col-md-12">
@@ -291,14 +305,15 @@
 								<table id="datatable" class="table table-bordered table-striped">
 									<thead class="color-tabel">
 										<tr>
-											<th style="padding:12px;text-align:center">#</th>
-											<th style="padding:12px;text-align:center">RINCIAN<span style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">(order)</span></th>
-											<th style="padding:12px;text-align:center">TGL</th>
-											<th style="padding:12px;text-align:center">STATUS</th>
-											<th style="padding:12px;text-align:center">DESIGN</th>
-											<th style="padding:12px;text-align:center">S. CUST</th>
-											<th style="padding:12px;text-align:center">S. BOX</th>
-											<th style="padding:12px;text-align:center">AKSI</th>
+											<th style="padding:12px;text-align:center;width:5%">#</th>
+											<th style="padding:12px;text-align:center;width:40%">RINCIAN<span style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">(detail)</span></th>
+											<th style="padding:12px;text-align:center;width:10%">TGL</th>
+											<th style="padding:12px;text-align:center;width:10%">STATUS</th>
+											<th style="padding:12px;text-align:center;width:5%">A</th>
+											<th style="padding:12px;text-align:center;width:5%">D</th>
+											<th style="padding:12px;text-align:center;width:5%">P</th>
+											<th style="padding:12px;text-align:center;width:5%">S</th>
+											<th style="padding:12px;text-align:center;width:15%">AKSI</th>
 										</tr>
 									</thead>
 									<tbody></tbody>
@@ -323,7 +338,7 @@
 
 	$(document).ready(function ()
 	{
-		// load_data()
+		load_data()
 		$('.select2').select2();
 	});
 
@@ -342,7 +357,7 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url('Transaksi/load_data/trs_po_roll')?>',
+				"url": '<?php echo base_url('Transaksi/load_data/form_design')?>',
 				"type": "POST",
 				"data": ({
 					tahun, bulan
@@ -380,6 +395,9 @@
 	}
 
 	function pilihPilih() {
+		let id_dg = $("#id_dg").val()
+		let opsi = $("#opt").val()
+
 		let tgl_s = $("#tgl_s").val()
 		let pilih_s = $("#pilih_s").val()
 
@@ -387,36 +405,61 @@
 		$(".list-design").html('')
 		$(".list-penawaran").html('')
 		$(".list-sample").html('')
-		loadListDesign()
+		if(id_dg == '' && opsi == ''){
+			loadListDesign()
+		}
 
+		$("#dsg_pilih").html(`<option value="">PILIH</option>`)
 		$("#dsg_pilih").val("").trigger('change')
 		$("#dsg_foto").val("")
 		$(".simpan-upload").html('')
+
+		$(".row-verifikasi").hide()
 
 		if(tgl_s != "" && pilih_s == "N"){
 			$(".col-box-po").hide()
 			$(".col-box-upload").show()
 			$(".row-nasional").show()
 			$(".row-lokal").hide()
+			$("#dsg_pilih").html(`<option value="">PILIH</option>
+				<option value="A">ACUAN WARNA / SAMPLE CUSTOMER</option>
+				<option value="D">DESIGN</option>
+				<option value="P">PENAWARAN</option>
+				<option value="S">SAMPLE</option>
+			`)
 		}else if(tgl_s != "" && pilih_s == "B"){
 			$(".col-box-po").show()
 			$(".col-box-upload").show()
 			$(".row-nasional").hide()
 			$(".row-lokal").show()
-			loadCustDesign()
+			$("#dsg_pilih").html(`<option value="">PILIH</option>
+				<option value="D">DESIGN</option>
+				<option value="S">SAMPLE</option>
+			`)
+			if(id_dg == '' && opsi == ''){
+				loadCustDesign()
+			}
 		}else{
 			$(".col-box-po").hide()
 			$(".col-box-upload").hide()
 			$(".row-nasional").hide()
 			$(".row-lokal").hide()
+			$("#dsg_pilih").html(`<option value="">PILIH</option>`)
 		}
 	}
 
 	function loadCustDesign() {
-		$("#i_customer").html('<option value="" disabled>PILIH</option>')
+		let h_id_pelanggan = $("#id_pelanggan").val()
+		let opt = $("#opt").val()
+
+		$("#i_customer").html('<option value="">PILIH</option>')
+		$("#i_po").html('<option value="">PILIH</option>')
+		$("#i_produk").html('<option value="">PILIH</option>')
+		$(".d_produk").html('-')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadCustDesign')?>',
 			type: "POST",
+			data: ({ h_id_pelanggan, opt }),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
@@ -426,13 +469,17 @@
 	}
 
 	function loadNoPoDesign() {
+		let h_id_pelanggan = $("#id_pelanggan").val()
+		let kode_po = $("#kode_po").val()
 		let id_pelanggan = $("#i_customer").val()
 		console.log("id_pelanggan : ", id_pelanggan)
-		$("#i_po").html('<option value="" no_po="" disabled>PILIH</option>')
+		$("#i_po").html('<option value="">PILIH</option>')
+		$("#i_produk").html('<option value="">PILIH</option>')
+		$(".d_produk").html('-')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadNoPoDesign')?>',
 			type: "POST",
-			data: ({ id_pelanggan }),
+			data: ({ h_id_pelanggan, kode_po, id_pelanggan }),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
@@ -442,21 +489,39 @@
 	}
 
 	function loadProdukDesign() {
+		let h_id_pelanggan = $("#id_pelanggan").val()
+		let h_kode_po = $("#kode_po").val()
+		let h_id_produk = $("#id_produk").val()
 		let id_pelanggan = $("#i_customer").val()
 		let kode_po = $("#i_po").val()
-		let no_po = $('#i_po option:selected').attr('no_po')
 		console.log("id_pelanggan : ", id_pelanggan)
 		console.log("kode_po : ", kode_po)
-		console.log("no_po : ", no_po)
-		$("#i_produk").html('<option value="" disabled>PILIH</option>')
+		$("#i_produk").html('<option value="">PILIH</option>')
+		$(".d_produk").html('-')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadProdukDesign')?>',
 			type: "POST",
-			data: ({ id_pelanggan, kode_po, no_po }),
+			data: ({ h_id_pelanggan, h_kode_po, h_id_produk, id_pelanggan, kode_po }),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
 				$("#i_produk").html(data.htmlProduk)
+			}
+		})
+	}
+
+	function detailProdukDesign() {
+		let h_id_produk = $("#id_produk").val()
+		let i_produk = $("#i_produk").val()
+		$(".d_produk").html('-')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/detailProdukDesign')?>',
+			type: "POST",
+			data: ({ h_id_produk, i_produk }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$(".d_produk").html(data.htmlDtlProduk)
 			}
 		})
 	}
@@ -477,7 +542,10 @@
 	}
 
 	function uploadDesign() {
+		let id_dg = $("#id_dg").val()
+		let opsi = $("#opt").val()
 		$(".simpan-upload").prop('disabled', true)
+
 		var form = $('#upload_design')[0];
 		var data = new FormData(form);
 		$.ajax({
@@ -504,10 +572,14 @@
 				console.log(data)
 				if(data.data){
 					toastr.success(`<b>${data.msg}</b>`)
-					$("#dsg_pilih").val("").trigger('change')
-					$("#dsg_foto").val("")
-					$(".simpan-upload").html('')
-					loadListDesign()
+					if(statusInput == 'insert'){
+						$("#dsg_pilih").val("").trigger('change')
+						$("#dsg_foto").val("")
+						$(".simpan-upload").html('')
+						loadListDesign()
+					}else{
+						editFormDesign(id_dg, opsi)
+					}
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
 					$(".simpan-upload").prop('disabled', false)
@@ -541,9 +613,11 @@
 	}
 
 	function loadListDesign() {
+		let id_dg = $("#id_dg").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadListDesign')?>',
 			type: "POST",
+			data: ({ id_dg }),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
@@ -558,6 +632,7 @@
 	}
 
 	function tmplSave(){
+		let opt = $("#opt").val()
 		let tgl_s = $("#tgl_s").val()
 		let pilih_s = $("#pilih_s").val()
 		let Lacuan = $(".list-acuan").html()
@@ -565,7 +640,7 @@
 		let Lpenawaran = $(".list-penawaran").html()
 		let Lsample = $(".list-sample").html()
 
-		if((tgl_s != '' && pilih_s != '') && (Lacuan != "" || Ldesign != "" || Lpenawaran != "" || Lsample != "")){
+		if((tgl_s != '' && pilih_s != '') && (Lacuan != "" || Ldesign != "" || Lpenawaran != "" || Lsample != "") && statusInput == 'insert'){
 			$(".simpan-save").html(`<div class="row" style="margin-bottom:16px">
 				<div class="col-md-12">
 					<button class="btn btn-primary btn-sm" onclick="saveDesign()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
@@ -576,19 +651,89 @@
 		}
 	}
 
-	function saveDesign()
-	{
+	function saveDesign() {
+		let id_dg = $("#id_dg").val()
+		let opsi = $("#opt").val()
 		let tgl_s = $("#tgl_s").val()
 		let pilih_s = $("#pilih_s").val()
+		let i_customer = $("#i_customer").val()
+		let i_po = $("#i_po").val()
+		let i_produk = $("#i_produk").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/saveDesign')?>',
 			type: "POST",
 			data: ({
-				tgl_s, pilih_s
+				id_dg, opsi, tgl_s, pilih_s, i_customer, i_po, i_produk, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
+				if(statusInput == 'insert'){
+					kembali()
+				}else{
+					editFormDesign(id_dg, opsi)
+				}
+			}
+		})
+	}
+
+	function kosong() {
+		statusInput = 'insert'
+
+		$("#id_dg").val("")
+		$("#id_pelanggan").val("")
+		$("#kode_po").val("")
+		$("#id_produk").val("")
+		$("#opt").val("")
+		
+		$("#tgl_s").val("").prop('disabled', false)
+		$("#pilih_s").val("").prop('disabled', false).trigger('change')
+	}
+
+	function kembali() {
+		kosong()
+		reloadTable()
+	}
+
+	function tambahData() {
+		kosong()
+	}
+
+	function editFormDesign(id_dg, opsi) {
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/editFormDesign')?>',
+			type: "POST",
+			data: ({
+				id_dg, opsi, statusInput
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+
+				statusInput = 'update'
+
+				$("#id_dg").val(data.header.id_dg)
+				$("#id_pelanggan").val(data.header.id_pelanggan)
+				$("#kode_po").val(data.header.kode_po)
+				$("#id_produk").val(data.header.id_produk)
+				$("#opt").val(opsi)
+
+				$("#tgl_s").val(data.header.tgl).prop('disabled', true)
+				$("#pilih_s").val(data.header.jenis_dg).prop('disabled', true).trigger('change')
+
+				if(opsi == 'edit'){
+					$(".col-box-upload").show()
+				}else{
+					$(".col-box-upload").hide()
+				}
+
+				$(".row-verifikasi").show()
+
+				loadCustDesign()
+				loadNoPoDesign()
+				loadProdukDesign()
+				detailProdukDesign()
+				loadListDesign()
 			}
 		})
 	}
