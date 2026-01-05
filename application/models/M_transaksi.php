@@ -2639,4 +2639,45 @@ class M_transaksi extends CI_Model
 			'msg' => $msg,
 		];
 	}
+
+	function btnVerifDesign()
+	{
+		$id_dg = $_POST["id_dg"];
+		$aksi = $_POST["aksi"];
+		$ket_design = $_POST["ket_design"];
+
+		if($aksi == 'H') { $ket = 'HOLD'; }
+		if($aksi == 'R') { $ket = 'REJECT'; }
+		if($aksi == 'Y') { $ket = 'VERIF'; }
+		if($aksi == 'N') { $ket = 'LOCK'; }
+
+		if($ket_design == '' && ($aksi == 'H' || $aksi == 'R')){
+			$data = false;
+			$msg = "KETERANGAN TIDAK BOLEH KOSONG!";
+		}else{
+			$v = substr($_POST["status_verif"], 0, 1);
+			if($aksi == 'N'){
+				$nKet = null;
+				$nAt = null;
+				$nBy = null;
+			}else{
+				$nKet = ($aksi == 'Y' && $ket_design == '') ? 'OK' : $ket_design;
+				$nAt = date('Y-m-d H:i:s');
+				$nBy = $this->username;
+			}
+			// $this->db->set('status_po', $status);
+			$this->db->set('acc_'.$v.'_stt', $aksi);
+			$this->db->set('acc_'.$v.'_ket', $nKet);
+			$this->db->set('acc_'.$v.'_at', $nAt);
+			$this->db->set('acc_'.$v.'_by', $nBy);
+			$this->db->where('id_dg', $id_dg);
+			$data = $this->db->update('trs_design_header');
+			$msg = "BERHASIL ".$ket.'!';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
 }

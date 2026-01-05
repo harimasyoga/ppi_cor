@@ -978,9 +978,17 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function btnVerifDesign()
+	{
+		$result = $this->m_transaksi->btnVerifDesign();
+		echo json_encode($result);
+	}
+
 	function loadListDesign()
 	{
 		$id_dg = $_POST["id_dg"];
+		$opt = $_POST["opt"];
+		$statusInput = $_POST["statusInput"];
 		($id_dg != '') ? $id = $id_dg : $id = 0;
 
 		$htmlAcuan = ''; $htmlDesign = ''; $htmlPenawaran = ''; $htmlSample = '';
@@ -991,15 +999,17 @@ class Transaksi extends CI_Controller
 			foreach($qAcuan->result() as $a){
 				$i++;
 				$prevAcuan = 'a'.$i;
-				$htmlAcuan .= '<div style="margin-right:4px">
-					<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
-				</div>
-				<div style="margin-right:8px">
+				if(($opt == 'edit' && $qAcuan->num_rows() > 1) || $statusInput == 'insert'){
+					$htmlAcuan .= '<div style="margin-right:4px">
+						<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
+					</div>';
+				}
+				$htmlAcuan .= '<div style="margin-right:8px">
 					<img id="'.$prevAcuan.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevAcuan."'".')">
 				</div>';
 			}
 		}else{
-			$htmlAcuan .= '';
+			$htmlAcuan .= '-';
 		}
 		// DESIGN
 		$qDesign = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id' AND jenis_dtl='D'");
@@ -1008,15 +1018,17 @@ class Transaksi extends CI_Controller
 			foreach($qDesign->result() as $a){
 				$i++;
 				$prevDesign = 'd'.$i;
-				$htmlDesign .= '<div style="margin-right:4px">
-					<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
-				</div>
-				<div style="margin-right:8px">
+				if(($opt == 'edit' && $qDesign->num_rows() > 1) || $statusInput == 'insert'){
+					$htmlDesign .= '<div style="margin-right:4px">
+						<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
+					</div>';
+				}
+				$htmlDesign .= '<div style="margin-right:8px">
 					<img id="'.$prevDesign.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevDesign."'".')">
 				</div>';
 			}
 		}else{
-			$htmlDesign .= '';
+			$htmlDesign .= '-';
 		}
 		// PENAWARAN
 		$qPenawaran = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id' AND jenis_dtl='P'");
@@ -1025,15 +1037,17 @@ class Transaksi extends CI_Controller
 			foreach($qPenawaran->result() as $a){
 				$i++;
 				$prevPenawaran = 'p'.$i;
-				$htmlPenawaran .= '<div style="margin-right:4px">
-					<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
-				</div>
-				<div style="margin-right:8px">
+				if(($opt == 'edit' && $qPenawaran->num_rows() > 1) || $statusInput == 'insert'){
+					$htmlPenawaran .= '<div style="margin-right:4px">
+						<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
+					</div>';
+				}
+				$htmlPenawaran .= '<div style="margin-right:8px">
 					<img id="'.$prevPenawaran.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevPenawaran."'".')">
 				</div>';
 			}
 		}else{
-			$htmlPenawaran .= '';
+			$htmlPenawaran .= '-';
 		}
 		// SAMPLE
 		$qSample = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id' AND jenis_dtl='S'");
@@ -1042,15 +1056,17 @@ class Transaksi extends CI_Controller
 			foreach($qSample->result() as $a){
 				$i++;
 				$prevSample = 's'.$i;
-				$htmlSample .= '<div style="margin-right:4px">
-					<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
-				</div>
-				<div style="margin-right:8px">
+				if(($opt == 'edit' && $qSample->num_rows() > 1) || $statusInput == 'insert'){
+					$htmlSample .= '<div style="margin-right:4px">
+						<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
+					</div>';
+				}
+				$htmlSample .= '<div style="margin-right:8px">
 					<img id="'.$prevSample.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevSample."'".')">
 				</div>';
 			}
 		}else{
-			$htmlSample .= '';
+			$htmlSample .= '-';
 		}
 		echo json_encode([
 			'htmlAcuan' => $htmlAcuan,
@@ -1071,6 +1087,7 @@ class Transaksi extends CI_Controller
 		echo json_encode([
 			'header' => $header,
 			'opsi' => $opsi,
+			'a_time' => ($header->acc_a_at == null) ? '' :substr($this->m_fungsi->getHariIni($header->acc_a_at),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->acc_a_at, 0,10)).' ( '.substr($header->acc_a_at, 10,6).' )',
 		]);
 	}
 

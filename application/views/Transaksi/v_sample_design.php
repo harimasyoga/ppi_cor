@@ -22,7 +22,7 @@
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row row-input">
-				<div class="col-md-12">
+				<div class="col-md-6">
 					<div class="card card-primary card-outline">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT FORM SAMPLE & DESIGN</h3>
@@ -32,75 +32,66 @@
 						</div>
 						<form role="form" method="POST" id="upload_design" enctype="multipart/form-data">
 						<div class="card-body row" style="font-weight:bold;padding:6px">
-							<div class="col-md-1">TANGGAL</div>
-							<div class="col-md-2">
+							<div class="col-md-3">TANGGAL</div>
+							<div class="col-md-5">
 								<input type="date" name="tgl_s" id="tgl_s" class="form-control" onchange="pilihPilih()">
 							</div>
-							<div class="col-md-9"></div>
+							<div class="col-md-4"></div>
 						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
-							<div class="col-md-1">PILIH</div>
-							<div class="col-md-2">
+							<div class="col-md-3">PILIH</div>
+							<div class="col-md-5">
 								<select name="pilih_s" id="pilih_s" class="form-control select2" onchange="pilihPilih()">
 									<option value="">PILIH</option>
 									<option value="N">MULTI NASIONAL</option>
 									<option value="B">LOKAL</option>
 								</select>
 							</div>
-							<div class="col-md-9"></div>
+							<div class="col-md-4"></div>
 						</div>
 					</div>
-				</div>
-
-				<div class="col-md-12">
 					<div class="col-box-po" style="display:none">
 						<div class="card card-info card-outline">
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">PILIH PO</h3>
 							</div>
-							<div class="card-body row" style="font-weight:bold;padding:12px 6px">
-								<div class="col-md-12 row">
-									<div class="col-md-6" style="padding:0">
-										<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
-											<div class="col-md-2">CUSTOMER</div>
-											<div class="col-md-10">
-												<select name="i_customer" id="i_customer" class="form-control select2" onchange="loadNoPoDesign()">
-													<option value="">PILIH</option>
-												</select>
-											</div>
-										</div>
-										<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
-											<div class="col-md-2">NO. PO</div>
-											<div class="col-md-10">
-												<select name="i_po" id="i_po" class="form-control select2" onchange="loadProdukDesign()">
-													<option value="">PILIH</option>
-												</select>
-											</div>
-										</div>
-										<div class="card-body row" style="font-weight:bold;padding:0 0 12px">
-											<div class="col-md-2">PRODUK</div>
-											<div class="col-md-10">
-												<select name="i_produk" id="i_produk" class="form-control select2" onchange="detailProdukDesign()">
-													<option value="">PILIH</option>
-												</select>
-											</div>
-										</div>
+							<div class="card-body" style="font-weight:bold;padding:12px 6px">
+								<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
+									<div class="col-md-3">CUSTOMER</div>
+									<div class="col-md-9">
+										<select name="i_customer" id="i_customer" class="form-control select2" onchange="loadNoPoDesign()">
+											<option value="">PILIH</option>
+										</select>
 									</div>
-									<div class="col-md-6">
-										<div class="card card-secondary card-outline" style="margin:0">
-											<div class="card-header" style="padding:12px">
-												<h3 class="card-title" style="font-weight:bold;font-size:18px">DETAIL PRODUK</h3>
-											</div>
-											<div class="card-body" style="overflow:auto;white-space:nowrap;font-weight:bold;padding:6px">
-												<div class="d_produk">-</div>
-											</div>
-										</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
+									<div class="col-md-3">NO. PO</div>
+									<div class="col-md-9">
+										<select name="i_po" id="i_po" class="form-control select2" onchange="loadProdukDesign()">
+											<option value="">PILIH</option>
+										</select>
+									</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 0 12px">
+									<div class="col-md-3">PRODUK</div>
+									<div class="col-md-9">
+										<select name="i_produk" id="i_produk" class="form-control select2" onchange="detailProdukDesign()">
+											<option value="">PILIH</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="card card-secondary card-outline" style="margin:0">
+									<div class="card-header" style="padding:12px">
+										<h3 class="card-title" style="font-weight:bold;font-size:18px">DETAIL PRODUK</h3>
+									</div>
+									<div class="card-body" style="overflow:auto;white-space:nowrap;font-weight:bold;padding:6px">
+										<div class="d_produk">-</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-
 					<div class="col-box-upload" style="display:none">
 						<div class="card card-success card-outline">
 							<div class="card-header" style="padding:12px">
@@ -108,23 +99,23 @@
 							</div>
 							<div class="card-body" style="padding:12px 0">
 									<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
-										<div class="col-md-1">PILIH</div>
-										<div class="col-md-2">
+										<div class="col-md-3">PILIH</div>
+										<div class="col-md-6">
 											<select name="dsg_pilih" id="dsg_pilih" class="form-control select2" onchange="cekUpload()">
 												<option value="">PILIH</option>
 											</select>
 										</div>
-										<div class="col-md-9"></div>
+										<div class="col-md-3"></div>
 									</div>
 									<div class="card-body row" style="font-weight:bold;padding:0 6px">
-										<div class="col-md-1"></div>
-										<div class="col-md-11">
+										<div class="col-md-3"></div>
+										<div class="col-md-9">
 											<input type="file" name="dsg_foto" id="dsg_foto" accept="image/*" onchange="cekUpload()">
 										</div>
 									</div>
 									<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
-										<div class="col-md-1"></div>
-										<div class="col-md-11">
+										<div class="col-md-3"></div>
+										<div class="col-md-9">
 											<span style="color:#f00;font-style:italic;font-size:12px">* .jpg .jpeg .png .gif .webp | MAX 2 MB</span>
 										</div>
 									</div>
@@ -138,115 +129,116 @@
 							</div>
 						</div>
 					</div>
+				</div>
 
-					<div class="row row-nasional" style="display:none">
-						<div class="col-md-3">
-							<div class="card card-secondary card-outline">
+				<div class="col-md-6">
+					<div class="row row-verifikasi" style="display:none;position:sticky;top:12px;padding-bottom:16px">
+						<div class="col-md-12">
+							<div class="card card-info card-outline" style="margin:0">
 								<div class="card-header" style="padding:12px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">ACUAN WARNA/SAMPLE CUST</h3>
+									<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
 								</div>
-								<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-									<div class="list-acuan" style="display:flex"></div>
+								<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
+									<div class="col-md-4">ACUAN WARNA / SAMPLE CUST</div>
+									<div class="col-md-8">
+										<div class="vv verif-acuan"></div>
+									</div>
 								</div>
-							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="card card-secondary card-outline">
-								<div class="card-header" style="padding:12px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN</h3>
+								<div class="ii input-acuan"></div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-4">DESIGN</div>
+									<div class="col-md-8">
+										<div class="vv verif-design"></div>
+									</div>
 								</div>
-								<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-									<div class="list-design" style="display:flex"></div>
+								<div class="ii input-design"></div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-4">PENAWARAN</div>
+									<div class="col-md-8">
+										<div class="vv verif-penawaran"></div>
+									</div>
 								</div>
-							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="card card-secondary card-outline">
-								<div class="card-header" style="padding:12px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">PENAWARAN</h3>
+								<div class="ii input-penawaran"></div>
+								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+									<div class="col-md-4">SAMPLE BOX</div>
+									<div class="col-md-8">
+										<div class="vv verif-sample"></div>
+									</div>
 								</div>
-								<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-									<div class="list-penawaran" style="display:flex"></div>
-								</div>
-							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="card card-secondary card-outline">
-								<div class="card-header" style="padding:12px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE</h3>
-								</div>
-								<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-									<div class="list-sample" style="display:flex"></div>
-								</div>
+								<div class="ii input-sample"></div>
 							</div>
 						</div>
 					</div>
+				</div>
+			</div>
 
-					<div class="row row-lokal" style="display:none">
-						<div class="col-md-6">
-							<div class="card card-secondary card-outline">
-								<div class="card-header" style="padding:12px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN</h3>
-								</div>
-								<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-									<div class="list-design" style="display:flex"></div>
-								</div>
-							</div>
+			<div class="row row-nasional" style="display:none">
+				<div class="col-md-3">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">ACUAN WARNA/SAMPLE CUST</h3>
 						</div>
-						<div class="col-md-6">
-							<div class="card card-secondary card-outline">
-								<div class="card-header" style="padding:12px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE</h3>
-								</div>
-								<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-									<div class="list-sample" style="display:flex"></div>
-								</div>
-							</div>
+						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+							<div class="list-acuan" style="display:flex">-</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN</h3>
+						</div>
+						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+							<div class="list-design" style="display:flex">-</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">PENAWARAN</h3>
+						</div>
+						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+							<div class="list-penawaran" style="display:flex">-</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE</h3>
+						</div>
+						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+							<div class="list-sample" style="display:flex">-</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row row-lokal" style="display:none">
+				<div class="col-md-6">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN</h3>
+						</div>
+						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+							<div class="list-design" style="display:flex">-</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE</h3>
+						</div>
+						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+							<div class="list-sample" style="display:flex">-</div>
 						</div>
 					</div>
 				</div>
 			</div>
 
 			<div class="simpan-save"></div>
-
-			<div class="row row-verifikasi" style="display:none">
-				<div class="col-md-12">
-					<div class="card card-info card-outline" style="position:sticky;top:12px;padding-bottom:12px">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
-							<div class="col-md-3">ACUAN WARNA / SAMPLE CUST</div>
-							<div class="col-md-9">
-								<div id="verif-acuan"></div>
-							</div>
-						</div>
-						<div id="input-acuan"></div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">DESIGN</div>
-							<div class="col-md-9">
-								<div id="verif-design"></div>
-							</div>
-						</div>
-						<div id="input-design"></div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">PENAWARAN</div>
-							<div class="col-md-9">
-								<div id="verif-penawaran"></div>
-							</div>
-						</div>
-						<div id="input-marketing"></div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">SAMPLE BOX</div>
-							<div class="col-md-9">
-								<div id="verif-sample"></div>
-							</div>
-						</div>
-						<div id="input-sample"></div>
-						<div id="input-po"></div>
-					</div>
-				</div>
-			</div>
 
 			<div class="row row-list">
 				<div class="col-md-12">
@@ -531,8 +523,8 @@
 		let dsg_foto = $("#dsg_foto").val()
 		if (dsg_pilih != '' && dsg_foto != '') {
 			$(".simpan-upload").html(`<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
-				<div class="col-md-1"></div>
-				<div class="col-md-11">
+				<div class="col-md-3"></div>
+				<div class="col-md-9">
 					<button class="btn btn-primary btn-sm" onclick="uploadDesign()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
 				</div>
 			</div>`)
@@ -614,10 +606,11 @@
 
 	function loadListDesign() {
 		let id_dg = $("#id_dg").val()
+		let opt = $("#opt").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadListDesign')?>',
 			type: "POST",
-			data: ({ id_dg }),
+			data: ({ id_dg, opt, statusInput }),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
@@ -659,6 +652,7 @@
 		let i_customer = $("#i_customer").val()
 		let i_po = $("#i_po").val()
 		let i_produk = $("#i_produk").val()
+		$(".simpan-save").prop('disabled', true)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/saveDesign')?>',
 			type: "POST",
@@ -669,7 +663,13 @@
 				data = JSON.parse(res)
 				console.log(data)
 				if(statusInput == 'insert'){
-					kembali()
+					if(data.data && data.detail){
+						toastr.success(`<b>${data.msg}</b>`)
+						kembali()
+					}else{
+						toastr.error(`<b>${data.msg}</b>`)
+					}
+					$(".simpan-save").prop('disabled', false)
 				}else{
 					editFormDesign(id_dg, opsi)
 				}
@@ -688,6 +688,9 @@
 		
 		$("#tgl_s").val("").prop('disabled', false)
 		$("#pilih_s").val("").prop('disabled', false).trigger('change')
+
+		$("#ii").html('')
+		$("#vv").html('')
 	}
 
 	function kembali() {
@@ -729,11 +732,149 @@
 
 				$(".row-verifikasi").show()
 
-				loadCustDesign()
-				loadNoPoDesign()
-				loadProdukDesign()
-				detailProdukDesign()
+				if(data.header.jenis_dg == 'B'){
+					loadCustDesign()
+					loadNoPoDesign()
+					loadProdukDesign()
+					detailProdukDesign()
+				}
 				loadListDesign()
+
+				$(".ii").html('')
+				$(".vv").html('')
+
+				// VERIFIFIKASI ACUAN
+				if(data.opsi == 'verif' && (data.header.acc_a_stt == 'N' || data.header.acc_a_stt == 'H' || data.header.acc_a_stt == 'R')){
+					// BUTTON ACUAN
+					$(".verif-acuan").html(`
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifDesign('verifikasi','acuan')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifDesign('hold','acuan')"><i class="far fa-hand-paper"></i> Hold</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifDesign('reject','acuan')"><i class="fas fa-times"></i> Reject</button>
+					`)
+					// KETERANGAN ACUAN
+					if(data.header.acc_a_stt != 'N'){
+						if(data.header.acc_a_stt == 'H'){
+							callout = 'callout-warning'
+							colorbtn = 'btn-warning'
+							txtsave = 'HOLD!'
+						}else{
+							callout = 'callout-danger'
+							colorbtn = 'btn-danger'
+							txtsave = 'REJECT!'
+						}
+						$(".input-acuan").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-4"></div>
+								<div class="col-md-8">
+									<div class="callout ${callout}" style="padding:0;margin:0">
+										<textarea class="form-control" id="ket_design" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.acc_a_ket}</textarea>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-4"></div>
+								<div class="col-md-8">
+									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifDesign('${data.header.acc_a_stt}', 'acuan')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+								</div>
+							</div>
+						`)
+					}
+				}else{
+					// BUTTON ACUAN
+					if(data.header.acc_a_stt == 'N'){
+						$(".verif-acuan").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+					}else if(data.header.acc_a_stt == 'H'){
+						$(".verif-acuan").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.a_time}`)
+					}else if(data.header.acc_a_stt == 'R'){
+						$(".verif-acuan").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.a_time}`)
+					}else{
+						if(urlAuth == 'Admin' && data.header.jenis_dg == 'N'){
+							vstyle = ``; vclick = `onclick="btnVerifDesign('N', 'acuan')"`;
+						}else{
+							vstyle = `;cursor:default"`; vclick = ``;
+						}
+						$(".verif-acuan").html(`<button title="OKE" style="text-align:center${vstyle}" class="btn btn-sm btn-success" ${vclick}><i class="fas fa-check-circle"></i></button> ${data.a_time}`)
+					}
+					// KETERANGAN OWNER
+					if(data.header.acc_a_stt != 'N'){
+						if(data.header.acc_a_stt == 'H'){
+							callout = 'callout-warning'
+						}else if(data.header.acc_a_stt == 'R'){
+							callout = 'callout-danger'
+						}else{
+							callout = 'callout-success'
+						}
+						$(".input-acuan").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-4"></div>
+								<div class="col-md-8">
+									<input type="hidden" id="ket_design" value="">
+									<div class="callout ${callout}" style="padding:6px;margin:0">${data.header.acc_a_ket}</div>
+								</div>
+							</div>
+						`)
+					}
+				}
+			}
+		})
+	}
+
+	function verifDesign(aksi, status_verif)
+	{
+		if(aksi == 'verifikasi'){
+			vrf = 'Y'
+			callout = 'callout-success'
+			colorbtn = 'btn-success'
+			txtsave = 'VERIFIKASI!'
+		}else if(aksi == 'hold'){
+			vrf = 'H'
+			callout = 'callout-warning'
+			colorbtn = 'btn-warning'
+			txtsave = 'HOLD!'
+		}else if(aksi == 'reject'){
+			vrf = 'R'
+			callout = 'callout-danger'
+			colorbtn = 'btn-danger'
+			txtsave = 'REJECT!'
+		}
+		$(".input-"+status_verif).html(`
+			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				<div class="col-md-4"></div>
+				<div class="col-md-8">
+					<div class="callout ${callout}" style="padding:0;margin:0">
+						<textarea class="form-control" id="ket_design" style="padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()"></textarea>
+					</div>
+				</div>
+			</div>
+			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				<div class="col-md-4"></div>
+				<div class="col-md-8">
+					<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifDesign('${vrf}', '${status_verif}')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+				</div>
+			</div>
+		`)
+	}
+
+	function btnVerifDesign(aksi, status_verif)
+	{
+		let id_dg = $("#id_dg").val()
+		let opsi = $("#opt").val()
+		let ket_design = $("#ket_design").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/btnVerifDesign')?>',
+			type: "POST",
+			data: ({
+				id_dg, ket_design, aksi, status_verif
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					editFormDesign(id_dg, opsi)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
 			}
 		})
 	}

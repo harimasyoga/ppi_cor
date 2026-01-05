@@ -205,7 +205,7 @@
 								<div class="card-body row" style="font-weight:bold;padding:12px 12px 6px">
 									<div class="col-md-1">ROLL</div>
 									<div class="col-md-3">
-										<select id="i_roll">
+										<select id="i_roll" class="form-control select2">
 											<option value="0">STOK</option>
 											<option value="3">BUFFER</option>
 										</select>
