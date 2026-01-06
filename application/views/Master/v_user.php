@@ -87,19 +87,22 @@
 					<div class="form-group row">
 						<label class="col-sm-2 col-form-label">Level</label>
 						<div class="col-sm-10">
-							<select class="form-control select2" id="level">
-								<!-- <option value="">PILIH</option>
-								<?php if($this->session->userdata('level') != 'PPIC') { ?>
-									<option value="Owner">Owner</option>
-									<option value="Penjualan">Penjualan</option>
-									<option value="Marketing">Marketing</option>
-									<option value="User">Operator</option>
-									<option value="Keuangan1">Keuangan</option>
-								<?php } ?>
-									<option value="PPIC">PPIC</option>
-									<option value="Corrugator">Corrugator</option>
-									<option value="Flexo">Flexo</option>
-									<option value="Finishing">Finishing</option> -->
+							<select class="form-control select2" id="level"></select>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">Sales</label>
+						<div class="col-sm-10">
+							<select class="form-control select2" id="id_sales">
+								<option value="">Kosong</option>
+								<?php
+									$query = $this->db->query("SELECT*FROM m_sales");
+									$html = '';
+									foreach($query->result() as $r){
+										$html .= '<option value="'.$r->id_sales.'">'.$r->nm_sales.'</option>';
+									}
+									echo $html;
+								?>
 							</select>
 						</div>
 					</div>
@@ -162,6 +165,7 @@
 		password    = $("#password").val();
 		nm_user     = $("#nm_user").val();
 		level       = $("#level").val();
+		id_sales     = $("#id_sales").val();
 
 		if (username == '' || password == '' || nm_user == '') {
 			toastr.info('Harap Lengkapi Form');
@@ -182,12 +186,7 @@
 				});
 			},
 			data: ({
-				username,
-				password,
-				nm_user,
-				level,
-				jenis: 'tb_user',
-				status: status
+				username, password, nm_user, level, id_sales, jenis: 'tb_user', status: status
 			}),
 			dataType: "JSON",
 			success: function(data) {
@@ -213,6 +212,8 @@
 		$("#username_lama").val('');
 		$("#nm_user").val('');
 		$("#password").val('');
+		load_group()
+		$("#id_sales").val('').trigger('change');
 		status = 'insert';
 		$("#btn-simpan").show();
 		$("#username").prop("readonly", false);
@@ -226,7 +227,7 @@
 			url: "<?= base_url(); ?>Master/load_group",
 			dataType: 'json',
 			success:function(data){								
-				option = "<option>-- Pilih --</option>";
+				option += "<option>-- Pilih --</option>";
 				$.each(data, function(index, val) {
 				option += "<option value='"+val.val_group+"'>"+val.nm_group+"</option>";
 				});
@@ -279,6 +280,7 @@
 				$("#nm_user").val(data.nm_user);
 				$("#password").val(atob(data.password));
 				$('#level').val(data.level).trigger('change');
+				$('#id_sales').val((data.id_sales == null) ? '' : data.id_sales).trigger('change');
 				swal.close()
 			})
 	}

@@ -2581,7 +2581,7 @@ class M_transaksi extends CI_Model
 			}else{
 				$qUrut = $this->db->query("SELECT*FROM trs_design_header WHERE tgl='$tgl' AND jenis_dg='$pilih' ORDER BY id_dg DESC LIMIT 1");
 				($qUrut->num_rows() == 0) ? $no = 1 : $no = $qUrut->row()->urut_dg + 1;
-				$urut = str_pad($no, 2, "0", STR_PAD_LEFT);
+				$urut = str_pad($no, 3, "0", STR_PAD_LEFT);
 				$kode = 'F'.$pilih.'/'.$this->m_fungsi->dateMonthYear($tgl).'/'.$urut;
 			}
 
@@ -2644,28 +2644,26 @@ class M_transaksi extends CI_Model
 	{
 		$id_dg = $_POST["id_dg"];
 		$aksi = $_POST["aksi"];
-		$ket_design = $_POST["ket_design"];
+		$status_verif = $_POST["status_verif"];
+		$ket2 = $_POST["ket"];
 
 		if($aksi == 'H') { $ket = 'HOLD'; }
 		if($aksi == 'R') { $ket = 'REJECT'; }
 		if($aksi == 'Y') { $ket = 'VERIF'; }
 		if($aksi == 'N') { $ket = 'LOCK'; }
 
-		if($ket_design == '' && ($aksi == 'H' || $aksi == 'R')){
-			$data = false;
+		if($ket2 == '' && ($aksi == 'H' || $aksi == 'R')){
+			$data = false; $stat = false;
 			$msg = "KETERANGAN TIDAK BOLEH KOSONG!";
 		}else{
-			$v = substr($_POST["status_verif"], 0, 1);
+			$v = substr($status_verif, 0, 1);
 			if($aksi == 'N'){
-				$nKet = null;
-				$nAt = null;
-				$nBy = null;
+				$nKet = null; $nAt = null; $nBy = null;
 			}else{
-				$nKet = ($aksi == 'Y' && $ket_design == '') ? 'OK' : $ket_design;
+				$nKet = ($aksi == 'Y' && $ket2 == '') ? 'OK!' : $ket2;
 				$nAt = date('Y-m-d H:i:s');
 				$nBy = $this->username;
 			}
-			// $this->db->set('status_po', $status);
 			$this->db->set('acc_'.$v.'_stt', $aksi);
 			$this->db->set('acc_'.$v.'_ket', $nKet);
 			$this->db->set('acc_'.$v.'_at', $nAt);
@@ -2673,11 +2671,40 @@ class M_transaksi extends CI_Model
 			$this->db->where('id_dg', $id_dg);
 			$data = $this->db->update('trs_design_header');
 			$msg = "BERHASIL ".$ket.'!';
+			if($data){
+				$cek = $this->db->query("SELECT*FROM trs_design_header WHERE id_dg='$id_dg' AND acc_a_stt='Y' AND acc_d_stt='Y' AND acc_p_stt='Y' AND acc_s_stt='Y'")->num_rows();
+				$this->db->set('form_stat', ($cek != 0) ? 'Approve' : 'Open');
+				$this->db->where('id_dg', $id_dg);
+				$stat = $this->db->update('trs_design_header');
+			}
 		}
 
 		return [
 			'data' => $data,
+			'stat' => $stat,
 			'msg' => $msg,
+		];
+	}
+
+	function hapusDesign()
+	{
+		$id_dg = $_POST["id_dg"];
+		$detail = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg'");
+		// HAPUS FILE
+		foreach($detail->result() as $r){
+			unlink("assets/gambar_design/".$r->nm_file);
+		}
+		// HAPUS DETAIL
+		$this->db->where("id_hdr", $id_dg);
+		$hdtl = $this->db->delete("trs_design_detail");
+		if($hdtl){
+			// HAPUS HEADER
+			$this->db->where("id_dg", $id_dg);
+			$hhdr = $this->db->delete("trs_design_header");
+		}
+		return [
+			'hdtl' => $hdtl,
+			'hhdr' => $hhdr,
 		];
 	}
 }
