@@ -2537,7 +2537,9 @@ class M_transaksi extends CI_Model
 		$id_dtl = $_POST["id_dtl"];
 		$detail = $this->db->query("SELECT*FROM trs_design_detail WHERE id_dtl='$id_dtl'")->row();
 		// HAPUS FILE
-		unlink("assets/gambar_design/".$detail->nm_file);
+		if($detail->jenis_dtl != 'L'){
+			unlink("assets/gambar_design/".$detail->nm_file);
+		}
 		// HAPUS ITEM
 		$this->db->where("id_dtl", $id_dtl);
 		$data = $this->db->delete("trs_design_detail");
@@ -2568,7 +2570,7 @@ class M_transaksi extends CI_Model
 			$id_produk = null;
 		}
 
-		if($pilih == 'B' && $id_pelanggan == '' && $kode_po == '' && $id_produk == ''){
+		if($pilih == 'B' && ($id_pelanggan == '' || $kode_po == '' || $id_produk == '')){
 			$data = false;
 			$detail = false;
 			$msg = 'LENGKAPI FORM!';
@@ -2640,6 +2642,41 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function addLinkDesign()
+	{
+		$id_dg = $_POST["id_dgx"];
+		$link_design = preg_replace('/\s/', '', $_POST["link_design"]);
+
+		$dtl = array(
+			'id_hdr' => ($id_dg == '') ? 0 : $id_dg,
+			'jenis_dtl' => 'L',
+			'nm_file' => $link_design,
+		);
+
+		($id_dg != '') ? $id = $id_dg : $id = 0;
+		$cek = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id' AND jenis_dtl='L'");
+
+		if(!filter_var($link_design, FILTER_VALIDATE_URL)) {
+			$data = false;
+			$msg = 'LINK URL TIDAK VALID!';
+		}else{
+			if($cek->num_rows() != 0){
+				$this->db->where("jenis_dtl", 'L');
+				$this->db->where("id_hdr", $id_dg);
+				$data = $this->db->update('trs_design_detail', $dtl);
+				$msg = 'EDIT LINK DESIGN!';
+			}else{
+				$data = $this->db->insert('trs_design_detail', $dtl);
+				$msg = 'TAMBAH LINK DESIGN!';
+			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function btnVerifDesign()
 	{
 		$id_dg = $_POST["id_dg"];
@@ -2692,7 +2729,9 @@ class M_transaksi extends CI_Model
 		$detail = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg'");
 		// HAPUS FILE
 		foreach($detail->result() as $r){
-			unlink("assets/gambar_design/".$r->nm_file);
+			if($r->jenis_dtl != 'L'){
+				unlink("assets/gambar_design/".$r->nm_file);
+			}
 		}
 		// HAPUS DETAIL
 		$this->db->where("id_hdr", $id_dg);

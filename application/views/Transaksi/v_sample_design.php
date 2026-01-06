@@ -126,7 +126,9 @@
 									<input type="hidden" name="id_produk" id="id_produk" value="">
 									<input type="hidden" name="opt" id="opt" value="">
 								</form>
+								<div class="preview-upload"></div>
 								<div class="simpan-upload"></div>
+								<div class="link-design"></div>
 							</div>
 						</div>
 					</div>
@@ -234,7 +236,7 @@
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN</h3>
 						</div>
 						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-							<div class="list-design" style="display:flex">-</div>
+							<div class="list-design2" style="display:flex">-</div>
 						</div>
 					</div>
 				</div>
@@ -244,7 +246,7 @@
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE</h3>
 						</div>
 						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-							<div class="list-sample" style="display:flex">-</div>
+							<div class="list-sample2" style="display:flex">-</div>
 						</div>
 					</div>
 				</div>
@@ -400,20 +402,42 @@
 		}
 	}
 
+	// PREVIEW
+	$("#dsg_foto").change(function() {
+        readURL(this);
+    });
+	function readURL(input) {
+		if (input.files && input.files[0]) {
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			$(".preview-upload").html(`
+				<div class="card-body row" style="font-weight:bold;padding:12px 6px">
+					<div class="col-md-3"></div>
+					<div class="col-md-9">
+						<img id="prevImg" src="${e.target.result}" alt="preview" width="200" class="shadow-sm" onclick="imgClick('prevImg')">
+					</div>
+				</div>
+			`)
+		}
+		reader.readAsDataURL(input.files[0]);
+		} else {
+			$(".preview-upload").html(``)
+		}
+	}
+
 	function pilihPilih() {
 		let id_dg = $("#id_dg").val()
 		let opsi = $("#opt").val()
-
 		let tgl_s = $("#tgl_s").val()
 		let pilih_s = $("#pilih_s").val()
 
 		$(".list-acuan").html('')
 		$(".list-design").html('')
+		$(".list-design2").html('')
+		$(".link-design").html('')
 		$(".list-penawaran").html('')
 		$(".list-sample").html('')
-		if(id_dg == '' && opsi == ''){
-			loadListDesign()
-		}
+		$(".list-sample2").html('')
 
 		if(urlAuth == 'Admin'){
 			if(pilih_s == 'N'){
@@ -447,20 +471,25 @@
 
 		$("#dsg_pilih").val("").trigger('change')
 		$("#dsg_foto").val("")
+		$(".preview-upload").html('')
 		$(".simpan-upload").html('')
 
 		$(".row-verifikasi").hide()
 
 		if(tgl_s != "" && pilih_s == "N"){
 			$(".col-box-po").hide()
-			$(".col-box-upload").show()
-			$(".row-nasional").show()
-			$(".row-lokal").hide()
+			if(id_dg != '' && opsi != ''){
+				$(".col-box-upload").show()
+				$(".row-nasional").show()
+				$(".row-lokal").hide()
+			}
 		}else if(tgl_s != "" && pilih_s == "B"){
 			$(".col-box-po").show()
-			$(".col-box-upload").show()
-			$(".row-nasional").hide()
-			$(".row-lokal").show()
+			if(id_dg != '' && opsi != ''){
+				$(".col-box-upload").show()
+				$(".row-nasional").hide()
+				$(".row-lokal").show()
+			}
 			if(id_dg == '' && opsi == ''){
 				loadCustDesign()
 			}
@@ -469,6 +498,27 @@
 			$(".col-box-upload").hide()
 			$(".row-nasional").hide()
 			$(".row-lokal").hide()
+		}
+
+		if(id_dg != '' && opsi != ''){
+			loadListDesign()
+		}
+		tmplSave()
+	}
+
+	function tmplSave(){
+		let opt = $("#opt").val()
+		let tgl_s = $("#tgl_s").val()
+		let pilih_s = $("#pilih_s").val()
+
+		if(tgl_s != '' && pilih_s != '' && statusInput == 'insert'){
+			$(".simpan-save").html(`<div class="row" style="margin-bottom:16px">
+				<div class="col-md-12">
+					<button class="btn btn-primary btn-sm" onclick="saveDesign()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
+				</div>
+			</div>`)
+		}else{
+			$(".simpan-save").html('')
 		}
 	}
 
@@ -639,33 +689,22 @@
 			success: function(res){
 				data = JSON.parse(res)
 				$(".list-acuan").html(data.htmlAcuan)
-				$(".list-design").html(data.htmlDesign)
 				$(".list-penawaran").html(data.htmlPenawaran)
-				$(".list-sample").html(data.htmlSample)
+				$(".link-design").html(data.linkDesign)
+				if(data.header.jenis_dg == 'N'){
+					$(".list-design").html(data.htmlDesign)
+					$(".list-sample").html(data.htmlSample)
+					$(".list-design2").html('-')
+					$(".list-sample2").html('-')
+				}else{
+					$(".list-design").html('-')
+					$(".list-sample").html('-')
+					$(".list-design2").html(data.htmlDesign)
+					$(".list-sample2").html(data.htmlSample)
+				}
 				swal.close()
-				tmplSave()
 			}
 		})
-	}
-
-	function tmplSave(){
-		let opt = $("#opt").val()
-		let tgl_s = $("#tgl_s").val()
-		let pilih_s = $("#pilih_s").val()
-		let Lacuan = $(".list-acuan").html()
-		let Ldesign = $(".list-design").html()
-		let Lpenawaran = $(".list-penawaran").html()
-		let Lsample = $(".list-sample").html()
-
-		if((tgl_s != '' && pilih_s != '') && (Lacuan != "" || Ldesign != "" || Lpenawaran != "" || Lsample != "") && statusInput == 'insert'){
-			$(".simpan-save").html(`<div class="row" style="margin-bottom:16px">
-				<div class="col-md-12">
-					<button class="btn btn-primary btn-sm" onclick="saveDesign()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
-				</div>
-			</div>`)
-		}else{
-			$(".simpan-save").html('')
-		}
 	}
 
 	function saveDesign() {
@@ -702,9 +741,41 @@
 					}else{
 						toastr.error(`<b>${data.msg}</b>`)
 					}
+					swal.close()
 					$(".simpan-save").prop('disabled', false)
 				}else{
 					editFormDesign(id_dg, opsi)
+				}
+			}
+		})
+	}
+
+	function addLinkDesign(id_dg) {
+		let id_dgx = $("#id_dg").val()
+		let opsi = $("#opt").val()
+		let link_design = $("#link_design").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/addLinkDesign')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_dgx, link_design }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					editFormDesign(id_dgx, opsi)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
 				}
 			}
 		})
