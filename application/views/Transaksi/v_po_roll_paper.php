@@ -102,26 +102,29 @@
 											<select name="jenis_file" id="jenis_file" class="form-control select2" onchange="diPilih()">
 												<option value="">PILIH</option>
 												<option value="PO">PO</option>
-												<option value="MASTER">MASTER</option>
-												<option value="RINCIAN">RINCIAN</option>
+												<option value="RINCIAN">R</option>
 												<option value="MEMO">MEMO</option>
-												<option value="BK110">BK110</option>
-												<option value="BK120">BK120</option>
-												<option value="BK125">BK125</option>
-												<option value="BK150">BK150</option>
-												<option value="BK200">BK200</option>
-												<option value="MH110">MH110</option>
-												<option value="MH120">MH120</option>
-												<option value="MH125">MH125</option>
-												<option value="MH150">MH150</option>
-												<option value="MH200">MH200</option>
-												<option value="MN110">MN110</option>
-												<option value="MN120">MN120</option>
-												<option value="MN125">MN125</option>
-												<option value="MN150">MN150</option>
-												<option value="MN200">MN200</option>
-												<option value="WP68">WP68</option>
-												<option value="WP70">WP70</option>
+												<option value="NOTE">NOTE</option>
+												<option value="R">R</option>
+												<option value="X">X</option>
+												<option value="BK110">BK 110</option>
+												<option value="BK120">BK 120</option>
+												<option value="BK125">BK 125</option>
+												<option value="BK150">BK 150</option>
+												<option value="BK200">BK 200</option>
+												<option value="MH110">MH 110</option>
+												<option value="MH120">MH 120</option>
+												<option value="MH125">MH 125</option>
+												<option value="MH150">MH 150</option>
+												<option value="MH200">MH 200</option>
+												<option value="MN110">MN 110</option>
+												<option value="MN120">MN 120</option>
+												<option value="MN125">MN 125</option>
+												<option value="MN150">MN 150</option>
+												<option value="MN200">MN 200</option>
+												<option value="WP65">WP 65</option>
+												<option value="WP68">WP 68</option>
+												<option value="WP70">WP 70</option>
 											</select>
 										</div>
 									</div>

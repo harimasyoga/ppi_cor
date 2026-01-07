@@ -114,22 +114,35 @@ class Transaksi extends CI_Controller
 				$z++;
 				$e = explode('.', $r->nm_file);
 				$ext = end($e);
-				if($ext == 'pdf'){
-					// $htmlDtl .= '<object data="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" height="600" style="width:100%"></object>';
-					// $htmlDtl .= '<embed type="application/pdf" src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" width="600" height="400"></embed>';
-					$htmlDtl .= '<iframe src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" height="600" style="width:100%"></iframe>';
-				}else{
-					// HAPUS GAMBAR
-					if($this->session->userdata('level') == 'Admin' && $opsi == 'edit' && $detail->num_rows() > 1){
-						$htmlDtl .= '<div style="margin-right:4px">
-							<button class="btn btn-xs btn-danger" onclick="hapusFilePO('."'".$r->id_dtl."'".')"><i class="fas fa-trash"></i></button>
-						</div>';
-					}
-					$preview = 'p'.$z;
-					$htmlDtl .= '<div style="margin-right:8px">
-						<img id="'.$preview.'" src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" alt="Preview Foto 2" width="100" class="shadow-sm" onclick="imgClick('."'".$preview."'".')">
+				// HAPUS GAMBAR
+				if($this->session->userdata('level') == 'Admin' && $opsi == 'edit' && $detail->num_rows() > 1){
+					$htmlDtl .= '<div style="margin-right:4px">
+						<button class="btn btn-xs btn-danger" onclick="hapusFilePO('."'".$r->id_dtl."'".')"><i class="fas fa-trash"></i></button>
 					</div>';
 				}
+				// KET
+				if($r->ket_po != null){
+					if(preg_match('/BK/', $r->ket_po)){
+						$s = ';background:#fff"';
+					}else if($r->ket_po == 'MH110' || $r->ket_po == 'MN110'){
+						$s = ';background:#ccf"';
+					}else if($r->ket_po == 'MH120' || $r->ket_po == 'MH125' || $r->ket_po == 'MN120' || $r->ket_po == 'MN125'){
+						$s = ';background:#ffc"';
+					}else if($r->ket_po == 'MH150' || $r->ket_po == 'MH200' || $r->ket_po == 'MN150' || $r->ket_po == 'MN200'){
+						$s = ';background:#fcc"';
+					}else if($r->ket_po == 'WP65' || $r->ket_po == 'WP68' || $r->ket_po == 'WP70'){
+						$s = ';background:#cfc"';
+					}else{
+						$s = ';background:#ccc"';
+					}
+					$htmlDtl .= '<div>
+						<span style="margin:0;padding:3px 4px;font-size:12px;font-weight:bold'.$s.'">'.$r->ket_po.'</span>
+					</div>';
+				}
+				$preview = 'p'.$z;
+				$htmlDtl .= '<div style="margin-right:8px">
+					<img id="'.$preview.'" src="'.base_url().'assets/gambar_po_roll/'.$r->nm_file.'" alt="Preview Foto 2" width="100" class="shadow-sm" onclick="imgClick('."'".$preview."'".')">
+				</div>';
 			}
 		$htmlDtl .= '</div>';
 

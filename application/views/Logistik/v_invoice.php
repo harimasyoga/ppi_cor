@@ -366,6 +366,30 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="card shadow list_akses" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;">
+				<h3 class="card-title" style="color:#4e73df;"><b>AKSES INVOICE</b></h3>
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+			<div class="card-body">
+				<div style="margin-bottom:12px">
+					<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+							<i class="fa fa-arrow-left"></i> Kembali</b>
+					</button>
+				</div>
+				<div class="card-body row" style="padding:12px 0 6px">
+					<div class="col-md-12">
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="tab_akses"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</section>
 
 	<section class="content">
@@ -386,8 +410,9 @@
 								<button type="button" style="margin-bottom:3px" class="btn btn-secondary btn-sm" onclick="open_sj()" title="LIST SURAT JALAN"><i class="fas fa-list"></i> <b>LIST SURAT JALAN</b></button>
 								<!-- <button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE EXPIRED"><i class="fas fa-sync-alt"></i><b>UPDATE EXPIRED</b></button> -->
 								<?php if (in_array($this->session->userdata('level'), ['Admin'])) { ?>
-									<button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateInvMutasi()" title="UPDATE TOTAL"><i class="fas fa-sync-alt"></i> </i><b>UPDATE TOTAL</b></button>
-									<button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="updateMutasiBayar()" title="UPDATE BAYAR"><i class="fa fa-sync-alt"></i> <b>UPDATE BAYAR</b></button>
+									<!-- <button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateInvMutasi()" title="UPDATE TOTAL"><i class="fas fa-sync-alt"></i> </i><b>UPDATE TOTAL</b></button> -->
+									<!-- <button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="updateMutasiBayar()" title="UPDATE BAYAR"><i class="fa fa-sync-alt"></i> <b>UPDATE BAYAR</b></button> -->
+									<button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="open_akses()" title="LAPORAN PIUTANG"><i class="fas fa-key"></i> <b>OPEN AKSES</b></button>
 									<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_piutang()" title="LAPORAN PIUTANG"><i class="fas fa-list"></i> <b>LAP PIUTANG</b></button>
 									<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_lapExp()" title="LAPORAN EXPIRED"><i class="fa fa-print"></i> <b>LAP EXPIRED</b></button>
 								<?php } ?>
@@ -1465,6 +1490,12 @@
 		listPiutang()
 	}
 
+	function open_akses() {
+		$(".row-input").attr('style', 'display:none')
+		$(".row-list").attr('style', 'display:none')
+		$(".list_akses").attr('style', '')
+	}
+
 	function listPiutang() {
 		$(".tab_piutang").html('')
 		$.ajax({
@@ -1650,6 +1681,7 @@
 		$(".list_sj").attr('style', 'display:none')
 		$(".list_exp").attr('style', 'display:none')
 		$(".list_piutang").attr('style', 'display:none')
+		$(".list_akses").attr('style', 'display:none')
 		$(".card-mutasi").attr('style', 'display:none')
 		$("#tgl_expired").val('')
 		$('#ex_pilih').val('').trigger('change')

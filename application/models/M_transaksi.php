@@ -2153,12 +2153,8 @@ class M_transaksi extends CI_Model
 		// FILE
 		($hidhdr == '') ? $nmFile = $_FILES['filefoto']['name'] : $nmFile = 'update';
 		$config['upload_path'] = './assets/gambar_po_roll/';
-		$config['allowed_types'] = 'pdf|jpg|jpeg|png';
+		$config['allowed_types'] = 'jpg|jpeg|png';
 		$config['overwrite'] = true;
-		// $config['max_size'] = 2024; //1MB
-		// $config['max_width'] = 'none'; //lebar maksimum 1288 px
-		// $config['max_height'] = 'none';
-		// $config['file_name'] = str_replace(' ', '', $nmFile);
 		$thn = substr(date('Y'), 2, 2); $bln = date('m'); $date = date('d');
 		$config['file_name'] = $thn.$bln.$date.'-'.$this->generateFileName();
 		$this->load->library('upload',$config);
