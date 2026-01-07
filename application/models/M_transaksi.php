@@ -2497,6 +2497,8 @@ class M_transaksi extends CI_Model
 
 	function uploadDesign()
 	{
+		$id_dg = $_POST["id_dg"];
+		$opt = $_POST["opt"];
 		$dsg_pilih = $_POST["dsg_pilih"];
 		$config['upload_path'] = './assets/gambar_design/';
 		$config['allowed_types'] = 'jpg|jpeg|png|gif|webp';
@@ -2513,8 +2515,9 @@ class M_transaksi extends CI_Model
 			if($this->upload->do_upload('dsg_foto')){
 				$gbrBukti = $this->upload->data();
 				$filefoto = $gbrBukti['file_name'];
+				($id_dg != '' && $opt != '') ? $id_hdr = $id_dg : $id_hdr = 0;
 				$dtl = array(
-					'id_hdr' => 0,
+					'id_hdr' => $id_hdr,
 					'jenis_dtl' => $dsg_pilih,
 					'nm_file' => $filefoto,
 				);
@@ -2534,12 +2537,213 @@ class M_transaksi extends CI_Model
 		$id_dtl = $_POST["id_dtl"];
 		$detail = $this->db->query("SELECT*FROM trs_design_detail WHERE id_dtl='$id_dtl'")->row();
 		// HAPUS FILE
-		unlink("assets/gambar_design/".$detail->nm_file);
+		if($detail->jenis_dtl != 'L'){
+			unlink("assets/gambar_design/".$detail->nm_file);
+		}
 		// HAPUS ITEM
 		$this->db->where("id_dtl", $id_dtl);
 		$data = $this->db->delete("trs_design_detail");
 		return [
 			'data' => $data,
+		];
+	}
+
+	function saveDesign()
+	{
+		$id_dg = $_POST["id_dg"];
+		// $opt = $_POST["opt"];
+		$tgl = $_POST["tgl_s"];
+		$pilih = $_POST["pilih_s"];
+		$id_pelanggan = $_POST["i_customer"];
+		$kode_po = $_POST["i_po"];
+		$id_produk = $_POST["i_produk"];
+		$statusInput = $_POST["statusInput"];
+
+		// N - MULTINASIONAL / B - LOKAL CUSTOMER
+		if($pilih == 'B'){
+			$id_pelanggan = $_POST["i_customer"];
+			$kode_po = $_POST["i_po"];
+			$id_produk = $_POST["i_produk"];
+		}else{
+			$id_pelanggan = null;
+			$kode_po = null;
+			$id_produk = null;
+		}
+
+		if($pilih == 'B' && ($id_pelanggan == '' || $kode_po == '' || $id_produk == '')){
+			$data = false;
+			$detail = false;
+			$msg = 'LENGKAPI FORM!';
+		}else{
+			// EDIT
+			if($statusInput == 'update'){
+				$qUrut = $this->db->query("SELECT*FROM trs_design_header WHERE id_dg='$id_dg'")->row();
+				$no = $qUrut->urut_dg;
+				$kode = $qUrut->kode_dg;
+			}else{
+				$qUrut = $this->db->query("SELECT*FROM trs_design_header WHERE tgl='$tgl' AND jenis_dg='$pilih' ORDER BY id_dg DESC LIMIT 1");
+				($qUrut->num_rows() == 0) ? $no = 1 : $no = $qUrut->row()->urut_dg + 1;
+				$urut = str_pad($no, 3, "0", STR_PAD_LEFT);
+				$kode = 'F'.$pilih.'/'.$this->m_fungsi->dateMonthYear($tgl).'/'.$urut;
+			}
+
+			$data = [
+				'tgl' => $tgl,
+				'jenis_dg' => $pilih,
+				'urut_dg' => $no,
+				'kode_dg' => $kode,
+				'id_pelanggan' => $id_pelanggan,
+				'kode_po' => $kode_po,
+				'id_produk' => $id_produk,
+				'add_at' => date('Y-m-d H:i:s'),
+				'add_by' => $this->username,
+			];
+
+			// EDIT
+			if($statusInput == 'update'){
+				$this->db->set('edit_at', date('Y-m-d H:i:s'));
+				$this->db->set('edit_by', $this->username);
+			}
+			// ACC ACUAN DAN PENAWARAN LANGSUNG JIKA LOKAL CUSTOMER
+			if($pilih == 'B'){
+				$this->db->set('acc_a_stt', 'Y');
+				$this->db->set('acc_a_ket', 'OK');
+				$this->db->set('acc_a_by', $this->username);
+				$this->db->set('acc_a_at', date('Y-m-d H:i:s'));
+				$this->db->set('acc_p_stt', 'Y');
+				$this->db->set('acc_p_ket', 'OK');
+				$this->db->set('acc_p_by', $this->username);
+				$this->db->set('acc_p_at', date('Y-m-d H:i:s'));
+			}
+			
+			// EDIT
+			if($statusInput == 'update'){
+				$header = $this->db->update('trs_design_header', $data);
+			}else{
+				$header = $this->db->insert('trs_design_header', $data);
+			}
+
+			if($header && $statusInput == 'insert'){
+				$cekHeader = $this->db->query("SELECT*FROM trs_design_header WHERE kode_dg='$kode'")->row();
+				$this->db->set('id_hdr', $cekHeader->id_dg);
+				$this->db->where("id_hdr", 0);
+				$detail = $this->db->update('trs_design_detail');
+				$msg = 'BERHASIL TAMBAH DATA!';
+			}else{
+				$detail = true;
+				$msg = 'BERHASIL UPDATE DATA!';
+			}
+		}
+
+		return [
+			'data' => $data,
+			'detail' => $detail,
+			'msg' => $msg,
+		];
+	}
+
+	function addLinkDesign()
+	{
+		$id_dg = $_POST["id_dgx"];
+		$link_design = preg_replace('/\s/', '', $_POST["link_design"]);
+
+		$dtl = array(
+			'id_hdr' => ($id_dg == '') ? 0 : $id_dg,
+			'jenis_dtl' => 'L',
+			'nm_file' => $link_design,
+		);
+
+		($id_dg != '') ? $id = $id_dg : $id = 0;
+		$cek = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id' AND jenis_dtl='L'");
+
+		if(!filter_var($link_design, FILTER_VALIDATE_URL)) {
+			$data = false;
+			$msg = 'LINK URL TIDAK VALID!';
+		}else{
+			if($cek->num_rows() != 0){
+				$this->db->where("jenis_dtl", 'L');
+				$this->db->where("id_hdr", $id_dg);
+				$data = $this->db->update('trs_design_detail', $dtl);
+				$msg = 'EDIT LINK DESIGN!';
+			}else{
+				$data = $this->db->insert('trs_design_detail', $dtl);
+				$msg = 'TAMBAH LINK DESIGN!';
+			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function btnVerifDesign()
+	{
+		$id_dg = $_POST["id_dg"];
+		$aksi = $_POST["aksi"];
+		$status_verif = $_POST["status_verif"];
+		$ket2 = $_POST["ket"];
+
+		if($aksi == 'H') { $ket = 'HOLD'; }
+		if($aksi == 'R') { $ket = 'REJECT'; }
+		if($aksi == 'Y') { $ket = 'VERIF'; }
+		if($aksi == 'N') { $ket = 'LOCK'; }
+
+		if($ket2 == '' && ($aksi == 'H' || $aksi == 'R')){
+			$data = false; $stat = false;
+			$msg = "KETERANGAN TIDAK BOLEH KOSONG!";
+		}else{
+			$v = substr($status_verif, 0, 1);
+			if($aksi == 'N'){
+				$nKet = null; $nAt = null; $nBy = null;
+			}else{
+				$nKet = ($aksi == 'Y' && $ket2 == '') ? 'OK!' : $ket2;
+				$nAt = date('Y-m-d H:i:s');
+				$nBy = $this->username;
+			}
+			$this->db->set('acc_'.$v.'_stt', $aksi);
+			$this->db->set('acc_'.$v.'_ket', $nKet);
+			$this->db->set('acc_'.$v.'_at', $nAt);
+			$this->db->set('acc_'.$v.'_by', $nBy);
+			$this->db->where('id_dg', $id_dg);
+			$data = $this->db->update('trs_design_header');
+			$msg = "BERHASIL ".$ket.'!';
+			if($data){
+				$cek = $this->db->query("SELECT*FROM trs_design_header WHERE id_dg='$id_dg' AND acc_a_stt='Y' AND acc_d_stt='Y' AND acc_p_stt='Y' AND acc_s_stt='Y'")->num_rows();
+				$this->db->set('form_stat', ($cek != 0) ? 'Approve' : 'Open');
+				$this->db->where('id_dg', $id_dg);
+				$stat = $this->db->update('trs_design_header');
+			}
+		}
+
+		return [
+			'data' => $data,
+			'stat' => $stat,
+			'msg' => $msg,
+		];
+	}
+
+	function hapusDesign()
+	{
+		$id_dg = $_POST["id_dg"];
+		$detail = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg'");
+		// HAPUS FILE
+		foreach($detail->result() as $r){
+			if($r->jenis_dtl != 'L'){
+				unlink("assets/gambar_design/".$r->nm_file);
+			}
+		}
+		// HAPUS DETAIL
+		$this->db->where("id_hdr", $id_dg);
+		$hdtl = $this->db->delete("trs_design_detail");
+		if($hdtl){
+			// HAPUS HEADER
+			$this->db->where("id_dg", $id_dg);
+			$hhdr = $this->db->delete("trs_design_header");
+		}
+		return [
+			'hdtl' => $hdtl,
+			'hhdr' => $hhdr,
 		];
 	}
 }

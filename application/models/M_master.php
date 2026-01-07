@@ -252,31 +252,25 @@ class M_master extends CI_Model{
     }
 
     function tb_user($table,$status){
-        
-        
         $id = $this->input->post('username');
 
-   
         $data = array(
-                'username'  => $id,
-                'nm_user'  	=> $this->input->post('nm_user'),
-                'password'  => base64_encode($this->input->post('password')),
-                'level'  	=> $this->input->post('level'),
-            );
+			'username'  => $id,
+			'nm_user'  	=> $this->input->post('nm_user'),
+			'password'  => base64_encode($this->input->post('password')),
+			'level'  	=> $this->input->post('level'),
+			'id_sales'  => ($this->input->post('id_sales') == '') ? null : $this->input->post('id_sales'),
+		);
 
-        if ($status == 'insert') {
-             $cek = $this->db->query("SELECT * FROM tb_user WHERE username = '$id'
-                ")->num_rows();
-
+        if($status == 'insert') {
+            $cek = $this->db->query("SELECT * FROM tb_user WHERE username = '$id'")->num_rows();
             if ($cek > 0) {
                 return false;
             }
-
             $result= $this->db->insert('tb_user',$data);
         }else{
             $result= $this->db->update($table,$data,array('username' => $id));
         }
-        
 
         return $result;
     }

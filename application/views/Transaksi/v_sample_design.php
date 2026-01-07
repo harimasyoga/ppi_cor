@@ -22,7 +22,7 @@
 	<section class="content">
 		<div class="container-fluid">
 			<div class="row row-input">
-				<div class="col-md-12">
+				<div class="col-md-6">
 					<div class="card card-primary card-outline">
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT FORM SAMPLE & DESIGN</h3>
@@ -30,108 +30,69 @@
 						<div style="margin:12px 6px">
 							<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
 						</div>
+						<div id="kode_dg"></div>
 						<form role="form" method="POST" id="upload_design" enctype="multipart/form-data">
 						<div class="card-body row" style="font-weight:bold;padding:6px">
-							<div class="col-md-1">TANGGAL</div>
-							<div class="col-md-2">
+							<div class="col-md-3">TANGGAL</div>
+							<div class="col-md-5">
 								<input type="date" name="tgl_s" id="tgl_s" class="form-control" onchange="pilihPilih()">
 							</div>
-							<div class="col-md-9"></div>
+							<div class="col-md-4"></div>
 						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
-							<div class="col-md-1">PILIH</div>
-							<div class="col-md-2">
+						<div class="card-body row" style="font-weight:bold;padding:0 6px 16px">
+							<div class="col-md-3">PILIH</div>
+							<div class="col-md-5">
 								<select name="pilih_s" id="pilih_s" class="form-control select2" onchange="pilihPilih()">
 									<option value="">PILIH</option>
 									<option value="N">MULTI NASIONAL</option>
 									<option value="B">LOKAL</option>
 								</select>
 							</div>
-							<div class="col-md-9"></div>
+							<div class="col-md-4"></div>
 						</div>
 					</div>
-				</div>
-
-				<!-- <div class="col-md-6">
-					<div class="col-verifikasi">
-						<div class="card card-info card-outline" style="position:sticky;top:12px;padding-bottom:12px">
-							<div class="card-header" style="padding:12px">
-								<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:18px 12px 6px">
-								<div class="col-md-3">ACUAN WARNA / SAMPLE CUST</div>
-								<div class="col-md-9">
-									<div id="verif-admin"></div>
-								</div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">DESIGN</div>
-								<div class="col-md-9">
-									<div id="verif-marketing"></div>
-								</div>
-							</div>
-							<div id="input-marketing"></div>
-							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-3">SAMPLE BOX</div>
-								<div class="col-md-9">
-									<div id="verif-owner"></div>
-								</div>
-							</div>
-							<div id="input-owner"></div>
-							<div id="input-po"></div>
-						</div>
-					</div>
-				</div> -->
-
-				<div class="col-md-12">
 					<div class="col-box-po" style="display:none">
 						<div class="card card-info card-outline">
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">PILIH PO</h3>
 							</div>
-							<div class="card-body row" style="font-weight:bold;padding:12px 6px">
-								<div class="col-md-12 row">
-									<div class="col-md-6" style="padding:0">
-										<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
-											<div class="col-md-2">CUSTOMER</div>
-											<div class="col-md-10">
-												<select name="i_customer" id="i_customer" class="form-control select2" onchange="loadNoPoDesign()">
-													<option value="">PILIH</option>
-												</select>
-											</div>
-										</div>
-										<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
-											<div class="col-md-2">NO. PO</div>
-											<div class="col-md-10">
-												<select name="i_po" id="i_po" class="form-control select2" onchange="loadProdukDesign()">
-													<option value="">PILIH</option>
-												</select>
-											</div>
-										</div>
-										<div class="card-body row" style="font-weight:bold;padding:0 0 12px">
-											<div class="col-md-2">PRODUK</div>
-											<div class="col-md-10">
-												<select name="i_produk" id="i_produk" class="form-control select2">
-													<option value="">PILIH</option>
-												</select>
-											</div>
-										</div>
+							<div class="card-body" style="font-weight:bold;padding:12px 6px">
+								<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
+									<div class="col-md-3">CUSTOMER</div>
+									<div class="col-md-9">
+										<select name="i_customer" id="i_customer" class="form-control select2" onchange="loadNoPoDesign()">
+											<option value="">PILIH</option>
+										</select>
 									</div>
-									<div class="col-md-6">
-										<div class="card card-secondary card-outline" style="margin:0">
-											<div class="card-header" style="padding:12px">
-												<h3 class="card-title" style="font-weight:bold;font-size:18px">DETAIL PRODUK</h3>
-											</div>
-											<div class="card-body" style="font-weight:bold;padding:6px 6px 12px">
-												-
-											</div>
-										</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
+									<div class="col-md-3">NO. PO</div>
+									<div class="col-md-9">
+										<select name="i_po" id="i_po" class="form-control select2" onchange="loadProdukDesign()">
+											<option value="">PILIH</option>
+										</select>
+									</div>
+								</div>
+								<div class="card-body row" style="font-weight:bold;padding:0 0 12px">
+									<div class="col-md-3">PRODUK</div>
+									<div class="col-md-9">
+										<select name="i_produk" id="i_produk" class="form-control select2" onchange="detailProdukDesign()">
+											<option value="">PILIH</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="card card-secondary card-outline" style="margin:0">
+									<div class="card-header" style="padding:12px">
+										<h3 class="card-title" style="font-weight:bold;font-size:18px">DETAIL PRODUK</h3>
+									</div>
+									<div class="card-body" style="overflow:auto;white-space:nowrap;font-weight:bold;padding:6px">
+										<div class="d_produk">-</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-
 					<div class="col-box-upload" style="display:none">
 						<div class="card card-success card-outline">
 							<div class="card-header" style="padding:12px">
@@ -139,97 +100,156 @@
 							</div>
 							<div class="card-body" style="padding:12px 0">
 									<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
-										<div class="col-md-1">PILIH</div>
-										<div class="col-md-2">
+										<div class="col-md-3">PILIH</div>
+										<div class="col-md-6">
 											<select name="dsg_pilih" id="dsg_pilih" class="form-control select2" onchange="cekUpload()">
 												<option value="">PILIH</option>
-												<option value="A">ACUAN WARNA / SAMPLE CUSTOMER</option>
-												<option value="D">DESIGN</option>
-												<option value="P">PENAWARAN</option>
-												<option value="S">SAMPLE</option>
 											</select>
 										</div>
-										<div class="col-md-9"></div>
+										<div class="col-md-3"></div>
 									</div>
-									<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
-										<div class="col-md-1"></div>
-										<div class="col-md-11">
+									<div class="card-body row" style="font-weight:bold;padding:0 6px">
+										<div class="col-md-3"></div>
+										<div class="col-md-9">
 											<input type="file" name="dsg_foto" id="dsg_foto" accept="image/*" onchange="cekUpload()">
 										</div>
 									</div>
+									<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+										<div class="col-md-3"></div>
+										<div class="col-md-9">
+											<span style="color:#f00;font-style:italic;font-size:12px">* .jpg .jpeg .png .gif .webp | MAX 2 MB</span>
+										</div>
+									</div>
+									<input type="hidden" name="id_dg" id="id_dg" value="">
+									<input type="hidden" name="id_pelanggan" id="id_pelanggan" value="">
+									<input type="hidden" name="kode_po" id="kode_po" value="">
+									<input type="hidden" name="id_produk" id="id_produk" value="">
+									<input type="hidden" name="opt" id="opt" value="">
 								</form>
+								<div class="preview-upload"></div>
 								<div class="simpan-upload"></div>
+								<div class="link-design"></div>
 							</div>
 						</div>
 					</div>
+				</div>
 
-					<div class="row row-nasional" style="display:none">
-						<div class="col-md-3">
-							<div class="card card-secondary card-outline">
+				<div class="col-md-6">
+					<div class="row row-verifikasi" style="display:none;position:sticky;top:12px;padding-bottom:16px">
+						<div class="col-md-12">
+							<div class="card card-info card-outline" style="margin:0">
 								<div class="card-header" style="padding:12px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">ACUAN WARNA/SAMPLE CUST</h3>
+									<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
 								</div>
-								<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-									<div class="list-acuan" style="display:flex"></div>
-								</div>
-							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="card card-secondary card-outline">
-								<div class="card-header" style="padding:12px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN</h3>
-								</div>
-								<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-									<div class="list-design" style="display:flex"></div>
-								</div>
-							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="card card-secondary card-outline">
-								<div class="card-header" style="padding:12px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">PENAWARAN</h3>
-								</div>
-								<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-									<div class="list-penawaran" style="display:flex"></div>
-								</div>
-							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="card card-secondary card-outline">
-								<div class="card-header" style="padding:12px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE</h3>
-								</div>
-								<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-									<div class="list-sample" style="display:flex"></div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="row row-lokal" style="display:none">
-						<div class="col-md-6">
-							<div class="card card-secondary card-outline">
-								<div class="card-header" style="padding:12px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN</h3>
-								</div>
-								<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-									<div class="list-design" style="display:flex"></div>
-								</div>
-							</div>
-						</div>
-						<div class="col-md-6">
-							<div class="card card-secondary card-outline">
-								<div class="card-header" style="padding:12px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE</h3>
-								</div>
-								<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-									<div class="list-sample" style="display:flex"></div>
+								<div class="card-body" style="font-weight:bold;padding:18px 0 12px">
+									<div class="tt-acuan">
+										<div class="card-body row" style="padding:0 6px 6px">
+											<div class="col-md-3">ACUAN WARNA</div>
+											<div class="col-md-9">
+												<div class="vv verif-acuan"></div>
+											</div>
+										</div>
+										<div class="ii input-acuan"></div>
+									</div>
+									<div class="card-body row" style="padding:0 6px 6px">
+										<div class="col-md-3">DESIGN</div>
+										<div class="col-md-9">
+											<div class="vv verif-design"></div>
+										</div>
+									</div>
+									<div class="ii input-design"></div>
+									<div class="tt-penawaran">
+										<div class="card-body row" style="padding:0 6px 6px">
+											<div class="col-md-3">PENAWARAN</div>
+											<div class="col-md-9">
+												<div class="vv verif-penawaran"></div>
+											</div>
+										</div>
+										<div class="ii input-penawaran"></div>
+									</div>
+									<div class="card-body row" style="padding:0 6px 6px">
+										<div class="col-md-3">SAMPLE</div>
+										<div class="col-md-9">
+											<div class="vv verif-sample"></div>
+										</div>
+									</div>
+									<div class="ii input-sample"></div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<input type="hidden" id="id_hdr" value="">
+			</div>
+
+			<div class="row row-nasional" style="display:none">
+				<?php (in_array($this->session->userdata('level'), ['Admin', 'Marketing', 'Owner', 'User'])) ? $cc = 'col-md-3' : $cc = 'col-md-4'; ?>
+				<div class="<?= $cc ?>">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">ACUAN WARNA/SAMPLE CUST</h3>
+						</div>
+						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+							<div class="list-acuan" style="display:flex">-</div>
+						</div>
+					</div>
+				</div>
+				<div class="<?= $cc ?>">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN</h3>
+						</div>
+						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+							<div class="list-design" style="display:flex">-</div>
+						</div>
+					</div>
+				</div>
+				<?php if(in_array($this->session->userdata('level'), ['Admin', 'Marketing', 'Owner', 'User'])) { ?>
+					<div class="<?= $cc ?>">
+						<div class="card card-secondary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">PENAWARAN</h3>
+							</div>
+							<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+								<div class="list-penawaran" style="display:flex">-</div>
+							</div>
+						</div>
+					</div>
+				<?php }else{ ?>
+					<input type="hidden" class="list-penawaran" value="">
+				<?php } ?>
+				<div class="<?= $cc ?>">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE</h3>
+						</div>
+						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+							<div class="list-sample" style="display:flex">-</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row row-lokal" style="display:none">
+				<div class="col-md-6">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN</h3>
+						</div>
+						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+							<div class="list-design2" style="display:flex">-</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE</h3>
+						</div>
+						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+							<div class="list-sample2" style="display:flex">-</div>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<div class="simpan-save"></div>
@@ -291,14 +311,15 @@
 								<table id="datatable" class="table table-bordered table-striped">
 									<thead class="color-tabel">
 										<tr>
-											<th style="padding:12px;text-align:center">#</th>
-											<th style="padding:12px;text-align:center">RINCIAN<span style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">(order)</span></th>
-											<th style="padding:12px;text-align:center">TGL</th>
-											<th style="padding:12px;text-align:center">STATUS</th>
-											<th style="padding:12px;text-align:center">DESIGN</th>
-											<th style="padding:12px;text-align:center">S. CUST</th>
-											<th style="padding:12px;text-align:center">S. BOX</th>
-											<th style="padding:12px;text-align:center">AKSI</th>
+											<th style="padding:12px;text-align:center;width:5%">#</th>
+											<th style="padding:12px;text-align:center;width:45%">RINCIAN<span style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">(detail)</span></th>
+											<th style="padding:12px;text-align:center;width:10%">TGL</th>
+											<th style="padding:12px;text-align:center;width:10%">STATUS</th>
+											<th style="padding:12px;text-align:center;width:5%">A</th>
+											<th style="padding:12px;text-align:center;width:5%">D</th>
+											<th style="padding:12px;text-align:center;width:5%">P</th>
+											<th style="padding:12px;text-align:center;width:5%">S</th>
+											<th style="padding:12px;text-align:center;width:10%">AKSI</th>
 										</tr>
 									</thead>
 									<tbody></tbody>
@@ -323,7 +344,9 @@
 
 	$(document).ready(function ()
 	{
-		// load_data()
+		$(".row-input").hide()
+		$(".row-list").show()
+		load_data()
 		$('.select2').select2();
 	});
 
@@ -342,7 +365,7 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url('Transaksi/load_data/trs_po_roll')?>',
+				"url": '<?php echo base_url('Transaksi/load_data/form_design')?>',
 				"type": "POST",
 				"data": ({
 					tahun, bulan
@@ -379,84 +402,193 @@
 		}
 	}
 
+	// PREVIEW
+	$("#dsg_foto").change(function() {
+        readURL(this);
+    });
+	function readURL(input) {
+		if (input.files && input.files[0]) {
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			$(".preview-upload").html(`
+				<div class="card-body row" style="font-weight:bold;padding:12px 6px">
+					<div class="col-md-3"></div>
+					<div class="col-md-9">
+						<img id="prevImg" src="${e.target.result}" alt="preview" width="200" class="shadow-sm" onclick="imgClick('prevImg')">
+					</div>
+				</div>
+			`)
+		}
+		reader.readAsDataURL(input.files[0]);
+		} else {
+			$(".preview-upload").html(``)
+		}
+	}
+
 	function pilihPilih() {
+		let id_dg = $("#id_dg").val()
+		let opsi = $("#opt").val()
 		let tgl_s = $("#tgl_s").val()
 		let pilih_s = $("#pilih_s").val()
 
 		$(".list-acuan").html('')
 		$(".list-design").html('')
+		$(".list-design2").html('')
+		$(".link-design").html('')
 		$(".list-penawaran").html('')
 		$(".list-sample").html('')
-		loadListDesign()
+		$(".list-sample2").html('')
+
+		if(urlAuth == 'Admin'){
+			if(pilih_s == 'N'){
+				$("#dsg_pilih").html(`
+					<option value="">PILIH</option>
+					<option value="A">ACUAN WARNA / SAMPLE CUSTOMER</option>
+					<option value="D">DESIGN</option>
+					<option value="P">PENAWARAN</option>
+					<option value="S">SAMPLE</option>
+				`)
+			}else{
+				$("#dsg_pilih").html(`
+					<option value="">PILIH</option>
+					<option value="D">DESIGN</option>
+					<option value="S">SAMPLE</option>
+				`)
+			}
+		}else if(urlAuth == 'User' && pilih_s == 'N'){
+			$("#dsg_pilih").html(`
+				<option value="">PILIH</option>
+				<option value="A">ACUAN WARNA / SAMPLE CUSTOMER</option>
+				<option value="P">PENAWARAN</option>
+			`)
+		}else if(urlAuth == 'Design'){
+			$("#dsg_pilih").html(`<option value="">PILIH</option><option value="D">DESIGN</option>`)
+		}else if(urlAuth == 'PPIC'){
+			$("#dsg_pilih").html(`<option value="">PILIH</option><option value="S">SAMPLE</option>`)
+		}else{
+			$("#dsg_pilih").html(`<option value="">PILIH</option>`)
+		}
 
 		$("#dsg_pilih").val("").trigger('change')
 		$("#dsg_foto").val("")
+		$(".preview-upload").html('')
 		$(".simpan-upload").html('')
+
+		$(".row-verifikasi").hide()
 
 		if(tgl_s != "" && pilih_s == "N"){
 			$(".col-box-po").hide()
-			$(".col-box-upload").show()
-			$(".row-nasional").show()
-			$(".row-lokal").hide()
+			if(id_dg != '' && opsi != ''){
+				$(".col-box-upload").show()
+				$(".row-nasional").show()
+				$(".row-lokal").hide()
+			}
 		}else if(tgl_s != "" && pilih_s == "B"){
 			$(".col-box-po").show()
-			$(".col-box-upload").show()
-			$(".row-nasional").hide()
-			$(".row-lokal").show()
-			loadCustDesign()
+			if(id_dg != '' && opsi != ''){
+				$(".col-box-upload").show()
+				$(".row-nasional").hide()
+				$(".row-lokal").show()
+			}
+			if(id_dg == '' && opsi == ''){
+				loadCustDesign()
+			}
 		}else{
 			$(".col-box-po").hide()
 			$(".col-box-upload").hide()
 			$(".row-nasional").hide()
 			$(".row-lokal").hide()
 		}
+
+		if(id_dg != '' && opsi != ''){
+			loadListDesign()
+		}
+		tmplSave()
+	}
+
+	function tmplSave(){
+		let opt = $("#opt").val()
+		let tgl_s = $("#tgl_s").val()
+		let pilih_s = $("#pilih_s").val()
+
+		if(tgl_s != '' && pilih_s != '' && statusInput == 'insert'){
+			$(".simpan-save").html(`<div class="row" style="margin-bottom:16px">
+				<div class="col-md-12">
+					<button class="btn btn-primary btn-sm" onclick="saveDesign()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
+				</div>
+			</div>`)
+		}else{
+			$(".simpan-save").html('')
+		}
 	}
 
 	function loadCustDesign() {
-		$("#i_customer").html('<option value="" disabled>PILIH</option>')
+		let h_id_pelanggan = $("#id_pelanggan").val()
+		let opt = $("#opt").val()
+
+		$("#i_customer").html('<option value="">PILIH</option>')
+		$("#i_po").html('<option value="">PILIH</option>')
+		$("#i_produk").html('<option value="">PILIH</option>')
+		$(".d_produk").html('-')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadCustDesign')?>',
 			type: "POST",
+			data: ({ h_id_pelanggan, opt }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$("#i_customer").html(data.htmlCust)
 			}
 		})
 	}
 
 	function loadNoPoDesign() {
+		let h_id_pelanggan = $("#id_pelanggan").val()
+		let kode_po = $("#kode_po").val()
 		let id_pelanggan = $("#i_customer").val()
-		console.log("id_pelanggan : ", id_pelanggan)
-		$("#i_po").html('<option value="" no_po="" disabled>PILIH</option>')
+		$("#i_po").html('<option value="">PILIH</option>')
+		$("#i_produk").html('<option value="">PILIH</option>')
+		$(".d_produk").html('-')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadNoPoDesign')?>',
 			type: "POST",
-			data: ({ id_pelanggan }),
+			data: ({ h_id_pelanggan, kode_po, id_pelanggan }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$("#i_po").html(data.htmlNoPo)
 			}
 		})
 	}
 
 	function loadProdukDesign() {
+		let h_id_pelanggan = $("#id_pelanggan").val()
+		let h_kode_po = $("#kode_po").val()
+		let h_id_produk = $("#id_produk").val()
 		let id_pelanggan = $("#i_customer").val()
 		let kode_po = $("#i_po").val()
-		let no_po = $('#i_po option:selected').attr('no_po')
-		console.log("id_pelanggan : ", id_pelanggan)
-		console.log("kode_po : ", kode_po)
-		console.log("no_po : ", no_po)
-		$("#i_produk").html('<option value="" disabled>PILIH</option>')
+		$("#i_produk").html('<option value="">PILIH</option>')
+		$(".d_produk").html('-')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadProdukDesign')?>',
 			type: "POST",
-			data: ({ id_pelanggan, kode_po, no_po }),
+			data: ({ h_id_pelanggan, h_kode_po, h_id_produk, id_pelanggan, kode_po }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$("#i_produk").html(data.htmlProduk)
+			}
+		})
+	}
+
+	function detailProdukDesign() {
+		let h_id_produk = $("#id_produk").val()
+		let i_produk = $("#i_produk").val()
+		$(".d_produk").html('-')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/detailProdukDesign')?>',
+			type: "POST",
+			data: ({ h_id_produk, i_produk }),
+			success: function(res){
+				data = JSON.parse(res)
+				$(".d_produk").html(data.htmlDtlProduk)
 			}
 		})
 	}
@@ -466,8 +598,8 @@
 		let dsg_foto = $("#dsg_foto").val()
 		if (dsg_pilih != '' && dsg_foto != '') {
 			$(".simpan-upload").html(`<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
-				<div class="col-md-1"></div>
-				<div class="col-md-11">
+				<div class="col-md-3"></div>
+				<div class="col-md-9">
 					<button class="btn btn-primary btn-sm" onclick="uploadDesign()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
 				</div>
 			</div>`)
@@ -477,7 +609,10 @@
 	}
 
 	function uploadDesign() {
+		let id_dg = $("#id_dg").val()
+		let opsi = $("#opt").val()
 		$(".simpan-upload").prop('disabled', true)
+
 		var form = $('#upload_design')[0];
 		var data = new FormData(form);
 		$.ajax({
@@ -501,13 +636,16 @@
 			},
 			success: function(res) {
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					toastr.success(`<b>${data.msg}</b>`)
-					$("#dsg_pilih").val("").trigger('change')
-					$("#dsg_foto").val("")
-					$(".simpan-upload").html('')
-					loadListDesign()
+					if(statusInput == 'insert'){
+						$("#dsg_pilih").val("").trigger('change')
+						$("#dsg_foto").val("")
+						$(".simpan-upload").html('')
+						loadListDesign()
+					}else{
+						editFormDesign(id_dg, opsi)
+					}
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
 					$(".simpan-upload").prop('disabled', false)
@@ -518,6 +656,8 @@
 	}
 
 	function deleteDesign(id_dtl) {
+		let id_dg = $("#id_dg").val()
+		let opsi = $("#opt").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/deleteDesign')?>',
 			type: "POST",
@@ -534,62 +674,640 @@
 			data: ({ id_dtl }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
-				loadListDesign()
+				editFormDesign(id_dg, opsi)
 			}
 		})
 	}
 
 	function loadListDesign() {
+		let id_dg = $("#id_dg").val()
+		let opt = $("#opt").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadListDesign')?>',
 			type: "POST",
+			data: ({ id_dg, opt, statusInput }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".list-acuan").html(data.htmlAcuan)
-				$(".list-design").html(data.htmlDesign)
 				$(".list-penawaran").html(data.htmlPenawaran)
-				$(".list-sample").html(data.htmlSample)
+				$(".link-design").html(data.linkDesign)
+				if(data.header.jenis_dg == 'N'){
+					$(".list-design").html(data.htmlDesign)
+					$(".list-sample").html(data.htmlSample)
+					$(".list-design2").html('-')
+					$(".list-sample2").html('-')
+				}else{
+					$(".list-design").html('-')
+					$(".list-sample").html('-')
+					$(".list-design2").html(data.htmlDesign)
+					$(".list-sample2").html(data.htmlSample)
+				}
 				swal.close()
-				tmplSave()
 			}
 		})
 	}
 
-	function tmplSave(){
+	function saveDesign() {
+		let id_dg = $("#id_dg").val()
+		let opsi = $("#opt").val()
 		let tgl_s = $("#tgl_s").val()
 		let pilih_s = $("#pilih_s").val()
-		let Lacuan = $(".list-acuan").html()
-		let Ldesign = $(".list-design").html()
-		let Lpenawaran = $(".list-penawaran").html()
-		let Lsample = $(".list-sample").html()
-
-		if((tgl_s != '' && pilih_s != '') && (Lacuan != "" || Ldesign != "" || Lpenawaran != "" || Lsample != "")){
-			$(".simpan-save").html(`<div class="row" style="margin-bottom:16px">
-				<div class="col-md-12">
-					<button class="btn btn-primary btn-sm" onclick="saveDesign()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
-				</div>
-			</div>`)
-		}else{
-			$(".simpan-save").html('')
-		}
-	}
-
-	function saveDesign()
-	{
-		let tgl_s = $("#tgl_s").val()
-		let pilih_s = $("#pilih_s").val()
+		let i_customer = $("#i_customer").val()
+		let i_po = $("#i_po").val()
+		let i_produk = $("#i_produk").val()
+		$(".simpan-save").prop('disabled', true)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/saveDesign')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			data: ({
-				tgl_s, pilih_s
+				id_dg, opsi, tgl_s, pilih_s, i_customer, i_po, i_produk, statusInput
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				if(statusInput == 'insert'){
+					if(data.data && data.detail){
+						toastr.success(`<b>${data.msg}</b>`)
+						kembali()
+					}else{
+						toastr.error(`<b>${data.msg}</b>`)
+					}
+					swal.close()
+					$(".simpan-save").prop('disabled', false)
+				}else{
+					editFormDesign(id_dg, opsi)
+				}
 			}
+		})
+	}
+
+	function addLinkDesign(id_dg) {
+		let id_dgx = $("#id_dg").val()
+		let opsi = $("#opt").val()
+		let link_design = $("#link_design").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/addLinkDesign')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_dgx, link_design }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					editFormDesign(id_dgx, opsi)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function kosong() {
+		statusInput = 'insert'
+
+		$("#id_dg").val("")
+		$("#id_pelanggan").val("")
+		$("#kode_po").val("")
+		$("#id_produk").val("")
+		$("#opt").val("")
+
+		$("#i_customer").prop('disabled', false)
+		$("#i_po").prop('disabled', false)
+		$("#i_produk").prop('disabled', false)
+		
+		$("#kode_dg").html('')
+		$("#tgl_s").val("").prop('disabled', false)
+		$("#pilih_s").val("").prop('disabled', false).trigger('change')
+
+		$("#ii").html('')
+		$("#vv").html('')
+		$(".tt-acuan").hide()
+		$(".tt-penawaran").hide()
+	}
+
+	function kembali() {
+		kosong()
+		$(".row-input").hide()
+		$(".row-list").show()
+		reloadTable()
+	}
+
+	function tambahData() {
+		kosong()
+		$(".row-list").hide()
+		$(".row-input").show()
+	}
+
+	function editFormDesign(id_dg, opsi) {
+		$("#kode_dg").html('')
+		$(".row-list").hide()
+		$(".row-input").show()
+
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/editFormDesign')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({
+				id_dg, opsi, statusInput
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+
+				statusInput = 'update'
+
+				$("#id_dg").val(data.header.id_dg)
+				$("#id_pelanggan").val(data.header.id_pelanggan)
+				$("#kode_po").val(data.header.kode_po)
+				$("#id_produk").val(data.header.id_produk)
+				$("#opt").val(opsi)
+
+				$("#i_customer").prop('disabled', true)
+				$("#i_po").prop('disabled', true)
+				$("#i_produk").prop('disabled', true)
+
+				$("#kode_dg").html(`
+					<div class="card-body row" style="font-weight:bold;padding:6px 6px 0">
+						<div class="col-md-3">KODE</div>
+						<div class="col-md-5">
+							<input type="text" class="form-control" style="font-weight:bold" value="${data.header.kode_dg}" disabled>
+						</div>
+						<div class="col-md-4"></div>
+					</div>
+				`)
+
+				$("#tgl_s").val(data.header.tgl).prop('disabled', true)
+				$("#pilih_s").val(data.header.jenis_dg).prop('disabled', true).trigger('change')
+
+				if(opsi == 'edit'){
+					if(urlAuth == 'Admin'){
+						$(".col-box-upload").show()
+					}else if((urlAuth == 'User') && (data.header.acc_a_stt == 'N' || data.header.acc_p_stt == 'N')){
+						$(".col-box-upload").show()
+					}else if(urlAuth == 'Design' && data.header.acc_d_stt == 'N'){
+						$(".col-box-upload").show()
+					}else if(urlAuth == 'PPIC' && data.header.acc_s_stt == 'N'){
+						$(".col-box-upload").show()
+					}else{
+						$(".col-box-upload").hide()
+					}
+				}else{
+					$(".col-box-upload").hide()
+				}
+
+				$(".row-verifikasi").show()
+
+				if(data.header.jenis_dg == 'B'){
+					loadCustDesign()
+					loadNoPoDesign()
+					loadProdukDesign()
+					detailProdukDesign()
+				}
+				loadListDesign()
+
+				// VERIFIKASI DATA
+
+				$(".ii").html('')
+				$(".vv").html('')
+
+				if(data.header.jenis_dg == 'N'){
+					$(".tt-acuan").show()
+					$(".tt-penawaran").show()
+				}
+				if(data.header.jenis_dg == 'B'){
+					$(".tt-acuan").hide()
+					$(".tt-penawaran").hide()
+				}
+
+				// VERIFIFIKASI ACUAN
+				if(data.imgA != 0 && (urlAuth == 'Admin' || urlAuth == 'User') && (data.header.acc_a_stt == 'N' || data.header.acc_a_stt == 'H' || data.header.acc_a_stt == 'R')){
+					// BUTTON ACUAN
+					$(".verif-acuan").html(`
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifDesign('verifikasi', 'acuan')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifDesign('hold', 'acuan')"><i class="far fa-hand-paper"></i> Hold</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifDesign('reject', 'acuan')"><i class="fas fa-times"></i> Reject</button>
+					`)
+					// KETERANGAN ACUAN
+					if(data.header.acc_a_stt != 'N'){
+						if(data.header.acc_a_stt == 'H'){
+							callout = 'callout-warning'
+							colorbtn = 'btn-warning'
+							txtsave = 'HOLD!'
+						}else{
+							callout = 'callout-danger'
+							colorbtn = 'btn-danger'
+							txtsave = 'REJECT!'
+						}
+						$(".input-acuan").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:0;margin:0">
+										<textarea class="form-control" id="ket_acuan" style="font-weight:bold;padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.acc_a_ket}</textarea>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifDesign('${data.header.acc_a_stt}', 'acuan')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+								</div>
+							</div>
+						`)
+					}
+				}else{
+					// BUTTON ACUAN
+					if(data.header.acc_a_stt == 'N'){
+						$(".verif-acuan").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+					}else if(data.header.acc_a_stt == 'H'){
+						$(".verif-acuan").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.a_time}`)
+					}else if(data.header.acc_a_stt == 'R'){
+						$(".verif-acuan").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.a_time}`)
+					}else{
+						if(urlAuth == 'Admin' && data.header.jenis_dg == 'N'){
+							vstyle = ``; vclick = `onclick="btnVerifDesign('N', 'acuan')"`;
+						}else{
+							vstyle = `;cursor:default"`; vclick = ``;
+						}
+						$(".verif-acuan").html(`<button title="OKE" style="text-align:center${vstyle}" class="btn btn-sm btn-success" ${vclick}><i class="fas fa-check-circle"></i></button> ${data.a_time}`)
+					}
+					// KETERANGAN ACUAN
+					if(data.header.acc_a_stt != 'N'){
+						if(data.header.acc_a_stt == 'H'){
+							callout = 'callout-warning'
+						}else if(data.header.acc_a_stt == 'R'){
+							callout = 'callout-danger'
+						}else{
+							callout = 'callout-success'
+						}
+						$(".input-acuan").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<input type="hidden" id="ket_acuan" value="">
+									<div class="callout ${callout}" style="font-weight:bold;padding:6px;margin:0">${data.header.acc_a_ket}</div>
+								</div>
+							</div>
+						`)
+					}
+				}
+
+				// VERIFIFIKASI DESIGN
+				if(data.imgD != 0 && (urlAuth == 'Admin' || urlAuth == 'Design') && (data.header.acc_d_stt == 'N' || data.header.acc_d_stt == 'H' || data.header.acc_d_stt == 'R')){
+					// BUTTON DESIGN
+					$(".verif-design").html(`
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifDesign('verifikasi', 'design')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifDesign('hold', 'design')"><i class="far fa-hand-paper"></i> Hold</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifDesign('reject', 'design')"><i class="fas fa-times"></i> Reject</button>
+					`)
+					// KETERANGAN DESIGN
+					if(data.header.acc_d_stt != 'N'){
+						if(data.header.acc_d_stt == 'H'){
+							callout = 'callout-warning'
+							colorbtn = 'btn-warning'
+							txtsave = 'HOLD!'
+						}else{
+							callout = 'callout-danger'
+							colorbtn = 'btn-danger'
+							txtsave = 'REJECT!'
+						}
+						$(".input-design").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:0;margin:0">
+										<textarea class="form-control" id="ket_design" style="font-weight:bold;padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.acc_d_ket}</textarea>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifDesign('${data.header.acc_d_stt}', 'design')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+								</div>
+							</div>
+						`)
+					}
+				}else{
+					// BUTTON DESIGN
+					if(data.header.acc_d_stt == 'N'){
+						$(".verif-design").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+					}else if(data.header.acc_d_stt == 'H'){
+						$(".verif-design").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.d_time}`)
+					}else if(data.header.acc_d_stt == 'R'){
+						$(".verif-design").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.d_time}`)
+					}else{
+						if(urlAuth == 'Admin'){
+							vstyle = ``; vclick = `onclick="btnVerifDesign('N', 'design')"`;
+						}else{
+							vstyle = `;cursor:default"`; vclick = ``;
+						}
+						$(".verif-design").html(`<button title="OKE" style="text-align:center${vstyle}" class="btn btn-sm btn-success" ${vclick}><i class="fas fa-check-circle"></i></button> ${data.d_time}`)
+					}
+					// KETERANGAN DESIGN
+					if(data.header.acc_d_stt != 'N'){
+						if(data.header.acc_d_stt == 'H'){
+							callout = 'callout-warning'
+						}else if(data.header.acc_d_stt == 'R'){
+							callout = 'callout-danger'
+						}else{
+							callout = 'callout-success'
+						}
+						$(".input-design").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<input type="hidden" id="ket_design" value="">
+									<div class="callout ${callout}" style="font-weight:bold;padding:6px;margin:0">${data.header.acc_d_ket}</div>
+								</div>
+							</div>
+						`)
+					}
+				}
+
+				// VERIFIFIKASI PENAWARAN
+				if(data.imgP != 0 && (urlAuth == 'Admin' || urlAuth == 'User') && (data.header.acc_p_stt == 'N' || data.header.acc_p_stt == 'H' || data.header.acc_p_stt == 'R')){
+					// BUTTON PENAWARAN
+					$(".verif-penawaran").html(`
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifDesign('verifikasi', 'penawaran')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifDesign('hold', 'penawaran')"><i class="far fa-hand-paper"></i> Hold</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifDesign('reject', 'penawaran')"><i class="fas fa-times"></i> Reject</button>
+					`)
+					// KETERANGAN PENAWARAN
+					if(data.header.acc_p_stt != 'N'){
+						if(data.header.acc_p_stt == 'H'){
+							callout = 'callout-warning'
+							colorbtn = 'btn-warning'
+							txtsave = 'HOLD!'
+						}else{
+							callout = 'callout-danger'
+							colorbtn = 'btn-danger'
+							txtsave = 'REJECT!'
+						}
+						$(".input-penawaran").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:0;margin:0">
+										<textarea class="form-control" id="ket_penawaran" style="font-weight:bold;padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.acc_p_ket}</textarea>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifDesign('${data.header.acc_p_stt}', 'penawaran')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+								</div>
+							</div>
+						`)
+					}
+				}else{
+					// BUTTON PENAWARAN
+					if(data.header.acc_p_stt == 'N'){
+						$(".verif-penawaran").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+					}else if(data.header.acc_p_stt == 'H'){
+						$(".verif-penawaran").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.p_time}`)
+					}else if(data.header.acc_p_stt == 'R'){
+						$(".verif-penawaran").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.p_time}`)
+					}else{
+						if(urlAuth == 'Admin' && data.header.jenis_dg == 'N'){
+							vstyle = ``; vclick = `onclick="btnVerifDesign('N', 'penawaran')"`;
+						}else{
+							vstyle = `;cursor:default"`; vclick = ``;
+						}
+						$(".verif-penawaran").html(`<button title="OKE" style="text-align:center${vstyle}" class="btn btn-sm btn-success" ${vclick}><i class="fas fa-check-circle"></i></button> ${data.p_time}`)
+					}
+					// KETERANGAN PENAWARAN
+					if(data.header.acc_p_stt != 'N'){
+						if(data.header.acc_p_stt == 'H'){
+							callout = 'callout-warning'
+						}else if(data.header.acc_p_stt == 'R'){
+							callout = 'callout-danger'
+						}else{
+							callout = 'callout-success'
+						}
+						$(".input-penawaran").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<input type="hidden" id="ket_penawaran" value="">
+									<div class="callout ${callout}" style="font-weight:bold;padding:6px;margin:0">${data.header.acc_p_ket}</div>
+								</div>
+							</div>
+						`)
+					}
+				}
+
+				// VERIFIFIKASI SAMPLE
+				if(data.imgS != 0 && (urlAuth == 'Admin' || urlAuth == 'PPIC') && (data.header.acc_s_stt == 'N' || data.header.acc_s_stt == 'H' || data.header.acc_s_stt == 'R')){
+					// BUTTON SAMPLE
+					$(".verif-sample").html(`
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifDesign('verifikasi', 'sample')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifDesign('hold', 'sample')"><i class="far fa-hand-paper"></i> Hold</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifDesign('reject', 'sample')"><i class="fas fa-times"></i> Reject</button>
+					`)
+					// KETERANGAN SAMPLE
+					if(data.header.acc_s_stt != 'N'){
+						if(data.header.acc_s_stt == 'H'){
+							callout = 'callout-warning'
+							colorbtn = 'btn-warning'
+							txtsave = 'HOLD!'
+						}else{
+							callout = 'callout-danger'
+							colorbtn = 'btn-danger'
+							txtsave = 'REJECT!'
+						}
+						$(".input-sample").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:0;margin:0">
+										<textarea class="form-control" id="ket_sample" style="font-weight:bold;padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.acc_s_ket}</textarea>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifDesign('${data.header.acc_s_stt}', 'sample')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+								</div>
+							</div>
+						`)
+					}
+				}else{
+					// BUTTON SAMPLE
+					if(data.header.acc_s_stt == 'N'){
+						$(".verif-sample").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+					}else if(data.header.acc_s_stt == 'H'){
+						$(".verif-sample").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.s_time}`)
+					}else if(data.header.acc_s_stt == 'R'){
+						$(".verif-sample").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.s_time}`)
+					}else{
+						if(urlAuth == 'Admin'){
+							vstyle = ``; vclick = `onclick="btnVerifDesign('N', 'sample')"`;
+						}else{
+							vstyle = `;cursor:default"`; vclick = ``;
+						}
+						$(".verif-sample").html(`<button title="OKE" style="text-align:center${vstyle}" class="btn btn-sm btn-success" ${vclick}><i class="fas fa-check-circle"></i></button> ${data.s_time}`)
+					}
+					// KETERANGAN SAMPLE
+					if(data.header.acc_s_stt != 'N'){
+						if(data.header.acc_s_stt == 'H'){
+							callout = 'callout-warning'
+						}else if(data.header.acc_s_stt == 'R'){
+							callout = 'callout-danger'
+						}else{
+							callout = 'callout-success'
+						}
+						$(".input-sample").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<input type="hidden" id="ket_sample" value="">
+									<div class="callout ${callout}" style="font-weight:bold;padding:6px;margin:0">${data.header.acc_s_ket}</div>
+								</div>
+							</div>
+						`)
+					}
+				}
+			}
+		})
+	}
+
+	function verifDesign(aksi, status_verif)
+	{
+		if(aksi == 'verifikasi'){
+			vrf = 'Y'
+			callout = 'callout-success'
+			colorbtn = 'btn-success'
+			txtsave = 'VERIFIKASI!'
+		}else if(aksi == 'hold'){
+			vrf = 'H'
+			callout = 'callout-warning'
+			colorbtn = 'btn-warning'
+			txtsave = 'HOLD!'
+		}else if(aksi == 'reject'){
+			vrf = 'R'
+			callout = 'callout-danger'
+			colorbtn = 'btn-danger'
+			txtsave = 'REJECT!'
+		}
+		$(".input-"+status_verif).html(`
+			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				<div class="col-md-3"></div>
+				<div class="col-md-9">
+					<div class="callout ${callout}" style="padding:0;margin:0">
+						<textarea class="form-control" id="ket_${status_verif}" style="font-weight:bold;padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()"></textarea>
+					</div>
+				</div>
+			</div>
+			<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+				<div class="col-md-3"></div>
+				<div class="col-md-9">
+					<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifDesign('${vrf}', '${status_verif}')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+				</div>
+			</div>
+		`)
+	}
+
+	function btnVerifDesign(aksi, status_verif)
+	{
+		let id_dg = $("#id_dg").val()
+		let opsi = $("#opt").val()
+		let ket = $("#ket_"+status_verif).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/btnVerifDesign')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({
+				id_dg, ket, aksi, status_verif
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					editFormDesign(id_dg, opsi)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function hapusDesign(id_dg, kode_dg)
+	{
+		swal({
+			title : kode_dg,
+			html : "<p>Hapus List?</p>",
+			type : "question",
+			showCancelButton : true,
+			confirmButtonText : '<b>Hapus</b>',
+			cancelButtonText : '<b>Batal</b>',
+			confirmButtonClass : 'btn btn-success',
+			cancelButtonClass : 'btn btn-danger',
+			cancelButtonColor : '#d33'
+		}).then(() => {
+			$.ajax({
+				url: '<?php echo base_url('Transaksi/hapusDesign')?>',
+				type: "POST",
+				data: ({ id_dg }),
+				beforeSend: function() {
+					swal({
+						title: 'loading ...',
+						allowEscapeKey    : false,
+						allowOutsideClick : false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					})
+				},
+				success: function(res){
+					data = JSON.parse(res)
+					if(data.hhdr && data.hdtl){
+						reloadTable()
+					}else{
+						toastr.error(`<b>TERJADI KESALAHAN!</b>`)
+					}
+					swal.close()
+				}
+			})
 		})
 	}
 </script>

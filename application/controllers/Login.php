@@ -33,6 +33,7 @@ class login extends CI_Controller{
 				$data_session['password'] = $dt->password;
 				$data_session['nm_user'] = $dt->nm_user;
 				$data_session['level'] = $dt->level;
+				$data_session['id_sales'] = $dt->id_sales;
 
 				$this->session->set_userdata($data_session);
 			}
@@ -71,6 +72,7 @@ class login extends CI_Controller{
 				$data_session['username'] = $dt->username;
 				$data_session['password'] = $dt->password;
 				$data_session['level'] = $dt->level;
+				$data_session['id_sales'] = $dt->id_sales;
 				$data_session['foto'] = $dt->foto;
 
 				$this->session->set_userdata($data_session);

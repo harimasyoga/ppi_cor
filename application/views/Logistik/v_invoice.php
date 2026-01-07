@@ -1214,6 +1214,7 @@
 				if (data) {
 					reloadTable()
 					swal.close();
+					$('#filefoto').val('');
 					toastr.success(`<b>Berhasil Disimpan</b>`)
 					$('#modal_foto').modal('hide');
 					load_bank()
@@ -1229,7 +1230,7 @@
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				// toastr.error('Terjadi Kesalahan');				
+				$('#filefoto').val('');		
 				swal({
 					title: "Cek Kembali",
 					html: "Terjadi Kesalahan",

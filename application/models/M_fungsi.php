@@ -295,6 +295,11 @@ class M_fungsi extends CI_Model {
         return $tanggal[2].'/'.$tanggal[1].'/'.$tahun;
     }
 
+	function dateMonthYear($tgl){
+        $tanggal = explode('-',$tgl); 
+        return $tanggal[2].$tanggal[1].substr($tanggal[0], 2, 2);
+    }
+
     function  tanggal_ind($tgl)
 	{        
         $tanggal    = explode('-',$tgl);
