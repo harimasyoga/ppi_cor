@@ -5147,6 +5147,164 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function simpanAkses()
+	{
+		$result = $this->m_logistik->simpanAkses();
+		echo json_encode($result);
+	}
+
+	function loadCustAkses()
+	{
+		$htmlCust = '';
+		$htmlCust .= '<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
+			<div class="col-md-2">CUSTOMER</div>
+			<div class="col-md-10">
+				<select id="axs_cust" class="form-control select2" onchange="loadSJInvAkses()">
+					<option value="">PILIH</option>';
+					$cust = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan, attn");
+					foreach($cust->result() as $r){
+						($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
+						$htmlCust .= '<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.$attn.'</option>';
+					}
+				$htmlCust .= '</select>
+			</div>
+		</div>';
+
+		echo json_encode([
+			'htmlCust' => $htmlCust,
+		]);
+	}
+
+	function loadSJInvAkses()
+	{
+		$id_pt = $_POST["axs_cust"];
+		$htmlSJInv = '';
+		$htmlSJInv .= '<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+			<div class="col-md-2">INV / SJ</div>
+			<div class="col-md-10">
+				<select id="axs_inv" class="form-control select2" onchange="btnCartAkses()">
+					<option value="">PILIH</option>';
+					$invSj = $this->db->query("SELECT LTRIM(d.no_surat) AS no_surat,h.* FROM invoice_header h
+					INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
+					WHERE h.id_perusahaan='$id_pt' AND h.status_inv!='Approve'
+					GROUP BY h.no_invoice DESC,LTRIM(d.no_surat) DESC,h.id_perusahaan,h.id");
+					if($invSj->num_rows() != 0){
+						foreach($invSj->result() as $r){
+							$htmlSJInv .= '<option value="'.$r->id.'">'.$r->no_invoice.' | '.$r->no_surat.'</option>';
+						}
+					}
+				$htmlSJInv .= '</select>
+			</div>
+		</div>';
+
+		echo json_encode([
+			'htmlSJInv' => $htmlSJInv,
+		]);
+	}
+
+	function destroyAkses()
+	{
+		$this->cart->destroy();
+	}
+
+	function addCartAkses()
+	{
+		$slt_pilih = $_POST["slt_pilih"];
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$id_invoice = $_POST["id_invoice"];
+
+		$data = array(
+			'id' => $id_invoice,
+			'name' => $id_pelanggan.$slt_pilih.$id_invoice,
+			'price' => 0,
+			'qty' => 1,
+			'options' => array(
+				'slt_pilih' => $_POST["slt_pilih"],
+				'id_pelanggan' => $_POST["id_pelanggan"],
+				'id_invoice' => $_POST["id_invoice"],
+			)
+		);
+		
+		if($this->cart->total_items() != 0){
+			foreach($this->cart->contents() as $r){
+				if($r['id'] == $id_invoice && $r['options']['slt_pilih'] == $slt_pilih){
+					echo json_encode(array('data' => false, 'isi' => 'DATA SUDAH MASUK DI LIST!'));
+					return;
+				}
+			}
+			$this->cart->insert($data);
+			echo json_encode(array('data' => true, 'isi' => $data));
+		}else{
+			$this->cart->insert($data);
+			echo json_encode(array('data' => true, 'isi' => $data));
+		}
+	}
+
+	function listCartAkses()
+	{
+		$html = '';
+
+		if($this->cart->total_items() != 0){
+			$html .='<table style="margin:12px 0">
+				<tr style="background:#dee2e6">
+					<th style="padding:6px;border:1px solid #bbb;text-align:center">NO.</th>
+					<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
+					<th style="padding:6px;border:1px solid #bbb">NO. INVOICE</th>
+					<th style="padding:6px;border:1px solid #bbb">NO. SURAT JALAN</th>
+					<th style="padding:6px;border:1px solid #bbb">IZIN</th>
+					<th style="padding:6px;border:1px solid #bbb;text-align:center">AKSI</th>
+				</tr>';}
+
+				$i = 0;
+				foreach($this->cart->contents() as $r){
+					$i++;
+
+					$id_pelanggan = $r['options']['id_pelanggan'];
+					$id_invoice = $r['options']['id_invoice'];
+
+					$nm_pelanggan = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row()->nm_pelanggan;
+					$invoice = $this->db->query("SELECT LTRIM(d.no_surat) AS no_surat,h.* FROM invoice_header h
+					INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
+					WHERE h.id_perusahaan='$id_pelanggan' AND h.id='$id_invoice'
+					GROUP BY h.no_invoice DESC,LTRIM(d.no_surat),h.id_perusahaan,h.id")->row();
+					
+					$html .='<tr>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$nm_pelanggan.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$invoice->no_invoice.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$invoice->no_surat.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$r['options']['slt_pilih'].'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
+							<button type="button" class="btn btn-sm btn-danger btn-block" onclick="hapusCartAkses('."'".$r['rowid']."'".')">batal</button>
+						</td>
+					</tr>';
+				}
+
+				if($this->cart->total_items() != 0){
+			$html .='</table>';
+		}
+
+		if($this->cart->total_items() != 0){
+			$simpan = true;
+		}else{
+			$simpan = false;
+		}
+
+		echo json_encode([
+			'html' => $html,
+			'simpan' => $simpan,
+		]);
+	}
+
+	function hapusCartAkses()
+	{
+		$data = array(
+			'rowid' => $_POST['rowid'],
+			'qty' => 0,
+		);
+		$this->cart->update($data);
+	}
+
 	function cariLapExpired()
 	{
 		$html = '';
