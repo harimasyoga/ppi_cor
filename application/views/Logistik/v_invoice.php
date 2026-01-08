@@ -366,6 +366,39 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="card shadow list_akses" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;">
+				<h3 class="card-title" style="color:#4e73df;"><b>AKSES INVOICE</b></h3>
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="axs akses_cust"></div>
+				<div class="axs akses_sj_inv"></div>
+				<div class="card-body row axs_pilih" style="font-weight:bold;padding:0 6px 6px;display:none">
+					<div class="col-md-2">PILIH</div>
+					<div class="col-md-3">
+						<select id="slt_pilih" class="form-control select2" onchange="btnCartAkses()">
+							<option value="">PILIH</option>
+							<option value="izin_bc">BC</option>
+							<option value="izin_faktur">FAKTUR</option>
+							<option value="izin_resi">NO. RESI</option>
+							<option value="izin_inv_terima">INV. DITERIMA</option>
+							<option value="izin_mutasi">MUTASI</option>
+							<option value="izin_sj_balik">SJ BALIK</option>
+						</select>
+					</div>
+					<div class="col-md-7"></div>
+				</div>
+				<div class="axs akses_add"></div>
+				<input type="hidden" id="cart-akses" value="">
+				<div class="axs akses_list"></div>
+				<div class="axs akses_simpan"></div>
+			</div>
+		</div>
 	</section>
 
 	<section class="content">
@@ -386,8 +419,9 @@
 								<button type="button" style="margin-bottom:3px" class="btn btn-secondary btn-sm" onclick="open_sj()" title="LIST SURAT JALAN"><i class="fas fa-list"></i> <b>LIST SURAT JALAN</b></button>
 								<!-- <button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE EXPIRED"><i class="fas fa-sync-alt"></i><b>UPDATE EXPIRED</b></button> -->
 								<?php if (in_array($this->session->userdata('level'), ['Admin'])) { ?>
-									<button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateInvMutasi()" title="UPDATE TOTAL"><i class="fas fa-sync-alt"></i> </i><b>UPDATE TOTAL</b></button>
-									<button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="updateMutasiBayar()" title="UPDATE BAYAR"><i class="fa fa-sync-alt"></i> <b>UPDATE BAYAR</b></button>
+									<!-- <button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateInvMutasi()" title="UPDATE TOTAL"><i class="fas fa-sync-alt"></i> </i><b>UPDATE TOTAL</b></button> -->
+									<!-- <button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="updateMutasiBayar()" title="UPDATE BAYAR"><i class="fa fa-sync-alt"></i> <b>UPDATE BAYAR</b></button> -->
+									<button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="open_akses()" title="OPEN AKSES"><i class="fas fa-key"></i> <b>OPEN AKSES</b></button>
 									<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_piutang()" title="LAPORAN PIUTANG"><i class="fas fa-list"></i> <b>LAP PIUTANG</b></button>
 									<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_lapExp()" title="LAPORAN EXPIRED"><i class="fa fa-print"></i> <b>LAP EXPIRED</b></button>
 								<?php } ?>
@@ -509,7 +543,6 @@
 	</section>
 </div>
 
-<!-- MODAL box -->
 <div class="modal fade" id="modalForm">
 	<div class="modal-dialog modal-full">
 		<div class="modal-content">
@@ -665,8 +698,6 @@
 		</div>
 	</div>
 </div>
-<!-- /.MODAL -->
-
 
 <div class="modal fade" id="modal_foto">
 	<div class="modal-dialog modal-full">
@@ -1650,6 +1681,8 @@
 		$(".list_sj").attr('style', 'display:none')
 		$(".list_exp").attr('style', 'display:none')
 		$(".list_piutang").attr('style', 'display:none')
+		$(".list_akses").attr('style', 'display:none')
+		$('.axs').html(``)
 		$(".card-mutasi").attr('style', 'display:none')
 		$("#tgl_expired").val('')
 		$('#ex_pilih').val('').trigger('change')
@@ -3237,7 +3270,6 @@
 			type: "POST",
 			success: function(res) {
 				data = JSON.parse(res)
-				// console.log(data)
 			}
 		})
 	}
@@ -3258,7 +3290,6 @@
 			},
 			success: function(res) {
 				data = JSON.parse(res)
-				console.log(data)
 				swal.close()
 			}
 		})
@@ -3317,6 +3348,183 @@
 					toastr.success(`<b>BERHASIL!</b>`)
 					load_bank()
 				}
+			}
+		})
+	}
+
+	function open_akses() {
+		$("#cart-akses").load("<?php echo base_url('Logistik/destroyAkses') ?>")
+		$(".row-input").attr('style', 'display:none')
+		$(".row-list").attr('style', 'display:none')
+		$(".list_sj").attr('style', '')
+		$(".list_akses").attr('style', '')
+
+		$(".akses_cust").html('')
+		$(".akses_sj_inv").html('')
+		$(".akses_add").html('')
+		$(".akses_list").html('')
+		$(".akses_simpan").html('')
+
+		listNomerSJ()
+		loadCustAkses()
+	}
+
+	function loadCustAkses() {
+		$(".axs_pilih").hide()
+		$(".akses_cust").html('')
+		$(".akses_add").html('')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/loadCustAkses') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			success: function(res) {
+				data = JSON.parse(res)
+				$(".akses_cust").html(data.htmlCust)
+				$('.select2').select2()
+				swal.close()
+			}
+		})
+	}
+
+	function loadSJInvAkses() {
+		$(".akses_sj_inv").html('')
+		$(".axs_pilih").hide()
+		$(".akses_add").html('')
+		let axs_cust = $("#axs_cust").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/loadSJInvAkses') ?>',
+			type: "POST",
+			data: ({ axs_cust }),
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			success: function(res) {
+				data = JSON.parse(res)
+				$(".akses_sj_inv").html(data.htmlSJInv)
+				$('.select2').select2()
+				swal.close()
+			}
+		})
+	}
+
+	function btnCartAkses() {
+		$(".akses_add").html('')
+		let slt_pilih = $("#slt_pilih").val()
+		let id_pelanggan = $("#axs_cust").val()
+		let id_invoice = $("#axs_inv").val()
+		if(id_pelanggan != '' && id_invoice != ''){
+			$(".axs_pilih").show()
+			if(slt_pilih != ''){
+				$(".akses_add").html(`
+					<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+						<div class="col-md-2"></div>
+						<div class="col-md-10">
+							<button type="button" class="btn btn-sm btn-success" style="font-weight:bold" onclick="addCartAkses()"><i class="fas fa-plus"></i> ADD</button>
+						</div>
+					</div>
+				`)
+			}else{
+				$(".akses_add").html('')
+			}
+		}else{
+			$(".axs_pilih").hide()
+			$(".akses_add").html('')
+		}
+	}
+
+	function addCartAkses() {
+		let slt_pilih = $("#slt_pilih").val()
+		let id_pelanggan = $("#axs_cust").val()
+		let id_invoice = $("#axs_inv").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/addCartAkses') ?>',
+			type: "POST",
+			data: ({ slt_pilih, id_pelanggan, id_invoice }),
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data.data){
+					listCartAkses()
+				}else{
+					toastr.error(`<b>${data.isi}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function hapusCartAkses(rowid){
+		$.ajax({
+			url: '<?php echo base_url('Logistik/hapusCartAkses')?>',
+			type: "POST",
+			data: ({ rowid }),
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			success: function(res){
+				listCartAkses()
+			}
+		})
+	}
+
+	function listCartAkses() {
+		$(".akses_list").html('')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/listCartAkses') ?>',
+			type: "POST",
+			success: function(res) {
+				data = JSON.parse(res)
+				$(".akses_list").html(data.html)
+				if(data.simpan){
+					$(".akses_simpan").html(`<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanAkses()"><i class="fas fa-save"></i> SIMPAN</button>`);
+				}else{
+					$(".akses_simpan").html('');
+				}
+				swal.close()
+			}
+		})
+	}
+
+	function simpanAkses() {
+		$.ajax({
+			url: '<?php echo base_url('Logistik/simpanAkses') ?>',
+			type: "POST",
+			success: function(res) {
+				data = JSON.parse(res)
+				toastr.success(`<b>BERHASIL!</b>`)
+				open_akses()
 			}
 		})
 	}

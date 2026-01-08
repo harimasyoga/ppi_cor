@@ -4308,6 +4308,21 @@ class M_logistik extends CI_Model
 		);
 	}
 
+	function simpanAkses()
+	{
+		foreach($this->cart->contents() as $r){
+			$slt_pilih = $r['options']['slt_pilih'];
+			$id_invoice = $r['options']['id_invoice'];
+			$this->db->set($slt_pilih, 'Y');
+			$this->db->where("id", $id_invoice);
+			$data = $this->db->update("invoice_header");
+		}
+
+		return [
+			'data' => $data,
+		];
+	}
+
 	function invInputNominalMutasi()
 	{
 		$id = $_POST["id"];
