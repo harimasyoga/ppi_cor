@@ -376,11 +376,6 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<div style="margin-bottom:12px">
-					<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
-							<i class="fa fa-arrow-left"></i> Kembali</b>
-					</button>
-				</div>
 				<div class="axs akses_cust"></div>
 				<div class="axs akses_sj_inv"></div>
 				<div class="card-body row axs_pilih" style="font-weight:bold;padding:0 6px 6px;display:none">
@@ -426,7 +421,7 @@
 								<?php if (in_array($this->session->userdata('level'), ['Admin'])) { ?>
 									<!-- <button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateInvMutasi()" title="UPDATE TOTAL"><i class="fas fa-sync-alt"></i> </i><b>UPDATE TOTAL</b></button> -->
 									<!-- <button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="updateMutasiBayar()" title="UPDATE BAYAR"><i class="fa fa-sync-alt"></i> <b>UPDATE BAYAR</b></button> -->
-									<button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="open_akses()" title="LAPORAN PIUTANG"><i class="fas fa-key"></i> <b>OPEN AKSES</b></button>
+									<button type="button" style="margin-bottom:3px" class="btn btn-primary btn-sm" onclick="open_akses()" title="OPEN AKSES"><i class="fas fa-key"></i> <b>OPEN AKSES</b></button>
 									<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_piutang()" title="LAPORAN PIUTANG"><i class="fas fa-list"></i> <b>LAP PIUTANG</b></button>
 									<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_lapExp()" title="LAPORAN EXPIRED"><i class="fa fa-print"></i> <b>LAP EXPIRED</b></button>
 								<?php } ?>
@@ -3275,7 +3270,6 @@
 			type: "POST",
 			success: function(res) {
 				data = JSON.parse(res)
-				// console.log(data)
 			}
 		})
 	}
@@ -3296,7 +3290,6 @@
 			},
 			success: function(res) {
 				data = JSON.parse(res)
-				console.log(data)
 				swal.close()
 			}
 		})
@@ -3363,21 +3356,41 @@
 		$("#cart-akses").load("<?php echo base_url('Logistik/destroyAkses') ?>")
 		$(".row-input").attr('style', 'display:none')
 		$(".row-list").attr('style', 'display:none')
+		$(".list_sj").attr('style', '')
 		$(".list_akses").attr('style', '')
+
+		$(".akses_cust").html('')
+		$(".akses_sj_inv").html('')
+		$(".akses_add").html('')
+		$(".akses_list").html('')
+		$(".akses_simpan").html('')
+
+		listNomerSJ()
 		loadCustAkses()
 	}
 
 	function loadCustAkses() {
-		$(".akses_cust").html('')
 		$(".axs_pilih").hide()
+		$(".akses_cust").html('')
 		$(".akses_add").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadCustAkses') ?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			success: function(res) {
 				data = JSON.parse(res)
 				$(".akses_cust").html(data.htmlCust)
 				$('.select2').select2()
+				swal.close()
 			}
 		})
 	}
@@ -3391,10 +3404,21 @@
 			url: '<?php echo base_url('Logistik/loadSJInvAkses') ?>',
 			type: "POST",
 			data: ({ axs_cust }),
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			success: function(res) {
 				data = JSON.parse(res)
 				$(".akses_sj_inv").html(data.htmlSJInv)
 				$('.select2').select2()
+				swal.close()
 			}
 		})
 	}
@@ -3432,10 +3456,24 @@
 			url: '<?php echo base_url('Logistik/addCartAkses') ?>',
 			type: "POST",
 			data: ({ slt_pilih, id_pelanggan, id_invoice }),
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			success: function(res) {
 				data = JSON.parse(res)
-				console.log(data)
-				listCartAkses()
+				if(data.data){
+					listCartAkses()
+				}else{
+					toastr.error(`<b>${data.isi}</b>`)
+					swal.close()
+				}
 			}
 		})
 	}
@@ -3445,6 +3483,16 @@
 			url: '<?php echo base_url('Logistik/hapusCartAkses')?>',
 			type: "POST",
 			data: ({ rowid }),
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			success: function(res){
 				listCartAkses()
 			}
@@ -3464,6 +3512,7 @@
 				}else{
 					$(".akses_simpan").html('');
 				}
+				swal.close()
 			}
 		})
 	}
@@ -3474,7 +3523,8 @@
 			type: "POST",
 			success: function(res) {
 				data = JSON.parse(res)
-				console.log(data)
+				toastr.success(`<b>BERHASIL!</b>`)
+				open_akses()
 			}
 		})
 	}
