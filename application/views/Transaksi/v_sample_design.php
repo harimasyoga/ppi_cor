@@ -128,7 +128,6 @@
 								</form>
 								<div class="preview-upload"></div>
 								<div class="simpan-upload"></div>
-								<div class="link-design"></div>
 							</div>
 						</div>
 					</div>
@@ -139,36 +138,32 @@
 						<div class="col-md-12">
 							<div class="card card-info card-outline" style="margin:0">
 								<div class="card-header" style="padding:12px">
-									<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DATA</h3>
+									<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI FORM</h3>
 								</div>
 								<div class="card-body" style="font-weight:bold;padding:18px 0 12px">
-									<div class="tt-acuan">
-										<div class="card-body row" style="padding:0 6px 6px">
-											<div class="col-md-3">ACUAN WARNA</div>
-											<div class="col-md-9">
-												<div class="vv verif-acuan"></div>
-											</div>
-										</div>
-										<div class="ii input-acuan"></div>
-									</div>
 									<div class="card-body row" style="padding:0 6px 6px">
-										<div class="col-md-3">DESIGN</div>
+										<div class="col-md-3">ACUAN WARNA</div>
+										<div class="col-md-9">
+											<div class="vv verif-acuan"></div>
+										</div>
+									</div>
+									<div class="ii input-acuan"></div>
+									<div class="card-body row" style="padding:0 6px 6px">
+										<div class="col-md-3">PENAWARAN</div>
+										<div class="col-md-9">
+											<div class="vv verif-penawaran"></div>
+										</div>
+									</div>
+									<div class="ii input-penawaran"></div>
+									<div class="card-body row" style="padding:0 6px 6px">
+										<div class="col-md-3">FORM DESIGN</div>
 										<div class="col-md-9">
 											<div class="vv verif-design"></div>
 										</div>
 									</div>
 									<div class="ii input-design"></div>
-									<div class="tt-penawaran">
-										<div class="card-body row" style="padding:0 6px 6px">
-											<div class="col-md-3">PENAWARAN</div>
-											<div class="col-md-9">
-												<div class="vv verif-penawaran"></div>
-											</div>
-										</div>
-										<div class="ii input-penawaran"></div>
-									</div>
 									<div class="card-body row" style="padding:0 6px 6px">
-										<div class="col-md-3">SAMPLE</div>
+										<div class="col-md-3">FORM SAMPLE</div>
 										<div class="col-md-9">
 											<div class="vv verif-sample"></div>
 										</div>
@@ -181,25 +176,17 @@
 				</div>
 			</div>
 
-			<div class="row row-nasional" style="display:none">
+			<div class="simpan-save"></div>
+
+			<div class="row row-form" style="display:none">
 				<?php (in_array($this->session->userdata('level'), ['Admin', 'Marketing', 'Owner', 'User'])) ? $cc = 'col-md-3' : $cc = 'col-md-4'; ?>
 				<div class="<?= $cc ?>">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">ACUAN WARNA/SAMPLE CUST</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">ACUAN WARNA</h3>
 						</div>
 						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
 							<div class="list-acuan" style="display:flex">-</div>
-						</div>
-					</div>
-				</div>
-				<div class="<?= $cc ?>">
-					<div class="card card-secondary card-outline">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN</h3>
-						</div>
-						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-							<div class="list-design" style="display:flex">-</div>
 						</div>
 					</div>
 				</div>
@@ -220,7 +207,18 @@
 				<div class="<?= $cc ?>">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">FORM DESIGN</h3>
+						</div>
+						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+							<div class="list-design" style="display:flex">-</div>
+						</div>
+						<div class="link-design"></div>
+					</div>
+				</div>
+				<div class="<?= $cc ?>">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">FORM SAMPLE</h3>
 						</div>
 						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
 							<div class="list-sample" style="display:flex">-</div>
@@ -229,30 +227,57 @@
 				</div>
 			</div>
 
-			<div class="row row-lokal" style="display:none">
+			<div class="row row-ppic" style="display:none">
 				<div class="col-md-6">
-					<div class="card card-secondary card-outline">
+					<div class="card card-info card-outline" style="margin:0">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">VERIFIKASI DESIGN, SAMPLE DAN KARET PPI</h3>
 						</div>
-						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-							<div class="list-design2" style="display:flex">-</div>
+						<div class="card-body" style="font-weight:bold;padding:18px 0 12px">
+							<div class="card-body row" style="padding:0 6px 6px">
+								<div class="col-md-3">DESIGN</div>
+								<div class="col-md-9">
+									<div class="vv verif-xdesign"></div>
+								</div>
+							</div>
+							<div class="ii input-xdesign"></div>
+							<div class="card-body row" style="padding:0 6px 6px">
+								<div class="col-md-3">SAMPLE</div>
+								<div class="col-md-9">
+									<div class="vv verif-zsample"></div>
+								</div>
+							</div>
+							<div class="ii input-zsample"></div>
+							<div class="card-body row" style="padding:0 6px 6px">
+								<div class="col-md-3">KARET</div>
+								<div class="col-md-9">
+									<div class="vv verif-karet"></div>
+								</div>
+							</div>
+							<div class="ii input-karet"></div>
 						</div>
 					</div>
 				</div>
 				<div class="col-md-6">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN PPI</h3>
 						</div>
 						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-							<div class="list-sample2" style="display:flex">-</div>
+							<div class="ppic-design" style="display:flex">-</div>
+						</div>
+						<div class="link-ppic-design"></div>
+					</div>
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE PPI</h3>
+						</div>
+						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
+							<div class="ppic-sample" style="display:flex">-</div>
 						</div>
 					</div>
 				</div>
 			</div>
-
-			<div class="simpan-save"></div>
 
 			<div class="row row-list">
 				<div class="col-md-12">
@@ -312,13 +337,16 @@
 									<thead class="color-tabel">
 										<tr>
 											<th style="padding:12px;text-align:center;width:5%">#</th>
-											<th style="padding:12px;text-align:center;width:45%">RINCIAN<span style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">(detail)</span></th>
+											<th style="padding:12px;text-align:center;width:30%">RINCIAN<span style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">(detail)</span></th>
 											<th style="padding:12px;text-align:center;width:10%">TGL</th>
 											<th style="padding:12px;text-align:center;width:10%">STATUS</th>
-											<th style="padding:12px;text-align:center;width:5%">A</th>
+											<th style="padding:12px;text-align:center;width:5%">FA</th>
+											<th style="padding:12px;text-align:center;width:5%">FP</th>
+											<th style="padding:12px;text-align:center;width:5%">FD</th>
+											<th style="padding:12px;text-align:center;width:5%">FS</th>
 											<th style="padding:12px;text-align:center;width:5%">D</th>
-											<th style="padding:12px;text-align:center;width:5%">P</th>
 											<th style="padding:12px;text-align:center;width:5%">S</th>
+											<th style="padding:12px;text-align:center;width:5%">K</th>
 											<th style="padding:12px;text-align:center;width:10%">AKSI</th>
 										</tr>
 									</thead>
@@ -426,45 +454,38 @@
 	}
 
 	function pilihPilih() {
+		tmplSave()
 		let id_dg = $("#id_dg").val()
 		let opsi = $("#opt").val()
 		let tgl_s = $("#tgl_s").val()
 		let pilih_s = $("#pilih_s").val()
 
+		$(".row-form").hide()
 		$(".list-acuan").html('')
 		$(".list-design").html('')
-		$(".list-design2").html('')
 		$(".link-design").html('')
 		$(".list-penawaran").html('')
 		$(".list-sample").html('')
-		$(".list-sample2").html('')
+		
+		$(".row-ppic").hide()
+		$(".ppic-design").html('')
+		$(".link-ppic-design").html('')
+		$(".ppic-sample").html('')
 
-		if(urlAuth == 'Admin'){
-			if(pilih_s == 'N'){
-				$("#dsg_pilih").html(`
-					<option value="">PILIH</option>
-					<option value="A">ACUAN WARNA / SAMPLE CUSTOMER</option>
-					<option value="D">DESIGN</option>
-					<option value="P">PENAWARAN</option>
-					<option value="S">SAMPLE</option>
-				`)
-			}else{
-				$("#dsg_pilih").html(`
-					<option value="">PILIH</option>
-					<option value="D">DESIGN</option>
-					<option value="S">SAMPLE</option>
-				`)
-			}
-		}else if(urlAuth == 'User' && pilih_s == 'N'){
+		$(".col-box-upload").hide()
+		
+		if(urlAuth == 'Admin' || urlAuth == 'User'){
 			$("#dsg_pilih").html(`
 				<option value="">PILIH</option>
-				<option value="A">ACUAN WARNA / SAMPLE CUSTOMER</option>
-				<option value="P">PENAWARAN</option>
+				<option value="FA">ACUAN WARNA</option>
+				<option value="FP">PENAWARAN</option>
+				<option value="FD">FORM DESIGN</option>
+				<option value="FS">FORM SAMPLE</option>
 			`)
 		}else if(urlAuth == 'Design'){
-			$("#dsg_pilih").html(`<option value="">PILIH</option><option value="D">DESIGN</option>`)
+			$("#dsg_pilih").html(`<option value="">PILIH</option><option value="XD">DESIGN</option>`)
 		}else if(urlAuth == 'PPIC'){
-			$("#dsg_pilih").html(`<option value="">PILIH</option><option value="S">SAMPLE</option>`)
+			$("#dsg_pilih").html(`<option value="">PILIH</option><option value="ZS">SAMPLE</option>`)
 		}else{
 			$("#dsg_pilih").html(`<option value="">PILIH</option>`)
 		}
@@ -478,40 +499,25 @@
 
 		if(tgl_s != "" && pilih_s == "N"){
 			$(".col-box-po").hide()
-			if(id_dg != '' && opsi != ''){
-				$(".col-box-upload").show()
-				$(".row-nasional").show()
-				$(".row-lokal").hide()
-			}
 		}else if(tgl_s != "" && pilih_s == "B"){
 			$(".col-box-po").show()
-			if(id_dg != '' && opsi != ''){
-				$(".col-box-upload").show()
-				$(".row-nasional").hide()
-				$(".row-lokal").show()
-			}
-			if(id_dg == '' && opsi == ''){
-				loadCustDesign()
-			}
+			loadCustDesign()
 		}else{
 			$(".col-box-po").hide()
-			$(".col-box-upload").hide()
-			$(".row-nasional").hide()
-			$(".row-lokal").hide()
 		}
 
 		if(id_dg != '' && opsi != ''){
-			loadListDesign()
+			$(".col-box-upload").show()
+			$(".row-form").show()
 		}
-		tmplSave()
 	}
 
-	function tmplSave(){
+	function tmplSave(p_id = ''){
 		let opt = $("#opt").val()
 		let tgl_s = $("#tgl_s").val()
 		let pilih_s = $("#pilih_s").val()
 
-		if(tgl_s != '' && pilih_s != '' && statusInput == 'insert'){
+		if(tgl_s != '' && pilih_s != '' && (statusInput == 'insert' || (statusInput == 'update' && opt == 'edit' && p_id == ''))){
 			$(".simpan-save").html(`<div class="row" style="margin-bottom:16px">
 				<div class="col-md-12">
 					<button class="btn btn-primary btn-sm" onclick="saveDesign()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
@@ -580,6 +586,8 @@
 
 	function detailProdukDesign() {
 		let h_id_produk = $("#id_produk").val()
+		let i_customer = $("#i_customer").val()
+		let i_po = $("#i_po").val()
 		let i_produk = $("#i_produk").val()
 		$(".d_produk").html('-')
 		$.ajax({
@@ -589,6 +597,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				$(".d_produk").html(data.htmlDtlProduk)
+				tmplSave(data.p)
 			}
 		})
 	}
@@ -685,23 +694,17 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadListDesign')?>',
 			type: "POST",
-			data: ({ id_dg, opt, statusInput }),
+			data: ({ id_dg, opt }),
 			success: function(res){
 				data = JSON.parse(res)
 				$(".list-acuan").html(data.htmlAcuan)
 				$(".list-penawaran").html(data.htmlPenawaran)
 				$(".link-design").html(data.linkDesign)
-				if(data.header.jenis_dg == 'N'){
-					$(".list-design").html(data.htmlDesign)
-					$(".list-sample").html(data.htmlSample)
-					$(".list-design2").html('-')
-					$(".list-sample2").html('-')
-				}else{
-					$(".list-design").html('-')
-					$(".list-sample").html('-')
-					$(".list-design2").html(data.htmlDesign)
-					$(".list-sample2").html(data.htmlSample)
-				}
+				$(".list-design").html(data.htmlDesign)
+				$(".list-sample").html(data.htmlSample)
+				$(".ppic-design").html(data.htmlX)
+				$(".link-ppic-design").html(data.htmlXLink)
+				$(".ppic-sample").html(data.htmlZ)
 				swal.close()
 			}
 		})
@@ -715,7 +718,7 @@
 		let i_customer = $("#i_customer").val()
 		let i_po = $("#i_po").val()
 		let i_produk = $("#i_produk").val()
-		$(".simpan-save").prop('disabled', true)
+		$(".simpan-save").html('')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/saveDesign')?>',
 			type: "POST",
@@ -735,16 +738,21 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(statusInput == 'insert'){
-					if(data.data && data.detail){
+					if(data.data){
 						toastr.success(`<b>${data.msg}</b>`)
 						kembali()
 					}else{
 						toastr.error(`<b>${data.msg}</b>`)
 					}
 					swal.close()
-					$(".simpan-save").prop('disabled', false)
 				}else{
-					editFormDesign(id_dg, opsi)
+					if(data.data){
+						toastr.success(`<b>${data.msg}</b>`)
+						editFormDesign(id_dg, opsi)
+					}else{
+						toastr.error(`<b>${data.msg}</b>`)
+						swal.close()
+					}
 				}
 			}
 		})
@@ -800,8 +808,6 @@
 
 		$("#ii").html('')
 		$("#vv").html('')
-		$(".tt-acuan").hide()
-		$(".tt-penawaran").hide()
 	}
 
 	function kembali() {
@@ -818,6 +824,7 @@
 	}
 
 	function editFormDesign(id_dg, opsi) {
+		statusInput = 'update'
 		$("#kode_dg").html('')
 		$(".row-list").hide()
 		$(".row-input").show()
@@ -840,7 +847,6 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-
 				statusInput = 'update'
 
 				$("#id_dg").val(data.header.id_dg)
@@ -869,11 +875,9 @@
 				if(opsi == 'edit'){
 					if(urlAuth == 'Admin'){
 						$(".col-box-upload").show()
-					}else if((urlAuth == 'User') && (data.header.acc_a_stt == 'N' || data.header.acc_p_stt == 'N')){
+					}else if(urlAuth == 'User' && (data.header.acc_a_stt == 'N' || data.header.acc_d_stt == 'N' || data.header.acc_p_stt == 'N' || data.header.acc_s_stt == 'N')){
 						$(".col-box-upload").show()
-					}else if(urlAuth == 'Design' && data.header.acc_d_stt == 'N'){
-						$(".col-box-upload").show()
-					}else if(urlAuth == 'PPIC' && data.header.acc_s_stt == 'N'){
+					}else if((urlAuth == 'Design' || urlAuth == 'PPIC') && data.header.acc_a_stt == 'Y' && data.header.acc_d_stt == 'Y' && data.header.acc_p_stt == 'Y' && data.header.acc_s_stt == 'Y' && (data.header.acc_x_stt == 'N' || data.header.acc_z_stt == 'N' || data.header.acc_k_stt == 'N')){
 						$(".col-box-upload").show()
 					}else{
 						$(".col-box-upload").hide()
@@ -884,7 +888,7 @@
 
 				$(".row-verifikasi").show()
 
-				if(data.header.jenis_dg == 'B'){
+				if(data.header.jenis_dg == 'B' || (data.header.id_pelanggan != null && data.header.kode_po != null && data.header.id_produk != null)){
 					loadCustDesign()
 					loadNoPoDesign()
 					loadProdukDesign()
@@ -896,15 +900,6 @@
 
 				$(".ii").html('')
 				$(".vv").html('')
-
-				if(data.header.jenis_dg == 'N'){
-					$(".tt-acuan").show()
-					$(".tt-penawaran").show()
-				}
-				if(data.header.jenis_dg == 'B'){
-					$(".tt-acuan").hide()
-					$(".tt-penawaran").hide()
-				}
 
 				// VERIFIFIKASI ACUAN
 				if(data.imgA != 0 && (urlAuth == 'Admin' || urlAuth == 'User') && (data.header.acc_a_stt == 'N' || data.header.acc_a_stt == 'H' || data.header.acc_a_stt == 'R')){
@@ -951,7 +946,7 @@
 					}else if(data.header.acc_a_stt == 'R'){
 						$(".verif-acuan").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.a_time}`)
 					}else{
-						if(urlAuth == 'Admin' && data.header.jenis_dg == 'N'){
+						if(urlAuth == 'Admin'){
 							vstyle = ``; vclick = `onclick="btnVerifDesign('N', 'acuan')"`;
 						}else{
 							vstyle = `;cursor:default"`; vclick = ``;
@@ -979,15 +974,15 @@
 					}
 				}
 
-				// VERIFIFIKASI DESIGN
-				if(data.imgD != 0 && (urlAuth == 'Admin' || urlAuth == 'Design') && (data.header.acc_d_stt == 'N' || data.header.acc_d_stt == 'H' || data.header.acc_d_stt == 'R')){
-					// BUTTON DESIGN
+				// VERIFIFIKASI FORM DESIGN
+				if(data.imgD != 0 && (urlAuth == 'Admin' || urlAuth == 'User') && (data.header.acc_d_stt == 'N' || data.header.acc_d_stt == 'H' || data.header.acc_d_stt == 'R')){
+					// BUTTON FORM DESIGN
 					$(".verif-design").html(`
 						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifDesign('verifikasi', 'design')"><i class="fas fa-check"></i> Verifikasi</button>
 						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifDesign('hold', 'design')"><i class="far fa-hand-paper"></i> Hold</button>
 						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifDesign('reject', 'design')"><i class="fas fa-times"></i> Reject</button>
 					`)
-					// KETERANGAN DESIGN
+					// KETERANGAN FORM DESIGN
 					if(data.header.acc_d_stt != 'N'){
 						if(data.header.acc_d_stt == 'H'){
 							callout = 'callout-warning'
@@ -1016,7 +1011,7 @@
 						`)
 					}
 				}else{
-					// BUTTON DESIGN
+					// BUTTON FORM DESIGN
 					if(data.header.acc_d_stt == 'N'){
 						$(".verif-design").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
 					}else if(data.header.acc_d_stt == 'H'){
@@ -1031,7 +1026,7 @@
 						}
 						$(".verif-design").html(`<button title="OKE" style="text-align:center${vstyle}" class="btn btn-sm btn-success" ${vclick}><i class="fas fa-check-circle"></i></button> ${data.d_time}`)
 					}
-					// KETERANGAN DESIGN
+					// KETERANGAN FORM DESIGN
 					if(data.header.acc_d_stt != 'N'){
 						if(data.header.acc_d_stt == 'H'){
 							callout = 'callout-warning'
@@ -1097,7 +1092,7 @@
 					}else if(data.header.acc_p_stt == 'R'){
 						$(".verif-penawaran").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.p_time}`)
 					}else{
-						if(urlAuth == 'Admin' && data.header.jenis_dg == 'N'){
+						if(urlAuth == 'Admin'){
 							vstyle = ``; vclick = `onclick="btnVerifDesign('N', 'penawaran')"`;
 						}else{
 							vstyle = `;cursor:default"`; vclick = ``;
@@ -1126,7 +1121,7 @@
 				}
 
 				// VERIFIFIKASI SAMPLE
-				if(data.imgS != 0 && (urlAuth == 'Admin' || urlAuth == 'PPIC') && (data.header.acc_s_stt == 'N' || data.header.acc_s_stt == 'H' || data.header.acc_s_stt == 'R')){
+				if(data.imgS != 0 && (urlAuth == 'Admin' || urlAuth == 'User') && (data.header.acc_s_stt == 'N' || data.header.acc_s_stt == 'H' || data.header.acc_s_stt == 'R')){
 					// BUTTON SAMPLE
 					$(".verif-sample").html(`
 						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifDesign('verifikasi', 'sample')"><i class="fas fa-check"></i> Verifikasi</button>
@@ -1197,6 +1192,243 @@
 						`)
 					}
 				}
+
+				// FORM DESIGN DAN SAMPLE PPIC DAN VERIFIKASI
+
+				if(data.header.acc_a_stt == 'Y' && data.header.acc_d_stt == 'Y' && data.header.acc_p_stt == 'Y' && data.header.acc_s_stt == 'Y'){
+					$(".col-box-po").show()
+					if(data.header.id_pelanggan != null && data.header.kode_po != null && data.header.id_produk != null){
+						$(".row-ppic").show()
+					}else{
+						if((urlAuth == 'Admin' || urlAuth == 'User') && data.header.jenis_dg == 'N' && opsi == 'edit'){
+							$("#i_customer").prop('disabled', false)
+							$("#i_po").prop('disabled', false)
+							$("#i_produk").prop('disabled', false)
+						}
+						loadCustDesign()
+					}
+				}
+
+				// VERIFIFIKASI DESIGN PPIC
+				if(data.imgX != 0 && (urlAuth == 'Admin' || urlAuth == 'Design') && (data.header.acc_x_stt == 'N' || data.header.acc_x_stt == 'H' || data.header.acc_x_stt == 'R')){
+					// BUTTON DESIGN PPIC
+					$(".verif-xdesign").html(`
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifDesign('verifikasi', 'xdesign')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifDesign('hold', 'xdesign')"><i class="far fa-hand-paper"></i> Hold</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifDesign('reject', 'xdesign')"><i class="fas fa-times"></i> Reject</button>
+					`)
+					// KETERANGAN DESIGN PPIC
+					if(data.header.acc_x_stt != 'N'){
+						if(data.header.acc_x_stt == 'H'){
+							callout = 'callout-warning'
+							colorbtn = 'btn-warning'
+							txtsave = 'HOLD!'
+						}else{
+							callout = 'callout-danger'
+							colorbtn = 'btn-danger'
+							txtsave = 'REJECT!'
+						}
+						$(".input-xdesign").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:0;margin:0">
+										<textarea class="form-control" id="ket_xdesign" style="font-weight:bold;padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.acc_x_ket}</textarea>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifDesign('${data.header.acc_x_stt}', 'xdesign')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+								</div>
+							</div>
+						`)
+					}
+				}else{
+					// BUTTON DESIGN PPIC
+					if(data.header.acc_x_stt == 'N'){
+						$(".verif-xdesign").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+					}else if(data.header.acc_x_stt == 'H'){
+						$(".verif-xdesign").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.x_time}`)
+					}else if(data.header.acc_x_stt == 'R'){
+						$(".verif-xdesign").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.x_time}`)
+					}else{
+						if(urlAuth == 'Admin'){
+							vstyle = ``; vclick = `onclick="btnVerifDesign('N', 'xdesign')"`;
+						}else{
+							vstyle = `;cursor:default"`; vclick = ``;
+						}
+						$(".verif-xdesign").html(`<button title="OKE" style="text-align:center${vstyle}" class="btn btn-sm btn-success" ${vclick}><i class="fas fa-check-circle"></i></button> ${data.x_time}`)
+					}
+					// KETERANGAN DESIGN PPIC
+					if(data.header.acc_x_stt != 'N'){
+						if(data.header.acc_x_stt == 'H'){
+							callout = 'callout-warning'
+						}else if(data.header.acc_x_stt == 'R'){
+							callout = 'callout-danger'
+						}else{
+							callout = 'callout-success'
+						}
+						$(".input-xdesign").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<input type="hidden" id="ket_xdesign" value="">
+									<div class="callout ${callout}" style="font-weight:bold;padding:6px;margin:0">${data.header.acc_x_ket}</div>
+								</div>
+							</div>
+						`)
+					}
+				}
+
+				// VERIFIFIKASI SAMPLE PPIC
+				if(data.imgZ != 0 && (urlAuth == 'Admin' || urlAuth == 'PPIC') && (data.header.acc_z_stt == 'N' || data.header.acc_z_stt == 'H' || data.header.acc_z_stt == 'R')){
+					// BUTTON SAMPLE PPIC
+					$(".verif-zsample").html(`
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifDesign('verifikasi', 'zsample')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifDesign('hold', 'zsample')"><i class="far fa-hand-paper"></i> Hold</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifDesign('reject', 'zsample')"><i class="fas fa-times"></i> Reject</button>
+					`)
+					// KETERANGAN SAMPLE PPIC
+					if(data.header.acc_z_stt != 'N'){
+						if(data.header.acc_z_stt == 'H'){
+							callout = 'callout-warning'
+							colorbtn = 'btn-warning'
+							txtsave = 'HOLD!'
+						}else{
+							callout = 'callout-danger'
+							colorbtn = 'btn-danger'
+							txtsave = 'REJECT!'
+						}
+						$(".input-zsample").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:0;margin:0">
+										<textarea class="form-control" id="ket_zsample" style="font-weight:bold;padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.acc_z_ket}</textarea>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifDesign('${data.header.acc_z_stt}', 'zsample')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+								</div>
+							</div>
+						`)
+					}
+				}else{
+					// BUTTON SAMPLE PPIC
+					if(data.header.acc_z_stt == 'N'){
+						$(".verif-zsample").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+					}else if(data.header.acc_z_stt == 'H'){
+						$(".verif-zsample").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.z_time}`)
+					}else if(data.header.acc_z_stt == 'R'){
+						$(".verif-zsample").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.z_time}`)
+					}else{
+						if(urlAuth == 'Admin'){
+							vstyle = ``; vclick = `onclick="btnVerifDesign('N', 'zsample')"`;
+						}else{
+							vstyle = `;cursor:default"`; vclick = ``;
+						}
+						$(".verif-zsample").html(`<button title="OKE" style="text-align:center${vstyle}" class="btn btn-sm btn-success" ${vclick}><i class="fas fa-check-circle"></i></button> ${data.z_time}`)
+					}
+					// KETERANGAN SAMPLE PPIC
+					if(data.header.acc_z_stt != 'N'){
+						if(data.header.acc_z_stt == 'H'){
+							callout = 'callout-warning'
+						}else if(data.header.acc_z_stt == 'R'){
+							callout = 'callout-danger'
+						}else{
+							callout = 'callout-success'
+						}
+						$(".input-zsample").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<input type="hidden" id="ket_zsample" value="">
+									<div class="callout ${callout}" style="font-weight:bold;padding:6px;margin:0">${data.header.acc_z_ket}</div>
+								</div>
+							</div>
+						`)
+					}
+				}
+
+				// VERIFIFIKASI KARET
+				if((urlAuth == 'Admin' || urlAuth == 'Design' || urlAuth == 'PPIC') && (data.header.acc_k_stt == 'N' || data.header.acc_k_stt == 'H' || data.header.acc_k_stt == 'R')){
+					// BUTTON KARET
+					$(".verif-karet").html(`
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifDesign('verifikasi', 'karet')"><i class="fas fa-check"></i> Verifikasi</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="verifDesign('hold', 'karet')"><i class="far fa-hand-paper"></i> Hold</button>
+						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="verifDesign('reject', 'karet')"><i class="fas fa-times"></i> Reject</button>
+					`)
+					// KETERANGAN KARET
+					if(data.header.acc_k_stt != 'N'){
+						if(data.header.acc_k_stt == 'H'){
+							callout = 'callout-warning'
+							colorbtn = 'btn-warning'
+							txtsave = 'HOLD!'
+						}else{
+							callout = 'callout-danger'
+							colorbtn = 'btn-danger'
+							txtsave = 'REJECT!'
+						}
+						$(".input-karet").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<div class="callout ${callout}" style="padding:0;margin:0">
+										<textarea class="form-control" id="ket_karet" style="font-weight:bold;padding:6px;border:0;resize:none" placeholder="ALASAN" oninput="this.value=this.value.toUpperCase()">${data.header.acc_k_ket}</textarea>
+									</div>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<button type="button" style="text-align:center;font-weight:bold" class="btn btn-xs ${colorbtn}" onclick="btnVerifDesign('${data.header.acc_k_stt}', 'karet')"><i class="fas fa-save" style="color:#000"></i> <span style="color:#000">${txtsave}</span></button>
+								</div>
+							</div>
+						`)
+					}
+				}else{
+					// BUTTON KARET
+					if(data.header.acc_k_stt == 'N'){
+						$(".verif-karet").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-lock"></i></button>`)
+					}else if(data.header.acc_k_stt == 'H'){
+						$(".verif-karet").html(`<button style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-warning"><i class="fas fa-hand-paper"></i></button> ${data.k_time}`)
+					}else if(data.header.acc_k_stt == 'R'){
+						$(".verif-karet").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.k_time}`)
+					}else{
+						if(urlAuth == 'Admin'){
+							vstyle = ``; vclick = `onclick="btnVerifDesign('N', 'karet')"`;
+						}else{
+							vstyle = `;cursor:default"`; vclick = ``;
+						}
+						$(".verif-karet").html(`<button title="OKE" style="text-align:center${vstyle}" class="btn btn-sm btn-success" ${vclick}><i class="fas fa-check-circle"></i></button> ${data.k_time}`)
+					}
+					// KETERANGAN KARET
+					if(data.header.acc_k_stt != 'N'){
+						if(data.header.acc_k_stt == 'H'){
+							callout = 'callout-warning'
+						}else if(data.header.acc_k_stt == 'R'){
+							callout = 'callout-danger'
+						}else{
+							callout = 'callout-success'
+						}
+						$(".input-karet").html(`
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-3"></div>
+								<div class="col-md-9">
+									<input type="hidden" id="ket_karet" value="">
+									<div class="callout ${callout}" style="font-weight:bold;padding:6px;margin:0">${data.header.acc_k_ket}</div>
+								</div>
+							</div>
+						`)
+					}
+				}
+
+				$(".simpan-save").html('')
 			}
 		})
 	}
