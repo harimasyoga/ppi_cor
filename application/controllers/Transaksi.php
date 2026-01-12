@@ -934,6 +934,19 @@ class Transaksi extends CI_Controller
 		if($p->num_rows() == 0){
 			$htmlDtlProduk = '-';
 		}else{
+			if($p->row()->sambungan == 'G'){
+				$join = 'GLUE';
+			}else if($p->row()->sambungan == 'S'){
+				$join = 'STITCHING';
+			}else if($p->row()->sambungan == 'D'){
+				$join = 'DIE CUT';
+			}else if($p->row()->sambungan == 'DS'){
+				$join = 'DOUBLE STITCHING';
+			}else if($p->row()->sambungan == 'GS'){
+				$join = 'GLUE STITCHING';
+			}else {
+				$join = '-';
+			}
 			$htmlDtlProduk = '<table>
 				<tr>
 					<td style="padding:5px 0">NAMA</td>
@@ -951,11 +964,6 @@ class Transaksi extends CI_Controller
 					<td style="padding:5px 0">'.$p->row()->ukuran_sheet.'</td>
 				</tr>
 				<tr>
-					<td style="padding:5px 0">CREASING</td>
-					<td style="padding:5px">:</td>
-					<td style="padding:5px 0">'.$p->row()->creasing.' - '.$p->row()->creasing2.' - '.$p->row()->creasing3.'</td>
-				</tr>
-				<tr>
 					<td style="padding:5px 0">KUALITAS</td>
 					<td style="padding:5px">:</td>
 					<td style="padding:5px 0">'.$this->m_fungsi->kualitas($p->row()->kualitas, $p->row()->flute).'</td>
@@ -964,6 +972,11 @@ class Transaksi extends CI_Controller
 					<td style="padding:5px 0">FLUTE</td>
 					<td style="padding:5px">:</td>
 					<td style="padding:5px 0">'.$p->row()->flute.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0">JOINT</td>
+					<td style="padding:5px">:</td>
+					<td style="padding:5px 0">'.$join.'</td>
 				</tr>
 			</table>';
 		}
@@ -998,6 +1011,12 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function btnAcuanWarna()
+	{
+		$result = $this->m_transaksi->btnAcuanWarna();
+		echo json_encode($result);
+	}
+
 	function btnVerifDesign()
 	{
 		$result = $this->m_transaksi->btnVerifDesign();
@@ -1028,10 +1047,10 @@ class Transaksi extends CI_Controller
 			$header = ''; $vA = 0; $vD = 0; $vP = 0; $vS = 0; $vX = 0; $vZ = 0; $vK = 0;
 		}
 
-		$htmlAcuan = ''; $htmlDesign = ''; $linkDesign = ''; $htmlPenawaran = ''; $htmlSample = ''; $htmlX = ''; $htmlXLink = ''; $htmlZ = '';
+		$htmlAcuan = ''; $htmlWarna = ''; $htmlDesign = ''; $linkDesign = ''; $htmlPenawaran = ''; $htmlSample = ''; $htmlX = ''; $htmlXLink = ''; $htmlZ = '';
 
 		// ACUAN
-		$qAcuan = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND jenis_dtl='FA'");
+		$qAcuan = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND (jenis_dtl='FA' OR jenis_dtl='FW') ORDER BY jenis_dtl");
 		if($qAcuan->num_rows() != ''){
 			$i = 0;
 			foreach($qAcuan->result() as $a){
@@ -1042,12 +1061,37 @@ class Transaksi extends CI_Controller
 						<button class="btn btn-xs btn-danger" onclick="deleteDesign('."'".$a->id_dtl."'".')"><i class="fas fa-trash"></i></button>
 					</div>';
 				}
-				$htmlAcuan .= '<div style="margin-right:8px">
-					<img id="'.$prevAcuan.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevAcuan."'".')">
-				</div>';
+				$htmlAcuan .= '<div style="margin-right:8px">';
+					if($a->jenis_dtl == 'FW'){
+						$htmlAcuan .= '<div style="background:'.$a->nm_file.';width:55px;height:55px;border:1px solid #ddd"></div><div style="font-weight:bold">'.$a->nm_file.'</div>';
+					}else{
+						$htmlAcuan .= '<img id="'.$prevAcuan.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevAcuan."'".')">';
+					}
+				$htmlAcuan .= '</div>';
 			}
 		}else{
 			$htmlAcuan .= '-';
+		}
+		// ACUAN WARNA
+		if(($lvl == 'Admin' || $lvl == 'User') && $opt == 'edit'){
+			$qAcWarna = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND jenis_dtl='FW'");
+			($qAcWarna->num_rows() != 0) ? $lVal = $qAcWarna->row()->nm_file : $lVal = '';
+			if($vA == 0){
+				$htmlWarna .= '<div class="card-body" style="padding:6px">
+					<div class="card-body row" style="padding:0">
+						<div class="col-md-10" style="padding-bottom:6px">
+							<input type="color" class="form-control" id="plh_warna">
+						</div>
+						<div class="col-md-2" style="padding-bottom:6px">
+							<button type="button" class="btn-block btn-sm btn-success" style="padding:8px 12px;font-weight:bold;border:0" onclick="btnAcuanWarna()"><i class="fas fa-palette"></i></button>
+						</div>
+					</div>
+				</div>';
+			}else{
+				$htmlWarna = '';
+			}
+		}else{
+			$htmlWarna .='';
 		}
 
 		// FORM DESIGN
@@ -1075,8 +1119,8 @@ class Transaksi extends CI_Controller
 			$htmlDesign .= '-';
 		}
 		// INPUT LINK DESIGN
-		$linkiling = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND jenis_dtl='FL'");
-		if($lvl == 'Admin' || $lvl == 'User'){
+		if(($lvl == 'Admin' || $lvl == 'User') && $opt == 'edit'){
+			$linkiling = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND jenis_dtl='FL'");
 			($linkiling->num_rows() != 0) ? $lVal = $linkiling->row()->nm_file : $lVal = '';
 			if($vD == 0){
 				$linkDesign .= '<div class="card-body" style="padding:6px">
@@ -1158,8 +1202,8 @@ class Transaksi extends CI_Controller
 			$htmlX .= '-';
 		}
 		// INPUT LINK DESIGN
-		$linkX = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND jenis_dtl='XL'");
-		if($lvl == 'Admin' || $lvl == 'Design'){
+		if(($lvl == 'Admin' || $lvl == 'Design') && $opt == 'edit'){
+			$linkX = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND jenis_dtl='XL'");
 			($linkX->num_rows() != 0) ? $lX = $linkX->row()->nm_file : $lX = '';
 			if($vX == 0){
 				$htmlXLink .= '<div class="card-body" style="padding:6px">
@@ -1195,6 +1239,7 @@ class Transaksi extends CI_Controller
 		echo json_encode([
 			'header' => $header,
 			'htmlAcuan' => $htmlAcuan,
+			'htmlWarna' => $htmlWarna,
 			'htmlDesign' => $htmlDesign,
 			'linkDesign' => $linkDesign,
 			'htmlPenawaran' => $htmlPenawaran,
@@ -1211,7 +1256,7 @@ class Transaksi extends CI_Controller
 		$opsi = $_POST["opsi"];
 
 		$header = $this->db->query("SELECT*FROM trs_design_header WHERE id_dg='$id_dg'")->row();
-		$imgA = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND jenis_dtl='FA'")->num_rows();
+		$imgA = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND (jenis_dtl='FA' OR jenis_dtl='FW')")->num_rows();
 		$imgD = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND (jenis_dtl='FD' OR jenis_dtl='FL')")->num_rows();
 		$imgP = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND jenis_dtl='FP'")->num_rows();
 		$imgS = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND jenis_dtl='FS'")->num_rows();

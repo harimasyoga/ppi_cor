@@ -2534,13 +2534,12 @@ class M_transaksi extends CI_Model
 	{
 		$lvl = $this->session->userdata('level');
 		$id_dtl = $_POST["id_dtl"];
-		$detail = $this->db->query("SELECT*FROM trs_design_detail WHERE id_dtl='$id_dtl'")->row();
+		$detail = $this->db->query("SELECT*FROM trs_design_detail WHERE id_dtl='$id_dtl'");
 		// HAPUS FILE
-		if($detail->jenis_dtl != 'FL' && $lvl == 'User'){
-			unlink("assets/gambar_design/".$detail->nm_file);
-		}
-		if($detail->jenis_dtl != 'XL' && $lvl == 'Design'){
-			unlink("assets/gambar_design/".$detail->nm_file);
+		foreach($detail->result() as $r){
+			if($r->jenis_dtl == 'FA' || $r->jenis_dtl == 'FD' || $r->jenis_dtl == 'FP' || $r->jenis_dtl == 'FS' || $r->jenis_dtl == 'XD' || $r->jenis_dtl == 'ZS'){
+				unlink("assets/gambar_design/".$r->nm_file);
+			}
 		}
 		// HAPUS ITEM
 		$this->db->where("id_dtl", $id_dtl);
@@ -2631,6 +2630,14 @@ class M_transaksi extends CI_Model
 		$id_dg = $_POST["id_dgx"];
 		$link_design = preg_replace('/\s/', '', $_POST["link_design"]);
 		
+		if($urlAuth == 'Admin'){
+			$cek = $this->db->query("SELECT*FROM trs_design_header WHERE id_dg='$id_dg' AND acc_d_stt='Y'");
+			if($cek->num_rows() == 0){
+				$j = 'FL';
+			}else{
+				$j = 'XL';
+			}
+		}
 		if($urlAuth == 'User'){
 			$j = 'FL';
 		}
@@ -2655,11 +2662,36 @@ class M_transaksi extends CI_Model
 				$this->db->where("jenis_dtl", $j);
 				$this->db->where("id_hdr", $id_dg);
 				$data = $this->db->update('trs_design_detail', $dtl);
-				$msg = 'EDIT LINK DESIGN!';
+				$msg = 'BERHASIL EDIT LINK DESIGN!';
 			}else{
 				$data = $this->db->insert('trs_design_detail', $dtl);
-				$msg = 'TAMBAH LINK DESIGN!';
+				$msg = 'BERHASIL TAMBAH LINK DESIGN!';
 			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function btnAcuanWarna()
+	{
+		$id_dg = $_POST["id_dg"];
+		$plh_warna = $_POST["plh_warna"];
+		$cek = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND jenis_dtl='FW' AND nm_file='$plh_warna'");
+
+		if($cek->num_rows() != 0){
+			$data = false;
+			$msg = 'ACUAN WARNA SUDAH ADA!';
+		}else{
+			$dtl = array(
+				'id_hdr' => $id_dg,
+				'jenis_dtl' => 'FW',
+				'nm_file' => $plh_warna,
+			);
+			$data = $this->db->insert('trs_design_detail', $dtl);
+			$msg = 'BERHASIL TAMBAH ACUAN WARNA!';
 		}
 
 		return [
@@ -2721,10 +2753,7 @@ class M_transaksi extends CI_Model
 		$detail = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg'");
 		// HAPUS FILE
 		foreach($detail->result() as $r){
-			if($r->jenis_dtl != 'FL' && $lvl == 'User'){
-				unlink("assets/gambar_design/".$r->nm_file);
-			}
-			if($r->jenis_dtl != 'XL' && $lvl == 'Design'){
+			if($r->jenis_dtl == 'FA' || $r->jenis_dtl == 'FD' || $r->jenis_dtl == 'FP' || $r->jenis_dtl == 'FS' || $r->jenis_dtl == 'XD' || $r->jenis_dtl == 'ZS'){
 				unlink("assets/gambar_design/".$r->nm_file);
 			}
 		}

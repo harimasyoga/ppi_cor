@@ -185,9 +185,12 @@
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">ACUAN WARNA</h3>
 						</div>
-						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-							<div class="list-acuan" style="display:flex">-</div>
+						<div style="padding:12px 6px">
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="list-acuan" style="display:flex">-</div>
+							</div>
 						</div>
+						<div class="list-warna"></div>
 					</div>
 				</div>
 				<?php if(in_array($this->session->userdata('level'), ['Admin', 'Marketing', 'Owner', 'User'])) { ?>
@@ -196,8 +199,10 @@
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">PENAWARAN</h3>
 							</div>
-							<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-								<div class="list-penawaran" style="display:flex">-</div>
+							<div style="padding:12px 6px">
+								<div style="overflow:auto;white-space:nowrap">
+									<div class="list-penawaran" style="display:flex">-</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -209,8 +214,10 @@
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">FORM DESIGN</h3>
 						</div>
-						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-							<div class="list-design" style="display:flex">-</div>
+						<div style="padding:12px 6px">
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="list-design" style="display:flex">-</div>
+							</div>
 						</div>
 						<div class="link-design"></div>
 					</div>
@@ -220,8 +227,10 @@
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">FORM SAMPLE</h3>
 						</div>
-						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-							<div class="list-sample" style="display:flex">-</div>
+						<div style="padding:12px 6px">
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="list-sample" style="display:flex">-</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -263,8 +272,10 @@
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">DESIGN PPI</h3>
 						</div>
-						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-							<div class="ppic-design" style="display:flex">-</div>
+						<div style="padding:12px 6px">
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="ppic-design" style="display:flex">-</div>
+							</div>
 						</div>
 						<div class="link-ppic-design"></div>
 					</div>
@@ -272,8 +283,10 @@
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">SAMPLE PPI</h3>
 						</div>
-						<div style="overflow:auto;white-space:nowrap;padding:12px 6px">
-							<div class="ppic-sample" style="display:flex">-</div>
+						<div style="padding:12px 6px">
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="ppic-sample" style="display:flex">-</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -462,6 +475,7 @@
 
 		$(".row-form").hide()
 		$(".list-acuan").html('')
+		$(".list-warna").html('')
 		$(".list-design").html('')
 		$(".link-design").html('')
 		$(".list-penawaran").html('')
@@ -474,7 +488,17 @@
 
 		$(".col-box-upload").hide()
 		
-		if(urlAuth == 'Admin' || urlAuth == 'User'){
+		if(urlAuth == 'Admin'){
+			$("#dsg_pilih").html(`
+				<option value="">PILIH</option>
+				<option value="FA">ACUAN WARNA</option>
+				<option value="FP">PENAWARAN</option>
+				<option value="FD">FORM DESIGN</option>
+				<option value="FS">FORM SAMPLE</option>
+				<option value="XD">DESIGN</option>
+				<option value="ZS">SAMPLE</option>
+			`)
+		}else if(urlAuth == 'User'){
 			$("#dsg_pilih").html(`
 				<option value="">PILIH</option>
 				<option value="FA">ACUAN WARNA</option>
@@ -698,6 +722,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				$(".list-acuan").html(data.htmlAcuan)
+				$(".list-warna").html(data.htmlWarna)
 				$(".list-penawaran").html(data.htmlPenawaran)
 				$(".link-design").html(data.linkDesign)
 				$(".list-design").html(data.htmlDesign)
@@ -753,6 +778,27 @@
 						toastr.error(`<b>${data.msg}</b>`)
 						swal.close()
 					}
+				}
+			}
+		})
+	}
+
+	function btnAcuanWarna() {
+		let id_dg = $("#id_dg").val()
+		let opsi = $("#opt").val()
+		let plh_warna = $("#plh_warna").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/btnAcuanWarna')?>',
+			type: "POST",
+			data: ({ id_dg, plh_warna }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					editFormDesign(id_dg, opsi)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
 				}
 			}
 		})
