@@ -5155,20 +5155,31 @@ class Logistik extends CI_Controller
 
 	function loadCustAkses()
 	{
+		$jenis = $_POST["jenis"];
 		$htmlCust = '';
-		$htmlCust .= '<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
-			<div class="col-md-2">CUSTOMER</div>
-			<div class="col-md-10">
-				<select id="axs_cust" class="form-control select2" onchange="loadSJInvAkses()">
-					<option value="">PILIH</option>';
-					$cust = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan, attn");
-					foreach($cust->result() as $r){
-						($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
-						$htmlCust .= '<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.$attn.'</option>';
-					}
-				$htmlCust .= '</select>
-			</div>
-		</div>';
+		if($jenis != ''){
+			$htmlCust .= '<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+				<div class="col-md-2">CUSTOMER</div>
+				<div class="col-md-10">
+					<select id="axs_cust" class="form-control select2" onchange="loadSJInvAkses()">
+						<option value="">PILIH</option>';
+						if($jenis == 'BOX'){
+							$cust = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan, attn");
+						}else{
+							$cust = $this->db->query("SELECT id AS id_pelanggan,nm_perusahaan AS nm_pelanggan, pimpinan AS attn FROM m_perusahaan WHERE jns='ROLL'ORDER BY nm_perusahaan, pimpinan");
+						}
+						
+							foreach($cust->result() as $r){
+								($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
+								$htmlCust .= '<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.$attn.'</option>';
+							}
+						
+					$htmlCust .= '</select>
+				</div>
+			</div>';
+		}else{
+			$htmlCust .= '';
+		}
 
 		echo json_encode([
 			'htmlCust' => $htmlCust,
@@ -5177,25 +5188,35 @@ class Logistik extends CI_Controller
 
 	function loadSJInvAkses()
 	{
+		$jenis = $_POST["jenis"];
 		$id_pt = $_POST["axs_cust"];
 		$htmlSJInv = '';
-		$htmlSJInv .= '<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
-			<div class="col-md-2">INV / SJ</div>
-			<div class="col-md-10">
-				<select id="axs_inv" class="form-control select2" onchange="btnCartAkses()">
-					<option value="">PILIH</option>';
-					$invSj = $this->db->query("SELECT LTRIM(d.no_surat) AS no_surat,h.* FROM invoice_header h
-					INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
-					WHERE h.id_perusahaan='$id_pt' AND h.status_inv!='Approve'
-					GROUP BY h.no_invoice DESC,LTRIM(d.no_surat) DESC,h.id_perusahaan,h.id");
-					if($invSj->num_rows() != 0){
-						foreach($invSj->result() as $r){
-							$htmlSJInv .= '<option value="'.$r->id.'">'.$r->no_invoice.' | '.$r->no_surat.'</option>';
+		if($jenis != ''){
+			$htmlSJInv .= '<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+				<div class="col-md-2">INV / SJ</div>
+				<div class="col-md-10">
+					<select id="axs_inv" class="form-control select2" onchange="btnCartAkses()">
+						<option value="">PILIH</option>';
+						if($jenis == 'BOX'){
+							$wHere = "AND h.type!='ROLL'";
+						}else{
+							$wHere = "AND h.type='ROLL'";
 						}
-					}
-				$htmlSJInv .= '</select>
-			</div>
-		</div>';
+						$invSj = $this->db->query("SELECT LTRIM(d.no_surat) AS no_surat,h.* FROM invoice_header h
+						INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
+						WHERE h.id_perusahaan='$id_pt' AND h.status_inv!='Approve' $wHere
+						GROUP BY h.no_invoice DESC,LTRIM(d.no_surat) DESC,h.id_perusahaan,h.id");
+						if($invSj->num_rows() != 0){
+							foreach($invSj->result() as $r){
+								$htmlSJInv .= '<option value="'.$r->id.'">'.$r->no_invoice.' | '.$r->no_surat.'</option>';
+							}
+						}
+					$htmlSJInv .= '</select>
+				</div>
+			</div>';
+		}else{
+			$htmlSJInv .= '';
+		}
 
 		echo json_encode([
 			'htmlSJInv' => $htmlSJInv,
@@ -5219,6 +5240,7 @@ class Logistik extends CI_Controller
 			'price' => 0,
 			'qty' => 1,
 			'options' => array(
+				'jenis' => $_POST["jenis"],
 				'slt_pilih' => $_POST["slt_pilih"],
 				'id_pelanggan' => $_POST["id_pelanggan"],
 				'id_invoice' => $_POST["id_invoice"],
@@ -5248,9 +5270,11 @@ class Logistik extends CI_Controller
 			$html .='<table style="margin:12px 0">
 				<tr style="background:#dee2e6">
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">NO.</th>
+					<th style="padding:6px;border:1px solid #bbb">TYPE</th>
 					<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
 					<th style="padding:6px;border:1px solid #bbb">NO. INVOICE</th>
 					<th style="padding:6px;border:1px solid #bbb">NO. SURAT JALAN</th>
+					<th style="padding:6px;border:1px solid #bbb">-</th>
 					<th style="padding:6px;border:1px solid #bbb">IZIN</th>
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">AKSI</th>
 				</tr>';}
@@ -5261,19 +5285,35 @@ class Logistik extends CI_Controller
 
 					$id_pelanggan = $r['options']['id_pelanggan'];
 					$id_invoice = $r['options']['id_invoice'];
+					$jenis = $r['options']['jenis'];
 
-					$nm_pelanggan = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row()->nm_pelanggan;
+					if($jenis == 'BOX'){
+						$nm_pelanggan = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row()->nm_pelanggan;
+					}else{
+						$nm_pelanggan = $this->db->query("SELECT nm_perusahaan AS nm_pelanggan FROM m_perusahaan WHERE jns='ROLL' AND id='$id_pelanggan'")->row()->nm_pelanggan;
+					}
 					$invoice = $this->db->query("SELECT LTRIM(d.no_surat) AS no_surat,h.* FROM invoice_header h
 					INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
 					WHERE h.id_perusahaan='$id_pelanggan' AND h.id='$id_invoice'
 					GROUP BY h.no_invoice DESC,LTRIM(d.no_surat),h.id_perusahaan,h.id")->row();
+
+					$iB = ('izin_bc' == $r['options']['slt_pilih']) ? $sB = 'style="font-weight:bold;color:#f00"' : $sB = '';
+					$iF = ('izin_faktur' == $r['options']['slt_pilih']) ? $sF = 'style="font-weight:bold;color:#f00"' : $sF = '';
+					$iR = ('izin_resi' == $r['options']['slt_pilih']) ? $sR = 'style="font-weight:bold;color:#f00"' : $sR = '';
+					$iI = ('izin_inv_terima' == $r['options']['slt_pilih']) ? $sI = 'style="font-weight:bold;color:#f00"' : $sI = '';
+					$iM = ('izin_mutasi' == $r['options']['slt_pilih']) ? $sM = 'style="font-weight:bold;color:#f00"' : $sM = '';
+					$iS = ('izin_sj_balik' == $r['options']['slt_pilih']) ? $sS = 'style="font-weight:bold;color:#f00"' : $sS = '';
 					
 					$html .='<tr>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.strtoupper($invoice->type).'</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$nm_pelanggan.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$invoice->no_invoice.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$invoice->no_surat.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px">'.$r['options']['slt_pilih'].'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">
+							<span '.$iB.'>'.$invoice->izin_bc.'</span>, <span '.$iF.'>'.$invoice->izin_faktur.'</span>, <span '.$iR.'>'.$invoice->izin_resi.'</span>, <span '.$iI.'>'.$invoice->izin_inv_terima.'</span>, <span '.$iM.'>'.$invoice->izin_mutasi.'</span>, <span '.$iS.'>'.$invoice->izin_sj_balik.'</span>
+						</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.strtoupper(str_replace("izin_", "", $r['options']['slt_pilih'])).'</td>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
 							<button type="button" class="btn btn-sm btn-danger btn-block" onclick="hapusCartAkses('."'".$r['rowid']."'".')">batal</button>
 						</td>
@@ -12135,9 +12175,9 @@ class Logistik extends CI_Controller
 
 		if($pilih == "ROLL"){
 			$db2 = $this->load->database('database_simroll', TRUE);
-			$query = $db2->query("SELECT b.tgl,LTRIM(b.no_surat) AS no_surat,b.no_po,b.nama AS attn,b.nm_perusahaan AS nm_pelanggan,ex.plat AS no_kendaraan,ex.supir,ex.pt,b.sj_blk FROM m_timbangan a
+			$query = $db2->query("SELECT b.tgl,LTRIM(b.no_surat) AS no_surat,b.no_po,b.nama AS attn,b.nm_perusahaan AS nm_pelanggan,ex.plat AS no_kendaraan,ex.supir AS driver,ex.pt AS expedisi,b.sj_blk FROM m_timbangan a
 			INNER JOIN pl b ON a.id_pl=b.id AND a.nm_ker=b.nm_ker AND a.g_label=b.g_label
-			INNER JOIN m_expedisi ex ON ex.id=b.id_expedisi
+			LEFT JOIN m_expedisi ex ON ex.id=b.id_expedisi
 			WHERE b.id_perusahaan NOT IN('210', '217')
 			AND b.tgl LIKE '%$tahun%'
 			GROUP BY b.tgl DESC,ex.plat,LTRIM(b.no_surat),b.no_po");
@@ -12155,8 +12195,9 @@ class Logistik extends CI_Controller
 			($r->attn == '-') ? $attn = '' : $attn = ' - '.$r->attn;
 			$row[] = $r->nm_pelanggan.$attn;
 			$row[] = $r->no_kendaraan;
+			($r->expedisi == '' || $r->expedisi == null) ? $xx = '' : $xx = $r->expedisi;
 			($r->driver == '' || $r->driver == null) ? $dd = '' : $dd = ' ( '.$r->driver.' )';
-			$row[] = ($pilih == "ROLL") ? $r->pt : $r->expedisi.$dd;
+			$row[] = $xx.$dd;
 			// SJ BALEK
 			$expired = strtotime($r->tgl) + (144*60*60);
 			$actualDate = time();

@@ -210,6 +210,50 @@
 	</section>
 
 	<section class="content">
+		<div class="card shadow list_akses" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;">
+				<h3 class="card-title" style="color:#4e73df;"><b>AKSES INVOICE</b></h3>
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="card-body row" style="font-weight:bold;padding:6px">
+					<div class="col-md-2">PILIH</div>
+					<div class="col-md-3">
+						<select id="slt_jenis" class="form-control select2" onchange="loadCustAkses()">
+							<option value="">PILIH</option>
+							<option value="BOX">BOX</option>
+							<option value="ROLL">ROLL</option>
+						</select>
+					</div>
+					<div class="col-md-7"></div>
+				</div>
+				<div class="axs akses_cust"></div>
+				<div class="axs akses_sj_inv"></div>
+				<div class="card-body row axs_pilih" style="font-weight:bold;padding:0 6px 6px;display:none">
+					<div class="col-md-2">PILIH</div>
+					<div class="col-md-3">
+						<select id="slt_pilih" class="form-control select2" onchange="btnCartAkses()">
+							<option value="">PILIH</option>
+							<option value="izin_bc">BC</option>
+							<option value="izin_faktur">FAKTUR</option>
+							<option value="izin_resi">NO. RESI</option>
+							<option value="izin_inv_terima">INV. DITERIMA</option>
+							<option value="izin_mutasi">MUTASI</option>
+							<option value="izin_sj_balik">SJ BALIK</option>
+						</select>
+					</div>
+					<div class="col-md-7"></div>
+				</div>
+				<div class="axs akses_add"></div>
+				<input type="hidden" id="cart-akses" value="">
+				<div class="axs akses_list"></div>
+				<div class="axs akses_simpan"></div>
+			</div>
+		</div>
+
 		<div class="card shadow list_sj" style="display: none;">
 			<div class="card-header" style="font-family:Cambria;">
 				<h3 class="card-title" style="color:#4e73df;"><b>LIST SURAT JALAN</b></h3>
@@ -364,39 +408,6 @@
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
-
-		<div class="card shadow list_akses" style="display: none;">
-			<div class="card-header" style="font-family:Cambria;">
-				<h3 class="card-title" style="color:#4e73df;"><b>AKSES INVOICE</b></h3>
-				<div class="card-tools">
-					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
-						<i class="fas fa-minus"></i></button>
-				</div>
-			</div>
-			<div class="card-body">
-				<div class="axs akses_cust"></div>
-				<div class="axs akses_sj_inv"></div>
-				<div class="card-body row axs_pilih" style="font-weight:bold;padding:0 6px 6px;display:none">
-					<div class="col-md-2">PILIH</div>
-					<div class="col-md-3">
-						<select id="slt_pilih" class="form-control select2" onchange="btnCartAkses()">
-							<option value="">PILIH</option>
-							<option value="izin_bc">BC</option>
-							<option value="izin_faktur">FAKTUR</option>
-							<option value="izin_resi">NO. RESI</option>
-							<option value="izin_inv_terima">INV. DITERIMA</option>
-							<option value="izin_mutasi">MUTASI</option>
-							<option value="izin_sj_balik">SJ BALIK</option>
-						</select>
-					</div>
-					<div class="col-md-7"></div>
-				</div>
-				<div class="axs akses_add"></div>
-				<input type="hidden" id="cart-akses" value="">
-				<div class="axs akses_list"></div>
-				<div class="axs akses_simpan"></div>
 			</div>
 		</div>
 	</section>
@@ -3359,6 +3370,7 @@
 		$(".list_sj").attr('style', '')
 		$(".list_akses").attr('style', '')
 
+		$("#slt_jenis").val('').trigger('change')
 		$(".akses_cust").html('')
 		$(".akses_sj_inv").html('')
 		$(".akses_add").html('')
@@ -3366,16 +3378,19 @@
 		$(".akses_simpan").html('')
 
 		listNomerSJ()
-		loadCustAkses()
 	}
 
 	function loadCustAkses() {
+		let jenis = $("#slt_jenis").val()
 		$(".axs_pilih").hide()
 		$(".akses_cust").html('')
+		$(".akses_sj_inv").html('')
 		$(".akses_add").html('')
+		$(".akses_simpan").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadCustAkses') ?>',
 			type: "POST",
+			data: ({ jenis }),
 			beforeSend: function() {
 				swal({
 					title: 'loading ...',
@@ -3399,11 +3414,12 @@
 		$(".akses_sj_inv").html('')
 		$(".axs_pilih").hide()
 		$(".akses_add").html('')
+		let jenis = $("#slt_jenis").val()
 		let axs_cust = $("#axs_cust").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadSJInvAkses') ?>',
 			type: "POST",
-			data: ({ axs_cust }),
+			data: ({ jenis, axs_cust }),
 			beforeSend: function() {
 				swal({
 					title: 'loading ...',
@@ -3449,13 +3465,14 @@
 	}
 
 	function addCartAkses() {
+		let jenis = $("#slt_jenis").val()
 		let slt_pilih = $("#slt_pilih").val()
 		let id_pelanggan = $("#axs_cust").val()
 		let id_invoice = $("#axs_inv").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/addCartAkses') ?>',
 			type: "POST",
-			data: ({ slt_pilih, id_pelanggan, id_invoice }),
+			data: ({ jenis, slt_pilih, id_pelanggan, id_invoice }),
 			beforeSend: function() {
 				swal({
 					title: 'loading ...',
@@ -3518,9 +3535,20 @@
 	}
 
 	function simpanAkses() {
+		$(".akses_simpan").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/simpanAkses') ?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			success: function(res) {
 				data = JSON.parse(res)
 				toastr.success(`<b>BERHASIL!</b>`)
