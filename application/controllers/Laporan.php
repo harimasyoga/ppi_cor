@@ -170,7 +170,7 @@ class Laporan extends CI_Controller
 		}else{
 			$w_opsi = "";
 		}
-		if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
+		if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
 			$wherePO = "AND p.status_app1='Y' AND p.status_app2='Y'";
 		}else{
 			$wherePO = "AND p.status='Approve'";
@@ -244,9 +244,9 @@ class Laporan extends CI_Controller
 						// ADD GUDANG
 						if($rincian == 'REKAP'){
 							$cG = $this->db->query("SELECT*FROM m_gudang WHERE gd_id_pelanggan='$d->id_pelanggan' AND gd_id_produk='$d->id_produk' AND gd_kode_po='$d->kode_po'");
-							if(in_array($this->session->userdata('level'), ['Admin', 'User']) && $cG->num_rows() == 0 && $r->status_kiriman == 'Open'){
+							if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $cG->num_rows() == 0 && $r->status_kiriman == 'Open'){
 								$adGd = ' <button type="button" class="btn btn-xs btn-secondary" style="font-weight:bold" onclick="addGudangLap('."'".$d->id."'".','."'OPEN'".')">+</button>';
-							}else if(in_array($this->session->userdata('level'), ['Admin', 'User']) && $cG->num_rows() != 0 && $r->status_kiriman == 'Open'){
+							}else if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $cG->num_rows() != 0 && $r->status_kiriman == 'Open'){
 								$cG2 = $this->db->query("SELECT*FROM m_gudang WHERE gd_id_pelanggan='$d->id_pelanggan' AND gd_id_produk='$d->id_produk' AND gd_kode_po='$d->kode_po' AND gd_status='Open'");
 								($cG2->num_rows() != 0) ? $adGd = ' <button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="addGudangLap('."'".$d->id."'".','."'CLOSE'".')">x</button>' : $adGd = '';
 							}else{
@@ -278,7 +278,7 @@ class Laporan extends CI_Controller
 								WHERE rtr_tgl='$k->tgl' AND rtr_id_pelanggan='$k->id_pelanggan' AND rtr_id_produk='$k->id_produk' AND rtr_kode_po='$k->rk_kode_po' AND rtr_urut='$k->rk_urut'");
 								// LIST
 								if($rincian == 'LIST'){
-									if($r->status_kiriman == 'Open' && $retur->num_rows() == 0 && in_array($this->session->userdata('level'), ['Admin', 'User'])){
+									if($r->status_kiriman == 'Open' && $retur->num_rows() == 0 && in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
 										$btnRetur = '<button type="button" class="btn btn-xs btn-warning" style="font-weight:bold;padding:2px 6px" onclick="returKiriman('."'".$ii."'".')">+</button>
 											<input type="hidden" id="h_tot_muat_'.$ii.'" value="'.$k->tot_muat.'">
 											<input type="hidden" id="h_tgl_'.$ii.'" value="'.$k->tgl.'">
@@ -311,7 +311,7 @@ class Laporan extends CI_Controller
 											</td>
 										</tr>';
 									}
-									if($r->status_kiriman == 'Open' && $retur->num_rows() == 0 && in_array($this->session->userdata('level'), ['Admin', 'User'])){
+									if($r->status_kiriman == 'Open' && $retur->num_rows() == 0 && in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
 										$html .='<tr class="tr tampilkantr-'.$ii.'" style="display:none">
 											<td style="padding:5px;border-left:1px solid #aaa"></td>
 											<td style="padding:5px;vertical-align:top">
