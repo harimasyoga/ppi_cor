@@ -220,6 +220,7 @@
 							</div>
 						</div>
 						<div class="link-design"></div>
+						<div class="pdf-design"></div>
 					</div>
 				</div>
 				<div class="<?= $cc ?>">
@@ -480,6 +481,7 @@
 		$(".list-design").html('')
 		$(".link-design").html('')
 		$(".pdf-sample").html('')
+		$(".pdf-design").html('')
 		$(".list-penawaran").html('')
 		$(".list-sample").html('')
 		
@@ -730,10 +732,42 @@
 				$(".list-design").html(data.htmlDesign)
 				$(".list-sample").html(data.htmlSample)
 				$(".pdf-sample").html(data.htmlPdfSample)
+				$(".pdf-design").html(data.htmlPdfDesign)
 				$(".ppic-design").html(data.htmlX)
 				$(".link-ppic-design").html(data.htmlXLink)
 				$(".ppic-sample").html(data.htmlZ)
 				swal.close()
+			}
+		})
+	}
+
+	function formSample(opsi_pdf) {
+		let qty_pdf = $("#qty_pdf_"+opsi_pdf).val()
+		let id_dg = $("#id_dg").val()
+		let opsi = $("#opt").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/formSample')?>',
+			type: "POST",
+			data: ({ opsi_pdf, qty_pdf, id_dg }),
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					editFormDesign(id_dg, opsi)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
 			}
 		})
 	}
