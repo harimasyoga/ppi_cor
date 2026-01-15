@@ -232,6 +232,7 @@
 								<div class="list-sample" style="display:flex">-</div>
 							</div>
 						</div>
+						<div class="pdf-sample"></div>
 					</div>
 				</div>
 			</div>
@@ -478,6 +479,7 @@
 		$(".list-warna").html('')
 		$(".list-design").html('')
 		$(".link-design").html('')
+		$(".pdf-sample").html('')
 		$(".list-penawaran").html('')
 		$(".list-sample").html('')
 		
@@ -727,6 +729,7 @@
 				$(".link-design").html(data.linkDesign)
 				$(".list-design").html(data.htmlDesign)
 				$(".list-sample").html(data.htmlSample)
+				$(".pdf-sample").html(data.htmlPdfSample)
 				$(".ppic-design").html(data.htmlX)
 				$(".link-ppic-design").html(data.htmlXLink)
 				$(".ppic-sample").html(data.htmlZ)

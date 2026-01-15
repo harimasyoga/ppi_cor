@@ -1047,7 +1047,7 @@ class Transaksi extends CI_Controller
 			$header = ''; $vA = 0; $vD = 0; $vP = 0; $vS = 0; $vX = 0; $vZ = 0; $vK = 0;
 		}
 
-		$htmlAcuan = ''; $htmlWarna = ''; $htmlDesign = ''; $linkDesign = ''; $htmlPenawaran = ''; $htmlSample = ''; $htmlX = ''; $htmlXLink = ''; $htmlZ = '';
+		$htmlAcuan = ''; $htmlWarna = ''; $htmlDesign = ''; $linkDesign = ''; $htmlPenawaran = ''; $htmlSample = ''; $htmlPdfSample = ''; $htmlX = ''; $htmlXLink = ''; $htmlZ = '';
 
 		// ACUAN
 		$qAcuan = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND (jenis_dtl='FA' OR jenis_dtl='FW') ORDER BY jenis_dtl");
@@ -1176,6 +1176,20 @@ class Transaksi extends CI_Controller
 		}else{
 			$htmlSample .= '-';
 		}
+		// PDF FORM SAMPLE
+		if(($lvl == 'Admin' || $lvl == 'User') && $opt == 'edit'){
+			$linkX = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND jenis_dtl='FM'");
+			($linkX->num_rows() != 0) ? $lX = $linkX->row()->nm_file : $lX = '';
+			if($vX == 0){
+				$htmlPdfSample .= '<div class="card-body" style="padding:6px">
+					<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/formSample?id=".$header->id_dg."").'"><i class="fas fa-print"></i>PDF</a>
+				</div>';
+			}else{
+				$htmlPdfSample = '';
+			}
+		}else{
+			$htmlPdfSample .='';
+		}
 
 		// DESIGN PPIC
 		$qX = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND (jenis_dtl='XD' OR jenis_dtl='XL') ORDER BY jenis_dtl");
@@ -1244,6 +1258,7 @@ class Transaksi extends CI_Controller
 			'linkDesign' => $linkDesign,
 			'htmlPenawaran' => $htmlPenawaran,
 			'htmlSample' => $htmlSample,
+			'htmlPdfSample' => '',//$htmlPdfSample,
 			'htmlX' => $htmlX,
 			'htmlXLink' => $htmlXLink,
 			'htmlZ' => $htmlZ,
@@ -1273,6 +1288,70 @@ class Transaksi extends CI_Controller
 			'z_time' => ($header->acc_z_at == null) ? '' :substr($this->m_fungsi->getHariIni($header->acc_z_at),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->acc_z_at, 0,10)).' ( '.substr($header->acc_z_at, 10,6).' )',
 			'k_time' => ($header->acc_k_at == null) ? '' :substr($this->m_fungsi->getHariIni($header->acc_k_at),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->acc_k_at, 0,10)).' ( '.substr($header->acc_k_at, 10,6).' )',
 		]);
+	}
+
+	function formSample()
+	{
+		$id_dg = $_GET["id"];
+
+		$html = '';
+
+		$html .= '<table style="margin:0;padding:0;font-size:12px;border-collapse:collapse;color:#000;width:100%">
+			<thead>
+				<tr>
+					<th style="width:15%"></th>
+					<th style="width:53%"></th>
+					<th style="width:15%"></th>
+					<th style="width:2%"></th>
+					<th style="width:15%"></th>
+				</tr>
+				<tr>
+					<th style="border:1px solid #000" rowspan="6">
+						<img src="'.base_url('assets/gambar/ppi.png').'" alt="PPI" width="80" height="60">
+					</th>
+				</tr>
+				<tr>
+					<th style="border:1px solid #000;font-size:24px" rowspan="5">FORM PERMINTAAN SAMPLE</th>
+				</tr>
+				<tr>
+					<th style="border:1px solid #000;font-weight:normal;text-align:left">No</th>
+					<th style="border:1px solid #000;font-weight:normal">:</th>
+					<th style="border:1px solid #000;font-weight:normal;text-align:left">FR-MKT-05</th>
+				</tr>
+				<tr>
+					<th style="border:1px solid #000;font-weight:normal;text-align:left">Tgl Terbit</th>
+					<th style="border:1px solid #000;font-weight:normal">:</th>
+					<th style="border:1px solid #000;font-weight:normal;text-align:left">27-Sep-22</th>
+				</tr>
+				<tr>
+					<th style="border:1px solid #000;font-weight:normal;text-align:left">Rev</th>
+					<th style="border:1px solid #000;font-weight:normal">:</th>
+					<th style="border:1px solid #000;font-weight:normal;text-align:left">0</th>
+				</tr>
+				<tr>
+					<th style="border:1px solid #000;font-weight:normal;text-align:left">Hal</th>
+					<th style="border:1px solid #000;font-weight:normal">:</th>
+					<th style="border:1px solid #000;font-weight:normal;text-align:left">1</th>
+				</tr>
+				<tr>
+					<th style="border:1px solid #000;font-weight:normal;text-align:right">No</th>
+					<th style="border:1px solid #000;font-weight:normal;text-align:left">: Nomer Sample</th>
+					<th style="border:1px solid #000;font-weight:normal;text-align:right">Kepada</th>
+					<th style="border:1px solid #000;font-weight:normal">:</th>
+					<th style="border:1px solid #000;font-weight:normal;text-align:left">Bag Sample</th>
+				</tr>
+				<tr>
+					<th style="border:1px solid #000;font-weight:normal;text-align:right">Tgl</th>
+					<th style="border:1px solid #000;font-weight:normal;text-align:left">: Tgl Sample</th>
+					<th style="border:1px solid #000;font-weight:normal;text-align:right">Dari</th>
+					<th style="border:1px solid #000;font-weight:normal">:</th>
+					<th style="border:1px solid #000;font-weight:normal;text-align:left">Marketing</th>
+				</tr>
+			</thead>';
+		$html .= '</table>';
+
+		$judul = 'SJ - '.$id_dg;
+		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 	}
 
 	//
