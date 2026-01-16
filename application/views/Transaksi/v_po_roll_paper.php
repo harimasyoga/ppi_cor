@@ -384,7 +384,7 @@
 				</div>
 			<?php } ?>
 
-			<?php if(in_array($this->session->userdata('level'), ['Admin', 'User'])){ ?>
+			<?php if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){ ?>
 				<div class="row row-lap">
 					<div class="col-md-12">
 						<div class="card card-secondary card-outline">

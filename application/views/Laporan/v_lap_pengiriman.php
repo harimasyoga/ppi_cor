@@ -137,7 +137,7 @@
 								</select>
 							</div>
 						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px;<?= (in_array($this->session->userdata('level'), ['Admin', 'User'])) ? '' : 'display:none'; ?>">
+						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px;<?= (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? '' : 'display:none'; ?>">
 							<div class="col-md-2">OPSI</div>
 							<div class="col-md-10">
 								<select class="form-control select2" id="opsi" onchange="plhOS()">
