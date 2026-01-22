@@ -1040,8 +1040,8 @@ class Transaksi extends CI_Controller
 		if($id_dg != ''){
 			$header = $this->db->query("SELECT*FROM trs_design_header WHERE id_dg='$id_dg'")->row();
 			$vA = $this->db->query("SELECT*FROM trs_design_header WHERE acc_a_stt='Y' AND id_dg='$id_dg'")->num_rows();
-			$vD = $this->db->query("SELECT*FROM trs_design_header WHERE acc_d_stt='Y' AND id_dg='$id_dg'")->num_rows();
 			$vP = $this->db->query("SELECT*FROM trs_design_header WHERE acc_p_stt='Y' AND id_dg='$id_dg'")->num_rows();
+			$vD = $this->db->query("SELECT*FROM trs_design_header WHERE acc_d_stt='Y' AND id_dg='$id_dg'")->num_rows();
 			$vS = $this->db->query("SELECT*FROM trs_design_header WHERE acc_s_stt='Y' AND id_dg='$id_dg'")->num_rows();
 			$vX = $this->db->query("SELECT*FROM trs_design_header WHERE acc_x_stt='Y' AND id_dg='$id_dg'")->num_rows();
 			$vZ = $this->db->query("SELECT*FROM trs_design_header WHERE acc_z_stt='Y' AND id_dg='$id_dg'")->num_rows();
@@ -1111,7 +1111,7 @@ class Transaksi extends CI_Controller
 				// GAMBAR DAN LINK
 				$htmlDesign .= '<div style="margin-right:8px">';
 					if($a->jenis_dtl == 'FG'){
-						$htmlDesign .= '<a target="_blank" class="btn btn-sm btn-primary" style="font-weight:bold" href="'.base_url("Transaksi/pdfSD?i=".$a->id_dtl."").'"><i class="fas fa-print"></i>&nbspPDF</a>';
+						$htmlDesign .= '<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold" href="'.base_url("Transaksi/pdfSD?i=".$a->id_dtl."").'"><i class="fas fa-print"></i>&nbspPDF</a>';
 					}else if($a->jenis_dtl == 'FD'){
 						$htmlDesign .= '<img id="'.$prevDesign.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevDesign."'".')">';
 					}else{
@@ -1137,12 +1137,34 @@ class Transaksi extends CI_Controller
 			$linkDesign .='';
 		}
 		// PDF FORM DESIGN
-		if(($lvl == 'Admin' || $lvl == 'User') && $opt == 'edit' && $header->jenis_dg == 'B'){
-			if($vX == 0){
+		if(($lvl == 'Admin' || $lvl == 'User') && $opt == 'edit'){
+			if($vD == 0){
 				$lPdf = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND jenis_dtl='FG'");
-				if($lPdf->num_rows() == 0){
-					// <a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/formSample?id_dg=".$header->id_dg."").'"><i class="fas fa-print"></i>PDF</a>
+				if($lPdf->num_rows() == 0 && $header->jenis_dg == 'B'){
 					$htmlPdfDesign .= '<div class="card-body" style="padding:6px">
+						<div class="card-body row" style="padding:0">
+							<div class="col-md-4" style="padding-bottom:6px">
+								<input type="hidden" id="ff_cust_DESIGN" value="">
+								<input type="hidden" id="ff_nm_produk_DESIGN" value="">
+								<input type="hidden" id="ff_ukuran_DESIGN" value="">
+								<input type="hidden" id="ff_substance_DESIGN" value="">
+								<input type="hidden" id="ff_flute_DESIGN" value="">
+								<input type="hidden" id="ff_join_DESIGN" value="">
+								<input type="number" class="form-control" autocomplete="off" placeholder="QTY PCS" id="qty_pdf_DESIGN">
+							</div>
+							<div class="col-md-8" style="padding-bottom:6px">
+								<button class="btn btn-sm btn-success" style="padding:7px 8px;font-weight:bold" onclick="formSample('."'DESIGN'".')"><i class="fas fa-plus"></i> &nbsp FILE PDF</button>
+							</div>
+						</div>
+					</div>';
+				}else if($lPdf->num_rows() == 0 && $header->jenis_dg == 'N'){
+					$htmlPdfDesign .= '<div class="card-body" style="padding:6px;border-top:5px solid #6c757d">
+						<div style="padding-bottom:5px"><input type="text" class="form-control" autocomplete="off" placeholder="NAMA CUSTOMER" id="ff_cust_DESIGN" oninput="this.value=this.value.toUpperCase()"></div>
+						<div style="padding-bottom:5px"><input type="text" class="form-control" autocomplete="off" placeholder="NAMA PRODUK" id="ff_nm_produk_DESIGN" oninput="this.value=this.value.toUpperCase()"></div>
+						<div style="padding-bottom:5px"><input type="text" class="form-control" autocomplete="off" placeholder="UKURAN" id="ff_ukuran_DESIGN" oninput="this.value=this.value.toUpperCase()"></div>
+						<div style="padding-bottom:5px"><input type="text" class="form-control" autocomplete="off" placeholder="SUBSTANCE" id="ff_substance_DESIGN" oninput="this.value=this.value.toUpperCase()"></div>
+						<div style="padding-bottom:5px"><input type="text" class="form-control" autocomplete="off" placeholder="FLUTE" id="ff_flute_DESIGN" oninput="this.value=this.value.toUpperCase()"></div>
+						<div style="padding-bottom:5px"><input type="text" class="form-control" autocomplete="off" placeholder="JOIN" id="ff_join_DESIGN" oninput="this.value=this.value.toUpperCase()"></div>
 						<div class="card-body row" style="padding:0">
 							<div class="col-md-4" style="padding-bottom:6px">
 								<input type="number" class="form-control" autocomplete="off" placeholder="QTY PCS" id="qty_pdf_DESIGN">
@@ -1199,7 +1221,7 @@ class Transaksi extends CI_Controller
 					</div>';
 				}
 				if($a->jenis_dtl == 'FF'){
-					$htmlSample .= '<a target="_blank" class="btn btn-sm btn-primary" style="font-weight:bold" href="'.base_url("Transaksi/pdfSD?i=".$a->id_dtl."").'"><i class="fas fa-print"></i>&nbspPDF</a>';
+					$htmlSample .= '<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold" href="'.base_url("Transaksi/pdfSD?i=".$a->id_dtl."").'"><i class="fas fa-print"></i>&nbspPDF</a>';
 				}else{
 					$htmlSample .= '<div style="margin-right:8px">
 						<img id="'.$prevSample.'" src="'.base_url().'assets/gambar_design/'.$a->nm_file.'" alt="Preview Foto" width="100" class="shadow-sm" onclick="imgClick('."'".$prevSample."'".')">
@@ -1210,12 +1232,34 @@ class Transaksi extends CI_Controller
 			$htmlSample .= '-';
 		}
 		// PDF FORM SAMPLE
-		if(($lvl == 'Admin' || $lvl == 'User') && $opt == 'edit' && $header->jenis_dg == 'B'){
-			if($vX == 0){
+		if(($lvl == 'Admin' || $lvl == 'User') && $opt == 'edit'){
+			if($vS == 0){
 				$lPdf = $this->db->query("SELECT*FROM trs_design_detail WHERE id_hdr='$id_dg' AND jenis_dtl='FF'");
-				if($lPdf->num_rows() == 0){
-					// 	<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/formSample?id_dg=".$header->id_dg."").'"><i class="fas fa-print"></i>PDF</a>
+				if($lPdf->num_rows() == 0 && $header->jenis_dg == 'B'){
 					$htmlPdfSample .= '<div class="card-body" style="padding:6px">
+						<div class="card-body row" style="padding:0">
+							<div class="col-md-4" style="padding-bottom:6px">
+								<input type="hidden" id="ff_cust_SAMPLE" value="">
+								<input type="hidden" id="ff_nm_produk_SAMPLE" value="">
+								<input type="hidden" id="ff_ukuran_SAMPLE" value="">
+								<input type="hidden" id="ff_substance_SAMPLE" value="">
+								<input type="hidden" id="ff_flute_SAMPLE" value="">
+								<input type="hidden" id="ff_join_SAMPLE" value="">
+								<input type="number" class="form-control" autocomplete="off" placeholder="QTY PCS" id="qty_pdf_SAMPLE">
+							</div>
+							<div class="col-md-8" style="padding-bottom:6px">
+								<button class="btn btn-sm btn-success" style="padding:7px 8px;font-weight:bold" onclick="formSample('."'SAMPLE'".')"><i class="fas fa-plus"></i> &nbsp FILE PDF</button>
+							</div>
+						</div>
+					</div>';
+				}else if($lPdf->num_rows() == 0 && $header->jenis_dg == 'N'){
+					$htmlPdfSample .= '<div class="card-body" style="padding:6px">
+						<div style="padding-bottom:5px"><input type="text" class="form-control" autocomplete="off" placeholder="NAMA CUSTOMER" id="ff_cust_SAMPLE" oninput="this.value=this.value.toUpperCase()"></div>
+						<div style="padding-bottom:5px"><input type="text" class="form-control" autocomplete="off" placeholder="NAMA PRODUK" id="ff_nm_produk_SAMPLE" oninput="this.value=this.value.toUpperCase()"></div>
+						<div style="padding-bottom:5px"><input type="text" class="form-control" autocomplete="off" placeholder="UKURAN" id="ff_ukuran_SAMPLE" oninput="this.value=this.value.toUpperCase()"></div>
+						<div style="padding-bottom:5px"><input type="text" class="form-control" autocomplete="off" placeholder="SUBSTANCE" id="ff_substance_SAMPLE" oninput="this.value=this.value.toUpperCase()"></div>
+						<div style="padding-bottom:5px"><input type="text" class="form-control" autocomplete="off" placeholder="FLUTE" id="ff_flute_SAMPLE" oninput="this.value=this.value.toUpperCase()"></div>
+						<div style="padding-bottom:5px"><input type="text" class="form-control" autocomplete="off" placeholder="JOIN" id="ff_join_SAMPLE" oninput="this.value=this.value.toUpperCase()"></div>
 						<div class="card-body row" style="padding:0">
 							<div class="col-md-4" style="padding-bottom:6px">
 								<input type="number" class="form-control" autocomplete="off" placeholder="QTY PCS" id="qty_pdf_SAMPLE">
@@ -1294,6 +1338,13 @@ class Transaksi extends CI_Controller
 			$htmlZ .= '-';
 		}
 
+		// OPTIONS
+		($vA == 0) ? $zA = '<option value="FA">ACUAN WARNA</option>' : $zA = '';
+		($vP == 0) ? $zP = '<option value="FP">PENAWARAN</option>' : $zP = '';
+		($vD == 0) ? $zD = '<option value="FD">FORM DESIGN</option>' : $zD = '';
+		($vS == 0) ? $zS = '<option value="FS">FORM SAMPLE</option>' : $zS = '';
+		$options = '<option value="">PILIH</option>'.$zA.$zP.$zD.$zS;
+
 		echo json_encode([
 			'header' => $header,
 			'htmlAcuan' => $htmlAcuan,
@@ -1307,6 +1358,7 @@ class Transaksi extends CI_Controller
 			'htmlX' => $htmlX,
 			'htmlXLink' => $htmlXLink,
 			'htmlZ' => $htmlZ,
+			'options' => $options,
 		]);
 	}
 
@@ -1353,18 +1405,21 @@ class Transaksi extends CI_Controller
 		$opsi_pdf = $_POST["opsi_pdf"];
 		$qty_pdf = $_POST["qty_pdf"];
 		$id_dg = $_POST["id_dg"];
+		$ff_cust = $_POST["ff_cust"];
+		$ff_nm_produk = $_POST["ff_nm_produk"];
+		$ff_ukuran = $_POST["ff_ukuran"];
+		$ff_substance = $_POST["ff_substance"];
+		$ff_flute = $_POST["ff_flute"];
+		$ff_join = $_POST["ff_join"];
 
+		$header = $this->db->query("SELECT*FROM trs_design_header WHERE id_dg='$id_dg'")->row();
 		($opsi_pdf == 'SAMPLE') ? $opsi = 'SAMPLE' : $opsi = 'DESIGN';
 
-		if($qty_pdf == '' || $qty_pdf == 0 || $qty_pdf < 0){
+		if(($qty_pdf == '' || $qty_pdf == 0 || $qty_pdf < 0) && $header->jenis_dg == 'B'){
 			$data = false; $msg = 'ISI QTY!';
+		}else if(($ff_cust == '' || $ff_nm_produk == '' || $ff_ukuran == '' || $ff_substance == '' || $ff_flute == '' || $ff_join == '' || $qty_pdf == '' || $qty_pdf == 0 || $qty_pdf < 0) && $header->jenis_dg == 'N'){
+			$data = false; $msg = 'LENGKAPI FORM!';
 		}else{
-			$item = $this->db->query("SELECT h.*,i.*,c.nm_pelanggan,c.attn FROM trs_design_header h
-			INNER JOIN m_pelanggan c ON h.id_pelanggan=c.id_pelanggan
-			INNER JOIN m_produk i ON h.id_produk=i.id_produk
-			WHERE h.id_dg='$id_dg'
-			GROUP BY h.id_pelanggan,h.kode_po,h.id_produk")->row();
-
 			$html = '';
 			$html .= '<table style="margin:0;padding:0;font-size:12px;border-collapse:collapse;color:#000;width:100%">
 				<thead>
@@ -1406,62 +1461,82 @@ class Transaksi extends CI_Controller
 					</tr>
 					<tr>
 						<th style="border:1px solid #000;border-width:1px 0 0 1px;font-weight:normal;padding:5px;text-align:right">No</th>
-						<th style="border:1px solid #000;border-width:1px 0 0;font-weight:normal;padding:5px;text-align:left" colspan="2">: '.$item->kode_dg.'/'.$opsi.'</th>
+						<th style="border:1px solid #000;border-width:1px 0 0;font-weight:normal;padding:5px;text-align:left" colspan="2">: '.$header->kode_dg.'/'.$opsi.'</th>
 						<th style="border:1px solid #000;border-width:1px 0 0;font-weight:normal;padding:5px;text-align:right">Kepada</th>
 						<th style="border:1px solid #000;border-width:1px 0 0;font-weight:normal;padding:5px">:</th>
 						<th style="border:1px solid #000;border-width:1px 1px 0 0;font-weight:normal;padding:5px;text-align:left">Bag '.$opsi.'</th>
 					</tr>
 					<tr>
 						<th style="border:1px solid #000;border-width:0 0 1px 1px;font-weight:normal;padding:5px;text-align:right">Tgl</th>
-						<th style="border:1px solid #000;border-width:0 0 1px;font-weight:normal;padding:5px;text-align:left" colspan="2">: '.$item->tgl.'</th>
+						<th style="border:1px solid #000;border-width:0 0 1px;font-weight:normal;padding:5px;text-align:left" colspan="2">: '.$this->m_fungsi->tanggal_format_indonesia($header->tgl).'</th>
 						<th style="border:1px solid #000;border-width:0 0 1px;font-weight:normal;padding:5px;text-align:right">Dari</th>
 						<th style="border:1px solid #000;border-width:0 0 1px;font-weight:normal;padding:5px">:</th>
 						<th style="border:1px solid #000;border-width:0 1px 1px 0;font-weight:normal;padding:5px;text-align:left">Marketing</th>
 					</tr>
 				</thead>';
 
-				($item->attn == '-') ? $attn = '' : $attn = ' | '.$item->attn;
-				if($item->kategori == "K_BOX"){
-					$ukuran = $item->ukuran;
-					if($item->sambungan == 'G'){
-						$s = 'GLUE';
-					}else if($item->sambungan == 'S'){
-						$s = 'STITCHING';
-					}else if($item->sambungan == 'D'){
-						$s = 'DIE CUT';
-					}else if($item->sambungan == 'DS'){
-						$s = 'DOUBLE STITCHING';
-					}else if($item->sambungan == 'GS'){
-						$s = 'GLUE STITCHING';
+				if($header->jenis_dg == 'B'){
+					$item = $this->db->query("SELECT h.*,i.*,c.nm_pelanggan,c.attn FROM trs_design_header h
+					INNER JOIN m_pelanggan c ON h.id_pelanggan=c.id_pelanggan
+					INNER JOIN m_produk i ON h.id_produk=i.id_produk
+					WHERE h.id_dg='$id_dg'
+					GROUP BY h.id_pelanggan,h.kode_po,h.id_produk")->row();
+					if($item->kategori == "K_BOX"){
+						$ukuran = $item->ukuran;
+						if($item->sambungan == 'G'){
+							$s = 'GLUE';
+						}else if($item->sambungan == 'S'){
+							$s = 'STITCHING';
+						}else if($item->sambungan == 'D'){
+							$s = 'DIE CUT';
+						}else if($item->sambungan == 'DS'){
+							$s = 'DOUBLE STITCHING';
+						}else if($item->sambungan == 'GS'){
+							$s = 'GLUE STITCHING';
+						}else{
+							$s = '-';
+						}
+						$join = $item->tipe_box.' - '.$s;
 					}else{
-						$s = '-';
+						$ukuran = $item->ukuran_sheet;
+						$join = '-';
 					}
-					$join = $item->tipe_box.' - '.$s;
+					($item->attn == '-') ? $attn = '' : $attn = ' | '.$item->attn;
+					$fnmCust = $item->nm_pelanggan.$attn;
+					$fnmProduk = $item->nm_produk;
+					$fUkuran = $ukuran;
+					$fSubstance = $this->m_fungsi->kualitas($item->kualitas, $item->flute);
+					$fFlute = $item->flute;
+					$fJoin = $join;
 				}else{
-					$ukuran = $item->ukuran_sheet;
-					$join = '-';
+					$fnmCust = $ff_cust;
+					$fnmProduk = $ff_nm_produk;
+					$fUkuran = $ff_ukuran;
+					$fSubstance = $ff_substance;
+					$fFlute = $ff_flute;
+					$fJoin = $ff_join;
 				}
 
 				$html .= '<tr>
 					<td style="padding:16px 5px 8px" colspan="2">Nama Customer</td>
-					<td>: '.$item->nm_pelanggan.$attn.'</td>
+					<td>: '.$fnmCust.'</td>
 				</tr>
 				<tr>
 					<td style="padding:8px 5px" colspan="2">Nama Box / Sheet</td>
-					<td>: '.$item->nm_produk.'</td>
+					<td>: '.$fnmProduk.'</td>
 				</tr>
 				<tr>
 					<td style="padding:8px 5px" colspan="2">Ukuran</td>
-					<td>: '.$ukuran.' MM</td>
+					<td>: '.$fUkuran.' MM</td>
 				</tr>
 				<tr>
 					<td style="padding:8px 5px" colspan="2">Substance / Flute</td>
-					<td>: '.$this->m_fungsi->kualitas($item->kualitas, $item->flute).'</td>
-					<td>/ '.$item->flute.'</td>
+					<td>: '.$fSubstance.'</td>
+					<td>/ '.$fFlute.'</td>
 				</tr>
 				<tr>
 					<td style="padding:8px 5px" colspan="2">Join</td>
-					<td>: '.$join.'</td>
+					<td>: '.$fJoin.'</td>
 				</tr>
 				<tr>
 					<td style="padding:8px 5px" colspan="2">Nama Layer</td>
@@ -1508,7 +1583,7 @@ class Transaksi extends CI_Controller
 				</tr>';
 			$html .= '</table>';
 
-			$judul = 'FORM '.$opsi.' - '.$item->kode_dg;
+			$judul = 'FORM '.$opsi.' - '.$header->kode_dg;
 			$this->load->library('mpdf');
 			$this->mpdf->setTitle($judul);
 			$this->mpdf->AddPageByArray(array(
@@ -1528,18 +1603,17 @@ class Transaksi extends CI_Controller
 				'nm_file' => 'FORM '.$opsi,
 				'pdf_qty' => $qty_pdf,
 				'pdf_file' => $pdf,
+				'add_at' => date('Y-m-d H:i:s'),
+				'add_by' => $this->session->userdata('username'),
 			);
 			$data = $this->db->insert('trs_design_detail', $dtl);
 			$msg = 'BERHASIL BUAT FILE PDF!';
 		}
 
-
 		echo json_encode([
 			'data' => $data,
 			'msg' => $msg,
 		]);
-
-		// $this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 	}
 
 	//
@@ -3955,7 +4029,9 @@ class Transaksi extends CI_Controller
 			$query = $this->db->query("SELECT p.id_sales,h.* FROM trs_design_header h
 			LEFT JOIN m_pelanggan p ON h.id_pelanggan=p.id_pelanggan
 			WHERE h.tgl LIKE '%$tahun%' $wBln $wSales
-			GROUP BY h.id_dg ORDER BY jenis_dg, acc_a_stt, acc_p_stt, acc_d_stt, acc_s_stt, acc_x_stt, acc_z_stt, acc_k_stt, tgl DESC, kode_dg")->result();
+			GROUP BY h.id_dg DESC
+			-- ORDER BY jenis_dg, acc_a_stt, acc_p_stt, acc_d_stt, acc_s_stt, acc_x_stt, acc_z_stt, acc_k_stt, tgl DESC, kode_dg
+			")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;

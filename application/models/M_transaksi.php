@@ -2649,6 +2649,8 @@ class M_transaksi extends CI_Model
 			'id_hdr' => ($id_dg == '') ? 0 : $id_dg,
 			'jenis_dtl' => $j,
 			'nm_file' => $link_design,
+			'add_at' => date('Y-m-d H:i:s'),
+			'add_by' => $this->username,
 		);
 
 		($id_dg != '') ? $id = $id_dg : $id = 0;
@@ -2689,6 +2691,8 @@ class M_transaksi extends CI_Model
 				'id_hdr' => $id_dg,
 				'jenis_dtl' => 'FW',
 				'nm_file' => $plh_warna,
+				'add_at' => date('Y-m-d H:i:s'),
+				'add_by' => $this->username,
 			);
 			$data = $this->db->insert('trs_design_detail', $dtl);
 			$msg = 'BERHASIL TAMBAH ACUAN WARNA!';
