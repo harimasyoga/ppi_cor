@@ -320,7 +320,7 @@
 			
 	}
 
-	function hitung_os_plan(val,sisa) 
+	function hitung_os_plan(val,id,sisa,id) 
 	{
 		// pastikan string, hilangkan titik pemisah ribuan
 		sisa = sisa.toString().replace(/\./g, '');
@@ -331,15 +331,111 @@
 		val  = Number(val);
 
 		if (isNaN(sisa) || isNaN(val)) {
-			$('#os_terplanning').val('');
+			$('#os_terplanning'+id).val('');
 			return;
 		}
 
 		let os_plan = sisa - val;
 
 		if (os_plan < 0) os_plan = 0;
-alert(os_plan)
-		$('#os_terplanning').val(format_angka(os_plan));
+// alert(os_plan)
+		$('#os_terplanning'+id).val(format_angka(os_plan));
+
+	}
+
+	// INVOICE ADD //
+	function simpan(po_ok_id,sts_input) 
+	{               
+				
+		swal({
+			title: 'loading ...',
+			allowEscapeKey: false,
+			allowOutsideClick: false,
+			onOpen: () => {
+				swal.showLoading();
+			}
+		})
+
+		var qty_po                  = $("#qty_po"+po_ok_id).val().split('.').join('')
+		var delivery                = $("#delivery"+po_ok_id).val().split('.').join('')
+		var os                      = $("#os"+po_ok_id).val().split('.').join('')
+		var os_terplanning          = $("#os_terplanning"+po_ok_id).val().split('.').join('')
+		var os_belum_terplanning    = $("#os_belum_terplanning"+po_ok_id).val().split('.').join('')
+		var qty_plan                = $("#qty_plan"+po_ok_id).val().split('.').join('')
+		var eta                     = $("#eta"+po_ok_id).val().split('.').join('')
+
+		if (qty_po == ''|| delivery == ''|| os == ''|| os_terplanning == ''|| os_belum_terplanning == ''|| qty_plan == ''|| eta == '') {
+			swal.close();
+			swal({
+				title: "Cek Kembali",
+				html: "Harap Lengkapi Form Dahulu",
+				type: "info",
+				confirmButtonText: "OK"
+			});
+			return;
+		}
+
+		$.ajax({
+			url: '<?= base_url(); ?>Transaksi/Insert_dev_sys',
+			type: "POST",
+			// data: $('#myForm').serialize(),
+			data: ({
+				sts_input,qty_po,delivery,os,os_terplanning,os_belum_terplanning,qty_plan,eta
+			}),
+			dataType: "JSON",
+			success: function(data) {
+				if (data.status == '1') {
+					// toastr.success('Berhasil Disimpan');
+					swal.close();
+					swal({
+						title: "Data",
+						html: "Berhasil Disimpan",
+						type: "success"
+						// confirmButtonText   : "OK"
+					});
+					// location.href = "<?= base_url() ?>Logistik/Invoice_edit?id="+data.id+"&no_inv="+no_inv_ok+"";
+					// location.href = "<?= base_url() ?>Logistik/Invoice";
+					kembaliList();
+					kosong();
+
+				} else if (data.status == '3') {
+					swal.close();
+					swal({
+						title: "CEK KEMBALI",
+						html: "<p><strong>Nomor Invoice</strong></p>" +
+							"Sudah di Gunakan",
+						type: "error",
+						confirmButtonText: "OK"
+					});
+					return;
+				} else {
+					// toastr.error('Gagal Simpan');
+					swal.close();
+					swal({
+						title: "Cek Kembali",
+						// html: "Gagal Simpan",
+						html: data.msg,
+						type: "error",
+						confirmButtonText: "OK"
+					});
+					return;
+				}
+				reloadTable();
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				// toastr.error('Terjadi Kesalahan');
+
+				swal.close();
+				swal({
+					title: "Cek Kembali",
+					html: "Terjadi Kesalahan",
+					type: "error",
+					confirmButtonText: "OK"
+				});
+
+				return;
+			}
+		});
 
 	}
 

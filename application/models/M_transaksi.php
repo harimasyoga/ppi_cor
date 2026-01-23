@@ -921,6 +921,39 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function save_dev_sys($data)
+	{
+		$status_input = $this->input->post('sts_input');
+		if($status_input == 'add')
+		{
+
+			$this->db->insert('trs_dev_sys', $data);
+			return $this->db->insert_id(); // kembalikan ID
+			
+		}else{
+			
+			$no_inv_bhn    = $this->input->post('no_inv_bhn');
+
+			$data_header = array(
+				'no_inv_bhn'    => $no_inv_bhn,
+				'tgl_inv_bhn'   => $this->input->post('tgl_inv'),
+				'id_stok_d'   	=> $this->input->post('id_stok_d'),
+				'no_stok'   	=> $this->input->post('no_stok'),
+				'id_hub'        => $this->input->post('id_hub'),
+				'ket'           => $this->input->post('ket'),
+				'qty'           => str_replace('.','',$this->input->post('qty')), 
+				'nominal'       => str_replace('.','',$this->input->post('nom')),
+				'total_bayar'   => str_replace('.','',$this->input->post('total_bayar')),
+				'acc_owner'     => 'N',
+			);
+
+			$this->db->where('id_inv_bhn', $this->input->post('id_inv_bhn'));
+			$result_header = $this->db->update('invoice_bhn', $data_header);
+			return $result_header;
+		}
+		
+	}
+	
 	function simpanSO()
 	{
 		foreach($this->cart->contents() as $r){
