@@ -736,19 +736,28 @@
 				$(".ppic-design").html(data.htmlX)
 				$(".link-ppic-design").html(data.htmlXLink)
 				$(".ppic-sample").html(data.htmlZ)
+				if(urlAuth == 'User'){
+					$("#dsg_pilih").html(data.options)
+				}
 				swal.close()
 			}
 		})
 	}
 
 	function formSample(opsi_pdf) {
+		let ff_cust = $("#ff_cust_"+opsi_pdf).val()
+		let ff_nm_produk = $("#ff_nm_produk_"+opsi_pdf).val()
+		let ff_ukuran = $("#ff_ukuran_"+opsi_pdf).val()
+		let ff_substance = $("#ff_substance_"+opsi_pdf).val()
+		let ff_flute = $("#ff_flute_"+opsi_pdf).val()
+		let ff_join = $("#ff_join_"+opsi_pdf).val()
 		let qty_pdf = $("#qty_pdf_"+opsi_pdf).val()
 		let id_dg = $("#id_dg").val()
 		let opsi = $("#opt").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/formSample')?>',
 			type: "POST",
-			data: ({ opsi_pdf, qty_pdf, id_dg }),
+			data: ({ opsi_pdf, qty_pdf, id_dg, ff_cust, ff_nm_produk, ff_ukuran, ff_substance, ff_flute, ff_join }),
 			beforeSend: function() {
 				swal({
 					title: 'loading ...',
@@ -985,7 +994,8 @@
 				$(".vv").html('')
 
 				// VERIFIFIKASI ACUAN
-				if(data.imgA != 0 && (urlAuth == 'Admin' || urlAuth == 'User') && (data.header.acc_a_stt == 'N' || data.header.acc_a_stt == 'H' || data.header.acc_a_stt == 'R')){
+				// data.imgA != 0 && 
+				if((urlAuth == 'Admin' || urlAuth == 'User') && (data.header.acc_a_stt == 'N' || data.header.acc_a_stt == 'H' || data.header.acc_a_stt == 'R')){
 					// BUTTON ACUAN
 					$(".verif-acuan").html(`
 						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifDesign('verifikasi', 'acuan')"><i class="fas fa-check"></i> Verifikasi</button>
@@ -1058,7 +1068,8 @@
 				}
 
 				// VERIFIFIKASI FORM DESIGN
-				if(data.imgD != 0 && (urlAuth == 'Admin' || urlAuth == 'User') && (data.header.acc_d_stt == 'N' || data.header.acc_d_stt == 'H' || data.header.acc_d_stt == 'R')){
+				// data.imgD != 0 && 
+				if((urlAuth == 'Admin' || urlAuth == 'User') && (data.header.acc_d_stt == 'N' || data.header.acc_d_stt == 'H' || data.header.acc_d_stt == 'R')){
 					// BUTTON FORM DESIGN
 					$(".verif-design").html(`
 						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifDesign('verifikasi', 'design')"><i class="fas fa-check"></i> Verifikasi</button>
@@ -1131,7 +1142,8 @@
 				}
 
 				// VERIFIFIKASI PENAWARAN
-				if(data.imgP != 0 && (urlAuth == 'Admin' || urlAuth == 'User') && (data.header.acc_p_stt == 'N' || data.header.acc_p_stt == 'H' || data.header.acc_p_stt == 'R')){
+				// data.imgP != 0 && 
+				if((urlAuth == 'Admin' || urlAuth == 'User') && (data.header.acc_p_stt == 'N' || data.header.acc_p_stt == 'H' || data.header.acc_p_stt == 'R')){
 					// BUTTON PENAWARAN
 					$(".verif-penawaran").html(`
 						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifDesign('verifikasi', 'penawaran')"><i class="fas fa-check"></i> Verifikasi</button>
