@@ -206,7 +206,7 @@
 		})
 	}
 	
-	function close_po()
+	function kembali_po()
 	{
 		$('.tab_dev').show("1000");
 		$('#tampil-data').hide("1000");
@@ -344,7 +344,7 @@
 	}
 
 	// INVOICE ADD //
-	function simpan(po_ok_id,sts_input) 
+	function simpan(po_ok_id,id_produk,id_pelanggan,sts_input) 
 	{               
 				
 		swal({
@@ -380,7 +380,7 @@
 			type: "POST",
 			// data: $('#myForm').serialize(),
 			data: ({
-				sts_input,qty_po,delivery,os,os_terplanning,os_belum_terplanning,qty_plan,eta
+				sts_input,po_ok_id,id_produk,id_pelanggan,qty_po,delivery,os,os_terplanning,os_belum_terplanning,qty_plan,eta
 			}),
 			dataType: "JSON",
 			success: function(data) {
@@ -395,8 +395,9 @@
 					});
 					// location.href = "<?= base_url() ?>Logistik/Invoice_edit?id="+data.id+"&no_inv="+no_inv_ok+"";
 					// location.href = "<?= base_url() ?>Logistik/Invoice";
-					kembaliList();
-					kosong();
+					// kembaliList();
+					// kosong();
+					kembali_po()
 
 				} else if (data.status == '3') {
 					swal.close();
@@ -420,7 +421,8 @@
 					});
 					return;
 				}
-				reloadTable();
+				// reloadTable();
+				console.log('aaa')
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
 				// toastr.error('Terjadi Kesalahan');
@@ -436,6 +438,70 @@
 				return;
 			}
 		});
+
+	}
+
+	function del_history(id) 
+	{
+		// let cek = confirm("Apakah Anda Yakin?");
+		swal({
+			title: "PO",
+			html: "<p> Apakah Anda yakin ingin menghapus ini ?</p><br>",
+			type               : "question",
+			showCancelButton   : true,
+			confirmButtonText  : '<b>Hapus</b>',
+			cancelButtonText   : '<b>Batal</b>',
+			confirmButtonClass : 'btn btn-success',
+			cancelButtonClass  : 'btn btn-danger',
+			cancelButtonColor  : '#d33'
+		}).then(() => {
+
+		// if (cek) {
+			$.ajax({
+				url: '<?= base_url(); ?>Transaksi/hapus',
+				data: ({
+					id: id,
+					jenis: 'trs_dev_sys',
+					field: 'id_dev'
+				}),
+				type: "POST",
+				beforeSend: function() {
+					swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+					})
+				},
+				success: function(data) {
+					// toastr.success('Data Berhasil Di Hapus');
+					// d_pi(id,no); 
+					swal({
+						title               : "Data",
+						html                : "Data Berhasil Di Hapus",
+						type                : "success",
+						confirmButtonText   : "OK"
+					});
+					// reloadTable();
+					kembali_po()
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					// toastr.error('Terjadi Kesalahan');
+					swal({
+						title               : "Cek Kembali",
+						html                : "Terjadi Kesalahan",
+						type                : "error",
+						confirmButtonText   : "OK"
+					});
+					return;
+				}
+			});
+		// }
+
+		});
+
 
 	}
 

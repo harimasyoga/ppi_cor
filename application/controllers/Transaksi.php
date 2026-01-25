@@ -8916,7 +8916,7 @@ class Transaksi extends CI_Controller
 				<span style="color:red;"> '.$produk_->ukuran.' </span> - 
 				<span style="color:red;"> '.$produk_->kualitas.' </span> </h3>
 				<div class="card-tools">
-					<button type="button" onclick="close_po()" class="btn  btn-danger"><b>
+					<button type="button" onclick="kembali_po()" class="btn  btn-danger"><b>
 							<i class="fa fa-arrow-left"></i> Kembali</b>
 					</button>
 				</div>
@@ -8929,7 +8929,8 @@ class Transaksi extends CI_Controller
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold"></td>
 				</tr>';
 		if($po_->num_rows() != 0){
-			foreach($po_->result() as $po_ok){
+			foreach($po_->result() as $po_ok)
+				{
 
 				$kirim = $this->db->query("SELECT SUM(r.qty_muat) AS tot_muat,r.*,p.* FROM m_rencana_kirim r
 						INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
@@ -8948,7 +8949,13 @@ class Transaksi extends CI_Controller
 							$sumRetur += ($retur->num_rows() == 0) ? 0 : $retur->row()->rtr_jumlah;
 							}
 						}
+						$jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys where id_po_header='$po_ok->id' and id_produk='$id_produk' and id_pelanggan='$id_pelanggan' GROUP BY id_po_header,id_produk,id_pelanggan 
+						ORDER BY id_dev
+						")->row();
+
+						
 						$sisa = $po_ok->qty - ($sumKirim - $sumRetur);
+						$sisa_os_belum_terplanning = $sisa - $jumlah_plan->qty_plan;
 
 
 					$html .= '<tr class="tr_po po'.$po_ok->id_produk.'" >
@@ -8971,9 +8978,9 @@ class Transaksi extends CI_Controller
 								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">QTY PO</th>
 								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">DELIVERY</th>
 								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">OS</th>
-								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;" rowspan="2" >
+								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;" rowspan="2" colspan="2" >
 								
-									<button type="button" onclick="simpan('.$po_ok->id.',`add`)" class="btn-tambah-produk btn btn-sm btn-primary"><b><i class="fa fa-save" ></i> Simpan</b>
+									<button type="button" onclick="simpan('.$po_ok->id.','.$id_produk.','.$id_pelanggan.',`add`)" class="btn-tambah-produk btn btn-sm btn-warning" style="color: #ffffffff;"><b><i class="fas fa-shopping-basket"></i></b>
 									</button>
 									
 								</th>
@@ -8995,7 +9002,7 @@ class Transaksi extends CI_Controller
 								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS TERPLANNING</th>
 								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS BELUM TERPLANNING</th>
 								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">QTY PLAN DELIVERY</th>
-								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">ETA</th>
+								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;" colspan="2">ETA</th>
 							</tr>
 							
 							<tr>
@@ -9003,36 +9010,72 @@ class Transaksi extends CI_Controller
 									<input style="text-align:center;border:none;"id="os_terplanning'.$po_ok->id.'" autocomplete="off" readonly>
 								</td>
 								<td style="padding:5px;text-align:center;border:1px solid #aaa;">
-									<input style="text-align:center;border:none;"  id="os_belum_terplanning'.$po_ok->id.'" autocomplete="off" value="'.number_format($sisa,0,',','.').'" readonly>
+									<input style="text-align:center;border:none;"  id="os_belum_terplanning'.$po_ok->id.'" autocomplete="off" value="'.number_format($sisa_os_belum_terplanning,0,',','.').'" readonly>
 								</td>
 								<td style="padding:5px;text-align:center;border:1px solid #aaa;">								
-									<input class="form-control" style="text-align:center;" type="number" id="qty_plan'.$po_ok->id.'" autocomplete="off" onkeyup="hitung_os_plan(this.value,this.id,'.$sisa.','.$po_ok->id.')">
+									<input class="form-control" style="text-align:center;" type="number" id="qty_plan'.$po_ok->id.'" autocomplete="off" onkeyup="hitung_os_plan(this.value,this.id,'.$sisa_os_belum_terplanning.','.$po_ok->id.')">
 								</td>
-								<td style="padding:5px;text-align:center;border:1px solid #aaa;text-align:center">
+								<td style="padding:5px;text-align:center;border:1px solid #aaa;text-align:center" colspan="2">
 									<input class="form-control" type="date" id="eta'.$po_ok->id.'" autocomplete="off" >
 								</td>
 							</tr>
 							
 							<tr>
-								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background-color: #454545;color: #ffffff;" colspan="4">
+								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background-color: #454545;color: #ffffff;" colspan="5">
 									HISTORY PLAN
 									
 								</th>
 							</tr>
 							<tr>
-								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS TERPLANNING</th>
-								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS BELUM TERPLANNING</th>
-								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">QTY PLAN DELIVERY</th>
-								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">ETA</th>
-							</tr>
-							
-						</tbody>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">OS TERPLANNING</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">OS BELUM TERPLANNING</th>
+								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">QTY PLAN DELIVERY</th>
+								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">ETA</th>
+								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">HAPUS</th>
+							</tr>';
+
+					// HISTORY PLAN
+					
+					$history_plan = $this->db->query("SELECT*FROM trs_dev_sys where id_po_header='$po_ok->id' and id_produk='$id_produk' and id_pelanggan='$id_pelanggan'  ORDER BY id_dev
+					");
+					if($history_plan->num_rows() > 0){
+						foreach($history_plan->result() as $his_plan)
+						{
+
+							$html .= '
+								<tr>
+									<td style="padding:5px;text-align:center;border:1px solid #aaa">
+										<input style="text-align:center;border:none;"id="his_os_terplanning'.$po_ok->id.'" autocomplete="off" value="'.number_format($his_plan->os_terplanning,0,',','.').'" readonly>
+									</td>
+									<td style="padding:5px;text-align:center;border:1px solid #aaa;">
+										<input style="text-align:center;border:none;"  id="his_os_belum_terplanning'.$po_ok->id.'" autocomplete="off" value="'.number_format($his_plan->os_belum_terplanning,0,',','.').'" readonly>
+									</td>
+									<td style="padding:5px;text-align:center;border:1px solid #aaa;">								
+										<input style="text-align:center;border:none;" id="his_qty_plan'.$po_ok->id.'" autocomplete="off" value="'.number_format($his_plan->qty_plan,0,',','.').'" readonly>
+									</td>
+									<td style="padding:5px;text-align:center;border:1px solid #aaa;text-align:center">
+										<input class="form-control" type="date" id="his_eta'.$po_ok->id.'" value="'.$his_plan->eta.'" autocomplete="off" readonly>
+									</td>
+									<td style="padding:5px;text-align:center;border:1px solid #aaa;text-align:center">
+										<button type="button" onclick="del_history('.$his_plan->id_dev.',`add`)" class="btn" style="color: #ff0000ff;"><b><i class="fas fa-trash"></i></b>
+										</button>
+									</td>
+								</tr>';
+
+						}
+					}else{
+							$html .= '
+								<tr>
+									<td style="padding:5px;text-align:center;border:1px solid #aaa" colspan="5">
+										DATA KOSONG !!
+									</td>
+								</tr>';
+					}
+			$html .= '</tbody>
 							
 						</table>
 					</td>
 				</tr>';
-
-			
 
 			}
 		}
@@ -9071,6 +9114,9 @@ class Transaksi extends CI_Controller
 
 			  // ambil data POST
 			$data = [
+				'id_po_header'         => (int) str_replace('.', '', $this->input->post('po_ok_id')),
+				'id_produk'            => (int) str_replace('.', '', $this->input->post('id_produk')),
+				'id_pelanggan'         => (int) str_replace('.', '', $this->input->post('id_pelanggan')),
 				'qty_po'               => (int) str_replace('.', '', $this->input->post('qty_po')),
 				'delivery'             => (int) str_replace('.', '', $this->input->post('delivery')),
 				'os'                   => (int) str_replace('.', '', $this->input->post('os')),
