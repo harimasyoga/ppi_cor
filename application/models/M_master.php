@@ -751,7 +751,6 @@ class M_master extends CI_Model{
 
     }
 
-  
 	function m_sales($jenis, $status){
 		$data = array(
 			'nm_sales' => $_POST["nm_sales"],
@@ -767,7 +766,6 @@ class M_master extends CI_Model{
 
 		return $result;
 	}
-  
 
     function  get_romawi($bln){
 		switch  ($bln){
@@ -809,7 +807,62 @@ class M_master extends CI_Model{
 			break;
 		}
     }
-  
+
+	function simpanEkspedisi()
+	{
+		$h_id_ex = $_POST["h_id_ex"];
+		$plat = ltrim(rtrim($_POST["i_plat"]));
+		$ekspedisi = ltrim(rtrim($_POST["i_ekspedisi"]));
+		$panjang = $_POST["i_panjang"];
+		$lebar = $_POST["i_lebar"];
+		$tinggi = $_POST["i_tinggi"];
+		$statInput = $_POST["statInput"];
+
+		$exLama = $this->db->query("SELECT*FROM m_ekspedisi WHERE id_ex='$h_id_ex'");
+		($exLama->num_rows() != 0) ? $platLama = $exLama->row()->plat : $platLama = '';
+
+		$cek = $this->db->query("SELECT*FROM m_ekspedisi WHERE plat='$plat'");
+
+		if($cek->num_rows() != 0 && $statInput == 'insert'){
+			$data = false; $msg = 'PLAT SUDAH ADA!';
+		}else if($platLama != $plat && $cek->num_rows() != 0 && $statInput == 'update'){
+			$data = false; $msg = 'PLAT SUDAH ADA!';
+		}else if($plat == '' || $ekspedisi == '' || $panjang == 0 || $panjang < 0 || $panjang == '' || $lebar == 0 || $lebar < 0 || $lebar == '' || $tinggi == 0 || $tinggi < 0 || $tinggi == ''){
+			$data = false; $msg = 'LENGKAPI FORM!';
+		}else{
+			$ex = [
+				'plat' => $plat,
+				'ekspedisi' => $ekspedisi,
+				'panjang' => $panjang,
+				'lebar' => $lebar,
+				'tinggi' => $tinggi,
+			];
+			if($statInput == 'insert'){
+				$data = $this->db->insert('m_ekspedisi', $ex);
+				$msg = 'BERHASIL INSERT!';
+			}else{
+				$this->db->where('id_ex', $h_id_ex);
+				$data = $this->db->update('m_ekspedisi', $ex);
+				$msg = 'BERHASIL UPDATE!';
+			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+			'plat' => $plat,
+			'ekspedisi' => $ekspedisi,
+		];
+	}
+
+	function hapusEkspedisi()
+	{
+		$this->db->where('id_ex', $_POST["id_ex"]);
+		$data = $this->db->delete('m_ekspedisi');
+		return [
+			'data' => $data,
+		];
+	}
 
 }
 

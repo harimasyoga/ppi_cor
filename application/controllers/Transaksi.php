@@ -9236,6 +9236,7 @@ class Transaksi extends CI_Controller
 
 	function loadCalender()
 	{
+		$id_sales = $this->session->userdata('id_sales');
 		$html = '';
 		$tgl = $_POST["tgl"];
 		$tahun = $_POST["tahun"];
@@ -9259,14 +9260,14 @@ class Transaksi extends CI_Controller
 
 		$html .= '<div>
 			<div style="background:#333;color:#fff;padding:8px 6px;border-radius:6px 6px 0 0;font-weight:bold">'.strtoupper(date('F', strtotime($awal1))).' '.$tahun.'</div>
-			<div class="day-of-week" style="background:#7c858d;padding:14px 6px;font-weight:bold;border-bottom:3px solid #333">
+			<div class="day-of-week" style="background:#7c858d;padding:15px 6px;font-weight:bold;border-bottom:3px solid #333">
+				<div style="text-align:center">Min</div>
 				<div style="text-align:center">Sen</div>
 				<div style="text-align:center">Sel</div>
 				<div style="text-align:center">Rab</div>
 				<div style="text-align:center">Kam</div>
 				<div style="text-align:center">Jum</div>
 				<div style="text-align:center">Sab</div>
-				<div style="text-align:center">Min</div>
 			</div>';
 
 			// menentukan awal hari
@@ -9308,28 +9309,35 @@ class Transaksi extends CI_Controller
 				// tambah kotak kosong awal
 				if($aw != 0) {
 					for($i = 0; $i < $aw; $i++){
-						$html .= '<div style="position:relative;padding:14px 0;text-align:center;border:1px solid #d9dadc">-</div>';
+						$html .= '<div style="position:relative;padding:15px 0;text-align:center;border:1px solid #d9dadc">-</div>';
 					}
 				}
 				// isi
 				for ($i2 = 1; $i2 <= $hari; $i2++) {
 					($i2 < 10) ? $a = '0'.$i2 : $a = $i2;
 					$tglSys = $tahun.'-'.$bulan.'-'.$a;
+					// minggu
+					$hariMinggu = date('l', strtotime($tglSys));
+					($hariMinggu == "Sunday") ? $kk = '<span style="color:#f00">'.$i2.'</span>' : $kk = $i2;
+
 					$count = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tglSys'");
+					$berat = $this->db->query("SELECT SUM(berat) AS berat FROM trs_dev_sys WHERE eta='$tglSys' GROUP BY eta")->row()->berat;
+
 					($count->num_rows() == 0) ? $sCount = '' : $sCount = '<span style="position:absolute;top:3px;right:3px;font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</span>';
+					($count->num_rows() == 0) ? $sBb = '' : $sBb = '<span style="position:absolute;bottom:3px;left:3px;font-size:12px;font-style:italic;color:#fff;background:#7c858d;padding:0 4px;border-radius:4px">'.number_format($berat, 0, ',', '.').'</span>';
 					($count->num_rows() == 0) ? $link = '' : $link = '<a href="javascript:void(0)" class="ds-link" onclick="ccDevSys('."'".$a."'".')"></a>';
 					($count->num_rows() == 0) ? $fb = '' : $fb = ';font-weight:bold';
 					($tgl == $a) ? $bb = ';background:#d9dadc' : $bb = '';
-					$html .= '<div style="position:relative;padding:14px 0;font-size:20px;text-align:center;border:1px solid #d9dadc'.$fb.$bb.'">
-						'.$sCount.'
-						'.$i2.'
+					$html .= '<div style="position:relative;padding:15px 0;font-size:20px;text-align:center;border:1px solid #d9dadc'.$fb.$bb.'">
+						'.$sCount.$sBb.'
+						'.$kk.'
 						'.$link.'
 					</div>';
 				}
 				// tambah kotak kosong akhir
 				if($ak != 0) {
 					for($i3 = 0; $i3 < $ak; $i3++){
-						$html .= '<div style="position:relative;padding:14px 0;text-align:center;border:1px solid #d9dadc">-</div>';
+						$html .= '<div style="position:relative;padding:15px 0;text-align:center;border:1px solid #d9dadc">-</div>';
 					}
 				}
 			$html .= '</div>';
@@ -9342,6 +9350,7 @@ class Transaksi extends CI_Controller
 
 	function ccDevSys()
 	{
+		$id_sales = $this->session->userdata('id_sales');
 		$html = '';
 		$tahun = $_POST["tahun"];
 		$bulan = $_POST["bulan"];
@@ -9361,9 +9370,31 @@ class Transaksi extends CI_Controller
 
 			$urut = $this->db->query("SELECT eta, urut FROM trs_dev_sys WHERE eta='$tgl' GROUP BY eta, urut");
 			foreach($urut->result() as $u){
-				$html .= '<tr>
-					<td style="background:#333;color:#fff;padding:6px;font-weight:bold" colspan="7">'.$u->urut.'</td>
-				</tr>';
+				if($u->urut == 0){
+					$html .= '<tr>
+						<td style="background:#333;color:#fff;padding:6px;font-weight:bold" colspan="7">'.$u->urut.'</td>
+					</tr>';
+				}else{
+					$html .= '<tr>
+						<td style="background:#333;color:#fff;padding:6px;font-weight:bold">'.$u->urut.'</td>
+						<td style="background:#333;padding:6px">
+							<select class="form-control select2">
+								<option value="">PILIH</option>';
+								$ekspedisi = $this->db->query("SELECT*FROM m_ekspedisi ORDER BY plat, ekspedisi");
+								foreach($ekspedisi->result() as $r){
+									if($r->panjang == null || $r->lebar == null || $r->tinggi == null || $r->panjang == '' || $r->lebar == '' || $r->tinggi == ''){
+										$pLt = '';
+									}else{
+										$pLt = ' | '.round($r->panjang, 2).' x '.round($r->lebar, 2).' x '.round($r->tinggi, 2);
+									}
+									$html .= '<option value="'.$r->id_ex.'">'.$r->plat.' ( '.$r->ekspedisi.' )'.$pLt.'</option>';
+								}
+							$html .= '</select>
+						</td>
+						<td style="background:#333;padding:6px" colspan="5"></td>
+					</tr>';
+				}
+				
 
 				$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,p.kode_po,i.*,d.* FROM trs_dev_sys d
 				INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
@@ -9394,7 +9425,6 @@ class Transaksi extends CI_Controller
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$r->berat_bersih.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($r->berat, 0, ',', '.').'</td>
 					</tr>';
-
 					$totBerat += $r->berat;
 				}
 
@@ -9412,36 +9442,6 @@ class Transaksi extends CI_Controller
 		echo json_encode([
 			'html' => $html,
 		]);
-	}
-
-	public function coba_api()
-	{
-		$curl = curl_init();
-
-		curl_setopt_array($curl, array(
-		CURLOPT_URL => "https://api.rajaongkir.com/starter/province?id=12",
-		CURLOPT_RETURNTRANSFER => true,
-		CURLOPT_ENCODING => "",
-		CURLOPT_MAXREDIRS => 10,
-		CURLOPT_TIMEOUT => 30,
-		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-		CURLOPT_CUSTOMREQUEST => "GET",
-		CURLOPT_HTTPHEADER => array(
-			"key: c479d0aa6880c0337184539462eeec6f"
-		),
-		));
-
-		$response   = curl_exec($curl);
-		$err        = curl_error($curl);
-
-		curl_close($curl);
-
-		if ($err) {
-			echo "cURL Error #:" . $err;
-		} else {
-			// echo $response;
-			echo json_encode($response);
-		}
 	}
 
 }

@@ -309,7 +309,6 @@ class Master extends CI_Controller
 	function load_data()
 	{
 		$jenis = $this->uri->segment(3);
-
 		$data = array();
 
 		if ($jenis == "hub") {
@@ -906,10 +905,26 @@ class Master extends CI_Controller
 
 				$i++;
 			}
-		}else{
+		} else if ($jenis == "ekspedisi") {
+			$query = $this->m_master->query("SELECT*FROM m_ekspedisi ORDER BY plat, ekspedisi")->result();
+			$i = 1;
+			foreach ($query as $r) {
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = $r->plat;
+				$row[] = $r->ekspedisi;
+				$row[] = ($r->panjang == null) ? '' : '<div class="text-right">'.round($r->panjang, 2).'</div>';
+				$row[] = ($r->lebar == null) ? '' : '<div class="text-right">'.round($r->lebar, 2).'</div>';
+				$row[] = ($r->tinggi == null) ? '' : '<div class="text-right">'.round($r->tinggi, 2).'</div>';
+
+				$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="editEkspedisi('."'".$r->id_ex."'".')"><i class="fas fa-pen"></i></button>';
+				$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="hapusEkspedisi('."'".$r->id_ex."'".', '."'".$r->plat."'".')"><i class="fas fa-times"></i></button>';
+
+				$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
+				$data[] = $row;
+				$i++;
+			}
 		}
-
-
 
 		$output = array(
 			"data" => $data,
@@ -1909,5 +1924,35 @@ class Master extends CI_Controller
 		echo json_encode(array(
 			'html' => $html,
 		));
+	}
+
+	function Ekspedisi()
+	{
+		$data = array(
+			'judul' => "Master Ekspedisi",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Master/v_ekspedisi', $data);
+		$this->load->view('footer');
+	}
+
+	function simpanEkspedisi(){
+		$result = $this->m_master->simpanEkspedisi();
+		echo json_encode($result);
+	}
+
+	function hapusEkspedisi(){
+		$result = $this->m_master->hapusEkspedisi();
+		echo json_encode($result);
+	}
+
+	function editEkspedisi()
+	{
+		$id_ex = $_POST["id_ex"];
+		$ekspedisi = $this->db->query("SELECT*FROM m_ekspedisi WHERE id_ex='$id_ex'")->row();
+
+		echo json_encode([
+			'ekspedisi' => $ekspedisi,
+		]);
 	}
 }
