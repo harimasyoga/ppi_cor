@@ -232,6 +232,61 @@
 		})
 	}
 
+	function plhEksDS(urut) {
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		let eks_ds = $("#eks_ds"+urut).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/plhEksDS') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ tgl, tahun, bulan, urut, eks_ds }),
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data.data){
+					ccDevSys(tgl)
+				}
+			}
+		})
+	}
+
+	function batalEksDS(urut) {
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/batalEksDS') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ tgl, tahun, bulan, urut }),
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data.data){
+					ccDevSys(tgl)
+				}
+			}
+		})
+	}
+
 	function list_dev() {
 		$(".tab_dev").html('')
 		$.ajax({
