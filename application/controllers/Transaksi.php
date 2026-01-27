@@ -19,7 +19,7 @@ class Transaksi extends CI_Controller
 	function dev_sys()
 	{
 		$data = [
-			'judul' => "ETA PO",
+			'judul' => "DELIVERY SYSTEM",
 		];
 		$this->load->view('header',$data);
 		$this->load->view('Transaksi/v_dev_sys');
@@ -8893,6 +8893,18 @@ class Transaksi extends CI_Controller
 
 		echo $html;
 	}
+	
+	function hapusDelSys()
+	{
+		$result = $this->m_transaksi->hapusDelSys();
+		echo json_encode($result);
+	}
+
+	function dsUrut()
+	{
+		$result = $this->m_transaksi->dsUrut();
+		echo json_encode($result);
+	}
 
 	
 	function TampilPO_dev()
@@ -8901,13 +8913,12 @@ class Transaksi extends CI_Controller
 		$id_produk    = $_POST["id_produk"];
 		$id_pelanggan = $_POST["id_pelanggan"];
 		$nm_produk    = $_POST["nm_produk"];
-		$po_ = $this->db->query("SELECT*FROM trs_po p JOIN trs_po_detail d on p.kode_po=d.kode_po JOIN m_produk i ON d.id_produk=i.id_produk WHERE p.status_app3='Y' and p.id_pelanggan='$id_pelanggan' and d.id_produk='$id_produk'
-		-- GROUP BY p.kode_po ORDER BY p.tgl_po
-		");
+		$po_ = $this->db->query("SELECT*FROM trs_po p
+		JOIN trs_po_detail d on p.kode_po=d.kode_po
+		JOIN m_produk i ON d.id_produk=i.id_produk
+		WHERE p.status_app3='Y' AND p.id_pelanggan='$id_pelanggan' AND d.id_produk='$id_produk' AND p.status_kiriman='Open'");
 		$produk_ = $this->db->query("SELECT*from m_produk where id_produk='$id_produk'
 		")->row();
-
-
 
 		$html .= '<div class="card card-info card-outline">
 			<div class="card-header">
@@ -8975,7 +8986,7 @@ class Transaksi extends CI_Controller
 							
 						<tbody>
 							<tr>
-								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">QTY PO</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;" colspan="2">QTY PO</th>
 								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">DELIVERY</th>
 								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">OS</th>
 								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;" rowspan="2" colspan="2" >
@@ -8987,7 +8998,7 @@ class Transaksi extends CI_Controller
 							</tr>
 
 							<tr>
-								<td style="padding:5px;border:1px solid #aaa;text-align:center">
+								<td style="padding:5px;border:1px solid #aaa;text-align:center" colspan="2">
 									<input style="text-align:center;border:none;"id="qty_po'.$po_ok->id.'" autocomplete="off" value="'.number_format($po_ok->qty,0,',','.').'" readonly>
 								</td>
 								<td style="padding:5px;border:1px solid #aaa;text-align:center;">
@@ -9000,6 +9011,7 @@ class Transaksi extends CI_Controller
 							</tr>
 							<tr>
 								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS TERPLANNING</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">BB</th>
 								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS BELUM TERPLANNING</th>
 								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">QTY PLAN DELIVERY</th>
 								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;" colspan="2">ETA</th>
@@ -9008,6 +9020,9 @@ class Transaksi extends CI_Controller
 							<tr>
 								<td style="padding:5px;text-align:center;border:1px solid #aaa">
 									<input style="text-align:center;border:none;"id="os_terplanning'.$po_ok->id.'" autocomplete="off" readonly>
+								</td>
+								<td style="padding:5px;text-align:center;border:1px solid #aaa">
+									<input style="text-align:center;border:none;"id="os_bb'.$po_ok->id.'" value="'.$produk_->berat_bersih.'" autocomplete="off" readonly>
 								</td>
 								<td style="padding:5px;text-align:center;border:1px solid #aaa;">
 									<input style="text-align:center;border:none;"  id="os_belum_terplanning'.$po_ok->id.'" autocomplete="off" value="'.number_format($sisa_os_belum_terplanning,0,',','.').'" readonly>
@@ -9021,13 +9036,14 @@ class Transaksi extends CI_Controller
 							</tr>
 							
 							<tr>
-								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background-color: #454545;color: #ffffff;" colspan="5">
+								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background-color: #454545;color: #ffffff;" colspan="6">
 									HISTORY PLAN
 									
 								</th>
 							</tr>
 							<tr>
 								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">OS TERPLANNING</th>
+								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">BERAT</th>
 								<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">OS BELUM TERPLANNING</th>
 								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">QTY PLAN DELIVERY</th>
 								<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">ETA</th>
@@ -9046,6 +9062,9 @@ class Transaksi extends CI_Controller
 								<tr>
 									<td style="padding:5px;text-align:center;border:1px solid #aaa">
 										<input style="text-align:center;border:none;"id="his_os_terplanning'.$po_ok->id.'" autocomplete="off" value="'.number_format($his_plan->os_terplanning,0,',','.').'" readonly>
+									</td>
+									<td style="padding:5px;text-align:center;border:1px solid #aaa">
+										<input style="text-align:center;border:none;"id="his_os_berat'.$po_ok->id.'" autocomplete="off" value="'.number_format($his_plan->berat,0,',','.').'" readonly>
 									</td>
 									<td style="padding:5px;text-align:center;border:1px solid #aaa;">
 										<input style="text-align:center;border:none;"  id="his_os_belum_terplanning'.$po_ok->id.'" autocomplete="off" value="'.number_format($his_plan->os_belum_terplanning,0,',','.').'" readonly>
@@ -9112,7 +9131,12 @@ class Transaksi extends CI_Controller
 				return;
 			}
 
-			  // ambil data POST
+			// produk
+			$id_p = $_POST["id_produk"];
+			$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$id_p'")->row();
+			$berat = $qty_plan * $produk->berat_bersih;
+
+			// ambil data POST
 			$data = [
 				'id_po_header'         => (int) str_replace('.', '', $this->input->post('po_ok_id')),
 				'id_produk'            => (int) str_replace('.', '', $this->input->post('id_produk')),
@@ -9122,6 +9146,9 @@ class Transaksi extends CI_Controller
 				'os'                   => (int) str_replace('.', '', $this->input->post('os')),
 				'os_belum_terplanning' => $os_belum_terplanning,
 				'qty_plan'             => $qty_plan,
+				'bb'                   => $produk->berat_bersih,
+				'berat'                => $berat,
+				'urut'                 => 0,
 				// 'os_terplanning'       => (int) str_replace('.', '', $this->input->post('os_terplanning')),
 				'os_terplanning'       => $os_belum_terplanning - $qty_plan,
 				'eta'                  => $this->input->post('eta'),
@@ -9145,6 +9172,7 @@ class Transaksi extends CI_Controller
 			if ($insert) {
 				echo json_encode([
 					'status' => 1,
+					'produk' => $produk,
 					'id'     => $insert
 				]);
 			} else {
@@ -9204,6 +9232,186 @@ class Transaksi extends CI_Controller
 		}
 
 		
+	}
+
+	function loadCalender()
+	{
+		$html = '';
+		$tgl = $_POST["tgl"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$awal1 = $tahun.'-'.$bulan.'-01';
+
+		// cek tahun kabisat
+		$isKabisat = ($tahun % 400 == 0) || ($tahun % 4 == 0 && $tahun % 100 != 0);
+		switch ($bulan) {
+			case '01': case '03': case '05': case '07': case '08': case '10': case '12':
+				$hari = 31;
+			break;
+			case '04': case '06': case '09': case '11':
+				$hari = 30;
+			break;
+			case '02':
+				$hari = $isKabisat ? 29 : 28;
+			break;
+		}
+		$akhir = $tahun.'-'.$bulan.'-'.$hari;
+
+		$html .= '<div>
+			<div style="background:#333;color:#fff;padding:8px 6px;border-radius:6px 6px 0 0;font-weight:bold">'.strtoupper(date('F', strtotime($awal1))).' '.$tahun.'</div>
+			<div class="day-of-week" style="background:#7c858d;padding:14px 6px;font-weight:bold;border-bottom:3px solid #333">
+				<div style="text-align:center">Sen</div>
+				<div style="text-align:center">Sel</div>
+				<div style="text-align:center">Rab</div>
+				<div style="text-align:center">Kam</div>
+				<div style="text-align:center">Jum</div>
+				<div style="text-align:center">Sab</div>
+				<div style="text-align:center">Min</div>
+			</div>';
+
+			// menentukan awal hari
+			$hariAwal = date('l', strtotime($awal1));
+			if($hariAwal == "Monday"){
+				$aw = 1;
+			}else if($hariAwal == "Tuesday"){
+				$aw = 2;
+			}else if($hariAwal == "Wednesday"){
+				$aw = 3;
+			}else if($hariAwal == "Thursday"){
+				$aw = 4;
+			}else if($hariAwal == "Friday"){
+				$aw = 5;
+			}else if($hariAwal == "Saturday"){
+				$aw = 6;
+			}else{ // Sunday
+				$aw = 0;
+			}
+			// menentukan akhir hari
+			$hariAkhir = date('l', strtotime($akhir));
+			if($hariAkhir == "Monday"){
+				$ak = 5;
+			}else if($hariAkhir == "Tuesday"){
+				$ak = 4;
+			}else if($hariAkhir == "Wednesday"){
+				$ak = 3;
+			}else if($hariAkhir == "Thursday"){
+				$ak = 2;
+			}else if($hariAkhir == "Friday"){
+				$ak = 1;
+			}else if($hariAkhir == "Saturday"){
+				$ak = 0;
+			}else{ // Sunday
+				$ak = 6;
+			}
+
+			$html .= '<div class="date-grid" style="border:1px solid #d9dadc;border-top:0">';
+				// tambah kotak kosong awal
+				if($aw != 0) {
+					for($i = 0; $i < $aw; $i++){
+						$html .= '<div style="position:relative;padding:14px 0;text-align:center;border:1px solid #d9dadc">-</div>';
+					}
+				}
+				// isi
+				for ($i2 = 1; $i2 <= $hari; $i2++) {
+					($i2 < 10) ? $a = '0'.$i2 : $a = $i2;
+					$tglSys = $tahun.'-'.$bulan.'-'.$a;
+					$count = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tglSys'");
+					($count->num_rows() == 0) ? $sCount = '' : $sCount = '<span style="position:absolute;top:3px;right:3px;font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</span>';
+					($count->num_rows() == 0) ? $link = '' : $link = '<a href="javascript:void(0)" class="ds-link" onclick="ccDevSys('."'".$a."'".')"></a>';
+					($count->num_rows() == 0) ? $fb = '' : $fb = ';font-weight:bold';
+					($tgl == $a) ? $bb = ';background:#d9dadc' : $bb = '';
+					$html .= '<div style="position:relative;padding:14px 0;font-size:20px;text-align:center;border:1px solid #d9dadc'.$fb.$bb.'">
+						'.$sCount.'
+						'.$i2.'
+						'.$link.'
+					</div>';
+				}
+				// tambah kotak kosong akhir
+				if($ak != 0) {
+					for($i3 = 0; $i3 < $ak; $i3++){
+						$html .= '<div style="position:relative;padding:14px 0;text-align:center;border:1px solid #d9dadc">-</div>';
+					}
+				}
+			$html .= '</div>';
+		$html .= '</div>';
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function ccDevSys()
+	{
+		$html = '';
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$angka = $_POST["tgl"];
+		$tgl = $tahun.'-'.$bulan.'-'.$angka;
+
+		$html .= '<table>
+			<tr style="background:#dee2e6">
+				<th style="padding:6px;border:1px solid #bbb;text-align:center">#</th>
+				<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
+				<th style="padding:6px;border:1px solid #bbb">NO. PO</th>
+				<th style="padding:6px;border:1px solid #bbb">ITEM</th>
+				<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">QTY</th>
+				<th style="padding:6px;text-align:center;border:1px solid #bbb">BB</th>
+				<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
+			</tr>';
+
+			$urut = $this->db->query("SELECT eta, urut FROM trs_dev_sys WHERE eta='$tgl' GROUP BY eta, urut");
+			foreach($urut->result() as $u){
+				$html .= '<tr>
+					<td style="background:#333;color:#fff;padding:6px;font-weight:bold" colspan="7">'.$u->urut.'</td>
+				</tr>';
+
+				$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,p.kode_po,i.*,d.* FROM trs_dev_sys d
+				INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
+				INNER JOIN trs_po_detail p ON d.id_po_header=p.id
+				INNER JOIN m_produk i ON d.id_produk=i.id_produk
+				WHERE d.eta='$u->eta' AND d.urut='$u->urut'
+				GROUP BY d.id_pelanggan,p.kode_po,d.id_produk
+				ORDER BY c.nm_pelanggan,p.kode_po,i.nm_produk");
+				$i = 0;
+				$totBerat = 0;
+				foreach($sys->result() as $r){
+					$i++;
+					($r->attn == '-') ? $attn = '' : $attn = ' - '.$r->attn;
+					($r->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
+					if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
+						$och = 'onchange="dsUrut('."'".$r->id_dev."'".')"';
+					}else{
+						$och = 'disabled';
+					}
+					$html .= '<tr>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
+							<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" id="ds-urut'.$r->id_dev.'" value="'.$r->urut.'" '.$och.'>
+						</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$r->nm_pelanggan.$attn.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$r->kode_po.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$kategori.$r->nm_produk.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($r->qty_plan, 0, ',', '.').'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$r->berat_bersih.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($r->berat, 0, ',', '.').'</td>
+					</tr>';
+
+					$totBerat += $r->berat;
+				}
+
+				// TOTAL
+				if($sys->num_rows() != 1){
+					$html .= '<tr style="background:#dee2e6">
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="6">TOTAL</td>
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($totBerat, 0, ',', '.').'</td>
+					</tr>';
+				}
+			}
+
+		$html .= '</table>';
+
+		echo json_encode([
+			'html' => $html,
+		]);
 	}
 
 	public function coba_api()

@@ -2807,4 +2807,45 @@ class M_transaksi extends CI_Model
 			'hhdr' => $hhdr,
 		];
 	}
+
+	function dsUrut()
+	{
+		$id_dev = $_POST["id_dev"];
+		$tgl = $_POST["tgl"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$urut = $_POST["urut"];
+
+		if($urut < 0){
+			$data = false; $msg = 'COBA LAGI!';
+		}else{
+			$this->db->set('urut', $urut);
+			$this->db->where('id_dev', $id_dev);
+			$data = $this->db->update('trs_dev_sys');
+			$msg = 'BERHASIL!';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function hapusDelSys()
+	{
+		$id = $this->session->userdata('level');
+		$id = $_POST["id"];
+		$dev = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id'")->row();
+		$nm_produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$dev->id_produk'")->row()->nm_produk;
+
+		// HAPUS data
+		$this->db->where("id_dev", $id);
+		$data = $this->db->delete("trs_dev_sys");
+
+		return [
+			'data' => $data,
+			'dev' => $dev,
+			'nm_produk' => $nm_produk,
+		];
+	}
 }

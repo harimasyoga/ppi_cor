@@ -10,32 +10,123 @@
 			</div>
 		</div>
 	</section>
+
+	<style>
+		/* Chrome, Safari, Edge, Opera */
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		.day-of-week, .date-grid {
+			display: grid;
+			grid-template-columns: repeat(7, 1fr);
+		}
+
+		.btn2:focus, .btn2:active {
+			background-color: transparent;
+			outline: none;
+			box-shadow: none;
+		}
+
+		.ds-link {
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0
+		}
+	</style>
 	
-	<section class="content" style="padding-bottom:30px">
-		
-		<div class="card shadow list_piutang" >
-			<div class="card-header" style="font-family:Cambria;">
-				<h3 class="card-title" style="color:#4e73df;"><b>DELIVERY SYSTEM</b></h3>
-				<div class="card-tools">
-					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
-						<i class="fas fa-minus"></i></button>
-				</div>
-			</div>
-			<div class="card-body">
-				<!-- <div style="margin-bottom:12px">
-					<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
-							<i class="fa fa-arrow-left"></i> Kembali</b>
-					</button>
-				</div> -->
-				<div class="card-body row" style="padding:12px 0 6px">
-					<div class="col-md-12">
-						<!-- <div style="overflow:auto;white-space:nowrap"> -->
-							<div style="" class="tab_dev"></div>
-							<div style="display:none" id="tampil-data"></div>
-						<!-- </div> -->
+	<section class="content">
+		<div class="container-fluid">
+			<?php if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) { ?>
+				<div class="card">
+					<div class="card-header" style="font-family:Cambria;">
+						<h3 class="card-title" style="color:#4e73df;"><b>DELIVERY SYSTEM</b></h3>
+						<div class="card-tools">
+							<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fas fa-minus"></i></button>
+						</div>
 					</div>
-					<!-- <div class="col-md-6">
-					</div> -->
+					<div class="card-body">
+						<div class="card-body row" style="padding:12px 0 6px">
+							<div class="col-md-12">
+								<div class="tab_dev"></div>
+								<div style="display:none" id="tampil-data"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
+			<div class="row">
+				<div class="col-md-6">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">JADWAL PENGIRIMAN</h3>
+							<div class="card-tools">
+								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+								<i class="fas fa-minus"></i></button>
+							</div>
+						</div>
+						<div class="card-body" style="padding:12px 6px">
+							<div class="card-body row" style="padding:0 0 12px;font-weight:bold">
+								<div class="col-md-2" style="padding-bottom:3px">
+									<select id="tahun" class="form-control select2" onchange="loadCalender('')">
+										<?php 
+											$thang = date("Y");
+											$thang_maks = $thang + 1;
+											$thang_min = $thang - 3;
+											for ($th = $thang_min; $th <= $thang_maks; $th++)
+											{ ?>
+												<?php if ($th==$thang) { ?>
+													<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+												<?php }else{ ?>
+													<option value="<?= $th ?>"> <?= $th ?> </option>
+												<?php }
+											}
+										?>
+									</select>
+								</div>
+								<div class="col-md-3" style="padding-bottom:3px">
+									<select id="bulan" class="form-control select2" onchange="loadCalender('')">
+										<?php
+											$month = strtoupper(date("M"));
+											$bulan = [ '01' => "JANUARY", '02' => "FEBRUARY", '03' => "MARCH", '04' => "APRIL", '05' => "MAY", '06' => "JUNE", '07' => "JULY", '08' => "AUGUST", '09' => "SEPTEMBER", '10' => "OCTOBER", '11' => "NOVEMBER", '12' => "DECEMBER" ];
+											foreach ($bulan as $no => $namaBulan) {
+												($month == $namaBulan) ? $slt = 'selected' : $slt = '';
+											?>
+												<option value="<?= $no ?>" <?= $slt ?>><?= $namaBulan ?></option>
+										<?php } ?>
+									</select>
+								</div>
+								<div class="col-md-7" style="padding-bottom:3px"></div>
+							</div>
+							<input type="hidden" id="h_tgl" value="">
+							<div class="kalender"></div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6"></div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">RINCIAN PENGIRIMAN</h3>
+							<div class="card-tools">
+								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+								<i class="fas fa-minus"></i></button>
+							</div>
+						</div>
+						<div class="card-body" style="padding:12px 6px">
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="ds-kiriman">-</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -66,6 +157,86 @@
 		list_dev()
 	});
 
+	function loadCalender(opsi) {
+		let tgl = $("#h_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		$(".kalender").html('')
+		if(opsi == ''){
+			$(".ds-kiriman").html('-')
+		}
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/loadCalender') ?>',
+			data: ({ tgl, tahun, bulan }),
+			type: "POST",
+			success: function(res) {
+				data = JSON.parse(res)
+				$(".kalender").html(data.html)
+				$("#h_tgl").val('')
+				swal.close()
+			}
+		})
+	}
+
+	function ccDevSys(tgl) {
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		$(".ds-kiriman").html('')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/ccDevSys') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ tgl, tahun, bulan }),
+			success: function(res) {
+				data = JSON.parse(res)
+				$(".ds-kiriman").html(data.html)
+				$("#h_tgl").val(tgl)
+				// swal.close()
+				loadCalender('edit')
+			}
+		})
+	}
+
+	function dsUrut(id_dev) {
+		let tgl = $("#h_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		let urut = $("#ds-urut"+id_dev).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/dsUrut') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_dev, tgl, tahun, bulan, urut }),
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data.data){
+					ccDevSys(tgl)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
 	function list_dev() {
 		$(".tab_dev").html('')
 		$.ajax({
@@ -83,7 +254,7 @@
 			},
 			success: function(res) {
 				$(".tab_dev").html(res)
-				swal.close()
+				loadCalender('')
 			}
 		})
 	}
@@ -213,7 +384,7 @@
 		
 	}
 
-	function btnPiuPO(i,id_produk,id_pelanggan,sisa,sumkirim) {
+	function btnPiuPO(i,id_produk = '',id_pelanggan = '',sisa = '',sumkirim = '') {
 		// $(".tr1").hide()
 		$(".tr_i").hide()
 		$(".i" + i).hide()
@@ -228,96 +399,7 @@
 			$(".f4-" + i).removeClass("fa-plus").addClass("fa-minus")
 			$("#ts4").val(i)
 			$(".i" + i).show()
-			// tampil_data(i,id_produk,id_pelanggan,sisa,sumkirim)
 		}
-	}
-
-	function tampil_data(i,id_produk,id_pelanggan,sisa,sumkirim)
-	{
-		$.ajax({
-			url: '<?= base_url(); ?>Transaksi/load_det_dat',
-			type: "POST",
-			data: {
-				id: i,
-				id_produk: id_produk,
-				id_pelanggan: id_pelanggan
-			},
-			dataType: "JSON",
-			// beforeSend: function() {
-			// 	swal({
-			// 		title: 'loading data...',
-			// 		allowEscapeKey: false,
-			// 		allowOutsideClick: false,
-			// 		onOpen: () => {
-			// 			swal.showLoading();
-			// 		}
-			// 	})
-			// },
-			success: function(data) {
-				if (data) {
-
-					$("#plan_os"+i).html(`
-						<tr>
-							<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">QTY PO</th>
-							<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">DELIVERY</th>
-							<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">OS</th>
-							<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;" rowspan="2" >
-							
-								<button type="button" onclick="simpan()" class="btn-tambah-produk btn btn-sm btn-primary"><b><i class="fa fa-save" ></i> Simpan</b>
-								</button>
-							</th>
-						</tr>
-
-						<tr>
-							<td style="padding:5px;border:1px solid #aaa">${data.header.qty}</td>
-							<td style="padding:5px;border:1px solid #aaa">${format_angka(sumkirim)}</td>
-							<td style="padding:5px;border:1px solid #aaa">${format_angka(sisa)}</td>
-						</tr>
-						<tr>
-							<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS TERPLANNING</th>
-							<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS BELUM TERPLANNING</th>
-							<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">QTY PLAN DELIVERY</th>
-							<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">ETA</th>
-						</tr>
-						
-						<tr>
-							<td id="os_terplanning" name="os_terplanning" style="padding:5px;text-align:center;border:1px solid #aaa"></td>
-							<td style="padding:5px;text-align:center;border:1px solid #aaa;" value="${format_angka(sisa)}">${format_angka(sisa)}</td>
-							<td style="padding:5px;text-align:center;border:1px solid #aaa;">
-							<input type="number" id="qty_plan" autocomplete="off" onkeyup="hitung_os_plan(this.value,${sisa})">
-							</td>
-							<td style="padding:5px;text-align:center;border:1px solid #aaa;text-align:center">
-								<input type="date" id="eta" autocomplete="off" >
-							</td>
-						</tr>
-						
-					`)
-				} else {
-
-					swal({
-						title: "Cek Kembali",
-						html: "Gagal Simpan",
-						type: "error",
-						confirmButtonText: "OK"
-					});
-					return;
-				}
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				// toastr.error('Terjadi Kesalahan');
-
-				swal({
-					title: "Cek Kembali",
-					html: "Terjadi Kesalahan",
-					type: "error",
-					confirmButtonText: "OK"
-				});
-
-				return;
-			}
-		});
-		
-			
 	}
 
 	function hitung_os_plan(val,id,sisa,id) 
@@ -397,7 +479,8 @@
 					// location.href = "<?= base_url() ?>Logistik/Invoice";
 					// kembaliList();
 					// kosong();
-					kembali_po()
+					// kembali_po()
+					Tampil_po(id_produk, id_pelanggan, data.produk.nm_produk)
 
 				} else if (data.status == '3') {
 					swal.close();
@@ -422,7 +505,6 @@
 					return;
 				}
 				// reloadTable();
-				console.log('aaa')
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
 				// toastr.error('Terjadi Kesalahan');
@@ -455,15 +537,9 @@
 			cancelButtonClass  : 'btn btn-danger',
 			cancelButtonColor  : '#d33'
 		}).then(() => {
-
-		// if (cek) {
 			$.ajax({
-				url: '<?= base_url(); ?>Transaksi/hapus',
-				data: ({
-					id: id,
-					jenis: 'trs_dev_sys',
-					field: 'id_dev'
-				}),
+				url: '<?= base_url(); ?>Transaksi/hapusDelSys',
+				data: ({ id }),
 				type: "POST",
 				beforeSend: function() {
 					swal({
@@ -475,34 +551,12 @@
 					}
 					})
 				},
-				success: function(data) {
-					// toastr.success('Data Berhasil Di Hapus');
-					// d_pi(id,no); 
-					swal({
-						title               : "Data",
-						html                : "Data Berhasil Di Hapus",
-						type                : "success",
-						confirmButtonText   : "OK"
-					});
-					// reloadTable();
-					kembali_po()
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					// toastr.error('Terjadi Kesalahan');
-					swal({
-						title               : "Cek Kembali",
-						html                : "Terjadi Kesalahan",
-						type                : "error",
-						confirmButtonText   : "OK"
-					});
-					return;
+				success: function(res) {
+					data = JSON.parse(res)
+					Tampil_po(data.dev.id_produk, data.dev.id_pelanggan, data.nm_produk)
 				}
 			});
-		// }
-
 		});
-
-
 	}
 
 </script>
