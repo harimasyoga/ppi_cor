@@ -277,7 +277,7 @@
 					</tr>
 					<tr>
 						<td style="padding:5px 0 0"></td>
-						<td style="padding:5px 0 0;font-weight:bold;font-style:italic;color:#f00;font-size:12px">NAMA ITEM | KODE MC | UK. BOX | UK. SHEET | FLUTE | KUALITAS | QTY PO</td>
+						<td style="padding:5px 0 0;font-weight:bold;font-style:italic;color:#f00;font-size:12px">[TYPE] NAMA ITEM | UKURAN | FLUTE | KUALITAS | QTY PO</td>
 					</tr>
 					<tr>
 						<td style="padding:5px 0;font-weight:bold">ITEM</td>
@@ -839,13 +839,16 @@
 				data = JSON.parse(json)
 				let tf = '';
 				(data.po_detail.length == 0) ? tf = true : tf = false
-				let htmlDetail = ''
-					htmlDetail += `<option value="">PILIH</option>`
-				data.po_detail.forEach(loadDetail);
-				function loadDetail(r, index) {
-					htmlDetail += `<option value="${r.id_produk}" data-idpodetail="${r.id}" data-nm_produk="${r.nm_produk}" data-ukuran="${r.ukuran}" data-ukuran_sheet="${r.ukuran_sheet}" data-flute="${r.flute}" data-kualitas="${r.kualitas}" data-kode_mc="${r.kode_mc}" data-eta_item="${r.eta}" data-qty="${r.qty}" rm="${r.rm}" ton="${r.ton}">${r.nm_produk} | ${r.kode_mc} | ${r.ukuran} | ${r.ukuran_sheet} | ${r.flute} | ${r.kualitas} | ${r.qty}</option>`;
-				}
-				$("#items").prop("disabled", tf).html(htmlDetail)
+				// let htmlDetail = ''
+				// 	htmlDetail += `<option value="">PILIH</option>`
+				// data.po_detail.forEach(loadDetail);
+				// function loadDetail(r, index) {
+				// 	(r.kategori == "K_BOX") ? ukuran = r.ukuran : ukuran = r.ukuran_sheet;
+				// 	(r.kategori == "K_BOX") ? ket_p = '[BOX] ' : ket_p = '[SHEET] ';
+				// 	htmlDetail += `<option value="${r.id_produk}" data-idpodetail="${r.id}" data-nm_produk="${r.nm_produk}" data-ukuran="${r.ukuran}" data-ukuran_sheet="${r.ukuran_sheet}" data-flute="${r.flute}" data-kualitas="${r.kualitas}" data-kode_mc="${r.kode_mc}" data-eta_item="${r.eta}" data-qty="${r.qty}" rm="${r.rm}" ton="${r.ton}">${ket_p}${r.nm_produk} | ${r.kode_mc} | ${ukuran} | ${r.flute} | ${r.kualitas} | ${r.qty}</option>`;
+				// }
+				// $("#items").prop("disabled", tf).html(htmlDetail)
+				$("#items").prop("disabled", tf).html(data.options)
 
 				swal.close()
 			}
