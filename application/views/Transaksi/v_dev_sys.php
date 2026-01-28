@@ -122,6 +122,7 @@
 							</div>
 						</div>
 						<div class="card-body" style="padding:12px 6px">
+							<input type="hidden" id="r_tgl" value="">
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="ds-kiriman">-</div>
 							</div>
@@ -131,22 +132,6 @@
 			</div>
 		</div>
 	</section>
-</div>
-
-<div class="modal fade" id="modalFormDetail">
-	<div class="modal-dialog modal-full">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title" id="judul-detail"></h4>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body" style="overflow:auto;white-space:nowrap">
-				<div id="modal-detail-so"></div>
-			</div>
-		</div>
-	</div>
 </div>
 
 <script type="text/javascript">
@@ -161,7 +146,6 @@
 		let tgl = $("#h_tgl").val()
 		let tahun = $("#tahun").val()
 		let bulan = $("#bulan").val()
-		$(".kalender").html('')
 		if(opsi == ''){
 			$(".ds-kiriman").html('-')
 		}
@@ -169,6 +153,16 @@
 			url: '<?php echo base_url('Transaksi/loadCalender') ?>',
 			data: ({ tgl, tahun, bulan }),
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(res) {
 				data = JSON.parse(res)
 				$(".kalender").html(data.html)
@@ -181,7 +175,7 @@
 	function ccDevSys(tgl) {
 		let tahun = $("#tahun").val()
 		let bulan = $("#bulan").val()
-		$(".ds-kiriman").html('')
+		// $(".ds-kiriman").html('')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/ccDevSys') ?>',
 			type: "POST",
@@ -199,15 +193,16 @@
 			success: function(res) {
 				data = JSON.parse(res)
 				$(".ds-kiriman").html(data.html)
+				$('.select2').select2()
 				$("#h_tgl").val(tgl)
-				// swal.close()
+				$("#r_tgl").val(tgl)
 				loadCalender('edit')
 			}
 		})
 	}
 
 	function dsUrut(id_dev) {
-		let tgl = $("#h_tgl").val()
+		let tgl = $("#r_tgl").val()
 		let tahun = $("#tahun").val()
 		let bulan = $("#bulan").val()
 		let urut = $("#ds-urut"+id_dev).val()
@@ -232,6 +227,61 @@
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
 					swal.close()
+				}
+			}
+		})
+	}
+
+	function plhEksDS(urut) {
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		let eks_ds = $("#eks_ds"+urut).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/plhEksDS') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ tgl, tahun, bulan, urut, eks_ds }),
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data.data){
+					ccDevSys(tgl)
+				}
+			}
+		})
+	}
+
+	function batalEksDS(urut) {
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/batalEksDS') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ tgl, tahun, bulan, urut }),
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data.data){
+					ccDevSys(tgl)
 				}
 			}
 		})
@@ -286,7 +336,6 @@
 	}
 
 	function btnPiuCustomer(i) {
-		// $(".tr1").hide()
 		$(".tr_l").hide()
 		$(".tr_p").hide()
 		$("#ts5").val("")
@@ -311,7 +360,6 @@
 	}
 
 	function btnPiuLok(i) {
-		// $(".tr1").hide()
 		$(".tr_p").hide()
 		$("#ts5").val("")
 		$("#ts4").val("")
@@ -333,7 +381,6 @@
 	}
 
 	function btnPiuITEM(i) {
-		// $(".tr1").hide()
 		$("#ts5").val("")
 		$(".ab4").removeClass("btn-warning").addClass("btn-danger")
 		$(".af4").removeClass("fa-minus").addClass("fa-plus")
@@ -372,7 +419,7 @@
 			}),
 			success: function(res){
 				$("#tampil-data").html(res)
-				swal.close()
+				loadCalender('')
 			}
 		})
 	}
@@ -384,8 +431,7 @@
 		
 	}
 
-	function btnPiuPO(i,id_produk = '',id_pelanggan = '',sisa = '',sumkirim = '') {
-		// $(".tr1").hide()
+	function btnPiuPO(i, id_produk, id_pelanggan, sisa, sumkirim) {
 		$(".tr_i").hide()
 		$(".i" + i).hide()
 		$(".ab4").removeClass("btn-warning").addClass("btn-danger")
@@ -407,28 +453,21 @@
 		// pastikan string, hilangkan titik pemisah ribuan
 		sisa = sisa.toString().replace(/\./g, '');
 		val  = val.toString().replace(/\./g, '');
-
 		// konversi ke number
 		sisa = Number(sisa);
 		val  = Number(val);
-
 		if (isNaN(sisa) || isNaN(val)) {
 			$('#os_terplanning'+id).val('');
 			return;
 		}
-
 		let os_plan = sisa - val;
-
 		if (os_plan < 0) os_plan = 0;
-// alert(os_plan)
 		$('#os_terplanning'+id).val(format_angka(os_plan));
-
 	}
 
 	// INVOICE ADD //
 	function simpan(po_ok_id,id_produk,id_pelanggan,sts_input) 
-	{               
-				
+	{
 		swal({
 			title: 'loading ...',
 			allowEscapeKey: false,
@@ -460,28 +499,19 @@
 		$.ajax({
 			url: '<?= base_url(); ?>Transaksi/Insert_dev_sys',
 			type: "POST",
-			// data: $('#myForm').serialize(),
 			data: ({
 				sts_input,po_ok_id,id_produk,id_pelanggan,qty_po,delivery,os,os_terplanning,os_belum_terplanning,qty_plan,eta
 			}),
 			dataType: "JSON",
 			success: function(data) {
 				if (data.status == '1') {
-					// toastr.success('Berhasil Disimpan');
 					swal.close();
 					swal({
 						title: "Data",
 						html: "Berhasil Disimpan",
 						type: "success"
-						// confirmButtonText   : "OK"
 					});
-					// location.href = "<?= base_url() ?>Logistik/Invoice_edit?id="+data.id+"&no_inv="+no_inv_ok+"";
-					// location.href = "<?= base_url() ?>Logistik/Invoice";
-					// kembaliList();
-					// kosong();
-					// kembali_po()
 					Tampil_po(id_produk, id_pelanggan, data.produk.nm_produk)
-
 				} else if (data.status == '3') {
 					swal.close();
 					swal({
@@ -493,22 +523,17 @@
 					});
 					return;
 				} else {
-					// toastr.error('Gagal Simpan');
 					swal.close();
 					swal({
 						title: "Cek Kembali",
-						// html: "Gagal Simpan",
 						html: data.msg,
 						type: "error",
 						confirmButtonText: "OK"
 					});
 					return;
 				}
-				// reloadTable();
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				// toastr.error('Terjadi Kesalahan');
-
 				swal.close();
 				swal({
 					title: "Cek Kembali",
@@ -516,7 +541,6 @@
 					type: "error",
 					confirmButtonText: "OK"
 				});
-
 				return;
 			}
 		});
@@ -525,7 +549,6 @@
 
 	function del_history(id) 
 	{
-		// let cek = confirm("Apakah Anda Yakin?");
 		swal({
 			title: "PO",
 			html: "<p> Apakah Anda yakin ingin menghapus ini ?</p><br>",

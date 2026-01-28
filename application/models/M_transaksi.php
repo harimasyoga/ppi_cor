@@ -2811,9 +2811,6 @@ class M_transaksi extends CI_Model
 	function dsUrut()
 	{
 		$id_dev = $_POST["id_dev"];
-		$tgl = $_POST["tgl"];
-		$tahun = $_POST["tahun"];
-		$bulan = $_POST["bulan"];
 		$urut = $_POST["urut"];
 
 		if($urut < 0){
@@ -2824,6 +2821,47 @@ class M_transaksi extends CI_Model
 			$data = $this->db->update('trs_dev_sys');
 			$msg = 'BERHASIL!';
 		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function plhEksDS()
+	{
+		$angka = $_POST["tgl"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$tgl = $tahun.'-'.$bulan.'-'.$angka;
+		$urut = $_POST["urut"];
+		$eks_ds = $_POST["eks_ds"];
+
+		$this->db->set('id_ex', $eks_ds);
+		$this->db->where('urut', $urut);
+		$this->db->where('eta', $tgl);
+		$data = $this->db->update('trs_dev_sys');
+		$msg = 'BERHASIL!';
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function batalEksDS()
+	{
+		$angka = $_POST["tgl"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$tgl = $tahun.'-'.$bulan.'-'.$angka;
+		$urut = $_POST["urut"];
+
+		$this->db->set('id_ex', null);
+		$this->db->where('urut', $urut);
+		$this->db->where('eta', $tgl);
+		$data = $this->db->update('trs_dev_sys');
+		$msg = 'BERHASIL!';
 
 		return [
 			'data' => $data,

@@ -171,7 +171,7 @@ class Laporan extends CI_Controller
 			$w_opsi = "";
 		}
 		if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
-			$wherePO = "AND p.status_app1='Y' AND p.status_app2='Y'";
+			$wherePO = "AND p.status_app1='Y'";
 		}else{
 			$wherePO = "AND p.status='Approve'";
 		}
@@ -202,7 +202,7 @@ class Laporan extends CI_Controller
 					'.$kopKet.'
 				</tr>';
 				foreach($data->result() as $r){
-					if($this->session->userdata('level') == 'Admin'){
+					if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
 						if($r->status_kiriman == 'Open'){
 							$aksi = 'onclick="closePengiriman('."'".$r->id."'".','."'Close'".')';
 							$bgBtn = 'btn-danger';
@@ -216,9 +216,9 @@ class Laporan extends CI_Controller
 					}else{
 						$btnBtl = '-';
 					}
-					($r->status_app3!='Y') ? $ketPO = ';font-style:italix' : $ketPO = '';
+					($r->status_app3!='Y') ? $ketPO = ';font-style:italic' : $ketPO = ';font-weight:bold';
 					$html .='<tr>
-						<td style="background:#adb5bd;padding:5px;border:1px solid #aaa;font-weight:bold'.$ketPO.'" colspan="6">'.$r->kode_po.'</td>
+						<td style="background:#adb5bd;padding:5px;border:1px solid #aaa'.$ketPO.'" colspan="6">'.$r->kode_po.'</td>
 						'.$kopBtn.'
 						<td style="background:#adb5bd;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:center">'.$btnBtl.'</td>
 					</tr>';
@@ -300,7 +300,7 @@ class Laporan extends CI_Controller
 									</tr>';
 									// RETUR
 									if($retur->num_rows() != 0){
-										($this->session->userdata('level') == 'Admin') ? $delR = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="deleteReturkiriman('."'".$retur->row()->id."'".')">x</button>' : $delR = '';
+										(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $delR = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="deleteReturkiriman('."'".$retur->row()->id."'".')">x</button>' : $delR = '';
 										$html .='<tr>
 											<td style="padding:5px;border-left:1px solid #aaa"></td>
 											<td style="padding:5px" colspan="4"><span style="font-weight:bold">>>></span> '.strtoupper($this->m_fungsi->getHariIni($retur->row()->rtr_tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($retur->row()->rtr_tgl)).' - '.$retur->row()->rtr_ket.'</td>
