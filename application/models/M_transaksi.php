@@ -967,13 +967,13 @@ class M_transaksi extends CI_Model
 
 			if($this->session->userdata('level') == 'PPIC'){
 				$wH = "AND add_user='ppic'";
-				$no = 1;
+				$no = 100;
 				$tglSO = $_POST["tgl_so"];
 				$addUser = strtolower($this->session->userdata('level'));
 			}else{
 				$wH = "AND add_user!='ppic'";
-				$no = 50;
-				$tglSO = $r['options']['eta_po'];
+				$no = 1;
+				$tglSO = null;
 				$addUser = $this->username;
 			}
 			$tmbhUrutSo = $this->db->query("SELECT urut_so FROM trs_so_detail

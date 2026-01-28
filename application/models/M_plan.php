@@ -34,7 +34,7 @@ class M_plan extends CI_Model
 			INNER JOIN m_produk i ON w.id_produk=i.id_produk
 			INNER JOIN trs_po o ON w.no_po=o.no_po AND w.kode_po=o.kode_po
 			INNER JOIN trs_so_detail s ON w.no_po=s.no_po AND w.kode_po=s.kode_po AND w.id_pelanggan=s.id_pelanggan AND w.id_produk=s.id_produk
-			WHERE w.status='Open' $whereNotExists
+			WHERE w.status='Open' AND o.status_kiriman='Open' $whereNotExists
 			AND w.no_so=s.id
 			GROUP BY w.id,w.id_pelanggan,w.id_produk,p.id_pelanggan,i.id_produk,s.id
 			ORDER BY p.nm_pelanggan");

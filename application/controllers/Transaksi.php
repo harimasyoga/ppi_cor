@@ -2884,7 +2884,7 @@ class Transaksi extends CI_Controller
         $query = $this->db->query("SELECT * FROM trs_so_detail a
 		INNER JOIN m_produk b ON a.id_produk=b.id_produk
 		INNER JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
-		WHERE status='Open' AND a.add_user!='ppic' ")->result();
+		WHERE a.status='Open' AND a.eta_so IS NOT NULL AND a.add_user!='ppic' ")->result();
 
 		if (!$query) {
 			$response = [
@@ -6684,7 +6684,7 @@ class Transaksi extends CI_Controller
 			$wId = "AND d.no_so IS NULL AND d.tgl_so IS NULL AND d.status_so IS NULL";
 		}
 		// AND p.status_app3='Y' AND p.status='Approve'
-		$po = $this->db->query("SELECT c.kode_unik,c.nm_pelanggan,s.nm_sales,p.*,d.eta FROM trs_po p
+		$po = $this->db->query("SELECT c.kode_unik,c.nm_pelanggan,c.attn,s.nm_sales,p.*,d.eta FROM trs_po p
 		INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 		INNER JOIN m_sales s ON c.id_sales=s.id_sales
@@ -6706,12 +6706,24 @@ class Transaksi extends CI_Controller
 		}else{
 			$wId = "AND no_so IS NULL AND tgl_so IS NULL";
 		}
-		$poDetail = $this->db->query("SELECT p.nm_produk,p.kode_mc,p.ukuran,p.ukuran_sheet,p.flute,p.kualitas,d.eta,d.* FROM trs_po_detail d
+		$poDetail = $this->db->query("SELECT p.*,d.* FROM trs_po_detail d
 		INNER JOIN trs_po o ON d.no_po=o.no_po AND d.kode_po=o.kode_po
 		INNER JOIN m_produk p ON d.id_produk=p.id_produk
-		WHERE d.no_po='$no_po' $wId")->result();
+		WHERE d.no_po='$no_po' $wId");
+
+		$options = '';
+		$options .= '<option value="">PILIH</option>';
+		foreach($poDetail->result() as $r){
+			($r->kategori == "K_BOX") ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
+			($r->kategori == "K_BOX") ? $ket_p = '[BOX] ' : $ket_p = '[SHEET] ';
+			$options .= '<option value="'.$r->id_produk.'" data-idpodetail="'.$r->id.'" data-nm_produk="'.$r->nm_produk.'" data-ukuran="'.$r->ukuran.'" data-ukuran_sheet="'.$r->ukuran_sheet.'" data-flute="'.$r->flute.'" data-kualitas="'.$r->kualitas.'" data-kode_mc="'.$r->kode_mc.'" data-eta_item="'.$r->eta.'" data-qty="'.$r->qty.'" rm="'.$r->rm.'" ton="'.$r->ton.'">
+				'.$ket_p.$r->nm_produk.' | '.$ukuran.' | '.$r->flute.' | '.$this->m_fungsi->kualitas($r->kualitas, $r->flute).' | '.number_format($r->qty,0,',','.').'
+			</option>';
+		}
+
 		echo json_encode(array(
-			'po_detail' => $poDetail,
+			'po_detail' => $poDetail->result(),
+			'options' => $options,
 		));
 	}
 
@@ -6780,10 +6792,9 @@ class Transaksi extends CI_Controller
 				<tr>
 					<input type="hidden" id="table-nopo-value" value="isi">
 					<th style="width:5%">NO.</th>
-					<th style="width:25%">ITEM</th>
-					<th style="width:25%">NO. PO</th>
-					<th style="width:25%">NO. SO</th>
-					<th style="width:10%">QTY SO</th>
+					<th style="width:40%">ITEM</th>
+					<th style="width:35%">NO. PO</th>
+					<th style="width:10%;text-align:center">QTY PO</th>
 					<th style="width:10%">AKSI</th>
 				</tr>
 			</thead>';
@@ -6795,9 +6806,8 @@ class Transaksi extends CI_Controller
 			$html .='<tr>
 				<td>'.$i.'</td>
 				<td>'.$r['options']['nm_produk'].'</td>
-				<td>'.$r['options']['no_po'].'</td>
-				<td>'.$r['options']['no_so'].'</td>
-				<td>'.number_format($r['options']['jml_so']).'</td>
+				<td>'.$r['options']['kode_po'].'</td>
+				<td style="text-align:right">'.number_format($r['options']['jml_so']).'</td>
 				<td>
 					<button class="btn btn-danger btn-sm" onclick="hapusCartItem('."'".$r['rowid']."'".','."hapusCartItem".','."'showCartItem'".')"><i class="fas fa-times"></i> BATAL</button>
 				</td>
@@ -6875,7 +6885,7 @@ class Transaksi extends CI_Controller
 					$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
 				}
 			}
-			($r->kategori == "K_BOX") ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet; //
+			($r->kategori == "K_BOX") ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
 			($r->kategori == "K_BOX") ? $ket_p = '[BOX]' : $ket_p = '[SHEET]';
 			
 			$html .='<tr style="'.$borLf.'">
@@ -7013,9 +7023,13 @@ class Transaksi extends CI_Controller
 						}
 						$html .='<tr>
 							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'"><input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$dis2.$dis3.'></td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
+								<input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$dis2.$dis3.'>
+							</td>
 							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'"><input type="number" id="edit-qty-so'.$so->id.'" class="form-control" style="text-align:right" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.$so->qty_so.'" '.$dis2.'></td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
+								<input type="number" id="edit-qty-so'.$so->id.'" class="form-control" style="text-align:right" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.$so->qty_so.'" '.$dis2.'>
+							</td>
 							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
 								<input type="number" id="hasil_pcs'.$so->id.'" class="form-control" style="text-align:right" onkeyup="" placeholder="0" '.$dis2.'>
 							</td>
@@ -7023,7 +7037,9 @@ class Transaksi extends CI_Controller
 							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
 								<input type="checkbox" id="cbhs-'.$so->id.'" style="height:25px;width:100%" onclick="cbOSHasil('."'".$so->id."'".')" value="'.$so->cek_st_2.'" '.$check2.'>
 							</td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'"><textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt2.'" style="resize:none">'.$so->ket_so.'</textarea></td>
+							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
+								<textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt2.'" style="resize:none">'.$so->ket_so.'</textarea>
+							</td>
 							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
 								<input type="checkbox" id="cbso-'.$so->id.'" style="height:25px;width:100%" onclick="keyUpQtySO('."'".$so->id."'".')" value="'.$so->cek_rm_so.'" '.$check.'>
 							</td>
@@ -7102,10 +7118,16 @@ class Transaksi extends CI_Controller
 						}
 						$html .='<tr>
 							<td style="padding:6px;'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
-							<td style="padding:6px;'.$bTd.''.$bold.'"><input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$diss.'></td>
+							<td style="padding:6px;'.$bTd.''.$bold.'">
+								<input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$diss.'>
+							</td>
 							<td style="padding:6px;'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
-							<td style="padding:6px;'.$bTd.''.$bold.'"><input type="number" id="edit-qty-so'.$so->id.'" class="form-control" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.$so->qty_so.'" '.$diss.'></td>
-							<td style="padding:6px;'.$bTd.''.$bold.'"><textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt.'" style="resize:none" '.$diss.'>'.$so->ket_so.'</textarea></td>
+							<td style="padding:6px;'.$bTd.''.$bold.'">
+								<input type="number" id="edit-qty-so'.$so->id.'" class="form-control" style="text-align:right" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.$so->qty_so.'" '.$diss.'>
+							</td>
+							<td style="padding:6px;'.$bTd.''.$bold.'">
+								<textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt.'" style="resize:none" '.$diss.'>'.$so->ket_so.'</textarea>
+							</td>
 							<td style="padding:6px;'.$bTd.''.$bold.'">
 								<input type="checkbox" id="cbso-'.$so->id.'" style="height:25px;width:100%" onclick="keyUpQtySO('."'".$so->id."'".')" value="'.$so->cek_rm_so.'" '.$check.' '.$diss.'>
 							</td>
@@ -7125,7 +7147,6 @@ class Transaksi extends CI_Controller
 						$sumTon += $so->ton;
 						$sumBB += $bahan_baku;
 					}
-
 				}
 
 				if($dataSO->num_rows() > 1){
@@ -8828,7 +8849,12 @@ class Transaksi extends CI_Controller
 										</td>
 									</tr>';
 									// ITEM
-									$prod = $this->db->query("SELECT*FROM m_produk where no_customer='$l->id_pelanggan'");
+									// $prod = $this->db->query("SELECT*FROM m_produk where no_customer='$l->id_pelanggan'");
+									$prod = $this->db->query("SELECT i.* FROM trs_po p
+									INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
+									INNER JOIN m_produk i ON d.id_produk=i.id_produk
+									WHERE p.status_kiriman='Open' AND p.id_pelanggan='$l->id_pelanggan'
+									GROUP BY d.id_produk ORDER BY i.nm_produk");
 									if($prod->num_rows() != 0){
 										foreach($prod->result() as $pr){
 											($pr->kategori == "K_BOX") ? $ukuran = $pr->ukuran : $ukuran = $pr->ukuran_sheet;
@@ -9271,8 +9297,19 @@ class Transaksi extends CI_Controller
 					$hariMinggu = date('l', strtotime($tglSys));
 					($hariMinggu == "Sunday") ? $kk = '<span style="color:#f00">'.$i2.'</span>' : $kk = $i2;
 
-					$count = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tglSys'");
-					$berat = $this->db->query("SELECT SUM(berat) AS berat FROM trs_dev_sys WHERE eta='$tglSys' GROUP BY eta")->row()->berat;
+					if($id_sales == null || $id_sales == ''){
+						$count = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tglSys'");
+						$berat = $this->db->query("SELECT SUM(berat) AS berat FROM trs_dev_sys WHERE eta='$tglSys' GROUP BY eta")->row()->berat;
+					}else{
+						$count = $this->db->query("SELECT s.* FROM trs_dev_sys s
+						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales'
+						GROUP BY s.id_dev");
+						$berat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
+						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales'
+						GROUP BY s.eta")->row()->berat;
+					}
 
 					($count->num_rows() == 0) ? $sCount = '' : $sCount = '<span style="position:absolute;top:3px;right:3px;font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</span>';
 					($count->num_rows() == 0) ? $sBb = '' : $sBb = '<span style="position:absolute;bottom:3px;left:3px;font-size:12px;font-style:italic;color:#fff;background:#7c858d;padding:0 4px;border-radius:4px">'.number_format($berat, 0, ',', '.').'</span>';
@@ -9319,7 +9356,16 @@ class Transaksi extends CI_Controller
 				<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
 			</tr>';
 
-			$urut = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tgl' GROUP BY eta, urut, id_ex");
+			if($id_sales == null || $id_sales == ''){
+				$urut = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tgl' GROUP BY eta, urut, id_ex");
+				$wSls = "";
+			}else{
+				$urut = $this->db->query("SELECT s.* FROM trs_dev_sys s
+				INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+				WHERE s.eta='$tgl' AND p.id_sales='$id_sales'
+				GROUP BY s.eta, s.urut, s.id_ex");
+				$wSls = "AND c.id_sales='$id_sales'";
+			}
 			foreach($urut->result() as $u){
 				if($u->urut == 0){
 					$html .= '<tr>
@@ -9357,7 +9403,7 @@ class Transaksi extends CI_Controller
 				INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
 				INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 				INNER JOIN m_produk i ON d.id_produk=i.id_produk
-				WHERE d.eta='$u->eta' AND d.urut='$u->urut'
+				WHERE d.eta='$u->eta' AND d.urut='$u->urut' $wSls
 				GROUP BY d.id_pelanggan,p.kode_po,d.id_produk
 				ORDER BY c.nm_pelanggan,p.kode_po,i.nm_produk");
 				$i = 0;
