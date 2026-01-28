@@ -28,60 +28,58 @@
 	</style>
 
 	<section class="content">
-		<?php if(in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
-			<div class="card card-list-so">
-				<div class="card-header">
-					<h3 class="card-title">Corrugator</h3>
-					<div class="card-tools">
-						<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
-						<i class="fas fa-minus"></i></button>
-					</div>
-				</div>
-				<div class="card-body">
-					<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User','plan'])) { ?>
-						<div style="margin-bottom:12px">
-							<a href="<?php echo base_url('Plan/Corrugator/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
-						</div>
-					<?php } ?>
-					<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
-						<div class="col-md-2" style="padding-bottom:3px">
-							<select id="tahun" class="form-control select2" onchange="load_data()">
-								<?php 
-									$thang = date("Y");
-									$thang_maks = $thang + 2;
-									$thang_min = $thang - 2;
-									for ($th = $thang_min; $th <= $thang_maks; $th++)
-									{ ?>
-										<?php if ($th==$thang) { ?>
-											<option selected value="<?= $th ?>"> <?= $thang ?> </option>
-										<?php }else{ ?>
-											<option value="<?= $th ?>"> <?= $th ?> </option>
-										<?php }
-									}
-								?>
-							</select>
-						</div>
-						<div class="col-md-10"></div>
-					</div>
-					<table id="datatable" class="table table-bordered table-striped" width="100%">
-						<thead class="color-tabel">
-							<tr>
-								<th style="width:5%">#</th>
-								<th style="width:20%">TANGGAL</th>
-								<th style="width:10%">SHIFT</th>
-								<th style="width:10%">MESIN</th>
-								<th style="width:30%">NO. PLAN</th>
-								<th style="width:10%">JUMLAH</th>
-								<th style="width:15%">AKSI</th>
-							</tr>
-						</thead>
-						<tbody></tbody>
-					</table>
+		<div class="card card-list-so">
+			<div class="card-header">
+				<h3 class="card-title">Corrugator</h3>
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+					<i class="fas fa-minus"></i></button>
 				</div>
 			</div>
-		<?php } ?>
+			<div class="card-body">
+				<?php if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User','plan'])) { ?>
+					<div style="margin-bottom:12px">
+						<a href="<?php echo base_url('Plan/Corrugator/Add')?>" class="btn btn-info"><i class="fa fa-plus"></i> <b>Tambah Data</b></a>
+					</div>
+				<?php } ?>
+				<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
+					<div class="col-md-2" style="padding-bottom:3px">
+						<select id="tahun" class="form-control select2" onchange="load_data()">
+							<?php 
+								$thang = date("Y");
+								$thang_maks = $thang + 2;
+								$thang_min = $thang - 2;
+								for ($th = $thang_min; $th <= $thang_maks; $th++)
+								{ ?>
+									<?php if ($th==$thang) { ?>
+										<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+									<?php }else{ ?>
+										<option value="<?= $th ?>"> <?= $th ?> </option>
+									<?php }
+								}
+							?>
+						</select>
+					</div>
+					<div class="col-md-10"></div>
+				</div>
+				<table id="datatable" class="table table-bordered table-striped" width="100%">
+					<thead class="color-tabel">
+						<tr>
+							<th style="width:5%">#</th>
+							<th style="width:20%">TANGGAL</th>
+							<th style="width:10%">SHIFT</th>
+							<th style="width:10%">MESIN</th>
+							<th style="width:30%">NO. PLAN</th>
+							<th style="width:10%">JUMLAH</th>
+							<th style="width:15%">AKSI</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
 
-		<?php if(in_array($this->session->userdata('level'), ['Admin','PPIC','User','plan'])) { ?>
+		<?php if(in_array($this->session->userdata('level'), ['Admin'])) { ?>
 			<div class="row">
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline">

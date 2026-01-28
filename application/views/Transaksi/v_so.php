@@ -45,10 +45,8 @@
 				<?php if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])) { ?>
 					<div style="margin-bottom:12px">
 						<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
-						<button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="RollCor()"><i class="fas fa-toilet-paper"></i>&nbsp;&nbsp;<b>Roll</b></button>
-						<?php if(in_array($this->session->userdata('level'), ['Admin','User'])) { ?>
-							<button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="LaporanSOTrim()"></i>&nbsp;&nbsp;<b>Laporan</b></button>
-						<?php } ?>
+						<!-- <button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="RollCor()"><i class="fas fa-toilet-paper"></i>&nbsp;&nbsp;<b>Roll</b></button>
+						<button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="LaporanSOTrim()"></i>&nbsp;&nbsp;<b>Laporan</b></button> -->
 					</div>
 				<?php } ?>
 				<div class="card-body row" style="padding:0 0 8px;font-weight:bold">
@@ -288,7 +286,7 @@
 							<select name="items" id="items" class="form-control select2"></select>
 						</td>
 					</tr>
-					<tr>
+					<!-- <tr>
 						<td style="padding:5px 0;font-weight:bold">ETA ITEM</td>
 						<td style="padding:5px 0" id="eta_item">-</td>
 					</tr>
@@ -315,7 +313,7 @@
 					<tr>
 						<td style="padding:5px 0;font-weight:bold">QTY PO</td>
 						<td style="padding:5px 0" id="qty_po">-</td>
-					</tr>
+					</tr> -->
 					<tr>
 						<td style="padding:5px 0;font-weight:bold">NO. SO</td>
 						<td style="padding:5px 0">
@@ -421,13 +419,13 @@
 		$("#idpodetail").val("")
 		$("#marketing").val("")
 		$("#customer").val("")
-		$("#uk_box").html("-")
-		$("#uk_sheet").html("-")
-		$("#flute").html("-")
-		$("#substance").html("-")
-		$("#eta_item").html("")
-		$("#kode_mc").html("-")
-		$("#qty_po").html("-")
+		// $("#uk_box").html("-")
+		// $("#uk_sheet").html("-")
+		// $("#flute").html("-")
+		// $("#substance").html("-")
+		// $("#eta_item").html("")
+		// $("#kode_mc").html("-")
+		// $("#qty_po").html("-")
 		$("#no_so").val("").prop("disabled", true)
 		$("#btn-simpan").prop("disabled", false);
 		soPlhNoPO()
@@ -787,7 +785,10 @@
 					htmlPo += `<option value="">PILIH</option>`
 				data.po.forEach(loadPo);
 				function loadPo(r, index) {
-					htmlPo += `<option value="${r.no_po}" data-sales="${r.nm_sales}" data-cust="${r.nm_pelanggan}" data-idpelanggan="${r.id_pelanggan}" data-kdpo="${r.kode_po}" data-kdunik="${r.kode_unik}" eta-po="${r.eta}">${r.nm_pelanggan} | ${r.kode_po}</option>`;
+					(r.attn == "" || r.attn == "-") ? attn = '' : attn = ' | '+r.attn;
+					htmlPo += `<option value="${r.no_po}" data-sales="${r.nm_sales}" data-cust="${r.nm_pelanggan}" data-idpelanggan="${r.id_pelanggan}" data-kdpo="${r.kode_po}" data-kdunik="${r.kode_unik}" eta-po="${r.eta}">
+						${r.nm_pelanggan+attn} - ${r.kode_po}
+					</option>`;
 				}
 				$("#no_po").prop("disabled", false).html(htmlPo)
 				$("#h_kode_po").val("")
@@ -802,13 +803,13 @@
 		let sales = $('#no_po option:selected').attr('data-sales');
 		let cust = $('#no_po option:selected').attr('data-cust');
 		let kdpo = $('#no_po option:selected').attr('data-kdpo');
-		$("#uk_box").html("-")
-		$("#uk_sheet").html("-")
-		$("#flute").html("-")
-		$("#substance").html("-")
-		$("#eta_item").html("")
-		$("#kode_mc").html("-")
-		$("#qty_po").html("-")
+		// $("#uk_box").html("-")
+		// $("#uk_sheet").html("-")
+		// $("#flute").html("-")
+		// $("#substance").html("-")
+		// $("#eta_item").html("")
+		// $("#kode_mc").html("-")
+		// $("#qty_po").html("-")
 		$("#no_so").val("").prop("disabled", true)
 		$("#marketing").val(sales)
 		$("#customer").val(cust)
@@ -863,13 +864,13 @@
 		let kode_mc       = $('#items option:selected').attr('data-kode_mc')
 		let qty           = $('#items option:selected').attr('data-qty')
 		$("#idpodetail").val(idpodetail)
-		$("#uk_box").html((item == "") ? '-' : ukuran)
-		$("#uk_sheet").html((item == "") ? '-' : ukuran_sheet)
-		$("#flute").html((item == "") ? '-' : flute)
-		$("#substance").html((item == "") ? '-' : kualitas)
-		$("#eta_item").html((item == "") ? '' : eta_item)
-		$("#kode_mc").html((item == "") ? '-' : kode_mc)
-		$("#qty_po").html((item == "") ? '-' : qty)
+		// $("#uk_box").html((item == "") ? '-' : ukuran)
+		// $("#uk_sheet").html((item == "") ? '-' : ukuran_sheet)
+		// $("#flute").html((item == "") ? '-' : flute)
+		// $("#substance").html((item == "") ? '-' : kualitas)
+		// $("#eta_item").html((item == "") ? '' : eta_item)
+		// $("#kode_mc").html((item == "") ? '-' : kode_mc)
+		// $("#qty_po").html((item == "") ? '-' : qty)
 		// $("#no_so").val("").prop("disabled", true)
 		soNoSo(idpodetail)
 	})

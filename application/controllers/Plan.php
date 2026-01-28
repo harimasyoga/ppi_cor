@@ -1358,7 +1358,7 @@ class Plan extends CI_Controller
 	}
 
 	function loadInputList()
-	{ //
+	{
 		$urlTgl_plan = $_POST["tgl_plan"];
 		$urlShift = $_POST["shift"];
 		$urlMesin = $_POST["machine"];
@@ -1404,6 +1404,7 @@ class Plan extends CI_Controller
 			$left1 = 0;
 			$left2 = '30px';
 		}
+		// <th style="padding:6px">KODE MC</th>
 		$html .= '<div style="overflow:auto;white-space:nowrap">
 			<table class="table table-bordered" style="border:0;text-align:center">
 				<thead>
@@ -1411,7 +1412,6 @@ class Plan extends CI_Controller
 						<th style="padding:6px 12px;position:sticky;left:'.$left1.';background:#fff">'.$btnPindahHal.'</th>
 						<th style="padding:6px">STATUS</th>
 						<th style="padding:6px;position:sticky;left:'.$left2.';background:#fff">ITEM</th>
-						<th style="padding:6px">KODE MC</th>
 						<th style="padding:6px">NO.WO</th>
 						<th style="padding:6px">CUSTOMER</th>
 						<th style="padding:6px" colspan="2">TL/AL</th>
@@ -1440,238 +1440,251 @@ class Plan extends CI_Controller
 					</tr>
 				</thead>';
 
-		$data = $this->db->query("SELECT p.*,i.nm_produk,i.kode_mc,w.kode_po,l.nm_pelanggan,i.kategori,i.flute,w.flap1,w.creasing2,w.flap2,w.status AS statusWo FROM plan_cor p
-		INNER JOIN m_produk i ON p.id_produk=i.id_produk
-		INNER JOIN trs_wo w ON p.id_wo=w.id
-		INNER JOIN trs_so_detail s ON p.id_so_detail=s.id
-		INNER JOIN m_pelanggan l ON p.id_pelanggan=l.id_pelanggan
-		WHERE p.tgl_plan='$urlTgl_plan' AND p.shift_plan='$urlShift' AND p.machine_plan='$urlMesin'
-		GROUP BY p.id_plan
-		ORDER BY p.no_urut_plan,l.nm_pelanggan,p.id_plan");
+				$data = $this->db->query("SELECT p.*,i.nm_produk,i.kode_mc,w.kode_po,l.nm_pelanggan,i.kategori,i.flute,w.flap1,w.creasing2,w.flap2,w.status AS statusWo FROM plan_cor p
+				INNER JOIN m_produk i ON p.id_produk=i.id_produk
+				INNER JOIN trs_wo w ON p.id_wo=w.id
+				INNER JOIN trs_so_detail s ON p.id_so_detail=s.id
+				INNER JOIN m_pelanggan l ON p.id_pelanggan=l.id_pelanggan
+				WHERE p.tgl_plan='$urlTgl_plan' AND p.shift_plan='$urlShift' AND p.machine_plan='$urlMesin'
+				GROUP BY p.id_plan
+				ORDER BY p.no_urut_plan,l.nm_pelanggan,p.id_plan");
 
-		foreach($data->result() as $r){
-			$id = $r->id_plan;
-			$exMatPlan = explode("/", $r->material_plan);
-			$exKistPlan = explode("/", $r->kualitas_isi_plan);
-			if($r->flute == "BF"){
-				$dis2 = ''; $dis3 = 'disabled'; $dis4 = 'disabled';
-				$vMatPlan1 = $exMatPlan[0];
-				$vkisPlan1 = $exKistPlan[0];
-				$vMatPlan2 = $exMatPlan[1];
-				$vkisPlan2 = $exKistPlan[1];
-				$vMatPlan3 = '';
-				$vkisPlan3 = '';
-				$vMatPlan4 = '';
-				$vkisPlan4 = '';
-				$vMatPlan5 = $exMatPlan[2];
-				$vkisPlan5 = $exKistPlan[2];
-			}else if($r->flute == "CF"){
-				$dis2 = 'disabled'; $dis3 = 'disabled'; $dis4 = '';
-				$vMatPlan1 = $exMatPlan[0];
-				$vkisPlan1 = $exKistPlan[0];
-				$vMatPlan2 = '';
-				$vkisPlan2 = '';
-				$vMatPlan3 = '';
-				$vkisPlan3 = '';
-				$vMatPlan4 = $exMatPlan[1];
-				$vkisPlan4 = $exKistPlan[1];
-				$vMatPlan5 = $exMatPlan[2];
-				$vkisPlan5 = $exKistPlan[2];
-			}else{
-				$dis2 = ''; $dis3 = ''; $dis4 = '';
-				$vMatPlan1 = $exMatPlan[0];
-				$vkisPlan1 = $exKistPlan[0];
-				$vMatPlan2 = $exMatPlan[1];
-				$vkisPlan2 = $exKistPlan[1];
-				$vMatPlan3 = $exMatPlan[2];
-				$vkisPlan3 = $exKistPlan[2];
-				$vMatPlan4 = $exMatPlan[3];
-				$vkisPlan4 = $exKistPlan[3];
-				$vMatPlan5 = $exMatPlan[4];
-				$vkisPlan5 = $exKistPlan[4];
-			}
+				$sumCoff = 0;
+				$sumRM = 0;
+				$sumKG = 0;
+				foreach($data->result() as $r){
+					$id = $r->id_plan;
+					$exMatPlan = explode("/", $r->material_plan);
+					$exKistPlan = explode("/", $r->kualitas_isi_plan);
+					if($r->flute == "BF"){
+						$dis2 = ''; $dis3 = 'disabled'; $dis4 = 'disabled';
+						$vMatPlan1 = $exMatPlan[0];
+						$vkisPlan1 = $exKistPlan[0];
+						$vMatPlan2 = $exMatPlan[1];
+						$vkisPlan2 = $exKistPlan[1];
+						$vMatPlan3 = '';
+						$vkisPlan3 = '';
+						$vMatPlan4 = '';
+						$vkisPlan4 = '';
+						$vMatPlan5 = $exMatPlan[2];
+						$vkisPlan5 = $exKistPlan[2];
+					}else if($r->flute == "CF"){
+						$dis2 = 'disabled'; $dis3 = 'disabled'; $dis4 = '';
+						$vMatPlan1 = $exMatPlan[0];
+						$vkisPlan1 = $exKistPlan[0];
+						$vMatPlan2 = '';
+						$vkisPlan2 = '';
+						$vMatPlan3 = '';
+						$vkisPlan3 = '';
+						$vMatPlan4 = $exMatPlan[1];
+						$vkisPlan4 = $exKistPlan[1];
+						$vMatPlan5 = $exMatPlan[2];
+						$vkisPlan5 = $exKistPlan[2];
+					}else{
+						$dis2 = ''; $dis3 = ''; $dis4 = '';
+						$vMatPlan1 = $exMatPlan[0];
+						$vkisPlan1 = $exKistPlan[0];
+						$vMatPlan2 = $exMatPlan[1];
+						$vkisPlan2 = $exKistPlan[1];
+						$vMatPlan3 = $exMatPlan[2];
+						$vkisPlan3 = $exKistPlan[2];
+						$vMatPlan4 = $exMatPlan[3];
+						$vkisPlan4 = $exKistPlan[3];
+						$vMatPlan5 = $exMatPlan[4];
+						$vkisPlan5 = $exKistPlan[4];
+					}
 
-			if($opsi == 'pilihan'){
-				$onKeyUpEdiPlan = 'disabled';
-				$ePlhS = 'disabled';
-			}else{
-				$onKeyUpEdiPlan = 'onkeyup="onChangeEditPlan('."'".$id."'".')"';
-				$ePlhS = '';
-			}
+					if($opsi == 'pilihan'){
+						$onKeyUpEdiPlan = 'disabled';
+						$ePlhS = 'disabled';
+					}else{
+						$onKeyUpEdiPlan = 'onkeyup="onChangeEditPlan('."'".$id."'".')"';
+						$ePlhS = '';
+					}
+					($id_plan == $r->id_plan) ? $bgTd = 'class="h-tlp-td"' : $bgTd = 'class="h-tlpf-td"';
 
-			if($id_plan == $r->id_plan){
-				$bgTd = 'class="h-tlp-td"';
-			}else{
-				$bgTd = 'class="h-tlpf-td"';
-			}
+					$htmlSub ='<td '.$bgTd.' style="padding:6px">
+						<select class="form-control inp-kosong" id="lp-sm1-'.$id.'" '.$ePlhS.'>
+							<option value="'.$vMatPlan1.'">'.$vMatPlan1.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
+						</select></td>
+					<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si1-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan1.'" '.$onKeyUpEdiPlan.'></td>
+					<td '.$bgTd.' style="padding:6px">
+						<select class="form-control inp-kosong" id="lp-sm2-'.$id.'" '.$dis2.' '.$ePlhS.'>
+							<option value="'.$vMatPlan2.'">'.$vMatPlan2.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
+						</select></td>
+					<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si2-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan2.'" '.$dis2.' '.$onKeyUpEdiPlan.'></td>
+					<td '.$bgTd.' style="padding:6px">
+						<select class="form-control inp-kosong" id="lp-sm3-'.$id.'" '.$dis3.' '.$ePlhS.'>
+							<option value="'.$vMatPlan3.'">'.$vMatPlan3.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
+						</select></td>
+					<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si3-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan3.'" '.$dis3.' '.$onKeyUpEdiPlan.'></td>
+					<td '.$bgTd.' style="padding:6px">
+						<select class="form-control inp-kosong" id="lp-sm4-'.$id.'" '.$dis4.' '.$ePlhS.'>
+							<option value="'.$vMatPlan4.'">'.$vMatPlan4.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
+						</select></td>
+					<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si4-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan4.'" '.$dis4.' '.$onKeyUpEdiPlan.'></td>
+					<td '.$bgTd.' style="padding:6px">
+						<select class="form-control inp-kosong" id="lp-sm5-'.$id.'" '.$ePlhS.'>
+							<option value="'.$vMatPlan5.'">'.$vMatPlan5.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
+						</select></td>
+					<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si5-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan5.'" '.$onKeyUpEdiPlan.'></td>';
 
-			$htmlSub ='<td '.$bgTd.' style="padding:6px">
-				<select class="form-control inp-kosong" id="lp-sm1-'.$id.'" '.$ePlhS.'>
-					<option value="'.$vMatPlan1.'">'.$vMatPlan1.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
-				</select></td>
-			<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si1-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan1.'" '.$onKeyUpEdiPlan.'></td>
-			<td '.$bgTd.' style="padding:6px">
-				<select class="form-control inp-kosong" id="lp-sm2-'.$id.'" '.$dis2.' '.$ePlhS.'>
-					<option value="'.$vMatPlan2.'">'.$vMatPlan2.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
-				</select></td>
-			<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si2-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan2.'" '.$dis2.' '.$onKeyUpEdiPlan.'></td>
-			<td '.$bgTd.' style="padding:6px">
-				<select class="form-control inp-kosong" id="lp-sm3-'.$id.'" '.$dis3.' '.$ePlhS.'>
-					<option value="'.$vMatPlan3.'">'.$vMatPlan3.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
-				</select></td>
-			<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si3-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan3.'" '.$dis3.' '.$onKeyUpEdiPlan.'></td>
-			<td '.$bgTd.' style="padding:6px">
-				<select class="form-control inp-kosong" id="lp-sm4-'.$id.'" '.$dis4.' '.$ePlhS.'>
-					<option value="'.$vMatPlan4.'">'.$vMatPlan4.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
-				</select></td>
-			<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si4-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan4.'" '.$dis4.' '.$onKeyUpEdiPlan.'></td>
-			<td '.$bgTd.' style="padding:6px">
-				<select class="form-control inp-kosong" id="lp-sm5-'.$id.'" '.$ePlhS.'>
-					<option value="'.$vMatPlan5.'">'.$vMatPlan5.'</option><option value="">-</option><option value="M">M</option><option value="K">K</option><option value="MC">MC</option><option value="MN">MN</option>
-				</select></td>
-			<td '.$bgTd.' style="padding:6px"><input type="number" id="lp-si5-'.$id.'" class="form-control inp-kosong" value="'.$vkisPlan5.'" '.$onKeyUpEdiPlan.'></td>';
-
-			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','Corrugator','User','plan'])){
-				if($r->status_plan == 'Open' && $r->total_cor_p == 0){
-					if($opsi == 'pilihan' || $this->session->userdata('level') == 'Corrugator'){
-						$btnAksiHapus = '<span class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</span>';
-						(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'edit'".')">EDIT<a>' : $btnAksiEdit = '-';
+					if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','Corrugator','User','plan'])){
+						if($r->status_plan == 'Open' && $r->total_cor_p == 0){
+							if($opsi == 'pilihan' || $this->session->userdata('level') == 'Corrugator'){
+								$btnAksiHapus = '<span class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</span>';
+								(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'edit'".')">EDIT<a>' : $btnAksiEdit = '-';
+								$aksiNoUrut = 'disabled';
+								$dis = 'disabled';
+							}else{
+								$btnAksiHapus = '<a href="javascript:void(0)" onclick="hapusPlan('."".$r->id_plan."".')" href="" class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</a>';
+								$btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'edit'".')">EDIT<a>';
+								$aksiNoUrut = 'onchange="onChangeNourutPlan('."'".$id."'".')"';
+								$dis = '';
+							}
+						}else if($r->status_plan == 'Open' && $r->total_cor_p != 0){
+							$btnAksiHapus = '<span class="bg-success" style="padding:2px 4px;border-radius:4px;display:block">PRODUKSI</span>';
+							(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '-';
+							$aksiNoUrut = 'disabled';
+							$dis = 'disabled';
+						}else if($r->status_plan == 'Close' && $r->statusWo == 'Open'){
+							$btnAksiHapus = '<span class="bg-primary" style="padding:2px;border-radius:4px;display:block">SELESAI</span>';
+							(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '-';
+							$aksiNoUrut = 'disabled';
+							$dis = 'disabled';
+						}else if($r->status_plan == 'Close' && $r->statusWo == 'Close'){
+							$btnAksiHapus = '<span class="bg-dark" style="padding:2px 4px;border-radius:4px;display:block">WO</span>';
+							(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '-';
+							$aksiNoUrut = 'disabled';
+							$dis = 'disabled';
+						}else{
+							$btnAksiHapus = `-`;
+							$btnAksiEdit = '-';
+							$aksiNoUrut = 'disabled';
+							$dis = 'disabled';
+						}
+					}else{
+						$btnAksiHapus = '-';
+						$btnAksiEdit = '-';
 						$aksiNoUrut = 'disabled';
 						$dis = 'disabled';
-					}else{
-						$btnAksiHapus = '<a href="javascript:void(0)" onclick="hapusPlan('."".$r->id_plan."".')" href="" class="bg-danger" style="padding:2px 4px;border-radius:4px;display:block">HAPUS</a>';
-						$btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'edit'".')">EDIT<a>';
-						$aksiNoUrut = 'onkeyup="onChangeNourutPlan('."'".$id."'".')"';
-						$dis = '';
 					}
-				}else if($r->status_plan == 'Open' && $r->total_cor_p != 0){
-					$btnAksiHapus = '<span class="bg-success" style="padding:2px 4px;border-radius:4px;display:block">PRODUKSI</span>';
-					(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '-';
-					$aksiNoUrut = 'disabled';
-					$dis = 'disabled';
-				}else if($r->status_plan == 'Close' && $r->statusWo == 'Open'){
-					$btnAksiHapus = '<span class="bg-primary" style="padding:2px;border-radius:4px;display:block">SELESAI</span>';
-					(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '-';
-					$aksiNoUrut = 'disabled';
-					$dis = 'disabled';
-				}else if($r->status_plan == 'Close' && $r->statusWo == 'Close'){
-					$btnAksiHapus = '<span class="bg-dark" style="padding:2px 4px;border-radius:4px;display:block">WO</span>';
-					(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User']) && $id_plan != 'add') ? $btnAksiEdit = '<a href="javascript:void(0)" style="font-weight:bold" onclick="editListPlan('."'".$r->id_plan."'".', '."'".$r->id_wo."'".','."'kirimnext'".')">EDIT<a>' : $btnAksiEdit = '-';
-					$aksiNoUrut = 'disabled';
-					$dis = 'disabled';
-				}else{
-					$btnAksiHapus = `-`;
-					$btnAksiEdit = '-';
-					$aksiNoUrut = 'disabled';
-					$dis = 'disabled';
+
+					if($opsi == 'pilihan'){
+						$btnLink = $r->nm_produk;
+					}else{
+						$btnLink = '<a href="javascript:void(0)" onclick="plhNoWo('."".$r->id_plan."".')" title="'."".$r->no_wo."".'">'.$r->nm_produk.'</a>';
+					}
+
+					if($r->kategori == 'K_BOX'){
+						($r->status_plan == 'Open' && $r->total_cor_p != 0) ? $disNext = '' : $disNext = 'disabled'; 
+						$next = '<select class="form-control inp-kosong2" id="lp-next-'.$id.'" '.$disNext.'>
+							<option value="'.$r->next_plan.'">'.$r->next_plan.'</option>
+							<option value="">-</option>
+							<option value="FLEXO1">FLEXO1</option>
+							<option value="FLEXO2">FLEXO2</option>
+							<option value="FLEXO3">FLEXO3</option>
+							<option value="FLEXO4">FLEXO4</option>
+						</select>';
+					}else{
+						$next = $r->next_plan.'<input type="hidden" id="lp-next-'.$id.'" value="'.$r->next_plan.'">';
+					}
+
+					($r->start_time_p == null) ? $start_time_p = '-' : $start_time_p = 	substr($r->start_time_p, 0, 5);
+					($r->end_time_p == null) ? $end_time_p = '-' : $end_time_p = substr($r->end_time_p, 0, 5);
+
+					$getPF = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$r->id_plan'");
+					if($getPF->num_rows() == 0){
+						$tgl_flexo = '-';
+					}else if($getPF->num_rows() == 1){
+						$tgl_flexo = $this->m_fungsi->tglPlan($getPF->row()->tgl_flexo);
+					}else{
+						$tgl_flexo = $getPF->num_rows();
+					}
+
+					// <td '.$bgTd.' style="padding:6px;text-align:left">'.$r->kode_mc.'</td>
+					$html .= '<tr class="h-tmpl-list-plan">
+						<td '.$bgTd.' style="position:sticky;left:'.$left1.';padding:6px 3px">
+							<input type="number" class="form-control inp-kosong2" id="lp-nourut-'.$id.'" value="'.$r->no_urut_plan.'" '.$aksiNoUrut.' tabindex="1">
+						</td>
+						<td '.$bgTd.' style="padding:4px 3px 3px;font-weight:normal">'.$btnAksiHapus.'</td>
+						<td '.$bgTd.' style="position:sticky;left:'.$left2.';padding:6px;text-align:left">'.$btnLink.'</td>
+						<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->no_wo.'</td>
+						<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_pelanggan.'</td>
+						'.$htmlSub.'
+						<td '.$bgTd.' style="padding:6px">
+							<input type="number" class="form-control inp-kosong2" id="lp-pjgs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->panjang_plan.'" '.$onKeyUpEdiPlan.' disabled>
+						</td>
+						<td '.$bgTd.' style="padding:6px">
+							<input type="number" class="form-control inp-kosong2" id="lp-lbrs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->lebar_plan.'" '.$onKeyUpEdiPlan.' disabled>
+						</td>
+						<td '.$bgTd.' style="padding:6px" id="lptd-scr1-'.$id.'">
+							<input type="number" class="form-control inp-kosong" id="lp-scr1-'.$id.'" value="'.$r->flap1.'" '.$onKeyUpEdiPlan.' disabled>
+						</td>
+						<td '.$bgTd.' style="padding:6px" id="lptd-scr2-'.$id.'">
+							<input type="number" class="form-control inp-kosong" id="lp-scr2-'.$id.'" value="'.$r->creasing2.'" '.$onKeyUpEdiPlan.' disabled>
+						</td>
+						<td '.$bgTd.' style="padding:6px" id="lptd-scr3-'.$id.'">
+							<input type="number" class="form-control inp-kosong" id="lp-scr3-'.$id.'" value="'.$r->flap2.'" '.$onKeyUpEdiPlan.' disabled>
+						</td>
+						<td '.$bgTd.' style="padding:6px">
+							<input type="number" class="form-control inp-kosong2" id="lp-out-'.$id.'" value="'.$r->out_plan.'" '.$onKeyUpEdiPlan.' '.$dis.'>
+						</td>
+						<td '.$bgTd.' style="padding:6px">'.$r->flute.'</td>
+						<td '.$bgTd.' style="padding:6px">
+							<input type="number" class="form-control inp-kosong2" id="lp-lbri-'.$id.'" style="font-weight:bold;color:#000" value="'.$r->lebar_roll_p.'" '.$onKeyUpEdiPlan.' '.$dis.'>
+						</td>
+						<td '.$bgTd.' style="padding:6px;text-align:right">
+							<input type="number" class="form-control inp-kosong2" id="lp-trimp-'.$id.'" value="'.$r->trim_plan.'" disabled>
+						</td>
+						<td '.$bgTd.' style="padding:6px;text-align:right">
+							<input type="hidden" class="form-control inp-kosong2" id="lp-pcs-plan-'.$id.'" value="'.$r->pcs_plan.'">
+							'.number_format($r->pcs_plan).'
+						</td>
+						<td '.$bgTd.' style="padding:6px;text-align:right">'.number_format($r->good_cor_p).'</td>
+						<td '.$bgTd.' style="padding:6px;text-align:right">'.$start_time_p.'</td>
+						<td '.$bgTd.' style="padding:6px;text-align:right">'.$end_time_p.'</td>
+						<td '.$bgTd.' style="padding:6px;text-align:right">
+							<input type="number" class="form-control inp-kosong2" id="lp-coffp-'.$id.'" value="'.$r->c_off_p.'" disabled>
+						</td>
+						<td '.$bgTd.' style="padding:6px;text-align:right">
+							<input type="number" class="form-control inp-kosong2" id="lp-rmp-'.$id.'" value="'.$r->rm_plan.'" disabled>
+						</td>
+						<td '.$bgTd.' style="padding:6px;text-align:right">
+							<input type="number" class="form-control inp-kosong2" id="lp-tonp-'.$id.'" value="'.$r->tonase_plan.'" disabled>
+						</td>
+						<td '.$bgTd.' style="padding:2px">
+							<input type="date" class="form-control inp-kosong2" style="font-weight:bold;color:#f00" id="lp-tglkirim-'.$id.'" value="'.$r->tgl_kirim_plan.'" disabled>
+						</td>
+						<td '.$bgTd.' style="padding:6px">'.$tgl_flexo.'</td>
+						<td '.$bgTd.' style="padding:6px">'.$next.'</td>
+						<td '.$bgTd.' style="padding:6px">
+							<input type="hidden" id="hlp-flute-'.$id.'" value="'.$r->flute.'">
+							<input type="hidden" id="hlp-kategori-'.$id.'" value="'.$r->kategori.'">
+							<input type="hidden" id="hlp-kua-isi-p-'.$id.'" value="'.$r->kualitas_isi_plan.'">
+							'.$btnAksiEdit.'
+						</td>
+					</tr>';
+
+					$sumCoff += $r->c_off_p;
+					$sumRM += $r->rm_plan;
+					$sumKG += $r->tonase_plan;
 				}
-			}else{
-				$btnAksiHapus = '-';
-				$btnAksiEdit = '-';
-				$aksiNoUrut = 'disabled';
-				$dis = 'disabled';
-			}
 
-			if($opsi == 'pilihan'){
-				$btnLink = $r->nm_produk;
-			}else{
-				$btnLink = '<a href="javascript:void(0)" onclick="plhNoWo('."".$r->id_plan."".')" title="'."".$r->no_wo."".'">'.$r->nm_produk.'</a>';
-			}
+				// TOTAL
+				if($data->num_rows() != 1){
+					$html .= '<tr>
+						<td style="padding:6px" colspan="28"></td>
+						<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumCoff, 0, ',', '.').'</td>
+						<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumRM, 0, ',', '.').'</td>
+						<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumKG, 0, ',', '.').'</td>
+						<td style="padding:6px" colspan="4"></td>
+					</tr>';
+				}
 
-			if($r->kategori == 'K_BOX'){
-				($r->status_plan == 'Open' && $r->total_cor_p != 0) ? $disNext = '' : $disNext = 'disabled'; 
-				$next = '<select class="form-control inp-kosong2" id="lp-next-'.$id.'" '.$disNext.'>
-					<option value="'.$r->next_plan.'">'.$r->next_plan.'</option>
-					<option value="">-</option>
-					<option value="FLEXO1">FLEXO1</option>
-					<option value="FLEXO2">FLEXO2</option>
-					<option value="FLEXO3">FLEXO3</option>
-					<option value="FLEXO4">FLEXO4</option>
-				</select>';
-			}else{
-				$next = $r->next_plan.'<input type="hidden" id="lp-next-'.$id.'" value="'.$r->next_plan.'">';
-			}
-
-			($r->start_time_p == null) ? $start_time_p = '-' : $start_time_p = 	substr($r->start_time_p, 0, 5);
-			($r->end_time_p == null) ? $end_time_p = '-' : $end_time_p = substr($r->end_time_p, 0, 5);
-
-			$getPF = $this->db->query("SELECT*FROM plan_flexo WHERE id_plan_cor='$r->id_plan'");
-			if($getPF->num_rows() == 0){
-				$tgl_flexo = '-';
-			}else if($getPF->num_rows() == 1){
-				$tgl_flexo = $this->m_fungsi->tglPlan($getPF->row()->tgl_flexo);
-			}else{
-				$tgl_flexo = $getPF->num_rows();
-			}
-
-			$html .= '<tr class="h-tmpl-list-plan">
-				<td '.$bgTd.' style="position:sticky;left:'.$left1.';padding:6px 3px">
-					<input type="number" class="form-control inp-kosong2" id="lp-nourut-'.$id.'" value="'.$r->no_urut_plan.'" '.$aksiNoUrut.' tabindex="1">
-				</td>
-				<td '.$bgTd.' style="padding:4px 3px 3px;font-weight:normal">'.$btnAksiHapus.'</td>
-				<td '.$bgTd.' style="position:sticky;left:'.$left2.';padding:6px;text-align:left">'.$btnLink.'</td>
-				<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->kode_mc.'</td>
-				<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->no_wo.'</td>
-				<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_pelanggan.'</td>
-				'.$htmlSub.'
-				<td '.$bgTd.' style="padding:6px">
-					<input type="number" class="form-control inp-kosong2" id="lp-pjgs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->panjang_plan.'" '.$onKeyUpEdiPlan.' disabled>
-				</td>
-				<td '.$bgTd.' style="padding:6px">
-					<input type="number" class="form-control inp-kosong2" id="lp-lbrs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->lebar_plan.'" '.$onKeyUpEdiPlan.' disabled>
-				</td>
-				<td '.$bgTd.' style="padding:6px" id="lptd-scr1-'.$id.'">
-					<input type="number" class="form-control inp-kosong" id="lp-scr1-'.$id.'" value="'.$r->flap1.'" '.$onKeyUpEdiPlan.' disabled>
-				</td>
-				<td '.$bgTd.' style="padding:6px" id="lptd-scr2-'.$id.'">
-					<input type="number" class="form-control inp-kosong" id="lp-scr2-'.$id.'" value="'.$r->creasing2.'" '.$onKeyUpEdiPlan.' disabled>
-				</td>
-				<td '.$bgTd.' style="padding:6px" id="lptd-scr3-'.$id.'">
-					<input type="number" class="form-control inp-kosong" id="lp-scr3-'.$id.'" value="'.$r->flap2.'" '.$onKeyUpEdiPlan.' disabled>
-				</td>
-				<td '.$bgTd.' style="padding:6px">
-					<input type="number" class="form-control inp-kosong2" id="lp-out-'.$id.'" value="'.$r->out_plan.'" '.$onKeyUpEdiPlan.' '.$dis.'>
-				</td>
-				<td '.$bgTd.' style="padding:6px">'.$r->flute.'</td>
-				<td '.$bgTd.' style="padding:6px">
-					<input type="number" class="form-control inp-kosong2" id="lp-lbri-'.$id.'" style="font-weight:bold;color:#000" value="'.$r->lebar_roll_p.'" '.$onKeyUpEdiPlan.' '.$dis.'>
-				</td>
-				<td '.$bgTd.' style="padding:6px;text-align:right">
-					<input type="number" class="form-control inp-kosong2" id="lp-trimp-'.$id.'" value="'.$r->trim_plan.'" disabled>
-				</td>
-				<td '.$bgTd.' style="padding:6px;text-align:right">
-					<input type="hidden" class="form-control inp-kosong2" id="lp-pcs-plan-'.$id.'" value="'.$r->pcs_plan.'">
-					'.number_format($r->pcs_plan).'
-				</td>
-				<td '.$bgTd.' style="padding:6px;text-align:right">'.number_format($r->good_cor_p).'</td>
-				<td '.$bgTd.' style="padding:6px;text-align:right">'.$start_time_p.'</td>
-				<td '.$bgTd.' style="padding:6px;text-align:right">'.$end_time_p.'</td>
-				<td '.$bgTd.' style="padding:6px;text-align:right">
-					<input type="number" class="form-control inp-kosong2" id="lp-coffp-'.$id.'" value="'.$r->c_off_p.'" disabled>
-				</td>
-				<td '.$bgTd.' style="padding:6px;text-align:right">
-					<input type="number" class="form-control inp-kosong2" id="lp-rmp-'.$id.'" value="'.$r->rm_plan.'" disabled>
-				</td>
-				<td '.$bgTd.' style="padding:6px;text-align:right">
-					<input type="number" class="form-control inp-kosong2" id="lp-tonp-'.$id.'" value="'.$r->tonase_plan.'" disabled>
-				</td>
-				<td '.$bgTd.' style="padding:2px">
-					<input type="date" class="form-control inp-kosong2" style="font-weight:bold;color:#f00" id="lp-tglkirim-'.$id.'" value="'.$r->tgl_kirim_plan.'" disabled>
-				</td>
-				<td '.$bgTd.' style="padding:6px">'.$tgl_flexo.'</td>
-				<td '.$bgTd.' style="padding:6px">'.$next.'</td>
-				<td '.$bgTd.' style="padding:6px">
-					<input type="hidden" id="hlp-flute-'.$id.'" value="'.$r->flute.'">
-					<input type="hidden" id="hlp-kategori-'.$id.'" value="'.$r->kategori.'">
-					<input type="hidden" id="hlp-kua-isi-p-'.$id.'" value="'.$r->kualitas_isi_plan.'">
-					'.$btnAksiEdit.'
-				</td>
-			</tr>';
-		}
-
-		$html .= '</table>
-			</div>
+			$html .= '</table>
 		</div>';
+
 		echo $html;
 	}
 	

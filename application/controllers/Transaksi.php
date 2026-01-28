@@ -2884,7 +2884,7 @@ class Transaksi extends CI_Controller
         $query = $this->db->query("SELECT * FROM trs_so_detail a
 		INNER JOIN m_produk b ON a.id_produk=b.id_produk
 		INNER JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
-		WHERE status='Open' AND a.add_user!='ppic' ")->result();
+		WHERE a.status='Open' AND a.eta_so IS NOT NULL AND a.add_user!='ppic' ")->result();
 
 		if (!$query) {
 			$response = [
@@ -6684,7 +6684,7 @@ class Transaksi extends CI_Controller
 			$wId = "AND d.no_so IS NULL AND d.tgl_so IS NULL AND d.status_so IS NULL";
 		}
 		// AND p.status_app3='Y' AND p.status='Approve'
-		$po = $this->db->query("SELECT c.kode_unik,c.nm_pelanggan,s.nm_sales,p.*,d.eta FROM trs_po p
+		$po = $this->db->query("SELECT c.kode_unik,c.nm_pelanggan,c.attn,s.nm_sales,p.*,d.eta FROM trs_po p
 		INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 		INNER JOIN m_sales s ON c.id_sales=s.id_sales
@@ -9271,8 +9271,19 @@ class Transaksi extends CI_Controller
 					$hariMinggu = date('l', strtotime($tglSys));
 					($hariMinggu == "Sunday") ? $kk = '<span style="color:#f00">'.$i2.'</span>' : $kk = $i2;
 
-					$count = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tglSys'");
-					$berat = $this->db->query("SELECT SUM(berat) AS berat FROM trs_dev_sys WHERE eta='$tglSys' GROUP BY eta")->row()->berat;
+					if($id_sales == null || $id_sales == ''){
+						$count = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tglSys'");
+						$berat = $this->db->query("SELECT SUM(berat) AS berat FROM trs_dev_sys WHERE eta='$tglSys' GROUP BY eta")->row()->berat;
+					}else{
+						$count = $this->db->query("SELECT s.* FROM trs_dev_sys s
+						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales'
+						GROUP BY s.id_dev");
+						$berat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
+						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales'
+						GROUP BY s.eta")->row()->berat;
+					}
 
 					($count->num_rows() == 0) ? $sCount = '' : $sCount = '<span style="position:absolute;top:3px;right:3px;font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</span>';
 					($count->num_rows() == 0) ? $sBb = '' : $sBb = '<span style="position:absolute;bottom:3px;left:3px;font-size:12px;font-style:italic;color:#fff;background:#7c858d;padding:0 4px;border-radius:4px">'.number_format($berat, 0, ',', '.').'</span>';
@@ -9319,7 +9330,16 @@ class Transaksi extends CI_Controller
 				<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
 			</tr>';
 
-			$urut = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tgl' GROUP BY eta, urut, id_ex");
+			if($id_sales == null || $id_sales == ''){
+				$urut = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tgl' GROUP BY eta, urut, id_ex");
+				$wSls = "";
+			}else{
+				$urut = $this->db->query("SELECT s.* FROM trs_dev_sys s
+				INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+				WHERE s.eta='$tgl' AND p.id_sales='$id_sales'
+				GROUP BY s.eta, s.urut, s.id_ex");
+				$wSls = "AND c.id_sales='$id_sales'";
+			}
 			foreach($urut->result() as $u){
 				if($u->urut == 0){
 					$html .= '<tr>
@@ -9357,7 +9377,7 @@ class Transaksi extends CI_Controller
 				INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
 				INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 				INNER JOIN m_produk i ON d.id_produk=i.id_produk
-				WHERE d.eta='$u->eta' AND d.urut='$u->urut'
+				WHERE d.eta='$u->eta' AND d.urut='$u->urut' $wSls
 				GROUP BY d.id_pelanggan,p.kode_po,d.id_produk
 				ORDER BY c.nm_pelanggan,p.kode_po,i.nm_produk");
 				$i = 0;

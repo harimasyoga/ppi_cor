@@ -1184,9 +1184,8 @@
 
 		let inputHari = 0;
 		(provinsi == 11 || kabupaten == 12 || kabupaten == 16) ? inputHari = 2 : inputHari = 1;
-		(eta_so == undefined) ? eta_so = '' : eta_so = new Date(new Date(eta_so).getTime() - (inputHari * 24 * 3600 * 1000)).toISOString().slice(0, 10);
-
-		$("#kirim").val(eta_so)
+		// (eta_so == undefined) ? eta_so = '' : eta_so = new Date(new Date(eta_so).getTime() - (inputHari * 24 * 3600 * 1000)).toISOString().slice(0, 10);
+		$("#kirim").val('')
 		if(kategori == 'K_BOX'){
 			$("#next_flexo").html(`<option value="">PILIH</option><option value="FLEXO1">FLEXO 1</option><option value="FLEXO2">FLEXO 2</option><option value="FLEXO3">FLEXO 3</option><option value="FLEXO4">FLEXO 4</option>`)
 		}else{
