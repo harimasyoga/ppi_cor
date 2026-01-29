@@ -69,7 +69,8 @@ class Plan extends CI_Controller
 		WHERE p.tgl_plan=lp.tgl_plan AND p.shift_plan=lp.shift_plan AND p.machine_plan=lp.machine_plan AND lp.total_cor_p!='0' AND lp.status_plan='Close' AND w.status='Close' GROUP BY lp.tgl_plan) AS wo_plan
 		FROM plan_cor p
 		INNER JOIN trs_wo ww ON p.id_wo=ww.id
-		WHERE ww.status='Open'
+		INNER JOIN trs_po x ON ww.no_po=x.no_po AND ww.kode_po=x.kode_po
+		WHERE ww.status='Open' AND x.status_kiriman='Open'
 		GROUP BY p.tgl_plan,p.shift_plan,p.machine_plan");
 		$html .='<div id="accordiontglplan">
 			<div style="padding:6px;font-weight:bold">
@@ -113,8 +114,9 @@ class Plan extends CI_Controller
 		$html = '';
 
 		$allWo = $this->db->query("SELECT w.id_pelanggan,c.attn,c.nm_pelanggan,COUNT(w.id_pelanggan) AS jmlWO FROM trs_wo w
+		INNER JOIN trs_po p ON w.no_po=p.no_po AND w.kode_po=p.kode_po
 		INNER JOIN m_pelanggan c ON w.id_pelanggan=c.id_pelanggan
-		WHERE w.status='Open'
+		WHERE w.status='Open' AND p.status_kiriman='Open'
 		GROUP BY w.id_pelanggan
 		ORDER BY c.nm_pelanggan");
 		$html .='<div id="accordion">
@@ -151,12 +153,13 @@ class Plan extends CI_Controller
 		(SELECT SUM(total_cor_p) FROM plan_cor p WHERE p.id_wo=w.id GROUP BY p.id_wo) AS total_cor
 		FROM trs_wo w
 		INNER JOIN m_produk i ON w.id_produk=i.id_produk
-		WHERE w.id_pelanggan='$id_pelanggan' AND w.status='Open'
+		INNER JOIN trs_po p ON w.no_po=p.no_po AND w.kode_po=p.kode_po
+		WHERE w.id_pelanggan='$id_pelanggan' AND w.status='Open' AND p.status_kiriman='Open'
 		ORDER BY w.kategori,w.no_wo,i.nm_produk");
 
 		$html .= '<div class="card-body" style="padding:6px">
 			<div id="accordion'.$id_pelanggan.'">
-			[ TIPE ] NO WO | ITEM <span class="bg-dark" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">QTY SO</span><span class="bg-light" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">JUMLAH PLAN</span><span class="bg-success" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">PRODUKSI</span><span class="bg-primary" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">SELESAI</span>';
+			[ TIPE ] NO PO.URUT | ITEM <span class="bg-dark" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">QTY SO</span><span class="bg-light" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">JUMLAH PLAN</span><span class="bg-success" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">PRODUKSI</span><span class="bg-primary" style="font-weight:bold;vertical-align:top;padding:2px 4px;font-size:12px">SELESAI</span>';
 				foreach($getWO->result() as $r){
 					($r->kategori == 'K_BOX') ? $kat = 'BOX' : $kat = 'SHEET';
 					$qtySO = '<span class="bg-dark" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.number_format($r->qty,0,',','.').'</span>';
@@ -1404,7 +1407,6 @@ class Plan extends CI_Controller
 			$left1 = 0;
 			$left2 = '30px';
 		}
-		// <th style="padding:6px">KODE MC</th>
 		$html .= '<div style="overflow:auto;white-space:nowrap">
 			<table class="table table-bordered" style="border:0;text-align:center">
 				<thead>
@@ -1412,7 +1414,8 @@ class Plan extends CI_Controller
 						<th style="padding:6px 12px;position:sticky;left:'.$left1.';background:#fff">'.$btnPindahHal.'</th>
 						<th style="padding:6px">STATUS</th>
 						<th style="padding:6px;position:sticky;left:'.$left2.';background:#fff">ITEM</th>
-						<th style="padding:6px">NO.WO</th>
+						<th style="padding:6px">NO. WO</th>
+						<th style="padding:6px">KODE MC</th>
 						<th style="padding:6px">CUSTOMER</th>
 						<th style="padding:6px" colspan="2">TL/AL</th>
 						<th style="padding:6px" colspan="2">B MF</th>
@@ -1440,7 +1443,7 @@ class Plan extends CI_Controller
 					</tr>
 				</thead>';
 
-				$data = $this->db->query("SELECT p.*,i.nm_produk,i.kode_mc,w.kode_po,l.nm_pelanggan,i.kategori,i.flute,w.flap1,w.creasing2,w.flap2,w.status AS statusWo FROM plan_cor p
+				$data = $this->db->query("SELECT p.*,i.nm_produk,i.kode_mc,w.kode_po,l.nm_pelanggan,l.attn,i.kategori,i.flute,w.flap1,w.creasing2,w.flap2,w.status AS statusWo FROM plan_cor p
 				INNER JOIN m_produk i ON p.id_produk=i.id_produk
 				INNER JOIN trs_wo w ON p.id_wo=w.id
 				INNER JOIN trs_so_detail s ON p.id_so_detail=s.id
@@ -1601,8 +1604,8 @@ class Plan extends CI_Controller
 					}else{
 						$tgl_flexo = $getPF->num_rows();
 					}
+					($r->attn == "-" || $r->attn == "") ? $attn = '' : $attn = ' | '.$r->attn;
 
-					// <td '.$bgTd.' style="padding:6px;text-align:left">'.$r->kode_mc.'</td>
 					$html .= '<tr class="h-tmpl-list-plan">
 						<td '.$bgTd.' style="position:sticky;left:'.$left1.';padding:6px 3px">
 							<input type="number" class="form-control inp-kosong2" id="lp-nourut-'.$id.'" value="'.$r->no_urut_plan.'" '.$aksiNoUrut.' tabindex="1">
@@ -1610,7 +1613,8 @@ class Plan extends CI_Controller
 						<td '.$bgTd.' style="padding:4px 3px 3px;font-weight:normal">'.$btnAksiHapus.'</td>
 						<td '.$bgTd.' style="position:sticky;left:'.$left2.';padding:6px;text-align:left">'.$btnLink.'</td>
 						<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->no_wo.'</td>
-						<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_pelanggan.'</td>
+						<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->kode_mc.'</td>
+						<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_pelanggan.$attn.'</td>
 						'.$htmlSub.'
 						<td '.$bgTd.' style="padding:6px">
 							<input type="number" class="form-control inp-kosong2" id="lp-pjgs-'.$id.'" style="font-weight:bold;color:#ff0066" value="'.$r->panjang_plan.'" '.$onKeyUpEdiPlan.' disabled>
@@ -2025,8 +2029,10 @@ class Plan extends CI_Controller
 	{
 		$html = '';
 		$allPlanCor = $this->db->query("SELECT COUNT(p.id_plan) AS jml_plan,c.attn,c.nm_pelanggan,p.* FROM plan_cor p
+		INNER JOIN trs_wo w ON p.id_wo=w.id
+		INNER JOIN trs_po x ON w.no_po=x.no_po AND w.kode_po=x.kode_po
 		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
-		WHERE p.next_plan!='GUDANG' AND p.status_flexo_plan='Open'
+		WHERE p.next_plan!='GUDANG' AND p.status_flexo_plan='Open' AND x.status_kiriman='Open'
 		GROUP BY p.id_pelanggan
 		ORDER BY c.nm_pelanggan");
 		$html .='<div id="accordion">
@@ -2065,7 +2071,9 @@ class Plan extends CI_Controller
 		(SELECT COUNT(o.id_flexo) FROM plan_flexo o INNER JOIN plan_cor c ON o.id_plan_cor=c.id_plan WHERE o.tgl_flexo=f.tgl_flexo AND o.shift_flexo=f.shift_flexo AND o.mesin_flexo=f.mesin_flexo AND o.total_prod_flexo!='0' AND o.status_flexo='Close' AND c.status_flexo_plan='Close' GROUP BY o.tgl_flexo,o.shift_flexo,o.mesin_flexo) AS close_plan_cor
 		FROM plan_flexo f
 		INNER JOIN plan_cor cc ON f.id_plan_cor=cc.id_plan
-		WHERE f.status_flexo='Open' OR cc.status_flexo_plan='Open'
+		INNER JOIN trs_wo w ON cc.id_wo=w.id
+		INNER JOIN trs_po x ON w.no_po=x.no_po AND w.kode_po=x.kode_po
+		WHERE (f.status_flexo='Open' OR cc.status_flexo_plan='Open') AND x.status_kiriman='Open'
 		GROUP BY f.tgl_flexo,f.shift_flexo,f.mesin_flexo");
 		$html .='<div id="accordion-h-plan-flexo">
 			<div style="padding:6px;font-weight:bold">
@@ -2111,7 +2119,9 @@ class Plan extends CI_Controller
 		i.nm_produk,l.nm_pelanggan,p.* FROM plan_cor p
 		INNER JOIN m_produk i ON p.id_produk=i.id_produk
 		INNER JOIN m_pelanggan l ON p.id_pelanggan=l.id_pelanggan
-		WHERE p.id_pelanggan='$id_pelanggan' AND p.status_flexo_plan='Open'
+		INNER JOIN trs_wo w ON p.id_wo=w.id
+		INNER JOIN trs_po x ON w.no_po=x.no_po AND w.kode_po=x.kode_po
+		WHERE p.id_pelanggan='$id_pelanggan' AND p.status_flexo_plan='Open' AND x.status_kiriman='Open'
 		ORDER BY p.tgl_plan,p.shift_plan,p.machine_plan");
 		$html .='<div class="card-body" style="padding:6px">
 			<div id="accordion-isi-plan">
@@ -2445,7 +2455,7 @@ class Plan extends CI_Controller
 	}
 
 	function loadListPlanFlexo()
-	{ //
+	{
 		$urlTglF = $_POST["tglF"];
 		$urlShiftF = $_POST["shiftF"];
 		$urlMesinF = $_POST["mesinF"];
@@ -2514,7 +2524,7 @@ class Plan extends CI_Controller
 						</tr>
 					</thead>';
 
-					$data = $this->db->query("SELECT f.*,i.*,pc.*,so.qty_so,c.nm_pelanggan FROM plan_flexo f
+					$data = $this->db->query("SELECT f.*,i.*,pc.*,so.qty_so,c.nm_pelanggan,c.attn FROM plan_flexo f
 					INNER JOIN plan_cor pc ON f.id_plan_cor=pc.id_plan
 					INNER JOIN trs_so_detail so ON pc.id_so_detail=so.id
 					INNER JOIN m_produk i ON pc.id_produk=i.id_produk
@@ -2619,6 +2629,7 @@ class Plan extends CI_Controller
 							}
 							$optNextFlexo .= '</select>';
 						}
+						($r->attn == "-" || $r->attn == "") ? $attn = '' : $attn = ' | '.$r->attn;
 
 						$html .='<tr class="h-tmpl-list-plan">
 							<td '.$bgTd.' style="padding:6px;position:sticky;left:0">
@@ -2627,7 +2638,7 @@ class Plan extends CI_Controller
 							<td '.$bgTd.' style="padding:3px">'.$statusF.'</td>
 							<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->kode_mc.'</td>
 							<td '.$bgTd.' style="padding:6px;text-align:left;position:sticky'.$left.'">'.$plhPlanCor.'</td>
-							<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_pelanggan.'</td>
+							<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_pelanggan.$attn.'</td>
 							<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_produk.'</td>
 							<td '.$bgTd.' style="padding:6px">'.$r->kualitas_plan.'</td>
 							<td '.$bgTd.' style="padding:6px;color:#f00;font-weight:bold">'.number_format($r->panjang_plan,0,",",".").'</td>
@@ -3498,8 +3509,10 @@ class Plan extends CI_Controller
 		$html = '';
 		$allPlanCor = $this->db->query("SELECT COUNT(p.id_flexo) AS jml_plan,c.id_pelanggan,c.attn,c.nm_pelanggan,p.* FROM plan_flexo p
 		INNER JOIN plan_cor r ON p.id_plan_cor=r.id_plan
+		INNER JOIN trs_wo w ON r.id_wo=w.id
+		INNER JOIN trs_po x ON w.no_po=x.no_po AND w.kode_po=x.kode_po
 		INNER JOIN m_pelanggan c ON r.id_pelanggan=c.id_pelanggan
-		WHERE p.status_stt_f='Open' AND p.next_flexo!='GUDANG'
+		WHERE p.status_stt_f='Open' AND p.next_flexo!='GUDANG' AND x.status_kiriman='Open'
 		GROUP BY c.id_pelanggan
 		ORDER BY c.nm_pelanggan");
 		$html .='<div id="accordion-h-cust">
@@ -3717,7 +3730,10 @@ class Plan extends CI_Controller
 		GROUP BY o.tgl_fs,o.shift_fs,o.joint_fs) AS close_plan_flexo
 		FROM plan_finishing f
 		INNER JOIN plan_flexo fx ON f.id_plan_cor=fx.id_plan_cor AND f.id_plan_flexo=fx.id_flexo
-		WHERE f.status_fs='Open' OR fx.status_stt_f='Open'
+		INNER JOIN plan_cor r ON f.id_plan_cor=r.id_plan
+		INNER JOIN trs_wo w ON r.id_wo=w.id
+		INNER JOIN trs_po x ON w.no_po=x.no_po AND w.kode_po=x.kode_po
+		WHERE (f.status_fs='Open' OR fx.status_stt_f='Open') AND x.status_kiriman='Open'
 		GROUP BY f.tgl_fs,f.shift_fs,f.joint_fs");
 		$html .='<div id="accordion-h-plan-finishing">
 			<div style="padding:6px;font-weight:bold">
@@ -4046,7 +4062,7 @@ class Plan extends CI_Controller
 						</tr>
 					</thead>';
 
-					$data = $this->db->query("SELECT fs.*,i.*,pc.*,f.*,so.qty_so,c.nm_pelanggan FROM plan_finishing fs
+					$data = $this->db->query("SELECT fs.*,i.*,pc.*,f.*,so.qty_so,c.nm_pelanggan,c.attn FROM plan_finishing fs
 					INNER JOIN plan_flexo f ON fs.id_plan_flexo=f.id_flexo
 					INNER JOIN plan_cor pc ON fs.id_plan_cor=pc.id_plan
 					INNER JOIN trs_so_detail so ON pc.id_so_detail=so.id
@@ -4130,6 +4146,7 @@ class Plan extends CI_Controller
 								$ubahNoUrut = 'disabled';
 							}
 						}
+						($r->attn == "-" || $r->attn == "") ? $attn = '' : $attn = ' | '.$r->attn;
 
 						$html .='<tr class="h-tmpl-list-plan">
 							<td '.$bgTd.' style="padding:6px;position:sticky;left:0">
@@ -4138,7 +4155,7 @@ class Plan extends CI_Controller
 							<td '.$bgTd.' style="padding:3px">'.$statusF.'</td>
 							<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->kode_mc.'</td>
 							<td '.$bgTd.' style="padding:6px;text-align:left;position:sticky'.$left.'">'.$plhPlanFlexo.'</td>
-							<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_pelanggan.'</td>
+							<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_pelanggan.$attn.'</td>
 							<td '.$bgTd.' style="padding:6px;text-align:left">'.$r->nm_produk.'</td>
 							<td '.$bgTd.' style="padding:6px">'.$r->kualitas_plan.'</td>
 							<td '.$bgTd.' style="padding:6px;color:#f00;font-weight:bold">'.number_format($r->panjang_plan,0,",",".").'</td>

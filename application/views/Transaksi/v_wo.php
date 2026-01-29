@@ -49,7 +49,13 @@
 							?>
 						</select>
 					</div>
-					<div class="col-md-10"></div>
+					<div class="col-md-2">
+						<select id="status_kiriman" class="form-control select2" onchange="load_data()">
+							<option value="Open">OPEN</option>
+							<option value="Close">CLOSE</option>
+						</select>
+					</div>
+					<div class="col-md-8"></div>
 				</div>
 				<div style="overflow:auto;">
 					<table id="datatable" class="table table-bordered table-striped" width="100%">
@@ -134,7 +140,7 @@
 					</div>
 
 					<div style="overflow:auto;white-space:nowrap;">
-						<table class="table" id="table-produk" style="width: 100%;display: ;" align="center">
+						<table class="table" id="table-produk" style="width:100%" align="center">
 							<thead>
 								<tr class="color-tabel">
 									<th width="20%">Nama Item</th>
@@ -180,9 +186,7 @@
 								</td>
 							</tr>
 							<tr>
-								<td style="">
-									<br>&nbsp;</br>
-								</td>
+								<td><br>&nbsp;</br></td>
 								<td class="trapesium"> </td>
 								<td style="<?= $box ?>"> </td>
 								<td style="<?= $box ?>"> </td>
@@ -323,6 +327,7 @@
 
 	function load_data() {
 		let tahun = $("#tahun").val()
+		let status_kiriman = $("#status_kiriman").val()
 		var table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -333,7 +338,7 @@
 				"url": '<?php echo base_url(); ?>Transaksi/load_data/trs_wo',
 				"type": "POST",
 				"data": ({
-					tahun
+					tahun, status_kiriman
 				}),
 			},
 			"aLengthMenu": [
