@@ -3181,24 +3181,19 @@ class Transaksi extends CI_Controller
 		$data         = array();
 
 		if ($jenis == "po") {
-
 			$level   = $this->session->userdata('level');
 			$nm_user = $this->session->userdata('nm_user');
-
-			if($level =='Hub')
-			{
+			if($level =='Hub') {
 				$cek     = $this->db->query("SELECT*FROM m_hub where nm_hub='$nm_user' ")->row();
 				$cek_data = "WHERE status_app3 in ('Y') and id_hub in ('$cek->id_hub')";
 			}else{
-
-				if($this->session->userdata('username')=='ppismg'){
-					$cek_data = 'WHERE id_sales in ("2","3")';
-				}else if($this->session->userdata('username')=='yan'){
-					$cek_data = "WHERE id_sales='13'";
+				$id_sales = $this->session->userdata('id_sales');
+				if($id_sales == "" || $id_sales == null){
+					$cek_data = "";
 				}else{
-					$cek_data = '';
+					$cek_data = "WHERE id_sales='$id_sales'";
 				}
-			}			
+			}
 
 			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by a.tgl_po desc, id desc")->result();
 			$i = 1;
@@ -3608,37 +3603,40 @@ class Transaksi extends CI_Controller
 			}
 		} else if ($jenis == "trs_so_detail") {
 			$tahunn = $_POST["tahun"];
-			if ($this->session->userdata('level') == "PPIC") {
-				$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.no_so_p,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,d.qty AS qty_po,s.* FROM trs_po_detail d
-				INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so_p=s.no_so AND d.id_produk=s.id_produk
-				INNER JOIN m_produk p ON d.id_produk=p.id_produk
-				INNER JOIN m_pelanggan l ON d.id_pelanggan=l.id_pelanggan
-				WHERE d.no_so_p IS NOT NULL AND d.tgl_so_p LIKE '%$tahunn%' AND s.add_user='ppic'
-				GROUP BY d.id DESC")->result();
-			}else{
+			$status_kiriman = $_POST["status_kiriman"];
+			// if ($this->session->userdata('level') == "PPIC") {
+			// 	$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.no_so_p,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,d.qty AS qty_po,s.* FROM trs_po_detail d
+			// 	INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so_p=s.no_so AND d.id_produk=s.id_produk
+			// 	INNER JOIN m_produk p ON d.id_produk=p.id_produk
+			// 	INNER JOIN m_pelanggan l ON d.id_pelanggan=l.id_pelanggan
+			// 	WHERE d.no_so_p IS NOT NULL AND d.tgl_so_p LIKE '%$tahunn%' AND s.add_user='ppic'
+			// 	GROUP BY d.id DESC")->result();
+			// }else{
 				$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,d.qty AS qty_po,s.* FROM trs_po_detail d
+				INNER JOIN trs_po po ON po.no_po=d.no_po AND po.kode_po=d.kode_po
 				INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so=s.no_so AND d.id_produk=s.id_produk
 				INNER JOIN m_produk p ON d.id_produk=p.id_produk
 				INNER JOIN m_pelanggan l ON d.id_pelanggan=l.id_pelanggan
-				WHERE d.no_so IS NOT NULL AND d.tgl_so IS NOT NULL AND d.status_so IS NOT NULL AND d.tgl_so LIKE '%$tahunn%'
-				GROUP BY d.id DESC")->result();
-			}
+				WHERE d.no_so IS NOT NULL AND d.tgl_so IS NOT NULL AND d.status_so IS NOT NULL AND d.tgl_so LIKE '%$tahunn%' AND po.status_kiriman='$status_kiriman'
+				GROUP BY d.id
+				ORDER BY d.tgl_so DESC, d.id")->result();
+			// }
 			$i = 0;
 			foreach ($query as $r) {
 				$row = array();
-				if ($this->session->userdata('level') == "PPIC") {
-					$tP = $this->db->query("SELECT*FROM trs_so_detail WHERE no_po='$r->no_po' AND kode_po='$r->kode_po' AND id_produk='$r->id_produk' AND add_user='ppic' GROUP BY status_2 DESC,eta_so,id");
-					$tt = '';
-					foreach($tP->result() as $z){
-						($z->status_2 == "Close") ? $s2 = '<span class="bg-primary" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">DONE</span> ' : $s2 = '';
-						$tt .= $s2.$z->eta_so.'<br>';
-					}
-					$row[] = '<div class="text-center">'.$tt.'</div>';
-				}else{
+				// if ($this->session->userdata('level') == "PPIC") {
+				// 	$tP = $this->db->query("SELECT*FROM trs_so_detail WHERE no_po='$r->no_po' AND kode_po='$r->kode_po' AND id_produk='$r->id_produk' AND add_user='ppic' GROUP BY status_2 DESC,eta_so,id");
+				// 	$tt = '';
+				// 	foreach($tP->result() as $z){
+				// 		($z->status_2 == "Close") ? $s2 = '<span class="bg-primary" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">DONE</span> ' : $s2 = '';
+				// 		$tt .= $s2.$z->eta_so.'<br>';
+				// 	}
+				// 	$row[] = '<div class="text-center">'.$tt.'</div>';
+				// }else{
 					$i++;
 					$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampilEditSO('."'".$r->id_po_detail."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'detail'".')">'.$i."<a></div>";
 					$row[] = $this->m_fungsi->tglIndSkt($r->tgl_so);
-				}
+				// }
 				// $urut_so = str_pad($r->urut_so, 2, "0", STR_PAD_LEFT);
 				($r->c_rpt == 1) ? $cpt = '' : $cpt = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->c_rpt.'</span>';
 				$row[] = $r->kode_po.$cpt;
@@ -3646,30 +3644,44 @@ class Transaksi extends CI_Controller
 				($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
 				$row[] = $r->nm_pelanggan.$attn;
 				$row[] = '<div class="text-right"><b>'.number_format($r->qty_po).'</b></div>';
-				if($this->session->userdata('level') == "PPIC") {
-					$tt = '';
-					foreach($tP->result() as $z){
-						$qG = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$z->id'");
-						($qG->num_rows() == 0) ? $gg = '' : $gg = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.number_format($qG->row()->hasil_qty).'</span>';
-						($z->status_2 == "Close") ? $s2 = ' <span class="bg-primary" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px"><i class="fas fa-check"></i></span>' : $s2 = '';
-						$tt .= number_format($z->qty_so).$gg.$s2.'<br>';
-					}
-					$row[] = '<div class="text-right">'.$tt.'</div>';
-				}
+				// if($this->session->userdata('level') == "PPIC") {
+				// 	$tt = '';
+				// 	foreach($tP->result() as $z){
+				// 		$qG = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$z->id'");
+				// 		($qG->num_rows() == 0) ? $gg = '' : $gg = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.number_format($qG->row()->hasil_qty).'</span>';
+				// 		($z->status_2 == "Close") ? $s2 = ' <span class="bg-primary" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px"><i class="fas fa-check"></i></span>' : $s2 = '';
+				// 		$tt .= number_format($z->qty_so).$gg.$s2.'<br>';
+				// 	}
+				// 	$row[] = '<div class="text-right">'.$tt.'</div>';
+				// }
 				if ($r->status_so == 'Open' || $r->no_so_p != null) {
 					$aksi = '<button type="button" onclick="tampilEditSO('."'".$r->id_po_detail."'".','."'".$r->no_po."'".','."'".$r->kode_po."'".','."'edit'".')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
 				}else{
 					$aksi = '-';
 				}
+				// PENGIRIMAN
+				$kirim = $this->m_fungsi->kiriman($r->kode_po, $r->id_produk, $r->qty_po);
+				$sumKirim = $kirim["sumKirim"];
+				$sumRetur = $kirim["sumRetur"];
+				$sisa = $kirim["sisa"];
+				($sisa <= 0) ? $bgtd = 'background:#74c69d' : $bgtd = 'background:#ff758f';
+				($sisa <= 0) ? $txtSisa = number_format($sisa,0,',','.') : $txtSisa = '+'.number_format($sisa,0,',','.');
+				($sisa == 0 || $sumKirim == 0) ? $span = '' : $span = ' <span style="'.$bgtd.'">'.$txtSisa.'</span>';
+				($sumRetur != 0) ? $txtRtr = ' <span style="font-style:italic;font-weight:normal">('.number_format($sumRetur,0,',','.').')</span>' : $txtRtr = '';
+				$row[] = '<div style="text-align:right;font-weight:bold">'.number_format($sumKirim,0,',','.').$txtRtr.$span.'</div>';
 				$row[] = '<div class="text-center">'.$aksi.'</div>';
 				$data[] = $row;
 			}
 		} else if ($jenis == "trs_wo") {
-			$query = $this->m_master->query("SELECT a.id as id_wo,a.status AS statusWO,a.*,b.*,c.*,d.* FROM trs_wo a 
-            JOIN trs_wo_detail b ON a.no_wo=b.no_wo 
-            JOIN m_produk c ON a.id_produk=c.id_produk 
-            JOIN m_pelanggan d ON a.id_pelanggan=d.id_pelanggan 
-            order by a.id desc")->result();
+			$tahunx = $_POST["tahun"];
+			$skz = $_POST["status_kiriman"];
+			$query = $this->m_master->query("SELECT a.id AS id_wo,a.status AS statusWO,a.*,b.*,c.*,d.* FROM trs_wo a 
+			INNER JOIN trs_po p ON a.no_po=p.no_po AND a.kode_po=p.kode_po
+            INNER JOIN trs_wo_detail b ON a.no_wo=b.no_wo 
+            INNER JOIN m_produk c ON a.id_produk=c.id_produk 
+            INNER JOIN m_pelanggan d ON a.id_pelanggan=d.id_pelanggan 
+			WHERE a.tgl_wo LIKE '%$tahunx%' AND p.status_kiriman='$skz'
+            ORDER BY a.id DESC")->result();
 			$i = 1;
 			foreach ($query as $r) {
 
@@ -6844,27 +6856,29 @@ class Transaksi extends CI_Controller
 		$aksi = $_POST["aksi"];
 
 		$html = '';
+		// <th style="padding:12px 6px;width:20%">ETA PO</th>
 		$html .='<table class="table table-bordered table-striped" style="width:100%">
 			<thead>
 				<tr>
 					<th style="padding:12px 6px;width:3%;text-align:center">NO.</th>
-					<th style="padding:12px 6px;width:20%">ETA PO</th>
-					<th style="padding:12px 6px;width:32%">ITEM</th>
-					<th style="padding:12px 6px;width:10%">UKURAN</th>
+					<th style="padding:12px 6px;width:40%">ITEM</th>
+					<th style="padding:12px 6px;width:12%">UKURAN</th>
 					<th style="padding:12px 6px;width:10%">KUALITAS</th>
 					<th style="padding:12px 6px;width:5%;text-align:center">FLUTE</th>
 					<th style="padding:12px 6px;width:10%;text-align:center">QTY PO</th>
+					<th style="padding:12px 6px;width:10%;text-align:center">PENGIRIMAN</th>
 					<th style="padding:12px 6px;width:10%;text-align:center">AKSI</th>
 				</tr>
 			</thead>';
-		if($this->session->userdata('level') == 'PPIC'){
+		// if($this->session->userdata('level') == 'PPIC'){
 			$wId = "AND d.id='$id'";
-		}else{
-			$wId = "";
-		}
-		$getSO = $this->db->query("SELECT p.kode_mc,p.nm_produk,p.kategori,p.ukuran,p.ukuran_sheet,p.ukuran_sheet_l,p.ukuran_sheet_p,p.kualitas,p.flute,p.berat_bersih,d.* FROM trs_po_detail d
+		// }else{
+			// $wId = "";
+		// }
+		$getSO = $this->db->query("SELECT p.kode_mc,p.nm_produk,p.kategori,p.ukuran,p.ukuran_sheet,p.ukuran_sheet_l,p.ukuran_sheet_p,p.kualitas,p.flute,p.berat_bersih,po.status_kiriman,d.* FROM trs_po_detail d
+		INNER JOIN trs_po po ON po.no_po=d.no_po AND po.kode_po=d.kode_po
 		INNER JOIN m_produk p ON d.id_produk=p.id_produk
-		WHERE no_po='$no_po' AND kode_po='$kode_po' $wId");
+		WHERE d.no_po='$no_po' AND d.kode_po='$kode_po' $wId");
 
 		$i = 0;
 		foreach($getSO->result() as $r){
@@ -6873,58 +6887,74 @@ class Transaksi extends CI_Controller
 			($r->id == $id) ? $bHead = 'background:#ccc;border:1px solid #888;' : $bHead = '';
 			($r->id == $id) ? $bold = 'font-weight:bold;"' : $bold = 'font-weight:normal;';
 			($r->id == $id) ? $borLf = 'border-left:3px solid #0f0;' : $borLf = '';
-			if($aksi == 'detail'){
+			if($r->status_kiriman == 'Close'){
 				$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
 			}else{
-				if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])){
-					($r->id == $id) ?
-						$btnBagi = '<button type="button" class="btn btn-success btn-sm" id="addBagiSO" onclick="addBagiSO('."'".$r->id."'".')"><i class="fas fa-plus"></i></button>
-							<button type="button" class="btn btn-danger btn-sm" id="hapusListSO" onclick="hapusListSO('."'".$r->id."'".')"><i class="fas fa-trash"></i></button>' :
-						$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
-				}else{
+				if($aksi == 'detail'){
 					$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
+				}else{
+					if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])){
+						($r->id == $id) ?
+							$btnBagi = '<button type="button" class="btn btn-success btn-sm" id="addBagiSO" onclick="addBagiSO('."'".$r->id."'".')"><i class="fas fa-plus"></i></button>
+								<button type="button" class="btn btn-danger btn-sm" id="hapusListSO" onclick="hapusListSO('."'".$r->id."'".')"><i class="fas fa-trash"></i></button>' :
+							$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
+					}else{
+						$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
+					}
 				}
 			}
+			
 			($r->kategori == "K_BOX") ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
 			($r->kategori == "K_BOX") ? $ket_p = '[BOX]' : $ket_p = '[SHEET]';
 			
+			// PENGIRIMAN
+			$kirim = $this->m_fungsi->kiriman($r->kode_po, $r->id_produk, $r->qty);
+			$sumKirim = $kirim["sumKirim"];
+			$sumRetur = $kirim["sumRetur"];
+			$sisa = $kirim["sisa"];
+			($sisa <= 0) ? $bgtd = 'background:#74c69d' : $bgtd = 'background:#ff758f';
+			($sisa <= 0) ? $txtSisa = number_format($sisa,0,',','.') : $txtSisa = '+'.number_format($sisa,0,',','.');
+			($sisa == 0 || $sumKirim == 0) ? $span = '' : $span = ' <span style="'.$bgtd.'">'.$txtSisa.'</span>';
+			($sumRetur != 0) ? $txtRtr = ' <span style="font-style:italic;font-weight:normal">('.number_format($sumRetur,0,',','.').')</span>' : $txtRtr = '';
+
+			// <td style="padding:6px;'.$bold.'">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->eta)).'</td>
 			$html .='<tr style="'.$borLf.'">
 				<td style="padding:6px;text-align:center;'.$bold.'">'.$i.'</td>
-				<td style="padding:6px;'.$bold.'">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->eta)).'</td>
 				<td style="padding:6px;'.$bold.'">'.$ket_p.' '.$r->nm_produk.'</td>
 				<td style="padding:6px;'.$bold.'">'.$ukuran.'</td>
 				<td style="padding:6px;'.$bold.'">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
 				<td style="padding:6px;text-align:center;'.$bold.'">'.$r->flute.'</td>
 				<td style="padding:6px;text-align:right;'.$bold.'">'.number_format($r->qty).'</td>
+				<td style="padding:6px;text-align:right;'.$bold.'">'.number_format($sumKirim,0,',','.').$txtRtr.$span.'</td>
 				<td style="padding:6px;text-align:center;'.$bold.'">'.$btnBagi.'</td>
 			</tr>';
 
-			if($this->session->userdata('level') == 'PPIC'){
-				$whPPIC = "AND s.add_user='ppic'";
-				$nSP = $r->no_so_p;
-			}else{
+			// if($this->session->userdata('level') == 'PPIC'){
+			// 	$whPPIC = "AND s.add_user='ppic'";
+			// 	$nSP = $r->no_so_p;
+			// }else{
 				$whPPIC = "AND s.add_user!='ppic'";
 				$nSP = $r->no_so;
-			}
+			// }
 			$dataSO = $this->db->query("SELECT p.nm_produk,p.ukuran_sheet_l,p.ukuran_sheet_p,p.berat_bersih,s.* FROM trs_so_detail s
 			INNER JOIN m_produk p ON s.id_produk=p.id_produk
 			WHERE s.id_produk='$r->id_produk' AND s.no_po='$r->no_po' AND s.kode_po='$r->kode_po' AND s.no_so='$nSP' $whPPIC");
 			
 			if($dataSO->num_rows() != 0){
-				if($this->session->userdata('level') == 'PPIC'){
-					$ketPPIC = '<th style="padding:6px 12px 6px 6px;text-align:center;'.$bHead.''.$bold.'">HASIL QTY</th>
-					<th style="padding:6px;text-align:center;'.$bHead.''.$bold.'">HASIL AKSI</th>
-					<th style="padding:6px;text-align:center;'.$bHead.''.$bold.'">DONE</th>';
-				}else{
+				// if($this->session->userdata('level') == 'PPIC'){
+				// 	$ketPPIC = '<th style="padding:6px 12px 6px 6px;text-align:center;'.$bHead.''.$bold.'">HASIL QTY</th>
+				// 	<th style="padding:6px;text-align:center;'.$bHead.''.$bold.'">HASIL AKSI</th>
+				// 	<th style="padding:6px;text-align:center;'.$bHead.''.$bold.'">DONE</th>';
+				// }else{
 					$ketPPIC = '';
-				}
+				// }
 				$html .='<tr style="'.$borLf.'">
 					<td colspan="8">
 						<table class="table table-bordered" style="margin:0;border:0;width:100%">
 							<thead>
 								<tr>
 									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">NO.</th>
-									<th style="padding:6px;'.$bHead.''.$bold.'">TGL PLAN</th>
+									<th style="padding:6px;'.$bHead.''.$bold.'">ETA SO</th>
 									<th style="padding:6px;'.$bHead.''.$bold.'">NO. SO</th>
 									<th style="padding:6px 30px 6px 6px;text-align:center;'.$bHead.''.$bold.'">QTY SO</th>
 									'.$ketPPIC.'
@@ -6937,13 +6967,13 @@ class Transaksi extends CI_Controller
 								</tr>
 							</thead>';
 
-				if($this->session->userdata('level') == 'PPIC'){
-					$p = '_p';
-					$whP = "AND so.add_user='ppic'";
-				}else{
+				// if($this->session->userdata('level') == 'PPIC'){
+				// 	$p = '_p';
+				// 	$whP = "AND so.add_user='ppic'";
+				// }else{
 					$p = '';
 					$whP = "AND so.add_user!='ppic'";
-				}
+				// }
 				$dataHapusSO = $this->db->query("SELECT COUNT(so.rpt) AS jml_rpt FROM trs_po_detail ps
 				INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so$p=so.no_so AND ps.id_produk=so.id_produk
 				WHERE ps.id='$idPoSo' $whP GROUP BY so.no_po,so.kode_po,so.no_so,so.id_produk");
@@ -6962,7 +6992,7 @@ class Transaksi extends CI_Controller
 						if($so->status == 'Close' || $so->status_2 == 'Close'){
 							$btnHapus = '';
 						}else{
-							if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])){
+							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])){
 								if($r->id == $id){
 									if($so->rpt == 1){
 										$btnHapus = '';
@@ -6990,173 +7020,207 @@ class Transaksi extends CI_Controller
 					
 					$urut_so = str_pad($so->urut_so, 2, "0", STR_PAD_LEFT);
 					$rpt = str_pad($so->rpt, 2, "0", STR_PAD_LEFT);
-					if($this->session->userdata('level') == 'PPIC' && $so->add_user == 'ppic'){
-						$qHasil = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$so->id' ORDER BY hasil_tgl");
-						$dis3 = '';
-						if($aksi == 'detail'){
-							$dis2 = 'disabled';
-							$rTxt2 = '1';
-							$btnAksi2 = $print;
-							$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
-						}else{
-							if($so->status_2 == 'Close'){
-								$btnAksi2 = $print;
-								$rTxt2 = 1;
-								$dis2 = 'disabled';
-								$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
-							}else{
-								if($qHasil->num_rows() != 0){
-									$dis2 = '';
-									$dis3 = 'disabled';
-								}else{
-									($r->id == $id) ? $dis2 = '' : $dis2 = 'disabled';
-								}
-								($r->id == $id) ? $btnAksi2 = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi2 = $print;
-								($r->id == $id) ? $rTxt2 = 2 : $rTxt2 = 1;
-								$cH = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$so->id' GROUP BY id_so_dtl");
-								if($cH->num_rows() != ''){
-									$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
-								}else{
-									$btnDone = '<button type="button" class="btn btn-primary btn-sm" onclick="btnSOHasil('."'".$so->id."'".')"><i class="fas fa-check"></i></button>';
-								}
-							}
-						}
-						$html .='<tr>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
-								<input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$dis2.$dis3.'>
-							</td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
-								<input type="number" id="edit-qty-so'.$so->id.'" class="form-control" style="text-align:right" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.$so->qty_so.'" '.$dis2.'>
-							</td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
-								<input type="number" id="hasil_pcs'.$so->id.'" class="form-control" style="text-align:right" onkeyup="" placeholder="0" '.$dis2.'>
-							</td>
-							<td style="background:#f2f2f2;padding:6px;text-align:center;'.$bTd.''.$bold.'">'.$btnDone.'</td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
-								<input type="checkbox" id="cbhs-'.$so->id.'" style="height:25px;width:100%" onclick="cbOSHasil('."'".$so->id."'".')" value="'.$so->cek_st_2.'" '.$check2.'>
-							</td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
-								<textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt2.'" style="resize:none">'.$so->ket_so.'</textarea>
-							</td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
-								<input type="checkbox" id="cbso-'.$so->id.'" style="height:25px;width:100%" onclick="keyUpQtySO('."'".$so->id."'".')" value="'.$so->cek_rm_so.'" '.$check.'>
-							</td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->rm).'<br><span class="span-rm-h-'.$so->id.'"></span></td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->ton).'<br><span class="span-ton-h-'.$so->id.'"></span></td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($bahan_baku).'<br><span class="span-bb-h-'.$so->id.'"></span></td>
-							<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-center">
-								<input type="hidden" id="ht-ukl-'.$so->id.'" value="'.$so->ukuran_sheet_l.'">
-								<input type="hidden" id="ht-ukp-'.$so->id.'" value="'.$so->ukuran_sheet_p.'">
-								<input type="hidden" id="ht-bb-'.$so->id.'" value="'.$so->berat_bersih.'">
-								<input type="hidden" id="edit-qtypo-so'.$so->id.'" value="'.$r->qty.'">
-								'.$btnAksi2.' '.$btnHapus.'
-							</td>
-						</tr>';
+					// if($this->session->userdata('level') == 'PPIC' && $so->add_user == 'ppic'){
+					// 	$qHasil = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$so->id' ORDER BY hasil_tgl");
+					// 	$dis3 = '';
+					// 	if($aksi == 'detail'){
+					// 		$dis2 = 'disabled';
+					// 		$rTxt2 = '1';
+					// 		$btnAksi2 = $print;
+					// 		$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
+					// 	}else{
+					// 		if($so->status_2 == 'Close'){
+					// 			$btnAksi2 = $print;
+					// 			$rTxt2 = 1;
+					// 			$dis2 = 'disabled';
+					// 			$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
+					// 		}else{
+					// 			if($qHasil->num_rows() != 0){
+					// 				$dis2 = '';
+					// 				$dis3 = 'disabled';
+					// 			}else{
+					// 				($r->id == $id) ? $dis2 = '' : $dis2 = 'disabled';
+					// 			}
+					// 			($r->id == $id) ? $btnAksi2 = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi2 = $print;
+					// 			($r->id == $id) ? $rTxt2 = 2 : $rTxt2 = 1;
+					// 			$cH = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$so->id' GROUP BY id_so_dtl");
+					// 			if($cH->num_rows() != ''){
+					// 				$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
+					// 			}else{
+					// 				$btnDone = '<button type="button" class="btn btn-primary btn-sm" onclick="btnSOHasil('."'".$so->id."'".')"><i class="fas fa-check"></i></button>';
+					// 			}
+					// 		}
+					// 	}
+					// 	$html .='<tr>
+					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
+					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
+					// 			<input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$dis2.$dis3.'>
+					// 		</td>
+					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
+					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
+					// 			<input type="number" id="edit-qty-so'.$so->id.'" class="form-control" style="text-align:right" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.number_format($so->qty_so,0,',','.').'" '.$dis2.'>
+					// 		</td>
+					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
+					// 			<input type="number" id="hasil_pcs'.$so->id.'" class="form-control" style="text-align:right" onkeyup="" placeholder="0" '.$dis2.'>
+					// 		</td>
+					// 		<td style="background:#f2f2f2;padding:6px;text-align:center;'.$bTd.''.$bold.'">'.$btnDone.'</td>
+					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
+					// 			<input type="checkbox" id="cbhs-'.$so->id.'" style="height:25px;width:100%" onclick="cbOSHasil('."'".$so->id."'".')" value="'.$so->cek_st_2.'" '.$check2.'>
+					// 		</td>
+					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
+					// 			<textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt2.'" style="resize:none">'.$so->ket_so.'</textarea>
+					// 		</td>
+					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
+					// 			<input type="checkbox" id="cbso-'.$so->id.'" style="height:25px;width:100%" onclick="keyUpQtySO('."'".$so->id."'".')" value="'.$so->cek_rm_so.'" '.$check.'>
+					// 		</td>
+					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->rm).'<br><span class="span-rm-h-'.$so->id.'"></span></td>
+					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->ton).'<br><span class="span-ton-h-'.$so->id.'"></span></td>
+					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($bahan_baku).'<br><span class="span-bb-h-'.$so->id.'"></span></td>
+					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-center">
+					// 			<input type="hidden" id="ht-ukl-'.$so->id.'" value="'.$so->ukuran_sheet_l.'">
+					// 			<input type="hidden" id="ht-ukp-'.$so->id.'" value="'.$so->ukuran_sheet_p.'">
+					// 			<input type="hidden" id="ht-bb-'.$so->id.'" value="'.$so->berat_bersih.'">
+					// 			<input type="hidden" id="edit-qtypo-so'.$so->id.'" value="'.$r->qty.'">
+					// 			'.$btnAksi2.' '.$btnHapus.'
+					// 		</td>
+					// 	</tr>';
 
-						// HTML HASIL
-						if($qHasil->num_rows() != 0){
-							foreach($qHasil->result() as $h){
-								if($qHasil->num_rows() == 1){
-									$kurHass = $h->hasil_qty - $so->qty_so;
-									$sHx = '<td style="background:#fff;padding:6px;text-align:right;font-weight:bold">'.$kurHass.'</td>
-									<td colspan="7" style="background:#fff"></td>';
-									$hfb = ';font-weight:bold';
-								}else{
-									$sHx = '<td colspan="8" style="background:#fff"></td>';
-									$hfb = '';
-								}
-								if($so->status_2 == 'Close'){
-									$bHsH = '';
-								}else{
-									// cek guna
-									$cG = $this->db->query("SELECT*FROM trs_so_detail s
-									INNER JOIN trs_so_roll r ON s.id=r.id_so_dtl
-									INNER JOIN trs_so_guna g ON r.id_roll=g.id_roll AND s.eta_so=g.tgl
-									WHERE r.id_so_dtl='$so->id'");
-									if($cG->num_rows() == 0){
-										$bHsH = '<button class="btn btn-xs btn-danger" onclick="hapusOSList('."'".$h->id."'".')"><i class="fas fa-trash"></i></button> ';
-									}else{
-										$bHsH = '';
-									}
-								}
-								$html .= '<tr>
-									<td colspan="4" style="background:#fff"></td>
-									<td style="background:#fff;padding:6px">'.$bHsH.substr($this->m_fungsi->getHariIni($h->hasil_tgl),0,3).', '.$this->m_fungsi->tglIndSkt(substr($h->hasil_tgl, 0,10)).'</td>
-									<td style="background:#fff;padding:6px;text-align:right'.$hfb.'">'.number_format($h->hasil_qty).'</td>
-									'.$sHx.'
-								</tr>';
-							}
-						}
+					// 	// HTML HASIL
+					// 	if($qHasil->num_rows() != 0){
+					// 		foreach($qHasil->result() as $h){
+					// 			if($qHasil->num_rows() == 1){
+					// 				$kurHass = $h->hasil_qty - $so->qty_so;
+					// 				$sHx = '<td style="background:#fff;padding:6px;text-align:right;font-weight:bold">'.$kurHass.'</td>
+					// 				<td colspan="7" style="background:#fff"></td>';
+					// 				$hfb = ';font-weight:bold';
+					// 			}else{
+					// 				$sHx = '<td colspan="8" style="background:#fff"></td>';
+					// 				$hfb = '';
+					// 			}
+					// 			if($so->status_2 == 'Close'){
+					// 				$bHsH = '';
+					// 			}else{
+					// 				// cek guna
+					// 				$cG = $this->db->query("SELECT*FROM trs_so_detail s
+					// 				INNER JOIN trs_so_roll r ON s.id=r.id_so_dtl
+					// 				INNER JOIN trs_so_guna g ON r.id_roll=g.id_roll AND s.eta_so=g.tgl
+					// 				WHERE r.id_so_dtl='$so->id'");
+					// 				if($cG->num_rows() == 0){
+					// 					$bHsH = '<button class="btn btn-xs btn-danger" onclick="hapusOSList('."'".$h->id."'".')"><i class="fas fa-trash"></i></button> ';
+					// 				}else{
+					// 					$bHsH = '';
+					// 				}
+					// 			}
+					// 			$html .= '<tr>
+					// 				<td colspan="4" style="background:#fff"></td>
+					// 				<td style="background:#fff;padding:6px">'.$bHsH.substr($this->m_fungsi->getHariIni($h->hasil_tgl),0,3).', '.$this->m_fungsi->tglIndSkt(substr($h->hasil_tgl, 0,10)).'</td>
+					// 				<td style="background:#fff;padding:6px;text-align:right'.$hfb.'">'.number_format($h->hasil_qty).'</td>
+					// 				'.$sHx.'
+					// 			</tr>';
+					// 		}
+					// 	}
 
-						$sumQty += $so->qty_so;
-						$sumRm += $so->rm;
-						$sumTon += $so->ton;
-						$sumBB += $bahan_baku;
-					}
-					if(in_array($this->session->userdata('level'), ['Admin','User']) && ($so->add_user == 'user' || $so->add_user == 'developer')){
-						if($aksi == 'detail'){
-							$diss = 'disabled';
-							$rTxt = '1';
+					// 	$sumQty += $so->qty_so;
+					// 	$sumRm += $so->rm;
+					// 	$sumTon += $so->ton;
+					// 	$sumBB += $bahan_baku;
+					// }
+					// if(in_array($this->session->userdata('level'), ['Admin','User']) && ($so->add_user == 'user' || $so->add_user == 'developer')){
+					if($aksi == 'detail'){
+						$diss = 'disabled';
+						$rTxt = '1';
+						$btnAksi = $print;
+					}else{
+						if($so->status == 'Close'){
 							$btnAksi = $print;
+							$rTxt = 1;
+							$diss = 'disabled';
 						}else{
-							if($so->status == 'Close'){
-								$btnAksi = $print;
-								$rTxt = 1;
-								$diss = 'disabled';
+							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])){
+								($r->id == $id) ? $diss = '' : $diss = 'disabled';
+								($r->id == $id) ? $btnAksi = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi = $print;
 							}else{
-								if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])){
-									($r->id == $id) ? $diss = '' : $diss = 'disabled';
-									($r->id == $id) ? $btnAksi = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi = $print;
-								}else{
-									$diss = 'disabled';
-									$btnAksi = $print;
-								}
-								($r->id == $id) ? $rTxt = 2 : $rTxt = 1;
+								$diss = 'disabled';
+								$btnAksi = $print;
 							}
+							($r->id == $id) ? $rTxt = 2 : $rTxt = 1;
 						}
-						$html .='<tr>
-							<td style="padding:6px;'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
-							<td style="padding:6px;'.$bTd.''.$bold.'">
-								<input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$diss.'>
-							</td>
-							<td style="padding:6px;'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
-							<td style="padding:6px;'.$bTd.''.$bold.'">
-								<input type="number" id="edit-qty-so'.$so->id.'" class="form-control" style="text-align:right" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.$so->qty_so.'" '.$diss.'>
-							</td>
-							<td style="padding:6px;'.$bTd.''.$bold.'">
-								<textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt.'" style="resize:none" '.$diss.'>'.$so->ket_so.'</textarea>
-							</td>
-							<td style="padding:6px;'.$bTd.''.$bold.'">
-								<input type="checkbox" id="cbso-'.$so->id.'" style="height:25px;width:100%" onclick="keyUpQtySO('."'".$so->id."'".')" value="'.$so->cek_rm_so.'" '.$check.' '.$diss.'>
-							</td>
-							<td style="padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->rm).'<br><span class="span-rm-h-'.$so->id.'"></span></td>
-							<td style="padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->ton).'<br><span class="span-ton-h-'.$so->id.'"></span></td>
-							<td style="padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($bahan_baku).'<br><span class="span-bb-h-'.$so->id.'"></span></td>
-							<td style="padding:6px;'.$bTd.''.$bold.'" class="text-center">
-								<input type="hidden" id="ht-ukl-'.$so->id.'" value="'.$so->ukuran_sheet_l.'">
-								<input type="hidden" id="ht-ukp-'.$so->id.'" value="'.$so->ukuran_sheet_p.'">
-								<input type="hidden" id="ht-bb-'.$so->id.'" value="'.$so->berat_bersih.'">
-								<input type="hidden" id="edit-qtypo-so'.$so->id.'" value="'.$r->qty.'">
-								'.$btnAksi.' '.$btnHapus.'
+					}
+					$html .='<tr>
+						<td style="padding:6px;'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
+						<td style="padding:6px;'.$bTd.''.$bold.'">
+							<input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$diss.'>
+						</td>
+						<td style="padding:6px;'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
+						<td style="padding:6px;'.$bTd.''.$bold.'">
+							<input type="number" id="edit-qty-so'.$so->id.'" class="form-control" style="text-align:right;font-weight:bold" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.number_format($so->qty_so,0,',','.').'" '.$diss.'>
+						</td>
+						<td style="padding:6px;'.$bTd.''.$bold.'">
+							<textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt.'" style="resize:none" '.$diss.'>'.$so->ket_so.'</textarea>
+						</td>
+						<td style="padding:6px;'.$bTd.''.$bold.'">
+							<input type="checkbox" id="cbso-'.$so->id.'" style="height:25px;width:100%" onclick="keyUpQtySO('."'".$so->id."'".')" value="'.$so->cek_rm_so.'" '.$check.' '.$diss.'>
+						</td>
+						<td style="padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->rm).'<br><span class="span-rm-h-'.$so->id.'"></span></td>
+						<td style="padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->ton).'<br><span class="span-ton-h-'.$so->id.'"></span></td>
+						<td style="padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($bahan_baku).'<br><span class="span-bb-h-'.$so->id.'"></span></td>
+						<td style="padding:6px;'.$bTd.''.$bold.'" class="text-center">
+							<input type="hidden" id="ht-ukl-'.$so->id.'" value="'.$so->ukuran_sheet_l.'">
+							<input type="hidden" id="ht-ukp-'.$so->id.'" value="'.$so->ukuran_sheet_p.'">
+							<input type="hidden" id="ht-bb-'.$so->id.'" value="'.$so->berat_bersih.'">
+							<input type="hidden" id="edit-qtypo-so'.$so->id.'" value="'.$r->qty.'">
+							'.$btnAksi.' '.$btnHapus.'
+						</td>
+					</tr>';
+					$sumQty += $so->qty_so;
+					$sumRm += $so->rm;
+					$sumTon += $so->ton;
+					$sumBB += $bahan_baku;
+
+					// TAMPIL PLAN
+					$trsWO = $this->db->query("SELECT*FROM trs_wo WHERE kode_po='$so->kode_po' AND id_produk='$so->id_produk' AND id_pelanggan='$so->id_pelanggan' AND no_so='$so->id'");
+					if($trsWO->num_rows() != 0){
+						$html .= '<tr>
+							<td style="padding:6px;border:1px solid #999" colspan="2"></td>
+							<td style="padding:6px;border:1px solid #999" colspan="8">'.$trsWO->row()->no_wo.'</td>
+						</tr>';
+					}
+					$planCor = $this->db->query("SELECT c.*,w.* FROM plan_cor c
+					INNER JOIN trs_wo w ON c.id_wo=w.id
+					WHERE w.kode_po='$so->kode_po' AND w.id_produk='$so->id_produk' AND w.id_pelanggan='$so->id_pelanggan' AND w.no_so='$so->id'
+					GROUP BY c.tgl_plan,w.kode_po, w.id_produk, w.id_pelanggan");
+					if($planCor->num_rows() != 0){
+						$html .= '<tr>
+							<td style="padding:6px;border:1px solid #999" colspan="2"></td>
+							<td style="padding:0;border:1px solid #999" colspan="8">
+								<table>
+									<tr>
+										<td style="background:#eee;padding:6px;font-weight:bold">TGL PLAN</td>
+										<td style="background:#eee;padding:6px;font-weight:bold">HASIL</td>
+									</tr>';
+									foreach($planCor->result() as $pc){
+										($pc->good_cor_p == null || $pc->good_cor_p == 0) ? $good = '-' : $good = number_format($pc->good_cor_p);
+										$html .= '<tr>
+											<td style="background:#fff;padding:6px">'.$pc->tgl_plan.'</td>
+											<td style="background:#fff;padding:6px;text-align:right">'.$good.'</td>
+										</tr>';
+									}
+								$html .= '</table>
 							</td>
 						</tr>';
-						$sumQty += $so->qty_so;
-						$sumRm += $so->rm;
-						$sumTon += $so->ton;
-						$sumBB += $bahan_baku;
 					}
+
+					// }
 				}
 
 				if($dataSO->num_rows() > 1){
-					if($this->session->userdata('level') == 'PPIC'){
-						$sumPPIC = '<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
-						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
-						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>';
-					}else{
+					// if($this->session->userdata('level') == 'PPIC'){
+					// 	$sumPPIC = '<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
+					// 	<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
+					// 	<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>';
+					// }else{
 						$sumPPIC = '';
-					}
+					// }
 					$html .='<tr>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0" colspan="3"></td>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumQty).'</td>
@@ -7307,8 +7371,9 @@ class Transaksi extends CI_Controller
 
 	function btnAddBagiSO()
 	{
-		if($_POST["fBagiEtaSo"] == "" || $_POST["fBagiQtySo"] == "" || $_POST["fBagiQtySo"] == 0 || $_POST["fBagiQtySo"] < 0){
-			echo json_encode(array('data' => false, 'msg' => 'ETA, QTY SO TIDAK BOLEH KOSONG!'));
+		// $_POST["fBagiEtaSo"] == "";
+		if($_POST["fBagiQtySo"] == "" || $_POST["fBagiQtySo"] == 0 || $_POST["fBagiQtySo"] < 0){
+			echo json_encode(array('data' => false, 'msg' => 'QTY SO TIDAK BOLEH KOSONG!'));
 		}else{
 			$id = $_POST["i"];
 			$produk = $this->db->query("SELECT p.* FROM m_produk p INNER JOIN trs_po_detail s ON p.id_produk=s.id_produk WHERE s.id='$id' GROUP BY p.id_produk");
@@ -7366,7 +7431,7 @@ class Transaksi extends CI_Controller
 					'no_so' => $getData->row()->no_so,
 					'urut_so' => $getData->row()->urut_so,
 					'rpt' => $rpt,
-					'eta_so' => $_POST['fBagiEtaSo'],
+					'eta_so' => ($_POST['fBagiEtaSo'] == "") ? null : $_POST["fBagiEtaSo"],
 					'qty_so' => $_POST['fBagiQtySo'],
 					'ket_so' => $_POST['fBagiKetSo'],
 					'cek_rm_so' => $_POST['fBagiCrmSo'],
@@ -7423,16 +7488,17 @@ class Transaksi extends CI_Controller
 			$i++;
 			$urut_so = str_pad($r['options']['urut_so'], 2, "0", STR_PAD_LEFT);
 			$rpt = str_pad($r['options']['rpt'], 2, "0", STR_PAD_LEFT);
+			($r['options']['eta_so'] == null || $r['options']['eta_so'] == "") ? $eeTa = '-' : $eeTa = '';
 			($this->cart->total_items() == $r['options']['total_items']) ?
 				$btnAksi = '<button class="btn btn-danger btn-sm" id="hapusCartItemSO" onclick="hapusCartItem('."'".$r['rowid']."'".','."'".$r['id']."'".','."'ListAddBagiSO'".')"><i class="fas fa-times"></i> <b>BATAL</b></button>' : $btnAksi = '-' ;
 			$html .='<tr>
 				<td style="border:1px solid #999" class="text-center">'.$i.'</td>
-				<td style="border:1px solid #999">'.$r['options']['eta_so'].'</td>
+				<td style="border:1px solid #999">'.$eeTa.'</td>
 				<td style="border:1px solid #999">'.$r['options']['no_so'].'.'.$urut_so.'.'.$rpt.'</td>
-				<td style="border:1px solid #999">'.number_format($r['options']['qty_so']).'</td>
+				<td style="border:1px solid #999;text-align:right">'.number_format($r['options']['qty_so']).'</td>
 				<td style="border:1px solid #999">'.$r['options']['ket_so'].'</td>
-				<td style="border:1px solid #999">'.number_format($r['options']['rm']).'</td>
-				<td style="border:1px solid #999">'.number_format($r['options']['ton']).'</td>
+				<td style="border:1px solid #999;text-align:right">'.number_format($r['options']['rm']).'</td>
+				<td style="border:1px solid #999;text-align:right">'.number_format($r['options']['ton']).'</td>
 				<td style="border:1px solid #999" class="text-center">'.$btnAksi.'</td>
 			</tr>';
 
@@ -7445,10 +7511,10 @@ class Transaksi extends CI_Controller
 			$html .= '<tr>
 				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center">'.$r['options']['rpt'].'</td>
 				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center" colspan="2"></td>
-				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center">'.number_format($sumQty).'</td>
+				<td style="background:#fff;padding:3px 12px;font-weight:bold;border:0;text-align:center;text-align:right">'.number_format($sumQty).'</td>
 				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center"></td>
-				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center">'.number_format($sumRm).'</td>
-				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center">'.number_format($sumTon).'</td>
+				<td style="background:#fff;padding:3px 12px;font-weight:bold;border:0;text-align:center;text-align:right">'.number_format($sumRm).'</td>
+				<td style="background:#fff;padding:3px 12px;font-weight:bold;border:0;text-align:center;text-align:right">'.number_format($sumTon).'</td>
 				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center"></td>
 			</tr>
 			<tr>

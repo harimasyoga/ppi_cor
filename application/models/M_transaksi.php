@@ -1024,12 +1024,13 @@ class M_transaksi extends CI_Model
 	{
 		$id = $_POST["i"];
 
-		if($_POST["editTglSo"] == ""){
-			$result = array(
-				'data' => false,
-				'msg' => 'ETA SO TIDAK BOLEH KOSONG!',
-			);
-		}else if($_POST["editQtySo"] == 0 || $_POST["editQtySo"] == ""){
+		// if($_POST["editTglSo"] == ""){
+		// 	$result = array(
+		// 		'data' => false,
+		// 		'msg' => 'ETA SO TIDAK BOLEH KOSONG!',
+		// 	);
+		// }else
+		if($_POST["editQtySo"] == 0 || $_POST["editQtySo"] == ""){
 			$result = array(
 				'data' => false,
 				'msg' => 'QTY SO TIDAK BOLEH KOSONG!',
@@ -1047,7 +1048,7 @@ class M_transaksi extends CI_Model
 			$ton = $_POST["editQtySo"] * $produk->row()->berat_bersih;
 
 			$data = array(
-				"eta_so" => $_POST["editTglSo"],
+				"eta_so" => ($_POST["editTglSo"] == "") ? null : $_POST["editTglSo"],
 				"qty_so" => $_POST["editQtySo"],
 				"ket_so" => $_POST["editKetSo"],
 				"cek_rm_so" => ($rm < 500) ? $_POST["editCekRM"] : 0,

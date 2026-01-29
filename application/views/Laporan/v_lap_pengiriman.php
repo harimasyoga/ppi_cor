@@ -28,7 +28,12 @@
 							<div class="col-md-12">
 								<select class="form-control select2" id="cust_list_lap">
 									<?php
-										$query = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan");
+										$id_sales = $this->session->userdata('id_sales');
+										if($id_sales == "" || $id_sales == null){
+											$query = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan");
+										}else{
+											$query = $this->db->query("SELECT*FROM m_pelanggan WHERE id_sales='$id_sales' ORDER BY nm_pelanggan");
+										}
 										$html ='';
 										$html .='<option value="">SEMUA</option>';
 										foreach($query->result() as $r){
@@ -85,8 +90,8 @@
 								<select class="form-control select2" id="tahun" onchange="plhOS()">
 									<?php 
 									$thang = date("Y");
-									$thang_maks = $thang + 2;
-									$thang_min = $thang - 2;
+									$thang_maks = $thang + 1;
+									$thang_min = $thang - 3;
 									for ($th = $thang_min; $th <= $thang_maks; $th++)
 									{ ?>
 										<?php if ($th==$thang) { ?>
@@ -104,7 +109,12 @@
 							<div class="col-md-10">
 								<select class="form-control select2" id="pelanggan" onchange="plhOS()">
 									<?php
-										$query = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan");
+										$id_sales = $this->session->userdata('id_sales');
+										if($id_sales == "" || $id_sales == null){
+											$query = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan");
+										}else{
+											$query = $this->db->query("SELECT*FROM m_pelanggan WHERE id_sales='$id_sales' ORDER BY nm_pelanggan");
+										}
 										$html ='';
 										$html .='<option value="">PILIH</option>';
 										foreach($query->result() as $r){
