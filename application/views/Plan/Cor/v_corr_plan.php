@@ -2006,8 +2006,8 @@
 					let inputHari = 0;
 					let kirimEtaSO = '';
 					(provinsi == 11 || kabupaten == 12 || kabupaten == 16) ? inputHari = 2 : inputHari = 1;
-					(eta_so == undefined) ? kirimEtaSO = '' : kirimEtaSO = new Date(new Date(eta_so).getTime() - (inputHari * 24 * 3600 * 1000)).toISOString().slice(0, 10);
-					$("#kirim").val(kirimEtaSO)
+					// (eta_so == undefined) ? kirimEtaSO = '' : kirimEtaSO = new Date(new Date(eta_so).getTime() - (inputHari * 24 * 3600 * 1000)).toISOString().slice(0, 10);
+					$("#kirim").val("")
 
 					$("#card-produksi").hide();
 					$("#order_cor").val("");$("#good_cor").val("");$("#bad_cor").val("");$("#total_cor").val("");$("#ket_cor").val("");$("#tgl_cor").val();$("#start_cor").val("");$("#end_cor").val("");

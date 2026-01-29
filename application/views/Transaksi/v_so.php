@@ -42,7 +42,7 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<?php if(in_array($this->session->userdata('level'), ['Admin','User','PPIC'])) { ?>
+				<?php if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])) { ?>
 					<div style="margin-bottom:12px">
 						<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 						<!-- <button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="RollCor()"><i class="fas fa-toilet-paper"></i>&nbsp;&nbsp;<b>Roll</b></button>
@@ -54,8 +54,8 @@
 						<select id="tahun" class="form-control select2" onchange="load_data()">
 							<?php 
 								$thang = date("Y");
-								$thang_maks = $thang + 2;
-								$thang_min = $thang - 2;
+								$thang_maks = $thang + 1;
+								$thang_min = $thang - 3;
 								for ($th = $thang_min; $th <= $thang_maks; $th++)
 								{ ?>
 									<?php if ($th==$thang) { ?>
@@ -67,25 +67,27 @@
 							?>
 						</select>
 					</div>
-					<div class="col-md-10"></div>
+					<div class="col-md-2">
+						<select id="status_kiriman" class="form-control select2" onchange="load_data()">
+							<option value="Open">OPEN</option>
+							<option value="Close">CLOSE</option>
+						</select>
+					</div>
+					<div class="col-md-8"></div>
 				</div>
 				<div style="overflow:auto;white-space:nowrap">
 					<table id="datatable" class="table table-bordered table-striped" width="100%">
 						<thead class="color-tabel">
 							<tr>
-								<?php if($this->session->userdata('level') == 'PPIC') { ?>
-									<th style="width:10%">TGL. PLAN</th>
-								<?php }else{ ?>
-									<th style="width:5%">NO.</th>
-									<th>TGL. SO</th>
-								<?php } ?>
+									<!-- <th style="width:10%">TGL. PLAN</th> -->
+								<th style="width:5%">NO.</th>
+								<th>TGL.</th>
 								<th>NO. PO</th>
 								<th>ITEM</th>
 								<th>CUSTOMER</th>
 								<th style="width:10%">QTY PO</th>
-								<?php if($this->session->userdata('level') == 'PPIC') { ?>
-									<th style="width:10%">ORDER</th>
-								<?php } ?>
+								<th style="width:10%">PENGIRIMAN</th>
+									<!-- <th style="width:10%">ORDER</th> -->
 								<th style="width:5%">AKSI</th>
 							</tr>
 						</thead>
@@ -381,6 +383,7 @@
 
 	function load_data() {
 		let tahun = $("#tahun").val()
+		let status_kiriman = $("#status_kiriman").val()
 		let table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -391,7 +394,7 @@
 				"url": '<?php echo base_url(); ?>Transaksi/load_data/trs_so_detail',
 				"type": "POST",
 				"data": ({
-					tahun
+					tahun, status_kiriman
 				}),
 			},
 			"aLengthMenu": [
@@ -1040,7 +1043,7 @@
 		$("#h_id").val(id)
 		$("#h_no_po").val(no_po)
 		$("#h_kodepo").val(kode_po)
-		let judul = `NO PO : <b>${no_po}</b> . KODE PO : <b>${kode_po}</b>`
+		let judul = `KODE PO : <b>${kode_po}</b>`
 		$("#judul-detail").html(`. . .`)
 		$("#modal-detail-so").html(`. . .`)
 		$("#modalFormDetail").modal("show");
@@ -1125,7 +1128,7 @@
 		let ukp = (i == '') ? $("#ukp").val() : $("#ht-ukp-"+i).val();
 		let bb = (i == '') ? $("#bb").val() : $("#ht-bb-"+i).val();
 
-		let qtySO = (i == '') ? $("#form-bagi-qty-so").val() : $("#edit-qty-so"+i).val()
+		let qtySO = (i == '') ? $("#form-bagi-qty-so").val() : $("#edit-qty-so"+i).val().split('.').join('')
 		let rumusOut = 1800 / ukl
 		let out = '';
 		(Math.floor(rumusOut) >= 5) ? out = 5 : out = Math.floor(rumusOut);
@@ -1229,7 +1232,7 @@
 		let kode_po = $("#h_kodepo").val()
 
 		let editTglSo = $("#edit-tgl-so"+i).val()
-		let editQtySo = $("#edit-qty-so"+i).val()
+		let editQtySo = $("#edit-qty-so"+i).val().split('.').join('')
 		let editKetSo = $("#edit-ket-so"+i).val()
 		let editQtypoSo = $("#edit-qtypo-so"+i).val()
 		let editCekRM = $("#cbso-"+i).val()

@@ -966,4 +966,31 @@ class M_fungsi extends CI_Model {
 		return $result;
 	}
 
+	function kiriman($kode_po, $id_produk, $qty_po)
+	{
+		// KIRIMAN
+		$kirim = $this->db->query("SELECT SUM(r.qty_muat) AS tot_muat,r.*,p.* FROM m_rencana_kirim r
+		INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
+		WHERE p.no_po='$kode_po' AND r.id_produk='$id_produk'
+		GROUP BY r.rk_tgl,r.id_pelanggan,r.id_produk,r.rk_kode_po,r.rk_urut");
+		$sumKirim = 0;
+		$sumRetur = 0;
+		if($kirim->num_rows() > 0){
+			foreach($kirim->result() as $k){
+				// RETUR
+				$retur = $this->db->query("SELECT*FROM m_rencana_kirim_retur WHERE rtr_tgl='$k->tgl' AND rtr_id_pelanggan='$k->id_pelanggan' AND rtr_id_produk='$k->id_produk' AND rtr_kode_po='$k->rk_kode_po' AND rtr_urut='$k->rk_urut'");
+				$sumKirim += $k->tot_muat;
+				$sumRetur += ($retur->num_rows() == 0) ? 0 : $retur->row()->rtr_jumlah;
+			}
+		}
+		// PERHITUNGAN
+		$sisa = ($sumKirim - $sumRetur) - $qty_po;
+
+		return [
+			'sumKirim' => $sumKirim,
+			'sumRetur' => $sumRetur,
+			'sisa' => $sisa,
+		];
+	}
+
 }

@@ -40,15 +40,27 @@ class Laporan extends CI_Controller
 	function cariListLaporan()
 	{
 		$html ='';
+		$id_sales = $this->session->userdata('id_sales');
 		$id_pelanggan = $_POST["id_pelanggan"];
 		($id_pelanggan != "") ? $wCust = "AND p.id_perusahaan='$id_pelanggan'" : $wCust = '';
 		$tgl1 = $_POST["tgl1"];
 		$tgl2 = $_POST["tgl2"];
 
+		
+		if($id_sales == "" || $id_sales == null){
+			$innerJoin = "";
+			$whereSales = "";
+		}else{
+			$innerJoin = "INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan";
+			$whereSales = "AND c.id_sales='$id_sales'";
+		}
+
 		// TANGGAL
 		$getRit = $this->db->query("SELECT tgl FROM pl_box p
-		WHERE tgl BETWEEN '$tgl1' AND '$tgl2' $wCust
+		$innerJoin
+		WHERE tgl BETWEEN '$tgl1' AND '$tgl2' $wCust $whereSales
 		GROUP BY tgl");
+		
 		$html .= '<table style="width:100%">';
 			if($getRit->num_rows() == 0){
 				$html .= '<tr><td>TIDAK ADA PENGIRIMAN</td></tr>';
@@ -61,8 +73,9 @@ class Laporan extends CI_Controller
 					</tr>';
 					// NOPOL
 					$nopol = $this->db->query("SELECT p.tgl,p.no_pl_urut,p.no_kendaraan,p.kategori FROM pl_box p
+					$innerJoin
 					INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
-					WHERE p.tgl='$t->tgl' $wCust
+					WHERE p.tgl='$t->tgl' $wCust $whereSales
 					GROUP BY p.tgl,p.no_pl_urut,p.no_kendaraan");
 					$nn = 0;
 					$hariTimbang = 0;
@@ -72,7 +85,7 @@ class Laporan extends CI_Controller
 						$cPelanggan = $this->db->query("SELECT*FROM pl_box p
 						INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
 						INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
-						WHERE p.tgl='$n->tgl' AND p.no_kendaraan='$n->no_kendaraan' AND p.no_pl_urut='$n->no_pl_urut' $wCust
+						WHERE p.tgl='$n->tgl' AND p.no_kendaraan='$n->no_kendaraan' AND p.no_pl_urut='$n->no_pl_urut' $wCust $whereSales
 						GROUP BY p.id_perusahaan,p.no_pl_urut");
 						($cPelanggan->num_rows() == 1) ? $cC = ' '.$cPelanggan->row()->nm_pelanggan : $cC = '';
 						$html .= '<tr><td style="border:0"><br></td></tr>
@@ -92,14 +105,16 @@ class Laporan extends CI_Controller
 							}
 							// KIRIMAN
 							$kiriman = $this->db->query("SELECT i.nm_produk,i.ukuran_sheet,SUM(r.qty_muat) AS sum_qty_muat,r.* FROM pl_box p
+							$innerJoin
 							INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
 							INNER JOIN m_produk i ON r.id_produk=i.id_produk
-							WHERE p.tgl='$p->tgl' AND p.no_kendaraan='$p->no_kendaraan' AND p.no_pl_urut='$p->no_pl_urut' AND p.id_perusahaan='$p->id_perusahaan'
+							WHERE p.tgl='$p->tgl' AND p.no_kendaraan='$p->no_kendaraan' AND p.no_pl_urut='$p->no_pl_urut' AND p.id_perusahaan='$p->id_perusahaan' $whereSales
 							GROUP BY i.kategori,i.id_produk ORDER BY i.kategori,i.nm_produk");
 							$gK = $this->db->query("SELECT i.kategori FROM pl_box p
+							$innerJoin
 							INNER JOIN m_rencana_kirim r ON p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl AND p.id_perusahaan=r.id_pelanggan AND p.id=r.id_pl_box
 							INNER JOIN m_produk i ON r.id_produk=i.id_produk
-							WHERE p.tgl='$p->tgl' AND p.no_kendaraan='$p->no_kendaraan' AND p.no_pl_urut='$p->no_pl_urut' AND p.id_perusahaan='$p->id_perusahaan'
+							WHERE p.tgl='$p->tgl' AND p.no_kendaraan='$p->no_kendaraan' AND p.no_pl_urut='$p->no_pl_urut' AND p.id_perusahaan='$p->id_perusahaan' $whereSales
 							GROUP BY i.kategori");
 							foreach($kiriman->result() as $k){
 								if($k->kategori == 'SHEET'){
@@ -157,6 +172,7 @@ class Laporan extends CI_Controller
 
 	function plhOS()
 	{
+		$id_sales = $this->session->userdata('id_sales');
 		$tahun = $_POST["tahun"];
 		$pelanggan = $_POST["pelanggan"];
 		$no_po = $_POST["no_po"];
