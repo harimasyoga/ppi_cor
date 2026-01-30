@@ -42,13 +42,14 @@
 									<th style="text-align: center;" >No PO</th>
 									<th style="text-align: center; padding: 12px 40px;" >Tgl PO</th>
 									<th style="text-align: center;" >Item</th>
-									<th style="text-align: center;" >Status</th>
+									<!-- <th style="text-align: center;" >Status</th> -->
 									<th style="text-align: center; padding: 12px 40px;" >Status Karet</th>
 									<th style="text-align: center;" >Kode PO</th>
 									<!-- <th style="display:none;">Kode PO</th> -->
 									<!-- <th style="text-align: center">Total Qty</th> -->
 									<th style="text-align: center;" >Customer</th>
 									<th style="text-align: center;" >Admin</th>
+									<th style="text-align: center;" >Harga</th>
 									<th style="text-align: center;" >Mkt</th>
 									<th style="text-align: center;" >PPIC</th>
 									<th style="text-align: center;" >Owner</th>
@@ -215,6 +216,7 @@
 										</div>
 									</div>
 								</div>
+								<div class="design"></div>
 							</div>
 						</div>
 							
@@ -253,8 +255,7 @@
 											</div>
 										</td>
 										<td>
-											<select class="form-control select2 narrow wrap wrap" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(this.value,0)">
-											</select>
+											<select class="form-control select2 narrow wrap wrap" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(this.value,0)"></select>
 										</td>
 										<td >
 											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="ubah_angka(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)">											
@@ -273,28 +274,17 @@
 										
 										<td style="padding : 12px 20px" >
 											<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
-
 										</td>
 										<td style="padding : 12px 20px">
 											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
-
 										</td>
 										<td id="p11_det0">
 											<input type="text" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
-										
 										</td>
-										<td id="txt_detail_produk0">
-										</td>
+										<td id="txt_detail_produk0"></td>
 										<?php }else{ ?>
-
-										<td colspan="5" id="txt_detail_produk0">
-										</td>
+											<td colspan="5" id="txt_detail_produk0"></td>
 										<?php } ?>
-
-											
-
-										
-										
 									</tr>
 									<tr id="item_tambahan0">
 										<td>
@@ -307,7 +297,7 @@
 										<?php if (in_array($this->session->userdata('level'), ['PPIC','AP'])){ ?>
 											<td colspan="2">
 												<input class="form-control" type="date" name="eta_item[0]" id="eta_item0"><br>
-												<textarea class="form-control" name="eta_ket[0]" id="eta_ket0" placeholder="KET. ETA" rows="3" style="color#fa3c3e;"></textarea>
+												<textarea class="form-control" name="eta_ket[0]" id="eta_ket0" placeholder="KET. ETA" rows="3" style="color:#fa3c3e;"></textarea>
 											</td>
 											<td width="10%" id="subs0" name="subs[0]">
 												<select id="tl_al0" name="tl_al[0]" class="form-control select2" onchange="ayoBerhitung(0)">
@@ -431,18 +421,11 @@
 								<div class="col-md-6"></div>
 								<div class="col-md-6">
 									<button type="button" class="btn btn-success btn-verif" id="btn-verif_acc" style="display: none;" onclick="prosesData_acc('Y')"><i class="fas fa-check"></i> <b>Verifikasi</b></button>
-								
 									<button type="button" class="btn btn-warning btn-verif" id="btn-verif_hold" style="display: none;" onclick="muncul_aksi('H')"><i class="far fa-hand-paper"></i> <b>HOLD</b></button>
-
 									<button type="button" class="btn btn-danger btn-verif" id="btn-verif_r" style="display: none;" onclick="muncul_aksi('R')"><i class="fas fa-times"></i> <b>Reject</b></button>
-									<!--<button type="button" class="btn btn-primary" id="btn-simpan-plan" onclick="simpan_plan()"><i class="fas fa-save"></i><b> Simpan Plan</b></button> -->
-									
 									<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i><b> Simpan</b></button>
-
 									<button type="button" class="btn btn-danger" id="btn-print" onclick="Cetak()" style="display:none"><i class="fas fa-print"></i> <b>Print</b></button>
-
 									<button type="button" class="btn btn-outline-danger" data-dismiss="modalForm" onclick="close_modal();" ><i class="fa fa-times-circle"></i> <b> Batal</b></button>
-
 								</div>
 							</div>
 						</div>
@@ -1032,6 +1015,7 @@
 		$("#id_pelanggan").prop("disabled", false);
 
 		$("#kode_po").val("");
+		$(".design").html("");
 		// $("#eta").val("");
 
 		$("#txt_kota").val("");
@@ -1058,41 +1042,23 @@
 
 	function btn_verif(data)
 	{
-		
 		$(".btn-verif").hide()
-		// $("#btn-simpan-plan").hide()
-
 		if (data.header.status == 'Open' || data.header.status == 'Reject') {
 			if ('<?= $this->session->userdata('level') ?>' == 'Admin'){
 				$(".btn-verif").show()
 			}
-
-			if ('<?= $this->session->userdata('level') ?>' == 'Marketing' && ( data.header.status_app1 == 'N' || data.header.status_app1 == 'H' || data.header.status_app1 == 'R'  ) ) 
-			{
+			if ('<?= $this->session->userdata('level') ?>' == 'Marketing' && ( data.header.status_app1 == 'N' || data.header.status_app1 == 'H' || data.header.status_app1 == 'R'  ) ) {
 				$(".btn-verif").show()
 			}
-
-			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data.header.status_app1 == 'Y' && ( data.header.status_app2 == 'N' || data.header.status_app2 == 'H' || data.header.status_app2 == 'R' ) ) 
-			{
-				$(".btn-verif").show()
-				// $("#btn-simpan-plan").show()
-			}
-
-			// if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data.header.status_app1 == 'Y' && data.header.status_app2 == 'Y'  && ( data.header.status_app3 == 'N' || data.header.status_app3 == 'H' || data.header.status_app3 == 'R' ) ) 
-			if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data.header.status_app1 == 'Y'  && ( data.header.status_app3 == 'N' || data.header.status_app3 == 'H' || data.header.status_app3 == 'R' ) ) 
-			{
+			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data.header.status_app1 == 'Y' && ( data.header.status_app2 == 'N' || data.header.status_app2 == 'H' || data.header.status_app2 == 'R' ) ) {
 				$(".btn-verif").show()
 			}
-		}else{
-			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data.header.status_app1 == 'Y' && ( data.header.status_app2 == 'N' || data.header.status_app2 == 'H' || data.header.status_app2 == 'R' ) ) 
-			{
+			if('<?= $this->session->userdata('level') ?>' == 'Owner' && ( data.header.status_app4 == 'N' || data.header.status_app4 == 'H' || data.header.status_app4 == 'R' ) ) {
 				$(".btn-verif").show()
-				// $("#btn-simpan-plan").show()
+			}else if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data.header.status_app1 == 'Y' && data.header.status_app2 == 'Y' && data.header.status_app4 == 'Y' && ( data.header.status_app3 == 'N' || data.header.status_app3 == 'H' || data.header.status_app3 == 'R' ) ) {
+				$(".btn-verif").show()
 			}
-
 		}
-		
-
 	}
 
 	var no_po = ''
@@ -1133,6 +1099,7 @@
 				dataType: "JSON",
 			})
 			.done(function(data) {
+				$(".design").html(data.html);
 				
 				btn_verif(data)
 				no_po = data.header.no_po
@@ -1250,6 +1217,25 @@
 				});
 			})
 	}
+
+	function imgClick(klik)
+	{
+		let modal = document.getElementById('mymodal-img')
+		let img = document.getElementById(klik)
+		let modalImg = document.getElementById("img01")
+		img.onclick = function(){
+			modal.style.display = "block";
+			modalImg.src = this.src;
+			modalImg.alt = this.alt;
+		}
+		modal.onclick = function() {
+			img01.className += " out";
+			setTimeout(function() {
+				modal.style.display = "none";
+				img01.className = "modal-img-content";
+			}, 400);
+		}
+	}
 	
 	function tampil_edit(id, act) 
 	{
@@ -1287,6 +1273,7 @@
 				dataType: "JSON",
 			})
 			.done(function(data) {
+				$(".design").html(data.html);
 				
 				btn_verif(data)
 				no_po = data.header.no_po
@@ -2305,18 +2292,14 @@
 					td_harga = `
 						<td>
 							<input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
-
-						 
 						</td>
 						<td>
 							<input type="text" name="price_inc[${rowNum}]" id="price_inc${rowNum}"  class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
-
 						</td>
 					`
 					p11_tambahan = `
 						<td id="p11_det${rowNum}">
 							<input type="text" name="p11[${rowNum}]" id="p11${rowNum}"  class="angka form-control" readonly value="0">
-						 
 						</td>
 					`;
 					item_tambahan = `
@@ -2332,7 +2315,6 @@
 							<td colspan="6">			
 								<textarea class="form-control" name="eta_ket[${ rowNum }]" id="eta_ket${ rowNum }" placeholder="KET. ETA" rows="3" style="color:#fa3c3e;font-weight:bold"></textarea>
 							</td>
-
 						</tr>	
 					`;
 					coll=``;
@@ -2392,44 +2374,26 @@
 							</td>
 							<td width="10%" id="subs_i${ rowNum }" name="subs_i[${ rowNum }]">
 								<input type="text" id="tl_al_i${ rowNum }" name="tl_al_i[${ rowNum }]"  class="form-control angka" autocomplete="off" placeholder="TL/AL">
-
 								<input type="text" id="bmf_i${ rowNum }" name="bmf_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="B.MF">
-
 								<input type="text" id="bl_i${ rowNum }" name="bl_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="B.L">
-
 								<input type="text" id="cmf_i${ rowNum }" name="cmf_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="C.MF">
-								
 								<input type="text" id="cl_i${ rowNum }" name="cl_i[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="C.L">
 							</td>
 							<td width="10%" id="subs_hitung${ rowNum }" name="subs_hitung[${ rowNum }]">
 								Lebar Sheet : <input type="text" id="ii_lebar${ rowNum }" name="ii_lebar[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="LEBAR SHEET" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
-
 								Qty Plan : <input type="text" id="qty_plan${ rowNum }" name="qty_plan[${ rowNum }]" class="form-control angka" autocomplete="off" placeholder="QTY PLAN" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(${ rowNum })">
-
 								Lebar Roll : <input type="text" id="i_lebar_roll${ rowNum }" name="i_lebar_roll[${ rowNum }]" class="form-control angka" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" placeholder="LEBAR ROLL" onchange="ayoBerhitung(${ rowNum })">
-								
 								Out : <input type="text" id="out_plan${ rowNum }" name="out_plan[${ rowNum }]" class="form-control angka" autocomplete="off"  onkeyup="ubah_angka(this.value,this.id)" placeholder="OUT" onchange="ayoBerhitung(${ rowNum })">
 							</td>
-							
 							<td width="20%" id="subs_hasil_hitung${ rowNum }" name="subs_hasil_hitung[${ rowNum }]">
 								trim : <input type="number" id="trim${ rowNum }" name="trim[${ rowNum }]" class="form-control" autocomplete="off" placeholder="TRIM" disabled>
 								coff : <input type="number" id="c_off${ rowNum }" name="c_off[${ rowNum }]" class="form-control" autocomplete="off" placeholder="NUM OF CUT" disabled>
 								rm : <input type="number" id="rm_plan${ rowNum }" name="rm_plan[${ rowNum }]" class="form-control" autocomplete="off" placeholder="RM PLAN" disabled>
 								ton : <input type="number" id="ton_plan${ rowNum }" name="ton_plan[${ rowNum }]" class="form-control" autocomplete="off" placeholder="TONASE PLAN" disabled>
-							
 							</td>
 						</tr>	
 					`;
 				}
-				
-
-				// if (user_lev == 'Owner' || user_lev == 'Admin') 
-				// {
-					
-				// }else{
-					// p11_tambahan = ``;
-				// }
-					// coll=`colspan="5"`;
 				
 
 				$('#table-produk').append(
@@ -2440,17 +2404,14 @@
 							</div>
 						</td>
 						<td>
-							<select class="form-control select2" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }"  onchange="setDetailProduk(this.value,${ rowNum })">
-							</select>
+							<select class="form-control select2" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }"  onchange="setDetailProduk(this.value,${ rowNum })"></select>
+							<div ></div>
 						</td>
 						<td>
 							<input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onkeyup="ubah_angka(this.value,this.id)"  onchange="Hitung_rm(this.value,this.id)">
-
 							<br>
 							<input class="form-control" type="checkbox" name="cek_rm[${ rowNum }]" id="cek_rm${ rowNum }" onclick="cekrm(this.id)" value="0">
-
 						</td>
-
 						<td>
 							<select class="form-control select2" name="ppn[${ rowNum }]" id="ppn${ rowNum }">
 								<option value="PP">PP</option>
@@ -2470,19 +2431,7 @@
 				});
 				$('#bucket').val(rowNum);
 				$('#qty' + rowNum).focus();
-			// } else {
-			// 	// toastr.info('Maksimal 5 Produk');
-			// 	swal({
-			// 			title               : "Cek Kembali",
-			// 			html                : "Maksimal 5 Produk",
-			// 			type                : "info",
-			// 			confirmButtonText   : "OK"
-			// 		});
-			// 	return;
-			// }
 		} else {
-			// toastr.info('Isi form diatas terlebih dahulu');
-			// return;
 			swal({
 					title               : "Cek Kembali",
 					html                : "Isi form diatas terlebih dahulu",
@@ -3208,42 +3157,37 @@
 		}
 	}
 
-	function countDownPO(id)
-	{
-		let statusMarketing = $("#statusMarketing-"+id).val()
-		let tanggalExpired = $("#tanggalExpired-"+id).val()
-		let countDownDate = new Date(tanggalExpired).getTime()
-
-		let x = setInterval(function() {
-			let now = new Date().getTime()
-			let distance = countDownDate - now
-			let days = Math.floor(distance / (1000 * 60 * 60 * 24))
-			let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-			let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
-			let seconds = Math.floor((distance % (1000 * 60)) / 1000);
-			(days == 0) ? days = '' : days = days+" Day<br>";
-			(hours == 0) ? hours = '' : hours = hours+" Hrs<br>";
-			(minutes == 0) ? minutes = '' : minutes = minutes+" Mnt<br>";
-			(seconds == 0) ? seconds = '' : seconds = seconds+" Sec";
-			let waktu = days + hours + minutes + seconds;
-
-			(statusMarketing != 'Y') ? $("#countdown1-"+id).html(waktu) : '';
-
-			$("#countdown2-"+id).html(waktu)
-			if (distance < 0) {
-				clearInterval(x)
-				
-				if(statusMarketing != 'Y'){
-					$("#btnBase1-"+id).removeClass().addClass('btn btn-sm btn-danger').attr('style', 'color:#000')
-					$("#iBtn1-"+id).removeClass().addClass('fas fa-ban')
-					$("#countdown1-"+id).html('EXPIRED')
-				}
-
-				$("#btnBase2-"+id).removeClass().addClass('btn btn-sm btn-danger').attr('style', 'color:#000')
-				$("#iBtn2-"+id).removeClass().addClass('fas fa-ban')
-				$("#countdown2-"+id).html('EXPIRED')
-			}
-		}, 1000);
-	}
+	// function countDownPO(id)
+	// {
+	// 	let statusMarketing = $("#statusMarketing-"+id).val()
+	// 	let tanggalExpired = $("#tanggalExpired-"+id).val()
+	// 	let countDownDate = new Date(tanggalExpired).getTime()
+	// 	let x = setInterval(function() {
+	// 		let now = new Date().getTime()
+	// 		let distance = countDownDate - now
+	// 		let days = Math.floor(distance / (1000 * 60 * 60 * 24))
+	// 		let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+	// 		let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
+	// 		let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+	// 		(days == 0) ? days = '' : days = days+" Day<br>";
+	// 		(hours == 0) ? hours = '' : hours = hours+" Hrs<br>";
+	// 		(minutes == 0) ? minutes = '' : minutes = minutes+" Mnt<br>";
+	// 		(seconds == 0) ? seconds = '' : seconds = seconds+" Sec";
+	// 		let waktu = days + hours + minutes + seconds;
+	// 		(statusMarketing != 'Y') ? $("#countdown1-"+id).html(waktu) : '';
+	// 		$("#countdown2-"+id).html(waktu)
+	// 		if (distance < 0) {
+	// 			clearInterval(x)
+	// 			if(statusMarketing != 'Y'){
+	// 				$("#btnBase1-"+id).removeClass().addClass('btn btn-sm btn-danger').attr('style', 'color:#000')
+	// 				$("#iBtn1-"+id).removeClass().addClass('fas fa-ban')
+	// 				$("#countdown1-"+id).html('EXPIRED')
+	// 			}
+	// 			$("#btnBase2-"+id).removeClass().addClass('btn btn-sm btn-danger').attr('style', 'color:#000')
+	// 			$("#iBtn2-"+id).removeClass().addClass('fas fa-ban')
+	// 			$("#countdown2-"+id).html('EXPIRED')
+	// 		}
+	// 	}, 1000);
+	// }
 	
 </script>

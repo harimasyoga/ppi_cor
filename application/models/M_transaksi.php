@@ -858,7 +858,9 @@ class M_transaksi extends CI_Model
 			}else{
 				// UPDATE TRS PO
 
-				if ($this->session->userdata('level') == "Marketing") {
+				if($this->session->userdata('level') == "Owner" && $cekPO->row()->status_app4 != 'Y') {
+					$app = "4";		
+				}else if($this->session->userdata('level') == "Marketing") {
 					$app = "1";		
 				}else if ($this->session->userdata('level') == "PPIC") {
 					$app = "2";
