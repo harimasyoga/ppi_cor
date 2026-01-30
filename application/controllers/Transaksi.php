@@ -3175,6 +3175,12 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function updateAddTimePO()
+	{
+		$result = $this->m_transaksi->updateAddTimePO();
+		echo json_encode($result);
+	}
+
 	function load_data()
 	{
 		$jenis        = $this->uri->segment(3);
@@ -3201,21 +3207,6 @@ class Transaksi extends CI_Controller
 				$row        = array();
 				$time       = substr($r->tgl_po, 0,10);
 				$time_po    = substr($r->time_input, 10,6);
-
-				$result_po  = $this->db->query("SELECT nm_produk from trs_po_detail a join m_produk b ON a.id_produk=b.id_produk where no_po='$r->no_po'
-				GROUP BY a.id_produk ORDER BY a.id");
-
-				if($result_po->num_rows() == '1'){
-					$nm_item = $result_po->row()->nm_produk;
-				}else{
-					$no                = 1;
-					$nm_item_result    = '';
-					foreach($result_po->result() as $row_po){
-						$nm_item_result .= '<b>'.$no.'.</b> '.$row_po->nm_produk.'<br>';
-						$no ++;
-					}
-					$nm_item = $nm_item_result;
-				}
 				// timer
 				// $dateFormat           = "Y-m-d H:i:s";
 				$expired              = strtotime($r->time_input) + (48*60*60) ;
@@ -3356,24 +3347,52 @@ class Transaksi extends CI_Controller
 
 				$row[] = '<div class="text-center">'.$i.'</div>'; 
 				if (in_array($this->session->userdata('level'), ['Admin', 'User'])) {
-					$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id."'".', '."'detail'".')">'.$r->no_po."<a></div>";
+					$row[] = '<div class="text-center">
+						<a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id."'".', '."'detail'".')">'.$r->no_po.'<a>
+						<div>'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</div>
+					</div>';
 				}else{
-					$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="preview('."'".$r->id."'".', '."'detail'".')">'.$r->no_po."<a></div>";
+					$row[] = '<div class="text-center">
+						<a href="javascript:void(0)" onclick="preview('."'".$r->id."'".', '."'detail'".')">'.$r->no_po.'<a>
+						<div>'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</div>
+					</div>';
 				}
-				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</div>';
-				$row[] = '<div class="text-center">'.$nm_item.'</div>';
+				// $row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</div>';
+				$result_po = $this->db->query("SELECT nm_produk from trs_po_detail a join m_produk b ON a.id_produk=b.id_produk where no_po='$r->no_po'
+				GROUP BY a.id_produk ORDER BY a.id");
+				if($result_po->num_rows() == '1'){
+					$nm_item = $result_po->row()->nm_produk;
+				}else{
+					$no = 1;
+					$nm_item_result = '';
+					foreach($result_po->result() as $row_po){
+						$nm_item_result .= '<b>'.$no.'.</b> '.$row_po->nm_produk.'<br>';
+						$no ++;
+					}
+					$nm_item = $nm_item_result;
+				}
+
+				$row[] = $r->nm_pelanggan;
+				$row[] = $r->kode_po;
+				$row[] = $nm_item;
 				$row_karet = $this->db->query("SELECT *FROM m_status_karet where status='$r->status_karet' ")->row();
 				$row[] = '<div class="text-center">
 					<div style="margin-bottom:3px"><button type="button" class="btn btn-sm '.$btn_s.'">'.$r->status.'</button></div>
 					<button type="button" class="btn btn-sm '.$row_karet->btn_class.'">'.$row_karet->ket.'</button>
 				</div>';
-				$row[] = '<div class="text-center">'.$r->kode_po.'</div>';
-				$row[] = '<div class="text-center">'.$r->nm_pelanggan.'</div>';
+				// ADMIN
+				if($this->session->userdata('level') == 'Admin'){
+					$uAddTime = 'onclick="updateAddTimePO('."'".$r->id."'".')"';
+				}else{
+					$uAddTime = '';
+				}
 				$row[] = '<div class="text-center">
+					<input type="hidden" id="time_actualDate-'.$r->id.'" value="'.$actualDate.'">
+					<input type="hidden" id="time_expired-'.$r->id.'" value="'.$expired.'">
 					<input type="hidden" id="statusMarketing-'.$r->id.'" value="'.$r->status_app1.'">
 					<input type="hidden" id="statusPPIC-'.$r->id.'" value="'.$r->status_app2.'">
 					<input type="hidden" id="tanggalExpired-'.$r->id.'" value="'.$expiredDisplay.'">
-					<button type="button" title="OKE" style="text-align: center;" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button><br><b>
+					<button type="button" title="OKE" style="text-align:center" class="btn btn-sm btn-success" '.$uAddTime.'><i class="fas fa-check-circle"></i></button><br><b>
 					'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</b></div>
 				';
 				$time1 = (($r->time_app1 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app1,0,10))  . ' - ' .substr($r->time_app1,10,9));
@@ -3403,29 +3422,21 @@ class Transaksi extends CI_Controller
 
                 $aksi = '';
 				if (!in_array($this->session->userdata('level'), ['Admin', 'konsul_keu', 'Marketing', 'PPIC', 'Owner', 'AP'])) {
-					if ($r->status == 'Open' && $r->status_app1 == 'N') {
-						if (in_array($this->session->userdata('level'), ['Keuangan1'])) { 
-							$aksi .= '
-								<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Cetak_PO?no_po=".$r->no_po."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
-								<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/Cetak_wa_po?no_po=".$r->no_po."").'" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a>
-								<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Cetak_img_po?no_po=".$r->no_po."").'" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
-							';
-						} else {
-							$aksi .= '
+					if($this->session->userdata('level') == 'User' && $r->status == 'Open') {
+						$aksi .= '
+							<div style="margin-bottom:3px">
 								<button type="button" onclick="preview('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm">
 									<i class="fa fa-edit"></i>
 								</button>
-								<button type="button" title="DELETE"  onclick="deleteData('."'".$r->id."'".','."'".$r->no_po."'".')" class="btn btn-danger btn-sm">
+								<button type="button" title="DELETE"  onclick="deleteData('."'".$r->id."'".','."'".$r->no_po."'".')" class="btn btn-secondary btn-sm">
 									<i class="fa fa-trash-alt"></i>
-								</button>  
-								<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Cetak_PO?no_po=".$r->no_po."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
-								<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/Cetak_wa_po?no_po=".$r->no_po."").'" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
-								<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Cetak_img_po?no_po=".$r->no_po."").'" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
-							';
-						}
-					}else if (in_array($this->session->userdata('level'), ['Hub','AP'])) {
-						$aksi .= '';
-					}else {
+								</button>
+							</div>
+							<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Cetak_PO?no_po=".$r->no_po."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
+							<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/Cetak_wa_po?no_po=".$r->no_po."").'" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
+							<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Cetak_img_po?no_po=".$r->no_po."").'" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
+						';
+					}else{
 						$aksi .= '
 							<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Cetak_PO?no_po=".$r->no_po."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
 							<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/Cetak_wa_po?no_po=".$r->no_po."").'" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
@@ -3449,15 +3460,17 @@ class Transaksi extends CI_Controller
 							}
 						}else if($r->status_app1 == 'N' || $r->status_app2 == 'N' || $r->status_app3 == 'N' || $r->status_app4 == 'N' || $r->status_app1 == 'H' || $r->status_app2 == 'H' || $r->status_app3 == 'H' || $r->status_app4 == 'H' || $r->status_app1 == 'R' || $r->status_app2 == 'R' || $r->status_app3 == 'R' || $r->status_app4 == 'R'){
 							$aksi .=  '
-								<button type="button" onclick="tampil_edit('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-warning btn-sm">
-									<i class="fa fa-edit"></i>
-								</button>
-								<button type="button" title="DELETE"  onclick="deleteData('."'".$r->no_po."'".','."'".$r->no_po."'".')" class="btn btn-secondary btn-sm">
-									<i class="fa fa-trash-alt"></i>
-								</button>  
-								<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit('."'".$r->id."'".','."'detail'".')" class="btn btn-info btn-sm">
-                                    <i class="fa fa-check"></i>
-								</button>
+								<div style="margin-bottom:3px">
+									<button type="button" onclick="tampil_edit('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-warning btn-sm">
+										<i class="fa fa-edit"></i>
+									</button>
+									<button type="button" title="DELETE"  onclick="deleteData('."'".$r->no_po."'".','."'".$r->no_po."'".')" class="btn btn-secondary btn-sm">
+										<i class="fa fa-trash-alt"></i>
+									</button>  
+									<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit('."'".$r->id."'".','."'detail'".')" class="btn btn-info btn-sm">
+										<i class="fa fa-check"></i>
+									</button>
+								</div>
 								<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Cetak_PO?no_po=".$r->no_po."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
 								<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/Cetak_wa_po?no_po=".$r->no_po."").'" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
 								<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Cetak_img_po?no_po=".$r->no_po."").'" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
@@ -4591,7 +4604,7 @@ class Transaksi extends CI_Controller
 							INNER JOIN trs_design_detail c ON a.id_dg=c.id_hdr
 							WHERE b.no_po='$header->no_po' AND a.id_produk='$r->id_produk' AND c.jenis_dtl='FD'
 							GROUP BY a.kode_po, a.id_pelanggan, a.id_produk, c.id_dtl");
-							$html .= '<div class="list-design" style="display:flex">';
+							$html .= '<div class="list-design" style="display:flex;padding:6px">';
 								foreach($img->result() as $i){
 									$o++;
 									$preview = 'p'.$o;
@@ -4640,7 +4653,7 @@ class Transaksi extends CI_Controller
 							INNER JOIN trs_design_detail c ON a.id_dg=c.id_hdr
 							WHERE b.no_po='$header->no_po' AND a.id_produk='$r->id_produk' AND c.jenis_dtl='FD'
 							GROUP BY a.kode_po, a.id_pelanggan, a.id_produk, c.id_dtl");
-							$html .= '<div class="list-design" style="display:flex">';
+							$html .= '<div class="list-design" style="display:flex;padding:6px">';
 								foreach($img->result() as $i){
 									$o++;
 									$preview = 'p'.$o;

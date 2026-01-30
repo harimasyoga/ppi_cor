@@ -34,26 +34,26 @@
 					<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info "><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<?php endif ?>
 				<br><br>
-				<div style="overflow:auto;">
+				<div style="overflow:auto;white-space:nowrap">
 					<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 						<thead class="color-tabel">
 							<tr>
-									<th style="text-align: center;" >No</th>
-									<th style="text-align: center;" >No PO</th>
-									<th style="text-align: center; padding: 12px 40px;" >Tgl PO</th>
-									<th style="text-align: center;" >Item</th>
-									<!-- <th style="text-align: center;" >Status</th> -->
-									<th style="text-align: center; padding: 12px 40px;" >Status Karet</th>
-									<th style="text-align: center;" >Kode PO</th>
+									<th style="text-align: center;">No</th>
+									<th style="text-align: center;">No PO<br>[ Tgl PO ]</th>
+									<!-- <th style="text-align: center; padding: 12px 40px;">Tgl PO</th> -->
+									<th style="text-align: center;">Customer</th>
+									<th style="text-align: center;">Kode PO</th>
+									<th style="text-align: center;">Item</th>
+									<th style="text-align: center;">Status<br>[ Karet ]</th>
+									<!-- <th style="text-align: center;">Status</th> -->
 									<!-- <th style="display:none;">Kode PO</th> -->
 									<!-- <th style="text-align: center">Total Qty</th> -->
-									<th style="text-align: center;" >Customer</th>
-									<th style="text-align: center;" >Admin</th>
-									<th style="text-align: center;" >Harga</th>
-									<th style="text-align: center;" >Mkt</th>
-									<th style="text-align: center;" >PPIC</th>
-									<th style="text-align: center;" >Owner</th>
-									<th style="text-align: center;padding: 12px 30px; ">Aksi</th>
+									<th style="text-align: center;">Admin</th>
+									<th style="text-align: center;">Harga</th>
+									<th style="text-align: center;">Mrkt</th>
+									<th style="text-align: center;">PPIC</th>
+									<th style="text-align: center;">Owner</th>
+									<th style="text-align: center;padding:12px 30px;">Aksi</th>
 								
 							</tr>
 						</thead>
@@ -230,20 +230,14 @@
 										<th style="padding : 12px 20px" >Item</th>
 										<th style="padding : 12px 40px" >Qty</th>
 										<th style="padding : 12px 40px" >PPN</th>
-
-										<?php if (!in_array($this->session->userdata('level'), ['PPIC','AP'])) {
-											?>
-												<th style="padding : 12px 15px" >Price Exclude</th>
-												<th style="padding : 12px 15px" >Price Include</th>
-												<th style="padding : 12px 30px" id="header_p11" >P11</th>
-												<th>Detail Item</th>
-											
+										<?php if (!in_array($this->session->userdata('level'), ['PPIC','AP'])) { ?>
+											<th style="padding : 12px 15px" >Price Exclude</th>
+											<th style="padding : 12px 15px" >Price Include</th>
+											<th style="padding : 12px 30px" id="header_p11" >P11</th>
+											<th>Detail Item</th>
 										<?php } else { ?>
-
-												<th type="hidden"  id="header_p11" >P11</th>
-												
-												<th colspan="5">Detail Item</th>
-
+											<th type="hidden"  id="header_p11" >P11</th>
+											<th colspan="5">Detail Item</th>
 										<?php } ?>
 									</tr>
 								</thead>
@@ -307,7 +301,6 @@
 													<option value="MC">MC</option>
 													<option value="MN">MN</option>
 												</select>
-
 												<select id="bmf0" name="bmf[0]" class="form-control select2" onchange="ayoBerhitung(0)">
 													<option value="">-</option>
 													<option value="M">M</option>
@@ -336,47 +329,33 @@
 													<option value="MC">MC</option>
 													<option value="MN">MN</option>
 												</select>
-
 											</td>
 											<td width="10%" id="subs_i0" name="subs_i[0]">
 												<input type="text" id="tl_al_i0" name="tl_al_i[0]"  class="form-control angka" autocomplete="off" placeholder="TL/AL">
-
 												<input type="text" id="bmf_i0" name="bmf_i[0]" class="form-control angka" autocomplete="off" placeholder="B.MF">
-
 												<input type="text" id="bl_i0" name="bl_i[0]" class="form-control angka" autocomplete="off" placeholder="B.L">
-
 												<input type="text" id="cmf_i0" name="cmf_i[0]" class="form-control angka" autocomplete="off" placeholder="C.MF">
-												
 												<input type="text" id="cl_i0" name="cl_i[0]" class="form-control angka" autocomplete="off" placeholder="C.L">
 											</td>
 											<td width="10%" id="subs_hitung0" name="subs_hitung[0]">
 												Lebar Sheet : <input type="text" id="ii_lebar0" name="ii_lebar[0]" class="form-control angka" autocomplete="off" placeholder="LEBAR SHEET" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(0)">
-
 												Qty Plan : <input type="text" id="qty_plan0" name="qty_plan[0]" class="form-control angka" autocomplete="off" placeholder="QTY PLAN" onkeyup="ubah_angka(this.value,this.id)" onchange="ayoBerhitung(0)">
-
 												Lebar Roll : <input type="text" id="i_lebar_roll0" name="i_lebar_roll[0]" class="form-control angka" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" placeholder="LEBAR ROLL" onchange="ayoBerhitung(0)">
-												
 												Out : <input type="text" id="out_plan0" name="out_plan[0]" class="form-control angka" autocomplete="off"  onkeyup="ubah_angka(this.value,this.id)" placeholder="OUT" onchange="ayoBerhitung(0)">
 											</td>
-											
 											<td width="20%" id="subs_hasil_hitung0" name="subs_hasil_hitung[0]">
 												trim : <input type="number" id="trim0" name="trim[0]" class="form-control" autocomplete="off" placeholder="TRIM" disabled>
 												coff : <input type="number" id="c_off0" name="c_off[0]" class="form-control" autocomplete="off" placeholder="NUM OF CUT" disabled>
 												rm : <input type="number" id="rm_plan0" name="rm_plan[0]" class="form-control" autocomplete="off" placeholder="RM PLAN" disabled>
 												ton : <input type="number" id="ton_plan0" name="ton_plan[0]" class="form-control" autocomplete="off" placeholder="TONASE PLAN" disabled>
-											
 											</td>
-
-										
 										<?php }else{ ?>
-
 											<td>
 												<input class="form-control" type="date" name="eta_item[0]" id="eta_item0">
 											</td>
 											<td colspan="6">
-												<textarea class="form-control" name="eta_ket[0]" id="eta_ket0" placeholder="KET. ETA" rows="3" style=""></textarea>
+												<textarea class="form-control" name="eta_ket[0]" id="eta_ket0" placeholder="KET. ETA" rows="3"></textarea>
 											</td>
-											
 										<?php } ?>
 									</tr>
 								</tbody>
@@ -397,22 +376,18 @@
 						<div class="col-md-12" style="display: none;" id="aksi_verif">
 							<div class="card-body row" style="font-weight:bold">
 								<div class="col-md-5"></div>
-
 								<div class="col-md-5">
-									<textarea class="form-control" name="ket_verif" id="ket_verif" placeholder="Keterangan" style=""></textarea>
+									<textarea class="form-control" name="ket_verif" id="ket_verif" placeholder="Keterangan"></textarea>
 								</div>
 								<div class="col-md-2">
 									<button type="button" class="btn btn-warning btn-verif" id="btn-verif_hold2" onclick="prosesData_hold2('H')" rows="3" placeholder="HOLD">
 										<i class="far fa-hand-paper"></i> <b>HOLD</b>
 									</button>
-									
 									<button type="button" class="btn btn-danger btn-verif" id="btn-verif_reject2" onclick="prosesData_r2('R')" rows="3" placeholder="REJECT">
 										<i class="fas fa-times"></i> <b>REJECT</b>
 									</button>
-
 									<button type="button" class="btn btn-danger" placeholder="BATAL" onclick="muncul_aksi('B')"><i class="fas fa-times" ></i></button>
 								</div>
-								
 							</div>							
 						</div>
 
@@ -1042,23 +1017,41 @@
 
 	function btn_verif(data)
 	{
+		let actualDate = $("#time_actualDate-"+data.header.id).val()
+		let expired = $("#time_expired-"+data.header.id).val()
 		$(".btn-verif").hide()
-		if (data.header.status == 'Open' || data.header.status == 'Reject') {
-			if ('<?= $this->session->userdata('level') ?>' == 'Admin'){
-				$(".btn-verif").show()
-			}
-			if ('<?= $this->session->userdata('level') ?>' == 'Marketing' && ( data.header.status_app1 == 'N' || data.header.status_app1 == 'H' || data.header.status_app1 == 'R'  ) ) {
-				$(".btn-verif").show()
-			}
-			if ('<?= $this->session->userdata('level') ?>' == 'PPIC' && data.header.status_app1 == 'Y' && ( data.header.status_app2 == 'N' || data.header.status_app2 == 'H' || data.header.status_app2 == 'R' ) ) {
-				$(".btn-verif").show()
-			}
-			if('<?= $this->session->userdata('level') ?>' == 'Owner' && ( data.header.status_app4 == 'N' || data.header.status_app4 == 'H' || data.header.status_app4 == 'R' ) ) {
-				$(".btn-verif").show()
-			}else if ('<?= $this->session->userdata('level') ?>' == 'Owner' && data.header.status_app1 == 'Y' && data.header.status_app2 == 'Y' && data.header.status_app4 == 'Y' && ( data.header.status_app3 == 'N' || data.header.status_app3 == 'H' || data.header.status_app3 == 'R' ) ) {
-				$(".btn-verif").show()
+		if((actualDate > expired || actualDate == expired) && (data.header.status_app1 != 'Y' || data.header.status_app2 != 'Y' || data.header.status_app4 != 'Y')){
+			$(".btn-verif").hide()
+		}else{
+			if(data.header.status == 'Open' || data.header.status == 'Reject') {
+				if('<?= $this->session->userdata('level') ?>' == 'Admin'){
+					$(".btn-verif").show()
+				}
+				if('<?= $this->session->userdata('level') ?>' == 'Marketing' && ( data.header.status_app1 == 'N' || data.header.status_app1 == 'H' || data.header.status_app1 == 'R'  ) ) {
+					$(".btn-verif").show()
+				}
+				if('<?= $this->session->userdata('level') ?>' == 'PPIC' && data.header.status_app1 == 'Y' && ( data.header.status_app2 == 'N' || data.header.status_app2 == 'H' || data.header.status_app2 == 'R' ) ) {
+					$(".btn-verif").show()
+				}
+				if('<?= $this->session->userdata('level') ?>' == 'Owner' && data.header.status_app4 != 'Y') {
+					$(".btn-verif").show()
+				}else if('<?= $this->session->userdata('level') ?>' == 'Owner' && data.header.status_app1 == 'Y' && data.header.status_app2 == 'Y' && data.header.status_app4 == 'Y' && ( data.header.status_app3 == 'N' || data.header.status_app3 == 'H' || data.header.status_app3 == 'R' ) ) {
+					$(".btn-verif").show()
+				}
 			}
 		}
+	}
+
+	function updateAddTimePO(id_po) {
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/updateAddTimePO')?>',
+			type: "POST",
+			data: ({ id_po }),
+			success: function(res){
+				data = JSON.parse(res)
+				reloadTable()
+			}
+		})
 	}
 
 	var no_po = ''
