@@ -493,24 +493,25 @@
 										<option value="roll">ROLL</option>
 									</select>
 								</div>
+								<div class="col-md-2" style="padding-bottom:3px">
+									<select id="exp_pilih" class="form-control select2" onchange="load_data()">
+										<option value="all">-- CEK --</option>
+										<option value="exp_bc">EXPIRED BC</option>
+										<option value="exp_faktur">EXPIRED FAKTUR</option>
+										<option value="exp_resi">EXPIRED RESI</option>
+										<option value="exp_inv_terima">EXPIRED INV TERIMA</option>
+										<option value="exp_sj_balik">EXPIRED SJ BALIK</option>
+										<option value="exp_mutasi">EXPIRED MUTASI</option>
+										<option value="exp_not">EXPIRED TIDAK ADA</option>
+									</select>
+								</div>
 							<?php } ?>
-							<div class="col-md-2" style="padding-bottom:3px">
-								<select id="exp_pilih" class="form-control select2" onchange="load_data()">
-									<option value="all">-- CEK --</option>
-									<option value="exp_bc">EXPIRED BC</option>
-									<option value="exp_faktur">EXPIRED FAKTUR</option>
-									<option value="exp_resi">EXPIRED RESI</option>
-									<option value="exp_inv_terima">EXPIRED INV TERIMA</option>
-									<option value="exp_sj_balik">EXPIRED SJ BALIK</option>
-									<option value="exp_mutasi">EXPIRED MUTASI</option>
-									<option value="exp_not">EXPIRED TIDAK ADA</option>
-								</select>
-							</div>
 							<?php if($id_sales == '' || $id_sales == null) { ?>
 								<div class="col-md-4" style="padding-bottom:3px"></div>
 							<?php }else{ ?>
-								<div class="col-md-6" style="padding-bottom:3px">
+								<div class="col-md-8" style="padding-bottom:3px">
 									<input type="hidden" id="type_inv" value="box">
+									<input type="hidden" id="exp_pilih" value="all">
 								</div>
 							<?php } ?>
 						</div>
