@@ -5526,6 +5526,8 @@ class Logistik extends CI_Controller
 
 	function listPiutang()
 	{
+		$id_sales = $this->session->userdata('id_sales');
+		($id_sales == '' || $id_sales == null) ? $wIdSls = "" : $wIdSls = "AND p.id_sales='$id_sales'";
 		$lvl = $this->session->userdata('level');
 		$uName = $this->session->userdata('username');
 		$html = '';
@@ -5533,13 +5535,13 @@ class Logistik extends CI_Controller
 		$sales = $this->db->query("SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
 		INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
 		INNER JOIN m_sales s ON p.id_sales=s.id_sales
-		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
+		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wIdSls
 		GROUP BY s.nm_sales,s.id_sales
 		UNION
 		SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
 		INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
 		INNER JOIN m_sales s ON p.id_sales=s.id_sales
-		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N'
+		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wIdSls
 		GROUP BY s.nm_sales,s.id_sales,h.type");
 
 		if($sales->num_rows() != 0){
@@ -5828,8 +5830,8 @@ class Logistik extends CI_Controller
 		$jenis    = $this->uri->segment(3);
 		$data     = array();
 
-		if ($jenis == "Invoice") 
-		{
+		if ($jenis == "Invoice") {
+			$id_sales = $this->session->userdata('id_sales');
 			$blnn        = $_POST['blnn'];
 			$thnn        = $_POST['thnn'];
 			$type_inv    = $_POST['type_inv'];
@@ -5839,7 +5841,6 @@ class Logistik extends CI_Controller
 			($type_inv == 'all') ? $tipe = "" : $tipe = "AND type='$type_inv'";
 
 			// EXPIRED
-			($exp_pilih == 'exp_bc') ? $wInn = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan" : $wInn = "";
 			if ($exp_pilih == 'exp_bc'){
 				$wExp = "AND status_inv='Xp' AND inp_sj_balik IS NOT NULL AND inp_bc IS NULL AND p.bc='Y' AND h.type!='roll' AND h.pajak!='nonppn'";
 			}else if ($exp_pilih == 'exp_faktur'){
@@ -5858,10 +5859,19 @@ class Logistik extends CI_Controller
 				$wExp = "";
 			}
 
+			// SALES
+			if($id_sales == '' || $id_sales == null){
+				// ($exp_pilih == 'exp_bc') ? $wInn = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan" : $wInn = "";
+				$wSales = "";
+			}else{
+				// $wInn = "";
+				$wSales = "AND p.id_sales='$id_sales'";
+			}
+
 			$query = $this->db->query("SELECT *, DATEDIFF(SUBSTR(h.inp_inv_terima, 1, 10), CURDATE()) AS sisa_invd, DATEDIFF(h.tgl_jatuh_tempo , h.tgl_invoice) AS tempo
 			FROM invoice_header h
-			$wInn
-			WHERE YEAR(h.tgl_invoice) IN ('$thnn') $cek_bulan $tipe $wExp
+			INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+			WHERE YEAR(h.tgl_invoice) IN ('$thnn') $cek_bulan $tipe $wExp $wSales
 			ORDER BY h.status_inv DESC, h.cek_global DESC, h.tgl_invoice DESC, h.no_invoice")->result();
 
 			$i               = 1;
@@ -6446,29 +6456,21 @@ class Logistik extends CI_Controller
 				$btncetak ='<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
 
 				$btnEdit = '<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv . ')" title="EDIT DATA" >
-									<b><i class="fa fa-edit"></i> </b>
-								</a> ';
+					<b><i class="fa fa-edit"></i> </b>
+				</a> ';
 
 				$btnHapus = '<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_inv . ')" class="btn btn-secondary btn-sm">
-									<i class="fa fa-trash-alt"></i>
-								</button> ';
+					<i class="fa fa-trash-alt"></i>
+				</button> ';
 
-				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','Keuangan1','Pembayaran']))
-				{
-					if ($r->acc_owner == "N") 
-					{
-
-						if($cek_pembayaran > 0)
-						{
+				if (in_array($this->session->userdata('level'), ['Admin', 'konsul_keu', 'Keuangan1', 'Pembayaran'])){
+					if ($r->acc_owner == "N") {
+						if($cek_pembayaran > 0){
 							$aksi = '<div class="text-center">'.$btncetak.'<div>';
-
 						}else{
-
-							if (!in_array($this->session->userdata('username'), ['developer','karina','tegar']))
-							{
+							if (!in_array($this->session->userdata('username'), ['Admin','karina','tegar'])){
 								$aksi = '<div class="text-center">'.$btncetak.'<div>';
 							}else{
-
 								// $aksi = '
 								// <a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&no_inv=" .$r->no_invoice ."") . '" title="EDIT DATA" >
 								// 	<b><i class="fa fa-edit"></i> </b>
@@ -6478,34 +6480,24 @@ class Logistik extends CI_Controller
 								'.$btnHapus.'
 								'.$btncetak.'</div>
 								';
-
 							}
 						}
-						
 					} else {
-
-						if($cek_pembayaran > 0)
-						{
+						if($cek_pembayaran > 0) {
 							$aksi = '<div class="text-center">'.$btncetak.'</div>';
-
 						}else{
-
-							if (!in_array($this->session->userdata('username'), ['developer','karina','tegar']))
-							{
+							if (!in_array($this->session->userdata('username'), ['Admin','karina','tegar'])){
 								$aksi = '<div class="text-center">'.$btncetak.'</div>';
-
 							}else{
-
 								$aksi = '<div class="text-center">'.$btnEdit.'
 								'.$btncetak.'</div>
 								';
 							}
-
 						}
 						
 					}
 				} else {
-					$aksi = '';
+					$aksi = '<div class="text-center">'.$btncetak.'<div>';
 				}
 				$row[] = '<div class="text-center">'.$aksi.'</div>';
 				$data[] = $row;
@@ -7864,8 +7856,6 @@ class Logistik extends CI_Controller
 				</div>';
 				$data[] = $row;
 			}
-		}else{
-
 		}
 
 		$output = array(

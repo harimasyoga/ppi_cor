@@ -772,21 +772,23 @@ class M_transaksi extends CI_Model
 		// $db_ppi_hub = '$'.$koneksi_hub->nm_db_hub;
 		// $db_ppi_hub = $this->load->database($koneksi_hub->nm_db_hub, TRUE);
 
-		if($status == 'Y')
-		{
-			$stts    = 'VERIFIKASI';
-			if (in_array($this->session->userdata('level'), ['Owner','Admin']) )
-			{
-				$sts     = 'Approve';
+		$cekPO = $this->db->query("SELECT*FROM trs_po WHERE no_po='$id'");
+
+		if($status == 'Y'){
+			$stts = 'VERIFIKASI';
+			if($this->session->userdata('level') == 'Amin'){
+				$sts = 'Approve';
+			}else if($this->session->userdata('level') == 'Owner' && $cekPO->row()->status_app4 == 'Y'){
+				$sts = 'Approve';
 			}else{
-				$sts     = 'Open';
+				$sts = 'Open';
 			}
 		}else if($status == 'H'){
-			$stts    = 'HOLD';
-			$sts     = 'Open';
+			$stts = 'HOLD';
+			$sts = 'Open';
 		}else{
-			$stts    = 'REJECT';
-			$sts     = 'Reject';
+			$stts = 'REJECT';
+			$sts = 'Reject';
 		}		
 
 		$app      = "";
@@ -844,7 +846,6 @@ class M_transaksi extends CI_Model
 			$msg = 'Data Berhasil Diproses';
 
 		}else {
-			$cekPO         = $this->db->query("SELECT*FROM trs_po WHERE no_po='$id'");
 			$cekPO_detail  = $this->db->query("SELECT * FROM trs_po a join trs_po_detail b on a.kode_po=b.kode_po join m_produk c on b.id_produk=c.id_produk where b.no_po in ('$id') ");
 			
 			$expired       = strtotime($cekPO->row()->add_time) + (48*60*60);
@@ -858,7 +859,9 @@ class M_transaksi extends CI_Model
 			}else{
 				// UPDATE TRS PO
 
-				if ($this->session->userdata('level') == "Marketing") {
+				if($this->session->userdata('level') == "Owner" && $cekPO->row()->status_app4 != 'Y') {
+					$app = "4";		
+				}else if($this->session->userdata('level') == "Marketing") {
 					$app = "1";		
 				}else if ($this->session->userdata('level') == "PPIC") {
 					$app = "2";
@@ -918,6 +921,19 @@ class M_transaksi extends CI_Model
 			'update_trs_po' => $update_trs_po,
 			'update_trs_po_detail' => $update_trs_po_detail,
 			'msg' => $msg,
+		];
+	}
+
+	function updateAddTimePO()
+	{
+		$id = $_POST["id_po"];
+
+		$this->db->set("add_time", date('Y-m-d H:i:s'));
+		$this->db->where("id", $id);
+		$data = $this->db->update('trs_po');
+
+		return [
+			'data' => $data,
 		];
 	}
 

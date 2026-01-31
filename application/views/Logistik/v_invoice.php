@@ -442,6 +442,14 @@
 							<button type="button" style="margin-bottom:3px" class="btn btn-secondary btn-sm" onclick="open_sj()" title="LIST SURAT JALAN"><i class="fas fa-list"></i> <b>LIST SURAT JALAN</b></button>
 							<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_piutang()" title="LAPORAN PIUTANG"><i class="fas fa-list"></i> <b>LAPORAN PIUTANG</b></button>
 						<?php } ?>
+						<?php 
+							$id_sales = $this->session->userdata('id_sales');
+							if($id_sales != '' || $id_sales != null) {
+						?>
+							<div style="margin-bottom:12px">
+								<button type="button" style="margin-bottom:3px" class="btn btn-danger btn-sm" onclick="open_piutang()" title="LAPORAN PIUTANG"><i class="fas fa-list"></i> <b>LAPORAN PIUTANG</b></button>
+							</div>
+						<?php } ?>
 
 						<div class="card-body row" style="padding:8px 0;font-weight:bold">
 							<div class="col-md-2" style="padding-bottom:3px">
@@ -477,13 +485,15 @@
 									?>
 								</select>
 							</div>
-							<div class="col-md-2" style="padding-bottom:3px">
-								<select id="type_inv" class="form-control select2" onchange="load_data()">
-									<option value="all">-- SEMUA --</option>
-									<option value="box">BOX</option>
-									<option value="roll">ROLL</option>
-								</select>
-							</div>
+							<?php if($id_sales == '' || $id_sales == null) { ?>
+								<div class="col-md-2" style="padding-bottom:3px">
+									<select id="type_inv" class="form-control select2" onchange="load_data()">
+										<option value="all">-- SEMUA --</option>
+										<option value="box">BOX</option>
+										<option value="roll">ROLL</option>
+									</select>
+								</div>
+							<?php } ?>
 							<div class="col-md-2" style="padding-bottom:3px">
 								<select id="exp_pilih" class="form-control select2" onchange="load_data()">
 									<option value="all">-- CEK --</option>
@@ -496,8 +506,13 @@
 									<option value="exp_not">EXPIRED TIDAK ADA</option>
 								</select>
 							</div>
-							<div class="col-md-4" style="padding-bottom:3px">
-							</div>
+							<?php if($id_sales == '' || $id_sales == null) { ?>
+								<div class="col-md-4" style="padding-bottom:3px"></div>
+							<?php }else{ ?>
+								<div class="col-md-6" style="padding-bottom:3px">
+									<input type="hidden" id="type_inv" value="box">
+								</div>
+							<?php } ?>
 						</div>
 						<div style="overflow:auto;white-space:nowrap">
 							<table id="datatable" class="table table-bordered table-striped">
