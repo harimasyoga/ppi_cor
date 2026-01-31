@@ -5861,16 +5861,16 @@ class Logistik extends CI_Controller
 
 			// SALES
 			if($id_sales == '' || $id_sales == null){
-				// ($exp_pilih == 'exp_bc') ? $wInn = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan" : $wInn = "";
+				($exp_pilih == 'exp_bc') ? $wInn = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan" : $wInn = "";
 				$wSales = "";
 			}else{
-				// $wInn = "";
+				$wInn = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan";
 				$wSales = "AND p.id_sales='$id_sales'";
 			}
 
-			$query = $this->db->query("SELECT *, DATEDIFF(SUBSTR(h.inp_inv_terima, 1, 10), CURDATE()) AS sisa_invd, DATEDIFF(h.tgl_jatuh_tempo , h.tgl_invoice) AS tempo
+			$query = $this->db->query("SELECT h.*, DATEDIFF(SUBSTR(h.inp_inv_terima, 1, 10), CURDATE()) AS sisa_invd, DATEDIFF(h.tgl_jatuh_tempo , h.tgl_invoice) AS tempo
 			FROM invoice_header h
-			INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+			$wInn
 			WHERE YEAR(h.tgl_invoice) IN ('$thnn') $cek_bulan $tipe $wExp $wSales
 			ORDER BY h.status_inv DESC, h.cek_global DESC, h.tgl_invoice DESC, h.no_invoice")->result();
 
