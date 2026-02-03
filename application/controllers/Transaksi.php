@@ -3584,7 +3584,7 @@ class Transaksi extends CI_Controller
 			// 	WHERE d.no_so_p IS NOT NULL AND d.tgl_so_p LIKE '%$tahunn%' AND s.add_user='ppic'
 			// 	GROUP BY d.id DESC")->result();
 			// }else{
-				$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,d.qty AS qty_po,s.* FROM trs_po_detail d
+				$query = $this->db->query("SELECT d.id AS id_po_detail,p.kategori,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,d.qty AS qty_po,s.* FROM trs_po_detail d
 				INNER JOIN trs_po po ON po.no_po=d.no_po AND po.kode_po=d.kode_po
 				INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so=s.no_so AND d.id_produk=s.id_produk
 				INNER JOIN m_produk p ON d.id_produk=p.id_produk
@@ -3612,7 +3612,8 @@ class Transaksi extends CI_Controller
 				// $urut_so = str_pad($r->urut_so, 2, "0", STR_PAD_LEFT);
 				($r->c_rpt == 1) ? $cpt = '' : $cpt = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->c_rpt.'</span>';
 				$row[] = $r->kode_po.$cpt;
-				$row[] = $r->nm_produk;
+				($r->kategori == 'K_BOX') ? $k = '' : $k = '[SHEET] ';
+				$row[] = $k.$r->nm_produk;
 				($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
 				$row[] = $r->nm_pelanggan.$attn;
 				$row[] = '<div class="text-right"><b>'.number_format($r->qty_po).'</b></div>';
@@ -7515,7 +7516,7 @@ class Transaksi extends CI_Controller
 			$i++;
 			$urut_so = str_pad($r['options']['urut_so'], 2, "0", STR_PAD_LEFT);
 			$rpt = str_pad($r['options']['rpt'], 2, "0", STR_PAD_LEFT);
-			($r['options']['eta_so'] == null || $r['options']['eta_so'] == "") ? $eeTa = '-' : $eeTa = '';
+			($r['options']['eta_so'] == null || $r['options']['eta_so'] == "") ? $eeTa = '-' : $eeTa = $r['options']['eta_so'];
 			($this->cart->total_items() == $r['options']['total_items']) ?
 				$btnAksi = '<button class="btn btn-danger btn-sm" id="hapusCartItemSO" onclick="hapusCartItem('."'".$r['rowid']."'".','."'".$r['id']."'".','."'ListAddBagiSO'".')"><i class="fas fa-times"></i> <b>BATAL</b></button>' : $btnAksi = '-' ;
 			$html .='<tr>

@@ -249,7 +249,9 @@
 				</div>
 				<div class="axs akses_add"></div>
 				<input type="hidden" id="cart-akses" value="">
-				<div class="axs akses_list"></div>
+				<div style="overflow:auto;white-space:nowrap">
+					<div class="axs akses_list"></div>
+				</div>
 				<div class="axs akses_simpan"></div>
 			</div>
 		</div>
