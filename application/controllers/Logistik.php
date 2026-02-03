@@ -5832,13 +5832,13 @@ class Logistik extends CI_Controller
 
 		if ($jenis == "Invoice") {
 			$id_sales = $this->session->userdata('id_sales');
+			$lvL = $this->session->userdata('level');
 			$blnn        = $_POST['blnn'];
 			$thnn        = $_POST['thnn'];
 			$type_inv    = $_POST['type_inv'];
 			$exp_pilih    = $_POST['exp_pilih'];
 
 			($blnn == '' || $blnn == 'all') ? $cek_bulan = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.acc_owner!='Y'" : $cek_bulan = "AND month(tgl_invoice) IN ('$blnn')";
-			($type_inv == 'all') ? $tipe = "" : $tipe = "AND type='$type_inv'";
 
 			// EXPIRED
 			if ($exp_pilih == 'exp_bc'){
@@ -5861,9 +5861,15 @@ class Logistik extends CI_Controller
 
 			// SALES
 			if($id_sales == '' || $id_sales == null){
+				($type_inv == 'all') ? $tipe = "" : $tipe = "AND type='$type_inv'";
 				($exp_pilih == 'exp_bc') ? $wInn = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan" : $wInn = "";
 				$wSales = "";
+			}else if($lvL == 'MR'){
+				$tipe = "AND h.type='roll'";
+				$wInn = "INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id";
+				$wSales = "AND p.id_sales='$id_sales' AND p.jns='ROLL'";
 			}else{
+				$tipe = "AND h.type!='roll'";
 				$wInn = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan";
 				$wSales = "AND p.id_sales='$id_sales'";
 			}

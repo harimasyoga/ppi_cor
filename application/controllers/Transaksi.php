@@ -3306,12 +3306,12 @@ class Transaksi extends CI_Controller
                 }else if($r->status_app4=='H'){
                     $btn4   = 'btn-danger';
                     $i4     = '<i class="far fa-hand-paper"></i>';
-					$alasan4 = $r->ket_acc2;
+					$alasan4 = $r->ket_acc4;
 					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan4 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan4 .= '<br><div style="color:#f00;font-weight:bold">'.$waktu.'</div>';
                 }else if($r->status_app4=='R'){
                     $btn4   = 'btn-danger';
                     $i4     = '<i class="fas fa-times"></i>';
-					$alasan4 = $r->ket_acc2;
+					$alasan4 = $r->ket_acc4;
 					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan4 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan4 .= '<br><div style="color:#f00;font-weight:bold">'.$waktu.'</div>';
                 }else{
                     $btn4   = 'btn-success';
@@ -3400,25 +3400,29 @@ class Transaksi extends CI_Controller
                 $time3 = (($r->time_app3 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app3,0,10))  . ' - ' .substr($r->time_app3,10,9));
                 $time4 = (($r->time_app4 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app4,0,10))  . ' - ' .substr($r->time_app4,10,9));
 				// HARGA
-				$row[] = '<div class="text-center">
+				(strlen($alasan4) >= 25) ? $spn4 = 'style="width:150px;white-space:normal"' : $spn4 = '';
+				$row[] = '<div class="text-center" '.$spn4.'>
 					<button onclick="data_sementara(`HARGA`, '."'".$r->status_app4."'".', '."'".$time4."'".', '."'".$alasan4."'".', '."'".$r->no_po."'".', '."'".$exp4."'".')" type="button" title="'.$time4.'"  style="text-align:center" class="btn btn-sm '.$btn4.'" id="btnBase2-'.$r->id.'">'.$i4.'</button><br>
-					'.$alasan4.''.$ketAlasan4.'</div>
-				';
+					'.$alasan4.''.$ketAlasan4.'
+				</div>';
 				// MARKETING
-				$row[] = '<div class="text-center">
+				(strlen($alasan1) >= 25) ? $spn1 = 'style="width:150px;white-space:normal"' : $spn1 = '';
+				$row[] = '<div class="text-center" '.$spn1.'>
 					<button onclick="data_sementara(`Marketing`, '."'".$r->status_app1."'".', '."'".$time1."'".', '."'".$alasan1."'".', '."'".$r->no_po."'".', '."'".$exp1."'".')" type="button" title="'.$time1.'" style="text-align:center" class="btn btn-sm '.$btn1.'" id="btnBase1-'.$r->id.'">'.$i1.'</button><br>
 					'.$alasan1.''.$ketAlasan1.'
 				</div>';
 				// PPIC
-                $row[] = '<div class="text-center">
+				(strlen($alasan2) >= 25) ? $spn2 = 'style="width:150px;white-space:normal"' : $spn2 = '';
+                $row[] = '<div class="text-center" '.$spn2.'>
 					<button onclick="data_sementara(`PPIC`, '."'".$r->status_app2."'".', '."'".$time2."'".', '."'".$alasan2."'".', '."'".$r->no_po."'".', '."'".$exp2."'".')" type="button" title="'.$time2.'"  style="text-align:center" class="btn btn-sm '.$btn2.'" id="btnBase2-'.$r->id.'">'.$i2.'</button><br>
-					'.$alasan2.''.$ketAlasan2.'</div>
-				';
+					'.$alasan2.''.$ketAlasan2.'
+				</div>';
 				// OWNER
-                $row[] = '<div class="text-center">
+				(strlen($alasan3) >= 25) ? $spn3 = 'style="width:150px;white-space:normal"' : $spn3 = '';
+                $row[] = '<div class="text-center" '.$spn3.'>
 					<button onclick="data_sementara(`Owner`, '."'".$r->status_app3."'".', '."'".$time3."'".', '."'".$alasan3."'".', '."'".$r->no_po."'".', 0)"  type="button" title="'.$time3.'"  style="text-align:center" class="btn btn-sm '.$btn3.'">'.$i3.'</button><br>
-					'.$alasan3.'</div>
-				';
+					'.$alasan3.'
+				</div>';
 
                 $aksi = '';
 				if (!in_array($this->session->userdata('level'), ['Admin', 'konsul_keu', 'Marketing', 'PPIC', 'Owner', 'AP'])) {
@@ -3490,9 +3494,7 @@ class Transaksi extends CI_Controller
 				}
 
 				$row[] = '<div class="text-center">'.$aksi.'</div>';
-
 				$data[] = $row;
-
 				$i++;
 			}
 		} else if ($jenis == "po_bahan") {
@@ -3582,7 +3584,7 @@ class Transaksi extends CI_Controller
 			// 	WHERE d.no_so_p IS NOT NULL AND d.tgl_so_p LIKE '%$tahunn%' AND s.add_user='ppic'
 			// 	GROUP BY d.id DESC")->result();
 			// }else{
-				$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,d.qty AS qty_po,s.* FROM trs_po_detail d
+				$query = $this->db->query("SELECT d.id AS id_po_detail,p.kategori,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,d.qty AS qty_po,s.* FROM trs_po_detail d
 				INNER JOIN trs_po po ON po.no_po=d.no_po AND po.kode_po=d.kode_po
 				INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so=s.no_so AND d.id_produk=s.id_produk
 				INNER JOIN m_produk p ON d.id_produk=p.id_produk
@@ -3610,7 +3612,8 @@ class Transaksi extends CI_Controller
 				// $urut_so = str_pad($r->urut_so, 2, "0", STR_PAD_LEFT);
 				($r->c_rpt == 1) ? $cpt = '' : $cpt = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->c_rpt.'</span>';
 				$row[] = $r->kode_po.$cpt;
-				$row[] = $r->nm_produk;
+				($r->kategori == 'K_BOX') ? $k = '' : $k = '[SHEET] ';
+				$row[] = $k.$r->nm_produk;
 				($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
 				$row[] = $r->nm_pelanggan.$attn;
 				$row[] = '<div class="text-right"><b>'.number_format($r->qty_po).'</b></div>';
@@ -7513,7 +7516,7 @@ class Transaksi extends CI_Controller
 			$i++;
 			$urut_so = str_pad($r['options']['urut_so'], 2, "0", STR_PAD_LEFT);
 			$rpt = str_pad($r['options']['rpt'], 2, "0", STR_PAD_LEFT);
-			($r['options']['eta_so'] == null || $r['options']['eta_so'] == "") ? $eeTa = '-' : $eeTa = '';
+			($r['options']['eta_so'] == null || $r['options']['eta_so'] == "") ? $eeTa = '-' : $eeTa = $r['options']['eta_so'];
 			($this->cart->total_items() == $r['options']['total_items']) ?
 				$btnAksi = '<button class="btn btn-danger btn-sm" id="hapusCartItemSO" onclick="hapusCartItem('."'".$r['rowid']."'".','."'".$r['id']."'".','."'ListAddBagiSO'".')"><i class="fas fa-times"></i> <b>BATAL</b></button>' : $btnAksi = '-' ;
 			$html .='<tr>
