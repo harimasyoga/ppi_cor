@@ -232,9 +232,10 @@ class Laporan extends CI_Controller
 					}else{
 						$btnBtl = '-';
 					}
-					($r->status_app3!='Y') ? $ketPO = ';font-style:italic' : $ketPO = ';font-weight:bold';
+					($r->status_app3 != 'Y') ? $ketPO = ';font-style:italic' : $ketPO = ';font-weight:bold';
+					($r->aktif == 0 || $r->aktif == '0') ? $aktifPO = ' <button class="btn btn-xs btn-danger" style="padding:0 2px;font-weight:bold;cursor:default">CLOSE</button>' : $aktifPO = '';
 					$html .='<tr>
-						<td style="background:#adb5bd;padding:5px;border:1px solid #aaa'.$ketPO.'" colspan="6">'.$r->kode_po.'</td>
+						<td style="background:#adb5bd;padding:5px;border:1px solid #aaa'.$ketPO.'" colspan="6">'.$r->kode_po.$aktifPO.'</td>
 						'.$kopBtn.'
 						<td style="background:#adb5bd;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:center">'.$btnBtl.'</td>
 					</tr>';

@@ -1054,6 +1054,33 @@
 		})
 	}
 
+	function nonAktifPO(id_po)
+	{
+		console.log(id_po)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/nonAktifPO')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_po }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				toastr.success(`<b>${data.msg}</b>`)
+				reloadTable()
+				swal.close()
+			}
+		})
+	}
+
 	var no_po = ''
 
 	function preview(id, act) 

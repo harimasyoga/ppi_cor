@@ -851,14 +851,12 @@ class M_transaksi extends CI_Model
 			$expired       = strtotime($cekPO->row()->add_time) + (48*60*60);
 			$actualDate    = time();
 
-			if($this->session->userdata('level') != "Owner" && $actualDate > $expired || $actualDate == $expired)
-			{
+			if($this->session->userdata('level') != "Owner" && $actualDate > $expired || $actualDate == $expired) {
 				$update_trs_po          = false;
 				$update_trs_po_detail   = false;
 				$msg                    = 'TIDAK BISA '.$stts.' SUDAH EXPIRED';
 			}else{
 				// UPDATE TRS PO
-
 				if($this->session->userdata('level') == "Owner" && $cekPO->row()->status_app4 != 'Y') {
 					$app = "4";		
 				}else if($this->session->userdata('level') == "Marketing") {
@@ -867,10 +865,8 @@ class M_transaksi extends CI_Model
 					$app = "2";
 				}else if ($this->session->userdata('level') == "Owner") {
 					$app = "3";
-					if($status == 'Y')
-					{
-						foreach ($cekPO_detail->result() as $row)
-						{
+					if($status == 'Y') {
+						foreach ($cekPO_detail->result() as $row){
 							stok_bahanbaku($row->kode_po, $row->id_hub, $row->tgl_po, 'HUB', 0, $row->bhn_bk, 'KELUAR DENGAN PO', 'KELUAR',$row->id_produk);
 						}
 					}
@@ -934,6 +930,33 @@ class M_transaksi extends CI_Model
 
 		return [
 			'data' => $data,
+		];
+	}
+
+	function nonAktifPO()
+	{
+		$id = $_POST["id_po"];
+		$po = $this->db->query("SELECT*FROM trs_po WHERE id='$id'")->row();
+
+		if($po->aktif == 1){
+			$this->db->set("aktif", 0);
+			$this->db->set("status", 'Close');
+			$msg = 'PO '.$po->kode_po.' BERHASIL DI CLOSE!';
+		}else{
+			$this->db->set("aktif", 1);
+			if($po->status_app4 == 'Y' && $po->status_app1 == 'Y' && $po->status_app2 == 'Y' && $po->status_app3 == 'Y'){
+				$this->db->set("status", 'Approve');
+			}else{
+				$this->db->set("status", 'Open');
+			}
+			$msg = 'PO '.$po->kode_po.' BERHASIL DI OPEN!';
+		}
+		$this->db->where("id", $id);
+		$data = $this->db->update('trs_po');
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
 		];
 	}
 
