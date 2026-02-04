@@ -1395,4 +1395,66 @@ class M_plan extends CI_Model
 			'data' => $data,
 		];
 	}
+
+	function generateFileName()
+	{
+		$stringSpace = '0123456789_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$stringLength = strlen($stringSpace);
+		$string = str_repeat($stringSpace, ceil(11 / $stringLength));
+		$shuffledString = str_shuffle($string);
+		$code = substr($shuffledString, 1, 11);
+		return $code;
+	}
+
+	function uploadPlan()
+	{
+		$no_plan = $_POST["no_plan"];
+
+		$config['upload_path'] = './assets/file_plan/';
+		$config['allowed_types'] = 'xls|xlsx';
+		$config['max_size'] = 1024; // 1MB
+		$config['overwrite'] = true;
+		// $thn = substr(date('Y'), 2, 2); $bln = date('m'); $date = date('d');
+		// $config['file_name'] = $no_plan.'-'.$thn.$bln.$date.'-'.$this->generateFileName();
+		$config['file_name'] = $no_plan;
+		$this->load->library('upload', $config);
+		$this->upload->initialize($config);
+
+		if(!$this->upload->do_upload('plan_foto')){
+			$data = false; $msg = 'UKURAN LEBIH DARI 1MB / FORMAT FILE TIDAK DIDUKUNG!';
+		}else{
+			if($this->upload->do_upload('plan_foto')){
+				$gbrBukti = $this->upload->data();
+				$filefoto = $gbrBukti['file_name'];
+				$this->db->set('nm_file', $filefoto);
+				$this->db->where('no_plan', $no_plan);
+				$data = $this->db->update('plan_cor');
+				$msg = 'BERHASIL!';
+			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function hapusExcelPlan()
+	{
+		$no_plan = $_POST["no_plan"];
+		$noPlan = $this->db->query("SELECT*FROM plan_cor WHERE no_plan='$no_plan' GROUP BY no_plan")->row();
+
+		unlink("assets/file_plan/".$noPlan->nm_file);
+
+		$this->db->set('nm_file', null);
+		$this->db->where('no_plan', $no_plan);
+		$data = $this->db->update('plan_cor');
+		$msg = 'BERHASIL HAPUS!';
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+			'noPlan' => $noPlan,
+		];
+	}
 }

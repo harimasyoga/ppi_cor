@@ -2654,5 +2654,77 @@
 		})
 	}
 
+	function cekFile() {
+		let no_plan = $("#no_plan").val()
+		let plan_foto = $("#plan_foto").val()
+
+		if(plan_foto != '') {
+			$(".btn-uplan").html(`<button class="btn btn-primary btn-sm" style="margin:6px 0 0" onclick="uploadPlan()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>`)
+		} else {
+			$(".btn-uplan").html('')
+		}
+	}
+
+	function uploadPlan() {
+		let no_plan = $("#no_plan").val()
+		let plan_foto = $("#plan_foto").val()
+
+		var form = $('#upload_plan')[0];
+		var data = new FormData(form);
+		$.ajax({
+			url: '<?php echo base_url('Plan/uploadPlan') ?>',
+			type: "POST",
+			enctype: 'multipart/form-data',
+			data: data,
+			contentType: false,
+			cache: false,
+			timeout: 600000,
+			processData: false,
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					loadData(urlTgl_plan, urlShift, urlMesin)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		});
+	}
+
+	function hapusExcelPlan(no_plan) {
+		$.ajax({
+			url: '<?php echo base_url('Plan/hapusExcelPlan')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ no_plan }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				toastr.success(`<b>${data.msg}</b>`)
+				loadData(urlTgl_plan, urlShift, urlMesin)
+			}
+		})
+	}
 
 </script>

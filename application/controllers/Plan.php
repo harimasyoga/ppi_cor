@@ -392,18 +392,25 @@ class Plan extends CI_Controller
 			$row[] = '<div style="text-align:center">'.$r->jml.'</div>';
 
 			$link = base_url('Plan/Corrugator/List/'.$r->tgl_plan.'/'.$r->shift_plan.'/'.$r->machine_plan);
-			if(in_array($this->session->userdata('level'), ['Admin','konsul_keu','PPIC','User','plan'])){
+
+			if($r->nm_file != null){
+				$btnExcel = '<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold" href="'.base_url().'assets/file_plan/'.$r->nm_file.'" title="Excel" ><i class="fas fa-file-excel"></i></a>';
+			}else{
+				$btnExcel = '';
+			}
+			if(in_array($this->session->userdata('level'), ['Admin', 'konsul_keu', 'PPIC', 'User', 'plan'])){
 				$btnPrint = '
-				<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>
-				<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Plan/laporanPlanCor?no_plan=".$r->no_plan."").'" title="Cetak Plan" ><i class="fas fa-print"></i></a>
-				<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Plan/laporanISOCor?no_plan=".$r->no_plan."").'" title="Cetak SO" ><i class="fas fa-print"></i></a>';
+					<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>
+					<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Plan/laporanPlanCor?no_plan=".$r->no_plan."").'" title="Cetak Plan" ><i class="fas fa-print"></i></a>
+					<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Plan/laporanISOCor?no_plan=".$r->no_plan."").'" title="Cetak SO" ><i class="fas fa-print"></i></a>
+					'.$btnExcel.'
+				';
 			}else if($this->session->userdata('level') == 'Corrugator'){
 				$btnPrint = '<a href="'.$link.'" title="Edit"><button type="button" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button></a>';
 			}else{
 				$btnPrint = '';
 			}
-			$row[] = $btnPrint;
-
+			$row[] = '<div style="text-align:center">'.$btnPrint.'</div>';
 			$data[] = $row;
 		}
 
@@ -411,6 +418,18 @@ class Plan extends CI_Controller
 			"data" => $data,
 		);
 		echo json_encode($output);
+	}
+
+	function uploadPlan()
+	{
+		$result = $this->m_plan->uploadPlan();
+		echo json_encode($result);
+	}
+
+	function hapusExcelPlan()
+	{
+		$result = $this->m_plan->hapusExcelPlan();
+		echo json_encode($result);
 	}
 
 	function loadPlanWo()
@@ -1682,7 +1701,37 @@ class Plan extends CI_Controller
 						<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumCoff, 0, ',', '.').'</td>
 						<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumRM, 0, ',', '.').'</td>
 						<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumKG, 0, ',', '.').'</td>
-						<td style="padding:6px" colspan="4"></td>
+						<td style="padding:6px" colspan="5"></td>
+					</tr>';
+				}
+
+				// upload
+				$noPlan = $this->db->query("SELECT*FROM plan_cor p WHERE p.tgl_plan='$urlTgl_plan' AND p.shift_plan='$urlShift' AND p.machine_plan='$urlMesin' GROUP BY tgl_plan DESC,shift_plan,machine_plan")->row();
+				if($noPlan->nm_file == null){
+					if($opsi == '' && in_array($this->session->userdata('level'), ['Admin', 'PPIC', 'User'])){
+						$html .= '<tr>
+							<td style="padding:6px;text-align:left" colspan="36">
+								<form role="form" method="POST" id="upload_plan" enctype="multipart/form-data">
+									<input type="hidden" name="no_plan" id="no_plan" value="'.$noPlan->no_plan.'">
+									<input type="file" name="plan_foto" id="plan_foto" accept=".xls,.xlsx" onchange="cekFile()">
+								</form>
+								<div class="btn-uplan"></div>
+							</td>
+						</tr>';
+					}else{
+						$html .= '';
+					}
+				}else{
+					if($opsi == '' && in_array($this->session->userdata('level'), ['Admin', 'PPIC', 'User'])){
+						$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="hapusExcelPlan('."'".$noPlan->no_plan."'".')"><i class="fas fa-trash"></i></button>';
+					}else{
+						$btnHapus = '';
+					}
+					$html .= '<tr>
+						<td style="padding:6px;text-align:left" colspan="36">
+							<a target="_blank" class="btn btn-sm btn-success" style="font-weight:bold" href="'.base_url().'assets/file_plan/'.$noPlan->nm_file.'" title="Excel" ><i class="fas fa-file-excel"></i> EXCEL</a>
+							'.$btnHapus.'
+						</td>
 					</tr>';
 				}
 
