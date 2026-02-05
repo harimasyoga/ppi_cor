@@ -3451,13 +3451,14 @@ class Transaksi extends CI_Controller
 							</div>
 							<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Cetak_PO?no_po=".$r->no_po."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
 							<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/Cetak_wa_po?no_po=".$r->no_po."").'" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
+							<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Cetak_img_po?no_po=".$r->no_po."").'" title="Cetak Img" ><i class="fas fa-image"></i></a> 
 						';
 					}else{
-						if($r->aktif == 0 || $r->aktif == '0'){
+						if(($r->aktif == 0 || $r->aktif == '0') && $this->session->userdata('level') == 'User'){
 							$aksi .=  '<button type="button" title="AKTIF KAN LAGI"  onclick="nonAktifPO('."'".$r->id."'".')" class="btn btn-sm btn-primary">
 								<i class="fas fa-power-off"></i>
 							</button>';
-						}else{
+						}else if($this->session->userdata('level') == 'User'){
 							$aksi .=  '<button type="button" title="NON AKTIF"  onclick="nonAktifPO('."'".$r->id."'".')" class="btn btn-sm btn-warning">
 								<i class="fas fa-power-off"></i>
 							</button>';
@@ -3465,6 +3466,7 @@ class Transaksi extends CI_Controller
 						$aksi .= '
 							<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Cetak_PO?no_po=".$r->no_po."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
 							<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/Cetak_wa_po?no_po=".$r->no_po."").'" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
+							<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Cetak_img_po?no_po=".$r->no_po."").'" title="Cetak Img" ><i class="fas fa-image"></i></a> 
 						';
 					}
 				}else{
