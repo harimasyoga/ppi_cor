@@ -500,12 +500,17 @@ class Master extends CI_Controller
 				$data[] = $row;
 			}
 		} else if ($jenis == "produk") {
-			$query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan ORDER BY kategori,nm_produk")->result();
+			$id_pelanggan = $_POST["id_pelanggan"];
+			($id_pelanggan == '') ? $wCust = "" : $wCust = "WHERE p.no_customer='$id_pelanggan'";
+			$query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan $wCust ORDER BY kategori,nm_produk")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				( $r->kategori =='K_SHEET' ) ? $kategori='SHEET' : $kategori='BOX';
 				($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
 				($r->kategori == 'K_BOX') ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
+
+				$design = $this->db->query("SELECT COUNT(id_produk) AS jml FROM m_produk_mc WHERE id_produk='$r->id_produk' GROUP BY id_produk");
+				($design->num_rows() == 0) ? $dD = '' : $dD = ' <span class="bg-dark" style="vertical-align:top;padding:2px 4px;font-size:12px;font-weight:bold;border-radius:4px">'.$design->row()->jml.'</span>';
 
 				$row = array();
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_produk."'".','."'detail'".')">'.$i."<a></div>";
@@ -515,17 +520,17 @@ class Master extends CI_Controller
 				$row[] = $ukuran;
 				$row[] = '<div class="text-center">'.$r->flute.'</div>';
 				$row[] = $this->m_fungsi->kualitas($r->kualitas, $r->flute);
-				$row[] = $r->kode_mc;
+				$row[] = $r->kode_mc.$dD;
 
 				$idProduk = $r->id_produk; 
-				if (in_array($this->session->userdata('level'), ['Admin','Admin2','konsul_keu','User'])) {
+				if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'konsul_keu', 'User'])) {
 					$cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE id_produk='$idProduk'")->num_rows();
 					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_produk."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
 					$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_produk."'".')"><i class="fas fa-times"></i></button>';
 				}else{
-					$cekPO       = 0;
-					$btnEdit     = '';
-					$btnHapus    = '';
+					$cekPO = 0;
+					$btnEdit = '';
+					$btnHapus = '';
 				}
 
 				($cekPO == 0) ? $btnAksi = $btnEdit.' '.$btnHapus : $btnAksi = $btnEdit;
@@ -1136,12 +1141,55 @@ class Master extends CI_Controller
 		// WHERE pel.id_pelanggan='$id_pelanggan'")->row();
 		$id_produk = $data->id_produk;
 		$poDetail = $this->db->query("SELECT*FROM trs_po_detail WHERE id_produk='$id_produk'")->result();
+
+		// DESIGN
+		$design = $this->db->query("SELECT*FROM m_produk_mc WHERE id_produk='$id'");
+		$htmlDesign = '';
+		$htmlUpload = '<div style="margin-bottom:5px">
+			<form role="form" method="POST" id="upload_design" enctype="multipart/form-data">
+				<input type="hidden" name="id_mc" id="id_mc" value="'.$id.'">
+				<input type="file" name="mc_foto" id="mc_foto" accept="image/*" onchange="cekUpload()">
+			</form>
+			<div class="btn-mc"></div>
+		</div>';
+		if($design->num_rows() == 0){
+			$htmlDesign .= $htmlUpload;
+		}else{
+			$htmlDesign .= $htmlUpload;
+			$htmlDesign .= '<div style="display:flex">';
+				$i = 0;
+				foreach($design->result() as $r){
+					$i++;
+					$preview = 'p'.$i;
+					$htmlDesign .= '<div style="margin-right:4px">
+						<button class="btn btn-xs btn-danger" onclick="hapusImgMC('."'".$r->id_mc."'".')"><i class="fas fa-trash"></i></button>
+					</div>
+					<div style="margin-right:8px">
+						<img id="'.$preview.'" src="'.base_url().'assets/mc/'.$r->img_mc.'" alt="MC" width="100" class="shadow-sm img-thumbnail" onclick="imgClick('."'".$preview."'".')">
+					</div>';
+				}
+				$htmlDesign .= '
+			</div>';
+		}
+		
+
 		echo json_encode(array(
 			'produk' => $data,
 			'pelanggan' => $pelanggan,
 			// 'wilayah' => $wilayah,
 			'poDetail' => $poDetail,
+			'htmlDesign' => $htmlDesign,
 		));
+	}
+
+	function uploadDesign(){
+		$result = $this->m_master->uploadDesign();
+		echo json_encode($result);
+	}
+
+	function hapusImgMC(){
+		$result = $this->m_master->hapusImgMC();
+		echo json_encode($result);
 	}
 
 	function buatKodeMC(){

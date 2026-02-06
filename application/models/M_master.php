@@ -464,6 +464,65 @@ class M_master extends CI_Model{
         return $result;
     }
 
+	function generateFileName()
+	{
+		$stringSpace = '0123456789_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$stringLength = strlen($stringSpace);
+		$string = str_repeat($stringSpace, ceil(11 / $stringLength));
+		$shuffledString = str_shuffle($string);
+		$code = substr($shuffledString, 1, 11);
+		return $code;
+	}
+
+	function uploadDesign()
+	{
+		$id = $_POST["id_mc"];
+
+		$config['upload_path'] = './assets/mc/';
+		$config['allowed_types'] = 'jpg|jpeg|png|gif|webp';
+		$config['max_size'] = 2048; // 2MB
+		$config['overwrite'] = true;
+		$config['file_name'] = 'MC'.$id.'-'.$this->generateFileName();
+
+		$this->load->library('upload', $config);
+		$this->upload->initialize($config);
+
+		if(!$this->upload->do_upload('mc_foto')){
+			$data = false; $msg = 'UKURAN LEBIH DARI 2 MB / FORMAT FILE TIDAK DIDUKUNG!';
+		}else{
+			if($this->upload->do_upload('mc_foto')){
+				$gbrBukti = $this->upload->data();
+				$filefoto = $gbrBukti['file_name'];
+				$dd = [
+					'id_produk' => $id,
+					'img_mc' => $filefoto,
+				];
+				$data = $this->db->insert('m_produk_mc', $dd);
+				$msg = 'BERHASIL';
+			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function hapusImgMC()
+	{
+		$id_mc = $_POST["id_mc"];
+		$produk = $this->db->query("SELECT*FROM m_produk_mc WHERE id_mc='$id_mc'")->row();
+		// HAPUS FILE
+		$u = unlink("assets/mc/".$produk->img_mc);
+		// HAPUS DATA
+		$this->db->where("id_mc", $id_mc);
+		$data = $this->db->delete("m_produk_mc");
+		return [
+			'data' => $data,
+			'unlink' => $u,
+		];
+	}
+
 	function buatKodeMC(){
 		$mcNoCust = $_POST["mcNoCust"];
 		$mcKodeUnik = $_POST["mcKodeUnik"];
