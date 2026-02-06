@@ -3370,19 +3370,21 @@ class Transaksi extends CI_Controller
 				$result_po = $this->db->query("SELECT nm_produk from trs_po_detail a join m_produk b ON a.id_produk=b.id_produk where no_po='$r->no_po'
 				GROUP BY a.id_produk ORDER BY a.id");
 				if($result_po->num_rows() == '1'){
-					$nm_item = $result_po->row()->nm_produk;
+					(strlen($result_po->row()->nm_produk) >= 35) ? $sTy = 'style="width:260px;white-space:normal"' : $sTy = '';
+					$nm_item = '<div '.$sTy.'>'.$result_po->row()->nm_produk.'</div>';
 				}else{
-					$no = 1;
-					$nm_item_result = '';
+					$nm_item_result = ''; $no = 0;
 					foreach($result_po->result() as $row_po){
-						$nm_item_result .= '<b>'.$no.'.</b> '.$row_po->nm_produk.'<br>';
-						$no ++;
+						(strlen($row_po->nm_produk) >= 35) ? $sTf = 'style="width:260px;white-space:normal"' : $sTf = '';
+						$no++;
+						$nm_item_result .= '<div '.$sTf.'><b>'.$no.'.</b> '.$row_po->nm_produk.'</div>';
 					}
 					$nm_item = $nm_item_result;
 				}
 
-				($r->attn == '-' || $r->attn == '') ? $attn = '' : $attn = '<br>( '.$r->attn.' )';
-				$row[] = $r->nm_pelanggan.$attn;
+				($r->attn == '-' || $r->attn == '') ? $attn = '' : $attn = '( '.$r->attn.' )';
+				(strlen($r->nm_pelanggan) >= 40) ? $sTc = 'style="width:260px;white-space:normal"' : $sTc = '';
+				$row[] = '<div '.$sTc.'>'.$r->nm_pelanggan.'</div>'.$attn;
 				$row[] = $r->kode_po;
 				$row[] = $nm_item;
 				$row_karet = $this->db->query("SELECT *FROM m_status_karet where status='$r->status_karet' ")->row();
@@ -3410,25 +3412,25 @@ class Transaksi extends CI_Controller
                 $time3 = (($r->time_app3 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app3,0,10))  . ' - ' .substr($r->time_app3,10,9));
                 $time4 = (($r->time_app4 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app4,0,10))  . ' - ' .substr($r->time_app4,10,9));
 				// HARGA
-				(strlen($alasan4) >= 25) ? $spn4 = 'style="width:150px;white-space:normal"' : $spn4 = '';
+				(strlen($alasan4) >= 35) ? $spn4 = 'style="width:200px;white-space:normal"' : $spn4 = '';
 				$row[] = '<div class="text-center" '.$spn4.'>
 					<button onclick="data_sementara(`HARGA`, '."'".$r->status_app4."'".', '."'".$time4."'".', '."'".$alasan4."'".', '."'".$r->no_po."'".', '."'".$exp4."'".')" type="button" title="'.$time4.'"  style="text-align:center" class="btn btn-sm '.$btn4.'" id="btnBase2-'.$r->id.'">'.$i4.'</button><br>
 					'.$alasan4.''.$ketAlasan4.'
 				</div>';
 				// MARKETING
-				(strlen($alasan1) >= 25) ? $spn1 = 'style="width:150px;white-space:normal"' : $spn1 = '';
+				(strlen($alasan1) >= 35) ? $spn1 = 'style="width:200px;white-space:normal"' : $spn1 = '';
 				$row[] = '<div class="text-center" '.$spn1.'>
 					<button onclick="data_sementara(`Marketing`, '."'".$r->status_app1."'".', '."'".$time1."'".', '."'".$alasan1."'".', '."'".$r->no_po."'".', '."'".$exp1."'".')" type="button" title="'.$time1.'" style="text-align:center" class="btn btn-sm '.$btn1.'" id="btnBase1-'.$r->id.'">'.$i1.'</button><br>
 					'.$alasan1.''.$ketAlasan1.'
 				</div>';
 				// PPIC
-				(strlen($alasan2) >= 25) ? $spn2 = 'style="width:150px;white-space:normal"' : $spn2 = '';
+				(strlen($alasan2) >= 35) ? $spn2 = 'style="width:200px;white-space:normal"' : $spn2 = '';
                 $row[] = '<div class="text-center" '.$spn2.'>
 					<button onclick="data_sementara(`PPIC`, '."'".$r->status_app2."'".', '."'".$time2."'".', '."'".$alasan2."'".', '."'".$r->no_po."'".', '."'".$exp2."'".')" type="button" title="'.$time2.'"  style="text-align:center" class="btn btn-sm '.$btn2.'" id="btnBase2-'.$r->id.'">'.$i2.'</button><br>
 					'.$alasan2.''.$ketAlasan2.'
 				</div>';
 				// OWNER
-				(strlen($alasan3) >= 25) ? $spn3 = 'style="width:150px;white-space:normal"' : $spn3 = '';
+				(strlen($alasan3) >= 35) ? $spn3 = 'style="width:200px;white-space:normal"' : $spn3 = '';
                 $row[] = '<div class="text-center" '.$spn3.'>
 					<button onclick="data_sementara(`Owner`, '."'".$r->status_app3."'".', '."'".$time3."'".', '."'".$alasan3."'".', '."'".$r->no_po."'".', 0)"  type="button" title="'.$time3.'"  style="text-align:center" class="btn btn-sm '.$btn3.'">'.$i3.'</button><br>
 					'.$alasan3.'
@@ -4608,13 +4610,25 @@ class Transaksi extends CI_Controller
 			LEFT JOIN m_produk e ON b.id_produk=e.id_produk
 			WHERE a.no_po = '$header->no_po' ORDER BY b.id")->result();
 			
+			// $design = $this->db->query("SELECT i.*,a.* FROM trs_design_header a
+			// INNER JOIN trs_po b ON b.kode_po=a.kode_po
+			// INNER JOIN trs_design_detail c ON a.id_dg=c.id_hdr
+			// INNER JOIN m_produk i ON a.id_produk=i.id_produk
+			// WHERE b.no_po='$header->no_po' AND c.jenis_dtl='FD'
+			// GROUP BY a.kode_po, a.id_pelanggan, a.id_produk");
+			// $img = $this->db->query("SELECT c.*,a.* FROM trs_design_header a
+			// INNER JOIN trs_po b ON b.kode_po=a.kode_po
+			// INNER JOIN trs_design_detail c ON a.id_dg=c.id_hdr
+			// WHERE b.no_po='$header->no_po' AND a.id_produk='$r->id_produk' AND c.jenis_dtl='FD'
+			// GROUP BY a.kode_po, a.id_pelanggan, a.id_produk, c.id_dtl");
+			// $html .= '<div class="list-design" style="display:flex;padding:6px">';
+
 			$html = '';
-			$design = $this->db->query("SELECT i.*,a.* FROM trs_design_header a
-			INNER JOIN trs_po b ON b.kode_po=a.kode_po
-			INNER JOIN trs_design_detail c ON a.id_dg=c.id_hdr
-			INNER JOIN m_produk i ON a.id_produk=i.id_produk
-			WHERE b.no_po='$header->no_po' AND c.jenis_dtl='FD'
-			GROUP BY a.kode_po, a.id_pelanggan, a.id_produk");
+			$design = $this->db->query("SELECT i.nm_produk,m.img_mc,d.* FROM trs_po_detail d
+			INNER JOIN m_produk i ON d.id_produk=i.id_produk
+			INNER JOIN m_produk_mc m ON i.id_produk=m.id_produk
+			WHERE d.no_po='$header->no_po'
+			GROUP BY d.id_produk");
 			if($design->num_rows() != 0){
 				$html .= '<div class="card-body row" style="padding : 5px;font-weight:bold">
 					<div class="col-md-2">Design</div>
@@ -4624,17 +4638,17 @@ class Transaksi extends CI_Controller
 							$o++;
 							$html .= '<div>'.$r->nm_produk.'</div>';
 							// data
-							$img = $this->db->query("SELECT c.*,a.* FROM trs_design_header a
-							INNER JOIN trs_po b ON b.kode_po=a.kode_po
-							INNER JOIN trs_design_detail c ON a.id_dg=c.id_hdr
-							WHERE b.no_po='$header->no_po' AND a.id_produk='$r->id_produk' AND c.jenis_dtl='FD'
-							GROUP BY a.kode_po, a.id_pelanggan, a.id_produk, c.id_dtl");
+							$img = $this->db->query("SELECT i.nm_produk,m.img_mc,d.* FROM trs_po_detail d
+							INNER JOIN m_produk i ON d.id_produk=i.id_produk
+							INNER JOIN m_produk_mc m ON i.id_produk=m.id_produk
+							WHERE d.no_po='$header->no_po' AND d.id_produk='$r->id_produk'
+							GROUP BY d.id_produk, m.id_mc");
 							$html .= '<div class="list-design" style="display:flex;padding:6px">';
 								foreach($img->result() as $i){
 									$o++;
 									$preview = 'p'.$o;
 									$html .= '<div style="margin-right:8px">
-										<img id="'.$preview.'" src="'.base_url().'assets/gambar_design/'.$i->nm_file.'" alt="preview design" width="100" class="shadow-sm img-thumbnail" onclick="imgClick('."'".$preview."'".')">
+										<img id="'.$preview.'" src="'.base_url().'assets/mc/'.$i->img_mc.'" alt="preview design" width="100" class="shadow-sm img-thumbnail" onclick="imgClick('."'".$preview."'".')">
 									</div>';
 								}
 							$html .= '</div>';
@@ -4658,12 +4672,11 @@ class Transaksi extends CI_Controller
 			WHERE a.no_po = '$header->no_po' ORDER BY b.id")->result();
 
 			$html = '';
-			$design = $this->db->query("SELECT i.*,a.* FROM trs_design_header a
-			INNER JOIN trs_po b ON b.kode_po=a.kode_po
-			INNER JOIN trs_design_detail c ON a.id_dg=c.id_hdr
-			INNER JOIN m_produk i ON a.id_produk=i.id_produk
-			WHERE b.no_po='$header->no_po' AND c.jenis_dtl='FD'
-			GROUP BY a.kode_po, a.id_pelanggan, a.id_produk");
+			$design = $this->db->query("SELECT i.nm_produk,m.img_mc,d.* FROM trs_po_detail d
+			INNER JOIN m_produk i ON d.id_produk=i.id_produk
+			INNER JOIN m_produk_mc m ON i.id_produk=m.id_produk
+			WHERE d.no_po='$header->no_po'
+			GROUP BY d.id_produk");
 			if($design->num_rows() != 0){
 				$html .= '<div class="card-body row" style="padding : 5px;font-weight:bold">
 					<div class="col-md-2">Design</div>
@@ -4673,17 +4686,17 @@ class Transaksi extends CI_Controller
 							$o++;
 							$html .= '<div>'.$r->nm_produk.'</div>';
 							// data
-							$img = $this->db->query("SELECT c.*,a.* FROM trs_design_header a
-							INNER JOIN trs_po b ON b.kode_po=a.kode_po
-							INNER JOIN trs_design_detail c ON a.id_dg=c.id_hdr
-							WHERE b.no_po='$header->no_po' AND a.id_produk='$r->id_produk' AND c.jenis_dtl='FD'
-							GROUP BY a.kode_po, a.id_pelanggan, a.id_produk, c.id_dtl");
+							$img = $this->db->query("SELECT i.nm_produk,m.img_mc,d.* FROM trs_po_detail d
+							INNER JOIN m_produk i ON d.id_produk=i.id_produk
+							INNER JOIN m_produk_mc m ON i.id_produk=m.id_produk
+							WHERE d.no_po='$header->no_po' AND d.id_produk='$r->id_produk'
+							GROUP BY d.id_produk, m.id_mc");
 							$html .= '<div class="list-design" style="display:flex;padding:6px">';
 								foreach($img->result() as $i){
 									$o++;
 									$preview = 'p'.$o;
 									$html .= '<div style="margin-right:8px">
-										<img id="'.$preview.'" src="'.base_url().'assets/gambar_design/'.$i->nm_file.'" alt="preview design" width="100" class="shadow-sm img-thumbnail" onclick="imgClick('."'".$preview."'".')">
+										<img id="'.$preview.'" src="'.base_url().'assets/mc/'.$i->img_mc.'" alt="preview design" width="100" class="shadow-sm img-thumbnail" onclick="imgClick('."'".$preview."'".')">
 									</div>';
 								}
 							$html .= '</div>';

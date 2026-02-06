@@ -40,6 +40,7 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 /assets/gambar_inv_inv_terima/
 /assets/gambar_design/
 /assets/file_plan/
+/assets/mc/
 db_penjualan.sql
 application/config/database.php
 .vscode
