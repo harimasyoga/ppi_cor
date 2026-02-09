@@ -959,6 +959,22 @@ class M_transaksi extends CI_Model
 			'msg' => $msg,
 		];
 	}
+	
+
+	function hpsKetPO()
+	{
+		$id = $_POST["id_po"];
+		$opsi = $_POST["opsi"];
+
+		$this->db->set("status_app".$opsi, 'N');
+		$this->db->set("ket_acc".$opsi, null);
+		$this->db->where("id", $id);
+		$data = $this->db->update('trs_po');
+
+		return [
+			'data' => $data,
+		];
+	}
 
 	function save_dev_sys($data)
 	{
