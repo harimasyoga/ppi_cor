@@ -458,6 +458,9 @@
 
 <script type="text/javascript">
 	rowNum = 0;
+	const urlAuth = '<?= $this->session->userdata('level')?>';
+	const urlUser = '<?= $this->session->userdata('username')?>';
+
 	$(document).ready(function() {
 		load_data();		
 		load_status_karet();
@@ -1056,7 +1059,6 @@
 
 	function nonAktifPO(id_po)
 	{
-		console.log(id_po)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/nonAktifPO')?>',
 			type: "POST",
@@ -1073,7 +1075,6 @@
 			data: ({ id_po }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				toastr.success(`<b>${data.msg}</b>`)
 				reloadTable()
 				swal.close()
@@ -1119,7 +1120,11 @@
 				dataType: "JSON",
 			})
 			.done(function(data) {
-				$(".design").html(data.html);
+				if(urlAuth == 'Admin' || urlAuth == 'Owner' || urlAuth == 'User'){
+					$(".design").html(data.html);
+				}else{
+					$(".design").html("");
+				}
 				
 				btn_verif(data)
 				no_po = data.header.no_po
