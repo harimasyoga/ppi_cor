@@ -313,7 +313,9 @@
 </div>
 
 <script type="text/javascript">
-	rowNum = 0;
+	const urlAuth = '<?= $this->session->userdata('level')?>';
+	const urlUser = '<?= $this->session->userdata('username')?>';
+
 	$(document).ready(function() {
 		load_data();
 		$('.select2').select2({
@@ -759,7 +761,11 @@
 			$("#h_material").val(data.produk.material)
 			$("#h_berat_bersih").val(data.produk.berat_bersih)
 			$("#h_luas_bersih").val(data.produk.luas_bersih)
-			$(".html-design").html(data.htmlDesign)
+			if(urlAuth == 'Admin' || urlAuth == 'Admin2' || urlAuth == 'User'){
+				$(".html-design").html(data.htmlDesign)
+			}else{
+				$(".html-design").html('-')
+			}
 			$("#btn-simpan").prop("disabled", false)
 			swal.close()
 		})

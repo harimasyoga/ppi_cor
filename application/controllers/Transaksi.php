@@ -1930,7 +1930,7 @@ class Transaksi extends CI_Controller
 			'judul' => "PO Laminasi",
 		];
 		$this->load->view('header',$data);
-		if(in_array($this->session->userdata('level'), ['Admin','konsul_keu', 'Laminasi', 'Marketing Laminasi', 'Owner'])){
+		if(in_array($this->session->userdata('level'), ['Admin', 'konsul_keu', 'Laminasi', 'Marketing Laminasi', 'Owner', 'Keuangan1'])){
 			$this->load->view('Transaksi/v_po_laminasi');
 		}else{
 			$this->load->view('home');
@@ -3788,7 +3788,7 @@ class Transaksi extends CI_Controller
 			}
 			if($this->session->userdata('level') == 'Admin'){
 				$where2 = "";
-			}else if($this->session->userdata('level') == 'Owner' || $this->session->userdata('level') == 'Marketing Laminasi'){
+			}else if($this->session->userdata('level') == 'Owner' || $this->session->userdata('level') == 'Keuangan1' || $this->session->userdata('level') == 'Marketing Laminasi'){
 				$where2 = "AND po.jenis_lm!='PEKALONGAN'";
 			}else if($this->session->userdata('level') == 'Laminasi' && $this->session->userdata('username') != 'usman'){
 				if($_POST["po"] == 'pengiriman'){
