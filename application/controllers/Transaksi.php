@@ -3187,6 +3187,12 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function hpsKetPO()
+	{
+		$result = $this->m_transaksi->hpsKetPO();
+		echo json_encode($result);
+	}
+
 	function load_data()
 	{
 		$jenis        = $this->uri->segment(3);
@@ -3239,24 +3245,24 @@ class Transaksi extends CI_Controller
 						$btn1       = 'btn-danger';
 						$i1         = '<i class="fas fa-ban" style="color:#000"></i>';
 						$alasan1    = '';
-						$ketAlasan1 .= '<div style="color:#f00;font-weight:bold">EXPIRED</div>';
+						$ketAlasan1 .= '<div style="color:#dc3545;font-weight:bold">EXPIRED</div>';
 						$exp1 .= 'expired';
 					}else{
 						$btn1       = 'btn-warning';
 						$i1         = '<i class="fas fa-lock"></i>';
 						$alasan1    = '';
-						$ketAlasan1 .= '<div style="color:#f00;font-weight:bold">'.$waktu.'</div>';
+						$ketAlasan1 .= '<div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
 					}
 				}else  if($r->status_app1=='H'){
 					$btn1    = 'btn-danger';
 					$i1      = '<i class="far fa-hand-paper"></i>';
 					$alasan1 = $r->ket_acc1;
-					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan1 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan1 .= '<br><div style="color:#f00;font-weight:bold">'.$waktu.'</div>';
+					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan1 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan1 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
 				}else  if($r->status_app1=='R'){
 					$btn1    = 'btn-danger';
 					$i1      = '<i class="fas fa-times"></i>';
 					$alasan1 = $r->ket_acc1;
-					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan1 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan1 .= '<br><div style="color:#f00;font-weight:bold">'.$waktu.'</div>';
+					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan1 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan1 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
 				}else{
 					$btn1    = 'btn-success';
 					$i1      = '<i class="fas fa-check-circle"></i>';
@@ -3270,24 +3276,24 @@ class Transaksi extends CI_Controller
 						$btn2       = 'btn-danger';
 						$i2         = '<i class="fas fa-ban" style="color:#000"></i>';
 						$alasan2    = '';
-						$ketAlasan2 .= '<div style="color:#f00;font-weight:bold">EXPIRED</div>';
+						$ketAlasan2 .= '<div style="color:#dc3545;font-weight:bold">EXPIRED</div>';
 						$exp2 .= 'expired';
 					}else{
 						$btn2       = 'btn-warning';
 						$i2         = '<i class="fas fa-lock"></i>';
 						$alasan2    = '';
-						$ketAlasan2 .= '<div style="color:#f00;font-weight:bold">'.$waktu.'</div>';
+						$ketAlasan2 .= '<div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
 					}
                 }else if($r->status_app2=='H'){
                     $btn2   = 'btn-danger';
                     $i2     = '<i class="far fa-hand-paper"></i>';
 					$alasan2 = $r->ket_acc2;
-					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan2 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan2 .= '<br><div style="color:#f00;font-weight:bold">'.$waktu.'</div>';
+					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan2 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan2 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
                 }else if($r->status_app2=='R'){
                     $btn2   = 'btn-danger';
                     $i2     = '<i class="fas fa-times"></i>';
 					$alasan2 = $r->ket_acc2;
-					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan2 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan2 .= '<br><div style="color:#f00;font-weight:bold">'.$waktu.'</div>';
+					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan2 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan2 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
                 }else{
                     $btn2   = 'btn-success';
                     $i2     = '<i class="fas fa-check-circle"></i>';
@@ -3301,24 +3307,24 @@ class Transaksi extends CI_Controller
 						$btn4       = 'btn-danger';
 						$i4         = '<i class="fas fa-ban" style="color:#000"></i>';
 						$alasan4    = '';
-						$ketAlasan4 .= '<div style="color:#f00;font-weight:bold">EXPIRED</div>';
+						$ketAlasan4 .= '<div style="color:#dc3545;font-weight:bold">EXPIRED</div>';
 						$exp4 .= 'expired';
 					}else{
 						$btn4       = 'btn-warning';
 						$i4         = '<i class="fas fa-lock"></i>';
 						$alasan4    = '';
-						$ketAlasan4 .= '<div style="color:#f00;font-weight:bold">'.$waktu.'</div>';
+						$ketAlasan4 .= '<div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
 					}
                 }else if($r->status_app4=='H'){
                     $btn4   = 'btn-danger';
                     $i4     = '<i class="far fa-hand-paper"></i>';
 					$alasan4 = $r->ket_acc4;
-					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan4 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan4 .= '<br><div style="color:#f00;font-weight:bold">'.$waktu.'</div>';
+					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan4 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan4 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
                 }else if($r->status_app4=='R'){
                     $btn4   = 'btn-danger';
                     $i4     = '<i class="fas fa-times"></i>';
 					$alasan4 = $r->ket_acc4;
-					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan4 .= '<br><div style="color:#f00;font-weight:bold">EXPIRED</div>' : $ketAlasan4 .= '<br><div style="color:#f00;font-weight:bold">'.$waktu.'</div>';
+					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan4 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan4 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
                 }else{
                     $btn4   = 'btn-success';
                     $i4     = '<i class="fas fa-check-circle"></i>';
@@ -3413,27 +3419,31 @@ class Transaksi extends CI_Controller
                 $time4 = (($r->time_app4 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app4,0,10))  . ' - ' .substr($r->time_app4,10,9));
 				// HARGA
 				(strlen($alasan4) >= 35) ? $spn4 = 'style="width:200px;white-space:normal"' : $spn4 = '';
+				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->ket_acc4 != null && ($r->status_app4 == 'H' || $r->status_app4 == 'R')) ? $rketPO4 = ' <button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `4`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button>' : $rketPO4 = '';
 				$row[] = '<div class="text-center" '.$spn4.'>
 					<button onclick="data_sementara(`HARGA`, '."'".$r->status_app4."'".', '."'".$time4."'".', '."'".$alasan4."'".', '."'".$r->no_po."'".', '."'".$exp4."'".')" type="button" title="'.$time4.'"  style="text-align:center" class="btn btn-sm '.$btn4.'" id="btnBase2-'.$r->id.'">'.$i4.'</button><br>
-					'.$alasan4.''.$ketAlasan4.'
+					'.$alasan4.$rketPO4.$ketAlasan4.'
 				</div>';
 				// MARKETING
 				(strlen($alasan1) >= 35) ? $spn1 = 'style="width:200px;white-space:normal"' : $spn1 = '';
+				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->ket_acc1 != null && ($r->status_app1 == 'H' || $r->status_app1 == 'R')) ? $rketPO1 = ' <button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `1`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button>' : $rketPO1 = '';
 				$row[] = '<div class="text-center" '.$spn1.'>
 					<button onclick="data_sementara(`Marketing`, '."'".$r->status_app1."'".', '."'".$time1."'".', '."'".$alasan1."'".', '."'".$r->no_po."'".', '."'".$exp1."'".')" type="button" title="'.$time1.'" style="text-align:center" class="btn btn-sm '.$btn1.'" id="btnBase1-'.$r->id.'">'.$i1.'</button><br>
-					'.$alasan1.''.$ketAlasan1.'
+					'.$alasan1.$rketPO1.$ketAlasan1.'
 				</div>';
 				// PPIC
 				(strlen($alasan2) >= 35) ? $spn2 = 'style="width:200px;white-space:normal"' : $spn2 = '';
+				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->ket_acc2 != null && ($r->status_app2 == 'H' || $r->status_app2 == 'R')) ? $rketPO2 = ' <button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `2`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button>' : $rketPO2 = '';
                 $row[] = '<div class="text-center" '.$spn2.'>
 					<button onclick="data_sementara(`PPIC`, '."'".$r->status_app2."'".', '."'".$time2."'".', '."'".$alasan2."'".', '."'".$r->no_po."'".', '."'".$exp2."'".')" type="button" title="'.$time2.'"  style="text-align:center" class="btn btn-sm '.$btn2.'" id="btnBase2-'.$r->id.'">'.$i2.'</button><br>
-					'.$alasan2.''.$ketAlasan2.'
+					'.$alasan2.$rketPO2.$ketAlasan2.'
 				</div>';
 				// OWNER
 				(strlen($alasan3) >= 35) ? $spn3 = 'style="width:200px;white-space:normal"' : $spn3 = '';
+				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->ket_acc3 != null && ($r->status_app3 == 'H' || $r->status_app3 == 'R')) ? $rketPO3 = ' <button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `3`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button>' : $rketPO3 = '';
                 $row[] = '<div class="text-center" '.$spn3.'>
 					<button onclick="data_sementara(`Owner`, '."'".$r->status_app3."'".', '."'".$time3."'".', '."'".$alasan3."'".', '."'".$r->no_po."'".', 0)"  type="button" title="'.$time3.'"  style="text-align:center" class="btn btn-sm '.$btn3.'">'.$i3.'</button><br>
-					'.$alasan3.'
+					'.$alasan3.$rketPO3.'
 				</div>';
 
                 $aksi = '';

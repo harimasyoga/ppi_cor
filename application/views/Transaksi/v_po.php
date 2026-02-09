@@ -1082,6 +1082,30 @@
 		})
 	}
 
+	function hpsKetPO(id_po, opsi) {
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/hpsKetPO')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_po, opsi }),
+			success: function(res){
+				data = JSON.parse(res)
+				toastr.success(`<b>BERHASIL</b>`)
+				reloadTable()
+				swal.close()
+			}
+		})
+	}
+
 	var no_po = ''
 
 	function preview(id, act) 
