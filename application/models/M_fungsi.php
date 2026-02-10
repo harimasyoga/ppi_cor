@@ -985,11 +985,13 @@ class M_fungsi extends CI_Model {
 		}
 		// PERHITUNGAN
 		$sisa = ($sumKirim - $sumRetur) - $qty_po;
+		$sisa2 = $qty_po - ($sumKirim - $sumRetur);
 
 		return [
 			'sumKirim' => $sumKirim,
 			'sumRetur' => $sumRetur,
 			'sisa' => $sisa,
+			'sisa2' => $sisa2,
 		];
 	}
 

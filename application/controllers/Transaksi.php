@@ -6865,9 +6865,20 @@ class Transaksi extends CI_Controller
 
 	function addItems()
 	{
-		if($_POST["no_so"] == ""){
+		$kode_po = $_POST['kode_po'];
+		$id_produk = $_POST['item'];
+		$jml_so = $_POST['jml_so'];
+		$toleransi = ($_POST['jml_so'] * 0.04);
+
+		$kirim = $this->m_fungsi->kiriman($kode_po, $id_produk, $jml_so);
+		$sumKirim = $kirim["sumKirim"];
+		// $sumRetur = $kirim["sumRetur"];
+		$sisa = $kirim["sisa"];
+
+		if($sumKirim != 0 && ($sisa > $toleransi)){
+			echo json_encode(array('data' => false, 'isi' => 'KIRIMAN LEBIH DARI 4%!'));
+		}else if($_POST["no_so"] == ""){
 			echo json_encode(array('data' => false, 'isi' => 'NO. SO TIDAK BOLEH KOSONG!'));
-			// return;
 		}else{
 			$data = array(
 				'id' => $_POST['idpodetail'],
@@ -7479,7 +7490,6 @@ class Transaksi extends CI_Controller
 
 	function btnAddBagiSO()
 	{
-		// $_POST["fBagiEtaSo"] == "";
 		if($_POST["fBagiQtySo"] == "" || $_POST["fBagiQtySo"] == 0 || $_POST["fBagiQtySo"] < 0){
 			echo json_encode(array('data' => false, 'msg' => 'QTY SO TIDAK BOLEH KOSONG!'));
 		}else{
@@ -9147,7 +9157,7 @@ class Transaksi extends CI_Controller
 										'.$po_ok->kode_po.'
 									</td>
 								</tr>';
-								// OUTSTANDING PO
+								// OUTSTANDING PO 
 								$html .= '				
 								<tr class="tr_i i'.$po_ok->id.'" style="display:none">
 									<td style="padding:0;border:1px solid #aaa">
@@ -9318,7 +9328,7 @@ class Transaksi extends CI_Controller
 			}
 
 			// simpan
-			$insert = $this->m_transaksi->save_dev_sys($data);
+			$insert = $this->m_transaksi->save_dev_sys($data); //
 
 			if ($insert) {
 				echo json_encode([

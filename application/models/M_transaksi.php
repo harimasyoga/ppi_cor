@@ -1019,6 +1019,19 @@ class M_transaksi extends CI_Model
 			$no_so = $r['options']['no_so'];
 			$id_pelanggan = $r['options']['id_pelanggan'];
 			$jml_so = $r['options']['jml_so'];
+			$eta_po = $r['options']['eta_po'];
+
+			// SYS
+			$jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
+			WHERE id_po_header='$id' AND id_produk='$id_produk' AND id_pelanggan='$id_pelanggan'
+			GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
+
+			// PENGIRIMAN
+			$kirim = $this->m_fungsi->kiriman($kode_po, $id_produk, $jml_so);
+			$sumKirim = $kirim["sumKirim"];
+			$sumRetur = $kirim["sumRetur"];
+			$sisa = $kirim["sisa2"];
+			$qty_plan = $sisa - $jumlah_plan->qty_plan;
 
 			if($this->session->userdata('level') == 'PPIC'){
 				$wH = "AND add_user='ppic'";
@@ -1038,13 +1051,13 @@ class M_transaksi extends CI_Model
 			$data = array(
 				'id_pelanggan' => $id_pelanggan,
 				'id_produk' => $id_produk,
-				'eta_so' => $tglSO,
+				'eta_so' => $eta_po,
 				'no_po' => $no_po,
 				'kode_po' => $kode_po,
 				'no_so' => $no_so,
 				'urut_so' => $urut,
 				'rpt' => 1,
-				'qty_so' => 0,
+				'qty_so' => ($sumKirim == 0) ? $jml_so : $qty_plan,
 				'status' => 'Open',
 				'status_2' => 'Open',
 				'ket_so' => '',
@@ -1070,22 +1083,50 @@ class M_transaksi extends CI_Model
 			$this->db->where("kode_po", $kode_po);
 			$this->db->where("id_produk", $id_produk);
 			$result = $this->db->update('trs_po_detail');
+			
+			// INSERT DELIVERY SYSTEM
+			if($result){
+				$soSo = $this->db->query("SELECT*FROM trs_so_detail WHERE id_pelanggan='$id_pelanggan' AND no_po='$no_po' AND kode_po='$kode_po' AND urut_so='$urut'")->row();
+				$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$id_produk'")->row();
+
+				$sys = [
+					'id_po_header' => $id,
+					'id_produk' => $id_produk,
+					'id_pelanggan' => $id_pelanggan,
+					'id_so' => $soSo->id,
+					'qty_po' => $jml_so,
+					'delivery' => $sumKirim,
+					'os' => ($sumKirim == 0) ? $jml_so : $sisa,
+					'os_terplanning' => 0,
+					'os_belum_terplanning' => ($sumKirim == 0) ? $jml_so : $qty_plan,
+					'qty_plan' => ($sumKirim == 0) ? $jml_so : $qty_plan,
+					'bb' => $produk->berat_bersih,
+					'berat' => ($sumKirim == 0) ? $jml_so*$produk->berat_bersih : $qty_plan*$produk->berat_bersih,
+					'eta' => $eta_po,
+					'id_ex' => null,
+					'urut' => 0,
+					'created_at' => date('Y-m-d H:i:s'),
+				];
+				$dev_sys = $this->db->insert('trs_dev_sys', $sys);
+			}
 		}
 
-		return $result;
+		return [
+			'result' => $result,
+			'dev_sys' => $dev_sys,
+		];
 	}
 
 	function editBagiSO()
 	{
 		$id = $_POST["i"];
 
-		// if($_POST["editTglSo"] == ""){
-		// 	$result = array(
-		// 		'data' => false,
-		// 		'msg' => 'ETA SO TIDAK BOLEH KOSONG!',
-		// 	);
-		// }else
-		if($_POST["editQtySo"] == 0 || $_POST["editQtySo"] == ""){
+		if($_POST["editTglSo"] == ""){
+			$result = array(
+				'data' => false,
+				'msg' => 'ETA SO TIDAK BOLEH KOSONG!',
+			);
+		}else if($_POST["editQtySo"] == 0 || $_POST["editQtySo"] == ""){
 			$result = array(
 				'data' => false,
 				'msg' => 'QTY SO TIDAK BOLEH KOSONG!',
@@ -1131,6 +1172,23 @@ class M_transaksi extends CI_Model
 					$insert = $this->db->update('trs_so_detail', $data);
 					$msg = 'BERHASIL EDIT DATA!';
 				}
+			}
+
+			// update sys
+			if($insert){
+				$so = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$id'")->row();
+
+				// SYS
+				// $jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
+				// WHERE id_po_header='$id' AND id_produk='$id_produk' AND id_pelanggan='$id_pelanggan'
+				// GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
+
+				// PENGIRIMAN
+				// $kirim = $this->m_fungsi->kiriman($so->kode_po, $so->id_produk, $jml_so);
+				// $sumKirim = $kirim["sumKirim"];
+				// $sumRetur = $kirim["sumRetur"];
+				// $sisa = $kirim["sisa2"];
+				// $qty_plan = $sisa - $jumlah_plan->qty_plan;
 			}
 
 			$result = array(

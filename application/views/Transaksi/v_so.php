@@ -954,6 +954,7 @@
 				}else{
 					swal(data.isi, "", "error")
 				}
+				// console.log(data)
 				$("#btn-show-simpan").prop("disabled", false)
 			}
 		})
@@ -1026,7 +1027,8 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				if(data) {
+				// console.log(data)
+				if(data.result) {
 					swal("BERHASIL DISIMPAN!", "", "success")
 					$("#modalForm").modal("hide");
 					reloadTable();
