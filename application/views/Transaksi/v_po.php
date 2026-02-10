@@ -358,6 +358,7 @@
 											</td>
 										<?php } ?>
 									</tr>
+									<tr id="eta_tambahan0"></tr>
 								</tbody>
 							</table>
 						</div>
@@ -408,6 +409,7 @@
 				</form>			
 			</div>
 			<input type="hidden" name="bucket" id="bucket" value="0">
+			<input type="hidden" id="id_trs_po" value="">
 		</div>
 		<!-- /.modal-content -->
 	</div>
@@ -1002,6 +1004,9 @@
 		$("#txt_top").val("");
 		$("#txt_marketing").val("");
 		$('#div_preview_foto').css("display","none");
+		
+		$("#id_trs_po").val("");
+		$("#eta_tambahan0").html("");
 
 		clearRow();
 		status = 'insert';
@@ -1327,6 +1332,7 @@
 				btn_verif(data)
 				no_po = data.header.no_po
 
+				$("#id_trs_po").val(id);
 				$("#no_po").val(data.header.no_po);
 				$("#tgl_po").val(data.header.tgl_po);
 				pilih_hub(data.header.id_hub);
@@ -1432,12 +1438,29 @@
 						$("#eta_ket"+index).prop("disabled", false);
 					}
 					
+					// $("#eta_tambahan"+index).html('eta tambahan'+index);
+					etaTambahan(index, value.id_po_dtl)
+
 					if (index != (data.detail.length) - 1) {
 						addRow();
 					}
-					// console.log(index, data.length);
 				});
 			})
+	}
+
+	function etaTambahan(index, id_po_dtl) {
+		$("#eta_tambahan"+index).html('');
+		// let id_trs_po = $("#id_trs_po").val();
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/etaTambahan')?>',
+			type: "POST",
+			data: ({ id_po_dtl }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$("#eta_tambahan"+index).html(data.html);
+			}
+		})
 	}
 
 	function getMax() 
@@ -2366,6 +2389,7 @@
 							</td>
 						</tr>	
 					`;
+					eta_tambahan = `<tr id="eta_tambahan${ rowNum }">`;
 					coll=``;
 				}else{
 					p11_tambahan = ``;
@@ -2442,6 +2466,7 @@
 							</td>
 						</tr>	
 					`;
+					eta_tambahan = `<tr id="eta_tambahan${ rowNum }">`;
 				}
 				
 
@@ -2473,6 +2498,7 @@
 						</td>
 					</tr>					
 					${ item_tambahan }
+					${ eta_tambahan }
 					`);
 				$('.select2').select2({
 					placeholder: '--- Pilih ---',
@@ -2496,6 +2522,7 @@
 		if (rowNum > 0) {
 			jQuery('#itemRow' + e).remove();
 			jQuery('#item_tambahan' + e).remove();
+			jQuery('#eta_tambahan' + e).remove('');
 			rowNum--;
 		} else {
 			// toastr.error('Baris pertama tidak bisa dihapus');
@@ -2518,6 +2545,7 @@
 		for (var e = bucket; e > 0; e--) {
 			jQuery('#itemRow' + e).remove();
 			jQuery('#item_tambahan' + e).remove();
+			jQuery('#eta_tambahan' + e).remove('');
 			rowNum--;
 		}
 

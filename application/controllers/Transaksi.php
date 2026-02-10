@@ -3213,7 +3213,8 @@ class Transaksi extends CI_Controller
 				}
 			}
 
-			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by a.tgl_po desc, id desc")->result();
+			// $query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by a.tgl_po desc, id desc")->result();
+			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan WHERE a.kode_po='0086/WME/II/2026' order by a.tgl_po desc, id desc")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row        = array();
@@ -4599,6 +4600,40 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function etaTambahan()
+	{
+		$id_po_dtl = $_POST["id_po_dtl"];
+		$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_po_dtl'")->row();
+		$so = $this->db->query("SELECT*FROM trs_so_detail WHERE eta_so IS NOT NULL AND id_pelanggan='$po_dtl->id_pelanggan' AND id_produk='$po_dtl->id_produk' AND no_po='$po_dtl->no_po' AND kode_po='$po_dtl->kode_po' ORDER BY eta_so");
+
+		$html = '';
+		if($so->num_rows() != 0){
+			$html .= '
+				<td>PEMBAGIAN ETA</td>
+				<td style="padding:0" colspan="6">';
+					$i = 0;
+					foreach($so->result() as $r){
+						$i++;
+						$html .= '
+							<table>
+								<tr>
+									<td style="background:#fff;padding:6px">ETA '.$i.'</td>
+									<td style="background:#fff;padding:6px">:</td>
+									<td style="background:#fff;padding:6px">
+										<input class="form-control" type="date" name="eta_tt['.$i.']" id="eta_tt'.$i.'" value="'.$r->eta_so.'">
+									</td>
+								</tr>
+							</table>';
+					}
+				$html .= '</td>';
+		}
+
+		echo json_encode([
+			'soNumRows' => $so->num_rows(),
+			'html' => $html,
+		]);
+	}
+
 
 	function get_edit()
 	{
@@ -4613,7 +4648,7 @@ class Transaksi extends CI_Controller
 			}else{
 				$url_foto = base_url('assets/gambar_po/') . $header->img_po;
 			}
-			$detail = $this->db->query("SELECT * FROM trs_po a 
+			$detail = $this->db->query("SELECT a.*,b.*,c.*,d.*,e.*,b.id AS id_po_dtl FROM trs_po a 
 			JOIN trs_po_detail b ON a.no_po = b.no_po
 			JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
 			LEFT JOIN m_kab d ON c.kab=d.kab_id
