@@ -4608,24 +4608,28 @@ class Transaksi extends CI_Controller
 
 		$html = '';
 		if($so->num_rows() != 0){
-			$html .= '<td style="font-weight:bold;text-align:center;background:#f2f2f2">PEMBAGIAN ETA</td>
-			<td style="padding:6px 0;background:#f2f2f2" colspan="6">
+			$html .= '<td style="font-weight:bold;text-align:center;background:#f2f2f2">ETA</td>
+			<td style="padding:6px 0;background:#f2f2f2" colspan="2">
 				<table>';
 					$i = 0;
 					foreach($so->result() as $r){
 						$i++;
+						($so->num_rows() == 1) ? $x = '' : $x = ' '.$i;
 						$html .= '<tr style="background:#f2f2f2">
-							<td style="border:0;padding:6px">ETA '.$i.'</td>
+							<td style="border:0;padding:6px">ETA'.$x.'</td>
 							<td style="border:0;padding:6px">:</td>
 							<td style="border:0;padding:6px;font-weight:bold">
 								'.$this->m_fungsi->getHariIni($r->eta_so).', '.$this->m_fungsi->tglIndSkt($r->eta_so).'
 							</td>
-							<td style="border:0;padding:6px">QTY '.$i.'</td>
+							<td style="border:0;padding:6px">QTY'.$x.'</td>
 							<td style="border:0;padding:6px">:</td>
 							<td style="border:0;padding:6px;font-weight:bold">'.number_format($r->qty_so, 0, ',', '.').'</td>
 						</tr>';
 					}
 				$html .= '</table>
+			</td>
+			<td colspan="4">
+				<textarea class="form-control" name="et_'.$id_po_dtl.'" id="et_'.$id_po_dtl.'" placeholder="KET. ETA" rows="3" style="color:#fa3c3e;font-weight:bold" disabled>'.$po_dtl->eta_ket.'</textarea>
 			</td>';
 		}
 
@@ -9625,6 +9629,7 @@ class Transaksi extends CI_Controller
 			<tr style="background:#dee2e6">
 				<th style="padding:6px;border:1px solid #bbb;text-align:center">#</th>
 				<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
+				<th style="padding:6px;text-align:center;border:1px solid #bbb">TGL. TIBA</th>
 				<th style="padding:6px;border:1px solid #bbb">NO. PO</th>
 				<th style="padding:6px;border:1px solid #bbb">ITEM</th>
 				<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">QTY</th>
@@ -9646,7 +9651,7 @@ class Transaksi extends CI_Controller
 				if($u->urut == 0){
 					$html .= '<tr>
 						<td style="background:#333;color:#fff;padding:6px;font-weight:bold;text-align:center">'.$u->urut.'</td>
-						<td style="background:#333;padding:6px" colspan="6"></td>
+						<td style="background:#333;padding:6px" colspan="7"></td>
 					</tr>';
 				}else{
 					$html .= '<tr>
@@ -9675,7 +9680,7 @@ class Transaksi extends CI_Controller
 					</tr>';
 				}
 
-				$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,p.kode_po,i.*,d.* FROM trs_dev_sys d
+				$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,c.prov,p.kode_po,i.*,d.* FROM trs_dev_sys d
 				INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
 				INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 				INNER JOIN m_produk i ON d.id_produk=i.id_produk
@@ -9689,11 +9694,20 @@ class Transaksi extends CI_Controller
 					($r->attn == '-') ? $attn = '' : $attn = ' - '.$r->attn;
 					($r->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
 					(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->id_ex == null) ? $och = 'id="ds-urut'.$r->id_dev.'" onchange="dsUrut('."'".$r->id_dev."'".')"' : $och = 'disabled';
+
+					$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$r->prov'");
+					if($prov->num_rows() == 0){
+						$lamaK = '-';
+					}else{
+						$ll = $prov->row()->lama_kirim;
+						$lamaK = date('d-m-Y', strtotime('+'.$ll.' day', strtotime($tgl)));
+					}
 					$html .= '<tr>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
 							<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" value="'.$r->urut.'" '.$och.'>
 						</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$r->nm_pelanggan.$attn.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$lamaK.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$r->kode_po.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$kategori.$r->nm_produk.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($r->qty_plan, 0, ',', '.').'</td>
@@ -9708,6 +9722,7 @@ class Transaksi extends CI_Controller
 					$html .= '<tr style="background:#dee2e6">
 						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="6">TOTAL</td>
 						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($totBerat, 0, ',', '.').'</td>
+						<td style="padding:6px;border:1px solid #bbb"></td>
 					</tr>';
 				}
 			}
