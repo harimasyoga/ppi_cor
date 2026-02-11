@@ -3213,8 +3213,8 @@ class Transaksi extends CI_Controller
 				}
 			}
 
-			// $query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by a.tgl_po desc, id desc")->result();
-			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan WHERE a.kode_po='0086/WME/II/2026' order by a.tgl_po desc, id desc")->result();
+			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by a.tgl_po desc, id desc")->result();
+			// $query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan WHERE a.kode_po='4150060278' order by a.tgl_po desc, id desc")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row        = array();
@@ -4608,28 +4608,32 @@ class Transaksi extends CI_Controller
 
 		$html = '';
 		if($so->num_rows() != 0){
-			$html .= '
-				<td>PEMBAGIAN ETA</td>
-				<td style="padding:0" colspan="6">';
+			$html .= '<td style="font-weight:bold;text-align:center;background:#f2f2f2">PEMBAGIAN ETA</td>
+			<td style="padding:6px 0;background:#f2f2f2" colspan="6">
+				<table>';
 					$i = 0;
 					foreach($so->result() as $r){
 						$i++;
-						$html .= '
-							<table>
-								<tr>
-									<td style="background:#fff;padding:6px">ETA '.$i.'</td>
-									<td style="background:#fff;padding:6px">:</td>
-									<td style="background:#fff;padding:6px">
-										<input class="form-control" type="date" name="eta_tt['.$i.']" id="eta_tt'.$i.'" value="'.$r->eta_so.'">
-									</td>
-								</tr>
-							</table>';
+						$html .= '<tr style="background:#f2f2f2">
+							<td style="border:0;padding:6px">ETA '.$i.'</td>
+							<td style="border:0;padding:6px">:</td>
+							<td style="border:0;padding:6px;font-weight:bold">
+								'.$this->m_fungsi->getHariIni($r->eta_so).', '.$this->m_fungsi->tglIndSkt($r->eta_so).'
+							</td>
+							<td style="border:0;padding:6px">QTY '.$i.'</td>
+							<td style="border:0;padding:6px">:</td>
+							<td style="border:0;padding:6px;font-weight:bold">'.number_format($r->qty_so, 0, ',', '.').'</td>
+						</tr>';
 					}
-				$html .= '</td>';
+				$html .= '</table>
+			</td>';
 		}
+
+		$hr = '<td style="padding:3px;background:#bec2c6" colspan="7"></td>';
 
 		echo json_encode([
 			'soNumRows' => $so->num_rows(),
+			'hr' => $hr,
 			'html' => $html,
 		]);
 	}
@@ -7072,17 +7076,17 @@ class Transaksi extends CI_Controller
 						<table class="table table-bordered" style="margin:0;border:0;width:100%">
 							<thead>
 								<tr>
-									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">NO.</th>
-									<th style="padding:6px;'.$bHead.''.$bold.'">ETA SO</th>
+									<th style="width:1%;padding:6px;'.$bHead.''.$bold.'" class="text-center">NO.</th>
+									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'">ETA SO</th>
 									<th style="padding:6px;'.$bHead.''.$bold.'">NO. SO</th>
-									<th style="padding:6px 30px 6px 6px;text-align:center;'.$bHead.''.$bold.'">QTY SO</th>
+									<th style="width:10%;padding:6px 30px 6px 6px;text-align:center;'.$bHead.''.$bold.'">QTY SO</th>
 									'.$ketPPIC.'
-									<th style="padding:6px;'.$bHead.''.$bold.'">KETERANGAN</th>
-									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">-</th>
-									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">RM</th>
-									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">TON</th>
-									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">B. BAKU</th>
-									<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">AKSI</th>
+									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'">KETERANGAN</th>
+									<th style="width:1%;padding:6px;'.$bHead.''.$bold.'" class="text-center">-</th>
+									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'" class="text-center">RM</th>
+									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'" class="text-center">TON</th>
+									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'" class="text-center">B. BAKU</th>
+									<th style="width:5%;padding:6px;'.$bHead.''.$bold.'" class="text-center">AKSI</th>
 								</tr>
 							</thead>';
 
@@ -7105,28 +7109,37 @@ class Transaksi extends CI_Controller
 				$sumBB = 0 ;
 				foreach($dataSO->result() as $so){
 					$l++;
+					// SYS
+					$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_so='$so->id'");
 					if($aksi == 'detail'){
 						$btnHapus = '';
+						$btnAksiSys = '';
 					}else{
 						if($so->status == 'Close' || $so->status_2 == 'Close'){
 							$btnHapus = '';
+							$btnAksiSys = '';
 						}else{
 							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])){
 								if($r->id == $id){
 									if($so->rpt == 1){
 										$btnHapus = '';
+										$btnAksiSys = '';
 									}else{
 										if($dataHapusSO->row()->jml_rpt == $so->rpt){
 											$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>';
+											$btnAksiSys = '<button type="button" class="btn btn-warning btn-sm" onclick="editBagiSys('."'".$sys->row()->id_dev."'".', '."'".$id."'".')"><i class="fas fa-edit"></i></button>';
 										}else{
 											$btnHapus = '';
+											$btnAksiSys = '';
 										}
 									}
 								}else{
 									$btnHapus = '';
+									$btnAksiSys = '';
 								}
 							}else{
 								$btnHapus = '';
+								$btnAksiSys = '';
 							}
 						}
 					}
@@ -7265,7 +7278,7 @@ class Transaksi extends CI_Controller
 							($r->id == $id) ? $rTxt = 2 : $rTxt = 1;
 						}
 					}
-					$html .='<tr>
+					$html .='<tr style="background:#f2f2f2">
 						<td style="padding:6px;'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
 						<td style="padding:6px;'.$bTd.''.$bold.'">
 							<input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$diss.'>
@@ -7299,9 +7312,9 @@ class Transaksi extends CI_Controller
 					// TAMPIL PLAN
 					$trsWO = $this->db->query("SELECT*FROM trs_wo WHERE kode_po='$so->kode_po' AND id_produk='$so->id_produk' AND id_pelanggan='$so->id_pelanggan' AND no_so='$so->id'");
 					if($trsWO->num_rows() != 0){
-						$html .= '<tr>
+						$html .= '<tr style="background:#f2f2f2">
 							<td style="padding:6px;border:1px solid #999" colspan="2"></td>
-							<td style="padding:6px;border:1px solid #999" colspan="8">'.$trsWO->row()->no_wo.'</td>
+							<td style="padding:6px;font-weight:bold;border:1px solid #999" colspan="8">'.$trsWO->row()->no_wo.'</td>
 						</tr>';
 					}
 					$planCor = $this->db->query("SELECT c.*,w.* FROM plan_cor c
@@ -7309,24 +7322,67 @@ class Transaksi extends CI_Controller
 					WHERE w.kode_po='$so->kode_po' AND w.id_produk='$so->id_produk' AND w.id_pelanggan='$so->id_pelanggan' AND w.no_so='$so->id'
 					GROUP BY c.tgl_plan,w.kode_po, w.id_produk, w.id_pelanggan");
 					if($planCor->num_rows() != 0){
-						$html .= '<tr>
+						$html .= '<tr style="background:#f2f2f2">
 							<td style="padding:6px;border:1px solid #999" colspan="2"></td>
-							<td style="padding:0;border:1px solid #999" colspan="8">
+							<td style="padding:6px;border:1px solid #999" colspan="8">
 								<table>
 									<tr>
-										<td style="background:#eee;padding:6px;font-weight:bold">TGL PLAN</td>
-										<td style="background:#eee;padding:6px;font-weight:bold">HASIL</td>
+										<td style="background:#ccc;border:1px solid #888;padding:6px;font-weight:bold">TGL PLAN</td>
+										<td style="background:#ccc;border:1px solid #888;padding:6px;font-weight:bold">HASIL</td>
 									</tr>';
 									foreach($planCor->result() as $pc){
 										($pc->good_cor_p == null || $pc->good_cor_p == 0) ? $good = '-' : $good = number_format($pc->good_cor_p);
 										$html .= '<tr>
-											<td style="background:#fff;padding:6px">'.$pc->tgl_plan.'</td>
-											<td style="background:#fff;padding:6px;text-align:right">'.$good.'</td>
+											<td style="background:#fff;border:1px solid #888;padding:6px">'.$pc->tgl_plan.'</td>
+											<td style="background:#fff;border:1px solid #888;padding:6px;text-align:right">'.$good.'</td>
 										</tr>';
 									}
 								$html .= '</table>
 							</td>
 						</tr>';
+					}
+
+					// SYS
+					if($sys->num_rows() != 0){
+						$html .= '<tr>
+							<td style="padding:6px;border:0;text-align:right;'.$bHead.'" colspan="6"></td>
+							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">ETA DS</td>
+							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">QTY DS</td>
+							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">KET DS</td>
+							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">AKSI</td>
+							
+						</tr>
+						<tr style="background:#f2f2f2">
+							<td style="padding:6px;border:1px solid #999" colspan="6"></td>
+							<td style="padding:6px;border:1px solid #999">
+								<input type="date" id="sys_eta'.$sys->row()->id_dev.'" class="form-control" value="'.$sys->row()->eta.'" '.$diss.'>
+							</td>
+							<td style="padding:6px;border:1px solid #999">
+								<input type="number" id="sys_qty'.$sys->row()->id_dev.'" class="form-control" style="text-align:right;font-weight:bold" value="'.number_format($sys->row()->qty_plan,0,',','.').'" '.$diss.'>
+							</td>
+							<td style="padding:6px;border:1px solid #999">
+								<textarea class="form-control" id="sys_ket'.$sys->row()->id_dev.'" rows="'.$rTxt.'" style="resize:none" '.$diss.'>'.$sys->row()->ket_sys.'</textarea>
+							</td>
+							<td style="padding:6px;border:1px solid #999;text-align:center">'.$btnAksiSys.'</td>
+						</tr>';
+						if($dataHapusSO->row()->jml_rpt != $so->rpt){
+							$html .= '<tr>
+								<td style="padding:6px;border:0" colspan="10"></td>
+							</tr>
+							<tr>
+								<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">NO.</th>
+								<th style="padding:6px;'.$bHead.''.$bold.'">ETA SO</th>
+								<th style="padding:6px;'.$bHead.''.$bold.'">NO. SO</th>
+								<th style="padding:6px 30px 6px 6px;text-align:center;'.$bHead.''.$bold.'">QTY SO</th>
+								'.$ketPPIC.'
+								<th style="padding:6px;'.$bHead.''.$bold.'">KETERANGAN</th>
+								<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">-</th>
+								<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">RM</th>
+								<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">TON</th>
+								<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">B. BAKU</th>
+								<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">AKSI</th>
+							</tr>';
+						}
 					}
 
 					// }
@@ -7345,12 +7401,10 @@ class Transaksi extends CI_Controller
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumQty).'</td>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
 						'.$sumPPIC.'
-						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
-						<td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumRm).'</td>
-						<td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumTon).'</td>
-						<td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumBB).'</td>
-						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
 					</tr>';
+					// <td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumRm).'</td>
+					// <td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumTon).'</td>
+					// <td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumBB).'</td>
 				}
 
 				$html .= '</table>
@@ -7490,7 +7544,9 @@ class Transaksi extends CI_Controller
 
 	function btnAddBagiSO()
 	{
-		if($_POST["fBagiQtySo"] == "" || $_POST["fBagiQtySo"] == 0 || $_POST["fBagiQtySo"] < 0){
+		if($_POST["fBagiEtaSo"] == ""){
+			echo json_encode(array('data' => false, 'msg' => 'ETA TIDAK BOLEH KOSONG!'));
+		}else if($_POST["fBagiQtySo"] == "" || $_POST["fBagiQtySo"] == 0 || $_POST["fBagiQtySo"] < 0){
 			echo json_encode(array('data' => false, 'msg' => 'QTY SO TIDAK BOLEH KOSONG!'));
 		}else{
 			$id = $_POST["i"];
@@ -7507,7 +7563,7 @@ class Transaksi extends CI_Controller
 				$p = '';
 				$aU = "AND so.add_user!='ppic'";
 			}
-			$getData = $this->db->query("SELECT COUNT(so.rpt) AS jml_rpt,so.* FROM trs_po_detail ps
+			$getData = $this->db->query("SELECT COUNT(so.rpt) AS jml_rpt,ps.qty,so.* FROM trs_po_detail ps
 			INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so$p=so.no_so AND ps.id_produk=so.id_produk $aU
 			WHERE ps.id='$id'
 			GROUP BY so.no_po,so.kode_po,so.no_so,so.id_produk");
@@ -7536,12 +7592,16 @@ class Transaksi extends CI_Controller
 				$i = 1;
 			}
 
+			$qtyPtoL = ($getData->row()->qty * 0.04) + $getData->row()->qty;
+			$qtyS = $hQtyPo + $_POST['fBagiQtySo'];
+
 			$data = array(
 				'id' => $_POST['i'],
 				'name' => $_POST['i'],
 				'price' => 0,
 				'qty' => 1,
 				'options' => array(
+					'id_dtl' => $id,
 					'id_pelanggan' => $getData->row()->id_pelanggan,
 					'id_produk' => $getData->row()->id_produk,
 					'no_po' => $getData->row()->no_po,
@@ -7549,7 +7609,7 @@ class Transaksi extends CI_Controller
 					'no_so' => $getData->row()->no_so,
 					'urut_so' => $getData->row()->urut_so,
 					'rpt' => $rpt,
-					'eta_so' => ($_POST['fBagiEtaSo'] == "") ? null : $_POST["fBagiEtaSo"],
+					'eta_so' => $_POST["fBagiEtaSo"],
 					'qty_so' => $_POST['fBagiQtySo'],
 					'ket_so' => $_POST['fBagiKetSo'],
 					'cek_rm_so' => $_POST['fBagiCrmSo'],
@@ -7562,19 +7622,42 @@ class Transaksi extends CI_Controller
 				)
 			);
 
-			if($_POST["fBagiCrmSo"] == 0){
+			if($getData->row()->eta_so == $_POST["fBagiEtaSo"]){
+				echo json_encode(array('data' => false, 'msg' => 'ETA SUDAH ADA!'));
+			}else if($qtyS > $qtyPtoL){
+				if(($rm < 500) && $_POST["fBagiCrmSo"] == 0){
+					echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm).' . RM KURANG!'));
+				}else{
+					echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!')); return;
+				}
+			}else if($this->cart->total_items() != 0){
+				foreach($this->cart->contents() as $r){
+					if($r['options']['eta_so'] == $_POST["fBagiEtaSo"]){
+						echo json_encode(array('data' => false, 'msg' => 'ETA SUDAH ADA!')); return;
+					}
+				}
+				$sum_qty_so = $_POST["xxx_qty"] + $_POST['fBagiQtySo'];
+				if($sum_qty_so > $qtyPtoL){
+					echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!')); return;
+				}else if(($rm < 500) && $_POST["fBagiCrmSo"] == 0){
+					echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm).' . RM KURANG!'));
+				}else{
+					$this->cart->insert($data);
+					echo json_encode(array('data' => true, 'msg1' => $data));
+				}
+			}else if($_POST["fBagiCrmSo"] == 0){
 				if($rm < 500){
 					echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm).' . RM KURANG!'));
 				}else{
 					$this->cart->insert($data);
-					echo json_encode(array('data' => true, 'msg' => $data));
+					echo json_encode(array('data' => true, 'msg2' => $data));
 				}
 			}else{
 				if(round($rm) == 0 || round($ton) == 0 || round($rm) < 0 || round($ton) < 0 || $rm == "" || $ton == "" ){
 					echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm). ' . RM / TONASE TIDAK BOLEH KOSONG!'));
 				}else{
 					$this->cart->insert($data);
-					echo json_encode(array('data' => true, 'msg' => $data));
+					echo json_encode(array('data' => true, 'msg3' => $data));
 				}
 			}
 		}
@@ -7607,8 +7690,7 @@ class Transaksi extends CI_Controller
 			$urut_so = str_pad($r['options']['urut_so'], 2, "0", STR_PAD_LEFT);
 			$rpt = str_pad($r['options']['rpt'], 2, "0", STR_PAD_LEFT);
 			($r['options']['eta_so'] == null || $r['options']['eta_so'] == "") ? $eeTa = '-' : $eeTa = $r['options']['eta_so'];
-			($this->cart->total_items() == $r['options']['total_items']) ?
-				$btnAksi = '<button class="btn btn-danger btn-sm" id="hapusCartItemSO" onclick="hapusCartItem('."'".$r['rowid']."'".','."'".$r['id']."'".','."'ListAddBagiSO'".')"><i class="fas fa-times"></i> <b>BATAL</b></button>' : $btnAksi = '-' ;
+			($this->cart->total_items() == $r['options']['total_items']) ? $btnAksi = '<button class="btn btn-danger btn-sm" id="hapusCartItemSO" onclick="hapusCartItem('."'".$r['rowid']."'".','."'".$r['id']."'".','."'ListAddBagiSO'".')"><i class="fas fa-times"></i> <b>BATAL</b></button>' : $btnAksi = '-' ;
 			$html .='<tr>
 				<td style="border:1px solid #999" class="text-center">'.$i.'</td>
 				<td style="border:1px solid #999">'.$eeTa.'</td>
@@ -7629,7 +7711,9 @@ class Transaksi extends CI_Controller
 			$html .= '<tr>
 				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center">'.$r['options']['rpt'].'</td>
 				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center" colspan="2"></td>
-				<td style="background:#fff;padding:3px 12px;font-weight:bold;border:0;text-align:center;text-align:right">'.number_format($sumQty).'</td>
+				<td style="background:#fff;padding:3px 12px;font-weight:bold;border:0;text-align:center;text-align:right">
+					<input type="hidden" id="xxx_qty" value="'.$sumQty.'">
+					'.number_format($sumQty).'</td>
 				<td style="background:#fff;padding:3px;font-weight:bold;border:0;text-align:center"></td>
 				<td style="background:#fff;padding:3px 12px;font-weight:bold;border:0;text-align:center;text-align:right">'.number_format($sumRm).'</td>
 				<td style="background:#fff;padding:3px 12px;font-weight:bold;border:0;text-align:center;text-align:right">'.number_format($sumTon).'</td>
@@ -7641,6 +7725,8 @@ class Transaksi extends CI_Controller
 				</td>
 			</tr>';
 			$html .= '</table>';
+		}else{
+			$html .= '<input type="hidden" id="xxx_qty" value="0">';
 		}
 
 		echo $html;
@@ -7679,6 +7765,12 @@ class Transaksi extends CI_Controller
 	function hapusOSList()
 	{
 		$result = $this->m_transaksi->hapusOSList();
+		echo json_encode($result);
+	}
+
+	function editBagiSys()
+	{
+		$result = $this->m_transaksi->editBagiSys();
 		echo json_encode($result);
 	}
 

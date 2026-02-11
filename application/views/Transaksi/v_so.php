@@ -1165,6 +1165,7 @@
 		let fBagiQtySo = $("#form-bagi-qty-so").val()
 		let fBagiKetSo = $("#form-bagi-ket-so").val()
 		let fBagiCrmSo = $("#form-cbx-rm-so").val()
+		let xxx_qty = $("#xxx_qty").val()
 
 		$("#btnAddBagiSO").prop('disabled', true)
 		$("#hapusCartItemSO").prop('disabled', true)
@@ -1183,7 +1184,7 @@
 				});
 			},
 			data: ({
-				i, fBagiEtaSo, fBagiQtySo, fBagiKetSo, hQtyPo, hRmPo, hTonPo, fBagiCrmSo
+				i, fBagiEtaSo, fBagiQtySo, fBagiKetSo, hQtyPo, hRmPo, hTonPo, fBagiCrmSo, xxx_qty
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -1291,10 +1292,9 @@
 					}
 				});
 			},
-			// data: ({}),
 			success: function(res){
 				data = JSON.parse(res)
-				if(data){
+				if(data.result && data.sys){
 					tampilEditSO(id, no_po, kode_po, 'edit')
 					reloadTable()
 				}else{
@@ -1494,6 +1494,21 @@
 				data = JSON.parse(res)
 				tampilEditSO(h_id, no_po, kode_po, 'edit')
 				reloadTable()
+			}
+		})
+	}
+
+	function editBagiSys(id_sys, id_po_dtl) {
+		let sys_eta = $("#sys_eta"+id_sys).val()
+		let sys_qty = $("#sys_qty"+id_sys).val().split('.').join('')
+		let sys_ket = $("#sys_ket"+id_sys).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/editBagiSys')?>',
+			type: "POST",
+			data: ({ id_sys, id_po_dtl, sys_eta, sys_qty, sys_ket }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
 			}
 		})
 	}

@@ -242,7 +242,7 @@
 									</tr>
 								</thead>
 								<tbody>
-									<tr id="itemRow0">
+									<tr style="background:#f2f2f2" id="itemRow0">
 										<td id="detail-hapus-0">
 											<div class="text-center">
 												<a class="btn btn-danger" id="btn-hapus-0" onclick="removeRow(0)"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
@@ -280,14 +280,12 @@
 											<td colspan="5" id="txt_detail_produk0"></td>
 										<?php } ?>
 									</tr>
-									<tr id="item_tambahan0">
+									<tr style="background:#f2f2f2" id="item_tambahan0">
 										<td>
 											<div class="text-center">
 												ETA
 											</div>
 										</td>
-										
-
 										<?php if (in_array($this->session->userdata('level'), ['PPIC','AP'])){ ?>
 											<td colspan="2">
 												<input class="form-control" type="date" name="eta_item[0]" id="eta_item0"><br>
@@ -359,6 +357,7 @@
 										<?php } ?>
 									</tr>
 									<tr id="eta_tambahan0"></tr>
+									<tr id="hr_tambahan0"></tr>
 								</tbody>
 							</table>
 						</div>
@@ -1007,6 +1006,7 @@
 		
 		$("#id_trs_po").val("");
 		$("#eta_tambahan0").html("");
+		$("#hr_tambahan0").html("");
 
 		clearRow();
 		status = 'insert';
@@ -1437,8 +1437,7 @@
 						$("#price_exc"+index).prop("disabled", false);
 						$("#eta_ket"+index).prop("disabled", false);
 					}
-					
-					// $("#eta_tambahan"+index).html('eta tambahan'+index);
+
 					etaTambahan(index, value.id_po_dtl)
 
 					if (index != (data.detail.length) - 1) {
@@ -1450,15 +1449,17 @@
 
 	function etaTambahan(index, id_po_dtl) {
 		$("#eta_tambahan"+index).html('');
-		// let id_trs_po = $("#id_trs_po").val();
+		$("#hr_tambahan"+index).html('');
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/etaTambahan')?>',
 			type: "POST",
 			data: ({ id_po_dtl }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				console.log(data);
+				(data.soNumRows == 0) ? $("#item_tambahan"+index).show() : $("#item_tambahan"+index).hide();
 				$("#eta_tambahan"+index).html(data.html);
+				$("#hr_tambahan"+index).html(data.hr);
 			}
 		})
 	}
@@ -2375,7 +2376,7 @@
 						</td>
 					`;
 					item_tambahan = `
-						<tr id="item_tambahan${ rowNum }">
+						<tr style="background:#f2f2f2" id="item_tambahan${ rowNum }">
 							<td>
 								<div class="text-center">
 									ETA
@@ -2389,13 +2390,14 @@
 							</td>
 						</tr>	
 					`;
-					eta_tambahan = `<tr id="eta_tambahan${ rowNum }">`;
+					eta_tambahan = `<tr style="background:#f2f2f2" id="eta_tambahan${ rowNum }"></tr>`;
+					hr_tambahan = `<tr style="background:#f2f2f2" id="hr_tambahan${ rowNum }"></tr>`;
 					coll=``;
 				}else{
 					p11_tambahan = ``;
 					coll=`colspan="5"`;
 					item_tambahan = `
-						<tr id="item_tambahan${ rowNum }">
+						<tr style="background:#f2f2f2" id="item_tambahan${ rowNum }">
 							<td>
 								<div class="text-center">
 									ETA
@@ -2466,12 +2468,13 @@
 							</td>
 						</tr>	
 					`;
-					eta_tambahan = `<tr id="eta_tambahan${ rowNum }">`;
+					eta_tambahan = `<tr style="background:#f2f2f2" id="eta_tambahan${ rowNum }"></tr>`;
+					hr_tambahan = `<tr style="background:#f2f2f2" id="hr_tambahan${ rowNum }"></tr>`;
 				}
 				
 
 				$('#table-produk').append(
-					`<tr id="itemRow${ rowNum }">
+					`<tr style="background:#f2f2f2" id="itemRow${ rowNum }">
 						<td id="detail-hapus-${ rowNum }">
 							<div class="text-center">
 							<a class="btn btn-danger"  id="btn-hapus-${ rowNum }" onclick="removeRow(${ rowNum })"><i class="far fa-trash-alt" style="color:#fff"></i> </a>
@@ -2499,6 +2502,7 @@
 					</tr>					
 					${ item_tambahan }
 					${ eta_tambahan }
+					${ hr_tambahan }
 					`);
 				$('.select2').select2({
 					placeholder: '--- Pilih ---',
@@ -2522,7 +2526,8 @@
 		if (rowNum > 0) {
 			jQuery('#itemRow' + e).remove();
 			jQuery('#item_tambahan' + e).remove();
-			jQuery('#eta_tambahan' + e).remove('');
+			jQuery('#eta_tambahan' + e).remove();
+			jQuery('#hr_tambahan' + e).remove();
 			rowNum--;
 		} else {
 			// toastr.error('Baris pertama tidak bisa dihapus');
@@ -2545,7 +2550,8 @@
 		for (var e = bucket; e > 0; e--) {
 			jQuery('#itemRow' + e).remove();
 			jQuery('#item_tambahan' + e).remove();
-			jQuery('#eta_tambahan' + e).remove('');
+			jQuery('#eta_tambahan' + e).remove();
+			jQuery('#hr_tambahan' + e).remove();
 			rowNum--;
 		}
 
