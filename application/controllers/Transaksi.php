@@ -4631,7 +4631,7 @@ class Transaksi extends CI_Controller
 					}
 					//
 					if($devSys->num_rows() > 1){
-						$html .= '<tr>
+						$html .= '<tr style="background:#f2f2f2">
 							<td style="border:0;padding:6px" colspan="5"></td>
 							<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($sumQty, 0, ',', '.').'</td>
 						</tr>';
