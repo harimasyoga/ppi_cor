@@ -92,7 +92,7 @@
 								<div class="col-md-3" style="padding-bottom:3px">
 									<select id="bulan" class="form-control select2" onchange="loadCalender('')">
 										<?php
-											$month = strtoupper(date("M"));
+											$month = strtoupper(date("F"));
 											$bulan = [ '01' => "JANUARY", '02' => "FEBRUARY", '03' => "MARCH", '04' => "APRIL", '05' => "MAY", '06' => "JUNE", '07' => "JULY", '08' => "AUGUST", '09' => "SEPTEMBER", '10' => "OCTOBER", '11' => "NOVEMBER", '12' => "DECEMBER" ];
 											foreach ($bulan as $no => $namaBulan) {
 												($month == $namaBulan) ? $slt = 'selected' : $slt = '';
