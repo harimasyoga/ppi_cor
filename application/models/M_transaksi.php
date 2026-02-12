@@ -1051,8 +1051,8 @@ class M_transaksi extends CI_Model
 				'status' => 'Open',
 				'status_2' => 'Open',
 				'ket_so' => '',
-				'rm' => 0,
-				'ton' => 0,
+				'rm' => $r['options']['rm'],
+				'ton' => $r['options']['ton'],
 				'add_time' => date('Y-m-d H:i:s'),
 				'add_user' => $addUser,
 			);

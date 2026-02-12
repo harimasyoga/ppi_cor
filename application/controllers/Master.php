@@ -505,18 +505,21 @@ class Master extends CI_Controller
 			$query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan $wCust ORDER BY kategori,nm_produk")->result();
 			$i = 1;
 			foreach ($query as $r) {
-				( $r->kategori =='K_SHEET' ) ? $kategori='SHEET' : $kategori='BOX';
+				($r->kategori == 'K_SHEET') ? $kategori='SHEET' : $kategori='BOX';
 				($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
 				($r->kategori == 'K_BOX') ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
 
 				$design = $this->db->query("SELECT COUNT(id_produk) AS jml FROM m_produk_mc WHERE id_produk='$r->id_produk' GROUP BY id_produk");
 				($design->num_rows() == 0) ? $dD = '' : $dD = ' <span class="bg-dark" style="vertical-align:top;padding:2px 4px;font-size:12px;font-weight:bold;border-radius:4px">'.$design->row()->jml.'</span>';
 
+				(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+				(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+
 				$row = array();
 				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit('."'".$r->id_produk."'".','."'detail'".')">'.$i."<a></div>";
 				$row[] = $r->nm_pelanggan.$attn;
 				$row[] = '<div class="text-center">'.$kategori.'</div>';
-				$row[] = $r->nm_produk;
+				$row[] = $dv1.$r->nm_produk.$dv2;
 				$row[] = $ukuran;
 				$row[] = '<div class="text-center">'.$r->flute.'</div>';
 				$row[] = $this->m_fungsi->kualitas($r->kualitas, $r->flute);

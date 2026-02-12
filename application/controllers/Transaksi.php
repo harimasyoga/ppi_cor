@@ -3645,11 +3645,14 @@ class Transaksi extends CI_Controller
 					$row[] = $this->m_fungsi->tglIndSkt($r->tgl_so);
 				// }
 				// $urut_so = str_pad($r->urut_so, 2, "0", STR_PAD_LEFT);
+				(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+				(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
 				($r->c_rpt == 1) ? $cpt = '' : $cpt = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->c_rpt.'</span>';
 				$row[] = $r->kode_po.$cpt;
 				($r->kategori == 'K_BOX') ? $k = '' : $k = '[SHEET] ';
-				$row[] = $k.$r->nm_produk;
-				($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
+				$row[] = $dv1.$k.$r->nm_produk.$dv2;
+				($r->attn == '-') ? $attn = '' : $attn = '<div>'.$r->attn.'</div>';
+				
 				$row[] = $r->nm_pelanggan.$attn;
 				$row[] = '<div class="text-right"><b>'.number_format($r->qty_po).'</b></div>';
 				// if($this->session->userdata('level') == "PPIC") {
@@ -7028,7 +7031,7 @@ class Transaksi extends CI_Controller
 			}
 			
 			($r->kategori == "K_BOX") ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
-			($r->kategori == "K_BOX") ? $ket_p = '[BOX]' : $ket_p = '[SHEET]';
+			($r->kategori == "K_BOX") ? $ket_p = '[BOX] ' : $ket_p = '[SHEET] ';
 			
 			// PENGIRIMAN
 			$kirim = $this->m_fungsi->kiriman($r->kode_po, $r->id_produk, $r->qty);
@@ -7039,11 +7042,13 @@ class Transaksi extends CI_Controller
 			($sisa <= 0) ? $txtSisa = number_format($sisa,0,',','.') : $txtSisa = '+'.number_format($sisa,0,',','.');
 			($sisa == 0 || $sumKirim == 0) ? $span = '' : $span = ' <span style="'.$bgtd.'">'.$txtSisa.'</span>';
 			($sumRetur != 0) ? $txtRtr = ' <span style="font-style:italic;font-weight:normal">('.number_format($sumRetur,0,',','.').')</span>' : $txtRtr = '';
+			(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+			(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
 
 			// <td style="padding:6px;'.$bold.'">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->eta)).'</td>
 			$html .='<tr style="'.$borLf.'">
 				<td style="padding:6px;text-align:center;'.$bold.'">'.$i.'</td>
-				<td style="padding:6px;'.$bold.'">'.$ket_p.' '.$r->nm_produk.'</td>
+				<td style="padding:6px;'.$bold.'">'.$dv1.$ket_p.$r->nm_produk.$dv2.'</td>
 				<td style="padding:6px;'.$bold.'">'.$ukuran.'</td>
 				<td style="padding:6px;'.$bold.'">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
 				<td style="padding:6px;text-align:center;'.$bold.'">'.$r->flute.'</td>
@@ -9722,7 +9727,7 @@ class Transaksi extends CI_Controller
 				$totBerat = 0;
 				foreach($sys->result() as $r){
 					$i++;
-					($r->attn == '-') ? $attn = '' : $attn = ' - '.$r->attn;
+					($r->attn == '-') ? $attn = '' : $attn = '<div>'.$r->attn.'</div>';
 					($r->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
 					(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->id_ex == null) ? $och = 'id="ds-urut'.$r->id_dev.'" onchange="dsUrut('."'".$r->id_dev."'".')"' : $och = 'disabled';
 
@@ -9733,14 +9738,16 @@ class Transaksi extends CI_Controller
 						$ll = $prov->row()->lama_kirim;
 						$lamaK = date('d-m-Y', strtotime('+'.$ll.' day', strtotime($tgl)));
 					}
-					$html .= '<tr>
+					(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:320px;white-space:normal">' : $dv1 = '';
+					(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+					$html .= '<tr style="vertical-align:top">
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
 							<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" value="'.$r->urut.'" '.$och.'>
 						</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$r->nm_pelanggan.$attn.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$lamaK.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$r->kode_po.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px">'.$kategori.$r->nm_produk.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($r->qty_plan, 0, ',', '.').'</td>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$r->berat_bersih.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($r->berat, 0, ',', '.').'</td>

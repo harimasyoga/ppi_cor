@@ -11563,13 +11563,15 @@ class Logistik extends CI_Controller
 						($gdi->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
 						($gdi->kategori == "K_BOX") ? $kategori2 = 'BOX' : $kategori2 = 'SHEET';
 						$btnAksi = '<button type="button" id="simpan_muat'.$gdi->id_gudang.'" class="btn btn-sm btn-success btn-block" style="font-weight:bold" onclick="addCartRKSJ('."'".$gdi->id_gudang."'".')"><i class="fas fa-plus"></i> ADD</button>';
-						($gdi->attn == '-') ? $attn = '' : $attn = ' - '.$gdi->attn;
+						($gdi->attn == '-') ? $attn = '' : $attn = '<div>'.$gdi->attn.'</div>';
+						(strlen($gdi->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+						(strlen($gdi->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
 						if($qty > 0){
-							$html .='<tr>
+							$html .='<tr style="vertical-align:top">
 								<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$ii.'</td>
 								<td style="border:1px solid #dee2e6;padding:6px">'.$gdi->nm_pelanggan.$attn.'</td>
 								<td style="border:1px solid #dee2e6;padding:6px">'.$gdi->gd_kode_po.'</td>
-								<td style="border:1px solid #dee2e6;padding:6px">'.$kategori.''.$gdi->nm_produk.'</td>
+								<td style="border:1px solid #dee2e6;padding:6px">'.$dv1.$kategori.$gdi->nm_produk.$dv2.'</td>
 								<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
 									<span class="hitung-sisa-'.$gdi->id_gudang.'">'.number_format($qty,0,",",".").'</span>
 								</td>
@@ -11643,14 +11645,16 @@ class Logistik extends CI_Controller
 						($isi->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
 						($isi->kategori == "K_BOX") ? $kategori2 = 'BOX' : $kategori2 = 'SHEET';
 						$btnAksi = '<button type="button" id="simpan_muat'.$isi->id_gudang.'" class="btn btn-sm btn-success btn-block" style="font-weight:bold" onclick="addCartRKSJ('."'".$isi->id_gudang."'".')"><i class="fas fa-plus"></i> ADD</button>';
-						($isi->attn == '-') ? $attn = '' : $attn = ' - '.$isi->attn;
+						($isi->attn == '-') ? $attn = '' : $attn = '<div>'.$isi->attn.'</div>';
+						(strlen($isi->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+						(strlen($isi->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
 						if($qty > 0){
-							$html .='<tr>
+							$html .='<tr style="vertical-align:top">
 								<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
 								<td style="border:1px solid #dee2e6;padding:6px">'.substr($this->m_fungsi->getHariIni($isi->tgl_kirim_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_kirim_plan).'</td>
 								<td style="border:1px solid #dee2e6;padding:6px">'.$isi->nm_pelanggan.$attn.'</td>
 								<td style="border:1px solid #dee2e6;padding:6px">'.$isi->kode_po.'</td>
-								<td style="border:1px solid #dee2e6;padding:6px">'.$kategori.''.$isi->nm_produk.'</td>
+								<td style="border:1px solid #dee2e6;padding:6px">'.$dv1.$kategori.$isi->nm_produk.$dv2.'</td>
 								<td style="border:1px solid #dee2e6;padding:6px">['.$shift.'.'.$mesin.'] '.substr($this->m_fungsi->getHariIni($isi->tgl_plan),0,3).', '.$this->m_fungsi->tglIndSkt($isi->tgl_plan).' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px'.$rcr.'">CR</span>'.$fx.''.$fs.'</td>
 								<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
 									<span class="hitung-sisa-'.$isi->id_gudang.'">'.number_format($qty,0,",",".").'</span>
@@ -12451,10 +12455,12 @@ class Logistik extends CI_Controller
 							}
 							($item->c_uk == 1) ? $c_uk = 'checked' : $c_uk = '';
 							($item->c_kl == 1) ? $c_kl = 'checked' : $c_kl = '';
-							($item->attn == '-') ? $attn = '' : $attn = ' - '.$item->attn;
-							$html .='<tr>
+							($item->attn == '-') ? $attn = '' : $attn = '<div>'.$item->attn.'</div>';
+							(strlen($item->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+							(strlen($item->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+							$html .='<tr style="vertical-align:top">
 								<td style="padding:6px;border:1px solid #dee2e6">'.$item->nm_pelanggan.$attn.'</td>
-								<td style="padding:6px;border:1px solid #dee2e6">'.$item->nm_produk.'</td>
+								<td style="padding:6px;border:1px solid #dee2e6">'.$dv1.$item->nm_produk.$dv2.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">
 									<input type="checkbox" id="c_uk_'.$item->id_produk.'" onclick="cUkuranKualitas('."'".$item->id_rk."'".','."'".$item->id_produk."'".','."'UK'".')" value="'.$item->c_uk.'" '.$c_uk.'>
 									'.$ukuran.'
