@@ -1453,14 +1453,14 @@
 	}
 
 	function etaTambahan(index, id_po_dtl) {
-		$("#eta_tambahan"+index).html('');
-		$("#hr_tambahan"+index).html('');
+		$("#eta_tambahan"+index).html('')
+		$("#hr_tambahan"+index).html('')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/etaTambahan')?>',
 			type: "POST",
 			data: ({ id_po_dtl }),
 			success: function(res){
-				data = JSON.parse(res)
+				data = JSON.parse(res);
 				(data.soNumRows == 0) ? $("#item_tambahan"+index).show() : $("#item_tambahan"+index).hide();
 				$("#eta_tambahan"+index).html(data.html);
 				$("#hr_tambahan"+index).html(data.hr);
