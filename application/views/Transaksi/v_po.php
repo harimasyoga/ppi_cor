@@ -227,16 +227,16 @@
 								<thead class="color-tabel">
 									<tr>
 										<th id="header_del">Delete</th>
-										<th style="width:20%;padding:12px 20px" >Item</th>
-										<th style="padding:12px 40px" >Qty</th>
-										<th style="padding:12px 40px" >PPN</th>
+										<th style="padding:12px 20px">Item</th>
+										<th style="padding:12px 50px">Qty</th>
+										<th style="padding:12px 40px">PPN</th>
 										<?php if (!in_array($this->session->userdata('level'), ['PPIC','AP'])) { ?>
-											<th style="padding:12px 15px" >Price Exclude</th>
-											<th style="padding:12px 15px" >Price Include</th>
-											<th style="padding:12px 30px" id="header_p11" >P11</th>
+											<th style="padding:12px 15px">Price Exclude</th>
+											<th style="padding:12px 15px">Price Include</th>
+											<th style="padding:12px 30px" id="header_p11">P11</th>
 											<th>Detail Item</th>
 										<?php } else { ?>
-											<th type="hidden"  id="header_p11" >P11</th>
+											<th type="hidden" id="header_p11">P11</th>
 											<th colspan="5">Detail Item</th>
 										<?php } ?>
 									</tr>
@@ -249,33 +249,35 @@
 											</div>
 										</td>
 										<td>
-											<select class="form-control select2 narrow wrap wrap" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(this.value,0)"></select>
+											<div style="width:260px">
+												<select class="form-control select2 narrow wrap wrap" name="id_produk[0]" id="id_produk0" style="width: 100%;" onchange="setDetailProduk(this.value,0)"></select>
+											</div>
 										</td>
-										<td >
+										<td>
 											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="ubah_angka(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)">											
 											<br>
 											<input class="form-control" type="checkbox" name="cek_rm[0]" id="cek_rm0" onclick="cekrm(this.id)" value="0">
 										</td>
 										<td>
-											<select class="form-control select2" name="ppn[0]" id="ppn0" >
-												<option value="">-- Pilih --</option>
-												<!-- <option value="KB">KB</option> -->
-												<option value="PP">PP</option>
-												<option value="NP">NP</option>
-											</select>
+											<div style="width:100px">
+												<select class="form-control select2" name="ppn[0]" id="ppn0" >
+													<option value="">-- Pilih --</option>
+													<option value="PP">PP</option>
+													<option value="NP">NP</option>
+												</select>
+											</div>
 										</td>
 										<?php if (!in_array($this->session->userdata('level'), ['PPIC','AP'])){ ?>
-										
-										<td style="padding : 12px 20px" >
-											<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
-										</td>
-										<td style="padding : 12px 20px">
-											<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
-										</td>
-										<td id="p11_det0">
-											<input type="text" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
-										</td>
-										<td id="txt_detail_produk0"></td>
+											<td>
+												<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+											</td>
+											<td>
+												<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+											</td>
+											<td id="p11_det0">
+												<input type="text" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
+											</td>
+											<td id="txt_detail_produk0"></td>
 										<?php }else{ ?>
 											<td colspan="5" id="txt_detail_produk0"></td>
 										<?php } ?>
@@ -289,7 +291,7 @@
 										<?php if (in_array($this->session->userdata('level'), ['PPIC','AP'])){ ?>
 											<td colspan="2">
 												<input class="form-control" type="date" name="eta_item[0]" id="eta_item0"><br>
-												<textarea class="form-control" name="eta_ket[0]" id="eta_ket0" placeholder="KET. ETA" rows="3" style="color:#fa3c3e;"></textarea>
+												<textarea class="form-control" name="eta_ket[0]" id="eta_ket0" placeholder="KET. ETA" rows="3" style="color:#dc3545;font-weight:bold;resize:none"></textarea>
 											</td>
 											<td width="10%" id="subs0" name="subs[0]">
 												<select id="tl_al0" name="tl_al[0]" class="form-control select2" onchange="ayoBerhitung(0)">
@@ -352,11 +354,11 @@
 												<input class="form-control" type="date" name="eta_item[0]" id="eta_item0">
 											</td>
 											<td colspan="6">
-												<textarea class="form-control" name="eta_ket[0]" id="eta_ket0" placeholder="KET. ETA" rows="3"></textarea>
+												<textarea class="form-control" name="eta_ket[0]" id="eta_ket0" placeholder="KET. ETA" rows="3" style="color:#dc3545;font-weight:bold;resize:none"></textarea>
 											</td>
 										<?php } ?>
 									</tr>
-									<tr id="eta_tambahan0"></tr>
+									<tr style="background:#f2f2f2" id="eta_tambahan0"></tr>
 									<tr id="hr_tambahan0"></tr>
 								</tbody>
 							</table>
@@ -465,8 +467,9 @@
 	$(document).ready(function() {
 		load_data();		
 		load_status_karet();
-		$("#eta_ket0").css("color","#fa3c3e");
-		$("#eta_ket0").css("font-weight","bold");
+		$("#eta_ket0").css("color", "#dc3545");
+		$("#eta_ket0").css("font-weight", "bold");
+		$("#eta_ket0").css("resize", "none");
 		// getMax();
 		$('.select2').select2({
 			containerCssClass: "wrap",
@@ -1237,8 +1240,9 @@
 					$('#price_inc'+index).val(format_angka(value.price_inc));
 					$('#price_exc'+index).val(format_angka(value.price_exc));
 					$("#eta_ket"+index).val(value.eta_ket); 		
-					$("#eta_ket"+index).css("color","#fa3c3e");
-					$("#eta_ket"+index).css("font-weight","bold");
+					$("#eta_ket"+index).css("color", "#dc3545");
+					$("#eta_ket"+index).css("font-weight", "bold");
+					$("#eta_ket"+index).css("resize", "none");
 					
 					$("#p11"+index).val(value.p11);
 
@@ -1411,8 +1415,9 @@
 					$('#price_inc'+index).val(format_angka(value.price_inc));
 					$('#price_exc'+index).val(format_angka(value.price_exc));
 					$("#eta_ket"+index).val(value.eta_ket); 		
-					$("#eta_ket"+index).css("color","#fa3c3e");
-					$("#eta_ket"+index).css("font-weight","bold");
+					$("#eta_ket"+index).css("color", "#dc3545");
+					$("#eta_ket"+index).css("font-weight", "bold");
+					$("#eta_ket"+index).css("resize", "none");
 					
 					$("#p11"+index).val(value.p11);
 
@@ -1456,7 +1461,6 @@
 			data: ({ id_po_dtl }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data);
 				(data.soNumRows == 0) ? $("#item_tambahan"+index).show() : $("#item_tambahan"+index).hide();
 				$("#eta_tambahan"+index).html(data.html);
 				$("#hr_tambahan"+index).html(data.hr);
@@ -2205,63 +2209,63 @@
 							</tr>`;
 						}
 
-						(val.nm_produk.length >= 50) ? sTf = 'style="width:260px;white-space:normal"' : sTf = '';
+						(val.nm_produk.length >= 50) ? sTf = 'style="width:240px;white-space:normal"' : sTf = '';
 						html_produk = `
-						<table class='table' border='0' style='font-size:12px'>
+						<table class='table' style='font-size:12px;border:0'>
 							<tr style="list-style:none;background-color: transparent !important;"> 
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Nama Item </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><div ${sTf}>${val.nm_produk}</div></td>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Ukuran Box </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000">${ uk }</td>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Kualitas </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000">${ val.kualitas }</td>
 							</tr>
 							<tr style="list-style:none;background-color: transparent !important;"> 
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Kode MC </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000">${ val.kode_mc }</td>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Ukuran Sheet </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><input type="hidden" class="input-border-none" name="p_sheet[${id}]" id="p_sheet${id}" value="${val.ukuran_sheet_p}" > ${val.ukuran_sheet}</td>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Flute </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b> <input type="hidden" class="input-border-none" name="fl[${id}]" id="fl${id}" value="${val.flute}" > ${val.flute}</td>
 							</tr>
 							<tr style="list-style:none;background-color: transparent !important;"> 
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Jenis Item </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000">${val.jenis_produk}</td>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Creasing </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000">${ val.creasing }-${ val.creasing2 }-${ val.creasing3 }</td>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Toleransi </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000">${ val.toleransi_kirim }%</td>
 							</tr>
 							<tr style="list-style:none;background-color: transparent !important;"> 
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>RM </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><input type="text" class="input-border-none" name="rm[${id}]" id="rm${id}" readonly ></td>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>BB </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><input type="text" class="input-border-none" name="bb[${id}]" id="bb${id}" value="${val.berat_bersih}" readonly ></td>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Ton </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><input type="text" class="input-border-none" name="ton[${id}]" id="ton${id}" readonly ></td>
 							</tr>
 							
 							<tr style="list-style:none;background-color: transparent !important;"> 
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Tipe Box </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000">${val.tipe_box}</td>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Joint </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000">${$join}</td>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Bahan Baku </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><input type="text" class="input-border-none" name="bhn_bk[${id}]" id="bhn_bk${id}" readonly ></td>
 
 							</tr>
@@ -2273,13 +2277,13 @@
 							
 							<tr style="list-style:none;background-color: transparent !important;"> 
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Harga / Kg </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><input type="text" class="input-border-none" name="hrg_kg[${id}]" id="hrg_kg${id}" readonly ></td>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>QTY PO </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000">${qty_po}</td>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000"><b>Max Kirim PO </td>
-								<td style="padding:7px;border-right:none;border-left:none;color:#000">:</td> </b>
+								<td style="padding:7px;border-right:none;border-left:none;color:#000;width:1%">:</td> </b>
 								<td style="padding:7px;border-right:none;border-left:none;color:#000">${tgl_kirim}</td>
 							</tr>`;
 							<?php } ?>
@@ -2364,7 +2368,7 @@
 								<input class="form-control" type="date" name="eta_item[${ rowNum }]" id="eta_item${ rowNum }">
 							</td>
 							<td colspan="6">			
-								<textarea class="form-control" name="eta_ket[${ rowNum }]" id="eta_ket${ rowNum }" placeholder="KET. ETA" rows="3" style="color:#fa3c3e;font-weight:bold"></textarea>
+								<textarea class="form-control" name="eta_ket[${ rowNum }]" id="eta_ket${ rowNum }" placeholder="KET. ETA" rows="3" style="color:#dc3545;font-weight:bold;resize:none"></textarea>
 							</td>
 						</tr>	
 					`;
@@ -2384,7 +2388,7 @@
 							<td colspan="2">
 								<input class="form-control" type="date" name="eta_item[${ rowNum }]" id="eta_item${ rowNum }">
 								<br>							
-								<textarea class="form-control" name="eta_ket[${ rowNum }]" id="eta_ket${ rowNum }" placeholder="KET. ETA" rows="3" style="color:#fa3c3e;font-weight:bold;"></textarea>
+								<textarea class="form-control" name="eta_ket[${ rowNum }]" id="eta_ket${ rowNum }" placeholder="KET. ETA" rows="3" style="color:#dc3545;font-weight:bold;resize:none"></textarea>
 							</td>
 							<td width="10%" id="subs${ rowNum }" name="subs[${ rowNum }]">
 								<select id="tl_al${ rowNum }" name="tl_al[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
@@ -2459,8 +2463,9 @@
 							</div>
 						</td>
 						<td>
-							<select class="form-control select2" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }"  onchange="setDetailProduk(this.value,${ rowNum })"></select>
-							<div ></div>
+							<div style="width:260px">
+								<select class="form-control select2" name="id_produk[${ rowNum }]" id="id_produk${ rowNum }"  onchange="setDetailProduk(this.value,${ rowNum })"></select>
+							</div>
 						</td>
 						<td>
 							<input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onkeyup="ubah_angka(this.value,this.id)"  onchange="Hitung_rm(this.value,this.id)">
@@ -2468,10 +2473,12 @@
 							<input class="form-control" type="checkbox" name="cek_rm[${ rowNum }]" id="cek_rm${ rowNum }" onclick="cekrm(this.id)" value="0">
 						</td>
 						<td>
-							<select class="form-control select2" name="ppn[${ rowNum }]" id="ppn${ rowNum }">
-								<option value="PP">PP</option>
-								<option value="NP">NP</option>
-							</select>
+							<div style="width:100px">
+								<select class="form-control select2" name="ppn[${ rowNum }]" id="ppn${ rowNum }">
+									<option value="PP">PP</option>
+									<option value="NP">NP</option>
+								</select>
+							</div>
 						</td>
 						${ td_harga }
 						${ p11_tambahan }

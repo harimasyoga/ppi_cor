@@ -776,7 +776,7 @@ class M_transaksi extends CI_Model
 
 		if($status == 'Y'){
 			$stts = 'VERIFIKASI';
-			if($this->session->userdata('level') == 'Amin'){
+			if($this->session->userdata('level') == 'Admin'){
 				$sts = 'Approve';
 			}else if($this->session->userdata('level') == 'Owner' && $cekPO->row()->status_app4 == 'Y'){
 				$sts = 'Approve';
@@ -800,6 +800,10 @@ class M_transaksi extends CI_Model
 			// TRS PO
 			$data = array(
 				'status'        => $sts,
+				'status_app4'   => $status,
+				'user_app4'     => $this->username,
+				'time_app4'     => $this->waktu,
+				'ket_acc4'      => $alasan,
 				'status_app1'   => $status,
 				'user_app1'     => $this->username,
 				'time_app1'     => $this->waktu,
@@ -814,7 +818,7 @@ class M_transaksi extends CI_Model
 				'ket_acc3'      => $alasan,
 			);
 
-			$this->db->where("no_po",$id);
+			$this->db->where("no_po", $id);
 			$update_trs_po = $this->db->update("trs_po", $data);
 			// UPDATE HUB
 			// if($update_trs_po)
@@ -1021,27 +1025,13 @@ class M_transaksi extends CI_Model
 			$jml_so = $r['options']['jml_so'];
 			$eta_po = $r['options']['eta_po'];
 
-			// SYS
-			$jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
-			WHERE id_po_header='$id' AND id_produk='$id_produk' AND id_pelanggan='$id_pelanggan'
-			GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
-
-			// PENGIRIMAN
-			$kirim = $this->m_fungsi->kiriman($kode_po, $id_produk, $jml_so);
-			$sumKirim = $kirim["sumKirim"];
-			$sumRetur = $kirim["sumRetur"];
-			$sisa = $kirim["sisa2"];
-			$qty_plan = $sisa - $jumlah_plan->qty_plan;
-
 			if($this->session->userdata('level') == 'PPIC'){
 				$wH = "AND add_user='ppic'";
 				$no = 100;
-				$tglSO = $_POST["tgl_so"];
 				$addUser = strtolower($this->session->userdata('level'));
 			}else{
 				$wH = "AND add_user!='ppic'";
 				$no = 1;
-				$tglSO = null;
 				$addUser = $this->username;
 			}
 			$tmbhUrutSo = $this->db->query("SELECT urut_so FROM trs_so_detail
@@ -1057,7 +1047,7 @@ class M_transaksi extends CI_Model
 				'no_so' => $no_so,
 				'urut_so' => $urut,
 				'rpt' => 1,
-				'qty_so' => ($sumKirim == 0) ? $jml_so : $qty_plan,
+				'qty_so' => $jml_so,
 				'status' => 'Open',
 				'status_2' => 'Open',
 				'ket_so' => '',
@@ -1083,39 +1073,77 @@ class M_transaksi extends CI_Model
 			$this->db->where("kode_po", $kode_po);
 			$this->db->where("id_produk", $id_produk);
 			$result = $this->db->update('trs_po_detail');
-			
-			// INSERT DELIVERY SYSTEM
-			if($result){
-				$soSo = $this->db->query("SELECT*FROM trs_so_detail WHERE id_pelanggan='$id_pelanggan' AND no_po='$no_po' AND kode_po='$kode_po' AND urut_so='$urut'")->row();
-				$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$id_produk'")->row();
-
-				$sys = [
-					'id_po_header' => $id,
-					'id_produk' => $id_produk,
-					'id_pelanggan' => $id_pelanggan,
-					'id_so' => $soSo->id,
-					'qty_po' => $jml_so,
-					'delivery' => $sumKirim,
-					'os' => ($sumKirim == 0) ? $jml_so : $sisa,
-					'os_terplanning' => 0,
-					'os_belum_terplanning' => ($sumKirim == 0) ? $jml_so : $qty_plan,
-					'qty_plan' => ($sumKirim == 0) ? $jml_so : $qty_plan,
-					'bb' => $produk->berat_bersih,
-					'berat' => ($sumKirim == 0) ? $jml_so*$produk->berat_bersih : $qty_plan*$produk->berat_bersih,
-					'eta' => $eta_po,
-					'ket_sys' => null,
-					'id_ex' => null,
-					'urut' => 0,
-					'created_at' => date('Y-m-d H:i:s'),
-				];
-				$dev_sys = $this->db->insert('trs_dev_sys', $sys);
-			}
 		}
 
 		return [
 			'result' => $result,
-			'dev_sys' => $dev_sys,
 		];
+	}
+
+	function addOStoDSys()
+	{
+		$id_po_dtl = $_POST["id_po_dtl"];
+		$id_os = $_POST["id_os"];
+
+		// $sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_sys'")->row();
+		$SO = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$id_os'")->row();
+		$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_po_dtl'")->row();
+		$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$po_dtl->id_produk'")->row();
+
+		// SYS
+		$jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
+		WHERE id_po_header='$id_po_dtl' AND id_produk='$po_dtl->id_produk' AND id_pelanggan='$po_dtl->id_pelanggan'
+		GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
+
+		// PENGIRIMAN
+		$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
+		$sumKirim = $kirim["sumKirim"];
+		$sisa = $kirim["sisa2"];
+
+		$delivery = $sumKirim;
+		$os = $sisa;
+		$os_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + ($SO->qty_so*2));
+		$os_belum_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + $SO->qty_so);
+		$berat = $SO->qty_so * $produk->berat_bersih;
+
+		$dts = [
+			'id_po_header' => $id_po_dtl,
+			'id_produk' => $po_dtl->id_produk,
+			'id_pelanggan' => $po_dtl->id_pelanggan,
+			'id_so' => $id_os,
+			'qty_po' => $po_dtl->qty,
+			'delivery' => $delivery,
+			'os' => $os,
+			'os_terplanning' => $os_terplanning,
+			'os_belum_terplanning' => $os_belum_terplanning,
+			'qty_plan' => $SO->qty_so,
+			'berat' => $berat,
+			'bb' => $produk->berat_bersih,
+			'eta' => $SO->eta_so,
+			'ket_sys' => null,
+			'id_ex' => null,
+			'urut' => 0,
+			'created_at' => date('Y-m-d H:i:s'),
+		];
+		$data = $this->db->insert("trs_dev_sys", $dts);
+		$msg = 'BERHASIL';
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function hapusOSDSys()
+	{
+		$id_dev = $_POST["id_dev"];
+		
+		$this->db->where('id_dev', $id_dev);
+		$result = $this->db->delete('trs_dev_sys');
+		return array(
+			'data' => $result,
+			'msg' => 'BERHASIL!'
+		);
 	}
 
 	function editBagiSys()
@@ -1132,7 +1160,7 @@ class M_transaksi extends CI_Model
 			$data = false; $msg = 'QTY KOSONG!';
 		}else{
 			$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_sys'")->row();
-			$soSo = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$sys->id_so'")->row();
+			// $soSo = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$sys->id_so'")->row();
 			$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_po_dtl'")->row();
 			$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$po_dtl->id_produk'")->row();
 
@@ -1272,77 +1300,33 @@ class M_transaksi extends CI_Model
 				'add_user' => $this->username,
 			);
 			$result = $this->db->insert('trs_so_detail', $data);
-
-			// INSERT KE DELIVERY SYSTEM
-			if($result){
-				$id_dtl = $r['options']['id_dtl'];
-				$id_pelanggan = $r['options']['id_pelanggan'];
-				$id_produk = $r['options']['id_produk'];
-				$eta_so = $r['options']['eta_so'];
-				$no_po = $r['options']['no_po'];
-				$kode_po = $r['options']['kode_po'];
-				$no_so = $r['options']['no_so'];
-				$urut_so = $r['options']['urut_so'];
-				$rpt = $r['options']['rpt'];
-				$qty_so = $r['options']['qty_so'];
-				$ket_so = $r['options']['ket_so'];
-
-				// $sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_sys'")->row();
-				$soSo = $this->db->query("SELECT*FROM trs_so_detail WHERE id_pelanggan='$id_pelanggan' AND id_produk='$id_produk' AND no_po='$no_po' AND kode_po='$kode_po' AND no_so='$no_so' AND urut_so='$urut_so' AND rpt='$rpt'")->row();
-				$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_dtl'")->row();
-				$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$po_dtl->id_produk'")->row();
-
-				// SYS
-				$jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
-				WHERE id_po_header='$id_dtl' AND id_produk='$po_dtl->id_produk' AND id_pelanggan='$po_dtl->id_pelanggan'
-				GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
-
-				// PENGIRIMAN
-				$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
-				$sumKirim = $kirim["sumKirim"];
-				$sisa = $kirim["sisa2"];
-
-				$delivery = $sumKirim;
-				$os = $sisa;
-				$os_belum_terplanning = $sisa - (($jumlah_plan->qty_plan - $qty_so) + $qty_so);
-				$os_terplanning = $os_belum_terplanning - $qty_so;
-				$berat = $qty_so * $produk->berat_bersih;
-
-				$dts = [
-					'id_po_header' => $id_dtl,
-					'id_produk' => $id_produk,
-					'id_pelanggan' => $id_pelanggan,
-					'id_so' => $soSo->id,
-					'qty_po' => $po_dtl->qty,
-					'delivery' => $delivery,
-					'os' => $os,
-					'os_terplanning' => $os_terplanning,
-					'os_belum_terplanning' => $os_belum_terplanning,
-					'qty_plan' => $qty_so,
-					'berat' => $berat,
-					'bb' => $produk->berat_bersih,
-					'eta' => $eta_so,
-					'ket_sys' => ($ket_so == '') ? null : $ket_so,
-					'id_ex' => null,
-					'urut' => 0,
-					'created_at' => date('Y-m-d H:i:s'),
-				];
-				$sys = $this->db->insert("trs_dev_sys", $dts);
-			}
 		}
 
 		return [
 			'result' => $result,
-			'sys' => $sys,
 		];
 	}
 
 	function batalDataSO()
 	{
-		$this->db->where('id', $_POST["i"]);
+		$id_os = $_POST["i"];
+		$this->db->where('id', $id_os);
 		$result = $this->db->delete('trs_so_detail');
+
+		// HAPUS DELIVERY SYSTEM
+		if($result){
+			$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_so='$id_os'");
+			if($sys->num_rows() == 0){
+				$hapusDSys = true;
+			}else{
+				$this->db->where('id_so', $id_os);
+				$hapusDSys = $this->db->delete('trs_dev_sys');
+			}
+		}
+
 		return array(
 			'data' => $result,
+			'hapusDSys' => $hapusDSys,
 			'msg' => 'BERHASIL BATAL DATA SO!'
 		);
 	}
@@ -1361,6 +1345,12 @@ class M_transaksi extends CI_Model
 				'msg' => 'SO SUDAH MASUK WO!'
 			);
 		}else{
+			$this->db->where('id_po_header', $id);
+			$this->db->where('id_produk', $getSoDetail->id_produk);
+			$this->db->where('id_pelanggan', $getSoDetail->id_pelanggan);
+			$this->db->where('id_so IS NOT NULL', null, false);
+			$hapusDSys = $this->db->delete('trs_dev_sys');
+
 			$this->db->where('no_po', $getSoDetail->no_po);
 			$this->db->where('kode_po', $getSoDetail->kode_po);
 			$this->db->where('id_produk', $getSoDetail->id_produk);
@@ -1383,6 +1373,7 @@ class M_transaksi extends CI_Model
 			$updateDetailPO = $this->db->update('trs_po_detail');
 
 			return array(
+				'hapusDSys' => $hapusDSys,
 				'hapusDetailSO' => $hapusDetailSO,
 				'updateDetailPO' => $updateDetailPO,
 				'data' => true,

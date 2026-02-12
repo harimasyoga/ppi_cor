@@ -954,7 +954,6 @@
 				}else{
 					swal(data.isi, "", "error")
 				}
-				// console.log(data)
 				$("#btn-show-simpan").prop("disabled", false)
 			}
 		})
@@ -1022,12 +1021,9 @@
 					}
 				});
 			},
-			data: ({
-				tgl_so
-			}),
+			data: ({ tgl_so }),
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.result) {
 					swal("BERHASIL DISIMPAN!", "", "success")
 					$("#modalForm").modal("hide");
@@ -1294,7 +1290,7 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				if(data.result && data.sys){
+				if(data.result){
 					tampilEditSO(id, no_po, kode_po, 'edit')
 					reloadTable()
 				}else{
@@ -1498,17 +1494,86 @@
 		})
 	}
 
+	function addOStoDSys(id_po_dtl, id_os) {
+		let h_id = $("#h_id").val()
+		let no_po = $("#h_no_po").val()
+		let kode_po = $("#h_kodepo").val()
+		$(".addOStoDSys").prop('disabled', true)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/addOStoDSys')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_po_dtl, id_os }),
+			success: function(res){
+				data = JSON.parse(res)
+				tampilEditSO(h_id, no_po, kode_po, 'edit')
+				reloadTable()
+			}
+		})
+	}
+
+	function hapusOSDSys(id_dev) {
+		let h_id = $("#h_id").val()
+		let no_po = $("#h_no_po").val()
+		let kode_po = $("#h_kodepo").val()
+		$(".hapusOSDSys").prop('disabled', true)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/hapusOSDSys')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_dev }),
+			success: function(res){
+				data = JSON.parse(res)
+				tampilEditSO(h_id, no_po, kode_po, 'edit')
+				reloadTable()
+			}
+		})
+	}
+
 	function editBagiSys(id_sys, id_po_dtl) {
+		let h_id = $("#h_id").val()
+		let no_po = $("#h_no_po").val()
+		let kode_po = $("#h_kodepo").val()
+
 		let sys_eta = $("#sys_eta"+id_sys).val()
 		let sys_qty = $("#sys_qty"+id_sys).val().split('.').join('')
 		let sys_ket = $("#sys_ket"+id_sys).val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editBagiSys')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ id_sys, id_po_dtl, sys_eta, sys_qty, sys_ket }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				tampilEditSO(h_id, no_po, kode_po, 'edit')
+				reloadTable()
 			}
 		})
 	}

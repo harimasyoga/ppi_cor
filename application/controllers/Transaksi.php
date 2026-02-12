@@ -4604,39 +4604,48 @@ class Transaksi extends CI_Controller
 	{
 		$id_po_dtl = $_POST["id_po_dtl"];
 		$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_po_dtl'")->row();
-		$so = $this->db->query("SELECT*FROM trs_so_detail WHERE eta_so IS NOT NULL AND id_pelanggan='$po_dtl->id_pelanggan' AND id_produk='$po_dtl->id_produk' AND no_po='$po_dtl->no_po' AND kode_po='$po_dtl->kode_po' ORDER BY eta_so");
+		$devSys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_po_header='$id_po_dtl' ORDER BY eta");
 
 		$html = '';
-		if($so->num_rows() != 0){
+		if($devSys->num_rows() != 0){
 			$html .= '<td style="font-weight:bold;text-align:center;background:#f2f2f2">ETA</td>
 			<td style="padding:6px 0;background:#f2f2f2" colspan="2">
 				<table>';
 					$i = 0;
-					foreach($so->result() as $r){
+					$sumQty = 0;
+					foreach($devSys->result() as $r){
 						$i++;
-						($so->num_rows() == 1) ? $x = '' : $x = ' '.$i;
+						($devSys->num_rows() == 1) ? $x = '' : $x = ' '.$i;
+						// strtoupper($this->m_fungsi->getHariIni($r->eta))
 						$html .= '<tr style="background:#f2f2f2">
 							<td style="border:0;padding:6px">ETA'.$x.'</td>
 							<td style="border:0;padding:6px">:</td>
 							<td style="border:0;padding:6px;font-weight:bold">
-								'.$this->m_fungsi->getHariIni($r->eta_so).', '.$this->m_fungsi->tglIndSkt($r->eta_so).'
+								'.strtoupper($this->m_fungsi->tglIndSkt($r->eta)).'
 							</td>
 							<td style="border:0;padding:6px">QTY'.$x.'</td>
 							<td style="border:0;padding:6px">:</td>
-							<td style="border:0;padding:6px;font-weight:bold">'.number_format($r->qty_so, 0, ',', '.').'</td>
+							<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($r->qty_plan, 0, ',', '.').'</td>
+						</tr>';
+						$sumQty += $r->qty_plan;
+					}
+					//
+					if($devSys->num_rows() > 1){
+						$html .= '<tr>
+							<td style="border:0;padding:6px" colspan="5"></td>
+							<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($sumQty, 0, ',', '.').'</td>
 						</tr>';
 					}
 				$html .= '</table>
 			</td>
 			<td colspan="4">
-				<textarea class="form-control" name="et_'.$id_po_dtl.'" id="et_'.$id_po_dtl.'" placeholder="KET. ETA" rows="3" style="color:#fa3c3e;font-weight:bold" disabled>'.$po_dtl->eta_ket.'</textarea>
+				<textarea class="form-control" name="et_'.$id_po_dtl.'" id="et_'.$id_po_dtl.'" placeholder="KET. ETA" rows="3" style="color:#dc3545;font-weight:bold;resize:none" disabled>'.$po_dtl->eta_ket.'</textarea>
 			</td>';
 		}
-
 		$hr = '<td style="padding:3px;background:#bec2c6" colspan="7"></td>';
 
 		echo json_encode([
-			'soNumRows' => $so->num_rows(),
+			'soNumRows' => $devSys->num_rows(),
 			'hr' => $hr,
 			'html' => $html,
 		]);
@@ -4662,19 +4671,6 @@ class Transaksi extends CI_Controller
 			LEFT JOIN m_kab d ON c.kab=d.kab_id
 			LEFT JOIN m_produk e ON b.id_produk=e.id_produk
 			WHERE a.no_po = '$header->no_po' ORDER BY b.id")->result();
-			
-			// $design = $this->db->query("SELECT i.*,a.* FROM trs_design_header a
-			// INNER JOIN trs_po b ON b.kode_po=a.kode_po
-			// INNER JOIN trs_design_detail c ON a.id_dg=c.id_hdr
-			// INNER JOIN m_produk i ON a.id_produk=i.id_produk
-			// WHERE b.no_po='$header->no_po' AND c.jenis_dtl='FD'
-			// GROUP BY a.kode_po, a.id_pelanggan, a.id_produk");
-			// $img = $this->db->query("SELECT c.*,a.* FROM trs_design_header a
-			// INNER JOIN trs_po b ON b.kode_po=a.kode_po
-			// INNER JOIN trs_design_detail c ON a.id_dg=c.id_hdr
-			// WHERE b.no_po='$header->no_po' AND a.id_produk='$r->id_produk' AND c.jenis_dtl='FD'
-			// GROUP BY a.kode_po, a.id_pelanggan, a.id_produk, c.id_dtl");
-			// $html .= '<div class="list-design" style="display:flex;padding:6px">';
 
 			$html = '';
 			$design = $this->db->query("SELECT i.nm_produk,m.img_mc,d.* FROM trs_po_detail d
@@ -6806,11 +6802,11 @@ class Transaksi extends CI_Controller
 
 	function soPlhNoPO()
 	{
-		if($this->session->userdata('level') == 'PPIC'){
-			$wId = "AND d.no_so_p IS NULL AND d.tgl_so_p IS NULL";
-		}else{
+		// if($this->session->userdata('level') == 'PPIC'){
+		// 	$wId = "AND d.no_so_p IS NULL AND d.tgl_so_p IS NULL";
+		// }else{
 			$wId = "AND d.no_so IS NULL AND d.tgl_so IS NULL AND d.status_so IS NULL";
-		}
+		// }
 		// AND p.status_app3='Y' AND p.status='Approve'
 		$po = $this->db->query("SELECT c.kode_unik,c.nm_pelanggan,c.attn,s.nm_sales,p.*,d.eta FROM trs_po p
 		INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
@@ -7086,7 +7082,7 @@ class Transaksi extends CI_Controller
 									<th style="width:10%;padding:6px 30px 6px 6px;text-align:center;'.$bHead.''.$bold.'">QTY SO</th>
 									'.$ketPPIC.'
 									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'">KETERANGAN</th>
-									<th style="width:1%;padding:6px;'.$bHead.''.$bold.'" class="text-center">-</th>
+									<th style="width:1%;padding:6px 18px;'.$bHead.''.$bold.'" class="text-center">-</th>
 									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'" class="text-center">RM</th>
 									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'" class="text-center">TON</th>
 									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'" class="text-center">B. BAKU</th>
@@ -7115,35 +7111,58 @@ class Transaksi extends CI_Controller
 					$l++;
 					// SYS
 					$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_so='$so->id'");
+					// ADD DS
+					($sys->num_rows() == 0) ? $addSys = ' <button type="button" class="btn btn-primary btn-sm addOStoDSys" onclick="addOStoDSys('."'".$id."'".', '."'".$so->id."'".')"><i class="fas fa-shopping-basket"></i></button>' : $addSys = '';
+					if($sys->num_rows() == 0){
+						$editDSys = '';
+						$btnHapusSys = '';
+					}else{
+						$iSys = $sys->row()->id_dev;
+						$editDSys = '<button type="button" class="btn btn-warning btn-xs" onclick="editBagiSys('."'".$sys->row()->id_dev."'".', '."'".$id."'".')"><i class="fas fa-edit"></i></button>';
+						$btnHapusSys = ' <button type="button" class="btn btn-danger btn-xs hapusOSDSys" onclick="hapusOSDSys('."'".$iSys."'".')"><i class="fas fa-trash"></i></button>';
+					}
+
 					if($aksi == 'detail'){
 						$btnHapus = '';
-						$btnAksiSys = '';
+						$btnAddDSys = '';
+						$btnEditDSys = '';
 					}else{
 						if($so->status == 'Close' || $so->status_2 == 'Close'){
 							$btnHapus = '';
-							$btnAksiSys = '';
+							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])){
+								$btnAddDSys = $addSys;
+								$btnEditDSys = '';
+							}else{
+								$btnAddDSys = '';
+								$btnEditDSys = '';
+							}
 						}else{
 							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])){
 								if($r->id == $id){
 									if($so->rpt == 1){
 										$btnHapus = '';
-										$btnAksiSys = '';
+										$btnAddDSys = $addSys;
+										$btnEditDSys =  '';
 									}else{
 										if($dataHapusSO->row()->jml_rpt == $so->rpt){
-											$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>';
-											$btnAksiSys = '<button type="button" class="btn btn-warning btn-sm" onclick="editBagiSys('."'".$sys->row()->id_dev."'".', '."'".$id."'".')"><i class="fas fa-edit"></i></button>';
+											$btnHapus = ' <button type="button" class="btn btn-danger btn-sm" style="padding:4px 10px" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>';
+											$btnAddDSys = $addSys;
+											$btnEditDSys = $editDSys;
 										}else{
 											$btnHapus = '';
-											$btnAksiSys = '';
+											$btnAddDSys = $addSys;
+											$btnEditDSys = '';
 										}
 									}
 								}else{
 									$btnHapus = '';
-									$btnAksiSys = '';
+									$btnAddDSys = $addSys;
+									$btnEditDSys = '';
 								}
 							}else{
 								$btnHapus = '';
-								$btnAksiSys = '';
+								$btnAddDSys = '';
+								$btnEditDSys = '';
 							}
 						}
 					}
@@ -7305,7 +7324,7 @@ class Transaksi extends CI_Controller
 							<input type="hidden" id="ht-ukp-'.$so->id.'" value="'.$so->ukuran_sheet_p.'">
 							<input type="hidden" id="ht-bb-'.$so->id.'" value="'.$so->berat_bersih.'">
 							<input type="hidden" id="edit-qtypo-so'.$so->id.'" value="'.$r->qty.'">
-							'.$btnAksi.' '.$btnHapus.'
+							'.$btnAksi.$btnHapus.$btnAddDSys.'
 						</td>
 					</tr>';
 					$sumQty += $so->qty_so;
@@ -7365,9 +7384,11 @@ class Transaksi extends CI_Controller
 								<input type="number" id="sys_qty'.$sys->row()->id_dev.'" class="form-control" style="text-align:right;font-weight:bold" value="'.number_format($sys->row()->qty_plan,0,',','.').'" '.$diss.'>
 							</td>
 							<td style="padding:6px;border:1px solid #999">
-								<textarea class="form-control" id="sys_ket'.$sys->row()->id_dev.'" rows="'.$rTxt.'" style="resize:none" '.$diss.'>'.$sys->row()->ket_sys.'</textarea>
+								<textarea class="form-control" id="sys_ket'.$sys->row()->id_dev.'" rows="1" style="resize:none" '.$diss.'>'.$sys->row()->ket_sys.'</textarea>
 							</td>
-							<td style="padding:6px;border:1px solid #999;text-align:center">'.$btnAksiSys.'</td>
+							<td style="padding:6px;border:1px solid #999;text-align:center">
+								'.$btnEditDSys.$btnHapusSys.'
+							</td>
 						</tr>';
 						if($dataHapusSO->row()->jml_rpt != $so->rpt){
 							$html .= '<tr>
@@ -7626,23 +7647,21 @@ class Transaksi extends CI_Controller
 				)
 			);
 
-			if($getData->row()->eta_so == $_POST["fBagiEtaSo"]){
-				echo json_encode(array('data' => false, 'msg' => 'ETA SUDAH ADA!'));
-			}else if($qtyS > $qtyPtoL){
+			if($qtyS > $qtyPtoL){
 				if(($rm < 500) && $_POST["fBagiCrmSo"] == 0){
 					echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm).' . RM KURANG!'));
 				}else{
-					echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!')); return;
+					echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!'));
 				}
 			}else if($this->cart->total_items() != 0){
-				foreach($this->cart->contents() as $r){
-					if($r['options']['eta_so'] == $_POST["fBagiEtaSo"]){
-						echo json_encode(array('data' => false, 'msg' => 'ETA SUDAH ADA!')); return;
-					}
-				}
+				// foreach($this->cart->contents() as $r){
+				// 	if($r['options']['eta_so'] == $_POST["fBagiEtaSo"]){
+				// 		echo json_encode(array('data' => false, 'msg' => 'ETA SUDAH ADA!')); return;
+				// 	}
+				// }
 				$sum_qty_so = $_POST["xxx_qty"] + $_POST['fBagiQtySo'];
 				if($sum_qty_so > $qtyPtoL){
-					echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!')); return;
+					echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!'));
 				}else if(($rm < 500) && $_POST["fBagiCrmSo"] == 0){
 					echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm).' . RM KURANG!'));
 				}else{
@@ -7775,6 +7794,18 @@ class Transaksi extends CI_Controller
 	function editBagiSys()
 	{
 		$result = $this->m_transaksi->editBagiSys();
+		echo json_encode($result);
+	}
+
+	function addOStoDSys()
+	{
+		$result = $this->m_transaksi->addOStoDSys();
+		echo json_encode($result);
+	}
+
+	function hapusOSDSys()
+	{
+		$result = $this->m_transaksi->hapusOSDSys();
 		echo json_encode($result);
 	}
 
