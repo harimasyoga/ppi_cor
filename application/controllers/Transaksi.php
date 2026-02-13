@@ -3447,6 +3447,37 @@ class Transaksi extends CI_Controller
 					'.$alasan3.$rketPO3.'
 				</div>';
 
+				// ETA
+				if($r->status_app3 == 'Y'){
+					$twoWeek = date('Y-m-d', strtotime('+2 week', strtotime(substr($r->time_app3, 0, 10))));
+					$twScdDiff = strtotime($twoWeek) - time();
+					$twHari = floor($twScdDiff/60/60/24);
+					$twJam = floor(($twScdDiff-($twHari*60*60*24))/60/60);
+					$twMenit = floor(($twScdDiff-($twHari*60*60*24)-($twJam*60*60))/60);
+
+					($twHari == 0) ? $tDays = '' : $tDays = '<div>'.$twHari.' Day</div>';
+					($twJam == 0) ? $tHours = '' : $tHours = '<div>'.$twJam.' Hrs</div>';
+					($twMenit == 0) ? $tMinutes = '' : $tMinutes = '<div>'.$twMenit.' Mnt</div>';
+					($twHari <= 0) ? $twWaktu = '' : $twWaktu = $tDays.$tHours.$tMinutes;
+					if(time() > strtotime($twoWeek) || time() == strtotime($twoWeek)){
+						$etaBtn = 'btn-danger';
+						$etaI = '<i class="fas fa-times"></i>';
+						$etaAlasan = '<div style="color:#dc3545;font-weight:bold">EXPIRED</div>';
+					}else{
+						$etaBtn = 'btn-warning';
+						$etaI = '<i class="fas fa-lock"></i>';
+						$etaAlasan = '<div style="color:#dc3545;font-weight:bold">'.$twWaktu.'</div>';
+					}
+				}else{
+					$etaBtn = 'btn-warning';
+					$etaI = '<i class="fas fa-lock"></i>';
+					$etaAlasan = '';
+				}
+				$row[] = '<div class="text-center">
+					<button type="button" title="ETA"  style="text-align:center" class="btn btn-sm '.$etaBtn.'">'.$etaI.'</button><br>
+					'.$etaAlasan.'
+				</div>';
+
                 $aksi = '';
 				if (!in_array($this->session->userdata('level'), ['Admin', 'konsul_keu', 'Marketing', 'PPIC', 'Owner', 'AP'])) {
 					if($this->session->userdata('level') == 'User' && $r->status == 'Open') {
@@ -4605,49 +4636,77 @@ class Transaksi extends CI_Controller
 
 	function etaTambahan()
 	{
+		$id_trs_po = $_POST["id_trs_po"];
 		$id_po_dtl = $_POST["id_po_dtl"];
+		$po = $this->db->query("SELECT*FROM trs_po WHERE id='$id_trs_po'")->row();
 		$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_po_dtl'")->row();
-		$devSys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_po_header='$id_po_dtl' ORDER BY eta");
+		$devSys = $this->db->query("SELECT c.prov,d.* FROM trs_dev_sys d
+		INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
+		WHERE id_po_header='$id_po_dtl' ORDER BY eta");
 
 		$html = '';
-		if($devSys->num_rows() != 0){
+		if($po->status_app3 == 'Y'){
 			$html .= '<td style="font-weight:bold;text-align:center;background:#f2f2f2">ETA</td>
-			<td style="padding:6px 0;background:#f2f2f2" colspan="2">
-				<table>';
-					$i = 0;
-					$sumQty = 0;
-					foreach($devSys->result() as $r){
-						$i++;
-						($devSys->num_rows() == 1) ? $x = '' : $x = ' '.$i;
-						// strtoupper($this->m_fungsi->getHariIni($r->eta))
-						$html .= '<tr style="background:#f2f2f2">
-							<td style="border:0;padding:6px">ETA'.$x.'</td>
-							<td style="border:0;padding:6px">:</td>
-							<td style="border:0;padding:6px;font-weight:bold">
-								'.strtoupper($this->m_fungsi->tglIndSkt($r->eta)).'
-							</td>
-							<td style="border:0;padding:6px">QTY'.$x.'</td>
-							<td style="border:0;padding:6px">:</td>
-							<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($r->qty_plan, 0, ',', '.').'</td>
-						</tr>';
-						$sumQty += $r->qty_plan;
-					}
-					//
-					if($devSys->num_rows() > 1){
-						$html .= '<tr style="background:#f2f2f2">
-							<td style="border:0;padding:6px" colspan="5"></td>
-							<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($sumQty, 0, ',', '.').'</td>
-						</tr>';
-					}
-				$html .= '</table>
-			</td>
-			<td colspan="4">
+			<td style="padding:6px 0;background:#f2f2f2" colspan="3">';
+				if($devSys->num_rows() != 0){
+					$html .= '<table>';
+						$i = 0;
+						$sumQty = 0;
+						foreach($devSys->result() as $r){
+							$i++;
+							($devSys->num_rows() == 1) ? $x = '' : $x = ' '.$i;
+
+							$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$r->prov'");
+							$ll = $prov->row()->lama_kirim;
+							$eta = date('d-m-Y', strtotime('+'.$ll.' day', strtotime($r->eta)));
+							// strtoupper($this->m_fungsi->getHariIni($r->eta))
+							$html .= '<tr style="background:#f2f2f2">
+								<td style="border:0;padding:6px">MUAT'.$x.'</td>
+								<td style="border:0;padding:6px 0">:</td>
+								<td style="border:0;padding:6px;font-weight:bold">'.strtoupper($this->m_fungsi->tglIndSkt($r->eta)).'</td>
+								<td style="border:0;padding:6px">ETA'.$x.'</td>
+								<td style="border:0;padding:6px 0">:</td>
+								<td style="border:0;padding:6px;font-weight:bold">'.$eta.'</td>
+								<td style="border:0;padding:6px">QTY'.$x.'</td>
+								<td style="border:0;padding:6px 0">:</td>
+								<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($r->qty_plan, 0, ',', '.').'</td>
+							</tr>';
+							$sumQty += $r->qty_plan;
+						}
+						if($devSys->num_rows() > 1){
+							$html .= '<tr style="background:#f2f2f2">
+								<td style="border:0;padding:6px" colspan="5"></td>
+								<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($sumQty, 0, ',', '.').'</td>
+							</tr>';
+						}
+					$html .= '</table>';
+				}else{
+					$html .= '<div style="border:0;padding:6px;color:#dc3545;text-align:center;font-weight:bold">ETA BELUM ADA!</div>';
+				}
+			$html .= '</td>';
+
+			// TIMER
+			$twoWeek = date('Y-m-d', strtotime('+2 week', strtotime(substr($po->time_app3, 0, 10))));
+			$secondsDiff = strtotime($twoWeek) - time();
+			$days = floor($secondsDiff/60/60/24);
+			$hours = floor(($secondsDiff-($days*60*60*24))/60/60);
+			$minutes = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))/60);
+
+			($days == 0) ? $tDays = '' : $tDays = '<div>'.$days.' HARI</div>';
+			($hours == 0) ? $tHours = '' : $tHours = '<div>'.$hours.' JAM</div>';
+			($minutes == 0) ? $tMinutes = '' : $tMinutes = '<div>'.$minutes.' MENIT</div>';
+			($days <= 0) ? $waktu = 'EXPIRED' : $waktu = $tDays.$tHours.$tMinutes;
+
+			// '.substr($po->time_app3, 0, 10).' - '.$twoWeek.' - '.$days.' hari
+			$html .= '<td style="color:#dc3545;font-weight:bold;text-align:center" colspan="2">'.$waktu.'</td>';
+			$html .= '<td>
 				<textarea class="form-control" name="et_'.$id_po_dtl.'" id="et_'.$id_po_dtl.'" placeholder="KET. ETA" rows="3" style="color:#dc3545;font-weight:bold;resize:none" disabled>'.$po_dtl->eta_ket.'</textarea>
 			</td>';
 		}
 		$hr = '<td style="padding:3px;background:#bec2c6" colspan="7"></td>';
 
 		echo json_encode([
+			'po' => $po,
 			'soNumRows' => $devSys->num_rows(),
 			'hr' => $hr,
 			'html' => $html,
