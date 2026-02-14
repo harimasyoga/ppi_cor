@@ -38,22 +38,19 @@
 					<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 						<thead class="color-tabel">
 							<tr>
-									<th style="text-align: center;">No</th>
-									<th style="text-align: center;">No PO<br>[ Tgl PO ]</th>
-									<!-- <th style="text-align: center; padding: 12px 40px;">Tgl PO</th> -->
-									<th style="text-align: center;">Customer</th>
-									<th style="text-align: center;">Kode PO</th>
-									<th style="text-align: center;">Item</th>
-									<th style="text-align: center;">Status<br>[ Karet ]</th>
-									<!-- <th style="text-align: center;">Status</th> -->
-									<!-- <th style="display:none;">Kode PO</th> -->
-									<!-- <th style="text-align: center">Total Qty</th> -->
-									<th style="text-align: center;">Admin</th>
-									<th style="text-align: center;">Harga</th>
-									<th style="text-align: center;">Mrkt</th>
-									<th style="text-align: center;">PPIC</th>
-									<th style="text-align: center;">Owner</th>
-									<th style="text-align: center;padding:12px 30px;">Aksi</th>
+									<th style="text-align:center">No</th>
+									<th style="text-align:center">No PO<br>[ Tgl PO ]</th>
+									<th style="text-align:center">Customer</th>
+									<th style="text-align:center">Kode PO</th>
+									<th style="text-align:center">Item</th>
+									<th style="text-align:center">Status<br>[ Karet ]</th>
+									<th style="text-align:center">Admin</th>
+									<th style="text-align:center">Harga</th>
+									<th style="text-align:center">Mrkt</th>
+									<th style="text-align:center">PPIC</th>
+									<th style="text-align:center">Owner</th>
+									<th style="text-align:center">ETA</th>
+									<th style="text-align:center;padding:12px 30px">Aksi</th>
 								
 							</tr>
 						</thead>
@@ -1455,13 +1452,14 @@
 	function etaTambahan(index, id_po_dtl) {
 		$("#eta_tambahan"+index).html('')
 		$("#hr_tambahan"+index).html('')
+		let id_trs_po = $("#id_trs_po").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/etaTambahan')?>',
 			type: "POST",
-			data: ({ id_po_dtl }),
+			data: ({ id_trs_po, id_po_dtl }),
 			success: function(res){
 				data = JSON.parse(res);
-				(data.soNumRows == 0) ? $("#item_tambahan"+index).show() : $("#item_tambahan"+index).hide();
+				(data.soNumRows == 0 && data.po.status_app3 != 'Y') ? $("#item_tambahan"+index).show() : $("#item_tambahan"+index).hide();
 				$("#eta_tambahan"+index).html(data.html);
 				$("#hr_tambahan"+index).html(data.hr);
 			}

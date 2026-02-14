@@ -405,15 +405,15 @@
 			url: '<?php echo base_url('Transaksi/TampilPO_dev')?>',
 			type: "POST",
 			beforeSend: function() {
-					swal({
-						title: 'Loading',
-						allowEscapeKey: false,
-						allowOutsideClick: false,
-						onOpen: () => {
-							swal.showLoading();
-						}
-					});
-				},
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				id_pelanggan, id_produk, nm_produk
 			}),
@@ -483,7 +483,7 @@
 		var os_terplanning          = $("#os_terplanning"+po_ok_id).val().split('.').join('')
 		var os_belum_terplanning    = $("#os_belum_terplanning"+po_ok_id).val().split('.').join('')
 		var qty_plan                = $("#qty_plan"+po_ok_id).val().split('.').join('')
-		var eta                     = $("#eta"+po_ok_id).val().split('.').join('')
+		var eta                     = $("#eta_tiba"+po_ok_id).val()
 
 		if (qty_po == ''|| delivery == ''|| os == ''|| os_terplanning == ''|| os_belum_terplanning == ''|| qty_plan == ''|| eta == '') {
 			swal.close();
@@ -580,6 +580,20 @@
 				}
 			});
 		});
+	}
+
+	function tglMuatEtaDSys(id_pelanggan, id){
+		let eta_tiba = $('#eta_tiba'+id).val()
+		$('.txt-eta-tiba'+id).html('-')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/tglMuatEtaDSys')?>',
+			type: "POST",
+			data: ({ id_pelanggan, eta_tiba }),
+			success: function(res){
+				data = JSON.parse(res)
+				$('.txt-eta-tiba'+id).html(data.eta)
+			}
+		})
 	}
 
 </script>

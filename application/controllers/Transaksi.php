@@ -3447,6 +3447,47 @@ class Transaksi extends CI_Controller
 					'.$alasan3.$rketPO3.'
 				</div>';
 
+				// ETA
+				// if($r->tgl_po >= '2026-02-01'){
+				if($r->status_app3 == 'Y'){
+					$twoWeek = date('Y-m-d', strtotime('+2 week', strtotime(substr($r->time_app3, 0, 10))));
+					$twScdDiff = strtotime($twoWeek) - time();
+					$twHari = floor($twScdDiff/60/60/24);
+					$twJam = floor(($twScdDiff-($twHari*60*60*24))/60/60);
+					$twMenit = floor(($twScdDiff-($twHari*60*60*24)-($twJam*60*60))/60);
+
+					($twHari == 0) ? $tDays = '' : $tDays = '<div>'.$twHari.' Day</div>';
+					($twJam == 0) ? $tHours = '' : $tHours = '<div>'.$twJam.' Hrs</div>';
+					($twMenit == 0) ? $tMinutes = '' : $tMinutes = '<div>'.$twMenit.' Mnt</div>';
+					($twHari <= 0) ? $twWaktu = '' : $twWaktu = $tDays.$tHours.$tMinutes;
+					if(time() > strtotime($twoWeek) || time() == strtotime($twoWeek)){
+						// $etaBtn = 'btn-danger';
+						// $etaI = '<i class="fas fa-times"></i>';
+						// $etaAlasan = '<div style="color:#dc3545;font-weight:bold">EXPIRED</div>';
+						$etaBtn = 'btn-success';
+						$etaI = '<i class="fas fa-check-circle"></i>';
+						$etaAlasan = '';
+					}else{
+						$etaBtn = 'btn-warning';
+						$etaI = '<i class="fas fa-lock"></i>';
+						$etaAlasan = '<div style="color:#dc3545;font-weight:bold">'.$twWaktu.'</div>';
+					}
+				}else{
+					$etaBtn = 'btn-warning';
+					$etaI = '<i class="fas fa-lock"></i>';
+					$etaAlasan = '';
+				}
+				// }else{
+				// 	$etaBtn = 'btn-success';
+				// 	$etaI = '<i class="fas fa-check-circle"></i>';
+				// 	$etaAlasan = '';
+				// }
+				
+				$row[] = '<div class="text-center">
+					<button type="button" title="ETA"  style="text-align:center" class="btn btn-sm '.$etaBtn.'">'.$etaI.'</button><br>
+					'.$etaAlasan.'
+				</div>';
+
                 $aksi = '';
 				if (!in_array($this->session->userdata('level'), ['Admin', 'konsul_keu', 'Marketing', 'PPIC', 'Owner', 'AP'])) {
 					if($this->session->userdata('level') == 'User' && $r->status == 'Open') {
@@ -4605,49 +4646,72 @@ class Transaksi extends CI_Controller
 
 	function etaTambahan()
 	{
+		$id_trs_po = $_POST["id_trs_po"];
 		$id_po_dtl = $_POST["id_po_dtl"];
+		$po = $this->db->query("SELECT*FROM trs_po WHERE id='$id_trs_po'")->row();
 		$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_po_dtl'")->row();
-		$devSys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_po_header='$id_po_dtl' ORDER BY eta");
+		$devSys = $this->db->query("SELECT c.prov,d.* FROM trs_dev_sys d
+		INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
+		WHERE id_po_header='$id_po_dtl' ORDER BY eta");
 
 		$html = '';
-		if($devSys->num_rows() != 0){
+		if($po->status_app3 == 'Y'){
 			$html .= '<td style="font-weight:bold;text-align:center;background:#f2f2f2">ETA</td>
-			<td style="padding:6px 0;background:#f2f2f2" colspan="2">
-				<table>';
-					$i = 0;
-					$sumQty = 0;
-					foreach($devSys->result() as $r){
-						$i++;
-						($devSys->num_rows() == 1) ? $x = '' : $x = ' '.$i;
-						// strtoupper($this->m_fungsi->getHariIni($r->eta))
-						$html .= '<tr style="background:#f2f2f2">
-							<td style="border:0;padding:6px">ETA'.$x.'</td>
-							<td style="border:0;padding:6px">:</td>
-							<td style="border:0;padding:6px;font-weight:bold">
-								'.strtoupper($this->m_fungsi->tglIndSkt($r->eta)).'
-							</td>
-							<td style="border:0;padding:6px">QTY'.$x.'</td>
-							<td style="border:0;padding:6px">:</td>
-							<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($r->qty_plan, 0, ',', '.').'</td>
-						</tr>';
-						$sumQty += $r->qty_plan;
-					}
-					//
-					if($devSys->num_rows() > 1){
-						$html .= '<tr style="background:#f2f2f2">
-							<td style="border:0;padding:6px" colspan="5"></td>
-							<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($sumQty, 0, ',', '.').'</td>
-						</tr>';
-					}
-				$html .= '</table>
-			</td>
-			<td colspan="4">
+			<td style="padding:6px 0;background:#f2f2f2" colspan="3">';
+				if($devSys->num_rows() != 0){
+					$html .= '<table>';
+						$i = 0;
+						$sumQty = 0;
+						foreach($devSys->result() as $r){
+							$i++;
+							($devSys->num_rows() == 1) ? $x = '' : $x = ' '.$i;
+							$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$r->prov'");
+							$ll = $prov->row()->lama_kirim;
+							$eta = date('d-m-Y', strtotime('+'.$ll.' day', strtotime($r->eta)));
+							$html .= '<tr style="background:#f2f2f2">
+								<td style="border:0;padding:6px">MUAT'.$x.'</td>
+								<td style="border:0;padding:6px 0">:</td>
+								<td style="border:0;padding:6px;font-weight:bold">'.strtoupper($this->m_fungsi->tglIndSkt($r->eta)).'</td>
+								<td style="border:0;padding:6px">ETA'.$x.'</td>
+								<td style="border:0;padding:6px 0">:</td>
+								<td style="border:0;padding:6px;font-weight:bold">'.$eta.'</td>
+								<td style="border:0;padding:6px">QTY'.$x.'</td>
+								<td style="border:0;padding:6px 0">:</td>
+								<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($r->qty_plan, 0, ',', '.').'</td>
+							</tr>';
+							$sumQty += $r->qty_plan;
+						}
+						if($devSys->num_rows() > 1){
+							$html .= '<tr style="background:#f2f2f2">
+								<td style="border:0;padding:6px" colspan="8"></td>
+								<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($sumQty, 0, ',', '.').'</td>
+							</tr>';
+						}
+					$html .= '</table>';
+				}else{
+					$html .= '<div style="border:0;padding:6px;color:#dc3545;text-align:center;font-weight:bold">ETA BELUM ADA!</div>';
+				}
+			$html .= '</td>';
+
+			// TIMER
+			$twoWeek = date('Y-m-d', strtotime('+2 week', strtotime(substr($po->time_app3, 0, 10))));
+			$secondsDiff = strtotime($twoWeek) - time();
+			$days = floor($secondsDiff/60/60/24);
+			$hours = floor(($secondsDiff-($days*60*60*24))/60/60);
+			$minutes = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))/60);
+			($days == 0) ? $tDays = '' : $tDays = '<div>'.$days.' HARI</div>';
+			($hours == 0) ? $tHours = '' : $tHours = '<div>'.$hours.' JAM</div>';
+			($minutes == 0) ? $tMinutes = '' : $tMinutes = '<div>'.$minutes.' MENIT</div>';
+			($days <= 0) ? $waktu = 'EXPIRED' : $waktu = $tDays.$tHours.$tMinutes;
+			$html .= '<td style="color:#dc3545;font-weight:bold;text-align:center" colspan="2">'.$waktu.'</td>';
+			$html .= '<td>
 				<textarea class="form-control" name="et_'.$id_po_dtl.'" id="et_'.$id_po_dtl.'" placeholder="KET. ETA" rows="3" style="color:#dc3545;font-weight:bold;resize:none" disabled>'.$po_dtl->eta_ket.'</textarea>
 			</td>';
 		}
 		$hr = '<td style="padding:3px;background:#bec2c6" colspan="7"></td>';
 
 		echo json_encode([
+			'po' => $po,
 			'soNumRows' => $devSys->num_rows(),
 			'hr' => $hr,
 			'html' => $html,
@@ -7147,7 +7211,7 @@ class Transaksi extends CI_Controller
 									if($so->rpt == 1){
 										$btnHapus = '';
 										$btnAddDSys = $addSys;
-										$btnEditDSys =  '';
+										$btnEditDSys = $editDSys;
 									}else{
 										if($dataHapusSO->row()->jml_rpt == $so->rpt){
 											$btnHapus = ' <button type="button" class="btn btn-danger btn-sm" style="padding:4px 10px" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>';
@@ -7156,7 +7220,7 @@ class Transaksi extends CI_Controller
 										}else{
 											$btnHapus = '';
 											$btnAddDSys = $addSys;
-											$btnEditDSys = '';
+											$btnEditDSys = $editDSys;
 										}
 									}
 								}else{
@@ -7372,8 +7436,18 @@ class Transaksi extends CI_Controller
 
 					// SYS
 					if($sys->num_rows() != 0){
+						$id_pelanggan = $sys->row()->id_pelanggan;
+						$cust = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row();
+						$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$cust->prov'");
+						if($prov->num_rows() == 0){
+							$eta = '-';
+						}else{
+							$ll = $prov->row()->lama_kirim;
+							$eta = date('Y-m-d', strtotime('+'.$ll.' day', strtotime($sys->row()->eta)));
+						}
 						$html .= '<tr>
-							<td style="padding:6px;border:0;text-align:right;'.$bHead.'" colspan="6"></td>
+							<td style="padding:6px;border:0;text-align:right;'.$bHead.'" colspan="4"></td>
+							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'" colspan="2">TGL MUAT DS</td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">ETA DS</td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">QTY DS</td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">KET DS</td>
@@ -7381,9 +7455,12 @@ class Transaksi extends CI_Controller
 							
 						</tr>
 						<tr style="background:#f2f2f2">
-							<td style="padding:6px;border:1px solid #999" colspan="6"></td>
-							<td style="padding:6px;border:1px solid #999">
+							<td style="padding:6px;border:1px solid #999" colspan="4"></td>
+							<td style="padding:6px;border:1px solid #999" colspan="2">
 								<input type="date" id="sys_eta'.$sys->row()->id_dev.'" class="form-control" value="'.$sys->row()->eta.'" '.$diss.'>
+							</td>
+							<td style="padding:6px;text-align:center;border:1px solid #999">
+								<input type="date" id="se1ys'.$sys->row()->id_dev.'" class="form-control" value="'.$eta.'" disabled>
 							</td>
 							<td style="padding:6px;border:1px solid #999">
 								<input type="number" id="sys_qty'.$sys->row()->id_dev.'" class="form-control" style="text-align:right;font-weight:bold" value="'.number_format($sys->row()->qty_plan,0,',','.').'" '.$diss.'>
@@ -9227,6 +9304,25 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function tglMuatEtaDSys()
+	{
+		$eta_tiba = $_POST["eta_tiba"];
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$cust = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row();
+		$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$cust->prov'");
+
+		if($prov->num_rows() == 0){
+			$eta = '-';
+		}else{
+			$ll = $prov->row()->lama_kirim;
+			$eta = date('d/m/Y', strtotime('+'.$ll.' day', strtotime($eta_tiba)));
+		}
+
+		echo json_encode([
+			'eta' => $eta,
+		]);
+	}
+
 	function TampilPO_dev()
 	{
 		$html = '';
@@ -9276,10 +9372,8 @@ class Transaksi extends CI_Controller
 								$jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys where id_po_header='$po_ok->id' and id_produk='$id_produk' and id_pelanggan='$id_pelanggan' GROUP BY id_po_header,id_produk,id_pelanggan 
 								ORDER BY id_dev
 								")->row();
-
 								$sisa = $po_ok->qty - ($sumKirim - $sumRetur);
 								$sisa_os_belum_terplanning = $sisa - $jumlah_plan->qty_plan;
-
 								$html .= '<tr class="tr_po po'.$po_ok->id_produk.'" >
 									<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 5px" colspan="2">
 										<input type="hidden" id="ts4" value="">
@@ -9289,6 +9383,29 @@ class Transaksi extends CI_Controller
 										'.$po_ok->kode_po.'
 									</td>
 								</tr>';
+								// TIMER
+								$twoWeek = date('Y-m-d', strtotime('+2 week', strtotime(substr($po_ok->time_app3, 0, 10))));
+								$secondsDiff = strtotime($twoWeek) - time();
+								$days = floor($secondsDiff/60/60/24);
+								$hours = floor(($secondsDiff-($days*60*60*24))/60/60);
+								$minutes = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))/60);
+
+								($days == 0) ? $tDays = '' : $tDays = '<div>'.$days.' HARI</div>';
+								($hours == 0) ? $tHours = '' : $tHours = '<div>'.$hours.' JAM</div>';
+								($minutes == 0) ? $tMinutes = '' : $tMinutes = '<div>'.$minutes.' MENIT</div>';
+								($days <= 0) ? $waktu = 'EXPIRED' : $waktu = $tDays.$tHours.$tMinutes;
+								$txtTimer = '<div style="color:#dc3545">'.$waktu.'</div>';
+
+								if($days <= 0){
+									$krjOnClick = 'class="btn btn-sm btn-secondary" disabled';
+									$qtyOnKeyUp = 'disabled';
+									$plhTglChange = 'disabled';
+								}else{
+									$krjOnClick = 'class="btn btn-sm btn-warning" style="color:#fff" onclick="simpan('.$po_ok->id.','.$id_produk.','.$id_pelanggan.',`add`)"';
+									$qtyOnKeyUp = 'onkeyup="hitung_os_plan(this.value,this.id,'.$sisa_os_belum_terplanning.','.$po_ok->id.')"';
+									$plhTglChange = 'onchange="tglMuatEtaDSys('."'".$id_pelanggan."'".', '."'".$po_ok->id."'".')"';
+								}
+
 								// OUTSTANDING PO 
 								$html .= '				
 								<tr class="tr_i i'.$po_ok->id.'" style="display:none">
@@ -9300,13 +9417,16 @@ class Transaksi extends CI_Controller
 													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">DELIVERY</th>
 													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">OS</th>
 													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;" rowspan="2" colspan="2">
-														<button type="button" onclick="simpan('.$po_ok->id.','.$id_produk.','.$id_pelanggan.',`add`)" class="btn-tambah-produk btn btn-sm btn-warning" style="color: #ffffffff;">
+														<button type="button" '.$krjOnClick.'>
 															<b><i class="fas fa-shopping-basket"></i></b>
 														</button>
 													</th>
+													<th style="padding:5px;text-align:center;border:1px solid #aaa;" rowspan="4">
+														'.$txtTimer.'
+													</th>
 												</tr>
 												<tr>
-													<td style="padding:5px;border:1px solid #aaa;text-align:center" colspan="2">
+													<td style="padding:5px;border:1px solid #aaa;text-align:center">
 														<input style="text-align:center;border:none;" id="qty_po'.$po_ok->id.'" autocomplete="off" value="'.number_format($po_ok->qty,0,',','.').'" readonly>
 													</td>
 													<td style="padding:5px;border:1px solid #aaa;text-align:center;">
@@ -9315,14 +9435,14 @@ class Transaksi extends CI_Controller
 													<td style="padding:5px;border:1px solid #aaa;text-align:center;">
 														<input style="text-align:center;border:none;" id="os'.$po_ok->id.'" autocomplete="off" value="'.number_format($sisa,0,',','.').'" readonly>
 													</td>
-													
 												</tr>
 												<tr>
 													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS TERPLANNING</th>
 													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">BB</th>
 													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS BELUM TERPLANNING</th>
 													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">QTY PLAN DELIVERY</th>
-													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;" colspan="2">ETA</th>
+													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">TGL. MUAT</th>
+													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">ETA</th>
 												</tr>
 												<tr>
 													<td style="padding:5px;text-align:center;border:1px solid #aaa">
@@ -9335,29 +9455,44 @@ class Transaksi extends CI_Controller
 														<input style="text-align:center;border:none;" id="os_belum_terplanning'.$po_ok->id.'" autocomplete="off" value="'.number_format($sisa_os_belum_terplanning,0,',','.').'" readonly>
 													</td>
 													<td style="padding:5px;text-align:center;border:1px solid #aaa;">								
-														<input class="form-control" style="text-align:center;" type="number" id="qty_plan'.$po_ok->id.'" autocomplete="off" onkeyup="hitung_os_plan(this.value,this.id,'.$sisa_os_belum_terplanning.','.$po_ok->id.')">
+														<input class="form-control" style="text-align:center;" type="number" id="qty_plan'.$po_ok->id.'" autocomplete="off" placeholder="QTY" '.$qtyOnKeyUp.'>
 													</td>
-													<td style="padding:5px;text-align:center;border:1px solid #aaa;text-align:center" colspan="2">
-														<input class="form-control" type="date" id="eta'.$po_ok->id.'" autocomplete="off" >
+													<td style="padding:5px;text-align:center;border:1px solid #aaa;text-align:center">
+														<input class="form-control" type="date" id="eta_tiba'.$po_ok->id.'" '.$plhTglChange.'>
+													</td>
+													<td style="padding:5px;text-align:center;border:1px solid #aaa;font-weight:bold;text-align:center">
+														<div class="txt-eta-tiba'.$po_ok->id.'">-</div>
 													</td>
 												</tr>
 												<tr>
-													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background-color: #454545;color: #ffffff;" colspan="6">HISTORY PLAN</th>
+													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background-color: #454545;color: #ffffff;" colspan="7">HISTORY PLAN</th>
 												</tr>
 												<tr>
 													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">OS TERPLANNING</th>
 													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">BERAT</th>
 													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">OS BELUM TERPLANNING</th>
 													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">QTY PLAN DELIVERY</th>
+													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">TGL. MUAT</th>
 													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">ETA</th>
 													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">HAPUS</th>
 												</tr>';
-
 												// HISTORY PLAN
 												$history_plan = $this->db->query("SELECT*FROM trs_dev_sys where id_po_header='$po_ok->id' and id_produk='$id_produk' and id_pelanggan='$id_pelanggan' ORDER BY id_dev");
 												if($history_plan->num_rows() > 0){
 													foreach($history_plan->result() as $his_plan){
-														($his_plan->id_ex == null) ? $delH = 'onclick="del_history('.$his_plan->id_dev.',`add`)"' : $delH = 'disabled';
+														if($days <= 0){
+															$delH = 'class="btn btn-secondary btn-xs" disabled';
+														}else{
+															($his_plan->id_ex == null) ? $delH = 'class="btn btn-warning btn-xs" onclick="del_history('.$his_plan->id_dev.',`add`)"' : $delH = 'class="btn btn-secondary btn-xs" disabled';
+														}
+														$cust = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row();
+														$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$cust->prov'");
+														if($prov->num_rows() == 0){
+															$eta = '-';
+														}else{
+															$ll = $prov->row()->lama_kirim;
+															$eta = date('Y-m-d', strtotime('+'.$ll.' day', strtotime($his_plan->eta)));
+														}
 														$html .= '<tr>
 															<td style="padding:5px;text-align:center;border:1px solid #aaa">
 																<input style="text-align:center;border:none" id="his_os_terplanning'.$po_ok->id.'" value="'.number_format($his_plan->os_terplanning,0,',','.').'" readonly>
@@ -9371,19 +9506,20 @@ class Transaksi extends CI_Controller
 															<td style="padding:5px;text-align:center;border:1px solid #aaa;">								
 																<input style="text-align:center;border:none" id="his_qty_plan'.$po_ok->id.'" value="'.number_format($his_plan->qty_plan,0,',','.').'" readonly>
 															</td>
-															<td style="padding:5px;text-align:center;border:1px solid #aaa;text-align:center">
-																<input class="form-control" type="date" id="his_eta'.$po_ok->id.'" value="'.$his_plan->eta.'" readonly>
+															<td style="padding:5px;border:1px solid #aaa">
+																<input class="form-control" style="text-align:center" type="date" id="his_eta'.$po_ok->id.'" value="'.$his_plan->eta.'" readonly>
 															</td>
-															<td style="padding:5px;text-align:center;border:1px solid #aaa;text-align:center">
-																<button type="button" class="btn" '.$delH.'><i class="fas fa-trash"></i></button>
+															<td style="padding:5px;border:1px solid #aaa">
+																<input class="form-control" style="text-align:center" type="date" id="his_eta1'.$po_ok->id.'" value="'.$eta.'" readonly>
+															</td>
+															<td style="padding:5px;text-align:center;border:1px solid #aaa">
+																<button type="button" '.$delH.'><i class="fas fa-trash"></i></button>
 															</td>
 														</tr>';
 													}
 												}else{
 													$html .= '<tr>
-														<td style="padding:5px;text-align:center;border:1px solid #aaa" colspan="5">
-															DATA KOSONG !!
-														</td>
+														<td style="padding:5px;text-align:center;border:1px solid #aaa" colspan="7">DATA KOSONG !!</td>
 													</tr>';
 												}
 											$html .= '</tbody>
@@ -9405,30 +9541,21 @@ class Transaksi extends CI_Controller
 	
 	function Insert_dev_sys()
 	{
-		if($this->session->userdata('username'))
-		{ 
-			
+		if($this->session->userdata('username')){
 			$os_belum_terplanning    = (int) str_replace('.', '', $this->input->post('os_belum_terplanning'));
 			$qty_plan                = (int) str_replace('.', '', $this->input->post('qty_plan'));
-
-			$os_terplanning          = $os_belum_terplanning - $qty_plan;
-
 			// ================= VALIDASI =================
-			
-			if ($qty_plan > $os_belum_terplanning) 
-			{
+			if ($qty_plan > $os_belum_terplanning) {
 				echo json_encode([
 					'status' => 0,
 					'msg'    => 'QTY Plan Melebihi OS'
 				]);
 				return;
 			}
-
 			// produk
 			$id_p = $_POST["id_produk"];
 			$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$id_p'")->row();
 			$berat = $qty_plan * $produk->berat_bersih;
-
 			// ambil data POST
 			$data = [
 				'id_po_header'         => (int) str_replace('.', '', $this->input->post('po_ok_id')),
@@ -9442,12 +9569,10 @@ class Transaksi extends CI_Controller
 				'bb'                   => $produk->berat_bersih,
 				'berat'                => $berat,
 				'urut'                 => 0,
-				// 'os_terplanning'       => (int) str_replace('.', '', $this->input->post('os_terplanning')),
 				'os_terplanning'       => $os_belum_terplanning - $qty_plan,
 				'eta'                  => $this->input->post('eta'),
 				'created_at'           => date('Y-m-d H:i:s')
 			];
-
 			// VALIDASI SERVER (WAJIB)
 			foreach ($data as $key => $val) {
 				if ($val === '' || $val === null) {
@@ -9458,10 +9583,8 @@ class Transaksi extends CI_Controller
 					return;
 				}
 			}
-
 			// simpan
-			$insert = $this->m_transaksi->save_dev_sys($data); //
-
+			$insert = $this->m_transaksi->save_dev_sys($data);
 			if ($insert) {
 				echo json_encode([
 					'status' => 1,
@@ -9472,7 +9595,6 @@ class Transaksi extends CI_Controller
 				echo json_encode(['status' => 0]);
 			}
 		}
-		
 	}
 
 
@@ -9695,7 +9817,7 @@ class Transaksi extends CI_Controller
 						<td style="background:#333;padding:6px">';
 							if($u->id_ex == null){
 								$html .= '<select class="form-control select2" id="eks_ds'.$u->urut.'" onchange="plhEksDS('."'".$u->urut."'".')">
-									<option value="">PILIH</option>';
+									<option value="">EKSPEDISI</option>';
 									$ekspedisi = $this->db->query("SELECT*FROM m_ekspedisi ORDER BY plat, ekspedisi");
 									foreach($ekspedisi->result() as $r){
 										($r->panjang == null || $r->lebar == null || $r->tinggi == null || $r->panjang == '' || $r->lebar == '' || $r->tinggi == '') ?
@@ -9712,7 +9834,7 @@ class Transaksi extends CI_Controller
 								$html .= '<div style="font-weight:bold;color:#fff">'.$e->plat.' ( '.$e->ekspedisi.' )'.$pLt.$hapus.'</div>';
 							}
 						$html .= '</td>
-						<td style="background:#333;padding:6px" colspan="5"></td>
+						<td style="background:#333;padding:6px" colspan="6"></td>
 					</tr>';
 				}
 
@@ -9758,9 +9880,8 @@ class Transaksi extends CI_Controller
 				// TOTAL
 				if($sys->num_rows() != 1){
 					$html .= '<tr style="background:#dee2e6">
-						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="6">TOTAL</td>
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="7">TOTAL</td>
 						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($totBerat, 0, ',', '.').'</td>
-						<td style="padding:6px;border:1px solid #bbb"></td>
 					</tr>';
 				}
 			}
