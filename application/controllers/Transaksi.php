@@ -3237,8 +3237,8 @@ class Transaksi extends CI_Controller
 				($minutes == 0) ? $tMinutes = '' : $tMinutes = $minutes.' Mnt<br>';
 				($seconds == 0) ? $tseconds = '' : $tseconds = $seconds.' Sec';
 				($days == 0 && $hours == 0 && $minutes == 0) ? $waktu = $tseconds : $waktu = $tDays.$tHours.$tMinutes;
+
 				// TIME MARKETING
-				// onclick="countDownPO('."'".$r->id."'".')"
 				$ketAlasan1 = '';
 				$exp1 = '';
 				if($r->status_app1=='N'){
@@ -3331,7 +3331,39 @@ class Transaksi extends CI_Controller
                     $i4     = '<i class="fas fa-check-circle"></i>';
 					$alasan4 = '';
                 }
+				// TIME INNER
+				$ketAlasan5 = '';
+				$exp5 = '';
+                if($r->status_app5=='N'){
+					if($actualDate > $expired || $actualDate == $expired){
+						$btn5       = 'btn-danger';
+						$i5         = '<i class="fas fa-ban" style="color:#000"></i>';
+						$alasan5    = '';
+						$ketAlasan5 .= '<div style="color:#dc3545;font-weight:bold">EXPIRED</div>';
+						$exp5 .= 'expired';
+					}else{
+						$btn5       = 'btn-warning';
+						$i5         = '<i class="fas fa-lock"></i>';
+						$alasan5    = '';
+						$ketAlasan5 .= '<div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
+					}
+                }else if($r->status_app5=='H'){
+                    $btn5   = 'btn-danger';
+                    $i5     = '<i class="far fa-hand-paper"></i>';
+					$alasan5 = $r->ket_acc5;
+					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan5 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan5 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
+                }else if($r->status_app5=='R'){
+                    $btn5   = 'btn-danger';
+                    $i5     = '<i class="fas fa-times"></i>';
+					$alasan5 = $r->ket_acc5;
+					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan5 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan5 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
+                }else{
+                    $btn5   = 'btn-success';
+                    $i5     = '<i class="fas fa-check-circle"></i>';
+					$alasan5 = '';
+                }
                 
+				// OWNER
                 if($r->status_app3=='N') {
                     $btn3   = 'btn-warning';
                     $i3     = '<i class="fas fa-lock"></i>';
@@ -3399,25 +3431,12 @@ class Transaksi extends CI_Controller
 					<div style="margin-bottom:3px"><button type="button" class="btn btn-sm '.$btn_s.'">'.$r->status.'</button></div>
 					<button type="button" class="btn btn-sm '.$row_karet->btn_class.'">'.$row_karet->ket.'</button>
 				</div>';
-				// ADMIN
-				if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
-					$uAddTime = 'onclick="updateAddTimePO('."'".$r->id."'".')"';
-				}else{
-					$uAddTime = '';
-				}
-				$row[] = '<div class="text-center">
-					<input type="hidden" id="time_actualDate-'.$r->id.'" value="'.$actualDate.'">
-					<input type="hidden" id="time_expired-'.$r->id.'" value="'.$expired.'">
-					<input type="hidden" id="statusMarketing-'.$r->id.'" value="'.$r->status_app1.'">
-					<input type="hidden" id="statusPPIC-'.$r->id.'" value="'.$r->status_app2.'">
-					<input type="hidden" id="tanggalExpired-'.$r->id.'" value="'.$expiredDisplay.'">
-					<button type="button" title="OKE" style="text-align:center" class="btn btn-sm btn-success" '.$uAddTime.'><i class="fas fa-check-circle"></i></button><br><b>
-					'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</b></div>
-				';
+				// VERIFIKASI GEDE
 				$time1 = (($r->time_app1 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app1,0,10))  . ' - ' .substr($r->time_app1,10,9));
                 $time2 = (($r->time_app2 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app2,0,10))  . ' - ' .substr($r->time_app2,10,9));
                 $time3 = (($r->time_app3 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app3,0,10))  . ' - ' .substr($r->time_app3,10,9));
                 $time4 = (($r->time_app4 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app4,0,10))  . ' - ' .substr($r->time_app4,10,9));
+                $time5 = (($r->time_app5 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app5,0,10))  . ' - ' .substr($r->time_app5,10,9));
 				// HARGA
 				(strlen($alasan4) >= 35) ? $spn4 = 'style="width:200px;white-space:normal"' : $spn4 = '';
 				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->ket_acc4 != null && ($r->status_app4 == 'H' || $r->status_app4 == 'R')) ? $rketPO4 = ' <button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `4`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button>' : $rketPO4 = '';
@@ -3425,6 +3444,35 @@ class Transaksi extends CI_Controller
 					<button onclick="data_sementara(`HARGA`, '."'".$r->status_app4."'".', '."'".$time4."'".', '."'".$alasan4."'".', '."'".$r->no_po."'".', '."'".$exp4."'".')" type="button" title="'.$time4.'"  style="text-align:center" class="btn btn-sm '.$btn4.'" id="btnBase2-'.$r->id.'">'.$i4.'</button><br>
 					'.$alasan4.$rketPO4.$ketAlasan4.'
 				</div>';
+
+				// ADMIN / INNER
+				// if(in_array($this->session->userdata('level'), ['Admin', 'User'])){
+				// 	$uAddTime = 'onclick="updateAddTimePO('."'".$r->id."'".')"';
+				// }else{
+				// 	$uAddTime = '';
+				// }
+				// $row[] = '<div class="text-center">
+					// <input type="hidden" id="time_actualDate-'.$r->id.'" value="'.$actualDate.'">
+					// <input type="hidden" id="time_expired-'.$r->id.'" value="'.$expired.'">
+					// <input type="hidden" id="statusMarketing-'.$r->id.'" value="'.$r->status_app1.'">
+					// <input type="hidden" id="statusPPIC-'.$r->id.'" value="'.$r->status_app2.'">
+					// <input type="hidden" id="tanggalExpired-'.$r->id.'" value="'.$expiredDisplay.'">
+				// 	<button type="button" title="OKE" style="text-align:center" class="btn btn-sm btn-success" '.$uAddTime.'><i class="fas fa-check-circle"></i></button><br><b>
+				// 	'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</b></div>
+				// ';
+				// INNER
+				(strlen($alasan5) >= 35) ? $spn5 = 'style="width:200px;white-space:normal"' : $spn5 = '';
+				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->ket_acc5 != null && ($r->status_app5 == 'H' || $r->status_app5 == 'R')) ? $rketPO5 = ' <button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `1`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button>' : $rketPO5 = '';
+				$row[] = '<div class="text-center" '.$spn5.'>
+					<input type="hidden" id="time_actualDate-'.$r->id.'" value="'.$actualDate.'">
+					<input type="hidden" id="time_expired-'.$r->id.'" value="'.$expired.'">
+					<input type="hidden" id="statusMarketing-'.$r->id.'" value="'.$r->status_app1.'">
+					<input type="hidden" id="statusPPIC-'.$r->id.'" value="'.$r->status_app2.'">
+					<input type="hidden" id="tanggalExpired-'.$r->id.'" value="'.$expiredDisplay.'">
+					<button onclick="data_sementara(`Marketing`, '."'".$r->status_app5."'".', '."'".$time5."'".', '."'".$alasan5."'".', '."'".$r->no_po."'".', '."'".$exp5."'".')" type="button" title="'.$time5.'" style="text-align:center" class="btn btn-sm '.$btn5.'" id="btnBase1-'.$r->id.'">'.$i5.'</button><br>
+					'.$alasan5.$rketPO5.$ketAlasan5.'
+				</div>';
+
 				// MARKETING
 				(strlen($alasan1) >= 35) ? $spn1 = 'style="width:200px;white-space:normal"' : $spn1 = '';
 				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->ket_acc1 != null && ($r->status_app1 == 'H' || $r->status_app1 == 'R')) ? $rketPO1 = ' <button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `1`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button>' : $rketPO1 = '';
@@ -4656,8 +4704,15 @@ class Transaksi extends CI_Controller
 
 		$html = '';
 		if($po->status_app3 == 'Y'){
+			if(in_array($this->session->userdata('level'), ['PPIC', 'AP'])){
+				$cls1 = 2;
+				$cls2 = '';
+			}else{
+				$cls1 = 3;
+				$cls2 = 'colspan="2"';
+			}
 			$html .= '<td style="font-weight:bold;text-align:center;background:#f2f2f2">ETA</td>
-			<td style="padding:6px 0;background:#f2f2f2" colspan="3">';
+			<td style="padding:6px 0;background:#f2f2f2" colspan="'.$cls1.'">';
 				if($devSys->num_rows() != 0){
 					$html .= '<table>';
 						$i = 0;
@@ -4703,10 +4758,15 @@ class Transaksi extends CI_Controller
 			($hours == 0) ? $tHours = '' : $tHours = '<div>'.$hours.' JAM</div>';
 			($minutes == 0) ? $tMinutes = '' : $tMinutes = '<div>'.$minutes.' MENIT</div>';
 			($days <= 0) ? $waktu = 'EXPIRED' : $waktu = $tDays.$tHours.$tMinutes;
-			$html .= '<td style="color:#dc3545;font-weight:bold;text-align:center" colspan="2">'.$waktu.'</td>';
-			$html .= '<td>
-				<textarea class="form-control" name="et_'.$id_po_dtl.'" id="et_'.$id_po_dtl.'" placeholder="KET. ETA" rows="3" style="color:#dc3545;font-weight:bold;resize:none" disabled>'.$po_dtl->eta_ket.'</textarea>
-			</td>';
+			$html .= '<td style="color:#dc3545;font-weight:bold;text-align:center" '.$cls2.'>'.$waktu.'</td>';
+			// KETERANGAN
+			if(!in_array($this->session->userdata('level'), ['PPIC', 'AP'])){
+				$html .= '<td>
+					<textarea class="form-control" name="et_'.$id_po_dtl.'" id="et_'.$id_po_dtl.'" placeholder="KET. ETA" rows="3" style="color:#dc3545;font-weight:bold;resize:none" disabled>'.$po_dtl->eta_ket.'</textarea>
+				</td>';
+			}else{
+				$html .= '<td colspan="4"></td>';
+			}
 		}
 		$hr = '<td style="padding:3px;background:#bec2c6" colspan="7"></td>';
 
@@ -4780,13 +4840,14 @@ class Transaksi extends CI_Controller
 			}else{
 				$url_foto = base_url('assets/gambar_po/') . $header->img_po;
 			}
-			$detail = $this->db->query("SELECT *,(select nm_hub from m_hub h where a.id_hub=h.id_hub)nm_hub FROM trs_po a 
+			$detail = $this->db->query("SELECT a.*,b.*,c.*,d.*,e.*,b.id AS id_po_dtl,(select nm_hub from m_hub h where a.id_hub=h.id_hub)nm_hub FROM trs_po a 
 			JOIN trs_po_detail b ON a.no_po = b.no_po
 			JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan
 			LEFT JOIN m_kab d ON c.kab=d.kab_id
 			LEFT JOIN m_produk e ON b.id_produk=e.id_produk
 			WHERE a.no_po = '$header->no_po' ORDER BY b.id")->result();
 
+			// DESIGN
 			$html = '';
 			$design = $this->db->query("SELECT i.nm_produk,m.img_mc,d.* FROM trs_po_detail d
 			INNER JOIN m_produk i ON d.id_produk=i.id_produk
@@ -4820,7 +4881,72 @@ class Transaksi extends CI_Controller
 					$html .= '</div>
 				</div>';
 			}
-			$data = ["header" => $header, "detail" => $detail, "url_foto" => $url_foto, "html" => $html];
+
+			// VERIF KECIL
+			$verif = '';
+			if($this->session->userdata('level') == 'User'){
+				$verif .= '<table>
+					<tr>
+						<td>Kalkulator</td>
+						<td>:</td>
+						<td>
+							<input type="checkbox" id="" style="height:25px;width:100%" onclick="" value="0">
+						</td>
+					</tr>
+					<tr>
+						<td>Delivery System</td>
+						<td>:</td>
+						<td>
+							<input type="checkbox" id="" style="height:25px;width:100%" onclick="" value="0">
+						</td>
+					</tr>
+					<tr>
+						<td>Armada</td>
+						<td>:</td>
+						<td>
+							<input type="checkbox" id="" style="height:25px;width:100%" onclick="" value="0">
+						</td>
+					</tr>
+				</table>';
+			}
+			if($this->session->userdata('level') == 'Marketing'){
+				$verif .= '<table>
+					<tr>
+						<td>Harga</td>
+						<td style="padding:0 6px">:</td>
+						<td>
+							<input type="checkbox" id="" style="display:grid;grid-template-columns:1em auto;gap:0.5em" class="form-control" onclick="" value="0">
+						</td>
+					</tr>
+					<tr>
+						<td>Qty</td>
+						<td style="padding:0 6px">:</td>
+						<td>
+							<input type="checkbox" id="" style="display:grid;grid-template-columns:1em auto;gap:0.5em" class="form-control" onclick="" value="0">
+						</td>
+					</tr>
+					<tr>
+						<td>ETA</td>
+						<td style="padding:0 6px">:</td>
+						<td>
+							<input type="checkbox" id="" style="display:grid;grid-template-columns:1em auto;gap:0.5em" class="form-control" onclick="" value="0">
+						</td>
+					</tr>
+				</table>';
+			}
+			if($this->session->userdata('level') == 'PPIC'){
+				$verif .= '<table>
+					<tr>
+						<td>Plan Produksi</td>
+						<td>:</td>
+						<td>
+							<input type="checkbox" id="" style="height:25px;width:100%" onclick="" value="0">
+						</td>
+					</tr>
+				</table>';
+			}
+
+			$data = ["header" => $header, "detail" => $detail, "url_foto" => $url_foto, "html" => $html, "verif" => $verif];
 		} else if ($jenis == "trs_so_detail") {
 			$data =  $this->m_master->query(
 				"SELECT * 
