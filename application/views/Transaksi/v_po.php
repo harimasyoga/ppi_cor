@@ -44,8 +44,8 @@
 									<th style="text-align:center">Kode PO</th>
 									<th style="text-align:center">Item</th>
 									<th style="text-align:center">Status<br>[ Karet ]</th>
-									<th style="text-align:center">Admin</th>
 									<th style="text-align:center">Harga</th>
+									<th style="text-align:center">Inner</th>
 									<th style="text-align:center">Mrkt</th>
 									<th style="text-align:center">PPIC</th>
 									<th style="text-align:center">Owner</th>
@@ -251,7 +251,7 @@
 											</div>
 										</td>
 										<td>
-											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="ubah_angka(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)">											
+											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="ubah_angka(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)">
 											<br>
 											<input class="form-control" type="checkbox" name="cek_rm[0]" id="cek_rm0" onclick="cekrm(this.id)" value="0">
 										</td>
@@ -392,7 +392,10 @@
 
 						<div class="col-md-12" id="tombol_verif">
 							<div class="card-body row" >
-								<div class="col-md-6"></div>
+								<div class="col-md-3"></div>
+								<div class="col-md-3">
+									<div class="verif-kecil"></div>
+								</div>
 								<div class="col-md-6">
 									<button type="button" class="btn btn-success btn-verif" id="btn-verif_acc" style="display: none;" onclick="prosesData_acc('Y')"><i class="fas fa-check"></i> <b>Verifikasi</b></button>
 									<button type="button" class="btn btn-warning btn-verif" id="btn-verif_hold" style="display: none;" onclick="muncul_aksi('H')"><i class="far fa-hand-paper"></i> <b>HOLD</b></button>
@@ -980,10 +983,6 @@
 	{
 		$("#tgl_po").val("<?= date('Y-m-d') ?>");
 
-		if (c != 's') {
-			// getMax();
-
-		}
 		$("#btn-print").hide();
 
 		$("#id_hub").select2("val", 1);
@@ -995,7 +994,6 @@
 
 		$("#kode_po").val("");
 		$(".design").html("");
-		// $("#eta").val("");
 
 		$("#txt_kota").val("");
 		$("#txt_no_telp").val("");
@@ -1007,13 +1005,13 @@
 		$("#id_trs_po").val("");
 		$("#eta_tambahan0").html("");
 		$("#hr_tambahan0").html("");
+		$(".verif-kecil").html("");
 
 		clearRow();
 		status = 'insert';
 		$("#status").val(status);
 
 		$("#btn-simpan").show();
-		// $("#btn-simpan-plan").show();
 		$("#btn-verif_acc").hide();
 		$("#btn-verif_hold").hide();
 		$("#btn-verif_r").hide();
@@ -1023,29 +1021,62 @@
 		$("#header_del").show();
 	}
 
+	function verifKecil(opsi) {
+		let plhCB = '';
+		plhCB = $("#"+opsi);
+		(plhCB.prop("checked")) ? plhCB.val(1) : plhCB.val(0);
+		let val = plhCB.val();
+		let id_trs_po = $("#id_trs_po").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/verifKecil')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_trs_po, opsi, val }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>BERHASIL</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
 	function btn_verif(data)
 	{
 		let actualDate = $("#time_actualDate-"+data.header.id).val()
 		let expired = $("#time_expired-"+data.header.id).val()
 		$(".btn-verif").hide()
-		if((actualDate > expired || actualDate == expired) && (data.header.status_app1 != 'Y' || data.header.status_app2 != 'Y' || data.header.status_app4 != 'Y')){
+		if((actualDate > expired || actualDate == expired) && (data.header.status_app1 != 'Y' || data.header.status_app2 != 'Y' || data.header.status_app4 != 'Y' || data.header.status_app5 != 'Y')){
 			$(".btn-verif").hide()
 		}else{
-			if(data.header.status == 'Open' || data.header.status == 'Reject') {
-				if('<?= $this->session->userdata('level') ?>' == 'Admin'){
+			if(urlAuth != 'Owner') {
+				if(urlAuth == 'Marketing' && data.header.status_app1 == 'Y'){
+					$(".btn-verif").hide()
+				}else if(urlAuth == 'PPIC' && data.header.status_app2 == 'Y'){
+					$(".btn-verif").hide()
+				}else if(urlAuth == 'User' && data.header.status_app5 == 'Y'){ // inner
+					$(".btn-verif").hide()
+				}else if(urlAuth == 'User' || urlAuth == 'PPIC' || urlAuth == 'Marketing'){
 					$(".btn-verif").show()
+				}else{
+					$(".btn-verif").hide()
 				}
-				if('<?= $this->session->userdata('level') ?>' == 'Marketing' && ( data.header.status_app1 == 'N' || data.header.status_app1 == 'H' || data.header.status_app1 == 'R'  ) ) {
-					$(".btn-verif").show()
-				}
-				if('<?= $this->session->userdata('level') ?>' == 'PPIC' && data.header.status_app1 == 'Y' && ( data.header.status_app2 == 'N' || data.header.status_app2 == 'H' || data.header.status_app2 == 'R' ) ) {
-					$(".btn-verif").show()
-				}
-				if('<?= $this->session->userdata('level') ?>' == 'Owner' && data.header.status_app4 != 'Y') {
-					$(".btn-verif").show()
-				}else if('<?= $this->session->userdata('level') ?>' == 'Owner' && data.header.status_app1 == 'Y' && data.header.status_app2 == 'Y' && data.header.status_app4 == 'Y' && ( data.header.status_app3 == 'N' || data.header.status_app3 == 'H' || data.header.status_app3 == 'R' ) ) {
-					$(".btn-verif").show()
-				}
+			}
+			if(urlAuth == 'Owner' && (data.header.status_app4 == 'N' || data.header.status_app4 == 'H' || data.header.status_app4 == 'R')) {
+				$(".btn-verif").show()
+			}
+			if(urlAuth == 'Owner' && data.header.status_app1 == 'Y' && data.header.status_app2 == 'Y' && data.header.status_app4 == 'Y' && data.header.status_app5 == 'Y' && ( data.header.status_app3 == 'N' || data.header.status_app3 == 'H' || data.header.status_app3 == 'R' )) {
+				$(".btn-verif").show()
 			}
 		}
 	}
@@ -1054,10 +1085,21 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/updateAddTimePO')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			data: ({ id_po }),
 			success: function(res){
 				data = JSON.parse(res)
 				reloadTable()
+				swal.close()
 			}
 		})
 	}
@@ -1115,7 +1157,6 @@
 
 	function preview(id, act) 
 	{
-		// kosong('s');
 		kosong();
 		var cek = '<?= $this->session->userdata('level') ?>';
 		$(".btn-tambah-produk").hide();
@@ -1155,25 +1196,22 @@
 					$(".design").html("");
 				}
 				
+				$(".verif-kecil").html(data.verif)
 				btn_verif(data)
 				no_po = data.header.no_po
 
+				$("#id_trs_po").val(id);
 				$("#no_po").val(data.header.no_po);
 				$("#tgl_po").val(data.header.tgl_po);
-				// alert(data.header.id_hub);
 				pilih_hub2(data.header.id_hub,data.header.nm_hub);
 				
 				$('#status_karet').val(data.header.status_karet).trigger('change');
 				$('#id_pelanggan').val(data.header.id_pelanggan).trigger('change');
 
 				kodepo    = (data.header.kode_po == '' ) ? '-' : data.header.kode_po ;
-				
 				$("#kode_po").val(kodepo);
-				
 				$('#div_preview_foto').css("display","block");
 				$('#preview_img').attr('src',data.url_foto);
-				// $("#eta").val(eta); 
-				
 				$("#header_del").hide();
 				if (cek !='PPIC' && cek !='AP')
 				{
@@ -1183,55 +1221,42 @@
 				}
 
 				$.each(data.detail, function(index, value) {
-					eta       = (value.eta == '' ) ? '-' : value.eta ;
-					
+					eta = (value.eta == '' ) ? '-' : value.eta ;
 					$("#detail-hapus-0").hide();
 					$("#detail-hapus-"+index).hide();
 					$("#btn-hapus-"+index).hide();
 					$("#eta_item"+index).val(eta); 
-					
-					if (cek !='PPIC' && cek !='AP')
-					{
+					if (cek !='PPIC' && cek !='AP'){
 						$("#p11_det"+index).show();
 						$("#id_pelanggan").prop("disabled", false);
 						$("#kode_po").prop("disabled", false);
 						$("#eta_item"+index).prop("disabled", false); 
-
 						$('#subs'+index).hide();
 						$('#subs_i'+index).hide();
 						$('#subs_hitung'+index).hide();
 						$('#subs_hasil_hitung'+index).hide();
-						
 					}else{
 						$("#p11_det"+index).hide();
 						$("#id_pelanggan").prop("disabled", true);
 						$("#kode_po").prop("disabled", true);
 						$("#eta_item"+index).prop("disabled", true); 
-
 						$('#subs'+index).show();
 						$('#subs_i'+index).show();
 						$('#subs_hitung'+index).show();
 						$('#subs_hasil_hitung'+index).show();
-						
 					}
 					
-					
-					
 					var opt_produk = $("<option selected></option>").val(value.id_produk).text(value.nm_produk);
-
-					var opt_ppn = $("<option selected></option>").val(value.ppn).text(value.ppn);
-					
 					$('#id_produk'+index).append(opt_produk).trigger('change');
 					$("#qty"+index).val(format_angka(value.qty));
 
-					if(value.cek_rm==1)
-					{
+					if(value.cek_rm==1){
 						$('#cek_rm'+index).prop('checked', true);
 					}else{
 						$('#cek_rm'+index).prop('checked', false);
-
 					}
 
+					var opt_ppn = $("<option selected></option>").val(value.ppn).text(value.ppn);
 					$('#ppn'+index).append(opt_ppn).trigger('change');
 					// $("#ppn"+index).val(value.ppn);
 					$('#price_inc'+index).val(format_angka(value.price_inc));
@@ -1246,7 +1271,6 @@
 					if (act == 'detail') {
 						$("#id_pelanggan").prop("disabled", true);
 						$("#qty"+index).prop("disabled", true);
-						// $("#qty_dec"+index).prop("disabled", true);
 						$('#cek_rm'+index).prop("disabled", true);
 						$("#id_produk"+index).prop("disabled", true);
 						$("#ppn"+index).prop("disabled", true);
@@ -1256,7 +1280,6 @@
 					} else {
 						$("#id_pelanggan").prop("disabled", false);
 						$("#qty"+index).prop("disabled", false);
-						// $("#qty_dec"+index).prop("disabled", false);
 						$('#cek_rm'+index).prop("disabled", false);
 						$("#id_produk"+index).prop("disabled", false);
 						$("#ppn"+index).prop("disabled", false);
@@ -1264,11 +1287,10 @@
 						$("#price_exc"+index).prop("disabled", false);
 						$("#eta_ket"+index).prop("disabled", false);
 					} 
-					
+					etaTambahan(index, value.id_po_dtl)
 					if (index != (data.detail.length) - 1) {
 						addRow();
 					}
-					// console.log(index, data.length);
 				});
 			})
 	}
@@ -1294,7 +1316,6 @@
 	
 	function tampil_edit(id, act) 
 	{
-		// kosong('s');
 		kosong();
 		var cek = '<?= $this->session->userdata('level') ?>';
 		$(".btn-tambah-produk").hide();
@@ -1330,6 +1351,7 @@
 			.done(function(data) {
 				$(".design").html(data.html);
 				
+				$(".verif-kecil").html(data.verif)
 				btn_verif(data)
 				no_po = data.header.no_po
 
@@ -1342,16 +1364,11 @@
 				$('#id_pelanggan').val(data.header.id_pelanggan).trigger('change');
 
 				kodepo    = (data.header.kode_po == '' ) ? '-' : data.header.kode_po ;
-				
 				$("#kode_po").val(kodepo);
-				
 				$('#div_preview_foto').css("display","block");
 				$('#preview_img').attr('src',data.url_foto);
-				// $("#eta").val(eta); 
-				
 				$("#header_del").hide();
-				if (cek !='PPIC' && cek !='AP')
-				{
+				if (cek !='PPIC' && cek !='AP'){
 					$("#header_p11").show();
 				}else{
 					$("#header_p11").hide();
@@ -1359,54 +1376,41 @@
 
 				$.each(data.detail, function(index, value) {
 					eta       = (value.eta == '' ) ? '-' : value.eta ;
-					
 					$("#detail-hapus-0").hide();
 					$("#detail-hapus-"+index).hide();
 					$("#btn-hapus-"+index).hide();
 					$("#eta_item"+index).val(eta); 
 					
-					if (cek !='PPIC' && cek !='AP')
-					{
+					if (cek !='PPIC' && cek !='AP'){
 						$("#p11_det"+index).show();
 						$("#id_pelanggan").prop("disabled", false);
 						$("#kode_po").prop("disabled", false);
 						$("#eta_item"+index).prop("disabled", false); 
-
 						$('#subs'+index).hide();
 						$('#subs_i'+index).hide();
 						$('#subs_hitung'+index).hide();
 						$('#subs_hasil_hitung'+index).hide();
-						
 					}else{
 						$("#p11_det"+index).hide();
 						$("#id_pelanggan").prop("disabled", true);
 						$("#kode_po").prop("disabled", true);
 						$("#eta_item"+index).prop("disabled", true); 
-
 						$('#subs'+index).show();
 						$('#subs_i'+index).show();
 						$('#subs_hitung'+index).show();
 						$('#subs_hasil_hitung'+index).show();
-						
 					}
-					
-					
-					
-					var opt_produk = $("<option selected></option>").val(value.id_produk).text(value.nm_produk);
 
-					var opt_ppn = $("<option selected></option>").val(value.ppn).text(value.ppn);
-					
+					var opt_produk = $("<option selected></option>").val(value.id_produk).text(value.nm_produk);
 					$('#id_produk'+index).append(opt_produk).trigger('change');
 					$("#qty"+index).val(format_angka(value.qty));
-
-					if(value.cek_rm==1)
-					{
+					if(value.cek_rm==1){
 						$('#cek_rm'+index).prop('checked', true);
 					}else{
 						$('#cek_rm'+index).prop('checked', false);
-
 					}
 
+					var opt_ppn = $("<option selected></option>").val(value.ppn).text(value.ppn);
 					$('#ppn'+index).append(opt_ppn).trigger('change');
 					// $("#ppn"+index).val(value.ppn);
 					$('#price_inc'+index).val(format_angka(value.price_inc));
@@ -1421,7 +1425,6 @@
 					if (act == 'detail') {
 						$("#id_pelanggan").prop("disabled", true);
 						$("#qty"+index).prop("disabled", true);
-						// $("#qty_dec"+index).prop("disabled", true);
 						$('#cek_rm'+index).prop("disabled", true);
 						$("#id_produk"+index).prop("disabled", true);
 						$("#ppn"+index).prop("disabled", true);
@@ -1431,7 +1434,6 @@
 					} else {
 						$("#id_pelanggan").prop("disabled", false);
 						$("#qty"+index).prop("disabled", false);
-						// $("#qty_dec"+index).prop("disabled", false);
 						$('#cek_rm'+index).prop("disabled", false);
 						$("#id_produk"+index).prop("disabled", false);
 						$("#ppn"+index).prop("disabled", false);
@@ -1439,9 +1441,7 @@
 						$("#price_exc"+index).prop("disabled", false);
 						$("#eta_ket"+index).prop("disabled", false);
 					}
-
 					etaTambahan(index, value.id_po_dtl)
-
 					if (index != (data.detail.length) - 1) {
 						addRow();
 					}
@@ -1459,7 +1459,11 @@
 			data: ({ id_trs_po, id_po_dtl }),
 			success: function(res){
 				data = JSON.parse(res);
-				(data.soNumRows == 0 && data.po.status_app3 != 'Y') ? $("#item_tambahan"+index).show() : $("#item_tambahan"+index).hide();
+				if(urlAuth == 'PPIC' || urlAuth == 'AP'){
+					$("#item_tambahan"+index).show()
+				}else{
+					(data.soNumRows == 0 && data.po.status_app3 != 'Y') ? $("#item_tambahan"+index).show() : $("#item_tambahan"+index).hide();
+				}
 				$("#eta_tambahan"+index).html(data.html);
 				$("#hr_tambahan"+index).html(data.hr);
 			}
@@ -1764,100 +1768,17 @@
 						swal.close();
 					}else{
 						swal({
-							title               : "EXPIRED",
-							html                : `${data.msg}`,
-							type                : "error",
-							confirmButtonText   : "OK"
+							title : `${data.msg}`,
+							html : "",
+							type : "error",
+							confirmButtonText : "OK"
 						});
 						return;
 					}
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					swal({
-						title               : "Cek Kembali",
-						html                : "Terjadi Kesalahan",
-						type                : "error",
-						confirmButtonText   : "OK"
-					});
-					return;
 				}
 			});
 		});
 	}
-
-	// function prosesData_hold(tipe) 
-	// {
-	// 	swal({
-    //         text                : "Alasan di Hold : ",
-    //         type                : 'info',
-    //         input               : 'text',
-    //         showCancelButton    : true,			
-	// 		confirmButtonClass : 'btn btn-warning',
-	// 		cancelButtonClass  : 'btn btn-secondary',
-	// 		confirmButtonColor  : '#ffc107',
-	// 		cancelButtonColor  : '#d33',
-    //         confirmButtonText   : '<b><i class="far fa-hand-paper"></i> Hold </b>',
-    //         cancelButtonText    : '<b><i class="fa fa-times" ></i> Batal </b>'
-    //     }).then(function(alasan) {
-	// 		if(alasan==''){
-	// 			swal({
-	// 				title               : "Alasan",
-	// 				html                : "Wajib Di Isi !",
-	// 				type                : "error",
-	// 				confirmButtonText   : "OK"
-	// 			});
-	// 			prosesData_hold(tipe);
-	// 			// return;
-	// 		}else{
-	// 			$.ajax({
-	// 				url: '<?= base_url(); ?>Transaksi/prosesData',
-	// 				data: ({
-	// 					id: no_po,
-	// 					status: tipe,
-	// 					alasan: alasan,
-	// 					jenis: 'verifPO'
-	// 				}),
-	// 				type: "POST",
-	// 				beforeSend: function() {
-	// 					swal({
-	// 						title: 'loading ...',
-	// 						allowEscapeKey    : false,
-	// 						allowOutsideClick : false,
-	// 						onOpen: () => {
-	// 							swal.showLoading();
-	// 						}
-	// 					})
-	// 				},
-	// 				success: function(res) {
-	// 					data = JSON.parse(res)
-	// 					if(data.update_trs_po){
-	// 						toastr.success(`${data.msg}`);
-	// 						$("#modalForm").modal("hide");
-	// 						reloadTable();
-	// 						swal.close();
-	// 					}else{
-	// 						swal({
-	// 							title               : "EXPIRED",
-	// 							html                : `${data.msg}`,
-	// 							type                : "error",
-	// 							confirmButtonText   : "OK"
-	// 						});
-	// 						return;
-	// 					}
-	// 				},
-	// 				error: function(jqXHR, textStatus, errorThrown) {
-	// 					swal({
-	// 						title               : "Cek Kembali",
-	// 						html                : "Terjadi Kesalahan",
-	// 						type                : "error",
-	// 						confirmButtonText   : "OK"
-	// 					});
-	// 					return;
-	// 				}
-	// 			});
-	// 		}
-	// 	});
-	// }
 	
 	function muncul_aksi(cek_aksi)
     {
@@ -1943,81 +1864,6 @@
 			});
 		}
 	}
-	
-	// function prosesData_r(tipe) 
-	// {
-	// 	swal({
-    //         text                : "Alasan di Reject : ",
-    //         type                : 'info',
-    //         input               : 'text',
-    //         showCancelButton    : true,			
-	// 		confirmButtonClass : 'btn btn-danger',
-	// 		cancelButtonClass  : 'btn btn-secondary',
-	// 		confirmButtonColor  : '#d33',
-	// 		cancelButtonColor  : '#d33',
-    //         confirmButtonText   : '<b><i class="fas fa-times-circle"></i> Reject </b>',
-    //         cancelButtonText    : '<b><i class="fas fa-undo"></i> Batal </b>'
-    //     }).then(function(alasan) {
-	// 		if(alasan==''){
-	// 			swal({
-	// 				title               : "Alasan",
-	// 				html                : "Wajib Di Isi !",
-	// 				type                : "error",
-	// 				confirmButtonText   : "OK"
-	// 			});
-	// 			prosesData_r(tipe);
-	// 			// return;
-	// 		}else{
-	// 			$.ajax({
-	// 				url: '<?= base_url(); ?>Transaksi/prosesData',
-	// 				data: ({
-	// 					id: no_po,
-	// 					status: tipe,
-	// 					alasan: alasan,
-	// 					jenis: 'verifPO'
-	// 				}),
-	// 				type: "POST",
-	// 				beforeSend: function() {
-	// 					swal({
-	// 						title: 'loading ...',
-	// 						allowEscapeKey    : false,
-	// 						allowOutsideClick : false,
-	// 						onOpen: () => {
-	// 							swal.showLoading();
-	// 						}
-	// 					})
-	// 				},
-	// 				success: function(res) {
-	// 					data = JSON.parse(res)
-	// 					if(data.update_trs_po){
-	// 						toastr.success(`${data.msg}`);
-	// 						$("#modalForm").modal("hide");
-	// 						swal.close();
-	// 						reloadTable();
-	// 					}else{
-	// 						swal({
-	// 							title               : "EXPIRED",
-	// 							html                : `${data.msg}`,
-	// 							type                : "error",
-	// 							confirmButtonText   : "OK"
-	// 						});
-	// 						return;
-	// 					}
-	// 				},
-	// 				error: function(jqXHR, textStatus, errorThrown) {
-	// 					// toastr.error('Terjadi Kesalahan');
-	// 					swal({
-	// 						title               : "Cek Kembali",
-	// 						html                : "Terjadi Kesalahan",
-	// 						type                : "error",
-	// 						confirmButtonText   : "OK"
-	// 					});
-	// 					return;
-	// 				}
-	// 			});
-	// 		}
-	// 	});
-	// }
 	
 	function prosesData_r2(tipe) 
 	{
@@ -2396,7 +2242,6 @@
 									<option value="MC">MC</option>
 									<option value="MN">MN</option>
 								</select>
-
 								<select id="bmf${ rowNum }" name="bmf[${ rowNum }]" class="form-control select2" onchange="ayoBerhitung(${ rowNum })">
 									<option value="">-</option>
 									<option value="M">M</option>
