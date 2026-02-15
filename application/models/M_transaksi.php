@@ -760,25 +760,25 @@ class M_transaksi extends CI_Model
 
 	function verifPO()
 	{
-		$id             = $this->input->post('id');
-		$status         = $this->input->post('status');
-		$alasan         = $this->input->post('alasan');
+		$id = $this->input->post('id');
+		$status = $this->input->post('status');
+		$alasan = $this->input->post('alasan');
+		$level = $this->session->userdata('level');
 
 		// $koneksi_hub    = $this->db->query("SELECT *from trs_po a 
 		// Join m_hub b ON a.id_hub=b.id_hub 
 		// Join akses_db_hub c ON b.nm_hub=c.nm_hub
 		// WHERE no_po='$id'")->row();
-
 		// $db_ppi_hub = '$'.$koneksi_hub->nm_db_hub;
 		// $db_ppi_hub = $this->load->database($koneksi_hub->nm_db_hub, TRUE);
 
-		$cekPO = $this->db->query("SELECT*FROM trs_po WHERE no_po='$id'");
+		$cekPO = $this->db->query("SELECT*FROM trs_po WHERE no_po='$id'")->row();
 
 		if($status == 'Y'){
 			$stts = 'VERIFIKASI';
-			if($this->session->userdata('level') == 'Admin'){
+			if($level == 'Admin'){
 				$sts = 'Approve';
-			}else if($this->session->userdata('level') == 'Owner' && $cekPO->row()->status_app4 == 'Y'){
+			}else if($level == 'Owner' && $cekPO->status_app4 == 'Y'){
 				$sts = 'Approve';
 			}else{
 				$sts = 'Open';
@@ -791,12 +791,9 @@ class M_transaksi extends CI_Model
 			$sts = 'Reject';
 		}		
 
-		$app      = "";
-
+		$app = "";
 		// KHUSUS ADMIN
-		if ($this->session->userdata('level') == "Admin") 
-		{
-
+		if ($level == "Admin") {
 			// TRS PO
 			$data = array(
 				'status'        => $sts,
@@ -804,6 +801,10 @@ class M_transaksi extends CI_Model
 				'user_app4'     => $this->username,
 				'time_app4'     => $this->waktu,
 				'ket_acc4'      => $alasan,
+				'status_app5'   => $status,
+				'user_app5'     => $this->username,
+				'time_app5'     => $this->waktu,
+				'ket_acc5'      => $alasan,
 				'status_app1'   => $status,
 				'user_app1'     => $this->username,
 				'time_app1'     => $this->waktu,
@@ -846,29 +847,45 @@ class M_transaksi extends CI_Model
 
 			// history
 			history_tr('PO', 'VERIFIKASI_PO_ADMIN', $stts, $id, '-');
-			
 			$msg = 'Data Berhasil Diproses';
+		}else{
+			// DLL
+			$cekPO_detail = $this->db->query("SELECT * FROM trs_po a join trs_po_detail b on a.kode_po=b.kode_po join m_produk c on b.id_produk=c.id_produk where b.no_po in ('$id') ");
+			$expired = strtotime($cekPO->add_time) + (48*60*60);
+			$actualDate = time();
 
-		}else {
-			$cekPO_detail  = $this->db->query("SELECT * FROM trs_po a join trs_po_detail b on a.kode_po=b.kode_po join m_produk c on b.id_produk=c.id_produk where b.no_po in ('$id') ");
-			
-			$expired       = strtotime($cekPO->row()->add_time) + (48*60*60);
-			$actualDate    = time();
-
-			if($this->session->userdata('level') != "Owner" && $actualDate > $expired || $actualDate == $expired) {
-				$update_trs_po          = false;
-				$update_trs_po_detail   = false;
-				$msg                    = 'TIDAK BISA '.$stts.' SUDAH EXPIRED';
+			if($status == 'Y' && ($cekPO->status_app1 == 'H' || $cekPO->status_app1 == 'R' || $cekPO->status_app2 == 'H' || $cekPO->status_app2 == 'R' || $cekPO->status_app3 == 'H' || $cekPO->status_app3 == 'R' || $cekPO->status_app4 == 'H' || $cekPO->status_app4 == 'R' || $cekPO->status_app5 == 'H' || $cekPO->status_app5 == 'R')){
+				$update_trs_po = false;
+				$update_trs_po_detail = false;
+				$msg = 'ADA VERIFIKASI YANG DI HOLD!';
+			}else if($level == 'User' && $status == 'Y' && ($cekPO->in_kalkulator == 0 || $cekPO->in_ds == 0 || $cekPO->in_armada == 0)){
+				$update_trs_po = false;
+				$update_trs_po_detail = false;
+				$msg = 'CEK VERIF KALKULATOR / DS / DAN ARMADA!';
+			}else if($level == 'Marketing' && $status == 'Y' && ($cekPO->mk_harga == 0 || $cekPO->mk_qty == 0 || $cekPO->mk_eta1 == 0)){
+				$update_trs_po = false;
+				$update_trs_po_detail = false;
+				$msg = 'CEK VERIF HARGA / QTY / DAN ETA PERTAMA!';
+			}else if($level == 'PPIC' && $status == 'Y' && $cekPO->pp_plan == 0){
+				$update_trs_po = false;
+				$update_trs_po_detail = false;
+				$msg = 'CEK VERIF PLAN PRODUKSI!';
+			}else if($level != "Owner" && $actualDate > $expired || $actualDate == $expired) {
+				$update_trs_po = false;
+				$update_trs_po_detail = false;
+				$msg = 'TIDAK BISA '.$stts.' SUDAH EXPIRED';
 			}else{
-				// UPDATE TRS PO
-				if($this->session->userdata('level') == "Owner" && $cekPO->row()->status_app4 != 'Y') {
-					$app = "4";		
-				}else if($this->session->userdata('level') == "Marketing") {
-					$app = "1";		
-				}else if ($this->session->userdata('level') == "PPIC") {
-					$app = "2";
-				}else if ($this->session->userdata('level') == "Owner") {
-					$app = "3";
+				// APP MASING2 LEVEL
+				if($level == "Owner" && $cekPO->status_app4 != 'Y') {
+					$app = 4;
+				}else if($level == "User") { // inner
+					$app = 5;
+				}else if($level == "Marketing") {
+					$app = 1;
+				}else if ($level == "PPIC") {
+					$app = 2;
+				}else if ($level == "Owner") {
+					$app = 3;
 					if($status == 'Y') {
 						foreach ($cekPO_detail->result() as $row){
 							stok_bahanbaku($row->kode_po, $row->id_hub, $row->tgl_po, 'HUB', 0, $row->bhn_bk, 'KELUAR DENGAN PO', 'KELUAR',$row->id_produk);
@@ -876,15 +893,43 @@ class M_transaksi extends CI_Model
 					}
 				}
 
-				$data_verif_po = array(
-					'status'             => $sts,
-					'status_app'.$app    => $status,
-					'user_app'.$app      => $this->username,
-					'time_app'.$app      => $this->waktu,
-					'ket_acc'.$app       => $alasan,
-				);
+				// CLEAR SEMUA ACC
+				if($status != 'Y'){
+					for($x = 1; $x <= 5; $x++){
+						if($app != $x){
+							$cek2 = $this->db->query("SELECT*FROM trs_po WHERE no_po='$id' AND (status_app$x='H' OR status_app$x='R')");
+							// marketing
+							$this->db->set('mk_harga', 0);
+							$this->db->set('mk_qty', 0);
+							$this->db->set('mk_eta1', 0);
+							// ppic
+							$this->db->set('pp_plan', 0);
+							// inner
+							$this->db->set('in_kalkulator', 0);
+							$this->db->set('in_ds', 0);
+							$this->db->set('in_armada', 0);
+							// JIKA ADA YANG DI HOLD JANGAN DI CLEAR
+							if($cek2->num_rows() == 0){
+								$this->db->set('status_app'.$x, 'N');
+								$this->db->set('user_app'.$x, null);
+								$this->db->set('time_app'.$x, null);
+								$this->db->set('ket_acc'.$x, null);
+							}
+							$this->db->where('no_po', $id);
+							$this->db->update('trs_po');
+						}
+					}
+				}
 
-				$this->db->where("no_po",$id);
+				$data_verif_po = array(
+					'status' => $sts,
+					'status_app'.$app => $status,
+					'user_app'.$app => $this->username,
+					'time_app'.$app => $this->waktu,
+					'ket_acc'.$app => $alasan,
+					'add_time' => ($level == "Owner" && $status != 'Y' && $app == 3) ? $cekPO->add_time : date('Y-m-d H:i:s'),
+				);
+				$this->db->where("no_po", $id);
 				$update_trs_po = $this->db->update("trs_po",$data_verif_po);
 
 				// UPDATE HUB
@@ -937,6 +982,23 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function verifKecil()
+	{
+		$id_trs_po = $_POST["id_trs_po"];
+		$opsi = $_POST["opsi"];
+		$val = $_POST["val"];
+
+		$this->db->set($opsi, $val);
+		$this->db->where("id", $id_trs_po);
+		$data = $this->db->update('trs_po');
+
+		return [
+			'id_trs_po' => $id_trs_po,
+			'val' => $val,
+			'data' => $data,
+		];
+	}
+
 	function nonAktifPO()
 	{
 		$id = $_POST["id_po"];
@@ -970,6 +1032,7 @@ class M_transaksi extends CI_Model
 		$id = $_POST["id_po"];
 		$opsi = $_POST["opsi"];
 
+		$this->db->set("status", 'Open');
 		$this->db->set("status_app".$opsi, 'N');
 		$this->db->set("ket_acc".$opsi, null);
 		$this->db->where("id", $id);
