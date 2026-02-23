@@ -267,15 +267,17 @@ class Laporan extends CI_Controller
 								$cG2 = $this->db->query("SELECT*FROM m_gudang WHERE gd_id_pelanggan='$d->id_pelanggan' AND gd_id_produk='$d->id_produk' AND gd_kode_po='$d->kode_po' AND gd_status='Open'");
 								($cG2->num_rows() != 0) ? $adGd = ' <button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="addGudangLap('."'".$d->id."'".','."'CLOSE'".')">x</button>' : $adGd = '';
 							}else{
-								$adGd = '';
+								$adGd = $i;
 							}
 						}else{
-							$adGd = '';
+							$adGd = $i;
 						}
 
-						$html .='<tr>
-							<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$i.'</td>
-							<td style="padding:5px;border:1px solid #aaa">'.$d->nm_produk.$adGd.'</td>
+						(strlen($d->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+						(strlen($d->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+						$html .='<tr style="vertical-align:top">
+							<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$adGd.'</td>
+							<td style="padding:5px;border:1px solid #aaa">'.$dv1.$d->nm_produk.$dv2.'</td>
 							<td style="padding:5px;border:1px solid #aaa">'.$ukuran.'</td>
 							<td style="padding:5px;border:1px solid #aaa">'.$this->m_fungsi->kualitas($d->kualitas, $d->flute).'</td>
 							<td style="padding:5px;border:1px solid #aaa;text-align:center">'.$d->flute.'</td>

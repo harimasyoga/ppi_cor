@@ -4709,70 +4709,78 @@ class Transaksi extends CI_Controller
 		WHERE id_po_header='$id_po_dtl' ORDER BY eta");
 
 		$html = '';
-		if($po->status_app3 == 'Y'){
-			if(in_array($this->session->userdata('level'), ['PPIC', 'AP'])){
-				$cls1 = 2;
-				$cls2 = '';
+		if(in_array($this->session->userdata('level'), ['PPIC', 'AP'])){
+			$cls1 = 2;
+			$cls2 = '';
+		}else{
+			$cls1 = 3;
+			$cls2 = 'colspan="2"';
+		}
+		$html .= '<td style="font-weight:bold;text-align:center;background:#f2f2f2">ETA</td>
+		<td style="padding:6px 0;background:#f2f2f2" colspan="'.$cls1.'">';
+			if($devSys->num_rows() != 0){
+				$html .= '<table>';
+					$i = 0;
+					$sumQty = 0;
+					foreach($devSys->result() as $r){
+						$i++;
+						($devSys->num_rows() == 1) ? $x = '' : $x = ' '.$i;
+						$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$r->prov'");
+						$ll = $prov->row()->lama_kirim;
+						$eta = date('d-m-Y', strtotime('+'.$ll.' day', strtotime($r->eta)));
+						$html .= '<tr style="background:#f2f2f2">
+							<td style="border:0;padding:6px">MUAT'.$x.'</td>
+							<td style="border:0;padding:6px 0">:</td>
+							<td style="border:0;padding:6px;font-weight:bold">'.strtoupper($this->m_fungsi->tglIndSkt($r->eta)).'</td>
+							<td style="border:0;padding:6px">ETA'.$x.'</td>
+							<td style="border:0;padding:6px 0">:</td>
+							<td style="border:0;padding:6px;font-weight:bold">'.$eta.'</td>
+							<td style="border:0;padding:6px">QTY'.$x.'</td>
+							<td style="border:0;padding:6px 0">:</td>
+							<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($r->qty_plan, 0, ',', '.').'</td>
+						</tr>';
+						$sumQty += $r->qty_plan;
+					}
+					if($devSys->num_rows() > 1){
+						$html .= '<tr style="background:#f2f2f2">
+							<td style="border:0;padding:6px" colspan="8"></td>
+							<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($sumQty, 0, ',', '.').'</td>
+						</tr>';
+					}
+				$html .= '</table>';
 			}else{
-				$cls1 = 3;
-				$cls2 = 'colspan="2"';
+				$html .= '<div style="border:0;padding:6px;color:#dc3545;text-align:center;font-weight:bold">ETA BELUM ADA!</div>';
 			}
-			$html .= '<td style="font-weight:bold;text-align:center;background:#f2f2f2">ETA</td>
-			<td style="padding:6px 0;background:#f2f2f2" colspan="'.$cls1.'">';
-				if($devSys->num_rows() != 0){
-					$html .= '<table>';
-						$i = 0;
-						$sumQty = 0;
-						foreach($devSys->result() as $r){
-							$i++;
-							($devSys->num_rows() == 1) ? $x = '' : $x = ' '.$i;
-							$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$r->prov'");
-							$ll = $prov->row()->lama_kirim;
-							$eta = date('d-m-Y', strtotime('+'.$ll.' day', strtotime($r->eta)));
-							$html .= '<tr style="background:#f2f2f2">
-								<td style="border:0;padding:6px">MUAT'.$x.'</td>
-								<td style="border:0;padding:6px 0">:</td>
-								<td style="border:0;padding:6px;font-weight:bold">'.strtoupper($this->m_fungsi->tglIndSkt($r->eta)).'</td>
-								<td style="border:0;padding:6px">ETA'.$x.'</td>
-								<td style="border:0;padding:6px 0">:</td>
-								<td style="border:0;padding:6px;font-weight:bold">'.$eta.'</td>
-								<td style="border:0;padding:6px">QTY'.$x.'</td>
-								<td style="border:0;padding:6px 0">:</td>
-								<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($r->qty_plan, 0, ',', '.').'</td>
-							</tr>';
-							$sumQty += $r->qty_plan;
-						}
-						if($devSys->num_rows() > 1){
-							$html .= '<tr style="background:#f2f2f2">
-								<td style="border:0;padding:6px" colspan="8"></td>
-								<td style="border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($sumQty, 0, ',', '.').'</td>
-							</tr>';
-						}
-					$html .= '</table>';
-				}else{
-					$html .= '<div style="border:0;padding:6px;color:#dc3545;text-align:center;font-weight:bold">ETA BELUM ADA!</div>';
-				}
-			$html .= '</td>';
+		$html .= '</td>';
 
-			// TIMER
-			$twoWeek = date('Y-m-d', strtotime('+2 week', strtotime(substr($po->time_app3, 0, 10))));
-			$secondsDiff = strtotime($twoWeek) - time();
-			$days = floor($secondsDiff/60/60/24);
-			$hours = floor(($secondsDiff-($days*60*60*24))/60/60);
-			$minutes = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))/60);
-			($days == 0) ? $tDays = '' : $tDays = '<div>'.$days.' HARI</div>';
-			($hours == 0) ? $tHours = '' : $tHours = '<div>'.$hours.' JAM</div>';
-			($minutes == 0) ? $tMinutes = '' : $tMinutes = '<div>'.$minutes.' MENIT</div>';
-			($days <= 0) ? $waktu = 'EXPIRED' : $waktu = $tDays.$tHours.$tMinutes;
-			$html .= '<td style="color:#dc3545;font-weight:bold;text-align:center" '.$cls2.'>'.$waktu.'</td>';
-			// KETERANGAN
-			if(!in_array($this->session->userdata('level'), ['PPIC', 'AP'])){
-				$html .= '<td>
-					<textarea class="form-control" name="et_'.$id_po_dtl.'" id="et_'.$id_po_dtl.'" placeholder="KET. ETA" rows="3" style="color:#dc3545;font-weight:bold;resize:none" disabled>'.$po_dtl->eta_ket.'</textarea>
-				</td>';
+		// TIMER
+		$twoWeek = date('Y-m-d', strtotime('+2 week', strtotime(substr($po->time_app3, 0, 10))));
+		$secondsDiff = strtotime($twoWeek) - time();
+		$days = floor($secondsDiff/60/60/24);
+		$hours = floor(($secondsDiff-($days*60*60*24))/60/60);
+		$minutes = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))/60);
+		($days == 0) ? $tDays = '' : $tDays = '<div>'.$days.' HARI</div>';
+		($hours == 0) ? $tHours = '' : $tHours = '<div>'.$hours.' JAM</div>';
+		($minutes == 0) ? $tMinutes = '' : $tMinutes = '<div>'.$minutes.' MENIT</div>';
+		($days <= 0) ? $waktu = 'EXPIRED' : $waktu = $tDays.$tHours.$tMinutes;
+		if($po->status_app3 == 'Y'){
+			if($po_dtl->qty == $sumQty){
+				$html .= '<td style="color:#dc3545;font-weight:bold;text-align:center" '.$cls2.'>ETA SUDAH LENGKAP</td>';
+			}else if($sumQty > $po_dtl->qty){
+				$html .= '<td style="color:#dc3545;font-weight:bold;text-align:center" '.$cls2.'>ETA LEBIH QTY PO</td>';
 			}else{
-				$html .= '<td colspan="4"></td>';
+				$html .= '<td style="color:#dc3545;font-weight:bold;text-align:center" '.$cls2.'>'.$waktu.'</td>';
 			}
+		}else{
+			$html .= '<td style="color:#dc3545;font-weight:bold;text-align:center" '.$cls2.'>-</td>';
+		}
+		// KETERANGAN
+		if(!in_array($this->session->userdata('level'), ['PPIC', 'AP'])){
+			$html .= '<td>
+				<textarea class="form-control" name="et_'.$id_po_dtl.'" id="et_'.$id_po_dtl.'" placeholder="KET. ETA" rows="3" style="color:#dc3545;font-weight:bold;resize:none" disabled>'.$po_dtl->eta_ket.'</textarea>
+			</td>';
+		}else{
+			$html .= '<td colspan="4"></td>';
 		}
 		$hr = '<td style="padding:3px;background:#bec2c6" colspan="7"></td>';
 
@@ -9574,7 +9582,20 @@ class Transaksi extends CI_Controller
 								($hours == 0) ? $tHours = '' : $tHours = '<div>'.$hours.' JAM</div>';
 								($minutes == 0) ? $tMinutes = '' : $tMinutes = '<div>'.$minutes.' MENIT</div>';
 								($days <= 0) ? $waktu = 'EXPIRED' : $waktu = $tDays.$tHours.$tMinutes;
-								$txtTimer = '<div style="color:#dc3545">'.$waktu.'</div>';
+
+								$sumQtyPlan = $this->db->query("SELECT SUM(qty_plan) AS qty FROM trs_dev_sys where id_po_header='$po_ok->id' and id_produk='$id_produk' and id_pelanggan='$id_pelanggan' ORDER BY id_dev");
+								if($sumQtyPlan->num_rows() != 0){
+									$qqTy = $sumQtyPlan->row()->qty;
+									if($po_ok->qty == $qqTy){
+										$txtTimer = '<div style="color:#dc3545">ETA<br>SUDAH<br>LENGKAP</div>';
+									}else if($qqTy > $po_ok->qty){
+										$txtTimer = '<div style="color:#dc3545">ETA<br>LEBIH<br>QTY PO</div>';
+									}else{
+										$txtTimer = '<div style="color:#dc3545">'.$waktu.'</div>';
+									}
+								}else{
+									$txtTimer = '<div style="color:#dc3545">'.$waktu.'</div>';
+								}
 
 								if($days <= 0){
 									$krjOnClick = 'class="btn btn-sm btn-secondary" disabled';
