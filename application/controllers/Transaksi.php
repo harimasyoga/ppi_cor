@@ -4766,6 +4766,8 @@ class Transaksi extends CI_Controller
 		if($po->status_app3 == 'Y'){
 			if($po_dtl->qty == $sumQty){
 				$html .= '<td style="color:#dc3545;font-weight:bold;text-align:center" '.$cls2.'>ETA SUDAH LENGKAP</td>';
+			}else if($sumQty > $po_dtl->qty){
+				$html .= '<td style="color:#dc3545;font-weight:bold;text-align:center" '.$cls2.'>ETA LEBIH QTY PO</td>';
 			}else{
 				$html .= '<td style="color:#dc3545;font-weight:bold;text-align:center" '.$cls2.'>'.$waktu.'</td>';
 			}
@@ -9586,6 +9588,8 @@ class Transaksi extends CI_Controller
 									$qqTy = $sumQtyPlan->row()->qty;
 									if($po_ok->qty == $qqTy){
 										$txtTimer = '<div style="color:#dc3545">ETA<br>SUDAH<br>LENGKAP</div>';
+									}else if($qqTy > $po_ok->qty){
+										$txtTimer = '<div style="color:#dc3545">ETA<br>LEBIH<br>QTY PO</div>';
 									}else{
 										$txtTimer = '<div style="color:#dc3545">'.$waktu.'</div>';
 									}
