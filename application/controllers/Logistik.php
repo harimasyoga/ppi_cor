@@ -11937,11 +11937,13 @@ class Logistik extends CI_Controller
 			$sumTon = 0;
 			foreach($this->cart->contents() as $r){
 				$sisa = $r['options']['qty'] - $r['options']['qty_muat'];
-				$html .='<tr>
+				(strlen($r['options']['nm_produk']) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+				(strlen($r['options']['nm_produk']) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+				$html .='<tr style="vertical-align:top">
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$r['id'].'</td>
 					<td style="border:1px solid #dee2e6;padding:6px">'.$r['options']['nm_pelanggan'].'</td>
 					<td style="border:1px solid #dee2e6;padding:6px">'.$r['options']['rk_kode_po'].'</td>
-					<td style="border:1px solid #dee2e6;padding:6px">'.$r['options']['nm_produk'].'</td>
+					<td style="border:1px solid #dee2e6;padding:6px">'.$dv1.$r['options']['nm_produk'].$dv2.'</td>
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($sisa,0,",",".").'</td>
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($r['options']['qty_muat'],0,",",".").'</td>
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$r['options']['rk_bb'].'</td>
