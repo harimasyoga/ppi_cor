@@ -10479,6 +10479,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function simpanGCcorrugated()
+	{
+		$result = $this->m_logistik->simpanGCcorrugated();
+		echo json_encode($result);
+	}
+
 	function Gudang_Laminasi()
 	{
 		$data_header = array(
@@ -10486,6 +10492,16 @@ class Logistik extends CI_Controller
 		);
 		$this->load->view('header', $data_header);
 		$this->load->view('Logistik/v_gudang_laminasi');
+		$this->load->view('footer');
+	}
+
+	function Gudang_Corr()
+	{
+		$data_header = array(
+			'judul' => "Gudang Corrugated",
+		);
+		$this->load->view('header', $data_header);
+		$this->load->view('Logistik/v_gudang_corrugated');
 		$this->load->view('footer');
 	}
 
@@ -10734,6 +10750,198 @@ class Logistik extends CI_Controller
 			$judul = 'STOK KERTAS LAMINASI - '.strtoupper($this->m_fungsi->getHariIni($plh_tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($plh_tgl));
 			$this->m_fungsi->newMpdf($judul, '', $html, 4, 4, 4, 4, 'P', 'A4', $judul.'.pdf');
 		}
+	}
+
+	//
+
+	function plhGCPelanggan()
+	{
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$tgl_awal_cust = $_POST["tgl_awal_cust"];
+		$html = '';
+
+		$produk = $this->db->query("SELECT*FROM m_produk WHERE no_customer='$id_pelanggan' ORDER BY nm_produk");
+		if($produk->num_rows() != 0){
+			$html .= '<form role="form" method="post" id="myForm">
+				<input type="hidden" id="id_pelanggan" name="id_pelanggan" value="'.$id_pelanggan.'">
+				<table>
+					<tr>
+						<td style="padding:6px 0 16px">TGL STOK AWAL</td>
+						<td style="padding:6px 6px 16px">:</td>
+						<td style="padding:6px 0 16px">
+							<input type="date" id="tgl_awal_cust" name="tgl_awal_cust" value="'.$tgl_awal_cust.'" class="form-control" onchange="plhStokAwalCust()">
+						</td>
+					</tr>
+				</table>
+				<div style="padding:0;overflow:auto;white-space:nowrap">
+					<table class="table table-bordered table-striped" style="margin:0;border:0">
+						<tr>
+							<th style="text-align:center;padding:6px">#</th>
+							<th style="text-align:center;padding:6px">ITEM</th>
+							<th style="text-align:center;padding:6px">UKURAN</th>
+							<th style="text-align:center;padding:6px">FLUTE</th>
+							<th style="text-align:center;padding:6px">SUBSTANCE</th>
+							<th style="text-align:center;padding:6px">STOK AWAL</th>
+							<th style="text-align:center;padding:6px 30px">IN</th>
+							<th style="text-align:center;padding:6px 23px">OUT</th>
+							<th style="text-align:center;padding:6px">STOK AKHIR</th>
+							<th style="text-align:center;padding:6px 20px">KETERANGAN</th>
+						</tr>';
+						$i = 0;
+						foreach($produk->result() as $r){
+							$i++;
+							($r->kategori == 'K_BOX') ? $kat = '[BOX] ' : $kat = '[SHEET] ';
+							($r->kategori == 'K_BOX') ? $uk = $r->ukuran : $uk = $r->ukuran_sheet;
+							(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+							(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+
+							// CEK GUDANG
+							if($tgl_awal_cust != ''){
+								$hari = date('d', strtotime($tgl_awal_cust));
+								$bulan = date('m', strtotime($tgl_awal_cust));
+								$tahun = date('Y', strtotime($tgl_awal_cust));
+								$wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
+								$qq = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$r->id_produk' $wA");
+								if($qq->num_rows() != 0){
+									$dsb = 'readonly';
+									$vSa = ($qq->row($hari.'_stok_awal') == 0) ? 0 : number_format($qq->row($hari.'_stok_awal'),0,',','.');
+									$vIn2 = ($qq->row($hari.'_in') == 0) ? 0 : number_format($qq->row($hari.'_in'),0,',','.');
+									$vOut = ($qq->row($hari.'_out') == 0) ? 0 : number_format($qq->row($hari.'_out'),0,',','.');
+									$vSk = ($qq->row($hari.'_stok_akhir') == 0) ? 0 : number_format($qq->row($hari.'_stok_akhir'),0,',','.');
+									$vKet = $qq->row($hari.'_ket');
+								}else{
+									$dsb = ''; $vSa = ''; $vIn2 = ''; $vOut = ''; $vSk = ''; $vKet = null;
+								}
+							}else{
+								$dsb = ''; $vSa = ''; $vIn2 = ''; $vOut = ''; $vSk = ''; $vKet = null;
+							}
+							
+							$html .= '<tr style="vertical-align:top">
+								<td style="padding:6px;text-align:center">'.$i.'</td>
+								<td style="padding:6px">'.$dv1.$kat.$r->nm_produk.$dv2.'</td>
+								<td style="padding:6px;text-align:center">'.$uk.'</td>
+								<td style="padding:6px;text-align:center">'.$r->flute.'</td>
+								<td style="padding:6px;text-align:center">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
+								<td style="padding:6px">
+									<input type="number" id="stok_awal_'.$r->id_produk.'" name="stok_awal_'.$r->id_produk.'" value="'.$vSa.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$dsb.'>
+								</td>
+								<td style="padding:6px">
+									<input type="number" id="in_'.$r->id_produk.'" name="in_'.$r->id_produk.'" value="'.$vIn2.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$dsb.'>
+								</td>
+								<td style="padding:6px">
+									<input type="number" id="out_'.$r->id_produk.'" name="out_'.$r->id_produk.'" value="'.$vOut.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$dsb.'>
+								</td>
+								<td style="padding:6px">
+									<input type="hidden" id="hstok_akhir_'.$r->id_produk.'" name="hstok_akhir_'.$r->id_produk.'" value="'.$vSk.'">
+									<input type="number" id="stok_akhir_'.$r->id_produk.'" name="stok_akhir_'.$r->id_produk.'" value="'.$vSk.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
+								</td>
+								<td style="padding:6px">
+									<input type="text" id="ket_'.$r->id_produk.'" name="ket_'.$r->id_produk.'" value="'.$vKet.'" class="form-control" placeholder="KETERANGAN" autocomplete="off" style="padding:2px 4px;font-weight:bold" oninput="this.value=this.value.toUpperCase()" '.$dsb.'>
+								</td>
+							</tr>';
+						}
+					$html .= '</table>
+				</div>
+			</form>';
+			$html .= '<div style="margin:10px 0 30px">
+				<button type="button" class="btn btn-primary" style="font-weight:bold" onclick="simpanGCcorrugated()"><i class="fas fa-save"></i> SIMPAN</button>
+			</div>';
+		}else{
+			$html .= 'DATA KOSONG!';
+		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function loadGC()
+	{
+		$html = '';
+
+		$pelanggan = $this->db->query("SELECT g.id_pelanggan,p.nm_pelanggan,p.attn FROM m_gudang_v2 g
+		INNER JOIN m_pelanggan p ON g.id_pelanggan=p.id_pelanggan
+		GROUP BY g.id_pelanggan
+		ORDER BY p.nm_pelanggan");
+
+		if($pelanggan->num_rows() != 0){
+			$html .= '<form role="form" method="post" id="listForm">
+				<table>
+					<tr>
+						<td style="padding:6px 0 16px">TGL STOK AWAL</td>
+						<td style="padding:6px 6px 16px">:</td>
+						<td style="padding:6px 0 16px">
+							<input type="date" id="tgl_awal2" name="tgl_awal2" value="" class="form-control" onchange="gdStokAwalCust()">
+						</td>
+					</tr>
+				</table>
+				<div style="padding:0;overflow:auto;white-space:nowrap">
+					<table class="table table-bordered table-striped" style="margin:0;border:0">
+						<tr>
+							<th style="text-align:center;padding:6px">#</th>
+							<th style="text-align:center;padding:6px">ITEM</th>
+							<th style="text-align:center;padding:6px">UKURAN</th>
+							<th style="text-align:center;padding:6px">FLUTE</th>
+							<th style="text-align:center;padding:6px">SUBSTANCE</th>
+							<th style="text-align:center;padding:6px">STOK AWAL</th>
+							<th style="text-align:center;padding:6px 30px">IN</th>
+							<th style="text-align:center;padding:6px 23px">OUT</th>
+							<th style="text-align:center;padding:6px">STOK AKHIR</th>
+							<th style="text-align:center;padding:6px 20px">KETERANGAN</th>
+						</tr>';
+						
+						foreach($pelanggan->result() as $p){
+							($p->attn == "-" || $p->attn == "") ? $attn = '' : $attn = ' | '.$p->attn;
+							$html .= '<tr>
+								<td style="padding:6px;background:#333;border:0;color:#fff" colspan="10">'.$p->nm_pelanggan.$attn.'</td>
+							</tr>';
+
+							$gudang = $this->db->query("SELECT*FROM m_gudang_v2 g
+							INNER JOIN m_produk p ON g.id_produk=p.id_produk
+							WHERE g.id_pelanggan='$p->id_pelanggan'
+							ORDER BY p.nm_produk");
+							$i = 0;
+							foreach($gudang->result() as $g){
+								$i++;
+								($g->kategori == 'K_BOX') ? $kat = '[BOX] ' : $kat = '[SHEET] ';
+								($g->kategori == 'K_BOX') ? $uk = $g->ukuran : $uk = $g->ukuran_sheet;
+								(strlen($g->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+								(strlen($g->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+
+								$html .= '<tr style="vertical-align:top">
+									<td style="padding:6px;text-align:center">'.$i.'</td>
+									<td style="padding:6px">'.$dv1.$kat.$g->nm_produk.$dv2.'</td>
+									<td style="padding:6px;text-align:center">'.$uk.'</td>
+									<td style="padding:6px;text-align:center">'.$g->flute.'</td>
+									<td style="padding:6px;text-align:center">'.$this->m_fungsi->kualitas($g->kualitas, $g->flute).'</td>
+									<td style="padding:6px">
+										<input type="number" id="stok_awal2_'.$g->id_produk.'" name="stok_awal2_'.$g->id_produk.'" value="" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
+									</td>
+									<td style="padding:6px">
+										<input type="number" id="in2_'.$g->id_produk.'" name="in2_'.$g->id_produk.'" value="" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
+									</td>
+									<td style="padding:6px">
+										<input type="number" id="out2_'.$g->id_produk.'" name="out2_'.$g->id_produk.'" value="" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
+									</td>
+									<td style="padding:6px">
+										<input type="hidden" id="hstok_akhir2_'.$g->id_produk.'" name="hstok_akhir2_'.$g->id_produk.'" value="">
+										<input type="number" id="stok_akhir2_'.$g->id_produk.'" name="stok_akhir2_'.$g->id_produk.'" value="" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
+									</td>
+									<td style="padding:6px">
+										<input type="text" id="ket2_'.$g->id_produk.'" name="ket2_'.$g->id_produk.'" value="" class="form-control" placeholder="KETERANGAN" autocomplete="off" style="padding:2px 4px;font-weight:bold" oninput="this.value=this.value.toUpperCase()">
+									</td>
+								</tr>';
+							}
+						}
+
+					$html .= '</table>
+				</div>
+			</form>';
+		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
 	}
 
 	//
