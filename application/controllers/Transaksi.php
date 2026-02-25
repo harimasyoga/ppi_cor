@@ -4727,7 +4727,9 @@ class Transaksi extends CI_Controller
 						($devSys->num_rows() == 1) ? $x = '' : $x = ' '.$i;
 						$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$r->prov'");
 						$ll = $prov->row()->lama_kirim;
-						$eta = date('d-m-Y', strtotime('+'.$ll.' day', strtotime($r->eta)));
+						$minggu = date('l', strtotime('+'.$ll.' day', strtotime($r->eta)));
+						($minggu == 'Sunday') ? $ll2 = $prov->row()->lama_kirim + 1 : $ll2 = $prov->row()->lama_kirim;
+						$eta = date('d-m-Y', strtotime('+'.$ll2.' day', strtotime($r->eta)));
 						$html .= '<tr style="background:#f2f2f2">
 							<td style="border:0;padding:6px">MUAT'.$x.'</td>
 							<td style="border:0;padding:6px 0">:</td>
@@ -7334,7 +7336,7 @@ class Transaksi extends CI_Controller
 							<thead>
 								<tr>
 									<th style="width:1%;padding:6px;'.$bHead.''.$bold.'" class="text-center">NO.</th>
-									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'">ETA SO</th>
+									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'">TGL MUAT</th>
 									<th style="padding:6px;'.$bHead.''.$bold.'">NO. SO</th>
 									<th style="width:10%;padding:6px 30px 6px 6px;text-align:center;'.$bHead.''.$bold.'">QTY SO</th>
 									'.$ketPPIC.'
@@ -7631,7 +7633,9 @@ class Transaksi extends CI_Controller
 							$eta = '-';
 						}else{
 							$ll = $prov->row()->lama_kirim;
-							$eta = date('Y-m-d', strtotime('+'.$ll.' day', strtotime($sys->row()->eta)));
+							$minggu = date('l', strtotime('+'.$ll.' day', strtotime($sys->row()->eta)));
+							($minggu == 'Sunday') ? $ll2 = $prov->row()->lama_kirim + 1 : $ll2 = $prov->row()->lama_kirim;
+							$eta = date('Y-m-d', strtotime('+'.$ll2.' day', strtotime($sys->row()->eta)));
 						}
 						$html .= '<tr>
 							<td style="padding:6px;border:0;text-align:right;'.$bHead.'" colspan="4"></td>
@@ -7666,7 +7670,7 @@ class Transaksi extends CI_Controller
 							</tr>
 							<tr>
 								<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">NO.</th>
-								<th style="padding:6px;'.$bHead.''.$bold.'">ETA SO</th>
+								<th style="padding:6px;'.$bHead.''.$bold.'">TGL MUAT</th>
 								<th style="padding:6px;'.$bHead.''.$bold.'">NO. SO</th>
 								<th style="padding:6px 30px 6px 6px;text-align:center;'.$bHead.''.$bold.'">QTY SO</th>
 								'.$ketPPIC.'
@@ -10059,7 +10063,9 @@ class Transaksi extends CI_Controller
 						$lamaK = '-';
 					}else{
 						$ll = $prov->row()->lama_kirim;
-						$lamaK = date('d-m-Y', strtotime('+'.$ll.' day', strtotime($tgl)));
+						$minggu = date('l', strtotime('+'.$ll.' day', strtotime($tgl)));
+						($minggu == 'Sunday') ? $ll2 = $prov->row()->lama_kirim + 1 : $ll2 = $prov->row()->lama_kirim;
+						$lamaK = date('d-m-Y', strtotime('+'.$ll2.' day', strtotime($tgl)));
 					}
 					(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:320px;white-space:normal">' : $dv1 = '';
 					(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';

@@ -1462,9 +1462,14 @@
 				if(urlAuth == 'PPIC' || urlAuth == 'AP'){
 					$("#item_tambahan"+index).show()
 				}else{
-					$("#item_tambahan"+index).hide()
+					if(data.po.status_app3 == 'Y'){
+						$("#item_tambahan"+index).hide()
+						$("#eta_tambahan"+index).html(data.html)
+					}else{
+						$("#item_tambahan"+index).show()
+						$("#eta_tambahan"+index).html('')
+					}
 				}
-				$("#eta_tambahan"+index).html(data.html)
 				$("#hr_tambahan"+index).html(data.hr)
 			}
 		})

@@ -1123,49 +1123,57 @@ class M_transaksi extends CI_Model
 	{
 		$id_po_dtl = $_POST["id_po_dtl"];
 		$id_os = $_POST["id_os"];
+		$no_po = $_POST["no_po"];
+		$kode_po = $_POST["kode_po"];
 
-		// $sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_sys'")->row();
-		$SO = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$id_os'")->row();
-		$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_po_dtl'")->row();
-		$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$po_dtl->id_produk'")->row();
+		$pO = $this->db->query("SELECT*FROM trs_po WHERE no_po='$no_po' AND kode_po='$kode_po'")->row();
 
-		// SYS
-		$jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
-		WHERE id_po_header='$id_po_dtl' AND id_produk='$po_dtl->id_produk' AND id_pelanggan='$po_dtl->id_pelanggan'
-		GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
+		if($pO->status_app3 == 'N' || $pO->status_app3 == 'Open'){
+			$data = false;
+			$msg = 'PO BELUM DI ACC!';
+		}else{
+			$SO = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$id_os'")->row();
+			$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_po_dtl'")->row();
+			$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$po_dtl->id_produk'")->row();
 
-		// PENGIRIMAN
-		$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
-		$sumKirim = $kirim["sumKirim"];
-		$sisa = $kirim["sisa2"];
+			// SYS
+			$jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
+			WHERE id_po_header='$id_po_dtl' AND id_produk='$po_dtl->id_produk' AND id_pelanggan='$po_dtl->id_pelanggan'
+			GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
 
-		$delivery = $sumKirim;
-		$os = $sisa;
-		$os_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + ($SO->qty_so*2));
-		$os_belum_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + $SO->qty_so);
-		$berat = $SO->qty_so * $produk->berat_bersih;
+			// PENGIRIMAN
+			$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
+			$sumKirim = $kirim["sumKirim"];
+			$sisa = $kirim["sisa2"];
 
-		$dts = [
-			'id_po_header' => $id_po_dtl,
-			'id_produk' => $po_dtl->id_produk,
-			'id_pelanggan' => $po_dtl->id_pelanggan,
-			'id_so' => $id_os,
-			'qty_po' => $po_dtl->qty,
-			'delivery' => $delivery,
-			'os' => $os,
-			'os_terplanning' => $os_terplanning,
-			'os_belum_terplanning' => $os_belum_terplanning,
-			'qty_plan' => $SO->qty_so,
-			'berat' => $berat,
-			'bb' => $produk->berat_bersih,
-			'eta' => $SO->eta_so,
-			'ket_sys' => null,
-			'id_ex' => null,
-			'urut' => 0,
-			'created_at' => date('Y-m-d H:i:s'),
-		];
-		$data = $this->db->insert("trs_dev_sys", $dts);
-		$msg = 'BERHASIL';
+			$delivery = $sumKirim;
+			$os = $sisa;
+			$os_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + ($SO->qty_so*2));
+			$os_belum_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + $SO->qty_so);
+			$berat = $SO->qty_so * $produk->berat_bersih;
+
+			$dts = [
+				'id_po_header' => $id_po_dtl,
+				'id_produk' => $po_dtl->id_produk,
+				'id_pelanggan' => $po_dtl->id_pelanggan,
+				'id_so' => $id_os,
+				'qty_po' => $po_dtl->qty,
+				'delivery' => $delivery,
+				'os' => $os,
+				'os_terplanning' => $os_terplanning,
+				'os_belum_terplanning' => $os_belum_terplanning,
+				'qty_plan' => $SO->qty_so,
+				'berat' => $berat,
+				'bb' => $produk->berat_bersih,
+				'eta' => $SO->eta_so,
+				'ket_sys' => null,
+				'id_ex' => null,
+				'urut' => 0,
+				'created_at' => date('Y-m-d H:i:s'),
+			];
+			$data = $this->db->insert("trs_dev_sys", $dts);
+			$msg = 'BERHASIL';
+		}
 
 		return [
 			'data' => $data,

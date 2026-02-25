@@ -1512,11 +1512,17 @@
 					}
 				});
 			},
-			data: ({ id_po_dtl, id_os }),
+			data: ({ id_po_dtl, id_os, no_po, kode_po }),
 			success: function(res){
 				data = JSON.parse(res)
-				tampilEditSO(h_id, no_po, kode_po, 'edit')
-				reloadTable()
+				if(data.data){
+					tampilEditSO(h_id, no_po, kode_po, 'edit')
+					reloadTable()
+				}else{
+					$(".addOStoDSys").prop('disabled', false)
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
 			}
 		})
 	}
