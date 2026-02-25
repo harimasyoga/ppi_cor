@@ -1584,4 +1584,20 @@
 		})
 	}
 
+	function etaSO(id_pelanggan, eta, id, plhNamaID, namaID) {
+		let plh_eta = $("#"+plhNamaID+id).val()
+		$("#"+namaID+id).val('-')
+		console.log(plh_eta)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/etaSO')?>',
+			type: "POST",
+			data: ({ id_pelanggan, plh_eta }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$("#"+namaID+id).val(data.eta)
+			}
+		})
+	}
+
 </script>

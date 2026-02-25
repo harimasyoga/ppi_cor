@@ -7336,7 +7336,8 @@ class Transaksi extends CI_Controller
 							<thead>
 								<tr>
 									<th style="width:1%;padding:6px;'.$bHead.''.$bold.'" class="text-center">NO.</th>
-									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'">TGL MUAT</th>
+									<th style="width:10%;padding:6px;text-align:center;'.$bHead.''.$bold.'">TGL MUAT</th>
+									<th style="width:10%;padding:6px;text-align:center;'.$bHead.''.$bold.'">ETA SO</th>
 									<th style="padding:6px;'.$bHead.''.$bold.'">NO. SO</th>
 									<th style="width:10%;padding:6px 30px 6px 6px;text-align:center;'.$bHead.''.$bold.'">QTY SO</th>
 									'.$ketPPIC.'
@@ -7359,6 +7360,10 @@ class Transaksi extends CI_Controller
 				$dataHapusSO = $this->db->query("SELECT COUNT(so.rpt) AS jml_rpt FROM trs_po_detail ps
 				INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so$p=so.no_so AND ps.id_produk=so.id_produk
 				WHERE ps.id='$idPoSo' $whP GROUP BY so.no_po,so.kode_po,so.no_so,so.id_produk");
+
+				// eta
+				$cust = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$r->id_pelanggan'")->row();
+				$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$cust->prov'");
 				
 				($r->id == $id) ? $bTd = 'border:1px solid #999;' : $bTd = '';
 				$l = 0 ;
@@ -7560,10 +7565,21 @@ class Transaksi extends CI_Controller
 							($r->id == $id) ? $rTxt = 2 : $rTxt = 1;
 						}
 					}
+					if($prov->num_rows() == 0){
+						$eta1 = '-';
+					}else{
+						$ll1 = $prov->row()->lama_kirim;
+						$minggu1 = date('l', strtotime('+'.$ll1.' day', strtotime($so->eta_so)));
+						($minggu1 == 'Sunday') ? $l2 = $prov->row()->lama_kirim + 1 : $l2 = $prov->row()->lama_kirim;
+						$eta1 = date('d/m/Y', strtotime('+'.$l2.' day', strtotime($so->eta_so)));
+					}
 					$html .='<tr style="background:#f2f2f2">
 						<td style="padding:6px;'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
 						<td style="padding:6px;'.$bTd.''.$bold.'">
-							<input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$diss.'>
+							<input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" onchange="etaSO('."'".$r->id_pelanggan."'".', '."'".$so->eta_so."'".', '."'".$so->id."'".', '."'edit-tgl-so'".', '."'os1os'".')" '.$diss.'>
+						</td>
+						<td style="padding:6px;'.$bTd.''.$bold.'">
+							<input type="text" id="os1os'.$so->id.'" class="form-control" style="font-weight:bold;text-align:center" value="'.$eta1.'" disabled>
 						</td>
 						<td style="padding:6px;'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
 						<td style="padding:6px;'.$bTd.''.$bold.'">
@@ -7595,7 +7611,7 @@ class Transaksi extends CI_Controller
 					$trsWO = $this->db->query("SELECT*FROM trs_wo WHERE kode_po='$so->kode_po' AND id_produk='$so->id_produk' AND id_pelanggan='$so->id_pelanggan' AND no_so='$so->id'");
 					if($trsWO->num_rows() != 0){
 						$html .= '<tr style="background:#f2f2f2">
-							<td style="padding:6px;border:1px solid #999" colspan="2"></td>
+							<td style="padding:6px;border:1px solid #999" colspan="3"></td>
 							<td style="padding:6px;font-weight:bold;border:1px solid #999" colspan="8">'.$trsWO->row()->no_wo.'</td>
 						</tr>';
 					}
@@ -7605,7 +7621,7 @@ class Transaksi extends CI_Controller
 					GROUP BY c.tgl_plan,w.kode_po, w.id_produk, w.id_pelanggan");
 					if($planCor->num_rows() != 0){
 						$html .= '<tr style="background:#f2f2f2">
-							<td style="padding:6px;border:1px solid #999" colspan="2"></td>
+							<td style="padding:6px;border:1px solid #999" colspan="3"></td>
 							<td style="padding:6px;border:1px solid #999" colspan="8">
 								<table>
 									<tr>
@@ -7626,19 +7642,16 @@ class Transaksi extends CI_Controller
 
 					// SYS
 					if($sys->num_rows() != 0){
-						$id_pelanggan = $sys->row()->id_pelanggan;
-						$cust = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row();
-						$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$cust->prov'");
 						if($prov->num_rows() == 0){
 							$eta = '-';
 						}else{
 							$ll = $prov->row()->lama_kirim;
 							$minggu = date('l', strtotime('+'.$ll.' day', strtotime($sys->row()->eta)));
 							($minggu == 'Sunday') ? $ll2 = $prov->row()->lama_kirim + 1 : $ll2 = $prov->row()->lama_kirim;
-							$eta = date('Y-m-d', strtotime('+'.$ll2.' day', strtotime($sys->row()->eta)));
+							$eta = date('d/m/Y', strtotime('+'.$ll2.' day', strtotime($sys->row()->eta)));
 						}
 						$html .= '<tr>
-							<td style="padding:6px;border:0;text-align:right;'.$bHead.'" colspan="4"></td>
+							<td style="padding:6px;border:0;text-align:right;'.$bHead.'" colspan="5"></td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'" colspan="2">TGL MUAT DS</td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">ETA DS</td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">QTY DS</td>
@@ -7647,12 +7660,12 @@ class Transaksi extends CI_Controller
 							
 						</tr>
 						<tr style="background:#f2f2f2">
-							<td style="padding:6px;border:1px solid #999" colspan="4"></td>
+							<td style="padding:6px;border:1px solid #999" colspan="5"></td>
 							<td style="padding:6px;border:1px solid #999" colspan="2">
-								<input type="date" id="sys_eta'.$sys->row()->id_dev.'" class="form-control" value="'.$sys->row()->eta.'" '.$diss.'>
+								<input type="date" id="sys_eta'.$sys->row()->id_dev.'" class="form-control" value="'.$sys->row()->eta.'" onchange="etaSO('."'".$r->id_pelanggan."'".', '."'".$sys->row()->eta."'".', '."'".$sys->row()->id_dev."'".', '."'sys_eta'".', '."'se1ys'".')" '.$diss.'>
 							</td>
-							<td style="padding:6px;text-align:center;border:1px solid #999">
-								<input type="date" id="se1ys'.$sys->row()->id_dev.'" class="form-control" value="'.$eta.'" disabled>
+							<td style="padding:6px;border:1px solid #999">
+								<input type="text" id="se1ys'.$sys->row()->id_dev.'" class="form-control" style="font-weight:bold;text-align:center" value="'.$eta.'" disabled>
 							</td>
 							<td style="padding:6px;border:1px solid #999">
 								<input type="number" id="sys_qty'.$sys->row()->id_dev.'" class="form-control" style="text-align:right;font-weight:bold" value="'.number_format($sys->row()->qty_plan,0,',','.').'" '.$diss.'>
@@ -7670,7 +7683,8 @@ class Transaksi extends CI_Controller
 							</tr>
 							<tr>
 								<th style="padding:6px;'.$bHead.''.$bold.'" class="text-center">NO.</th>
-								<th style="padding:6px;'.$bHead.''.$bold.'">TGL MUAT</th>
+								<th style="padding:6px;text-align:center;'.$bHead.''.$bold.'">TGL MUAT</th>
+								<th style="padding:6px;text-align:center;'.$bHead.''.$bold.'">ETA SO</th>
 								<th style="padding:6px;'.$bHead.''.$bold.'">NO. SO</th>
 								<th style="padding:6px 30px 6px 6px;text-align:center;'.$bHead.''.$bold.'">QTY SO</th>
 								'.$ketPPIC.'
@@ -7696,7 +7710,7 @@ class Transaksi extends CI_Controller
 						$sumPPIC = '';
 					// }
 					$html .='<tr>
-						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0" colspan="3"></td>
+						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0" colspan="4"></td>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumQty).'</td>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
 						'.$sumPPIC.'
@@ -7724,6 +7738,28 @@ class Transaksi extends CI_Controller
 
 		$html .= '</table>';
 		echo $html;
+	}
+
+	function etaSO()
+	{
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$eta = $_POST["plh_eta"];
+
+		$cust = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row();
+		$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$cust->prov'");
+
+		if($prov->num_rows() == 0){
+			$eta = '-';
+		}else{
+			$l = $prov->row()->lama_kirim;
+			$minggu = date('l', strtotime('+'.$l.' day', strtotime($eta)));
+			($minggu == 'Sunday') ? $l2 = $prov->row()->lama_kirim + 1 : $l2 = $prov->row()->lama_kirim;
+			$eta = date('d/m/Y', strtotime('+'.$l2.' day', strtotime($eta)));
+		}
+
+		echo json_encode([
+			'eta' => $eta,
+		]);
 	}
 
 	function LaporanSOTrim()
