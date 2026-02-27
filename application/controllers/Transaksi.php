@@ -4162,7 +4162,9 @@ class Transaksi extends CI_Controller
 					INNER JOIN m_produk i ON h.id_produk=i.id_produk
 					WHERE h.id_pelanggan='$r->id_pelanggan' AND h.kode_po='$r->kode_po' AND h.id_produk='$r->id_produk'
 					GROUP BY h.id_pelanggan,h.kode_po,h.id_produk")->row();
-					($item->attn == '-') ? $attn = '' : $attn = ' | '.$item->attn;
+					($item->attn == '-') ? $attn = '' : $attn = '<div>'.$item->attn.'</div>';
+					(strlen($item->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+					(strlen($item->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
 					$tHtml = '<tr style="background-color:transparent !important">
 						<td style="padding:2px;border:0;font-weight:bold">CUSTOMER</td>
 						<td style="padding:2px;border:0">:</td>
@@ -4176,7 +4178,7 @@ class Transaksi extends CI_Controller
 					<tr style="background-color:transparent !important">
 						<td style="padding:2px;border:0;font-weight:bold">ITEM</td>
 						<td style="padding:2px;border:0">:</td>
-						<td style="padding:2px;border:0">'.$item->nm_produk.'</td>
+						<td style="padding:2px;border:0">'.$dv1.$item->nm_produk.$dv2.'</td>
 					</tr>';
 				}else{
 					$tHtml = '';
