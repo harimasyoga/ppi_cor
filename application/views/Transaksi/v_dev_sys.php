@@ -115,7 +115,7 @@
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">RINCIAN PENGIRIMAN</h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">RINCIAN PENGIRIMAN<span class="rinc-tgl" style="font-style:italic"></span></h3>
 							<div class="card-tools">
 								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
 								<i class="fas fa-minus"></i></button>
@@ -148,6 +148,7 @@
 		let bulan = $("#bulan").val()
 		if(opsi == ''){
 			$(".ds-kiriman").html('-')
+			$(".rinc-tgl").html('')
 		}
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadCalender') ?>',
@@ -175,7 +176,7 @@
 	function ccDevSys(tgl) {
 		let tahun = $("#tahun").val()
 		let bulan = $("#bulan").val()
-		// $(".ds-kiriman").html('')
+		$(".rinc-tgl").html('')
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/ccDevSys') ?>',
 			type: "POST",
@@ -193,6 +194,7 @@
 			success: function(res) {
 				data = JSON.parse(res)
 				$(".ds-kiriman").html(data.html)
+				$(".rinc-tgl").html(data.tglRincian)
 				$('.select2').select2()
 				$("#h_tgl").val(tgl)
 				$("#r_tgl").val(tgl)
