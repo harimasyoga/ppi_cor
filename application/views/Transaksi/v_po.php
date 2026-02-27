@@ -392,8 +392,12 @@
 
 						<div class="col-md-12" id="tombol_verif">
 							<div class="card-body row" >
-								<div class="col-md-3"></div>
-								<div class="col-md-3">
+								<div class="col-md-4" style="padding:0">
+									<div style="overflow:auto;white-space:nowrap">
+										<div class="history_po"></div>
+									</div>
+								</div>
+								<div class="col-md-2">
 									<div class="verif-kecil"></div>
 								</div>
 								<div class="col-md-6">
@@ -1005,6 +1009,7 @@
 		$("#id_trs_po").val("");
 		$("#eta_tambahan0").html("");
 		$("#hr_tambahan0").html("");
+		$(".history_po").html("");
 		$(".verif-kecil").html("");
 
 		clearRow();
@@ -1196,6 +1201,7 @@
 					$(".design").html("");
 				}
 				
+				$(".history_po").html(data.htmlHis)
 				$(".verif-kecil").html(data.verif)
 				btn_verif(data)
 				no_po = data.header.no_po
@@ -1351,6 +1357,7 @@
 			.done(function(data) {
 				$(".design").html(data.html);
 				
+				$(".history_po").html(data.htmlHis)
 				$(".verif-kecil").html(data.verif)
 				btn_verif(data)
 				no_po = data.header.no_po
@@ -1461,20 +1468,10 @@
 				data = JSON.parse(res);
 				if(urlAuth == 'PPIC' || urlAuth == 'AP'){
 					$("#item_tambahan"+index).show()
-					if(data.po.status_app3 == 'Y'){
-						$("#eta_tambahan"+index).html(data.html)
-					}else{
-						$("#eta_tambahan"+index).html('')
-					}
 				}else{
-					if(data.po.status_app3 == 'Y'){
-						$("#item_tambahan"+index).hide()
-						$("#eta_tambahan"+index).html(data.html)
-					}else{
-						$("#item_tambahan"+index).show()
-						$("#eta_tambahan"+index).html('')
-					}
+					$("#item_tambahan"+index).hide()
 				}
+				$("#eta_tambahan"+index).html(data.html)
 				$("#hr_tambahan"+index).html(data.hr)
 			}
 		})

@@ -4704,9 +4704,18 @@ class Transaksi extends CI_Controller
 		$id_po_dtl = $_POST["id_po_dtl"];
 		$po = $this->db->query("SELECT*FROM trs_po WHERE id='$id_trs_po'")->row();
 		$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_po_dtl'")->row();
-		$devSys = $this->db->query("SELECT c.prov,d.* FROM trs_dev_sys d
-		INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
-		WHERE id_po_header='$id_po_dtl' ORDER BY eta");
+		
+		// AMBIL DATA SO / DEV
+		if($po->status_app3 == 'Y'){
+			$devSys = $this->db->query("SELECT c.prov,d.* FROM trs_dev_sys d
+			INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
+			WHERE id_po_header='$id_po_dtl' ORDER BY eta");
+		}else{
+			$devSys = $this->db->query("SELECT c.prov,d.eta_so AS eta, d.qty_so AS qty_plan,d.* FROM trs_so_detail d
+			INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
+			WHERE d.kode_po='$po->kode_po' AND d.no_po='$po->no_po' AND d.id_pelanggan='$po_dtl->id_pelanggan' AND d.id_produk='$po_dtl->id_produk'
+			ORDER BY d.eta_so");
+		}
 
 		$html = '';
 		if(in_array($this->session->userdata('level'), ['PPIC', 'AP'])){
@@ -4882,7 +4891,40 @@ class Transaksi extends CI_Controller
 					</tr>
 				</table>';
 			}
-			$data = ["header" => $header, "detail" => $detail, "url_foto" => $url_foto, "html" => $html, "verif" => $verif];
+
+			// HISTORI
+			$htmlHis = '';
+			$histori = $this->db->query("SELECT*FROM trs_po_history WHERE no_po='$header->no_po' AND kode_po='$header->kode_po' ORDER BY his_time");
+			if($histori->num_rows() != 0){
+				$htmlHis .= '<div style="font-weight:bold;padding:6px 0">HISTORI :</div>
+				<table>
+					<tr>
+						<th style="padding:6px;border:1px solid #aaa">LEVEL</th>
+						<th style="padding:6px;border:1px solid #aaa">STATUS</th>
+						<th style="padding:6px;border:1px solid #aaa">KETERANGAN</th>
+						<th style="padding:6px;border:1px solid #aaa">WAKTU</th>
+					</tr>';
+					foreach($histori->result() as $h){
+						($h->his_level == 'User') ? $lvl = 'Inner' : $lvl = $h->his_level;
+						if($h->his_status == 'Y'){
+							$his_status = 'Acc';
+						}else if($h->his_status == 'H'){
+							$his_status = 'Hold';
+						}else if($h->his_status == 'R'){
+							$his_status = 'Reject';
+						}
+						($h->his_no == '4') ? $nO = ' (Harga)' : $nO = '';
+						$htmlHis .= '<tr>
+							<td style="padding:6px;border:1px solid #aaa">'.$lvl.$nO.'</td>
+							<td style="padding:6px;border:1px solid #aaa">'.$his_status.'</td>
+							<td style="padding:6px;border:1px solid #aaa">'.$h->his_ket.'</td>
+							<td style="padding:6px;border:1px solid #aaa">'.$h->his_time.'</td>
+						</tr>';
+					}
+				$htmlHis .= '</table>';
+			}
+
+			$data = ["header" => $header, "detail" => $detail, "url_foto" => $url_foto, "html" => $html, "verif" => $verif, "htmlHis" => $htmlHis];
 		} else if ($jenis == "trs_po2") {
 			$header = $this->db->query("SELECT *,(select nm_hub from m_hub h where a.id_hub=h.id_hub)nm_hub FROM trs_po a WHERE $field = '$id'")->row();
 			if($header->img_po==null || $header->img_po=='') {
@@ -5010,7 +5052,39 @@ class Transaksi extends CI_Controller
 				</table>';
 			}
 
-			$data = ["header" => $header, "detail" => $detail, "url_foto" => $url_foto, "html" => $html, "verif" => $verif];
+			// HISTORI
+			$htmlHis = '';
+			$histori = $this->db->query("SELECT*FROM trs_po_history WHERE no_po='$header->no_po' AND kode_po='$header->kode_po' ORDER BY his_time");
+			if($histori->num_rows() != 0){
+				$htmlHis .= '<div style="font-weight:bold;padding:6px 0">HISTORI :</div>
+				<table>
+					<tr>
+						<th style="padding:6px;border:1px solid #aaa">LEVEL</th>
+						<th style="padding:6px;border:1px solid #aaa">STATUS</th>
+						<th style="padding:6px;border:1px solid #aaa">KETERANGAN</th>
+						<th style="padding:6px;border:1px solid #aaa">WAKTU</th>
+					</tr>';
+					foreach($histori->result() as $h){
+						($h->his_level == 'User') ? $lvl = 'Inner' : $lvl = $h->his_level;
+						if($h->his_status == 'Y'){
+							$his_status = 'Acc';
+						}else if($h->his_status == 'H'){
+							$his_status = 'Hold';
+						}else if($h->his_status == 'R'){
+							$his_status = 'Reject';
+						}
+						($h->his_no == '4') ? $nO = ' (Harga)' : $nO = '';
+						$htmlHis .= '<tr>
+							<td style="padding:6px;border:1px solid #aaa">'.$lvl.$nO.'</td>
+							<td style="padding:6px;border:1px solid #aaa">'.$his_status.'</td>
+							<td style="padding:6px;border:1px solid #aaa">'.$h->his_ket.'</td>
+							<td style="padding:6px;border:1px solid #aaa">'.$h->his_time.'</td>
+						</tr>';
+					}
+				$htmlHis .= '</table>';
+			}
+
+			$data = ["header" => $header, "detail" => $detail, "url_foto" => $url_foto, "html" => $html, "verif" => $verif, "htmlHis" => $htmlHis];
 		} else if ($jenis == "trs_so_detail") {
 			$data =  $this->m_master->query(
 				"SELECT * 

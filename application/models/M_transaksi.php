@@ -958,6 +958,19 @@ class M_transaksi extends CI_Model
 				// 	$verif_data_detail = false;
 				// }
 
+				// NEW HISTORI
+				$histori = [
+					'no_po' => $id,
+					'kode_po' => $cekPO->kode_po,
+					'his_no' => $app,
+					'his_status' => $status,
+					'his_ket' => $alasan,
+					'his_time' => $this->waktu,
+					'his_user' => $this->username,
+					'his_level' => $level,
+				];
+				$iHistori = $this->db->insert("trs_po_history", $histori);
+
 				$msg = 'Data Berhasil Diproses';
 			}
 		}
@@ -965,6 +978,7 @@ class M_transaksi extends CI_Model
 		return [
 			'update_trs_po' => $update_trs_po,
 			'update_trs_po_detail' => $update_trs_po_detail,
+			'histori' => $iHistori,
 			'msg' => $msg,
 		];
 	}
