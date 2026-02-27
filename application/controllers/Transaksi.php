@@ -4713,7 +4713,7 @@ class Transaksi extends CI_Controller
 		}else{
 			$devSys = $this->db->query("SELECT c.prov,d.eta_so AS eta, d.qty_so AS qty_plan,d.* FROM trs_so_detail d
 			INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
-			WHERE d.kode_po='$po->kode_po' AND d.no_po='$po->no_po'
+			WHERE d.kode_po='$po->kode_po' AND d.no_po='$po->no_po' AND d.id_pelanggan='$po_dtl->id_pelanggan' AND d.id_produk='$po_dtl->id_produk'
 			ORDER BY d.eta_so");
 		}
 
