@@ -4162,7 +4162,9 @@ class Transaksi extends CI_Controller
 					INNER JOIN m_produk i ON h.id_produk=i.id_produk
 					WHERE h.id_pelanggan='$r->id_pelanggan' AND h.kode_po='$r->kode_po' AND h.id_produk='$r->id_produk'
 					GROUP BY h.id_pelanggan,h.kode_po,h.id_produk")->row();
-					($item->attn == '-') ? $attn = '' : $attn = ' | '.$item->attn;
+					($item->attn == '-') ? $attn = '' : $attn = '<div>'.$item->attn.'</div>';
+					(strlen($item->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+					(strlen($item->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
 					$tHtml = '<tr style="background-color:transparent !important">
 						<td style="padding:2px;border:0;font-weight:bold">CUSTOMER</td>
 						<td style="padding:2px;border:0">:</td>
@@ -4176,7 +4178,7 @@ class Transaksi extends CI_Controller
 					<tr style="background-color:transparent !important">
 						<td style="padding:2px;border:0;font-weight:bold">ITEM</td>
 						<td style="padding:2px;border:0">:</td>
-						<td style="padding:2px;border:0">'.$item->nm_produk.'</td>
+						<td style="padding:2px;border:0">'.$dv1.$item->nm_produk.$dv2.'</td>
 					</tr>';
 				}else{
 					$tHtml = '';
@@ -10153,7 +10155,7 @@ class Transaksi extends CI_Controller
 					</tr>';
 				}
 
-				$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,c.prov,p.kode_po,i.*,d.* FROM trs_dev_sys d
+				$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,c.prov,c.kab,p.kode_po,i.*,d.* FROM trs_dev_sys d
 				INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
 				INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 				INNER JOIN m_produk i ON d.id_produk=i.id_produk
@@ -10169,6 +10171,8 @@ class Transaksi extends CI_Controller
 					(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->id_ex == null) ? $och = 'id="ds-urut'.$r->id_dev.'" onchange="dsUrut('."'".$r->id_dev."'".')"' : $och = 'disabled';
 
 					$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$r->prov'");
+					$kab = $this->db->query("SELECT*FROM m_kab WHERE kab_id='$r->kab'");
+					($kab->num_rows() != 0) ? $kota = ' - <span style="font-style:italic">('.$kab->row()->kab_name.')</span>' : $kota = '';
 					if($prov->num_rows() == 0){
 						$lamaK = '-';
 					}else{
@@ -10183,7 +10187,7 @@ class Transaksi extends CI_Controller
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
 							<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" value="'.$r->urut.'" '.$och.'>
 						</td>
-						<td style="border:1px solid #dee2e6;padding:6px">'.$r->nm_pelanggan.$attn.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$r->nm_pelanggan.$kota.$attn.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$lamaK.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$r->kode_po.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
@@ -10205,8 +10209,11 @@ class Transaksi extends CI_Controller
 
 		$html .= '</table>';
 
+		$tglRincian = ' - '.strtoupper($this->m_fungsi->getHariIni($tgl)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl));
+
 		echo json_encode([
 			'html' => $html,
+			'tglRincian' => $tglRincian,
 		]);
 	}
 
