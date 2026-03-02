@@ -10053,13 +10053,13 @@ class Transaksi extends CI_Controller
 					($hariMinggu == "Sunday") ? $kk = '<span style="color:#f00">'.$i2.'</span>' : $kk = $i2;
 
 					if($id_sales == null || $id_sales == ''){
-						$count = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tglSys'");
+						$count = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tglSys' GROUP BY eta,urut");
 						$berat = $this->db->query("SELECT SUM(berat) AS berat FROM trs_dev_sys WHERE eta='$tglSys' GROUP BY eta")->row()->berat;
 					}else{
 						$count = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales'
-						GROUP BY s.id_dev");
+						GROUP BY s.id_dev,s.eta,s.urut");
 						$berat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales'
@@ -10069,6 +10069,126 @@ class Transaksi extends CI_Controller
 					($count->num_rows() == 0) ? $sCount = '' : $sCount = '<span style="position:absolute;top:3px;right:3px;font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</span>';
 					($count->num_rows() == 0) ? $sBb = '' : $sBb = '<span style="position:absolute;bottom:3px;left:3px;font-size:12px;font-style:italic;color:#fff;background:#7c858d;padding:0 4px;border-radius:4px">'.number_format($berat, 0, ',', '.').'</span>';
 					($count->num_rows() == 0) ? $link = '' : $link = '<a href="javascript:void(0)" class="ds-link" onclick="ccDevSys('."'".$a."'".')"></a>';
+					($count->num_rows() == 0) ? $fb = '' : $fb = ';font-weight:bold';
+					($tgl == $a) ? $bb = ';background:#d9dadc' : $bb = '';
+					$html .= '<div style="position:relative;padding:15px 0;font-size:20px;text-align:center;border:1px solid #d9dadc'.$fb.$bb.'">
+						'.$sCount.$sBb.'
+						'.$kk.'
+						'.$link.'
+					</div>';
+				}
+				// tambah kotak kosong akhir
+				if($ak != 0) {
+					for($i3 = 0; $i3 < $ak; $i3++){
+						$html .= '<div style="position:relative;padding:15px 0;text-align:center;border:1px solid #d9dadc">-</div>';
+					}
+				}
+			$html .= '</div>';
+		$html .= '</div>';
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function loadRealCalender()
+	{
+		$id_sales = $this->session->userdata('id_sales');
+		$html = '';
+		$tgl = $_POST["tgl"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$awal1 = $tahun.'-'.$bulan.'-01';
+
+		// cek tahun kabisat
+		$isKabisat = ($tahun % 400 == 0) || ($tahun % 4 == 0 && $tahun % 100 != 0);
+		switch ($bulan) {
+			case '01': case '03': case '05': case '07': case '08': case '10': case '12':
+				$hari = 31;
+			break;
+			case '04': case '06': case '09': case '11':
+				$hari = 30;
+			break;
+			case '02':
+				$hari = $isKabisat ? 29 : 28;
+			break;
+		}
+		$akhir = $tahun.'-'.$bulan.'-'.$hari;
+
+		$html .= '<div>
+			<div style="background:#333;color:#fff;padding:8px 6px;border-radius:6px 6px 0 0;font-weight:bold">'.strtoupper(date('F', strtotime($awal1))).' '.$tahun.'</div>
+			<div class="day-of-week" style="background:#7c858d;padding:15px 6px;font-weight:bold;border-bottom:3px solid #333">
+				<div style="text-align:center">Min</div>
+				<div style="text-align:center">Sen</div>
+				<div style="text-align:center">Sel</div>
+				<div style="text-align:center">Rab</div>
+				<div style="text-align:center">Kam</div>
+				<div style="text-align:center">Jum</div>
+				<div style="text-align:center">Sab</div>
+			</div>';
+
+			// menentukan awal hari
+			$hariAwal = date('l', strtotime($awal1));
+			if($hariAwal == "Monday"){
+				$aw = 1;
+			}else if($hariAwal == "Tuesday"){
+				$aw = 2;
+			}else if($hariAwal == "Wednesday"){
+				$aw = 3;
+			}else if($hariAwal == "Thursday"){
+				$aw = 4;
+			}else if($hariAwal == "Friday"){
+				$aw = 5;
+			}else if($hariAwal == "Saturday"){
+				$aw = 6;
+			}else{ // Sunday
+				$aw = 0;
+			}
+			// menentukan akhir hari
+			$hariAkhir = date('l', strtotime($akhir));
+			if($hariAkhir == "Monday"){
+				$ak = 5;
+			}else if($hariAkhir == "Tuesday"){
+				$ak = 4;
+			}else if($hariAkhir == "Wednesday"){
+				$ak = 3;
+			}else if($hariAkhir == "Thursday"){
+				$ak = 2;
+			}else if($hariAkhir == "Friday"){
+				$ak = 1;
+			}else if($hariAkhir == "Saturday"){
+				$ak = 0;
+			}else{ // Sunday
+				$ak = 6;
+			}
+
+			$html .= '<div class="date-grid" style="border:1px solid #d9dadc;border-top:0">';
+				// tambah kotak kosong awal
+				if($aw != 0) {
+					for($i = 0; $i < $aw; $i++){
+						$html .= '<div style="position:relative;padding:15px 0;text-align:center;border:1px solid #d9dadc">-</div>';
+					}
+				}
+				// isi
+				for ($i2 = 1; $i2 <= $hari; $i2++) {
+					($i2 < 10) ? $a = '0'.$i2 : $a = $i2;
+					$tglSys = $tahun.'-'.$bulan.'-'.$a;
+					// minggu
+					$hariMinggu = date('l', strtotime($tglSys));
+					($hariMinggu == "Sunday") ? $kk = '<span style="color:#f00">'.$i2.'</span>' : $kk = $i2;
+
+					if($id_sales == null || $id_sales == ''){
+						$count = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tglSys' GROUP BY tgl,no_pl_urut");
+						$berat = $this->db->query("SELECT SUM(berat_bersih) AS berat FROM m_jembatan_timbang WHERE tgl_t='$tglSys' GROUP BY tgl_t")->row()->berat;
+					}
+					// else{
+					// 	$count = $this->db->query("");
+					// 	$berat = $this->db->query("")->row()->berat;
+					// }
+
+					($count->num_rows() == 0) ? $sCount = '' : $sCount = '<span style="position:absolute;top:3px;right:3px;font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</span>';
+					($count->num_rows() == 0) ? $sBb = '' : $sBb = '<span style="position:absolute;bottom:3px;left:3px;font-size:12px;font-style:italic;color:#fff;background:#7c858d;padding:0 4px;border-radius:4px">'.number_format($berat, 0, ',', '.').'</span>';
+					($count->num_rows() == 0) ? $link = '' : $link = '<a href="javascript:void(0)" class="ds-link" onclick=""></a>';
 					($count->num_rows() == 0) ? $fb = '' : $fb = ';font-weight:bold';
 					($tgl == $a) ? $bb = ';background:#d9dadc' : $bb = '';
 					$html .= '<div style="position:relative;padding:15px 0;font-size:20px;text-align:center;border:1px solid #d9dadc'.$fb.$bb.'">
