@@ -10180,11 +10180,15 @@ class Transaksi extends CI_Controller
 					if($id_sales == null || $id_sales == ''){
 						$count = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tglSys' GROUP BY tgl,no_pl_urut");
 						$berat = $this->db->query("SELECT SUM(berat_bersih) AS berat FROM m_jembatan_timbang WHERE tgl_t='$tglSys' GROUP BY tgl_t")->row()->berat;
+					}else{
+						$count = $this->db->query("SELECT c.id_sales,p.* FROM pl_box p
+						INNER JOIN m_pelanggan c ON c.id_pelanggan=p.id_perusahaan
+						WHERE p.tgl='$tglSys' AND c.id_sales='$id_sales' GROUP BY p.tgl,p.no_pl_urut");
+						$berat = $this->db->query("SELECT SUM(t.berat_bersih) AS berat FROM m_jembatan_timbang t
+						INNER JOIN pl_box p ON t.tgl_t=p.tgl AND t.urut_t=p.no_pl_urut AND t.no_polisi=p.no_kendaraan
+						INNER JOIN m_pelanggan c ON c.id_pelanggan=p.id_perusahaan
+						WHERE t.tgl_t='$tglSys' AND c.id_sales='$id_sales' GROUP BY t.tgl_t")->row()->berat;
 					}
-					// else{
-					// 	$count = $this->db->query("");
-					// 	$berat = $this->db->query("")->row()->berat;
-					// }
 
 					($count->num_rows() == 0) ? $sCount = '' : $sCount = '<span style="position:absolute;top:3px;right:3px;font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</span>';
 					($count->num_rows() == 0) ? $sBb = '' : $sBb = '<span style="position:absolute;bottom:3px;left:3px;font-size:12px;font-style:italic;color:#fff;background:#7c858d;padding:0 4px;border-radius:4px">'.number_format($berat, 0, ',', '.').'</span>';
