@@ -108,7 +108,53 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-md-6"></div>
+				<div class="col-md-6">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">REALISASI PENGIRIMAN</h3>
+							<div class="card-tools">
+								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+								<i class="fas fa-minus"></i></button>
+							</div>
+						</div>
+						<div class="card-body" style="padding:12px 6px">
+							<div class="card-body row" style="padding:0 0 12px;font-weight:bold">
+								<div class="col-md-2" style="padding-bottom:3px">
+									<select id="real_tahun" class="form-control select2" onchange="loadRealCalender('')">
+										<?php 
+											$thang = date("Y");
+											$thang_maks = $thang + 1;
+											$thang_min = $thang - 3;
+											for ($th = $thang_min; $th <= $thang_maks; $th++)
+											{ ?>
+												<?php if ($th==$thang) { ?>
+													<option selected value="<?= $th ?>"> <?= $thang ?> </option>
+												<?php }else{ ?>
+													<option value="<?= $th ?>"> <?= $th ?> </option>
+												<?php }
+											}
+										?>
+									</select>
+								</div>
+								<div class="col-md-3" style="padding-bottom:3px">
+									<select id="real_bulan" class="form-control select2" onchange="loadRealCalender('')">
+										<?php
+											$month = strtoupper(date("F"));
+											$bulan = [ '01' => "JANUARY", '02' => "FEBRUARY", '03' => "MARCH", '04' => "APRIL", '05' => "MAY", '06' => "JUNE", '07' => "JULY", '08' => "AUGUST", '09' => "SEPTEMBER", '10' => "OCTOBER", '11' => "NOVEMBER", '12' => "DECEMBER" ];
+											foreach ($bulan as $no => $namaBulan) {
+												($month == $namaBulan) ? $slt = 'selected' : $slt = '';
+											?>
+												<option value="<?= $no ?>" <?= $slt ?>><?= $namaBulan ?></option>
+										<?php } ?>
+									</select>
+								</div>
+								<div class="col-md-7" style="padding-bottom:3px"></div>
+							</div>
+							<input type="hidden" id="k_tgl" value="">
+							<div class="kal-pengiriman"></div>
+						</div>
+					</div>
+				</div>
 			</div>
 			
 			<div class="row">
@@ -199,6 +245,37 @@
 				$("#h_tgl").val(tgl)
 				$("#r_tgl").val(tgl)
 				loadCalender('edit')
+			}
+		})
+	}
+
+	function loadRealCalender(opsi) {
+		let tgl = $("#k_tgl").val()
+		let tahun = $("#real_tahun").val()
+		let bulan = $("#real_bulan").val()
+		// if(opsi == ''){
+		// 	$(".ds-kiriman").html('-')
+		// 	$(".rinc-tgl").html('')
+		// }
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/loadRealCalender') ?>',
+			data: ({ tgl, tahun, bulan }),
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res) {
+				data = JSON.parse(res)
+				$(".kal-pengiriman").html(data.html)
+				$("#k_tgl").val('')
+				swal.close()
 			}
 		})
 	}
@@ -307,6 +384,7 @@
 			success: function(res) {
 				$(".tab_dev").html(res)
 				loadCalender('')
+				loadRealCalender('')
 			}
 		})
 	}
