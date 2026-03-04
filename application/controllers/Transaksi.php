@@ -4128,8 +4128,8 @@ class Transaksi extends CI_Controller
 				$btnEdit = '<button type="button" title="EDIT" class="btn btn-warning btn-sm" onclick="editPORoll('."'".$r->id_hdr."'".', '."'edit'".')"><i class="fa fa-edit"></i></button>'; 
 				$btnHapus = ($r->mkt_status == 'Y' && $r->owner_status == 'Y') ? '' : '<button type="button" title="HAPUS" class="btn btn-secondary btn-sm" onclick="hapusPORoll('."'".$r->id_hdr."'".')"><i class="fa fa-trash-alt"></i></button>';
 				$btnVerif = '<button type="button" title="VERIF" class="btn btn-info btn-sm" onclick="editPORoll('."'".$r->id_hdr."'".', '."'verif'".')"><i class="fa fa-check"></i></button>';
-				($r->input_po == 'N' && $r->owner_status == 'Y' && $this->session->userdata('level') == 'Admin') ? $btnUpload = '<button type="button" title="INPUT PO" class="btn btn-danger btn-sm" onclick=""><i class="fas fa-file-upload"></i></button>' : $btnUpload = '';
-				if($this->session->userdata('level') == 'Admin'){
+				($r->input_po == 'N' && $r->owner_status == 'Y' && ($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'Admin2')) ? $btnUpload = '<button type="button" title="INPUT PO" class="btn btn-danger btn-sm" onclick=""><i class="fas fa-file-upload"></i></button>' : $btnUpload = '';
+				if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'Admin2'){
 					$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.' '.$btnVerif.' '.$btnUpload.'</div>';
 				}else{
 					$row[] = '<div class="text-center">'.$btnVerif.'</div>';
