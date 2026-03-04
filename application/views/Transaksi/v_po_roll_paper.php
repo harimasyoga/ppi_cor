@@ -279,7 +279,7 @@
 								<div class="card-header" style="padding:12px">
 									<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST DETAIL PO</h3>
 								</div>
-								<?php if($this->session->userdata('level') == 'Admin'){?>
+								<?php if($this->session->userdata('level') == 'Admin' || $this->session->userdata('level') == 'Admin2'){?>
 									<div style="overflow:auto;white-space:nowrap">
 										<div class="list-edit-roll" style="padding:5px"></div>
 									</div>
@@ -319,7 +319,7 @@
 								</div>
 							</div>
 							<div class="card-body" style="padding:12px 6px">
-								<?php if(in_array($this->session->userdata('level'), ['Admin', 'User'])){ ?>
+								<?php if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){ ?>
 									<div style="margin-bottom:12px">
 										<button type="button" class="btn btn-sm btn-info" onclick="tambahData()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 									</div>
@@ -569,7 +569,7 @@
 		$(".col-roll-input").show()
 		$(".col-roll-list").hide()
 		$(".list-roll").html('')
-		if(urlAuth == 'Admin'){
+		if(urlAuth == 'Admin' || urlAuth == 'Admin2'){
 			$(".list-edit-roll").html('')
 		}
 	}
@@ -739,7 +739,7 @@
 		$(".col-roll-input").hide()
 		$(".col-roll-list").show()
 		$(".list-roll").html('')
-		if(urlAuth == 'Admin'){
+		if(urlAuth == 'Admin' || urlAuth == 'Admin2'){
 			$(".list-edit-roll").html('')
 		}
 		$("#input-po").html('')
@@ -770,12 +770,12 @@
 				$(".detail-po").html(data.htmlDtl)
 				$(".list-roll").html(data.htmlI)
 				// EDIT LIST DETAIL PO
-				if(urlAuth == 'Admin'){
+				if(urlAuth == 'Admin' || urlAuth == 'Admin2'){
 					$(".list-edit-roll").html(data.htmlE)
 				}
 
 				// UPLOAD
-				if(urlAuth == 'Admin' && data.opsi == 'edit'){
+				if((urlAuth == 'Admin' || urlAuth == 'Admin2') && data.opsi == 'edit'){
 					$("#hidhdr").val(data.header.id_hdr)
 					$(".add-file").html(`
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
@@ -842,7 +842,7 @@
 				// VERIFIKASI DATA
 				$("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.oke_admin}`)
 				// VERIFIFIKASI MARKETING
-				if((urlAuth == 'Admin' || urlAuth == 'MR') && data.opsi == 'verif' && data.header.owner_status == 'N' && (data.header.mkt_status == 'N' || data.header.mkt_status == 'H' || data.header.mkt_status == 'R')){
+				if((urlAuth == 'Admin' || urlAuth == 'Admin2' || urlAuth == 'MR') && data.opsi == 'verif' && data.header.owner_status == 'N' && (data.header.mkt_status == 'N' || data.header.mkt_status == 'H' || data.header.mkt_status == 'R')){
 					// BUTTON MARKETING
 					$("#verif-marketing").html(`
 						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifPORoll('verifikasi','marketing')"><i class="fas fa-check"></i> Verifikasi</button>
@@ -908,7 +908,7 @@
 					}
 				}
 				// VERIFIFIKASI OWNER
-				if((urlAuth == 'Admin' || urlAuth == 'Owner') && data.opsi == 'verif' && data.header.mkt_status == 'Y' && (data.header.owner_status == 'N' || data.header.owner_status == 'H' || data.header.owner_status == 'R')){
+				if((urlAuth == 'Admin' || urlAuth == 'Admin2' || urlAuth == 'Owner') && data.opsi == 'verif' && data.header.mkt_status == 'Y' && (data.header.owner_status == 'N' || data.header.owner_status == 'H' || data.header.owner_status == 'R')){
 					// BUTTON OWNER
 					$("#verif-owner").html(`
 						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifPORoll('verifikasi','owner')"><i class="fas fa-check"></i> Verifikasi</button>
@@ -975,7 +975,7 @@
 				}
 
 				// INPUT PO KE SIMROLLPPI
-				if(data.header.owner_status == 'Y' && urlAuth == 'Admin' && data.header.input_po == 'N'){
+				if(data.header.owner_status == 'Y' && (urlAuth == 'Admin' || urlAuth == 'Admin2') && data.header.input_po == 'N'){
 					$("#input-po").html(`
 						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 							<div class="col-md-3"></div>
