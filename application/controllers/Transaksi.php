@@ -102,6 +102,7 @@ class Transaksi extends CI_Controller
 
 	function editPORoll()
 	{
+		$lvl = $this->session->userdata('level');
 		$id_hdr = $_POST['id_hdr'];
 		$opsi = $_POST['opsi'];
 		// HEADER
@@ -117,7 +118,7 @@ class Transaksi extends CI_Controller
 				$e = explode('.', $r->nm_file);
 				$ext = end($e);
 				// HAPUS GAMBAR
-				if($this->session->userdata('level') == 'Admin' && $opsi == 'edit' && $detail->num_rows() > 1){
+				if(($lvl == 'Admin' || $lvl == 'Admin2') && $opsi == 'edit' && $detail->num_rows() > 1){
 					$htmlDtl .= '<div style="margin-right:4px">
 						<button class="btn btn-xs btn-danger" onclick="hapusFilePO('."'".$r->id_dtl."'".')"><i class="fas fa-trash"></i></button>
 					</div>';
@@ -152,7 +153,7 @@ class Transaksi extends CI_Controller
 		$htmlE = '';
 		// EDIT LIST DETAIL PO
 		$list = $this->db->query("SELECT i.*,SUM(tonase) AS tonase, SUM(jml_roll) AS jml_roll FROM trs_po_roll_item i WHERE i.id_hdr='$header->id_hdr' AND i.no_po='$header->no_po' GROUP BY i.nm_ker,i.g_label,i.harga");
-		if($this->session->userdata('level') == 'Admin' && $opsi == 'edit'){
+		if(($lvl == 'Admin' || $lvl == 'Admin2') && $opsi == 'edit'){
 			$htmlE .= '<div style="margin-bottom:5px;display:flex">';
 				foreach($list->result() as $l2){
 					$htmlE .= '<div>
