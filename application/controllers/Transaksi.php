@@ -4028,8 +4028,10 @@ class Transaksi extends CI_Controller
 		} else if ($jenis == "trs_po_roll") {
 			$tahun = $_POST["tahun"];
 			$bulan = $_POST["bulan"];
-			($bulan == "") ? $wBln = '' : $wBln = "AND MONTH(tgl_po) IN ('$bulan')";
-			$query = $this->db->query("SELECT*FROM trs_po_roll_header WHERE tgl_po LIKE '%$tahun%' $wBln ORDER BY owner_status, tgl_po DESC, no_po")->result();
+			($bulan == "") ? $wBln = '' : $wBln = "AND MONTH(h.tgl_po) IN ('$bulan')";
+			$query = $this->db->query("SELECT h.*,p.note FROM trs_po_roll_header h
+			INNER JOIN m_perusahaan p ON h.id_pt=p.id
+			WHERE h.tgl_po LIKE '%$tahun%' $wBln ORDER BY h.owner_status, h.tgl_po DESC, h.no_po")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
@@ -4064,7 +4066,9 @@ class Transaksi extends CI_Controller
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.'" onclick="editPORoll('."'".$r->id_hdr."'".', '."'detail'".')">'.$r->status_po.'</button></div>';
 				// PAJAK
 				($r->pajak == "non") ? $pajak = ' <span style="background:#ddd;vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">non</span>' : $pajak = '';
-				$row[] = $r->nm_pelanggan.$pajak;
+				// CUSTOMER
+				($r->note != null) ? $ntx = ' ( '.$r->note.' )' : $ntx = '';
+				$row[] = $r->nm_pelanggan.$ntx.$pajak;
 				// MARKETING
 				if($r->mkt_status == 'N'){
 					$bt1 = 'btn-warning';
