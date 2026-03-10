@@ -7857,15 +7857,17 @@ class Transaksi extends CI_Controller
 				<td style="padding:6px">status</td>
 			</tr>';
 			$now = date('Y-m-d');
-			$qOI = $this->db->query("SELECT p.kode_unik,s.id_produk,COUNT(s.id_produk) AS cnt FROM trs_dev_sys s
+			$qOI = $this->db->query("SELECT s.id_po_header,d.kode_po,p.kode_unik,s.id_produk FROM trs_dev_sys s
 			INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+			INNER JOIN trs_po_detail d ON s.id_po_header=d.id
 			WHERE s.eta BETWEEN '$now' AND '9999-01-01'
-			GROUP BY p.kode_unik,s.id_produk");
+			GROUP BY s.id_po_header,p.kode_unik,s.id_produk
+			ORDER BY s.eta,d.kode_po,p.kode_unik,s.id_produk");
 			foreach($qOI->result() as $r){
-				$qSS = $this->db->query("SELECT '' delivery_id, CONCAT('DEV', s.id_dev) order_id, p.kode_unik customer_id, CONCAT('ITEM',s.id_produk) item_id, qty_plan quantity, eta
+				$qSS = $this->db->query("SELECT '' delivery_id, CONCAT('DEV', s.id_po_header) order_id, p.kode_unik customer_id, CONCAT('ITEM',s.id_produk) item_id, qty_plan quantity, eta
 				FROM trs_dev_sys s
 				INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
-				WHERE s.eta BETWEEN '$now' AND '9999-01-01' AND s.id_produk='$r->id_produk' AND p.kode_unik='$r->kode_unik'
+				WHERE s.eta BETWEEN '$now' AND '9999-01-01' AND s.id_produk='$r->id_produk' AND p.kode_unik='$r->kode_unik' AND s.id_po_header='$r->id_po_header'
 				ORDER BY p.kode_unik,s.id_produk,s.eta");
 				$xx = 0;
 				foreach($qSS->result() as $s){
@@ -7875,7 +7877,7 @@ class Transaksi extends CI_Controller
 					$flexoDate = date('d/m/Y', strtotime('-2 day', strtotime($s->eta)));
 					$htmlOI .= '<tr>
 						<td style="padding:6px"></td>
-						<td style="padding:6px">'.$s->order_id.'</td>
+						<td style="padding:6px">'.$r->kode_po.'</td>
 						<td style="padding:6px">'.$s->customer_id.'</td>
 						<td style="padding:6px">'.$s->item_id.'</td>
 						<td style="padding:6px">'.$xx.'</td>
