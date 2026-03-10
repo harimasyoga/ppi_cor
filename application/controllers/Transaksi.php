@@ -4028,8 +4028,10 @@ class Transaksi extends CI_Controller
 		} else if ($jenis == "trs_po_roll") {
 			$tahun = $_POST["tahun"];
 			$bulan = $_POST["bulan"];
-			($bulan == "") ? $wBln = '' : $wBln = "AND MONTH(tgl_po) IN ('$bulan')";
-			$query = $this->db->query("SELECT*FROM trs_po_roll_header WHERE tgl_po LIKE '%$tahun%' $wBln ORDER BY owner_status, tgl_po DESC, no_po")->result();
+			($bulan == "") ? $wBln = '' : $wBln = "AND MONTH(h.tgl_po) IN ('$bulan')";
+			$query = $this->db->query("SELECT h.*,p.note FROM trs_po_roll_header h
+			INNER JOIN m_perusahaan p ON h.id_pt=p.id
+			WHERE h.tgl_po LIKE '%$tahun%' $wBln ORDER BY h.owner_status, h.tgl_po DESC, h.no_po")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
@@ -4064,7 +4066,9 @@ class Transaksi extends CI_Controller
 				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.'" onclick="editPORoll('."'".$r->id_hdr."'".', '."'detail'".')">'.$r->status_po.'</button></div>';
 				// PAJAK
 				($r->pajak == "non") ? $pajak = ' <span style="background:#ddd;vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">non</span>' : $pajak = '';
-				$row[] = $r->nm_pelanggan.$pajak;
+				// CUSTOMER
+				($r->note != null) ? $ntx = ' ( '.$r->note.' )' : $ntx = '';
+				$row[] = $r->nm_pelanggan.$ntx.$pajak;
 				// MARKETING
 				if($r->mkt_status == 'N'){
 					$bt1 = 'btn-warning';
@@ -7841,109 +7845,74 @@ class Transaksi extends CI_Controller
 
 	function LaporanSOTrim()
 	{
-		$htmlO = '';
 		$htmlOI = '';
-		// ORDERS
-		$htmlO .= 'orders.xlsx';
-		$htmlO .= '<table style="margin-bottom:20px">
+		$htmlOI .= 'data-export.xlsx<br><br>';
+		$htmlOI .= 'Orders';
+		$htmlOI .= '<table style="margin-bottom:50px">
 			<tr>
+				<td style="padding:6px">delivery_id</td>
 				<td style="padding:6px">order_id</td>
 				<td style="padding:6px">customer_id</td>
-				<td style="padding:6px">created_at</td>
-			</tr>';
-			$oQ = $this->db->query("SELECT s.no_po,c.kode_unik FROM trs_so_detail s
-			INNER JOIN m_pelanggan c ON s.id_pelanggan=c.id_pelanggan
-			WHERE s.add_user='ppic' AND s.status_2='Open'
-			GROUP BY s.no_po,c.kode_unik,s.status_2");
-			foreach($oQ->result() as $c){
-				$th = date('Y');
-				$bln = date('m');
-				$date = date('d');
-				$htmlO .= '<tr>
-					<td style="padding:6px">'.str_replace('PO/', 'SO/', $c->no_po).'</td>
-					<td style="padding:6px">'.$c->kode_unik.'</td>
-					<td style="padding:6px">'.$th.'-'.$bln.'-'.$date.'T22:32:00</td>
-				</tr>';
-			}
-		$htmlO .= '</table>';
-
-		// ORDER ITEMS
-		$htmlOI .= 'order-items.xlsx';
-		$htmlOI .= '<table>
-			<tr>
-				<td style="padding:6px">id</td>
-				<td style="padding:6px">order_id</td>
 				<td style="padding:6px">item_id</td>
 				<td style="padding:6px">sequence_id</td>
 				<td style="padding:6px">quantity</td>
 				<td style="padding:6px">eta</td>
+				<td style="padding:6px">flexo_eta</td>
 				<td style="padding:6px">status</td>
 			</tr>';
-
-			$qOI = $this->db->query("SELECT s.no_po, s.id_produk
-			FROM trs_so_detail s
-			WHERE s.add_user='ppic' AND s.status_2='Open'
-			GROUP BY s.no_po,s.id_produk,s.status_2");
+			$now = date('Y-m-d');
+			$qOI = $this->db->query("SELECT s.id_po_header,d.kode_po,p.kode_unik,s.id_produk FROM trs_dev_sys s
+			INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+			INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+			WHERE s.eta BETWEEN '$now' AND '9999-01-01'
+			GROUP BY s.id_po_header,p.kode_unik,s.id_produk
+			ORDER BY s.eta,d.kode_po,p.kode_unik,s.id_produk");
 			foreach($qOI->result() as $r){
-				$sQ = $this->db->query("SELECT 
-				s.no_po AS order_id,
-				s.id_produk AS item_id,
-				s.rpt AS sequence_id,
-				s.qty_so,
-				(SELECT SUM(h.hasil_qty) FROM trs_so_hasil h WHERE s.id=h.id_so_dtl) AS hasil,
-				s.eta_so AS eta
-				FROM trs_so_detail s
-				WHERE s.add_user='ppic' AND s.status_2='Open' AND s.no_po='$r->no_po' AND s.id_produk='$r->id_produk'
-				GROUP BY s.no_po,s.id_produk,s.urut_so,s.rpt,s.status_2");
-				$ii = 0;
-				foreach($sQ->result() as $s){
-					$prod = ($s->hasil == null) ? 0 : $s->hasil;
-					$hasil = $s->qty_so - $prod;
-					if($hasil > 0){
-						$ii++;
-						$htmlOI .= '<tr>
-							<td style="padding:6px"></td>
-							<td style="padding:6px">'.str_replace('PO/', 'SO/', $s->order_id).'</td>
-							<td style="padding:6px">ITEM'.$s->item_id.'</td>
-							<td style="padding:6px;text-align:right">'.str_pad($ii, 3, "0", STR_PAD_LEFT).'</td>
-							<td style="padding:6px;text-align:right">'.$hasil.'</td>
-							<td style="padding:6px">'.$s->eta.'T00:00:00</td>
-							<td style="padding:6px">pending</td>
-						</tr>';
-					}
+				$qSS = $this->db->query("SELECT '' delivery_id, CONCAT('DEV', s.id_po_header) order_id, p.kode_unik customer_id, CONCAT('ITEM',s.id_produk) item_id, qty_plan quantity, eta
+				FROM trs_dev_sys s
+				INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+				WHERE s.eta BETWEEN '$now' AND '9999-01-01' AND s.id_produk='$r->id_produk' AND p.kode_unik='$r->kode_unik' AND s.id_po_header='$r->id_po_header'
+				ORDER BY p.kode_unik,s.id_produk,s.eta");
+				$xx = 0;
+				foreach($qSS->result() as $s){
+					$xx++;
+					// $ffDate = date('d/m/Y', strtotime($s->eta));
+					$etaDate = date('d/m/Y', strtotime('-4 day', strtotime($s->eta)));
+					$flexoDate = date('d/m/Y', strtotime('-2 day', strtotime($s->eta)));
+					$htmlOI .= '<tr>
+						<td style="padding:6px"></td>
+						<td style="padding:6px">'.$r->kode_po.'</td>
+						<td style="padding:6px">'.$s->customer_id.'</td>
+						<td style="padding:6px">'.$s->item_id.'</td>
+						<td style="padding:6px">'.$xx.'</td>
+						<td style="padding:6px">'.$s->quantity.'</td>
+						<td style="padding:6px">'.$etaDate.'</td>
+						<td style="padding:6px">'.$flexoDate.'</td>
+						<td style="padding:6px">pending</td>
+					</tr>';
 				}
 			}
 		$htmlOI .= '</table>';
 
-		// CUSTOMERS
-		// SELECT kode_unik, nm_pelanggan, no_telp, '2025-06-05T17:03:00'created_at FROM m_pelanggan
-		// WHERE id_pelanggan IN (SELECT no_customer FROM m_produk)
-		// GROUP BY id_pelanggan
-		// ORDER BY nm_pelanggan,kode_unik;
-
-		// ITEMS
-		// SELECT CONCAT('ITEM',a.id_produk)item_id,b.kode_unik customer_id,a.nm_produk description,ROUND((a.ukuran_sheet_l/10),2) sheet_width,ROUND((a.ukuran_sheet_p/10),2) sheet_length,LOWER(a.wall) wall_type,'0.04'toleransi,
-		// CASE WHEN flute IN ('BF','CF') THEN CONCAT('[["liner", "' , SUBSTR(material,1,1),'", ' ,SUBSTR(kualitas_isi,1,3),'], ["fluting"," ', REPLACE(flute,'F',''),'", ' ,SUBSTR(kualitas_isi,5,3),'], ["liner", "',SUBSTR(material,5,1),'", ',SUBSTR(kualitas_isi,9,3),']]' )
-		// ELSE CONCAT('[["liner", "' , SUBSTR(material,1,1),'", ' ,SUBSTR(kualitas_isi,1,3),'], ["fluting", "B", ' ,SUBSTR(kualitas_isi,5,3),'], ["liner", "',SUBSTR(material,5,1),'", ',SUBSTR(kualitas_isi,9,3),'], ["fluting", "C", ',SUBSTR(kualitas_isi,13,3),'], ["liner", "',SUBSTR(material,9,1),'", ',SUBSTR(kualitas_isi,17,3),']]' ) END
-		// layer, a.flute ,a.material,a.kualitas_isi FROM m_produk a
-		// INNER JOIN m_pelanggan b ON a.no_customer=b.id_pelanggan
-		// GROUP BY a.id_produk, no_customer,kode_unik,nm_produk
-
-		// rolls
-		// roll_id	width	spec	grammage	running_meter	assigned(false)
-
-		$htmlP = '';
-		$htmlP .= '<table>
+		$htmlOI .= 'Item_Machine_Priority';
+		$htmlOI .= '<table>
 			<tr>
-				<td>ETA</td>
-				<td>NO. PO</td>
-				<td>CUSTOMER</td>
-				<td>ITEM</td>
+				<td style="padding:6px">item_id</td>
+				<td style="padding:6px">priority_1_machine_id</td>
+				<td style="padding:6px">priority_2_machine_id</td>
+				<td style="padding:6px">priority_3_machine_id</td>
 			</tr>';
-		$htmlP .= '</table>';
+			foreach($qOI->result() as $r){
+				$htmlOI .= '<tr>
+					<td style="padding:6px">ITEM'.$r->id_produk.'</td>
+					<td style="padding:6px">FLEXO-01</td>
+					<td style="padding:6px">FLEXO-04</td>
+				</tr>';
+			}
+		$htmlOI .= '</table>';
 
 		echo json_encode([
-			'htmlO' => $htmlO,
+			'htmlO' => '',
 			'htmlOI' => $htmlOI,
 		]);
 	}

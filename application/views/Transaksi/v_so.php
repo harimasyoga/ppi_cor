@@ -45,8 +45,10 @@
 				<?php if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])) { ?>
 					<div style="margin-bottom:12px">
 						<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
-						<!-- <button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="RollCor()"><i class="fas fa-toilet-paper"></i>&nbsp;&nbsp;<b>Roll</b></button>
-						<button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="LaporanSOTrim()"></i>&nbsp;&nbsp;<b>Laporan</b></button> -->
+						<?php if($this->session->userdata('level') == 'Admin') { ?>
+							<!-- <button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="RollCor()"><i class="fas fa-toilet-paper"></i>&nbsp;&nbsp;<b>Roll</b></button> -->
+							<button type="button" style="font-family:Cambria;" class="btn btn-danger pull-right" onclick="LaporanSOTrim()"></i>&nbsp;&nbsp;<b>Laporan</b></button>
+						<?php } ?>
 					</div>
 				<?php } ?>
 				<div class="card-body row" style="padding:0 0 8px;font-weight:bold">

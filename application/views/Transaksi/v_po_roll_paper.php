@@ -45,9 +45,14 @@
 											<option value="">PILIH</option>
 											<?php
 												// $db = $this->load->database('database_simroll', TRUE);
-												$query = $this->db->query("SELECT*FROM m_perusahaan WHERE jns='ROLL' GROUP BY nm_perusahaan, pimpinan");
+												$query = $this->db->query("SELECT*FROM m_perusahaan WHERE jns='ROLL' GROUP BY nm_perusahaan, pimpinan, id");
 												$html = '';
 												foreach($query->result() as $r){
+													if($r->note != null){
+														$ntx = ' ( '.$r->note.' )';
+													}else{
+														$ntx = '';
+													}
 													if($r->pimpinan == '-' && $r->nm_perusahaan != '-'){
 														$nm = $r->nm_perusahaan;
 													}else if($r->pimpinan != '-' && $r->nm_perusahaan == '-'){
@@ -55,7 +60,7 @@
 													}else if($r->pimpinan != '-' && $r->nm_perusahaan != '-'){
 														$nm = $r->nm_perusahaan.' - '.$r->pimpinan;
 													}
-													$html .= '<option value="'.$nm.'" idpt="'.$r->id.'">'.$nm.'</option>';
+													$html .= '<option value="'.$nm.'" idpt="'.$r->id.'">'.$nm.$ntx.'</option>';
 												}
 												echo $html;
 											?>
@@ -403,7 +408,7 @@
 										<option value="ALL">SEMUA</option>
 										<?php
 											$db3 = $this->load->database('database_simroll', TRUE);
-											$query3 = $db3->query("SELECT c.id,c.pimpinan,c.nm_perusahaan FROM po_master po
+											$query3 = $db3->query("SELECT c.id,c.pimpinan,c.note,c.nm_perusahaan FROM po_master po
 												INNER JOIN m_perusahaan c ON po.id_perusahaan=c.id
 												WHERE po.id_perusahaan!='210' AND po.id_perusahaan!='217'
 												AND po.tgl BETWEEN '2024-12-01' AND '9999-01-01'
@@ -412,7 +417,12 @@
 												ORDER BY c.nm_perusahaan");
 											$html3 = '';
 											foreach($query3->result() as $r3){
-												$html3 .= '<option value="'.$r3->id.'"> '.$r3->pimpinan.' | '.$r3->nm_perusahaan.'</option>';
+												if($r3->note != null){
+													$ntx = ' ( '.$r3->note.' )';
+												}else{
+													$ntx = '';
+												}
+												$html3 .= '<option value="'.$r3->id.'"> '.$r3->pimpinan.' | '.$r3->nm_perusahaan.$ntx.'</option>';
 											}
 											echo $html3;
 										?>
