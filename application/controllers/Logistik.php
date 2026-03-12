@@ -9949,14 +9949,20 @@ class Logistik extends CI_Controller
 			// TAMPILKAN DULU LABEL
 			$totalHarga = 0;
 			foreach($sqlLabel->result() as $label){
-				$ukuran         = str_replace("X","x",$label->g_label);
-				$total_harga    = round(($label->qty - $label->retur_qty) * $label->harga);
+				$ukuran = str_replace("X","x",$label->g_label);
+				$total_harga = round(($label->qty - $label->retur_qty) * $label->harga);
+				$hc = explode(".", $label->harga);
+				if($hc[1] == '00' || $hc[1] == 00){
+					$priceHarga = number_format($label->harga, 0, ",", ".");
+				}else{
+					$priceHarga = number_format($label->harga, 2, ",", ".");
+				}
 				$html .= '<tr>
 					<td style="padding:5px 0">'.$label->nm_ker.' &nbsp;'.$ukuran.' &nbsp;'. $label->kualitas.'</td>
 					<td style="padding:5px 0;text-align:center"> PCS</td>
-					<td style="solid #000;padding:5px 0;text-align:right">'. number_format(($label->qty-$label->retur_qty), 0, ",", ".").'</td>
+					<td style="solid #000;padding:5px 0;text-align:right">'.number_format(($label->qty-$label->retur_qty), 0, ",", ".").'</td>
 					<td style="solid #000;padding:5px 0 0 15px;text-align:right">Rp</td>
-					<td style="solid #000;padding:5px 0;text-align:right">'. number_format($label->harga, 0, ",", ".").'</td>
+					<td style="solid #000;padding:5px 0;text-align:right">'.$priceHarga.'</td>
 					<td style="padding:5px 0 0 15px;text-align:right">Rp</td>
 					<td style="padding:5px 0;text-align:right">'.number_format($total_harga, 0, ",", ".") .'</td>
 				</tr>';
