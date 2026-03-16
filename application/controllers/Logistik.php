@@ -12526,7 +12526,7 @@ class Logistik extends CI_Controller
 					// NO PLAT
 					(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $editNopol = 'onchange="addPengirimanNoPlat('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"' : $editNopol = 'disabled';
 					// ADD TIMBANGAN
-					if($urut->no_kendaraan != "" && $urut->cetak_sj == 'acc'){
+					if($urut->no_kendaraan != "" && $urut->cetak_sj == 'acc' && in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
 						$aksiTimb = 'onclick="addTimbangan('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".')"';
 					}else{
 						$aksiTimb = 'disabled';
@@ -12535,9 +12535,11 @@ class Logistik extends CI_Controller
 					if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
 						$addSupir = 'onchange="addSupirEkspedisi('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".','."'supir'".')"';
 						$addEkspedisi = 'onchange="addSupirEkspedisi('."'".$urut->tgl."'".','."'".$urut->no_pl_urut."'".','."'ekspedisi'".')"';
+						$dXs = '';
 					}else{
 						$addSupir = '';
 						$addEkspedisi = '';
+						$dXs = 'disabled';
 					}
 
 					$html .='<tr>
@@ -12547,16 +12549,16 @@ class Logistik extends CI_Controller
 							<input type="text" class="form-control" id="pp-noplat-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="-" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$urut->no_kendaraan.'" '.$editNopol.'>
 						</td>
 						<td style="background:#333;color:#fff;padding:6px">
-							<input type="text" class="form-control" id="pp-supir-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="SUPIR" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$supir.'" '.$addSupir.'>
+							<input type="text" class="form-control" id="pp-supir-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="SUPIR" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$supir.'" '.$addSupir.' '.$dXs.'>
 						</td>
 						<td style="background:#333;color:#fff;padding:6px">
-							<input type="text" class="form-control" id="pp-ekspedisi-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="EKSPEDISI" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$urut->expedisi.'" '.$addEkspedisi.'>
+							<input type="text" class="form-control" id="pp-ekspedisi-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="EKSPEDISI" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$urut->expedisi.'" '.$addEkspedisi.' '.$dXs.'>
 						</td>
 						<td style="background:#333;color:#fff;padding:6px" colspan="2">
-							<input type="number" class="form-control" id="pp-timbangan-truk-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="B. TRUK" autocomplete="off" value="'.$bTruk.'" onkeyup="hitungTimbangan('."'".$urut->no_pl_urut."'".')">
+							<input type="number" class="form-control" id="pp-timbangan-truk-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="B. TRUK" autocomplete="off" value="'.$bTruk.'" onkeyup="hitungTimbangan('."'".$urut->no_pl_urut."'".')" '.$dXs.'>
 						</td>
 						<td style="background:#333;color:#fff;padding:6px">
-							<input type="number" class="form-control" id="pp-timbangan-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="B. BERSIH" autocomplete="off" value="'.$berat.'" onkeyup="hitungTimbangan('."'".$urut->no_pl_urut."'".')">
+							<input type="number" class="form-control" id="pp-timbangan-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="B. BERSIH" autocomplete="off" value="'.$berat.'" onkeyup="hitungTimbangan('."'".$urut->no_pl_urut."'".')" '.$dXs.'>
 						</td>
 						<td style="background:#333;color:#fff;padding:6px 6px 6px 0">
 							<button type="button" class="btn btn-xs '.$bgAa.'" style="font-weight:bold" '.$aksiTimb.'>'.$txAa.'</button>
@@ -12606,7 +12608,7 @@ class Logistik extends CI_Controller
 							$btnPrint = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">PRINT</span>';
 						}
 
-						if($noSJ[0] != 000 && $sjpo->id_hub != 7){
+						if($noSJ[0] != 000 && $sjpo->id_hub != 7 && in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
 							if($sjpo->pajak == 'ppn'){
 								$btnJasa = '<span style="background:#6c757d;padding:2px 4px;border-radius:2px;color:#fff;font-size:12px;font-weight:bold">JASA</span>';
 							}else{
@@ -12674,16 +12676,18 @@ class Logistik extends CI_Controller
 							($item->attn == '-') ? $attn = '' : $attn = '<div>'.$item->attn.'</div>';
 							(strlen($item->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
 							(strlen($item->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+							(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $uUK = 'onclick="cUkuranKualitas('."'".$item->id_rk."'".','."'".$item->id_produk."'".','."'UK'".')"' : $uUK = '';
+							(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $uKL = 'onclick="cUkuranKualitas('."'".$item->id_rk."'".','."'".$item->id_produk."'".','."'KL'".')"' : $uKL = '';
 							$html .='<tr style="vertical-align:top">
 								<td style="padding:6px;border:1px solid #dee2e6">'.$item->nm_pelanggan.$attn.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">'.$dv1.$item->nm_produk.$dv2.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">
-									<input type="checkbox" id="c_uk_'.$item->id_produk.'" onclick="cUkuranKualitas('."'".$item->id_rk."'".','."'".$item->id_produk."'".','."'UK'".')" value="'.$item->c_uk.'" '.$c_uk.'>
+									<input type="checkbox" id="c_uk_'.$item->id_produk.'" '.$uUK.' value="'.$item->c_uk.'" '.$c_uk.' '.$dXs.'>
 									'.$ukuran.'
 								</td>
 								<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$item->flute.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">
-									<input type="checkbox" id="c_kl_'.$item->id_produk.'" onclick="cUkuranKualitas('."'".$item->id_rk."'".','."'".$item->id_produk."'".','."'KL'".')" value="'.$item->c_kl.'" '.$c_kl.'>
+									<input type="checkbox" id="c_kl_'.$item->id_produk.'" '.$uKL.' value="'.$item->c_kl.'" '.$c_kl.' '.$dXs.'>
 									'.$this->m_fungsi->kualitas($item->kualitas, $item->flute).'
 								</td>
 								<td style="padding:6px;border:1px solid #dee2e6;font-weight:bold;text-align:right">'.number_format($item->qty_muat,0,",",".").'</td>

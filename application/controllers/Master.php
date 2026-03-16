@@ -925,8 +925,10 @@ class Master extends CI_Controller
 				$row[] = ($r->lebar == null) ? '' : '<div class="text-right">'.round($r->lebar, 2).'</div>';
 				$row[] = ($r->tinggi == null) ? '' : '<div class="text-right">'.round($r->tinggi, 2).'</div>';
 
+				$cek = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_ex='$r->id_ex' GROUP BY id_ex");
+
 				$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="editEkspedisi('."'".$r->id_ex."'".')"><i class="fas fa-pen"></i></button>';
-				$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="hapusEkspedisi('."'".$r->id_ex."'".', '."'".$r->plat."'".')"><i class="fas fa-times"></i></button>';
+				$btnHapus = ($cek->num_rows() != 0) ? '' : '<button type="button" class="btn btn-danger btn-sm" onclick="hapusEkspedisi('."'".$r->id_ex."'".', '."'".$r->plat."'".')"><i class="fas fa-times"></i></button>';
 
 				$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
 				$data[] = $row;

@@ -1174,8 +1174,8 @@ class M_transaksi extends CI_Model
 				'qty_po' => $po_dtl->qty,
 				'delivery' => $delivery,
 				'os' => $os,
-				'os_terplanning' => $os_terplanning,
-				'os_belum_terplanning' => $os_belum_terplanning,
+				'os_terplanning' => 0,
+				'os_belum_terplanning' => 0,
 				'qty_plan' => $SO->qty_so,
 				'berat' => $berat,
 				'bb' => $produk->berat_bersih,
@@ -1249,8 +1249,8 @@ class M_transaksi extends CI_Model
 				// 'qty_po' => $jml_so,
 				'delivery' => $delivery,
 				'os' => $os,
-				'os_terplanning' => $os_terplanning,
-				'os_belum_terplanning' => $os_belum_terplanning,
+				'os_terplanning' => 0,
+				'os_belum_terplanning' => 0,
 				'qty_plan' => $sys_qty,
 				'berat' => $berat,
 				// 'bb' => $produk->berat_bersih,
@@ -3086,8 +3086,13 @@ class M_transaksi extends CI_Model
 		$id_dev = $_POST["id_dev"];
 		$urut = $_POST["urut"];
 
-		if($urut < 0){
+		$dev = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_dev'")->row();
+		$cek = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$dev->eta' AND urut='$urut' AND id_ex IS NOT NULL GROUP BY urut");
+
+		if($urut < 0 || $urut == ''){
 			$data = false; $msg = 'COBA LAGI!';
+		}else if($cek->num_rows() != 0){
+			$data = false; $msg = 'NO URUT SUDAH TERPAKAI!';
 		}else{
 			$this->db->set('urut', $urut);
 			$this->db->where('id_dev', $id_dev);
