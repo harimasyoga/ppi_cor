@@ -1518,6 +1518,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
 					tampilEditSO(h_id, no_po, kode_po, 'edit')
 					reloadTable()
 				}else{
@@ -1551,6 +1552,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
 					tampilEditSO(h_id, no_po, kode_po, 'edit')
 					reloadTable()
 				}else{
@@ -1586,6 +1588,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
 					tampilEditSO(h_id, no_po, kode_po, 'edit')
 					reloadTable()
 				}else{
@@ -1599,14 +1602,12 @@
 	function etaSO(id_pelanggan, eta, id, plhNamaID, namaID) {
 		let plh_eta = $("#"+plhNamaID+id).val()
 		$("#"+namaID+id).val('-')
-		console.log(plh_eta)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/etaSO')?>',
 			type: "POST",
 			data: ({ id_pelanggan, plh_eta }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$("#"+namaID+id).val(data.eta)
 			}
 		})

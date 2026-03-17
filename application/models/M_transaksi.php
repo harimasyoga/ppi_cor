@@ -1254,7 +1254,7 @@ class M_transaksi extends CI_Model
 		}else{
 			$this->db->where('id_dev', $id_dev);
 			$data = $this->db->delete('trs_dev_sys');
-			$msg = 'BERHASIL!';
+			$msg = 'HAPUS BERHASIL!';
 		}
 		
 		return array(
@@ -1320,7 +1320,7 @@ class M_transaksi extends CI_Model
 			];
 			$this->db->where("id_dev", $id_sys);
 			$data = $this->db->update("trs_dev_sys", $dts);
-			$msg = 'BERHASIL';
+			$msg = 'EDIT BERHASIL!';
 		}
 
 		return [
