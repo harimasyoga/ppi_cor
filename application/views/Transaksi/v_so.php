@@ -1550,8 +1550,13 @@
 			data: ({ id_dev }),
 			success: function(res){
 				data = JSON.parse(res)
-				tampilEditSO(h_id, no_po, kode_po, 'edit')
-				reloadTable()
+				if(data.data){
+					tampilEditSO(h_id, no_po, kode_po, 'edit')
+					reloadTable()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
 			}
 		})
 	}
@@ -1580,8 +1585,13 @@
 			data: ({ id_sys, id_po_dtl, sys_eta, sys_qty, sys_ket }),
 			success: function(res){
 				data = JSON.parse(res)
-				tampilEditSO(h_id, no_po, kode_po, 'edit')
-				reloadTable()
+				if(data.data){
+					tampilEditSO(h_id, no_po, kode_po, 'edit')
+					reloadTable()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
 			}
 		})
 	}

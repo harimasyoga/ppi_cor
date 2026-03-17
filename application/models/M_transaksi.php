@@ -1199,9 +1199,9 @@ class M_transaksi extends CI_Model
 			$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$po_dtl->id_produk'")->row();
 
 			// SYS
-			$jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
-			WHERE id_po_header='$id_po_dtl' AND id_produk='$po_dtl->id_produk' AND id_pelanggan='$po_dtl->id_pelanggan'
-			GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
+			// $jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
+			// WHERE id_po_header='$id_po_dtl' AND id_produk='$po_dtl->id_produk' AND id_pelanggan='$po_dtl->id_pelanggan'
+			// GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
 
 			// PENGIRIMAN
 			$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
@@ -1210,8 +1210,8 @@ class M_transaksi extends CI_Model
 
 			$delivery = $sumKirim;
 			$os = $sisa;
-			$os_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + ($SO->qty_so*2));
-			$os_belum_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + $SO->qty_so);
+			// $os_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + ($SO->qty_so*2));
+			// $os_belum_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + $SO->qty_so);
 			$berat = $SO->qty_so * $produk->berat_bersih;
 
 			$dts = [
@@ -1246,12 +1246,20 @@ class M_transaksi extends CI_Model
 	function hapusOSDSys()
 	{
 		$id_dev = $_POST["id_dev"];
+
+		$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_dev'")->row();
 		
-		$this->db->where('id_dev', $id_dev);
-		$result = $this->db->delete('trs_dev_sys');
+		if($sys->urut != 0){
+			$data = false; $msg = 'URUTAN KOSONGKAN DAHULU DI DELIVERY SYSTEM!';
+		}else{
+			$this->db->where('id_dev', $id_dev);
+			$data = $this->db->delete('trs_dev_sys');
+			$msg = 'BERHASIL!';
+		}
+		
 		return array(
-			'data' => $result,
-			'msg' => 'BERHASIL!'
+			'data' => $data,
+			'msg' => $msg,
 		);
 	}
 
@@ -1263,20 +1271,22 @@ class M_transaksi extends CI_Model
 		$sys_qty = $_POST["sys_qty"];
 		$sys_ket = $_POST["sys_ket"];
 
+		$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_sys'")->row();
+
 		if($sys_eta == ''){
 			$data = false; $msg = 'ETA KOSONG!';
 		}else if($sys_qty == 0 || $sys_qty == '' || $sys_qty < 0){
 			$data = false; $msg = 'QTY KOSONG!';
+		}else if($sys->urut != 0){
+			$data = false; $msg = 'URUTAN KOSONGKAN DAHULU DI DELIVERY SYSTEM!';
 		}else{
-			$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_sys'")->row();
-			// $soSo = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$sys->id_so'")->row();
 			$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_po_dtl'")->row();
 			$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$po_dtl->id_produk'")->row();
 
 			// SYS
-			$jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
-			WHERE id_po_header='$sys->id_po_header' AND id_produk='$sys->id_produk' AND id_pelanggan='$sys->id_pelanggan'
-			GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
+			// $jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
+			// WHERE id_po_header='$sys->id_po_header' AND id_produk='$sys->id_produk' AND id_pelanggan='$sys->id_pelanggan'
+			// GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
 
 			// PENGIRIMAN
 			$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
@@ -1285,8 +1295,8 @@ class M_transaksi extends CI_Model
 
 			$delivery = $sumKirim;
 			$os = $sisa;
-			$os_terplanning = $sisa - (($jumlah_plan->qty_plan - $sys->qty_plan) + $sys_qty);
-			$os_belum_terplanning = ($sisa - (($jumlah_plan->qty_plan - $sys->qty_plan) + $sys_qty)) + $sys_qty;
+			// $os_terplanning = $sisa - (($jumlah_plan->qty_plan - $sys->qty_plan) + $sys_qty);
+			// $os_belum_terplanning = ($sisa - (($jumlah_plan->qty_plan - $sys->qty_plan) + $sys_qty)) + $sys_qty;
 			$berat = $sys_qty * $produk->berat_bersih;
 
 			$dts = [

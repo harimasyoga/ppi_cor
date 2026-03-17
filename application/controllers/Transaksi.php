@@ -7503,7 +7503,7 @@ class Transaksi extends CI_Controller
 										$btnEditDSys = $editDSys;
 									}else{
 										if($dataHapusSO->row()->jml_rpt == $so->rpt){
-											$btnHapus = ' <button type="button" class="btn btn-danger btn-sm" style="padding:4px 10px" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>';
+											$btnHapus = ($sys->num_rows() == 0) ? ' <button type="button" class="btn btn-danger btn-sm" style="padding:4px 10px" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>' : ' <button type="button" class="btn btn-secondary btn-sm" style="padding:4px 10px" disabled><i class="fas fa-times"></i></button>';
 											$btnAddDSys = $addSys;
 											$btnEditDSys = $editDSys;
 										}else{
