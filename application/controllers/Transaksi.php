@@ -7212,19 +7212,19 @@ class Transaksi extends CI_Controller
 
 	function addItems()
 	{
-		$kode_po = $_POST['kode_po'];
-		$id_produk = $_POST['item'];
-		$jml_so = $_POST['jml_so'];
-		$toleransi = ($_POST['jml_so'] * 0.04);
+		// $kode_po = $_POST['kode_po'];
+		// $id_produk = $_POST['item'];
+		// $jml_so = $_POST['jml_so'];
 
-		$kirim = $this->m_fungsi->kiriman($kode_po, $id_produk, $jml_so);
-		$sumKirim = $kirim["sumKirim"];
-		// $sumRetur = $kirim["sumRetur"];
-		$sisa = $kirim["sisa"];
+		// $toleransi = ($_POST['jml_so'] * 0.10);
+		// $kirim = $this->m_fungsi->kiriman($kode_po, $id_produk, $jml_so);
+		// $sumKirim = $kirim["sumKirim"];
+		// $sisa = $kirim["sisa"];
 
-		if($sumKirim != 0 && ($sisa > $toleransi)){
-			echo json_encode(array('data' => false, 'isi' => 'KIRIMAN LEBIH DARI 4%!'));
-		}else if($_POST["no_so"] == ""){
+		// if($sumKirim != 0 && ($sisa > $toleransi)){
+		// 	echo json_encode(array('data' => false, 'isi' => 'KIRIMAN LEBIH DARI 10%!'));
+		// }else
+		if($_POST["no_so"] == ""){
 			echo json_encode(array('data' => false, 'isi' => 'NO. SO TIDAK BOLEH KOSONG!'));
 		}else{
 			$data = array(
@@ -7320,6 +7320,7 @@ class Transaksi extends CI_Controller
 		$no_po = $_POST["no_po"];
 		$kode_po = $_POST["kode_po"];
 		$aksi = $_POST["aksi"];
+		$lvl = $this->session->userdata('level');
 
 		$html = '';
 		// <th style="padding:12px 6px;width:20%">ETA PO</th>
@@ -7353,6 +7354,10 @@ class Transaksi extends CI_Controller
 			($r->id == $id) ? $bHead = 'background:#ccc;border:1px solid #888;' : $bHead = '';
 			($r->id == $id) ? $bold = 'font-weight:bold;"' : $bold = 'font-weight:normal;';
 			($r->id == $id) ? $borLf = 'border-left:3px solid #0f0;' : $borLf = '';
+
+			// sys
+			$sysHead = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_po_header='$r->id'");
+
 			if($r->status_kiriman == 'Close'){
 				$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
 			}else{
@@ -7360,10 +7365,13 @@ class Transaksi extends CI_Controller
 					$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
 				}else{
 					if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])){
-						($r->id == $id) ?
-							$btnBagi = '<button type="button" class="btn btn-success btn-sm" id="addBagiSO" onclick="addBagiSO('."'".$r->id."'".')"><i class="fas fa-plus"></i></button>
-								<button type="button" class="btn btn-danger btn-sm" id="hapusListSO" onclick="hapusListSO('."'".$r->id."'".')"><i class="fas fa-trash"></i></button>' :
+						if($r->id == $id){
+							$btnBagi = '<button type="button" class="btn btn-success btn-sm" id="addBagiSO" onclick="addBagiSO('."'".$r->id."'".')"><i class="fas fa-plus"></i></button>';
+							$btnBagi .= ($sysHead->num_rows() == 0) ? '<button type="button" class="btn btn-danger btn-sm" id="hapusListSO" onclick="hapusListSO('."'".$r->id."'".')"><i class="fas fa-trash"></i></button>' :
+								'<button type="button" class="btn btn-secondary btn-sm" id="hapusListSO" disabled><i class="fas fa-trash"></i></button>';
+						}else{
 							$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
+						}
 					}else{
 						$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
 					}
@@ -7469,7 +7477,7 @@ class Transaksi extends CI_Controller
 					}else{
 						$iSys = $sys->row()->id_dev;
 						$tglNow = strtotime(date('Y-m-d')) - strtotime($sys->row()->eta);
-						if($tglNow <= 0){
+						if($tglNow <= 0 || in_array($lvl, ['Admin', 'Admin2', 'User'])){
 							$eBsys = 'class="btn btn-warning btn-xs" onclick="editBagiSys('."'".$sys->row()->id_dev."'".', '."'".$id."'".')"';
 							$hBsys = 'class="btn btn-danger btn-xs" onclick="hapusOSDSys('."'".$iSys."'".')"';
 						}else{
@@ -10201,6 +10209,7 @@ class Transaksi extends CI_Controller
 
 	function ccDevSys()
 	{
+		$lvl = $this->session->userdata('level');
 		$id_sales = $this->session->userdata('id_sales');
 		$html = '';
 		$tahun = $_POST["tahun"];
@@ -10208,9 +10217,8 @@ class Transaksi extends CI_Controller
 		$angka = $_POST["tgl"];
 		$tgl = $tahun.'-'.$bulan.'-'.$angka;
 		$now = date('Y-m-d');
-
 		$tglNow = strtotime($now) - strtotime($tgl);
-		($tglNow <= 0) ? $dS = '' : $dS = 'disabled';
+		(in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')) ? $dS = '' : $dS = 'disabled';
 
 		$html .= '<table>
 			<tr style="background:#dee2e6">
@@ -10245,7 +10253,7 @@ class Transaksi extends CI_Controller
 						<td style="background:#333;color:#fff;padding:6px;font-weight:bold;text-align:center">'.$u->urut.'.</td>
 						<td style="background:#333;padding:6px">';
 							if($u->id_ex == null){
-								if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Gudang'])){
+								if(in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')){
 									$html .= '<select class="form-control select2" id="eks_ds'.$u->urut.'" onchange="plhEksDS('."'".$u->urut."'".')" '.$dS.'>
 										<option value="">EKSPEDISI | P x L x T (M)</option>';
 										$ekspedisi = $this->db->query("SELECT*FROM m_ekspedisi ORDER BY plat, ekspedisi");
@@ -10256,14 +10264,14 @@ class Transaksi extends CI_Controller
 										}
 									$html .= '</select>';
 								}else{
-									$html .= '-';
+									$html .= '<div style="font-weight:bold;color:#fff">-</div>';
 								}
 							}else{
 								$e = $this->db->query("SELECT*FROM m_ekspedisi WHERE id_ex='$u->id_ex'")->row();
 								($e->panjang == null || $e->lebar == null || $e->tinggi == null || $e->panjang == '' || $e->lebar == '' || $e->tinggi == '') ?
 									$pLt = '' : $pLt = ' | '.round($e->panjang, 2).' x '.round($e->lebar, 2).' x '.round($e->tinggi, 2);
 								// btl
-								$hapus = ($tglNow <= 0 && in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Gudang'])) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : '';
+								$hapus = (in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : '';
 								$html .= '<div style="font-weight:bold;color:#fff">'.$e->plat.' ( '.$e->ekspedisi.' )'.$pLt.$hapus.'</div>';
 							}
 						$html .= '</td>
@@ -10284,7 +10292,7 @@ class Transaksi extends CI_Controller
 					$i++;
 					($r->attn == '-') ? $attn = '' : $attn = '<div>'.$r->attn.'</div>';
 					($r->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
-					(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Gudang']) && $r->id_ex == null && $tglNow <= 0) ? $och = 'id="ds-urut'.$r->id_dev.'" onchange="dsUrut('."'".$r->id_dev."'".')"' : $och = 'disabled';
+					((in_array($lvl, ['Admin', 'Admin2', 'User']) && $r->id_ex == null) || ($lvl == 'Gudang' && $r->id_ex == null && $tglNow <= 0)) ? $och = 'id="ds-urut'.$r->id_dev.'" onchange="dsUrut('."'".$r->id_dev."'".')"' : $och = 'disabled';
 					$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$r->prov'");
 					$kab = $this->db->query("SELECT*FROM m_kab WHERE kab_id='$r->kab'");
 					($kab->num_rows() != 0) ? $kota = ' - <span style="font-style:italic">('.$kab->row()->kab_name.')</span>' : $kota = '';
