@@ -6474,33 +6474,29 @@ class Logistik extends CI_Controller
 						if($cek_pembayaran > 0){
 							$aksi = '<div class="text-center">'.$btncetak.'<div>';
 						}else{
-							if (!in_array($this->session->userdata('username'), ['Admin','karina','tegar'])){
+							if (!in_array($this->session->userdata('username'), ['karina', 'tegar', 'developer'])){
 								$aksi = '<div class="text-center">'.$btncetak.'<div>';
 							}else{
-								// $aksi = '
-								// <a class="btn btn-sm btn-warning" href="' . base_url("Logistik/Invoice_edit?id=" .$r->id ."&no_inv=" .$r->no_invoice ."") . '" title="EDIT DATA" >
-								// 	<b><i class="fa fa-edit"></i> </b>
-								// </a> ';
 								$aksi = '<div class="text-center">
-								'.$btnEdit.'
-								'.$btnHapus.'
-								'.$btncetak.'</div>
-								';
+									'.$btnEdit.'
+									'.$btnHapus.'
+									'.$btncetak.'
+								</div>';
 							}
 						}
 					} else {
 						if($cek_pembayaran > 0) {
 							$aksi = '<div class="text-center">'.$btncetak.'</div>';
 						}else{
-							if (!in_array($this->session->userdata('username'), ['Admin','karina','tegar'])){
+							if (!in_array($this->session->userdata('username'), ['karina', 'tegar', 'developer'])){
 								$aksi = '<div class="text-center">'.$btncetak.'</div>';
 							}else{
-								$aksi = '<div class="text-center">'.$btnEdit.'
-								'.$btncetak.'</div>
-								';
+								$aksi = '<div class="text-center">
+									'.$btnEdit.'
+									'.$btncetak.'
+								</div>';
 							}
 						}
-						
 					}
 				} else {
 					$aksi = '<div class="text-center">'.$btncetak.'<div>';

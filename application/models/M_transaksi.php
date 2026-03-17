@@ -846,7 +846,8 @@ class M_transaksi extends CI_Model
 			// }
 
 			// history
-			history_tr('PO', 'VERIFIKASI_PO_ADMIN', $stts, $id, '-');
+			// history_tr('PO', 'VERIFIKASI_PO_ADMIN', $stts, $id, '-');
+			$iHistori = true;
 			$msg = 'Data Berhasil Diproses';
 		}else{
 			// DLL
@@ -975,10 +976,57 @@ class M_transaksi extends CI_Model
 			}
 		}
 
+		// LANGSUNG INPUT KE DS
+		if($level == "Admin" || $level == "Owner"){
+			// CEK JIKA SUDA DI ACC OWNER
+			$cekPO2 = $this->db->query("SELECT*FROM trs_po WHERE no_po='$id'")->row();
+			if($cekPO2->status_app3 == 'Y'){
+				$po_dtl = $this->db->query("SELECT s.id AS id_so,s.qty_so,s.eta_so,b.* FROM trs_po a
+				INNER JOIN trs_po_detail b ON a.kode_po=b.kode_po AND a.no_po=b.no_po AND a.id_pelanggan=b.id_pelanggan
+				INNER JOIN trs_so_detail s ON b.kode_po=s.kode_po AND b.no_po=s.no_po AND b.id_pelanggan=s.id_pelanggan AND b.id_produk=s.id_produk
+				WHERE b.no_po='$id' GROUP BY b.id,s.id");
+				foreach($po_dtl->result() as $dtl){
+					// PENGIRIMAN
+					$kirim = $this->m_fungsi->kiriman($dtl->kode_po, $dtl->id_produk, $dtl->qty);
+					$sumKirim = $kirim["sumKirim"];
+					$sisa = $kirim["sisa2"];
+					$delivery = $sumKirim;
+					$os = $sisa;
+					$berat = $dtl->qty_so * $dtl->bb;
+
+					$dts = [
+						'id_po_header' => $dtl->id,
+						'id_produk' => $dtl->id_produk,
+						'id_pelanggan' => $dtl->id_pelanggan,
+						'id_so' => $dtl->id_so,
+						'qty_po' => $dtl->qty,
+						'delivery' => $delivery,
+						'os' => $os,
+						'os_terplanning' => 0,
+						'os_belum_terplanning' => 0,
+						'qty_plan' => $dtl->qty_so,
+						'berat' => $berat,
+						'bb' => $dtl->bb,
+						'eta' => $dtl->eta_so,
+						'ket_sys' => null,
+						'id_ex' => null,
+						'urut' => 0,
+						'created_at' => date('Y-m-d H:i:s'),
+					];
+					$sys = $this->db->insert("trs_dev_sys", $dts);
+				}
+			}else{
+				$sys = 'PO belum di acc';
+			}
+		}else{
+			$sys = 'tidak ada akses ds';
+		}
+
 		return [
 			'update_trs_po' => $update_trs_po,
 			'update_trs_po_detail' => $update_trs_po_detail,
 			'histori' => $iHistori,
+			'sys' => $sys,
 			'msg' => $msg,
 		];
 	}

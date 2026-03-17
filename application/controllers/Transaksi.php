@@ -3598,7 +3598,12 @@ class Transaksi extends CI_Controller
 							';
 						}else{
 							$aksi .=  '
-								<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Cetak_PO?no_po=".$r->no_po."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
+								<div style="margin-bottom:3px">
+									<button type="button" onclick="tampil_edit('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-warning btn-sm">
+										<i class="fa fa-edit"></i>
+									</button>
+									<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Cetak_PO?no_po=".$r->no_po."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
+								</div>
 								<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/Cetak_wa_po?no_po=".$r->no_po."").'" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
 							';
 						}
@@ -9775,7 +9780,8 @@ class Transaksi extends CI_Controller
 												$history_plan = $this->db->query("SELECT*FROM trs_dev_sys where id_po_header='$po_ok->id' and id_produk='$id_produk' and id_pelanggan='$id_pelanggan' ORDER BY id_dev");
 												if($history_plan->num_rows() > 0){
 													foreach($history_plan->result() as $his_plan){
-														if($days <= 0){
+														$tglNow = strtotime(date('Y-m-d')) - strtotime($his_plan->eta);
+														if($days <= 0 || $tglNow >= 0){
 															$delH = 'class="btn btn-secondary btn-xs" disabled';
 														}else{
 															($his_plan->id_ex == null) ? $delH = 'class="btn btn-warning btn-xs" onclick="del_history('.$his_plan->id_dev.',`add`)"' : $delH = 'class="btn btn-secondary btn-xs" disabled';

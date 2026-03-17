@@ -1073,6 +1073,8 @@
 					$(".btn-verif").hide()
 				}else if(urlAuth == 'User' || urlAuth == 'PPIC' || urlAuth == 'Marketing'){
 					$(".btn-verif").show()
+				}else if(urlAuth == 'Admin' && data.header.status_app3 != 'Y'){
+					$(".btn-verif").show()
 				}else{
 					$(".btn-verif").hide()
 				}
