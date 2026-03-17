@@ -75,7 +75,7 @@
 					</div>
 				</div>
 				<div class="card-body">
-					<?php if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) { ?>
+					<?php if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Gudang'])) { ?>
 						<button type="button" class="btn btn-info pull-right" onclick="tambahData()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 						<br><br>
 					<?php } ?>

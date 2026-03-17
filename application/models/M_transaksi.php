@@ -846,7 +846,8 @@ class M_transaksi extends CI_Model
 			// }
 
 			// history
-			history_tr('PO', 'VERIFIKASI_PO_ADMIN', $stts, $id, '-');
+			// history_tr('PO', 'VERIFIKASI_PO_ADMIN', $stts, $id, '-');
+			$iHistori = true;
 			$msg = 'Data Berhasil Diproses';
 		}else{
 			// DLL
@@ -975,10 +976,57 @@ class M_transaksi extends CI_Model
 			}
 		}
 
+		// LANGSUNG INPUT KE DS
+		if($level == "Admin" || $level == "Owner"){
+			// CEK JIKA SUDA DI ACC OWNER
+			$cekPO2 = $this->db->query("SELECT*FROM trs_po WHERE no_po='$id'")->row();
+			if($cekPO2->status_app3 == 'Y'){
+				$po_dtl = $this->db->query("SELECT s.id AS id_so,s.qty_so,s.eta_so,b.* FROM trs_po a
+				INNER JOIN trs_po_detail b ON a.kode_po=b.kode_po AND a.no_po=b.no_po AND a.id_pelanggan=b.id_pelanggan
+				INNER JOIN trs_so_detail s ON b.kode_po=s.kode_po AND b.no_po=s.no_po AND b.id_pelanggan=s.id_pelanggan AND b.id_produk=s.id_produk
+				WHERE b.no_po='$id' GROUP BY b.id,s.id");
+				foreach($po_dtl->result() as $dtl){
+					// PENGIRIMAN
+					$kirim = $this->m_fungsi->kiriman($dtl->kode_po, $dtl->id_produk, $dtl->qty);
+					$sumKirim = $kirim["sumKirim"];
+					$sisa = $kirim["sisa2"];
+					$delivery = $sumKirim;
+					$os = $sisa;
+					$berat = $dtl->qty_so * $dtl->bb;
+
+					$dts = [
+						'id_po_header' => $dtl->id,
+						'id_produk' => $dtl->id_produk,
+						'id_pelanggan' => $dtl->id_pelanggan,
+						'id_so' => $dtl->id_so,
+						'qty_po' => $dtl->qty,
+						'delivery' => $delivery,
+						'os' => $os,
+						'os_terplanning' => 0,
+						'os_belum_terplanning' => 0,
+						'qty_plan' => $dtl->qty_so,
+						'berat' => $berat,
+						'bb' => $dtl->bb,
+						'eta' => $dtl->eta_so,
+						'ket_sys' => null,
+						'id_ex' => null,
+						'urut' => 0,
+						'created_at' => date('Y-m-d H:i:s'),
+					];
+					$sys = $this->db->insert("trs_dev_sys", $dts);
+				}
+			}else{
+				$sys = 'PO belum di acc';
+			}
+		}else{
+			$sys = 'tidak ada akses ds';
+		}
+
 		return [
 			'update_trs_po' => $update_trs_po,
 			'update_trs_po_detail' => $update_trs_po_detail,
 			'histori' => $iHistori,
+			'sys' => $sys,
 			'msg' => $msg,
 		];
 	}
@@ -1151,9 +1199,9 @@ class M_transaksi extends CI_Model
 			$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$po_dtl->id_produk'")->row();
 
 			// SYS
-			$jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
-			WHERE id_po_header='$id_po_dtl' AND id_produk='$po_dtl->id_produk' AND id_pelanggan='$po_dtl->id_pelanggan'
-			GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
+			// $jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
+			// WHERE id_po_header='$id_po_dtl' AND id_produk='$po_dtl->id_produk' AND id_pelanggan='$po_dtl->id_pelanggan'
+			// GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
 
 			// PENGIRIMAN
 			$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
@@ -1162,8 +1210,8 @@ class M_transaksi extends CI_Model
 
 			$delivery = $sumKirim;
 			$os = $sisa;
-			$os_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + ($SO->qty_so*2));
-			$os_belum_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + $SO->qty_so);
+			// $os_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + ($SO->qty_so*2));
+			// $os_belum_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + $SO->qty_so);
 			$berat = $SO->qty_so * $produk->berat_bersih;
 
 			$dts = [
@@ -1174,8 +1222,8 @@ class M_transaksi extends CI_Model
 				'qty_po' => $po_dtl->qty,
 				'delivery' => $delivery,
 				'os' => $os,
-				'os_terplanning' => $os_terplanning,
-				'os_belum_terplanning' => $os_belum_terplanning,
+				'os_terplanning' => 0,
+				'os_belum_terplanning' => 0,
 				'qty_plan' => $SO->qty_so,
 				'berat' => $berat,
 				'bb' => $produk->berat_bersih,
@@ -1198,12 +1246,20 @@ class M_transaksi extends CI_Model
 	function hapusOSDSys()
 	{
 		$id_dev = $_POST["id_dev"];
+
+		$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_dev'")->row();
 		
-		$this->db->where('id_dev', $id_dev);
-		$result = $this->db->delete('trs_dev_sys');
+		if($sys->urut != 0){
+			$data = false; $msg = 'URUTAN KOSONGKAN DAHULU DI DELIVERY SYSTEM!';
+		}else{
+			$this->db->where('id_dev', $id_dev);
+			$data = $this->db->delete('trs_dev_sys');
+			$msg = 'BERHASIL!';
+		}
+		
 		return array(
-			'data' => $result,
-			'msg' => 'BERHASIL!'
+			'data' => $data,
+			'msg' => $msg,
 		);
 	}
 
@@ -1215,20 +1271,22 @@ class M_transaksi extends CI_Model
 		$sys_qty = $_POST["sys_qty"];
 		$sys_ket = $_POST["sys_ket"];
 
+		$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_sys'")->row();
+
 		if($sys_eta == ''){
 			$data = false; $msg = 'ETA KOSONG!';
 		}else if($sys_qty == 0 || $sys_qty == '' || $sys_qty < 0){
 			$data = false; $msg = 'QTY KOSONG!';
+		}else if($sys->urut != 0){
+			$data = false; $msg = 'URUTAN KOSONGKAN DAHULU DI DELIVERY SYSTEM!';
 		}else{
-			$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_sys'")->row();
-			// $soSo = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$sys->id_so'")->row();
 			$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_po_dtl'")->row();
 			$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$po_dtl->id_produk'")->row();
 
 			// SYS
-			$jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
-			WHERE id_po_header='$sys->id_po_header' AND id_produk='$sys->id_produk' AND id_pelanggan='$sys->id_pelanggan'
-			GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
+			// $jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
+			// WHERE id_po_header='$sys->id_po_header' AND id_produk='$sys->id_produk' AND id_pelanggan='$sys->id_pelanggan'
+			// GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
 
 			// PENGIRIMAN
 			$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
@@ -1237,8 +1295,8 @@ class M_transaksi extends CI_Model
 
 			$delivery = $sumKirim;
 			$os = $sisa;
-			$os_terplanning = $sisa - (($jumlah_plan->qty_plan - $sys->qty_plan) + $sys_qty);
-			$os_belum_terplanning = ($sisa - (($jumlah_plan->qty_plan - $sys->qty_plan) + $sys_qty)) + $sys_qty;
+			// $os_terplanning = $sisa - (($jumlah_plan->qty_plan - $sys->qty_plan) + $sys_qty);
+			// $os_belum_terplanning = ($sisa - (($jumlah_plan->qty_plan - $sys->qty_plan) + $sys_qty)) + $sys_qty;
 			$berat = $sys_qty * $produk->berat_bersih;
 
 			$dts = [
@@ -1249,8 +1307,8 @@ class M_transaksi extends CI_Model
 				// 'qty_po' => $jml_so,
 				'delivery' => $delivery,
 				'os' => $os,
-				'os_terplanning' => $os_terplanning,
-				'os_belum_terplanning' => $os_belum_terplanning,
+				'os_terplanning' => 0,
+				'os_belum_terplanning' => 0,
 				'qty_plan' => $sys_qty,
 				'berat' => $berat,
 				// 'bb' => $produk->berat_bersih,
@@ -3086,8 +3144,13 @@ class M_transaksi extends CI_Model
 		$id_dev = $_POST["id_dev"];
 		$urut = $_POST["urut"];
 
-		if($urut < 0){
+		$dev = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_dev'")->row();
+		$cek = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$dev->eta' AND urut='$urut' AND id_ex IS NOT NULL GROUP BY urut");
+
+		if($urut < 0 || $urut == ''){
 			$data = false; $msg = 'COBA LAGI!';
+		}else if($cek->num_rows() != 0){
+			$data = false; $msg = 'NO URUT SUDAH TERPAKAI!';
 		}else{
 			$this->db->set('urut', $urut);
 			$this->db->where('id_dev', $id_dev);
