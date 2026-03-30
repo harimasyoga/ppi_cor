@@ -10287,7 +10287,9 @@ class Transaksi extends CI_Controller
 				GROUP BY d.id_pelanggan,p.kode_po,d.id_produk
 				ORDER BY c.nm_pelanggan,p.kode_po,i.nm_produk");
 				$i = 0;
+				$totQty = 0;
 				$totBerat = 0;
+				$sjTotQty = 0;
 				foreach($sys->result() as $r){
 					$i++;
 					($r->attn == '-') ? $attn = '' : $attn = '<div>'.$r->attn.'</div>';
@@ -10318,14 +10320,44 @@ class Transaksi extends CI_Controller
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$r->berat_bersih.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($r->berat, 0, ',', '.').'</td>
 					</tr>';
+
+					// CEK MASUK SURAT JALAN
+					$rk = $this->db->query("SELECT*FROM m_rencana_kirim WHERE dev_id='$r->id_dev'");
+					if($rk->num_rows() != 0){
+						foreach($rk->result() as $k){
+							$html .= '<tr>
+								<td style="border:1px solid #dee2e6;border-width:1px 0 1px 1px;padding:3px 6px;font-style:italic" colspan="3"></td>
+								<td style="border:1px solid #dee2e6;border-width:1px 0;padding:3px 6px;font-style:italic">'.$k->rk_kode_po.'</td>
+								<td style="border:1px solid #dee2e6;border-width:1px 0;padding:3px 6px;font-style:italic"></td>
+								<td style="border:1px solid #dee2e6;border-width:1px 0;padding:3px 6px;font-style:italic;text-align:right">'.number_format($k->qty_muat, 0, ',', '.').'</td>
+								<td style="border:1px solid #dee2e6;border-width:1px 1px 1px 0;padding:3px 6px;font-style:italic" colspan="2"></td>
+							</tr>';
+							$sjTotQty += $k->qty_muat;
+						}
+					}
+
+					$totQty += $r->qty_plan;
 					$totBerat += $r->berat;
 				}
 
 				// TOTAL
 				if($sys->num_rows() != 1){
 					$html .= '<tr style="background:#dee2e6">
-						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="7">TOTAL</td>
-						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($totBerat, 0, ',', '.').'</td>
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">TOTAL</td>
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($totQty, 0, ',', '.').'</td>
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.number_format($totBerat, 0, ',', '.').'</td>
+					</tr>';
+					// MASUK SURAT JALAN
+					$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$u->timb_urut' AND tgl_t='$u->timb_tgl' GROUP BY urut_t,tgl_t");
+					if($qTimb->num_rows() != 0){
+						$txtTimb = number_format($qTimb->row()->berat_bersih,0,',','.');
+					}else{
+						$txtTimb = '-';
+					}
+					$html .= '<tr style="background:#dee2e6">
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">SURAT JALAN</td>
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sjTotQty, 0, ',', '.').'</td>
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.$txtTimb.'</td>
 					</tr>';
 				}
 			}

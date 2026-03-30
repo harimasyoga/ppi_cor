@@ -76,6 +76,29 @@
 				</div>
 			</div>
 
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card card-primary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">DELIVERY SYSTEM</h3>
+						</div>
+						<div class="card-body" style="padding:6px">
+							<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
+								<div class="col-md-2">
+									<input type="hidden" id="h_id_rk" value="">
+									<select id="ops_dev" class="form-control select2" onchange="addDevSys('', 'edit')">
+										<option value="CUSTOMER">CUSTOMER</option>
+										<option value="ALL">ALL</option>
+									</select>
+								</div>
+								<div class="col-md-10"></div>
+							</div>
+							<div class="card-body-dev" style="overflow:auto;white-space:nowrap"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<?php if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) { ?>
 				<div class="row">
 					<div class="col-md-12">
@@ -538,6 +561,8 @@
 	}
 
 	function listPengiriman() {
+		$(".card-body-dev").html('')
+		$("#h_id_rk").val('')
 		let tgl_kirim = $("#tgl_kirim").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/listPengiriman')?>',
@@ -831,6 +856,64 @@
 			success: function(res){
 				data = JSON.parse(res)
 				listRencanaKirim()
+			}
+		})
+	}
+
+	function addDevSys(id, opsi)
+	{
+		$(".card-body-dev").html('')
+		let id_rk = ''
+		if(opsi == 'add'){
+			$("#h_id_rk").val(id)
+			id_rk = id
+		}else{
+			id_rk = $("#h_id_rk").val()
+		}
+		console.log(id_rk)
+
+		let ops_dev = $("#ops_dev").val()
+		let tgl_kirim = $("#tgl_kirim").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/addDevSys')?>',
+			type: "POST",
+			data: ({ ops_dev, tgl_kirim, id_rk, opsi, urutpl:id }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$(".card-body-dev").html(data.html)
+			}
+		})
+	}
+
+	function addDStoRK(id_dev)
+	{
+		let id_rk = $("#h_id_rk").val()
+		console.log(id_dev)
+		$.ajax({
+			url: '<?php echo base_url('Logistik/addDStoRK')?>',
+			type: "POST",
+			data: ({ id_rk, id_dev }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+			}
+		})
+	}
+
+	function addTimbtoDS(urutpl, urutds)
+	{
+		let tgl_kirim = $("#tgl_kirim").val()
+		console.log("urutpl : ", urutpl)
+		console.log("urutds : ", urutds)
+		console.log("tgl_kirim : ", tgl_kirim)
+		$.ajax({
+			url: '<?php echo base_url('Logistik/addTimbtoDS')?>',
+			type: "POST",
+			data: ({ tgl_kirim, urutpl, urutds }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
 			}
 		})
 	}

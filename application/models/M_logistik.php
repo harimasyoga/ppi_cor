@@ -1692,6 +1692,44 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function addDStoRK()
+	{
+		$id_rk = $_POST["id_rk"];
+		$id_dev = $_POST["id_dev"];
+
+		$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_dev'")->row();
+
+		$this->db->set('dev_urut', $sys->urut);
+		$this->db->set('dev_id', $id_dev);
+		$this->db->where("id_rk", $id_rk);
+		$rk = $this->db->update("m_rencana_kirim");
+
+		return [
+			'id_rk' => $id_rk,
+			'id_dev' => $id_dev,
+			'rk' => $rk,
+		];
+	}
+
+	function addTimbtoDS()
+	{
+		$tgl_kirim = $_POST["tgl_kirim"];
+		$urutpl = $_POST["urutpl"];
+		$urutds = $_POST["urutds"];
+
+		$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$urutpl' AND tgl_t='$tgl_kirim' GROUP BY urut_t,tgl_t")->row();
+
+		$this->db->set('timb_tgl', $qTimb->tgl_t);
+		$this->db->set('timb_urut', $qTimb->urut_t);
+		$this->db->where('urut', $urutds);
+		$this->db->where('eta', $tgl_kirim);
+		$data = $this->db->update('trs_dev_sys');
+
+		return [
+			'data' => $data,
+		];
+	}
+
 	//
 
 	function simpanCartLaminasi()
