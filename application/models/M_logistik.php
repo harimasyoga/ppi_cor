@@ -1704,10 +1704,13 @@ class M_logistik extends CI_Model
 		$this->db->where("id_rk", $id_rk);
 		$rk = $this->db->update("m_rencana_kirim");
 
+		$rencKirim = $this->db->query("SELECT*FROM m_rencana_kirim WHERE id_rk='$id_rk'")->row();
+
 		return [
 			'id_rk' => $id_rk,
 			'id_dev' => $id_dev,
-			'rk' => $rk,
+			'data' => $rk,
+			'rencKirim' => $rencKirim,
 		];
 	}
 

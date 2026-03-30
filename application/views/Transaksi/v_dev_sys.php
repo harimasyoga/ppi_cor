@@ -361,6 +361,9 @@
 				data = JSON.parse(res)
 				if(data.data){
 					ccDevSys(tgl)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
 				}
 			}
 		})

@@ -3193,11 +3193,20 @@ class M_transaksi extends CI_Model
 		$tgl = $tahun.'-'.$bulan.'-'.$angka;
 		$urut = $_POST["urut"];
 
-		$this->db->set('id_ex', null);
-		$this->db->where('urut', $urut);
-		$this->db->where('eta', $tgl);
-		$data = $this->db->update('trs_dev_sys');
-		$msg = 'BERHASIL!';
+		$cekRK = $this->db->query("SELECT*FROM m_rencana_kirim r
+		INNER JOIN trs_dev_sys s ON r.dev_id=s.id_dev AND r.dev_urut=s.urut
+		WHERE s.eta='$tgl' AND s.urut='$urut'
+		GROUP BY s.eta,s.urut");
+
+		if($cekRK->num_rows() != 0){
+			$data = false; $msg = 'DELIVERY SYSTEM SUDAH ADA SURAT JALAN!';
+		}else{
+			$this->db->set('id_ex', null);
+			$this->db->where('urut', $urut);
+			$this->db->where('eta', $tgl);
+			$data = $this->db->update('trs_dev_sys');
+			$msg = 'BERHASIL!';
+		}
 
 		return [
 			'data' => $data,

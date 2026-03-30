@@ -21,6 +21,10 @@
 			-webkit-appearance: none;
 			margin: 0;
 		}
+
+		html {
+			scroll-behavior: smooth;
+		}
 	</style>
 
 	<section class="content" style="padding-bottom:30px">
@@ -76,7 +80,7 @@
 				</div>
 			</div>
 
-			<div class="row">
+			<div class="row" id="card-sys">
 				<div class="col-md-12">
 					<div class="card card-primary card-outline">
 						<div class="card-header" style="padding:12px">
@@ -877,11 +881,24 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/addDevSys')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ ops_dev, tgl_kirim, id_rk, opsi, urutpl:id }),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
 				$(".card-body-dev").html(data.html)
+				if(data.html != ''){
+					swal.close()
+				}
 			}
 		})
 	}
@@ -897,6 +914,10 @@
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
+				if(data.data){
+					location.href = '#urut'+data.rencKirim.rk_urut;
+					listRencanaKirim()
+				}
 			}
 		})
 	}
@@ -914,6 +935,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
+				listRencanaKirim()
 			}
 		})
 	}

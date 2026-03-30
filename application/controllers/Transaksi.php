@@ -10243,6 +10243,12 @@ class Transaksi extends CI_Controller
 				$wSls = "AND c.id_sales='$id_sales'";
 			}
 			foreach($urut->result() as $u){
+
+				$cekRK = $this->db->query("SELECT*FROM m_rencana_kirim r
+				INNER JOIN trs_dev_sys s ON r.dev_id=s.id_dev AND r.dev_urut=s.urut
+				WHERE s.eta='$tgl' AND s.urut='$u->urut'
+				GROUP BY s.eta,s.urut");
+				
 				if($u->urut == 0){
 					$html .= '<tr>
 						<td style="background:#333;color:#fff;padding:6px;font-weight:bold;text-align:center">'.$u->urut.'</td>
@@ -10271,7 +10277,11 @@ class Transaksi extends CI_Controller
 								($e->panjang == null || $e->lebar == null || $e->tinggi == null || $e->panjang == '' || $e->lebar == '' || $e->tinggi == '') ?
 									$pLt = '' : $pLt = ' | '.round($e->panjang, 2).' x '.round($e->lebar, 2).' x '.round($e->tinggi, 2);
 								// btl
-								$hapus = (in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : '';
+								if($cekRK->num_rows() == 0){
+									$hapus = (in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : '';
+								}else{
+									$hapus = '';
+								}
 								$html .= '<div style="font-weight:bold;color:#fff">'.$e->plat.' ( '.$e->ekspedisi.' )'.$pLt.$hapus.'</div>';
 							}
 						$html .= '</td>
@@ -10347,10 +10357,16 @@ class Transaksi extends CI_Controller
 						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($totQty, 0, ',', '.').'</td>
 						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.number_format($totBerat, 0, ',', '.').'</td>
 					</tr>';
-					// MASUK SURAT JALAN
-					$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$u->timb_urut' AND tgl_t='$u->timb_tgl' GROUP BY urut_t,tgl_t");
-					if($qTimb->num_rows() != 0){
-						$txtTimb = number_format($qTimb->row()->berat_bersih,0,',','.');
+				}
+				// MASUK SURAT JALAN
+				if($cekRK->num_rows() != 0){
+					if($u->timb_tgl != null && $u->timb_urut != null){
+						$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$u->timb_urut' AND tgl_t='$u->timb_tgl' GROUP BY urut_t,tgl_t");
+						if($qTimb->num_rows() != 0){
+							$txtTimb = number_format($qTimb->row()->berat_bersih,0,',','.');
+						}else{
+							$txtTimb = '-';
+						}
 					}else{
 						$txtTimb = '-';
 					}

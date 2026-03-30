@@ -12213,13 +12213,15 @@ class Logistik extends CI_Controller
 					$muat = $this->db->query("SELECT SUM(qty_muat) AS qty_muat FROM m_rencana_kirim WHERE id_gudang='$isi->id_gudang' GROUP BY id_gudang")->row();
 					$siissa = $gudang->gd_good_qty - $muat->qty_muat;
 					($isi->kategori == "BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
-					$html .='<tr>
+					(strlen($isi->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+					(strlen($isi->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+					$html .='<tr style="vertical-align:top">
 						<td style="border:1px solid #dee2e6;padding:6px">
 							<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" id="rk-urut-'.$isi->id_rk.'" value="'.$isi->rk_urut.'" onchange="editListUrutRK('."'new'".', '."'".$isi->id_rk."'".')">
 						</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$isi->nm_pelanggan.' <span class="bg-secondary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$isi->id_gudang.'</span></td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$isi->rk_kode_po.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px">'.$kategori.''.$isi->nm_produk.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$dv1.$kategori.''.$isi->nm_produk.$dv2.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:right;font-weight:bold">
 							<span class="rk-span-sisa-'.$isi->id_rk.'">'.number_format($siissa).'</span>
 						</td>
@@ -12545,7 +12547,7 @@ class Logistik extends CI_Controller
 							if($cRK->num_rows() == 0){
 								$cSYS = $this->db->query("SELECT timb_tgl,timb_urut FROM trs_dev_sys WHERE timb_tgl='$urut->tgl' AND timb_urut='$urut->no_pl_urut' AND timb_urut IS NOT NULL AND timb_tgl IS NOT NULL GROUP BY timb_tgl,timb_urut");
 								if($cSYS->num_rows() == 0){
-									$aDx = ' <button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addDevSys('."'".$urut->no_pl_urut."'".','."'plat'".')"><i class="fas fa-plus"></i></button>';
+									$aDx = ' <button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addDevSys('."'".$urut->no_pl_urut."'".','."'plat'".');"><i class="fas fa-plus"></i></button>';
 								}else{
 									$aDx = '';
 								}
@@ -12559,7 +12561,7 @@ class Logistik extends CI_Controller
 						$aDx = '';
 					}
 
-					$html .='<tr>
+					$html .='<tr id="urut'.$urut->no_pl_urut.'">
 						<td style="background:#333;color:#fff;padding:6px;font-weight:bold">'.$btnBtl.''.$urut->no_pl_urut.'</td>
 						<td style="background:#333;color:#fff;padding:6px;text-align:right;font-weight:bold">NO. PLAT :</td>
 						<td style="background:#333;color:#fff;padding:6px;text-align:right"">
@@ -12699,7 +12701,7 @@ class Logistik extends CI_Controller
 							// DELIVERY SYSTEM
 							if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
 								if($item->dev_urut == null && $item->dev_id == null){
-									$aDs = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addDevSys('."'".$item->id_rk."'".','."'add'".')"><i class="fas fa-plus"></i></button> ';
+									$aDs = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addDevSys('."'".$item->id_rk."'".','."'add'".'); location.href='."'#card-sys'".'"><i class="fas fa-plus"></i></button> ';
 								}else{
 									$aDs = '';
 								}
@@ -12799,7 +12801,9 @@ class Logistik extends CI_Controller
 					GROUP BY d.id_pelanggan,p.kode_po,d.id_produk
 					ORDER BY c.nm_pelanggan,p.kode_po,i.nm_produk");
 					$i = 0;
+					$totQty = 0;
 					$totBerat = 0;
+					$sjTotQty = 0;
 					foreach($sys->result() as $r){
 						$i++;
 						($r->attn == '-') ? $attn = '' : $attn = '<div>'.$r->attn.'</div>';
@@ -12848,17 +12852,41 @@ class Logistik extends CI_Controller
 									<td style="border:1px solid #dee2e6;border-width:1px 0;padding:3px 6px;font-style:italic;text-align:right">'.number_format($k->qty_muat, 0, ',', '.').'</td>
 									<td style="border:1px solid #dee2e6;border-width:1px 1px 1px 0;padding:3px 6px;font-style:italic" colspan="2"></td>
 								</tr>';
+								$sjTotQty += $k->qty_muat;
 							}
 						}
-
+						$totQty += $r->qty_plan;
 						$totBerat += $r->berat;
 					}
 
 					// TOTAL
 					if($sys->num_rows() != 1){
 						$html .= '<tr style="background:#dee2e6">
-							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="7">TOTAL</td>
-							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($totBerat, 0, ',', '.').'</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">TOTAL</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($totQty, 0, ',', '.').'</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.number_format($totBerat, 0, ',', '.').'</td>
+						</tr>';
+					}
+					// MASUK SURAT JALAN
+					$cekRK = $this->db->query("SELECT*FROM m_rencana_kirim r
+					INNER JOIN trs_dev_sys s ON r.dev_id=s.id_dev AND r.dev_urut=s.urut
+					WHERE s.eta='$tgl' AND s.urut='$u->urut'
+					GROUP BY s.eta,s.urut");
+					if($cekRK->num_rows() != 0){
+						if($u->timb_tgl != null && $u->timb_urut != null){
+							$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$u->timb_urut' AND tgl_t='$u->timb_tgl' GROUP BY urut_t,tgl_t");
+							if($qTimb->num_rows() != 0){
+								$txtTimb = number_format($qTimb->row()->berat_bersih,0,',','.');
+							}else{
+								$txtTimb = '-';
+							}
+						}else{
+							$txtTimb = '-';
+						}
+						$html .= '<tr style="background:#dee2e6">
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">SURAT JALAN</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sjTotQty, 0, ',', '.').'</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.$txtTimb.'</td>
 						</tr>';
 					}
 				}
