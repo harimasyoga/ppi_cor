@@ -12701,7 +12701,7 @@ class Logistik extends CI_Controller
 							// DELIVERY SYSTEM
 							if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
 								if($item->dev_urut == null && $item->dev_id == null){
-									$aDs = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addDevSys('."'".$item->id_rk."'".','."'add'".'); location.href='."'#card-sys'".'"><i class="fas fa-plus"></i></button> ';
+									$aDs = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addDevSys('."'".$item->id_rk."'".','."'add'".')"><i class="fas fa-plus"></i></button> ';
 								}else{
 									$aDs = '';
 								}
@@ -12759,6 +12759,8 @@ class Logistik extends CI_Controller
 
 		if($opsi != 'plat'){
 			$rk = $this->db->query("SELECT*FROM m_rencana_kirim WHERE id_rk='$id_rk'")->row();
+		}else{
+			$rk = '';
 		}
 
 		if($ops_dev == 'CUSTOMER' && $opsi != 'plat'){
@@ -12781,8 +12783,21 @@ class Logistik extends CI_Controller
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
 				</tr>';
 				foreach($urut->result() as $u){
+					$cekRK = $this->db->query("SELECT*FROM m_rencana_kirim r
+					INNER JOIN trs_dev_sys s ON r.dev_id=s.id_dev AND r.dev_urut=s.urut
+					WHERE s.eta='$tgl' AND s.urut='$u->urut'
+					GROUP BY s.eta,s.urut");
+
 					// ADD TIMBANGAN KE DS
-					($opsi == 'plat') ? $aksiAddTimb = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addTimbtoDS('."'".$urutpl."'".', '."'".$u->urut."'".')"><i class="fas fa-check"></i></button>&nbsp;&nbsp;' : $aksiAddTimb = '';
+					if($cekRK->num_rows() != 0){
+						if($u->timb_tgl == null && $u->timb_urut == null){
+							($opsi == 'plat') ? $aksiAddTimb = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addTimbtoDS('."'".$urutpl."'".', '."'".$u->urut."'".')"><i class="fas fa-check"></i></button>&nbsp;&nbsp;' : $aksiAddTimb = '';
+						}else{
+							$aksiAddTimb = '';
+						}
+					}else{
+						$aksiAddTimb = '';
+					}
 
 					$html .= '<tr>
 						<td style="background:#333;color:#fff;padding:6px;font-weight:bold;text-align:center">'.$u->urut.'.</td>
@@ -12868,10 +12883,6 @@ class Logistik extends CI_Controller
 						</tr>';
 					}
 					// MASUK SURAT JALAN
-					$cekRK = $this->db->query("SELECT*FROM m_rencana_kirim r
-					INNER JOIN trs_dev_sys s ON r.dev_id=s.id_dev AND r.dev_urut=s.urut
-					WHERE s.eta='$tgl' AND s.urut='$u->urut'
-					GROUP BY s.eta,s.urut");
 					if($cekRK->num_rows() != 0){
 						if($u->timb_tgl != null && $u->timb_urut != null){
 							$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$u->timb_urut' AND tgl_t='$u->timb_tgl' GROUP BY urut_t,tgl_t");
@@ -12898,7 +12909,7 @@ class Logistik extends CI_Controller
 		$html .= '';
 
 		echo json_encode([
-			// 'rk' => $rk,
+			'rk' => $rk,
 			'html' => $html,
 		]);
 	}

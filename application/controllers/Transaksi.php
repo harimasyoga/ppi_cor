@@ -7994,8 +7994,8 @@ class Transaksi extends CI_Controller
 				$i = 1;
 			}
 
-			$qtyPtoL = ($getData->row()->qty * 0.04) + $getData->row()->qty;
-			$qtyS = $hQtyPo + $_POST['fBagiQtySo'];
+			// $qtyPtoL = ($getData->row()->qty * 0.04) + $getData->row()->qty;
+			// $qtyS = $hQtyPo + $_POST['fBagiQtySo'];
 
 			$data = array(
 				'id' => $_POST['i'],
@@ -8024,22 +8024,24 @@ class Transaksi extends CI_Controller
 				)
 			);
 
-			if($qtyS > $qtyPtoL){
-				if(($rm < 500) && $_POST["fBagiCrmSo"] == 0){
-					echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm).' . RM KURANG!'));
-				}else{
-					echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!'));
-				}
-			}else if($this->cart->total_items() != 0){
+			// if($qtyS > $qtyPtoL){
+			// 	if(($rm < 500) && $_POST["fBagiCrmSo"] == 0){
+			// 		echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm).' . RM KURANG!'));
+			// 	}else{
+			// 		echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!'));
+			// 	}
+			// }else
+			if($this->cart->total_items() != 0){
 				// foreach($this->cart->contents() as $r){
 				// 	if($r['options']['eta_so'] == $_POST["fBagiEtaSo"]){
 				// 		echo json_encode(array('data' => false, 'msg' => 'ETA SUDAH ADA!')); return;
 				// 	}
 				// }
-				$sum_qty_so = $_POST["xxx_qty"] + $_POST['fBagiQtySo'];
-				if($sum_qty_so > $qtyPtoL){
-					echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!'));
-				}else if(($rm < 500) && $_POST["fBagiCrmSo"] == 0){
+				// $sum_qty_so = $_POST["xxx_qty"] + $_POST['fBagiQtySo'];
+				// if($sum_qty_so > $qtyPtoL){
+				// 	echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!'));
+				// }else
+				if(($rm < 500) && $_POST["fBagiCrmSo"] == 0){
 					echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm).' . RM KURANG!'));
 				}else{
 					$this->cart->insert($data);
@@ -9709,7 +9711,8 @@ class Transaksi extends CI_Controller
 									$qtyOnKeyUp = 'disabled';
 									$plhTglChange = 'disabled';
 								}else{
-									$krjOnClick = 'class="btn btn-sm btn-warning" style="color:#fff" onclick="simpan('.$po_ok->id.','.$id_produk.','.$id_pelanggan.',`add`)"';
+									// $krjOnClick = 'class="btn btn-sm btn-warning" style="color:#fff" onclick="simpan('.$po_ok->id.','.$id_produk.','.$id_pelanggan.',`add`)"';
+									$krjOnClick = 'class="btn btn-sm btn-secondary" disabled';
 									$qtyOnKeyUp = 'onkeyup="hitung_os_plan(this.value,this.id,'.$sisa_os_belum_terplanning.','.$po_ok->id.')"';
 									$plhTglChange = 'onchange="tglMuatEtaDSys('."'".$id_pelanggan."'".', '."'".$po_ok->id."'".')"';
 								}
@@ -9792,7 +9795,8 @@ class Transaksi extends CI_Controller
 														if($days <= 0 || $tglNow >= 0){
 															$delH = 'class="btn btn-secondary btn-xs" disabled';
 														}else{
-															($his_plan->id_ex == null) ? $delH = 'class="btn btn-warning btn-xs" onclick="del_history('.$his_plan->id_dev.',`add`)"' : $delH = 'class="btn btn-secondary btn-xs" disabled';
+															$delH = 'class="btn btn-secondary btn-xs" disabled';
+															// ($his_plan->id_ex == null) ? $delH = 'class="btn btn-warning btn-xs" onclick="del_history('.$his_plan->id_dev.',`add`)"' : $delH = 'class="btn btn-secondary btn-xs" disabled';
 														}
 														$cust = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row();
 														$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$cust->prov'");
@@ -10294,7 +10298,7 @@ class Transaksi extends CI_Controller
 				INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 				INNER JOIN m_produk i ON d.id_produk=i.id_produk
 				WHERE d.eta='$u->eta' AND d.urut='$u->urut' $wSls
-				GROUP BY d.id_pelanggan,p.kode_po,d.id_produk
+				GROUP BY d.id_dev,d.id_pelanggan,p.kode_po,d.id_produk
 				ORDER BY c.nm_pelanggan,p.kode_po,i.nm_produk");
 				$i = 0;
 				$totQty = 0;
@@ -10364,16 +10368,36 @@ class Transaksi extends CI_Controller
 						$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$u->timb_urut' AND tgl_t='$u->timb_tgl' GROUP BY urut_t,tgl_t");
 						if($qTimb->num_rows() != 0){
 							$txtTimb = number_format($qTimb->row()->berat_bersih,0,',','.');
+							$calTimb = $qTimb->row()->berat_bersih - $totBerat;
+							if($calTimb < 0){
+								$fixTimb = '<span style="background:#ff758f">'.$calTimb.'</span>';
+							}else if($calTimb > 0){
+								$fixTimb = '<span style="background:#74c69d">+'.$calTimb.'</span>';
+							}else{
+								$fixTimb = '';
+							}
 						}else{
 							$txtTimb = '-';
+							$fixTimb = '';
 						}
 					}else{
 						$txtTimb = '-';
+						$fixTimb = '';
+					}
+					// HITUNG
+					// ($sisa <= 0) ? $bgtd = 'background:#74c69d' : $bgtd = 'background:#ff758f';
+					$calQty = $sjTotQty - $totQty;
+					if($calQty < 0){
+						$fixQty = '<span style="background:#ff758f">'.$calQty.'</span>';
+					}else if($calQty > 0){
+						$fixQty = '<span style="background:#74c69d">+'.$calQty.'</span>';
+					}else{
+						$fixQty = '';
 					}
 					$html .= '<tr style="background:#dee2e6">
 						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">SURAT JALAN</td>
-						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sjTotQty, 0, ',', '.').'</td>
-						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.$txtTimb.'</td>
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sjTotQty, 0, ',', '.').' '.$fixQty.'</td>
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.$txtTimb.' '.$fixTimb.'</td>
 					</tr>';
 				}
 			}

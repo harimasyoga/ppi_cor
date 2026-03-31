@@ -1728,8 +1728,11 @@ class M_logistik extends CI_Model
 		$this->db->where('eta', $tgl_kirim);
 		$data = $this->db->update('trs_dev_sys');
 
+		$rencKirim = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_tgl='$tgl_kirim' AND rk_urut='$urutpl' LIMIT 1")->row();
+
 		return [
 			'data' => $data,
+			'rencKirim' => $rencKirim,
 		];
 	}
 

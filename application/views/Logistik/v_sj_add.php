@@ -80,7 +80,7 @@
 				</div>
 			</div>
 
-			<div class="row" id="card-sys">
+			<div class="row" id="card-sys" style="display:none">
 				<div class="col-md-12">
 					<div class="card card-primary card-outline">
 						<div class="card-header" style="padding:12px">
@@ -565,6 +565,7 @@
 	}
 
 	function listPengiriman() {
+		$("#card-sys").hide()
 		$(".card-body-dev").html('')
 		$("#h_id_rk").val('')
 		let tgl_kirim = $("#tgl_kirim").val()
@@ -653,7 +654,6 @@
 			data: ({ tgl, urut, supir, ekspedisi, opsi }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				listRencanaKirim()
 			}
 		})
@@ -866,6 +866,7 @@
 
 	function addDevSys(id, opsi)
 	{
+		$("#card-sys").show()
 		$(".card-body-dev").html('')
 		let id_rk = ''
 		if(opsi == 'add'){
@@ -874,7 +875,6 @@
 		}else{
 			id_rk = $("#h_id_rk").val()
 		}
-		console.log(id_rk)
 
 		let ops_dev = $("#ops_dev").val()
 		let tgl_kirim = $("#tgl_kirim").val()
@@ -894,10 +894,10 @@
 			data: ({ ops_dev, tgl_kirim, id_rk, opsi, urutpl:id }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$(".card-body-dev").html(data.html)
 				if(data.html != ''){
 					swal.close()
+					location.href = '#card-sys';
 				}
 			}
 		})
@@ -906,14 +906,12 @@
 	function addDStoRK(id_dev)
 	{
 		let id_rk = $("#h_id_rk").val()
-		console.log(id_dev)
 		$.ajax({
 			url: '<?php echo base_url('Logistik/addDStoRK')?>',
 			type: "POST",
 			data: ({ id_rk, id_dev }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					location.href = '#urut'+data.rencKirim.rk_urut;
 					listRencanaKirim()
@@ -925,17 +923,16 @@
 	function addTimbtoDS(urutpl, urutds)
 	{
 		let tgl_kirim = $("#tgl_kirim").val()
-		console.log("urutpl : ", urutpl)
-		console.log("urutds : ", urutds)
-		console.log("tgl_kirim : ", tgl_kirim)
 		$.ajax({
 			url: '<?php echo base_url('Logistik/addTimbtoDS')?>',
 			type: "POST",
 			data: ({ tgl_kirim, urutpl, urutds }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
-				listRencanaKirim()
+				if(data.data){
+					location.href = '#urut'+data.rencKirim.rk_urut;
+					listRencanaKirim()
+				}
 			}
 		})
 	}
