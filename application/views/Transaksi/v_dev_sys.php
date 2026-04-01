@@ -679,4 +679,28 @@
 		})
 	}
 
+	function btlRKtoSys(id_rk, tgl, urutSys)
+	{
+		let rtgl = $("#r_tgl").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/btlRKtoSys')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey : false,
+					allowOutsideClick : false,
+					onOpen: () => { swal.showLoading(); }
+				})
+			},
+			data: ({ id_rk, tgl, urutSys }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.rk){
+					ccDevSys(rtgl)
+				}
+			}
+		})
+	}
+
 </script>

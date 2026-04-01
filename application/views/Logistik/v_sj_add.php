@@ -770,15 +770,15 @@
 		})
 	}
 
-	function cUkuranKualitas(id_rk, id_produk, opsi)
+	function cUkuranKualitas(id_rk, opsi)
 	{
-		let c_uk = $("#c_uk_"+id_produk).val()
-		let c_kl = $("#c_kl_"+id_produk).val()
+		let c_uk = $("#c_uk_"+id_rk).val()
+		let c_kl = $("#c_kl_"+id_rk).val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/cUkuranKualitas')?>',
 			type: "POST",
 			data: ({
-				id_rk, c_uk, c_kl, id_produk, opsi
+				id_rk, c_uk, c_kl, opsi
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -903,13 +903,13 @@
 		})
 	}
 
-	function addDStoRK(id_dev)
+	function addDStoRK(id_dev, opsi)
 	{
 		let id_rk = $("#h_id_rk").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/addDStoRK')?>',
 			type: "POST",
-			data: ({ id_rk, id_dev }),
+			data: ({ id_rk, id_dev, opsi }),
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){

@@ -3231,4 +3231,29 @@ class M_transaksi extends CI_Model
 			'nm_produk' => $nm_produk,
 		];
 	}
+
+	function btlRKtoSys()
+	{
+		$id_rk = $_POST["id_rk"];
+		$tgl = $_POST["tgl"];
+		$urutSys = $_POST["urutSys"];
+
+		// HAPUS RK DEV TGL DAN URUT
+		$this->db->set('dev_urut', null);
+		$this->db->set('dev_id', null);
+		$this->db->where('id_rk', $id_rk);
+		$rk = $this->db->update('m_rencana_kirim');
+
+		// HAPUS TIMBANGAN DELIVERY SYSTEM
+		$this->db->set('timb_tgl', null);
+		$this->db->set('timb_urut', null);
+		$this->db->where('urut', $urutSys);
+		$this->db->where('eta', $tgl);
+		$sys = $this->db->update('trs_dev_sys');
+
+		return [
+			'rk' => $rk,
+			'sys' => $sys,
+		];
+	}
 }
