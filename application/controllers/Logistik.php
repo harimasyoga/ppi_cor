@@ -12546,11 +12546,7 @@ class Logistik extends CI_Controller
 							$cRK = $this->db->query("SELECT dev_urut,dev_id FROM m_rencana_kirim WHERE rk_tgl='$urut->tgl' AND rk_urut='$urut->no_pl_urut' AND dev_urut IS NULL AND dev_id IS NULL GROUP BY dev_urut,dev_id");
 							if($cRK->num_rows() == 0){
 								$cSYS = $this->db->query("SELECT timb_tgl,timb_urut FROM trs_dev_sys WHERE timb_tgl='$urut->tgl' AND timb_urut='$urut->no_pl_urut' AND timb_urut IS NOT NULL AND timb_tgl IS NOT NULL GROUP BY timb_tgl,timb_urut");
-								if($cSYS->num_rows() == 0){
-									$aDx = ' <button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addDevSys('."'".$urut->no_pl_urut."'".','."'plat'".');"><i class="fas fa-plus"></i></button>';
-								}else{
-									$aDx = '';
-								}
+								($cSYS->num_rows() == 0) ? $aDx = ' <button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addDevSys('."'".$urut->no_pl_urut."'".','."'plat'".');"><i class="fas fa-plus"></i></button>' : $aDx = '';
 							}else{
 								$aDx = '';
 							}
@@ -12696,12 +12692,12 @@ class Logistik extends CI_Controller
 							($item->attn == '-') ? $attn = '' : $attn = '<div>'.$item->attn.'</div>';
 							(strlen($item->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
 							(strlen($item->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
-							(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $uUK = 'onclick="cUkuranKualitas('."'".$item->id_rk."'".','."'".$item->id_produk."'".','."'UK'".')"' : $uUK = '';
-							(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $uKL = 'onclick="cUkuranKualitas('."'".$item->id_rk."'".','."'".$item->id_produk."'".','."'KL'".')"' : $uKL = '';
+							(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $uUK = 'onclick="cUkuranKualitas('."'".$item->id_rk."'".', '."'UK'".')"' : $uUK = '';
+							(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $uKL = 'onclick="cUkuranKualitas('."'".$item->id_rk."'".', '."'KL'".')"' : $uKL = '';
 							// DELIVERY SYSTEM
 							if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
-								if($item->dev_urut == null && $item->dev_id == null){
-									$aDs = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addDevSys('."'".$item->id_rk."'".','."'add'".')"><i class="fas fa-plus"></i></button> ';
+								if($qTimb->num_rows() > 0){
+									($item->dev_urut == null && $item->dev_id == null) ? $aDs = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addDevSys('."'".$item->id_rk."'".','."'add'".')"><i class="fas fa-plus"></i></button> ' : $aDs = '';
 								}else{
 									$aDs = '';
 								}
@@ -12714,12 +12710,12 @@ class Logistik extends CI_Controller
 									'.$dv1.$aDs.$item->nm_produk.$dv2.'
 								</td>
 								<td style="padding:6px;border:1px solid #dee2e6">
-									<input type="checkbox" id="c_uk_'.$item->id_produk.'" '.$uUK.' value="'.$item->c_uk.'" '.$c_uk.' '.$dXs.'>
+									<input type="checkbox" id="c_uk_'.$item->id_rk.'" '.$uUK.' value="'.$item->c_uk.'" '.$c_uk.' '.$dXs.'>
 									'.$ukuran.'
 								</td>
 								<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$item->flute.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">
-									<input type="checkbox" id="c_kl_'.$item->id_produk.'" '.$uKL.' value="'.$item->c_kl.'" '.$c_kl.' '.$dXs.'>
+									<input type="checkbox" id="c_kl_'.$item->id_rk.'" '.$uKL.' value="'.$item->c_kl.'" '.$c_kl.' '.$dXs.'>
 									'.$this->m_fungsi->kualitas($item->kualitas, $item->flute).'
 								</td>
 								<td style="padding:6px;border:1px solid #dee2e6;font-weight:bold;text-align:right">'.number_format($item->qty_muat,0,",",".").'</td>
@@ -12843,7 +12839,19 @@ class Logistik extends CI_Controller
 						}
 
 						// ADD TIMBANGAN KE DS
-						($opsi == 'plat') ? $aksiAdd = '' : $aksiAdd = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addDStoRK('."'".$r->id_dev."'".')"><i class="fas fa-check"></i></button>';
+						if($u->timb_tgl == null && $u->timb_urut == null){
+							if($opsi == 'plat'){
+								$aksiAdd = '';
+							}else{
+								if($r->id_produk == $rk->id_produk){
+									$aksiAdd = '<button type="button" class="btn btn-xs btn-primary" onclick="addDStoRK('."'".$r->id_dev."'".', '."'Y'".')"><i class="fas fa-check"></i></button>';
+								}else{
+									$aksiAdd = '<button type="button" class="btn btn-xs btn-secondary" disabled><i class="fas fa-check"></i></button>';
+								}
+							}
+						}else{
+							$aksiAdd = '<button type="button" class="btn btn-xs btn-secondary" disabled><i class="fas fa-check"></i></button>';
+						}
 
 						$html .= '<tr style="vertical-align:top'.$bgV.'">
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$aksiAdd.'</td>
@@ -12857,15 +12865,17 @@ class Logistik extends CI_Controller
 						</tr>';
 
 						// CEK MASUK SURAT JALAN
-						$rk2 = $this->db->query("SELECT*FROM m_rencana_kirim WHERE dev_id='$r->id_dev'");
+						$rk2 = $this->db->query("SELECT l.no_surat,r.* FROM m_rencana_kirim r
+						INNER JOIN pl_box l ON r.rk_kode_po=l.no_po AND r.rk_urut=l.no_pl_urut AND r.id_pl_box=l.id
+						WHERE dev_id='$r->id_dev'");
 						if($rk2->num_rows() != 0){
 							foreach($rk2->result() as $k){
-								$html .= '<tr>
-									<td style="border:1px solid #dee2e6;border-width:1px 0 1px 1px;padding:3px 6px;font-style:italic" colspan="3"></td>
-									<td style="border:1px solid #dee2e6;border-width:1px 0;padding:3px 6px;font-style:italic">'.$k->rk_kode_po.'</td>
-									<td style="border:1px solid #dee2e6;border-width:1px 0;padding:3px 6px;font-style:italic"></td>
-									<td style="border:1px solid #dee2e6;border-width:1px 0;padding:3px 6px;font-style:italic;text-align:right">'.number_format($k->qty_muat, 0, ',', '.').'</td>
-									<td style="border:1px solid #dee2e6;border-width:1px 1px 1px 0;padding:3px 6px;font-style:italic" colspan="2"></td>
+								$html .= '<tr style="font-style:italic;font-weight:bold">
+									<td style="border:1px solid #dee2e6;border-width:1px 0 1px 1px;padding:6px;text-align:right" colspan="3">'.$k->no_surat.'</td>
+									<td style="border:1px solid #dee2e6;border-width:1px 0;padding:6px">'.$k->rk_kode_po.'</td>
+									<td style="border:1px solid #dee2e6;border-width:1px 0;padding:6px"></td>
+									<td style="border:1px solid #dee2e6;border-width:1px 0;padding:6px;text-align:right">'.number_format($k->qty_muat, 0, ',', '.').'</td>
+									<td style="border:1px solid #dee2e6;border-width:1px 1px 1px 0;padding:6px" colspan="2"></td>
 								</tr>';
 								$sjTotQty += $k->qty_muat;
 							}
@@ -12874,6 +12884,39 @@ class Logistik extends CI_Controller
 						$totBerat += $r->berat;
 					}
 
+					// CEK MASUK SURAT JALAN TAPI TIDAK ADA DALAM LIST
+					$rkNull = $this->db->query("SELECT l.no_surat,p.nm_pelanggan,i.nm_produk,r.* FROM m_rencana_kirim r
+					INNER JOIN pl_box l ON r.rk_kode_po=l.no_po AND r.rk_urut=l.no_pl_urut AND r.id_pl_box=l.id
+					INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
+					INNER JOIN m_produk i ON r.id_produk=i.id_produk
+					WHERE r.rk_tgl='$tgl' AND r.dev_urut='$u->urut' AND r.dev_id IS NULL
+					ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
+					$totNQty = 0;
+					if($rkNull->num_rows() != 0){
+						foreach($rkNull->result() as $n){
+							($n->kategori == "BOX") ? $nk2 = '[BOX] ' : $nk2 = '[SHEET] ';
+							(strlen($n->nm_produk) >= 35) ? $nV1 = '<div style="width:320px;white-space:normal">' : $nV1 = '';
+							(strlen($n->nm_produk) >= 35) ? $nV2 = '</div>' : $nV2 = '';
+							$html .= '<tr style="vertical-align:top;background:#fdd;font-style:italic;font-weight:bold">
+								<td style="border:1px solid #dee2e6;padding:6px"></td>
+								<td style="border:1px solid #dee2e6;padding:6px" colspan="2">'.$n->nm_pelanggan.' <span style="float:right">'.$n->no_surat.'</span></td>
+								<td style="border:1px solid #dee2e6;padding:6px">'.$n->rk_kode_po.'</td>
+								<td style="border:1px solid #dee2e6;padding:6px">'.$nV1.$nk2.$n->nm_produk.$nV2.'</td>
+								<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($n->qty_muat, 0, ',', '.').'</td>
+								<td style="border:1px solid #dee2e6;padding:6px" colspan="2"></td>
+							</tr>';
+							$totNQty += $n->qty_muat;
+						}
+					}
+					// TOMBOL TIDAK ADA DALAM LIST
+					if($u->timb_tgl == null && $u->timb_urut == null && $opsi != 'plat'){
+						$html .= '<tr>
+							<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
+								<button type="button" class="btn btn-xs btn-primary" onclick="addDStoRK('."'".$u->urut."'".', '."'N'".')"><i class="fas fa-check"></i></button>
+							</td>
+							<td style="border:1px solid #dee2e6;padding:6px;font-weight:bold" colspan="7">TIDAK ADA DALAM LIST</td>
+						</tr>';
+					}
 					// TOTAL
 					if($sys->num_rows() != 1){
 						$html .= '<tr style="background:#dee2e6">
@@ -12896,7 +12939,7 @@ class Logistik extends CI_Controller
 						}
 						$html .= '<tr style="background:#dee2e6">
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">SURAT JALAN</td>
-							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sjTotQty, 0, ',', '.').'</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sjTotQty + $totNQty, 0, ',', '.').'</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.$txtTimb.'</td>
 						</tr>';
 					}

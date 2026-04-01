@@ -1075,6 +1075,13 @@ class M_logistik extends CI_Model
 		$tgl = $pL->row()->tgl;
 		$grPL = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND no_pl_urut='$urut' GROUP BY no_surat");
 
+		// UPDATE TIMBANGAN SYS
+		$this->db->set('timb_tgl', null);
+		$this->db->set('timb_urut', null);
+		$this->db->where('timb_tgl', $tgl);
+		$this->db->where('timb_urut', $urut);
+		$uSys = $this->db->update('trs_dev_sys');
+
 		// HAPUS TIMBANGAN
 		if($grPL->num_rows() == 1){
 			$this->db->where('urut_t', $pL->row()->no_pl_urut);
@@ -1118,6 +1125,7 @@ class M_logistik extends CI_Model
 			'delRk' => $delRk,
 			'updRk' => $updRk,
 			'delPL' => $delPL,
+			'uSys' => $uSys,
 		];
 	}
 
@@ -1666,7 +1674,6 @@ class M_logistik extends CI_Model
 		$id_rk = $_POST["id_rk"];
 		$c_uk = $_POST["c_uk"];
 		$c_kl = $_POST["c_kl"];
-		$id_produk = $_POST["id_produk"];
 		$opsi = $_POST["opsi"];
 		
 		// GET RENCANA KIRIM
@@ -1680,10 +1687,10 @@ class M_logistik extends CI_Model
 			$ket = $c_kl;
 		}
 		$this->db->set($set, ($ket == 1) ? 0 : 1);
-		$this->db->where("rk_tgl", $rk->rk_tgl);
-		$this->db->where("id_produk", $rk->id_produk);
-		$this->db->where("rk_urut", $rk->rk_urut);
-		$this->db->where("id_rk", $rk->id_rk);
+		// $this->db->where("rk_tgl", $rk->rk_tgl);
+		// $this->db->where("id_produk", $rk->id_produk);
+		// $this->db->where("rk_urut", $rk->rk_urut);
+		$this->db->where("id_rk", $id_rk);
 		$result = $this->db->update("m_rencana_kirim");
 
 		return [
@@ -1696,13 +1703,20 @@ class M_logistik extends CI_Model
 	{
 		$id_rk = $_POST["id_rk"];
 		$id_dev = $_POST["id_dev"];
+		$opsi = $_POST["opsi"];
 
-		$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_dev'")->row();
-
-		$this->db->set('dev_urut', $sys->urut);
-		$this->db->set('dev_id', $id_dev);
-		$this->db->where("id_rk", $id_rk);
-		$rk = $this->db->update("m_rencana_kirim");
+		if($opsi == 'Y'){
+			$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_dev'")->row();
+			$this->db->set('dev_urut', $sys->urut);
+			$this->db->set('dev_id', $id_dev);
+			$this->db->where("id_rk", $id_rk);
+			$rk = $this->db->update("m_rencana_kirim");
+		}else{
+			$this->db->set('dev_urut', $id_dev);
+			$this->db->set('dev_id', null);
+			$this->db->where("id_rk", $id_rk);
+			$rk = $this->db->update("m_rencana_kirim");
+		}
 
 		$rencKirim = $this->db->query("SELECT*FROM m_rencana_kirim WHERE id_rk='$id_rk'")->row();
 
