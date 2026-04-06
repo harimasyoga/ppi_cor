@@ -3216,7 +3216,7 @@ class M_transaksi extends CI_Model
 
 	function hapusDelSys()
 	{
-		$id = $this->session->userdata('level');
+		$lvl = $this->session->userdata('level');
 		$id = $_POST["id"];
 		$dev = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id'")->row();
 		$nm_produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$dev->id_produk'")->row()->nm_produk;

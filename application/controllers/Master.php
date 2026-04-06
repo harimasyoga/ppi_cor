@@ -500,9 +500,10 @@ class Master extends CI_Controller
 				$data[] = $row;
 			}
 		} else if ($jenis == "produk") {
-			$id_pelanggan = $_POST["id_pelanggan"];
-			($id_pelanggan == '') ? $wCust = "" : $wCust = "WHERE p.no_customer='$id_pelanggan'";
-			$query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan $wCust ORDER BY kategori,nm_produk")->result();
+			// $id_pelanggan = $_POST["id_pelanggan"];
+			// ($id_pelanggan == '') ? $wCust = "" : $wCust = "WHERE p.no_customer='$id_pelanggan'";
+			// $query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan $wCust ORDER BY kategori,nm_produk")->result();
+			$query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan WHERE p.no_customer='32' ORDER BY kategori,nm_produk")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				($r->kategori == 'K_SHEET') ? $kategori='SHEET' : $kategori='BOX';

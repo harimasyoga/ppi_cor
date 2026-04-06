@@ -295,6 +295,16 @@
 					<!-- DESIGN -->
 					<tr>
 						<td style="padding:5px 0;font-weight:bold;vertical-align:top">DESIGN</td>
+						<td style="padding:5px 0" colspan="2">
+							<select class="form-control select2" id="pilih_mc">
+								<option value="">PILIH</option>
+								<option value="MC">MC</option>
+								<option value="KL">KL</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td style="padding:5px 0"></td>
 						<td style="padding:5px 0" colspan="9">
 							<div class="html-design">-</div>
 						</td>
