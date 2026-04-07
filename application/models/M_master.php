@@ -477,6 +477,7 @@ class M_master extends CI_Model{
 	function uploadDesign()
 	{
 		$id = $_POST["id_mc"];
+		$pilih_mc = $_POST["pilih_mc"];
 
 		$config['upload_path'] = './assets/mc/';
 		$config['allowed_types'] = 'jpg|jpeg|png|gif|webp';
@@ -487,7 +488,9 @@ class M_master extends CI_Model{
 		$this->load->library('upload', $config);
 		$this->upload->initialize($config);
 
-		if(!$this->upload->do_upload('mc_foto')){
+		if($pilih_mc == ""){
+			$data = false; $msg = 'PILIH JENIS!';
+		}else if(!$this->upload->do_upload('mc_foto')){
 			$data = false; $msg = 'UKURAN LEBIH DARI 2 MB / FORMAT FILE TIDAK DIDUKUNG!';
 		}else{
 			if($this->upload->do_upload('mc_foto')){
@@ -495,6 +498,7 @@ class M_master extends CI_Model{
 				$filefoto = $gbrBukti['file_name'];
 				$dd = [
 					'id_produk' => $id,
+					'jenis_mc' => $pilih_mc,
 					'img_mc' => $filefoto,
 				];
 				$data = $this->db->insert('m_produk_mc', $dd);

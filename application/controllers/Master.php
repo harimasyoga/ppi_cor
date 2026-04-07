@@ -1153,6 +1153,7 @@ class Master extends CI_Controller
 		$htmlDesign = '';
 		$htmlUpload = '<div style="margin-bottom:5px">
 			<form role="form" method="POST" id="upload_design" enctype="multipart/form-data">
+				<input type="hidden" name="pilih_mc" id="pilih_mc" value="">
 				<input type="hidden" name="id_mc" id="id_mc" value="'.$id.'">
 				<input type="file" name="mc_foto" id="mc_foto" accept="image/*" onchange="cekUpload()">
 			</form>

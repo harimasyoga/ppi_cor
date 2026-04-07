@@ -10478,18 +10478,13 @@ class Transaksi extends CI_Controller
 						$supir = $qTimb->row()->nm_sopir;
 						$bTruk = number_format($qTimb->row()->berat_truk,0,',','.');
 						$berat = number_format($qTimb->row()->berat_bersih,0,',','.');
-						$bgAa = 'btn-warning';
-						$txAa = '<i class="fas fa-pen"></i>';
 					}else{
 						$supir = $urut->driver;
 						$bTruk = ''; $berat = '';
-						$bgAa = 'btn-success';
-						$txAa = '<i class="fas fa-plus"></i>';
 					}
 					
 					// NO PLAT
 					$editNopol = 'disabled';
-					$aksiTimb = 'disabled';
 					$addSupir = '';
 					$addEkspedisi = '';
 					$dXs = 'disabled';
@@ -10603,8 +10598,13 @@ class Transaksi extends CI_Controller
 							($item->attn == '-') ? $attn = '' : $attn = '<div>'.$item->attn.'</div>';
 							(strlen($item->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
 							(strlen($item->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+							if($item->dev_urut != null){
+								$bz = ';background:#dfd';
+							}else{
+								$bz = ';background:#fdd';
+							}
 							$uUK = ''; $uKL = '';
-							$htmlSJ .='<tr style="vertical-align:top">
+							$htmlSJ .='<tr style="vertical-align:top'.$bz.'">
 								<td style="padding:6px;border:1px solid #dee2e6">'.$item->nm_pelanggan.$attn.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">
 									'.$dv1.$item->nm_produk.$dv2.'
