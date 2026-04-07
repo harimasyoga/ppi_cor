@@ -9981,7 +9981,7 @@ class Logistik extends CI_Controller
 			$d = 0;
 			$subTotal = $totalHarga;
 		}
-		if($ppnpph == 'ppn'){ // PPN 10 %
+		if($ppnpph == 'ppn'){ // PPN
 			if($data_detail->inc_exc=='Include'){
 				$terbilang = round($subTotal);
 			}else if($data_detail->inc_exc=='Exclude'){
@@ -10243,13 +10243,13 @@ class Logistik extends CI_Controller
 					{
 						$norek        = '5758699099';
 						$nm_bank      = 'BNI';
-						$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+						$email        = 'primapaperin@gmail.com';
 						$ket_email    = '* Harap bukti transfer di email ke';
 						$an           = 'PT. PRIMA PAPER INDONESIA';
 					}else{
 						$norek        = '5758699690';
 						$nm_bank      = 'BNI';
-						$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+						$email        = 'primapaperin@gmail.com';
 						$ket_email    = '* Harap bukti transfer di email ke';
 						$an           = 'PT. PRIMA PAPER INDONESIA';
 					}
@@ -10259,13 +10259,13 @@ class Logistik extends CI_Controller
 					{
 						$norek        = '0144384024001';
 						$nm_bank      = 'PT Bank Pembangunan Daerah Jawa Barat dan Banten (BJB) <br>';
-						$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+						$email        = 'primapaperin@gmail.com';
 						$ket_email    = '* Harap bukti transfer di email ke';
 						$an           = 'PT. PRIMA PAPER INDONESIA';
 					}else{
 						$norek        = '0144384024001';
 						$nm_bank      = 'PT Bank Pembangunan Daerah Jawa Barat dan Banten (BJB) <br>';
-						$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+						$email        = 'primapaperin@gmail.com';
 						$ket_email    = '* Harap bukti transfer di email ke';
 						$an           = 'PT. PRIMA PAPER INDONESIA';
 					}
@@ -10275,13 +10275,13 @@ class Logistik extends CI_Controller
 					{
 						$norek        = '078 795 5758';
 						$nm_bank      = 'BCA';
-						$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+						$email        = 'primapaperin@gmail.com';
 						$ket_email    = '* Harap bukti transfer di email ke';
 						$an           = 'PT. PRIMA PAPER INDONESIA';
 					}else{
 						$norek        = '078 027 5758';
 						$nm_bank      = 'BCA';
-						$email        = 'primapaperin@gmail.com / bethppi@yahoo.co.id';
+						$email        = 'primapaperin@gmail.com';
 						$ket_email    = '* Harap bukti transfer di email ke';
 						$an           = 'PT. PRIMA PAPER INDONESIA';
 					}

@@ -157,11 +157,11 @@
 				</div>
 			</div>
 			
-			<div class="row">
+			<div class="row" id="jadwal">
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline">
 						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">RINCIAN PENGIRIMAN<span class="rinc-tgl" style="font-style:italic"></span></h3>
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">RINCIAN JADWAL PENGIRIMAN<span class="rinc-tgl" style="font-style:italic"></span></h3>
 							<div class="card-tools">
 								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
 								<i class="fas fa-minus"></i></button>
@@ -171,6 +171,26 @@
 							<input type="hidden" id="r_tgl" value="">
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="ds-kiriman">-</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row" id="realisasi">
+				<div class="col-md-12">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">RINCIAN REALISASI PENGIRIMAN<span class="rinc-real-tgl" style="font-style:italic"></span></h3>
+							<div class="card-tools">
+								<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+								<i class="fas fa-minus"></i></button>
+							</div>
+						</div>
+						<div class="card-body" style="padding:12px 6px">
+							<input type="hidden" id="z_tgl" value="">
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="ds-suratjalan">-</div>
 							</div>
 						</div>
 					</div>
@@ -219,10 +239,19 @@
 		})
 	}
 
-	function ccDevSys(tgl) {
-		let tahun = $("#tahun").val()
-		let bulan = $("#bulan").val()
-		$(".rinc-tgl").html('')
+	function ccDevSys(tgl, opsi) {
+		let tahun = ''
+		let bulan = ''
+		if(opsi == 'jadwal'){
+			tahun = $("#tahun").val()
+			bulan = $("#bulan").val()
+			$(".rinc-tgl").html('')
+		}
+		if(opsi == 'kirim'){
+			tahun = $("#real_tahun").val()
+			bulan = $("#real_bulan").val()
+			$(".rinc-real-tgl").html('')
+		}
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/ccDevSys') ?>',
 			type: "POST",
@@ -236,15 +265,27 @@
 					}
 				});
 			},
-			data: ({ tgl, tahun, bulan }),
+			data: ({ tgl, tahun, bulan, opsi }),
 			success: function(res) {
 				data = JSON.parse(res)
-				$(".ds-kiriman").html(data.html)
-				$(".rinc-tgl").html(data.tglRincian)
-				$('.select2').select2()
-				$("#h_tgl").val(tgl)
-				$("#r_tgl").val(tgl)
-				loadCalender('edit')
+				if(opsi == 'jadwal'){
+					$(".ds-kiriman").html(data.html)
+					$(".rinc-tgl").html(data.tglRincian)
+					$('.select2').select2()
+					$("#h_tgl").val(tgl)
+					$("#r_tgl").val(tgl)
+					loadCalender('edit')
+					location.href = '#jadwal';
+				}
+				if(opsi == 'kirim'){
+					$(".ds-suratjalan").html(data.htmlSJ)
+					$(".rinc-real-tgl").html(data.tglRealRinc)
+					$('.select2').select2()
+					$("#k_tgl").val(tgl)
+					$("#z_tgl").val(tgl)
+					loadRealCalender('edit')
+					location.href = '#realisasi';
+				}
 			}
 		})
 	}
@@ -253,10 +294,10 @@
 		let tgl = $("#k_tgl").val()
 		let tahun = $("#real_tahun").val()
 		let bulan = $("#real_bulan").val()
-		// if(opsi == ''){
-		// 	$(".ds-kiriman").html('-')
-		// 	$(".rinc-tgl").html('')
-		// }
+		if(opsi == ''){
+			$(".ds-suratjalan").html('-')
+			$(".rinc-real-tgl").html('')
+		}
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadRealCalender') ?>',
 			data: ({ tgl, tahun, bulan }),

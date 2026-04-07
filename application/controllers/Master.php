@@ -500,9 +500,10 @@ class Master extends CI_Controller
 				$data[] = $row;
 			}
 		} else if ($jenis == "produk") {
-			$id_pelanggan = $_POST["id_pelanggan"];
-			($id_pelanggan == '') ? $wCust = "" : $wCust = "WHERE p.no_customer='$id_pelanggan'";
-			$query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan $wCust ORDER BY kategori,nm_produk")->result();
+			// $id_pelanggan = $_POST["id_pelanggan"];
+			// ($id_pelanggan == '') ? $wCust = "" : $wCust = "WHERE p.no_customer='$id_pelanggan'";
+			// $query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan $wCust ORDER BY kategori,nm_produk")->result();
+			$query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan WHERE p.no_customer='32' ORDER BY kategori,nm_produk")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				($r->kategori == 'K_SHEET') ? $kategori='SHEET' : $kategori='BOX';
@@ -1152,6 +1153,7 @@ class Master extends CI_Controller
 		$htmlDesign = '';
 		$htmlUpload = '<div style="margin-bottom:5px">
 			<form role="form" method="POST" id="upload_design" enctype="multipart/form-data">
+				<input type="hidden" name="pilih_mc" id="pilih_mc" value="">
 				<input type="hidden" name="id_mc" id="id_mc" value="'.$id.'">
 				<input type="file" name="mc_foto" id="mc_foto" accept="image/*" onchange="cekUpload()">
 			</form>

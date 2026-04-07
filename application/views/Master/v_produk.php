@@ -295,6 +295,16 @@
 					<!-- DESIGN -->
 					<tr>
 						<td style="padding:5px 0;font-weight:bold;vertical-align:top">DESIGN</td>
+						<td style="padding:5px 0" colspan="2">
+							<select class="form-control select2" id="cmc" onchange="pilihMC()">
+								<option value="">PILIH</option>
+								<option value="MC">MC</option>
+								<option value="KL">KL</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td style="padding:5px 0"></td>
 						<td style="padding:5px 0" colspan="9">
 							<div class="html-design">-</div>
 						</td>
@@ -331,6 +341,11 @@
 		$("#judul").html('<h3> Form Tambah Data</h3>');
 		$("#modalForm").modal("show");
 	});
+
+	function pilihMC() {
+		let pilihMC = $("#cmc").val()
+		$("#pilih_mc").val(pilihMC)
+	}
 
 	function load_data() {
 		let id_pelanggan = $("#pelanggan").val();
@@ -634,6 +649,7 @@
 		$("#no_karet").val("-");
 		$("#toleransi_kirim").val(0);
 		$("#spesial_req").val("-");
+		$("#cmc").val("").trigger('change')
 		$(".html-design").html('-')
 		status = 'insert';
 		$("#btn-simpan").show().prop("disabled", false);
