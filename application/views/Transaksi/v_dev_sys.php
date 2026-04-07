@@ -343,7 +343,7 @@
 			success: function(res) {
 				data = JSON.parse(res)
 				if(data.data){
-					ccDevSys(tgl)
+					ccDevSys(tgl, 'jadwal')
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
 					swal.close()
@@ -374,7 +374,7 @@
 			success: function(res) {
 				data = JSON.parse(res)
 				if(data.data){
-					ccDevSys(tgl)
+					ccDevSys(tgl, 'jadwal')
 				}
 			}
 		})
@@ -401,7 +401,7 @@
 			success: function(res) {
 				data = JSON.parse(res)
 				if(data.data){
-					ccDevSys(tgl)
+					ccDevSys(tgl, 'jadwal')
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
 					swal.close()
@@ -738,7 +738,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.rk){
-					ccDevSys(rtgl)
+					ccDevSys(rtgl, 'jadwal')
 				}
 			}
 		})
