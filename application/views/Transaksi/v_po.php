@@ -1197,7 +1197,7 @@
 				dataType: "JSON",
 			})
 			.done(function(data) {
-				if(urlAuth == 'Admin' || urlAuth == 'Owner' || urlAuth == 'User'){
+				if(urlAuth == 'Admin' || urlAuth == 'Owner' || urlAuth == 'User' || urlAuth == 'PPIC'){
 					$(".design").html(data.html);
 				}else{
 					$(".design").html("");

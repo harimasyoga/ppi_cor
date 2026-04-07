@@ -69,6 +69,23 @@
 			</div>
 		</div>
 	</section>
+
+	<?php if($this->session->userdata('level') == 'Admin') { ?>
+		<section class="content">
+			<div class="card">
+				<div class="card-header" style="font-family:Cambria;">
+					<h3 class="card-title" style="color:#4e73df;">EDIT MC</b></h3>
+					<div class="card-tools">
+						<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+							<i class="fas fa-minus"></i></button>
+					</div>
+				</div>
+				<div class="card-body">
+					<div class="edit-mc"></div>
+				</div>
+			</div>
+		</section>
+	<?php } ?>
 </div>
 
 <div class="modal fade" id="modalForm">
@@ -327,6 +344,9 @@
 	const urlUser = '<?= $this->session->userdata('username')?>';
 
 	$(document).ready(function() {
+		if(urlAuth == 'Admin'){
+			loadMC()
+		}
 		load_data();
 		$('.select2').select2({
 			dropdownAutoWidth: true
@@ -341,6 +361,34 @@
 		$("#judul").html('<h3> Form Tambah Data</h3>');
 		$("#modalForm").modal("show");
 	});
+
+	function loadMC() {
+		$.ajax({
+			url: '<?php echo base_url('Master/loadMC')?>',
+			type: "POST",
+			success: function(res){
+				data = JSON.parse(res)
+				$(".edit-mc").html(data.html)
+			}
+		})
+	}
+
+	function btnEditMC(id_mc) {
+		let jenis_mc = $("#jenis_mc"+id_mc).val()
+		$.ajax({
+			url: '<?php echo base_url('Master/btnEditMC')?>',
+			type: "POST",
+			data: ({ id_mc, jenis_mc }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`);
+				}else{
+					toastr.error(`<b>${data.msg}</b>`);
+				}
+			}
+		})
+	}
 
 	function pilihMC() {
 		let pilihMC = $("#cmc").val()
@@ -777,7 +825,7 @@
 			$("#h_material").val(data.produk.material)
 			$("#h_berat_bersih").val(data.produk.berat_bersih)
 			$("#h_luas_bersih").val(data.produk.luas_bersih)
-			if(urlAuth == 'Admin' || urlAuth == 'Admin2' || urlAuth == 'User'){
+			if(urlAuth == 'Admin' || urlAuth == 'Admin2' || urlAuth == 'User' || urlAuth == 'PPIC'){
 				$(".html-design").html(data.htmlDesign)
 			}else{
 				$(".html-design").html('-')

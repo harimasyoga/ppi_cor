@@ -140,7 +140,7 @@ class Transaksi extends CI_Controller
 					}
 					$htmlDtl .= '<div>
 						<span style="margin:0;padding:3px 4px;font-size:12px;font-weight:bold'.$s.'">'.$r->ket_po.'</span>
-					</div>';
+					</div>'; 
 				}
 				$preview = 'p'.$z;
 				$htmlDtl .= '<div style="margin-right:8px">
@@ -4836,11 +4836,13 @@ class Transaksi extends CI_Controller
 			LEFT JOIN m_produk e ON b.id_produk=e.id_produk
 			WHERE a.no_po = '$header->no_po' ORDER BY b.id")->result();
 
+			// DESIGN
 			$html = '';
+			($this->session->userdata('level') == 'PPIC') ? $wPmc = "AND m.jenis_mc='MC'" : $wPmc = "";
 			$design = $this->db->query("SELECT i.nm_produk,m.img_mc,d.* FROM trs_po_detail d
 			INNER JOIN m_produk i ON d.id_produk=i.id_produk
 			INNER JOIN m_produk_mc m ON i.id_produk=m.id_produk
-			WHERE d.no_po='$header->no_po'
+			WHERE d.no_po='$header->no_po' $wPmc
 			GROUP BY d.id_produk");
 			if($design->num_rows() != 0){
 				$html .= '<div class="card-body row" style="padding : 5px;font-weight:bold">
@@ -4851,15 +4853,21 @@ class Transaksi extends CI_Controller
 							$o++;
 							$html .= '<div>'.$r->nm_produk.'</div>';
 							// data
-							$img = $this->db->query("SELECT i.nm_produk,m.img_mc,d.* FROM trs_po_detail d
+							$img = $this->db->query("SELECT i.nm_produk,m.img_mc,m.jenis_mc,d.* FROM trs_po_detail d
 							INNER JOIN m_produk i ON d.id_produk=i.id_produk
 							INNER JOIN m_produk_mc m ON i.id_produk=m.id_produk
-							WHERE d.no_po='$header->no_po' AND d.id_produk='$r->id_produk'
+							WHERE d.no_po='$header->no_po' AND d.id_produk='$r->id_produk' $wPmc
 							GROUP BY d.id_produk, m.id_mc");
 							$html .= '<div class="list-design" style="display:flex;padding:6px">';
 								foreach($img->result() as $i){
 									$o++;
 									$preview = 'p'.$o;
+									if($i->jenis_mc != null){
+										($i->jenis_mc == 'MC') ? $s = ';background:#ffc"' : $s = ';background:#ccc"';
+										$html .= '<div>
+											<span style="margin:0;padding:3px 4px;font-size:12px;font-weight:bold'.$s.'">'.$i->jenis_mc.'</span>
+										</div>';
+									}
 									$html .= '<div style="margin-right:8px">
 										<img id="'.$preview.'" src="'.base_url().'assets/mc/'.$i->img_mc.'" alt="preview design" width="100" class="shadow-sm img-thumbnail" onclick="imgClick('."'".$preview."'".')">
 									</div>';
@@ -4952,11 +4960,12 @@ class Transaksi extends CI_Controller
 			WHERE a.no_po = '$header->no_po' ORDER BY b.id")->result();
 
 			// DESIGN
+			($this->session->userdata('level') == 'PPIC') ? $wPmc = "AND m.jenis_mc='MC'" : $wPmc = "";
 			$html = '';
 			$design = $this->db->query("SELECT i.nm_produk,m.img_mc,d.* FROM trs_po_detail d
 			INNER JOIN m_produk i ON d.id_produk=i.id_produk
 			INNER JOIN m_produk_mc m ON i.id_produk=m.id_produk
-			WHERE d.no_po='$header->no_po'
+			WHERE d.no_po='$header->no_po' $wPmc
 			GROUP BY d.id_produk");
 			if($design->num_rows() != 0){
 				$html .= '<div class="card-body row" style="padding : 5px;font-weight:bold">
@@ -4967,15 +4976,21 @@ class Transaksi extends CI_Controller
 							$o++;
 							$html .= '<div>'.$r->nm_produk.'</div>';
 							// data
-							$img = $this->db->query("SELECT i.nm_produk,m.img_mc,d.* FROM trs_po_detail d
+							$img = $this->db->query("SELECT i.nm_produk,m.img_mc,m.jenis_mc,d.* FROM trs_po_detail d
 							INNER JOIN m_produk i ON d.id_produk=i.id_produk
 							INNER JOIN m_produk_mc m ON i.id_produk=m.id_produk
-							WHERE d.no_po='$header->no_po' AND d.id_produk='$r->id_produk'
+							WHERE d.no_po='$header->no_po' AND d.id_produk='$r->id_produk' $wPmc
 							GROUP BY d.id_produk, m.id_mc");
 							$html .= '<div class="list-design" style="display:flex;padding:6px">';
 								foreach($img->result() as $i){
 									$o++;
 									$preview = 'p'.$o;
+									if($i->jenis_mc != null){
+										($i->jenis_mc == 'MC') ? $s = ';background:#ffc"' : $s = ';background:#ccc"';
+										$html .= '<div>
+											<span style="margin:0;padding:3px 4px;font-size:12px;font-weight:bold'.$s.'">'.$i->jenis_mc.'</span>
+										</div>';
+									}
 									$html .= '<div style="margin-right:8px">
 										<img id="'.$preview.'" src="'.base_url().'assets/mc/'.$i->img_mc.'" alt="preview design" width="100" class="shadow-sm img-thumbnail" onclick="imgClick('."'".$preview."'".')">
 									</div>';
