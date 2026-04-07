@@ -500,17 +500,16 @@ class Master extends CI_Controller
 				$data[] = $row;
 			}
 		} else if ($jenis == "produk") {
-			// $id_pelanggan = $_POST["id_pelanggan"];
-			// ($id_pelanggan == '') ? $wCust = "" : $wCust = "WHERE p.no_customer='$id_pelanggan'";
-			// $query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan $wCust ORDER BY kategori,nm_produk")->result();
-			$query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan WHERE p.no_customer='32' ORDER BY kategori,nm_produk")->result();
+			$id_pelanggan = $_POST["id_pelanggan"];
+			($id_pelanggan == '') ? $wCust = "" : $wCust = "WHERE p.no_customer='$id_pelanggan'";
+			$query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan $wCust ORDER BY kategori,nm_produk")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				($r->kategori == 'K_SHEET') ? $kategori='SHEET' : $kategori='BOX';
 				($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
 				($r->kategori == 'K_BOX') ? $ukuran = $r->ukuran : $ukuran = $r->ukuran_sheet;
 
-				$design = $this->db->query("SELECT COUNT(id_produk) AS jml FROM m_produk_mc WHERE id_produk='$r->id_produk' GROUP BY id_produk");
+				$design = $this->db->query("SELECT COUNT(id_produk) AS jml FROM m_produk_mc WHERE id_produk='$r->id_produk' AND jenis_mc='MC' GROUP BY id_produk");
 				($design->num_rows() == 0) ? $dD = '' : $dD = ' <span class="bg-dark" style="vertical-align:top;padding:2px 4px;font-size:12px;font-weight:bold;border-radius:4px">'.$design->row()->jml.'</span>';
 
 				(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
@@ -1126,6 +1125,7 @@ class Master extends CI_Controller
 
 	function getEditProduk()
 	{
+		$lvl = $this->session->userdata('level');
 		$id = $_POST["id"];
 		$data = $this->db->query("SELECT s.nm_sales,c.nm_pelanggan AS customer,c.kode_unik,p.* FROM m_produk p
 		INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan
@@ -1149,16 +1149,20 @@ class Master extends CI_Controller
 		$poDetail = $this->db->query("SELECT*FROM trs_po_detail WHERE id_produk='$id_produk'")->result();
 
 		// DESIGN
-		$design = $this->db->query("SELECT*FROM m_produk_mc WHERE id_produk='$id'");
+		(in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $wDsg = "" : $wDsg = "AND jenis_mc='MC'";
+		$design = $this->db->query("SELECT*FROM m_produk_mc WHERE id_produk='$id' $wDsg");
 		$htmlDesign = '';
-		$htmlUpload = '<div style="margin-bottom:5px">
-			<form role="form" method="POST" id="upload_design" enctype="multipart/form-data">
-				<input type="hidden" name="pilih_mc" id="pilih_mc" value="">
-				<input type="hidden" name="id_mc" id="id_mc" value="'.$id.'">
-				<input type="file" name="mc_foto" id="mc_foto" accept="image/*" onchange="cekUpload()">
-			</form>
-			<div class="btn-mc"></div>
-		</div>';
+		$htmlUpload = '';
+		if(in_array($lvl, ['Admin', 'Admin2', 'User'])){
+			$htmlUpload .= '<div style="margin-bottom:5px">
+				<form role="form" method="POST" id="upload_design" enctype="multipart/form-data">
+					<input type="hidden" name="pilih_mc" id="pilih_mc" value="">
+					<input type="hidden" name="id_mc" id="id_mc" value="'.$id.'">
+					<input type="file" name="mc_foto" id="mc_foto" accept="image/*" onchange="cekUpload()">
+				</form>
+				<div class="btn-mc"></div>
+			</div>';
+		}
 		if($design->num_rows() == 0){
 			$htmlDesign .= $htmlUpload;
 		}else{
@@ -1168,10 +1172,18 @@ class Master extends CI_Controller
 				foreach($design->result() as $r){
 					$i++;
 					$preview = 'p'.$i;
-					$htmlDesign .= '<div style="margin-right:4px">
-						<button class="btn btn-xs btn-danger" onclick="hapusImgMC('."'".$r->id_mc."'".')"><i class="fas fa-trash"></i></button>
-					</div>
-					<div style="margin-right:8px">
+					if(in_array($lvl, ['Admin', 'Admin2', 'User'])){
+						$htmlDesign .= '<div style="margin-right:4px">
+							<button class="btn btn-xs btn-danger" onclick="hapusImgMC('."'".$r->id_mc."'".')"><i class="fas fa-trash"></i></button>
+						</div>';
+					}
+					if($r->jenis_mc != null){
+						($r->jenis_mc == 'MC') ? $s = ';background:#ffc"' : $s = ';background:#ccc"';
+						$htmlDesign .= '<div>
+							<span style="margin:0;padding:3px 4px;font-size:12px;font-weight:bold'.$s.'">'.$r->jenis_mc.'</span>
+						</div>';
+					}
+					$htmlDesign .= '<div style="margin-right:8px">
 						<img id="'.$preview.'" src="'.base_url().'assets/mc/'.$r->img_mc.'" alt="MC" width="100" class="shadow-sm img-thumbnail" onclick="imgClick('."'".$preview."'".')">
 					</div>';
 				}
@@ -1202,6 +1214,60 @@ class Master extends CI_Controller
 	function buatKodeMC(){
 		$result = $this->m_master->buatKodeMC();
 		echo json_encode($result);
+	}
+
+	function btnEditMC(){
+		$result = $this->m_master->btnEditMC();
+		echo json_encode($result);
+	}
+
+	function loadMC()
+	{
+		$html = '';
+		
+		$mc = $this->db->query("SELECT c.nm_pelanggan,i.nm_produk,m.* FROM m_produk_mc m
+		INNER JOIN m_produk i ON m.id_produk=i.id_produk
+		INNER JOIN m_pelanggan c ON i.no_customer=c.id_pelanggan
+		ORDER BY m.jenis_mc,c.nm_pelanggan");
+
+		$html .= '<table>
+			<tr>
+				<td style="padding:5px;font-weight:bold">CUSTOMER</td>
+				<td style="padding:5px;font-weight:bold">ITEM</td>
+				<td style="padding:5px;font-weight:bold">JENIS</td>
+				<td style="padding:5px;font-weight:bold">GAMBAR</td>
+				<td style="padding:5px;font-weight:bold">AKSI</td>
+			</tr>';
+			foreach($mc->result() as $r){
+				(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+				(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+				$html .= '<tr style="vertical-align:top">
+					<td style="padding:5px">
+						'.$r->nm_pelanggan.'
+					</td>
+					<td style="padding:5px">
+						'.$dv1.$r->nm_produk.$dv2.'
+					</td>
+					<td style="padding:5px;text-align:center">
+						<select id="jenis_mc'.$r->id_mc.'" class="form-control">
+							<option value="'.$r->jenis_mc.'">'.$r->jenis_mc.'</option>
+							<option value="MC">MC</option>
+							<option value="KL">KL</option>
+						</select>
+					</td>
+					<td style="padding:5px">
+						<img id="img_'.$r->id_mc.'" src="'.base_url().'assets/mc/'.$r->img_mc.'" alt="MC" width="100" class="shadow-sm img-thumbnail">
+					</td>
+					<td style="padding:5px;text-align:center">
+						<button type="button" class="btn btn-warning btn-sm" onclick="btnEditMC('.$r->id_mc.')"><i class="fas fa-pen"></i></button>
+					</td>
+				</tr>';
+			}
+		$html .= '</table>';
+
+		echo json_encode([
+			'html' => $html,
+		]);
 	}
 
 	function edit_hub()

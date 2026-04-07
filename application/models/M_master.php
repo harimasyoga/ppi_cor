@@ -483,7 +483,7 @@ class M_master extends CI_Model{
 		$config['allowed_types'] = 'jpg|jpeg|png|gif|webp';
 		$config['max_size'] = 2048; // 2MB
 		$config['overwrite'] = true;
-		$config['file_name'] = 'MC'.$id.'-'.$this->generateFileName();
+		$config['file_name'] = $pilih_mc.$id.'-'.$this->generateFileName();
 
 		$this->load->library('upload', $config);
 		$this->upload->initialize($config);
@@ -553,6 +553,28 @@ class M_master extends CI_Model{
 			'mcNoUrut' => $cnt,
 		);
 	}
+
+	function btnEditMC()
+	{
+		$id_mc = $_POST["id_mc"];
+		$jenis_mc = $_POST["jenis_mc"];
+
+		if($jenis_mc == ''){
+			$data = false; $msg = 'JENIS MC KOSONG!'; 
+		}else{
+			$this->db->set('jenis_mc', $jenis_mc);
+			$this->db->where('id_mc', $id_mc);
+			$data = $this->db->update('m_produk_mc');
+			$msg = 'OK';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	//
 
 	function simpanDataLaminasi()
 	{
