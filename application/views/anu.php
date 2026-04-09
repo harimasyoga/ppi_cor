@@ -80,62 +80,30 @@
                 </div>
 
                 <br />
+                <br>
 
+                <div class="card-body row" style="padding : 5px;font-weight:bold">
+                    <div class="col-md-12">
+                        <select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" onchange="load_tampilan(this.value)" >
+                            <!-- <option value="">Pilih</option> -->
+                            <?php foreach ($hub as $r) : ?>
+                                <option value="<?= $r->id_hub ?>" detail="
+                                <?=$r->id_hub."|".$r->nm_hub ?>">
+                                    <?= $r->id_hub . " | " . $r->nm_hub . " | <b>" . $r->nm_web ."</b>" ?>
+                                </option>
+                            <?php endforeach ?>
+                        </select>
+                    </div>
+                </div>
 
+                <br>
 
                 <div class="card card-default">
                     <div class="card-header">
                         <h3 class="card-title"><strong>Invoice Items</strong></h3>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-condensed">
-                                <tbody>
-                                    <tr style="border:none">
-                                        <td><strong>Deskripsi</strong></td>
-                                        <td width="20%" class="text-center"><strong>Jumlah</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>eCommerce Business Hosting Server SG - rukunsumberbarokah.com (26/08/2024 - 25/08/2025) *</td>
-                                        <td class="text-center">Rp. 1.550,000</td>
-                                    </tr>
-                                                                    <tr>
-                                        <td>Produk Tambahan (rukunsumberbarokah.com) - SSL Certificates - Geotrust True BusinessID (26/08/2024 - 25/08/2025)</td>
-                                        <td class="text-center">Rp. 1.273,000</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Produk Tambahan (rukunsumberbarokah.com) - SSL Certificates - SSL Secure Site (26/08/2024 - 25/08/2025) *</td>
-                                        <td class="text-center">Rp. 620,000</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Produk Tambahan (rukunsumberbarokah.com) - SiteLock - Lite Fix (26/08/2024 - 25/08/2025) *</td>
-                                        <td class="text-center">Rp. 550,000</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Domain Registration - rukunsumberbarokah.com - 1 Tahun/s (26/08/2024 - 25/08/2025)<br />
-                                        + DNS Management<br />
-                                        + ID Protection *</td>
-                                            <td class="text-center">Rp. 80,000</td>
-                                        </tr>
-                                    <tr>
-                                        <td class="total-row text-right"><strong>Sub Total</strong></td>
-                                        <td class="total-row text-center">Rp. 4,073,000</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="total-row text-right"><strong>11.00% PPN</strong></td>
-                                        <td class="total-row text-center">Rp. 448,030</td>
-                                    </tr>
-                                                                                                                                  <tr>
-                                        <td class="total-row text-right"><strong>Kredit</strong></td>
-                                        <td class="total-row text-center">Rp. 0</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="total-row text-right"><strong>Total</strong></td>
-                                        <td class="total-row text-center">Rp. 4,521,030</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div id="tampil_data">
+                    
                     </div>
                 </div>
 
@@ -195,3 +163,40 @@
 
 </body>
 </html>
+<script type="text/javascript">
+
+
+    $(document).ready(function() {
+        $("#tampil_anu").html(``)
+		$('.select2').select2({
+			containerCssClass: "wrap",
+			placeholder: '--- Pilih ---',
+			dropdownAutoWidth: true
+		});
+	});
+
+	function load_tampilan(id)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Laporan/Tampil_anu')?>',
+			type: "POST",
+			// beforeSend: function() {
+			// 	swal({
+			// 		title: 'Loading',
+			// 		allowEscapeKey: false,
+			// 		allowOutsideClick: false,
+			// 		onOpen: () => {
+			// 			swal.showLoading();
+			// 		}
+			// 	});
+			// },
+			data: ({
+				id
+			}),
+			success: function(res){
+				$("#tampil_data").html(res)
+			}
+		})
+	}
+	
+</script>
