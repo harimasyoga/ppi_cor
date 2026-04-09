@@ -828,9 +828,74 @@ class Laporan extends CI_Controller
 	{
 		$data = array(
 			'judul' => "Invoice",
+			'hub' => $this->db->query("SELECT * FROM m_anu where nm_web is not null order by id")->result(),
 		);
 		$this->load->view('header', $data);
 		$this->load->view('anu');
 		$this->load->view('footer');
+	}
+
+	function Tampil_anu()
+	{
+		$html   = '';
+		$id     = $_POST["id"];
+		$data   = $this->db->query("SELECT*,DATE_FORMAT(tgl_awal, '%d/%m/%Y') as tanggal_awal,DATE_FORMAT(DATE_ADD(tgl_awal, INTERVAL 364 DAY), '%d/%m/%Y') AS tanggal_akhir FROM m_anu where id_hub='$id' ")->row();
+		
+
+		$html .= '
+					<div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-condensed">
+                                
+                                <tbody>
+                                    <tr style="border:none">
+                                        <td><strong>Deskripsi</strong></td>
+                                        <td width="20%" class="text-center"><strong>Jumlah</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>eCommerce Business Hosting Server SG - '.$data->nm_web.' ('.$data->tanggal_awal.' - '.$data->tanggal_akhir.') *</td>
+                                        <td class="text-center">Rp. 1.550,000</td>
+                                    </tr>
+                                                                    <tr>
+                                        <td>Produk Tambahan ('.$data->nm_web.') - SSL Certificates - Geotrust True BusinessID ('.$data->tanggal_awal.' - '.$data->tanggal_akhir.')</td>
+                                        <td class="text-center">Rp. 1.273,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Produk Tambahan ('.$data->nm_web.') - SSL Certificates - SSL Secure Site ('.$data->tanggal_awal.' - '.$data->tanggal_akhir.') *</td>
+                                        <td class="text-center">Rp. 620,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Produk Tambahan ('.$data->nm_web.') - SiteLock - Lite Fix ('.$data->tanggal_awal.' - '.$data->tanggal_akhir.') *</td>
+                                        <td class="text-center">Rp. 550,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Domain Registration - '.$data->nm_web.' - 1 Tahun/s ('.$data->tanggal_awal.' - '.$data->tanggal_akhir.')<br />
+                                        + DNS Management<br />
+                                        + ID Protection *</td>
+                                            <td class="text-center">Rp. 80,000</td>
+                                        </tr>
+                                    <tr>
+                                        <td class="total-row text-right"><strong>Sub Total</strong></td>
+                                        <td class="total-row text-center">Rp. 4,073,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="total-row text-right"><strong>11.00% PPN</strong></td>
+                                        <td class="total-row text-center">Rp. 448,030</td>
+                                    </tr>
+                                                                                                                                  <tr>
+                                        <td class="total-row text-right"><strong>Kredit</strong></td>
+                                        <td class="total-row text-center">Rp. 0</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="total-row text-right"><strong>Total</strong></td>
+                                        <td class="total-row text-center">Rp. 4,521,030</td>
+                                    </tr>
+                                </tbody>
+                                
+                            </table>
+                        </div>
+                    </div>';
+
+		echo $html;
 	}
 }
