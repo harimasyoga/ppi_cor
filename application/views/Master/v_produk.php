@@ -70,8 +70,7 @@
 		</div>
 	</section>
 
-	<?php if($this->session->userdata('level') == 'Admin') { ?>
-		<section class="content">
+		<!-- <section class="content">
 			<div class="card">
 				<div class="card-header" style="font-family:Cambria;">
 					<h3 class="card-title" style="color:#4e73df;">EDIT MC</b></h3>
@@ -84,8 +83,7 @@
 					<div class="edit-mc"></div>
 				</div>
 			</div>
-		</section>
-	<?php } ?>
+		</section> -->
 </div>
 
 <div class="modal fade" id="modalForm">
