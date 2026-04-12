@@ -4838,7 +4838,7 @@ class Transaksi extends CI_Controller
 
 			// DESIGN
 			$html = '';
-			($this->session->userdata('level') == 'PPIC') ? $wPmc = "AND m.jenis_mc='MC'" : $wPmc = "";
+			($this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'AP') ? $wPmc = "AND m.jenis_mc='MC'" : $wPmc = "";
 			$design = $this->db->query("SELECT i.nm_produk,m.img_mc,d.* FROM trs_po_detail d
 			INNER JOIN m_produk i ON d.id_produk=i.id_produk
 			INNER JOIN m_produk_mc m ON i.id_produk=m.id_produk
@@ -4857,7 +4857,8 @@ class Transaksi extends CI_Controller
 							INNER JOIN m_produk i ON d.id_produk=i.id_produk
 							INNER JOIN m_produk_mc m ON i.id_produk=m.id_produk
 							WHERE d.no_po='$header->no_po' AND d.id_produk='$r->id_produk' $wPmc
-							GROUP BY d.id_produk, m.id_mc");
+							GROUP BY d.id_produk,m.id_mc
+							ORDER BY m.jenis_mc DESC,d.id_produk,m.id_mc");
 							$html .= '<div class="list-design" style="display:flex;padding:6px">';
 								foreach($img->result() as $i){
 									$o++;
@@ -4960,7 +4961,7 @@ class Transaksi extends CI_Controller
 			WHERE a.no_po = '$header->no_po' ORDER BY b.id")->result();
 
 			// DESIGN
-			($this->session->userdata('level') == 'PPIC') ? $wPmc = "AND m.jenis_mc='MC'" : $wPmc = "";
+			($this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'AP') ? $wPmc = "AND m.jenis_mc='MC'" : $wPmc = "";
 			$html = '';
 			$design = $this->db->query("SELECT i.nm_produk,m.img_mc,d.* FROM trs_po_detail d
 			INNER JOIN m_produk i ON d.id_produk=i.id_produk
@@ -4980,7 +4981,8 @@ class Transaksi extends CI_Controller
 							INNER JOIN m_produk i ON d.id_produk=i.id_produk
 							INNER JOIN m_produk_mc m ON i.id_produk=m.id_produk
 							WHERE d.no_po='$header->no_po' AND d.id_produk='$r->id_produk' $wPmc
-							GROUP BY d.id_produk, m.id_mc");
+							GROUP BY d.id_produk,m.id_mc
+							ORDER BY m.jenis_mc DESC,d.id_produk,m.id_mc");
 							$html .= '<div class="list-design" style="display:flex;padding:6px">';
 								foreach($img->result() as $i){
 									$o++;

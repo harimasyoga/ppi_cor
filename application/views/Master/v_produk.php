@@ -823,7 +823,7 @@
 			$("#h_material").val(data.produk.material)
 			$("#h_berat_bersih").val(data.produk.berat_bersih)
 			$("#h_luas_bersih").val(data.produk.luas_bersih)
-			if(urlAuth == 'Admin' || urlAuth == 'Admin2' || urlAuth == 'User' || urlAuth == 'PPIC'){
+			if(urlAuth == 'Admin' || urlAuth == 'Admin2' || urlAuth == 'User' || urlAuth == 'PPIC' || urlAuth == 'AP'){
 				$(".html-design").html(data.htmlDesign)
 			}else{
 				$(".html-design").html('-')

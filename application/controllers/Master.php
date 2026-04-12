@@ -1150,7 +1150,7 @@ class Master extends CI_Controller
 
 		// DESIGN
 		(in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $wDsg = "" : $wDsg = "AND jenis_mc='MC'";
-		$design = $this->db->query("SELECT*FROM m_produk_mc WHERE id_produk='$id' $wDsg");
+		$design = $this->db->query("SELECT*FROM m_produk_mc WHERE id_produk='$id' $wDsg ORDER BY jenis_mc DESC,id_produk,id_mc");
 		$htmlDesign = '';
 		$htmlUpload = '';
 		if(in_array($lvl, ['Admin', 'Admin2', 'User'])){
