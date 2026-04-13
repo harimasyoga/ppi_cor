@@ -5499,6 +5499,7 @@ class Logistik extends CI_Controller
 							}else{
 								$kSJb = '<span style="color:#f00">EXPIRED</span>';
 							}
+							($r->kepada == "-" || $r->kepada == "") ? $atZ = '' : $atZ = ' | '.$r->kepada;
 
 							$html .= '<tr style="font-weight:normal">
 								<td style="border:1px solid #000;padding:6px;text-align:center">'.$i.'</td>
@@ -5506,7 +5507,7 @@ class Logistik extends CI_Controller
 								<td style="border:1px solid #000;padding:6px;text-align:center">'.strtoupper($r->type).'</td>
 								<td style="border:1px solid #000;padding:6px">'.$r->no_invoice.'</td>
 								<td style="border:1px solid #000;padding:6px">'.$r->no_surat.'</td>
-								<td style="border:1px solid #000;padding:6px">'.$r->nm_perusahaan.'</td>
+								<td style="border:1px solid #000;padding:6px">'.$r->nm_perusahaan.$atZ.'</td>
 								<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kBC.'</td>
 								<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kFaktur.'</td>
 								<td style="border:1px solid #000;padding:6px;font-weight:bold;text-align:center">'.$kResi.'</td>
@@ -5556,10 +5557,12 @@ class Logistik extends CI_Controller
 				foreach($sales->result() as $s){
 					// PIUTANG JT SALES
 					if($s->type == 'roll'){
+						$se9 = "p.pimpinan";
 						$se1 = "p.nm_perusahaan";
 						$in1 = "INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id";
 						$wh1 = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type='ROLL'";
 					}else{
+						$se9 = "p.attn";
 						$se1 = "p.nm_pelanggan";
 						$in1 = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan";
 						$wh1 = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type!='ROLL'";
@@ -5605,11 +5608,11 @@ class Logistik extends CI_Controller
 					</tr>';
 
 					// CUSTOMER
-					$cust = $this->db->query("SELECT s.id_sales,h.type,h.id_perusahaan,$se1 AS nm_pelanggan,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+					$cust = $this->db->query("SELECT s.id_sales,h.type,h.id_perusahaan,$se9 AS attn,$se1 AS nm_pelanggan,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
 						$in1
 						INNER JOIN m_sales s ON p.id_sales=s.id_sales
 						WHERE h.jml_mutasi IS NOT NULL AND h.acc_owner='N' AND s.id_sales='$s->id_sales' $wh1
-						GROUP BY $se1,h.id_perusahaan
+						GROUP BY $se1,$se9,h.id_perusahaan
 					");
 					if($cust->num_rows() != 0){
 						foreach($cust->result() as $r){
@@ -5641,7 +5644,7 @@ class Logistik extends CI_Controller
 								GROUP BY s.id_sales
 							");
 							($c2->num_rows() != 0) ? $t2 = '<span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$c2->row()->cnt.'</span>' : $t2 = '';
-
+							($r->attn == "-" || $r->attn == "") ? $atZ = '' : $atZ = '<div style="padding-left:25px">'.$r->attn.'</div>';
 							//
 							if($r->type == 'roll'){
 								$pt1 = $r->id_perusahaan * 9;
@@ -5655,10 +5658,10 @@ class Logistik extends CI_Controller
 									<button class="btn btn-xs ab2 b2-'.$pt1.' btn-info" style="padding:1px 5px" onclick="btnPiuCustomer('."'".$pt1."'".')">
 										<i style="font-size:8px" class="fas af2 f2-'.$pt1.' fa-plus"></i>
 									</button>&nbsp
-									'.$r->nm_pelanggan.$t1.$t2.'
+									'.$r->nm_pelanggan.$t1.$t2.$atZ.'
 								</td>
-								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($r->jml_mutasi, 0, ',', '.').'</td>
-								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuCusJt, 0, ',', '.').'</td>
+								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($r->jml_mutasi, 0, ',', '.').'</td>
+								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuCusJt, 0, ',', '.').'</td>
 							</tr>';
 							// NO INVOICE DAN SURAT JALAN
 							$noInvNoSj = $this->db->query("SELECT s.id_sales,h.id_perusahaan,h.type,h.status_inv,h.no_invoice,h.jml_mutasi,h.inp_inv_terima, DATEDIFF(SUBSTR(h.inp_inv_terima, 1, 10), CURDATE()) AS sisa_invd, DATEDIFF(h.tgl_jatuh_tempo , h.tgl_invoice) AS tempo FROM invoice_header h
@@ -5667,6 +5670,7 @@ class Logistik extends CI_Controller
 								WHERE h.acc_owner='N' AND h.jml_mutasi IS NOT NULL $wh1
 								AND s.id_sales='$r->id_sales' AND h.id_perusahaan='$r->id_perusahaan'
 								GROUP BY s.id_sales,h.id_perusahaan,h.no_invoice
+								ORDER BY h.tgl_invoice,h.no_invoice
 							");
 							if($noInvNoSj->num_rows() != 0){
 								$l = 0;
@@ -5749,9 +5753,10 @@ class Logistik extends CI_Controller
 												$LinkM = '<img id="'.$p->file_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$p->file_mutasi.'" alt="pay foto" width="100" class="shadow-sm" onclick="imgClick('."'".$p->file_mutasi."'".')">';
 											}
 											($p->ket_byr == null || $p->ket_byr == '') ? $keT = '' : $keT = '<br>'.$p->ket_byr;
+											// <td style="border-left:1px solid #aaa;padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.$p->tgl_bayar.$keT.'</td>
+											// <td style="padding:5px;text-align:right">'.$LinkM.'</td>
 											$html .= '<tr class="tr2 c'.$pt2.' m-2" style="display:none">
-												<td style="border-left:1px solid #aaa;padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.$p->tgl_bayar.$keT.'</td>
-												<td style="padding:5px;text-align:right">'.$LinkM.'</td>
+												<td style="padding:5px;border-left:1px solid #aaa" colspan="2"></td>
 												<td style="padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.number_format($p->jumlah, 0, ',', '.').'</td>
 												<td style="border-right:1px solid #aaa;padding:5px"></td>
 											</tr>';

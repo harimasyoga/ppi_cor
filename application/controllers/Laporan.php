@@ -182,10 +182,11 @@ class Laporan extends CI_Controller
 		$htmlPO = '';
 		($no_po == "") ? $w_nopo = '' : $w_nopo = "AND p.kode_po='$no_po'";
 		($opsi == "" || $opsi == "OPEN") ? $w_opsi = "AND p.status_kiriman='Open'" : $w_opsi = "";
-		(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $wherePO = "AND p.status_app5='Y'" : $wherePO = "AND p.status='Approve'";
+		(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $wherePO = "AND (p.status_app1='Y' OR p.status_app5='Y')" : $wherePO = "AND p.status='Approve'";
 		$data = $this->db->query("SELECT*FROM trs_po p
 		WHERE p.tgl_po LIKE '%$tahun%' AND p.id_pelanggan='$pelanggan' $wherePO $w_nopo $w_opsi
-		GROUP BY p.kode_po ORDER BY p.tgl_po");
+		GROUP BY p.kode_po
+		ORDER BY p.tgl_po,p.kode_po");
 		$htmlPO .='<option value="">PILIH</option>';
 		foreach($data->result() as $r){	
 			$htmlPO .='<option value="'.$r->kode_po.'">'.$r->kode_po.'</option>';
