@@ -7485,7 +7485,9 @@ class Transaksi extends CI_Controller
 				foreach($dataSO->result() as $so){
 					$l++;
 					// SYS
-					$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_so='$so->id'");
+					$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s
+					INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+					WHERE id_so='$so->id'");
 					// ADD DS
 					($sys->num_rows() == 0) ? $addSys = ' <button type="button" class="btn btn-primary btn-sm addOStoDSys" onclick="addOStoDSys('."'".$id."'".', '."'".$so->id."'".')"><i class="fas fa-shopping-basket"></i></button>' : $addSys = '';
 					if($sys->num_rows() == 0){
@@ -7769,19 +7771,37 @@ class Transaksi extends CI_Controller
 							($minggu == 'Sunday') ? $ll2 = $prov->row()->lama_kirim + 1 : $ll2 = $prov->row()->lama_kirim;
 							$eta = date('d/m/Y', strtotime('+'.$ll2.' day', strtotime($sys->row()->eta)));
 						}
+
+						// LOCK
+						$lock3D = date('Y-m-d', strtotime('+'.$sys->row()->lock.' days', strtotime(date('Y-m-d'))));
+						$selisihHariPilih = strtotime($lock3D) - strtotime($plh_eta);
+						$hariPilih = floor($selisihHariPilih/60/60/24);
+						$hPlus = floor((strtotime($sys->row()->eta) - strtotime($lock3D)) /60/60/24);
+						$hPlus2 = floor((strtotime($sys->row()->eta) - strtotime(date('Y-m-d'))) /60/60/24);
+						if($hPlus <= 0){
+							($hPlus == 0) ? $pP = '+'.$hPlus2 : $pP = str_replace("-", "+", $hPlus2);
+							$zG = 'FDD';
+						}else{
+							$pP = '+'.$hPlus2;
+							$zG = 'DFD';
+						}
 						$html .= '<tr>
 							<td style="padding:6px;border:0;text-align:right;'.$bHead.'" colspan="5"></td>
-							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'" colspan="2">TGL MUAT DS</td>
-							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">ETA DS</td>
-							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">QTY DS</td>
-							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">KET DS</td>
+							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">TGL MUAT DD</td>
+							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">H</td>
+							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">ETA DD</td>
+							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">QTY DD</td>
+							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">KET DD</td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">AKSI</td>
 							
 						</tr>
 						<tr style="background:#f2f2f2">
 							<td style="padding:6px;border:1px solid #999" colspan="5"></td>
-							<td style="padding:6px;border:1px solid #999" colspan="2">
+							<td style="padding:6px;border:1px solid #999">
 								<input type="date" id="sys_eta'.$sys->row()->id_dev.'" class="form-control" value="'.$sys->row()->eta.'" onchange="etaSO('."'".$r->id_pelanggan."'".', '."'".$sys->row()->eta."'".', '."'".$sys->row()->id_dev."'".', '."'sys_eta'".', '."'se1ys'".')" '.$diss.'>
+							</td>
+							<td style="padding:0;border:1px solid #999;position:relative">
+								<div class="vv'.$zG.'" style="padding:12px 6px 6px;text-align:center;font-weight:bold">'.$pP.'</div>
 							</td>
 							<td style="padding:6px;border:1px solid #999">
 								<input type="text" id="se1ys'.$sys->row()->id_dev.'" class="form-control" style="font-weight:bold;text-align:center" value="'.$eta.'" disabled>
@@ -7862,7 +7882,9 @@ class Transaksi extends CI_Controller
 	function etaSO()
 	{
 		$id_pelanggan = $_POST["id_pelanggan"];
-		$eta = $_POST["plh_eta"];
+		$plh_eta = $_POST["plh_eta"];
+		$id_sys = $_POST["id"];
+		$sys_eta = $_POST["plhNamaID"];
 
 		$cust = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row();
 		$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$cust->prov'");
@@ -7871,9 +7893,9 @@ class Transaksi extends CI_Controller
 			$eta = '-';
 		}else{
 			$l = $prov->row()->lama_kirim;
-			$minggu = date('l', strtotime('+'.$l.' day', strtotime($eta)));
+			$minggu = date('l', strtotime('+'.$l.' day', strtotime($plh_eta)));
 			($minggu == 'Sunday') ? $l2 = $prov->row()->lama_kirim + 1 : $l2 = $prov->row()->lama_kirim;
-			$eta = date('d/m/Y', strtotime('+'.$l2.' day', strtotime($eta)));
+			$eta = date('d/m/Y', strtotime('+'.$l2.' day', strtotime($plh_eta)));
 		}
 
 		echo json_encode([
@@ -10335,7 +10357,7 @@ class Transaksi extends CI_Controller
 									}else{
 										$hapus = '';
 									}
-									$html .= '<div style="font-weight:bold;color:#fff">'.$e->plat.' ( '.$e->ekspedisi.' )'.$pLt.$hapus.' - '.$aRK->num_rows().' - '.$cekRK->num_rows().' - '.$cRk->num_rows().' - '.$rkNull->num_rows().'</div>';
+									$html .= '<div style="font-weight:bold;color:#fff">'.$e->plat.' ( '.$e->ekspedisi.' )'.$pLt.$hapus.'</div>';
 								}
 							$html .= '</td>
 							<td style="background:#333;padding:6px" colspan="6"></td>';
@@ -10349,7 +10371,7 @@ class Transaksi extends CI_Controller
 						$html .= '</tr>';
 					}
 
-					$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,c.prov,c.kab,p.kode_po,i.*,d.* FROM trs_dev_sys d
+					$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,c.prov,c.kab,c.lock,p.kode_po,i.*,d.* FROM trs_dev_sys d
 					INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
 					INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 					INNER JOIN m_produk i ON d.id_produk=i.id_produk

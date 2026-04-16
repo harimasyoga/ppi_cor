@@ -13365,7 +13365,7 @@ class Logistik extends CI_Controller
 						<td style="font-weight:normal;text-align:left;padding:3px 0" colspan="3"><span style="color:#fff">:</span> KEMBALI KE SUPPLIER</td>
 					</tr>';
 				}else{
-					$ntGod = '0';
+					$ntGod = '';
 				}
 				$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
 				$html .= '<tr>
