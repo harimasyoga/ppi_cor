@@ -1317,7 +1317,9 @@ class M_transaksi extends CI_Model
 			$berat = $sys_qty * $produk->berat_bersih;
 
 			if($tglPilih > 0 && $hariPilih >= 0){
-				$devStat = 'SUSULAN '.$sys->eta;
+				$hari = date('d', strtotime($sys->eta)); $bulan = date('m', strtotime($sys->eta)); $tahun = substr($sys->eta, 2, 2);
+				$eTgll = $hari.'/'.$bulan.'/'.$tahun;
+				$devStat = 'SUSULAN ('.$eTgll.')';
 				$devMsg = ' SUSULAN!';
 			}else{
 				$devStat = null; $devMsg = '';

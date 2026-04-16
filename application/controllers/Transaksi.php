@@ -7384,8 +7384,8 @@ class Transaksi extends CI_Controller
 					if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])){
 						if($r->id == $id){
 							$btnBagi = '<button type="button" class="btn btn-success btn-sm" id="addBagiSO" onclick="addBagiSO('."'".$r->id."'".')"><i class="fas fa-plus"></i></button>';
-							$btnBagi .= ($sysHead->num_rows() == 0) ? '<button type="button" class="btn btn-danger btn-sm" id="hapusListSO" onclick="hapusListSO('."'".$r->id."'".')"><i class="fas fa-trash"></i></button>' :
-								'<button type="button" class="btn btn-secondary btn-sm" id="hapusListSO" disabled><i class="fas fa-trash"></i></button>';
+							$btnBagi .= ($sysHead->num_rows() == 0) ? ' <button type="button" class="btn btn-danger btn-sm" id="hapusListSO" onclick="hapusListSO('."'".$r->id."'".')"><i class="fas fa-trash"></i></button>' :
+								' <button type="button" class="btn btn-secondary btn-sm" id="hapusListSO" disabled><i class="fas fa-trash"></i></button>';
 						}else{
 							$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
 						}
@@ -7779,10 +7779,14 @@ class Transaksi extends CI_Controller
 						$hPlus = floor((strtotime($sys->row()->eta) - strtotime($lock3D)) /60/60/24);
 						$hPlus2 = floor((strtotime($sys->row()->eta) - strtotime(date('Y-m-d'))) /60/60/24);
 						if($hPlus <= 0){
-							($hPlus == 0) ? $pP = '+'.$hPlus2 : $pP = str_replace("-", "+", $hPlus2);
+							if($hPlus == 0){
+								$pP = '-'.$hPlus2;
+							}else{
+								($hPlus2 >= 0) ? $pP = '-'.$hPlus2 : $pP = str_replace("-", "+", $hPlus2);
+							}
 							$zG = 'FDD';
 						}else{
-							$pP = '+'.$hPlus2;
+							$pP = '-'.$hPlus2;
 							$zG = 'DFD';
 						}
 						$html .= '<tr>
@@ -10447,11 +10451,14 @@ class Transaksi extends CI_Controller
 						WHERE dev_id='$r->id_dev'");
 						($rk->num_rows() > 1) ? $rkRS = 'rowspan="'.$rk->num_rows().'"' : $rkRS = '';
 
+						// SUSULAN
+						($r->dev_stat != null) ? $devStat = ' <span class="bg-info" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$r->dev_stat.'</span>' : $devStat = '';
+
 						$html .= '<tr style="vertical-align:top">
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:center" '.$rkRS.'>
 								<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" value="'.$r->urut.'" '.$och.'>
 							</td>
-							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$r->nm_pelanggan.$kota.$attn.'</td>
+							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$r->nm_pelanggan.$kota.$devStat.$attn.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:center" '.$rkRS.'>'.$lamaK.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$r->kode_po.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
