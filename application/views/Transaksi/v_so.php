@@ -26,8 +26,18 @@
 			background: #eee;
 		}
 
-		.new-stok-gg:hover {
-			background: rgba(238, 238, 238, 0.5);
+		.vvFDD {
+			content : "";
+			position: absolute;
+			top: 0; right: 0; bottom: 0; left: 0;
+			background: #fdd;
+		}
+
+		.vvDFD {
+			content : "";
+			position: absolute;
+			top: 0; right: 0; bottom: 0; left: 0;
+			background: #dfd;
 		}
 	</style>
 
@@ -1587,6 +1597,7 @@
 			data: ({ id_sys, id_po_dtl, sys_eta, sys_qty, sys_ket }),
 			success: function(res){
 				data = JSON.parse(res)
+				console.log(data)
 				if(data.data){
 					toastr.success(`<b>${data.msg}</b>`)
 					tampilEditSO(h_id, no_po, kode_po, 'edit')
@@ -1605,10 +1616,13 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/etaSO')?>',
 			type: "POST",
-			data: ({ id_pelanggan, plh_eta }),
+			data: ({ id_pelanggan, plh_eta, id, plhNamaID }),
 			success: function(res){
 				data = JSON.parse(res)
 				$("#"+namaID+id).val(data.eta)
+				// if(plhNamaID == "sys_eta"){
+				// 	$("."+namaID+id).html(data.hPlus)
+				// }
 			}
 		})
 	}

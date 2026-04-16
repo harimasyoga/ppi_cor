@@ -12788,9 +12788,10 @@ class Logistik extends CI_Controller
 					INNER JOIN trs_dev_sys s ON r.dev_id=s.id_dev AND r.dev_urut=s.urut
 					WHERE s.eta='$tgl' AND s.urut='$u->urut'
 					GROUP BY s.eta,s.urut");
+					$ck2 = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_tgl='$tgl' AND dev_urut='$u->urut'");
 
 					// ADD TIMBANGAN KE DS
-					if($cekRK->num_rows() != 0){
+					if($cekRK->num_rows() != 0 || $ck2->num_rows() != 0){
 						if($u->timb_tgl == null && $u->timb_urut == null){
 							($opsi == 'plat') ? $aksiAddTimb = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addTimbtoDS('."'".$urutpl."'".', '."'".$u->urut."'".')"><i class="fas fa-check"></i></button>&nbsp;&nbsp;' : $aksiAddTimb = '';
 						}else{
@@ -12806,7 +12807,7 @@ class Logistik extends CI_Controller
 							$e = $this->db->query("SELECT*FROM m_ekspedisi WHERE id_ex='$u->id_ex'")->row();
 							$html .= '<div style="font-weight:bold;color:#fff">'.$aksiAddTimb.$e->plat.' ( '.$e->ekspedisi.' )'.'</div>';
 						$html .= '</td>
-						<td style="background:#333;padding:6px" colspan="6"></td>
+						<td style="background:#333;padding:6px" colspan="6">'.$cekRK->num_rows().'</td>
 					</tr>';
 
 					$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,c.prov,c.kab,p.kode_po,i.*,d.* FROM trs_dev_sys d
@@ -13364,7 +13365,7 @@ class Logistik extends CI_Controller
 						<td style="font-weight:normal;text-align:left;padding:3px 0" colspan="3"><span style="color:#fff">:</span> KEMBALI KE SUPPLIER</td>
 					</tr>';
 				}else{
-					$ntGod = '0';
+					$ntGod = '';
 				}
 				$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
 				$html .= '<tr>

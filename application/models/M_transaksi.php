@@ -1247,9 +1247,18 @@ class M_transaksi extends CI_Model
 	{
 		$id_dev = $_POST["id_dev"];
 
-		$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_dev'")->row();
+		// $sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_dev'")->row();
+		$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_dev='$id_dev'")->row();
+		// LOCK
+		$lock3D = date('Y-m-d', strtotime('+'.$sys->lock.' days', strtotime(date('Y-m-d'))));
+		$selisihHariPilih = strtotime($lock3D) - strtotime($sys->eta);
+		$hariPilih = floor($selisihHariPilih/60/60/24);
+		$tglPilih = floor((strtotime($sys->eta) - strtotime($lock3D)) /60/60/24);
 		
-		if($sys->urut != 0){
+		if($tglPilih <= 0){
+			$data = false;
+			$msg = 'LOCK '.$sys->lock.' HARI PER HARI INI!';
+		}else if($sys->urut != 0){
 			$data = false; $msg = 'URUTAN KOSONGKAN DAHULU DI DELIVERY SYSTEM!';
 		}else{
 			$this->db->where('id_dev', $id_dev);
@@ -1271,9 +1280,17 @@ class M_transaksi extends CI_Model
 		$sys_qty = $_POST["sys_qty"];
 		$sys_ket = $_POST["sys_ket"];
 
-		$sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_sys'")->row();
+		$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_dev='$id_sys'")->row();
+		// LOCK
+		$lock3D = date('Y-m-d', strtotime('+'.$sys->lock.' days', strtotime(date('Y-m-d'))));
+		$selisihHariPilih = strtotime($lock3D) - strtotime($sys_eta);
+		$hariPilih = floor($selisihHariPilih/60/60/24);
+		$tglPilih = floor((strtotime($sys->eta) - strtotime($lock3D)) /60/60/24);
 
-		if($sys_eta == ''){
+		if($tglPilih <= 0){
+			$data = false;
+			$msg = 'LOCK '.$sys->lock.' HARI PER HARI INI!';
+		}else if($sys_eta == ''){
 			$data = false; $msg = 'ETA KOSONG!';
 		}else if($sys_qty == 0 || $sys_qty == '' || $sys_qty < 0){
 			$data = false; $msg = 'QTY KOSONG!';
@@ -1299,6 +1316,15 @@ class M_transaksi extends CI_Model
 			// $os_belum_terplanning = ($sisa - (($jumlah_plan->qty_plan - $sys->qty_plan) + $sys_qty)) + $sys_qty;
 			$berat = $sys_qty * $produk->berat_bersih;
 
+			if($tglPilih > 0 && $hariPilih >= 0){
+				$hari = date('d', strtotime($sys->eta)); $bulan = date('m', strtotime($sys->eta)); $tahun = substr($sys->eta, 2, 2);
+				$eTgll = $hari.'/'.$bulan.'/'.$tahun;
+				$devStat = 'SUSULAN ('.$eTgll.')';
+				$devMsg = ' SUSULAN!';
+			}else{
+				$devStat = null; $devMsg = '';
+			}
+
 			$dts = [
 				// 'id_po_header' => $id,
 				// 'id_produk' => $id_produk,
@@ -1311,16 +1337,16 @@ class M_transaksi extends CI_Model
 				'os_belum_terplanning' => 0,
 				'qty_plan' => $sys_qty,
 				'berat' => $berat,
-				// 'bb' => $produk->berat_bersih,
 				'eta' => $sys_eta,
 				'ket_sys' => ($sys_ket == '') ? null : $sys_ket,
+				'dev_stat' => $devStat,
 				// 'id_ex' => null,
 				// 'urut' => 0,
 				// 'created_at' => date('Y-m-d H:i:s'),
 			];
 			$this->db->where("id_dev", $id_sys);
 			$data = $this->db->update("trs_dev_sys", $dts);
-			$msg = 'EDIT BERHASIL!';
+			$msg = 'EDIT BERHASIL!'.$devMsg;
 		}
 
 		return [
@@ -3144,21 +3170,37 @@ class M_transaksi extends CI_Model
 		$id_dev = $_POST["id_dev"];
 		$urut = $_POST["urut"];
 
-		$dev = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_dev'")->row();
+		$dev = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s
+		INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+		WHERE id_dev='$id_dev'")->row();
 		$cek = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$dev->eta' AND urut='$urut' AND id_ex IS NOT NULL GROUP BY urut");
 
-		if($urut < 0 || $urut == ''){
-			$data = false; $msg = 'COBA LAGI!';
-		}else if($cek->num_rows() != 0){
-			$data = false; $msg = 'NO URUT SUDAH TERPAKAI!';
+		// LOCKDOWN H+3
+		$lock3D = date('Y-m-d', strtotime('+'.$dev->lock.' days', strtotime(date('Y-m-d'))));
+		$selisihHari = strtotime($lock3D) - strtotime($dev->eta);
+
+		if($selisihHari >= 0){
+			$data = false;
+			$msg = 'lock 3 hari';
 		}else{
-			$this->db->set('urut', $urut);
-			$this->db->where('id_dev', $id_dev);
-			$data = $this->db->update('trs_dev_sys');
-			$msg = 'BERHASIL!';
+			$data = true;
+			$msg = 'ok';
 		}
 
+		// if($urut < 0 || $urut == ''){
+		// 	$data = false; $msg = 'COBA LAGI!';
+		// }else if($cek->num_rows() != 0){
+		// 	$data = false; $msg = 'NO URUT SUDAH TERPAKAI!';
+		// }else{
+		// 	$this->db->set('urut', $urut);
+		// 	$this->db->where('id_dev', $id_dev);
+		// 	$data = $this->db->update('trs_dev_sys');
+		// 	$msg = 'BERHASIL!';
+		// }
+
 		return [
+			'1lock3D' => $lock3D,
+			'1selisihHari' => $selisihHari,
 			'data' => $data,
 			'msg' => $msg,
 		];
