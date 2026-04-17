@@ -18,19 +18,17 @@
 
 	<!-- Main content -->
 	<section class="content">
-
 		<!-- Default box -->
 		<div class="card shadow mb-3">
 			<div class="card-header" style="font-family:Cambria;" >
 				<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?></b></h3>
-
 				<div class="card-tools">
 					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
 						<i class="fas fa-minus"></i></button>
 				</div>
 			</div>
 			<div class="card-body">
-				<?php if (!in_array($this->session->userdata('level'), ['Marketing','PPIC','Owner','Keuangan1','AP'])): ?>
+				<?php if (!in_array($this->session->userdata('level'), ['PPIC', 'Owner', 'Keuangan1', 'AP'])): ?>
 					<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info "><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 				<?php endif ?>
 				<br><br>
@@ -38,20 +36,19 @@
 					<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 						<thead class="color-tabel">
 							<tr>
-									<th style="text-align:center">No</th>
-									<th style="text-align:center">No PO<br>[ Tgl PO ]</th>
-									<th style="text-align:center">Customer</th>
-									<th style="text-align:center">Kode PO</th>
-									<th style="text-align:center">Item</th>
-									<th style="text-align:center">Status<br>[ Karet ]</th>
-									<th style="text-align:center">Harga</th>
-									<th style="text-align:center">Inner</th>
-									<th style="text-align:center">Mrkt</th>
-									<th style="text-align:center">PPIC</th>
-									<th style="text-align:center">Owner</th>
-									<th style="text-align:center">ETA</th>
-									<th style="text-align:center;padding:12px 30px">Aksi</th>
-								
+								<th style="text-align:center">No</th>
+								<th style="text-align:center">No PO<br>[ Tgl PO ]</th>
+								<th style="text-align:center">Customer</th>
+								<th style="text-align:center">Kode PO</th>
+								<th style="text-align:center">Item</th>
+								<th style="text-align:center">Status<br>[ Karet ]</th>
+								<th style="text-align:center">Harga</th>
+								<th style="text-align:center">Inner</th>
+								<th style="text-align:center">Mrkt</th>
+								<th style="text-align:center">PPIC</th>
+								<th style="text-align:center">Owner</th>
+								<th style="text-align:center">ETA</th>
+								<th style="text-align:center;padding:12px 30px">Aksi</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -79,7 +76,6 @@
 			<div class="modal-body">
 				<form role="form" method="post" id="myForm" enctype="multipart/form-data">
 					<!-- <div style="overflow-x:auto;"> -->
-
 						<div class="card-body">
 							<div class="col-md-12">
 								<div class="card-body row" style="padding : 5px;font-weight:bold">
@@ -89,20 +85,17 @@
 										<input type="hidden" class="form-control" value="" name="status" id="status">
 										<input type="text" class="form-control" name="no_po" id="no_po" value="AUTO" readonly>
 									</div>
-
 									<div class="col-md-2"></div>
-
 									<div class="col-md-2">Nama Pelanggan</div>
 									<div class="col-md-3">
 										<select class="form-control select2" name="id_pelanggan" id="id_pelanggan" style="width: 100%;" onchange="setProduk('new',this.value,0)">
 											<!-- <option value="">Pilih</option> -->
 											<?php foreach ($pelanggan as $r) : ?>
-												<option value="<?= $r->id_pelanggan ?>" detail="
-												<?=$r->kab_name."|".$r->no_telp . "|" . $r->fax . "|" . $r->top . "|" . $r->nm_sales ?>">
+												<option value="<?= $r->id_pelanggan ?>" detail="<?=$r->kab_name."|".$r->no_telp . "|" . $r->fax . "|" . $r->top . "|" . $r->nm_sales ?>">
 													<?php
 														($r->attn == '-') ? $attn = '' : $attn = ' - '.$r->attn;
 													?>
-													<?= $r->id_pelanggan . "|" . $r->nm_pelanggan.$attn ?>
+													<?= $r->nm_pelanggan.$attn ?>
 												</option>
 											<?php endforeach ?>
 										</select>
@@ -117,9 +110,7 @@
 											<input type="date" class="form-control" name="tgl_po" id="tgl_po" onchange="pilih_hub(0)" value="<?= date('Y-m-d') ?>" readonly> 
 										<?php } ?>
 									</div>
-
 									<div class="col-md-2"></div>
-
 									<div class="col-md-2">Kota</div>
 									<div class="col-md-3">
 										<input type="text" class="form-control" name="txt_kota" id="txt_kota" value="" readonly>
@@ -128,11 +119,9 @@
 								<div class="card-body row" style="padding : 5px;font-weight:bold">
 									<div class="col-md-2">Kode PO</div>
 									<div class="col-md-3">
-										<input type="text" class="form-control" name="kode_po" id="kode_po" onchange="cek_kode_po(this.value)" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " >
+										<input type="text" class="form-control" name="kode_po" id="kode_po" onchange="cek_kode_po(this.value)" oninput="this.value = this.value.toUpperCase(), this.value = this.value.trim(); " autocomplete="off">
 									</div>
-
 									<div class="col-md-2"></div>
-
 									<div class="col-md-2">No Telepon</div>
 									<div class="col-md-3">
 										<input type="text" class="form-control" name="txt_no_telp" id="txt_no_telp" value="" readonly>
@@ -143,9 +132,7 @@
 									<div class="col-md-3">
 										<input type="text" class="form-control" name="txt_marketing" id="txt_marketing" value="" readonly>
 									</div>
-
 									<div class="col-md-2"></div>
-
 									<div class="col-md-2">FAX</div>
 									<div class="col-md-3">
 										<input type="text" class="form-control" name="txt_fax" id="txt_fax" value="" readonly>
@@ -154,19 +141,20 @@
 								<div class="card-body row" style="padding : 5px;font-weight:bold">
 									<div class="col-md-2">ATTN</div>
 									<div class="col-md-3">
-										<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;" >
-											<!-- <option value="">Pilih</option> -->
-											<?php foreach ($hub as $r) : ?>
-												<option value="<?= $r->id_hub ?>" detail="
-												<?=$r->id_hub."|".$r->nm_hub ?>">
-													<?= $r->id_hub . " | " . $r->nm_hub . " | <b>" . number_format($r->sisa_hub, 0, ",", ".") ."</b>" ?>
-												</option>
-											<?php endforeach ?>
+										<?php $id_sales = $this->session->userdata('id_sales'); ?>
+										<select class="form-control select2" name="id_hub" id="id_hub" style="width: 100%;">
+											<?php foreach ($hub as $r){
+												if($id_sales != null){ ?>
+													<option value="<?= $r->id_hub ?>" detail="<?=$r->id_hub."|".$r->nm_hub ?>">-</option>
+												<?php }else{ ?>
+													<option value="<?= $r->id_hub ?>" detail="<?=$r->id_hub."|".$r->nm_hub ?>">
+														<?= $r->id_hub . " | " . $r->nm_hub . " | <b>" . number_format($r->sisa_hub, 0, ",", ".") ."</b>" ?>
+													</option>
+												<?php } ?>
+											<?php } ?>
 										</select>
 									</div>
-									
 									<div class="col-md-2"></div>
-
 									<div class="col-md-2">TOP</div>
 									<div class="col-md-3">
 										<input type="text" class="form-control" name="txt_top" id="txt_top" value="" readonly>
@@ -198,10 +186,8 @@
 													<span class="help-block"></span>
 												</div>										
 											</div>
-										
 										<?php } ?>
 										<div class="col-md-2"></div>
-
 										<div class="col-md-2">STATUS KARET</div>
 										<div class="col-md-3">
 											<select class="form-control select2" name="status_karet" id="status_karet">
@@ -216,9 +202,7 @@
 								<div class="design"></div>
 							</div>
 						</div>
-							
 						<hr>
-
 						<div style="overflow:auto;white-space:nowrap;" >
 							<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="table-produk" width="100%">
 								<thead class="color-tabel">
@@ -251,7 +235,7 @@
 											</div>
 										</td>
 										<td>
-											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="ubah_angka(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)">
+											<input type="text" name="qty[0]" id="qty0" class="angka form-control" value='0' onkeyup="ubah_angka(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)" autocomplete="off">
 											<br>
 											<input class="form-control" type="checkbox" name="cek_rm[0]" id="cek_rm0" onclick="cekrm(this.id)" value="0">
 										</td>
@@ -266,10 +250,10 @@
 										</td>
 										<?php if (!in_array($this->session->userdata('level'), ['PPIC','AP'])){ ?>
 											<td>
-												<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+												<input type="text" name="price_exc[0]" id="price_exc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0' autocomplete="off">
 											</td>
 											<td>
-												<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0'>
+												<input type="text" name="price_inc[0]" id="price_inc0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value='0' autocomplete="off">
 											</td>
 											<td id="p11_det0">
 												<input type="text" name="p11[0]" id="p110"  class="angka form-control" readonly value="0" >
@@ -368,10 +352,8 @@
 								<input type="hidden" name="bucket" id="bucket" value="0">
 							</div>
 						</div>
-					
 					<!-- </div> -->
 					<div class="modal-footer">
-
 						<div class="col-md-12" style="display: none;" id="aksi_verif">
 							<div class="card-body row" style="font-weight:bold">
 								<div class="col-md-5"></div>
@@ -389,7 +371,6 @@
 								</div>
 							</div>							
 						</div>
-
 						<div class="col-md-12" id="tombol_verif">
 							<div class="card-body row" >
 								<div class="col-md-4" style="padding:0">
@@ -459,12 +440,13 @@
 
 <!-- Image Zoom HTML -->
 <div id="mymodal-img" class="modal-img">
-  <img class="modal-img-content" id="img01">
+	<img class="modal-img-content" id="img01">
 </div>
 <!-- End Image Zoom HTML -->
 
 <script type="text/javascript">
 	rowNum = 0;
+	const urlIdSales = '<?= $this->session->userdata('id_sales')?>';
 	const urlAuth = '<?= $this->session->userdata('level')?>';
 	const urlUser = '<?= $this->session->userdata('username')?>';
 
@@ -560,12 +542,9 @@
 			success:function(data){			
 				if(data.message == "Success"){					
 					option = `<option value="">-- Pilih --</option>`;	
-
 					$.each(data.data, function(index, val) {
-					option += `<option value="${val.status}" ><b>${val.ket}</b></option>`;
-
+						option += `<option value="${val.status}" ><b>${val.ket}</b></option>`;
 					});
-
 					$('#status_karet').html(option);
 					swal.close();
 				}else{	
@@ -644,18 +623,12 @@
 			},
 			success:function(data){			
 				if(data.message == "Success"){							
-					option = "<option>-- Pilih --</option>";
+					option = '<option value="">-- Pilih --</option>';
 					$.each(data.data, function(index, val) {
-
-					option += "<option value='"+val.id_hub+"'>"+val.id_hub+ " | " +val.nm_hub+ " | " + format_angka(val.sisa_hub) + "</option>";
-					
+						option += "<option value='"+val.id_hub+"'>"+val.id_hub+ " | " +val.nm_hub+ " | " + format_angka(val.sisa_hub) + "</option>";
 					});
-
-					
-					if(id_hub==0)
-					{
+					if(id_hub == 0){
 						$('#id_hub').html(option);
-
 					}else{		
 						$('#id_hub').html(option);
 						$('#id_hub').val(id_hub).trigger('change');
@@ -672,14 +645,16 @@
 	
 	function pilih_hub2(id_hub,nm_hub)
 	{
-		if(id_hub=='')
-		{
-			option += "<option value=''></option>";
-			$('#id_hub').html(option);
-
-		}else{		
-			
-			option = "<option value='"+id_hub+"'>"+nm_hub+"</option>";
+		if(urlIdSales == ''){
+			if(id_hub==''){
+				option += "<option value=''></option>";
+				$('#id_hub').html(option);
+			}else{
+				option = "<option value='"+id_hub+"'>"+nm_hub+"</option>";
+				$('#id_hub').html(option);
+			}
+		}else{
+			option = "<option value='"+id_hub+"'>-</option>";
 			$('#id_hub').html(option);
 		}
 	}
@@ -985,12 +960,15 @@
 
 	function kosong(c = '') 
 	{
-		$("#tgl_po").val("<?= date('Y-m-d') ?>");
-
+		$("#tgl_po").val("<?= date('Y-m-d') ?>").trigger('change');
 		$("#btn-print").hide();
-
-		$("#id_hub").select2("val", 1);
-		$('#id_hub').val(1).trigger('change');		
+		if(urlIdSales == ''){
+			$("#id_hub").select2("val", '');
+			$('#id_hub').val('').trigger('change');
+		}else{
+			$("#id_hub").select2("val", 7);
+			$('#id_hub').val(7).trigger('change');
+		}
 
 		$("#id_pelanggan").select2("val", "");
 		$('#id_pelanggan').val("").trigger('change');		
@@ -1003,6 +981,7 @@
 		$("#txt_no_telp").val("");
 		$("#txt_fax").val("");
 		$("#txt_top").val("");
+		$('#status_karet').val("").trigger('change');
 		$("#txt_marketing").val("");
 		$('#div_preview_foto').css("display","none");
 		
@@ -2199,10 +2178,10 @@
 				{
 					td_harga = `
 						<td>
-							<input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
+							<input type="text" name="price_exc[${rowNum}]" id="price_exc${rowNum}"  class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" autocomplete="off">
 						</td>
 						<td>
-							<input type="text" name="price_inc[${rowNum}]" id="price_inc${rowNum}"  class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" >
+							<input type="text" name="price_inc[${rowNum}]" id="price_inc${rowNum}"  class="angka form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" onchange="hitung_p11(this.value,this.id)" value="0" autocomplete="off">
 						</td>
 					`
 					p11_tambahan = `
@@ -2320,7 +2299,7 @@
 							</div>
 						</td>
 						<td>
-							<input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onkeyup="ubah_angka(this.value,this.id)"  onchange="Hitung_rm(this.value,this.id)">
+							<input type="text" name="qty[${ rowNum }]" id="qty${ rowNum }"  class="angka form-control" value="0" onkeyup="ubah_angka(this.value,this.id)" onchange="Hitung_rm(this.value,this.id)" autocomplete="off">
 							<br>
 							<input class="form-control" type="checkbox" name="cek_rm[${ rowNum }]" id="cek_rm${ rowNum }" onclick="cekrm(this.id)" value="0">
 						</td>
@@ -2414,7 +2393,7 @@
 		$("#eta_ket0").prop("disabled", false);
 
 		$("#cek_rm0").val(0);		
-		$("#eta_ket0").val(0);		
+		$("#eta_ket0").val('');		
 		$("#tl_al0").val('');		
 		$("#bmf0").val('');		
 		$("#bl0").val('');		

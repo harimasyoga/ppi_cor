@@ -28,17 +28,20 @@ class Transaksi extends CI_Controller
 
 	public function PO()
 	{
+		$id_sales = $this->session->userdata('id_sales');
+		($id_sales != null) ? $wHub = "WHERE a.id_hub='7'" : $wHub = '';
+		($id_sales != null) ? $wPP = "WHERE a.id_sales='$id_sales'" : $wPP = '';
 		$tahun = date('Y');
 		$data = array(
 			'judul' => "Purchase Order",
 			'produk' => $this->db->query("SELECT * FROM m_produk order by id_produk")->result(),
 			'sales' => $this->db->query("SELECT * FROM m_sales order by id_sales")->result(),
 			'hub' => $this->db->query("SELECT a.*,4800000000-IFNULL((select sum(c.qty*price_inc)jum from trs_po b JOIN trs_po_detail c ON b.no_po=c.no_po where b.id_hub=a.id_hub and YEAR(b.tgl_po) in ('$tahun')
-			group by b.id_hub ,YEAR(b.tgl_po)),0) sisa_hub FROM m_hub a
+			group by b.id_hub ,YEAR(b.tgl_po)),0) sisa_hub FROM m_hub a $wHub
 			order by id_hub")->result(),
 			'pelanggan' => $this->db->query("SELECT * FROM m_pelanggan a 
             left join m_kab b on a.kab=b.kab_id 
-            Left Join m_sales c on a.id_sales=c.id_sales
+            Left Join m_sales c on a.id_sales=c.id_sales $wPP
             order by id_pelanggan")->result(),
 			'level' => $this->session->userdata('level'). "aa",
 		);
@@ -3208,11 +3211,11 @@ class Transaksi extends CI_Controller
 		if ($jenis == "po") {
 			$level   = $this->session->userdata('level');
 			$nm_user = $this->session->userdata('nm_user');
-			if($level =='Hub') {
+			$id_sales = $this->session->userdata('id_sales');
+			if($level == 'Hub') {
 				$cek     = $this->db->query("SELECT*FROM m_hub where nm_hub='$nm_user' ")->row();
 				$cek_data = "WHERE status_app3 in ('Y') and id_hub in ('$cek->id_hub')";
 			}else{
-				$id_sales = $this->session->userdata('id_sales');
 				if($id_sales == "" || $id_sales == null){
 					$cek_data = "";
 				}else{
@@ -3264,12 +3267,12 @@ class Transaksi extends CI_Controller
 				}else  if($r->status_app1=='H'){
 					$btn1    = 'btn-danger';
 					$i1      = '<i class="far fa-hand-paper"></i>';
-					$alasan1 = $r->ket_acc1;
+					$alasan1 = strtoupper($r->ket_acc1);
 					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan1 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan1 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
 				}else  if($r->status_app1=='R'){
 					$btn1    = 'btn-danger';
 					$i1      = '<i class="fas fa-times"></i>';
-					$alasan1 = $r->ket_acc1;
+					$alasan1 = strtoupper($r->ket_acc1);
 					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan1 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan1 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
 				}else{
 					$btn1    = 'btn-success';
@@ -3295,12 +3298,12 @@ class Transaksi extends CI_Controller
                 }else if($r->status_app2=='H'){
                     $btn2   = 'btn-danger';
                     $i2     = '<i class="far fa-hand-paper"></i>';
-					$alasan2 = $r->ket_acc2;
+					$alasan2 = strtoupper($r->ket_acc2);
 					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan2 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan2 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
                 }else if($r->status_app2=='R'){
                     $btn2   = 'btn-danger';
                     $i2     = '<i class="fas fa-times"></i>';
-					$alasan2 = $r->ket_acc2;
+					$alasan2 = strtoupper($r->ket_acc2);
 					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan2 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan2 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
                 }else{
                     $btn2   = 'btn-success';
@@ -3326,12 +3329,12 @@ class Transaksi extends CI_Controller
                 }else if($r->status_app4=='H'){
                     $btn4   = 'btn-danger';
                     $i4     = '<i class="far fa-hand-paper"></i>';
-					$alasan4 = $r->ket_acc4;
+					$alasan4 = strtoupper($r->ket_acc4);
 					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan4 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan4 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
                 }else if($r->status_app4=='R'){
                     $btn4   = 'btn-danger';
                     $i4     = '<i class="fas fa-times"></i>';
-					$alasan4 = $r->ket_acc4;
+					$alasan4 = strtoupper($r->ket_acc4);
 					($actualDate > $expired || $actualDate == $expired) ? $ketAlasan4 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan4 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
                 }else{
                     $btn4   = 'btn-success';
@@ -3362,12 +3365,12 @@ class Transaksi extends CI_Controller
 					}else if($r->status_app5=='H'){
 						$btn5 = 'btn-danger';
 						$i5 = '<i class="far fa-hand-paper"></i>';
-						$alasan5 = $r->ket_acc5;
+						$alasan5 = strtoupper($r->ket_acc5);
 						($actualDate > $expired || $actualDate == $expired) ? $ketAlasan5 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan5 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
 					}else if($r->status_app5=='R'){
 						$btn5 = 'btn-danger';
 						$i5 = '<i class="fas fa-times"></i>';
-						$alasan5 = $r->ket_acc5;
+						$alasan5 = strtoupper($r->ket_acc5);
 						($actualDate > $expired || $actualDate == $expired) ? $ketAlasan5 .= '<br><div style="color:#dc3545;font-weight:bold">EXPIRED</div>' : $ketAlasan5 .= '<br><div style="color:#dc3545;font-weight:bold">'.$waktu.'</div>';
 					}else{
 						$btn5 = 'btn-success';
@@ -3384,11 +3387,11 @@ class Transaksi extends CI_Controller
                 }else if($r->status_app3=='H') {
                     $btn3   = 'btn-danger';
                     $i3     = '<i class="far fa-hand-paper"></i>';
-					$alasan3 = $r->ket_acc3;
+					$alasan3 = strtoupper($r->ket_acc3);
                 }else if($r->status_app3=='R') {
                     $btn3   = 'btn-danger';
                     $i3     = '<i class="fas fa-times"></i>';
-					$alasan3 = $r->ket_acc3;
+					$alasan3 = strtoupper($r->ket_acc3);
                 }else{
                     $btn3   = 'btn-success';
                     $i3     = '<i class="fas fa-check-circle"></i>';
@@ -3418,7 +3421,6 @@ class Transaksi extends CI_Controller
 						<div>'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</div>
 					</div>';
 				}
-				// $row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.' )</div>';
 				$result_po = $this->db->query("SELECT nm_produk from trs_po_detail a join m_produk b ON a.id_produk=b.id_produk where no_po='$r->no_po'
 				GROUP BY a.id_produk ORDER BY a.id");
 				if($result_po->num_rows() == '1'){
@@ -3457,16 +3459,15 @@ class Transaksi extends CI_Controller
 					$st5 = $r->status_app5;
 				}
 				// HARGA
-				(strlen($alasan4) >= 35) ? $spn4 = 'style="width:200px;white-space:normal"' : $spn4 = '';
-				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->ket_acc4 != null && ($r->status_app4 == 'H' || $r->status_app4 == 'R')) ? $rketPO4 = ' <button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `4`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button>' : $rketPO4 = '';
+				(strlen($alasan4) >= 25) ? $spn4 = 'style="width:200px;font-weight:bold;white-space:normal"' : $spn4 = 'style="font-weight:bold"';
+				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing']) && $r->ket_acc4 != null && ($r->status_app4 == 'H' || $r->status_app4 == 'R')) ? $rketPO4 = '<div><button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `4`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button></div>' : $rketPO4 = '';
 				$row[] = '<div class="text-center" '.$spn4.'>
 					<button onclick="data_sementara(`HARGA`, '."'".$r->status_app4."'".', '."'".$time4."'".', '."'".$alasan4."'".', '."'".$r->no_po."'".', '."'".$exp4."'".')" type="button" title="'.$time4.'"  style="text-align:center" class="btn btn-sm '.$btn4.'" id="btnBase2-'.$r->id.'">'.$i4.'</button><br>
-					'.$alasan4.$rketPO4.$ketAlasan4.'
+					'.$alasan4.$ketAlasan4.$rketPO4.'
 				</div>';
-
 				// USER / INNER
-				(strlen($alasan5) >= 35) ? $spn5 = 'style="width:200px;white-space:normal"' : $spn5 = '';
-				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->ket_acc5 != null && ($r->status_app5 == 'H' || $r->status_app5 == 'R')) ? $rketPO5 = ' <button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `5`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button>' : $rketPO5 = '';
+				(strlen($alasan5) >= 25) ? $spn5 = 'style="width:200px;font-weight:bold;white-space:normal"' : $spn5 = 'style="font-weight:bold"';
+				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing']) && $r->ket_acc5 != null && ($r->status_app5 == 'H' || $r->status_app5 == 'R')) ? $rketPO5 = '<div><button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `5`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button></div>' : $rketPO5 = '';
 				$row[] = '<div class="text-center" '.$spn5.'>
 					<input type="hidden" id="time_actualDate-'.$r->id.'" value="'.$actualDate.'">
 					<input type="hidden" id="time_expired-'.$r->id.'" value="'.$expired.'">
@@ -3476,46 +3477,40 @@ class Transaksi extends CI_Controller
 					<button onclick="data_sementara(`Inner`, '."'".$st5."'".', '."'".$time5."'".', '."'".$alasan5."'".', '."'".$r->no_po."'".', '."'".$exp5."'".')" type="button" title="'.$time5.'" style="text-align:center" class="btn btn-sm '.$btn5.'" id="btnBase1-'.$r->id.'">'.$i5.'</button><br>
 					'.$alasan5.$rketPO5.$ketAlasan5.'
 				</div>';
-
 				// MARKETING
-				(strlen($alasan1) >= 35) ? $spn1 = 'style="width:200px;white-space:normal"' : $spn1 = '';
-				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->ket_acc1 != null && ($r->status_app1 == 'H' || $r->status_app1 == 'R')) ? $rketPO1 = ' <button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `1`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button>' : $rketPO1 = '';
+				(strlen($alasan1) >= 25) ? $spn1 = 'style="width:200px;font-weight:bold;white-space:normal"' : $spn1 = 'style="font-weight:bold"';
+				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing']) && $r->ket_acc1 != null && ($r->status_app1 == 'H' || $r->status_app1 == 'R')) ? $rketPO1 = '<div><button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `1`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button></div>' : $rketPO1 = '';
 				$row[] = '<div class="text-center" '.$spn1.'>
 					<button onclick="data_sementara(`Marketing`, '."'".$r->status_app1."'".', '."'".$time1."'".', '."'".$alasan1."'".', '."'".$r->no_po."'".', '."'".$exp1."'".')" type="button" title="'.$time1.'" style="text-align:center" class="btn btn-sm '.$btn1.'" id="btnBase1-'.$r->id.'">'.$i1.'</button><br>
-					'.$alasan1.$rketPO1.$ketAlasan1.'
+					'.$alasan1.$ketAlasan1.$rketPO1.'
 				</div>';
 				// PPIC
-				(strlen($alasan2) >= 35) ? $spn2 = 'style="width:200px;white-space:normal"' : $spn2 = '';
-				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->ket_acc2 != null && ($r->status_app2 == 'H' || $r->status_app2 == 'R')) ? $rketPO2 = ' <button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `2`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button>' : $rketPO2 = '';
+				(strlen($alasan2) >= 25) ? $spn2 = 'style="width:200px;font-weight:bold;white-space:normal"' : $spn2 = 'style="font-weight:bold"';
+				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing']) && $r->ket_acc2 != null && ($r->status_app2 == 'H' || $r->status_app2 == 'R')) ? $rketPO2 = '<div><button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `2`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button></div>' : $rketPO2 = '';
                 $row[] = '<div class="text-center" '.$spn2.'>
 					<button onclick="data_sementara(`PPIC`, '."'".$r->status_app2."'".', '."'".$time2."'".', '."'".$alasan2."'".', '."'".$r->no_po."'".', '."'".$exp2."'".')" type="button" title="'.$time2.'"  style="text-align:center" class="btn btn-sm '.$btn2.'" id="btnBase2-'.$r->id.'">'.$i2.'</button><br>
 					'.$alasan2.$rketPO2.$ketAlasan2.'
 				</div>';
 				// OWNER
-				(strlen($alasan3) >= 35) ? $spn3 = 'style="width:200px;white-space:normal"' : $spn3 = '';
-				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User']) && $r->ket_acc3 != null && ($r->status_app3 == 'H' || $r->status_app3 == 'R')) ? $rketPO3 = ' <button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `3`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button>' : $rketPO3 = '';
+				(strlen($alasan3) >= 25) ? $spn3 = 'style="width:200px;font-weight:bold;white-space:normal"' : $spn3 = 'style="font-weight:bold"';
+				(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing']) && $r->ket_acc3 != null && ($r->status_app3 == 'H' || $r->status_app3 == 'R')) ? $rketPO3 = '<div><button class="btn btn-xs" onclick="hpsKetPO('."'".$r->id."'".', `3`)"><i class="fas fa-times-circle" style="color:#dc3545"></i></button></div>' : $rketPO3 = '';
                 $row[] = '<div class="text-center" '.$spn3.'>
 					<button onclick="data_sementara(`Owner`, '."'".$r->status_app3."'".', '."'".$time3."'".', '."'".$alasan3."'".', '."'".$r->no_po."'".', 0)"  type="button" title="'.$time3.'"  style="text-align:center" class="btn btn-sm '.$btn3.'">'.$i3.'</button><br>
 					'.$alasan3.$rketPO3.'
 				</div>';
 
 				// ETA
-				// if($r->tgl_po >= '2026-02-01'){
 				if($r->status_app3 == 'Y'){
 					$twoWeek = date('Y-m-d', strtotime('+2 week', strtotime(substr($r->time_app3, 0, 10))));
 					$twScdDiff = strtotime($twoWeek) - time();
 					$twHari = floor($twScdDiff/60/60/24);
 					$twJam = floor(($twScdDiff-($twHari*60*60*24))/60/60);
 					$twMenit = floor(($twScdDiff-($twHari*60*60*24)-($twJam*60*60))/60);
-
 					($twHari == 0) ? $tDays = '' : $tDays = '<div>'.$twHari.' Day</div>';
 					($twJam == 0) ? $tHours = '' : $tHours = '<div>'.$twJam.' Hrs</div>';
 					($twMenit == 0) ? $tMinutes = '' : $tMinutes = '<div>'.$twMenit.' Mnt</div>';
 					($twHari <= 0) ? $twWaktu = '' : $twWaktu = $tDays.$tHours.$tMinutes;
 					if(time() > strtotime($twoWeek) || time() == strtotime($twoWeek)){
-						// $etaBtn = 'btn-danger';
-						// $etaI = '<i class="fas fa-times"></i>';
-						// $etaAlasan = '<div style="color:#dc3545;font-weight:bold">EXPIRED</div>';
 						$etaBtn = 'btn-success';
 						$etaI = '<i class="fas fa-check-circle"></i>';
 						$etaAlasan = '';
@@ -3529,39 +3524,38 @@ class Transaksi extends CI_Controller
 					$etaI = '<i class="fas fa-lock"></i>';
 					$etaAlasan = '';
 				}
-				// }else{
-				// 	$etaBtn = 'btn-success';
-				// 	$etaI = '<i class="fas fa-check-circle"></i>';
-				// 	$etaAlasan = '';
-				// }
 				
 				$row[] = '<div class="text-center">
 					<button type="button" title="ETA"  style="text-align:center" class="btn btn-sm '.$etaBtn.'">'.$etaI.'</button><br>
 					'.$etaAlasan.'
 				</div>';
 
+				// AKSI
                 $aksi = '';
-				if (!in_array($this->session->userdata('level'), ['Admin', 'konsul_keu', 'Marketing', 'PPIC', 'Owner', 'AP'])) {
-					if($this->session->userdata('level') == 'User' && $r->status == 'Open') {
-						$aksi .= '
-							<div style="margin-bottom:3px">
-								<button type="button" onclick="preview('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn btn-info btn-sm">
-									<i class="fa fa-edit"></i>
-								</button>
-								<button type="button" title="DELETE" onclick="deleteData('."'".$r->id."'".','."'".$r->no_po."'".')" class="btn btn-secondary btn-sm">
-									<i class="fa fa-trash-alt"></i>
-								</button>
-								<button type="button" title="NON AKTIF" onclick="nonAktifPO('."'".$r->id."'".')" class="btn btn-sm btn-warning">
+				if (!in_array($this->session->userdata('level'), ['Admin', 'konsul_keu', 'PPIC', 'Owner', 'AP'])) {
+					if(in_array($this->session->userdata('level'), ['User', 'Marketing']) && $r->status == 'Open') {
+						($this->session->userdata('level') == 'Marketing') ? $bAks = 'btn-warning' : $bAks = 'btn-info';
+						$aksi .= '<div style="margin-bottom:3px">
+							<button type="button" onclick="preview('."'".$r->id."'".','."'edit'".')" title="EDIT" class="btn '.$bAks.' btn-sm">
+								<i class="fa fa-edit"></i>
+							</button>
+							<button type="button" title="DELETE" onclick="deleteData('."'".$r->id."'".','."'".$r->no_po."'".')" class="btn btn-secondary btn-sm">
+								<i class="fa fa-trash-alt"></i>
+							</button>';
+							if($this->session->userdata('level') != 'Marketing'){
+								$aksi .= ' <button type="button" title="NON AKTIF" onclick="nonAktifPO('."'".$r->id."'".')" class="btn btn-sm btn-warning">
 									<i class="fas fa-power-off"></i>
-								</button>
-								<button type="button" title="UPDATE EXPIRED" onclick="updateAddTimePO('."'".$r->id."'".')" class="btn btn-sm btn-dark">
-									<i class="fas fa-circle"></i>
-								</button>
-							</div>
-							<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Cetak_PO?no_po=".$r->no_po."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
+								</button>';
+							}
+							$aksi .= ' <button type="button" title="UPDATE EXPIRED" onclick="updateAddTimePO('."'".$r->id."'".')" class="btn btn-sm btn-dark">
+								<i class="fas fa-circle"></i>
+							</button>
+						</div>';
+						if($this->session->userdata('level') != 'Marketing'){
+							$aksi .= '<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Cetak_PO?no_po=".$r->no_po."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
 							<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/Cetak_wa_po?no_po=".$r->no_po."").'" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
-							<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Cetak_img_po?no_po=".$r->no_po."").'" title="Cetak Img" ><i class="fas fa-image"></i></a> 
-						';
+							<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Cetak_img_po?no_po=".$r->no_po."").'" title="Cetak Img" ><i class="fas fa-image"></i></a>';
+						}
 					}else{
 						if(($r->aktif == 0 || $r->aktif == '0') && $this->session->userdata('level') == 'User'){
 							$aksi .=  '<button type="button" title="AKTIF KAN LAGI" onclick="nonAktifPO('."'".$r->id."'".')" class="btn btn-sm btn-primary">
@@ -3570,16 +3564,21 @@ class Transaksi extends CI_Controller
 						}else if($this->session->userdata('level') == 'User'){
 							$aksi .=  '<button type="button" title="NON AKTIF" onclick="nonAktifPO('."'".$r->id."'".')" class="btn btn-sm btn-warning">
 								<i class="fas fa-power-off"></i>
+							</button> ';
+						}
+						if($this->session->userdata('level') != 'Marketing'){
+							$aksi .= '<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Cetak_PO?no_po=".$r->no_po."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
+							<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/Cetak_wa_po?no_po=".$r->no_po."").'" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
+							<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Cetak_img_po?no_po=".$r->no_po."").'" title="Cetak Img" ><i class="fas fa-image"></i></a>';
+						}
+						if($this->session->userdata('level') == 'Marketing'){
+							$aksi .=  '<button title="VERIFIKASI DATA" type="button" onclick="preview('."'".$r->id."'".','."'detail'".')" class="btn btn-info btn-sm">
+								<i class="fa fa-check"></i>
 							</button>';
 						}
-						$aksi .= '
-							<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Transaksi/Cetak_PO?no_po=".$r->no_po."").'" title="Cetak" ><i class="fas fa-print"></i> </a>
-							<a target="_blank" class="btn btn-sm btn-success" href="'.base_url("Transaksi/Cetak_wa_po?no_po=".$r->no_po."").'" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
-							<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Transaksi/Cetak_img_po?no_po=".$r->no_po."").'" title="Cetak Img" ><i class="fas fa-image"></i></a> 
-						';
 					}
 				}else{
-                    if ($this->session->userdata('level') == 'Admin' ) {
+                    if ($this->session->userdata('level') == 'Admin') {
 						if($r->status_app1 == 'N' || $r->status_app2 == 'N' || $r->status_app3 == 'N' || $r->status_app4 == 'N' || $r->status_app5 == 'N' || $r->status_app1 == 'H' || $r->status_app2 == 'H' || $r->status_app3 == 'H' || $r->status_app4 == 'H' || $r->status_app5 == 'H' || $r->status_app1 == 'R' || $r->status_app2 == 'R' || $r->status_app3 == 'R' || $r->status_app4 == 'R' || $r->status_app5 == 'R'){
 							$aksi .=  '
 								<div style="margin-bottom:3px">
@@ -3712,6 +3711,12 @@ class Transaksi extends CI_Controller
 		} else if ($jenis == "trs_so_detail") {
 			$tahunn = $_POST["tahun"];
 			$status_kiriman = $_POST["status_kiriman"];
+			$id_sales = $this->session->userdata('id_sales');
+			if($id_sales == "" || $id_sales == null){
+				$wSS = "";
+			}else{
+				$wSS = "AND l.id_sales='$id_sales'";
+			}
 			// if ($this->session->userdata('level') == "PPIC") {
 			// 	$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.no_so_p,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,l.attn,d.qty AS qty_po,s.* FROM trs_po_detail d
 			// 	INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so_p=s.no_so AND d.id_produk=s.id_produk
@@ -3725,7 +3730,7 @@ class Transaksi extends CI_Controller
 				INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so=s.no_so AND d.id_produk=s.id_produk
 				INNER JOIN m_produk p ON d.id_produk=p.id_produk
 				INNER JOIN m_pelanggan l ON d.id_pelanggan=l.id_pelanggan
-				WHERE d.no_so IS NOT NULL AND d.tgl_so IS NOT NULL AND d.status_so IS NOT NULL AND d.tgl_so LIKE '%$tahunn%' AND po.status_kiriman='$status_kiriman'
+				WHERE d.no_so IS NOT NULL AND d.tgl_so IS NOT NULL AND d.status_so IS NOT NULL AND d.tgl_so LIKE '%$tahunn%' AND po.status_kiriman='$status_kiriman' $wSS
 				GROUP BY d.id
 				ORDER BY d.tgl_so DESC, d.id")->result();
 			// }
@@ -4935,10 +4940,12 @@ class Transaksi extends CI_Controller
 							$his_status = 'Reject';
 						}
 						($h->his_no == '4') ? $nO = ' (Harga)' : $nO = '';
+						(strlen($h->his_ket) >= 25) ? $dv1 = '<div style="width:250px;white-space:normal">' : $dv1 = '';
+						(strlen($h->his_ket) >= 25) ? $dv2 = '</div>' : $dv2 = '';
 						$htmlHis .= '<tr>
 							<td style="padding:6px;border:1px solid #aaa">'.$lvl.$nO.'</td>
 							<td style="padding:6px;border:1px solid #aaa">'.$his_status.'</td>
-							<td style="padding:6px;border:1px solid #aaa">'.$h->his_ket.'</td>
+							<td style="padding:6px;border:1px solid #aaa">'.$dv1.$h->his_ket.$dv2.'</td>
 							<td style="padding:6px;border:1px solid #aaa">'.$h->his_time.'</td>
 						</tr>';
 					}

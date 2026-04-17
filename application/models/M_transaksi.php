@@ -18,6 +18,16 @@ class M_transaksi extends CI_Model
 		return $this->db->query($query)->row("nomor");
 	}
 
+	function generateFileName()
+	{
+		$stringSpace = '0123456789_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$stringLength = strlen($stringSpace);
+		$string = str_repeat($stringSpace, ceil(11 / $stringLength));
+		$shuffledString = str_shuffle($string);
+		$code = substr($shuffledString, 1, 11);
+		return $code;
+	}
+
 	function trs_po($table, $status)
 	{
 		$params   = (object)$this->input->post();
@@ -30,34 +40,28 @@ class M_transaksi extends CI_Model
 		$db_ppi_hub = $this->load->database($koneksi_hub->nm_db_hub, TRUE);
 
 		/* LOGO */
-		//$nmfile = "file_".time(); //nama file saya beri nama langsung dan diikuti fungsi time
+		$thn = substr(date('Y'), 2, 2); $bln = date('m'); $date = date('d');
+		$config['file_name'] = 'PO-'.$thn.$bln.$date.'-'.$this->generateFileName().'-'.$params->id_pelanggan;
 		$config['upload_path']   = './assets/gambar_po/'; //path folder
 		$config['allowed_types'] = 'gif|jpg|png|jpeg|bmp'; //type yang dapat diakses bisa anda sesuaikan
 		$config['max_size']      = '1024'; //maksimum besar file 2M
 		$config['max_width']     = 'none'; //lebar maksimum 1288 px
 		$config['max_height']    = 'none'; //tinggi maksimu 768 px
-		//$config['file_name'] = $nmfile; //nama yang terupload nantinya
 
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
 
-		if ($status == 'insert') 
-		{
-			if($_FILES['filefoto']['name'])
-			{
-				if ($this->upload->do_upload('filefoto'))
-				{
+		if ($status == 'insert'){
+			if($_FILES['filefoto']['name']){
+				if ($this->upload->do_upload('filefoto')){
 					$gbrBukti = $this->upload->data();
 					$filefoto = $gbrBukti['file_name'];
 					// $filefoto    = $_FILES['filefoto']['name'];
-					
 				}else{
 					$filefoto = 'foto.jpg';
 				}
 			} else {
-
-				if($params->tgl_po<'2023-11-01')
-				{
+				if($params->tgl_po<'2023-11-01'){
 					$filefoto = 'foto.jpg';
 				}else{
 					$error = array('error' => $this->upload->display_errors());
@@ -65,35 +69,26 @@ class M_transaksi extends CI_Model
 					exit;
 				}
 			}
-
 		}else{
-			if($_FILES['filefoto']['name'])
-			{
-				if ($this->upload->do_upload('filefoto'))
-				{
+			if($_FILES['filefoto']['name']){
+				if ($this->upload->do_upload('filefoto')){
 					$gbrBukti = $this->upload->data();
 					$filefoto = $gbrBukti['file_name'];
 					// $filefoto    = $_FILES['filefoto']['name'];
-					
 				}else{
 					$filefoto = 'foto.jpg';
 				}
 			} else {
-
-				if($params->tgl_po<'2023-11-01')
-				{
+				if($params->tgl_po<'2023-11-01'){
 					$filefoto = 'foto.jpg';
 				}else{
 					// $error = array('error' => $this->upload->display_errors());
 					// var_dump($error);
 					// exit;
-
 					$load_data = $this->db->query("SELECT*FROM $table where kode_po = '$params->kode_po' and no_po='$params->no_po' ")->row();
-
 					$filefoto = $load_data->img_po;
 				}
 			}
-			
 		}
 		
 		/*END LOGO */
@@ -2518,16 +2513,6 @@ class M_transaksi extends CI_Model
 		];
 	}
 
-	function generateFileName()
-	{
-		$stringSpace = '0123456789_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		$stringLength = strlen($stringSpace);
-		$string = str_repeat($stringSpace, ceil(11 / $stringLength));
-		$shuffledString = str_shuffle($string);
-		$code = substr($shuffledString, 1, 11);
-		return $code;
-	}
-
 	function UploadFilePORoll()
 	{
 		$hidhdr = $this->input->post('hidhdr');
@@ -3170,37 +3155,21 @@ class M_transaksi extends CI_Model
 		$id_dev = $_POST["id_dev"];
 		$urut = $_POST["urut"];
 
-		$dev = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s
-		INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
-		WHERE id_dev='$id_dev'")->row();
+		$dev = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_dev'")->row();
 		$cek = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$dev->eta' AND urut='$urut' AND id_ex IS NOT NULL GROUP BY urut");
 
-		// LOCKDOWN H+3
-		$lock3D = date('Y-m-d', strtotime('+'.$dev->lock.' days', strtotime(date('Y-m-d'))));
-		$selisihHari = strtotime($lock3D) - strtotime($dev->eta);
-
-		if($selisihHari >= 0){
-			$data = false;
-			$msg = 'lock 3 hari';
+		if($urut < 0 || $urut == ''){
+			$data = false; $msg = 'COBA LAGI!';
+		}else if($cek->num_rows() != 0){
+			$data = false; $msg = 'NO URUT SUDAH TERPAKAI!';
 		}else{
-			$data = true;
-			$msg = 'ok';
+			$this->db->set('urut', $urut);
+			$this->db->where('id_dev', $id_dev);
+			$data = $this->db->update('trs_dev_sys');
+			$msg = 'BERHASIL!';
 		}
 
-		// if($urut < 0 || $urut == ''){
-		// 	$data = false; $msg = 'COBA LAGI!';
-		// }else if($cek->num_rows() != 0){
-		// 	$data = false; $msg = 'NO URUT SUDAH TERPAKAI!';
-		// }else{
-		// 	$this->db->set('urut', $urut);
-		// 	$this->db->where('id_dev', $id_dev);
-		// 	$data = $this->db->update('trs_dev_sys');
-		// 	$msg = 'BERHASIL!';
-		// }
-
 		return [
-			'1lock3D' => $lock3D,
-			'1selisihHari' => $selisihHari,
 			'data' => $data,
 			'msg' => $msg,
 		];
