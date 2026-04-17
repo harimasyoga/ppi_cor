@@ -95,7 +95,7 @@
 													<?php
 														($r->attn == '-') ? $attn = '' : $attn = ' - '.$r->attn;
 													?>
-													<?= $r->id_pelanggan . "|" . $r->nm_pelanggan.$attn ?>
+													<?= $r->nm_pelanggan.$attn ?>
 												</option>
 											<?php endforeach ?>
 										</select>
@@ -542,12 +542,9 @@
 			success:function(data){			
 				if(data.message == "Success"){					
 					option = `<option value="">-- Pilih --</option>`;	
-
 					$.each(data.data, function(index, val) {
-					option += `<option value="${val.status}" ><b>${val.ket}</b></option>`;
-
+						option += `<option value="${val.status}" ><b>${val.ket}</b></option>`;
 					});
-
 					$('#status_karet').html(option);
 					swal.close();
 				}else{	
@@ -626,18 +623,12 @@
 			},
 			success:function(data){			
 				if(data.message == "Success"){							
-					option = "<option>-- Pilih --</option>";
+					option = '<option value="">-- Pilih --</option>';
 					$.each(data.data, function(index, val) {
-
-					option += "<option value='"+val.id_hub+"'>"+val.id_hub+ " | " +val.nm_hub+ " | " + format_angka(val.sisa_hub) + "</option>";
-					
+						option += "<option value='"+val.id_hub+"'>"+val.id_hub+ " | " +val.nm_hub+ " | " + format_angka(val.sisa_hub) + "</option>";
 					});
-
-					
-					if(id_hub==0)
-					{
+					if(id_hub == 0){
 						$('#id_hub').html(option);
-
 					}else{		
 						$('#id_hub').html(option);
 						$('#id_hub').val(id_hub).trigger('change');
@@ -654,16 +645,18 @@
 	
 	function pilih_hub2(id_hub,nm_hub)
 	{
-		if(urlIdSales != null){
-			option = "<option value='"+id_hub+"'>-</option>";
-		}else{
+		if(urlIdSales == ''){
 			if(id_hub==''){
 				option += "<option value=''></option>";
+				$('#id_hub').html(option);
 			}else{
 				option = "<option value='"+id_hub+"'>"+nm_hub+"</option>";
+				$('#id_hub').html(option);
 			}
+		}else{
+			option = "<option value='"+id_hub+"'>-</option>";
+			$('#id_hub').html(option);
 		}
-		$('#id_hub').html(option);
 	}
 
 	function load_data() 
@@ -967,14 +960,14 @@
 
 	function kosong(c = '') 
 	{
-		$("#tgl_po").val("<?= date('Y-m-d') ?>");
+		$("#tgl_po").val("<?= date('Y-m-d') ?>").trigger('change');
 		$("#btn-print").hide();
-		if(urlIdSales != null){
+		if(urlIdSales == ''){
+			$("#id_hub").select2("val", '');
+			$('#id_hub').val('').trigger('change');
+		}else{
 			$("#id_hub").select2("val", 7);
 			$('#id_hub').val(7).trigger('change');
-		}else{
-			$("#id_hub").select2("val", "");
-			$('#id_hub').val("").trigger('change');
 		}
 
 		$("#id_pelanggan").select2("val", "");
@@ -988,6 +981,7 @@
 		$("#txt_no_telp").val("");
 		$("#txt_fax").val("");
 		$("#txt_top").val("");
+		$('#status_karet').val("").trigger('change');
 		$("#txt_marketing").val("");
 		$('#div_preview_foto').css("display","none");
 		

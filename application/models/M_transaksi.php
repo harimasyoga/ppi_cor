@@ -41,7 +41,7 @@ class M_transaksi extends CI_Model
 
 		/* LOGO */
 		$thn = substr(date('Y'), 2, 2); $bln = date('m'); $date = date('d');
-		$config['file_name'] = 'PO'.$params->id_pelanggan.'-'.$thn.$bln.$date.'-'.$this->generateFileName();
+		$config['file_name'] = 'PO-'.$thn.$bln.$date.'-'.$this->generateFileName().'-'.$params->id_pelanggan;
 		$config['upload_path']   = './assets/gambar_po/'; //path folder
 		$config['allowed_types'] = 'gif|jpg|png|jpeg|bmp'; //type yang dapat diakses bisa anda sesuaikan
 		$config['max_size']      = '1024'; //maksimum besar file 2M
