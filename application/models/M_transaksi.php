@@ -1390,6 +1390,16 @@ class M_transaksi extends CI_Model
 			$rm = ($produk->row()->ukuran_sheet_p * $_POST["editQtySo"] / $out) / 1000;
 			$ton = $_POST["editQtySo"] * $produk->row()->berat_bersih;
 
+			// eta1
+			$SO = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$id'")->row();
+			$eta1 = $this->db->query("SELECT po.status_app3,po.time_app3,so.* FROM trs_po_detail ps
+			INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
+			INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
+			WHERE so.no_po='$SO->no_po' AND so.kode_po='$SO->kode_po' AND so.no_so='$SO->no_so' AND so.urut_so='$SO->urut_so'
+			GROUP BY so.id
+			ORDER BY so.urut_so ASC, so.rpt ASC
+			LIMIT 1")->row();
+
 			$data = array(
 				"eta_so" => ($_POST["editTglSo"] == "") ? null : $_POST["editTglSo"],
 				"qty_so" => $_POST["editQtySo"],
@@ -1401,7 +1411,10 @@ class M_transaksi extends CI_Model
 				"edit_user" => $this->username,
 			);
 
-			if($_POST["editCekRM"] == 0){
+			if(($_POST['editQtySo'] < $eta1->qty_so) && $SO->rpt != 1){
+				$insert = false;
+				$msg = 'QTY LEBIH KECIL DARI QTY ETA PERTAMA!';
+			}else if($_POST["editCekRM"] == 0){
 				if($rm < 500){
 					$insert = false;
 					$msg = 'RM '.round($rm).' . RM KURANG!';

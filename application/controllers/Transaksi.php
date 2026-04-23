@@ -7571,7 +7571,7 @@ class Transaksi extends CI_Controller
 										$btnEditDSys = $editDSys;
 									}else{
 										if($dataHapusSO->row()->jml_rpt == $so->rpt){
-											$btnHapus = ($sys->num_rows() == 0) ? ' <button type="button" class="btn btn-danger btn-sm" style="padding:4px 10px" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>' : ' <button type="button" class="btn btn-secondary btn-sm" style="padding:4px 10px" disabled><i class="fas fa-times"></i></button>';
+											$btnHapus = ($sys->num_rows() == 0) ? ' <button type="button" class="btn btn-danger btn-sm" style="padding:4px 10px" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>' : '';
 											$btnAddDSys = $addSys;
 											$btnEditDSys = $editDSys;
 										}else{
@@ -7718,8 +7718,12 @@ class Transaksi extends CI_Controller
 							$diss = 'disabled';
 						}else{
 							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])){
-								($r->id == $id) ? $diss = '' : $diss = 'disabled';
-								($r->id == $id) ? $btnAksi = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi = $print;
+								if($dataSO->num_rows() > 1 && $so->rpt == 1){
+									$diss = 'disabled';
+								}else{
+									($r->id == $id) ? $diss = '' : $diss = 'disabled';
+								}
+								(($r->id == $id) && ($sys->num_rows() == 0)) ? $btnAksi = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi = $print;
 							}else{
 								$diss = 'disabled';
 								$btnAksi = $print;
@@ -7822,6 +7826,7 @@ class Transaksi extends CI_Controller
 						if($sys->row()->eta_t == null){
 							$pP = 'P';
 							$zG = 'FDD';
+							$ADSbtn = '-';
 						}else if($hPlus <= 0){
 							if($hPlus == 0){
 								$pP = '-'.$hPlus2;
@@ -7829,9 +7834,11 @@ class Transaksi extends CI_Controller
 								($hPlus2 >= 0) ? $pP = '-'.$hPlus2 : $pP = str_replace("-", "+", $hPlus2);
 							}
 							$zG = 'FDD';
+							$ADSbtn = $btnEditDSys.$btnHapusSys;
 						}else{
 							$pP = '-'.$hPlus2;
 							$zG = 'DFD';
+							$ADSbtn = $btnEditDSys.$btnHapusSys;
 						}
 						$html .= '<tr>
 							<td style="padding:6px;border:0;text-align:right;'.$bHead.'" colspan="5"></td>
@@ -7861,7 +7868,7 @@ class Transaksi extends CI_Controller
 								<textarea class="form-control" id="sys_ket'.$sys->row()->id_dev.'" rows="1" style="resize:none" '.$diss.'>'.$sys->row()->ket_sys.'</textarea>
 							</td>
 							<td style="padding:6px;border:1px solid #999;text-align:center">
-								'.$btnEditDSys.$btnHapusSys.'
+								'.$ADSbtn.'
 							</td>
 						</tr>';
 						if($dataHapusSO->row()->jml_rpt != $so->rpt){
@@ -8112,6 +8119,15 @@ class Transaksi extends CI_Controller
 				)
 			);
 
+			// ETA 1
+			$eta1 = $this->db->query("SELECT so.* FROM trs_po_detail ps
+			INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
+			INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
+			WHERE ps.id='$id'
+			GROUP BY so.id
+			ORDER BY so.urut_so ASC, so.rpt ASC
+			LIMIT 1")->row();
+
 			// TIMER
 			$twoWeek = date('Y-m-d', strtotime('+2 week', strtotime(substr($getData->row()->time_app3, 0, 10))));
 			$secondsDiff = strtotime($twoWeek) - time();
@@ -8132,6 +8148,8 @@ class Transaksi extends CI_Controller
 			// }else
 			if($waktu == 'EXPIRED' && $getData->row()->status_app3 == 'Y'){
 				echo json_encode(array('data' => false, 'msg' => 'EXPIRED!'));
+			}else if($_POST['fBagiQtySo'] < $eta1->qty_so){
+				echo json_encode(array('data' => false, 'msg' => 'QTY TAMBAHAN LEBIH KECIL DARI QTY ETA PERTAMA!'));
 			}else if($this->cart->total_items() != 0){
 				// foreach($this->cart->contents() as $r){
 				// 	if($r['options']['eta_so'] == $_POST["fBagiEtaSo"]){
@@ -8146,21 +8164,21 @@ class Transaksi extends CI_Controller
 					echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm).' . RM KURANG!'));
 				}else{
 					$this->cart->insert($data);
-					echo json_encode(array('data' => true, 'msg' => $data));
+					echo json_encode(array('data' => true, 'msg' => 'BERHASIL!'));
 				}
 			}else if($_POST["fBagiCrmSo"] == 0){
 				if($rm < 500){
 					echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm).' . RM KURANG!'));
 				}else{
 					$this->cart->insert($data);
-					echo json_encode(array('data' => true, 'msg' => $data));
+					echo json_encode(array('data' => true, 'msg' => 'BERHASIL!'));
 				}
 			}else{
 				if(round($rm) == 0 || round($ton) == 0 || round($rm) < 0 || round($ton) < 0 || $rm == "" || $ton == "" ){
 					echo json_encode(array('data' => false, 'msg' => 'RM '.round($rm). ' . RM / TONASE TIDAK BOLEH KOSONG!'));
 				}else{
 					$this->cart->insert($data);
-					echo json_encode(array('data' => true, 'msg' => $data));
+					echo json_encode(array('data' => true, 'msg' => 'BERHASIL!'));
 				}
 			}
 		}
