@@ -7420,7 +7420,7 @@ class Transaksi extends CI_Controller
 				if($aksi == 'detail'){
 					$btnBagi = '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-minus"></i></button>';
 				}else{
-					if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])){
+					if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
 						if($r->id == $id){
 							$btnBagi = '<button type="button" class="btn btn-success btn-sm" id="addBagiSO" onclick="addBagiSO('."'".$r->id."'".')"><i class="fas fa-plus"></i></button>';
 							$btnBagi .= ($sysHead->num_rows() == 0) ? ' <button type="button" class="btn btn-danger btn-sm" id="hapusListSO" onclick="hapusListSO('."'".$r->id."'".')"><i class="fas fa-trash"></i></button>' :
@@ -7537,7 +7537,7 @@ class Transaksi extends CI_Controller
 					}else{
 						$iSys = $sys->row()->id_dev;
 						$tglNow = strtotime(date('Y-m-d')) - strtotime($sys->row()->eta);
-						if($tglNow <= 0 || in_array($lvl, ['Admin', 'Admin2', 'User'])){
+						if($tglNow <= 0 || in_array($lvl, ['Admin', 'Admin2', 'User', 'Marketing'])){
 							$eBsys = 'class="btn btn-warning btn-xs" onclick="editBagiSys('."'".$sys->row()->id_dev."'".', '."'".$id."'".')"';
 							$hBsys = 'class="btn btn-danger btn-xs" onclick="hapusOSDSys('."'".$iSys."'".')"';
 						}else{
@@ -7555,7 +7555,7 @@ class Transaksi extends CI_Controller
 					}else{
 						if($so->status == 'Close' || $so->status_2 == 'Close'){
 							$btnHapus = '';
-							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])){
+							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
 								$btnAddDSys = $addSys;
 								$btnEditDSys = '';
 							}else{
@@ -7563,7 +7563,7 @@ class Transaksi extends CI_Controller
 								$btnEditDSys = '';
 							}
 						}else{
-							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])){
+							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
 								if($r->id == $id){
 									if($so->rpt == 1){
 										$btnHapus = '';
@@ -7717,7 +7717,7 @@ class Transaksi extends CI_Controller
 							$rTxt = 1;
 							$diss = 'disabled';
 						}else{
-							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])){
+							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
 								if($dataSO->num_rows() > 1 && $so->rpt == 1){
 									$diss = 'disabled';
 								}else{
