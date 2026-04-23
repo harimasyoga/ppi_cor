@@ -99,6 +99,7 @@
 								<th>CUSTOMER</th>
 								<th style="width:10%">QTY PO</th>
 								<th style="width:10%">PENGIRIMAN</th>
+								<th style="width:10%">ETA</th>
 									<!-- <th style="width:10%">ORDER</th> -->
 								<th style="width:5%">AKSI</th>
 							</tr>
