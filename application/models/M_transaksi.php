@@ -1190,8 +1190,17 @@ class M_transaksi extends CI_Model
 			$msg = 'PO BELUM DI ACC!';
 		}else{
 			$SO = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$id_os'")->row();
-			$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_po_dtl'")->row();
+			$po_dtl = $this->db->query("SELECT po.status_app3,ps.* FROM trs_po_detail ps
+			INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
+			WHERE ps.id='$id_po_dtl'")->row();
 			$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$po_dtl->id_produk'")->row();
+
+			// cek po
+			if($po_dtl->status_app3 == 'Y'){
+				$tambahan = 'TAMBAHAN';
+			}else{
+				$tambahan = null;
+			}
 
 			// SYS
 			// $jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
@@ -1223,6 +1232,7 @@ class M_transaksi extends CI_Model
 				'berat' => $berat,
 				'bb' => $produk->berat_bersih,
 				'eta' => $SO->eta_so,
+				'eta_t' => $tambahan,
 				'ket_sys' => null,
 				'id_ex' => null,
 				'urut' => 0,
@@ -1250,7 +1260,9 @@ class M_transaksi extends CI_Model
 		$hariPilih = floor($selisihHariPilih/60/60/24);
 		$tglPilih = floor((strtotime($sys->eta) - strtotime($lock3D)) /60/60/24);
 		
-		if($tglPilih <= 0){
+		if($sys->eta_t == null){
+			$data = false; $msg = 'ETA DARI ACC PO TIDAK BISA DI HAPUS!';
+		}else if($tglPilih <= 0){
 			$data = false;
 			$msg = 'LOCK '.$sys->lock.' HARI PER HARI INI!';
 		}else if($sys->urut != 0){
@@ -1282,7 +1294,9 @@ class M_transaksi extends CI_Model
 		$hariPilih = floor($selisihHariPilih/60/60/24);
 		$tglPilih = floor((strtotime($sys->eta) - strtotime($lock3D)) /60/60/24);
 
-		if($tglPilih <= 0){
+		if($sys->eta_t == null){
+			$data = false; $msg = 'ETA DARI ACC PO TIDAK BISA DI EDIT!';
+		}else if($tglPilih <= 0){
 			$data = false;
 			$msg = 'LOCK '.$sys->lock.' HARI PER HARI INI!';
 		}else if($sys_eta == ''){
@@ -1376,6 +1390,16 @@ class M_transaksi extends CI_Model
 			$rm = ($produk->row()->ukuran_sheet_p * $_POST["editQtySo"] / $out) / 1000;
 			$ton = $_POST["editQtySo"] * $produk->row()->berat_bersih;
 
+			// eta1
+			$SO = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$id'")->row();
+			$eta1 = $this->db->query("SELECT po.status_app3,po.time_app3,so.* FROM trs_po_detail ps
+			INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
+			INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
+			WHERE so.no_po='$SO->no_po' AND so.kode_po='$SO->kode_po' AND so.no_so='$SO->no_so' AND so.urut_so='$SO->urut_so'
+			GROUP BY so.id
+			ORDER BY so.urut_so ASC, so.rpt ASC
+			LIMIT 1")->row();
+
 			$data = array(
 				"eta_so" => ($_POST["editTglSo"] == "") ? null : $_POST["editTglSo"],
 				"qty_so" => $_POST["editQtySo"],
@@ -1387,7 +1411,10 @@ class M_transaksi extends CI_Model
 				"edit_user" => $this->username,
 			);
 
-			if($_POST["editCekRM"] == 0){
+			if(($_POST['editQtySo'] < $eta1->qty_so) && $SO->rpt != 1){
+				$insert = false;
+				$msg = 'QTY LEBIH KECIL DARI QTY ETA PERTAMA!';
+			}else if($_POST["editCekRM"] == 0){
 				if($rm < 500){
 					$insert = false;
 					$msg = 'RM '.round($rm).' . RM KURANG!';
@@ -1420,6 +1447,17 @@ class M_transaksi extends CI_Model
 	function simpanCartItemSO()
 	{
 		foreach($this->cart->contents() as $r){
+			$id_dtl = $r['options']['id_dtl'];
+			// cek po
+			$cek = $this->db->query("SELECT po.* FROM trs_po_detail ps
+			INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
+			WHERE ps.id='$id_dtl' GROUP BY po.no_po,po.kode_po")->row();
+			if($cek->status_app3 == 'Y'){
+				$tambahan = 'TAMBAHAN';
+			}else{
+				$tambahan = null;
+			}
+
 			$data = array(
 				'id_pelanggan' => $r['options']['id_pelanggan'],
 				'id_produk' => $r['options']['id_produk'],
@@ -1436,6 +1474,7 @@ class M_transaksi extends CI_Model
 				'cek_rm_so' => ($r['options']['rm'] < 500) ? $r['options']['cek_rm_so'] : 0,
 				'rm' => $r['options']['rm'],
 				'ton' => $r['options']['ton'],
+				'so_t' => $tambahan,
 				'add_time' => date('Y-m-d H:i:s'),
 				'add_user' => $this->username,
 			);
@@ -1494,7 +1533,7 @@ class M_transaksi extends CI_Model
 			$this->db->where('no_po', $getSoDetail->no_po);
 			$this->db->where('kode_po', $getSoDetail->kode_po);
 			$this->db->where('id_produk', $getSoDetail->id_produk);
-			$this->db->where('add_user', ($this->session->userdata('level') == 'PPIC') ? 'ppic' : $this->username);
+			// $this->db->where('add_user', ($this->session->userdata('level') == 'PPIC') ? 'ppic' : $this->username);
 			$hapusDetailSO = $this->db->delete('trs_so_detail');
 
 			if($this->session->userdata('level') == 'PPIC'){

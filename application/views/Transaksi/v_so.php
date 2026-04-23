@@ -99,6 +99,7 @@
 								<th>CUSTOMER</th>
 								<th style="width:10%">QTY PO</th>
 								<th style="width:10%">PENGIRIMAN</th>
+								<th style="width:10%">ETA</th>
 									<!-- <th style="width:10%">ORDER</th> -->
 								<th style="width:5%">AKSI</th>
 							</tr>
@@ -1268,10 +1269,11 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
 					tampilEditSO(id, no_po, kode_po, 'edit')
 					reloadTable()
 				}else{
-					toastr.error(`<b>${data.msg}</b>`);
+					toastr.error(`<b>${data.msg}</b>`)
 					swal.close()
 				}
 				$("#editBagiSO"+i).prop('disabled', false)
@@ -1303,10 +1305,11 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.result){
+					toastr.success(`<b>BERHASIL!</b>`)
 					tampilEditSO(id, no_po, kode_po, 'edit')
 					reloadTable()
 				}else{
-					toastr.error('Ada kesalahan!');
+					toastr.error('ADA KESALAHAN!');
 					swal.close()
 				}
 				$("#btnAddBagiSO").prop('disabled', false)
@@ -1347,6 +1350,7 @@
 				success: function(res){
 					data = JSON.parse(res)
 					if(data.data){
+						toastr.success(`<b>${data.msg}</b>`)
 						tampilEditSO(id, no_po, kode_po, 'edit')
 						reloadTable()
 					}
@@ -1597,7 +1601,6 @@
 			data: ({ id_sys, id_po_dtl, sys_eta, sys_qty, sys_ket }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					toastr.success(`<b>${data.msg}</b>`)
 					tampilEditSO(h_id, no_po, kode_po, 'edit')
