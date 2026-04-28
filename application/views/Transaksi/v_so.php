@@ -52,7 +52,7 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<?php if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2'])) { ?>
+				<?php if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])) { ?>
 					<div style="margin-bottom:12px">
 						<button type="button" style="font-family:Cambria;" class="tambah_data btn btn-info pull-right" ><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 						<?php if($this->session->userdata('level') == 'Admin') { ?>
