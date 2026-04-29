@@ -1636,25 +1636,47 @@ class M_logistik extends CI_Model
 				$jasa = str_pad($db_jasa+1, 3, "0", STR_PAD_LEFT);
 				$no_jasa = 'JASA/'.$jasa.'/PPI'.'/'.$no[2].'/'.$tahun;
 				$jns = 'CORR';
+
+				$pl = $this->db->query("SELECT*FROM pl_box WHERE no_surat='$no_surat' GROUP BY no_surat")->row();
+				$data = array(
+					'no_surat' => $no_surat,
+					'tgl' => $pl->tgl,
+					'no_po' => $pl->no_po,
+					'no_jasa' => $no_jasa,
+					'urut' => $pl->no_pl_urut,
+					'id_pl_box' => $pl->id,
+					'jenis' => $jns,
+				);
+				$insert = $this->db->insert('m_jasa', $data);
 			}
 			if($opsi == 'lam'){
 				$str_len = strlen($no_surat);
 				($str_len == 12) ? $tahun = $no[1] : $tahun = $no[3];
-				$db_jasa = $this->db->query("SELECT*FROM m_jasa WHERE no_jasa LIKE '%/$tahun/LAMINASI'")->num_rows();
-				$jasa = str_pad($db_jasa+1, 3, "0", STR_PAD_LEFT);
+				$db_jasa = $this->db->query("SELECT*FROM m_jasa WHERE no_jasa LIKE '%/$tahun/LAMINASI' ORDER BY id DESC");
+				if($db_jasa->num_rows() == 0){
+					$no2 = 0;
+				}else{
+					$noJasa = explode('/', $db_jasa->row()->no_jasa);
+					$no2 = $noJasa[1];
+				}
+				$jasa = str_pad($no2 + 1, 3, "0", STR_PAD_LEFT);
 				$no_jasa = 'JASA/'.$jasa.'/PPI'.'/'.$tahun.'/LAMINASI';
 				$jns = 'LAMINASI';
+
+				$pl = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat='$no_surat'");
+				foreach($pl->result() as $r){
+					$data = array(
+						'no_surat' => $no_surat,
+						'tgl' => $r->tgl,
+						'no_po' => $r->no_po,
+						'no_jasa' => $no_jasa,
+						'urut' => $r->no_pl_urut,
+						'id_pl_box' => $r->id,
+						'jenis' => $jns,
+					);
+					$insert = $this->db->insert('m_jasa', $data);
+				}
 			}
-			$data = array(
-				'no_surat' => $no_surat,
-				'tgl' => $pl->tgl,
-				'no_po' => $pl->no_po,
-				'no_jasa' => $no_jasa,
-				'urut' => $pl->no_pl_urut,
-				'id_pl_box' => $pl->id,
-				'jenis' => $jns,
-			);
-			$insert = $this->db->insert('m_jasa', $data);
 		}else{
 			$data = false;
 			$insert = false;

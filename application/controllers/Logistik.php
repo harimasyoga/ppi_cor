@@ -1117,19 +1117,28 @@ class Logistik extends CI_Controller
 					$no = explode('/',$no_surat);
 					$str_len = strlen($no_surat);
 					($str_len == 12) ? $tahun = $no[1] : $tahun = $no[3];
-					$db_jasa = $this->db->query("SELECT*FROM m_jasa WHERE no_jasa LIKE '%/$tahun/LAMINASI'")->num_rows();
-					$jasa = str_pad($db_jasa+1, 3, "0", STR_PAD_LEFT);
+					$db_jasa = $this->db->query("SELECT*FROM m_jasa WHERE no_jasa LIKE '%/$tahun/LAMINASI' ORDER BY id DESC");
+					if($db_jasa->num_rows() == 0){
+						$no2 = 0;
+					}else{
+						$noJasa = explode('/', $db_jasa->row()->no_jasa);
+						$no2 = $noJasa[1];
+					}
+					$jasa = str_pad($no2 + 1, 3, "0", STR_PAD_LEFT);
 					$no_jasa = 'JASA/'.$jasa.'/PPI'.'/'.$tahun.'/LAMINASI';
-					$data = array(
-						'no_surat' => $no_surat,
-						'tgl' => $pl2->tgl,
-						'no_po' => $pl2->no_po,
-						'no_jasa' => $no_jasa,
-						'urut' => $pl2->no_pl_urut,
-						'id_pl_box' => $pl2->id,
-						'jenis' => 'LAMINASI',
-					);
-					$this->db->insert('m_jasa', $data);
+					$pl = $this->db->query("SELECT*FROM pl_laminasi WHERE no_surat='$no_surat'");
+					foreach($pl->result() as $r){
+						$data = array(
+							'no_surat' => $no_surat,
+							'tgl' => $r->tgl,
+							'no_po' => $r->no_po,
+							'no_jasa' => $no_jasa,
+							'urut' => $r->no_pl_urut,
+							'id_pl_box' => $r->id,
+							'jenis' => 'LAMINASI',
+						);
+						$this->db->insert('m_jasa', $data);
+					}
 				}
 			}
 		}
@@ -6597,7 +6606,7 @@ class Logistik extends CI_Controller
 			($plh_customer == "") ? $id_c = "" : $id_c = "AND p.id_pelanggan_lm='$plh_customer'";
 			($attn_cv == "") ? $at_c = "" : $at_c = "AND po.id_hub='$attn_cv'";
 			($this->session->userdata('username') == 'usman') ? $where = "AND po.jenis_lm='PEKALONGAN'" : $where = "AND po.jenis_lm='PPI'";
-			$query = $this->db->query("SELECT po.id_hub,po.jenis_lm,pl.*,p.* FROM pl_laminasi pl
+			$query = $this->db->query("SELECT po.id_hub,po.jenis_lm,COUNT(pl.no_po) AS jml_po,pl.*,p.* FROM pl_laminasi pl
 			INNER JOIN m_pelanggan_lm p ON pl.id_perusahaan=p.id_pelanggan_lm
 			INNER JOIN trs_po_lm po ON pl.no_po=po.no_po_lm
 			WHERE pl.tgl LIKE '%$plh_thn%' $id_c $at_c $where
@@ -6611,6 +6620,16 @@ class Logistik extends CI_Controller
 					($r->nm_pelanggan_lm != $r->attn_pl && $r->attn_pl != null) ? $customer = $r->nm_pelanggan_lm.' - <i>( '.$r->attn_pl.' )</i>' : $customer = $r->nm_pelanggan_lm;
 				}
 				$row = array();
+				// LEBIH DARI 1 PO
+				$txtPO = '';
+				if($r->jml_po > 1){
+					$poLbh = $this->db->query("SELECT*FROM pl_laminasi p WHERE p.no_surat='$r->no_surat' ORDER BY no_po");
+					foreach($poLbh->result() as $p){
+						$txtPO .= '<div>'.$p->no_po.'</div>';
+					}
+				}else{
+					$txtPO .= $r->no_po;
+				}
 				$row[] = '<table>
 					<tr style="background:transparent !important">
 						<td style="padding:0;border:0;font-weight:bold">HARI, TGL</td>
@@ -6630,7 +6649,7 @@ class Logistik extends CI_Controller
 					<tr style="background:transparent !important">
 						<td style="padding:0;border:0;font-weight:bold">NO. PO</td>
 						<td style="padding:0 5px;border:0">:</td>
-						<td style="padding:0;border:0">'.$r->no_po.'</td>
+						<td style="padding:0;border:0">'.$txtPO.'</td>
 					</tr>
 				</table>';
 				$row[] = $r->no_surat;
