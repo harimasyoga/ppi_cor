@@ -308,6 +308,7 @@ class Master extends CI_Controller
 
 	function load_data()
 	{
+		$id_sales = $this->session->userdata('id_sales');
 		$jenis = $this->uri->segment(3);
 		$data = array();
 
@@ -344,12 +345,14 @@ class Master extends CI_Controller
 				$i++;
 			}
 		} else if ($jenis == "pelanggan") {
+			($id_sales == "" || $id_sales == null) ? $wSls = "" : $wSls = "WHERE pel.id_sales='$id_sales'";
 			$query = $this->m_master->query("SELECT prov.prov_name,kab.kab_name,kec.kec_name,kel.kel_name,les.nm_sales,pel.* FROM m_pelanggan pel
 			LEFT JOIN m_provinsi prov ON pel.prov=prov.prov_id
 			LEFT JOIN m_kab kab ON pel.kab=kab.kab_id
 			LEFT JOIN m_kec kec ON pel.kec=kec.kec_id
 			LEFT JOIN m_kel kel ON pel.kel=kel.kel_id
 			LEFT JOIN m_sales les ON pel.id_sales=les.id_sales
+			$wSls
 			ORDER BY pel.nm_pelanggan")->result();
 			$i = 1;
 			foreach ($query as $r) {
@@ -500,9 +503,10 @@ class Master extends CI_Controller
 				$data[] = $row;
 			}
 		} else if ($jenis == "produk") {
+			($id_sales == "" || $id_sales == null) ? $wSls = "" : $wSls = "AND c.id_sales='$id_sales'";
 			$id_pelanggan = $_POST["id_pelanggan"];
 			($id_pelanggan == '') ? $wCust = "" : $wCust = "WHERE p.no_customer='$id_pelanggan'";
-			$query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan $wCust ORDER BY kategori,nm_produk")->result();
+			$query = $this->m_master->query("SELECT c.nm_pelanggan,c.attn,p.* FROM m_produk p INNER JOIN m_pelanggan c ON p.no_customer=c.id_pelanggan $wSls $wCust ORDER BY kategori,nm_produk")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				($r->kategori == 'K_SHEET') ? $kategori='SHEET' : $kategori='BOX';

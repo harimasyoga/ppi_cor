@@ -3042,51 +3042,39 @@
 									<input type="hidden" name="nm_ker[${no}]" id="nm_ker${no}" value="${val.nm_ker}">
 									<input type="hidden" name="id_inv_detail[${no}]" id="id_inv_detail${no}" value="${val.id}">
 									</td>
-
 								<td style="text-align: center" >${val.no_surat}
 									<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
 								</td>
-
 								<td style="text-align: center" >${val.no_po}
 									<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${val.no_po}">
 								</td>
-
 								<td style="text-align: center" >${val.g_label}
 									<input type="hidden" id="g_label${no}" name="g_label[${no}]" value="${val.g_label}">
 								</td>
-
 								<td style="text-align: center" >${val.width}
 									<input type="hidden" id="width${no}" name="width[${no}]" value="${val.width}">
 								</td>
-
 								<td style="text-align: center" >
 									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}">
 								</td>
-								
 								<td style="text-align: center" >
 									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}">
 								</td>
-
 								<td style="text-align: center" >${val.qty}
 									<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
 								</td>
-
 								<td style="text-align: center" >
 									<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.retur_qty)}">
 								</td>
-
 								<td style="text-align: center" >${format_angka(val.weight)}
 									<input type="hidden" id="weight${no}" name="weight[${no}]"  value="${val.weight}">
 								</td>
-
 								<td style="text-align: center" >
 									<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.seset)}" >
 								</td>
-
 								<td style="text-align: center" >
 									<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.hasil)}" readonly>
 								</td>
-
 								<td style="text-align: center" >
 									<input type="checkbox" checked name="aksi[${no}]" id="aksi${no}" class="form-control" value="1" onchange="cek(this.value,this.id)" disabled>
 								</td>
@@ -3099,7 +3087,7 @@
 						list += `<td style="text-align: center" colspan="10"></td>
 						<td style="text-align:center">DISCOUNT (%)</td>
 						<td style="text-align:center">
-							<input type="text" id="disc_input" name="disc_input" onkeyup="ubah_angka(this.value,this.id)" class="form-control" value="${cci}" autocomplete="off">
+							<input type="text" id="disc_input" name="disc_input" onkeyup="ubah_angka(this.value,this.id)" class="form-control" value="${cci}" autocomplete="off" placeholder="0">
 						</td>
 						<td style="text-align:center"></td>`;
 						list += `</table>`;
@@ -3131,55 +3119,41 @@
 							list += `
 							<tbody>
 								<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
-								
-									<input type="hidden" name="disc_input" id="disc_input" value="0">
 									<input type="hidden" name="disc_cek" id="disc_cek" value="0">
 									<input type="hidden" name="id_pl_roll[${no}]" id="id_pl_roll${no}" value="${val.id_pl}">
-									
 									<input type="hidden" name="id_inv_detail[${no}]" id="id_inv_detail${no}" value="${val.id}">
 								</td>
-
 								<td style="text-align: center" >${val.no_surat}
 									<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
 								</td>
-
 								<td style="text-align: center" >${no_po}
 									<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${no_po}">
 								</td>
-
 								<td style="text-align: center" >${val.id_produk_simcorr} - ${val.nm_ker}
 									<input type="hidden" name="item[${no}]" id="item${no}" value="${val.nm_ker}">
 									<input type="hidden" id="id_produk_simcorr${no}" name="id_produk_simcorr[${no}]" value="${val.id_produk_simcorr}">
 								</td>
-
 								<td style="text-align: center" >${val.g_label}
 									<input type="hidden" id="ukuran${no}" name="ukuran[${no}]" value="${val.g_label}">
 								</td>
-
 								<td style="text-align: center" >${val.kualitas}
 									<input type="hidden" id="kualitas${no}" name="kualitas[${no}]" value="${val.kualitas}">
 								</td>
-
 								<td style="text-align: center" >
 									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}">
 								</td>
-
 								<td style="text-align: center" >
 									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}">
 								</td>
-
 								<td style="text-align: center" >${format_angka(val.qty)}
 									<input type="hidden" id="qty${no}" name="qty[${no}]" onkeyup="ubah_angka(this.value,this.id)" value="${val.qty}">
 								</td>
-								
 								<td style="text-align: center" >
 									<input type="text" id="retur_qty${no}" name="retur_qty[${no}]" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.retur_qty)}">
 								</td>
-
 								<td style="text-align: center" >
 									<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.hasil)}" readonly>
 								</td>
-
 								<td style="text-align: center" >
 									<input type="checkbox" checked name="aksi[${no}]" id="aksi${no}" class="form-control" value="1" onchange="cek(this.value,this.id)" disabled>
 								</td>
@@ -3193,8 +3167,18 @@
 								</td>
 								<td style="text-align: center" colspan="3">&nbsp;
 								</td>`;
+						// discount
+						let cci = '';
+						(data.header.disc != 0) ? cci = data.header.disc: cci = '';
+						list += `<tr>
+							<td style="text-align:center" colspan="9"></td>
+							<td style="text-align:center">DISCOUNT (%)</td>
+							<td style="text-align:center">
+								<input type="text" id="disc_input" name="disc_input" onkeyup="ubah_angka(this.value,this.id)" class="form-control" value="${cci}" autocomplete="off" placeholder="0">
+							</td>
+							<td></td>
+						</tr>`;
 						list += `</table>`;
-						// $("#datatable_input").html(list);
 					}
 
 					$("#datatable_input").html(list);

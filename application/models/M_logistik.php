@@ -3218,7 +3218,7 @@ class M_logistik extends CI_Model
 		$pajak          = $this->input->post('pajak2');
 		$no_inv_old     = $this->input->post('no_inv_old');
 		$disc 			= $this->input->post('disc_input');
-		($disc == 0 || $disc == "") ? $discount = 0 : $discount = $this->input->post('disc_input');
+		($disc == 0 || $disc == ""  || $disc < 0) ? $discount = 0 : $discount = $this->input->post('disc_input');
 
 		$tgl_tempo = $this->input->post('tgl_tempo');
 		$cekTempo = $this->db->query("SELECT DATEDIFF('$tgl_tempo' , CURDATE()) AS selisih FROM invoice_header WHERE id='$id_inv'")->row();
