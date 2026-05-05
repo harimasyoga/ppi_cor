@@ -1046,6 +1046,7 @@
 	function editListPORoll(id_item)
 	{
 		let id_hdr = $("#hidhdr").val()
+		let e_roll = $('#e_roll'+id_item).val()
 		let e_nm_ker = $('#e_nm_ker'+id_item).val()
 		let e_g_label = $('#e_g_label'+id_item).val()
 		let e_width = $('#e_width'+id_item).val()
@@ -1067,7 +1068,7 @@
 				})
 			},
 			data: ({
-				id_hdr, id_item, e_nm_ker, e_g_label, e_width, e_tonase, e_jml_roll, e_harga, e_ket
+				id_hdr, id_item, e_roll, e_nm_ker, e_g_label, e_width, e_tonase, e_jml_roll, e_harga, e_ket
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -1111,11 +1112,13 @@
 	function addListPORoll()
 	{
 		let id_hdr = $("#hidhdr").val()
+		let n_roll = $('#n_roll').val()
 		let n_nm_ker = $('#n_nm_ker').val()
 		let n_g_label = $('#n_g_label').val()
 		let n_width = $('#n_width').val()
 		let n_tonase = $('#n_tonase').val()
 		let n_jml_roll = $('#n_jml_roll').val()
+		let n_harga = $('#n_harga').val()
 		let n_ket = $('#n_ket').val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/addListPORoll')?>',
@@ -1131,7 +1134,7 @@
 				})
 			},
 			data: ({
-				id_hdr, n_nm_ker, n_g_label, n_width, n_tonase, n_jml_roll, n_ket
+				id_hdr, n_roll, n_nm_ker, n_g_label, n_width, n_tonase, n_jml_roll, n_harga, n_ket
 			}),
 			success: function(res){
 				data = JSON.parse(res)

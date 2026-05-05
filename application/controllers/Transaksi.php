@@ -163,6 +163,7 @@ class Transaksi extends CI_Controller
 						<table style="background:#e9ecef">
 							<tr>
 								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">#</th>
+								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">ROLL</th>
 								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">'.$l2->nm_ker.'</th>
 								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">'.$l2->g_label.'</th>
 								<th style="background:#ccc;padding:6px;text-align:center;border-bottom:3px solid #666">WIDTH</th>
@@ -180,6 +181,16 @@ class Transaksi extends CI_Controller
 								$q++;
 								$htmlE .= '<tr>
 									<td style="padding:6px;text-align:center">'.$q.'</td>
+									<td style="padding:6px">
+										<select id="e_roll'.$e->id.'">';
+											if($e->stat == 0){
+												$htmlE .= '<option value="0" selected>STOK</option><option value="3">BUFFER</option>';
+											}
+											if($e->stat == 3){
+												$htmlE .= '<option value="0">STOK</option><option value="3" selected>BUFFER</option>';
+											}
+										$htmlE .= '</select>
+									</td>
 									<td style="padding:6px">
 										<input type="text" class="iproll" style="width:50px;text-align:center" id="e_nm_ker'.$e->id.'" value="'.$e->nm_ker.'" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
 									</td>
@@ -228,15 +239,23 @@ class Transaksi extends CI_Controller
 				<table style="background:#e9ecef">
 					<tr>
 						<th style="background:#fff;padding:6px" rowspan="2">NEW</th>
+						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">ROLL</th>
 						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">JENIS</th>
 						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">GSM</th>
 						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">WIDTH</th>
 						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">BERAT</th>
 						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">ROLL</th>
+						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">HARGA</th>
 						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666">KET</th>
 						<th style="background:#fff;padding:6px;text-align:center;border-bottom:3px solid #666"></th>
 					</tr>';
 					$htmlE .= '<tr>
+						<td style="padding:6px">
+							<select id="n_roll">
+								<option value="0">STOK</option>
+								<option value="3">BUFFER</option>
+							</select>
+						</td>
 						<td style="padding:6px">
 							<input type="text" class="iproll" style="width:50px;text-align:center" id="n_nm_ker" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
 						</td>
@@ -251,6 +270,9 @@ class Transaksi extends CI_Controller
 						</td>
 						<td style="padding:6px">
 							<input type="number" class="iproll" style="width:50px;text-align:right" id="n_jml_roll" placeholder="0" autocomplete="off">
+						</td>
+						<td style="padding:6px">
+							<input type="number" class="iproll" style="width:80px;text-align:right" id="n_harga" placeholder="0" autocomplete="off">
 						</td>
 						<td style="padding:6px">
 							<input type="text" class="iproll" style="width:100px" id="n_ket" autocomplete="off" placeholder="-" oninput="this.value=this.value.toUpperCase()">
@@ -10180,7 +10202,7 @@ class Transaksi extends CI_Controller
 						$count = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND s.urut!='0'
-						GROUP BY s.id_dev,s.eta,s.urut");
+						GROUP BY s.eta,s.urut");
 						$berat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales'
@@ -10305,12 +10327,19 @@ class Transaksi extends CI_Controller
 						$count = $this->db->query("SELECT c.id_sales,p.* FROM pl_box p
 						INNER JOIN m_pelanggan c ON c.id_pelanggan=p.id_perusahaan
 						WHERE p.tgl='$tglSys' AND c.id_sales='$id_sales' GROUP BY p.tgl,p.no_pl_urut");
-						$berat = $this->db->query("SELECT SUM(t.berat_bersih) AS berat FROM m_jembatan_timbang t
+						$qBerat = $this->db->query("SELECT t.* FROM m_jembatan_timbang t
 						INNER JOIN pl_box p ON t.tgl_t=p.tgl AND t.urut_t=p.no_pl_urut AND t.no_polisi=p.no_kendaraan
 						INNER JOIN m_pelanggan c ON c.id_pelanggan=p.id_perusahaan
-						WHERE t.tgl_t='$tglSys' AND c.id_sales='$id_sales' GROUP BY t.tgl_t")->row()->berat;
+						WHERE t.tgl_t='$tglSys' AND c.id_sales='$id_sales' GROUP BY t.no_polisi,t.tgl_t");
+						$berat = 0;
+						if($qBerat->num_rows() == 0){
+							$berat = 0;
+						}else{
+							foreach($qBerat->result() as $b){
+								$berat += $b->berat_bersih;
+							}
+						}
 					}
-
 					($count->num_rows() == 0) ? $sCount = '' : $sCount = '<span style="position:absolute;top:3px;right:3px;font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</span>';
 					($count->num_rows() == 0) ? $sBb = '' : $sBb = '<span style="position:absolute;bottom:3px;left:3px;font-size:12px;font-style:italic;color:#fff;background:#7c858d;padding:0 4px;border-radius:4px">'.number_format($berat, 0, ',', '.').'</span>';
 					($count->num_rows() == 0) ? $link = '' : $link = '<a href="javascript:void(0)" class="ds-link" onclick="ccDevSys('."'".$a."'".', '."'kirim'".')"></a>';
@@ -10337,7 +10366,7 @@ class Transaksi extends CI_Controller
 	}
 
 	function ccDevSys()
-	{
+	{ 
 		$lvl = $this->session->userdata('level');
 		$id_sales = $this->session->userdata('id_sales');
 
@@ -10681,7 +10710,9 @@ class Transaksi extends CI_Controller
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">TONASE</th>
 					<th style="padding:6px 6px 6px 0;border:1px solid #bbb"></th>
 				</tr>';
+				$i = 0;
 				foreach($getUrut->result() as $urut){
+					$i++;
 					// TIMBANGAN
 					$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$urut->no_pl_urut' AND tgl_t='$urut->tgl' GROUP BY urut_t,tgl_t");
 					
@@ -10701,7 +10732,7 @@ class Transaksi extends CI_Controller
 					$dXs = 'disabled';
 
 					$htmlSJ .='<tr id="urut'.$urut->no_pl_urut.'">
-						<td style="background:#333;color:#fff;padding:6px;font-weight:bold">'.$urut->no_pl_urut.'</td>
+						<td style="background:#333;color:#fff;padding:6px;font-weight:bold">'.$i.'</td>
 						<td style="background:#333;color:#fff;padding:6px;text-align:right;font-weight:bold">NO. PLAT :</td>
 						<td style="background:#333;color:#fff;padding:6px;text-align:right"">
 							<input type="text" class="form-control" id="pp-noplat-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="-" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$urut->no_kendaraan.'" '.$editNopol.'>

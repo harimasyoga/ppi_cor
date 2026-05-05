@@ -29,9 +29,11 @@
 				</div>
 			</div>
 			<div class="card-body">
-
-				<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
-				<br><br>
+				<?php if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'konsul_keu', 'User'])) { ?>
+					<div style="margin-bottom:12px">
+						<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
+					</div>
+				<?php } ?>
 				<div style="overflow:auto;white-space:nowrap">
 					<table id="datatable" class="table table-bordered table-striped" width="100%">
 						<thead class="color-tabel">

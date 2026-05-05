@@ -22,7 +22,7 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<?php if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User'])) { ?>
+				<?php if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'konsul_keu', 'User'])) { ?>
 					<div style="margin-bottom:12px">
 						<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 					</div>
@@ -31,7 +31,9 @@
 					<div class="col-md-5" style="padding-bottom:3px">
 						<select class="form-control select2" id="pelanggan" onchange="load_data()">
 							<?php
-								$query = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan");
+								$id_sales = $this->session->userdata('id_sales');
+								($id_sales == "" || $id_sales == null) ? $wSls = "" : $wSls = "WHERE id_sales='$id_sales'";
+								$query = $this->db->query("SELECT*FROM m_pelanggan $wSls ORDER BY nm_pelanggan");
 								$html ='';
 								$html .='<option value="">TAMPIL SEMUA DATA PRODUK PELANGGAN</option>';
 								foreach($query->result() as $r){

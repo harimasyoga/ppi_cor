@@ -2806,6 +2806,7 @@ class M_transaksi extends CI_Model
 	{
 		$id_hdr = $_POST["id_hdr"];
 		$id = $_POST["id_item"];
+		$roll = $_POST["e_roll"];
 		$nm_ker = $_POST["e_nm_ker"];
 		$g_label = $_POST["e_g_label"];
 		$width = $_POST["e_width"];
@@ -2829,6 +2830,7 @@ class M_transaksi extends CI_Model
 			$this->db->set('jml_roll', $jml_roll);
 			$this->db->set('harga', $harga);
 			$this->db->set('ket', $ket);
+			$this->db->set('stat', $roll);
 			$this->db->where('id', $id);
 			$data = $this->db->update('trs_po_roll_item');
 			$msg = 'BERHASIL!';
@@ -2844,17 +2846,19 @@ class M_transaksi extends CI_Model
 	function addListPORoll()
 	{
 		$id_hdr = $_POST["id_hdr"];
+		$roll = $_POST["n_roll"];
 		$nm_ker = $_POST["n_nm_ker"];
 		$g_label = $_POST["n_g_label"];
 		$width = $_POST["n_width"];
 		$tonase = $_POST["n_tonase"];
 		$jml_roll = $_POST["n_jml_roll"];
+		$harga = $_POST["n_harga"];
 		$ket = $_POST["n_ket"];
 		$cek = $this->db->query("SELECT*FROM trs_po_roll_item WHERE id_hdr='$id_hdr' AND nm_ker='$nm_ker' AND g_label='$g_label' AND width='$width'");
 		if($cek->num_rows() != 0){
 			$data = false;
 			$msg = 'ITEM SUDAH ADA!';
-		}else if($nm_ker == '' || $g_label == '' || $width == '' || $tonase == '' || $tonase == 0 || $jml_roll == '' || $jml_roll == 0){
+		}else if($roll == '' || $nm_ker == '' || $g_label == '' || $width == '' || $tonase == '' || $tonase == 0 || $tonase < 0 || $jml_roll == '' || $jml_roll == 0 || $jml_roll < 0 || $harga == '' || $harga == 0 || $harga < 0){
 			$data = false;
 			$msg = 'HARAP LENGKAPI INPUTAN!';
 		}else{
@@ -2867,7 +2871,9 @@ class M_transaksi extends CI_Model
 				'width' => $width,
 				'tonase' => $tonase,
 				'jml_roll' => $jml_roll,
+				'harga' => $harga,
 				'ket' => $ket,
+				'stat' => $roll,
 			);
 			$data = $this->db->insert('trs_po_roll_item', $item);
 			$msg = 'BERHASIL!';
