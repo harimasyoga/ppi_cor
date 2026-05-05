@@ -5855,7 +5855,19 @@ class Logistik extends CI_Controller
 			($blnn == '' || $blnn == 'all') ? $cek_bulan = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.acc_owner!='Y'" : $cek_bulan = "AND month(tgl_invoice) IN ('$blnn')";
 
 			// EXPIRED
-			if ($exp_pilih == 'exp_bc'){
+			if ($exp_pilih == 'blm_bc'){
+				$wExp = "AND status_inv='Open' AND inp_sj_balik IS NOT NULL AND inp_bc IS NULL AND p.bc='Y' AND h.type!='roll' AND h.pajak!='nonppn'";
+			}else if ($exp_pilih == 'blm_faktur'){
+				$wExp = "AND status_inv='Open' AND inp_sj_balik IS NOT NULL AND inp_faktur IS NULL AND h.pajak!='nonppn'";
+			}else if ($exp_pilih == 'blm_resi'){
+				$wExp = "AND status_inv='Open' AND inp_sj_balik IS NOT NULL AND inp_resi IS NULL";
+			}else if ($exp_pilih == 'blm_inv_terima'){
+				$wExp = "AND status_inv='Open' AND inp_resi IS NOT NULL AND inp_inv_terima IS NULL";
+			}else if ($exp_pilih == 'blm_mutasi'){
+				$wExp = "AND status_inv='Open' AND inp_inv_terima IS NOT NULL AND inp_mutasi IS NULL";
+			}else if ($exp_pilih == 'blm_sj_balik'){
+				$wExp = "AND status_inv='Open' AND inp_sj_balik IS NULL";
+			}else if($exp_pilih == 'exp_bc'){
 				$wExp = "AND status_inv='Xp' AND inp_sj_balik IS NOT NULL AND inp_bc IS NULL AND p.bc='Y' AND h.type!='roll' AND h.pajak!='nonppn'";
 			}else if ($exp_pilih == 'exp_faktur'){
 				$wExp = "AND status_inv='Xp' AND inp_sj_balik IS NOT NULL AND inp_faktur IS NULL AND h.pajak!='nonppn'";
@@ -5876,7 +5888,7 @@ class Logistik extends CI_Controller
 			// SALES
 			if($id_sales == '' || $id_sales == null){
 				($type_inv == 'all') ? $tipe = "" : $tipe = "AND type='$type_inv'";
-				($exp_pilih == 'exp_bc') ? $wInn = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan" : $wInn = "";
+				($exp_pilih == 'exp_bc' || $exp_pilih == 'blm_bc') ? $wInn = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan" : $wInn = "";
 				$wSales = "";
 			}else if($lvL == 'MR'){
 				$tipe = "AND h.type='roll'";

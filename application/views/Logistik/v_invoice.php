@@ -458,8 +458,8 @@
 								<select class="form-control select2" id="rentang_thn" name="rentang_thn" onchange="load_data()">
 									<?php
 									$thang        = date("Y");
-									$thang_maks   = $thang + 3;
-									$thang_min    = $thang - 3;
+									$thang_maks   = $thang + 1;
+									$thang_min    = $thang - 5;
 									for ($th = $thang_min; $th <= $thang_maks; $th++) { ?>
 										<?php if ($th == $thang) { ?>
 											<option selected value="<?= $th ?>"> <?= $thang ?> </option>
@@ -490,14 +490,20 @@
 							<?php if($id_sales == '' || $id_sales == null) { ?>
 								<div class="col-md-2" style="padding-bottom:3px">
 									<select id="type_inv" class="form-control select2" onchange="load_data()">
-										<option value="all">-- SEMUA --</option>
+										<option value="all">-- BOX / ROLL --</option>
 										<option value="box">BOX</option>
 										<option value="roll">ROLL</option>
 									</select>
 								</div>
-								<div class="col-md-2" style="padding-bottom:3px">
+								<div class="col-md-3" style="padding-bottom:3px">
 									<select id="exp_pilih" class="form-control select2" onchange="load_data()">
-										<option value="all">-- CEK --</option>
+										<option value="all">-- CEK BELUM UPLOAD / EXPIRED --</option>
+										<option value="blm_bc">BELUM UPLOAD BC</option>
+										<option value="blm_faktur">BELUM UPLOAD FAKTUR</option>
+										<option value="blm_resi">BELUM UPLOAD RESI</option>
+										<option value="blm_inv_terima">BELUM UPLOAD INV TERIMA</option>
+										<option value="blm_sj_balik">BELUM UPLOAD SJ BALIK</option>
+										<option value="blm_mutasi">BELUM UPLOAD MUTASI</option>
 										<option value="exp_bc">EXPIRED BC</option>
 										<option value="exp_faktur">EXPIRED FAKTUR</option>
 										<option value="exp_resi">EXPIRED RESI</option>
@@ -509,9 +515,9 @@
 								</div>
 							<?php } ?>
 							<?php if($id_sales == '' || $id_sales == null) { ?>
-								<div class="col-md-4" style="padding-bottom:3px"></div>
+								<div class="col-md-3" style="padding-bottom:3px"></div>
 							<?php }else{ ?>
-								<div class="col-md-8" style="padding-bottom:3px">
+								<div class="col-md-7" style="padding-bottom:3px">
 									<input type="hidden" id="type_inv" value="box">
 									<input type="hidden" id="exp_pilih" value="all">
 								</div>
