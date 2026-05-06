@@ -451,6 +451,12 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function updateExpiredPO()
+	{
+		$result = $this->m_transaksi->updateExpiredPO();
+		echo json_encode($result);
+	}
+
 	function destroyPORoll()
 	{
 		$this->cart->destroy();
@@ -3245,7 +3251,8 @@ class Transaksi extends CI_Controller
 				}
 			}
 
-			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by a.tgl_po desc, id desc")->result();
+			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input,DATEDIFF(SUBSTRING(DATE_ADD(a.time_app3, INTERVAL a.expired_po DAY), 1, 10), CURDATE()) AS exp_po
+			FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by a.tgl_po desc, id desc")->result();
 			// $query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan WHERE a.kode_po='PO-AJIRM2026020159' order by a.tgl_po desc, id desc")->result();
 			$i = 1;
 			foreach ($query as $r) {
@@ -3431,7 +3438,7 @@ class Transaksi extends CI_Controller
 					$cLink = 'style="color:#f00"';
                 }
 
-				$row[] = '<div class="text-center">'.$i.'</div>'; 
+				$row[] = '<div class="text-center">'.$i.'</div>';
 				if (in_array($this->session->userdata('level'), ['Admin', 'User'])) {
 					$row[] = '<div class="text-center">
 						<a href="javascript:void(0)" '.$cLink.' onclick="tampil_edit('."'".$r->id."'".', '."'detail'".')">'.$r->no_po.'<a>
@@ -3458,10 +3465,31 @@ class Transaksi extends CI_Controller
 					$nm_item = $nm_item_result;
 				}
 
+				// TIMER EXPIRED PO
+				if($r->expired_po != null && $r->status_app3 == 'Y'){
+					$dExp = date('Y-m-d', strtotime('+'.$r->expired_po.' days', strtotime($r->time_app3)));
+					$dExpDiff = strtotime($dExp) - time();
+					$dExpHari = floor($dExpDiff/60/60/24);
+					$dExpJam = floor(($dExpDiff-($dExpHari*60*60*24))/60/60);
+					$dExpMenit = floor(($dExpDiff-($dExpHari*60*60*24)-($dExpJam*60*60))/60);
+					($dExpHari == 0) ? $dxDays = '' : $dxDays = ' '.$dExpHari.' Day';
+					($dExpJam == 0) ? $dxHours = '' : $dxHours = ' '.$dExpJam.' Hrs';
+					($dExpMenit == 0) ? $dxMinutes = '' : $dxMinutes = ' '.$dExpMenit.' Mnt';
+					($dExpHari <= 0) ? $dXWaktu = $dxHours.$dxMinutes : $dXWaktu = $dxDays;
+					if($r->exp_po < 0){
+						$expPO = '';
+					}else{
+						$expPO = '<div style="color:#dc3545;font-weight:bold">'.$dXWaktu.'</div>';
+						// <div style="color:#000;font-weight:bold">'.$this->m_fungsi->tanggal_ind($dExp).'</div>
+					}
+				}else{
+					$expPO = '';
+				}
+
 				($r->attn == '-' || $r->attn == '') ? $attn = '' : $attn = '( '.$r->attn.' )';
 				(strlen($r->nm_pelanggan) >= 40) ? $sTc = 'style="width:260px;white-space:normal"' : $sTc = '';
 				$row[] = '<div '.$sTc.'>'.$r->nm_pelanggan.'</div>'.$attn;
-				$row[] = $r->kode_po;
+				$row[] = $r->kode_po.$expPO;
 				$row[] = $nm_item;
 				$row_karet = $this->db->query("SELECT *FROM m_status_karet where status='$r->status_karet' ")->row();
 				$row[] = '<div class="text-center">
@@ -3531,7 +3559,7 @@ class Transaksi extends CI_Controller
 					($twHari == 0) ? $tDays = '' : $tDays = '<div>'.$twHari.' Day</div>';
 					($twJam == 0) ? $tHours = '' : $tHours = '<div>'.$twJam.' Hrs</div>';
 					($twMenit == 0) ? $tMinutes = '' : $tMinutes = '<div>'.$twMenit.' Mnt</div>';
-					($twHari <= 0) ? $twWaktu = '' : $twWaktu = $tDays.$tHours.$tMinutes;
+					($twHari <= 0) ? $twWaktu = $tHours.$tMinutes : $twWaktu = $tDays;
 					if(time() > strtotime($twoWeek) || time() == strtotime($twoWeek)){
 						$etaBtn = 'btn-success';
 						$etaI = '<i class="fas fa-check-circle"></i>';

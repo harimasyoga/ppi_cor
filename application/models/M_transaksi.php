@@ -195,6 +195,7 @@ class M_transaksi extends CI_Model
 			'tgl_po'         => $params->tgl_po,
 			'kode_po'        => $params->kode_po,
 			'status_karet'   => $params->status_karet,
+			'expired_po'     => $params->expired_po,
 			// 'eta'            => $params->eta,
 			// 'id_sales'       => $params->txt_marketing,
 			'id_pelanggan'   => $pelanggan->id_pelanggan,			
@@ -1056,26 +1057,79 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function updateExpiredPO()
+	{
+		$qq = $this->db->query("SELECT DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) AS expired,p.* FROM trs_po p
+		WHERE p.expired_po IS NOT NULL AND p.status IN ('Approve', 'Open', 'Reject') 
+		AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE())<'0'");
+		if($qq->num_rows() > 0){
+			foreach($qq->result() as $r){
+				// UPDATE TRS PO DETAIL
+				$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE no_po='$r->no_po' AND kode_po='$r->kode_po'");
+				foreach($po_dtl->result() as $z){
+					$this->db->set("status", 'Close');
+					$this->db->where("id", $z->id);
+					$trs_dtl = $this->db->update("trs_po_detail");
+				}
+				// UPDATE TRS PO
+				if($trs_dtl){
+					$this->db->set("aktif", 0);
+					$this->db->set("status", 'Close');
+					$this->db->where("id", $r->id);
+					$data = $this->db->update('trs_po');
+				}
+			}
+		}else{
+			$data = true;
+		}
+
+		return [
+			'data' => $data,
+		];
+	}
+
 	function nonAktifPO()
 	{
 		$id = $_POST["id_po"];
 		$po = $this->db->query("SELECT*FROM trs_po WHERE id='$id'")->row();
+		$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE no_po='$po->no_po' AND kode_po='$po->kode_po'");
 
+		// UPDATE STATUS DI TRS PO
 		if($po->aktif == 1){
-			$this->db->set("aktif", 0);
-			$this->db->set("status", 'Close');
-			$msg = 'PO '.$po->kode_po.' BERHASIL DI CLOSE!';
-		}else{
-			$this->db->set("aktif", 1);
-			if($po->status_app4 == 'Y' && $po->status_app1 == 'Y' && $po->status_app2 == 'Y' && $po->status_app3 == 'Y'){
-				$this->db->set("status", 'Approve');
-			}else{
-				$this->db->set("status", 'Open');
+			foreach($po_dtl->result() as $r){
+				$this->db->set("status", 'Close');
+				$this->db->where("id", $r->id);
+				$trs_dtl = $this->db->update("trs_po_detail");
 			}
-			$msg = 'PO '.$po->kode_po.' BERHASIL DI OPEN!';
+		}else{
+			foreach($po_dtl->result() as $r){
+				if($po->status_app4 == 'Y' && $po->status_app1 == 'Y' && $po->status_app2 == 'Y' && $po->status_app3 == 'Y'){
+					$this->db->set("status", 'Approve');
+				}else{
+					$this->db->set("status", 'Open');
+				}
+				$this->db->where("id", $r->id);
+				$trs_dtl = $this->db->update("trs_po_detail");
+			}
 		}
-		$this->db->where("id", $id);
-		$data = $this->db->update('trs_po');
+
+		if($trs_dtl){
+			if($po->aktif == 1){
+				$this->db->set("aktif", 0);
+				$this->db->set("status", 'Close');
+				$msg = 'PO '.$po->kode_po.' BERHASIL DI CLOSE!';
+			}else{
+				$this->db->set("aktif", 1);
+				if($po->status_app4 == 'Y' && $po->status_app1 == 'Y' && $po->status_app2 == 'Y' && $po->status_app3 == 'Y'){
+					$this->db->set("status", 'Approve');
+				}else{
+					$this->db->set("status", 'Open');
+				}
+				$msg = 'PO '.$po->kode_po.' BERHASIL DI OPEN!';
+			}
+			$this->db->where("id", $id);
+			$data = $this->db->update('trs_po');
+		}
 
 		return [
 			'data' => $data,
