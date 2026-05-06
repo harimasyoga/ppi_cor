@@ -190,12 +190,16 @@
 										<div class="col-md-2"></div>
 										<div class="col-md-2">STATUS KARET</div>
 										<div class="col-md-3">
-											<select class="form-control select2" name="status_karet" id="status_karet">
-												<!-- <option value="REPEAT">REPEAT</option>
-												<option value="NEW_ORDER">NEW ORDER</option>
-												<option value="REVISI">REVISI DESAIN</option>
-												<option value="TAMBAH_DESAIN">TAMBAHAN DESAIN</option> -->
-											</select> 
+											<select class="form-control select2" name="status_karet" id="status_karet"></select> 
+										</div>
+									</div>
+								</div>
+								<div>
+									<div class="card-body row" style="padding:5px;font-weight:bold">
+										<div class="col-md-7"></div>
+										<div class="col-md-2">EXPIRED PO</div>
+										<div class="col-md-3">
+											<input type="number" class="form-control" style="font-weight:bold" name="expired_po" id="expired_po" autocomplete="off" placeholder="0">
 										</div>
 									</div>
 								</div>
@@ -451,7 +455,8 @@
 	const urlUser = '<?= $this->session->userdata('username')?>';
 
 	$(document).ready(function() {
-		load_data();		
+		updateExpiredPO()
+		// load_data()
 		load_status_karet();
 		$("#eta_ket0").css("color", "#dc3545");
 		$("#eta_ket0").css("font-weight", "bold");
@@ -659,6 +664,22 @@
 		}
 	}
 
+	function updateExpiredPO()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/updateExpiredPO') ?>',
+			type: "POST",
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data){
+					load_data()
+				}else{
+					load_data()
+				}
+			}
+		})
+	}
+
 	function load_data() 
 	{
 		var table = $('#datatable').DataTable();
@@ -796,10 +817,9 @@
 		// eta             = $("#eta").val();
 		sales           = $("#id_sales").val();
 		id_hub          = $("#id_hub").val();
+		expired_po      = $("#expired_po").val();
 
-		if (id_pelanggan == '' || kode_po == '' || sales=='' || id_hub=='') {
-			// toastr.info('Harap Lengkapi Form');
-			
+		if(id_pelanggan == '' || kode_po == '' || sales=='' || id_hub=='') {
 			swal.close();
 			swal({
 				title               : "Cek Kembali",
@@ -807,7 +827,16 @@
 				type                : "info",
 				confirmButtonText   : "OK"
 			});
-			// close_loading();
+			return;
+		}
+		if(expired_po == '' || expired_po == 0 || expired_po < 0) {
+			swal.close();
+			swal({
+				title               : "Expired PO Harus Di Isi!",
+				html                : "Harap Lengkapi Form Dahulu",
+				type                : "info",
+				confirmButtonText   : "OK"
+			});
 			return;
 		}
 
@@ -982,6 +1011,7 @@
 		$("#txt_fax").val("");
 		$("#txt_top").val("");
 		$('#status_karet').val("").trigger('change');
+		$('#expired_po').val("");
 		$("#txt_marketing").val("");
 		$('#div_preview_foto').css("display","none");
 		
@@ -1194,6 +1224,7 @@
 				
 				$('#status_karet').val(data.header.status_karet).trigger('change');
 				$('#id_pelanggan').val(data.header.id_pelanggan).trigger('change');
+				$('#expired_po').val(data.header.expired_po);
 
 				kodepo    = (data.header.kode_po == '' ) ? '-' : data.header.kode_po ;
 				$("#kode_po").val(kodepo);
@@ -1350,6 +1381,7 @@
 				
 				$('#status_karet').val(data.header.status_karet).trigger('change');
 				$('#id_pelanggan').val(data.header.id_pelanggan).trigger('change');
+				$('#expired_po').val(data.header.expired_po);
 
 				kodepo    = (data.header.kode_po == '' ) ? '-' : data.header.kode_po ;
 				$("#kode_po").val(kodepo);

@@ -5847,12 +5847,26 @@ class Logistik extends CI_Controller
 		if ($jenis == "Invoice") {
 			$id_sales = $this->session->userdata('id_sales');
 			$lvL = $this->session->userdata('level');
-			$blnn        = $_POST['blnn'];
-			$thnn        = $_POST['thnn'];
-			$type_inv    = $_POST['type_inv'];
-			$exp_pilih    = $_POST['exp_pilih'];
-
-			($blnn == '' || $blnn == 'all') ? $cek_bulan = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.acc_owner!='Y'" : $cek_bulan = "AND month(tgl_invoice) IN ('$blnn')";
+			$thnn = $_POST['thnn'];
+			$type_inv = $_POST['type_inv'];
+			$exp_pilih = $_POST['exp_pilih'];
+			
+			$blnn = $_POST['blnn'];
+			if(in_array($this->session->userdata('username'), ['owner', 'bumagda'])) {
+				if($blnn == '' || $blnn == 'all'){
+					$cek_bulan = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.acc_owner!='Y'";
+				}else{
+					$expB = explode("|", $_POST['blnn']);
+					$bln2 = $expB[1];
+					if($expB[2] == 15){
+						$cek_bulan = "AND tgl_invoice BETWEEN '$thnn-$bln2-01' AND '$thnn-$bln2-15'";
+					}else{
+						$cek_bulan = "AND tgl_invoice BETWEEN '$thnn-$bln2-16' AND '$thnn-$bln2-31'";
+					}
+				}
+			}else{
+				($blnn == '' || $blnn == 'all') ? $cek_bulan = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.acc_owner!='Y'" : $cek_bulan = "AND month(tgl_invoice) IN ('$blnn')";
+			}
 
 			// EXPIRED
 			if ($exp_pilih == 'blm_bc'){

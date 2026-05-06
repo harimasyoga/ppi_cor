@@ -471,20 +471,29 @@
 							</div>
 							<div class="col-md-2" style="padding-bottom:3px">
 								<?php
-								$qbulan    = $this->db->query("SELECT*FROM m_bulan");
-								$bln_now   = date("m");
+									$qbulan = $this->db->query("SELECT*FROM m_bulan");
+									$bln_tgl = date("d");
+									$bln_now = date("m");
 								?>
 								<select id="rentang_bulan" class="form-control select2" onchange="load_data()">
 									<option value="all">-- SEMUA --</option>
-									<?php
-									foreach ($qbulan->result() as $bln_row) {
-										if ($bln_row->id == $bln_now) {
-											echo "<option selected value=$bln_row->id><b>$bln_row->bulan</b></option>";
-										} else {
-											echo "<option value=$bln_row->id><b>$bln_row->bulan</b></option>";
+									<?php if (!in_array($this->session->userdata('username'), ['owner', 'bumagda'])) {
+										foreach ($qbulan->result() as $bln_row) {
+											if ($bln_row->id == $bln_now) {
+												echo "<option selected value=$bln_row->id><b>$bln_row->bulan</b></option>";
+											} else {
+												echo "<option value=$bln_row->id><b>$bln_row->bulan</b></option>";
+											}
 										}
-									}
-									?>
+									}else{ ?>
+										<?php
+											$qbulan2 = $this->db->query("SELECT*FROM m_bulan2");
+											foreach ($qbulan2->result() as $bln2) {
+												$blnX = (($bln2->rentang == 16) && ((int)$bln_tgl >= 16)) ? (int)$bln_now * 10 : (int)$bln_now;
+												($bln2->id == $blnX) ? $sltd = 'selected' : $sltd = ''; ?>
+												<option value="<?= $bln2->id ?>|<?= $bln2->ii ?>|<?= $bln2->rentang ?>" <?= $sltd ?>><?= $bln2->bulan ?></option>
+											<?php }
+									} ?>
 								</select>
 							</div>
 							<?php if($id_sales == '' || $id_sales == null) { ?>
@@ -497,7 +506,7 @@
 								</div>
 								<div class="col-md-3" style="padding-bottom:3px">
 									<select id="exp_pilih" class="form-control select2" onchange="load_data()">
-										<option value="all">-- CEK BELUM UPLOAD / EXPIRED --</option>
+										<option value="all">-- BELUM UPLOAD / EXPIRED --</option>
 										<option value="blm_bc">BELUM UPLOAD BC</option>
 										<option value="blm_faktur">BELUM UPLOAD FAKTUR</option>
 										<option value="blm_resi">BELUM UPLOAD RESI</option>
