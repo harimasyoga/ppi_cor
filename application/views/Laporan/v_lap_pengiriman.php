@@ -138,22 +138,34 @@
 								</select>
 							</div>
 						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px;<?= (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing'])) ? '' : 'display:none'; ?>">
+							<div class="col-md-2">STATUS PO</div>
+							<div class="col-md-10">
+								<select class="form-control select2" id="sts" onchange="plhOS()">
+									<option value="">PILIH</option>
+									<option value="OPEN">OPEN</option>
+									<option value="CLOSE">CLOSE</option>
+									<option value="SEMUA">SEMUA</option>
+								</select>
+							</div>
+						</div>
+						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px;<?= (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing'])) ? '' : 'display:none'; ?>">
+							<div class="col-md-2">STATUS PENGIRIMAN</div>
+							<div class="col-md-10">
+								<select class="form-control select2" id="opsi" onchange="plhOS()">
+									<option value="">PILIH</option>
+									<option value="OPEN">OPEN</option>
+									<option value="CLOSE">CLOSE</option>
+									<option value="SEMUA">SEMUA</option>
+								</select>
+							</div>
+						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
 							<div class="col-md-2">RINCIAN</div>
 							<div class="col-md-10">
 								<select class="form-control select2" id="rincian" onchange="plhOS()">
 									<option value="LIST">LIST</option>
 									<option value="REKAP">REKAP</option>
-								</select>
-							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px;<?= (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? '' : 'display:none'; ?>">
-							<div class="col-md-2">OPSI</div>
-							<div class="col-md-10">
-								<select class="form-control select2" id="opsi" onchange="plhOS()">
-									<option value="">PILIH</option>
-									<option value="OPEN">OPEN</option>
-									<option value="SEMUA">SEMUA</option>
 								</select>
 							</div>
 						</div>
@@ -212,6 +224,7 @@
 		let no_po = $("#no_po").val()
 		let rincian = $("#rincian").val()
 		let opsi = $("#opsi").val()
+		let sts = $("#sts").val()
 		$.ajax({
 			url: '<?php echo base_url('Laporan/plhOS')?>',
 			type: "POST",
@@ -226,7 +239,7 @@
 				});
 			},
 			data: ({
-				tahun, pelanggan, no_po, rincian, opsi
+				tahun, pelanggan, no_po, rincian, opsi, sts
 			}),
 			success: function(res){
 				data = JSON.parse(res)

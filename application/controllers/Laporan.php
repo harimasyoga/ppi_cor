@@ -178,13 +178,30 @@ class Laporan extends CI_Controller
 		$no_po = $_POST["no_po"];
 		$rincian = $_POST["rincian"];
 		$opsi = $_POST["opsi"];
+		$sts = $_POST["sts"];
 		$html = '';
 		$htmlPO = '';
 		($no_po == "") ? $w_nopo = '' : $w_nopo = "AND p.kode_po='$no_po'";
-		($opsi == "" || $opsi == "OPEN") ? $w_opsi = "AND p.status_kiriman='Open'" : $w_opsi = "";
-		(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $wherePO = "AND (p.status='Approve' OR p.status='Open' OR p.status='Close')" : $wherePO = "AND p.status='Approve'";
+		if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing'])){
+			if($sts == "" || $sts == "OPEN"){
+				$wherePO = "AND (p.status='Open' OR p.status='Approve')";
+			}else if($sts == "CLOSE"){
+				$wherePO = "AND p.status='Close'";
+			}else{
+				$wherePO = "";
+			}
+		}else{
+			$wherePO = "AND p.status='Approve'";
+		}
+		if($opsi == "" || $opsi == "OPEN"){
+			$w_opsi = "AND p.status_kiriman='Open'";
+		}else if($opsi == "CLOSE"){
+			$w_opsi = "AND p.status_kiriman='Close'";
+		}else{
+			$w_opsi = "";
+		}
 		$data = $this->db->query("SELECT*FROM trs_po p
-		WHERE p.tgl_po LIKE '%$tahun%' AND p.id_pelanggan='$pelanggan' $wherePO $w_nopo $w_opsi
+		WHERE p.tgl_po LIKE '%$tahun%' AND p.id_pelanggan='$pelanggan' $w_nopo $wherePO $w_opsi
 		GROUP BY p.kode_po
 		ORDER BY p.tgl_po,p.kode_po");
 		$htmlPO .='<option value="">PILIH</option>';
@@ -211,7 +228,7 @@ class Laporan extends CI_Controller
 					'.$kopKet.'
 				</tr>';
 				foreach($data->result() as $r){
-					if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
+					if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing'])){
 						if($r->status_kiriman == 'Open'){
 							$aksi = 'onclick="closePengiriman('."'".$r->id."'".','."'Close'".')';
 							$bgBtn = 'btn-danger';

@@ -7448,7 +7448,7 @@ class Transaksi extends CI_Controller
 		// }else{
 			// $wId = "";
 		// }
-		$getSO = $this->db->query("SELECT p.kode_mc,p.nm_produk,p.kategori,p.ukuran,p.ukuran_sheet,p.ukuran_sheet_l,p.ukuran_sheet_p,p.kualitas,p.flute,p.berat_bersih,po.status_app3,po.status_kiriman,d.* FROM trs_po_detail d
+		$getSO = $this->db->query("SELECT p.kode_mc,p.nm_produk,p.kategori,p.ukuran,p.ukuran_sheet,p.ukuran_sheet_l,p.ukuran_sheet_p,p.kualitas,p.flute,p.berat_bersih,po.status AS sts,po.status_app3,po.status_kiriman,d.* FROM trs_po_detail d
 		INNER JOIN trs_po po ON po.no_po=d.no_po AND po.kode_po=d.kode_po
 		INNER JOIN m_produk p ON d.id_produk=p.id_produk
 		WHERE d.no_po='$no_po' AND d.kode_po='$kode_po' $wId");
@@ -7576,7 +7576,7 @@ class Transaksi extends CI_Controller
 					// SYS
 					$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_so='$so->id'");
 					// ADD DS
-					if($r->status_app3 == 'Y'){
+					if($r->status_app3 == 'Y' && $r->sts != 'Close'){
 						($sys->num_rows() == 0) ? $addSys = ' <button type="button" class="btn btn-primary btn-sm addOStoDSys" onclick="addOStoDSys('."'".$id."'".', '."'".$so->id."'".')"><i class="fas fa-shopping-basket"></i></button>' : $addSys = '';
 					}else{
 						$addSys = '';
@@ -8170,9 +8170,10 @@ class Transaksi extends CI_Controller
 			);
 
 			// ETA 1
-			$eta1 = $this->db->query("SELECT so.* FROM trs_po_detail ps
+			$eta1 = $this->db->query("SELECT so.*,c.abaikan FROM trs_po_detail ps
 			INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
 			INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
+			INNER JOIN m_pelanggan c ON ps.id_pelanggan=c.id_pelanggan
 			WHERE ps.id='$id'
 			GROUP BY so.id
 			ORDER BY so.urut_so ASC, so.rpt ASC
@@ -8196,9 +8197,9 @@ class Transaksi extends CI_Controller
 			// 		echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!'));
 			// 	}
 			// }else
-			if($waktu == 'EXPIRED' && $getData->row()->status_app3 == 'Y'){
+			if($waktu == 'EXPIRED' && $getData->row()->status_app3 == 'Y' && $eta1->abaikan == null){
 				echo json_encode(array('data' => false, 'msg' => 'EXPIRED!'));
-			}else if($_POST['fBagiQtySo'] < $eta1->qty_so){
+			}else if(($_POST['fBagiQtySo'] < $eta1->qty_so) && $eta1->abaikan == null){
 				echo json_encode(array('data' => false, 'msg' => 'QTY TAMBAHAN LEBIH KECIL DARI QTY ETA PERTAMA!'));
 			}else if($this->cart->total_items() != 0){
 				// foreach($this->cart->contents() as $r){
@@ -10508,7 +10509,7 @@ class Transaksi extends CI_Controller
 						$html .= '</tr>';
 					}
 
-					$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,c.prov,c.kab,c.lock,p.kode_po,i.*,d.* FROM trs_dev_sys d
+					$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,c.prov,c.kab,c.lock,p.kode_po,p.status AS sts,i.*,d.* FROM trs_dev_sys d
 					INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
 					INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 					INNER JOIN m_produk i ON d.id_produk=i.id_produk
@@ -10586,6 +10587,7 @@ class Transaksi extends CI_Controller
 
 						// SUSULAN
 						($r->dev_stat != null) ? $devStat = ' <span class="bg-info" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$r->dev_stat.'</span>' : $devStat = '';
+						($r->sts == 'Close') ? $devCls = ' <span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">CLOSE</span>' : $devCls = '';
 
 						$html .= '<tr style="vertical-align:top">
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:center" '.$rkRS.'>
@@ -10593,7 +10595,7 @@ class Transaksi extends CI_Controller
 							</td>
 							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$r->nm_pelanggan.$kota.$devStat.$attn.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:center" '.$rkRS.'>'.$lamaK.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$r->kode_po.'</td>
+							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$r->kode_po.$devCls.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->qty_plan, 0, ',', '.').'</td>
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:center" '.$rkRS.'>'.$r->berat_bersih.'</td>
