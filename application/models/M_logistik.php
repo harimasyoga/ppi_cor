@@ -4127,10 +4127,14 @@ class M_logistik extends CI_Model
 	{
 		$hps_file_inv = $_POST["hps_file_inv"];
 		$id_inv = $_POST["id_inv"];
+		$no_faktur = $_POST["no_faktur"];
 		$tgl_blk = $_POST["tgl_blk"];
 		$tgl_invd = $_POST["tgl_invd"];
 		$ket = $_POST["ket"];
-		if($hps_file_inv == 'DDDDD' && ($tgl_blk != '' || $tgl_invd != '')){
+		if($hps_file_inv == 'DDDDD' && ($tgl_blk != '' || $tgl_invd != '' || $no_faktur != '')){
+			if($ket == 'faktur'){
+				$this->db->set("no_faktur", $no_faktur);
+			}
 			if($ket == 'inv_terima'){
 				$this->db->set("inp_inv_terima", $tgl_invd.' '.date('H:i:s'));
 			}
@@ -4159,6 +4163,9 @@ class M_logistik extends CI_Model
 				$uLink = true;
 			}
 			if($uLink){
+				if($ket == 'faktur'){
+					$this->db->set("no_faktur", null);
+				}
 				if($ket == 'sj_balik'){
 					$this->db->set("tgl_sj_blk", null);
 				}
@@ -4462,6 +4469,79 @@ class M_logistik extends CI_Model
 
 		return [
 			'data' => $data,
+		];
+	}
+
+	function simpanAksesTT()
+	{
+		$tgl = $_POST["tgl"];
+		$id_pelanggan = $_POST["id_pelanggan"];
+		
+		if($tgl == ""){
+			$data = false; $msg = 'PILIH TGL!'; $iHeader = false; $iDetail = false;
+		}else{
+			$tgl2 = explode('-', $tgl);
+
+			$bulan = $tgl2[1];
+			$tahun2 = $tgl2[0];
+
+			$cek = $this->db->query("SELECT*FROM tt_header WHERE tgl_tt LIKE '%$tahun2%' ORDER BY no_tt DESC LIMIT 1");
+			if($cek->num_rows() != 0){
+				$no1 = explode('/', $cek->row()->no_tt);
+				$no2 = (int)$no1[3] + 1;
+			}else{
+				$no2 = 1;
+			}
+			$noFIX = 'TT/'.$tahun2.'/'.$bulan.'/'.str_pad($no2, 3, "0", STR_PAD_LEFT);
+
+			$iHeader = '';
+			$iDetail = '';
+			$sumInv = 0;
+			foreach($this->cart->contents() as $r){
+				$id_invoice = $r['options']['id_invoice'];
+				$inv = $this->db->query("SELECT LTRIM(d.no_surat) AS no_surat,h.* FROM invoice_header h
+				INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
+				WHERE h.id='$id_invoice'
+				GROUP BY h.no_invoice,LTRIM(d.no_surat),h.id_perusahaan,h.id")->row();
+
+				$dDtl = [
+					'no_tt' => $noFIX,
+					'no_faktur' => $inv->no_faktur,
+					'no_invoice' => $inv->no_invoice,
+					'no_surat' => $inv->no_surat,
+					'nominal_inv' => ($inv->jml_mutasi == null) ? 0 : $inv->jml_mutasi,
+				];
+				$sumInv += ($inv->jml_mutasi == null) ? 0 : $inv->jml_mutasi;
+
+				$iDetail .= $this->db->insert("tt_detail", $dDtl);
+			}
+
+			if($iDetail){
+				$pelanggan = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row();
+				$dHead = [
+					'no_tt' => $noFIX,
+					'tgl_tt' => $tgl,
+					'id_pelanggan' => $id_pelanggan,
+					'attn_tt' => $pelanggan->attn,
+					'nm_pelanggan_tt' => $pelanggan->nm_pelanggan,
+					'alamat_tt' => $pelanggan->alamat_kirim,
+					'total_tt' => $sumInv,
+					'bank_tt' => null,
+					'add_time' => date('Y-m-d H:i:s'),
+					'add_user' => $this->username,
+				];
+				$iHeader .= $this->db->insert("tt_header", $dHead);
+				$data = true;
+				$msg = 'OK';
+			}
+
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+			'iHeader' => $iHeader,
+			'iDetail' => $iDetail,
 		];
 	}
 

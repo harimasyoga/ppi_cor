@@ -613,6 +613,7 @@ class Transaksi extends CI_Controller
 		$no_po = $_POST["no_po"];
 		$groupBy = $_POST["group"];
 		$orderBy = $_POST["order"];
+		$lap_roll = $_POST["lap_roll"];
 		$opsi = $_POST["opsi"];
 		$jenis = $_POST["jenis"];
 		$gsm = $_POST["gsm"];
@@ -624,7 +625,7 @@ class Transaksi extends CI_Controller
 			if($groupBy == ''){
 				$kHead = '<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">TGL</th>
 					<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">NO PO</th>';
-				$kHead2 = '';
+				$kHead2 = '<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">KETERANGAN</th>';
 			}else{
 				$kHead = '';
 				$kHead2 = '<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">STOK</th>';
@@ -661,7 +662,7 @@ class Transaksi extends CI_Controller
 					$oGy = "GROUP BY po.nm_ker,po.g_label,po.width,po.tgl,po.no_po";
 					($orderBy == 'TNP') ? $oBy = "ORDER BY po.tgl,po.no_po,po.nm_ker,po.g_label,po.width" : $oBy = "";
 					$cls = '8';
-					$tdKos = '';
+					$tdKos = '<td style="padding:6px;background:#f2f2f2;border:1px solid #888"></td>';
 				}else{
 					$iGy = ", SUM(po.jml_roll) AS jml_roll_po, SUM(po.tonase) AS tonase,";
 					$oGy = "GROUP BY po.nm_ker,po.g_label,po.width";
@@ -673,11 +674,18 @@ class Transaksi extends CI_Controller
 					$cls = '6';
 					$tdKos = '<td style="padding:6px;background:#f2f2f2;border:1px solid #888"></td>';
 				}
+				if($lap_roll == 'STOK'){
+					$lapSts = "AND po.status_roll='0'";
+				}else if($lap_roll == 'BUFFER'){
+					$lapSts = "AND po.status_roll='3'";
+				}else{
+					$lapSts = "AND (po.status_roll='3' OR po.status_roll='3')";
+				}
 
-				$list = $db->query("SELECT po.tgl,po.no_po,po.nm_ker,po.g_label,po.width,po.id_perusahaan $iGy pt.nm_perusahaan,po.status
+				$list = $db->query("SELECT po.tgl,po.no_po,po.nm_ker,po.g_label,po.width,po.id_perusahaan $iGy pt.nm_perusahaan,po.ket,po.status
 				FROM po_master po
 				INNER JOIN m_perusahaan pt ON pt.id=po.id_perusahaan
-				WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' $pt1 $stas $noPO $wJenis $wGsm $wUkuran
+				WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' $pt1 $stas $noPO $wJenis $wGsm $wUkuran $lapSts
 				$oGy $oBy");
 				$sumTonase = 0; $sumKirimTon = 0; $poTonase = 0; $poKirimTon = 0; $i = 0;
 				foreach($list->result() as $r){
@@ -713,6 +721,7 @@ class Transaksi extends CI_Controller
 								<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->tonase, 0, ',', '.').'</td>
 								<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->kirim_tonase, 0, ',', '.').'</td>
 								<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($minTonase, 0, ',', '.').'</td>
+								<td style="padding:6px;border:1px solid #888">'.$r->ket.'</td>
 							</tr>';
 
 							// SUM TONASE
@@ -740,9 +749,16 @@ class Transaksi extends CI_Controller
 						$minTonase = $kirim_tonase - $r->tonase;
 
 						// STOK
+						if($lap_roll == 'STOK'){
+							$stS2 = "AND t.status='0'";
+						}else if($lap_roll == 'BUFFER'){
+							$stS2 = "AND t.status='3'";
+						}else{
+							$stS2 = "AND (t.status='0' OR t.status='3')";
+						}
 						($r->g_label == 120 || $r->g_label == 125) ? $gsm = "AND (g_label='120' OR g_label='125')" : $gsm = "AND g_label='$r->g_label'";
 						$stok = $db->query("SELECT COUNT(roll) AS roll FROM m_timbangan t
-						WHERE tgl BETWEEN '2020-04-01' AND '9999-01-01' AND nm_ker='$r->nm_ker' $gsm AND width='$r->width' AND id_rk IS NULL AND t.status='0' AND id_pl='0'");
+						WHERE tgl BETWEEN '2020-04-01' AND '9999-01-01' AND nm_ker='$r->nm_ker' $gsm AND width='$r->width' AND id_rk IS NULL $stS2 AND id_pl='0'");
 						($stok->num_rows() != 0) ? $ss = $stok->row()->roll : $ss = 0;
 						(($minRoll == 0 || $minRoll > 0) || $ss == 0) ? $bgR = ' style="background:#ccc"' : $bgR = '';
 
