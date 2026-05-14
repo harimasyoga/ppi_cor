@@ -130,8 +130,8 @@
 
 	$(document).ready(function ()
 	{
-		// kosong()
-		// load_data()
+		kosong()
+		load_data()
 		$('.select2').select2();
 	});
 
@@ -149,7 +149,7 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url('Logistik/load_data/loadDataDebitNote')?>',
+				"url": '<?php echo base_url('Logistik/load_data/tandaTerima')?>',
 				"type": "POST",
 				"data": ({
 					tahun
@@ -170,7 +170,7 @@
 	function kosong()
 	{
 		statusInput = 'insert'
-
+		$("#cart-akses").load("<?php echo base_url('Logistik/destroyAkses') ?>")
 		$("#tgl").val('')
 		$("#slt_jenis").val('').prop('disabled', false).trigger('change')
 		$(".akses_cust").html('')
@@ -181,7 +181,6 @@
 	}
 
 	function tambahData() {
-		$("#cart-akses").load("<?php echo base_url('Logistik/destroyAkses') ?>")
 		kosong()
 		// $(".row-list").hide()
 		// $(".row-input").show()
@@ -231,7 +230,7 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadSJInvAkses') ?>',
 			type: "POST",
-			data: ({ jenis, axs_cust }),
+			data: ({ jenis, axs_cust, opsi: 'tt' }),
 			beforeSend: function() {
 				swal({
 					title: 'loading ...',
@@ -350,6 +349,7 @@
 	}
 
 	function simpanAkses() {
+		let jenis = $("#slt_jenis").val()
 		let tgl = $("#tgl").val()
 		let id_pelanggan = $("#axs_cust").val()
 		$(".akses_simpan").html('')
@@ -357,7 +357,7 @@
 			url: '<?php echo base_url('Logistik/simpanAksesTT') ?>',
 			type: "POST",
 			data: ({
-				tgl, id_pelanggan
+				jenis, tgl, id_pelanggan
 			}),
 			// beforeSend: function() {
 			// 	swal({

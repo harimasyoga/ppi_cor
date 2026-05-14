@@ -3456,7 +3456,7 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadSJInvAkses') ?>',
 			type: "POST",
-			data: ({ jenis, axs_cust }),
+			data: ({ jenis, axs_cust, opsi: '' }),
 			beforeSend: function() {
 				swal({
 					title: 'loading ...',

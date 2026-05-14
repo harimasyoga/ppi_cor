@@ -10241,16 +10241,22 @@ class Transaksi extends CI_Controller
 					($hariMinggu == "Sunday") ? $kk = '<span style="color:#f00">'.$i2.'</span>' : $kk = $i2;
 
 					if($id_sales == null || $id_sales == ''){
-						$count = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tglSys' GROUP BY eta,urut");
-						$berat = $this->db->query("SELECT SUM(berat) AS berat FROM trs_dev_sys WHERE eta='$tglSys' GROUP BY eta")->row()->berat;
+						$count = $this->db->query("SELECT*FROM trs_dev_sys s
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND d.status='Approve' GROUP BY s.eta,s.urut");
+						$berat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND d.status='Approve' GROUP BY s.eta")->row()->berat;
 					}else{
 						$count = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND s.urut!='0'
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND s.urut!='0' AND d.status='Approve'
 						GROUP BY s.eta,s.urut");
 						$berat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales'
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve'
 						GROUP BY s.eta")->row()->berat;
 					}
 
@@ -10447,12 +10453,15 @@ class Transaksi extends CI_Controller
 				$html .= '</tr>';
 
 				if($id_sales == null || $id_sales == ''){
-					$urut = $this->db->query("SELECT SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s WHERE s.eta='$tgl' GROUP BY s.eta, s.urut, s.id_ex");
+					$urut = $this->db->query("SELECT SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s
+					INNER JOIN trs_po_detail p ON s.id_po_header=p.id
+					WHERE s.eta='$tgl' AND p.status='Approve' GROUP BY s.eta, s.urut, s.id_ex");
 					$wSls = "";
 				}else{
 					$urut = $this->db->query("SELECT SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s
 					INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
-					WHERE s.eta='$tgl' AND p.id_sales='$id_sales'
+					INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+					WHERE s.eta='$tgl' AND p.status='Approve' AND p.id_sales='$id_sales'
 					GROUP BY s.eta, s.urut, s.id_ex");
 					$wSls = "AND c.id_sales='$id_sales'";
 				}
@@ -10529,7 +10538,7 @@ class Transaksi extends CI_Controller
 					INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
 					INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 					INNER JOIN m_produk i ON d.id_produk=i.id_produk
-					WHERE d.eta='$u->eta' AND d.urut='$u->urut' $wSls
+					WHERE d.eta='$u->eta' AND d.urut='$u->urut' AND p.status='Approve' $wSls
 					GROUP BY d.id_dev,d.id_pelanggan,p.kode_po,d.id_produk
 					ORDER BY c.nm_pelanggan,p.kode_po,i.nm_produk");
 					$i = 0;

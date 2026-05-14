@@ -5215,6 +5215,7 @@ class Logistik extends CI_Controller
 
 	function loadSJInvAkses()
 	{
+		$opsi = $_POST["opsi"];
 		$jenis = $_POST["jenis"];
 		$id_pt = $_POST["axs_cust"];
 		$htmlSJInv = '';
@@ -5229,9 +5230,10 @@ class Logistik extends CI_Controller
 						}else{
 							$wHere = "AND h.type='ROLL'";
 						}
+						($opsi == 'tt') ? $wO = "AND NOT EXISTS (SELECT*FROM tt_detail t WHERE h.no_invoice=t.no_invoice)" : $wO = "";
 						$invSj = $this->db->query("SELECT LTRIM(d.no_surat) AS no_surat,h.* FROM invoice_header h
 						INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
-						WHERE h.id_perusahaan='$id_pt' AND h.status_inv!='Approve' $wHere
+						WHERE h.id_perusahaan='$id_pt' AND h.status_inv!='Approve' $wHere $wO
 						GROUP BY h.no_invoice,LTRIM(d.no_surat),h.id_perusahaan,h.id
 						ORDER BY h.tgl_invoice DESC,h.no_invoice DESC,LTRIM(d.no_surat) DESC");
 						if($invSj->num_rows() != 0){
@@ -5300,7 +5302,7 @@ class Logistik extends CI_Controller
 				$thH = '<th style="padding:6px;border:1px solid #bbb">-</th>
 				<th style="padding:6px;border:1px solid #bbb">IZIN</th>';
 			}else{
-				$thH = '';
+				$thH = '<th style="padding:6px;border:1px solid #bbb;text-align:center">NOMINAL</th>';
 			}
 			$html .='<table style="margin:12px 0">
 				<tr style="background:#dee2e6">
@@ -5314,6 +5316,7 @@ class Logistik extends CI_Controller
 				</tr>';}
 
 				$i = 0;
+				$sumMutasi = 0;
 				foreach($this->cart->contents() as $r){
 					$i++;
 
@@ -5344,7 +5347,7 @@ class Logistik extends CI_Controller
 						</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.strtoupper(str_replace("izin_", "", $r['options']['slt_pilih'])).'</td>';
 					}else{
-						$tdD = '';
+						$tdD = '<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($invoice->jml_mutasi, 0, ',', '.').'</td>';
 					}
 					
 					$html .='<tr>
@@ -5358,9 +5361,19 @@ class Logistik extends CI_Controller
 							<button type="button" class="btn btn-sm btn-danger btn-block" onclick="hapusCartAkses('."'".$r['rowid']."'".')">batal</button>
 						</td>
 					</tr>';
+
+					$sumMutasi += ($invoice->jml_mutasi == null) ? 0 : $invoice->jml_mutasi;
 				}
 
 				if($this->cart->total_items() != 0){
+				// TOTAL
+				if($opsi == 'TT' && $this->cart->total_items() > 1){
+					$html .='<tr style="background:#dee2e6">
+						<td style="border:1px solid #bbb;font-weight:bold;padding:6px;text-align:right" colspan="5">TOTAL</td>
+						<td style="border:1px solid #bbb;font-weight:bold;padding:6px;text-align:right">'.number_format($sumMutasi, 0, ',', '.').'</td>
+						<td style="border:1px solid #bbb;font-weight:bold;padding:6px"></td>
+					</tr>';
+				}
 			$html .='</table>';
 		}
 
@@ -6471,7 +6484,9 @@ class Logistik extends CI_Controller
 					$seLisiH = 0;
 					$jmlNominal = $total;
 					// UPDATE JML NOMINAL DI INVOICE HEADER
-					$this->db->query("UPDATE invoice_header SET jml_mutasi='$total' WHERE no_invoice='$r->no_invoice' AND id='$r->id'");
+					if($r->acc_owner != 'Y'){
+						$this->db->query("UPDATE invoice_header SET jml_mutasi='$total' WHERE no_invoice='$r->no_invoice' AND id='$r->id'");
+					}
 				}
 				$row[] = '<div class="text-right"><b>'.number_format($jmlNominal, 0, ",", ".").$txtSel.'</b></div>';
 				// PEMBAYARAN
@@ -7944,6 +7959,20 @@ class Logistik extends CI_Controller
 				$row[] = '<div class="text-center">
 					'.$btnAksi.'
 				</div>';
+				$data[] = $row;
+			}
+		}else if ($jenis == "tandaTerima") {
+			$tahun = $_POST["tahun"];
+			$query = $this->db->query("SELECT*FROM tt_header")->result();
+			$i = 0;
+			foreach ($query as $r) {
+				$i++;
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<div class="text-center">'.$r->no_tt.'</div>';
+				$row[] = '<div class="text-center">'.$r->total_tt.'</div>';
+				$row[] = '<div class="text-center"></div>';
+				$row[] = '<div class="text-center"></div>';
 				$data[] = $row;
 			}
 		}
@@ -10458,7 +10487,9 @@ class Logistik extends CI_Controller
 		}
 
 		// UPDATE JML NOMINAL DI INVOICE HEADER
-		$this->db->query("UPDATE invoice_header SET jml_mutasi='$terbilang' WHERE no_invoice='$data_detail->no_invoice'");
+		if($data_detail->acc_owner != 'Y'){
+			$this->db->query("UPDATE invoice_header SET jml_mutasi='$terbilang' WHERE no_invoice='$data_detail->no_invoice'");
+		}
 
 		if($opsi == 'html'){
 			echo json_encode([

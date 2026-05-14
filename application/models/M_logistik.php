@@ -4474,6 +4474,7 @@ class M_logistik extends CI_Model
 
 	function simpanAksesTT()
 	{
+		$jenis = $_POST["jenis"];
 		$tgl = $_POST["tgl"];
 		$id_pelanggan = $_POST["id_pelanggan"];
 		
@@ -4517,7 +4518,12 @@ class M_logistik extends CI_Model
 			}
 
 			if($iDetail){
-				$pelanggan = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row();
+				if($jenis == 'BOX'){
+					$pelanggan = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row();
+				}
+				if($jenis == 'ROLL'){
+					$pelanggan = $this->db->query("SELECT pimpinan AS attn, nm_perusahaan AS nm_pelanggan, alamat AS alamat_kirim FROM m_perusahaan WHERE id='$id_pelanggan'")->row();
+				}
 				$dHead = [
 					'no_tt' => $noFIX,
 					'tgl_tt' => $tgl,
