@@ -102,6 +102,16 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	public function Tanda_Terima()
+	{
+		$data = array(
+			'judul' => "Tanda Terima",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Logistik/v_tanda_terima');
+		$this->load->view('footer');
+	}
+
 	public function Invoice_beli()
 	{
 		$data = array(
@@ -4800,8 +4810,9 @@ class Logistik extends CI_Controller
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
 
-		if($_FILES['filefoto']['name'])
-		{
+		if($params->no_inv_faktur == "" || $params->no_inv_faktur == 0 || $params->no_inv_faktur < 0){
+			$filefoto = false;
+		}else if($_FILES['filefoto']['name']){
 			if ($this->upload->do_upload('filefoto'))
 			{
 				$gbrBukti = $this->upload->data();
@@ -4809,6 +4820,7 @@ class Logistik extends CI_Controller
 				// $filefoto    = $_FILES['filefoto']['name'];
 				
 				// update data
+				$this->db->set('no_faktur', $params->no_inv_faktur);
 				$this->db->set('img_faktur', $filefoto);
 				$this->db->set('inp_faktur', date('Y-m-d H:i:s'));
 				$this->db->set('cek_global', date('Y-m-d H:i:s'));
@@ -5162,6 +5174,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function simpanAksesTT()
+	{
+		$result = $this->m_logistik->simpanAksesTT();
+		echo json_encode($result);
+	}
+
 	function loadCustAkses()
 	{
 		$jenis = $_POST["jenis"];
@@ -5197,6 +5215,7 @@ class Logistik extends CI_Controller
 
 	function loadSJInvAkses()
 	{
+		$opsi = $_POST["opsi"];
 		$jenis = $_POST["jenis"];
 		$id_pt = $_POST["axs_cust"];
 		$htmlSJInv = '';
@@ -5211,10 +5230,12 @@ class Logistik extends CI_Controller
 						}else{
 							$wHere = "AND h.type='ROLL'";
 						}
+						($opsi == 'tt') ? $wO = "AND NOT EXISTS (SELECT*FROM tt_detail t WHERE h.no_invoice=t.no_invoice)" : $wO = "";
 						$invSj = $this->db->query("SELECT LTRIM(d.no_surat) AS no_surat,h.* FROM invoice_header h
 						INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
-						WHERE h.id_perusahaan='$id_pt' AND h.status_inv!='Approve' $wHere
-						GROUP BY h.no_invoice DESC,LTRIM(d.no_surat) DESC,h.id_perusahaan,h.id");
+						WHERE h.id_perusahaan='$id_pt' AND h.status_inv!='Approve' $wHere $wO
+						GROUP BY h.no_invoice,LTRIM(d.no_surat),h.id_perusahaan,h.id
+						ORDER BY h.tgl_invoice DESC,h.no_invoice DESC,LTRIM(d.no_surat) DESC");
 						if($invSj->num_rows() != 0){
 							foreach($invSj->result() as $r){
 								$htmlSJInv .= '<option value="'.$r->id.'">'.$r->no_invoice.' | '.$r->no_surat.'</option>';
@@ -5273,9 +5294,16 @@ class Logistik extends CI_Controller
 
 	function listCartAkses()
 	{
+		$opsi = $_POST["opsi"];
 		$html = '';
 
 		if($this->cart->total_items() != 0){
+			if($opsi == ''){
+				$thH = '<th style="padding:6px;border:1px solid #bbb">-</th>
+				<th style="padding:6px;border:1px solid #bbb">IZIN</th>';
+			}else{
+				$thH = '<th style="padding:6px;border:1px solid #bbb;text-align:center">NOMINAL</th>';
+			}
 			$html .='<table style="margin:12px 0">
 				<tr style="background:#dee2e6">
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">NO.</th>
@@ -5283,12 +5311,12 @@ class Logistik extends CI_Controller
 					<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
 					<th style="padding:6px;border:1px solid #bbb">NO. INVOICE</th>
 					<th style="padding:6px;border:1px solid #bbb">NO. SURAT JALAN</th>
-					<th style="padding:6px;border:1px solid #bbb">-</th>
-					<th style="padding:6px;border:1px solid #bbb">IZIN</th>
+					'.$thH.'
 					<th style="padding:6px;border:1px solid #bbb;text-align:center">AKSI</th>
 				</tr>';}
 
 				$i = 0;
+				$sumMutasi = 0;
 				foreach($this->cart->contents() as $r){
 					$i++;
 
@@ -5312,6 +5340,15 @@ class Logistik extends CI_Controller
 					$iI = ('izin_inv_terima' == $r['options']['slt_pilih']) ? $sI = 'style="font-weight:bold;color:#f00"' : $sI = '';
 					$iM = ('izin_mutasi' == $r['options']['slt_pilih']) ? $sM = 'style="font-weight:bold;color:#f00"' : $sM = '';
 					$iS = ('izin_sj_balik' == $r['options']['slt_pilih']) ? $sS = 'style="font-weight:bold;color:#f00"' : $sS = '';
+
+					if($opsi == ''){
+						$tdD = '<td style="border:1px solid #dee2e6;padding:6px">
+							<span '.$iB.'>'.$invoice->izin_bc.'</span>, <span '.$iF.'>'.$invoice->izin_faktur.'</span>, <span '.$iR.'>'.$invoice->izin_resi.'</span>, <span '.$iI.'>'.$invoice->izin_inv_terima.'</span>, <span '.$iM.'>'.$invoice->izin_mutasi.'</span>, <span '.$iS.'>'.$invoice->izin_sj_balik.'</span>
+						</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.strtoupper(str_replace("izin_", "", $r['options']['slt_pilih'])).'</td>';
+					}else{
+						$tdD = '<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($invoice->jml_mutasi, 0, ',', '.').'</td>';
+					}
 					
 					$html .='<tr>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
@@ -5319,17 +5356,24 @@ class Logistik extends CI_Controller
 						<td style="border:1px solid #dee2e6;padding:6px">'.$nm_pelanggan.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$invoice->no_invoice.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$invoice->no_surat.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px">
-							<span '.$iB.'>'.$invoice->izin_bc.'</span>, <span '.$iF.'>'.$invoice->izin_faktur.'</span>, <span '.$iR.'>'.$invoice->izin_resi.'</span>, <span '.$iI.'>'.$invoice->izin_inv_terima.'</span>, <span '.$iM.'>'.$invoice->izin_mutasi.'</span>, <span '.$iS.'>'.$invoice->izin_sj_balik.'</span>
-						</td>
-						<td style="border:1px solid #dee2e6;padding:6px">'.strtoupper(str_replace("izin_", "", $r['options']['slt_pilih'])).'</td>
+						'.$tdD.'
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
 							<button type="button" class="btn btn-sm btn-danger btn-block" onclick="hapusCartAkses('."'".$r['rowid']."'".')">batal</button>
 						</td>
 					</tr>';
+
+					$sumMutasi += ($invoice->jml_mutasi == null) ? 0 : $invoice->jml_mutasi;
 				}
 
 				if($this->cart->total_items() != 0){
+				// TOTAL
+				if($opsi == 'TT' && $this->cart->total_items() > 1){
+					$html .='<tr style="background:#dee2e6">
+						<td style="border:1px solid #bbb;font-weight:bold;padding:6px;text-align:right" colspan="5">TOTAL</td>
+						<td style="border:1px solid #bbb;font-weight:bold;padding:6px;text-align:right">'.number_format($sumMutasi, 0, ',', '.').'</td>
+						<td style="border:1px solid #bbb;font-weight:bold;padding:6px"></td>
+					</tr>';
+				}
 			$html .='</table>';
 		}
 
@@ -5918,6 +5962,7 @@ class Logistik extends CI_Controller
 			FROM invoice_header h
 			$wInn
 			WHERE YEAR(h.tgl_invoice) IN ('$thnn') $cek_bulan $tipe $wExp $wSales
+			-- WHERE h.no_invoice='FC/0365/05/2026'
 			ORDER BY h.status_inv DESC, h.cek_global DESC, h.tgl_invoice DESC, h.no_invoice")->result();
 
 			$i               = 1;
@@ -6401,10 +6446,14 @@ class Logistik extends CI_Controller
 					}
 					$jmlNominal = $r->jml_mutasi;
 				}else{
-					$queryd = $this->db->query("SELECT CASE WHEN type='roll' THEN SUM(harga*weight) ELSE SUM(harga*hasil) END AS jumlah FROM invoice_detail 
-					WHERE no_invoice='$r->no_invoice'")->row();
-					$ppn11 = 0.11 * $queryd->jumlah;
-					$pph22 = 0.001 * $queryd->jumlah;
+					$queryd = $this->db->query("SELECT SUM(harga*hasil) AS jumlah FROM invoice_detail WHERE no_invoice='$r->no_invoice'")->row();
+					if($r->disc != 0){
+						$subTotal = $queryd->jumlah - ($queryd->jumlah * ($r->disc/100));
+					}else{
+						$subTotal = $queryd->jumlah;
+					}
+					$ppn11 = 0.11 * $subTotal;
+					$pph22 = 0.001 * $subTotal;
 					if($r->pajak == 'ppn'){
 						if($r->inc_exc == 'Include'){
 							$nominal = 0;
@@ -6430,10 +6479,14 @@ class Logistik extends CI_Controller
 							$nominal = 0;
 						}
 					}
-					$total = $queryd->jumlah + $nominal;
+					$total = $subTotal + $nominal;
 					$txtSel = '';
 					$seLisiH = 0;
 					$jmlNominal = $total;
+					// UPDATE JML NOMINAL DI INVOICE HEADER
+					if($r->acc_owner != 'Y'){
+						$this->db->query("UPDATE invoice_header SET jml_mutasi='$total' WHERE no_invoice='$r->no_invoice' AND id='$r->id'");
+					}
 				}
 				$row[] = '<div class="text-right"><b>'.number_format($jmlNominal, 0, ",", ".").$txtSel.'</b></div>';
 				// PEMBAYARAN
@@ -7906,6 +7959,20 @@ class Logistik extends CI_Controller
 				$row[] = '<div class="text-center">
 					'.$btnAksi.'
 				</div>';
+				$data[] = $row;
+			}
+		}else if ($jenis == "tandaTerima") {
+			$tahun = $_POST["tahun"];
+			$query = $this->db->query("SELECT*FROM tt_header")->result();
+			$i = 0;
+			foreach ($query as $r) {
+				$i++;
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				$row[] = '<div class="text-center">'.$r->no_tt.'</div>';
+				$row[] = '<div class="text-center">'.$r->total_tt.'</div>';
+				$row[] = '<div class="text-center"></div>';
+				$row[] = '<div class="text-center"></div>';
 				$data[] = $row;
 			}
 		}
@@ -10420,7 +10487,9 @@ class Logistik extends CI_Controller
 		}
 
 		// UPDATE JML NOMINAL DI INVOICE HEADER
-		$this->db->query("UPDATE invoice_header SET jml_mutasi='$terbilang' WHERE no_invoice='$data_detail->no_invoice'");
+		if($data_detail->acc_owner != 'Y'){
+			$this->db->query("UPDATE invoice_header SET jml_mutasi='$terbilang' WHERE no_invoice='$data_detail->no_invoice'");
+		}
 
 		if($opsi == 'html'){
 			echo json_encode([
@@ -13442,7 +13511,7 @@ class Logistik extends CI_Controller
 				<tr>
 					<td style="border:1px solid #000;padding:5px 0">ADMIN</td>
 					<td style="border:1px solid #000;padding:5px 0">DION<br>PPIC</td>
-					<td style="border:1px solid #000;padding:5px 0">BP. SUMARTO<br>SPV GUDANG</td>
+					<td style="border:1px solid #000;padding:5px 0">SPV GUDANG</td>
 					<td style="border:1px solid #000;padding:5px 0"></td>
 					<td style="border:1px solid #000;padding:5px 0"></td>
 					<td style="border:1px solid #000;padding:5px 0">'.$data_pl->driver.'<br>'.$data_pl->expedisi.'</td>

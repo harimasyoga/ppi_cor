@@ -779,6 +779,14 @@
 						</div>
 						<div class="col-md-6"></div>
 					</div>
+					<div id="upload_no_faktur" class="card-body row" style="padding:5px;font-weight:bold">
+						<div class="col-md-1"></div>
+						<div class="col-md-2">No. Faktur</div>
+						<div class="col-md-3">
+							<input type="number" name="no_inv_faktur" id="no_inv_faktur" class="form-control" autocomplete="off" placeholder="0">
+						</div>
+						<div class="col-md-6"></div>
+					</div>
 					<div id="upload_file" class="card-body row" style="padding : 5px;font-weight:bold">
 						<div class="col-md-1"></div>
 						<div class="col-md-2">Upload File</div>
@@ -1042,9 +1050,11 @@
 		$("#filefoto").html('')
 		$("#tgl_invd").val('')
 		$("#tgl_blk").val('')
+		$("#no_inv_faktur").val('')
 		$("#ket_file").val('')
 		$("#no_inv_foto").val(no_inv);
 		$('#upload_invd').hide();
+		$('#upload_no_faktur').hide();
 		$('#upload_blk').hide();
 		$('#filefoto').css("display", "block");
 
@@ -1056,6 +1066,7 @@
 		if (ket == 'bc' && (username == 'karina' || username == 'siska' || username == 'tegar')) {
 			$('#upload_file').show();
 		} else if (ket == 'faktur' && username == 'siska') {
+			$('#upload_no_faktur').show();
 			$('#upload_file').show();
 		} else if (ket == 'resi' && (username == 'karina' || username == 'tegar')) {
 			$('#upload_file').show();
@@ -1072,6 +1083,9 @@
 		} else if (ket == 'upload_inv' && (username == 'karina' || username == 'tegar')) {
 			$('#upload_file').show();
 		} else if (username == 'developer') {
+			if (ket == 'faktur') {
+				$('#upload_no_faktur').show();
+			}
 			if (ket == 'inv_terima') {
 				$('#upload_invd').show();
 			}
@@ -1081,6 +1095,7 @@
 			$('#upload_file').show();
 		} else {
 			$('#upload_invd').css("display", "none");
+			$('#upload_no_faktur').css("display", "none");
 			$('#upload_blk').css("display", "none");
 			$('#upload_file').css("display", "none");
 		}
@@ -1117,6 +1132,9 @@
 						btnHapHap = data.htmlDtl
 					}
 					$(".detail-inv").html(btnHapHap)
+					if (ket == 'faktur') {
+						$("#no_inv_faktur").val(data.header.no_faktur)
+					}
 					if (ket == 'inv_terima') {
 						$("#tgl_invd").val(data.header.inp_inv_terima.substr(0, 10))
 					}
@@ -1174,6 +1192,7 @@
 
 	function sHpsFile(id_inv, ket) {
 		let hps_file_inv = $('#hps_file_inv').val()
+		let no_faktur = $("#no_inv_faktur").val()
 		let tgl_blk = $("#tgl_blk").val()
 		let tgl_invd = $("#tgl_invd").val()
 		$.ajax({
@@ -1191,6 +1210,7 @@
 			},
 			data: ({
 				hps_file_inv,
+				no_faktur,
 				tgl_blk,
 				tgl_invd,
 				id_inv,
@@ -3436,7 +3456,7 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadSJInvAkses') ?>',
 			type: "POST",
-			data: ({ jenis, axs_cust }),
+			data: ({ jenis, axs_cust, opsi: '' }),
 			beforeSend: function() {
 				swal({
 					title: 'loading ...',
@@ -3538,6 +3558,9 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/listCartAkses') ?>',
 			type: "POST",
+			data: ({
+				opsi: ""
+			}),
 			success: function(res) {
 				data = JSON.parse(res)
 				$(".akses_list").html(data.html)

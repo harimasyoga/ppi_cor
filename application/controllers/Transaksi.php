@@ -613,6 +613,7 @@ class Transaksi extends CI_Controller
 		$no_po = $_POST["no_po"];
 		$groupBy = $_POST["group"];
 		$orderBy = $_POST["order"];
+		$lap_roll = $_POST["lap_roll"];
 		$opsi = $_POST["opsi"];
 		$jenis = $_POST["jenis"];
 		$gsm = $_POST["gsm"];
@@ -624,7 +625,7 @@ class Transaksi extends CI_Controller
 			if($groupBy == ''){
 				$kHead = '<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">TGL</th>
 					<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">NO PO</th>';
-				$kHead2 = '';
+				$kHead2 = '<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">KETERANGAN</th>';
 			}else{
 				$kHead = '';
 				$kHead2 = '<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">STOK</th>';
@@ -661,7 +662,7 @@ class Transaksi extends CI_Controller
 					$oGy = "GROUP BY po.nm_ker,po.g_label,po.width,po.tgl,po.no_po";
 					($orderBy == 'TNP') ? $oBy = "ORDER BY po.tgl,po.no_po,po.nm_ker,po.g_label,po.width" : $oBy = "";
 					$cls = '8';
-					$tdKos = '';
+					$tdKos = '<td style="padding:6px;background:#f2f2f2;border:1px solid #888"></td>';
 				}else{
 					$iGy = ", SUM(po.jml_roll) AS jml_roll_po, SUM(po.tonase) AS tonase,";
 					$oGy = "GROUP BY po.nm_ker,po.g_label,po.width";
@@ -673,11 +674,18 @@ class Transaksi extends CI_Controller
 					$cls = '6';
 					$tdKos = '<td style="padding:6px;background:#f2f2f2;border:1px solid #888"></td>';
 				}
+				if($lap_roll == 'STOK'){
+					$lapSts = "AND po.status_roll='0'";
+				}else if($lap_roll == 'BUFFER'){
+					$lapSts = "AND po.status_roll='3'";
+				}else{
+					$lapSts = "AND (po.status_roll='3' OR po.status_roll='3')";
+				}
 
-				$list = $db->query("SELECT po.tgl,po.no_po,po.nm_ker,po.g_label,po.width,po.id_perusahaan $iGy pt.nm_perusahaan,po.status
+				$list = $db->query("SELECT po.tgl,po.no_po,po.nm_ker,po.g_label,po.width,po.id_perusahaan $iGy pt.nm_perusahaan,po.ket,po.status
 				FROM po_master po
 				INNER JOIN m_perusahaan pt ON pt.id=po.id_perusahaan
-				WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' $pt1 $stas $noPO $wJenis $wGsm $wUkuran
+				WHERE po.tgl BETWEEN '2024-12-01' AND '9999-01-01' $pt1 $stas $noPO $wJenis $wGsm $wUkuran $lapSts
 				$oGy $oBy");
 				$sumTonase = 0; $sumKirimTon = 0; $poTonase = 0; $poKirimTon = 0; $i = 0;
 				foreach($list->result() as $r){
@@ -713,6 +721,7 @@ class Transaksi extends CI_Controller
 								<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->tonase, 0, ',', '.').'</td>
 								<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($r->kirim_tonase, 0, ',', '.').'</td>
 								<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($minTonase, 0, ',', '.').'</td>
+								<td style="padding:6px;border:1px solid #888">'.$r->ket.'</td>
 							</tr>';
 
 							// SUM TONASE
@@ -740,9 +749,16 @@ class Transaksi extends CI_Controller
 						$minTonase = $kirim_tonase - $r->tonase;
 
 						// STOK
+						if($lap_roll == 'STOK'){
+							$stS2 = "AND t.status='0'";
+						}else if($lap_roll == 'BUFFER'){
+							$stS2 = "AND t.status='3'";
+						}else{
+							$stS2 = "AND (t.status='0' OR t.status='3')";
+						}
 						($r->g_label == 120 || $r->g_label == 125) ? $gsm = "AND (g_label='120' OR g_label='125')" : $gsm = "AND g_label='$r->g_label'";
 						$stok = $db->query("SELECT COUNT(roll) AS roll FROM m_timbangan t
-						WHERE tgl BETWEEN '2020-04-01' AND '9999-01-01' AND nm_ker='$r->nm_ker' $gsm AND width='$r->width' AND id_rk IS NULL AND t.status='0' AND id_pl='0'");
+						WHERE tgl BETWEEN '2020-04-01' AND '9999-01-01' AND nm_ker='$r->nm_ker' $gsm AND width='$r->width' AND id_rk IS NULL $stS2 AND id_pl='0'");
 						($stok->num_rows() != 0) ? $ss = $stok->row()->roll : $ss = 0;
 						(($minRoll == 0 || $minRoll > 0) || $ss == 0) ? $bgR = ' style="background:#ccc"' : $bgR = '';
 
@@ -7448,7 +7464,7 @@ class Transaksi extends CI_Controller
 		// }else{
 			// $wId = "";
 		// }
-		$getSO = $this->db->query("SELECT p.kode_mc,p.nm_produk,p.kategori,p.ukuran,p.ukuran_sheet,p.ukuran_sheet_l,p.ukuran_sheet_p,p.kualitas,p.flute,p.berat_bersih,po.status_app3,po.status_kiriman,d.* FROM trs_po_detail d
+		$getSO = $this->db->query("SELECT p.kode_mc,p.nm_produk,p.kategori,p.ukuran,p.ukuran_sheet,p.ukuran_sheet_l,p.ukuran_sheet_p,p.kualitas,p.flute,p.berat_bersih,po.status AS sts,po.status_app3,po.status_kiriman,d.* FROM trs_po_detail d
 		INNER JOIN trs_po po ON po.no_po=d.no_po AND po.kode_po=d.kode_po
 		INNER JOIN m_produk p ON d.id_produk=p.id_produk
 		WHERE d.no_po='$no_po' AND d.kode_po='$kode_po' $wId");
@@ -7576,7 +7592,7 @@ class Transaksi extends CI_Controller
 					// SYS
 					$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_so='$so->id'");
 					// ADD DS
-					if($r->status_app3 == 'Y'){
+					if($r->status_app3 == 'Y' && $r->sts != 'Close'){
 						($sys->num_rows() == 0) ? $addSys = ' <button type="button" class="btn btn-primary btn-sm addOStoDSys" onclick="addOStoDSys('."'".$id."'".', '."'".$so->id."'".')"><i class="fas fa-shopping-basket"></i></button>' : $addSys = '';
 					}else{
 						$addSys = '';
@@ -8170,9 +8186,10 @@ class Transaksi extends CI_Controller
 			);
 
 			// ETA 1
-			$eta1 = $this->db->query("SELECT so.* FROM trs_po_detail ps
+			$eta1 = $this->db->query("SELECT so.*,c.abaikan FROM trs_po_detail ps
 			INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
 			INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
+			INNER JOIN m_pelanggan c ON ps.id_pelanggan=c.id_pelanggan
 			WHERE ps.id='$id'
 			GROUP BY so.id
 			ORDER BY so.urut_so ASC, so.rpt ASC
@@ -8196,9 +8213,9 @@ class Transaksi extends CI_Controller
 			// 		echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!'));
 			// 	}
 			// }else
-			if($waktu == 'EXPIRED' && $getData->row()->status_app3 == 'Y'){
+			if($waktu == 'EXPIRED' && $getData->row()->status_app3 == 'Y' && $eta1->abaikan == null){
 				echo json_encode(array('data' => false, 'msg' => 'EXPIRED!'));
-			}else if($_POST['fBagiQtySo'] < $eta1->qty_so){
+			}else if(($_POST['fBagiQtySo'] < $eta1->qty_so) && $eta1->abaikan == null){
 				echo json_encode(array('data' => false, 'msg' => 'QTY TAMBAHAN LEBIH KECIL DARI QTY ETA PERTAMA!'));
 			}else if($this->cart->total_items() != 0){
 				// foreach($this->cart->contents() as $r){
@@ -10224,16 +10241,22 @@ class Transaksi extends CI_Controller
 					($hariMinggu == "Sunday") ? $kk = '<span style="color:#f00">'.$i2.'</span>' : $kk = $i2;
 
 					if($id_sales == null || $id_sales == ''){
-						$count = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$tglSys' GROUP BY eta,urut");
-						$berat = $this->db->query("SELECT SUM(berat) AS berat FROM trs_dev_sys WHERE eta='$tglSys' GROUP BY eta")->row()->berat;
+						$count = $this->db->query("SELECT*FROM trs_dev_sys s
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND d.status='Approve' GROUP BY s.eta,s.urut");
+						$berat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND d.status='Approve' GROUP BY s.eta")->row()->berat;
 					}else{
 						$count = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND s.urut!='0'
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND s.urut!='0' AND d.status='Approve'
 						GROUP BY s.eta,s.urut");
 						$berat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales'
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve'
 						GROUP BY s.eta")->row()->berat;
 					}
 
@@ -10430,12 +10453,15 @@ class Transaksi extends CI_Controller
 				$html .= '</tr>';
 
 				if($id_sales == null || $id_sales == ''){
-					$urut = $this->db->query("SELECT SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s WHERE s.eta='$tgl' GROUP BY s.eta, s.urut, s.id_ex");
+					$urut = $this->db->query("SELECT SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s
+					INNER JOIN trs_po_detail p ON s.id_po_header=p.id
+					WHERE s.eta='$tgl' AND p.status='Approve' GROUP BY s.eta, s.urut, s.id_ex");
 					$wSls = "";
 				}else{
 					$urut = $this->db->query("SELECT SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s
 					INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
-					WHERE s.eta='$tgl' AND p.id_sales='$id_sales'
+					INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+					WHERE s.eta='$tgl' AND p.status='Approve' AND p.id_sales='$id_sales'
 					GROUP BY s.eta, s.urut, s.id_ex");
 					$wSls = "AND c.id_sales='$id_sales'";
 				}
@@ -10508,11 +10534,11 @@ class Transaksi extends CI_Controller
 						$html .= '</tr>';
 					}
 
-					$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,c.prov,c.kab,c.lock,p.kode_po,i.*,d.* FROM trs_dev_sys d
+					$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,c.prov,c.kab,c.lock,p.kode_po,p.status AS sts,i.*,d.* FROM trs_dev_sys d
 					INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
 					INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 					INNER JOIN m_produk i ON d.id_produk=i.id_produk
-					WHERE d.eta='$u->eta' AND d.urut='$u->urut' $wSls
+					WHERE d.eta='$u->eta' AND d.urut='$u->urut' AND p.status='Approve' $wSls
 					GROUP BY d.id_dev,d.id_pelanggan,p.kode_po,d.id_produk
 					ORDER BY c.nm_pelanggan,p.kode_po,i.nm_produk");
 					$i = 0;
@@ -10586,6 +10612,7 @@ class Transaksi extends CI_Controller
 
 						// SUSULAN
 						($r->dev_stat != null) ? $devStat = ' <span class="bg-info" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$r->dev_stat.'</span>' : $devStat = '';
+						($r->sts == 'Close') ? $devCls = ' <span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">CLOSE</span>' : $devCls = '';
 
 						$html .= '<tr style="vertical-align:top">
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:center" '.$rkRS.'>
@@ -10593,7 +10620,7 @@ class Transaksi extends CI_Controller
 							</td>
 							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$r->nm_pelanggan.$kota.$devStat.$attn.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:center" '.$rkRS.'>'.$lamaK.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$r->kode_po.'</td>
+							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$r->kode_po.$devCls.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->qty_plan, 0, ',', '.').'</td>
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:center" '.$rkRS.'>'.$r->berat_bersih.'</td>

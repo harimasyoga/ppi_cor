@@ -501,6 +501,17 @@
 								<div class="col-md-2"></div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">STATUS ROLL</div>
+								<div class="col-md-8">
+									<select id="lap_roll" class="form-control select2" disabled>
+										<option value="STOK">STOK</option>
+										<option value="BUFFER">BUFFER</option>
+										<option value="">SEMUA</option>
+									</select>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 								<div class="col-md-2"></div>
 								<div class="col-md-10">
 									<button type="button" class="btn btn-sm btn-primary" onclick="cariLaporanPORoll()"><b>CARI</b></button>
@@ -1316,6 +1327,7 @@
 		$("#lap_ukuran").val('').prop('disabled', (id_pt == '') ? true : false)
 		$("#lap_group").val('').prop('disabled', (id_pt == '') ? true : false).trigger('change')
 		$("#lap_order").val('').prop('disabled', (id_pt == '') ? true : false).trigger('change')
+		$("#lap_roll").val('STOK').prop('disabled', (id_pt == '') ? true : false).trigger('change')
 	}
 
 	function plhStatus()
@@ -1342,6 +1354,7 @@
 		let status = $("#lap_status").val()
 		let no_po = $("#lap_no_po").val()
 		let order = $("#lap_order").val()
+		let lap_roll = $("#lap_roll").val()
 		let group = $("#lap_group").val()
 		let opsi = $("#lap_opsi").val()
 		let jenis = $("#lap_jenis").val()
@@ -1360,7 +1373,7 @@
 					}
 				})
 			},
-			data: ({ id_pt, status, no_po, group, order, opsi, jenis, gsm, ukuran }),
+			data: ({ id_pt, status, no_po, group, order, lap_roll, opsi, jenis, gsm, ukuran }),
 			success: function(res){
 				data = JSON.parse(res)
 				$("#lap_list_po").html(data.html)
