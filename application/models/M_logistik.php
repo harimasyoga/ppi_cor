@@ -4526,6 +4526,7 @@ class M_logistik extends CI_Model
 				}
 				$dHead = [
 					'no_tt' => $noFIX,
+					'tipe_tt' => $jenis,
 					'tgl_tt' => $tgl,
 					'id_pelanggan' => $id_pelanggan,
 					'attn_tt' => $pelanggan->attn,

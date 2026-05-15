@@ -63,11 +63,12 @@
 								<table id="datatable" class="table table-bordered table-striped">
 									<thead class="color-tabel">
 										<tr>
-											<th style="padding:12px;text-align:center">NO.</th>
-											<th style="padding:12px 200px;text-align:center">DESKRIPSI</th>
-											<th style="padding:12px;text-align:center">NOMINAL</th>
-											<th style="padding:12px;text-align:center">CETAK</th>
-											<th style="padding:12px;text-align:center">AKSI</th>
+											<th style="width:1%;padding:12px;text-align:center">NO.</th>
+											<th style="padding:12px 100px;text-align:center">DESKRIPSI</th>
+											<th style="width:1%;padding:12px 55px;text-align:center">NOMINAL</th>
+											<th style="width:1%;padding:12px;text-align:center">KWITANSI</th>
+											<th style="width:1%;padding:12px;text-align:center">T.TERIMA</th>
+											<th style="width:1%;padding:12px;text-align:center">AKSI</th>
 										</tr>
 									</thead>
 									<tbody></tbody>
@@ -376,5 +377,9 @@
 				// kembali()
 			}
 		})
+	}
+
+	function editTT(no_tt) {
+		console.log(no_tt)
 	}
 </script>

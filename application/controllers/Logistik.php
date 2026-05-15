@@ -7969,10 +7969,56 @@ class Logistik extends CI_Controller
 				$i++;
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = '<div class="text-center">'.$r->no_tt.'</div>';
-				$row[] = '<div class="text-center">'.$r->total_tt.'</div>';
-				$row[] = '<div class="text-center"></div>';
-				$row[] = '<div class="text-center"></div>';
+				// DESKRIPSI
+				// INV / SJ
+				$qDtl = $this->db->query("SELECT*FROM tt_detail WHERE no_tt='$r->no_tt' ORDER BY no_invoice");
+				$htmlDtl = '';
+				$htmlDtl .= '<table>';
+					$sumTotal = 0;
+					foreach($qDtl->result() as $d){
+						$htmlDtl .= '<tr style="background-color: transparent !important">
+							<td style="padding:3px 0;border:none">'.$d->no_invoice.'</td>
+							<td style="padding:3px 7px;border:none">-</td>
+							<td style="padding:3px 0;border:none">'.$d->no_surat.'</td>
+							<td style="padding:3px 7px;border:none">-</td>
+							<td style="padding:3px 0;border:none;text-align:right">'.number_format($d->nominal_inv, 0, ',', '.').'</td>
+						</tr>';
+						$sumTotal += $d->nominal_inv;
+					}
+					// TOTAL
+					// $htmlDtl .= '<tr style="background-color: transparent !important">
+					// 	<td style="padding:3px 0;border:none" colspan="4"></td>
+					// 	<td style="padding:3px 0;border:none;text-align:right">'.number_format($sumTotal, 0, ',', '.').'</td>
+					// </tr>';
+				$htmlDtl .= '</table>';
+				$row[] = '
+					<table>
+						<tr style="background-color: transparent !important">
+							<td style="padding:2px;border:none"><b>TANGGAL</b></td>
+							<td style="padding:2px;border:none">:</td>
+							<td style="padding:2px;border:none">'.$r->tgl_tt.'</td>
+						</tr>
+						<tr style="background-color: transparent !important">
+							<td style="padding:2px;border:none"><b>CUSTOMER</b></td>
+							<td style="padding:2px;border:none">:</td>
+							<td style="padding:2px;border:none">'.$r->nm_pelanggan_tt.'</td>
+						</tr>
+						<tr style="background-color: transparent !important">
+							<td style="padding:2px;border:none"></td>
+							<td style="padding:2px;border:none"></td>
+							<td style="padding:2px;border:none">'.$htmlDtl.'</td>
+						</tr>
+					</table>';
+				$row[] = '<div style="font-weight:bold;text-align:right">'.number_format($r->total_tt, 0, ',', '.').'</div>';
+				//
+				$ctkKwitansi ='<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/Cetak_Kwitansi?no_tt=".$r->no_tt."") . '" title="CETAK KWITANSI" ><b><i class="fa fa-print"></i> </b></a>';
+				$ctkTT ='<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Logistik/Cetak_TT?no_tt=".$r->no_tt."") . '" title="CETAK TANDA TERIMA" ><b><i class="fa fa-print"></i> </b></a>';
+				$row[] = '<div class="text-center">'.$ctkKwitansi.'</div>';
+				$row[] = '<div class="text-center">'.$ctkTT.'</div>';
+				// aksi
+				$row[] = '<div class="text-center">
+					<button class="btn btn-sm btn-warning" onclick="editTT('."'".$r->id_tt."'".')"><i class="fa fa-edit"></i></button>
+				</div>';
 				$data[] = $row;
 			}
 		}
@@ -7982,6 +8028,28 @@ class Logistik extends CI_Controller
 		);
 		//output to json format
 		echo json_encode($output);
+	}
+
+	function Cetak_Kwitansi()
+	{
+		$html = '';
+		$no_tt = $_GET["no_tt"];
+		
+		$html .= $no_tt;
+
+		$judul = 'KWITANSI';
+		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
+	}
+
+	function Cetak_TT()
+	{
+		$html = '';
+		$no_tt = $_GET["no_tt"];
+		
+		$html .= $no_tt;
+
+		$judul = 'TANDA TERIMA';
+		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 	}
 	
 	function load_invoice()
