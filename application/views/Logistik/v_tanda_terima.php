@@ -90,6 +90,9 @@
 								<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+								<input type="hidden" id="h_id_tt" value="">
+								<input type="hidden" id="h_tipe" value="">
+								<input type="hidden" id="h_id_pelanggan" value="">
 								<div class="col-md-2">TANGGAL</div>
 								<div class="col-md-3">
 									<input type="date" id="tgl" class="form-control">
@@ -110,6 +113,9 @@
 							<div class="axs akses_cust"></div>
 							<div class="axs akses_sj_inv"></div>
 							<div class="axs akses_add"></div>
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="axs akses_list_edit"></div>
+							</div>
 							<input type="hidden" id="cart-akses" value="">
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="axs akses_list"></div>
@@ -174,11 +180,11 @@
 		$("#cart-akses").load("<?php echo base_url('Logistik/destroyAkses') ?>")
 		$("#tgl").val('')
 		$("#slt_jenis").val('').prop('disabled', false).trigger('change')
-		$(".akses_cust").html('')
-		$(".akses_sj_inv").html('')
-		$(".akses_add").html('')
-		$(".akses_list").html('')
-		$(".akses_simpan").html('')
+		$(".axs").html('')
+
+		$("#h_id_tt").val('')
+		$("#h_tipe").val('')
+		$("#h_id_pelanggan").val('')
 	}
 
 	function tambahData() {
@@ -196,10 +202,7 @@
 
 	function loadCustAkses() {
 		let jenis = $("#slt_jenis").val()
-		$(".akses_cust").html('')
-		$(".akses_sj_inv").html('')
-		$(".akses_add").html('')
-		$(".akses_simpan").html('')
+		$(".axs").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadCustAkses') ?>',
 			type: "POST",
@@ -216,8 +219,10 @@
 			},
 			success: function(res) {
 				data = JSON.parse(res)
-				$(".akses_cust").html(data.htmlCust)
-				$('.select2').select2()
+				if(statusInput == 'insert'){
+					$(".akses_cust").html(data.htmlCust)
+					$('.select2').select2()
+				}
 				swal.close()
 			}
 		})
@@ -350,6 +355,7 @@
 	}
 
 	function simpanAkses() {
+		let id_tt = $("#h_id_tt").val()
 		let jenis = $("#slt_jenis").val()
 		let tgl = $("#tgl").val()
 		let id_pelanggan = $("#axs_cust").val()
@@ -358,7 +364,7 @@
 			url: '<?php echo base_url('Logistik/simpanAksesTT') ?>',
 			type: "POST",
 			data: ({
-				jenis, tgl, id_pelanggan
+				id_tt, jenis, tgl, id_pelanggan, statusInput
 			}),
 			// beforeSend: function() {
 			// 	swal({
@@ -373,13 +379,62 @@
 			success: function(res) {
 				data = JSON.parse(res)
 				console.log(data)
-				// toastr.success(`<b>BERHASIL!</b>`)
-				// kembali()
+				if(data.data){
+					toastr.success(`<b>BERHASIL!</b>`)
+					kembali()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
 			}
 		})
 	}
 
-	function editTT(no_tt) {
-		console.log(no_tt)
+	function editTT(id_tt) {
+		console.log(id_tt)
+		statusInput = 'update'
+		$.ajax({
+			url: '<?php echo base_url('Logistik/editTT') ?>',
+			type: "POST",
+			data: ({
+				id_tt
+			}),
+			success: function(res) {
+				data = JSON.parse(res)
+				console.log(data)
+				$("#h_id_tt").val(data.header.id_tt)
+				$("#h_tipe").val(data.header.tipe_tt)
+				$("#h_id_pelanggan").val(data.header.id_pelanggan)
+
+				$("#tgl").val(data.header.tgl_tt)
+				$("#slt_jenis").val(data.header.tipe_tt).prop('disabled', true).trigger('change')
+				
+				$(".akses_list_edit").html(data.htmlDtl)
+				$(".akses_cust").html(data.htmlCust)
+				$(".akses_sj_inv").html(data.htmlSJInv)
+
+				$(".akses_simpan").html(`<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanAkses()"><i class="fas fa-save"></i> SIMPAN</button>`);
+				
+				$('.select2').select2()
+			}
+		})
+	}
+
+	function batatEditTT(id_td) {
+		let id_tt = $("#h_id_tt").val()
+		console.log(id_td)
+		$.ajax({
+			url: '<?php echo base_url('Logistik/batatEditTT') ?>',
+			type: "POST",
+			data: ({
+				id_tt, id_td
+			}),
+			success: function(res) {
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.data){
+					editTT(id_tt)
+				}
+			}
+		})
 	}
 </script>

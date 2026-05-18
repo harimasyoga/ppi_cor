@@ -5180,6 +5180,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function batatEditTT()
+	{
+		$result = $this->m_logistik->batatEditTT();
+		echo json_encode($result);
+	}
+
 	function loadCustAkses()
 	{
 		$jenis = $_POST["jenis"];
@@ -5190,17 +5196,15 @@ class Logistik extends CI_Controller
 				<div class="col-md-10">
 					<select id="axs_cust" class="form-control select2" onchange="loadSJInvAkses()">
 						<option value="">PILIH</option>';
-						if($jenis == 'BOX'){
-							$cust = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan, attn");
-						}else{
-							$cust = $this->db->query("SELECT id AS id_pelanggan,nm_perusahaan AS nm_pelanggan, pimpinan AS attn FROM m_perusahaan WHERE jns='ROLL'ORDER BY nm_perusahaan, pimpinan");
-						}
-						
+							if($jenis == 'BOX'){
+								$cust = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan, attn");
+							}else{
+								$cust = $this->db->query("SELECT id AS id_pelanggan,nm_perusahaan AS nm_pelanggan, pimpinan AS attn FROM m_perusahaan WHERE jns='ROLL' ORDER BY nm_perusahaan, pimpinan");
+							}
 							foreach($cust->result() as $r){
 								($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
 								$htmlCust .= '<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.$attn.'</option>';
 							}
-						
 					$htmlCust .= '</select>
 				</div>
 			</div>';
@@ -8030,12 +8034,136 @@ class Logistik extends CI_Controller
 		echo json_encode($output);
 	}
 
+	function editTT()
+	{
+		$id_tt = $_POST["id_tt"];
+
+		$header = $this->db->query("SELECT*FROM tt_header WHERE id_tt='$id_tt'")->row();
+		$detail = $this->db->query("SELECT*FROM tt_detail WHERE no_tt='$header->no_tt' ORDER BY no_invoice");
+
+		$htmlDtl = '';
+		$htmlDtl .='<div style="font-weight:bold;margin:12px 0 0">LIST :</div>
+		<table style="margin:0 0 12px">
+			<tr style="background:#dee2e6">
+				<th style="padding:6px;border:1px solid #bbb;text-align:center">NO.</th>
+				<th style="padding:6px;border:1px solid #bbb">TYPE</th>
+				<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
+				<th style="padding:6px;border:1px solid #bbb">NO. INVOICE</th>
+				<th style="padding:6px;border:1px solid #bbb">NO. SURAT JALAN</th>
+				<th style="padding:6px;border:1px solid #bbb">NOMINAL</th>
+				<th style="padding:6px;border:1px solid #bbb;text-align:center">AKSI</th>
+			</tr>';
+			$i = 0;
+			$sumMutasi = 0;
+			foreach($detail->result() as $r){
+				$i++;
+				if($header->tipe_tt == 'BOX'){
+					$nm_pelanggan = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$header->id_pelanggan'")->row()->nm_pelanggan;
+				}else{
+					$nm_pelanggan = $this->db->query("SELECT nm_perusahaan AS nm_pelanggan FROM m_perusahaan WHERE jns='ROLL' AND id='$header->id_pelanggan'")->row()->nm_pelanggan;
+				}
+				// AKSI
+				if($detail->num_rows() > 1){
+					$ocEdit = 'onclick="batatEditTT('."'".$r->id_td."'".')"';
+				}else{
+					$ocEdit = 'disabled';
+				}
+				$htmlDtl .= '<tr>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.strtoupper($header->tipe_tt).'</td>
+					<td style="border:1px solid #dee2e6;padding:6px">'.$nm_pelanggan.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px">'.$r->no_invoice.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px">'.$r->no_surat.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($r->nominal_inv, 0, ',', '.').'</td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
+						<button type="button" class="btn btn-sm btn-danger btn-block" '.$ocEdit.'>batal</button>
+					</td>
+				</tr>';
+				$sumMutasi += ($r->nominal_inv == null) ? 0 : $r->nominal_inv;
+			}
+			// TOTAL
+			if($detail->num_rows() > 1){
+				$htmlDtl .='<tr style="background:#dee2e6">
+					<td style="border:1px solid #bbb;font-weight:bold;padding:6px;text-align:right" colspan="5">TOTAL</td>
+					<td style="border:1px solid #bbb;font-weight:bold;padding:6px;text-align:right">'.number_format($sumMutasi, 0, ',', '.').'</td>
+					<td style="border:1px solid #bbb;font-weight:bold;padding:6px"></td>
+				</tr>';
+			}
+		$htmlDtl .= '</table>';
+
+		$htmlCust = '';
+		$htmlCust .= '<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+			<div class="col-md-2">CUSTOMER</div>
+			<div class="col-md-10">
+				<select id="axs_cust" class="form-control select2" disabled>';
+					if($header->tipe_tt == 'BOX'){
+						$cust = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$header->id_pelanggan' ORDER BY nm_pelanggan, attn");
+					}else{
+						$cust = $this->db->query("SELECT id AS id_pelanggan,nm_perusahaan AS nm_pelanggan, pimpinan AS attn FROM m_perusahaan WHERE jns='ROLL' AND id='$header->id_pelanggan' ORDER BY nm_perusahaan, pimpinan");
+					}
+					foreach($cust->result() as $r){
+						($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
+						$htmlCust .= '<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.$attn.'</option>';
+					}
+				$htmlCust .= '</select>
+			</div>
+		</div>';
+
+		$htmlSJInv = '';
+		$htmlSJInv .= '<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+			<div class="col-md-2">INV / SJ</div>
+			<div class="col-md-10">
+				<select id="axs_inv" class="form-control select2" onchange="btnCartAkses()">
+					<option value="">PILIH</option>';
+					if($header->tipe_tt == 'BOX'){
+						$wHere = "AND h.type!='ROLL'";
+					}else{
+						$wHere = "AND h.type='ROLL'";
+					}
+					$invSj = $this->db->query("SELECT LTRIM(d.no_surat) AS no_surat,h.* FROM invoice_header h
+					INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
+					WHERE h.id_perusahaan='$header->id_pelanggan' AND h.status_inv!='Approve' AND NOT EXISTS (SELECT*FROM tt_detail t WHERE h.no_invoice=t.no_invoice) $wHere
+					GROUP BY h.no_invoice,LTRIM(d.no_surat),h.id_perusahaan,h.id
+					ORDER BY h.tgl_invoice DESC,h.no_invoice DESC,LTRIM(d.no_surat) DESC");
+					if($invSj->num_rows() != 0){
+						foreach($invSj->result() as $r){
+							$htmlSJInv .= '<option value="'.$r->id.'">'.$r->no_invoice.' | '.$r->no_surat.'</option>';
+						}
+					}
+				$htmlSJInv .= '</select>
+			</div>
+		</div>';
+
+		echo json_encode([
+			'header' => $header,
+			'htmlDtl' => $htmlDtl,
+			'htmlCust' => $htmlCust,
+			'htmlSJInv' => $htmlSJInv,
+		]);
+	}
+
 	function Cetak_Kwitansi()
 	{
 		$html = '';
 		$no_tt = $_GET["no_tt"];
 		
-		$html .= $no_tt;
+		$html .= '<table style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
+			<thead>
+				<tr>
+					<td rowspan="3" align="center">
+						<img src="' . base_url() . 'assets/gambar/ppi.png"  width="80" height="70" />
+					</td>
+					<td style="font-size:20px;font-weight:bold">PT. PRIMA PAPER INDONESIA</td>
+				</tr>
+				<tr>
+					<td style="font-size:11px">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
+				</tr>
+				<tr>
+					<td style="font-size:11px">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
+				</tr>
+			</thead>
+			';
+		$html .= '</table>';
 
 		$judul = 'KWITANSI';
 		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
