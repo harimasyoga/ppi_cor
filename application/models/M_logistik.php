@@ -4478,10 +4478,13 @@ class M_logistik extends CI_Model
 		$jenis = $_POST["jenis"];
 		$tgl = $_POST["tgl"];
 		$id_pelanggan = $_POST["id_pelanggan"];
+		$bank = $_POST["bank"];
 		$statusInput = $_POST["statusInput"];
 		
 		if($tgl == ""){
 			$data = false; $msg = 'PILIH TGL!'; $iHeader = false; $iDetail = false;
+		}else if($bank == ""){
+			$data = false; $msg = 'PILIH BANK!'; $iHeader = false; $iDetail = false;
 		}else{
 			$tgl2 = explode('-', $tgl);
 			$bulan = $tgl2[1];
@@ -4506,12 +4509,13 @@ class M_logistik extends CI_Model
 			if($this->cart->total_items() != 0){
 				foreach($this->cart->contents() as $r){
 					$id_invoice = $r['options']['id_invoice'];
-					$inv = $this->db->query("SELECT LTRIM(d.no_surat) AS no_surat,h.* FROM invoice_header h
+					$inv = $this->db->query("SELECT LTRIM(d.no_surat) AS no_surat,d.type AS tpp,h.* FROM invoice_header h
 					INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
 					WHERE h.id='$id_invoice'
 					GROUP BY h.no_invoice,LTRIM(d.no_surat),h.id_perusahaan,h.id")->row();
 					$dDtl = [
 						'no_tt' => $noFIX,
+						'jenis_tt' => $inv->tpp,
 						'no_faktur' => $inv->no_faktur,
 						'no_invoice' => $inv->no_invoice,
 						'no_surat' => $inv->no_surat,
@@ -4542,7 +4546,7 @@ class M_logistik extends CI_Model
 						'nm_pelanggan_tt' => $pelanggan->nm_pelanggan,
 						'alamat_tt' => $pelanggan->alamat_kirim,
 						'total_tt' => $sumInv,
-						'bank_tt' => null,
+						'bank_tt' => ($bank == '') ? null : $bank,
 						'add_time' => date('Y-m-d H:i:s'),
 						'add_user' => $this->username,
 					];
@@ -4553,6 +4557,7 @@ class M_logistik extends CI_Model
 					$totInvEdit = $sumInv + $header->total_tt;
 					$this->db->set("tgl_tt", $tgl);
 					$this->db->set("total_tt", $totInvEdit);
+					$this->db->set("bank_tt", ($bank == '') ? null : $bank);
 					$this->db->where("id_tt", $id_tt);
 					$iHeader = $this->db->update("tt_header");
 					$msg = "EDIT DATA OK!";

@@ -5225,6 +5225,21 @@ class Logistik extends CI_Controller
 		$htmlSJInv = '';
 		if($jenis != ''){
 			$htmlSJInv .= '<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+				<div class="col-md-2">BANK</div>
+				<div class="col-md-10">
+					<select id="axs_bank" class="form-control select2">
+						<option value="">PILIH</option>';
+						$bank = $this->db->query("SELECT nm_bank, pajak, no_rek, an, email FROM m_no_rek
+						UNION ALL
+						SELECT CONCAT(nm_bank,'_',aka) AS nm_bank, 'NON' AS pajak, no_rek, CONCAT('CV. ',nm_hub) AS an, '' AS email FROM m_hub WHERE jns='BOX'
+						ORDER BY nm_bank");
+						foreach($bank->result() as $r){
+							$htmlSJInv .= '<option value="'.$r->nm_bank.'">'.$r->nm_bank.' | '.$r->no_rek.'</option>';
+						}
+					$htmlSJInv .= '</select>
+				</div>
+			</div>
+			<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
 				<div class="col-md-2">INV / SJ</div>
 				<div class="col-md-10">
 					<select id="axs_inv" class="form-control select2" onchange="btnCartAkses()">
@@ -8003,6 +8018,11 @@ class Logistik extends CI_Controller
 							<td style="padding:2px;border:none">'.$r->tgl_tt.'</td>
 						</tr>
 						<tr style="background-color: transparent !important">
+							<td style="padding:2px;border:none"><b>KEPADA</b></td>
+							<td style="padding:2px;border:none">:</td>
+							<td style="padding:2px;border:none">'.$r->attn_tt.'</td>
+						</tr>
+						<tr style="background-color: transparent !important">
 							<td style="padding:2px;border:none"><b>CUSTOMER</b></td>
 							<td style="padding:2px;border:none">:</td>
 							<td style="padding:2px;border:none">'.$r->nm_pelanggan_tt.'</td>
@@ -8109,6 +8129,23 @@ class Logistik extends CI_Controller
 			</div>
 		</div>';
 
+		$htmlBank = '';
+		$htmlBank .= '<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+			<div class="col-md-2">BANK</div>
+			<div class="col-md-10">
+				<select id="axs_bank" class="form-control select2">';
+					$bank = $this->db->query("SELECT nm_bank, pajak, no_rek, an, email FROM m_no_rek
+					UNION ALL
+					SELECT CONCAT(nm_bank,'_',aka) AS nm_bank, 'NON' AS pajak, no_rek, CONCAT('CV. ',nm_hub) AS an, '' AS email FROM m_hub WHERE jns='BOX'
+					ORDER BY nm_bank");
+					foreach($bank->result() as $r){
+						($r->nm_bank == $header->bank_tt) ? $std = 'selected' : $std = '';
+						$htmlBank .= '<option value="'.$r->nm_bank.'" '.$std.'>'.$r->nm_bank.' | '.$r->no_rek.'</option>';
+					}
+				$htmlBank .= '</select>
+			</div>
+		</div>';
+
 		$htmlSJInv = '';
 		$htmlSJInv .= '<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
 			<div class="col-md-2">INV / SJ</div>
@@ -8138,6 +8175,7 @@ class Logistik extends CI_Controller
 			'header' => $header,
 			'htmlDtl' => $htmlDtl,
 			'htmlCust' => $htmlCust,
+			'htmlBank' => $htmlBank,
 			'htmlSJInv' => $htmlSJInv,
 		]);
 	}
@@ -8146,26 +8184,103 @@ class Logistik extends CI_Controller
 	{
 		$html = '';
 		$no_tt = $_GET["no_tt"];
+
+		$header = $this->db->query("SELECT*FROM tt_header WHERE no_tt='$no_tt'")->row();
+		($header->attn_tt != '-') ? $attn = ' ( '.$header->attn_tt.' )' : $attn = '';
+		$detail = $this->db->query("SELECT*FROM tt_detail WHERE no_tt='$no_tt' ORDER BY jenis_tt DESC, no_surat");
 		
 		$html .= '<table style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
 			<thead>
 				<tr>
+					<td style="width:14%;padding:0;border:0"></td>
+					<td style="width:1%;padding:0;border:0"></td>
+					<td style="width:10%;padding:0;border:0"></td>
+					<td style="width:40%;padding:0;border:0"></td>
+					<td style="width:35%;padding:0;border:0"></td>
+				</tr>
+				<tr>
 					<td rowspan="3" align="center">
-						<img src="' . base_url() . 'assets/gambar/ppi.png"  width="80" height="70" />
+						<img src="'.base_url().'assets/gambar/ppi.png" width="80" height="70" />
 					</td>
-					<td style="font-size:20px;font-weight:bold">PT. PRIMA PAPER INDONESIA</td>
+					<td style="font-size:20px;font-weight:bold" colspan="4">PT. PRIMA PAPER INDONESIA</td>
 				</tr>
 				<tr>
-					<td style="font-size:11px">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
+					<td style="font-size:11px" colspan="4">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
 				</tr>
 				<tr>
-					<td style="font-size:11px">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
+					<td style="font-size:11px" colspan="4">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
+				</tr>
+				<tr>
+					<td style="background:#ddd;border:1px solid #000;padding:5px;font-size:14px;font-weight:bold;text-align:center" colspan="5">KWITANSI</td>
 				</tr>
 			</thead>
+			<tbody>
+				<tr>
+					<td style="padding:5px 0">Telah diterima dari</td>
+					<td style="padding:5px 0">:</td>
+					<td style="padding:5px 0" colspan="3">'.$header->nm_pelanggan_tt.$attn.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0 15px" colspan="2"></td>
+					<td style="padding:2px 0 15px" colspan="3">'.$header->alamat_tt.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0 12px">Terbilang</td>
+					<td style="padding:5px 0 12px">:</td>
+					<td style="padding:5px 0 12px;font-weight:bold;font-style:italic;line-height:1.8" colspan="2">'.strtoupper($this->m_fungsi->terbilang($header->total_tt)).'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0">Untuk Pembayaran</td>
+					<td style="padding:5px 0">:</td>
+					<td style="padding:5px 0" colspan="3">';
+						$html .= '<table>';
+							foreach($detail->result() as $r){
+								$html .='<tr>
+									<td style="padding:0 0 8px">'.ucfirst($r->jenis_tt).' Nomor '.$r->no_surat.'</td>
+								</tr>';
+							}
+						$html .= '</table>';
+					$html .= '</td>
+				</tr>';
+
+				$bank = $this->db->query("SELECT*FROM m_no_rek WHERE nm_bank='$header->bank_tt'");
+				if($bank->num_rows() != 0){
+					$nm_bank = $bank->row()->txt_bank.' '.$bank->row()->no_rek;
+					$an_bank = $bank->row()->an;
+				}else{
+					$hub = $this->db->query("SELECT nm_bank, no_rek, CONCAT('CV. ',nm_hub) AS an, '' AS email FROM m_hub WHERE CONCAT(nm_bank,'_',aka)='$header->bank_tt'");
+					if($hub->num_rows() != 0){
+						$nm_bank = $hub->row()->nm_bank.' '.$hub->row()->no_rek;
+						$an_bank = $hub->row()->an;
+					}else{
+						$nm_bank = '';
+						$an_bank = '';
+					}
+				}
+
+				$html .= '<tr>
+					<td style="padding:5px 0" colspan="4">Pembayaran Full Amount ditransfer ke :</td>
+					<td style="padding:5px 0;text-align:center">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($header->tgl_tt).'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0" colspan="4">'.$nm_bank.'</td>
+					<td style="padding:5px 0"></td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0 25px" colspan="4">A.n '.$an_bank.'</td>
+					<td style="padding:5px 0 25px"></td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0;border:1px solid #000;text-align:center;font-weight:bold" colspan="3">Rp. '.number_format($header->total_tt).'</td>
+					<td style="padding:5px 0"></td>
+					<td style="padding:5px 0;text-align:center">Finance</td>
+				</tr>
+			</tbody>
 			';
 		$html .= '</table>';
 
 		$judul = 'KWITANSI';
+		// echo $html;
 		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
 	}
 

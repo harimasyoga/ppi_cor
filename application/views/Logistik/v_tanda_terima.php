@@ -111,6 +111,7 @@
 								<div class="col-md-7"></div>
 							</div>
 							<div class="axs akses_cust"></div>
+							<div class="axs akses_bank"></div>
 							<div class="axs akses_sj_inv"></div>
 							<div class="axs akses_add"></div>
 							<div style="overflow:auto;white-space:nowrap">
@@ -359,12 +360,13 @@
 		let jenis = $("#slt_jenis").val()
 		let tgl = $("#tgl").val()
 		let id_pelanggan = $("#axs_cust").val()
+		let bank = $("#axs_bank").val()
 		$(".akses_simpan").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/simpanAksesTT') ?>',
 			type: "POST",
 			data: ({
-				id_tt, jenis, tgl, id_pelanggan, statusInput
+				id_tt, jenis, tgl, id_pelanggan, bank, statusInput
 			}),
 			// beforeSend: function() {
 			// 	swal({
@@ -410,6 +412,7 @@
 				
 				$(".akses_list_edit").html(data.htmlDtl)
 				$(".akses_cust").html(data.htmlCust)
+				$(".akses_bank").html(data.htmlBank)
 				$(".akses_sj_inv").html(data.htmlSJInv)
 
 				$(".akses_simpan").html(`<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanAkses()"><i class="fas fa-save"></i> SIMPAN</button>`);
