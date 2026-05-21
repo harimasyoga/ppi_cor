@@ -807,8 +807,14 @@ class M_fungsi extends CI_Model {
 			$orr = array(210, 330);
 		}else if($kertas == 'A4'){ // A4
 			$orr = array(210, 297);
-		}else{ //TT
+		}else if($kertas == 'KWITANSI'){ // A4
+			$orr = array(210, 148.5);
+		}else if($kertas == 'TANDATERIMA'){ // A4
+			$orr = array(148.5, 210);
+		}else if($kertas == 'TT'){ // A4
 			$orr = array(95, 138);
+		}else{ //def A4
+			$orr = array(210, 297);
 		}
 
 		$this->mpdf->AddPageByArray(array(

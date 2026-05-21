@@ -4479,10 +4479,13 @@ class M_logistik extends CI_Model
 		$tgl = $_POST["tgl"];
 		$id_pelanggan = $_POST["id_pelanggan"];
 		$bank = $_POST["bank"];
+		$pajak = $_POST["pajak"];
 		$statusInput = $_POST["statusInput"];
 		
 		if($tgl == ""){
 			$data = false; $msg = 'PILIH TGL!'; $iHeader = false; $iDetail = false;
+		}else if($pajak == ""){
+			$data = false; $msg = 'PILIH PAJAK!'; $iHeader = false; $iDetail = false;
 		}else if($bank == ""){
 			$data = false; $msg = 'PILIH BANK!'; $iHeader = false; $iDetail = false;
 		}else{
@@ -4516,6 +4519,8 @@ class M_logistik extends CI_Model
 					$dDtl = [
 						'no_tt' => $noFIX,
 						'jenis_tt' => $inv->tpp,
+						'tgl_invoice' => $inv->tgl_invoice,
+						'tgl_jatuh_tempo' => $inv->tgl_jatuh_tempo,
 						'no_faktur' => $inv->no_faktur,
 						'no_invoice' => $inv->no_invoice,
 						'no_surat' => $inv->no_surat,
@@ -4547,6 +4552,7 @@ class M_logistik extends CI_Model
 						'alamat_tt' => $pelanggan->alamat_kirim,
 						'total_tt' => $sumInv,
 						'bank_tt' => ($bank == '') ? null : $bank,
+						'pajak_tt' => $pajak,
 						'add_time' => date('Y-m-d H:i:s'),
 						'add_user' => $this->username,
 					];
@@ -4558,6 +4564,7 @@ class M_logistik extends CI_Model
 					$this->db->set("tgl_tt", $tgl);
 					$this->db->set("total_tt", $totInvEdit);
 					$this->db->set("bank_tt", ($bank == '') ? null : $bank);
+					$this->db->set("pajak_tt", $pajak);
 					$this->db->where("id_tt", $id_tt);
 					$iHeader = $this->db->update("tt_header");
 					$msg = "EDIT DATA OK!";
@@ -4571,6 +4578,26 @@ class M_logistik extends CI_Model
 			'msg' => $msg,
 			'iHeader' => $iHeader,
 			'iDetail' => $iDetail,
+		];
+	}
+
+	function editNoFak()
+	{
+		$e_faktur = $_POST["e_faktur"];
+		$id_td = $_POST["id_td"];
+
+		if($e_faktur < 0){
+			$data = false; $msg = 'INPUT SALAH!';
+		}else{
+			$this->db->set("no_faktur", ($e_faktur == "") ? null : $e_faktur);
+			$this->db->where("id_td", $id_td);
+			$data = $this->db->update("tt_detail");
+			$msg = 'BERHASIL!';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
 		];
 	}
 

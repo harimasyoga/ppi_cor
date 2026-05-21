@@ -111,6 +111,7 @@
 								<div class="col-md-7"></div>
 							</div>
 							<div class="axs akses_cust"></div>
+							<div class="axs akses_pajak"></div>
 							<div class="axs akses_bank"></div>
 							<div class="axs akses_sj_inv"></div>
 							<div class="axs akses_add"></div>
@@ -361,12 +362,13 @@
 		let tgl = $("#tgl").val()
 		let id_pelanggan = $("#axs_cust").val()
 		let bank = $("#axs_bank").val()
+		let pajak = $("#axs_pajak").val()
 		$(".akses_simpan").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/simpanAksesTT') ?>',
 			type: "POST",
 			data: ({
-				id_tt, jenis, tgl, id_pelanggan, bank, statusInput
+				id_tt, jenis, tgl, id_pelanggan, bank, pajak, statusInput
 			}),
 			// beforeSend: function() {
 			// 	swal({
@@ -386,6 +388,7 @@
 					kembali()
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
+					$(".akses_simpan").html(`<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanAkses()"><i class="fas fa-save"></i> SIMPAN</button>`);
 				}
 			}
 		})
@@ -411,6 +414,7 @@
 				$("#slt_jenis").val(data.header.tipe_tt).prop('disabled', true).trigger('change')
 				
 				$(".akses_list_edit").html(data.htmlDtl)
+				$(".akses_pajak").html(data.htmlPajak)
 				$(".akses_cust").html(data.htmlCust)
 				$(".akses_bank").html(data.htmlBank)
 				$(".akses_sj_inv").html(data.htmlSJInv)
@@ -418,6 +422,25 @@
 				$(".akses_simpan").html(`<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanAkses()"><i class="fas fa-save"></i> SIMPAN</button>`);
 				
 				$('.select2').select2()
+			}
+		})
+	}
+
+	function editNoFak(id_td) {
+		let e_faktur = $("#e_faktur"+id_td).val()
+		console.log(e_faktur)
+		$.ajax({
+			url: '<?php echo base_url('Logistik/editNoFak') ?>',
+			type: "POST",
+			data: ({
+				e_faktur, id_td
+			}),
+			success: function(res) {
+				data = JSON.parse(res)
+				console.log(data)
+				// if(data.data){
+				// 	editTT(id_tt)
+				// }
 			}
 		})
 	}

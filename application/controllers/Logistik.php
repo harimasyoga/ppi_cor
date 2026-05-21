@@ -5180,6 +5180,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function editNoFak()
+	{
+		$result = $this->m_logistik->editNoFak();
+		echo json_encode($result);
+	}
+
 	function batatEditTT()
 	{
 		$result = $this->m_logistik->batatEditTT();
@@ -5225,16 +5231,26 @@ class Logistik extends CI_Controller
 		$htmlSJInv = '';
 		if($jenis != ''){
 			$htmlSJInv .= '<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+				<div class="col-md-2">PAJAK</div>
+				<div class="col-md-10">
+					<select id="axs_pajak" class="form-control select2">
+						<option value="">PILIH</option>
+						<option value="PPN">PPN</option>
+						<option value="NON">NON</option>
+					</select>
+				</div>
+			</div>
+			<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
 				<div class="col-md-2">BANK</div>
 				<div class="col-md-10">
 					<select id="axs_bank" class="form-control select2">
 						<option value="">PILIH</option>';
-						$bank = $this->db->query("SELECT nm_bank, pajak, no_rek, an, email FROM m_no_rek
+						$bank = $this->db->query("SELECT nm_bank, pajak, an, email FROM m_no_rek GROUP BY nm_bank
 						UNION ALL
-						SELECT CONCAT(nm_bank,'_',aka) AS nm_bank, 'NON' AS pajak, no_rek, CONCAT('CV. ',nm_hub) AS an, '' AS email FROM m_hub WHERE jns='BOX'
+						SELECT CONCAT(nm_bank,'_',aka) AS nm_bank, 'NON' AS pajak, CONCAT('CV. ',nm_hub) AS an, '' AS email FROM m_hub WHERE jns='BOX'
 						ORDER BY nm_bank");
 						foreach($bank->result() as $r){
-							$htmlSJInv .= '<option value="'.$r->nm_bank.'">'.$r->nm_bank.' | '.$r->no_rek.'</option>';
+							$htmlSJInv .= '<option value="'.$r->nm_bank.'">'.$r->nm_bank.'</option>';
 						}
 					$htmlSJInv .= '</select>
 				</div>
@@ -8035,8 +8051,8 @@ class Logistik extends CI_Controller
 					</table>';
 				$row[] = '<div style="font-weight:bold;text-align:right">'.number_format($r->total_tt, 0, ',', '.').'</div>';
 				//
-				$ctkKwitansi ='<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/Cetak_Kwitansi?no_tt=".$r->no_tt."") . '" title="CETAK KWITANSI" ><b><i class="fa fa-print"></i> </b></a>';
-				$ctkTT ='<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Logistik/Cetak_TT?no_tt=".$r->no_tt."") . '" title="CETAK TANDA TERIMA" ><b><i class="fa fa-print"></i> </b></a>';
+				$ctkKwitansi ='<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/Cetak_Kwitansi?no_tt=".$r->no_tt."&p=KWITANSI") . '" title="CETAK KWITANSI" ><b><i class="fa fa-print"></i> </b></a>';
+				$ctkTT ='<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Logistik/Cetak_TT?no_tt=".$r->no_tt."&p=TANDATERIMA") . '" title="CETAK TANDA TERIMA" ><b><i class="fa fa-print"></i> </b></a>';
 				$row[] = '<div class="text-center">'.$ctkKwitansi.'</div>';
 				$row[] = '<div class="text-center">'.$ctkTT.'</div>';
 				// aksi
@@ -8069,6 +8085,7 @@ class Logistik extends CI_Controller
 				<th style="padding:6px;border:1px solid #bbb">TYPE</th>
 				<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
 				<th style="padding:6px;border:1px solid #bbb">NO. INVOICE</th>
+				<th style="padding:6px;border:1px solid #bbb">NO. FAKTUR</th>
 				<th style="padding:6px;border:1px solid #bbb">NO. SURAT JALAN</th>
 				<th style="padding:6px;border:1px solid #bbb">NOMINAL</th>
 				<th style="padding:6px;border:1px solid #bbb;text-align:center">AKSI</th>
@@ -8093,6 +8110,9 @@ class Logistik extends CI_Controller
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.strtoupper($header->tipe_tt).'</td>
 					<td style="border:1px solid #dee2e6;padding:6px">'.$nm_pelanggan.'</td>
 					<td style="border:1px solid #dee2e6;padding:6px">'.$r->no_invoice.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px">
+						<input type="number" style="border:0" id="e_faktur'.$r->id_td.'" value="'.$r->no_faktur.'" autocomplete="off" onchange="editNoFak('."'".$r->id_td."'".')">
+					</td>
 					<td style="border:1px solid #dee2e6;padding:6px">'.$r->no_surat.'</td>
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($r->nominal_inv, 0, ',', '.').'</td>
 					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
@@ -8104,7 +8124,7 @@ class Logistik extends CI_Controller
 			// TOTAL
 			if($detail->num_rows() > 1){
 				$htmlDtl .='<tr style="background:#dee2e6">
-					<td style="border:1px solid #bbb;font-weight:bold;padding:6px;text-align:right" colspan="5">TOTAL</td>
+					<td style="border:1px solid #bbb;font-weight:bold;padding:6px;text-align:right" colspan="6">TOTAL</td>
 					<td style="border:1px solid #bbb;font-weight:bold;padding:6px;text-align:right">'.number_format($sumMutasi, 0, ',', '.').'</td>
 					<td style="border:1px solid #bbb;font-weight:bold;padding:6px"></td>
 				</tr>';
@@ -8129,18 +8149,37 @@ class Logistik extends CI_Controller
 			</div>
 		</div>';
 
+		$htmlPajak = '';
+		$htmlPajak .= '<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+			<div class="col-md-2">PAJAK</div>
+			<div class="col-md-10">
+				<select id="axs_pajak" class="form-control select2">
+					<option value="">PILIH</option>';
+					if($header->pajak_tt == 'NON'){
+						$htmlPajak .='<option value="PPN">PPN</option>
+						<option value="NON" selected>NON</option>';
+					}
+					if($header->pajak_tt == 'PPN'){
+						$htmlPajak .='<option value="PPN" selected>PPN</option>
+						<option value="NON">NON</option>';
+					}
+				$htmlPajak .='</select>
+			</div>
+		</div>';
+
 		$htmlBank = '';
 		$htmlBank .= '<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
 			<div class="col-md-2">BANK</div>
 			<div class="col-md-10">
-				<select id="axs_bank" class="form-control select2">';
-					$bank = $this->db->query("SELECT nm_bank, pajak, no_rek, an, email FROM m_no_rek
+				<select id="axs_bank" class="form-control select2">
+					<option value="">PILIH</option>';
+					$bank = $this->db->query("SELECT nm_bank, pajak, an, email FROM m_no_rek GROUP BY nm_bank
 					UNION ALL
-					SELECT CONCAT(nm_bank,'_',aka) AS nm_bank, 'NON' AS pajak, no_rek, CONCAT('CV. ',nm_hub) AS an, '' AS email FROM m_hub WHERE jns='BOX'
+					SELECT CONCAT(nm_bank,'_',aka) AS nm_bank, 'NON' AS pajak, CONCAT('CV. ',nm_hub) AS an, '' AS email FROM m_hub WHERE jns='BOX'
 					ORDER BY nm_bank");
 					foreach($bank->result() as $r){
 						($r->nm_bank == $header->bank_tt) ? $std = 'selected' : $std = '';
-						$htmlBank .= '<option value="'.$r->nm_bank.'" '.$std.'>'.$r->nm_bank.' | '.$r->no_rek.'</option>';
+						$htmlBank .= '<option value="'.$r->nm_bank.'" '.$std.'>'.$r->nm_bank.'</option>';
 					}
 				$htmlBank .= '</select>
 			</div>
@@ -8175,6 +8214,7 @@ class Logistik extends CI_Controller
 			'header' => $header,
 			'htmlDtl' => $htmlDtl,
 			'htmlCust' => $htmlCust,
+			'htmlPajak' => $htmlPajak,
 			'htmlBank' => $htmlBank,
 			'htmlSJInv' => $htmlSJInv,
 		]);
@@ -8184,6 +8224,7 @@ class Logistik extends CI_Controller
 	{
 		$html = '';
 		$no_tt = $_GET["no_tt"];
+		$p = $_GET["p"];
 
 		$header = $this->db->query("SELECT*FROM tt_header WHERE no_tt='$no_tt'")->row();
 		($header->attn_tt != '-') ? $attn = ' ( '.$header->attn_tt.' )' : $attn = '';
@@ -8218,7 +8259,7 @@ class Logistik extends CI_Controller
 				<tr>
 					<td style="padding:5px 0">Telah diterima dari</td>
 					<td style="padding:5px 0">:</td>
-					<td style="padding:5px 0" colspan="3">'.$header->nm_pelanggan_tt.$attn.'</td>
+					<td style="padding:5px 0;font-weight:bold" colspan="3">'.$header->nm_pelanggan_tt.$attn.'</td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0 15px" colspan="2"></td>
@@ -8243,7 +8284,28 @@ class Logistik extends CI_Controller
 					$html .= '</td>
 				</tr>';
 
-				$bank = $this->db->query("SELECT*FROM m_no_rek WHERE nm_bank='$header->bank_tt'");
+				// TAMBAH KOTAK KOSONG
+				if($detail->num_rows() == 1) {
+					$xx = 5;
+				}else if($detail->num_rows() == 2){
+					$xx = 4;
+				}else if($detail->num_rows() == 3){
+					$xx = 3;
+				}else if($detail->num_rows() == 4){
+					$xx = 2;
+				}else if($detail->num_rows() == 5){  
+					$xx = 1;
+				}
+				if($detail->num_rows() <= 5) {
+					for($i = 0; $i < $xx; $i++){
+						$html .= '<tr>
+							<td style="border:0;padding:20px 0 0" colspan="2"></td>
+							<td style="border:0;padding:20px 0 0" colspan="3"></td>
+						</tr>';
+					}
+				}
+
+				$bank = $this->db->query("SELECT*FROM m_no_rek WHERE nm_bank='$header->bank_tt' AND pajak='$header->pajak_tt'");
 				if($bank->num_rows() != 0){
 					$nm_bank = $bank->row()->txt_bank.' '.$bank->row()->no_rek;
 					$an_bank = $bank->row()->an;
@@ -8267,8 +8329,8 @@ class Logistik extends CI_Controller
 					<td style="padding:5px 0"></td>
 				</tr>
 				<tr>
-					<td style="padding:5px 0 25px" colspan="4">A.n '.$an_bank.'</td>
-					<td style="padding:5px 0 25px"></td>
+					<td style="padding:5px 0 35px" colspan="4">A.n '.$an_bank.'</td>
+					<td style="padding:5px 0 35px"></td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0;border:1px solid #000;text-align:center;font-weight:bold" colspan="3">Rp. '.number_format($header->total_tt).'</td>
@@ -8281,18 +8343,165 @@ class Logistik extends CI_Controller
 
 		$judul = 'KWITANSI';
 		// echo $html;
-		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
+		$this->m_fungsi->newMpdf($judul, '', $html, 3, 5, 3, 5, 'P', $p, $judul.'.pdf');
 	}
 
 	function Cetak_TT()
 	{
 		$html = '';
 		$no_tt = $_GET["no_tt"];
+		$p = $_GET["p"];
+
+		$header = $this->db->query("SELECT*FROM tt_header WHERE no_tt='$no_tt'")->row();
+		($header->attn_tt != '-') ? $attn = ' ( '.$header->attn_tt.' )' : $attn = '';
+		$detail = $this->db->query("SELECT*FROM tt_detail WHERE no_tt='$no_tt' ORDER BY jenis_tt DESC, no_invoice");
 		
-		$html .= $no_tt;
+		$html .= '<table style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
+			<thead>
+				<tr>
+					<td style="width:8%;padding:0;border:0"></td>
+					<td style="width:16%;padding:0;border:0"></td>
+					<td style="width:22%;padding:0;border:0"></td>
+					<td style="width:16%;padding:0;border:0"></td>
+					<td style="width:16%;padding:0;border:0"></td>
+					<td style="width:4%;padding:0;border:0"></td>
+					<td style="width:18%;padding:0;border:0"></td>
+				</tr>
+				<tr>
+					<td rowspan="3" align="center">
+						<img src="'.base_url().'assets/gambar/ppi.png" width="80" height="70" />
+					</td>
+					<td style="padding-left:10px;font-size:20px;font-weight:bold" colspan="6">PT. PRIMA PAPER INDONESIA</td>
+				</tr>
+				<tr>
+					<td style="padding-left:10px;font-size:11px" colspan="6">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
+				</tr>
+				<tr>
+					<td style="padding-left:10px;font-size:11px" colspan="6">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
+				</tr>
+				<tr>
+					<td style="background:#ddd;border:1px solid #000;padding:5px;font-size:14px;font-weight:bold;text-align:center" colspan="7">TANDA TERIMA INVOICE</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td style="padding:5px 0" colspan="7">Kepada Yth,</td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0;font-weight:bold" colspan="7">'.$header->nm_pelanggan_tt.$attn.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0 25px" colspan="7">Attn : ACCOUNTING / FINANCE</td>
+				</tr>
+				<tr>
+					<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000">NO</td>
+					<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000">TGL</td>
+					<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000">NO. INVOICE</td>
+					<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000">NO. FAKTUR</td>
+					<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000">JATUH TEMPO</td>
+					<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000" colspan="2">JUMLAH</td>
+				</tr>
+				<tr>
+					<td style="border-top:2px solid #000" colspan="7"></td>
+				</tr>';
+
+				// ISI
+				$i = 0;
+				$sumTot = 0;
+				foreach($detail->result() as $r){
+					$i++;
+					($r->no_faktur == null) ? $noFak = '-' : $noFak = substr($r->no_faktur, -5);
+					$html .= '<tr>
+						<td style="padding:5px;text-align:center">'.$i.'</td>
+						<td style="padding:5px;text-align:center">'.$this->m_fungsi->tglIndSkt($r->tgl_invoice).'</td>
+						<td style="padding:5px;text-align:center">'.$r->no_invoice.'</td>
+						<td style="padding:5px;text-align:center">'.$noFak.'</td>
+						<td style="padding:5px;text-align:center">'.$this->m_fungsi->tglIndSkt($r->tgl_jatuh_tempo).'</td>
+						<td style="padding:5px;text-align:center">Rp</td>
+						<td style="padding:5px;text-align:right">'.number_format($r->nominal_inv).'</td>
+					</tr>';
+					$sumTot += $r->nominal_inv;
+				}
+				$html .= '<tr>
+					<td style="padding:10px" colspan="7"></td>
+				</tr>';
+				// TOTAL
+				if($detail->num_rows() > 1){
+					$html .= '<tr>
+						<td style="padding:5px;border-top:1px solid #000" colspan="5"></td>
+						<td style="padding:5px;text-align:center;border-top:1px solid #000">Rp</td>
+						<td style="padding:5px;text-align:right;font-weight:bold;border-top:1px solid #000">'.number_format($sumTot).'</td>
+					</tr>
+					<tr>
+						<td style="border-top:2px solid #000" colspan="7"></td>
+					</tr>';
+				}
+
+				// TAMBAH KOTAK KOSONG
+				if($detail->num_rows() == 1) {
+					$xx = 5;
+				}else if($detail->num_rows() == 2){
+					$xx = 4;
+				}else if($detail->num_rows() == 3){
+					$xx = 3;
+				}else if($detail->num_rows() == 4){
+					$xx = 2;
+				}else if($detail->num_rows() == 5){  
+					$xx = 1;
+				}
+				if($detail->num_rows() <= 5) {
+					for($z = 0; $z < $xx; $z++){
+						$html .= '<tr>
+							<td style="border:0;padding:20px 0 0" colspan="2"></td>
+							<td style="border:0;padding:20px 0 0" colspan="3"></td>
+						</tr>';
+					}
+				}
+
+				// TTD
+				$bank = $this->db->query("SELECT*FROM m_no_rek WHERE nm_bank='$header->bank_tt' AND pajak='$header->pajak_tt'");
+				if($bank->num_rows() != 0){
+					$nm_bank = $bank->row()->txt_bank.' '.$bank->row()->no_rek;
+					$an_bank = $bank->row()->an;
+				}else{
+					$hub = $this->db->query("SELECT nm_bank, no_rek, CONCAT('CV. ',nm_hub) AS an, '' AS email FROM m_hub WHERE CONCAT(nm_bank,'_',aka)='$header->bank_tt'");
+					if($hub->num_rows() != 0){
+						$nm_bank = $hub->row()->nm_bank.' '.$hub->row()->no_rek;
+						$an_bank = $hub->row()->an;
+					}else{
+						$nm_bank = '';
+						$an_bank = '';
+					}
+				}
+
+				$html .= '<tr>
+					<td style="padding:20px 0 5px" colspan="7">Pembayaran Full Amount ditransfer ke :</td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0" colspan="7">'.$nm_bank.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0 20px" colspan="7">An. '.$an_bank.'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0 20px" colspan="7">* Mohon di ttd dan di kirim / email kembali ke primapaperin@gmail.com</td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0 70px;text-align:center" colspan="3">Penerima,</td>
+					<td style="padding:5px 0 70px" colspan="1"></td>
+					<td style="padding:5px 0 70px;text-align:center" colspan="3">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($header->tgl_tt).'</td>
+				</tr>
+				<tr>
+					<td style="padding:5px 0;text-align:center" colspan="3">Finance</td>
+					<td style="padding:5px 0" colspan="1"></td>
+					<td style="padding:5px 0;text-align:center" colspan="3">Finance</td>
+				</tr>';
+
+			$html .= '</tbody>';
+		$html .= '</table>';
 
 		$judul = 'TANDA TERIMA';
-		$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
+		$this->m_fungsi->newMpdf($judul, '', $html, 3, 5, 3, 5, 'P', $p, $judul.'.pdf');
 	}
 	
 	function load_invoice()
