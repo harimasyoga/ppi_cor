@@ -63,12 +63,13 @@
 								<table id="datatable" class="table table-bordered table-striped">
 									<thead class="color-tabel">
 										<tr>
-											<th style="width:1%;padding:12px;text-align:center">NO.</th>
+											<th style="text-align:center">NO.</th>
 											<th style="padding:12px 100px;text-align:center">DESKRIPSI</th>
-											<th style="width:1%;padding:12px 55px;text-align:center">NOMINAL</th>
-											<th style="width:1%;padding:12px;text-align:center">KWITANSI</th>
-											<th style="width:1%;padding:12px;text-align:center">T.TERIMA</th>
-											<th style="width:1%;padding:12px;text-align:center">AKSI</th>
+											<th style="text-align:center">TGL</th>
+											<th style="padding:12px 55px;text-align:center">NOMINAL</th>
+											<th style="text-align:center">KWITANSI</th>
+											<th style="text-align:center">T.TERIMA</th>
+											<th style="text-align:center">AKSI</th>
 										</tr>
 									</thead>
 									<tbody></tbody>
@@ -139,6 +140,7 @@
 
 	$(document).ready(function ()
 	{
+		$(".row-input").hide()
 		kosong()
 		load_data()
 		$('.select2').select2();
@@ -191,15 +193,15 @@
 
 	function tambahData() {
 		kosong()
-		// $(".row-list").hide()
-		// $(".row-input").show()
+		$(".row-list").hide()
+		$(".row-input").show()
 	}
 
 	function kembali() {
 		reloadTable()
 		kosong()
-		// $(".row-list").show()
-		// $(".row-input").hide()
+		$(".row-list").show()
+		$(".row-input").hide()
 	}
 
 	function loadCustAkses() {
@@ -336,7 +338,6 @@
 	}
 
 	function listCartAkses() {
-		$(".akses_list").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/listCartAkses') ?>',
 			type: "POST",
@@ -426,6 +427,34 @@
 		})
 	}
 
+	function hapusTT(id_tt) {
+		swal({
+			title : "Tanda Terima",
+			html : "<p>Hapus Data?</p>",
+			type : "question",
+			showCancelButton : true,
+			confirmButtonText : '<b>Hapus</b>',
+			cancelButtonText : '<b>Batal</b>',
+			confirmButtonClass : 'btn btn-success',
+			cancelButtonClass : 'btn btn-danger',
+			cancelButtonColor : '#d33'
+		}).then(() => {
+			$.ajax({
+				url: '<?php echo base_url('Logistik/hapusTT') ?>',
+				type: "POST",
+				data: ({
+					id_tt
+				}),
+				success: function(res) {
+					data = JSON.parse(res)
+					console.log(data)
+					toastr.success(`<b>BERHASIL HAPUS!</b>`)
+					reloadTable()
+				}
+			})
+		})
+	}
+
 	function editNoFak(id_td) {
 		let e_faktur = $("#e_faktur"+id_td).val()
 		console.log(e_faktur)
@@ -438,9 +467,11 @@
 			success: function(res) {
 				data = JSON.parse(res)
 				console.log(data)
-				// if(data.data){
-				// 	editTT(id_tt)
-				// }
+				if(data.data){
+					toastr.success(`<b>BERHASIL!</b>`)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
 			}
 		})
 	}

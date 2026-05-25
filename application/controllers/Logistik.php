@@ -5192,6 +5192,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function hapusTT()
+	{
+		$result = $this->m_logistik->hapusTT();
+		echo json_encode($result);
+	}
+
 	function loadCustAkses()
 	{
 		$jenis = $_POST["jenis"];
@@ -8009,7 +8015,6 @@ class Logistik extends CI_Controller
 				$qDtl = $this->db->query("SELECT*FROM tt_detail WHERE no_tt='$r->no_tt' ORDER BY no_invoice");
 				$htmlDtl = '';
 				$htmlDtl .= '<table>';
-					$sumTotal = 0;
 					foreach($qDtl->result() as $d){
 						$htmlDtl .= '<tr style="background-color: transparent !important">
 							<td style="padding:3px 0;border:none">'.$d->no_invoice.'</td>
@@ -8018,20 +8023,14 @@ class Logistik extends CI_Controller
 							<td style="padding:3px 7px;border:none">-</td>
 							<td style="padding:3px 0;border:none;text-align:right">'.number_format($d->nominal_inv, 0, ',', '.').'</td>
 						</tr>';
-						$sumTotal += $d->nominal_inv;
 					}
-					// TOTAL
-					// $htmlDtl .= '<tr style="background-color: transparent !important">
-					// 	<td style="padding:3px 0;border:none" colspan="4"></td>
-					// 	<td style="padding:3px 0;border:none;text-align:right">'.number_format($sumTotal, 0, ',', '.').'</td>
-					// </tr>';
 				$htmlDtl .= '</table>';
 				$row[] = '
 					<table>
 						<tr style="background-color: transparent !important">
-							<td style="padding:2px;border:none"><b>TANGGAL</b></td>
+							<td style="padding:2px;border:none"><b>NO</b></td>
 							<td style="padding:2px;border:none">:</td>
-							<td style="padding:2px;border:none">'.$r->tgl_tt.'</td>
+							<td style="padding:2px;border:none">'.$r->no_tt.'</td>
 						</tr>
 						<tr style="background-color: transparent !important">
 							<td style="padding:2px;border:none"><b>KEPADA</b></td>
@@ -8049,6 +8048,7 @@ class Logistik extends CI_Controller
 							<td style="padding:2px;border:none">'.$htmlDtl.'</td>
 						</tr>
 					</table>';
+				$row[] = '<div class="text-center" style="font-weight:bold;color:#f00">'.$r->tgl_tt.'</div>';
 				$row[] = '<div style="font-weight:bold;text-align:right">'.number_format($r->total_tt, 0, ',', '.').'</div>';
 				//
 				$ctkKwitansi ='<a target="_blank" class="btn btn-sm btn-primary" href="'.base_url("Logistik/Cetak_Kwitansi?no_tt=".$r->no_tt."&p=KWITANSI") . '" title="CETAK KWITANSI" ><b><i class="fa fa-print"></i> </b></a>';
@@ -8058,6 +8058,7 @@ class Logistik extends CI_Controller
 				// aksi
 				$row[] = '<div class="text-center">
 					<button class="btn btn-sm btn-warning" onclick="editTT('."'".$r->id_tt."'".')"><i class="fa fa-edit"></i></button>
+					<button class="btn btn-sm btn-secondary" onclick="hapusTT('."'".$r->id_tt."'".')"><i class="fa fa-trash-alt"></i></button>
 				</div>';
 				$data[] = $row;
 			}
@@ -9332,50 +9333,39 @@ class Logistik extends CI_Controller
 		$id       = $_POST['id'];
 
 		if ($jenis == "invoice") {
-			$no_inv          = $_POST['no_inv'];
+			$no_inv = $_POST['no_inv'];
 			// ubah no pl
-			$query_cek = $this->db->query("SELECT*FROM invoice_detail where no_invoice ='$no_inv'")->result();
-
-			foreach( $query_cek as $row)
-			{
-				$db2 = $this->load->database('database_simroll', TRUE);
-
-				if($row->type=='roll'){
-					$update_no_pl   = $db2->query("UPDATE pl set no_pl_inv = 0 where id ='$row->id_pl'");					
-				}else{
-					$cek_tgl = $this->db->query("SELECT*FROM invoice_header where no_invoice ='$no_inv'")->row();
-
-					if ($cek_tgl->tgl_sj >= '2024-07-01' )
-					{
-						$update_no_pl   = $this->db->query("UPDATE pl_box set no_pl_inv = 0 where id ='$row->id_pl'");
+			// cek TT
+			$qTT = $this->db->query("SELECT*FROM tt_detail where no_invoice='$no_inv'");
+			if($qTT->num_rows() == 0){
+				$query_cek = $this->db->query("SELECT*FROM invoice_detail where no_invoice ='$no_inv'")->result();
+				foreach( $query_cek as $row){
+					$db2 = $this->load->database('database_simroll', TRUE);
+					if($row->type=='roll'){
+						$update_no_pl   = $db2->query("UPDATE pl set no_pl_inv = 0 where id ='$row->id_pl'");					
 					}else{
-						$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 0 where id ='$row->id_pl'");
-					}					
-				}
-			}
-
-			if($update_no_pl)
-			{
-
-				$result1 = $this->m_master->query("DELETE FROM invoice_header WHERE  $field = '$id'");
-
-				if($result1)
-				{
-					$result2 = $this->m_master->query("DELETE FROM invoice_detail WHERE  no_invoice = '$no_inv'");
-
-					if($result2)
-					{
-						// delete stok
-						$result          = $this->m_master->query("DELETE FROM trs_stok_bahanbaku WHERE  no_transaksi = '$no_inv'");
+						$cek_tgl = $this->db->query("SELECT*FROM invoice_header where no_invoice ='$no_inv'")->row();
+						if ($cek_tgl->tgl_sj >= '2024-07-01' )
+						{
+							$update_no_pl   = $this->db->query("UPDATE pl_box set no_pl_inv = 0 where id ='$row->id_pl'");
+						}else{
+							$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 0 where id ='$row->id_pl'");
+						}					
 					}
 				}
-
-
-				
-
+				if($update_no_pl) {
+					$result1 = $this->m_master->query("DELETE FROM invoice_header WHERE  $field = '$id'");
+					if($result1){
+						$result2 = $this->m_master->query("DELETE FROM invoice_detail WHERE  no_invoice = '$no_inv'");
+						if($result2){
+							// delete stok
+							$result = $this->m_master->query("DELETE FROM trs_stok_bahanbaku WHERE  no_transaksi = '$no_inv'");
+						}
+					}
+				}
+			}else{
+				$result = false;
 			}
-			
-			
 		} else if ($jenis == "trs_h_stok_bb") {	
 			
 			

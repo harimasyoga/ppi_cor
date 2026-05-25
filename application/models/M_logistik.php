@@ -4626,6 +4626,24 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function hapusTT()
+	{
+		$id_tt = $_POST["id_tt"];
+		$header = $this->db->query("SELECT*FROM tt_header WHERE id_tt='$id_tt'")->row();
+
+		$this->db->where("no_tt", $header->no_tt);
+		$detail = $this->db->delete("tt_detail");
+		if($detail){
+			$this->db->where("no_tt", $header->no_tt);
+			$header = $this->db->delete("tt_header");
+		}
+
+		return [
+			'header' => $header,
+			'detail' => $detail,
+		];
+	}
+
 	function invInputNominalMutasi()
 	{
 		$id = $_POST["id"];
