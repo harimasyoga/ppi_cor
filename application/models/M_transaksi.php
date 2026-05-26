@@ -1073,8 +1073,10 @@ class M_transaksi extends CI_Model
 				}
 				// UPDATE TRS PO
 				if($trs_dtl){
-					$this->db->set("aktif", 0);
 					$this->db->set("status", 'Close');
+					$this->db->set("aktif", 0);
+					$this->db->set("status_kiriman", 'Close');
+					$this->db->set("close_po", date('Y-m-d H:i:s'));
 					$this->db->where("id", $r->id);
 					$data = $this->db->update('trs_po');
 				}

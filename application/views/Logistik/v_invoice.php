@@ -1498,14 +1498,23 @@
 					})
 				},
 				success: function(data) {
-					// toastr.success('Data Berhasil Di Hapus');
-					swal({
-						title: "Data",
-						html: "Data Berhasil Di Hapus",
-						type: "success",
-						confirmButtonText: "OK"
-					});
-					reloadTable();
+					data2 = JSON.parse(data)
+					if(data2){
+						swal({
+							title: "Data",
+							html: "Data Berhasil Di Hapus",
+							type: "success",
+							confirmButtonText: "OK"
+						});
+						reloadTable();
+					}else{
+						swal({
+							title: "Data Sudah Masuk Di Tanda Terima!",
+							html: "",
+							type: "error",
+							confirmButtonText: "Close"
+						});
+					}
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					// toastr.error('Terjadi Kesalahan');

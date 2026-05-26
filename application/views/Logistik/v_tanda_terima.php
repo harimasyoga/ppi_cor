@@ -63,11 +63,13 @@
 								<table id="datatable" class="table table-bordered table-striped">
 									<thead class="color-tabel">
 										<tr>
-											<th style="padding:12px;text-align:center">NO.</th>
-											<th style="padding:12px 200px;text-align:center">DESKRIPSI</th>
-											<th style="padding:12px;text-align:center">NOMINAL</th>
-											<th style="padding:12px;text-align:center">CETAK</th>
-											<th style="padding:12px;text-align:center">AKSI</th>
+											<th style="text-align:center">NO.</th>
+											<th style="padding:12px 100px;text-align:center">DESKRIPSI</th>
+											<th style="text-align:center">TGL</th>
+											<th style="padding:12px 55px;text-align:center">NOMINAL</th>
+											<th style="text-align:center">KWITANSI</th>
+											<th style="text-align:center">T.TERIMA</th>
+											<th style="text-align:center">AKSI</th>
 										</tr>
 									</thead>
 									<tbody></tbody>
@@ -78,7 +80,7 @@
 				</div>
 			</div>
 
-			<div class="row row-input">
+			<div class="row row-input" style="display:none">
 				<div class="col-md-12">
 					<div class="card card-success card-outline" style="padding-bottom:16px">
 						<div class="card-header" style="padding:12px">
@@ -89,6 +91,9 @@
 								<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+								<input type="hidden" id="h_id_tt" value="">
+								<input type="hidden" id="h_tipe" value="">
+								<input type="hidden" id="h_id_pelanggan" value="">
 								<div class="col-md-2">TANGGAL</div>
 								<div class="col-md-3">
 									<input type="date" id="tgl" class="form-control">
@@ -107,8 +112,13 @@
 								<div class="col-md-7"></div>
 							</div>
 							<div class="axs akses_cust"></div>
+							<div class="axs akses_pajak"></div>
+							<div class="axs akses_bank"></div>
 							<div class="axs akses_sj_inv"></div>
 							<div class="axs akses_add"></div>
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="axs akses_list_edit"></div>
+							</div>
 							<input type="hidden" id="cart-akses" value="">
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="axs akses_list"></div>
@@ -130,6 +140,7 @@
 
 	$(document).ready(function ()
 	{
+		$(".row-input").hide()
 		kosong()
 		load_data()
 		$('.select2').select2();
@@ -173,32 +184,30 @@
 		$("#cart-akses").load("<?php echo base_url('Logistik/destroyAkses') ?>")
 		$("#tgl").val('')
 		$("#slt_jenis").val('').prop('disabled', false).trigger('change')
-		$(".akses_cust").html('')
-		$(".akses_sj_inv").html('')
-		$(".akses_add").html('')
-		$(".akses_list").html('')
-		$(".akses_simpan").html('')
+		$(".axs").html('')
+
+		$("#h_id_tt").val('')
+		$("#h_tipe").val('')
+		$("#h_id_pelanggan").val('')
+		swal.close()
 	}
 
 	function tambahData() {
 		kosong()
-		// $(".row-list").hide()
-		// $(".row-input").show()
+		$(".row-list").hide()
+		$(".row-input").show()
 	}
 
 	function kembali() {
 		reloadTable()
 		kosong()
-		// $(".row-list").show()
-		// $(".row-input").hide()
+		$(".row-list").show()
+		$(".row-input").hide()
 	}
 
 	function loadCustAkses() {
 		let jenis = $("#slt_jenis").val()
-		$(".akses_cust").html('')
-		$(".akses_sj_inv").html('')
-		$(".akses_add").html('')
-		$(".akses_simpan").html('')
+		$(".axs").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadCustAkses') ?>',
 			type: "POST",
@@ -215,8 +224,10 @@
 			},
 			success: function(res) {
 				data = JSON.parse(res)
-				$(".akses_cust").html(data.htmlCust)
-				$('.select2').select2()
+				if(statusInput == 'insert'){
+					$(".akses_cust").html(data.htmlCust)
+					$('.select2').select2()
+				}
 				swal.close()
 			}
 		})
@@ -328,7 +339,6 @@
 	}
 
 	function listCartAkses() {
-		$(".akses_list").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/listCartAkses') ?>',
 			type: "POST",
@@ -349,31 +359,177 @@
 	}
 
 	function simpanAkses() {
+		let id_tt = $("#h_id_tt").val()
 		let jenis = $("#slt_jenis").val()
 		let tgl = $("#tgl").val()
 		let id_pelanggan = $("#axs_cust").val()
+		let bank = $("#axs_bank").val()
+		let pajak = $("#axs_pajak").val()
 		$(".akses_simpan").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/simpanAksesTT') ?>',
 			type: "POST",
 			data: ({
-				jenis, tgl, id_pelanggan
+				id_tt, jenis, tgl, id_pelanggan, bank, pajak, statusInput
 			}),
-			// beforeSend: function() {
-			// 	swal({
-			// 		title: 'loading ...',
-			// 		allowEscapeKey    : false,
-			// 		allowOutsideClick : false,
-			// 		onOpen: () => {
-			// 			swal.showLoading();
-			// 		}
-			// 	})
-			// },
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			success: function(res) {
 				data = JSON.parse(res)
-				console.log(data)
-				// toastr.success(`<b>BERHASIL!</b>`)
-				// kembali()
+				if(data.data){
+					toastr.success(`<b>BERHASIL!</b>`)
+					kembali()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					$(".akses_simpan").html(`<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanAkses()"><i class="fas fa-save"></i> SIMPAN</button>`);
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function editTT(id_tt) {
+		statusInput = 'update'
+		$(".row-list").hide()
+		$(".row-input").show()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/editTT') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({
+				id_tt
+			}),
+			success: function(res) {
+				data = JSON.parse(res)
+				$("#h_id_tt").val(data.header.id_tt)
+				$("#h_tipe").val(data.header.tipe_tt)
+				$("#h_id_pelanggan").val(data.header.id_pelanggan)
+
+				$("#tgl").val(data.header.tgl_tt)
+				$("#slt_jenis").val(data.header.tipe_tt).prop('disabled', true).trigger('change')
+				
+				$(".akses_list_edit").html(data.htmlDtl)
+				$(".akses_pajak").html(data.htmlPajak)
+				$(".akses_cust").html(data.htmlCust)
+				$(".akses_bank").html(data.htmlBank)
+				$(".akses_sj_inv").html(data.htmlSJInv)
+
+				$(".akses_simpan").html(`<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanAkses()"><i class="fas fa-save"></i> SIMPAN</button>`);
+				
+				$('.select2').select2()
+				swal.close()
+			}
+		})
+	}
+
+	function hapusTT(id_tt) {
+		swal({
+			title : "Tanda Terima",
+			html : "<p>Hapus Data?</p>",
+			type : "question",
+			showCancelButton : true,
+			confirmButtonText : '<b>Hapus</b>',
+			cancelButtonText : '<b>Batal</b>',
+			confirmButtonClass : 'btn btn-success',
+			cancelButtonClass : 'btn btn-danger',
+			cancelButtonColor : '#d33'
+		}).then(() => {
+			$.ajax({
+				url: '<?php echo base_url('Logistik/hapusTT') ?>',
+				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'loading ...',
+						allowEscapeKey    : false,
+						allowOutsideClick : false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					})
+				},
+				data: ({
+					id_tt
+				}),
+				success: function(res) {
+					data = JSON.parse(res)
+					toastr.success(`<b>BERHASIL HAPUS!</b>`)
+					reloadTable()
+					swal.close()
+				}
+			})
+		})
+	}
+
+	function editNoFak(id_td) {
+		let e_faktur = $("#e_faktur"+id_td).val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/editNoFak') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({
+				e_faktur, id_td
+			}),
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>BERHASIL!</b>`)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
+				swal.close()
+			}
+		})
+	}
+
+	function batatEditTT(id_td) {
+		let id_tt = $("#h_id_tt").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/batatEditTT') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({
+				id_tt, id_td
+			}),
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data.data){
+					editTT(id_tt)
+				}
 			}
 		})
 	}

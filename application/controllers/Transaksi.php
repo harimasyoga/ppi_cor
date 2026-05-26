@@ -592,7 +592,7 @@ class Transaksi extends CI_Controller
 		GROUP BY po.no_po");
 		$noPO = '';
 		if($query->num_rows() == 0){
-			$noPO .= '<option value="">PILIH</option>';
+			$noPO .= '<option value="">PILIH</option><option value="">KOSONG</option>';
 		}else{
 			$noPO .= '<option value="">SEMUA</option>';
 			foreach($query->result() as $r){

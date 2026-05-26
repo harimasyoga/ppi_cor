@@ -4474,47 +4474,63 @@ class M_logistik extends CI_Model
 
 	function simpanAksesTT()
 	{
+		$id_tt = $_POST["id_tt"];
 		$jenis = $_POST["jenis"];
 		$tgl = $_POST["tgl"];
 		$id_pelanggan = $_POST["id_pelanggan"];
+		$bank = $_POST["bank"];
+		$pajak = $_POST["pajak"];
+		$statusInput = $_POST["statusInput"];
 		
 		if($tgl == ""){
 			$data = false; $msg = 'PILIH TGL!'; $iHeader = false; $iDetail = false;
+		}else if($pajak == ""){
+			$data = false; $msg = 'PILIH PAJAK!'; $iHeader = false; $iDetail = false;
+		}else if($bank == ""){
+			$data = false; $msg = 'PILIH BANK!'; $iHeader = false; $iDetail = false;
 		}else{
 			$tgl2 = explode('-', $tgl);
-
 			$bulan = $tgl2[1];
 			$tahun2 = $tgl2[0];
 
-			$cek = $this->db->query("SELECT*FROM tt_header WHERE tgl_tt LIKE '%$tahun2%' ORDER BY no_tt DESC LIMIT 1");
-			if($cek->num_rows() != 0){
-				$no1 = explode('/', $cek->row()->no_tt);
-				$no2 = (int)$no1[3] + 1;
-			}else{
-				$no2 = 1;
+			if($statusInput == 'insert'){
+				$cek = $this->db->query("SELECT*FROM tt_header WHERE tgl_tt LIKE '%$tahun2%' ORDER BY no_tt DESC LIMIT 1");
+				if($cek->num_rows() != 0){
+					$no1 = explode('/', $cek->row()->no_tt);
+					$no2 = (int)$no1[3] + 1;
+				}else{
+					$no2 = 1;
+				}
+				$noFIX = 'TT/'.$tahun2.'/'.$bulan.'/'.str_pad($no2, 3, "0", STR_PAD_LEFT);
 			}
-			$noFIX = 'TT/'.$tahun2.'/'.$bulan.'/'.str_pad($no2, 3, "0", STR_PAD_LEFT);
+			if($statusInput == 'update'){
+				$header = $this->db->query("SELECT*FROM tt_header WHERE id_tt='$id_tt'")->row();
+				$noFIX = $header->no_tt;
+			}
 
-			$iHeader = '';
-			$iDetail = '';
 			$sumInv = 0;
-			foreach($this->cart->contents() as $r){
-				$id_invoice = $r['options']['id_invoice'];
-				$inv = $this->db->query("SELECT LTRIM(d.no_surat) AS no_surat,h.* FROM invoice_header h
-				INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
-				WHERE h.id='$id_invoice'
-				GROUP BY h.no_invoice,LTRIM(d.no_surat),h.id_perusahaan,h.id")->row();
-
-				$dDtl = [
-					'no_tt' => $noFIX,
-					'no_faktur' => $inv->no_faktur,
-					'no_invoice' => $inv->no_invoice,
-					'no_surat' => $inv->no_surat,
-					'nominal_inv' => ($inv->jml_mutasi == null) ? 0 : $inv->jml_mutasi,
-				];
-				$sumInv += ($inv->jml_mutasi == null) ? 0 : $inv->jml_mutasi;
-
-				$iDetail .= $this->db->insert("tt_detail", $dDtl);
+			if($this->cart->total_items() != 0){
+				foreach($this->cart->contents() as $r){
+					$id_invoice = $r['options']['id_invoice'];
+					$inv = $this->db->query("SELECT LTRIM(d.no_surat) AS no_surat,d.type AS tpp,h.* FROM invoice_header h
+					INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
+					WHERE h.id='$id_invoice'
+					GROUP BY h.no_invoice,LTRIM(d.no_surat),h.id_perusahaan,h.id")->row();
+					$dDtl = [
+						'no_tt' => $noFIX,
+						'jenis_tt' => $inv->tpp,
+						'tgl_invoice' => $inv->tgl_invoice,
+						'tgl_jatuh_tempo' => $inv->tgl_jatuh_tempo,
+						'no_faktur' => $inv->no_faktur,
+						'no_invoice' => $inv->no_invoice,
+						'no_surat' => $inv->no_surat,
+						'nominal_inv' => ($inv->jml_mutasi == null) ? 0 : $inv->jml_mutasi,
+					];
+					$iDetail = $this->db->insert("tt_detail", $dDtl);
+					$sumInv += ($inv->jml_mutasi == null) ? 0 : $inv->jml_mutasi;
+				}
+			}else{
+				$iDetail = true;
 			}
 
 			if($iDetail){
@@ -4524,23 +4540,37 @@ class M_logistik extends CI_Model
 				if($jenis == 'ROLL'){
 					$pelanggan = $this->db->query("SELECT pimpinan AS attn, nm_perusahaan AS nm_pelanggan, alamat AS alamat_kirim FROM m_perusahaan WHERE id='$id_pelanggan'")->row();
 				}
-				$dHead = [
-					'no_tt' => $noFIX,
-					'tgl_tt' => $tgl,
-					'id_pelanggan' => $id_pelanggan,
-					'attn_tt' => $pelanggan->attn,
-					'nm_pelanggan_tt' => $pelanggan->nm_pelanggan,
-					'alamat_tt' => $pelanggan->alamat_kirim,
-					'total_tt' => $sumInv,
-					'bank_tt' => null,
-					'add_time' => date('Y-m-d H:i:s'),
-					'add_user' => $this->username,
-				];
-				$iHeader .= $this->db->insert("tt_header", $dHead);
-				$data = true;
-				$msg = 'OK';
-			}
 
+				if($statusInput == 'insert'){
+					$dHead = [
+						'no_tt' => $noFIX,
+						'tipe_tt' => $jenis,
+						'tgl_tt' => $tgl,
+						'id_pelanggan' => $id_pelanggan,
+						'attn_tt' => $pelanggan->attn,
+						'nm_pelanggan_tt' => $pelanggan->nm_pelanggan,
+						'alamat_tt' => $pelanggan->alamat_kirim,
+						'total_tt' => $sumInv,
+						'bank_tt' => ($bank == '') ? null : $bank,
+						'pajak_tt' => $pajak,
+						'add_time' => date('Y-m-d H:i:s'),
+						'add_user' => $this->username,
+					];
+					$iHeader = $this->db->insert("tt_header", $dHead);
+					$msg = "INPUT DATA OK!";
+				}
+				if($statusInput == 'update'){
+					$totInvEdit = $sumInv + $header->total_tt;
+					$this->db->set("tgl_tt", $tgl);
+					$this->db->set("total_tt", $totInvEdit);
+					$this->db->set("bank_tt", ($bank == '') ? null : $bank);
+					$this->db->set("pajak_tt", $pajak);
+					$this->db->where("id_tt", $id_tt);
+					$iHeader = $this->db->update("tt_header");
+					$msg = "EDIT DATA OK!";
+				}
+				$data = true;
+			}
 		}
 
 		return [
@@ -4548,6 +4578,69 @@ class M_logistik extends CI_Model
 			'msg' => $msg,
 			'iHeader' => $iHeader,
 			'iDetail' => $iDetail,
+		];
+	}
+
+	function editNoFak()
+	{
+		$e_faktur = $_POST["e_faktur"];
+		$id_td = $_POST["id_td"];
+
+		if($e_faktur < 0){
+			$data = false; $msg = 'INPUT SALAH!';
+		}else{
+			$this->db->set("no_faktur", ($e_faktur == "") ? null : $e_faktur);
+			$this->db->where("id_td", $id_td);
+			$data = $this->db->update("tt_detail");
+			$msg = 'BERHASIL!';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function batatEditTT()
+	{
+		$id_tt = $_POST["id_tt"];
+		$id_td = $_POST["id_td"];
+
+		$header = $this->db->query("SELECT*FROM tt_header WHERE id_tt='$id_tt'")->row();
+		$detail = $this->db->query("SELECT*FROM tt_detail WHERE id_td='$id_td'")->row();
+
+		// UPDATE TOTAL
+		$nominal = $header->total_tt - $detail->nominal_inv;
+		$this->db->set("total_tt", $nominal);
+		$this->db->where("id_tt", $id_tt);
+		$tHead = $this->db->update("tt_header");
+
+		if($tHead){
+			$this->db->where("id_td", $id_td);
+			$data = $this->db->delete("tt_detail");
+		}
+
+		return [
+			'tHead' => $tHead,
+			'data' => $data,
+		];
+	}
+
+	function hapusTT()
+	{
+		$id_tt = $_POST["id_tt"];
+		$header = $this->db->query("SELECT*FROM tt_header WHERE id_tt='$id_tt'")->row();
+
+		$this->db->where("no_tt", $header->no_tt);
+		$detail = $this->db->delete("tt_detail");
+		if($detail){
+			$this->db->where("no_tt", $header->no_tt);
+			$header = $this->db->delete("tt_header");
+		}
+
+		return [
+			'header' => $header,
+			'detail' => $detail,
 		];
 	}
 
