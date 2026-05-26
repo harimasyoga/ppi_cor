@@ -411,8 +411,8 @@
 											$query3 = $db3->query("SELECT c.id,c.pimpinan,c.note,c.nm_perusahaan FROM po_master po
 												INNER JOIN m_perusahaan c ON po.id_perusahaan=c.id
 												WHERE po.id_perusahaan!='210' AND po.id_perusahaan!='217'
-												AND po.tgl BETWEEN '2024-12-01' AND '9999-01-01'
-												AND po.status='Open'
+												AND po.tgl BETWEEN '2025-12-01' AND '9999-01-01'
+												-- AND po.status='Open'
 												GROUP BY c.id
 												ORDER BY c.nm_perusahaan");
 											$html3 = '';
@@ -431,7 +431,7 @@
 								<div class="col-md-2"></div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-								<div class="col-md-2">STATUS</div>
+								<div class="col-md-2">STATUS PO</div>
 								<div class="col-md-8">
 									<select id="lap_status" class="form-control select2" onchange="plhStatus()" disabled>
 										<option value="">OPEN</option>
