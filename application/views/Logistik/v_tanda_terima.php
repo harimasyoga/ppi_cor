@@ -80,7 +80,7 @@
 				</div>
 			</div>
 
-			<div class="row row-input">
+			<div class="row row-input" style="display:none">
 				<div class="col-md-12">
 					<div class="card card-success card-outline" style="padding-bottom:16px">
 						<div class="card-header" style="padding:12px">
@@ -189,6 +189,7 @@
 		$("#h_id_tt").val('')
 		$("#h_tipe").val('')
 		$("#h_id_pelanggan").val('')
+		swal.close()
 	}
 
 	function tambahData() {
@@ -371,42 +372,52 @@
 			data: ({
 				id_tt, jenis, tgl, id_pelanggan, bank, pajak, statusInput
 			}),
-			// beforeSend: function() {
-			// 	swal({
-			// 		title: 'loading ...',
-			// 		allowEscapeKey    : false,
-			// 		allowOutsideClick : false,
-			// 		onOpen: () => {
-			// 			swal.showLoading();
-			// 		}
-			// 	})
-			// },
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			success: function(res) {
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					toastr.success(`<b>BERHASIL!</b>`)
 					kembali()
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
 					$(".akses_simpan").html(`<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanAkses()"><i class="fas fa-save"></i> SIMPAN</button>`);
+					swal.close()
 				}
 			}
 		})
 	}
 
 	function editTT(id_tt) {
-		console.log(id_tt)
 		statusInput = 'update'
+		$(".row-list").hide()
+		$(".row-input").show()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/editTT') ?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			data: ({
 				id_tt
 			}),
 			success: function(res) {
 				data = JSON.parse(res)
-				console.log(data)
 				$("#h_id_tt").val(data.header.id_tt)
 				$("#h_tipe").val(data.header.tipe_tt)
 				$("#h_id_pelanggan").val(data.header.id_pelanggan)
@@ -423,6 +434,7 @@
 				$(".akses_simpan").html(`<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanAkses()"><i class="fas fa-save"></i> SIMPAN</button>`);
 				
 				$('.select2').select2()
+				swal.close()
 			}
 		})
 	}
@@ -442,14 +454,24 @@
 			$.ajax({
 				url: '<?php echo base_url('Logistik/hapusTT') ?>',
 				type: "POST",
+				beforeSend: function() {
+					swal({
+						title: 'loading ...',
+						allowEscapeKey    : false,
+						allowOutsideClick : false,
+						onOpen: () => {
+							swal.showLoading();
+						}
+					})
+				},
 				data: ({
 					id_tt
 				}),
 				success: function(res) {
 					data = JSON.parse(res)
-					console.log(data)
 					toastr.success(`<b>BERHASIL HAPUS!</b>`)
 					reloadTable()
+					swal.close()
 				}
 			})
 		})
@@ -457,37 +479,54 @@
 
 	function editNoFak(id_td) {
 		let e_faktur = $("#e_faktur"+id_td).val()
-		console.log(e_faktur)
 		$.ajax({
 			url: '<?php echo base_url('Logistik/editNoFak') ?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			data: ({
 				e_faktur, id_td
 			}),
 			success: function(res) {
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					toastr.success(`<b>BERHASIL!</b>`)
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
 				}
+				swal.close()
 			}
 		})
 	}
 
 	function batatEditTT(id_td) {
 		let id_tt = $("#h_id_tt").val()
-		console.log(id_td)
 		$.ajax({
 			url: '<?php echo base_url('Logistik/batatEditTT') ?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			data: ({
 				id_tt, id_td
 			}),
 			success: function(res) {
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					editTT(id_tt)
 				}

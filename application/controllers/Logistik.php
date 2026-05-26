@@ -8230,28 +8230,35 @@ class Logistik extends CI_Controller
 		$header = $this->db->query("SELECT*FROM tt_header WHERE no_tt='$no_tt'")->row();
 		($header->attn_tt != '-') ? $attn = ' ( '.$header->attn_tt.' )' : $attn = '';
 		$detail = $this->db->query("SELECT*FROM tt_detail WHERE no_tt='$no_tt' ORDER BY jenis_tt DESC, no_surat");
+
+		if($header->pajak_tt == 'PPN'){
+			$kop = '<tr>
+				<td rowspan="3" align="center">
+					<img src="'.base_url().'assets/gambar/ppi.png" width="80" height="70" />
+				</td>
+				<td style="padding-left:10px;font-size:15px;font-weight:bold" colspan="6">PT. PRIMA PAPER INDONESIA</td>
+			</tr>
+			<tr>
+				<td style="padding-left:10px;font-size:10px" colspan="6">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
+			</tr>
+			<tr>
+				<td style="padding-left:10px;font-size:10px" colspan="6">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
+			</tr>';
+			$top = 3;
+		}else{
+			$kop = ''; $top = 6;
+		}
 		
-		$html .= '<table style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
+		$html .= '<table style="font-size:10px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
 			<thead>
 				<tr>
-					<td style="width:14%;padding:0;border:0"></td>
+					<td style="width:20%;padding:0;border:0"></td>
 					<td style="width:1%;padding:0;border:0"></td>
 					<td style="width:10%;padding:0;border:0"></td>
-					<td style="width:40%;padding:0;border:0"></td>
+					<td style="width:34%;padding:0;border:0"></td>
 					<td style="width:35%;padding:0;border:0"></td>
 				</tr>
-				<tr>
-					<td rowspan="3" align="center">
-						<img src="'.base_url().'assets/gambar/ppi.png" width="80" height="70" />
-					</td>
-					<td style="font-size:20px;font-weight:bold" colspan="4">PT. PRIMA PAPER INDONESIA</td>
-				</tr>
-				<tr>
-					<td style="font-size:11px" colspan="4">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
-				</tr>
-				<tr>
-					<td style="font-size:11px" colspan="4">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
-				</tr>
+				'.$kop.'
 				<tr>
 					<td style="background:#ddd;border:1px solid #000;padding:5px;font-size:14px;font-weight:bold;text-align:center" colspan="5">KWITANSI</td>
 				</tr>
@@ -8260,16 +8267,16 @@ class Logistik extends CI_Controller
 				<tr>
 					<td style="padding:5px 0">Telah diterima dari</td>
 					<td style="padding:5px 0">:</td>
-					<td style="padding:5px 0;font-weight:bold" colspan="3">'.$header->nm_pelanggan_tt.$attn.'</td>
+					<td style="padding:5px 0;font-size:11px;font-weight:bold" colspan="3">'.$header->nm_pelanggan_tt.$attn.'</td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0 15px" colspan="2"></td>
 					<td style="padding:2px 0 15px" colspan="3">'.$header->alamat_tt.'</td>
 				</tr>
 				<tr>
-					<td style="padding:5px 0 12px">Terbilang</td>
-					<td style="padding:5px 0 12px">:</td>
-					<td style="padding:5px 0 12px;font-weight:bold;font-style:italic;line-height:1.8" colspan="2">'.strtoupper($this->m_fungsi->terbilang($header->total_tt)).'</td>
+					<td style="padding:5px 0 15px">Terbilang</td>
+					<td style="padding:5px 0 15px">:</td>
+					<td style="padding:5px 0 15px;font-weight:bold;font-style:italic;line-height:1.8" colspan="3">'.strtoupper($this->m_fungsi->terbilang($header->total_tt)).'</td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0">Untuk Pembayaran</td>
@@ -8300,8 +8307,8 @@ class Logistik extends CI_Controller
 				if($detail->num_rows() <= 5) {
 					for($i = 0; $i < $xx; $i++){
 						$html .= '<tr>
-							<td style="border:0;padding:20px 0 0" colspan="2"></td>
-							<td style="border:0;padding:20px 0 0" colspan="3"></td>
+							<td style="border:0;padding:50px 0 0" colspan="2"></td>
+							<td style="border:0;padding:50px 0 0" colspan="3"></td>
 						</tr>';
 					}
 				}
@@ -8330,8 +8337,8 @@ class Logistik extends CI_Controller
 					<td style="padding:5px 0"></td>
 				</tr>
 				<tr>
-					<td style="padding:5px 0 35px" colspan="4">A.n '.$an_bank.'</td>
-					<td style="padding:5px 0 35px"></td>
+					<td style="padding:5px 0 40px" colspan="4">A.n '.$an_bank.'</td>
+					<td style="padding:5px 0 40px"></td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0;border:1px solid #000;text-align:center;font-weight:bold" colspan="3">Rp. '.number_format($header->total_tt).'</td>
@@ -8344,7 +8351,7 @@ class Logistik extends CI_Controller
 
 		$judul = 'KWITANSI';
 		// echo $html;
-		$this->m_fungsi->newMpdf($judul, '', $html, 3, 5, 3, 5, 'P', $p, $judul.'.pdf');
+		$this->m_fungsi->newMpdf($judul, '', $html, $top, 5, 3, 5, 'P', $p, $judul.'.pdf');
 	}
 
 	function Cetak_TT()
@@ -8356,30 +8363,37 @@ class Logistik extends CI_Controller
 		$header = $this->db->query("SELECT*FROM tt_header WHERE no_tt='$no_tt'")->row();
 		($header->attn_tt != '-') ? $attn = ' ( '.$header->attn_tt.' )' : $attn = '';
 		$detail = $this->db->query("SELECT*FROM tt_detail WHERE no_tt='$no_tt' ORDER BY jenis_tt DESC, no_invoice");
+
+		if($header->pajak_tt == 'PPN'){
+			$kop = '<tr>
+				<td rowspan="3" align="center">
+					<img src="'.base_url().'assets/gambar/ppi.png" width="80" height="70" />
+				</td>
+				<td style="padding-left:10px;font-size:15px;font-weight:bold" colspan="6">PT. PRIMA PAPER INDONESIA</td>
+			</tr>
+			<tr>
+				<td style="padding-left:10px;font-size:10px" colspan="6">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
+			</tr>
+			<tr>
+				<td style="padding-left:10px;font-size:10px" colspan="6">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
+			</tr>';
+			$top = 3;
+		}else{
+			$kop = ''; $top = 6;
+		}
 		
-		$html .= '<table style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
+		$html .= '<table style="font-size:10px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
 			<thead>
 				<tr>
-					<td style="width:8%;padding:0;border:0"></td>
+					<td style="width:4%;padding:0;border:0"></td>
 					<td style="width:16%;padding:0;border:0"></td>
-					<td style="width:22%;padding:0;border:0"></td>
+					<td style="width:24%;padding:0;border:0"></td>
 					<td style="width:16%;padding:0;border:0"></td>
 					<td style="width:16%;padding:0;border:0"></td>
 					<td style="width:4%;padding:0;border:0"></td>
-					<td style="width:18%;padding:0;border:0"></td>
+					<td style="width:20%;padding:0;border:0"></td>
 				</tr>
-				<tr>
-					<td rowspan="3" align="center">
-						<img src="'.base_url().'assets/gambar/ppi.png" width="80" height="70" />
-					</td>
-					<td style="padding-left:10px;font-size:20px;font-weight:bold" colspan="6">PT. PRIMA PAPER INDONESIA</td>
-				</tr>
-				<tr>
-					<td style="padding-left:10px;font-size:11px" colspan="6">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
-				</tr>
-				<tr>
-					<td style="padding-left:10px;font-size:11px" colspan="6">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
-				</tr>
+				'.$kop.'
 				<tr>
 					<td style="background:#ddd;border:1px solid #000;padding:5px;font-size:14px;font-weight:bold;text-align:center" colspan="7">TANDA TERIMA INVOICE</td>
 				</tr>
@@ -8389,10 +8403,10 @@ class Logistik extends CI_Controller
 					<td style="padding:5px 0" colspan="7">Kepada Yth,</td>
 				</tr>
 				<tr>
-					<td style="padding:5px 0;font-weight:bold" colspan="7">'.$header->nm_pelanggan_tt.$attn.'</td>
+					<td style="padding:5px 0;font-size:11px;font-weight:bold" colspan="7">'.$header->nm_pelanggan_tt.$attn.'</td>
 				</tr>
 				<tr>
-					<td style="padding:5px 0 25px" colspan="7">Attn : ACCOUNTING / FINANCE</td>
+					<td style="padding:5px 0 30px" colspan="7">Attn : ACCOUNTING / FINANCE</td>
 				</tr>
 				<tr>
 					<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000">NO</td>
@@ -8453,8 +8467,8 @@ class Logistik extends CI_Controller
 				if($detail->num_rows() <= 5) {
 					for($z = 0; $z < $xx; $z++){
 						$html .= '<tr>
-							<td style="border:0;padding:20px 0 0" colspan="2"></td>
-							<td style="border:0;padding:20px 0 0" colspan="3"></td>
+							<td style="border:0;padding:50px 0 0" colspan="2"></td>
+							<td style="border:0;padding:50px 0 0" colspan="3"></td>
 						</tr>';
 					}
 				}
@@ -8488,9 +8502,9 @@ class Logistik extends CI_Controller
 					<td style="padding:5px 0 20px" colspan="7">* Mohon di ttd dan di kirim / email kembali ke primapaperin@gmail.com</td>
 				</tr>
 				<tr>
-					<td style="padding:5px 0 70px;text-align:center" colspan="3">Penerima,</td>
-					<td style="padding:5px 0 70px" colspan="1"></td>
-					<td style="padding:5px 0 70px;text-align:center" colspan="3">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($header->tgl_tt).'</td>
+					<td style="padding:5px 0 80px;text-align:center" colspan="3">Penerima,</td>
+					<td style="padding:5px 0 80px" colspan="1"></td>
+					<td style="padding:5px 0 80px;text-align:center" colspan="3">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($header->tgl_tt).'</td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0;text-align:center" colspan="3">Finance</td>
@@ -8502,7 +8516,7 @@ class Logistik extends CI_Controller
 		$html .= '</table>';
 
 		$judul = 'TANDA TERIMA';
-		$this->m_fungsi->newMpdf($judul, '', $html, 3, 5, 3, 5, 'P', $p, $judul.'.pdf');
+		$this->m_fungsi->newMpdf($judul, '', $html, $top, 5, 3, 5, 'P', $p, $judul.'.pdf');
 	}
 	
 	function load_invoice()
