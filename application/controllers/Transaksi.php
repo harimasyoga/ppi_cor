@@ -9793,6 +9793,24 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function addKLB()
+	{
+		$result = $this->m_transaksi->addKLB();
+		echo json_encode($result);
+	}
+
+	function uploadKLB()
+	{
+		$result = $this->m_transaksi->uploadKLB();
+		echo json_encode($result);
+	}
+
+	function batalKLB()
+	{
+		$result = $this->m_transaksi->batalKLB();
+		echo json_encode($result);
+	}
+
 	function tglMuatEtaDSys()
 	{
 		$eta_tiba = $_POST["eta_tiba"];
@@ -10446,7 +10464,8 @@ class Transaksi extends CI_Controller
 					<th style="padding:6px;border:1px solid #bbb">ITEM</th>
 					<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">QTY</th>
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">BB</th>
-					<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>';
+					<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
+					<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">K</th>';
 					if($aRK->num_rows() != 0){
 						$html .= '<th style="padding:6px;text-align:center;border:1px solid #bbb" colspan="3">REALISASI</th>';
 					}
@@ -10479,11 +10498,14 @@ class Transaksi extends CI_Controller
 					WHERE r.rk_tgl='$tgl' AND r.dev_urut='$u->urut' AND r.dev_id IS NULL
 					ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
 					$rkNotNull = $this->db->query("SELECT * FROM m_rencana_kirim r WHERE r.rk_tgl='$tgl' AND r.dev_urut='$u->urut' AND r.dev_id IS NOT NULL");
+					$cekKLB = $this->db->query("SELECT*FROM trs_dev_klb WHERE tgl='$tgl' AND urut='$u->urut' AND kalibrasi!=''");
+					$fileKLB = $this->db->query("SELECT*FROM trs_dev_klb WHERE tgl='$tgl' AND urut='$u->urut' AND file_klb!=''");
+					($cekKLB->num_rows() == 0) ? $txtKLB = '' : $txtKLB = $cekKLB->row()->kalibrasi;
 					
 					if($u->urut == 0){
 						$html .= '<tr>
 							<td style="background:#333;color:#fff;padding:6px;font-weight:bold;text-align:center">'.$u->urut.'</td>
-							<td style="background:#333;padding:6px" colspan="7"></td>';
+							<td style="background:#333;padding:6px" colspan="8"></td>';
 							if($aRK->num_rows() != 0 && ($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0) && $cRk->num_rows() != 0){
 								$html .= '<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">SURAT JALAN</td>
 								<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">QTY</td>
@@ -10495,16 +10517,22 @@ class Transaksi extends CI_Controller
 					}else{
 						$html .= '<tr>
 							<td style="background:#333;color:#fff;padding:6px;font-weight:bold;text-align:center">'.$u->urut.'</td>
-							<td style="background:#333;padding:6px">';
+							<td style="background:#333;padding:6px" colspan="2">';
 								if($u->id_ex == null){
 									if(in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')){
 										$html .= '<select class="form-control select2" id="eks_ds'.$u->urut.'" onchange="plhEksDS('."'".$u->urut."'".')" '.$dS.'>
 											<option value="">EKSPEDISI | P x L x T (M)</option>';
 											$ekspedisi = $this->db->query("SELECT*FROM m_ekspedisi ORDER BY plat, ekspedisi");
 											foreach($ekspedisi->result() as $r){
-												($r->panjang == null || $r->lebar == null || $r->tinggi == null || $r->panjang == '' || $r->lebar == '' || $r->tinggi == '') ?
-													$pLt = '' : $pLt = ' | '.round($r->panjang, 2).' x '.round($r->lebar, 2).' x '.round($r->tinggi, 2).' M';
-												$html .= '<option value="'.$r->id_ex.'">'.$r->plat.' ( '.$r->ekspedisi.' )'.$pLt.'</option>';
+												if(($r->panjang == null || $r->lebar == null || $r->tinggi == null || $r->panjang == '' || $r->lebar == '' || $r->tinggi == '')){
+													$pLt = '';
+													$kalibrasi = '';
+												}else{
+													$pLt = ' | '.round($r->panjang, 2).' x '.round($r->lebar, 2).' x '.round($r->tinggi, 2).' M';
+													$xDvs = round($r->panjang * $r->lebar * $r->tinggi, 2);
+													$kalibrasi = ' ( K '.$xDvs.' )';
+												}
+												$html .= '<option value="'.$r->id_ex.'">'.$r->plat.' ( '.$r->ekspedisi.' )'.$pLt.$kalibrasi.'</option>';
 											}
 										$html .= '</select>';
 									}else{
@@ -10512,18 +10540,41 @@ class Transaksi extends CI_Controller
 									}
 								}else{
 									$e = $this->db->query("SELECT*FROM m_ekspedisi WHERE id_ex='$u->id_ex'")->row();
-									($e->panjang == null || $e->lebar == null || $e->tinggi == null || $e->panjang == '' || $e->lebar == '' || $e->tinggi == '') ?
-										$pLt = '' : $pLt = ' | '.round($e->panjang, 2).' x '.round($e->lebar, 2).' x '.round($e->tinggi, 2);
+									if($e->panjang == null || $e->lebar == null || $e->tinggi == null || $e->panjang == '' || $e->lebar == '' || $e->tinggi == ''){
+										$pLt = '';
+										$kalibrasi = '';
+									}else{
+										$pLt = ' | '.round($e->panjang, 2).' x '.round($e->lebar, 2).' x '.round($e->tinggi, 2);
+										$xDvs = round($e->panjang * $e->lebar * $e->tinggi, 2);
+										$kalibrasi = ' ( K '.$xDvs.' )';
+									}
 									// btl
-									if($cekRK->num_rows() == 0){
+									if($cekRK->num_rows() == 0 && $fileKLB->num_rows() == 0){
 										$hapus = (in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : '';
 									}else{
 										$hapus = '';
 									}
-									$html .= '<div style="font-weight:bold;color:#fff">'.$e->plat.' ( '.$e->ekspedisi.' )'.$pLt.$hapus.'</div>';
+									$html .= '<div style="font-weight:bold;color:#fff">'.$e->plat.' ( '.$e->ekspedisi.' )'.$pLt.$kalibrasi.$hapus.'</div>';
 								}
-							$html .= '</td>
-							<td style="background:#333;padding:6px" colspan="6"></td>';
+							$html .= '</td>';
+							
+							// UPLOAD KALIBRASI
+							if($cekKLB->num_rows() != 0 && $fileKLB->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])){
+								$html .= '<td style="background:#ddf;padding:6px;font-size:11px" colspan="6">
+									<form role="form" method="POST" id="mut_kalibrasi_'.$u->urut.'" enctype="multipart/form-data">
+										<input type="hidden" name="m_tgl" id="m_tgl" value="'.$tgl.'">
+										<input type="hidden" name="m_urut" id="m_urut" value="'.$u->urut.'">
+										<input type="file" name="mut_foto" id="mut_foto" accept=".jpg,.jpeg,.png" onchange="cekFile('."'".$u->urut."'".')">
+									</form>
+									<span class="save-kalibrasi'.$u->urut.'"></span>
+								</td>';
+							}else{
+								$prV = 'pimg_'.$u->urut;
+								($fileKLB->num_rows() != 0) ? $bIkb = '<img id="'.$prV.'" src="'.base_url().'assets/kalibrasi/'.$fileKLB->row()->file_klb.'" width="50" height="25" style="border-radius:5px" onclick="imgClick('."'".$prV."'".')">' : $bIkb = '';
+								($fileKLB->num_rows() != 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $hIkb = '<button class="btn btn-xs btn-danger" style="margin-left:5px" onclick="batalKLB('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : $hIkb = '';
+								$html .= '<td style="background:#333;padding:6px" colspan="6">'.$bIkb.$hIkb.'</td>';
+							}
+							
 							if($aRK->num_rows() != 0 && ($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0) && $cRk->num_rows() != 0){
 								$html .= '<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">SURAT JALAN</td>
 								<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">QTY</td>
@@ -10626,6 +10677,26 @@ class Transaksi extends CI_Controller
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:center" '.$rkRS.'>'.$r->berat_bersih.'</td>
 							<td style="border:1px solid #dee2e6;padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->berat, 0, ',', '.').'</td>';
 
+							// KALIBRASI
+							if($sys->num_rows() == 1 && $u->urut != 0 && $u->id_ex != null){
+								if($fileKLB->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])){
+									$oKb2 = 'id="k-'.$u->urut.'" onchange="addKLB('."'".$u->urut."'".')"';
+									$dkb2 = '';
+								}else{
+									$oKb2 = '';
+									$dkb2 = 'disabled';
+								}
+								$html .= '<td style="border:1px solid #dee2e6;padding:6px;text-align:right" '.$rkRS.'>
+									<input type="number" class="form-control" '.$oKb2.' style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" value="'.$txtKLB.'" autocomplete="off" placeholder="0" '.$dkb2.'>
+								</td>';
+							}else if($sys->num_rows() == 1 && ($u->urut == 0 || $u->id_ex == null)){
+								$html .= '<td style="border:1px solid #dee2e6;padding:6px;text-align:right" '.$rkRS.'>
+									<input type="number" class="form-control" style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" placeholder="0" disabled>
+								</td>';
+							}else{
+								$html .= '<td style="border:1px solid #dee2e6;border-width:0 1px;padding:6px;text-align:right" '.$rkRS.'></td>';
+							}
+
 							if($rk->num_rows() != 0){
 								foreach($rk->result() as $k){
 									(in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $uDel = '<button class="btn btn-xs btn-danger" onclick="btlRKtoSys('."'".$k->id_rk."'".', '."'".$tgl."'".', '."'".$u->urut."'".')"><i class="fas fa-trash"></i></button>' : $uDel = '';
@@ -10679,7 +10750,7 @@ class Transaksi extends CI_Controller
 								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0;padding:6px" colspan="2">'.$n->nm_pelanggan.'</td>
 								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0;padding:6px">'.$n->rk_kode_po.'</td>
 								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0;padding:6px">'.$nV1.$nk2.$n->nm_produk.$nV2.'</td>
-								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0;padding:6px" colspan="3"></td>
+								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0;padding:6px" colspan="4"></td>
 								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0;padding:6px">'.$n->no_surat.'</td>
 								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0;padding:6px;text-align:right">'.number_format($n->qty_muat, 0, ',', '.').'</td>
 								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 1px 1px 0;padding:6px"></td>
@@ -10694,6 +10765,24 @@ class Transaksi extends CI_Controller
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">TOTAL</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($totQty, 0, ',', '.').'</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.number_format($totBerat, 0, ',', '.').'</td>';
+
+							// KALIBRASI
+							if($u->urut != 0 && $u->id_ex != null){
+								if($fileKLB->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])){
+									$oKb3 = 'id="k-'.$u->urut.'" onchange="addKLB('."'".$u->urut."'".')"';
+									$dkb3 = '';
+								}else{
+									$oKb3 = '';
+									$dkb3 = 'disabled';
+								}
+								$html .= '<td style="padding:6px;border:1px solid #bbb;font-weight:bold">
+									<input type="number" class="form-control" '.$oKb3.' style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" value="'.$txtKLB.'" autocomplete="off" placeholder="0" '.$dkb3.'>
+								</td>';
+							}else{
+								$html .= '<td style="padding:6px;border:1px solid #bbb;font-weight:bold">
+									<input type="number" class="form-control" style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" placeholder="0" disabled>
+								</td>';
+							}
 
 							// TIMBANGAN LEBIH DARI 1 ITEM
 							if($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0){

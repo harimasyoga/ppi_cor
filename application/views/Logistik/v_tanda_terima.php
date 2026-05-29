@@ -65,7 +65,7 @@
 										<tr>
 											<th style="text-align:center">NO.</th>
 											<th style="padding:12px 100px;text-align:center">DESKRIPSI</th>
-											<th style="text-align:center">TGL</th>
+											<th style="text-align:center">TANGGAL</th>
 											<th style="padding:12px 55px;text-align:center">NOMINAL</th>
 											<th style="text-align:center">KWITANSI</th>
 											<th style="text-align:center">T.TERIMA</th>

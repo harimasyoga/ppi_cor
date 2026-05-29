@@ -200,6 +200,10 @@
 	</section>
 </div>
 
+<div id="mymodal-img" class="modal-img">
+	<img class="modal-img-content" id="img01">
+</div>
+
 <script type="text/javascript">
 	$(document).ready(function () {
 		$("#tampil-rincian").html(``)
@@ -207,6 +211,25 @@
 		$('.select2').select2();
 		list_dev()
 	});
+
+	function imgClick(klik)
+	{
+		let modal = document.getElementById('mymodal-img')
+		let img = document.getElementById(klik)
+		let modalImg = document.getElementById("img01")
+		img.onclick = function(){
+			modal.style.display = "block";
+			modalImg.src = this.src;
+			modalImg.alt = this.alt;
+		}
+		modal.onclick = function() {
+			img01.className += " out";
+			setTimeout(function() {
+				modal.style.display = "none";
+				img01.className = "modal-img-content";
+			}, 400);
+		}
+	}
 
 	function loadCalender(opsi) {
 		let tgl = $("#h_tgl").val()
@@ -739,6 +762,112 @@
 				data = JSON.parse(res)
 				if(data.rk){
 					ccDevSys(rtgl, 'jadwal')
+				}
+			}
+		})
+	}
+
+	function addKLB(urut){
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		let kalibrasi = $("#k-"+urut).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/addKLB')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ tgl, tahun, bulan, kalibrasi, urut }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					ccDevSys(tgl, 'jadwal')
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function cekFile(urut) {
+		let mut_foto = $("#mut_foto_"+urut).val()
+		if (mut_foto != '') {
+			$(".save-kalibrasi"+urut).html(`<button class="btn btn-primary btn-xs" onclick="uploadKLB(${urut})" style="margin-top:5px"><i class="fas fa-save"></i> <b>SIMPAN</b></button>`)
+		} else {
+			$(".save-kalibrasi"+urut).html('')
+		}
+	}
+
+	function uploadKLB(urut) {
+		let tgl = $("#r_tgl").val()
+		var form = $('#mut_kalibrasi_'+urut)[0];
+		var data = new FormData(form);
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/uploadKLB') ?>',
+			type: "POST",
+			enctype: 'multipart/form-data',
+			data: data,
+			contentType: false,
+			cache: false,
+			timeout: 600000,
+			processData: false,
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			success: function(res) {
+				data = JSON.parse(res)
+				if (data.data) {
+					toastr.success(`<b>${data.msg}</b>`)
+					ccDevSys(tgl, 'jadwal')
+				} else {
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		});
+	}
+
+	function batalKLB(urut){
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/batalKLB')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ tgl, tahun, bulan, urut }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					ccDevSys(tgl, 'jadwal')
+				}else{
+					swal.close()
 				}
 			}
 		})
