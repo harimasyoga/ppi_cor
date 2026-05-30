@@ -8004,7 +8004,7 @@ class Logistik extends CI_Controller
 			}
 		}else if ($jenis == "tandaTerima") {
 			$tahun = $_POST["tahun"];
-			$query = $this->db->query("SELECT*FROM tt_header")->result();
+			$query = $this->db->query("SELECT*FROM tt_header ORDER BY id_tt DESC")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
@@ -8294,21 +8294,17 @@ class Logistik extends CI_Controller
 
 				// TAMBAH KOTAK KOSONG
 				if($detail->num_rows() == 1) {
-					$xx = 5;
-				}else if($detail->num_rows() == 2){
-					$xx = 4;
-				}else if($detail->num_rows() == 3){
 					$xx = 3;
-				}else if($detail->num_rows() == 4){
+				}else if($detail->num_rows() == 2){
 					$xx = 2;
-				}else if($detail->num_rows() == 5){  
+				}else if($detail->num_rows() == 3){
 					$xx = 1;
 				}
-				if($detail->num_rows() <= 5) {
+				if($detail->num_rows() <= 3) {
 					for($i = 0; $i < $xx; $i++){
 						$html .= '<tr>
-							<td style="border:0;padding:50px 0 0" colspan="2"></td>
-							<td style="border:0;padding:50px 0 0" colspan="3"></td>
+							<td style="border:0;padding:10px 0 0" colspan="2"></td>
+							<td style="border:0;padding:10px 0 0" colspan="3"></td>
 						</tr>';
 					}
 				}
@@ -8385,13 +8381,13 @@ class Logistik extends CI_Controller
 		$html .= '<table style="font-size:10px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
 			<thead>
 				<tr>
-					<td style="width:4%;padding:0;border:0"></td>
-					<td style="width:16%;padding:0;border:0"></td>
+					<td style="width:6%;padding:0;border:0"></td>
+					<td style="width:14%;padding:0;border:0"></td>
 					<td style="width:24%;padding:0;border:0"></td>
 					<td style="width:16%;padding:0;border:0"></td>
-					<td style="width:16%;padding:0;border:0"></td>
+					<td style="width:18%;padding:0;border:0"></td>
 					<td style="width:4%;padding:0;border:0"></td>
-					<td style="width:20%;padding:0;border:0"></td>
+					<td style="width:18%;padding:0;border:0"></td>
 				</tr>
 				'.$kop.'
 				<tr>
@@ -8425,7 +8421,7 @@ class Logistik extends CI_Controller
 				$sumTot = 0;
 				foreach($detail->result() as $r){
 					$i++;
-					($r->no_faktur == null) ? $noFak = '-' : $noFak = substr($r->no_faktur, -5);
+					($r->no_faktur == null) ? $noFak = '-' : $noFak = $r->no_faktur;
 					$html .= '<tr>
 						<td style="padding:5px;text-align:center">'.$i.'</td>
 						<td style="padding:5px;text-align:center">'.$this->m_fungsi->tglIndSkt($r->tgl_invoice).'</td>
@@ -8440,38 +8436,33 @@ class Logistik extends CI_Controller
 				$html .= '<tr>
 					<td style="padding:10px" colspan="7"></td>
 				</tr>';
-				// TOTAL
-				if($detail->num_rows() > 1){
-					$html .= '<tr>
-						<td style="padding:5px;border-top:1px solid #000" colspan="5"></td>
-						<td style="padding:5px;text-align:center;border-top:1px solid #000">Rp</td>
-						<td style="padding:5px;text-align:right;font-weight:bold;border-top:1px solid #000">'.number_format($sumTot).'</td>
-					</tr>
-					<tr>
-						<td style="border-top:2px solid #000" colspan="7"></td>
-					</tr>';
-				}
 
 				// TAMBAH KOTAK KOSONG
 				if($detail->num_rows() == 1) {
-					$xx = 5;
-				}else if($detail->num_rows() == 2){
-					$xx = 4;
-				}else if($detail->num_rows() == 3){
 					$xx = 3;
-				}else if($detail->num_rows() == 4){
+				}else if($detail->num_rows() == 2){
 					$xx = 2;
-				}else if($detail->num_rows() == 5){  
+				}else if($detail->num_rows() == 3){
 					$xx = 1;
 				}
-				if($detail->num_rows() <= 5) {
+				if($detail->num_rows() <= 3) {
 					for($z = 0; $z < $xx; $z++){
 						$html .= '<tr>
-							<td style="border:0;padding:50px 0 0" colspan="2"></td>
-							<td style="border:0;padding:50px 0 0" colspan="3"></td>
+							<td style="border:0;padding:10px 0 0" colspan="2"></td>
+							<td style="border:0;padding:10px 0 0" colspan="3"></td>
 						</tr>';
 					}
 				}
+
+				// TOTAL
+				$html .= '<tr>
+					<td style="padding:5px;border-top:1px solid #000" colspan="5"></td>
+					<td style="padding:5px;text-align:center;border-top:1px solid #000">Rp</td>
+					<td style="padding:5px;text-align:right;font-weight:bold;border-top:1px solid #000">'.number_format($sumTot).'</td>
+				</tr>
+				<tr>
+					<td style="border-top:2px solid #000" colspan="7"></td>
+				</tr>';
 
 				// TTD
 				$bank = $this->db->query("SELECT*FROM m_no_rek WHERE nm_bank='$header->bank_tt' AND pajak='$header->pajak_tt'");

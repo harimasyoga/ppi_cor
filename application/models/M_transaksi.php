@@ -3368,4 +3368,111 @@ class M_transaksi extends CI_Model
 			'sys' => $sys,
 		];
 	}
+
+	function addKLB()
+	{
+		$angka = $_POST["tgl"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$tgl = $tahun.'-'.$bulan.'-'.$angka;
+		$kalibrasi = $_POST["kalibrasi"];
+		$urut = $_POST["urut"];
+
+		$cek = $this->db->query("SELECT*FROM trs_dev_klb WHERE tgl='$tgl' AND urut='$urut'");
+
+		if($kalibrasi < 0 || ($cek->num_rows() == 0 && ($kalibrasi == 0 || $kalibrasi == ''))){
+			$data = false;
+			$msg = 'GAGAL';
+		}else{
+			$this->db->set('tgl', $tgl);
+			$this->db->set('urut', $urut);
+			$this->db->set('kalibrasi', $kalibrasi);		
+			if($cek->num_rows() != 0){
+				if($kalibrasi == 0 || $kalibrasi == ""){
+					$this->db->where('tgl', $tgl);
+					$this->db->where('urut', $urut);
+					$data = $this->db->delete('trs_dev_klb');
+					$msg = 'DELETE';
+				}else{
+					$this->db->set('updated_at', date('Y-m-d H:i:s'));
+					$this->db->where('tgl', $tgl);
+					$this->db->where('urut', $urut);
+					$data = $this->db->update('trs_dev_klb');
+					$msg = 'UPDATE';
+				}
+			}else{
+				$this->db->set('created_at', date('Y-m-d H:i:s'));
+				$data = $this->db->insert('trs_dev_klb');
+				$msg = 'INSERT';
+			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function uploadKLB()
+	{
+		$tgl = $this->input->post('m_tgl');
+		$urut = $this->input->post('m_urut');
+
+		// FILE
+		$config['upload_path'] = './assets/kalibrasi/';
+		$config['allowed_types'] = 'jpg|jpeg|png';
+		$config['max_size'] = 2048; // 2MB
+		$config['overwrite'] = true;
+		$thn = substr(date('Y'), 2, 2); $bln = date('m'); $date = date('d');
+		$config['file_name'] = $thn.$bln.$date.'-'.$this->generateFileName();
+		$this->load->library('upload',$config);
+		$this->upload->initialize($config);
+
+		if(!$this->upload->do_upload('mut_foto')) {
+			$data = false; $msg = 'UKURAN / FORMAT FILE TIDAK DIDUKUNG!';
+		}else{
+			if($this->upload->do_upload('mut_foto')){
+				$gbrBukti = $this->upload->data();
+				$filefoto = $gbrBukti['file_name'];
+
+				$this->db->set('file_klb', $filefoto);
+				$this->db->set('updated_at', date('Y-m-d H:i:s'));
+				$this->db->where('tgl', $tgl);
+				$this->db->where('urut', $urut);
+				$data = $this->db->update('trs_dev_klb');
+				$msg = 'BERHASIL';
+			}
+		}
+
+		return [
+			'm_tgl' => $tgl,
+			'm_urut' => $urut,
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function batalKLB()
+	{
+		$angka = $_POST["tgl"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$tgl = $tahun.'-'.$bulan.'-'.$angka;
+		$urut = $_POST["urut"];
+
+		$cek = $this->db->query("SELECT*FROM trs_dev_klb WHERE tgl='$tgl' AND urut='$urut'")->row();
+
+		$unlink = unlink("assets/kalibrasi/".$cek->file_klb);
+
+		$this->db->set('file_klb', null);
+		$this->db->set('updated_at', date('Y-m-d H:i:s'));
+		$this->db->where('tgl', $tgl);
+		$this->db->where('urut', $urut);
+		$data = $this->db->update('trs_dev_klb');
+
+		return [
+			'data' => $data,
+			'unlink' => $unlink,
+		];
+	}
 }
