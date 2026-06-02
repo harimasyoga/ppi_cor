@@ -189,6 +189,8 @@
 						</div>
 						<div class="card-body" style="padding:12px 6px">
 							<input type="hidden" id="z_tgl" value="">
+							<input type="hidden" id="p_urut" value="">
+							<input type="hidden" id="p_tgl" value="">
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="ds-suratjalan">-</div>
 							</div>
@@ -274,7 +276,11 @@
 			tahun = $("#real_tahun").val()
 			bulan = $("#real_bulan").val()
 			$(".rinc-real-tgl").html('')
+			$("#p_tgl").val('')
+			$("#p_urut").val('')
 		}
+		let p_tgl = $("#p_tgl").val()
+		let p_urut = $("#p_urut").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/ccDevSys') ?>',
 			type: "POST",
@@ -288,7 +294,7 @@
 					}
 				});
 			},
-			data: ({ tgl, tahun, bulan, opsi }),
+			data: ({ tgl, tahun, bulan, p_tgl, p_urut, opsi }),
 			success: function(res) {
 				data = JSON.parse(res)
 				if(opsi == 'jadwal'){
@@ -869,6 +875,47 @@
 				}else{
 					swal.close()
 				}
+			}
+		})
+	}
+
+	function pilihDS(tgl, urut) {
+		$("#p_tgl").val(tgl)
+		$("#p_urut").val(urut)
+		swal({
+			title : "Oke, Pilih Plan",
+			html : "",
+			type : "success",
+			confirmButtonText : "OK"
+		});
+	}
+
+	function pilihDSRinc(urut){
+		let tgl = $("#r_tgl").val()
+		let bulan = $("#bulan").val()
+		let tahun = $("#tahun").val()
+		let p_tgl = $("#p_tgl").val()
+		let p_urut = $("#p_urut").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/pilihDSRinc')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ urut, tgl, bulan, tahun, p_tgl, p_urut }),
+			success: function(res){
+				data = JSON.parse(res)
+				$("#p_tgl").val('')
+				$("#p_urut").val('')
+				ccDevSys(tgl, 'jadwal')
+				ccDevSys(tgl, 'kirim')
 			}
 		})
 	}
