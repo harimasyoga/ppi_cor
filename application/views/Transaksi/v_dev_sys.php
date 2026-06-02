@@ -880,8 +880,6 @@
 	}
 
 	function pilihDS(tgl, urut) {
-		console.log("tgl : ", tgl)
-		console.log("urut : ", urut)
 		$("#p_tgl").val(tgl)
 		$("#p_urut").val(urut)
 		swal({
@@ -898,22 +896,26 @@
 		let tahun = $("#tahun").val()
 		let p_tgl = $("#p_tgl").val()
 		let p_urut = $("#p_urut").val()
-		console.log("tgl : ", tgl)
-		console.log("bulan : ", bulan)
-		console.log("tahun : ", tahun)
-		console.log("urut : ", urut)
-		console.log("p_tgl : ", p_tgl)
-		console.log("p_urut : ", p_urut)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/pilihDSRinc')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			data: ({ urut, tgl, bulan, tahun, p_tgl, p_urut }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$("#p_tgl").val('')
 				$("#p_urut").val('')
 				ccDevSys(tgl, 'jadwal')
+				ccDevSys(tgl, 'kirim')
 			}
 		})
 	}

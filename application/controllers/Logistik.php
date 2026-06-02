@@ -8374,46 +8374,57 @@ class Logistik extends CI_Controller
 				<td style="padding-left:10px;font-size:10px" colspan="6">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
 			</tr>';
 			$top = 3;
+			$wHead = '<td style="width:6%;padding:0;border:0"></td>
+			<td style="width:14%;padding:0;border:0"></td>
+			<td style="width:24%;padding:0;border:0"></td>
+			<td style="width:16%;padding:0;border:0"></td>
+			<td style="width:18%;padding:0;border:0"></td>
+			<td style="width:4%;padding:0;border:0"></td>
+			<td style="width:18%;padding:0;border:0"></td>';
+			$txtFaktur = '<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000">NO. FAKTUR</td>';
+			$hCC = 7;
 		}else{
 			$kop = ''; $top = 6;
+			$wHead = '<td style="padding:0;border:0"></td>
+			<td style="padding:0;border:0"></td>
+			<td style="padding:0;border:0"></td>
+			<td style="padding:0;border:0"></td>
+			<td style="padding:0;border:0"></td>
+			<td style="padding:0;border:0"></td>';
+			$txtFaktur = '';
+			$hCC = 6;
 		}
 		
 		$html .= '<table style="font-size:10px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
 			<thead>
 				<tr>
-					<td style="width:6%;padding:0;border:0"></td>
-					<td style="width:14%;padding:0;border:0"></td>
-					<td style="width:24%;padding:0;border:0"></td>
-					<td style="width:16%;padding:0;border:0"></td>
-					<td style="width:18%;padding:0;border:0"></td>
-					<td style="width:4%;padding:0;border:0"></td>
-					<td style="width:18%;padding:0;border:0"></td>
+					'.$wHead.'
 				</tr>
 				'.$kop.'
 				<tr>
-					<td style="background:#ddd;border:1px solid #000;padding:5px;font-size:14px;font-weight:bold;text-align:center" colspan="7">TANDA TERIMA INVOICE</td>
+					<td style="background:#ddd;border:1px solid #000;padding:5px;font-size:14px;font-weight:bold;text-align:center" colspan="'.$hCC.'">TANDA TERIMA INVOICE</td>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td style="padding:5px 0" colspan="7">Kepada Yth,</td>
+					<td style="padding:5px 0" colspan="'.$hCC.'">Kepada Yth,</td>
 				</tr>
 				<tr>
-					<td style="padding:5px 0;font-size:11px;font-weight:bold" colspan="7">'.$header->nm_pelanggan_tt.$attn.'</td>
+					<td style="padding:5px 0;font-size:11px;font-weight:bold" colspan="'.$hCC.'">'.$header->nm_pelanggan_tt.$attn.'</td>
 				</tr>
 				<tr>
-					<td style="padding:5px 0 30px" colspan="7">Attn : ACCOUNTING / FINANCE</td>
+					<td style="padding:5px 0 30px" colspan="'.$hCC.'">Attn : ACCOUNTING / FINANCE</td>
 				</tr>
 				<tr>
 					<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000">NO</td>
 					<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000">TGL</td>
 					<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000">NO. INVOICE</td>
-					<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000">NO. FAKTUR</td>
+					'.$txtFaktur.'
 					<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000">JATUH TEMPO</td>
 					<td style="padding:5px;text-align:center;font-weight:bold;border-top:1px solid #000" colspan="2">JUMLAH</td>
 				</tr>
 				<tr>
-					<td style="border-top:2px solid #000" colspan="7"></td>
+					<td style="border-top:2px solid #000" colspan="'.$hCC.'"></td>
 				</tr>';
 
 				// ISI
@@ -8421,12 +8432,18 @@ class Logistik extends CI_Controller
 				$sumTot = 0;
 				foreach($detail->result() as $r){
 					$i++;
-					($r->no_faktur == null) ? $noFak = '-' : $noFak = $r->no_faktur;
+					if($header->pajak_tt == 'PPN'){
+						($r->no_faktur == null) ? $noFak = '-' : $noFak = $r->no_faktur;
+						$isiFak = '<td style="padding:5px;text-align:center">'.$noFak.'</td>';
+					}else{
+						$isiFak = '';
+					}
+					
 					$html .= '<tr>
 						<td style="padding:5px;text-align:center">'.$i.'</td>
 						<td style="padding:5px;text-align:center">'.$this->m_fungsi->tglIndSkt($r->tgl_invoice).'</td>
 						<td style="padding:5px;text-align:center">'.$r->no_invoice.'</td>
-						<td style="padding:5px;text-align:center">'.$noFak.'</td>
+						'.$isiFak.'
 						<td style="padding:5px;text-align:center">'.$this->m_fungsi->tglIndSkt($r->tgl_jatuh_tempo).'</td>
 						<td style="padding:5px;text-align:center">Rp</td>
 						<td style="padding:5px;text-align:right">'.number_format($r->nominal_inv).'</td>
@@ -8434,7 +8451,7 @@ class Logistik extends CI_Controller
 					$sumTot += $r->nominal_inv;
 				}
 				$html .= '<tr>
-					<td style="padding:10px" colspan="7"></td>
+					<td style="padding:10px" colspan="'.$hCC.'"></td>
 				</tr>';
 
 				// TAMBAH KOTAK KOSONG
@@ -8455,13 +8472,18 @@ class Logistik extends CI_Controller
 				}
 
 				// TOTAL
+				if($header->pajak_tt == 'PPN'){
+					$ttCC = 5;
+				}else{
+					$ttCC = 4;
+				}
 				$html .= '<tr>
-					<td style="padding:5px;border-top:1px solid #000" colspan="5"></td>
+					<td style="padding:5px;border-top:1px solid #000" colspan="'.$ttCC.'"></td>
 					<td style="padding:5px;text-align:center;border-top:1px solid #000">Rp</td>
 					<td style="padding:5px;text-align:right;font-weight:bold;border-top:1px solid #000">'.number_format($sumTot).'</td>
 				</tr>
 				<tr>
-					<td style="border-top:2px solid #000" colspan="7"></td>
+					<td style="border-top:2px solid #000" colspan="'.$hCC.'"></td>
 				</tr>';
 
 				// TTD
@@ -8480,26 +8502,33 @@ class Logistik extends CI_Controller
 					}
 				}
 
+				if($header->pajak_tt == 'PPN'){
+					$tddCC1 = '<td style="padding:5px 0 80px" colspan="1"></td>';
+					$tddCC2 = '<td style="padding:5px 0" colspan="1"></td>';
+				}else{
+					$tddCC1 = '';
+					$tddCC2 = '';
+				}
 				$html .= '<tr>
-					<td style="padding:20px 0 5px" colspan="7">Pembayaran Full Amount ditransfer ke :</td>
+					<td style="padding:20px 0 5px" colspan="'.$hCC.'">Pembayaran Full Amount ditransfer ke :</td>
 				</tr>
 				<tr>
-					<td style="padding:5px 0" colspan="7">'.$nm_bank.'</td>
+					<td style="padding:5px 0" colspan="'.$hCC.'">'.$nm_bank.'</td>
 				</tr>
 				<tr>
-					<td style="padding:5px 0 20px" colspan="7">An. '.$an_bank.'</td>
+					<td style="padding:5px 0 20px" colspan="'.$hCC.'">An. '.$an_bank.'</td>
 				</tr>
 				<tr>
-					<td style="padding:5px 0 20px" colspan="7">* Mohon di ttd dan di kirim / email kembali ke primapaperin@gmail.com</td>
+					<td style="padding:5px 0 20px" colspan="'.$hCC.'">* Mohon di ttd dan di kirim / email kembali ke primapaperin@gmail.com</td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0 80px;text-align:center" colspan="3">Penerima,</td>
-					<td style="padding:5px 0 80px" colspan="1"></td>
+					'.$tddCC1.'
 					<td style="padding:5px 0 80px;text-align:center" colspan="3">Wonogiri, '.$this->m_fungsi->tanggal_format_indonesia($header->tgl_tt).'</td>
 				</tr>
 				<tr>
 					<td style="padding:5px 0;text-align:center" colspan="3">Finance</td>
-					<td style="padding:5px 0" colspan="1"></td>
+					'.$tddCC2.'
 					<td style="padding:5px 0;text-align:center" colspan="3">Finance</td>
 				</tr>';
 
@@ -13329,19 +13358,19 @@ class Logistik extends CI_Controller
 							(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $uUK = 'onclick="cUkuranKualitas('."'".$item->id_rk."'".', '."'UK'".')"' : $uUK = '';
 							(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $uKL = 'onclick="cUkuranKualitas('."'".$item->id_rk."'".', '."'KL'".')"' : $uKL = '';
 							// DELIVERY SYSTEM
-							if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
-								if($qTimb->num_rows() > 0){
-									($item->dev_urut == null && $item->dev_id == null) ? $aDs = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addDevSys('."'".$item->id_rk."'".','."'add'".')"><i class="fas fa-plus"></i></button> ' : $aDs = '';
-								}else{
-									$aDs = '';
-								}
-							}else{
-								$aDs = '';
-							}
+							// if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
+							// 	if($qTimb->num_rows() > 0){
+							// 		($item->dev_urut == null && $item->dev_id == null) ? $aDs = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" onclick="addDevSys('."'".$item->id_rk."'".','."'add'".')"><i class="fas fa-plus"></i></button> ' : $aDs = '';
+							// 	}else{
+							// 		$aDs = '';
+							// 	}
+							// }else{
+							// 	$aDs = '';
+							// }
 							$html .='<tr style="vertical-align:top">
 								<td style="padding:6px;border:1px solid #dee2e6">'.$item->nm_pelanggan.$attn.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">
-									'.$dv1.$aDs.$item->nm_produk.$dv2.'
+									'.$dv1.$item->nm_produk.$dv2.'
 								</td>
 								<td style="padding:6px;border:1px solid #dee2e6">
 									<input type="checkbox" id="c_uk_'.$item->id_rk.'" '.$uUK.' value="'.$item->c_uk.'" '.$c_uk.' '.$dXs.'>

@@ -10518,9 +10518,11 @@ class Transaksi extends CI_Controller
 					}else{
 						$c_pl = $this->db->query("SELECT*FROM pl_box p WHERE tgl='$tgl' AND no_pl_urut='$urut->no_pl_urut'");
 						$c_rk = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE rk_tgl='$tgl' AND rk_urut='$urut->no_pl_urut' AND id_pl_box IS NOT NULL");
+						$d_rk = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE rk_tgl='$tgl' AND rk_urut='$urut->no_pl_urut' AND dev_urut IS NOT NULL");
 						$kTbh = ($c_rk->num_rows() > 1) ? 2 : 1;
 						$cSp = ($c_pl->num_rows() + $c_rk->num_rows()) + $kTbh;
-						$bBtnPln = ($qTimb->num_rows() > 0) ? '<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="pilihDS('."'".$tgl."'".', '."'".$urut->no_pl_urut."'".')"><i class="fas fa-plus-circle"></i></button>'
+						$bBtnPln = ($qTimb->num_rows() > 0 && $d_rk->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])) ?
+							'<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="pilihDS('."'".$tgl."'".', '."'".$urut->no_pl_urut."'".')"><i class="fas fa-plus-circle"></i></button>'
 							: '<button class="btn btn-sm btn-secondary" style="font-weight:bold" disabled><i class="fas fa-plus-circle"></i></button>';
 						$htPln = '<td style="border:1px solid #bbb;padding:6px;font-weight:bold;vertical-align:top" rowspan="'.$cSp.'">'.$bBtnPln.'</td>
 						<td style="background:#333;color:#fff;padding:6px;font-weight:bold">'.$i.'</td>';
@@ -10693,8 +10695,8 @@ class Transaksi extends CI_Controller
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">BB</th>
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
 					<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">K</th>';
-					if($aRK->num_rows() != 0){
-						$html .= '<th style="padding:6px;text-align:center;border:1px solid #bbb" colspan="3">REALISASI</th>';
+					if($aRK->num_rows() != 0 || $tglNow > 0){
+						$html .= '<th style="padding:6px;text-align:center;border:1px solid #bbb" colspan="5">REALISASI</th>';
 					}
 				$html .= '</tr>';
 
@@ -10737,8 +10739,8 @@ class Transaksi extends CI_Controller
 								$html .= '<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">SURAT JALAN</td>
 								<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">QTY</td>
 								<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">TIMBANGAN</td>';
-							}else if($aRK->num_rows() != 0){
-								$html .= '<td style="background:#333;padding:6px" colspan="3"></td>';
+							}else if($aRK->num_rows() != 0 || $tglNow > 0){
+								$html .= '<td style="background:#333;padding:6px" colspan="5"></td>';
 							}
 						$html .= '</tr>';
 					}else{
@@ -10781,8 +10783,8 @@ class Transaksi extends CI_Controller
 									}else{
 										$hapus = '';
 									}
-									// pilih plan
-									$plhBtnDS = ($rkNotNull->num_rows() == 0 && $p_tgl != '' && $p_urut != '' && $tglNow >= 0) ? ' - <button class="btn btn-xs btn-primary" style="font-weight:bold" onclick="pilihDSRinc('."'".$u->urut."'".')">PILIH</button>' : '';
+									// pilih plan && $tglNow >= 0
+									$plhBtnDS = ($rkNotNull->num_rows() == 0 && $p_tgl != '' && $p_urut != '') ? ' - <button class="btn btn-xs btn-primary" style="font-weight:bold" onclick="pilihDSRinc('."'".$u->urut."'".')">PILIH</button>' : '';
 									$html .= '<div style="font-weight:bold;color:#fff">'.$e->plat.' ( '.$e->ekspedisi.' )'.$pLt.$kalibrasi.$hapus.$plhBtnDS.'</div>';
 								}
 							$html .= '</td>';
@@ -10804,12 +10806,14 @@ class Transaksi extends CI_Controller
 								$html .= '<td style="background:#333;padding:6px" colspan="6">'.$bIkb.$hIkb.'</td>';
 							}
 							
-							if($aRK->num_rows() != 0 && ($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0) && $cRk->num_rows() != 0){
-								$html .= '<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">SURAT JALAN</td>
-								<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">QTY</td>
-								<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">TIMBANGAN</td>';
-							}else if($aRK->num_rows() != 0){
-								$html .= '<td style="background:#333;padding:6px" colspan="3"></td>';
+							if(($aRK->num_rows() != 0 && ($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0) && $cRk->num_rows() != 0) || $tglNow > 0){
+								$html .= '<td style="background:#ddf;text-align:center;font-weight:bold;padding:6px">TANGGAL</td>
+								<td style="background:#ddf;text-align:center;font-weight:bold;padding:6px">SURAT JALAN</td>
+								<td style="background:#ddf;text-align:center;font-weight:bold;padding:6px">QTY</td>
+								<td style="background:#ddf;text-align:center;font-weight:bold;padding:6px">BERAT</td>
+								<td style="background:#ddf;text-align:center;font-weight:bold;padding:6px">TIMBANGAN</td>';
+							}else if($aRK->num_rows() != 0 || $tglNow > 0){
+								$html .= '<td style="background:#333;padding:6px" colspan="5"></td>';
 							}
 						$html .= '</tr>';
 					}
@@ -10825,6 +10829,7 @@ class Transaksi extends CI_Controller
 					$totQty = 0;
 					$totBerat = 0;
 					$sjTotQty = 0;
+					$sjBBQty = 0;
 
 					// TIMBANGAN ITEM
 					if($rkNotNull->num_rows() > 1){
@@ -10860,7 +10865,7 @@ class Transaksi extends CI_Controller
 						}else{
 							$fxQ2 = '';
 						}
-						$qYY = $txtTimb.' '.$fixTimb;
+						$qYY = $txtTimb;
 					}else{
 						$fxQ2 = '';
 						$qYY = '';
@@ -10930,24 +10935,29 @@ class Transaksi extends CI_Controller
 								foreach($rk->result() as $k){
 									(in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $uDel = '<button class="btn btn-xs btn-danger" onclick="btlRKtoSys('."'".$k->id_rk."'".', '."'".$tgl."'".', '."'".$u->urut."'".')"><i class="fas fa-trash"></i></button>' : $uDel = '';
 									//
-									$_2 = $k->qty_muat - $r->qty_plan;
-									if($_2 >= 0){
-										$_bg2 = ';background:#dfd';
-									}else if($_2 < 0){
-										$_bg2 = ';background:#ffd';
-									}
+									// $_2 = $k->qty_muat - $r->qty_plan;
+									// if($_2 >= 0){
+									// 	$_bg2 = ';background:#dfd';
+									// }else if($_2 < 0){
+									// 	$_bg2 = ';background:#ffd';
+									// }
+									($sys->num_rows() != 1) ? $bdb = ';border-width:0 1px' : $bdb = '' ;
+									$bBerat1 = $k->rk_bb * $k->qty_muat; // BERAT
 									$html .= '
-										<td style="border:1px solid #dee2e6;border-width:1px 0 1px 1px;font-weight:bold;padding:6px'.$_bg2.'">'.$k->no_surat.'</td>
-										<td style="border:1px solid #dee2e6;border-width:1px 0;font-weight:bold;padding:6px;text-align:right'.$_bg2.'">'.number_format($k->qty_muat, 0, ',', '.').$fxQ2.'</td>
-										<td style="padding:6px;border:1px solid #dee2e6;border-width:1px 1px 1px 0;font-weight:bold;text-align:right'.$_bg2.'">'.$qYY.'</td>
+										<td style="border:1px solid #dee2e6;font-weight:bold;padding:6px">'.$this->m_fungsi->tglIndSkt($k->rk_tgl).'</td>
+										<td style="border:1px solid #dee2e6;font-weight:bold;padding:6px">'.$k->no_surat.'</td>
+										<td style="border:1px solid #dee2e6;font-weight:bold;padding:6px;text-align:right">'.number_format($k->qty_muat, 0, ',', '.').'</td>
+										<td style="border:1px solid #dee2e6;font-weight:bold;padding:6px;text-align:right">'.number_format($bBerat1, 0, ',', '.').'</td>
+										<td style="padding:6px;border:1px solid #dee2e6'.$bdb.';font-weight:bold;text-align:right">'.$qYY.'</td>
 										<td style="padding:6px;text-align:center">'.$uDel.'</td>
 									</tr>';
 									$sjTotQty += $k->qty_muat;
+									$sjBBQty += $bBerat1;
 								}
 							}else{
-								if($aRK->num_rows() != 0){
+								if($aRK->num_rows() != 0 || $tglNow > 0){
 									$html .= '
-										<td style="border:1px solid #dee2e6;background:#fdd;padding:6px" colspan="3"></td>
+										<td style="border:1px solid #dee2e6;background:#fdd;padding:6px" colspan="5"></td>
 									</tr>';
 								}
 							}
@@ -10962,6 +10972,7 @@ class Transaksi extends CI_Controller
 
 					// CEK MASUK SURAT JALAN TAPI TIDAK ADA DALAM LIST
 					$totNQty = 0;
+					$bbNQty = 0;
 					if($rkNull->num_rows() != 0){
 						foreach($rkNull->result() as $n){
 							($n->kategori == "BOX") ? $nk2 = '[BOX] ' : $nk2 = '[SHEET] ';
@@ -10972,20 +10983,24 @@ class Transaksi extends CI_Controller
 							}else{
 								$uDel2 = '';
 							}
+							$bBerat2 = $n->rk_bb * $n->qty_muat; // BERAT
 							$html .= '<tr style="vertical-align:top;font-weight:bold">
-								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0 1px 1px;padding:6px;text-align:center">
+								<td style="background:#fdd;border:1px solid #ced2d6;padding:6px;text-align:center">
 									<input type="text" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" value="-" disabled>
 								</td>
-								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0;padding:6px" colspan="2">'.$n->nm_pelanggan.'</td>
-								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0;padding:6px">'.$n->rk_kode_po.'</td>
-								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0;padding:6px">'.$nV1.$nk2.$n->nm_produk.$nV2.'</td>
-								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0;padding:6px" colspan="4"></td>
-								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0;padding:6px">'.$n->no_surat.'</td>
-								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 0;padding:6px;text-align:right">'.number_format($n->qty_muat, 0, ',', '.').'</td>
-								<td style="background:#fdd;border:1px solid #dee2e6;border-width:1px 1px 1px 0;padding:6px"></td>
+								<td style="background:#fdd;border:1px solid #ced2d6;padding:6px" colspan="2">'.$n->nm_pelanggan.'</td>
+								<td style="background:#fdd;border:1px solid #ced2d6;padding:6px">'.$n->rk_kode_po.'</td>
+								<td style="background:#fdd;border:1px solid #ced2d6;padding:6px">'.$nV1.$nk2.$n->nm_produk.$nV2.'</td>
+								<td style="background:#fdd;border:1px solid #ced2d6;padding:6px" colspan="4"></td>
+								<td style="background:#fdd;border:1px solid #ced2d6;padding:6px">'.$this->m_fungsi->tglIndSkt($n->rk_tgl).'</td>
+								<td style="background:#fdd;border:1px solid #ced2d6;padding:6px">'.$n->no_surat.'</td>
+								<td style="background:#fdd;border:1px solid #ced2d6;padding:6px;text-align:right">'.number_format($n->qty_muat, 0, ',', '.').'</td>
+								<td style="background:#fdd;border:1px solid #ced2d6;padding:6px;text-align:right">'.number_format($bBerat2, 0, ',', '.').'</td>
+								<td style="background:#fdd;border:1px solid #ced2d6;padding:6px"></td>
 								<td style="padding:6px;text-align:center">'.$uDel2.'</td>
 							</tr>';
 							$totNQty += $n->qty_muat;
+							$bbNQty += $bBerat2;
 						}
 					}
 					// TOTAL
@@ -11045,12 +11060,13 @@ class Transaksi extends CI_Controller
 									$fixQty = '';
 								}
 								$html .= '
-									<td style="padding:6px;border:1px solid #bbb"></td>
-									<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sjTotQty + $totNQty, 0, ',', '.').' '.$fixQty.'</td>
-									<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.$txtTimb.' '.$fixTimb.'</td>
+									<td style="padding:6px;border:1px solid #bbb" colspan="2"></td>
+									<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sjTotQty + $totNQty, 0, ',', '.').'</td>
+									<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sjBBQty + $bbNQty, 0, ',', '.').'</td>
+									<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.$txtTimb.'</td>
 								';
-							}else if($aRK->num_rows() != 0){
-								$html .= '<td style="padding:6px;border:1px solid #bbb" colspan="3"></td>';
+							}else if($aRK->num_rows() != 0 || $tglNow > 0){
+								$html .= '<td style="padding:6px;border:1px solid #bbb" colspan="5"></td>';
 							}
 
 						$html .= '</tr>';

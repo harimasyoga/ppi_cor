@@ -3486,30 +3486,50 @@ class M_transaksi extends CI_Model
 		$p_tgl = $_POST["p_tgl"];
 		$p_urut = $_POST["p_urut"];
 
-		$data = '';
-
 		$kiriman = $this->db->query("SELECT p.*,r.* FROM m_rencana_kirim r
 		INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
 		WHERE p.tgl='$p_tgl' AND p.no_pl_urut='$p_urut'");
 		foreach($kiriman->result() as $r){
+			// INSERT YANG SAMA
 			$sys = $this->db->query("SELECT d.kode_po,s.* FROM trs_dev_sys s
 			INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-			WHERE s.eta='$tgl' AND s.urut='$urut'");
-			foreach($sys->result() as $s){
-				if($r->id_perusahaan == $s->id_pelanggan && $r->no_po == $s->kode_po && $r->id_produk == $s->id_produk){
-					$this->db->set('dev_tgl', $s->eta);
-					$this->db->set('dev_urut', $s->urut);
-					$this->db->set('dev_id', $s->id_dev);
-				}else{
-					$this->db->set('dev_tgl', $tgl);
-					$this->db->set('dev_urut', $urut);
-					$this->db->set('dev_id', null);
-				}
+			WHERE s.eta='$tgl' AND s.urut='$urut' AND s.id_pelanggan='$r->id_perusahaan' AND s.id_produk='$r->id_produk' AND d.kode_po='$r->no_po'");
+			if($sys->num_rows() != 0){
+				$this->db->set('dev_tgl', $sys->row()->eta);
+				$this->db->set('dev_urut', $sys->row()->urut);
+				$this->db->set('dev_id', $sys->row()->id_dev);
 				$this->db->where('id_rk', $r->id_rk);
 				$this->db->where('rk_tgl', $p_tgl);
 				$this->db->where('rk_urut', $p_urut);
-				$data .= $this->db->update('m_rencana_kirim');
+				$data = $this->db->update('m_rencana_kirim');
+			}else{
+				$data = true;
 			}
+			
+			// foreach($sys->result() as $s){
+			// 	if($r->id_perusahaan == $s->id_pelanggan && $r->no_po == $s->kode_po && $r->id_produk == $s->id_produk){
+			// 		$this->db->set('dev_tgl', $s->eta);
+			// 		$this->db->set('dev_urut', $s->urut);
+			// 		$this->db->set('dev_id', $s->id_dev);
+			// 	}else{
+			// 		$this->db->set('dev_tgl', $tgl);
+			// 		$this->db->set('dev_urut', $urut);
+			// 		$this->db->set('dev_id', null);
+			// 	}
+			// }
+		}
+
+		// INSERT YANG GAK SAMA SEKALI
+		if($data){
+			$this->db->set('dev_tgl', $tgl);
+			$this->db->set('dev_urut', $urut);
+			$this->db->where('dev_urut', null);
+			$this->db->where('dev_id', null);
+			$this->db->where('rk_tgl', $p_tgl);
+			$this->db->where('rk_urut', $p_urut);
+			$data2 = $this->db->update('m_rencana_kirim');
+		}else{
+			$data2 = true;
 		}
 
 		$this->db->set('timb_tgl', $p_tgl);
@@ -3520,6 +3540,7 @@ class M_transaksi extends CI_Model
 
 		return [
 			'data' => $data,
+			'$data2' => $data2,
 			'timb' => $timb,
 		];
 	}
