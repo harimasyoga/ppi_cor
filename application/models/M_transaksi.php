@@ -3475,4 +3475,52 @@ class M_transaksi extends CI_Model
 			'unlink' => $unlink,
 		];
 	}
+
+	function pilihDSRinc()
+	{
+		$urut = $_POST["urut"];
+		$angka = $_POST["tgl"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$tgl = $tahun.'-'.$bulan.'-'.$angka;
+		$p_tgl = $_POST["p_tgl"];
+		$p_urut = $_POST["p_urut"];
+
+		$data = '';
+
+		$kiriman = $this->db->query("SELECT p.*,r.* FROM m_rencana_kirim r
+		INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
+		WHERE p.tgl='$p_tgl' AND p.no_pl_urut='$p_urut'");
+		foreach($kiriman->result() as $r){
+			$sys = $this->db->query("SELECT d.kode_po,s.* FROM trs_dev_sys s
+			INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+			WHERE s.eta='$tgl' AND s.urut='$urut'");
+			foreach($sys->result() as $s){
+				if($r->id_perusahaan == $s->id_pelanggan && $r->no_po == $s->kode_po && $r->id_produk == $s->id_produk){
+					$this->db->set('dev_tgl', $s->eta);
+					$this->db->set('dev_urut', $s->urut);
+					$this->db->set('dev_id', $s->id_dev);
+				}else{
+					$this->db->set('dev_tgl', $tgl);
+					$this->db->set('dev_urut', $urut);
+					$this->db->set('dev_id', null);
+				}
+				$this->db->where('id_rk', $r->id_rk);
+				$this->db->where('rk_tgl', $p_tgl);
+				$this->db->where('rk_urut', $p_urut);
+				$data .= $this->db->update('m_rencana_kirim');
+			}
+		}
+
+		$this->db->set('timb_tgl', $p_tgl);
+		$this->db->set('timb_urut', $p_urut);
+		$this->db->where('eta', $tgl);
+		$this->db->where('urut', $urut);
+		$timb = $this->db->update('trs_dev_sys');
+
+		return [
+			'data' => $data,
+			'timb' => $timb,
+		];
+	}
 }
