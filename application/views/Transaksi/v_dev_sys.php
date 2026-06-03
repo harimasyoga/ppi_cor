@@ -194,6 +194,9 @@
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="ds-suratjalan">-</div>
 							</div>
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="ds-pilihds">-</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -278,6 +281,7 @@
 			$(".rinc-real-tgl").html('')
 			$("#p_tgl").val('')
 			$("#p_urut").val('')
+			$(".ds-pilihds").html('')
 		}
 		let p_tgl = $("#p_tgl").val()
 		let p_urut = $("#p_urut").val()
@@ -307,6 +311,7 @@
 					location.href = '#jadwal';
 				}
 				if(opsi == 'kirim'){
+					$(".btnDSRC").html('')
 					$(".ds-suratjalan").html(data.htmlSJ)
 					$(".rinc-real-tgl").html(data.tglRealRinc)
 					$('.select2').select2()
@@ -879,19 +884,33 @@
 		})
 	}
 
-	function pilihDS(tgl, urut) {
-		$("#p_tgl").val(tgl)
-		$("#p_urut").val(urut)
-		swal({
-			title : "Oke, Pilih Plan",
-			html : "",
-			type : "success",
-			confirmButtonText : "OK"
-		});
+	function pilihDSDS(tgl, urut) {
+		$(".ds-pilihds").html('')
+		$("#p_tgl").val('')
+		$("#p_urut").val('')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/pilihDSDS')?>',
+			type: "POST",
+			data: ({ tgl, urut }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$("#p_tgl").val(tgl)
+				$("#p_urut").val(urut)
+				$(".ds-pilihds").html(data.html)
+				swal({
+					title : "OKE, PILIH PLAN",
+					html : "",
+					type : "success",
+					confirmButtonText : "OK"
+				});
+			}
+		})
 	}
 
 	function pilihDSRinc(urut){
-		let tgl = $("#r_tgl").val()
+		let z_tgl = $("#z_tgl").val() // real
+		let tgl = $("#r_tgl").val() // plan
 		let bulan = $("#bulan").val()
 		let tahun = $("#tahun").val()
 		let p_tgl = $("#p_tgl").val()
@@ -915,7 +934,7 @@
 				$("#p_tgl").val('')
 				$("#p_urut").val('')
 				ccDevSys(tgl, 'jadwal')
-				ccDevSys(tgl, 'kirim')
+				ccDevSys(z_tgl, 'kirim')
 			}
 		})
 	}

@@ -10460,27 +10460,17 @@ class Transaksi extends CI_Controller
 		$htmlSJ = '';
 		$tglRealRinc = '';
 		if($opsi == 'kirim' || ($p_tgl != '' && $p_urut != '')){
-			if($p_tgl != '' && $p_urut != ''){
-				$getUrut = $this->db->query("SELECT tgl,no_pl_urut,no_kendaraan,driver,expedisi,stat_sj,cetak_sj FROM pl_box WHERE tgl='$p_tgl' AND no_pl_urut='$p_urut' GROUP BY no_pl_urut");
-				$sTbl = 'style="margin-bottom:20px"';
-				$tTbl = 'ddf';
-				$hTbl = '';
+			if($id_sales == null || $id_sales == ''){
+				$getUrut = $this->db->query("SELECT tgl,no_pl_urut,no_kendaraan,driver,expedisi,stat_sj,cetak_sj FROM pl_box WHERE tgl='$tgl' GROUP BY no_pl_urut");
 			}else{
-				if($id_sales == null || $id_sales == ''){
-					$getUrut = $this->db->query("SELECT tgl,no_pl_urut,no_kendaraan,driver,expedisi,stat_sj,cetak_sj FROM pl_box WHERE tgl='$tgl' GROUP BY no_pl_urut");
-				}else{
-					$getUrut = $this->db->query("SELECT tgl,no_pl_urut,no_kendaraan,driver,expedisi,stat_sj,cetak_sj FROM pl_box p
-					INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
-					WHERE tgl='$tgl' AND c.id_sales='$id_sales' GROUP BY no_pl_urut");
-				}
-				$sTbl = '';
-				$tTbl = 'dee2e6';
-				$hTbl = '<th style="padding:6px;border:1px solid #bbb">PLAN</th>';
+				$getUrut = $this->db->query("SELECT tgl,no_pl_urut,no_kendaraan,driver,expedisi,stat_sj,cetak_sj FROM pl_box p
+				INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
+				WHERE tgl='$tgl' AND c.id_sales='$id_sales' GROUP BY no_pl_urut");
 			}
 
-			$htmlSJ .='<table '.$sTbl.'>
-				<tr style="background:#'.$tTbl.'">
-					'.$hTbl.'
+			$htmlSJ .='<table>
+				<tr style="background:#dee2e6">
+					<th style="padding:6px;border:1px solid #bbb">PLAN</th>
 					<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
 					<th style="padding:6px;border:1px solid #bbb">ITEM</th>
 					<th style="padding:6px;border:1px solid #bbb">UKURAN</th>
@@ -10513,23 +10503,18 @@ class Transaksi extends CI_Controller
 					$dXs = 'disabled';
 
 					// PLAN
-					if($p_tgl != '' && $p_urut != ''){
-						$htPln = '<td style="background:#333;color:#fff;padding:6px;font-weight:bold">'.strtoupper($this->m_fungsi->getHariIni($p_tgl)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($p_tgl)).'</td>';
-					}else{
-						$c_pl = $this->db->query("SELECT*FROM pl_box p WHERE tgl='$tgl' AND no_pl_urut='$urut->no_pl_urut'");
-						$c_rk = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE rk_tgl='$tgl' AND rk_urut='$urut->no_pl_urut' AND id_pl_box IS NOT NULL");
-						$d_rk = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE rk_tgl='$tgl' AND rk_urut='$urut->no_pl_urut' AND dev_urut IS NOT NULL");
-						$kTbh = ($c_rk->num_rows() > 1) ? 2 : 1;
-						$cSp = ($c_pl->num_rows() + $c_rk->num_rows()) + $kTbh;
-						$bBtnPln = ($qTimb->num_rows() > 0 && $d_rk->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])) ?
-							'<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="pilihDS('."'".$tgl."'".', '."'".$urut->no_pl_urut."'".')"><i class="fas fa-plus-circle"></i></button>'
-							: '<button class="btn btn-sm btn-secondary" style="font-weight:bold" disabled><i class="fas fa-plus-circle"></i></button>';
-						$htPln = '<td style="border:1px solid #bbb;padding:6px;font-weight:bold;vertical-align:top" rowspan="'.$cSp.'">'.$bBtnPln.'</td>
-						<td style="background:#333;color:#fff;padding:6px;font-weight:bold">'.$i.'</td>';
-					}
+					$c_pl = $this->db->query("SELECT*FROM pl_box p WHERE tgl='$tgl' AND no_pl_urut='$urut->no_pl_urut'");
+					$c_rk = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE rk_tgl='$tgl' AND rk_urut='$urut->no_pl_urut' AND id_pl_box IS NOT NULL");
+					$d_rk = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE rk_tgl='$tgl' AND rk_urut='$urut->no_pl_urut' AND dev_urut IS NOT NULL");
+					$kTbh = ($c_rk->num_rows() > 1) ? 2 : 1;
+					$cSp = ($c_pl->num_rows() + $c_rk->num_rows()) + $kTbh;
+					$bBtnPln = ($qTimb->num_rows() > 0 && $d_rk->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])) ?
+						'<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="pilihDSDS('."'".$tgl."'".', '."'".$urut->no_pl_urut."'".')"><i class="fas fa-plus-circle"></i></button>'
+						: '<button class="btn btn-sm btn-secondary" style="font-weight:bold" disabled><i class="fas fa-plus-circle"></i></button>';
 
 					$htmlSJ .='<tr id="urut'.$urut->no_pl_urut.'">
-						'.$htPln.'
+						<td style="border:1px solid #bbb;padding:6px;font-weight:bold;vertical-align:top" rowspan="'.$cSp.'">'.$bBtnPln.'</td>
+						<td style="background:#333;color:#fff;padding:6px;font-weight:bold">'.$i.'</td>
 						<td style="background:#333;color:#fff;padding:6px;text-align:right;font-weight:bold">NO. PLAT :</td>
 						<td style="background:#333;color:#fff;padding:6px;text-align:right"">
 							<input type="text" class="form-control" id="pp-noplat-'.$urut->no_pl_urut.'" style="height:100%;width:100px;text-align:center;padding:2px 4px;font-weight:bold" placeholder="-" autocomplete="off" oninput="this.value=this.value.toUpperCase()" value="'.$urut->no_kendaraan.'" '.$editNopol.'>
@@ -10598,7 +10583,7 @@ class Transaksi extends CI_Controller
 						$eNoSj = 'disabled';
 						($sjpo->kategori == 'SHEET') ? $tdX = 'background:#333;color:#fff;' : $tdX = '';
 
-						$htmlSJ .='<tr style="background:#'.$tTbl.'">
+						$htmlSJ .='<tr style="background:#dee2e6">
 							<td style="'.$tdX.'padding:4px 6px;border:1px solid #bbb;font-weight:bold;display:flex">
 								NO. SURAT JALAN : &nbsp;<input type="number" class="form-control" id="pp-nosj-'.$sjpo->id.'" style="height:100%;width:50px;text-align:center;padding:2px 4px" value="'.$noSJ[0].'" '.$eNoSj.'>'.$ketSJ.'
 							</td>
@@ -10673,16 +10658,13 @@ class Transaksi extends CI_Controller
 					}
 				}
 			$htmlSJ .= '</table>';
-			if($p_tgl != '' && $p_urut != ''){
-				$html .= $htmlSJ;
-			}
 			$tglRealRinc = ' - '.strtoupper($this->m_fungsi->getHariIni($tgl)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl));
 		}
 
 		$tglRincian = '';
 		if($opsi == 'jadwal'){
 			// CEK PENGIRIMAN
-			$aRK = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_tgl='$tgl' AND dev_urut IS NOT NULL GROUP BY rk_tgl");
+			$aRK = $this->db->query("SELECT*FROM m_rencana_kirim WHERE (rk_tgl='$tgl' OR dev_tgl='$tgl') AND dev_urut IS NOT NULL GROUP BY rk_tgl");
 
 			$html .= '<table>
 				<tr style="background:#dee2e6">
@@ -10695,7 +10677,7 @@ class Transaksi extends CI_Controller
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">BB</th>
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
 					<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">K</th>';
-					if($aRK->num_rows() != 0 || $tglNow > 0){
+					if($aRK->num_rows() != 0){
 						$html .= '<th style="padding:6px;text-align:center;border:1px solid #bbb" colspan="5">REALISASI</th>';
 					}
 				$html .= '</tr>';
@@ -10719,14 +10701,14 @@ class Transaksi extends CI_Controller
 					INNER JOIN trs_dev_sys s ON r.dev_id=s.id_dev AND r.dev_urut=s.urut
 					WHERE s.eta='$tgl' AND s.urut='$u->urut'
 					GROUP BY s.eta,s.urut");
-					$cRk = $this->db->query("SELECT m.rk_tgl,m.dev_urut,m.dev_id FROM m_rencana_kirim m WHERE m.rk_tgl='$tgl' AND m.dev_urut='$u->urut' GROUP BY m.dev_urut,m.dev_id");
+					$cRk = $this->db->query("SELECT m.rk_tgl,m.dev_urut,m.dev_id FROM m_rencana_kirim m WHERE (m.rk_tgl='$tgl' OR m.dev_tgl='$tgl') AND m.dev_urut='$u->urut' GROUP BY m.dev_urut,m.dev_id");
 					$rkNull = $this->db->query("SELECT l.no_surat,p.nm_pelanggan,i.nm_produk,r.* FROM m_rencana_kirim r
 					INNER JOIN pl_box l ON r.rk_kode_po=l.no_po AND r.rk_urut=l.no_pl_urut AND r.id_pl_box=l.id
 					INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
 					INNER JOIN m_produk i ON r.id_produk=i.id_produk
-					WHERE r.rk_tgl='$tgl' AND r.dev_urut='$u->urut' AND r.dev_id IS NULL
+					WHERE (r.rk_tgl='$tgl' OR r.dev_tgl='$tgl') AND r.dev_urut='$u->urut' AND r.dev_id IS NULL
 					ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
-					$rkNotNull = $this->db->query("SELECT * FROM m_rencana_kirim r WHERE r.rk_tgl='$tgl' AND r.dev_urut='$u->urut' AND r.dev_id IS NOT NULL");
+					$rkNotNull = $this->db->query("SELECT * FROM m_rencana_kirim r WHERE (r.rk_tgl='$tgl' OR r.dev_tgl='$tgl') AND r.dev_urut='$u->urut' AND r.dev_id IS NOT NULL");
 					$cekKLB = $this->db->query("SELECT*FROM trs_dev_klb WHERE tgl='$tgl' AND urut='$u->urut' AND kalibrasi!=''");
 					$fileKLB = $this->db->query("SELECT*FROM trs_dev_klb WHERE tgl='$tgl' AND urut='$u->urut' AND file_klb!=''");
 					($cekKLB->num_rows() == 0) ? $txtKLB = '' : $txtKLB = $cekKLB->row()->kalibrasi;
@@ -10739,7 +10721,7 @@ class Transaksi extends CI_Controller
 								$html .= '<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">SURAT JALAN</td>
 								<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">QTY</td>
 								<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">TIMBANGAN</td>';
-							}else if($aRK->num_rows() != 0 || $tglNow > 0){
+							}else if($aRK->num_rows() != 0){
 								$html .= '<td style="background:#333;padding:6px" colspan="5"></td>';
 							}
 						$html .= '</tr>';
@@ -10784,7 +10766,7 @@ class Transaksi extends CI_Controller
 										$hapus = '';
 									}
 									// pilih plan && $tglNow >= 0
-									$plhBtnDS = ($rkNotNull->num_rows() == 0 && $p_tgl != '' && $p_urut != '') ? ' - <button class="btn btn-xs btn-primary" style="font-weight:bold" onclick="pilihDSRinc('."'".$u->urut."'".')">PILIH</button>' : '';
+									$plhBtnDS = ($rkNotNull->num_rows() == 0 && $p_tgl != '' && $p_urut != '') ? ' - <span class="btnDSRC"><button class="btn btn-xs btn-primary" style="font-weight:bold" onclick="pilihDSRinc('."'".$u->urut."'".')">PILIH</button></span>' : '<span class="btnDSRC"></span>';
 									$html .= '<div style="font-weight:bold;color:#fff">'.$e->plat.' ( '.$e->ekspedisi.' )'.$pLt.$kalibrasi.$hapus.$plhBtnDS.'</div>';
 								}
 							$html .= '</td>';
@@ -10806,13 +10788,13 @@ class Transaksi extends CI_Controller
 								$html .= '<td style="background:#333;padding:6px" colspan="6">'.$bIkb.$hIkb.'</td>';
 							}
 							
-							if(($aRK->num_rows() != 0 && ($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0) && $cRk->num_rows() != 0) || $tglNow > 0){
+							if($aRK->num_rows() != 0 && ($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0) && $cRk->num_rows() != 0){
 								$html .= '<td style="background:#ddf;text-align:center;font-weight:bold;padding:6px">TANGGAL</td>
 								<td style="background:#ddf;text-align:center;font-weight:bold;padding:6px">SURAT JALAN</td>
 								<td style="background:#ddf;text-align:center;font-weight:bold;padding:6px">QTY</td>
 								<td style="background:#ddf;text-align:center;font-weight:bold;padding:6px">BERAT</td>
 								<td style="background:#ddf;text-align:center;font-weight:bold;padding:6px">TIMBANGAN</td>';
-							}else if($aRK->num_rows() != 0 || $tglNow > 0){
+							}else if($aRK->num_rows() != 0){
 								$html .= '<td style="background:#333;padding:6px" colspan="5"></td>';
 							}
 						$html .= '</tr>';
@@ -10931,16 +10913,10 @@ class Transaksi extends CI_Controller
 								$html .= '<td style="border:1px solid #dee2e6;border-width:0 1px;padding:6px;text-align:right" '.$rkRS.'></td>';
 							}
 
+							// REALISASI
 							if($rk->num_rows() != 0){
 								foreach($rk->result() as $k){
 									(in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $uDel = '<button class="btn btn-xs btn-danger" onclick="btlRKtoSys('."'".$k->id_rk."'".', '."'".$tgl."'".', '."'".$u->urut."'".')"><i class="fas fa-trash"></i></button>' : $uDel = '';
-									//
-									// $_2 = $k->qty_muat - $r->qty_plan;
-									// if($_2 >= 0){
-									// 	$_bg2 = ';background:#dfd';
-									// }else if($_2 < 0){
-									// 	$_bg2 = ';background:#ffd';
-									// }
 									($sys->num_rows() != 1) ? $bdb = ';border-width:0 1px' : $bdb = '' ;
 									$bBerat1 = $k->rk_bb * $k->qty_muat; // BERAT
 									$html .= '
@@ -10955,9 +10931,9 @@ class Transaksi extends CI_Controller
 									$sjBBQty += $bBerat1;
 								}
 							}else{
-								if($aRK->num_rows() != 0 || $tglNow > 0){
+								if($aRK->num_rows() != 0){
 									$html .= '
-										<td style="border:1px solid #dee2e6;background:#fdd;padding:6px" colspan="5"></td>
+										<td style="border:1px solid #ced2d6;background:#fdd;padding:6px" colspan="5"></td>
 									</tr>';
 								}
 							}
@@ -11065,7 +11041,7 @@ class Transaksi extends CI_Controller
 									<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sjBBQty + $bbNQty, 0, ',', '.').'</td>
 									<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.$txtTimb.'</td>
 								';
-							}else if($aRK->num_rows() != 0 || $tglNow > 0){
+							}else if($aRK->num_rows() != 0){
 								$html .= '<td style="padding:6px;border:1px solid #bbb" colspan="5"></td>';
 							}
 
@@ -11081,6 +11057,107 @@ class Transaksi extends CI_Controller
 			'htmlSJ' => $htmlSJ,
 			'tglRincian' => $tglRincian,
 			'tglRealRinc' => $tglRealRinc,
+		]);
+	}
+
+	function pilihDSDS()
+	{
+		$p_tgl = $_POST["tgl"];
+		$p_urut = $_POST["urut"];
+		$html = '';
+
+		$wIDPT = '';
+		$wIDPT .= "AND s.id_pelanggan IN(";
+			$getIdPt = $this->db->query("SELECT p.id_perusahaan FROM pl_box p WHERE p.tgl='$p_tgl' AND p.no_pl_urut='$p_urut' GROUP BY p.id_perusahaan;");
+			$wX = 0;
+			foreach($getIdPt->result() as $w){
+				$wX++;
+				$wIDPT .= "'$w->id_perusahaan'";
+				if($getIdPt->num_rows() != $wX){
+					$wIDPT .= ", ";
+				}
+			}
+		$wIDPT .= ')';
+
+		$html .= '<div style="margin-top:25px;font-weight:bold">LIST SEMUA PLAN :</div>
+		<table style="margin-top:5px">
+			<tr style="background:#dee2e6">
+				<th style="padding:6px;border:1px solid #bbb;text-align:center">#</th>
+				<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
+				<th style="padding:6px;border:1px solid #bbb">TGL. TIBA</th>
+				<th style="padding:6px;border:1px solid #bbb">NO. PO</th>
+				<th style="padding:6px;border:1px solid #bbb">ITEM</th>
+				<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">QTY</th>
+				<th style="padding:6px;text-align:center;border:1px solid #bbb">BB</th>
+				<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
+			</tr>';
+
+			$urut = $this->db->query("SELECT s.* FROM trs_dev_sys s
+			INNER JOIN trs_po_detail p ON s.id_po_header=p.id
+			WHERE p.status='Approve' $wIDPT GROUP BY s.eta DESC, s.urut");
+
+			foreach($urut->result() as $u){
+				$html .= '<tr style="background:#333;color:#fff">
+					<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="9">'.strtoupper($this->m_fungsi->getHariIni($u->eta)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($u->eta)).'</td>
+				</tr>';
+
+				$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,c.prov,c.kab,c.lock,p.kode_po,p.status AS sts,i.*,d.* FROM trs_dev_sys d
+				INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
+				INNER JOIN trs_po_detail p ON d.id_po_header=p.id
+				INNER JOIN m_produk i ON d.id_produk=i.id_produk
+				WHERE d.eta='$u->eta' AND d.urut='$u->urut' AND p.status='Approve'
+				GROUP BY d.id_dev,d.id_pelanggan,p.kode_po,d.id_produk
+				ORDER BY c.nm_pelanggan,p.kode_po,i.nm_produk");
+
+				$totQty = 0;
+				$totBerat = 0;
+				foreach($sys->result() as $r){
+					($r->attn == '-') ? $attn = '' : $attn = '<div>'.$r->attn.'</div>';
+					($r->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
+					$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$r->prov'");
+					$kab = $this->db->query("SELECT*FROM m_kab WHERE kab_id='$r->kab'");
+					($kab->num_rows() != 0) ? $kota = ' - <span style="font-style:italic">('.$kab->row()->kab_name.')</span>' : $kota = '';
+					if($prov->num_rows() == 0){
+						$lamaK = '-';
+					}else{
+						$ll = $prov->row()->lama_kirim;
+						$minggu = date('l', strtotime('+'.$ll.' day', strtotime($r->eta)));
+						($minggu == 'Sunday') ? $ll2 = $prov->row()->lama_kirim + 1 : $ll2 = $prov->row()->lama_kirim;
+						$lamaK = date('d-m-Y', strtotime('+'.$ll2.' day', strtotime($r->eta)));
+					}
+					(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:320px;white-space:normal">' : $dv1 = '';
+					(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+
+					($r->timb_tgl != null && $r->timb_urut != null) ? $bgDn = ';background:#dfd' : $bgDn = '';
+					$html .= '<tr style="vertical-align:top">
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:center'.$bgDn.'">
+							<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" value="'.$r->urut.'" disabled>
+						</td>
+						<td style="border:1px solid #dee2e6;padding:6px'.$bgDn.'">'.$r->nm_pelanggan.$kota.$attn.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:center'.$bgDn.'">'.$lamaK.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px'.$bgDn.'">'.$r->kode_po.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px'.$bgDn.'">'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right'.$bgDn.'">'.number_format($r->qty_plan, 0, ',', '.').'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:center'.$bgDn.'">'.$r->berat_bersih.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right'.$bgDn.'">'.number_format($r->berat, 0, ',', '.').'</td>
+					</tr>';
+
+					$totQty += $r->qty_plan;
+					$totBerat += $r->berat;
+				}
+				// TOTAL
+				if($sys->num_rows() != 1){
+					$html .= '<tr style="background:#dee2e6">
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">TOTAL</td>
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($totQty, 0, ',', '.').'</td>
+						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.number_format($totBerat, 0, ',', '.').'</td>
+					</tr>';
+				}
+			}
+		$html .= '</table>';
+
+		echo json_encode([
+			'html' => $html,
 		]);
 	}
 
