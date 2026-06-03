@@ -21,8 +21,18 @@ class Transaksi extends CI_Controller
 		$data = [
 			'judul' => "DELIVERY SYSTEM",
 		];
-		$this->load->view('header',$data);
+		$this->load->view('header', $data);
 		$this->load->view('Transaksi/v_dev_sys');
+		$this->load->view('footer');
+	}
+
+	function Expired_PO()
+	{
+		$data = [
+			'judul' => "EXPIRED PO",
+		];
+		$this->load->view('header', $data);
+		$this->load->view('Transaksi/v_expired_po');
 		$this->load->view('footer');
 	}
 
@@ -4540,6 +4550,106 @@ class Transaksi extends CI_Controller
 				}
 				$data[] = $row;
 			}
+		} else if ($jenis == "trs_exp_po") {
+			$level = $this->session->userdata('level');
+			$id_sales = $this->session->userdata('id_sales');
+			($id_sales == null) ? $wSales = "" : $wSales = "AND c.id_sales='$id_sales'";
+			
+			$query = $this->db->query("SELECT*FROM trs_po p
+			INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+			WHERE p.close_po AND p.tamat_po IS NULL $wSales
+			GROUP BY p.no_po,p.kode_po
+			ORDER BY p.close_po DESC,p.tgl_po ASC")->result();
+			$i = 0;
+			foreach ($query as $r) {
+				$i++;
+				$row = array();
+				$row[] = '<div class="text-center">'.$i.'</div>';
+				
+				// DETAIL
+				($r->attn == '-') ? $attn = '' : $attn = '<div>'.$r->attn.'</div>';
+				$row[] = '<table>
+					<tr style="background-color:transparent !important">
+						<td style="padding:2px;border:0;font-weight:bold">TANGGAL</td>
+						<td style="padding:2px;border:0">:</td>
+						<td style="padding:2px;border:0">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->tgl_po)).'</td>
+					</tr>
+					<tr style="background-color:transparent !important">
+						<td style="padding:2px;border:0;font-weight:bold">CUSTOMER</td>
+						<td style="padding:2px;border:0">:</td>
+						<td style="padding:2px;border:0">'.$r->nm_pelanggan.$attn.'</td>
+					</tr>
+				</table>';
+
+				// KODE PO
+				$row[] = $r->kode_po.'<div style="color:#dc3545;font-weight:bold">'.strtoupper($this->m_fungsi->tanggal_format_indonesia(substr($r->close_po, 0, 10))).'</div>';
+				
+				// ITEM
+				$qItem = $this->db->query("SELECT*FROM trs_po_detail a INNER JOIN m_produk b ON a.id_produk=b.id_produk WHERE no_po='$r->no_po' GROUP BY a.id_produk ORDER BY a.id");
+				if($qItem->num_rows() == '1'){
+					(strlen($qItem->row()->nm_produk) >= 35) ? $sTy = 'style="width:260px;white-space:normal"' : $sTy = '';
+					$nm_item = '<div '.$sTy.'>'.$qItem->row()->nm_produk.'</div>';
+				}else{
+					$nm_item_result = ''; $no = 0;
+					foreach($qItem->result() as $l){
+						(strlen($l->nm_produk) >= 35) ? $sTf = 'style="width:260px;white-space:normal"' : $sTf = '';
+						$no++;
+						$nm_item_result .= '<div '.$sTf.'><b>'.$no.'.</b> '.$l->nm_produk.'</div>';
+					}
+					$nm_item = $nm_item_result;
+				}
+				$row[] = $nm_item;
+
+				// QTY PO
+				$qtyPO = ''; $qq = 0;
+				$qtyPO .= '<table>';
+					foreach($qItem->result() as $q){
+						$qq++;
+						($qItem->num_rows() != 1) ? $tdQQ = '<td style="padding:0 2px 2px;border:0;font-weight:bold">'.$qq.'.</td>' : $tdQQ = '';
+						$qtyPO .= '<tr style="background-color:transparent !important">
+							'.$tdQQ.'
+							<td style="padding:0 2px 2px;border:0;text-align:right">'.number_format($q->qty,0,',','.').'</td>
+						</tr>';
+					}
+				$qtyPO .= '</table>';
+				$row[] = $qtyPO;
+
+				// PENGIRIMAN
+				$pengiriman = ''; $no2 = 0;
+				$pengiriman .= '<table>';
+					foreach($qItem->result() as $p){
+						$no2++;
+						$kirim = $this->m_fungsi->kiriman($p->kode_po, $p->id_produk, $p->qty);
+						$sumKirim = $kirim["sumKirim"];
+						$sumRetur = $kirim["sumRetur"];
+						$sisa = $kirim["sisa"];
+						($sisa <= 0) ? $bgtd = 'background:#74c69d' : $bgtd = 'background:#ff758f';
+						($sisa <= 0) ? $txtSisa = number_format($sisa,0,',','.') : $txtSisa = '+'.number_format($sisa,0,',','.');
+						($sisa == 0 || $sumKirim == 0) ? $span = '' : $span = ' <span style="padding:0 3px;'.$bgtd.'">'.$txtSisa.'</span>';
+
+						($qItem->num_rows() != 1) ? $tdNO = '<td style="padding:0 2px 2px;border:0;font-weight:bold">'.$no2.'.</td>' : $tdNO = '';
+						($sumKirim == 0) ? $tdISI = '-' : $tdISI = number_format($sumKirim,0,',','.');
+						($sumRetur != 0) ? $txtRtr = ' <span style="font-style:italic;font-weight:normal">('.number_format($sumRetur,0,',','.').')</span>' : $txtRtr = '';
+
+						$pengiriman .= '<tr style="background-color:transparent !important">
+							'.$tdNO.'
+							<td style="padding:0 2px 2px;border:0;text-align:right">'.$tdISI.$txtRtr.'</td>
+							<td style="padding:0 2px 2px;border:0;text-align:right">'.$span.'</td>
+						</tr>';
+					}
+				$pengiriman .= '</table>';
+				$row[] = $pengiriman;
+
+				// AKSI
+				if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
+					$oncTT = 'class="btn btn-info btn-sm" onclick="btnTamatPO('."'".$r->id."'".')"';
+				}else{
+					$oncTT = 'class="btn btn-secondary btn-sm" disabled';
+				}
+				$row[] = '<button type="button" '.$oncTT.'><i class="fa fa-check"></i></button>';
+
+				$data[] = $row;
+			}
 		}
 
 		$output = array(
@@ -8404,6 +8514,12 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function btnTamatPO()
+	{
+		$result = $this->m_transaksi->btnTamatPO();
+		echo json_encode($result);
+	}
+
 	function laporanSO(){
 		$id = $_GET["id"];
 		$data = $this->db->query("SELECT c.nm_pelanggan,c.top,c.fax,c.no_telp,c.alamat,s.nm_sales,o.eta,p.tgl_po,o.tgl_so,p.time_app1,p.time_app2,p.time_app3,b.id_hub,b.nm_hub,b.alamat AS alamat_hub,i.*,d.* FROM trs_so_detail d
@@ -11094,7 +11210,7 @@ class Transaksi extends CI_Controller
 
 			$urut = $this->db->query("SELECT s.* FROM trs_dev_sys s
 			INNER JOIN trs_po_detail p ON s.id_po_header=p.id
-			WHERE p.status='Approve' $wIDPT GROUP BY s.eta DESC, s.urut");
+			WHERE p.status='Approve' AND s.eta BETWEEN '2026-05-01' AND '9999-01-01' $wIDPT GROUP BY s.eta DESC, s.urut");
 
 			foreach($urut->result() as $u){
 				$html .= '<tr style="background:#333;color:#fff">
@@ -11155,6 +11271,69 @@ class Transaksi extends CI_Controller
 				}
 			}
 		$html .= '</table>';
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function alertExpiredPO()
+	{
+		$id_sales = $this->session->userdata('id_sales');
+		($id_sales == null) ? $wSales = "" : $wSales = "AND c.id_sales='$id_sales'";
+
+		$now = date('Y-m-d');
+		$close = $this->db->query("SELECT*FROM trs_po p
+		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+		WHERE p.close_po LIKE '%$now%' AND p.tamat_po IS NULL $wSales
+		GROUP BY p.no_po,p.kode_po");
+
+		$html = '';
+		$html .= '<div class="col-md-12">
+			<div class="row">';
+				if($close->num_rows() != 0){
+					$html .= '<div class="col-md-12">
+						<div class="alert alert-info alert-dismissible">
+							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+							<h5><i class="icon fas fa-info"></i> ADA <span style="background:#fff;padding:0 5px;color:#000;font-weight:bold;border-radius:3px">'.$close->num_rows().'</span> PO EXPIRED BARU!</h5>
+							<a href="'.base_url('Transaksi/Expired_PO').'">Cek Selengkapnya</a>
+						</div>
+					</div>';
+				}
+			$html .= '</div>
+		</div>';
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function alertPOBaru()
+	{
+		$id_sales = $this->session->userdata('id_sales');
+		($id_sales == null) ? $wSales = "" : $wSales = "AND c.id_sales='$id_sales'";
+
+		$now = date('Y-m-d');
+		$close = $this->db->query("SELECT*FROM trs_po p
+		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+		WHERE p.close_po LIKE '%$now%' AND p.tamat_po IS NULL $wSales
+		GROUP BY p.no_po,p.kode_po
+		ORDER BY p.close_po DESC,p.tgl_po ASC");
+
+		$html = '';
+		if($close->num_rows() != 0){
+			foreach($close->result() as $r){
+				($r->attn == '-') ? $attn = '' : $attn = '<div style="padding-left:18px">'.$r->attn.'</div>';
+				$html .= '<div class="alert alert-info alert-dismissible" style="margin:0 0 8px;padding:12px">
+					<button type="button" class="close" style="padding:3px 12px 0" data-dismiss="alert" aria-hidden="true">×</button>
+					<i class="icon fas fa-info"></i> <span style="background:#fff;padding:0 5px;color:#000;font-weight:bold;border-radius:3px">'.$r->kode_po.'</span>
+					<div style="padding-left:18px">'.$r->nm_pelanggan.'</div>
+					'.$attn.'
+				</div>';
+			}
+		}else{
+			$html .= '-';
+		}
 
 		echo json_encode([
 			'html' => $html,

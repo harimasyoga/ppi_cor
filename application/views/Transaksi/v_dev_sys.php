@@ -892,6 +892,16 @@
 			url: '<?php echo base_url('Transaksi/pilihDSDS')?>',
 			type: "POST",
 			data: ({ tgl, urut }),
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)

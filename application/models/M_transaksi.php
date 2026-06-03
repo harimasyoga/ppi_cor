@@ -1119,6 +1119,7 @@ class M_transaksi extends CI_Model
 			if($po->aktif == 1){
 				$this->db->set("aktif", 0);
 				$this->db->set("status", 'Close');
+				$this->db->set("status_kiriman", 'Close');
 				$msg = 'PO '.$po->kode_po.' BERHASIL DI CLOSE!';
 			}else{
 				$this->db->set("aktif", 1);
@@ -1127,6 +1128,7 @@ class M_transaksi extends CI_Model
 				}else{
 					$this->db->set("status", 'Open');
 				}
+				$this->db->set("status_kiriman", 'Open');
 				$msg = 'PO '.$po->kode_po.' BERHASIL DI OPEN!';
 			}
 			$this->db->where("id", $id);
@@ -1148,6 +1150,18 @@ class M_transaksi extends CI_Model
 		$this->db->set("status", 'Open');
 		$this->db->set("status_app".$opsi, 'N');
 		$this->db->set("ket_acc".$opsi, null);
+		$this->db->where("id", $id);
+		$data = $this->db->update('trs_po');
+
+		return [
+			'data' => $data,
+		];
+	}
+
+	function btnTamatPO(){
+		$id = $_POST["id"];
+
+		$this->db->set("tamat_po", 'END');
 		$this->db->where("id", $id);
 		$data = $this->db->update('trs_po');
 

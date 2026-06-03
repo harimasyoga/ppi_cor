@@ -12384,7 +12384,7 @@ class Logistik extends CI_Controller
 			INNER JOIN m_pelanggan p ON g.gd_id_pelanggan=p.id_pelanggan
 			INNER JOIN m_produk i ON g.gd_id_produk=i.id_produk
 			INNER JOIN trs_po o ON g.gd_kode_po=o.kode_po AND g.gd_id_pelanggan=o.id_pelanggan
-			WHERE g.gd_kode_po IS NOT NULL AND g.gd_cek_spv='Close' AND g.gd_status='Open' AND o.status_kiriman='Open'
+			WHERE g.gd_kode_po IS NOT NULL AND g.gd_cek_spv='Close' AND g.gd_status='Open' AND o.status_kiriman='Open' AND o.status!='Close'
 			ORDER BY p.nm_pelanggan,g.gd_kode_po,i.nm_produk");
 		}
 		if($opsi == "tgl_kirim"){

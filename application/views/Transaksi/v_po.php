@@ -16,6 +16,9 @@
 		</div><!-- /.container-fluid -->
 	</section>
 
+	<!-- ALERT -->
+	<div class="alert-po"></div>
+
 	<!-- Main content -->
 	<section class="content">
 		<!-- Default box -->
@@ -455,6 +458,7 @@
 	const urlUser = '<?= $this->session->userdata('username')?>';
 
 	$(document).ready(function() {
+		alertExpiredPO()
 		updateExpiredPO()
 		// load_data()
 		load_status_karet();
@@ -3088,37 +3092,15 @@
 		}
 	}
 
-	// function countDownPO(id)
-	// {
-	// 	let statusMarketing = $("#statusMarketing-"+id).val()
-	// 	let tanggalExpired = $("#tanggalExpired-"+id).val()
-	// 	let countDownDate = new Date(tanggalExpired).getTime()
-	// 	let x = setInterval(function() {
-	// 		let now = new Date().getTime()
-	// 		let distance = countDownDate - now
-	// 		let days = Math.floor(distance / (1000 * 60 * 60 * 24))
-	// 		let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-	// 		let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
-	// 		let seconds = Math.floor((distance % (1000 * 60)) / 1000);
-	// 		(days == 0) ? days = '' : days = days+" Day<br>";
-	// 		(hours == 0) ? hours = '' : hours = hours+" Hrs<br>";
-	// 		(minutes == 0) ? minutes = '' : minutes = minutes+" Mnt<br>";
-	// 		(seconds == 0) ? seconds = '' : seconds = seconds+" Sec";
-	// 		let waktu = days + hours + minutes + seconds;
-	// 		(statusMarketing != 'Y') ? $("#countdown1-"+id).html(waktu) : '';
-	// 		$("#countdown2-"+id).html(waktu)
-	// 		if (distance < 0) {
-	// 			clearInterval(x)
-	// 			if(statusMarketing != 'Y'){
-	// 				$("#btnBase1-"+id).removeClass().addClass('btn btn-sm btn-danger').attr('style', 'color:#000')
-	// 				$("#iBtn1-"+id).removeClass().addClass('fas fa-ban')
-	// 				$("#countdown1-"+id).html('EXPIRED')
-	// 			}
-	// 			$("#btnBase2-"+id).removeClass().addClass('btn btn-sm btn-danger').attr('style', 'color:#000')
-	// 			$("#iBtn2-"+id).removeClass().addClass('fas fa-ban')
-	// 			$("#countdown2-"+id).html('EXPIRED')
-	// 		}
-	// 	}, 1000);
-	// }
-	
+	function alertExpiredPO() {
+		$(".alert-po").html('')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/alertExpiredPO')?>',
+			type: "POST",
+			success: function(res){
+				data = JSON.parse(res)
+				$(".alert-po").html(data.html)
+			}
+		})
+	}
 </script>
