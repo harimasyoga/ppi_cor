@@ -1119,6 +1119,7 @@ class M_transaksi extends CI_Model
 			if($po->aktif == 1){
 				$this->db->set("aktif", 0);
 				$this->db->set("status", 'Close');
+				$this->db->set("status_kiriman", 'Close');
 				$msg = 'PO '.$po->kode_po.' BERHASIL DI CLOSE!';
 			}else{
 				$this->db->set("aktif", 1);
@@ -1127,6 +1128,7 @@ class M_transaksi extends CI_Model
 				}else{
 					$this->db->set("status", 'Open');
 				}
+				$this->db->set("status_kiriman", 'Open');
 				$msg = 'PO '.$po->kode_po.' BERHASIL DI OPEN!';
 			}
 			$this->db->where("id", $id);
@@ -1148,6 +1150,18 @@ class M_transaksi extends CI_Model
 		$this->db->set("status", 'Open');
 		$this->db->set("status_app".$opsi, 'N');
 		$this->db->set("ket_acc".$opsi, null);
+		$this->db->where("id", $id);
+		$data = $this->db->update('trs_po');
+
+		return [
+			'data' => $data,
+		];
+	}
+
+	function btnTamatPO(){
+		$id = $_POST["id"];
+
+		$this->db->set("tamat_po", 'END');
 		$this->db->where("id", $id);
 		$data = $this->db->update('trs_po');
 
@@ -3478,13 +3492,13 @@ class M_transaksi extends CI_Model
 
 	function pilihDSRinc()
 	{
-		$urut = $_POST["urut"];
-		$angka = $_POST["tgl"];
-		$tahun = $_POST["tahun"];
-		$bulan = $_POST["bulan"];
-		$tgl = $tahun.'-'.$bulan.'-'.$angka;
-		$p_tgl = $_POST["p_tgl"];
-		$p_urut = $_POST["p_urut"];
+		$urut = $_POST["urut"]; // plan
+		$angka = $_POST["tgl"]; // plan
+		$tahun = $_POST["tahun"]; // plan
+		$bulan = $_POST["bulan"]; // plan
+		$tgl = $tahun.'-'.$bulan.'-'.$angka; // plan
+		$p_tgl = $_POST["p_tgl"]; // realisasi
+		$p_urut = $_POST["p_urut"]; // realisasi
 
 		$kiriman = $this->db->query("SELECT p.*,r.* FROM m_rencana_kirim r
 		INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
@@ -3505,21 +3519,9 @@ class M_transaksi extends CI_Model
 			}else{
 				$data = true;
 			}
-			
-			// foreach($sys->result() as $s){
-			// 	if($r->id_perusahaan == $s->id_pelanggan && $r->no_po == $s->kode_po && $r->id_produk == $s->id_produk){
-			// 		$this->db->set('dev_tgl', $s->eta);
-			// 		$this->db->set('dev_urut', $s->urut);
-			// 		$this->db->set('dev_id', $s->id_dev);
-			// 	}else{
-			// 		$this->db->set('dev_tgl', $tgl);
-			// 		$this->db->set('dev_urut', $urut);
-			// 		$this->db->set('dev_id', null);
-			// 	}
-			// }
 		}
 
-		// INSERT YANG GAK SAMA SEKALI
+		// INSERT YANG GAK ADA KONEKSINYA SAMA SEKALI
 		if($data){
 			$this->db->set('dev_tgl', $tgl);
 			$this->db->set('dev_urut', $urut);
@@ -3532,6 +3534,7 @@ class M_transaksi extends CI_Model
 			$data2 = true;
 		}
 
+		// INSERT TIMBANGAN
 		$this->db->set('timb_tgl', $p_tgl);
 		$this->db->set('timb_urut', $p_urut);
 		$this->db->where('eta', $tgl);
