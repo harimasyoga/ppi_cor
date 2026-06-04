@@ -10766,7 +10766,7 @@ class Transaksi extends CI_Controller
 					if($getSJnPO->num_rows() > 1 || ($getSJnPO->num_rows() == 1 && $getItems->num_rows() > 1)){
 						$kurangPS = round($sumAll - ($sumAll * 0.04));
 						$plusPS = round($sumAll + ($sumAll * 0.04));
-						$htmlSJ .='<tr style="background:#'.$tTbl.'">
+						$htmlSJ .='<tr style="background:#dee2e6">
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">TOTAL</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sumAllMuat,0,",",".").'</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="3">'.number_format($sumAll,0,",",".").' (<i>-'.number_format($kurangPS,0,",",".").' +'.number_format($plusPS,0,",",".").'</i>)</td>

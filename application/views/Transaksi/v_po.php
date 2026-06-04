@@ -458,19 +458,17 @@
 	const urlUser = '<?= $this->session->userdata('username')?>';
 
 	$(document).ready(function() {
-		alertExpiredPO()
 		updateExpiredPO()
-		// load_data()
 		load_status_karet();
 		$("#eta_ket0").css("color", "#dc3545");
 		$("#eta_ket0").css("font-weight", "bold");
 		$("#eta_ket0").css("resize", "none");
-		// getMax();
 		$('.select2').select2({
 			containerCssClass: "wrap",
 			placeholder: '--- Pilih ---',
 			dropdownAutoWidth: true
 		});
+		alertExpiredPO()
 	});
 
 	$("#filefoto").change(function() {
