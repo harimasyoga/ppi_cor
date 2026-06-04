@@ -3365,6 +3365,7 @@ class M_transaksi extends CI_Model
 		$urutSys = $_POST["urutSys"];
 
 		// HAPUS RK DEV TGL DAN URUT
+		$this->db->set('dev_tgl', null);
 		$this->db->set('dev_urut', null);
 		$this->db->set('dev_id', null);
 		$this->db->where('id_rk', $id_rk);
