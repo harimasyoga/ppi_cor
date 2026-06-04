@@ -10572,6 +10572,12 @@ class Transaksi extends CI_Controller
 		(in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')) ? $dS = '' : $dS = 'disabled';
 		$opsi = $_POST["opsi"];
 		
+		if($p_tgl != '' && $p_urut != ''){
+			$pAppc = "";
+		}else{
+			$pAppc = "AND p.status='Approve'";
+		}
+
 		$html = '';
 		$htmlSJ = '';
 		$tglRealRinc = '';
@@ -10586,7 +10592,7 @@ class Transaksi extends CI_Controller
 
 			$htmlSJ .='<table>
 				<tr style="background:#dee2e6">
-					<th style="padding:6px;border:1px solid #bbb">PLAN</th>
+					<th style="background:#333;color:#fff;padding:6px;border:1px solid #bbb">PLAN</th>
 					<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
 					<th style="padding:6px;border:1px solid #bbb">ITEM</th>
 					<th style="padding:6px;border:1px solid #bbb">UKURAN</th>
@@ -10624,12 +10630,67 @@ class Transaksi extends CI_Controller
 					$d_rk = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE rk_tgl='$tgl' AND rk_urut='$urut->no_pl_urut' AND dev_urut IS NOT NULL");
 					$kTbh = ($c_rk->num_rows() > 1) ? 2 : 1;
 					$cSp = ($c_pl->num_rows() + $c_rk->num_rows()) + $kTbh;
-					$bBtnPln = ($qTimb->num_rows() > 0 && $d_rk->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])) ?
-						'<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="pilihDSDS('."'".$tgl."'".', '."'".$urut->no_pl_urut."'".')"><i class="fas fa-plus-circle"></i></button>'
-						: '<button class="btn btn-sm btn-secondary" style="font-weight:bold" disabled><i class="fas fa-plus-circle"></i></button>';
+
+					if($qTimb->num_rows() > 0 && $d_rk->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])){
+						$htmlPlan = '<td style="border:1px solid #bbb;padding:6px;font-weight:bold;text-align:right;vertical-align:top" rowspan="'.$cSp.'">
+							<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="pilihDSDS('."'".$tgl."'".', '."'".$urut->no_pl_urut."'".')"><i class="fas fa-plus-circle"></i></button>
+						</td>';
+					}else{
+						$htmlPlan = '<td style="border:1px solid #bbb;padding:0;vertical-align:top" rowspan="'.$cSp.'">
+							<table style="width:100%">
+								<tr>
+									<td style="background:#ddf;padding:6px;font-weight:bold;color:#ddf" colspan="6">'.$d_rk->row()->dev_urut.'</td>
+								</tr>
+								<tr>
+									<td style="background:#dee2e6;text-align:center;font-weight:bold;padding:6px;border:1px solid #bbb">TANGGAL</td>
+									<td style="background:#dee2e6;font-weight:bold;padding:6px;border:1px solid #bbb">CUSTOMER</td>
+									<td style="background:#dee2e6;font-weight:bold;padding:6px;border:1px solid #bbb">NO. PO</td>
+									<td style="background:#dee2e6;font-weight:bold;padding:6px;border:1px solid #bbb">ITEM</td>
+									<td style="background:#dee2e6;text-align:center;font-weight:bold;padding:6px;border:1px solid #bbb">QTY</td>
+									<td style="background:#dee2e6;text-align:center;font-weight:bold;padding:6px;border:1px solid #bbb">BERAT</td>
+								</tr>';
+								$eta8 = $d_rk->row()->dev_tgl;
+								$dev8 = $d_rk->row()->dev_urut;
+								$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,c.prov,c.kab,c.lock,p.kode_po,p.status AS sts,i.*,d.* FROM trs_dev_sys d
+								INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
+								INNER JOIN trs_po_detail p ON d.id_po_header=p.id
+								INNER JOIN m_produk i ON d.id_produk=i.id_produk
+								WHERE d.eta='$eta8' AND d.urut='$dev8'
+								GROUP BY d.id_dev,d.id_pelanggan,p.kode_po,d.id_produk
+								ORDER BY c.nm_pelanggan,p.kode_po,i.nm_produk");
+								$xBB = 0;
+								$xTot = 0;
+								$x0 = 0;
+								foreach($sys->result() as $x){
+									$x0++;
+									($x->attn == '-') ? $attn = '' : $attn = '<div>'.$x->attn.'</div>';
+									(strlen($x->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+									(strlen($x->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+									$htmlPlan .= '<tr style="vertical-align:top">
+										<td style="padding:6px;border:1px solid #bbb">'.substr($this->m_fungsi->getHariIni($x->eta),0,3).', '.$this->m_fungsi->tglIndSkt($x->eta).'</td>
+										<td style="padding:6px;border:1px solid #bbb">'.$x->nm_pelanggan.$attn.'</td>
+										<td style="padding:6px;border:1px solid #bbb">'.$x->kode_po.'</td>
+										<td style="padding:6px;border:1px solid #bbb">'.$dv1.$x->nm_produk.$dv2.'</td>
+										<td style="padding:6px;border:1px solid #bbb;text-align:right">'.number_format($x->qty_plan, 0, ',', '.').'</td>
+										<td style="padding:6px;border:1px solid #bbb;text-align:right">'.number_format($x->berat, 0, ',', '.').'</td>
+									</tr>';
+									$xBB += $x->qty_plan;
+									$xTot += $x->berat;
+								}
+								// TOTAL
+								if($sys->num_rows() > 1){
+									$htmlPlan .= '<tr>
+										<td style="background:#dee2e6;padding:6px;border:1px solid #bbb" colspan="4"></td>
+										<td style="background:#dee2e6;padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($xBB, 0, ',', '.').'</td>
+										<td style="background:#dee2e6;padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($xTot, 0, ',', '.').'</td>
+									</tr>';
+								}
+							$htmlPlan .= '</table>
+						</td>';
+					}
 
 					$htmlSJ .='<tr id="urut'.$urut->no_pl_urut.'">
-						<td style="border:1px solid #bbb;padding:6px;font-weight:bold;vertical-align:top" rowspan="'.$cSp.'">'.$bBtnPln.'</td>
+						'.$htmlPlan.'
 						<td style="background:#333;color:#fff;padding:6px;font-weight:bold">'.$i.'</td>
 						<td style="background:#333;color:#fff;padding:6px;text-align:right;font-weight:bold">NO. PLAT :</td>
 						<td style="background:#333;color:#fff;padding:6px;text-align:right"">
@@ -10766,7 +10827,7 @@ class Transaksi extends CI_Controller
 					if($getSJnPO->num_rows() > 1 || ($getSJnPO->num_rows() == 1 && $getItems->num_rows() > 1)){
 						$kurangPS = round($sumAll - ($sumAll * 0.04));
 						$plusPS = round($sumAll + ($sumAll * 0.04));
-						$htmlSJ .='<tr style="background:#'.$tTbl.'">
+						$htmlSJ .='<tr style="background:#dee2e6">
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">TOTAL</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sumAllMuat,0,",",".").'</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="3">'.number_format($sumAll,0,",",".").' (<i>-'.number_format($kurangPS,0,",",".").' +'.number_format($plusPS,0,",",".").'</i>)</td>
@@ -10801,13 +10862,13 @@ class Transaksi extends CI_Controller
 				if($id_sales == null || $id_sales == ''){
 					$urut = $this->db->query("SELECT SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s
 					INNER JOIN trs_po_detail p ON s.id_po_header=p.id
-					WHERE s.eta='$tgl' AND p.status='Approve' GROUP BY s.eta, s.urut, s.id_ex");
+					WHERE s.eta='$tgl' $pAppc GROUP BY s.eta, s.urut, s.id_ex");
 					$wSls = "";
 				}else{
 					$urut = $this->db->query("SELECT SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s
 					INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 					INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-					WHERE s.eta='$tgl' AND p.status='Approve' AND p.id_sales='$id_sales'
+					WHERE s.eta='$tgl' $pAppc AND p.id_sales='$id_sales'
 					GROUP BY s.eta, s.urut, s.id_ex");
 					$wSls = "AND c.id_sales='$id_sales'";
 				}
@@ -10920,7 +10981,7 @@ class Transaksi extends CI_Controller
 					INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
 					INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 					INNER JOIN m_produk i ON d.id_produk=i.id_produk
-					WHERE d.eta='$u->eta' AND d.urut='$u->urut' AND p.status='Approve' $wSls
+					WHERE d.eta='$u->eta' AND d.urut='$u->urut' $pAppc $wSls
 					GROUP BY d.id_dev,d.id_pelanggan,p.kode_po,d.id_produk
 					ORDER BY c.nm_pelanggan,p.kode_po,i.nm_produk");
 					$i = 0;
@@ -11032,7 +11093,7 @@ class Transaksi extends CI_Controller
 							// REALISASI
 							if($rk->num_rows() != 0){
 								foreach($rk->result() as $k){
-									(in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $uDel = '<button class="btn btn-xs btn-danger" onclick="btlRKtoSys('."'".$k->id_rk."'".', '."'".$tgl."'".', '."'".$u->urut."'".')"><i class="fas fa-trash"></i></button>' : $uDel = '';
+									($r->akses_hapus == 1) ? $uDel = '<button class="btn btn-xs btn-danger" onclick="btlRKtoSys('."'".$k->id_rk."'".', '."'".$tgl."'".', '."'".$u->urut."'".')"><i class="fas fa-trash"></i></button>' : $uDel = '';
 									($sys->num_rows() != 1) ? $bdb = ';border-width:0 1px' : $bdb = '' ;
 									$bBerat1 = $k->rk_bb * $k->qty_muat; // BERAT
 									$html .= '
@@ -11070,7 +11131,7 @@ class Transaksi extends CI_Controller
 							($n->kategori == "BOX") ? $nk2 = '[BOX] ' : $nk2 = '[SHEET] ';
 							(strlen($n->nm_produk) >= 35) ? $nV1 = '<div style="width:320px;white-space:normal">' : $nV1 = '';
 							(strlen($n->nm_produk) >= 35) ? $nV2 = '</div>' : $nV2 = '';
-							if(in_array($lvl, ['Admin', 'Admin2', 'User'])){
+							if($r->akses_hapus == 1){
 								$uDel2 = '<button class="btn btn-xs btn-danger" onclick="btlRKtoSys('."'".$n->id_rk."'".', '."'".$tgl."'".', '."'".$u->urut."'".')"><i class="fas fa-trash"></i></button>';
 							}else{
 								$uDel2 = '';
@@ -11210,7 +11271,7 @@ class Transaksi extends CI_Controller
 
 			$urut = $this->db->query("SELECT s.* FROM trs_dev_sys s
 			INNER JOIN trs_po_detail p ON s.id_po_header=p.id
-			WHERE p.status='Approve' AND s.eta BETWEEN '2026-05-01' AND '9999-01-01' $wIDPT GROUP BY s.eta DESC, s.urut");
+			WHERE s.eta BETWEEN '2026-05-01' AND '9999-01-01' $wIDPT GROUP BY s.eta, s.urut");
 
 			foreach($urut->result() as $u){
 				$html .= '<tr style="background:#333;color:#fff">
