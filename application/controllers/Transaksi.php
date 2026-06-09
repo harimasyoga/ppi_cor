@@ -3524,7 +3524,6 @@ class Transaksi extends CI_Controller
 						$expPO = '';
 					}else{
 						$expPO = '<div style="color:#dc3545;font-weight:bold">'.$dXWaktu.'</div>';
-						// <div style="color:#000;font-weight:bold">'.$this->m_fungsi->tanggal_ind($dExp).'</div>
 					}
 				}else{
 					$expPO = '';
@@ -7573,7 +7572,6 @@ class Transaksi extends CI_Controller
 		$lvl = $this->session->userdata('level');
 
 		$html = '';
-		// <th style="padding:12px 6px;width:20%">ETA PO</th>
 		$html .='<table class="table table-bordered table-striped" style="width:100%">
 			<thead>
 				<tr>
@@ -7587,15 +7585,10 @@ class Transaksi extends CI_Controller
 					<th style="padding:12px 6px;width:10%;text-align:center">AKSI</th>
 				</tr>
 			</thead>';
-		// if($this->session->userdata('level') == 'PPIC'){
-			$wId = "AND d.id='$id'";
-		// }else{
-			// $wId = "";
-		// }
 		$getSO = $this->db->query("SELECT p.kode_mc,p.nm_produk,p.kategori,p.ukuran,p.ukuran_sheet,p.ukuran_sheet_l,p.ukuran_sheet_p,p.kualitas,p.flute,p.berat_bersih,po.status AS sts,po.status_app3,po.status_kiriman,d.* FROM trs_po_detail d
 		INNER JOIN trs_po po ON po.no_po=d.no_po AND po.kode_po=d.kode_po
 		INNER JOIN m_produk p ON d.id_produk=p.id_produk
-		WHERE d.no_po='$no_po' AND d.kode_po='$kode_po' $wId");
+		WHERE d.no_po='$no_po' AND d.kode_po='$kode_po' AND d.id='$id'");
 
 		$i = 0;
 		foreach($getSO->result() as $r){
@@ -7643,7 +7636,6 @@ class Transaksi extends CI_Controller
 			(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
 			(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
 
-			// <td style="padding:6px;'.$bold.'">'.strtoupper($this->m_fungsi->tanggal_format_indonesia($r->eta)).'</td>
 			$html .='<tr style="'.$borLf.'">
 				<td style="padding:6px;text-align:center;'.$bold.'">'.$i.'</td>
 				<td style="padding:6px;'.$bold.'">'.$dv1.$ket_p.$r->nm_produk.$dv2.'</td>
@@ -7655,25 +7647,11 @@ class Transaksi extends CI_Controller
 				<td style="padding:6px;text-align:center;'.$bold.'">'.$btnBagi.'</td>
 			</tr>';
 
-			// if($this->session->userdata('level') == 'PPIC'){
-			// 	$whPPIC = "AND s.add_user='ppic'";
-			// 	$nSP = $r->no_so_p;
-			// }else{
-				$whPPIC = "AND s.add_user!='ppic'";
-				$nSP = $r->no_so;
-			// }
 			$dataSO = $this->db->query("SELECT p.nm_produk,p.ukuran_sheet_l,p.ukuran_sheet_p,p.berat_bersih,s.* FROM trs_so_detail s
 			INNER JOIN m_produk p ON s.id_produk=p.id_produk
-			WHERE s.id_produk='$r->id_produk' AND s.no_po='$r->no_po' AND s.kode_po='$r->kode_po' AND s.no_so='$nSP' $whPPIC");
+			WHERE s.id_produk='$r->id_produk' AND s.no_po='$r->no_po' AND s.kode_po='$r->kode_po' AND s.no_so='$r->no_so' AND s.add_user!='ppic'");
 			
 			if($dataSO->num_rows() != 0){
-				// if($this->session->userdata('level') == 'PPIC'){
-				// 	$ketPPIC = '<th style="padding:6px 12px 6px 6px;text-align:center;'.$bHead.''.$bold.'">HASIL QTY</th>
-				// 	<th style="padding:6px;text-align:center;'.$bHead.''.$bold.'">HASIL AKSI</th>
-				// 	<th style="padding:6px;text-align:center;'.$bHead.''.$bold.'">DONE</th>';
-				// }else{
-					$ketPPIC = '';
-				// }
 				$html .='<tr style="'.$borLf.'">
 					<td colspan="8">
 						<table class="table table-bordered" style="margin:0;border:0;width:100%">
@@ -7684,7 +7662,6 @@ class Transaksi extends CI_Controller
 									<th style="width:10%;padding:6px;text-align:center;'.$bHead.''.$bold.'">ETA SO</th>
 									<th style="padding:6px;'.$bHead.''.$bold.'">NO. SO</th>
 									<th style="width:10%;padding:6px 30px 6px 6px;text-align:center;'.$bHead.''.$bold.'">QTY SO</th>
-									'.$ketPPIC.'
 									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'">KETERANGAN</th>
 									<th style="width:1%;padding:6px 18px;'.$bHead.''.$bold.'" class="text-center">-</th>
 									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'" class="text-center">RM</th>
@@ -7693,17 +7670,10 @@ class Transaksi extends CI_Controller
 									<th style="width:5%;padding:6px;'.$bHead.''.$bold.'" class="text-center">AKSI</th>
 								</tr>
 							</thead>';
-
-				// if($this->session->userdata('level') == 'PPIC'){
-				// 	$p = '_p';
-				// 	$whP = "AND so.add_user='ppic'";
-				// }else{
-					$p = '';
-					$whP = "AND so.add_user!='ppic'";
-				// }
+				
 				$dataHapusSO = $this->db->query("SELECT COUNT(so.rpt) AS jml_rpt FROM trs_po_detail ps
-				INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so$p=so.no_so AND ps.id_produk=so.id_produk
-				WHERE ps.id='$idPoSo' $whP GROUP BY so.no_po,so.kode_po,so.no_so,so.id_produk");
+				INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
+				WHERE ps.id='$idPoSo' AND so.add_user!='ppic' GROUP BY so.no_po,so.kode_po,so.no_so,so.id_produk");
 
 				// eta
 				$cust = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$r->id_pelanggan'")->row();
@@ -7718,43 +7688,24 @@ class Transaksi extends CI_Controller
 				foreach($dataSO->result() as $so){
 					$l++;
 					// SYS
-					$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_so='$so->id'");
+					$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_so='$so->id' ORDER BY s.id_dev");
 					// ADD DS
 					if($r->status_app3 == 'Y' && $r->sts != 'Close'){
 						($sys->num_rows() == 0) ? $addSys = ' <button type="button" class="btn btn-primary btn-sm addOStoDSys" onclick="addOStoDSys('."'".$id."'".', '."'".$so->id."'".')"><i class="fas fa-shopping-basket"></i></button>' : $addSys = '';
 					}else{
 						$addSys = '';
 					}
-					if($sys->num_rows() == 0){
-						$editDSys = '';
-						$btnHapusSys = '';
-					}else{
-						$iSys = $sys->row()->id_dev;
-						$tglNow = strtotime(date('Y-m-d')) - strtotime($sys->row()->eta);
-						if($tglNow <= 0 || in_array($lvl, ['Admin', 'Admin2', 'User', 'Marketing'])){
-							$eBsys = 'class="btn btn-warning btn-xs" onclick="editBagiSys('."'".$sys->row()->id_dev."'".', '."'".$id."'".')"';
-							$hBsys = 'class="btn btn-danger btn-xs" onclick="hapusOSDSys('."'".$iSys."'".')"';
-						}else{
-							$eBsys = 'class="btn btn-secondary btn-xs" disabled';
-							$hBsys = 'class="btn btn-secondary btn-xs" disabled';
-						}
-						$editDSys = '<button type="button" '.$eBsys.'><i class="fas fa-edit"></i></button>';
-						$btnHapusSys = ' <button type="button" '.$hBsys.'><i class="fas fa-trash"></i></button>';
-					}
 
 					if($aksi == 'detail'){
 						$btnHapus = '';
 						$btnAddDSys = '';
-						$btnEditDSys = '';
 					}else{
 						if($so->status == 'Close' || $so->status_2 == 'Close'){
 							$btnHapus = '';
 							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
 								$btnAddDSys = $addSys;
-								$btnEditDSys = '';
 							}else{
 								$btnAddDSys = '';
-								$btnEditDSys = '';
 							}
 						}else{
 							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
@@ -7762,27 +7713,22 @@ class Transaksi extends CI_Controller
 									if($so->rpt == 1){
 										$btnHapus = '';
 										$btnAddDSys = $addSys;
-										$btnEditDSys = $editDSys;
 									}else{
 										if($dataHapusSO->row()->jml_rpt == $so->rpt){
 											$btnHapus = ($sys->num_rows() == 0) ? ' <button type="button" class="btn btn-danger btn-sm" style="padding:4px 10px" onclick="batalDataSO('."'".$so->id."'".')"><i class="fas fa-times"></i></button>' : '';
 											$btnAddDSys = $addSys;
-											$btnEditDSys = $editDSys;
 										}else{
 											$btnHapus = '';
 											$btnAddDSys = $addSys;
-											$btnEditDSys = $editDSys;
 										}
 									}
 								}else{
 									$btnHapus = '';
 									$btnAddDSys = $addSys;
-									$btnEditDSys = '';
 								}
 							}else{
 								$btnHapus = '';
 								$btnAddDSys = '';
-								$btnEditDSys = '';
 							}
 						}
 					}
@@ -7795,112 +7741,6 @@ class Transaksi extends CI_Controller
 					
 					$urut_so = str_pad($so->urut_so, 2, "0", STR_PAD_LEFT);
 					$rpt = str_pad($so->rpt, 2, "0", STR_PAD_LEFT);
-					// if($this->session->userdata('level') == 'PPIC' && $so->add_user == 'ppic'){
-					// 	$qHasil = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$so->id' ORDER BY hasil_tgl");
-					// 	$dis3 = '';
-					// 	if($aksi == 'detail'){
-					// 		$dis2 = 'disabled';
-					// 		$rTxt2 = '1';
-					// 		$btnAksi2 = $print;
-					// 		$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
-					// 	}else{
-					// 		if($so->status_2 == 'Close'){
-					// 			$btnAksi2 = $print;
-					// 			$rTxt2 = 1;
-					// 			$dis2 = 'disabled';
-					// 			$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
-					// 		}else{
-					// 			if($qHasil->num_rows() != 0){
-					// 				$dis2 = '';
-					// 				$dis3 = 'disabled';
-					// 			}else{
-					// 				($r->id == $id) ? $dis2 = '' : $dis2 = 'disabled';
-					// 			}
-					// 			($r->id == $id) ? $btnAksi2 = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi2 = $print;
-					// 			($r->id == $id) ? $rTxt2 = 2 : $rTxt2 = 1;
-					// 			$cH = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$so->id' GROUP BY id_so_dtl");
-					// 			if($cH->num_rows() != ''){
-					// 				$btnDone = '<button type="button" class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i></button>';
-					// 			}else{
-					// 				$btnDone = '<button type="button" class="btn btn-primary btn-sm" onclick="btnSOHasil('."'".$so->id."'".')"><i class="fas fa-check"></i></button>';
-					// 			}
-					// 		}
-					// 	}
-					// 	$html .='<tr>
-					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-center">'.$l.'</td>
-					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
-					// 			<input type="date" id="edit-tgl-so'.$so->id.'" class="form-control" value="'.$so->eta_so.'" '.$dis2.$dis3.'>
-					// 		</td>
-					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">'.$so->no_so.'.'.$urut_so.'.'.$rpt.'</td>
-					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
-					// 			<input type="number" id="edit-qty-so'.$so->id.'" class="form-control" style="text-align:right" onkeyup="keyUpQtySO('."'".$so->id."'".')" value="'.number_format($so->qty_so,0,',','.').'" '.$dis2.'>
-					// 		</td>
-					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
-					// 			<input type="number" id="hasil_pcs'.$so->id.'" class="form-control" style="text-align:right" onkeyup="" placeholder="0" '.$dis2.'>
-					// 		</td>
-					// 		<td style="background:#f2f2f2;padding:6px;text-align:center;'.$bTd.''.$bold.'">'.$btnDone.'</td>
-					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
-					// 			<input type="checkbox" id="cbhs-'.$so->id.'" style="height:25px;width:100%" onclick="cbOSHasil('."'".$so->id."'".')" value="'.$so->cek_st_2.'" '.$check2.'>
-					// 		</td>
-					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
-					// 			<textarea class="form-control" id="edit-ket-so'.$so->id.'" rows="'.$rTxt2.'" style="resize:none">'.$so->ket_so.'</textarea>
-					// 		</td>
-					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'">
-					// 			<input type="checkbox" id="cbso-'.$so->id.'" style="height:25px;width:100%" onclick="keyUpQtySO('."'".$so->id."'".')" value="'.$so->cek_rm_so.'" '.$check.'>
-					// 		</td>
-					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->rm).'<br><span class="span-rm-h-'.$so->id.'"></span></td>
-					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($so->ton).'<br><span class="span-ton-h-'.$so->id.'"></span></td>
-					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-right">'.number_format($bahan_baku).'<br><span class="span-bb-h-'.$so->id.'"></span></td>
-					// 		<td style="background:#f2f2f2;padding:6px;'.$bTd.''.$bold.'" class="text-center">
-					// 			<input type="hidden" id="ht-ukl-'.$so->id.'" value="'.$so->ukuran_sheet_l.'">
-					// 			<input type="hidden" id="ht-ukp-'.$so->id.'" value="'.$so->ukuran_sheet_p.'">
-					// 			<input type="hidden" id="ht-bb-'.$so->id.'" value="'.$so->berat_bersih.'">
-					// 			<input type="hidden" id="edit-qtypo-so'.$so->id.'" value="'.$r->qty.'">
-					// 			'.$btnAksi2.' '.$btnHapus.'
-					// 		</td>
-					// 	</tr>';
-
-					// 	// HTML HASIL
-					// 	if($qHasil->num_rows() != 0){
-					// 		foreach($qHasil->result() as $h){
-					// 			if($qHasil->num_rows() == 1){
-					// 				$kurHass = $h->hasil_qty - $so->qty_so;
-					// 				$sHx = '<td style="background:#fff;padding:6px;text-align:right;font-weight:bold">'.$kurHass.'</td>
-					// 				<td colspan="7" style="background:#fff"></td>';
-					// 				$hfb = ';font-weight:bold';
-					// 			}else{
-					// 				$sHx = '<td colspan="8" style="background:#fff"></td>';
-					// 				$hfb = '';
-					// 			}
-					// 			if($so->status_2 == 'Close'){
-					// 				$bHsH = '';
-					// 			}else{
-					// 				// cek guna
-					// 				$cG = $this->db->query("SELECT*FROM trs_so_detail s
-					// 				INNER JOIN trs_so_roll r ON s.id=r.id_so_dtl
-					// 				INNER JOIN trs_so_guna g ON r.id_roll=g.id_roll AND s.eta_so=g.tgl
-					// 				WHERE r.id_so_dtl='$so->id'");
-					// 				if($cG->num_rows() == 0){
-					// 					$bHsH = '<button class="btn btn-xs btn-danger" onclick="hapusOSList('."'".$h->id."'".')"><i class="fas fa-trash"></i></button> ';
-					// 				}else{
-					// 					$bHsH = '';
-					// 				}
-					// 			}
-					// 			$html .= '<tr>
-					// 				<td colspan="4" style="background:#fff"></td>
-					// 				<td style="background:#fff;padding:6px">'.$bHsH.substr($this->m_fungsi->getHariIni($h->hasil_tgl),0,3).', '.$this->m_fungsi->tglIndSkt(substr($h->hasil_tgl, 0,10)).'</td>
-					// 				<td style="background:#fff;padding:6px;text-align:right'.$hfb.'">'.number_format($h->hasil_qty).'</td>
-					// 				'.$sHx.'
-					// 			</tr>';
-					// 		}
-					// 	}
-
-					// 	$sumQty += $so->qty_so;
-					// 	$sumRm += $so->rm;
-					// 	$sumTon += $so->ton;
-					// 	$sumBB += $bahan_baku;
-					// }
-					// if(in_array($this->session->userdata('level'), ['Admin','User']) && ($so->add_user == 'user' || $so->add_user == 'developer')){
 					if($aksi == 'detail'){
 						$diss = 'disabled';
 						$rTxt = '1';
@@ -7912,11 +7752,7 @@ class Transaksi extends CI_Controller
 							$diss = 'disabled';
 						}else{
 							if(in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
-								if($dataSO->num_rows() > 1 && $so->rpt == 1){
-									$diss = 'disabled';
-								}else{
-									($r->id == $id) ? $diss = '' : $diss = 'disabled';
-								}
+								($r->id == $id) ? $diss = '' : $diss = 'disabled';
 								(($r->id == $id) && ($sys->num_rows() == 0)) ? $btnAksi = $print.' <button type="button" class="btn btn-warning btn-sm" id="editBagiSO'.$so->id.'" onclick="editBagiSO('."'".$so->id."'".')"><i class="fas fa-edit"></i></button>' : $btnAksi = $print;
 							}else{
 								$diss = 'disabled';
@@ -8002,69 +7838,121 @@ class Transaksi extends CI_Controller
 
 					// SYS
 					if($sys->num_rows() != 0){
-						if($prov->num_rows() == 0){
-							$eta = '-';
-						}else{
-							$ll = $prov->row()->lama_kirim;
-							$minggu = date('l', strtotime('+'.$ll.' day', strtotime($sys->row()->eta)));
-							($minggu == 'Sunday') ? $ll2 = $prov->row()->lama_kirim + 1 : $ll2 = $prov->row()->lama_kirim;
-							$eta = date('d/m/Y', strtotime('+'.$ll2.' day', strtotime($sys->row()->eta)));
-						}
-
-						// LOCK
-						$lock3D = date('Y-m-d', strtotime('+'.$sys->row()->lock.' days', strtotime(date('Y-m-d'))));
-						$selisihHariPilih = strtotime($lock3D) - strtotime($plh_eta);
-						$hariPilih = floor($selisihHariPilih/60/60/24);
-						$hPlus = floor((strtotime($sys->row()->eta) - strtotime($lock3D)) /60/60/24);
-						$hPlus2 = floor((strtotime($sys->row()->eta) - strtotime(date('Y-m-d'))) /60/60/24);
-						if($sys->row()->eta_t == null){
-							$pP = 'P';
-							$zG = 'FDD';
-							$ADSbtn = '-';
-						}else if($hPlus <= 0){
-							if($hPlus == 0){
-								$pP = '-'.$hPlus2;
-							}else{
-								($hPlus2 >= 0) ? $pP = '-'.$hPlus2 : $pP = str_replace("-", "+", $hPlus2);
-							}
-							$zG = 'FDD';
-							$ADSbtn = $btnEditDSys.$btnHapusSys;
-						}else{
-							$pP = '-'.$hPlus2;
-							$zG = 'DFD';
-							$ADSbtn = $btnEditDSys.$btnHapusSys;
-						}
 						$html .= '<tr>
-							<td style="padding:6px;border:0;text-align:right;'.$bHead.'" colspan="5"></td>
+							<td style="padding:6px;border:0;'.$bHead.'" colspan="3"></td>
+							<td style="padding:6px;border:1px solid #888;font-weight:bold;background:#ddf">RINCIAN KIRIM</td>
+							<td style="padding:6px;border:1px solid #888;font-weight:bold;background:#ddf;text-align:center">QTY</td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">TGL MUAT DD</td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">H</td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">ETA DD</td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">QTY DD</td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">KET DD</td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">AKSI</td>
-							
-						</tr>
-						<tr style="background:#f2f2f2">
-							<td style="padding:6px;border:1px solid #999" colspan="5"></td>
-							<td style="padding:6px;border:1px solid #999">
-								<input type="date" id="sys_eta'.$sys->row()->id_dev.'" class="form-control" value="'.$sys->row()->eta.'" onchange="etaSO('."'".$r->id_pelanggan."'".', '."'".$sys->row()->eta."'".', '."'".$sys->row()->id_dev."'".', '."'sys_eta'".', '."'se1ys'".')" '.$diss.'>
-							</td>
-							<td style="padding:0;border:1px solid #999;position:relative">
-								<div class="vv'.$zG.'" style="padding:12px 6px 6px;text-align:center;font-weight:bold">'.$pP.'</div>
-							</td>
-							<td style="padding:6px;border:1px solid #999">
-								<input type="text" id="se1ys'.$sys->row()->id_dev.'" class="form-control" style="font-weight:bold;text-align:center" value="'.$eta.'" disabled>
-							</td>
-							<td style="padding:6px;border:1px solid #999">
-								<input type="number" id="sys_qty'.$sys->row()->id_dev.'" class="form-control" style="text-align:right;font-weight:bold" value="'.number_format($sys->row()->qty_plan,0,',','.').'" '.$diss.'>
-							</td>
-							<td style="padding:6px;border:1px solid #999">
-								<textarea class="form-control" id="sys_ket'.$sys->row()->id_dev.'" rows="1" style="resize:none" '.$diss.'>'.$sys->row()->ket_sys.'</textarea>
-							</td>
-							<td style="padding:6px;border:1px solid #999;text-align:center">
-								'.$ADSbtn.'
-							</td>
 						</tr>';
+						foreach($sys->result() as $s){
+							if($prov->num_rows() == 0){
+								$eta = '-';
+							}else{
+								$ll = $prov->row()->lama_kirim;
+								$minggu = date('l', strtotime('+'.$ll.' day', strtotime($s->eta)));
+								($minggu == 'Sunday') ? $ll2 = $prov->row()->lama_kirim + 1 : $ll2 = $prov->row()->lama_kirim;
+								$eta = date('d/m/Y', strtotime('+'.$ll2.' day', strtotime($s->eta)));
+							}
+
+							// LOCK
+							$lock3D = date('Y-m-d', strtotime('+'.$s->lock.' days', strtotime(date('Y-m-d'))));
+							$selisihHariPilih = strtotime($lock3D) - strtotime($plh_eta);
+							$hariPilih = floor($selisihHariPilih/60/60/24);
+							$hPlus = floor((strtotime($s->eta) - strtotime($lock3D)) /60/60/24);
+							$hPlus2 = floor((strtotime($s->eta) - strtotime(date('Y-m-d'))) /60/60/24);
+							
+							// AKSI
+							$tglNow = strtotime(date('Y-m-d')) - strtotime($s->eta);
+							if($tglNow <= 0 || in_array($lvl, ['Admin', 'Admin2', 'User', 'Marketing'])){
+								$eBsys = 'class="btn btn-warning btn-xs" onclick="editBagiSys('."'".$s->id_dev."'".', '."'".$id."'".')"';
+								$hBsys = 'class="btn btn-danger btn-xs" onclick="hapusOSDSys('."'".$s->id_dev."'".')"';
+							}else{
+								$eBsys = 'class="btn btn-secondary btn-xs" disabled';
+								$hBsys = 'class="btn btn-secondary btn-xs" disabled';
+							}
+							$editDSys = '<button type="button" '.$eBsys.'><i class="fas fa-edit"></i></button>';
+							$btnHapusSys = ' <button type="button" '.$hBsys.'><i class="fas fa-trash"></i></button>';
+
+							$rk_tgl = $s->timb_tgl;
+							$rk_urut = $s->timb_urut;
+							$k = $this->db->query("SELECT r.*,p.* FROM m_rencana_kirim r
+							INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
+							WHERE r.rk_tgl='$rk_tgl' AND r.rk_urut='$rk_urut'
+							GROUP BY r.rk_tgl,r.id_pelanggan,r.id_produk,r.rk_kode_po,r.rk_urut");
+
+							// TIME 3 HARI
+							$exp3H = date('Y-m-d', strtotime('+3 days', strtotime($s->eta)));
+
+							// H / R
+							if($s->eta_t == null){
+								$pP = 'P';
+								$zG = 'FDD';
+								$ADSbtn = '';
+							}else if($hPlus <= 0){
+								if($hPlus == 0){
+									$pP = '-'.$hPlus2;
+								}else{
+									($hPlus2 >= 0) ? $pP = '-'.$hPlus2 : $pP = str_replace("-", "+", $hPlus2);
+								}
+								($s->eta_t == 'REPLAN') ? $zG = 'DFD' : $zG = 'FDD';
+								$ADSbtn = ($k->num_rows() == 0 && $exp3H > date('Y-m-d')) ? $editDSys.$btnHapusSys : '';
+							}else{
+								$pP = '-'.$hPlus2;
+								($s->eta_t == 'REPLAN') ? $zG = 'DFD' : $zG = 'DFD';
+								$ADSbtn = ($k->num_rows() == 0 && $exp3H > date('Y-m-d')) ? $editDSys.$btnHapusSys : '';
+							}
+
+							$html .= '<tr style="background:#f2f2f2">';
+								// KIRIMAN
+								$id_dev2 = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev2='$s->id_dev'");
+								if($k->num_rows() == 0){
+									$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="5"></td>';
+									// REPLAN TAPI TIDAK TERKIRIM  +3 HARI
+									$id_dev1 = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$s->id_dev'");
+									if($exp3H > date('Y-m-d')){
+										$btnRPlan = '';
+									}else if($id_dev2->num_rows() == 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
+										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan</button>';
+									}else{
+										$btnRPlan = '';
+									}
+								}else{
+									$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="3"></td>
+									<td style="padding:6px;border:1px solid #999">'.strtoupper(substr($this->m_fungsi->getHariIni($k->row()->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->row()->tgl)).' - '.$k->row()->no_surat.' - '.$k->row()->no_kendaraan.'</td>
+									<td style="padding:6px;border:1px solid #999;text-align:right">'.number_format($k->row()->qty_muat).'</td>';
+
+									$kurang = $s->qty_plan - $k->row()->qty_muat;
+									if($kurang > 0 && $id_dev2->num_rows() == 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
+										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan</button>';
+									}else{
+										$btnRPlan = '';
+									}
+								}
+								$html .='<td style="padding:6px;border:1px solid #999">
+									<input type="date" id="sys_eta'.$s->id_dev.'" class="form-control" value="'.$s->eta.'" onchange="etaSO('."'".$r->id_pelanggan."'".', '."'".$s->eta."'".', '."'".$s->id_dev."'".', '."'sys_eta'".', '."'se1ys'".')" '.$diss.'>
+								</td>
+								<td style="padding:0;border:1px solid #999;position:relative">
+									<div class="vv'.$zG.'" style="padding:12px 6px 6px;text-align:center;font-weight:bold">'.$pP.'</div>
+								</td>
+								<td style="padding:6px;border:1px solid #999">
+									<input type="text" id="se1ys'.$s->id_dev.'" class="form-control" style="font-weight:bold;text-align:center" value="'.$eta.'" disabled>
+								</td>
+								<td style="padding:6px;border:1px solid #999">
+									<input type="number" id="sys_qty'.$s->id_dev.'" class="form-control" style="text-align:right;font-weight:bold" value="'.number_format($s->qty_plan,0,',','.').'" '.$diss.'>
+								</td>
+								<td style="padding:6px;border:1px solid #999">
+									<textarea class="form-control" id="sys_ket'.$s->id_dev.'" rows="1" style="resize:none" '.$diss.'>'.$s->ket_sys.'</textarea>
+								</td>
+								<td style="padding:6px;border:1px solid #999;text-align:center">
+									'.$ADSbtn.$btnRPlan.'
+								</td>
+							</tr>';
+						}
 						if($dataHapusSO->row()->jml_rpt != $so->rpt){
 							$html .= '<tr>
 								<td style="padding:6px;border:0" colspan="10"></td>
@@ -8085,27 +7973,14 @@ class Transaksi extends CI_Controller
 							</tr>';
 						}
 					}
-
-					// }
 				}
 
 				if($dataSO->num_rows() > 1){
-					// if($this->session->userdata('level') == 'PPIC'){
-					// 	$sumPPIC = '<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
-					// 	<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
-					// 	<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>';
-					// }else{
-						$sumPPIC = '';
-					// }
 					$html .='<tr>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0" colspan="4"></td>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumQty).'</td>
 						<td style="background:#fff;padding:6px;font-weight:bold;text-align:center;border:0"></td>
-						'.$sumPPIC.'
 					</tr>';
-					// <td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumRm).'</td>
-					// <td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumTon).'</td>
-					// <td style="background:#fff;padding:6px;font-weight:bold;text-align:right;border:0">'.number_format($sumBB).'</td>
 				}
 
 				$html .= '</table>
@@ -8246,16 +8121,10 @@ class Transaksi extends CI_Controller
 			$rm = ($produk->row()->ukuran_sheet_p * $_POST["fBagiQtySo"] / $out) / 1000;
 			$ton = $_POST["fBagiQtySo"] * $produk->row()->berat_bersih;
 
-			if($this->session->userdata('level') == 'PPIC'){
-				$p = '_p';
-				$aU = "AND so.add_user='ppic'";
-			}else{
-				$p = '';
-				$aU = "AND so.add_user!='ppic'";
-			}
-			$getData = $this->db->query("SELECT po.status_app3,po.time_app3,COUNT(so.rpt) AS jml_rpt,ps.qty,so.* FROM trs_po_detail ps
+			$getData = $this->db->query("SELECT po.status_app3,po.time_app3,COUNT(so.rpt) AS jml_rpt,ps.qty,c.abaikan,po.expired_po,po.time_app3,so.* FROM trs_po_detail ps
 			INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
-			INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so$p=so.no_so AND ps.id_produk=so.id_produk $aU
+			INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk AND so.add_user!='ppic'
+			INNER JOIN m_pelanggan c ON ps.id_pelanggan=c.id_pelanggan
 			WHERE ps.id='$id'
 			GROUP BY so.no_po,so.kode_po,so.no_so,so.id_produk");
 
@@ -8314,25 +8183,18 @@ class Transaksi extends CI_Controller
 			);
 
 			// ETA 1
-			$eta1 = $this->db->query("SELECT so.*,c.abaikan FROM trs_po_detail ps
-			INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
-			INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
-			INNER JOIN m_pelanggan c ON ps.id_pelanggan=c.id_pelanggan
-			WHERE ps.id='$id'
-			GROUP BY so.id
-			ORDER BY so.urut_so ASC, so.rpt ASC
-			LIMIT 1")->row();
+			// $eta1 = $this->db->query("SELECT so.*,c.abaikan FROM trs_po_detail ps
+			// INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
+			// INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
+			// INNER JOIN m_pelanggan c ON ps.id_pelanggan=c.id_pelanggan
+			// WHERE ps.id='$id'
+			// GROUP BY so.id
+			// ORDER BY so.urut_so ASC, so.rpt ASC
+			// LIMIT 1")->row();
 
-			// TIMER
-			$twoWeek = date('Y-m-d', strtotime('+2 week', strtotime(substr($getData->row()->time_app3, 0, 10))));
-			$secondsDiff = strtotime($twoWeek) - time();
-			$days = floor($secondsDiff/60/60/24);
-			// $hours = floor(($secondsDiff-($days*60*60*24))/60/60);
-			// $minutes = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))/60);
-			// ($days == 0) ? $tDays = '' : $tDays = '<div>'.$days.' HARI</div>';
-			// ($hours == 0) ? $tHours = '' : $tHours = '<div>'.$hours.' JAM</div>';
-			// ($minutes == 0) ? $tMinutes = '' : $tMinutes = '<div>'.$minutes.' MENIT</div>';
-			($days <= 0) ? $waktu = 'EXPIRED' : $waktu = $tDays.$tHours.$tMinutes;
+			// EXPIRED
+			$dExp = date('Y-m-d', strtotime('+'.$getData->row()->expired_po.' days', strtotime($getData->row()->time_app3)));
+			$dExpDiff = strtotime($dExp) - strtotime($_POST["fBagiEtaSo"]);
 
 			// if($qtyS > $qtyPtoL){
 			// 	if(($rm < 500) && $_POST["fBagiCrmSo"] == 0){
@@ -8341,11 +8203,15 @@ class Transaksi extends CI_Controller
 			// 		echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!'));
 			// 	}
 			// }else
-			if($waktu == 'EXPIRED' && $getData->row()->status_app3 == 'Y' && $eta1->abaikan == null){
+			if($dExpDiff <= 0 && $getData->row()->expired_po != null){
+				echo json_encode(array('data' => false, 'msg' => 'ETA LEBIH DARI EXPIRED PO!', 'dExpDiff' => $dExpDiff));
+			}else if($waktu == 'EXPIRED' && $getData->row()->status_app3 == 'Y' && $getData->row()->abaikan == null){
 				echo json_encode(array('data' => false, 'msg' => 'EXPIRED!'));
-			}else if(($_POST['fBagiQtySo'] < $eta1->qty_so) && $eta1->abaikan == null){
-				echo json_encode(array('data' => false, 'msg' => 'QTY TAMBAHAN LEBIH KECIL DARI QTY ETA PERTAMA!'));
-			}else if($this->cart->total_items() != 0){
+			}
+			// else if(($_POST['fBagiQtySo'] < $eta1->qty_so) && $eta1->abaikan == null){
+			// 	echo json_encode(array('data' => false, 'msg' => 'QTY TAMBAHAN LEBIH KECIL DARI QTY ETA PERTAMA!'));
+			// }
+			else if($this->cart->total_items() != 0){
 				// foreach($this->cart->contents() as $r){
 				// 	if($r['options']['eta_so'] == $_POST["fBagiEtaSo"]){
 				// 		echo json_encode(array('data' => false, 'msg' => 'ETA SUDAH ADA!')); return;
@@ -8493,6 +8359,12 @@ class Transaksi extends CI_Controller
 	function addOStoDSys()
 	{
 		$result = $this->m_transaksi->addOStoDSys();
+		echo json_encode($result);
+	}
+
+	function addSysRePlan()
+	{
+		$result = $this->m_transaksi->addSysRePlan();
 		echo json_encode($result);
 	}
 
@@ -10908,7 +10780,7 @@ class Transaksi extends CI_Controller
 					ORDER BY p.nm_pelanggan,r.rk_kode_po,r.id_gudang,i.nm_produk");
 					$cekKLB = $this->db->query("SELECT*FROM trs_dev_klb WHERE tgl='$tgl' AND urut='$u->urut' AND kalibrasi!=''");
 					$fileKLB = $this->db->query("SELECT*FROM trs_dev_klb WHERE tgl='$tgl' AND urut='$u->urut' AND file_klb!=''");
-					($cekKLB->num_rows() == 0) ? $txtKLB = '' : $txtKLB = $cekKLB->row()->kalibrasi;
+					($cekKLB->num_rows() == 0 && $u->urut != 0) ? $txtKLB = '' : $txtKLB = $cekKLB->row()->kalibrasi;
 					
 					if($u->urut == 0){
 						$html .= '<tr>
@@ -10962,7 +10834,6 @@ class Transaksi extends CI_Controller
 									}else{
 										$hapus = '';
 									}
-									// pilih plan && $tglNow >= 0
 									$plhBtnDS = ($u->timb_tgl == null && $u->timb_urut == null && $cekRK->num_rows() == 0 && $p_tgl != '' && $p_urut != '') ? ' - <span class="btnDSRC"><button class="btn btn-xs btn-primary" style="font-weight:bold" onclick="pilihDSRinc('."'".$u->urut."'".')">PILIH</button></span>' : '<span class="btnDSRC"></span>';
 									$html .= '<div style="font-weight:bold;color:#fff">'.$e->plat.' ( '.$e->ekspedisi.' )'.$pLt.$kalibrasi.$hapus.$plhBtnDS.'</div>';
 								}
@@ -10970,7 +10841,7 @@ class Transaksi extends CI_Controller
 							
 							// UPLOAD KALIBRASI
 							if($cekKLB->num_rows() != 0 && $fileKLB->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])){
-								$html .= '<td style="background:#ddf;padding:6px;font-size:11px" colspan="6">
+								$html .= '<td style="background:#dfd;padding:6px;font-size:11px" colspan="6">
 									<form role="form" method="POST" id="mut_kalibrasi_'.$u->urut.'" enctype="multipart/form-data">
 										<input type="hidden" name="m_tgl" id="m_tgl" value="'.$tgl.'">
 										<input type="hidden" name="m_urut" id="m_urut" value="'.$u->urut.'">
@@ -11053,18 +10924,20 @@ class Transaksi extends CI_Controller
 						// SUSULAN
 						($r->dev_stat != null) ? $devStat = ' <span class="bg-info" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$r->dev_stat.'</span>' : $devStat = '';
 						($r->sts == 'Close') ? $devCls = ' <span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">CLOSE</span>' : $devCls = '';
+						// REPLAN
+						($r->eta_t == 'REPLAN') ? $dRP = 'background:#ddf;border:1px solid #bec2c6;' : $dRP = 'border:1px solid #dee2e6;';
 
 						$html .= '<tr style="vertical-align:top">
-							<td style="border:1px solid #dee2e6;padding:6px;text-align:center" '.$rkRS.'>
+							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>
 								<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" value="'.$r->urut.'" '.$och.'>
 							</td>
-							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$r->nm_pelanggan.$kota.$devStat.$attn.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px;text-align:center" '.$rkRS.'>'.$lamaK.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$r->kode_po.$devCls.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px" '.$rkRS.'>'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->qty_plan, 0, ',', '.').'</td>
-							<td style="border:1px solid #dee2e6;padding:6px;text-align:center" '.$rkRS.'>'.$r->berat_bersih.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->berat, 0, ',', '.').'</td>';
+							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$r->nm_pelanggan.$kota.$devStat.$attn.'</td>
+							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>'.$lamaK.'</td>
+							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$r->kode_po.$devCls.'</td>
+							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
+							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->qty_plan, 0, ',', '.').'</td>
+							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>'.$r->berat_bersih.'</td>
+							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->berat, 0, ',', '.').'</td>';
 
 							// KALIBRASI
 							if($sys->num_rows() == 1 && $u->urut != 0 && $u->id_ex != null){
@@ -11075,15 +10948,15 @@ class Transaksi extends CI_Controller
 									$oKb2 = '';
 									$dkb2 = 'disabled';
 								}
-								$html .= '<td style="border:1px solid #dee2e6;padding:6px;text-align:right" '.$rkRS.'>
+								$html .= '<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>
 									<input type="number" class="form-control" '.$oKb2.' style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" value="'.$txtKLB.'" autocomplete="off" placeholder="0" '.$dkb2.'>
 								</td>';
 							}else if($sys->num_rows() == 1 && ($u->urut == 0 || $u->id_ex == null)){
-								$html .= '<td style="border:1px solid #dee2e6;padding:6px;text-align:right" '.$rkRS.'>
+								$html .= '<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>
 									<input type="number" class="form-control" style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" placeholder="0" disabled>
 								</td>';
 							}else{
-								$html .= '<td style="border:1px solid #dee2e6;border-width:0 1px;padding:6px;text-align:right" '.$rkRS.'></td>';
+								$html .= '<td style="'.$dRP.'border-width:0 1px;padding:6px;text-align:right" '.$rkRS.'></td>';
 							}
 
 							// REALISASI
