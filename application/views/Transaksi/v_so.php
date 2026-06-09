@@ -1403,7 +1403,6 @@
 		let h_id = $("#h_id").val()
 		let no_po = $("#h_no_po").val()
 		let kode_po = $("#h_kodepo").val()
-		// let hasil_tgl = $("#hasil_tgl"+id).val()
 		let hasil_pcs = $("#hasil_pcs"+id).val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/btnSOHasil')?>',
@@ -1470,7 +1469,6 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/LaporanSOTrim')?>',
 			type: "POST",
-			// data: ({ id, cbhs }),
 			success: function(res){
 				data = JSON.parse(res)
 				if(urlAuth == 'ppic'){
@@ -1537,6 +1535,40 @@
 					reloadTable()
 				}else{
 					$(".addOStoDSys").prop('disabled', false)
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function addSysRePlan(id_po_dtl, id_os, id_dev) {
+		let h_id = $("#h_id").val()
+		let no_po = $("#h_no_po").val()
+		let kode_po = $("#h_kodepo").val()
+		$(".addSysRePlan").prop('disabled', true)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/addSysRePlan')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_po_dtl, id_os, id_dev }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					tampilEditSO(h_id, no_po, kode_po, 'edit')
+					reloadTable()
+				}else{
+					$(".addSysRePlan").prop('disabled', false)
 					toastr.error(`<b>${data.msg}</b>`)
 					swal.close()
 				}
@@ -1623,9 +1655,6 @@
 			success: function(res){
 				data = JSON.parse(res)
 				$("#"+namaID+id).val(data.eta)
-				// if(plhNamaID == "sys_eta"){
-				// 	$("."+namaID+id).html(data.hPlus)
-				// }
 			}
 		})
 	}

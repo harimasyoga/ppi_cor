@@ -1318,21 +1318,78 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function addSysRePlan()
+	{
+		$id_po_dtl = $_POST["id_po_dtl"];
+		$id_os = $_POST["id_os"];
+		$id_dev = $_POST["id_dev"];
+
+		$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_dev='$id_dev'")->row();
+		// KIRIMAN
+		$rk_tgl = $sys->timb_tgl;
+		$rk_urut = $sys->timb_urut;
+		$k = $this->db->query("SELECT r.*,p.* FROM m_rencana_kirim r
+		INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
+		WHERE r.rk_tgl='$rk_tgl' AND r.rk_urut='$rk_urut'
+		GROUP BY r.rk_tgl,r.id_pelanggan,r.id_produk,r.rk_kode_po,r.rk_urut");
+		$kurang = $sys->qty_plan - $k->row()->qty_muat;
+
+		$po_dtl = $this->db->query("SELECT po.status_app3,ps.* FROM trs_po_detail ps
+		INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
+		WHERE ps.id='$id_po_dtl'")->row();
+		$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$po_dtl->id_produk'")->row();
+
+		// PENGIRIMAN
+		$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
+		$sumKirim = $kirim["sumKirim"];
+		$sisa = $kirim["sisa2"];
+
+		$delivery = $sumKirim;
+		$os = $sisa;
+		$berat = $kurang * $produk->berat_bersih;
+
+		$dts = [
+			'id_po_header' => $id_po_dtl,
+			'id_produk' => $po_dtl->id_produk,
+			'id_pelanggan' => $po_dtl->id_pelanggan,
+			'id_so' => $id_os,
+			'qty_po' => $po_dtl->qty,
+			'delivery' => $delivery,
+			'os' => $os,
+			'os_terplanning' => 0,
+			'os_belum_terplanning' => 0,
+			'qty_plan' => $kurang,
+			'berat' => $berat,
+			'bb' => $produk->berat_bersih,
+			'eta' => date('Y-m-d'),
+			'eta_t' => 'REPLAN',
+			'ket_sys' => null,
+			'id_ex' => null,
+			'urut' => 0,
+			'created_at' => date('Y-m-d H:i:s'),
+			'id_dev2' => $id_dev,
+		];
+		$data = $this->db->insert("trs_dev_sys", $dts);
+		$msg = 'BERHASIL';
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function hapusOSDSys()
 	{
 		$id_dev = $_POST["id_dev"];
 
-		// $sys = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_dev'")->row();
 		$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_dev='$id_dev'")->row();
 		// LOCK
 		$lock3D = date('Y-m-d', strtotime('+'.$sys->lock.' days', strtotime(date('Y-m-d'))));
-		$selisihHariPilih = strtotime($lock3D) - strtotime($sys->eta);
-		$hariPilih = floor($selisihHariPilih/60/60/24);
 		$tglPilih = floor((strtotime($sys->eta) - strtotime($lock3D)) /60/60/24);
 		
 		if($sys->eta_t == null){
 			$data = false; $msg = 'ETA DARI ACC PO TIDAK BISA DI HAPUS!';
-		}else if($tglPilih <= 0){
+		}else if($tglPilih <= 0 && $sys->eta_t != 'REPLAN'){
 			$data = false;
 			$msg = 'LOCK '.$sys->lock.' HARI PER HARI INI!';
 		}else if($sys->urut != 0){
@@ -1357,16 +1414,26 @@ class M_transaksi extends CI_Model
 		$sys_qty = $_POST["sys_qty"];
 		$sys_ket = $_POST["sys_ket"];
 
-		$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_dev='$id_sys'")->row();
+		$sys = $this->db->query("SELECT p.lock,p.abaikan,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_dev='$id_sys'")->row();
 		// LOCK
 		$lock3D = date('Y-m-d', strtotime('+'.$sys->lock.' days', strtotime(date('Y-m-d'))));
 		$selisihHariPilih = strtotime($lock3D) - strtotime($sys_eta);
 		$hariPilih = floor($selisihHariPilih/60/60/24);
 		$tglPilih = floor((strtotime($sys->eta) - strtotime($lock3D)) /60/60/24);
 
+		// PO
+		$r = $this->db->query("SELECT DATEDIFF(SUBSTRING(DATE_ADD(po.time_app3, INTERVAL po.expired_po DAY), 1, 10), CURDATE()) AS exp_po,po.* FROM trs_po_detail ps
+		INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
+		WHERE ps.id='$id_po_dtl' GROUP BY po.kode_po")->row();
+
+		$dExp = date('Y-m-d', strtotime('+'.$r->expired_po.' days', strtotime($r->time_app3)));
+		$dExpDiff = strtotime($dExp) - strtotime($sys_eta);
+
 		if($sys->eta_t == null){
 			$data = false; $msg = 'ETA DARI ACC PO TIDAK BISA DI EDIT!';
-		}else if($tglPilih <= 0){
+		}else if(($sys->eta_t == 'REPLAN' || $sys->eta_t == 'TAMBAHAN') && $dExpDiff <= 0 && $r->expired_po != null){
+			$data = false; $msg = 'ETA LEBIH DARI EXPIRED PO!';
+		}else if($tglPilih <= 0 && $sys->eta_t != 'REPLAN'){
 			$data = false;
 			$msg = 'LOCK '.$sys->lock.' HARI PER HARI INI!';
 		}else if($sys_eta == ''){
@@ -1379,11 +1446,6 @@ class M_transaksi extends CI_Model
 			$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$id_po_dtl'")->row();
 			$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$po_dtl->id_produk'")->row();
 
-			// SYS
-			// $jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
-			// WHERE id_po_header='$sys->id_po_header' AND id_produk='$sys->id_produk' AND id_pelanggan='$sys->id_pelanggan'
-			// GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
-
 			// PENGIRIMAN
 			$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
 			$sumKirim = $kirim["sumKirim"];
@@ -1391,11 +1453,9 @@ class M_transaksi extends CI_Model
 
 			$delivery = $sumKirim;
 			$os = $sisa;
-			// $os_terplanning = $sisa - (($jumlah_plan->qty_plan - $sys->qty_plan) + $sys_qty);
-			// $os_belum_terplanning = ($sisa - (($jumlah_plan->qty_plan - $sys->qty_plan) + $sys_qty)) + $sys_qty;
 			$berat = $sys_qty * $produk->berat_bersih;
 
-			if($tglPilih > 0 && $hariPilih >= 0){
+			if($tglPilih > 0 && $hariPilih >= 0 && $sys->eta_t != 'REPLAN'){
 				$hari = date('d', strtotime($sys->eta)); $bulan = date('m', strtotime($sys->eta)); $tahun = substr($sys->eta, 2, 2);
 				$eTgll = $hari.'/'.$bulan.'/'.$tahun;
 				$devStat = 'SUSULAN ('.$eTgll.')';
@@ -1405,11 +1465,6 @@ class M_transaksi extends CI_Model
 			}
 
 			$dts = [
-				// 'id_po_header' => $id,
-				// 'id_produk' => $id_produk,
-				// 'id_pelanggan' => $id_pelanggan,
-				// 'id_so' => $soSo->id,
-				// 'qty_po' => $jml_so,
 				'delivery' => $delivery,
 				'os' => $os,
 				'os_terplanning' => 0,
@@ -1419,9 +1474,6 @@ class M_transaksi extends CI_Model
 				'eta' => $sys_eta,
 				'ket_sys' => ($sys_ket == '') ? null : $sys_ket,
 				'dev_stat' => $devStat,
-				// 'id_ex' => null,
-				// 'urut' => 0,
-				// 'created_at' => date('Y-m-d H:i:s'),
 			];
 			$this->db->where("id_dev", $id_sys);
 			$data = $this->db->update("trs_dev_sys", $dts);
@@ -1461,14 +1513,14 @@ class M_transaksi extends CI_Model
 			$ton = $_POST["editQtySo"] * $produk->row()->berat_bersih;
 
 			// eta1
-			$SO = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$id'")->row();
-			$eta1 = $this->db->query("SELECT po.status_app3,po.time_app3,so.* FROM trs_po_detail ps
-			INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
-			INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
-			WHERE so.no_po='$SO->no_po' AND so.kode_po='$SO->kode_po' AND so.no_so='$SO->no_so' AND so.urut_so='$SO->urut_so'
-			GROUP BY so.id
-			ORDER BY so.urut_so ASC, so.rpt ASC
-			LIMIT 1")->row();
+			// $SO = $this->db->query("SELECT*FROM trs_so_detail WHERE id='$id'")->row();
+			// $eta1 = $this->db->query("SELECT po.status_app3,po.time_app3,so.* FROM trs_po_detail ps
+			// INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
+			// INNER JOIN trs_so_detail so ON ps.no_po=so.no_po AND ps.kode_po=so.kode_po AND ps.no_so=so.no_so AND ps.id_produk=so.id_produk
+			// WHERE so.no_po='$SO->no_po' AND so.kode_po='$SO->kode_po' AND so.no_so='$SO->no_so' AND so.urut_so='$SO->urut_so'
+			// GROUP BY so.id
+			// ORDER BY so.urut_so ASC, so.rpt ASC
+			// LIMIT 1")->row();
 
 			$data = array(
 				"eta_so" => ($_POST["editTglSo"] == "") ? null : $_POST["editTglSo"],
@@ -1481,10 +1533,11 @@ class M_transaksi extends CI_Model
 				"edit_user" => $this->username,
 			);
 
-			if(($_POST['editQtySo'] < $eta1->qty_so) && $SO->rpt != 1){
-				$insert = false;
-				$msg = 'QTY LEBIH KECIL DARI QTY ETA PERTAMA!';
-			}else if($_POST["editCekRM"] == 0){
+			// if(($_POST['editQtySo'] < $eta1->qty_so) && $SO->rpt != 1){
+			// 	$insert = false;
+			// 	$msg = 'QTY LEBIH KECIL DARI QTY ETA PERTAMA!';
+			// }else
+			if($_POST["editCekRM"] == 0){
 				if($rm < 500){
 					$insert = false;
 					$msg = 'RM '.round($rm).' . RM KURANG!';
@@ -3282,6 +3335,11 @@ class M_transaksi extends CI_Model
 			$this->db->where('id_dev', $id_dev);
 			$data = $this->db->update('trs_dev_sys');
 			$msg = 'BERHASIL!';
+			if($data){
+				$this->db->where('tgl', $dev->eta);
+				$this->db->where('urut', $urut);
+				$this->db->delete('trs_dev_klb');
+			}
 		}
 
 		return [
@@ -3332,6 +3390,11 @@ class M_transaksi extends CI_Model
 			$this->db->where('eta', $tgl);
 			$data = $this->db->update('trs_dev_sys');
 			$msg = 'BERHASIL!';
+			if($data){
+				$this->db->where('tgl', $tgl);
+				$this->db->where('urut', $urut);
+				$this->db->delete('trs_dev_klb');
+			}
 		}
 
 		return [
