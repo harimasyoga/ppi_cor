@@ -526,7 +526,7 @@
 							<?php if($id_sales == '' || $id_sales == null) { ?>
 								<div class="col-md-3" style="padding-bottom:3px"></div>
 							<?php }else{ ?>
-								<div class="col-md-7" style="padding-bottom:3px">
+								<div class="col-md-8" style="padding-bottom:3px">
 									<input type="hidden" id="type_inv" value="box">
 									<input type="hidden" id="exp_pilih" value="all">
 								</div>
