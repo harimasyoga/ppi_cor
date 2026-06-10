@@ -8203,7 +8203,7 @@ class Transaksi extends CI_Controller
 			// 		echo json_encode(array('data' => false, 'msg' => 'QTY OS LEBIH DARI QTY PO!'));
 			// 	}
 			// }else
-			if($dExpDiff <= 0 && $getData->row()->expired_po != null){
+			if($dExpDiff <= 0 && $getData->row()->status_app3 == 'Y' && $getData->row()->expired_po != null){
 				echo json_encode(array('data' => false, 'msg' => 'ETA LEBIH DARI EXPIRED PO!', 'dExpDiff' => $dExpDiff));
 			}else if($waktu == 'EXPIRED' && $getData->row()->status_app3 == 'Y' && $getData->row()->abaikan == null){
 				echo json_encode(array('data' => false, 'msg' => 'EXPIRED!'));
