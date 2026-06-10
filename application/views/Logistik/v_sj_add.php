@@ -29,42 +29,45 @@
 
 	<section class="content" style="padding-bottom:30px">
 		<div class="container-fluid">
-			<div class="row">
-				<div class="col-md-12">
-					<div class="card card-secondary card-outline">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">GUDANG</h3>
+
+			<?php if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) { ?>
+				<div class="row">
+					<div class="col-md-12">
+						<div class="card card-secondary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">GUDANG</h3>
+							</div>
+							<div class="card-body card-body-gudang" style="padding:6px">
+								<div style="padding:10px;text-align:center">
+									<i class="fas fa-2x fa-sync-alt fa-spin"></i>
+								</div>
+							</div>
 						</div>
-						<div class="card-body card-body-gudang" style="padding:6px">
-							<div style="padding:10px;text-align:center">
-								<i class="fas fa-2x fa-sync-alt fa-spin"></i>
+					</div>
+					<div class="col-md-12">
+						<div class="card card-info card-outline">
+							<input type="hidden" id="hidden-card-body-rk">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">RENCANA KIRIM</h3> &nbsp;&nbsp;<span style="font-style:italic">- <?php echo strtoupper($this->m_fungsi->getHariIni(date('Y-m-d'))) ?>, <?php echo strtoupper($this->m_fungsi->tanggal_format_indonesia(date('Y-m-d'))) ?></span>
+							</div>
+							<div class="card-body" style="padding:0">
+								<div class="card-body-rk" style="padding:6px;overflow:auto;white-space:nowrap"></div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-12 col-revisi" style="display:none">
+						<div class="card card-secondary card-outline">
+							<input type="hidden" id="hidden-card-body-rk">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">REVISI SURAT JALAN</h3>
+							</div>
+							<div class="card-body" style="padding:0">
+								<div class="card-body-rev" style="padding:6px;overflow:auto;white-space:nowrap"></div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<div class="col-md-12">
-					<div class="card card-info card-outline">
-						<input type="hidden" id="hidden-card-body-rk">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">RENCANA KIRIM</h3> &nbsp;&nbsp;<span style="font-style:italic">- <?php echo strtoupper($this->m_fungsi->getHariIni(date('Y-m-d'))) ?>, <?php echo strtoupper($this->m_fungsi->tanggal_format_indonesia(date('Y-m-d'))) ?></span>
-						</div>
-						<div class="card-body" style="padding:0">
-							<div class="card-body-rk" style="padding:6px;overflow:auto;white-space:nowrap"></div>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-12 col-revisi" style="display:none">
-					<div class="card card-secondary card-outline">
-						<input type="hidden" id="hidden-card-body-rk">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">REVISI SURAT JALAN</h3>
-						</div>
-						<div class="card-body" style="padding:0">
-							<div class="card-body-rev" style="padding:6px;overflow:auto;white-space:nowrap"></div>
-						</div>
-					</div>
-				</div>
-			</div>
+			<?php } ?>
 
 			<div class="row">
 				<div class="col-md-12">
@@ -103,7 +106,7 @@
 				</div>
 			</div>
 
-			<?php if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) { ?>
+			<?php if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Keuangan1'])) { ?>
 				<div class="row">
 					<div class="col-md-12">
 						<div class="card card-secondary card-outline">

@@ -12337,14 +12337,16 @@ class Logistik extends CI_Controller
 		$this->load->view('header', $data);
 
 		$jenis = $this->uri->segment(3);
+		$lvl = $this->session->userdata('level');
+		$username = $this->session->userdata('username');
 		if($jenis == 'Add'){
-			if(in_array($this->session->userdata('level'), ['Admin','Admin2','konsul_keu','Gudang','User'])){
+			if(in_array($lvl, ['Admin','Admin2','konsul_keu','Gudang','User']) || $username == 'karina'){
 				$this->load->view('Logistik/v_sj_add');
 			}else{
 				$this->load->view('home');
 			}
 		}else{
-			if(in_array($this->session->userdata('level'), ['Admin','Admin2','konsul_keu', 'Gudang','User'])){
+			if(in_array($lvl, ['Admin','Admin2','konsul_keu', 'Gudang','User']) || $username == 'karina'){
 				$this->load->view('Logistik/v_sj_add');
 			}else{
 				$this->load->view('home');

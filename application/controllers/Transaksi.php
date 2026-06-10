@@ -10291,13 +10291,19 @@ class Transaksi extends CI_Controller
 						GROUP BY s.eta")->row()->berat;
 					}
 
+					$cMer = $this->db->query("SELECT DATEDIFF(s.eta, CURDATE()) AS exp_dd,s.* FROM trs_dev_sys s WHERE s.eta='$tglSys' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL");
+					($cMer->num_rows() == 0) ? $sMer = '' : $sMer = '<span style="position:absolute;top:3px;left:3px;font-size:12px;font-style:italic;color:#000;background:#fdd;padding:0 4px;border-radius:4px">'.$cMer->num_rows().'</span>';
+
+					$cKun = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.eta='$tglSys' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL");
+					($cKun->num_rows() == 0) ? $sKun = '' : $sKun = '<span style="position:absolute;top:3px;left:3px;font-size:12px;font-style:italic;color:#000;background:#ffd;padding:0 4px;border-radius:4px">'.$cKun->num_rows().'</span>';
+
 					($count->num_rows() == 0) ? $sCount = '' : $sCount = '<span style="position:absolute;top:3px;right:3px;font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</span>';
 					($count->num_rows() == 0) ? $sBb = '' : $sBb = '<span style="position:absolute;bottom:3px;left:3px;font-size:12px;font-style:italic;color:#fff;background:#7c858d;padding:0 4px;border-radius:4px">'.number_format($berat, 0, ',', '.').'</span>';
 					($count->num_rows() == 0) ? $link = '' : $link = '<a href="javascript:void(0)" class="ds-link" onclick="ccDevSys('."'".$a."'".', '."'jadwal'".')"></a>';
 					($count->num_rows() == 0) ? $fb = '' : $fb = ';font-weight:bold';
 					($tgl == $a) ? $bb = ';background:#d9dadc' : $bb = '';
 					$html .= '<div style="position:relative;padding:15px 0;font-size:20px;text-align:center;border:1px solid #d9dadc'.$fb.$bb.'">
-						'.$sCount.$sBb.'
+						'.$sKun.$sCount.$sBb.'
 						'.$kk.'
 						'.$link.'
 					</div>';
