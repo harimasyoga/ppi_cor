@@ -41,24 +41,22 @@
 	
 	<section class="content">
 		<div class="container-fluid">
-			<?php if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) { ?>
-				<div class="card">
-					<div class="card-header" style="font-family:Cambria;">
-						<h3 class="card-title" style="color:#4e73df;"><b>DELIVERY SYSTEM</b></h3>
-						<div class="card-tools">
-							<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fas fa-minus"></i></button>
-						</div>
+			<!-- <div class="card">
+				<div class="card-header" style="font-family:Cambria;">
+					<h3 class="card-title" style="color:#4e73df;"><b>DELIVERY SYSTEM</b></h3>
+					<div class="card-tools">
+						<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fas fa-minus"></i></button>
 					</div>
-					<div class="card-body">
-						<div class="card-body row" style="padding:12px 0 6px">
-							<div class="col-md-12">
-								<div class="tab_dev"></div>
-								<div style="display:none" id="tampil-data"></div>
-							</div>
+				</div>
+				<div class="card-body">
+					<div class="card-body row" style="padding:12px 0 6px">
+						<div class="col-md-12">
+							<div class="tab_dev"></div>
+							<div style="display:none" id="tampil-data"></div>
 						</div>
 					</div>
 				</div>
-			<?php } ?>
+			</div> -->
 
 			<div class="row">
 				<div class="col-md-6">
@@ -195,7 +193,7 @@
 								<div class="ds-suratjalan">-</div>
 							</div>
 							<div style="overflow:auto;white-space:nowrap">
-								<div class="ds-pilihds">-</div>
+								<div class="ds-pilihds"></div>
 							</div>
 						</div>
 					</div>
@@ -211,10 +209,12 @@
 
 <script type="text/javascript">
 	$(document).ready(function () {
-		$("#tampil-rincian").html(``)
-		$("#tampil-data").html(``)
-		$('.select2').select2();
-		list_dev()
+		$("#tampil-rincian").html('')
+		// $("#tampil-data").html('')
+		$('.select2').select2()
+		// list_dev()
+		loadCalender('')
+		loadRealCalender('')
 	});
 
 	function imgClick(klik)
@@ -444,28 +444,28 @@
 		})
 	}
 
-	function list_dev() {
-		$(".tab_dev").html('')
-		$.ajax({
-			url: '<?php echo base_url('Transaksi/list_dev') ?>',
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
-			success: function(res) {
-				$(".tab_dev").html(res)
-				loadCalender('')
-				loadRealCalender('')
-			}
-		})
-	}
+	// function list_dev() {
+	// 	$(".tab_dev").html('')
+	// 	$.ajax({
+	// 		url: '<?php echo base_url('Transaksi/list_dev') ?>',
+	// 		type: "POST",
+	// 		beforeSend: function() {
+	// 			swal({
+	// 				title: 'Loading',
+	// 				allowEscapeKey: false,
+	// 				allowOutsideClick: false,
+	// 				onOpen: () => {
+	// 					swal.showLoading();
+	// 				}
+	// 			});
+	// 		},
+	// 		success: function(res) {
+	// 			$(".tab_dev").html(res)
+	// 			loadCalender('')
+	// 			loadRealCalender('')
+	// 		}
+	// 	})
+	// }
 
 	function btnPiuSales(i) {
 		$(".tr1").hide()
@@ -555,39 +555,38 @@
 		}
 	}
 
-	function Tampil_po(id_produk, id_pelanggan, nm_produk)
-	{
-		$('.tab_dev').hide("1000");
-		$('#tampil-data').show("1000");
-		$.ajax({
-			url: '<?php echo base_url('Transaksi/TampilPO_dev')?>',
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
-			data: ({
-				id_pelanggan, id_produk, nm_produk
-			}),
-			success: function(res){
-				$("#tampil-data").html(res)
-				loadCalender('')
-			}
-		})
-	}
+	// function Tampil_po(id_produk, id_pelanggan, nm_produk)
+	// {
+	// 	$('.tab_dev').hide("1000");
+	// 	$('#tampil-data').show("1000");
+	// 	$.ajax({
+	// 		url: '<?php echo base_url('Transaksi/TampilPO_dev')?>',
+	// 		type: "POST",
+	// 		beforeSend: function() {
+	// 			swal({
+	// 				title: 'Loading',
+	// 				allowEscapeKey: false,
+	// 				allowOutsideClick: false,
+	// 				onOpen: () => {
+	// 					swal.showLoading();
+	// 				}
+	// 			});
+	// 		},
+	// 		data: ({
+	// 			id_pelanggan, id_produk, nm_produk
+	// 		}),
+	// 		success: function(res){
+	// 			$("#tampil-data").html(res)
+	// 			loadCalender('')
+	// 		}
+	// 	})
+	// }
 	
-	function kembali_po()
-	{
-		$('.tab_dev').show("1000");
-		$('#tampil-data').hide("1000");
-		
-	}
+	// function kembali_po()
+	// {
+	// 	$('.tab_dev').show("1000");
+	// 	$('#tampil-data').hide("1000");
+	// }
 
 	function btnPiuPO(i, id_produk, id_pelanggan, sisa, sumkirim) {
 		$(".tr_i").hide()

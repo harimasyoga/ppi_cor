@@ -34,6 +34,7 @@ class login extends CI_Controller{
 				$data_session['nm_user'] = $dt->nm_user;
 				$data_session['level'] = $dt->level;
 				$data_session['id_sales'] = $dt->id_sales;
+				$data_session['akses_dd'] = $dt->akses_dd;
 
 				$this->session->set_userdata($data_session);
 			}
