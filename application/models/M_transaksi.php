@@ -1431,7 +1431,7 @@ class M_transaksi extends CI_Model
 
 		if($sys->eta_t == null){
 			$data = false; $msg = 'ETA DARI ACC PO TIDAK BISA DI EDIT!';
-		}else if(($sys->eta_t == 'REPLAN' || $sys->eta_t == 'TAMBAHAN') && $dExpDiff <= 0 && $r->expired_po != null){
+		}else if(($sys->eta_t == 'REPLAN' || $sys->eta_t == 'TAMBAHAN') && $dExpDiff <= 0 && $r->status_app3 == 'Y' && $r->expired_po != null){
 			$data = false; $msg = 'ETA LEBIH DARI EXPIRED PO!';
 		}else if($tglPilih <= 0 && $sys->eta_t != 'REPLAN'){
 			$data = false;
