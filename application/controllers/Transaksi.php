@@ -10375,11 +10375,21 @@ class Transaksi extends CI_Controller
 			$html .= '</div>';
 		$html .= '</div>';
 		// TOTAL
-		$fixBerat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
-		INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-		WHERE s.eta LIKE '%$tahun-$bulan%' AND d.status='Approve' AND (s.eta_t IS NULL OR s.eta_t='TAMBAHAN') GROUP BY YEAR(s.eta), MONTH(s.eta)");
-		if($fixBerat->num_rows() != 0){
-			$html .= '<div style="margin-top:5px;font-weight:bold">TONASE: '.number_format($fixBerat->row()->berat,0,',','.').'</div>';
+		if($totTon != 0){
+			// REPLAN
+			$tRePlan = $this->db->query("SELECT s.*,(SELECT s2.berat FROM trs_dev_sys s2 WHERE s2.id_dev=s.id_dev2) AS doksil FROM trs_dev_sys s WHERE s.eta LIKE '%$tahun-$bulan%' AND s.eta_t='REPLAN'");
+			$tonPLama = 0;
+			if($tRePlan->num_rows() != 0){
+				foreach($tRePlan->result() as $n){
+					$tonPLama += $n->doksil;
+				}
+				$tonAkhir = $totTon - $tonPLama;
+			}else{
+				$tonAkhir = $totTon;
+			}
+			if($tonAkhir > 0){
+				$html .= '<div style="margin-top:5px;font-weight:bold">TONASE: '.number_format($tonAkhir,0,',','.').'</div>';
+			}
 		}
 
 		echo json_encode([
@@ -10481,9 +10491,13 @@ class Transaksi extends CI_Controller
 					}
 
 					if($id_sales == null || $id_sales == '' || $akses_dd != null){
+						$sKun = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE r.rk_tgl='$tglSys' AND r.dev_tgl IS NULL AND r.dev_urut IS NULL GROUP BY r.rk_urut");
 						$count = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tglSys' GROUP BY tgl,no_pl_urut");
 						$berat = $this->db->query("SELECT SUM(berat_bersih) AS berat FROM m_jembatan_timbang WHERE tgl_t='$tglSys' GROUP BY tgl_t")->row()->berat;
 					}else{
+						$sKun = $this->db->query("SELECT*FROM m_rencana_kirim r
+						INNER JOIN m_pelanggan c ON c.id_pelanggan=r.id_pelanggan
+						WHERE r.rk_tgl='$tglSys' AND c.id_sales='$id_sales' AND r.dev_tgl IS NULL AND r.dev_urut IS NULL GROUP BY r.rk_urut");
 						$count = $this->db->query("SELECT c.id_sales,p.* FROM pl_box p
 						INNER JOIN m_pelanggan c ON c.id_pelanggan=p.id_perusahaan
 						WHERE p.tgl='$tglSys' AND c.id_sales='$id_sales' GROUP BY p.tgl,p.no_pl_urut");
@@ -10501,15 +10515,13 @@ class Transaksi extends CI_Controller
 						}
 					}
 
-					$sKun = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE r.rk_tgl='$tglSys' AND r.dev_tgl IS NULL AND r.dev_urut IS NULL GROUP BY r.rk_urut");
-
 					$spaNh = '';
 					$spaNh .= '<div style="display:flex;position:absolute;top:3px;right:3px">';
 						if($sKun->num_rows() != 0 && $count->num_rows() != 0){
 							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ffbf00;padding:0 4px;border-radius:4px 0 0 4px">'.$sKun->num_rows().'</div>
 							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
 						}else if($count->num_rows() != 0){
-							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
+							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</div>';
 						}else{
 							$spaNh .= '';
 						}
