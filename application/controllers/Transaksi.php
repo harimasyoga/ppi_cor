@@ -10500,13 +10500,29 @@ class Transaksi extends CI_Controller
 							}
 						}
 					}
+
+					$sKun = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE r.rk_tgl='$tglSys' AND r.dev_tgl IS NULL AND r.dev_urut IS NULL GROUP BY r.rk_urut");
+
+					$spaNh = '';
+					$spaNh .= '<div style="display:flex;position:absolute;top:3px;right:3px">';
+						if($sKun->num_rows() != 0 && $count->num_rows() != 0){
+							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ffbf00;padding:0 4px;border-radius:4px 0 0 4px">'.$sKun->num_rows().'</div>
+							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
+						}else if($count->num_rows() != 0){
+							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
+						}else{
+							$spaNh .= '';
+						}
+					$spaNh .= '</div>';
+
 					($count->num_rows() == 0) ? $sCount = '' : $sCount = '<span style="position:absolute;top:3px;right:3px;font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</span>';
 					($count->num_rows() == 0) ? $sBb = '' : $sBb = '<span style="position:absolute;bottom:3px;left:3px;font-size:12px;font-style:italic;color:#fff;background:#7c858d;padding:0 4px;border-radius:4px">'.number_format($berat, 0, ',', '.').'</span>';
 					($count->num_rows() == 0) ? $link = '' : $link = '<a href="javascript:void(0)" class="ds-link" onclick="ccDevSys('."'".$a."'".', '."'kirim'".')"></a>';
 					($count->num_rows() == 0) ? $fb = '' : $fb = ';font-weight:bold';
 					($tgl == $a) ? $bb = ';background:#d9dadc' : $bb = '';
 					$html .= '<div style="position:relative;padding:15px 0;font-size:20px;text-align:center;border:1px solid #d9dadc'.$fb.$bb.'">
-						'.$sCount.$sBb.'
+						'.$spaNh.'
+						'.$sBb.'
 						'.$kk.'
 						'.$link.'
 					</div>';
@@ -11015,8 +11031,11 @@ class Transaksi extends CI_Controller
 						
 						// REPLAN / + 3 HARI
 						if($r->eta_t == 'REPLAN'){
+							$tglRpln = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$r->id_dev2'");
+							$tRP = ' <span style="background:#0047ab;color:#fff;vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$tglRpln->row()->eta.'</span>';
 							$dRP = 'background:#89cff0;border:1px solid #69afd0;';
 						}else{
+							$tRP = '';
 							$id_dev2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_dev2='$r->id_dev'");
 							if(($r->exp_dd == '-1' || $r->exp_dd == '-2') && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
 								$dRP = 'background:#ffa;border:1px solid #dd8;';
@@ -11031,7 +11050,7 @@ class Transaksi extends CI_Controller
 							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>
 								<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" value="'.$r->urut.'" '.$och.'>
 							</td>
-							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$r->nm_pelanggan.$kota.$devStat.$attn.'</td>
+							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$r->nm_pelanggan.$kota.$devStat.$tRP.$attn.'</td>
 							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>'.$lamaK.'</td>
 							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$r->kode_po.$devCls.'</td>
 							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
