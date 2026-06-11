@@ -10293,6 +10293,9 @@ class Transaksi extends CI_Controller
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
 						WHERE s.eta='$tglSys' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN ('-1', '-2')
 						GROUP BY s.eta,s.urut");
+						$cBir = $this->db->query("SELECT*FROM trs_dev_sys s
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND d.status='Approve' AND s.eta_t='REPLAN' GROUP BY s.eta,s.urut");
 						$count = $this->db->query("SELECT*FROM trs_dev_sys s
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
 						WHERE s.eta='$tglSys' AND d.status='Approve' GROUP BY s.eta,s.urut");
@@ -10311,6 +10314,10 @@ class Transaksi extends CI_Controller
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
 						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN ('-1', '-2')
 						GROUP BY s.eta,s.urut");
+						$cBir = $this->db->query("SELECT*FROM trs_dev_sys s
+						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve' AND s.eta_t='REPLAN' GROUP BY s.eta,s.urut");
 						$count = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
@@ -10325,7 +10332,18 @@ class Transaksi extends CI_Controller
 
 					$spaNh = '';
 					$spaNh .= '<div style="display:flex;position:absolute;top:3px;right:3px">';
-						if($cMer->num_rows() != 0 && $cKun->num_rows() == 0 && $count->num_rows() != 0){
+						if($cKun->num_rows() != 0 && $cBir->num_rows() != 0 && $count->num_rows() != 0){
+							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ffbf00;padding:0 4px;border-radius:4px 0 0 4px">'.$cKun->num_rows().'</div>
+							<div style="font-size:12px;font-style:italic;color:#000;background:#0096ff;padding:0 4px">'.$cBir->num_rows().'</div>
+							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
+						}else if($cMer->num_rows() != 0 && $cBir->num_rows() != 0 && $count->num_rows() != 0){
+							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ff2e2e;padding:0 4px;border-radius:4px 0 0 4px">'.$cMer->num_rows().'</div>
+							<div style="font-size:12px;font-style:italic;color:#000;background:#0096ff;padding:0 4px">'.$cBir->num_rows().'</div>
+							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
+						}else if($cKun->num_rows() == 0 && $cBir->num_rows() != 0 && $count->num_rows() != 0){
+							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#0096ff;padding:0 4px;border-radius:4px 0 0 4px">'.$cBir->num_rows().'</div>
+							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
+						}else if($cMer->num_rows() != 0 && $cKun->num_rows() == 0 && $count->num_rows() != 0){
 							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ff2e2e;padding:0 4px;border-radius:4px 0 0 4px">'.$cMer->num_rows().'</div>
 							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
 						}else if($cMer->num_rows() == 0 && $cKun->num_rows() != 0 && $count->num_rows() != 0){
@@ -10357,8 +10375,11 @@ class Transaksi extends CI_Controller
 			$html .= '</div>';
 		$html .= '</div>';
 		// TOTAL
-		if($totTon != 0){
-			$html .= '<div style="margin-top:5px;font-weight:bold">TONASE: '.number_format($totTon,0,',','.').'</div>';
+		$fixBerat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
+		INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+		WHERE s.eta LIKE '%$tahun-$bulan%' AND d.status='Approve' AND (s.eta_t IS NULL OR s.eta_t='TAMBAHAN') GROUP BY YEAR(s.eta), MONTH(s.eta)");
+		if($fixBerat->num_rows() != 0){
+			$html .= '<div style="margin-top:5px;font-weight:bold">TONASE: '.number_format($fixBerat->row()->berat,0,',','.').'</div>';
 		}
 
 		echo json_encode([
@@ -10994,7 +11015,7 @@ class Transaksi extends CI_Controller
 						
 						// REPLAN / + 3 HARI
 						if($r->eta_t == 'REPLAN'){
-							$dRP = 'background:#ddf;border:1px solid #bec2c6;';
+							$dRP = 'background:#89cff0;border:1px solid #69afd0;';
 						}else{
 							$id_dev2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_dev2='$r->id_dev'");
 							if(($r->exp_dd == '-1' || $r->exp_dd == '-2') && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
