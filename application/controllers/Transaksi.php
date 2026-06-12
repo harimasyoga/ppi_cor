@@ -10293,6 +10293,9 @@ class Transaksi extends CI_Controller
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
 						WHERE s.eta='$tglSys' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN ('-1', '-2')
 						GROUP BY s.eta,s.urut");
+						$cBir = $this->db->query("SELECT*FROM trs_dev_sys s
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND d.status='Approve' AND s.eta_t='REPLAN' GROUP BY s.eta,s.urut");
 						$count = $this->db->query("SELECT*FROM trs_dev_sys s
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
 						WHERE s.eta='$tglSys' AND d.status='Approve' GROUP BY s.eta,s.urut");
@@ -10311,6 +10314,10 @@ class Transaksi extends CI_Controller
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
 						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN ('-1', '-2')
 						GROUP BY s.eta,s.urut");
+						$cBir = $this->db->query("SELECT*FROM trs_dev_sys s
+						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve' AND s.eta_t='REPLAN' GROUP BY s.eta,s.urut");
 						$count = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
@@ -10325,7 +10332,18 @@ class Transaksi extends CI_Controller
 
 					$spaNh = '';
 					$spaNh .= '<div style="display:flex;position:absolute;top:3px;right:3px">';
-						if($cMer->num_rows() != 0 && $cKun->num_rows() == 0 && $count->num_rows() != 0){
+						if($cKun->num_rows() != 0 && $cBir->num_rows() != 0 && $count->num_rows() != 0){
+							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ffbf00;padding:0 4px;border-radius:4px 0 0 4px">'.$cKun->num_rows().'</div>
+							<div style="font-size:12px;font-style:italic;color:#000;background:#0096ff;padding:0 4px">'.$cBir->num_rows().'</div>
+							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
+						}else if($cMer->num_rows() != 0 && $cBir->num_rows() != 0 && $count->num_rows() != 0){
+							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ff2e2e;padding:0 4px;border-radius:4px 0 0 4px">'.$cMer->num_rows().'</div>
+							<div style="font-size:12px;font-style:italic;color:#000;background:#0096ff;padding:0 4px">'.$cBir->num_rows().'</div>
+							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
+						}else if($cKun->num_rows() == 0 && $cBir->num_rows() != 0 && $count->num_rows() != 0){
+							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#0096ff;padding:0 4px;border-radius:4px 0 0 4px">'.$cBir->num_rows().'</div>
+							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
+						}else if($cMer->num_rows() != 0 && $cKun->num_rows() == 0 && $count->num_rows() != 0){
 							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ff2e2e;padding:0 4px;border-radius:4px 0 0 4px">'.$cMer->num_rows().'</div>
 							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
 						}else if($cMer->num_rows() == 0 && $cKun->num_rows() != 0 && $count->num_rows() != 0){
@@ -10358,7 +10376,20 @@ class Transaksi extends CI_Controller
 		$html .= '</div>';
 		// TOTAL
 		if($totTon != 0){
-			$html .= '<div style="margin-top:5px;font-weight:bold">TONASE: '.number_format($totTon,0,',','.').'</div>';
+			// REPLAN
+			$tRePlan = $this->db->query("SELECT s.*,(SELECT s2.berat FROM trs_dev_sys s2 WHERE s2.id_dev=s.id_dev2) AS doksil FROM trs_dev_sys s WHERE s.eta LIKE '%$tahun-$bulan%' AND s.eta_t='REPLAN'");
+			$tonPLama = 0;
+			if($tRePlan->num_rows() != 0){
+				foreach($tRePlan->result() as $n){
+					$tonPLama += $n->doksil;
+				}
+				$tonAkhir = $totTon - $tonPLama;
+			}else{
+				$tonAkhir = $totTon;
+			}
+			if($tonAkhir > 0){
+				$html .= '<div style="margin-top:5px;font-weight:bold">TONASE: '.number_format($tonAkhir,0,',','.').'</div>';
+			}
 		}
 
 		echo json_encode([
@@ -10460,9 +10491,13 @@ class Transaksi extends CI_Controller
 					}
 
 					if($id_sales == null || $id_sales == '' || $akses_dd != null){
+						$sKun = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE r.rk_tgl='$tglSys' AND r.dev_tgl IS NULL AND r.dev_urut IS NULL GROUP BY r.rk_urut");
 						$count = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tglSys' GROUP BY tgl,no_pl_urut");
 						$berat = $this->db->query("SELECT SUM(berat_bersih) AS berat FROM m_jembatan_timbang WHERE tgl_t='$tglSys' GROUP BY tgl_t")->row()->berat;
 					}else{
+						$sKun = $this->db->query("SELECT*FROM m_rencana_kirim r
+						INNER JOIN m_pelanggan c ON c.id_pelanggan=r.id_pelanggan
+						WHERE r.rk_tgl='$tglSys' AND c.id_sales='$id_sales' AND r.dev_tgl IS NULL AND r.dev_urut IS NULL GROUP BY r.rk_urut");
 						$count = $this->db->query("SELECT c.id_sales,p.* FROM pl_box p
 						INNER JOIN m_pelanggan c ON c.id_pelanggan=p.id_perusahaan
 						WHERE p.tgl='$tglSys' AND c.id_sales='$id_sales' GROUP BY p.tgl,p.no_pl_urut");
@@ -10479,13 +10514,27 @@ class Transaksi extends CI_Controller
 							}
 						}
 					}
+
+					$spaNh = '';
+					$spaNh .= '<div style="display:flex;position:absolute;top:3px;right:3px">';
+						if($sKun->num_rows() != 0 && $count->num_rows() != 0){
+							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ffbf00;padding:0 4px;border-radius:4px 0 0 4px">'.$sKun->num_rows().'</div>
+							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
+						}else if($count->num_rows() != 0){
+							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</div>';
+						}else{
+							$spaNh .= '';
+						}
+					$spaNh .= '</div>';
+
 					($count->num_rows() == 0) ? $sCount = '' : $sCount = '<span style="position:absolute;top:3px;right:3px;font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</span>';
 					($count->num_rows() == 0) ? $sBb = '' : $sBb = '<span style="position:absolute;bottom:3px;left:3px;font-size:12px;font-style:italic;color:#fff;background:#7c858d;padding:0 4px;border-radius:4px">'.number_format($berat, 0, ',', '.').'</span>';
 					($count->num_rows() == 0) ? $link = '' : $link = '<a href="javascript:void(0)" class="ds-link" onclick="ccDevSys('."'".$a."'".', '."'kirim'".')"></a>';
 					($count->num_rows() == 0) ? $fb = '' : $fb = ';font-weight:bold';
 					($tgl == $a) ? $bb = ';background:#d9dadc' : $bb = '';
 					$html .= '<div style="position:relative;padding:15px 0;font-size:20px;text-align:center;border:1px solid #d9dadc'.$fb.$bb.'">
-						'.$sCount.$sBb.'
+						'.$spaNh.'
+						'.$sBb.'
 						'.$kk.'
 						'.$link.'
 					</div>';
@@ -10994,8 +11043,11 @@ class Transaksi extends CI_Controller
 						
 						// REPLAN / + 3 HARI
 						if($r->eta_t == 'REPLAN'){
-							$dRP = 'background:#ddf;border:1px solid #bec2c6;';
+							$tglRpln = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$r->id_dev2'");
+							$tRP = ' <span style="background:#0047ab;color:#fff;vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$tglRpln->row()->eta.'</span>';
+							$dRP = 'background:#89cff0;border:1px solid #69afd0;';
 						}else{
+							$tRP = '';
 							$id_dev2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_dev2='$r->id_dev'");
 							if(($r->exp_dd == '-1' || $r->exp_dd == '-2') && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
 								$dRP = 'background:#ffa;border:1px solid #dd8;';
@@ -11010,7 +11062,7 @@ class Transaksi extends CI_Controller
 							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>
 								<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" value="'.$r->urut.'" '.$och.'>
 							</td>
-							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$r->nm_pelanggan.$kota.$devStat.$attn.'</td>
+							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$r->nm_pelanggan.$kota.$devStat.$tRP.$attn.'</td>
 							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>'.$lamaK.'</td>
 							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$r->kode_po.$devCls.'</td>
 							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
