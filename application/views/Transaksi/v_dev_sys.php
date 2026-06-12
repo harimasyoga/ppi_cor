@@ -924,4 +924,24 @@
 		})
 	}
 
+	function chkKLB(urut){
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		let chk = $("#chk-"+urut).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/chkKLB')?>',
+			type: "POST",
+			data: ({ tgl, tahun, bulan, urut, chk }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					ccDevSys(tgl, 'jadwal')
+				}else{
+					swal.close()
+				}
+			}
+		})
+	}
+
 </script>

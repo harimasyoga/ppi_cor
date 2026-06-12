@@ -9828,6 +9828,12 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function chkKLB()
+	{
+		$result = $this->m_transaksi->chkKLB();
+		echo json_encode($result);
+	}
+
 	function tglMuatEtaDSys()
 	{
 		$eta_tiba = $_POST["eta_tiba"];
@@ -10968,8 +10974,10 @@ class Transaksi extends CI_Controller
 							}else{
 								$prV = 'pimg_'.$u->urut;
 								($fileKLB->num_rows() != 0) ? $bIkb = '<img id="'.$prV.'" src="'.base_url().'assets/kalibrasi/'.$fileKLB->row()->file_klb.'" width="50" height="25" style="border-radius:5px" onclick="imgClick('."'".$prV."'".')">' : $bIkb = '';
-								($fileKLB->num_rows() != 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $hIkb = '<button class="btn btn-xs btn-danger" style="margin-left:5px" onclick="batalKLB('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : $hIkb = '';
-								$html .= '<td style="background:#333;padding:6px" colspan="6">'.$bIkb.$hIkb.'</td>';
+								($fileKLB->num_rows() != 0 && $u->check_klb == null && in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $hIkb = '<button class="btn btn-xs btn-danger" style="margin-left:5px" onclick="batalKLB('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : $hIkb = '';
+								($u->check_klb == 1) ? $oCk = 'checked' : $oCk = '';
+								(in_array($lvl, ['Admin', 'Owner'])) ? $chk = ' <input type="checkbox" id="chk-'.$u->urut.'" onclick="chkKLB('."'".$u->urut."'".')" value="'.$u->check_klb.'" '.$oCk.'>' : $chk = '';
+								$html .= '<td style="background:#333;padding:6px" colspan="6">'.$bIkb.$hIkb.$chk.'</td>';
 							}
 							
 							if($aRK->num_rows() != 0 && ($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0)){
@@ -11042,21 +11050,22 @@ class Transaksi extends CI_Controller
 						($r->sts == 'Close') ? $devCls = ' <span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">CLOSE</span>' : $devCls = '';
 						
 						// REPLAN / + 3 HARI
+						$id_dev2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_dev2='$r->id_dev'");
 						if($r->eta_t == 'REPLAN'){
 							$tglRpln = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$r->id_dev2'");
 							$tRP = ' <span style="background:#0047ab;color:#fff;vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$tglRpln->row()->eta.'</span>';
-							$dRP = 'background:#89cff0;border:1px solid #69afd0;';
 						}else{
 							$tRP = '';
-							$id_dev2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_dev2='$r->id_dev'");
-							if(($r->exp_dd == '-1' || $r->exp_dd == '-2') && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
+						}
+						if(($r->exp_dd == '-1' || $r->exp_dd == '-2') && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
 								$dRP = 'background:#ffa;border:1px solid #dd8;';
 							}else if($r->exp_dd <= '-3' && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
 								$dRP = 'background:#faa;border:1px solid #d88;';
+							}else if($r->eta_t == 'REPLAN'){
+								$dRP = 'background:#89cff0;border:1px solid #69afd0;';
 							}else{
 								$dRP = 'border:1px solid #dee2e6;';
 							}
-						}
 
 						$html .= '<tr style="vertical-align:top">
 							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>

@@ -1429,8 +1429,14 @@ class M_transaksi extends CI_Model
 		$dExp = date('Y-m-d', strtotime('+'.$r->expired_po.' days', strtotime($r->time_app3)));
 		$dExpDiff = strtotime($dExp) - strtotime($sys_eta);
 
+		// CEK REPLAN
+		$rePlan = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_dev='$sys->id_dev2'");
+		($rePlan->num_rows() != 0) ? $qRp = $rePlan->row()->qty_plan : $qRp = 0;
+
 		if($sys->eta_t == null){
 			$data = false; $msg = 'ETA DARI ACC PO TIDAK BISA DI EDIT!';
+		}else if($sys->eta_t == 'REPLAN' && $rePlan->num_rows() != 0 && $r->status_app3 == 'Y' && $sys_qty > $qRp){
+			$data = false; $msg = 'QTY LEBIH DARI ETA!';
 		}else if(($sys->eta_t == 'REPLAN' || $sys->eta_t == 'TAMBAHAN') && $dExpDiff <= 0 && $r->status_app3 == 'Y' && $r->expired_po != null){
 			$data = false; $msg = 'ETA LEBIH DARI EXPIRED PO!';
 		}else if($tglPilih <= 0 && $sys->eta_t != 'REPLAN'){
@@ -3609,6 +3615,29 @@ class M_transaksi extends CI_Model
 			'data' => $data,
 			'$data2' => $data2,
 			'timb' => $timb,
+		];
+	}
+
+	function chkKLB()
+	{
+		$angka = $_POST["tgl"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$tgl = $tahun.'-'.$bulan.'-'.$angka;
+		$urut = $_POST["urut"];
+		$chk = $_POST["chk"];
+
+		if($chk == ''){
+			$this->db->set('check_klb', 1);
+		}else{
+			$this->db->set('check_klb', null);
+		}
+		$this->db->where('eta', $tgl);
+		$this->db->where('urut', $urut);
+		$data = $this->db->update('trs_dev_sys');
+
+		return [
+			'data' => $data,
 		];
 	}
 }
