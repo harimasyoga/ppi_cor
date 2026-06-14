@@ -7891,7 +7891,9 @@ class Transaksi extends CI_Controller
 							GROUP BY r.rk_tgl,r.id_pelanggan,r.id_produk,r.rk_kode_po,r.rk_urut");
 
 							// TIME 3 HARI
-							$exp3H = date('Y-m-d', strtotime('+3 days', strtotime($s->eta)));
+							$namaHari = date('l', strtotime($s->eta));
+							($namaHari == "Friday" || $namaHari == "Saturday") ? $tbHari = '4' : $tbHari = '3';
+							$exp3H = date('Y-m-d', strtotime('+'.$tbHari.' days', strtotime($s->eta)));
 
 							// H / R
 							if($s->eta_t == null){
@@ -7917,7 +7919,7 @@ class Transaksi extends CI_Controller
 								$id_dev2 = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev2='$s->id_dev'");
 								if($k->num_rows() == 0){
 									$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="5"></td>';
-									// REPLAN TAPI TIDAK TERKIRIM  +3 HARI
+									// REPLAN TAPI TIDAK TERKIRIM  +3 HARI /
 									$id_dev1 = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$s->id_dev'");
 									if($exp3H > date('Y-m-d')){
 										$btnRPlan = '';
@@ -10281,23 +10283,31 @@ class Transaksi extends CI_Controller
 					$tglSys = $tahun.'-'.$bulan.'-'.$a;
 					// CEK LIBUR
 					$libur = $this->db->query("SELECT*FROM libur WHERE tgl='$tglSys'");
+					$namaHari = date('l', strtotime($tglSys));
 					if($libur->num_rows() != 0){
 						$kk = '<span style="color:#f00">'.$i2.'</span>';
 					}else{
-						// MINGGU
-						$hariMinggu = date('l', strtotime($tglSys));
-						($hariMinggu == "Sunday") ? $kk = '<span style="color:#f00">'.$i2.'</span>' : $kk = $i2;
+						($namaHari == "Sunday") ? $kk = '<span style="color:#f00">'.$i2.'</span>' : $kk = $i2; // MINGGU
+					}
+
+					// HARI JUMAT N SABTU TAMBAH 1 HARI
+					if($namaHari == "Friday" || $namaHari == "Saturday"){
+						$wMer = "-4";
+						$wKun = "('-1', '-2', '-3')";
+					}else{
+						$wMer = "-3";
+						$wKun = "('-1', '-2')";
 					}
 
 					if($id_sales == null || $id_sales == '' || $akses_dd != null){
 						$cMer = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '-3'
+						WHERE s.eta='$tglSys' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '$wMer'
 						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0'
 						GROUP BY s.eta,s.urut");
 						$cKun = $this->db->query("SELECT*FROM trs_dev_sys s
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN ('-1', '-2')
+						WHERE s.eta='$tglSys' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN $wKun
 						GROUP BY s.eta,s.urut");
 						$cBir = $this->db->query("SELECT*FROM trs_dev_sys s
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
@@ -10312,13 +10322,13 @@ class Transaksi extends CI_Controller
 						$cMer = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '-3'
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '$wMer'
 						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0'
 						GROUP BY s.eta,s.urut");
 						$cKun = $this->db->query("SELECT*FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN ('-1', '-2')
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN $wKun
 						GROUP BY s.eta,s.urut");
 						$cBir = $this->db->query("SELECT*FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
@@ -11032,8 +11042,7 @@ class Transaksi extends CI_Controller
 						if($prov->num_rows() == 0){
 							$lamaK = '-';
 						}else{
-							$ll = $prov->row()->lama_kirim;
-							$minggu = date('l', strtotime('+'.$ll.' day', strtotime($tgl)));
+							$minggu = date('l', strtotime('+'.$prov->row()->lama_kirim.' day', strtotime($tgl)));
 							($minggu == 'Sunday') ? $ll2 = $prov->row()->lama_kirim + 1 : $ll2 = $prov->row()->lama_kirim;
 							$lamaK = date('d-m-Y', strtotime('+'.$ll2.' day', strtotime($tgl)));
 						}
@@ -11057,15 +11066,26 @@ class Transaksi extends CI_Controller
 						}else{
 							$tRP = '';
 						}
-						if(($r->exp_dd == '-1' || $r->exp_dd == '-2') && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
-								$dRP = 'background:#ffa;border:1px solid #dd8;';
-							}else if($r->exp_dd <= '-3' && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
-								$dRP = 'background:#faa;border:1px solid #d88;';
-							}else if($r->eta_t == 'REPLAN'){
-								$dRP = 'background:#89cff0;border:1px solid #69afd0;';
-							}else{
-								$dRP = 'border:1px solid #dee2e6;';
-							}
+
+						// HARI JUMAT N SABTU TAMBAH 1 HARI
+						$namaHari = date('l', strtotime($tgl));
+						if(in_array($namaHari, ['Friday', 'Saturday']) && in_array($r->exp_dd, ['-1', '-2', '-3']) && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
+							// KUNING HARI JUMAT / SABTU
+							$dRP = 'background:#ffa;border:1px solid #dd8;';
+						}else if(in_array($r->exp_dd, ['-1', '-2']) && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
+							// KUNING
+							$dRP = 'background:#ffa;border:1px solid #dd8;';
+						}else if(in_array($namaHari, ['Friday', 'Saturday']) && $r->exp_dd <= '-4' && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
+							// MERAH HARI JUMAT / SABTU
+							$dRP = 'background:#faa;border:1px solid #d88;';
+						}else if($r->exp_dd <= '-3' && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
+							// MERAH
+							$dRP = 'background:#faa;border:1px solid #d88;';
+						}else if($r->eta_t == 'REPLAN'){
+							$dRP = 'background:#89cff0;border:1px solid #69afd0;';
+						}else{
+							$dRP = 'border:1px solid #dee2e6;';
+						}
 
 						$html .= '<tr style="vertical-align:top">
 							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>
@@ -11123,11 +11143,9 @@ class Transaksi extends CI_Controller
 									</tr>';
 								}
 							}
-						
 						if($rk->num_rows() == 0){
 							$html .= '</tr>';
 						}
-
 						$totQty += $r->qty_plan;
 						$totBerat += $r->berat;
 					}
