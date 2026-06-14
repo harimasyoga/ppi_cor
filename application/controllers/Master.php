@@ -364,22 +364,14 @@ class Master extends CI_Controller
 				$row[] = $r->alamat_kirim;
 				$row[] = ($r->nm_sales == 0) ? '-' : $r->nm_sales;
 				$row[] = ($r->top == "") ? '-' : $r->top;
-
-				$idPelanggan = $r->id_pelanggan;
-				$cekProduk = $this->db->query("SELECT * FROM m_produk WHERE no_customer='$idPelanggan'")->num_rows();
-
-				if (in_array($this->session->userdata('level'), ['Admin','Admin2','konsul_keu','User']))
-				{
+				$cekProduk = $this->db->query("SELECT * FROM m_produk WHERE no_customer='$r->id_pelanggan'")->num_rows();
+				if (in_array($this->session->userdata('level'), ['Admin','Admin2','konsul_keu','User','Marketing'])){
 					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_pelanggan."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
 					$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_pelanggan."'".')"><i class="fas fa-times"></i></button>';
-
 				}else{
-
 					$btnEdit = '';
 					$btnHapus = '';
 				}
-				
-
 				$row[] = ($cekProduk == 0) ? $btnEdit.' '.$btnHapus : $btnEdit ;
 				$data[] = $row;
 				$i++;
@@ -529,9 +521,8 @@ class Master extends CI_Controller
 				$row[] = $this->m_fungsi->kualitas($r->kualitas, $r->flute);
 				$row[] = $r->kode_mc.$dD;
 
-				$idProduk = $r->id_produk; 
-				if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'konsul_keu', 'User'])) {
-					$cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE id_produk='$idProduk'")->num_rows();
+				if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'konsul_keu', 'User', 'Marketing'])) {
+					$cekPO = $this->db->query("SELECT * FROM trs_po_detail WHERE id_produk='$r->id_produk'")->num_rows();
 					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="tampil_edit('."'".$r->id_produk."'".','."'edit'".')"><i class="fas fa-pen"></i></button>';
 					$btnHapus = '<button type="button" class="btn btn-danger btn-sm" onclick="deleteData('."'".$r->id_produk."'".')"><i class="fas fa-times"></i></button>';
 				}else{
@@ -1114,15 +1105,22 @@ class Master extends CI_Controller
 
 	function getPlhCustomer()
 	{
+		$id_sales = $this->session->userdata('id_sales');
+		($id_sales == "" || $id_sales == null) ? $where = '' : $where = "WHERE s.id_sales='$id_sales'";
 		$data = $this->db->query("SELECT s.nm_sales,p.* FROM m_pelanggan p
-		LEFT JOIN m_sales s ON p.id_sales=s.id_sales
+		LEFT JOIN m_sales s ON p.id_sales=s.id_sales $where
 		ORDER BY p.nm_pelanggan")->result();
 		echo json_encode($data);
 	}
 
 	function getPlhSales()
 	{
-		($this->session->userdata('username') == 'usman') ? $where = "WHERE id_sales='9' OR nm_sales='Usman'" : $where = '';
+		$id_sales = $this->session->userdata('id_sales');
+		if($id_sales == "" || $id_sales == null){
+			($this->session->userdata('username') == 'usman') ? $where = "WHERE id_sales='9' OR nm_sales='Usman'" : $where = '';
+		}else{
+			$where = "WHERE id_sales='$id_sales'";
+		}
 		$data = $this->db->query("SELECT*FROM m_sales $where ORDER BY nm_sales")->result();
 		echo json_encode($data);
 	}

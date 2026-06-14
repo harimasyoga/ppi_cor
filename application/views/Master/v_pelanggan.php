@@ -29,7 +29,7 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<?php if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'konsul_keu', 'User'])) { ?>
+				<?php if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'konsul_keu', 'User', 'Marketing'])) { ?>
 					<div style="margin-bottom:12px">
 						<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 					</div>
@@ -179,6 +179,8 @@
 
 <script type="text/javascript">
 	rowNum = 0;
+	const urlAuth = '<?= $this->session->userdata('level') ?>';
+	
 	$(document).ready(function() {
 		$(".select2").select2()
 		load_data()

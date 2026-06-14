@@ -3329,11 +3329,17 @@ class M_transaksi extends CI_Model
 		$id_dev = $_POST["id_dev"];
 		$urut = $_POST["urut"];
 
-		$dev = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id_dev'")->row();
-		$cek = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$dev->eta' AND urut='$urut' AND id_ex IS NOT NULL GROUP BY urut");
+		$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_dev='$id_dev'")->row();
+		$cek = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$sys->eta' AND urut='$urut' AND id_ex IS NOT NULL GROUP BY urut");
+		// LOCK
+		$lock3D = date('Y-m-d', strtotime('+'.$sys->lock.' days', strtotime(date('Y-m-d'))));
+		$tglPilih = floor((strtotime($sys->eta) - strtotime($lock3D)) /60/60/24);
 
 		if($urut < 0 || $urut == ''){
 			$data = false; $msg = 'COBA LAGI!';
+		}else if($tglPilih <= 0 && $sys->eta_t != 'REPLAN'){
+			$data = false;
+			$msg = 'LOCK '.$sys->lock.' HARI PER HARI INI!';
 		}else if($cek->num_rows() != 0){
 			$data = false; $msg = 'NO URUT SUDAH TERPAKAI!';
 		}else{
@@ -3342,7 +3348,7 @@ class M_transaksi extends CI_Model
 			$data = $this->db->update('trs_dev_sys');
 			$msg = 'BERHASIL!';
 			if($data){
-				$this->db->where('tgl', $dev->eta);
+				$this->db->where('tgl', $sys->eta);
 				$this->db->where('urut', $urut);
 				$this->db->delete('trs_dev_klb');
 			}

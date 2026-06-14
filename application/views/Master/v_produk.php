@@ -22,7 +22,7 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<?php if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'konsul_keu', 'User'])) { ?>
+				<?php if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'konsul_keu', 'User', 'Marketing'])) { ?>
 					<div style="margin-bottom:12px">
 						<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info pull-right"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 					</div>
@@ -100,16 +100,16 @@
 			<div class="modal-body" style="overflow:auto;white-space:nowrap">
 				<table width="100%" cellspacing="5">
 					<tr>
-						<td style="width:10%;border:0;padding:0"></td>
-						<td style="width:10%;border:0;padding:0"></td>
-						<td style="width:10%;border:0;padding:0"></td>
-						<td style="width:10%;border:0;padding:0"></td>
-						<td style="width:10%;border:0;padding:0"></td>
-						<td style="width:10%;border:0;padding:0"></td>
-						<td style="width:10%;border:0;padding:0"></td>
-						<td style="width:10%;border:0;padding:0"></td>
-						<td style="width:10%;border:0;padding:0"></td>
-						<td style="width:10%;border:0;padding:0"></td>
+						<td style="width:10%;border:0;padding:5px"></td>
+						<td style="width:10%;border:0;padding:5px 45px"></td>
+						<td style="width:10%;border:0;padding:5px 45px"></td>
+						<td style="width:10%;border:0;padding:5px 45px"></td>
+						<td style="width:10%;border:0;padding:5px 45px"></td>
+						<td style="width:10%;border:0;padding:5px"></td>
+						<td style="width:10%;border:0;padding:5px"></td>
+						<td style="width:10%;border:0;padding:5px 45px"></td>
+						<td style="width:10%;border:0;padding:5px 45px"></td>
+						<td style="width:10%;border:0;padding:5px 45px"></td>
 					</tr>
 					<tr>
 						<td></td>
@@ -310,20 +310,22 @@
 						<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="COA" placeholder="-" autocomplete="off"></td>
 					</tr>
 					<!-- DESIGN -->
-					<tr>
-						<td style="padding:5px 0;font-weight:bold;vertical-align:top">DESIGN</td>
-						<td style="padding:5px 0" colspan="2">
-							<select class="form-control select2" id="cmc" onchange="pilihMC()">
-								<option value="">PILIH</option>
-								<option value="MC">MC</option>
-								<option value="KL">KL</option>
-							</select>
-						</td>
-					</tr>
+					<?php if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'konsul_keu', 'User'])) { ?>
+						<tr>
+							<td style="padding:5px 0;font-weight:bold;vertical-align:top">DESIGN</td>
+							<td style="padding:5px 0" colspan="2">
+								<select class="form-control select2" id="cmc" onchange="pilihMC()">
+									<option value="">PILIH</option>
+									<option value="MC">MC</option>
+									<option value="KL">KL</option>
+								</select>
+							</td>
+						</tr>
+					<?php } ?>
 					<tr>
 						<td style="padding:5px 0"></td>
 						<td style="padding:5px 0" colspan="9">
-							<div class="html-design">-</div>
+							<div class="html-design"></div>
 						</td>
 					</tr>
 				</table>
@@ -638,7 +640,8 @@
 				htmlCust += `<option value="">PILIH</option>`
 				data.forEach(loadCust)
 				function loadCust(r, index) {
-					htmlCust += `<option value="${r.id_pelanggan}" data-sales="${r.nm_sales}" kode_unik="${r.kode_unik}">${r.nm_pelanggan} | ${r.kode_unik}</option>`
+					(r.attn == '-') ? attn = '' : attn = ' ('+r.attn+')';
+					htmlCust += `<option value="${r.id_pelanggan}" data-sales="${r.nm_sales}" kode_unik="${r.kode_unik}">${r.nm_pelanggan}${attn} | ${r.kode_unik}</option>`
 				}
 				$("#no_customer").prop("disabled", false).html(htmlCust)
 			}
@@ -698,7 +701,7 @@
 		$("#toleransi_kirim").val(0);
 		$("#spesial_req").val("-");
 		$("#cmc").val("").trigger('change')
-		$(".html-design").html('-')
+		$(".html-design").html('')
 		status = 'insert';
 		$("#btn-simpan").show().prop("disabled", false);
 		zFlute("disable");
@@ -825,10 +828,10 @@
 			$("#h_material").val(data.produk.material)
 			$("#h_berat_bersih").val(data.produk.berat_bersih)
 			$("#h_luas_bersih").val(data.produk.luas_bersih)
-			if(urlAuth == 'Admin' || urlAuth == 'Admin2' || urlAuth == 'User' || urlAuth == 'PPIC' || urlAuth == 'AP'){
+			if(urlAuth == 'Admin' || urlAuth == 'Admin2' || urlAuth == 'User' || urlAuth == 'PPIC' || urlAuth == 'AP' || urlAuth == 'Marketing'){
 				$(".html-design").html(data.htmlDesign)
 			}else{
-				$(".html-design").html('-')
+				$(".html-design").html('')
 			}
 			$("#btn-simpan").prop("disabled", false)
 			swal.close()
