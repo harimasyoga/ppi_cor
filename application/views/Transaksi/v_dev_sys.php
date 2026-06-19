@@ -798,6 +798,7 @@
 		let tgl = $("#r_tgl").val()
 		var form = $('#mut_kalibrasi_'+urut)[0];
 		var data = new FormData(form);
+		$(".save-kalibrasi"+urut).prop('disabled', true)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/uploadKLB') ?>',
 			type: "POST",
@@ -823,6 +824,7 @@
 					toastr.success(`<b>${data.msg}</b>`)
 					ccDevSys(tgl, 'jadwal')
 				} else {
+					$(".save-kalibrasi"+urut).prop('disabled', false)
 					toastr.error(`<b>${data.msg}</b>`)
 					swal.close()
 				}
@@ -879,7 +881,6 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				$("#p_tgl").val(tgl)
 				$("#p_urut").val(urut)
 				$(".ds-pilihds").html(data.html)
