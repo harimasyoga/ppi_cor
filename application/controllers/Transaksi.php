@@ -7664,14 +7664,14 @@ class Transaksi extends CI_Controller
 								<tr>
 									<th style="width:1%;padding:6px;'.$bHead.''.$bold.'" class="text-center">NO.</th>
 									<th style="width:10%;padding:6px;text-align:center;'.$bHead.''.$bold.'">TGL MUAT</th>
-									<th style="width:10%;padding:6px;text-align:center;'.$bHead.''.$bold.'">ETA SO</th>
+									<th style="width:10%;padding:6px 35px;text-align:center;'.$bHead.''.$bold.'">ETA SO</th>
 									<th style="padding:6px;'.$bHead.''.$bold.'">NO. SO</th>
 									<th style="width:10%;padding:6px 30px 6px 6px;text-align:center;'.$bHead.''.$bold.'">QTY SO</th>
 									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'">KETERANGAN</th>
 									<th style="width:1%;padding:6px 18px;'.$bHead.''.$bold.'" class="text-center">-</th>
-									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'" class="text-center">RM</th>
-									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'" class="text-center">TON</th>
-									<th style="width:10%;padding:6px;'.$bHead.''.$bold.'" class="text-center">B. BAKU</th>
+									<th style="width:10%;padding:6px 50px;'.$bHead.''.$bold.'" class="text-center">RM</th>
+									<th style="width:10%;padding:6px 35px;'.$bHead.''.$bold.'" class="text-center">TON</th>
+									<th style="width:10%;padding:6px 30px;'.$bHead.''.$bold.'" class="text-center">B. BAKU</th>
 									<th style="width:5%;padding:6px;'.$bHead.''.$bold.'" class="text-center">AKSI</th>
 								</tr>
 							</thead>';
@@ -10930,44 +10930,48 @@ class Transaksi extends CI_Controller
 						$html .= '<tr>
 							<td style="background:#333;color:#fff;padding:6px;font-weight:bold;text-align:center">'.$u->urut.'</td>
 							<td style="background:#333;padding:6px" colspan="2">';
-								if($u->id_ex == null){
-									if(in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')){
-										$html .= '<select class="form-control select2" id="eks_ds'.$u->urut.'" onchange="plhEksDS('."'".$u->urut."'".')" '.$dS.'>
-											<option value="">EKSPEDISI | P x L x T (M)</option>';
-											$ekspedisi = $this->db->query("SELECT*FROM m_ekspedisi ORDER BY plat, ekspedisi");
-											foreach($ekspedisi->result() as $r){
-												if(($r->panjang == null || $r->lebar == null || $r->tinggi == null || $r->panjang == '' || $r->lebar == '' || $r->tinggi == '')){
-													$pLt = '';
-													$kalibrasi = '';
-												}else{
-													$pLt = ' | '.round($r->panjang, 2).' x '.round($r->lebar, 2).' x '.round($r->tinggi, 2).' M';
-													$xDvs = round($r->panjang * $r->lebar * $r->tinggi, 2);
-													$kalibrasi = ' ( K '.$xDvs.' )';
+								if($cekKLB->num_rows() != 0 && $fileKLB->num_rows() != 0){
+									if($u->id_ex == null){
+										if(in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')){
+											$html .= '<select class="form-control select2" id="eks_ds'.$u->urut.'" onchange="plhEksDS('."'".$u->urut."'".')" '.$dS.'>
+												<option value="">EKSPEDISI | P x L x T (M)</option>';
+												$ekspedisi = $this->db->query("SELECT*FROM m_ekspedisi ORDER BY plat, ekspedisi");
+												foreach($ekspedisi->result() as $r){
+													if(($r->panjang == null || $r->lebar == null || $r->tinggi == null || $r->panjang == '' || $r->lebar == '' || $r->tinggi == '')){
+														$pLt = '';
+														$kalibrasi = '';
+													}else{
+														$pLt = ' | '.round($r->panjang, 2).' x '.round($r->lebar, 2).' x '.round($r->tinggi, 2).' M';
+														$xDvs = round($r->panjang * $r->lebar * $r->tinggi, 2);
+														$kalibrasi = ' ( K '.$xDvs.' )';
+													}
+													$html .= '<option value="'.$r->id_ex.'">'.$r->plat.' ( '.$r->ekspedisi.' )'.$pLt.$kalibrasi.'</option>';
 												}
-												$html .= '<option value="'.$r->id_ex.'">'.$r->plat.' ( '.$r->ekspedisi.' )'.$pLt.$kalibrasi.'</option>';
-											}
-										$html .= '</select>';
+											$html .= '</select>';
+										}else{
+											$html .= '<div style="font-weight:bold;color:#fff">-</div>';
+										}
 									}else{
-										$html .= '<div style="font-weight:bold;color:#fff">-</div>';
+										$e = $this->db->query("SELECT*FROM m_ekspedisi WHERE id_ex='$u->id_ex'")->row();
+										if($e->panjang == null || $e->lebar == null || $e->tinggi == null || $e->panjang == '' || $e->lebar == '' || $e->tinggi == ''){
+											$pLt = '';
+											$kalibrasi = '';
+										}else{
+											$pLt = ' | '.round($e->panjang, 2).' x '.round($e->lebar, 2).' x '.round($e->tinggi, 2);
+											$xDvs = round($e->panjang * $e->lebar * $e->tinggi, 2);
+											$kalibrasi = ' ( K '.$xDvs.' )';
+										}
+										// btl
+										if($u->timb_tgl == null && $u->timb_urut == null && $cekRK->num_rows() == 0 && $fileKLB->num_rows() == 0){
+											$hapus = (in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : '';
+										}else{
+											$hapus = '';
+										}
+										$plhBtnDS = ($u->timb_tgl == null && $u->timb_urut == null && $cekRK->num_rows() == 0 && $p_tgl != '' && $p_urut != '') ? ' - <span class="btnDSRC"><button class="btn btn-xs btn-primary" style="font-weight:bold" onclick="pilihDSRinc('."'".$u->urut."'".')">PILIH</button></span>' : '<span class="btnDSRC"></span>';
+										$html .= '<div style="font-weight:bold;color:#fff">'.$e->plat.' ( '.$e->ekspedisi.' )'.$pLt.$kalibrasi.$hapus.$plhBtnDS.'</div>';
 									}
 								}else{
-									$e = $this->db->query("SELECT*FROM m_ekspedisi WHERE id_ex='$u->id_ex'")->row();
-									if($e->panjang == null || $e->lebar == null || $e->tinggi == null || $e->panjang == '' || $e->lebar == '' || $e->tinggi == ''){
-										$pLt = '';
-										$kalibrasi = '';
-									}else{
-										$pLt = ' | '.round($e->panjang, 2).' x '.round($e->lebar, 2).' x '.round($e->tinggi, 2);
-										$xDvs = round($e->panjang * $e->lebar * $e->tinggi, 2);
-										$kalibrasi = ' ( K '.$xDvs.' )';
-									}
-									// btl
-									if($u->timb_tgl == null && $u->timb_urut == null && $cekRK->num_rows() == 0 && $fileKLB->num_rows() == 0){
-										$hapus = (in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : '';
-									}else{
-										$hapus = '';
-									}
-									$plhBtnDS = ($u->timb_tgl == null && $u->timb_urut == null && $cekRK->num_rows() == 0 && $p_tgl != '' && $p_urut != '') ? ' - <span class="btnDSRC"><button class="btn btn-xs btn-primary" style="font-weight:bold" onclick="pilihDSRinc('."'".$u->urut."'".')">PILIH</button></span>' : '<span class="btnDSRC"></span>';
-									$html .= '<div style="font-weight:bold;color:#fff">'.$e->plat.' ( '.$e->ekspedisi.' )'.$pLt.$kalibrasi.$hapus.$plhBtnDS.'</div>';
+									$html .= '<div style="font-weight:bold;color:#fff">-</div>';
 								}
 							$html .= '</td>';
 							
@@ -10986,7 +10990,7 @@ class Transaksi extends CI_Controller
 								($fileKLB->num_rows() != 0) ? $bIkb = '<img id="'.$prV.'" src="'.base_url().'assets/kalibrasi/'.$fileKLB->row()->file_klb.'" width="50" height="25" style="border-radius:5px" onclick="imgClick('."'".$prV."'".')">' : $bIkb = '';
 								($fileKLB->num_rows() != 0 && $u->check_klb == null && in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $hIkb = '<button class="btn btn-xs btn-danger" style="margin-left:5px" onclick="batalKLB('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : $hIkb = '';
 								($u->check_klb == 1) ? $oCk = 'checked' : $oCk = '';
-								(in_array($lvl, ['Admin', 'Owner'])) ? $chk = ' <input type="checkbox" id="chk-'.$u->urut.'" onclick="chkKLB('."'".$u->urut."'".')" value="'.$u->check_klb.'" '.$oCk.'>' : $chk = '';
+								($fileKLB->num_rows() != 0 && $u->id_ex != null && in_array($lvl, ['Admin', 'Owner'])) ? $chk = ' <input type="checkbox" id="chk-'.$u->urut.'" onclick="chkKLB('."'".$u->urut."'".')" value="'.$u->check_klb.'" '.$oCk.'>' : $chk = '';
 								$html .= '<td style="background:#333;padding:6px" colspan="6">'.$bIkb.$hIkb.$chk.'</td>';
 							}
 							
@@ -11100,7 +11104,7 @@ class Transaksi extends CI_Controller
 							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->berat, 0, ',', '.').'</td>';
 
 							// KALIBRASI
-							if($sys->num_rows() == 1 && $u->urut != 0 && $u->id_ex != null){
+							if($sys->num_rows() == 1 && $u->urut != 0 && ($u->id_ex == null || $u->id_ex != null)){
 								if($fileKLB->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])){
 									$oKb2 = 'id="k-'.$u->urut.'" onchange="addKLB('."'".$u->urut."'".')"';
 									$dkb2 = '';
@@ -11110,10 +11114,6 @@ class Transaksi extends CI_Controller
 								}
 								$html .= '<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>
 									<input type="number" class="form-control" '.$oKb2.' style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" value="'.$txtKLB.'" autocomplete="off" placeholder="0" '.$dkb2.'>
-								</td>';
-							}else if($sys->num_rows() == 1 && ($u->urut == 0 || $u->id_ex == null)){
-								$html .= '<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>
-									<input type="number" class="form-control" style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" placeholder="0" disabled>
 								</td>';
 							}else{
 								$html .= '<td style="'.$dRP.'border-width:0 1px;padding:6px;text-align:right" '.$rkRS.'></td>';
@@ -11190,7 +11190,7 @@ class Transaksi extends CI_Controller
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.number_format($totBerat, 0, ',', '.').'</td>';
 
 							// KALIBRASI
-							if($u->urut != 0 && $u->id_ex != null){
+							if($u->urut != 0 && ($u->id_ex == null || $u->id_ex != null)){
 								if($fileKLB->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])){
 									$oKb3 = 'id="k-'.$u->urut.'" onchange="addKLB('."'".$u->urut."'".')"';
 									$dkb3 = '';

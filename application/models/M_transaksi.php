@@ -3369,6 +3369,7 @@ class M_transaksi extends CI_Model
 		$urut = $_POST["urut"];
 		$eks_ds = $_POST["eks_ds"];
 
+		$this->db->set('check_klb', 1);
 		$this->db->set('id_ex', $eks_ds);
 		$this->db->where('urut', $urut);
 		$this->db->where('eta', $tgl);
@@ -3554,11 +3555,21 @@ class M_transaksi extends CI_Model
 
 		$unlink = unlink("assets/kalibrasi/".$cek->file_klb);
 
-		$this->db->set('file_klb', null);
-		$this->db->set('updated_at', date('Y-m-d H:i:s'));
-		$this->db->where('tgl', $tgl);
+		// batal ekspedisi
+		$this->db->set('id_ex', null);
 		$this->db->where('urut', $urut);
-		$data = $this->db->update('trs_dev_klb');
+		$this->db->where('eta', $tgl);
+		$btlEks = $this->db->update('trs_dev_sys');
+
+		if($btlEks){
+			// $this->db->set('file_klb', null);
+			// $this->db->set('updated_at', date('Y-m-d H:i:s'));
+			$this->db->where('tgl', $tgl);
+			$this->db->where('urut', $urut);
+			$data = $this->db->delete('trs_dev_klb');
+		}else{
+			$data = true;
+		}
 
 		return [
 			'data' => $data,
