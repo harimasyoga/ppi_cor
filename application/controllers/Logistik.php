@@ -2538,7 +2538,7 @@ class Logistik extends CI_Controller
 					<td></td>
 				</tr>
 				<tr>
-					<td style="border:0;padding:0;line-height:1.8">primapaperin@gmail.com / bethppi@yahoo.co.id</td>
+					<td style="border:0;padding:0;line-height:1.8">primapaperin@gmail.com</td>
 					<td></td>
 				</tr>';
 			}
@@ -7589,7 +7589,7 @@ class Logistik extends CI_Controller
 			($plhHub == "") ? $wHub = '' : $wHub = "AND h.bank='$plhHub'";
 			($this->session->userdata('username') == 'usman') ? $where = "AND h.jenis_lm='PEKALONGAN'" : $where = "AND h.jenis_lm='PPI'";
 			$query = $this->db->query("SELECT h.*,b.aka FROM invoice_laminasi_header h
-			INNER JOIN m_hub b ON h.bank=b.id_hub
+			LEFT JOIN m_hub b ON h.bank=b.id_hub
 			WHERE h.tgl_invoice LIKE '%$tahun%' $cBulan AND h.jenis_lm LIKE '%$plhJenis%' $wHub $where
 			ORDER BY acc_owner, tgl_invoice DESC, no_invoice DESC")->result();
 			$i = 0;
