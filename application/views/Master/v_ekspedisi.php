@@ -75,7 +75,7 @@
 					</div>
 				</div>
 				<div class="card-body">
-					<?php if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Gudang'])) { ?>
+					<?php if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Gudang', 'Pengiriman'])) { ?>
 						<button type="button" class="btn btn-info pull-right" onclick="tambahData()"><i class="fa fa-plus"></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
 						<br><br>
 					<?php } ?>
@@ -88,6 +88,7 @@
 								<th style="text-align:center">PANJANG (m)</th>
 								<th style="text-align:center">LABAR (m)</th>
 								<th style="text-align:center">TINGGI (m)</th>
+								<th style="text-align:center">VOLUME</th>
 								<th style="text-align:center">Aksi</th>
 							</tr>
 						</thead>
