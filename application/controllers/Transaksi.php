@@ -10588,7 +10588,7 @@ class Transaksi extends CI_Controller
 		$tgl = $tahun.'-'.$bulan.'-'.$angka;
 		$now = date('Y-m-d');
 		$tglNow = strtotime($now) - strtotime($tgl);
-		(in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')) ? $dS = '' : $dS = 'disabled';
+		(in_array($lvl, ['Admin', 'Admin2', 'User', 'Pengiriman']) || ($tglNow <= 0 && $lvl == 'Gudang')) ? $dS = '' : $dS = 'disabled';
 		$opsi = $_POST["opsi"];
 		
 		if($p_tgl != '' && $p_urut != ''){
@@ -10932,7 +10932,7 @@ class Transaksi extends CI_Controller
 							<td style="background:#333;padding:6px" colspan="2">';
 								if($cekKLB->num_rows() != 0 && $fileKLB->num_rows() != 0){
 									if($u->id_ex == null){
-										if(in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')){
+										if(in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang') || ($lvl == 'Pengiriman' && $akses_dd != null)){
 											$html .= '<select class="form-control select2" id="eks_ds'.$u->urut.'" onchange="plhEksDS('."'".$u->urut."'".')" '.$dS.'>
 												<option value="">EKSPEDISI | P x L x T (M)</option>';
 												$ekspedisi = $this->db->query("SELECT*FROM m_ekspedisi ORDER BY plat, ekspedisi");

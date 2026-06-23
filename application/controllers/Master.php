@@ -919,6 +919,9 @@ class Master extends CI_Controller
 				$row[] = ($r->panjang == null) ? '' : '<div class="text-right">'.round($r->panjang, 2).'</div>';
 				$row[] = ($r->lebar == null) ? '' : '<div class="text-right">'.round($r->lebar, 2).'</div>';
 				$row[] = ($r->tinggi == null) ? '' : '<div class="text-right">'.round($r->tinggi, 2).'</div>';
+				// volume
+				($r->panjang == null && $r->lebar == null && $r->tinggi == null) ? $voL = '' : $voL = $r->panjang * $r->lebar * $r->tinggi;
+				$row[] = ($r->tinggi == null) ? '' : '<div class="text-right">'.round($voL, 2).'</div>';
 
 				$cek = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_ex='$r->id_ex' GROUP BY id_ex");
 
