@@ -42,6 +42,8 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 /assets/file_plan/
 /assets/mc/
 /assets/kalibrasi/
+/assets/lam_inv_mutasi/
+/assets/lam_inv_sj_balik/
 db_penjualan.sql
 application/config/database.php
 .vscode

@@ -1226,6 +1226,11 @@ class Master extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function tambahAlamatP(){
+		$result = $this->m_master->tambahAlamatP();
+		echo json_encode($result);
+	}
+
 	function loadMC()
 	{
 		$html = '';
@@ -1985,12 +1990,40 @@ class Master extends CI_Controller
 		INNER JOIN trs_po o ON p.id_pelanggan=o.id_pelanggan
 		WHERE p.id_pelanggan='$id'
 		GROUP BY p.id_pelanggan")->num_rows();
+
+		$btnAlamat = '<div class="form-group row">
+			<label class="col-sm-2 col-form-label"></label>
+			<div class="col-sm-10">
+				<button class="btn btn-success btn-sm" onclick="tambahAlamatP()"><i class="fas fa-save"></i> <b>TAMBAH</b></button>
+			</div>
+		</div>';
+
+		$listAlamat = $this->db->query("SELECT*FROM m_pelanggan_alamat WHERE id_pelanggan='$id' ORDER BY id");
+		$htmlAlamat = '';
+		if($listAlamat->num_rows() == 0){
+			$htmlAlamat .= '<div class="card-body" style="padding:12px 6px;font-weight:bold">TIDAK ADA DATA</div>';
+		}else{
+			$htmlAlamat .= '<div class="card-body" style="padding:12px 6px;font-weight:bold">';
+			$i = 0;
+				foreach($listAlamat->result() as $r){
+					$i++;
+					$htmlAlamat .= '<div class="card-body row" style="padding:6px 0">
+						<div class="col-md-1" style="text-align:center">'.$i.'.</div>
+						<div class="col-md-11">
+							'.$r->b_alamat.'
+						</div>
+					</div>';
+				}
+			$htmlAlamat .= '</div>';
+		}
 		echo json_encode(array(
 			'pelanggan' => $data,
 			'prov' => $prov,
 			'sales' => $sales,
 			'wilayah' => $wilayah,
 			'cek_po' => $cekPO,
+			'btnAlamat' => $btnAlamat,
+			'htmlAlamat' => $htmlAlamat,
 		));
 	}
 

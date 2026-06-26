@@ -227,6 +227,7 @@
 									</div>
 								</div>
 							</div>
+							<div class="input-pembayaran"></div>
 						</div>
 					</div>
 				</div>
@@ -598,6 +599,10 @@
 	</div>
 </div>
 
+<div id="mymodal-img" class="modal-img">
+	<img class="modal-img-content" id="img01">
+</div>
+
 <script type="text/javascript">
 	let statusInput = 'insert';
 	const urlAuth = '<?= $this->session->userdata('level')?>';
@@ -675,6 +680,7 @@
 
 		$(".row-pembayaran").hide()
 		$(".list-pembayaran").html("")
+		$(".input-pembayaran").html("")
 		
 		$("#dcp_input_persen").val("")
 		$("#dcp_input_hari").val("")
@@ -919,16 +925,18 @@
 					$(".row-item-invoice-laminasi").show()
 					$(".row-pembayaran").hide()
 					$(".list-item").html(data.htmlItem)
+					$(".input-pembayaran").html(data.htmlInpPay)
 					$(".list-pembayaran").html("")
 				}
 				if(data.header.acc_owner == 'Y'){
 					$(".row-item-invoice-laminasi").hide()
 					$(".row-pembayaran").show()
 					$(".list-item").html("")
+					$(".input-pembayaran").html("")
 					$(".list-pembayaran").html(data.htmlBayar)
 				}
 				// DISCOUNT / POTONGAN
-				if(opsi == 'edit' && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R') && (urlAuth == 'Admin' || urlAuth == 'Laminasi')){
+				if(opsi == 'edit' && data.bayar == 0 && (data.header.acc_owner == 'N' || data.header.acc_owner == 'H' || data.header.acc_owner == 'R') && (urlAuth == 'Admin' || urlAuth == 'Laminasi')){
 					$(".disc-potongan").show()
 				}else{
 					$(".disc-potongan").hide()
@@ -1076,10 +1084,10 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				if(data){
+				if(data.data){
 					kembali()
 				}else{
-					toastr.error(`<b>KETERANGAN TIDAK BOLEH KOSONG!</b>`)
+					toastr.error(`<b>${data.msg}</b>`)
 					swal.close()
 				}
 			}
@@ -1350,9 +1358,17 @@
 			$("#input_bayar").val(format_angka(input_bayar))
 		}
 		if(opsi == 'button'){
+			var form = $('#lam_mutasi')[0];
+			var data = new FormData(form);
 			$.ajax({
-				url: '<?php echo base_url('Logistik/bayarInvoiceLaminasi')?>',
+				url: '<?php echo base_url('Logistik/bayarInvoiceLaminasi') ?>',
 				type: "POST",
+				enctype: 'multipart/form-data',
+				data: data,
+				contentType: false,
+				cache: false,
+				timeout: 600000,
+				processData: false,
 				beforeSend: function() {
 					swal({
 						title: 'Loading',
@@ -1363,10 +1379,7 @@
 						}
 					});
 				},
-				data: ({
-					tgl_bayar, input_bayar, id_header
-				}),
-				success: function(res){
+				success: function(res) {
 					data = JSON.parse(res)
 					if(data.bayar){
 						editInvoiceLaminasi(id_header, 'edit')
@@ -1375,7 +1388,7 @@
 						swal.close()
 					}
 				}
-			})
+			});
 		}
 	}
 
@@ -1403,6 +1416,36 @@
 					editInvoiceLaminasi(id_header, 'edit')
 				}else{
 					toastr.error(`<b>Terjadi Kesalahan</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function hapusInvLamSJB() {
+		let id_header = $("#h_id_header").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/hapusInvLamSJB')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ id_header }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					editInvoiceLaminasi(id_header, 'edit')
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
 					swal.close()
 				}
 			}
@@ -1550,6 +1593,81 @@
 				}
 			})
 		});
+	}
+
+	function cekFile($opsi) {
+		if($opsi == 'sj'){
+			let blk_foto = $("#blk_foto").val()
+			if(blk_foto != ''){
+				$(".save-blk").html('<button class="btn btn-primary btn-sm" onclick="uploadInvLamSJBalik()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
+			}else{
+				$(".save-blk").html('')
+			}
+		}
+		if($opsi == 'pay'){
+			let lam_foto = $("#lam_foto").val()
+			let tgl_bayar = $("#tgl_bayar").val()
+			let input_bayar = $("#input_bayar").val()
+			if(lam_foto != '' && tgl_bayar != '' && input_bayar != '' && (input_bayar != 0 || input_bayar != '0')){
+				$(".save-pay").html(`<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="bayarInvoiceLaminasi('button')"><i class="fas fa-money-bill-wave" style="margin-right:3px"></i> BAYAR</button>`)
+			}else{
+				$(".save-pay").html('')
+			}
+		}
+	}
+
+	function uploadInvLamSJBalik() {
+		var form = $('#blk_sj')[0];
+		var data = new FormData(form);
+		let id_header = $("#blk_id").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/uploadInvLamSJBalik') ?>',
+			type: "POST",
+			enctype: 'multipart/form-data',
+			data: data,
+			contentType: false,
+			cache: false,
+			timeout: 600000,
+			processData: false,
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data.file){
+					toastr.success(`<b>${data.msg}</b>`)
+					editInvoiceLaminasi(id_header, 'edit')
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		});
+	}
+
+	function imgClick(klik) {
+		let modal = document.getElementById('mymodal-img')
+		let img = document.getElementById(klik)
+		let modalImg = document.getElementById("img01")
+		img.onclick = function() {
+			modal.style.display = "block";
+			modalImg.src = this.src;
+			modalImg.alt = this.alt;
+		}
+		modal.onclick = function() {
+			img01.className += " out";
+			setTimeout(function() {
+				modal.style.display = "none";
+				img01.className = "modal-img-content";
+			}, 400);
+		}
 	}
 
 	function addJurnalInvLaminasi(id)

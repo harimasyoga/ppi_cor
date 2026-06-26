@@ -5071,6 +5071,22 @@ class Transaksi extends CI_Controller
 			LEFT JOIN m_produk e ON b.id_produk=e.id_produk
 			WHERE a.no_po = '$header->no_po' ORDER BY b.id")->result();
 
+			// DAFTAR ALAMAT
+			$htmlAlamat = '';
+			// $cekAlamat = $this->db->query("SELECT*FROM m_pelanggan_alamat WHERE id_pelanggan='$header->id_pelanggan'");
+			// if($cekAlamat->num_rows() == 0){
+			// 	$htmlAlamat .= '<input type="text" class="form-control" name="list_alamat" id="list_alamat" value="-" readonly>';
+			// }else{
+			// 	(in_array($this->session->userdata('level'), ['Admin', 'User', 'Marketing'])) ? $dsD = '' : $dsD = 'readonly';
+			// 	$htmlAlamat .= '<select id="list_alamat" name="list_alamat" class="form-control select2" '.$dsD.'>
+			// 		<option value="-">PILIH</option>';
+			// 		foreach($cekAlamat->result() as $z){
+			// 			$htmlAlamat .= '<option value="'.$z->id.'">'.$z->b_alamat.'</option>';
+			// 		}
+			// 	$htmlAlamat .= '</select>';
+			// }
+
+
 			// DESIGN
 			$html = '';
 			($this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'AP') ? $wPmc = "AND m.jenis_mc='MC'" : $wPmc = "";
@@ -5168,6 +5184,8 @@ class Transaksi extends CI_Controller
 							$his_status = 'Hold';
 						}else if($h->his_status == 'R'){
 							$his_status = 'Reject';
+						}else{
+							$his_status = '';
 						}
 						($h->his_no == '4') ? $nO = ' (Harga)' : $nO = '';
 						(strlen($h->his_ket) >= 25) ? $dv1 = '<div style="width:250px;white-space:normal">' : $dv1 = '';
@@ -5175,14 +5193,14 @@ class Transaksi extends CI_Controller
 						$htmlHis .= '<tr>
 							<td style="padding:6px;border:1px solid #aaa">'.$lvl.$nO.'</td>
 							<td style="padding:6px;border:1px solid #aaa">'.$his_status.'</td>
-							<td style="padding:6px;border:1px solid #aaa">'.$dv1.$h->his_ket.$dv2.'</td>
+							<td style="padding:6px;border:1px solid #aaa">'.$dv1.strtoupper($h->his_ket).$dv2.'</td>
 							<td style="padding:6px;border:1px solid #aaa">'.$h->his_time.'</td>
 						</tr>';
 					}
 				$htmlHis .= '</table>';
 			}
 
-			$data = ["header" => $header, "detail" => $detail, "url_foto" => $url_foto, "html" => $html, "verif" => $verif, "htmlHis" => $htmlHis];
+			$data = ["header" => $header, "detail" => $detail, "url_foto" => $url_foto, "html" => $html, "verif" => $verif, "htmlHis" => $htmlHis, "htmlAlamat" => $htmlAlamat];
 		} else if ($jenis == "trs_po2") {
 			$header = $this->db->query("SELECT *,(select nm_hub from m_hub h where a.id_hub=h.id_hub)nm_hub FROM trs_po a WHERE $field = '$id'")->row();
 			if($header->img_po==null || $header->img_po=='') {
@@ -5196,6 +5214,20 @@ class Transaksi extends CI_Controller
 			LEFT JOIN m_kab d ON c.kab=d.kab_id
 			LEFT JOIN m_produk e ON b.id_produk=e.id_produk
 			WHERE a.no_po = '$header->no_po' ORDER BY b.id")->result();
+
+			// DAFTAR ALAMAT
+			$htmlAlamat = '';
+			// $cekAlamat = $this->db->query("SELECT*FROM m_pelanggan_alamat WHERE id_pelanggan='$header->id_pelanggan'");
+			// if($cekAlamat->num_rows() == 0){
+			// 	$htmlAlamat .= '<input type="text" class="form-control" name="list_alamat" id="list_alamat" value="-" readonly>';
+			// }else{
+			// 	$htmlAlamat .= '<select id="list_alamat" name="list_alamat" class="form-control select2">
+			// 		<option value="-">PILIH</option>';
+			// 		foreach($cekAlamat->result() as $z){
+			// 			$htmlAlamat .= '<option value="'.$z->id.'">'.$z->b_alamat.'</option>';
+			// 		}
+			// 	$htmlAlamat .= '</select>';
+			// }
 
 			// DESIGN
 			($this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'AP') ? $wPmc = "AND m.jenis_mc='MC'" : $wPmc = "";
@@ -5338,19 +5370,23 @@ class Transaksi extends CI_Controller
 							$his_status = 'Hold';
 						}else if($h->his_status == 'R'){
 							$his_status = 'Reject';
+						}else{
+							$his_status = '';
 						}
 						($h->his_no == '4') ? $nO = ' (Harga)' : $nO = '';
+						(strlen($h->his_ket) >= 25) ? $dv1 = '<div style="width:250px;white-space:normal">' : $dv1 = '';
+						(strlen($h->his_ket) >= 25) ? $dv2 = '</div>' : $dv2 = '';
 						$htmlHis .= '<tr>
 							<td style="padding:6px;border:1px solid #aaa">'.$lvl.$nO.'</td>
 							<td style="padding:6px;border:1px solid #aaa">'.$his_status.'</td>
-							<td style="padding:6px;border:1px solid #aaa">'.$h->his_ket.'</td>
+							<td style="padding:6px;border:1px solid #aaa">'.$dv1.strtoupper($h->his_ket).$dv2.'</td>
 							<td style="padding:6px;border:1px solid #aaa">'.$h->his_time.'</td>
 						</tr>';
 					}
 				$htmlHis .= '</table>';
 			}
 
-			$data = ["header" => $header, "detail" => $detail, "url_foto" => $url_foto, "html" => $html, "verif" => $verif, "htmlHis" => $htmlHis];
+			$data = ["header" => $header, "detail" => $detail, "url_foto" => $url_foto, "html" => $html, "verif" => $verif, "htmlHis" => $htmlHis, "htmlAlamat" => $htmlAlamat];
 		} else if ($jenis == "trs_so_detail") {
 			$data =  $this->m_master->query(
 				"SELECT * 
@@ -11039,7 +11075,11 @@ class Transaksi extends CI_Controller
 						$i++;
 						($r->attn == '-') ? $attn = '' : $attn = '<div>'.$r->attn.'</div>';
 						($r->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
-						((in_array($lvl, ['Admin', 'Admin2', 'User']) && $r->id_ex == null) || ($lvl == 'Gudang' && $r->id_ex == null && $tglNow <= 0)) ? $och = 'id="ds-urut'.$r->id_dev.'" onchange="dsUrut('."'".$r->id_dev."'".')"' : $och = 'disabled';
+						if($cekKLB->num_rows() != 0 || $fileKLB->num_rows() != 0){
+							$och = 'id="ds-urut'.$r->id_dev.'dd" name="ds-urut'.$r->id_dev.'nn" disabled';
+						}else{
+							((in_array($lvl, ['Admin', 'Admin2', 'User']) && $r->id_ex == null) || ($lvl == 'Gudang' && $r->id_ex == null && $tglNow <= 0)) ? $och = 'id="ds-urut'.$r->id_dev.'" onchange="dsUrut('."'".$r->id_dev."'".')"' : $och = 'disabled';
+						}
 						$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$r->prov'");
 						$kab = $this->db->query("SELECT*FROM m_kab WHERE kab_id='$r->kab'");
 						($kab->num_rows() != 0) ? $kota = ' - <span style="font-style:italic">('.$kab->row()->kab_name.')</span>' : $kota = '';

@@ -88,7 +88,32 @@ class M_master extends CI_Model{
         $result =  $this->db->query($query);
         return $result;
     }
-	
+
+	function tambahAlamatP()
+	{
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$alamat_kirim = $_POST["alamat_kirim"];
+		$pelanggan = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row();
+		$cek = $this->db->query("SELECT*FROM m_pelanggan_alamat WHERE id_pelanggan='$id_pelanggan' AND b_alamat LIKE '%$alamat_kirim%'");
+
+		if($cek->num_rows() > 0 || ($pelanggan->alamat_kirim == $alamat_kirim)){
+			$iData = false; $msg = 'ALAMAT KIRIM SUDAH ADA!';
+		}else{
+			$data = [
+				'id_pelanggan' => $id_pelanggan,
+				'b_attn' => $pelanggan->attn,
+				'b_nm_pelanggan' => $pelanggan->nm_pelanggan,
+				'b_alamat' => $alamat_kirim,
+			];
+			$iData = $this->db->insert('m_pelanggan_alamat', $data);
+			$msg = 'BERHASIL TAMBAH ALAMAT KIRIM!';
+		}
+
+		return [
+			'data' => $iData,
+			'msg' => $msg,
+		];
+	}
     
     function m_pelanggan($table,$status)
 	{
