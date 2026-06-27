@@ -1721,6 +1721,28 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function slctAlamatKirim()
+	{
+		$id_pl = $_POST["id_pl"];
+		$plh_alamat = $_POST["plh_alamat"];
+
+		$tambahan = $this->db->query("SELECT*FROM m_pelanggan_alamat WHERE id='$plh_alamat'")->row();
+
+		// id_alamat_tmbh
+		$this->db->set('pl_attn', ($plh_alamat == '') ? null : $tambahan->b_attn);
+		$this->db->set('pl_kepada', ($plh_alamat == '') ? null : $tambahan->b_nm_pelanggan);
+		$this->db->set('pl_alamat', ($plh_alamat == '') ? null : $tambahan->b_alamat);
+		$this->db->set('id_alamat_tmbh', ($plh_alamat == '') ? null : $plh_alamat);
+		$this->db->where('id', $id_pl);
+		$data = $this->db->update('pl_box');
+		$msg = "BERHASIL EDIT ALAMAT KIRIM!";
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function addDStoRK()
 	{
 		$id_rk = $_POST["id_rk"];
@@ -1826,6 +1848,8 @@ class M_logistik extends CI_Model
 		$alamat_kirim = $_POST["alamat_kirim"];
 		$no_telp = $_POST["no_telp"];
 		$no_kendaraan = $_POST["no_kendaraan"];
+		$supir = $_POST["supir"];
+		$ekspedisi = $_POST["ekspedisi"];
 		if($attn == ''){
 			$data = false; $insertPL = false; $updateIDPL = false;
 			$msg = 'ATTN TIDAK BOLEH KOSONG!';
@@ -1838,6 +1862,12 @@ class M_logistik extends CI_Model
 		}else if($no_kendaraan == ''){
 			$data = false; $insertPL = false; $updateIDPL = false;
 			$msg = 'NOMER KENDARAAN TIDAK BOLEH KOSONG!';
+		}else if($supir == ''){
+			$data = false; $insertPL = false; $updateIDPL = false;
+			$msg = 'SUPIR TIDAK BOLEH KOSONG!';
+		}else if($ekspedisi == ''){
+			$data = false; $insertPL = false; $updateIDPL = false;
+			$msg = 'EKSPEDISI TIDAK BOLEH KOSONG!';
 		}else{
 			// CARI NOMER SURAT JALAN BEDASARKAN HUB
 			$tahun = substr($tgl,2,2);
@@ -1889,6 +1919,8 @@ class M_logistik extends CI_Model
 					'attn_pl' => $attn,
 					'alamat_pl' => $alamat_kirim,
 					'no_telp_pl' => $no_telp,
+					'supir' => $supir,
+					'ekspedisi' => $ekspedisi,
 					'no_kendaraan' => $no_kendaraan,
 					'no_po' => $r->rk_no_po,
 					'sj' => 'Open',
@@ -2143,8 +2175,15 @@ class M_logistik extends CI_Model
 
 	function btnVerifInvLaminasi()
 	{
-		if($_POST["ket_laminasi"] == '' && ($_POST["aksi"] == 'H' || $_POST["aksi"] == 'R')){
-			$result = false;
+		$id_header = $_POST["h_id_header"];
+		$header = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id_header'")->row();
+		
+		if($header->status_bayar == 'BELUM BAYAR' && $_POST["aksi"] == 'Y'){
+			$result = false; $msg = 'BELUM MELAKUKAN PEMBAYARAN!';
+		}else if($header->status_bayar == 'NYICIL' && $_POST["aksi"] == 'Y'){
+			$result = false; $msg = 'PEMBAYARAN BELUM LUNAS!';
+		}else if($_POST["ket_laminasi"] == '' && ($_POST["aksi"] == 'H' || $_POST["aksi"] == 'R')){
+			$result = false; $msg = 'KETERANGAN TIDAK BOLEH KOSONG!';
 		}else{
 			if($_POST["aksi"] == 'H' || $_POST["aksi"] == 'N'){
 				$status = 'Open';
@@ -2169,9 +2208,13 @@ class M_logistik extends CI_Model
 			$this->db->set('ket_owner', $ket);
 			$this->db->where('id', $_POST["h_id_header"]);
 			$result = $this->db->update('invoice_laminasi_header');
+			$msg = 'BERHASIL!';
 		}
 
-		return $result;
+		return [
+			'data' => $result,
+			'msg' => $msg,
+		];
 	}
 
 	function addDisc()
@@ -2287,12 +2330,24 @@ class M_logistik extends CI_Model
 
 	function bayarInvoiceLaminasi()
 	{
-		$id_header = $_POST["id_header"];
-		$tgl_bayar = $_POST["tgl_bayar"];
-		$input_bayar = $_POST["input_bayar"];
-
+		$id_header = $this->input->post('lam_id');
+		$tgl_bayar = $this->input->post('tgl_bayar');
+		$input_bayar = str_replace('.', '', $this->input->post('input_bayar'));
 		$header = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id_header'")->row();
-		if($input_bayar < 0 || $input_bayar == 0 || $input_bayar == ''){
+
+		// FILE
+		$config['upload_path'] = './assets/lam_inv_mutasi/';
+		$config['allowed_types'] = 'jpg|jpeg|png|pdf';
+		$config['max_size'] = 2048; // 2MB
+		$config['overwrite'] = true;
+		$thn = substr(date('Y'), 2, 2); $bln = date('m'); $date = date('d');
+		$config['file_name'] = $thn.$bln.$date.'-'.$this->generateFileName();
+		$this->load->library('upload',$config);
+		$this->upload->initialize($config);
+
+		if(!$this->upload->do_upload('lam_foto')) {
+			$data = false; $bayar = false; $msg = 'UKURAN / FORMAT FILE TIDAK DIDUKUNG!';
+		}else if($input_bayar < 0 || $input_bayar == 0 || $input_bayar == ''){
 			$data = false; $bayar = false;
 			$msg = 'PEMBAYARAN TIDAK BOLEH KOSONG!';
 		}else if($tgl_bayar == ''){
@@ -2302,14 +2357,20 @@ class M_logistik extends CI_Model
 			$data = false; $bayar = false;
 			$msg = 'TGL. BAYAR LEBIH KECIL DARI TGL. INVOICE!';
 		}else{
+			if($this->upload->do_upload('lam_foto')){
+				$gbrBukti = $this->upload->data();
+				$filefoto = $gbrBukti['file_name'];
+			}else{
+				$filefoto = null;
+			}
 			$data = [
 				'no_invoice' => $header->no_invoice,
 				'tgl_bayar' => $tgl_bayar,
+				'img_bayar' => $filefoto,
 				'nominal_bayar' => $input_bayar,
 				'add_time' => date('Y-m-d H:i:s'),
 			];
 			$bayar = $this->db->insert('invoice_laminasi_bayar', $data);
-			$msg = 'OK!';
 			if($bayar){
 				$bayar2 = $this->db->query("SELECT SUM(nominal_bayar) AS bayarCuy FROM invoice_laminasi_bayar WHERE no_invoice='$header->no_invoice' GROUP BY no_invoice")->row();
 				$detail = $this->db->query("SELECT SUM(total) AS total FROM invoice_laminasi_detail WHERE no_invoice='$header->no_invoice' GROUP BY no_invoice")->row();
@@ -2324,6 +2385,7 @@ class M_logistik extends CI_Model
 				$this->db->where('id', $id_header);
 				$this->db->update('invoice_laminasi_header');
 			}
+			$msg = 'BERHASIL!';
 		}
 		return [
 			'data' => $data,
@@ -2336,8 +2398,16 @@ class M_logistik extends CI_Model
 	{
 		$id = $_POST["id"];
 		$id_header = $_POST["id_header"];
+		$cBayar = $this->db->query("SELECT*FROM invoice_laminasi_bayar WHERE id='$id'")->row();
+		
+		// HAPUS FILE
+		if($cBayar->img_bayar != null){
+			unlink("assets/lam_inv_mutasi/".$cBayar->img_bayar);
+		}
+
 		$this->db->where('id', $id);
 		$data = $this->db->delete('invoice_laminasi_bayar');
+
 		if($data){
 			$header = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id_header'")->row();
 			$bayar = $this->db->query("SELECT SUM(nominal_bayar) AS bayarCuy FROM invoice_laminasi_bayar WHERE no_invoice='$header->no_invoice' GROUP BY no_invoice");
@@ -2357,6 +2427,31 @@ class M_logistik extends CI_Model
 		}
 		return [
 			'data' => $data,
+		];
+	}
+
+	function hapusInvLamSJB()
+	{
+		$id_header = $_POST["id_header"];
+		$header = $this->db->query("SELECT*FROM invoice_laminasi_header WHERE id='$id_header'")->row();
+
+		// HAPUS FILE
+		$unLink = unlink("assets/lam_inv_sj_balik/".$header->img_sj_balik);
+
+		if($unLink){
+			$this->db->set('img_sj_balik', null);
+			$this->db->set('inp_sj_balik', null);
+			$this->db->where('id', $id_header);
+			$data = $this->db->update('invoice_laminasi_header');
+			$msg = 'BERHASIL HAPUS SJ BALIK!';
+		}else{
+			$data = false; $msg = 'TERJADI KESALAHAN!';
+		}
+
+		return [
+			'id_header' => $id_header,
+			'data' => $data,
+			'msg' => $msg,
 		];
 	}
 
@@ -4773,6 +4868,42 @@ class M_logistik extends CI_Model
 		return $code;
 	}
 
+	function uploadInvLamSJBalik()
+	{
+		$id_header = $this->input->post('blk_id');
+
+		// FILE
+		$config['upload_path'] = './assets/lam_inv_sj_balik/';
+		$config['allowed_types'] = 'jpg|jpeg|png|pdf';
+		$config['max_size'] = 2048; // 2MB
+		$config['overwrite'] = true;
+		$thn = substr(date('Y'), 2, 2); $bln = date('m'); $date = date('d');
+		$config['file_name'] = $thn.$bln.$date.'-'.$this->generateFileName();
+		$this->load->library('upload',$config);
+		$this->upload->initialize($config);
+
+		if(!$this->upload->do_upload('blk_foto')) {
+			$file = false; $msg = 'UKURAN / FORMAT FILE TIDAK DIDUKUNG!';
+		}else{
+			if($this->upload->do_upload('blk_foto')){
+				$gbrBukti = $this->upload->data();
+				$filefoto = $gbrBukti['file_name'];
+
+				$this->db->set('img_sj_balik', $filefoto);
+				$this->db->set('inp_sj_balik', date('Y-m-d H:i:s'));
+				$this->db->where('id', $id_header);
+				$file = $this->db->update('invoice_laminasi_header');
+				$msg = 'BERHASIL UPLOAD!';
+			}
+		}
+
+		return [
+			'id_header' => $id_header,
+			'file' => $file,
+			'msg' => $msg,
+		];
+	}
+
 	function uploadMutasi()
 	{
 		$mut_noinv = $this->input->post('mut_noinv');
@@ -4783,6 +4914,7 @@ class M_logistik extends CI_Model
 		// FILE
 		$config['upload_path'] = './assets/gambar_inv_mutasi/';
 		$config['allowed_types'] = 'jpg|jpeg|png|pdf';
+		$config['max_size'] = 2048; // 2MB
 		$config['overwrite'] = true;
 		$thn = substr(date('Y'), 2, 2); $bln = date('m'); $date = date('d');
 		$config['file_name'] = $thn.$bln.$date.'-'.$this->generateFileName();

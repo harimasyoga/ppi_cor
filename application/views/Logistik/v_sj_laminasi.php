@@ -703,11 +703,12 @@
 	function kirimSJLaminasi(id_pelanggan_lm, id_hub, opsi)
 	{
 		let tgl = $("#p_tgl-"+id_pelanggan_lm).val()
-		// let no_sj = $("#p_no_sj-"+id_pelanggan_lm).val()
 		let attn = $("#attn-"+id_pelanggan_lm).val()
 		let alamat_kirim = $("#alamat_kirim-"+id_pelanggan_lm).val()
 		let no_telp = $("#no_telp-"+id_pelanggan_lm).val()
 		let no_kendaraan = $("#p_no_kendaraan-"+id_pelanggan_lm).val()
+		let supir = $("#p_supir-"+id_pelanggan_lm).val()
+		let ekspedisi = $("#p_ekspedisi-"+id_pelanggan_lm).val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/kirimSJLaminasi')?>',
 			type: "POST",
@@ -722,7 +723,7 @@
 				});
 			},
 			data: ({
-				id_pelanggan_lm, id_hub, opsi, tgl, attn, alamat_kirim, no_telp, no_kendaraan
+				id_pelanggan_lm, id_hub, opsi, tgl, attn, alamat_kirim, no_telp, no_kendaraan, supir, ekspedisi
 			}),
 			success: function(res){
 				data = JSON.parse(res)

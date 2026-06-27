@@ -69,107 +69,113 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<form role="form" method="post" id="myForm">
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">SALES</label>
-						<div class="col-sm-10">
-							<select id="id_sales" class="form-control select2"></select>
-						</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">SALES</label>
+					<div class="col-sm-10">
+						<select id="id_sales" class="form-control select2"></select>
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">KODE PELANGGAN</label>
-						<div class="col-sm-10">
-							<input type="hidden" class="form-control" id="kode_lama">
-							<input type="text" class="form-control" id="kode_pelanggan" placeholder="KODE PELANGGAN" autocomplete="off" maxlength="3" oninput="this.value = this.value.toUpperCase()">
-						</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">KODE PELANGGAN</label>
+					<div class="col-sm-10">
+						<input type="hidden" class="form-control" id="kode_lama">
+						<input type="text" class="form-control" id="kode_pelanggan" placeholder="KODE PELANGGAN" autocomplete="off" maxlength="3" oninput="this.value = this.value.toUpperCase()">
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">NAMA PELANGGAN</label>
-						<div class="col-sm-10">
-							<input type="hidden" class="form-control" id="idx">
-							<input type="hidden" class="form-control" id="no_pelanggan">
-							<input type="text" class="form-control" id="nm_pelanggan" placeholder="NAMA PELANGGAN" autocomplete="off" maxlength="50">
-						</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">NAMA PELANGGAN</label>
+					<div class="col-sm-10">
+						<input type="hidden" class="form-control" id="idx">
+						<input type="hidden" class="form-control" id="no_pelanggan">
+						<input type="text" class="form-control" id="nm_pelanggan" placeholder="NAMA PELANGGAN" autocomplete="off" maxlength="50">
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">ATTN</label>
-						<div class="col-sm-10">
-							<input type="text" class="form-control" id="attn" placeholder="ATAS NAMA" autocomplete="off" maxlength="50">
-						</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">ATTN</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="attn" placeholder="ATAS NAMA" autocomplete="off" maxlength="50">
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">ALAMAT</label>
-						<div class="col-sm-10">
-							<textarea class="form-control" id="alamat" placeholder="ALAMAT KANTOR" oninput="this.value = this.value.toUpperCase()"></textarea>
-						</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">ALAMAT</label>
+					<div class="col-sm-10">
+						<textarea class="form-control" id="alamat" placeholder="ALAMAT KANTOR" oninput="this.value = this.value.toUpperCase()"></textarea>
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">ALAMAT KIRIM</label>
-						<div class="col-sm-10">
-							<textarea class="form-control" id="alamat_kirim" placeholder="ALAMAT KIRIM" oninput="this.value = this.value.toUpperCase()"></textarea>
-						</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">ALAMAT KIRIM</label>
+					<div class="col-sm-10">
+						<textarea class="form-control" id="alamat_kirim" placeholder="ALAMAT KIRIM" oninput="this.value = this.value.toUpperCase()"></textarea>
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">PROVINSI</label>
-						<div class="col-sm-10">
-							<select class="form-control select2" id="provinsi"></select>
-							<input type="hidden" id="hide_prov_id">
-							<input type="hidden" id="hide_prov_nama">
-						</div>
+				</div>
+				<div class="tambah-alamat"></div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">PROVINSI</label>
+					<div class="col-sm-10">
+						<select class="form-control select2" id="provinsi"></select>
+						<input type="hidden" id="hide_prov_id">
+						<input type="hidden" id="hide_prov_nama">
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">KABUPATEN / KOTA</label>
-						<div class="col-sm-10 kota_kab">
-							<select class="form-control select2" id="kota_kab"></select>
-							<input type="hidden" id="hide_kota_kab_id">
-							<input type="hidden" id="hide_kota_kab_nama">
-						</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">KABUPATEN / KOTA</label>
+					<div class="col-sm-10 kota_kab">
+						<select class="form-control select2" id="kota_kab"></select>
+						<input type="hidden" id="hide_kota_kab_id">
+						<input type="hidden" id="hide_kota_kab_nama">
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">KECAMATAN</label>
-						<div class="col-sm-10">
-							<select class="form-control select2" id="kecamatan"></select>
-							<input type="hidden" id="hide_kec_id">
-							<input type="hidden" id="hide_kec_nama">
-						</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">KECAMATAN</label>
+					<div class="col-sm-10">
+						<select class="form-control select2" id="kecamatan"></select>
+						<input type="hidden" id="hide_kec_id">
+						<input type="hidden" id="hide_kec_nama">
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">KELURAHAN</label>
-						<div class="col-sm-10">
-							<select class="form-control select2" id="kelurahan"></select>
-							<input type="hidden" id="hide_kel_id">
-							<input type="hidden" id="hide_kel_nama">
-						</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">KELURAHAN</label>
+					<div class="col-sm-10">
+						<select class="form-control select2" id="kelurahan"></select>
+						<input type="hidden" id="hide_kel_id">
+						<input type="hidden" id="hide_kel_nama">
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">KODE POS</label>
-						<div class="col-sm-10">
-							<input type="text" class="form-control" id="kode_pos" placeholder="-" autocomplete="off" maxlength="10">
-						</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">KODE POS</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="kode_pos" placeholder="-" autocomplete="off" maxlength="10">
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">NO TELP. / NO. HP</label>
-						<div class="col-sm-10">
-							<input type="text" class="form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
-						</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">NO TELP. / NO. HP</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="no_telp" placeholder="-" autocomplete="off" maxlength="16">
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">FAX</label>
-						<div class="col-sm-10">
-							<input type="text" class="form-control" id="fax" placeholder="-" autocomplete="off" maxlength="25">
-						</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">FAX</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="fax" placeholder="-" autocomplete="off" maxlength="25">
 					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">TOP</label>
-						<div class="col-sm-10">
-							<input type="text" class="form-control" id="top" placeholder="-" autocomplete="off" maxlength="4">
-						</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">TOP</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="top" placeholder="-" autocomplete="off" maxlength="4">
 					</div>
+				</div>
+				<!-- DAFTAR ALAMAT -->
+				<div class="card card-secondary card-outline card-alamattt" style="display:none">
+					<div class="card-header" style="padding:12px">
+						<h3 class="card-title" style="font-weight:bold;font-size:18px">DAFTAR ALAMAT KIRIM LAIN :</h3>
+					</div>
+					<div class="list-alamat"></div>
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary" id="btn-simpan" onclick="simpan()"><i class="fas fa-save"></i> Simpan</button>
 			</div>
-			</form>
 		</div>
 		<!-- /.modal-content -->
 	</div>
@@ -416,7 +422,6 @@
 			}),
 			success: function(res) {
 				data = JSON.parse(res)
-				// console.log(data)
 				if(data.data){
 					swal("BERHASIL DISIMPAN!", "", "success")
 					kosong();
@@ -437,6 +442,10 @@
 	function kosong() {
 		getPlhSales()
 		plhWilayah(0,0,0,0)
+		$(".card-alamattt").hide();
+		$(".tambah-alamat").html("");
+		$(".list-alamat").html("");
+
 		$("#no_pelanggan").val("");
 		$("#id_sales").val("");
 		$("#nm_pelanggan").val("");
@@ -485,7 +494,6 @@
 		})
 		.done(function(json) {
 			data = JSON.parse(json)
-			// console.log(data)
 
 			let htmlSales = ''
 			htmlSales += `<option value="${(data.pelanggan.id_sales)}" data-nama="${(data.pelanggan.nm_sales)}">${(data.pelanggan.nm_sales)}</option>`
@@ -520,12 +528,47 @@
 
 			$("#kota_kab").prop("disabled", true).html(`<option value="${(data.wilayah.kab === null) ? 0 : data.wilayah.kab}" data-nama="${(data.wilayah.kab_name === null) ? "PILIH" : data.wilayah.kab_name}">${(data.wilayah.kab_name === null) ? "PILIH" : data.wilayah.kab_name}</option>`)
 			$("#kecamatan").prop("disabled", true).html(`<option value="${(data.wilayah.kec === null) ? 0 : data.wilayah.kec}" data-nama="${(data.wilayah.kec_name === null) ? "PILIH" : data.wilayah.kec_name}">${(data.wilayah.kec_name === null) ? "PILIH" : data.wilayah.kec_name}</option>`)
-			$("#kelurahan").prop("disabled", true).html(`<option value="${(data.wilayah.kel === null) ? 0 : data.wilayah.kel}" data-nama="${(data.wilayah.kel_name === null) ? "PILIH" : data.wilayah.kel_name}">${(data.wilayah.kel_name === null) ? "PILIH" : data.wilayah.kel_name}</option>`)			
+			$("#kelurahan").prop("disabled", true).html(`<option value="${(data.wilayah.kel === null) ? 0 : data.wilayah.kel}" data-nama="${(data.wilayah.kel_name === null) ? "PILIH" : data.wilayah.kel_name}">${(data.wilayah.kel_name === null) ? "PILIH" : data.wilayah.kel_name}</option>`)
+
+			// DAFTAR ALAMAT
+			$(".card-alamattt").show();
+			$(".tambah-alamat").html(data.btnAlamat);
+			$(".list-alamat").html(data.htmlAlamat);
 
 			swal.close()
 		})
 	}
 
+	function tambahAlamatP() {
+		let id_pelanggan = $("#no_pelanggan").val()
+		let alamat_kirim = $("textarea#alamat_kirim").val()
+		$.ajax({
+			url: '<?php echo base_url('Master/tambahAlamatP')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				id_pelanggan, alamat_kirim
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					tampil_edit(id_pelanggan, 'edit')
+				}else{
+					swal(data.msg, "", "error")
+				}
+			}
+		})
+	}
 
 	function deleteData(id) {
 		swal({
