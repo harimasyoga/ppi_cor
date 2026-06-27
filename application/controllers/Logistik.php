@@ -13482,7 +13482,9 @@ class Logistik extends CI_Controller
 
 						// LIHAT GAMBAR PO
 						if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
-							$prevImg = '<img id="'.$sjpo->img_po.'" src="'.base_url().'assets/gambar_po/'.$sjpo->img_po.'" alt="p" width="50" height="25" class="shadow-sm" onclick="imgClick('."'".$sjpo->img_po."'".')">';
+							$p1 = (rand(12, 3456) * $no) - rand(1, 23);
+							$preview = 'p'.$p1;
+							$prevImg = '<img id="'.$preview.'" src="'.base_url().'assets/gambar_po/'.$sjpo->img_po.'" alt="p" width="50" height="25" class="shadow-sm" style="border-radius:4px" onclick="imgClick('."'".$preview."'".')">';
 						}else{
 							$prevImg = '';
 						}
