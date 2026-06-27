@@ -337,7 +337,6 @@
 			type: "POST",
 			success: function(res){
 				data = JSON.parse(res)
-				// console.log(data)
 				let htmlCust = ''
 				htmlCust += `<option value="">PILIH</option>`
 				data.forEach(loadCust)

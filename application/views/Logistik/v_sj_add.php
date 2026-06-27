@@ -244,7 +244,6 @@
 			data: ({ id_pl, plh_alamat }),
 			success: function(res) {
 				data = JSON.parse(res)
-				console.log(data)
 				toastr.success(`<b>${data.msg}!</b>`)
 				$("#modalForm").modal("hide")
 			}
