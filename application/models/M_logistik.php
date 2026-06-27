@@ -1721,6 +1721,28 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function slctAlamatKirim()
+	{
+		$id_pl = $_POST["id_pl"];
+		$plh_alamat = $_POST["plh_alamat"];
+
+		$tambahan = $this->db->query("SELECT*FROM m_pelanggan_alamat WHERE id='$plh_alamat'")->row();
+
+		// id_alamat_tmbh
+		$this->db->set('pl_attn', ($plh_alamat == '') ? null : $tambahan->b_attn);
+		$this->db->set('pl_kepada', ($plh_alamat == '') ? null : $tambahan->b_nm_pelanggan);
+		$this->db->set('pl_alamat', ($plh_alamat == '') ? null : $tambahan->b_alamat);
+		$this->db->set('id_alamat_tmbh', ($plh_alamat == '') ? null : $plh_alamat);
+		$this->db->where('id', $id_pl);
+		$data = $this->db->update('pl_box');
+		$msg = "BERHASIL EDIT ALAMAT KIRIM!";
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function addDStoRK()
 	{
 		$id_rk = $_POST["id_rk"];

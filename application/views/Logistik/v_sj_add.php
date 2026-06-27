@@ -178,14 +178,20 @@
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" id="judul"></h4>
+				<h4 class="modal-title" style="font-weight:bold">PILIH ALAMAT KIRIM</h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body" style="overflow:auto;white-space:nowrap"></div>
+			<div class="card-body">
+				<div class="list-alamat"></div>
+			</div>
 		</div>
 	</div>
+</div>
+
+<div id="mymodal-img" class="modal-img">
+	<img class="modal-img-content" id="img01">
 </div>
 
 <script type="text/javascript">
@@ -196,6 +202,54 @@
 			dropdownAutoWidth: true
 		})
 	})
+
+	function imgClick(klik) {
+		let modal = document.getElementById('mymodal-img')
+		let img = document.getElementById(klik)
+		let modalImg = document.getElementById("img01")
+		img.onclick = function() {
+			modal.style.display = "block";
+			modalImg.src = this.src;
+			modalImg.alt = this.alt;
+		}
+		modal.onclick = function() {
+			img01.className += " out";
+			setTimeout(function() {
+				modal.style.display = "none";
+				img01.className = "modal-img-content";
+			}, 400);
+		}
+	}
+
+	function pilihAlamatKirim(id_pl) {
+		$(".list-alamat").html('')
+		$("#modalForm").modal("show")
+		$.ajax({
+			url: '<?php echo base_url('Logistik/pilihAlamatKirim') ?>',
+			type: "POST",
+			data: ({ id_pl }),
+			success: function(res) {
+				data = JSON.parse(res)
+				$(".list-alamat").html(data.html)
+				$('.select2').select2()
+			}
+		})
+	}
+
+	function slctAlamatKirim(id_pl) {
+		let plh_alamat = $("#plh_alamat").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/slctAlamatKirim') ?>',
+			type: "POST",
+			data: ({ id_pl, plh_alamat }),
+			success: function(res) {
+				data = JSON.parse(res)
+				console.log(data)
+				toastr.success(`<b>${data.msg}!</b>`)
+				$("#modalForm").modal("hide")
+			}
+		})
+	}
 
 	function loadPilihanSJ() {
 		$.ajax({

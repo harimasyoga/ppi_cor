@@ -2001,12 +2001,12 @@ class Logistik extends CI_Controller
 		}
 
 		// SJ BALEK
-		if($header->acc_owner != 'Y' && $header->img_sj_balik == null && in_array($lvl, ['Admin', 'Laminasi'])){
+		if($opsi == 'edit' && $header->acc_owner != 'Y' && $header->img_sj_balik == null && in_array($lvl, ['Admin', 'Laminasi'])){
 			$htmlItem .='<div style="margin-bottom:12px">
 				<form role="form" method="POST" id="blk_sj" enctype="multipart/form-data">
 					<input type="hidden" name="blk_id" id="blk_id" value="'.$id_header.'">
 					<div class="card-body row" style="padding:5px 0">
-						<div class="col-md-1">SJ BALIK</div>
+						<div class="col-md-1" style="font-weight:bold">SJ BALIK</div>
 						<div class="col-md-2">
 							<input type="file" name="blk_foto" id="blk_foto" accept=".jpg,.jpeg,.png,.pdf" onchange="cekFile('."'sj'".')">
 						</div>
@@ -2194,7 +2194,9 @@ class Logistik extends CI_Controller
 			}
 
 			// UPDATE TOTAL INVOICE HEADER
-			$this->db->query("UPDATE invoice_laminasi_header SET inv_total='$fixTotal' WHERE id='$id_header'");
+			if($header->acc_owner != 'Y'){
+				$this->db->query("UPDATE invoice_laminasi_header SET inv_total='$fixTotal' WHERE id='$id_header'");
+			}
 
 			($disc->num_rows() == 0) ? $txtTot = 'Total' : $txtTot = 'Sub Total';
 			$htmlItem .='<tr>
@@ -2637,7 +2639,9 @@ class Logistik extends CI_Controller
 		$html .= '</table>';
 
 		// UPDATE TOTAL INVOICE HEADER
-		$this->db->query("UPDATE invoice_laminasi_header SET inv_total='$fixTotal' WHERE no_invoice='$no_invoice'");
+		if($header->acc_owner != 'Y'){
+			$this->db->query("UPDATE invoice_laminasi_header SET inv_total='$fixTotal' WHERE no_invoice='$no_invoice'");
+		}
 
 		// PEMBAYARAN
 		$id_hub = $header->bank;
@@ -7815,10 +7819,18 @@ class Logistik extends CI_Controller
 				$row[] = '<div class="text-center" style="font-weight:bold">'.$tenggat.$ketDurasi.'</div>';
 				// PEMABAYARAN
 				$bayar = $this->db->query("SELECT SUM(nominal_bayar) AS bayarCuy FROM invoice_laminasi_bayar WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
-				$detail = $this->db->query("SELECT SUM(total) AS total FROM invoice_laminasi_detail WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice")->row();
-				$qDisc = $this->db->query("SELECT SUM(hitung) AS disc FROM invoice_laminasi_disc WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
-				($qDisc->num_rows() == 0) ? $disc = 0 : $disc = $qDisc->row()->disc;
-				$total_disc = $detail->total - $disc;
+				if($r->inv_total == null){
+					$detail = $this->db->query("SELECT SUM(total) AS total FROM invoice_laminasi_detail WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice")->row();
+					$qDisc = $this->db->query("SELECT SUM(hitung) AS disc FROM invoice_laminasi_disc WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
+					($qDisc->num_rows() == 0) ? $disc = 0 : $disc = $qDisc->row()->disc;
+					$total_disc = $detail->total - $disc;
+					if($r->acc_owner != 'Y'){
+						// UPDATE TOTAL INVOICE HEADER
+						$this->db->query("UPDATE invoice_laminasi_header SET inv_total='$total_disc' WHERE id='$r->id'");
+					}
+				}else{
+					$total_disc = $r->inv_total;
+				}
 				if($r->status_bayar == 'REJECT'){
 					$txtB = 'btn-danger'; $txtT = 'REJECT';
 					$kurengByr = '';
@@ -13400,9 +13412,11 @@ class Logistik extends CI_Controller
 							'.$aDx.'
 						</td>
 					</tr>';
-					$getSJnPO = $this->db->query("SELECT*FROM pl_box WHERE tgl='$urut->tgl' AND no_pl_urut='$urut->no_pl_urut'
-					GROUP BY id_perusahaan,no_surat,no_po,no_pl_urut,kategori
-					ORDER BY no_surat,no_po");
+					$getSJnPO = $this->db->query("SELECT c.img_po,p.* FROM pl_box p
+					INNER JOIN trs_po c ON p.no_po=c.kode_po
+					WHERE p.tgl='$urut->tgl' AND p.no_pl_urut='$urut->no_pl_urut'
+					GROUP BY p.id_perusahaan,p.no_surat,p.no_po,p.no_pl_urut,p.kategori
+					ORDER BY p.no_surat,p.no_po");
 					$no = 0;
 					$sumAllMuat = 0;
 					$sumAll = 0;
@@ -13458,19 +13472,30 @@ class Logistik extends CI_Controller
 							}
 						}
 						// SJ BALEK
+						// if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
+						// 	($sjpo->sj_blk == null) ? $bn = '' : $bn = 'background:#dee2e6;';
+						// 	($sjpo->sj_blk == null) ? $nn = 'btn-light' : $nn = '';
+						// 	$btnSJBalik = ' - <input type="date" id="tgl_balek'.$sjpo->id.'" value="'.$sjpo->sj_blk.'" style="'.$bn.'margin:0;padding:0;border:0;font-size:13px"> <button type="button" class="btn btn-xs '.$nn.'" style="padding:0 2px" onclick="sjBalek('."'".$sjpo->id."'".')"><i class="fas fa-check"></i></button>';
+						// }else{
+						// 	$btnSJBalik = '';
+						// }
+
+						// LIHAT GAMBAR PO
 						if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
-							($sjpo->sj_blk == null) ? $bn = '' : $bn = 'background:#dee2e6;';
-							($sjpo->sj_blk == null) ? $nn = 'btn-light' : $nn = '';
-							$btnSJBalik = ' - <input type="date" id="tgl_balek'.$sjpo->id.'" value="'.$sjpo->sj_blk.'" style="'.$bn.'margin:0;padding:0;border:0;font-size:13px"> <button type="button" class="btn btn-xs '.$nn.'" style="padding:0 2px" onclick="sjBalek('."'".$sjpo->id."'".')"><i class="fas fa-check"></i></button>';
+							$prevImg = '<img id="'.$sjpo->img_po.'" src="'.base_url().'assets/gambar_po/'.$sjpo->img_po.'" alt="p" width="50" height="25" class="shadow-sm" onclick="imgClick('."'".$sjpo->img_po."'".')">';
 						}else{
-							$btnSJBalik = '';
+							$prevImg = '';
+						}
+						// PILIH ALAMAT
+						if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])){
+							$btnAKirim = '<button type="button" class="btn btn-xs btn-info" style="font-weight:bold" title="PILIH ALAMAT KIRIM" onclick="pilihAlamatKirim('."'".$sjpo->id."'".')">ALAMAT</button>';
+						}else{
+							$btnAKirim = '';
 						}
 						// EDIT NOMER SURAT JALAN
 						($sjpo->cetak_sj == 'not' && $sjpo->no_pl_inv == 0 && in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $eNoSj = 'onchange="editPengirimanNoSJ('."'".$sjpo->id."'".')"' : $eNoSj = 'disabled';
-
 						// CEK INV
 						($sjpo->no_pl_inv == 0 && $tglNow != $urut->tgl && in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $btnInv = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="batalRev('."'".$sjpo->id."'".')">BATAL</button>&nbsp' : $btnInv = '';
-
 						($sjpo->kategori == 'SHEET') ? $tdX = 'background:#333;color:#fff;' : $tdX = '';
 
 						$html .='<tr style="background:#dee2e6">
@@ -13478,7 +13503,9 @@ class Logistik extends CI_Controller
 								'.$btnInv.'NO. SURAT JALAN : &nbsp;<input type="number" class="form-control" id="pp-nosj-'.$sjpo->id.'" style="height:100%;width:50px;text-align:center;padding:2px 4px" value="'.$noSJ[0].'" '.$eNoSj.'>'.$ketSJ.'
 							</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">NO. PO : '.$sjpo->no_po.'</td>
-							<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="3">'.$btnPrint.' '.$btnJasa.''.$btnSJBalik.'</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">'.$prevImg.'</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">'.$btnAKirim.'</td>
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">'.$btnPrint.' '.$btnJasa.'</td>
 							<td style="padding:3px 6px;border:1px solid #bbb;font-weight:bold" colspan="4">
 								<input type="text" class="form-control" id="no_te'.$sjpo->id.'" style="height:100%;width:100%;padding:2px 4px" placeholder="NOTE" onchange="noteSJ('."'".$sjpo->id."'".')" oninput="this.value=this.value.toUpperCase()" value="'.$sjpo->note.'">
 							</td>
@@ -13562,6 +13589,36 @@ class Logistik extends CI_Controller
 			$html .='</table>';
 		}
 		echo $html;
+	}
+
+	function pilihAlamatKirim()
+	{
+		$id_pl = $_POST["id_pl"];
+		$pl = $this->db->query("SELECT*FROM pl_box WHERE id='$id_pl'")->row();
+		$tambahan = $this->db->query("SELECT*FROM m_pelanggan_alamat WHERE id_pelanggan='$pl->id_perusahaan'");
+
+		$html = '';
+		if($tambahan->num_rows() == 0){
+			$html = '<div class="card-body row" style="font-weight:bold;padding:6px 0">
+				<div class="col-md-12">TIDAK ADA DAFTAR ALAMAT KIRIM LAIN</div>
+			</div>';
+		}else{
+			$html .= '<div class="card-body row" style="font-weight:bold;padding:6px 0">
+				<div class="col-md-12">
+					<select class="form-control select2" id="plh_alamat" onchange="slctAlamatKirim('."'".$id_pl."'".')">
+						<option value="">SESUAI PO</option>';
+						foreach($tambahan->result() as $r){
+							($pl->id_alamat_tmbh == $r->id) ? $sltd = 'selected' : $sltd = '';
+							$html .= '<option value="'.$r->id.'" '.$sltd.'>'.$r->b_alamat.'</option>';
+						}
+					$html .= '</select>
+				</div>
+			</div>';
+		}
+		
+		echo json_encode([
+			'html' => $html,
+		]);
 	}
 
 	function addDevSys()
@@ -13799,6 +13856,12 @@ class Logistik extends CI_Controller
 	function cUkuranKualitas()
 	{
 		$result = $this->m_logistik->cUkuranKualitas();
+		echo json_encode($result);
+	}
+
+	function slctAlamatKirim()
+	{
+		$result = $this->m_logistik->slctAlamatKirim();
 		echo json_encode($result);
 	}
 
