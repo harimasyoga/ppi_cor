@@ -83,29 +83,6 @@
 				</div>
 			</div>
 
-			<div class="row" id="card-sys" style="display:none">
-				<div class="col-md-12">
-					<div class="card card-primary card-outline">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">DELIVERY SYSTEM</h3>
-						</div>
-						<div class="card-body" style="padding:6px">
-							<div class="card-body row" style="font-weight:bold;padding:0 0 6px">
-								<div class="col-md-2">
-									<input type="hidden" id="h_id_rk" value="">
-									<select id="ops_dev" class="form-control select2" onchange="addDevSys('', 'edit')">
-										<option value="CUSTOMER">CUSTOMER</option>
-										<option value="ALL">ALL</option>
-									</select>
-								</div>
-								<div class="col-md-10"></div>
-							</div>
-							<div class="card-body-dev" style="overflow:auto;white-space:nowrap"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-
 			<?php if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Keuangan1'])) { ?>
 				<div class="row">
 					<div class="col-md-12">
@@ -621,7 +598,6 @@
 	}
 
 	function listPengiriman() {
-		$("#card-sys").hide()
 		$(".card-body-dev").html('')
 		$("#h_id_rk").val('')
 		let tgl_kirim = $("#tgl_kirim").val()
@@ -663,7 +639,12 @@
 			},
 			success: function(res){
 				data = JSON.parse(res)
-				listRencanaKirim()
+				if(data.data){
+					toastr.success('<b>BERHASIL!</b>');
+					listRencanaKirim()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`);
+				}
 			}
 		})
 	}
@@ -915,79 +896,11 @@
 			data: ({ id }),
 			success: function(res){
 				data = JSON.parse(res)
-				listRencanaKirim()
-			}
-		})
-	}
-
-	function addDevSys(id, opsi)
-	{
-		$("#card-sys").show()
-		$(".card-body-dev").html('')
-		let id_rk = ''
-		if(opsi == 'add'){
-			$("#h_id_rk").val(id)
-			id_rk = id
-		}else{
-			id_rk = $("#h_id_rk").val()
-		}
-
-		let ops_dev = $("#ops_dev").val()
-		let tgl_kirim = $("#tgl_kirim").val()
-		$.ajax({
-			url: '<?php echo base_url('Logistik/addDevSys')?>',
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
-			data: ({ ops_dev, tgl_kirim, id_rk, opsi, urutpl:id }),
-			success: function(res){
-				data = JSON.parse(res)
-				$(".card-body-dev").html(data.html)
-				if(data.html != ''){
-					swal.close()
-					location.href = '#card-sys';
-				}
-			}
-		})
-	}
-
-	function addDStoRK(id_dev, opsi)
-	{
-		let id_rk = $("#h_id_rk").val()
-		$.ajax({
-			url: '<?php echo base_url('Logistik/addDStoRK')?>',
-			type: "POST",
-			data: ({ id_rk, id_dev, opsi }),
-			success: function(res){
-				data = JSON.parse(res)
 				if(data.data){
-					location.href = '#urut'+data.rencKirim.rk_urut;
+					toastr.success('<b>BERHASIL!</b>');
 					listRencanaKirim()
-				}
-			}
-		})
-	}
-
-	function addTimbtoDS(urutpl, urutds)
-	{
-		let tgl_kirim = $("#tgl_kirim").val()
-		$.ajax({
-			url: '<?php echo base_url('Logistik/addTimbtoDS')?>',
-			type: "POST",
-			data: ({ tgl_kirim, urutpl, urutds }),
-			success: function(res){
-				data = JSON.parse(res)
-				if(data.data){
-					location.href = '#urut'+data.rencKirim.rk_urut;
-					listRencanaKirim()
+				}else{
+					toastr.error(`<b>${data.msg}</b>`);
 				}
 			}
 		})

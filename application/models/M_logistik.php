@@ -1074,52 +1074,56 @@ class M_logistik extends CI_Model
 		$urut = $pL->row()->no_pl_urut;
 		$tgl = $pL->row()->tgl;
 		$grPL = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND no_pl_urut='$urut' GROUP BY no_surat");
+		$cek = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_tgl='$tgl' AND rk_urut='$urut' AND dev_tgl IS NOT NULL AND dev_urut IS NOT NULL");
 
-		// UPDATE TIMBANGAN SYS
-		$this->db->set('timb_tgl', null);
-		$this->db->set('timb_urut', null);
-		$this->db->where('timb_tgl', $tgl);
-		$this->db->where('timb_urut', $urut);
-		$uSys = $this->db->update('trs_dev_sys');
-
-		// HAPUS TIMBANGAN
-		if($grPL->num_rows() == 1){
-			$this->db->where('urut_t', $pL->row()->no_pl_urut);
-			$this->db->where('tgl_t', $pL->row()->tgl);
-			$delTimb = $this->db->delete('m_jembatan_timbang');
+		if($cek->num_rows() > 0){
+			$delTimb = false; $delJasa = false; $delRk = false; $updRk = false; $delPL = false; $uSys = false; $data = false; $msg = 'SURAT JALAN SUDAH KE LINK DENGAN DELIVERY SYSTEM!';
 		}else{
-			$delTimb = false;
-		}
-
-		// HAPUS JASA
-		$this->db->where('urut', $pL->row()->no_pl_urut);
-		$this->db->where('tgl', $pL->row()->tgl);
-		$this->db->where('id_pl_box', $pL->row()->id);
-		$this->db->where('jenis', 'CORR');
-		$delJasa = $this->db->delete('m_jasa');
-		
-		// HAPUS RENCANA KIRIM
-		if($pL->row()->stat_sj == 'new'){
-			$this->db->where('id_pl_box', $id);
-			$delRk = $this->db->delete('m_rencana_kirim');
-			$updRk = false;
-		}else{
-			$delRk = false;
-			$rK = $this->db->query("SELECT*FROM m_rencana_kirim WHERE id_pl_box='$id'");
-			foreach($rK->result() as $r){
-				$this->db->set('rk_tgl', date('Y-m-d'));
-				$this->db->set('rk_status', 'Open');
-				$this->db->set('id_pl_box', null);
-				$this->db->where('id_rk', $r->id_rk);
-				$updRk = $this->db->update('m_rencana_kirim');
+			// UPDATE TIMBANGAN SYS
+			$this->db->set('timb_tgl', null);
+			$this->db->set('timb_urut', null);
+			$this->db->where('timb_tgl', $tgl);
+			$this->db->where('timb_urut', $urut);
+			$uSys = $this->db->update('trs_dev_sys');
+			// HAPUS TIMBANGAN
+			if($grPL->num_rows() == 1){
+				$this->db->where('urut_t', $pL->row()->no_pl_urut);
+				$this->db->where('tgl_t', $pL->row()->tgl);
+				$delTimb = $this->db->delete('m_jembatan_timbang');
+			}else{
+				$delTimb = false;
 			}
+			// HAPUS JASA
+			$this->db->where('urut', $pL->row()->no_pl_urut);
+			$this->db->where('tgl', $pL->row()->tgl);
+			$this->db->where('id_pl_box', $pL->row()->id);
+			$this->db->where('jenis', 'CORR');
+			$delJasa = $this->db->delete('m_jasa');
+			// HAPUS RENCANA KIRIM
+			if($pL->row()->stat_sj == 'new'){
+				$this->db->where('id_pl_box', $id);
+				$delRk = $this->db->delete('m_rencana_kirim');
+				$updRk = false;
+			}else{
+				$delRk = false;
+				$rK = $this->db->query("SELECT*FROM m_rencana_kirim WHERE id_pl_box='$id'");
+				foreach($rK->result() as $r){
+					$this->db->set('rk_tgl', date('Y-m-d'));
+					$this->db->set('rk_status', 'Open');
+					$this->db->set('id_pl_box', null);
+					$this->db->where('id_rk', $r->id_rk);
+					$updRk = $this->db->update('m_rencana_kirim');
+				}
+			}
+			// HAPUS PACKING LIST
+			$this->db->where('id', $_POST["id"]);
+			$delPL = $this->db->delete('pl_box');
+			$data = true; $msg = 'BERHASIL!';
 		}
-
-		// HAPUS PACKING LIST
-		$this->db->where('id', $_POST["id"]);
-		$delPL = $this->db->delete('pl_box');
 
 		return [
+			'data' => $data,
+			'msg' => $msg,
 			'delTimb' => $delTimb,
 			'delJasa' => $delJasa,
 			'delRk' => $delRk,
@@ -1328,30 +1332,42 @@ class M_logistik extends CI_Model
 		$tgl = $_POST["tgl"];
 		$urut = $_POST["urut"];
 
-		// HAPUS PACKING LIST
-		$this->db->where('tgl', $tgl);
-		$this->db->where('no_pl_urut', $urut);
-		$deletePL = $this->db->delete('pl_box');
+		$cek1 = $this->db->query("SELECT*FROM m_rencana_kirim r
+		INNER JOIN pl_box p ON r.id_pl_box=p.id AND r.rk_urut=p.no_pl_urut
+		INNER JOIN invoice_detail d ON p.no_surat=d.no_surat
+		WHERE r.rk_tgl='$tgl' AND r.rk_urut='$urut'");
+		$cek2 = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_tgl='$tgl' AND rk_urut='$urut' AND dev_tgl IS NOT NULL AND dev_urut IS NOT NULL");
 
-		// UPDATE RENCANA KIRIM
-		$this->db->set('id_pl_box', null);
-		$this->db->set('rk_status', 'Open');
-		$this->db->where('rk_tgl', $tgl);
-		$this->db->where('rk_urut', $urut);
-		$updateRK = $this->db->update('m_rencana_kirim');
-
-		// HAPUS TIMBANGAN
-		$this->db->where('urut_t', $urut);
-		$this->db->where('tgl_t', $tgl);
-		$deleteTimb = $this->db->delete('m_jembatan_timbang');
-
-		// HAPUS JASA
-		$this->db->where('tgl', $tgl);
-		$this->db->where('urut', $urut);
-		$this->db->where('jenis', 'CORR');
-		$deleteJasa = $this->db->delete('m_jasa');
+		if($cek1->num_rows() > 0){
+			$deletePL = false; $updateRK = false; $deleteTimb = false; $deleteJasa = false; $data = false; $msg = 'SURAT JALAN SUDAH JADI INVOICE!';
+		}else if($cek2->num_rows() > 0){
+			$deletePL = false; $updateRK = false; $deleteTimb = false; $deleteJasa = false; $data = false; $msg = 'SURAT JALAN SUDAH KE LINK DENGAN DELIVERY SYSTEM!';
+		}else{
+			// HAPUS PACKING LIST
+			$this->db->where('tgl', $tgl);
+			$this->db->where('no_pl_urut', $urut);
+			$deletePL = $this->db->delete('pl_box');
+			// UPDATE RENCANA KIRIM
+			$this->db->set('id_pl_box', null);
+			$this->db->set('rk_status', 'Open');
+			$this->db->where('rk_tgl', $tgl);
+			$this->db->where('rk_urut', $urut);
+			$updateRK = $this->db->update('m_rencana_kirim');
+			// HAPUS TIMBANGAN
+			$this->db->where('urut_t', $urut);
+			$this->db->where('tgl_t', $tgl);
+			$deleteTimb = $this->db->delete('m_jembatan_timbang');
+			// HAPUS JASA
+			$this->db->where('tgl', $tgl);
+			$this->db->where('urut', $urut);
+			$this->db->where('jenis', 'CORR');
+			$deleteJasa = $this->db->delete('m_jasa');
+			$data = true; $msg = 'BERHASIL!';
+		}
 
 		return [
+			'data' => $data,
+			'msg' => $msg,
 			'deletePL' => $deletePL,
 			'updateRK' => $updateRK,
 			'deleteTimb' => $deleteTimb,
