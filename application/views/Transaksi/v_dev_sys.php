@@ -883,7 +883,7 @@
 				data = JSON.parse(res)
 				$("#p_tgl").val(tgl)
 				$("#p_urut").val(urut)
-				$(".ds-pilihds").html(data.html)
+				// $(".ds-pilihds").html(data.html)
 				swal({
 					title : "OKE, PILIH PLAN",
 					html : "",

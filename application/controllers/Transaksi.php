@@ -10242,6 +10242,7 @@ class Transaksi extends CI_Controller
 		$tahun = $_POST["tahun"];
 		$bulan = $_POST["bulan"];
 		$awal1 = $tahun.'-'.$bulan.'-01';
+		$now = date('Y-m-d');
 
 		// cek tahun kabisat
 		$isKabisat = ($tahun % 400 == 0) || ($tahun % 4 == 0 && $tahun % 100 != 0);
@@ -10317,6 +10318,7 @@ class Transaksi extends CI_Controller
 				for ($i2 = 1; $i2 <= $hari; $i2++) {
 					($i2 < 10) ? $a = '0'.$i2 : $a = $i2;
 					$tglSys = $tahun.'-'.$bulan.'-'.$a;
+					$tglNow = strtotime($now) - strtotime($tglSys);
 					// CEK LIBUR
 					$libur = $this->db->query("SELECT*FROM libur WHERE tgl='$tglSys'");
 					$namaHari = date('l', strtotime($tglSys));
@@ -10335,50 +10337,53 @@ class Transaksi extends CI_Controller
 						$wKun = "('-1', '-2')";
 					}
 
+					// KONDISI JIKA HARI SUDAH TERLEWAT PO EXPIRED DITAMPILKAN
+					($tglNow > 0) ? $wApp = "" : $wApp = "AND d.status='Approve'";
+
 					if($id_sales == null || $id_sales == '' || $akses_dd != null){
 						$cMer = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '$wMer'
+						WHERE s.eta='$tglSys' $wApp AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '$wMer'
 						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0'
 						GROUP BY s.eta,s.urut");
 						$cKun = $this->db->query("SELECT*FROM trs_dev_sys s
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN $wKun
+						WHERE s.eta='$tglSys' $wApp AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN $wKun
 						GROUP BY s.eta,s.urut");
 						$cBir = $this->db->query("SELECT*FROM trs_dev_sys s
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND d.status='Approve' AND s.eta_t='REPLAN' GROUP BY s.eta,s.urut");
+						WHERE s.eta='$tglSys' $wApp AND s.eta_t='REPLAN' GROUP BY s.eta,s.urut");
 						$count = $this->db->query("SELECT*FROM trs_dev_sys s
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND d.status='Approve' GROUP BY s.eta,s.urut");
+						WHERE s.eta='$tglSys' $wApp GROUP BY s.eta,s.urut");
 						$berat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND d.status='Approve' GROUP BY s.eta")->row()->berat;
+						WHERE s.eta='$tglSys' $wApp GROUP BY s.eta")->row()->berat;
 					}else{
 						$cMer = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '$wMer'
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' $wApp AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '$wMer'
 						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0'
 						GROUP BY s.eta,s.urut");
 						$cKun = $this->db->query("SELECT*FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN $wKun
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' $wApp AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN $wKun
 						GROUP BY s.eta,s.urut");
 						$cBir = $this->db->query("SELECT*FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve' AND s.eta_t='REPLAN' GROUP BY s.eta,s.urut");
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' $wApp AND s.eta_t='REPLAN' GROUP BY s.eta,s.urut");
 						$count = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND s.urut!='0' AND d.status='Approve'
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND s.urut!='0' $wApp
 						GROUP BY s.eta,s.urut");
 						$berat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Approve'
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' $wApp
 						GROUP BY s.eta")->row()->berat;
 					}
 
@@ -10630,7 +10635,7 @@ class Transaksi extends CI_Controller
 		if($p_tgl != '' && $p_urut != ''){
 			$pAppc = "";
 		}else{
-			$pAppc = "AND p.status='Approve'";
+			($tglNow > 0) ? $pAppc = "" : $pAppc = "AND p.status='Approve'";
 		}
 
 		$html = '';
@@ -10968,7 +10973,7 @@ class Transaksi extends CI_Controller
 							<td style="background:#333;padding:6px" colspan="2">';
 								if($cekKLB->num_rows() != 0 && $fileKLB->num_rows() != 0){
 									if($u->id_ex == null){
-										if(in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang') || ($lvl == 'Pengiriman' && $akses_dd != null)){
+										if($lvl == 'Admin' || ($tglNow <= 0 && $lvl == 'Gudang') || ($lvl == 'Pengiriman' && $akses_dd != null)){
 											$html .= '<select class="form-control select2" id="eks_ds'.$u->urut.'" onchange="plhEksDS('."'".$u->urut."'".')" '.$dS.'>
 												<option value="">EKSPEDISI | P x L x T (M)</option>';
 												$ekspedisi = $this->db->query("SELECT*FROM m_ekspedisi ORDER BY plat, ekspedisi");
@@ -10999,7 +11004,7 @@ class Transaksi extends CI_Controller
 										}
 										// btl
 										if($u->timb_tgl == null && $u->timb_urut == null && $cekRK->num_rows() == 0 && $fileKLB->num_rows() == 0){
-											$hapus = (in_array($lvl, ['Admin', 'Admin2', 'User']) || ($tglNow <= 0 && $lvl == 'Gudang')) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : '';
+											$hapus = ($lvl == 'Admin' || ($tglNow <= 0 && $lvl == 'Gudang')) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : '';
 										}else{
 											$hapus = '';
 										}
@@ -11078,7 +11083,7 @@ class Transaksi extends CI_Controller
 						if($cekKLB->num_rows() != 0 || $fileKLB->num_rows() != 0){
 							$och = 'id="ds-urut'.$r->id_dev.'dd" name="ds-urut'.$r->id_dev.'nn" disabled';
 						}else{
-							((in_array($lvl, ['Admin', 'Admin2', 'User']) && $r->id_ex == null) || ($lvl == 'Gudang' && $r->id_ex == null && $tglNow <= 0)) ? $och = 'id="ds-urut'.$r->id_dev.'" onchange="dsUrut('."'".$r->id_dev."'".')"' : $och = 'disabled';
+							((in_array($lvl, ['Admin', 'Admin2', 'User']) && $r->id_ex == null)) ? $och = 'id="ds-urut'.$r->id_dev.'" onchange="dsUrut('."'".$r->id_dev."'".')"' : $och = 'disabled';
 						}
 						$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$r->prov'");
 						$kab = $this->db->query("SELECT*FROM m_kab WHERE kab_id='$r->kab'");
@@ -11293,96 +11298,7 @@ class Transaksi extends CI_Controller
 		$p_tgl = $_POST["tgl"];
 		$p_urut = $_POST["urut"];
 		$html = '';
-
-		$wIDPT = '';
-		$wIDPT .= "AND s.id_pelanggan IN(";
-			$getIdPt = $this->db->query("SELECT p.id_perusahaan FROM pl_box p WHERE p.tgl='$p_tgl' AND p.no_pl_urut='$p_urut' GROUP BY p.id_perusahaan;");
-			$wX = 0;
-			foreach($getIdPt->result() as $w){
-				$wX++;
-				$wIDPT .= "'$w->id_perusahaan'";
-				if($getIdPt->num_rows() != $wX){
-					$wIDPT .= ", ";
-				}
-			}
-		$wIDPT .= ')';
-
-		$html .= '<div style="margin-top:25px;font-weight:bold">LIST SEMUA PLAN :</div>
-		<table style="margin-top:5px">
-			<tr style="background:#dee2e6">
-				<th style="padding:6px;border:1px solid #bbb;text-align:center">#</th>
-				<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
-				<th style="padding:6px;border:1px solid #bbb">TGL. TIBA</th>
-				<th style="padding:6px;border:1px solid #bbb">NO. PO</th>
-				<th style="padding:6px;border:1px solid #bbb">ITEM</th>
-				<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">QTY</th>
-				<th style="padding:6px;text-align:center;border:1px solid #bbb">BB</th>
-				<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
-			</tr>';
-
-			$urut = $this->db->query("SELECT s.* FROM trs_dev_sys s
-			INNER JOIN trs_po_detail p ON s.id_po_header=p.id
-			WHERE s.eta BETWEEN '2026-05-01' AND '9999-01-01' $wIDPT GROUP BY s.eta, s.urut");
-
-			foreach($urut->result() as $u){
-				$html .= '<tr style="background:#333;color:#fff">
-					<td style="padding:6px;border:1px solid #bbb;font-weight:bold" colspan="9">'.strtoupper($this->m_fungsi->getHariIni($u->eta)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($u->eta)).'</td>
-				</tr>';
-
-				$sys = $this->db->query("SELECT c.nm_pelanggan,c.attn,c.prov,c.kab,c.lock,p.kode_po,p.status AS sts,i.*,d.* FROM trs_dev_sys d
-				INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
-				INNER JOIN trs_po_detail p ON d.id_po_header=p.id
-				INNER JOIN m_produk i ON d.id_produk=i.id_produk
-				WHERE d.eta='$u->eta' AND d.urut='$u->urut' AND p.status='Approve'
-				GROUP BY d.id_dev,d.id_pelanggan,p.kode_po,d.id_produk
-				ORDER BY c.nm_pelanggan,p.kode_po,i.nm_produk");
-
-				$totQty = 0;
-				$totBerat = 0;
-				foreach($sys->result() as $r){
-					($r->attn == '-') ? $attn = '' : $attn = '<div>'.$r->attn.'</div>';
-					($r->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
-					$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$r->prov'");
-					$kab = $this->db->query("SELECT*FROM m_kab WHERE kab_id='$r->kab'");
-					($kab->num_rows() != 0) ? $kota = ' - <span style="font-style:italic">('.$kab->row()->kab_name.')</span>' : $kota = '';
-					if($prov->num_rows() == 0){
-						$lamaK = '-';
-					}else{
-						$ll = $prov->row()->lama_kirim;
-						$minggu = date('l', strtotime('+'.$ll.' day', strtotime($r->eta)));
-						($minggu == 'Sunday') ? $ll2 = $prov->row()->lama_kirim + 1 : $ll2 = $prov->row()->lama_kirim;
-						$lamaK = date('d-m-Y', strtotime('+'.$ll2.' day', strtotime($r->eta)));
-					}
-					(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:320px;white-space:normal">' : $dv1 = '';
-					(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
-
-					($r->timb_tgl != null && $r->timb_urut != null) ? $bgDn = ';background:#dfd' : $bgDn = '';
-					$html .= '<tr style="vertical-align:top">
-						<td style="border:1px solid #dee2e6;padding:6px;text-align:center'.$bgDn.'">
-							<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" value="'.$r->urut.'" disabled>
-						</td>
-						<td style="border:1px solid #dee2e6;padding:6px'.$bgDn.'">'.$r->nm_pelanggan.$kota.$attn.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px;text-align:center'.$bgDn.'">'.$lamaK.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px'.$bgDn.'">'.$r->kode_po.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px'.$bgDn.'">'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px;text-align:right'.$bgDn.'">'.number_format($r->qty_plan, 0, ',', '.').'</td>
-						<td style="border:1px solid #dee2e6;padding:6px;text-align:center'.$bgDn.'">'.$r->berat_bersih.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px;text-align:right'.$bgDn.'">'.number_format($r->berat, 0, ',', '.').'</td>
-					</tr>';
-
-					$totQty += $r->qty_plan;
-					$totBerat += $r->berat;
-				}
-				// TOTAL
-				if($sys->num_rows() != 1){
-					$html .= '<tr style="background:#dee2e6">
-						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">TOTAL</td>
-						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($totQty, 0, ',', '.').'</td>
-						<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.number_format($totBerat, 0, ',', '.').'</td>
-					</tr>';
-				}
-			}
-		$html .= '</table>';
+		$html .= 'OK!';
 
 		echo json_encode([
 			'html' => $html,
