@@ -209,26 +209,23 @@
 		$.ajax({
 			url: '<?php echo base_url('Laporan/lapOSperSales') ?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(res) {
 				data = JSON.parse(res)
 				$(".tab_laporan").html(data.html)
-				// if(data.html){
-				// 	OSperItem()
-				// }
+				swal.close()
 			}
 		})
 	}
-
-	// function OSperItem() {
-	// 	$.ajax({
-	// 		url: '<?php echo base_url('Laporan/OSperItem') ?>',
-	// 		type: "POST",
-	// 		success: function(res) {
-	// 			data = JSON.parse(res)
-	// 			console.log(data)
-	// 		}
-	// 	})
-	// }
 
 	function btnPiuSales(i) {
 		$(".tr1").hide()
