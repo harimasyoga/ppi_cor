@@ -18,6 +18,21 @@
 
 	<section class="content">
 		<div class="container-fluid">
+			<div class="card card-secondary card-outline">
+				<div class="card-header" style="padding:12px">
+					<h3 class="card-title" style="font-weight:bold;font-size:18px">LAPORAN OUTSTANDING PO</h3>
+				</div>
+				<div class="card-body">
+					<div style="overflow:auto;white-space:nowrap">
+						<div class="tab_laporan"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="content">
+		<div class="container-fluid">
 			<div class="row">
 				<div class="col-md-4">
 					<div class="card card-secondary card-outline">
@@ -186,7 +201,89 @@
 <script type="text/javascript">
 	$(document).ready(function() {
 		$(".select2").select2()
+		lapOSperSales()
 	});
+
+	function lapOSperSales() {
+		$(".tab_laporan").html('')
+		$.ajax({
+			url: '<?php echo base_url('Laporan/lapOSperSales') ?>',
+			type: "POST",
+			success: function(res) {
+				data = JSON.parse(res)
+				$(".tab_laporan").html(data.html)
+				// if(data.html){
+				// 	OSperItem()
+				// }
+			}
+		})
+	}
+
+	// function OSperItem() {
+	// 	$.ajax({
+	// 		url: '<?php echo base_url('Laporan/OSperItem') ?>',
+	// 		type: "POST",
+	// 		success: function(res) {
+	// 			data = JSON.parse(res)
+	// 			console.log(data)
+	// 		}
+	// 	})
+	// }
+
+	function btnPiuSales(i) {
+		$(".tr1").hide()
+		$(".tr2").hide()
+		$(".tr3").hide()
+		$("#ts2").val("")
+		$(".ab1").removeClass("btn-warning").addClass("btn-success")
+		$(".af1").removeClass("fa-minus").addClass("fa-plus")
+		$(".ab2").removeClass("btn-secondary").addClass("btn-info")
+		$(".af2").removeClass("fa-minus").addClass("fa-plus")
+		$(".ab3").removeClass("btn-secondary").addClass("btn-info")
+		$(".af3").removeClass("fa-minus").addClass("fa-plus")
+		let ts1 = $("#ts1").val()
+		if (parseInt(ts1) == parseInt(i)) {
+			$("#ts1").val("")
+		} else {
+			$(".b1-" + i).removeClass("btn-success").addClass("btn-warning")
+			$(".f1-" + i).removeClass("fa-plus").addClass("fa-minus")
+			$("#ts1").val(i)
+			$(".t" + i).show()
+		}
+	}
+
+	function btnPiuCustomer(i) {
+		$(".tr2").hide()
+		$(".tr3").hide()
+		$(".ab2").removeClass("btn-secondary").addClass("btn-info")
+		$(".af2").removeClass("fa-minus").addClass("fa-plus")
+		$(".ab3").removeClass("btn-secondary").addClass("btn-info")
+		$(".af3").removeClass("fa-minus").addClass("fa-plus")
+		let ts2 = $("#ts2").val()
+		if (parseInt(ts2) == parseInt(i)) {
+			$("#ts2").val("")
+		} else {
+			$(".b2-" + i).removeClass("btn-info").addClass("btn-secondary")
+			$(".f2-" + i).removeClass("fa-plus").addClass("fa-minus")
+			$("#ts2").val(i)
+			$(".c" + i).show()
+		}
+	}
+
+	function btnPiuProduk(i) {
+		$(".tr3").hide()
+		$(".ab3").removeClass("btn-secondary").addClass("btn-info")
+		$(".af3").removeClass("fa-minus").addClass("fa-plus")
+		let ts3 = $("#ts3").val()
+		if (parseInt(ts3) == parseInt(i)) {
+			$("#ts3").val("")
+		} else {
+			$(".b3-" + i).removeClass("btn-info").addClass("btn-secondary")
+			$(".f3-" + i).removeClass("fa-plus").addClass("fa-minus")
+			$("#ts3").val(i)
+			$(".n" + i).show()
+		}
+	}
 
 	function cariListLaporan(){
 		let id_pelanggan = $("#cust_list_lap").val()

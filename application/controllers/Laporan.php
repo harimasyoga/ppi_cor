@@ -170,6 +170,202 @@ class Laporan extends CI_Controller
 		]);
 	}
 
+	function lapOSperSales()
+	{
+		$id_sales = $this->session->userdata('id_sales');
+		($id_sales == '' || $id_sales == null) ? $wIdSls = "" : $wIdSls = "AND p.id_sales='$id_sales'";
+		$lvl = $this->session->userdata('level');
+		$uName = $this->session->userdata('username');
+		$html = '';
+
+		$sales = $this->db->query("SELECT s.nm_sales,s.id_sales FROM trs_po p
+		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+		INNER JOIN m_sales s ON c.id_sales=s.id_sales
+		WHERE p.status='Approve' AND p.status_kiriman='Open' $wIdSls
+		GROUP BY s.nm_sales,s.id_sales;");
+
+		if($sales->num_rows() != 0){
+			$html .= '<table style="color:#000;border-collapse: collapse">';
+				$html .= '<tr>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold">SALES / CUSTOMER / ITEM / NO.PO</td>
+					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS</td>
+				</tr>';
+				$sumTot = 0;
+				$sumJet = 0;
+
+				// TAMPIL DATA SALES
+				foreach($sales->result() as $s){
+					// PENGIRIMAN PER SALES
+					$zItem = $this->db->query("SELECT d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po FROM trs_po p
+					INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
+					INNER JOIN m_produk i ON d.id_produk=i.id_produk
+					INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+					INNER JOIN m_sales s ON c.id_sales=s.id_sales
+					LEFT JOIN m_rencana_kirim r ON p.kode_po=r.rk_kode_po AND p.id_pelanggan=r.id_pelanggan AND d.id_produk=r.id_produk
+					LEFT JOIN m_rencana_kirim_retur t ON t.rtr_tgl=r.rk_tgl AND t.rtr_id_pelanggan=r.id_pelanggan AND t.rtr_id_produk=r.id_produk AND t.rtr_kode_po=r.rk_kode_po AND t.rtr_urut=r.rk_urut
+					WHERE p.status='Approve' AND p.status_kiriman='Open' AND s.id_sales='$s->id_sales'
+					GROUP BY d.id_produk,p.kode_po");
+					$sumSales = 0;
+					foreach($zItem->result() as $zi){
+						$zKirim = ($zi->tot_muat == null) ? 0 : $zi->tot_muat;
+						$zRetur = ($zi->retur == null) ? 0 : $zi->retur;
+						$zPengiriman = $zi->qty - ($zKirim - $zRetur);
+						$sumSales += ($zPengiriman <= 0) ? 0 : $zPengiriman;
+					}
+					$html .= '<tr class="tr0">
+						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px">
+							<input type="hidden" id="ts1" value="">
+							<button class="btn btn-xs ab1 b1-'.$s->id_sales.' btn-success" style="padding:1px 5px" onclick="btnPiuSales('."'".$s->id_sales."'".')">
+								<i style="font-size:8px" class="fas af1 f1-'.$s->id_sales.' fa-plus"></i>
+							</button>&nbsp
+							'.$s->nm_sales.'
+						</td>
+						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($sumSales,0,',','.').'</td>
+					</tr>';
+
+					// TAMPIL DATA CUSTOMER
+					$cust = $this->db->query("SELECT s.id_sales,p.id_pelanggan,c.nm_pelanggan,c.attn FROM trs_po p
+					INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+					INNER JOIN m_sales s ON c.id_sales=s.id_sales
+					WHERE p.status='Approve' AND p.status_kiriman='Open' AND c.id_sales='$s->id_sales'
+					GROUP BY p.id_pelanggan ORDER BY c.nm_pelanggan,c.attn");
+					if($cust->num_rows() != 0){
+						foreach($cust->result() as $r){
+							// PENGIRIMAN PER ITEM
+							$cItem = $this->db->query("SELECT d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po FROM trs_po p
+							INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
+							INNER JOIN m_produk i ON d.id_produk=i.id_produk
+							INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+							INNER JOIN m_sales s ON c.id_sales=s.id_sales
+							LEFT JOIN m_rencana_kirim r ON p.kode_po=r.rk_kode_po AND p.id_pelanggan=r.id_pelanggan AND d.id_produk=r.id_produk
+							LEFT JOIN m_rencana_kirim_retur t ON t.rtr_tgl=r.rk_tgl AND t.rtr_id_pelanggan=r.id_pelanggan AND t.rtr_id_produk=r.id_produk AND t.rtr_kode_po=r.rk_kode_po AND t.rtr_urut=r.rk_urut
+							WHERE p.status='Approve' AND p.status_kiriman='Open' AND s.id_sales='$r->id_sales' AND p.id_pelanggan='$r->id_pelanggan'
+							GROUP BY d.id_produk,p.kode_po");
+							$sumCust = 0;
+							foreach($cItem->result() as $ci){
+								$cKirim = ($ci->tot_muat == null) ? 0 : $ci->tot_muat;
+								$cRetur = ($ci->retur == null) ? 0 : $ci->retur;
+								$cPengiriman = $ci->qty - ($cKirim - $cRetur);
+								$sumCust += ($cPengiriman <= 0) ? 0 : $cPengiriman;
+							}
+							($r->attn == "-" || $r->attn == "") ? $atZ = '' : $atZ = '<div style="padding-left:25px">'.$r->attn.'</div>';
+							$html .= '<tr class="tr1 t'.$r->id_sales.'" style="display:none">
+								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 15px">
+									<input type="hidden" id="ts2" value="">
+									<button class="btn btn-xs ab2 b2-'.$r->id_pelanggan.' btn-info" style="padding:1px 5px" onclick="btnPiuCustomer('."'".$r->id_pelanggan."'".')">
+										<i style="font-size:8px" class="fas af2 f2-'.$r->id_pelanggan.' fa-plus"></i>
+									</button>&nbsp
+									'.$r->nm_pelanggan.$atZ.'
+								</td>
+								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($sumCust,0,',','.').'</td>
+							</tr>';
+
+							// TAMPIL DATA PER ITEM
+							$produk = $this->db->query("SELECT s.id_sales,p.id_pelanggan,i.* FROM trs_po p
+							INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
+							INNER JOIN m_produk i ON d.id_produk=i.id_produk
+							INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+							INNER JOIN m_sales s ON c.id_sales=s.id_sales
+							WHERE p.status='Approve' AND p.status_kiriman='Open' AND c.id_sales='$r->id_sales' AND p.id_pelanggan='$r->id_pelanggan'
+							GROUP BY i.id_produk ORDER BY i.nm_produk");
+							if($produk->num_rows() != 0){
+								foreach($produk->result() as $p){
+									// PENGIRIMAN PER ITEM
+									$kItem = $this->db->query("SELECT d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po FROM trs_po p
+									INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
+									INNER JOIN m_produk i ON d.id_produk=i.id_produk
+									INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+									INNER JOIN m_sales s ON c.id_sales=s.id_sales
+									LEFT JOIN m_rencana_kirim r ON p.kode_po=r.rk_kode_po AND p.id_pelanggan=r.id_pelanggan AND d.id_produk=r.id_produk
+									LEFT JOIN m_rencana_kirim_retur t ON t.rtr_tgl=r.rk_tgl AND t.rtr_id_pelanggan=r.id_pelanggan AND t.rtr_id_produk=r.id_produk AND t.rtr_kode_po=r.rk_kode_po AND t.rtr_urut=r.rk_urut
+									WHERE p.status='Approve' AND p.status_kiriman='Open' AND s.id_sales='$p->id_sales' AND p.id_pelanggan='$p->id_pelanggan' AND d.id_produk='$p->id_produk'
+									GROUP BY d.id_produk,p.kode_po");
+									$sumItem = 0;
+									foreach($kItem->result() as $ki){
+										$iKirim = ($ki->tot_muat == null) ? 0 : $ki->tot_muat;
+										$iRetur = ($ki->retur == null) ? 0 : $ki->retur;
+										$iPengiriman = $ki->qty - ($iKirim - $iRetur);
+										$sumItem += ($iPengiriman <= 0) ? 0 : $iPengiriman;
+									}
+									(strlen($p->nm_produk) >= 55) ? $dv1 = '<div style="width:400px;white-space:normal">' : $dv1 = '';
+									(strlen($p->nm_produk) >= 55) ? $dv2 = '</div>' : $dv2 = '';
+									$html .= '<tr class="tr2 c'.$p->id_pelanggan.'" style="display:none">
+										<td style="border:1px solid #aaa;padding:5px 5px 5px 25px">
+											<input type="hidden" id="ts3" value="">
+											'.$dv1.'<button class="btn btn-xs ab3 b3-'.$p->id_produk.' btn-info" style="padding:1px 5px" onclick="btnPiuProduk('."'".$p->id_produk."'".')">
+												<i style="font-size:8px" class="fas af3 f3-'.$p->id_produk.' fa-plus"></i>
+											</button>&nbsp
+											'.$p->nm_produk.$dv2.'
+										</td>
+										<td class="idp-'.$p->id_produk.'" style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($sumItem,0,',','.').'</td>
+									</tr>';
+
+									// TAMPIL DATA NO. PO
+									$noPO = $this->db->query("SELECT s.id_sales,p.id_pelanggan,i.id_produk,p.id AS id_po,p.tgl_po,p.kode_po,d.qty FROM trs_po p
+									INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
+									INNER JOIN m_produk i ON d.id_produk=i.id_produk
+									INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
+									INNER JOIN m_sales s ON c.id_sales=s.id_sales
+									WHERE p.status='Approve' AND p.status_kiriman='Open' AND c.id_sales='$p->id_sales' AND p.id_pelanggan='$p->id_pelanggan' AND i.id_produk='$p->id_produk'
+									GROUP BY p.tgl_po,p.kode_po");
+									if($noPO->num_rows() != 0){
+										$l = 0;
+										foreach($noPO->result() as $n){
+											$l++;
+											// PENGIRIMAN PER PO
+											$kirim = $this->m_fungsi->kiriman($n->kode_po, $n->id_produk, $n->qty);
+											$sisa = $kirim["sisa2"];
+											($sisa <= 0) ? $txtSisa = 0 : $txtSisa = number_format($sisa,0,',','.');
+											$html .= '<tr class="tr3 n'.$n->id_produk.'" style="display:none">
+												<td style="border:1px solid #aaa;padding:5px 5px 5px 35px"><b>'.$l.'.</b> '.$n->kode_po.'</td>
+												<td style="border:1px solid #aaa;padding:5px;text-align:right">'.$txtSisa.'</td>
+											</tr>';
+										}
+									}
+								}
+							}
+						}
+					}
+					// $sumTot += $s->jml_mutasi;
+					$sumJet += $sumSales;
+				}
+				// TOTAL
+				$html .= '<tr>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa"></td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumJet, 0, ',', '.').'</td>
+				</tr>';
+			$html .= '</table>';
+		}
+
+		echo json_encode(array(
+			'html' => $html,
+		));
+	}
+
+	function OSperItem()
+	{
+		// KIRIMAN
+		$kirim = $this->db->query("SELECT d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,r.*,p.* FROM m_rencana_kirim r
+		INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
+		INNER JOIN trs_po o ON r.rk_kode_po=o.kode_po AND r.id_pelanggan=o.id_pelanggan
+		INNER JOIN trs_po_detail d ON r.rk_kode_po=d.kode_po AND r.id_produk=d.id_produk AND r.id_pelanggan=d.id_pelanggan
+		LEFT JOIN m_rencana_kirim_retur t ON t.rtr_tgl=r.rk_tgl AND t.rtr_id_pelanggan=r.id_pelanggan AND t.rtr_id_produk=r.id_produk AND t.rtr_kode_po=r.rk_kode_po AND t.rtr_urut=r.rk_urut
+		WHERE o.status='Approve' AND o.status_kiriman='Open'
+		GROUP BY r.id_produk,r.rk_kode_po");
+		$sumKirim = 0;
+		if($kirim->num_rows() == 0){
+			$sumKirim = 0;
+		}else if($kirim->num_rows() == 1){
+			($kirim->row()->retur != null) ? $retur = $kirim->row()->retur : $retur = 0;
+			$sumKirim = $kirim->row()->qty - ($kirim->row()->tot_muat - $retur);
+		}else{
+			foreach($kirim->result() as $k){
+				($k->retur != null) ? $retur = $k->retur : $retur = 0;
+				$sumKirim += $k->qty - ($k->tot_muat - $retur);
+			}
+		}
+	}
+
 	function plhOS()
 	{
 		$id_sales = $this->session->userdata('id_sales');
