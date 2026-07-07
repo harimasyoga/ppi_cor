@@ -5771,7 +5771,7 @@ class Logistik extends CI_Controller
 	}
 
 	function listPiutang()
-	{
+	{ //
 		$id_sales = $this->session->userdata('id_sales');
 		($id_sales == '' || $id_sales == null) ? $wIdSls = "" : $wIdSls = "AND p.id_sales='$id_sales'";
 		$lvl = $this->session->userdata('level');
