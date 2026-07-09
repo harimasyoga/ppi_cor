@@ -4997,7 +4997,7 @@ class Transaksi extends CI_Controller
 							<td style="'.$tt.'border:0;padding:6px 0">:</td>
 							<td style="'.$tt.'border:0;padding:6px;text-align:right;font-weight:bold">'.number_format($r->qty_plan, 0, ',', '.').'</td>
 						</tr>';
-						$sumQty += $r->qty_plan;
+						$sumQty += ($r->eta_t == 'REPLAN') ? 0 : $r->qty_plan;
 					}
 					if($devSys->num_rows() > 1){
 						$html .= '<tr style="background:#f2f2f2">
@@ -7890,7 +7890,9 @@ class Transaksi extends CI_Controller
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">KET DD</td>
 							<td style="padding:6px;border:0;background:#333;color:#fff;text-align:center;'.$bold.'">AKSI</td>
 						</tr>';
+						$i9 = 0;
 						foreach($sys->result() as $s){
+							$i9++;
 							if($prov->num_rows() == 0){
 								$eta = '-';
 							}else{
@@ -7952,14 +7954,19 @@ class Transaksi extends CI_Controller
 
 							$html .= '<tr style="background:#f2f2f2">';
 								// KIRIMAN
-								$id_dev2 = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev2='$s->id_dev'");
+								$id_dev2 = $this->db->query("SELECT SUM(s.qty_plan) AS qty_plan FROM trs_dev_sys s WHERE s.id_dev2='$s->id_dev' GROUP BY s.id_dev2");
+								if($id_dev2->num_rows() != 0){
+									$kurang = $s->qty_plan - $id_dev2->row()->qty_plan;
+								}else{
+									$kurang = 0;
+								}
 								if($k->num_rows() == 0){
 									$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="5"></td>';
-									// REPLAN TAPI TIDAK TERKIRIM  +3 HARI /
+									// REPLAN TAPI TIDAK TERKIRIM  +3 HARI
 									$id_dev1 = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$s->id_dev'");
 									if($exp3H > date('Y-m-d')){
 										$btnRPlan = '';
-									}else if($id_dev2->num_rows() == 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
+									}else if($i9 == 1 && ($id_dev2->num_rows() == 0 || $kurang > 0) && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
 										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan</button>';
 									}else{
 										$btnRPlan = '';
@@ -7968,14 +7975,14 @@ class Transaksi extends CI_Controller
 									$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="3"></td>
 									<td style="padding:6px;border:1px solid #999">'.strtoupper(substr($this->m_fungsi->getHariIni($k->row()->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->row()->tgl)).' - '.$k->row()->no_surat.' - '.$k->row()->no_kendaraan.'</td>
 									<td style="padding:6px;border:1px solid #999;text-align:right">'.number_format($k->row()->qty_muat).'</td>';
-
-									$kurang = $s->qty_plan - $k->row()->qty_muat;
-									if($kurang > 0 && $id_dev2->num_rows() == 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
+									if($i9 == 1 && ($id_dev2->num_rows() == 0 || $kurang > 0) && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
 										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan</button>';
 									}else{
 										$btnRPlan = '';
 									}
 								}
+								//placeholder
+								($s->eta_t == 'REPLAN') ? $plCh = 'placeholder="REPLAN"' : $plCh = '';
 								$html .='<td style="padding:6px;border:1px solid #999">
 									<input type="date" id="sys_eta'.$s->id_dev.'" class="form-control" value="'.$s->eta.'" onchange="etaSO('."'".$r->id_pelanggan."'".', '."'".$s->eta."'".', '."'".$s->id_dev."'".', '."'sys_eta'".', '."'se1ys'".')" '.$diss.'>
 								</td>
@@ -7989,9 +7996,10 @@ class Transaksi extends CI_Controller
 									<input type="number" id="sys_qty'.$s->id_dev.'" class="form-control" style="text-align:right;font-weight:bold" value="'.number_format($s->qty_plan,0,',','.').'" '.$diss.'>
 								</td>
 								<td style="padding:6px;border:1px solid #999">
-									<textarea class="form-control" id="sys_ket'.$s->id_dev.'" rows="1" style="resize:none" '.$diss.'>'.$s->ket_sys.'</textarea>
+									<textarea class="form-control" id="sys_ket'.$s->id_dev.'" oninput="this.value=this.value.toUpperCase()" rows="1" style="resize:none;font-weight:bold" '.$diss.' '.$plCh.'>'.$s->ket_sys.'</textarea>
 								</td>
 								<td style="padding:6px;border:1px solid #999;text-align:center">
+									<input type="hidden" id="sys_qtylama'.$s->id_dev.'" value="'.$s->qty_plan.'">
 									'.$ADSbtn.$btnRPlan.'
 								</td>
 							</tr>';

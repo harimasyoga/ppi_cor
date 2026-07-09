@@ -1617,6 +1617,7 @@
 		let sys_eta = $("#sys_eta"+id_sys).val()
 		let sys_qty = $("#sys_qty"+id_sys).val().split('.').join('')
 		let sys_ket = $("#sys_ket"+id_sys).val()
+		let sys_qtylama = $("#sys_qtylama"+id_sys).val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editBagiSys')?>',
 			type: "POST",
@@ -1630,7 +1631,7 @@
 					}
 				});
 			},
-			data: ({ id_sys, id_po_dtl, sys_eta, sys_qty, sys_ket }),
+			data: ({ id_sys, id_po_dtl, sys_eta, sys_qty, sys_ket, sys_qtylama }),
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
