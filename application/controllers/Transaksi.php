@@ -10637,7 +10637,7 @@ class Transaksi extends CI_Controller
 		$tgl = $tahun.'-'.$bulan.'-'.$angka;
 		$now = date('Y-m-d');
 		$tglNow = strtotime($now) - strtotime($tgl);
-		(in_array($lvl, ['Admin', 'Admin2', 'User', 'Pengiriman']) || ($tglNow <= 0 && $lvl == 'Gudang')) ? $dS = '' : $dS = 'disabled';
+		(in_array($lvl, ['Admin', 'Admin2', 'User', 'Pengiriman'])) ? $dS = '' : $dS = 'disabled';
 		$opsi = $_POST["opsi"];
 		
 		if($p_tgl != '' && $p_urut != ''){
@@ -10928,6 +10928,7 @@ class Transaksi extends CI_Controller
 					<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">QTY</th>
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">BB</th>
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
+					<th style="padding:6px;text-align:center;border:1px solid #bbb">STOK</th>
 					<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">K</th>';
 					if($aRK->num_rows() != 0){
 						$html .= '<th style="padding:6px;text-align:center;border:1px solid #bbb" colspan="6">REALISASI</th>';
@@ -10966,7 +10967,7 @@ class Transaksi extends CI_Controller
 					if($u->urut == 0){
 						$html .= '<tr>
 							<td style="background:#333;color:#fff;padding:6px;font-weight:bold;text-align:center">'.$u->urut.'</td>
-							<td style="background:#333;padding:6px" colspan="8"></td>';
+							<td style="background:#333;padding:6px" colspan="9"></td>';
 							if($aRK->num_rows() != 0 && $cekRK->num_rows() != 0){
 								$html .= '<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">SURAT JALAN</td>
 								<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">QTY</td>
@@ -10981,7 +10982,7 @@ class Transaksi extends CI_Controller
 							<td style="background:#333;padding:6px" colspan="2">';
 								if($cekKLB->num_rows() != 0 && $fileKLB->num_rows() != 0){
 									if($u->id_ex == null){
-										if($lvl == 'Admin' || ($tglNow <= 0 && $lvl == 'Gudang') || ($lvl == 'Pengiriman' && $akses_dd != null)){
+										if($lvl == 'Admin' || ($lvl == 'Pengiriman' && $akses_dd != null)){
 											$html .= '<select class="form-control select2" id="eks_ds'.$u->urut.'" onchange="plhEksDS('."'".$u->urut."'".')" '.$dS.'>
 												<option value="">EKSPEDISI | P x L x T (M)</option>';
 												$ekspedisi = $this->db->query("SELECT*FROM m_ekspedisi ORDER BY plat, ekspedisi");
@@ -11012,7 +11013,7 @@ class Transaksi extends CI_Controller
 										}
 										// btl
 										if($u->timb_tgl == null && $u->timb_urut == null && $cekRK->num_rows() == 0 && $fileKLB->num_rows() == 0){
-											$hapus = ($lvl == 'Admin' || ($tglNow <= 0 && $lvl == 'Gudang') || ($lvl == 'Pengiriman' && $akses_dd != null)) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : '';
+											$hapus = ($lvl == 'Admin' || ($lvl == 'Pengiriman' && $akses_dd != null)) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : '';
 										}else{
 											$hapus = '';
 										}
@@ -11026,7 +11027,7 @@ class Transaksi extends CI_Controller
 							
 							// UPLOAD KALIBRASI
 							if($cekKLB->num_rows() != 0 && $fileKLB->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])){
-								$html .= '<td style="background:#dfd;padding:6px;font-size:11px" colspan="6">
+								$html .= '<td style="background:#dfd;padding:6px;font-size:11px" colspan="7">
 									<form role="form" method="POST" id="mut_kalibrasi_'.$u->urut.'" enctype="multipart/form-data">
 										<input type="hidden" name="m_tgl" id="m_tgl" value="'.$tgl.'">
 										<input type="hidden" name="m_urut" id="m_urut" value="'.$u->urut.'">
@@ -11040,7 +11041,7 @@ class Transaksi extends CI_Controller
 								($fileKLB->num_rows() != 0 && $u->check_klb == null && in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $hIkb = '<button class="btn btn-xs btn-danger" style="margin-left:5px" onclick="batalKLB('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : $hIkb = '';
 								($u->check_klb == 1) ? $oCk = 'checked' : $oCk = '';
 								($fileKLB->num_rows() != 0 && $u->id_ex != null && in_array($lvl, ['Admin', 'Owner'])) ? $chk = ' <input type="checkbox" id="chk-'.$u->urut.'" onclick="chkKLB('."'".$u->urut."'".')" value="'.$u->check_klb.'" '.$oCk.'>' : $chk = '';
-								$html .= '<td style="background:#333;padding:6px" colspan="6">'.$bIkb.$hIkb.$chk.'</td>';
+								$html .= '<td style="background:#333;padding:6px" colspan="7">'.$bIkb.$hIkb.$chk.'</td>';
 							}
 							
 							if($aRK->num_rows() != 0 && ($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0)){
@@ -11145,6 +11146,11 @@ class Transaksi extends CI_Controller
 							$dRP = 'border:1px solid #dee2e6;';
 						}
 
+						// STOK
+						$wCS = 'AND '.$angka.'_stok_akhir IS NOT NULL';
+						$cekSTOK = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$r->id_pelanggan' AND id_produk='$r->id_produk' $wCS");
+						($cekSTOK->num_rows() == 0) ? $txtSTOK = '-' : $txtSTOK = number_format($cekSTOK->row($angka.'_stok_akhir'), 0, ',', '.');
+
 						$html .= '<tr style="vertical-align:top">
 							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>
 								<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" value="'.$r->urut.'" '.$och.'>
@@ -11155,7 +11161,8 @@ class Transaksi extends CI_Controller
 							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
 							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->qty_plan, 0, ',', '.').'</td>
 							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>'.$r->berat_bersih.'</td>
-							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->berat, 0, ',', '.').'</td>';
+							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->berat, 0, ',', '.').'</td>
+							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.$txtSTOK.'</td>';
 
 							// KALIBRASI
 							if($sys->num_rows() == 1 && $u->urut != 0 && ($u->id_ex == null || $u->id_ex != null)){
@@ -11225,7 +11232,7 @@ class Transaksi extends CI_Controller
 								</td>
 								<td style="border:1px solid #ced2d6;padding:6px" colspan="2">'.$n->nm_pelanggan.'</td>
 								<td style="border:1px solid #ced2d6;padding:6px">'.$n->rk_kode_po.'</td>
-								<td style="border:1px solid #ced2d6;padding:6px" colspan="5">'.$nV1.$nk2.$n->nm_produk.$nV2.'</td>
+								<td style="border:1px solid #ced2d6;padding:6px" colspan="6">'.$nV1.$nk2.$n->nm_produk.$nV2.'</td>
 								<td style="background:#fdd;border:1px solid #dbb;padding:6px;font-weight:bold;text-align:center">'.$n->no_kendaraan.' ('.$n->expedisi.')</td>
 								<td style="background:#fdd;border:1px solid #dbb;padding:6px;font-weight:bold">'.$this->m_fungsi->tglIndSkt($n->rk_tgl).'</td>
 								<td style="background:#fdd;border:1px solid #dbb;padding:6px;font-weight:bold">'.$n->no_surat.'</td>
@@ -11255,14 +11262,16 @@ class Transaksi extends CI_Controller
 									$dkb3 = 'disabled';
 								}
 								if($sys->num_rows() != 1){
-									$html .= '<td style="padding:6px;border:1px solid #bbb;font-weight:bold">
+									$html .= '<td style="padding:6px;border:1px solid #bbb"></td>
+									<td style="padding:6px;border:1px solid #bbb;font-weight:bold">
 										<input type="number" class="form-control" '.$oKb3.' style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" value="'.$txtKLB.'" autocomplete="off" placeholder="0" '.$dkb3.'>
 									</td>';
 								}else{
 									$html .= '<td style="padding:6px;border:1px solid #bbb"></td>';
 								}
 							}else{
-								$html .= '<td style="padding:6px;border:1px solid #bbb;font-weight:bold">
+								$html .= '<td style="padding:6px;border:1px solid #bbb"></td>
+								<td style="padding:6px;border:1px solid #bbb;font-weight:bold">
 									<input type="number" class="form-control" style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" placeholder="0" disabled>
 								</td>';
 							}

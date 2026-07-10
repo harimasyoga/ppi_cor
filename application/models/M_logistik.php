@@ -815,16 +815,14 @@ class M_logistik extends CI_Model
 							$hari.'_ket' => ($ket == '') ? null : $ket,
 						];
 						$data = $this->db->insert('m_gudang_v2', $gudang);
-						$msg = 'BERHASIL INPUT!';
 					}else{
 						$data = true;
-						$msg = 'BERHASIL!';
 					}
 				}else{
 					$data = true;
-					$msg = 'BERHASIL!';
 				}
 			}
+			$msg = 'BERHASIL!';
 		}
 
 		return [
@@ -853,8 +851,10 @@ class M_logistik extends CI_Model
 		
 		if($pilih_tgl2 == ''){
 			$data = false; $msg = 'PILIH TANGGAL!';
+		}else if($pilih_tgl2 < $tgl_awal2){
+			$data = false; $msg = 'PILIH TGL LEBIH KECIL DARI TGL STOK AWAL!!!';
 		}else if($gudang2->num_rows() != 0){
-			$data = false; $msg = 'DATA GUDANG SUDAH ADA!';
+			$data = false; $msg = 'DATA STOK GUDANG SUDAH ADA!';
 		}else{
 			$gudang = $this->db->query("SELECT i.nm_produk,g.* FROM m_gudang_v2 g
 			INNER JOIN m_produk i ON g.id_produk=i.id_produk
