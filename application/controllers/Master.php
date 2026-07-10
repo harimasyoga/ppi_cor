@@ -925,10 +925,15 @@ class Master extends CI_Controller
 
 				$cek = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_ex='$r->id_ex' GROUP BY id_ex");
 
-				$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="editEkspedisi('."'".$r->id_ex."'".')"><i class="fas fa-pen"></i></button>';
-				$btnHapus = ($cek->num_rows() != 0) ? '' : '<button type="button" class="btn btn-danger btn-sm" onclick="hapusEkspedisi('."'".$r->id_ex."'".', '."'".$r->plat."'".')"><i class="fas fa-times"></i></button>';
+				if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Pengiriman'])){
+					$btnEdit = '<button type="button" class="btn btn-warning btn-sm" onclick="editEkspedisi('."'".$r->id_ex."'".')"><i class="fas fa-pen"></i></button> ';
+					$btnHapus = ($cek->num_rows() != 0) ? '' : '<button type="button" class="btn btn-danger btn-sm" onclick="hapusEkspedisi('."'".$r->id_ex."'".', '."'".$r->plat."'".')"><i class="fas fa-times"></i></button>';
+				}else{
+					$btnEdit = '-';
+					$btnHapus = '';
+				}
 
-				$row[] = '<div class="text-center">'.$btnEdit.' '.$btnHapus.'</div>';
+				$row[] = '<div class="text-center">'.$btnEdit.$btnHapus.'</div>';
 				$data[] = $row;
 				$i++;
 			}
