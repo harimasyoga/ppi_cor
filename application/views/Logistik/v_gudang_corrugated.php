@@ -30,6 +30,13 @@
 						<div style="margin-bottom:6px">
 							<button type="button" class="btn btn-info" onclick="kembali()"><i class="fas fa-arrow-left"></i> <b>Kembali</b></button>
 						</div>
+						<div class="card-body row" style="font-weight:bold;padding:20px 6px 6px">
+							<div class="col-md-2">TGL STOK AWAL</div>
+							<div class="col-md-2">
+								<input type="date" id="tgl_awal_cust" name="tgl_awal_cust" value="'.$tgl_awal_cust.'" class="form-control" onchange="plhStokAwalCust()">
+							</div>
+							<div class="col-md-8"></div>
+						</div>
 						<div class="card-body row" style="font-weight:bold;padding:0 6px 30px">
 							<div class="col-md-2">CUSTOMER</div>
 							<div class="col-md-10">
@@ -48,6 +55,25 @@
 							</div>
 						</div>
 						<div class="produk"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row card-input-gudang">
+			<div class="col-md-12">
+				<div class="card card-success card-outline" style="padding-bottom:12px">
+					<div class="card-header" style="padding:12px">
+						<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST STOK GUDANG</h3>
+					</div>
+					<div class="card-body" style="font-weight:bold;padding:6px">
+						<div class="card-body row" style="font-weight:bold;padding:20px 6px">
+							<div class="col-md-2">TGL STOK AWAL</div>
+							<div class="col-md-2">
+								<input type="date" id="tgl_awal2" name="tgl_awal2" value="" class="form-control" onchange="gdStokAwalCust()">
+							</div>
+							<div class="col-md-8"></div>
+						</div>
 						<div class="gudang"></div>
 					</div>
 				</div>
@@ -100,6 +126,22 @@
 	</section>
 </div>
 
+<div class="modal fade" id="modalForm">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" style="font-weight:bold">NO. PO</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="card-body">
+				<div class="list-nopo"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script type="text/javascript">
 	status ="insert";
 
@@ -150,11 +192,12 @@
 	function plhGCPelanggan() {
 		$(".produk").html('')
 		let id_pelanggan = $("#pelanggan").val()
+		let tgl_awal_cust = $("#tgl_awal_cust").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/plhGCPelanggan')?>',
 			type: "POST",
 			data: ({
-				id_pelanggan, tgl_awal_cust: ''
+				id_pelanggan, tgl_awal_cust
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -162,6 +205,55 @@
 				$(".produk").html(data.html)
 			}
 		})
+	}
+
+	function listPO(id_pelanggan, id_produk){
+		$(".list-nopo").html('')
+		$("#modalForm").modal("show")
+		$.ajax({
+			url: '<?php echo base_url('Logistik/listPO')?>',
+			type: "POST",
+			data: ({
+				id_pelanggan, id_produk
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				$(".list-nopo").html(data.html)
+			}
+		})
+	}
+
+	function btnMinMin(i){
+		$(".spn-tmpl").html('[ HIDE SEMUA ]')
+		$(".tr1").show()
+		$(".ab1").removeClass("btn-success").addClass("btn-warning")
+		$(".af1").removeClass("fa-plus").addClass("fa-minus")
+		let ts0 = $("#ts0").val()
+		if (parseInt(ts0) == parseInt(i)) {
+			$("#ts0").val("")
+		} else {
+			$(".spn-tmpl").html('[ TAMPIL SEMUA ]')
+			$(".ab1").removeClass("btn-warning").addClass("btn-success")
+			$(".af1").removeClass("fa-minus").addClass("fa-plus")
+			$("#ts0").val(i)
+			$(".tr1").hide()
+		}
+	}
+
+	function btnPlusPlus(i) {
+		$(".spn-tmpl").html('[ TAMPIL SEMUA ]')
+		$(".tr1").hide()
+		$(".ab1").removeClass("btn-warning").addClass("btn-success")
+		$(".af1").removeClass("fa-minus").addClass("fa-plus")
+		let ts1 = $("#ts1").val()
+		if (parseInt(ts1) == parseInt(i)) {
+			$("#ts1").val("")
+		} else {
+			$(".b1-" + i).removeClass("btn-success").addClass("btn-warning")
+			$(".f1-" + i).removeClass("fa-plus").addClass("fa-minus")
+			$("#ts1").val(i)
+			$(".t" + i).show()
+		}
 	}
 
 	function keyUpGD(i)
@@ -246,9 +338,11 @@
 	function loadGC()
 	{
 		$(".gudang").html('')
+		let tgl_awal2 = $("#tgl_awal2").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadGC')?>',
 			type: "POST",
+			data: ({ tgl_awal2 }),
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
@@ -261,15 +355,29 @@
 	{
 		let tgl_awal2 = $("#tgl_awal2").val()
 		console.log(tgl_awal2)
-		// $.ajax({
-		// 	url: '<?php echo base_url('Logistik/gdStokAwalCust')?>',
-		// 	type: "POST",
-		// 	success: function(res){
-		// 		data = JSON.parse(res)
-		// 		console.log(data)
-		// 		$(".gudang").html(data.html)
-		// 	}
-		// })
+		$.ajax({
+			url: '<?php echo base_url('Logistik/loadGC')?>',
+			type: "POST",
+			data: ({ tgl_awal2 }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				$(".gudang").html(data.html)
+			}
+		})
+	}
+
+	function simpanGDListCorr()
+	{
+		$.ajax({
+			url: '<?php echo base_url('Logistik/simpanGDListCorr')?>',
+			type: "POST",
+			data: $('#listForm').serialize(),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+			}
+		})
 	}
 
 </script>
