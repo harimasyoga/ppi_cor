@@ -3340,17 +3340,20 @@ class M_transaksi extends CI_Model
 
 		$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_dev='$id_dev'")->row();
 		$cek = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$sys->eta' AND urut='$urut' AND id_ex IS NOT NULL GROUP BY urut");
+		$cek2 = $this->db->query("SELECT*FROM trs_dev_klb WHERE tgl='$sys->eta' AND urut='$urut'");
 		// LOCK
 		$lock3D = date('Y-m-d', strtotime('+'.$sys->lock.' days', strtotime(date('Y-m-d'))));
 		$tglPilih = floor((strtotime($sys->eta) - strtotime($lock3D)) /60/60/24);
 
 		if($urut < 0 || $urut == ''){
-			$data = false; $msg = 'COBA LAGI!';
+			$data = false; $msg = 'UHUY!';
 		}else if($tglPilih <= 0 && $sys->eta_t != 'REPLAN'){
 			$data = false;
 			$msg = 'LOCK '.$sys->lock.' HARI PER HARI INI!';
 		}else if($cek->num_rows() != 0){
 			$data = false; $msg = 'NO URUT SUDAH TERPAKAI!';
+		}else if($cek2->num_rows() != 0){
+			$data = false; $msg = 'NO. URUT '.$urut.' HAPUS DULU KUBIKASINYA!';
 		}else{
 			$this->db->set('urut', $urut);
 			$this->db->where('id_dev', $id_dev);
@@ -3412,34 +3415,11 @@ class M_transaksi extends CI_Model
 			$this->db->where('eta', $tgl);
 			$data = $this->db->update('trs_dev_sys');
 			$msg = 'BERHASIL!';
-			if($data){
-				$this->db->where('tgl', $tgl);
-				$this->db->where('urut', $urut);
-				$this->db->delete('trs_dev_klb');
-			}
 		}
 
 		return [
 			'data' => $data,
 			'msg' => $msg,
-		];
-	}
-
-	function hapusDelSys()
-	{
-		$lvl = $this->session->userdata('level');
-		$id = $_POST["id"];
-		$dev = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$id'")->row();
-		$nm_produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$dev->id_produk'")->row()->nm_produk;
-
-		// HAPUS data
-		$this->db->where("id_dev", $id);
-		$data = $this->db->delete("trs_dev_sys");
-
-		return [
-			'data' => $data,
-			'dev' => $dev,
-			'nm_produk' => $nm_produk,
 		];
 	}
 
@@ -3561,18 +3541,15 @@ class M_transaksi extends CI_Model
 		$urut = $_POST["urut"];
 
 		$cek = $this->db->query("SELECT*FROM trs_dev_klb WHERE tgl='$tgl' AND urut='$urut'")->row();
-
 		$unlink = unlink("assets/kalibrasi/".$cek->file_klb);
 
-		// batal ekspedisi
+		// BATAL EKSPEDISI
 		$this->db->set('id_ex', null);
 		$this->db->where('urut', $urut);
 		$this->db->where('eta', $tgl);
 		$btlEks = $this->db->update('trs_dev_sys');
-
+		// HAPUS KUBIKASI
 		if($btlEks){
-			// $this->db->set('file_klb', null);
-			// $this->db->set('updated_at', date('Y-m-d H:i:s'));
 			$this->db->where('tgl', $tgl);
 			$this->db->where('urut', $urut);
 			$data = $this->db->delete('trs_dev_klb');
