@@ -411,7 +411,7 @@
 		})
 	}
 
-	function batalEksDS(urut, opsi) {
+	function batalEksDS(urut) {
 		let tgl = $("#r_tgl").val()
 		let tahun = $("#tahun").val()
 		let bulan = $("#bulan").val()
@@ -428,7 +428,7 @@
 					}
 				});
 			},
-			data: ({ tgl, tahun, bulan, urut, opsi }),
+			data: ({ tgl, tahun, bulan, urut }),
 			success: function(res) {
 				data = JSON.parse(res)
 				if(data.data){

@@ -10608,7 +10608,7 @@ class Transaksi extends CI_Controller
 										}
 										// HAPUS PLAT
 										if($u->timb_tgl == null && $u->timb_urut == null && $cekRK->num_rows() == 0 && ($fileKLB->num_rows() == 0 || $u->check_klb == null)){
-											$hapus = ($lvl == 'Admin' || ($lvl == 'Pengiriman' && $akses_dd != null)) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".', '."'KLB'".')"><i class="fas fa-times-circle"></i></button>' : '';
+											$hapus = ($lvl == 'Admin' || ($lvl == 'Pengiriman' && $akses_dd != null)) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : '';
 										}else{
 											$hapus = '';
 										}
