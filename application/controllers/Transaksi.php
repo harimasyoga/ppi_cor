@@ -7939,17 +7939,21 @@ class Transaksi extends CI_Controller
 								$zG = 'FDD';
 								$ADSbtn = '';
 							}else if($hPlus <= 0){
-								if($hPlus == 0){
-									$pP = '-'.$hPlus2;
+								if($hPlus2 <= -30){
+									$pP = 'P';
 								}else{
-									($hPlus2 >= 0) ? $pP = '-'.$hPlus2 : $pP = str_replace("-", "+", $hPlus2);
+									if($hPlus == 0){
+										$pP = '-'.$hPlus2;
+									}else{
+										($hPlus2 >= 0) ? $pP = '-'.$hPlus2 : $pP = str_replace("-", "+", $hPlus2);
+									}
 								}
 								($s->eta_t == 'REPLAN') ? $zG = 'DFD' : $zG = 'FDD';
-								$ADSbtn = ($k->num_rows() == 0 && $exp3H > date('Y-m-d')) ? $editDSys.$btnHapusSys : '';
+								$ADSbtn = ($k->num_rows() == 0 && $s->eta_t == 'REPLAN') ? $editDSys.$btnHapusSys : '';
 							}else{
-								$pP = '-'.$hPlus2;
+								($hPlus2 <= -30) ? $pP = 'P' : $pP = '-'.$hPlus2;
 								($s->eta_t == 'REPLAN') ? $zG = 'DFD' : $zG = 'DFD';
-								$ADSbtn = ($k->num_rows() == 0 && $exp3H > date('Y-m-d')) ? $editDSys.$btnHapusSys : '';
+								$ADSbtn = ($k->num_rows() == 0 && $s->eta_t == 'REPLAN') ? $editDSys.$btnHapusSys : '';
 							}
 
 							$html .= '<tr style="background:#f2f2f2">';
@@ -7981,7 +7985,7 @@ class Transaksi extends CI_Controller
 										$btnRPlan = '';
 									}
 								}
-								//placeholder
+								// PLACEHOLDER
 								($s->eta_t == 'REPLAN') ? $plCh = 'placeholder="REPLAN"' : $plCh = '';
 								$html .='<td style="padding:6px;border:1px solid #999">
 									<input type="date" id="sys_eta'.$s->id_dev.'" class="form-control" value="'.$s->eta.'" onchange="etaSO('."'".$r->id_pelanggan."'".', '."'".$s->eta."'".', '."'".$s->id_dev."'".', '."'sys_eta'".', '."'se1ys'".')" '.$diss.'>
@@ -9708,124 +9712,6 @@ class Transaksi extends CI_Controller
 		$this->cart->update($data);
 	}
 
-	function list_dev()
-	{
-		$lvl = $this->session->userdata('level');
-		$uName = $this->session->userdata('username');
-		$html = '';
-
-		$sales = $this->db->query("SELECT s.id_sales,s.nm_sales FROM trs_po p
-		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
-		INNER JOIN m_sales s ON c.id_sales=s.id_sales
-		WHERE p.status_kiriman='Open'
-		GROUP BY s.id_sales ORDER BY s.nm_sales");
-
-		if($sales->num_rows() != 0){
-			$html .= '<div class="card card-info card-outline">
-			<div class="card-header">
-				<h3 class="card-title" style="font-weight:bold">SALES/CUSTOMER</h3>
-				<div class="card-tools">
-				</div>
-			</div>
-			<div style="padding:6px">
-				<div style="overflow:auto;white-space:nowrap">
-				
-				<table style="color:#000;border-collapse: collapse" width="100%">';
-				$html .= '<tr>
-					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold"></td>
-				</tr>';
-				foreach($sales->result() as $s){
-					$html .= '<tr class="tr0">
-						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px" colspan="2">
-							<input type="hidden" id="ts1" value="">
-							<button class="btn btn-xs ab1 b1-'.$s->id_sales.' btn-success" style="padding:1px 5px" onclick="btnPiuSales('."'".$s->id_sales."'".')">
-								<i style="font-size:8px" class="fas af1 f1-'.$s->id_sales.' fa-plus"></i>
-							</button>&nbsp
-							'.$s->nm_sales.'
-						</td>
-					</tr>';
-
-					// CUSTOMER
-					$cust = $this->db->query("SELECT s.id_sales,p.id_pelanggan,c.nm_pelanggan,c.attn FROM trs_po p
-					INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
-					INNER JOIN m_sales s ON c.id_sales=s.id_sales
-					WHERE p.status_kiriman='Open' AND s.id_sales='$s->id_sales'
-					GROUP BY p.id_pelanggan ORDER BY c.nm_pelanggan");
-					if($cust->num_rows() != 0){
-						foreach($cust->result() as $r){
-
-							$pt1 = $r->id_pelanggan;
-							($r->attn == '-') ? $attn = '' : $attn = ' - '.$r->attn;
-							//
-							$html .= '<tr class="tr1 t'.$r->id_sales.'" style="display:none">
-								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 15px" colspan="2">
-									<input type="hidden" id="ts2" value="">
-									<button class="btn btn-xs ab2 b2-'.$pt1.' btn-info" style="padding:1px 5px" onclick="btnPiuCustomer('."'".$pt1."'".')">
-										<i style="font-size:8px" class="fas af2 f2-'.$pt1.' fa-plus"></i>
-									</button>&nbsp
-									'.$r->nm_pelanggan.$attn.'
-								</td>
-							</tr>';
-
-							// LOKASI
-							$lok = $this->db->query("SELECT*FROM m_pelanggan where id_pelanggan='$r->id_pelanggan'
-							");
-							if($lok->num_rows() != 0){
-								foreach($lok->result() as $l){
-									$html .= '<tr class="tr_l l'.$r->id_pelanggan.'" style="display:none">
-										<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 35px" colspan="2">
-											<input type="hidden" id="ts3" value="">
-											<button class="btn btn-xs ab3 b3-'.$r->id_pelanggan.' btn-danger" style="padding:1px 5px" onclick="btnPiuLok('."'".$l->id_pelanggan."'".')">
-												<i style="font-size:8px" class="fas af3 f3-'.$r->id_pelanggan.' fa-plus"></i>
-											</button>&nbsp
-											'.$l->alamat.'
-										</td>
-									</tr>';
-									// ITEM
-									// $prod = $this->db->query("SELECT*FROM m_produk where no_customer='$l->id_pelanggan'");
-									$prod = $this->db->query("SELECT i.* FROM trs_po p
-									INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
-									INNER JOIN m_produk i ON d.id_produk=i.id_produk
-									WHERE p.status_kiriman='Open' AND p.id_pelanggan='$l->id_pelanggan'
-									GROUP BY d.id_produk ORDER BY i.nm_produk");
-									if($prod->num_rows() != 0){
-										foreach($prod->result() as $pr){
-											($pr->kategori == "K_BOX") ? $ukuran = $pr->ukuran : $ukuran = $pr->ukuran_sheet;
-											$html .= '<tr class="tr_p p'.$l->id_pelanggan.'" style="display:none">
-												<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 45px" colspan="2">
-													<input type="hidden" id="ts5" value="">
-													<button class="btn btn-xs ab5 b5-'.$pr->id_produk.' btn-danger" style="padding:1px 5px" onclick="Tampil_po('."'".$pr->id_produk."'".','."'".$l->id_pelanggan."'".','."'".$pr->nm_produk."'".')">
-														<i style="font-size:8px" class="fas af5 f5-'.$pr->id_produk.' fa-plus"></i>
-													</button>&nbsp
-													'.$pr->nm_produk.' | '.$ukuran.' | '.$this->m_fungsi->kualitas($pr->kualitas, $pr->flute).' | '.$pr->flute.'
-												</td>
-											</tr>';
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				// TOTAL
-				$html .= '<tr>
-					<td style="background:#ccc;padding:5px;border:1px solid #aaa" colspan="2"></td>
-				</tr>';
-			$html .= '</table>
-			</div>
-			</div>
-		</div>';
-		}
-
-		echo $html;
-	}
-	
-	function hapusDelSys()
-	{
-		$result = $this->m_transaksi->hapusDelSys();
-		echo json_encode($result);
-	}
-
 	function dsUrut()
 	{
 		$result = $this->m_transaksi->dsUrut();
@@ -9898,297 +9784,6 @@ class Transaksi extends CI_Controller
 			'eta' => $eta,
 		]);
 	}
-
-	function TampilPO_dev()
-	{
-		$html = '';
-		$id_produk    = $_POST["id_produk"];
-		$id_pelanggan = $_POST["id_pelanggan"];
-		$nm_produk    = $_POST["nm_produk"];
-		$po_ = $this->db->query("SELECT*FROM trs_po p
-		JOIN trs_po_detail d on p.kode_po=d.kode_po
-		JOIN m_produk i ON d.id_produk=i.id_produk
-		WHERE p.status_app3='Y' AND p.id_pelanggan='$id_pelanggan' AND d.id_produk='$id_produk' AND p.status_kiriman='Open'");
-		$produk_ = $this->db->query("SELECT*from m_produk where id_produk='$id_produk'
-		")->row();
-
-		$html .= '<div class="card card-info card-outline">
-			<div class="card-header">
-				<h3 class="card-title" style="font-weight:bold;">
-					LIST PO - <span style="color:red;"> '.$produk_->nm_produk.' </span> - <span style="color:red;"> '.$produk_->ukuran.' </span> - <span style="color:red;"> '.$this->m_fungsi->kualitas($produk_->kualitas, $produk_->flute).'</span> - <span style="color:red;">'.$produk_->flute.'</span>
-				</h3>
-				<div class="card-tools">
-					<button type="button" onclick="kembali_po()" class="btn  btn-danger"><b>
-						<i class="fa fa-arrow-left"></i> Kembali</b>
-					</button>
-				</div>
-			</div>
-			<div style="padding:6px">
-				<div style="overflow:auto;white-space:nowrap">
-					<table style="color:#000;border-collapse: collapse" width="100%">';
-						$html .= '<tr>
-							<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold"></td>
-						</tr>';
-						if($po_->num_rows() != 0){
-							foreach($po_->result() as $po_ok) {
-								$kirim = $this->db->query("SELECT SUM(r.qty_muat) AS tot_muat,r.*,p.* FROM m_rencana_kirim r
-								INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
-								WHERE p.no_po='$po_ok->kode_po' AND r.id_produk='$po_ok->id_produk'
-								GROUP BY r.rk_tgl,r.id_pelanggan,r.id_produk,r.rk_kode_po,r.rk_urut");
-								$sumKirim = 0;
-								$sumRetur = 0;
-								if($kirim->num_rows() > 0){
-									foreach($kirim->result() as $k){
-										$retur = $this->db->query("SELECT*FROM m_rencana_kirim_retur
-										WHERE rtr_tgl='$k->tgl' AND rtr_id_pelanggan='$k->id_pelanggan' AND rtr_id_produk='$k->id_produk' AND rtr_kode_po='$k->rk_kode_po' AND rtr_urut='$k->rk_urut'");
-										$sumKirim += $k->tot_muat;
-										$sumRetur += ($retur->num_rows() == 0) ? 0 : $retur->row()->rtr_jumlah;
-									}
-								}
-								$jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys where id_po_header='$po_ok->id' and id_produk='$id_produk' and id_pelanggan='$id_pelanggan' GROUP BY id_po_header,id_produk,id_pelanggan 
-								ORDER BY id_dev
-								")->row();
-								$sisa = $po_ok->qty - ($sumKirim - $sumRetur);
-								$sisa_os_belum_terplanning = $sisa - $jumlah_plan->qty_plan;
-								$html .= '<tr class="tr_po po'.$po_ok->id_produk.'" >
-									<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 5px" colspan="2">
-										<input type="hidden" id="ts4" value="">
-										<button class="btn btn-xs ab4 b4-'.$po_ok->id.' btn-danger" style="padding:1px 5px" onclick="btnPiuPO('."'".$po_ok->id."'".','."'".$id_produk."'".','."'".$id_pelanggan."'".','."'".$sisa."'".','."'".$sumKirim."'".')">
-											<i style="font-size:8px" class="fas af4 f4-'.$po_ok->id.' fa-plus"></i>
-										</button>&nbsp
-										'.$po_ok->kode_po.'
-									</td>
-								</tr>';
-								// TIMER
-								$twoWeek = date('Y-m-d', strtotime('+2 week', strtotime(substr($po_ok->time_app3, 0, 10))));
-								$secondsDiff = strtotime($twoWeek) - time();
-								$days = floor($secondsDiff/60/60/24);
-								$hours = floor(($secondsDiff-($days*60*60*24))/60/60);
-								$minutes = floor(($secondsDiff-($days*60*60*24)-($hours*60*60))/60);
-
-								($days == 0) ? $tDays = '' : $tDays = '<div>'.$days.' HARI</div>';
-								($hours == 0) ? $tHours = '' : $tHours = '<div>'.$hours.' JAM</div>';
-								($minutes == 0) ? $tMinutes = '' : $tMinutes = '<div>'.$minutes.' MENIT</div>';
-								($days <= 0) ? $waktu = 'EXPIRED' : $waktu = $tDays.$tHours.$tMinutes;
-
-								$sumQtyPlan = $this->db->query("SELECT SUM(qty_plan) AS qty FROM trs_dev_sys where id_po_header='$po_ok->id' and id_produk='$id_produk' and id_pelanggan='$id_pelanggan' ORDER BY id_dev");
-								if($sumQtyPlan->num_rows() != 0){
-									$qqTy = $sumQtyPlan->row()->qty;
-									if($po_ok->qty == $qqTy){
-										$txtTimer = '<div style="color:#dc3545">ETA<br>SUDAH<br>LENGKAP</div>';
-									}else if($qqTy > $po_ok->qty){
-										$txtTimer = '<div style="color:#dc3545">ETA<br>LEBIH<br>QTY PO</div>';
-									}else{
-										$txtTimer = '<div style="color:#dc3545">'.$waktu.'</div>';
-									}
-								}else{
-									$txtTimer = '<div style="color:#dc3545">'.$waktu.'</div>';
-								}
-
-								if($days <= 0){
-									$krjOnClick = 'class="btn btn-sm btn-secondary" disabled';
-									$qtyOnKeyUp = 'disabled';
-									$plhTglChange = 'disabled';
-								}else{
-									// $krjOnClick = 'class="btn btn-sm btn-warning" style="color:#fff" onclick="simpan('.$po_ok->id.','.$id_produk.','.$id_pelanggan.',`add`)"';
-									$krjOnClick = 'class="btn btn-sm btn-secondary" disabled';
-									$qtyOnKeyUp = 'onkeyup="hitung_os_plan(this.value,this.id,'.$sisa_os_belum_terplanning.','.$po_ok->id.')"';
-									$plhTglChange = 'onchange="tglMuatEtaDSys('."'".$id_pelanggan."'".', '."'".$po_ok->id."'".')"';
-								}
-
-								// OUTSTANDING PO 
-								$html .= '				
-								<tr class="tr_i i'.$po_ok->id.'" style="display:none">
-									<td style="padding:0;border:1px solid #aaa">
-										<table width="100%" style="border-collapse:collapse">
-											<tbody>
-												<tr>
-													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;" colspan="2">QTY PO</th>
-													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">DELIVERY</th>
-													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#00b0c0ff;">OS</th>
-													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;" rowspan="2" colspan="2">
-														<button type="button" '.$krjOnClick.'>
-															<b><i class="fas fa-shopping-basket"></i></b>
-														</button>
-													</th>
-													<th style="padding:5px;text-align:center;border:1px solid #aaa;" rowspan="4">
-														'.$txtTimer.'
-													</th>
-												</tr>
-												<tr>
-													<td style="padding:5px;border:1px solid #aaa;text-align:center">
-														<input style="text-align:center;border:none;" id="qty_po'.$po_ok->id.'" autocomplete="off" value="'.number_format($po_ok->qty,0,',','.').'" readonly>
-													</td>
-													<td style="padding:5px;border:1px solid #aaa;text-align:center;">
-														<input style="text-align:center;border:none;" id="delivery'.$po_ok->id.'" autocomplete="off" value="'.number_format($sumKirim,0,',','.').'" readonly>
-													</td>
-													<td style="padding:5px;border:1px solid #aaa;text-align:center;">
-														<input style="text-align:center;border:none;" id="os'.$po_ok->id.'" autocomplete="off" value="'.number_format($sisa,0,',','.').'" readonly>
-													</td>
-												</tr>
-												<tr>
-													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS TERPLANNING</th>
-													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">BB</th>
-													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#ff0000ff;">OS BELUM TERPLANNING</th>
-													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">QTY PLAN DELIVERY</th>
-													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">TGL. MUAT</th>
-													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#007bffff;">ETA</th>
-												</tr>
-												<tr>
-													<td style="padding:5px;text-align:center;border:1px solid #aaa">
-														<input style="text-align:center;border:none;" id="os_terplanning'.$po_ok->id.'" autocomplete="off" readonly>
-													</td>
-													<td style="padding:5px;text-align:center;border:1px solid #aaa">
-														<input style="text-align:center;border:none;" id="os_bb'.$po_ok->id.'" value="'.$produk_->berat_bersih.'" autocomplete="off" readonly>
-													</td>
-													<td style="padding:5px;text-align:center;border:1px solid #aaa;">
-														<input style="text-align:center;border:none;" id="os_belum_terplanning'.$po_ok->id.'" autocomplete="off" value="'.number_format($sisa_os_belum_terplanning,0,',','.').'" readonly>
-													</td>
-													<td style="padding:5px;text-align:center;border:1px solid #aaa;">								
-														<input class="form-control" style="text-align:center;" type="number" id="qty_plan'.$po_ok->id.'" autocomplete="off" placeholder="QTY" '.$qtyOnKeyUp.'>
-													</td>
-													<td style="padding:5px;text-align:center;border:1px solid #aaa;text-align:center">
-														<input class="form-control" type="date" id="eta_tiba'.$po_ok->id.'" '.$plhTglChange.'>
-													</td>
-													<td style="padding:5px;text-align:center;border:1px solid #aaa;font-weight:bold;text-align:center">
-														<div class="txt-eta-tiba'.$po_ok->id.'">-</div>
-													</td>
-												</tr>
-												<tr>
-													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background-color: #454545;color: #ffffff;" colspan="7">HISTORY PLAN</th>
-												</tr>
-												<tr>
-													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">OS TERPLANNING</th>
-													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">BERAT</th>
-													<th style="padding:5px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">OS BELUM TERPLANNING</th>
-													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">QTY PLAN DELIVERY</th>
-													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">TGL. MUAT</th>
-													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">ETA</th>
-													<th style="padding:5px 10px;text-align:center;border:1px solid #aaa;background:#454545;color: #ffffff;">HAPUS</th>
-												</tr>';
-												// HISTORY PLAN
-												$history_plan = $this->db->query("SELECT*FROM trs_dev_sys where id_po_header='$po_ok->id' and id_produk='$id_produk' and id_pelanggan='$id_pelanggan' ORDER BY id_dev");
-												if($history_plan->num_rows() > 0){
-													foreach($history_plan->result() as $his_plan){
-														$tglNow = strtotime(date('Y-m-d')) - strtotime($his_plan->eta);
-														if($days <= 0 || $tglNow >= 0){
-															$delH = 'class="btn btn-secondary btn-xs" disabled';
-														}else{
-															$delH = 'class="btn btn-secondary btn-xs" disabled';
-															// ($his_plan->id_ex == null) ? $delH = 'class="btn btn-warning btn-xs" onclick="del_history('.$his_plan->id_dev.',`add`)"' : $delH = 'class="btn btn-secondary btn-xs" disabled';
-														}
-														$cust = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row();
-														$prov = $this->db->query("SELECT*FROM m_provinsi WHERE prov_id='$cust->prov'");
-														if($prov->num_rows() == 0){
-															$eta = '-';
-														}else{
-															$ll = $prov->row()->lama_kirim;
-															$eta = date('Y-m-d', strtotime('+'.$ll.' day', strtotime($his_plan->eta)));
-														}
-														$html .= '<tr>
-															<td style="padding:5px;text-align:center;border:1px solid #aaa">
-																<input style="text-align:center;border:none" id="his_os_terplanning'.$po_ok->id.'" value="'.number_format($his_plan->os_terplanning,0,',','.').'" readonly>
-															</td>
-															<td style="padding:5px;text-align:center;border:1px solid #aaa">
-																<input style="text-align:center;border:none" id="his_os_berat'.$po_ok->id.'" value="'.number_format($his_plan->berat,0,',','.').'" readonly>
-															</td>
-															<td style="padding:5px;text-align:center;border:1px solid #aaa;">
-																<input style="text-align:center;border:none" id="his_os_belum_terplanning'.$po_ok->id.'" value="'.number_format($his_plan->os_belum_terplanning,0,',','.').'" readonly>
-															</td>
-															<td style="padding:5px;text-align:center;border:1px solid #aaa;">								
-																<input style="text-align:center;border:none" id="his_qty_plan'.$po_ok->id.'" value="'.number_format($his_plan->qty_plan,0,',','.').'" readonly>
-															</td>
-															<td style="padding:5px;border:1px solid #aaa">
-																<input class="form-control" style="text-align:center" type="date" id="his_eta'.$po_ok->id.'" value="'.$his_plan->eta.'" readonly>
-															</td>
-															<td style="padding:5px;border:1px solid #aaa">
-																<input class="form-control" style="text-align:center" type="date" id="his_eta1'.$po_ok->id.'" value="'.$eta.'" readonly>
-															</td>
-															<td style="padding:5px;text-align:center;border:1px solid #aaa">
-																<button type="button" '.$delH.'><i class="fas fa-trash"></i></button>
-															</td>
-														</tr>';
-													}
-												}else{
-													$html .= '<tr>
-														<td style="padding:5px;text-align:center;border:1px solid #aaa" colspan="7">DATA KOSONG !!</td>
-													</tr>';
-												}
-											$html .= '</tbody>
-										</table>
-									</td>
-								</tr>';
-							}
-						}
-						$html .= '<tr>
-							<td style="background:#ccc;padding:5px;border:1px solid #aaa" colspan="2"></td>
-						</tr>';
-					$html .= '</table>
-				</div>
-			</div>
-		</div>';
-
-		echo $html;
-	}
-	
-	function Insert_dev_sys()
-	{
-		if($this->session->userdata('username')){
-			$os_belum_terplanning    = (int) str_replace('.', '', $this->input->post('os_belum_terplanning'));
-			$qty_plan                = (int) str_replace('.', '', $this->input->post('qty_plan'));
-			// ================= VALIDASI =================
-			if ($qty_plan > $os_belum_terplanning) {
-				echo json_encode([
-					'status' => 0,
-					'msg'    => 'QTY Plan Melebihi OS'
-				]);
-				return;
-			}
-			// produk
-			$id_p = $_POST["id_produk"];
-			$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$id_p'")->row();
-			$berat = $qty_plan * $produk->berat_bersih;
-			// ambil data POST
-			$data = [
-				'id_po_header'         => (int) str_replace('.', '', $this->input->post('po_ok_id')),
-				'id_produk'            => (int) str_replace('.', '', $this->input->post('id_produk')),
-				'id_pelanggan'         => (int) str_replace('.', '', $this->input->post('id_pelanggan')),
-				'qty_po'               => (int) str_replace('.', '', $this->input->post('qty_po')),
-				'delivery'             => (int) str_replace('.', '', $this->input->post('delivery')),
-				'os'                   => (int) str_replace('.', '', $this->input->post('os')),
-				'os_belum_terplanning' => $os_belum_terplanning,
-				'qty_plan'             => $qty_plan,
-				'bb'                   => $produk->berat_bersih,
-				'berat'                => $berat,
-				'urut'                 => 0,
-				'os_terplanning'       => $os_belum_terplanning - $qty_plan,
-				'eta'                  => $this->input->post('eta'),
-				'created_at'           => date('Y-m-d H:i:s')
-			];
-			// VALIDASI SERVER (WAJIB)
-			foreach ($data as $key => $val) {
-				if ($val === '' || $val === null) {
-					echo json_encode([
-						'status' => 0,
-						'msg'    => 'DATA KOSONG'
-					]);
-					return;
-				}
-			}
-			// simpan
-			$insert = $this->m_transaksi->save_dev_sys($data);
-			if ($insert) {
-				echo json_encode([
-					'status' => 1,
-					'produk' => $produk,
-					'id'     => $insert
-				]);
-			} else {
-				echo json_encode(['status' => 0]);
-			}
-		}
-	}
-
 
 	function load_det_dat()
 	{
@@ -11011,8 +10606,8 @@ class Transaksi extends CI_Controller
 											$xDvs = round($e->panjang * $e->lebar * $e->tinggi, 2);
 											$kalibrasi = ' ( K '.$xDvs.' )';
 										}
-										// btl
-										if($u->timb_tgl == null && $u->timb_urut == null && $cekRK->num_rows() == 0 && $fileKLB->num_rows() == 0){
+										// HAPUS PLAT
+										if($u->timb_tgl == null && $u->timb_urut == null && $cekRK->num_rows() == 0 && ($fileKLB->num_rows() == 0 || $u->check_klb == null)){
 											$hapus = ($lvl == 'Admin' || ($lvl == 'Pengiriman' && $akses_dd != null)) ? ' - <button class="btn btn-xs btn-danger" onclick="batalEksDS('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : '';
 										}else{
 											$hapus = '';
@@ -11037,10 +10632,10 @@ class Transaksi extends CI_Controller
 								</td>';
 							}else{
 								$prV = 'pimg_'.$u->urut;
-								($fileKLB->num_rows() != 0) ? $bIkb = '<img id="'.$prV.'" src="'.base_url().'assets/kalibrasi/'.$fileKLB->row()->file_klb.'" width="50" height="25" style="border-radius:5px" onclick="imgClick('."'".$prV."'".')">' : $bIkb = '';
+								($fileKLB->num_rows() != 0) ? $bIkb = '<img id="'.$prV.'" src="'.base_url().'assets/kalibrasi/'.$fileKLB->row()->file_klb.'" title="'.$u->urut.'" width="50" height="25" style="border-radius:5px;border:1px solid #fff" onclick="imgClick('."'".$prV."'".')">' : $bIkb = '';
 								($fileKLB->num_rows() != 0 && $u->check_klb == null && in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $hIkb = '<button class="btn btn-xs btn-danger" style="margin-left:5px" onclick="batalKLB('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : $hIkb = '';
 								($u->check_klb == 1) ? $oCk = 'checked' : $oCk = '';
-								($fileKLB->num_rows() != 0 && $u->id_ex != null && in_array($lvl, ['Admin', 'Owner'])) ? $chk = ' <input type="checkbox" id="chk-'.$u->urut.'" onclick="chkKLB('."'".$u->urut."'".')" value="'.$u->check_klb.'" '.$oCk.'>' : $chk = '';
+								($fileKLB->num_rows() != 0 && $u->id_ex != null && $lvl == 'Admin') ? $chk = '&nbsp&nbsp<input type="checkbox" id="chk-'.$u->urut.'" onclick="chkKLB('."'".$u->urut."'".')" value="'.$u->check_klb.'" '.$oCk.'>' : $chk = '';
 								$html .= '<td style="background:#333;padding:6px" colspan="7">'.$bIkb.$hIkb.$chk.'</td>';
 							}
 							
@@ -11071,7 +10666,7 @@ class Transaksi extends CI_Controller
 					$sjBBQty = 0;
 
 					// TIMBANGAN ITEM
-					if($cekRK->num_rows() == 1 && $sys->num_rows() == 1){
+					if($cekRK->num_rows() == 1 && $sys->num_rows() == 1 && $rkNull->num_rows() == 0){
 						if($u->timb_tgl != null && $u->timb_urut != null){
 							$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$u->timb_urut' AND tgl_t='$u->timb_tgl' GROUP BY urut_t,tgl_t");
 							if($qTimb->num_rows() != 0){
@@ -11165,7 +10760,7 @@ class Transaksi extends CI_Controller
 							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.$txtSTOK.'</td>';
 
 							// KALIBRASI
-							if($sys->num_rows() == 1 && $u->urut != 0 && ($u->id_ex == null || $u->id_ex != null)){
+							if($sys->num_rows() == 1 && $rkNull->num_rows() == 0 && $u->urut != 0 && ($u->id_ex == null || $u->id_ex != null)){
 								if($fileKLB->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])){
 									$oKb2 = 'id="k-'.$u->urut.'" onchange="addKLB('."'".$u->urut."'".')"';
 									$dkb2 = '';
@@ -11232,7 +10827,8 @@ class Transaksi extends CI_Controller
 								</td>
 								<td style="border:1px solid #ced2d6;padding:6px" colspan="2">'.$n->nm_pelanggan.'</td>
 								<td style="border:1px solid #ced2d6;padding:6px">'.$n->rk_kode_po.'</td>
-								<td style="border:1px solid #ced2d6;padding:6px" colspan="6">'.$nV1.$nk2.$n->nm_produk.$nV2.'</td>
+								<td style="border:1px solid #ced2d6;padding:6px" colspan="5">'.$nV1.$nk2.$n->nm_produk.$nV2.'</td>
+								<td style="border:1px solid #ced2d6;padding:6px;border-width:0 1px"></td>
 								<td style="background:#fdd;border:1px solid #dbb;padding:6px;font-weight:bold;text-align:center">'.$n->no_kendaraan.' ('.$n->expedisi.')</td>
 								<td style="background:#fdd;border:1px solid #dbb;padding:6px;font-weight:bold">'.$this->m_fungsi->tglIndSkt($n->rk_tgl).'</td>
 								<td style="background:#fdd;border:1px solid #dbb;padding:6px;font-weight:bold">'.$n->no_surat.'</td>
@@ -11261,7 +10857,7 @@ class Transaksi extends CI_Controller
 									$oKb3 = '';
 									$dkb3 = 'disabled';
 								}
-								if($sys->num_rows() != 1){
+								if($sys->num_rows() != 1 || ($sys->num_rows() == 1 && $rkNull->num_rows() == 1)){
 									$html .= '<td style="padding:6px;border:1px solid #bbb"></td>
 									<td style="padding:6px;border:1px solid #bbb;font-weight:bold">
 										<input type="number" class="form-control" '.$oKb3.' style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" value="'.$txtKLB.'" autocomplete="off" placeholder="0" '.$dkb3.'>

@@ -176,6 +176,10 @@ class Laporan extends CI_Controller
 		($id_sales == '' || $id_sales == null) ? $wIdSls = "" : $wIdSls = "AND s.id_sales='$id_sales'";
 		$lvl = $this->session->userdata('level');
 		$uName = $this->session->userdata('username');
+		$hari = date('d');
+		$bulan = date('m');
+		$tahun = date('Y');
+		$wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
 		$html = '';
 
 		$sales = $this->db->query("SELECT s.nm_sales,s.id_sales FROM trs_po p
@@ -187,12 +191,14 @@ class Laporan extends CI_Controller
 		if($sales->num_rows() != 0){
 			$html .= '<table style="color:#000;border-collapse: collapse">';
 				$html .= '<tr>
-					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold">SALES / CUSTOMER / ITEM / NO.PO</td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="5">SALES / CUSTOMER / ITEM / NO.PO</td>
+					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">STOK(pcs)</td>
 					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS(pcs)</td>
 					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS(kg)</td>
 				</tr>';
 				$sumTot = 0;
 				$sumJet = 0;
+				$allSTOK = 0;
 
 				// TAMPIL DATA SALES
 				foreach($sales->result() as $s){
@@ -215,14 +221,30 @@ class Laporan extends CI_Controller
 						$sumSales += ($zPengiriman <= 0) ? 0 : $zPengiriman;
 						$sumBBSales += ($zPengiriman <= 0) ? 0 : round($zPengiriman * $zi->bb);
 					}
+
+					// CEK STOK GUDANG PER SALES
+					$sumSlz = $hari.'_stok_akhir';
+					$qq1 = $this->db->query("SELECT SUM($sumSlz) AS stok_akhir FROM m_gudang_v2 g
+					INNER JOIN m_pelanggan c ON g.id_pelanggan=c.id_pelanggan
+					WHERE g.bulan='$bulan' AND g.tahun='$tahun' AND c.id_sales='$s->id_sales' $wA
+					GROUP BY tahun,bulan,c.id_sales");
+					if($qq1->num_rows() == 0){
+						$sStok = '-';
+						$allSTOK += 0;
+					}else{
+						$sStok = number_format($qq1->row()->stok_akhir,0,',','.');
+						$allSTOK += ($qq1->row()->stok_akhir == null) ? 0 : $qq1->row()->stok_akhir;
+					}
+
 					$html .= '<tr class="tr0">
-						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px">
+						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px" colspan="5">
 							<input type="hidden" id="ts1" value="">
 							<button class="btn btn-xs ab1 b1-'.$s->id_sales.' btn-success" style="padding:1px 5px" onclick="btnPiuSales('."'".$s->id_sales."'".')">
 								<i style="font-size:8px" class="fas af1 f1-'.$s->id_sales.' fa-plus"></i>
 							</button>&nbsp
 							'.$s->nm_sales.'
 						</td>
+						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.$sStok.'</td>
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($sumSales,0,',','.').'</td>
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($sumBBSales,0,',','.').'</td>
 					</tr>';
@@ -254,17 +276,35 @@ class Laporan extends CI_Controller
 								$sumCust += ($cPengiriman <= 0) ? 0 : $cPengiriman;
 								$sumBBCust += ($cPengiriman <= 0) ? 0 : round($cPengiriman * $ci->bb);
 							}
+
+							// CEK STOK GUDANG PER CUSTOMER
+							$sumCUST = $hari.'_stok_akhir';
+							$qq2 = $this->db->query("SELECT SUM($sumCUST) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$r->id_pelanggan' GROUP BY tahun,bulan $wA");
+							($qq2->num_rows() == 0) ? $cStok = '-' : $cStok = number_format($qq2->row()->stok_akhir,0,',','.');
+
 							($r->attn == "-" || $r->attn == "") ? $atZ = '' : $atZ = '<div style="padding-left:25px">'.$r->attn.'</div>';
 							$html .= '<tr class="tr1 t'.$r->id_sales.'" style="display:none">
-								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 15px">
+								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 15px" colspan="5">
 									<input type="hidden" id="ts2" value="">
 									<button class="btn btn-xs ab2 b2-'.$r->id_pelanggan.' btn-info" style="padding:1px 5px" onclick="btnPiuCustomer('."'".$r->id_pelanggan."'".')">
 										<i style="font-size:8px" class="fas af2 f2-'.$r->id_pelanggan.' fa-plus"></i>
 									</button>&nbsp
 									'.$r->nm_pelanggan.$atZ.'
 								</td>
+								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.$cStok.'</td>
 								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($sumCust,0,',','.').'</td>
 								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($sumBBCust,0,',','.').'</td>
+							</tr>';
+							// TITLE
+							$html .= '<tr class="tr2 c'.$r->id_pelanggan.'" style="display:none">
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">ITEM</td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">UKURAN</td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">SUBSTANCE</td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">F</td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">BB</td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">STOK(pcs)</td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS(pcs)</td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS(kg)</td>
 							</tr>';
 
 							// TAMPIL DATA PER ITEM
@@ -274,7 +314,7 @@ class Laporan extends CI_Controller
 							INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 							INNER JOIN m_sales s ON c.id_sales=s.id_sales
 							WHERE p.status='Approve' AND p.status_kiriman='Open' AND c.id_sales='$r->id_sales' AND p.id_pelanggan='$r->id_pelanggan'
-							GROUP BY i.id_produk ORDER BY i.nm_produk");
+							GROUP BY i.id_produk ORDER BY i.kategori,i.nm_produk,i.ukuran,i.ukuran_sheet,i.flute");
 							if($produk->num_rows() != 0){
 								foreach($produk->result() as $p){
 									// PENGIRIMAN PER ITEM
@@ -296,20 +336,30 @@ class Laporan extends CI_Controller
 										$sumItem += ($iPengiriman <= 0) ? 0 : $iPengiriman;
 										$sumBBItem += ($iPengiriman <= 0) ? 0 : round($iPengiriman * $ki->bb);
 									}
-									(strlen($p->nm_produk) >= 55) ? $dv1 = '<div style="width:600px;white-space:normal">' : $dv1 = '';
-									(strlen($p->nm_produk) >= 55) ? $dv2 = '</div>' : $dv2 = '';
-									($p->kategori == 'K_BOX') ? $ukuran = ' | '.$p->ukuran : $ukuran = ' | '.$p->ukuran_sheet;
-									$substansce = ' | '.$this->m_fungsi->kualitas($p->kualitas, $p->flute);
+									(strlen($p->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+									(strlen($p->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+									($p->kategori == 'K_BOX') ? $ukuran = $p->ukuran : $ukuran = $p->ukuran_sheet;
+									($p->kategori == 'K_BOX') ? $txtKET = '' : $txtKET = '[SHEET] ';
+
+									// CEK STOK GUDANG PER ITEM
+									$qq3 = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$p->id_pelanggan' AND id_produk='$p->id_produk' $wA");
+									($qq3->num_rows() == 0) ? $iStok = '-' : $iStok = number_format($qq3->row($hari.'_stok_akhir'),0,',','.');
+
 									$html .= '<tr class="tr2 c'.$p->id_pelanggan.'" style="display:none">
 										<td style="border:1px solid #aaa;padding:5px 5px 5px 25px">
 											<input type="hidden" id="ts3" value="">
 											'.$dv1.'<button class="btn btn-xs ab3 b3-'.$p->id_produk.' btn-info" style="padding:1px 5px" onclick="btnPiuProduk('."'".$p->id_produk."'".')">
 												<i style="font-size:8px" class="fas af3 f3-'.$p->id_produk.' fa-plus"></i>
 											</button>&nbsp
-											'.$p->nm_produk.$ukuran.$substansce.' | '.$p->flute.$dv2.'
+											'.$txtKET.$p->nm_produk.$dv2.'
 										</td>
-										<td class="idp-'.$p->id_produk.'" style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($sumItem,0,',','.').'</td>
-										<td class="idp-'.$p->id_produk.'" style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($sumBBItem,0,',','.').'</td>
+										<td style="border:1px solid #aaa;padding:5px;text-align:center">'.strtolower($ukuran).'</td>
+										<td style="border:1px solid #aaa;padding:5px;text-align:center">'.$this->m_fungsi->kualitas($p->kualitas, $p->flute).'</td>
+										<td style="border:1px solid #aaa;padding:5px;text-align:center">'.$p->flute.'</td>
+										<td style="border:1px solid #aaa;padding:5px;text-align:center">'.$p->berat_bersih.'</td>
+										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.$iStok.'</td>
+										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($sumItem,0,',','.').'</td>
+										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($sumBBItem,0,',','.').'</td>
 									</tr>';
 
 									// TAMPIL DATA NO. PO
@@ -331,9 +381,10 @@ class Laporan extends CI_Controller
 											($sisa <= 0) ? $txtSisa = 0 : $txtSisa = number_format($sisa,0,',','.');
 											($sisa <= 0) ? $txtBB = 0 : $txtBB = number_format($bb,0,',','.');
 											$html .= '<tr class="tr3 n'.$n->id_produk.'" style="display:none">
-												<td style="background:#eee;border:1px solid #aaa;padding:5px 5px 5px 35px"><b>'.$l.'.</b> '.$n->kode_po.'</td>
+												<td style="background:#eee;border:1px solid #aaa;padding:5px 5px 5px 35px" colspan="5"><b>'.$l.'.</b> '.$n->kode_po.'</td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$txtSisa.'</td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$txtBB.'</td>
+												<td style="background:#eee;border:1px solid #aaa;padding:5px"></td>
 											</tr>';
 										}
 									}
@@ -346,7 +397,8 @@ class Laporan extends CI_Controller
 				}
 				// TOTAL
 				$html .= '<tr>
-					<td style="background:#ccc;padding:5px;border:1px solid #aaa"></td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa" colspan="5"></td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($allSTOK, 0, ',', '.').'</td>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumJet, 0, ',', '.').'</td>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumTot, 0, ',', '.').'</td>
 				</tr>';
