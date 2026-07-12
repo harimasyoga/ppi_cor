@@ -300,7 +300,7 @@ class Laporan extends CI_Controller
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">ITEM</td>
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">UKURAN</td>
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">SUBSTANCE</td>
-								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">F</td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px 15px">F</td>
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">BB</td>
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">STOK(pcs)</td>
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS(pcs)</td>
@@ -345,7 +345,7 @@ class Laporan extends CI_Controller
 									$qq3 = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$p->id_pelanggan' AND id_produk='$p->id_produk' $wA");
 									($qq3->num_rows() == 0) ? $iStok = '-' : $iStok = number_format($qq3->row($hari.'_stok_akhir'),0,',','.');
 
-									$html .= '<tr class="tr2 c'.$p->id_pelanggan.'" style="display:none">
+									$html .= '<tr class="tr2 c'.$p->id_pelanggan.'" style="vertical-align:top;display:none">
 										<td style="border:1px solid #aaa;padding:5px 5px 5px 25px">
 											<input type="hidden" id="ts3" value="">
 											'.$dv1.'<button class="btn btn-xs ab3 b3-'.$p->id_produk.' btn-info" style="padding:1px 5px" onclick="btnPiuProduk('."'".$p->id_produk."'".')">
@@ -382,9 +382,9 @@ class Laporan extends CI_Controller
 											($sisa <= 0) ? $txtBB = 0 : $txtBB = number_format($bb,0,',','.');
 											$html .= '<tr class="tr3 n'.$n->id_produk.'" style="display:none">
 												<td style="background:#eee;border:1px solid #aaa;padding:5px 5px 5px 35px" colspan="5"><b>'.$l.'.</b> '.$n->kode_po.'</td>
+												<td style="background:#eee;border:1px solid #aaa;padding:5px"></td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$txtSisa.'</td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$txtBB.'</td>
-												<td style="background:#eee;border:1px solid #aaa;padding:5px"></td>
 											</tr>';
 										}
 									}
