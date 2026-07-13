@@ -11700,7 +11700,7 @@ class Logistik extends CI_Controller
 				<div style="padding:0;overflow:auto;white-space:nowrap">
 					<table class="table table-bordered table-striped" style="margin:0;border:0">
 						<tr>
-							<th style="text-align:center;padding:6px"># - '.$tglNow.'</th>
+							<th style="text-align:center;padding:6px">#</th>
 							<th style="text-align:center;padding:6px">ITEM</th>
 							<th style="text-align:center;padding:6px">UKURAN</th>
 							<th style="text-align:center;padding:6px">FLUTE</th>
