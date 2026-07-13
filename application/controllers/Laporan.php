@@ -363,7 +363,7 @@ class Laporan extends CI_Controller
 									</tr>';
 
 									// TAMPIL DATA NO. PO
-									$noPO = $this->db->query("SELECT s.id_sales,p.id_pelanggan,i.id_produk,p.id AS id_po,p.tgl_po,p.kode_po,d.qty,d.bb FROM trs_po p
+									$noPO = $this->db->query("SELECT s.id_sales,i.id_produk,p.id AS id_po,d.qty,d.bb,DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) AS exp_po,p.* FROM trs_po p
 									INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 									INNER JOIN m_produk i ON d.id_produk=i.id_produk
 									INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
@@ -380,8 +380,31 @@ class Laporan extends CI_Controller
 											$bb = round($kirim["sisa2"] * $n->bb);
 											($sisa <= 0) ? $txtSisa = 0 : $txtSisa = number_format($sisa,0,',','.');
 											($sisa <= 0) ? $txtBB = 0 : $txtBB = number_format($bb,0,',','.');
+
+											// TIMER EXPIRED PO
+											if($n->expired_po != null && $n->status_app3 == 'Y'){
+												$dExp = date('Y-m-d', strtotime('+'.$n->expired_po.' days', strtotime($n->time_app3)));
+												$dExpDiff = strtotime($dExp) - time();
+												$dExpHari = floor($dExpDiff/60/60/24);
+												$dExpJam = floor(($dExpDiff-($dExpHari*60*60*24))/60/60);
+												$dExpMenit = floor(($dExpDiff-($dExpHari*60*60*24)-($dExpJam*60*60))/60);
+												($dExpHari == 0) ? $dxDays = '' : $dxDays = ' '.$dExpHari.' Day';
+												($dExpJam == 0) ? $dxHours = '' : $dxHours = ' '.$dExpJam.' Hrs';
+												($dExpMenit == 0) ? $dxMinutes = '' : $dxMinutes = ' '.$dExpMenit.' Mnt';
+												($dExpHari <= 0) ? $dXWaktu = $dxHours.$dxMinutes : $dXWaktu = $dxDays;
+												if($n->exp_po < 0){
+													$expPO = '';
+												}else{
+													$expPO = '<span style="color:#dc3545;font-weight:bold">'.$dXWaktu.'</span>';
+												}
+											}else{
+												$expPO = '';
+											}
+
 											$html .= '<tr class="tr3 n'.$n->id_produk.'" style="display:none">
-												<td style="background:#eee;border:1px solid #aaa;padding:5px 5px 5px 35px" colspan="5"><b>'.$l.'.</b> '.$n->kode_po.'</td>
+												<td style="background:#eee;border:1px solid #aaa;padding:5px 5px 5px 35px" colspan="5">
+													<b>'.$l.'.</b> '.$n->kode_po.' <span style="font-weight:bold;color:#3704ff">['.substr($n->time_app3,0,10).']</span> '.$expPO.'
+												</td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px"></td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$txtSisa.'</td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$txtBB.'</td>
