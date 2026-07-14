@@ -789,20 +789,20 @@ class M_logistik extends CI_Model
 		$hari = date('d', strtotime($tgl_awal));
 		$bulan = date('m', strtotime($tgl_awal));
 		$tahun = date('Y', strtotime($tgl_awal));
-		$wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
+		// $wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
 		if($tgl_awal == ''){
 			$data = false; $msg = 'HARAP PILIH TANGGAL AWAL!';
 		}else{
 			$produk = $this->db->query("SELECT*FROM m_produk WHERE no_customer='$id_pelanggan' ORDER BY nm_produk");
 			foreach($produk->result() as $r){
 				$stok_awal = str_replace('.', '', $_POST["stok_awal_".$r->id_produk]);
-				$stok_akhir = ($_POST["hstok_akhir_".$r->id_produk] == '' || $_POST["hstok_akhir_".$r->id_produk] == 0) ? 0 : $_POST["hstok_akhir_".$r->id_produk];
+				$stok_akhir = ($_POST["hstok_akhir_".$r->id_produk] == '' || $_POST["hstok_akhir_".$r->id_produk] == 0) ? 0 : str_replace('.', '', $_POST["hstok_akhir_".$r->id_produk]);
 				$in = str_replace('.', '', $_POST["in_".$r->id_produk]);
 				$out = str_replace('.', '', $_POST["out_".$r->id_produk]);
 				$ket = trim($_POST["ket_".$r->id_produk]);
-				if($stok_awal != 0 || $in != 0 || $out != 0 || $stok_akhir != 0){
-					$cek2 = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$r->id_produk' $wA");
-					if($cek2->num_rows() == 0){
+				// if($stok_awal != 0 || $in != 0 || $out != 0 || $stok_akhir != 0){
+					$cek2 = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$r->id_produk'");
+					if($cek2->num_rows() == 0 && ($stok_awal != 0 || $in != 0 || $out != 0 || $stok_akhir != 0)){
 						$gudang = [
 							'id_pelanggan' => $id_pelanggan,
 							'id_produk' => $r->id_produk,
@@ -816,11 +816,30 @@ class M_logistik extends CI_Model
 						];
 						$data = $this->db->insert('m_gudang_v2', $gudang);
 					}else{
-						$data = true;
+						// KALAU QTY SEMUA 0 NULL KAN!
+						if($stok_awal == 0 && $in == 0 && $out == 0 && $stok_akhir == 0){
+							$this->db->set($hari.'_stok_awal', null);
+							$this->db->set($hari.'_in', null);
+							$this->db->set($hari.'_out', null);
+							$this->db->set($hari.'_stok_akhir', null);
+						}
+						// KALAU QTY SALAH SATU ADA ISI YA DI ISI
+						if($stok_awal != 0 || $in != 0 || $out != 0 || $stok_akhir != 0){
+							$this->db->set($hari.'_stok_awal', ($stok_awal == '' || $stok_awal == 0) ? 0 : $stok_awal);
+							$this->db->set($hari.'_in', ($in == '' || $in == 0) ? 0 : $in);
+							$this->db->set($hari.'_out', ($out == '' || $out == 0) ? 0 : $out);
+							$this->db->set($hari.'_stok_akhir', ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir);
+						}
+						$this->db->set($hari.'_ket', ($ket == '') ? null : $ket);
+						$this->db->where('id_pelanggan', $id_pelanggan);
+						$this->db->where('id_produk', $r->id_produk);
+						$this->db->where('bulan', $bulan);
+						$this->db->where('tahun', $tahun);
+						$data = $this->db->update('m_gudang_v2');
 					}
-				}else{
-					$data = true;
-				}
+				// }else{
+				// 	$data = true;
+				// }
 			}
 			$msg = 'BERHASIL!';
 		}

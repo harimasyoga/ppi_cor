@@ -11453,7 +11453,7 @@ class Logistik extends CI_Controller
 					<th style="text-align:center;padding:6px;width:18%">KETERANGAN</th>
 				</tr>
 			</thead>';
-		}
+		} //
 		$i = 0;
 		$sumSAPack = 0; $sumInPack = 0; $sumOutPack = 0; $sumSkPack = 0; $sumSAIkat = 0; $sumInIkat = 0; $sumOutIkat = 0; $sumSkIkat = 0;
 		foreach($produk->result() as $r) {
@@ -11592,11 +11592,103 @@ class Logistik extends CI_Controller
 
 	//
 
+	function loadDataGDCorr()
+	{
+		$plh_tgl = $_POST["plh_tgl"];
+		$hari = date('d', strtotime($plh_tgl));
+		$bulan = date('m', strtotime($plh_tgl));
+		$tahun = date('Y', strtotime($plh_tgl));
+		$wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
+		$query = $this->db->query("SELECT c.nm_pelanggan,c.attn,i.*,g.* FROM m_gudang_v2 g
+		INNER JOIN m_pelanggan c ON g.id_pelanggan=c.id_pelanggan
+		INNER JOIN m_produk i ON g.id_produk=i.id_produk
+		WHERE g.bulan='$bulan' AND g.tahun='$tahun' $wA
+		GROUP BY g.id_pelanggan,g.id_produk ORDER BY c.nm_pelanggan,c.attn,i.nm_produk ASC")->result();
+		$data = array();
+		$i = 0;
+		foreach ($query as $r) {
+			$i++;
+			$row = array();
+			$row[] = '<div style="text-align:center">'.$i.'</div>';
+			($r->attn == "-" || $r->attn == "") ? $attn = '' : $attn = '<div>'.$r->attn.'</div>';
+			$row[] = $r->nm_pelanggan.$attn;
+			($r->kategori == 'K_BOX') ? $kat = '' : $kat = '[SHEET] ';
+			($r->kategori == 'K_BOX') ? $uk = $r->ukuran : $uk = $r->ukuran_sheet;
+			(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+			(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+			$row[] = '<table>
+				<tbody>
+					<tr style="background:transparent !important">
+						<td style="padding:0;border:0;font-weight:bold">ITEM</td>
+						<td style="padding:0 5px;border:0">:</td>
+						<td style="padding:0;border:0">'.$dv1.$kat.$r->nm_produk.$dv2.'</td>
+					</tr>
+					<tr style="background:transparent !important">
+						<td style="padding:0;border:0;font-weight:bold">UKURAN</td>
+						<td style="padding:0 5px;border:0">:</td>
+						<td style="padding:0;border:0">'.$uk.'</td>
+					</tr>
+					<tr style="background:transparent !important">
+						<td style="padding:0;border:0;font-weight:bold">SUBSTANCE</td>
+						<td style="padding:0 5px;border:0">:</td>
+						<td style="padding:0;border:0">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
+					</tr>
+					<tr style="background:transparent !important">
+						<td style="padding:0;border:0;font-weight:bold">FLUTE</td>
+						<td style="padding:0 5px;border:0">:</td>
+						<td style="padding:0;border:0">'.$r->flute.'</td>
+					</tr>
+				</tbody>
+			</table>';
+			$qq = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$r->id_pelanggan' AND id_produk='$r->id_produk' $wA");
+			if($qq->num_rows() != 0){
+				$vSa = ($qq->row($hari.'_stok_awal') == 0) ? '-' : number_format($qq->row($hari.'_stok_awal'),0,',','.');
+				$vIn = ($qq->row($hari.'_in') == 0) ? '-' : number_format($qq->row($hari.'_in'),0,',','.');
+				$vOut = ($qq->row($hari.'_out') == 0) ? '-' : number_format($qq->row($hari.'_out'),0,',','.');
+				$vSk = ($qq->row($hari.'_stok_akhir') == 0) ? '-' : number_format($qq->row($hari.'_stok_akhir'),0,',','.');
+				$vKet = $qq->row($hari.'_ket');
+			}else{
+				$vSa = 0; $vIn = 0; $vOut = 0; $vSk = 0; $vKet = '-';
+			}
+			$row[] = '<div style="text-align:right">'.$vSa.'</div>';
+			$row[] = '<div style="text-align:right">'.$vIn.'</div>';
+			$row[] = '<div style="text-align:right">'.$vOut.'</div>';
+			$row[] = '<div style="text-align:right">'.$vSk.'</div>';
+			$row[] = $vKet;
+			$data[] = $row;
+		}
+		$output = array(
+			"data" => $data,
+		);
+		echo json_encode($output);
+	}
+
+	function pdfGDCorr()
+	{
+		$plh_tgl = $_POST["plh_tgl"];
+		$h = date('d', strtotime($plh_tgl));
+		$b = date('m', strtotime($plh_tgl));
+		$t = date('Y', strtotime($plh_tgl));
+		$wQ = 'AND ('.$h.'_stok_awal IS NOT NULL OR '.$h.'_stok_akhir IS NOT NULL OR '.$h.'_in IS NOT NULL OR '.$h.'_out IS NOT NULL)';
+		$ff = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$b' AND tahun='$t' $wQ GROUP BY bulan,tahun");
+		if($ff->num_rows() != 0){
+			$pdf = '<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold;padding:8px 12px" href="'.base_url('Logistik/pdfGudang?tgl='.$plh_tgl.'&orientation=L').'"><i class="fas fa-file-pdf"></i> PDF</a>';
+		}else{
+			$pdf = '';
+		}
+
+		echo json_encode([
+			'pdf' => $pdf,
+		]);
+	}
+
 	function plhGCPelanggan()
 	{
 		$id_pelanggan = $_POST["id_pelanggan"];
 		$tgl_awal_cust = $_POST["tgl_awal_cust"];
 		$html = '';
+		$tglNow = strtotime($tgl_awal_cust) - strtotime(date('Y-m-d'));
+		($tglNow >= 0) ? $dsb = '' : $dsb = 'readonly';
 
 		$produk = $this->db->query("SELECT*FROM m_produk WHERE no_customer='$id_pelanggan' ORDER BY kategori,nm_produk");
 		if($tgl_awal_cust == ''){
@@ -11635,17 +11727,16 @@ class Logistik extends CI_Controller
 								$wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
 								$qq = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$r->id_produk' $wA");
 								if($qq->num_rows() != 0){
-									$dsb = 'readonly';
 									$vSa = ($qq->row($hari.'_stok_awal') == 0) ? 0 : number_format($qq->row($hari.'_stok_awal'),0,',','.');
 									$vIn2 = ($qq->row($hari.'_in') == 0) ? 0 : number_format($qq->row($hari.'_in'),0,',','.');
 									$vOut = ($qq->row($hari.'_out') == 0) ? 0 : number_format($qq->row($hari.'_out'),0,',','.');
 									$vSk = ($qq->row($hari.'_stok_akhir') == 0) ? 0 : number_format($qq->row($hari.'_stok_akhir'),0,',','.');
 									$vKet = $qq->row($hari.'_ket');
 								}else{
-									$dsb = ''; $vSa = ''; $vIn2 = ''; $vOut = ''; $vSk = ''; $vKet = null;
+									$vSa = ''; $vIn2 = ''; $vOut = ''; $vSk = ''; $vKet = null;
 								}
 							}else{
-								$dsb = ''; $vSa = ''; $vIn2 = ''; $vOut = ''; $vSk = ''; $vKet = null;
+								$vSa = ''; $vIn2 = ''; $vOut = ''; $vSk = ''; $vKet = null;
 							}
 
 							// CEK NO. PO
@@ -11682,9 +11773,11 @@ class Logistik extends CI_Controller
 					$html .= '</table>
 				</div>
 			</form>';
-			$html .= '<div style="margin:10px 0 30px">
-				<button type="button" class="btn btn-primary" style="font-weight:bold" onclick="simpanGCcorrugated()"><i class="fas fa-save"></i> SIMPAN</button>
-			</div>';
+			if($tglNow >= 0){
+				$html .= '<div style="margin:10px 0 30px">
+					<button type="button" class="btn btn-primary" style="font-weight:bold" onclick="simpanGCcorrugated()"><i class="fas fa-save"></i> SIMPAN</button>
+				</div>';
+			}
 		}else{
 			$html .= 'DATA KOSONG!';
 		}
@@ -11784,8 +11877,8 @@ class Logistik extends CI_Controller
 									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 12px">#</th>
 									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">ITEM</th>
 									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">UKURAN</th>
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">FLUTE</th>
 									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">SUBSTANCE</th>
+									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">FLUTE</th>
 									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">STOK AWAL</th>
 									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 40px">IN</th>
 									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 30px">OUT</th>
@@ -11823,8 +11916,8 @@ class Logistik extends CI_Controller
 										<td style="padding:6px;text-align:center">'.$i.'</td>
 										<td style="padding:6px">'.$dv1.$infoPO.$kat.$g->nm_produk.$dv2.'</td>
 										<td style="padding:6px;text-align:center">'.$uk.'</td>
-										<td style="padding:6px;text-align:center">'.$g->flute.'</td>
 										<td style="padding:6px;text-align:center">'.$this->m_fungsi->kualitas($g->kualitas, $g->flute).'</td>
+										<td style="padding:6px;text-align:center">'.$g->flute.'</td>
 										<td style="padding:6px">
 											<input type="number" id="stok_awal2_'.$g->id_produk.'" name="stok_awal2_'.$g->id_produk.'" value="'.$vSk.'" class="form-control" style="padding:2px 4px;text-align:right;font-weight:bold" readonly>
 										</td>
@@ -11870,6 +11963,111 @@ class Logistik extends CI_Controller
 		echo json_encode([
 			'html' => $html,
 		]);
+	}
+
+	function pdfGudang()
+	{
+		$tgl = $_GET["tgl"];
+		$orientation = strtoupper($_GET["orientation"]);
+		$hari = date('d', strtotime($tgl));
+		$bulan = date('m', strtotime($tgl));
+		$tahun = date('Y', strtotime($tgl));
+		$wA = 'AND '.$hari.'_stok_awal IS NOT NULL AND '.$hari.'_stok_akhir IS NOT NULL AND '.$hari.'_in IS NOT NULL AND '.$hari.'_out IS NOT NULL';
+
+		$html .= '<table style="width:100%;margin-top:25px;color:#000;border-collapse:collapse;vertical-align:top;font-family:tahoma;font-size:12px">
+			<thead>
+				<tr>
+					<th style="padding:6px" colspan="10">STOK GUDANG CORR</th>
+				</tr>
+				<tr>
+					<th style="padding:0 6px 12px" colspan="10">HARI / TANGGAL : '.strtoupper($this->m_fungsi->getHariIni($tgl)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl)).'</th>
+				</tr>
+				<tr style="background:#5eafde">
+					<th style="text-align:center;padding:6px;width:2%">#</th>
+					<th style="text-align:center;padding:6px;width:24%">ITEM</th>
+					<th style="text-align:center;padding:6px;width:10%">UKURAN</th>
+					<th style="text-align:center;padding:6px;width:14%">SUBSTANCE</th>
+					<th style="text-align:center;padding:6px;width:5%">F</th>
+					<th style="text-align:center;padding:6px 0;width:9%">S. AWAL</th>
+					<th style="text-align:center;padding:6px;width:9%">IN</th>
+					<th style="text-align:center;padding:6px;width:9%">OUT</th>
+					<th style="text-align:center;padding:6px 0;width:9%">S. AKHIR</th>
+					<th style="text-align:center;padding:6px;width:9%">KET</th>
+				</tr>
+			</thead>
+			<tbody>';
+				// PELANGGAN
+				$pelanggan = $this->db->query("SELECT g.id_pelanggan,p.nm_pelanggan,p.attn FROM m_gudang_v2 g
+				INNER JOIN m_pelanggan p ON g.id_pelanggan=p.id_pelanggan
+				WHERE g.bulan='$bulan' AND g.tahun='$tahun' $wA
+				GROUP BY g.id_pelanggan
+				ORDER BY p.nm_pelanggan");
+				$allAwal = 0;
+				$allIN = 0;
+				$allOUT = 0;
+				$allAkhir = 0;
+				foreach($pelanggan->result() as $p){
+					($p->attn == "-" || $p->attn == "") ? $attn = '' : $attn = ' | '.$p->attn;
+					$html .= '<tr>
+						<td style="padding:6px;background:#ccc;border:0;font-weight:bold;color:#000" colspan="10">'.$p->nm_pelanggan.$attn.'</td>
+					</tr>';
+					// ISI
+					$gudang = $this->db->query("SELECT*FROM m_gudang_v2 g
+					INNER JOIN m_produk p ON g.id_produk=p.id_produk
+					WHERE g.id_pelanggan='$p->id_pelanggan' $wA
+					ORDER BY p.kategori,p.nm_produk");
+					$i = 0; $sumAwal = 0; $sumIN = 0; $sumOUT = 0; $sumAkhir = 0;
+					foreach($gudang->result() as $g){
+						$i++;
+						($g->kategori == 'K_BOX') ? $kat = '' : $kat = '[SHEET] ';
+						($g->kategori == 'K_BOX') ? $uk = $g->ukuran : $uk = $g->ukuran_sheet;
+						(strlen($g->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+						(strlen($g->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+						// AMBIL DATA
+						$qq = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$g->id_pelanggan' AND id_produk='$g->id_produk' $wA");
+						$vSa = ($qq->row($hari.'_stok_awal') == 0) ? 0 : number_format($qq->row($hari.'_stok_awal'),0,',','.');
+						$vIn2 = ($qq->row($hari.'_in') == 0) ? 0 : number_format($qq->row($hari.'_in'),0,',','.');
+						$vOut = ($qq->row($hari.'_out') == 0) ? 0 : number_format($qq->row($hari.'_out'),0,',','.');
+						$vSk = ($qq->row($hari.'_stok_akhir') == 0) ? 0 : number_format($qq->row($hari.'_stok_akhir'),0,',','.');
+						$vKet = $qq->row($hari.'_ket');
+						$html .= '<tr style="vertical-align:top">
+							<td style="border:1px solid #ccc;padding:6px;text-align:center">'.$i.'</td>
+							<td style="border:1px solid #ccc;padding:6px">'.$kat.$g->nm_produk.'</td>
+							<td style="border:1px solid #ccc;padding:6px;text-align:center">'.strtolower($uk).'</td>
+							<td style="border:1px solid #ccc;padding:6px;text-align:center">'.$this->m_fungsi->kualitas($g->kualitas, $g->flute).'</td>
+							<td style="border:1px solid #ccc;padding:6px;text-align:center">'.$g->flute.'</td>
+							<td style="border:1px solid #ccc;padding:6px;text-align:right">'.$vSa.'</td>
+							<td style="border:1px solid #ccc;padding:6px;text-align:right">'.$vIn2.'</td>
+							<td style="border:1px solid #ccc;padding:6px;text-align:right">'.$vOut.'</td>
+							<td style="border:1px solid #ccc;padding:6px;text-align:right">'.$vSk.'</td>
+							<td style="border:1px solid #ccc;padding:6px">'.$vKet.'</td>
+						</tr>';
+						// SUM
+						$sumAwal += ($qq->row($hari.'_stok_awal') == 0) ? 0 : $qq->row($hari.'_stok_awal');
+						$sumIN += ($qq->row($hari.'_in') == 0) ? 0 : $qq->row($hari.'_in');
+						$sumOUT += ($qq->row($hari.'_out') == 0) ? 0 : $qq->row($hari.'_out');
+						$sumAkhir += ($qq->row($hari.'_stok_akhir') == 0) ? 0 : $qq->row($hari.'_stok_akhir');
+					}
+					// ALL
+					$allAwal += $sumAwal;
+					$allIN += $sumIN;
+					$allOUT += $sumOUT;
+					$allAkhir += $sumAkhir;
+				}
+				// TOTAL
+				$html .= '<tr style="background:#5eafde">
+					<td style="padding:6px;font-weight:bold;text-align:right" colspan="5">TOTAL</td>
+					<td style="padding:6px;font-weight:bold;text-align:right">'.number_format($allAwal,0,',','.').'</td>
+					<td style="padding:6px;font-weight:bold;text-align:right">'.number_format($allIN,0,',','.').'</td>
+					<td style="padding:6px;font-weight:bold;text-align:right">'.number_format($allOUT,0,',','.').'</td>
+					<td style="padding:6px;font-weight:bold;text-align:right">'.number_format($allAkhir,0,',','.').'</td>
+					<td style="padding:6px"></td>
+				</tr>';
+			$html .= '</tbody>
+		</table>';
+
+		$judul = 'STOK GUDANG - '.strtoupper($this->m_fungsi->getHariIni($tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($tgl));
+		$this->m_fungsi->newMpdf($judul, '', $html, 4, 4, 4, 4, $orientation, 'A4', $judul.'.pdf');
 	}
 
 	//
