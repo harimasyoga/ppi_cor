@@ -7949,11 +7949,11 @@ class Transaksi extends CI_Controller
 									}
 								}
 								($s->eta_t == 'REPLAN') ? $zG = 'DFD' : $zG = 'FDD';
-								$ADSbtn = ($k->num_rows() == 0 && $s->eta_t == 'REPLAN') ? $editDSys.$btnHapusSys : '';
+								$ADSbtn = ($k->num_rows() == 0) ? $editDSys.$btnHapusSys : '';
 							}else{
 								($hPlus2 <= -30) ? $pP = 'P' : $pP = '-'.$hPlus2;
 								($s->eta_t == 'REPLAN') ? $zG = 'DFD' : $zG = 'DFD';
-								$ADSbtn = ($k->num_rows() == 0 && $s->eta_t == 'REPLAN') ? $editDSys.$btnHapusSys : '';
+								$ADSbtn = ($k->num_rows() == 0) ? $editDSys.$btnHapusSys : '';
 							}
 
 							$html .= '<tr style="background:#f2f2f2">';
@@ -7967,11 +7967,10 @@ class Transaksi extends CI_Controller
 								if($k->num_rows() == 0){
 									$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="5"></td>';
 									// REPLAN TAPI TIDAK TERKIRIM  +3 HARI
-									$id_dev1 = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$s->id_dev'");
 									if($exp3H > date('Y-m-d')){
 										$btnRPlan = '';
-									}else if($i9 == 1 && ($id_dev2->num_rows() == 0 || $kurang > 0) && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
-										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan</button>';
+									}else if($i9 == 1 && $k->num_rows() == 0 && $kurang > 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
+										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan1</button>';
 									}else{
 										$btnRPlan = '';
 									}
@@ -7979,8 +7978,8 @@ class Transaksi extends CI_Controller
 									$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="3"></td>
 									<td style="padding:6px;border:1px solid #999">'.strtoupper(substr($this->m_fungsi->getHariIni($k->row()->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->row()->tgl)).' - '.$k->row()->no_surat.' - '.$k->row()->no_kendaraan.'</td>
 									<td style="padding:6px;border:1px solid #999;text-align:right">'.number_format($k->row()->qty_muat).'</td>';
-									if($i9 == 1 && ($id_dev2->num_rows() == 0 || $kurang > 0) && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
-										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan</button>';
+									if($i9 == 1 && $k->num_rows() == 0 && $kurang > 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
+										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan2</button>';
 									}else{
 										$btnRPlan = '';
 									}
@@ -8307,7 +8306,7 @@ class Transaksi extends CI_Controller
 			$html .='<thead>
 				<tr>
 					<th style="width:5%;background:#ccc;border:1px solid #888" class="text-center">NO.</th>
-					<th style="width:10%;background:#ccc;border:1px solid #888">ETA SO</th>
+					<th style="width:10%;background:#ccc;border:1px solid #888">TGL MUAT</th>
 					<th style="width:21%;background:#ccc;border:1px solid #888">NO. SO</th>
 					<th style="width:15%;background:#ccc;border:1px solid #888">QTY SO</th>
 					<th style="width:20%;background:#ccc;border:1px solid #888">KETERANGAN</th>

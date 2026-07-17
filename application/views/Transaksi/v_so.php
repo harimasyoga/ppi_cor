@@ -1095,7 +1095,7 @@
 		let htmlBagiSo = ''
 		htmlBagiSo += `<table style="font-weight:bold;margin-top:10px">
 			<tr>
-				<td style="border:0">ETA SO</td>
+				<td style="border:0">TGL MUAT</td>
 				<td style="border:0">:</td>
 				<td style="border:0"><input type="date" class="form-control" id="form-bagi-eta-so"></td>
 			</tr>
