@@ -9941,11 +9941,17 @@ class Transaksi extends CI_Controller
 
 					// KONDISI JIKA HARI SUDAH TERLEWAT PO EXPIRED DITAMPILKAN
 					($tglNow > 0) ? $wApp = "" : $wApp = "AND d.status='Approve'";
+					($tglNow > 0) ? $wApp2 = "AND d.status='Approve'" : $wApp2 = "";
 
 					if($id_sales == null || $id_sales == '' || $akses_dd != null){
+						$cUng = $this->db->query("SELECT s.* FROM trs_dev_sys s
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND d.status='Close' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '-1'
+						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0'
+						GROUP BY s.eta,s.urut");
 						$cMer = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' $wApp AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '$wMer'
+						WHERE s.eta='$tglSys' $wApp $wApp2 AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '$wMer'
 						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0'
 						GROUP BY s.eta,s.urut");
 						$cKun = $this->db->query("SELECT*FROM trs_dev_sys s
@@ -9962,6 +9968,12 @@ class Transaksi extends CI_Controller
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
 						WHERE s.eta='$tglSys' $wApp GROUP BY s.eta")->row()->berat;
 					}else{
+						$cUng = $this->db->query("SELECT s.* FROM trs_dev_sys s
+						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Close' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '-1'
+						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0'
+						GROUP BY s.eta,s.urut");
 						$cMer = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
@@ -9991,22 +10003,28 @@ class Transaksi extends CI_Controller
 
 					$spaNh = '';
 					$spaNh .= '<div style="display:flex;position:absolute;top:3px;right:3px">';
+						($cUng->num_rows() != 0) ? $bgUng = '<div style="font-size:12px;font-style:italic;color:#000;background:#a67fff;padding:0 4px">'.$cUng->num_rows().'</div>' : $bgUng = '';
 						if($cKun->num_rows() != 0 && $cBir->num_rows() != 0 && $count->num_rows() != 0){
 							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ffbf00;padding:0 4px;border-radius:4px 0 0 4px">'.$cKun->num_rows().'</div>
 							<div style="font-size:12px;font-style:italic;color:#000;background:#0096ff;padding:0 4px">'.$cBir->num_rows().'</div>
+							'.$bgUng.'
 							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
 						}else if($cMer->num_rows() != 0 && $cBir->num_rows() != 0 && $count->num_rows() != 0){
 							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ff2e2e;padding:0 4px;border-radius:4px 0 0 4px">'.$cMer->num_rows().'</div>
 							<div style="font-size:12px;font-style:italic;color:#000;background:#0096ff;padding:0 4px">'.$cBir->num_rows().'</div>
+							'.$bgUng.'
 							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
 						}else if($cKun->num_rows() == 0 && $cBir->num_rows() != 0 && $count->num_rows() != 0){
 							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#0096ff;padding:0 4px;border-radius:4px 0 0 4px">'.$cBir->num_rows().'</div>
+							'.$bgUng.'
 							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
 						}else if($cMer->num_rows() != 0 && $cKun->num_rows() == 0 && $count->num_rows() != 0){
 							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ff2e2e;padding:0 4px;border-radius:4px 0 0 4px">'.$cMer->num_rows().'</div>
+							'.$bgUng.'
 							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
 						}else if($cMer->num_rows() == 0 && $cKun->num_rows() != 0 && $count->num_rows() != 0){
 							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ffbf00;padding:0 4px;border-radius:4px 0 0 4px">'.$cKun->num_rows().'</div>
+							'.$bgUng.'
 							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
 						}else if($count->num_rows() != 0){
 							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</div>';
@@ -10709,7 +10727,7 @@ class Transaksi extends CI_Controller
 
 						// SUSULAN
 						($r->dev_stat != null) ? $devStat = ' <span class="bg-info" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$r->dev_stat.'</span>' : $devStat = '';
-						($r->sts == 'Close') ? $devCls = ' <span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">CLOSE</span>' : $devCls = '';
+						($r->sts == 'Close') ? $devCls = '<span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">CLOSE</span> ' : $devCls = '';
 						
 						// REPLAN / + 3 HARI
 						$id_dev2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_dev2='$r->id_dev'");
@@ -10722,7 +10740,10 @@ class Transaksi extends CI_Controller
 
 						// HARI JUMAT N SABTU TAMBAH 1 HARI
 						$namaHari = date('l', strtotime($tgl));
-						if(in_array($namaHari, ['Friday', 'Saturday']) && in_array($r->exp_dd, ['-1', '-2', '-3']) && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
+						if($r->exp_dd <= '-1' && $r->sts == 'Close' && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
+							// UNGU
+							$dRP = 'background:#a67fff;border:1px solid #865fdf;';
+						}else if(in_array($namaHari, ['Friday', 'Saturday']) && in_array($r->exp_dd, ['-1', '-2', '-3']) && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
 							// KUNING HARI JUMAT / SABTU
 							$dRP = 'background:#ffa;border:1px solid #dd8;';
 						}else if(in_array($r->exp_dd, ['-1', '-2']) && $id_dev2->num_rows() == 0 && $r->timb_tgl == null && $r->timb_urut == null){
@@ -10856,14 +10877,10 @@ class Transaksi extends CI_Controller
 									$oKb3 = '';
 									$dkb3 = 'disabled';
 								}
-								if($sys->num_rows() != 1 || ($sys->num_rows() == 1 && $rkNull->num_rows() == 1)){
-									$html .= '<td style="padding:6px;border:1px solid #bbb"></td>
-									<td style="padding:6px;border:1px solid #bbb;font-weight:bold">
-										<input type="number" class="form-control" '.$oKb3.' style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" value="'.$txtKLB.'" autocomplete="off" placeholder="0" '.$dkb3.'>
-									</td>';
-								}else{
-									$html .= '<td style="padding:6px;border:1px solid #bbb"></td>';
-								}
+								$html .= '<td style="padding:6px;border:1px solid #bbb"></td>
+								<td style="padding:6px;border:1px solid #bbb;font-weight:bold">
+									<input type="number" class="form-control" '.$oKb3.' style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" value="'.$txtKLB.'" autocomplete="off" placeholder="0" '.$dkb3.'>
+								</td>';
 							}else{
 								$html .= '<td style="padding:6px;border:1px solid #bbb"></td>
 								<td style="padding:6px;border:1px solid #bbb;font-weight:bold">
@@ -10883,12 +10900,10 @@ class Transaksi extends CI_Controller
 								}else{
 									$txtTimb = '-';
 								}
-								$html .= '
-									<td style="padding:6px;border:1px solid #bbb" colspan="3"></td>
+								$html .= '<td style="padding:6px;border:1px solid #bbb" colspan="3"></td>
 									<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sjTotQty + $totNQty, 0, ',', '.').'</td>
 									<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($sjBBQty + $bbNQty, 0, ',', '.').'</td>
-									<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.$txtTimb.'</td>
-								';
+									<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.$txtTimb.'</td>';
 							}else if($aRK->num_rows() != 0){
 								$html .= '<td style="padding:6px;border:1px solid #bbb" colspan="6"></td>';
 							}
