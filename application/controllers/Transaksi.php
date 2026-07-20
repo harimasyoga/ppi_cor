@@ -3511,15 +3511,11 @@ class Transaksi extends CI_Controller
 
 				// TIMER EXPIRED PO
 				if($r->expired_po != null && $r->status_app3 == 'Y'){
-					$dExp = date('Y-m-d', strtotime('+'.$r->expired_po.' days', strtotime($r->time_app3)));
-					$dExpDiff = strtotime($dExp) - time();
+					$dExp = date('Y-m-d', strtotime('+'.$r->expired_po.' days', strtotime(substr($r->time_app3,0,10))));
+					$dExpDiff = strtotime($dExp) - strtotime(date('Y-m-d'));
 					$dExpHari = floor($dExpDiff/60/60/24);
-					$dExpJam = floor(($dExpDiff-($dExpHari*60*60*24))/60/60);
-					$dExpMenit = floor(($dExpDiff-($dExpHari*60*60*24)-($dExpJam*60*60))/60);
 					($dExpHari == 0) ? $dxDays = '' : $dxDays = ' '.$dExpHari.' Day';
-					($dExpJam == 0) ? $dxHours = '' : $dxHours = ' '.$dExpJam.' Hrs';
-					($dExpMenit == 0) ? $dxMinutes = '' : $dxMinutes = ' '.$dExpMenit.' Mnt';
-					($dExpHari <= 0) ? $dXWaktu = $dxHours.$dxMinutes : $dXWaktu = $dxDays;
+					($dExpHari <= 0) ? $dXWaktu = 'BESOK EXPIRED' : $dXWaktu = $dxDays;
 					if($r->exp_po < 0){
 						$expPO = '';
 					}else{
@@ -10026,6 +10022,9 @@ class Transaksi extends CI_Controller
 							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#ffbf00;padding:0 4px;border-radius:4px 0 0 4px">'.$cKun->num_rows().'</div>
 							'.$bgUng.'
 							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
+						}else if($cUng->num_rows() != 0 && $count->num_rows() != 0){
+							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#000;background:#a67fff;padding:0 4px;border-radius:4px 0 0 4px">'.$cUng->num_rows().'</div>
+							<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:0 4px 4px 0">'.$count->num_rows().'</div>';
 						}else if($count->num_rows() != 0){
 							$spaNh .= '<div style="font-size:12px;font-style:italic;color:#fff;background:#333;padding:0 4px;border-radius:4px">'.$count->num_rows().'</div>';
 						}
@@ -10727,7 +10726,7 @@ class Transaksi extends CI_Controller
 
 						// SUSULAN
 						($r->dev_stat != null) ? $devStat = ' <span class="bg-info" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$r->dev_stat.'</span>' : $devStat = '';
-						($r->sts == 'Close') ? $devCls = '<span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">CLOSE</span> ' : $devCls = '';
+						($r->sts == 'Close') ? $devCls = ' <span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">CLOSE</span>' : $devCls = '';
 						
 						// REPLAN / + 3 HARI
 						$id_dev2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_dev2='$r->id_dev'");
