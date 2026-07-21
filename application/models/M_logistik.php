@@ -2179,7 +2179,7 @@ class M_logistik extends CI_Model
 
 		if($retur_qty < 0){
 			$data = false; $data2 = false; $msg = 'QTY RETUR TIDAK BOLEH KOSONG!';
-		}if($retur_qty > $qty_order){
+		}else if($retur_qty > $qty_order){
 			$data = false; $data2 = false; $msg = 'QTY RETUR LEBIH DARI QTY ORDER!';
 		}else{
 			$r = $this->db->query("SELECT i.*,r.qty_muat,d.retur_qty,l.harga_pori_lm,d.total,d.no_invoice,d.harga_pkl FROM invoice_laminasi_detail d

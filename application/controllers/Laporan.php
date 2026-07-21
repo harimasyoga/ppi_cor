@@ -258,7 +258,7 @@ class Laporan extends CI_Controller
 					INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 					INNER JOIN m_sales s ON c.id_sales=s.id_sales
 					WHERE p.status='Approve' AND p.status_kiriman='Open' AND c.id_sales='$s->id_sales'
-					AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('1', '2', '3', '4', '5', '6', '7')
+					AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('0', '1', '2', '3', '4', '5', '6', '7')
 					GROUP BY c.id_sales");
 					// CEK SALES EXPIRED
 					$sMin7 = $this->db->query("SELECT count(p.kode_po) as hari7 FROM trs_po p
@@ -346,7 +346,7 @@ class Laporan extends CI_Controller
 							INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 							INNER JOIN m_sales s ON c.id_sales=s.id_sales
 							WHERE p.status='Approve' AND p.status_kiriman='Open' AND c.id_sales='$r->id_sales' AND p.id_pelanggan='$r->id_pelanggan'
-							AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('1', '2', '3', '4', '5', '6', '7')
+							AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('0', '1', '2', '3', '4', '5', '6', '7')
 							GROUP BY p.id_pelanggan");
 							// CEK CUSTOMER EXPIRED
 							$cMin7 = $this->db->query("SELECT count(p.kode_po) as hari7 FROM trs_po p
@@ -453,7 +453,7 @@ class Laporan extends CI_Controller
 									INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 									INNER JOIN m_sales s ON c.id_sales=s.id_sales
 									WHERE p.status='Approve' AND p.status_kiriman='Open' AND c.id_sales='$p->id_sales' AND p.id_pelanggan='$p->id_pelanggan' and d.id_produk='$p->id_produk'
-									AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('1', '2', '3', '4', '5', '6', '7')
+									AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('0', '1', '2', '3', '4', '5', '6', '7')
 									GROUP BY d.id_produk");
 									// CEK PER ITEM EXPIRED
 									$iMin7 = $this->db->query("SELECT count(p.kode_po) as hari7 FROM trs_po p
