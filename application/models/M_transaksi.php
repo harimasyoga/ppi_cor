@@ -1325,13 +1325,15 @@ class M_transaksi extends CI_Model
 		$id_dev = $_POST["id_dev"];
 
 		$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_dev='$id_dev'")->row();
+		$k = $this->db->query("SELECT r.*,p.* FROM m_rencana_kirim r
+		INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
+		WHERE r.rk_tgl='$sys->timb_tgl' AND r.rk_urut='$sys->timb_urut' AND r.dev_id='$sys->id_dev'
+		GROUP BY r.rk_tgl,r.id_pelanggan,r.id_produk,r.rk_kode_po,r.rk_urut");
 		// KIRIMAN
+		($k->num_rows() == 0) ? $QPkSJ = $sys->qty_plan : $QPkSJ = $sys->qty_plan - $k->row()->qty_muat;
+		($QPkSJ <= 0) ? $sQTYplan = 0 : $sQTYplan = $QPkSJ;
 		$id_dev2 = $this->db->query("SELECT SUM(s.qty_plan) AS qty_plan FROM trs_dev_sys s WHERE s.id_dev2='$id_dev' GROUP BY s.id_dev2");
-		if($id_dev2->num_rows() != 0){
-			$kurang = $sys->qty_plan - $id_dev2->row()->qty_plan;
-		}else{
-			$kurang = $sys->qty_plan;
-		}
+		($id_dev2->num_rows() != 0) ? $kurang = $sQTYplan - $id_dev2->row()->qty_plan : $kurang = $sQTYplan;
 
 		$po_dtl = $this->db->query("SELECT po.status_app3,ps.* FROM trs_po_detail ps
 		INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
@@ -1432,18 +1434,24 @@ class M_transaksi extends CI_Model
 		// CEK REPLAN
 		$rePlan = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_dev='$sys->id_dev2'");
 		if($rePlan->num_rows() != 0){
-			$qRp = $rePlan->row()->qty_plan;
 			$idAsli = $rePlan->row()->id_dev;
 			$id_dev2 = $this->db->query("SELECT SUM(s.qty_plan) AS qty_plan FROM trs_dev_sys s WHERE s.id_dev2='$idAsli' GROUP BY s.id_dev2");
+			$rk_tgl1 = $rePlan->row()->timb_tgl;
+			$rk_urut1 = $rePlan->row()->timb_urut;
+			$k = $this->db->query("SELECT r.*,p.* FROM m_rencana_kirim r
+			INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
+			WHERE r.rk_tgl='$rk_tgl1' AND r.rk_urut='$rk_urut1' AND r.dev_id='$idAsli'
+			GROUP BY r.rk_tgl,r.id_pelanggan,r.id_produk,r.rk_kode_po,r.rk_urut");
+			// KIRIMAN
+			($k->num_rows() == 0) ? $QPkSJ = $rePlan->row()->qty_plan : $QPkSJ = $rePlan->row()->qty_plan - $k->row()->qty_muat;
 			$sumQTY = ($id_dev2->row()->qty_plan + $sys_qty) - $sys_qtylama;
 		}else{
-			$qRp = 0;
-			$sumQTY = 0;
+			$QPkSJ = 0; $sumQTY = 0;
 		}
 
 		if($sys->eta_t == null){
 			$data = false; $msg = 'ETA DARI ACC PO TIDAK BISA DI EDIT!';
-		}else if($sys->eta_t == 'REPLAN' && $rePlan->num_rows() != 0 && $r->status_app3 == 'Y' && ($sys_qty > $qRp || $sumQTY > $qRp)){
+		}else if($sys->eta_t == 'REPLAN' && $rePlan->num_rows() != 0 && $r->status_app3 == 'Y' && $sumQTY > $QPkSJ){
 			$data = false; $msg = 'QTY LEBIH DARI ETA!';
 		}else if(($sys->eta_t == 'REPLAN' || $sys->eta_t == 'TAMBAHAN') && $dExpDiff <= 0 && $r->status_app3 == 'Y' && $r->expired_po != null){
 			$data = false; $msg = 'ETA LEBIH DARI EXPIRED PO!';
