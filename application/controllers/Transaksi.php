@@ -7907,7 +7907,7 @@ class Transaksi extends CI_Controller
 							
 							// AKSI
 							$tglNow = strtotime(date('Y-m-d')) - strtotime($s->eta);
-							if($tglNow <= 0 || in_array($lvl, ['Admin', 'Admin2', 'User', 'Marketing'])){
+							if(in_array($lvl, ['Admin', 'Admin2', 'User', 'Marketing'])){
 								$eBsys = 'class="btn btn-warning btn-xs" onclick="editBagiSys('."'".$s->id_dev."'".', '."'".$id."'".')"';
 								$hBsys = 'class="btn btn-danger btn-xs" onclick="hapusOSDSys('."'".$s->id_dev."'".')"';
 							}else{
@@ -7949,11 +7949,11 @@ class Transaksi extends CI_Controller
 									}
 								}
 								($s->eta_t == 'REPLAN') ? $zG = 'DFD' : $zG = 'FDD';
-								$ADSbtn = ($k->num_rows() == 0 && $id_dev2->num_rows() == 0) ? $editDSys.$btnHapusSys : '';
+								$ADSbtn = ($k->num_rows() == 0 && $k2->num_rows() == 0 && $id_dev2->num_rows() == 0) ? $editDSys.$btnHapusSys : '-';
 							}else{
 								($hPlus2 <= -30) ? $pP = '+P' : $pP = '-'.$hPlus2;
 								($s->eta_t == 'REPLAN') ? $zG = 'DFD' : $zG = 'DFD';
-								$ADSbtn = ($k->num_rows() == 0 && $id_dev2->num_rows() == 0) ? $editDSys.$btnHapusSys : '';
+								$ADSbtn = ($k->num_rows() == 0 && $k2->num_rows() == 0 && $id_dev2->num_rows() == 0) ? $editDSys.$btnHapusSys : '-';
 							}
 
 							$html .= '<tr style="background:#f2f2f2">';
@@ -7962,7 +7962,13 @@ class Transaksi extends CI_Controller
 								($QPkSJ <= 0) ? $sQTYplan = 0 : $sQTYplan = $QPkSJ;
 								($id_dev2->num_rows() != 0) ? $kurang = $sQTYplan - $id_dev2->row()->qty_plan : $kurang = $sQTYplan;
 								if($k->num_rows() == 0){
-									$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="5"></td>';
+									if($k2->num_rows() == 0){
+										$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="5"></td>';
+									}else{
+										$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="3"></td>
+										<td style="padding:6px;border:1px solid #999">'.strtoupper(substr($this->m_fungsi->getHariIni($k2->row()->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($k2->row()->tgl)).' - '.$k2->row()->no_surat.' - '.$k2->row()->no_kendaraan.'</td>
+										<td style="padding:6px;border:1px solid #999;text-align:right">-</td>';
+									}
 									// REPLAN TAPI TIDAK TERKIRIM  +3 HARI
 									if($exp3H > date('Y-m-d')){
 										$btnRPlan = '';
@@ -7975,7 +7981,9 @@ class Transaksi extends CI_Controller
 									$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="3"></td>
 									<td style="padding:6px;border:1px solid #999">'.strtoupper(substr($this->m_fungsi->getHariIni($k->row()->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->row()->tgl)).' - '.$k->row()->no_surat.' - '.$k->row()->no_kendaraan.'</td>
 									<td style="padding:6px;border:1px solid #999;text-align:right">'.number_format($k->row()->qty_muat).'</td>';
-									if($i9 == 1 && $kurang > 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
+									if($exp3H > date('Y-m-d')){
+										$btnRPlan = '';
+									}else if($i9 == 1 && $kurang > 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
 										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan</button>';
 									}else{
 										$btnRPlan = '';

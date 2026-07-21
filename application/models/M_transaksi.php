@@ -1428,7 +1428,7 @@ class M_transaksi extends CI_Model
 		INNER JOIN trs_po po ON po.no_po=ps.no_po AND po.kode_po=ps.kode_po
 		WHERE ps.id='$id_po_dtl' GROUP BY po.kode_po")->row();
 
-		$dExp = date('Y-m-d', strtotime('+'.$r->expired_po.' days', strtotime($r->time_app3)));
+		$dExp = date('Y-m-d', strtotime('+'.$r->expired_po.' days', strtotime(substr($r->time_app3,0,10))));
 		$dExpDiff = strtotime($dExp) - strtotime($sys_eta);
 
 		// CEK REPLAN
@@ -1453,7 +1453,7 @@ class M_transaksi extends CI_Model
 			$data = false; $msg = 'ETA DARI ACC PO TIDAK BISA DI EDIT!';
 		}else if($sys->eta_t == 'REPLAN' && $rePlan->num_rows() != 0 && $r->status_app3 == 'Y' && $sumQTY > $QPkSJ){
 			$data = false; $msg = 'QTY LEBIH DARI ETA!';
-		}else if(($sys->eta_t == 'REPLAN' || $sys->eta_t == 'TAMBAHAN') && $dExpDiff <= 0 && $r->status_app3 == 'Y' && $r->expired_po != null){
+		}else if(($sys->eta_t == 'REPLAN' || $sys->eta_t == 'TAMBAHAN') && $dExpDiff < 0 && $r->status_app3 == 'Y' && $r->expired_po != null){
 			$data = false; $msg = 'ETA LEBIH DARI EXPIRED PO!';
 		}else if($tglPilih <= 0 && $sys->eta_t != 'REPLAN'){
 			$data = false;
