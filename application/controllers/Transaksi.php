@@ -7907,7 +7907,7 @@ class Transaksi extends CI_Controller
 							
 							// AKSI
 							$tglNow = strtotime(date('Y-m-d')) - strtotime($s->eta);
-							if($tglNow <= 0 || in_array($lvl, ['Admin', 'Admin2', 'User', 'Marketing'])){
+							if(in_array($lvl, ['Admin', 'Admin2', 'User', 'Marketing'])){
 								$eBsys = 'class="btn btn-warning btn-xs" onclick="editBagiSys('."'".$s->id_dev."'".', '."'".$id."'".')"';
 								$hBsys = 'class="btn btn-danger btn-xs" onclick="hapusOSDSys('."'".$s->id_dev."'".')"';
 							}else{
@@ -7917,17 +7917,21 @@ class Transaksi extends CI_Controller
 							$editDSys = '<button type="button" '.$eBsys.'><i class="fas fa-edit"></i></button>';
 							$btnHapusSys = ' <button type="button" '.$hBsys.'><i class="fas fa-trash"></i></button>';
 
-							$rk_tgl = $s->timb_tgl;
-							$rk_urut = $s->timb_urut;
+							// CEK KIRIMAN
 							$k = $this->db->query("SELECT r.*,p.* FROM m_rencana_kirim r
 							INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
-							WHERE r.rk_tgl='$rk_tgl' AND r.rk_urut='$rk_urut'
+							WHERE r.rk_tgl='$s->timb_tgl' AND r.rk_urut='$s->timb_urut' AND r.dev_id='$s->id_dev'
 							GROUP BY r.rk_tgl,r.id_pelanggan,r.id_produk,r.rk_kode_po,r.rk_urut");
-
+							$k2 = $this->db->query("SELECT r.*,p.* FROM m_rencana_kirim r
+							INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
+							WHERE r.rk_tgl='$s->timb_tgl' AND r.rk_urut='$s->timb_urut'
+							GROUP BY r.rk_tgl,r.rk_urut");
 							// TIME 3 HARI
 							$namaHari = date('l', strtotime($s->eta));
 							($namaHari == "Friday" || $namaHari == "Saturday") ? $tbHari = '4' : $tbHari = '3';
 							$exp3H = date('Y-m-d', strtotime('+'.$tbHari.' days', strtotime($s->eta)));
+							// KIRIMAN
+							$id_dev2 = $this->db->query("SELECT SUM(s.qty_plan) AS qty_plan FROM trs_dev_sys s WHERE s.id_dev2='$s->id_dev' GROUP BY s.id_dev2");
 
 							// H / R
 							if($s->eta_t == null){
@@ -7936,7 +7940,7 @@ class Transaksi extends CI_Controller
 								$ADSbtn = '';
 							}else if($hPlus <= 0){
 								if($hPlus2 <= -30){
-									$pP = 'P';
+									$pP = '+P';
 								}else{
 									if($hPlus == 0){
 										$pP = '-'.$hPlus2;
@@ -7945,28 +7949,31 @@ class Transaksi extends CI_Controller
 									}
 								}
 								($s->eta_t == 'REPLAN') ? $zG = 'DFD' : $zG = 'FDD';
-								$ADSbtn = ($k->num_rows() == 0) ? $editDSys.$btnHapusSys : '';
+								$ADSbtn = ($k->num_rows() == 0 && $k2->num_rows() == 0 && $id_dev2->num_rows() == 0) ? $editDSys.$btnHapusSys : '-';
 							}else{
-								($hPlus2 <= -30) ? $pP = 'P' : $pP = '-'.$hPlus2;
+								($hPlus2 <= -30) ? $pP = '+P' : $pP = '-'.$hPlus2;
 								($s->eta_t == 'REPLAN') ? $zG = 'DFD' : $zG = 'DFD';
-								$ADSbtn = ($k->num_rows() == 0) ? $editDSys.$btnHapusSys : '';
+								$ADSbtn = ($k->num_rows() == 0 && $k2->num_rows() == 0 && $id_dev2->num_rows() == 0) ? $editDSys.$btnHapusSys : '-';
 							}
 
 							$html .= '<tr style="background:#f2f2f2">';
-								// KIRIMAN
-								$id_dev2 = $this->db->query("SELECT SUM(s.qty_plan) AS qty_plan FROM trs_dev_sys s WHERE s.id_dev2='$s->id_dev' GROUP BY s.id_dev2");
-								if($id_dev2->num_rows() != 0){
-									$kurang = $s->qty_plan - $id_dev2->row()->qty_plan;
-								}else{
-									$kurang = 0;
-								}
+								// HITUNG KIRIM DENGAN ETA 
+								($k->num_rows() == 0) ? $QPkSJ = $s->qty_plan : $QPkSJ = $s->qty_plan - $k->row()->qty_muat;
+								($QPkSJ <= 0) ? $sQTYplan = 0 : $sQTYplan = $QPkSJ;
+								($id_dev2->num_rows() != 0) ? $kurang = $sQTYplan - $id_dev2->row()->qty_plan : $kurang = $sQTYplan;
 								if($k->num_rows() == 0){
-									$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="5"></td>';
+									if($k2->num_rows() == 0){
+										$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="5"></td>';
+									}else{
+										$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="3"></td>
+										<td style="padding:6px;border:1px solid #999">'.strtoupper(substr($this->m_fungsi->getHariIni($k2->row()->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($k2->row()->tgl)).' - '.$k2->row()->no_surat.' - '.$k2->row()->no_kendaraan.'</td>
+										<td style="padding:6px;border:1px solid #999;text-align:right">-</td>';
+									}
 									// REPLAN TAPI TIDAK TERKIRIM  +3 HARI
 									if($exp3H > date('Y-m-d')){
 										$btnRPlan = '';
-									}else if($i9 == 1 && $k->num_rows() == 0 && $kurang > 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
-										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan1</button>';
+									}else if($i9 == 1 && $kurang > 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
+										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan</button>';
 									}else{
 										$btnRPlan = '';
 									}
@@ -7974,8 +7981,10 @@ class Transaksi extends CI_Controller
 									$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="3"></td>
 									<td style="padding:6px;border:1px solid #999">'.strtoupper(substr($this->m_fungsi->getHariIni($k->row()->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->row()->tgl)).' - '.$k->row()->no_surat.' - '.$k->row()->no_kendaraan.'</td>
 									<td style="padding:6px;border:1px solid #999;text-align:right">'.number_format($k->row()->qty_muat).'</td>';
-									if($i9 == 1 && $k->num_rows() == 0 && $kurang > 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
-										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan2</button>';
+									if($exp3H > date('Y-m-d')){
+										$btnRPlan = '';
+									}else if($i9 == 1 && $kurang > 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
+										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan</button>';
 									}else{
 										$btnRPlan = '';
 									}
@@ -10547,12 +10556,12 @@ class Transaksi extends CI_Controller
 				$html .= '</tr>';
 
 				if($id_sales == null || $id_sales == '' || $akses_dd != null){
-					$urut = $this->db->query("SELECT SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s
+					$urut = $this->db->query("SELECT (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev) AS dev9,SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s
 					INNER JOIN trs_po_detail p ON s.id_po_header=p.id
 					WHERE s.eta='$tgl' $pAppc GROUP BY s.eta, s.urut, s.id_ex");
 					$wSls = "";
 				}else{
-					$urut = $this->db->query("SELECT SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s
+					$urut = $this->db->query("SELECT (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev) AS dev9,SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s
 					INNER JOIN m_pelanggan d ON s.id_pelanggan=d.id_pelanggan
 					INNER JOIN trs_po_detail p ON s.id_po_header=p.id
 					WHERE s.eta='$tgl' $pAppc AND d.id_sales='$id_sales'
@@ -10628,7 +10637,7 @@ class Transaksi extends CI_Controller
 										}else{
 											$hapus = '';
 										}
-										$plhBtnDS = ($u->timb_tgl == null && $u->timb_urut == null && $u->id_ex != null && $cekRK->num_rows() == 0 && $p_tgl != '' && $p_urut != '') ? ' - <span class="btnDSRC"><button class="btn btn-xs btn-primary" style="font-weight:bold" onclick="pilihDSRinc('."'".$u->urut."'".')">PILIH</button></span>' : '<span class="btnDSRC"></span>';
+										$plhBtnDS = ($u->timb_tgl == null && $u->timb_urut == null && $u->id_ex != null && $u->dev9 == 0 && $cekRK->num_rows() == 0 && $p_tgl != '' && $p_urut != '') ? ' - <span class="btnDSRC"><button class="btn btn-xs btn-primary" style="font-weight:bold" onclick="pilihDSRinc('."'".$u->urut."'".')">PILIH</button></span>' : '<span class="btnDSRC"></span>';
 										$html .= '<div style="font-weight:bold;color:#fff">'.$e->plat.' ( '.$e->ekspedisi.' )'.$pLt.$kalibrasi.$hapus.$plhBtnDS.'</div>';
 									}
 								}else{
