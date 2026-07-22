@@ -17,10 +17,65 @@
 			-webkit-appearance: none;
 			margin: 0;
 		}
+
+		.gd-grid31 {
+			display: grid;
+			grid-template-columns: repeat(34, 1fr);
+		}
+		.gd-grid30 {
+			display: grid;
+			grid-template-columns: repeat(33, 1fr);
+		}
+		.gd-grid29 {
+			display: grid;
+			grid-template-columns: repeat(32, 1fr);
+		}
+		.gd-grid28 {
+			display: grid;
+			grid-template-columns: repeat(31, 1fr);
+		}
+
+		.title-grid {
+			display: grid;
+			grid-template-columns: 80px repeat(7, 80px);
+			/* grid-auto-columns: 80px; */
+		}
+
+		/* .gd-grid31:hover, .gd-grid30:hover, .gd-grid29:hover, .gd-grid28:hover > div {
+			background: #e3f2fd;
+		} */
 	</style>
 
 	<section class="content">
 		<div class="container-fluid">
+
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card card-primary card-outline" style="padding-bottom:12px">
+					<div class="card-header" style="padding:12px">
+						<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST GUDANG</h3>
+					</div>
+					<div class="card-body" style="font-weight:bold;padding:6px">
+						<div>
+							<table>
+								<tr>
+									<td style="font-weight:bold;padding:0 0 16px">
+										<input type="month" id="all_plh_tgl" value="<?php echo date('Y-m')?>" class="form-control" onchange="allListGudang()">
+									</td>
+									<td style="font-weight:bold;padding:0 0 16px 12px">
+										<div class="all-btn-pdf"></div>
+									</td>
+								</tr>
+							</table>
+						</div>
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="all-list-gudang"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
 			<div class="row card-add-gudang" style="display:none">
 				<div class="col-md-12">
 					<div class="card card-primary card-outline" style="padding-bottom:12px">
@@ -154,7 +209,8 @@
 
 	$(document).ready(function () {
 		$(".select2").select2()
-		load_data()
+		// load_data()
+		allListGudang()
 	});
 
 	function load_data() {
@@ -224,6 +280,22 @@
 	function kosong() {
 		$(".produk").html('')
 		$(".gudang").html('')
+	}
+
+	function allListGudang(){
+		let all_plh_tgl = $("#all_plh_tgl").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/allListGudang')?>',
+			type: "POST",
+			data: ({
+				all_plh_tgl
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				$(".all-list-gudang").html(data.html)
+				console.log(data)
+			}
+		})
 	}
 
 	function plhGCPelanggan() {
