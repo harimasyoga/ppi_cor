@@ -789,7 +789,6 @@ class M_logistik extends CI_Model
 		$hari = date('d', strtotime($tgl_awal));
 		$bulan = date('m', strtotime($tgl_awal));
 		$tahun = date('Y', strtotime($tgl_awal));
-		// $wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
 		if($tgl_awal == ''){
 			$data = false; $msg = 'HARAP PILIH TANGGAL AWAL!';
 		}else{
@@ -798,48 +797,54 @@ class M_logistik extends CI_Model
 				$stok_awal = str_replace('.', '', $_POST["stok_awal_".$r->id_produk]);
 				$stok_akhir = ($_POST["hstok_akhir_".$r->id_produk] == '' || $_POST["hstok_akhir_".$r->id_produk] == 0) ? 0 : str_replace('.', '', $_POST["hstok_akhir_".$r->id_produk]);
 				$in = str_replace('.', '', $_POST["in_".$r->id_produk]);
+				$inRtr = str_replace('.', '', $_POST["inrtr_".$r->id_produk]);
 				$out = str_replace('.', '', $_POST["out_".$r->id_produk]);
+				$outRtr = str_replace('.', '', $_POST["outrtr_".$r->id_produk]);
 				$ket = trim($_POST["ket_".$r->id_produk]);
-				// if($stok_awal != 0 || $in != 0 || $out != 0 || $stok_akhir != 0){
-					$cek2 = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$r->id_produk'");
-					if($cek2->num_rows() == 0 && ($stok_awal != 0 || $in != 0 || $out != 0 || $stok_akhir != 0)){
-						$gudang = [
-							'id_pelanggan' => $id_pelanggan,
-							'id_produk' => $r->id_produk,
-							'bulan' => $bulan,
-							'tahun' => $tahun,
-							$hari.'_stok_awal' => ($stok_awal == '' || $stok_awal == 0) ? 0 : $stok_awal,
-							$hari.'_in' => ($in == '' || $in == 0) ? 0 : $in,
-							$hari.'_out' => ($out == '' || $out == 0) ? 0 : $out,
-							$hari.'_stok_akhir' => ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir,
-							$hari.'_ket' => ($ket == '') ? null : $ket,
-						];
-						$data = $this->db->insert('m_gudang_v2', $gudang);
-					}else{
-						// KALAU QTY SEMUA 0 NULL KAN!
-						if($stok_awal == 0 && $in == 0 && $out == 0 && $stok_akhir == 0){
-							$this->db->set($hari.'_stok_awal', null);
-							$this->db->set($hari.'_in', null);
-							$this->db->set($hari.'_out', null);
-							$this->db->set($hari.'_stok_akhir', null);
-						}
-						// KALAU QTY SALAH SATU ADA ISI YA DI ISI
-						if($stok_awal != 0 || $in != 0 || $out != 0 || $stok_akhir != 0){
-							$this->db->set($hari.'_stok_awal', ($stok_awal == '' || $stok_awal == 0) ? 0 : $stok_awal);
-							$this->db->set($hari.'_in', ($in == '' || $in == 0) ? 0 : $in);
-							$this->db->set($hari.'_out', ($out == '' || $out == 0) ? 0 : $out);
-							$this->db->set($hari.'_stok_akhir', ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir);
-						}
-						$this->db->set($hari.'_ket', ($ket == '') ? null : $ket);
-						$this->db->where('id_pelanggan', $id_pelanggan);
-						$this->db->where('id_produk', $r->id_produk);
-						$this->db->where('bulan', $bulan);
-						$this->db->where('tahun', $tahun);
-						$data = $this->db->update('m_gudang_v2');
+				$cek2 = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$r->id_produk'");
+				if($cek2->num_rows() == 0 && ($stok_awal != 0 || $in != 0 || $inRtr != 0 || $out != 0 || $outRtr != 0 || $stok_akhir != 0)){
+					$gudang = [
+						'id_pelanggan' => $id_pelanggan,
+						'id_produk' => $r->id_produk,
+						'bulan' => $bulan,
+						'tahun' => $tahun,
+						$hari.'_stok_awal' => ($stok_awal == '' || $stok_awal == 0) ? 0 : $stok_awal,
+						$hari.'_in' => ($in == '' || $in == 0) ? 0 : $in,
+						$hari.'_in_rtr' => ($inRtr == '' || $inRtr == 0) ? 0 : $inRtr,
+						$hari.'_out' => ($out == '' || $out == 0) ? 0 : $out,
+						$hari.'_out_rtr' => ($outRtr == '' || $outRtr == 0) ? 0 : $outRtr,
+						$hari.'_stok_akhir' => ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir,
+						$hari.'_ket' => ($ket == '') ? null : $ket,
+					];
+					$data = $this->db->insert('m_gudang_v2', $gudang);
+				}else if($cek2->num_rows() != 0){
+					// KALAU QTY SEMUA 0 NULL KAN!
+					if($stok_awal == 0 && $in == 0 && $inRtr == 0 && $out == 0 && $outRtr == 0 && $stok_akhir == 0){
+						$this->db->set($hari.'_stok_awal', null);
+						$this->db->set($hari.'_in', null);
+						$this->db->set($hari.'_in_rtr', null);
+						$this->db->set($hari.'_out', null);
+						$this->db->set($hari.'_out_rtr', null);
+						$this->db->set($hari.'_stok_akhir', null);
 					}
-				// }else{
-				// 	$data = true;
-				// }
+					// KALAU QTY SALAH SATU ADA ISI YA DI ISI
+					if($stok_awal != 0 || $in != 0 || $inRtr != 0 || $out != 0 || $outRtr != 0 || $stok_akhir != 0){
+						$this->db->set($hari.'_stok_awal', ($stok_awal == '' || $stok_awal == 0) ? 0 : $stok_awal);
+						$this->db->set($hari.'_in', ($in == '' || $in == 0) ? 0 : $in);
+						$this->db->set($hari.'_in_rtr', ($inRtr == '' || $inRtr == 0) ? 0 : $inRtr);
+						$this->db->set($hari.'_out', ($out == '' || $out == 0) ? 0 : $out);
+						$this->db->set($hari.'_out_rtr', ($outRtr == '' || $outRtr == 0) ? 0 : $outRtr);
+						$this->db->set($hari.'_stok_akhir', ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir);
+					}
+					$this->db->set($hari.'_ket', ($ket == '') ? null : $ket);
+					$this->db->where('id_pelanggan', $id_pelanggan);
+					$this->db->where('id_produk', $r->id_produk);
+					$this->db->where('bulan', $bulan);
+					$this->db->where('tahun', $tahun);
+					$data = $this->db->update('m_gudang_v2');
+				}else{
+					$data = true;
+				}
 			}
 			$msg = 'BERHASIL!';
 		}
@@ -847,6 +852,101 @@ class M_logistik extends CI_Model
 		return [
 			'data' => $data,
 			'msg' => $msg,
+		];
+	}
+
+	function editGDGD()
+	{
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$id_produk = $_POST["id_produk"];
+		$hari = $_POST["hari"];
+		$bulan = date('m', strtotime($_POST["btnthn"]));
+		$tahun = date('Y', strtotime($_POST["btnthn"]));
+
+		$stok_awal = str_replace('.', '', $_POST["stok_awal"]);
+		$stok_akhir = ($_POST["hitung"] == '' || $_POST["hitung"] == 0) ? 0 : str_replace('.', '', $_POST["hitung"]);
+		$in = str_replace('.', '', $_POST["inin"]);
+		$inRtr = str_replace('.', '', $_POST["inrtr"]);
+		$out = str_replace('.', '', $_POST["out"]);
+		$outRtr = str_replace('.', '', $_POST["outrtr"]);
+		$ket = trim($_POST["keterangan"]);
+		
+		$this->db->set($hari.'_stok_awal', ($stok_awal == '' || $stok_awal == 0) ? 0 : $stok_awal);
+		$this->db->set($hari.'_in', ($in == '' || $in == 0) ? 0 : $in);
+		$this->db->set($hari.'_in_rtr', ($inRtr == '' || $inRtr == 0) ? 0 : $inRtr);
+		$this->db->set($hari.'_out', ($out == '' || $out == 0) ? 0 : $out);
+		$this->db->set($hari.'_out_rtr', ($outRtr == '' || $outRtr == 0) ? 0 : $outRtr);
+		$this->db->set($hari.'_stok_akhir', ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir);
+		$this->db->set($hari.'_ket', ($ket == '') ? null : $ket);
+		$this->db->where('id_pelanggan', $id_pelanggan);
+		$this->db->where('id_produk', $id_produk);
+		$this->db->where('bulan', $bulan);
+		$this->db->where('tahun', $tahun);
+		$update = $this->db->update('m_gudang_v2');
+
+		if($update){
+			$i2 = (int)$_POST["hari"];
+			$hariNow = date('d', strtotime(date('Y-m-d')));
+			for ($i = $i2; $i <= $hariNow; $i++) {
+				if($i != $i2){
+					// KURANGI SATU HARI
+					$minHari = $i - 1;
+					($minHari < 10) ? $hariK = '0'.$minHari : $hariK = $minHari;
+					$wA = 'AND ('.$hariK.'_stok_awal IS NOT NULL OR '.$hariK.'_stok_akhir IS NOT NULL OR '.$hariK.'_in IS NOT NULL OR '.$hariK.'_in_rtr IS NOT NULL OR '.$hariK.'_out IS NOT NULL OR '.$hariK.'_out_rtr IS NOT NULL)';
+					$dataK = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$id_produk' $wA");
+
+					// GET HARI INI
+					($i < 10) ? $hariI = '0'.$i : $hariI = $i;
+					$wH = 'AND ('.$hariI.'_stok_awal IS NOT NULL OR '.$hariI.'_stok_akhir IS NOT NULL OR '.$hariI.'_in IS NOT NULL OR '.$hariI.'_in_rtr IS NOT NULL OR '.$hariI.'_out IS NOT NULL OR '.$hariI.'_out_rtr IS NOT NULL)';
+					$dataH = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$id_produk' $wH");
+
+					$hIn = ($dataH->row($hariI.'_in') == 0 || $dataH->row($hariI.'_in') == null) ? 0 : $dataH->row($hariI.'_in');
+					$hInRtr = ($dataH->row($hariI.'_in_rtr') == 0 || $dataH->row($hariI.'_in_rtr') == null) ? 0 : $dataH->row($hariI.'_in_rtr');
+					$hOut = ($dataH->row($hariI.'_out') == 0 || $dataH->row($hariI.'_out') == null) ? 0 : $dataH->row($hariI.'_out');
+					$hOutRtr = ($dataH->row($hariI.'_out_rtr') == 0 || $dataH->row($hariI.'_out_rtr') == null) ? 0 : $dataH->row($hariI.'_out_rtr');
+
+					$fixStokAwal = $dataK->row($hariK.'_stok_akhir');
+					$fixStokAkhir = ($dataK->row($hariK.'_stok_akhir') + ($hIn + $hInRtr)) - ($hOut + $hOutRtr);
+
+					$this->db->set($hariI.'_stok_awal', $fixStokAwal);
+					$this->db->set($hariI.'_in', $hIn);
+					$this->db->set($hariI.'_in_rtr', $hInRtr);
+					$this->db->set($hariI.'_out', $hOut);
+					$this->db->set($hariI.'_out_rtr', $hOutRtr);
+					$this->db->set($hariI.'_stok_akhir', $fixStokAkhir);
+					$this->db->where('id_pelanggan', $id_pelanggan);
+					$this->db->where('id_produk', $id_produk);
+					$this->db->where('bulan', $bulan);
+					$this->db->where('tahun', $tahun);
+					$this->db->update('m_gudang_v2');
+				}
+			}
+
+			// HAPUS DATA HARI MINGGU
+			// for ($m = $i2; $m <= $hariNow; $m++) {
+			// 	($m < 10) ? $minggu = '0'.$m : $minggu = $m;
+			// 	$tglLibur = $tahun.'-'.$bulan.'-'.$minggu;
+			// 	// CEK LIBUR
+			// 	$libur = $this->db->query("SELECT*FROM libur WHERE tgl='$tglLibur'");
+			// 	$namaHari = date('l', strtotime($tglLibur));
+			// 	if($libur->num_rows() != 0 || $namaHari == "Sunday"){
+			// 		$this->db->set($minggu.'_stok_awal', null);
+			// 		$this->db->set($minggu.'_in', null);
+			// 		$this->db->set($minggu.'_in_rtr', null);
+			// 		$this->db->set($minggu.'_out', null);
+			// 		$this->db->set($minggu.'_out_rtr', null);
+			// 		$this->db->set($minggu.'_stok_akhir', null);
+			// 		$this->db->where('id_pelanggan', $id_pelanggan);
+			// 		$this->db->where('id_produk', $id_produk);
+			// 		$this->db->where('bulan', $bulan);
+			// 		$this->db->where('tahun', $tahun);
+			// 		$this->db->update('m_gudang_v2');
+			// 	}
+			// }
+		}
+
+		return [
+			'update' => $update,
 		];
 	}
 

@@ -53,37 +53,6 @@
 	<section class="content">
 		<div class="container-fluid">
 
-		<div class="row">
-			<div class="col-md-12">
-				<div class="card card-primary card-outline" style="padding-bottom:12px">
-					<div class="card-header" style="padding:12px">
-						<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST GUDANG</h3>
-					</div>
-					<div class="card-body" style="font-weight:bold;padding:6px">
-						<div>
-							<table>
-								<tr>
-									<td style="font-weight:bold;padding:0 0 16px">
-										<input type="month" id="all_plh_tgl" value="<?php echo date('Y-m')?>" class="form-control" onchange="allListGudang()">
-									</td>
-									<td style="font-weight:bold;padding:0 0 16px 12px">
-										<div class="all-btn-pdf"></div>
-									</td>
-								</tr>
-							</table>
-						</div>
-						<div style="overflow:auto;white-space:nowrap">
-							<div class="all-list-gudang"></div>
-						</div>
-						<br><br>
-						<div style="overflow:auto;white-space:nowrap">
-							<div class="all-list-gudang2"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
 			<div class="row card-add-gudang" style="display:none">
 				<div class="col-md-12">
 					<div class="card card-primary card-outline" style="padding-bottom:12px">
@@ -189,6 +158,38 @@
 					</div>
 				</div>
 			</div>
+
+			<div class="row card-list-gudang2">
+				<div class="col-md-12">
+					<div class="card card-primary card-outline" style="padding-bottom:12px">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST GUDANG</h3>
+						</div>
+						<div class="card-body" style="font-weight:bold;padding:6px">
+							<div>
+								<table>
+									<tr>
+										<td style="font-weight:bold;padding:0 0 16px">
+											<input type="month" id="all_plh_tgl" value="<?php echo date('Y-m')?>" class="form-control" onchange="allListGudang()">
+										</td>
+										<td style="font-weight:bold;padding:0 0 16px 12px">
+											<div class="all-btn-pdf"></div>
+										</td>
+									</tr>
+								</table>
+							</div>
+							<!-- <div style="overflow:auto;white-space:nowrap">
+								<div class="all-list-gudang"></div>
+							</div>
+							-->
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="all-list-gudang2"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 		</div>
 	</section>
 </div>
@@ -217,7 +218,7 @@
 
 	$(document).ready(function () {
 		$(".select2").select2()
-		// load_data()
+		load_data()
 		allListGudang()
 	});
 
@@ -270,9 +271,9 @@
 	function tambah() {
 		kosong()
 		loadGC()
-		// $("#tgl_awal_cust").val()
 		$("#pelanggan").val('').trigger('change')
 		$(".card-list-gudang").hide()
+		$(".card-list-gudang2").hide()
 		$(".card-add-gudang").show()
 		$(".card-input-gudang").show()
 	}
@@ -281,6 +282,7 @@
 		kosong()
 		load_data()
 		$(".card-list-gudang").show()
+		$(".card-list-gudang2").show()
 		$(".card-add-gudang").hide()
 		$(".card-input-gudang").hide()
 	}
@@ -300,7 +302,7 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				$(".all-list-gudang").html(data.html)
+				// $(".all-list-gudang").html(data.html)
 				$(".all-list-gudang2").html(data.html2)
 				// console.log(data)
 			}
@@ -400,22 +402,34 @@
 		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
 
 		let stok_awal = $("#stok_awal_"+i).val().split('.').join('');
-		(stok_awal < 0 || stok_awal == '' || stok_awal.length >= 7) ? stok_awal = 0 : stok_awal = stok_awal;
+		(stok_awal == '' || stok_awal.length >= 7) ? stok_awal = 0 : stok_awal = stok_awal;
 		$("#stok_awal_"+i).val(rupiah.format(stok_awal));
 
 		let inin = $("#in_"+i).val().split('.').join('');
-		(inin < 0 || inin == '' || inin.length >= 7) ? inin = 0 : inin = inin;
+		(inin == '' || inin < 0 || inin.length >= 7) ? inin = 0 : inin = inin;
 		$("#in_"+i).val(rupiah.format(inin));
 
+		let inrtr = $("#inrtr_"+i).val().split('.').join('');
+		(inrtr == '' || inrtr < 0 || inrtr.length >= 7) ? inrtr = 0 : inrtr = inrtr;
+		$("#inrtr_"+i).val(rupiah.format(inrtr));
+
 		let out = $("#out_"+i).val().split('.').join('');
-		let stokAwalIn = parseInt(stok_awal) + parseInt(inin);
-		(out < 0 || out == '' || out.length >= 7 || out > stokAwalIn) ? out = 0 : out = out;
+		(out == '' || out < 0 || out.length >= 7) ? out = 0 : out = out;
 		$("#out_"+i).val(rupiah.format(out));
 
-		let hitung = (parseInt(stok_awal) + parseInt(inin)) - parseInt(out);
-		(isNaN(hitung) || hitung < 0) ? hitung = '' : hitung = hitung;
+		let outrtr = $("#outrtr_"+i).val().split('.').join('');
+		(outrtr == '' || outrtr < 0 || outrtr.length >= 7) ? outrtr = 0 : outrtr = outrtr;
+		$("#outrtr_"+i).val(rupiah.format(outrtr));
+
+		let hitung = (parseInt(stok_awal, 10) + parseInt(inin, 10) + parseInt(inrtr, 10)) - (parseInt(out, 10) + parseInt(outrtr, 10));
+		(isNaN(hitung)) ? hitung = '' : hitung = hitung;
 		$("#stok_akhir_"+i).val(rupiah.format(hitung));
 		$("#hstok_akhir_"+i).val(hitung);
+
+		let bb = $("#hTTON_"+i).val();
+		let ton = parseInt(hitung * bb, 10);
+		(ton.length >= 7 || ton < 0) ? ton = 0 : ton = ton;
+		$("#tton_"+i).val(rupiah.format(ton));
 	}
 
 	function keyUpGD2(i)
@@ -439,6 +453,71 @@
 		(isNaN(hitung) || hitung < 0) ? hitung = '' : hitung = hitung;
 		$("#stok_akhir2_"+i).val(rupiah.format(hitung));
 		$("#hstok_akhir2_"+i).val(hitung);
+	}
+
+	function keyUpGD3(i,z)
+	{
+		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
+
+		let stok_awal = $("#vSA_"+i+"_"+z).val().split('.').join('');
+		(stok_awal.length >= 7 || stok_awal == '') ? stok_awal = 0 : stok_awal = stok_awal;
+		$("#vSA_"+i+"_"+z).val(rupiah.format(stok_awal));
+
+		let inin = $("#vIN_"+i+"_"+z).val().split('.').join('');
+		(inin.length >= 7 || inin == '' || inin < 0) ? inin = 0 : inin = inin;
+		$("#vIN_"+i+"_"+z).val(rupiah.format(inin));
+
+		let inrtr = $("#vINrtr_"+i+"_"+z).val().split('.').join('');
+		(inrtr.length >= 7 || inrtr == '' || inrtr < 0) ? inrtr = 0 : inrtr = inrtr;
+		$("#vINrtr_"+i+"_"+z).val(rupiah.format(inrtr));
+
+		let outrtr = $("#vOUTrtr_"+i+"_"+z).val().split('.').join('');
+		(outrtr.length >= 7 || outrtr == '' || outrtr < 0) ? outrtr = 0 : outrtr = outrtr;
+		$("#vOUTrtr_"+i+"_"+z).val(rupiah.format(outrtr));
+
+		let out = $("#vOUT_"+i+"_"+z).val().split('.').join('');
+		(out.length >= 7 || out == '' || out < 0) ? out = 0 : out = out;
+		$("#vOUT_"+i+"_"+z).val(rupiah.format(out));
+
+		let hitung = (parseInt(stok_awal, 10) + parseInt(inin, 10) + parseInt(inrtr, 10)) - (parseInt(out, 10) + parseInt(outrtr, 10));
+		(isNaN(hitung)) ? hitung = 0 : hitung = hitung;
+		$("#vSK_"+i+"_"+z).val(rupiah.format(hitung));
+
+		let bb = $("#hTON_"+i+"_"+z).val();
+		let ton = parseInt(hitung * bb, 10);
+		(ton.length >= 7 || ton < 0) ? ton = 0 : ton = ton;
+		$("#vTON_"+i+"_"+z).val(rupiah.format(ton));
+
+		// edit-gdgd
+		if((isNaN(hitung)) || hitung == 0 || hitung == ''){
+			$(".edit-gdgd-"+i+"_"+z).html('')
+		}else{
+			$(".edit-gdgd-"+i+"_"+z).html(`<button type="button" class="btn btn-xs btn-warning" style="padding:0 2px" onclick="editGDGD('${i}', '${z}')"><i class="fas fa-pen"></i></button>`)
+		}
+	}
+
+	function editGDGD(i, z)
+	{
+		let btnthn = $("#xBLNTHN").val()
+		let id_pelanggan = $("#xCUST"+i+"_"+z).val()
+		let stok_awal = $("#vSA_"+i+"_"+z).val().split('.').join('')
+		let inin = $("#vIN_"+i+"_"+z).val().split('.').join('')
+		let inrtr = $("#vINrtr_"+i+"_"+z).val().split('.').join('')
+		let outrtr = $("#vOUTrtr_"+i+"_"+z).val().split('.').join('')
+		let out = $("#vOUT_"+i+"_"+z).val().split('.').join('')
+		let hitung = $("#vSK_"+i+"_"+z).val().split('.').join('')
+		let keterangan = $("#vKET_"+i+"_"+z).val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/editGDGD')?>',
+			type: "POST",
+			data: ({
+				id_produk: i, hari: z, btnthn, id_pelanggan, stok_awal, inin, inrtr, outrtr, out, hitung, keterangan
+			}),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+			}
+		})
 	}
 
 	function simpanGCcorrugated()

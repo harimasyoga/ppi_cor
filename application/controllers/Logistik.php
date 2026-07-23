@@ -11317,6 +11317,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function editGDGD()
+	{
+		$result = $this->m_logistik->editGDGD();
+		echo json_encode($result);
+	}
+
 	function simpanGDListCorr()
 	{
 		$result = $this->m_logistik->simpanGDListCorr();
@@ -11688,7 +11694,7 @@ class Logistik extends CI_Controller
 		$tgl_awal_cust = $_POST["tgl_awal_cust"];
 		$html = '';
 		$tglNow = strtotime($tgl_awal_cust) - strtotime(date('Y-m-d'));
-		($tglNow >= 0) ? $dsb = '' : $dsb = 'readonly';
+		($tglNow > 0) ? $dsb = 'readonly' : $dsb = '';
 
 		$produk = $this->db->query("SELECT*FROM m_produk WHERE no_customer='$id_pelanggan' ORDER BY kategori,nm_produk");
 		if($tgl_awal_cust == ''){
@@ -11705,10 +11711,13 @@ class Logistik extends CI_Controller
 							<th style="text-align:center;padding:6px">UKURAN</th>
 							<th style="text-align:center;padding:6px">FLUTE</th>
 							<th style="text-align:center;padding:6px">SUBSTANCE</th>
-							<th style="text-align:center;padding:6px">STOK AWAL</th>
+							<th style="text-align:center;padding:6px">SALDO AWAL</th>
 							<th style="text-align:center;padding:6px 30px">IN</th>
+							<th style="text-align:center;padding:6px">RETUR IN</th>
 							<th style="text-align:center;padding:6px 23px">OUT</th>
+							<th style="text-align:center;padding:6px">RETUR OUT</th>
 							<th style="text-align:center;padding:6px">STOK AKHIR</th>
+							<th style="text-align:center;padding:6px">TONASE</th>
 							<th style="text-align:center;padding:6px 20px">KETERANGAN</th>
 						</tr>';
 						$i = 0;
@@ -11724,19 +11733,22 @@ class Logistik extends CI_Controller
 								$hari = date('d', strtotime($tgl_awal_cust));
 								$bulan = date('m', strtotime($tgl_awal_cust));
 								$tahun = date('Y', strtotime($tgl_awal_cust));
-								$wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
+								$wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_in_rtr IS NOT NULL OR '.$hari.'_out IS NOT NULL OR '.$hari.'_out_rtr IS NOT NULL)';
 								$qq = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$r->id_produk' $wA");
 								if($qq->num_rows() != 0){
 									$vSa = ($qq->row($hari.'_stok_awal') == 0) ? 0 : number_format($qq->row($hari.'_stok_awal'),0,',','.');
 									$vIn2 = ($qq->row($hari.'_in') == 0) ? 0 : number_format($qq->row($hari.'_in'),0,',','.');
+									$vInRtr = ($qq->row($hari.'_in_rtr') == 0) ? 0 : number_format($qq->row($hari.'_in_rtr'),0,',','.');
 									$vOut = ($qq->row($hari.'_out') == 0) ? 0 : number_format($qq->row($hari.'_out'),0,',','.');
+									$vOutRtr = ($qq->row($hari.'_out_rtr') == 0) ? 0 : number_format($qq->row($hari.'_out_rtr'),0,',','.');
 									$vSk = ($qq->row($hari.'_stok_akhir') == 0) ? 0 : number_format($qq->row($hari.'_stok_akhir'),0,',','.');
+									$vTon = ($qq->row($hari.'_stok_akhir') == 0 || $qq->row($hari.'_stok_akhir') < 0) ? 0 : number_format($qq->row($hari.'_stok_akhir') * $r->berat_bersih,0,',','.');
 									$vKet = $qq->row($hari.'_ket');
 								}else{
-									$vSa = ''; $vIn2 = ''; $vOut = ''; $vSk = ''; $vKet = null;
+									$vSa = ''; $vIn2 = ''; $vInRtr = ''; $vOut = ''; $vOutRtr = ''; $vSk = ''; $vTon = ''; $vKet = null;
 								}
 							}else{
-								$vSa = ''; $vIn2 = ''; $vOut = ''; $vSk = ''; $vKet = null;
+								$vSa = ''; $vIn2 = ''; $vInRtr = ''; $vOut = ''; $vOutRtr = ''; $vSk = ''; $vTon = ''; $vKet = null;
 							}
 
 							// CEK NO. PO
@@ -11759,11 +11771,21 @@ class Logistik extends CI_Controller
 									<input type="number" id="in_'.$r->id_produk.'" name="in_'.$r->id_produk.'" value="'.$vIn2.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$dsb.'>
 								</td>
 								<td style="padding:6px">
+									<input type="number" id="inrtr_'.$r->id_produk.'" name="inrtr_'.$r->id_produk.'" value="'.$vInRtr.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$dsb.'>
+								</td>
+								<td style="padding:6px">
 									<input type="number" id="out_'.$r->id_produk.'" name="out_'.$r->id_produk.'" value="'.$vOut.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$dsb.'>
+								</td>
+								<td style="padding:6px">
+									<input type="number" id="outrtr_'.$r->id_produk.'" name="outrtr_'.$r->id_produk.'" value="'.$vOutRtr.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$dsb.'>
 								</td>
 								<td style="padding:6px">
 									<input type="hidden" id="hstok_akhir_'.$r->id_produk.'" name="hstok_akhir_'.$r->id_produk.'" value="'.$vSk.'">
 									<input type="number" id="stok_akhir_'.$r->id_produk.'" name="stok_akhir_'.$r->id_produk.'" value="'.$vSk.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
+								</td>
+								<td style="padding:6px">
+									<input type="hidden" id="hTTON_'.$r->id_produk.'" name="hTTON_'.$r->id_produk.'" value="'.$r->berat_bersih.'">
+									<input type="number" id="tton_'.$r->id_produk.'" name="tton_'.$r->id_produk.'" value="'.$vTon.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
 								</td>
 								<td style="padding:6px">
 									<input type="text" id="ket_'.$r->id_produk.'" name="ket_'.$r->id_produk.'" value="'.$vKet.'" class="form-control" placeholder="KETERANGAN" autocomplete="off" style="padding:2px 4px;font-weight:bold" oninput="this.value=this.value.toUpperCase()" '.$dsb.'>
@@ -11773,7 +11795,7 @@ class Logistik extends CI_Controller
 					$html .= '</table>
 				</div>
 			</form>';
-			if($tglNow >= 0){
+			if($tglNow <= 0){
 				$html .= '<div style="margin:10px 0 30px">
 					<button type="button" class="btn btn-primary" style="font-weight:bold" onclick="simpanGCcorrugated()"><i class="fas fa-save"></i> SIMPAN</button>
 				</div>';
@@ -11930,8 +11952,9 @@ class Logistik extends CI_Controller
 		// $html .= '</div>';
 
 		$html2 = '';
-		$html2 .= '<form role="form" method="post" id="myForm">';
-			$html2 .= '<table style="border-collapse:collapse">
+		$html2 .= '<form role="form" method="post" id="myForm2">
+			<input type="hidden" id="xBLNTHN" name="xBLNTHN" value="'.$plh_tgl.'">';
+			$html2 .= '<table style="color:#000;border-collapse:collapse">
 				<tr>
 					<td style="background:#f8f9fc;padding:3px;border:1px solid #ccc" colspan="2"></td>
 					<td style="background:#f8f9fc;padding:3px;border:1px solid #ccc;position:sticky;left:0">TANGGAL</td>';
@@ -12042,33 +12065,41 @@ class Logistik extends CI_Controller
 								$vOUT = ($qq->row($a1.'_out') == NULL) ? '' : number_format($qq->row($a1.'_out'),0,',','.');
 								$vOUTrtr = ($qq->row($a1.'_out_rtr') == NULL) ? '' : number_format($qq->row($a1.'_out_rtr'),0,',','.');
 								$vSK = ($qq->row($a1.'_stok_akhir') == NULL) ? '' : number_format($qq->row($a1.'_stok_akhir'),0,',','.');
-								$vTON = ($qq->row($a1.'_stok_akhir') == NULL) ? '' : number_format($qq->row($a1.'_stok_akhir') * $p->berat_bersih,0,',','.');
+								$vTON = ($qq->row($a1.'_stok_akhir') == NULL || $qq->row($a1.'_stok_akhir') < 0) ? 0 : number_format($qq->row($a1.'_stok_akhir') * $p->berat_bersih,0,',','.');
 								$vKET = $qq->row($a1.'_ket');
+
+								// STOK AWAL DISABLE JIKA SUDAH ADA DATA
+								($vSA >= 0) ? $saDSB = 'readonly' : $saDSB = '';
 
 								$html2 .= '
 									<td style="'.$kk.';padding:3px;border:1px solid '.$kb.';text-align:center">
-										<input type="number" class="form-control inp-gdk" value="'.$vSA.'" placeholder="-" autocomplete="off" readonly>
+										<input type="number" class="form-control inp-gdk" id="vSA_'.$p->id_produk.'_'.$a1.'" name="vSA_'.$p->id_produk.'_'.$a1.'" value="'.$vSA.'" placeholder="-" autocomplete="off" '.$dsb.' onkeyup="keyUpGD3('."'".$p->id_produk."'".','."'".$a1."'".')" '.$saDSB.'>
 									</td>
 									<td style="'.$kk.';padding:3px;border:1px solid '.$kb.';text-align:center">
-										<input type="number" class="form-control inp-gdk" value="'.$vIN.'" placeholder="-" autocomplete="off" '.$dsb.'>
+										<input type="number" class="form-control inp-gdk" id="vIN_'.$p->id_produk.'_'.$a1.'" name="vIN_'.$p->id_produk.'_'.$a1.'" value="'.$vIN.'" placeholder="-" autocomplete="off" '.$dsb.' onkeyup="keyUpGD3('."'".$p->id_produk."'".','."'".$a1."'".')">
 									</td>
 									<td style="'.$kk.';padding:3px;border:1px solid '.$kb.';text-align:center">
-										<input type="number" class="form-control inp-gdk" value="'.$vINrtr.'" placeholder="-" autocomplete="off" '.$dsb.'>
+										<input type="number" class="form-control inp-gdk" id="vINrtr_'.$p->id_produk.'_'.$a1.'" name="vINrtr_'.$p->id_produk.'_'.$a1.'" value="'.$vINrtr.'" placeholder="-" autocomplete="off" '.$dsb.' onkeyup="keyUpGD3('."'".$p->id_produk."'".','."'".$a1."'".')">
 									</td>
 									<td style="'.$kk.';padding:3px;border:1px solid '.$kb.';text-align:center">
-										<input type="number" class="form-control inp-gdk" value="'.$vOUT.'" placeholder="-" autocomplete="off" '.$dsb.'>
+										<input type="number" class="form-control inp-gdk" id="vOUT_'.$p->id_produk.'_'.$a1.'" name="vOUT_'.$p->id_produk.'_'.$a1.'" value="'.$vOUT.'" placeholder="-" autocomplete="off" '.$dsb.' onkeyup="keyUpGD3('."'".$p->id_produk."'".','."'".$a1."'".')">
 									</td>
 									<td style="'.$kk.';padding:3px;border:1px solid '.$kb.';text-align:center">
-										<input type="number" class="form-control inp-gdk" value="'.$vOUTrtr.'" placeholder="-" autocomplete="off" '.$dsb.'>
+										<input type="number" class="form-control inp-gdk" id="vOUTrtr_'.$p->id_produk.'_'.$a1.'" name="vOUTrtr_'.$p->id_produk.'_'.$a1.'" value="'.$vOUTrtr.'" placeholder="-" autocomplete="off" '.$dsb.' onkeyup="keyUpGD3('."'".$p->id_produk."'".','."'".$a1."'".')">
 									</td>
 									<td style="'.$kk.';padding:3px;border:1px solid '.$kb.';text-align:center">
-										<input type="number" class="form-control inp-gdk" value="'.$vSK.'" placeholder="-" autocomplete="off" readonly>
+										<input type="number" class="form-control inp-gdk" id="vSK_'.$p->id_produk.'_'.$a1.'" name="vSK_'.$p->id_produk.'_'.$a1.'" value="'.$vSK.'" placeholder="-" autocomplete="off" readonly>
 									</td>
 									<td style="'.$kk.';padding:3px;border:1px solid '.$kb.';text-align:center">
-										<input type="number" class="form-control inp-gdk" style="color:#f00" value="'.$vTON.'" placeholder="-" autocomplete="off" readonly>
+										<input type="hidden" id="xCUST'.$p->id_produk.'_'.$a1.'" name="xCUST'.$p->id_produk.'_'.$a1.'" value="'.$p->id_pelanggan.'">
+										<input type="hidden" id="hTON_'.$p->id_produk.'_'.$a1.'" name="hTON_'.$p->id_produk.'_'.$a1.'" value="'.$p->berat_bersih.'">
+										<input type="number" class="form-control inp-gdk" style="color:#f00" id="vTON_'.$p->id_produk.'_'.$a1.'" name="vTON_'.$p->id_produk.'_'.$a1.'" value="'.$vTON.'" placeholder="-" autocomplete="off" readonly>
 									</td>
-									<td style="'.$kk.';padding:3px;border:1px solid '.$kb.';text-align:center">
-										<input type="text" class="form-control inp-gdk" style="text-align:left;width:100px" value="'.$vKET.'" placeholder="KET" autocomplete="off" oninput="this.value=this.value.toUpperCase()" '.$dsb.'>
+									<td style="'.$kk.';padding:3px;border:1px solid '.$kb.';text-align:center;vertical-align:top">
+										<div style="display:flex">
+											<input type="text" class="form-control inp-gdk" style="text-align:left;width:100px" id="vKET_'.$p->id_produk.'_'.$a1.'" name="vKET_'.$p->id_produk.'_'.$a1.'" value="'.$vKET.'" placeholder="KET" autocomplete="off" oninput="this.value=this.value.toUpperCase()" '.$dsb.'>
+											<div class="edit-gdgd-'.$p->id_produk.'_'.$a1.'"></div>
+										</div>
 									</td>
 								';
 							}
