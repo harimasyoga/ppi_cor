@@ -109,6 +109,17 @@
 	width:50px;
 }
 
+.inp-gdk {
+	background: none;
+	text-align: center;
+	border: 0;
+	padding: 0;
+	font-weight: bold;
+	color: #000;
+	height: 100%;
+	width:60px;
+}
+
 .inp-kosong2 {
 	background: none;
 	text-align: center;

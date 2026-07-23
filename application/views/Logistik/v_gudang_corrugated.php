@@ -41,6 +41,10 @@
 			/* grid-auto-columns: 80px; */
 		}
 
+		.list-gd:hover {
+			background-color: rgba(222, 222, 222, 0.5);
+		}
+
 		/* .gd-grid31:hover, .gd-grid30:hover, .gd-grid29:hover, .gd-grid28:hover > div {
 			background: #e3f2fd;
 		} */
@@ -70,6 +74,10 @@
 						</div>
 						<div style="overflow:auto;white-space:nowrap">
 							<div class="all-list-gudang"></div>
+						</div>
+						<br><br>
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="all-list-gudang2"></div>
 						</div>
 					</div>
 				</div>
@@ -293,7 +301,8 @@
 			success: function(res){
 				data = JSON.parse(res)
 				$(".all-list-gudang").html(data.html)
-				console.log(data)
+				$(".all-list-gudang2").html(data.html2)
+				// console.log(data)
 			}
 		})
 	}
