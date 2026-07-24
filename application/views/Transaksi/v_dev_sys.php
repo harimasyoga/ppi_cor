@@ -69,8 +69,8 @@
 							</div>
 						</div>
 						<div class="card-body" style="padding:12px 6px">
-							<div class="card-body row" style="padding:0 0 12px;font-weight:bold">
-								<div class="col-md-2" style="padding-bottom:3px">
+							<div class="card-body row" style="padding:0 0 3px;font-weight:bold">
+								<div class="col-md-3" style="padding-bottom:3px">
 									<select id="tahun" class="form-control select2" onchange="loadCalender('')">
 										<?php 
 											$thang = date("Y");
@@ -99,8 +99,36 @@
 										<?php } ?>
 									</select>
 								</div>
-								<div class="col-md-7" style="padding-bottom:3px"></div>
+								<div class="col-md-6" style="padding-bottom:3px"></div>
 							</div>
+							<div class="card-body row" style="padding:0 0 12px;font-weight:bold">
+								<div class="col-md-6" style="padding-bottom:3px">
+									<?php
+										$id_sales = $this->session->userdata('id_sales');
+										$akses_dd = $this->session->userdata('akses_dd');
+										($id_sales != '' && $akses_dd == null) ? $wDsb = "disabled" : $wDsb = 'onchange="loadCalender('."''".')"';
+									?>
+									<select id="marketing" class="form-control select2" <?= $wDsb ?>>
+										<?php
+											($id_sales != '' && $akses_dd == null) ? $wSls = "AND id_sales='$id_sales'" : $wSls = "";
+											($id_sales != '' && $akses_dd == null) ? $wSTT = "selected" : $wSTT = "";
+											$query = $this->db->query("SELECT*FROM m_sales WHERE jn_sales='BOX' $wSls ORDER BY nm_sales");
+											$html ='';
+											$html .='<option value="">ALL MARKETING</option>';
+											foreach($query->result() as $r){
+												$html .='<option value="'.$r->id_sales.'" '.$wSTT.'>'.$r->nm_sales.'</option>';
+											}
+											echo $html
+										?>
+									</select>
+								</div>
+								<div class="col-md-6" style="padding-bottom:3px">
+									<select id="customer" class="form-control select2" onchange="loadCalender('')">
+										<option value="">ALL CUSTOMER</option>
+									</select>
+								</div>
+							</div>
+							<input type="hidden" id="h_marketing" value="">
 							<input type="hidden" id="h_tgl" value="">
 							<div class="kalender"></div>
 						</div>
@@ -116,8 +144,8 @@
 							</div>
 						</div>
 						<div class="card-body" style="padding:12px 6px">
-							<div class="card-body row" style="padding:0 0 12px;font-weight:bold">
-								<div class="col-md-2" style="padding-bottom:3px">
+							<div class="card-body row" style="padding:0 0 3px;font-weight:bold">
+								<div class="col-md-3" style="padding-bottom:3px">
 									<select id="real_tahun" class="form-control select2" onchange="loadRealCalender('')">
 										<?php 
 											$thang = date("Y");
@@ -146,8 +174,34 @@
 										<?php } ?>
 									</select>
 								</div>
-								<div class="col-md-7" style="padding-bottom:3px"></div>
+								<div class="col-md-6" style="padding-bottom:3px"></div>
 							</div>
+							<div class="card-body row" style="padding:0 0 12px;font-weight:bold">
+								<div class="col-md-6" style="padding-bottom:3px">
+									<?php
+										($id_sales != '' && $akses_dd == null) ? $wDsb2 = "disabled" : $wDsb2 = 'onchange="loadRealCalender('."''".')"';
+									?>
+									<select id="real_marketing" class="form-control select2" <?= $wDsb2 ?>>
+										<?php
+											($id_sales != '' && $akses_dd == null) ? $wSls2 = "AND id_sales='$id_sales'" : $wSls2 = "";
+											($id_sales != '' && $akses_dd == null) ? $wSTT2 = "selected" : $wSTT2 = "";
+											$query = $this->db->query("SELECT*FROM m_sales WHERE jn_sales='BOX' $wSls2 ORDER BY nm_sales");
+											$html ='';
+											$html .='<option value="">ALL MARKETING</option>';
+											foreach($query->result() as $r){
+												$html .='<option value="'.$r->id_sales.'" '.$wSTT2.'>'.$r->nm_sales.'</option>';
+											}
+											echo $html
+										?>
+									</select>
+								</div>
+								<div class="col-md-6" style="padding-bottom:3px">
+									<select id="real_customer" class="form-control select2" onchange="loadRealCalender('')">
+										<option value="">ALL CUSTOMER</option>
+									</select>
+								</div>
+							</div>
+							<input type="hidden" id="k_marketing" value="">
 							<input type="hidden" id="k_tgl" value="">
 							<div class="kal-pengiriman"></div>
 						</div>
@@ -237,13 +291,16 @@
 		let tgl = $("#h_tgl").val()
 		let tahun = $("#tahun").val()
 		let bulan = $("#bulan").val()
+		let marketing = $("#marketing").val()
+		let h_marketing = $("#h_marketing").val()
+		let customer = $("#customer").val()
 		if(opsi == ''){
 			$(".ds-kiriman").html('-')
 			$(".rinc-tgl").html('')
 		}
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadCalender') ?>',
-			data: ({ tgl, tahun, bulan }),
+			data: ({ tgl, tahun, bulan, marketing, h_marketing, customer }),
 			type: "POST",
 			beforeSend: function() {
 				swal({
@@ -258,7 +315,9 @@
 			success: function(res) {
 				data = JSON.parse(res)
 				$(".kalender").html(data.html)
+				$("#customer").html(data.htmlCustomer)
 				$("#h_tgl").val('')
+				$("#h_marketing").val(marketing)
 				swal.close()
 			}
 		})
@@ -282,6 +341,8 @@
 		}
 		let p_tgl = $("#p_tgl").val()
 		let p_urut = $("#p_urut").val()
+		let marketing = $("#marketing").val()
+		let customer = $("#customer").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/ccDevSys') ?>',
 			type: "POST",
@@ -295,7 +356,7 @@
 					}
 				});
 			},
-			data: ({ tgl, tahun, bulan, p_tgl, p_urut, opsi }),
+			data: ({ tgl, tahun, bulan, p_tgl, p_urut, marketing, customer, opsi }),
 			success: function(res) {
 				data = JSON.parse(res)
 				if(opsi == 'jadwal'){
@@ -325,13 +386,16 @@
 		let tgl = $("#k_tgl").val()
 		let tahun = $("#real_tahun").val()
 		let bulan = $("#real_bulan").val()
+		let real_marketing = $("#real_marketing").val()
+		let k_marketing = $("#k_marketing").val()
+		let real_customer = $("#real_customer").val()
 		if(opsi == ''){
 			$(".ds-suratjalan").html('-')
 			$(".rinc-real-tgl").html('')
 		}
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/loadRealCalender') ?>',
-			data: ({ tgl, tahun, bulan }),
+			data: ({ tgl, tahun, bulan, real_marketing, k_marketing, real_customer }),
 			type: "POST",
 			beforeSend: function() {
 				swal({
@@ -346,7 +410,9 @@
 			success: function(res) {
 				data = JSON.parse(res)
 				$(".kal-pengiriman").html(data.html)
+				$("#real_customer").html(data.htmlCustomer)
 				$("#k_tgl").val('')
+				$("#k_marketing").val(real_marketing)
 				swal.close()
 			}
 		})

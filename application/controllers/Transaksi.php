@@ -9848,8 +9848,25 @@ class Transaksi extends CI_Controller
 		$tgl = $_POST["tgl"];
 		$tahun = $_POST["tahun"];
 		$bulan = $_POST["bulan"];
+		$marketing = $_POST["marketing"];
+		$h_marketing = $_POST["h_marketing"];
+		$customer = $_POST["customer"];
 		$awal1 = $tahun.'-'.$bulan.'-01';
 		$now = date('Y-m-d');
+
+		// CUSTOMER
+		($marketing == '') ? $wSls = '' : $wSls = "AND p.id_sales='$marketing'";
+		$htmlCustomer = '';
+		$htmlCustomer .= '<option value="">ALL CUSTOMER</option>';
+		$Qcust = $this->db->query("SELECT*FROM m_pelanggan p
+		INNER JOIN trs_po o ON p.id_pelanggan=o.id_pelanggan
+		WHERE o.status='Approve' $wSls
+		GROUP BY p.nm_pelanggan,p.attn");
+		foreach($Qcust->result() as $p){
+			($p->attn == "-" || $p->attn == "") ? $attn = '' : $attn = ' | '.$p->attn;
+			($p->id_pelanggan == $customer) ? $slt = 'selected' : $slt = '';
+			$htmlCustomer .= '<option value="'.$p->id_pelanggan.'" '.$slt.'>'.$p->nm_pelanggan.$attn.'</option>';
+		}
 
 		// cek tahun kabisat
 		$isKabisat = ($tahun % 400 == 0) || ($tahun % 4 == 0 && $tahun % 100 != 0);
@@ -9948,61 +9965,81 @@ class Transaksi extends CI_Controller
 					($tglNow > 0) ? $wApp = "" : $wApp = "AND d.status='Approve'";
 					($tglNow > 0) ? $wApp2 = "AND d.status='Approve'" : $wApp2 = "";
 
+					// PILIH MARKETING DAN CUSTOMER
+					if($marketing != ''){
+						$INNERmkt = "INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan";
+						$WhMarketing = "AND p.id_sales='$marketing'";
+					}else{
+						$INNERmkt = "";
+						$WhMarketing = "";
+					}
+					($customer != '' && $h_marketing == $marketing) ? $WhCustomer = "AND s.id_pelanggan='$customer'" : $WhCustomer = "";
+
 					if($id_sales == null || $id_sales == '' || $akses_dd != null){
 						$cUng = $this->db->query("SELECT s.* FROM trs_dev_sys s
+						$INNERmkt
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
 						WHERE s.eta='$tglSys' AND d.status='Close' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '-1'
-						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0'
+						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0' $WhMarketing $WhCustomer
 						GROUP BY s.eta,s.urut");
 						$cMer = $this->db->query("SELECT s.* FROM trs_dev_sys s
+						$INNERmkt
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
 						WHERE s.eta='$tglSys' $wApp $wApp2 AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '$wMer'
-						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0'
+						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0' $WhMarketing $WhCustomer
 						GROUP BY s.eta,s.urut");
 						$cKun = $this->db->query("SELECT*FROM trs_dev_sys s
+						$INNERmkt
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' $wApp AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN $wKun
+						WHERE s.eta='$tglSys' $wApp AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN $wKun $WhMarketing $WhCustomer
 						GROUP BY s.eta,s.urut");
 						$cBir = $this->db->query("SELECT*FROM trs_dev_sys s
+						$INNERmkt
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' $wApp AND s.eta_t='REPLAN' GROUP BY s.eta,s.urut");
+						WHERE s.eta='$tglSys' $wApp AND s.eta_t='REPLAN' $WhMarketing $WhCustomer
+						GROUP BY s.eta,s.urut");
 						$count = $this->db->query("SELECT*FROM trs_dev_sys s
+						$INNERmkt
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' $wApp GROUP BY s.eta,s.urut");
+						WHERE s.eta='$tglSys' $wApp $WhMarketing $WhCustomer
+						GROUP BY s.eta,s.urut");
 						$berat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
+						$INNERmkt
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' $wApp GROUP BY s.eta")->row()->berat;
+						WHERE s.eta='$tglSys' $wApp $WhMarketing $WhCustomer
+						GROUP BY s.eta")->row()->berat;
 					}else{
 						$cUng = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
 						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND d.status='Close' AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '-1'
-						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0'
+						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0' $WhCustomer
 						GROUP BY s.eta,s.urut");
 						$cMer = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
 						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' $wApp AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) <= '$wMer'
-						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0'
+						AND (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev)='0' $WhCustomer
 						GROUP BY s.eta,s.urut");
 						$cKun = $this->db->query("SELECT*FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' $wApp AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN $wKun
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' $wApp AND s.timb_tgl IS NULL AND s.timb_urut IS NULL AND DATEDIFF(s.eta, CURDATE()) IN $wKun $WhCustomer
 						GROUP BY s.eta,s.urut");
 						$cBir = $this->db->query("SELECT*FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' $wApp AND s.eta_t='REPLAN' GROUP BY s.eta,s.urut");
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' $wApp AND s.eta_t='REPLAN' $WhCustomer
+						GROUP BY s.eta,s.urut");
 						$count = $this->db->query("SELECT s.* FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND s.urut!='0' $wApp
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' AND s.urut!='0' $wApp $WhCustomer
 						GROUP BY s.eta,s.urut");
 						$berat = $this->db->query("SELECT SUM(s.berat) AS berat FROM trs_dev_sys s
 						INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
 						INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' $wApp
+						WHERE s.eta='$tglSys' AND p.id_sales='$id_sales' $wApp $WhCustomer
 						GROUP BY s.eta")->row()->berat;
 					}
 
@@ -10079,6 +10116,7 @@ class Transaksi extends CI_Controller
 
 		echo json_encode([
 			'html' => $html,
+			'htmlCustomer' => $htmlCustomer,
 		]);
 	}
 
@@ -10090,7 +10128,24 @@ class Transaksi extends CI_Controller
 		$tgl = $_POST["tgl"];
 		$tahun = $_POST["tahun"];
 		$bulan = $_POST["bulan"];
+		$real_marketing = $_POST["real_marketing"];
+		$k_marketing = $_POST["k_marketing"];
+		$real_customer = $_POST["real_customer"];
 		$awal1 = $tahun.'-'.$bulan.'-01';
+
+		// CUSTOMER
+		($real_marketing == '') ? $wSls = '' : $wSls = "AND p.id_sales='$real_marketing'";
+		$htmlCustomer = '';
+		$htmlCustomer .= '<option value="">ALL CUSTOMER</option>';
+		$Qcust = $this->db->query("SELECT*FROM m_pelanggan p
+		INNER JOIN trs_po o ON p.id_pelanggan=o.id_pelanggan
+		WHERE o.status='Approve' $wSls
+		GROUP BY p.nm_pelanggan,p.attn");
+		foreach($Qcust->result() as $p){
+			($p->attn == "-" || $p->attn == "") ? $attn = '' : $attn = ' | '.$p->attn;
+			($p->id_pelanggan == $real_customer) ? $slt = 'selected' : $slt = '';
+			$htmlCustomer .= '<option value="'.$p->id_pelanggan.'" '.$slt.'>'.$p->nm_pelanggan.$attn.'</option>';
+		}
 
 		// cek tahun kabisat
 		$isKabisat = ($tahun % 400 == 0) || ($tahun % 4 == 0 && $tahun % 100 != 0);
@@ -10175,6 +10230,16 @@ class Transaksi extends CI_Controller
 						($hariMinggu == "Sunday") ? $kk = '<span style="color:#f00">'.$i2.'</span>' : $kk = $i2;
 					}
 
+					// PILIH MARKETING DAN CUSTOMER
+					// if($real_marketing != ''){
+					// 	$INNERmkt = "INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan";
+					// 	$WhMarketing = "AND p.id_sales='$real_marketing'";
+					// }else{
+					// 	$INNERmkt = "";
+					// 	$WhMarketing = "";
+					// }
+					// ($real_customer != '' && $k_marketing == $real_marketing) ? $WhCustomer = "AND r.id_pelanggan='$real_customer'" : $WhCustomer = "";
+
 					if($id_sales == null || $id_sales == '' || $akses_dd != null){
 						$sKun = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE r.rk_tgl='$tglSys' AND r.dev_tgl IS NULL AND r.dev_urut IS NULL GROUP BY r.rk_urut");
 						$count = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tglSys' GROUP BY tgl,no_pl_urut");
@@ -10240,6 +10305,7 @@ class Transaksi extends CI_Controller
 
 		echo json_encode([
 			'html' => $html,
+			'htmlCustomer' => $htmlCustomer,
 		]);
 	}
 
@@ -10533,6 +10599,8 @@ class Transaksi extends CI_Controller
 			$tglRealRinc = ' - '.strtoupper($this->m_fungsi->getHariIni($tgl)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl));
 		}
 
+		$marketing = $_POST["marketing"];
+		$customer = $_POST["customer"];
 		$tglRincian = '';
 		if($opsi == 'jadwal'){
 			// CEK PENGIRIMAN
@@ -10555,16 +10623,26 @@ class Transaksi extends CI_Controller
 					}
 				$html .= '</tr>';
 
+				// PILIH MARKETING DAN CUSTOMER
+				if($marketing != ''){
+					$INNERmkt = "INNER JOIN m_pelanggan c ON s.id_pelanggan=c.id_pelanggan";
+					$WhMarketing = "AND c.id_sales='$marketing'";
+				}else{
+					$INNERmkt = "";
+					$WhMarketing = "";
+				}
+				($customer != '') ? $WhCustomer = "AND s.id_pelanggan='$customer'" : $WhCustomer = "";
 				if($id_sales == null || $id_sales == '' || $akses_dd != null){
 					$urut = $this->db->query("SELECT (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev) AS dev9,SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s
+					$INNERmkt
 					INNER JOIN trs_po_detail p ON s.id_po_header=p.id
-					WHERE s.eta='$tgl' $pAppc GROUP BY s.eta, s.urut, s.id_ex");
+					WHERE s.eta='$tgl' $pAppc $WhMarketing $WhCustomer GROUP BY s.eta, s.urut, s.id_ex");
 					$wSls = "";
 				}else{
 					$urut = $this->db->query("SELECT (SELECT COUNT(z.id_dev2) FROM trs_dev_sys z WHERE z.id_dev2=s.id_dev) AS dev9,SUM(s.berat) AS totBerat,s.* FROM trs_dev_sys s
 					INNER JOIN m_pelanggan d ON s.id_pelanggan=d.id_pelanggan
 					INNER JOIN trs_po_detail p ON s.id_po_header=p.id
-					WHERE s.eta='$tgl' $pAppc AND d.id_sales='$id_sales'
+					WHERE s.eta='$tgl' $pAppc AND d.id_sales='$id_sales' $WhCustomer
 					GROUP BY s.eta, s.urut, s.id_ex");
 					$wSls = "AND c.id_sales='$id_sales'";
 				}
