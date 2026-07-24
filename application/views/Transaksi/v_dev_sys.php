@@ -343,6 +343,8 @@
 		let p_urut = $("#p_urut").val()
 		let marketing = $("#marketing").val()
 		let customer = $("#customer").val()
+		let real_marketing = $("#real_marketing").val()
+		let real_customer = $("#real_customer").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/ccDevSys') ?>',
 			type: "POST",
@@ -356,7 +358,7 @@
 					}
 				});
 			},
-			data: ({ tgl, tahun, bulan, p_tgl, p_urut, marketing, customer, opsi }),
+			data: ({ tgl, tahun, bulan, p_tgl, p_urut, marketing, customer, real_marketing, real_customer, opsi }),
 			success: function(res) {
 				data = JSON.parse(res)
 				if(opsi == 'jadwal'){

@@ -923,26 +923,26 @@ class M_logistik extends CI_Model
 			}
 
 			// HAPUS DATA HARI MINGGU
-			// for ($m = $i2; $m <= $hariNow; $m++) {
-			// 	($m < 10) ? $minggu = '0'.$m : $minggu = $m;
-			// 	$tglLibur = $tahun.'-'.$bulan.'-'.$minggu;
-			// 	// CEK LIBUR
-			// 	$libur = $this->db->query("SELECT*FROM libur WHERE tgl='$tglLibur'");
-			// 	$namaHari = date('l', strtotime($tglLibur));
-			// 	if($libur->num_rows() != 0 || $namaHari == "Sunday"){
-			// 		$this->db->set($minggu.'_stok_awal', null);
-			// 		$this->db->set($minggu.'_in', null);
-			// 		$this->db->set($minggu.'_in_rtr', null);
-			// 		$this->db->set($minggu.'_out', null);
-			// 		$this->db->set($minggu.'_out_rtr', null);
-			// 		$this->db->set($minggu.'_stok_akhir', null);
-			// 		$this->db->where('id_pelanggan', $id_pelanggan);
-			// 		$this->db->where('id_produk', $id_produk);
-			// 		$this->db->where('bulan', $bulan);
-			// 		$this->db->where('tahun', $tahun);
-			// 		$this->db->update('m_gudang_v2');
-			// 	}
-			// }
+			for ($m = $i2; $m <= $hariNow; $m++) {
+				($m < 10) ? $minggu = '0'.$m : $minggu = $m;
+				$tglLibur = $tahun.'-'.$bulan.'-'.$minggu;
+				// CEK LIBUR
+				$libur = $this->db->query("SELECT*FROM libur WHERE tgl='$tglLibur'");
+				$namaHari = date('l', strtotime($tglLibur));
+				if($libur->num_rows() != 0 || $namaHari == "Sunday"){
+					$this->db->set($minggu.'_stok_awal', null);
+					$this->db->set($minggu.'_in', null);
+					$this->db->set($minggu.'_in_rtr', null);
+					$this->db->set($minggu.'_out', null);
+					$this->db->set($minggu.'_out_rtr', null);
+					$this->db->set($minggu.'_stok_akhir', null);
+					$this->db->where('id_pelanggan', $id_pelanggan);
+					$this->db->where('id_produk', $id_produk);
+					$this->db->where('bulan', $bulan);
+					$this->db->where('tahun', $tahun);
+					$this->db->update('m_gudang_v2');
+				}
+			}
 		}
 
 		return [

@@ -8183,11 +8183,18 @@ class Logistik extends CI_Controller
 				$htmlDtl = '';
 				$htmlDtl .= '<table>';
 					foreach($qDtl->result() as $d){
+						if($d->no_faktur == null || $d->no_faktur == ''){
+							$htmlFaktur = '';
+						}else{
+							$htmlFaktur = '<td style="padding:3px 0;border:none">'.$d->no_faktur.'</td>
+							<td style="padding:3px 7px;border:none">-</td>';
+						}
 						$htmlDtl .= '<tr style="background-color: transparent !important">
 							<td style="padding:3px 0;border:none">'.$d->no_invoice.'</td>
 							<td style="padding:3px 7px;border:none">-</td>
 							<td style="padding:3px 0;border:none">'.$d->no_surat.'</td>
 							<td style="padding:3px 7px;border:none">-</td>
+							'.$htmlFaktur.'
 							<td style="padding:3px 0;border:none;text-align:right">'.number_format($d->nominal_inv, 0, ',', '.').'</td>
 						</tr>';
 					}
