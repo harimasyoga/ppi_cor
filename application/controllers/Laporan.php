@@ -191,7 +191,7 @@ class Laporan extends CI_Controller
 		SELECT s.nm_sales,s.id_sales FROM trs_po p
 		INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 		INNER JOIN m_sales s ON c.id_sales=s.id_sales
-		WHERE p.status='Close' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7') $wIdSls
+		WHERE p.status='Close' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-10', '-11', '-12', '-13', '-14') $wIdSls
 		GROUP BY s.nm_sales,s.id_sales");
 
 		if($sales->num_rows() != 0){
@@ -226,7 +226,7 @@ class Laporan extends CI_Controller
 					INNER JOIN m_sales s ON c.id_sales=s.id_sales
 					LEFT JOIN m_rencana_kirim r ON p.kode_po=r.rk_kode_po AND p.id_pelanggan=r.id_pelanggan AND d.id_produk=r.id_produk
 					LEFT JOIN m_rencana_kirim_retur t ON t.rtr_tgl=r.rk_tgl AND t.rtr_id_pelanggan=r.id_pelanggan AND t.rtr_id_produk=r.id_produk AND t.rtr_kode_po=r.rk_kode_po AND t.rtr_urut=r.rk_urut
-					WHERE p.status='Close' AND s.id_sales='$s->id_sales' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7')
+					WHERE p.status='Close' AND s.id_sales='$s->id_sales' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-10', '-11', '-12', '-13', '-14')
 					GROUP BY d.id_produk,p.kode_po");
 					$sumSales = 0;
 					$sumBBSales = 0;
@@ -266,7 +266,7 @@ class Laporan extends CI_Controller
 					INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 					INNER JOIN m_sales s ON c.id_sales=s.id_sales
 					WHERE p.status='Close' AND c.id_sales='$s->id_sales'
-					AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7')
+					AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-10', '-11', '-12', '-13', '-14')
 					GROUP BY c.id_sales");
 					if($sHari7->num_rows() != 0 && $sMin7->num_rows() != 0){
 						$sTxt7 = ' <span class="bg-warning" style="vertical-align:top;color:#000 !important;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:4px 0 0 4px">'.$sHari7->row()->hari7.'</span><span class="bg-danger" style="vertical-align:top;color:#fff !important;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:0 4px 4px 0">'.$sMin7->row()->hari7.'</span>';
@@ -301,7 +301,7 @@ class Laporan extends CI_Controller
 					SELECT s.id_sales,p.id_pelanggan,c.nm_pelanggan,c.attn FROM trs_po p
 					INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 					INNER JOIN m_sales s ON c.id_sales=s.id_sales
-					WHERE p.status='Close' AND c.id_sales='$s->id_sales' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7')
+					WHERE p.status='Close' AND c.id_sales='$s->id_sales' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-10', '-11', '-12', '-13', '-14')
 					GROUP BY c.nm_pelanggan,c.attn");
 					if($cust->num_rows() != 0){
 						foreach($cust->result() as $r){
@@ -323,7 +323,7 @@ class Laporan extends CI_Controller
 							INNER JOIN m_sales s ON c.id_sales=s.id_sales
 							LEFT JOIN m_rencana_kirim r ON p.kode_po=r.rk_kode_po AND p.id_pelanggan=r.id_pelanggan AND d.id_produk=r.id_produk
 							LEFT JOIN m_rencana_kirim_retur t ON t.rtr_tgl=r.rk_tgl AND t.rtr_id_pelanggan=r.id_pelanggan AND t.rtr_id_produk=r.id_produk AND t.rtr_kode_po=r.rk_kode_po AND t.rtr_urut=r.rk_urut
-							WHERE p.status='Close' AND s.id_sales='$r->id_sales' AND p.id_pelanggan='$r->id_pelanggan' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7')
+							WHERE p.status='Close' AND s.id_sales='$r->id_sales' AND p.id_pelanggan='$r->id_pelanggan' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-10', '-11', '-12', '-13', '-14')
 							GROUP BY d.id_produk,p.kode_po");
 							$sumCust = 0;
 							$sumBBCust = 0;
@@ -354,7 +354,7 @@ class Laporan extends CI_Controller
 							INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 							INNER JOIN m_sales s ON c.id_sales=s.id_sales
 							WHERE p.status='Close' AND c.id_sales='$r->id_sales' AND p.id_pelanggan='$r->id_pelanggan'
-							AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7')
+							AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-10', '-11', '-12', '-13', '-14')
 							GROUP BY p.id_pelanggan");
 							if($cHari7->num_rows() != 0 && $cMin7->num_rows() != 0){
 								$cTxt7 = ' <span class="bg-warning" style="vertical-align:top;color:#000 !important;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:4px 0 0 4px">'.$cHari7->row()->hari7.'</span><span class="bg-danger" style="vertical-align:top;color:#fff !important;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:0 4px 4px 0">'.$cMin7->row()->hari7.'</span>';
@@ -405,7 +405,7 @@ class Laporan extends CI_Controller
 							INNER JOIN m_produk i ON d.id_produk=i.id_produk
 							INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 							INNER JOIN m_sales s ON c.id_sales=s.id_sales
-							WHERE p.status='Close' AND c.id_sales='$r->id_sales' AND p.id_pelanggan='$r->id_pelanggan' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7')
+							WHERE p.status='Close' AND c.id_sales='$r->id_sales' AND p.id_pelanggan='$r->id_pelanggan' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-10', '-11', '-12', '-13', '-14')
 							GROUP BY i.kategori,i.nm_produk,i.ukuran,i.ukuran_sheet,i.flute,i.id_produk");
 							if($produk->num_rows() != 0){
 								foreach($produk->result() as $p){
@@ -427,7 +427,7 @@ class Laporan extends CI_Controller
 									INNER JOIN m_sales s ON c.id_sales=s.id_sales
 									LEFT JOIN m_rencana_kirim r ON p.kode_po=r.rk_kode_po AND p.id_pelanggan=r.id_pelanggan AND d.id_produk=r.id_produk
 									LEFT JOIN m_rencana_kirim_retur t ON t.rtr_tgl=r.rk_tgl AND t.rtr_id_pelanggan=r.id_pelanggan AND t.rtr_id_produk=r.id_produk AND t.rtr_kode_po=r.rk_kode_po AND t.rtr_urut=r.rk_urut
-									WHERE p.status='Close' AND s.id_sales='$p->id_sales' AND p.id_pelanggan='$p->id_pelanggan' AND d.id_produk='$p->id_produk' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7')
+									WHERE p.status='Close' AND s.id_sales='$p->id_sales' AND p.id_pelanggan='$p->id_pelanggan' AND d.id_produk='$p->id_produk' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-10', '-11', '-12', '-13', '-14')
 									GROUP BY d.id_produk,p.kode_po");
 									$sumItem = 0;
 									$sumBBItem = 0;
@@ -461,7 +461,7 @@ class Laporan extends CI_Controller
 									INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 									INNER JOIN m_sales s ON c.id_sales=s.id_sales
 									WHERE p.status='Close' AND c.id_sales='$p->id_sales' AND p.id_pelanggan='$p->id_pelanggan' and d.id_produk='$p->id_produk'
-									AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7')
+									AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-10', '-11', '-12', '-13', '-14')
 									GROUP BY d.id_produk");
 									if($iHari7->num_rows() != 0 && $iMin7->num_rows() != 0){
 										$iTxt7 = ' <span class="bg-warning" style="vertical-align:top;color:#000 !important;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:4px 0 0 4px">'.$iHari7->row()->hari7.'</span><span class="bg-danger" style="vertical-align:top;color:#fff !important;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:0 4px 4px 0">'.$iMin7->row()->hari7.'</span>';
@@ -504,7 +504,7 @@ class Laporan extends CI_Controller
 									INNER JOIN m_produk i ON d.id_produk=i.id_produk
 									INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
 									INNER JOIN m_sales s ON c.id_sales=s.id_sales
-									WHERE p.status='Close' AND c.id_sales='$p->id_sales' AND p.id_pelanggan='$p->id_pelanggan' AND i.id_produk='$p->id_produk' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7')
+									WHERE p.status='Close' AND c.id_sales='$p->id_sales' AND p.id_pelanggan='$p->id_pelanggan' AND i.id_produk='$p->id_produk' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-10', '-11', '-12', '-13', '-14')
 									GROUP BY p.tgl_po,p.kode_po");
 									if($noPO->num_rows() != 0){
 										$l = 0;

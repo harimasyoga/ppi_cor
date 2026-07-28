@@ -2214,7 +2214,7 @@ class Logistik extends CI_Controller
 			INNER JOIN invoice_laminasi_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
 			WHERE d.no_invoice='$header->no_invoice' $cTotal
 			GROUP BY d.no_invoice");
-			if($cekHarga->num_rows() == 0){
+			if($cekHarga->num_rows() == 0 || ($cekHarga->num_rows() != 0 && $cekHarga->row()->total == 0)){
 				if($fixTotal != 0){
 					$htmlItem .='<tr>
 						<td style="background:#eee;border:0;padding:6px;text-align:right;font-weight:bold" colspan="'.$cs1.'">PEMBAYARAN</td>
@@ -2265,7 +2265,7 @@ class Logistik extends CI_Controller
 			}
 			($bayar->num_rows() == 0) ? $nominal = $fixTotal : $nominal = $fixTotal - $nominal_bayar;
 			($bayar->num_rows() == 0) ? $t_nominal = 0 : $t_nominal = $nominal_bayar - $fixTotal;
-			if($cekHarga->num_rows() == 0){
+			if($cekHarga->num_rows() == 0 || ($cekHarga->num_rows() != 0 && $cekHarga->row()->total == 0)){
 				if($nominal != 0){
 					$htmlItem .='<tr>
 						<td style="border:0;padding:6px" colspan="'.$cs1.'"></td>
@@ -2316,7 +2316,7 @@ class Logistik extends CI_Controller
 		// INPUT PEMBAYARAN
 		$htmlInpPay = '';
 		if($opsi == 'edit' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
-			if($cekHarga->num_rows() == 0){
+			if($cekHarga->num_rows() == 0 || ($cekHarga->num_rows() != 0 && $cekHarga->row()->total == 0)){
 				if($nominal != 0){
 					$htmlInpPay .='<div class="card card-primary card-outline" style="margin:12px 6px">
 						<div class="card-header" style="padding:12px">
@@ -7742,7 +7742,7 @@ class Logistik extends CI_Controller
 			$query = $this->db->query("SELECT h.*,b.aka FROM invoice_laminasi_header h
 			LEFT JOIN m_hub b ON h.bank=b.id_hub
 			WHERE h.tgl_invoice LIKE '%$tahun%' $cBulan AND h.jenis_lm LIKE '%$plhJenis%' $wHub $where
-			ORDER BY acc_owner, tgl_invoice DESC, no_invoice DESC")->result();
+			ORDER BY acc_owner, status_bayar DESC, tgl_invoice DESC, no_invoice DESC")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
