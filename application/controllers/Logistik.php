@@ -2214,7 +2214,7 @@ class Logistik extends CI_Controller
 			INNER JOIN invoice_laminasi_header h ON d.no_surat=h.no_surat AND d.no_invoice=h.no_invoice
 			WHERE d.no_invoice='$header->no_invoice' $cTotal
 			GROUP BY d.no_invoice");
-			if($cekHarga->num_rows() == 0){
+			if($cekHarga->num_rows() == 0 || ($cekHarga->num_rows() != 0 && $cekHarga->row()->total == 0)){
 				if($fixTotal != 0){
 					$htmlItem .='<tr>
 						<td style="background:#eee;border:0;padding:6px;text-align:right;font-weight:bold" colspan="'.$cs1.'">PEMBAYARAN</td>
@@ -2265,7 +2265,7 @@ class Logistik extends CI_Controller
 			}
 			($bayar->num_rows() == 0) ? $nominal = $fixTotal : $nominal = $fixTotal - $nominal_bayar;
 			($bayar->num_rows() == 0) ? $t_nominal = 0 : $t_nominal = $nominal_bayar - $fixTotal;
-			if($cekHarga->num_rows() == 0){
+			if($cekHarga->num_rows() == 0 || ($cekHarga->num_rows() != 0 && $cekHarga->row()->total == 0)){
 				if($nominal != 0){
 					$htmlItem .='<tr>
 						<td style="border:0;padding:6px" colspan="'.$cs1.'"></td>
@@ -2316,7 +2316,7 @@ class Logistik extends CI_Controller
 		// INPUT PEMBAYARAN
 		$htmlInpPay = '';
 		if($opsi == 'edit' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
-			if($cekHarga->num_rows() == 0){
+			if($cekHarga->num_rows() == 0 || ($cekHarga->num_rows() != 0 && $cekHarga->row()->total == 0)){
 				if($nominal != 0){
 					$htmlInpPay .='<div class="card card-primary card-outline" style="margin:12px 6px">
 						<div class="card-header" style="padding:12px">
@@ -7742,7 +7742,7 @@ class Logistik extends CI_Controller
 			$query = $this->db->query("SELECT h.*,b.aka FROM invoice_laminasi_header h
 			LEFT JOIN m_hub b ON h.bank=b.id_hub
 			WHERE h.tgl_invoice LIKE '%$tahun%' $cBulan AND h.jenis_lm LIKE '%$plhJenis%' $wHub $where
-			ORDER BY acc_owner, tgl_invoice DESC, no_invoice DESC")->result();
+			ORDER BY acc_owner, status_bayar DESC, tgl_invoice DESC, no_invoice DESC")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;
@@ -12152,7 +12152,7 @@ class Logistik extends CI_Controller
 					<div style="padding:0;overflow:auto;white-space:nowrap">
 						<table class="table table-bordered table-striped" style="margin:0;border:0">
 							<tr>
-								<th style="padding:6px" colspan="10">
+								<th style="padding:6px" colspan="13">
 									DATA STOK GUDANG : '.strtoupper($this->m_fungsi->getHariIni($tgl_awal2)).', '.strtoupper($this->m_fungsi->tglIndSkt($tgl_awal2)).'&nbsp
 									<button type="button" class="btn btn-xs btn-info" style="padding:1px 5px;font-weight:bold" onclick="btnMinMin(0)">
 										<span class="spn-tmpl">[ TAMPIL SEMUA ]</span>
@@ -12164,7 +12164,7 @@ class Logistik extends CI_Controller
 							foreach($pelanggan->result() as $p){
 								($p->attn == "-" || $p->attn == "") ? $attn = '' : $attn = ' | '.$p->attn;
 								$html .= '<tr>
-									<td style="padding:6px;background:#333;border:0;color:#fff" colspan="10">
+									<td style="padding:6px;background:#333;border:0;color:#fff" colspan="13">
 										<input type="hidden" id="ts1" value="">
 										<button type="button" class="btn btn-xs ab1 b1-'.$p->id_pelanggan.' btn-success" style="padding:1px 5px" onclick="btnPlusPlus('."'".$p->id_pelanggan."'".')">
 											<i style="font-size:8px" class="fas af1 f1-'.$p->id_pelanggan.' fa-plus"></i>
@@ -12181,8 +12181,11 @@ class Logistik extends CI_Controller
 									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">FLUTE</th>
 									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">STOK AWAL</th>
 									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 40px">IN</th>
+									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">RETUR IN</th>
 									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 30px">OUT</th>
+									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">RETUR OUT</th>
 									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">STOK AKHIR</th>
+									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">TONASE</th>
 									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 20px">KETERANGAN</th>
 								</tr>';
 
@@ -12202,6 +12205,7 @@ class Logistik extends CI_Controller
 									$qq = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$g->id_pelanggan' AND id_produk='$g->id_produk' $wA");
 									$vSkh = ($qq->row($hari.'_stok_akhir') == 0 || $qq->row($hari.'_stok_akhir') == null) ? 0 : $qq->row($hari.'_stok_akhir');
 									$vSk = ($qq->row($hari.'_stok_akhir') == 0 || $qq->row($hari.'_stok_akhir') == null) ? 0 : number_format($qq->row($hari.'_stok_akhir'),0,',','.');
+									$vTon = ($qq->row($hari.'_stok_akhir') == 0 || $qq->row($hari.'_stok_akhir') < 0) ? 0 : number_format($qq->row($hari.'_stok_akhir') * $g->berat_bersih,0,',','.');
 
 									// CEK NO. PO
 									$cekPO = $this->db->query("SELECT*FROM trs_po p
@@ -12225,11 +12229,21 @@ class Logistik extends CI_Controller
 											<input type="number" id="in2_'.$g->id_produk.'" name="in2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$roL.'>
 										</td>
 										<td style="padding:6px">
+											<input type="number" id="inrtr2_'.$g->id_produk.'" name="in2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$roL.'>
+										</td>
+										<td style="padding:6px">
 											<input type="number" id="out2_'.$g->id_produk.'" name="out2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$roL.'>
+										</td>
+										<td style="padding:6px">
+											<input type="number" id="outrtr2_'.$g->id_produk.'" name="out2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$roL.'>
 										</td>
 										<td style="padding:6px">
 											<input type="hidden" id="hstok_akhir2_'.$g->id_produk.'" name="hstok_akhir2_'.$g->id_produk.'" value="'.$vSkh.'">
 											<input type="number" id="stok_akhir2_'.$g->id_produk.'" name="stok_akhir2_'.$g->id_produk.'" value="'.$vSk.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
+										</td>
+										<td style="padding:6px">
+											<input type="hidden" id="hTTON2_'.$g->id_produk.'" name="hTTON2_'.$g->id_produk.'" value="'.$g->berat_bersih.'">
+											<input type="number" id="tton2_'.$g->id_produk.'" name="tton2_'.$g->id_produk.'" value="'.$vTon.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
 										</td>
 										<td style="padding:6px">
 											<input type="text" id="ket2_'.$g->id_produk.'" name="ket2_'.$g->id_produk.'" class="form-control" placeholder="KETERANGAN" autocomplete="off" style="padding:2px 4px;font-weight:bold" oninput="this.value=this.value.toUpperCase()" '.$roL.'>

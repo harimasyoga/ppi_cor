@@ -527,6 +527,78 @@
 					</div>
 				</div>
 			<?php } ?>
+
+			<?php if(in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Pengiriman'])){ ?>
+				<div class="row row-lap">
+					<div class="col-md-12">
+						<div class="card card-secondary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">LAPORAN PO ROLL PAPER v2</h3>
+								<div class="card-tools">
+									<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+									<i class="fas fa-minus"></i></button>
+								</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:12px 12px 6px">
+								<div class="col-md-2">CUSTOMER</div>
+								<div class="col-md-8">
+									<select id="lap_id_pt2" class="form-control select2" onchange="plhCustomer2()">
+										<option value="">PILIH</option>
+										<?php
+											$db3 = $this->load->database('database_simroll', TRUE);
+											$query3 = $db3->query("SELECT c.id,c.pimpinan,c.note,c.nm_perusahaan FROM po_master po
+												INNER JOIN m_perusahaan c ON po.id_perusahaan=c.id
+												WHERE po.id_perusahaan!='210' AND po.id_perusahaan!='217'
+												AND po.tgl BETWEEN '2025-12-01' AND '9999-01-01'
+												-- AND po.status='Open'
+												GROUP BY c.id
+												ORDER BY c.nm_perusahaan");
+											$html3 = '';
+											foreach($query3->result() as $r3){
+												($r3->note != null) ? $ntx = ' ( '.$r3->note.' )' : $ntx = '';
+												$html3 .= '<option value="'.$r3->id.'"> '.$r3->pimpinan.' | '.$r3->nm_perusahaan.$ntx.'</option>';
+											}
+											echo $html3;
+										?>
+									</select>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">STATUS PO</div>
+								<div class="col-md-8">
+									<select id="lap_status2" class="form-control select2" onchange="plhStatus2()" disabled>
+										<option value="OPEN">OPEN</option>
+										<option value="ALL">ALL</option>
+									</select>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2">NO. PO</div>
+								<div class="col-md-8">
+									<select id="lap_no_po2" class="form-control select2" disabled>
+										<option value="">PILIH</option>
+									</select>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
+								<div class="col-md-2"></div>
+								<div class="col-md-10">
+									<button type="button" class="btn btn-sm btn-primary" onclick="cariLaporanPORoll2()"><b>CARI</b></button>
+								</div>
+							</div>
+							<div class="card-body" style="padding:6px">
+								<div style="overflow:auto;white-space:nowrap">
+									<div id="lap_list_po2"></div>
+								</div>
+							</div>
+							<div id="lap_dtl_po2"></div>
+						</div>
+					</div>
+				</div>
+			<?php } ?>
 		</div>
 	</section>
 </div>
@@ -540,7 +612,6 @@
 	const urlAuth = '<?= $this->session->userdata('level')?>';
 	const urlUser = '<?= $this->session->userdata('username')?>';
 	const betul = '<?= $data ?>';
-	const msg = '<?= $msg ?>';
 
 	$(document).ready(function ()
 	{
@@ -1382,8 +1453,12 @@
 		})
 	}
 
-	function btnDtlPO(i){
-		$("#lap_dtl_po").html('')
+	function btnDtlPO(i, opsi){
+		if(opsi == ''){
+			$("#lap_dtl_po").html('')
+		}else{
+			$("#lap_dtl_po2").html('')
+		}
 		let h_id_perusahaan =  $("#h_id_perusahaan"+i).val()
 		let h_no_po =  $("#h_no_po"+i).val()
 		let h_nm_ker =  $("#h_nm_ker"+i).val()
@@ -1406,8 +1481,55 @@
 			data: ({ h_id_perusahaan, h_no_po, h_nm_ker, h_g_label, h_width, h_jml_roll_po }),
 			success: function(res){
 				data = JSON.parse(res)
-				$("#lap_dtl_po").html(data.html)
+				if(opsi == ''){
+					$("#lap_dtl_po").html(data.html)
+				}else{
+					$("#lap_dtl_po2").html(data.html)
+				}
 				swal.close()
+			}
+		})
+	}
+
+	// lap v2
+	function plhCustomer2()
+	{
+		let id_pt = $("#lap_id_pt2").val()
+		$("#lap_status2").val('OPEN').prop('disabled', (id_pt == '') ? true : false).trigger('change')
+		$("#lap_no_po2").prop('disabled', (id_pt == '') ? true : false)
+	}
+
+	function plhStatus2()
+	{
+		$("#lap_no_po2").html('<option value="">LOADING</option>')
+		let id_pt = $("#lap_id_pt2").val()
+		let lap_status = $("#lap_status2").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/plhStatus') ?>',
+			type: "POST",
+			data: ({ id_pt, lap_status }),
+			success: function(res){
+				data = JSON.parse(res)
+				$("#lap_no_po2").html(data.noPO)
+			}
+		})
+	}
+
+	function cariLaporanPORoll2()
+	{
+		$("#lap_list_po2").html('Loading...')
+		$("#lap_dtl_po2").html('')
+		let id_pt = $("#lap_id_pt2").val()
+		let status = $("#lap_status2").val()
+		let no_po = $("#lap_no_po2").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/cariLaporanPORoll2') ?>',
+			type: "POST",
+			data: ({ id_pt, status, no_po }),
+			success: function(res){
+				data = JSON.parse(res)
+				$("#lap_list_po2").html(data.html)
+				// swal.close()
 			}
 		})
 	}

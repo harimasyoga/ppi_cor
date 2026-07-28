@@ -165,23 +165,19 @@
 						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST GUDANG</h3>
 						</div>
-						<div class="card-body" style="font-weight:bold;padding:6px">
+						<div class="card-body" style="font-weight:bold;padding:12px 6px">
 							<div>
 								<table>
 									<tr>
-										<td style="font-weight:bold;padding:0 0 16px">
+										<td style="font-weight:bold;padding:0 0 12px">
 											<input type="month" id="all_plh_tgl" value="<?php echo date('Y-m')?>" class="form-control" onchange="allListGudang()">
 										</td>
-										<td style="font-weight:bold;padding:0 0 16px 12px">
+										<td style="font-weight:bold;padding:0 0 12px 12px">
 											<div class="all-btn-pdf"></div>
 										</td>
 									</tr>
 								</table>
 							</div>
-							<!-- <div style="overflow:auto;white-space:nowrap">
-								<div class="all-list-gudang"></div>
-							</div>
-							-->
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="all-list-gudang2"></div>
 							</div>
@@ -302,9 +298,8 @@
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				// $(".all-list-gudang").html(data.html)
 				$(".all-list-gudang2").html(data.html2)
-				// console.log(data)
+				swal.close()
 			}
 		})
 	}
@@ -444,15 +439,27 @@
 		(inin < 0 || inin == '' || inin.length >= 7) ? inin = 0 : inin = inin;
 		$("#in2_"+i).val(rupiah.format(inin));
 
+		let inrtr = $("#inrtr2_"+i).val().split('.').join('');
+		(inrtr < 0 || inrtr == '' || inrtr.length >= 7) ? inrtr = 0 : inrtr = inrtr;
+		$("#inrtr2_"+i).val(rupiah.format(inrtr));
+
 		let out = $("#out2_"+i).val().split('.').join('');
-		let stokAwalIn = parseInt(stok_awal) + parseInt(inin);
-		(out < 0 || out == '' || out.length >= 7 || out > stokAwalIn) ? out = 0 : out = out;
+		(out < 0 || out == '' || out.length >= 7) ? out = 0 : out = out;
 		$("#out2_"+i).val(rupiah.format(out));
 
-		let hitung = (parseInt(stok_awal) + parseInt(inin)) - parseInt(out);
-		(isNaN(hitung) || hitung < 0) ? hitung = '' : hitung = hitung;
+		let outrtr = $("#outrtr2_"+i).val().split('.').join('');
+		(outrtr < 0 || outrtr == '' || outrtr.length >= 7) ? outrtr = 0 : outrtr = outrtr;
+		$("#outrtr2_"+i).val(rupiah.format(outrtr));
+
+		let hitung = (parseInt(stok_awal, 10) + parseInt(inin, 10) + parseInt(inrtr, 10)) - (parseInt(out, 10) + parseInt(outrtr, 10));
+		(isNaN(hitung)) ? hitung = '' : hitung = hitung;
 		$("#stok_akhir2_"+i).val(rupiah.format(hitung));
 		$("#hstok_akhir2_"+i).val(hitung);
+
+		let bb = $("#hTTON2_"+i).val();
+		let ton = parseInt(hitung * bb, 10);
+		(ton.length >= 7 || ton < 0) ? ton = 0 : ton = ton;
+		$("#tton2_"+i).val(rupiah.format(ton));
 	}
 
 	function keyUpGD3(i,z)
@@ -510,12 +517,22 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/editGDGD')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			data: ({
 				id_produk: i, hari: z, btnthn, id_pelanggan, stok_awal, inin, inrtr, outrtr, out, hitung, keterangan
 			}),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
+				allListGudang()
 			}
 		})
 	}
