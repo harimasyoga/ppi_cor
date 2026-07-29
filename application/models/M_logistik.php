@@ -3503,6 +3503,7 @@ class M_logistik extends CI_Model
 		$c_no_inv_kd    = $this->input->post('no_inv_kd');
 		$c_no_inv       = $this->input->post('no_inv');
 		$c_no_inv_tgl   = $this->input->post('no_inv_tgl');
+		$m_no_inv = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
 
 		$type           = $this->input->post('type_po2');
 		$pajak          = $this->input->post('pajak2');
@@ -3511,10 +3512,19 @@ class M_logistik extends CI_Model
 		($disc == 0 || $disc == ""  || $disc < 0) ? $discount = 0 : $discount = $this->input->post('disc_input');
 
 		$tgl_tempo = $this->input->post('tgl_tempo');
-		$cekTempo = $this->db->query("SELECT DATEDIFF('$tgl_tempo' , CURDATE()) AS selisih FROM invoice_header WHERE id='$id_inv'")->row();
+		$cekTempo = $this->db->query("SELECT no_invoice, DATEDIFF('$tgl_tempo' , CURDATE()) AS selisih FROM invoice_header WHERE id='$id_inv'")->row();
 		($cekTempo->selisih > 0) ? $stts = 'Open' : $stts = 'Xp';
 
-		$m_no_inv       = $c_no_inv_kd.''.$c_no_inv.''.$c_no_inv_tgl;
+		// JIKA ADA POTONGAN
+		$potList = $this->db->query("SELECT*FROM invoice_header_potongan WHERE no_invoice='$cekTempo->no_invoice' ORDER BY id");
+		if($potList->num_rows() != 0){
+			foreach($potList->result() as $zz){
+				$this->db->set('no_invoice', $m_no_inv);
+				$this->db->where('id', $zz->id);
+				$this->db->update("invoice_header_potongan");
+			}
+		}
+
 		$data_header = array(
 			'no_invoice'         => $m_no_inv,
 			'type'               => $type,
@@ -4745,6 +4755,45 @@ class M_logistik extends CI_Model
 		return array(
 			'data' => $data,
 		);
+	}
+
+	function addPotonganInv()
+	{
+		$id_inv = $_POST["id_inv"];
+		$no_inv = $_POST["no_inv_old"];
+		$pot_id = $_POST["pot_id"];
+		$pot_title = $_POST["pot_title"];
+		$opsi = $_POST["opsi"];
+		$pot_potongan = str_replace('.', '', $_POST["pot_potongan"]);
+		$header = $this->db->query("SELECT*FROM invoice_header a WHERE a.id='$id_inv' AND a.no_invoice='$no_inv'")->row();
+
+		if($pot_title == '' || $pot_potongan == ''){
+			$data = false;
+			$msg = 'LENGKAPI INPUTAN!';
+		}else if(($pot_potongan > $header->jml_mutasi) && $opsi == 'add'){
+			$data = false;
+			$msg = 'POTONGAN LEBIH DARI TOTAL INVOICE!';
+		}else{
+			$list = [
+				'pot_tipe' => $header->type,
+				'no_invoice' => $no_inv,
+				'pot_title' => $pot_title,
+				'pot_potongan' => $pot_potongan,
+				'pot_time' => date('Y-m-d H:i:s'),
+			];
+			if($opsi == 'add'){
+				$data = $this->db->insert("invoice_header_potongan", $list);
+			}else{
+				$this->db->where('id', $pot_id);
+				$data = $this->db->delete("invoice_header_potongan");
+			}
+			$msg = 'BERHASIL!';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
 	}
 
 	function simpanAkses()
