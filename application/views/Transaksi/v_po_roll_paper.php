@@ -1525,11 +1525,21 @@
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/cariLaporanPORoll2') ?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
 			data: ({ id_pt, status, no_po }),
 			success: function(res){
 				data = JSON.parse(res)
 				$("#lap_list_po2").html(data.html)
-				// swal.close()
+				swal.close()
 			}
 		})
 	}

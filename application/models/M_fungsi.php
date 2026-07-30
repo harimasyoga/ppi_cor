@@ -1001,4 +1001,67 @@ class M_fungsi extends CI_Model {
 		];
 	}
 
+	function hitungInvoice($id = '', $no_invoice = '')
+	{
+		$header = $this->db->query("SELECT*FROM invoice_header WHERE no_invoice='$no_invoice' AND id='$id'")->row();
+		$detail = $this->db->query("SELECT SUM(harga*hasil) AS jumlah FROM invoice_detail WHERE no_invoice='$no_invoice'")->row();
+
+		// discount
+		if($header->disc != 0){
+			$subTotal = $detail->jumlah - ($detail->jumlah * ($header->disc/100));
+		}else{
+			$subTotal = $detail->jumlah;
+		}
+
+		// ppn + ppph
+		$ppn11 = 0.11 * $subTotal;
+		$pph22 = 0.001 * $subTotal;
+		if($header->pajak == 'ppn'){
+			if($header->inc_exc == 'Include'){
+				$nominal = 0;
+			}else if($header->inc_exc == 'Exclude'){				
+				$nominal = $ppn11;
+			}else{
+				$nominal = 0;
+			}
+		}else if($header->pajak == 'ppn_pph'){
+			if($header->inc_exc == 'Include'){
+				$nominal = 0;
+			}else if($header->inc_exc == 'Exclude'){				
+				$nominal = $ppn11 + $pph22;
+			}else{
+				$nominal = 0;
+			}
+		}else{
+			if($header->inc_exc == 'Include'){
+				$nominal = 0;
+			}else if($header->inc_exc == 'Exclude'){
+				$nominal = $ppn11;
+			}else{
+				$nominal = 0;
+			}
+		}
+
+		// potongan
+		$potTot = $this->db->query("SELECT SUM(pot_potongan) AS potongan FROM invoice_header_potongan WHERE no_invoice='$no_invoice' GROUP BY no_invoice");
+		if($potTot->num_rows() != 0){
+			$potongan = $potTot->row()->potongan;
+		}else{
+			$potongan = 0;
+		}
+
+		// hasil
+		$total = ($subTotal + $nominal) - $potongan;
+
+		if($header->acc_owner != 'Y'){
+			$this->db->query("UPDATE invoice_header SET jml_mutasi='$total' WHERE no_invoice='$no_invoice' AND id='$id'");
+		}
+
+		return [
+			'header' => $header,
+			'potongan' => $potongan,
+			'total' => $total,
+		];
+	}
+
 }

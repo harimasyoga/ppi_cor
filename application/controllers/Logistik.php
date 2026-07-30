@@ -4419,6 +4419,7 @@ class Logistik extends CI_Controller
 		$id       = $this->input->post('id');
 		$no       = $this->input->post('no');
 		$jenis    = $this->input->post('jenis');
+		$bayar = '';
 		$potongan = '';
 
 		if($jenis=='byr_invoice')
@@ -4638,12 +4639,13 @@ class Logistik extends CI_Controller
 		{
 			$queryh = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
 			$queryd = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
+			$bayar = $this->db->query("SELECT SUM(jumlah) AS jumlah FROM invoice_bayar WHERE no_invoice='$no'")->row();
 			$qPot = $this->db->query("SELECT*FROM invoice_header_potongan WHERE no_invoice='$no' ORDER BY id");
 			if($qPot->num_rows() != 0){
 				foreach($qPot->result() as $r){
 					$qHH = $this->db->query($queryh)->row();
 					($qHH->type == 'roll') ? $rspn = 9 : $rspn = 8;
-					($qHH->acc_owner == 'Y') ? $btnAA = 'disabled' : $btnAA = 'onclick="addPotonganInv('."'".$r->id."'".', '."'delete'".')"';
+					($qHH->acc_owner == 'Y' || $bayar->jumlah > 0) ? $btnAA = 'disabled' : $btnAA = 'onclick="addPotonganInv('."'".$r->id."'".', '."'delete'".')"';
 					$potongan .= '<tr>
 						<td style="text-align:center" colspan="'.$rspn.'"></td>
 						<td style="text-align:center" colspan="2">
@@ -4666,7 +4668,7 @@ class Logistik extends CI_Controller
 
 		$header   = $this->db->query($queryh)->row();
 		$detail   = $this->db->query($queryd)->result();
-		$data     = ["header" => $header, "detail" => $detail, "potongan" => $potongan];
+		$data     = ["header" => $header, "detail" => $detail, "bayar" => $bayar, "potongan" => $potongan];
 
         echo json_encode($data);
 	}
@@ -6694,7 +6696,13 @@ class Logistik extends CI_Controller
 							$nominal = 0;
 						}
 					}
-					$total = $subTotal + $nominal;
+					$potTot = $this->db->query("SELECT SUM(pot_potongan) AS potongan FROM invoice_header_potongan WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
+					if($potTot->num_rows() != 0){
+						$potongan = $potTot->row()->potongan;
+					}else{
+						$potongan = 0;
+					}
+					$total = ($subTotal + $nominal) - $potongan;
 					$txtSel = '';
 					$seLisiH = 0;
 					$jmlNominal = $total;

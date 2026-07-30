@@ -4766,10 +4766,14 @@ class M_logistik extends CI_Model
 		$opsi = $_POST["opsi"];
 		$pot_potongan = str_replace('.', '', $_POST["pot_potongan"]);
 		$header = $this->db->query("SELECT*FROM invoice_header a WHERE a.id='$id_inv' AND a.no_invoice='$no_inv'")->row();
+		$uTotal = '';
 
 		if($pot_title == '' || $pot_potongan == ''){
 			$data = false;
 			$msg = 'LENGKAPI INPUTAN!';
+		}else if($header->acc_owner == 'Y'){
+			$data = false;
+			$msg = 'INVOICE SUDAH DI ACC!';
 		}else if(($pot_potongan > $header->jml_mutasi) && $opsi == 'add'){
 			$data = false;
 			$msg = 'POTONGAN LEBIH DARI TOTAL INVOICE!';
@@ -4787,12 +4791,24 @@ class M_logistik extends CI_Model
 				$this->db->where('id', $pot_id);
 				$data = $this->db->delete("invoice_header_potongan");
 			}
+			if($data){
+				$this->db->set('cek_global', date('Y-m-d H:i:s'));
+				$this->db->set('acc_owner', 'N');
+				$this->db->where('no_invoice', $no_inv);
+				$this->db->where('id', $id_inv);
+				$uHeader = $this->db->update('invoice_header');
+				// update total
+				if($uHeader){
+					$uTotal = $this->m_fungsi->hitungInvoice($id_inv, $no_inv);
+				}
+			}
 			$msg = 'BERHASIL!';
 		}
 
 		return [
 			'data' => $data,
 			'msg' => $msg,
+			'uTotal' => $uTotal,
 		];
 	}
 

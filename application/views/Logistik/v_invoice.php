@@ -171,14 +171,7 @@
 						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
 							<div class="col-md-2">Pilihan Bank</div>
 							<div class="col-md-10">
-								<select class="form-control select2" id="bank" name="bank" style="width: 100%" autocomplete="off">
-									<!-- <option value="BCA_AKB">BCA AKB</option>
-										<option value="BCA_SSB">BCA SSB</option>
-										<option value="BCA_KSM">BCA KSM</option>
-										<option value="BCA_GMB">BCA GMB</option>
-										<option value="BCA">BCA</option>
-										<option value="BNI">BNI</option> -->
-								</select>
+								<select class="form-control select2" id="bank" name="bank" style="width: 100%" autocomplete="off"></select>
 							</div>
 						</div>
 						<hr>
@@ -189,8 +182,7 @@
 						</div>
 						<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
 							<div class="col-md-12" style="overflow:auto;white-space:nowrap;" width="100%">
-								<table id="datatable_input" class="table table-hover table- table-bordered table-condensed table-scrollable">
-								</table>
+								<table id="datatable_input" class="table table-hover table- table-bordered table-condensed table-scrollable"></table>
 							</div>
 						</div>
 					</div>
@@ -721,8 +713,7 @@
 						</div>
 						<div class="card-body row" style="padding-bottom:5px;">
 							<div class="col-md-12" style="overflow:auto;white-space:nowrap;" width="100%">
-								<table id="modal_datatable_input" class="table table-hover table- table-bordered table-condensed table-scrollable">
-								</table>
+								<table id="modal_datatable_input" class="table table-hover table- table-bordered table-condensed table-scrollable"></table>
 							</div>
 						</div>
 						<div class="card-body row" style="padding-bottom:5px;font-weight:bold">
@@ -1817,7 +1808,6 @@
 						$("#modal_btn_verif").html(`<button type="button" class="btn btn-success" id="modal_btn_verif" onclick="acc_inv()"><i class="fas fa-lock"></i><b> BATAL VERIFIKASI </b></button>`)
 					} else {
 						$("#modal_btn_verif").html(`<button type="button" class="btn btn-success" id="modal_btn_verif" onclick="acc_inv()"><i class="fas fa-check"></i><b> VERIFIKASI </b></button>`)
-
 					}
 
 					if (data.header.pajak == 'ppn' || data.header.pajak == 'ppn_pph') {
@@ -1834,30 +1824,29 @@
 					$("#modal_cek_inv").prop("disabled", true);
 					$("#modal_tgl_sj").prop("readonly", true);
 
-
 					$("#modal_type_po2").val(data.header.type);
 					$("#modal_cek_inv2").val(data.header.cek_inv);
 					$("#modal_pajak2").val(data.header.pajak);
 
 					// detail
 					if (data.header.type == 'roll') {
-						var list = `
-						<table id="datatable_input" class="table ">
-						<thead class="color-tabel">
-							<th style="text-align: center" >No</th>
-							<th style="text-align: center" >KET</th>
-							<th style="text-align: center; padding: 12px 50px" >HARGA</th>
-							<th style="text-align: center" >QTY</th>
-							<th style="text-align: center; padding: 12px 30px">R. QTY</th>
-							<th style="text-align: center" >BERAT</th>
-							<th style="text-align: center; padding: 12px 30px" >SESET</th>
-							<th style="text-align: center; padding: 12px 30px" >HASIL</th>
-						</thead>`;
-
+						var list = `<table id="datatable_input" class="table ">
+							<thead class="color-tabel">
+								<tr>
+									<th style="text-align: center" >No</th>
+									<th style="text-align: center" >KET</th>
+									<th style="text-align: center; padding: 12px 50px" >HARGA</th>
+									<th style="text-align: center" >QTY</th>
+									<th style="text-align: center; padding: 12px 30px">R. QTY</th>
+									<th style="text-align: center" >BERAT</th>
+									<th style="text-align: center; padding: 12px 30px" >SESET</th>
+									<th style="text-align: center; padding: 12px 30px" >HASIL</th>
+								</tr>
+							</thead>
+							<tbody>`;
 						var no = 1;
 						$.each(data.detail, function(index, val) {
-							list += `
-							<tbody>
+							list += `<tr>
 								<td id="modal_no_urut${no}" name="modal_no_urut[${no}]" style="text-align: center" >${no}
 									<input type="hidden" name="modal_nm_ker[${no}]" id="modal_nm_ker${no}" value="${val.nm_ker}">
 									<input type="hidden" name="modal_id_inv_detail[${no}]" id="modal_id_inv_detail${no}" value="${val.id}">
@@ -1897,22 +1886,25 @@
 								<td style="text-align: center" >${format_angka(val.hasil)}
 									<input type="hidden" id="modal_hasil${no}" name="modal_hasil[${no}]"  class="form-control" value="${format_angka(val.hasil)}" readonly>
 								</td>
-							</tbody>`;
+							</tr>`;
 							no++;
 						})
-						list += `</table>`;
+						list += `</tbody></table>`;
 					} else {
 						var list = `
 						<table id="modal_datatable_input" class="table">
 							<thead class="color-tabel">
-								<th style="text-align: center" >No</th>
-								<th style="text-align: center" >Ukuran</th>
-								<th style="text-align: center" >Kualitas</th>
-								<th style="text-align: center; padding: 12px 50px" >HARGA</th>
-								<th style="text-align: center" >QTY</th>
-								<th style="text-align: center; padding: 12px 30px">R. QTY</th>
-								<th style="text-align: center; padding: 12px 30px" >HASIL</th>
-							</thead>`;
+								<tr>
+									<th style="text-align: center" >No</th>
+									<th style="text-align: center" >Ukuran</th>
+									<th style="text-align: center" >Kualitas</th>
+									<th style="text-align: center; padding: 12px 50px" >HARGA</th>
+									<th style="text-align: center" >QTY</th>
+									<th style="text-align: center; padding: 12px 30px">R. QTY</th>
+									<th style="text-align: center; padding: 12px 30px" >HASIL</th>
+								</tr>
+							</thead>
+							<tbody>`;
 						var no = 1;
 						var berat_total = 0;
 						$.each(data.detail, function(index, val) {
@@ -1921,8 +1913,7 @@
 							} else {
 								no_po = val.no_po_sj
 							}
-							list += `
-							<tbody>
+							list += `<tr>
 								<td id="modal_no_urut${no}" name="modal_no_urut[${no}]" style="text-align: center" >${no}
 								
 									<input type="hidden" name="modal_id_pl_roll[${no}]" id="modal_id_pl_roll${no}" value="${val.id_pl}">
@@ -1963,24 +1954,18 @@
 								<td style="text-align: center" >${format_angka(val.hasil)} pcs
 									<input type="hidden" id="modal_hasil${no}" name="modal_hasil[${no}]"  class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.hasil)}" readonly>
 								</td>
-							</tbody>`;
+							</tr>`;
 							berat_total += parseInt(val.qty);
 							no++;
 						})
-						list += `<td style="text-align: center" colspan="6">TOTAL
-								</td>
-								<td style="text-align: center" >${format_angka(berat_total)}
-								</td>`;
-						list += `</table>`;
-						$("#modal_datatable_input").html(list);
-						// swal.close();
+						list += `<tr>
+							<td style="text-align: center" colspan="6">TOTAL</td>
+							<td style="text-align: center" >${format_angka(berat_total)}</td>
+						</tr>`;
+						list += `</tbody></table>`;
 					}
-
 					$("#modal_datatable_input").html(list);
-					// swal.close();
-
 				} else {
-
 					swal({
 						title: "Cek Kembali",
 						html: "Gagal Simpan",
@@ -1991,15 +1976,12 @@
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				// toastr.error('Terjadi Kesalahan');
-
 				swal({
 					title: "Cek Kembali",
 					html: "Terjadi Kesalahan",
 					type: "error",
 					confirmButtonText: "OK"
 				});
-
 				return;
 			}
 		});
@@ -2023,19 +2005,15 @@
 				$('#modal_no_inv_kd').val('A/');
 			}
 		} else {
-
 			if (pajak == 'nonppn') {
 				$('#modal_no_inv_kd').val('BB/');
 			} else {
 				$('#modal_no_inv_kd').val('AA/');
 			}
-
 		}
-
 		if (tgl_inv) {
 			$('#modal_no_inv_tgl').val('/' + month + '/' + year);
 		}
-
 	}
 
 	function load_sj_modal() {
@@ -2069,7 +2047,6 @@
 					$.each(data.data, function(index, val) {
 						option += `<option value="${val.id_perusahaan}" data-nm="${val.pimpinan}" data-nm_perusahaan="${val.nm_perusahaan}" data-id_perusahaan="${val.id_perusahaan}" data-alamat_perusahaan="${val.alamat_perusahaan}">[ "${val.tgll}" ] - [ "${val.pimpinan}" ] - [ "${val.nm_perusahaan}" ]</option>`;
 					});
-
 					$('#modal_id_pl').html(option);
 					if (id_pl_sementara != '') {
 						$("#modal_id_pl").val(id_pl_sementara).trigger('change');
@@ -2199,12 +2176,9 @@
 			});
 			return;
 		}
-
 		var bucket = $('#bucket').val();
-
 		for (var i = 1; i <= bucket - 1; i++) {
 			id_produk_simcorr = $("#id_produk_simcorr" + i).val();
-
 			if (id_produk_simcorr == '') {
 				swal({
 					title: "Cek Kembali",
@@ -2213,7 +2187,6 @@
 					confirmButtonText: "OK"
 				});
 				return;
-				// swal.close();
 			}
 		}
 
@@ -2224,19 +2197,14 @@
 			dataType: "JSON",
 			success: function(data) {
 				if (data.status == '1') {
-					// toastr.success('Berhasil Disimpan');
 					swal.close();
 					swal({
 						title: "Data",
 						html: "Berhasil Disimpan",
 						type: "success"
-						// confirmButtonText   : "OK"
 					});
-					// location.href = "<?= base_url() ?>Logistik/Invoice_edit?id="+data.id+"&no_inv="+no_inv_ok+"";
-					// location.href = "<?= base_url() ?>Logistik/Invoice";
 					kembaliList();
 					kosong();
-
 				} else if (data.status == '3') {
 					swal.close();
 					swal({
@@ -2248,7 +2216,6 @@
 					});
 					return;
 				} else {
-					// toastr.error('Gagal Simpan');
 					swal.close();
 					swal({
 						title: "Cek Kembali",
@@ -2261,8 +2228,6 @@
 				reloadTable();
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				// toastr.error('Terjadi Kesalahan');
-
 				swal.close();
 				swal({
 					title: "Cek Kembali",
@@ -2270,11 +2235,9 @@
 					type: "error",
 					confirmButtonText: "OK"
 				});
-
 				return;
 			}
 		});
-
 	}
 
 	function kosong(c = '') {
@@ -2283,21 +2246,21 @@
 		$("#status").val("");
 		$("#type_po").val("");
 		$("#type_po").html(`<select name="type_po" id="type_po" class="form-control select2" style="width: 100%" onchange="noinv(),no_inv2()">
-									<option value="">-- PILIH --</option>
-									<option value="roll">Roll</option>
-									<option value="sheet">Sheet</option>
-									<option value="box">Box</option>
-								</select>`);
+			<option value="">-- PILIH --</option>
+			<option value="roll">Roll</option>
+			<option value="sheet">Sheet</option>
+			<option value="box">Box</option>
+		</select>`);
 		$("#tgl_inv").val("");
 		$("#tgl_sj").val("");
 		$("#tgl_tempo").val("");
 		$("#pajak").val("");
 		$("#pajak").html(`<select id="pajak" name="pajak" class="form-control select2" style="width: 100%" onchange="noinv(),no_inv2()">
-									<option value="">-- PILIH --</option>
-									<option value="ppn">PPN 11%</option>
-									<option value="ppn_pph">PPN 11% + PPH22</option>
-									<option value="nonppn">NON PPN</option>
-								</select>`);
+			<option value="">-- PILIH --</option>
+			<option value="ppn">PPN 11%</option>
+			<option value="ppn_pph">PPN 11% + PPH22</option>
+			<option value="nonppn">NON PPN</option>
+		</select>`);
 		$("#inc_exc").val("");
 		$('#ppn_pilihan').hide("1000");
 		$("#id_pl_sementara").val("");
@@ -2374,7 +2337,6 @@
 					$.each(data.data, function(index, val) {
 						option += `<option value="${val.id_perusahaan}" data-nm="${val.pimpinan}" data-nm_perusahaan="${val.nm_perusahaan}" data-id_perusahaan="${val.id_perusahaan}" data-alamat_perusahaan="${val.alamat_perusahaan}">[ "${val.tgll}" ] - [ "${val.pimpinan}" ] - [ "${val.nm_perusahaan}" ]</option>`;
 					});
-
 					$('#id_pl').html(option);
 					if (id_pl_sementara != '') {
 						$("#id_pl").val(id_pl_sementara).trigger('change');
@@ -2400,11 +2362,8 @@
 			$("#kpd").val(kpd)
 			$("#nm_perusahaan").val(nm_perusahaan)
 			$("#alamat_perusahaan").val(alamat_perusahaan)
-		} else {
-
 		}
 		show_list_pl()
-
 	}
 
 	function show_list_pl() {
@@ -2434,9 +2393,9 @@
 			success: function(data) {
 				if (data.message == "Success") {
 					if (type_po == 'roll') {
-						var list = `
-							<table id="datatable_input" class="table">
-								<thead class="color-tabel">
+						var list = `<table id="datatable_input" class="table">
+							<thead class="color-tabel">
+								<tr>
 									<th style="text-align: center" >No</th>
 									<th style="text-align: center" >NO SJ</th>
 									<th style="text-align: center" >NO PO</th>
@@ -2450,7 +2409,9 @@
 									<th style="text-align: center; padding-right: 25px" >SESET</th>
 									<th style="text-align: center; padding-right: 30px" >HASIL</th>
 									<th style="text-align: center" >AKSI</th>
-								</thead>`;
+								</tr>
+							</thead>
+							<tbody>`;
 						var no = 1;
 						var berat_total = 0;
 						var no_po = '';
@@ -2460,65 +2421,62 @@
 							} else {
 								no_po = val.no_po_sj
 							}
-							list += `
-								<tbody>
-									<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
-										<input type="hidden" name="nm_ker[${no}]" id="nm_ker${no}" value="${val.nm_ker}">
-										
-										<input type="hidden" name="id_pl_roll[${no}]" id="id_pl_roll${no}" value="${val.id_pl}">
-									</td>
-									<td style="text-align: center" >${val.no_surat}
-										<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
-									</td>
-									<td style="text-align: center" >${no_po}
-										<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${no_po}">
-									</td>
-									<td style="text-align: center" >${val.g_label}
-										<input type="hidden" id="g_label${no}" name="g_label[${no}]" value="${val.g_label}">
-									</td>
-									<td style="text-align: center" >${val.width}
-										<input type="hidden" id="width${no}" name="width[${no}]" value="${val.width}">
-									</td>
-									<td style="text-align: center" >
-										<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" >
-									</td>
-									<td style="text-align: center" >
-										<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" >
-									</td>
-									<td style="text-align: center" >${val.qty}
-										<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
-									</td>
-									<td style="text-align: center" >
-										<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)">
-									</td>
-									<td style="text-align: center" >${format_angka(val.weight)}
-										<input type="hidden" id="weight${no}" name="weight[${no}]"  value="${val.weight}">
-									</td>
-									<td style="text-align: center" >
-										<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})">
-									</td>
-									<td style="text-align: center" >
-										<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.weight)}" readonly>
-									</td>
-									<td style="text-align: center" >
-										<input type="checkbox" name="aksi[${no}]" id="aksi${no}" class="form-control" value="0" onchange="cek(this.value,this.id)">
-									</td>
-								</tbody>`;
+							list += `<tr>
+								<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
+									<input type="hidden" name="nm_ker[${no}]" id="nm_ker${no}" value="${val.nm_ker}">
+									
+									<input type="hidden" name="id_pl_roll[${no}]" id="id_pl_roll${no}" value="${val.id_pl}">
+								</td>
+								<td style="text-align: center" >${val.no_surat}
+									<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
+								</td>
+								<td style="text-align: center" >${no_po}
+									<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${no_po}">
+								</td>
+								<td style="text-align: center" >${val.g_label}
+									<input type="hidden" id="g_label${no}" name="g_label[${no}]" value="${val.g_label}">
+								</td>
+								<td style="text-align: center" >${val.width}
+									<input type="hidden" id="width${no}" name="width[${no}]" value="${val.width}">
+								</td>
+								<td style="text-align: center" >
+									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" >
+								</td>
+								<td style="text-align: center" >
+									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" >
+								</td>
+								<td style="text-align: center" >${val.qty}
+									<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
+								</td>
+								<td style="text-align: center" >
+									<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)">
+								</td>
+								<td style="text-align: center" >${format_angka(val.weight)}
+									<input type="hidden" id="weight${no}" name="weight[${no}]"  value="${val.weight}">
+								</td>
+								<td style="text-align: center" >
+									<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})">
+								</td>
+								<td style="text-align: center" >
+									<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.weight)}" readonly>
+								</td>
+								<td style="text-align: center" >
+									<input type="checkbox" name="aksi[${no}]" id="aksi${no}" class="form-control" value="0" onchange="cek(this.value,this.id)">
+								</td>
+							</tr>`;
 							berat_total += parseInt(val.weight);
 							no++;
 						})
-						list += `<td style="text-align: center" colspan="9">TOTAL
-									</td>
-									<td style="text-align: center" >${format_angka(berat_total)}
-									</td>
-									<td style="text-align: center" colspan="3">&nbsp;
-									</td>`;
-						list += `</table>`;
-
+						list += `<tr>
+							<td style="text-align: center" colspan="9">TOTAL</td>
+							<td style="text-align: center" >${format_angka(berat_total)}</td>
+							<td style="text-align: center" colspan="3">&nbsp;</td>
+						</tr>`;
+						list += `</tbody></table>`;
 					} else {
-						var list = `
-							<table id="datatable_input" class="table">
-								<thead class="color-tabel">
+						var list = `<table id="datatable_input" class="table">
+							<thead class="color-tabel">
+								<tr>
 									<th style="text-align: center" >No</th>
 									<th style="text-align: center" >NO SJ</th>
 									<th style="text-align: center" >NO PO</th>
@@ -2531,7 +2489,9 @@
 									<th style="text-align: center; padding-right: 35px">R. QTY</th>
 									<th style="text-align: center; padding-right: 35px" >HASIL</th>
 									<th style="text-align: center" >AKSI</th>
-								</thead>`;
+								</tr>
+							</thead>
+							<tbody>`;
 						var no = 1;
 						var berat_total = 0;
 						var no_po = '';
@@ -2541,70 +2501,64 @@
 							} else {
 								no_po = val.no_po_sj
 							}
-							list += `
-								<tbody>
-									<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
-										
-										<input type="hidden" name="id_pl_roll[${no}]" id="id_pl_roll${no}" value="${val.id_pl}">
-									</td>
-									<td style="text-align: center" >${val.no_surat}
-										<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
-									</td>
-									<td style="text-align: center" >${no_po}
-										<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${no_po}">
-									</td>
-									<td style="text-align: center" >${val.id_produk_simcorr} - ${val.item}
-										<input type="hidden" id="item${no}" name="item[${no}]" value="${val.item}">
-										<input type="hidden" id="id_produk_simcorr${no}" name="id_produk_simcorr[${no}]" value="${val.id_produk_simcorr}">
-									</td>
-									<td style="text-align: center" >${val.ukuran2}
-										<input type="hidden" id="ukuran${no}" name="ukuran[${no}]" value="${val.ukuran2}">
-									</td>
-									<td style="text-align: center" >${val.kualitas}
-										<input type="hidden" id="kualitas${no}" name="kualitas[${no}]" value="${val.kualitas}">
-									</td>
-									<td style="text-align: center" >
-										<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.exc)}" readonly>
-									</td>
-									<td style="text-align: center" >
-										<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.inc)}" readonly>
-									</td>
-									<td style="text-align: center" >${format_angka(val.qty)}
-										<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
-									</td>
-									<td style="text-align: center" >
-										<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})">
-									</td>
-									<td style="text-align: center" >
-										<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.qty)}" readonly>
-									</td>
-									<td style="text-align: center" >
-										<input type="checkbox" name="aksi[${no}]" id="aksi${no}" class="form-control" value="0" onchange="cek(this.value,this.id)">
-									</td>
-								</tbody>`;
+							list += `<tr>
+								<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
+									<input type="hidden" name="id_pl_roll[${no}]" id="id_pl_roll${no}" value="${val.id_pl}">
+								</td>
+								<td style="text-align: center" >${val.no_surat}
+									<input type="hidden" name="no_surat[${no}]" id="no_surat${no}" value="${val.no_surat}">
+								</td>
+								<td style="text-align: center" >${no_po}
+									<input type="hidden" id="no_po${no}" name="no_po[${no}]" value="${no_po}">
+								</td>
+								<td style="text-align: center" >${val.id_produk_simcorr} - ${val.item}
+									<input type="hidden" id="item${no}" name="item[${no}]" value="${val.item}">
+									<input type="hidden" id="id_produk_simcorr${no}" name="id_produk_simcorr[${no}]" value="${val.id_produk_simcorr}">
+								</td>
+								<td style="text-align: center" >${val.ukuran2}
+									<input type="hidden" id="ukuran${no}" name="ukuran[${no}]" value="${val.ukuran2}">
+								</td>
+								<td style="text-align: center" >${val.kualitas}
+									<input type="hidden" id="kualitas${no}" name="kualitas[${no}]" value="${val.kualitas}">
+								</td>
+								<td style="text-align: center" >
+									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.exc)}" readonly>
+								</td>
+								<td style="text-align: center" >
+									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.inc)}" readonly>
+								</td>
+								<td style="text-align: center" >${format_angka(val.qty)}
+									<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
+								</td>
+								<td style="text-align: center" >
+									<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})">
+								</td>
+								<td style="text-align: center" >
+									<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.qty)}" readonly>
+								</td>
+								<td style="text-align: center" >
+									<input type="checkbox" name="aksi[${no}]" id="aksi${no}" class="form-control" value="0" onchange="cek(this.value,this.id)">
+								</td>
+							</tr>`;
 							berat_total += parseInt(val.qty);
 							no++;
 						})
-						list += `<td style="text-align: center" colspan="8">TOTAL
-									</td>
-									<td style="text-align: center" >${format_angka(berat_total)}
-									</td>
-									<td style="text-align: center" colspan="3">&nbsp;
-										<input type="hidden" id="bucket" value="${no}"></input>
-									</td>`;
-						list += `</table>`;
+						list += `<tr>
+							<td style="text-align: center" colspan="8">TOTAL</td>
+							<td style="text-align: center" >${format_angka(berat_total)}</td>
+							<td style="text-align: center" colspan="3">&nbsp;
+								<input type="hidden" id="bucket" value="${no}"></input>
+							</td>
+						</tr>`;
+						list += `</tbody></table>`;
 					}
-
 					$("#datatable_input").html(list);
 					swal.close();
 				} else {
-
 					swal.close();
 				}
-
 			}
 		})
-
 	}
 
 	function noinv() {
@@ -2627,7 +2581,6 @@
 		let day = myArray[2];
 
 		if (year == '2023') {
-
 			if (type == 'roll') {
 				if (pajak == 'nonppn') {
 					$('#no_inv_kd').val('B/');
@@ -2635,15 +2588,12 @@
 					$('#no_inv_kd').val('A/');
 				}
 			} else {
-
 				if (pajak == 'nonppn') {
 					$('#no_inv_kd').val('BB/');
 				} else {
 					$('#no_inv_kd').val('AA/');
 				}
-
 			}
-
 		} else {
 			if (type == 'roll') {
 				if (pajak == 'nonppn') {
@@ -2652,28 +2602,22 @@
 					$('#no_inv_kd').val('FC/');
 				}
 			} else {
-
 				if (pajak == 'nonppn') {
 					$('#no_inv_kd').val('FB/');
 				} else {
 					$('#no_inv_kd').val('FA/');
 				}
-
 			}
-
 		}
-
 
 		if (tgl_inv) {
 			$('#no_inv_tgl').val('/' + month + '/' + year);
 		}
-
 	}
 
 	function no_inv2() {
 		var status = $("#sts_input").val();
 		if (status == 'add') {
-
 			var type = $('#type_po').val()
 			var pajak = $('#pajak').val()
 			var cek_inv = $('#cek_inv').val()
@@ -2682,11 +2626,9 @@
 			if (tgl_inv == '' || tgl_inv == null) {
 				th_invoice = <?= date('Y') ?>
 			} else {
-
 				const myArray = tgl_inv.split("-")
 				var year = myArray[0]
 				th_invoice = year
-
 			}
 			$.ajax({
 				type: 'POST',
@@ -2698,26 +2640,20 @@
 				},
 				dataType: 'json',
 				success: function(val) {
-
 					$("#no_inv").val(val)
 					if (cek_inv == 'baru') {
 						$("#no_inv").prop('readonly', true);
 					} else {
 						$("#no_inv").prop('readonly', false);
-
 					}
-
 				}
 			});
-
 		} else {
-
 		}
 	}
 
 	function cek_invoice() {
 		var cek_inv = $('#cek_inv').val()
-
 		if (cek_inv == 'baru') {
 			$("#no_inv").prop('readonly', true);
 		} else {
@@ -2735,7 +2671,6 @@
 
 
 	function clearRow() {
-		// jQuery('#datatable_input').remove();
 		$("#datatable_input").html('');
 	}
 
@@ -2843,24 +2778,27 @@
 						var list = `
 						<table id="datatable_input" class="table ">
 						<thead class="color-tabel">
-							<th style="text-align: center" >No</th>
-							<th style="text-align: center" >NO SJ</th>
-							<th style="text-align: center" >NO PO</th>
-							<th style="text-align: center" >GSM</th>
-							<th style="text-align: center" >ITEM</th>
-							<th style="text-align: center; padding-right: 30px" >Exclude</th>
-							<th style="text-align: center; padding-right: 30px" >Include</th>
-							<th style="text-align: center" >QTY</th>
-							<th style="text-align: center; padding-right: 10px">R. QTY</th>
-							<th style="text-align: center" >BERAT</th>
-							<th style="text-align: center; padding-right: 25px" >SESET</th>
-							<th style="text-align: center; padding-right: 30px" >HASIL</th>
-							<th style="text-align: center" >AKSI</th>
-						</thead>`;
-						var no = 1;
+							<tr>
+								<th style="text-align: center" >No</th>
+								<th style="text-align: center" >NO SJ</th>
+								<th style="text-align: center" >NO PO</th>
+								<th style="text-align: center" >GSM</th>
+								<th style="text-align: center" >ITEM</th>
+								<th style="text-align: center; padding-right: 30px" >Exclude</th>
+								<th style="text-align: center; padding-right: 30px" >Include</th>
+								<th style="text-align: center" >QTY</th>
+								<th style="text-align: center; padding-right: 10px">R. QTY</th>
+								<th style="text-align: center" >BERAT</th>
+								<th style="text-align: center; padding-right: 25px" >SESET</th>
+								<th style="text-align: center; padding-right: 30px" >HASIL</th>
+								<th style="text-align: center" >AKSI</th>
+							</tr>
+						</thead>
+						<tbody>`;
+						var no = 1; let idsc = '';
+						(data.header.jml_mutasi == 0 || data.header.jml_mutasi == '0' || data.bayar.jumlah > 0) ? idsc = 'readonly' : idsc = '';
 						$.each(data.detail, function(index, val) {
-							list += `
-							<tbody>
+							list += `<tr>
 								<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
 									<input type="hidden" name="nm_ker[${no}]" id="nm_ker${no}" value="${val.nm_ker}">
 									<input type="hidden" name="id_inv_detail[${no}]" id="id_inv_detail${no}" value="${val.id}">
@@ -2878,22 +2816,22 @@
 									<input type="hidden" id="width${no}" name="width[${no}]" value="${val.width}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}">
+									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}">
+									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >${val.qty}
 									<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.retur_qty)}">
+									<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.retur_qty)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >${format_angka(val.weight)}
 									<input type="hidden" id="weight${no}" name="weight[${no}]"  value="${val.weight}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.seset)}" >
+									<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.seset)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >
 									<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.hasil)}" readonly>
@@ -2901,25 +2839,26 @@
 								<td style="text-align: center" >
 									<input type="checkbox" checked name="aksi[${no}]" id="aksi${no}" class="form-control" value="1" onchange="cek(this.value,this.id)" disabled>
 								</td>
-							</tbody>`;
+							</tr>`;
 							no++;
 						})
 						// discount
 						let cci = '';
 						(data.header.disc != 0) ? cci = data.header.disc: cci = '';
-						list += `<td style="text-align: center" colspan="10"></td>
-						<td style="text-align:center">DISCOUNT (%)</td>
-						<td style="text-align:center">
-							<input type="text" id="disc_input" name="disc_input" onkeyup="ubah_angka(this.value,this.id)" class="form-control" value="${cci}" autocomplete="off" placeholder="0">
-						</td>
-						<td style="text-align:center"></td>`;
-						list += `</table>`;
+						list += `<tr>
+							<td style="text-align: center" colspan="10"></td>
+							<td style="text-align:center">DISCOUNT (%)</td>
+							<td style="text-align:center">
+								<input type="text" id="disc_input" name="disc_input" onkeyup="ubah_angka(this.value,this.id)" class="form-control" value="${cci}" autocomplete="off" placeholder="0" ${idsc}>
+							</td>
+							<td style="text-align:center"></td>
+						</tr>`;
 						// potongan
 						if(data.potongan != ''){
 							list += data.potongan;
 						}
 						let btnPTT = '';
-						(data.header.acc_owner == 'Y') ? btnPTT = `disabled` : btnPTT = `onclick="addPotonganInv('', 'add')"`;
+						(data.header.jml_mutasi == 0 || data.header.jml_mutasi == '0' || data.bayar.jumlah > 0) ? btnPTT = `class="btn btn-sm btn-secondary" disabled` : btnPTT = `class="btn btn-sm btn-success" onclick="addPotonganInv('', 'add')"`;
 						list += `<tr>
 							<td style="text-align:center" colspan="9"></td>
 							<td style="text-align:center" colspan="2">
@@ -2930,37 +2869,41 @@
 							</td>
 							<td>
 								<input type="hidden" id="pot_id" name="pot_id" value="">
-								<button type="button" class="btn btn-sm btn-success" ${btnPTT}><i class="fas fa-plus"></i></button>
+								<button type="button" ${btnPTT}><i class="fas fa-plus"></i></button>
 							</td>
 						</tr>`;
-						list += `</table>`;
+						list += `</tbody></table>`;
 					} else {
 						var list = `
 						<table id="datatable_input" class="table">
 							<thead class="color-tabel">
-								<th style="text-align: center" >No</th>
-								<th style="text-align: center" >NO SJ</th>
-								<th style="text-align: center" >NO PO</th>
-								<th style="text-align: center" >ITEM</th>
-								<th style="text-align: center" >Ukuran</th>
-								<th style="text-align: center" >Kualitas</th>
-								<th style="text-align: center; padding-right: 35px" >Exclude</th>
-								<th style="text-align: center; padding-right: 40px" >Include</th>
-								<th style="text-align: center" >QTY</th>
-								<th style="text-align: center; padding-right: 35px">R. QTY</th>
-								<th style="text-align: center; padding-right: 40px" >HASIL</th>
-								<th style="text-align: center" >AKSI</th>
-							</thead>`;
+								<tr>
+									<th style="text-align: center" >No</th>
+									<th style="text-align: center" >NO SJ</th>
+									<th style="text-align: center" >NO PO</th>
+									<th style="text-align: center" >ITEM</th>
+									<th style="text-align: center" >Ukuran</th>
+									<th style="text-align: center" >Kualitas</th>
+									<th style="text-align: center; padding-right: 35px" >Exclude</th>
+									<th style="text-align: center; padding-right: 40px" >Include</th>
+									<th style="text-align: center" >QTY</th>
+									<th style="text-align: center; padding-right: 35px">R. QTY</th>
+									<th style="text-align: center; padding-right: 40px" >HASIL</th>
+									<th style="text-align: center" >AKSI</th>
+								</tr>
+							</thead>
+							<tbody>`;
 						var no = 1;
 						var berat_total = 0;
+						let idsc = '';
+						(data.header.jml_mutasi == 0 || data.header.jml_mutasi == '0' || data.bayar.jumlah > 0) ? idsc = 'readonly' : idsc = '';
 						$.each(data.detail, function(index, val) {
 							if (val.no_po_sj == null || val.no_po_sj == '') {
 								no_po = val.no_po
 							} else {
 								no_po = val.no_po_sj
 							}
-							list += `
-							<tbody>
+							list += `<tr>
 								<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
 									<input type="hidden" name="disc_cek" id="disc_cek" value="0">
 									<input type="hidden" name="id_pl_roll[${no}]" id="id_pl_roll${no}" value="${val.id_pl}">
@@ -2983,16 +2926,16 @@
 									<input type="hidden" id="kualitas${no}" name="kualitas[${no}]" value="${val.kualitas}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}">
+									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}">
+									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >${format_angka(val.qty)}
 									<input type="hidden" id="qty${no}" name="qty[${no}]" onkeyup="ubah_angka(this.value,this.id)" value="${val.qty}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" id="retur_qty${no}" name="retur_qty[${no}]" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.retur_qty)}">
+									<input type="text" id="retur_qty${no}" name="retur_qty[${no}]" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.retur_qty)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >
 									<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.hasil)}" readonly>
@@ -3000,13 +2943,15 @@
 								<td style="text-align: center" >
 									<input type="checkbox" checked name="aksi[${no}]" id="aksi${no}" class="form-control" value="1" onchange="cek(this.value,this.id)" disabled>
 								</td>
-							</tbody>`;
+							</tr>`;
 							berat_total += parseInt(val.qty);
 							no++;
 						})
-						list += `<td style="text-align: center" colspan="8">TOTAL</td>
+						list += `<tr>
+							<td style="text-align: center" colspan="8">TOTAL</td>
 							<td style="text-align: center" >${format_angka(berat_total)}</td>
-							<td style="text-align: center" colspan="3">&nbsp;</td>`;
+							<td style="text-align: center" colspan="3">&nbsp;</td>
+						</tr>`;
 						// discount
 						let cci = '';
 						(data.header.disc != 0) ? cci = data.header.disc: cci = '';
@@ -3014,7 +2959,7 @@
 							<td style="text-align:center" colspan="9"></td>
 							<td style="text-align:center">DISCOUNT (%)</td>
 							<td style="text-align:center">
-								<input type="text" id="disc_input" name="disc_input" onkeyup="ubah_angka(this.value,this.id)" class="form-control" style="text-align:right" value="${cci}" autocomplete="off" placeholder="0">
+								<input type="text" id="disc_input" name="disc_input" onkeyup="ubah_angka(this.value,this.id)" class="form-control" style="text-align:right" value="${cci}" autocomplete="off" placeholder="0" ${idsc}>
 							</td>
 							<td></td>
 						</tr>`;
@@ -3023,7 +2968,7 @@
 							list += data.potongan;
 						}
 						let btnPTT = '';
-						(data.header.acc_owner == 'Y') ? btnPTT = `disabled` : btnPTT = `onclick="addPotonganInv('', 'add')"`;
+						(data.header.jml_mutasi == 0 || data.header.jml_mutasi == '0' || data.bayar.jumlah > 0) ? btnPTT = `class="btn btn-sm btn-secondary" disabled` : btnPTT = `class="btn btn-sm btn-success" onclick="addPotonganInv('', 'add')"`;
 						list += `<tr>
 							<td style="text-align:center" colspan="8"></td>
 							<td style="text-align:center" colspan="2">
@@ -3034,17 +2979,13 @@
 							</td>
 							<td>
 								<input type="hidden" id="pot_id" name="pot_id" value="">
-								<button type="button" class="btn btn-sm btn-success" ${btnPTT}><i class="fas fa-plus"></i></button>
+								<button type="button" ${btnPTT}><i class="fas fa-plus"></i></button>
 							</td>
 						</tr>`;
-						list += `</table>`;
+						list += `</tbody></table>`;
 					}
-
 					$("#datatable_input").html(list);
-					// swal.close();
-
 				} else {
-
 					swal({
 						title: "Cek Kembali",
 						html: "Gagal Simpan",
@@ -3055,19 +2996,15 @@
 				}
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				// toastr.error('Terjadi Kesalahan');
-
 				swal({
 					title: "Cek Kembali",
 					html: "Terjadi Kesalahan",
 					type: "error",
 					confirmButtonText: "OK"
 				});
-
 				return;
 			}
 		});
-
 	}
 
 	function addPotonganInv(i, opsi) {
@@ -3106,7 +3043,6 @@
 
 	function cek_periode() {
 		$cek = $('#priode').val();
-
 		if ($cek == 'custom') {
 			$('#list_tgl').show("1000");
 		} else {
@@ -3116,7 +3052,6 @@
 
 	function cek_type() {
 		$cek = $('#pilih_type').val();
-
 		if ($cek == 'box') {
 			$('#list_attn').show("1000");
 			$('#list_cust').show("1000");
@@ -3160,11 +3095,9 @@
 				});
 			},
 			success: function(res) {
-				// data = JSON.parse(res)
 				$("#tampil_lap_inv").html(res)
 				swal.close()
 			}
-
 		})
 	}
 
