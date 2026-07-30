@@ -4645,7 +4645,7 @@ class Logistik extends CI_Controller
 				foreach($qPot->result() as $r){
 					$qHH = $this->db->query($queryh)->row();
 					($qHH->type == 'roll') ? $rspn = 9 : $rspn = 8;
-					($qHH->acc_owner == 'Y') ? $btnAA = 'disabled' : $btnAA = 'onclick="addPotonganInv('."'".$r->id."'".', '."'delete'".')"';
+					($qHH->acc_owner == 'Y' || $bayar->jumlah > 0) ? $btnAA = 'disabled' : $btnAA = 'onclick="addPotonganInv('."'".$r->id."'".', '."'delete'".')"';
 					$potongan .= '<tr>
 						<td style="text-align:center" colspan="'.$rspn.'"></td>
 						<td style="text-align:center" colspan="2">
