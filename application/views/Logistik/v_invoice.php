@@ -2795,7 +2795,8 @@
 							</tr>
 						</thead>
 						<tbody>`;
-						var no = 1;
+						var no = 1; let idsc = '';
+						(data.header.jml_mutasi == 0 || data.header.jml_mutasi == '0' || data.bayar.jumlah > 0) ? idsc = 'readonly' : idsc = '';
 						$.each(data.detail, function(index, val) {
 							list += `<tr>
 								<td id="no_urut${no}" name="no_urut[${no}]" style="text-align: center" >${no}
@@ -2815,22 +2816,22 @@
 									<input type="hidden" id="width${no}" name="width[${no}]" value="${val.width}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}">
+									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}">
+									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >${val.qty}
 									<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.retur_qty)}">
+									<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.retur_qty)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >${format_angka(val.weight)}
 									<input type="hidden" id="weight${no}" name="weight[${no}]"  value="${val.weight}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.seset)}" >
+									<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.seset)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >
 									<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.hasil)}" readonly>
@@ -2842,9 +2843,8 @@
 							no++;
 						})
 						// discount
-						let cci = ''; let idsc = '';
+						let cci = '';
 						(data.header.disc != 0) ? cci = data.header.disc: cci = '';
-						(data.header.acc_owner == 'Y') ? idsc = 'readonly' : idsc = '';
 						list += `<tr>
 							<td style="text-align: center" colspan="10"></td>
 							<td style="text-align:center">DISCOUNT (%)</td>
@@ -2858,7 +2858,7 @@
 							list += data.potongan;
 						}
 						let btnPTT = '';
-						(data.header.acc_owner == 'Y') ? btnPTT = `class="btn btn-sm btn-secondary" disabled` : btnPTT = `class="btn btn-sm btn-success" onclick="addPotonganInv('', 'add')"`;
+						(data.header.jml_mutasi == 0 || data.header.jml_mutasi == '0' || data.bayar.jumlah > 0) ? btnPTT = `class="btn btn-sm btn-secondary" disabled` : btnPTT = `class="btn btn-sm btn-success" onclick="addPotonganInv('', 'add')"`;
 						list += `<tr>
 							<td style="text-align:center" colspan="9"></td>
 							<td style="text-align:center" colspan="2">
@@ -2895,6 +2895,8 @@
 							<tbody>`;
 						var no = 1;
 						var berat_total = 0;
+						let idsc = '';
+						(data.header.jml_mutasi == 0 || data.header.jml_mutasi == '0' || data.bayar.jumlah > 0) ? idsc = 'readonly' : idsc = '';
 						$.each(data.detail, function(index, val) {
 							if (val.no_po_sj == null || val.no_po_sj == '') {
 								no_po = val.no_po
@@ -2924,16 +2926,16 @@
 									<input type="hidden" id="kualitas${no}" name="kualitas[${no}]" value="${val.kualitas}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}">
+									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.harga)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}">
+									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka_koma(val.include)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >${format_angka(val.qty)}
 									<input type="hidden" id="qty${no}" name="qty[${no}]" onkeyup="ubah_angka(this.value,this.id)" value="${val.qty}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" id="retur_qty${no}" name="retur_qty[${no}]" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.retur_qty)}">
+									<input type="text" id="retur_qty${no}" name="retur_qty[${no}]" class="form-control" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" value="${format_angka(val.retur_qty)}" ${idsc}>
 								</td>
 								<td style="text-align: center" >
 									<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.hasil)}" readonly>
@@ -2951,9 +2953,8 @@
 							<td style="text-align: center" colspan="3">&nbsp;</td>
 						</tr>`;
 						// discount
-						let cci = ''; let idsc = '';
+						let cci = '';
 						(data.header.disc != 0) ? cci = data.header.disc: cci = '';
-						(data.header.acc_owner == 'Y') ? idsc = 'readonly' : idsc = '';
 						list += `<tr>
 							<td style="text-align:center" colspan="9"></td>
 							<td style="text-align:center">DISCOUNT (%)</td>
@@ -2967,7 +2968,7 @@
 							list += data.potongan;
 						}
 						let btnPTT = '';
-						(data.header.acc_owner == 'Y') ? btnPTT = `class="btn btn-sm btn-secondary" disabled` : btnPTT = `class="btn btn-sm btn-success" onclick="addPotonganInv('', 'add')"`;
+						(data.header.jml_mutasi == 0 || data.header.jml_mutasi == '0' || data.bayar.jumlah > 0) ? btnPTT = `class="btn btn-sm btn-secondary" disabled` : btnPTT = `class="btn btn-sm btn-success" onclick="addPotonganInv('', 'add')"`;
 						list += `<tr>
 							<td style="text-align:center" colspan="8"></td>
 							<td style="text-align:center" colspan="2">

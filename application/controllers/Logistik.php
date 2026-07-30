@@ -4419,6 +4419,7 @@ class Logistik extends CI_Controller
 		$id       = $this->input->post('id');
 		$no       = $this->input->post('no');
 		$jenis    = $this->input->post('jenis');
+		$bayar = '';
 		$potongan = '';
 
 		if($jenis=='byr_invoice')
@@ -4638,6 +4639,7 @@ class Logistik extends CI_Controller
 		{
 			$queryh = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
 			$queryd = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
+			$bayar = $this->db->query("SELECT SUM(jumlah) AS jumlah FROM invoice_bayar WHERE no_invoice='$no'")->row();
 			$qPot = $this->db->query("SELECT*FROM invoice_header_potongan WHERE no_invoice='$no' ORDER BY id");
 			if($qPot->num_rows() != 0){
 				foreach($qPot->result() as $r){
@@ -4666,7 +4668,7 @@ class Logistik extends CI_Controller
 
 		$header   = $this->db->query($queryh)->row();
 		$detail   = $this->db->query($queryd)->result();
-		$data     = ["header" => $header, "detail" => $detail, "potongan" => $potongan];
+		$data     = ["header" => $header, "detail" => $detail, "bayar" => $bayar, "potongan" => $potongan];
 
         echo json_encode($data);
 	}
