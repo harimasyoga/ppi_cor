@@ -4419,6 +4419,7 @@ class Logistik extends CI_Controller
 		$id       = $this->input->post('id');
 		$no       = $this->input->post('no');
 		$jenis    = $this->input->post('jenis');
+		$potongan = '';
 
 		if($jenis=='byr_invoice')
 		{
@@ -4483,22 +4484,20 @@ class Logistik extends CI_Controller
 			JOIN m_supp c ON a.id_supp=c.id_supp
 			where a.no_inv_beli='$no'
 			ORDER BY tgl_inv_beli desc,id_header_beli";
-			 
 			$queryd   = "SELECT *,
-		(
-		SELECT nm FROM(
-					select kd_akun as kd,nm_akun as nm,jenis,dk from m_kode_akun
-					union all
-					select concat(kd_akun,'.',kd_kelompok) as kd,nm_kelompok as nm,jenis,dk from m_kode_kelompok
-					union all
-					select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis) as kd,nm_jenis as nm,jenis,dk from m_kode_jenis
-					union all
-					select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci) as kd,nm_rinci as nm,jenis,dk from m_kode_rinci
-					)p
-					where p.kd = invoice_detail_beli.jns_beban
-								) nm
-
-		FROM invoice_detail_beli WHERE no_inv_beli='$no' order by id_det_beli";
+			(
+			SELECT nm FROM(
+				select kd_akun as kd,nm_akun as nm,jenis,dk from m_kode_akun
+				union all
+				select concat(kd_akun,'.',kd_kelompok) as kd,nm_kelompok as nm,jenis,dk from m_kode_kelompok
+				union all
+				select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis) as kd,nm_jenis as nm,jenis,dk from m_kode_jenis
+				union all
+				select concat(kd_akun,'.',kd_kelompok,'.',kd_jenis,'.',kd_rinci) as kd,nm_rinci as nm,jenis,dk from m_kode_rinci
+				)p
+				where p.kd = invoice_detail_beli.jns_beban
+			) nm
+			FROM invoice_detail_beli WHERE no_inv_beli='$no' order by id_det_beli";
 		}else if($jenis=='spill_po')
 		{ 
 			$queryh   = "SELECT *,
@@ -4533,7 +4532,6 @@ class Logistik extends CI_Controller
 			ORDER BY tgl_stok desc,a.no_stok,id_stok ";
 
 		}else if($jenis=='edit_stok_bb'){
-			 
 			$queryh   = "SELECT *, IFNULL((
 				select sum(datang_bhn_bk)history from trs_h_stok_bb a 
 				JOIN trs_d_stok_bb b ON a.no_stok = b.no_stok
@@ -4638,18 +4636,37 @@ class Logistik extends CI_Controller
 
 		}else if($jenis=='invoice')
 		{
-			$queryh   = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
-			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
+			$queryh = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
+			$queryd = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
+			$qPot = $this->db->query("SELECT*FROM invoice_header_potongan WHERE no_invoice='$no' ORDER BY id");
+			if($qPot->num_rows() != 0){
+				foreach($qPot->result() as $r){
+					$qHH = $this->db->query($queryh)->row();
+					($qHH->type == 'roll') ? $rspn = 9 : $rspn = 8;
+					($qHH->acc_owner == 'Y') ? $btnAA = 'disabled' : $btnAA = 'onclick="addPotonganInv('."'".$r->id."'".', '."'delete'".')"';
+					$potongan .= '<tr>
+						<td style="text-align:center" colspan="'.$rspn.'"></td>
+						<td style="text-align:center" colspan="2">
+							<input type="text" id="pot_title'.$r->id.'" name="pot_title'.$r->id.'" class="form-control" value="'.$r->pot_title.'" autocomplete="off" placeholder="POTONGAN">
+						</td>
+						<td style="text-align:center">
+							<input type="text" id="pot_potongan'.$r->id.'" name="pot_potongan'.$r->id.'" class="form-control" style="text-align:right" onkeyup="ubah_angka(this.value,this.id)" value="'.number_format($r->pot_potongan,0,',','.').'" autocomplete="off" placeholder="0">
+						</td>
+						<td>
+							<input type="hidden" id="pot_id'.$r->id.'" name="pot_id'.$r->id.'" value="'.$r->id.'">
+							<button type="button" class="btn btn-sm btn-danger" '.$btnAA.'><i class="fas fa-trash"></i></button>
+						</td>
+					</tr>';
+				}
+			}
 		}else{
-
 			$queryh   = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
 			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
 		}
-		
 
 		$header   = $this->db->query($queryh)->row();
 		$detail   = $this->db->query($queryd)->result();
-		$data     = ["header" => $header, "detail" => $detail];
+		$data     = ["header" => $header, "detail" => $detail, "potongan" => $potongan];
 
         echo json_encode($data);
 	}
@@ -5316,6 +5333,12 @@ class Logistik extends CI_Controller
 	function btnSakti()
 	{
 		$result = $this->m_logistik->btnSakti();
+		echo json_encode($result);
+	}
+
+	function addPotonganInv()
+	{
+		$result = $this->m_logistik->addPotonganInv();
 		echo json_encode($result);
 	}
 
@@ -6154,7 +6177,7 @@ class Logistik extends CI_Controller
 			FROM invoice_header h
 			$wInn
 			WHERE YEAR(h.tgl_invoice) IN ('$thnn') $cek_bulan $tipe $wExp $wSales
-			-- WHERE h.no_invoice='FC/0365/05/2026'
+			-- WHERE h.no_invoice IN ('')
 			ORDER BY h.status_inv DESC, h.cek_global DESC, h.tgl_invoice DESC, h.no_invoice")->result();
 
 			$i               = 1;
@@ -10703,9 +10726,9 @@ class Logistik extends CI_Controller
 				<th style="border:0;height:15px;width:10%"></th>
 				<th style="border:0;height:15px;width:15%"></th>
 				<th style="border:0;height:15px;width:7%"></th>
-				<th style="border:0;height:15px;width:10%"></th>
+				<th style="border:0;height:15px;width:12%"></th>
 				<th style="border:0;height:15px;width:8%"></th>
-				<th style="border:0;height:15px;width:20%"></th>
+				<th style="border:0;height:15px;width:18%"></th>
 			</tr>
 			<tr>
 				<td style="border:1px solid #000;border-width:2px 0;padding:5px 0;text-align:center;font-weight:bold">NAMA BARANG</td>
@@ -10791,9 +10814,9 @@ class Logistik extends CI_Controller
 				$html .= '<tr>
 					<td style="padding:5px 0">'.$label->nm_ker.' &nbsp;'.$ukuran.' &nbsp;'. $label->kualitas.'</td>
 					<td style="padding:5px 0;text-align:center"> PCS</td>
-					<td style="solid #000;padding:5px 0;text-align:right">'.number_format(($label->qty-$label->retur_qty), 0, ",", ".").'</td>
-					<td style="solid #000;padding:5px 0 0 15px;text-align:right">Rp</td>
-					<td style="solid #000;padding:5px 0;text-align:right">'.$priceHarga.'</td>
+					<td style="padding:5px 0;text-align:right">'.number_format(($label->qty-$label->retur_qty), 0, ",", ".").'</td>
+					<td style="padding:5px 0 0 15px;text-align:right">Rp</td>
+					<td style="padding:5px 0;text-align:right">'.$priceHarga.'</td>
 					<td style="padding:5px 0 0 15px;text-align:right">Rp</td>
 					<td style="padding:5px 0;text-align:right">'.number_format($total_harga, 0, ",", ".") .'</td>
 				</tr>';
@@ -10816,27 +10839,39 @@ class Logistik extends CI_Controller
 			$d = 0;
 			$subTotal = $totalHarga;
 		}
+
+		// JIKA ADA POTONGAN
+		$potList = $this->db->query("SELECT*FROM invoice_header_potongan WHERE no_invoice='$no_invoice' ORDER BY id");
+		$potTot = $this->db->query("SELECT SUM(pot_potongan) AS potongan FROM invoice_header_potongan WHERE no_invoice='$no_invoice' GROUP BY no_invoice");
+		if($potList->num_rows() != 0){
+			$pt0 = $potList->num_rows();
+			$potongan = $potTot->row()->potongan;
+		}else{
+			$pt0 = 0;
+			$potongan = 0;
+		}
+
 		if($ppnpph == 'ppn'){ // PPN
 			if($data_detail->inc_exc=='Include'){
-				$terbilang = round($subTotal);
+				$terbilang = round($subTotal - $potongan);
 			}else if($data_detail->inc_exc=='Exclude'){
-				$terbilang = round($subTotal + (0.11 * $subTotal));
+				$terbilang = round(($subTotal + (0.11 * $subTotal)) - $potongan);
 			}else{
-				$terbilang = '';
+				$terbilang = 0;
 			}
-			$rowspan = 3 + $d;
+			$rowspan = 3 + $d + $pt0;
 		}else if($ppnpph == 'ppn_pph'){ // PPH22
 			if($data_detail->inc_exc=='Include'){
-				$terbilang = round($subTotal + (0.001 * $subTotal));
+				$terbilang = round(($subTotal + (0.001 * $subTotal)) - $potongan);
 			}else if($data_detail->inc_exc=='Exclude'){
-				$terbilang = round($subTotal + (0.11 * $subTotal) + (0.001 * $subTotal));
+				$terbilang = round(($subTotal + (0.11 * $subTotal) + (0.001 * $subTotal)) - $potongan);
 			}else{
-				$terbilang = '';
+				$terbilang = 0;
 			}
-			$rowspan = 4 + $d;
+			$rowspan = 4 + $d + $pt0;
 		}else{ // NON
-			$terbilang = $subTotal;
-			$rowspan = 2 + $d;
+			$terbilang = $subTotal - $potongan;
+			$rowspan = 2 + $d + $pt0;
 		}
 		if($opsi == 'html'){
 			$pT = ';max-width:150px;white-space: normal !important;word-wrap: break-word !important;';
@@ -10898,6 +10933,17 @@ class Logistik extends CI_Controller
 			</tr>';
 		}else{
 			$html .= '';
+		}
+
+		// POTONGAN
+		if($potList->num_rows() != 0){
+			foreach($potList->result() as $p){
+				$html .= '<tr>
+					<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">'.$p->pot_title.'</td>
+					<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+					<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($p->pot_potongan, 0, ",", ".").'</td>
+				</tr>';
+			}
 		}
 
 		$html .= '<tr>
