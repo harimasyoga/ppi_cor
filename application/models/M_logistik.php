@@ -4770,6 +4770,9 @@ class M_logistik extends CI_Model
 		if($pot_title == '' || $pot_potongan == ''){
 			$data = false;
 			$msg = 'LENGKAPI INPUTAN!';
+		}else if($header->acc_owner == 'Y'){
+			$data = false;
+			$msg = 'INVOICE SUDAH DI ACC!';
 		}else if(($pot_potongan > $header->jml_mutasi) && $opsi == 'add'){
 			$data = false;
 			$msg = 'POTONGAN LEBIH DARI TOTAL INVOICE!';

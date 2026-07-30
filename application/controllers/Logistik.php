@@ -6694,7 +6694,13 @@ class Logistik extends CI_Controller
 							$nominal = 0;
 						}
 					}
-					$total = $subTotal + $nominal;
+					$potTot = $this->db->query("SELECT SUM(pot_potongan) AS potongan FROM invoice_header_potongan WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
+					if($potTot->num_rows() != 0){
+						$potongan = $potTot->row()->potongan;
+					}else{
+						$potongan = 0;
+					}
+					$total = ($subTotal + $nominal) - $potongan;
 					$txtSel = '';
 					$seLisiH = 0;
 					$jmlNominal = $total;
