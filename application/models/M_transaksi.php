@@ -2700,7 +2700,7 @@ class M_transaksi extends CI_Model
 
 	function UploadFilePORoll()
 	{
-		$hidhdr = $this->input->post('hidhdr');
+		$hidhdr = $this->input->post('id_hdr');
 		$tgl = $this->input->post('tgl');
 		$no_po = $this->input->post('no_po');
 		$pajak = $this->input->post('pajak');
@@ -2720,6 +2720,7 @@ class M_transaksi extends CI_Model
 		$this->load->library('upload',$config);
 		$this->upload->initialize($config);
 
+		$id_hdr = '';
 		if($tgl == '' && $hidhdr == ''){
 			$data = false; $msg = 'HARAP PILIH TANGGAL!';
 		}else if($nm_pelanggan == '' && $hidhdr == ''){
@@ -2738,8 +2739,9 @@ class M_transaksi extends CI_Model
 			$data = false; $msg = 'UKURAN / FORMAT FILE TIDAK DIDUKUNG!';
 		}else{
 			if($hidhdr != ''){
+				$id_hdr = $hidhdr;
 				$getHdrU = $this->db->query("SELECT*FROM trs_po_roll_header WHERE id_hdr='$hidhdr'")->row();
-				if($this->upload->do_upload('updatefilefoto')){
+				if($this->upload->do_upload('filefoto')){
 					$gbrBukti_u = $this->upload->data();
 					$filefoto_u = $gbrBukti_u['file_name'];
 					$this->db->set('id_hdr', $hidhdr);
@@ -2747,7 +2749,7 @@ class M_transaksi extends CI_Model
 					$this->db->set('ket_po', $jenis_file);
 					$this->db->set('nm_file', $filefoto_u);
 					$data = $this->db->insert('trs_po_roll_detail');
-					$msg = 'Tambah file!';
+					$msg = 'BERHASIL TAMBAH FILE!';
 				}
 			}else{
 				$dh = [
@@ -2764,6 +2766,7 @@ class M_transaksi extends CI_Model
 				if($header){
 					if($this->upload->do_upload('filefoto')){
 						$getHdr = $this->db->query("SELECT*FROM trs_po_roll_header WHERE tgl_po='$tgl' AND no_po='$no_po' AND nm_pelanggan='$nm_pelanggan'")->row();
+						$id_hdr = $getHdr->id_hdr;
 						$gbrBukti = $this->upload->data();
 						$filefoto = $gbrBukti['file_name'];
 						$dtl = [
@@ -2789,7 +2792,7 @@ class M_transaksi extends CI_Model
 								);
 								$item = $this->db->insert('trs_po_roll_item', $data);
 								if($item){
-									$data = true; $msg = 'OK!';
+									$data = true; $msg = 'BERHASIL!';
 								}else{
 									$data = false; $msg = 'GAGAL INSERT ITEM!';
 								}
@@ -2808,6 +2811,7 @@ class M_transaksi extends CI_Model
 		return [
 			'data' => $data,
 			'msg' => $msg,
+			'id_hdr' => $id_hdr,
 		];
 	}
 
@@ -2847,6 +2851,21 @@ class M_transaksi extends CI_Model
 
 		return [
 			'result' => $result,
+		];
+	}
+
+	function batalAccPORoll()
+	{
+		$this->db->set('status_po', 'Open');
+		$this->db->set('owner_status', 'N');
+		$this->db->set('owner_user', null);
+		$this->db->set('owner_time', null);
+		$this->db->set('owner_ket', null);
+		$this->db->where('id_hdr', $_POST["id_hdr"]);
+		$data = $this->db->update('trs_po_roll_header');
+
+		return [
+			'data' => $data,
 		];
 	}
 

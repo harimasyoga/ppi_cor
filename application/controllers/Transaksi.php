@@ -97,19 +97,25 @@ class Transaksi extends CI_Controller
 	function UploadFilePORoll()
 	{
 		$result = $this->m_transaksi->UploadFilePORoll();
-		// echo json_encode($result);
-		if($result['data'] == 1) {
-			redirect(base_url("Transaksi/PO_Roll_Paper"));
-		}else{
-			$data = [
-				'judul' => "PO Roll Paper",
-				'data' => $result['data'],
-			];
-			$this->load->view('header', $data);
-			$this->load->view('Transaksi/v_po_roll_paper');
-			$this->load->view('footer');
-		}
+		echo json_encode($result);
 	}
+
+	// function UploadFilePORoll()
+	// {
+	// 	$result = $this->m_transaksi->UploadFilePORoll();
+	// 	// echo json_encode($result);
+	// 	if($result['data'] == 1) {
+	// 		redirect(base_url("Transaksi/PO_Roll_Paper"));
+	// 	}else{
+	// 		$data = [
+	// 			'judul' => "PO Roll Paper",
+	// 			'data' => $result['data'],
+	// 		];
+	// 		$this->load->view('header', $data);
+	// 		$this->load->view('Transaksi/v_po_roll_paper');
+	// 		$this->load->view('footer');
+	// 	}
+	// }
 
 	function editPORoll()
 	{
@@ -438,6 +444,12 @@ class Transaksi extends CI_Controller
 	function hapusFilePO()
 	{
 		$result = $this->m_transaksi->hapusFilePO();
+		echo json_encode($result);
+	}
+
+	function batalAccPORoll()
+	{
+		$result = $this->m_transaksi->batalAccPORoll();
 		echo json_encode($result);
 	}
 

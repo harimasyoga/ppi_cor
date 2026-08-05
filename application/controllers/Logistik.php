@@ -14160,7 +14160,7 @@ class Logistik extends CI_Controller
 						$getItems = $this->db->query("SELECT r.*,i.*,p.nm_pelanggan,p.attn FROM m_rencana_kirim r
 						INNER JOIN m_produk i ON r.id_produk=i.id_produk
 						INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
-						WHERE r.rk_tgl='$sjpo->tgl' AND r.rk_urut='$sjpo->no_pl_urut' AND r.rk_kode_po='$sjpo->no_po' AND r.rk_sj='$sjpo->stat_sj' AND r.id_pelanggan='$sjpo->id_perusahaan' $wKategori
+						WHERE r.rk_tgl='$sjpo->tgl' AND r.rk_urut='$sjpo->no_pl_urut' AND r.rk_kode_po='$sjpo->no_po' AND r.rk_sj='$sjpo->stat_sj' AND r.id_pelanggan='$sjpo->id_perusahaan' AND r.id_pl_box='$sjpo->id' $wKategori
 						-- GROUP BY i.id_produk, r.id_pl_box, r.rk_sj
 						ORDER BY i.nm_produk");
 						$sumMuat = 0;
