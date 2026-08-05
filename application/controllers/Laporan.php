@@ -689,7 +689,7 @@ class Laporan extends CI_Controller
 							<td style="padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($d->qty,0,',','.').'</td>
 							'.$spanS.'
 						';
-						$kirim = $this->db->query("SELECT SUM(r.qty_muat) AS tot_muat,r.*,p.* FROM m_rencana_kirim r
+						$kirim = $this->db->query("SELECT SUM(r.qty_muat) AS tot_muat,COUNT(p.id) AS cpl,r.*,p.* FROM m_rencana_kirim r
 						INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
 						WHERE p.no_po='$d->kode_po' AND r.id_produk='$d->id_produk'
 						GROUP BY r.rk_tgl,r.id_pelanggan,r.id_produk,r.rk_kode_po,r.rk_urut");
@@ -715,9 +715,15 @@ class Laporan extends CI_Controller
 									}else{
 										$btnRetur = '';
 									}
+									// JIKA SJ LEBIH DARI 1 DI 1 PO
+									if($k->cpl > 1){
+										$txtNote = strtoupper($this->m_fungsi->getHariIni($k->tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->tgl)).' - '.$k->cpl.' SURAT JALAN - '.$k->no_kendaraan;
+									}else{
+										$txtNote = strtoupper($this->m_fungsi->getHariIni($k->tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->tgl)).' - '.$k->no_surat.' - '.$k->no_kendaraan;
+									}
 									$html .='<tr>
 										<td style="padding:5px;border-left:1px solid #aaa"></td>
-										<td style="padding:5px" colspan="4">- '.strtoupper($this->m_fungsi->getHariIni($k->tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->tgl)).' - '.$k->no_surat.' - '.$k->no_kendaraan.'</td>
+										<td style="padding:5px" colspan="4">- '.$txtNote.'</td>
 										<td style="padding:5px;text-align:right">'.number_format($k->tot_muat,0,',','.').'</td>
 										<td style="padding:5px;border-right:1px solid #aaa;text-align:center">'.$btnRetur.'</td>
 										<td style="padding:5px;text-align:center">'.$k->note.'</td>

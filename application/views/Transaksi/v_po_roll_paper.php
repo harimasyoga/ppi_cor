@@ -31,7 +31,7 @@
 							<div style="margin:12px 6px;display:flex">
 								<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>KEMBALI</b></button><div id="btn-header" style="margin-left:6px"></div>
 							</div>
-							<form role="form" method="post" id="myForm" action="<?php echo base_url('Transaksi/UploadFilePORoll')?>" enctype="multipart/form-data">
+							<form role="form" method="post" id="myForm" enctype="multipart/form-data">
 								<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
 									<div class="col-md-3">TGL. PO</div>
 									<div class="col-md-9">
@@ -107,7 +107,8 @@
 											<select name="jenis_file" id="jenis_file" class="form-control select2" onchange="diPilih()">
 												<option value="">PILIH</option>
 												<option value="PO">PO</option>
-												<option value="RINCIAN">R</option>
+												<option value="MASTER">MASTER</option>
+												<option value="RINCIAN">RINCIAN</option>
 												<option value="MEMO">MEMO</option>
 												<option value="NOTE">NOTE</option>
 												<option value="R">R</option>
@@ -152,7 +153,7 @@
 										</div>
 									</div>
 								</div>
-								<input type="hidden" name="hidhdr" id="hidhdr" value="">
+								<input type="hidden" name="id_hdr" id="id_hdr" value="">
 							</form>
 						</div>
 					</div>
@@ -308,8 +309,6 @@
 							</div>
 						</div>
 					</div>
-
-					<input type="hidden" id="id_hdr" value="">
 					<input type="hidden" id="id_cart" value="0">
 				</div>
 
@@ -655,6 +654,35 @@
 
 	function tambahData()
 	{
+		$(".list-sementara").load("<?php echo base_url('Transaksi/destroyPORoll') ?>")
+
+		$(".col-verifikasi").hide()
+		$("#input-marketing").html('')
+		$("#input-owner").html('')
+		$("#input-po").html('')
+		
+		$(".col-detail").hide()
+		$(".detail-po").html('')
+
+		$("#tgl").val('').prop('disabled', false).trigger('change')
+		$("#nm_pelanggan").val('').prop('disabled', false).trigger('change')
+		$("#id_pt").val('')
+		$("#no_po").val('').prop('disabled', false)
+		$("#pajak").val('').prop('disabled', false).trigger('change')
+		$("#id_sales").val('').prop('disabled', false).trigger('change')
+		$("#jenis_file").val('').prop('disabled', false).trigger('change')
+		$("#filefoto").val('').trigger('change')
+		$("#id_hdr").val('')
+
+		$("#i_roll").val(0).trigger('change')
+		$("#i_jenis").val('')
+		$("#i_gsm").val('')
+		$("#i_ukuran").val('')
+		$("#i_berat").val('')
+		$("#i_qty").val('')
+		$("#i_harga").val('')
+		$("#i_ket").val('')
+
 		$(".row-input").show()
 		$(".row-list").hide()
 		$(".row-lap").hide()
@@ -668,14 +696,11 @@
 
 	function kembali()
 	{
-		if(urlAuth == 'MR' || urlAuth == 'Owner'){
-			backList()
-		}else{
-			window.location.href = '<?php echo base_url('Transaksi/PO_Roll_Paper')?>'
-		}
+		backList()
 	}
 
 	function diPilih(){
+		let id_hdr = $("#id_hdr").val()
 		let tgl = $("#tgl").val()
 		let nm_pelanggan = $("#nm_pelanggan").val()
 		let id_pt = $('#nm_pelanggan option:selected').attr('idpt')
@@ -687,20 +712,10 @@
 		let jenis_file = $("#jenis_file").val()
 		let filefoto = $("#filefoto").val()
 		let id_cart = $("#id_cart").val()
-		if(tgl != '' && nm_pelanggan != '' && no_po != '' && pajak != '' && id_sales != '' && filefoto != '' && jenis_file != '' && id_cart != 0){
-			$(".simpan-save").html('<button class="btn btn-primary btn-sm"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
+		if(tgl != '' && nm_pelanggan != '' && no_po != '' && pajak != '' && id_sales != '' && filefoto != '' && jenis_file != '' && (id_cart != 0 || id_hdr != '')){
+			$(".simpan-save").html('<button type="button" class="btn btn-primary btn-sm" onclick="UploadFilePORoll()"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
 		}else{
 			$(".simpan-save").html('')
-		}
-	}
-
-	function diPilihUpdate(){
-		let jenis_file = $("#jenis_file").val()
-		let filefoto = $("#updatefilefoto").val()
-		if(filefoto != '' && jenis_file != ''){
-			$(".update-save").html('<button class="btn btn-primary btn-sm"><i class="fas fa-save"></i> <b>SIMPAN</b></button>')
-		}else{
-			$(".update-save").html('')
 		}
 	}
 
@@ -820,7 +835,6 @@
 	function editPORoll(id_hdr, opsi)
 	{
 		$(".detail-po").html('')
-		$(".add-file").html('')
 		$("#input-marketing").html('')
 		$("#input-owner").html('')
 		$(".row-list").hide()
@@ -832,10 +846,12 @@
 		$(".col-roll-list").show()
 		$(".list-roll").html('')
 		if(urlAuth == 'Admin' || urlAuth == 'Admin2'){
+			$("#jenis_file").val('').prop('disabled', false).trigger('change')
+			$("#filefoto").val('').trigger('change')
 			$(".list-edit-roll").html('')
 		}
 		$("#input-po").html('')
-		$("#hidhdr").val('')
+		$("#id_hdr").val('')
 
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/editPORoll')?>',
@@ -866,61 +882,6 @@
 					$(".list-edit-roll").html(data.htmlE)
 				}
 
-				// UPLOAD
-				if((urlAuth == 'Admin' || urlAuth == 'Admin2') && data.opsi == 'edit'){
-					$("#hidhdr").val(data.header.id_hdr)
-					$(".add-file").html(`
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3">JENIS FILE</div>
-							<div class="col-md-9">
-								<select name="jenis_file" id="jenis_file" class="form-control select2" onchange="diPilihUpdate()">
-									<option value="">PILIH</option>
-									<option value="PO">PO</option>
-									<option value="MASTER">MASTER</option>
-									<option value="RINCIAN">RINCIAN</option>
-									<option value="MEMO">MEMO</option>
-									<option value="BK110">BK110</option>
-									<option value="BK120">BK120</option>
-									<option value="BK125">BK125</option>
-									<option value="BK150">BK150</option>
-									<option value="BK200">BK200</option>
-									<option value="MH110">MH110</option>
-									<option value="MH120">MH120</option>
-									<option value="MH125">MH125</option>
-									<option value="MH150">MH150</option>
-									<option value="MH200">MH200</option>
-									<option value="MN110">MN110</option>
-									<option value="MN120">MN120</option>
-									<option value="MN125">MN125</option>
-									<option value="MN150">MN150</option>
-									<option value="MN200">MN200</option>
-									<option value="WP68">WP68</option>
-									<option value="WP70">WP70</option>
-								</select>
-							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px">
-							<div class="col-md-3">FILE</div>
-							<div class="col-md-9">
-								<input type="file" name="updatefilefoto" id="updatefilefoto" accept=".jpg,.jpeg,.png,.pdf" onchange="diPilihUpdate()">
-							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3"></div>
-							<div class="col-md-9" style="color:#f00;font-size:12px;font-style:italic">
-								* .jpg, .jpeg, .png, .pdf
-							</div>
-						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 12px 6px">
-							<div class="col-md-3"></div>
-							<div class="col-md-9">
-								<div class="update-save"></div>
-							</div>
-						</div>
-					`)
-				}
-				$('.select2').select2();
-
 				// NOTE
 				$("#note_po_roll").val(data.header.note_po).prop('disabled', (data.opsi != 'detail') ? false : true)
 				if((data.header.note_po == null || data.header.note_po == '') && (data.opsi != 'detail')){
@@ -934,7 +895,7 @@
 				// VERIFIKASI DATA
 				$("#verif-admin").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.oke_admin}`)
 				// VERIFIFIKASI MARKETING
-				if((urlAuth == 'Admin' || urlAuth == 'Admin2' || urlAuth == 'MR') && data.opsi == 'verif' && data.header.owner_status == 'N' && (data.header.mkt_status == 'N' || data.header.mkt_status == 'H' || data.header.mkt_status == 'R')){
+				if((urlAuth == 'Admin' || urlAuth == 'Admin2' || urlAuth == 'MR') && (data.opsi == 'verif' || data.opsi == 'edit') && data.header.owner_status == 'N' && (data.header.mkt_status == 'N' || data.header.mkt_status == 'H' || data.header.mkt_status == 'R')){
 					// BUTTON MARKETING
 					$("#verif-marketing").html(`
 						<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="verifPORoll('verifikasi','marketing')"><i class="fas fa-check"></i> Verifikasi</button>
@@ -1044,7 +1005,11 @@
 					}else if(data.header.owner_status == 'R'){
 						$("#verif-owner").html(`<button style="text-align:center;font-weight:bold;padding:4px 10px;cursor:default" class="btn btn-sm btn-danger"><i class="fas fa-times" style="color:#000"></i></button> ${data.owner_time}`)
 					}else{
-						$("#verif-owner").html(`<button title="OKE" style="text-align:center;cursor:default" class="btn btn-sm btn-success "><i class="fas fa-check-circle"></i></button> ${data.owner_time}`)
+						if(urlAuth == 'Admin' || urlAuth == 'Admin2'){
+							$("#verif-owner").html(`<button type="button" style="text-align:center" class="btn btn-sm btn-success" title="BATAL" onclick="batalAccPORoll()"><i class="fas fa-check-circle"></i></button> ${data.owner_time}`)
+						}else{
+							$("#verif-owner").html(`<button style="text-align:center;cursor:default" class="btn btn-sm btn-success" title="OKE""><i class="fas fa-check-circle"></i></button> ${data.owner_time}`)
+						}
 					}
 					// KETERANGAN OWNER
 					if(data.header.owner_status != 'N'){
@@ -1084,9 +1049,32 @@
 		})
 	}
 
+	function batalAccPORoll(){
+		let id_hdr = $("#id_hdr").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/batalAccPORoll')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_hdr }),
+			success: function(res){
+				data = JSON.parse(res)
+				editPORoll(id_hdr, 'edit')
+			}
+		})
+	}
+
 	function hapusFilePO(id_dtl)
 	{
-		let id_hdr = $("#hidhdr").val()
+		let id_hdr = $("#id_hdr").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/hapusFilePO')?>',
 			type: "POST",
@@ -1127,7 +1115,7 @@
 
 	function editListPORoll(id_item)
 	{
-		let id_hdr = $("#hidhdr").val()
+		let id_hdr = $("#id_hdr").val()
 		let e_roll = $('#e_roll'+id_item).val()
 		let e_nm_ker = $('#e_nm_ker'+id_item).val()
 		let e_g_label = $('#e_g_label'+id_item).val()
@@ -1167,7 +1155,7 @@
 
 	function hapusListPORoll(id_item)
 	{
-		let id_hdr = $("#hidhdr").val()
+		let id_hdr = $("#id_hdr").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/hapusListPORoll')?>',
 			type: "POST",
@@ -1193,7 +1181,7 @@
 
 	function addListPORoll()
 	{
-		let id_hdr = $("#hidhdr").val()
+		let id_hdr = $("#id_hdr").val()
 		let n_roll = $('#n_roll').val()
 		let n_nm_ker = $('#n_nm_ker').val()
 		let n_g_label = $('#n_g_label').val()
@@ -1317,6 +1305,42 @@
 				swal.close()
 			}
 		})
+	}
+
+	function UploadFilePORoll() {
+		var form = $('#myForm')[0];
+		console.log(form)
+		var data = new FormData(form);
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/UploadFilePORoll') ?>',
+			type: "POST",
+			enctype: 'multipart/form-data',
+			data: data,
+			contentType: false,
+			cache: false,
+			timeout: 600000,
+			processData: false,
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			success: function(res) {
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					editPORoll(data.id_hdr, 'edit')
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		});
 	}
 
 	function hapusPORoll(id_hdr)

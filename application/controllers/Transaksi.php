@@ -97,19 +97,25 @@ class Transaksi extends CI_Controller
 	function UploadFilePORoll()
 	{
 		$result = $this->m_transaksi->UploadFilePORoll();
-		// echo json_encode($result);
-		if($result['data'] == 1) {
-			redirect(base_url("Transaksi/PO_Roll_Paper"));
-		}else{
-			$data = [
-				'judul' => "PO Roll Paper",
-				'data' => $result['data'],
-			];
-			$this->load->view('header', $data);
-			$this->load->view('Transaksi/v_po_roll_paper');
-			$this->load->view('footer');
-		}
+		echo json_encode($result);
 	}
+
+	// function UploadFilePORoll()
+	// {
+	// 	$result = $this->m_transaksi->UploadFilePORoll();
+	// 	// echo json_encode($result);
+	// 	if($result['data'] == 1) {
+	// 		redirect(base_url("Transaksi/PO_Roll_Paper"));
+	// 	}else{
+	// 		$data = [
+	// 			'judul' => "PO Roll Paper",
+	// 			'data' => $result['data'],
+	// 		];
+	// 		$this->load->view('header', $data);
+	// 		$this->load->view('Transaksi/v_po_roll_paper');
+	// 		$this->load->view('footer');
+	// 	}
+	// }
 
 	function editPORoll()
 	{
@@ -438,6 +444,12 @@ class Transaksi extends CI_Controller
 	function hapusFilePO()
 	{
 		$result = $this->m_transaksi->hapusFilePO();
+		echo json_encode($result);
+	}
+
+	function batalAccPORoll()
+	{
+		$result = $this->m_transaksi->batalAccPORoll();
 		echo json_encode($result);
 	}
 
@@ -10453,7 +10465,7 @@ class Transaksi extends CI_Controller
 	}
 
 	function ccDevSys()
-	{ 
+	{
 		$lvl = $this->session->userdata('level');
 		$id_sales = $this->session->userdata('id_sales');
 		$akses_dd = $this->session->userdata('akses_dd');
@@ -10691,7 +10703,7 @@ class Transaksi extends CI_Controller
 						$getItems = $this->db->query("SELECT r.*,i.*,p.nm_pelanggan,p.attn FROM m_rencana_kirim r
 						INNER JOIN m_produk i ON r.id_produk=i.id_produk
 						INNER JOIN m_pelanggan p ON r.id_pelanggan=p.id_pelanggan
-						WHERE r.rk_tgl='$sjpo->tgl' AND r.rk_urut='$sjpo->no_pl_urut' AND r.rk_kode_po='$sjpo->no_po' AND r.rk_sj='$sjpo->stat_sj' AND r.id_pelanggan='$sjpo->id_perusahaan' $wKategori
+						WHERE r.rk_tgl='$sjpo->tgl' AND r.rk_urut='$sjpo->no_pl_urut' AND r.rk_kode_po='$sjpo->no_po' AND r.rk_sj='$sjpo->stat_sj' AND r.id_pelanggan='$sjpo->id_perusahaan' AND r.id_pl_box='$sjpo->id' $wKategori
 						ORDER BY i.nm_produk");
 						$sumMuat = 0;
 						$sumItems = 0;

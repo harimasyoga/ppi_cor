@@ -4794,6 +4794,7 @@ class M_logistik extends CI_Model
 			if($data){
 				$this->db->set('cek_global', date('Y-m-d H:i:s'));
 				$this->db->set('acc_owner', 'N');
+				$this->db->set('status_inv', 'Open');
 				$this->db->where('no_invoice', $no_inv);
 				$this->db->where('id', $id_inv);
 				$uHeader = $this->db->update('invoice_header');
