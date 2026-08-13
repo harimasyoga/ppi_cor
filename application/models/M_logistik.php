@@ -4836,8 +4836,12 @@ class M_logistik extends CI_Model
 		$id_pelanggan = $_POST["id_pelanggan"];
 		$bank = $_POST["bank"];
 		$pajak = $_POST["pajak"];
+		$nm_pelanggan = $_POST["nm_pelanggan"];
+		$attn = $_POST["attn"];
+		$alamat = $_POST["alamat"];
 		$statusInput = $_POST["statusInput"];
 		
+		$data = ''; $msg = '';
 		if($tgl == ""){
 			$data = false; $msg = 'PILIH TGL!'; $iHeader = false; $iDetail = false;
 		}else if($pajak == ""){
@@ -4890,22 +4894,15 @@ class M_logistik extends CI_Model
 			}
 
 			if($iDetail){
-				if($jenis == 'BOX'){
-					$pelanggan = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$id_pelanggan'")->row();
-				}
-				if($jenis == 'ROLL'){
-					$pelanggan = $this->db->query("SELECT pimpinan AS attn, nm_perusahaan AS nm_pelanggan, alamat AS alamat_kirim FROM m_perusahaan WHERE id='$id_pelanggan'")->row();
-				}
-
 				if($statusInput == 'insert'){
 					$dHead = [
 						'no_tt' => $noFIX,
 						'tipe_tt' => $jenis,
 						'tgl_tt' => $tgl,
 						'id_pelanggan' => $id_pelanggan,
-						'attn_tt' => $pelanggan->attn,
-						'nm_pelanggan_tt' => $pelanggan->nm_pelanggan,
-						'alamat_tt' => $pelanggan->alamat_kirim,
+						'nm_pelanggan_tt' => strtoupper($nm_pelanggan),
+						'attn_tt' => strtoupper($attn),
+						'alamat_tt' => strtoupper($alamat),
 						'total_tt' => $sumInv,
 						'bank_tt' => ($bank == '') ? null : $bank,
 						'pajak_tt' => $pajak,
@@ -4918,6 +4915,9 @@ class M_logistik extends CI_Model
 				if($statusInput == 'update'){
 					$totInvEdit = $sumInv + $header->total_tt;
 					$this->db->set("tgl_tt", $tgl);
+					$this->db->set("nm_pelanggan_tt", strtoupper($nm_pelanggan));
+					$this->db->set("attn_tt", strtoupper($attn));
+					$this->db->set("alamat_tt", strtoupper($alamat));
 					$this->db->set("total_tt", $totInvEdit);
 					$this->db->set("bank_tt", ($bank == '') ? null : $bank);
 					$this->db->set("pajak_tt", $pajak);

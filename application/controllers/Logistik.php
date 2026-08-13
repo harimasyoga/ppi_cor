@@ -5465,8 +5465,34 @@ class Logistik extends CI_Controller
 			$htmlSJInv .= '';
 		}
 
+		$htmlKepada = '';
+		if($jenis == 'BOX'){
+			$cust = $this->db->query("SELECT nm_pelanggan, attn, alamat FROM m_pelanggan WHERE id_pelanggan='$id_pt'")->row();
+		}else{
+			$cust = $this->db->query("SELECT nm_perusahaan AS nm_pelanggan, pimpinan AS attn, alamat FROM m_perusahaan WHERE id='$id_pt'")->row();
+		}
+		$htmlKepada .= '<div class="card-body row" style="font-weight:bold;padding:24px 6px 6px">
+			<div class="col-md-2">KEPADA</div>
+			<div class="col-md-10">
+				<input type="text" id="axs_pelanggan" class="form-control" style="font-weight:bold" value="'.$cust->nm_pelanggan.'" placeholder="KEPADA" autocomplete="off">
+			</div>
+		</div>
+		<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+			<div class="col-md-2">ATTN</div>
+			<div class="col-md-10">
+				<input type="text" id="axs_attn" class="form-control" style="font-weight:bold" value="'.$cust->attn.'" placeholder="ATTN" autocomplete="off">
+			</div>
+		</div>
+		<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+			<div class="col-md-2">ALAMAT</div>
+			<div class="col-md-10">
+				<textarea id="axs_alamat" class="form-control" style="resize:none;font-weight:bold" rows="3" placeholder="ALAMAT" autocomplete="off">'.$cust->alamat.'</textarea>
+			</div>
+		</div>';
+
 		echo json_encode([
 			'htmlSJInv' => $htmlSJInv,
+			'htmlKepada' => $htmlKepada,
 		]);
 	}
 
@@ -8230,6 +8256,12 @@ class Logistik extends CI_Controller
 						</tr>';
 					}
 				$htmlDtl .= '</table>';
+				if($r->tipe_tt == 'BOX'){
+					$cust = $this->db->query("SELECT '' AS note FROM m_pelanggan a WHERE id_pelanggan='$r->id_pelanggan' ORDER BY nm_pelanggan, attn")->row();
+				}else{
+					$cust = $this->db->query("SELECT note FROM m_perusahaan WHERE jns='ROLL' AND id='$r->id_pelanggan' ORDER BY nm_perusahaan, pimpinan")->row();
+				}
+				($cust->note == '' || $cust->note == null) ? $note = '' : $note = ' ( '.$cust->note.' )';
 				$row[] = '
 					<table>
 						<tr style="background-color: transparent !important">
@@ -8245,7 +8277,7 @@ class Logistik extends CI_Controller
 						<tr style="background-color: transparent !important">
 							<td style="padding:2px;border:none"><b>CUSTOMER</b></td>
 							<td style="padding:2px;border:none">:</td>
-							<td style="padding:2px;border:none">'.$r->nm_pelanggan_tt.'</td>
+							<td style="padding:2px;border:none">'.$r->nm_pelanggan_tt.$note.'</td>
 						</tr>
 						<tr style="background-color: transparent !important">
 							<td style="padding:2px;border:none"></td>
@@ -8343,13 +8375,14 @@ class Logistik extends CI_Controller
 			<div class="col-md-10">
 				<select id="axs_cust" class="form-control select2" disabled>';
 					if($header->tipe_tt == 'BOX'){
-						$cust = $this->db->query("SELECT*FROM m_pelanggan WHERE id_pelanggan='$header->id_pelanggan' ORDER BY nm_pelanggan, attn");
+						$cust = $this->db->query("SELECT '' AS note, a.* FROM m_pelanggan a WHERE id_pelanggan='$header->id_pelanggan' ORDER BY nm_pelanggan, attn");
 					}else{
-						$cust = $this->db->query("SELECT id AS id_pelanggan,nm_perusahaan AS nm_pelanggan, pimpinan AS attn FROM m_perusahaan WHERE jns='ROLL' AND id='$header->id_pelanggan' ORDER BY nm_perusahaan, pimpinan");
+						$cust = $this->db->query("SELECT id AS id_pelanggan,nm_perusahaan AS nm_pelanggan, pimpinan AS attn, note FROM m_perusahaan WHERE jns='ROLL' AND id='$header->id_pelanggan' ORDER BY nm_perusahaan, pimpinan");
 					}
 					foreach($cust->result() as $r){
 						($r->attn == '-') ? $attn = '' : $attn = ' | '.$r->attn;
-						$htmlCust .= '<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.$attn.'</option>';
+						($r->note == '' || $r->note == null) ? $note = '' : $note = ' ( '.$r->note.' )';
+						$htmlCust .= '<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.$attn.$note.'</option>';
 					}
 				$htmlCust .= '</select>
 			</div>
@@ -8416,6 +8449,26 @@ class Logistik extends CI_Controller
 			</div>
 		</div>';
 
+		$htmlKepada = '';
+		$htmlKepada .= '<div class="card-body row" style="font-weight:bold;padding:24px 6px 6px">
+			<div class="col-md-2">KEPADA</div>
+			<div class="col-md-10">
+				<input type="text" id="axs_pelanggan" class="form-control"style="font-weight:bold" value="'.$header->nm_pelanggan_tt.'" placeholder="KEPADA" autocomplete="off">
+			</div>
+		</div>
+		<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+			<div class="col-md-2">ATTN</div>
+			<div class="col-md-10">
+				<input type="text" id="axs_attn" class="form-control"style="font-weight:bold" value="'.$header->attn_tt.'" placeholder="ATTN" autocomplete="off">
+			</div>
+		</div>
+		<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+			<div class="col-md-2">ALAMAT</div>
+			<div class="col-md-10">
+				<textarea id="axs_alamat" class="form-control" style="resize:none;font-weight:bold" rows="3" placeholder="ALAMAT" autocomplete="off">'.$header->alamat_tt.'</textarea>
+			</div>
+		</div>';
+
 		echo json_encode([
 			'header' => $header,
 			'htmlDtl' => $htmlDtl,
@@ -8423,6 +8476,7 @@ class Logistik extends CI_Controller
 			'htmlPajak' => $htmlPajak,
 			'htmlBank' => $htmlBank,
 			'htmlSJInv' => $htmlSJInv,
+			'htmlKepada' => $htmlKepada,
 		]);
 	}
 
