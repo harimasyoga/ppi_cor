@@ -3590,6 +3590,27 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function tambahKet(){
+		$angka = $_POST["tgl"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$tgl = $tahun.'-'.$bulan.'-'.$angka;
+		$keterangan = $_POST["keterangan"];
+		$urut = $_POST["urut"];
+
+		$this->db->set('ket_sys2', ($keterangan == "") ? null : strtoupper($keterangan));
+		$this->db->set('add_sys2', ($keterangan == "") ? null : $this->username.' | '.date('Y-m-d H:i:s'));
+		$this->db->where('urut', $urut);
+		$this->db->where('eta', $tgl);
+		$data = $this->db->update('trs_dev_sys');
+		$msg = 'BERHASIL TAMBAH KETERANGAN!';
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function pilihDSRinc()
 	{
 		$urut = $_POST["urut"]; // plan

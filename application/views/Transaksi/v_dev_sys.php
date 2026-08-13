@@ -739,4 +739,41 @@
 		})
 	}
 
+	function tambahKet(urut){
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		let keterangan = $("#isiKet-"+urut).val()
+		console.log("tgl : ", tgl)
+		console.log("tahun : ", tahun)
+		console.log("bulan : ", bulan)
+		console.log("keterangan : ", keterangan)
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/tambahKet')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ tgl, tahun, bulan, keterangan, urut }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					ccDevSys(tgl, 'jadwal')
+				}else{
+					toastr.error(`<b>ADA KESALAHAN!</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
+
 </script>
