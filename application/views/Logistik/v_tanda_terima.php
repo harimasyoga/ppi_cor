@@ -116,6 +116,7 @@
 							<div class="axs akses_bank"></div>
 							<div class="axs akses_sj_inv"></div>
 							<div class="axs akses_add"></div>
+							<div class="axs akses_kepada"></div>
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="axs akses_list_edit"></div>
 							</div>
@@ -236,6 +237,7 @@
 	function loadSJInvAkses() {
 		$(".akses_sj_inv").html('')
 		$(".akses_add").html('')
+		$(".akses_kepada").html('')
 		let jenis = $("#slt_jenis").val()
 		let axs_cust = $("#axs_cust").val()
 		$.ajax({
@@ -255,6 +257,7 @@
 			success: function(res) {
 				data = JSON.parse(res)
 				$(".akses_sj_inv").html(data.htmlSJInv)
+				$(".akses_kepada").html(data.htmlKepada)
 				$('.select2').select2()
 				swal.close()
 			}
@@ -365,12 +368,15 @@
 		let id_pelanggan = $("#axs_cust").val()
 		let bank = $("#axs_bank").val()
 		let pajak = $("#axs_pajak").val()
+		let nm_pelanggan = $("#axs_pelanggan").val()
+		let attn = $("#axs_attn").val()
+		let alamat = $("#axs_alamat").val()
 		$(".akses_simpan").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/simpanAksesTT') ?>',
 			type: "POST",
 			data: ({
-				id_tt, jenis, tgl, id_pelanggan, bank, pajak, statusInput
+				id_tt, jenis, tgl, id_pelanggan, bank, pajak, nm_pelanggan, attn, alamat, statusInput
 			}),
 			beforeSend: function() {
 				swal({
@@ -421,18 +427,15 @@
 				$("#h_id_tt").val(data.header.id_tt)
 				$("#h_tipe").val(data.header.tipe_tt)
 				$("#h_id_pelanggan").val(data.header.id_pelanggan)
-
 				$("#tgl").val(data.header.tgl_tt)
 				$("#slt_jenis").val(data.header.tipe_tt).prop('disabled', true).trigger('change')
-				
 				$(".akses_list_edit").html(data.htmlDtl)
 				$(".akses_pajak").html(data.htmlPajak)
 				$(".akses_cust").html(data.htmlCust)
 				$(".akses_bank").html(data.htmlBank)
 				$(".akses_sj_inv").html(data.htmlSJInv)
-
+				$(".akses_kepada").html(data.htmlKepada)
 				$(".akses_simpan").html(`<button type="button" class="btn btn-sm btn-primary" style="font-weight:bold" onclick="simpanAkses()"><i class="fas fa-save"></i> SIMPAN</button>`);
-				
 				$('.select2').select2()
 				swal.close()
 			}

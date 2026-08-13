@@ -9870,6 +9870,12 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function tambahKet()
+	{
+		$result = $this->m_transaksi->tambahKet();
+		echo json_encode($result);
+	}
+
 	function uploadKLB()
 	{
 		$result = $this->m_transaksi->uploadKLB();
@@ -10893,7 +10899,7 @@ class Transaksi extends CI_Controller
 							
 							// UPLOAD KALIBRASI
 							if($cekKLB->num_rows() != 0 && $fileKLB->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])){
-								$html .= '<td style="background:#dfd;padding:6px;font-size:11px" colspan="7">
+								$html .= '<td style="background:#dfd;padding:6px;font-size:11px">
 									<form role="form" method="POST" id="mut_kalibrasi_'.$u->urut.'" enctype="multipart/form-data">
 										<input type="hidden" name="m_tgl" id="m_tgl" value="'.$tgl.'">
 										<input type="hidden" name="m_urut" id="m_urut" value="'.$u->urut.'">
@@ -10907,8 +10913,18 @@ class Transaksi extends CI_Controller
 								($fileKLB->num_rows() != 0 && $u->check_klb == null && in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $hIkb = '<button class="btn btn-xs btn-danger" style="margin-left:5px" onclick="batalKLB('."'".$u->urut."'".')"><i class="fas fa-times-circle"></i></button>' : $hIkb = '';
 								($u->check_klb == 1) ? $oCk = 'checked' : $oCk = '';
 								($fileKLB->num_rows() != 0 && $u->id_ex != null && $lvl == 'Admin') ? $chk = '&nbsp&nbsp<input type="checkbox" id="chk-'.$u->urut.'" onclick="chkKLB('."'".$u->urut."'".')" value="'.$u->check_klb.'" '.$oCk.'>' : $chk = '';
-								$html .= '<td style="background:#333;padding:6px" colspan="7">'.$bIkb.$hIkb.$chk.'</td>';
+								$html .= '<td style="background:#333;padding:6px">'.$bIkb.$hIkb.$chk.'</td>';
 							}
+
+							// NOTE
+							if(in_array($lvl, ['Admin', 'Admin2', 'User', 'PPIC'])){
+								$aksKet = 'onchange="tambahKet('."'".$u->urut."'".')"';
+							}else{
+								$aksKet = 'disabled';
+							}
+							$html .= '<td style="background:#333;padding:6px" colspan="6">
+								<input type="text" id="isiKet-'.$u->urut.'" style="background:none;border:0;padding:0;font-weight:bold;color:#fff;height:100%;width:100%" value="'.$u->ket_sys2.'" placeholder="KETERANGAN" autocomplete="off" '.$aksKet.'>
+							</td>';
 							
 							if($aRK->num_rows() != 0 && ($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0)){
 								$html .= '<td style="background:#ddf;border:1px solid #bbd;text-align:center;font-weight:bold;padding:6px">EKSPEDISI</td>
