@@ -972,7 +972,7 @@ class M_fungsi extends CI_Model {
 		return $result;
 	}
 
-	function kiriman($kode_po, $id_produk, $qty_po)
+	function kiriman($kode_po = 0, $id_produk = 0, $qty_po = 0)
 	{
 		// KIRIMAN
 		$kirim = $this->db->query("SELECT SUM(r.qty_muat) AS tot_muat,r.*,p.* FROM m_rencana_kirim r

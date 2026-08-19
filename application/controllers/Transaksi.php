@@ -10790,6 +10790,7 @@ class Transaksi extends CI_Controller
 					<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">QTY</th>
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">BB</th>
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
+					<th style="padding:6px;text-align:center;border:1px solid #bbb">OS</th>
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">STOK</th>
 					<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">K</th>';
 					if($aRK->num_rows() != 0){
@@ -10839,7 +10840,7 @@ class Transaksi extends CI_Controller
 					if($u->urut == 0){
 						$html .= '<tr>
 							<td style="background:#333;color:#fff;padding:6px;font-weight:bold;text-align:center">'.$u->urut.'</td>
-							<td style="background:#333;padding:6px" colspan="9"></td>';
+							<td style="background:#333;padding:6px" colspan="10"></td>';
 							if($aRK->num_rows() != 0 && $cekRK->num_rows() != 0){
 								$html .= '<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">SURAT JALAN</td>
 								<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">QTY</td>
@@ -10922,8 +10923,16 @@ class Transaksi extends CI_Controller
 							}else{
 								$aksKet = 'disabled';
 							}
-							$html .= '<td style="background:#333;padding:6px" colspan="6">
+							$html .= '<td style="background:#333;padding:6px" colspan="5">
 								<input type="text" id="isiKet-'.$u->urut.'" style="background:none;border:0;padding:0;font-weight:bold;color:#fff;height:100%;width:100%" value="'.$u->ket_sys2.'" placeholder="KETERANGAN" autocomplete="off" '.$aksKet.'>
+							</td>';
+
+							// VERIFIKASI ( PPIC + EKSPEDISI / PENGIRIMAN )
+							$html .= '<td style="background:#333;padding:6px;text-align:center">
+								<button class="btn btn-xs btn-warning" onclick=""><i class="fas fa-window-minimize"></i></button>
+							</td>
+							<td style="background:#333;padding:6px;text-align:center">
+								<button class="btn btn-xs btn-warning" onclick=""><i class="fas fa-window-minimize"></i></button>
 							</td>';
 							
 							if($aRK->num_rows() != 0 && ($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0)){
@@ -10971,7 +10980,7 @@ class Transaksi extends CI_Controller
 					foreach($sys->result() as $r){
 						$i++;
 						($r->attn == '-') ? $attn = '' : $attn = '<div>'.$r->attn.'</div>';
-						($r->kategori == "K_BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
+						($r->kategori == "K_BOX") ? $kategori = '' : $kategori = '[SHEET] ';
 						if($cekKLB->num_rows() != 0 || $fileKLB->num_rows() != 0){
 							$och = 'id="ds-urut'.$r->id_dev.'dd" name="ds-urut'.$r->id_dev.'nn" disabled';
 						}else{
@@ -11036,6 +11045,10 @@ class Transaksi extends CI_Controller
 						$cekSTOK = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$r->id_pelanggan' AND id_produk='$r->id_produk' $wCS");
 						($cekSTOK->num_rows() == 0) ? $txtSTOK = '-' : $txtSTOK = number_format($cekSTOK->row($angka.'_stok_akhir'), 0, ',', '.');
 
+						// PENGIRIMAN - OS
+						$kirim = $this->m_fungsi->kiriman($r->kode_po, $r->id_produk, $r->qty_po);
+						($kirim["sisa"] <= 0) ? $txtSisa = number_format(str_replace('-', '', $kirim["sisa"]),0,',','.') : $txtSisa = '+'.number_format($kirim["sisa"],0,',','.');
+
 						$html .= '<tr style="vertical-align:top">
 							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>
 								<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" value="'.$r->urut.'" '.$och.'>
@@ -11047,6 +11060,7 @@ class Transaksi extends CI_Controller
 							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->qty_plan, 0, ',', '.').'</td>
 							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>'.$r->berat_bersih.'</td>
 							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->berat, 0, ',', '.').'</td>
+							<td style="'.$dRP.'padding:6px;text-align:right;text-decoration:underline" '.$rkRS.'>'.$txtSisa.'</td>
 							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.$txtSTOK.'</td>';
 
 							// KALIBRASI
@@ -11117,7 +11131,7 @@ class Transaksi extends CI_Controller
 								</td>
 								<td style="border:1px solid #ced2d6;padding:6px" colspan="2">'.$n->nm_pelanggan.'</td>
 								<td style="border:1px solid #ced2d6;padding:6px">'.$n->rk_kode_po.'</td>
-								<td style="border:1px solid #ced2d6;padding:6px" colspan="5">'.$nV1.$nk2.$n->nm_produk.$nV2.'</td>
+								<td style="border:1px solid #ced2d6;padding:6px" colspan="6">'.$nV1.$nk2.$n->nm_produk.$nV2.'</td>
 								<td style="border:1px solid #ced2d6;padding:6px;border-width:0 1px"></td>
 								<td style="background:#fdd;border:1px solid #dbb;padding:6px;font-weight:bold;text-align:center">'.$n->no_kendaraan.' ('.$n->expedisi.')</td>
 								<td style="background:#fdd;border:1px solid #dbb;padding:6px;font-weight:bold">'.$this->m_fungsi->tglIndSkt($n->rk_tgl).'</td>
@@ -11136,27 +11150,21 @@ class Transaksi extends CI_Controller
 						$html .= '<tr style="background:#dee2e6">
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">TOTAL</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($totQty, 0, ',', '.').'</td>
-							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.number_format($totBerat, 0, ',', '.').'</td>';
-
-							// KALIBRASI
-							if($u->urut != 0 && ($u->id_ex == null || $u->id_ex != null)){
-								if($fileKLB->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])){
-									$oKb3 = 'id="k-'.$u->urut.'" onchange="addKLB('."'".$u->urut."'".')"';
-									$dkb3 = '';
+							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.number_format($totBerat, 0, ',', '.').'</td>
+							<td style="padding:6px;border:1px solid #bbb" colspan="2"></td>';
+							$html .= '<td style="padding:6px;border:1px solid #bbb;font-weight:bold">';
+								// KALIBRASI
+								if($u->urut != 0 && ($u->id_ex == null || $u->id_ex != null)){
+									if($fileKLB->num_rows() == 0 && in_array($lvl, ['Admin', 'Admin2', 'User'])){
+										$oKb3 = 'id="k-'.$u->urut.'" onchange="addKLB('."'".$u->urut."'".')"'; $dkb3 = '';
+									}else{
+										$oKb3 = ''; $dkb3 = 'disabled';
+									}
+									$html .= '<input type="number" class="form-control" '.$oKb3.' style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" value="'.$txtKLB.'" autocomplete="off" placeholder="0" '.$dkb3.'>';
 								}else{
-									$oKb3 = '';
-									$dkb3 = 'disabled';
+									$html .= '<input type="number" class="form-control" style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" placeholder="0" disabled>';
 								}
-								$html .= '<td style="padding:6px;border:1px solid #bbb"></td>
-								<td style="padding:6px;border:1px solid #bbb;font-weight:bold">
-									<input type="number" class="form-control" '.$oKb3.' style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" value="'.$txtKLB.'" autocomplete="off" placeholder="0" '.$dkb3.'>
-								</td>';
-							}else{
-								$html .= '<td style="padding:6px;border:1px solid #bbb"></td>
-								<td style="padding:6px;border:1px solid #bbb;font-weight:bold">
-									<input type="number" class="form-control" style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" placeholder="0" disabled>
-								</td>';
-							}
+							$html .= '</td>';
 
 							// TIMBANGAN LEBIH DARI 1 ITEM
 							if($cekRK->num_rows() != 0 || (($sys->num_rows() == 1 || $sys->num_rows() > 1) && ($rkNull->num_rows() == 1 || $rkNull->num_rows() > 1))){
