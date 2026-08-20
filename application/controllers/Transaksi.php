@@ -10928,11 +10928,13 @@ class Transaksi extends CI_Controller
 							</td>';
 
 							// VERIFIKASI ( PPIC + EKSPEDISI / PENGIRIMAN )
+							// <button class="btn btn-xs btn-danger" onclick=""><i class="fas fa-times"></i></button>
+							// <button class="btn btn-xs btn-success" style="padding:2px" onclick=""><i class="fas fa-check"></i></button>
 							$html .= '<td style="background:#333;padding:6px;text-align:center">
-								<button class="btn btn-xs btn-warning" onclick=""><i class="fas fa-window-minimize"></i></button>
+								<button class="btn btn-xs btn-light" onclick="accDSS('."'PPIC'".', '."'".$u->urut."'".')"><i class="fas fa-minus"></i></button>
 							</td>
 							<td style="background:#333;padding:6px;text-align:center">
-								<button class="btn btn-xs btn-warning" onclick=""><i class="fas fa-window-minimize"></i></button>
+								<button class="btn btn-xs btn-light" onclick="accDSS('."'INNER'".', '."'".$u->urut."'".')"><i class="fas fa-minus"></i></button>
 							</td>';
 							
 							if($aRK->num_rows() != 0 && ($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0)){
@@ -11198,6 +11200,20 @@ class Transaksi extends CI_Controller
 			'htmlSJ' => $htmlSJ,
 			'tglRincian' => $tglRincian,
 			'tglRealRinc' => $tglRealRinc,
+		]);
+	}
+
+	function accDSS()
+	{
+		$tgl = $_POST["tgl"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$opsi = $_POST["opsi"];
+		$urut = $_POST["urut"];
+		$html = '';
+
+		echo json_encode([
+			'html' => $html,
 		]);
 	}
 

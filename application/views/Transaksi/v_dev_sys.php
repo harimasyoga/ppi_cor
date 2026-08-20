@@ -257,6 +257,24 @@
 	</section>
 </div>
 
+<div class="modal fade" id="modalAccDss">
+	<div class="modal-dialog modal-full">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="judul-detail"></h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div style="overflow:auto;white-space:nowrap">
+					<div id="modal-detail"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="mymodal-img" class="modal-img">
 	<img class="modal-img-content" id="img01">
 </div>
@@ -267,6 +285,26 @@
 		loadCalender('')
 		loadRealCalender('')
 	});
+
+	function accDSS(opsi, urut) {
+		$("#judul-detail").html(opsi)
+		$("#modal-detail").html(`. . .`)
+		$("#modalAccDss").modal("show");
+
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/accDSS') ?>',
+			data: ({ tgl, tahun, bulan, opsi, urut }),
+			type: "POST",
+			success: function(res) {
+				data = JSON.parse(res)
+				console.log(data)
+			}
+		})
+	}
 
 	function imgClick(klik)
 	{
