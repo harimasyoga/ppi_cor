@@ -301,6 +301,7 @@
 				data = JSON.parse(res)
 				$("#lvl").val(opsi)
 				$("#modal-detail").html(data.html)
+				$(".modal-open").css({"padding-right": "0"})
 				swal.close()
 			}
 		})
@@ -329,9 +330,10 @@
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
-					$(".sidebar-mini").css({"height": "auto", "padding-right": "0"})
 					$("#lvl").val('')
 					$("#modalAccDss").modal("hide")
+					$(".modal-open").css({"padding-right": "0"})
+					$(".sidebar-mini").css({"padding-right": "0"})
 					toastr.success(`<b>${data.msg}</b>`)
 					ccDevSys(tgl, 'jadwal')
 				}else{
