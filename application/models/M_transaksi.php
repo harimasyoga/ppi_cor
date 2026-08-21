@@ -3520,6 +3520,65 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function btnAccDSS()
+	{
+		$angka = $_POST["tgl"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$tgl = $tahun.'-'.$bulan.'-'.$angka;
+		$keterangan = $_POST["keterangan"];
+		$urut = $_POST["urut"];
+		$verif = $_POST["verif"];
+		$userAcc = $_POST["userAcc"];
+		$lvl = $this->session->userdata('level');
+
+		// LOCK
+		$lock3D = date('Y-m-d', strtotime('+3 days', strtotime(date('Y-m-d'))));
+		$tglPilih = floor((strtotime($tgl) - strtotime($lock3D)) /60/60/24);
+
+		$cek = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$urut' AND opsi='$userAcc'");
+
+		if($tglPilih <= 0){
+			$data = false;
+			$msg = 'LOCK 3 HARI PER HARI INI!';
+		}else if($verif == "R" && $keterangan == ""){
+			$data = false; $msg = 'ISI KETERANGAN!';
+		}else{
+			$this->db->set('opsi', $userAcc);
+			$this->db->set('tgl', $tgl);
+			$this->db->set('urut', $urut);
+			$this->db->set('sts_dss', $verif);
+			$this->db->set('keterangan', ($keterangan == '' && $verif == "Y") ? 'OK!' : strtoupper($keterangan));
+			$this->db->set('user_at', $lvl);
+			if($cek->num_rows() != 0 && $verif != 'X'){
+				$this->db->set('updated_at', date('Y-m-d H:i:s'));
+			}
+			if($cek->num_rows() != 0){
+				$this->db->where('opsi', $userAcc);
+				$this->db->where('tgl', $tgl);
+				$this->db->where('urut', $urut);
+				if($verif == 'X'){
+					$data = $this->db->delete('trs_dev_acc');
+					$msg = 'BERHASIL HAPUS DATA!';
+				}else{
+					$data = $this->db->update('trs_dev_acc');
+					$msg = 'BERHASIL EDIT KETERANGAN!';
+				}
+			}else{
+				$this->db->set('created_at', date('Y-m-d H:i:s'));
+				$data = $this->db->insert('trs_dev_acc');
+				$msg = 'BERHASIL!';
+			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+			'lock3D' => $lock3D,
+			'tglPilih' => $tglPilih,
+		];
+	}
+
 	function uploadKLB()
 	{
 		$tgl = $this->input->post('m_tgl');

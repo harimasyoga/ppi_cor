@@ -221,6 +221,7 @@
 						</div>
 						<div class="card-body" style="padding:12px 6px">
 							<input type="hidden" id="r_tgl" value="">
+							<input type="hidden" id="lvl" value="">
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="ds-kiriman">-</div>
 							</div>
@@ -257,6 +258,22 @@
 	</section>
 </div>
 
+<div class="modal fade" id="modalAccDss">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="judul-detail"></h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" style="padding:6px">
+				<div id="modal-detail"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="mymodal-img" class="modal-img">
 	<img class="modal-img-content" id="img01">
 </div>
@@ -267,6 +284,65 @@
 		loadCalender('')
 		loadRealCalender('')
 	});
+
+	function accDSS(opsi, urut) {
+		$("#judul-detail").html('<b>'+opsi+'</b>')
+		$("#modal-detail").html(`. . .`)
+		$("#modalAccDss").modal("show")
+		$("#lvl").val('')
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/accDSS') ?>',
+			data: ({ tgl, tahun, bulan, opsi, urut }),
+			type: "POST",
+			success: function(res) {
+				data = JSON.parse(res)
+				$("#lvl").val(opsi)
+				$("#modal-detail").html(data.html)
+				$(".modal-open").css({"padding-right": "0"})
+				swal.close()
+			}
+		})
+	}
+
+	function btnAccDSS(urut, verif) {
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		let keterangan = $("#ket_acc_dss").val()
+		let userAcc = $("#lvl").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/btnAccDSS')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ tgl, tahun, bulan, keterangan, userAcc, urut, verif }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					$("#lvl").val('')
+					$("#modalAccDss").modal("hide")
+					$(".modal-open").css({"padding-right": "0"})
+					$(".sidebar-mini").css({"padding-right": "0"})
+					toastr.success(`<b>${data.msg}</b>`)
+					ccDevSys(tgl, 'jadwal')
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
+			}
+		})
+	}
 
 	function imgClick(klik)
 	{
@@ -744,10 +820,6 @@
 		let tahun = $("#tahun").val()
 		let bulan = $("#bulan").val()
 		let keterangan = $("#isiKet-"+urut).val()
-		console.log("tgl : ", tgl)
-		console.log("tahun : ", tahun)
-		console.log("bulan : ", bulan)
-		console.log("keterangan : ", keterangan)
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/tambahKet')?>',
 			type: "POST",
@@ -764,7 +836,6 @@
 			data: ({ tgl, tahun, bulan, keterangan, urut }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				if(data.data){
 					toastr.success(`<b>${data.msg}</b>`)
 					ccDevSys(tgl, 'jadwal')
