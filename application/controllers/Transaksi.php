@@ -9870,6 +9870,12 @@ class Transaksi extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function btnAccDSS()
+	{
+		$result = $this->m_transaksi->btnAccDSS();
+		echo json_encode($result);
+	}
+
 	function tambahKet()
 	{
 		$result = $this->m_transaksi->tambahKet();
@@ -10918,7 +10924,7 @@ class Transaksi extends CI_Controller
 							}
 
 							// NOTE
-							if(in_array($lvl, ['Admin', 'Admin2', 'User', 'PPIC'])){
+							if(in_array($lvl, ['Admin', 'Admin2', 'User'])){
 								$aksKet = 'onchange="tambahKet('."'".$u->urut."'".')"';
 							}else{
 								$aksKet = 'disabled';
@@ -10928,13 +10934,45 @@ class Transaksi extends CI_Controller
 							</td>';
 
 							// VERIFIKASI ( PPIC + EKSPEDISI / PENGIRIMAN )
-							// <button class="btn btn-xs btn-danger" onclick=""><i class="fas fa-times"></i></button>
-							// <button class="btn btn-xs btn-success" style="padding:2px" onclick=""><i class="fas fa-check"></i></button>
+							// PPIC
+							$qAccPPIC = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' AND opsi='PPIC'");
+							if($qAccPPIC->num_rows() != 0){
+								if($qAccPPIC->row()->sts_dss == 'Y'){
+									$aPsts = 'success';
+									$cPsts = 'fas fa-check';
+									$pPsts = '';
+								}else{
+									$aPsts = 'danger';
+									$cPsts = 'fas fa-times';
+									$pPsts = 'style="padding:2px 6px"';
+								}
+							}else{
+								$aPsts = 'light';
+								$cPsts = 'fas fa-minus';
+								$pPsts = 'style="padding:2px 5px"';
+							}
 							$html .= '<td style="background:#333;padding:6px;text-align:center">
-								<button class="btn btn-xs btn-light" onclick="accDSS('."'PPIC'".', '."'".$u->urut."'".')"><i class="fas fa-minus"></i></button>
-							</td>
-							<td style="background:#333;padding:6px;text-align:center">
-								<button class="btn btn-xs btn-light" onclick="accDSS('."'INNER'".', '."'".$u->urut."'".')"><i class="fas fa-minus"></i></button>
+								<button class="btn btn-xs btn-'.$aPsts.'" '.$pPsts.' onclick="accDSS('."'PPIC'".', '."'".$u->urut."'".')"><i class="'.$cPsts.'"></i></button>
+							</td>';
+							// INNER
+							$qAccPP = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' AND opsi='PENGIRIMAN'");
+							if($qAccPP->num_rows() != 0){
+								if($qAccPP->row()->sts_dss == 'Y'){
+									$aIsts = 'success';
+									$cIsts = 'fas fa-check';
+									$pIsts = '';
+								}else{
+									$aIsts = 'danger';
+									$cIsts = 'fas fa-times';
+									$pIsts = 'style="padding:2px 6px"';
+								}
+							}else{
+								$aIsts = 'light';
+								$cIsts = 'fas fa-minus';
+								$pIsts = 'style="padding:2px 5px"';
+							}
+							$html .= '<td style="background:#333;padding:6px;text-align:center">
+								<button class="btn btn-xs btn-'.$aIsts.'" '.$pIsts.' onclick="accDSS('."'PENGIRIMAN'".', '."'".$u->urut."'".')"><i class="'.$cIsts.'"></i></button>
 							</td>';
 							
 							if($aRK->num_rows() != 0 && ($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0)){
@@ -11062,7 +11100,7 @@ class Transaksi extends CI_Controller
 							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->qty_plan, 0, ',', '.').'</td>
 							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>'.$r->berat_bersih.'</td>
 							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->berat, 0, ',', '.').'</td>
-							<td style="'.$dRP.'padding:6px;text-align:right;text-decoration:underline" '.$rkRS.'>'.$txtSisa.'</td>
+							<td style="'.$dRP.'padding:6px;text-align:right;font-style:italic;font-weight:bold" '.$rkRS.'>'.$txtSisa.'</td>
 							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.$txtSTOK.'</td>';
 
 							// KALIBRASI
@@ -11205,12 +11243,47 @@ class Transaksi extends CI_Controller
 
 	function accDSS()
 	{
-		$tgl = $_POST["tgl"];
+		$angka = $_POST["tgl"];
 		$tahun = $_POST["tahun"];
 		$bulan = $_POST["bulan"];
+		$tgl = $tahun.'-'.$bulan.'-'.$angka;
 		$opsi = $_POST["opsi"];
 		$urut = $_POST["urut"];
+		$lvl = $this->session->userdata('level');
+
+		if((in_array($lvl, ['Admin', 'Admin2', 'PPIC']) && $opsi == 'PPIC') || (in_array($lvl, ['Admin', 'Admin2', 'Pengiriman']) && $opsi == 'PENGIRIMAN')){
+			$txtBtn = '<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="btnAccDSS('."'".$urut."'".', '."'Y'".')"><i class="fas fa-check"></i> VERIFIKASI</button>
+			<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="btnAccDSS('."'".$urut."'".', '."'R'".')"><i class="fas fa-times"></i> REJECT</button>';
+		}else{
+			$txtBtn = '';
+		}
+
+		$qAccDSS = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$urut' AND opsi='$opsi'");
+		if($qAccDSS->num_rows() != 0){
+			$timex = ($qAccDSS->row()->updated_at != null) ? $qAccDSS->row()->updated_at : $qAccDSS->row()->created_at;
+			(in_array($lvl, ['Admin', 'Admin2'])) ? $oCC = 'onclick="btnAccDSS('."'".$urut."'".', '."'X'".')"' : $oCC = '';
+			if($qAccDSS->row()->sts_dss == 'Y'){
+				$btn = '<button type="button" style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-dark" '.$oCC.'>'.$timex.'</button>';
+			}else{
+				$btn = '<div style="padding-bottom:12px"><button type="button" style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-dark" '.$oCC.'>'.$timex.'</button></div>'.$txtBtn;
+			}
+			$ket = $qAccDSS->row()->keterangan;
+		}else{
+			$ket = '';
+			$btn = $txtBtn;
+		}
+
 		$html = '';
+		$html .= '<div class="card-body row" style="font-weight:bold;padding:6px">
+			<div class="col-md-12">
+				<textarea class="form-control" id="ket_acc_dss" placeholder="KETERANGAN" rows="3" style="font-weight:bold;resize:none">'.$ket.'</textarea>
+			</div>
+		</div>
+		<div class="card-body row" style="font-weight:bold;padding:6px">
+			<div class="col-md-12">
+				'.$btn.'
+			</div>
+		</div>';
 
 		echo json_encode([
 			'html' => $html,

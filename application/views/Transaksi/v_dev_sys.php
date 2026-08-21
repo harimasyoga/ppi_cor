@@ -221,6 +221,7 @@
 						</div>
 						<div class="card-body" style="padding:12px 6px">
 							<input type="hidden" id="r_tgl" value="">
+							<input type="hidden" id="lvl" value="">
 							<div style="overflow:auto;white-space:nowrap">
 								<div class="ds-kiriman">-</div>
 							</div>
@@ -258,7 +259,7 @@
 </div>
 
 <div class="modal fade" id="modalAccDss">
-	<div class="modal-dialog modal-full">
+	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h4 class="modal-title" id="judul-detail"></h4>
@@ -266,10 +267,8 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body">
-				<div style="overflow:auto;white-space:nowrap">
-					<div id="modal-detail"></div>
-				</div>
+			<div class="modal-body" style="padding:6px">
+				<div id="modal-detail"></div>
 			</div>
 		</div>
 	</div>
@@ -287,21 +286,58 @@
 	});
 
 	function accDSS(opsi, urut) {
-		$("#judul-detail").html(opsi)
+		$("#judul-detail").html('<b>'+opsi+'</b>')
 		$("#modal-detail").html(`. . .`)
-		$("#modalAccDss").modal("show");
-
+		$("#modalAccDss").modal("show")
+		$("#lvl").val('')
 		let tgl = $("#r_tgl").val()
 		let tahun = $("#tahun").val()
 		let bulan = $("#bulan").val()
-
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/accDSS') ?>',
 			data: ({ tgl, tahun, bulan, opsi, urut }),
 			type: "POST",
 			success: function(res) {
 				data = JSON.parse(res)
-				console.log(data)
+				$("#lvl").val(opsi)
+				$("#modal-detail").html(data.html)
+				swal.close()
+			}
+		})
+	}
+
+	function btnAccDSS(urut, verif) {
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		let keterangan = $("#ket_acc_dss").val()
+		let userAcc = $("#lvl").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/btnAccDSS')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ tgl, tahun, bulan, keterangan, userAcc, urut, verif }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					$(".sidebar-mini").css({"height": "auto", "padding-right": "0"})
+					$("#lvl").val('')
+					$("#modalAccDss").modal("hide")
+					toastr.success(`<b>${data.msg}</b>`)
+					ccDevSys(tgl, 'jadwal')
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					swal.close()
+				}
 			}
 		})
 	}
