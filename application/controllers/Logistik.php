@@ -11765,15 +11765,19 @@ class Logistik extends CI_Controller
 			if($qq->num_rows() != 0){
 				$vSa = ($qq->row($hari.'_stok_awal') == 0) ? '-' : number_format($qq->row($hari.'_stok_awal'),0,',','.');
 				$vIn = ($qq->row($hari.'_in') == 0) ? '-' : number_format($qq->row($hari.'_in'),0,',','.');
+				$vIn2 = ($qq->row($hari.'_in') == 0) ? '-' : number_format($qq->row($hari.'_in_rtr'),0,',','.');
 				$vOut = ($qq->row($hari.'_out') == 0) ? '-' : number_format($qq->row($hari.'_out'),0,',','.');
+				$vOut2 = ($qq->row($hari.'_out') == 0) ? '-' : number_format($qq->row($hari.'_out_rtr'),0,',','.');
 				$vSk = ($qq->row($hari.'_stok_akhir') == 0) ? '-' : number_format($qq->row($hari.'_stok_akhir'),0,',','.');
 				$vKet = $qq->row($hari.'_ket');
 			}else{
-				$vSa = 0; $vIn = 0; $vOut = 0; $vSk = 0; $vKet = '-';
+				$vSa = 0; $vIn = 0; $vIn2 = 0; $vOut = 0; $vOut2 = 0; $vSk = 0; $vKet = '-';
 			}
 			$row[] = '<div style="text-align:right">'.$vSa.'</div>';
 			$row[] = '<div style="text-align:right">'.$vIn.'</div>';
+			$row[] = '<div style="text-align:right">'.$vIn2.'</div>';
 			$row[] = '<div style="text-align:right">'.$vOut.'</div>';
+			$row[] = '<div style="text-align:right">'.$vOut2.'</div>';
 			$row[] = '<div style="text-align:right">'.$vSk.'</div>';
 			$row[] = $vKet;
 			$data[] = $row;
@@ -12337,13 +12341,13 @@ class Logistik extends CI_Controller
 											<input type="number" id="in2_'.$g->id_produk.'" name="in2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$roL.'>
 										</td>
 										<td style="padding:6px">
-											<input type="number" id="inrtr2_'.$g->id_produk.'" name="in2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$roL.'>
+											<input type="number" id="inrtr2_'.$g->id_produk.'" name="inrtr2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$roL.'>
 										</td>
 										<td style="padding:6px">
 											<input type="number" id="out2_'.$g->id_produk.'" name="out2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$roL.'>
 										</td>
 										<td style="padding:6px">
-											<input type="number" id="outrtr2_'.$g->id_produk.'" name="out2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$roL.'>
+											<input type="number" id="outrtr2_'.$g->id_produk.'" name="outrtr2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$roL.'>
 										</td>
 										<td style="padding:6px">
 											<input type="hidden" id="hstok_akhir2_'.$g->id_produk.'" name="hstok_akhir2_'.$g->id_produk.'" value="'.$vSkh.'">
@@ -12405,14 +12409,14 @@ class Logistik extends CI_Controller
 					<th style="padding:0 6px 12px" colspan="10">HARI / TANGGAL : '.strtoupper($this->m_fungsi->getHariIni($tgl)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl)).'</th>
 				</tr>
 				<tr style="background:#5eafde">
-					<th style="text-align:center;padding:6px;width:2%">#</th>
+					<th style="text-align:center;padding:6px;width:4%">#</th>
 					<th style="text-align:center;padding:6px;width:24%">ITEM</th>
 					<th style="text-align:center;padding:6px;width:10%">UKURAN</th>
 					<th style="text-align:center;padding:6px;width:14%">SUBSTANCE</th>
 					<th style="text-align:center;padding:6px;width:5%">F</th>
 					<th style="text-align:center;padding:6px 0;width:9%">S. AWAL</th>
-					<th style="text-align:center;padding:6px;width:9%">IN</th>
-					<th style="text-align:center;padding:6px;width:9%">OUT</th>
+					<th style="text-align:center;padding:6px;width:8%">IN</th>
+					<th style="text-align:center;padding:6px;width:8%">OUT</th>
 					<th style="text-align:center;padding:6px 0;width:9%">S. AKHIR</th>
 					<th style="text-align:center;padding:6px;width:9%">KET</th>
 				</tr>

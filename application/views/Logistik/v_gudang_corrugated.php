@@ -148,7 +148,9 @@
 									<th style="width:25%">ITEM</th>
 									<th style="width:10%">STOK AWAL</th>
 									<th style="width:10%">IN</th>
+									<th style="width:10%">IN RETUR</th>
 									<th style="width:10%">OUT</th>
+									<th style="width:10%">OUT RETUR</th>
 									<th style="width:10%">STOK AKHIR</th>
 									<th style="width:10%">KETERANGAN</th>
 								</tr>
@@ -215,7 +217,7 @@
 	$(document).ready(function () {
 		$(".select2").select2()
 		load_data()
-		allListGudang()
+		// allListGudang()
 	});
 
 	function load_data() {
