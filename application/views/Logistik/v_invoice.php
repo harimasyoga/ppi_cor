@@ -493,6 +493,7 @@
 									<select id="type_inv" class="form-control select2" onchange="load_data()">
 										<option value="all">-- BOX / ROLL --</option>
 										<option value="box">BOX</option>
+										<option value="sheet">SHEET</option>
 										<option value="roll">ROLL</option>
 									</select>
 								</div>
