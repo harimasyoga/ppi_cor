@@ -6732,6 +6732,11 @@ class Logistik extends CI_Controller
 					$txtSel = '';
 					$seLisiH = 0;
 					$jmlNominal = $total;
+					// UPDATE JML NOMINAL DI INVOICE DRAFT (SEKALI SEUMUR HIDUP)
+					$cekDraft = $this->db->query("SELECT*FROM invoice_draft_header WHERE no_invoice='$r->no_invoice'");
+					if($cekDraft->num_rows() != 0){
+						($cekDraft->row()->jml_mutasi == null) ? $this->db->query("UPDATE invoice_draft_header SET jml_mutasi='$total' WHERE no_invoice='$r->no_invoice'") : true;
+					}
 					// UPDATE JML NOMINAL DI INVOICE HEADER
 					if($r->acc_owner != 'Y'){
 						$this->db->query("UPDATE invoice_header SET jml_mutasi='$total' WHERE no_invoice='$r->no_invoice' AND id='$r->id'");

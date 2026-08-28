@@ -2166,8 +2166,9 @@
 		var id_pl = $("#id_pl").val();
 		var pajak = $("#pajak").val();
 		var tgl_tempo = $("#tgl_tempo").val();
+		var bank = $("#bank").val();
 
-		if (tgl_inv == '' || tgl_sj == '' || id_pl == '' || pajak == '' || tgl_tempo == '') {
+		if (tgl_inv == '' || tgl_sj == '' || id_pl == '' || pajak == '' || tgl_tempo == '' || bank == '') {
 			swal.close();
 			swal({
 				title: "Cek Kembali",
