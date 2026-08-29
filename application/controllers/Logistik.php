@@ -5821,270 +5821,291 @@ class Logistik extends CI_Controller
 		));
 	}
 
+	function chPiuTahun()
+	{
+		$html = '';
+
+		$qTahun = $this->db->query("SELECT YEAR(a.tgl_invoice) AS tahun FROM invoice_header a
+		WHERE a.jml_mutasi IS NOT NULL AND a.tgl_invoice > '2025-07-01'
+		GROUP BY YEAR(a.tgl_invoice)");
+
+		$html .= '<option value="">PILIH</option>';
+		$html .= '<option value="ALL">SEMUA</option>';
+		foreach($qTahun->result() as $r){
+			$html .= '<option value="'.$r->tahun.'">'.$r->tahun.'</option>';
+		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
 	function listPiutang()
-	{ //
+	{
 		$id_sales = $this->session->userdata('id_sales');
 		($id_sales == '' || $id_sales == null) ? $wIdSls = "" : $wIdSls = "AND p.id_sales='$id_sales'";
 		$lvl = $this->session->userdata('level');
 		$uName = $this->session->userdata('username');
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
 		$html = '';
 
-		$sales = $this->db->query("SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
-		INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
-		INNER JOIN m_sales s ON p.id_sales=s.id_sales
-		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wIdSls
-		GROUP BY s.nm_sales,s.id_sales
-		UNION
-		SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
-		INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
-		INNER JOIN m_sales s ON p.id_sales=s.id_sales
-		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wIdSls
-		GROUP BY s.nm_sales,s.id_sales,h.type");
-
-		if($sales->num_rows() != 0){
-			$html .= '<table style="color:#000;border-collapse: collapse">';
-				$html .= '<tr>
-					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="2">SALES/CUSTOMER</td>
-					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG TOTAL</td>
-					<td style="background:#ccc;padding:5px 25px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG JT</td>
-				</tr>';
-				$sumTot = 0;
-				$sumJet = 0;
-				foreach($sales->result() as $s){
-					// PIUTANG JT SALES
-					if($s->type == 'roll'){
-						$se9 = "p.pimpinan";
-						$se1 = "p.nm_perusahaan";
-						$in1 = "INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id";
-						$wh1 = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type='ROLL'";
-					}else{
-						$se9 = "p.attn";
-						$se1 = "p.nm_pelanggan";
-						$in1 = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan";
-						$wh1 = "AND h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.type!='ROLL'";
-					}
-					$piuSalJt = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
-						$in1
-						INNER JOIN m_sales s ON p.id_sales=s.id_sales
-						WHERE h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wh1
-						AND s.id_sales='$s->id_sales' AND h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL 
-						GROUP BY s.id_sales
-					");
-					($piuSalJt->num_rows() != 0) ? $xPiuSalJt = $piuSalJt->row()->jml_mutasi_jt : $xPiuSalJt = 0;
-
-					// COUNT BELUM BAYAR ALL
-					$cTT = $this->db->query("SELECT s.id_sales,COUNT(h.no_invoice) AS cnt FROM invoice_header h
-						$in1
-						INNER JOIN m_sales s ON p.id_sales=s.id_sales
-						WHERE s.id_sales='$s->id_sales' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wh1
-						AND NOT EXISTS (SELECT*FROM invoice_bayar b WHERE h.no_invoice=b.no_invoice)
-						GROUP BY s.id_sales
-					");
-					($cTT->num_rows() != 0) ? $xCv = ' <span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$cTT->row()->cnt.'</span>' : $xCv = '';
-					// COUNT BELUM BAYAR ALL XP
-					$cXp = $this->db->query("SELECT s.id_sales,COUNT(h.no_invoice) AS cnt FROM invoice_header h
-						$in1
-						INNER JOIN m_sales s ON p.id_sales=s.id_sales
-						WHERE s.id_sales='$s->id_sales' AND h.status_inv='Xp' AND h.jml_mutasi IS NOT NULL AND h.img_inv_terima IS NOT NULL AND h.acc_owner='N' $wh1
-						AND NOT EXISTS (SELECT*FROM invoice_bayar b WHERE h.no_invoice=b.no_invoice)
-						GROUP BY s.id_sales
-					");
-					($cXp->num_rows() != 0) ? $xXxP = '<span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$cXp->row()->cnt.'</span>' : $xXxP = '';
-
-					$html .= '<tr class="tr0">
-						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px" colspan="2">
-							<input type="hidden" id="ts1" value="">
-							<button class="btn btn-xs ab1 b1-'.$s->id_sales.' btn-success" style="padding:1px 5px" onclick="btnPiuSales('."'".$s->id_sales."'".')">
-								<i style="font-size:8px" class="fas af1 f1-'.$s->id_sales.' fa-plus"></i>
-							</button>&nbsp
-							'.$s->nm_sales.$xCv.$xXxP.'
-						</td>
-						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($s->jml_mutasi, 0, ',', '.').'</td>
-						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuSalJt, 0, ',', '.').'</td>
+		if($tahun == "" && $bulan == ""){
+			$html .= '<div style="font-weight:bold">PILIH TAHUN & BULAN!</div>';
+		}else if($tahun != "ALL" && $bulan == ""){
+			$html .= '<div style="font-weight:bold">PILIH BULAN!</div>';
+		}else{
+			if($tahun == "ALL"){
+				$wTanggal = "'2025-07-01' AND '9999-01-01'";
+			}else{
+				($bulan != '') ? $wTanggal = "'$tahun-$bulan-01' AND '$tahun-$bulan-31'" : $wTanggal = "'$tahun-07-01' AND '9999-01-01'";
+			}
+			$sales = $this->db->query("SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+			INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan
+			INNER JOIN m_sales s ON p.id_sales=s.id_sales
+			WHERE h.tgl_invoice BETWEEN $wTanggal AND h.type!='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wIdSls
+			GROUP BY s.nm_sales,s.id_sales
+			UNION
+			SELECT s.id_sales,h.type,s.nm_sales,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+			INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id
+			INNER JOIN m_sales s ON p.id_sales=s.id_sales
+			WHERE h.tgl_invoice BETWEEN $wTanggal AND h.type='ROLL' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wIdSls
+			GROUP BY s.nm_sales,s.id_sales,h.type");
+			if($sales->num_rows() == 0){
+				$html .= '<div style="font-weight:bold">DATA KOSONG!</div>';
+			}else if($sales->num_rows() != 0){
+				$html .= '<table style="color:#000;border-collapse: collapse">';
+					$html .= '<tr>
+						<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="2">SALES/CUSTOMER</td>
+						<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG (sj awal)</td>
+						<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG (invoice)</td>
+						<td style="background:#ccc;padding:5px 25px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG JT</td>
 					</tr>';
-
-					// CUSTOMER
-					$cust = $this->db->query("SELECT s.id_sales,h.type,h.id_perusahaan,$se9 AS attn,$se1 AS nm_pelanggan,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
-						$in1
-						INNER JOIN m_sales s ON p.id_sales=s.id_sales
-						WHERE h.jml_mutasi IS NOT NULL AND h.acc_owner='N' AND s.id_sales='$s->id_sales' $wh1
-						GROUP BY $se1,$se9,h.id_perusahaan
-					");
-					if($cust->num_rows() != 0){
-						foreach($cust->result() as $r){
-							// PIUTANG JT CUSTOMER
-							$piuCusJt = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
-								$in1
-								INNER JOIN m_sales s ON p.id_sales=s.id_sales
-								WHERE h.acc_owner='N' AND h.jml_mutasi IS NOT NULL $wh1
-								AND s.id_sales='$r->id_sales' AND h.id_perusahaan='$r->id_perusahaan' AND h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL
-								GROUP BY s.id_sales,h.id_perusahaan
-							");
-							($piuCusJt->num_rows() != 0) ? $xPiuCusJt = $piuCusJt->row()->jml_mutasi_jt : $xPiuCusJt = 0;
-
-							// COUNT BELUM BAYAR PER CUST ALL
-							$c1 = $this->db->query("SELECT s.id_sales,COUNT(h.no_invoice) AS cnt FROM invoice_header h
-								$in1
-								INNER JOIN m_sales s ON p.id_sales=s.id_sales
-								WHERE s.id_sales='$s->id_sales' AND h.id_perusahaan='$r->id_perusahaan' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wh1
-								AND NOT EXISTS (SELECT*FROM invoice_bayar b WHERE h.no_invoice=b.no_invoice)
-								GROUP BY s.id_sales
-							");
-							($c1->num_rows() != 0) ? $t1 = ' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$c1->row()->cnt.'</span>' : $t1 = '';
-							// COUNT BELUM BAYAR PER CUST XP
-							$c2 = $this->db->query("SELECT s.id_sales,COUNT(h.no_invoice) AS cnt FROM invoice_header h
-								$in1
-								INNER JOIN m_sales s ON p.id_sales=s.id_sales
-								WHERE s.id_sales='$s->id_sales' AND h.id_perusahaan='$r->id_perusahaan' AND h.status_inv='Xp' AND h.jml_mutasi IS NOT NULL AND h.img_inv_terima IS NOT NULL AND h.acc_owner='N' $wh1
-								AND NOT EXISTS (SELECT*FROM invoice_bayar b WHERE h.no_invoice=b.no_invoice)
-								GROUP BY s.id_sales
-							");
-							($c2->num_rows() != 0) ? $t2 = '<span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$c2->row()->cnt.'</span>' : $t2 = '';
-							($r->attn == "-" || $r->attn == "") ? $atZ = '' : $atZ = '<div style="padding-left:25px">'.$r->attn.'</div>';
-							//
-							if($r->type == 'roll'){
-								$pt1 = $r->id_perusahaan * 9;
-							}else{
-								$pt1 = $r->id_perusahaan;
-							}
-							//
-							$html .= '<tr class="tr1 t'.$r->id_sales.'" style="display:none">
-								<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 15px" colspan="2">
-									<input type="hidden" id="ts2" value="">
-									<button class="btn btn-xs ab2 b2-'.$pt1.' btn-info" style="padding:1px 5px" onclick="btnPiuCustomer('."'".$pt1."'".')">
-										<i style="font-size:8px" class="fas af2 f2-'.$pt1.' fa-plus"></i>
-									</button>&nbsp
-									'.$r->nm_pelanggan.$t1.$t2.$atZ.'
-								</td>
-								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($r->jml_mutasi, 0, ',', '.').'</td>
-								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuCusJt, 0, ',', '.').'</td>
-							</tr>';
-							// NO INVOICE DAN SURAT JALAN
-							$noInvNoSj = $this->db->query("SELECT s.id_sales,h.id_perusahaan,h.type,h.status_inv,h.no_invoice,h.jml_mutasi,h.inp_inv_terima, DATEDIFF(SUBSTR(h.inp_inv_terima, 1, 10), CURDATE()) AS sisa_invd, DATEDIFF(h.tgl_jatuh_tempo , h.tgl_invoice) AS tempo FROM invoice_header h
-								$in1
-								INNER JOIN m_sales s ON p.id_sales=s.id_sales
-								WHERE h.acc_owner='N' AND h.jml_mutasi IS NOT NULL $wh1
-								AND s.id_sales='$r->id_sales' AND h.id_perusahaan='$r->id_perusahaan'
-								GROUP BY s.id_sales,h.id_perusahaan,h.no_invoice
-								ORDER BY h.tgl_invoice,h.no_invoice
-							");
-							if($noInvNoSj->num_rows() != 0){
-								$l = 0;
-								foreach($noInvNoSj->result() as $n){
-									$l++;
-									// PIUTANG JT NO INVOICE DAN SJ
-									$piuNoInvNoSj = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
-										$in1
-										INNER JOIN m_sales s ON p.id_sales=s.id_sales
-										WHERE h.acc_owner='N' AND h.jml_mutasi IS NOT NULL $wh1
-										AND s.id_sales='$n->id_sales' AND h.id_perusahaan='$n->id_perusahaan' AND h.no_invoice='$n->no_invoice' AND h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL
-										GROUP BY s.id_sales,h.id_perusahaan,h.no_invoice
-									");
-									($piuNoInvNoSj->num_rows() != 0) ? $xPiuNoInvNoSj = $piuNoInvNoSj->row()->jml_mutasi_jt : $xPiuNoInvNoSj = 0;
-									// CARI NO. SURAT JALANNYA
-									$noSJ = $this->db->query("SELECT no_invoice,LTRIM(no_surat) AS no_surat FROM invoice_detail WHERE no_invoice='$n->no_invoice' GROUP BY no_invoice,LTRIM(no_surat)");
-									$xNoSj = '';
-									foreach($noSJ->result() as $j){
-										$xNoSj .= ' - '.$j->no_surat;
-									}
-									//
-									if($n->type == 'roll'){
-										$pt2 = $n->id_perusahaan * 9;
-									}else{
-										$pt2 = $n->id_perusahaan;
-									}
-									//
-
-									// BTN SAKTI
-									if($lvl == 'Admin' || $uName == 'karina'){
-										$bSz = '<td style="padding:5px 10px">
-											<button class="btn btn-xs btn-primary" style="padding:1px 5px" onclick="accSakti('."'".$n->no_invoice."'".')">
-												<i style="font-size:8px" class="fas fa-check"></i>
-											</button>
-										</td>';
-									}else{
-										$bSz = '';
-									}
-
-									// PEMBAYARAN
-									$qPay = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$n->no_invoice'");
-									// MUTASI
-									if($n->status_inv == 'Xp'){
-										$sisaHari = $n->tempo + $n->sisa_invd;
-										if($sisaHari == 0){
-											$secondsDiffH = strtotime(substr($n->inp_inv_terima,0,10)) - time();
-											$daysH = floor($secondsDiffH/60/60/24);
-											$hoursH = floor(($secondsDiffH-($daysH*60*60*24))/60/60);
-											$minutesH = floor(($secondsDiffH-($daysH*60*60*24)-($hoursH*60*60))/60);
-											($hoursH == 0) ? $tHoursH = '' : $tHoursH = $hoursH.' Hrs | ';
-											($minutesH == 0) ? $tMinutesH = '' : $tMinutesH = $minutesH.' Mnt ';
-											$sisaHariH = $tHoursH.$tMinutesH;
-										}else{
-											$sisaHariH = $sisaHari.' HARI ';
+					$sumTot = 0;
+					$sumJet = 0;
+					foreach($sales->result() as $s){
+						// PIUTANG JT SALES
+						if($s->type == 'roll'){
+							$se9 = "p.pimpinan";
+							$se1 = "p.nm_perusahaan";
+							$in1 = "INNER JOIN m_perusahaan p ON h.id_perusahaan=p.id";
+							$wh1 = "AND h.tgl_invoice BETWEEN $wTanggal AND h.type='ROLL'";
+						}else{
+							$se9 = "p.attn";
+							$se1 = "p.nm_pelanggan";
+							$in1 = "INNER JOIN m_pelanggan p ON h.id_perusahaan=p.id_pelanggan";
+							$wh1 = "AND h.tgl_invoice BETWEEN $wTanggal AND h.type!='ROLL'";
+						}
+						$piuSalJt = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
+							$in1
+							INNER JOIN m_sales s ON p.id_sales=s.id_sales
+							WHERE h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wh1
+							AND s.id_sales='$s->id_sales' AND ((h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL) OR (h.status_inv='Open' AND h.img_mutasi IS NOT NULL))
+							GROUP BY s.id_sales
+						");
+						($piuSalJt->num_rows() != 0) ? $xPiuSalJt = $piuSalJt->row()->jml_mutasi_jt : $xPiuSalJt = 0;
+						// COUNT BELUM BAYAR ALL
+						$cTT = $this->db->query("SELECT s.id_sales,COUNT(h.no_invoice) AS cnt FROM invoice_header h
+							$in1
+							INNER JOIN m_sales s ON p.id_sales=s.id_sales
+							WHERE s.id_sales='$s->id_sales' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wh1
+							AND NOT EXISTS (SELECT*FROM invoice_bayar b WHERE h.no_invoice=b.no_invoice)
+							GROUP BY s.id_sales
+						");
+						($cTT->num_rows() != 0) ? $xCv = ' <span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$cTT->row()->cnt.'</span>' : $xCv = '';
+						// COUNT BELUM BAYAR ALL XP
+						$cXp = $this->db->query("SELECT s.id_sales,COUNT(h.no_invoice) AS cnt FROM invoice_header h
+							$in1
+							INNER JOIN m_sales s ON p.id_sales=s.id_sales
+							WHERE s.id_sales='$s->id_sales' AND h.status_inv='Xp' AND h.jml_mutasi IS NOT NULL AND h.img_inv_terima IS NOT NULL AND h.acc_owner='N' $wh1
+							AND NOT EXISTS (SELECT*FROM invoice_bayar b WHERE h.no_invoice=b.no_invoice)
+							GROUP BY s.id_sales
+						");
+						($cXp->num_rows() != 0) ? $xXxP = '<span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$cXp->row()->cnt.'</span>' : $xXxP = '';
+						// ISI
+						$html .= '<tr class="tr0">
+							<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px" colspan="2">
+								<input type="hidden" id="ts1" value="">
+								<button class="btn btn-xs ab1 b1-'.$s->id_sales.' btn-success" style="padding:1px 5px" onclick="btnPiuSales('."'".$s->id_sales."'".')">
+									<i style="font-size:8px" class="fas af1 f1-'.$s->id_sales.' fa-plus"></i>
+								</button>&nbsp
+								'.$s->nm_sales.$xCv.$xXxP.'
+							</td>
+							<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right"></td>
+							<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($s->jml_mutasi, 0, ',', '.').'</td>
+							<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuSalJt, 0, ',', '.').'</td>
+						</tr>';
+						// CUSTOMER
+						$cust = $this->db->query("SELECT s.id_sales,h.type,h.id_perusahaan,$se9 AS attn,$se1 AS nm_pelanggan,SUM(h.jml_mutasi) AS jml_mutasi FROM invoice_header h
+							$in1
+							INNER JOIN m_sales s ON p.id_sales=s.id_sales
+							WHERE h.jml_mutasi IS NOT NULL AND h.acc_owner='N' AND s.id_sales='$s->id_sales' $wh1
+							GROUP BY $se1,$se9,h.id_perusahaan
+						");
+						if($cust->num_rows() != 0){
+							foreach($cust->result() as $r){
+								// PIUTANG JT CUSTOMER
+								$piuCusJt = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
+									$in1
+									INNER JOIN m_sales s ON p.id_sales=s.id_sales
+									WHERE h.acc_owner='N' AND h.jml_mutasi IS NOT NULL $wh1
+									AND s.id_sales='$r->id_sales' AND h.id_perusahaan='$r->id_perusahaan' AND ((h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL) OR (h.status_inv='Open' AND h.img_mutasi IS NOT NULL))
+									GROUP BY s.id_sales,h.id_perusahaan
+								");
+								($piuCusJt->num_rows() != 0) ? $xPiuCusJt = $piuCusJt->row()->jml_mutasi_jt : $xPiuCusJt = 0;
+								// COUNT BELUM BAYAR PER CUST ALL
+								$c1 = $this->db->query("SELECT s.id_sales,COUNT(h.no_invoice) AS cnt FROM invoice_header h
+									$in1
+									INNER JOIN m_sales s ON p.id_sales=s.id_sales
+									WHERE s.id_sales='$s->id_sales' AND h.id_perusahaan='$r->id_perusahaan' AND h.jml_mutasi IS NOT NULL AND h.acc_owner='N' $wh1
+									AND NOT EXISTS (SELECT*FROM invoice_bayar b WHERE h.no_invoice=b.no_invoice)
+									GROUP BY s.id_sales
+								");
+								($c1->num_rows() != 0) ? $t1 = ' <span class="bg-light" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$c1->row()->cnt.'</span>' : $t1 = '';
+								// COUNT BELUM BAYAR PER CUST XP
+								$c2 = $this->db->query("SELECT s.id_sales,COUNT(h.no_invoice) AS cnt FROM invoice_header h
+									$in1
+									INNER JOIN m_sales s ON p.id_sales=s.id_sales
+									WHERE s.id_sales='$s->id_sales' AND h.id_perusahaan='$r->id_perusahaan' AND h.status_inv='Xp' AND h.jml_mutasi IS NOT NULL AND h.img_inv_terima IS NOT NULL AND h.acc_owner='N' $wh1
+									AND NOT EXISTS (SELECT*FROM invoice_bayar b WHERE h.no_invoice=b.no_invoice)
+									GROUP BY s.id_sales
+								");
+								($c2->num_rows() != 0) ? $t2 = '<span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$c2->row()->cnt.'</span>' : $t2 = '';
+								($r->attn == "-" || $r->attn == "") ? $atZ = '' : $atZ = '<div style="padding-left:25px">'.$r->attn.'</div>';
+								($r->type == 'roll') ? $pt1 = $r->id_perusahaan * 9 : $pt1 = $r->id_perusahaan;
+								// ISI
+								$html .= '<tr class="tr1 t'.$r->id_sales.'" style="display:none">
+									<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 15px" colspan="2">
+										<input type="hidden" id="ts2" value="">
+										<button class="btn btn-xs ab2 b2-'.$pt1.' btn-info" style="padding:1px 5px" onclick="btnPiuCustomer('."'".$pt1."'".')">
+											<i style="font-size:8px" class="fas af2 f2-'.$pt1.' fa-plus"></i>
+										</button>&nbsp
+										'.$r->nm_pelanggan.$t1.$t2.$atZ.'
+									</td>
+									<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right"></td>
+									<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($r->jml_mutasi, 0, ',', '.').'</td>
+									<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($xPiuCusJt, 0, ',', '.').'</td>
+								</tr>';
+								// NO INVOICE DAN SURAT JALAN
+								$noInvNoSj = $this->db->query("SELECT s.id_sales,h.id_perusahaan,h.type,h.status_inv,h.no_invoice,h.jml_mutasi,h.inp_inv_terima, DATEDIFF(SUBSTR(h.inp_inv_terima, 1, 10), CURDATE()) AS sisa_invd, DATEDIFF(h.tgl_jatuh_tempo , h.tgl_invoice) AS tempo FROM invoice_header h
+									$in1
+									INNER JOIN m_sales s ON p.id_sales=s.id_sales
+									WHERE h.acc_owner='N' AND h.jml_mutasi IS NOT NULL $wh1
+									AND s.id_sales='$r->id_sales' AND h.id_perusahaan='$r->id_perusahaan'
+									GROUP BY s.id_sales,h.id_perusahaan,h.no_invoice
+									ORDER BY h.tgl_invoice,h.no_invoice
+								");
+								if($noInvNoSj->num_rows() != 0){
+									$l = 0;
+									foreach($noInvNoSj->result() as $n){
+										$l++;
+										// PIUTANG JT NO INVOICE DAN SJ
+										$piuNoInvNoSj = $this->db->query("SELECT SUM(h.jml_mutasi) AS jml_mutasi_jt FROM invoice_header h
+											$in1
+											INNER JOIN m_sales s ON p.id_sales=s.id_sales
+											WHERE h.acc_owner='N' AND h.jml_mutasi IS NOT NULL $wh1
+											AND s.id_sales='$n->id_sales' AND h.id_perusahaan='$n->id_perusahaan' AND h.no_invoice='$n->no_invoice' AND ((h.status_inv='Xp' AND h.img_inv_terima IS NOT NULL) OR (h.status_inv='Open' AND h.img_mutasi IS NOT NULL))
+											GROUP BY s.id_sales,h.id_perusahaan,h.no_invoice
+										");
+										($piuNoInvNoSj->num_rows() != 0) ? $xPiuNoInvNoSj = $piuNoInvNoSj->row()->jml_mutasi_jt : $xPiuNoInvNoSj = 0;
+										// CARI NO. SURAT JALANNYA
+										$noSJ = $this->db->query("SELECT no_invoice,LTRIM(no_surat) AS no_surat FROM invoice_detail WHERE no_invoice='$n->no_invoice' GROUP BY no_invoice,LTRIM(no_surat)");
+										$xNoSj = '';
+										foreach($noSJ->result() as $j){
+											$xNoSj .= ' - '.$j->no_surat;
 										}
-										if($qPay->num_rows() == 0 && $sisaHari < 0){
-											$cekMutmut = ' <span class="bg-primary" style="vertical-align:top;padding:2px 4px;font-size:12px;border-radius:2px 0 0 2px">'.$n->tempo.'</span><span class="bg-dark" style="vertical-align:top;padding:2px 4px;font-size:12px;border-radius:0 2px 2px 0">+'.str_replace("-", "", $sisaHari). ' HARI</span>';
+										// TIPE DD
+										($n->type == 'roll') ? $pt2 = $n->id_perusahaan * 9 : $pt2 = $n->id_perusahaan;
+										// BTN SAKTI
+										if($lvl == 'Admin' || $uName == 'karina'){
+											$bSz = '<td style="padding:5px 10px">
+												<button class="btn btn-xs btn-primary" style="padding:1px 5px" onclick="accSakti('."'".$n->no_invoice."'".')">
+													<i style="font-size:8px" class="fas fa-check"></i>
+												</button>
+											</td>';
+										}else{
+											$bSz = '';
+										}
+										// MUTASI
+										$qPay = $this->db->query("SELECT*FROM invoice_bayar WHERE no_invoice='$n->no_invoice'");
+										if($n->status_inv == 'Xp'){
+											$sisaHari = $n->tempo + $n->sisa_invd;
+											if($sisaHari == 0){
+												$secondsDiffH = strtotime(substr($n->inp_inv_terima,0,10)) - time();
+												$daysH = floor($secondsDiffH/60/60/24);
+												$hoursH = floor(($secondsDiffH-($daysH*60*60*24))/60/60);
+												$minutesH = floor(($secondsDiffH-($daysH*60*60*24)-($hoursH*60*60))/60);
+												($hoursH == 0) ? $tHoursH = '' : $tHoursH = $hoursH.' Hrs | ';
+												($minutesH == 0) ? $tMinutesH = '' : $tMinutesH = $minutesH.' Mnt ';
+												$sisaHariH = $tHoursH.$tMinutesH;
+											}else{
+												$sisaHariH = $sisaHari.' HARI ';
+											}
+											if($qPay->num_rows() == 0 && $sisaHari < 0){
+												$cekMutmut = ' <span class="bg-primary" style="vertical-align:top;padding:2px 4px;font-size:12px;border-radius:2px 0 0 2px">'.$n->tempo.'</span><span class="bg-dark" style="vertical-align:top;padding:2px 4px;font-size:12px;border-radius:0 2px 2px 0">+'.str_replace("-", "", $sisaHari). ' HARI</span>';
+											}else{
+												$cekMutmut = '';
+											}
 										}else{
 											$cekMutmut = '';
 										}
-									}else{
-										$cekMutmut = '';
-									}
-
-									$html .= '<tr class="tr2 c'.$pt2.' m-2" style="display:none">
-										<td style="border:1px solid #aaa;border-width:1px 0 1px 1px;padding:5px 5px 5px 25px" colspan="2"><b>'.$l.'.</b> '.$n->no_invoice.$xNoSj.$cekMutmut.'</td>
-										<td style="border:1px solid #aaa;border-width:1px 0;padding:5px;text-align:right">'.number_format($n->jml_mutasi, 0, ',', '.').'</td>
-										<td style="border:1px solid #aaa;border-width:1px 1px 1px 0;padding:5px;text-align:right">'.number_format($xPiuNoInvNoSj, 0, ',', '.').'</td>
-										'.$bSz.'
-									</tr>';
-
-									if($qPay->num_rows() != 0){
-										$sumPay = 0;
-										foreach($qPay->result() as $p){
-											$e = explode('.', $p->file_mutasi);
-											$ext = end($e);
-											if($ext == 'pdf'){
-												$LinkM = '<a target="_blank" class="" href="'.base_url().'assets/gambar_inv_mutasi/'.$p->file_mutasi.'" title="PDF"><i style="color:#f6303d" class="far fa-file-pdf"></i></a>';
-											}else{
-												$LinkM = '<img id="'.$p->file_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$p->file_mutasi.'" alt="pay foto" width="100" class="shadow-sm" onclick="imgClick('."'".$p->file_mutasi."'".')">';
+										// TOTAL
+										$html .= '<tr class="tr2 c'.$pt2.' m-2" style="display:none">
+											<td style="border:1px solid #aaa;border-width:1px 0 1px 1px;padding:5px 5px 5px 25px" colspan="2"><b>'.$l.'.</b> '.$n->no_invoice.$xNoSj.$cekMutmut.'</td>
+											<td style="border:1px solid #aaa;border-width:1px 0;padding:5px;text-align:right"></td>
+											<td style="border:1px solid #aaa;border-width:1px 0;padding:5px;text-align:right">'.number_format($n->jml_mutasi, 0, ',', '.').'</td>
+											<td style="border:1px solid #aaa;border-width:1px 1px 1px 0;padding:5px;text-align:right">'.number_format($xPiuNoInvNoSj, 0, ',', '.').'</td>
+											'.$bSz.'
+										</tr>';
+										// PEMBAYARAN
+										if($qPay->num_rows() != 0){
+											$sumPay = 0;
+											foreach($qPay->result() as $p){
+												// $e = explode('.', $p->file_mutasi);
+												// $ext = end($e);
+												// if($ext == 'pdf'){
+												// 	$LinkM = '<a target="_blank" class="" href="'.base_url().'assets/gambar_inv_mutasi/'.$p->file_mutasi.'" title="PDF"><i style="color:#f6303d" class="far fa-file-pdf"></i></a>';
+												// }else{
+												// 	$LinkM = '<img id="'.$p->file_mutasi.'" src="'.base_url().'assets/gambar_inv_mutasi/'.$p->file_mutasi.'" alt="pay foto" width="100" class="shadow-sm" onclick="imgClick('."'".$p->file_mutasi."'".')">';
+												// }
+												// ($p->ket_byr == null || $p->ket_byr == '') ? $keT = '' : $keT = '<br>'.$p->ket_byr;
+												// <td style="border-left:1px solid #aaa;padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.$p->tgl_bayar.$keT.'</td>
+												// <td style="padding:5px;text-align:right">'.$LinkM.'</td>
+												$html .= '<tr class="tr2 c'.$pt2.' m-2" style="display:none">
+													<td style="padding:5px;border-left:1px solid #aaa" colspan="3"></td>
+													<td style="padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.number_format($p->jumlah, 0, ',', '.').'</td>
+													<td style="border-right:1px solid #aaa;padding:5px"></td>
+												</tr>';
+												$sumPay += $p->jumlah;
 											}
-											($p->ket_byr == null || $p->ket_byr == '') ? $keT = '' : $keT = '<br>'.$p->ket_byr;
-											// <td style="border-left:1px solid #aaa;padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.$p->tgl_bayar.$keT.'</td>
-											// <td style="padding:5px;text-align:right">'.$LinkM.'</td>
-											$html .= '<tr class="tr2 c'.$pt2.' m-2" style="display:none">
-												<td style="padding:5px;border-left:1px solid #aaa" colspan="2"></td>
-												<td style="padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.number_format($p->jumlah, 0, ',', '.').'</td>
-												<td style="border-right:1px solid #aaa;padding:5px"></td>
-											</tr>';
-											$sumPay += $p->jumlah;
-										}
-										// SELISIH
-										$hPay = $this->db->query("SELECT jml_mutasi FROM invoice_header WHERE no_invoice='$n->no_invoice'")->row();
-										$seLisiH = $sumPay - $hPay->jml_mutasi;
-										if($seLisiH < 0){
-											$html .= '<tr class="tr2 c'.$pt2.' m-2" style="display:none">
-												<td style="border-left:1px solid #aaa;padding:5px" colspan="2"></td>
-												<td style="border-top:2px solid #333;padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.number_format($seLisiH, 0, ',', '.').'</td>
-												<td style="border-right:1px solid #aaa;padding:5px"></td>
-											</tr>';
+											// SELISIH
+											$hPay = $this->db->query("SELECT jml_mutasi FROM invoice_header WHERE no_invoice='$n->no_invoice'")->row();
+											$seLisiH = $sumPay - $hPay->jml_mutasi;
+											if($seLisiH < 0){
+												$html .= '<tr class="tr2 c'.$pt2.' m-2" style="display:none">
+													<td style="border-left:1px solid #aaa;padding:5px" colspan="3"></td>
+													<td style="border-top:2px solid #333;padding:5px;font-weight:bold;font-style:italic;text-align:right;vertical-align:top">'.number_format($seLisiH, 0, ',', '.').'</td>
+													<td style="border-right:1px solid #aaa;padding:5px"></td>
+												</tr>';
+											}
 										}
 									}
 								}
 							}
 						}
+						$sumTot += $s->jml_mutasi;
+						$sumJet += $xPiuSalJt;
 					}
-					$sumTot += $s->jml_mutasi;
-					$sumJet += $xPiuSalJt;
-				}
-				// TOTAL
-				$html .= '<tr>
-					<td style="background:#ccc;padding:5px;border:1px solid #aaa" colspan="2"></td>
-					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumTot, 0, ',', '.').'</td>
-					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumJet, 0, ',', '.').'</td>
-				</tr>';
-			$html .= '</table>';
+					// TOTAL
+					$html .= '<tr>
+						<td style="background:#ccc;padding:5px;border:1px solid #aaa" colspan="2"></td>
+						<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right"></td>
+						<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumTot, 0, ',', '.').'</td>
+						<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumJet, 0, ',', '.').'</td>
+					</tr>';
+				$html .= '</table>';
+			}
 		}
-
 		echo $html;
 	}
 
@@ -6204,8 +6225,8 @@ class Logistik extends CI_Controller
 			$query = $this->db->query("SELECT h.*, DATEDIFF(SUBSTR(h.inp_inv_terima, 1, 10), CURDATE()) AS sisa_invd, DATEDIFF(h.tgl_jatuh_tempo , h.tgl_invoice) AS tempo
 			FROM invoice_header h
 			$wInn
-			WHERE YEAR(h.tgl_invoice) IN ('$thnn') $cek_bulan $tipe $wExp $wSales
-			-- WHERE h.no_invoice IN ('')
+			-- WHERE YEAR(h.tgl_invoice) IN ('$thnn') $cek_bulan $tipe $wExp $wSales
+			WHERE h.no_invoice IN ('FC/0626/08/2026', 'FA/3105/08/2026')
 			ORDER BY h.status_inv DESC, h.cek_global DESC, h.tgl_invoice DESC, h.no_invoice")->result();
 
 			$i               = 1;
