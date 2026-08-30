@@ -397,18 +397,19 @@
 				</div>
 				<div class="card-body row" style="font-weight:bold;padding:12px 0 3px">
 					<div class="col-md-1">TAHUN</div>
-					<div class="col-md-3">
+					<div class="col-md-2">
 						<select name="piu_tahun" id="piu_tahun" class="form-contorl select2" onchange="plhTahun()">
 							<option value="">PILIH</option>
 						</select>
 					</div>
-					<div class="col-md-8"></div>
+					<div class="col-md-9"></div>
 				</div>
 				<div class="card-body row" style="font-weight:bold;padding:3px 0">
 					<div class="col-md-1">BULAN</div>
-					<div class="col-md-3">
+					<div class="col-md-2">
 						<select name="piu_bulan" id="piu_bulan" class="form-contorl select2" disabled>
-							<option value="">PILIH</option>\
+							<option value="">PILIH</option>
+							<option value="ALL">SEMUA</option>
 							<option value="01">JANUARI</option>
 							<option value="02">FEBRUARI</option>
 							<option value="03">MARET</option>
@@ -423,14 +424,14 @@
 							<option value="12">DESEMBER</option>
 						</select>
 					</div>
-					<div class="col-md-8"></div>
+					<div class="col-md-9"></div>
 				</div>
 				<div class="card-body row" style="font-weight:bold;padding:3px 0">
 					<div class="col-md-1"></div>
-					<div class="col-md-3">
+					<div class="col-md-2">
 						<button type="button" class="btn btn-primary" onclick="listPiutang()"><i class="fas fa-search"></i></button>
 					</div>
-					<div class="col-md-8"></div>
+					<div class="col-md-9"></div>
 				</div>
 				<div class="card-body row" style="padding:12px 0 6px">
 					<div class="col-md-12">
@@ -1597,7 +1598,7 @@
 		$(".list_piutang").attr('style', '')
 		$(".tab_piutang").html('')
 		$("#piu_tahun").val('')
-		$("#piu_bulan").val('').prop("disabled", true)
+		$("#piu_bulan").val('').trigger('change').prop("disabled", true)
 		chPiuTahun()
 	}
 

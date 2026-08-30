@@ -3368,6 +3368,7 @@ class M_transaksi extends CI_Model
 		$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_dev='$id_dev'")->row();
 		$cek = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$sys->eta' AND urut='$urut' AND id_ex IS NOT NULL GROUP BY urut");
 		$cek2 = $this->db->query("SELECT*FROM trs_dev_klb WHERE tgl='$sys->eta' AND urut='$urut'");
+		$cek3 = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$sys->eta' AND urut='$sys->urut'");
 		// LOCK
 		$lock3D = date('Y-m-d', strtotime('+'.$sys->lock.' days', strtotime(date('Y-m-d'))));
 		$tglPilih = floor((strtotime($sys->eta) - strtotime($lock3D)) /60/60/24);
@@ -3381,6 +3382,8 @@ class M_transaksi extends CI_Model
 			$data = false; $msg = 'NO URUT SUDAH TERPAKAI!';
 		}else if($cek2->num_rows() != 0){
 			$data = false; $msg = 'NO. URUT '.$urut.' HAPUS DULU KUBIKASINYA!';
+		}else if($cek3->num_rows() != 0){
+			$data = false; $msg = 'LIST TERVERIFIKASI!';
 		}else{
 			$this->db->set('urut', $urut);
 			$this->db->where('id_dev', $id_dev);

@@ -379,8 +379,7 @@ class M_logistik extends CI_Model
 		$result_header = $this->db->insert('invoice_header', $data_header);
 		// CEK DRAFT
 		if($result_header){
-			$cekDraft = $this->db->query("SELECT*FROM invoice_draft_header WHERE no_invoice='$m_no_inv'");
-			($cekDraft->num_rows() == 0) ? $this->db->insert('invoice_draft_header', $data_header) : true;
+			$this->db->insert('invoice_draft_header', $data_header);
 		}
 
 		$db2              = $this->load->database('database_simroll', TRUE);
@@ -427,52 +426,12 @@ class M_logistik extends CI_Model
 					$result_rinci   = $this->db->insert("invoice_detail", $data);
 					// CEK DRAFT
 					if($result_rinci){
-						$cekDraft = $this->db->query("SELECT*FROM invoice_draft_detail WHERE no_invoice='$m_no_inv'");
-						($cekDraft->num_rows() == 0) ? $this->db->insert('invoice_draft_detail', $data) : true;
+						$this->db->insert('invoice_draft_detail', $data);
 					}
 				}
 				$no++;
 			}
 		}else{
-			// if ($tgl_sj >= '2024-07-01' )
-			// {
-			// 	if ($type == 'box')
-			// 	{				
-			// 		$where_po    = 'and d.kategori ="K_BOX"';
-			// 	}else{
-			// 		$where_po    = 'and d.kategori ="K_SHEET"';
-			// 	}
-				
-			// 	$query = $this->db->query("SELECT b.id as id_pl, sum(a.qty_muat) as qty, 'pcs' as qty_ket, b.tgl, b.id_perusahaan, c.nm_pelanggan as nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.nm_produk as item, 
-			// 	d.kualitas, d.ukuran as ukuran2,d.ukuran, d.flute, d.kategori, a.id_produk as id_produk_simcorr 
-			// 	FROM m_rencana_kirim a 
-			// 	JOIN pl_box b ON a.id_pl_box = b.id 
-			// 	JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan 
-			// 	JOIN m_produk d ON a.id_produk=d.id_produk 
-			// 	WHERE b.no_pl_inv = '0' AND b.tgl = '$tgl_sj' AND b.id_perusahaan='$id_perusahaan' $where_po 
-			// 	GROUP BY id_perusahaan, no_surat,no_po,a.id_produk
-			// 	ORDER BY b.tgl desc ")->result();
-
-			// }else{
-
-			// 	if ($type == 'box')
-			// 	{				
-			// 		$where_po    = 'and d.po ="box"';
-			// 	}else{
-			// 		$where_po    = 'and d.po is null';
-			// 	}
-
-			// 	// $query = $db2->query("SELECT b.id as id_pl, a.qty, a.qty_ket, b.tgl, b.id_perusahaan, c.nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.item, d.kualitas, d.ukuran2,d.ukuran, 
-			// 	// d.flute, d.po, a.id_produk_simcorr
-			// 	// FROM m_box a 
-			// 	// JOIN pl_box b ON a.id_pl = b.id 
-			// 	// LEFT JOIN m_perusahaan2 c ON b.id_perusahaan=c.id
-			// 	// JOIN po_box_master d ON b.no_po=d.no_po and a.ukuran=d.ukuran
-			// 	// WHERE b.no_pl_inv = '0' AND b.tgl = '$tgl_sj' AND b.id_perusahaan='$id_perusahaan' $where_po
-			// 	// ORDER BY b.tgl desc ")->result();
-
-			// }
-
 			$aksi                = $this->input->post('aksi');
 			$no_surat            = $this->input->post('no_surat');
 			$nm_ker              = $this->input->post('item');
@@ -515,8 +474,7 @@ class M_logistik extends CI_Model
 					$result_rinci   = $this->db->insert("invoice_detail", $data);
 					// CEK DRAFT
 					if($result_rinci){
-						$cekDraft = $this->db->query("SELECT*FROM invoice_draft_detail WHERE no_invoice='$m_no_inv'");
-						($cekDraft->num_rows() == 0) ? $this->db->insert('invoice_draft_detail', $data) : true;
+						$this->db->insert('invoice_draft_detail', $data);
 					}
 				}
 			}
@@ -3504,14 +3462,6 @@ class M_logistik extends CI_Model
 				'id' => $id_inv
 			)
 		);
-		// CEK DRAFT
-		if($result_header){
-			$cekDraft = $this->db->query("SELECT*FROM invoice_draft_header WHERE no_invoice='$no_inv_old'");
-			if($cekDraft->num_rows() != 0){
-				$this->db->where('no_invoice', $no_inv_old);
-				$this->db->update("invoice_draft_header", $data_header);
-			}
-		}
 
 		$cek_detail   = $this->db->query("SELECT*FROM invoice_header a
 		join invoice_detail b on a.no_invoice=b.no_invoice
@@ -3574,16 +3524,6 @@ class M_logistik extends CI_Model
 						'id' => $id_inv_detail
 					)
 				);
-				// CEK DRAFT
-				if($result_rinci){
-					$cekDraft = $this->db->query("SELECT*FROM invoice_draft_detail WHERE no_invoice='$no_inv_old'");
-					if($cekDraft->num_rows() != 0){
-						$this->db->where('no_invoice', $no_inv_old);
-						$this->db->where('no_surat', $no_surat1);
-						$this->db->where('id_pl', $id_pl_roll);
-						$this->db->update("invoice_draft_detail", $data);
-					}
-				}
 				$no++;
 			}
 		}else{
@@ -3626,16 +3566,6 @@ class M_logistik extends CI_Model
 						'id' => $id_inv_detail
 					)
 				);
-				// CEK DRAFT
-				if($result_rinci){
-					$cekDraft = $this->db->query("SELECT*FROM invoice_draft_detail WHERE no_invoice='$no_inv_old'");
-					if($cekDraft->num_rows() != 0){
-						$this->db->where('no_invoice', $no_inv_old);
-						$this->db->where('no_surat', $no_surat1);
-						$this->db->where('id_pl', $id_pl_roll);
-						$this->db->update("invoice_draft_detail", $data);
-					}
-				}
 
 				// HAPUS STOK
 				$cek_po = $this->db->query("SELECT * FROM trs_po a 
