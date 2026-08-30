@@ -395,6 +395,44 @@
 							<i class="fa fa-arrow-left"></i> Kembali</b>
 					</button>
 				</div>
+				<div class="card-body row" style="font-weight:bold;padding:12px 0 3px">
+					<div class="col-md-1">TAHUN</div>
+					<div class="col-md-2">
+						<select name="piu_tahun" id="piu_tahun" class="form-contorl select2" onchange="plhTahun()">
+							<option value="">PILIH</option>
+						</select>
+					</div>
+					<div class="col-md-9"></div>
+				</div>
+				<div class="card-body row" style="font-weight:bold;padding:3px 0">
+					<div class="col-md-1">BULAN</div>
+					<div class="col-md-2">
+						<select name="piu_bulan" id="piu_bulan" class="form-contorl select2" disabled>
+							<option value="">PILIH</option>
+							<option value="ALL">SEMUA</option>
+							<option value="01">JANUARI</option>
+							<option value="02">FEBRUARI</option>
+							<option value="03">MARET</option>
+							<option value="04">APRIL</option>
+							<option value="05">MEI</option>
+							<option value="06">JUNI</option>
+							<option value="07">JULI</option>
+							<option value="08">AGUSTUS</option>
+							<option value="09">SEPTEMBER</option>
+							<option value="10">OKTOBER</option>
+							<option value="11">NOVEMBER</option>
+							<option value="12">DESEMBER</option>
+						</select>
+					</div>
+					<div class="col-md-9"></div>
+				</div>
+				<div class="card-body row" style="font-weight:bold;padding:3px 0">
+					<div class="col-md-1"></div>
+					<div class="col-md-2">
+						<button type="button" class="btn btn-primary" onclick="listPiutang()"><i class="fas fa-search"></i></button>
+					</div>
+					<div class="col-md-9"></div>
+				</div>
 				<div class="card-body row" style="padding:12px 0 6px">
 					<div class="col-md-12">
 						<div style="overflow:auto;white-space:nowrap">
@@ -1558,14 +1596,43 @@
 		$(".row-input").attr('style', 'display:none')
 		$(".row-list").attr('style', 'display:none')
 		$(".list_piutang").attr('style', '')
-		listPiutang()
+		$(".tab_piutang").html('')
+		$("#piu_tahun").val('')
+		$("#piu_bulan").val('').trigger('change').prop("disabled", true)
+		chPiuTahun()
+	}
+
+	function plhTahun() {
+		let tahun = $("#piu_tahun").val()
+		// let bulan = $("#piu_bulan").val()
+		if(tahun == 'ALL'){
+			$("#piu_bulan").val('').trigger('change').prop("disabled", true)
+		}else{
+			$("#piu_bulan").prop("disabled", false)
+		}
+	}
+
+	function chPiuTahun() {
+		$("#piu_tahun").html('')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/chPiuTahun') ?>',
+			type: "POST",
+			success: function(res) {
+				data = JSON.parse(res)
+				console.log(data)
+				$("#piu_tahun").html(data.html)
+			}
+		})
 	}
 
 	function listPiutang() {
+		let tahun = $("#piu_tahun").val()
+		let bulan = $("#piu_bulan").val()
 		$(".tab_piutang").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/listPiutang') ?>',
 			type: "POST",
+			data : ({ tahun, bulan }),
 			beforeSend: function() {
 				swal({
 					title: 'Loading',
@@ -2166,8 +2233,9 @@
 		var id_pl = $("#id_pl").val();
 		var pajak = $("#pajak").val();
 		var tgl_tempo = $("#tgl_tempo").val();
+		var bank = $("#bank").val();
 
-		if (tgl_inv == '' || tgl_sj == '' || id_pl == '' || pajak == '' || tgl_tempo == '') {
+		if (tgl_inv == '' || tgl_sj == '' || id_pl == '' || pajak == '' || tgl_tempo == '' || bank == '') {
 			swal.close();
 			swal({
 				title: "Cek Kembali",

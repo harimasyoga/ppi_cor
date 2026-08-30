@@ -377,13 +377,16 @@ class M_logistik extends CI_Model
 		);
 	
 		$result_header = $this->db->insert('invoice_header', $data_header);
+		// CEK DRAFT
+		if($result_header){
+			$this->db->insert('invoice_draft_header', $data_header);
+		}
 
 		$db2              = $this->load->database('database_simroll', TRUE);
 		$tgl_sj           = $this->input->post('tgl_sj');
 		$id_perusahaan    = $this->input->post('id_perusahaan');
 
-		if ($type == 'roll')
-		{
+		if ($type == 'roll'){
 			$query = $db2->query("SELECT c.nm_perusahaan,a.id_pl,b.id,a.nm_ker,a.g_label,a.width,COUNT(a.roll) AS qty,SUM(weight)-SUM(seset) AS weight,b.no_po,b.no_po_sj,b.no_surat
 			FROM m_timbangan a 
 			INNER JOIN pl b ON a.id_pl = b.id 
@@ -393,16 +396,13 @@ class M_logistik extends CI_Model
 			ORDER BY a.g_label,b.no_surat,b.no_po,a.nm_ker DESC,a.g_label,a.width ")->result();
 
 			$no = 1;
-			foreach ( $query as $row ) 
-			{
-
+			foreach ( $query as $row ) {
 				$cek = $this->input->post('aksi['.$no.']');
 				if($cek == 1)
 				{
 					$harga_ok    = $this->input->post('hrg['.$no.']');
 					$harga_inc   = $this->input->post('inc['.$no.']');
 					$harga_inc1  = str_replace('.','',$harga_inc);
-
 					$hasil_ok    = $this->input->post('hasil['.$no.']');
 					$id_pl_roll  = $this->input->post('id_pl_roll['.$no.']');
 					$data = [					
@@ -422,54 +422,16 @@ class M_logistik extends CI_Model
 						'hasil'        => str_replace('.','',$hasil_ok),
 						'no_po'        => $this->input->post('no_po['.$no.']'),
 					];
-
-					$update_no_pl   = $db2->query("UPDATE pl set no_pl_inv = 1 where id ='$id_pl_roll'");
-
+					$db2->query("UPDATE pl set no_pl_inv = 1 where id ='$id_pl_roll'");
 					$result_rinci   = $this->db->insert("invoice_detail", $data);
-
+					// CEK DRAFT
+					if($result_rinci){
+						$this->db->insert('invoice_draft_detail', $data);
+					}
 				}
 				$no++;
 			}
 		}else{
-			if ($tgl_sj >= '2024-07-01' )
-			{
-				if ($type == 'box')
-				{				
-					$where_po    = 'and d.kategori ="K_BOX"';
-				}else{
-					$where_po    = 'and d.kategori ="K_SHEET"';
-				}
-				
-				$query = $this->db->query("SELECT b.id as id_pl, sum(a.qty_muat) as qty, 'pcs' as qty_ket, b.tgl, b.id_perusahaan, c.nm_pelanggan as nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.nm_produk as item, 
-				d.kualitas, d.ukuran as ukuran2,d.ukuran, d.flute, d.kategori, a.id_produk as id_produk_simcorr 
-				FROM m_rencana_kirim a 
-				JOIN pl_box b ON a.id_pl_box = b.id 
-				JOIN m_pelanggan c ON a.id_pelanggan=c.id_pelanggan 
-				JOIN m_produk d ON a.id_produk=d.id_produk 
-				WHERE b.no_pl_inv = '0' AND b.tgl = '$tgl_sj' AND b.id_perusahaan='$id_perusahaan' $where_po 
-				GROUP BY id_perusahaan, no_surat,no_po,a.id_produk
-				ORDER BY b.tgl desc ")->result();
-
-			}else{
-
-				if ($type == 'box')
-				{				
-					$where_po    = 'and d.po ="box"';
-				}else{
-					$where_po    = 'and d.po is null';
-				}
-
-				// $query = $db2->query("SELECT b.id as id_pl, a.qty, a.qty_ket, b.tgl, b.id_perusahaan, c.nm_perusahaan, b.no_surat, b.no_po, b.no_kendaraan, d.item, d.kualitas, d.ukuran2,d.ukuran, 
-				// d.flute, d.po, a.id_produk_simcorr
-				// FROM m_box a 
-				// JOIN pl_box b ON a.id_pl = b.id 
-				// LEFT JOIN m_perusahaan2 c ON b.id_perusahaan=c.id
-				// JOIN po_box_master d ON b.no_po=d.no_po and a.ukuran=d.ukuran
-				// WHERE b.no_pl_inv = '0' AND b.tgl = '$tgl_sj' AND b.id_perusahaan='$id_perusahaan' $where_po
-				// ORDER BY b.tgl desc ")->result();
-
-			}
-			
 			$aksi                = $this->input->post('aksi');
 			$no_surat            = $this->input->post('no_surat');
 			$nm_ker              = $this->input->post('item');
@@ -478,10 +440,8 @@ class M_logistik extends CI_Model
 			$qty                 = $this->input->post('qty');
 			$retur_qty           = $this->input->post('retur_qty');
 			$no_po               = $this->input->post('no_po');
-
 			$harga_ok            = $this->input->post('hrg');
-			$harga_inc           = $this->input->post('inc');		
-
+			$harga_inc           = $this->input->post('inc');
 			$hasil_ok            = $this->input->post('hasil');
 			$id_pl_roll          = $this->input->post('id_pl_roll');
 			$no_po               = $this->input->post('no_po');
@@ -489,11 +449,7 @@ class M_logistik extends CI_Model
 
 			foreach ($aksi as $no => $val) {
 				if ($aksi[$no] == 1) {
-						
-					// $harga_inc1 = str_replace('.','',$harga_inc[$no]);
-
 					$data = [
-						
 						'no_invoice'          => $m_no_inv,
 						'type'                => $type,
 						'id_produk_simcorr'   => $id_produk_simcorr[$no],
@@ -510,62 +466,18 @@ class M_logistik extends CI_Model
 						'no_po'               => $no_po[$no],
 					];
 
-					if ($tgl_sj >= '2024-07-01' )
-					{
-						$update_no_pl   = $this->db->query("UPDATE pl_box set no_pl_inv = 1 where id ='$id_pl_roll[$no]'");
+					if ($tgl_sj >= '2024-07-01' ) {
+						$this->db->query("UPDATE pl_box set no_pl_inv = 1 where id ='$id_pl_roll[$no]'");
 					}else{
-						$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 1 where id ='$id_pl_roll[$no]'");
+						$db2->query("UPDATE pl_box set no_pl_inv = 1 where id ='$id_pl_roll[$no]'");
 					}
-					
-
 					$result_rinci   = $this->db->insert("invoice_detail", $data);
+					// CEK DRAFT
+					if($result_rinci){
+						$this->db->insert('invoice_draft_detail', $data);
+					}
 				}
 			}
-
-			// $no = 1;
-			// foreach ( $query as $row ) 
-			// {
-			// 	$cek = $this->input->post('aksi['.$no.']');
-			// 	if($cek == 1)
-			// 	{
-			// 		$harga_ok            = $this->input->post('hrg['.$no.']');
-			// 		$harga_inc           = $this->input->post('inc['.$no.']');
-			// 		$harga_inc1          = str_replace('.','',$harga_inc);
-
-			// 		$hasil_ok            = $this->input->post('hasil['.$no.']');
-			// 		$id_pl_roll          = $this->input->post('id_pl_roll['.$no.']');
-			// 		$no_po               = $this->input->post('no_po['.$no.']');
-			// 		$id_produk_simcorr   = $this->input->post('id_produk_simcorr['.$no.']');
-			// 		$data = [
-			// 			'no_invoice'          => $m_no_inv,
-			// 			'type'                => $type,
-			// 			'no_surat'            => $this->input->post('no_surat['.$no.']'),
-			// 			'nm_ker'              => $this->input->post('item['.$no.']'),
-			// 			'id_produk_simcorr'   => $id_produk_simcorr,
-			// 			'g_label'             => $this->input->post('ukuran['.$no.']'),
-			// 			'kualitas'            => $this->input->post('kualitas['.$no.']'),
-			// 			'qty'                 => $this->input->post('qty['.$no.']'),
-			// 			'retur_qty'           => $this->input->post('retur_qty['.$no.']'),
-			// 			'id_pl'               => $id_pl_roll,
-			// 			'harga'               => str_replace('.','',$harga_ok),
-			// 			'include'             => str_replace(',','.',$harga_inc1),
-			// 			'hasil'               => str_replace('.','',$hasil_ok),
-			// 			'no_po'               => $this->input->post('no_po['.$no.']'),
-			// 		];
-
-			// 		if ($tgl_sj >= '2024-07-01' )
-			// 		{
-			// 			$update_no_pl   = $this->db->query("UPDATE pl_box set no_pl_inv = 1 where id ='$id_pl_roll'");
-			// 		}else{
-			// 			$update_no_pl   = $db2->query("UPDATE pl_box set no_pl_inv = 1 where id ='$id_pl_roll'");
-			// 		}
-					
-
-			// 		$result_rinci   = $this->db->insert("invoice_detail", $data);
-
-			// 	}
-			// 	$no++;
-			// }
 		}
 
 		if($result_rinci){
@@ -573,9 +485,7 @@ class M_logistik extends CI_Model
 			return $query->id;
 		}else{
 			return 0;
-
 		}
-			
 	}
 	
 	function save_byr_invoice()
@@ -3579,44 +3489,41 @@ class M_logistik extends CI_Model
 
 		$query = $this->db->query("SELECT *FROM invoice_detail where no_invoice='$no_inv_old' ")->result();
 
-		if ($type == 'roll')
-		{
+		if ($type == 'roll') {
 			$no = 1;
-			foreach ( $query as $row ) 
-			{
+			foreach ( $query as $row ) {
+				$harga_ok        = $this->input->post('hrg['.$no.']');
+				$hasil_ok        = $this->input->post('hasil['.$no.']');
+				$harga_inc       = $this->input->post('inc['.$no.']');
+				$harga_inc1      = str_replace('.','',$harga_inc);
 
-					$harga_ok        = $this->input->post('hrg['.$no.']');
-					$hasil_ok        = $this->input->post('hasil['.$no.']');
-					$harga_inc       = $this->input->post('inc['.$no.']');
-					$harga_inc1      = str_replace('.','',$harga_inc);
+				$no_surat1       = $this->input->post('no_surat['.$no.']');
+				$seset_ok        = $this->input->post('seset['.$no.']');
+				$id_pl_roll      = $this->input->post('id_pl_roll['.$no.']');
+				$id_inv_detail   = $this->input->post('id_inv_detail['.$no.']');
+				$data = [					
+					'no_invoice'   => $m_no_inv,
+					'type'         => $type,
+					'no_surat'     => $this->input->post('no_surat['.$no.']'),
+					'nm_ker'       => $this->input->post('nm_ker['.$no.']'),
+					'g_label'      => $this->input->post('g_label['.$no.']'),
+					'width'        => $this->input->post('width['.$no.']'),
+					'qty'          => $this->input->post('qty['.$no.']'),
+					'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
+					'id_pl'        => $id_pl_roll,
+					'harga'        => str_replace('.','',$harga_ok),
+					'include'      => str_replace(',','.',$harga_inc1),
+					'weight'       => $this->input->post('weight['.$no.']'),
+					'seset'        => str_replace('.','',$seset_ok),
+					'hasil'        => str_replace('.','',$hasil_ok),
+					'no_po'        => $this->input->post('no_po['.$no.']'),
+				];
 
-					$seset_ok        = $this->input->post('seset['.$no.']');
-					$id_pl_roll      = $this->input->post('id_pl_roll['.$no.']');
-					$id_inv_detail   = $this->input->post('id_inv_detail['.$no.']');
-					$data = [					
-						'no_invoice'   => $m_no_inv,
-						'type'         => $type,
-						'no_surat'     => $this->input->post('no_surat['.$no.']'),
-						'nm_ker'       => $this->input->post('nm_ker['.$no.']'),
-						'g_label'      => $this->input->post('g_label['.$no.']'),
-						'width'        => $this->input->post('width['.$no.']'),
-						'qty'          => $this->input->post('qty['.$no.']'),
-						'retur_qty'    => $this->input->post('retur_qty['.$no.']'),
-						'id_pl'        => $id_pl_roll,
-						'harga'        => str_replace('.','',$harga_ok),
-						'include'      => str_replace(',','.',$harga_inc1),
-						'weight'       => $this->input->post('weight['.$no.']'),
-						'seset'        => str_replace('.','',$seset_ok),
-						'hasil'        => str_replace('.','',$hasil_ok),
-						'no_po'        => $this->input->post('no_po['.$no.']'),
-					];
-
-					$result_rinci = $this->db->update("invoice_detail", $data,
-						array(
-							'id' => $id_inv_detail
-						)
-					);
-
+				$result_rinci = $this->db->update("invoice_detail", $data,
+					array(
+						'id' => $id_inv_detail
+					)
+				);
 				$no++;
 			}
 		}else{
@@ -3630,6 +3537,7 @@ class M_logistik extends CI_Model
 				$harga_inc            = $this->input->post('inc['.$no.']');
 				$harga_inc1           = str_replace('.','',$harga_inc);
 
+				$no_surat1            = $this->input->post('no_surat['.$no.']');
 				$retur_qty_ok         = $this->input->post('retur_qty['.$no.']');
 				$id_pl_roll           = $this->input->post('id_pl_roll['.$no.']');
 				$id_inv_detail        = $this->input->post('id_inv_detail['.$no.']');
