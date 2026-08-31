@@ -1336,7 +1336,7 @@ class M_logistik extends CI_Model
 				}
 
 				$id_hub = $this->db->query("SELECT h.aka,p.* FROM trs_po p INNER JOIN m_hub h ON p.id_hub=h.id_hub WHERE p.kode_po='$r->rk_kode_po'")->row();
-				if($id_hub->id_hub != 7){
+				if($id_hub->id_hub != 7 && $tglNow < '2026-08-31'){
 					$no_surat = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
 					$no_so = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
 					$no_pkb = '000/'.$id_hub->aka.'/'.$blnRomami.'/'.substr(date('Y'),2,2);
@@ -1538,7 +1538,7 @@ class M_logistik extends CI_Model
 			$so = explode('/', $pl->no_so);
 			$pkb = explode('/', $pl->no_pkb);
 	
-			if($pl->id_hub != 7){
+			if($pl->id_hub != 7 && date('Y-m-d') < '2026-08-31'){
 				$noSJ = $no_surat.'/'.$sj[1].'/'.$sj[2].'/'.$sj[3];
 				$noSO = $no_surat.'/'.$so[1].'/'.$so[2].'/'.$so[3];
 				$noPKB = $no_surat.'/'.$pkb[1].'/'.$pkb[2].'/'.$pkb[3];

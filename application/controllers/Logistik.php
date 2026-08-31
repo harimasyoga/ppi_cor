@@ -14405,7 +14405,8 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
-	function printSuratJalan(){
+	function printSuratJalan()
+	{
         $jenis = $_GET['jenis'];
         $top = $_GET['top'];
         $ctk = $_GET['ctk'];
@@ -14431,7 +14432,7 @@ class Logistik extends CI_Controller
 		}
 
         // KOP
-		if($data_pl->id_hub != 7){
+		if($data_pl->id_hub != 7 && $data_pl->tgl < '2026-08-31'){
 			// HUB
 			($plKepada == "-" || $plKepada == "") ? $nm_pelanggan = $plAttn : $nm_pelanggan = $plKepada;
 			$html .= '<table style="font-size:12px;color:#000;border-collapse:collapse;width:100%;vertical-align:top;font-family:tahoma">
@@ -14577,7 +14578,7 @@ class Logistik extends CI_Controller
 
 		// ISI
 		// HUB
-		if($data_pl->id_hub != 7){
+		if($data_pl->id_hub != 7 && $data_pl->tgl < '2026-08-31'){
 			$html .= '<table cellspacing="0" style="font-size:12px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:tahoma">
 				<tr>
 					<th style="width:5% !important;height:15px"></th>
@@ -14639,7 +14640,7 @@ class Logistik extends CI_Controller
 				($data->flute == "BCF") ? $flute = 'BC' : $flute = $data->flute;
 
 				// HUB
-				if($data_pl->id_hub != 7){
+				if($data_pl->id_hub != 7 && $data_pl->tgl < '2026-08-31'){
 					$html .= '<tr>
 						<td style="border:1px solid #000;padding:5px 0">'.$no.'</td>
 						<td style="border:1px solid #000;padding:5px;text-align:left">'.$ukuran.'</td>
@@ -14691,7 +14692,7 @@ class Logistik extends CI_Controller
 			
 			// TOTAL
 			// HUB
-			if($data_pl->id_hub != 7){
+			if($data_pl->id_hub != 7 && $data_pl->tgl < '2026-08-31'){
 				$html .= '<tr>
 					<td style="border:1px solid #000;padding:5px 0" colspan="3">TOTAL</td>
 					<td style="border:1px solid #000;padding:5px 0">'.number_format($sumQty).'</td>
@@ -14711,7 +14712,7 @@ class Logistik extends CI_Controller
         // $html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:Arial !important">';
 
 			// HUB
-			if($data_pl->id_hub != 7){
+			if($data_pl->id_hub != 7 && $data_pl->tgl < '2026-08-31'){
 				$html .= '<table cellspacing="0" style="font-size:12px;color:#000;border-collapse:collapse;text-align:center;width:100%;font-family:tahoma">';
 				$html .= '<tr>
 					<th style="width:20% !important;height:15px"></th>
@@ -14817,7 +14818,11 @@ class Logistik extends CI_Controller
         if($ctk == '0') {
 			if($data_pl->id_hub != 7){
 				$this->m_logistik->insertSuratJalanJasa($data_pl->no_surat, 'cor');
-				$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
+				if($data_pl->tgl < '2026-08-31'){
+					$this->m_fungsi->newMpdf($judul, '', $html, 5, 5, 5, 5, 'P', 'A4', $judul.'.pdf');
+				}else{
+					$this->m_fungsi->newMpdf($judul, '', $html, 1, 10, 1, 10, 'P', 'A4', $judul.'.pdf');
+				}
 			}else{
 				$this->m_fungsi->newMpdf($judul, '', $html, 1, 10, 1, 10, 'P', 'A4', $judul.'.pdf');
 			}
