@@ -918,11 +918,20 @@ class M_logistik extends CI_Model
 					$this->db->set($hari2.'_stok_akhir', ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir);
 				}
 				$this->db->set($hari2.'_ket', ($ket == '') ? null : $ket);
-				$this->db->where('id_pelanggan', $r->id_pelanggan);
-				$this->db->where('id_produk', $r->id_produk);
-				$this->db->where('bulan', $bulan2);
-				$this->db->where('tahun', $tahun2);
-				$data = $this->db->update('m_gudang_v2');
+				// UPDATE JIKA ADA DATA / INSERT JIKA BELUM ADA DATA
+				if($gudang2->num_rows() == 0){
+					$this->db->set('id_pelanggan', $r->id_pelanggan);
+					$this->db->set('id_produk', $r->id_produk);
+					$this->db->set('bulan', $bulan2);
+					$this->db->set('tahun', $tahun2);
+					$data = $this->db->insert('m_gudang_v2');
+				}else{
+					$this->db->where('id_pelanggan', $r->id_pelanggan);
+					$this->db->where('id_produk', $r->id_produk);
+					$this->db->where('bulan', $bulan2);
+					$this->db->where('tahun', $tahun2);
+					$data = $this->db->update('m_gudang_v2');
+				}
 			}
 			$msg = 'BERHASIL!';
 		}
