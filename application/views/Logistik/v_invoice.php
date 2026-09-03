@@ -1619,7 +1619,6 @@
 			type: "POST",
 			success: function(res) {
 				data = JSON.parse(res)
-				console.log(data)
 				$("#piu_tahun").html(data.html)
 			}
 		})
@@ -1665,6 +1664,27 @@
 				});
 			},
 			data: ({ no_invoice }),
+			success: function(res) {
+				toastr.success(`<b>BERHASIL!</b>`)
+				listPiutang()
+			}
+		})
+	}
+
+	function btnLatestUpdate() {
+		$.ajax({
+			url: '<?php echo base_url('Logistik/btnLatestUpdate') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(res) {
 				toastr.success(`<b>BERHASIL!</b>`)
 				listPiutang()

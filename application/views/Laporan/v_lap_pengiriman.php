@@ -153,7 +153,7 @@
 								</select>
 							</div>
 						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px;<?= (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing'])) ? '' : 'display:none'; ?>">
+						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px;<?= (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing', 'Keuangan1'])) ? '' : 'display:none'; ?>">
 							<div class="col-md-2">STATUS PO</div>
 							<div class="col-md-10">
 								<select class="form-control select2" id="sts" onchange="plhOS()">
@@ -164,7 +164,7 @@
 								</select>
 							</div>
 						</div>
-						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px;<?= (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing'])) ? '' : 'display:none'; ?>">
+						<div class="card-body row" style="font-weight:bold;padding:0 6px 6px;<?= (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing', 'Keuangan1'])) ? '' : 'display:none'; ?>">
 							<div class="col-md-2">STATUS PENGIRIMAN</div>
 							<div class="col-md-10">
 								<select class="form-control select2" id="opsi" onchange="plhOS()">

@@ -918,11 +918,20 @@ class M_logistik extends CI_Model
 					$this->db->set($hari2.'_stok_akhir', ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir);
 				}
 				$this->db->set($hari2.'_ket', ($ket == '') ? null : $ket);
-				$this->db->where('id_pelanggan', $r->id_pelanggan);
-				$this->db->where('id_produk', $r->id_produk);
-				$this->db->where('bulan', $bulan2);
-				$this->db->where('tahun', $tahun2);
-				$data = $this->db->update('m_gudang_v2');
+				// UPDATE JIKA ADA DATA / INSERT JIKA BELUM ADA DATA
+				if($gudang2->num_rows() == 0){
+					$this->db->set('id_pelanggan', $r->id_pelanggan);
+					$this->db->set('id_produk', $r->id_produk);
+					$this->db->set('bulan', $bulan2);
+					$this->db->set('tahun', $tahun2);
+					$data = $this->db->insert('m_gudang_v2');
+				}else{
+					$this->db->where('id_pelanggan', $r->id_pelanggan);
+					$this->db->where('id_produk', $r->id_produk);
+					$this->db->where('bulan', $bulan2);
+					$this->db->where('tahun', $tahun2);
+					$data = $this->db->update('m_gudang_v2');
+				}
 			}
 			$msg = 'BERHASIL!';
 		}
@@ -4479,25 +4488,45 @@ class M_logistik extends CI_Model
 
 	function updateExpired()
 	{
-		// CEK MUTASI
-		$qInvoice = $this->db->query("SELECT h.*, DATEDIFF(h.tgl_jatuh_tempo, h.tgl_invoice) AS tempo, DATEDIFF(SUBSTRING(h.inp_inv_terima, 1, 10), CURDATE()) AS tempo_invd FROM invoice_header h
-		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.status_inv!='Xp' AND h.img_inv_terima IS NOT NULL AND h.img_mutasi IS NULL
+		// CEK MUTASI TAPI MASIH BELUM LUNAS
+		$qInvBayarBlmLunas = $this->db->query("SELECT h.* FROM invoice_header h
+		LEFT JOIN invoice_bayar p ON h.no_invoice=p.no_invoice
+		WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.status_inv!='Xp' AND h.acc_owner!='Y' AND h.img_inv_terima IS NOT NULL AND h.img_mutasi IS NOT NULL
+		AND (DATEDIFF(h.tgl_jatuh_tempo, h.tgl_invoice) + DATEDIFF(SUBSTRING(h.inp_inv_terima, 1, 10), CURDATE())) < '0' AND (h.jml_mutasi - p.jumlah) >= '0'
 		GROUP BY h.no_invoice");
-		if($qInvoice->num_rows() > 0){
-			foreach($qInvoice->result() as $invoice){
-				$sisa = $invoice->tempo + $invoice->tempo_invd;
-				if($sisa < 0){
-					$this->db->set("status_inv", 'Xp');
-					$this->db->set("cek_global", date('Y-m-d H:i:s'));
-					$this->db->where("id", $invoice->id);
-					$xMutasi = $this->db->update("invoice_header");
-				}else{
-					$xMutasi = true;
-				}
+		if($qInvBayarBlmLunas->num_rows() > 0){
+			foreach($qInvBayarBlmLunas->result() as $xbyx){
+				$this->db->set("status_inv", 'Xp');
+				$this->db->set("cek_global", date('Y-m-d H:i:s'));
+				$this->db->where("id", $xbyx->id);
+				$xByrInv = $this->db->update("invoice_header");
 			}
 		}else{
-			$xMutasi = true;
+			$xByrInv = true;
 		}
+
+		// CEK MUTASI
+		if($xByrInv){
+			$qInvoice = $this->db->query("SELECT h.*, DATEDIFF(h.tgl_jatuh_tempo, h.tgl_invoice) AS tempo, DATEDIFF(SUBSTRING(h.inp_inv_terima, 1, 10), CURDATE()) AS tempo_invd FROM invoice_header h
+			WHERE h.tgl_invoice BETWEEN '2025-07-01' AND '9999-01-01' AND h.status_inv!='Xp' AND h.img_inv_terima IS NOT NULL AND h.img_mutasi IS NULL
+			GROUP BY h.no_invoice");
+			if($qInvoice->num_rows() > 0){
+				foreach($qInvoice->result() as $invoice){
+					$sisa = $invoice->tempo + $invoice->tempo_invd;
+					if($sisa < 0){
+						$this->db->set("status_inv", 'Xp');
+						$this->db->set("cek_global", date('Y-m-d H:i:s'));
+						$this->db->where("id", $invoice->id);
+						$xMutasi = $this->db->update("invoice_header");
+					}else{
+						$xMutasi = true;
+					}
+				}
+			}else{
+				$xMutasi = true;
+			}
+		}
+
 
 		// CEK SURAT JALAN BALIK
 		if($xMutasi){
@@ -5159,6 +5188,21 @@ class M_logistik extends CI_Model
 
 		return [
 			'data' => $data,
+		];
+	}
+
+	function btnLatestUpdate()
+	{
+		$data = [
+			'jenis' => 'LAPORAN PIUTANG',
+			'user' => $this->session->userdata('username'),
+			'level' => $this->session->userdata('level'),
+			'update_at' => date("Y-m-d H:i:s"),
+		];
+		$latest = $this->db->insert("latest_update", $data);
+
+		return [
+			'data' => $latest,
 		];
 	}
 
