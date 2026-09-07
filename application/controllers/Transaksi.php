@@ -3408,20 +3408,23 @@ class Transaksi extends CI_Controller
 			$level   = $this->session->userdata('level');
 			$nm_user = $this->session->userdata('nm_user');
 			$id_sales = $this->session->userdata('id_sales');
+			$tahun = $_POST["tahun"];
+			($tahun == "ALL") ? $wTahun = '' : $wTahun = $tahun;
 			if($level == 'Hub') {
 				$cek     = $this->db->query("SELECT*FROM m_hub where nm_hub='$nm_user' ")->row();
-				$cek_data = "WHERE status_app3 in ('Y') and id_hub in ('$cek->id_hub')";
+				$cek_data = "AND status_app3 in ('Y') and id_hub in ('$cek->id_hub')";
 			}else{
 				if($id_sales == "" || $id_sales == null){
 					$cek_data = "";
 				}else{
-					$cek_data = "WHERE id_sales='$id_sales'";
+					$cek_data = "AND id_sales='$id_sales'";
 				}
 			}
 
-			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input,DATEDIFF(SUBSTRING(DATE_ADD(a.time_app3, INTERVAL a.expired_po DAY), 1, 10), CURDATE()) AS exp_po
-			FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by a.tgl_po desc, id desc")->result();
-			// $query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan WHERE a.kode_po='PO-AJIRM2026020159' order by a.tgl_po desc, id desc")->result();
+			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input,DATEDIFF(SUBSTRING(DATE_ADD(a.time_app3, INTERVAL a.expired_po DAY), 1, 10), CURDATE()) AS exp_po FROM trs_po a
+			JOIN m_pelanggan b ON a.id_pelanggan=b.id_pelanggan
+			WHERE a.tgl_po LIKE '%$wTahun%' $cek_data
+			ORDER BY a.tgl_po DESC, id DESC")->result();
 			$i = 1;
 			foreach ($query as $r) {
 				$row        = array();

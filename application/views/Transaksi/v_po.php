@@ -31,10 +31,30 @@
 				</div>
 			</div>
 			<div class="card-body">
-				<?php if (!in_array($this->session->userdata('level'), ['PPIC', 'Owner', 'Keuangan1', 'AP'])): ?>
-					<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info "><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
-				<?php endif ?>
-				<br><br>
+				<div style="margin:0 0 6px">
+					<?php if (!in_array($this->session->userdata('level'), ['PPIC', 'Owner', 'Keuangan1', 'AP'])): ?>
+						<button type="button" style="font-family:Cambria;" class="tambah_data btn  btn-info "><i class="fa fa-plus" ></i>&nbsp;&nbsp;<b>Tambah Data</b></button>
+					<?php endif ?>
+				</div>
+				<div class="card-body row" style="padding:0 0 6px;font-weight:bold">
+					<div class="col-md-2">
+						<?php
+							$thang = date("Y");
+							$qTahun = $this->db->query("SELECT YEAR(p.tgl_po) AS tahun FROM trs_po p GROUP BY YEAR(p.tgl_po)");
+						?>
+						<select id="rentang_thn" class="form-control select2" onchange="load_data()">
+							<option value="ALL">SEMUA</option>
+							<?php
+								foreach ($qTahun->result() as $t) {
+									($thang == $t->tahun) ? $xTx = 'selected' : $xTx = '';
+									?>
+									<option value="<?= $t->tahun ?>" <?= $xTx ?>><b><?= $t->tahun ?></b></option>
+								<?php }
+							?>
+						</select>
+					</div>
+					<div class="col-md-10"></div>
+				</div>
 				<div style="overflow:auto;white-space:nowrap">
 					<table id="datatable" class="table table-bordered table-striped table-scrollable" width="100%">
 						<thead class="color-tabel">
@@ -685,6 +705,7 @@
 	function load_data() 
 	{
 		var table = $('#datatable').DataTable();
+		let tahun = $('#rentang_thn').val();
 
 		table.destroy();
 
@@ -696,6 +717,7 @@
 			"ajax": {
 				"url": '<?= base_url(); ?>Transaksi/load_data/po',
 				"type": "POST",
+				data: ({ tahun }),
 				// data  : ({tanggal:tanggal,tanggal_akhir:tanggal_akhir,id_kategori:id_kategori1,id_sub_kategori:id_sub_kategori1}), 
 			},
 			"aLengthMenu": [
