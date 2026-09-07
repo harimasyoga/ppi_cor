@@ -294,7 +294,7 @@ class Laporan extends CI_Controller
 			$html .= '<table style="color:#000;border-collapse: collapse">';
 				$tglSlt = $tahun.'-'.$bulan.'-'.$hari;
 				$html .='<tr>
-					<td style="padding:0 0 6px;font-weight:bold" colspan="8">LATEST UPDATE : '.strtoupper($this->m_fungsi->getHariIni($tglSlt)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tglSlt)).'</td>
+					<td style="padding:0 0 6px;font-weight:bold" colspan="8">UPDATE TERAKHIR STOK: '.strtoupper($this->m_fungsi->getHariIni($tglSlt)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tglSlt)).'</td>
 				</tr>';
 				$html .= '<tr>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="5">SALES / CUSTOMER / ITEM / NO.PO</td>
