@@ -711,7 +711,7 @@ class M_logistik extends CI_Model
 				$out = str_replace('.', '', $_POST["out_".$r->id_produk]);
 				$outRtr = str_replace('.', '', $_POST["outrtr_".$r->id_produk]);
 				$ket = trim($_POST["ket_".$r->id_produk]);
-				$cek2 = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$r->id_produk'");
+				$cek2 = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$r->id_produk' ORDER BY id DESC LIMIT 1");
 				if($cek2->num_rows() == 0 && ($stok_awal != 0 || $in != 0 || $inRtr != 0 || $out != 0 || $outRtr != 0 || $stok_akhir != 0)){
 					$gudang = [
 						'id_pelanggan' => $id_pelanggan,
@@ -747,10 +747,11 @@ class M_logistik extends CI_Model
 						$this->db->set($hari.'_stok_akhir', ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir);
 					}
 					$this->db->set($hari.'_ket', ($ket == '') ? null : $ket);
-					$this->db->where('id_pelanggan', $id_pelanggan);
-					$this->db->where('id_produk', $r->id_produk);
-					$this->db->where('bulan', $bulan);
-					$this->db->where('tahun', $tahun);
+					$this->db->where('id', $cek2->row()->id);
+					// $this->db->where('id_pelanggan', $id_pelanggan);
+					// $this->db->where('id_produk', $r->id_produk);
+					// $this->db->where('bulan', $bulan);
+					// $this->db->where('tahun', $tahun);
 					$data = $this->db->update('m_gudang_v2');
 				}else{
 					$data = true;
@@ -887,7 +888,7 @@ class M_logistik extends CI_Model
 		}else if($gudang2->num_rows() != 0){
 			$data = false; $msg = 'DATA STOK GUDANG SUDAH ADA!';
 		}else{
-			$gudang = $this->db->query("SELECT i.nm_produk,g.* FROM m_gudang_v2 g
+			$gudang = $this->db->query("SELECT i.nm_produk,MAX(g.id) AS id_last,g.* FROM m_gudang_v2 g
 			INNER JOIN m_produk i ON g.id_produk=i.id_produk
 			WHERE g.bulan='$bulan' AND g.tahun='$tahun' $w1
 			GROUP BY g.id_produk ORDER BY i.nm_produk ASC");
@@ -919,17 +920,18 @@ class M_logistik extends CI_Model
 				}
 				$this->db->set($hari2.'_ket', ($ket == '') ? null : $ket);
 				// UPDATE JIKA ADA DATA / INSERT JIKA BELUM ADA DATA
-				if($gudang2->num_rows() == 0){
+				if($gudang2->num_rows() == 0 && $bulan != $bulan2){
 					$this->db->set('id_pelanggan', $r->id_pelanggan);
 					$this->db->set('id_produk', $r->id_produk);
 					$this->db->set('bulan', $bulan2);
 					$this->db->set('tahun', $tahun2);
 					$data = $this->db->insert('m_gudang_v2');
 				}else{
-					$this->db->where('id_pelanggan', $r->id_pelanggan);
-					$this->db->where('id_produk', $r->id_produk);
-					$this->db->where('bulan', $bulan2);
-					$this->db->where('tahun', $tahun2);
+					$this->db->where('id', $r->id_last);
+					// $this->db->where('id_pelanggan', $r->id_pelanggan);
+					// $this->db->where('id_produk', $r->id_produk);
+					// $this->db->where('bulan', $bulan2);
+					// $this->db->where('tahun', $tahun2);
 					$data = $this->db->update('m_gudang_v2');
 				}
 			}

@@ -12413,6 +12413,7 @@ class Logistik extends CI_Controller
 								$gudang = $this->db->query("SELECT*FROM m_gudang_v2 g
 								INNER JOIN m_produk p ON g.id_produk=p.id_produk
 								WHERE g.id_pelanggan='$p->id_pelanggan' $wA
+								GROUP BY g.id_pelanggan, g.id_produk
 								ORDER BY p.kategori,p.nm_produk");
 								$i = 0;
 								foreach($gudang->result() as $g){
@@ -12423,7 +12424,7 @@ class Logistik extends CI_Controller
 									(strlen($g->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
 
 									// AMBIL STOK AKHIR
-									$qq = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$g->id_pelanggan' AND id_produk='$g->id_produk' $wA");
+									$qq = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$g->id_pelanggan' AND id_produk='$g->id_produk' $wA ORDER BY id DESC LIMIT 1");
 									$vSkh = ($qq->row($hari.'_stok_akhir') == 0 || $qq->row($hari.'_stok_akhir') == null) ? 0 : $qq->row($hari.'_stok_akhir');
 									$vSk = ($qq->row($hari.'_stok_akhir') == 0 || $qq->row($hari.'_stok_akhir') == null) ? 0 : number_format($qq->row($hari.'_stok_akhir'),0,',','.');
 									$vTon = ($qq->row($hari.'_stok_akhir') == 0 || $qq->row($hari.'_stok_akhir') < 0) ? 0 : number_format($qq->row($hari.'_stok_akhir') * $g->berat_bersih,0,',','.');
@@ -12486,7 +12487,7 @@ class Logistik extends CI_Controller
 							<div class="card-body row" style="font-weight:bold;padding:6px">
 								<div class="col-md-2"></div>
 								<div class="col-md-10">
-									<button type="button" class="btn btn-primary" style="font-weight:bold" onclick="simpanGDListCorr()"><i class="fas fa-save"></i> SIMPAN</button>
+									<button type="button" class="btn btn-primary btn-lsave" style="font-weight:bold" onclick="simpanGDListCorr()"><i class="fas fa-save"></i> SIMPAN</button>
 								</div>
 							</div>
 						</div>';
