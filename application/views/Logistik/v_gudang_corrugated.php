@@ -161,7 +161,7 @@
 				</div>
 			</div>
 
-			<div class="row card-list-gudang2">
+			<!-- <div class="row card-list-gudang2">
 				<div class="col-md-12">
 					<div class="card card-primary card-outline" style="padding-bottom:12px">
 						<div class="card-header" style="padding:12px">
@@ -186,7 +186,7 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			</div> -->
 
 		</div>
 	</section>
@@ -652,6 +652,7 @@
 
 	function simpanGDListCorr()
 	{
+		$(".btn-lsave").prop('disabled', true)
 		$.ajax({
 			url: '<?php echo base_url('Logistik/simpanGDListCorr')?>',
 			type: "POST",
@@ -672,6 +673,7 @@
 					toastr.success('<b>BERHASIL!</b>');
 					loadGC()
 				}else{
+					$(".btn-lsave").prop('disabled', false)
 					toastr.error(`<b>${data.msg}</b>`);
 					swal.close()
 				}
