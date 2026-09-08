@@ -176,10 +176,106 @@ class Laporan extends CI_Controller
 		($id_sales == '' || $id_sales == null) ? $wIdSls = "" : $wIdSls = "AND s.id_sales='$id_sales'";
 		$lvl = $this->session->userdata('level');
 		$uName = $this->session->userdata('username');
-		$hari = date('d');
-		$bulan = date('m');
-		$tahun = date('Y');
-		$wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
+
+		$xB = date('m');
+		$xT = date('Y');
+		$xS = date('d').'_stok_akhir';
+		$x0 = $this->db->query("SELECT SUM($xS) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB' AND tahun='$xT' AND $xS IS NOT NULL");
+		if($x0->num_rows() == 0 || ($x0->num_rows() != 0 && $x0->row()->stok_akhir == null)){
+			// kurangi satu hari
+			$xH1 = date('d', strtotime('-1 days', strtotime(date('Y-m-d'))));
+			$xB1 = date('m', strtotime('-1 days', strtotime(date('Y-m-d'))));
+			$xT1 = date('Y', strtotime('-1 days', strtotime(date('Y-m-d'))));
+			$xS1 = $xH1.'_stok_akhir';
+			$x1 = $this->db->query("SELECT SUM($xS1) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB1' AND tahun='$xT1' AND $xS1 IS NOT NULL");
+			if($x1->num_rows() == 0 || ($x1->num_rows() != 0 && $x1->row()->stok_akhir == null)){
+				// kurangi dua hari
+				$xH2 = date('d', strtotime('-2 days', strtotime(date('Y-m-d'))));
+				$xB2 = date('m', strtotime('-2 days', strtotime(date('Y-m-d'))));
+				$xT2 = date('Y', strtotime('-2 days', strtotime(date('Y-m-d'))));
+				$xS2 = $xH2.'_stok_akhir';
+				$x2 = $this->db->query("SELECT SUM($xS2) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB2' AND tahun='$xT2' AND $xS2 IS NOT NULL");
+				if($x2->num_rows() == 0 || ($x2->num_rows() != 0 && $x2->row()->stok_akhir == null)){
+					// kurangi tiga hari
+					$xH3 = date('d', strtotime('-3 days', strtotime(date('Y-m-d'))));
+					$xB3 = date('m', strtotime('-3 days', strtotime(date('Y-m-d'))));
+					$xT3 = date('Y', strtotime('-3 days', strtotime(date('Y-m-d'))));
+					$xS3 = $xH3.'_stok_akhir';
+					$x3 = $this->db->query("SELECT SUM($xS3) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB3' AND tahun='$xT3' AND $xS3 IS NOT NULL");
+					if($x3->num_rows() == 0 || ($x3->num_rows() != 0 && $x3->row()->stok_akhir == null)){
+						// kurangi empat hari
+						$xH4 = date('d', strtotime('-4 days', strtotime(date('Y-m-d'))));
+						$xB4 = date('m', strtotime('-4 days', strtotime(date('Y-m-d'))));
+						$xT4 = date('Y', strtotime('-4 days', strtotime(date('Y-m-d'))));
+						$xS4 = $xH4.'_stok_akhir';
+						$x4 = $this->db->query("SELECT SUM($xS4) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB4' AND tahun='$xT4' AND $xS4 IS NOT NULL");
+						if($x4->num_rows() == 0 || ($x4->num_rows() != 0 && $x4->row()->stok_akhir == null)){
+							// kurangi lima hari
+							$xH5 = date('d', strtotime('-5 days', strtotime(date('Y-m-d'))));
+							$xB5 = date('m', strtotime('-5 days', strtotime(date('Y-m-d'))));
+							$xT5 = date('Y', strtotime('-5 days', strtotime(date('Y-m-d'))));
+							$xS5 = $xH5.'_stok_akhir';
+							$x5 = $this->db->query("SELECT SUM($xS5) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB5' AND tahun='$xT5' AND $xS5 IS NOT NULL");
+							if($x5->num_rows() == 0 || ($x5->num_rows() != 0 && $x5->row()->stok_akhir == null)){
+								// kurangi enam hari
+								$xH6 = date('d', strtotime('-6 days', strtotime(date('Y-m-d'))));
+								$xB6 = date('m', strtotime('-6 days', strtotime(date('Y-m-d'))));
+								$xT6 = date('Y', strtotime('-6 days', strtotime(date('Y-m-d'))));
+								$xS6 = $xH6.'_stok_akhir';
+								$x6 = $this->db->query("SELECT SUM($xS6) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB6' AND tahun='$xT6' AND $xS6 IS NOT NULL");
+								if($x6->num_rows() == 0 || ($x6->num_rows() != 0 && $x6->row()->stok_akhir == null)){
+									// kurangi tujuh hari
+									$xH7 = date('d', strtotime('-7 days', strtotime(date('Y-m-d'))));
+									$xB7 = date('m', strtotime('-7 days', strtotime(date('Y-m-d'))));
+									$xT7 = date('Y', strtotime('-7 days', strtotime(date('Y-m-d'))));
+									$xS7 = $xH7.'_stok_akhir';
+									$x7 = $this->db->query("SELECT SUM($xS7) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB7' AND tahun='$xT7' AND $xS7 IS NOT NULL");
+									if($x7->num_rows() == 0 || ($x7->num_rows() != 0 && $x7->row()->stok_akhir == null)){
+										$hari = date('d');
+										$bulan = date('m');
+										$tahun = date('Y');
+									}else{
+										$hari = $xH7;
+										$bulan = $xB7;
+										$tahun = $xT7;
+									}
+								}else{
+									$hari = $xH6;
+									$bulan = $xB6;
+									$tahun = $xT6;
+								}
+							}else{
+								$hari = $xH5;
+								$bulan = $xB5;
+								$tahun = $xT5;
+							}
+						}else{
+							$hari = $xH4;
+							$bulan = $xB4;
+							$tahun = $xT4;
+						}
+					}else{
+						$hari = $xH3;
+						$bulan = $xB3;
+						$tahun = $xT3;
+					}
+				}else{
+					$hari = $xH2;
+					$bulan = $xB2;
+					$tahun = $xT2;
+				}
+			}else{
+				$hari = $xH1;
+				$bulan = $xB1;
+				$tahun = $xT1;
+			}
+		}else{
+			$hari = date('d');
+			$bulan = date('m');
+			$tahun = date('Y');
+		}
+		$wA = 'AND '.$hari.'_stok_akhir IS NOT NULL';
+		// $wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
 		$html = '';
 
 		$sales = $this->db->query("SELECT s.nm_sales,s.id_sales FROM trs_po p
@@ -196,6 +292,10 @@ class Laporan extends CI_Controller
 
 		if($sales->num_rows() != 0){
 			$html .= '<table style="color:#000;border-collapse: collapse">';
+				$tglSlt = $tahun.'-'.$bulan.'-'.$hari;
+				$html .='<tr>
+					<td style="padding:0 0 6px;font-weight:bold" colspan="8">UPDATE TERAKHIR STOK: '.strtoupper($this->m_fungsi->getHariIni($tglSlt)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tglSlt)).'</td>
+				</tr>';
 				$html .= '<tr>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="5">SALES / CUSTOMER / ITEM / NO.PO</td>
 					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">STOK(pcs)</td>
@@ -337,7 +437,7 @@ class Laporan extends CI_Controller
 
 							// CEK STOK GUDANG PER CUSTOMER
 							$sumCUST = $hari.'_stok_akhir';
-							$qq2 = $this->db->query("SELECT SUM($sumCUST) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$r->id_pelanggan' GROUP BY tahun,bulan $wA");
+							$qq2 = $this->db->query("SELECT SUM($sumCUST) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$r->id_pelanggan' $wA GROUP BY tahun,bulan");
 							($qq2->num_rows() == 0) ? $cStok = '-' : $cStok = number_format($qq2->row()->stok_akhir,0,',','.');
 
 							// CEK CUSTOMER COUNT 7 HARI
@@ -514,28 +614,28 @@ class Laporan extends CI_Controller
 											$kirim = $this->m_fungsi->kiriman($n->kode_po, $n->id_produk, $n->qty);
 											$sisa = $kirim["sisa2"];
 											$bb = round($kirim["sisa2"] * $n->bb);
-											($sisa <= 0) ? $txtSisa = str_replace('-','+', number_format($sisa,0,',','.')) : $txtSisa = number_format($sisa,0,',','.');
+											($sisa <= 0) ? $txtSisa = str_replace('-','+',number_format($sisa,0,',','.')) : $txtSisa = number_format($sisa,0,',','.');
 											($sisa <= 0) ? $txtBB = 0 : $txtBB = number_format($bb,0,',','.');
-
 											// TIMER EXPIRED PO
 											if($n->expired_po != null && $n->status_app3 == 'Y'){
 												$dExp = date('Y-m-d', strtotime('+'.$n->expired_po.' days', strtotime(substr($n->time_app3,0,10))));
 												$dExpDiff = strtotime($dExp) - strtotime(date('Y-m-d'));
 												$dExpHari = floor($dExpDiff/60/60/24);
-												($dExpHari == 0) ? $dxDays = '' : $dxDays = ' '.$dExpHari.' DAY';
-												($dExpHari <= 0) ? $dXWaktu = 'BESOK EXPIRED' : $dXWaktu = $dxDays;
+												($dExpHari == 0) ? $dxDays = '' : $dxDays = ' '.$dExpHari.' HARI';
+												($dExpHari <= 0) ? $dXWaktu = 'BESOK EXPIRED' : $dXWaktu = '-'.$dxDays;
 												if($n->exp_po < 0){
-													$expPO = '<span style="color:#dc3545;font-weight:bold">[EXPIRED]</span>';
+													$txtExp = str_replace('-','+',$n->exp_po);
+													$expPO = '<span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:4px">'.$txtExp.' EXPIRED</span>';
 												}else{
-													$expPO = '<span style="color:#dc3545;font-weight:bold">'.$dXWaktu.'</span>';
+													($dExpHari <= 7) ? $tct = 'warning' : $tct = 'secondary';
+													$expPO = '<span class="bg-'.$tct.'" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:4px">'.$dXWaktu.'</span>';
 												}
 											}else{
 												$expPO = '';
 											}
-
 											$html .= '<tr class="tr3 n'.$n->id_produk.'" style="display:none">
 												<td style="background:#eee;border:1px solid #aaa;padding:5px 5px 5px 35px" colspan="5">
-													<b>'.$l.'.</b> '.$n->kode_po.' <span style="font-weight:bold;color:#3704ff">['.substr($n->time_app3,0,10).']</span> '.$expPO.'
+													<b>'.$l.'.</b> '.$n->kode_po.' <span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:4px">'.substr($n->time_app3,0,10).'</span> '.$expPO.'
 												</td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px"></td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$txtSisa.'</td>
