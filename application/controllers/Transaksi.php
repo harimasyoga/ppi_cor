@@ -10799,10 +10799,10 @@ class Transaksi extends CI_Controller
 					<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">QTY</th>
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">BB</th>
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
-					<th style="padding:6px;text-align:center;border:1px solid #bbb">OS(rt)</th>
-					<th style="padding:6px;text-align:center;border:1px solid #bbb">STOK(rt)</th>
-					<th style="padding:6px;text-align:center;border:1px solid #bbb">OS(plan)</th>
-					<th style="padding:6px;text-align:center;border:1px solid #bbb">STOK(plan)</th>
+					<th style="padding:6px;text-align:center;border:1px solid #bbb">OS <span style="font-size:13px;font-style:italic">(rt)</span></th>
+					<th style="padding:6px;text-align:center;border:1px solid #bbb">STOK <span style="font-size:13px;font-style:italic">(rt)</span></th>
+					<th style="padding:6px;text-align:center;border:1px solid #bbb">OS <span style="font-size:13px;font-style:italic">(plan)</span></th>
+					<th style="padding:6px;text-align:center;border:1px solid #bbb">STOK <span style="font-size:13px;font-style:italic">(plan)</span></th>
 					<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">K</th>';
 					if($aRK->num_rows() != 0){
 						$html .= '<th style="padding:6px;text-align:center;border:1px solid #bbb" colspan="6">REALISASI</th>';
@@ -11173,19 +11173,62 @@ class Transaksi extends CI_Controller
 						$kirim = $this->m_fungsi->kiriman($r->kode_po, $r->id_produk, $r->qty_po);
 						($kirim["sisa"] <= 0) ? $txtSisa = number_format(str_replace('-', '', $kirim["sisa"]),0,',','.') : $txtSisa = '+'.number_format($kirim["sisa"],0,',','.');
 						($kirim["sisa2"] <= 0) ? $cntKirim = 0 : $cntKirim = $kirim["sisa2"];
+						($kirim["tglAkhir"] != '') ? $kirAkh = '<div style="font-size:12px;font-style:italic">('.strtoupper($this->m_fungsi->tglIndSkt($kirim["tglAkhir"])).')</div>' : $kirAkh = '';
 
 						// HITUNG OS DAN STOK PLAN
-						// if($r->qty_plan >= $cntKirim && $cntSTOK >= $cntKirim){
-
-						// }else if($r->qty_plan <= $cntKirim && $cntSTOK >= $r->qty_plan){
-
-						// }else if($r->qty_plan >= $cntKirim && $cntSTOK <= $cntKirim){
-
-						// }else if($r->qty_plan <= $cntKirim && $cntSTOK <= $r->qty_plan){
-
-						// }else{
-
-						// }
+						if($tglNow <= 0){
+							$sys2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_po_header='$r->id_po_header' AND s.eta BETWEEN '$now' AND '9999-01-01' ORDER BY s.eta,s.urut");
+							$OSplan2 = 0;
+							$STOKplan2 = 0;
+							$txtOSplan = '';
+							$txtSTplan = '';
+							foreach($sys2->result() as $ky => $v){
+								// HITUNG OS DAN STOK PLAN
+								if($ky == 0) {
+									if($v->qty_plan >= $cntKirim && $cntSTOK >= $cntKirim){
+										$Sp1 = $cntKirim;
+									}else if($v->qty_plan <= $cntKirim && $cntSTOK >= $v->qty_plan){
+										$Sp1 = $v->qty_plan;
+									}else if($v->qty_plan >= $cntKirim && $cntSTOK <= $cntKirim){
+										$Sp1 = $cntSTOK;
+									}else if($v->qty_plan <= $cntKirim && $cntSTOK <= $v->qty_plan){
+										$Sp1 = $cntSTOK;
+									}else{
+										$Sp1 = 0;
+									}
+									$OSplan = $cntKirim;
+									$txtOSrt2 = '';
+									$txtSTOKrt2 = '';
+								}else{
+									$OSplan2 += $OSplan;
+								$STOKplan2 += $Sp1;
+									$OSplan = $cntKirim - $STOKplan2;
+									$OSrt2 = $cntKirim - $STOKplan2;
+									$STOKrt2 = $cntSTOK - $STOKplan2;
+									if($v->qty_plan >= $OSrt2 && $STOKrt2 >= $OSrt2){
+										$Sp1 = $OSrt2;
+									}else if($v->qty_plan <= $OSrt2 && $STOKrt2 >= $v->qty_plan){
+										$Sp1 = $v->qty_plan;
+									}else if($v->qty_plan >= $OSrt2 && $STOKrt2 <= $OSrt2){
+										$Sp1 = $STOKrt2;
+									}else if($v->qty_plan <= $OSrt2 && $STOKrt2 <= $v->qty_plan){
+										$Sp1 = $STOKrt2;
+									}else{
+										$Sp1 = 0;
+									}
+									$txtOSrt2 = '';
+									$txtSTOKrt2 = '<div style="font-style:italic">('.number_format($STOKrt2,0,",",".").')</div>';
+								}
+								// tampil data
+								if($v->id_dev == $r->id_dev){
+									$txtOSplan .= number_format($OSplan,0,",",".");
+									$txtSTplan .= number_format($Sp1,0,",",".");
+								}
+							}
+							$btnPlanDSS = ' <button type="button" class="btn btn-xs" onclick="planDSS('."'".$r->id_dev."'".')"><i class="fas fa-info-circle" style="color:#0047ab"></i></button>';
+						}else{
+							$txtOSplan = '-'; $txtSTplan = '-'; $btnPlanDSS = '';
+						}
 
 						$html .= '<tr style="vertical-align:top">
 							<td style="'.$dRP.'padding:6px;text-align:center">
@@ -11198,12 +11241,10 @@ class Transaksi extends CI_Controller
 							<td style="'.$dRP.'padding:6px;text-align:right">'.number_format($r->qty_plan, 0, ',', '.').'</td>
 							<td style="'.$dRP.'padding:6px;text-align:center">'.$r->berat_bersih.'</td>
 							<td style="'.$dRP.'padding:6px;text-align:right">'.number_format($r->berat, 0, ',', '.').'</td>
-							<td style="'.$dRP.'padding:6px;text-align:right;font-style:italic;font-weight:bold">'.$txtSisa.'</td>
+							<td style="'.$dRP.'padding:6px;text-align:right">'.$txtSisa.$kirAkh.'</td>
 							<td style="'.$dRP.'padding:6px;text-align:right">'.$txtSTOK.'</td>
-							<td style="'.$dRP.'padding:6px;text-align:right"></td>
-							<td style="'.$dRP.'padding:6px;text-align:right">
-								<button type="button" class="btn btn-secondary btn-xs" onclick="planDSS('."'".$r->id_dev."'".')">dtl</button>
-							</td>';
+							<td style="'.$dRP.'padding:6px;text-align:right">'.$txtOSplan.'</td>
+							<td style="'.$dRP.'padding:6px;text-align:right">'.$txtSTplan.$btnPlanDSS.'</td>';
 
 							// KALIBRASI
 							if($sys->num_rows() == 1 && $rkNull->num_rows() == 0 && $u->urut != 0 && ($u->id_ex == null || $u->id_ex != null)){
@@ -11361,45 +11402,39 @@ class Transaksi extends CI_Controller
 		$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$sys->id_po_header'")->row();
 
 		$html = '';
-		$html .= '<div>'.$sys->nm_pelanggan.$attn.'</div>';
-		$html .= '<div>'.$po_dtl->kode_po.'</div>';
-		$html .= '<div>'.$sys->nm_produk.'</div>';
-		$html .= '<div>'.$id_dev.'</div>';
+		$html .= '<div style="font-weight:bold">'.$sys->nm_pelanggan.$attn.'</div>';
+		$html .= '<div style="font-weight:bold">'.$po_dtl->kode_po.'</div>';
+		$html .= '<div style="font-weight:bold;margin-bottom:12px">'.$sys->nm_produk.'</div>';
+		// $html .= '<div>'.$id_dev.'</div>';
 
 		$html .= '<table>
-			<tr style="background:#dee2e6">
-				<td style="padding:6px;border:1px solid #bbb">TGL. MUAT</td>
+			<tr style="background:#dee2e6;font-weight:bold;text-align:center">
+				<td style="padding:6px;border:1px solid #bbb">HARI, TGL. MUAT</td>
 				<td style="padding:6px;border:1px solid #bbb">QTY</td>
 				<td style="padding:6px;border:1px solid #bbb">BB</td>
 				<td style="padding:6px;border:1px solid #bbb">TONASE</td>
-				<td style="padding:6px;border:1px solid #bbb">OS(rt)</td>
-				<td style="padding:6px;border:1px solid #bbb">STOK(rt)</td>
-				<td style="padding:6px;border:1px solid #bbb">OS(plan)</td>
-				<td style="padding:6px;border:1px solid #bbb">STOK(plan)</td>
+				<td style="padding:6px;border:1px solid #bbb">OS <span style="font-size:13px;font-style:italic">(rt)</span></td>
+				<td style="padding:6px;border:1px solid #bbb">STOK <span style="font-size:13px;font-style:italic">(rt)</span></td>
+				<td style="padding:6px;border:1px solid #bbb">OS <span style="font-size:13px;font-style:italic">(plan)</span></td>
+				<td style="padding:6px;border:1px solid #bbb">STOK <span style="font-size:13px;font-style:italic">(plan)</span></td>
 			</tr>';
 
-			// AND s.timb_tgl IS NULL AND s.timb_urut IS NULL
-			$sys2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_po_header='$sys->id_po_header' AND s.eta BETWEEN '$now' AND '9999-01-10' ORDER BY s.eta,s.urut");
+			$sys2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_po_header='$sys->id_po_header' AND s.eta BETWEEN '$now' AND '9999-01-01' ORDER BY s.eta,s.urut");
 			$OSrt2 = 0;
 			$STOKrt2 = 0;
 			$OSplan2 = 0;
 			$STOKplan2 = 0;
 			foreach($sys2->result() as $r => $v){
-
 				// PENGIRIMAN - OS
 				$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $v->id_produk, $v->qty_po);
 				($kirim["sisa"] <= 0) ? $txtSisa = number_format(str_replace('-', '', $kirim["sisa"]),0,',','.') : $txtSisa = '+'.number_format($kirim["sisa"],0,',','.');
 				($kirim["sisa2"] <= 0) ? $cntKirim = 0 : $cntKirim = $kirim["sisa2"];
-
 				// STOK
 				$xT = date('Y');
 				$xB = date('m');
 				$xS = date('d').'_stok_akhir';
-				// $x0 = $this->db->query("SELECT SUM($xS) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB' AND tahun='$xT' AND $xS IS NOT NULL");
-				// $wCS = $angka.'_stok_akhir';
 				$cekSTOK = $this->db->query("SELECT $xS AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xT' AND tahun='$xB' AND id_pelanggan='$v->id_pelanggan' AND id_produk='$v->id_produk' AND $xS IS NOT NULL ORDER BY id DESC LIMIT 1");
 				// UNTUK DATA HARI INI DAN HARI KEDEPAN AMBIL DATA TERAKHIR DI INPUT
-				// if($tglNow <= 0){
 				if($cekSTOK->num_rows() == 0){
 					// kurangi satu hari
 					$xH1 = date('d', strtotime('-1 days', strtotime(date('Y-m-d'))));
@@ -11475,12 +11510,6 @@ class Transaksi extends CI_Controller
 				}else{
 					$txtSTOK = number_format($cekSTOK->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $cekSTOK->row()->stok_akhir;
 				}
-				// }else{
-				// 	($cekSTOK->num_rows() == 0) ? $txtSTOK = '-' : $txtSTOK = number_format($cekSTOK->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $cekSTOK->row()->stok_akhir;
-				// }
-
-				$OSplan2 += $OSplan;
-				$STOKplan2 += $Sp1;
 
 				// HITUNG OS DAN STOK PLAN
 				if($r == 0) {
@@ -11496,8 +11525,11 @@ class Transaksi extends CI_Controller
 						$Sp1 = 0;
 					}
 					$OSplan = $cntKirim;
+					$txtOSrt2 = '';
+					$txtSTOKrt2 = '';
 				}else{
-					// $Sp1 = 0;
+					$OSplan2 += $OSplan;
+					$STOKplan2 += $Sp1;
 					$OSplan = $cntKirim - $STOKplan2;
 					$OSrt2 = $cntKirim - $STOKplan2;
 					$STOKrt2 = $cntSTOK - $STOKplan2;
@@ -11512,33 +11544,21 @@ class Transaksi extends CI_Controller
 					}else{
 						$Sp1 = 0;
 					}
+					$txtOSrt2 = '';
+					$txtSTOKrt2 = '<div style="font-style:italic">('.number_format($STOKrt2,0,",",".").')</div>';
 				}
 
-				// OSPLAN PERTAMA - DST
-				// if($r == 0) {
-					
-				// }else{
-					
-				// }
-
-				// BARIS 2 DAN SETERUSNYA
-				// OS(RT)
-				// if($r != 0){
-					
-				// }
-
-				$html .= '<tr>
-					<td style="border:1px solid #dee2e6;padding:6px">'.$v->eta.'</td>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($v->qty_plan,0,",",".").'</td>
-					<td style="border:1px solid #dee2e6;padding:6px">'.$v->bb.'</td>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($v->berat,0,",",".").'</td>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$txtSisa.'<div>('.$OSrt2.')</div></td>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$txtSTOK.'<div>('.$STOKrt2.')</div></td>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$OSplan.'</td>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$Sp1.'</td>
+				($v->id_dev == $id_dev) ? $bb = 'background:#eee;font-weight:bold;' : $bb = '';
+				$html .= '<tr style="vertical-align:top">
+					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px">'.substr(strtoupper($this->m_fungsi->getHariIni($v->eta)),0,3).', '.strtoupper($this->m_fungsi->tglIndSkt($v->eta)).'</td>
+					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($v->qty_plan,0,",",".").'</td>
+					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px">'.$v->bb.'</td>
+					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($v->berat,0,",",".").'</td>
+					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;text-align:right">'.$txtSisa.$txtOSrt2.'</td>
+					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;text-align:right">'.$txtSTOK.$txtSTOKrt2.'</td>
+					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;font-style:italic;text-align:right">'.number_format($OSplan,0,",",".").'</td>
+					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;font-style:italic;text-align:right">'.number_format($Sp1,0,",",".").'</td>
 				</tr>';
-
-				
 			}
 		$html .= '</table>';
 

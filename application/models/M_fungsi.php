@@ -982,18 +982,24 @@ class M_fungsi extends CI_Model {
 		$sumKirim = 0;
 		$sumRetur = 0;
 		if($kirim->num_rows() > 0){
+			$i = 0;
 			foreach($kirim->result() as $k){
+				$i++;
 				// RETUR
 				$retur = $this->db->query("SELECT*FROM m_rencana_kirim_retur WHERE rtr_tgl='$k->tgl' AND rtr_id_pelanggan='$k->id_pelanggan' AND rtr_id_produk='$k->id_produk' AND rtr_kode_po='$k->rk_kode_po' AND rtr_urut='$k->rk_urut'");
 				$sumKirim += $k->tot_muat;
 				$sumRetur += ($retur->num_rows() == 0) ? 0 : $retur->row()->rtr_jumlah;
+				($i == $kirim->num_rows()) ? $tglAkhir = $k->tgl : $tglAkhir = '';
 			}
+		}else{
+			$tglAkhir = '';
 		}
 		// PERHITUNGAN
 		$sisa = ($sumKirim - $sumRetur) - $qty_po;
 		$sisa2 = $qty_po - ($sumKirim - $sumRetur);
 
 		return [
+			'tglAkhir' => $tglAkhir,
 			'sumKirim' => $sumKirim,
 			'sumRetur' => $sumRetur,
 			'sisa' => $sisa,

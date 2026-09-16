@@ -275,16 +275,18 @@
 </div>
 
 <div class="modal fade" id="modalPlanDss">
-	<div class="modal-dialog modal-full">
+	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">PLAN</h4>
+				<h4 class="modal-title" style="font-weight:bold">PLAN</h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
 			<div class="modal-body" style="padding:12px">
-				<div id="modal-plan"></div>
+				<div style="overflow:auto;white-space:nowrap">
+					<div id="modal-plan"></div>
+				</div>
 			</div>
 		</div>
 	</div>
