@@ -274,6 +274,22 @@
 	</div>
 </div>
 
+<div class="modal fade" id="modalPlanDss">
+	<div class="modal-dialog modal-full">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">PLAN</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" style="padding:12px">
+				<div id="modal-plan"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="mymodal-img" class="modal-img">
 	<img class="modal-img-content" id="img01">
 </div>
@@ -284,6 +300,24 @@
 		loadCalender('')
 		loadRealCalender('')
 	});
+
+	function planDSS(id_dev){
+		$("#modal-plan").html(`. . .`)
+		$("#modalPlanDss").modal("show")
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/planDSS') ?>',
+			data: ({ tgl, tahun, bulan, id_dev }),
+			type: "POST",
+			success: function(res) {
+				data = JSON.parse(res)
+				$("#modal-plan").html(data.html)
+				$(".modal-open").css({"padding-right": "0"})
+			}
+		})
+	}
 
 	function accDSS(opsi, urut) {
 		$("#judul-detail").html('<b>'+opsi+'</b>')

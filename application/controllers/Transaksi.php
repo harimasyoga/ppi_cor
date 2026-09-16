@@ -10799,8 +10799,10 @@ class Transaksi extends CI_Controller
 					<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">QTY</th>
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">BB</th>
 					<th style="padding:6px;text-align:center;border:1px solid #bbb">TONASE</th>
-					<th style="padding:6px;text-align:center;border:1px solid #bbb">OS</th>
-					<th style="padding:6px;text-align:center;border:1px solid #bbb">STOK</th>
+					<th style="padding:6px;text-align:center;border:1px solid #bbb">OS(rt)</th>
+					<th style="padding:6px;text-align:center;border:1px solid #bbb">STOK(rt)</th>
+					<th style="padding:6px;text-align:center;border:1px solid #bbb">OS(plan)</th>
+					<th style="padding:6px;text-align:center;border:1px solid #bbb">STOK(plan)</th>
 					<th style="padding:6px 12px;text-align:center;border:1px solid #bbb">K</th>';
 					if($aRK->num_rows() != 0){
 						$html .= '<th style="padding:6px;text-align:center;border:1px solid #bbb" colspan="6">REALISASI</th>';
@@ -10849,7 +10851,7 @@ class Transaksi extends CI_Controller
 					if($u->urut == 0){
 						$html .= '<tr>
 							<td style="background:#333;color:#fff;padding:6px;font-weight:bold;text-align:center">'.$u->urut.'</td>
-							<td style="background:#333;padding:6px" colspan="10"></td>';
+							<td style="background:#333;padding:6px" colspan="12"></td>';
 							if($aRK->num_rows() != 0 && $cekRK->num_rows() != 0){
 								$html .= '<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">SURAT JALAN</td>
 								<td style="background:#333;color:#fff;text-align:center;font-weight:bold;padding:6px">QTY</td>
@@ -10932,7 +10934,7 @@ class Transaksi extends CI_Controller
 							}else{
 								$aksKet = 'disabled';
 							}
-							$html .= '<td style="background:#333;padding:6px" colspan="5">
+							$html .= '<td style="background:#333;padding:6px" colspan="7">
 								<input type="text" id="isiKet-'.$u->urut.'" style="background:none;border:0;padding:0;font-weight:bold;color:#fff;height:100%;width:100%" value="'.$u->ket_sys2.'" placeholder="KETERANGAN" autocomplete="off" '.$aksKet.'>
 							</td>';
 
@@ -11084,27 +11086,124 @@ class Transaksi extends CI_Controller
 						}
 
 						// STOK
-						$wCS = 'AND '.$angka.'_stok_akhir IS NOT NULL';
-						$cekSTOK = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$r->id_pelanggan' AND id_produk='$r->id_produk' $wCS");
-						($cekSTOK->num_rows() == 0) ? $txtSTOK = '-' : $txtSTOK = number_format($cekSTOK->row($angka.'_stok_akhir'), 0, ',', '.');
+						$wCS = $angka.'_stok_akhir';
+						$cekSTOK = $this->db->query("SELECT $wCS AS stok_akhir FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$r->id_pelanggan' AND id_produk='$r->id_produk' AND $wCS IS NOT NULL ORDER BY id DESC LIMIT 1");
+						// UNTUK DATA HARI INI DAN HARI KEDEPAN AMBIL DATA TERAKHIR DI INPUT
+						if($tglNow <= 0){
+							if($cekSTOK->num_rows() == 0){
+								// kurangi satu hari
+								$xH1 = date('d', strtotime('-1 days', strtotime(date('Y-m-d'))));
+								$xB1 = date('m', strtotime('-1 days', strtotime(date('Y-m-d'))));
+								$xT1 = date('Y', strtotime('-1 days', strtotime(date('Y-m-d'))));
+								$xS1 = $xH1.'_stok_akhir';
+								$x1 = $this->db->query("SELECT $xS1 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB1' AND tahun='$xT1' AND id_pelanggan='$r->id_pelanggan' AND id_produk='$r->id_produk' AND $xS1 IS NOT NULL ORDER BY id DESC LIMIT 1");
+								if($x1->num_rows() == 0 || ($x1->num_rows() != 0 && $x1->row()->stok_akhir == null)){
+									// kurangi dua hari
+									$xH2 = date('d', strtotime('-2 days', strtotime(date('Y-m-d'))));
+									$xB2 = date('m', strtotime('-2 days', strtotime(date('Y-m-d'))));
+									$xT2 = date('Y', strtotime('-2 days', strtotime(date('Y-m-d'))));
+									$xS2 = $xH2.'_stok_akhir';
+									$x2 = $this->db->query("SELECT $xS2 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB2' AND tahun='$xT2' AND id_pelanggan='$r->id_pelanggan' AND id_produk='$r->id_produk' AND $xS2 IS NOT NULL ORDER BY id DESC LIMIT 1");
+									if($x2->num_rows() == 0 || ($x2->num_rows() != 0 && $x2->row()->stok_akhir == null)){
+										// kurangi tiga hari
+										$xH3 = date('d', strtotime('-3 days', strtotime(date('Y-m-d'))));
+										$xB3 = date('m', strtotime('-3 days', strtotime(date('Y-m-d'))));
+										$xT3 = date('Y', strtotime('-3 days', strtotime(date('Y-m-d'))));
+										$xS3 = $xH3.'_stok_akhir';
+										$x3 = $this->db->query("SELECT $xS3 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB3' AND tahun='$xT3' AND id_pelanggan='$r->id_pelanggan' AND id_produk='$r->id_produk' AND $xS3 IS NOT NULL ORDER BY id DESC LIMIT 1");
+										if($x3->num_rows() == 0 || ($x3->num_rows() != 0 && $x3->row()->stok_akhir == null)){
+											// kurangi empat hari
+											$xH4 = date('d', strtotime('-4 days', strtotime(date('Y-m-d'))));
+											$xB4 = date('m', strtotime('-4 days', strtotime(date('Y-m-d'))));
+											$xT4 = date('Y', strtotime('-4 days', strtotime(date('Y-m-d'))));
+											$xS4 = $xH4.'_stok_akhir';
+											$x4 = $this->db->query("SELECT $xS4 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB4' AND tahun='$xT4' AND id_pelanggan='$r->id_pelanggan' AND id_produk='$r->id_produk' AND $xS4 IS NOT NULL ORDER BY id DESC LIMIT 1");
+											if($x4->num_rows() == 0 || ($x4->num_rows() != 0 && $x4->row()->stok_akhir == null)){
+												// kurangi lima hari
+												$xH5 = date('d', strtotime('-5 days', strtotime(date('Y-m-d'))));
+												$xB5 = date('m', strtotime('-5 days', strtotime(date('Y-m-d'))));
+												$xT5 = date('Y', strtotime('-5 days', strtotime(date('Y-m-d'))));
+												$xS5 = $xH5.'_stok_akhir';
+												$x5 = $this->db->query("SELECT $xS5 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB5' AND tahun='$xT5' AND id_pelanggan='$r->id_pelanggan' AND id_produk='$r->id_produk' AND $xS5 IS NOT NULL ORDER BY id DESC LIMIT 1");
+												if($x5->num_rows() == 0 || ($x5->num_rows() != 0 && $x5->row()->stok_akhir == null)){
+													// kurangi enam hari
+													$xH6 = date('d', strtotime('-6 days', strtotime(date('Y-m-d'))));
+													$xB6 = date('m', strtotime('-6 days', strtotime(date('Y-m-d'))));
+													$xT6 = date('Y', strtotime('-6 days', strtotime(date('Y-m-d'))));
+													$xS6 = $xH6.'_stok_akhir';
+													$x6 = $this->db->query("SELECT $xS6 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB6' AND tahun='$xT6' AND id_pelanggan='$r->id_pelanggan' AND id_produk='$r->id_produk' AND $xS6 IS NOT NULL ORDER BY id DESC LIMIT 1");
+													if($x6->num_rows() == 0 || ($x6->num_rows() != 0 && $x6->row()->stok_akhir == null)){
+														// kurangi tujuh hari
+														$xH7 = date('d', strtotime('-7 days', strtotime(date('Y-m-d'))));
+														$xB7 = date('m', strtotime('-7 days', strtotime(date('Y-m-d'))));
+														$xT7 = date('Y', strtotime('-7 days', strtotime(date('Y-m-d'))));
+														$xS7 = $xH7.'_stok_akhir';
+														$x7 = $this->db->query("SELECT $xS7 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB7' AND tahun='$xT7' AND id_pelanggan='$r->id_pelanggan' AND id_produk='$r->id_produk' AND $xS7 IS NOT NULL ORDER BY id DESC LIMIT 1");
+														if($x7->num_rows() == 0 || ($x7->num_rows() != 0 && $x7->row()->stok_akhir == null)){
+															$txtSTOK = '-'; $cntSTOK = 0;
+														}else{
+															$txtSTOK = number_format($x7->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x7->row()->stok_akhir;
+														}
+													}else{
+														$txtSTOK = number_format($x6->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x6->row()->stok_akhir;
+													}
+												}else{
+													$txtSTOK = number_format($x5->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x5->row()->stok_akhir;
+												}
+											}else{
+												$txtSTOK = number_format($x4->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x4->row()->stok_akhir;
+											}
+										}else{
+											$txtSTOK = number_format($x3->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x3->row()->stok_akhir;
+										}
+									}else{
+										$txtSTOK = number_format($x2->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x2->row()->stok_akhir;
+									}
+								}else{
+									$txtSTOK = number_format($x1->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x1->row()->stok_akhir;
+								}
+							}else{
+								$txtSTOK = number_format($cekSTOK->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $cekSTOK->row()->stok_akhir;
+							}
+						}else{
+							($cekSTOK->num_rows() == 0) ? $txtSTOK = '-' : $txtSTOK = number_format($cekSTOK->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $cekSTOK->row()->stok_akhir;
+						}
 
 						// PENGIRIMAN - OS
 						$kirim = $this->m_fungsi->kiriman($r->kode_po, $r->id_produk, $r->qty_po);
 						($kirim["sisa"] <= 0) ? $txtSisa = number_format(str_replace('-', '', $kirim["sisa"]),0,',','.') : $txtSisa = '+'.number_format($kirim["sisa"],0,',','.');
+						($kirim["sisa2"] <= 0) ? $cntKirim = 0 : $cntKirim = $kirim["sisa2"];
+
+						// HITUNG OS DAN STOK PLAN
+						// if($r->qty_plan >= $cntKirim && $cntSTOK >= $cntKirim){
+
+						// }else if($r->qty_plan <= $cntKirim && $cntSTOK >= $r->qty_plan){
+
+						// }else if($r->qty_plan >= $cntKirim && $cntSTOK <= $cntKirim){
+
+						// }else if($r->qty_plan <= $cntKirim && $cntSTOK <= $r->qty_plan){
+
+						// }else{
+
+						// }
 
 						$html .= '<tr style="vertical-align:top">
-							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>
+							<td style="'.$dRP.'padding:6px;text-align:center">
 								<input type="number" class="form-control" style="height:100%;width:30px;text-align:center;padding:4px" value="'.$r->urut.'" '.$och.'>
 							</td>
-							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$r->nm_pelanggan.$kota.$devStat.$tRP.$attn.'</td>
-							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>'.$lamaK.'</td>
-							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$r->kode_po.$devCls.'</td>
-							<td style="'.$dRP.'padding:6px" '.$rkRS.'>'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
-							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->qty_plan, 0, ',', '.').'</td>
-							<td style="'.$dRP.'padding:6px;text-align:center" '.$rkRS.'>'.$r->berat_bersih.'</td>
-							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.number_format($r->berat, 0, ',', '.').'</td>
-							<td style="'.$dRP.'padding:6px;text-align:right;font-style:italic;font-weight:bold" '.$rkRS.'>'.$txtSisa.'</td>
-							<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>'.$txtSTOK.'</td>';
+							<td style="'.$dRP.'padding:6px">'.$r->nm_pelanggan.$kota.$devStat.$tRP.$attn.'</td>
+							<td style="'.$dRP.'padding:6px;text-align:center">'.$lamaK.'</td>
+							<td style="'.$dRP.'padding:6px">'.$r->kode_po.$devCls.'</td>
+							<td style="'.$dRP.'padding:6px">'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
+							<td style="'.$dRP.'padding:6px;text-align:right">'.number_format($r->qty_plan, 0, ',', '.').'</td>
+							<td style="'.$dRP.'padding:6px;text-align:center">'.$r->berat_bersih.'</td>
+							<td style="'.$dRP.'padding:6px;text-align:right">'.number_format($r->berat, 0, ',', '.').'</td>
+							<td style="'.$dRP.'padding:6px;text-align:right;font-style:italic;font-weight:bold">'.$txtSisa.'</td>
+							<td style="'.$dRP.'padding:6px;text-align:right">'.$txtSTOK.'</td>
+							<td style="'.$dRP.'padding:6px;text-align:right"></td>
+							<td style="'.$dRP.'padding:6px;text-align:right">
+								<button type="button" class="btn btn-secondary btn-xs" onclick="planDSS('."'".$r->id_dev."'".')">dtl</button>
+							</td>';
 
 							// KALIBRASI
 							if($sys->num_rows() == 1 && $rkNull->num_rows() == 0 && $u->urut != 0 && ($u->id_ex == null || $u->id_ex != null)){
@@ -11115,11 +11214,11 @@ class Transaksi extends CI_Controller
 									$oKb2 = '';
 									$dkb2 = 'disabled';
 								}
-								$html .= '<td style="'.$dRP.'padding:6px;text-align:right" '.$rkRS.'>
+								$html .= '<td style="'.$dRP.'padding:6px;text-align:right">
 									<input type="number" class="form-control" '.$oKb2.' style="height:100%;width:55px;text-align:center;font-weight:bold;padding:2px 4px" value="'.$txtKLB.'" autocomplete="off" placeholder="0" '.$dkb2.'>
 								</td>';
 							}else{
-								$html .= '<td style="'.$dRP.'border-width:0 1px;padding:6px;text-align:right" '.$rkRS.'></td>';
+								$html .= '<td style="'.$dRP.'border-width:0 1px;padding:6px;text-align:right"></td>';
 							}
 
 							// REALISASI
@@ -11174,7 +11273,7 @@ class Transaksi extends CI_Controller
 								</td>
 								<td style="border:1px solid #ced2d6;padding:6px" colspan="2">'.$n->nm_pelanggan.'</td>
 								<td style="border:1px solid #ced2d6;padding:6px">'.$n->rk_kode_po.'</td>
-								<td style="border:1px solid #ced2d6;padding:6px" colspan="6">'.$nV1.$nk2.$n->nm_produk.$nV2.'</td>
+								<td style="border:1px solid #ced2d6;padding:6px" colspan="8">'.$nV1.$nk2.$n->nm_produk.$nV2.'</td>
 								<td style="border:1px solid #ced2d6;padding:6px;border-width:0 1px"></td>
 								<td style="background:#fdd;border:1px solid #dbb;padding:6px;font-weight:bold;text-align:center">'.$n->no_kendaraan.' ('.$n->expedisi.')</td>
 								<td style="background:#fdd;border:1px solid #dbb;padding:6px;font-weight:bold">'.$this->m_fungsi->tglIndSkt($n->rk_tgl).'</td>
@@ -11194,7 +11293,7 @@ class Transaksi extends CI_Controller
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="5">TOTAL</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right">'.number_format($totQty, 0, ',', '.').'</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold;text-align:right" colspan="2">'.number_format($totBerat, 0, ',', '.').'</td>
-							<td style="padding:6px;border:1px solid #bbb" colspan="2"></td>';
+							<td style="padding:6px;border:1px solid #bbb" colspan="4"></td>';
 							$html .= '<td style="padding:6px;border:1px solid #bbb;font-weight:bold">';
 								// KALIBRASI
 								if($u->urut != 0 && ($u->id_ex == null || $u->id_ex != null)){
@@ -11241,6 +11340,210 @@ class Transaksi extends CI_Controller
 			'htmlSJ' => $htmlSJ,
 			'tglRincian' => $tglRincian,
 			'tglRealRinc' => $tglRealRinc,
+		]);
+	}
+
+	function planDSS()
+	{
+		$id_dev = $_POST["id_dev"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$angka = $_POST["tgl"];
+		$tgl = $tahun.'-'.$bulan.'-'.$angka;
+		$now = date('Y-m-d');
+		$tglNow = strtotime($now) - strtotime($tgl);
+
+		$sys = $this->db->query("SELECT*FROM trs_dev_sys s
+		INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
+		INNER JOIN m_produk i ON s.id_produk=i.id_produk
+		WHERE s.id_dev='$id_dev'")->row();
+		($sys->attn == '-') ? $attn = '' : $attn = ' ( '.$sys->attn.' )';
+		$po_dtl = $this->db->query("SELECT*FROM trs_po_detail WHERE id='$sys->id_po_header'")->row();
+
+		$html = '';
+		$html .= '<div>'.$sys->nm_pelanggan.$attn.'</div>';
+		$html .= '<div>'.$po_dtl->kode_po.'</div>';
+		$html .= '<div>'.$sys->nm_produk.'</div>';
+		$html .= '<div>'.$id_dev.'</div>';
+
+		$html .= '<table>
+			<tr style="background:#dee2e6">
+				<td style="padding:6px;border:1px solid #bbb">TGL. MUAT</td>
+				<td style="padding:6px;border:1px solid #bbb">QTY</td>
+				<td style="padding:6px;border:1px solid #bbb">BB</td>
+				<td style="padding:6px;border:1px solid #bbb">TONASE</td>
+				<td style="padding:6px;border:1px solid #bbb">OS(rt)</td>
+				<td style="padding:6px;border:1px solid #bbb">STOK(rt)</td>
+				<td style="padding:6px;border:1px solid #bbb">OS(plan)</td>
+				<td style="padding:6px;border:1px solid #bbb">STOK(plan)</td>
+			</tr>';
+
+			// AND s.timb_tgl IS NULL AND s.timb_urut IS NULL
+			$sys2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_po_header='$sys->id_po_header' AND s.eta BETWEEN '$now' AND '9999-01-10' ORDER BY s.eta,s.urut");
+			$OSrt2 = 0;
+			$STOKrt2 = 0;
+			$OSplan2 = 0;
+			$STOKplan2 = 0;
+			foreach($sys2->result() as $r => $v){
+
+				// PENGIRIMAN - OS
+				$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $v->id_produk, $v->qty_po);
+				($kirim["sisa"] <= 0) ? $txtSisa = number_format(str_replace('-', '', $kirim["sisa"]),0,',','.') : $txtSisa = '+'.number_format($kirim["sisa"],0,',','.');
+				($kirim["sisa2"] <= 0) ? $cntKirim = 0 : $cntKirim = $kirim["sisa2"];
+
+				// STOK
+				$xT = date('Y');
+				$xB = date('m');
+				$xS = date('d').'_stok_akhir';
+				// $x0 = $this->db->query("SELECT SUM($xS) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB' AND tahun='$xT' AND $xS IS NOT NULL");
+				// $wCS = $angka.'_stok_akhir';
+				$cekSTOK = $this->db->query("SELECT $xS AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xT' AND tahun='$xB' AND id_pelanggan='$v->id_pelanggan' AND id_produk='$v->id_produk' AND $xS IS NOT NULL ORDER BY id DESC LIMIT 1");
+				// UNTUK DATA HARI INI DAN HARI KEDEPAN AMBIL DATA TERAKHIR DI INPUT
+				// if($tglNow <= 0){
+				if($cekSTOK->num_rows() == 0){
+					// kurangi satu hari
+					$xH1 = date('d', strtotime('-1 days', strtotime(date('Y-m-d'))));
+					$xB1 = date('m', strtotime('-1 days', strtotime(date('Y-m-d'))));
+					$xT1 = date('Y', strtotime('-1 days', strtotime(date('Y-m-d'))));
+					$xS1 = $xH1.'_stok_akhir';
+					$x1 = $this->db->query("SELECT $xS1 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB1' AND tahun='$xT1' AND id_pelanggan='$v->id_pelanggan' AND id_produk='$v->id_produk' AND $xS1 IS NOT NULL ORDER BY id DESC LIMIT 1");
+					if($x1->num_rows() == 0 || ($x1->num_rows() != 0 && $x1->row()->stok_akhir == null)){
+						// kurangi dua hari
+						$xH2 = date('d', strtotime('-2 days', strtotime(date('Y-m-d'))));
+						$xB2 = date('m', strtotime('-2 days', strtotime(date('Y-m-d'))));
+						$xT2 = date('Y', strtotime('-2 days', strtotime(date('Y-m-d'))));
+						$xS2 = $xH2.'_stok_akhir';
+						$x2 = $this->db->query("SELECT $xS2 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB2' AND tahun='$xT2' AND id_pelanggan='$v->id_pelanggan' AND id_produk='$v->id_produk' AND $xS2 IS NOT NULL ORDER BY id DESC LIMIT 1");
+						if($x2->num_rows() == 0 || ($x2->num_rows() != 0 && $x2->row()->stok_akhir == null)){
+							// kurangi tiga hari
+							$xH3 = date('d', strtotime('-3 days', strtotime(date('Y-m-d'))));
+							$xB3 = date('m', strtotime('-3 days', strtotime(date('Y-m-d'))));
+							$xT3 = date('Y', strtotime('-3 days', strtotime(date('Y-m-d'))));
+							$xS3 = $xH3.'_stok_akhir';
+							$x3 = $this->db->query("SELECT $xS3 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB3' AND tahun='$xT3' AND id_pelanggan='$v->id_pelanggan' AND id_produk='$v->id_produk' AND $xS3 IS NOT NULL ORDER BY id DESC LIMIT 1");
+							if($x3->num_rows() == 0 || ($x3->num_rows() != 0 && $x3->row()->stok_akhir == null)){
+								// kurangi empat hari
+								$xH4 = date('d', strtotime('-4 days', strtotime(date('Y-m-d'))));
+								$xB4 = date('m', strtotime('-4 days', strtotime(date('Y-m-d'))));
+								$xT4 = date('Y', strtotime('-4 days', strtotime(date('Y-m-d'))));
+								$xS4 = $xH4.'_stok_akhir';
+								$x4 = $this->db->query("SELECT $xS4 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB4' AND tahun='$xT4' AND id_pelanggan='$v->id_pelanggan' AND id_produk='$v->id_produk' AND $xS4 IS NOT NULL ORDER BY id DESC LIMIT 1");
+								if($x4->num_rows() == 0 || ($x4->num_rows() != 0 && $x4->row()->stok_akhir == null)){
+									// kurangi lima hari
+									$xH5 = date('d', strtotime('-5 days', strtotime(date('Y-m-d'))));
+									$xB5 = date('m', strtotime('-5 days', strtotime(date('Y-m-d'))));
+									$xT5 = date('Y', strtotime('-5 days', strtotime(date('Y-m-d'))));
+									$xS5 = $xH5.'_stok_akhir';
+									$x5 = $this->db->query("SELECT $xS5 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB5' AND tahun='$xT5' AND id_pelanggan='$v->id_pelanggan' AND id_produk='$v->id_produk' AND $xS5 IS NOT NULL ORDER BY id DESC LIMIT 1");
+									if($x5->num_rows() == 0 || ($x5->num_rows() != 0 && $x5->row()->stok_akhir == null)){
+										// kurangi enam hari
+										$xH6 = date('d', strtotime('-6 days', strtotime(date('Y-m-d'))));
+										$xB6 = date('m', strtotime('-6 days', strtotime(date('Y-m-d'))));
+										$xT6 = date('Y', strtotime('-6 days', strtotime(date('Y-m-d'))));
+										$xS6 = $xH6.'_stok_akhir';
+										$x6 = $this->db->query("SELECT $xS6 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB6' AND tahun='$xT6' AND id_pelanggan='$v->id_pelanggan' AND id_produk='$v->id_produk' AND $xS6 IS NOT NULL ORDER BY id DESC LIMIT 1");
+										if($x6->num_rows() == 0 || ($x6->num_rows() != 0 && $x6->row()->stok_akhir == null)){
+											// kurangi tujuh hari
+											$xH7 = date('d', strtotime('-7 days', strtotime(date('Y-m-d'))));
+											$xB7 = date('m', strtotime('-7 days', strtotime(date('Y-m-d'))));
+											$xT7 = date('Y', strtotime('-7 days', strtotime(date('Y-m-d'))));
+											$xS7 = $xH7.'_stok_akhir';
+											$x7 = $this->db->query("SELECT $xS7 AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB7' AND tahun='$xT7' AND id_pelanggan='$v->id_pelanggan' AND id_produk='$v->id_produk' AND $xS7 IS NOT NULL ORDER BY id DESC LIMIT 1");
+											if($x7->num_rows() == 0 || ($x7->num_rows() != 0 && $x7->row()->stok_akhir == null)){
+												$txtSTOK = '-'; $cntSTOK = 0;
+											}else{
+												$txtSTOK = number_format($x7->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x7->row()->stok_akhir;
+											}
+										}else{
+											$txtSTOK = number_format($x6->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x6->row()->stok_akhir;
+										}
+									}else{
+										$txtSTOK = number_format($x5->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x5->row()->stok_akhir;
+									}
+								}else{
+									$txtSTOK = number_format($x4->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x4->row()->stok_akhir;
+								}
+							}else{
+								$txtSTOK = number_format($x3->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x3->row()->stok_akhir;
+							}
+						}else{
+							$txtSTOK = number_format($x2->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x2->row()->stok_akhir;
+						}
+					}else{
+						$txtSTOK = number_format($x1->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $x1->row()->stok_akhir;
+					}
+				}else{
+					$txtSTOK = number_format($cekSTOK->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $cekSTOK->row()->stok_akhir;
+				}
+				// }else{
+				// 	($cekSTOK->num_rows() == 0) ? $txtSTOK = '-' : $txtSTOK = number_format($cekSTOK->row()->stok_akhir, 0, ',', '.'); $cntSTOK = $cekSTOK->row()->stok_akhir;
+				// }
+
+				$OSplan2 += $OSplan;
+				$STOKplan2 += $Sp1;
+
+				// HITUNG OS DAN STOK PLAN
+				if($r == 0) {
+					if($v->qty_plan >= $cntKirim && $cntSTOK >= $cntKirim){
+						$Sp1 = $cntKirim;
+					}else if($v->qty_plan <= $cntKirim && $cntSTOK >= $v->qty_plan){
+						$Sp1 = $v->qty_plan;
+					}else if($v->qty_plan >= $cntKirim && $cntSTOK <= $cntKirim){
+						$Sp1 = $cntSTOK;
+					}else if($v->qty_plan <= $cntKirim && $cntSTOK <= $v->qty_plan){
+						$Sp1 = $cntSTOK;
+					}else{
+						$Sp1 = 0;
+					}
+					$OSplan = $cntKirim;
+				}else{
+					// $Sp1 = 0;
+					$OSplan = $cntKirim - $STOKplan2;
+					$OSrt2 = $cntKirim - $STOKplan2;
+					$STOKrt2 = $cntSTOK - $STOKplan2;
+					if($v->qty_plan >= $OSrt2 && $STOKrt2 >= $OSrt2){
+						$Sp1 = $OSrt2;
+					}else if($v->qty_plan <= $OSrt2 && $STOKrt2 >= $v->qty_plan){
+						$Sp1 = $v->qty_plan;
+					}else if($v->qty_plan >= $OSrt2 && $STOKrt2 <= $OSrt2){
+						$Sp1 = $STOKrt2;
+					}else if($v->qty_plan <= $OSrt2 && $STOKrt2 <= $v->qty_plan){
+						$Sp1 = $STOKrt2;
+					}else{
+						$Sp1 = 0;
+					}
+				}
+
+				// OSPLAN PERTAMA - DST
+				// if($r == 0) {
+					
+				// }else{
+					
+				// }
+
+				// BARIS 2 DAN SETERUSNYA
+				// OS(RT)
+				// if($r != 0){
+					
+				// }
+
+				$html .= '<tr>
+					<td style="border:1px solid #dee2e6;padding:6px">'.$v->eta.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($v->qty_plan,0,",",".").'</td>
+					<td style="border:1px solid #dee2e6;padding:6px">'.$v->bb.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($v->berat,0,",",".").'</td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$txtSisa.'<div>('.$OSrt2.')</div></td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$txtSTOK.'<div>('.$STOKrt2.')</div></td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$OSplan.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$Sp1.'</td>
+				</tr>';
+
+				
+			}
+		$html .= '</table>';
+
+		echo json_encode([
+			'html' => $html,
 		]);
 	}
 
