@@ -748,7 +748,16 @@ class M_logistik extends CI_Model
 						$this->db->set($hari.'_stok_akhir', ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir);
 					}
 					$this->db->set($hari.'_ket', ($ket == '') ? null : $ket);
-					$this->db->set('updated_at', date("Y-m-d H:i:s"));
+					// UPDATE JIKA ADA YANG DI UPDATE
+					$stok_awalU = $cek2->row($hari.'_stok_awal');
+					$inU = $cek2->row($hari.'_in');
+					$in_rtrU = $cek2->row($hari.'_in_rtr');
+					$outU = $cek2->row($hari.'_out');
+					$out_rtrU = $cek2->row($hari.'_out_rtr');
+					$stok_akhirU = $cek2->row($hari.'_stok_akhir');
+					if($stok_awal != $stok_awalU || $in != $inU || $inRtr != $in_rtrU || $out != $outU || $outRtr != $out_rtrU || $stok_akhir != $stok_akhirU){
+						$this->db->set('updated_at', date("Y-m-d H:i:s"));
+					}
 					$this->db->where('id', $cek2->row()->id);
 					$data = $this->db->update('m_gudang_v2');
 				}else{
@@ -1369,6 +1378,7 @@ class M_logistik extends CI_Model
 					'kategori' => $kategori,
 					'stat_sj' => $opsi,
 					'updated_at' => date("Y-m-d H:i:s"),
+					'created_at' => $this->session->userdata('username'),
 				];
 
 				// CEK JIKA CUSTOMER DENGAN PO DAN KETEGORI YANG SAMA ABAIKAN

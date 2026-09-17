@@ -14310,10 +14310,10 @@ class Logistik extends CI_Controller
 						($sjpo->cetak_sj == 'not' && $sjpo->no_pl_inv == 0 && in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $eNoSj = 'onchange="editPengirimanNoSJ('."'".$sjpo->id."'".')"' : $eNoSj = 'disabled';
 						// CEK INV
 						($sjpo->no_pl_inv == 0 && $tglNow != $urut->tgl && in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User'])) ? $btnInv = '<button type="button" class="btn btn-xs btn-danger" style="font-weight:bold" onclick="batalRev('."'".$sjpo->id."'".')">BATAL</button>&nbsp' : $btnInv = '';
-						($sjpo->kategori == 'SHEET') ? $tdX = 'background:#333;color:#fff;' : $tdX = '';
+						($sjpo->kategori == 'SHEET') ? $tdX = 'background:#cd388d;color:#fff;border:1px solid #bd287d;' : $tdX = 'border:1px solid #bbb;';
 
 						$html .='<tr style="background:#dee2e6">
-							<td style="'.$tdX.'padding:4px 6px;border:1px solid #bbb;font-weight:bold;display:flex">
+							<td style="'.$tdX.'padding:4px 6px;font-weight:bold;display:flex">
 								'.$btnInv.'NO. SURAT JALAN : &nbsp;<input type="number" class="form-control" id="pp-nosj-'.$sjpo->id.'" style="height:100%;width:50px;text-align:center;padding:2px 4px" value="'.$noSJ[0].'" '.$eNoSj.'>'.$ketSJ.'
 							</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">NO. PO : '.$sjpo->no_po.'</td>
