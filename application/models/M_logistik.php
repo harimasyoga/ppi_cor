@@ -725,6 +725,7 @@ class M_logistik extends CI_Model
 						$hari.'_out_rtr' => ($outRtr == '' || $outRtr == 0) ? 0 : $outRtr,
 						$hari.'_stok_akhir' => ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir,
 						$hari.'_ket' => ($ket == '') ? null : $ket,
+						'updated_at' => date("Y-m-d H:i:s"),
 					];
 					$data = $this->db->insert('m_gudang_v2', $gudang);
 				}else if($cek2->num_rows() != 0){
@@ -747,11 +748,8 @@ class M_logistik extends CI_Model
 						$this->db->set($hari.'_stok_akhir', ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir);
 					}
 					$this->db->set($hari.'_ket', ($ket == '') ? null : $ket);
+					$this->db->set('updated_at', date("Y-m-d H:i:s"));
 					$this->db->where('id', $cek2->row()->id);
-					// $this->db->where('id_pelanggan', $id_pelanggan);
-					// $this->db->where('id_produk', $r->id_produk);
-					// $this->db->where('bulan', $bulan);
-					// $this->db->where('tahun', $tahun);
 					$data = $this->db->update('m_gudang_v2');
 				}else{
 					$data = true;
@@ -789,6 +787,7 @@ class M_logistik extends CI_Model
 		$this->db->set($hari.'_out_rtr', ($outRtr == '' || $outRtr == 0) ? 0 : $outRtr);
 		$this->db->set($hari.'_stok_akhir', ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir);
 		$this->db->set($hari.'_ket', ($ket == '') ? null : $ket);
+		$this->db->set('updated_at', date("Y-m-d H:i:s"));
 		$this->db->where('id_pelanggan', $id_pelanggan);
 		$this->db->where('id_produk', $id_produk);
 		$this->db->where('bulan', $bulan);
@@ -825,6 +824,7 @@ class M_logistik extends CI_Model
 					$this->db->set($hariI.'_out', $hOut);
 					$this->db->set($hariI.'_out_rtr', $hOutRtr);
 					$this->db->set($hariI.'_stok_akhir', $fixStokAkhir);
+					$this->db->set('updated_at', date("Y-m-d H:i:s"));
 					$this->db->where('id_pelanggan', $id_pelanggan);
 					$this->db->where('id_produk', $id_produk);
 					$this->db->where('bulan', $bulan);
@@ -848,6 +848,7 @@ class M_logistik extends CI_Model
 						$this->db->set($minggu.'_out', null);
 						$this->db->set($minggu.'_out_rtr', null);
 						$this->db->set($minggu.'_stok_akhir', null);
+						$this->db->set('updated_at', date("Y-m-d H:i:s"));
 						$this->db->where('id_pelanggan', $id_pelanggan);
 						$this->db->where('id_produk', $id_produk);
 						$this->db->where('bulan', $bulan);
@@ -919,6 +920,7 @@ class M_logistik extends CI_Model
 					$this->db->set($hari2.'_stok_akhir', ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir);
 				}
 				$this->db->set($hari2.'_ket', ($ket == '') ? null : $ket);
+				$this->db->set('updated_at', date("Y-m-d H:i:s"));
 				// UPDATE JIKA ADA DATA / INSERT JIKA BELUM ADA DATA
 				if($gudang2->num_rows() == 0 && $bulan != $bulan2){
 					$this->db->set('id_pelanggan', $r->id_pelanggan);
@@ -928,10 +930,6 @@ class M_logistik extends CI_Model
 					$data = $this->db->insert('m_gudang_v2');
 				}else{
 					$this->db->where('id', $r->id_last);
-					// $this->db->where('id_pelanggan', $r->id_pelanggan);
-					// $this->db->where('id_produk', $r->id_produk);
-					// $this->db->where('bulan', $bulan2);
-					// $this->db->where('tahun', $tahun2);
 					$data = $this->db->update('m_gudang_v2');
 				}
 			}
@@ -1370,6 +1368,7 @@ class M_logistik extends CI_Model
 					'no_pl_urut' => $urut,
 					'kategori' => $kategori,
 					'stat_sj' => $opsi,
+					'updated_at' => date("Y-m-d H:i:s"),
 				];
 
 				// CEK JIKA CUSTOMER DENGAN PO DAN KETEGORI YANG SAMA ABAIKAN

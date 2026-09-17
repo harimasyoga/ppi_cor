@@ -990,9 +990,15 @@ class M_fungsi extends CI_Model {
 				$sumKirim += $k->tot_muat;
 				$sumRetur += ($retur->num_rows() == 0) ? 0 : $retur->row()->rtr_jumlah;
 				($i == $kirim->num_rows()) ? $tglAkhir = $k->tgl : $tglAkhir = '';
+				if($i == $kirim->num_rows()){
+					$updatedAt = ($k->updated_at == null) ? '' : $k->updated_at;
+				}else{
+					$updatedAt = '';
+				}
 			}
 		}else{
 			$tglAkhir = '';
+			$updatedAt = '';
 		}
 		// PERHITUNGAN
 		$sisa = ($sumKirim - $sumRetur) - $qty_po;
@@ -1000,6 +1006,7 @@ class M_fungsi extends CI_Model {
 
 		return [
 			'tglAkhir' => $tglAkhir,
+			'updatedAt' => $updatedAt,
 			'sumKirim' => $sumKirim,
 			'sumRetur' => $sumRetur,
 			'sisa' => $sisa,
