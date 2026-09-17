@@ -12509,7 +12509,7 @@ class Logistik extends CI_Controller
 
 									$html .= '<tr class="tr1 t'.$g->id_pelanggan.'" style="vertical-align:top;display:none">
 										<td style="'.$bb.'padding:6px;text-align:center">'.$i.'</td>
-										<td style="'.$bb.'padding:6px">'.$dv1.$infoPO.$kat.$g->nm_produk.$dv2.' || '.$g->id_pelanggan.' || '.$g->id_produk.'</td>
+										<td style="'.$bb.'padding:6px">'.$dv1.$infoPO.$kat.$g->nm_produk.$dv2.'</td>
 										<td style="'.$bb.'padding:6px;text-align:center">'.$uk.'</td>
 										<td style="'.$bb.'padding:6px;text-align:center">'.$this->m_fungsi->kualitas($g->kualitas, $g->flute).'</td>
 										<td style="'.$bb.'padding:6px;text-align:center">'.$g->flute.'</td>
