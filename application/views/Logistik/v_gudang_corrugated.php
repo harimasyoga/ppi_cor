@@ -100,10 +100,17 @@
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT LIST STOK GUDANG</h3>
 						</div>
 						<div class="card-body" style="font-weight:bold;padding:6px">
-							<div class="card-body row" style="font-weight:bold;padding:20px 6px">
+							<div class="card-body row" style="font-weight:bold;padding:20px 6px 0">
 								<div class="col-md-2">TGL STOK AWAL</div>
 								<div class="col-md-2">
-									<input type="date" id="tgl_awal2" name="tgl_awal2" value="<?= date('Y-m-d') ?>" class="form-control" onchange="gdStokAwalCust()">
+									<input type="date" id="tgl_awal2" name="tgl_awal2" class="form-control" onchange="gdStokAwalCust()">
+								</div>
+								<div class="col-md-8"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:6px 6px 20px">
+								<div class="col-md-2">PILIH TANGGAL</div>
+								<div class="col-md-2">
+									<input type="date" id="pilih_tgl22" name="pilih_tgl22" class="form-control" onchange="gdStokAwalCust()">
 								</div>
 								<div class="col-md-8"></div>
 							</div>
@@ -202,7 +209,9 @@
 				</button>
 			</div>
 			<div class="card-body">
-				<div class="list-nopo"></div>
+				<div style="overflow:auto;white-space:nowrap">
+					<div class="list-nopo"></div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -268,7 +277,7 @@
 
 	function tambah() {
 		kosong()
-		loadGC()
+		// loadGC()
 		$("#pelanggan").val('').trigger('change')
 		$(".card-list-gudang").hide()
 		$(".card-list-gudang2").hide()
@@ -286,6 +295,8 @@
 	}
 
 	function kosong() {
+		$("#tgl_awal2").val('')
+		$("#pilih_tgl22").val('')
 		$(".produk").html('')
 		$(".gudang").html('')
 	}
@@ -334,29 +345,24 @@
 		})
 	}
 
-	function listPO(id_pelanggan, id_produk){
-		$(".list-nopo").html('')
+	function listPO(id_pelanggan, id_produk, opsi){
+		$(".list-nopo").html('...')
 		$("#modalForm").modal("show")
+		let tgl = '';
+		if(opsi == 'ADD'){
+			tgl = $("#tgl_awal_cust").val()
+		}else{
+			tgl = $("#pilih_tgl22").val()
+		}
 		$.ajax({
 			url: '<?php echo base_url('Logistik/listPO')?>',
 			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'loading ...',
-					allowEscapeKey    : false,
-					allowOutsideClick : false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				})
-			},
 			data: ({
-				id_pelanggan, id_produk
+				id_pelanggan, id_produk, tgl
 			}),
 			success: function(res){
 				data = JSON.parse(res)
 				$(".list-nopo").html(data.html)
-				swal.close()
 			}
 		})
 	}
@@ -602,6 +608,7 @@
 	{
 		$(".gudang").html('')
 		let tgl_awal2 = $("#tgl_awal2").val()
+		let pilih_tgl22 = $("#pilih_tgl22").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadGC')?>',
 			type: "POST",
@@ -615,7 +622,7 @@
 					}
 				})
 			},
-			data: ({ tgl_awal2 }),
+			data: ({ tgl_awal2, pilih_tgl22 }),
 			success: function(res){
 				data = JSON.parse(res)
 				$(".gudang").html(data.html)
@@ -628,6 +635,7 @@
 	{
 		$(".gudang").html('')
 		let tgl_awal2 = $("#tgl_awal2").val()
+		let pilih_tgl22 = $("#pilih_tgl22").val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/loadGC')?>',
 			type: "POST",
@@ -641,7 +649,7 @@
 					}
 				})
 			},
-			data: ({ tgl_awal2 }),
+			data: ({ tgl_awal2, pilih_tgl22 }),
 			success: function(res){
 				data = JSON.parse(res)
 				$(".gudang").html(data.html)
@@ -671,6 +679,8 @@
 				data = JSON.parse(res)
 				if(data.data){
 					toastr.success('<b>BERHASIL!</b>');
+					$("#tgl_awal2").val('')
+					$("#pilih_tgl22").val('')
 					loadGC()
 				}else{
 					$(".btn-lsave").prop('disabled', false)
