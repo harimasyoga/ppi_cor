@@ -11182,10 +11182,11 @@ class Transaksi extends CI_Controller
 						$txtISTOK2 = ($txtInpSTOK != '' && $tglNow <= 0) ? '<div style="font-size:12px;font-style:italic">('.$this->m_fungsi->tglIndSkt(substr($txtInpSTOK, 0,10)).')</div>' : ''; 
 
 						// PENGIRIMAN - OS
-						$kirim = $this->m_fungsi->kiriman($r->kode_po, $r->id_produk, $r->qty_po);
-						($kirim["sisa"] <= 0) ? $txtSisa = number_format(str_replace('-', '', $kirim["sisa"]),0,',','.') : $txtSisa = '+'.number_format($kirim["sisa"],0,',','.');
-						($kirim["sisa2"] <= 0) ? $cntKirim = 0 : $cntKirim = $kirim["sisa2"];
-						($kirim["tglAkhir"] != '' && $tglNow <= 0) ? $kirAkh = '<div style="font-size:12px;font-style:italic">('.$this->m_fungsi->tglIndSkt($kirim["tglAkhir"]).')</div>' : $kirAkh = '';
+						$allKirim = $this->m_fungsi->AllKiriman($r->id_produk);
+						($allKirim["sumKirim"] <= 0) ? $txtSisa = 0 : $txtSisa = number_format($allKirim["sumKirim"],0,',','.');
+						($allKirim["sumKirim"] <= 0) ? $cntKirim = 0 : $cntKirim = $allKirim["sumKirim"];
+						$tglAKhir = $this->db->query("SELECT p.tgl FROM m_rencana_kirim r INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id WHERE r.id_produk='$r->id_produk' GROUP BY p.tgl DESC LIMIT 1");
+						($tglAKhir->num_rows() != 0 && $tglNow <= 0) ? $kirAkh = '<div style="font-size:12px;font-style:italic">('.$this->m_fungsi->tglIndSkt($tglAKhir->row()->tgl).')</div>' : $kirAkh = '';
 
 						if($tglNow <= 0){
 							$txtSisa = $txtSisa;
@@ -11197,12 +11198,13 @@ class Transaksi extends CI_Controller
 
 						// HITUNG OS DAN STOK PLAN
 						if($tglNow <= 0){
-							$sys2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_po_header='$r->id_po_header' AND s.eta BETWEEN '$now' AND '9999-01-01' ORDER BY s.eta,s.urut");
-							$OSplan2 = 0;
-							$STOKplan2 = 0;
-							$txtOSplan = '';
-							$txtSTplan = '';
-							$txtSTOKrt3 = '';
+							$sys2 = $this->db->query("SELECT d.* FROM trs_dev_sys d
+							INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
+							INNER JOIN trs_po_detail p ON d.id_po_header=p.id
+							INNER JOIN m_produk i ON d.id_produk=i.id_produk
+							WHERE d.id_produk='$r->id_produk' AND d.eta BETWEEN '$now' AND '9999-01-01' AND p.status='Approve'
+							GROUP BY d.id_dev ORDER BY c.nm_pelanggan,c.attn,p.kode_po,i.nm_produk");
+							$OSplan2 = 0; $STOKplan2 = 0; $txtOSplan = ''; $txtSTplan = ''; $txtSTOKrt3 = '';
 							foreach($sys2->result() as $ky => $v){
 								// HITUNG OS DAN STOK PLAN
 								if($ky == 0) {
@@ -11248,7 +11250,7 @@ class Transaksi extends CI_Controller
 								}
 							}
 							$sys2Cnt = ($sys2->num_rows() > 1) ? '<div style="font-size:12px;padding-right:6px;font-style:italic;text-align:right">('.$sys2->num_rows().')</div>' : '';
-							$btnPlanDSS = ($sys2->num_rows() > 1) ? ' <button type="button" class="btn btn-xs" onclick="planDSS('."'".$r->id_dev."'".')"><i class="fas fa-info-circle" style="color:#0047ab"></i></button>' : '';
+							$btnPlanDSS = ' <button type="button" class="btn btn-xs" onclick="planDSS('."'".$r->id_dev."'".')"><i class="fas fa-info-circle" style="color:#0047ab"></i></button>';
 						}else{
 							$txtOSplan = '-'; $txtSTplan = '-'; $btnPlanDSS = ''; $sys2Cnt = ''; $txtSTOKrt3 = '';
 						}
@@ -11431,24 +11433,57 @@ class Transaksi extends CI_Controller
 		$html .= '<table style="font-weight:bold;margin-bottom:12px">
 			<tr>
 				<td style="padding:3px 0">CUSTOMER</td>
-				<td style="padding:4px">:</td>
+				<td style="padding:3px 5px">:</td>
 				<td style="padding:3px 0">'.$sys->nm_pelanggan.$attn.'</td>
-			</tr>
-			<tr>
-				<td style="padding:3px 0">NO. PO</td>
-				<td style="padding:4px">:</td>
-				<td style="padding:3px 0">'.$po_dtl->kode_po.'</td>
 			</tr>
 			<tr style="vertical-align:top">
 				<td style="padding:3px 0">ITEM</td>
-				<td style="padding:4px">:</td>
+				<td style="padding:3px 5px">:</td>
 				<td style="padding:3px 0">'.$dv1.$kategori.$sys->nm_produk.$dv2.'</td>
 			</tr>';
 		$html .= '</table>';
 
+		// CEK PO YANG MASIH OPEN
+		$poOP = $this->db->query("SELECT*FROM trs_po_detail d
+		INNER JOIN trs_po p ON d.no_po=p.no_po AND d.kode_po=p.kode_po
+		WHERE d.id_produk='$sys->id_produk' AND d.status='Approve' AND p.status_kiriman='Open' ORDER BY d.tgl_po,d.kode_po");
+		if($poOP->num_rows() != 0){
+			$html .= '<div style="font-weight:bold">LIST PO :</div>';
+			$html .= '<table style="margin-bottom:12px">
+				<tr style="background:#dee2e6;font-weight:bold">
+					<td style="padding:6px;border:1px solid #bbb">TGL. PO</td>
+					<td style="padding:6px;border:1px solid #bbb">NO. PO</td>
+					<td style="padding:6px;border:1px solid #bbb;text-align:center">QTY PO</td>
+					<td style="padding:6px;border:1px solid #bbb;text-align:center">SISA OS</td>
+				</tr>';
+				$sumKirim = 0;
+				foreach($poOP->result() as $p){
+					$kirim = $this->m_fungsi->kiriman($p->kode_po, $p->id_produk, $p->qty);
+					$sumKirim += ($kirim["sisa2"] <= 0) ? 0 : $kirim["sisa2"];
+					($kirim["sisa2"] <= 0) ? $txtSisa = str_replace('-', '+', number_format($kirim["sisa2"],0,',','.')) : $txtSisa = number_format($kirim["sisa2"],0,',','.');
+					$html .= '<tr>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$this->m_fungsi->tglIndSkt($p->tgl_po).'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$p->kode_po.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($p->qty,0,',','.').'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$txtSisa.'</td>
+					</tr>';
+				}
+				// TOTAL
+				if($poOP->num_rows() > 1){
+					$html .= '<tr style="background:#dee2e6;font-weight:bold">
+						<td style="padding:6px;border:1px solid #bbb;text-align:right" colspan="3">TOTAL</td>
+						<td style="padding:6px;border:1px solid #bbb;text-align:right">'.number_format($sumKirim,0,',','.').'</td>
+					</tr>';
+				}
+			$html .= '</table>';
+		}
+
+		// LIST
+		$html .= '<div style="font-weight:bold">LIST PLAN :</div>';
 		$html .= '<table>
 			<tr style="background:#dee2e6;font-weight:bold;text-align:center">
 				<td style="padding:6px;border:1px solid #bbb">HARI, TGL. MUAT</td>
+				<td style="padding:6px;border:1px solid #bbb">NO. PO</td>
 				<td style="padding:6px;border:1px solid #bbb">QTY</td>
 				<td style="padding:6px;border:1px solid #bbb">BB</td>
 				<td style="padding:6px;border:1px solid #bbb">TONASE</td>
@@ -11458,16 +11493,17 @@ class Transaksi extends CI_Controller
 				<td style="padding:6px;border:1px solid #bbb">STOK <span style="font-size:13px;font-style:italic">(plan)</span></td>
 			</tr>';
 
-			$sys2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_po_header='$sys->id_po_header' AND s.eta BETWEEN '$now' AND '9999-01-01' ORDER BY s.eta,s.urut");
+			$sys2 = $this->db->query("SELECT p.kode_po,d.* FROM trs_dev_sys d
+			INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
+			INNER JOIN trs_po_detail p ON d.id_po_header=p.id
+			INNER JOIN m_produk i ON d.id_produk=i.id_produk
+			WHERE d.id_produk='$sys->id_produk' AND d.eta BETWEEN '$now' AND '9999-01-01' AND p.status='Approve'
+			GROUP BY d.id_dev ORDER BY c.nm_pelanggan,c.attn,p.kode_po,i.nm_produk");
 			$OSrt2 = 0;
 			$STOKrt2 = 0;
 			$OSplan2 = 0;
 			$STOKplan2 = 0;
 			foreach($sys2->result() as $r => $v){
-				// PENGIRIMAN - OS
-				$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $v->id_produk, $v->qty_po);
-				($kirim["sisa"] <= 0) ? $txtSisa = number_format(str_replace('-', '', $kirim["sisa"]),0,',','.') : $txtSisa = '+'.number_format($kirim["sisa"],0,',','.');
-				($kirim["sisa2"] <= 0) ? $cntKirim = 0 : $cntKirim = $kirim["sisa2"];
 				// STOK
 				$xT = date('Y');
 				$xB = date('m');
@@ -11558,6 +11594,14 @@ class Transaksi extends CI_Controller
 					$txtInpSTOK = date('Y-m-d'); //$cekSTOK->row()->updated_at
 				}
 
+				// PENGIRIMAN - OS
+				$allKirim = $this->m_fungsi->AllKiriman($sys->id_produk);
+				($allKirim["sumKirim"] <= 0) ? $txtSisa = 0 : $txtSisa = number_format($allKirim["sumKirim"],0,',','.');
+				($allKirim["sumKirim"] <= 0) ? $cntKirim = 0 : $cntKirim = $allKirim["sumKirim"];
+				$tglAKhir = $this->db->query("SELECT p.tgl FROM m_rencana_kirim r
+				INNER JOIN pl_box p ON r.rk_kode_po=p.no_po AND r.rk_urut=p.no_pl_urut AND r.id_pl_box=p.id
+				WHERE r.id_produk='$sys->id_produk' GROUP BY p.tgl DESC LIMIT 1");
+
 				// HITUNG OS DAN STOK PLAN
 				if($r == 0) {
 					if($v->qty_plan >= $cntKirim && $cntSTOK >= $cntKirim){
@@ -11574,9 +11618,8 @@ class Transaksi extends CI_Controller
 					$OSplan = $cntKirim;
 					$txtOSrt2 = '';
 					$txtSTOKrt2 = '';
-					($kirim["tglAkhir"] != '') ? $kirAkh = '<div style="font-size:12px;font-style:italic">('.$this->m_fungsi->tglIndSkt($kirim["tglAkhir"]).')</div>' : $kirAkh = '';
-					$txtISTOK2 = ($txtInpSTOK != '') ? '<div style="font-size:12px;font-style:italic">('.$this->m_fungsi->tglIndSkt(substr($txtInpSTOK, 0,10)).')</div>' : ''; 
-					// $txtISTOK2 = ($txtInpSTOK != '') ? '<div style="font-size:12px;font-style:italic">('.$this->m_fungsi->tglIndSkt(substr($txtInpSTOK, 0,10)).' '.substr($txtInpSTOK, 10,6).' )</div>' : '';
+					($tglAKhir->num_rows() != 0) ? $kirAkh = '<div style="font-size:12px;font-style:italic">('.$this->m_fungsi->tglIndSkt($tglAKhir->row()->tgl).')</div>' : $kirAkh = '';
+					$txtISTOK2 = ($txtInpSTOK != '') ? '<div style="font-size:12px;font-style:italic">('.$this->m_fungsi->tglIndSkt(substr($txtInpSTOK, 0, 10)).')</div>' : ''; // 10,6
 				}else{
 					$OSplan2 += $OSplan;
 					$STOKplan2 += $Sp1;
@@ -11606,6 +11649,7 @@ class Transaksi extends CI_Controller
 				($v->id_dev == $id_dev) ? $bb = 'background:#eee;font-weight:bold;' : $bb = '';
 				$html .= '<tr style="vertical-align:top">
 					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px">'.substr(strtoupper($this->m_fungsi->getHariIni($v->eta)),0,3).', '.strtoupper($this->m_fungsi->tglIndSkt($v->eta)).$txtRePLAN.'</td>
+					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px">'.$v->kode_po.'</td>
 					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($v->qty_plan,0,",",".").'</td>
 					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px">'.$v->bb.'</td>
 					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($v->berat,0,",",".").'</td>
