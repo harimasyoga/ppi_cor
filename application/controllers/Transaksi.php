@@ -10999,7 +10999,7 @@ class Transaksi extends CI_Controller
 					INNER JOIN m_produk i ON d.id_produk=i.id_produk
 					WHERE d.eta='$u->eta' AND d.urut='$u->urut' $pAppc $wSls
 					GROUP BY d.id_dev,d.id_pelanggan,p.kode_po,d.id_produk
-					ORDER BY c.nm_pelanggan,p.kode_po,i.nm_produk");
+					ORDER BY c.nm_pelanggan,c.attn,p.kode_po,i.nm_produk");
 					$i = 0;
 					$totQty = 0;
 					$totBerat = 0;
@@ -11053,7 +11053,7 @@ class Transaksi extends CI_Controller
 						($r->dev_stat != null) ? $devStat = ' <span class="bg-info" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">'.$r->dev_stat.'</span>' : $devStat = '';
 						($r->sts == 'Close') ? $devCls = ' <span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:11px;border-radius:4px">CLOSE</span>' : $devCls = '';
 						
-						// REPLAN / + 3 HARI
+						// REPLAN / + 3 HARI DAN TAMBAHAN ETA
 						$id_dev2 = $this->db->query("SELECT*FROM trs_dev_sys s WHERE s.id_dev2='$r->id_dev'");
 						if($r->eta_t == 'REPLAN'){
 							$tglRpln = $this->db->query("SELECT*FROM trs_dev_sys WHERE id_dev='$r->id_dev2'");
@@ -11061,6 +11061,7 @@ class Transaksi extends CI_Controller
 						}else{
 							$tRP = '';
 						}
+						($r->eta_t == 'TAMBAHAN' || $r->eta_t == 'REPLAN') ? $tTbH = '<div style="font-size:12px;font-style:italic">('.$this->m_fungsi->tglIndSkt(substr($r->created_at, 0,10)).' '.substr($r->created_at, 10,6).')</div>' : $tTbH = '';
 
 						// HARI JUMAT N SABTU TAMBAH 1 HARI
 						$namaHari = date('l', strtotime($tgl));
@@ -11258,7 +11259,7 @@ class Transaksi extends CI_Controller
 							</td>
 							<td style="'.$dRP.'padding:6px">'.$r->nm_pelanggan.$kota.$devStat.$tRP.$attn.'</td>
 							<td style="'.$dRP.'padding:6px;text-align:center">'.$lamaK.'</td>
-							<td style="'.$dRP.'padding:6px">'.$r->kode_po.$devCls.'</td>
+							<td style="'.$dRP.'padding:6px">'.$r->kode_po.$devCls.$tTbH.'</td>
 							<td style="'.$dRP.'padding:6px">'.$dv1.$kategori.$r->nm_produk.$dv2.'</td>
 							<td style="'.$dRP.'padding:6px;text-align:right">'.number_format($r->qty_plan, 0, ',', '.').'</td>
 							<td style="'.$dRP.'padding:6px;text-align:center">'.$r->berat_bersih.'</td>
