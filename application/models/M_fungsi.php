@@ -1014,6 +1014,22 @@ class M_fungsi extends CI_Model {
 		];
 	}
 
+	function AllKiriman($id_produk = 0){
+		$poOP = $this->db->query("SELECT*FROM trs_po_detail d
+		INNER JOIN trs_po p ON d.no_po=p.no_po AND d.kode_po=p.kode_po
+		WHERE d.id_produk='$id_produk' AND d.status='Approve' AND p.status_kiriman='Open' ORDER BY d.tgl_po,d.kode_po");
+		$sumKirim = 0;
+		if($poOP->num_rows() != 0){
+			foreach($poOP->result() as $p){
+				$kirim = $this->kiriman($p->kode_po, $p->id_produk, $p->qty);
+				$sumKirim += ($kirim["sisa2"] <= 0) ? 0 : $kirim["sisa2"];
+			}
+		}
+		return [
+			'sumKirim' => $sumKirim,
+		];
+	}
+
 	function hitungInvoice($id = '', $no_invoice = '')
 	{
 		$header = $this->db->query("SELECT*FROM invoice_header WHERE no_invoice='$no_invoice' AND id='$id'")->row();
