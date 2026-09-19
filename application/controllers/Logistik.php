@@ -2037,7 +2037,7 @@ class Logistik extends CI_Controller
 				$llM = '<img id="'.$header->img_sj_balik.'" src="'.base_url().'assets/lam_inv_sj_balik/'.$header->img_sj_balik.'" alt="preview foto" width="100" class="shadow-sm" onclick="imgClick('."'".$header->img_sj_balik."'".')">';
 			}
 			// HAPUS
-			if(in_array($lvl, ['Admin', 'Laminasi']) && $header->acc_owner != 'Y'){
+			if(in_array($lvl, ['Admin', 'Laminasi']) && $bayar->num_rows() == 0 && $header->acc_owner != 'Y'){
 				$hpsLL = '<div style="margin-right:4px">
 					<button class="btn btn-xs btn-danger" onclick="hapusInvLamSJB()"><i class="fas fa-trash"></i></button>
 				</div>';
@@ -2315,7 +2315,7 @@ class Logistik extends CI_Controller
 
 		// INPUT PEMBAYARAN
 		$htmlInpPay = '';
-		if($opsi == 'edit' && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
+		if($opsi == 'edit' && $header->img_sj_balik != null && in_array($this->session->userdata('level'), ['Admin', 'Laminasi'])){
 			if($cekHarga->num_rows() == 0 || ($cekHarga->num_rows() != 0 && $cekHarga->row()->total == 0)){
 				if($nominal != 0){
 					$htmlInpPay .='<div class="card card-primary card-outline" style="margin:12px 6px">
@@ -14382,6 +14382,8 @@ class Logistik extends CI_Controller
 							$btnInv = '';
 						}
 						($sjpo->kategori == 'SHEET') ? $tdX = 'background:#cd388d;color:#fff;border:1px solid #bd287d;' : $tdX = 'border:1px solid #bbb;';
+						// NOTE
+						($sjpo->updated_at != null) ? $noteUpdt = $this->m_fungsi->tglIndSkt(substr($sjpo->updated_at, 0,10)).' '.substr($sjpo->updated_at, 10,6) : $noteUpdt = 'NOTE';
 
 						$html .='<tr style="background:#dee2e6">
 							<td style="'.$tdX.'padding:4px 6px;font-weight:bold;display:flex">
@@ -14392,7 +14394,7 @@ class Logistik extends CI_Controller
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">'.$btnAKirim.'</td>
 							<td style="padding:6px;border:1px solid #bbb;font-weight:bold">'.$btnPrint.' '.$btnJasa.'</td>
 							<td style="padding:3px 6px;border:1px solid #bbb;font-weight:bold" colspan="4">
-								<input type="text" class="form-control" id="no_te'.$sjpo->id.'" style="height:100%;width:100%;padding:2px 4px" placeholder="NOTE" onchange="noteSJ('."'".$sjpo->id."'".')" oninput="this.value=this.value.toUpperCase()" value="'.$sjpo->note.'">
+								<input type="text" class="form-control" id="no_te'.$sjpo->id.'" style="height:100%;width:100%;padding:2px 4px" placeholder="'.$noteUpdt.'" onchange="noteSJ('."'".$sjpo->id."'".')" oninput="this.value=this.value.toUpperCase()" value="'.$sjpo->note.'">
 							</td>
 						</tr>';
 						($sjpo->kategori == null) ? $wKategori = "" : $wKategori = "AND r.kategori='$sjpo->kategori'";
