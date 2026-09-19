@@ -38,17 +38,23 @@
 				</div>
 				<div class="card-body row" style="padding:0 0 6px;font-weight:bold">
 					<div class="col-md-2">
-						<?php
-							$thang = date("Y");
-							$qTahun = $this->db->query("SELECT YEAR(p.tgl_po) AS tahun FROM trs_po p GROUP BY YEAR(p.tgl_po)");
-						?>
 						<select id="rentang_thn" class="form-control select2" onchange="load_data()">
 							<option value="ALL">SEMUA</option>
 							<?php
-								foreach ($qTahun->result() as $t) {
-									($thang == $t->tahun) ? $xTx = 'selected' : $xTx = '';
-									?>
-									<option value="<?= $t->tahun ?>" <?= $xTx ?>><b><?= $t->tahun ?></b></option>
+								$thang = date("Y");
+								$qThWh = $this->db->query("SELECT YEAR(p.tgl_po) AS tahun FROM trs_po p WHERE p.tgl_po LIKE '%$thang%' GROUP BY YEAR(p.tgl_po)");
+								$qTahun = $this->db->query("SELECT YEAR(p.tgl_po) AS tahun FROM trs_po p GROUP BY YEAR(p.tgl_po)");
+								if($qThWh->num_rows() != 0){
+									foreach ($qTahun->result() as $t) {
+										($thang == $t->tahun) ? $xTx = 'selected' : $xTx = '';
+										?>
+										<option value="<?= $t->tahun ?>" <?= $xTx ?>><b><?= $t->tahun ?></b></option>
+									<?php }
+								}else{
+									foreach ($qTahun->result() as $t) { ?>
+										<option value="<?= $t->tahun ?>"><b><?= $t->tahun ?></b></option>
+									<?php } ?>
+									<option value="<?= $thang ?>" selected><b><?= $thang ?></b></option>
 								<?php }
 							?>
 						</select>

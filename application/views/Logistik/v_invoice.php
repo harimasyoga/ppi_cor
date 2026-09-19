@@ -487,16 +487,22 @@
 							<div class="col-md-2" style="padding-bottom:3px">
 								<select class="form-control select2" id="rentang_thn" name="rentang_thn" onchange="load_data()">
 									<?php
-									$thang        = date("Y");
-									$thang_maks   = $thang + 1;
-									$thang_min    = $thang - 5;
-									for ($th = $thang_min; $th <= $thang_maks; $th++) { ?>
-										<?php if ($th == $thang) { ?>
-											<option selected value="<?= $th ?>"> <?= $thang ?> </option>
-										<?php } else { ?>
-											<option value="<?= $th ?>"> <?= $th ?> </option>
-										<?php } ?>
-									<?php } ?>
+										$thang = date("Y");
+										$qThWh = $this->db->query("SELECT YEAR(h.tgl_invoice) AS tahun FROM invoice_header h WHERE h.tgl_invoice LIKE '%$thang%' GROUP BY YEAR(h.tgl_invoice)");
+										$qTahun = $this->db->query("SELECT YEAR(h.tgl_invoice) AS tahun FROM invoice_header h GROUP BY YEAR(h.tgl_invoice)");
+										if($qThWh->num_rows() != 0){
+											foreach ($qTahun->result() as $t) {
+												($thang == $t->tahun) ? $xTx = 'selected' : $xTx = '';
+												?>
+												<option value="<?= $t->tahun ?>" <?= $xTx ?>><b><?= $t->tahun ?></b></option>
+											<?php }
+										}else{
+											foreach ($qTahun->result() as $t) { ?>
+												<option value="<?= $t->tahun ?>"><b><?= $t->tahun ?></b></option>
+											<?php } ?>
+											<option value="<?= $thang ?>" selected><b><?= $thang ?></b></option>
+										<?php }
+									?>
 								</select>
 							</div>
 							<div class="col-md-2" style="padding-bottom:3px">
