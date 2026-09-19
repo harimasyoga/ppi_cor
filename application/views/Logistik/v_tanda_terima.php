@@ -44,16 +44,20 @@
 									<select id="tahun" class="form-control select2" onchange="load_data()">
 										<?php
 											$thang = date("Y");
-											$thang_maks = $thang + 1;
-											$thang_min = $thang - 5;
-											for ($th = $thang_min; $th <= $thang_maks; $th++)
-											{ ?>
-												<?php if ($th==$thang) { ?>
-													<option selected value="<?= $th ?>"> <?= $thang ?> </option>
-												<?php }else{ ?>
-													<option value="<?= $th ?>"> <?= $th ?> </option>
+											$qThWh = $this->db->query("SELECT YEAR(p.tgl_tt) AS tahun FROM tt_header p WHERE p.tgl_tt LIKE '%$thang%' GROUP BY YEAR(p.tgl_tt)");
+											$qTahun = $this->db->query("SELECT YEAR(p.tgl_tt) AS tahun FROM tt_header p GROUP BY YEAR(p.tgl_tt)");
+											if($qThWh->num_rows() != 0){
+												foreach ($qTahun->result() as $t) {
+													($thang == $t->tahun) ? $xTx = 'selected' : $xTx = '';
+													?>
+													<option value="<?= $t->tahun ?>" <?= $xTx ?>><b><?= $t->tahun ?></b></option>
 												<?php }
-											}
+											}else{
+												foreach ($qTahun->result() as $t) { ?>
+													<option value="<?= $t->tahun ?>"><b><?= $t->tahun ?></b></option>
+												<?php } ?>
+												<option value="<?= $thang ?>" selected><b><?= $thang ?></b></option>
+											<?php }
 										?>
 									</select>
 								</div>

@@ -11203,7 +11203,7 @@ class Transaksi extends CI_Controller
 							INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 							INNER JOIN m_produk i ON d.id_produk=i.id_produk
 							WHERE d.id_produk='$r->id_produk' AND d.eta BETWEEN '$now' AND '9999-01-01' AND p.status='Approve'
-							GROUP BY d.id_dev ORDER BY c.nm_pelanggan,c.attn,p.kode_po,i.nm_produk,d.eta,d.urut");
+							GROUP BY d.id_dev ORDER BY d.eta,d.urut,c.nm_pelanggan,c.attn,p.kode_po,i.nm_produk");
 							$OSplan2 = 0; $STOKplan2 = 0; $txtOSplan = ''; $txtSTplan = ''; $txtSTOKrt3 = '';
 							foreach($sys2->result() as $ky => $v){
 								// HITUNG OS DAN STOK PLAN
@@ -11269,7 +11269,7 @@ class Transaksi extends CI_Controller
 							<td style="'.$dRP.'padding:6px;text-align:right">'.$txtSisa.$kirAkh.'</td>
 							<td style="'.$dRP.'padding:6px;text-align:right">'.$txtSTOK.$txtSTOKrt3.$txtISTOK2.'</td>
 							<td style="'.$dRP.'padding:6px;text-align:right">'.$txtOSplan.'</td>
-							<td style="'.$dRP.'padding:6px;text-align:right">'.$txtSTplan.$btnPlanDSS.'</td>';
+							<td style="'.$dRP.'padding:6px;text-align:right">'.$txtSTplan.$btnPlanDSS.$sys2Cnt.'</td>';
 
 							// KALIBRASI
 							if($sys->num_rows() == 1 && $rkNull->num_rows() == 0 && $u->urut != 0 && ($u->id_ex == null || $u->id_ex != null)){
@@ -11482,6 +11482,7 @@ class Transaksi extends CI_Controller
 		$html .= '<div style="font-weight:bold">LIST PLAN :</div>';
 		$html .= '<table>
 			<tr style="background:#dee2e6;font-weight:bold;text-align:center">
+				<td style="padding:6px;border:1px solid #bbb">NO.</td>
 				<td style="padding:6px;border:1px solid #bbb">HARI, TGL. MUAT</td>
 				<td style="padding:6px;border:1px solid #bbb">NO. PO</td>
 				<td style="padding:6px;border:1px solid #bbb">QTY</td>
@@ -11498,12 +11499,14 @@ class Transaksi extends CI_Controller
 			INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 			INNER JOIN m_produk i ON d.id_produk=i.id_produk
 			WHERE d.id_produk='$sys->id_produk' AND d.eta BETWEEN '$now' AND '9999-01-01' AND p.status='Approve'
-			GROUP BY d.id_dev ORDER BY c.nm_pelanggan,c.attn,p.kode_po,i.nm_produk,d.eta,d.urut");
+			GROUP BY d.id_dev ORDER BY d.eta,d.urut,c.nm_pelanggan,c.attn,p.kode_po,i.nm_produk");
 			$OSrt2 = 0;
 			$STOKrt2 = 0;
 			$OSplan2 = 0;
 			$STOKplan2 = 0;
+			$i = 0;
 			foreach($sys2->result() as $r => $v){
+				$i++;
 				// STOK
 				$xT = date('Y');
 				$xB = date('m');
@@ -11645,13 +11648,15 @@ class Transaksi extends CI_Controller
 				$txtOSplan = ($OSplan == 0) ? '-' : number_format($OSplan,0,",",".");
 				$txtSTOKplan = ($Sp1 == 0) ? '-' : number_format($Sp1,0,",",".");
 
-				$txtRePLAN = ($v->eta_t == 'REPLAN') ? ' <span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:4px">replan</span>' : '';
+				$txtRePLAN = ($v->eta_t == 'REPLAN') ? '<div><span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:4px">replan</span></div>' : '';
+				($v->eta_t == 'TAMBAHAN' || $v->eta_t == 'REPLAN') ? $tTbH = '<div style="font-size:12px;font-style:italic">('.$this->m_fungsi->tglIndSkt(substr($v->created_at, 0,10)).' '.substr($v->created_at, 10,6).')</div>' : $tTbH = '';
 				($v->id_dev == $id_dev) ? $bb = 'background:#eee;font-weight:bold;' : $bb = '';
 				$html .= '<tr style="vertical-align:top">
+					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
 					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px">'.substr(strtoupper($this->m_fungsi->getHariIni($v->eta)),0,3).', '.strtoupper($this->m_fungsi->tglIndSkt($v->eta)).$txtRePLAN.'</td>
-					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px">'.$v->kode_po.'</td>
+					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px">'.$v->kode_po.$tTbH.'</td>
 					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($v->qty_plan,0,",",".").'</td>
-					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px">'.$v->bb.'</td>
+					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;text-align:center">'.$v->bb.'</td>
 					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($v->berat,0,",",".").'</td>
 					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;text-align:right">'.$txtSisa.$kirAkh.$txtOSrt2.'</td>
 					<td style="'.$bb.'border:1px solid #dee2e6;padding:6px;text-align:right">'.$txtSTOK.$txtISTOK2.$txtSTOKrt2.'</td>

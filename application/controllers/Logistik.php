@@ -8337,7 +8337,7 @@ class Logistik extends CI_Controller
 			}
 		}else if ($jenis == "tandaTerima") {
 			$tahun = $_POST["tahun"];
-			$query = $this->db->query("SELECT*FROM tt_header ORDER BY id_tt DESC")->result();
+			$query = $this->db->query("SELECT*FROM tt_header WHERE tgl_tt LIKE '%$tahun%' ORDER BY id_tt DESC")->result();
 			$i = 0;
 			foreach ($query as $r) {
 				$i++;

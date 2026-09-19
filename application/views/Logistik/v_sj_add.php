@@ -95,17 +95,22 @@
 								<div class="col-md-2">
 									<select class="form-control select2" id="tahun" onchange="listNomerSJ()">
 										<?php 
-										$thang = date("Y");
-										$thang_maks = $thang + 2;
-										$thang_min = $thang - 2;
-										for ($th = $thang_min; $th <= $thang_maks; $th++)
-										{ ?>
-											<?php if ($th==$thang) { ?>
-												<option selected value="<?= $th ?>"> <?= $thang ?> </option>
-											<?php }else{ ?>
-												<option value="<?= $th ?>"> <?= $th ?> </option>
+											$thang = date("Y");
+											$qThWh = $this->db->query("SELECT YEAR(h.tgl) AS tahun FROM pl_box h WHERE h.tgl LIKE '%$thang%' GROUP BY YEAR(h.tgl)");
+											$qTahun = $this->db->query("SELECT YEAR(h.tgl) AS tahun FROM pl_box h GROUP BY YEAR(h.tgl)");
+											if($qThWh->num_rows() != 0){
+												foreach ($qTahun->result() as $t) {
+													($thang == $t->tahun) ? $xTx = 'selected' : $xTx = '';
+													?>
+													<option value="<?= $t->tahun ?>" <?= $xTx ?>><b><?= $t->tahun ?></b></option>
+												<?php }
+											}else{
+												foreach ($qTahun->result() as $t) { ?>
+													<option value="<?= $t->tahun ?>"><b><?= $t->tahun ?></b></option>
+												<?php } ?>
+												<option value="<?= $thang ?>" selected><b><?= $thang ?></b></option>
 											<?php }
-										} ?>
+										?>
 									</select>
 								</div>
 								<div class="col-md-8"></div>
