@@ -11203,7 +11203,7 @@ class Transaksi extends CI_Controller
 							INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 							INNER JOIN m_produk i ON d.id_produk=i.id_produk
 							WHERE d.id_produk='$r->id_produk' AND d.eta BETWEEN '$now' AND '9999-01-01' AND p.status='Approve'
-							GROUP BY d.id_dev ORDER BY c.nm_pelanggan,c.attn,p.kode_po,i.nm_produk");
+							GROUP BY d.id_dev ORDER BY c.nm_pelanggan,c.attn,p.kode_po,i.nm_produk,d.eta,d.urut");
 							$OSplan2 = 0; $STOKplan2 = 0; $txtOSplan = ''; $txtSTplan = ''; $txtSTOKrt3 = '';
 							foreach($sys2->result() as $ky => $v){
 								// HITUNG OS DAN STOK PLAN
@@ -11498,7 +11498,7 @@ class Transaksi extends CI_Controller
 			INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 			INNER JOIN m_produk i ON d.id_produk=i.id_produk
 			WHERE d.id_produk='$sys->id_produk' AND d.eta BETWEEN '$now' AND '9999-01-01' AND p.status='Approve'
-			GROUP BY d.id_dev ORDER BY c.nm_pelanggan,c.attn,p.kode_po,i.nm_produk");
+			GROUP BY d.id_dev ORDER BY c.nm_pelanggan,c.attn,p.kode_po,i.nm_produk,d.eta,d.urut");
 			$OSrt2 = 0;
 			$STOKrt2 = 0;
 			$OSplan2 = 0;
