@@ -4802,14 +4802,15 @@ class M_logistik extends CI_Model
 			$tahun2 = $tgl2[0];
 
 			if($statusInput == 'insert'){
-				$cek = $this->db->query("SELECT*FROM tt_header WHERE tgl_tt LIKE '%$tahun2%' ORDER BY no_tt DESC LIMIT 1");
+				// $cek = $this->db->query("SELECT*FROM tt_header WHERE tgl_tt LIKE '%$tahun2%' ORDER BY no_tt DESC LIMIT 1");
+				$cek = $this->db->query("SELECT*FROM tt_header WHERE tgl_tt LIKE '%$tahun2%' ORDER BY id_tt DESC LIMIT 1");
 				if($cek->num_rows() != 0){
 					$no1 = explode('/', $cek->row()->no_tt);
 					$no2 = (int)$no1[3] + 1;
 				}else{
 					$no2 = 1;
 				}
-				$noFIX = 'TT/'.$tahun2.'/'.$bulan.'/'.str_pad($no2, 3, "0", STR_PAD_LEFT);
+				$noFIX = 'TT/'.$tahun2.'/'.$bulan.'/'.str_pad($no2, 4, "0", STR_PAD_LEFT);
 			}
 			if($statusInput == 'update'){
 				$header = $this->db->query("SELECT*FROM tt_header WHERE id_tt='$id_tt'")->row();
