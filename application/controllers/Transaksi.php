@@ -8087,7 +8087,7 @@ class Transaksi extends CI_Controller
 								// HITUNG KIRIM DENGAN ETA 
 								($k->num_rows() == 0) ? $QPkSJ = $s->qty_plan : $QPkSJ = $s->qty_plan - $k->row()->qty_muat;
 								($QPkSJ <= 0) ? $sQTYplan = 0 : $sQTYplan = $QPkSJ;
-								($id_dev2->num_rows() != 0) ? $kurang = $sQTYplan - $id_dev2->row()->qty_plan : $kurang = $sQTYplan;
+								// ($id_dev2->num_rows() != 0) ? $kurang = $sQTYplan - $id_dev2->row()->qty_plan : $kurang = $sQTYplan;
 								if($k->num_rows() == 0){
 									if($k2->num_rows() == 0){
 										$html .= '<td style="padding:6px;border:1px solid #999;text-align:right" colspan="5"></td>';
@@ -8099,7 +8099,7 @@ class Transaksi extends CI_Controller
 									// REPLAN TAPI TIDAK TERKIRIM  +3 HARI
 									if($exp3H > date('Y-m-d')){
 										$btnRPlan = '';
-									}else if($i9 == 1 && $kurang > 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
+									}else if($i9 == 1 && $k2->num_rows() == 0 && $id_dev2->num_rows() == 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
 										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan</button>';
 									}else{
 										$btnRPlan = '';
@@ -8110,7 +8110,7 @@ class Transaksi extends CI_Controller
 									<td style="padding:6px;border:1px solid #999;text-align:right">'.number_format($k->row()->qty_muat).'</td>';
 									if($exp3H > date('Y-m-d')){
 										$btnRPlan = '';
-									}else if($i9 == 1 && $kurang > 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
+									}else if($i9 == 1 && $k2->num_rows() == 0 && $id_dev2->num_rows() == 0 && in_array($this->session->userdata('level'), ['Admin', 'User', 'Admin2', 'Marketing'])){
 										$btnRPlan = ' <button type="button" class="btn btn-primary btn-xs addSysRePlan" style="font-weight:bold" onclick="addSysRePlan('."'".$id."'".', '."'".$so->id."'".', '."'".$s->id_dev."'".')">replan</button>';
 									}else{
 										$btnRPlan = '';

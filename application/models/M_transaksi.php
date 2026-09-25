@@ -1591,7 +1591,7 @@ class M_transaksi extends CI_Model
 	}
 
 	function simpanCartItemSO()
-	{
+	{ //
 		foreach($this->cart->contents() as $r){
 			$id_dtl = $r['options']['id_dtl'];
 			// cek po
