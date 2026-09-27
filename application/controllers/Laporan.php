@@ -298,22 +298,26 @@ class Laporan extends CI_Controller
 				</tr>';
 				$html .= '<tr>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="5">SALES / CUSTOMER / ITEM / NO.PO</td>
-					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">STOK(pcs)</td>
-					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS(pcs)</td>
-					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS(kg)</td>
-					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS Unplaned(pcs)</td>
-					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS Unplaned(kg)</td>
-					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">%</td>
+					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">STOK <span style="font-size:13px;font-style:italic">(pcs)</span></td>
+					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS <span style="font-size:13px;font-style:italic">(pcs)</span></td>
+					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS <span style="font-size:13px;font-style:italic">(kg)</span></td>
+					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS Unplanned <span style="font-size:13px;font-style:italic">(pcs)</span></td>
+					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS Unplanned <span style="font-size:13px;font-style:italic">(kg)</span></td>
+					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">Unplanned <span style="font-size:13px;font-style:italic">(%)</span></td>
 				</tr>';
 				$sumTot = 0;
 				$sumJet = 0;
 				$allSTOK = 0;
+				$sumTotUnp = 0;
+				$sumJetUnp = 0;
 
 				// TAMPIL DATA SALES
 				foreach($sales->result() as $s){
 					// PENGIRIMAN PER SALES
 					$zItem = $this->db->query("SELECT DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) AS exp_sls
-					,d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,d.bb,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po FROM trs_po p
+					,d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,d.bb,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po
+					,(SELECT sum(s2.qty_plan) FROM trs_dev_sys s2 WHERE s2.id_po_header=d.id AND s2.id_produk=d.id_produk AND s2.id_pelanggan=p.id_pelanggan AND s2.timb_tgl IS NULL AND s2.timb_tgl IS NULL
+					AND (DATEDIFF(s2.eta, CURDATE()) IN ('-2', '-1') OR DATEDIFF(s2.eta, CURDATE()) >= '0')) AS qty_plan FROM trs_po p
 					INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 					INNER JOIN m_produk i ON d.id_produk=i.id_produk
 					INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
@@ -324,7 +328,7 @@ class Laporan extends CI_Controller
 					GROUP BY d.id_produk,p.kode_po
 					UNION
 					SELECT DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) AS exp_sls
-					,d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,d.bb,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po FROM trs_po p
+					,d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,d.bb,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po,NULL AS qty_plan FROM trs_po p
 					INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 					INNER JOIN m_produk i ON d.id_produk=i.id_produk
 					INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
@@ -335,6 +339,8 @@ class Laporan extends CI_Controller
 					GROUP BY d.id_produk,p.kode_po");
 					$sumSales = 0;
 					$sumBBSales = 0;
+					$sumSalesUnp = 0;
+					$sumBBSalesUnp = 0;
 					foreach($zItem->result() as $zi){
 						if($zi->exp_sls >= 0){
 							$zKirim = ($zi->tot_muat == null) ? 0 : $zi->tot_muat;
@@ -342,8 +348,16 @@ class Laporan extends CI_Controller
 							$zPengiriman = $zi->qty - ($zKirim - $zRetur);
 							$sumSales += ($zPengiriman <= 0) ? 0 : $zPengiriman;
 							$sumBBSales += ($zPengiriman <= 0) ? 0 : round($zPengiriman * $zi->bb);
+							// sys
+							($zi->qty_plan == null) ? $qtySPLAN = 0 : $qtySPLAN = $zi->qty_plan;
+							if($qtySPLAN <= $zPengiriman){
+								$sumSalesUnp += $zPengiriman - $qtySPLAN;
+								$sumBBSalesUnp += round(($zPengiriman - $qtySPLAN) * $zi->bb);
+							}
 						}
 					}
+					// %%
+					($sumSales > 0) ? $pSOSSysSls = round(($sumSalesUnp / $sumSales) * 100,2) : $pSOSSysSls = 0;
 
 					// CEK STOK GUDANG PER SALES
 					$sumSlz = $hari.'_stok_akhir';
@@ -396,6 +410,9 @@ class Laporan extends CI_Controller
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.$sStok.'</td>
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($sumSales,0,',','.').'</td>
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($sumBBSales,0,',','.').'</td>
+						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($sumSalesUnp,0,',','.').'</td>
+						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($sumBBSalesUnp,0,',','.').'</td>
+						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:center">'.$pSOSSysSls.'</td>
 					</tr>';
 
 					// TAMPIL DATA CUSTOMER
@@ -414,7 +431,9 @@ class Laporan extends CI_Controller
 						foreach($cust->result() as $r){
 							// PENGIRIMAN PER ITEM
 							$cItem = $this->db->query("SELECT DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) AS exp_cst
-							,d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,d.bb,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po FROM trs_po p
+							,d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,d.bb,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po
+							,(SELECT sum(s2.qty_plan) FROM trs_dev_sys s2 WHERE s2.id_po_header=d.id AND s2.id_produk=d.id_produk AND s2.id_pelanggan=p.id_pelanggan AND s2.timb_tgl IS NULL AND s2.timb_tgl IS NULL
+							AND (DATEDIFF(s2.eta, CURDATE()) IN ('-2', '-1') OR DATEDIFF(s2.eta, CURDATE()) >= '0')) AS qty_plan FROM trs_po p
 							INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 							INNER JOIN m_produk i ON d.id_produk=i.id_produk
 							INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
@@ -425,7 +444,7 @@ class Laporan extends CI_Controller
 							GROUP BY d.id_produk,p.kode_po
 							UNION
 							SELECT DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) AS exp_cst
-							,d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,d.bb,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po FROM trs_po p
+							,d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,d.bb,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po,NULL AS qty_plan FROM trs_po p
 							INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 							INNER JOIN m_produk i ON d.id_produk=i.id_produk
 							INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
@@ -436,6 +455,8 @@ class Laporan extends CI_Controller
 							GROUP BY d.id_produk,p.kode_po");
 							$sumCust = 0;
 							$sumBBCust = 0;
+							$sumCustUnp = 0;
+							$sumBBCustUnp = 0;
 							foreach($cItem->result() as $ci){
 								if($ci->exp_cst >= 0){
 									$cKirim = ($ci->tot_muat == null) ? 0 : $ci->tot_muat;
@@ -443,8 +464,16 @@ class Laporan extends CI_Controller
 									$cPengiriman = $ci->qty - ($cKirim - $cRetur);
 									$sumCust += ($cPengiriman <= 0) ? 0 : $cPengiriman;
 									$sumBBCust += ($cPengiriman <= 0) ? 0 : round($cPengiriman * $ci->bb);
+									// sys
+									($ci->qty_plan == null) ? $qtyPLAN = 0 : $qtyPLAN = $ci->qty_plan;
+									if($qtyPLAN <= $cPengiriman){
+										$sumCustUnp += $cPengiriman - $qtyPLAN;
+										$sumBBCustUnp += round(($cPengiriman - $qtyPLAN) * $ci->bb);
+									}
 								}
 							}
+							// %%
+							($sumCust > 0) ? $pSOSSysCust = round(($sumCustUnp / $sumCust) * 100,2) : $pSOSSysCust = 0;
 
 							// CEK STOK GUDANG PER CUSTOMER
 							$sumCUST = $hari.'_stok_akhir';
@@ -484,11 +513,14 @@ class Laporan extends CI_Controller
 									<button class="btn btn-xs ab2 b2-'.$r->id_pelanggan.' btn-info" style="padding:1px 5px" onclick="btnPiuCustomer('."'".$r->id_pelanggan."'".')">
 										<i style="font-size:8px" class="fas af2 f2-'.$r->id_pelanggan.' fa-plus"></i>
 									</button>&nbsp
-									'.$r->nm_pelanggan.$cTxt7.$atZ.' || '.$r->id_pelanggan.'
+									'.$r->nm_pelanggan.$cTxt7.$atZ.'
 								</td>
 								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.$cStok.'</td>
 								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($sumCust,0,',','.').'</td>
 								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($sumBBCust,0,',','.').'</td>
+								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($sumCustUnp,0,',','.').'</td>
+								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($sumBBCustUnp,0,',','.').'</td>
+								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:center">'.$pSOSSysCust.'</td>
 							</tr>';
 							// TITLE
 							$html .= '<tr class="tr2 c'.$r->id_pelanggan.'" style="display:none">
@@ -497,12 +529,12 @@ class Laporan extends CI_Controller
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">SUBSTANCE</td>
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px 15px">F</td>
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">BB</td>
-								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">STOK(pcs)</td>
-								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS(pcs)</td>
-								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS(kg)</td>
-								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS Unplaned(pcs)</td>
-								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS Unplaned(kg)</td>
-								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">%</td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">STOK <span style="font-size:13px;font-style:italic">(pcs)</span></td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS <span style="font-size:13px;font-style:italic">(pcs)</span></td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS <span style="font-size:13px;font-style:italic">(kg)</span></td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS Unplaned <span style="font-size:13px;font-style:italic">(pcs)</span></td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS Unplaned <span style="font-size:13px;font-style:italic">(kg)</span></td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">Unplanned <span style="font-size:13px;font-style:italic">(%)</span></td>
 							</tr>';
 
 							// TAMPIL DATA PER ITEM
@@ -525,7 +557,9 @@ class Laporan extends CI_Controller
 								foreach($produk->result() as $p){
 									// PENGIRIMAN PER ITEM
 									$kItem = $this->db->query("SELECT DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) AS exp_kk,
-									d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,d.bb,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po FROM trs_po p
+									d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,d.bb,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po
+									,(SELECT sum(s2.qty_plan) FROM trs_dev_sys s2 WHERE s2.id_po_header=d.id AND s2.id_produk=d.id_produk AND s2.id_pelanggan=p.id_pelanggan AND s2.timb_tgl IS NULL AND s2.timb_tgl IS NULL
+									AND (DATEDIFF(s2.eta, CURDATE()) IN ('-2', '-1') OR DATEDIFF(s2.eta, CURDATE()) >= '0')) AS qty_plan FROM trs_po p
 									INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 									INNER JOIN m_produk i ON d.id_produk=i.id_produk
 									INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
@@ -536,7 +570,7 @@ class Laporan extends CI_Controller
 									GROUP BY d.id_produk,p.kode_po
 									UNION
 									SELECT DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) AS exp_kk,
-									d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,d.bb,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po FROM trs_po p
+									d.qty,SUM(r.qty_muat) AS tot_muat,SUM(t.rtr_jumlah) AS retur,d.bb,s.id_sales,p.id_pelanggan,i.id_produk,p.id,p.tgl_po,p.kode_po,NULL AS qty_plan FROM trs_po p
 									INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 									INNER JOIN m_produk i ON d.id_produk=i.id_produk
 									INNER JOIN m_pelanggan c ON p.id_pelanggan=c.id_pelanggan
@@ -547,6 +581,8 @@ class Laporan extends CI_Controller
 									GROUP BY d.id_produk,p.kode_po");
 									$sumItem = 0;
 									$sumBBItem = 0;
+									$sumItemUnp = 0;
+									$sumBBItemUnp = 0;
 									foreach($kItem->result() as $ki){
 										if($ki->exp_kk >= 0){
 											$iKirim = ($ki->tot_muat == null) ? 0 : $ki->tot_muat;
@@ -554,12 +590,16 @@ class Laporan extends CI_Controller
 											$iPengiriman = $ki->qty - ($iKirim - $iRetur);
 											$sumItem += ($iPengiriman <= 0) ? 0 : $iPengiriman;
 											$sumBBItem += ($iPengiriman <= 0) ? 0 : round($iPengiriman * $ki->bb);
+											// sys
+											($ki->qty_plan == null) ? $iqtyPLAN = 0 : $iqtyPLAN = $ki->qty_plan;
+											if($iqtyPLAN <= $iPengiriman){
+												$sumItemUnp += $iPengiriman - $iqtyPLAN;
+												$sumBBItemUnp += round(($iPengiriman - $iqtyPLAN) * $ki->bb);
+											}
 										}
 									}
-									(strlen($p->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
-									(strlen($p->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
-									($p->kategori == 'K_BOX') ? $ukuran = $p->ukuran : $ukuran = $p->ukuran_sheet;
-									($p->kategori == 'K_BOX') ? $txtKET = '' : $txtKET = '[SHEET] ';
+									// %%
+									($sumItem > 0) ? $pSOSSysI = round(($sumItemUnp / $sumItem) * 100,2) : $pSOSSysI = 0;
 
 									// CEK STOK GUDANG PER ITEM
 									$qq3 = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$p->id_pelanggan' AND id_produk='$p->id_produk' $wA");
@@ -573,6 +613,7 @@ class Laporan extends CI_Controller
 									WHERE p.status='Approve' AND p.status_kiriman='Open' AND c.id_sales='$p->id_sales' AND p.id_pelanggan='$p->id_pelanggan' and d.id_produk='$p->id_produk'
 									AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('0', '1', '2', '3', '4', '5', '6', '7')
 									GROUP BY d.id_produk");
+
 									// CEK PER ITEM EXPIRED
 									$iMin7 = $this->db->query("SELECT count(p.kode_po) as hari7 FROM trs_po p
 									INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
@@ -591,17 +632,10 @@ class Laporan extends CI_Controller
 										$iTxt7 = '';
 									}
 
-									// GET SYS ITEM
-									$sYsI = $this->db->query("SELECT sum(qty_plan) AS sumQTY FROM trs_dev_sys s
-									INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-									WHERE d.status='Approve' AND s.timb_tgl IS NULL AND s.timb_tgl IS NULL AND s.id_pelanggan='$p->id_pelanggan' AND s.id_produk='$p->id_produk'
-									AND (DATEDIFF(s.eta, CURDATE()) IN ('-2', '-1') OR DATEDIFF(s.eta, CURDATE()) >= '0')")->row();
-									($sYsI->sumQTY == null) ? $sysISumQTY = 0 : $sysISumQTY = $sYsI->sumQTY;
-									$OS_sysI = $sumItem - $sysISumQTY;
-									($OS_sysI <= 0) ? $OSSysIKG = 0 : $OSSysIKG = number_format(round($OS_sysI * $p->berat_bersih),0,',','.');
-									// %%
-									($OS_sysI <= 0) ? $pSOSSysI = 0 : $pSOSSysI = round(($OS_sysI / $sumItem) * 100,2);
-
+									(strlen($p->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+									(strlen($p->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+									($p->kategori == 'K_BOX') ? $ukuran = $p->ukuran : $ukuran = $p->ukuran_sheet;
+									($p->kategori == 'K_BOX') ? $txtKET = '' : $txtKET = '[SHEET] ';
 									$html .= '<tr class="tr2 c'.$p->id_pelanggan.'" style="vertical-align:top;display:none">
 										<td style="border:1px solid #aaa;padding:5px 5px 5px 25px">
 											<input type="hidden" id="ts3" value="">
@@ -621,9 +655,9 @@ class Laporan extends CI_Controller
 										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.$iStok.'</td>
 										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($sumItem,0,',','.').'</td>
 										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($sumBBItem,0,',','.').'</td>
-										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($sysISumQTY,0,',','.').' || '.$OS_sysI.'</td>
-										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($OSSysIKG,0,',','.').'</td>
-										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.$pSOSSysI.'</td>
+										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($sumItemUnp,0,',','.').'</td>
+										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($sumBBItemUnp,0,',','.').'</td>
+										<td style="border:1px solid #aaa;padding:5px;text-align:center">'.$pSOSSysI.'</td>
 									</tr>';
 
 									// TAMPIL DATA NO. PO
@@ -650,9 +684,6 @@ class Laporan extends CI_Controller
 											$kirim = $this->m_fungsi->kiriman($n->kode_po, $n->id_produk, $n->qty);
 											$sisa = $kirim["sisa2"];
 											$bb = round($kirim["sisa2"] * $n->bb);
-											($sisa <= 0) ? $txtSisa = str_replace('-','+',number_format($sisa,0,',','.')) : $txtSisa = number_format($sisa,0,',','.');
-											($sisa <= 0) ? $txtBB = 0 : $txtBB = number_format($bb,0,',','.');
-											($sisa <= 0) ? $intSisa = 0 : $intSisa = $sisa;
 											// TIMER EXPIRED PO
 											if($n->expired_po != null && $n->status_app3 == 'Y'){
 												$dExp = date('Y-m-d', strtotime('+'.$n->expired_po.' days', strtotime(substr($n->time_app3,0,10))));
@@ -663,10 +694,13 @@ class Laporan extends CI_Controller
 												if($n->exp_po < 0){
 													$txtExp = str_replace('-','+',$n->exp_po);
 													$expPO = '<span class="bg-danger" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:4px">'.$txtExp.' EXPIRED</span>';
-													$OSSys = 0; $OSSysKG = 0; $pSOSSys = 0;
+													$OSSys = 0; $OSSysKG = 0; $pSOSSys = 0; $txtSisa = 0; $txtBB = 0;
 												}else{
 													($dExpHari <= 7) ? $tct = 'warning' : $tct = 'secondary';
 													$expPO = '<span class="bg-'.$tct.'" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:4px">'.$dXWaktu.'</span>';
+													($sisa <= 0) ? $txtSisa = str_replace('-','+',number_format($sisa,0,',','.')) : $txtSisa = number_format($sisa,0,',','.');
+													($sisa <= 0) ? $txtBB = 0 : $txtBB = number_format($bb,0,',','.');
+													($sisa <= 0) ? $intSisa = 0 : $intSisa = $sisa;
 													// GET SYS
 													$sYs = $this->db->query("SELECT sum(qty_plan) AS sumQTY FROM trs_dev_sys s
 													INNER JOIN trs_po_detail d ON s.id_po_header=d.id
@@ -677,10 +711,14 @@ class Laporan extends CI_Controller
 													($OS_sys <= 0) ? $OSSys = 0 : $OSSys = $OS_sys;
 													($OS_sys <= 0) ? $OSSysKG = 0 : $OSSysKG = number_format(round($OSSys * $n->bb),0,',','.');
 													// %%
-													($OS_sys <= 0) ? $pSOSSys = 0 : $pSOSSys = round(($OSSys / $intSisa) * 100,2);
+													if($OS_sys <= 0){
+														$pSOSSys = 0;
+													}else{
+														($intSisa > 0) ? $pSOSSys = round(($OSSys / $intSisa) * 100,2) : $pSOSSys = 0;
+													}
 												}
 											}else{
-												$expPO = ''; $OSSys = 0; $OSSysKG = 0; $pSOSSys = 0;
+												$expPO = ''; $OSSys = 0; $OSSysKG = 0; $pSOSSys = 0; $txtSisa = 0; $txtBB = 0;
 											}
 
 											$html .= '<tr class="tr3 n'.$n->id_produk.'" style="display:none">
@@ -690,9 +728,9 @@ class Laporan extends CI_Controller
 												<td style="background:#eee;border:1px solid #aaa;padding:5px"></td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$txtSisa.'</td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$txtBB.'</td>
-												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$sysSumQTY.' || '.number_format($OSSys,0,',','.').'</td>
+												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.number_format($OSSys,0,',','.').'</td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$OSSysKG.'</td>
-												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$pSOSSys.'</td>
+												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:center">'.$pSOSSys.'</td>
 											</tr>';
 										}
 									}
@@ -700,15 +738,22 @@ class Laporan extends CI_Controller
 							}
 						}
 					}
-					$sumTot += $sumBBSales;
 					$sumJet += $sumSales;
+					$sumTot += $sumBBSales;
+					$sumTotUnp += $sumSalesUnp;
+					$sumJetUnp += $sumBBSalesUnp;
 				}
 				// TOTAL
+				// %%
+				($sumJet > 0) ? $sumPersen = round(($sumTotUnp / $sumJet) * 100,2) : $sumPersen = 0;
 				$html .= '<tr>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa" colspan="5"></td>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($allSTOK, 0, ',', '.').'</td>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumJet, 0, ',', '.').'</td>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumTot, 0, ',', '.').'</td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumTotUnp, 0, ',', '.').'</td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumJetUnp, 0, ',', '.').'</td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:center">'.$sumPersen.'</td>
 				</tr>';
 			$html .= '</table>';
 		}
