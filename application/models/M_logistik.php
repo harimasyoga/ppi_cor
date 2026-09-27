@@ -1268,7 +1268,10 @@ class M_logistik extends CI_Model
 		$opsi = $_POST["opsi"];
 		$urut = $_POST["urut"];
 
-		if($opsi == 'new'){
+		if($urut < 0) {
+			$data = false;
+			$msg = 'NO URUT SALAH!';
+		}else if($opsi == 'new'){
 			$cekKirim = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND no_pl_urut='$urut'");
 			if($cekKirim->num_rows() == 0){
 				$this->db->set('rk_urut', $_POST["urut"]);

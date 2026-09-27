@@ -1178,7 +1178,6 @@
 		let fBagiQtySo = $("#form-bagi-qty-so").val()
 		let fBagiKetSo = $("#form-bagi-ket-so").val()
 		let fBagiCrmSo = $("#form-cbx-rm-so").val()
-		let xxx_qty = $("#xxx_qty").val()
 
 		$("#btnAddBagiSO").prop('disabled', true)
 		$("#hapusCartItemSO").prop('disabled', true)
@@ -1197,7 +1196,7 @@
 				});
 			},
 			data: ({
-				i, fBagiEtaSo, fBagiQtySo, fBagiKetSo, hQtyPo, hRmPo, hTonPo, fBagiCrmSo, xxx_qty
+				i, fBagiEtaSo, fBagiQtySo, fBagiKetSo, hQtyPo, hRmPo, hTonPo, fBagiCrmSo
 			}),
 			success: function(res){
 				data = JSON.parse(res)

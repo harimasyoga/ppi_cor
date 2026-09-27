@@ -1272,11 +1272,6 @@ class M_transaksi extends CI_Model
 				$tambahan = null;
 			}
 
-			// SYS
-			// $jumlah_plan = $this->db->query("SELECT IFNULL(sum(qty_plan),0)qty_plan FROM trs_dev_sys
-			// WHERE id_po_header='$id_po_dtl' AND id_produk='$po_dtl->id_produk' AND id_pelanggan='$po_dtl->id_pelanggan'
-			// GROUP BY id_po_header,id_produk,id_pelanggan ORDER BY id_dev")->row();
-
 			// PENGIRIMAN
 			$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
 			$sumKirim = $kirim["sumKirim"];
@@ -1284,9 +1279,22 @@ class M_transaksi extends CI_Model
 
 			$delivery = $sumKirim;
 			$os = $sisa;
-			// $os_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + ($SO->qty_so*2));
-			// $os_belum_terplanning = $sisa - (($jumlah_plan->qty_plan - $SO->qty_so) + $SO->qty_so);
 			$berat = $SO->qty_so * $produk->berat_bersih;
+
+			// PENGIRIMAN
+			$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
+			($kirim["sisa2"] <= 0) ? $qtyKirim = 0 : $qtyKirim = $kirim["sisa2"];
+			$sumKirim = $kirim["sumKirim"];
+			$sisa = $kirim["sisa2"];
+
+			// SYS
+			$planBerjalan = $this->db->query("SELECT SUM(qty_plan) AS sumQTY FROM trs_dev_sys s
+			INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+			WHERE s.timb_tgl IS NULL AND s.timb_tgl IS NULL
+			AND s.id_pelanggan='$SO->id_pelanggan' AND s.id_produk='$SO->id_produk' AND d.kode_po='$SO->kode_po'
+			AND (DATEDIFF(s.eta, CURDATE()) IN ('-2', '-1') OR DATEDIFF(s.eta, CURDATE()) >= '0')");
+			($planBerjalan->row()->sumQTY != null) ? $iPlanJalan = $planBerjalan->row()->sumQTY : $iPlanJalan = 0;
+			$tambah = $iPlanJalan + $SO->qty_so;
 
 			$dts = [
 				'id_po_header' => $id_po_dtl,
@@ -1308,8 +1316,14 @@ class M_transaksi extends CI_Model
 				'urut' => 0,
 				'created_at' => date('Y-m-d H:i:s'),
 			];
-			$data = $this->db->insert("trs_dev_sys", $dts);
-			$msg = 'BERHASIL';
+
+			if($tambah > $qtyKirim){
+				$data = false;
+				$msg = 'QTY LEBIH DARI OS!';
+			}else{
+				$data = $this->db->insert("trs_dev_sys", $dts);
+				$msg = 'BERHASIL';
+			}
 		}
 
 		return [
@@ -1342,8 +1356,18 @@ class M_transaksi extends CI_Model
 
 		// PENGIRIMAN
 		$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
+		($kirim["sisa2"] <= 0) ? $qtyKirim = 0 : $qtyKirim = $kirim["sisa2"];
 		$sumKirim = $kirim["sumKirim"];
 		$sisa = $kirim["sisa2"];
+
+		// SYS
+		$planBerjalan = $this->db->query("SELECT SUM(qty_plan) AS sumQTY FROM trs_dev_sys s
+		INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+		WHERE s.timb_tgl IS NULL AND s.timb_tgl IS NULL
+		AND s.id_pelanggan='$sys->id_pelanggan' AND s.id_produk='$sys->id_produk' AND d.kode_po='$po_dtl->kode_po'
+		AND (DATEDIFF(s.eta, CURDATE()) IN ('-2', '-1') OR DATEDIFF(s.eta, CURDATE()) >= '0')");
+		($planBerjalan->row()->sumQTY != null) ? $iPlanJalan = $planBerjalan->row()->sumQTY : $iPlanJalan = 0;
+		$tambah = $iPlanJalan + $kurang;
 
 		$delivery = $sumKirim;
 		$os = $sisa;
@@ -1370,8 +1394,14 @@ class M_transaksi extends CI_Model
 			'created_at' => date('Y-m-d H:i:s'),
 			'id_dev2' => $id_dev,
 		];
-		$data = $this->db->insert("trs_dev_sys", $dts);
-		$msg = 'BERHASIL';
+
+		if($tambah > $qtyKirim){
+			$data = false;
+			$msg = 'QTY LEBIH DARI OS!';
+		}else{
+			$data = $this->db->insert("trs_dev_sys", $dts);
+			$msg = 'BERHASIL!';
+		}
 
 		return [
 			'data' => $data,
@@ -1470,8 +1500,18 @@ class M_transaksi extends CI_Model
 
 			// PENGIRIMAN
 			$kirim = $this->m_fungsi->kiriman($po_dtl->kode_po, $po_dtl->id_produk, $po_dtl->qty);
+			($kirim["sisa2"] <= 0) ? $qtyKirim = 0 : $qtyKirim = $kirim["sisa2"];
 			$sumKirim = $kirim["sumKirim"];
 			$sisa = $kirim["sisa2"];
+
+			// SYS
+			$planBerjalan = $this->db->query("SELECT SUM(qty_plan) AS sumQTY FROM trs_dev_sys s
+			INNER JOIN trs_po_detail d ON s.id_po_header=d.id
+			WHERE s.timb_tgl IS NULL AND s.timb_tgl IS NULL
+			AND s.id_pelanggan='$sys->id_pelanggan' AND s.id_produk='$sys->id_produk' AND d.kode_po='$po_dtl->kode_po'
+			AND (DATEDIFF(s.eta, CURDATE()) IN ('-2', '-1') OR DATEDIFF(s.eta, CURDATE()) >= '0')");
+			($planBerjalan->row()->sumQTY != null) ? $iPlanJalan = $planBerjalan->row()->sumQTY : $iPlanJalan = 0;
+			$tambah = ($iPlanJalan - $sys_qtylama) + $sys_qty;
 
 			$delivery = $sumKirim;
 			$os = $sisa;
@@ -1486,20 +1526,25 @@ class M_transaksi extends CI_Model
 				$devStat = null; $devMsg = '';
 			}
 
-			$dts = [
-				'delivery' => $delivery,
-				'os' => $os,
-				'os_terplanning' => 0,
-				'os_belum_terplanning' => 0,
-				'qty_plan' => $sys_qty,
-				'berat' => $berat,
-				'eta' => $sys_eta,
-				'ket_sys' => ($sys_ket == '') ? null : $sys_ket,
-				'dev_stat' => $devStat,
-			];
-			$this->db->where("id_dev", $id_sys);
-			$data = $this->db->update("trs_dev_sys", $dts);
-			$msg = 'EDIT BERHASIL!'.$devMsg;
+			if($tambah > $qtyKirim){
+				$data = false;
+				$msg = 'QTY LEBIH DARI OS!';
+			}else{
+				$dts = [
+					'delivery' => $delivery,
+					'os' => $os,
+					'os_terplanning' => 0,
+					'os_belum_terplanning' => 0,
+					'qty_plan' => $sys_qty,
+					'berat' => $berat,
+					'eta' => $sys_eta,
+					'ket_sys' => ($sys_ket == '') ? null : $sys_ket,
+					'dev_stat' => $devStat,
+				];
+				$this->db->where("id_dev", $id_sys);
+				$data = $this->db->update("trs_dev_sys", $dts);
+				$msg = 'EDIT BERHASIL!'.$devMsg;
+			}
 		}
 
 		return [
@@ -2154,7 +2199,7 @@ class M_transaksi extends CI_Model
 				$this->db->where('id_hpp', $id_hpp);
 				$u_upah = $this->db->update('m_hpp'); $u_bb = ''; $u_dll = '';
 			}else if($ooo == 'bb'){
-				if($jenis = 'pm'){
+				if($jenis == 'pm'){
 					$this->db->set('bahan_baku_kg', $ket_kg);
 					$this->db->set('bahan_baku_rp', $ket_x);
 					$this->db->where('id_hpp', $id_hpp);
