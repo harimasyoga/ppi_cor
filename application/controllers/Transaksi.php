@@ -8328,6 +8328,14 @@ class Transaksi extends CI_Controller
 			$kirim = $this->m_fungsi->kiriman($getData->row()->kode_po, $getData->row()->id_produk, $getData->row()->qty);
 			($kirim["sisa2"] <= 0) ? $qtyKirim = 0 : $qtyKirim = $kirim["sisa2"];
 
+			// HARI SENIN N SELASA TAMBAH 1 HARI
+			$namaHari = date('l', strtotime(date("Y-m-d")));
+			if($namaHari == "Monday" || $namaHari == "Tuesday"){
+				$wKun = "('-1', '-2', '-3')";
+			}else{
+				$wKun = "('-1', '-2')";
+			}
+
 			// SYS
 			$pid_pelanggan = $getData->row()->id_pelanggan;
 			$pid_produk = $getData->row()->id_produk;
@@ -8336,7 +8344,7 @@ class Transaksi extends CI_Controller
 			INNER JOIN trs_po_detail d ON s.id_po_header=d.id
 			WHERE s.timb_tgl IS NULL AND s.timb_tgl IS NULL
 			AND s.id_pelanggan='$pid_pelanggan' AND s.id_produk='$pid_produk' AND d.kode_po='$pkode_po'
-			AND (DATEDIFF(s.eta, CURDATE()) IN ('-2', '-1') OR DATEDIFF(s.eta, CURDATE()) >= '0')");
+			AND (DATEDIFF(s.eta, CURDATE()) IN $wKun OR DATEDIFF(s.eta, CURDATE()) >= '0')");
 			($planBerjalan->row()->sumQTY != null) ? $iPlanJalan = $planBerjalan->row()->sumQTY : $iPlanJalan = 0;
 
 			if($this->cart->total_items() != 0){
