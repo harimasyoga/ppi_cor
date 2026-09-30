@@ -12477,7 +12477,7 @@ class Logistik extends CI_Controller
 
 								$gudang = $this->db->query("SELECT*FROM m_gudang_v2 g
 								INNER JOIN m_produk p ON g.id_produk=p.id_produk
-								WHERE g.id_pelanggan='$p->id_pelanggan' $wA
+								WHERE g.bulan='$bulan' AND g.tahun='$tahun' AND g.id_pelanggan='$p->id_pelanggan' $wA
 								GROUP BY g.id_pelanggan, g.id_produk
 								ORDER BY p.kategori,p.nm_produk");
 								$i = 0;

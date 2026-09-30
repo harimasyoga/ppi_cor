@@ -203,11 +203,44 @@
 	</section>
 </div>
 
+<div class="modal fade" id="modalGDCor">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" style="font-weight:bold">RINCIAN STOK GUDANG</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" style="padding:20px 12px">
+				<div style="overflow:auto;white-space:nowrap">
+					<div id="modal-gudang"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script type="text/javascript">
 	$(document).ready(function() {
 		$(".select2").select2()
 		lapOSperSales()
 	});
+
+	function rincianGDCor(id_pelanggan, tgl){
+		$("#modal-gudang").html(`. . .`)
+		$("#modalGDCor").modal("show")
+		$.ajax({
+			url: '<?php echo base_url('Laporan/rincianGDCor') ?>',
+			data: ({ id_pelanggan, tgl }),
+			type: "POST",
+			success: function(res) {
+				data = JSON.parse(res)
+				$("#modal-gudang").html(data.html)
+				$(".modal-open").css({"padding-right": "0"})
+			}
+		})
+	}
 
 	function lapOSperSales() {
 		$(".tab_laporan").html('')

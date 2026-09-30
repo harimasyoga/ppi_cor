@@ -83,7 +83,7 @@
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
 							<div class="col-md-2">Tanggal Invoice</div>
 							<div class="col-md-3">
-								<input type="date" id="tgl_inv" name="tgl_inv" class="form-control" autocomplete="off" placeholder="Tanggal Invoice" onchange="noinv(),no_inv2()">
+								<input type="date" id="tgl_inv" name="tgl_inv" class="form-control" autocomplete="off" placeholder="Tanggal Invoice" onchange="noinv(),no_inv2(),loadTOP()">
 							</div>
 							<div class="col-md-1"></div>
 							<div class="col-md-2">Pajak</div>
@@ -116,7 +116,13 @@
 							<div class="col-md-1"></div>
 							<div class="col-md-2">Tanggal Jatuh Tempo</div>
 							<div class="col-md-3">
-								<input type="date" id="tgl_tempo" name="tgl_tempo" class="form-control" autocomplete="off" placeholder="Jatuh Tempo">
+								<input type="date" id="tgl_tempo" name="tgl_tempo" class="form-control" autocomplete="off" placeholder="Jatuh Tempo" onchange="loadTOP()">
+							</div>
+						</div>
+						<div class="card-body row" style="padding:1px 20px;font-weight:bold">
+							<div class="col-md-8"></div>
+							<div class="col-md-3">
+								<div class="txt-top">top</div>
 							</div>
 						</div>
 						<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
@@ -1891,6 +1897,7 @@
 					$("#modal_pajak").val(data.header.pajak).trigger('change');
 					$("#modal_bank").val(data.header.bank).trigger('change');
 					$("#modal_tgl_tempo").val(data.header.tgl_jatuh_tempo);
+					loadTOP()
 					$("#modal_id_perusahaan").val(data.header.id_perusahaan);
 					$("#modal_kpd").val(data.header.kepada);
 					$("#modal_nm_perusahaan").val(data.header.nm_perusahaan);
@@ -2349,6 +2356,7 @@
 		$("#tgl_inv").val("");
 		$("#tgl_sj").val("");
 		$("#tgl_tempo").val("");
+		$(".txt-top").html("");
 		$("#pajak").val("");
 		$("#pajak").html(`<select id="pajak" name="pajak" class="form-control select2" style="width: 100%" onchange="noinv(),no_inv2()">
 			<option value="">-- PILIH --</option>
@@ -2444,6 +2452,25 @@
 				}
 			}
 		});
+	}
+
+	function loadTOP() {
+		let tgl_inv = $("#tgl_inv").val()
+		let tgl_tempo = $("#tgl_tempo").val()
+		$(".txt-top").html("")
+		if((tgl_inv && tgl_tempo) && (tgl_tempo >= tgl_inv)) {
+			// 2. Ubah string ke objek Date
+			let tgl1 = new Date(tgl_inv);
+			let tgl2 = new Date(tgl_tempo);
+			// Kurangi tanggal (menghasilkan selisih dalam milidetik)
+			let selisihMs = tgl2 - tgl1;
+			// Konversi milidetik ke hari (1 hari = 1000ms * 60s * 60m * 24j)
+			let selisihHari = selisihMs / (1000 * 60 * 60 * 24);
+			// Tampilkan hasil (gunakan Math.round agar tidak desimal)
+			$(".txt-top").html('TOP '+Math.round(selisihHari)+' HARI')
+		}else if((tgl_inv && tgl_tempo) && (tgl_inv > tgl_tempo)){
+			$(".txt-top").html('CEK LAGI!')
+		}
 	}
 
 	function load_cs() {
@@ -2835,6 +2862,7 @@
 					$("#pajak").val(data.header.pajak).trigger('change');
 					$("#bank").val(data.header.bank).trigger('change');
 					$("#tgl_tempo").val(data.header.tgl_jatuh_tempo);
+					loadTOP()
 					$("#id_perusahaan").val(data.header.id_perusahaan);
 					$("#kpd").val(data.header.kepada);
 					$("#nm_perusahaan").val(data.header.nm_perusahaan);
