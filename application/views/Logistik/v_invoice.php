@@ -335,6 +335,37 @@
 			</div>
 		</div>
 
+		<div class="card shadow lap_inv" style="display: none;">
+			<div class="card-header" style="font-family:Cambria;">
+				<h3 class="card-title" style="color:#4e73df;"><b>LAPORAN INVOICE</b></h3>
+				<div class="card-tools">
+					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
+				</div>
+			</div>
+			<div class="card-body">
+				<div style="margin-bottom:12px">
+					<button type="button" onclick="kembaliList()" class="btn-tambah-produk btn  btn-danger"><b>
+							<i class="fa fa-arrow-left"></i> Kembali</b>
+					</button>
+				</div>
+				<div class="card-body row" style="font-weight:bold;padding:12px 0 6px">
+					<div class="col-md-1">TANGGAL</div>
+					<div class="col-md-2">
+						<input type="date" id="lap_tgl" class="form-control" onchange="plhLaporanInvoice()">
+					</div>
+					<div class="col-md-9"></div>
+				</div>
+				<div class="card-body row" style="padding:12px 0 6px">
+					<div class="col-md-12">
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="tab_lap_inv"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<div class="card shadow list_exp" style="display: none;">
 			<div class="card-header" style="font-family:Cambria;">
 				<h3 class="card-title" style="color:#4e73df;"><b>LAPORAN EXPIRED</b></h3>
@@ -466,6 +497,7 @@
 							<div style="margin-bottom:12px">
 								<button type="button" style="margin-bottom:3px" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								<button type="button" style="margin-bottom:3px" class="btn btn-secondary btn-sm" onclick="open_sj()" title="LIST SURAT JALAN"><i class="fas fa-list"></i> <b>LIST SURAT JALAN</b></button>
+								<!-- <button type="button" style="margin-bottom:3px" class="btn btn-secondary btn-sm" onclick="lapInvoice()" title="LAPORAN INVOICE"><i class="fas fa-list"></i> <b>LAPORAN INVOICE</b></button> -->
 								<!-- <button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE EXPIRED"><i class="fas fa-sync-alt"></i><b>UPDATE EXPIRED</b></button> -->
 								<?php if (in_array($this->session->userdata('level'), ['Admin'])) { ?>
 									<!-- <button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateInvMutasi()" title="UPDATE TOTAL"><i class="fas fa-sync-alt"></i> </i><b>UPDATE TOTAL</b></button> -->
@@ -1604,6 +1636,12 @@
 		listNomerSJ()
 	}
 
+	function lapInvoice() {
+		$(".row-input").attr('style', 'display:none')
+		$(".row-list").attr('style', 'display:none')
+		$(".lap_inv").attr('style', '')
+	}
+
 	function open_piutang() {
 		$(".row-input").attr('style', 'display:none')
 		$(".row-list").attr('style', 'display:none')
@@ -1622,6 +1660,20 @@
 		}else{
 			$("#piu_bulan").prop("disabled", false)
 		}
+	}
+
+	function plhLaporanInvoice() {
+		$('.tab_lap_inv').html('')
+		let lap_tgl = $('#lap_tgl').val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/plhLaporanInvoice') ?>',
+			type: "POST",
+			data: ({ lap_tgl }),
+			success: function(res) {
+				data = JSON.parse(res)
+				$('.tab_lap_inv').html(data.html)
+			}
+		})
 	}
 
 	function chPiuTahun() {
@@ -1843,10 +1895,12 @@
 		$(".row-input").attr('style', 'display:none')
 		$(".list_lap").attr('style', 'display:none')
 		$(".list_sj").attr('style', 'display:none')
+		$(".lap_inv").attr('style', 'display:none')
 		$(".list_exp").attr('style', 'display:none')
 		$(".list_piutang").attr('style', 'display:none')
 		$(".list_akses").attr('style', 'display:none')
 		$('.axs').html(``)
+		$('.tab_lap_inv').html(``)
 		$(".card-mutasi").attr('style', 'display:none')
 		$("#tgl_expired").val('')
 		$('#ex_pilih').val('').trigger('change')

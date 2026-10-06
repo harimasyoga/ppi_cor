@@ -3445,7 +3445,7 @@ class M_transaksi extends CI_Model
 
 		if($urut < 0 || $urut == ''){
 			$data = false; $msg = 'UHUY!';
-		}else if($tglPilih <= 0 && $sys->eta_t != 'REPLAN' && $lvl != 'Admin'){
+		}else if($tglPilih <= 0 && $sys->eta_t != 'REPLAN' && ($lvl == 'Admin' && $lvl == 'User')){
 			$data = false;
 			$msg = 'LOCK '.$sys->lock.' HARI PER HARI INI!';
 		}else if($cek->num_rows() != 0){
