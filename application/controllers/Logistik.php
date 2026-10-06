@@ -5821,6 +5821,65 @@ class Logistik extends CI_Controller
 		));
 	}
 
+	function plhLaporanInvoice()
+	{
+		$lap_tgl = $_POST["lap_tgl"];
+		$html = '';
+
+		$detail = $this->db->query("SELECT d.no_surat,d.no_po,d.qty,p.no_kendaraan,p.expedisi,p.driver,i.*,h.* FROM invoice_header h
+		INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
+		inner join pl_box p on d.no_surat=p.no_surat and d.id_pl=p.id and d.no_po=p.no_po
+		inner join m_produk i on d.id_produk_simcorr=i.id_produk
+		WHERE h.tgl_invoice='$lap_tgl' and h.type!='ROLL'
+		GROUP BY h.no_invoice,d.no_surat,h.id_perusahaan,d.no_po,i.id_produk
+		ORDER BY h.tgl_invoice,h.pajak,d.no_surat,d.no_po,i.nm_produk");
+
+		if($detail->num_rows() == 0){
+			$html .= 'DATA KOSONG!';
+		}else{
+			$html .= '<table>
+				<tr style="font-weight:bold;text-align:center">
+					<td style="border:1px solid #000;padding:5px">TGL</td>
+					<td style="border:1px solid #000;padding:5px">CUSTOMER</td>
+					<td style="border:1px solid #000;padding:5px">JTH TEMPO</td>
+					<td style="border:1px solid #000;padding:5px">NO. SJ</td>
+					<td style="border:1px solid #000;padding:5px">NO. KENDARAAN</td>
+					<td style="border:1px solid #000;padding:5px">EKSPEDISI</td>
+					<td style="border:1px solid #000;padding:5px">NO. PO</td>
+					<td style="border:1px solid #000;padding:5px">ITEM</td>
+					<td style="border:1px solid #000;padding:5px">FLUTE</td>
+					<td style="border:1px solid #000;padding:5px">JUMLAH</td>
+				</tr>';
+				foreach($detail->result() as $r){
+					($r->kepada == '-') ? $kepada = '' : $kepada = '<div>'.$r->kepada.'</div>';
+					// (strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+					// (strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+					($r->kategori == 'K_BOX') ? $ukuran = strtolower(str_replace(' ', '', $r->ukuran)) : $ukuran = $r->ukuran_sheet;
+					$nm_produk = $r->nm_produk.'. '.$ukuran.'. '.$this->m_fungsi->kualitas($r->kualitas, $r->flute);
+
+					($r->flute == 'BCF') ? $flute = 'BC' : $flute = $r->flute;
+
+					$html .= '<tr style="vertical-align:top">
+						<td style="border:1px solid #000;padding:5px">'.$this->m_fungsi->tglIndSkt($r->tgl_invoice).'</td>
+						<td style="border:1px solid #000;padding:5px">'.$r->nm_perusahaan.$kepada.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:center">'.$this->m_fungsi->tglIndSkt($r->tgl_jatuh_tempo).'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:center">'.$r->no_surat.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:center">'.$r->no_kendaraan.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:center">'.$r->expedisi.'( '.$r->driver.' )</td>
+						<td style="border:1px solid #000;padding:5px;text-align:center">'.$r->no_po.'</td>
+						<td style="border:1px solid #000;padding:5px">'.$nm_produk.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:center">'.$flute.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($r->qty,0,',','.').'</td>
+					</tr>';
+				}
+			$html .= '</table>';
+		}
+
+		echo json_encode(array(
+			'html' => $html,
+		));
+	}
+
 	function chPiuTahun()
 	{
 		$html = '';
@@ -14774,7 +14833,8 @@ class Logistik extends CI_Controller
 			INNER JOIN pl_box p ON r.id_pl_box=p.id
 			INNER JOIN m_produk i ON r.id_produk=i.id_produk
 			WHERE p.no_surat='$jenis'
-			GROUP BY r.id_pelanggan,r.id_produk,r.rk_kode_po");
+			GROUP BY r.id_pelanggan,r.id_produk,r.rk_kode_po
+			ORDER BY i.nm_produk");
 			$no = 0;
 			$sumQty = 0;
 			foreach ($data_detail->result() as $data ) {

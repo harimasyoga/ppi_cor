@@ -3433,6 +3433,7 @@ class M_transaksi extends CI_Model
 	{
 		$id_dev = $_POST["id_dev"];
 		$urut = $_POST["urut"];
+		$lvl = $this->session->userdata('level');
 
 		$sys = $this->db->query("SELECT p.lock,s.* FROM trs_dev_sys s INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan WHERE id_dev='$id_dev'")->row();
 		$cek = $this->db->query("SELECT*FROM trs_dev_sys WHERE eta='$sys->eta' AND urut='$urut' AND id_ex IS NOT NULL GROUP BY urut");
@@ -3444,7 +3445,7 @@ class M_transaksi extends CI_Model
 
 		if($urut < 0 || $urut == ''){
 			$data = false; $msg = 'UHUY!';
-		}else if($tglPilih <= 0 && $sys->eta_t != 'REPLAN'){
+		}else if($tglPilih <= 0 && $sys->eta_t != 'REPLAN' && ($lvl == 'Admin' && $lvl == 'User')){
 			$data = false;
 			$msg = 'LOCK '.$sys->lock.' HARI PER HARI INI!';
 		}else if($cek->num_rows() != 0){
