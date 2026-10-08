@@ -5823,6 +5823,7 @@ class Logistik extends CI_Controller
 
 	function plhLaporanInvoice()
 	{
+		$db2 = $this->load->database('database_simroll', TRUE);
 		$lap_tgl = $_POST["lap_tgl"];
 		$html = '';
 
@@ -5833,32 +5834,29 @@ class Logistik extends CI_Controller
 		WHERE h.tgl_invoice='$lap_tgl' and h.type!='ROLL'
 		GROUP BY h.no_invoice,d.no_surat,h.id_perusahaan,d.no_po,i.id_produk
 		ORDER BY h.tgl_invoice,h.pajak,d.no_surat,d.no_po,i.nm_produk");
-
-		if($detail->num_rows() == 0){
-			$html .= 'DATA KOSONG!';
-		}else{
-			$html .= '<table>
-				<tr style="font-weight:bold;text-align:center">
-					<td style="border:1px solid #000;padding:5px">TGL</td>
-					<td style="border:1px solid #000;padding:5px">CUSTOMER</td>
-					<td style="border:1px solid #000;padding:5px">JTH TEMPO</td>
-					<td style="border:1px solid #000;padding:5px">NO. SJ</td>
-					<td style="border:1px solid #000;padding:5px">NO. KENDARAAN</td>
-					<td style="border:1px solid #000;padding:5px">EKSPEDISI</td>
-					<td style="border:1px solid #000;padding:5px">NO. PO</td>
-					<td style="border:1px solid #000;padding:5px">ITEM</td>
-					<td style="border:1px solid #000;padding:5px">FLUTE</td>
-					<td style="border:1px solid #000;padding:5px">JUMLAH</td>
+		$html .= '<table style="margin-bottom:12px">
+			<tr style="background:#f4b184;font-weight:bold;text-align:center">
+				<td style="border:1px solid #000;padding:5px">TGL</td>
+				<td style="border:1px solid #000;padding:5px">CUSTOMER</td>
+				<td style="border:1px solid #000;padding:5px">JTH TEMPO</td>
+				<td style="border:1px solid #000;padding:5px">NO. SJ</td>
+				<td style="border:1px solid #000;padding:5px">NO. KENDARAAN</td>
+				<td style="border:1px solid #000;padding:5px">EKSPEDISI</td>
+				<td style="border:1px solid #000;padding:5px">NO. PO</td>
+				<td style="border:1px solid #000;padding:5px">ITEM</td>
+				<td style="border:1px solid #000;padding:5px">FLUTE</td>
+				<td style="border:1px solid #000;padding:5px">JUMLAH</td>
+			</tr>';
+			if($detail->num_rows() == 0){
+				$html .= '<tr>
+					<td style="border:1px solid #000;padding:5px;text-align:center;font-weight:bold" colspan="10">DATA KOSONG!</td>
 				</tr>';
+			}else{
 				foreach($detail->result() as $r){
-					($r->kepada == '-') ? $kepada = '' : $kepada = '<div>'.$r->kepada.'</div>';
-					// (strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
-					// (strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+					($r->kepada == '-') ? $kepada = '' : $kepada = ' - '.$r->kepada;
 					($r->kategori == 'K_BOX') ? $ukuran = strtolower(str_replace(' ', '', $r->ukuran)) : $ukuran = $r->ukuran_sheet;
 					$nm_produk = $r->nm_produk.'. '.$ukuran.'. '.$this->m_fungsi->kualitas($r->kualitas, $r->flute);
-
 					($r->flute == 'BCF') ? $flute = 'BC' : $flute = $r->flute;
-
 					$html .= '<tr style="vertical-align:top">
 						<td style="border:1px solid #000;padding:5px">'.$this->m_fungsi->tglIndSkt($r->tgl_invoice).'</td>
 						<td style="border:1px solid #000;padding:5px">'.$r->nm_perusahaan.$kepada.'</td>
@@ -5866,14 +5864,207 @@ class Logistik extends CI_Controller
 						<td style="border:1px solid #000;padding:5px;text-align:center">'.$r->no_surat.'</td>
 						<td style="border:1px solid #000;padding:5px;text-align:center">'.$r->no_kendaraan.'</td>
 						<td style="border:1px solid #000;padding:5px;text-align:center">'.$r->expedisi.'( '.$r->driver.' )</td>
-						<td style="border:1px solid #000;padding:5px;text-align:center">'.$r->no_po.'</td>
+						<td style="border:1px solid #000;padding:5px">'.$r->no_po.'</td>
 						<td style="border:1px solid #000;padding:5px">'.$nm_produk.'</td>
 						<td style="border:1px solid #000;padding:5px;text-align:center">'.$flute.'</td>
 						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($r->qty,0,',','.').'</td>
 					</tr>';
 				}
-			$html .= '</table>';
-		}
+			}
+		$html .= '</table>';
+
+		$dtlRollPPN = $this->db->query("SELECT h.tgl_invoice,h.tgl_jatuh_tempo,LTRIM(d.no_surat) AS no_surat1,h.kepada,h.nm_perusahaan,SUM(d.hasil) AS hasil1,SUM(d.harga*d.hasil) AS jumlah,d.* FROM invoice_header h
+		INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
+		WHERE h.tgl_invoice='$lap_tgl' AND h.type='ROLL' AND h.pajak!='nonppn'
+		GROUP BY h.no_invoice,LTRIM(d.no_surat),h.id_perusahaan,d.no_po,d.nm_ker,d.g_label,d.harga;");
+		$html .= '<table style="margin-bottom:12px">
+			<tr style="background:#c6e0b4;font-weight:bold;text-align:center">
+				<td style="border:1px solid #000;padding:5px" colspan="15">PENJUALAN ROLL PPN</td>
+			</tr>
+			<tr style="background:#e2efda;font-weight:bold;text-align:center">
+				<td style="border:1px solid #000;padding:5px">TGL SJ</td>
+				<td style="border:1px solid #000;padding:5px">JT.TEMPO</td>
+				<td style="border:1px solid #000;padding:5px">NOMOR SJ</td>
+				<td style="border:1px solid #000;padding:5px">NO. KENDARAAN</td>
+				<td style="border:1px solid #000;padding:5px">EKSPEDISI</td>
+				<td style="border:1px solid #000;padding:5px">NO. INVOICE</td>
+				<td style="border:1px solid #000;padding:5px">CUSTOMER</td>
+				<td style="border:1px solid #000;padding:5px">NO. PO</td>
+				<td style="border:1px solid #000;padding:5px">ITEM</td>
+				<td style="border:1px solid #000;padding:5px">TONASE</td>
+				<td style="border:1px solid #000;padding:5px">HARGA</td>
+				<td style="border:1px solid #000;padding:5px">DPP</td>
+				<td style="border:1px solid #000;padding:5px">PPN</td>
+				<td style="border:1px solid #000;padding:5px">PPH22</td>
+				<td style="border:1px solid #000;padding:5px">TOTAL</td>
+			</tr>';
+			if($dtlRollPPN->num_rows() == 0){
+				$html .= '<tr>
+					<td style="border:1px solid #000;padding:5px;text-align:center;font-weight:bold" colspan="15">DATA KOSONG!</td>
+				</tr>';
+			}else{
+				$sumTon = 0;
+				$sumTot = 0;
+				foreach($dtlRollPPN->result() as $p){
+					($p->kepada == '-') ? $kepada = '' : $kepada = ' - '.$p->kepada;
+					// PERHITUNGAN
+					// DISC
+					// ($r->disc != 0) ? $subTotal = $queryd->jumlah - ($queryd->jumlah * ($r->disc/100)) : $subTotal = $queryd->jumlah;
+					$subTotal = $p->jumlah;
+					// PPN
+					$ppn11 = 0.11 * $subTotal; 
+					$pph22 = 0.001 * $subTotal;
+					if($r->pajak == 'ppn'){
+						if($r->inc_exc == 'Include'){
+							$nominal = 0;
+						}else if($r->inc_exc == 'Exclude'){				
+							$nominal = $ppn11;
+						}else{
+							$nominal = 0;
+						}
+					}else if($r->pajak == 'ppn_pph'){
+						if($r->inc_exc == 'Include'){
+							$nominal = 0;
+						}else if($r->inc_exc == 'Exclude'){				
+							$nominal = $ppn11 + $pph22;
+						}else{
+							$nominal = 0;
+						}
+					}else{
+						if($r->inc_exc == 'Include'){
+							$nominal = 0;
+						}else if($r->inc_exc == 'Exclude'){
+							$nominal = $ppn11;
+						}else{
+							$nominal = 0;
+						}
+					}
+					// POTONGAN
+					// $potTot = $this->db->query("SELECT SUM(pot_potongan) AS potongan FROM invoice_header_potongan WHERE no_invoice='$r->no_invoice' GROUP BY no_invoice");
+					// ($potTot->num_rows() != 0) ? $potongan = $potTot->row()->potongan : $potongan = 0;
+					// TOTAL
+					$total = $subTotal + $nominal;
+					// $total = ($subTotal + $nominal) - $potongan;
+
+					$eksPedisi = $db2->query("SELECT*FROM pl b LEFT JOIN m_expedisi ex ON ex.id=b.id_expedisi WHERE b.no_surat LIKE '%$p->no_surat1%' LIMIT 1");
+					if($eksPedisi->num_rows() > 0){
+						if($eksPedisi->row()->plat == null){
+							$plat = '';
+							$txtEks = '';
+						}else{
+							$plat = $eksPedisi->row()->plat;
+							$txtEks = $eksPedisi->row()->pt.' ( '.$eksPedisi->row()->supir.' )';
+						}
+					}else{
+						$plat = '';
+						$txtEks = '';
+					}
+
+					$html .= '<tr style="vertical-align:top">
+						<td style="border:1px solid #000;padding:5px">'.$this->m_fungsi->tglIndSkt($p->tgl_invoice).'</td>
+						<td style="border:1px solid #000;padding:5px">'.$this->m_fungsi->tglIndSkt($p->tgl_jatuh_tempo).'</td>
+						<td style="border:1px solid #000;padding:5px">'.$p->no_surat1.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:center">'.$plat.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:center">'.$txtEks.'</td>
+						<td style="border:1px solid #000;padding:5px">'.$p->no_invoice.'</td>
+						<td style="border:1px solid #000;padding:5px">'.$p->nm_perusahaan.$kepada.'</td>
+						<td style="border:1px solid #000;padding:5px">'.$p->no_po.'</td>
+						<td style="border:1px solid #000;padding:5px">'.$p->nm_ker.' '.$p->g_label.' GSM</td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($p->hasil1,0,',','.').'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($p->harga,0,',','.').'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($subTotal,0,',','.').'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($ppn11,0,',','.').'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:right"></td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($total,0,',','.').'</td>
+					</tr>';
+					$sumTon += $p->hasil1;
+					$sumTot += $total;
+				}
+				if($dtlRollPPN->num_rows() > 1){
+					$html .= '<tr style="background:#e2efda;font-weight:bold">
+						<td style="border:1px solid #000;padding:5px" colspan="9"></td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($sumTon,0,',','.').'</td>
+						<td style="border:1px solid #000;padding:5px" colspan="4"></td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($sumTot,0,',','.').'</td>
+					</tr>';
+				}
+			}
+		$html .= '</table>';
+
+		$dtlRollNON = $this->db->query("SELECT h.tgl_invoice,h.tgl_jatuh_tempo,LTRIM(d.no_surat) AS no_surat1,h.kepada,h.nm_perusahaan,SUM(d.hasil) AS hasil1,SUM(d.harga*d.hasil) AS jumlah,d.* FROM invoice_header h
+		INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
+		WHERE h.tgl_invoice='$lap_tgl' AND h.type='ROLL' AND h.pajak='nonppn'
+		GROUP BY h.no_invoice,LTRIM(d.no_surat),h.id_perusahaan,d.no_po,d.nm_ker,d.g_label,d.harga;");
+		$html .= '<table>
+			<tr style="background:#c6e0b4;font-weight:bold;text-align:center">
+				<td style="border:1px solid #000;padding:5px" colspan="15">PENJUALAN ROLL NON PPN</td>
+			</tr>
+			<tr style="background:#e2efda;font-weight:bold;text-align:center">
+				<td style="border:1px solid #000;padding:5px">TGL SJ</td>
+				<td style="border:1px solid #000;padding:5px">JT.TEMPO</td>
+				<td style="border:1px solid #000;padding:5px">NOMOR SJ</td>
+				<td style="border:1px solid #000;padding:5px">NO. KENDARAAN</td>
+				<td style="border:1px solid #000;padding:5px">EKSPEDISI</td>
+				<td style="border:1px solid #000;padding:5px">NO. INVOICE</td>
+				<td style="border:1px solid #000;padding:5px">CUSTOMER</td>
+				<td style="border:1px solid #000;padding:5px">NO. PO</td>
+				<td style="border:1px solid #000;padding:5px">ITEM</td>
+				<td style="border:1px solid #000;padding:5px">TONASE</td>
+				<td style="border:1px solid #000;padding:5px">HARGA</td>
+				<td style="border:1px solid #000;padding:5px">DPP</td>
+				<td style="border:1px solid #000;padding:5px">PPN</td>
+				<td style="border:1px solid #000;padding:5px">PPH22</td>
+				<td style="border:1px solid #000;padding:5px">TOTAL</td>
+			</tr>';
+			if($dtlRollNON->num_rows() == 0){
+				$html .= '<tr>
+					<td style="border:1px solid #000;padding:5px;text-align:center;font-weight:bold" colspan="15">DATA KOSONG!</td>
+				</tr>';
+			}else{
+				$sumTon2 = 0;
+				$sumTot2 = 0;
+				foreach($dtlRollNON->result() as $n){
+					($n->kepada == '-') ? $kepada = '' : $kepada = ' - '.$n->kepada;
+
+					$eksPedisi2 = $db2->query("SELECT*FROM pl b LEFT JOIN m_expedisi ex ON ex.id=b.id_expedisi WHERE b.no_surat LIKE '%$n->no_surat1%' LIMIT 1");
+					if($eksPedisi2->num_rows() > 0){
+						$plat2 = $eksPedisi2->row()->plat;
+						$txtEks2 = $eksPedisi2->row()->pt.' ( '.$eksPedisi2->row()->supir.' )';
+					}else{
+						$plat2 = '';
+						$txtEks2 = '';
+					}
+
+					$html .= '<tr style="vertical-align:top">
+						<td style="border:1px solid #000;padding:5px">'.$this->m_fungsi->tglIndSkt($n->tgl_invoice).'</td>
+						<td style="border:1px solid #000;padding:5px">'.$this->m_fungsi->tglIndSkt($n->tgl_jatuh_tempo).'</td>
+						<td style="border:1px solid #000;padding:5px">'.$n->no_surat1.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:center">'.$plat2.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:center">'.$txtEks2.'</td>
+						<td style="border:1px solid #000;padding:5px">'.$n->no_invoice.'</td>
+						<td style="border:1px solid #000;padding:5px">'.$n->nm_perusahaan.$kepada.'</td>
+						<td style="border:1px solid #000;padding:5px">'.$n->no_po.'</td>
+						<td style="border:1px solid #000;padding:5px">'.$n->nm_ker.' '.$n->g_label.' GSM</td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($n->hasil1,0,',','.').'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($n->harga,0,',','.').'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:right"></td>
+						<td style="border:1px solid #000;padding:5px;text-align:right"></td>
+						<td style="border:1px solid #000;padding:5px;text-align:right"></td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($n->jumlah,0,',','.').'</td>
+					</tr>';
+					$sumTon2 += $n->hasil1;
+					$sumTot2 += $n->jumlah;
+				}
+				if($dtlRollNON->num_rows() > 1){
+					$html .= '<tr style="background:#e2efda;font-weight:bold">
+						<td style="border:1px solid #000;padding:5px" colspan="9"></td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($sumTon2,0,',','.').'</td>
+						<td style="border:1px solid #000;padding:5px" colspan="4"></td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($sumTot2,0,',','.').'</td>
+					</tr>';
+				}
+			}
+		$html .= '</table>';
 
 		echo json_encode(array(
 			'html' => $html,
@@ -14238,12 +14429,16 @@ class Logistik extends CI_Controller
 				}
 				($r->sj_blk == null) ? $jj = '' : $jj = strtoupper(substr($this->m_fungsi->getHariIni($r->sj_blk),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->sj_blk)).$nt;
 			}
+			// SURAT JALAN
+			($r->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
+			$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$r->no_surat."&top=".$jarak."&ctk=0").'" title="'.$r->no_surat.'" >PRINT</a>';
+			($r->id_hub != 7) ? $btnJasa = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" title="SJ JASA" onclick="insertSuratJalanJasa('."'".$r->no_surat."'".')">JASA</button>' : $btnJasa = '';
+			$no_surat = explode("/", $r->no_surat);
+			if($jenis == 'invoice'){
+				$row[] = '<div class="text-center">'.$btnPrint.'</div>';
+			}
 			$row[] = '<div class="text-center">'.$jj.'</div>';
 			if($jenis == 'sj'){
-				($r->pajak == 'ppn') ? $jarak = 100 : $jarak = 180;
-				$btnPrint = '<a target="_blank" class="btn btn-xs btn-success" style="font-weight:bold" href="'.base_url("Logistik/printSuratJalan?jenis=".$r->no_surat."&top=".$jarak."&ctk=0").'" title="'.$r->no_surat.'" >PRINT</a>';
-				($r->id_hub != 7) ? $btnJasa = '<button type="button" class="btn btn-xs btn-primary" style="font-weight:bold" title="SJ JASA" onclick="insertSuratJalanJasa('."'".$r->no_surat."'".')">JASA</button>' : $btnJasa = '';
-				$no_surat = explode("/", $r->no_surat);
 				if($no_surat[0] == 000){
 					$aksi = '-';
 				}else{
