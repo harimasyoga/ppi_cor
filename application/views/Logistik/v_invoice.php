@@ -321,8 +321,9 @@
 											<th style="width:16%;padding:12px;text-align:center">NO. SJ</th>
 											<th style="width:16%;padding:12px;text-align:center">NO. PO</th>
 											<th style="width:31%;padding:12px;text-align:center">CUSTOMER</th>
-											<th style="width:8%;padding:12px;text-align:center">PLAT</th>
+											<th style="width:4%;padding:12px;text-align:center">PLAT</th>
 											<th style="width:8%;padding:12px;text-align:center">EKSPEDISI</th>
+											<th style="width:4%;padding:12px;text-align:center">AKSI</th>
 											<th style="width:8%;padding:12px;text-align:center">SJ BALIK</th>
 										</tr>
 									</thead>
@@ -497,7 +498,7 @@
 							<div style="margin-bottom:12px">
 								<button type="button" style="margin-bottom:3px" class="btn btn-info btn-sm" onclick="add_data()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
 								<button type="button" style="margin-bottom:3px" class="btn btn-secondary btn-sm" onclick="open_sj()" title="LIST SURAT JALAN"><i class="fas fa-list"></i> <b>LIST SURAT JALAN</b></button>
-								<!-- <button type="button" style="margin-bottom:3px" class="btn btn-secondary btn-sm" onclick="lapInvoice()" title="LAPORAN INVOICE"><i class="fas fa-list"></i> <b>LAPORAN INVOICE</b></button> -->
+								<button type="button" style="margin-bottom:3px" class="btn btn-success btn-sm" onclick="lapInvoice()" title="LAPORAN INVOICE"><i class="fas fa-list"></i> <b>LAPORAN INVOICE</b></button>
 								<!-- <button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateExpired()" title="UPDATE EXPIRED"><i class="fas fa-sync-alt"></i><b>UPDATE EXPIRED</b></button> -->
 								<?php if (in_array($this->session->userdata('level'), ['Admin'])) { ?>
 									<!-- <button type="button" style="margin-bottom:3px" class="btn btn-dark btn-sm" onclick="updateInvMutasi()" title="UPDATE TOTAL"><i class="fas fa-sync-alt"></i> </i><b>UPDATE TOTAL</b></button> -->
@@ -1669,9 +1670,20 @@
 			url: '<?php echo base_url('Logistik/plhLaporanInvoice') ?>',
 			type: "POST",
 			data: ({ lap_tgl }),
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			success: function(res) {
 				data = JSON.parse(res)
 				$('.tab_lap_inv').html(data.html)
+				swal.close()
 			}
 		})
 	}
@@ -1903,6 +1915,7 @@
 		$('.tab_lap_inv').html(``)
 		$(".card-mutasi").attr('style', 'display:none')
 		$("#tgl_expired").val('')
+		$("#lap_tgl").val('')
 		$('#ex_pilih').val('').trigger('change')
 		$('.ex-tmpl').html(``)
 		$(".row-list").attr('style', '')

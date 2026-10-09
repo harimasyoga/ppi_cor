@@ -944,7 +944,7 @@ class Transaksi extends CI_Controller
 						<th style="padding:6px;background:#f2f2f2;border:1px solid #888;border-width:1px 1px 3px">KETERANGAN</th>
 					</tr>';
 					$list = $db->query("SELECT
-					po.id_perusahaan, po.no_po, po.nm_ker, po.g_label, po.width, po.jml_roll AS jml_roll_po, po.tonase, po.status,
+					po.id_perusahaan, po.no_po, po.nm_ker, po.g_label, po.width, po.jml_roll AS jml_roll_po, po.tonase, po.status, po.ket,
 					(SELECT COUNT(t.roll) FROM m_timbangan t
 					INNER JOIN pl p ON t.id_pl=p.id WHERE p.no_po=po.no_po AND t.nm_ker=po.nm_ker AND t.g_label=po.g_label AND t.width=po.width AND p.id_perusahaan=po.id_perusahaan) AS kiriman_roll,
 					(SELECT SUM(t.weight - t.seset) FROM m_timbangan t
@@ -992,7 +992,7 @@ class Transaksi extends CI_Controller
 							<td style="padding:6px;border:1px solid #888;text-align:right">'.number_format($minTonase, 0, ',', '.').'</td>
 							<td style="padding:6px;border:1px solid #888;text-align:right;font-weight:bold">'.$ss.'</td>
 							<td style="padding:6px;border:1px solid #888;text-align:right;font-weight:bold">'.$bb.'</td>
-							<td style="padding:6px;border:1px solid #888;text-align:right">'.$r->ket.'</td>
+							<td style="padding:6px;border:1px solid #888">'.$r->ket.'</td>
 						</tr>';
 						// SUM TONASE
 						$sumTonase += $r->tonase;
