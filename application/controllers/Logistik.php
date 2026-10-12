@@ -6148,6 +6148,7 @@ class Logistik extends CI_Controller
 						<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG (invoice)</td>
 						<td style="background:#ccc;padding:5px 25px;border:1px solid #aaa;font-weight:bold;text-align:center">PIUTANG JT</td>
 					</tr>';
+					$randX = rand(1,9) * rand(10,90);
 					$sumTot = 0;
 					$sumDft = 0;
 					$sumJet = 0;
@@ -6293,7 +6294,7 @@ class Logistik extends CI_Controller
 								($c4->num_rows() != 0) ? $t4 = '<span class="bg-success" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px">'.$c4->row()->cnt.'</span>' : $t4 = '';
 								($r->attn == "-" || $r->attn == "") ? $atZ = '' : $atZ = '<div style="padding-left:25px">'.$r->attn.'</div>';
 								($r->note == "" || $r->note == null) ? $atN = '' : $atN = ' ('.$r->note.')';
-								($r->type == 'roll') ? $pt1 = $r->id_perusahaan * 9 : $pt1 = $r->id_perusahaan;
+								($r->type == 'roll') ? $pt1 = $r->id_perusahaan * $randX : $pt1 = $r->id_perusahaan;
 								// ISI
 								$html .= '<tr class="tr1 t'.$r->id_sales.'" style="display:none">
 									<td style="background:#ddd;border:1px solid #aaa;font-weight:bold;padding:5px 5px 5px 15px" colspan="3">
@@ -6345,7 +6346,7 @@ class Logistik extends CI_Controller
 											$xNoSj .= ' - '.$j->no_surat;
 										}
 										// TIPE DD
-										($n->type == 'roll') ? $pt2 = $n->id_perusahaan * 9 : $pt2 = $n->id_perusahaan;
+										($n->type == 'roll') ? $pt2 = $n->id_perusahaan * $randX : $pt2 = $n->id_perusahaan;
 										// BTN SAKTI
 										if($lvl == 'Admin'){
 											$bSz = '<td style="padding:5px 10px">
