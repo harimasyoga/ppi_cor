@@ -5827,13 +5827,13 @@ class Logistik extends CI_Controller
 		$lap_tgl = $_POST["lap_tgl"];
 		$html = '';
 
-		$detail = $this->db->query("SELECT d.no_surat,d.no_po,d.qty,p.no_kendaraan,p.expedisi,p.driver,i.*,h.* FROM invoice_header h
-		INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
-		inner join pl_box p on d.no_surat=p.no_surat and d.id_pl=p.id and d.no_po=p.no_po
-		inner join m_produk i on d.id_produk_simcorr=i.id_produk
-		WHERE h.tgl_invoice='$lap_tgl' and h.type!='ROLL'
-		GROUP BY h.no_invoice,d.no_surat,h.id_perusahaan,d.no_po,i.id_produk
-		ORDER BY h.tgl_invoice,h.pajak,d.no_surat,d.no_po,i.nm_produk");
+		$detail = $this->db->query("SELECT*FROM pl_box p
+		INNER JOIN m_rencana_kirim k ON p.no_pl_urut=k.rk_urut AND p.id=k.id_pl_box
+		INNER JOIN m_pelanggan c ON p.id_perusahaan=c.id_pelanggan
+		INNER JOIN m_produk i ON k.id_produk=i.id_produk
+		WHERE p.tgl='$lap_tgl'
+		GROUP BY p.tgl,p.no_surat,p.id_perusahaan,p.no_po,i.id_produk
+		ORDER BY p.tgl,p.no_surat,p.no_po,i.id_produk");
 		$html .= '<table style="margin-bottom:12px">
 			<tr style="background:#f4b184;font-weight:bold;text-align:center">
 				<td style="border:1px solid #000;padding:5px">TGL</td>
@@ -5853,27 +5853,30 @@ class Logistik extends CI_Controller
 				</tr>';
 			}else{
 				foreach($detail->result() as $r){
-					($r->kepada == '-') ? $kepada = '' : $kepada = ' - '.$r->kepada;
+					($r->attn == '-') ? $kepada = '' : $kepada = ' - '.$r->attn;
 					($r->kategori == 'K_BOX') ? $ukuran = strtolower(str_replace(' ', '', $r->ukuran)) : $ukuran = $r->ukuran_sheet;
 					$nm_produk = $r->nm_produk.'. '.$ukuran.'. '.$this->m_fungsi->kualitas($r->kualitas, $r->flute);
 					($r->flute == 'BCF') ? $flute = 'BC' : $flute = $r->flute;
+					// JATUH TEMPO
+					$tglJthTempo = $this->db->query("SELECT h.* FROM invoice_header h INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice WHERE d.no_surat LIKE '%$r->no_surat%' GROUP BY h.no_invoice");
+					($tglJthTempo->num_rows() > 0) ? $txtJthTempo = $this->m_fungsi->tglIndSkt($tglJthTempo->row()->tgl_jatuh_tempo) : $txtJthTempo = '';
 					$html .= '<tr style="vertical-align:top">
-						<td style="border:1px solid #000;padding:5px">'.$this->m_fungsi->tglIndSkt($r->tgl_invoice).'</td>
-						<td style="border:1px solid #000;padding:5px">'.$r->nm_perusahaan.$kepada.'</td>
-						<td style="border:1px solid #000;padding:5px;text-align:center">'.$this->m_fungsi->tglIndSkt($r->tgl_jatuh_tempo).'</td>
+						<td style="border:1px solid #000;padding:5px">'.$this->m_fungsi->tglIndSkt($r->tgl).'</td>
+						<td style="border:1px solid #000;padding:5px">'.$r->nm_pelanggan.$kepada.'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:center">'.$txtJthTempo.'</td>
 						<td style="border:1px solid #000;padding:5px;text-align:center">'.$r->no_surat.'</td>
 						<td style="border:1px solid #000;padding:5px;text-align:center">'.$r->no_kendaraan.'</td>
 						<td style="border:1px solid #000;padding:5px;text-align:center">'.$r->expedisi.'( '.$r->driver.' )</td>
 						<td style="border:1px solid #000;padding:5px">'.$r->no_po.'</td>
 						<td style="border:1px solid #000;padding:5px">'.$nm_produk.'</td>
 						<td style="border:1px solid #000;padding:5px;text-align:center">'.$flute.'</td>
-						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($r->qty,0,',','.').'</td>
+						<td style="border:1px solid #000;padding:5px;text-align:right">'.number_format($r->qty_muat,0,',','.').'</td>
 					</tr>';
 				}
 			}
 		$html .= '</table>';
 
-		$dtlRollPPN = $this->db->query("SELECT h.tgl_invoice,h.tgl_jatuh_tempo,LTRIM(d.no_surat) AS no_surat1,h.kepada,h.nm_perusahaan,SUM(d.hasil) AS hasil1,SUM(d.harga*d.hasil) AS jumlah,d.* FROM invoice_header h
+		$dtlRollPPN = $this->db->query("SELECT h.tgl_invoice,h.pajak,h.inc_exc,h.tgl_jatuh_tempo,LTRIM(d.no_surat) AS no_surat1,h.kepada,h.nm_perusahaan,SUM(d.hasil) AS hasil1,SUM(d.harga*d.hasil) AS jumlah,d.* FROM invoice_header h
 		INNER JOIN invoice_detail d ON h.no_invoice=d.no_invoice
 		WHERE h.tgl_invoice='$lap_tgl' AND h.type='ROLL' AND h.pajak!='nonppn'
 		GROUP BY h.no_invoice,LTRIM(d.no_surat),h.id_perusahaan,d.no_po,d.nm_ker,d.g_label,d.harga;");
@@ -5914,26 +5917,26 @@ class Logistik extends CI_Controller
 					// PPN
 					$ppn11 = 0.11 * $subTotal; 
 					$pph22 = 0.001 * $subTotal;
-					if($r->pajak == 'ppn'){
-						if($r->inc_exc == 'Include'){
+					if($p->pajak == 'ppn'){
+						if($p->inc_exc == 'Include'){
 							$nominal = 0;
-						}else if($r->inc_exc == 'Exclude'){				
+						}else if($p->inc_exc == 'Exclude'){				
 							$nominal = $ppn11;
 						}else{
 							$nominal = 0;
 						}
-					}else if($r->pajak == 'ppn_pph'){
-						if($r->inc_exc == 'Include'){
+					}else if($p->pajak == 'ppn_pph'){
+						if($p->inc_exc == 'Include'){
 							$nominal = 0;
-						}else if($r->inc_exc == 'Exclude'){				
+						}else if($p->inc_exc == 'Exclude'){				
 							$nominal = $ppn11 + $pph22;
 						}else{
 							$nominal = 0;
 						}
 					}else{
-						if($r->inc_exc == 'Include'){
+						if($p->inc_exc == 'Include'){
 							$nominal = 0;
-						}else if($r->inc_exc == 'Exclude'){
+						}else if($p->inc_exc == 'Exclude'){
 							$nominal = $ppn11;
 						}else{
 							$nominal = 0;
@@ -5946,15 +5949,10 @@ class Logistik extends CI_Controller
 					$total = $subTotal + $nominal;
 					// $total = ($subTotal + $nominal) - $potongan;
 
-					$eksPedisi = $db2->query("SELECT*FROM pl b LEFT JOIN m_expedisi ex ON ex.id=b.id_expedisi WHERE b.no_surat LIKE '%$p->no_surat1%' LIMIT 1");
+					$eksPedisi = $db2->query("SELECT*FROM pl b INNER JOIN m_expedisi ex ON ex.id=b.id_expedisi WHERE b.no_surat LIKE '%$p->no_surat1%' LIMIT 1");
 					if($eksPedisi->num_rows() > 0){
-						if($eksPedisi->row()->plat == null){
-							$plat = '';
-							$txtEks = '';
-						}else{
-							$plat = $eksPedisi->row()->plat;
-							$txtEks = $eksPedisi->row()->pt.' ( '.$eksPedisi->row()->supir.' )';
-						}
+						$plat = $eksPedisi->row()->plat;
+						$txtEks = $eksPedisi->row()->pt.' ( '.$eksPedisi->row()->supir.' )';
 					}else{
 						$plat = '';
 						$txtEks = '';
@@ -6026,7 +6024,7 @@ class Logistik extends CI_Controller
 				foreach($dtlRollNON->result() as $n){
 					($n->kepada == '-') ? $kepada = '' : $kepada = ' - '.$n->kepada;
 
-					$eksPedisi2 = $db2->query("SELECT*FROM pl b LEFT JOIN m_expedisi ex ON ex.id=b.id_expedisi WHERE b.no_surat LIKE '%$n->no_surat1%' LIMIT 1");
+					$eksPedisi2 = $db2->query("SELECT*FROM pl b INNER JOIN m_expedisi ex ON ex.id=b.id_expedisi WHERE b.no_surat LIKE '%$n->no_surat1%' LIMIT 1");
 					if($eksPedisi2->num_rows() > 0){
 						$plat2 = $eksPedisi2->row()->plat;
 						$txtEks2 = $eksPedisi2->row()->pt.' ( '.$eksPedisi2->row()->supir.' )';
