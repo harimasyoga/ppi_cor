@@ -3606,15 +3606,27 @@ class M_transaksi extends CI_Model
 		$lvl = $this->session->userdata('level');
 
 		// LOCK
-		$lock3D = date('Y-m-d', strtotime('+3 days', strtotime(date('Y-m-d'))));
-		$tglPilih = floor((strtotime($tgl) - strtotime($lock3D)) /60/60/24);
+		$lock5D = date('Y-m-d', strtotime('+5 days', strtotime(date('Y-m-d'))));
+		$tgl5 = floor((strtotime($tgl) - strtotime($lock5D)) /60/60/24);
+
+		$lock2D = date('Y-m-d', strtotime('+2 days', strtotime(date('Y-m-d'))));
+		$tgl2 = floor((strtotime($tgl) - strtotime($lock2D)) /60/60/24);
+
+		$lock1D = date('Y-m-d', strtotime('+1 days', strtotime(date('Y-m-d'))));
+		$tgl1 = floor((strtotime($tgl) - strtotime($lock1D)) /60/60/24);
 
 		$cek = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$urut' AND opsi='$userAcc'");
 
-		if($tglPilih <= 0){
+		if($tgl5 <= 0 && $lvl == 'Marketing'){
 			$data = false;
-			$msg = 'LOCK 3 HARI PER HARI INI!';
-		}else if($verif == "R" && $keterangan == ""){
+			$msg = 'LOCK 5 HARI PER HARI INI!';
+		}else if($tgl2 <= 0 && $lvl == 'PPIC'){
+			$data = false;
+			$msg = 'LOCK 2 HARI PER HARI INI!';
+		}else if($tgl1 <= 0 && $lvl == 'Pengiriman'){
+			$data = false;
+			$msg = 'LOCK 1 HARI PER HARI INI!';
+		}else if(($verif == "R" || $verif == "D") && $keterangan == ""){
 			$data = false; $msg = 'ISI KETERANGAN!';
 		}else{
 			$this->db->set('opsi', $userAcc);
@@ -3622,7 +3634,7 @@ class M_transaksi extends CI_Model
 			$this->db->set('urut', $urut);
 			$this->db->set('sts_dss', $verif);
 			$this->db->set('keterangan', ($keterangan == '' && $verif == "Y") ? 'OK!' : strtoupper($keterangan));
-			$this->db->set('user_at', $lvl);
+			$this->db->set('user_at', $this->username);
 			if($cek->num_rows() != 0 && $verif != 'X'){
 				$this->db->set('updated_at', date('Y-m-d H:i:s'));
 			}
@@ -3647,8 +3659,12 @@ class M_transaksi extends CI_Model
 		return [
 			'data' => $data,
 			'msg' => $msg,
-			'lock3D' => $lock3D,
-			'tglPilih' => $tglPilih,
+			'lock5D' => $lock5D,
+			'tgl5' => $tgl5,
+			'lock2D' => $lock2D,
+			'tgl2' => $tgl2,
+			'lock1D' => $lock1D,
+			'tgl1' => $tgl1,
 		];
 	}
 

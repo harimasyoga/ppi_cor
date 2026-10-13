@@ -10935,11 +10935,35 @@ class Transaksi extends CI_Controller
 							}else{
 								$aksKet = 'disabled';
 							}
-							$html .= '<td style="background:#333;padding:6px" colspan="7">
+							$html .= '<td style="background:#333;padding:6px" colspan="6">
 								<input type="text" id="isiKet-'.$u->urut.'" style="background:none;border:0;padding:0;font-weight:bold;color:#fff;height:100%;width:100%" value="'.$u->ket_sys2.'" placeholder="KETERANGAN" autocomplete="off" '.$aksKet.'>
 							</td>';
 
-							// VERIFIKASI ( PPIC + EKSPEDISI / PENGIRIMAN )
+							// VERIFIKASI ( MARKETING + PPIC + EKSPEDISI / PENGIRIMAN )
+							// MARKETING
+							$qAccPPIC = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' AND opsi='MARKETING'");
+							if($qAccPPIC->num_rows() != 0){
+								if($qAccPPIC->row()->sts_dss == 'Y'){
+									$aMsts = 'success';
+									$cMsts = 'fas fa-check';
+									$pMsts = '';
+								}else if($qAccPPIC->row()->sts_dss == 'D'){
+									$aMsts = 'warning';
+									$cMsts = 'fas fa-hourglass';
+									$pMsts = 'style="padding:2px 6px"';
+								}else{
+									$aMsts = 'danger';
+									$cMsts = 'fas fa-times';
+									$pMsts = 'style="padding:2px 6px"';
+								}
+							}else{
+								$aMsts = 'light';
+								$cMsts = 'fas fa-minus';
+								$pMsts = 'style="padding:2px 5px"';
+							}
+							$html .= '<td style="background:#333;padding:6px;text-align:center">
+								<button class="btn btn-xs btn-'.$aMsts.'" '.$pMsts.' onclick="accDSS('."'MARKETING'".', '."'".$u->urut."'".')"><i class="'.$cMsts.'"></i></button>
+							</td>';
 							// PPIC
 							$qAccPPIC = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' AND opsi='PPIC'");
 							if($qAccPPIC->num_rows() != 0){
@@ -10947,6 +10971,10 @@ class Transaksi extends CI_Controller
 									$aPsts = 'success';
 									$cPsts = 'fas fa-check';
 									$pPsts = '';
+								}else if($qAccPPIC->row()->sts_dss == 'D'){
+									$aPsts = 'warning';
+									$cPsts = 'fas fa-hourglass';
+									$pPsts = 'style="padding:2px 6px"';
 								}else{
 									$aPsts = 'danger';
 									$cPsts = 'fas fa-times';
@@ -10960,13 +10988,17 @@ class Transaksi extends CI_Controller
 							$html .= '<td style="background:#333;padding:6px;text-align:center">
 								<button class="btn btn-xs btn-'.$aPsts.'" '.$pPsts.' onclick="accDSS('."'PPIC'".', '."'".$u->urut."'".')"><i class="'.$cPsts.'"></i></button>
 							</td>';
-							// INNER
+							// PENGITIMAN
 							$qAccPP = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' AND opsi='PENGIRIMAN'");
 							if($qAccPP->num_rows() != 0){
 								if($qAccPP->row()->sts_dss == 'Y'){
 									$aIsts = 'success';
 									$cIsts = 'fas fa-check';
 									$pIsts = '';
+								}else if($qAccPPIC->row()->sts_dss == 'D'){
+									$aIsts = 'warning';
+									$cIsts = 'fas fa-hourglass';
+									$pIsts = 'style="padding:2px 6px"';
 								}else{
 									$aIsts = 'danger';
 									$cIsts = 'fas fa-times';
@@ -11680,11 +11712,23 @@ class Transaksi extends CI_Controller
 		$tgl = $tahun.'-'.$bulan.'-'.$angka;
 		$opsi = $_POST["opsi"];
 		$urut = $_POST["urut"];
+		$id_sales = $this->session->userdata('id_sales');
 		$lvl = $this->session->userdata('level');
 
-		if((in_array($lvl, ['Admin', 'Admin2', 'PPIC']) && $opsi == 'PPIC') || (in_array($lvl, ['Admin', 'Admin2', 'Pengiriman']) && $opsi == 'PENGIRIMAN')){
-			$txtBtn = '<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="btnAccDSS('."'".$urut."'".', '."'Y'".')"><i class="fas fa-check"></i> VERIFIKASI</button>
-			<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="btnAccDSS('."'".$urut."'".', '."'R'".')"><i class="fas fa-times"></i> REJECT</button>';
+		$btnBtn = '<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="btnAccDSS('."'".$urut."'".', '."'Y'".')"><i class="fas fa-check"></i> VERIFIKASI</button>
+		<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="btnAccDSS('."'".$urut."'".', '."'D'".')"><i class="fas fa-hourglass"></i></i> PENDING</button>
+		<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="btnAccDSS('."'".$urut."'".', '."'R'".')"><i class="fas fa-times"></i> GAGAL</button>';
+
+		if(in_array($lvl, ['Admin', 'Admin2'])){
+			$txtBtn = $btnBtn;
+		}else if($opsi == 'MARKETING'){
+			$wSls = $this->db->query("SELECT c.id_sales,s.* FROM trs_dev_sys s
+			INNER JOIN m_pelanggan c ON s.id_pelanggan=c.id_pelanggan
+			WHERE s.eta='$tgl' AND c.id_sales='$id_sales' AND s.urut='$urut'
+			GROUP BY s.eta,s.urut");
+			($wSls->num_rows() > 0) ? $txtBtn = $btnBtn : $txtBtn = '';
+		}else if(($lvl == 'PPIC' && $opsi == 'PPIC') || ($lvl == 'Pengiriman' && $opsi == 'PENGIRIMAN')){
+			$txtBtn = $btnBtn;
 		}else{
 			$txtBtn = '';
 		}
@@ -11694,9 +11738,9 @@ class Transaksi extends CI_Controller
 			$timex = ($qAccDSS->row()->updated_at != null) ? $qAccDSS->row()->updated_at : $qAccDSS->row()->created_at;
 			(in_array($lvl, ['Admin', 'Admin2'])) ? $oCC = 'onclick="btnAccDSS('."'".$urut."'".', '."'X'".')"' : $oCC = '';
 			if($qAccDSS->row()->sts_dss == 'Y'){
-				$btn = '<button type="button" style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-dark" '.$oCC.'>'.$timex.'</button>';
+				$btn = '<button type="button" style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-dark" '.$oCC.'>'.$timex.' ( '.$qAccDSS->row()->user_at.' )</button>';
 			}else{
-				$btn = '<div style="padding-bottom:12px"><button type="button" style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-dark" '.$oCC.'>'.$timex.'</button></div>'.$txtBtn;
+				$btn = '<div style="padding-bottom:12px"><button type="button" style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-dark" '.$oCC.'>'.$timex.' ( '.$qAccDSS->row()->user_at.' )</button></div>'.$txtBtn;
 			}
 			$ket = $qAccDSS->row()->keterangan;
 		}else{
