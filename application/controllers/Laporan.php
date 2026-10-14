@@ -525,7 +525,7 @@ class Laporan extends CI_Controller
 							WHERE p.status='Close' AND c.id_sales='$r->id_sales' AND p.id_pelanggan='$r->id_pelanggan' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-10', '-11', '-12', '-13', '-14')
 							GROUP BY i.kategori,i.nm_produk,i.ukuran,i.ukuran_sheet,i.flute,i.id_produk");
 							// JIKA DATA STOK LEBIH BANYAK DARI OS
-							if($qq22->num_rows() > $produk->num_rows()){
+							if($qq22->num_rows() > 0 && ($qq22->num_rows() != $produk->num_rows())){
 								$btnDtlGDCor = ' <button type="button" class="btn btn-sm" style="padding:0" onclick="rincianGDCor('."'".$r->id_pelanggan."'".', '."'".$tglSlt."'".')"><i class="fas fa-info-circle" style="color:#0d6efd"></i></button>';
 							}else{
 								$btnDtlGDCor = '';
