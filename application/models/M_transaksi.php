@@ -3615,9 +3615,14 @@ class M_transaksi extends CI_Model
 		$lock1D = date('Y-m-d', strtotime('+1 days', strtotime(date('Y-m-d'))));
 		$tgl1 = floor((strtotime($tgl) - strtotime($lock1D)) /60/60/24);
 
+		$tgl0 = floor((strtotime($tgl) - strtotime(date('Y-m-d'))) /60/60/24);
+
 		$cek = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$urut' AND opsi='$userAcc'");
 
-		if($tgl5 <= 0 && $lvl == 'Marketing'){
+		if($tgl0 >= 0 && $lvl == 'User'){
+			$data = false;
+			$msg = 'BELUM BISA KASIH KETERANGAN!';
+		}else if($tgl5 <= 0 && $lvl == 'Marketing'){
 			$data = false;
 			$msg = 'LOCK 5 HARI PER HARI INI!';
 		}else if($tgl2 <= 0 && $lvl == 'PPIC'){
@@ -3659,12 +3664,13 @@ class M_transaksi extends CI_Model
 		return [
 			'data' => $data,
 			'msg' => $msg,
-			'lock5D' => $lock5D,
-			'tgl5' => $tgl5,
-			'lock2D' => $lock2D,
-			'tgl2' => $tgl2,
-			'lock1D' => $lock1D,
-			'tgl1' => $tgl1,
+			// 'lock5D' => $lock5D,
+			// 'tgl5' => $tgl5,
+			// 'lock2D' => $lock2D,
+			// 'tgl2' => $tgl2,
+			// 'lock1D' => $lock1D,
+			// 'tgl1' => $tgl1,
+			// 'tgl0' => $tgl0,
 		];
 	}
 

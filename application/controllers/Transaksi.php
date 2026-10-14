@@ -10930,89 +10930,54 @@ class Transaksi extends CI_Controller
 							}
 
 							// NOTE
-							if(in_array($lvl, ['Admin', 'Admin2', 'User'])){
-								$aksKet = 'onchange="tambahKet('."'".$u->urut."'".')"';
+							$allKet = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' ORDER BY created_at DESC");
+							if($allKet->num_rows() > 0){
+								$txtKet = '';
+								$kIi = 0;
+								foreach($allKet->result() as $kk){
+									$kIi++;
+									$tim3x = ($kk->updated_at != null) ? $kk->updated_at : $kk->created_at;
+									$txtKet .= '('.$kk->keterangan.'. '.strtoupper($this->m_fungsi->tglIndSkt(substr($tim3x, 0,10))).' '.substr($tim3x, 10,6).'. '.strtoupper($kk->user_at).')';
+									if($allKet->num_rows() > 1 && $allKet->num_rows() != $kIi){
+										$txtKet .= ' || ';
+									}
+								}
 							}else{
-								$aksKet = 'disabled';
+								$txtKet = $u->ket_sys2;
 							}
-							$html .= '<td style="background:#333;padding:6px" colspan="6">
-								<input type="text" id="isiKet-'.$u->urut.'" style="background:none;border:0;padding:0;font-weight:bold;color:#fff;height:100%;width:100%" value="'.$u->ket_sys2.'" placeholder="KETERANGAN" autocomplete="off" '.$aksKet.'>
+							$html .= '<td style="background:#333;padding:6px" colspan="8">
+								<input type="text" id="isiKet-'.$u->urut.'" style="background:none;border:0;padding:0;font-weight:bold;color:#fff;height:100%;width:100%" value="'.$txtKet.'" placeholder="KETERANGAN" autocomplete="off" disabled>
 							</td>';
 
-							// VERIFIKASI ( MARKETING + PPIC + EKSPEDISI / PENGIRIMAN )
-							// MARKETING
-							$qAccPPIC = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' AND opsi='MARKETING'");
-							if($qAccPPIC->num_rows() != 0){
-								if($qAccPPIC->row()->sts_dss == 'Y'){
-									$aMsts = 'success';
-									$cMsts = 'fas fa-check';
-									$pMsts = '';
-								}else if($qAccPPIC->row()->sts_dss == 'D'){
-									$aMsts = 'warning';
-									$cMsts = 'fas fa-hourglass';
-									$pMsts = 'style="padding:2px 6px"';
+							// VERIFIKASI
+							if($lvl == 'User' || $lvl == 'Pengiriman' || $lvl == 'Marketing' || $lvl == 'PPIC'){
+								$qAccPP = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' AND opsi='$lvl'");
+								if($qAccPP->num_rows() != 0){
+									if($qAccPP->row()->sts_dss == 'Y'){
+										$aIsts = 'success';
+										$cIsts = 'fas fa-check';
+										$pIsts = '';
+									}else if($qAccPP->row()->sts_dss == 'D'){
+										$aIsts = 'warning';
+										$cIsts = 'fas fa-info';
+										$pIsts = 'style="padding:2px 8px"';
+									}else{
+										$aIsts = 'danger';
+										$cIsts = 'fas fa-times';
+										$pIsts = 'style="padding:2px 6px"';
+									}
 								}else{
-									$aMsts = 'danger';
-									$cMsts = 'fas fa-times';
-									$pMsts = 'style="padding:2px 6px"';
+									$aIsts = 'light';
+									$cIsts = 'fas fa-minus';
+									$pIsts = 'style="padding:2px 5px"';
 								}
+								$html .= '<td style="background:#333;padding:6px;text-align:center">
+									<button class="btn btn-xs btn-'.$aIsts.'" '.$pIsts.' onclick="accDSS('."'".$lvl."'".', '."'".$u->urut."'".')"><i class="'.$cIsts.'"></i></button>
+								</td>';
 							}else{
-								$aMsts = 'light';
-								$cMsts = 'fas fa-minus';
-								$pMsts = 'style="padding:2px 5px"';
+								$html .= '<td style="background:#333;padding:6px"></td>';
 							}
-							$html .= '<td style="background:#333;padding:6px;text-align:center">
-								<button class="btn btn-xs btn-'.$aMsts.'" '.$pMsts.' onclick="accDSS('."'MARKETING'".', '."'".$u->urut."'".')"><i class="'.$cMsts.'"></i></button>
-							</td>';
-							// PPIC
-							$qAccPPIC = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' AND opsi='PPIC'");
-							if($qAccPPIC->num_rows() != 0){
-								if($qAccPPIC->row()->sts_dss == 'Y'){
-									$aPsts = 'success';
-									$cPsts = 'fas fa-check';
-									$pPsts = '';
-								}else if($qAccPPIC->row()->sts_dss == 'D'){
-									$aPsts = 'warning';
-									$cPsts = 'fas fa-hourglass';
-									$pPsts = 'style="padding:2px 6px"';
-								}else{
-									$aPsts = 'danger';
-									$cPsts = 'fas fa-times';
-									$pPsts = 'style="padding:2px 6px"';
-								}
-							}else{
-								$aPsts = 'light';
-								$cPsts = 'fas fa-minus';
-								$pPsts = 'style="padding:2px 5px"';
-							}
-							$html .= '<td style="background:#333;padding:6px;text-align:center">
-								<button class="btn btn-xs btn-'.$aPsts.'" '.$pPsts.' onclick="accDSS('."'PPIC'".', '."'".$u->urut."'".')"><i class="'.$cPsts.'"></i></button>
-							</td>';
-							// PENGITIMAN
-							$qAccPP = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' AND opsi='PENGIRIMAN'");
-							if($qAccPP->num_rows() != 0){
-								if($qAccPP->row()->sts_dss == 'Y'){
-									$aIsts = 'success';
-									$cIsts = 'fas fa-check';
-									$pIsts = '';
-								}else if($qAccPPIC->row()->sts_dss == 'D'){
-									$aIsts = 'warning';
-									$cIsts = 'fas fa-hourglass';
-									$pIsts = 'style="padding:2px 6px"';
-								}else{
-									$aIsts = 'danger';
-									$cIsts = 'fas fa-times';
-									$pIsts = 'style="padding:2px 6px"';
-								}
-							}else{
-								$aIsts = 'light';
-								$cIsts = 'fas fa-minus';
-								$pIsts = 'style="padding:2px 5px"';
-							}
-							$html .= '<td style="background:#333;padding:6px;text-align:center">
-								<button class="btn btn-xs btn-'.$aIsts.'" '.$pIsts.' onclick="accDSS('."'PENGIRIMAN'".', '."'".$u->urut."'".')"><i class="'.$cIsts.'"></i></button>
-							</td>';
-							
+
 							if($aRK->num_rows() != 0 && ($cekRK->num_rows() != 0 || $rkNull->num_rows() != 0)){
 								$html .= '<td style="background:#ddf;border:1px solid #bbd;text-align:center;font-weight:bold;padding:6px">EKSPEDISI</td>
 								<td style="background:#ddf;border:1px solid #bbd;text-align:center;font-weight:bold;padding:6px">TANGGAL</td>
@@ -11715,19 +11680,15 @@ class Transaksi extends CI_Controller
 		$id_sales = $this->session->userdata('id_sales');
 		$lvl = $this->session->userdata('level');
 
-		$btnBtn = '<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-success" onclick="btnAccDSS('."'".$urut."'".', '."'Y'".')"><i class="fas fa-check"></i> VERIFIKASI</button>
-		<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="btnAccDSS('."'".$urut."'".', '."'D'".')"><i class="fas fa-hourglass"></i></i> PENDING</button>
-		<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-danger" onclick="btnAccDSS('."'".$urut."'".', '."'R'".')"><i class="fas fa-times"></i> GAGAL</button>';
+		$btnBtn = '<button type="button" style="text-align:center;font-weight:bold" class="btn btn-sm btn-warning" onclick="btnAccDSS('."'".$urut."'".', '."'D'".')"><i class="fas fa-plus"></i></i> TAMBAH KETERANGAN</button>';
 
-		if(in_array($lvl, ['Admin', 'Admin2'])){
-			$txtBtn = $btnBtn;
-		}else if($opsi == 'MARKETING'){
+		if($lvl == 'Marketing'){
 			$wSls = $this->db->query("SELECT c.id_sales,s.* FROM trs_dev_sys s
 			INNER JOIN m_pelanggan c ON s.id_pelanggan=c.id_pelanggan
 			WHERE s.eta='$tgl' AND c.id_sales='$id_sales' AND s.urut='$urut'
 			GROUP BY s.eta,s.urut");
 			($wSls->num_rows() > 0) ? $txtBtn = $btnBtn : $txtBtn = '';
-		}else if(($lvl == 'PPIC' && $opsi == 'PPIC') || ($lvl == 'Pengiriman' && $opsi == 'PENGIRIMAN')){
+		}else if($lvl == 'User' || $lvl == 'Pengiriman' || $lvl == 'PPIC'){
 			$txtBtn = $btnBtn;
 		}else{
 			$txtBtn = '';
