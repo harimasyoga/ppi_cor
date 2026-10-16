@@ -3424,39 +3424,37 @@ class M_transaksi extends CI_Model
 		$keterangan = $_POST["keterangan"];
 		$urut = $_POST["urut"];
 		$verif = $_POST["verif"];
-		$userAcc = $_POST["userAcc"];
+		// $userAcc = $_POST["userAcc"];
 		$lvl = $this->session->userdata('level');
 
 		// LOCK
 		$lock5D = date('Y-m-d', strtotime('+5 days', strtotime(date('Y-m-d'))));
 		$tgl5 = floor((strtotime($tgl) - strtotime($lock5D)) /60/60/24);
-
 		$lock2D = date('Y-m-d', strtotime('+2 days', strtotime(date('Y-m-d'))));
 		$tgl2 = floor((strtotime($tgl) - strtotime($lock2D)) /60/60/24);
-
 		$lock1D = date('Y-m-d', strtotime('+1 days', strtotime(date('Y-m-d'))));
 		$tgl1 = floor((strtotime($tgl) - strtotime($lock1D)) /60/60/24);
-
 		$tgl0 = floor((strtotime($tgl) - strtotime(date('Y-m-d'))) /60/60/24);
-
-		$cek = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$urut' AND opsi='$userAcc'");
+		$cek = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$urut' AND opsi='$lvl'");
+		$jam = date('H');
+		$menit = date('i');
 
 		if($tgl0 >= 0 && $lvl == 'User'){
 			$data = false;
 			$msg = 'BELUM BISA KASIH KETERANGAN!';
-		}else if($tgl5 <= 0 && $lvl == 'Marketing'){
+		}else if($tgl5 <= 0 && $jam >= '12' && $menit >= '00' && $lvl == 'Marketing'){
 			$data = false;
-			$msg = 'LOCK 5 HARI PER HARI INI!';
-		}else if($tgl2 <= 0 && $lvl == 'PPIC'){
+			$msg = 'LOCK H-5. JAM LEBIH DARI 12 SIANG!';
+		}else if($tgl2 <= 0 && $jam >= '12' && $menit >= '00' && ($lvl == 'PPIC' || $lvl == 'Gudang')){
 			$data = false;
-			$msg = 'LOCK 2 HARI PER HARI INI!';
-		}else if($tgl1 <= 0 && $lvl == 'Pengiriman'){
+			$msg = 'LOCK H-2. JAM LEBIH DARI 12 SIANG!';
+		}else if($tgl1 <= 0 && $jam >= '12' && $menit >= '00' && $lvl == 'Pengiriman'){
 			$data = false;
-			$msg = 'LOCK 1 HARI PER HARI INI!';
+			$msg = 'LOCK H-1. JAM LEBIH DARI 12 SIANG!';
 		}else if(($verif == "R" || $verif == "D") && $keterangan == ""){
 			$data = false; $msg = 'ISI KETERANGAN!';
 		}else{
-			$this->db->set('opsi', $userAcc);
+			$this->db->set('opsi', $lvl);
 			$this->db->set('tgl', $tgl);
 			$this->db->set('urut', $urut);
 			$this->db->set('sts_dss', $verif);
@@ -3466,7 +3464,7 @@ class M_transaksi extends CI_Model
 				$this->db->set('updated_at', date('Y-m-d H:i:s'));
 			}
 			if($cek->num_rows() != 0){
-				$this->db->where('opsi', $userAcc);
+				$this->db->where('opsi', $lvl);
 				$this->db->where('tgl', $tgl);
 				$this->db->where('urut', $urut);
 				if($verif == 'X'){
@@ -3479,20 +3477,22 @@ class M_transaksi extends CI_Model
 			}else{
 				$this->db->set('created_at', date('Y-m-d H:i:s'));
 				$data = $this->db->insert('trs_dev_acc');
-				$msg = 'BERHASIL!';
+				$msg = 'BERHASIL TAMBAH KETERANGAN!';
 			}
 		}
 
 		return [
 			'data' => $data,
 			'msg' => $msg,
-			// 'lock5D' => $lock5D,
-			// 'tgl5' => $tgl5,
-			// 'lock2D' => $lock2D,
-			// 'tgl2' => $tgl2,
-			// 'lock1D' => $lock1D,
-			// 'tgl1' => $tgl1,
-			// 'tgl0' => $tgl0,
+			'lock5D' => $lock5D,
+			'tgl5' => $tgl5,
+			'lock2D' => $lock2D,
+			'tgl2' => $tgl2,
+			'lock1D' => $lock1D,
+			'tgl1' => $tgl1,
+			'tgl0' => $tgl0,
+			'_jam' => $jam,
+			'_menit' => $menit,
 		];
 	}
 

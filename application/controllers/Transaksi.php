@@ -10315,16 +10315,29 @@ class Transaksi extends CI_Controller
 
 							// NOTE
 							$html .= '<td style="background:#333;padding:6px" colspan="8">';
-								$allKet = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' GROUP BY tgl,urut");
+								$allKet = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' GROUP BY tgl,urut,opsi");
 								if($allKet->num_rows() > 0){
-									$html .= '<button class="btn btn-xs btn-danger" style="padding:2px 6px" onclick="accDSSRinci('."'".$u->urut."'".')"><i class="fas fa-times"></i></button>';
+									$html .= '<div style="display:flex">';
+										$html .= '<div style="margin-right:4px"><button class="btn btn-xs btn-danger" style="padding:2px 6px" onclick="accDSSRinci('."'".$u->urut."'".')"><i class="fas fa-times"></i></button></div>';
+										$html .= '<div style="color:#fff;font-weight:bold">( ';
+											$kI = 0;
+											foreach($allKet->result() as $ktkt){
+												$kI++;
+												($ktkt->opsi == 'User') ? $UOpsi = 'INNER' : $UOpsi = strtoupper($ktkt->opsi);
+												$html .= $UOpsi;
+												if($allKet->num_rows() > 1 && $allKet->num_rows() != $kI){
+													$html .= ', ';
+												}
+											}
+										$html .= ' )</div>';
+									$html .= '</div>';
 								}else{
 									$html .= '<input type="text" id="isiKet-'.$u->urut.'" style="background:none;border:0;padding:0;font-weight:bold;color:#fff;height:100%;width:100%" placeholder="KETERANGAN" autocomplete="off" disabled>';
 								}
 							$html .= '</td>';
 
 							// VERIFIKASI
-							if($lvl == 'User' || $lvl == 'Pengiriman' || $lvl == 'Marketing' || $lvl == 'PPIC'){
+							if($lvl == 'User' || $lvl == 'Pengiriman' || $lvl == 'Marketing' || $lvl == 'PPIC' || $lvl == 'Gudang'){
 								$qAccPP = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' AND opsi='$lvl'");
 								if($qAccPP->num_rows() != 0){
 									if($qAccPP->row()->sts_dss == 'Y'){
@@ -11049,7 +11062,6 @@ class Transaksi extends CI_Controller
 		$tahun = $_POST["tahun"];
 		$bulan = $_POST["bulan"];
 		$tgl = $tahun.'-'.$bulan.'-'.$angka;
-		$opsi = $_POST["opsi"];
 		$urut = $_POST["urut"];
 		$id_sales = $this->session->userdata('id_sales');
 		$lvl = $this->session->userdata('level');
@@ -11062,16 +11074,16 @@ class Transaksi extends CI_Controller
 			WHERE s.eta='$tgl' AND c.id_sales='$id_sales' AND s.urut='$urut'
 			GROUP BY s.eta,s.urut");
 			($wSls->num_rows() > 0) ? $txtBtn = $btnBtn : $txtBtn = '';
-		}else if($lvl == 'User' || $lvl == 'Pengiriman' || $lvl == 'PPIC'){
+		}else if($lvl == 'User' || $lvl == 'Pengiriman' || $lvl == 'PPIC' || $lvl == 'Gudang'){
 			$txtBtn = $btnBtn;
 		}else{
 			$txtBtn = '';
 		}
 
-		$qAccDSS = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$urut' AND opsi='$opsi'");
+		$qAccDSS = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$urut' AND opsi='$lvl'");
 		if($qAccDSS->num_rows() != 0){
+			$oCC = 'onclick="btnAccDSS('."'".$urut."'".', '."'X'".')"';
 			$timex = ($qAccDSS->row()->updated_at != null) ? $qAccDSS->row()->updated_at : $qAccDSS->row()->created_at;
-			(in_array($lvl, ['Admin', 'Admin2'])) ? $oCC = 'onclick="btnAccDSS('."'".$urut."'".', '."'X'".')"' : $oCC = '';
 			if($qAccDSS->row()->sts_dss == 'Y'){
 				$btn = '<button type="button" style="text-align:center;font-weight:bold;cursor:default" class="btn btn-sm btn-dark" '.$oCC.'>'.$timex.' ( '.$qAccDSS->row()->user_at.' )</button>';
 			}else{
