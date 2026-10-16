@@ -10314,24 +10314,14 @@ class Transaksi extends CI_Controller
 							}
 
 							// NOTE
-							$allKet = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' ORDER BY created_at DESC");
-							if($allKet->num_rows() > 0){
-								$txtKet = '';
-								$kIi = 0;
-								foreach($allKet->result() as $kk){
-									$kIi++;
-									$tim3x = ($kk->updated_at != null) ? $kk->updated_at : $kk->created_at;
-									$txtKet .= '('.$kk->keterangan.'. '.strtoupper($this->m_fungsi->tglIndSkt(substr($tim3x, 0,10))).' '.substr($tim3x, 10,6).'. '.strtoupper($kk->user_at).')';
-									if($allKet->num_rows() > 1 && $allKet->num_rows() != $kIi){
-										$txtKet .= ' || ';
-									}
+							$html .= '<td style="background:#333;padding:6px" colspan="8">';
+								$allKet = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$u->urut' GROUP BY tgl,urut");
+								if($allKet->num_rows() > 0){
+									$html .= '<button class="btn btn-xs btn-danger" style="padding:2px 6px" onclick="accDSSRinci('."'".$u->urut."'".')"><i class="fas fa-times"></i></button>';
+								}else{
+									$html .= '<input type="text" id="isiKet-'.$u->urut.'" style="background:none;border:0;padding:0;font-weight:bold;color:#fff;height:100%;width:100%" placeholder="KETERANGAN" autocomplete="off" disabled>';
 								}
-							}else{
-								$txtKet = $u->ket_sys2;
-							}
-							$html .= '<td style="background:#333;padding:6px" colspan="8">
-								<input type="text" id="isiKet-'.$u->urut.'" style="background:none;border:0;padding:0;font-weight:bold;color:#fff;height:100%;width:100%" value="'.$txtKet.'" placeholder="KETERANGAN" autocomplete="off" disabled>
-							</td>';
+							$html .= '</td>';
 
 							// VERIFIKASI
 							if($lvl == 'User' || $lvl == 'Pengiriman' || $lvl == 'Marketing' || $lvl == 'PPIC'){
@@ -11104,6 +11094,39 @@ class Transaksi extends CI_Controller
 				'.$btn.'
 			</div>
 		</div>';
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function accDSSRinci()
+	{
+		$angka = $_POST["tgl"];
+		$tahun = $_POST["tahun"];
+		$bulan = $_POST["bulan"];
+		$tgl = $tahun.'-'.$bulan.'-'.$angka;
+		$urut = $_POST["urut"];
+		$html = '';
+
+		$html .= '<table class="table table-bordered table-striped" style="margin:0;border:0">
+			<tr>
+				<th style="padding:6px">HARI, TANGGAL</th>
+				<th style="padding:6px">WAKTU</th>
+				<th style="padding:6px">PIC</th>
+				<th style="padding:6px">KETERANGAN</th>
+			</tr>';
+			$allKet = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$urut' ORDER BY id");
+			foreach($allKet->result() as $r){
+				$tim3x = ($r->updated_at != null) ? substr($r->updated_at, 10, 6) : substr($r->created_at, 10, 6);
+				$html .= '<tr>
+					<td style="padding:6px">'.strtoupper($this->m_fungsi->getHariIni($r->tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl)).'</td>
+					<td style="padding:6px">'.$tim3x.'</td>
+					<td style="padding:6px">'.$r->user_at.'</td>
+					<td style="padding:6px">'.$r->keterangan.'</td>
+				</tr>';
+			}
+		$html .= '</table>';
 
 		echo json_encode([
 			'html' => $html,

@@ -274,6 +274,24 @@
 	</div>
 </div>
 
+<div class="modal fade" id="modalAccDssRinci">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" style="font-weight:bold">RINCIAN KETERANGAN</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" style="padding:12px">
+				<div style="overflow:auto;white-space:nowrap">
+					<div id="modal-rincian"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div class="modal fade" id="modalPlanDss">
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
@@ -337,6 +355,26 @@
 				data = JSON.parse(res)
 				$("#lvl").val(opsi)
 				$("#modal-detail").html(data.html)
+				$(".modal-open").css({"padding-right": "0"})
+				swal.close()
+			}
+		})
+	}
+
+	function accDSSRinci(urut) {
+		$("#modal-rincian").html(`. . .`)
+		$("#modalAccDssRinci").modal("show")
+		$("#lvl").val('')
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/accDSSRinci') ?>',
+			data: ({ tgl, tahun, bulan, urut }),
+			type: "POST",
+			success: function(res) {
+				data = JSON.parse(res)
+				$("#modal-rincian").html(data.html)
 				$(".modal-open").css({"padding-right": "0"})
 				swal.close()
 			}
