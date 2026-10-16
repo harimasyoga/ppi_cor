@@ -4609,18 +4609,6 @@ class Plan extends CI_Controller
 		echo json_encode($result);
 	}
 
-	function addListRoll()
-	{
-		$result = $this->m_plan->addListRoll();
-		echo json_encode($result);
-	}
-
-	function delListRoll()
-	{
-		$result = $this->m_plan->delListRoll();
-		echo json_encode($result);
-	}
-
 	function planCariCor()
 	{
 		$tgl_plan = $_POST["p_tgl_plan"];

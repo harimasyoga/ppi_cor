@@ -1838,184 +1838,6 @@ class M_transaksi extends CI_Model
 		];
 	}
 
-	function addRollCorr()
-	{
-		$opsi = $_POST["opsi"];
-		$tgl_pm = $_POST["tgl_pm"];
-		$tgl_gudang = $_POST["tgl_gudang"];
-
-		$db9 = $this->load->database('database_simroll', TRUE);
-		if($opsi == 'pm'){
-			$qR = $db9->query("SELECT*FROM m_timbangan WHERE tgl='$tgl_pm' AND nm_ker!='WP' AND (status='2' OR status='4' OR status='5' OR status='6' OR status='7') ORDER BY roll");
-		}
-		if($opsi == 'gudang'){
-			$qR = $db9->query("SELECT t.* FROM m_timbangan t
-			INNER JOIN pl p ON t.id_pl=p.id
-			WHERE p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
-			ORDER BY t.nm_ker,t.g_label,t.width,t.pm,t.roll");
-		}
-
-		foreach($qR->result() as $r){
-			$cek = $this->db->query("SELECT*FROM m_roll WHERE roll='$r->roll' AND id_roll='$r->id'");
-			if($cek->num_rows() == 0){
-				($opsi == 'pm') ? $o = 'PM' : $o = 'FG';
-				$berat = $r->weight - $r->seset;
-				$rL = array(
-					't_cor' => 'CA',
-					'roll' => $r->roll,
-					'i_tgl' => $tgl_gudang,
-					'nm_ker' => $r->nm_ker,
-					'g_label' => $r->g_label,
-					'width' => $r->width,
-					'diameter' => $r->diameter,
-					'weight' => $berat,
-					'joint' => $r->joint,
-					'ket' => $r->ket,
-					'status_r' => $r->status,
-					'g_ac' => $r->g_ac,
-					'rct' => $r->rct,
-					'bi' => $r->bi,
-					'cobb' => $r->cobb,
-					'moisture' => $r->moisture,
-					'rm' => $r->rm,
-					'dari' => $o,
-					'created_at' => date('Y-m-d H:i:s'),
-					'created_by' => $this->username,
-					'id_roll' => $r->id,
-				);
-				$data = $this->db->insert("m_roll", $rL);
-			}else{
-				$data = true;
-			}
-		}
-		$msg = 'BERHASIL!';
-
-		return [
-			'data' => $data,
-			'msg' => $msg,
-		];
-	}
-
-	function editRollCorr()
-	{
-		$id = $_POST["id"];
-		$cab = $_POST["corcab"];
-
-		$this->db->set('t_cor', $cab);
-		$this->db->where('id', $id);
-		$data = $this->db->update('m_roll');
-
-		return [
-			'data' => $data,
-		];
-	}
-
-	function btnGunaSisa()
-	{
-		$tgl_guna = $_POST["tgl_guna"];
-		$roll = $_POST["roll"];
-		$guna = $_POST["guna"];
-		$sisa = $_POST["sisa"];
-		$ket = $_POST["ket"];
-
-		$qR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
-		$ay = array(
-			'tgl' => $tgl_guna,
-			'id_roll' => $roll,
-			'roll' => $qR->roll,
-			'pemakaian' => $guna,
-			'sisa' => $sisa,
-			'ket' => $ket,
-		);
-		$data = $this->db->insert("trs_so_guna", $ay);
-		if($data){
-			// seset
-			($qR->seset == 0) ? $seset = $guna : $seset = $qR->seset + $guna;
-			$this->db->set('seset', $seset);
-			$this->db->where('id', $roll);
-			$uRoll = $this->db->update('m_roll');
-			if($uRoll){
-				// JIKA BERAT == SESET : DICLOSE
-				$cR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
-				if($cR->weight == $cR->seset){
-					$this->db->set('status_p', 'Close');
-					$this->db->where('id', $roll);
-					$cRoll = $this->db->update('m_roll');
-				}else{
-					$cRoll = false;
-				}
-			}
-		}
-		return [
-			'data' => $data,
-			'uRoll' => $uRoll,
-			'cRoll' => $cRoll,
-		];
-	}
-
-	function delRollGuna()
-	{
-		$id_guna = $_POST["id"];
-		$id_roll = $_POST["roll"];
-
-		$qG = $this->db->query("SELECT*FROM trs_so_guna WHERE id='$id_guna'")->row();
-		$qR = $this->db->query("SELECT*FROM m_roll WHERE id='$id_roll'")->row();
-
-		// update seset
-		$seset = $qR->seset - $qG->pemakaian;
-		if($qR->weight == $qR->seset){
-			$this->db->set('status_p', 'Open');
-		}
-		$this->db->set('seset', $seset);
-		$this->db->where('id', $id_roll);
-		$uRoll = $this->db->update('m_roll');
-		if($uRoll){
-			// delete guna
-			$this->db->where('id', $id_guna);
-			$data = $this->db->delete('trs_so_guna');
-		}
-
-		return [
-			'uRoll' => $uRoll,
-			'data' => $data,
-		];
-	}
-
-	function btnPatokanRoll()
-	{
-		$t_cor = $_POST["t_cor"];
-		$width = $_POST["width"];
-		$ptk = $_POST["ptk"];
-
-		$cek = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$t_cor' AND width='$width'");
-
-		if($ptk < 0){
-			$data = false;
-			$msg = "SALAH";
-		}else{
-			$aR = array(
-				't_cor' => $t_cor,
-				'width' => $width,
-				'ptk' => $ptk,
-			);
-			if($cek->num_rows() == 0){
-				$data = $this->db->insert('m_roll_ptk', $aR);
-				$msg = "BERHASIL!";
-			}else{
-				$this->db->set('ptk', $ptk);
-				$this->db->where('t_cor', $t_cor);
-				$this->db->where('width', $width);
-				$data = $this->db->update('m_roll_ptk', $aR);
-				$msg = "BERHASIL UPDATE!";
-			}
-		}
-
-		return [
-			'data' => $data,
-			'msg' => $msg,
-		];
-	}
-
 	function simpanHPP()
 	{
 		$statusInput = $_POST["statusInput"];
@@ -3602,39 +3424,37 @@ class M_transaksi extends CI_Model
 		$keterangan = $_POST["keterangan"];
 		$urut = $_POST["urut"];
 		$verif = $_POST["verif"];
-		$userAcc = $_POST["userAcc"];
+		// $userAcc = $_POST["userAcc"];
 		$lvl = $this->session->userdata('level');
 
 		// LOCK
 		$lock5D = date('Y-m-d', strtotime('+5 days', strtotime(date('Y-m-d'))));
 		$tgl5 = floor((strtotime($tgl) - strtotime($lock5D)) /60/60/24);
-
 		$lock2D = date('Y-m-d', strtotime('+2 days', strtotime(date('Y-m-d'))));
 		$tgl2 = floor((strtotime($tgl) - strtotime($lock2D)) /60/60/24);
-
 		$lock1D = date('Y-m-d', strtotime('+1 days', strtotime(date('Y-m-d'))));
 		$tgl1 = floor((strtotime($tgl) - strtotime($lock1D)) /60/60/24);
-
 		$tgl0 = floor((strtotime($tgl) - strtotime(date('Y-m-d'))) /60/60/24);
-
-		$cek = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$urut' AND opsi='$userAcc'");
+		$cek = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$urut' AND opsi='$lvl'");
+		$jam = date('H');
+		$menit = date('i');
 
 		if($tgl0 >= 0 && $lvl == 'User'){
 			$data = false;
 			$msg = 'BELUM BISA KASIH KETERANGAN!';
-		}else if($tgl5 <= 0 && $lvl == 'Marketing'){
+		}else if($tgl5 <= 0 && $jam >= '12' && $menit >= '00' && $lvl == 'Marketing'){
 			$data = false;
-			$msg = 'LOCK 5 HARI PER HARI INI!';
-		}else if($tgl2 <= 0 && $lvl == 'PPIC'){
+			$msg = 'LOCK H-5. JAM LEBIH DARI 12 SIANG!';
+		}else if($tgl2 <= 0 && $jam >= '12' && $menit >= '00' && ($lvl == 'PPIC' || $lvl == 'Gudang')){
 			$data = false;
-			$msg = 'LOCK 2 HARI PER HARI INI!';
-		}else if($tgl1 <= 0 && $lvl == 'Pengiriman'){
+			$msg = 'LOCK H-2. JAM LEBIH DARI 12 SIANG!';
+		}else if($tgl1 <= 0 && $jam >= '12' && $menit >= '00' && $lvl == 'Pengiriman'){
 			$data = false;
-			$msg = 'LOCK 1 HARI PER HARI INI!';
+			$msg = 'LOCK H-1. JAM LEBIH DARI 12 SIANG!';
 		}else if(($verif == "R" || $verif == "D") && $keterangan == ""){
 			$data = false; $msg = 'ISI KETERANGAN!';
 		}else{
-			$this->db->set('opsi', $userAcc);
+			$this->db->set('opsi', $lvl);
 			$this->db->set('tgl', $tgl);
 			$this->db->set('urut', $urut);
 			$this->db->set('sts_dss', $verif);
@@ -3644,7 +3464,7 @@ class M_transaksi extends CI_Model
 				$this->db->set('updated_at', date('Y-m-d H:i:s'));
 			}
 			if($cek->num_rows() != 0){
-				$this->db->where('opsi', $userAcc);
+				$this->db->where('opsi', $lvl);
 				$this->db->where('tgl', $tgl);
 				$this->db->where('urut', $urut);
 				if($verif == 'X'){
@@ -3657,20 +3477,22 @@ class M_transaksi extends CI_Model
 			}else{
 				$this->db->set('created_at', date('Y-m-d H:i:s'));
 				$data = $this->db->insert('trs_dev_acc');
-				$msg = 'BERHASIL!';
+				$msg = 'BERHASIL TAMBAH KETERANGAN!';
 			}
 		}
 
 		return [
 			'data' => $data,
 			'msg' => $msg,
-			// 'lock5D' => $lock5D,
-			// 'tgl5' => $tgl5,
-			// 'lock2D' => $lock2D,
-			// 'tgl2' => $tgl2,
-			// 'lock1D' => $lock1D,
-			// 'tgl1' => $tgl1,
-			// 'tgl0' => $tgl0,
+			'lock5D' => $lock5D,
+			'tgl5' => $tgl5,
+			'lock2D' => $lock2D,
+			'tgl2' => $tgl2,
+			'lock1D' => $lock1D,
+			'tgl1' => $tgl1,
+			'tgl0' => $tgl0,
+			'_jam' => $jam,
+			'_menit' => $menit,
 		];
 	}
 

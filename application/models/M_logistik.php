@@ -5221,4 +5221,217 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function btnPatokanRoll()
+	{
+		$t_cor = $_POST["t_cor"];
+		$width = $_POST["width"];
+		$ptk = $_POST["ptk"];
+
+		$cek = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$t_cor' AND width='$width'");
+
+		if($ptk < 0){
+			$data = false;
+			$msg = "SALAH";
+		}else{
+			$aR = array(
+				't_cor' => $t_cor,
+				'width' => $width,
+				'ptk' => $ptk,
+			);
+			if($cek->num_rows() == 0){
+				$data = $this->db->insert('m_roll_ptk', $aR);
+				$msg = "BERHASIL!";
+			}else{
+				$this->db->set('ptk', $ptk);
+				$this->db->where('t_cor', $t_cor);
+				$this->db->where('width', $width);
+				$data = $this->db->update('m_roll_ptk', $aR);
+				$msg = "BERHASIL UPDATE!";
+			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function addRollCorr()
+	{
+		$opsi = $_POST["opsi"];
+		$tgl_pm = $_POST["tgl_pm"];
+		$tgl_gudang = $_POST["tgl_gudang"];
+
+		$db9 = $this->load->database('database_simroll', TRUE);
+		if($opsi == 'pm'){
+			$qR = $db9->query("SELECT*FROM m_timbangan WHERE tgl='$tgl_pm' AND nm_ker!='WP' AND (status='2' OR status='4' OR status='5' OR status='6' OR status='7') ORDER BY roll");
+		}
+		if($opsi == 'gudang'){
+			$qR = $db9->query("SELECT t.* FROM m_timbangan t
+			INNER JOIN pl p ON t.id_pl=p.id
+			WHERE p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			ORDER BY t.nm_ker,t.g_label,t.width,t.pm,t.roll");
+		}
+
+		foreach($qR->result() as $r){
+			$cek = $this->db->query("SELECT*FROM m_roll WHERE roll='$r->roll' AND id_roll='$r->id'");
+			if($cek->num_rows() == 0){
+				($opsi == 'pm') ? $o = 'PM' : $o = 'FG';
+				$berat = $r->weight - $r->seset;
+				$rL = array(
+					't_cor' => 'CA',
+					'roll' => $r->roll,
+					'i_tgl' => $tgl_gudang,
+					'nm_ker' => $r->nm_ker,
+					'g_label' => $r->g_label,
+					'width' => $r->width,
+					'diameter' => $r->diameter,
+					'weight' => $berat,
+					'joint' => $r->joint,
+					'ket' => $r->ket,
+					'status_r' => $r->status,
+					'g_ac' => $r->g_ac,
+					'rct' => $r->rct,
+					'bi' => $r->bi,
+					'cobb' => $r->cobb,
+					'moisture' => $r->moisture,
+					'rm' => $r->rm,
+					'dari' => $o,
+					'created_at' => date('Y-m-d H:i:s'),
+					'created_by' => $this->username,
+					'id_roll' => $r->id,
+				);
+				$data = $this->db->insert("m_roll", $rL);
+			}else{
+				$data = true;
+			}
+		}
+		$msg = 'BERHASIL!';
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function editRollCorr()
+	{
+		$id = $_POST["id"];
+		$cab = $_POST["corcab"];
+
+		$this->db->set('t_cor', $cab);
+		$this->db->where('id', $id);
+		$data = $this->db->update('m_roll');
+
+		return [
+			'data' => $data,
+		];
+	}
+
+	function btnGunaSisa()
+	{
+		$tgl_guna = $_POST["tgl_guna"];
+		$roll = $_POST["roll"];
+		$guna = $_POST["guna"];
+		$sisa = $_POST["sisa"];
+		$ket = $_POST["ket"];
+
+		$qR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
+		$ay = array(
+			'tgl' => $tgl_guna,
+			'id_roll' => $roll,
+			'roll' => $qR->roll,
+			'pemakaian' => $guna,
+			'sisa' => $sisa,
+			'ket' => $ket,
+		);
+		$data = $this->db->insert("trs_so_guna", $ay);
+		if($data){
+			// seset
+			($qR->seset == 0) ? $seset = $guna : $seset = $qR->seset + $guna;
+			$this->db->set('seset', $seset);
+			$this->db->where('id', $roll);
+			$uRoll = $this->db->update('m_roll');
+			if($uRoll){
+				// JIKA BERAT == SESET : DICLOSE
+				$cR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
+				if($cR->weight == $cR->seset){
+					$this->db->set('status_p', 'Close');
+					$this->db->where('id', $roll);
+					$cRoll = $this->db->update('m_roll');
+				}else{
+					$cRoll = false;
+				}
+			}
+		}
+		return [
+			'data' => $data,
+			'uRoll' => $uRoll,
+			'cRoll' => $cRoll,
+		];
+	}
+
+	function delRollGuna()
+	{
+		$id_guna = $_POST["id"];
+		$id_roll = $_POST["roll"];
+
+		$qG = $this->db->query("SELECT*FROM trs_so_guna WHERE id='$id_guna'")->row();
+		$qR = $this->db->query("SELECT*FROM m_roll WHERE id='$id_roll'")->row();
+
+		// update seset
+		$seset = $qR->seset - $qG->pemakaian;
+		if($qR->weight == $qR->seset){
+			$this->db->set('status_p', 'Open');
+		}
+		$this->db->set('seset', $seset);
+		$this->db->where('id', $id_roll);
+		$uRoll = $this->db->update('m_roll');
+		if($uRoll){
+			// delete guna
+			$this->db->where('id', $id_guna);
+			$data = $this->db->delete('trs_so_guna');
+		}
+
+		return [
+			'uRoll' => $uRoll,
+			'data' => $data,
+		];
+	}
+
+	function addListRoll()
+	{
+		$tgl_guna = $_POST["tgl_guna"];
+		$s_corr = $_POST["s_corr"];
+		$s_gsm = $_POST["s_gsm"];
+		$s_lebar = $_POST["s_lebar"];
+		$s_roll = $_POST["s_roll"];
+		$id_roll = $_POST["id"];
+		$gR = $this->db->query("SELECT*FROM m_roll WHERE id='$id_roll'");
+
+		$z = array(
+			'l' => $gR->row()->nm_ker,
+			'tgl' => $tgl_guna,
+			'id_so_dtl' => 0,
+			'id_roll' => $id_roll,
+			'roll' => $gR->row()->roll,
+			'creat_at' => date("Y-m-d H:i:s"),
+			'creat_by' => $this->session->userdata('username'),
+		);
+		$data = $this->db->insert('trs_so_roll', $z);
+
+		return [
+			'data' => $data,
+		];
+	}
+
+	function delListRoll()
+	{
+		$this->db->where('id', $_POST["id"]);
+		$data = $this->db->delete('trs_so_roll');
+		return [
+			'data' => $data,
+		];
+	}
+
 }

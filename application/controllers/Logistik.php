@@ -11822,6 +11822,16 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function Roll_Corr()
+	{
+		$data_header = array(
+			'judul' => "Roll Corrugated",
+		);
+		$this->load->view('header', $data_header);
+		$this->load->view('Logistik/v_roll_corr');
+		$this->load->view('footer');
+	}
+
 	function loadDataGDLaminasi()
 	{
 		$plh_tgl = $_POST["plh_tgl"];
@@ -15994,5 +16004,775 @@ class Logistik extends CI_Controller
 		echo $html;
 		
 		
+	}
+
+	function btnPatokanRoll()
+	{
+		$result = $this->m_logistik->btnPatokanRoll();
+		echo json_encode($result);
+	}
+
+	function addRollCorr()
+	{
+		$result = $this->m_logistik->addRollCorr();
+		echo json_encode($result);
+	}
+
+	function editRollCorr()
+	{
+		$result = $this->m_logistik->editRollCorr();
+		echo json_encode($result);
+	}
+
+	function btnGunaSisa()
+	{
+		$result = $this->m_logistik->btnGunaSisa();
+		echo json_encode($result);
+	}
+
+	function delRollGuna()
+	{
+		$result = $this->m_logistik->delRollGuna();
+		echo json_encode($result);
+	}
+
+	function addListRoll()
+	{
+		$result = $this->m_logistik->addListRoll();
+		echo json_encode($result);
+	}
+
+	function delListRoll()
+	{
+		$result = $this->m_logistik->delListRoll();
+		echo json_encode($result);
+	}
+
+	function cariListRoll()
+	{
+		$pilih = $_POST["list_pilih"];
+		$lNmKer = $_POST["list_nmker"];
+		$html = '';
+		
+		$html .='<div style="overflow:auto;white-space:nowrap;">
+			<table style="margin:12px 6px;padding:0;color:#000;text-align:center;vertical-align:middle;border-collapse:collapse" border="1">';
+
+			// DATA INTI DARI SEGALA INTI
+			if($lNmKer == ''){
+				$wK = "AND nm_ker NOT IN('WP', 'WS')";
+			}else if($lNmKer == 'BKBLTL'){
+				$wK = "AND nm_ker IN('BK', 'BL', 'TL', 'TL-A', 'TL-B')";
+			}else if($lNmKer == 'MHMFMC'){
+				$wK = "AND nm_ker IN('MF', 'MF-A', 'MF-B', 'MH', 'MC', 'MH COLOR')";
+			}else if($lNmKer == 'MLMNMS'){
+				$wK = "AND nm_ker IN('ML', 'MN', 'MS', 'MS-A', 'MS-B', 'MS-C')";
+			}else{
+				$wK = "AND nm_ker='$lNmKer'";
+			}
+            $getLabel = $this->db->query("SELECT nm_ker FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY nm_ker");
+
+			// GET SEMUA KOP JENIS
+            $html .='<tr style="background:#e9e9e9">
+				<td style="padding:5px;font-weight:bold" rowspan="3">NO.</td>
+				<td style="padding:5px;font-weight:bold" rowspan="3">UKURAN</td>';
+				foreach($getLabel->result() as $lbl){
+					$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+					($lbl->nm_ker == 'MH COLOR') ? $nmKer = 'MC' : $nmKer = $lbl->nm_ker;
+					$nrs = $getGsm->num_rows() * 2;
+					$html .='<td style="padding:5px;font-weight:bold" colspan="'.$nrs.'">'.$nmKer.'</td>';
+				}
+				$html .='<td style="padding:5px;font-weight:bold" rowspan="3">P</td>
+			</tr>';
+
+			// GET SEMUA KOP GRAMATURE
+            $html .='<tr>';
+            foreach($getLabel->result() as $lbl){
+                $getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+                foreach($getGsm->result() as $gsm){
+                    $html .='<td style="padding:5px;background:#e9e9e9;font-weight:bold" colspan="2">'.$gsm->g_label.'</td>';
+                }
+            }
+            $html .='</tr>';
+
+			$html .='<tr>';
+            foreach($getLabel->result() as $lbl){
+                $getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+                foreach($getGsm->result() as $gsm){
+                    $html .='<td style="padding:5px 12px;background:#e9e9e9;font-weight:bold">U</td><td style="padding:5px 12px;background:#e9e9e9;font-weight:bold">S</td>';
+                }
+            }
+            $html .='</tr>';
+
+			// TAMPIL SEMUA DATA UKURAN
+            $getWidth = $this->db->query("SELECT width FROM m_roll
+            WHERE status_p='Open' AND t_cor='$pilih' $wK
+            GROUP BY width");
+            $i = 0;
+            foreach($getWidth->result() as $width){
+                $i++;
+                $html .='<tr class="new-stok-gg" style="position:relative"><td style="font-weight:bold">'.$i.'</td><td style="font-weight:bold;background:#fff;border:1px solid #808080;position:sticky;left:0">'.round($width->width,2).'</td>';
+
+                $getLabel = $this->db->query("SELECT nm_ker FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY nm_ker");
+                foreach($getLabel->result() as $lbl){
+                    $getGsm = $this->db->query("SELECT*FROM m_roll
+                    WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker'
+                    GROUP BY nm_ker,g_label");
+                    foreach($getGsm->result() as $gsm){
+						if($gsm->g_label == 125 || $gsm->g_label == '125'){
+							$a120 = "(g_label='120' OR g_label='125')";
+						}else{
+							$a120 = "g_label='$gsm->g_label'";
+						}
+
+						// CEK PTK
+						$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$pilih' AND width='$width->width'");
+						if($qP->num_rows() == 0){
+							$uPTK = "";
+							$sPTK = "";
+						}else{
+							$ptk = $qP->row()->ptk;
+							$uPTK = "AND (weight - seset) > '$ptk'";
+							$sPTK = "AND (weight - seset) <= '$ptk'";
+						}
+                        $getWidth = $this->db->query("SELECT nm_ker,g_label,width,COUNT(width) as jml FROM m_roll
+                        WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND $a120 AND width='$width->width' $uPTK
+                        GROUP BY nm_ker,width");
+						// UTUH
+                        if(in_array($gsm->nm_ker, ['MF', 'MF-A', 'MF-B', 'MH', 'MC'])){
+                            $gbGsm = '#ffc';
+                        }else if(in_array($gsm->nm_ker, ['ML', 'MN', 'MS', 'MS-A', 'MS-B', 'MS-C'])){
+                            $gbGsm = '#fcc';
+                        }else if(in_array($gsm->nm_ker, ['BK', 'BL', 'TL', 'TL-A', 'TL-B'])){
+                            $gbGsm = '#ccc';
+                        }else if($gsm->nm_ker == 'MH COLOR'){
+                            $gbGsm = '#ccf';
+                        }else{
+                            $gbGsm = '#fff';
+                        }
+                        if($getWidth->num_rows() == 0){
+                            $html .='<td style="padding:5px;font-weight:bold;background:'.$gbGsm.'">-</td>';
+                        }else{
+                            $html .='<td style="padding:5px">
+                                <button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="btnListRoll('."'".$gsm->t_cor."'".', '."'".$gsm->nm_ker."'".', '."'".$gsm->g_label."'".', '."'".round($width->width,2)."'".', '."'UTUH'".')">'.$getWidth->row()->jml.'</button>
+                            </td>';
+                        }
+
+						// SISA
+						$getWSisa = $this->db->query("SELECT nm_ker,g_label,width,COUNT(width) as jml FROM m_roll
+                        WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND $a120 AND width='$width->width' $sPTK
+                        GROUP BY nm_ker,width");
+						if(in_array($gsm->nm_ker, ['MF', 'MF-A', 'MF-B', 'MH', 'MC'])){
+                            $gbGsmS = '#ff0';
+                        }else if(in_array($gsm->nm_ker, ['ML', 'MN', 'MS', 'MS-A', 'MS-B', 'MS-C'])){
+                            $gbGsmS = '#faa';
+                        }else if(in_array($gsm->nm_ker, ['BK', 'BL', 'TL', 'TL-A', 'TL-B'])){
+                            $gbGsmS = '#aaa';
+                        }else if($gsm->nm_ker == 'MH COLOR'){
+                            $gbGsmS = '#aaf';
+                        }else{
+                            $gbGsmS = '#fff';
+                        }
+						if($getWSisa->num_rows() == 0 || $qP->num_rows() == 0){
+                            $html .='<td style="padding:5px;font-weight:bold;background:'.$gbGsmS.'">-</td>';
+                        }else{
+							$html .='<td style="padding:5px">
+								<button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="btnListRoll('."'".$gsm->t_cor."'".', '."'".$gsm->nm_ker."'".', '."'".$gsm->g_label."'".', '."'".round($width->width,2)."'".', '."'SISA'".')">'.$getWSisa->row()->jml.'</button>
+							</td>';
+                        }
+                    }
+                }
+				// PATOKAN SISA
+				$qC = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$pilih' AND width='$width->width'");
+				($qC->num_rows() == 0 || ($qC->num_rows() != 0 && $qC->row()->ptk == 0)) ? $cc = '' : $cc = $qC->row()->ptk;
+				$html .= '<td style="padding:5px">
+					<input type="number" style="border:0;width:60px;text-align:right" id="ptk_'.$gsm->t_cor.round($width->width,2).'" onchange="btnPatokanRoll('."'".$gsm->t_cor."'".', '."'".round($width->width,2)."'".')" value="'.$cc.'">
+				</td>';
+            }
+            $html .='</tr>';
+		$html .= '</table>';
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function btnListRoll()
+	{
+		$t_cor = $_POST["t_cor"];
+		$nm_ker = $_POST["nm_ker"];
+		$g_label = $_POST["g_label"];
+		$width = $_POST["width"];
+		$opsi = $_POST["opsi"];
+		$html = '';
+
+		// CEK PTK
+		$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$t_cor' AND width='$width'");
+		if($qP->num_rows() == 0){
+			$uPTK = "";
+		}else{
+			$ptk = $qP->row()->ptk;
+			if($opsi == 'UTUH'){
+				$uPTK = "AND (weight - seset) > '$ptk'";
+			}else{
+				$uPTK = "AND (weight - seset) <= '$ptk'";
+			}
+		}
+
+		$qR = $this->db->query("SELECT*FROM m_roll WHERE status_p='Open' AND t_cor='$t_cor' AND nm_ker='$nm_ker' AND g_label='$g_label' AND width='$width' $uPTK ORDER BY nm_ker, g_label, width");
+
+		if($qR->num_rows() == 0){
+			$html .= '<div style="padding:6px;font-weight:bold">DATA KOSONG!</div>';
+		}else{
+			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 6px 6px">
+				<tr>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JENIS</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GSM</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">WIDTH</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BERAT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BW</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">RCT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BI</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
+				</tr>';
+				$i = 0;
+				foreach($qR->result() as $r){
+					$i++;
+					if($r->status_r == 0){
+						$pStt = 'STOK';
+					}else if($r->status_r == 2){
+						$pStt = 'PPI';
+					}else if($r->status_r == 22){
+						$pStt = 'FG';
+					}else if($r->status_r == 4){
+						$pStt = 'PPI SIZING';
+					}else if($r->status_r == 5){
+						$pStt = 'PPI CALENDER';
+					}else if($r->status_r == 6){
+						$pStt = 'PPI WARNA';
+					}else if($r->status_r == 7){
+						$pStt = 'PPI BAROKAH / NUSANTARA';
+					}else if($r->status_r == 3){
+						$pStt = 'BUFFER';
+					}else{
+						$pStt = '-';
+					}
+					if($r->t_cor == 'CA'){
+						$opt = '<option value="CA">ATAS</option><option value="CB">BAWAH</option>';
+					}
+					if($r->t_cor == 'CB'){
+						$opt = '<option value="CB">BAWAH</option><option value="CA">ATAS</option>';
+					}
+					$cAB = '<select id="corcab'.$r->id.'" style="background:none;border:0;">'.$opt.'</select>';
+					$aksi = '<button type="button" onclick="editRollCorr('."'".$r->id."'".', '."'LIST'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
+					$berat = $r->weight - $r->seset;
+					$html .= '<tr>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$cAB.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->nm_ker.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->g_label.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->width,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
+						<td style="padding:6px;text-align:center;border;border:1px solid #dee2e6">'.$pStt.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->g_ac,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->rct,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->bi,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$aksi.'</td>
+					</tr>';
+				}
+			$html .= '</table></div>';
+		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function addCari()
+	{
+		$opsi = $_POST["opsi"];
+		$tgl_pm = $_POST["tgl_pm"];
+		$tgl_gudang = $_POST["tgl_gudang"];
+		$html = '';
+
+		$db9 = $this->load->database('database_simroll', TRUE);
+		if($opsi == 'pm'){
+			$qR = $db9->query("SELECT*FROM m_timbangan WHERE tgl>='2025-06-17' AND tgl='$tgl_pm' AND nm_ker!='WP' AND status NOT IN ('0', '3') ORDER BY roll");
+			$qRc = $db9->query("SELECT nm_ker,g_label,width,COUNT(roll) AS jml_roll FROM m_timbangan WHERE tgl>='2025-06-17' AND tgl='$tgl_pm' AND nm_ker!='WP' AND status NOT IN ('0', '3') GROUP BY nm_ker,g_label,width");
+		}
+		if($opsi == 'gudang'){
+			$qR = $db9->query("SELECT t.*,p.tgl AS tgl_pl,p.no_surat,p.nama,p.nm_perusahaan FROM m_timbangan t
+			INNER JOIN pl p ON t.id_pl=p.id
+			WHERE p.tgl>='2025-06-17' AND p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			ORDER BY t.nm_ker,t.g_label,t.width,t.pm,t.roll");
+			$qRc = $db9->query("SELECT t.nm_ker,t.g_label,t.width,COUNT(t.roll) AS jml_roll FROM m_timbangan t
+			INNER JOIN pl p ON t.id_pl=p.id
+			WHERE p.tgl>='2025-06-17' AND p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			GROUP BY t.nm_ker,t.g_label,t.width");
+		}
+
+		if($qR->num_rows() == 0){
+			$html .= '<span style="padding:6px;font-weight:bold">DATA KOSONG!</span>';
+		}else{
+			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:6px 6px 12px;text-align:center">
+				<tr>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;border:1px solid #dee2e6">JENIS</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;border:1px solid #dee2e6">GSM</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;border:1px solid #dee2e6">WIDTH</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;border:1px solid #dee2e6">JUMLAH</td>
+				</tr>';
+				$sumRoll = 0;
+				foreach($qRc->result() as $z){
+					$html .= '<tr>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$z->nm_ker.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$z->g_label.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.round($z->width,2).'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$z->jml_roll.'</td>
+					</tr>';
+					$sumRoll += $z->jml_roll;
+				}
+				// TOTAL
+				if($qRc->num_rows() > 1){
+					$html .= '<tr>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;border:1px solid #dee2e6" colspan="3">TOTAL</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;border:1px solid #dee2e6">'.$sumRoll.'</td>
+					</tr>';
+				}
+			$html .= '</table></div>';
+
+			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:6px">
+				<tr>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JENIS</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GSM</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">WIDTH</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">DIA(cm)</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BERAT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BW</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">RCT</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BI</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
+				</tr>';
+				foreach($qR->result() as $r){
+					$cek = $this->db->query("SELECT*FROM m_roll WHERE roll='$r->roll' AND id_roll='$r->id'");
+					if($r->status == 0){
+						$pStt = 'STOK';
+					}else if($r->status == 2){
+						$pStt = 'PPI';
+					}else if($r->status == 4){
+						$pStt = 'PPI SIZING';
+					}else if($r->status == 5){
+						$pStt = 'PPI CALENDER';
+					}else if($r->status == 6){
+						$pStt = 'PPI WARNA';
+					}else if($r->status == 7){
+						$pStt = 'PPI BAROKAH / NUSANTARA';
+					}else if($r->status == 3){
+						$pStt = 'BUFFER';
+					}else{
+						$pStt = '-';
+					}
+					$berat = $r->weight - $r->seset;
+					// aksi edit
+					if($cek->num_rows() != 0){
+						if($cek->row()->t_cor == 'CA'){
+							$opt = '<option value="CA">ATAS</option><option value="CB">BAWAH</option>';
+						}
+						if($cek->row()->t_cor == 'CB'){
+							$opt = '<option value="CB">BAWAH</option><option value="CA">ATAS</option>';
+						}
+						$cAB = '<select id="corcab'.$cek->row()->id.'" style="background:none;border:0;">'.$opt.'</select>';
+						$aksi = '<button type="button" onclick="editRollCorr('."'".$cek->row()->id."'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
+					}else{
+						$cAB = '<select style="background:none;border:0;">
+							<option value="CA">ATAS</option>
+							<option value="CB">BAWAH</option>
+						</select>';
+						$aksi = '-';
+					}
+					$html .= '<tr class="thdhdz">
+						<td style="padding:6px;border:1px solid #dee2e6">'.$cAB.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->nm_ker.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->g_label.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->width,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->diameter.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$pStt.'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->g_ac,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->rct,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->bi,2).'</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$aksi.'</td>
+					</tr>';
+				}
+			$html .= '</table></div>';
+
+			$html .= '<div class="card-body row" style="padding:12px 6px;font-weight:bold">
+				<div class="col-md-1">INPUT</div>
+				<div class="col-md-11">
+					<button type="button" class="btn btn-success" style="font-weight:bold" onclick="addRollCorr('."'".$opsi."'".')"><i class="fas fa-plus"></i> TAMBAH</button>
+				</div>
+			</div>';
+		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function cariGunaRoll(){
+		$tgl_guna = $_POST["tgl_guna"];
+		$html = '';
+		
+		if($tgl_guna == ''){
+			$html .= '<div style="padding:12px;font-weight:bold">PILIH TANGGAL!</div>';
+		}else{
+			$zV = $this->db->query("SELECT COUNT(r.roll) AS jml_roll,r.id AS idso,r.id_roll AS rollid,r.id_so_dtl,l.* FROM trs_so_roll r
+			INNER JOIN m_roll l ON l.id=r.id_roll
+			WHERE r.tgl='$tgl_guna'
+			GROUP BY r.id_roll
+			ORDER BY l.t_cor,r.roll");
+
+			if($zV->num_rows() == 0){
+				$html .= '<div style="padding:12px;font-weight:bold">DATA KOSONG!</div>';
+			}else{
+				$html .= '<div style="overflow:auto;white-space:nowrap">
+					<table style="margin:0 12px 12px">
+						<tr>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GUNA</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
+						</tr>';
+						$i = 0;
+						$gNa = 0;
+						foreach($zV->result() as $r){
+							$i++;
+							($r->jml_roll == 1) ? $k = '' : $k = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->jml_roll.'</span>';
+							// CEK HASIL
+							// $cH = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$r->id_so_dtl' GROUP BY id_so_dtl");
+							// if($cH->num_rows() != 0){
+								$aH = '<button type="button" onclick="bGunaRoll('."'".$r->rollid."'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
+							// }else{
+							// 	$aH = '-';
+							// }
+							// CEK GUNA
+							$cG = $this->db->query("SELECT g.* FROM trs_so_roll r
+							INNER JOIN trs_so_guna g ON r.id_roll=g.id_roll AND r.tgl=g.tgl
+							WHERE r.tgl='$tgl_guna' AND g.id_roll='$r->rollid'");
+							($cG->num_rows() == 0) ? $dL = ' <button type="button" onclick="delListRoll('."'".$r->idso."'".')" style="font-weight:bold" class="btn btn-danger btn-xs">DEL</button>' : $dL = '';
+							($cG->num_rows() == 0) ? $gg = '' : $gg = ' <span style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px"><i class="fas fa-check" style="color:#007bff"></i></span>';
+							($cG->num_rows() == 0) ? $ig = '-' : $ig = number_format($cG->row()->pemakaian);
+							$html .= '<tr class="thdhdz">
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
+								<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.$k.'</td>
+								<td style="padding:6px;text-align:right;border:1px solid #dee2e6">'.$ig.'</td>
+								<td style="padding:6px;border:1px solid #dee2e6">
+									'.$aH.$dL.$gg.'
+								</td>
+							</tr>';
+
+							$gNa += ($cG->num_rows() == 0) ? $ig = 0 : $ig = $cG->row()->pemakaian;
+						}
+						// TOTAL
+						if($zV->num_rows() > 1){
+							$html .= '<tr>
+								<td style="background:#f2f2f2;padding:5px;border:1px solid #dee2e6;font-weight:bold;text-align:center" colspan="3">TOTAL</td>
+								<td style="background:#f2f2f2;padding:5px;border:1px solid #dee2e6;font-weight:bold;text-align:right">'.number_format($gNa).'</td>
+								<td style="background:#f2f2f2;padding:5px;border:1px solid #dee2e6"></td>
+							</tr>';
+						}
+					$html .= '</table>
+				</div>';
+			}
+		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function planCariRoll()
+	{
+		$tgl_guna = $_POST["tgl_guna"];
+		$corr = $_POST["s_corr"];
+		$g_label = $_POST["s_gsm"];
+		$lebar = $_POST["s_lebar"];
+		$roll = $_POST["s_roll"];
+		$html = '';
+		
+		if($tgl_guna == ''){
+			$html .= '<div style="padding:12px;font-weight:bold">PILIH TANGGAL!</div>';
+		}else{
+			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 12px 12px">';
+			$kopHtml = '<tr>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JENIS</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GSM</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">WIDTH</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">DIA(cm)</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BERAT</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
+			</tr>';
+
+			// CEK INPUTTAN
+			// $qS = $this->db->query("SELECT*FROM trs_so_detail WHERE status_2='Open' AND id='$id'");
+			// $lR = $this->db->query("SELECT r.*,s.id AS id_id FROM trs_so_roll s INNER JOIN m_roll r ON s.id_roll=r.id WHERE tgl='$tgl_guna' ORDER BY nm_ker,g_label,width,roll");
+			// if($lR->num_rows() != 0){
+			// 	$html .= $kopHtml;
+			// 	if($qS->num_rows() != 0){
+			// 		$html .= '<tr>
+			// 			<td style="background:#f2f2f2;padding:6px;border:1px solid #dee2e6;font-weight:bold" colspan="12">INPUT :</td>
+			// 		</tr>';
+			// 	}
+			// }
+			// $x = 0;
+			// foreach($lR->result() as $q){
+			// 	$x++;
+			// 	if($q->status_r == 0){ $pStt = 'STOK';
+			// 	}else if($q->status_r == 1){ $pStt = 'FG';
+			// 	}else if($q->status_r == 2){ $pStt = 'PPI';
+			// 	}else if($q->status_r == 4){ $pStt = 'PPI SIZING';
+			// 	}else if($q->status_r == 5){ $pStt = 'PPI CALENDER';
+			// 	}else if($q->status_r == 6){ $pStt = 'PPI WARNA';
+			// 	}else if($q->status_r == 7){ $pStt = 'PPI BAROKAH / NUSANTARA';
+			// 	}else if($q->status_r == 3){ $pStt = 'BUFFER';
+			// 	}else{ $pStt = '-'; }
+			// 	// cek guna - del list
+			// 	$cG = $this->db->query("SELECT*FROM trs_so_guna WHERE tgl='$tgl_plan' AND id_roll='$q->id'");
+			// 	if($cG->num_rows() == 0){
+			// 		$dL = '<button type="button" onclick="delListRoll('."'".$q->id_id."'".')" style="font-weight:bold" class="btn btn-danger btn-xs">DEL</button>';
+			// 	}else{
+			// 		$dL = '<button type="button" style="font-weight:bold" class="btn btn-secondary btn-xs" disabled>DEL</button>';
+			// 	}
+			// 	$berat = $q->weight - $q->seset;
+			// 	$html .= '<tr class="thdhdz">
+			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$x.'</td>
+			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->t_cor.'</td>
+			// 		<td style="padding:6px;border:1px solid #dee2e6">'.$q->roll.'</td>
+			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->nm_ker.'</td>
+			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->g_label.'</td>
+			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($q->width,2).'</td>
+			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->diameter.'</td>
+			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
+			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->joint.'</td>
+			// 		<td style="padding:6px;border:1px solid #dee2e6">'.$q->ket.'</td>
+			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$pStt.'</td>
+			// 		<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$dL.'</td>
+			// 	</tr>';
+			// }
+
+			// LIST
+			$zR = $this->db->query("SELECT*FROM m_roll WHERE t_cor='$corr' AND g_label LIKE '%$g_label%' AND width LIKE '%$lebar%' AND roll LIKE '%$roll%' ORDER BY nm_ker,g_label,width,roll");
+			// if($qS->num_rows() != 0){
+				if($zR->num_rows() != 0 && $zR->num_rows() < 50){
+					// if($lR->num_rows() != 0){
+					// 	$html .= '';
+					// }else{
+						$html .= $kopHtml;
+					// }
+					// $html .= '<tr>
+					// 	<td style="background:#f2f2f2;padding:6px;border:1px solid #dee2e6;font-weight:bold" colspan="12">LIST :</td>
+					// </tr>';
+					$i = 0;
+					foreach($zR->result() as $r){
+						if($r->status_r == 0){$pStt = 'STOK';
+						}else if($r->status_r == 1){$pStt = 'FG';
+						}else if($r->status_r == 2){$pStt = 'PPI';
+						}else if($r->status_r == 4){$pStt = 'PPI SIZING';
+						}else if($r->status_r == 5){$pStt = 'PPI CALENDER';
+						}else if($r->status_r == 6){$pStt = 'PPI WARNA';
+						}else if($r->status_r == 7){$pStt = 'PPI BAROKAH / NUSANTARA';
+						}else if($r->status_r == 3){$pStt = 'BUFFER';
+						}else{$pStt = '-'; }
+						$cek = $this->db->query("SELECT*FROM trs_so_roll WHERE tgl='$tgl_guna' AND id_roll='$r->id'");
+						if($cek->num_rows() == 0){
+							$i++;
+							$berat = $r->weight - $r->seset;
+							$html .= '<tr class="thdhdz">
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
+								<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->nm_ker.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->g_label.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->width,2).'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->diameter.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
+								<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$pStt.'</td>
+								<td style="padding:6px;border:1px solid #dee2e6">
+									<button type="button" onclick="addListRoll('."'".$r->id."'".')" style="font-weight:bold" class="btn btn-success btn-xs">ADD</button>
+								</td>
+							</tr>';
+						}
+					}
+				}
+			// }
+
+			$html .= '</table></div>';
+
+			if($zR->num_rows() == 0){
+				$html .= '<div style="padding:6px 6px 12px;font-weight:bold">DATA KOSONG!</div>';
+			}else if($zR->num_rows() > 50){
+				$html .= '<div style="padding:6px 6px 12px;font-weight:bold">DATA ROLL TERLALU BANYAK UNTUK DITAMPILKAN. INPUT ROLL LEBIH RINCI!</div>';
+			}else{
+				$html .= '';
+			}
+		}
+
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function bGunaRoll()
+	{
+		$tgl_guna = $_POST["tgl_guna"];
+		$roll = $_POST["roll"];
+		$html = '';
+
+		// $qS = $this->db->query("SELECT s.kode_po,c.nm_pelanggan,c.attn,s.eta_so,r.*,i.* FROM trs_so_roll r
+		// INNER JOIN m_roll l ON l.id=r.id_roll
+		// INNER JOIN trs_so_detail s ON s.id=r.id_so_dtl
+		// INNER JOIN m_pelanggan c ON s.id_pelanggan=c.id_pelanggan
+		// INNER JOIN m_produk i ON s.id_produk=i.id_produk
+		// WHERE r.id_roll='$roll'
+		// ORDER BY s.eta_so");
+
+		// if($qS->num_rows() == 0){
+		// 	$html .= '<div style="padding:6px;font-weight:bold">DATA KOSONG!</div>';
+		// }else{
+		// 	$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 6px 6px">
+		// 		<tr>
+		// 			<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">HARI, TGL</td>
+		// 			<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">NO. PO</td>
+		// 			<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CUSTOMER</td>
+		// 			<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ITEM</td>
+		// 		</tr>';
+		// 		$i = 0;
+		// 		foreach($qS->result() as $r){
+		// 			$i++;
+		// 			($r->kategori == 'K_BOX') ? $k = '[BOX] ' : $k = '[SHEET] ';
+		// 			$html .= '<tr class="thdhdz">
+		// 				<td style="padding:6px;border:1px solid #dee2e6">'.strtoupper(substr($this->m_fungsi->getHariIni($r->eta_so),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->eta_so)).'</td>
+		// 				<td style="padding:6px;border:1px solid #dee2e6">'.$r->kode_po.'</td>
+		// 				<td style="padding:6px;border:1px solid #dee2e6">'.$r->nm_pelanggan.'</td>
+		// 				<td style="padding:6px;border:1px solid #dee2e6">'.$k.$r->nm_produk.'</td>
+		// 			</tr>';
+		// 		}
+		// 	$html .= '</table></div>';
+		// }
+
+		$qR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
+		$fixBerat = $qR->weight - $qR->seset;
+		$html .= '<div style="overflow:auto;white-space:nowrap">
+			<input type="hidden" id="add_roll" value="'.$roll.'">
+			<input type="hidden" id="add_weight" value="'.$fixBerat.'">
+			<table style="margin:0 6px 6px">
+			<tr>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JENIS</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GSM</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">WIDTH</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BERAT</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
+			</tr>';
+			$html .= '<tr class="thdhdz">
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->t_cor.'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->roll.'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->nm_ker.'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->g_label.'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.round($qR->width).'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.number_format($qR->weight).'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->joint.'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->ket.'</td>
+			</tr>';
+			// all guna
+			$qH = $this->db->query("SELECT*FROM trs_so_guna WHERE id_roll='$roll' ORDER BY tgl");
+			if($qH->num_rows() != 0){
+				foreach($qH->result() as $h){
+					// cek so
+					$qC = $this->db->query("SELECT*FROM trs_so_roll r
+					INNER JOIN trs_so_guna g ON r.id_roll=g.id_roll AND r.tgl=g.tgl
+					WHERE g.id_roll='$h->id_roll' AND g.tgl='$h->tgl'");
+					if($qC->num_rows() != 0){
+						$btnDel = '<button class="btn btn-xs btn-danger" onclick="delRollGuna('."'".$h->id."'".')"><i class="fas fa-trash"></i></button>';
+					}else{
+						$btnDel = '';
+					}
+					$html .= '<tr>
+						<td style="padding:6px;text-align:right" colspan="5">'.$h->tgl.'</td>
+						<td style="padding:6px;text-align:right">'.number_format($h->pemakaian).'</td>
+						<td style="padding:6px;center;text-align:center">'.$btnDel.'</td>
+						<td style="padding:6px;center">'.$h->ket.'</td>
+					</tr>';
+				}
+				$html .= '<tr>
+					<td style="padding:6px;text-align:right" colspan="5">SISA</td>
+					<td style="padding:6px;text-align:right">'.number_format($fixBerat).'</td>
+				</tr>';
+			}
+		$html .= '</table></div>';
+
+		// cek guna
+		$cG = $this->db->query("SELECT*FROM trs_so_guna WHERE tgl='$tgl_guna' AND id_roll='$roll'");
+		if($cG->num_rows() == 0){
+			$html .= '<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+				<div class="col-md-1">PENGGUNAAN</div>
+				<div class="col-md-1">
+					<input type="number" id="add_guna" class="form-control" autocomplete="off" placeholder="0" onkeyup="hitungGuna('."'guna'".')">
+				</div>
+				<div class="col-md-10"></div>
+			</div>
+			<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+				<div class="col-md-1">SISA</div>
+				<div class="col-md-1">
+					<input type="number" id="add_sisa" class="form-control" autocomplete="off" placeholder="0" onkeyup="hitungGuna('."'sisa'".')">
+				</div>
+				<div class="col-md-10"></div>
+			</div>
+			<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+				<div class="col-md-1">KETERANGAN</div>
+				<div class="col-md-3">
+					<textarea id="add_ket" class="form-control" style="resize:none;font-weight:bold" rows="2" placeholder="KET" autocomplete="off" oninput="this.value=this.value.toUpperCase()"></textarea>
+				</div>
+				<div class="col-md-8"></div>
+			</div>
+			<div class="card-body row" style="padding:3px 6px 6px;font-weight:bold">
+				<div class="col-md-1"></div>
+				<div class="col-md-11">
+					<button type="button" class="btn btn-primary btn-sm btn-guna-sisa" style="font-weight:bold" onclick="btnGunaSisa()"><i class="fas fa-plus"></i> TAMBAH</button>
+				</div>
+			</div>';
+		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
 	}
 }

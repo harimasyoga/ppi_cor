@@ -274,6 +274,24 @@
 	</div>
 </div>
 
+<div class="modal fade" id="modalAccDssRinci">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" style="font-weight:bold">RINCIAN KETERANGAN</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" style="padding:12px">
+				<div style="overflow:auto;white-space:nowrap">
+					<div id="modal-rincian"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div class="modal fade" id="modalPlanDss">
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
@@ -322,21 +340,39 @@
 	}
 
 	function accDSS(opsi, urut) {
-		$("#judul-detail").html('<b>'+opsi+'</b>')
+		(opsi == 'User') ? opsi = 'INNER' : opsi = opsi;
+		$("#judul-detail").html('<b>'+opsi+'</b>');
 		$("#modal-detail").html(`. . .`)
 		$("#modalAccDss").modal("show")
-		$("#lvl").val('')
 		let tgl = $("#r_tgl").val()
 		let tahun = $("#tahun").val()
 		let bulan = $("#bulan").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/accDSS') ?>',
-			data: ({ tgl, tahun, bulan, opsi, urut }),
+			data: ({ tgl, tahun, bulan, urut }),
 			type: "POST",
 			success: function(res) {
 				data = JSON.parse(res)
-				$("#lvl").val(opsi)
 				$("#modal-detail").html(data.html)
+				$(".modal-open").css({"padding-right": "0"})
+				swal.close()
+			}
+		})
+	}
+
+	function accDSSRinci(urut) {
+		$("#modal-rincian").html(`. . .`)
+		$("#modalAccDssRinci").modal("show")
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/accDSSRinci') ?>',
+			data: ({ tgl, tahun, bulan, urut }),
+			type: "POST",
+			success: function(res) {
+				data = JSON.parse(res)
+				$("#modal-rincian").html(data.html)
 				$(".modal-open").css({"padding-right": "0"})
 				swal.close()
 			}
@@ -348,7 +384,6 @@
 		let tahun = $("#tahun").val()
 		let bulan = $("#bulan").val()
 		let keterangan = $("#ket_acc_dss").val()
-		let userAcc = $("#lvl").val()
 		$.ajax({
 			url: '<?php echo base_url('Transaksi/btnAccDSS')?>',
 			type: "POST",
@@ -362,19 +397,17 @@
 					}
 				});
 			},
-			data: ({ tgl, tahun, bulan, keterangan, userAcc, urut, verif }),
+			data: ({ tgl, tahun, bulan, keterangan, urut, verif }),
 			success: function(res){
 				data = JSON.parse(res)
 				if(data.data){
-					$("#lvl").val('')
 					$("#modalAccDss").modal("hide")
 					$(".modal-open").css({"padding-right": "0"})
 					$(".sidebar-mini").css({"padding-right": "0"})
 					toastr.success(`<b>${data.msg}</b>`)
 					ccDevSys(tgl, 'jadwal')
 				}else{
-					toastr.error(`<b>${data.msg}</b>`)
-					swal.close()
+					swal(`<b>${data.msg}</b>`, "", "error")
 				}
 			}
 		})
