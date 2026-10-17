@@ -11130,9 +11130,10 @@ class Transaksi extends CI_Controller
 			</tr>';
 			$allKet = $this->db->query("SELECT*FROM trs_dev_acc WHERE tgl='$tgl' AND urut='$urut' ORDER BY id");
 			foreach($allKet->result() as $r){
+				$tim3a = ($r->updated_at != null) ? substr($r->updated_at, 0, 10) : substr($r->created_at, 0, 10);
 				$tim3x = ($r->updated_at != null) ? substr($r->updated_at, 10, 6) : substr($r->created_at, 10, 6);
 				$html .= '<tr>
-					<td style="padding:6px">'.strtoupper($this->m_fungsi->getHariIni($r->tgl)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl)).'</td>
+					<td style="padding:6px">'.strtoupper($this->m_fungsi->getHariIni($tim3a)).', '.strtoupper($this->m_fungsi->tglIndSkt($tim3a)).'</td>
 					<td style="padding:6px">'.$tim3x.'</td>
 					<td style="padding:6px">'.$r->user_at.'</td>
 					<td style="padding:6px">'.$r->keterangan.'</td>
