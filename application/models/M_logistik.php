@@ -1332,12 +1332,17 @@ class M_logistik extends CI_Model
 		$cekMuat = $this->db->query("SELECT p.ppn,r.* FROM m_rencana_kirim r
 		INNER JOIN trs_po_detail p ON r.id_produk=p.id_produk AND r.id_pelanggan=p.id_pelanggan AND r.rk_kode_po=p.kode_po
 		WHERE r.rk_urut='$urut' AND r.rk_status='Open'");
+		$cek2 = $this->db->query("SELECT*FROM m_rencana_kirim WHERE rk_tgl='$rev_tgl' AND rk_urut='$urut' AND dev_tgl IS NOT NULL AND dev_urut IS NOT NULL");
 
 		$tglNow = date('Y-m-d');
 		// NEW DAN REVISI
 		($opsi == 'new') ? $tgl = date('Y-m-d') : $tgl = $rev_tgl;
 
-		if($tglNow == $tgl && $opsi == 'revisi'){
+		if($cek2->num_rows() != 0 && $opsi == 'revisi'){
+			$insertPl = false;
+			$updateIDplBox = false;
+			$msg = 'MUATAN SUDAH KE LINK DENGAN DELIVERY SYSTEM!!';
+		}else if($tglNow == $tgl && $opsi == 'revisi'){
 			$insertPl = false;
 			$updateIDplBox = false;
 			$msg = 'TANGGAL SAMA!';
@@ -1384,7 +1389,7 @@ class M_logistik extends CI_Model
 					'created_at' => $this->session->userdata('username'),
 				];
 
-				// CEK JIKA CUSTOMER DENGAN PO DAN KETEGORI YANG SAMA ABAIKAN
+				// CEK JIKA CUSTOMER DENGAN PO DAN KATEGORI YANG SAMA ABAIKAN
 				$cekPL = $this->db->query("SELECT*FROM pl_box WHERE tgl='$tgl' AND stat_sj='$opsi' AND id_perusahaan='$r->id_pelanggan' AND no_po='$r->rk_kode_po' AND no_pl_urut='$urut' AND kategori='$kategori'");
 				if($cekPL->num_rows() == 0){
 					$insertPl = $this->db->insert('pl_box', $data);
