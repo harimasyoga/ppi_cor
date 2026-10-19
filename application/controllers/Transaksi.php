@@ -10332,7 +10332,7 @@ class Transaksi extends CI_Controller
 										$html .= ' )</div>';
 									$html .= '</div>';
 								}else{
-									$html .= '<input type="text" id="isiKet-'.$u->urut.'" style="background:none;border:0;padding:0;font-weight:bold;color:#fff;height:100%;width:100%" placeholder="KETERANGAN" autocomplete="off" disabled>';
+									$html .= '<input type="text" id="isiKet-'.$u->urut.'" value="'.$u->ket_sys2.'" style="background:none;border:0;padding:0;font-weight:bold;color:#fff;height:100%;width:100%" placeholder="KETERANGAN" autocomplete="off" disabled>';
 								}
 							$html .= '</td>';
 
