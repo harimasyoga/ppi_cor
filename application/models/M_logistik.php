@@ -5269,24 +5269,33 @@ class M_logistik extends CI_Model
 
 		$db9 = $this->load->database('database_simroll', TRUE);
 		if($opsi == 'pm'){
-			$qR = $db9->query("SELECT*FROM m_timbangan WHERE tgl='$tgl_pm' AND nm_ker!='WP' AND (status='2' OR status='4' OR status='5' OR status='6' OR status='7') ORDER BY roll");
+			$qR = $db9->query("SELECT*FROM m_timbangan WHERE tgl='$tgl_pm' AND nm_ker!='WP' AND status NOT IN ('0', '1', '3') ORDER BY roll");
+			$tgl = $tgl_pm;
 		}
 		if($opsi == 'gudang'){
 			$qR = $db9->query("SELECT t.* FROM m_timbangan t
 			INNER JOIN pl p ON t.id_pl=p.id
 			WHERE p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
 			ORDER BY t.nm_ker,t.g_label,t.width,t.pm,t.roll");
+			$tgl = $tgl_gudang;
 		}
 
 		foreach($qR->result() as $r){
 			$cek = $this->db->query("SELECT*FROM m_roll WHERE roll='$r->roll' AND id_roll='$r->id'");
 			if($cek->num_rows() == 0){
 				($opsi == 'pm') ? $o = 'PM' : $o = 'FG';
+				if($r->status == 8){ //ppi atas
+					$sLTd = 'CA';
+				}else if($r->status == 9){ //ppi bawah
+					$sLTd = 'CB';
+				}else{
+					$sLTd = 'CA';
+				}
 				$berat = $r->weight - $r->seset;
 				$rL = array(
-					't_cor' => 'CA',
+					't_cor' => $sLTd,
 					'roll' => $r->roll,
-					'i_tgl' => $tgl_gudang,
+					'i_tgl' => $tgl,
 					'nm_ker' => $r->nm_ker,
 					'g_label' => $r->g_label,
 					'width' => $r->width,

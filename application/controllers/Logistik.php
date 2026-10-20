@@ -16202,26 +16202,34 @@ class Logistik extends CI_Controller
 		$nm_ker = $_POST["nm_ker"];
 		$g_label = $_POST["g_label"];
 		$width = $_POST["width"];
+		$c_roll = $_POST["c_roll"];
 		$opsi = $_POST["opsi"];
 		$html = '';
 
-		// CEK PTK
-		$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$t_cor' AND width='$width'");
-		if($qP->num_rows() == 0){
-			$uPTK = "";
+		if($opsi == 'CARI'){
+			$qR = $this->db->query("SELECT*FROM m_roll WHERE status_p='Open' AND t_cor LIKE '%$t_cor%' AND nm_ker LIKE '%$nm_ker%' AND g_label LIKE '%$g_label%' AND width LIKE '%$width%' AND roll LIKE '%$c_roll%' ORDER BY i_tgl, t_cor, nm_ker, g_label, width");
 		}else{
-			$ptk = $qP->row()->ptk;
-			if($opsi == 'UTUH'){
-				$uPTK = "AND (weight - seset) > '$ptk'";
+			// CEK PTK
+			$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$t_cor' AND width='$width'");
+			if($qP->num_rows() == 0){
+				$uPTK = "";
 			}else{
-				$uPTK = "AND (weight - seset) <= '$ptk'";
+				$ptk = $qP->row()->ptk;
+				if($opsi == 'UTUH'){
+					$uPTK = "AND (weight - seset) > '$ptk'";
+				}else if($opsi == 'SISA'){
+					$uPTK = "AND (weight - seset) <= '$ptk'";
+				}else{
+					$uPTK = "";
+				}
 			}
+			$qR = $this->db->query("SELECT*FROM m_roll WHERE status_p='Open' AND t_cor='$t_cor' AND nm_ker='$nm_ker' AND g_label='$g_label' AND width='$width' $uPTK ORDER BY nm_ker, g_label, width");
 		}
-
-		$qR = $this->db->query("SELECT*FROM m_roll WHERE status_p='Open' AND t_cor='$t_cor' AND nm_ker='$nm_ker' AND g_label='$g_label' AND width='$width' $uPTK ORDER BY nm_ker, g_label, width");
 
 		if($qR->num_rows() == 0){
 			$html .= '<div style="padding:6px;font-weight:bold">DATA KOSONG!</div>';
+		}else if($qR->num_rows() > 50){
+			$html .= '<div style="padding:6px;font-weight:bold">DATA ROLL TERLALU BANYAK UNTUK DITAMPILKAN. CARI ROLL LEBIH RINCI!</div>';
 		}else{
 			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 6px 6px">
 				<tr>
@@ -16257,6 +16265,10 @@ class Logistik extends CI_Controller
 						$pStt = 'PPI WARNA';
 					}else if($r->status_r == 7){
 						$pStt = 'PPI BAROKAH / NUSANTARA';
+					}else if($r->status_r == 8){
+						$pStt = 'PPI ATAS';
+					}else if($r->status_r == 9){
+						$pStt = 'PPI BAWAH';
 					}else if($r->status_r == 3){
 						$pStt = 'BUFFER';
 					}else{
@@ -16305,17 +16317,17 @@ class Logistik extends CI_Controller
 
 		$db9 = $this->load->database('database_simroll', TRUE);
 		if($opsi == 'pm'){
-			$qR = $db9->query("SELECT*FROM m_timbangan WHERE tgl>='2025-06-17' AND tgl='$tgl_pm' AND nm_ker!='WP' AND status NOT IN ('0', '3') ORDER BY roll");
+			$qR = $db9->query("SELECT*FROM m_timbangan WHERE tgl>='2026-10-01' AND tgl='$tgl_pm' AND nm_ker!='WP' AND status NOT IN ('0', '1', '3') ORDER BY roll");
 			$qRc = $db9->query("SELECT nm_ker,g_label,width,COUNT(roll) AS jml_roll FROM m_timbangan WHERE tgl>='2025-06-17' AND tgl='$tgl_pm' AND nm_ker!='WP' AND status NOT IN ('0', '3') GROUP BY nm_ker,g_label,width");
 		}
 		if($opsi == 'gudang'){
 			$qR = $db9->query("SELECT t.*,p.tgl AS tgl_pl,p.no_surat,p.nama,p.nm_perusahaan FROM m_timbangan t
 			INNER JOIN pl p ON t.id_pl=p.id
-			WHERE p.tgl>='2025-06-17' AND p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			WHERE p.tgl>='2026-10-01' AND p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
 			ORDER BY t.nm_ker,t.g_label,t.width,t.pm,t.roll");
 			$qRc = $db9->query("SELECT t.nm_ker,t.g_label,t.width,COUNT(t.roll) AS jml_roll FROM m_timbangan t
 			INNER JOIN pl p ON t.id_pl=p.id
-			WHERE p.tgl>='2025-06-17' AND p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			WHERE p.tgl>='2026-10-01' AND p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
 			GROUP BY t.nm_ker,t.g_label,t.width");
 		}
 
@@ -16379,6 +16391,10 @@ class Logistik extends CI_Controller
 						$pStt = 'PPI WARNA';
 					}else if($r->status == 7){
 						$pStt = 'PPI BAROKAH / NUSANTARA';
+					}else if($r->status == 8){
+						$pStt = 'PPI ATAS';
+					}else if($r->status == 9){
+						$pStt = 'PPI BAWAH';
 					}else if($r->status == 3){
 						$pStt = 'BUFFER';
 					}else{
@@ -16396,9 +16412,11 @@ class Logistik extends CI_Controller
 						$cAB = '<select id="corcab'.$cek->row()->id.'" style="background:none;border:0;">'.$opt.'</select>';
 						$aksi = '<button type="button" onclick="editRollCorr('."'".$cek->row()->id."'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
 					}else{
+						($r->status == 8) ? $slt8 = 'selected' : $slt8 = '';
+						($r->status == 9) ? $slt9 = 'selected' : $slt9 = '';
 						$cAB = '<select style="background:none;border:0;">
-							<option value="CA">ATAS</option>
-							<option value="CB">BAWAH</option>
+							<option value="CA" '.$slt8.'>ATAS</option>
+							<option value="CB" '.$slt9.'>BAWAH</option>
 						</select>';
 						$aksi = '-';
 					}
@@ -16536,100 +16554,46 @@ class Logistik extends CI_Controller
 				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
 			</tr>';
 
-			// CEK INPUTTAN
-			// $qS = $this->db->query("SELECT*FROM trs_so_detail WHERE status_2='Open' AND id='$id'");
-			// $lR = $this->db->query("SELECT r.*,s.id AS id_id FROM trs_so_roll s INNER JOIN m_roll r ON s.id_roll=r.id WHERE tgl='$tgl_guna' ORDER BY nm_ker,g_label,width,roll");
-			// if($lR->num_rows() != 0){
-			// 	$html .= $kopHtml;
-			// 	if($qS->num_rows() != 0){
-			// 		$html .= '<tr>
-			// 			<td style="background:#f2f2f2;padding:6px;border:1px solid #dee2e6;font-weight:bold" colspan="12">INPUT :</td>
-			// 		</tr>';
-			// 	}
-			// }
-			// $x = 0;
-			// foreach($lR->result() as $q){
-			// 	$x++;
-			// 	if($q->status_r == 0){ $pStt = 'STOK';
-			// 	}else if($q->status_r == 1){ $pStt = 'FG';
-			// 	}else if($q->status_r == 2){ $pStt = 'PPI';
-			// 	}else if($q->status_r == 4){ $pStt = 'PPI SIZING';
-			// 	}else if($q->status_r == 5){ $pStt = 'PPI CALENDER';
-			// 	}else if($q->status_r == 6){ $pStt = 'PPI WARNA';
-			// 	}else if($q->status_r == 7){ $pStt = 'PPI BAROKAH / NUSANTARA';
-			// 	}else if($q->status_r == 3){ $pStt = 'BUFFER';
-			// 	}else{ $pStt = '-'; }
-			// 	// cek guna - del list
-			// 	$cG = $this->db->query("SELECT*FROM trs_so_guna WHERE tgl='$tgl_plan' AND id_roll='$q->id'");
-			// 	if($cG->num_rows() == 0){
-			// 		$dL = '<button type="button" onclick="delListRoll('."'".$q->id_id."'".')" style="font-weight:bold" class="btn btn-danger btn-xs">DEL</button>';
-			// 	}else{
-			// 		$dL = '<button type="button" style="font-weight:bold" class="btn btn-secondary btn-xs" disabled>DEL</button>';
-			// 	}
-			// 	$berat = $q->weight - $q->seset;
-			// 	$html .= '<tr class="thdhdz">
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$x.'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->t_cor.'</td>
-			// 		<td style="padding:6px;border:1px solid #dee2e6">'.$q->roll.'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->nm_ker.'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->g_label.'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($q->width,2).'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->diameter.'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->joint.'</td>
-			// 		<td style="padding:6px;border:1px solid #dee2e6">'.$q->ket.'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$pStt.'</td>
-			// 		<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$dL.'</td>
-			// 	</tr>';
-			// }
-
 			// LIST
-			$zR = $this->db->query("SELECT*FROM m_roll WHERE t_cor='$corr' AND g_label LIKE '%$g_label%' AND width LIKE '%$lebar%' AND roll LIKE '%$roll%' ORDER BY nm_ker,g_label,width,roll");
-			// if($qS->num_rows() != 0){
-				if($zR->num_rows() != 0 && $zR->num_rows() < 50){
-					// if($lR->num_rows() != 0){
-					// 	$html .= '';
-					// }else{
-						$html .= $kopHtml;
-					// }
-					// $html .= '<tr>
-					// 	<td style="background:#f2f2f2;padding:6px;border:1px solid #dee2e6;font-weight:bold" colspan="12">LIST :</td>
-					// </tr>';
-					$i = 0;
-					foreach($zR->result() as $r){
-						if($r->status_r == 0){$pStt = 'STOK';
-						}else if($r->status_r == 1){$pStt = 'FG';
-						}else if($r->status_r == 2){$pStt = 'PPI';
-						}else if($r->status_r == 4){$pStt = 'PPI SIZING';
-						}else if($r->status_r == 5){$pStt = 'PPI CALENDER';
-						}else if($r->status_r == 6){$pStt = 'PPI WARNA';
-						}else if($r->status_r == 7){$pStt = 'PPI BAROKAH / NUSANTARA';
-						}else if($r->status_r == 3){$pStt = 'BUFFER';
-						}else{$pStt = '-'; }
-						$cek = $this->db->query("SELECT*FROM trs_so_roll WHERE tgl='$tgl_guna' AND id_roll='$r->id'");
-						if($cek->num_rows() == 0){
-							$i++;
-							$berat = $r->weight - $r->seset;
-							$html .= '<tr class="thdhdz">
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
-								<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->nm_ker.'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->g_label.'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->width,2).'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->diameter.'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
-								<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$pStt.'</td>
-								<td style="padding:6px;border:1px solid #dee2e6">
-									<button type="button" onclick="addListRoll('."'".$r->id."'".')" style="font-weight:bold" class="btn btn-success btn-xs">ADD</button>
-								</td>
-							</tr>';
-						}
+			$zR = $this->db->query("SELECT*FROM m_roll WHERE t_cor='$corr' AND g_label LIKE '%$g_label%' AND width LIKE '%$lebar%' AND roll LIKE '%$roll%' ORDER BY i_tgl,nm_ker,g_label,width,roll");
+			if($zR->num_rows() != 0 && $zR->num_rows() < 50){
+				$html .= $kopHtml;
+				$i = 0;
+				foreach($zR->result() as $r){
+					if($r->status_r == 0){$pStt = 'STOK';
+					}else if($r->status_r == 1){$pStt = 'FG';
+					}else if($r->status_r == 2){$pStt = 'PPI';
+					}else if($r->status_r == 4){$pStt = 'PPI SIZING';
+					}else if($r->status_r == 5){$pStt = 'PPI CALENDER';
+					}else if($r->status_r == 6){$pStt = 'PPI WARNA';
+					}else if($r->status_r == 7){$pStt = 'PPI BAROKAH / NUSANTARA';
+					}else if($r->status_r == 8){$pStt = 'PPI ATAS';
+					}else if($r->status_r == 9){$pStt = 'PPI BAWAH';
+					}else if($r->status_r == 3){$pStt = 'BUFFER';
+					}else{$pStt = '-'; }
+					$cek = $this->db->query("SELECT*FROM trs_so_roll WHERE tgl='$tgl_guna' AND id_roll='$r->id'");
+					if($cek->num_rows() == 0){
+						$i++;
+						$berat = $r->weight - $r->seset;
+						$html .= '<tr class="thdhdz">
+							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
+							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
+							<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.'</td>
+							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->nm_ker.'</td>
+							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->g_label.'</td>
+							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->width,2).'</td>
+							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->diameter.'</td>
+							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
+							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
+							<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
+							<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$pStt.'</td>
+							<td style="padding:6px;border:1px solid #dee2e6">
+								<button type="button" onclick="addListRoll('."'".$r->id."'".')" style="font-weight:bold" class="btn btn-success btn-xs">ADD</button>
+							</td>
+						</tr>';
 					}
 				}
-			// }
+			}
 
 			$html .= '</table></div>';
 

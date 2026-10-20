@@ -30,10 +30,10 @@
 			</div>
 			<div class="card-body" style="padding:12px">
 				<div style="margin:12px 0;display:flex">
-					<!-- <button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>LIST SO</b></button><div id="btn-header" style="margin-left:6px"></div> -->
-					<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('list')"><i class="fas fa-list-ul"></i> <b>LIST</b></button><div id="btn-header" style="margin-left:6px"></div>
-					<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('add')"><i class="fas fa-plus"></i> <b>ADD</b></button><div id="btn-header" style="margin-left:6px"></div>
-					<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('guna')"><i class="fas fa-minus"></i> <b>PENGGUNAAN</b></button><div id="btn-header" style="margin-left:6px"></div>
+					<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('list')"><i class="fas fa-list-ul"></i> <b>LIST</b></button><div style="margin-left:6px"></div>
+					<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('cari')"><i class="fas fa-search"></i> <b>CARI</b></button><div style="margin-left:6px"></div>
+					<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('add')"><i class="fas fa-plus"></i> <b>ADD</b></button><div style="margin-left:6px"></div>
+					<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('guna')"><i class="fas fa-minus"></i> <b>PENGGUNAAN</b></button><div style="margin-left:6px"></div>
 				</div>
 				<!-- list -->
 				<div class="card-list" style="display:none">
@@ -83,7 +83,7 @@
 				</div>
 				<!-- add -->
 				<div class="card-add" style="padding-bottom:12px;display:none">
-					<div class="card-body row" style="padding:6px;font-weight:bold">
+					<div class="card-body row" style="padding:12px 6px 6px;font-weight:bold">
 						<div class="col-md-1">PILIH</div>
 						<div class="col-md-2">
 							<select id="add_pilih" class="form-control select2" onchange="pRoll('add','pilih')">
@@ -118,10 +118,56 @@
 					</div>
 					<div class="add-list"></div>
 				</div>
+				<!-- cari -->
+				<div class="card-cari" style="padding-bottom:12px;display:none">
+					<div class="card-body row" style="padding:12px 6px 3px;font-weight:bold">
+						<div class="col-md-1">
+							CORR
+						</div>
+						<div class="col-md-2">
+							<select id="c_corr" class="form-control select2">
+								<option value="">ATAS | BAWAH</option>
+								<option value="CA">ATAS</option>
+								<option value="CB">BAWAH</option>
+							</select>
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+						<div class="col-md-1">JENIS. ROLL</div>
+						<div class="col-md-2">
+							<input type="number" id="c_jenis" class="form-control" placeholder="JENIS" autocomplete="off">
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+						<div class="col-md-1">GSM. ROLL</div>
+						<div class="col-md-2">
+							<input type="number" id="c_gsm" class="form-control" placeholder="GSM" autocomplete="off">
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+						<div class="col-md-1">LBR. ROLL</div>
+						<div class="col-md-2">
+							<input type="number" id="c_lebar" class="form-control" placeholder="LEBAR" autocomplete="off">
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:3px 6px 12px;font-weight:bold">
+						<div class="col-md-1">NO. ROLL</div>
+						<div class="col-md-2">
+							<input type="text" id="c_roll" class="form-control" placeholder="NO. ROLL" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+						</div>
+						<div class="col-md-9">
+							<button type="button" onclick="rollCari()" class="btn btn-primary"><i class="fas fa-search"></i></button>
+						</div>
+					</div>
+					<div class="list-cari"></div>
+				</div>
 				<!-- guna -->
 				<div class="card-guna" style="display:none">
 					<div class="row">
-
 						<div class="col-md-12">
 							<div class="card card-info card-outline">
 								<div class="card-header" style="padding:12px">
@@ -140,8 +186,6 @@
 								<div class="guna-roll"></div>
 							</div>
 						</div>
-
-
 						<div class="col-md-12">
 							<div class="card card-success card-outline">
 								<div class="card-header" style="padding:12px">
@@ -162,7 +206,7 @@
 								<div class="card-body row" style="padding:3px 12px;font-weight:bold">
 									<div class="col-md-1">GSM. ROLL</div>
 									<div class="col-md-2">
-										<input type="number" id="s_gsm" class="form-control" placeholder="GSM" autocomplete="off"">
+										<input type="number" id="s_gsm" class="form-control" placeholder="GSM" autocomplete="off">
 									</div>
 									<div class="col-md-9"></div>
 								</div>
@@ -185,8 +229,6 @@
 								<div class="list-roll2"></div>
 							</div>
 						</div>
-
-
 					</div>
 				</div>
 			</div>
@@ -199,7 +241,6 @@
 	const urlAuth = '<?= $this->session->userdata('level')?>';
 
 	$(document).ready(function () {
-		// load_data()
 		$('.select2').select2();
 	});
 
@@ -209,18 +250,21 @@
 	}
 
 	function pRoll(opsi, opsi2=''){
-		$(".add-list").html('')
-		$(".list-list").html('')
-		$(".list-roll").html('')
-		$(".guna-list").html('')
-		$(".guna-roll").html('')
 		if(opsi == 'list'){
 			$(".card-list").show()
+			$(".card-cari").hide()
+			$(".card-add").hide()
+			$(".card-guna").hide()
+		}
+		if(opsi == 'cari'){
+			$(".card-list").hide()
+			$(".card-cari").show()
 			$(".card-add").hide()
 			$(".card-guna").hide()
 		}
 		if(opsi == 'add'){
 			$(".card-list").hide()
+			$(".card-cari").hide()
 			$(".card-add").show()
 			$(".card-guna").hide()
 			$(".add-pm").hide()
@@ -242,9 +286,31 @@
 		}
 		if(opsi == 'guna'){
 			$(".card-list").hide()
+			$(".card-cari").hide()
 			$(".card-add").hide()
 			$(".card-guna").show()
 		}
+	}
+
+	function rollCari() {
+		let t_cor =  $("#c_corr").val()
+		let nm_ker =  $("#c_jenis").val()
+		let g_label =  $("#c_gsm").val()
+		let width =  $("#c_lebar").val()
+		let c_roll =  $("#c_roll").val()
+		$(".list-cari").html('')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/btnListRoll')?>',
+			type: "POST",
+			data: ({
+				t_cor, nm_ker, g_label, width, c_roll, opsi: 'CARI'
+			}),
+			success: function(json){
+				data = JSON.parse(json)
+				console.log(data)
+				$(".list-cari").html(data.html)
+			}
+		})
 	}
 
 	function cariListRoll(){
@@ -350,7 +416,7 @@
 				});
 			},
 			data: ({
-				t_cor, nm_ker, g_label, width, opsi
+				t_cor, nm_ker, g_label, width, c_roll: '', opsi
 			}),
 			success: function(json){
 				data = JSON.parse(json)
