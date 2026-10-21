@@ -310,8 +310,8 @@
 						<td style="padding:5px 0" colspan="2"><input type="text" class="form-control" id="COA" placeholder="-" autocomplete="off"></td>
 					</tr>
 					<!-- DESIGN -->
-					<?php if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'konsul_keu', 'User'])) { ?>
-						<tr>
+					<?php if (in_array($this->session->userdata('level'), ['Admin', 'Admin2', 'User', 'Marketing'])) { ?>
+						<tr id="fupl-dsg" style="display:none">
 							<td style="padding:5px 0;font-weight:bold;vertical-align:top">DESIGN</td>
 							<td style="padding:5px 0" colspan="2">
 								<select class="form-control select2" id="cmc" onchange="pilihMC()">
@@ -700,6 +700,7 @@
 		$("#no_karet").val("-");
 		$("#toleransi_kirim").val(0);
 		$("#spesial_req").val("-");
+		$("#fupl-dsg").hide()
 		$("#cmc").val("").trigger('change')
 		$(".html-design").html('')
 		status = 'insert';
@@ -829,8 +830,10 @@
 			$("#h_berat_bersih").val(data.produk.berat_bersih)
 			$("#h_luas_bersih").val(data.produk.luas_bersih)
 			if(urlAuth == 'Admin' || urlAuth == 'Admin2' || urlAuth == 'User' || urlAuth == 'PPIC' || urlAuth == 'AP' || urlAuth == 'Marketing'){
+				$("#fupl-dsg").show()
 				$(".html-design").html(data.htmlDesign)
 			}else{
+				$("#fupl-dsg").hide()
 				$(".html-design").html('')
 			}
 			$("#btn-simpan").prop("disabled", false)

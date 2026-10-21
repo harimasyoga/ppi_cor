@@ -5385,7 +5385,7 @@ class Transaksi extends CI_Controller
 										</div>';
 									}
 									$html .= '<div style="margin-right:8px">
-										<img id="'.$preview.'" src="'.base_url().'assets/mc/'.$i->img_mc.'" alt="preview design" width="100" class="shadow-sm img-thumbnail" onclick="imgClick('."'".$preview."'".')">
+										<img id="'.$preview.'" src="'.base_url().'assets/mc/'.$i->img_mc.'" alt="'.$i->jenis_mc.$preview.'" width="100" class="shadow-sm img-thumbnail" onclick="imgClick('."'".$preview."'".')">
 									</div>';
 								}
 							$html .= '</div>';
