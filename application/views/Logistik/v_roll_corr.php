@@ -86,7 +86,7 @@
 					<div class="card-body row" style="padding:12px 6px 6px;font-weight:bold">
 						<div class="col-md-1">PILIH</div>
 						<div class="col-md-2">
-							<select id="add_pilih" class="form-control select2" onchange="pRoll('add','pilih')">
+							<select id="add_pilih" class="form-control select2" onchange="addPilih()">
 								<option value="">PILIH</option>
 								<option value="PM">PM</option>
 								<option value="GUDANG">GUDANG</option>
@@ -179,7 +179,7 @@
 										<input type="date" class="form-control" id="tgl_guna" onchange="cariGunaRoll()">
 									</div>
 									<div class="col-md-9">
-										<button type="button" class="btn btn-primary" onclick="cariGunaRoll()"><i class="fas fa-search"></i></button>
+										<!-- <button type="button" class="btn btn-primary" onclick="cariGunaRoll()"><i class="fas fa-search"></i></button> -->
 									</div>
 								</div>
 								<div class="guna-list"></div>
@@ -197,6 +197,7 @@
 									</div>
 									<div class="col-md-2">
 										<select id="s_corr" class="form-control select2">
+											<option value="">ATAS | BAWAH</option>
 											<option value="CA">ATAS</option>
 											<option value="CB">BAWAH</option>
 										</select>
@@ -236,6 +237,24 @@
 	</section>
 </div>
 
+<div class="modal fade" id="modalRincRoll">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" style="font-weight:bold">RINCIAN ROLL</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" style="padding:12px">
+				<div style="overflow:auto;white-space:nowrap">
+					<div id="modal-rinc-plan"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script type="text/javascript">
 	status ="insert";
 	const urlAuth = '<?= $this->session->userdata('level')?>';
@@ -244,12 +263,27 @@
 		$('.select2').select2();
 	});
 
+	function btnRRoll(roll){
+		$("#modal-rinc-plan").html(`. . .`)
+		$("#modalRincRoll").modal("show")
+		$.ajax({
+			url: '<?php echo base_url('Logistik/bGunaRoll') ?>',
+			data: ({ tgl_guna:'', roll }),
+			type: "POST",
+			success: function(res) {
+				data = JSON.parse(res)
+				$("#modal-rinc-plan").html(data.html)
+				$(".modal-open").css({"padding-right": "0"})
+			}
+		})
+	}
+
 	function reloadTable() {
 		table = $('#datatable').DataTable();
 		tabel.ajax.reload(null, false);
 	}
 
-	function pRoll(opsi, opsi2=''){
+	function pRoll(opsi){
 		if(opsi == 'list'){
 			$(".card-list").show()
 			$(".card-cari").hide()
@@ -263,32 +297,34 @@
 			$(".card-guna").hide()
 		}
 		if(opsi == 'add'){
+			$("#add_pilih").val('').trigger('change')
+			$("#tgl_pm").val('')
+			$("#tgl_gudang").val('')
 			$(".card-list").hide()
 			$(".card-cari").hide()
 			$(".card-add").show()
 			$(".card-guna").hide()
 			$(".add-pm").hide()
 			$(".add-gudang").hide()
-			
-			if(opsi2 == 'pilih'){
-				let add_pilih = $("#add_pilih").val()
-				$("#tgl_pm").val('')
-				$("#tgl_gudang").val('')
-				if(add_pilih == 'PM'){
-					$(".add-pm").show()
-					$(".add-gudang").hide()
-				}
-				if(add_pilih == 'GUDANG'){
-					$(".add-pm").hide()
-					$(".add-gudang").show()
-				}
-			}
+			$(".add-list").html('')
 		}
 		if(opsi == 'guna'){
 			$(".card-list").hide()
 			$(".card-cari").hide()
 			$(".card-add").hide()
 			$(".card-guna").show()
+		}
+	}
+
+	function addPilih() {
+		let add_pilih = $("#add_pilih").val()
+		if(add_pilih == 'PM'){
+			$(".add-pm").show()
+			$(".add-gudang").hide()
+		}
+		if(add_pilih == 'GUDANG'){
+			$(".add-pm").hide()
+			$(".add-gudang").show()
 		}
 	}
 
@@ -302,13 +338,25 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/btnListRoll')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				t_cor, nm_ker, g_label, width, c_roll, opsi: 'CARI'
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				console.log(data)
 				$(".list-cari").html(data.html)
+				if(data.html){
+					swal.close()
+				}
 			}
 		})
 	}
@@ -486,9 +534,10 @@
 		})
 	}
 
-	function editRollCorr(id, pilihan = ''){
-		if(pilihan = ''){
-			let opsi = $("#add_pilih").val().toLowerCase()
+	function editRollCorr(id, pilihan){
+		let opsi = '';
+		if(pilihan == 'ADD'){
+			opsi = $("#add_pilih").val().toLowerCase()
 		}
 		let corcab = $("#corcab"+id).val()
 		$.ajax({
@@ -509,9 +558,12 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				if(pilihan = ''){
+				if(pilihan == 'ADD'){
 					toastr.success(`<b>BERHASIL!</b>`)
 					addCari(opsi)
+				}else if(pilihan == 'CARI'){
+					toastr.success(`<b>BERHASIL!</b>`)
+					rollCari()
 				}else{
 					cariListRoll()
 				}
@@ -642,6 +694,8 @@
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
+				cariGunaRoll()
+				planCariRoll()
 			}
 		})
 	}
@@ -654,6 +708,7 @@
 			success: function(res){
 				data = JSON.parse(res)
 				console.log(data)
+				cariGunaRoll()
 			}
 		})
 	}

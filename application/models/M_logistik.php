@@ -5281,7 +5281,7 @@ class M_logistik extends CI_Model
 		}
 
 		foreach($qR->result() as $r){
-			$cek = $this->db->query("SELECT*FROM m_roll WHERE roll='$r->roll' AND id_roll='$r->id'");
+			$cek = $this->db->query("SELECT*FROM m_roll WHERE roll='$r->roll'"); //AND id_roll='$r->id'
 			if($cek->num_rows() == 0){
 				($opsi == 'pm') ? $o = 'PM' : $o = 'FG';
 				if($r->status == 8){ //ppi atas
@@ -5358,6 +5358,8 @@ class M_logistik extends CI_Model
 			'pemakaian' => $guna,
 			'sisa' => $sisa,
 			'ket' => $ket,
+			'created_at' => date("Y-m-d H:i:s"),
+			'created_by' => $this->session->userdata('username'),
 		);
 		$data = $this->db->insert("trs_so_guna", $ay);
 		if($data){
