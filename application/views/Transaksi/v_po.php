@@ -1236,7 +1236,7 @@
 				dataType: "JSON",
 			})
 			.done(function(data) {
-				if(urlAuth == 'Admin' || urlAuth == 'Owner' || urlAuth == 'User' || urlAuth == 'PPIC'  || urlAuth == 'AP'){
+				if(urlAuth == 'Admin' || urlAuth == 'Owner' || urlAuth == 'User' || urlAuth == 'PPIC' || urlAuth == 'Marketing' || urlAuth == 'AP'){
 					$(".design").html(data.html);
 				}else{
 					$(".design").html("");

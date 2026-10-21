@@ -5209,7 +5209,6 @@ class Transaksi extends CI_Controller
 			// 	$htmlAlamat .= '</select>';
 			// }
 
-
 			// DESIGN
 			$html = '';
 			($this->session->userdata('level') == 'PPIC' || $this->session->userdata('level') == 'AP') ? $wPmc = "AND m.jenis_mc='MC'" : $wPmc = "";
