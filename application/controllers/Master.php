@@ -1159,11 +1159,11 @@ class Master extends CI_Controller
 		$poDetail = $this->db->query("SELECT*FROM trs_po_detail WHERE id_produk='$id_produk'")->result();
 
 		// DESIGN
-		(in_array($lvl, ['Admin', 'Admin2', 'User'])) ? $wDsg = "" : $wDsg = "AND jenis_mc='MC'";
+		(in_array($lvl, ['Admin', 'Admin2', 'User', 'Marketing'])) ? $wDsg = "" : $wDsg = "AND jenis_mc='MC'";
 		$design = $this->db->query("SELECT*FROM m_produk_mc WHERE id_produk='$id' $wDsg ORDER BY jenis_mc DESC,id_produk,id_mc");
 		$htmlDesign = '';
 		$htmlUpload = '';
-		if(in_array($lvl, ['Admin', 'Admin2', 'User'])){
+		if(in_array($lvl, ['Admin', 'Admin2', 'User', 'Marketing'])){
 			$htmlUpload .= '<div style="margin-bottom:5px">
 				<form role="form" method="POST" id="upload_design" enctype="multipart/form-data">
 					<input type="hidden" name="pilih_mc" id="pilih_mc" value="">

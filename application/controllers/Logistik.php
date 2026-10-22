@@ -16196,36 +16196,54 @@ class Logistik extends CI_Controller
 		]);
 	}
 
+	function btnRRoll()
+	{
+		$roll = $_POST["roll"];
+
+		$html = '';
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
 	function btnListRoll()
 	{
 		$t_cor = $_POST["t_cor"];
 		$nm_ker = $_POST["nm_ker"];
 		$g_label = $_POST["g_label"];
 		$width = $_POST["width"];
+		$c_roll = $_POST["c_roll"];
 		$opsi = $_POST["opsi"];
 		$html = '';
 
-		// CEK PTK
-		$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$t_cor' AND width='$width'");
-		if($qP->num_rows() == 0){
-			$uPTK = "";
+		if($opsi == 'CARI'){
+			$qR = $this->db->query("SELECT*FROM m_roll WHERE t_cor LIKE '%$t_cor%' AND nm_ker LIKE '%$nm_ker%' AND g_label LIKE '%$g_label%' AND width LIKE '%$width%' AND roll LIKE '%$c_roll%' ORDER BY t_cor, i_tgl, nm_ker, g_label, width");
 		}else{
-			$ptk = $qP->row()->ptk;
-			if($opsi == 'UTUH'){
-				$uPTK = "AND (weight - seset) > '$ptk'";
+			// CEK PTK
+			$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$t_cor' AND width='$width'");
+			if($qP->num_rows() == 0){
+				$uPTK = "";
 			}else{
-				$uPTK = "AND (weight - seset) <= '$ptk'";
+				$ptk = $qP->row()->ptk;
+				if($opsi == 'UTUH'){
+					$uPTK = "AND (weight - seset) > '$ptk'";
+				}else if($opsi == 'SISA'){
+					$uPTK = "AND (weight - seset) <= '$ptk'";
+				}else{
+					$uPTK = "";
+				}
 			}
+			$qR = $this->db->query("SELECT*FROM m_roll WHERE status_p='Open' AND t_cor='$t_cor' AND nm_ker='$nm_ker' AND g_label='$g_label' AND width='$width' $uPTK ORDER BY nm_ker, g_label, width");
 		}
-
-		$qR = $this->db->query("SELECT*FROM m_roll WHERE status_p='Open' AND t_cor='$t_cor' AND nm_ker='$nm_ker' AND g_label='$g_label' AND width='$width' $uPTK ORDER BY nm_ker, g_label, width");
 
 		if($qR->num_rows() == 0){
 			$html .= '<div style="padding:6px;font-weight:bold">DATA KOSONG!</div>';
+		}else if($qR->num_rows() > 50 && $opsi == 'CARI'){
+			$html .= '<div style="padding:6px;font-weight:bold">DATA ROLL TERLALU BANYAK UNTUK DITAMPILKAN. CARI ROLL LEBIH RINCI!</div>';
 		}else{
 			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 6px 6px">
 				<tr>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
+					<td style="background:#f2f2f2;padding:6px 12px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JENIS</td>
@@ -16235,33 +16253,14 @@ class Logistik extends CI_Controller
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BW</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">RCT</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BI</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
 				</tr>';
 				$i = 0;
 				foreach($qR->result() as $r){
 					$i++;
-					if($r->status_r == 0){
-						$pStt = 'STOK';
-					}else if($r->status_r == 2){
-						$pStt = 'PPI';
-					}else if($r->status_r == 22){
-						$pStt = 'FG';
-					}else if($r->status_r == 4){
-						$pStt = 'PPI SIZING';
-					}else if($r->status_r == 5){
-						$pStt = 'PPI CALENDER';
-					}else if($r->status_r == 6){
-						$pStt = 'PPI WARNA';
-					}else if($r->status_r == 7){
-						$pStt = 'PPI BAROKAH / NUSANTARA';
-					}else if($r->status_r == 3){
-						$pStt = 'BUFFER';
-					}else{
-						$pStt = '-';
-					}
+					// STATUS
+					$sOs = $this->db->query("SELECT*FROM trs_so_status WHERE status_s='$r->status_r'");
+					($sOs->num_rows() != 0) ? $pStt = $sOs->row()->ket_s : $pStt = '-';
 					if($r->t_cor == 'CA'){
 						$opt = '<option value="CA">ATAS</option><option value="CB">BAWAH</option>';
 					}
@@ -16269,12 +16268,22 @@ class Logistik extends CI_Controller
 						$opt = '<option value="CB">BAWAH</option><option value="CA">ATAS</option>';
 					}
 					$cAB = '<select id="corcab'.$r->id.'" style="background:none;border:0;">'.$opt.'</select>';
-					$aksi = '<button type="button" onclick="editRollCorr('."'".$r->id."'".', '."'LIST'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
+					// edit
+					if($opsi == 'CARI'){
+						$OpsI = $opsi;
+					}else{
+						$OpsI = 'LIST';
+					}
+					($r->status_p == 'Open') ? $bOpsII = 'onclick="editRollCorr('."'".$r->id."'".', '."'".$OpsI."'".')"' : $bOpsII = 'disabled';
+					$aksi = '<button type="button" style="font-weight:bold" class="btn btn-warning btn-xs" '.$bOpsII.'>EDIT</button>';
 					$berat = $r->weight - $r->seset;
+					// cek roll
+					$gn = $this->db->query("SELECT*FROM trs_so_guna WHERE roll='$r->roll'");
+					($gn->num_rows() != 0) ? $btnRoll = '<button style="background:transparent;color:#00f;margin:0;padding:0;border:0" style="color:#00f" onclick="btnRRoll('."'".$r->id."'".')">'.$r->roll.'</button>' : $btnRoll = $r->roll;
 					$html .= '<tr>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$cAB.'</td>
-						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
-						<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$btnRoll.'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->nm_ker.'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->g_label.'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->width,2).'</td>
@@ -16282,9 +16291,6 @@ class Logistik extends CI_Controller
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
 						<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
 						<td style="padding:6px;text-align:center;border;border:1px solid #dee2e6">'.$pStt.'</td>
-						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->g_ac,2).'</td>
-						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->rct,2).'</td>
-						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->bi,2).'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$aksi.'</td>
 					</tr>';
 				}
@@ -16305,22 +16311,22 @@ class Logistik extends CI_Controller
 
 		$db9 = $this->load->database('database_simroll', TRUE);
 		if($opsi == 'pm'){
-			$qR = $db9->query("SELECT*FROM m_timbangan WHERE tgl>='2025-06-17' AND tgl='$tgl_pm' AND nm_ker!='WP' AND status NOT IN ('0', '3') ORDER BY roll");
-			$qRc = $db9->query("SELECT nm_ker,g_label,width,COUNT(roll) AS jml_roll FROM m_timbangan WHERE tgl>='2025-06-17' AND tgl='$tgl_pm' AND nm_ker!='WP' AND status NOT IN ('0', '3') GROUP BY nm_ker,g_label,width");
+			$qR = $db9->query("SELECT*FROM m_timbangan WHERE tgl>='2026-10-01' AND tgl='$tgl_pm' AND nm_ker!='WP' AND status NOT IN ('0', '1', '3') ORDER BY roll");
+			$qRc = $db9->query("SELECT nm_ker,g_label,width,COUNT(roll) AS jml_roll FROM m_timbangan WHERE tgl>='2025-06-17' AND tgl='$tgl_pm' AND nm_ker!='WP' AND status NOT IN ('0', '1', '3') GROUP BY nm_ker,g_label,width");
 		}
 		if($opsi == 'gudang'){
 			$qR = $db9->query("SELECT t.*,p.tgl AS tgl_pl,p.no_surat,p.nama,p.nm_perusahaan FROM m_timbangan t
 			INNER JOIN pl p ON t.id_pl=p.id
-			WHERE p.tgl>='2025-06-17' AND p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			WHERE p.tgl>='2026-10-01' AND p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
 			ORDER BY t.nm_ker,t.g_label,t.width,t.pm,t.roll");
 			$qRc = $db9->query("SELECT t.nm_ker,t.g_label,t.width,COUNT(t.roll) AS jml_roll FROM m_timbangan t
 			INNER JOIN pl p ON t.id_pl=p.id
-			WHERE p.tgl>='2025-06-17' AND p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
+			WHERE p.tgl>='2026-10-01' AND p.tgl='$tgl_gudang' AND t.nm_ker NOT IN ('WP','WS') AND t.cor_at IS NOT NULL AND t.cor_by IS NOT NULL
 			GROUP BY t.nm_ker,t.g_label,t.width");
 		}
 
 		if($qR->num_rows() == 0){
-			$html .= '<span style="padding:6px;font-weight:bold">DATA KOSONG!</span>';
+			$html .= '<div style="padding:12px 6px;font-weight:bold">DATA KOSONG!</div>';
 		}else{
 			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:6px 6px 12px;text-align:center">
 				<tr>
@@ -16350,6 +16356,7 @@ class Logistik extends CI_Controller
 
 			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:6px">
 				<tr>
+					<td style="background:#f2f2f2;padding:6px 12px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JENIS</td>
@@ -16360,30 +16367,15 @@ class Logistik extends CI_Controller
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BW</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">RCT</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BI</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
 				</tr>';
+				$z = 0;
 				foreach($qR->result() as $r){
-					$cek = $this->db->query("SELECT*FROM m_roll WHERE roll='$r->roll' AND id_roll='$r->id'");
-					if($r->status == 0){
-						$pStt = 'STOK';
-					}else if($r->status == 2){
-						$pStt = 'PPI';
-					}else if($r->status == 4){
-						$pStt = 'PPI SIZING';
-					}else if($r->status == 5){
-						$pStt = 'PPI CALENDER';
-					}else if($r->status == 6){
-						$pStt = 'PPI WARNA';
-					}else if($r->status == 7){
-						$pStt = 'PPI BAROKAH / NUSANTARA';
-					}else if($r->status == 3){
-						$pStt = 'BUFFER';
-					}else{
-						$pStt = '-';
-					}
+					$z++;
+					$cek = $this->db->query("SELECT*FROM m_roll WHERE roll='$r->roll'"); //AND id_roll='$r->id'
+					// STATUS
+					$sOs = $this->db->query("SELECT*FROM trs_so_status WHERE status_s='$r->status'");
+					($sOs->num_rows() != 0) ? $pStt = $sOs->row()->ket_s : $pStt = '-';
 					$berat = $r->weight - $r->seset;
 					// aksi edit
 					if($cek->num_rows() != 0){
@@ -16394,15 +16386,18 @@ class Logistik extends CI_Controller
 							$opt = '<option value="CB">BAWAH</option><option value="CA">ATAS</option>';
 						}
 						$cAB = '<select id="corcab'.$cek->row()->id.'" style="background:none;border:0;">'.$opt.'</select>';
-						$aksi = '<button type="button" onclick="editRollCorr('."'".$cek->row()->id."'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
+						$aksi = '<button type="button" onclick="editRollCorr('."'".$cek->row()->id."'".', '."'ADD'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
 					}else{
-						$cAB = '<select style="background:none;border:0;">
-							<option value="CA">ATAS</option>
-							<option value="CB">BAWAH</option>
+						($r->status == 8) ? $slt8 = 'selected' : $slt8 = '';
+						($r->status == 9) ? $slt9 = 'selected' : $slt9 = '';
+						$cAB = '<select style="background:none;border:0" disabled>
+							<option value="CA" '.$slt8.'>ATAS</option>
+							<option value="CB" '.$slt9.'>BAWAH</option>
 						</select>';
 						$aksi = '-';
 					}
 					$html .= '<tr class="thdhdz">
+					<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$z.'</td>
 						<td style="padding:6px;border:1px solid #dee2e6">'.$cAB.'</td>
 						<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->nm_ker.'</td>
@@ -16413,9 +16408,6 @@ class Logistik extends CI_Controller
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
 						<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$pStt.'</td>
-						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->g_ac,2).'</td>
-						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->rct,2).'</td>
-						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->bi,2).'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$aksi.'</td>
 					</tr>';
 				}
@@ -16453,9 +16445,16 @@ class Logistik extends CI_Controller
 				$html .= '<div style="overflow:auto;white-space:nowrap">
 					<table style="margin:0 12px 12px">
 						<tr>
-							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
+							<td style="background:#f2f2f2;padding:6px 12px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
 							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
 							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JENIS</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GSM</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">WIDTH</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BERAT</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>
 							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GUNA</td>
 							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
 						</tr>';
@@ -16464,24 +16463,30 @@ class Logistik extends CI_Controller
 						foreach($zV->result() as $r){
 							$i++;
 							($r->jml_roll == 1) ? $k = '' : $k = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->jml_roll.'</span>';
-							// CEK HASIL
-							// $cH = $this->db->query("SELECT*FROM trs_so_hasil WHERE id_so_dtl='$r->id_so_dtl' GROUP BY id_so_dtl");
-							// if($cH->num_rows() != 0){
-								$aH = '<button type="button" onclick="bGunaRoll('."'".$r->rollid."'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
-							// }else{
-							// 	$aH = '-';
-							// }
-							// CEK GUNA
+							$aH = '<button type="button" onclick="bGunaRoll('."'".$r->rollid."'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
+
+							// STATUS
+							$sOs = $this->db->query("SELECT*FROM trs_so_status WHERE status_s='$r->status_r'");
+							($sOs->num_rows() != 0) ? $pStt = $sOs->row()->ket_s : $pStt = '-';
+
 							$cG = $this->db->query("SELECT g.* FROM trs_so_roll r
 							INNER JOIN trs_so_guna g ON r.id_roll=g.id_roll AND r.tgl=g.tgl
 							WHERE r.tgl='$tgl_guna' AND g.id_roll='$r->rollid'");
 							($cG->num_rows() == 0) ? $dL = ' <button type="button" onclick="delListRoll('."'".$r->idso."'".')" style="font-weight:bold" class="btn btn-danger btn-xs">DEL</button>' : $dL = '';
 							($cG->num_rows() == 0) ? $gg = '' : $gg = ' <span style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px"><i class="fas fa-check" style="color:#007bff"></i></span>';
 							($cG->num_rows() == 0) ? $ig = '-' : $ig = number_format($cG->row()->pemakaian);
+							$berat = $r->weight - $r->seset;
 							$html .= '<tr class="thdhdz">
 								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
 								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.$k.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->nm_ker.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->g_label.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->width,2).'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
+								<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
+								<td style="padding:6px;text-align:center;border;border:1px solid #dee2e6">'.$pStt.'</td>
 								<td style="padding:6px;text-align:right;border:1px solid #dee2e6">'.$ig.'</td>
 								<td style="padding:6px;border:1px solid #dee2e6">
 									'.$aH.$dL.$gg.'
@@ -16493,7 +16498,7 @@ class Logistik extends CI_Controller
 						// TOTAL
 						if($zV->num_rows() > 1){
 							$html .= '<tr>
-								<td style="background:#f2f2f2;padding:5px;border:1px solid #dee2e6;font-weight:bold;text-align:center" colspan="3">TOTAL</td>
+								<td style="background:#f2f2f2;padding:5px;border:1px solid #dee2e6;font-weight:bold;text-align:center" colspan="10">TOTAL</td>
 								<td style="background:#f2f2f2;padding:5px;border:1px solid #dee2e6;font-weight:bold;text-align:right">'.number_format($gNa).'</td>
 								<td style="background:#f2f2f2;padding:5px;border:1px solid #dee2e6"></td>
 							</tr>';
@@ -16520,119 +16525,59 @@ class Logistik extends CI_Controller
 		if($tgl_guna == ''){
 			$html .= '<div style="padding:12px;font-weight:bold">PILIH TANGGAL!</div>';
 		}else{
-			$html .= '<div style="overflow:auto;white-space:nowrap"><table style="margin:0 12px 12px">';
-			$kopHtml = '<tr>
-				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
-				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
-				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
-				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JENIS</td>
-				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GSM</td>
-				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">WIDTH</td>
-				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">DIA(cm)</td>
-				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BERAT</td>
-				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
-				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
-				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>
-				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
-			</tr>';
-
-			// CEK INPUTTAN
-			// $qS = $this->db->query("SELECT*FROM trs_so_detail WHERE status_2='Open' AND id='$id'");
-			// $lR = $this->db->query("SELECT r.*,s.id AS id_id FROM trs_so_roll s INNER JOIN m_roll r ON s.id_roll=r.id WHERE tgl='$tgl_guna' ORDER BY nm_ker,g_label,width,roll");
-			// if($lR->num_rows() != 0){
-			// 	$html .= $kopHtml;
-			// 	if($qS->num_rows() != 0){
-			// 		$html .= '<tr>
-			// 			<td style="background:#f2f2f2;padding:6px;border:1px solid #dee2e6;font-weight:bold" colspan="12">INPUT :</td>
-			// 		</tr>';
-			// 	}
-			// }
-			// $x = 0;
-			// foreach($lR->result() as $q){
-			// 	$x++;
-			// 	if($q->status_r == 0){ $pStt = 'STOK';
-			// 	}else if($q->status_r == 1){ $pStt = 'FG';
-			// 	}else if($q->status_r == 2){ $pStt = 'PPI';
-			// 	}else if($q->status_r == 4){ $pStt = 'PPI SIZING';
-			// 	}else if($q->status_r == 5){ $pStt = 'PPI CALENDER';
-			// 	}else if($q->status_r == 6){ $pStt = 'PPI WARNA';
-			// 	}else if($q->status_r == 7){ $pStt = 'PPI BAROKAH / NUSANTARA';
-			// 	}else if($q->status_r == 3){ $pStt = 'BUFFER';
-			// 	}else{ $pStt = '-'; }
-			// 	// cek guna - del list
-			// 	$cG = $this->db->query("SELECT*FROM trs_so_guna WHERE tgl='$tgl_plan' AND id_roll='$q->id'");
-			// 	if($cG->num_rows() == 0){
-			// 		$dL = '<button type="button" onclick="delListRoll('."'".$q->id_id."'".')" style="font-weight:bold" class="btn btn-danger btn-xs">DEL</button>';
-			// 	}else{
-			// 		$dL = '<button type="button" style="font-weight:bold" class="btn btn-secondary btn-xs" disabled>DEL</button>';
-			// 	}
-			// 	$berat = $q->weight - $q->seset;
-			// 	$html .= '<tr class="thdhdz">
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$x.'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->t_cor.'</td>
-			// 		<td style="padding:6px;border:1px solid #dee2e6">'.$q->roll.'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->nm_ker.'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->g_label.'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($q->width,2).'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->diameter.'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$q->joint.'</td>
-			// 		<td style="padding:6px;border:1px solid #dee2e6">'.$q->ket.'</td>
-			// 		<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$pStt.'</td>
-			// 		<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$dL.'</td>
-			// 	</tr>';
-			// }
-
-			// LIST
-			$zR = $this->db->query("SELECT*FROM m_roll WHERE t_cor='$corr' AND g_label LIKE '%$g_label%' AND width LIKE '%$lebar%' AND roll LIKE '%$roll%' ORDER BY nm_ker,g_label,width,roll");
-			// if($qS->num_rows() != 0){
-				if($zR->num_rows() != 0 && $zR->num_rows() < 50){
-					// if($lR->num_rows() != 0){
-					// 	$html .= '';
-					// }else{
+			$html .= '<div style="overflow:auto;white-space:nowrap">
+				<table style="margin:0 12px 12px">';
+					$kopHtml = '<tr>
+						<td style="background:#f2f2f2;padding:6px 12px;font-weight:bold;text-align:center;border:1px solid #dee2e6">#</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JENIS</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GSM</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">WIDTH</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">DIA(cm)</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BERAT</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>
+						<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
+					</tr>';
+					// LIST
+					$zR = $this->db->query("SELECT*FROM m_roll WHERE t_cor LIKE '%$corr%' AND g_label LIKE '%$g_label%' AND width LIKE '%$lebar%' AND roll LIKE '%$roll%' ORDER BY t_cor,i_tgl,nm_ker,g_label,width,roll");
+					if($zR->num_rows() != 0 && $zR->num_rows() < 50){
 						$html .= $kopHtml;
-					// }
-					// $html .= '<tr>
-					// 	<td style="background:#f2f2f2;padding:6px;border:1px solid #dee2e6;font-weight:bold" colspan="12">LIST :</td>
-					// </tr>';
-					$i = 0;
-					foreach($zR->result() as $r){
-						if($r->status_r == 0){$pStt = 'STOK';
-						}else if($r->status_r == 1){$pStt = 'FG';
-						}else if($r->status_r == 2){$pStt = 'PPI';
-						}else if($r->status_r == 4){$pStt = 'PPI SIZING';
-						}else if($r->status_r == 5){$pStt = 'PPI CALENDER';
-						}else if($r->status_r == 6){$pStt = 'PPI WARNA';
-						}else if($r->status_r == 7){$pStt = 'PPI BAROKAH / NUSANTARA';
-						}else if($r->status_r == 3){$pStt = 'BUFFER';
-						}else{$pStt = '-'; }
-						$cek = $this->db->query("SELECT*FROM trs_so_roll WHERE tgl='$tgl_guna' AND id_roll='$r->id'");
-						if($cek->num_rows() == 0){
-							$i++;
-							$berat = $r->weight - $r->seset;
-							$html .= '<tr class="thdhdz">
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
-								<td style="padding:6px;border:1px solid #dee2e6">'.$r->roll.'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->nm_ker.'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->g_label.'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->width,2).'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->diameter.'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
-								<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
-								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$pStt.'</td>
-								<td style="padding:6px;border:1px solid #dee2e6">
-									<button type="button" onclick="addListRoll('."'".$r->id."'".')" style="font-weight:bold" class="btn btn-success btn-xs">ADD</button>
-								</td>
-							</tr>';
+						$i = 0;
+						foreach($zR->result() as $r){
+							// STATUS
+							$sOs = $this->db->query("SELECT*FROM trs_so_status WHERE status_s='$r->status_r'");
+							($sOs->num_rows() != 0) ? $pStt = $sOs->row()->ket_s : $pStt = '-';
+							$cek = $this->db->query("SELECT*FROM trs_so_roll WHERE tgl='$tgl_guna' AND id_roll='$r->id'");
+							if($cek->num_rows() == 0){
+								$i++;
+								$berat = $r->weight - $r->seset;
+								// cek roll
+								$gn = $this->db->query("SELECT*FROM trs_so_guna WHERE id_roll='$r->id'");
+								($gn->num_rows() != 0) ? $btnRoll = '<button style="background:transparent;color:#00f;margin:0;padding:0;border:0" style="color:#00f" onclick="btnRRoll('."'".$r->id."'".')">'.$r->roll.'</button>' : $btnRoll = $r->roll;
+								$html .= '<tr class="thdhdz">
+									<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$i.'</td>
+									<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->t_cor.'</td>
+									<td style="padding:6px;border:1px solid #dee2e6">'.$btnRoll.'</td>
+									<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->nm_ker.'</td>
+									<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->g_label.'</td>
+									<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.round($r->width,2).'</td>
+									<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->diameter.'</td>
+									<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
+									<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
+									<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
+									<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$pStt.'</td>
+									<td style="padding:6px;border:1px solid #dee2e6">
+										<button type="button" onclick="addListRoll('."'".$r->id."'".')" style="font-weight:bold" class="btn btn-success btn-xs">ADD</button>
+									</td>
+								</tr>';
+							}
 						}
 					}
-				}
-			// }
-
-			$html .= '</table></div>';
-
+				$html .= '</table>
+			</div>';
 			if($zR->num_rows() == 0){
 				$html .= '<div style="padding:6px 6px 12px;font-weight:bold">DATA KOSONG!</div>';
 			}else if($zR->num_rows() > 50){
@@ -16641,7 +16586,6 @@ class Logistik extends CI_Controller
 				$html .= '';
 			}
 		}
-
 
 		echo json_encode([
 			'html' => $html,
@@ -16686,12 +16630,16 @@ class Logistik extends CI_Controller
 		// 	$html .= '</table></div>';
 		// }
 
+		($tgl_guna != '') ? $tblMrg = '0 12px 12px' : $tblMrg = '0';
 		$qR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
+		// STATUS
+		$sOs = $this->db->query("SELECT*FROM trs_so_status WHERE status_s='$qR->status_r'");
+		($sOs->num_rows() != 0) ? $pStt = $sOs->row()->ket_s : $pStt = '-';
 		$fixBerat = $qR->weight - $qR->seset;
 		$html .= '<div style="overflow:auto;white-space:nowrap">
 			<input type="hidden" id="add_roll" value="'.$roll.'">
 			<input type="hidden" id="add_weight" value="'.$fixBerat.'">
-			<table style="margin:0 6px 6px">
+			<table style="margin:'.$tblMrg.'">
 			<tr>
 				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">CORR</td>
 				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">ROLL</td>
@@ -16701,6 +16649,7 @@ class Logistik extends CI_Controller
 				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BERAT</td>
 				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
 				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
+				<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>
 			</tr>';
 			$html .= '<tr class="thdhdz">
 				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->t_cor.'</td>
@@ -16711,22 +16660,19 @@ class Logistik extends CI_Controller
 				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.number_format($qR->weight).'</td>
 				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->joint.'</td>
 				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->ket.'</td>
+				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$pStt.'</td>
 			</tr>';
 			// all guna
 			$qH = $this->db->query("SELECT*FROM trs_so_guna WHERE id_roll='$roll' ORDER BY tgl");
 			if($qH->num_rows() != 0){
 				foreach($qH->result() as $h){
-					// cek so
-					$qC = $this->db->query("SELECT*FROM trs_so_roll r
-					INNER JOIN trs_so_guna g ON r.id_roll=g.id_roll AND r.tgl=g.tgl
-					WHERE g.id_roll='$h->id_roll' AND g.tgl='$h->tgl'");
-					if($qC->num_rows() != 0){
+					if($qR->status_p == 'Open' && $h->tgl == $tgl_guna){
 						$btnDel = '<button class="btn btn-xs btn-danger" onclick="delRollGuna('."'".$h->id."'".')"><i class="fas fa-trash"></i></button>';
 					}else{
 						$btnDel = '';
 					}
 					$html .= '<tr>
-						<td style="padding:6px;text-align:right" colspan="5">'.$h->tgl.'</td>
+						<td style="padding:6px;text-align:right" colspan="5">'.substr($this->m_fungsi->getHariIni($h->tgl),0,3).', '.$this->m_fungsi->tglIndSkt($h->tgl).'</td>
 						<td style="padding:6px;text-align:right">'.number_format($h->pemakaian).'</td>
 						<td style="padding:6px;center;text-align:center">'.$btnDel.'</td>
 						<td style="padding:6px;center">'.$h->ket.'</td>
@@ -16741,7 +16687,7 @@ class Logistik extends CI_Controller
 
 		// cek guna
 		$cG = $this->db->query("SELECT*FROM trs_so_guna WHERE tgl='$tgl_guna' AND id_roll='$roll'");
-		if($cG->num_rows() == 0){
+		if($cG->num_rows() == 0 && $tgl_guna != ''){
 			$html .= '<div class="card-body row" style="padding:3px 6px;font-weight:bold">
 				<div class="col-md-1">PENGGUNAAN</div>
 				<div class="col-md-1">
