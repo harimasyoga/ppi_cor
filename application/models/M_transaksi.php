@@ -3417,6 +3417,7 @@ class M_transaksi extends CI_Model
 
 	function btnAccDSS()
 	{
+		date_default_timezone_set('Asia/Jakarta');
 		$angka = $_POST["tgl"];
 		$tahun = $_POST["tahun"];
 		$bulan = $_POST["bulan"];
@@ -3445,7 +3446,10 @@ class M_transaksi extends CI_Model
 		}else if($tgl5 <= 0 && $jam >= '12' && $menit >= '00' && $lvl == 'Marketing'){
 			$data = false;
 			$msg = 'LOCK H-5. JAM LEBIH DARI 12 SIANG!';
-		}else if($tgl2 <= 0 && $jam >= '12' && $menit >= '00' && ($lvl == 'PPIC' || $lvl == 'Gudang')){
+		}else if($tgl2 <= 0 && $jam >= '12' && $menit >= '00' && $lvl == 'PPIC'){
+			$data = false;
+			$msg = 'LOCK H-2. JAM LEBIH DARI 12 SIANG!';
+		}else if($tgl2 <= 0 && $jam >= '12' && $menit >= '00' && $lvl == 'Gudang'){
 			$data = false;
 			$msg = 'LOCK H-2. JAM LEBIH DARI 12 SIANG!';
 		}else if($tgl1 <= 0 && $jam >= '12' && $menit >= '00' && $lvl == 'Pengiriman'){
@@ -3491,6 +3495,7 @@ class M_transaksi extends CI_Model
 			'lock1D' => $lock1D,
 			'tgl1' => $tgl1,
 			'tgl0' => $tgl0,
+			'now' => date('Y-m-d'),
 			'_jam' => $jam,
 			'_menit' => $menit,
 		];

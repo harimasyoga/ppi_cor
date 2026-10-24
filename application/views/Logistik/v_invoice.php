@@ -1180,88 +1180,89 @@
 
 		if (ket != 'mutasi') {
 			$.ajax({
-					url: '<?= base_url('Logistik/get_foto_'); ?>' + ket,
-					type: 'POST',
-					data: {
-						no: no_inv,
-						jenis: "invoice_header",
-						field: 'no_invoice'
-					},
-					dataType: "JSON",
-				})
-				.done(function(data) {
-					$('#div_preview_foto').css("display", "block");
-					let btnHapHap = ''
-					if (username == 'developer') {
-						btnHapHap = `<div style="display:flex">
-						<div style="margin-right:4px">
-							<select id="hps_file_inv" onchange="sHpsFile('${data.header.id}', '${ket}')">
-								<option value=""></option>
-								<option value="HAPUS">HAPUS</option>
-								<option value="DDDDD">UPDATE</option>
-							</select>
-						</div>
-						${data.htmlDtl}
-					</div>`;
-					} else {
-						btnHapHap = data.htmlDtl
+				url: '<?= base_url('Logistik/get_foto_'); ?>' + ket,
+				type: 'POST',
+				data: {
+					no: no_inv,
+					jenis: "invoice_header",
+					field: 'no_invoice'
+				},
+				dataType: "JSON",
+			})
+			.done(function(data) {
+				$('#div_preview_foto').css("display", "block");
+				let btnHapHap = ''
+				if (username == 'developer') {
+					btnHapHap = `<div style="display:flex">
+					<div style="margin-right:4px">
+						<select id="hps_file_inv" onchange="sHpsFile('${data.header.id}', '${ket}')">
+							<option value=""></option>
+							<option value="HAPUS">HAPUS</option>
+							<option value="DDDDD">UPDATE</option>
+						</select>
+					</div>
+					${data.htmlDtl}
+				</div>`;
+				} else {
+					btnHapHap = data.htmlDtl
+				}
+				$(".detail-inv").html(btnHapHap)
+				if (ket == 'faktur') {
+					$("#no_inv_faktur").val(data.header.no_faktur)
+				}
+				if (ket == 'inv_terima') {
+					$("#tgl_invd").val(data.header.inp_inv_terima.substr(0, 10))
+				}
+				if (ket == 'sj_balik') {
+					if (data.header.inp_sj_balik != null && data.header.tgl_sj_blk == null) {
+						$("#tgl_blk").val(data.header.inp_sj_balik.substr(0, 10))
+					} else if (data.header.inp_sj_balik != null && data.header.tgl_sj_blk != null) {
+						$("#tgl_blk").val(data.header.tgl_sj_blk)
 					}
-					$(".detail-inv").html(btnHapHap)
-					if (ket == 'faktur') {
-						$("#no_inv_faktur").val(data.header.no_faktur)
+				}
+				$("#ket_file").val(data.ket)
+				if (data.ext != 'pdf') {
+					var modal = document.getElementById('mymodal-img');
+					var img = document.getElementById('preview_img');
+					var modalImg = document.getElementById("img01");
+					img.onclick = function() {
+						modal.style.display = "block";
+						modalImg.src = this.src;
+						modalImg.alt = this.alt;
 					}
-					if (ket == 'inv_terima') {
-						$("#tgl_invd").val(data.header.inp_inv_terima.substr(0, 10))
+					modal.onclick = function() {
+						img01.className += " out";
+						setTimeout(function() {
+							modal.style.display = "none";
+							img01.className = "modal-img-content";
+						}, 400);
 					}
-					if (ket == 'sj_balik') {
-						if (data.header.inp_sj_balik != null && data.header.tgl_sj_blk == null) {
-							$("#tgl_blk").val(data.header.inp_sj_balik.substr(0, 10))
-						} else if (data.header.inp_sj_balik != null && data.header.tgl_sj_blk != null) {
-							$("#tgl_blk").val(data.header.tgl_sj_blk)
-						}
-					}
-					$("#ket_file").val(data.ket)
-					if (data.ext != 'pdf') {
-						var modal = document.getElementById('mymodal-img');
-						var img = document.getElementById('preview_img');
-						var modalImg = document.getElementById("img01");
-						img.onclick = function() {
-							modal.style.display = "block";
-							modalImg.src = this.src;
-							modalImg.alt = this.alt;
-						}
-						modal.onclick = function() {
-							img01.className += " out";
-							setTimeout(function() {
-								modal.style.display = "none";
-								img01.className = "modal-img-content";
-							}, 400);
-						}
-					}
-					// cek
-					if (data.header.cekinv == null && data.header.inpinv != null && (username == 'bumagda' || username == 'developer')) {
-						$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 0 6px">
-						<div class="col-md-3"></div>
-						<div class="col-md-2">
-							<select class="form-control select2" id="invinvinv" onchange="cekInv('lama', '')">
-								<option value="">CEK</option>
-								<option value="${ket}">OK</option>
-							</select>
-						</div>
-						<div class="col-md-7"></div>
-					</div>`)
-					} else if (data.header.cekinv != null && (username == 'bumagda' || username == 'developer')) {
-						$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 5px 6px">
-						<div class="col-md-3"></div>
-						<div class="col-md-9">
-							<span style="font-weight:bold">CEK : ${data.header.cekinv}</span>
-						</div>
-					</div>`)
-					} else {
-						$(".cekcekcek").html(``)
-					}
-					$('.select2').select2()
-				})
+				}
+				// cek
+				if (data.header.cekinv == null && data.header.inpinv != null && (username == 'bumagda' || username == 'developer')) {
+					$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 0 6px">
+					<div class="col-md-3"></div>
+					<div class="col-md-2">
+						<select class="form-control select2" id="invinvinv" onchange="cekInv('lama', '')">
+							<option value="">CEK</option>
+							<option value="${ket}">OK</option>
+						</select>
+					</div>
+					<div class="col-md-7"></div>
+				</div>`)
+				} else if (data.header.cekinv != null && (username == 'bumagda' || username == 'developer')) {
+					$(".cekcekcek").html(`<div class="card-body row" style="font-weight:bold;padding:20px 5px 6px">
+					<div class="col-md-3"></div>
+					<div class="col-md-9">
+						<span style="font-weight:bold">CEK : ${data.header.cekinv}</span>
+					</div>
+				</div>`)
+				} else {
+					$(".cekcekcek").html(``)
+				}
+				$('.select2').select2()
+				$(".modal-open").css({"padding-right": "0"})
+			})
 		}
 	}
 
@@ -1388,6 +1389,7 @@
 					toastr.success(`<b>Berhasil Disimpan</b>`)
 					$('#modal_foto').modal('hide');
 					load_bank()
+					$(".modal-open").css({"padding-right": "0"})
 				} else {
 					swal.close();
 					swal({
