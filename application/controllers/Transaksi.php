@@ -39,6 +39,7 @@ class Transaksi extends CI_Controller
 	public function PO()
 	{
 		$id_sales = $this->session->userdata('id_sales');
+		$akses_po = $this->session->userdata('akses_po');
 		($id_sales != null) ? $wHub = "WHERE a.id_hub='7'" : $wHub = '';
 		($id_sales != null) ? $wPP = "WHERE a.id_sales='$id_sales'" : $wPP = '';
 		$tahun = date('Y');
@@ -57,7 +58,11 @@ class Transaksi extends CI_Controller
 		);
 
 		$this->load->view('header', $data);
-		$this->load->view('Transaksi/v_po', $data);
+		if($akses_po != null){
+			$this->load->view('Transaksi/v_po', $data);
+		}else{
+			$this->load->view('home');
+		}
 		$this->load->view('footer');
 	}
 

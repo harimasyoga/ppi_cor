@@ -5450,4 +5450,51 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function inputRollManual()
+	{
+		$corr = $_POST["m_corr"];
+		$jenis = $_POST["m_jenis"];
+		$gsm = $_POST["m_gsm"];
+		$lebar = $_POST["m_lebar"];
+		$diameter = $_POST["m_diameter"];
+		$berat = $_POST["m_berat"];
+		$joint = $_POST["m_joint"];
+		$roll = $_POST["m_roll"];
+
+		if($corr == '' || $jenis == '' || $gsm == '' || $lebar == '' || $diameter == '' || $berat == '' || $joint == '' || $roll == ''){
+			$data = false; $msg = 'HARAP LENGKAPI FORM!';
+		}else{
+			$rL = array(
+				't_cor' => $corr,
+				'roll' => $roll,
+				'i_tgl' => date("Y-m-d"),
+				'nm_ker' => $jenis,
+				'g_label' => $gsm,
+				'width' => $lebar,
+				'diameter' => $diameter,
+				'weight' => $berat,
+				'joint' => $joint,
+				'ket' => 'INPUT MANUAL',
+				'status_r' => 2,
+				'g_ac' => 0,
+				'rct' => 0,
+				'bi' => 0,
+				'cobb' => 0,
+				'moisture' => 0,
+				'rm' => 0,
+				'dari' => 'IM',
+				'created_at' => date('Y-m-d H:i:s'),
+				'created_by' => $this->username,
+				'id_roll' => 0,
+			);
+			$data = $this->db->insert("m_roll", $rL);
+			$msg = 'BERHASIL INPUT ROLL!';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 }

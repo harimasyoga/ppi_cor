@@ -3443,16 +3443,16 @@ class M_transaksi extends CI_Model
 		if($tgl0 >= 0 && $lvl == 'User'){
 			$data = false;
 			$msg = 'BELUM BISA KASIH KETERANGAN!';
-		}else if($tgl5 <= 0 && $jam >= '12' && $menit >= '00' && $lvl == 'Marketing'){
+		}else if(($tgl5 < 0 || ($tgl5 == 0 && $jam >= '12' && $menit >= '00')) && $lvl == 'Marketing'){
 			$data = false;
 			$msg = 'LOCK H-5. JAM LEBIH DARI 12 SIANG!';
-		}else if($tgl2 <= 0 && $jam >= '12' && $menit >= '00' && $lvl == 'PPIC'){
+		}else if(($tgl2 < 0 || ($tgl2 == 0 && $jam >= '12' && $menit >= '00')) && $lvl == 'PPIC'){
 			$data = false;
 			$msg = 'LOCK H-2. JAM LEBIH DARI 12 SIANG!';
-		}else if($tgl2 <= 0 && $jam >= '12' && $menit >= '00' && $lvl == 'Gudang'){
+		}else if(($tgl2 < 0 || ($tgl2 == 0 && $jam >= '12' && $menit >= '00')) && $lvl == 'Gudang'){
 			$data = false;
 			$msg = 'LOCK H-2. JAM LEBIH DARI 12 SIANG!';
-		}else if($tgl1 <= 0 && $jam >= '12' && $menit >= '00' && $lvl == 'Pengiriman'){
+		}else if(($tgl1 < 0 || ($tgl1 == 0 && $jam >= '12' && $menit >= '00')) && $lvl == 'Pengiriman'){
 			$data = false;
 			$msg = 'LOCK H-1. JAM LEBIH DARI 12 SIANG!';
 		}else if(($verif == "R" || $verif == "D") && $keterangan == ""){

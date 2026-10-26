@@ -2432,7 +2432,7 @@ class Logistik extends CI_Controller
 			'bayar' => $bayar->num_rows(),
 			'no_invoice' => substr($header->no_invoice, 4, 6),
 			'oke_admin' => substr($this->m_fungsi->getHariIni(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin),0,3).', '.$this->m_fungsi->tglIndSkt(substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 0,10)).' ( '.substr(($header->edit_admin == null) ? $header->time_admin : $header->edit_admin, 10,6).' )',
-			'time_owner' => ($header->time_owner == null) ? '' :substr($this->m_fungsi->getHariIni($header->time_owner),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->time_owner, 0,10)).' ( '.substr($header->time_owner, 10,6).' )',
+			'time_owner' => ($header->time_owner == null) ? '' : substr($this->m_fungsi->getHariIni($header->time_owner),0,3).', '.$this->m_fungsi->tglIndSkt(substr($header->time_owner, 0,10)).' ( '.substr($header->time_owner, 10,6).' )',
 			'htmlItem' => $htmlItem,
 			'htmlBayar' => $htmlBayar,
 			'htmlInpPay' => $htmlInpPay,
@@ -16048,6 +16048,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function inputRollManual()
+	{
+		$result = $this->m_logistik->inputRollManual();
+		echo json_encode($result);
+	}
+
 	function cariListRoll()
 	{
 		$pilih = $_POST["list_pilih"];
@@ -16252,8 +16258,17 @@ class Logistik extends CI_Controller
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BERAT</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
 					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>
-					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
+					<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>';
+					if($opsi == 'CARI'){
+						$html .= '
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">G_AC</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">RCT</td>
+							<td style="background:#f2f2f2;padding:6px 14px;font-weight:bold;text-align:center;border:1px solid #dee2e6">BI</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">COBB</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">MOIS</td>
+						';
+					}
+					$html .= '<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
 				</tr>';
 				$i = 0;
 				foreach($qR->result() as $r){
@@ -16290,8 +16305,22 @@ class Logistik extends CI_Controller
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.number_format($berat).'</td>
 						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$r->joint.'</td>
 						<td style="padding:6px;border:1px solid #dee2e6">'.$r->ket.'</td>
-						<td style="padding:6px;text-align:center;border;border:1px solid #dee2e6">'.$pStt.'</td>
-						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$aksi.'</td>
+						<td style="padding:6px;text-align:center;border;border:1px solid #dee2e6">'.$pStt.'</td>';
+						if($opsi == 'CARI'){
+							($r->g_ac != 0) ? $g_ac = round($r->g_ac,2) : $g_ac = '-';
+							($r->rct != 0) ? $rct = round($r->rct,2) : $rct = '-';
+							($r->bi != 0) ? $bi = round($r->bi,2) : $bi = '-';
+							($r->cobb != 0) ? $cobb = $r->cobb : $cobb = '-';
+							($r->moisture != 0) ? $moisture = round($r->moisture,2) : $moisture = '-';
+							$html .= '
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$g_ac.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$rct.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$bi.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$cobb.'</td>
+								<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$moisture.'</td>
+							';
+						}
+						$html .= '<td style="padding:6px;text-align:center;border:1px solid #dee2e6">'.$aksi.'</td>
 					</tr>';
 				}
 			$html .= '</table></div>';
@@ -16455,7 +16484,7 @@ class Logistik extends CI_Controller
 							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">JOINT</td>
 							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">KETERANGAN</td>
 							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">STATUS</td>
-							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">GUNA</td>
+							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">PENGGUNAAN</td>
 							<td style="background:#f2f2f2;padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">AKSI</td>
 						</tr>';
 						$i = 0;
@@ -16688,28 +16717,28 @@ class Logistik extends CI_Controller
 		// cek guna
 		$cG = $this->db->query("SELECT*FROM trs_so_guna WHERE tgl='$tgl_guna' AND id_roll='$roll'");
 		if($cG->num_rows() == 0 && $tgl_guna != ''){
-			$html .= '<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+			$html .= '<div class="card-body row" style="padding:3px 12px;font-weight:bold">
 				<div class="col-md-1">PENGGUNAAN</div>
 				<div class="col-md-1">
 					<input type="number" id="add_guna" class="form-control" autocomplete="off" placeholder="0" onkeyup="hitungGuna('."'guna'".')">
 				</div>
 				<div class="col-md-10"></div>
 			</div>
-			<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+			<div class="card-body row" style="padding:3px 12px;font-weight:bold">
 				<div class="col-md-1">SISA</div>
 				<div class="col-md-1">
 					<input type="number" id="add_sisa" class="form-control" autocomplete="off" placeholder="0" onkeyup="hitungGuna('."'sisa'".')">
 				</div>
 				<div class="col-md-10"></div>
 			</div>
-			<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+			<div class="card-body row" style="padding:3px 12px;font-weight:bold">
 				<div class="col-md-1">KETERANGAN</div>
 				<div class="col-md-3">
 					<textarea id="add_ket" class="form-control" style="resize:none;font-weight:bold" rows="2" placeholder="KET" autocomplete="off" oninput="this.value=this.value.toUpperCase()"></textarea>
 				</div>
 				<div class="col-md-8"></div>
 			</div>
-			<div class="card-body row" style="padding:3px 6px 6px;font-weight:bold">
+			<div class="card-body row" style="padding:3px 12px 12px;font-weight:bold">
 				<div class="col-md-1"></div>
 				<div class="col-md-11">
 					<button type="button" class="btn btn-primary btn-sm btn-guna-sisa" style="font-weight:bold" onclick="btnGunaSisa()"><i class="fas fa-plus"></i> TAMBAH</button>

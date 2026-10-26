@@ -525,7 +525,7 @@ class Laporan extends CI_Controller
 							WHERE p.status='Close' AND c.id_sales='$r->id_sales' AND p.id_pelanggan='$r->id_pelanggan' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-10', '-11', '-12', '-13', '-14')
 							GROUP BY i.kategori,i.nm_produk,i.ukuran,i.ukuran_sheet,i.flute,i.id_produk");
 							// JIKA DATA STOK LEBIH BANYAK DARI OS
-							if($qq22->num_rows() > 0 && ($qq22->num_rows() != $produk->num_rows())){
+							if($qq22->num_rows() > 0){
 								$btnDtlGDCor = ' <button type="button" class="btn btn-sm" style="padding:0" onclick="rincianGDCor('."'".$r->id_pelanggan."'".', '."'".$tglSlt."'".')"><i class="fas fa-info-circle" style="color:#0d6efd"></i></button>';
 							}else{
 								$btnDtlGDCor = '';
@@ -778,10 +778,11 @@ class Laporan extends CI_Controller
 		$html = '';
 
 		$html .= '<div style="padding-bottom:6px;font-weight:bold">DATA STOK GUDANG : '.strtoupper($this->m_fungsi->getHariIni($tgl)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl)).'</div>';
-		$html .= '<table class="table table-bordered table-striped" style="margin:0;border:0">
+		$html .= '<table class="table table-bordered table-striped" style="margin:0;border:0;color:#000">
 			<tr>
 				<th style="text-align:center;padding:6px">#</th>
 				<th style="text-align:center;padding:6px">ITEM</th>
+				<th style="text-align:center;padding:6px">UPDATE</th>
 				<th style="text-align:center;padding:6px">UKURAN</th>
 				<th style="text-align:center;padding:6px">FLUTE</th>
 				<th style="text-align:center;padding:6px">SUBSTANCE</th>
@@ -840,6 +841,7 @@ class Laporan extends CI_Controller
 				$html .= '<tr style="vertical-align:top">
 					<td style="padding:6px;text-align:center">'.$i.'</td>
 					<td style="padding:6px">'.$dv1.$infoPO.$kat.$r->nm_produk.$dv2.'</td>
+					<td style="padding:6px;text-align:center">'.strtoupper($this->m_fungsi->tglIndSkt(substr($r->updated_at, 0,10))).' ( '.substr($r->updated_at, 10,6).' )</td>
 					<td style="padding:6px;text-align:center">'.$uk.'</td>
 					<td style="padding:6px;text-align:center">'.$r->flute.'</td>
 					<td style="padding:6px;text-align:center">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
