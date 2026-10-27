@@ -22,7 +22,7 @@
 	<section class="content">
 		<div class="card shadow mb-3 card-list-so">
 			<div class="card-header" style="font-family:Cambria;" >
-				<h3 class="card-title" style="color:#4e73df;"><b><?= $judul ?></b></h3>
+				<h3 class="card-title" style="color:#4e73df;"><b>ROLL CORRUGATED</b></h3>
 				<div class="card-tools">
 					<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
 					<i class="fas fa-minus"></i></button>
@@ -33,6 +33,7 @@
 					<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('list')"><i class="fas fa-list-ul"></i> <b>LIST</b></button><div style="margin-left:6px"></div>
 					<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('cari')"><i class="fas fa-search"></i> <b>CARI</b></button><div style="margin-left:6px"></div>
 					<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('add')"><i class="fas fa-plus"></i> <b>ADD</b></button><div style="margin-left:6px"></div>
+					<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('manual')"><i class="fas fa-plus"></i> <b>MANUAL</b></button><div style="margin-left:6px"></div>
 					<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('guna')"><i class="fas fa-minus"></i> <b>PENGGUNAAN</b></button><div style="margin-left:6px"></div>
 				</div>
 				<!-- list -->
@@ -52,23 +53,14 @@
 						<div class="col-md-2">
 							<select id="list_nmker" class="form-control select2">
 								<option value="">SEMUA</option>
-								<option value="BK">BK</option>
-								<option value="BL">BL</option>
-								<option value="MC">MC</option>
-								<option value="MF">MF</option>
-								<option value="MF-A">MF-A</option>
-								<option value="MF-B">MF-B</option>
-								<option value="MH">MH</option>
-								<option value="MH COLOR">MH COLOR</option>
-								<option value="ML">ML</option>
-								<option value="MN">MN</option>
-								<option value="MS">MS</option>
-								<option value="MS-A">MS-A</option>
-								<option value="MS-B">MS-B</option>
-								<option value="MS-C">MS-C</option>
-								<option value="TL">TL</option>
-								<option value="TL-A">TL-A</option>
-								<option value="TL-B">TL-B</option>
+								<?php
+									$jenis = $this->db->query("SELECT*FROM trs_so_jenis ORDER BY jenis");
+									$html1 = '';
+									foreach($jenis->result() as $j1){
+										$html1 .= '<option value="'.$j1->jenis.'">'.$j1->jenis.'</option>';
+									}
+									echo $html1;
+								?>
 								<option value="BKBLTL">BK, BL, TL</option>
 								<option value="MHMFMC">MH, MF, MC</option>
 								<option value="MLMNMS">ML, MN, MS</option>
@@ -118,6 +110,97 @@
 					</div>
 					<div class="add-list"></div>
 				</div>
+				<!-- manual -->
+				<div class="card-manual" style="padding-bottom:12px;display:none">
+					<div class="card-body row" style="padding:12px 6px 3px;font-weight:bold">
+						<div class="col-md-1">
+							CORR
+						</div>
+						<div class="col-md-2">
+							<select id="m_corr" class="form-control select2">
+								<option value="">PILIH</option>
+								<option value="CA">ATAS</option>
+								<option value="CB">BAWAH</option>
+							</select>
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+						<div class="col-md-1">JENIS</div>
+						<div class="col-md-2">
+							<select id="m_jenis" class="form-control select2">
+								<option value="">PILIH</option>
+								<?php
+									$html2 = '';
+									foreach($jenis->result() as $j2){
+										$html2 .= '<option value="'.$j2->jenis.'">'.$j2->jenis.'</option>';
+									}
+									echo $html2;
+								?>
+							</select>
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+						<div class="col-md-1">GSM</div>
+						<div class="col-md-2">
+							<select id="m_gsm" class="form-control select2">
+								<option value="">PILIH</option>
+								<?php
+									$g_label = $this->db->query("SELECT*FROM trs_so_gsm ORDER BY gsm");
+									$html3 = '';
+									foreach($g_label->result() as $g){
+										$html3 .= '<option value="'.$g->gsm.'">'.$g->gsm.'</option>';
+									}
+									echo $html3;
+								?>
+							</select>
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+						<div class="col-md-1">LEBAR</div>
+						<div class="col-md-2">
+							<input type="number" id="m_lebar" class="form-control" placeholder="LEBAR" autocomplete="off">
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+						<div class="col-md-1">DIAMETER</div>
+						<div class="col-md-2">
+							<input type="number" id="m_diameter" class="form-control" placeholder="DIAMETER" autocomplete="off">
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+						<div class="col-md-1">BERAT</div>
+						<div class="col-md-2">
+							<input type="number" id="m_berat" class="form-control" placeholder="BERAT" autocomplete="off">
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+						<div class="col-md-1">JOINT</div>
+						<div class="col-md-2">
+							<input type="number" id="m_joint" class="form-control" placeholder="JOINT" autocomplete="off">
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+						<div class="col-md-1">NO. ROLL</div>
+						<div class="col-md-2">
+							<input type="text" id="m_roll" class="form-control" placeholder="NO. ROLL" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
+						<div class="col-md-1"></div>
+						<div class="col-md-2">
+							<button type="button" onclick="inputRollManual()" class="btn btn-success btn-sm btn-inp-roll"><i class="fas fa-save"></i> <b>SIMPAN</b></button>
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+				</div>
 				<!-- cari -->
 				<div class="card-cari" style="padding-bottom:12px;display:none">
 					<div class="card-body row" style="padding:12px 6px 3px;font-weight:bold">
@@ -136,7 +219,7 @@
 					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
 						<div class="col-md-1">JENIS. ROLL</div>
 						<div class="col-md-2">
-							<input type="number" id="c_jenis" class="form-control" placeholder="JENIS" autocomplete="off">
+							<input type="text" id="c_jenis" class="form-control" placeholder="JENIS" autocomplete="off">
 						</div>
 						<div class="col-md-9"></div>
 					</div>
@@ -288,12 +371,14 @@
 			$(".card-list").show()
 			$(".card-cari").hide()
 			$(".card-add").hide()
+			$(".card-manual").hide()
 			$(".card-guna").hide()
 		}
 		if(opsi == 'cari'){
 			$(".card-list").hide()
 			$(".card-cari").show()
 			$(".card-add").hide()
+			$(".card-manual").hide()
 			$(".card-guna").hide()
 		}
 		if(opsi == 'add'){
@@ -303,15 +388,33 @@
 			$(".card-list").hide()
 			$(".card-cari").hide()
 			$(".card-add").show()
+			$(".card-manual").hide()
 			$(".card-guna").hide()
 			$(".add-pm").hide()
 			$(".add-gudang").hide()
 			$(".add-list").html('')
 		}
+		if(opsi == 'manual'){
+			$("#m_corr").val('').trigger('change')
+			$("#m_jenis").val('').trigger('change')
+			$("#m_gsm").val('').trigger('change')
+			$("#m_lebar").val('')
+			$("#m_diameter").val('')
+			$("#m_berat").val('')
+			$("#m_joint").val('')
+			$("#m_roll").val('')
+			$(".list-manual").html('')
+			$(".card-list").hide()
+			$(".card-cari").hide()
+			$(".card-add").hide()
+			$(".card-manual").show()
+			$(".card-guna").hide()
+		}
 		if(opsi == 'guna'){
 			$(".card-list").hide()
 			$(".card-cari").hide()
 			$(".card-add").hide()
+			$(".card-manual").hide()
 			$(".card-guna").show()
 		}
 	}
@@ -693,7 +796,6 @@
 			data: ({ tgl_guna, s_corr, s_gsm, s_lebar, s_roll, id }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				cariGunaRoll()
 				planCariRoll()
 			}
@@ -707,8 +809,46 @@
 			data: ({ id }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				cariGunaRoll()
+			}
+		})
+	}
+
+	function inputRollManual()
+	{
+		$(".btn-inp-roll").prop('disabled', true)
+		let m_corr = $("#m_corr").val()
+		let m_jenis = $("#m_jenis").val()
+		let m_gsm = $("#m_gsm").val()
+		let m_lebar = $("#m_lebar").val()
+		let m_diameter = $("#m_diameter").val()
+		let m_berat = $("#m_berat").val()
+		let m_joint = $("#m_joint").val()
+		let m_roll = $("#m_roll").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/inputRollManual')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ m_corr, m_jenis, m_gsm, m_lebar, m_diameter, m_berat, m_joint, m_roll }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					pRoll('manual')
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
+				$(".btn-inp-roll").prop('disabled', false)
+				swal.close()
 			}
 		})
 	}
