@@ -11802,6 +11802,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function clickGudang()
+	{
+		$result = $this->m_logistik->clickGudang();
+		echo json_encode($result);
+	}
+
 	function Gudang_Laminasi()
 	{
 		$data_header = array(
@@ -11854,7 +11860,7 @@ class Logistik extends CI_Controller
 				<tr>
 					<th style="padding:6px" colspan="15">
 						LIST DATA :&nbsp
-						<button type="button" class="btn btn-xs btn-info" style="padding:1px 5px;font-weight:bold" onclick="btnMinMin(0)">
+						<button type="button" class="btn btn-xs btn-secondary" style="padding:1px 5px;font-weight:bold" onclick="btnMinMin(0)">
 							<span class="spn-tmpl">[ TAMPIL SEMUA ]</span>
 						</button>
 						<input type="hidden" id="ts0" value="0">
@@ -11886,7 +11892,7 @@ class Logistik extends CI_Controller
 						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">STOK AKHIR</th>
 						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">TONASE</th>
 						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 20px">KETERANGAN</th>
-						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">UPDATE TGL</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">PILIH TANGGAL</th>
 						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">AKSI</th>
 					</tr>';
 
@@ -11906,11 +11912,23 @@ class Logistik extends CI_Controller
 						if($inpStok->num_rows() != 0){
 							$stokAkhir = $inpStok->row()->stok_akhir;
 							$tonAkhir = number_format($inpStok->row()->stok_akhir * $g->berat_bersih,0,',','.');
-							$tglAkhir = '<div style="font-size:12px;text-align:right;font-style:italic">'.$this->m_fungsi->tglIndSkt($inpStok->row()->tgl).'</div>';
+							$tglAkhir = '<div style="font-size:12px;text-align:right;font-style:italic">';
+								if($inpStok->row()->updated_at != null){
+									$tglAkhir .= strtoupper($this->m_fungsi->tglIndSkt(substr($inpStok->row()->updated_at, 0,10)));
+								}else{
+									$tglAkhir .= strtoupper($this->m_fungsi->tglIndSkt(substr($inpStok->row()->created_at, 0,10)));
+								}
+							$tglAkhir .= '</div>';
+							$infoSTOK = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$g->id_pelanggan."'".', '."'".$g->id_produk."'".', '."'LIST'".')"><i class="fas fa-info-circle" style="color:#dc3545"></i></button> ';
+							$btnAksi = '';
+							$roL = 'disabled';
 						}else{
 							$stokAkhir = 0;
+							$infoSTOK = '';
 							$tonAkhir = '';
 							$tglAkhir = '';
+							$btnAksi = '<button type="button" class="btn btn-xs btn-success" onclick="clickGudang('."'".$g->id_pelanggan."'".', '."'".$g->id_produk."'".', '."'ADD'".')"><i class="fas fa-plus"></i></button>';
+							(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])) ? $roL = '' : $roL = 'disabled';
 						}
 
 						// CEK NO. PO
@@ -11920,17 +11938,14 @@ class Logistik extends CI_Controller
 						GROUP BY p.status DESC,p.tgl_po,p.kode_po");
 						($cekPO->num_rows() != 0) ? $infoPO = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$g->id_pelanggan."'".', '."'".$g->id_produk."'".', '."'LIST'".')"><i class="fas fa-info-circle" style="color:#0d6efd"></i></button> ' : $infoPO = '';
 
-						(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])) ? $roL = '' : $roL = 'readonly';
-
 						$html .= '<tr class="tr1 t'.$g->id_pelanggan.'" style="vertical-align:top;display:none">
 							<td style="padding:6px;text-align:center">'.$i.'</td>
-							<td style="padding:6px">'.$dv1.$infoPO.$kat.$g->nm_produk.$dv2.'</td>
+							<td style="padding:6px">'.$dv1.$infoPO.$infoSTOK.$kat.$g->nm_produk.$dv2.'</td>
 							<td style="padding:6px;text-align:center">'.$uk.'</td>
 							<td style="padding:6px;text-align:center">'.$this->m_fungsi->kualitas($g->kualitas, $g->flute).'</td>
 							<td style="padding:6px;text-align:center">'.$g->flute.'</td>
 							<td style="padding:6px">
-								<div><input type="number" id="stok_awal2_'.$g->id_produk.'" value="'.number_format($stokAkhir,0,',','.').'" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" style="padding:2px 4px;text-align:right;font-weight:bold;color:#000" '.$roL.'></div>
-								'.$tglAkhir.'
+								<input type="number" id="stok_awal2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" style="padding:2px 4px;text-align:right;font-weight:bold;color:#000" '.$roL.'>
 							</td>
 							<td style="padding:6px">
 								<input type="number" id="in2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold;color:#000" '.$roL.'>
@@ -11950,15 +11965,15 @@ class Logistik extends CI_Controller
 							</td>
 							<td style="padding:6px">
 								<input type="hidden" id="hTTON2_'.$g->id_produk.'" value="'.$g->berat_bersih.'">
-								<input type="number" id="tton2_'.$g->id_produk.'" value="'.$tonAkhir.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold;color:#000" disabled>
+								<input type="number" id="tton2_'.$g->id_produk.'" value="" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold;color:#000" disabled>
 							</td>
 							<td style="padding:6px">
 								<input type="text" id="ket2_'.$g->id_produk.'" class="form-control" placeholder="KETERANGAN" autocomplete="off" style="padding:2px 4px;font-weight:bold;color:#000" oninput="this.value=this.value.toUpperCase()" '.$roL.'>
 							</td>
 							<td style="padding:6px;text-align:center">
-								<input type="date" id="tgl_input" name="tgl_input" class="form-control">
+								<input type="date" id="tgl_input_'.$g->id_produk.'" class="form-control" style="height:100%" '.$roL.'>
 							</td>
-							<td style="padding:6px;text-align:center"></td>
+							<td style="padding:6px;text-align:center" class="b-aksi-gudang-'.$g->id_produk.'">'.$btnAksi.'</td>
 						</tr>';
 					}
 				}
@@ -11967,6 +11982,44 @@ class Logistik extends CI_Controller
 
 		echo json_encode([
 			'html' => $html,
+		]);
+	}
+
+	function btnAksiGudang()
+	{
+		$id_gudang = $_POST["id_gudang"];
+		$opsi = $_POST["opsi"];
+
+		$gudang = $this->db->query("SELECT g.*,i.berat_bersih FROM m_gudang_v3 g
+		INNER JOIN m_produk i ON g.id_produk=i.id_produk
+		WHERE g.id='$id_gudang'")->row();
+
+		$stokAwal = number_format($gudang->stok_awal,0,',','.');
+		$in = number_format($gudang->in,0,',','.');
+		$inRetur = number_format($gudang->in_rtr,0,',','.');
+		$out = number_format($gudang->out,0,',','.');
+		$outRetur = number_format($gudang->out_rtr,0,',','.');
+		$stokAkhir = number_format($gudang->stok_akhir,0,',','.');
+		$tonase = number_format(round($gudang->stok_akhir * $gudang->berat_bersih),0,',','.');
+
+		// aksi
+		if($opsi == 'EDIT'){
+			$button = '<button type="button" class="btn btn-xs btn-warning" onclick="clickGudang('."'".$gudang->id_pelanggan."'".','."'".$gudang->id_produk."'".', '."'EDIT'".')"><i class="fas fa-pen"></i></button>';
+		}
+		if($opsi == 'PILIH'){
+			$button = '<button type="button" class="btn btn-xs btn-success" onclick="clickGudang('."'".$gudang->id_pelanggan."'".','."'".$gudang->id_produk."'".', '."'ADD'".')"><i class="fas fa-plus"></i></button>';
+		}
+
+		echo json_encode([
+			'stokAwal' => $stokAwal,
+			'in' => $in,
+			'inRetur' => $inRetur,
+			'out' => $out,
+			'outRetur' => $outRetur,
+			'stokAkhir' => $stokAkhir,
+			'tonase' => $tonase,
+			'g' => $gudang,
+			'button' => $button,
 		]);
 	}
 
@@ -12442,70 +12495,128 @@ class Logistik extends CI_Controller
 	{
 		$id_pelanggan = $_POST["id_pelanggan"];
 		$id_produk = $_POST["id_produk"];
-		$tgl = $_POST["tgl"];
 		$html = '';
 		
 		$po = $this->db->query("SELECT d.qty,p.* FROM trs_po p
 		INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
-		WHERE p.status!='Close' AND p.status_kiriman='Open' AND p.id_pelanggan='$id_pelanggan' AND d.id_produk='$id_produk'
+		WHERE p.status!='Close' AND p.id_pelanggan='$id_pelanggan' AND d.id_produk='$id_produk'
 		GROUP BY p.status DESC,p.tgl_po,p.kode_po,d.id_produk");
 
-		$html .= '<div style="font-weight:bold">LIST PO : </div>';
-		$html .= '<table>
-			<tr style="background:#dee2e6;font-weight:bold;text-align:center">
-				<td style="padding:6px 12px;border:1px solid #bbb">#</td>
-				<td style="padding:6px;border:1px solid #bbb">TGL. PO</td>
-				<td style="padding:6px;border:1px solid #bbb">NO. PO</td>
-				<td style="padding:6px;border:1px solid #bbb">QTY PO</td>
-				<td style="padding:6px;border:1px solid #bbb">STATUS</td>
-			</tr>';
-			$i = 0;
-			foreach($po->result() as $r){
-				$i++;
-				($r->status_app3 == 'Y') ? $timeY = ' ('.$r->time_app3.')' : $timeY = '';
-				$html .= '<tr>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
-					<td style="border:1px solid #dee2e6;padding:6px">'.$r->tgl_po.'</td>
-					<td style="border:1px solid #dee2e6;padding:6px">'.$r->kode_po.'</td>
-					<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($r->qty,0,',','.').'</td>
-					<td style="border:1px solid #dee2e6;padding:6px">'.$r->status.$timeY.'</td>
-				</tr>';
-			}
-		$html .= '</table>';
-
-		// KIRIMAN
-		$kirim = $this->db->query("SELECT*FROM pl_box p
-		INNER JOIN m_rencana_kirim r ON p.id=r.id_pl_box AND p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl
-		WHERE p.tgl='$tgl' AND r.id_pelanggan='$id_pelanggan' AND r.id_produk='$id_produk'
-		GROUP BY p.tgl,p.no_surat,p.no_po,r.id_pelanggan,r.id_produk");
-		if($kirim->num_rows() != 0){
-			$html .= '<div style="margin-top:20px;font-weight:bold">PENGIRIMAN : </div>';
+		if($po->num_rows() != 0){
+			$html .= '<div style="font-weight:bold">LIST PO : </div>';
 			$html .= '<table>
 				<tr style="background:#dee2e6;font-weight:bold;text-align:center">
 					<td style="padding:6px 12px;border:1px solid #bbb">#</td>
-					<td style="padding:6px;border:1px solid #bbb">TGL</td>
-					<td style="padding:6px;border:1px solid #bbb">NO. SURAT</td>
+					<td style="padding:6px;border:1px solid #bbb">HARI, TGL</td>
 					<td style="padding:6px;border:1px solid #bbb">NO. PO</td>
-					<td style="padding:6px;border:1px solid #bbb">QTY KIRIM</td>
+					<td style="padding:6px;border:1px solid #bbb">QTY PO</td>
 				</tr>';
 				$i = 0;
-				$sumQTY = 0;
-				foreach($kirim->result() as $k){
+				$sumPO = 0;
+				foreach($po->result() as $r){
 					$i++;
+					// ($r->status_app3 == 'Y') ? $timeY = ' ('.$r->time_app3.')' : $timeY = '';
+					// <td style="border:1px solid #dee2e6;padding:6px">'.$r->status.$timeY.'</td>
 					$html .= '<tr>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px">'.$k->tgl.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px">'.$k->no_surat.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px">'.$k->no_po.'</td>
-						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($k->qty_muat,0,',','.').'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.strtoupper(substr($this->m_fungsi->getHariIni($r->tgl_po),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl_po)).'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$r->kode_po.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($r->qty,0,',','.').'</td>
 					</tr>';
-					$sumQTY += $k->qty_muat;
+					$sumPO += $r->qty;
 				}
 				// TOTAL
-				if($kirim->num_rows() > 1){
-					$html .= '<tr style="background:#dee2e6;font-weight:bold;text-align:center">
-						<td style="padding:6px;border:1px solid #bbb;text-align:right" colspan="4">TOTAL</td>
-						<td style="padding:6px;border:1px solid #bbb;text-align:right">'.number_format($sumQTY,0,',','.').'</td>
+				$html .= '<tr style="background:#dee2e6;font-weight:bold;text-align:center">
+					<td style="padding:6px;border:1px solid #bbb;text-align:right" colspan="3">TOTAL</td>
+					<td style="padding:6px;border:1px solid #bbb;text-align:right">'.number_format($sumPO,0,',','.').'</td>
+				</tr>';
+			$html .= '</table>';
+
+			// KIRIMAN
+			$kirim = $this->db->query("SELECT p.*,r.* FROM pl_box p
+			INNER JOIN trs_po_detail d ON p.id_perusahaan=d.id_pelanggan AND p.no_po=d.kode_po
+			INNER JOIN m_rencana_kirim r ON p.id=r.id_pl_box AND p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl
+			WHERE d.status!='Close' AND r.id_pelanggan='$id_pelanggan' AND r.id_produk='$id_produk'
+			GROUP BY p.tgl,p.no_surat,p.no_po,r.id_pelanggan,r.id_produk");
+			if($kirim->num_rows() != 0){
+				$html .= '<div style="margin-top:12px;font-weight:bold">PENGIRIMAN : </div>';
+				$html .= '<table>
+					<tr style="background:#dee2e6;font-weight:bold;text-align:center">
+						<td style="padding:6px 12px;border:1px solid #bbb">#</td>
+						<td style="padding:6px;border:1px solid #bbb">HARI, TGL</td>
+						<td style="padding:6px;border:1px solid #bbb">NO. SURAT</td>
+						<td style="padding:6px;border:1px solid #bbb">NO. PO</td>
+						<td style="padding:6px;border:1px solid #bbb">QTY KIRIM</td>
+					</tr>';
+					$i2 = 0;
+					$sumQTY = 0;
+					foreach($kirim->result() as $k){
+						$i2++;
+						$html .= '<tr>
+							<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i2.'</td>
+							<td style="border:1px solid #dee2e6;padding:6px">'.strtoupper(substr($this->m_fungsi->getHariIni($k->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->tgl)).'</td>
+							<td style="border:1px solid #dee2e6;padding:6px">'.$k->no_surat.'</td>
+							<td style="border:1px solid #dee2e6;padding:6px">'.$k->no_po.'</td>
+							<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($k->qty_muat,0,',','.').'</td>
+						</tr>';
+						$sumQTY += $k->qty_muat;
+					}
+					// TOTAL
+					if($kirim->num_rows() > 1){
+						$html .= '<tr style="background:#dee2e6;font-weight:bold;text-align:center">
+							<td style="padding:6px;border:1px solid #bbb;text-align:right" colspan="4">TOTAL</td>
+							<td style="padding:6px;border:1px solid #bbb;text-align:right">'.number_format($sumQTY,0,',','.').'</td>
+						</tr>';
+					}
+				$html .= '</table>';
+			}
+		}
+
+		// STOK GUDANG
+		$gudang = $this->db->query("SELECT*FROM m_gudang_v3 g
+		WHERE g.id_pelanggan='$id_pelanggan' and g.id_produk='$id_produk'
+		group by g.tgl,g.id_pelanggan,g.id_produk");
+		if($gudang->num_rows() != 0){
+			$html .= '<div style="margin-top:12px;font-weight:bold">DATA STOK GUDANG : </div>';
+			$html .= '<table>
+				<tr style="background:#dee2e6;font-weight:bold;text-align:center">
+					<td style="padding:6px 12px;border:1px solid #bbb">#</td>
+					<td style="padding:6px;border:1px solid #bbb">HARI, TGL</td>
+					<td style="padding:6px;border:1px solid #bbb">STOK AWAL</td>
+					<td style="padding:6px 30px;border:1px solid #bbb">IN</td>
+					<td style="padding:6px;border:1px solid #bbb">RETUR IN</td>
+					<td style="padding:6px 20px;border:1px solid #bbb">OUT</td>
+					<td style="padding:6px;border:1px solid #bbb">RETUR OUT</td>
+					<td style="padding:6px;border:1px solid #bbb">STOK AKHIR</td>
+					<td style="padding:6px;border:1px solid #bbb">TONASE</td>
+					<td style="padding:6px;border:1px solid #bbb">KETERANGAN</td>
+					<td style="padding:6px;border:1px solid #bbb">LAST UPDATE</td>
+					<td style="padding:6px;border:1px solid #bbb">AKSI</td>
+				</tr>';
+				$i3 = 0;
+				foreach($gudang->result() as $g){
+					$i3++;
+					if($g->updated_at != null){
+						$upDt = strtoupper($this->m_fungsi->tglIndSkt(substr($g->updated_at, 0,10))).'. '.substr($g->updated_at, 10,6).' ( '.$g->updated_by.' )';
+					}else{
+						$upDt = strtoupper($this->m_fungsi->tglIndSkt(substr($g->created_at, 0,10))).'. '.substr($g->created_at, 10,6).' ( '.$g->created_by.' )';
+					}
+					$html .= '<tr>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i3.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.strtoupper(substr($this->m_fungsi->getHariIni($g->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($g->tgl)).'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$g->stok_awal.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$g->in.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$g->in_rtr.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$g->out.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$g->out_rtr.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.$g->stok_akhir.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px;text-align:right"></td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$g->ket.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">'.$upDt.'</td>
+						<td style="border:1px solid #dee2e6;padding:6px">
+							<button type="button" class="btn btn-xs btn-warning" style="font-weight:bold" onclick="btnAksiGudang('."'".$g->id."'".', '."'EDIT'".')">EDIT</button>
+							<button type="button" class="btn btn-xs btn-success" style="font-weight:bold" onclick="btnAksiGudang('."'".$g->id."'".', '."'PILIH'".')">PILIH</button>
+						</td>
 					</tr>';
 				}
 			$html .= '</table>';

@@ -254,12 +254,12 @@
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" style="font-weight:bold">NO. PO</h4>
+				<h4 class="modal-title" style="font-weight:bold">RINCIAN DATA</h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="card-body">
+			<div class="card-body" style="padding:12px">
 				<div style="overflow:auto;white-space:nowrap">
 					<div class="list-nopo"></div>
 				</div>
@@ -404,17 +404,17 @@
 	function listPO(id_pelanggan, id_produk, opsi){
 		$(".list-nopo").html('...')
 		$("#modalForm").modal("show")
-		let tgl = '';
-		if(opsi == 'ADD'){
-			tgl = $("#tgl_awal_cust").val()
-		}else{
-			tgl = $("#pilih_tgl22").val()
-		}
+		// let tgl = '';
+		// if(opsi == 'ADD'){
+		// 	tgl = $("#tgl_awal_cust").val()
+		// }else{
+		// 	tgl = $("#pilih_tgl22").val()
+		// }
 		$.ajax({
 			url: '<?php echo base_url('Logistik/listPO')?>',
 			type: "POST",
 			data: ({
-				id_pelanggan, id_produk, tgl
+				id_pelanggan, id_produk
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -759,6 +759,66 @@
 			success: function(res){
 				data = JSON.parse(res)
 				$(".produk2").html(data.html)
+			}
+		})
+	}
+
+	function btnAksiGudang(id_gudang, opsi)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Logistik/btnAksiGudang')?>',
+			type: "POST",
+			data: ({ id_gudang, opsi }),
+			success: function(res){
+				data = JSON.parse(res)
+
+				if(opsi == 'PILIH'){
+					$("#stok_awal2_"+data.g.id_produk).val(data.stokAkhir).prop('disabled', true)
+					$("#in2_"+data.g.id_produk).val(0).prop('disabled', false)
+					$("#inrtr2_"+data.g.id_produk).val(0).prop('disabled', false)
+					$("#out2_"+data.g.id_produk).val(0).prop('disabled', false)
+					$("#outrtr2_"+data.g.id_produk).val(0).prop('disabled', false)
+					$("#stok_akhir2_"+data.g.id_produk).val(data.stokAkhir).prop('disabled', true)
+					$("#tton2_"+data.g.id_produk).val(data.tonase).prop('disabled', true)
+					$("#ket2_"+data.g.id_produk).val('').prop('disabled', false)
+					$("#tgl_input_"+data.g.id_produk).val('').prop('disabled', false)
+				}
+				if(opsi == 'EDIT'){
+					$("#stok_awal2_"+data.g.id_produk).val(data.stokAwal).prop('disabled', false)
+					$("#in2_"+data.g.id_produk).val(data.in).prop('disabled', false)
+					$("#inrtr2_"+data.g.id_produk).val(data.inRetur).prop('disabled', false)
+					$("#out2_"+data.g.id_produk).val(data.out).prop('disabled', false)
+					$("#outrtr2_"+data.g.id_produk).val(data.outRetur).prop('disabled', false)
+					$("#stok_akhir2_"+data.g.id_produk).val(data.stokAkhir).prop('disabled', true)
+					$("#tton2_"+data.g.id_produk).val(data.tonase).prop('disabled', true)
+					$("#ket2_"+data.g.id_produk).val(data.g.ket).prop('disabled', false)
+					$("#tgl_input_"+data.g.id_produk).val(data.g.tgl).prop('disabled', true)
+				}
+
+				$(".b-aksi-gudang-"+data.g.id_produk).html(data.button)
+				$("#modalForm").modal("hide")
+			}
+		})
+	}
+
+	function clickGudang(id_pelanggan, id_produk, opsi)
+	{
+		let stok_awal = $("#stok_awal2_"+id_produk).val().split('.').join('')
+		let in2 = $("#in2_"+id_produk).val().split('.').join('')
+		let inrtr = $("#inrtr2_"+id_produk).val().split('.').join('')
+		let out = $("#out2_"+id_produk).val().split('.').join('')
+		let outrtr = $("#outrtr2_"+id_produk).val().split('.').join('')
+		let stok_akhir = $("#stok_akhir2_"+id_produk).val().split('.').join('')
+		let tton = $("#tton2_"+id_produk).val().split('.').join('')
+		let ket = $("#ket2_"+id_produk).val()
+		let tgl_input = $("#tgl_input_"+id_produk).val()
+
+		$.ajax({
+			url: '<?php echo base_url('Logistik/clickGudang')?>',
+			type: "POST",
+			data: ({ id_pelanggan, id_produk, opsi, stok_awal, in2, inrtr, out, outrtr, stok_akhir, tton, ket, tgl_input }),
+			success: function(res){
+				data = JSON.parse(res)
 				console.log(data)
 			}
 		})

@@ -951,6 +951,47 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function clickGudang()
+	{
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$id_produk = $_POST["id_produk"];
+		$opsi = $_POST["opsi"];
+		$stok_awal = $_POST["stok_awal"];
+		$in2 = $_POST["in2"];
+		$inrtr = $_POST["inrtr"];
+		$out = $_POST["out"];
+		$outrtr = $_POST["outrtr"];
+		$stok_akhir = $_POST["stok_akhir"];
+		$tton = $_POST["tton"];
+		$ket = $_POST["ket"];
+		$tgl = $_POST["tgl_input"];
+
+		// cek
+		$gudang = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$id_pelanggan' AND g.id_produk='$id_produk' AND g.tgl='$tgl'");
+
+		if(($stok_awal == 0 && $in2 == 0 && $inrtr == 0 && $out == 0 && $outrtr == 0 && $stok_akhir == 0) || ($stok_awal == '' && $in2 == '' && $inrtr == '' && $out == '' && $outrtr == '' && $stok_akhir == '')){
+			$data = false;
+			$msg = 'CEK LAGI!';
+		}else if($stok_akhir < 0 || $stok_akhir == ''){
+			$data = false;
+			$msg = 'CEK LAGI!';
+		}else if($tgl == ''){
+			$data = false;
+			$msg = 'PILIH TANGGAL!';
+		}else if($gudang->num_rows() != 0 && $opsi == 'ADD'){
+			$data = false;
+			$msg = 'DATA STOK GUDANG SUDAH ADA!';
+		}else{
+			$data = true;
+			$msg = 'BERHASIL';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function loadGudang()
 	{
 		$opsi = $_POST["opsi"];
