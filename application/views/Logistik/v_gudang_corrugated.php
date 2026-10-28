@@ -93,6 +93,57 @@
 				</div>
 			</div>
 
+			<div class="row card-add-gudang2" style="display:none">
+				<div class="col-md-12">
+					<div class="card card-primary card-outline" style="padding-bottom:12px">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT DATA STOK GUDANG BARU</h3>
+						</div>
+						<div class="card-body" style="font-weight:bold;padding:6px">
+							<!-- <div style="margin:12px 6px 6px">
+								<button type="button" class="btn btn-info" onclick="kembali()"><i class="fas fa-arrow-left"></i> <b>Kembali</b></button>
+							</div> -->
+							<div class="card-body row" style="font-weight:bold;padding:20px 6px 6px">
+								<div class="col-md-2">CUSTOMER</div>
+								<div class="col-md-8">
+									<select class="form-control select2" id="id_pelanggan">
+										<?php
+											$query = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan");
+											$html ='';
+											$html .='<option value="">SEMUA</option>';
+											foreach($query->result() as $r){
+												($r->attn == "-" || $r->attn == "") ? $attn = '' : $attn = ' | '.$r->attn;
+												$html .='<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.''.$attn.'</option>';
+											}
+											echo $html
+										?>
+									</select>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+								<div class="col-md-2">NAMA ITEM</div>
+								<div class="col-md-8">
+									<input type="text" id="nm_produk" class="form-control" oninput="this.value=this.value.toUpperCase()" autocomplete="off" placeholder="NAMA ITEM">
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
+								<div class="col-md-2"></div>
+								<div class="col-md-10">
+									<button type="button" class="btn btn-primary" onclick="cariStokGudang()"><i class="fas fa-search"></i></button>
+								</div>
+							</div>
+							<div style="padding:6px">
+								<div style="overflow:auto;white-space:nowrap">
+									<div class="produk2"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div class="row card-input-gudang" style="display:none">
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline" style="padding-bottom:12px">
@@ -279,9 +330,11 @@
 		kosong()
 		// loadGC()
 		$("#pelanggan").val('').trigger('change')
+		$("#id_pelanggan").val('').trigger('change')
 		$(".card-list-gudang").hide()
 		$(".card-list-gudang2").hide()
 		$(".card-add-gudang").show()
+		$(".card-add-gudang2").show()
 		$(".card-input-gudang").show()
 	}
 
@@ -291,11 +344,14 @@
 		$(".card-list-gudang").show()
 		$(".card-list-gudang2").show()
 		$(".card-add-gudang").hide()
+		$(".card-add-gudang2").hide()
 		$(".card-input-gudang").hide()
 	}
 
 	function kosong() {
 		$("#tgl_awal2").val('')
+		$("#nm_produk").val('')
+		$("#tgl_keluar").val('')
 		$("#pilih_tgl22").val('')
 		$(".produk").html('')
 		$(".gudang").html('')
@@ -687,6 +743,23 @@
 					toastr.error(`<b>${data.msg}</b>`);
 					swal.close()
 				}
+			}
+		})
+	}
+
+	function cariStokGudang()
+	{
+		$(".produk2").html('')
+		let id_pelanggan = $("#id_pelanggan").val()
+		let nm_produk = $("#nm_produk").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/cariStokGudang')?>',
+			type: "POST",
+			data: ({ id_pelanggan, nm_produk }),
+			success: function(res){
+				data = JSON.parse(res)
+				$(".produk2").html(data.html)
+				console.log(data)
 			}
 		})
 	}
