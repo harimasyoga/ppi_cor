@@ -955,35 +955,62 @@ class M_logistik extends CI_Model
 	{
 		$id_pelanggan = $_POST["id_pelanggan"];
 		$id_produk = $_POST["id_produk"];
-		$opsi = $_POST["opsi"];
+		$tgl = $_POST["tgl_input"];
 		$stok_awal = $_POST["stok_awal"];
 		$in2 = $_POST["in2"];
 		$inrtr = $_POST["inrtr"];
 		$out = $_POST["out"];
 		$outrtr = $_POST["outrtr"];
 		$stok_akhir = $_POST["stok_akhir"];
-		$tton = $_POST["tton"];
 		$ket = $_POST["ket"];
-		$tgl = $_POST["tgl_input"];
+		$opsi = $_POST["opsi"];
+		$tgl_lama = $_POST["tgl_lama"];
+		$id_gudang = $_POST["id_gudang"];
 
 		// cek
 		$gudang = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$id_pelanggan' AND g.id_produk='$id_produk' AND g.tgl='$tgl'");
 
 		if(($stok_awal == 0 && $in2 == 0 && $inrtr == 0 && $out == 0 && $outrtr == 0 && $stok_akhir == 0) || ($stok_awal == '' && $in2 == '' && $inrtr == '' && $out == '' && $outrtr == '' && $stok_akhir == '')){
 			$data = false;
-			$msg = 'CEK LAGI!';
+			$msg = 'CEK LAGI INPUTAN!';
 		}else if($stok_akhir < 0 || $stok_akhir == ''){
 			$data = false;
-			$msg = 'CEK LAGI!';
+			$msg = 'CEK LAGI STOK AKHIR!';
 		}else if($tgl == ''){
 			$data = false;
 			$msg = 'PILIH TANGGAL!';
+		}else if($tgl < $tgl_lama){
+			$data = false;
+			$msg = 'PILIH TANGGAL LEBIH KECIL!';
 		}else if($gudang->num_rows() != 0 && $opsi == 'ADD'){
 			$data = false;
 			$msg = 'DATA STOK GUDANG SUDAH ADA!';
 		}else{
-			$data = true;
-			$msg = 'BERHASIL';
+			$l = [
+				'stok_awal' => $stok_awal,
+				'in' => $in2,
+				'in_rtr' => $inrtr,
+				'out' => $out,
+				'out_rtr' => $outrtr,
+				'stok_akhir' => $stok_akhir,
+				'ket' => ($ket == '') ? null : $ket,
+			];
+			if($opsi == 'ADD'){
+				$this->db->set("id_pelanggan", $id_pelanggan);
+				$this->db->set("id_produk", $id_produk);
+				$this->db->set("tgl", $tgl);
+				$this->db->set("created_at", date("Y-m-d H:i:s"));
+				$this->db->set("created_by", $this->session->userdata('username'));
+				$data = $this->db->insert("m_gudang_v3", $l);
+				$msg = 'BERHASIL INPUT DATA!';
+			}
+			if($opsi == 'EDIT'){
+				$this->db->set("updated_at", date("Y-m-d H:i:s"));
+				$this->db->set("updated_by", $this->session->userdata('username'));
+				$this->db->where("id", $id_gudang);
+				$data = $this->db->update("m_gudang_v3", $l);
+				$msg = 'BERHASIL EDIT DATA!';
+			}
 		}
 
 		return [
