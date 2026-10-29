@@ -192,7 +192,6 @@
 							<thead class="color-tabel">
 								<tr>
 									<th style="width:5%">#</th>
-									<th style="width:20%">CUSTOMER</th>
 									<th style="width:20%">ITEM</th>
 									<th style="width:5%">TANGGAL</th>
 									<th style="width:10%">STOK AWAL</th>

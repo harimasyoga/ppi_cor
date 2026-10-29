@@ -41,17 +41,17 @@
 					<div class="card-body row" style="padding:12px 6px 3px;font-weight:bold">
 						<div class="col-md-1">CORR</div>
 						<div class="col-md-2">
-							<select id="list_pilih" class="form-control select2">
+							<select id="list_pilih" class="form-control select2" onchange="changePDF()">
 								<option value="CA">ATAS</option>
 								<option value="CB">BAWAH</option>
 							</select>
 						</div>
 						<div class="col-md-9"></div>
 					</div>
-					<div class="card-body row" style="padding:3px 6px 12px;font-weight:bold">
+					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
 						<div class="col-md-1">JENIS</div>
 						<div class="col-md-2">
-							<select id="list_nmker" class="form-control select2">
+							<select id="list_nmker" class="form-control select2" onchange="changePDF()">
 								<option value="">SEMUA</option>
 								<?php
 									$jenis = $this->db->query("SELECT*FROM trs_so_jenis ORDER BY jenis");
@@ -61,15 +61,16 @@
 									}
 									echo $html1;
 								?>
-								<option value="BKBLTL">BK, BL, TL</option>
+								<!-- <option value="BKBLTL">BK, BL, TL</option>
 								<option value="MHMFMC">MH, MF, MC</option>
-								<option value="MLMNMS">ML, MN, MS</option>
+								<option value="MLMNMS">ML, MN, MS</option> -->
 							</select>
 						</div>
 						<div class="col-md-9">
 							<button type="button" class="btn btn-primary" onclick="cariListRoll()"><i class="fas fa-search"></i></button>
 						</div>
 					</div>
+					<div class="list-pdf"></div>
 					<div class="list-list"></div>
 					<div class="list-roll"></div>
 				</div>
@@ -265,7 +266,9 @@
 										<!-- <button type="button" class="btn btn-primary" onclick="cariGunaRoll()"><i class="fas fa-search"></i></button> -->
 									</div>
 								</div>
-								<div class="guna-list"></div>
+								<div style="overflow:auto;white-space:nowrap">
+									<div class="guna-list"></div>
+								</div>
 								<div class="guna-roll"></div>
 							</div>
 						</div>
@@ -368,6 +371,7 @@
 
 	function pRoll(opsi){
 		if(opsi == 'list'){
+			$("#list_nmker").trigger('change')
 			$(".card-list").show()
 			$(".card-cari").hide()
 			$(".card-add").hide()
@@ -489,6 +493,37 @@
 				data = JSON.parse(json)
 				$(".list-list").html(data.html)
 				if(data.html){
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function changePDF()
+	{
+		$(".list-pdf").html('')
+		let list_pilih = $("#list_pilih").val()
+		let list_nmker = $("#list_nmker").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/changePDF')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				list_pilih, list_nmker
+			}),
+			success: function(json){
+				data = JSON.parse(json)
+				$(".list-pdf").html(data.pdf)
+				if(data.pdf){
 					swal.close()
 				}
 			}
@@ -759,6 +794,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/btnGunaSisa')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				tgl_guna, roll, guna, sisa, ket
 			}),
