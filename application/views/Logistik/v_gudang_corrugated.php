@@ -94,7 +94,7 @@
 								<button type="button" class="btn btn-info" onclick="kembali()"><i class="fas fa-arrow-left"></i> <b>Kembali</b></button>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:20px 6px 6px">
-								<div class="col-md-2">CUSTOMER</div>
+								<div class="col-md-1">CUSTOMER</div>
 								<div class="col-md-8">
 									<select class="form-control select2" id="id_pelanggan">
 										<?php
@@ -109,19 +109,26 @@
 										?>
 									</select>
 								</div>
-								<div class="col-md-2"></div>
+								<div class="col-md-3"></div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
-								<div class="col-md-2">NAMA ITEM</div>
+								<div class="col-md-1">NAMA ITEM</div>
 								<div class="col-md-8">
 									<input type="text" id="nm_produk" class="form-control" oninput="this.value=this.value.toUpperCase()" autocomplete="off" placeholder="NAMA ITEM">
 								</div>
-								<div class="col-md-2"></div>
+								<div class="col-md-3"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+								<div class="col-md-1">TGL KELUAR</div>
+								<div class="col-md-2">
+									<input type="date" id="tgl_keluar" class="form-control">
+								</div>
+								<div class="col-md-9"></div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
-								<div class="col-md-2"></div>
-								<div class="col-md-10">
-									<button type="button" class="btn btn-primary" onclick="cariStokGudang()"><i class="fas fa-search"></i></button>
+								<div class="col-md-1"></div>
+								<div class="col-md-11">
+									<button type="button" class="btn btn-primary" onclick="cariStokGudang('')"><i class="fas fa-search"></i></button>
 								</div>
 							</div>
 							<div style="padding:6px">
@@ -163,7 +170,7 @@
 
 			<div class="card card-list-gudang">
 				<div class="card-header">
-					<h3 class="card-title">GUDANG</h3>
+					<h3 class="card-title"><b>GUDANG</b></h3>
 					<div class="card-tools">
 						<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
 						<i class="fas fa-minus"></i></button>
@@ -188,7 +195,7 @@
 						</table>
 					</div> -->
 					<div style="overflow:auto;white-space:nowrap">
-						<table id="datatable" class="table table-bordered table-striped" width="100%">
+						<!-- <table id="datatable" class="table table-bordered table-striped" width="100%">
 							<thead class="color-tabel">
 								<tr>
 									<th style="width:5%">#</th>
@@ -205,7 +212,10 @@
 								</tr>
 							</thead>
 							<tbody></tbody>
-						</table>
+						</table> -->
+
+						<div class="alist-gudang"></div>
+
 					</div>
 				</div>
 			</div>
@@ -267,7 +277,8 @@
 
 	$(document).ready(function () {
 		$(".select2").select2()
-		load_data()
+		cariStokGudang('LIST')
+		// load_data()
 		// allListGudang()
 	});
 
@@ -319,9 +330,8 @@
 
 	function tambah() {
 		kosong()
-		// loadGC()
-		// $("#pelanggan").val('').trigger('change')
 		$("#id_pelanggan").val('').trigger('change')
+		$(".produk2").html('')
 		$(".card-list-gudang").hide()
 		$(".card-list-gudang2").hide()
 		$(".card-add-gudang").show()
@@ -331,7 +341,7 @@
 
 	function kembali() {
 		kosong()
-		load_data()
+		cariStokGudang('LIST')
 		$(".card-list-gudang").show()
 		$(".card-list-gudang2").show()
 		$(".card-add-gudang").hide()
@@ -340,6 +350,8 @@
 	}
 
 	function kosong() {
+		$(".produk2").html('')
+		$(".alist-gudang").html('')
 		$("#tgl_awal2").val('')
 		$("#nm_produk").val('')
 		$("#tgl_keluar").val('')
@@ -395,17 +407,11 @@
 	function listPO(id_pelanggan, id_produk, opsi){
 		$(".list-nopo").html('...')
 		$("#modalForm").modal("show")
-		// let tgl = '';
-		// if(opsi == 'ADD'){
-		// 	tgl = $("#tgl_awal_cust").val()
-		// }else{
-		// 	tgl = $("#pilih_tgl22").val()
-		// }
 		$.ajax({
 			url: '<?php echo base_url('Logistik/listPO')?>',
 			type: "POST",
 			data: ({
-				id_pelanggan, id_produk
+				id_pelanggan, id_produk, opsi
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -738,11 +744,18 @@
 		})
 	}
 
-	function cariStokGudang()
+	function cariStokGudang(opsi)
 	{
 		$(".produk2").html('')
-		let id_pelanggan = $("#id_pelanggan").val()
-		let nm_produk = $("#nm_produk").val()
+		$(".alist-gudang").html('')
+		let id_pelanggan = ''
+		let nm_produk = ''
+		let tgl_keluar = ''
+		if(opsi == ''){
+			id_pelanggan = $("#id_pelanggan").val()
+			nm_produk = $("#nm_produk").val()
+			tgl_keluar = $("#tgl_keluar").val()
+		}
 		$.ajax({
 			url: '<?php echo base_url('Logistik/cariStokGudang')?>',
 			type: "POST",
@@ -756,10 +769,10 @@
 					}
 				})
 			},
-			data: ({ id_pelanggan, nm_produk }),
+			data: ({ id_pelanggan, nm_produk, tgl_keluar, opsi }),
 			success: function(res){
 				data = JSON.parse(res)
-				$(".produk2").html(data.html)
+				$((opsi == '') ? ".produk2" : ".alist-gudang").html(data.html)
 				if(data.html){
 					swal.close()
 				}

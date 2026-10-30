@@ -66,7 +66,7 @@
 								<option value="MLMNMS">ML, MN, MS</option> -->
 							</select>
 						</div>
-						<div class="col-md-9">
+						<div class="col-md-9" style="padding-top:3px">
 							<button type="button" class="btn btn-primary" onclick="cariListRoll()"><i class="fas fa-search"></i></button>
 						</div>
 					</div>
@@ -93,7 +93,7 @@
 							<div class="col-md-2">
 								<input type="date" class="form-control" id="tgl_pm">
 							</div>
-							<div class="col-md-9">
+							<div class="col-md-9" style="padding-top:3px">
 								<button type="button" class="btn btn-primary" onclick="addCari('pm')"><i class="fas fa-search"></i></button>
 							</div>
 						</div>
@@ -104,7 +104,7 @@
 							<div class="col-md-2">
 								<input type="date" class="form-control" id="tgl_gudang">
 							</div>
-							<div class="col-md-9">
+							<div class="col-md-9" style="padding-top:3px">
 								<button type="button" class="btn btn-primary" onclick="addCari('gudang')"><i class="fas fa-search"></i></button>
 							</div>
 						</div>
@@ -243,7 +243,7 @@
 						<div class="col-md-2">
 							<input type="text" id="c_roll" class="form-control" placeholder="NO. ROLL" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
 						</div>
-						<div class="col-md-9">
+						<div class="col-md-9" style="padding-top:3px">
 							<button type="button" onclick="rollCari()" class="btn btn-primary"><i class="fas fa-search"></i></button>
 						</div>
 					</div>
@@ -309,7 +309,7 @@
 									<div class="col-md-2">
 										<input type="text" id="s_roll" class="form-control" placeholder="NO. ROLL" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
 									</div>
-									<div class="col-md-9">
+									<div class="col-md-9" style="padding-top:3px">
 										<button type="button" onclick="planCariRoll()" class="btn btn-primary"><i class="fas fa-search"></i></button>
 									</div>
 								</div>
@@ -327,7 +327,7 @@
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" style="font-weight:bold">RINCIAN ROLL</h4>
+				<h4 class="modal-title" style="font-weight:bold"><div class="jdl">RINCIAN ROLL</div></h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -350,6 +350,7 @@
 	});
 
 	function btnRRoll(roll){
+		$(".jdl").html('RINCIAN ROLL')
 		$("#modal-rinc-plan").html(`. . .`)
 		$("#modalRincRoll").modal("show")
 		$.ajax({
@@ -360,6 +361,37 @@
 				data = JSON.parse(res)
 				$("#modal-rinc-plan").html(data.html)
 				$(".modal-open").css({"padding-right": "0"})
+			}
+		})
+	}
+
+	function bGunaRoll(roll) {
+		$(".jdl").html('PENGGUNAAN ROLL')
+		$("#modal-rinc-plan").html(`. . .`)
+		$("#modalRincRoll").modal("show")
+		let tgl_guna = $("#tgl_guna").val()
+		$(".guna-roll").html('')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/bGunaRoll')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				tgl_guna, roll
+			}),
+			success: function(json){
+				data = JSON.parse(json)
+				$("#modal-rinc-plan").html(data.html)
+				$(".modal-open").css({"padding-right": "0"})
+				swal.close()
 			}
 		})
 	}
@@ -737,33 +769,6 @@
 		})
 	}
 
-	function bGunaRoll(roll) {
-		let tgl_guna = $("#tgl_guna").val()
-		$(".guna-roll").html('')
-		$.ajax({
-			url: '<?php echo base_url('Logistik/bGunaRoll')?>',
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
-			data: ({
-				tgl_guna, roll
-			}),
-			success: function(json){
-				data = JSON.parse(json)
-				$(".guna-roll").html(data.html)
-				swal.close()
-			}
-		})
-	}
-
 	function hitungGuna(opsi) {
 		let weight = $("#add_weight").val()
 		let guna = $("#add_guna").val()
@@ -809,8 +814,15 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				cariGunaRoll()
-				bGunaRoll(roll)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					cariGunaRoll()
+					bGunaRoll(roll)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					$("#btn-guna-sisa").prop('disabled', false)
+					swal.close()
+				}
 			}
 		})
 	}
@@ -820,6 +832,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/delRollGuna')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ id, roll }),
 			success: function(json){
 				data = JSON.parse(json)
@@ -838,6 +860,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/addListRoll')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ tgl_guna, s_corr, s_gsm, s_lebar, s_roll, id }),
 			success: function(res){
 				data = JSON.parse(res)
@@ -848,9 +880,24 @@
 	}
 
 	function delListRoll(id){
+		$("#s_corr").val('').trigger('change')
+		$("#s_gsm").val('')
+		$("#s_lebar").val('')
+		$("#s_roll").val('')
+		$(".list-roll2").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/delListRoll')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ id }),
 			success: function(res){
 				data = JSON.parse(res)

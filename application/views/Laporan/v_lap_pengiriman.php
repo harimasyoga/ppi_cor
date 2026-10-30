@@ -227,12 +227,12 @@
 		lapOSperSales()
 	});
 
-	function rincianGDCor(id_pelanggan, tgl){
+	function rincianGDCor(id_pelanggan){
 		$("#modal-gudang").html(`. . .`)
 		$("#modalGDCor").modal("show")
 		$.ajax({
 			url: '<?php echo base_url('Laporan/rincianGDCor') ?>',
-			data: ({ id_pelanggan, tgl }),
+			data: ({ id_pelanggan }),
 			type: "POST",
 			success: function(res) {
 				data = JSON.parse(res)

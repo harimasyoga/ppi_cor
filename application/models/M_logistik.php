@@ -5418,39 +5418,51 @@ class M_logistik extends CI_Model
 		$sisa = $_POST["sisa"];
 		$ket = $_POST["ket"];
 
+		// DATA
 		$qR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
-		$ay = array(
-			'tgl' => $tgl_guna,
-			'id_roll' => $roll,
-			'roll' => $qR->roll,
-			'pemakaian' => $guna,
-			'sisa' => $sisa,
-			'ket' => $ket,
-			'created_at' => date("Y-m-d H:i:s"),
-			'created_by' => $this->session->userdata('username'),
-		);
-		$data = $this->db->insert("trs_so_guna", $ay);
-		if($data){
-			// seset
-			($qR->seset == 0) ? $seset = $guna : $seset = $qR->seset + $guna;
-			$this->db->set('seset', $seset);
-			$this->db->where('id', $roll);
-			$uRoll = $this->db->update('m_roll');
-			if($uRoll){
-				// JIKA BERAT == SESET : DICLOSE
-				$cR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
-				if($cR->weight == $cR->seset){
-					$this->db->set('status_p', 'Close');
-					$this->db->where('id', $roll);
-					$cRoll = $this->db->update('m_roll');
-				}else{
-					$cRoll = false;
+		// CEK 
+		$cek = $this->db->query("SELECT*FROM trs_so_guna g WHERE g.tgl='$tgl_guna' AND g.id_roll='$roll'");
+
+		if($guna == 0 || $guna == ''){
+			$data = false; $cRoll = false; $msg = 'CEK INPUTAN!';
+		}else if($cek->num_rows() != 0){
+			$data = false; $cRoll = false; $msg = 'PENGGUNAAN ROLL SUDAH ADA!';
+		}else{
+			$ay = array(
+				'tgl' => $tgl_guna,
+				'id_roll' => $roll,
+				'roll' => $qR->roll,
+				'pemakaian' => $guna,
+				'sisa' => $sisa,
+				'ket' => $ket,
+				'created_at' => date("Y-m-d H:i:s"),
+				'created_by' => $this->session->userdata('username'),
+			);
+			$data = $this->db->insert("trs_so_guna", $ay);
+			if($data){
+				// seset
+				($qR->seset == 0) ? $seset = $guna : $seset = $qR->seset + $guna;
+				$this->db->set('seset', $seset);
+				$this->db->where('id', $roll);
+				$uRoll = $this->db->update('m_roll');
+				if($uRoll){
+					// JIKA BERAT == SESET : DICLOSE
+					$cR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
+					if($cR->weight == $cR->seset){
+						$this->db->set('status_p', 'Close');
+						$this->db->where('id', $roll);
+						$cRoll = $this->db->update('m_roll');
+					}else{
+						$cRoll = true;
+					}
 				}
 			}
+			$msg = 'BERHASIL!';
 		}
+
 		return [
 			'data' => $data,
-			'uRoll' => $uRoll,
+			'msg' => $msg,
 			'cRoll' => $cRoll,
 		];
 	}

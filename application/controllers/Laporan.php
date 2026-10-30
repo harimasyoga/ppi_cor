@@ -174,108 +174,6 @@ class Laporan extends CI_Controller
 	{
 		$id_sales = $this->session->userdata('id_sales');
 		($id_sales == '' || $id_sales == null) ? $wIdSls = "" : $wIdSls = "AND s.id_sales='$id_sales'";
-		$lvl = $this->session->userdata('level');
-		$uName = $this->session->userdata('username');
-
-		$xB = date('m');
-		$xT = date('Y');
-		$xS = date('d').'_stok_akhir';
-		$x0 = $this->db->query("SELECT SUM($xS) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB' AND tahun='$xT' AND $xS IS NOT NULL");
-		if($x0->num_rows() == 0 || ($x0->num_rows() != 0 && $x0->row()->stok_akhir == null)){
-			// kurangi satu hari
-			$xH1 = date('d', strtotime('-1 days', strtotime(date('Y-m-d'))));
-			$xB1 = date('m', strtotime('-1 days', strtotime(date('Y-m-d'))));
-			$xT1 = date('Y', strtotime('-1 days', strtotime(date('Y-m-d'))));
-			$xS1 = $xH1.'_stok_akhir';
-			$x1 = $this->db->query("SELECT SUM($xS1) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB1' AND tahun='$xT1' AND $xS1 IS NOT NULL");
-			if($x1->num_rows() == 0 || ($x1->num_rows() != 0 && $x1->row()->stok_akhir == null)){
-				// kurangi dua hari
-				$xH2 = date('d', strtotime('-2 days', strtotime(date('Y-m-d'))));
-				$xB2 = date('m', strtotime('-2 days', strtotime(date('Y-m-d'))));
-				$xT2 = date('Y', strtotime('-2 days', strtotime(date('Y-m-d'))));
-				$xS2 = $xH2.'_stok_akhir';
-				$x2 = $this->db->query("SELECT SUM($xS2) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB2' AND tahun='$xT2' AND $xS2 IS NOT NULL");
-				if($x2->num_rows() == 0 || ($x2->num_rows() != 0 && $x2->row()->stok_akhir == null)){
-					// kurangi tiga hari
-					$xH3 = date('d', strtotime('-3 days', strtotime(date('Y-m-d'))));
-					$xB3 = date('m', strtotime('-3 days', strtotime(date('Y-m-d'))));
-					$xT3 = date('Y', strtotime('-3 days', strtotime(date('Y-m-d'))));
-					$xS3 = $xH3.'_stok_akhir';
-					$x3 = $this->db->query("SELECT SUM($xS3) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB3' AND tahun='$xT3' AND $xS3 IS NOT NULL");
-					if($x3->num_rows() == 0 || ($x3->num_rows() != 0 && $x3->row()->stok_akhir == null)){
-						// kurangi empat hari
-						$xH4 = date('d', strtotime('-4 days', strtotime(date('Y-m-d'))));
-						$xB4 = date('m', strtotime('-4 days', strtotime(date('Y-m-d'))));
-						$xT4 = date('Y', strtotime('-4 days', strtotime(date('Y-m-d'))));
-						$xS4 = $xH4.'_stok_akhir';
-						$x4 = $this->db->query("SELECT SUM($xS4) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB4' AND tahun='$xT4' AND $xS4 IS NOT NULL");
-						if($x4->num_rows() == 0 || ($x4->num_rows() != 0 && $x4->row()->stok_akhir == null)){
-							// kurangi lima hari
-							$xH5 = date('d', strtotime('-5 days', strtotime(date('Y-m-d'))));
-							$xB5 = date('m', strtotime('-5 days', strtotime(date('Y-m-d'))));
-							$xT5 = date('Y', strtotime('-5 days', strtotime(date('Y-m-d'))));
-							$xS5 = $xH5.'_stok_akhir';
-							$x5 = $this->db->query("SELECT SUM($xS5) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB5' AND tahun='$xT5' AND $xS5 IS NOT NULL");
-							if($x5->num_rows() == 0 || ($x5->num_rows() != 0 && $x5->row()->stok_akhir == null)){
-								// kurangi enam hari
-								$xH6 = date('d', strtotime('-6 days', strtotime(date('Y-m-d'))));
-								$xB6 = date('m', strtotime('-6 days', strtotime(date('Y-m-d'))));
-								$xT6 = date('Y', strtotime('-6 days', strtotime(date('Y-m-d'))));
-								$xS6 = $xH6.'_stok_akhir';
-								$x6 = $this->db->query("SELECT SUM($xS6) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB6' AND tahun='$xT6' AND $xS6 IS NOT NULL");
-								if($x6->num_rows() == 0 || ($x6->num_rows() != 0 && $x6->row()->stok_akhir == null)){
-									// kurangi tujuh hari
-									$xH7 = date('d', strtotime('-7 days', strtotime(date('Y-m-d'))));
-									$xB7 = date('m', strtotime('-7 days', strtotime(date('Y-m-d'))));
-									$xT7 = date('Y', strtotime('-7 days', strtotime(date('Y-m-d'))));
-									$xS7 = $xH7.'_stok_akhir';
-									$x7 = $this->db->query("SELECT SUM($xS7) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$xB7' AND tahun='$xT7' AND $xS7 IS NOT NULL");
-									if($x7->num_rows() == 0 || ($x7->num_rows() != 0 && $x7->row()->stok_akhir == null)){
-										$hari = date('d');
-										$bulan = date('m');
-										$tahun = date('Y');
-									}else{
-										$hari = $xH7;
-										$bulan = $xB7;
-										$tahun = $xT7;
-									}
-								}else{
-									$hari = $xH6;
-									$bulan = $xB6;
-									$tahun = $xT6;
-								}
-							}else{
-								$hari = $xH5;
-								$bulan = $xB5;
-								$tahun = $xT5;
-							}
-						}else{
-							$hari = $xH4;
-							$bulan = $xB4;
-							$tahun = $xT4;
-						}
-					}else{
-						$hari = $xH3;
-						$bulan = $xB3;
-						$tahun = $xT3;
-					}
-				}else{
-					$hari = $xH2;
-					$bulan = $xB2;
-					$tahun = $xT2;
-				}
-			}else{
-				$hari = $xH1;
-				$bulan = $xB1;
-				$tahun = $xT1;
-			}
-		}else{
-			$hari = date('d');
-			$bulan = date('m');
-			$tahun = date('Y');
-		}
-		$wA = 'AND '.$hari.'_stok_akhir IS NOT NULL';
-		// $wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_out IS NOT NULL)';
 		$html = '';
 
 		$sales = $this->db->query("SELECT s.nm_sales,s.id_sales FROM trs_po p
@@ -292,10 +190,6 @@ class Laporan extends CI_Controller
 
 		if($sales->num_rows() != 0){
 			$html .= '<table style="color:#000;border-collapse: collapse">';
-				$tglSlt = $tahun.'-'.$bulan.'-'.$hari;
-				$html .='<tr>
-					<td style="padding:0 0 6px;font-weight:bold" colspan="8">UPDATE TERAKHIR STOK: '.strtoupper($this->m_fungsi->getHariIni($tglSlt)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tglSlt)).'</td>
-				</tr>';
 				$html .= '<tr>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="5">SALES / CUSTOMER / ITEM / NO.PO</td>
 					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">STOK <span style="font-size:13px;font-style:italic">(pcs)</span></td>
@@ -360,11 +254,14 @@ class Laporan extends CI_Controller
 					($sumSales > 0) ? $pSOSSysSls = round(($sumSalesUnp / $sumSales) * 100,2) : $pSOSSysSls = 0;
 
 					// CEK STOK GUDANG PER SALES
-					$sumSlz = $hari.'_stok_akhir';
-					$qq1 = $this->db->query("SELECT SUM($sumSlz) AS stok_akhir FROM m_gudang_v2 g
+					$qq1 = $this->db->query("SELECT SUM(g.stok_akhir) AS stok_akhir FROM m_gudang_v3 g
 					INNER JOIN m_pelanggan c ON g.id_pelanggan=c.id_pelanggan
-					WHERE g.bulan='$bulan' AND g.tahun='$tahun' AND c.id_sales='$s->id_sales' $wA
-					GROUP BY tahun,bulan,c.id_sales");
+					INNER JOIN (
+						SELECT id_produk, id_pelanggan, MAX(tgl) AS max_tgl FROM m_gudang_v3
+						GROUP BY id_produk
+					) sub ON g.id_produk=sub.id_produk AND g.id_pelanggan=sub.id_pelanggan AND g.tgl=sub.max_tgl
+					WHERE c.id_sales='$s->id_sales'
+					GROUP BY c.id_sales");
 					if($qq1->num_rows() == 0){
 						$sStok = '-';
 						$allSTOK += 0;
@@ -476,10 +373,14 @@ class Laporan extends CI_Controller
 							($sumCust > 0) ? $pSOSSysCust = round(($sumCustUnp / $sumCust) * 100,2) : $pSOSSysCust = 0;
 
 							// CEK STOK GUDANG PER CUSTOMER
-							$sumCUST = $hari.'_stok_akhir';
-							$qq2 = $this->db->query("SELECT SUM($sumCUST) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$r->id_pelanggan' $wA GROUP BY tahun,bulan");
+							$qq2 = $this->db->query("SELECT SUM(g.stok_akhir) AS stok_akhir FROM m_gudang_v3 g
+							INNER JOIN (
+								SELECT id_produk, id_pelanggan, MAX(tgl) AS max_tgl FROM m_gudang_v3
+								GROUP BY id_produk
+							) sub ON g.id_produk=sub.id_produk AND g.id_pelanggan=sub.id_pelanggan AND g.tgl=sub.max_tgl
+							WHERE g.id_pelanggan='$r->id_pelanggan'
+							GROUP BY g.id_pelanggan");
 							($qq2->num_rows() == 0) ? $cStok = '-' : $cStok = number_format($qq2->row()->stok_akhir,0,',','.');
-							$qq22 = $this->db->query("SELECT SUM($sumCUST) AS stok_akhir FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$r->id_pelanggan' $wA GROUP BY tahun,bulan,id_pelanggan,id_produk");
 
 							// CEK CUSTOMER COUNT 7 HARI
 							$cHari7 = $this->db->query("SELECT count(p.kode_po) as hari7 FROM trs_po p
@@ -525,8 +426,8 @@ class Laporan extends CI_Controller
 							WHERE p.status='Close' AND c.id_sales='$r->id_sales' AND p.id_pelanggan='$r->id_pelanggan' AND DATEDIFF(SUBSTRING(DATE_ADD(p.time_app3, INTERVAL p.expired_po DAY), 1, 10), CURDATE()) IN ('-1', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9', '-10', '-11', '-12', '-13', '-14')
 							GROUP BY i.kategori,i.nm_produk,i.ukuran,i.ukuran_sheet,i.flute,i.id_produk");
 							// JIKA DATA STOK LEBIH BANYAK DARI OS
-							if($qq22->num_rows() > 0){
-								$btnDtlGDCor = ' <button type="button" class="btn btn-sm" style="padding:0" onclick="rincianGDCor('."'".$r->id_pelanggan."'".', '."'".$tglSlt."'".')"><i class="fas fa-info-circle" style="color:#0d6efd"></i></button>';
+							if($qq2->num_rows() > 0){
+								$btnDtlGDCor = ' <button type="button" class="btn btn-sm" style="padding:0" onclick="rincianGDCor('."'".$r->id_pelanggan."'".')"><i class="fas fa-info-circle" style="color:#0d6efd"></i></button>';
 							}else{
 								$btnDtlGDCor = '';
 							}
@@ -610,8 +511,8 @@ class Laporan extends CI_Controller
 									($sumItem > 0) ? $pSOSSysI = round(($sumItemUnp / $sumItem) * 100,2) : $pSOSSysI = 0;
 
 									// CEK STOK GUDANG PER ITEM
-									$qq3 = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$p->id_pelanggan' AND id_produk='$p->id_produk' $wA");
-									($qq3->num_rows() == 0) ? $iStok = '-' : $iStok = number_format($qq3->row($hari.'_stok_akhir'),0,',','.');
+									$qq3 = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$p->id_pelanggan' AND g.id_produk='$p->id_produk' ORDER BY tgl DESC LIMIT 1");
+									($qq3->num_rows() == 0) ? $iStok = '-' : $iStok = number_format($qq3->row('stok_akhir'),0,',','.');
 
 									// CEK PER ITEM COUNT 7 HARI
 									$iHari7 = $this->db->query("SELECT count(p.kode_po) as hari7 FROM trs_po p
@@ -774,15 +675,13 @@ class Laporan extends CI_Controller
 	function rincianGDCor()
 	{
 		$id_pelanggan = $_POST["id_pelanggan"];
-		$tgl = $_POST["tgl"];
 		$html = '';
 
-		$html .= '<div style="padding-bottom:6px;font-weight:bold">DATA STOK GUDANG : '.strtoupper($this->m_fungsi->getHariIni($tgl)).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia($tgl)).'</div>';
 		$html .= '<table class="table table-bordered table-striped" style="margin:0;border:0;color:#000">
 			<tr>
 				<th style="text-align:center;padding:6px">#</th>
 				<th style="text-align:center;padding:6px">ITEM</th>
-				<th style="text-align:center;padding:6px">UPDATE</th>
+				<th style="text-align:center;padding:6px">TANGGAL</th>
 				<th style="text-align:center;padding:6px">UKURAN</th>
 				<th style="text-align:center;padding:6px">FLUTE</th>
 				<th style="text-align:center;padding:6px">SUBSTANCE</th>
@@ -794,16 +693,13 @@ class Laporan extends CI_Controller
 				<th style="text-align:center;padding:6px">STOK AKHIR</th>
 				<th style="text-align:center;padding:6px">TONASE</th>
 				<th style="text-align:center;padding:6px 20px">KETERANGAN</th>
+				<th style="text-align:center;padding:6px">LAST UPDATE</th>
 			</tr>';
 
-			$hari = date('d', strtotime($tgl));
-			$bulan = date('m', strtotime($tgl));
-			$tahun = date('Y', strtotime($tgl));
-			$wA = 'AND '.$hari.'_stok_awal IS NOT NULL AND '.$hari.'_stok_akhir IS NOT NULL AND '.$hari.'_in IS NOT NULL AND '.$hari.'_out IS NOT NULL';
-			$gudang = $this->db->query("SELECT*FROM m_gudang_v2 g
-			INNER JOIN m_produk p ON g.id_produk=p.id_produk
-			WHERE g.bulan='$bulan' AND g.tahun='$tahun' AND g.id_pelanggan='$id_pelanggan' $wA
-			GROUP BY g.id_pelanggan, g.id_produk
+			$gudang = $this->db->query("SELECT*FROM m_gudang_v3 g
+			INNER JOIN m_produk p ON g.id_produk=p.id_produk AND g.id_pelanggan=p.no_customer
+			WHERE g.id_pelanggan='$id_pelanggan'
+			GROUP BY g.id_pelanggan,g.id_produk
 			ORDER BY p.kategori,p.nm_produk");
 
 			$i = 0;
@@ -816,20 +712,26 @@ class Laporan extends CI_Controller
 				(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
 
 				// CEK GUDANG
-				$qq = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$r->id_produk' $wA");
+				$qq = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$r->id_pelanggan' AND g.id_produk='$r->id_produk' ORDER BY tgl DESC LIMIT 1");
 				if($qq->num_rows() != 0){
-					$vSa = ($qq->row($hari.'_stok_awal') == 0) ? 0 : number_format($qq->row($hari.'_stok_awal'),0,',','.');
-					$vIn2 = ($qq->row($hari.'_in') == 0) ? 0 : number_format($qq->row($hari.'_in'),0,',','.');
-					$vInRtr = ($qq->row($hari.'_in_rtr') == 0) ? 0 : number_format($qq->row($hari.'_in_rtr'),0,',','.');
-					$vOut = ($qq->row($hari.'_out') == 0) ? 0 : number_format($qq->row($hari.'_out'),0,',','.');
-					$vOutRtr = ($qq->row($hari.'_out_rtr') == 0) ? 0 : number_format($qq->row($hari.'_out_rtr'),0,',','.');
-					$vSk = ($qq->row($hari.'_stok_akhir') == 0) ? 0 : number_format($qq->row($hari.'_stok_akhir'),0,',','.');
-					$vTon = ($qq->row($hari.'_stok_akhir') == 0 || $qq->row($hari.'_stok_akhir') < 0) ? 0 : number_format($qq->row($hari.'_stok_akhir') * $r->berat_bersih,0,',','.');
-					$vKet = $qq->row($hari.'_ket');
+					$vTgl = $this->m_fungsi->tglIndSkt($qq->row('tgl'));
+					$vSa = ($qq->row('stok_awal') == 0) ? 0 : number_format($qq->row('stok_awal'),0,',','.');
+					$vIn2 = ($qq->row('in') == 0) ? 0 : number_format($qq->row('in'),0,',','.');
+					$vInRtr = ($qq->row('in_rtr') == 0) ? 0 : number_format($qq->row('in_rtr'),0,',','.');
+					$vOut = ($qq->row('out') == 0) ? 0 : number_format($qq->row('out'),0,',','.');
+					$vOutRtr = ($qq->row('out_rtr') == 0) ? 0 : number_format($qq->row('out_rtr'),0,',','.');
+					$vSk = ($qq->row('stok_akhir') == 0) ? 0 : number_format($qq->row('stok_akhir'),0,',','.');
+					$vTon = ($qq->row('stok_akhir') == 0 || $qq->row('stok_akhir') < 0) ? 0 : number_format($qq->row('stok_akhir') * $r->berat_bersih,0,',','.');
+					$vKet = $qq->row('ket');
+					if($qq->row()->updated_at != null){
+						$upDt = strtoupper($this->m_fungsi->tglIndSkt(substr($qq->row()->updated_at, 0,10))).'. '.substr($qq->row()->updated_at, 10,6).' ( '.$qq->row()->updated_by.' )';
+					}else{
+						$upDt = strtoupper($this->m_fungsi->tglIndSkt(substr($qq->row()->created_at, 0,10))).'. '.substr($qq->row()->created_at, 10,6).' ( '.$qq->row()->created_by.' )';
+					}
 				}else{
-					$vSa = ''; $vIn2 = ''; $vInRtr = ''; $vOut = ''; $vOutRtr = ''; $vSk = ''; $vTon = ''; $vKet = null;
+					$vTgl = ''; $vSa = ''; $vIn2 = ''; $vInRtr = ''; $vOut = ''; $vOutRtr = ''; $vSk = ''; $vTon = ''; $vKet = null; $upDt = '';
 				}
-				$sumStokAkhir += $qq->row($hari.'_stok_akhir');
+				$sumStokAkhir += $qq->row('stok_akhir');
 
 				// CEK NO. PO
 				$cekPO = $this->db->query("SELECT*FROM trs_po p
@@ -841,43 +743,42 @@ class Laporan extends CI_Controller
 				$html .= '<tr style="vertical-align:top">
 					<td style="padding:6px;text-align:center">'.$i.'</td>
 					<td style="padding:6px">'.$dv1.$infoPO.$kat.$r->nm_produk.$dv2.'</td>
-					<td style="padding:6px;text-align:center">'.strtoupper($this->m_fungsi->tglIndSkt(substr($r->updated_at, 0,10))).' ( '.substr($r->updated_at, 10,6).' )</td>
+					<td style="padding:6px;text-align:center">'.$vTgl.'</td>
 					<td style="padding:6px;text-align:center">'.$uk.'</td>
 					<td style="padding:6px;text-align:center">'.$r->flute.'</td>
 					<td style="padding:6px;text-align:center">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
 					<td style="padding:6px">
-						<input type="number" id="stok_awal_'.$r->id_produk.'" name="stok_awal_'.$r->id_produk.'" value="'.$vSa.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
+						<input type="number" id="stok_awal_'.$r->id_produk.'" value="'.$vSa.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
 					</td>
 					<td style="padding:6px">
-						<input type="number" id="in_'.$r->id_produk.'" name="in_'.$r->id_produk.'" value="'.$vIn2.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
+						<input type="number" id="in_'.$r->id_produk.'" value="'.$vIn2.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
 					</td>
 					<td style="padding:6px">
-						<input type="number" id="inrtr_'.$r->id_produk.'" name="inrtr_'.$r->id_produk.'" value="'.$vInRtr.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
+						<input type="number" id="inrtr_'.$r->id_produk.'" value="'.$vInRtr.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
 					</td>
 					<td style="padding:6px">
-						<input type="number" id="out_'.$r->id_produk.'" name="out_'.$r->id_produk.'" value="'.$vOut.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
+						<input type="number" id="out_'.$r->id_produk.'" value="'.$vOut.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
 					</td>
 					<td style="padding:6px">
-						<input type="number" id="outrtr_'.$r->id_produk.'" name="outrtr_'.$r->id_produk.'" value="'.$vOutRtr.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
+						<input type="number" id="outrtr_'.$r->id_produk.'" value="'.$vOutRtr.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
 					</td>
 					<td style="padding:6px">
-						<input type="hidden" id="hstok_akhir_'.$r->id_produk.'" name="hstok_akhir_'.$r->id_produk.'" value="'.$vSk.'">
-						<input type="number" id="stok_akhir_'.$r->id_produk.'" name="stok_akhir_'.$r->id_produk.'" value="'.$vSk.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
+						<input type="number" id="stok_akhir_'.$r->id_produk.'" value="'.$vSk.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
 					</td>
 					<td style="padding:6px">
-						<input type="hidden" id="hTTON_'.$r->id_produk.'" name="hTTON_'.$r->id_produk.'" value="'.$r->berat_bersih.'">
-						<input type="number" id="tton_'.$r->id_produk.'" name="tton_'.$r->id_produk.'" value="'.$vTon.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
+						<input type="number" id="tton_'.$r->id_produk.'" value="'.$vTon.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
 					</td>
 					<td style="padding:6px">
-						<input type="text" id="ket_'.$r->id_produk.'" name="ket_'.$r->id_produk.'" value="'.$vKet.'" class="form-control" placeholder="KETERANGAN" autocomplete="off" style="padding:2px 4px;font-weight:bold" oninput="this.value=this.value.toUpperCase()" disabled>
+						<input type="text" id="ket_'.$r->id_produk.'" value="'.$vKet.'" class="form-control" placeholder="KETERANGAN" autocomplete="off" style="padding:2px 4px;font-weight:bold">
 					</td>
+					<td style="padding:6px;text-align:center">'.$upDt.'</td>
 				</tr>';
 			}
 			// TOTAL
 			$html .= '<tr>
-				<td style="padding:6px;text-align:right;font-weight:bold" colspan="10">TOTAL</td>
+				<td style="padding:6px;text-align:right;font-weight:bold" colspan="11">TOTAL</td>
 				<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumStokAkhir).'</td>
-				<td style="padding:6px" colspan="2"></td>
+				<td style="padding:6px" colspan="3"></td>
 			</tr>';
 		$html .= '</table>';
 
