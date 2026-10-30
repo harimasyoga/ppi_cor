@@ -744,7 +744,7 @@ class Laporan extends CI_Controller
 					<td style="padding:6px;text-align:center">'.$i.'</td>
 					<td style="padding:6px">'.$dv1.$infoPO.$kat.$r->nm_produk.$dv2.'</td>
 					<td style="padding:6px;text-align:center">'.$vTgl.'</td>
-					<td style="padding:6px;text-align:center">'.$uk.'</td>
+					<td style="padding:6px;text-align:center">'.strtolower($uk).'</td>
 					<td style="padding:6px;text-align:center">'.$r->flute.'</td>
 					<td style="padding:6px;text-align:center">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
 					<td style="padding:6px">

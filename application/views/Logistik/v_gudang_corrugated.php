@@ -111,19 +111,27 @@
 								</div>
 								<div class="col-md-3"></div>
 							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+							<div class="card-body row" style="font-weight:bold;padding:0 6px">
 								<div class="col-md-1">NAMA ITEM</div>
 								<div class="col-md-8">
 									<input type="text" id="nm_produk" class="form-control" oninput="this.value=this.value.toUpperCase()" autocomplete="off" placeholder="NAMA ITEM">
 								</div>
 								<div class="col-md-3"></div>
 							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
-								<div class="col-md-1">TGL KELUAR</div>
+							<div class="card-body row" style="font-weight:bold;padding:2px 6px 6px">
+								<div class="col-md-1"></div>
+								<div class="col-md-11" style="font-size:12px;font-style:italic;color:#f00">*opsional</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 6px">
+								<div class="col-md-1">QTY KELUAR</div>
 								<div class="col-md-2">
 									<input type="date" id="tgl_keluar" class="form-control">
 								</div>
 								<div class="col-md-9"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:2px 6px 6px">
+								<div class="col-md-1"></div>
+								<div class="col-md-11" style="font-size:12px;font-style:italic;color:#f00">*opsional</div>
 							</div>
 							<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
 								<div class="col-md-1"></div>
@@ -867,15 +875,15 @@
 			success: function(res){
 				data = JSON.parse(res)
 				$(".u-info-po-stok-"+id_produk).html(data.info)
-				$("#stok_awal2_"+id_produk).val(0).prop('disabled', true)
-				$("#in2_"+id_produk).val(0).prop('disabled', true)
-				$("#inrtr2_"+id_produk).val(0).prop('disabled', true)
-				$("#out2_"+id_produk).val(0).prop('disabled', true)
-				$("#outrtr2_"+id_produk).val(0).prop('disabled', true)
-				$("#stok_akhir2_"+id_produk).val('').prop('disabled', true)
-				$("#tton2_"+id_produk).val('').prop('disabled', true)
-				$("#ket2_"+id_produk).val('').prop('disabled', true)
-				$("#tgl_input_"+id_produk).val('').prop('disabled', true)
+				$("#stok_awal2_"+id_produk).val(data.stokAwal).prop('disabled', true)
+				$("#in2_"+id_produk).val(data.in88).prop('disabled', true)
+				$("#inrtr2_"+id_produk).val(data.inRetur).prop('disabled', true)
+				$("#out2_"+id_produk).val(data.out).prop('disabled', true)
+				$("#outrtr2_"+id_produk).val(data.outRetur).prop('disabled', true)
+				$("#stok_akhir2_"+id_produk).val(data.stokAkhir).prop('disabled', true)
+				$("#tton2_"+id_produk).val(data.tonase).prop('disabled', true)
+				$("#ket2_"+id_produk).val(data.ket99).prop('disabled', true)
+				$("#tgl_input_"+id_produk).val(data.tgl77).prop('disabled', true)
 				$(".b-aksi-gudang-"+id_produk).html('')
 				swal.close()
 			}

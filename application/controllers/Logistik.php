@@ -11942,7 +11942,7 @@ class Logistik extends CI_Controller
 							$infoSTOK = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$g->id_pelanggan."'".', '."'".$g->id_produk."'".', '."'".$tXtO."'".')"><i class="fas fa-info-circle" style="color:#dc3545"></i></button> ';
 							$btnAksi = '';
 							$roL = 'disabled';
-							$tgl77 = $this->m_fungsi->tglIndSkt($inpStok->row()->tgl);
+							$tgl77 = $inpStok->row()->tgl;
 							$stokAwal = number_format($inpStok->row()->stok_awal,0,',','.');
 							$in88 = number_format($inpStok->row()->in,0,',','.');
 							$inRetur = number_format($inpStok->row()->in_rtr,0,',','.');
@@ -11983,9 +11983,9 @@ class Logistik extends CI_Controller
 							<td style="'.$bb.'padding:6px">'.$dv1.'<span class="u-info-po-stok-'.$g->id_produk.'">'.$infoPO.$infoSTOK.'</span>'.$kat.$g->nm_produk.$dv2.'</td>';
 							// LIST
 							if($opsi != ''){
-								$html .= '<td style="padding:6px;text-align:center">'.$tgl77.'</td>';
+								$html .= '<td style="padding:6px;text-align:center">'.$this->m_fungsi->tglIndSkt($tgl77).'</td>';
 							}
-							$html .= '<td style="'.$bb.'padding:6px;text-align:center">'.$uk.'</td>
+							$html .= '<td style="'.$bb.'padding:6px;text-align:center">'.strtolower($uk).'</td>
 							<td style="'.$bb.'padding:6px;text-align:center">'.$this->m_fungsi->kualitas($g->kualitas, $g->flute).'</td>
 							<td style="'.$bb.'padding:6px;text-align:center">'.$g->flute.'</td>
 							<td style="'.$bb.'padding:6px">
@@ -12018,7 +12018,7 @@ class Logistik extends CI_Controller
 								$html .= '<td style="'.$bb.'padding:6px;text-align:center">
 									<input type="hidden" id="tgl_lama_'.$g->id_produk.'" value="">
 									<input type="hidden" id="idx_'.$g->id_produk.'" value="">
-									<input type="date" id="tgl_input_'.$g->id_produk.'" class="form-control" style="height:100%" '.$roL.'>
+									<input type="date" id="tgl_input_'.$g->id_produk.'" value="'.$tgl77.'" class="form-control" style="height:100%" '.$roL.'>
 								</td>
 								<td style="'.$bb.'padding:6px;text-align:center" class="b-aksi-gudang-'.$g->id_produk.'">
 									'.$btnAksi.'
@@ -12046,8 +12046,27 @@ class Logistik extends CI_Controller
 		// AMBIL INPUTAN TERAKHIR
 		$inpStok = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$id_pelanggan' AND g.id_produk='$id_produk' ORDER BY tgl DESC LIMIT 1");
 		if($inpStok->num_rows() != 0){
+			$tgl77 = $inpStok->row()->tgl;
+			$stokAwal = number_format($inpStok->row()->stok_awal,0,',','.');
+			$in88 = number_format($inpStok->row()->in,0,',','.');
+			$inRetur = number_format($inpStok->row()->in_rtr,0,',','.');
+			$out = number_format($inpStok->row()->out,0,',','.');
+			$outRetur = number_format($inpStok->row()->out_rtr,0,',','.');
+			$stokAkhir = number_format($inpStok->row()->stok_akhir,0,',','.');
+			$bb = $this->db->query("SELECT*FROM m_produk r WHERE r.id_produk='$id_produk'")->row();
+			$tonase = number_format(round($inpStok->row()->stok_akhir * $bb->berat_bersih),0,',','.');
+			$ket99 = $inpStok->row()->ket;
 			$infoSTOK = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$id_pelanggan."'".', '."'".$id_produk."'".', '."'ADD'".')"><i class="fas fa-info-circle" style="color:#dc3545"></i></button> ';
 		}else{
+			$tgl77 = '';
+			$stokAwal = 0;
+			$in88 = 0;
+			$inRetur = 0;
+			$out = 0;
+			$outRetur = 0;
+			$stokAkhir = '';
+			$tonase = '';
+			$ket99 = '';
 			$infoSTOK = '';
 		}
 		// CEK NO. PO
@@ -12060,6 +12079,16 @@ class Logistik extends CI_Controller
 
 		echo json_encode([
 			'info' => $info,
+			'stokAwal' => $stokAwal,
+			'in88' => $in88,
+			'inRetur' => $inRetur,
+			'out' => $out,
+			'outRetur' => $outRetur,
+			'stokAkhir' => $stokAkhir,
+			'tonase' => $tonase,
+			'ket99' => $ket99,
+			'tgl77' => $tgl77,
+			'infoSTOK' => $infoSTOK,
 		]);
 	}
 
@@ -16590,10 +16619,10 @@ class Logistik extends CI_Controller
 			$i = 0;
 			foreach($caCB->result() as $r){
 				$i++;
-				$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%">
+				$html .= '<table cellspacing="0" style="margin-bottom:12px;font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%">
 					<thead>
 						<tr>
-							<td style="padding:5px;font-weight:bold;font-size:16px" colspan="8">CORR '.$corr.' | JENIS '.$r->nm_ker.' | GSM '.$r->g_label.' | UKURAN '.round($r->width,2).'</td>
+							<td style="padding:5px 0;font-weight:bold;font-size:14px" colspan="8">CORR '.$corr.' | JENIS '.$r->nm_ker.' | GSM '.$r->g_label.' | UKURAN '.round($r->width,2).'</td>
 						</tr>
 						<tr>
 							<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #000;width:5%">#</td>
@@ -16602,7 +16631,7 @@ class Logistik extends CI_Controller
 							<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #000;width:10%">GSM</td>
 							<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #000;width:10%">WIDTH</td>
 							<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #000;width:10%">BERAT</td>
-							<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #000;width:5%">JOINT</td>
+							<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #000;width:5%">J</td>
 							<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #000;width:32%">KETERANGAN</td>
 						</tr>
 					</thead>';
@@ -16624,9 +16653,9 @@ class Logistik extends CI_Controller
 						</tr>';
 					}
 				$html .= '</table>';
-				if($caCB->num_rows() != $i){
-					$html .= '<div style="page-break-after:always"></div>';
-				}
+				// if($caCB->num_rows() != $i && $list->num_rows() > 5){
+				// 	$html .= '<div style="page-break-after:always"></div>';
+				// }
 			}
 		}
 
@@ -17095,7 +17124,7 @@ class Logistik extends CI_Controller
 				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.round($qR->width).'</td>
 				<td style="padding:6px;font-weight:bold;text-align:right;border:1px solid #dee2e6">'.number_format($qR->weight).'</td>
 				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->joint.'</td>
-				<td style="padding:6px;font-weight:bold;text-align:center;border:1px solid #dee2e6">'.$qR->ket.'</td>
+				<td style="padding:6px;font-weight:bold;border:1px solid #dee2e6">'.$qR->ket.'</td>
 			</tr>';
 			// all guna
 			$qH = $this->db->query("SELECT*FROM trs_so_guna WHERE id_roll='$roll' ORDER BY tgl");
@@ -17110,7 +17139,8 @@ class Logistik extends CI_Controller
 						<td style="padding:6px;text-align:right" colspan="5">'.substr($this->m_fungsi->getHariIni($h->tgl),0,3).', '.$this->m_fungsi->tglIndSkt($h->tgl).'</td>
 						<td style="padding:6px;text-align:right">'.number_format($h->pemakaian).'</td>
 						<td style="padding:6px;center;text-align:center">'.$btnDel.'</td>
-						<td style="padding:6px;center">'.$h->ket.'</td>
+						<td style="padding:6px">'.$h->ket.'</td>
+						<td style="padding:6px">( '.$h->created_by.' )</td>
 					</tr>';
 				}
 				$html .= '<tr>
