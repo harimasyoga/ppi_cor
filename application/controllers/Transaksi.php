@@ -90,12 +90,17 @@ class Transaksi extends CI_Controller
 
 	function PO_Roll_Paper()
 	{
+		$akses_po = $this->session->userdata('akses_po');
+		
 		$data = [
 			'judul' => "PO Roll Paper",
-			'data' => '',
 		];
 		$this->load->view('header', $data);
-		$this->load->view('Transaksi/v_po_roll_paper');
+		if($akses_po != null){
+			$this->load->view('Transaksi/v_po_roll_paper');
+		}else{
+			$this->load->view('home');
+		}
 		$this->load->view('footer');
 	}
 

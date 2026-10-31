@@ -23,7 +23,11 @@ class Logistik extends CI_Controller
 			'invMutasi' => '',
 		);
 		$this->load->view('header', $data);
-		$this->load->view('Logistik/v_invoice');
+		if(!in_array($this->session->userdata('level'), ['AP', 'ASP', 'Gudang', 'Pengiriman', 'User'])){
+			$this->load->view('Logistik/v_invoice');
+		}else{
+			$this->load->view('home');
+		}
 		$this->load->view('footer');
 	}
 	
@@ -74,7 +78,7 @@ class Logistik extends CI_Controller
 			'judul' => "Invoice Laminasi",
 		);
 		$this->load->view('header', $data);
-		if(in_array($this->session->userdata('level'), ['Admin', 'konsul_keu','Laminasi', 'Owner', 'Keuangan1'])){
+		if(in_array($this->session->userdata('level'), ['Admin', 'konsul_keu', 'Laminasi', 'Owner', 'Keuangan1'])){
 			$this->load->view('Logistik/v_invoice_lam');
 		}else{
 			$this->load->view('home');
@@ -88,7 +92,11 @@ class Logistik extends CI_Controller
 			'judul' => "Invoice Jasa",
 		);
 		$this->load->view('header', $data);
-		$this->load->view('Logistik/v_invoice_jasa');
+		if(!in_array($this->session->userdata('level'), ['AP', 'ASP', 'Gudang', 'Pengiriman', 'User'])){
+			$this->load->view('Logistik/v_invoice_jasa');
+		}else{
+			$this->load->view('home');
+		}
 		$this->load->view('footer');
 	}
 
@@ -98,7 +106,11 @@ class Logistik extends CI_Controller
 			'judul' => "Debit Note",
 		);
 		$this->load->view('header', $data);
-		$this->load->view('Logistik/v_debit_note');
+		if(!in_array($this->session->userdata('level'), ['AP', 'ASP', 'Gudang', 'Pengiriman', 'User'])){
+			$this->load->view('Logistik/v_debit_note');
+		}else{
+			$this->load->view('home');
+		}
 		$this->load->view('footer');
 	}
 
@@ -108,7 +120,11 @@ class Logistik extends CI_Controller
 			'judul' => "Tanda Terima",
 		);
 		$this->load->view('header', $data);
-		$this->load->view('Logistik/v_tanda_terima');
+		if(!in_array($this->session->userdata('level'), ['AP', 'ASP', 'Gudang', 'Pengiriman', 'User'])){
+			$this->load->view('Logistik/v_tanda_terima');
+		}else{
+			$this->load->view('home');
+		}
 		$this->load->view('footer');
 	}
 
@@ -11862,9 +11878,9 @@ class Logistik extends CI_Controller
 		}
 
 		if($qPelanggan->num_rows() == 0){
-			$html .= 'DATA KOSONG!';
+			$html .= '<div style="font-weight:bold">DATA KOSONG!</div>';
 		}else if($qPelanggan->num_rows() >= 50 && $opsi == ''){
-			$html .= 'DATA TERLALU BANYAK UNTUK DITAMPILKAN!';
+			$html .= '<div style="font-weight:bold">DATA TERLALU BANYAK UNTUK DITAMPILKAN!</div>';
 		}else{
 			$html .= '<table class="table table-bordered table-striped" style="font-weight:bold;margin:0;border:0">
 				<tr>
@@ -12633,8 +12649,6 @@ class Logistik extends CI_Controller
 				$sumPO = 0;
 				foreach($po->result() as $r){
 					$i++;
-					// ($r->status_app3 == 'Y') ? $timeY = ' ('.$r->time_app3.')' : $timeY = '';
-					// <td style="border:1px solid #dee2e6;padding:6px">'.$r->status.$timeY.'</td>
 					$html .= '<tr>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.strtoupper(substr($this->m_fungsi->getHariIni($r->tgl_po),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($r->tgl_po)).'</td>
@@ -12651,41 +12665,50 @@ class Logistik extends CI_Controller
 			$html .= '</table>';
 
 			// KIRIMAN
-			$kirim = $this->db->query("SELECT p.*,r.* FROM pl_box p
+			$kirimPO = $this->db->query("SELECT p.*,r.* FROM pl_box p
 			INNER JOIN trs_po l ON p.no_po=l.kode_po AND p.id_perusahaan=l.id_pelanggan
 			INNER JOIN trs_po_detail d ON p.id_perusahaan=d.id_pelanggan AND p.no_po=d.kode_po
 			INNER JOIN m_rencana_kirim r ON p.id=r.id_pl_box AND p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl
 			WHERE l.status='Approve' AND l.status_kiriman='Open' AND l.expired_po IS NOT NULL AND r.id_pelanggan='$id_pelanggan' AND r.id_produk='$id_produk'
-			GROUP BY p.tgl,p.no_surat,p.no_po,r.id_pelanggan,r.id_produk");
-			if($kirim->num_rows() != 0){
+			GROUP BY p.no_po");
+			if($kirimPO->num_rows() != 0){
 				$html .= '<div style="margin-top:12px;font-weight:bold">PENGIRIMAN : </div>';
-				$html .= '<table>
-					<tr style="background:#dee2e6;font-weight:bold;text-align:center">
-						<td style="padding:6px 12px;border:1px solid #bbb">#</td>
-						<td style="padding:6px;border:1px solid #bbb">HARI, TGL</td>
-						<td style="padding:6px;border:1px solid #bbb">NO. SURAT</td>
-						<td style="padding:6px;border:1px solid #bbb">NO. PO</td>
-						<td style="padding:6px;border:1px solid #bbb">QTY KIRIM</td>
-					</tr>';
-					$i2 = 0;
-					$sumQTY = 0;
-					foreach($kirim->result() as $k){
-						$i2++;
-						$html .= '<tr>
-							<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i2.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px">'.strtoupper(substr($this->m_fungsi->getHariIni($k->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->tgl)).'</td>
-							<td style="border:1px solid #dee2e6;padding:6px">'.$k->no_surat.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px">'.$k->no_po.'</td>
-							<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($k->qty_muat,0,',','.').'</td>
+				$html .= '<table>';
+					foreach($kirimPO->result() as $z){
+						$html .= '<tr style="background:#dee2e6;font-weight:bold">
+							<td style="padding:6px;background:#333;color:#fff" colspan="4">'.$z->no_po.'</td>
+						</tr>
+						<tr style="background:#dee2e6;font-weight:bold;text-align:center">
+							<td style="padding:6px 12px;border:1px solid #bbb">#</td>
+							<td style="padding:6px;border:1px solid #bbb">HARI, TGL</td>
+							<td style="padding:6px;border:1px solid #bbb">NO. POL</td>
+							<td style="padding:6px;border:1px solid #bbb">QTY KIRIM</td>
 						</tr>';
-						$sumQTY += $k->qty_muat;
-					}
-					// TOTAL
-					if($kirim->num_rows() > 1){
-						$html .= '<tr style="background:#dee2e6;font-weight:bold;text-align:center">
-							<td style="padding:6px;border:1px solid #bbb;text-align:right" colspan="4">TOTAL</td>
-							<td style="padding:6px;border:1px solid #bbb;text-align:right">'.number_format($sumQTY,0,',','.').'</td>
-						</tr>';
+						$listKiriman = $this->db->query("SELECT p.*,r.* FROM pl_box p
+						INNER JOIN trs_po l ON p.no_po=l.kode_po AND p.id_perusahaan=l.id_pelanggan
+						INNER JOIN trs_po_detail d ON p.id_perusahaan=d.id_pelanggan AND p.no_po=d.kode_po
+						INNER JOIN m_rencana_kirim r ON p.id=r.id_pl_box AND p.no_pl_urut=r.rk_urut AND p.tgl=r.rk_tgl
+						WHERE l.status='Approve' AND l.status_kiriman='Open' AND l.expired_po IS NOT NULL AND p.no_po='$z->no_po' AND r.id_pelanggan='$z->id_pelanggan' AND r.id_produk='$z->id_produk'
+						GROUP BY p.tgl,p.no_surat,p.no_po,r.id_pelanggan,r.id_produk");
+						$i2 = 0;
+						$sumQTY = 0;
+						foreach($listKiriman->result() as $k){
+							$i2++;
+							$html .= '<tr>
+								<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i2.'</td>
+								<td style="border:1px solid #dee2e6;padding:6px">'.strtoupper(substr($this->m_fungsi->getHariIni($k->tgl),0,3)).', '.strtoupper($this->m_fungsi->tglIndSkt($k->tgl)).'</td>
+								<td style="border:1px solid #dee2e6;padding:6px">'.$k->no_kendaraan.' ( '.$k->expedisi.' - '.$k->driver.')</td>
+								<td style="border:1px solid #dee2e6;padding:6px;text-align:right">'.number_format($k->qty_muat,0,',','.').'</td>
+							</tr>';
+							$sumQTY += $k->qty_muat;
+						}
+						// TOTAL
+						if($listKiriman->num_rows() > 1){
+							$html .= '<tr style="background:#dee2e6;font-weight:bold;text-align:center">
+								<td style="padding:6px;border:1px solid #bbb;text-align:right" colspan="3">TOTAL</td>
+								<td style="padding:6px;border:1px solid #bbb;text-align:right">'.number_format($sumQTY,0,',','.').'</td>
+							</tr>';
+						}
 					}
 				$html .= '</table>';
 			}
