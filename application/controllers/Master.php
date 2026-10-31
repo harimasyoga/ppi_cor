@@ -22,8 +22,8 @@ class Master extends CI_Controller
 		);
 		$this->load->view('header',$data );
 
-		if (in_array($this->session->userdata('level'), ['Admin' ,'Owner' ,'Keuangan1' ,'User','Hub']))
-		{			
+		if (in_array($this->session->userdata('level'), ['Admin', 'Owner']) || ($this->session->userdata('level') == 'Keuangan1' && $this->session->userdata('username') == 'bumagda'))
+		{
 			$this->load->view('dashboard');
 		}else{
 			$this->load->view('home');
@@ -184,7 +184,11 @@ class Master extends CI_Controller
 			'judul' => "Master Sales"
 		);
 		$this->load->view('header', $data);
-		$this->load->view('Master/v_sales', $data);
+		if(in_array($this->session->userdata('level'), ['Admin'])){
+			$this->load->view('Master/v_sales', $data);
+		}else{
+			$this->load->view('home');
+		}
 		$this->load->view('footer');
 	}
 
@@ -235,7 +239,11 @@ class Master extends CI_Controller
 		);
 
 		$this->load->view('header', $data);
-		$this->load->view('Master/v_user', $data);
+		if(in_array($this->session->userdata('level'), ['Admin'])){
+			$this->load->view('Master/v_user', $data);
+		}else{
+			$this->load->view('home');
+		}
 		$this->load->view('footer');
 	}
 
@@ -246,7 +254,11 @@ class Master extends CI_Controller
 		);
 
 		$this->load->view('header', $data);
-		$this->load->view('Master/v_user_level', $data);
+		if(in_array($this->session->userdata('level'), ['Admin'])){
+			$this->load->view('Master/v_user_level', $data);
+		}else{
+			$this->load->view('home');
+		}
 		$this->load->view('footer');
 	}
 	

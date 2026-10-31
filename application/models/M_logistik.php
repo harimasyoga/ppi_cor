@@ -951,6 +951,74 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function clickGudang()
+	{
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$id_produk = $_POST["id_produk"];
+		$tgl = $_POST["tgl_input"];
+		$stok_awal = $_POST["stok_awal"];
+		$in2 = $_POST["in2"];
+		$inrtr = $_POST["inrtr"];
+		$out = $_POST["out"];
+		$outrtr = $_POST["outrtr"];
+		$stok_akhir = $_POST["stok_akhir"];
+		$ket = $_POST["ket"];
+		$opsi = $_POST["opsi"];
+		$tgl_lama = $_POST["tgl_lama"];
+		$id_gudang = $_POST["id_gudang"];
+
+		// cek
+		$gudang = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$id_pelanggan' AND g.id_produk='$id_produk' AND g.tgl='$tgl'");
+
+		if(($stok_awal == 0 && $in2 == 0 && $inrtr == 0 && $out == 0 && $outrtr == 0 && $stok_akhir == 0) || ($stok_awal == '' && $in2 == '' && $inrtr == '' && $out == '' && $outrtr == '' && $stok_akhir == '')){
+			$data = false;
+			$msg = 'CEK LAGI INPUTAN!';
+		}else if($stok_akhir < 0 || $stok_akhir == ''){
+			$data = false;
+			$msg = 'CEK LAGI STOK AKHIR!';
+		}else if($tgl == ''){
+			$data = false;
+			$msg = 'PILIH TANGGAL!';
+		}else if($tgl < $tgl_lama){
+			$data = false;
+			$msg = 'PILIH TANGGAL LEBIH KECIL!';
+		}else if($gudang->num_rows() != 0 && $opsi == 'ADD'){
+			$data = false;
+			$msg = 'DATA STOK GUDANG SUDAH ADA!';
+		}else{
+			$l = [
+				'stok_awal' => $stok_awal,
+				'in' => $in2,
+				'in_rtr' => $inrtr,
+				'out' => $out,
+				'out_rtr' => $outrtr,
+				'stok_akhir' => $stok_akhir,
+				'ket' => ($ket == '') ? null : $ket,
+			];
+			if($opsi == 'ADD'){
+				$this->db->set("id_pelanggan", $id_pelanggan);
+				$this->db->set("id_produk", $id_produk);
+				$this->db->set("tgl", $tgl);
+				$this->db->set("created_at", date("Y-m-d H:i:s"));
+				$this->db->set("created_by", $this->session->userdata('username'));
+				$data = $this->db->insert("m_gudang_v3", $l);
+				$msg = 'BERHASIL INPUT DATA!';
+			}
+			if($opsi == 'EDIT'){
+				$this->db->set("updated_at", date("Y-m-d H:i:s"));
+				$this->db->set("updated_by", $this->session->userdata('username'));
+				$this->db->where("id", $id_gudang);
+				$data = $this->db->update("m_gudang_v3", $l);
+				$msg = 'BERHASIL EDIT DATA!';
+			}
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function loadGudang()
 	{
 		$opsi = $_POST["opsi"];
@@ -5350,39 +5418,51 @@ class M_logistik extends CI_Model
 		$sisa = $_POST["sisa"];
 		$ket = $_POST["ket"];
 
+		// DATA
 		$qR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
-		$ay = array(
-			'tgl' => $tgl_guna,
-			'id_roll' => $roll,
-			'roll' => $qR->roll,
-			'pemakaian' => $guna,
-			'sisa' => $sisa,
-			'ket' => $ket,
-			'created_at' => date("Y-m-d H:i:s"),
-			'created_by' => $this->session->userdata('username'),
-		);
-		$data = $this->db->insert("trs_so_guna", $ay);
-		if($data){
-			// seset
-			($qR->seset == 0) ? $seset = $guna : $seset = $qR->seset + $guna;
-			$this->db->set('seset', $seset);
-			$this->db->where('id', $roll);
-			$uRoll = $this->db->update('m_roll');
-			if($uRoll){
-				// JIKA BERAT == SESET : DICLOSE
-				$cR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
-				if($cR->weight == $cR->seset){
-					$this->db->set('status_p', 'Close');
-					$this->db->where('id', $roll);
-					$cRoll = $this->db->update('m_roll');
-				}else{
-					$cRoll = false;
+		// CEK 
+		$cek = $this->db->query("SELECT*FROM trs_so_guna g WHERE g.tgl='$tgl_guna' AND g.id_roll='$roll'");
+
+		if($guna == 0 || $guna == ''){
+			$data = false; $cRoll = false; $msg = 'CEK INPUTAN!';
+		}else if($cek->num_rows() != 0){
+			$data = false; $cRoll = false; $msg = 'PENGGUNAAN ROLL SUDAH ADA!';
+		}else{
+			$ay = array(
+				'tgl' => $tgl_guna,
+				'id_roll' => $roll,
+				'roll' => $qR->roll,
+				'pemakaian' => $guna,
+				'sisa' => $sisa,
+				'ket' => $ket,
+				'created_at' => date("Y-m-d H:i:s"),
+				'created_by' => $this->session->userdata('username'),
+			);
+			$data = $this->db->insert("trs_so_guna", $ay);
+			if($data){
+				// seset
+				($qR->seset == 0) ? $seset = $guna : $seset = $qR->seset + $guna;
+				$this->db->set('seset', $seset);
+				$this->db->where('id', $roll);
+				$uRoll = $this->db->update('m_roll');
+				if($uRoll){
+					// JIKA BERAT == SESET : DICLOSE
+					$cR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
+					if($cR->weight == $cR->seset){
+						$this->db->set('status_p', 'Close');
+						$this->db->where('id', $roll);
+						$cRoll = $this->db->update('m_roll');
+					}else{
+						$cRoll = true;
+					}
 				}
 			}
+			$msg = 'BERHASIL!';
 		}
+
 		return [
 			'data' => $data,
-			'uRoll' => $uRoll,
+			'msg' => $msg,
 			'cRoll' => $cRoll,
 		];
 	}

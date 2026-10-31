@@ -614,7 +614,6 @@
 	let statusInput = 'insert';
 	const urlAuth = '<?= $this->session->userdata('level')?>';
 	const urlUser = '<?= $this->session->userdata('username')?>';
-	const betul = '<?= $data ?>';
 
 	$(document).ready(function ()
 	{

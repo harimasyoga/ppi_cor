@@ -41,17 +41,17 @@
 					<div class="card-body row" style="padding:12px 6px 3px;font-weight:bold">
 						<div class="col-md-1">CORR</div>
 						<div class="col-md-2">
-							<select id="list_pilih" class="form-control select2">
+							<select id="list_pilih" class="form-control select2" onchange="changePDF()">
 								<option value="CA">ATAS</option>
 								<option value="CB">BAWAH</option>
 							</select>
 						</div>
 						<div class="col-md-9"></div>
 					</div>
-					<div class="card-body row" style="padding:3px 6px 12px;font-weight:bold">
+					<div class="card-body row" style="padding:3px 6px;font-weight:bold">
 						<div class="col-md-1">JENIS</div>
 						<div class="col-md-2">
-							<select id="list_nmker" class="form-control select2">
+							<select id="list_nmker" class="form-control select2" onchange="changePDF()">
 								<option value="">SEMUA</option>
 								<?php
 									$jenis = $this->db->query("SELECT*FROM trs_so_jenis ORDER BY jenis");
@@ -61,15 +61,16 @@
 									}
 									echo $html1;
 								?>
-								<option value="BKBLTL">BK, BL, TL</option>
+								<!-- <option value="BKBLTL">BK, BL, TL</option>
 								<option value="MHMFMC">MH, MF, MC</option>
-								<option value="MLMNMS">ML, MN, MS</option>
+								<option value="MLMNMS">ML, MN, MS</option> -->
 							</select>
 						</div>
-						<div class="col-md-9">
+						<div class="col-md-9" style="padding-top:3px">
 							<button type="button" class="btn btn-primary" onclick="cariListRoll()"><i class="fas fa-search"></i></button>
 						</div>
 					</div>
+					<div class="list-pdf"></div>
 					<div class="list-list"></div>
 					<div class="list-roll"></div>
 				</div>
@@ -92,7 +93,7 @@
 							<div class="col-md-2">
 								<input type="date" class="form-control" id="tgl_pm">
 							</div>
-							<div class="col-md-9">
+							<div class="col-md-9" style="padding-top:3px">
 								<button type="button" class="btn btn-primary" onclick="addCari('pm')"><i class="fas fa-search"></i></button>
 							</div>
 						</div>
@@ -103,7 +104,7 @@
 							<div class="col-md-2">
 								<input type="date" class="form-control" id="tgl_gudang">
 							</div>
-							<div class="col-md-9">
+							<div class="col-md-9" style="padding-top:3px">
 								<button type="button" class="btn btn-primary" onclick="addCari('gudang')"><i class="fas fa-search"></i></button>
 							</div>
 						</div>
@@ -242,7 +243,7 @@
 						<div class="col-md-2">
 							<input type="text" id="c_roll" class="form-control" placeholder="NO. ROLL" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
 						</div>
-						<div class="col-md-9">
+						<div class="col-md-9" style="padding-top:3px">
 							<button type="button" onclick="rollCari()" class="btn btn-primary"><i class="fas fa-search"></i></button>
 						</div>
 					</div>
@@ -265,7 +266,9 @@
 										<!-- <button type="button" class="btn btn-primary" onclick="cariGunaRoll()"><i class="fas fa-search"></i></button> -->
 									</div>
 								</div>
-								<div class="guna-list"></div>
+								<div style="overflow:auto;white-space:nowrap">
+									<div class="guna-list"></div>
+								</div>
 								<div class="guna-roll"></div>
 							</div>
 						</div>
@@ -306,7 +309,7 @@
 									<div class="col-md-2">
 										<input type="text" id="s_roll" class="form-control" placeholder="NO. ROLL" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
 									</div>
-									<div class="col-md-9">
+									<div class="col-md-9" style="padding-top:3px">
 										<button type="button" onclick="planCariRoll()" class="btn btn-primary"><i class="fas fa-search"></i></button>
 									</div>
 								</div>
@@ -324,7 +327,7 @@
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" style="font-weight:bold">RINCIAN ROLL</h4>
+				<h4 class="modal-title" style="font-weight:bold"><div class="jdl">RINCIAN ROLL</div></h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -347,6 +350,7 @@
 	});
 
 	function btnRRoll(roll){
+		$(".jdl").html('RINCIAN ROLL')
 		$("#modal-rinc-plan").html(`. . .`)
 		$("#modalRincRoll").modal("show")
 		$.ajax({
@@ -361,6 +365,37 @@
 		})
 	}
 
+	function bGunaRoll(roll) {
+		$(".jdl").html('PENGGUNAAN ROLL')
+		$("#modal-rinc-plan").html(`. . .`)
+		$("#modalRincRoll").modal("show")
+		let tgl_guna = $("#tgl_guna").val()
+		$(".guna-roll").html('')
+		$.ajax({
+			url: '<?php echo base_url('Logistik/bGunaRoll')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				tgl_guna, roll
+			}),
+			success: function(json){
+				data = JSON.parse(json)
+				$("#modal-rinc-plan").html(data.html)
+				$(".modal-open").css({"padding-right": "0"})
+				swal.close()
+			}
+		})
+	}
+
 	function reloadTable() {
 		table = $('#datatable').DataTable();
 		tabel.ajax.reload(null, false);
@@ -368,6 +403,7 @@
 
 	function pRoll(opsi){
 		if(opsi == 'list'){
+			$("#list_nmker").trigger('change')
 			$(".card-list").show()
 			$(".card-cari").hide()
 			$(".card-add").hide()
@@ -489,6 +525,37 @@
 				data = JSON.parse(json)
 				$(".list-list").html(data.html)
 				if(data.html){
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function changePDF()
+	{
+		$(".list-pdf").html('')
+		let list_pilih = $("#list_pilih").val()
+		let list_nmker = $("#list_nmker").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/changePDF')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({
+				list_pilih, list_nmker
+			}),
+			success: function(json){
+				data = JSON.parse(json)
+				$(".list-pdf").html(data.pdf)
+				if(data.pdf){
 					swal.close()
 				}
 			}
@@ -702,33 +769,6 @@
 		})
 	}
 
-	function bGunaRoll(roll) {
-		let tgl_guna = $("#tgl_guna").val()
-		$(".guna-roll").html('')
-		$.ajax({
-			url: '<?php echo base_url('Logistik/bGunaRoll')?>',
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'Loading',
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				});
-			},
-			data: ({
-				tgl_guna, roll
-			}),
-			success: function(json){
-				data = JSON.parse(json)
-				$(".guna-roll").html(data.html)
-				swal.close()
-			}
-		})
-	}
-
 	function hitungGuna(opsi) {
 		let weight = $("#add_weight").val()
 		let guna = $("#add_guna").val()
@@ -759,13 +799,30 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/btnGunaSisa')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({
 				tgl_guna, roll, guna, sisa, ket
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				cariGunaRoll()
-				bGunaRoll(roll)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					cariGunaRoll()
+					bGunaRoll(roll)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					$("#btn-guna-sisa").prop('disabled', false)
+					swal.close()
+				}
 			}
 		})
 	}
@@ -775,6 +832,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/delRollGuna')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ id, roll }),
 			success: function(json){
 				data = JSON.parse(json)
@@ -793,6 +860,16 @@
 		$.ajax({
 			url: '<?php echo base_url('Logistik/addListRoll')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ tgl_guna, s_corr, s_gsm, s_lebar, s_roll, id }),
 			success: function(res){
 				data = JSON.parse(res)
@@ -803,9 +880,24 @@
 	}
 
 	function delListRoll(id){
+		$("#s_corr").val('').trigger('change')
+		$("#s_gsm").val('')
+		$("#s_lebar").val('')
+		$("#s_roll").val('')
+		$(".list-roll2").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/delListRoll')?>',
 			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
 			data: ({ id }),
 			success: function(res){
 				data = JSON.parse(res)

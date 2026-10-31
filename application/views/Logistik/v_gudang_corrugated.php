@@ -53,7 +53,7 @@
 	<section class="content">
 		<div class="container-fluid">
 
-			<div class="row card-add-gudang" style="display:none">
+			<!-- <div class="row card-add-gudang" style="display:none">
 				<div class="col-md-12">
 					<div class="card card-primary card-outline" style="padding-bottom:12px">
 						<div class="card-header" style="padding:12px">
@@ -74,10 +74,33 @@
 								<div class="col-md-2">CUSTOMER</div>
 								<div class="col-md-10">
 									<select class="form-control select2" id="pelanggan" onchange="plhGCPelanggan()">
+									</select>
+								</div>
+							</div>
+							<div class="produk" style="padding:0 6px"></div>
+						</div>
+					</div>
+				</div>
+			</div> -->
+
+			<div class="row card-add-gudang2" style="display:none">
+				<div class="col-md-12">
+					<div class="card card-primary card-outline" style="padding-bottom:12px">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT DATA STOK GUDANG BARU</h3>
+						</div>
+						<div class="card-body" style="font-weight:bold;padding:6px">
+							<div style="margin:12px 6px 6px">
+								<button type="button" class="btn btn-info" onclick="kembali()"><i class="fas fa-arrow-left"></i> <b>Kembali</b></button>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:20px 6px 6px">
+								<div class="col-md-1">CUSTOMER</div>
+								<div class="col-md-8">
+									<select class="form-control select2" id="id_pelanggan">
 										<?php
 											$query = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan");
 											$html ='';
-											$html .='<option value="">PILIH</option>';
+											$html .='<option value="">SEMUA</option>';
 											foreach($query->result() as $r){
 												($r->attn == "-" || $r->attn == "") ? $attn = '' : $attn = ' | '.$r->attn;
 												$html .='<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.''.$attn.'</option>';
@@ -86,14 +109,47 @@
 										?>
 									</select>
 								</div>
+								<div class="col-md-3"></div>
 							</div>
-							<div class="produk" style="padding:0 6px"></div>
+							<div class="card-body row" style="font-weight:bold;padding:0 6px">
+								<div class="col-md-1">NAMA ITEM</div>
+								<div class="col-md-8">
+									<input type="text" id="nm_produk" class="form-control" oninput="this.value=this.value.toUpperCase()" autocomplete="off" placeholder="NAMA ITEM">
+								</div>
+								<div class="col-md-3"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:2px 6px 6px">
+								<div class="col-md-1"></div>
+								<div class="col-md-11" style="font-size:12px;font-style:italic;color:#f00">*opsional</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 6px">
+								<div class="col-md-1">QTY KELUAR</div>
+								<div class="col-md-2">
+									<input type="date" id="tgl_keluar" class="form-control">
+								</div>
+								<div class="col-md-9"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:2px 6px 6px">
+								<div class="col-md-1"></div>
+								<div class="col-md-11" style="font-size:12px;font-style:italic;color:#f00">*opsional</div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
+								<div class="col-md-1"></div>
+								<div class="col-md-11">
+									<button type="button" class="btn btn-primary" onclick="cariStokGudang('')"><i class="fas fa-search"></i></button>
+								</div>
+							</div>
+							<div style="padding:6px">
+								<div style="overflow:auto;white-space:nowrap">
+									<div class="produk2"></div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<div class="row card-input-gudang" style="display:none">
+			<!-- <div class="row card-input-gudang" style="display:none">
 				<div class="col-md-12">
 					<div class="card card-secondary card-outline" style="padding-bottom:12px">
 						<div class="card-header" style="padding:12px">
@@ -118,11 +174,11 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			</div> -->
 
 			<div class="card card-list-gudang">
 				<div class="card-header">
-					<h3 class="card-title">Gudang</h3>
+					<h3 class="card-title"><b>GUDANG</b></h3>
 					<div class="card-tools">
 						<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
 						<i class="fas fa-minus"></i></button>
@@ -134,7 +190,7 @@
 							<button type="button" class="btn btn-info" onclick="tambah()"><i class="fa fa-plus"></i> <b>Tambah Data</b></button>
 						</div>
 					<?php } ?>
-					<div>
+					<!-- <div>
 						<table>
 							<tr>
 								<td style="font-weight:bold;padding:0 0 16px">
@@ -145,25 +201,29 @@
 								</td>
 							</tr>
 						</table>
-					</div>
+					</div> -->
 					<div style="overflow:auto;white-space:nowrap">
-						<table id="datatable" class="table table-bordered table-striped" width="100%">
+						<!-- <table id="datatable" class="table table-bordered table-striped" width="100%">
 							<thead class="color-tabel">
 								<tr>
 									<th style="width:5%">#</th>
-									<th style="width:20%">CUSTOMER</th>
-									<th style="width:25%">ITEM</th>
+									<th style="width:20%">ITEM</th>
+									<th style="width:5%">TANGGAL</th>
 									<th style="width:10%">STOK AWAL</th>
-									<th style="width:10%">IN</th>
+									<th style="width:5%">IN</th>
 									<th style="width:10%">IN RETUR</th>
-									<th style="width:10%">OUT</th>
+									<th style="width:5%">OUT</th>
 									<th style="width:10%">OUT RETUR</th>
 									<th style="width:10%">STOK AKHIR</th>
 									<th style="width:10%">KETERANGAN</th>
+									<th style="width:10%">LAST UPDATE</th>
 								</tr>
 							</thead>
 							<tbody></tbody>
-						</table>
+						</table> -->
+
+						<div class="alist-gudang"></div>
+
 					</div>
 				</div>
 			</div>
@@ -179,7 +239,7 @@
 								<table>
 									<tr>
 										<td style="font-weight:bold;padding:0 0 12px">
-											<input type="month" id="all_plh_tgl" value="<?php echo date('Y-m')?>" class="form-control" onchange="allListGudang()">
+											<input type="month" id="all_plh_tgl" value="" class="form-control" onchange="allListGudang()">
 										</td>
 										<td style="font-weight:bold;padding:0 0 12px 12px">
 											<div class="all-btn-pdf"></div>
@@ -203,12 +263,12 @@
 	<div class="modal-dialog modal-xl">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" style="font-weight:bold">NO. PO</h4>
+				<h4 class="modal-title" style="font-weight:bold">RINCIAN DATA</h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="card-body">
+			<div class="card-body" style="padding:12px">
 				<div style="overflow:auto;white-space:nowrap">
 					<div class="list-nopo"></div>
 				</div>
@@ -225,12 +285,13 @@
 
 	$(document).ready(function () {
 		$(".select2").select2()
-		load_data()
+		cariStokGudang('LIST')
+		// load_data()
 		// allListGudang()
 	});
 
 	function load_data() {
-		let plh_tgl = $("#plh_tgl").val()
+		// let plh_tgl = $("#plh_tgl").val()
 		let table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -240,7 +301,7 @@
 			"ajax": {
 				"url": '<?php echo base_url('Logistik/loadDataGDCorr')?>',
 				"type": "POST",
-				"data": ({ plh_tgl }),
+				// "data": ({ plh_tgl }),
 			},
 			"aLengthMenu": [
 				[5, 10, 15, 20, -1],
@@ -252,7 +313,7 @@
 				"emptyTable": "Tidak ada data.."
 			}
 		})
-		pdfGDCorr()
+		// pdfGDCorr()
 	}
 
 	function pdfGDCorr()
@@ -277,25 +338,31 @@
 
 	function tambah() {
 		kosong()
-		// loadGC()
-		$("#pelanggan").val('').trigger('change')
+		$("#id_pelanggan").val('').trigger('change')
+		$(".produk2").html('')
 		$(".card-list-gudang").hide()
 		$(".card-list-gudang2").hide()
 		$(".card-add-gudang").show()
+		$(".card-add-gudang2").show()
 		$(".card-input-gudang").show()
 	}
 
 	function kembali() {
 		kosong()
-		load_data()
+		cariStokGudang('LIST')
 		$(".card-list-gudang").show()
 		$(".card-list-gudang2").show()
 		$(".card-add-gudang").hide()
+		$(".card-add-gudang2").hide()
 		$(".card-input-gudang").hide()
 	}
 
 	function kosong() {
+		$(".produk2").html('')
+		$(".alist-gudang").html('')
 		$("#tgl_awal2").val('')
+		$("#nm_produk").val('')
+		$("#tgl_keluar").val('')
 		$("#pilih_tgl22").val('')
 		$(".produk").html('')
 		$(".gudang").html('')
@@ -348,17 +415,11 @@
 	function listPO(id_pelanggan, id_produk, opsi){
 		$(".list-nopo").html('...')
 		$("#modalForm").modal("show")
-		let tgl = '';
-		if(opsi == 'ADD'){
-			tgl = $("#tgl_awal_cust").val()
-		}else{
-			tgl = $("#pilih_tgl22").val()
-		}
 		$.ajax({
 			url: '<?php echo base_url('Logistik/listPO')?>',
 			type: "POST",
 			data: ({
-				id_pelanggan, id_produk, tgl
+				id_pelanggan, id_produk, opsi
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -687,6 +748,144 @@
 					toastr.error(`<b>${data.msg}</b>`);
 					swal.close()
 				}
+			}
+		})
+	}
+
+	function cariStokGudang(opsi)
+	{
+		$(".produk2").html('')
+		$(".alist-gudang").html('')
+		let id_pelanggan = ''
+		let nm_produk = ''
+		let tgl_keluar = ''
+		if(opsi == ''){
+			id_pelanggan = $("#id_pelanggan").val()
+			nm_produk = $("#nm_produk").val()
+			tgl_keluar = $("#tgl_keluar").val()
+		}
+		$.ajax({
+			url: '<?php echo base_url('Logistik/cariStokGudang')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_pelanggan, nm_produk, tgl_keluar, opsi }),
+			success: function(res){
+				data = JSON.parse(res)
+				$((opsi == '') ? ".produk2" : ".alist-gudang").html(data.html)
+				if(data.html){
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function btnAksiGudang(id_gudang, tgl, opsi)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Logistik/btnAksiGudang')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ id_gudang, opsi }),
+			success: function(res){
+				data = JSON.parse(res)
+				$("#tgl_lama_"+data.g.id_produk).val(tgl)
+				$("#idx_"+data.g.id_produk).val(id_gudang)
+				$("#stok_awal2_"+data.g.id_produk).val((opsi == 'PILIH') ? data.stokAkhir : data.stokAwal).prop('disabled', (opsi == 'PILIH') ? true : false)
+				$("#in2_"+data.g.id_produk).val((opsi == 'PILIH') ? 0 : data.in).prop('disabled', false)
+				$("#inrtr2_"+data.g.id_produk).val((opsi == 'PILIH') ? 0 : data.inRetur).prop('disabled', false)
+				$("#out2_"+data.g.id_produk).val((opsi == 'PILIH') ? 0 : data.out).prop('disabled', false)
+				$("#outrtr2_"+data.g.id_produk).val((opsi == 'PILIH') ? 0 : data.outRetur).prop('disabled', false)
+				$("#stok_akhir2_"+data.g.id_produk).val(data.stokAkhir).prop('disabled', true)
+				$("#tton2_"+data.g.id_produk).val(data.tonase).prop('disabled', true)
+				$("#ket2_"+data.g.id_produk).val((opsi == 'PILIH') ? '' : data.g.ket).prop('disabled', false);
+				$("#tgl_input_"+data.g.id_produk).val((opsi == 'EDIT') ? data.g.tgl : '').prop('disabled', (opsi == 'EDIT') ? true : false);
+				$(".b-aksi-gudang-"+data.g.id_produk).html(data.button);
+				$("#modalForm").modal("hide")
+				swal.close()
+			}
+		})
+	}
+
+	function clickGudang(id_pelanggan, id_produk, opsi)
+	{
+		$(".b-aksi-gudang-"+id_produk).prop('disabled', true)
+		let tgl_lama = $("#tgl_lama_"+id_produk).val()
+		let id_gudang = $("#idx_"+id_produk).val()
+		let stok_awal = $("#stok_awal2_"+id_produk).val().split('.').join('')
+		let in2 = $("#in2_"+id_produk).val().split('.').join('')
+		let inrtr = $("#inrtr2_"+id_produk).val().split('.').join('')
+		let out = $("#out2_"+id_produk).val().split('.').join('')
+		let outrtr = $("#outrtr2_"+id_produk).val().split('.').join('')
+		let stok_akhir = $("#stok_akhir2_"+id_produk).val().split('.').join('')
+		let ket = $("#ket2_"+id_produk).val()
+		let tgl_input = $("#tgl_input_"+id_produk).val()
+
+		$.ajax({
+			url: '<?php echo base_url('Logistik/clickGudang')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ tgl_lama, id_gudang, id_pelanggan, id_produk, opsi, stok_awal, in2, inrtr, out, outrtr, stok_akhir, ket, tgl_input }),
+			success: function(res){
+				data = JSON.parse(res)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					reloadRow(id_pelanggan, id_produk, opsi)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+					$(".b-aksi-gudang-"+id_produk).prop('disabled', false)
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function reloadRow(id_pelanggan, id_produk, opsi)
+	{
+		$.ajax({
+			url: '<?php echo base_url('Logistik/reloadRow')?>',
+			type: "POST",
+			data: ({ id_pelanggan, id_produk, opsi }),
+			success: function(res){
+				data = JSON.parse(res)
+				$(".u-info-po-stok-"+id_produk).html(data.info)
+				$("#stok_awal2_"+id_produk).val(data.stokAwal).prop('disabled', true)
+				$("#in2_"+id_produk).val(data.in88).prop('disabled', true)
+				$("#inrtr2_"+id_produk).val(data.inRetur).prop('disabled', true)
+				$("#out2_"+id_produk).val(data.out).prop('disabled', true)
+				$("#outrtr2_"+id_produk).val(data.outRetur).prop('disabled', true)
+				$("#stok_akhir2_"+id_produk).val(data.stokAkhir).prop('disabled', true)
+				$("#tton2_"+id_produk).val(data.tonase).prop('disabled', true)
+				$("#ket2_"+id_produk).val(data.ket99).prop('disabled', true)
+				$("#tgl_input_"+id_produk).val(data.tgl77).prop('disabled', true)
+				$(".b-aksi-gudang-"+id_produk).html('')
+				swal.close()
 			}
 		})
 	}

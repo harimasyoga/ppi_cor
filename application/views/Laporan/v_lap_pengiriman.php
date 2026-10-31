@@ -16,20 +16,22 @@
 		}
 	</style>
 
-	<section class="content">
-		<div class="container-fluid">
-			<div class="card card-secondary card-outline">
-				<div class="card-header" style="padding:12px">
-					<h3 class="card-title" style="font-weight:bold;font-size:18px">LAPORAN OUTSTANDING PO</h3>
-				</div>
-				<div class="card-body">
-					<div style="overflow:auto;white-space:nowrap">
-						<div class="tab_laporan"></div>
+	<?php if(!in_array($this->session->userdata('level'), ['AP', 'ASP', 'Gudang', 'Pengiriman'])){ ?>
+		<section class="content">
+			<div class="container-fluid">
+				<div class="card card-secondary card-outline">
+					<div class="card-header" style="padding:12px">
+						<h3 class="card-title" style="font-weight:bold;font-size:18px">LAPORAN OUTSTANDING PO</h3>
+					</div>
+					<div class="card-body">
+						<div style="overflow:auto;white-space:nowrap">
+							<div class="tab_laporan"></div>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	</section>
+		</section>
+	<?php } ?>
 
 	<section class="content">
 		<div class="container-fluid">
@@ -222,17 +224,23 @@
 </div>
 
 <script type="text/javascript">
+	const urlAuth = '<?= $this->session->userdata('level')?>';
+	const urlUser = '<?= $this->session->userdata('username')?>';
+	const urlLvl = ['AP', 'ASP', 'Gudang', 'Pengiriman'];
+
 	$(document).ready(function() {
 		$(".select2").select2()
-		lapOSperSales()
+		if(!urlLvl.includes(urlAuth)){
+			lapOSperSales()
+		}
 	});
 
-	function rincianGDCor(id_pelanggan, tgl){
+	function rincianGDCor(id_pelanggan){
 		$("#modal-gudang").html(`. . .`)
 		$("#modalGDCor").modal("show")
 		$.ajax({
 			url: '<?php echo base_url('Laporan/rincianGDCor') ?>',
-			data: ({ id_pelanggan, tgl }),
+			data: ({ id_pelanggan }),
 			type: "POST",
 			success: function(res) {
 				data = JSON.parse(res)
