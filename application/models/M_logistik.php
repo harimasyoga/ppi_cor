@@ -968,7 +968,7 @@ class M_logistik extends CI_Model
 		$id_gudang = $_POST["id_gudang"];
 
 		// cek
-		$gudang = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$id_pelanggan' AND g.id_produk='$id_produk' AND g.tgl='$tgl'");
+		// $gudang = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$id_pelanggan' AND g.id_produk='$id_produk' AND g.tgl='$tgl'");
 
 		if(($stok_awal == 0 && $in2 == 0 && $inrtr == 0 && $out == 0 && $outrtr == 0 && $stok_akhir == 0) || ($stok_awal == '' && $in2 == '' && $inrtr == '' && $out == '' && $outrtr == '' && $stok_akhir == '')){
 			$data = false;
@@ -982,9 +982,6 @@ class M_logistik extends CI_Model
 		}else if($tgl < $tgl_lama){
 			$data = false;
 			$msg = 'PILIH TANGGAL LEBIH KECIL!';
-		}else if($gudang->num_rows() != 0 && $opsi == 'ADD'){
-			$data = false;
-			$msg = 'DATA STOK GUDANG SUDAH ADA!';
 		}else{
 			$l = [
 				'stok_awal' => $stok_awal,
