@@ -11953,7 +11953,7 @@ class Logistik extends CI_Controller
 						(strlen($g->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
 
 						// AMBIL STOK GUDANG INPUTAN TERAKHIR
-						$inpStok = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$g->id_pelanggan' AND g.id_produk='$g->id_produk' ORDER BY tgl DESC LIMIT 1");
+						$inpStok = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$g->id_pelanggan' AND g.id_produk='$g->id_produk' ORDER BY tgl DESC, id DESC LIMIT 1");
 						if($inpStok->num_rows() != 0){
 							$infoSTOK = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$g->id_pelanggan."'".', '."'".$g->id_produk."'".', '."'".$tXtO."'".')"><i class="fas fa-info-circle" style="color:#dc3545"></i></button> ';
 							$btnAksi = '';
@@ -12060,7 +12060,7 @@ class Logistik extends CI_Controller
 		$opsi = $_POST["opsi"];
 
 		// AMBIL INPUTAN TERAKHIR
-		$inpStok = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$id_pelanggan' AND g.id_produk='$id_produk' ORDER BY tgl DESC LIMIT 1");
+		$inpStok = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$id_pelanggan' AND g.id_produk='$id_produk' ORDER BY tgl DESC, id DESC LIMIT 1");
 		if($inpStok->num_rows() != 0){
 			$tgl77 = $inpStok->row()->tgl;
 			$stokAwal = number_format($inpStok->row()->stok_awal,0,',','.');
@@ -12414,7 +12414,7 @@ class Logistik extends CI_Controller
 			(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
 
 			// DATA STOK
-			$qq = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$r->id_pelanggan' AND g.id_produk='$r->id_produk' ORDER BY tgl DESC LIMIT 1");
+			$qq = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$r->id_pelanggan' AND g.id_produk='$r->id_produk' ORDER BY tgl DESC, id DESC LIMIT 1");
 			if($qq->num_rows() != 0){
 				$vTgl = $this->m_fungsi->tglIndSkt($qq->row('tgl'));
 				$vSa = ($qq->row('stok_awal') == 0) ? '-' : number_format($qq->row('stok_awal'),0,',','.');
@@ -12718,7 +12718,7 @@ class Logistik extends CI_Controller
 		$gudang = $this->db->query("SELECT i.berat_bersih,g.* FROM m_gudang_v3 g
 		INNER JOIN m_produk i ON g.id_produk=i.id_produk
 		WHERE g.id_pelanggan='$id_pelanggan' and g.id_produk='$id_produk'
-		group by g.tgl,g.id_pelanggan,g.id_produk");
+		group by g.tgl,g.id,g.id_pelanggan,g.id_produk");
 		if($gudang->num_rows() != 0){
 			$html .= '<div style="margin-top:12px;font-weight:bold">DATA STOK GUDANG : </div>';
 			$html .= '<table>
@@ -12752,9 +12752,11 @@ class Logistik extends CI_Controller
 						$hAGdg = '';
 					}else{
 						$hAGdg = '<td style="border:1px solid #dee2e6;padding:6px">
-							<button type="button" class="btn btn-xs btn-warning" style="font-weight:bold" onclick="btnAksiGudang('."'".$g->id."'".', '."'".$g->tgl."'".', '."'EDIT'".')">EDIT</button>
-							<button type="button" class="btn btn-xs btn-success" style="font-weight:bold" onclick="btnAksiGudang('."'".$g->id."'".', '."'".$g->tgl."'".', '."'PILIH'".')">PILIH</button>
-						</td>';
+							<button type="button" class="btn btn-xs btn-warning" style="font-weight:bold" onclick="btnAksiGudang('."'".$g->id."'".', '."'".$g->tgl."'".', '."'EDIT'".')">EDIT</button>';
+							if($gudang->num_rows() == $i3){
+								$hAGdg .= ' <button type="button" class="btn btn-xs btn-success" style="font-weight:bold" onclick="btnAksiGudang('."'".$g->id."'".', '."'".$g->tgl."'".', '."'PILIH'".')">PILIH</button>';
+							}
+						$hAGdg .= '</td>';
 					}
 					$html .= '<tr>
 						<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i3.'</td>

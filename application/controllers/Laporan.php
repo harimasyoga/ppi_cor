@@ -257,9 +257,9 @@ class Laporan extends CI_Controller
 					$qq1 = $this->db->query("SELECT SUM(g.stok_akhir) AS stok_akhir FROM m_gudang_v3 g
 					INNER JOIN m_pelanggan c ON g.id_pelanggan=c.id_pelanggan
 					INNER JOIN (
-						SELECT id_produk, id_pelanggan, MAX(tgl) AS max_tgl FROM m_gudang_v3
+						SELECT id_produk, id_pelanggan, MAX(tgl) AS max_tgl, MAX(id) AS max_id FROM m_gudang_v3
 						GROUP BY id_produk
-					) sub ON g.id_produk=sub.id_produk AND g.id_pelanggan=sub.id_pelanggan AND g.tgl=sub.max_tgl
+					) sub ON g.id_produk=sub.id_produk AND g.id_pelanggan=sub.id_pelanggan AND g.tgl=sub.max_tgl AND g.id=sub.max_id
 					WHERE c.id_sales='$s->id_sales'
 					GROUP BY c.id_sales");
 					if($qq1->num_rows() == 0){
@@ -375,9 +375,8 @@ class Laporan extends CI_Controller
 							// CEK STOK GUDANG PER CUSTOMER
 							$qq2 = $this->db->query("SELECT SUM(g.stok_akhir) AS stok_akhir FROM m_gudang_v3 g
 							INNER JOIN (
-								SELECT id_produk, id_pelanggan, MAX(tgl) AS max_tgl FROM m_gudang_v3
-								GROUP BY id_produk
-							) sub ON g.id_produk=sub.id_produk AND g.id_pelanggan=sub.id_pelanggan AND g.tgl=sub.max_tgl
+								SELECT id_produk, id_pelanggan, MAX(tgl) AS max_tgl, MAX(id) AS max_id FROM m_gudang_v3 GROUP BY id_produk
+							) sub ON g.id_produk=sub.id_produk AND g.id_pelanggan=sub.id_pelanggan AND g.tgl=sub.max_tgl AND g.id=sub.max_id
 							WHERE g.id_pelanggan='$r->id_pelanggan'
 							GROUP BY g.id_pelanggan");
 							($qq2->num_rows() == 0) ? $cStok = '-' : $cStok = number_format($qq2->row()->stok_akhir,0,',','.');
@@ -511,7 +510,7 @@ class Laporan extends CI_Controller
 									($sumItem > 0) ? $pSOSSysI = round(($sumItemUnp / $sumItem) * 100,2) : $pSOSSysI = 0;
 
 									// CEK STOK GUDANG PER ITEM
-									$qq3 = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$p->id_pelanggan' AND g.id_produk='$p->id_produk' ORDER BY tgl DESC LIMIT 1");
+									$qq3 = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$p->id_pelanggan' AND g.id_produk='$p->id_produk' ORDER BY tgl DESC, id DESC LIMIT 1");
 									($qq3->num_rows() == 0) ? $iStok = '-' : $iStok = number_format($qq3->row('stok_akhir'),0,',','.');
 
 									// CEK PER ITEM COUNT 7 HARI
@@ -682,6 +681,7 @@ class Laporan extends CI_Controller
 				<th style="text-align:center;padding:6px">#</th>
 				<th style="text-align:center;padding:6px">ITEM</th>
 				<th style="text-align:center;padding:6px">TANGGAL</th>
+				<th style="text-align:center;padding:6px">LAST UPDATE</th>
 				<th style="text-align:center;padding:6px">UKURAN</th>
 				<th style="text-align:center;padding:6px">FLUTE</th>
 				<th style="text-align:center;padding:6px">SUBSTANCE</th>
@@ -693,7 +693,6 @@ class Laporan extends CI_Controller
 				<th style="text-align:center;padding:6px">STOK AKHIR</th>
 				<th style="text-align:center;padding:6px">TONASE</th>
 				<th style="text-align:center;padding:6px 20px">KETERANGAN</th>
-				<th style="text-align:center;padding:6px">LAST UPDATE</th>
 			</tr>';
 
 			$gudang = $this->db->query("SELECT*FROM m_gudang_v3 g
@@ -712,7 +711,7 @@ class Laporan extends CI_Controller
 				(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
 
 				// CEK GUDANG
-				$qq = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$r->id_pelanggan' AND g.id_produk='$r->id_produk' ORDER BY tgl DESC LIMIT 1");
+				$qq = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$r->id_pelanggan' AND g.id_produk='$r->id_produk' ORDER BY tgl DESC, id DESC LIMIT 1");
 				if($qq->num_rows() != 0){
 					$vTgl = $this->m_fungsi->tglIndSkt($qq->row('tgl'));
 					$vSa = ($qq->row('stok_awal') == 0) ? 0 : number_format($qq->row('stok_awal'),0,',','.');
@@ -744,6 +743,7 @@ class Laporan extends CI_Controller
 					<td style="padding:6px;text-align:center">'.$i.'</td>
 					<td style="padding:6px">'.$dv1.$infoPO.$kat.$r->nm_produk.$dv2.'</td>
 					<td style="padding:6px;text-align:center">'.$vTgl.'</td>
+					<td style="padding:6px;text-align:center">'.$upDt.'</td>
 					<td style="padding:6px;text-align:center">'.strtolower($uk).'</td>
 					<td style="padding:6px;text-align:center">'.$r->flute.'</td>
 					<td style="padding:6px;text-align:center">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
@@ -771,7 +771,6 @@ class Laporan extends CI_Controller
 					<td style="padding:6px">
 						<input type="text" id="ket_'.$r->id_produk.'" value="'.$vKet.'" class="form-control" placeholder="KETERANGAN" autocomplete="off" style="padding:2px 4px;font-weight:bold">
 					</td>
-					<td style="padding:6px;text-align:center">'.$upDt.'</td>
 				</tr>';
 			}
 			// TOTAL
