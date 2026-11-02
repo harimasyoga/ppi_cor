@@ -8232,80 +8232,6 @@ class Transaksi extends CI_Controller
 		]);
 	}
 
-	function LaporanSOTrim()
-	{
-		$htmlOI = '';
-		$htmlOI .= 'data-export.xlsx<br><br>';
-		$htmlOI .= 'Orders';
-		$htmlOI .= '<table style="margin-bottom:50px">
-			<tr>
-				<td style="padding:6px">delivery_id</td>
-				<td style="padding:6px">order_id</td>
-				<td style="padding:6px">customer_id</td>
-				<td style="padding:6px">item_id</td>
-				<td style="padding:6px">sequence_id</td>
-				<td style="padding:6px">quantity</td>
-				<td style="padding:6px">eta</td>
-				<td style="padding:6px">flexo_eta</td>
-				<td style="padding:6px">status</td>
-			</tr>';
-			$now = date('Y-m-d');
-			$qOI = $this->db->query("SELECT s.id_po_header,d.kode_po,p.kode_unik,s.id_produk FROM trs_dev_sys s
-			INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
-			INNER JOIN trs_po_detail d ON s.id_po_header=d.id
-			WHERE s.eta BETWEEN '$now' AND '9999-01-01'
-			GROUP BY s.id_po_header,p.kode_unik,s.id_produk
-			ORDER BY s.eta,d.kode_po,p.kode_unik,s.id_produk");
-			foreach($qOI->result() as $r){
-				$qSS = $this->db->query("SELECT '' delivery_id, CONCAT('DEV', s.id_po_header) order_id, p.kode_unik customer_id, CONCAT('ITEM',s.id_produk) item_id, qty_plan quantity, eta
-				FROM trs_dev_sys s
-				INNER JOIN m_pelanggan p ON s.id_pelanggan=p.id_pelanggan
-				WHERE s.eta BETWEEN '$now' AND '9999-01-01' AND s.id_produk='$r->id_produk' AND p.kode_unik='$r->kode_unik' AND s.id_po_header='$r->id_po_header'
-				ORDER BY p.kode_unik,s.id_produk,s.eta");
-				$xx = 0;
-				foreach($qSS->result() as $s){
-					$xx++;
-					// $ffDate = date('d/m/Y', strtotime($s->eta));
-					$etaDate = date('d/m/Y', strtotime('-4 day', strtotime($s->eta)));
-					$flexoDate = date('d/m/Y', strtotime('-2 day', strtotime($s->eta)));
-					$htmlOI .= '<tr>
-						<td style="padding:6px"></td>
-						<td style="padding:6px">'.$r->kode_po.'</td>
-						<td style="padding:6px">'.$s->customer_id.'</td>
-						<td style="padding:6px">'.$s->item_id.'</td>
-						<td style="padding:6px">'.$xx.'</td>
-						<td style="padding:6px">'.$s->quantity.'</td>
-						<td style="padding:6px">'.$etaDate.'</td>
-						<td style="padding:6px">'.$flexoDate.'</td>
-						<td style="padding:6px">pending</td>
-					</tr>';
-				}
-			}
-		$htmlOI .= '</table>';
-
-		$htmlOI .= 'Item_Machine_Priority';
-		$htmlOI .= '<table>
-			<tr>
-				<td style="padding:6px">item_id</td>
-				<td style="padding:6px">priority_1_machine_id</td>
-				<td style="padding:6px">priority_2_machine_id</td>
-				<td style="padding:6px">priority_3_machine_id</td>
-			</tr>';
-			foreach($qOI->result() as $r){
-				$htmlOI .= '<tr>
-					<td style="padding:6px">ITEM'.$r->id_produk.'</td>
-					<td style="padding:6px">FLEXO-01</td>
-					<td style="padding:6px">FLEXO-04</td>
-				</tr>';
-			}
-		$htmlOI .= '</table>';
-
-		echo json_encode([
-			'htmlO' => '',
-			'htmlOI' => $htmlOI,
-		]);
-	}
-
 	function editBagiSO()
 	{
 		$result = $this->m_transaksi->editBagiSO();
@@ -11101,6 +11027,87 @@ class Transaksi extends CI_Controller
 		}else{
 			$html .= '-';
 		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+	function routingPriority()
+	{
+		$html = '';
+
+		$pProduk = $this->db->query("SELECT
+		CONCAT(c.kode_unik, '-', LPAD(i.id_produk,4,'0')) AS Item_ID,
+		i.no_customer AS id_pelanggan,
+		i.*
+		FROM trs_dev_sys d
+		INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
+		INNER JOIN trs_po_detail p ON d.id_po_header=p.id
+		INNER JOIN m_produk i ON d.id_produk=i.id_produk
+		WHERE p.status='Approve'
+		GROUP BY c.kode_unik,i.id_produk
+		ORDER BY c.kode_unik,i.kategori,i.nm_produk");
+
+		$html .= '<table>
+			<tr>
+				<td style="padding:5">stage</td>
+				<td style="padding:5">ref</td>
+				<td style="padding:5">machine_id</td>
+				<td style="padding:5">priority_rank</td>
+			</tr>';
+			foreach($pProduk->result() as $p1){
+				// $html .= '<tr>
+				// 	<td style="padding:5px">'.$p1->kategori.'</td>
+				// 	<td style="padding:5px">'.$p1->Item_ID.'</td>
+				// 	<td style="padding:5px"></td>
+				// 	<td style="padding:5px"></td>
+				// 	<td style="padding:5px">( '.$p1->id_pelanggan.' ) '.$p1->ukuran_sheet.'</td>
+				// </tr>';
+
+				if(in_array($p1->kategori, ['K_BOX', 'K_SHEET'])){
+					for($b = 1; $b <= 2; $b++){
+						$mB = '';
+						if($b == 1){
+							$mB = 'CORR-1.8';
+						}
+						if($b == 2){
+							$mB = 'CORR-2.5';
+						}
+						$html .= '<tr>
+							<td style="padding:5px">corrugator</td>
+							<td style="padding:5px">'.$p1->Item_ID.'</td>
+							<td style="padding:5px">'.$mB.'</td>
+							<td style="padding:5px">'.$b.'</td>
+						</tr>';
+					}
+				}
+
+				if(in_array($p1->kategori, ['K_BOX'])){
+					for($f = 1; $f <= 4; $f++){
+						$mF = '';
+						if($f == 1){
+							$mF = 'FLEXO-1';
+						}
+						if($f == 2){
+							$mF = 'FLEXO-3';
+						}
+						if($f == 3){
+							$mF = 'FLEXO-4';
+						}
+						if($f == 4){
+							$mF = 'FLEXO-5';
+						}
+						$html .= '<tr>
+							<td style="padding:5px">flexo</td>
+							<td style="padding:5px">'.$p1->Item_ID.'</td>
+							<td style="padding:5px">'.$mF.'</td>
+							<td style="padding:5px">'.$f.'</td>
+						</tr>';
+					}
+				}
+			}
+		$html .= '</table>';
 
 		echo json_encode([
 			'html' => $html,
