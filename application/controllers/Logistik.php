@@ -16466,15 +16466,7 @@ class Logistik extends CI_Controller
 		// DATA INTI DARI SEGALA INTI
 		if($lNmKer == ''){
 			$wK = "AND nm_ker NOT IN('WP', 'WS')";
-		}
-		// else if($lNmKer == 'BKBLTL'){
-		// 	$wK = "AND nm_ker IN('BK', 'BL', 'TL', 'TL-A', 'TL-B')";
-		// }else if($lNmKer == 'MHMFMC'){
-		// 	$wK = "AND nm_ker IN('MF', 'MF-A', 'MF-B', 'MH', 'MC', 'MH COLOR')";
-		// }else if($lNmKer == 'MLMNMS'){
-		// 	$wK = "AND nm_ker IN('ML', 'MN', 'MS', 'MS-A', 'MS-B', 'MS-C')";
-		// }
-		else{
+		}else{
 			$wK = "AND nm_ker='$lNmKer'";
 		}
 		$getLabel = $this->db->query("SELECT nm_ker FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY nm_ker");
@@ -16484,36 +16476,46 @@ class Logistik extends CI_Controller
 		}else{
 			$html .='<div style="overflow:auto;white-space:nowrap;">
 				<table style="margin:12px 6px;padding:0;color:#000;text-align:center;vertical-align:middle;border-collapse:collapse" border="1">';
+
+				// ACUAN BERAT
+				$getPTK = $this->db->query("SELECT*FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY g_label");
+				($getPTK->num_rows() == 0) ? $clsPTK = '' : $clsPTK = 'colspan="'.$getPTK->num_rows().'"';
+
 				// GET SEMUA KOP JENIS
 				$html .='<tr style="background:#e9e9e9">
 					<td style="padding:5px;font-weight:bold" rowspan="3">NO.</td>
 					<td style="padding:5px;font-weight:bold" rowspan="3">UKURAN</td>';
 					foreach($getLabel->result() as $lbl){
 						$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
-						($lbl->nm_ker == 'MH COLOR') ? $nmKer = 'MC' : $nmKer = $lbl->nm_ker;
 						$nrs = $getGsm->num_rows() * 2;
-						$html .='<td style="padding:5px;font-weight:bold" colspan="'.$nrs.'">'.$nmKer.'</td>';
+						$html .='<td style="padding:5px;font-weight:bold" colspan="'.$nrs.'">'.$lbl->nm_ker.'</td>';
 					}
-					$html .='<td style="padding:5px;font-weight:bold" rowspan="3">P</td>
+					$html .='<td style="padding:5px;font-weight:bold" '.$clsPTK.' rowspan="1">ACUAN BERAT</td>
 				</tr>';
 
 				// GET SEMUA KOP GRAMATURE
 				$html .='<tr>';
-				foreach($getLabel->result() as $lbl){
-					$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
-					foreach($getGsm->result() as $gsm){
-						$html .='<td style="padding:5px;background:#e9e9e9;font-weight:bold" colspan="2">'.$gsm->g_label.'</td>';
+					foreach($getLabel->result() as $lbl){
+						$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+						foreach($getGsm->result() as $gsm){
+							$html .='<td style="padding:5px;background:#e9e9e9;font-weight:bold" colspan="2">'.$gsm->g_label.'</td>';
+						}
 					}
-				}
+					// PTK
+					$html .='<td style="padding:5px;background:#e9e9e9;font-weight:bold" '.$clsPTK.'>PER GSM</td>';
 				$html .='</tr>';
 
 				$html .='<tr>';
-				foreach($getLabel->result() as $lbl){
-					$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
-					foreach($getGsm->result() as $gsm){
-						$html .='<td style="padding:5px 12px;background:#e9e9e9;font-weight:bold">U</td><td style="padding:5px 12px;background:#e9e9e9;font-weight:bold">S</td>';
+					foreach($getLabel->result() as $lbl){
+						$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+						foreach($getGsm->result() as $gsm){
+							$html .='<td style="padding:5px 12px;background:#e9e9e9;font-weight:bold">U</td><td style="padding:5px 12px;background:#e9e9e9;font-weight:bold">S</td>';
+						}
 					}
-				}
+					// PTK
+					foreach($getPTK->result() as $p){
+						$html .='<td style="padding:5px;background:#e9e9e9;font-weight:bold">'.$p->g_label.'</td>';
+					}
 				$html .='</tr>';
 
 				// TAMPIL SEMUA DATA UKURAN
@@ -16524,21 +16526,17 @@ class Logistik extends CI_Controller
 				foreach($getWidth->result() as $width){
 					$i++;
 					$html .='<tr class="new-stok-gg" style="position:relative"><td style="font-weight:bold">'.$i.'</td><td style="font-weight:bold;background:#fff;border:1px solid #808080;position:sticky;left:0">'.round($width->width,2).'</td>';
-
 					$getLabel = $this->db->query("SELECT nm_ker FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY nm_ker");
 					foreach($getLabel->result() as $lbl){
-						$getGsm = $this->db->query("SELECT*FROM m_roll
-						WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker'
-						GROUP BY nm_ker,g_label");
+						$getGsm = $this->db->query("SELECT*FROM m_roll r
+						LEFT JOIN trs_so_jenis j ON r.nm_ker=j.jenis
+						WHERE r.status_p='Open' AND r.t_cor='$pilih' AND r.nm_ker='$lbl->nm_ker'
+						GROUP BY r.nm_ker,r.g_label");
+						$sumGSMutuh = 0;
+						$sumGSMsisa = 0;
 						foreach($getGsm->result() as $gsm){
-							// if($gsm->g_label == 125 || $gsm->g_label == '125'){
-							// 	$a120 = "(g_label='120' OR g_label='125')";
-							// }else{
-							// 	$a120 = "g_label='$gsm->g_label'";
-							// }
-
 							// CEK PTK
-							$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$pilih' AND width='$width->width'");
+							$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$pilih' AND g_label='$gsm->g_label' AND width='$width->width'");
 							if($qP->num_rows() == 0){
 								$uPTK = "";
 								$sPTK = "";
@@ -16551,14 +16549,8 @@ class Logistik extends CI_Controller
 							WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND g_label='$gsm->g_label' AND width='$width->width' $uPTK
 							GROUP BY nm_ker,width");
 							// UTUH
-							if(in_array($gsm->nm_ker, ['MF', 'MF-A', 'MF-B', 'MH', 'MC'])){
-								$gbGsm = '#ffc';
-							}else if(in_array($gsm->nm_ker, ['ML', 'MN', 'MS', 'MS-A', 'MS-B', 'MS-C'])){
-								$gbGsm = '#fcc';
-							}else if(in_array($gsm->nm_ker, ['BK', 'BL', 'TL', 'TL-A', 'TL-B'])){
-								$gbGsm = '#ccc';
-							}else if($gsm->nm_ker == 'MH COLOR'){
-								$gbGsm = '#ccf';
+							if($gsm->jenis != null){
+								$gbGsm = $gsm->bg_u;
 							}else{
 								$gbGsm = '#fff';
 							}
@@ -16574,14 +16566,8 @@ class Logistik extends CI_Controller
 							$getWSisa = $this->db->query("SELECT nm_ker,g_label,width,COUNT(width) as jml FROM m_roll
 							WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND g_label='$gsm->g_label' AND width='$width->width' $sPTK
 							GROUP BY nm_ker,width");
-							if(in_array($gsm->nm_ker, ['MF', 'MF-A', 'MF-B', 'MH', 'MC'])){
-								$gbGsmS = '#ff0';
-							}else if(in_array($gsm->nm_ker, ['ML', 'MN', 'MS', 'MS-A', 'MS-B', 'MS-C'])){
-								$gbGsmS = '#faa';
-							}else if(in_array($gsm->nm_ker, ['BK', 'BL', 'TL', 'TL-A', 'TL-B'])){
-								$gbGsmS = '#aaa';
-							}else if($gsm->nm_ker == 'MH COLOR'){
-								$gbGsmS = '#aaf';
+							if($gsm->jenis != null){
+								$gbGsmS = $gsm->bg_s;
 							}else{
 								$gbGsmS = '#fff';
 							}
@@ -16595,13 +16581,16 @@ class Logistik extends CI_Controller
 						}
 					}
 					// PATOKAN SISA
-					$qC = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$pilih' AND width='$width->width'");
-					($qC->num_rows() == 0 || ($qC->num_rows() != 0 && $qC->row()->ptk == 0)) ? $cc = '' : $cc = $qC->row()->ptk;
-					$html .= '<td style="padding:5px">
-						<input type="number" style="border:0;width:60px;text-align:right" id="ptk_'.$gsm->t_cor.round($width->width,2).'" onchange="btnPatokanRoll('."'".$gsm->t_cor."'".', '."'".round($width->width,2)."'".')" value="'.$cc.'">
-					</td>';
+					foreach($getPTK->result() as $p){
+						$qC = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$p->t_cor' AND g_label='$p->g_label' AND width='$width->width'");
+						($qC->num_rows() == 0 || ($qC->num_rows() != 0 && $qC->row()->ptk == 0)) ? $cc = '' : $cc = $qC->row()->ptk;
+						$html .='<td style="padding:5px">
+							<input type="number" style="border:0;width:40px;text-align:right" id="ptk_'.$p->t_cor.$p->g_label.round($width->width,2).'" onchange="btnPatokanRoll('."'".$p->t_cor."'".', '."'".$p->g_label."'".', '."'".round($width->width,2)."'".')" value="'.$cc.'">
+						</td>';
+					}
 				}
 				$html .='</tr>';
+
 			$html .= '</table>';
 		}
 
@@ -16712,7 +16701,7 @@ class Logistik extends CI_Controller
 			$qR = $this->db->query("SELECT*FROM m_roll WHERE t_cor LIKE '%$t_cor%' AND nm_ker LIKE '%$nm_ker%' AND g_label LIKE '%$g_label%' AND width LIKE '%$width%' AND roll LIKE '%$c_roll%' ORDER BY t_cor, i_tgl, nm_ker, g_label, width");
 		}else{
 			// CEK PTK
-			$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$t_cor' AND width='$width'");
+			$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$t_cor' AND g_label='$g_label' AND width='$width'");
 			if($qP->num_rows() == 0){
 				$uPTK = "";
 			}else{
