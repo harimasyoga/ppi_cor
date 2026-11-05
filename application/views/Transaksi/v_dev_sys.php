@@ -37,6 +37,14 @@
 			bottom: 0;
 			left: 0
 		}
+
+		.pr-inp-kosong {
+			background: none;
+			text-align: center;
+			border: 0;
+			padding: 0;
+			height: 100%;
+		}
 	</style>
 	
 	<section class="content">
@@ -208,6 +216,27 @@
 					</div>
 				</div>
 			</div>
+
+			<?php if(in_array($this->session->userdata('level'), ['Admin', 'PPIC'])){ ?>
+				<div class="row" id="routingp">
+					<div class="col-md-12">
+						<div class="card card-secondary card-outline">
+							<div class="card-header" style="padding:12px">
+								<h3 class="card-title" style="font-weight:bold;font-size:18px">ROUTING PRIORITY<span class="rinc-tgl" style="font-style:italic"></span></span></h3>
+								<div class="card-tools">
+									<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+									<i class="fas fa-minus"></i></button>
+								</div>
+							</div>
+							<div class="card-body" style="padding:12px 6px">
+								<div style="overflow:auto;white-space:nowrap">
+									<div class="ds-rp"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			<?php } ?>
 			
 			<div class="row" id="jadwal">
 				<div class="col-md-12">
@@ -254,6 +283,8 @@
 					</div>
 				</div>
 			</div>
+
+
 		</div>
 	</section>
 </div>
@@ -315,6 +346,8 @@
 </div>
 
 <script type="text/javascript">
+	const urlAuth = '<?= $this->session->userdata('level')?>';
+
 	$(document).ready(function () {
 		$('.select2').select2()
 		loadCalender('')
@@ -513,6 +546,9 @@
 					$("#h_tgl").val(tgl)
 					$("#r_tgl").val(tgl)
 					loadCalender('edit')
+					if(urlAuth == 'Admin' || urlAuth == 'PPIC'){
+						loadRoutingPriority()
+					}
 					location.href = '#jadwal';
 				}
 				if(opsi == 'kirim'){
@@ -524,6 +560,61 @@
 					$("#z_tgl").val(tgl)
 					loadRealCalender('edit')
 					location.href = '#realisasi';
+				}
+			}
+		})
+	}
+
+	function loadRoutingPriority(){
+		// $(".ds-rp").html('')
+		let tgl = $("#r_tgl").val()
+		let tahun = $("#tahun").val()
+		let bulan = $("#bulan").val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/loadRoutingPriority') ?>',
+			type: "POST",
+			data: ({ tgl, tahun, bulan }),
+			success: function(res) {
+				data = JSON.parse(res)
+				$(".ds-rp").html(data.html)
+				if(data.html){
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function clickRtPr(id_produk, opsi){
+		$(".btn-clk-ptr"+id_produk).prop('disabled', true)
+		let pr_cor1 = $("#pr_cor1"+id_produk).val()
+		let pr_cor2 = $("#pr_cor2"+id_produk).val()
+		let pr_flx1 = $("#pr_flx1"+id_produk).val()
+		let pr_flx2 = $("#pr_flx2"+id_produk).val()
+		let pr_flx3 = $("#pr_flx3"+id_produk).val()
+		let pr_flx4 = $("#pr_flx4"+id_produk).val()
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/clickRtPr') ?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'Loading',
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				});
+			},
+			data: ({ pr_cor1, pr_cor2, pr_flx1, pr_flx2, pr_flx3, pr_flx4, id_produk, opsi }),
+			success: function(res) {
+				data = JSON.parse(res)
+				console.log(data)
+				if(data.data){
+					toastr.success(`<b>${data.msg}</b>`)
+					loadRoutingPriority()
+				}else{
+					swal(`<b>${data.msg}</b>`, "", "error")
+					$(".btn-clk-ptr"+id_produk).prop('disabled', false)
 				}
 			}
 		})
