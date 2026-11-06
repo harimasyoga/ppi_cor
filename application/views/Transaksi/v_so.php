@@ -87,7 +87,6 @@
 					<table id="datatable" class="table table-bordered table-striped" width="100%">
 						<thead class="color-tabel">
 							<tr>
-									<!-- <th style="width:10%">TGL. PLAN</th> -->
 								<th style="width:5%">NO.</th>
 								<th>TGL.</th>
 								<th>NO. PO</th>
@@ -96,7 +95,6 @@
 								<th style="width:10%">QTY PO</th>
 								<th style="width:10%">PENGIRIMAN</th>
 								<th style="width:10%">ETA</th>
-									<!-- <th style="width:10%">ORDER</th> -->
 								<th style="width:5%">AKSI</th>
 							</tr>
 						</thead>
@@ -106,134 +104,25 @@
 			</div>
 		</div>
 
-		<div class="row row-lap-so" style="display:none">
-			<div class="col-md-12">
-				<div class="card card-secondary card-outline">
-					<div class="card-header" style="padding:12px">
-						<h3 class="card-title" style="font-weight:bold;font-size:18px">LAPORAN</h3>
-					</div>
-					<div class="card-body" style="padding:6px">
-						<!-- ORDERS -->
-						<div style="overflow:auto;white-space:nowrap">
-							<div class="trim-orders"></div>
+		<?php if(in_array($this->session->userdata('level'), ['Admin'])){ ?>
+			<div class="row row-lap-so">
+				<div class="col-md-12">
+					<div class="card card-secondary card-outline">
+						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">ROUTING PRIORITY</h3>
 						</div>
-						<!-- ORDER ITEMS -->
-						<div style="overflow:auto;white-space:nowrap">
-							<div class="trim-order-items"></div>
-						</div>
-						<!-- PPIC -->
-						<div style="overflow:auto;white-space:nowrap">
-							<div class="trim-ppic"></div>
+						<div class="card-body" style="padding:6px">
+							<div>
+								<button type="button" class="btn btn-primary" onclick="routingPriority()"><i class="fas fa-search"></i></button>
+							</div>
+							<div style="overflow:auto;white-space:nowrap">
+								<div class="routing-priority"></div>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-
-		<div class="row row-peng-roll" style="display:none">
-			<div class="col-md-12">
-				<div class="card card-secondary card-outline">
-					<div class="card-header" style="padding:12px">
-						<h3 class="card-title" style="font-weight:bold;font-size:18px">PENGGUNAAN ROLL</h3>
-					</div>
-					<div style="margin:12px 6px;display:flex">
-						<button type="button" class="btn btn-sm btn-info" onclick="kembali()"><i class="fa fa-arrow-left"></i> <b>LIST SO</b></button><div id="btn-header" style="margin-left:6px"></div>
-						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('list')"><i class="fas fa-list-ul"></i> <b>LIST</b></button><div id="btn-header" style="margin-left:6px"></div>
-						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('add')"><i class="fas fa-plus"></i> <b>ADD</b></button><div id="btn-header" style="margin-left:6px"></div>
-						<button type="button" class="btn btn-sm btn-primary" onclick="pRoll('guna')"><i class="fas fa-minus"></i> <b>PENGGUNAAN</b></button><div id="btn-header" style="margin-left:6px"></div>
-					</div>
-					<!-- list -->
-					<div class="card-list" style="display:none">
-						<div class="card-body row" style="padding:12px 6px 3px;font-weight:bold">
-							<div class="col-md-1">CORR</div>
-							<div class="col-md-2">
-								<select id="list_pilih" class="form-control select2">
-									<option value="CA">ATAS</option>
-									<option value="CB">BAWAH</option>
-								</select>
-							</div>
-							<div class="col-md-9"></div>
-						</div>
-						<div class="card-body row" style="padding:3px 6px 12px;font-weight:bold">
-							<div class="col-md-1">JENIS</div>
-							<div class="col-md-2">
-								<select id="list_nmker" class="form-control select2">
-									<option value="">SEMUA</option>
-									<option value="BK">BK</option>
-									<option value="BL">BL</option>
-									<option value="MF">MF</option>
-									<option value="MH">MH</option>
-									<option value="MH COLOR">MC</option>
-									<option value="ML">ML</option>
-									<option value="MN">MN</option>
-									<option value="MS">MS</option>
-									<option value="TL">TL</option>
-									<option value="BKBLTL">BK, BL, TL</option>
-									<option value="MHMFMC">MH, MF, MC</option>
-									<option value="MLMNMS">ML, MN, MS</option>
-								</select>
-							</div>
-							<div class="col-md-9">
-								<button type="button" class="btn btn-primary" onclick="cariListRoll()"><i class="fas fa-search"></i></button>
-							</div>
-						</div>
-						<div class="list-list"></div>
-						<div class="list-roll"></div>
-					</div>
-					<!-- add -->
-					<div class="card-add" style="padding-bottom:12px;display:none">
-						<div class="card-body row" style="padding:6px;font-weight:bold">
-							<div class="col-md-1">PILIH</div>
-							<div class="col-md-2">
-								<select id="add_pilih" class="form-control select2" onchange="pRoll('add','pilih')">
-									<option value="">PILIH</option>
-									<option value="PM">PM</option>
-									<option value="GUDANG">GUDANG</option>
-								</select>
-							</div>
-							<div class="col-md-9"></div>
-						</div>
-						<div class="add-pm" style="display:none">
-							<div class="card-body row" style="padding:3px 6px 6px;font-weight:bold">
-								<div class="col-md-1">TGL. PROD.</div>
-								<div class="col-md-2">
-									<input type="date" class="form-control" id="tgl_pm">
-								</div>
-								<div class="col-md-9">
-									<button type="button" class="btn btn-primary" onclick="addCari('pm')"><i class="fas fa-search"></i></button>
-								</div>
-							</div>
-						</div>
-						<div class="add-gudang" style="display:none">
-							<div class="card-body row" style="padding:3px 6px 6px;font-weight:bold">
-								<div class="col-md-1">TGL.</div>
-								<div class="col-md-2">
-									<input type="date" class="form-control" id="tgl_gudang">
-								</div>
-								<div class="col-md-9">
-									<button type="button" class="btn btn-primary" onclick="addCari('gudang')"><i class="fas fa-search"></i></button>
-								</div>
-							</div>
-						</div>
-						<div class="add-list"></div>
-					</div>
-					<!-- guna -->
-					<div class="card-guna" style="display:none">
-						<div class="card-body row" style="padding:3px 6px 12px;font-weight:bold">
-							<div class="col-md-1">TGL.</div>
-							<div class="col-md-2">
-								<input type="date" class="form-control" id="tgl_guna" onchange="cariGunaRoll()">
-							</div>
-							<div class="col-md-9">
-								<button type="button" class="btn btn-primary" onclick="cariGunaRoll()"><i class="fas fa-search"></i></button>
-							</div>
-						</div>
-						<div class="guna-list"></div>
-						<div class="guna-roll"></div>
-					</div>
-				</div>
-			</div>
-		</div>
+		<?php } ?>
 	</section>
 </div>
 
@@ -297,34 +186,6 @@
 							<select name="items" id="items" class="form-control select2"></select>
 						</td>
 					</tr>
-					<!-- <tr>
-						<td style="padding:5px 0;font-weight:bold">ETA ITEM</td>
-						<td style="padding:5px 0" id="eta_item">-</td>
-					</tr>
-					<tr>
-						<td style="padding:5px 0;font-weight:bold">KODE. MC</td>
-						<td style="padding:5px 0" id="kode_mc">-</td>
-					</tr>
-					<tr>
-						<td style="padding:5px 0;font-weight:bold">UK. BOX</td>
-						<td style="padding:5px 0" id="uk_box">-</td>
-					</tr>
-					<tr>
-						<td style="padding:5px 0;font-weight:bold">UK. SHEET</td>
-						<td style="padding:5px 0" id="uk_sheet">-</td>
-					</tr>
-					<tr>
-						<td style="padding:5px 0;font-weight:bold">FLUTE</td>
-						<td style="padding:5px 0" id="flute">-</td>
-					</tr>
-					<tr>
-						<td style="padding:5px 0;font-weight:bold">KUALITAS</td>
-						<td style="padding:5px 0" id="substance">-</td>
-					</tr>
-					<tr>
-						<td style="padding:5px 0;font-weight:bold">QTY PO</td>
-						<td style="padding:5px 0" id="qty_po">-</td>
-					</tr> -->
 					<tr>
 						<td style="padding:5px 0;font-weight:bold">NO. SO</td>
 						<td style="padding:5px 0">
@@ -431,13 +292,6 @@
 		$("#idpodetail").val("")
 		$("#marketing").val("")
 		$("#customer").val("")
-		// $("#uk_box").html("-")
-		// $("#uk_sheet").html("-")
-		// $("#flute").html("-")
-		// $("#substance").html("-")
-		// $("#eta_item").html("")
-		// $("#kode_mc").html("-")
-		// $("#qty_po").html("-")
 		$("#no_so").val("").prop("disabled", true)
 		$("#btn-simpan").prop("disabled", false);
 		soPlhNoPO()
@@ -493,6 +347,19 @@
 			$(".card-add").hide()
 			$(".card-guna").show()
 		}
+	}
+
+	function routingPriority(){
+		$(".routing-priority").html('')
+		$.ajax({
+			url: '<?php echo base_url('Transaksi/routingPriority')?>',
+			type: "POST",
+			success: function(json){
+				data = JSON.parse(json)
+				$(".routing-priority").html(data.html)
+				console.log(data)
+			}
+		})
 	}
 
 	function cariListRoll(){
@@ -815,13 +682,6 @@
 		let sales = $('#no_po option:selected').attr('data-sales');
 		let cust = $('#no_po option:selected').attr('data-cust');
 		let kdpo = $('#no_po option:selected').attr('data-kdpo');
-		// $("#uk_box").html("-")
-		// $("#uk_sheet").html("-")
-		// $("#flute").html("-")
-		// $("#substance").html("-")
-		// $("#eta_item").html("")
-		// $("#kode_mc").html("-")
-		// $("#qty_po").html("-")
 		$("#no_so").val("").prop("disabled", true)
 		$("#marketing").val(sales)
 		$("#customer").val(cust)
@@ -879,14 +739,6 @@
 		let kode_mc       = $('#items option:selected').attr('data-kode_mc')
 		let qty           = $('#items option:selected').attr('data-qty')
 		$("#idpodetail").val(idpodetail)
-		// $("#uk_box").html((item == "") ? '-' : ukuran)
-		// $("#uk_sheet").html((item == "") ? '-' : ukuran_sheet)
-		// $("#flute").html((item == "") ? '-' : flute)
-		// $("#substance").html((item == "") ? '-' : kualitas)
-		// $("#eta_item").html((item == "") ? '' : eta_item)
-		// $("#kode_mc").html((item == "") ? '-' : kode_mc)
-		// $("#qty_po").html((item == "") ? '-' : qty)
-		// $("#no_so").val("").prop("disabled", true)
 		soNoSo(idpodetail)
 	})
 

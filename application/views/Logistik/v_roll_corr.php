@@ -597,13 +597,13 @@
 		})
 	}
 
-	function btnPatokanRoll(t_cor, width){
-		let ptk = $("#ptk_"+t_cor+width).val()
+	function btnPatokanRoll(t_cor, g_label, width){
+		let ptk = $("#ptk_"+t_cor+g_label+width).val()
 		$.ajax({
 			url: '<?php echo base_url('Logistik/btnPatokanRoll')?>',
 			type: "POST",
 			data: ({
-				t_cor, width, ptk
+				t_cor, g_label, width, ptk
 			}),
 			success: function(json){
 				data = JSON.parse(json)

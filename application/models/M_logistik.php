@@ -5294,17 +5294,18 @@ class M_logistik extends CI_Model
 	function btnPatokanRoll()
 	{
 		$t_cor = $_POST["t_cor"];
+		$g_label = $_POST["g_label"];
 		$width = $_POST["width"];
 		$ptk = $_POST["ptk"];
 
-		$cek = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$t_cor' AND width='$width'");
-
+		$cek = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$t_cor' AND g_label='$g_label' AND width='$width'");
 		if($ptk < 0){
 			$data = false;
-			$msg = "SALAH";
+			$msg = "CEK INPUTAN!";
 		}else{
 			$aR = array(
 				't_cor' => $t_cor,
+				'g_label' => $g_label,
 				'width' => $width,
 				'ptk' => $ptk,
 			);
@@ -5314,6 +5315,7 @@ class M_logistik extends CI_Model
 			}else{
 				$this->db->set('ptk', $ptk);
 				$this->db->where('t_cor', $t_cor);
+				$this->db->where('g_label', $g_label);
 				$this->db->where('width', $width);
 				$data = $this->db->update('m_roll_ptk', $aR);
 				$msg = "BERHASIL UPDATE!";

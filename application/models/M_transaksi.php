@@ -3251,6 +3251,164 @@ class M_transaksi extends CI_Model
 		];
 	}
 
+	function clickRtPr()
+	{
+		$pr_cor1 = $_POST["pr_cor1"];
+		$pr_cor2 = $_POST["pr_cor2"];
+		$pr_flx1 = $_POST["pr_flx1"];
+		$pr_flx2 = $_POST["pr_flx2"];
+		$pr_flx3 = $_POST["pr_flx3"];
+		$pr_flx4 = $_POST["pr_flx4"];
+		$id_produk = $_POST["id_produk"];
+		$opsi = $_POST["opsi"];
+
+		$produk = $this->db->query("SELECT*FROM m_produk WHERE id_produk='$id_produk'")->row();
+
+		if($pr_cor1 == ""){
+			$data = false;
+			$msg = "PRIORITY COR 1 HARUS DI ISI!";
+		}else if($pr_flx1 == "" && $produk->kategori == "K_BOX"){
+			$data = false;
+			$msg = "PRIORITY FLEXO 1 HARUS DI ISI!";
+		}else{
+			$cekCR1 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$id_produk' AND jenis='corrugator' AND rank='1'");
+			$this->db->set('id_produk', $id_produk);
+			$this->db->set('jenis', 'corrugator');
+			$this->db->set('mesin', $pr_cor1);
+			$this->db->set('rank', 1);
+			if($cekCR1->num_rows() == 0 && $pr_cor1 != ''){
+				$this->db->set('created_at', date('Y-m-d H:i:s'));
+				$this->db->set('created_by', $this->username);
+				$this->db->insert("m_routing_priority");
+			}else if($pr_cor1 != ''){
+				$this->db->set('updated_at', date('Y-m-d H:i:s'));
+				$this->db->set('updated_by', $this->username);
+				$this->db->where('id_produk', $id_produk);
+				$this->db->where('jenis', 'corrugator');
+				$this->db->where('rank', 1);
+				$this->db->update("m_routing_priority");
+			}
+
+			$cekCR2 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$id_produk' AND jenis='corrugator' AND rank='2'");
+			$this->db->set('id_produk', $id_produk);
+			$this->db->set('jenis', 'corrugator');
+			$this->db->set('mesin', $pr_cor2);
+			$this->db->set('rank', 2);
+			if($cekCR2->num_rows() == 0 && $pr_cor2 != ''){
+				$this->db->set('created_at', date('Y-m-d H:i:s'));
+				$this->db->set('created_by', $this->username);
+				$this->db->insert("m_routing_priority");
+			}else{
+				$this->db->set('updated_at', date('Y-m-d H:i:s'));
+				$this->db->set('updated_by', $this->username);
+				$this->db->where('id_produk', $id_produk);
+				$this->db->where('jenis', 'corrugator');
+				$this->db->where('rank', 2);
+				if($opsi == 'EDIT' && $pr_cor2 == "" && $cekCR2->num_rows() != 0){
+					$this->db->delete("m_routing_priority");
+				}else{
+					$this->db->update("m_routing_priority");
+				}
+			}
+
+			$cekFX1 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$id_produk' AND jenis='flexo' AND rank='1'");
+			$this->db->set('id_produk', $id_produk);
+			$this->db->set('jenis', 'flexo');
+			$this->db->set('mesin', $pr_flx1);
+			$this->db->set('rank', 1);
+			if($cekFX1->num_rows() == 0 && $pr_flx1 != ''){
+				$this->db->set('created_at', date('Y-m-d H:i:s'));
+				$this->db->set('created_by', $this->username);
+				$this->db->insert("m_routing_priority");
+			}else{
+				$this->db->set('updated_at', date('Y-m-d H:i:s'));
+				$this->db->set('updated_by', $this->username);
+				$this->db->where('id_produk', $id_produk);
+				$this->db->where('jenis', 'flexo');
+				$this->db->where('rank', 1);
+				if($opsi == 'EDIT' && $pr_flx1 == "" && $cekFX1->num_rows() != 0){
+					$this->db->delete("m_routing_priority");
+				}else{
+					$this->db->update("m_routing_priority");
+				}
+			}
+
+			$cekFX2 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$id_produk' AND jenis='flexo' AND rank='2'");
+			$this->db->set('id_produk', $id_produk);
+			$this->db->set('jenis', 'flexo');
+			$this->db->set('mesin', $pr_flx2);
+			$this->db->set('rank', 2);
+			if($cekFX2->num_rows() == 0 && $pr_flx2 != ''){
+				$this->db->set('created_at', date('Y-m-d H:i:s'));
+				$this->db->set('created_by', $this->username);
+				$this->db->insert("m_routing_priority");
+			}else{
+				$this->db->set('updated_at', date('Y-m-d H:i:s'));
+				$this->db->set('updated_by', $this->username);
+				$this->db->where('id_produk', $id_produk);
+				$this->db->where('jenis', 'flexo');
+				$this->db->where('rank', 2);
+				if($opsi == 'EDIT' && $pr_flx2 == "" && $cekFX2->num_rows() != 0){
+					$this->db->delete("m_routing_priority");
+				}else{
+					$this->db->update("m_routing_priority");
+				}
+			}
+
+			$cekFX3 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$id_produk' AND jenis='flexo' AND rank='3'");
+			$this->db->set('id_produk', $id_produk);
+			$this->db->set('jenis', 'flexo');
+			$this->db->set('mesin', $pr_flx3);
+			$this->db->set('rank', 3);
+			if($cekFX3->num_rows() == 0 && $pr_flx3 != ''){
+				$this->db->set('created_at', date('Y-m-d H:i:s'));
+				$this->db->set('created_by', $this->username);
+				$this->db->insert("m_routing_priority");
+			}else{
+				$this->db->set('updated_at', date('Y-m-d H:i:s'));
+				$this->db->set('updated_by', $this->username);
+				$this->db->where('id_produk', $id_produk);
+				$this->db->where('jenis', 'flexo');
+				$this->db->where('rank', 3);
+				if($opsi == 'EDIT' && $pr_flx3 == "" && $cekFX3->num_rows() != 0){
+					$this->db->delete("m_routing_priority");
+				}else{
+					$this->db->update("m_routing_priority");
+				}
+			}
+
+			$cekFX4 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$id_produk' AND jenis='flexo' AND rank='4'");
+			$this->db->set('id_produk', $id_produk);
+			$this->db->set('jenis', 'flexo');
+			$this->db->set('mesin', $pr_flx4);
+			$this->db->set('rank', 4);
+			if($cekFX4->num_rows() == 0 && $pr_flx4 != ''){
+				$this->db->set('created_at', date('Y-m-d H:i:s'));
+				$this->db->set('created_by', $this->username);
+				$this->db->insert("m_routing_priority");
+			}else{
+				$this->db->set('updated_at', date('Y-m-d H:i:s'));
+				$this->db->set('updated_by', $this->username);
+				$this->db->where('id_produk', $id_produk);
+				$this->db->where('jenis', 'flexo');
+				$this->db->where('rank', 4);
+				if($opsi == 'EDIT' && $pr_flx4 == "" && $cekFX4->num_rows() != 0){
+					$this->db->delete("m_routing_priority");
+				}else{
+					$this->db->update("m_routing_priority");
+				}
+			}
+
+			$data = true;
+			$msg = "BERHASIL!";
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function dsUrut()
 	{
 		$id_dev = $_POST["id_dev"];
