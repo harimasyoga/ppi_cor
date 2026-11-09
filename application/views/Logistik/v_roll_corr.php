@@ -61,9 +61,6 @@
 									}
 									echo $html1;
 								?>
-								<!-- <option value="BKBLTL">BK, BL, TL</option>
-								<option value="MHMFMC">MH, MF, MC</option>
-								<option value="MLMNMS">ML, MN, MS</option> -->
 							</select>
 						</div>
 						<div class="col-md-9" style="padding-top:3px">
@@ -72,7 +69,6 @@
 					</div>
 					<div class="list-pdf"></div>
 					<div class="list-list"></div>
-					<div class="list-roll"></div>
 				</div>
 				<!-- add -->
 				<div class="card-add" style="padding-bottom:12px;display:none">
@@ -501,8 +497,8 @@
 	}
 
 	function cariListRoll(){
+		$(".sidebar-mini").css({"padding-right": "0"})
 		$(".list-list").html('')
-		$(".list-roll").html('')
 		let list_pilih = $("#list_pilih").val()
 		let list_nmker = $("#list_nmker").val()
 		$.ajax({
@@ -519,7 +515,7 @@
 				});
 			},
 			data: ({
-				list_pilih, list_nmker
+				list_pilih, list_nmker, opsi: 'html'
 			}),
 			success: function(json){
 				data = JSON.parse(json)
@@ -568,8 +564,6 @@
 		let s_gsm = $("#s_gsm").val()
 		let s_lebar = $("#s_lebar").val()
 		let s_roll = $("#s_roll").val()
-		// let s_l = $("#s_l").val()
-		// let s_id = $("#s_id").val()
 		$(".list-roll2").html('')
 		$.ajax({
 			url: '<?php echo base_url('Logistik/planCariRoll')?>',
@@ -619,7 +613,9 @@
 	}
 
 	function btnListRoll(t_cor, nm_ker, g_label, width, opsi){
-		$(".list-roll").html('')
+		$(".jdl").html(`RINCIAN ROLL : ${nm_ker}${g_label} / ${width} ( ${opsi} )`)
+		$("#modal-rinc-plan").html(`. . .`)
+		$("#modalRincRoll").modal("show")
 		$.ajax({
 			url: '<?php echo base_url('Logistik/btnListRoll')?>',
 			type: "POST",
@@ -638,7 +634,7 @@
 			}),
 			success: function(json){
 				data = JSON.parse(json)
-				$(".list-roll").html(data.html)
+				$("#modal-rinc-plan").html(data.html)
 				swal.close()
 			}
 		})
@@ -735,6 +731,9 @@
 					toastr.success(`<b>BERHASIL!</b>`)
 					rollCari()
 				}else{
+					$(".jdl").html(``)
+					$("#modal-rinc-plan").html(``)
+					$("#modalRincRoll").modal("hide")
 					cariListRoll()
 				}
 			}
@@ -790,7 +789,7 @@
 	}
 
 	function btnGunaSisa(){
-		$("#btn-guna-sisa").prop('disabled', true)
+		$(".btn-guna-sisa").prop('disabled', true)
 		let tgl_guna = $("#tgl_guna").val()
 		let roll = $("#add_roll").val()
 		let guna = $("#add_guna").val()
@@ -820,7 +819,7 @@
 					bGunaRoll(roll)
 				}else{
 					toastr.error(`<b>${data.msg}</b>`)
-					$("#btn-guna-sisa").prop('disabled', false)
+					$(".btn-guna-sisa").prop('disabled', false)
 					swal.close()
 				}
 			}
