@@ -10651,153 +10651,165 @@ class Transaksi extends CI_Controller
 		$tahun = $_POST["tahun"];
 		$bulan = $_POST["bulan"];
 		$tgl = $tahun.'-'.$bulan.'-'.$angka;
-
 		$html = '';
 
 		$html .= '<table>
 			<tr style="background:#dee2e6">
 				<th style="padding:6px 12px;border:1px solid #bbb;text-align:center">#</th>
-				<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
 				<th style="padding:6px;border:1px solid #bbb">ITEM</th>
-				<th style="padding:6px;border:1px solid #bbb">UKURAN</th>
+				<th style="padding:6px;border:1px solid #bbb">UK. BOX</th>
+				<th style="padding:6px;border:1px solid #bbb">UK. SHEET</th>
+				<th style="padding:6px;border:1px solid #bbb;text-align:center">BB</th>
 				<th style="padding:6px;border:1px solid #bbb">FLUTE</th>
-				<th style="padding:6px;border:1px solid #bbb">PR COR 1</th>
-				<th style="padding:6px;border:1px solid #bbb">PR COR 2</th>
-				<th style="padding:6px;border:1px solid #bbb">PR FLEXO 1</th>
-				<th style="padding:6px;border:1px solid #bbb">PR FLEXO 2</th>
-				<th style="padding:6px;border:1px solid #bbb">PR FLEXO 3</th>
-				<th style="padding:6px;border:1px solid #bbb">PR FLEXO 4</th>
-				<th style="padding:6px;border:1px solid #bbb">AKSI</th>
+				<th style="padding:6px;border:1px solid #bbb;text-align:center">PR COR 1</th>
+				<th style="padding:6px;border:1px solid #bbb;text-align:center">PR COR 2</th>
+				<th style="padding:6px;border:1px solid #bbb;text-align:center">PR FLEXO 1</th>
+				<th style="padding:6px;border:1px solid #bbb;text-align:center">PR FLEXO 2</th>
+				<th style="padding:6px;border:1px solid #bbb;text-align:center">PR FLEXO 3</th>
+				<th style="padding:6px;border:1px solid #bbb;text-align:center">PR FLEXO 4</th>
+				<th style="padding:6px;border:1px solid #bbb;text-align:center">AKSI</th>
 			</tr>';
 
-			$dwv = $this->db->query("SELECT c.nm_pelanggan,c.attn,i.*,d.* FROM trs_dev_sys d
+			$getPelanggan = $this->db->query("SELECT c.nm_pelanggan,c.attn,d.* FROM trs_dev_sys d
 			INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
 			INNER JOIN trs_po_detail p ON d.id_po_header=p.id
-			INNER JOIN m_produk i ON d.id_produk=i.id_produk
 			WHERE p.status='Approve' AND d.eta='$tgl'
-			GROUP BY i.id_produk
-			ORDER BY c.nm_pelanggan,c.attn,i.kategori,i.nm_produk");
-			$i = 0;
-			foreach($dwv->result() as $d1){
-				$i++;
-				($d1->attn == '-') ? $attn = '' : $attn = '<div>'.$d1->attn.'</div>';
-				($d1->kategori == "K_BOX") ? $kategori = '' : $kategori = '[SHEET] ';
-				($d1->kategori == "K_BOX") ? $ukuran = $d1->ukuran : $ukuran = $d1->ukuran_sheet;
-				($d1->flute == "BCF") ? $flute = "BC" : $flute = $d1->flute;
-				(strlen($d1->nm_produk) >= 35) ? $dv1 = '<div style="width:320px;white-space:normal">' : $dv1 = '';
-				(strlen($d1->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
-
-				$cekCR1 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk' AND jenis='corrugator' AND rank='1'");
-				$cekCR2 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk' AND jenis='corrugator' AND rank='2'");
-				$cekFX1 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk' AND jenis='flexo' AND rank='1'");
-				$cekFX2 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk' AND jenis='flexo' AND rank='2'");
-				$cekFX3 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk' AND jenis='flexo' AND rank='3'");
-				$cekFX4 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk' AND jenis='flexo' AND rank='4'");
-				($cekCR1->num_rows() != 0) ? $bgCR1 = 'style="background:#ccc"' : $bgCR1 = '';
-				($cekCR2->num_rows() != 0) ? $bgCR2 = 'style="background:#ccc"' : $bgCR2 = '';
-				($cekFX1->num_rows() != 0) ? $bgFX1 = 'style="background:#ccc"' : $bgFX1 = '';
-				($cekFX2->num_rows() != 0) ? $bgFX2 = 'style="background:#ccc"' : $bgFX2 = '';
-				($cekFX3->num_rows() != 0) ? $bgFX3 = 'style="background:#ccc"' : $bgFX3 = '';
-				($cekFX4->num_rows() != 0) ? $bgFX4 = 'style="background:#ccc"' : $bgFX4 = '';
-				$aCR = ["CORR-1.8", "CORR-2.5"];
-				$aFX = ["FLEXO-1", "FLEXO-3", "FLEXO-4", "FLEXO-5"];
-
-				// AKSI
-				$cek = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk'");
-				if($cek->num_rows() != 0){
-					$button = '<button type="button" class="btn btn-xs btn-warning btn-clk-ptr'.$d1->id_produk.'" onclick="clickRtPr('."'".$d1->id_produk."'".', '."'EDIT'".')"><i class="fas fa-pen"></i></button>';
-				}else{
-					$button = '<button type="button" class="btn btn-xs btn-success btn-clk-ptr'.$d1->id_produk.'" onclick="clickRtPr('."'".$d1->id_produk."'".', '."'ADD'".')"><i class="fas fa-plus"></i></button>';
-				}
-
-				$html .= '<tr style="vertical-align:top">
-					<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$i.'</td>
-					<td style="padding:6px;border:1px solid #dee2e6">'.$d1->nm_pelanggan.$attn.'</td>
-					<td style="padding:6px;border:1px solid #dee2e6">'.$dv1.$kategori.$d1->nm_produk.$dv2.'</td>
-					<td style="padding:6px;border:1px solid #dee2e6">'.$ukuran.'</td>
-					<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$flute.'</td>
-					<td style="padding:6px;border:1px solid #dee2e6">
-						<select id="pr_cor1'.$d1->id_produk.'" class="pr-inp-kosong" '.$bgCR1.'>';
-							$html .= '<option value="">PILIH</option>';
-							foreach($aCR as $itemCR1) {
-								if($cekCR1->num_rows() == 0){
-									$sl1 = "";
-								}else{
-									($itemCR1 == $cekCR1->row()->mesin) ? $sl1 = 'selected' : $sl1 = '';
-								}
-								$html .= '<option value="'.$itemCR1.'" '.$sl1.'>'.$itemCR1.'</option>';
-							}
-						$html .= '</select>
-					</td>
-					<td style="padding:6px;border:1px solid #dee2e6">
-						<select id="pr_cor2'.$d1->id_produk.'" class="pr-inp-kosong" '.$bgCR2.'>';
-							$html .= '<option value="">PILIH</option>';
-							foreach($aCR as $itemCR2) {
-								if($cekCR2->num_rows() == 0){
-									$sl2 = "";
-								}else{
-									($itemCR2 == $cekCR2->row()->mesin) ? $sl2 = 'selected' : $sl2 = '';
-								}
-								$html .= '<option value="'.$itemCR2.'" '.$sl2.'>'.$itemCR2.'</option>';
-							}
-						$html .= '</select>
-					</td>
-					<td style="padding:6px;border:1px solid #dee2e6">
-						<select id="pr_flx1'.$d1->id_produk.'" class="pr-inp-kosong" '.$bgFX1.'>';
-							$html .= '<option value="">PILIH</option>';
-							foreach($aFX as $itemFX1) {
-								if($cekFX1->num_rows() == 0){
-									$fx1 = "";
-								}else{
-									($itemFX1 == $cekFX1->row()->mesin) ? $fx1 = 'selected' : $fx1 = '';
-								}
-								$html .= '<option value="'.$itemFX1.'" '.$fx1.'>'.$itemFX1.'</option>';
-							}
-						$html .= '</select>
-					</td>
-					<td style="padding:6px;border:1px solid #dee2e6">
-						<select id="pr_flx2'.$d1->id_produk.'" class="pr-inp-kosong" '.$bgFX2.'>';
-							$html .= '<option value="">PILIH</option>';
-							foreach($aFX as $itemFX2) {
-								if($cekFX2->num_rows() == 0){
-									$fx2 = "";
-								}else{
-									($itemFX2 == $cekFX2->row()->mesin) ? $fx2 = 'selected' : $fx2 = '';
-								}
-								$html .= '<option value="'.$itemFX2.'" '.$fx2.'>'.$itemFX2.'</option>';
-							}
-						$html .= '</select>
-					</td>
-					<td style="padding:6px;border:1px solid #dee2e6">
-						<select id="pr_flx3'.$d1->id_produk.'" class="pr-inp-kosong" '.$bgFX3.'>';
-							$html .= '<option value="">PILIH</option>';
-							foreach($aFX as $itemFX3) {
-								if($cekFX3->num_rows() == 0){
-									$fx3 = "";
-								}else{
-									($itemFX3 == $cekFX3->row()->mesin) ? $fx3 = 'selected' : $fx3 = '';
-								}
-								$html .= '<option value="'.$itemFX3.'" '.$fx3.'>'.$itemFX3.'</option>';
-							}
-						$html .= '</select>
-					</td>
-					<td style="padding:6px;border:1px solid #dee2e6">
-						<select id="pr_flx4'.$d1->id_produk.'" class="pr-inp-kosong" '.$bgFX4.'>';
-							$html .= '<option value="">PILIH</option>';
-							foreach($aFX as $itemFX4) {
-								if($cekFX4->num_rows() == 0){
-									$fx4 = "";
-								}else{
-									($itemFX4 == $cekFX4->row()->mesin) ? $fx4 = 'selected' : $fx4 = '';
-								}
-								$html .= '<option value="'.$itemFX4.'" '.$fx4.'>'.$itemFX4.'</option>';
-							}
-						$html .= '</select>
-					</td>
-					<td style="padding:6px;text-align:center;border:1px solid #dee2e6">
-						'.$button.'
-					</td>
+			GROUP BY d.id_pelanggan
+			ORDER BY c.nm_pelanggan,c.attn");
+			foreach($getPelanggan->result() as $p1){
+				($p1->attn == '-') ? $attn = '' : $attn = ' - '.$p1->attn;
+				$html .= '<tr>
+					<td style="padding:6px;background:#333;border:1px solid #333;color:#fff;font-weight:bold" colspan="13">'.$p1->nm_pelanggan.$attn.'</td>
 				</tr>';
+
+				$dwv = $this->db->query("SELECT c.nm_pelanggan,c.attn,i.*,d.* FROM trs_dev_sys d
+				INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
+				INNER JOIN trs_po_detail p ON d.id_po_header=p.id
+				INNER JOIN m_produk i ON d.id_produk=i.id_produk
+				WHERE p.status='Approve' AND d.eta='$tgl' AND d.id_pelanggan='$p1->id_pelanggan'
+				GROUP BY i.id_produk
+				ORDER BY c.nm_pelanggan,c.attn,i.kategori,i.nm_produk");
+				$i = 0;
+				foreach($dwv->result() as $d1){
+					$i++;
+					($d1->kategori == "K_BOX") ? $kategori = '' : $kategori = '[SHEET] ';
+					($d1->flute == "BCF") ? $flute = "BC" : $flute = $d1->flute;
+					(strlen($d1->nm_produk) >= 35) ? $dv1 = '<div style="width:320px;white-space:normal">' : $dv1 = '';
+					(strlen($d1->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+
+					$cekCR1 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk' AND jenis='corrugator' AND rank='1'");
+					$cekCR2 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk' AND jenis='corrugator' AND rank='2'");
+					$cekFX1 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk' AND jenis='flexo' AND rank='1'");
+					$cekFX2 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk' AND jenis='flexo' AND rank='2'");
+					$cekFX3 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk' AND jenis='flexo' AND rank='3'");
+					$cekFX4 = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk' AND jenis='flexo' AND rank='4'");
+					($cekCR1->num_rows() != 0) ? $bgCR1 = 'style="background:#ccc"' : $bgCR1 = '';
+					($cekCR2->num_rows() != 0) ? $bgCR2 = 'style="background:#ccc"' : $bgCR2 = '';
+					($cekFX1->num_rows() != 0) ? $bgFX1 = 'style="background:#ccc"' : $bgFX1 = '';
+					($cekFX2->num_rows() != 0) ? $bgFX2 = 'style="background:#ccc"' : $bgFX2 = '';
+					($cekFX3->num_rows() != 0) ? $bgFX3 = 'style="background:#ccc"' : $bgFX3 = '';
+					($cekFX4->num_rows() != 0) ? $bgFX4 = 'style="background:#ccc"' : $bgFX4 = '';
+					$aCR = ["CORR-1.8", "CORR-2.5"];
+					$aFX = ["FLEXO-1", "FLEXO-3", "FLEXO-4", "FLEXO-5"];
+
+					// AKSI
+					$cek = $this->db->query("SELECT*FROM m_routing_priority WHERE id_produk='$d1->id_produk'");
+					if($cek->num_rows() != 0){
+						$button = '<button type="button" class="btn btn-xs btn-warning btn-clk-ptr'.$d1->id_produk.'" onclick="clickRtPr('."'".$d1->id_produk."'".', '."'EDIT'".')"><i class="fas fa-pen"></i></button>';
+					}else{
+						$button = '<button type="button" class="btn btn-xs btn-success btn-clk-ptr'.$d1->id_produk.'" onclick="clickRtPr('."'".$d1->id_produk."'".', '."'ADD'".')"><i class="fas fa-plus"></i></button>';
+					}
+
+					$html .= '<tr style="vertical-align:top">
+						<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$i.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">'.$dv1.$kategori.$d1->nm_produk.$dv2.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$d1->ukuran.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$d1->ukuran_sheet.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$d1->berat_bersih.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6;text-align:center">'.$flute.'</td>
+						<td style="padding:6px;border:1px solid #dee2e6">
+							<select id="pr_cor1'.$d1->id_produk.'" class="pr-inp-kosong" '.$bgCR1.'>';
+								$html .= '<option value="">PILIH</option>';
+								foreach($aCR as $itemCR1) {
+									if($cekCR1->num_rows() == 0){
+										$sl1 = "";
+									}else{
+										($itemCR1 == $cekCR1->row()->mesin) ? $sl1 = 'selected' : $sl1 = '';
+									}
+									$html .= '<option value="'.$itemCR1.'" '.$sl1.'>'.$itemCR1.'</option>';
+								}
+							$html .= '</select>
+						</td>
+						<td style="padding:6px;border:1px solid #dee2e6">
+							<select id="pr_cor2'.$d1->id_produk.'" class="pr-inp-kosong" '.$bgCR2.'>';
+								$html .= '<option value="">PILIH</option>';
+								foreach($aCR as $itemCR2) {
+									if($cekCR2->num_rows() == 0){
+										$sl2 = "";
+									}else{
+										($itemCR2 == $cekCR2->row()->mesin) ? $sl2 = 'selected' : $sl2 = '';
+									}
+									$html .= '<option value="'.$itemCR2.'" '.$sl2.'>'.$itemCR2.'</option>';
+								}
+							$html .= '</select>
+						</td>
+						<td style="padding:6px;border:1px solid #dee2e6">
+							<select id="pr_flx1'.$d1->id_produk.'" class="pr-inp-kosong" '.$bgFX1.'>';
+								$html .= '<option value="">PILIH</option>';
+								foreach($aFX as $itemFX1) {
+									if($cekFX1->num_rows() == 0){
+										$fx1 = "";
+									}else{
+										($itemFX1 == $cekFX1->row()->mesin) ? $fx1 = 'selected' : $fx1 = '';
+									}
+									$html .= '<option value="'.$itemFX1.'" '.$fx1.'>'.$itemFX1.'</option>';
+								}
+							$html .= '</select>
+						</td>
+						<td style="padding:6px;border:1px solid #dee2e6">
+							<select id="pr_flx2'.$d1->id_produk.'" class="pr-inp-kosong" '.$bgFX2.'>';
+								$html .= '<option value="">PILIH</option>';
+								foreach($aFX as $itemFX2) {
+									if($cekFX2->num_rows() == 0){
+										$fx2 = "";
+									}else{
+										($itemFX2 == $cekFX2->row()->mesin) ? $fx2 = 'selected' : $fx2 = '';
+									}
+									$html .= '<option value="'.$itemFX2.'" '.$fx2.'>'.$itemFX2.'</option>';
+								}
+							$html .= '</select>
+						</td>
+						<td style="padding:6px;border:1px solid #dee2e6">
+							<select id="pr_flx3'.$d1->id_produk.'" class="pr-inp-kosong" '.$bgFX3.'>';
+								$html .= '<option value="">PILIH</option>';
+								foreach($aFX as $itemFX3) {
+									if($cekFX3->num_rows() == 0){
+										$fx3 = "";
+									}else{
+										($itemFX3 == $cekFX3->row()->mesin) ? $fx3 = 'selected' : $fx3 = '';
+									}
+									$html .= '<option value="'.$itemFX3.'" '.$fx3.'>'.$itemFX3.'</option>';
+								}
+							$html .= '</select>
+						</td>
+						<td style="padding:6px;border:1px solid #dee2e6">
+							<select id="pr_flx4'.$d1->id_produk.'" class="pr-inp-kosong" '.$bgFX4.'>';
+								$html .= '<option value="">PILIH</option>';
+								foreach($aFX as $itemFX4) {
+									if($cekFX4->num_rows() == 0){
+										$fx4 = "";
+									}else{
+										($itemFX4 == $cekFX4->row()->mesin) ? $fx4 = 'selected' : $fx4 = '';
+									}
+									$html .= '<option value="'.$itemFX4.'" '.$fx4.'>'.$itemFX4.'</option>';
+								}
+							$html .= '</select>
+						</td>
+						<td style="padding:6px;text-align:center;border:1px solid #dee2e6">
+							'.$button.'
+						</td>
+					</tr>';
+				}
 			}
 		$html .= '</table>';
 

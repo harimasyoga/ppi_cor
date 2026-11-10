@@ -16459,8 +16459,14 @@ class Logistik extends CI_Controller
 
 	function cariListRoll()
 	{
-		$pilih = $_POST["list_pilih"];
-		$lNmKer = $_POST["list_nmker"];
+		$opsi = $_POST["opsi"];
+		if($opsi == 'html'){
+			$pilih = $_POST["list_pilih"];
+			$lNmKer = $_POST["list_nmker"];
+		}else{
+			$pilih = $_GET["corr"];
+			$lNmKer = $_GET["jenis"];
+		}
 		$html = '';
 
 		// DATA INTI DARI SEGALA INTI
@@ -16471,133 +16477,201 @@ class Logistik extends CI_Controller
 		}
 		$getLabel = $this->db->query("SELECT nm_ker FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY nm_ker");
 		
-		if($getLabel->num_rows() == 0){
+		($pilih == 'CA') ? $txtP = 'ATAS' : $txtP = 'BAWAH';
+
+		if($opsi != 'html' && $lNmKer == ''){
+			$html .= '<div style="font-weight:bold">PILIH JENIS!</div>';
+		}else if($getLabel->num_rows() == 0){
 			$html .= '<div style="font-weight:bold">DATA KOSONG!</div>';
 		}else{
-			$html .='<div style="overflow:auto;white-space:nowrap;">
-				<table style="margin:12px 6px;padding:0;color:#000;text-align:center;vertical-align:middle;border-collapse:collapse" border="1">';
-
-				// ACUAN BERAT
-				$getPTK = $this->db->query("SELECT*FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY g_label");
-				($getPTK->num_rows() == 0) ? $clsPTK = '' : $clsPTK = 'colspan="'.$getPTK->num_rows().'"';
-
-				// GET SEMUA KOP JENIS
-				$html .='<tr style="background:#e9e9e9">
-					<td style="padding:5px;font-weight:bold" rowspan="3">NO.</td>
-					<td style="padding:5px;font-weight:bold" rowspan="3">UKURAN</td>';
-					foreach($getLabel->result() as $lbl){
-						$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
-						$nrs = $getGsm->num_rows() * 2;
-						$html .='<td style="padding:5px;font-weight:bold" colspan="'.$nrs.'">'.$lbl->nm_ker.'</td>';
-					}
-					$html .='<td style="padding:5px;font-weight:bold" '.$clsPTK.' rowspan="1">ACUAN BERAT</td>
-				</tr>';
-
-				// GET SEMUA KOP GRAMATURE
-				$html .='<tr>';
-					foreach($getLabel->result() as $lbl){
-						$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
-						foreach($getGsm->result() as $gsm){
-							$html .='<td style="padding:5px;background:#e9e9e9;font-weight:bold" colspan="2">'.$gsm->g_label.'</td>';
-						}
-					}
-					// PTK
-					$html .='<td style="padding:5px;background:#e9e9e9;font-weight:bold" '.$clsPTK.'>PER GSM</td>';
-				$html .='</tr>';
-
-				$html .='<tr>';
-					foreach($getLabel->result() as $lbl){
-						$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
-						foreach($getGsm->result() as $gsm){
-							$html .='<td style="padding:5px 12px;background:#e9e9e9;font-weight:bold">U</td><td style="padding:5px 12px;background:#e9e9e9;font-weight:bold">S</td>';
-						}
-					}
-					// PTK
-					foreach($getPTK->result() as $p){
-						$html .='<td style="padding:5px;background:#e9e9e9;font-weight:bold">'.$p->g_label.'</td>';
-					}
-				$html .='</tr>';
-
-				// TAMPIL SEMUA DATA UKURAN
-				$getWidth = $this->db->query("SELECT width FROM m_roll
-				WHERE status_p='Open' AND t_cor='$pilih' $wK
-				GROUP BY width");
-				$i = 0;
-				foreach($getWidth->result() as $width){
-					$i++;
-					$html .='<tr class="new-stok-gg" style="position:relative"><td style="font-weight:bold">'.$i.'</td><td style="font-weight:bold;background:#fff;border:1px solid #808080;position:sticky;left:0">'.round($width->width,2).'</td>';
-					$getLabel = $this->db->query("SELECT nm_ker FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY nm_ker");
-					foreach($getLabel->result() as $lbl){
-						$getGsm = $this->db->query("SELECT*FROM m_roll r
-						LEFT JOIN trs_so_jenis j ON r.nm_ker=j.jenis
-						WHERE r.status_p='Open' AND r.t_cor='$pilih' AND r.nm_ker='$lbl->nm_ker'
-						GROUP BY r.nm_ker,r.g_label");
-						$sumGSMutuh = 0;
-						$sumGSMsisa = 0;
-						foreach($getGsm->result() as $gsm){
-							// CEK PTK
-							$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$pilih' AND g_label='$gsm->g_label' AND width='$width->width'");
-							if($qP->num_rows() == 0){
-								$uPTK = "";
-								$sPTK = "";
-							}else{
-								$ptk = $qP->row()->ptk;
-								$uPTK = "AND (weight - seset) > '$ptk'";
-								$sPTK = "AND (weight - seset) <= '$ptk'";
-							}
-							$getWidth = $this->db->query("SELECT nm_ker,g_label,width,COUNT(width) as jml FROM m_roll
-							WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND g_label='$gsm->g_label' AND width='$width->width' $uPTK
-							GROUP BY nm_ker,width");
-							// UTUH
-							if($gsm->jenis != null){
-								$gbGsm = $gsm->bg_u;
-							}else{
-								$gbGsm = '#fff';
-							}
-							if($getWidth->num_rows() == 0){
-								$html .='<td style="padding:5px;font-weight:bold;background:'.$gbGsm.'">-</td>';
-							}else{
-								$html .='<td style="padding:5px">
-									<button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="btnListRoll('."'".$gsm->t_cor."'".', '."'".$gsm->nm_ker."'".', '."'".$gsm->g_label."'".', '."'".round($width->width,2)."'".', '."'UTUH'".')">'.$getWidth->row()->jml.'</button>
-								</td>';
-							}
-
-							// SISA
-							$getWSisa = $this->db->query("SELECT nm_ker,g_label,width,COUNT(width) as jml FROM m_roll
-							WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND g_label='$gsm->g_label' AND width='$width->width' $sPTK
-							GROUP BY nm_ker,width");
-							if($gsm->jenis != null){
-								$gbGsmS = $gsm->bg_s;
-							}else{
-								$gbGsmS = '#fff';
-							}
-							if($getWSisa->num_rows() == 0 || $qP->num_rows() == 0){
-								$html .='<td style="padding:5px;font-weight:bold;background:'.$gbGsmS.'">-</td>';
-							}else{
-								$html .='<td style="padding:5px">
-									<button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="btnListRoll('."'".$gsm->t_cor."'".', '."'".$gsm->nm_ker."'".', '."'".$gsm->g_label."'".', '."'".round($width->width,2)."'".', '."'SISA'".')">'.$getWSisa->row()->jml.'</button>
-								</td>';
-							}
-						}
-					}
-					// PATOKAN SISA
-					foreach($getPTK->result() as $p){
-						$qC = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$p->t_cor' AND g_label='$p->g_label' AND width='$width->width'");
-						($qC->num_rows() == 0 || ($qC->num_rows() != 0 && $qC->row()->ptk == 0)) ? $cc = '' : $cc = $qC->row()->ptk;
-						$html .='<td style="padding:5px">
-							<input type="number" style="border:0;width:40px;text-align:right" id="ptk_'.$p->t_cor.$p->g_label.round($width->width,2).'" onchange="btnPatokanRoll('."'".$p->t_cor."'".', '."'".$p->g_label."'".', '."'".round($width->width,2)."'".')" value="'.$cc.'">
-						</td>';
-					}
+			$html .='<div style="overflow:auto;white-space:nowrap;">';
+				if($opsi != 'html'){
+					$html .= '<div style="font-weight:bold;text-align:center;font-size:16px;font-family:tahoma">STOK ROLL '.$txtP.'</div>
+					<div style="font-weight:bold;text-align:center;font-size:16px;font-family:tahoma">'.strtoupper($this->m_fungsi->getHariIni(date('Y-m-d'))).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia(date('Y-m-d'))).'</div>';
 				}
-				$html .='</tr>';
-
-			$html .= '</table>';
+				if($opsi != 'html'){
+					$html .= '<table style="margin:12px 0 0;font-size:12px;color:#000;border-collapse:collapse;font-family:tahoma">';
+				}else{
+					$html .= '<table style="margin:12px 6px;padding:0;color:#000;text-align:center;vertical-align:middle;border-collapse:collapse">';
+				}
+					$html .= '<thead>';
+						// ACUAN BERAT
+						$getPTK = $this->db->query("SELECT*FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY g_label");
+						($getPTK->num_rows() == 0) ? $clsPTK = '' : $clsPTK = 'colspan="'.$getPTK->num_rows().'"';
+						// GET SEMUA KOP JENIS
+						$html .='<tr style="background:#e9e9e9">
+							<td style="padding:5px;border:1px solid #808080;font-weight:bold" rowspan="3">NO.</td>
+							<td style="padding:5px;border:1px solid #808080;font-weight:bold" rowspan="3">UKURAN</td>';
+							foreach($getLabel->result() as $lbl){
+								$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+								$nrs = $getGsm->num_rows() * 2;
+								$html .='<td style="padding:5px;border:1px solid #808080;font-weight:bold;text-align:center" colspan="'.$nrs.'">'.$lbl->nm_ker.'</td>';
+							}
+							if($opsi == 'html'){
+								$html .='<td style="padding:5px;border:1px solid #808080;font-weight:bold" '.$clsPTK.' rowspan="1">ACUAN BERAT</td>';
+							}
+						$html .='</tr>';
+						// GET SEMUA KOP GRAMATURE
+						$html .='<tr>';
+							foreach($getLabel->result() as $lbl){
+								$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+								foreach($getGsm->result() as $gsm){
+									$html .='<td style="padding:5px;border:1px solid #808080;background:#e9e9e9;font-weight:bold;text-align:center" colspan="2">'.$gsm->g_label.'</td>';
+								}
+							}
+							if($opsi == 'html'){
+								$html .='<td style="padding:5px;border:1px solid #808080;background:#e9e9e9;font-weight:bold" '.$clsPTK.'>PER GSM</td>';
+							}
+						$html .='</tr>';
+						// GET SEMUA ISI GRAMATURE
+						$html .='<tr>';
+							foreach($getLabel->result() as $lbl){
+								$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+								foreach($getGsm->result() as $gsm){
+									$html .='<td style="padding:5px 12px;border:1px solid #808080;background:#e9e9e9;font-weight:bold;text-align:center">U</td>
+									<td style="padding:5px 12px;border:1px solid #808080;background:#e9e9e9;font-weight:bold;text-align:center">S</td>';
+								}
+							}
+							if($opsi == 'html'){
+								foreach($getPTK->result() as $p){
+									$html .='<td style="padding:5px;border:1px solid #808080;background:#e9e9e9;font-weight:bold">'.$p->g_label.'</td>';
+								}
+							}
+						$html .='</tr>';
+					$html .= '</thead>';
+					$html .= '<tbody>';
+						// TAMPIL SEMUA DATA UKURAN
+						$getWidth = $this->db->query("SELECT width FROM m_roll
+						WHERE status_p='Open' AND t_cor='$pilih' $wK
+						GROUP BY width");
+						$i = 0;
+						foreach($getWidth->result() as $width){
+							$i++;
+							$html .='<tr class="new-stok-gg" style="position:relative"><td style="font-weight:bold;border:1px solid #808080;text-align:center">'.$i.'</td>
+							<td style="font-weight:bold;background:#fff;border:1px solid #808080;text-align:center;position:sticky;left:0">'.round($width->width,2).'</td>';
+							$getLabel = $this->db->query("SELECT nm_ker FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' $wK GROUP BY nm_ker");
+							foreach($getLabel->result() as $lbl){
+								$getGsm = $this->db->query("SELECT*FROM m_roll r
+								LEFT JOIN trs_so_jenis j ON r.nm_ker=j.jenis
+								WHERE r.status_p='Open' AND r.t_cor='$pilih' AND r.nm_ker='$lbl->nm_ker'
+								GROUP BY r.nm_ker,r.g_label");
+								foreach($getGsm->result() as $gsm){
+									// CEK PTK
+									$qP = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$pilih' AND g_label='$gsm->g_label' AND width='$width->width'");
+									if($qP->num_rows() == 0){
+										$uPTK = "";
+										$sPTK = "";
+									}else{
+										$ptk = $qP->row()->ptk;
+										$uPTK = "AND (weight - seset) > '$ptk'";
+										$sPTK = "AND (weight - seset) <= '$ptk'";
+									}
+									$getWidth = $this->db->query("SELECT nm_ker,g_label,width,COUNT(width) as jml FROM m_roll
+									WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND g_label='$gsm->g_label' AND width='$width->width' $uPTK
+									GROUP BY nm_ker,width");
+									// UTUH
+									if($opsi != 'html'){
+										$gbGsm = '#e9e9e9';
+									}else if($gsm->jenis != null){
+										$gbGsm = $gsm->bg_u;
+									}else{
+										$gbGsm = '#fff';
+									}
+									if($getWidth->num_rows() == 0){
+										$html .='<td style="padding:5px;border:1px solid #808080;font-weight:bold;text-align:center;background:'.$gbGsm.'">-</td>';
+									}else{
+										$html .='<td style="padding:5px;border:1px solid #808080;font-weight:bold;text-align:center">
+											<button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="btnListRoll('."'".$gsm->t_cor."'".', '."'".$gsm->nm_ker."'".', '."'".$gsm->g_label."'".', '."'".round($width->width,2)."'".', '."'UTUH'".')">'.$getWidth->row()->jml.'</button>
+										</td>';
+									}
+									// SISA
+									$getWSisa = $this->db->query("SELECT nm_ker,g_label,width,COUNT(width) as jml FROM m_roll
+									WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND g_label='$gsm->g_label' AND width='$width->width' $sPTK
+									GROUP BY nm_ker,width");
+									if($opsi != 'html'){
+										$gbGsmS = '#e9e9e9';
+									}else if($gsm->jenis != null){
+										$gbGsmS = $gsm->bg_s;
+									}else{
+										$gbGsmS = '#fff';
+									}
+									if($getWSisa->num_rows() == 0 || $qP->num_rows() == 0){
+										$html .='<td style="padding:5px;border:1px solid #808080;font-weight:bold;text-align:center;background:'.$gbGsmS.'">-</td>';
+									}else{
+										$html .='<td style="padding:5px;border:1px solid #808080;font-weight:bold;text-align:center">
+											<button style="background:transparent;font-weight:bold;margin:0;padding:0;border:0" onclick="btnListRoll('."'".$gsm->t_cor."'".', '."'".$gsm->nm_ker."'".', '."'".$gsm->g_label."'".', '."'".round($width->width,2)."'".', '."'SISA'".')">'.$getWSisa->row()->jml.'</button>
+										</td>';
+									}
+								}
+							}
+							// PATOKAN SISA
+							if($opsi == 'html'){
+								foreach($getPTK->result() as $p){
+									$qC = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$p->t_cor' AND g_label='$p->g_label' AND width='$width->width'");
+									($qC->num_rows() == 0 || ($qC->num_rows() != 0 && $qC->row()->ptk == 0)) ? $cc = '' : $cc = $qC->row()->ptk;
+									$html .='<td style="padding:5px;border:1px solid #808080">
+										<input type="number" style="border:0;width:40px;text-align:right" id="ptk_'.$p->t_cor.$p->g_label.round($width->width,2).'" onchange="btnPatokanRoll('."'".$p->t_cor."'".', '."'".$p->g_label."'".', '."'".round($width->width,2)."'".')" value="'.$cc.'">
+									</td>';
+								}
+							}
+						}
+						$html .='</tr>';
+						// TOTAL
+						$html .='<tr style="background:#e9e9e9">
+							<td style="padding:5px;border:1px solid #808080;font-weight:bold;text-align:center" colspan="2">TOTAL</td>';
+							foreach($getLabel->result() as $lbl){
+								$getGsm = $this->db->query("SELECT nm_ker,g_label FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$lbl->nm_ker' GROUP BY nm_ker,g_label");
+								foreach($getGsm->result() as $gsm){
+									// GET UKURAN
+									$wWidth = $this->db->query("SELECT nm_ker,g_label,width FROM m_roll WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$gsm->nm_ker' AND g_label='$gsm->g_label' GROUP BY nm_ker,g_label,width");
+									$totSumUtuh = 0;
+									$totSumSisa = 0;
+									foreach($wWidth->result() as $w1){
+										// CEK PTK
+										$qP1 = $this->db->query("SELECT*FROM m_roll_ptk WHERE t_cor='$pilih' AND g_label='$w1->g_label' AND width='$w1->width'");
+										if($qP1->num_rows() == 0){
+											$uPTK1 = "";
+											$sPTK1 = "";
+										}else{
+											$ptk1 = $qP1->row()->ptk;
+											$uPTK1 = "AND (weight - seset) > '$ptk1'";
+											$sPTK1 = "AND (weight - seset) <= '$ptk1'";
+										}
+										// UTUH
+										$getWUtuh1 = $this->db->query("SELECT COUNT(width) as jml FROM m_roll
+										WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$w1->nm_ker' AND g_label='$w1->g_label' AND width='$w1->width' $uPTK1
+										GROUP BY nm_ker,width");
+										$totSumUtuh += ($getWUtuh1->num_rows() == 0) ? 0 : $getWUtuh1->row()->jml;
+										// SISA
+										$getWSisa1 = $this->db->query("SELECT COUNT(width) as jml FROM m_roll
+										WHERE status_p='Open' AND t_cor='$pilih' AND nm_ker='$w1->nm_ker' AND g_label='$w1->g_label' AND width='$w1->width' $sPTK1
+										GROUP BY nm_ker,width");
+										$totSumSisa += ($getWSisa1->num_rows() == 0 || $qP1->num_rows() == 0) ? 0 : $getWSisa1->row()->jml;
+									}
+									// TEXT
+									$txtUtuh = ($totSumUtuh == 0) ? '-' : number_format($totSumUtuh,0,',','.');
+									$txtSisa = ($totSumSisa == 0) ? '-' : number_format($totSumSisa,0,',','.');
+									$html .='<td style="padding:5px;border:1px solid #808080;background:#e9e9e9;font-weight:bold;text-align:center">'.$txtUtuh.'</td>
+									<td style="padding:5px;border:1px solid #808080;background:#e9e9e9;font-weight:bold;text-align:center">'.$txtSisa.'</td>';
+								}
+							}
+							if($opsi == 'html'){
+								$html .='<td style="padding:5px;border:1px solid #808080;background:#e9e9e9;font-weight:bold" '.$clsPTK.'></td>';
+							}
+						$html .='</tr>';
+					$html .= '</tbody>';
+				$html .= '</table>
+			</div>';
 		}
 
-
-		echo json_encode([
-			'html' => $html,
-		]);
+		if($opsi == 'html'){
+			echo json_encode([
+				'html' => $html,
+			]);
+		}else{
+			$judul = 'STOK ROLL '.$txtP.' | '.strtoupper($this->m_fungsi->getHariIni(date('Y-m-d'))).', '.strtoupper($this->m_fungsi->tanggal_format_indonesia(date('Y-m-d')));
+			$this->m_fungsi->newMpdf($judul, '', $html, 3, 3, 3, 3, 'P', 'A4', $judul.'.pdf');
+		}
 	}
 
 	function changePDF()
@@ -16607,10 +16681,10 @@ class Logistik extends CI_Controller
 		// pdf
 		$pdf = '<div class="card-body row" style="padding:3px 6px 6px">
 			<div class="col-md-1"></div>
-			<div class="col-md-2">
-				<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold;padding:8px 12px" href="'.base_url('Logistik/listGudang?corr='.$pilih.'&jenis='.$nmker.'').'"><i class="fas fa-file-pdf"></i> PDF</a>
+			<div class="col-md-11">
+				<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold;padding:8px 12px" href="'.base_url('Logistik/listGudang?corr='.$pilih.'&jenis='.$nmker.'').'"><i class="fas fa-file-pdf"></i> LIST PDF</a>
+				<a target="_blank" class="btn btn-sm btn-danger" style="font-weight:bold;padding:8px 12px" href="'.base_url('Logistik/cariListRoll?corr='.$pilih.'&jenis='.$nmker.'').'"><i class="fas fa-file-pdf"></i> TABLE PDF</a>
 			</div>
-			<div class="col-md-9"></div>
 		</div>';
 
 		echo json_encode([
@@ -16954,7 +17028,7 @@ class Logistik extends CI_Controller
 							<td style="padding:6px;font-weight:bold" colspan="10">'.$txtCACB.'</td>
 						</tr>';
 						
-						$zV = $this->db->query("SELECT COUNT(r.roll) AS jml_roll,r.id AS idso,r.id_roll AS rollid,r.id_so_dtl,l.* FROM trs_so_roll r
+						$zV = $this->db->query("SELECT r.id AS idso,r.id_roll AS rollid,r.id_so_dtl,l.* FROM trs_so_roll r
 						INNER JOIN m_roll l ON l.id=r.id_roll
 						WHERE r.tgl='$tgl_guna' AND l.t_cor='$c->t_cor'
 						GROUP BY r.id_roll
@@ -16975,12 +17049,13 @@ class Logistik extends CI_Controller
 						$gNa = 0;
 						foreach($zV->result() as $r){
 							$i++;
-							($r->jml_roll == 1) ? $k = '' : $k = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$r->jml_roll.'</span>';
+							$jmlRoll = $this->db->query("SELECT COUNT(r.roll) AS jml_roll FROM trs_so_guna r WHERE r.id_roll='$r->rollid' GROUP BY r.id_roll");
+							if($jmlRoll->num_rows() == 0){
+								$k = '';
+							}else{
+								($jmlRoll->row()->jml_roll == 1) ? $k = '' : $k = ' <span class="bg-dark" style="vertical-align:top;font-weight:bold;border-radius:3px;padding:2px 4px;font-size:11px">'.$jmlRoll->row()->jml_roll.'</span>';
+							}
 							$aH = '<button type="button" onclick="bGunaRoll('."'".$r->rollid."'".')" style="font-weight:bold" class="btn btn-warning btn-xs">EDIT</button>';
-
-							// STATUS
-							// $sOs = $this->db->query("SELECT*FROM trs_so_status WHERE status_s='$r->status_r'");
-							// ($sOs->num_rows() != 0) ? $pStt = $sOs->row()->ket_s : $pStt = '-';
 
 							$cG = $this->db->query("SELECT g.* FROM trs_so_roll r
 							INNER JOIN trs_so_guna g ON r.id_roll=g.id_roll AND r.tgl=g.tgl
@@ -17112,9 +17187,6 @@ class Logistik extends CI_Controller
 		$html = '';
 
 		$qR = $this->db->query("SELECT*FROM m_roll WHERE id='$roll'")->row();
-		// STATUS
-		// $sOs = $this->db->query("SELECT*FROM trs_so_status WHERE status_s='$qR->status_r'");
-		// ($sOs->num_rows() != 0) ? $pStt = $sOs->row()->ket_s : $pStt = '-';
 		$fixBerat = $qR->weight - $qR->seset;
 		$html .= '<div style="overflow:auto;white-space:nowrap">
 			<input type="hidden" id="add_roll" value="'.$roll.'">
@@ -17144,11 +17216,7 @@ class Logistik extends CI_Controller
 			$qH = $this->db->query("SELECT*FROM trs_so_guna WHERE id_roll='$roll' ORDER BY tgl");
 			if($qH->num_rows() != 0){
 				foreach($qH->result() as $h){
-					if($qR->status_p == 'Open' && $h->tgl == $tgl_guna){
-						$btnDel = '<button class="btn btn-xs btn-danger" onclick="delRollGuna('."'".$h->id."'".')"><i class="fas fa-trash"></i></button>';
-					}else{
-						$btnDel = '';
-					}
+					($h->tgl == $tgl_guna) ? $btnDel = '<button class="btn btn-xs btn-danger" onclick="delRollGuna('."'".$h->id."'".')"><i class="fas fa-trash"></i></button>' : $btnDel = '';
 					$html .= '<tr>
 						<td style="padding:6px;text-align:right" colspan="5">'.substr($this->m_fungsi->getHariIni($h->tgl),0,3).', '.$this->m_fungsi->tglIndSkt($h->tgl).'</td>
 						<td style="padding:6px;text-align:right">'.number_format($h->pemakaian).'</td>

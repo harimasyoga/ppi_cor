@@ -5476,9 +5476,7 @@ class M_logistik extends CI_Model
 
 		// update seset
 		$seset = $qR->seset - $qG->pemakaian;
-		if($qR->weight == $qR->seset){
-			$this->db->set('status_p', 'Open');
-		}
+		$this->db->set('status_p', 'Open');
 		$this->db->set('seset', $seset);
 		$this->db->where('id', $id_roll);
 		$uRoll = $this->db->update('m_roll');
