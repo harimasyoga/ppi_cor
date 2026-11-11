@@ -2412,6 +2412,7 @@
 	}
 
 	function kosong(c = '') {
+		status = 'insert';
 		// $("#cek_inv").val("");
 		$("#jenis").val("");
 		$("#status").val("");
@@ -2543,8 +2544,8 @@
 	}
 
 	function load_cs() {
-		var status = $("#sts_input").val();
-		if (status == 'add') {
+		var status99 = $("#sts_input").val();
+		if (status99 == 'add') {
 			var kpd = $('#id_pl option:selected').attr('data-nm');
 			var id_perusahaan = $('#id_pl option:selected').attr('data-id_perusahaan');
 			var nm_perusahaan = $('#id_pl option:selected').attr('data-nm_perusahaan');
@@ -2554,7 +2555,9 @@
 			$("#nm_perusahaan").val(nm_perusahaan)
 			$("#alamat_perusahaan").val(alamat_perusahaan)
 		}
-		show_list_pl()
+		if(status == 'insert'){
+			show_list_pl()
+		}
 	}
 
 	function show_list_pl() {
@@ -2807,8 +2810,8 @@
 	}
 
 	function no_inv2() {
-		var status = $("#sts_input").val();
-		if (status == 'add') {
+		var status88 = $("#sts_input").val();
+		if (status88 == 'add') {
 			var type = $('#type_po').val()
 			var pajak = $('#pajak').val()
 			var cek_inv = $('#cek_inv').val()
@@ -2893,6 +2896,7 @@
 	}
 
 	function edit_data(id, no_invoice) {
+		status = 'update';
 		$(".row-input").attr('style', '');
 		$(".row-list").attr('style', 'display:none');
 		$("#sts_input").val('edit');
