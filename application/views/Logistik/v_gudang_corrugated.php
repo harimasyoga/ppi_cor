@@ -125,11 +125,11 @@
 						</div>
 						<div class="card-body" style="font-weight:bold;padding:6px">
 							<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
-								<div class="col-md-1">CUSTOMER</div>
+								<div class="col-md-1">PILIH</div>
 								<div class="col-md-8">
 									<select class="form-control select2" id="id_pelanggan">
 										<?php
-											$query = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan");
+											$query = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan,attn");
 											$html ='';
 											$html .='<option value="">SEMUA CUSTOMER</option>';
 											$html .='<option value="GLOBAL">GLOBAL</option>';
@@ -395,6 +395,21 @@
 			success: function(res){
 				data = JSON.parse(res)
 				$(".list-nopo").html(data.html)
+				$(".select2").select2()
+			}
+		})
+	}
+
+	function slctGBPelanggan(){
+		$(".gb-tmpl-item").html('')
+		let gb_id_pelanggan = $("#gb_id_pelanggan").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/slctGBPelanggan')?>',
+			type: "POST",
+			data: ({ gb_id_pelanggan }),
+			success: function(res){
+				data = JSON.parse(res)
+				// $(".gb-tmpl-item").html('')
 			}
 		})
 	}

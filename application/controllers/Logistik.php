@@ -12752,6 +12752,30 @@ class Logistik extends CI_Controller
 			}
 		}
 
+		// LINK STOK GUDANG GLOBAL
+		// $stokGlobal = $this->db->query("SELECT*FROM m_produk_mnl i WHERE i.id_mnl='$id_produk'");
+		// $html .= '<div class="row">
+		// 	<div class="col-md-12">
+		// 		<div class="card-body" style="font-weight:bold;padding:0">
+		// 			<div class="card-body row" style="font-weight:bold;padding:0">
+		// 				<div class="col-md-1">CUSTOMER</div>
+		// 				<div class="col-md-8">
+		// 					<select class="form-control select2" id="gb_id_pelanggan" onchange="slctGBPelanggan()">
+		// 						<option value="">PILIH</option>';
+		// 						$qPpp = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan,attn");
+		// 						foreach($qPpp->result() as $r9){
+		// 							($r9->attn == "-" || $r9->attn == "") ? $attn = '' : $attn = ' | '.$r9->attn;
+		// 							$html .='<option value="'.$r9->id_pelanggan.'">'.$r9->nm_pelanggan.''.$attn.'</option>';
+		// 						}
+		// 					$html .= '</select>
+		// 				</div>
+		// 				<div class="col-md-3"></div>
+		// 			</div>
+		// 			<div class="gb-tmpl-item" style="padding:0 6px"></div>
+		// 		</div>
+		// 	</div>
+		// </div>';
+
 		// STOK GUDANG
 		($id_pelanggan == 0) ? $sLtt = "CAST('0' AS UNSIGNED) AS berat_bersih," : $sLtt = 'i.berat_bersih,';
 		($id_pelanggan == 0) ? $wINR = '' : $wINR = 'INNER JOIN m_produk i ON g.id_produk=i.id_produk';
@@ -12999,7 +13023,7 @@ class Logistik extends CI_Controller
 		$bulan = date('m', strtotime($tgl));
 		$tahun = date('Y', strtotime($tgl));
 		$wA = 'AND '.$hari.'_stok_awal IS NOT NULL AND '.$hari.'_stok_akhir IS NOT NULL AND '.$hari.'_in IS NOT NULL AND '.$hari.'_out IS NOT NULL';
-
+		$html = '';
 		$html .= '<table style="width:100%;margin-top:25px;color:#000;border-collapse:collapse;vertical-align:top;font-family:tahoma;font-size:12px">
 			<thead>
 				<tr>
