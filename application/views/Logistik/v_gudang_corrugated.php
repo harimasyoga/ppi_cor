@@ -87,20 +87,52 @@
 				<div class="col-md-12">
 					<div class="card card-primary card-outline" style="padding-bottom:12px">
 						<div class="card-header" style="padding:12px">
+							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT MASTER DATA GLOBAL</h3>
+						</div>
+						<div class="card-body" style="font-weight:bold;padding:6px">
+							<div style="margin:12px 6px">
+								<button type="button" class="btn btn-info" onclick="kembali()"><i class="fas fa-arrow-left"></i> <b>Kembali</b></button>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:6px">
+								<div class="col-md-1">KODE ITEM</div>
+								<div class="col-md-8">
+									<input type="text" id="g_kode_produk" class="form-control" oninput="this.value=this.value.toUpperCase()" autocomplete="off" maxlength="5" placeholder="KODE ITEM">
+								</div>
+								<div class="col-md-3"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+								<div class="col-md-1">NAMA ITEM</div>
+								<div class="col-md-8">
+									<input type="text" id="g_nm_produk" class="form-control" oninput="this.value=this.value.toUpperCase()" autocomplete="off" placeholder="NAMA ITEM">
+								</div>
+								<div class="col-md-3"></div>
+							</div>
+							<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+								<div class="col-md-1"></div>
+								<div class="col-md-8">
+									<button type="button" class="btn btn-sm btn-primary btn-gsvgg" style="font-weight:bold" onclick="simpanGDItemGlobal()"><i class="fas fa-save"></i> SIMPAN</button>
+								</div>
+								<div class="col-md-3"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-12">
+					<div class="card card-primary card-outline" style="padding-bottom:12px">
+						<div class="card-header" style="padding:12px">
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT DATA STOK GUDANG BARU</h3>
 						</div>
 						<div class="card-body" style="font-weight:bold;padding:6px">
-							<div style="margin:12px 6px 6px">
-								<button type="button" class="btn btn-info" onclick="kembali()"><i class="fas fa-arrow-left"></i> <b>Kembali</b></button>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:20px 6px 6px">
+							<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
 								<div class="col-md-1">CUSTOMER</div>
 								<div class="col-md-8">
 									<select class="form-control select2" id="id_pelanggan">
 										<?php
 											$query = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan");
 											$html ='';
-											$html .='<option value="">SEMUA</option>';
+											$html .='<option value="">SEMUA CUSTOMER</option>';
+											$html .='<option value="GLOBAL">GLOBAL</option>';
 											foreach($query->result() as $r){
 												($r->attn == "-" || $r->attn == "") ? $attn = '' : $attn = ' | '.$r->attn;
 												$html .='<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.''.$attn.'</option>';
@@ -190,70 +222,11 @@
 							<button type="button" class="btn btn-info" onclick="tambah()"><i class="fa fa-plus"></i> <b>Tambah Data</b></button>
 						</div>
 					<?php } ?>
-					<!-- <div>
-						<table>
-							<tr>
-								<td style="font-weight:bold;padding:0 0 16px">
-									<input type="date" id="plh_tgl" name="plh_tgl" value="<?php echo date('Y-m-d')?>" class="form-control" onchange="load_data()">
-								</td>
-								<td style="font-weight:bold;padding:0 0 16px 12px">
-									<div class="btn-pdf"></div>
-								</td>
-							</tr>
-						</table>
-					</div> -->
 					<div style="overflow:auto;white-space:nowrap">
-						<!-- <table id="datatable" class="table table-bordered table-striped" width="100%">
-							<thead class="color-tabel">
-								<tr>
-									<th style="width:5%">#</th>
-									<th style="width:20%">ITEM</th>
-									<th style="width:5%">TANGGAL</th>
-									<th style="width:10%">STOK AWAL</th>
-									<th style="width:5%">IN</th>
-									<th style="width:10%">IN RETUR</th>
-									<th style="width:5%">OUT</th>
-									<th style="width:10%">OUT RETUR</th>
-									<th style="width:10%">STOK AKHIR</th>
-									<th style="width:10%">KETERANGAN</th>
-									<th style="width:10%">LAST UPDATE</th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table> -->
-
 						<div class="alist-gudang"></div>
-
 					</div>
 				</div>
 			</div>
-
-			<!-- <div class="row card-list-gudang2">
-				<div class="col-md-12">
-					<div class="card card-primary card-outline" style="padding-bottom:12px">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">LIST GUDANG</h3>
-						</div>
-						<div class="card-body" style="font-weight:bold;padding:12px 6px">
-							<div>
-								<table>
-									<tr>
-										<td style="font-weight:bold;padding:0 0 12px">
-											<input type="month" id="all_plh_tgl" value="" class="form-control" onchange="allListGudang()">
-										</td>
-										<td style="font-weight:bold;padding:0 0 12px 12px">
-											<div class="all-btn-pdf"></div>
-										</td>
-									</tr>
-								</table>
-							</div>
-							<div style="overflow:auto;white-space:nowrap">
-								<div class="all-list-gudang2"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div> -->
 
 		</div>
 	</section>
@@ -286,12 +259,9 @@
 	$(document).ready(function () {
 		$(".select2").select2()
 		cariStokGudang('LIST')
-		// load_data()
-		// allListGudang()
 	});
 
 	function load_data() {
-		// let plh_tgl = $("#plh_tgl").val()
 		let table = $('#datatable').DataTable();
 		table.destroy();
 		tabel = $('#datatable').DataTable({
@@ -301,7 +271,6 @@
 			"ajax": {
 				"url": '<?php echo base_url('Logistik/loadDataGDCorr')?>',
 				"type": "POST",
-				// "data": ({ plh_tgl }),
 			},
 			"aLengthMenu": [
 				[5, 10, 15, 20, -1],
@@ -311,22 +280,6 @@
 			"pageLength": 10,
 			"language": {
 				"emptyTable": "Tidak ada data.."
-			}
-		})
-		// pdfGDCorr()
-	}
-
-	function pdfGDCorr()
-	{
-		$(".btn-pdf").html('')
-		let plh_tgl = $("#plh_tgl").val()
-		$.ajax({
-			url: '<?php echo base_url('Logistik/pdfGDCorr')?>',
-			type: "POST",
-			data: ({ plh_tgl }),
-			success: function(res){
-				data = JSON.parse(res)
-				$(".btn-pdf").html(data.pdf)
 			}
 		})
 	}
@@ -368,18 +321,36 @@
 		$(".gudang").html('')
 	}
 
-	function allListGudang(){
-		let all_plh_tgl = $("#all_plh_tgl").val()
+	function simpanGDItemGlobal() {
+		let g_kode_produk = $("#g_kode_produk").val()
+		let g_nm_produk = $("#g_nm_produk").val()
+		$(".btn-gsvgg").prop("disabled", true)
 		$.ajax({
-			url: '<?php echo base_url('Logistik/allListGudang')?>',
+			url: '<?php echo base_url('Logistik/simpanGDItemGlobal')?>',
 			type: "POST",
-			data: ({
-				all_plh_tgl
-			}),
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ g_kode_produk, g_nm_produk }),
 			success: function(res){
 				data = JSON.parse(res)
-				$(".all-list-gudang2").html(data.html2)
+				console.log(data)
+				if(data.data){
+					$("#g_kode_produk").val('')
+					$("#g_nm_produk").val('')
+					toastr.success(`<b>${data.msg}</b>`)
+				}else{
+					toastr.error(`<b>${data.msg}</b>`)
+				}
 				swal.close()
+				$(".btn-gsvgg").prop("disabled", false)
 			}
 		})
 	}
@@ -529,81 +500,6 @@
 		let ton = parseInt(hitung * bb, 10);
 		(ton.length >= 7 || ton < 0) ? ton = 0 : ton = ton;
 		$("#tton2_"+i).val(rupiah.format(ton));
-	}
-
-	function keyUpGD3(i,z)
-	{
-		let rupiah = new Intl.NumberFormat('id-ID', {styles: 'currency', currency: 'IDR'});
-
-		let stok_awal = $("#vSA_"+i+"_"+z).val().split('.').join('');
-		(stok_awal.length >= 7 || stok_awal == '') ? stok_awal = 0 : stok_awal = stok_awal;
-		$("#vSA_"+i+"_"+z).val(rupiah.format(stok_awal));
-
-		let inin = $("#vIN_"+i+"_"+z).val().split('.').join('');
-		(inin.length >= 7 || inin == '' || inin < 0) ? inin = 0 : inin = inin;
-		$("#vIN_"+i+"_"+z).val(rupiah.format(inin));
-
-		let inrtr = $("#vINrtr_"+i+"_"+z).val().split('.').join('');
-		(inrtr.length >= 7 || inrtr == '' || inrtr < 0) ? inrtr = 0 : inrtr = inrtr;
-		$("#vINrtr_"+i+"_"+z).val(rupiah.format(inrtr));
-
-		let outrtr = $("#vOUTrtr_"+i+"_"+z).val().split('.').join('');
-		(outrtr.length >= 7 || outrtr == '' || outrtr < 0) ? outrtr = 0 : outrtr = outrtr;
-		$("#vOUTrtr_"+i+"_"+z).val(rupiah.format(outrtr));
-
-		let out = $("#vOUT_"+i+"_"+z).val().split('.').join('');
-		(out.length >= 7 || out == '' || out < 0) ? out = 0 : out = out;
-		$("#vOUT_"+i+"_"+z).val(rupiah.format(out));
-
-		let hitung = (parseInt(stok_awal, 10) + parseInt(inin, 10) + parseInt(inrtr, 10)) - (parseInt(out, 10) + parseInt(outrtr, 10));
-		(isNaN(hitung)) ? hitung = 0 : hitung = hitung;
-		$("#vSK_"+i+"_"+z).val(rupiah.format(hitung));
-
-		let bb = $("#hTON_"+i+"_"+z).val();
-		let ton = parseInt(hitung * bb, 10);
-		(ton.length >= 7 || ton < 0) ? ton = 0 : ton = ton;
-		$("#vTON_"+i+"_"+z).val(rupiah.format(ton));
-
-		// edit-gdgd
-		if((isNaN(hitung)) || hitung == 0 || hitung == ''){
-			$(".edit-gdgd-"+i+"_"+z).html('')
-		}else{
-			$(".edit-gdgd-"+i+"_"+z).html(`<button type="button" class="btn btn-xs btn-warning" style="padding:0 2px" onclick="editGDGD('${i}', '${z}')"><i class="fas fa-pen"></i></button>`)
-		}
-	}
-
-	function editGDGD(i, z)
-	{
-		let btnthn = $("#xBLNTHN").val()
-		let id_pelanggan = $("#xCUST"+i+"_"+z).val()
-		let stok_awal = $("#vSA_"+i+"_"+z).val().split('.').join('')
-		let inin = $("#vIN_"+i+"_"+z).val().split('.').join('')
-		let inrtr = $("#vINrtr_"+i+"_"+z).val().split('.').join('')
-		let outrtr = $("#vOUTrtr_"+i+"_"+z).val().split('.').join('')
-		let out = $("#vOUT_"+i+"_"+z).val().split('.').join('')
-		let hitung = $("#vSK_"+i+"_"+z).val().split('.').join('')
-		let keterangan = $("#vKET_"+i+"_"+z).val()
-		$.ajax({
-			url: '<?php echo base_url('Logistik/editGDGD')?>',
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'loading ...',
-					allowEscapeKey    : false,
-					allowOutsideClick : false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				})
-			},
-			data: ({
-				id_produk: i, hari: z, btnthn, id_pelanggan, stok_awal, inin, inrtr, outrtr, out, hitung, keterangan
-			}),
-			success: function(res){
-				data = JSON.parse(res)
-				allListGudang()
-			}
-		})
 	}
 
 	function simpanGCcorrugated()
@@ -788,7 +684,7 @@
 		})
 	}
 
-	function btnAksiGudang(id_gudang, tgl, opsi)
+	function btnAksiGudang(id_pelanggan, id_gudang, tgl, opsi)
 	{
 		$.ajax({
 			url: '<?php echo base_url('Logistik/btnAksiGudang')?>',
@@ -803,7 +699,7 @@
 					}
 				})
 			},
-			data: ({ id_gudang, opsi }),
+			data: ({ id_pelanggan, id_gudang, opsi }),
 			success: function(res){
 				data = JSON.parse(res)
 				$("#tgl_lama_"+data.g.id_produk).val(tgl)

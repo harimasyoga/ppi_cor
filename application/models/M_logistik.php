@@ -773,106 +773,6 @@ class M_logistik extends CI_Model
 		];
 	}
 
-	function editGDGD()
-	{
-		$id_pelanggan = $_POST["id_pelanggan"];
-		$id_produk = $_POST["id_produk"];
-		$hari = $_POST["hari"];
-		$bulan = date('m', strtotime($_POST["btnthn"]));
-		$tahun = date('Y', strtotime($_POST["btnthn"]));
-
-		$stok_awal = str_replace('.', '', $_POST["stok_awal"]);
-		$stok_akhir = ($_POST["hitung"] == '' || $_POST["hitung"] == 0) ? 0 : str_replace('.', '', $_POST["hitung"]);
-		$in = str_replace('.', '', $_POST["inin"]);
-		$inRtr = str_replace('.', '', $_POST["inrtr"]);
-		$out = str_replace('.', '', $_POST["out"]);
-		$outRtr = str_replace('.', '', $_POST["outrtr"]);
-		$ket = trim($_POST["keterangan"]);
-		
-		$this->db->set($hari.'_stok_awal', ($stok_awal == '' || $stok_awal == 0) ? 0 : $stok_awal);
-		$this->db->set($hari.'_in', ($in == '' || $in == 0) ? 0 : $in);
-		$this->db->set($hari.'_in_rtr', ($inRtr == '' || $inRtr == 0) ? 0 : $inRtr);
-		$this->db->set($hari.'_out', ($out == '' || $out == 0) ? 0 : $out);
-		$this->db->set($hari.'_out_rtr', ($outRtr == '' || $outRtr == 0) ? 0 : $outRtr);
-		$this->db->set($hari.'_stok_akhir', ($stok_akhir == '' || $stok_akhir == 0) ? 0 : $stok_akhir);
-		$this->db->set($hari.'_ket', ($ket == '') ? null : $ket);
-		$this->db->set('updated_at', date("Y-m-d H:i:s"));
-		$this->db->where('id_pelanggan', $id_pelanggan);
-		$this->db->where('id_produk', $id_produk);
-		$this->db->where('bulan', $bulan);
-		$this->db->where('tahun', $tahun);
-		$update = $this->db->update('m_gudang_v2');
-
-		if($update){
-			$i2 = (int)$_POST["hari"];
-			$hariNow = date('d', strtotime(date('Y-m-d')));
-			for ($i = $i2; $i <= $hariNow; $i++) {
-				if($i != $i2){
-					// KURANGI SATU HARI
-					$minHari = $i - 1;
-					($minHari < 10) ? $hariK = '0'.$minHari : $hariK = $minHari;
-					$wA = 'AND ('.$hariK.'_stok_awal IS NOT NULL OR '.$hariK.'_stok_akhir IS NOT NULL OR '.$hariK.'_in IS NOT NULL OR '.$hariK.'_in_rtr IS NOT NULL OR '.$hariK.'_out IS NOT NULL OR '.$hariK.'_out_rtr IS NOT NULL)';
-					$dataK = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$id_produk' $wA");
-
-					// GET HARI INI
-					($i < 10) ? $hariI = '0'.$i : $hariI = $i;
-					$wH = 'AND ('.$hariI.'_stok_awal IS NOT NULL OR '.$hariI.'_stok_akhir IS NOT NULL OR '.$hariI.'_in IS NOT NULL OR '.$hariI.'_in_rtr IS NOT NULL OR '.$hariI.'_out IS NOT NULL OR '.$hariI.'_out_rtr IS NOT NULL)';
-					$dataH = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$id_produk' $wH");
-
-					$hIn = ($dataH->row($hariI.'_in') == 0 || $dataH->row($hariI.'_in') == null) ? 0 : $dataH->row($hariI.'_in');
-					$hInRtr = ($dataH->row($hariI.'_in_rtr') == 0 || $dataH->row($hariI.'_in_rtr') == null) ? 0 : $dataH->row($hariI.'_in_rtr');
-					$hOut = ($dataH->row($hariI.'_out') == 0 || $dataH->row($hariI.'_out') == null) ? 0 : $dataH->row($hariI.'_out');
-					$hOutRtr = ($dataH->row($hariI.'_out_rtr') == 0 || $dataH->row($hariI.'_out_rtr') == null) ? 0 : $dataH->row($hariI.'_out_rtr');
-
-					$fixStokAwal = $dataK->row($hariK.'_stok_akhir');
-					$fixStokAkhir = ($dataK->row($hariK.'_stok_akhir') + ($hIn + $hInRtr)) - ($hOut + $hOutRtr);
-
-					$this->db->set($hariI.'_stok_awal', $fixStokAwal);
-					$this->db->set($hariI.'_in', $hIn);
-					$this->db->set($hariI.'_in_rtr', $hInRtr);
-					$this->db->set($hariI.'_out', $hOut);
-					$this->db->set($hariI.'_out_rtr', $hOutRtr);
-					$this->db->set($hariI.'_stok_akhir', $fixStokAkhir);
-					$this->db->set('updated_at', date("Y-m-d H:i:s"));
-					$this->db->where('id_pelanggan', $id_pelanggan);
-					$this->db->where('id_produk', $id_produk);
-					$this->db->where('bulan', $bulan);
-					$this->db->where('tahun', $tahun);
-					$this->db->update('m_gudang_v2');
-				}
-			}
-
-			// HAPUS DATA HARI MINGGU
-			for ($m = $i2; $m <= $hariNow; $m++) {
-				($m < 10) ? $minggu = '0'.$m : $minggu = $m;
-				$tglLibur = $tahun.'-'.$bulan.'-'.$minggu;
-				// CEK LIBUR
-				$libur = $this->db->query("SELECT*FROM libur WHERE tgl='$tglLibur'");
-				$namaHari = date('l', strtotime($tglLibur));
-				if($hari != $minggu){
-					if($libur->num_rows() != 0 || $namaHari == "Sunday"){
-						$this->db->set($minggu.'_stok_awal', null);
-						$this->db->set($minggu.'_in', null);
-						$this->db->set($minggu.'_in_rtr', null);
-						$this->db->set($minggu.'_out', null);
-						$this->db->set($minggu.'_out_rtr', null);
-						$this->db->set($minggu.'_stok_akhir', null);
-						$this->db->set('updated_at', date("Y-m-d H:i:s"));
-						$this->db->where('id_pelanggan', $id_pelanggan);
-						$this->db->where('id_produk', $id_produk);
-						$this->db->where('bulan', $bulan);
-						$this->db->where('tahun', $tahun);
-						$this->db->update('m_gudang_v2');
-					}
-				}
-			}
-		}
-
-		return [
-			'update' => $update,
-		];
-	}
-
 	function simpanGDListCorr()
 	{
 		$tgl_awal2 = $_POST["h_tgl_awal2"];
@@ -942,6 +842,35 @@ class M_logistik extends CI_Model
 					$data = $this->db->update('m_gudang_v2');
 				}
 			}
+			$msg = 'BERHASIL!';
+		}
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
+	function simpanGDItemGlobal()
+	{
+		$g_kode_produk = preg_replace('/\s/', '', $_POST["g_kode_produk"]);
+		$g_nm_produk = $_POST["g_nm_produk"];
+
+		// CEK
+		$cek1 = $this->db->query("SELECT*FROM m_produk_mnl WHERE kd_produk_mnl='$g_kode_produk'");
+
+		if($g_kode_produk == '' || $g_nm_produk == ''){
+			$data = false; $msg = 'INPUTAN TIDAK BOLEH KOSONG!';
+		}else if($cek1->num_rows() > 0){
+			$data = false; $msg = 'KODE ITEM SUDAH ADA!';
+		}else{
+			$l = [
+				'kd_produk_mnl' => $g_kode_produk,
+				'nm_produk_mnl' => $g_nm_produk,
+				'creat_at' => date("Y-m-d H:i:s"),
+				'creat_by' => $this->session->userdata('username'),
+			];
+			$data = $this->db->insert("m_produk_mnl", $l);
 			$msg = 'BERHASIL!';
 		}
 
