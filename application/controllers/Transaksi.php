@@ -10413,7 +10413,11 @@ class Transaksi extends CI_Controller
 						}
 
 						// STOK
-						$cekSTOK = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$r->id_pelanggan' AND g.id_produk='$r->id_produk' ORDER BY tgl DESC, id DESC LIMIT 1");
+						if($r->id_mnl == null || $r->id_mnl == ''){
+							$cekSTOK = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$r->id_pelanggan' AND g.id_produk='$r->id_produk' ORDER BY tgl DESC, id DESC LIMIT 1");
+						}else{
+							$cekSTOK = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='0' AND g.id_produk='$r->id_mnl' ORDER BY tgl DESC, id DESC LIMIT 1");
+						}
 						if($tglNow <= 0 && $cekSTOK->num_rows() > 0){
 							$txtSTOK = ($cekSTOK->row()->stok_akhir == 0) ? '-' : number_format($cekSTOK->row()->stok_akhir, 0, ',', '.');
 							$cntSTOK = $cekSTOK->row()->stok_akhir;
@@ -10888,10 +10892,17 @@ class Transaksi extends CI_Controller
 		}
 
 		// STOK GUDANG
-		$gudang = $this->db->query("SELECT i.berat_bersih,g.* FROM m_gudang_v3 g
-		INNER JOIN m_produk i ON g.id_produk=i.id_produk
-		WHERE g.id_pelanggan='$sys->id_pelanggan' and g.id_produk='$sys->id_produk'
-		group by g.tgl,g.id,g.id_pelanggan,g.id_produk");
+		if($sys->id_mnl == null || $sys->id_mnl == ''){
+			$gudang = $this->db->query("SELECT i.berat_bersih,g.* FROM m_gudang_v3 g
+			INNER JOIN m_produk i ON g.id_produk=i.id_produk
+			WHERE g.id_pelanggan='$sys->id_pelanggan' AND g.id_produk='$sys->id_produk'
+			GROUP BY g.tgl,g.id,g.id_pelanggan,g.id_produk");
+		}else{
+			$gudang = $this->db->query("SELECT CAST('0' AS UNSIGNED) AS berat_bersih,g.* FROM m_gudang_v3 g
+			INNER JOIN m_produk_mnl i ON g.id_produk=i.id_mnl
+			WHERE g.id_pelanggan='0' AND g.id_produk='$sys->id_mnl'
+			GROUP BY g.tgl,g.id,g.id_pelanggan,g.id_produk");
+		}
 		if($gudang->num_rows() != 0){
 			$html .= '<div style="font-weight:bold">LIST STOK GUDANG :</div>';
 			$html .= '<table style="margin-bottom:12px">
@@ -10950,7 +10961,7 @@ class Transaksi extends CI_Controller
 				<td style="padding:6px;border:1px solid #bbb">STOK <span style="font-size:13px;font-style:italic">(plan)</span></td>
 			</tr>';
 
-			$sys2 = $this->db->query("SELECT p.kode_po,d.* FROM trs_dev_sys d
+			$sys2 = $this->db->query("SELECT p.kode_po,i.id_mnl,d.* FROM trs_dev_sys d
 			INNER JOIN m_pelanggan c ON d.id_pelanggan=c.id_pelanggan
 			INNER JOIN trs_po_detail p ON d.id_po_header=p.id
 			INNER JOIN m_produk i ON d.id_produk=i.id_produk
@@ -10964,7 +10975,11 @@ class Transaksi extends CI_Controller
 			foreach($sys2->result() as $r => $v){
 				$i++;
 				// STOK
-				$cekSTOK = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$v->id_pelanggan' AND g.id_produk='$v->id_produk' ORDER BY tgl DESC, id DESC LIMIT 1");
+				if($v->id_mnl == null || $v->id_mnl == ''){
+					$cekSTOK = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$v->id_pelanggan' AND g.id_produk='$v->id_produk' ORDER BY tgl DESC, id DESC LIMIT 1");
+				}else{
+					$cekSTOK = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='0' AND g.id_produk='$v->id_mnl' ORDER BY tgl DESC, id DESC LIMIT 1");
+				}
 				if($tglNow <= 0 && $cekSTOK->num_rows() > 0){
 					$txtSTOK = ($cekSTOK->row()->stok_akhir == 0) ? '-' : number_format($cekSTOK->row()->stok_akhir, 0, ',', '.');
 					$cntSTOK = $cekSTOK->row()->stok_akhir;

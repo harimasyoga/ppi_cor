@@ -11818,6 +11818,12 @@ class Logistik extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function btnGBproduk()
+	{
+		$result = $this->m_logistik->btnGBproduk();
+		echo json_encode($result);
+	}
+
 	function simpanGDItemGlobal()
 	{
 		$result = $this->m_logistik->simpanGDItemGlobal();
@@ -12753,28 +12759,83 @@ class Logistik extends CI_Controller
 		}
 
 		// LINK STOK GUDANG GLOBAL
-		// $stokGlobal = $this->db->query("SELECT*FROM m_produk_mnl i WHERE i.id_mnl='$id_produk'");
-		// $html .= '<div class="row">
-		// 	<div class="col-md-12">
-		// 		<div class="card-body" style="font-weight:bold;padding:0">
-		// 			<div class="card-body row" style="font-weight:bold;padding:0">
-		// 				<div class="col-md-1">CUSTOMER</div>
-		// 				<div class="col-md-8">
-		// 					<select class="form-control select2" id="gb_id_pelanggan" onchange="slctGBPelanggan()">
-		// 						<option value="">PILIH</option>';
-		// 						$qPpp = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan,attn");
-		// 						foreach($qPpp->result() as $r9){
-		// 							($r9->attn == "-" || $r9->attn == "") ? $attn = '' : $attn = ' | '.$r9->attn;
-		// 							$html .='<option value="'.$r9->id_pelanggan.'">'.$r9->nm_pelanggan.''.$attn.'</option>';
-		// 						}
-		// 					$html .= '</select>
-		// 				</div>
-		// 				<div class="col-md-3"></div>
-		// 			</div>
-		// 			<div class="gb-tmpl-item" style="padding:0 6px"></div>
-		// 		</div>
-		// 	</div>
-		// </div>';
+		if($id_pelanggan == 0 && $opsi == 'LIST' && in_array($this->session->userdata('level'), ['Admin', 'User'])){
+			$html .= '<div class="row">
+				<div class="col-md-12">
+					<div class="card-body" style="font-weight:bold;padding:0">
+						<div class="card-body row" style="font-weight:bold;padding:0">
+							<div class="col-md-1">CUSTOMER</div>
+							<div class="col-md-8">
+								<select class="form-control select2" id="gb_id_pelanggan" onchange="slctGBPelanggan()">
+									<option value="">PILIH</option>';
+									$qPpp = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan,attn");
+									foreach($qPpp->result() as $r9){
+										($r9->attn == "-" || $r9->attn == "") ? $attn = '' : $attn = ' | '.$r9->attn;
+										$html .='<option value="'.$r9->id_pelanggan.'">'.$r9->nm_pelanggan.''.$attn.'</option>';
+									}
+								$html .= '</select>
+							</div>
+							<div class="col-md-3">
+								<input type="hidden" id="id_mnl" value="'.$id_produk.'">
+							</div>
+						</div>
+						<div class="gb-tmpl-item"></div>
+					</div>';
+
+					// LIST MANUAL
+					$produkMnl = $this->db->query("SELECT c.id_pelanggan,c.nm_pelanggan,c.attn,i.* FROM m_produk i
+					INNER JOIN m_pelanggan c ON i.no_customer=c.id_pelanggan
+					WHERE i.id_mnl='$id_produk'
+					GROUP BY c.id_pelanggan,i.id_produk
+					ORDER BY i.kategori,i.nm_produk");
+					if($produkMnl->num_rows() != 0){
+						$html .= '<div class="card-body" style="font-weight:bold;padding:0">
+							<div style="margin-top:12px;font-weight:bold">ITEM YANG TERKONEKSI DENGAN ITEM GLOBAL : </div>';
+							$html .= '<table>
+								<tr style="background:#dee2e6;font-weight:bold;text-align:center">
+									<td style="padding:6px 12px;border:1px solid #bbb">#</td>
+									<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
+									<th style="padding:6px;border:1px solid #bbb">NAMA ITEM</th>
+									<th style="padding:6px;border:1px solid #bbb">UKURAN</th>
+									<th style="padding:6px;border:1px solid #bbb">SUBSTANCE</th>
+									<th style="padding:6px;border:1px solid #bbb">FLUTE</th>
+									<th style="padding:6px;border:1px solid #bbb">AKSI</th>
+								</tr>';
+								$n = 0;
+								foreach($produkMnl->result() as $r2){
+									$n++;
+									($r2->kategori == 'K_BOX') ? $kat = '' : $kat = '[SHEET] ';
+									($r2->kategori == 'K_BOX') ? $uk = $r2->ukuran : $uk = $r2->ukuran_sheet;
+									(strlen($r2->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+									(strlen($r2->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+
+									// CEK NO. PO
+									$cekPO = $this->db->query("SELECT*FROM trs_po p
+									INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
+									WHERE p.status='Approve' AND p.status_kiriman='Open' AND p.expired_po IS NOT NULL AND p.id_pelanggan='$r2->id_pelanggan' AND d.id_produk='$r2->id_produk'
+									GROUP BY p.status DESC,p.tgl_po,p.kode_po LIMIT 1");
+									($cekPO->num_rows() != 0) ? $infoPO = '<button type="button" class="btn btn-sm" style="padding:0" disabled><i class="fas fa-info-circle" style="color:#0d6efd"></i></button> ' : $infoPO = '';
+
+									($r2->attn == "-" || $r2->attn == "") ? $attn = '' : $attn = ' | '.$r2->attn;
+									$html .= '<tr>
+										<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$n.'</td>
+										<td style="border:1px solid #dee2e6;padding:6px">'.$r2->nm_pelanggan.$attn.'</td>
+										<td style="border:1px solid #dee2e6;padding:6px">'.$dv1.$infoPO.$kat.$r2->nm_produk.$dv2.'</td>
+										<td style="border:1px solid #dee2e6;padding:6px">'.$uk.'</td>
+										<td style="border:1px solid #dee2e6;padding:6px">'.$this->m_fungsi->kualitas($r2->kualitas, $r2->flute).'</td>
+										<td style="border:1px solid #dee2e6;padding:6px">'.$r2->flute.'</td>
+										<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
+											<button class="btn btn-xs btn-danger" onclick="btnGBproduk('."'".$r2->id_produk."'".', '."'HAPUS'".')"><i class="fas fa-times-circle"></i></button>
+										</td>
+									</tr>';
+								}
+							$html .= '</table>';
+						$html .= '</div>';
+					}
+					
+				$html .= '</div>
+			</div>';
+		}
 
 		// STOK GUDANG
 		($id_pelanggan == 0) ? $sLtt = "CAST('0' AS UNSIGNED) AS berat_bersih," : $sLtt = 'i.berat_bersih,';
@@ -12842,8 +12903,69 @@ class Logistik extends CI_Controller
 		]);
 	}
 
+	function slctGBPelanggan(){
+		$id_pelanggan = $_POST["gb_id_pelanggan"];
+		$html = '';
+
+		$qProduk = $this->db->query("SELECT i.* FROM m_produk i
+		WHERE i.no_customer='$id_pelanggan'
+		GROUP BY i.no_customer,i.id_produk
+		ORDER BY i.kategori,i.nm_produk");
+
+		$html .= '<table style="margin:12px 0">
+			<tr style="background:#dee2e6;font-weight:bold;text-align:center">
+				<td style="padding:6px 12px;border:1px solid #bbb">#</td>
+				<th style="padding:6px;border:1px solid #bbb">NAMA ITEM</th>
+				<th style="padding:6px;border:1px solid #bbb">UKURAN</th>
+				<th style="padding:6px;border:1px solid #bbb">SUBSTANCE</th>
+				<th style="padding:6px;border:1px solid #bbb">FLUTE</th>
+				<th style="padding:6px;border:1px solid #bbb">AKSI</th>
+			</tr>';
+			$i = 0;
+			foreach($qProduk->result() as $r){
+				$i++;
+				($r->kategori == 'K_BOX') ? $kat = '' : $kat = '[SHEET] ';
+				($r->kategori == 'K_BOX') ? $uk = $r->ukuran : $uk = $r->ukuran_sheet;
+				(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+				(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+
+				// CEK NO. PO
+				$cekPO = $this->db->query("SELECT*FROM trs_po p
+				INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
+				WHERE p.status='Approve' AND p.status_kiriman='Open' AND p.expired_po IS NOT NULL AND p.id_pelanggan='$r->no_customer' AND d.id_produk='$r->id_produk'
+				GROUP BY p.status DESC,p.tgl_po,p.kode_po LIMIT 1");
+				($cekPO->num_rows() != 0) ? $infoPO = '<button type="button" class="btn btn-sm" style="padding:0" disabled><i class="fas fa-info-circle" style="color:#0d6efd"></i></button> ' : $infoPO = '';
+
+				if($r->id_mnl == null || $r->id_mnl == ''){
+					$aBtn = 'onclick="btnGBproduk('."'".$r->id_produk."'".', '."'ADD'".')"';
+					$bBtn = 'btn-success';
+				}else{
+					$aBtn = 'disabled';
+					$bBtn = 'btn-secondary';
+				}
+				$html .= '<tr>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">'.$i.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px">'.$dv1.$infoPO.$kat.$r->nm_produk.$dv2.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px">'.$uk.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
+					<td style="border:1px solid #dee2e6;padding:6px">'.$r->flute.'</td>
+					<td style="border:1px solid #dee2e6;padding:6px;text-align:center">
+						<button type="button" class="btn btn-xs '.$bBtn.' btn-imnl-'.$r->id_produk.'" '.$aBtn.'><i class="fas fa-plus"></i></button>
+					</td>
+				</tr>';
+			}
+		$html .= '</table>';
+
+		
+		
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
+
 	function loadGC()
-	{ //
+	{
 		$html = '';
 		$tgl_awal2 = $_POST["tgl_awal2"];
 		$pilih_tgl22 = $_POST["pilih_tgl22"];
