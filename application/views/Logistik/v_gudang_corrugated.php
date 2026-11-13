@@ -409,7 +409,23 @@
 			data: ({ gb_id_pelanggan }),
 			success: function(res){
 				data = JSON.parse(res)
-				// $(".gb-tmpl-item").html('')
+				$(".gb-tmpl-item").html(data.html)
+			}
+		})
+	}
+
+	function btnGBproduk(id_produk, opsi){
+		let id_mnl = $("#id_mnl").val()
+		$(".btn-imnl-"+id_produk).prop("disabled", true)
+
+		$.ajax({
+			url: '<?php echo base_url('Logistik/btnGBproduk')?>',
+			type: "POST",
+			data: ({ id_produk, id_mnl, opsi }),
+			success: function(res){
+				data = JSON.parse(res)
+				console.log(data)
+				listPO(0, id_mnl, 'LIST')
 			}
 		})
 	}

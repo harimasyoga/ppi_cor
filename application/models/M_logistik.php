@@ -880,6 +880,27 @@ class M_logistik extends CI_Model
 		];
 	}
 
+	function btnGBproduk()
+	{
+		$id_produk = $_POST["id_produk"];
+		$id_mnl = $_POST["id_mnl"];
+		$opsi = $_POST["opsi"];
+
+		if($opsi == 'ADD'){
+			$this->db->set("id_mnl", $id_mnl);
+		}else{
+			$this->db->set("id_mnl", null);
+		}
+		$this->db->where("id_produk", $id_produk);
+		$data = $this->db->update("m_produk");
+		$msg = 'BERHASIL!';
+
+		return [
+			'data' => $data,
+			'msg' => $msg,
+		];
+	}
+
 	function clickGudang()
 	{
 		$id_pelanggan = $_POST["id_pelanggan"];
@@ -1247,6 +1268,7 @@ class M_logistik extends CI_Model
 				'rk_tonase' => $r['options']['rk_tonase'],
 				'rk_kode_po' => $r['options']['rk_kode_po'],
 				'rk_bb' => $r['options']['rk_bb'],
+				'c_kl' => 0,
 			);
 			$insertRencanaKirim = $this->db->insert('m_rencana_kirim', $data);
 		}
