@@ -11870,11 +11870,13 @@ class Logistik extends CI_Controller
 
 		if($opsi == ''){
 			if($id_pelanggan == 'GLOBAL'){
-				($nm_produk != '' && $opsi == '') ? $wProduk = "WHERE (i.nm_produk_mnl REGEXP('".str_replace(" ", "|", $nm_produk)."') OR i.kd_produk_mnl REGEXP('".str_replace(" ", "|", $nm_produk)."'))" : $wProduk = '';
+				// ($nm_produk != '' && $opsi == '') ? $wProduk = "WHERE (i.nm_produk_mnl REGEXP('".str_replace(" ", "|", $nm_produk)."') OR i.kd_produk_mnl REGEXP('".str_replace(" ", "|", $nm_produk)."'))" : $wProduk = '';
+				($nm_produk != '' && $opsi == '') ? $wProduk = "WHERE (i.nm_produk_mnl LIKE '%$nm_produk%' OR i.kd_produk_mnl LIKE '%$nm_produk%')" : $wProduk = '';
 				$qPelanggan = $this->db->query("SELECT CAST('0' AS UNSIGNED) AS id_pelanggan,i.* FROM m_produk_mnl i $wProduk LIMIT 1");
 			}else{
 				($id_pelanggan != '') ? $wPelanggan = "c.id_pelanggan='$id_pelanggan'" : $wPelanggan = "c.id_pelanggan LIKE '%%'";
-				($nm_produk != '' && $opsi == '') ? $wProduk = "AND i.nm_produk REGEXP('".str_replace(" ", "|", $nm_produk)."')" : $wProduk = '';
+				// ($nm_produk != '' && $opsi == '') ? $wProduk = "AND i.nm_produk REGEXP('".str_replace(" ", "|", $nm_produk)."')" : $wProduk = '';
+				($nm_produk != '' && $opsi == '') ? $wProduk = "AND i.nm_produk LIKE '%$nm_produk%'" : $wProduk = '';
 				$qPelanggan = $this->db->query("SELECT c.id_pelanggan,c.nm_pelanggan,c.attn,i.nm_produk FROM m_produk i
 				INNER JOIN m_pelanggan c ON i.no_customer=c.id_pelanggan
 				WHERE $wPelanggan $wProduk
@@ -11882,7 +11884,7 @@ class Logistik extends CI_Controller
 			}
 		}else{
 			$qPelanggan = $this->db->query("SELECT g.id_pelanggan,'GLOBAL' AS nm_pelanggan,'' AS attn,n.nm_produk_mnl AS nm_produk FROM m_gudang_v3 g
-			INNER JOIN m_produk_mnl n ON g.id_produk=n.id_mnl
+			INNER JOIN m_produk_mnl n ON g.id_pelanggan=n.id_pel AND g.id_produk=n.id_mnl
 			GROUP BY g.id_pelanggan
 			UNION
 			SELECT c.id_pelanggan,c.nm_pelanggan,c.attn,i.nm_produk FROM m_gudang_v3 g
@@ -11953,16 +11955,18 @@ class Logistik extends CI_Controller
 					if($opsi == ''){
 						if($id_pelanggan == 'GLOBAL'){
 							$pProduk = $this->db->query("SELECT
-								'K_BOX' AS kategori,
-								'-' AS ukuran,
-								nm_produk_mnl AS nm_produk,
-								CAST('0' AS UNSIGNED) AS id_pelanggan,
-								id_mnl AS id_produk,
-								'-' AS flute,
+								i.id_pel AS id_pelanggan,
+								i.kat_mnl AS kategori,
+								i.uk_box_mnl AS ukuran,
+								i.uk_sheet_mnl AS ukuran_sheet,
+								i.nm_produk_mnl AS nm_produk,
+								i.id_mnl AS id_produk,
+								CAST('0' AS UNSIGNED) AS id_manual,
+								i.flute_mnl AS flute,
 								CAST('0' AS UNSIGNED) AS berat_bersih
 							FROM m_produk_mnl i $wProduk ORDER BY kd_produk_mnl,nm_produk_mnl");
 						}else{
-							$pProduk = $this->db->query("SELECT i.no_customer AS id_pelanggan,i.* FROM m_produk i
+							$pProduk = $this->db->query("SELECT i.no_customer AS id_pelanggan,i.id_mnl AS id_manual,i.* FROM m_produk i
 							WHERE i.no_customer='$p1->id_pelanggan' $wProduk
 							GROUP BY i.no_customer,i.id_produk
 							ORDER BY i.kategori,i.nm_produk");
@@ -11971,14 +11975,13 @@ class Logistik extends CI_Controller
 					}else{
 						if($p1->nm_pelanggan == 'GLOBAL' && $p1->id_pelanggan == 0){
 							$pProduk = $this->db->query("SELECT g.id_pelanggan,
-								'K_BOX' AS kategori,
-								'-' AS ukuran,
-								'-' AS ukuran_sheet,
+								i.kat_mnl AS kategori,
+								i.uk_box_mnl AS ukuran,
+								i.uk_sheet_mnl AS ukuran_sheet,
 								i.nm_produk_mnl AS nm_produk,
 								i.id_mnl AS id_produk,
-								CAST('0' AS UNSIGNED) AS berat_bersih,
-								'' AS kualitas,
-								'-' AS flute
+								i.flute_mnl AS flute,
+								CAST('0' AS UNSIGNED) AS berat_bersih
 							FROM m_gudang_v3 g
 							INNER JOIN m_produk_mnl i ON g.id_produk=i.id_mnl
 							WHERE g.id_pelanggan='$p1->id_pelanggan'
@@ -12023,7 +12026,11 @@ class Logistik extends CI_Controller
 							}
 						}else{
 							$infoSTOK = '';
-							$btnAksi = '<button type="button" class="btn btn-xs btn-success" onclick="clickGudang('."'".$g->id_pelanggan."'".', '."'".$g->id_produk."'".', '."'ADD'".')"><i class="fas fa-plus"></i></button>';
+							if($g->id_manual != 0){
+								$btnAksi = '<button type="button" class="btn btn-xs btn-secondary" disabled><i class="fas fa-plus"></i></button>';
+							}else{
+								$btnAksi = '<button type="button" class="btn btn-xs btn-success" onclick="clickGudang('."'".$g->id_pelanggan."'".', '."'".$g->id_produk."'".', '."'ADD'".')"><i class="fas fa-plus"></i></button>';
+							}
 							(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])) ? $roL = '' : $roL = 'disabled';
 							$tgl77 = ''; $stokAwal = 0; $in88 = 0; $inRetur = 0; $out = 0; $outRetur = 0; $stokAkhir = ''; $tonase = ''; $ket99 = ""; $tXtupDt = "";
 						}
@@ -12036,10 +12043,10 @@ class Logistik extends CI_Controller
 						($cekPO->num_rows() != 0) ? $infoPO = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$g->id_pelanggan."'".', '."'".$g->id_produk."'".', '."'".$tXtO."'".')"><i class="fas fa-info-circle" style="color:#0d6efd"></i></button> ' : $infoPO = '';
 
 						if($id_pelanggan == 'GLOBAL'){
-							$bb = ''; $iiKualitas = '-';
+							$bb = ''; $ikL2 = '-';
 						}else{
 							if($p1->nm_pelanggan == 'GLOBAL' && $p1->id_pelanggan == 0){
-								$bb = ''; $iiKualitas = '-';
+								$bb = ''; $ikL2 = '-';
 							}else{
 								// CEK JIKA ADA KIRIMAN
 								if($tgl_keluar != ''){
@@ -12048,7 +12055,7 @@ class Logistik extends CI_Controller
 								}else{
 									$bb = '';
 								}
-								$iiKualitas = $this->m_fungsi->kualitas($g->kualitas, $g->flute);
+								$ikL2 = $this->m_fungsi->kualitas($g->kualitas, $g->flute);
 							}
 						}
 
@@ -12060,7 +12067,7 @@ class Logistik extends CI_Controller
 								$html .= '<td style="padding:6px;text-align:center">'.$this->m_fungsi->tglIndSkt($tgl77).'</td>';
 							}
 							$html .= '<td style="'.$bb.'padding:6px;text-align:center">'.strtolower($uk).'</td>
-							<td style="'.$bb.'padding:6px;text-align:center">'.$iiKualitas.'</td>
+							<td style="'.$bb.'padding:6px;text-align:center">'.$ikL2.'</td>
 							<td style="'.$bb.'padding:6px;text-align:center">'.$g->flute.'</td>
 							<td style="'.$bb.'padding:6px">
 								<input type="number" id="stok_awal2_'.$g->id_produk.'" value="'.$stokAwal.'" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" style="padding:2px 4px;text-align:right;font-weight:bold;color:#000" '.$roL.'>
@@ -12838,7 +12845,7 @@ class Logistik extends CI_Controller
 		}
 
 		// STOK GUDANG
-		($id_pelanggan == 0) ? $sLtt = "CAST('0' AS UNSIGNED) AS berat_bersih," : $sLtt = 'i.berat_bersih,';
+		($id_pelanggan == 0) ? $sLtt = "null AS id_mnl,CAST('0' AS UNSIGNED) AS berat_bersih," : $sLtt = 'i.id_mnl,i.berat_bersih,';
 		($id_pelanggan == 0) ? $wINR = '' : $wINR = 'INNER JOIN m_produk i ON g.id_produk=i.id_produk';
 		$gudang = $this->db->query("SELECT $sLtt g.* FROM m_gudang_v3 g $wINR WHERE g.id_pelanggan='$id_pelanggan' and g.id_produk='$id_produk' GROUP BY g.tgl,g.id,g.id_pelanggan,g.id_produk");
 		if($gudang->num_rows() != 0){
@@ -12873,10 +12880,15 @@ class Logistik extends CI_Controller
 					if($opsi == 'LIST'){
 						$hAGdg = '';
 					}else{
-						$hAGdg = '<td style="border:1px solid #dee2e6;padding:6px">
-							<button type="button" class="btn btn-xs btn-warning" style="font-weight:bold" onclick="btnAksiGudang('."'".$id_pelanggan."'".', '."'".$g->id."'".', '."'".$g->tgl."'".', '."'EDIT'".')">EDIT</button>';
-							if($gudang->num_rows() == $i3){
-								$hAGdg .= ' <button type="button" class="btn btn-xs btn-success" style="font-weight:bold" onclick="btnAksiGudang('."'".$id_pelanggan."'".', '."'".$g->id."'".', '."'".$g->tgl."'".', '."'PILIH'".')">PILIH</button>';
+						$hAGdg = '<td style="border:1px solid #dee2e6;padding:6px">';
+							if($g->id_mnl == null){
+								$hAGdg .= '<button type="button" class="btn btn-xs btn-warning" style="font-weight:bold" onclick="btnAksiGudang('."'".$id_pelanggan."'".', '."'".$g->id."'".', '."'".$g->tgl."'".', '."'EDIT'".')">EDIT</button>';
+								if($gudang->num_rows() == $i3){
+									$hAGdg .= ' <button type="button" class="btn btn-xs btn-success" style="font-weight:bold" onclick="btnAksiGudang('."'".$id_pelanggan."'".', '."'".$g->id."'".', '."'".$g->tgl."'".', '."'PILIH'".')">PILIH</button>';
+								}
+							}else{
+								$hAGdg .= '<button type="button" class="btn btn-xs btn-secondary" style="font-weight:bold" disabled>EDIT</button>';
+								$hAGdg .= ' <button type="button" class="btn btn-xs btn-secondary" style="font-weight:bold" disabled>PILIH</button>';
 							}
 						$hAGdg .= '</td>';
 					}
