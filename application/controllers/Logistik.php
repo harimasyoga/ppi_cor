@@ -14129,7 +14129,9 @@ class Logistik extends CI_Controller
 					foreach($getCustomer->result() as $gdi){
 						$ii++;
 						$rk = $this->db->query("SELECT SUM(qty_muat) AS muat FROM m_rencana_kirim WHERE id_gudang='$gdi->id_gudang' GROUP BY id_gudang");
-						($rk->num_rows() == 0) ? $qty = $gdi->gd_good_qty : $qty = $gdi->gd_good_qty - $rk->row()->muat;
+						$rkRTR = $this->db->query("SELECT SUM(rtr_jumlah) AS rtr FROM m_rencana_kirim_retur WHERE rtr_kode_po='$gdi->gd_kode_po' GROUP BY rtr_kode_po");
+						($rkRTR->num_rows() == 0) ? $qtyRTR = 0 : $qtyRTR = $rkRTR->row()->rtr;
+						($rk->num_rows() == 0) ? $qty = $gdi->gd_good_qty + $qtyRTR : $qty = ($gdi->gd_good_qty + $qtyRTR) - $rk->row()->muat;
 						// UPDATE STATUS GUDANG
 						if($qty == 0){
 							$this->db->query("UPDATE m_gudang SET gd_status='Close' WHERE id_gudang='$gdi->id_gudang'");
@@ -14164,6 +14166,7 @@ class Logistik extends CI_Controller
 									<input type="hidden" id="hidden-kode-po-'.$gdi->id_gudang.'" value="'.$gdi->gd_kode_po.'">
 									<input type="hidden" id="hidden-bb-'.$gdi->id_gudang.'" value="'.$gdi->gd_berat_box.'">
 									<input type="hidden" id="hidden-qty-'.$gdi->id_gudang.'" value="'.$qty.'">
+									<input type="hidden" id="hidden-qty-rtr-'.$gdi->id_gudang.'" value="'.$qtyRTR.'">
 								</td>
 								<td style="border:1px solid #dee2e6;padding:3px 6px">'.$btnAksi.'</td>
 							</tr>';
@@ -14190,7 +14193,9 @@ class Logistik extends CI_Controller
 					foreach($getCustomer->result() as $isi){
 						$i++;
 						$rk = $this->db->query("SELECT SUM(qty_muat) AS muat FROM m_rencana_kirim WHERE id_gudang='$isi->id_gudang' GROUP BY id_gudang");
-						($rk->num_rows() == 0) ? $qty = $isi->gd_good_qty : $qty = $isi->gd_good_qty - $rk->row()->muat;
+						$rkRTR = $this->db->query("SELECT SUM(rtr_jumlah) AS rtr FROM m_rencana_kirim_retur WHERE rtr_kode_po='$isi->gd_kode_po' GROUP BY rtr_kode_po");
+						($rkRTR->num_rows() == 0) ? $qtyRRTR = 0 : $qtyRRTR = $rkRTR->row()->rtr;
+						($rk->num_rows() == 0) ? $qty = $isi->gd_good_qty + $qtyRRTR : $qty = ($isi->gd_good_qty + $qtyRRTR) - $rk->row()->muat;
 						// UPDATE STATUS GUDANG
 						if($qty == 0){
 							$this->db->query("UPDATE m_gudang SET gd_status='Close' WHERE id_gudang='$isi->id_gudang'");
@@ -14248,6 +14253,7 @@ class Logistik extends CI_Controller
 									<input type="hidden" id="hidden-kode-po-'.$isi->id_gudang.'" value="'.$isi->kode_po.'">
 									<input type="hidden" id="hidden-bb-'.$isi->id_gudang.'" value="'.$isi->gd_berat_box.'">
 									<input type="hidden" id="hidden-qty-'.$isi->id_gudang.'" value="'.$qty.'">
+									<input type="hidden" id="hidden-qty-rtr-'.$isi->id_gudang.'" value="'.$qtyRRTR.'">
 								</td>
 								<td style="border:1px solid #dee2e6;padding:3px 6px">'.$btnAksi.'</td>
 							</tr>';
@@ -14326,7 +14332,7 @@ class Logistik extends CI_Controller
 	}
 
 	function loadSJIsiGudang()
-	{ //
+	{
 		$gd_id_pelanggan = $_POST["gd_id_pelanggan"];
 		$gd_id_produk = $_POST["gd_id_produk"];
 		$kode_po = $_POST["kode_po"];
@@ -14446,6 +14452,7 @@ class Logistik extends CI_Controller
 				'id_gudang' => $_POST["id_gudang"],
 				'qty' => $_POST["qty"],
 				'qty_muat' => $_POST["muat"],
+				'qty_rtr' => $_POST["qty_rtr"],
 				'rk_tonase' => $_POST["tonase"],
 				'rk_kode_po' => $_POST["kodePo"],
 				'rk_bb' => $_POST["bb"],
@@ -14575,7 +14582,9 @@ class Logistik extends CI_Controller
 				foreach($getIsi->result() as $isi){
 					$gudang = $this->db->query("SELECT*FROM m_gudang WHERE id_gudang='$isi->id_gudang'")->row();
 					$muat = $this->db->query("SELECT SUM(qty_muat) AS qty_muat FROM m_rencana_kirim WHERE id_gudang='$isi->id_gudang' GROUP BY id_gudang")->row();
-					$siissa = $gudang->gd_good_qty - $muat->qty_muat;
+					$muatRTR = $this->db->query("SELECT SUM(rtr_jumlah) AS rtr FROM m_rencana_kirim_retur WHERE rtr_kode_po='$isi->rk_kode_po' GROUP BY rtr_kode_po");
+					($muatRTR->num_rows() == 0) ? $mRTR = 0 : $mRTR = $muatRTR->row()->rtr; 
+					$siissa = ($gudang->gd_good_qty + $mRTR) - $muat->qty_muat;
 					($isi->kategori == "BOX") ? $kategori = '[BOX] ' : $kategori = '[SHEET] ';
 					(strlen($isi->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
 					(strlen($isi->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';

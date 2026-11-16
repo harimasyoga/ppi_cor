@@ -331,12 +331,13 @@
 		let kodePo = $("#hidden-kode-po-"+id_gudang).val()
 		let bb = $("#hidden-bb-"+id_gudang).val()
 		let qty = $("#hidden-qty-"+id_gudang).val()
+		let qty_rtr = $("#hidden-qty-rtr-"+id_gudang).val()
 
 		$.ajax({
 			url: '<?php echo base_url('Logistik/addCartRKSJ')?>',
 			type: "POST",
 			data: ({
-				id_gudang, muat, tonase, idPelanggan, idProduk, nmPelanggan, nmProduk, kategori, kodePo, bb, qty
+				id_gudang, muat, tonase, idPelanggan, idProduk, nmPelanggan, nmProduk, kategori, kodePo, bb, qty, qty_rtr
 			}),
 			success: function(res){
 				data = JSON.parse(res)
