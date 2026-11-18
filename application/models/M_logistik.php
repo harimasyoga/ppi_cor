@@ -1667,11 +1667,14 @@ class M_logistik extends CI_Model
 		$tb_truk = $_POST["tb_truk"];
 		$timbangan = $_POST["timbangan"];
 
-		if($supir == "" || $timbangan < 0 || $timbangan == 0 || $tb_truk == "" || $timbangan == ""){
+		// CEK DATA TIMBANGAN
+		$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$urut' AND tgl_t='$tgl' GROUP BY urut_t,tgl_t");
+
+		if($qTimb->num_rows() == 0 && ($supir == "" || $timbangan < 0 || $timbangan == 0 || $tb_truk == "" || $timbangan == "")){
 			$data = false; $result = false; $msg = 'HARAP LENGKAPI DATA!';
-		}else if($tb_truk == $timbangan){
+		}else if($qTimb->num_rows() == 0 && $tb_truk == $timbangan){
 			$data = false; $result = false; $msg = 'BERAT TRUK TIDAK BOLEH SAMA DENGAN BERAT BERSIH!';
-		}else if($tb_truk < $timbangan){
+		}else if($qTimb->num_rows() == 0 && $tb_truk < $timbangan){
 			$data = false; $result = false; $msg = 'BERAT TRUK HARUS LEBIH BESAR DARI BERAT BERSIH!';
 		}else{
 			// KELUAR
@@ -1707,13 +1710,8 @@ class M_logistik extends CI_Model
 					}
 				}
 			}
-			// CEK DATA TIMBANGAN
-			$qTimb = $this->db->query("SELECT*FROM m_jembatan_timbang WHERE urut_t='$urut' AND tgl_t='$tgl' GROUP BY urut_t,tgl_t");
-			if($qTimb->num_rows() == 0){
-				$no_timbangan = $this->m_fungsi->urut_transaksi('TIMBANGAN').'/TIMB'.'/'.date('Y');
-			}else{
-				$no_timbangan = $qTimb->row()->no_timbangan;
-			}
+
+			($qTimb->num_rows() == 0) ? $no_timbangan = $this->m_fungsi->urut_transaksi('TIMBANGAN').'/TIMB'.'/'.date('Y') : $no_timbangan = $qTimb->row()->no_timbangan;
 			$berat_kotor = $tb_truk - $timbangan;
 			// DATA
 			$data = array(
@@ -1746,8 +1744,13 @@ class M_logistik extends CI_Model
 			}else{
 				$this->db->where("urut_t", $urut);
 				$this->db->where("tgl_t", $tgl);
-				$result = $this->db->update("m_jembatan_timbang", $data);
-				$msg = 'update';
+				if($tb_truk == 0 && $timbangan == 0){
+					$result = $this->db->delete("m_jembatan_timbang");
+					$msg = 'delete';
+				}else{
+					$result = $this->db->update("m_jembatan_timbang", $data);
+					$msg = 'update';
+				}
 			}
 		}
 		// RETURN

@@ -53,36 +53,6 @@
 	<section class="content">
 		<div class="container-fluid">
 
-			<!-- <div class="row card-add-gudang" style="display:none">
-				<div class="col-md-12">
-					<div class="card card-primary card-outline" style="padding-bottom:12px">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT DATA STOK GUDANG</h3>
-						</div>
-						<div class="card-body" style="font-weight:bold;padding:6px">
-							<div style="margin:12px 6px 6px">
-								<button type="button" class="btn btn-info" onclick="kembali()"><i class="fas fa-arrow-left"></i> <b>Kembali</b></button>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:20px 6px 6px">
-								<div class="col-md-2">TGL STOK AWAL</div>
-								<div class="col-md-2">
-									<input type="date" id="tgl_awal_cust" name="tgl_awal_cust" value="<?= date('Y-m-d') ?>" class="form-control" onchange="plhStokAwalCust()">
-								</div>
-								<div class="col-md-8"></div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:0 6px 30px">
-								<div class="col-md-2">CUSTOMER</div>
-								<div class="col-md-10">
-									<select class="form-control select2" id="pelanggan" onchange="plhGCPelanggan()">
-									</select>
-								</div>
-							</div>
-							<div class="produk" style="padding:0 6px"></div>
-						</div>
-					</div>
-				</div>
-			</div> -->
-
 			<div class="row card-add-gudang2" style="display:none">
 				<?php if($this->session->userdata('level') == 'Admin') { ?>
 					<div class="col-md-12">
@@ -183,32 +153,69 @@
 				</div>
 			</div>
 
-			<!-- <div class="row card-input-gudang" style="display:none">
-				<div class="col-md-12">
-					<div class="card card-secondary card-outline" style="padding-bottom:12px">
-						<div class="card-header" style="padding:12px">
-							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT LIST STOK GUDANG</h3>
-						</div>
-						<div class="card-body" style="font-weight:bold;padding:6px">
-							<div class="card-body row" style="font-weight:bold;padding:20px 6px 0">
-								<div class="col-md-2">TGL STOK AWAL</div>
-								<div class="col-md-2">
-									<input type="date" id="tgl_awal2" name="tgl_awal2" class="form-control" onchange="gdStokAwalCust()">
-								</div>
-								<div class="col-md-8"></div>
-							</div>
-							<div class="card-body row" style="font-weight:bold;padding:6px 6px 20px">
-								<div class="col-md-2">PILIH TANGGAL</div>
-								<div class="col-md-2">
-									<input type="date" id="pilih_tgl22" name="pilih_tgl22" class="form-control" onchange="gdStokAwalCust()">
-								</div>
-								<div class="col-md-8"></div>
-							</div>
-							<div class="gudang" style="padding:0 6px"></div>
-						</div>
+			<div class="card card-laporan-gudang" style="display:none">
+				<div class="card-header">
+					<h3 class="card-title"><b>LAPORAN HARIAN</b></h3>
+					<div class="card-tools">
+						<button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+						<i class="fas fa-minus"></i></button>
 					</div>
 				</div>
-			</div> -->
+				<div class="card-body" style="padding:12px 6px">
+					<div style="margin:0 6px 12px">
+						<button type="button" class="btn btn-info" onclick="kembali()"><i class="fas fa-arrow-left"></i> <b>Kembali</b></button>
+					</div>
+					<div class="card-body row" style="font-weight:bold;padding:6px">
+						<div class="col-md-1">PILIH</div>
+						<div class="col-md-8">
+							<select class="form-control select2" id="p_id_pelanggan">
+								<?php
+									$query = $this->db->query("SELECT*FROM m_pelanggan ORDER BY nm_pelanggan,attn");
+									$html ='';
+									$html .='<option value="">SEMUA CUSTOMER</option>';
+									$html .='<option value="0">GLOBAL</option>';
+									foreach($query->result() as $r){
+										($r->attn == "-" || $r->attn == "") ? $attn = '' : $attn = ' | '.$r->attn;
+										$html .='<option value="'.$r->id_pelanggan.'">'.$r->nm_pelanggan.''.$attn.'</option>';
+									}
+									echo $html
+								?>
+							</select>
+						</div>
+						<div class="col-md-3"></div>
+					</div>
+					<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+						<div class="col-md-1">NAMA ITEM</div>
+						<div class="col-md-8">
+							<input type="text" id="p_nm_produk" class="form-control" oninput="this.value=this.value.toUpperCase()" autocomplete="off" placeholder="NAMA ITEM">
+						</div>
+						<div class="col-md-3"></div>
+					</div>
+					<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+						<div class="col-md-1">TGL 1</div>
+						<div class="col-md-2">
+							<input type="date" id="tgl_lap1" value="" class="form-control">
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
+						<div class="col-md-1">TGL 2</div>
+						<div class="col-md-2">
+							<input type="date" id="tgl_lap2" value="" class="form-control">
+						</div>
+						<div class="col-md-9"></div>
+					</div>
+					<div class="card-body row" style="font-weight:bold;padding:0 6px 12px">
+						<div class="col-md-1"></div>
+						<div class="col-md-11">
+							<button type="button" class="btn btn-primary" onclick="cariLapGharian()"><i class="fas fa-search"></i></button>
+						</div>
+					</div>
+					<div style="overflow:auto;white-space:nowrap">
+						<div class="plist-gudang"></div>
+					</div>
+				</div>
+			</div>
 
 			<div class="card card-list-gudang">
 				<div class="card-header">
@@ -220,8 +227,9 @@
 				</div>
 				<div class="card-body" style="padding:12px 6px">
 					<?php if(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])) { ?>
-						<div style="margin:12px 0">
-							<button type="button" class="btn btn-info" onclick="tambah()"><i class="fa fa-plus"></i> <b>Tambah Data</b></button>
+						<div style="margin:0 0 12px">
+							<button type="button" class="btn btn-info" onclick="tambah()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+							<button type="button" class="btn btn-danger" onclick="laporanGHarian()"><i class="fas fa-list-ul"></i> <b>LAPORAN HARIAN</b></button>
 						</div>
 					<?php } ?>
 					<div style="overflow:auto;white-space:nowrap">
@@ -297,6 +305,7 @@
 		$(".produk2").html('')
 		$(".card-list-gudang").hide()
 		$(".card-list-gudang2").hide()
+		$(".card-laporan-gudang").hide()
 		$(".card-add-gudang").show()
 		$(".card-add-gudang2").show()
 		$(".card-input-gudang").show()
@@ -307,6 +316,18 @@
 		cariStokGudang('LIST')
 		$(".card-list-gudang").show()
 		$(".card-list-gudang2").show()
+		$(".card-laporan-gudang").hide()
+		$(".card-add-gudang").hide()
+		$(".card-add-gudang2").hide()
+		$(".card-input-gudang").hide()
+	}
+
+	function laporanGHarian() {
+		kosong()
+		$("#p_id_pelanggan").val('').trigger('change')
+		$(".card-list-gudang").hide()
+		$(".card-list-gudang2").hide()
+		$(".card-laporan-gudang").show()
 		$(".card-add-gudang").hide()
 		$(".card-add-gudang2").hide()
 		$(".card-input-gudang").hide()
@@ -314,9 +335,13 @@
 
 	function kosong() {
 		$(".produk2").html('')
+		$(".plist-gudang").html('')
 		$(".alist-gudang").html('')
+		$("#tgl_lap1").val('')
+		$("#tgl_lap2").val('')
 		$("#tgl_awal2").val('')
 		$("#nm_produk").val('')
+		$("#p_nm_produk").val('')
 		$("#tgl_keluar").val('')
 		$("#pilih_tgl22").val('')
 		$(".produk").html('')
@@ -352,34 +377,6 @@
 				}
 				swal.close()
 				$(".btn-gsvgg").prop("disabled", false)
-			}
-		})
-	}
-
-	function plhGCPelanggan() {
-		$(".produk").html('')
-		let id_pelanggan = $("#pelanggan").val()
-		let tgl_awal_cust = $("#tgl_awal_cust").val()
-		$.ajax({
-			url: '<?php echo base_url('Logistik/plhGCPelanggan')?>',
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'loading ...',
-					allowEscapeKey    : false,
-					allowOutsideClick : false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				})
-			},
-			data: ({
-				id_pelanggan, tgl_awal_cust
-			}),
-			success: function(res){
-				data = JSON.parse(res)
-				$(".produk").html(data.html)
-				swal.close()
 			}
 		})
 	}
@@ -564,89 +561,6 @@
 		})
 	}
 
-	function plhStokAwalCust()
-	{
-		let tgl_awal_cust = $("#tgl_awal_cust").val()
-		let id_pelanggan = $("#pelanggan").val()
-		$(".produk").html('')
-		$.ajax({
-			url: '<?php echo base_url('Logistik/plhGCPelanggan')?>',
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'loading ...',
-					allowEscapeKey    : false,
-					allowOutsideClick : false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				})
-			},
-			data: ({
-				id_pelanggan, tgl_awal_cust
-			}),
-			success: function(res){
-				data = JSON.parse(res)
-				$(".produk").html(data.html)
-				swal.close()
-			}
-		})
-	}
-
-	function loadGC()
-	{
-		$(".gudang").html('')
-		let tgl_awal2 = $("#tgl_awal2").val()
-		let pilih_tgl22 = $("#pilih_tgl22").val()
-		$.ajax({
-			url: '<?php echo base_url('Logistik/loadGC')?>',
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'loading ...',
-					allowEscapeKey    : false,
-					allowOutsideClick : false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				})
-			},
-			data: ({ tgl_awal2, pilih_tgl22 }),
-			success: function(res){
-				data = JSON.parse(res)
-				$(".gudang").html(data.html)
-				swal.close()
-			}
-		})
-	}
-
-	function gdStokAwalCust()
-	{
-		$(".gudang").html('')
-		let tgl_awal2 = $("#tgl_awal2").val()
-		let pilih_tgl22 = $("#pilih_tgl22").val()
-		$.ajax({
-			url: '<?php echo base_url('Logistik/loadGC')?>',
-			type: "POST",
-			beforeSend: function() {
-				swal({
-					title: 'loading ...',
-					allowEscapeKey    : false,
-					allowOutsideClick : false,
-					onOpen: () => {
-						swal.showLoading();
-					}
-				})
-			},
-			data: ({ tgl_awal2, pilih_tgl22 }),
-			success: function(res){
-				data = JSON.parse(res)
-				$(".gudang").html(data.html)
-				swal.close()
-			}
-		})
-	}
-
 	function simpanGDListCorr()
 	{
 		$(".btn-lsave").prop('disabled', true)
@@ -674,6 +588,36 @@
 				}else{
 					$(".btn-lsave").prop('disabled', false)
 					toastr.error(`<b>${data.msg}</b>`);
+					swal.close()
+				}
+			}
+		})
+	}
+
+	function cariLapGharian()
+	{
+		let tgl_lap1 = $("#tgl_lap1").val()
+		let tgl_lap2 = $("#tgl_lap2").val()
+		let id_pelanggan = $("#p_id_pelanggan").val()
+		let nm_produk = $("#p_nm_produk").val()
+		$.ajax({
+			url: '<?php echo base_url('Logistik/cariLapGharian')?>',
+			type: "POST",
+			beforeSend: function() {
+				swal({
+					title: 'loading ...',
+					allowEscapeKey    : false,
+					allowOutsideClick : false,
+					onOpen: () => {
+						swal.showLoading();
+					}
+				})
+			},
+			data: ({ tgl_lap1, tgl_lap2, id_pelanggan, nm_produk }),
+			success: function(res){
+				data = JSON.parse(res)
+				$(".plist-gudang").html(data.html)
+				if(data.html){
 					swal.close()
 				}
 			}

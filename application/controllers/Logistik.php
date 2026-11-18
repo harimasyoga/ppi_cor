@@ -11910,6 +11910,144 @@ class Logistik extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	function cariLapGharian()
+	{
+		$tgl_lap1 = $_POST["tgl_lap1"];
+		$tgl_lap2 = $_POST["tgl_lap2"];
+		$id_pelanggan = $_POST["id_pelanggan"];
+		$nm_produk = $_POST["nm_produk"];
+		$html = '';
+
+		($id_pelanggan != '') ? $wPelanggan = "AND g.id_pelanggan='$id_pelanggan'" : $wPelanggan = "";
+		($nm_produk != '') ? $wProduk = "AND i.nm_produk LIKE '%$nm_produk%'" : $wProduk = "";
+		($nm_produk != '') ? $wProduk2 = "AND i.nm_produk_mnl LIKE '%$nm_produk%'" : $wProduk2 = "";
+
+		$cekGudang = $this->db->query("SELECT g.id_pelanggan,'GLOBAL' AS nm_pelanggan,'' AS attn FROM m_gudang_v3 g
+		INNER JOIN m_produk_mnl i ON g.id_pelanggan=i.id_pel AND g.id_produk=i.id_mnl
+		WHERE g.tgl BETWEEN '$tgl_lap1' AND '$tgl_lap2' $wPelanggan $wProduk2 GROUP BY g.id_pelanggan
+		UNION
+		SELECT c.id_pelanggan,c.nm_pelanggan,c.attn FROM m_gudang_v3 g
+		INNER JOIN m_pelanggan c ON g.id_pelanggan=c.id_pelanggan
+		INNER JOIN m_produk i ON g.id_pelanggan=i.no_customer AND g.id_produk=i.id_produk
+		WHERE g.tgl BETWEEN '$tgl_lap1' AND '$tgl_lap2' $wPelanggan $wProduk GROUP BY g.id_pelanggan");
+
+		if($tgl_lap1 == "" || $tgl_lap2 == ""){
+			$html .= '<div style="font-weight:bold">PILIH TANGGAL!</div>';
+		}else if($tgl_lap1 > $tgl_lap2){
+			$html .= '<div style="font-weight:bold">CEK TANGGAL!</div>';
+		}else if($cekGudang->num_rows() == 0){
+			$html .= '<div style="font-weight:bold">DATA KOSONG!</div>';
+		}else{
+			$html .= '<table class="table table-bordered table-striped" style="font-weight:bold;margin:0;border:0">
+				<tr>
+					<th style="padding:6px" colspan="15">
+						LIST DATA :&nbsp
+						<button type="button" class="btn btn-xs btn-secondary" style="padding:1px 5px;font-weight:bold" onclick="btnMinMin(0)">
+							<span class="spn-tmpl">[ TAMPIL SEMUA ]</span>
+						</button>
+						<input type="hidden" id="ts0" value="0">
+					</th>
+				</tr>';
+				foreach($cekGudang->result() as $r){
+					($r->attn == "-" || $r->attn == "") ? $attn = '' : $attn = ' | '.$r->attn;				
+					$html .= '<tr>
+						<td style="padding:6px;background:#333;border:0;color:#fff" colspan="15">
+							<input type="hidden" id="ts1" value="">
+							<button type="button" class="btn btn-xs ab1 b1-'.$r->id_pelanggan.' btn-success" style="padding:1px 5px" onclick="btnPlusPlus('."'".$r->id_pelanggan."'".')">
+								<i style="font-size:8px" class="fas af1 f1-'.$r->id_pelanggan.' fa-plus"></i>
+							</button>&nbsp
+							'.$r->nm_pelanggan.$attn.'
+						</td>
+					</tr>';
+
+					$html .= '<tr class="tr1 t'.$r->id_pelanggan.'" style="display:none">
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 12px">#</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">ITEM</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">TANGGAL</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">UKURAN</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">SUBSTANCE</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">FLUTE</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">STOK AWAL</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 40px">IN</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">RETUR IN</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 30px">OUT</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">RETUR OUT</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">STOK AKHIR</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">TONASE</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 20px">KETERANGAN</th>
+						<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">LAST UDPATE</th>
+					</tr>';
+
+					if($r->nm_pelanggan == 'GLOBAL' && $r->id_pelanggan == 0){
+						$pProduk = $this->db->query("SELECT g.*,
+							i.kat_mnl AS kategori,
+							i.uk_box_mnl AS ukuran,
+							i.uk_sheet_mnl AS ukuran_sheet,
+							i.nm_produk_mnl AS nm_produk,
+							i.id_mnl AS id_produk,
+							i.flute_mnl AS flute,
+							CAST('0' AS UNSIGNED) AS berat_bersih
+						FROM m_gudang_v3 g
+						INNER JOIN m_produk_mnl i ON g.id_produk=i.id_mnl
+						WHERE g.id_pelanggan='$r->id_pelanggan' AND g.tgl BETWEEN '$tgl_lap1' AND '$tgl_lap2' $wProduk2
+						GROUP BY g.id_pelanggan,g.id_produk,g.tgl
+						ORDER BY i.kat_mnl,i.nm_produk_mnl,g.tgl");
+					}else{
+						$pProduk = $this->db->query("SELECT g.*,i.kategori,i.ukuran,i.ukuran_sheet,i.nm_produk,i.id_produk,i.berat_bersih,i.kualitas,i.flute FROM m_gudang_v3 g
+						INNER JOIN m_produk i ON g.id_produk=i.id_produk AND g.id_pelanggan=i.no_customer
+						WHERE g.id_pelanggan='$r->id_pelanggan' AND g.tgl BETWEEN '$tgl_lap1' AND '$tgl_lap2' $wProduk
+						GROUP BY g.id_pelanggan,g.id_produk,g.tgl
+						ORDER BY i.kategori,i.nm_produk,g.tgl");
+					}
+
+					$i = 0;
+					foreach($pProduk->result() as $g){
+						$i++;
+						($g->kategori == 'K_BOX') ? $kat = '' : $kat = '[SHEET] ';
+						($g->kategori == 'K_BOX') ? $uk = $g->ukuran : $uk = $g->ukuran_sheet;
+						(strlen($g->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
+						(strlen($g->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
+
+						if($r->nm_pelanggan == 'GLOBAL' && $r->id_pelanggan == 0){
+							$ikL2 = '-';
+						}else{
+							$ikL2 = $this->m_fungsi->kualitas($g->kualitas, $g->flute);
+						}
+
+						if($g->updated_at != null){
+							$tXtupDt = strtoupper($this->m_fungsi->tglIndSkt(substr($g->updated_at, 0,10))).'. '.substr($g->updated_at, 10,6).' ( '.$g->updated_by.' )';
+						}else{
+							$tXtupDt = strtoupper($this->m_fungsi->tglIndSkt(substr($g->created_at, 0,10))).'. '.substr($g->created_at, 10,6).' ( '.$g->created_by.' )';
+						}
+						$tonase = number_format(round($g->stok_akhir * $g->berat_bersih),0,',','.');
+
+						$html .= '<tr class="tr1 t'.$g->id_pelanggan.'" style="vertical-align:top;display:none">
+							<td style="padding:6px;text-align:center">'.$i.'</td>
+							<td style="padding:6px">'.$dv1.$kat.$g->nm_produk.$dv2.'</td>
+							<td style="padding:6px">'.$this->m_fungsi->tglIndSkt($g->tgl).'</td>
+							<td style="padding:6px">'.strtolower($uk).'</td>
+							<td style="padding:6px">'.$ikL2.'</td>
+							<td style="padding:6px;text-align:center">'.$g->flute.'</td>
+							<td style="padding:6px;text-align:right">'.number_format($g->stok_awal,0,',','.').'</td>
+							<td style="padding:6px;text-align:right">'.number_format($g->in,0,',','.').'</td>
+							<td style="padding:6px;text-align:right">'.number_format($g->in_rtr,0,',','.').'</td>
+							<td style="padding:6px;text-align:right">'.number_format($g->out,0,',','.').'</td>
+							<td style="padding:6px;text-align:right">'.number_format($g->out_rtr,0,',','.').'</td>
+							<td style="padding:6px;text-align:right">'.number_format($g->stok_akhir,0,',','.').'</td>
+							<td style="padding:6px;text-align:right">'.$tonase.'</td>
+							<td style="padding:6px">'.$g->ket.'</td>
+							<td style="padding:6px">'.$tXtupDt.'</td>
+						</tr>';
+					}
+				}
+			$html .= '</table>';
+		}
+
+		echo json_encode([
+			'html' => $html,
+		]);
+	}
+
 	function cariStokGudang()
 	{
 		$id_pelanggan = $_POST["id_pelanggan"];
@@ -11933,12 +12071,11 @@ class Logistik extends CI_Controller
 				GROUP BY c.id_pelanggan");
 			}
 		}else{
-			$qPelanggan = $this->db->query("SELECT g.id_pelanggan,'GLOBAL' AS nm_pelanggan,'' AS attn,n.nm_produk_mnl AS nm_produk FROM m_gudang_v3 g
+			$qPelanggan = $this->db->query("SELECT g.id_pelanggan,'GLOBAL' AS nm_pelanggan,'' AS attn FROM m_gudang_v3 g
 			INNER JOIN m_produk_mnl n ON g.id_pelanggan=n.id_pel AND g.id_produk=n.id_mnl
 			GROUP BY g.id_pelanggan
 			UNION
-			SELECT c.id_pelanggan,c.nm_pelanggan,c.attn,i.nm_produk FROM m_gudang_v3 g
-			INNER JOIN m_produk i ON g.id_produk=i.id_produk AND g.id_pelanggan=i.no_customer
+			SELECT c.id_pelanggan,c.nm_pelanggan,c.attn FROM m_gudang_v3 g
 			INNER JOIN m_pelanggan c ON g.id_pelanggan=c.id_pelanggan
 			GROUP BY c.id_pelanggan");
 		}
@@ -12035,7 +12172,8 @@ class Logistik extends CI_Controller
 							FROM m_gudang_v3 g
 							INNER JOIN m_produk_mnl i ON g.id_produk=i.id_mnl
 							WHERE g.id_pelanggan='$p1->id_pelanggan'
-							GROUP BY g.id_pelanggan,g.id_produk");
+							GROUP BY g.id_pelanggan,g.id_produk
+							ORDER BY i.kat_mnl,i.nm_produk_mnl");
 						}else{
 							$pProduk = $this->db->query("SELECT g.id_pelanggan,i.kategori,i.ukuran,i.ukuran_sheet,i.nm_produk,i.id_produk,i.berat_bersih,i.kualitas,i.flute FROM m_gudang_v3 g
 							INNER JOIN m_produk i ON g.id_produk=i.id_produk AND g.id_pelanggan=i.no_customer
@@ -12600,131 +12738,6 @@ class Logistik extends CI_Controller
 		echo json_encode($output);
 	}
 
-	function plhGCPelanggan()
-	{
-		$id_pelanggan = $_POST["id_pelanggan"];
-		$tgl_awal_cust = $_POST["tgl_awal_cust"];
-		$html = '';
-		$tglNow = strtotime($tgl_awal_cust) - strtotime(date('Y-m-d'));
-		($tglNow > 0) ? $dsb = 'readonly' : $dsb = '';
-
-		$produk = $this->db->query("SELECT*FROM m_produk WHERE no_customer='$id_pelanggan' ORDER BY kategori,nm_produk");
-		if($tgl_awal_cust == ''){
-			$html .= 'PILIH TANGGAL AWAL DAHULU!';
-		}else if($produk->num_rows() != 0){
-			$html .= '<form role="form" method="post" id="myForm">
-				<input type="hidden" id="id_pelanggan" name="id_pelanggan" value="'.$id_pelanggan.'">
-				<input type="hidden" id="h_tgl_awal" name="h_tgl_awal" value="'.$tgl_awal_cust.'">
-				<div style="padding:0;overflow:auto;white-space:nowrap">
-					<table class="table table-bordered table-striped" style="margin:0;border:0">
-						<tr>
-							<th style="text-align:center;padding:6px">#</th>
-							<th style="text-align:center;padding:6px">ITEM</th>
-							<th style="text-align:center;padding:6px">UKURAN</th>
-							<th style="text-align:center;padding:6px">FLUTE</th>
-							<th style="text-align:center;padding:6px">SUBSTANCE</th>
-							<th style="text-align:center;padding:6px">SALDO AWAL</th>
-							<th style="text-align:center;padding:6px 30px">IN</th>
-							<th style="text-align:center;padding:6px">RETUR IN</th>
-							<th style="text-align:center;padding:6px 23px">OUT</th>
-							<th style="text-align:center;padding:6px">RETUR OUT</th>
-							<th style="text-align:center;padding:6px">STOK AKHIR</th>
-							<th style="text-align:center;padding:6px">TONASE</th>
-							<th style="text-align:center;padding:6px 20px">KETERANGAN</th>
-						</tr>';
-						$i = 0;
-						foreach($produk->result() as $r){
-							$i++;
-							($r->kategori == 'K_BOX') ? $kat = '' : $kat = '[SHEET] ';
-							($r->kategori == 'K_BOX') ? $uk = $r->ukuran : $uk = $r->ukuran_sheet;
-							(strlen($r->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
-							(strlen($r->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
-
-							// CEK GUDANG
-							if($tgl_awal_cust != ''){
-								$hari = date('d', strtotime($tgl_awal_cust));
-								$bulan = date('m', strtotime($tgl_awal_cust));
-								$tahun = date('Y', strtotime($tgl_awal_cust));
-								$wA = 'AND ('.$hari.'_stok_awal IS NOT NULL OR '.$hari.'_stok_akhir IS NOT NULL OR '.$hari.'_in IS NOT NULL OR '.$hari.'_in_rtr IS NOT NULL OR '.$hari.'_out IS NOT NULL OR '.$hari.'_out_rtr IS NOT NULL)';
-								$qq = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$id_pelanggan' AND id_produk='$r->id_produk' $wA");
-								if($qq->num_rows() != 0){
-									$vSa = ($qq->row($hari.'_stok_awal') == 0) ? 0 : number_format($qq->row($hari.'_stok_awal'),0,',','.');
-									$vIn2 = ($qq->row($hari.'_in') == 0) ? 0 : number_format($qq->row($hari.'_in'),0,',','.');
-									$vInRtr = ($qq->row($hari.'_in_rtr') == 0) ? 0 : number_format($qq->row($hari.'_in_rtr'),0,',','.');
-									$vOut = ($qq->row($hari.'_out') == 0) ? 0 : number_format($qq->row($hari.'_out'),0,',','.');
-									$vOutRtr = ($qq->row($hari.'_out_rtr') == 0) ? 0 : number_format($qq->row($hari.'_out_rtr'),0,',','.');
-									$vSk = ($qq->row($hari.'_stok_akhir') == 0) ? 0 : number_format($qq->row($hari.'_stok_akhir'),0,',','.');
-									$vTon = ($qq->row($hari.'_stok_akhir') == 0 || $qq->row($hari.'_stok_akhir') < 0) ? 0 : number_format($qq->row($hari.'_stok_akhir') * $r->berat_bersih,0,',','.');
-									$vKet = $qq->row($hari.'_ket');
-								}else{
-									$vSa = ''; $vIn2 = ''; $vInRtr = ''; $vOut = ''; $vOutRtr = ''; $vSk = ''; $vTon = ''; $vKet = null;
-								}
-							}else{
-								$vSa = ''; $vIn2 = ''; $vInRtr = ''; $vOut = ''; $vOutRtr = ''; $vSk = ''; $vTon = ''; $vKet = null;
-							}
-
-							// CEK NO. PO
-							$cekPO = $this->db->query("SELECT*FROM trs_po p
-							INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
-							WHERE p.status!='Close' AND p.status_kiriman='Open' AND p.id_pelanggan='$id_pelanggan' AND d.id_produk='$r->id_produk'
-							GROUP BY p.status DESC,p.tgl_po,p.kode_po");
-							($cekPO->num_rows() != 0) ? $infoPO = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$id_pelanggan."'".', '."'".$r->id_produk."'".', '."'ADD'".')"><i class="fas fa-info-circle" style="color:#0d6efd"></i></button> ' : $infoPO = '';
-
-							// CEK JIKA ADA KIRIMAN
-							$cekKirim = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE r.rk_tgl='$tgl_awal_cust' AND r.id_produk='$r->id_produk' GROUP BY r.id_produk");
-							($cekKirim->num_rows() != 0) ? $bb = 'background:#ffa;border:1px solid #dd8;' : $bb = ''; //ffc107
-							
-							$html .= '<tr style="vertical-align:top">
-								<td style="'.$bb.'padding:6px;text-align:center">'.$i.'</td>
-								<td style="'.$bb.'padding:6px">'.$dv1.$infoPO.$kat.$r->nm_produk.$dv2.'</td>
-								<td style="'.$bb.'padding:6px;text-align:center">'.$uk.'</td>
-								<td style="'.$bb.'padding:6px;text-align:center">'.$r->flute.'</td>
-								<td style="'.$bb.'padding:6px;text-align:center">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
-								<td style="'.$bb.'padding:6px">
-									<input type="number" id="stok_awal_'.$r->id_produk.'" name="stok_awal_'.$r->id_produk.'" value="'.$vSa.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$dsb.'>
-								</td>
-								<td style="'.$bb.'padding:6px">
-									<input type="number" id="in_'.$r->id_produk.'" name="in_'.$r->id_produk.'" value="'.$vIn2.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$dsb.'>
-								</td>
-								<td style="'.$bb.'padding:6px">
-									<input type="number" id="inrtr_'.$r->id_produk.'" name="inrtr_'.$r->id_produk.'" value="'.$vInRtr.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$dsb.'>
-								</td>
-								<td style="'.$bb.'padding:6px">
-									<input type="number" id="out_'.$r->id_produk.'" name="out_'.$r->id_produk.'" value="'.$vOut.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$dsb.'>
-								</td>
-								<td style="'.$bb.'padding:6px">
-									<input type="number" id="outrtr_'.$r->id_produk.'" name="outrtr_'.$r->id_produk.'" value="'.$vOutRtr.'" onkeyup="keyUpGD('."'".$r->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" '.$dsb.'>
-								</td>
-								<td style="'.$bb.'padding:6px">
-									<input type="hidden" id="hstok_akhir_'.$r->id_produk.'" name="hstok_akhir_'.$r->id_produk.'" value="'.$vSk.'">
-									<input type="number" id="stok_akhir_'.$r->id_produk.'" name="stok_akhir_'.$r->id_produk.'" value="'.$vSk.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
-								</td>
-								<td style="'.$bb.'padding:6px">
-									<input type="hidden" id="hTTON_'.$r->id_produk.'" name="hTTON_'.$r->id_produk.'" value="'.$r->berat_bersih.'">
-									<input type="number" id="tton_'.$r->id_produk.'" name="tton_'.$r->id_produk.'" value="'.$vTon.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
-								</td>
-								<td style="'.$bb.'padding:6px">
-									<input type="text" id="ket_'.$r->id_produk.'" name="ket_'.$r->id_produk.'" value="'.$vKet.'" class="form-control" placeholder="KETERANGAN" autocomplete="off" style="padding:2px 4px;font-weight:bold" oninput="this.value=this.value.toUpperCase()" '.$dsb.'>
-								</td>
-							</tr>';
-						}
-					$html .= '</table>
-				</div>
-			</form>';
-			if($tglNow <= 0){
-				$html .= '<div style="margin:10px 0 30px">
-					<button type="button" class="btn btn-primary" style="font-weight:bold" onclick="simpanGCcorrugated()"><i class="fas fa-save"></i> SIMPAN</button>
-				</div>';
-			}
-		}else{
-			$html .= 'DATA KOSONG!';
-		}
-
-		echo json_encode([
-			'html' => $html,
-		]);
-	}
-
 	function listPO()
 	{
 		$id_pelanggan = $_POST["id_pelanggan"];
@@ -13017,182 +13030,6 @@ class Logistik extends CI_Controller
 				</tr>';
 			}
 		$html .= '</table>';
-
-		
-		
-		echo json_encode([
-			'html' => $html,
-		]);
-	}
-
-
-	function loadGC()
-	{
-		$html = '';
-		$tgl_awal2 = $_POST["tgl_awal2"];
-		$pilih_tgl22 = $_POST["pilih_tgl22"];
-		$hari2 = date('d', strtotime($pilih_tgl22));
-		$bulan2 = date('m', strtotime($pilih_tgl22));
-		$tahun2 = date('Y', strtotime($pilih_tgl22));
-		$w2 = 'AND '.$hari2.'_stok_akhir IS NOT NULL';
-
-		$gudang2 = $this->db->query("SELECT*FROM m_gudang_v2 g
-		WHERE g.bulan='$bulan2' AND g.tahun='$tahun2' $w2
-		GROUP BY g.bulan,g.tahun");
-
-		if($tgl_awal2 == ''){
-			$html .= 'PILIH TANGGAL AWAL DAHULU!';
-		}else if($pilih_tgl22 == ''){
-			$html .= 'PILIH TANGGAL DAHULU!';
-		}else if($tgl_awal2 == $pilih_tgl22){
-			$html .= 'PILIH TGL TIDAK BOLEH SAMA!';
-		}else if($pilih_tgl22 < $tgl_awal2){
-			$html .= 'PILIH TGL LEBIH KECIL DARI TGL STOK AWAL!';
-		}else if($gudang2->num_rows() != 0){
-			$html .= 'DATA STOK GUDANG SUDAH ADA!';
-		}else{
-			$hari = date('d', strtotime($tgl_awal2));
-			$bulan = date('m', strtotime($tgl_awal2));
-			$tahun = date('Y', strtotime($tgl_awal2));
-			$wA = 'AND '.$hari.'_stok_awal IS NOT NULL AND '.$hari.'_stok_akhir IS NOT NULL AND '.$hari.'_in IS NOT NULL AND '.$hari.'_out IS NOT NULL';
-
-			$pelanggan = $this->db->query("SELECT g.id_pelanggan,p.nm_pelanggan,p.attn FROM m_gudang_v2 g
-			INNER JOIN m_pelanggan p ON g.id_pelanggan=p.id_pelanggan
-			WHERE g.bulan='$bulan' AND g.tahun='$tahun' $wA
-			GROUP BY g.id_pelanggan
-			ORDER BY p.nm_pelanggan");
-
-			if($pelanggan->num_rows() == 0){
-				$html .= 'DATA STOK GUDANG KOSONG!';
-			}else{
-				$html .= '<form role="form" method="post" id="listForm">
-					<input type="hidden" id="h_tgl_awal2" name="h_tgl_awal2" value="'.$tgl_awal2.'">
-					<div style="padding:0;overflow:auto;white-space:nowrap">
-						<table class="table table-bordered table-striped" style="margin:0;border:0">
-							<tr>
-								<th style="padding:6px" colspan="13">
-									DATA STOK GUDANG : '.strtoupper($this->m_fungsi->getHariIni($tgl_awal2)).', '.strtoupper($this->m_fungsi->tglIndSkt($tgl_awal2)).'&nbsp
-									<button type="button" class="btn btn-xs btn-info" style="padding:1px 5px;font-weight:bold" onclick="btnMinMin(0)">
-										<span class="spn-tmpl">[ TAMPIL SEMUA ]</span>
-									</button>
-									&nbsp
-									<button type="button" class="btn btn-xs btn-warning" style="padding:1px 5px;font-weight:bold;cursor:default">
-										<span>[ KELUAR SURAT JALAN ]</span>
-									</button>
-									<input type="hidden" id="ts0" value="0">
-								</th>
-							</tr>';
-							
-							foreach($pelanggan->result() as $p){
-								($p->attn == "-" || $p->attn == "") ? $attn = '' : $attn = ' | '.$p->attn;
-								$html .= '<tr>
-									<td style="padding:6px;background:#333;border:0;color:#fff" colspan="13">
-										<input type="hidden" id="ts1" value="">
-										<button type="button" class="btn btn-xs ab1 b1-'.$p->id_pelanggan.' btn-success" style="padding:1px 5px" onclick="btnPlusPlus('."'".$p->id_pelanggan."'".')">
-											<i style="font-size:8px" class="fas af1 f1-'.$p->id_pelanggan.' fa-plus"></i>
-										</button>&nbsp
-										'.$p->nm_pelanggan.$attn.'
-									</td>
-								</tr>';
-
-								$html .= '<tr class="tr1 t'.$p->id_pelanggan.'" style="display:none">
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 12px">#</th>
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">ITEM</th>
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">UKURAN</th>
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">SUBSTANCE</th>
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">FLUTE</th>
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">STOK AWAL</th>
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 40px">IN</th>
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">RETUR IN</th>
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 30px">OUT</th>
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">RETUR OUT</th>
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">STOK AKHIR</th>
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px">TONASE</th>
-									<th style="background:#ccc;border:1px solid #aaa;text-align:center;padding:6px 20px">KETERANGAN</th>
-								</tr>';
-
-								$gudang = $this->db->query("SELECT*FROM m_gudang_v2 g
-								INNER JOIN m_produk p ON g.id_produk=p.id_produk
-								WHERE g.bulan='$bulan' AND g.tahun='$tahun' AND g.id_pelanggan='$p->id_pelanggan' $wA
-								GROUP BY g.id_pelanggan, g.id_produk
-								ORDER BY p.kategori,p.nm_produk");
-								$i = 0;
-								foreach($gudang->result() as $g){
-									$i++;
-									($g->kategori == 'K_BOX') ? $kat = '' : $kat = '[SHEET] ';
-									($g->kategori == 'K_BOX') ? $uk = $g->ukuran : $uk = $g->ukuran_sheet;
-									(strlen($g->nm_produk) >= 35) ? $dv1 = '<div style="width:300px;white-space:normal">' : $dv1 = '';
-									(strlen($g->nm_produk) >= 35) ? $dv2 = '</div>' : $dv2 = '';
-
-									// AMBIL STOK AKHIR
-									$qq = $this->db->query("SELECT*FROM m_gudang_v2 WHERE bulan='$bulan' AND tahun='$tahun' AND id_pelanggan='$g->id_pelanggan' AND id_produk='$g->id_produk' $wA ORDER BY id DESC LIMIT 1");
-									$vSkh = ($qq->row($hari.'_stok_akhir') == 0 || $qq->row($hari.'_stok_akhir') == null) ? 0 : $qq->row($hari.'_stok_akhir');
-									$vSk = ($qq->row($hari.'_stok_akhir') == 0 || $qq->row($hari.'_stok_akhir') == null) ? 0 : number_format($qq->row($hari.'_stok_akhir'),0,',','.');
-									$vTon = ($qq->row($hari.'_stok_akhir') == 0 || $qq->row($hari.'_stok_akhir') < 0) ? 0 : number_format($qq->row($hari.'_stok_akhir') * $g->berat_bersih,0,',','.');
-
-									// CEK NO. PO
-									$cekPO = $this->db->query("SELECT*FROM trs_po p
-									INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
-									WHERE p.status!='Close' AND p.status_kiriman='Open' AND p.id_pelanggan='$g->id_pelanggan' AND d.id_produk='$g->id_produk'
-									GROUP BY p.status DESC,p.tgl_po,p.kode_po");
-									($cekPO->num_rows() != 0) ? $infoPO = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$g->id_pelanggan."'".', '."'".$g->id_produk."'".', '."'LIST'".')"><i class="fas fa-info-circle" style="color:#0d6efd"></i></button> ' : $infoPO = '';
-
-									// CEK JIKA ADA KIRIMAN
-									$cekKirim = $this->db->query("SELECT*FROM m_rencana_kirim r WHERE r.rk_tgl='$pilih_tgl22' AND r.id_produk='$g->id_produk' GROUP BY r.id_produk");
-									($cekKirim->num_rows() != 0) ? $bb = 'background:#ffa;border:1px solid #dd8;' : $bb = ''; //ffc107
-
-									(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])) ? $roL = '' : $roL = 'readonly';
-
-									$html .= '<tr class="tr1 t'.$g->id_pelanggan.'" style="vertical-align:top;display:none">
-										<td style="'.$bb.'padding:6px;text-align:center">'.$i.'</td>
-										<td style="'.$bb.'padding:6px">'.$dv1.$infoPO.$kat.$g->nm_produk.$dv2.'</td>
-										<td style="'.$bb.'padding:6px;text-align:center">'.$uk.'</td>
-										<td style="'.$bb.'padding:6px;text-align:center">'.$this->m_fungsi->kualitas($g->kualitas, $g->flute).'</td>
-										<td style="'.$bb.'padding:6px;text-align:center">'.$g->flute.'</td>
-										<td style="'.$bb.'padding:6px">
-											<input type="number" id="stok_awal2_'.$g->id_produk.'" name="stok_awal2_'.$g->id_produk.'" value="'.$vSk.'" class="form-control" style="padding:2px 4px;text-align:right;font-weight:bold;color:#000" readonly>
-										</td>
-										<td style="'.$bb.'padding:6px">
-											<input type="number" id="in2_'.$g->id_produk.'" name="in2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold;color:#000" '.$roL.'>
-										</td>
-										<td style="'.$bb.'padding:6px">
-											<input type="number" id="inrtr2_'.$g->id_produk.'" name="inrtr2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold;color:#000" '.$roL.'>
-										</td>
-										<td style="'.$bb.'padding:6px">
-											<input type="number" id="out2_'.$g->id_produk.'" name="out2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold;color:#000" '.$roL.'>
-										</td>
-										<td style="'.$bb.'padding:6px">
-											<input type="number" id="outrtr2_'.$g->id_produk.'" name="outrtr2_'.$g->id_produk.'" value="0" onkeyup="keyUpGD2('."'".$g->id_produk."'".')" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold;color:#000" '.$roL.'>
-										</td>
-										<td style="'.$bb.'padding:6px">
-											<input type="hidden" id="hstok_akhir2_'.$g->id_produk.'" name="hstok_akhir2_'.$g->id_produk.'" value="'.$vSkh.'">
-											<input type="number" id="stok_akhir2_'.$g->id_produk.'" name="stok_akhir2_'.$g->id_produk.'" value="'.$vSk.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold;color:#000" disabled>
-										</td>
-										<td style="'.$bb.'padding:6px">
-											<input type="hidden" id="hTTON2_'.$g->id_produk.'" name="hTTON2_'.$g->id_produk.'" value="'.$g->berat_bersih.'">
-											<input type="number" id="tton2_'.$g->id_produk.'" name="tton2_'.$g->id_produk.'" value="'.$vTon.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold;color:#000" disabled>
-										</td>
-										<td style="'.$bb.'padding:6px">
-											<input type="text" id="ket2_'.$g->id_produk.'" name="ket2_'.$g->id_produk.'" class="form-control" placeholder="KETERANGAN" autocomplete="off" style="padding:2px 4px;font-weight:bold;color:#000" oninput="this.value=this.value.toUpperCase()" '.$roL.'>
-										</td>
-									</tr>';
-								}
-							}
-						$html .= '</table>
-					</div>';
-					if(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])){
-						$html .= '<div class="card-body" style="padding:12px 0">
-							<div class="card-body row" style="padding:6px 0">
-								<div class="col-md-12">
-									<input type="hidden" id="pilih_tgl2" name="pilih_tgl2" value="'.$pilih_tgl22.'">
-									<button type="button" class="btn btn-primary btn-lsave" style="font-weight:bold" onclick="simpanGDListCorr()"><i class="fas fa-save"></i> SIMPAN</button>
-								</div>
-							</div>
-						</div>';
-					}
-				$html .= '</form>';
-			}
-		}
 
 		echo json_encode([
 			'html' => $html,
@@ -16682,7 +16519,7 @@ class Logistik extends CI_Controller
 		($jenis == '') ? $nm_ker = "" : $nm_ker = "AND r.nm_ker='$jenis'";
 		$html = '';
 
-		$caCB = $this->db->query("SELECT r.t_cor,r.nm_ker,r.g_label,r.width FROM m_roll r WHERE r.t_cor='$corr' $nm_ker GROUP BY r.t_cor,r.nm_ker,r.g_label,r.width");
+		$caCB = $this->db->query("SELECT r.t_cor,r.nm_ker,r.g_label,r.width FROM m_roll r WHERE r.t_cor='$corr' AND status_p='Open' $nm_ker GROUP BY r.t_cor,r.nm_ker,r.g_label,r.width");
 		if($caCB->num_rows() == 0){
 			$html .= 'DATA KOSONG!';
 		}else{
@@ -16707,7 +16544,7 @@ class Logistik extends CI_Controller
 						</tr>
 					</thead>';
 					// ISI
-					$list = $this->db->query("SELECT*FROM m_roll WHERE t_cor='$r->t_cor' AND nm_ker='$r->nm_ker' AND g_label='$r->g_label' AND width='$r->width' ORDER BY t_cor, i_tgl, nm_ker, g_label, width");
+					$list = $this->db->query("SELECT*FROM m_roll WHERE t_cor='$r->t_cor' AND nm_ker='$r->nm_ker' AND g_label='$r->g_label' AND width='$r->width' AND status_p='Open' ORDER BY t_cor, i_tgl, nm_ker, g_label, width");
 					$l = 0;
 					foreach($list->result() as $m){
 						$l++;
