@@ -12945,13 +12945,17 @@ class Logistik extends CI_Controller
 					}else{
 						$hAGdg = '<td style="border:1px solid #dee2e6;padding:6px">';
 							if($g->id_mnl == null){
-								$hAGdg .= '<button type="button" class="btn btn-xs btn-warning" style="font-weight:bold" onclick="btnAksiGudang('."'".$id_pelanggan."'".', '."'".$g->id."'".', '."'".$g->tgl."'".', '."'EDIT'".')">EDIT</button>';
 								if($gudang->num_rows() == $i3){
+									$hAGdg .= '<button type="button" class="btn btn-xs btn-warning" style="font-weight:bold" onclick="btnAksiGudang('."'".$id_pelanggan."'".', '."'".$g->id."'".', '."'".$g->tgl."'".', '."'EDIT'".')">EDIT</button>';
 									$hAGdg .= ' <button type="button" class="btn btn-xs btn-success" style="font-weight:bold" onclick="btnAksiGudang('."'".$id_pelanggan."'".', '."'".$g->id."'".', '."'".$g->tgl."'".', '."'PILIH'".')">PILIH</button>';
+								}else{
+									$hAGdg .= '<button type="button" class="btn btn-xs btn-secondary" style="font-weight:bold" disabled>EDIT</button>';
 								}
 							}else{
 								$hAGdg .= '<button type="button" class="btn btn-xs btn-secondary" style="font-weight:bold" disabled>EDIT</button>';
-								$hAGdg .= ' <button type="button" class="btn btn-xs btn-secondary" style="font-weight:bold" disabled>PILIH</button>';
+								if($gudang->num_rows() == $i3){
+									$hAGdg .= ' <button type="button" class="btn btn-xs btn-secondary" style="font-weight:bold" disabled>PILIH</button>';
+								}
 							}
 						$hAGdg .= '</td>';
 					}

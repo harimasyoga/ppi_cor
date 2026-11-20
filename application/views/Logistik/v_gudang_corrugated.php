@@ -226,12 +226,12 @@
 					</div>
 				</div>
 				<div class="card-body" style="padding:12px 6px">
-					<?php if(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])) { ?>
 						<div style="margin:0 0 12px">
-							<button type="button" class="btn btn-info" onclick="tambah()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])) { ?>
+								<button type="button" class="btn btn-info" onclick="tambah()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+							<?php } ?>
 							<button type="button" class="btn btn-danger" onclick="laporanGHarian()"><i class="fas fa-list-ul"></i> <b>LAPORAN HARIAN</b></button>
 						</div>
-					<?php } ?>
 					<div style="overflow:auto;white-space:nowrap">
 						<div class="alist-gudang"></div>
 					</div>
