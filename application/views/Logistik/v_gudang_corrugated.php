@@ -55,7 +55,7 @@
 
 			<div class="row card-add-gudang2" style="display:none">
 				<?php if($this->session->userdata('level') == 'Admin') { ?>
-					<div class="col-md-12">
+					<!-- <div class="col-md-12">
 						<div class="card card-primary card-outline" style="padding-bottom:12px">
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT MASTER DATA GLOBAL</h3>
@@ -87,7 +87,7 @@
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> -->
 				<?php } ?>
 
 				<div class="col-md-12">
@@ -425,7 +425,6 @@
 			data: ({ id_produk, id_mnl, opsi }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				listPO(0, id_mnl, 'LIST')
 			}
 		})
