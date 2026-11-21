@@ -55,7 +55,7 @@
 
 			<div class="row card-add-gudang2" style="display:none">
 				<?php if($this->session->userdata('level') == 'Admin') { ?>
-					<div class="col-md-12">
+					<!-- <div class="col-md-12">
 						<div class="card card-primary card-outline" style="padding-bottom:12px">
 							<div class="card-header" style="padding:12px">
 								<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT MASTER DATA GLOBAL</h3>
@@ -87,7 +87,7 @@
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> -->
 				<?php } ?>
 
 				<div class="col-md-12">
@@ -226,12 +226,12 @@
 					</div>
 				</div>
 				<div class="card-body" style="padding:12px 6px">
-					<?php if(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])) { ?>
 						<div style="margin:0 0 12px">
-							<button type="button" class="btn btn-info" onclick="tambah()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+							<?php if(in_array($this->session->userdata('level'), ['Admin', 'Gudang'])) { ?>
+								<button type="button" class="btn btn-info" onclick="tambah()"><i class="fa fa-plus"></i> <b>TAMBAH DATA</b></button>
+							<?php } ?>
 							<button type="button" class="btn btn-danger" onclick="laporanGHarian()"><i class="fas fa-list-ul"></i> <b>LAPORAN HARIAN</b></button>
 						</div>
-					<?php } ?>
 					<div style="overflow:auto;white-space:nowrap">
 						<div class="alist-gudang"></div>
 					</div>
@@ -381,14 +381,17 @@
 		})
 	}
 
-	function listPO(id_pelanggan, id_produk, opsi){
-		$(".list-nopo").html('...')
-		$("#modalForm").modal("show")
+	function listPO(id_pelanggan, id_produk, i, opsi){
+		let halaman = ($("#h_txt"+i).val() == undefined) ? '' : $("#h_txt"+i).val();
+		let limit = ($("#q_txt"+i).val() == undefined) ? '' : $("#q_txt"+i).val();
+		let ke_hal = ($("#ke_hal").val() == undefined) ? '' : $("#ke_hal").val();
+		(halaman == '') ? $(".list-nopo").html('...') : $(".list-gdg").html('...');
+		$("#modalForm").modal("show");
 		$.ajax({
 			url: '<?php echo base_url('Logistik/listPO')?>',
 			type: "POST",
 			data: ({
-				id_pelanggan, id_produk, opsi
+				id_pelanggan, id_produk, halaman, limit, ke_hal, opsi
 			}),
 			success: function(res){
 				data = JSON.parse(res)
@@ -422,7 +425,6 @@
 			data: ({ id_produk, id_mnl, opsi }),
 			success: function(res){
 				data = JSON.parse(res)
-				console.log(data)
 				listPO(0, id_mnl, 'LIST')
 			}
 		})

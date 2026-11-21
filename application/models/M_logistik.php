@@ -917,9 +917,6 @@ class M_logistik extends CI_Model
 		$tgl_lama = $_POST["tgl_lama"];
 		$id_gudang = $_POST["id_gudang"];
 
-		// cek
-		// $gudang = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$id_pelanggan' AND g.id_produk='$id_produk' AND g.tgl='$tgl'");
-
 		if(($stok_awal == 0 && $in2 == 0 && $inrtr == 0 && $out == 0 && $outrtr == 0 && $stok_akhir == 0) || ($stok_awal == '' && $in2 == '' && $inrtr == '' && $out == '' && $outrtr == '' && $stok_akhir == '')){
 			$data = false;
 			$msg = 'CEK LAGI INPUTAN!';
@@ -940,9 +937,10 @@ class M_logistik extends CI_Model
 				'out' => $out,
 				'out_rtr' => $outrtr,
 				'stok_akhir' => $stok_akhir,
-				'ket' => ($ket == '') ? null : $ket,
 			];
+			$msg = '';
 			if($opsi == 'ADD'){
+				$this->db->set("ket", ($ket == '') ? null : $ket);
 				$this->db->set("id_pelanggan", $id_pelanggan);
 				$this->db->set("id_produk", $id_produk);
 				$this->db->set("tgl", $tgl);
@@ -952,11 +950,60 @@ class M_logistik extends CI_Model
 				$msg = 'BERHASIL INPUT DATA!';
 			}
 			if($opsi == 'EDIT'){
+				$this->db->set("ket", ($ket == '') ? null : $ket);
 				$this->db->set("updated_at", date("Y-m-d H:i:s"));
 				$this->db->set("updated_by", $this->session->userdata('username'));
 				$this->db->where("id", $id_gudang);
 				$data = $this->db->update("m_gudang_v3", $l);
 				$msg = 'BERHASIL EDIT DATA!';
+			}
+			// INPUT DI PERCUSTOMER JIKA DATA GLOBAL
+			if($data && $id_pelanggan == 0){
+				// DATA PRODUK YANG KE LINK
+				$produkMNL = $this->db->query("SELECT*FROM m_produk r WHERE r.id_mnl='$id_produk'");
+				if($produkMNL->num_rows() != 0){
+					foreach($produkMNL->result() as $m){
+						$l2 = [
+							'tgl' => $tgl,
+							'id_pelanggan' => $m->no_customer,
+							'id_produk' => $m->id_produk,
+							'stok_awal' => $stok_awal,
+							'in' => $in2,
+							'in_rtr' => $inrtr,
+							'out' => $out,
+							'out_rtr' => $outrtr,
+							'stok_akhir' => $stok_akhir,
+							'ket' => 'GLOBAL',
+						];
+						// CEK INPUTAN GUDANG TERAKHIR
+						$lastGD = $this->db->query("SELECT*FROM m_gudang_v3 WHERE id_pelanggan='$m->no_customer' AND id_produk='$m->id_produk' ORDER BY id DESC LIMIT 1");
+						if($lastGD->num_rows() == 0){
+							$this->db->set("created_at", date("Y-m-d H:i:s"));
+							$this->db->set("created_by", $this->session->userdata('username'));
+							$this->db->insert("m_gudang_v3", $l2);
+						}else{
+							// CEK TGL YANG SAMA
+							$lastGDtgl = $this->db->query("SELECT*FROM m_gudang_v3 WHERE id_pelanggan='$m->no_customer' AND id_produk='$m->id_produk' AND tgl='$tgl' ORDER BY id DESC LIMIT 1");
+							if($lastGDtgl->num_rows() == 0){
+								$this->db->set("created_at", date("Y-m-d H:i:s"));
+								$this->db->set("created_by", $this->session->userdata('username'));
+								$this->db->insert("m_gudang_v3", $l2);
+							}else{
+								if($opsi == 'ADD'){
+									$this->db->set("created_at", date("Y-m-d H:i:s"));
+									$this->db->set("created_by", $this->session->userdata('username'));
+									$this->db->insert("m_gudang_v3", $l2);
+								}
+								if($opsi == 'EDIT'){
+									$this->db->set("updated_at", date("Y-m-d H:i:s"));
+									$this->db->set("updated_by", $this->session->userdata('username'));
+									$this->db->where("id", $lastGDtgl->row()->id);
+									$this->db->update("m_gudang_v3", $l2);
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 
