@@ -381,14 +381,17 @@
 		})
 	}
 
-	function listPO(id_pelanggan, id_produk, opsi){
-		$(".list-nopo").html('...')
-		$("#modalForm").modal("show")
+	function listPO(id_pelanggan, id_produk, i, opsi){
+		let halaman = ($("#h_txt"+i).val() == undefined) ? '' : $("#h_txt"+i).val();
+		let limit = ($("#q_txt"+i).val() == undefined) ? '' : $("#q_txt"+i).val();
+		let ke_hal = ($("#ke_hal").val() == undefined) ? '' : $("#ke_hal").val();
+		(halaman == '') ? $(".list-nopo").html('...') : $(".list-gdg").html('...');
+		$("#modalForm").modal("show");
 		$.ajax({
 			url: '<?php echo base_url('Logistik/listPO')?>',
 			type: "POST",
 			data: ({
-				id_pelanggan, id_produk, opsi
+				id_pelanggan, id_produk, halaman, limit, ke_hal, opsi
 			}),
 			success: function(res){
 				data = JSON.parse(res)

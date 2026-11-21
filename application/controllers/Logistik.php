@@ -12195,7 +12195,7 @@ class Logistik extends CI_Controller
 						// AMBIL STOK GUDANG INPUTAN TERAKHIR
 						$inpStok = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$g->id_pelanggan' AND g.id_produk='$g->id_produk' ORDER BY tgl DESC, id DESC LIMIT 1");
 						if($inpStok->num_rows() != 0){
-							$infoSTOK = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$g->id_pelanggan."'".', '."'".$g->id_produk."'".', '."'".$tXtO."'".')"><i class="fas fa-info-circle" style="color:#dc3545"></i></button> ';
+							$infoSTOK = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$g->id_pelanggan."'".', '."'".$g->id_produk."'".', '."''".', '."'".$tXtO."'".')"><i class="fas fa-info-circle" style="color:#dc3545"></i></button> ';
 							$btnAksi = '';
 							$roL = 'disabled';
 							$tgl77 = $inpStok->row()->tgl;
@@ -12228,7 +12228,7 @@ class Logistik extends CI_Controller
 						INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 						WHERE p.status='Approve' AND p.status_kiriman='Open' AND p.expired_po IS NOT NULL AND p.id_pelanggan='$g->id_pelanggan' AND d.id_produk='$g->id_produk'
 						GROUP BY p.status DESC,p.tgl_po,p.kode_po LIMIT 1");
-						($cekPO->num_rows() != 0) ? $infoPO = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$g->id_pelanggan."'".', '."'".$g->id_produk."'".', '."'".$tXtO."'".')"><i class="fas fa-info-circle" style="color:#0d6efd"></i></button> ' : $infoPO = '';
+						($cekPO->num_rows() != 0) ? $infoPO = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$g->id_pelanggan."'".', '."'".$g->id_produk."'".', '."''".', '."'".$tXtO."'".')"><i class="fas fa-info-circle" style="color:#0d6efd"></i></button> ' : $infoPO = '';
 
 						if($id_pelanggan == 'GLOBAL'){
 							$bb = ''; $ikL2 = '-';
@@ -12329,7 +12329,7 @@ class Logistik extends CI_Controller
 				$tonase = number_format(round($inpStok->row()->stok_akhir * $bb->berat_bersih),0,',','.');
 			}
 			$ket99 = $inpStok->row()->ket;
-			$infoSTOK = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$id_pelanggan."'".', '."'".$id_produk."'".', '."'ADD'".')"><i class="fas fa-info-circle" style="color:#dc3545"></i></button> ';
+			$infoSTOK = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$id_pelanggan."'".', '."'".$id_produk."'".', '."''".', '."'ADD'".')"><i class="fas fa-info-circle" style="color:#dc3545"></i></button> ';
 		}else{
 			$tgl77 = '';
 			$stokAwal = 0;
@@ -12347,7 +12347,7 @@ class Logistik extends CI_Controller
 		INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
 		WHERE p.status='Approve' AND p.status_kiriman='Open' AND p.expired_po IS NOT NULL AND p.id_pelanggan='$id_pelanggan' AND d.id_produk='$id_produk'
 		GROUP BY p.status DESC,p.tgl_po,p.kode_po LIMIT 1");
-		($cekPO->num_rows() != 0) ? $infoPO = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$id_pelanggan."'".', '."'".$id_produk."'".', '."'ADD'".')"><i class="fas fa-info-circle" style="color:#0d6efd"></i></button> ' : $infoPO = '';
+		($cekPO->num_rows() != 0) ? $infoPO = '<button type="button" class="btn btn-sm" style="padding:0" onclick="listPO('."'".$id_pelanggan."'".', '."'".$id_produk."'".', '."''".', '."'ADD'".')"><i class="fas fa-info-circle" style="color:#0d6efd"></i></button> ' : $infoPO = '';
 		$info = $infoPO.$infoSTOK;
 
 		echo json_encode([
@@ -12910,10 +12910,18 @@ class Logistik extends CI_Controller
 		// STOK GUDANG
 		($id_pelanggan == 0) ? $sLtt = "null AS id_mnl,CAST('0' AS UNSIGNED) AS berat_bersih," : $sLtt = 'i.id_mnl,i.berat_bersih,';
 		($id_pelanggan == 0) ? $wINR = '' : $wINR = 'INNER JOIN m_produk i ON g.id_produk=i.id_produk';
-		$gudang = $this->db->query("SELECT $sLtt g.* FROM m_gudang_v3 g $wINR WHERE g.id_pelanggan='$id_pelanggan' and g.id_produk='$id_produk' GROUP BY g.tgl,g.id,g.id_pelanggan,g.id_produk");
+		// PAGINATION
+		if($_POST["ke_hal"] == '' || $_POST["ke_hal"] == 0 || $_POST["ke_hal"] < 0){
+			$ke_hal = 10;
+		}else{
+			$ke_hal = ($_POST["ke_hal"] == '') ? 10 : $_POST["ke_hal"];
+		}
+		$halaman = ($_POST["halaman"] == '') ? 1 : $_POST["halaman"];
+		$limit = ($_POST["limit"] == '') ? 0 : $_POST["limit"];
+		$gudang = $this->db->query("SELECT $sLtt g.* FROM m_gudang_v3 g $wINR WHERE g.id_pelanggan='$id_pelanggan' and g.id_produk='$id_produk' GROUP BY g.tgl,g.id,g.id_pelanggan,g.id_produk LIMIT $limit, $ke_hal");
 		if($gudang->num_rows() != 0){
-			$html .= '<div style="margin-top:12px;font-weight:bold">DATA STOK GUDANG : </div>';
-			$html .= '<table>
+			$html .= '<div style="margin-top:12px;font-weight:bold">DATA STOK GUDANG :</div>';
+			$html .= '<table class="list-gdg">
 				<tr style="background:#dee2e6;font-weight:bold;text-align:center">
 					<td style="padding:6px 12px;border:1px solid #bbb">#</td>
 					<td style="padding:6px;border:1px solid #bbb">HARI, TGL</td>
@@ -12930,7 +12938,7 @@ class Logistik extends CI_Controller
 						$html .= '<td style="padding:6px;border:1px solid #bbb">AKSI</td>';
 					}
 				$html .= '</tr>';
-				$i3 = 0;
+				$i3 = 0 + $limit;
 				foreach($gudang->result() as $g){
 					$i3++;
 					if($g->updated_at != null){
@@ -12972,6 +12980,38 @@ class Logistik extends CI_Controller
 						<td style="border:1px solid #dee2e6;padding:6px">'.$g->ket.'</td>
 						<td style="border:1px solid #dee2e6;padding:6px">'.$upDt.'</td>
 						'.$hAGdg.'
+					</tr>';
+				}
+				// HALAMAN
+				$gudangPP = $this->db->query("SELECT COUNT(g.id) AS count FROM m_gudang_v3 g $wINR WHERE g.id_pelanggan='$id_pelanggan' and g.id_produk='$id_produk'")->row();
+				$countHal = ceil($gudangPP->count / $ke_hal);
+				if($gudangPP->count > $ke_hal) {
+					if($opsi == 'ADD'){
+						$csH = 10;
+						$csI = '';
+						$csW = '';
+					}else{
+						$csH = 8;
+						$csI = 'colspan="2"';
+						$csW = 'width:55px;';
+					}
+					$html .= '<tr>
+						<td style="padding:6px;border:1px solid #bbb;text-align:right;font-weight:bold" colspan="'.$csH.'">HALAMAN PER.</td>
+						<td style="padding:6px;border:1px solid #bbb;text-align:center">
+							<input type="number" class="form-control" style="'.$csW.'height:100%;text-align:center;padding:2px 4px" id="ke_hal" value="'.$ke_hal.'" placeholder="PER" autocomplete="off" onchange="listPO('."'".$id_pelanggan."'".', '."'".$id_produk."'".', '."''".', '."'".$opsi."'".')">
+						</td>
+						<td style="padding:6px;border:1px solid #bbb" '.$csI.'>';
+							$h = 0;
+							for($i = 1; $i <= $countHal; $i++){
+								($halaman == $i) ? $ds = 'disabled' : $ds = '';
+								($halaman == $i) ? $dh = 'btn-secondary' : $dh = 'btn-primary';
+								($halaman == $i) ? $dc = '' : $dc = 'onclick="listPO('."'".$id_pelanggan."'".', '."'".$id_produk."'".', '."'".$i."'".', '."'".$opsi."'".')"';
+								$html .= '<input type="hidden" id="h_txt'.$i.'" value="'.$i.'">';
+								$html .= '<input type="hidden" id="q_txt'.$i.'" value="'.$h.'">';
+								$html .= '<button type="button" class="btn btn-sm '.$dh.' btnh-'.$i.'" style="font-weight:bold" '.$dc.' '.$ds.'>'.$i.'</button> ';
+								$h += $ke_hal;
+							}
+						$html .= '</td>
 					</tr>';
 				}
 			$html .= '</table>';

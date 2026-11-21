@@ -174,6 +174,7 @@ class Laporan extends CI_Controller
 	{
 		$id_sales = $this->session->userdata('id_sales');
 		($id_sales == '' || $id_sales == null) ? $wIdSls = "" : $wIdSls = "AND s.id_sales='$id_sales'";
+		// ($id_sales == '' || $id_sales == null) ? $wIdSls = "AND s.id_sales='14'" : $wIdSls = "AND s.id_sales='$id_sales'";
 		$html = '';
 
 		$sales = $this->db->query("SELECT s.nm_sales,s.id_sales FROM trs_po p
@@ -193,6 +194,7 @@ class Laporan extends CI_Controller
 				$html .= '<tr>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold" colspan="5">SALES / CUSTOMER / ITEM / NO.PO</td>
 					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">STOK <span style="font-size:13px;font-style:italic">(pcs)</span></td>
+					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">STOK <span style="font-size:13px;font-style:italic">(kg)</span></td>
 					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS <span style="font-size:13px;font-style:italic">(pcs)</span></td>
 					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS <span style="font-size:13px;font-style:italic">(kg)</span></td>
 					<td style="background:#ccc;padding:5px 10px;border:1px solid #aaa;font-weight:bold;text-align:center">OS Unplanned <span style="font-size:13px;font-style:italic">(pcs)</span></td>
@@ -202,6 +204,7 @@ class Laporan extends CI_Controller
 				$sumTot = 0;
 				$sumJet = 0;
 				$allSTOK = 0;
+				$allSTOKBB = 0;
 				$sumTotUnp = 0;
 				$sumJetUnp = 0;
 
@@ -270,6 +273,21 @@ class Laporan extends CI_Controller
 						$allSTOK += ($qq1->row()->stok_akhir == null) ? 0 : $qq1->row()->stok_akhir;
 					}
 
+					// BERAT BERSIH
+					$qq90 = $this->db->query("SELECT SUM(g.stok_akhir) AS stok_akhir,sub.berat_bersih FROM m_gudang_v3 g
+					INNER JOIN m_pelanggan c ON g.id_pelanggan=c.id_pelanggan
+					INNER JOIN (
+						SELECT a.id_produk, a.id_pelanggan, i.berat_bersih, MAX(a.tgl) AS max_tgl, MAX(a.id) AS max_id FROM m_gudang_v3 a
+						INNER JOIN m_produk i ON a.id_produk=i.id_produk GROUP BY id_produk
+					) sub ON g.id_produk=sub.id_produk AND g.id_pelanggan=sub.id_pelanggan AND g.tgl=sub.max_tgl AND g.id=sub.max_id
+					WHERE c.id_sales='$s->id_sales' AND g.stok_akhir!='0'
+					GROUP BY c.id_sales,g.id_pelanggan,g.id_produk");
+					$sBStok = 0;
+					foreach($qq90->result() as $b24){
+						$sBStok += $b24->stok_akhir * $b24->berat_bersih;
+					}
+					$allSTOKBB += $sBStok;
+
 					// CEK SALES COUNT 7 HARI
 					$sHari7 = $this->db->query("SELECT count(p.kode_po) as hari7 FROM trs_po p
 					INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
@@ -305,6 +323,7 @@ class Laporan extends CI_Controller
 							'.$s->nm_sales.$sTxt7.'
 						</td>
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.$sStok.'</td>
+						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($sBStok,0,',','.').'</td>
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($sumSales,0,',','.').'</td>
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($sumBBSales,0,',','.').'</td>
 						<td style="background:#eee;border:1px solid #aaa;font-weight:bold;padding:5px;text-align:right">'.number_format($sumSalesUnp,0,',','.').'</td>
@@ -381,6 +400,19 @@ class Laporan extends CI_Controller
 							GROUP BY g.id_pelanggan");
 							($qq2->num_rows() == 0) ? $cStok = '-' : $cStok = number_format($qq2->row()->stok_akhir,0,',','.');
 
+							// BERAT BERSIH
+							$qq89 = $this->db->query("SELECT SUM(g.stok_akhir) AS stok_akhir,sub.berat_bersih FROM m_gudang_v3 g
+							INNER JOIN (
+								SELECT a.id_produk, a.id_pelanggan, i.berat_bersih, MAX(a.tgl) AS max_tgl, MAX(a.id) AS max_id FROM m_gudang_v3 a
+								INNER JOIN m_produk i ON a.id_produk=i.id_produk GROUP BY id_produk
+							) sub ON g.id_produk=sub.id_produk AND g.id_pelanggan=sub.id_pelanggan AND g.tgl=sub.max_tgl AND g.id=sub.max_id
+							WHERE g.id_pelanggan='$r->id_pelanggan' AND g.stok_akhir!='0'
+							GROUP BY g.id_pelanggan,g.id_produk");
+							$cBStok = 0;
+							foreach($qq89->result() as $b1){
+								$cBStok += $b1->stok_akhir * $b1->berat_bersih;
+							}
+
 							// CEK CUSTOMER COUNT 7 HARI
 							$cHari7 = $this->db->query("SELECT count(p.kode_po) as hari7 FROM trs_po p
 							INNER JOIN trs_po_detail d ON p.no_po=d.no_po AND p.kode_po=d.kode_po
@@ -440,6 +472,7 @@ class Laporan extends CI_Controller
 									'.$r->nm_pelanggan.$cTxt7.$atZ.'
 								</td>
 								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.$cStok.$btnDtlGDCor.'</td>
+								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($cBStok,0,',','.').'</td>
 								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($sumCust,0,',','.').'</td>
 								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($sumBBCust,0,',','.').'</td>
 								<td style="background:#ddd;border:1px solid #aaa;vertical-align:top;font-weight:bold;padding:5px;text-align:right">'.number_format($sumCustUnp,0,',','.').'</td>
@@ -454,6 +487,7 @@ class Laporan extends CI_Controller
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px 15px">F</td>
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">BB</td>
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">STOK <span style="font-size:13px;font-style:italic">(pcs)</span></td>
+								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">STOK <span style="font-size:13px;font-style:italic">(kg)</span></td>
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS <span style="font-size:13px;font-style:italic">(pcs)</span></td>
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS <span style="font-size:13px;font-style:italic">(kg)</span></td>
 								<td style="background:#333;color:#fff;font-weight:bold;border:1px solid #666;text-align:center;padding:5px">OS Unplaned <span style="font-size:13px;font-style:italic">(pcs)</span></td>
@@ -512,6 +546,7 @@ class Laporan extends CI_Controller
 									// CEK STOK GUDANG PER ITEM
 									$qq3 = $this->db->query("SELECT*FROM m_gudang_v3 g WHERE g.id_pelanggan='$p->id_pelanggan' AND g.id_produk='$p->id_produk' ORDER BY tgl DESC, id DESC LIMIT 1");
 									($qq3->num_rows() == 0) ? $iStok = '-' : $iStok = number_format($qq3->row('stok_akhir'),0,',','.');
+									($qq3->num_rows() == 0) ? $bStok = '-' : $bStok = number_format($qq3->row('stok_akhir') * $p->berat_bersih,0,',','.');
 
 									// CEK PER ITEM COUNT 7 HARI
 									$iHari7 = $this->db->query("SELECT count(p.kode_po) as hari7 FROM trs_po p
@@ -561,6 +596,7 @@ class Laporan extends CI_Controller
 										<td style="border:1px solid #aaa;padding:5px;text-align:center">'.$p->flute.'</td>
 										<td style="border:1px solid #aaa;padding:5px;text-align:center">'.$p->berat_bersih.'</td>
 										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.$iStok.'</td>
+										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.$bStok.'</td>
 										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($sumItem,0,',','.').'</td>
 										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($sumBBItem,0,',','.').'</td>
 										<td style="border:1px solid #aaa;padding:5px;text-align:right">'.number_format($sumItemUnp,0,',','.').'</td>
@@ -630,10 +666,9 @@ class Laporan extends CI_Controller
 											}
 
 											$html .= '<tr class="tr3 n'.$n->id_produk.'" style="display:none">
-												<td style="background:#eee;border:1px solid #aaa;padding:5px 5px 5px 35px" colspan="5">
+												<td style="background:#eee;border:1px solid #aaa;padding:5px 5px 5px 35px" colspan="7">
 													<b>'.$l.'.</b> '.$n->kode_po.' <span class="bg-primary" style="vertical-align:top;font-weight:bold;padding:2px 4px;font-size:12px;border-radius:4px">'.substr($n->time_app3,0,10).'</span> '.$expPO.'
 												</td>
-												<td style="background:#eee;border:1px solid #aaa;padding:5px"></td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$txtSisa.'</td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.$txtBB.'</td>
 												<td style="background:#eee;border:1px solid #aaa;padding:5px;text-align:right">'.number_format($OSSys,0,',','.').'</td>
@@ -657,6 +692,7 @@ class Laporan extends CI_Controller
 				$html .= '<tr>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa" colspan="5"></td>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($allSTOK, 0, ',', '.').'</td>
+					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($allSTOKBB, 0, ',', '.').'</td>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumJet, 0, ',', '.').'</td>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumTot, 0, ',', '.').'</td>
 					<td style="background:#ccc;padding:5px;border:1px solid #aaa;font-weight:bold;text-align:right">'.number_format($sumTotUnp, 0, ',', '.').'</td>
@@ -703,6 +739,7 @@ class Laporan extends CI_Controller
 
 			$i = 0;
 			$sumStokAkhir = 0;
+			$sumTonase = 0;
 			foreach($gudang->result() as $r){
 				$i++;
 				($r->kategori == 'K_BOX') ? $kat = '' : $kat = '[SHEET] ';
@@ -731,6 +768,7 @@ class Laporan extends CI_Controller
 					$vTgl = ''; $vSa = ''; $vIn2 = ''; $vInRtr = ''; $vOut = ''; $vOutRtr = ''; $vSk = ''; $vTon = ''; $vKet = null; $upDt = '';
 				}
 				$sumStokAkhir += $qq->row('stok_akhir');
+				$sumTonase += $qq->row('stok_akhir') * $r->berat_bersih;
 
 				// CEK NO. PO
 				$cekPO = $this->db->query("SELECT*FROM trs_po p
@@ -743,41 +781,26 @@ class Laporan extends CI_Controller
 					<td style="padding:6px;text-align:center">'.$i.'</td>
 					<td style="padding:6px">'.$dv1.$infoPO.$kat.$r->nm_produk.$dv2.'</td>
 					<td style="padding:6px;text-align:center">'.$vTgl.'</td>
-					<td style="padding:6px;text-align:center">'.$upDt.'</td>
+					<td style="padding:6px">'.$upDt.'</td>
 					<td style="padding:6px;text-align:center">'.strtolower($uk).'</td>
 					<td style="padding:6px;text-align:center">'.$r->flute.'</td>
 					<td style="padding:6px;text-align:center">'.$this->m_fungsi->kualitas($r->kualitas, $r->flute).'</td>
-					<td style="padding:6px">
-						<input type="number" id="stok_awal_'.$r->id_produk.'" value="'.$vSa.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
-					</td>
-					<td style="padding:6px">
-						<input type="number" id="in_'.$r->id_produk.'" value="'.$vIn2.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
-					</td>
-					<td style="padding:6px">
-						<input type="number" id="inrtr_'.$r->id_produk.'" value="'.$vInRtr.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
-					</td>
-					<td style="padding:6px">
-						<input type="number" id="out_'.$r->id_produk.'" value="'.$vOut.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
-					</td>
-					<td style="padding:6px">
-						<input type="number" id="outrtr_'.$r->id_produk.'" value="'.$vOutRtr.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold">
-					</td>
-					<td style="padding:6px">
-						<input type="number" id="stok_akhir_'.$r->id_produk.'" value="'.$vSk.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
-					</td>
-					<td style="padding:6px">
-						<input type="number" id="tton_'.$r->id_produk.'" value="'.$vTon.'" class="form-control" placeholder="0" style="padding:2px 4px;text-align:right;font-weight:bold" disabled>
-					</td>
-					<td style="padding:6px">
-						<input type="text" id="ket_'.$r->id_produk.'" value="'.$vKet.'" class="form-control" placeholder="KETERANGAN" autocomplete="off" style="padding:2px 4px;font-weight:bold">
-					</td>
+					<td style="padding:6px;text-align:right">'.$vSa.'</td>
+					<td style="padding:6px;text-align:right">'.$vIn2.'</td>
+					<td style="padding:6px;text-align:right">'.$vInRtr.'</td>
+					<td style="padding:6px;text-align:right">'.$vOut.'</td>
+					<td style="padding:6px;text-align:right">'.$vOutRtr.'</td>
+					<td style="padding:6px;text-align:right">'.$vSk.'</td>
+					<td style="padding:6px;text-align:right">'.$vTon.'</td>
+					<td style="padding:6px">'.$vKet.'</td>
 				</tr>';
 			}
 			// TOTAL
 			$html .= '<tr>
-				<td style="padding:6px;text-align:right;font-weight:bold" colspan="11">TOTAL</td>
+				<td style="padding:6px;text-align:right;font-weight:bold" colspan="12">TOTAL</td>
 				<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumStokAkhir).'</td>
-				<td style="padding:6px" colspan="3"></td>
+				<td style="padding:6px;text-align:right;font-weight:bold">'.number_format($sumTonase).'</td>
+				<td style="padding:6px"></td>
 			</tr>';
 		$html .= '</table>';
 
