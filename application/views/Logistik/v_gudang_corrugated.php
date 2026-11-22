@@ -54,42 +54,6 @@
 		<div class="container-fluid">
 
 			<div class="row card-add-gudang2" style="display:none">
-				<?php if($this->session->userdata('level') == 'Admin') { ?>
-					<!-- <div class="col-md-12">
-						<div class="card card-primary card-outline" style="padding-bottom:12px">
-							<div class="card-header" style="padding:12px">
-								<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT MASTER DATA GLOBAL</h3>
-							</div>
-							<div class="card-body" style="font-weight:bold;padding:6px">
-								<div style="margin:12px 6px">
-									<button type="button" class="btn btn-info" onclick="kembali()"><i class="fas fa-arrow-left"></i> <b>Kembali</b></button>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:6px">
-									<div class="col-md-1">KODE ITEM</div>
-									<div class="col-md-8">
-										<input type="text" id="g_kode_produk" class="form-control" oninput="this.value=this.value.toUpperCase()" autocomplete="off" maxlength="5" placeholder="KODE ITEM">
-									</div>
-									<div class="col-md-3"></div>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
-									<div class="col-md-1">NAMA ITEM</div>
-									<div class="col-md-8">
-										<input type="text" id="g_nm_produk" class="form-control" oninput="this.value=this.value.toUpperCase()" autocomplete="off" placeholder="NAMA ITEM">
-									</div>
-									<div class="col-md-3"></div>
-								</div>
-								<div class="card-body row" style="font-weight:bold;padding:0 6px 6px">
-									<div class="col-md-1"></div>
-									<div class="col-md-8">
-										<button type="button" class="btn btn-sm btn-primary btn-gsvgg" style="font-weight:bold" onclick="simpanGDItemGlobal()"><i class="fas fa-save"></i> SIMPAN</button>
-									</div>
-									<div class="col-md-3"></div>
-								</div>
-							</div>
-						</div>
-					</div> -->
-				<?php } ?>
-
 				<div class="col-md-12">
 					<div class="card card-primary card-outline" style="padding-bottom:12px">
 						<div class="card-header" style="padding:12px">

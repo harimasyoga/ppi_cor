@@ -12752,7 +12752,8 @@ class Logistik extends CI_Controller
 
 		if($po->num_rows() != 0){
 			$html .= '<div style="font-weight:bold">LIST PO : </div>';
-			$html .= '<table>
+			$html .= '<div style="overflow:auto;white-space:nowrap">
+			<table>
 				<tr style="background:#dee2e6;font-weight:bold;text-align:center">
 					<td style="padding:6px 12px;border:1px solid #bbb">#</td>
 					<td style="padding:6px;border:1px solid #bbb">HARI, TGL</td>
@@ -12776,7 +12777,7 @@ class Logistik extends CI_Controller
 					<td style="padding:6px;border:1px solid #bbb;text-align:right" colspan="3">TOTAL</td>
 					<td style="padding:6px;border:1px solid #bbb;text-align:right">'.number_format($sumPO,0,',','.').'</td>
 				</tr>';
-			$html .= '</table>';
+			$html .= '</table></div>';
 
 			// KIRIMAN
 			$kirimPO = $this->db->query("SELECT p.*,r.* FROM pl_box p
@@ -12787,7 +12788,8 @@ class Logistik extends CI_Controller
 			GROUP BY p.no_po");
 			if($kirimPO->num_rows() != 0){
 				$html .= '<div style="margin-top:12px;font-weight:bold">PENGIRIMAN : </div>';
-				$html .= '<table>';
+				$html .= '<div style="overflow:auto;white-space:nowrap">
+				<table>';
 					foreach($kirimPO->result() as $z){
 						$html .= '<tr style="background:#dee2e6;font-weight:bold">
 							<td style="padding:6px;background:#333;color:#fff" colspan="4">'.$z->no_po.'</td>
@@ -12824,7 +12826,7 @@ class Logistik extends CI_Controller
 							</tr>';
 						}
 					}
-				$html .= '</table>';
+				$html .= '</table></div>';
 			}
 		}
 
@@ -12859,9 +12861,10 @@ class Logistik extends CI_Controller
 					GROUP BY c.id_pelanggan,i.id_produk
 					ORDER BY i.kategori,i.nm_produk");
 					if($produkMnl->num_rows() != 0){
-						$html .= '<div class="card-body" style="font-weight:bold;padding:0">
-							<div style="margin-top:12px;font-weight:bold">ITEM YANG TERKONEKSI DENGAN ITEM GLOBAL : </div>';
-							$html .= '<table>
+						$html .= '<div style="margin-top:12px;font-weight:bold">ITEM YANG TERKONEKSI DENGAN ITEM GLOBAL : </div>';
+						$html .= '<div class="card-body" style="font-weight:bold;padding:0">';
+							$html .= '<div style="overflow:auto;white-space:nowrap">
+							<table>
 								<tr style="background:#dee2e6;font-weight:bold;text-align:center">
 									<td style="padding:6px 12px;border:1px solid #bbb">#</td>
 									<th style="padding:6px;border:1px solid #bbb">CUSTOMER</th>
@@ -12900,7 +12903,7 @@ class Logistik extends CI_Controller
 									</tr>';
 								}
 							$html .= '</table>';
-						$html .= '</div>';
+						$html .= '</div></div>';
 					}
 					
 				$html .= '</div>
@@ -12921,7 +12924,8 @@ class Logistik extends CI_Controller
 		$gudang = $this->db->query("SELECT $sLtt g.* FROM m_gudang_v3 g $wINR WHERE g.id_pelanggan='$id_pelanggan' and g.id_produk='$id_produk' GROUP BY g.tgl,g.id,g.id_pelanggan,g.id_produk LIMIT $limit, $ke_hal");
 		if($gudang->num_rows() != 0){
 			$html .= '<div style="margin-top:12px;font-weight:bold">DATA STOK GUDANG :</div>';
-			$html .= '<table class="list-gdg">
+			$html .= '<div style="overflow:auto;white-space:nowrap">
+			<table class="list-gdg">
 				<tr style="background:#dee2e6;font-weight:bold;text-align:center">
 					<td style="padding:6px 12px;border:1px solid #bbb">#</td>
 					<td style="padding:6px;border:1px solid #bbb">HARI, TGL</td>
@@ -12938,6 +12942,7 @@ class Logistik extends CI_Controller
 						$html .= '<td style="padding:6px;border:1px solid #bbb">AKSI</td>';
 					}
 				$html .= '</tr>';
+				$gudangPP = $this->db->query("SELECT COUNT(g.id) AS count FROM m_gudang_v3 g $wINR WHERE g.id_pelanggan='$id_pelanggan' and g.id_produk='$id_produk'")->row();
 				$i3 = 0 + $limit;
 				foreach($gudang->result() as $g){
 					$i3++;
@@ -12953,7 +12958,7 @@ class Logistik extends CI_Controller
 					}else{
 						$hAGdg = '<td style="border:1px solid #dee2e6;padding:6px">';
 							if($g->id_mnl == null){
-								if($gudang->num_rows() == $i3){
+								if($gudangPP->count == $i3){
 									$hAGdg .= '<button type="button" class="btn btn-xs btn-warning" style="font-weight:bold" onclick="btnAksiGudang('."'".$id_pelanggan."'".', '."'".$g->id."'".', '."'".$g->tgl."'".', '."'EDIT'".')">EDIT</button>';
 									$hAGdg .= ' <button type="button" class="btn btn-xs btn-success" style="font-weight:bold" onclick="btnAksiGudang('."'".$id_pelanggan."'".', '."'".$g->id."'".', '."'".$g->tgl."'".', '."'PILIH'".')">PILIH</button>';
 								}else{
@@ -12961,7 +12966,7 @@ class Logistik extends CI_Controller
 								}
 							}else{
 								$hAGdg .= '<button type="button" class="btn btn-xs btn-secondary" style="font-weight:bold" disabled>EDIT</button>';
-								if($gudang->num_rows() == $i3){
+								if($gudangPP->count == $i3){
 									$hAGdg .= ' <button type="button" class="btn btn-xs btn-secondary" style="font-weight:bold" disabled>PILIH</button>';
 								}
 							}
@@ -12983,7 +12988,6 @@ class Logistik extends CI_Controller
 					</tr>';
 				}
 				// HALAMAN
-				$gudangPP = $this->db->query("SELECT COUNT(g.id) AS count FROM m_gudang_v3 g $wINR WHERE g.id_pelanggan='$id_pelanggan' and g.id_produk='$id_produk'")->row();
 				$countHal = ceil($gudangPP->count / $ke_hal);
 				if($gudangPP->count > $ke_hal) {
 					if($opsi == 'ADD'){
@@ -13014,7 +13018,7 @@ class Logistik extends CI_Controller
 						$html .= '</td>
 					</tr>';
 				}
-			$html .= '</table>';
+			$html .= '</table></div>';
 		}
 
 		echo json_encode([
