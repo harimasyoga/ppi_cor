@@ -7109,7 +7109,7 @@ class Logistik extends CI_Controller
 					</tr>
 					'.$ket_sj_balik.'
 					<tr style="background-color: transparent !important">
-						<td style="padding : 2px;border:none;"><b>Nota SJ Awal </td>
+						<td style="padding : 2px;border:none;"><b>Upload SJ Awal </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
 							<div class="col-md-12">'.$btncetak_up.'</div>
