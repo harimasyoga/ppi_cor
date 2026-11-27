@@ -60,6 +60,9 @@
 							<h3 class="card-title" style="font-weight:bold;font-size:18px">INPUT DATA STOK GUDANG BARU</h3>
 						</div>
 						<div class="card-body" style="font-weight:bold;padding:6px">
+							<div style="margin:12px 6px">
+								<button type="button" class="btn btn-info" onclick="kembali()"><i class="fas fa-arrow-left"></i> <b>Kembali</b></button>
+							</div>
 							<div class="card-body row" style="font-weight:bold;padding:12px 6px 6px">
 								<div class="col-md-1">PILIH</div>
 								<div class="col-md-8">

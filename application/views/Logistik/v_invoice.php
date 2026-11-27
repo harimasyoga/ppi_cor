@@ -2649,7 +2649,7 @@
 									<input type="hidden" id="weight${no}" name="weight[${no}]"  value="${val.weight}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})">
+									<input type="text" name="seset[${no}]" id="seset${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" readonly>
 								</td>
 								<td style="text-align: center" >
 									<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.weight)}" readonly>
@@ -2716,16 +2716,16 @@
 									<input type="hidden" id="kualitas${no}" name="kualitas[${no}]" value="${val.kualitas}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.exc)}" readonly>
+									<input type="text" name="hrg[${no}]" id="hrg${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.exc)}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id)" value="${format_angka(val.inc)}" readonly>
+									<input type="text" name="inc[${no}]" id="inc${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),Hitung_price(this.value,this.id)" value="${format_angka(val.inc)}">
 								</td>
 								<td style="text-align: center" >${format_angka(val.qty)}
 									<input type="hidden" id="qty${no}" name="qty[${no}]" value="${val.qty}">
 								</td>
 								<td style="text-align: center" >
-									<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})">
+									<input type="text" name="retur_qty[${no}]" id="retur_qty${no}" class="form-control" autocomplete="off" onkeyup="ubah_angka(this.value,this.id),hitung_hasil(this.value,${no})" readonly>
 								</td>
 								<td style="text-align: center" >
 									<input type="text" id="hasil${no}" name="hasil[${no}]"  class="form-control" value="${format_angka(val.qty)}" readonly>

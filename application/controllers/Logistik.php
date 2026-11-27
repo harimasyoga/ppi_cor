@@ -6964,7 +6964,7 @@ class Logistik extends CI_Controller
 				$row = array();
 				$row[] = '<div class="text-center">'.$i.'</div>';
 
-				$btncetak_up ='<a target="_blank" class="" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><i style="color:#f6303d;" class="far fa-file-pdf" title=""></i> </a> 
+				$btncetak_up ='<a target="_blank" class="" href="'.base_url("Logistik/Cetak_Invoice?no_invoice=".$r->no_invoice."&o=nota") . '" title="CETAK" ><i style="color:#f6303d;" class="far fa-file-pdf" title=""></i> </a> 
 				<span style="color:#3704ff;font-weight:bold"> [ '.$r->tgl_invoice .' ]</span>
 				';
 				// IZIN
@@ -7109,7 +7109,7 @@ class Logistik extends CI_Controller
 					</tr>
 					'.$ket_sj_balik.'
 					<tr style="background-color: transparent !important">
-						<td style="padding : 2px;border:none;"><b>Upload Inv </td>
+						<td style="padding : 2px;border:none;"><b>Nota SJ Awal </td>
 						<td style="padding : 2px;border:none;">:</td></b> 
 						<td style="padding : 2px;border:none;">
 							<div class="col-md-12">'.$btncetak_up.'</div>
@@ -7229,7 +7229,7 @@ class Logistik extends CI_Controller
 				$cek_pembayaran = $this->db->query("SELECT*FROM trs_bayar_inv WHERE no_inv='$r->no_invoice' ")->num_rows();
 				// AKSI
 				$aksi = "";
-				$btncetak ='<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Logistik/Cetak_Invoice?no_invoice=" . $r->no_invoice . "") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
+				$btncetak ='<a target="_blank" class="btn btn-sm btn-danger" href="'.base_url("Logistik/Cetak_Invoice?no_invoice=".$r->no_invoice."&o=") . '" title="CETAK" ><b><i class="fa fa-print"></i> </b></a>';
 				$btnEdit = '<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_inv . ')" title="EDIT DATA" >
 					<b><i class="fa fa-edit"></i> </b>
 				</a> ';
@@ -11016,14 +11016,30 @@ class Logistik extends CI_Controller
 		$opsi = $_POST["opsi"];
 		if($opsi == 'html'){
 			$no_invoice = $_POST['no_invoice'];
+			$opsi2 = '';
 		}else{
 			$opsi = '';
 			$no_invoice = $_GET['no_invoice'];
+			$opsi2 = $_GET['o'];
 		}        
 
 		//////////////////////////////////////// K O P ////////////////////////////////////////
 
-        $data_detail = $this->db->query("SELECT * FROM invoice_header WHERE no_invoice='$no_invoice'")->row();
+		if($opsi2 == ''){
+			$nmInv2 = 'INVOICE';
+			$sltHeader = 'invoice_header';
+			$sltDetail = 'invoice_detail';
+			$cntInv = 0;
+			$hhHjk = '92px';
+		}else{
+			$nmInv2 = 'NOTA SURAT JALAN AWAL';
+			$sltHeader = 'invoice_draft_header';
+			$sltDetail = 'invoice_draft_detail';
+			$cntInv = $this->db->query("SELECT*FROM invoice_draft_header WHERE no_invoice='$no_invoice' GROUP BY id_perusahaan")->num_rows();
+			$hhHjk = '0';
+		}
+
+        $data_detail = $this->db->query("SELECT*FROM $sltHeader WHERE no_invoice='$no_invoice'")->row();
 		$ppnpph = $data_detail->pajak;
 
 		if($opsi == 'html'){
@@ -11032,40 +11048,42 @@ class Logistik extends CI_Controller
 			$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif">';
 			if($ppnpph == 'nonppn'){
 				$html .= '<tr>
-					<th style="border:0;height:92px"></th>
+					<th style="border:0;height:'.$hhHjk.'"></th>
 				</tr>
 				<tr>
-					<td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">INVOICE</td>
+					<td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">'.$nmInv2.'</td>
 				</tr>';
 				$html .= '</table>';
 			}else{
-				$html .= '<tr>
-					<th style="border:0;width:15%;height:0"></th>
-					<th style="border:0;width:55%;height:0"></th>
-					<th style="border:0;width:25%;height:0"></th>
-				</tr>
-				<tr>
-					<td rowspan="3" align="center">
-						<img src="' . base_url() . 'assets/gambar/ppi.png"  width="80" height="70" />
-					</td>
-					<td style="font-size:20px;" align="left">PT. PRIMA PAPER INDONESIA</td>
-				</tr>
-				<tr>
-					<td style="font-size:11px" align="left">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td style="font-size:11px;" align="left">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
-					<td style=""></td>
-				</tr>
-				<tr><td>&nbsp;<br></td></tr>';
+				if($opsi2 == ''){
+					$html .= '<tr>
+						<th style="border:0;width:15%;height:0"></th>
+						<th style="border:0;width:55%;height:0"></th>
+						<th style="border:0;width:25%;height:0"></th>
+					</tr>
+					<tr>
+						<td rowspan="3" align="center">
+							<img src="'.base_url().'assets/gambar/ppi.png" width="80" height="70" />
+						</td>
+						<td style="font-size:20px;" align="left">PT. PRIMA PAPER INDONESIA</td>
+					</tr>
+					<tr>
+						<td style="font-size:11px" align="left">Dusun Timang Kulon, Desa Wonokerto, Kec.Wonogiri, Kab.Wonogiri</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td style="font-size:11px;" align="left">WONOGIRI - JAWA TENGAH - INDONESIA Kode Pos 57615</td>
+						<td style=""></td>
+					</tr>
+					<tr><td>&nbsp;<br></td></tr>';
+				}
 				$html .= '</table>';
 				$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;text-align:center;font-weight:bold;font-family:"Trebuchet MS", Helvetica, sans-serif">
 				<tr>
 					<th style="height:0"></th>
 				</tr>
 				<tr>
-					<td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">INVOICE</td>
+					<td style="background:#ddd;border:1px solid #000;padding:6px;font-size:14px !important">'.$nmInv2.'</td>
 				</tr>';
 				$html .= '</table>';
 			}
@@ -11132,6 +11150,13 @@ class Logistik extends CI_Controller
 				</tr>';
 			$htmlKop .= '</table>';
 		}else{
+			if($cntInv > 1){
+				$nm_perusahaan7 = 'ADA '.$cntInv.' CUSTOMER';
+				$alamat_perusahaan7 = '-';
+			}else{
+				$nm_perusahaan7 = $data_detail->nm_perusahaan;
+				$alamat_perusahaan7 = $data_detail->alamat_perusahaan;
+			}
 			$html .= '<table cellspacing="0" style="font-size:11px;color:#000;border-collapse:collapse;vertical-align:top;width:100%;font-family:"Trebuchet MS", Helvetica, sans-serif">
 				<tr>
 					<th style="border:0;padding:2px 0;height:0;width:14%"></th>
@@ -11150,7 +11175,7 @@ class Logistik extends CI_Controller
 				<tr>
 					<td style="padding:3px 0">Nama Perusahaan</td>
 					<td style="padding:3px 0">:</td>
-					<td style="padding:0 3px 0 0;line-height:1.8">'.$data_detail->nm_perusahaan.'</td>
+					<td style="padding:0 3px 0 0;line-height:1.8">'.$nm_perusahaan7.'</td>
 					<td style="padding:3px 0;font-weight:bold">Jatuh Tempo</td>
 					<td style="padding:3px 0">:</td>
 					<td style="padding:3px 0;font-weight:bold;color:#f00">'.$this->m_fungsi->tanggal_format_indonesia($data_detail->tgl_jatuh_tempo).'</td>
@@ -11158,12 +11183,12 @@ class Logistik extends CI_Controller
 				<tr>
 					<td style="padding:3px 0">Alamat</td>
 					<td style="padding:3px 0">:</td>
-					<td style="padding:0 3px 0 0;line-height:1.8">'.$data_detail->alamat_perusahaan.'</td>
+					<td style="padding:0 3px 0 0;line-height:1.8">'.$alamat_perusahaan7.'</td>
 					<td style="padding:3px 0">No. PO</td>
 					<td style="padding:3px 0">:</td>
 					<td style="padding:0;line-height:1.8">';
 						// KONDISI JIKA LEBIH DARI 1 PO
-						$result_po = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY no_po ORDER BY no_po");
+						$result_po = $this->db->query("SELECT * FROM $sltDetail WHERE no_invoice='$no_invoice' GROUP BY no_po ORDER BY no_po");
 						if($result_po->num_rows() == '1'){
 							$html .= $result_po->row()->no_po;;
 						}else{
@@ -11181,7 +11206,7 @@ class Logistik extends CI_Controller
 					<td style="padding:3px 0">:</td>
 					<td style="padding:0;line-height:1.8">';
 						// KONDISI JIKA LEBIH DARI 1 SURAT JALAN
-						$result_sj = $this->db->query("SELECT * FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY LTRIM(no_surat) ORDER BY no_surat");
+						$result_sj = $this->db->query("SELECT * FROM $sltDetail WHERE no_invoice='$no_invoice' GROUP BY LTRIM(no_surat) ORDER BY no_surat");
 						if($result_sj->num_rows() == '1'){
 							$html .= $result_sj->row()->no_surat;
 						}else{
@@ -11229,7 +11254,7 @@ class Logistik extends CI_Controller
 		</tr>';
 		
 		if($data_detail->type== 'roll') {
-			$sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
+			$sqlLabel = $this->db->query("SELECT*FROM $sltDetail WHERE no_invoice='$no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
 			// TAMPILKAN DULU LABEL
 			$totalHarga = 0;
 			foreach($sqlLabel->result() as $label){
@@ -11253,7 +11278,7 @@ class Logistik extends CI_Controller
 				</tr>';
 				// TAMPILKAN ITEMNYA
 				$weightNmLbPo = 0;
-				$sqlWidth = $this->db->query("SELECT*FROM invoice_detail
+				$sqlWidth = $this->db->query("SELECT*FROM $sltDetail
 				WHERE no_invoice='$label->no_invoice' AND nm_ker='$label->nm_ker' AND g_label='$label->g_label' AND no_po='$label->no_po'
 				ORDER BY width ASC");
 				foreach($sqlWidth->result() as $items){
@@ -11270,7 +11295,7 @@ class Logistik extends CI_Controller
 					$weightNmLbPo += $fixBerat;
 				}
 				// CARI HARGANYA
-				$sqlHargaPo = $this->db->query("SELECT*FROM invoice_detail
+				$sqlHargaPo = $this->db->query("SELECT*FROM $sltDetail
 				WHERE no_invoice='$label->no_invoice' AND nm_ker='$label->nm_ker' AND g_label='$label->g_label' AND no_po='$label->no_po'")->row();
 				// PERKALIAN ANTARA TOTAL BERAT DAN HARGA PO
 				$weightXPo = round($weightNmLbPo * $sqlHargaPo->harga);
@@ -11285,7 +11310,7 @@ class Logistik extends CI_Controller
 				$totalHarga += $weightXPo;
 			}
 		}else{
-			$sqlLabel = $this->db->query("SELECT*FROM invoice_detail WHERE no_invoice='$no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
+			$sqlLabel = $this->db->query("SELECT*FROM $sltDetail WHERE no_invoice='$no_invoice' GROUP BY nm_ker DESC,g_label ASC,no_po");
 			// TAMPILKAN DULU LABEL
 			$totalHarga = 0;
 			foreach($sqlLabel->result() as $label){
@@ -11297,8 +11322,9 @@ class Logistik extends CI_Controller
 				}else{
 					$priceHarga = number_format($label->harga, 2, ",", ".");
 				}
+				$fFlute = $this->db->query("SELECT r.flute FROM m_produk r WHERE r.id_produk='$label->id_produk_simcorr'")->row();
 				$html .= '<tr>
-					<td style="padding:5px 0">'.$label->nm_ker.' &nbsp;'.$ukuran.' &nbsp;'. $label->kualitas.'</td>
+					<td style="padding:5px 0">'.$label->nm_ker.'&nbsp;'.$ukuran.'&nbsp;'.$this->m_fungsi->kualitas($label->kualitas, $fFlute->flute).'</td>
 					<td style="padding:5px 0;text-align:center"> PCS</td>
 					<td style="padding:5px 0;text-align:right">'.number_format(($label->qty-$label->retur_qty), 0, ",", ".").'</td>
 					<td style="padding:5px 0 0 15px;text-align:right">Rp</td>
@@ -11327,11 +11353,16 @@ class Logistik extends CI_Controller
 		}
 
 		// JIKA ADA POTONGAN
-		$potList = $this->db->query("SELECT*FROM invoice_header_potongan WHERE no_invoice='$no_invoice' ORDER BY id");
-		$potTot = $this->db->query("SELECT SUM(pot_potongan) AS potongan FROM invoice_header_potongan WHERE no_invoice='$no_invoice' GROUP BY no_invoice");
-		if($potList->num_rows() != 0){
-			$pt0 = $potList->num_rows();
-			$potongan = $potTot->row()->potongan;
+		if($opsi2 == ''){
+			$potList = $this->db->query("SELECT*FROM invoice_header_potongan WHERE no_invoice='$no_invoice' ORDER BY id");
+			$potTot = $this->db->query("SELECT SUM(pot_potongan) AS potongan FROM invoice_header_potongan WHERE no_invoice='$no_invoice' GROUP BY no_invoice");
+			if($potList->num_rows() != 0){
+				$pt0 = $potList->num_rows();
+				$potongan = $potTot->row()->potongan;
+			}else{
+				$pt0 = 0;
+				$potongan = 0;
+			}
 		}else{
 			$pt0 = 0;
 			$potongan = 0;
@@ -11361,25 +11392,29 @@ class Logistik extends CI_Controller
 		}
 		if($opsi == 'html'){
 			$pT = ';max-width:150px;white-space: normal !important;word-wrap: break-word !important;';
+			$pRP = '5px 5px 0 15px';
 		}else{
 			$pT = '';
+			$pRP = '5px 0 0 15px';
 		}
 
 		$html .= '<tr style="vertical-align:top">
 			<td style="border:1px solid #000;border-width:2px 0;font-weight:bold;padding:5px 0;line-height:1.8;text-transform:uppercase'.$pT.'" colspan="3" rowspan="'.$rowspan.'">Terbilang :<br/><b><i>'.$this->m_fungsi->terbilang($terbilang).'</i></b></td>
 			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Sub Total</td>
-			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+			<td style="border-top:2px solid #000;font-weight:bold;padding:'.$pRP.'">Rp</td>
 			<td style="border-top:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($totalHarga, 0, ",", ".").'</td>
 		</tr>';
 
 		// DISCOUNT
-		if($data_detail->disc != 0){
-			$txtDisc = $totalHarga * ($data_detail->disc/100);
-			$html .= '<tr>
-				<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Discount '.$data_detail->disc.'%</td>
-				<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
-				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($txtDisc, 0, ",", ".").'</td>
-			</tr>';
+		if($opsi2 == ''){
+			if($data_detail->disc != 0){
+				$txtDisc = $totalHarga * ($data_detail->disc/100);
+				$html .= '<tr>
+					<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Discount '.$data_detail->disc.'%</td>
+					<td style="border:0;font-weight:bold;padding:'.$pRP.'">Rp</td>
+					<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($txtDisc, 0, ",", ".").'</td>
+				</tr>';
+			}
 		}
 
 		// PPN - PPH22
@@ -11404,7 +11439,7 @@ class Logistik extends CI_Controller
 		}
 		$txtppn11 = '<tr>
 			<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Ppn 11%</td>
-			<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+			<td style="border:0;font-weight:bold;padding:'.$pRP.'">Rp</td>
 			<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.$nominal.'</td>
 		</tr>';
 
@@ -11414,7 +11449,7 @@ class Logistik extends CI_Controller
 			// pph22
 			$html .= $txtppn11.'<tr>
 				<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">Pph 22</td>
-				<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+				<td style="border:0;font-weight:bold;padding:'.$pRP.'">Rp</td>
 				<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($pph22, 0, ",", ".").'</td>
 			</tr>';
 		}else{
@@ -11422,19 +11457,21 @@ class Logistik extends CI_Controller
 		}
 
 		// POTONGAN
-		if($potList->num_rows() != 0){
-			foreach($potList->result() as $p){
-				$html .= '<tr>
-					<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">'.$p->pot_title.'</td>
-					<td style="border:0;font-weight:bold;padding:5px 0 0 15px">Rp</td>
-					<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($p->pot_potongan, 0, ",", ".").'</td>
-				</tr>';
+		if($opsi2 == ''){
+			if($potList->num_rows() != 0){
+				foreach($potList->result() as $p){
+					$html .= '<tr>
+						<td style="border:0;font-weight:bold;padding:5px 0 0 15px" colspan="2">'.$p->pot_title.'</td>
+						<td style="border:0;font-weight:bold;padding:'.$pRP.'">Rp</td>
+						<td style="border:0;font-weight:bold;padding:5px 0;text-align:right">'.number_format($p->pot_potongan, 0, ",", ".").'</td>
+					</tr>';
+				}
 			}
 		}
 
 		$html .= '<tr>
 			<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Total</td>
-			<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0 0 15px">Rp</td>
+			<td style="border-bottom:2px solid #000;font-weight:bold;padding:'.$pRP.'">Rp</td>
 			<td style="border-bottom:2px solid #000;font-weight:bold;padding:5px 0;text-align:right">'.number_format($terbilang, 0, ",", ".").'</td>
 		</tr>';
 
@@ -11528,7 +11565,7 @@ class Logistik extends CI_Controller
 				// TOTAL PEMBAYARAN
 				if($aBayar->num_rows() != 0){
 					$sumBayar = $this->db->query("SELECT SUM(jumlah) AS jumlah FROM invoice_bayar WHERE no_invoice='$data_detail->no_invoice'")->row();
-					$seLisiH = $sumBayar->jumlah - $terbilang;
+					$seLisiH = (($sumBayar->jumlah - $terbilang) > 0) ? 0 : $sumBayar->jumlah - $terbilang;
 					$html .= '<tr>
 						<td style="background:#ccc;border-top:2px solid #000" colspan="3"></td>
 						<td style="background:#ccc;border-top:2px solid #000;font-weight:bold;padding:5px 0 0 15px" colspan="2">Total Pembayaran</td>
@@ -11581,7 +11618,7 @@ class Logistik extends CI_Controller
 
 		//////////////////////////////////////////////// T T D ////////////////////////////////////////////////
 		
-		if($opsi != 'html'){
+		if($opsi != 'html' && $opsi2 == ''){
 			$html .= '<tr>
 				<td style="border:0;padding:20px 0 0" colspan="7"></td>
 			</tr>';
@@ -11737,8 +11774,8 @@ class Logistik extends CI_Controller
 		}
 
 		// UPDATE JML NOMINAL DI INVOICE HEADER
-		if($data_detail->acc_owner != 'Y'){
-			$this->db->query("UPDATE invoice_header SET jml_mutasi='$terbilang' WHERE no_invoice='$data_detail->no_invoice'");
+		if($data_detail->acc_owner != 'Y' && $opsi2 == ''){
+			$this->db->query("UPDATE invoice_header SET jml_mutasi='$terbilang' WHERE no_invoice='$no_invoice'");
 		}
 
 		if($opsi == 'html'){
@@ -11748,7 +11785,7 @@ class Logistik extends CI_Controller
 				'htmlPay' => $htmlPay,
 			]);
 		}else{
-			$this->m_fungsi->_mpdf_hari('P', 'A4', 'INVOICE', $html, 'INVOICE.pdf', 5, 5, 5, 10);
+			$this->m_fungsi->_mpdf_hari('P', 'A4', $nmInv2.' '.$no_invoice, $html, $nmInv2.' '.$no_invoice.'.pdf', 5, 5, 5, 10);
 		}
     }
 
